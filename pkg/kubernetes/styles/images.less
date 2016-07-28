@@ -1,3 +1,4 @@
+@import (less) "../../../bower_components/registry-image-widgets/dist/image-widgets.css";
 
 @tag-border: @link-color;
 
@@ -66,52 +67,8 @@ table.images-listing {
     }
 }
 
-dl.image-tags {
-    dt {
-        line-height: 30px;
-    }
-
-    .image-tag {
-        padding: 2px 5px;
-        line-height: 30px;
-    }
-
-    .image-tag:after {
-        content: "\F00A";
-        white-space: pre;
-    }
-}
-
 .imagestream-lock {
     color: #deaa87;
     font-size: 1.5em;
     vertical-align: middle;
-}
-
-pre {
-    font-size: 13px;
-    padding: 5px 10px;
-    background-color: @command-bg-color;
-    border: none;
-    font-family: Monospace, Menlo, Consolas;
-
-    em, span.placeholder {
-        font-weight: bold;
-        font-style: normal;
-    }
-}
-
-.fa-info-circle {
-    font-size: 15px;
-    color: @metadata-color;
-    padding: 0px 5px;
-}
-
-.image-metadata-layers {
-    padding-top: 15px;
-    clear: both;
-
-    p {
-        margin-bottom: 3px;
-    }
 }

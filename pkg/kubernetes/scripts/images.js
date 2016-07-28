@@ -27,16 +27,14 @@
     require('./kube-client');
     require('./date');
     require('./listing');
-    require('./layers');
     require('./tags');
+
+    require('registry-image-widgets/dist/image-widgets.js');
 
     require('../views/images-page.html');
     require('../views/imagestream-page.html');
     require('../views/image-page.html');
     require('../views/image-panel.html');
-    require('../views/image-body.html');
-    require('../views/image-config.html');
-    require('../views/image-meta.html');
     require('../views/imagestream-body.html');
     require('../views/imagestream-meta.html');
     require('../views/image-listing.html');
@@ -65,8 +63,8 @@
         'kubeClient',
         'kubernetes.date',
         'kubernetes.listing',
-        'registry.layers',
         'registry.tags',
+        'registryUI.images',
     ])
 
     .config([
@@ -258,33 +256,6 @@
             };
         }
     ])
-
-    .directive('imageBody',
-        function() {
-            return {
-                restrict: 'A',
-                templateUrl: 'views/image-body.html'
-            };
-        }
-    )
-
-    .directive('imageConfig',
-        function() {
-            return {
-                restrict: 'A',
-                templateUrl: 'views/image-config.html'
-            };
-        }
-    )
-
-    .directive('imageMeta',
-        function() {
-            return {
-                restrict: 'A',
-                templateUrl: 'views/image-meta.html'
-            };
-        }
-    )
 
     .directive('imagestreamBody',
         function() {

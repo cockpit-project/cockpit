@@ -14,11 +14,24 @@
 
 <div class="listing-ct-inline">
     <h3 translatable="yes">Image</h3>
-    <div class="listing-ct-body container-fluid" image-body></div>
+    <div class="listing-ct-body">
+        <registry-image-body image="image" names="names">
+        </registry-image-body>
+        <registry-image-pull settings="settings" names="names">
+        </registry-image-pull>
+    </div>
 
     <h3 translatable="yes">Container</h3>
-    <div class="listing-ct-body container-fluid" image-config></div>
+    <div class="listing-ct-body">
+        <registry-image-config image="image">
+        </registry-image-config>
+    </div>
 
     <h3 translatable="yes">Metadata</h3>
-    <div class="listing-ct-body container-fluid" image-meta></div>
+    <div class="listing-ct-body">
+        <registry-image-meta image="image">
+        </registry-image-meta>
+        <registry-image-layers image="image" layers="layers">
+        </registry-image-layers>
+    </div>
 </div>

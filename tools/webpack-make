@@ -67,8 +67,11 @@ function generateDeps(makefile, stats) {
         output = path.join(stats.compilation.outputOptions.path, asset);
         fs.utimesSync(output, now, now);
         outputs.push(output)
-	if (!endsWith(output, "manifest.json") && !endsWith(output, ".png"))
+	if (!endsWith(output, "manifest.json") &&
+            !endsWith(output, "override.json") &&
+	    !endsWith(output, ".png")) {
             output += ".gz";
+	}
         installs.push(output);
     }
 

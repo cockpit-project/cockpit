@@ -20,6 +20,17 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+    require('angular-bootstrap/ui-bootstrap.js');
+
+    require('./kube-client');
+    require('./kube-client-cockpit');
+    require('./connection');
+
+    require('../views/auth-dialog.html');
+    require('../views/filter-bar.html');
+    require('../views/filter-project.html');
+
     angular.module('kubernetes.app', [
         'ui.bootstrap',
         'kubeClient',

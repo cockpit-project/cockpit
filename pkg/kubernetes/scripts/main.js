@@ -20,6 +20,32 @@
 (function() {
     "use strict";
 
+    /* Tell webpack what to bundle here */
+    var angular = require('angular');
+    require('angular-route');
+    require('angular-bootstrap/ui-bootstrap.js');
+    require('kubernetes-object-describer/dist/object-describer.js');
+    require('kubernetes-container-terminal/dist/container-terminal.js');
+
+    /* The kubernetes client */
+    require('./kube-client');
+    require('./kube-client-cockpit');
+
+    /* The other angular modules */
+    require('./containers');
+    require('./dashboard');
+    require('./details');
+    require('./graphs');
+    require('./policy');
+    require('./projects');
+    require('./images');
+    require('./nodes');
+    require('./topology');
+    require('./volumes');
+
+    /* And the actual application */
+    require('./app.js');
+
     angular.module('kubernetes', [
         'ngRoute',
         'ui.bootstrap',

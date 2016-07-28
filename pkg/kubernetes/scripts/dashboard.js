@@ -20,9 +20,20 @@
 (function() {
     "use strict";
 
+    var angular = require('angular');
+    require('angular-route');
+
+    require('./details');
+    require('./app');
+    require('./graphs');
+    require('./nodes');
+
+    require('../views/dashboard-page.html');
+    require('../views/deploy.html');
+    require('../views/file-button.html');
+
     angular.module('kubernetes.dashboard', [
         'ngRoute',
-        'ui.cockpit',
         'kubernetes.details',
         'kubernetes.app',
         'kubernetes.graph',

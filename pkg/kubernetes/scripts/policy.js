@@ -20,7 +20,12 @@
 (function() {
     "use strict";
 
-    angular.module('registry.policy', [ ])
+    var angular = require('angular');
+    require('./kube-client');
+
+    angular.module('registry.policy', [
+        'kubeClient',
+    ])
 
     .factory("projectPolicy", [
         '$q',

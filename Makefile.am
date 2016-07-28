@@ -352,7 +352,6 @@ include pkg/dashboard/Makefile.am
 include pkg/docker/Makefile.am
 include pkg/kubernetes/Makefile.am
 include pkg/networkmanager/Makefile.am
-include pkg/ostree/Makefile.am
 include pkg/playground/Makefile.am
 include pkg/realmd/Makefile.am
 include pkg/shell/Makefile.am

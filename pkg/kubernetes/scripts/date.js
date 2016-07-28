@@ -17,10 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* globals moment */
-
 (function() {
     "use strict";
+
+    var angular = require('angular');
+    var moment = require('moment');
+
+    require('./kube-client');
 
     angular.module('kubernetes.date', [
         "kubeClient"

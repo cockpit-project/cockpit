@@ -64,10 +64,9 @@ define([
             return false;
         });
 
-        function highlight_container_row(event, id) {
-            id = client.container_from_cgroup(id) || id;
+        function highlight_container_row(event, selector) {
             $('#containers-containers tr').removeClass('highlight-ct');
-            $('#' + id).addClass('highlight-ct');
+            $(selector).addClass('highlight-ct');
         }
 
         var cpu_data = {
@@ -142,8 +141,8 @@ define([
 
         function render_container(id, container) {
             if (container && container.CGroup) {
-                cpu_series.add_instance(container.CGroup);
-                mem_series.add_instance(container.CGroup);
+                cpu_series.add_instance(container.CGroup, "#" + id);
+                mem_series.add_instance(container.CGroup, "#" + id);
             }
             util.render_container(client, $('#containers-containers'),
                                   "", id, container, danger_enabled);

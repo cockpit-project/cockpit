@@ -47,6 +47,7 @@ uninstall-local::
 # General code packages to translate
 TRANSLATE = \
 	pkg/ \
+	bower_components/registry-image-widgets/ \
 	$(NULL)
 
 # Lists of files we need to extract from

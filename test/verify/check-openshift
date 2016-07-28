@@ -338,16 +338,14 @@ class TestRegistry(MachineCase):
         b.click("a[href='#/images/marmalade/busybee']")
         b.wait_in_text(".content-filter h3", "marmalade/busybee")
         b.click("tbody[data-id='marmalade/busybee:0.x'] tr td.listing-ct-toggle")
-        b.wait_in_text("tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.image-tags", "marmalade/busybee:0.x")
+        b.wait_present("tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.registry-image-tags")
+        b.wait_in_text("tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:0.x")
 
         # Look at the image layers
         b.click(".listing-ct-head li:last-child a")
-        b.wait_present(".listing-ct-body .image-layers")
-        b.wait_visible(".listing-ct-body .image-layers")
-        b.wait_in_text(".listing-ct-body .image-layers", "ADD file:")
-        b.wait_present(".listing-ct-body .image-metadata-layers")
-        b.wait_visible(".listing-ct-body .image-metadata-layers")
-        b.wait_in_text(".listing-ct-body .image-metadata-layers > p", "2 Image Layers")
+        b.wait_present(".listing-ct-body .registry-image-layers")
+        b.wait_visible(".listing-ct-body .registry-image-layers")
+        b.wait_in_text(".listing-ct-body .registry-image-layers", "ADD file:")
 
         # Add postgres into the stream
         output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")
@@ -427,7 +425,8 @@ class TestRegistry(MachineCase):
         # Delete via the main UI
         b.wait_present("tbody[data-id='marmalade/busybee:latest']")
         b.click("tbody[data-id='marmalade/busybee:latest'] tr.listing-ct-item td.listing-ct-toggle")
-        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.image-tags", "marmalade/busybee:latest")
+        b.wait_present("tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.registry-image-tags")
+        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:latest")
         b.click("tbody[data-id='marmalade/busybee:latest'] .listing-ct-head .pficon-delete")
         b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
@@ -444,13 +443,13 @@ class TestRegistry(MachineCase):
 
         # Various labels should show up in this image
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-panel", "Juggs Image")
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-body]", "http://hipsum.co")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body", "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body", "http://hipsum.co")
 
         # And some key labels shouldn't show up on the metadata
         b.click("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-head li:last-child a")
-        b.wait_present("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]")
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] div[image-meta]", "build-date=2016-03-04")
+        b.wait_present("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta", "build-date=2016-03-04")
 
     def testProjectGroups(self):
         o = self.openshift

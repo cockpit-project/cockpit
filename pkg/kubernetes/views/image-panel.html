@@ -17,12 +17,22 @@
         </ul>
     </div>
 
-    <div image-body class="listing-ct-body" ng-show="tab('main')">
+    <div class="listing-ct-body" ng-show="tab('main')">
+        <registry-image-body image="image" names="names">
+        </registry-image-body>
+        <registry-image-pull settings="settings" names="names">
+        </registry-image-pull>
     </div>
 
-    <div image-config class="listing-ct-body" ng-show="tab('config')">
+    <div class="listing-ct-body" ng-show="tab('config')">
+        <registry-image-config image="image">
+        </registry-image-config>
     </div>
 
-    <div image-meta class="listing-ct-body" ng-if="tab('meta')">
+    <div class="listing-ct-body" ng-if="tab('meta')">
+        <registry-image-meta image="image">
+        </registry-image-meta>
+        <registry-image-layers image="image" layers="layers">
+        </registry-image-layers>
     </div>
 </div>

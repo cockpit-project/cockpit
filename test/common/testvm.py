@@ -459,7 +459,6 @@ class Machine:
 
         self.message("Downloading", source)
         self.message(" ".join(cmd))
-        subprocess.check_call([ "rm", "-rf", dest ])
         subprocess.check_call(cmd)
 
     def download_dir(self, source, dest):
@@ -487,7 +486,6 @@ class Machine:
         self.message("Downloading", source)
         self.message(" ".join(cmd))
         try:
-            subprocess.check_call([ "rm", "-rf", dest ])
             subprocess.check_call(cmd)
             subprocess.check_call([ "find", dest, "-type", "f", "-exec", "chmod", "0644", "{}", ";" ])
         except:

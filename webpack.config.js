@@ -123,7 +123,7 @@ module.exports = {
             "react": "react-lite-cockpit/dist/react-lite.js",
             "term": "term.js-cockpit/src/term.js",
         },
-        modulesDirectories: [ srcdir + path.sep + "lib" ]
+        modulesDirectories: [ path.resolve(srcdir, "lib") ]
     },
     resolveLoader: {
         root: path.resolve(srcdir, 'node_modules')

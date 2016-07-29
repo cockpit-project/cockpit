@@ -10,6 +10,7 @@
         var phantom_checkpoint = phantom_checkpoint || function () { };
 
         (function(console) {
+            window.localStorage.removeItem('login-data');
             var environment = window.environment || { };
             var oauth = environment.OAuth || null;
             if (oauth) {
@@ -332,7 +333,11 @@
                 if (response && response["login-data"]) {
                     str = JSON.stringify(response["login-data"]);
                     try {
-                        window.sessionStorage.setItem('login-data', str);
+                        /* login-data is tied to the auth cookie, since
+                         * cookies are available after the page
+                         * session ends login-data should be too.
+                         */
+                        window.localStorage.setItem('login-data', str);
                     } catch(ex) {
                         console.warn("Error storing login-data:", ex);
                     }

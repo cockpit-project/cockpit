@@ -44,7 +44,7 @@ define([
         default_title: default_title
     });
 
-    var login_data = window.sessionStorage.getItem('login-data');
+    var login_data = window.localStorage.getItem('login-data');
     if (login_data) {
         var data = JSON.parse(login_data);
         $("#content-user-name").text(data["displayName"]);

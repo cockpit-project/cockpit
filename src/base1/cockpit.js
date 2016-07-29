@@ -2136,6 +2136,7 @@ function basic_scope(cockpit, jquery) {
 
     cockpit.logout = function logout(reload) {
         window.sessionStorage.clear();
+        window.localStorage.removeItem('login-data');
         if (reload !== false)
             reload_after_disconnect = true;
         ensure_transport(function(transport) {

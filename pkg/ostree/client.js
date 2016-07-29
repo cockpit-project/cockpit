@@ -463,7 +463,8 @@ define([
 
             if (Array.isArray(method_args)) {
                 for (i = 0; i < method_args.length; i++) {
-                    if ("reboot" in method_args[i]) {
+                    var val = method_args[i];
+                    if (val !== null && typeof val === 'object' && "reboot" in val) {
                         reboot = method_args[i].reboot;
                         break;
                     }

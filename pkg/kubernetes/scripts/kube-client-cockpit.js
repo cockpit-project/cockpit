@@ -891,7 +891,7 @@
                     return defer.promise;
 
                 var last, req, kubectl, loginOptions;
-                var loginData = window.sessionStorage.getItem('login-data');
+                var loginData = window.localStorage.getItem('login-data');
                 defer = $q.defer();
 
                 var schemes = [

@@ -764,8 +764,12 @@ define([
         if (self.language_sel)
             setup_language(self.language_sel);
 
-        if (self.brand_sel)
-            self.default_title = setup_brand(self.brand_sel);
+        var cal_title;
+        if (self.brand_sel) {
+            cal_title = setup_brand(self.brand_sel, self.default_title);
+            if (cal_title)
+                self.default_title = cal_title;
+        }
 
         if (self.about_sel)
             setup_about(self.about_sel);

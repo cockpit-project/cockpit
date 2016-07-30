@@ -44,7 +44,7 @@
 
 var page = require('webpage').create();
 var sys = require('system');
-
+var injected = false;
 var onCheckpoint;
 var waitTimeout;
 var didTimeout;
@@ -59,7 +59,15 @@ function slot() {
 var canary = slot();
 function inject_basics() {
     var i, len;
+
     if (!page.evaluate(function(x) { return x in window; }, canary)) {
+        if (!injected) {
+            page.evaluate(function(x) {
+                localStorage.clear();
+            });
+        }
+
+        injected = true;
         for (i = 1, len = sys.args.length; i < len; i++) {
             page.injectJs(sys.args[i]);
             page.evaluate(function(x) {

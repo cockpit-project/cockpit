@@ -5,8 +5,6 @@
  * for routine operations.
  */
 
-localStorage.clear();
-
 function ph_select_query(sel) {
     var list, i, els = [], startIdx, braceCounter, searchText, containsSelector;
     containsSelector = ':contains(';

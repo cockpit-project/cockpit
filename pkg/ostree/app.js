@@ -341,9 +341,4 @@
                 return formated;
             };
         });
-
-    angular.bootstrap(document, ["ostree"], {
-        strictDi: true
-    });
-
 }());

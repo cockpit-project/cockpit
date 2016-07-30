@@ -27,7 +27,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <script src="../base1/cockpit.js"></script>
   <script src="ostree.js"></script>
 </head>
-<body hidden>
+<body ng-app='ostree' hidden>
 
 <script type="text/ng-template" id="ostree-check.html">
 <div class="timeline-ct timeline-ct-end">
@@ -45,7 +45,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 {{ error }}
             </div>
             <div class="listing-ct-actions">
-                <button class="btn btn-default" ng-class="{ disabled: runningMethod }" ng-click="checkForUpgrades()" translatable="yes">Check for updates</button>
+                <button class="btn btn-default" ng-class="{ disabled: runningMethod, enabled: !runningMethod }" ng-click="checkForUpgrades()" translatable="yes">Check for updates</button>
             </div>
         </div>
     </div>
@@ -64,13 +64,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <div class="listing-ct-panel">
         <div class="listing-ct-head">
             <div class="listing-ct-actions">
-                <button ng-class="{ disabled: runningMethod }"
+                <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
                         ng-click="doUpgrade(item.osname.v, item.checksum.v)"
                         ng-if="matches('CachedUpdate') && !matches('DefaultDeployment')"
                         class="btn btn-primary" translatable="yes">
                     Update and reboot
                 </button>
-                <button ng-class="{ disabled: runningMethod }"
+                <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
                         ng-click="doRollback(item.osname.v)"
                         ng-if="matches('RollbackDeployment') && !matches('CachedUpdate')"
                         translatable="yes" class="btn btn-default">Roll back and reboot</button>

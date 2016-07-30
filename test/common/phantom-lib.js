@@ -28,6 +28,11 @@ function ph_select_query(sel) {
         if ((i + 1) < sel.length)
             throw "'" + sel + "': we can only handle :contains without jquery if it's the last condition";
         searchText = sel.substr(startIdx + containsSelector.length, i - startIdx - containsSelector.length);
+        var len = searchText.length;
+        if ((searchText.charAt(0) === '"' && searchText.charAt(len-1) === '"') ||
+            (searchText.charAt(0) === "'" && searchText.charAt(len-1) === "'")) {
+                searchText = searchText.substr(1, len-2);
+        }
         list = Array.prototype.filter.call(
             document.querySelectorAll(sel.substr(0, startIdx)),function(x) {
                 return x.textContent.indexOf(searchText) > -1;
@@ -36,6 +41,7 @@ function ph_select_query(sel) {
     } else {
         list = document.querySelectorAll(sel);
     }
+
     for (i = 0; i < list.length; i++)
         els.push(list[i]);
     return els;

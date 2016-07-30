@@ -82,6 +82,7 @@ class OstreeRestartCase(MachineCase):
 
     def switch_to_packages(self, b, sel, required_classes):
         b.wait_not_visible("{0} div.packages".format(sel))
+        b.wait_present('{0} ul'.format(sel))
         b.click('{0} ul li a:contains("Packages")'.format(sel))
         b.wait_visible("{0} div.packages".format(sel))
         for c in required_classes:
@@ -147,7 +148,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert')
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
         b.wait_present('table.listing-ct tbody:nth-child(2) div.alert')
-        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button:not('.disabled')")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
 
         # Serve repo
         start_trivial_httpd(m)
@@ -155,7 +156,7 @@ class OstreeRestartCase(MachineCase):
         # Check for new commit
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
         b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.disabled")
-        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button:not('.disabled')")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
 
         # Generate new commit
         generate_new_commit(m, docker_pkg)
@@ -188,7 +189,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_not_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
         b.click("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
         b.wait_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button.disabled")
-        b.wait_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button:not('.disabled')")
+        b.wait_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button.enabled")
         b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
         start_trivial_httpd(m)
 

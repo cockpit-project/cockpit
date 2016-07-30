@@ -606,10 +606,9 @@ class KubernetesCommonTests(VolumeTests):
         m = self.machine
         b = self.browser
 
-        m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
-
         # The service has loaded and containers instantiated
         self.login_and_go("/kubernetes")
+        m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
         b.wait_present("#service-list tr[data-name='mock'] td.containers")
         with b.wait_timeout(120):
             b.wait_text("#service-list tr[data-name='mock'] td.containers", "1")

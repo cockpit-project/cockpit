@@ -32,5 +32,5 @@
     <i class="fa fa-info-circle"></i>
     <span translatable="yes">To push to an image to this image stream:</span>
 </p>
-<pre>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/{{ stream.metadata.namespace }}/{{ stream.metadata.name}}:<em>tag</em>
-$ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/{{ stream.metadata.namespace }}/{{ stream.metadata.name}}</pre>
+<code>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/{{ stream.metadata.namespace }}/{{ stream.metadata.name}}:<em>tag</em>
+$ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/{{ stream.metadata.namespace }}/{{ stream.metadata.name}}</code>

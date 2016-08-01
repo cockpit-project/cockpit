@@ -295,7 +295,6 @@ COMMITTED_DIST = \
 	lib/ \
 	pkg/ \
 	lib/ \
-	po/ \
 	tools/ \
 	test/ \
 	$(NULL)

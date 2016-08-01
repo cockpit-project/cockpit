@@ -51,6 +51,12 @@ def build_and_maybe_install(image, do_install=False, skip=None, args=None):
     source = subprocess.check_output([ os.path.join(testinfra.TEST_DIR, "..", "tools", "make-source") ]).strip()
     machine.start(maintain=do_install, memory_mb=4096, cpus=4)
     completed = False
+
+    # Delete any old build results before starting
+    dest = os.path.join(testinfra.TEST_DIR, "tmp", "build-results")
+    if os.path.exists(dest):
+        subprocess.check_call(["rm", "-r", dest])
+
     try:
         machine.wait_boot()
         upload_scripts(machine, args=args)

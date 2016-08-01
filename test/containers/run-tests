@@ -50,12 +50,18 @@ def install(opts):
         [ os.path.join(testdir, "vm-install"), "--containers" ],
     ]
 
+    if opts.sit:
+        cmds[-1].append("--sit")
+
     if opts.container == 'kubernetes':
         cmds.append([ os.path.join(testdir, "vm-download"), 'openshift' ])
         cmds.append([ os.path.join(testdir, "vm-install"),
                                     "--install-only",
                                     "--containers",
                                     "openshift" ])
+
+    if opts.sit:
+        cmds[-1].append("--sit")
 
     for cmd in cmds:
         subprocess.check_call(cmd)

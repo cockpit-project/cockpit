@@ -82,6 +82,7 @@ def only_install(image, skip=None, args=None, address=None):
         machine = testvm.VirtMachine(verbose=verbose, image=image, label="install")
         machine.start(maintain=True)
         started = True
+    completed = False
     try:
         if started:
             machine.wait_boot()
@@ -89,7 +90,11 @@ def only_install(image, skip=None, args=None, address=None):
         machine.execute("rm -rf /var/tmp/build-results");
         machine.upload([ "tmp/build-results" ], "/var/tmp")
         run_install_script(machine, False, True, skip, None, args)
+        completed = True
     finally:
+        if not completed and args["sit"]:
+            sys.stderr.write("ADDRESS: {0}\n".format(machine.address))
+            raw_input ("Press RET to continue... ")
         if started:
             machine.stop()
 

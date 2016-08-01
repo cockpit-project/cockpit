@@ -50,4 +50,4 @@ script:
   - >
     gcc ./tools/careful-cat.c -o careful-cat;
     set -o pipefail;
-    (./autogen.sh --prefix=/usr --enable-strict && make V=1 all && sudo make enable-root-tests && make distcheck && make -j8 check-memory) 2>&1 | ./careful-cat
+    (./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp && make V=1 all && sudo make enable-root-tests && make distcheck && make -j8 check-memory) 2>&1 | ./careful-cat

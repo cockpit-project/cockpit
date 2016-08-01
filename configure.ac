@@ -54,8 +54,8 @@ GLIB_VERSION="2.34"
 LIBSSH_VERSION="0.6.0"
 
 GIO_REQUIREMENT="gio-unix-2.0 >= $GLIB_VERSION"
-SYSTEMD_REQUIREMENT="libsystemd"
-SYSTEMD_REQUIREMENT_OLD="libsystemd-journal >= 187 libsystemd-daemon"
+LIBSYSTEMD_REQUIREMENT="libsystemd"
+LIBSYSTEMD_REQUIREMENT_OLD="libsystemd-journal >= 187 libsystemd-daemon"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
 POLKIT_REQUIREMENT="polkit-agent-1 >= 0.105"
 
@@ -64,8 +64,8 @@ GLIB_VERSION_DEF="GLIB_VERSION_$(echo $GLIB_VERSION | tr '.' '_')"
 GIO_CFLAGS="$GIO_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=$GLIB_VERSION_DEF"
 GIO_CFLAGS="$GIO_CFLAGS -DGLIB_VERSION_MAX_ALLOWED=$GLIB_VERSION_DEF"
 
-PKG_CHECK_MODULES(SYSTEMD, [$SYSTEMD_REQUIREMENT], [], [
-	PKG_CHECK_MODULES(SYSTEMD, [$SYSTEMD_REQUIREMENT_OLD])
+PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT], [], [
+	PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT_OLD])
 ])
 PKG_CHECK_MODULES(JSON_GLIB, [$JSON_GLIB_REQUIREMENT])
 PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT])
@@ -81,8 +81,8 @@ else
   AC_MSG_ERROR(no. Please install MIT kerberos devel package)
 fi
 
-COCKPIT_CFLAGS="$GIO_CFLAGS $JSON_GLIB_CFLAGS $SYSTEMD_CFLAGS"
-COCKPIT_LIBS="$GIO_LIBS $JSON_GLIB_LIBS $SYSTEMD_LIBS -lutil -lm"
+COCKPIT_CFLAGS="$GIO_CFLAGS $JSON_GLIB_CFLAGS $LIBSYSTEMD_CFLAGS"
+COCKPIT_LIBS="$GIO_LIBS $JSON_GLIB_LIBS $LIBSYSTEMD_LIBS -lutil -lm"
 AC_SUBST(COCKPIT_CFLAGS)
 AC_SUBST(COCKPIT_LIBS)
 
@@ -215,17 +215,23 @@ AC_CHECK_LIB(ssh, ssh_set_agent_socket,
   [key_auth="no"])
 
 # systemd
-AC_MSG_CHECKING(for systemd unit dir)
-if test "$enable_prefix_only" = "yes"; then
-  systemdunitdir='${prefix}/lib/systemd/system'
+AC_ARG_WITH([systemdunitdir], [AC_HELP_STRING([--with-systemdunitdir=DIR],
+                                              [directory to install systemd unit files in])])
+
+if test ! -z "$with_systemdunitdir"; then
+  systemdunitdir=$with_systemdunitdir
+elif test "$enable_prefix_only" = "yes"; then
+    systemdunitdir='${prefix}/lib/systemd/system'
 else
+  PKG_CHECK_MODULES(SYSTEMD, [systemd])
+  AC_MSG_CHECKING(for systemd unit dir)
   systemdunitdir=$($PKG_CONFIG systemd --variable=systemdsystemunitdir)
   if test "$systemdunitdir" = ""; then
-    systemdunitdir="/tmp"
+    AC_MSG_ERROR([systemd's pkg-config file doesn't contain 'systemdsystemunitdir' variable])
   fi
+  AC_MSG_RESULT($systemdunitdir)
 fi
 AC_SUBST([systemdunitdir], [$systemdunitdir])
-AC_MSG_RESULT($systemdunitdir)
 
 # Internationalization
 
@@ -517,6 +523,7 @@ echo "
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
         pamdir:                     ${pamdir}
+        systemd unit dir:           ${systemdunitdir}
 
         compiler:                   ${CC}
         cflags:                     ${CFLAGS}

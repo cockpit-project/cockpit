@@ -1,6 +1,6 @@
 shelldir = $(pkgdatadir)/shell
 shell_PO = \
-	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
+	$(addprefix po/po.,$(addsuffix .js,$(shell cat $(srcdir)/po/LINGUAS))) \
 	$(NULL)
 nodist_shell_DATA = \
 	pkg/shell/bundle.min.js.gz \

@@ -82,7 +82,7 @@ useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
 
 # For storaged
-echo "deb http://httpredir.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
+echo "deb http://ftp.uk.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
 apt-get -y update
 
 export DEBIAN_FRONTEND=noninteractive

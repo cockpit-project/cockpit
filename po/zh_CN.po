@@ -1,19 +1,20 @@
 # Translators:
 # 1dot75cm <sensor.wen@gmail.com>, 2016
 # mosquito <sensor.wen@gmail.com>, 2016. #zanata
+# vanlos wang <vanloswang@126.com>, 2016. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-31 02:03-0700\n"
-"PO-Revision-Date: 2016-02-23 08:59-0500\n"
-"Last-Translator: 1dot75cm <sensor.wen@gmail.com>\n"
+"POT-Creation-Date: 2016-08-02 07:46-0700\n"
+"PO-Revision-Date: 2016-08-02 09:53-0400\n"
+"Last-Translator: vanlos wang <vanloswang@126.com>\n"
 "Language-Team: Chinese (China)\n"
 "Language: zh-CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Zanata 3.8.4\n"
+"X-Generator: Zanata 3.9.3\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 
 #: ../src/bridge/cockpitdbussetup.c:221 ../src/bridge/cockpitdbussetup.c:359
@@ -26,9 +27,8 @@ msgid "Couldn't list users"
 msgstr "不能列出用户"
 
 #: ../src/bridge/cockpitdbussetup.c:365
-#, fuzzy
 msgid "Bad data passed for passwd1 mechanism"
-msgstr "坏数据通过了 passwd1 机制"
+msgstr "为 passwd1 机制通过的坏数据"
 
 #: ../src/bridge/cockpitdbussetup.c:380
 msgid "Couldn't load user data"
@@ -52,28 +52,28 @@ msgstr "不能列出本地用户"
 
 #: ../src/common/cockpitcertificate.c:349
 msgid "Cannot decrypt PEM-encoded private key"
-msgstr ""
+msgstr "无法解密 PEM 编码的私钥"
 
 #: ../src/common/cockpitcertificate.c:354
 msgid "No PEM-encoded private key found"
-msgstr ""
+msgstr "没有找到 PEM 编码的私钥"
 
 #: ../src/common/cockpitcertificate.c:364
 msgid "Could not parse PEM-encoded private key"
-msgstr ""
+msgstr "无法解析 PEM 编码的私钥"
 
 #: ../src/common/cockpitcertificate.c:388
 msgid "No PEM-encoded certificate found"
-msgstr ""
+msgstr "没有找到 PEM 编码的证书"
 
 #: ../src/common/cockpitcertificate.c:397
 msgid "Could not parse PEM-encoded certificate"
-msgstr ""
+msgstr "无法解析 PEM 编码的证书"
 
 #: ../src/common/cockpitconnect.c:283
 #, c-format
 msgid "No addresses found"
-msgstr ""
+msgstr "没有找到地址"
 
 #: ../src/ws/cockpit.appdata.xml.in.h:1
 msgid ""
@@ -113,131 +113,156 @@ msgstr "一个 GNU/Linux 服务器管理界面"
 msgid "Remote;Administration;"
 msgstr "Remote;Administration;"
 
-#: ../pkg/tuned/dialog.js:99
+#: ../pkg/tuned/dialog.js:97
 msgid "Tuned is not available"
-msgstr ""
+msgstr "Tuned 不可用"
+
+#: ../pkg/tuned/dialog.js:99
+msgid "Tuned is not running"
+msgstr "Tuned 未运行"
 
 #: ../pkg/tuned/dialog.js:101
-msgid "Tuned is not running"
-msgstr ""
+msgid "Tuned is off"
+msgstr "Tuned 已关闭"
 
 #: ../pkg/tuned/dialog.js:103
-msgid "Tuned is off"
-msgstr ""
+msgid "This system is using the recommended profile"
+msgstr "该系统正在使用推荐的配置集"
 
 #: ../pkg/tuned/dialog.js:105
-msgid "This system is using the recommended profile"
-msgstr ""
-
-#: ../pkg/tuned/dialog.js:107
 msgid "This system is using a custom profile"
-msgstr ""
+msgstr "该系统正在使用自定义的配置集"
 
 #: ../pkg/tuned/dialog.js:117
 msgid "Communication with tuned has failed"
-msgstr ""
+msgstr "与 Tuned 通信失败"
 
-#: ../pkg/tuned/dialog.js:138
+#: ../pkg/tuned/dialog.js:136
 #, fuzzy
+msgid "Failed to disable tuned profile"
+msgstr "激活配置集失败"
+
+#: ../pkg/tuned/dialog.js:148
 msgid "Failed to switch profile"
-msgstr "修改密码失败"
+msgstr "切换配置集失败"
 
-#: ../pkg/tuned/dialog.js:144
+#: ../pkg/tuned/dialog.js:172
 #, fuzzy
-msgid "Failed to activate profile"
-msgstr "修改密码失败"
+msgid "Failed to enable tuned"
+msgstr "无法删除警告"
 
-#: ../pkg/tuned/dialog.js:162
+#: ../pkg/tuned/dialog.js:174
+#, fuzzy
+msgid "Failed to disable tuned"
+msgstr "禁用 Tuned"
+
+#: ../pkg/tuned/dialog.js:194
 msgid "Change Performance Profile"
-msgstr ""
+msgstr "变更性能配置集"
 
-#: ../pkg/tuned/dialog.js:171
+#: ../pkg/tuned/dialog.js:203
 msgid "Change Profile"
-msgstr ""
+msgstr "变更配置集"
 
-#: ../pkg/tuned/dialog.js:204 ../pkg/kubernetes/views/image-config.html.h:8
+#: ../pkg/tuned/dialog.js:236 ../pkg/kubernetes/views/image-config.html.h:8
 #: ../pkg/kubernetes/views/pod-page.html.h:5
 #: ../pkg/kubernetes/views/imagestream-body.html.h:9
 #: ../pkg/kubernetes/views/service-body.html.h:7
 #: ../pkg/kubernetes/views/pod-panel.html.h:2
 msgid "None"
-msgstr ""
+msgstr "无"
 
-#: ../pkg/tuned/dialog.js:205
+#: ../pkg/tuned/dialog.js:237
 msgid "Disable tuned"
-msgstr ""
+msgstr "禁用 Tuned"
 
-#: ../pkg/tuned/dialog.js:233
+#: ../pkg/tuned/dialog.js:265
 msgid "Tuned has failed to start"
-msgstr ""
+msgstr "Tuned 启动失败"
 
-#: ../pkg/selinux/setroubleshoot.js:70
+#: ../pkg/selinux/setroubleshoot.js:65
 msgid "Error while setting SELinux mode: '$0'"
-msgstr ""
+msgstr "设置 SELinux 模式时出错: '$0'"
 
-#: ../pkg/selinux/setroubleshoot.js:243
-#, fuzzy
+#: ../pkg/selinux/setroubleshoot.js:238
 msgid "Not connected"
-msgstr "已断开连接"
+msgstr "未连接"
 
-#: ../pkg/selinux/setroubleshoot.js:280
-#, fuzzy
+#: ../pkg/selinux/setroubleshoot.js:275
 msgid "Error while connecting."
-msgstr "下载错误"
+msgstr "连接时出错。"
 
-#: ../pkg/selinux/setroubleshoot-client.js:56
+#: ../pkg/selinux/setroubleshoot-client.js:52
 msgid "Unable to start setroubleshootd"
-msgstr ""
+msgstr "无法启动 setroubleshootd"
 
-#: ../pkg/selinux/setroubleshoot-client.js:155
-#, fuzzy
+#: ../pkg/selinux/setroubleshoot-client.js:157
 msgid "Unable to get alert"
-msgstr "不能删除 root 账户"
+msgstr "无法获取警告"
 
-#: ../pkg/selinux/setroubleshoot-client.js:170
+#: ../pkg/selinux/setroubleshoot-client.js:172
 msgid "Unable to run fix"
-msgstr ""
+msgstr "无法运行修复"
 
-#: ../pkg/selinux/setroubleshoot-client.js:185
-#, fuzzy
+#: ../pkg/selinux/setroubleshoot-client.js:187
 msgid "Failed to delete alert"
-msgstr "不能删除 root 账户"
+msgstr "无法删除警告"
 
-#: ../pkg/selinux/setroubleshoot-client.js:190
+#: ../pkg/selinux/setroubleshoot-client.js:192
 msgid "Error while deleting alert"
-msgstr ""
+msgstr "删除警告时出错"
+
+#: ../pkg/shell/patterns.js:247 ../pkg/systemd/patterns.js:247
+#: ../pkg/docker/patterns.js:247 ../pkg/playground/patterns.js:247
+#: ../pkg/dashboard/patterns.js:247 ../pkg/networkmanager/patterns.js:247
+#: ../pkg/storaged/patterns.js:247 ../lib/patterns.js:247
+#: ../pkg/shell/index.html.h:27 ../pkg/systemd/index.html.h:22
+#: ../pkg/playground/jquery-patterns.html.h:28 ../pkg/storaged/index.html.h:53
+msgid "On"
+msgstr "开"
+
+#: ../pkg/shell/patterns.js:247 ../pkg/systemd/patterns.js:247
+#: ../pkg/docker/patterns.js:247 ../pkg/playground/patterns.js:247
+#: ../pkg/dashboard/patterns.js:247 ../pkg/networkmanager/patterns.js:247
+#: ../pkg/storaged/patterns.js:247 ../lib/patterns.js:247
+#: ../pkg/shell/index.html.h:28 ../pkg/systemd/index.html.h:23
+#: ../pkg/playground/jquery-patterns.html.h:29 ../pkg/storaged/index.html.h:54
+msgid "Off"
+msgstr "关"
 
 #: ../pkg/shell/machine-dialogs.js:369
 msgid "This machine has already been added."
-msgstr ""
+msgstr "该主机已经被添加。"
 
 #: ../pkg/shell/machine-dialogs.js:385
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
-msgstr ""
+msgstr "该版本的 cockpit-ws 不支持连接到有交替的用户或端口的主机"
 
 #: ../pkg/shell/machine-dialogs.js:391
 msgid "The IP address or host name cannot contain whitespace."
-msgstr ""
+msgstr "IP 地址或主机名不能包含空格。"
 
 #: ../pkg/shell/machine-dialogs.js:417
 msgid "Failed to add machine: $0"
-msgstr ""
+msgstr "添加主机失败: $0"
 
 #: ../pkg/shell/machine-dialogs.js:434
 msgid ""
 "Cockpit could not contact the given host $0. Make sure it has ssh running on "
 "port $1, or specify another port in the address."
 msgstr ""
+"Cockpit 无法与指定主机 $0 联系。请确认已经在端口 $1 上运行 SSH，或者在该地址"
+"中指定另一个端口。"
 
 #: ../pkg/shell/machine-dialogs.js:452
 msgid "Enter IP address or host name"
 msgstr "输入 IP 地址或主机名"
 
-#: ../pkg/shell/machine-dialogs.js:487
+#: ../pkg/shell/machine-dialogs.js:499
 msgid "Failed to edit machine: $0"
-msgstr ""
+msgstr "编辑主机失败: $0"
 
 #: ../pkg/shell/indexes.js:126 ../pkg/shell/indexes.js:497
 #: ../pkg/shell/simple.html.h:17
@@ -264,145 +289,145 @@ msgstr "不能连接至主机"
 msgid "Cannot connect to an unknown machine"
 msgstr "不能连接至未知主机"
 
-#: ../pkg/shell/credentials.js:176
+#: ../pkg/shell/credentials.js:179
 msgid "No such file or directory"
-msgstr ""
+msgstr "没有该文件或目录"
 
-#: ../pkg/shell/credentials.js:180
+#: ../pkg/shell/credentials.js:183
 msgid "The passwords do not match."
-msgstr ""
+msgstr "密码不匹配"
 
-#: ../pkg/shell/credentials.js:185
+#: ../pkg/shell/credentials.js:188
 msgid "Prompting via ssh-keygen timed out"
-msgstr ""
+msgstr "通过 ssh-keygen 提示超时"
 
-#: ../pkg/shell/credentials.js:207 ../pkg/users/local.js:83
+#: ../pkg/shell/credentials.js:210 ../pkg/users/local.js:78
 msgid "Old password not accepted"
 msgstr "旧密码不被接受"
 
-#: ../pkg/shell/credentials.js:217 ../pkg/users/local.js:117
-#: ../pkg/users/local.js:149
+#: ../pkg/shell/credentials.js:220 ../pkg/users/local.js:112
+#: ../pkg/users/local.js:144
 msgid "Failed to change password"
 msgstr "修改密码失败"
 
-#: ../pkg/shell/credentials.js:225 ../pkg/users/local.js:125
+#: ../pkg/shell/credentials.js:228 ../pkg/users/local.js:120
 msgid "New password was not accepted"
 msgstr "新密码不被接受"
 
-#: ../pkg/shell/credentials.js:242
-msgid "Not a valid private key"
-msgstr ""
-
 #: ../pkg/shell/credentials.js:245
+msgid "Not a valid private key"
+msgstr "无效的私钥"
+
+#: ../pkg/shell/credentials.js:248
 msgid "Prompting via ssh-add timed out"
-msgstr ""
+msgstr "通过 ssh-add 提示超时"
 
-#: ../pkg/shell/credentials.js:268
+#: ../pkg/shell/credentials.js:271
 msgid "Invalid file permissions"
-msgstr ""
+msgstr "无效的文件权限"
 
-#: ../pkg/shell/credentials.js:272
+#: ../pkg/shell/credentials.js:275
 msgid "Password not accepted"
-msgstr ""
+msgstr "密码未接受"
 
-#: ../pkg/shell/base_index.js:641 ../pkg/users/local.js:1164
-#: ../pkg/docker/index.html.h:51 ../pkg/networkmanager/index.html.h:52
+#: ../pkg/shell/base_index.js:663 ../pkg/users/local.js:1164
+#: ../pkg/docker/index.html.h:72 ../pkg/networkmanager/index.html.h:53
 msgid "Unexpected error"
 msgstr "意外的错误"
 
-#: ../pkg/shell/base_index.js:642
+#: ../pkg/shell/base_index.js:664
 msgid "Cockpit had an unexpected internal error. <br/><br/>"
 msgstr "Cockpit 发生意外内部错误。<br/><br/>"
 
-#: ../pkg/shell/base_index.js:643
+#: ../pkg/shell/base_index.js:665
 msgid "You can try restarting Cockpit by pressing refresh in your browser. "
 msgstr "您可以尝试通过刷新浏览器来重启 Cockpit。"
 
-#: ../pkg/shell/base_index.js:644
+#: ../pkg/shell/base_index.js:666
 msgid "The javascript console contains details about this error "
 msgstr "JavaScript 控制台包含有关此错误的详细信息"
 
-#: ../pkg/shell/base_index.js:645
+#: ../pkg/shell/base_index.js:667
 msgid "(<b>Ctrl-Shift-J</b> in most browsers)."
 msgstr "(大多数浏览器使用 <b>Ctrl-Shift-J</b>)."
 
-#: ../pkg/users/local.js:44
+#: ../pkg/users/local.js:40
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "用户 <b>$0</b> 不允许修改账户"
 
-#: ../pkg/users/local.js:61
+#: ../pkg/users/local.js:57
 msgid "Unable to delete root account"
 msgstr "不能删除 root 账户"
 
-#: ../pkg/users/local.js:64
+#: ../pkg/users/local.js:59
 msgid "Unable to rename root account"
 msgstr "不能重命名 root 账户"
 
-#: ../pkg/users/local.js:87
+#: ../pkg/users/local.js:82
 msgid "Prompting via passwd timed out"
 msgstr "passwd 提示已超时"
 
-#: ../pkg/users/local.js:252
+#: ../pkg/users/local.js:247
 msgid "Password is too weak"
 msgstr "密码太弱"
 
-#: ../pkg/users/local.js:264
+#: ../pkg/users/local.js:259
 msgid "Password is not acceptable"
 msgstr "不接受该密码"
 
-#: ../pkg/users/local.js:289 ../pkg/users/local.js:597
+#: ../pkg/users/local.js:284 ../pkg/users/local.js:594
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "账户"
 
-#: ../pkg/users/local.js:400 ../pkg/users/local.js:1084
+#: ../pkg/users/local.js:395 ../pkg/users/local.js:1082
 msgid "The passwords do not match"
 msgstr "密码不匹配"
 
-#: ../pkg/users/local.js:405
+#: ../pkg/users/local.js:400
 msgid "No user name specified"
 msgstr "未指定用户名"
 
-#: ../pkg/users/local.js:410
+#: ../pkg/users/local.js:405
 msgid "No real name specified"
 msgstr "未指定真实姓名"
 
-#: ../pkg/users/local.js:434 ../pkg/users/local.js:1106
+#: ../pkg/users/local.js:429 ../pkg/users/local.js:1104
 msgid "Excellent password"
 msgstr "密码强度良好"
 
-#: ../pkg/users/local.js:506
+#: ../pkg/users/local.js:501
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
-msgstr ""
+msgstr "用户名仅能包含 a-z、数字、点、破折号和下划线的字母。"
 
-#: ../pkg/users/local.js:514
+#: ../pkg/users/local.js:509
 msgid "This user name already exists"
 msgstr "用户名已存在"
 
-#: ../pkg/users/local.js:685 ../pkg/users/local.js:686
+#: ../pkg/users/local.js:682 ../pkg/users/local.js:683
 msgid "Server Administrator"
 msgstr "服务器管理员"
 
-#: ../pkg/users/local.js:687
+#: ../pkg/users/local.js:684
 msgid "Container Administrator"
 msgstr "容器管理员"
 
-#: ../pkg/users/local.js:842
+#: ../pkg/users/local.js:839
 msgid "Logged In"
 msgstr "登录"
 
-#: ../pkg/users/local.js:844
+#: ../pkg/users/local.js:841
 msgid "Never"
 msgstr "从不"
 
-#: ../pkg/users/local.js:1022
+#: ../pkg/users/local.js:1019
 msgid "Delete $0"
 msgstr "删除 $0"
 
 #: ../pkg/users/local.js:1155 ../pkg/playground/react-patterns.js:91
-#: ../pkg/storaged/overview.js:675 ../pkg/storaged/details.js:956
+#: ../pkg/storaged/overview.js:670 ../pkg/storaged/details.js:955
 #: ../pkg/storaged/devices.js:112 ../pkg/systemd/services.html.h:13
 msgid "Error"
 msgstr "错误"
@@ -431,108 +456,138 @@ msgstr "日志条目"
 msgid "Journal entry not found"
 msgstr "未找到日志条目"
 
-#: ../pkg/systemd/init.js:251
+#: ../pkg/systemd/init.js:236 ../pkg/systemd/init.js:250
+#, fuzzy
+msgid "unknown"
+msgstr "未知"
+
+#: ../pkg/systemd/init.js:263 ../pkg/kubernetes/views/project-listing.html.h:4
+#: ../pkg/kubernetes/views/project-modify.html.h:5
+#: ../pkg/kubernetes/views/image-body.html.h:3
+msgid "Description"
+msgstr "描述"
+
+#: ../pkg/systemd/init.js:264
+msgid "Id"
+msgstr ""
+
+#: ../pkg/systemd/init.js:266
+#, fuzzy
+msgid "Next Run"
+msgstr "下一步"
+
+#: ../pkg/systemd/init.js:267
+#, fuzzy
+msgid "Last Trigger"
+msgstr "触发器"
+
+#: ../pkg/systemd/init.js:268 ../pkg/kubernetes/views/container-body.html.h:6
+#: ../pkg/kubernetes/views/details-page.html.h:8
+msgid "State"
+msgstr "状态"
+
+#: ../pkg/systemd/init.js:292
 msgid "Enabled"
 msgstr "启用"
 
-#: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1634
+#: ../pkg/systemd/init.js:293 ../pkg/networkmanager/interfaces.js:1666
 msgid "Disabled"
 msgstr "禁用"
 
-#: ../pkg/systemd/init.js:253
+#: ../pkg/systemd/init.js:294
 msgid "Static"
 msgstr "静态"
 
-#: ../pkg/systemd/init.js:325 ../pkg/systemd/init.js:608
+#: ../pkg/systemd/init.js:366 ../pkg/systemd/init.js:650
 msgid "$0 Template"
 msgstr "$0 模板"
 
 #. <method>:<mode>
-#: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1505
+#: ../pkg/systemd/init.js:506 ../pkg/storaged/details.js:1504
 msgid "Start"
 msgstr "启动"
 
-#: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1506
+#: ../pkg/systemd/init.js:507 ../pkg/storaged/details.js:1505
 msgid "Stop"
 msgstr "停止"
 
-#: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:1199
-#: ../pkg/systemd/host.js:1201 ../pkg/systemd/index.html.h:14
+#: ../pkg/systemd/init.js:508 ../pkg/systemd/host.js:1322
+#: ../pkg/systemd/host.js:1324 ../pkg/systemd/index.html.h:18
 msgid "Restart"
 msgstr "重启"
 
-#: ../pkg/systemd/init.js:467
+#: ../pkg/systemd/init.js:509
 msgid "Reload"
 msgstr "重载"
 
-#: ../pkg/systemd/init.js:468
+#: ../pkg/systemd/init.js:510
 msgid "Reload or Restart"
 msgstr "重载或重启"
 
-#: ../pkg/systemd/init.js:469
+#: ../pkg/systemd/init.js:511
 msgid "Try Restart"
 msgstr "尝试重启"
 
-#: ../pkg/systemd/init.js:470
+#: ../pkg/systemd/init.js:512
 msgid "Reload or Try Restart"
 msgstr "重载或尝试重启"
 
-#: ../pkg/systemd/init.js:471
+#: ../pkg/systemd/init.js:513
 msgid "Isolate"
 msgstr "隔离"
 
 #. <method>:<force>
-#: ../pkg/systemd/init.js:489
+#: ../pkg/systemd/init.js:531
 msgid "Enable"
 msgstr "启用"
 
-#: ../pkg/systemd/init.js:490
+#: ../pkg/systemd/init.js:532
 msgid "Enable Forcefully"
 msgstr "强制启用"
 
-#: ../pkg/systemd/init.js:491
+#: ../pkg/systemd/init.js:533
 msgid "Disable"
 msgstr "禁用"
 
-#: ../pkg/systemd/init.js:492
+#: ../pkg/systemd/init.js:534
 msgid "Preset"
 msgstr "预置"
 
-#: ../pkg/systemd/init.js:493
+#: ../pkg/systemd/init.js:535
 msgid "Preset Forcefully"
 msgstr "强制预设"
 
-#: ../pkg/systemd/init.js:494
+#: ../pkg/systemd/init.js:536
 msgid "Mask"
 msgstr "Mask"
 
-#: ../pkg/systemd/init.js:495
+#: ../pkg/systemd/init.js:537
 msgid "Mask Forcefully"
 msgstr "强制 Mask"
 
-#: ../pkg/systemd/init.js:496
+#: ../pkg/systemd/init.js:538
 msgid "Unmask"
 msgstr "Unmask"
 
-#: ../pkg/systemd/init.js:568
+#: ../pkg/systemd/init.js:610
 msgid "Since $0"
 msgstr "由于 $0"
 
-#: ../pkg/systemd/init.js:586
+#: ../pkg/systemd/init.js:628
 msgid "This unit is an instance of the $0 template."
 msgstr "该单元是模板 $0 的实例."
 
 #: ../pkg/systemd/renderer.js:40
 msgid "[no data]"
-msgstr ""
+msgstr "[没有数据]"
 
 #: ../pkg/systemd/renderer.js:44
 msgid "[$0 bytes of binary data]"
-msgstr ""
+msgstr "[$0 字节二进制数据]"
 
 #: ../pkg/systemd/renderer.js:46
 msgid "[binary data]"
-msgstr ""
+msgstr "[二进制数据]"
 
 #: ../pkg/systemd/renderer.js:70
 msgid "Reboot"
@@ -553,57 +608,62 @@ msgstr "载入中..."
 msgid "Go to"
 msgstr "到"
 
-#: ../pkg/systemd/host.js:49
+#: ../pkg/systemd/host.js:48
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
 msgstr "用户 <b>$0</b> 不允许修改的主机名"
 
-#: ../pkg/systemd/host.js:513
+#: ../pkg/systemd/host.js:570
 msgid "Set Host name"
 msgstr "设置主机名"
 
-#: ../pkg/systemd/host.js:1004
-msgid "Need at least one NTP server"
-msgstr ""
+#: ../pkg/systemd/host.js:672
+#, fuzzy
+msgid "failed to list ssh host keys: $0"
+msgstr "启动 Docker 失败： $0"
 
-#: ../pkg/systemd/host.js:1080
+#: ../pkg/systemd/host.js:1124
+msgid "Need at least one NTP server"
+msgstr "至少需要一个 NTP 服务器"
+
+#: ../pkg/systemd/host.js:1201
 msgid "Invalid date format and invalid time format"
 msgstr "无效的日期格式和时间格式"
 
-#: ../pkg/systemd/host.js:1082
+#: ../pkg/systemd/host.js:1203
 msgid "Invalid time format"
 msgstr "无效的时间格式"
 
-#: ../pkg/systemd/host.js:1084
+#: ../pkg/systemd/host.js:1205
 msgid "Invalid date format"
 msgstr "无效的日期格式"
 
-#: ../pkg/systemd/host.js:1138
+#: ../pkg/systemd/host.js:1261
 msgid "NTP Server"
-msgstr ""
+msgstr "NTP 服务器"
 
-#: ../pkg/systemd/host.js:1188
+#: ../pkg/systemd/host.js:1311
 msgid "Message to logged in users"
 msgstr "登录用户信息"
 
-#: ../pkg/systemd/host.js:1195 ../pkg/systemd/host.js:1197
-#: ../pkg/systemd/index.html.h:15
+#: ../pkg/systemd/host.js:1318 ../pkg/systemd/host.js:1320
+#: ../pkg/systemd/index.html.h:19
 msgid "Shutdown"
 msgstr "关机"
 
-#: ../pkg/systemd/host.js:1269
+#: ../pkg/systemd/host.js:1392
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr "CPU 状态"
 
-#: ../pkg/systemd/host.js:1301 ../pkg/systemd/index.html.h:20
+#: ../pkg/systemd/host.js:1424 ../pkg/systemd/index.html.h:24
 msgid "I/O Wait"
 msgstr "I/O 等待"
 
-#: ../pkg/systemd/host.js:1302 ../pkg/systemd/index.html.h:21
+#: ../pkg/systemd/host.js:1425 ../pkg/systemd/index.html.h:25
 msgid "Kernel"
 msgstr "内核"
 
-#: ../pkg/systemd/host.js:1303 ../pkg/systemd/index.html.h:22
+#: ../pkg/systemd/host.js:1426 ../pkg/systemd/index.html.h:26
 #: ../pkg/dashboard/index.html.h:4
 #: ../pkg/kubernetes/views/volume-body.html.h:20
 #: ../pkg/kubernetes/views/auth-form.html.h:6
@@ -611,107 +671,100 @@ msgstr "内核"
 msgid "User"
 msgstr "用户"
 
-#: ../pkg/systemd/host.js:1304 ../pkg/systemd/index.html.h:23
+#: ../pkg/systemd/host.js:1427 ../pkg/systemd/index.html.h:27
 msgid "Nice"
 msgstr "Nice"
 
-#: ../pkg/systemd/host.js:1354
+#: ../pkg/systemd/host.js:1477
 msgctxt "page-title"
 msgid "Memory"
 msgstr "内存"
 
-#: ../pkg/systemd/host.js:1387 ../pkg/systemd/index.html.h:24
+#: ../pkg/systemd/host.js:1510 ../pkg/systemd/index.html.h:28
 msgid "Swap Used"
 msgstr "Swap 用量"
 
-#: ../pkg/systemd/host.js:1388 ../pkg/systemd/index.html.h:25
+#: ../pkg/systemd/host.js:1511 ../pkg/systemd/index.html.h:29
 msgid "Cached"
 msgstr "已缓存"
 
-#: ../pkg/systemd/host.js:1389 ../pkg/kubernetes/scripts/nodes.js:804
-#: ../pkg/kubernetes/scripts/nodes.js:813 ../pkg/systemd/index.html.h:26
+#: ../pkg/systemd/host.js:1512 ../pkg/kubernetes/scripts/nodes.js:828
+#: ../pkg/kubernetes/scripts/nodes.js:837 ../pkg/systemd/index.html.h:30
 msgid "Used"
 msgstr "已使用"
 
-#: ../pkg/systemd/host.js:1390 ../pkg/systemd/index.html.h:27
+#: ../pkg/systemd/host.js:1513 ../pkg/systemd/index.html.h:31
 msgid "Free"
 msgstr "可用"
 
-#: ../pkg/realmd/operation.js:96 ../pkg/realmd/operation.js:101
+#: ../pkg/realmd/operation.js:95 ../pkg/realmd/operation.js:100
 msgid "page-title"
 msgstr "页面-标题"
 
-#: ../pkg/realmd/operation.js:97
+#: ../pkg/realmd/operation.js:96
 msgid "Join"
 msgstr "加入"
 
-#: ../pkg/realmd/operation.js:102
+#: ../pkg/realmd/operation.js:101
 msgid "Leave"
 msgstr "离开"
 
-#: ../pkg/realmd/operation.js:149
+#: ../pkg/realmd/operation.js:148
 msgid "Domain $0 could not be contacted"
 msgstr "域名 $0 无法联系"
 
-#: ../pkg/realmd/operation.js:221
+#: ../pkg/realmd/operation.js:220
 msgid "Domain $0 is not supported"
-msgstr ""
+msgstr "不支持域 $0"
 
-#: ../pkg/realmd/operation.js:239 ../pkg/realmd/operation.js:245
+#: ../pkg/realmd/operation.js:238 ../pkg/realmd/operation.js:244
 msgid "e.g. \"$0\""
 msgstr "例如 \"$0\""
 
-#: ../pkg/realmd/operation.js:274
+#: ../pkg/realmd/operation.js:273
 msgid "Administrator Password"
 msgstr "管理员密码"
 
-#: ../pkg/realmd/operation.js:275 ../pkg/realmd/operation.html.h:5
+#: ../pkg/realmd/operation.js:274 ../pkg/realmd/operation.html.h:5
 msgid "User Password"
 msgstr "用户密码"
 
-#: ../pkg/realmd/operation.js:276 ../pkg/realmd/operation.html.h:8
+#: ../pkg/realmd/operation.js:275 ../pkg/realmd/operation.html.h:8
 msgid "One Time Password"
 msgstr "一次性密码"
 
-#: ../pkg/realmd/operation.js:277 ../pkg/networkmanager/interfaces.js:1639
-#: ../pkg/networkmanager/interfaces.js:2502
-#: ../pkg/networkmanager/interfaces.js:2506
-#: ../pkg/networkmanager/interfaces.js:2512
+#: ../pkg/realmd/operation.js:276 ../pkg/networkmanager/interfaces.js:1671
+#: ../pkg/networkmanager/interfaces.js:2125
+#: ../pkg/networkmanager/interfaces.js:2578
+#: ../pkg/networkmanager/interfaces.js:2582
+#: ../pkg/networkmanager/interfaces.js:2588
+#: ../pkg/networkmanager/index.html.h:19
 msgid "Automatic"
 msgstr "自动"
 
-#: ../pkg/realmd/operation.js:348
+#: ../pkg/realmd/operation.js:347
 msgid "Joining this domain is not supported"
-msgstr ""
+msgstr "不支持加入该域"
 
-#: ../pkg/realmd/operation.js:367
+#: ../pkg/realmd/operation.js:366
 msgid "More"
 msgstr "更多"
 
-#: ../pkg/realmd/operation.js:420
+#: ../pkg/realmd/operation.js:415
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "因为该系统的 realmd 不可用, 因此无法加入域"
 
-#: ../pkg/realmd/operation.js:439
+#: ../pkg/realmd/operation.js:434
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "用户 <b>$0</b> 不允许修改 realms"
 
-#: ../pkg/realmd/operation.js:456
+#: ../pkg/realmd/operation.js:451
 msgid "Join Domain"
 msgstr "加入域"
 
-#: ../pkg/docker/overview.js:168
+#: ../pkg/docker/overview.js:169
 msgid "Run image"
 msgstr "运行镜像"
-
-#: ../pkg/docker/overview.js:271
-msgid ""
-"WARNING: Docker may be reporting the size it has allocated to it's storage "
-"pool using sparse files, not the actual space available to the underlying "
-"storage device."
-msgstr ""
-"警告：Docker 报告已分配的容量来自使用稀疏文件的存储池, 而不是实际可用的存储"
-"池."
 
 #: ../pkg/docker/util.js:72
 msgid "Up since $StartedAt"
@@ -721,25 +774,24 @@ msgstr "运行自 $StartedAt"
 msgid "Exited $ExitCode"
 msgstr "已退出 $ExitCode"
 
-#: ../pkg/docker/util.js:80 ../pkg/docker/run.js:187
-#: ../pkg/kubernetes/scripts/volumes.js:986
-#: ../pkg/networkmanager/interfaces.js:1924 ../pkg/docker/index.html.h:28
+#: ../pkg/docker/util.js:80 ../pkg/docker/run.js:255
+#: ../pkg/kubernetes/scripts/volumes.js:991
+#: ../pkg/networkmanager/interfaces.js:1957 ../pkg/docker/index.html.h:49
 msgid "No"
 msgstr "否"
 
 #: ../pkg/docker/util.js:82
 msgid "On failure, retry $0 time"
 msgid_plural "On failure, retry $0 times"
-msgstr[0] ""
+msgstr[0] "失败时, 重试 $0 次"
 
-#: ../pkg/docker/util.js:85 ../pkg/docker/index.html.h:30
+#: ../pkg/docker/util.js:85 ../pkg/docker/index.html.h:51
 msgid "Always"
-msgstr ""
+msgstr "通常"
 
-#: ../pkg/docker/util.js:87 ../pkg/docker/index.html.h:31
-#, fuzzy
+#: ../pkg/docker/util.js:87 ../pkg/docker/index.html.h:52
 msgid "Unless Stopped"
-msgstr "已停止"
+msgstr "直到被停止"
 
 #: ../pkg/docker/util.js:101
 msgid "default"
@@ -753,36 +805,32 @@ msgstr "$0 共享"
 msgid "Stopped"
 msgstr "已停止"
 
-#: ../pkg/docker/util.js:307
-msgid "unlimited"
-msgstr "无限制"
-
-#: ../pkg/docker/util.js:429
+#: ../pkg/docker/util.js:463
 msgid "Container is currently running."
 msgstr "当前容器正在运行。"
 
-#: ../pkg/docker/util.js:431
+#: ../pkg/docker/util.js:465
 msgid ""
 "Container is currently marked as not running, but regular stopping failed."
 msgstr "容器当前标记为未运行, 但正常停止失败."
 
-#: ../pkg/docker/util.js:432
+#: ../pkg/docker/util.js:466
 msgid "Error message from Docker:"
 msgstr "来自 Docker 的错误消息："
 
-#: ../pkg/docker/util.js:442
+#: ../pkg/docker/util.js:476
 msgid "Please confirm forced deletion of $0"
 msgstr "请确认强制删除 $0"
 
-#: ../pkg/docker/util.js:444
+#: ../pkg/docker/util.js:478
 msgid "Force Delete"
 msgstr "强制删除"
 
-#: ../pkg/docker/util.js:485
+#: ../pkg/docker/util.js:519
 msgid "Failed to stop Docker scope: $0"
 msgstr "无法停止 Docker 范围: $0"
 
-#: ../pkg/docker/image.js:38 ../pkg/docker/details.js:40
+#: ../pkg/docker/image.js:38 ../pkg/docker/details.js:41
 msgctxt "page-title"
 msgid "Containers"
 msgstr "容器"
@@ -791,14 +839,14 @@ msgstr "容器"
 msgid "Image $0"
 msgstr "镜像 $0"
 
-#: ../pkg/docker/image.js:105 ../pkg/docker/details.js:206
-#: ../pkg/storaged/details.js:1685
+#: ../pkg/docker/image.js:105 ../pkg/docker/details.js:215
+#: ../pkg/storaged/details.js:1684
 msgid "Not found"
 msgstr "未找到"
 
-#: ../pkg/docker/image.js:148 ../pkg/docker/details.js:296
-#: ../pkg/storaged/details.js:548 ../pkg/storaged/details.js:744
-#: ../pkg/storaged/details.js:919
+#: ../pkg/docker/image.js:148 ../pkg/docker/details.js:309
+#: ../pkg/storaged/details.js:547 ../pkg/storaged/details.js:743
+#: ../pkg/storaged/details.js:918
 msgid "Please confirm deletion of $0"
 msgstr "请确认删除 $0"
 
@@ -811,11 +859,11 @@ msgstr ""
 "这将删除镜像, 如果以后需要, 可以重新下载.除非该镜像未推送至镜像库, 镜像库未包"
 "含的镜像, 无法再次下载."
 
-#: ../pkg/docker/image.js:150 ../pkg/docker/details.js:298
-#: ../pkg/kubernetes/scripts/volumes.js:208 ../pkg/storaged/details.js:553
-#: ../pkg/storaged/details.js:750 ../pkg/storaged/details.js:925
-#: ../pkg/storaged/details.js:1035 ../pkg/storaged/details.js:1509
-#: ../pkg/storaged/details.js:1653 ../pkg/users/index.html.h:9
+#: ../pkg/docker/image.js:150 ../pkg/docker/details.js:311
+#: ../pkg/kubernetes/scripts/volumes.js:217 ../pkg/storaged/details.js:552
+#: ../pkg/storaged/details.js:749 ../pkg/storaged/details.js:924
+#: ../pkg/storaged/details.js:1034 ../pkg/storaged/details.js:1508
+#: ../pkg/storaged/details.js:1652 ../pkg/users/index.html.h:9
 #: ../pkg/kubernetes/views/pvc-delete.html.h:5
 #: ../pkg/kubernetes/views/item-delete.html.h:5
 #: ../pkg/kubernetes/views/pv-delete.html.h:5
@@ -827,15 +875,15 @@ msgstr ""
 msgid "Delete"
 msgstr "删除"
 
-#: ../pkg/docker/details.js:177
+#: ../pkg/docker/details.js:182
 msgid "${hip}:${hport} -> $cport"
 msgstr "${hip}:${hport} -> $cport"
 
-#: ../pkg/docker/details.js:297
+#: ../pkg/docker/details.js:310
 msgid "Deleting a container will erase all data in it."
 msgstr "删除容器将清除其中的所有数据。"
 
-#: ../pkg/docker/run.js:213 ../pkg/docker/console.html.h:1
+#: ../pkg/docker/run.js:281 ../pkg/docker/console.html.h:1
 #: ../pkg/kubernetes/views/image-page.html.h:3
 #: ../pkg/kubernetes/views/image-panel.html.h:2
 #: ../pkg/kubernetes/views/container-body.html.h:1
@@ -844,48 +892,62 @@ msgstr "删除容器将清除其中的所有数据。"
 msgid "Container"
 msgstr "容器"
 
-#: ../pkg/docker/run.js:215 ../pkg/kubernetes/views/route-modify.html.h:2
+#: ../pkg/docker/run.js:283 ../pkg/kubernetes/views/route-modify.html.h:2
 #: ../pkg/kubernetes/views/route-body.html.h:4
 #: ../pkg/kubernetes/views/details-page.html.h:12
 msgid "Host"
 msgstr "主机"
 
-#: ../pkg/docker/run.js:247
+#: ../pkg/docker/run.js:315
 msgid "Invalid port"
 msgstr "无效端口"
 
-#: ../pkg/docker/run.js:257
+#: ../pkg/docker/run.js:325
 msgid "Duplicate port"
 msgstr "重复端口"
 
 #. still valid if empty
-#: ../pkg/docker/run.js:345
+#: ../pkg/docker/run.js:413
 msgid "No alias specified"
 msgstr "未指定别名"
 
-#: ../pkg/docker/run.js:355
+#: ../pkg/docker/run.js:423
 msgid "Duplicate alias"
 msgstr "重复别名"
 
-#: ../pkg/docker/run.js:391
+#: ../pkg/docker/run.js:459
 msgid "No container specified"
 msgstr "未指定容器"
 
-#: ../pkg/docker/run.js:486
+#: ../pkg/docker/run.js:554
 msgid "to host port"
 msgstr "到主机端口"
 
-#: ../pkg/docker/run.js:487 ../pkg/docker/run.js:553
-#: ../pkg/kubernetes/views/node-body.html.h:13
+#: ../pkg/docker/run.js:555 ../pkg/docker/run.js:624 ../pkg/docker/run.js:689
+#: ../pkg/docker/run.js:748 ../pkg/kubernetes/views/node-body.html.h:13
 #: ../pkg/kubernetes/views/route-body.html.h:9
 msgid "none"
 msgstr "空"
 
-#: ../pkg/docker/run.js:552
+#: ../pkg/docker/run.js:623
+#, fuzzy
+msgid "to host path"
+msgstr "到主机端口"
+
+#: ../pkg/docker/run.js:687
+msgid "key"
+msgstr ""
+
+#: ../pkg/docker/run.js:688
+#, fuzzy
+msgid "value"
+msgstr "{{ value }}"
+
+#: ../pkg/docker/run.js:747
 msgid "alias"
 msgstr "别名"
 
-#: ../pkg/docker/containers.js:57
+#: ../pkg/docker/containers.js:58
 msgid "Failed to start Docker: $0"
 msgstr "启动 Docker 失败： $0"
 
@@ -895,41 +957,40 @@ msgstr "下载错误"
 
 #: ../pkg/playground/test.js:14
 msgid "Translation"
-msgstr ""
+msgstr "转换"
 
 #: ../pkg/playground/test.js:15
 msgctxt "reverse"
 msgid "Translation"
-msgstr ""
+msgstr "翻译"
 
 #: ../pkg/playground/react-patterns.js:42
 msgid "Starting something long"
-msgstr ""
+msgstr "开始耗时的事情"
 
 #: ../pkg/playground/react-patterns.js:55
 msgid "Action canceled"
-msgstr ""
+msgstr "动作被取消"
 
 #: ../pkg/playground/react-patterns.js:58
 msgid "Some error occurred"
-msgstr ""
+msgstr "出现某个错误"
 
 #: ../pkg/playground/react-patterns.js:73
 msgid "Example React Dialog"
-msgstr ""
+msgstr "React 对话框示例"
 
 #: ../pkg/playground/react-patterns.js:79
 msgid "OK"
-msgstr ""
+msgstr "确认"
 
 #: ../pkg/playground/react-patterns.js:83
 msgid "Danger"
-msgstr ""
+msgstr "危险"
 
 #: ../pkg/playground/react-patterns.js:87
-#, fuzzy
 msgid "Wait"
-msgstr "等待中"
+msgstr "等待"
 
 #: ../pkg/dashboard/list.js:210
 msgid "The user <b>$0</b> is not permitted to manage servers"
@@ -940,159 +1001,153 @@ msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "您当前已直接连接到该服务器。您不能删除它。"
 
-#: ../pkg/kubernetes/scripts/details.js:166 ../pkg/systemd/services.html.h:1
+#: ../pkg/kubernetes/scripts/details.js:214 ../pkg/systemd/services.html.h:1
 #: ../pkg/kubernetes/views/dashboard-page.html.h:12
 #: ../pkg/kubernetes/views/details-page.html.h:3
 msgid "Services"
 msgstr "服务"
 
-#: ../pkg/kubernetes/scripts/details.js:169
-#: ../pkg/networkmanager/interfaces.js:2510
+#: ../pkg/kubernetes/scripts/details.js:217
+#: ../pkg/networkmanager/interfaces.js:2586
 #: ../pkg/kubernetes/views/details-page.html.h:11
 msgid "Routes"
 msgstr "路由"
 
-#: ../pkg/kubernetes/scripts/details.js:173
+#: ../pkg/kubernetes/scripts/details.js:221
 #: ../pkg/kubernetes/views/details-page.html.h:13
 msgid "Deployment Configs"
-msgstr ""
+msgstr "部署配置"
 
-#: ../pkg/kubernetes/scripts/details.js:177
+#: ../pkg/kubernetes/scripts/details.js:225
 #: ../pkg/kubernetes/views/details-page.html.h:16
 msgid "Replication Controllers"
-msgstr ""
+msgstr "复制控制器"
 
-#: ../pkg/kubernetes/scripts/details.js:180
+#: ../pkg/kubernetes/scripts/details.js:228
 #: ../pkg/kubernetes/views/replicationcontroller-page.html.h:3
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:2
 #: ../pkg/kubernetes/views/pv-claim.html.h:9
 #: ../pkg/kubernetes/views/dashboard-page.html.h:1
 #: ../pkg/kubernetes/views/details-page.html.h:18
 msgid "Pods"
-msgstr ""
+msgstr "容器舱"
 
-#: ../pkg/kubernetes/scripts/details.js:455
-#: ../pkg/kubernetes/scripts/details.js:578
+#: ../pkg/kubernetes/scripts/details.js:495
+#: ../pkg/kubernetes/scripts/details.js:618
 msgid "Not a valid number of replicas"
 msgstr "副本不是一个有效数字"
 
-#: ../pkg/kubernetes/scripts/details.js:457
-#: ../pkg/kubernetes/scripts/details.js:580
+#: ../pkg/kubernetes/scripts/details.js:497
+#: ../pkg/kubernetes/scripts/details.js:620
 msgid "The maximum number of replicas is 128"
 msgstr "副本最大数量为 128"
 
-#: ../pkg/kubernetes/scripts/details.js:506
+#: ../pkg/kubernetes/scripts/details.js:546
 msgid "Not a valid value for Host"
-msgstr ""
+msgstr "无效的主机值"
 
-#: ../pkg/kubernetes/scripts/details.js:615
+#: ../pkg/kubernetes/scripts/details.js:655
 msgid "Updating $0..."
 msgstr "更新 $0..."
 
-#: ../pkg/kubernetes/scripts/charts.js:110
-#, fuzzy
+#: ../pkg/kubernetes/scripts/charts.js:113
 msgid "Unavailable"
 msgstr "不可用"
 
-#: ../pkg/kubernetes/scripts/volumes.js:182
-msgid "GCE Persistent Disk"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:183
-msgid "AWS Elastic Block Store"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:184
-#, fuzzy
-msgid "Git Repository"
-msgstr "存储库"
-
-#: ../pkg/kubernetes/scripts/volumes.js:185
-msgid "Secret"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:186
-msgid "Empty Directory"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:187
-#: ../pkg/kubernetes/scripts/volumes.js:858
-#, fuzzy
-msgid "Host Path"
-msgstr "主机"
-
-#: ../pkg/kubernetes/scripts/volumes.js:188
-msgid "Gluster FS"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:189
-#, fuzzy
-msgid "NFS Mount"
-msgstr "挂载"
-
-#: ../pkg/kubernetes/scripts/volumes.js:190
-#, fuzzy
-msgid "Rados Block Device"
-msgstr "块设备"
-
 #: ../pkg/kubernetes/scripts/volumes.js:191
-#: ../pkg/kubernetes/scripts/volumes.js:862
-msgid "ISCSI"
-msgstr ""
+msgid "GCE Persistent Disk"
+msgstr "GCE 持久盘"
 
 #: ../pkg/kubernetes/scripts/volumes.js:192
-msgid "Cinder"
-msgstr ""
+msgid "AWS Elastic Block Store"
+msgstr "AWS 弹性块存储"
 
 #: ../pkg/kubernetes/scripts/volumes.js:193
-#, fuzzy
-msgid "Ceph Filesystem Mount"
-msgstr "文件系统类型"
+msgid "Git Repository"
+msgstr "Git 仓库"
 
 #: ../pkg/kubernetes/scripts/volumes.js:194
-msgid "Fibre Channel"
-msgstr ""
+msgid "Secret"
+msgstr "口令"
 
 #: ../pkg/kubernetes/scripts/volumes.js:195
-#, fuzzy
-msgid "Flocker"
-msgstr "已锁定"
+msgid "Empty Directory"
+msgstr "空目录"
 
 #: ../pkg/kubernetes/scripts/volumes.js:196
-msgid "Flex"
-msgstr ""
+#: ../pkg/kubernetes/scripts/volumes.js:863
+msgid "Host Path"
+msgstr "主机路径"
 
 #: ../pkg/kubernetes/scripts/volumes.js:197
-msgid "Azure"
-msgstr ""
+msgid "Gluster FS"
+msgstr "Gluster FS"
+
+#: ../pkg/kubernetes/scripts/volumes.js:198
+msgid "NFS Mount"
+msgstr "NFS 挂载"
+
+#: ../pkg/kubernetes/scripts/volumes.js:199
+msgid "Rados Block Device"
+msgstr "Rados 块设备"
+
+#: ../pkg/kubernetes/scripts/volumes.js:200
+#: ../pkg/kubernetes/scripts/volumes.js:867
+msgid "ISCSI"
+msgstr "ISCSI"
 
 #: ../pkg/kubernetes/scripts/volumes.js:201
-msgid "Read and write from a single node"
-msgstr ""
+msgid "Cinder"
+msgstr "Cinder"
 
 #: ../pkg/kubernetes/scripts/volumes.js:202
-msgid "Read only from multiple nodes"
-msgstr ""
+msgid "Ceph Filesystem Mount"
+msgstr "Ceph 文件系统挂载"
 
 #: ../pkg/kubernetes/scripts/volumes.js:203
+msgid "Fibre Channel"
+msgstr "光纤通道"
+
+#: ../pkg/kubernetes/scripts/volumes.js:204
+msgid "Flocker"
+msgstr "Flocker"
+
+#: ../pkg/kubernetes/scripts/volumes.js:205
+msgid "Flex"
+msgstr "收缩"
+
+#: ../pkg/kubernetes/scripts/volumes.js:206
+msgid "Azure"
+msgstr "Azure"
+
+#: ../pkg/kubernetes/scripts/volumes.js:210
+msgid "Read and write from a single node"
+msgstr "从单节点读和写"
+
+#: ../pkg/kubernetes/scripts/volumes.js:211
+msgid "Read only from multiple nodes"
+msgstr "仅从多节点读"
+
+#: ../pkg/kubernetes/scripts/volumes.js:212
 msgid "Read and write from multiple nodes"
-msgstr ""
+msgstr "从多节点读和写"
 
-#: ../pkg/kubernetes/scripts/volumes.js:207
+#: ../pkg/kubernetes/scripts/volumes.js:216
 msgid "Retain"
-msgstr ""
+msgstr "留存"
 
-#: ../pkg/kubernetes/scripts/volumes.js:209
+#: ../pkg/kubernetes/scripts/volumes.js:218
 msgid "Recycle"
-msgstr ""
+msgstr "回收"
 
-#: ../pkg/kubernetes/scripts/volumes.js:256
-#: ../pkg/kubernetes/scripts/nodes.js:298
-#: ../pkg/kubernetes/scripts/nodes.js:642
-#: ../pkg/networkmanager/interfaces.js:589
-#: ../pkg/networkmanager/interfaces.js:997
-#: ../pkg/networkmanager/interfaces.js:1901
-#: ../pkg/networkmanager/interfaces.js:1903
+#: ../pkg/kubernetes/scripts/volumes.js:265
+#: ../pkg/kubernetes/scripts/nodes.js:316
+#: ../pkg/kubernetes/scripts/nodes.js:660
+#: ../pkg/kubernetes/scripts/nodes.js:753
+#: ../pkg/networkmanager/interfaces.js:596
+#: ../pkg/networkmanager/interfaces.js:1020
+#: ../pkg/networkmanager/interfaces.js:1934
+#: ../pkg/networkmanager/interfaces.js:1936
 #: ../pkg/kubernetes/views/pv-body.html.h:5
 #: ../pkg/kubernetes/views/pv-claim.html.h:7
 #: ../pkg/kubernetes/views/image-body.html.h:6
@@ -1101,359 +1156,366 @@ msgstr ""
 msgid "Unknown"
 msgstr "未知"
 
-#: ../pkg/kubernetes/scripts/volumes.js:459
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:468
 msgid "Please select a valid access mode"
-msgstr "请提供有效的命名空间."
+msgstr "请选择有效的访问模式"
 
-#: ../pkg/kubernetes/scripts/volumes.js:467
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:476
 msgid "Please provide a valid name"
-msgstr "请提供有效的命名空间."
+msgstr "请提供有效的名称"
 
-#: ../pkg/kubernetes/scripts/volumes.js:475
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:484
 msgid "Please provide a valid storage capacity."
-msgstr "请提供有效的命名空间."
+msgstr "请提供有效的存储容量。"
 
-#: ../pkg/kubernetes/scripts/volumes.js:483
+#: ../pkg/kubernetes/scripts/volumes.js:492
 msgid "Please select a valid policy option."
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:555
-#, fuzzy
-msgid "Please select a valid endpoint"
-msgstr "请提供有效的命名空间."
+msgstr "请选择有效的策略选项。"
 
 #: ../pkg/kubernetes/scripts/volumes.js:564
-#, fuzzy
+msgid "Please select a valid endpoint"
+msgstr "请选择有效的端点"
+
+#: ../pkg/kubernetes/scripts/volumes.js:573
 msgid "Please provide a GlusterFS volume name"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个 GlusterFS 卷名称"
 
-#: ../pkg/kubernetes/scripts/volumes.js:622
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:631
 msgid "Please provide a valid NFS server"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个有效的 NFS 服务器"
 
-#: ../pkg/kubernetes/scripts/volumes.js:630
-#: ../pkg/kubernetes/scripts/volumes.js:687
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:639
+#: ../pkg/kubernetes/scripts/volumes.js:696
 msgid "Please provide a valid path"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个有效的路径"
 
-#: ../pkg/kubernetes/scripts/volumes.js:775
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:780
 msgid "Please provide a valid target"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个有效的目标"
 
-#: ../pkg/kubernetes/scripts/volumes.js:783
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:788
 msgid "Please provide a valid qualified name"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个有效的限定名"
 
-#: ../pkg/kubernetes/scripts/volumes.js:791
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:796
 msgid "Please provide a valid logical unit number"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个有效的逻辑单元编号"
 
-#: ../pkg/kubernetes/scripts/volumes.js:799
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:804
 msgid "Please provide a valid filesystem type"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个有效的文件系统类型"
 
-#: ../pkg/kubernetes/scripts/volumes.js:807
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:812
 msgid "Please provide a valid interface"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个有效的接口"
 
-#: ../pkg/kubernetes/scripts/volumes.js:854
-#, fuzzy
+#: ../pkg/kubernetes/scripts/volumes.js:859
 msgid "NFS"
-msgstr "DNS"
+msgstr "NFS"
 
-#: ../pkg/kubernetes/scripts/volumes.js:866
+#: ../pkg/kubernetes/scripts/volumes.js:871
 msgid "GlusterFS"
-msgstr ""
+msgstr "GlusterFS"
 
-#: ../pkg/kubernetes/scripts/volumes.js:902
+#: ../pkg/kubernetes/scripts/volumes.js:907
 msgid "Sorry, I don't know how to modify this volume"
-msgstr ""
+msgstr "抱歉，不知道如何修改该卷"
 
-#: ../pkg/kubernetes/scripts/volumes.js:984
-#: ../pkg/networkmanager/interfaces.js:1923
+#: ../pkg/kubernetes/scripts/volumes.js:989
+#: ../pkg/networkmanager/interfaces.js:1956
 msgid "Yes"
 msgstr "是"
 
-#: ../pkg/kubernetes/scripts/connection.js:73
+#: ../pkg/kubernetes/scripts/connection.js:88
 msgid "Error writing kubectl config"
-msgstr ""
+msgstr "写 kubectl 配置时出错"
 
-#: ../pkg/kubernetes/scripts/connection.js:499
+#: ../pkg/kubernetes/scripts/connection.js:514
 msgid "Couldn't find running API server"
-msgstr ""
+msgstr "无法找到运行的 API 服务器"
 
-#: ../pkg/kubernetes/scripts/connection.js:501
-#, fuzzy
+#: ../pkg/kubernetes/scripts/connection.js:516
 msgid "Connection Error: $0"
-msgstr "正在连接 Docker"
-
-#: ../pkg/kubernetes/scripts/connection.js:524
-#, fuzzy
-msgid "Please provide a valid address"
-msgstr "请提供有效的命名空间."
+msgstr "连接错误: $0"
 
 #: ../pkg/kubernetes/scripts/connection.js:539
-#, fuzzy
+msgid "Please provide a valid address"
+msgstr "请提供一个有效的地址"
+
+#: ../pkg/kubernetes/scripts/connection.js:554
 msgid "Please provide a username"
-msgstr "请提供有效的命名空间."
+msgstr "请提供一个用户名"
 
-#: ../pkg/kubernetes/scripts/connection.js:635
+#: ../pkg/kubernetes/scripts/connection.js:650
 msgid "Error getting certificate details: $0"
-msgstr ""
+msgstr "获取证书详情出错: $0"
 
-#: ../pkg/kubernetes/scripts/dashboard.js:366
+#: ../pkg/kubernetes/scripts/dashboard.js:374
 msgid "Namespace cannot be empty."
 msgstr "命名空间不能为空."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:368
+#: ../pkg/kubernetes/scripts/dashboard.js:376
 msgid "Please provide a valid namespace."
 msgstr "请提供有效的命名空间."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:376
+#: ../pkg/kubernetes/scripts/dashboard.js:384
 msgid ""
 "No metadata file was selected. Please select a Kubernetes metadata file."
 msgstr "未选择元数据文件. 请选择一个 Kubernetes 元数据文件."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:378
+#: ../pkg/kubernetes/scripts/dashboard.js:386
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "所选的文件不是有效的 Kubernetes 应用程序清单."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:393
+#: ../pkg/kubernetes/scripts/dashboard.js:401
 msgid "Unable to read the Kubernetes application manifest. Code $0."
 msgstr "无法读取 Kubernetes 应用程序清单. 代码 $0."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:405
+#: ../pkg/kubernetes/scripts/dashboard.js:413
 msgid "Unable to decode Kubernetes application manifest."
-msgstr ""
+msgstr "无法解码 Kubernetes 应用清单。"
 
-#: ../pkg/kubernetes/scripts/dashboard.js:433
+#: ../pkg/kubernetes/scripts/dashboard.js:441
 msgid "Please create another namespace for $0 \"$1\""
 msgstr "请重新为 $0 创建一个命名空间 \"$1\""
 
-#: ../pkg/kubernetes/scripts/dashboard.js:452
+#: ../pkg/kubernetes/scripts/dashboard.js:460
 msgid "Manifest"
-msgstr ""
+msgstr "清单"
 
-#: ../pkg/kubernetes/scripts/graphs.js:597
-#: ../pkg/kubernetes/scripts/nodes.js:693
-#: ../pkg/kubernetes/scripts/nodes.js:793
+#: ../pkg/kubernetes/scripts/graphs.js:601
+#: ../pkg/kubernetes/scripts/nodes.js:711
+#: ../pkg/kubernetes/scripts/nodes.js:817
 msgid "CPU"
 msgstr "CPU"
 
-#: ../pkg/kubernetes/scripts/graphs.js:602
-#: ../pkg/kubernetes/scripts/nodes.js:696
-#: ../pkg/kubernetes/scripts/nodes.js:802
+#: ../pkg/kubernetes/scripts/graphs.js:606
+#: ../pkg/kubernetes/scripts/nodes.js:715
+#: ../pkg/kubernetes/scripts/nodes.js:826
 msgid "Memory"
 msgstr "内存"
 
-#: ../pkg/kubernetes/scripts/graphs.js:607
+#: ../pkg/kubernetes/scripts/graphs.js:611
 msgid "Network"
 msgstr "网络"
 
-#: ../pkg/kubernetes/scripts/nodes.js:301
+#: ../pkg/kubernetes/scripts/nodes.js:319
 #: ../pkg/kubernetes/views/node-body.html.h:16
 #: ../pkg/kubernetes/views/details-page.html.h:10
 msgid "Not Ready"
 msgstr "未就绪"
 
-#: ../pkg/kubernetes/scripts/nodes.js:304
+#: ../pkg/kubernetes/scripts/nodes.js:322
 msgid "Scheduling Disabled"
-msgstr ""
+msgstr "调度被禁用"
 
-#: ../pkg/kubernetes/scripts/nodes.js:306
+#: ../pkg/kubernetes/scripts/nodes.js:324
 #: ../pkg/kubernetes/views/node-body.html.h:15
 #: ../pkg/kubernetes/views/details-page.html.h:9
 msgid "Ready"
 msgstr "就绪"
 
-#: ../pkg/kubernetes/scripts/nodes.js:379
+#: ../pkg/kubernetes/scripts/nodes.js:397
 msgid "Please type an address"
 msgstr "请输入一个地址"
 
-#: ../pkg/kubernetes/scripts/nodes.js:381
+#: ../pkg/kubernetes/scripts/nodes.js:399
 msgid "The address contains invalid characters"
 msgstr "地址包含无效字符"
 
-#: ../pkg/kubernetes/scripts/nodes.js:389
+#: ../pkg/kubernetes/scripts/nodes.js:407
 msgid "The name contains invalid characters"
+msgstr "名称包含无效的字符"
+
+#: ../pkg/kubernetes/scripts/nodes.js:712
+msgid "CPU Utilization: $0%"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/nodes.js:699
-#: ../pkg/kubernetes/scripts/nodes.js:811
-#, fuzzy
+#: ../pkg/kubernetes/scripts/nodes.js:716
+msgid "Memory Utilization: $0%"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/nodes.js:719
+#: ../pkg/kubernetes/scripts/nodes.js:835
 msgid "Disk"
 msgstr "磁盘"
 
+#: ../pkg/kubernetes/scripts/nodes.js:720
+msgid "Disk Utilization: $0%"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/nodes.js:870
+#, fuzzy
+msgid "$0% Free"
+msgid_plural "$0% Free"
+msgstr[0] "$0 可用空间"
+
+#: ../pkg/kubernetes/scripts/nodes.js:872
+#, fuzzy
+msgid "$0% Used"
+msgid_plural "$0% Used"
+msgstr[0] "已使用"
+
 #. NM_DEVICE_STATE_UNAVAILABLE
-#: ../pkg/networkmanager/interfaces.js:751
+#: ../pkg/networkmanager/interfaces.js:763
 msgid "Not available"
 msgstr "不可用"
 
 #. NM_DEVICE_STATE_DISCONNECTED
-#: ../pkg/networkmanager/interfaces.js:753
-#: ../pkg/networkmanager/interfaces.js:1214
-#: ../pkg/networkmanager/interfaces.js:1936
+#: ../pkg/networkmanager/interfaces.js:765
+#: ../pkg/networkmanager/interfaces.js:1241
+#: ../pkg/networkmanager/interfaces.js:1969
 msgid "Inactive"
 msgstr "未激活"
 
 #. NM_DEVICE_STATE_PREPARE
-#: ../pkg/networkmanager/interfaces.js:755
+#: ../pkg/networkmanager/interfaces.js:767
 msgid "Preparing"
 msgstr "准备中"
 
 #. NM_DEVICE_STATE_CONFIG
-#: ../pkg/networkmanager/interfaces.js:757
+#: ../pkg/networkmanager/interfaces.js:769
 msgid "Configuring"
 msgstr "配置中"
 
 #. NM_DEVICE_STATE_NEED_AUTH
-#: ../pkg/networkmanager/interfaces.js:759
+#: ../pkg/networkmanager/interfaces.js:771
 msgid "Authenticating"
 msgstr "认证中"
 
 #. NM_DEVICE_STATE_IP_CONFIG
-#: ../pkg/networkmanager/interfaces.js:761
+#: ../pkg/networkmanager/interfaces.js:773
 msgid "Configuring IP"
 msgstr "正在配置 IP"
 
 #. NM_DEVICE_STATE_IP_CHECK
-#: ../pkg/networkmanager/interfaces.js:763
+#: ../pkg/networkmanager/interfaces.js:775
 msgid "Checking IP"
 msgstr "正在检查 IP"
 
 #. NM_DEVICE_STATE_SECONDARIES
-#: ../pkg/networkmanager/interfaces.js:765
+#: ../pkg/networkmanager/interfaces.js:777
 msgid "Waiting"
 msgstr "等待中"
 
 #. NM_DEVICE_STATE_ACTIVATED
-#: ../pkg/networkmanager/interfaces.js:767
+#: ../pkg/networkmanager/interfaces.js:779
 msgid "Active"
 msgstr "激活"
 
 #. NM_DEVICE_STATE_DEACTIVATING
-#: ../pkg/networkmanager/interfaces.js:769
+#: ../pkg/networkmanager/interfaces.js:781
 msgid "Deactivating"
 msgstr "停用中"
 
 #. NM_DEVICE_STATE_FAILED
-#: ../pkg/networkmanager/interfaces.js:771 ../pkg/ostree/index.html.h:14
+#: ../pkg/networkmanager/interfaces.js:783 ../pkg/ostree/index.html.h:14
 msgid "Failed"
 msgstr "已失败"
 
-#: ../pkg/networkmanager/interfaces.js:1216
+#: ../pkg/networkmanager/interfaces.js:1243
 msgid "No carrier"
 msgstr "无载体"
 
-#: ../pkg/networkmanager/interfaces.js:1256
+#: ../pkg/networkmanager/interfaces.js:1283
 msgid "Part of "
 msgstr "部分"
 
-#: ../pkg/networkmanager/interfaces.js:1303
+#: ../pkg/networkmanager/interfaces.js:1329
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "用户 <b>$0</b> 不允许修改网络设置"
 
-#: ../pkg/networkmanager/interfaces.js:1364
-#: ../pkg/networkmanager/interfaces.js:1678
+#: ../pkg/networkmanager/interfaces.js:1390
+#: ../pkg/networkmanager/interfaces.js:1710
 msgctxt "page-title"
 msgid "Networking"
 msgstr "联网"
 
-#: ../pkg/networkmanager/interfaces.js:1630
+#: ../pkg/networkmanager/interfaces.js:1662
 msgid "Automatic (DHCP)"
 msgstr "自动 (DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1631
-#: ../pkg/networkmanager/interfaces.js:1641
+#: ../pkg/networkmanager/interfaces.js:1663
+#: ../pkg/networkmanager/interfaces.js:1673
 msgid "Link local"
 msgstr "本地链路"
 
-#: ../pkg/networkmanager/interfaces.js:1632
-#: ../pkg/networkmanager/interfaces.js:1642
+#: ../pkg/networkmanager/interfaces.js:1664
+#: ../pkg/networkmanager/interfaces.js:1674
 msgid "Manual"
 msgstr "手动"
 
-#: ../pkg/networkmanager/interfaces.js:1633
+#: ../pkg/networkmanager/interfaces.js:1665
 msgid "Shared"
 msgstr "共享"
 
-#: ../pkg/networkmanager/interfaces.js:1640
+#: ../pkg/networkmanager/interfaces.js:1672
 msgid "Automatic (DHCP only)"
 msgstr "自动 (仅 DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1643
+#: ../pkg/networkmanager/interfaces.js:1675
 msgid "Ignore"
 msgstr "忽略"
 
-#: ../pkg/networkmanager/interfaces.js:1648
+#: ../pkg/networkmanager/interfaces.js:1680
 msgid "Round Robin"
 msgstr "轮循"
 
-#: ../pkg/networkmanager/interfaces.js:1649
+#: ../pkg/networkmanager/interfaces.js:1681
 msgid "Active Backup"
 msgstr "主备"
 
-#: ../pkg/networkmanager/interfaces.js:1650
+#: ../pkg/networkmanager/interfaces.js:1682
 msgid "XOR"
 msgstr "XOR"
 
-#: ../pkg/networkmanager/interfaces.js:1651
+#: ../pkg/networkmanager/interfaces.js:1683
 msgid "Broadcast"
 msgstr "广播"
 
-#: ../pkg/networkmanager/interfaces.js:1652
+#: ../pkg/networkmanager/interfaces.js:1684
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: ../pkg/networkmanager/interfaces.js:1653
+#: ../pkg/networkmanager/interfaces.js:1685
 msgid "Adaptive transmit load balancing"
 msgstr "自适应传输负载均衡"
 
-#: ../pkg/networkmanager/interfaces.js:1654
+#: ../pkg/networkmanager/interfaces.js:1686
 msgid "Adaptive load balancing"
 msgstr "自适应负载均衡"
 
-#: ../pkg/networkmanager/interfaces.js:1659
+#: ../pkg/networkmanager/interfaces.js:1691
 msgid "MII (Recommended)"
 msgstr "MII (推荐)"
 
-#: ../pkg/networkmanager/interfaces.js:1660
+#: ../pkg/networkmanager/interfaces.js:1692
 msgid "ARP"
 msgstr "ARP"
 
-#: ../pkg/networkmanager/interfaces.js:1887
-#: ../pkg/networkmanager/interfaces.js:1895
-#: ../pkg/networkmanager/interfaces.js:2091
+#: ../pkg/networkmanager/interfaces.js:1919
+#: ../pkg/networkmanager/interfaces.js:1928
+#: ../pkg/networkmanager/interfaces.js:2157
 msgid "Bond"
 msgstr "绑定"
 
-#: ../pkg/networkmanager/interfaces.js:1889
-#: ../pkg/networkmanager/interfaces.js:1897
-#: ../pkg/networkmanager/interfaces.js:2155
+#: ../pkg/networkmanager/interfaces.js:1921
+#: ../pkg/networkmanager/interfaces.js:1930
+#: ../pkg/networkmanager/interfaces.js:2221
 msgid "VLAN"
 msgstr "VLAN"
 
-#: ../pkg/networkmanager/interfaces.js:1891
-#: ../pkg/networkmanager/interfaces.js:1899
-#: ../pkg/networkmanager/interfaces.js:2117
+#: ../pkg/networkmanager/interfaces.js:1923
+#: ../pkg/networkmanager/interfaces.js:1932
+#: ../pkg/networkmanager/interfaces.js:2183
 msgid "Bridge"
 msgstr "网桥"
 
-#: ../pkg/networkmanager/interfaces.js:1920
+#: ../pkg/networkmanager/interfaces.js:1953
 msgid "Carrier"
 msgstr "载体"
 
-#: ../pkg/networkmanager/interfaces.js:1943
+#: ../pkg/networkmanager/interfaces.js:1976
 #: ../pkg/kubernetes/views/pv-body.html.h:4
 #: ../pkg/kubernetes/views/pv-claim.html.h:6
 #: ../pkg/kubernetes/views/node-body.html.h:14
@@ -1461,217 +1523,226 @@ msgstr "载体"
 #: ../pkg/kubernetes/views/containers-listing.html.h:7
 #: ../pkg/kubernetes/views/volumes-page.html.h:5
 #: ../pkg/kubernetes/views/nodes-page.html.h:8
-#: ../pkg/subscriptions/index.html.h:40
+#: ../pkg/subscriptions/index.html.h:46
 msgid "Status"
 msgstr "状态"
 
-#: ../pkg/networkmanager/interfaces.js:1976
+#: ../pkg/networkmanager/interfaces.js:2009
 msgid "Unknown configuration"
 msgstr "未知配置"
 
-#: ../pkg/networkmanager/interfaces.js:2050
+#: ../pkg/networkmanager/interfaces.js:2091
 msgid "Configure"
 msgstr "配置"
 
-#: ../pkg/networkmanager/interfaces.js:2067
+#: ../pkg/networkmanager/interfaces.js:2123
+msgid "$mtu"
+msgstr ""
+
+#: ../pkg/networkmanager/interfaces.js:2127
+msgid "MTU"
+msgstr ""
+
+#: ../pkg/networkmanager/interfaces.js:2133
 msgid "Master"
 msgstr "主"
 
-#: ../pkg/networkmanager/interfaces.js:2086
+#: ../pkg/networkmanager/interfaces.js:2152
 msgid "ARP Monitoring"
 msgstr "ARP 监控"
 
-#: ../pkg/networkmanager/interfaces.js:2106
+#: ../pkg/networkmanager/interfaces.js:2172
 msgid "Spanning Tree Protocol"
 msgstr "生成树协议"
 
-#: ../pkg/networkmanager/interfaces.js:2108
-#: ../pkg/networkmanager/interfaces.js:2132
+#: ../pkg/networkmanager/interfaces.js:2174
+#: ../pkg/networkmanager/interfaces.js:2198
 msgid "Priority $priority"
 msgstr "优先级 $priority"
 
-#: ../pkg/networkmanager/interfaces.js:2110
+#: ../pkg/networkmanager/interfaces.js:2176
 msgid "Forward delay $forward_delay"
 msgstr "转发延迟 $forward_delay"
 
-#: ../pkg/networkmanager/interfaces.js:2112
+#: ../pkg/networkmanager/interfaces.js:2178
 msgid "Hello time $hello_time"
 msgstr "Hello 时间 $hello_time"
 
-#: ../pkg/networkmanager/interfaces.js:2114
+#: ../pkg/networkmanager/interfaces.js:2180
 msgid "Maximum message age $max_age"
 msgstr "最大消息有效期 $max_age"
 
-#: ../pkg/networkmanager/interfaces.js:2134
+#: ../pkg/networkmanager/interfaces.js:2200
 msgid "Path cost $path_cost"
 msgstr "路径开销 $path_cost"
 
-#: ../pkg/networkmanager/interfaces.js:2136
+#: ../pkg/networkmanager/interfaces.js:2202
 msgid "Hairpin mode"
-msgstr ""
+msgstr "发夹模式"
 
-#: ../pkg/networkmanager/interfaces.js:2138
+#: ../pkg/networkmanager/interfaces.js:2204
 msgid "Bridge port"
 msgstr "网桥端口"
 
-#: ../pkg/networkmanager/interfaces.js:2152
+#: ../pkg/networkmanager/interfaces.js:2218
 msgid "Parent $parent"
 msgstr "父接口 $parent"
 
-#: ../pkg/networkmanager/interfaces.js:2153
+#: ../pkg/networkmanager/interfaces.js:2219
 msgid "Id $id"
 msgstr "Id $id"
 
-#: ../pkg/networkmanager/interfaces.js:2161
+#: ../pkg/networkmanager/interfaces.js:2227
 msgid "General"
 msgstr "通用"
 
-#: ../pkg/networkmanager/interfaces.js:2170
+#: ../pkg/networkmanager/interfaces.js:2236
 msgid "Connect automatically"
 msgstr "自动连接"
 
-#: ../pkg/networkmanager/interfaces.js:2171
+#: ../pkg/networkmanager/interfaces.js:2240
 msgid "IPv4"
 msgstr "IPv4"
 
-#: ../pkg/networkmanager/interfaces.js:2172
+#: ../pkg/networkmanager/interfaces.js:2241
 msgid "IPv6"
 msgstr "IPv6"
 
-#: ../pkg/networkmanager/interfaces.js:2257
+#: ../pkg/networkmanager/interfaces.js:2328
 #: ../pkg/kubernetes/views/project-listing.html.h:5
-#: ../pkg/networkmanager/index.html.h:28
+#: ../pkg/networkmanager/index.html.h:30
 msgid "Members"
 msgstr "成员"
 
-#: ../pkg/networkmanager/interfaces.js:2257 ../pkg/docker/index.html.h:26
+#: ../pkg/networkmanager/interfaces.js:2328 ../pkg/docker/index.html.h:42
 #: ../pkg/kubernetes/views/image-config.html.h:7
 #: ../pkg/kubernetes/views/container-body.html.h:5
 #: ../pkg/kubernetes/views/service-body.html.h:6
-#: ../pkg/networkmanager/index.html.h:19
+#: ../pkg/networkmanager/index.html.h:21
 msgid "Ports"
 msgstr "端口"
 
-#: ../pkg/networkmanager/interfaces.js:2476
-msgid "-"
-msgstr "-"
-
-#: ../pkg/networkmanager/interfaces.js:2491
+#: ../pkg/networkmanager/interfaces.js:2567
 msgid "Prefix length or Netmask"
 msgstr "前缀长度或网络掩码"
 
-#: ../pkg/networkmanager/interfaces.js:2491
+#: ../pkg/networkmanager/interfaces.js:2567
 msgid "Prefix length"
 msgstr "前缀长度"
 
-#: ../pkg/networkmanager/interfaces.js:2494
+#: ../pkg/networkmanager/interfaces.js:2570
 #: ../pkg/kubernetes/views/details-page.html.h:7
 msgid "Addresses"
 msgstr "地址"
 
-#: ../pkg/networkmanager/interfaces.js:2501
+#: ../pkg/networkmanager/interfaces.js:2577
 msgid "DNS"
 msgstr "DNS"
 
-#: ../pkg/networkmanager/interfaces.js:2505
+#: ../pkg/networkmanager/interfaces.js:2581
 msgid "DNS Search Domains"
 msgstr "DNS 搜索域"
 
-#: ../pkg/networkmanager/interfaces.js:2544
+#: ../pkg/networkmanager/interfaces.js:2620
 msgid "IPv4 Settings"
 msgstr "IPv4 设置"
 
-#: ../pkg/networkmanager/interfaces.js:2544
+#: ../pkg/networkmanager/interfaces.js:2620
 msgid "IPv6 Settings"
 msgstr "IPv6 设置"
 
-#: ../pkg/ostree/client.js:60
+#: ../pkg/networkmanager/interfaces.js:3391
+#, fuzzy
+msgid "MTU must be a positive number"
+msgstr "大小必须是一个数字"
+
+#: ../pkg/ostree/client.js:56
 msgid "Receiving delta parts"
-msgstr ""
+msgstr "正在接收增量部分"
 
-#: ../pkg/ostree/client.js:62
+#: ../pkg/ostree/client.js:58
 msgid "Receiving metadata objects"
-msgstr ""
+msgstr "正在接收元数据对象"
 
-#: ../pkg/ostree/client.js:65
+#: ../pkg/ostree/client.js:61
 msgid "Receiving objects: $0%"
-msgstr ""
+msgstr "正在接收对象: $0%"
 
-#: ../pkg/ostree/client.js:68
+#: ../pkg/ostree/client.js:64
 msgid "Writing objects"
-msgstr ""
+msgstr "正在写对象"
 
-#: ../pkg/ostree/client.js:70
+#: ../pkg/ostree/client.js:66
 msgid "Scanning metadata"
-msgstr ""
+msgstr "正在扫描元数据"
 
-#: ../pkg/ostree/client.js:489
+#: ../pkg/ostree/client.js:500
 msgid "OS $0 not found"
-msgstr ""
+msgstr "未找到操作系统 $0"
 
-#: ../pkg/ostree/app.js:80
+#: ../pkg/ostree/app.js:81
 msgid "Not authorized to update software on this system"
-msgstr ""
+msgstr "未授权更新该系统上的软件"
 
-#: ../pkg/ostree/app.js:82
+#: ../pkg/ostree/app.js:83
 msgid "OSTree is not available on this system"
-msgstr ""
+msgstr "该系统上 OSTree  不可用"
 
-#: ../pkg/ostree/app.js:100
+#: ../pkg/ostree/app.js:101
 msgid "No OSTree deployments found"
-msgstr ""
+msgstr "没有找到 OSTree  部署"
 
-#: ../pkg/ostree/app.js:218
+#: ../pkg/ostree/app.js:219
 msgid "Checking for updates"
-msgstr ""
+msgstr "检查升级"
 
-#: ../pkg/ostree/app.js:304
+#: ../pkg/ostree/app.js:307
 msgid "$0 package"
-msgstr ""
+msgstr "$0 软件包"
 
-#: ../pkg/ostree/app.js:304
+#: ../pkg/ostree/app.js:307
 msgid "$0 packages"
-msgstr ""
+msgstr "$0 软件包"
 
-#: ../pkg/storaged/overview.js:182
+#: ../pkg/storaged/overview.js:177
 msgctxt "storage"
 msgid "Hard Disk"
 msgstr "机械硬盘"
 
-#: ../pkg/storaged/overview.js:184
+#: ../pkg/storaged/overview.js:179
 msgctxt "storage"
 msgid "Solid-State Disk"
 msgstr "固态硬盘"
 
-#: ../pkg/storaged/overview.js:187 ../pkg/storaged/overview.js:189
+#: ../pkg/storaged/overview.js:182 ../pkg/storaged/overview.js:184
 msgctxt "storage"
 msgid "Removable Drive"
 msgstr "可移动驱动器"
 
-#: ../pkg/storaged/overview.js:191
+#: ../pkg/storaged/overview.js:186
 msgctxt "storage"
 msgid "Optical Drive"
 msgstr "光盘驱动器"
 
-#: ../pkg/storaged/overview.js:194 ../pkg/storaged/overview.js:196
+#: ../pkg/storaged/overview.js:189 ../pkg/storaged/overview.js:191
 msgctxt "storage"
 msgid "Drive"
 msgstr "驱动器"
 
-#: ../pkg/storaged/overview.js:255
+#: ../pkg/storaged/overview.js:250
 msgid "$0 Block Device"
 msgstr "$0 块设备"
 
-#: ../pkg/storaged/overview.js:416
+#: ../pkg/storaged/overview.js:411
 msgid "Create RAID Device"
 msgstr "创建 RAID 设备"
 
-#: ../pkg/storaged/overview.js:419 ../pkg/storaged/overview.js:477
-#: ../pkg/storaged/overview.js:610 ../pkg/storaged/overview.js:688
-#: ../pkg/storaged/details.js:156 ../pkg/storaged/details.js:372
-#: ../pkg/storaged/details.js:632 ../pkg/storaged/details.js:654
-#: ../pkg/storaged/details.js:692 ../pkg/storaged/details.js:721
-#: ../pkg/storaged/details.js:771 ../pkg/kubernetes/views/volume-body.html.h:11
+#: ../pkg/storaged/overview.js:414 ../pkg/storaged/overview.js:472
+#: ../pkg/storaged/overview.js:605 ../pkg/storaged/overview.js:683
+#: ../pkg/storaged/details.js:155 ../pkg/storaged/details.js:371
+#: ../pkg/storaged/details.js:631 ../pkg/storaged/details.js:653
+#: ../pkg/storaged/details.js:691 ../pkg/storaged/details.js:720
+#: ../pkg/storaged/details.js:770 ../pkg/kubernetes/views/volume-body.html.h:11
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:3
 #: ../pkg/kubernetes/views/node-add.html.h:3
 #: ../pkg/kubernetes/views/pv-claim.html.h:1
@@ -1689,138 +1760,138 @@ msgstr "创建 RAID 设备"
 msgid "Name"
 msgstr "名称"
 
-#: ../pkg/storaged/overview.js:422
+#: ../pkg/storaged/overview.js:417
 msgid "RAID Level"
 msgstr "RAID 级别"
 
-#: ../pkg/storaged/overview.js:424
+#: ../pkg/storaged/overview.js:419
 msgid "RAID 0 (Stripe)"
 msgstr "RAID 0 (条带)"
 
-#: ../pkg/storaged/overview.js:425
+#: ../pkg/storaged/overview.js:420
 msgid "RAID 1 (Mirror)"
 msgstr "RAID 1 (镜像)"
 
-#: ../pkg/storaged/overview.js:426
+#: ../pkg/storaged/overview.js:421
 msgid "RAID 4 (Dedicated Parity)"
 msgstr "RAID 4 (奇偶校验)"
 
-#: ../pkg/storaged/overview.js:427
+#: ../pkg/storaged/overview.js:422
 msgid "RAID 5 (Distributed Parity)"
 msgstr "RAID 5 (奇偶校验)"
 
-#: ../pkg/storaged/overview.js:428
+#: ../pkg/storaged/overview.js:423
 msgid "RAID 6 (Double Distributed Parity)"
 msgstr "RAID 6 (双倍奇偶校验)"
 
-#: ../pkg/storaged/overview.js:429
+#: ../pkg/storaged/overview.js:424
 msgid "RAID 10 (Stripe of Mirrors)"
-msgstr ""
+msgstr "RAID 10 (条带镜像)"
 
-#: ../pkg/storaged/overview.js:433
+#: ../pkg/storaged/overview.js:428
 msgid "Chunk Size"
 msgstr "区块大小"
 
-#: ../pkg/storaged/overview.js:435
+#: ../pkg/storaged/overview.js:430
 msgid "4 KiB"
-msgstr ""
+msgstr "4 KiB"
+
+#: ../pkg/storaged/overview.js:431
+msgid "8 KiB"
+msgstr "8 KiB"
+
+#: ../pkg/storaged/overview.js:432
+msgid "16 KiB"
+msgstr "16 KiB"
+
+#: ../pkg/storaged/overview.js:433
+msgid "32 KiB"
+msgstr "32 KiB"
+
+#: ../pkg/storaged/overview.js:434
+msgid "64 KiB"
+msgstr "64 KiB"
+
+#: ../pkg/storaged/overview.js:435
+msgid "128 KiB"
+msgstr "128 KiB"
 
 #: ../pkg/storaged/overview.js:436
-msgid "8 KiB"
-msgstr ""
+msgid "512 KiB"
+msgstr "512 KiB"
 
 #: ../pkg/storaged/overview.js:437
-msgid "16 KiB"
-msgstr ""
+msgid "1 MiB"
+msgstr "1 MiB"
 
 #: ../pkg/storaged/overview.js:438
-msgid "32 KiB"
-msgstr ""
-
-#: ../pkg/storaged/overview.js:439
-msgid "64 KiB"
-msgstr ""
-
-#: ../pkg/storaged/overview.js:440
-msgid "128 KiB"
-msgstr ""
-
-#: ../pkg/storaged/overview.js:441
-msgid "512 KiB"
-msgstr ""
-
-#: ../pkg/storaged/overview.js:442
-msgid "1 MiB"
-msgstr ""
-
-#: ../pkg/storaged/overview.js:443
 msgid "2 MiB"
-msgstr ""
+msgstr "2 MiB"
 
-#: ../pkg/storaged/overview.js:450 ../pkg/storaged/overview.js:481
-#: ../pkg/storaged/details.js:510 ../pkg/storaged/details.js:839
+#: ../pkg/storaged/overview.js:445 ../pkg/storaged/overview.js:476
+#: ../pkg/storaged/details.js:509 ../pkg/storaged/details.js:838
 #: ../pkg/storaged/index.html.h:56
 msgid "Disks"
 msgstr "磁盘"
 
-#: ../pkg/storaged/overview.js:457
+#: ../pkg/storaged/overview.js:452
 msgid "At least $0 disks are needed."
 msgstr "至少需要 $0 块磁盘。"
 
-#: ../pkg/storaged/overview.js:463 ../pkg/storaged/overview.js:492
-#: ../pkg/storaged/details.js:668 ../pkg/storaged/details.js:704
-#: ../pkg/storaged/details.js:727 ../pkg/storaged/details.js:821
+#: ../pkg/storaged/overview.js:458 ../pkg/storaged/overview.js:487
+#: ../pkg/storaged/details.js:667 ../pkg/storaged/details.js:703
+#: ../pkg/storaged/details.js:726 ../pkg/storaged/details.js:820
 #: ../pkg/kubernetes/views/add-group-dialog.html.h:6
 #: ../pkg/kubernetes/views/project-modify.html.h:8
 msgid "Create"
 msgstr "创建"
 
-#: ../pkg/storaged/overview.js:474
+#: ../pkg/storaged/overview.js:469
 msgid "Create Volume Group"
 msgstr "创建卷组"
 
-#: ../pkg/storaged/overview.js:487 ../pkg/storaged/details.js:522
-#: ../pkg/storaged/details.js:854
+#: ../pkg/storaged/overview.js:482 ../pkg/storaged/details.js:521
+#: ../pkg/storaged/details.js:853
 msgid "At least one disk is needed."
 msgstr "至少需要 1 块磁盘。"
 
-#: ../pkg/storaged/overview.js:501
+#: ../pkg/storaged/overview.js:496
 msgid "Add iSCSI Portal"
-msgstr ""
+msgstr "添加 iSCSI 门户"
 
-#: ../pkg/storaged/overview.js:504
+#: ../pkg/storaged/overview.js:499
 msgid "Server Address"
-msgstr ""
+msgstr "服务器地址"
 
-#: ../pkg/storaged/overview.js:507
+#: ../pkg/storaged/overview.js:502
 msgid "Server address can not be empty."
-msgstr ""
+msgstr "服务器地址不能为空。"
 
-#: ../pkg/storaged/overview.js:519 ../pkg/realmd/operation.html.h:11
+#: ../pkg/storaged/overview.js:514 ../pkg/realmd/operation.html.h:11
 msgid "Next"
 msgstr "下一步"
 
-#: ../pkg/storaged/overview.js:563 ../pkg/storaged/overview.js:654
+#: ../pkg/storaged/overview.js:558 ../pkg/storaged/overview.js:649
 msgid "Invalid username or password"
-msgstr ""
+msgstr "无效的用户名或密码"
 
-#: ../pkg/storaged/overview.js:568
+#: ../pkg/storaged/overview.js:563
 msgid "Unknown host name"
-msgstr ""
+msgstr "未知主机名"
 
-#: ../pkg/storaged/overview.js:572
+#: ../pkg/storaged/overview.js:567
 msgid "Unable to reach server"
-msgstr ""
+msgstr "无法到达服务器"
 
-#: ../pkg/storaged/overview.js:605
+#: ../pkg/storaged/overview.js:600
 msgid "Available targets on $0"
-msgstr ""
+msgstr "$0 上可用的目标"
 
-#: ../pkg/storaged/overview.js:609 ../pkg/systemd/services.html.h:2
+#: ../pkg/storaged/overview.js:604 ../pkg/systemd/services.html.h:2
 msgid "Targets"
 msgstr "目标"
 
-#: ../pkg/storaged/overview.js:610 ../pkg/shell/templates/add-machine.html.h:2
+#: ../pkg/storaged/overview.js:605 ../pkg/shell/templates/add-machine.html.h:2
 #: ../pkg/kubernetes/views/node-add.html.h:2
 #: ../pkg/kubernetes/views/auth-form.html.h:3
 #: ../pkg/kubernetes/views/dashboard-page.html.h:16
@@ -1830,12 +1901,12 @@ msgstr "目标"
 msgid "Address"
 msgstr "地址"
 
-#: ../pkg/storaged/overview.js:610 ../pkg/shell/templates/change-port.html.h:5
+#: ../pkg/storaged/overview.js:605 ../pkg/shell/templates/change-port.html.h:5
 msgid "Port"
-msgstr ""
+msgstr "端口"
 
-#: ../pkg/storaged/overview.js:615 ../pkg/storaged/overview.js:643
-#: ../pkg/storaged/details.js:527 ../pkg/storaged/details.js:859
+#: ../pkg/storaged/overview.js:610 ../pkg/storaged/overview.js:638
+#: ../pkg/storaged/details.js:526 ../pkg/storaged/details.js:858
 #: ../pkg/shell/templates/add-machine.html.h:6
 #: ../pkg/kubernetes/views/node-add.html.h:8
 #: ../pkg/kubernetes/views/user-group-add.html.h:6
@@ -1846,17 +1917,17 @@ msgstr ""
 msgid "Add"
 msgstr "添加"
 
-#: ../pkg/storaged/overview.js:685
+#: ../pkg/storaged/overview.js:680
 msgid "Change iSCSI Initiator Name"
-msgstr ""
+msgstr "变更 iSCSI Initiator 名称"
 
-#: ../pkg/storaged/overview.js:693
+#: ../pkg/storaged/overview.js:688
 #: ../pkg/kubernetes/views/route-modify.html.h:4
 #: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:4
 #: ../pkg/kubernetes/views/project-modify.html.h:9
 #: ../pkg/kubernetes/views/pv-modify.html.h:22
 msgid "Change"
-msgstr ""
+msgstr "变更"
 
 #. Translators: Used in "..."
 #: ../pkg/storaged/utils.js:66
@@ -1928,47 +1999,47 @@ msgstr "RAID 设备 $0"
 msgid "Volume Group $0"
 msgstr "卷组 $0"
 
-#: ../pkg/storaged/details.js:81
+#: ../pkg/storaged/details.js:80
 msgid "Device $0 is mounted on $1"
 msgstr "设备 $0 已挂载至 $1"
 
-#: ../pkg/storaged/details.js:87
+#: ../pkg/storaged/details.js:86
 msgid "Device $0 is a member of RAID Array $1"
 msgstr "设备 $0 是 RAID 阵列 $1 的成员"
 
-#: ../pkg/storaged/details.js:93
+#: ../pkg/storaged/details.js:92
 msgid "Device $0 is a physical volume of $1"
 msgstr "设备 $0 是 $1 的物理卷"
 
-#: ../pkg/storaged/details.js:109
+#: ../pkg/storaged/details.js:108
 msgid "Create partition on $0"
 msgstr "为 $0 创建分区"
 
-#: ../pkg/storaged/details.js:111
+#: ../pkg/storaged/details.js:110
 msgid "Format $0"
 msgstr "格式 $0"
 
-#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:587
-#: ../pkg/storaged/details.js:658 ../pkg/storaged/details.js:696
-#: ../pkg/storaged/details.js:815
+#: ../pkg/storaged/details.js:124 ../pkg/storaged/details.js:586
+#: ../pkg/storaged/details.js:657 ../pkg/storaged/details.js:695
+#: ../pkg/storaged/details.js:814
 #: ../pkg/kubernetes/views/volumes-page.html.h:11
 #: ../pkg/storaged/index.html.h:20
 msgid "Size"
 msgstr "大小"
 
-#: ../pkg/storaged/details.js:133 ../pkg/storaged/details.js:282
+#: ../pkg/storaged/details.js:132 ../pkg/storaged/details.js:281
 msgid "Erase"
 msgstr "擦除"
 
-#: ../pkg/storaged/details.js:135 ../pkg/storaged/details.js:284
+#: ../pkg/storaged/details.js:134 ../pkg/storaged/details.js:283
 msgid "Don't overwrite existing data"
 msgstr "不覆盖已存在数据"
 
-#: ../pkg/storaged/details.js:136 ../pkg/storaged/details.js:285
+#: ../pkg/storaged/details.js:135 ../pkg/storaged/details.js:284
 msgid "Overwrite existing data with zeros"
 msgstr "使用 0 覆盖已存在数据"
 
-#: ../pkg/storaged/details.js:140 ../pkg/shell/index.html.h:3
+#: ../pkg/storaged/details.js:139 ../pkg/shell/index.html.h:3
 #: ../pkg/kubernetes/views/deploy.html.h:2
 #: ../pkg/kubernetes/views/service-body.html.h:5
 #: ../pkg/kubernetes/views/pv-modify.html.h:3
@@ -1976,157 +2047,157 @@ msgstr "使用 0 覆盖已存在数据"
 msgid "Type"
 msgstr "类型"
 
-#: ../pkg/storaged/details.js:142
+#: ../pkg/storaged/details.js:141
 msgid "XFS - Red Hat Enterprise Linux 7 default"
 msgstr "XFS - Red Hat Enterprise Linux 7 默认"
 
-#: ../pkg/storaged/details.js:143
+#: ../pkg/storaged/details.js:142
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
 msgstr "ext4 - Red Hat Enterprise Linux 6 默认"
 
-#: ../pkg/storaged/details.js:144
+#: ../pkg/storaged/details.js:143
 msgid "Encrypted XFS (LUKS)"
 msgstr "加密 XFS (LUKS)"
 
-#: ../pkg/storaged/details.js:145
+#: ../pkg/storaged/details.js:144
 msgid "Encrypted EXT4 (LUKS)"
 msgstr "加密 EXT4 (LUKS)"
 
-#: ../pkg/storaged/details.js:146
+#: ../pkg/storaged/details.js:145
 msgid "VFAT - Compatible with all systems and devices"
 msgstr "VFAT - 兼容所有系统和设备"
 
-#: ../pkg/storaged/details.js:147
+#: ../pkg/storaged/details.js:146
 msgid "NTFS - Compatible with most systems"
 msgstr "NTFS - 兼容多数系统"
 
-#: ../pkg/storaged/details.js:148
+#: ../pkg/storaged/details.js:147
 msgid "Extended Partition"
 msgstr "扩展分区"
 
-#: ../pkg/storaged/details.js:151
+#: ../pkg/storaged/details.js:150
 msgid "No Filesystem"
 msgstr "无文件系统"
 
-#: ../pkg/storaged/details.js:152
+#: ../pkg/storaged/details.js:151
 msgid "Custom (Enter filesystem type)"
 msgstr "自定义 (输入文件系统类型)"
 
-#: ../pkg/storaged/details.js:160
+#: ../pkg/storaged/details.js:159
 msgid "Filesystem type"
 msgstr "文件系统类型"
 
-#: ../pkg/storaged/details.js:166 ../pkg/storaged/details.js:419
+#: ../pkg/storaged/details.js:165 ../pkg/storaged/details.js:418
 msgid "Passphrase"
 msgstr "口令"
 
-#: ../pkg/storaged/details.js:169
+#: ../pkg/storaged/details.js:168
 msgid "Passphrase can not be empty"
 msgstr "口令不能为空"
 
-#: ../pkg/storaged/details.js:174
+#: ../pkg/storaged/details.js:173
 msgid "Confirm passphrase"
 msgstr "确认口令"
 
-#: ../pkg/storaged/details.js:177
+#: ../pkg/storaged/details.js:176
 msgid "Passphrases do not match"
 msgstr "口令不匹配"
 
-#: ../pkg/storaged/details.js:182
+#: ../pkg/storaged/details.js:181
 msgid "Store passphrase"
 msgstr "存储口令"
 
-#: ../pkg/storaged/details.js:186 ../pkg/storaged/details.js:467
-#: ../pkg/storaged/details.js:1004
+#: ../pkg/storaged/details.js:185 ../pkg/storaged/details.js:466
+#: ../pkg/storaged/details.js:1003
 msgid "Encryption Options"
 msgstr "加密选项"
 
-#: ../pkg/storaged/details.js:190 ../pkg/storaged/details.js:376
+#: ../pkg/storaged/details.js:189 ../pkg/storaged/details.js:375
 msgid "Mounting"
 msgstr "挂载"
 
-#: ../pkg/storaged/details.js:192 ../pkg/storaged/details.js:378
-#: ../pkg/kubernetes/views/image-config.html.h:2
+#: ../pkg/storaged/details.js:191 ../pkg/storaged/details.js:377
+#: ../pkg/docker/index.html.h:26 ../pkg/kubernetes/views/image-config.html.h:2
 #: ../pkg/subscriptions/index.html.h:22
 msgid "Default"
 msgstr "默认"
 
-#: ../pkg/storaged/details.js:193 ../pkg/storaged/details.js:379
+#: ../pkg/storaged/details.js:192 ../pkg/storaged/details.js:378
 msgid "Custom"
 msgstr "自定义"
 
-#: ../pkg/storaged/details.js:198 ../pkg/storaged/details.js:383
+#: ../pkg/storaged/details.js:197 ../pkg/storaged/details.js:382
 #: ../pkg/storaged/index.html.h:19
 msgid "Mount Point"
 msgstr "挂载点"
 
-#: ../pkg/storaged/details.js:204 ../pkg/storaged/details.js:390
+#: ../pkg/storaged/details.js:203 ../pkg/storaged/details.js:389
 msgid "Mount Options"
 msgstr "挂载选项"
 
-#: ../pkg/storaged/details.js:211
+#: ../pkg/storaged/details.js:210
 msgid "Create partition"
 msgstr "创建分区"
 
-#: ../pkg/storaged/details.js:211 ../pkg/storaged/details.js:300
-#: ../pkg/storaged/details.js:1031
+#: ../pkg/storaged/details.js:210 ../pkg/storaged/details.js:299
+#: ../pkg/storaged/details.js:1030
 msgid "Format"
 msgstr "格式化"
 
-#: ../pkg/storaged/details.js:213
+#: ../pkg/storaged/details.js:212
 msgid "Formatting a storage device will erase all data on it."
 msgstr "格式化存储设备将擦除其中的所有数据."
 
-#: ../pkg/storaged/details.js:278
+#: ../pkg/storaged/details.js:277
 msgid "Format Disk $0"
 msgstr "格式化磁盘 $0"
 
-#: ../pkg/storaged/details.js:289
+#: ../pkg/storaged/details.js:288
 msgid "Partitioning"
 msgstr "分区"
 
-#: ../pkg/storaged/details.js:291
+#: ../pkg/storaged/details.js:290
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "兼容所有系统和设备 (MBR)"
 
-#: ../pkg/storaged/details.js:292
+#: ../pkg/storaged/details.js:291
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "兼容现代系统，且支持磁盘 > 2TB (GPT)"
 
-#: ../pkg/storaged/details.js:295
+#: ../pkg/storaged/details.js:294
 msgid "No partitioning"
 msgstr "无分区"
 
-#: ../pkg/storaged/details.js:301
+#: ../pkg/storaged/details.js:300
 msgid "Formatting a disk will erase all data on it."
 msgstr "格式化磁盘将擦除其中的所有数据。"
 
-#: ../pkg/storaged/details.js:369 ../pkg/storaged/details.js:998
+#: ../pkg/storaged/details.js:368 ../pkg/storaged/details.js:997
 msgid "Filesystem Options"
 msgstr "文件系统选项"
 
-#: ../pkg/storaged/details.js:398 ../pkg/storaged/details.js:479
+#: ../pkg/storaged/details.js:397 ../pkg/storaged/details.js:478
 msgid "Apply"
 msgstr "应用"
 
-#: ../pkg/storaged/details.js:416 ../pkg/storaged/details.js:423
-#: ../pkg/storaged/details.js:1003
+#: ../pkg/storaged/details.js:415 ../pkg/storaged/details.js:422
+#: ../pkg/storaged/details.js:1002
 msgid "Unlock"
 msgstr "未锁定"
 
-#: ../pkg/storaged/details.js:470
+#: ../pkg/storaged/details.js:469
 msgid "Stored Passphrase"
 msgstr "已存储口令"
 
-#: ../pkg/storaged/details.js:474 ../pkg/kubernetes/views/volume-body.html.h:32
+#: ../pkg/storaged/details.js:473 ../pkg/kubernetes/views/volume-body.html.h:32
 msgid "Options"
 msgstr "选项"
 
-#: ../pkg/storaged/details.js:507 ../pkg/storaged/details.js:836
+#: ../pkg/storaged/details.js:506 ../pkg/storaged/details.js:835
 msgid "Add Disks"
 msgstr "添加磁盘"
 
-#: ../pkg/storaged/details.js:554
+#: ../pkg/storaged/details.js:553
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "删除 RAID 设备将擦除其中的所有数据."
 
@@ -2139,321 +2210,317 @@ msgstr "删除 RAID 设备将擦除其中的所有数据."
 #. Note that shrinking a filesystem will not always
 #. succeed, but it is never dangerous.
 #.
-#: ../pkg/storaged/details.js:584
+#: ../pkg/storaged/details.js:583
 msgid "Resize Logical Volume"
 msgstr "调整逻辑卷大小"
 
-#: ../pkg/storaged/details.js:596
-#, fuzzy
+#: ../pkg/storaged/details.js:595
 msgid "Resize Filesystem"
-msgstr "无文件系统"
+msgstr "调整文件系统大小"
 
-#: ../pkg/storaged/details.js:604 ../pkg/storaged/details.js:1008
+#: ../pkg/storaged/details.js:603 ../pkg/storaged/details.js:1007
 msgid "Resize"
 msgstr "调整大小"
 
-#: ../pkg/storaged/details.js:613
+#: ../pkg/storaged/details.js:612
 msgid "This logical volume can not be made smaller."
-msgstr ""
+msgstr "该逻辑卷无法变小。"
 
-#: ../pkg/storaged/details.js:629
+#: ../pkg/storaged/details.js:628
 msgid "Renamee Logical Volume"
 msgstr "重命名逻辑卷"
 
-#: ../pkg/storaged/details.js:637 ../pkg/storaged/details.js:1009
-#: ../pkg/storaged/details.js:1652
+#: ../pkg/storaged/details.js:636 ../pkg/storaged/details.js:1008
+#: ../pkg/storaged/details.js:1651
 msgid "Rename"
 msgstr "重命名"
 
-#: ../pkg/storaged/details.js:651 ../pkg/storaged/details.js:1013
+#: ../pkg/storaged/details.js:650 ../pkg/storaged/details.js:1012
 msgid "Create Snapshot"
 msgstr "创建快照"
 
-#: ../pkg/storaged/details.js:689 ../pkg/storaged/details.js:1025
+#: ../pkg/storaged/details.js:688 ../pkg/storaged/details.js:1024
 msgid "Create Thin Volume"
 msgstr "创建稀疏卷"
 
-#: ../pkg/storaged/details.js:718
+#: ../pkg/storaged/details.js:717
 msgid "Rename Volume Group"
 msgstr "重命名卷组"
 
-#: ../pkg/storaged/details.js:749
+#: ../pkg/storaged/details.js:748
 msgid "Deleting a volume group will erase all data on it."
 msgstr "删除卷组将擦除其中的所有数据。"
 
-#: ../pkg/storaged/details.js:768 ../pkg/storaged/details.js:1601
-#, fuzzy
+#: ../pkg/storaged/details.js:767 ../pkg/storaged/details.js:1600
 msgid "Create Logical Volume"
-msgstr "创建 RAID 逻辑卷"
+msgstr "创建逻辑卷"
 
-#: ../pkg/storaged/details.js:775
+#: ../pkg/storaged/details.js:774
 msgid "Purpose"
-msgstr ""
+msgstr "目的"
 
-#: ../pkg/storaged/details.js:777
+#: ../pkg/storaged/details.js:776
 msgid "Block device for filesystems"
-msgstr ""
+msgstr "块设备的文件系统"
 
-#: ../pkg/storaged/details.js:780
-#, fuzzy
+#: ../pkg/storaged/details.js:779
 msgid "Pool for thinly provisioned volumes"
-msgstr "稀疏逻辑卷池"
+msgstr "池的瘦分配配置卷"
 
-#: ../pkg/storaged/details.js:912
+#: ../pkg/storaged/details.js:911
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "删除逻辑卷将擦除其中的所有数据。"
 
-#: ../pkg/storaged/details.js:915
+#: ../pkg/storaged/details.js:914
 msgid "Deleting a partition will delete all data in it."
 msgstr "删除分区将擦除其中的所有数据。"
 
-#: ../pkg/storaged/details.js:996
+#: ../pkg/storaged/details.js:995
 msgid "Mount"
 msgstr "挂载"
 
-#: ../pkg/storaged/details.js:997
+#: ../pkg/storaged/details.js:996
 msgid "Unmount"
 msgstr "卸载"
 
-#: ../pkg/storaged/details.js:1002
+#: ../pkg/storaged/details.js:1001
 msgid "Lock"
 msgstr "锁定"
 
-#: ../pkg/storaged/details.js:1016
+#: ../pkg/storaged/details.js:1015
 msgid "Activate"
 msgstr "激活"
 
-#: ../pkg/storaged/details.js:1019
+#: ../pkg/storaged/details.js:1018
 msgid "Deactivate"
 msgstr "未激活"
 
-#: ../pkg/storaged/details.js:1101
+#: ../pkg/storaged/details.js:1100
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 文件系统"
 
-#: ../pkg/storaged/details.js:1104
+#: ../pkg/storaged/details.js:1103
 msgctxt "storage-id-desc"
 msgid "Linux MD-RAID Component"
 msgstr "Linux MD-RAID 组件"
 
-#: ../pkg/storaged/details.js:1106
+#: ../pkg/storaged/details.js:1105
 msgctxt "storage-id-desc"
 msgid "LVM2 Physical Volume"
 msgstr "LVM2 物理卷"
 
-#: ../pkg/storaged/details.js:1108
+#: ../pkg/storaged/details.js:1107
 msgctxt "storage-id-desc"
 msgid "RAID Member"
 msgstr "RAID 成员"
 
-#: ../pkg/storaged/details.js:1125
+#: ../pkg/storaged/details.js:1124
 msgctxt "storage-id-desc"
 msgid "LUKS Encrypted"
 msgstr "LUKS 加密"
 
-#: ../pkg/storaged/details.js:1127
+#: ../pkg/storaged/details.js:1126
 msgctxt "storage-id-desc"
 msgid "Encrypted"
 msgstr "加密"
 
-#: ../pkg/storaged/details.js:1131
+#: ../pkg/storaged/details.js:1130
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Swap 空间"
 
-#: ../pkg/storaged/details.js:1133
+#: ../pkg/storaged/details.js:1132
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "其他数据"
 
-#: ../pkg/storaged/details.js:1136
+#: ../pkg/storaged/details.js:1135
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "无法识别的数据"
 
-#: ../pkg/storaged/details.js:1141 ../pkg/storaged/details.js:1147
+#: ../pkg/storaged/details.js:1140 ../pkg/storaged/details.js:1146
 msgid "$size $partition"
 msgstr "$size $partition"
 
-#: ../pkg/storaged/details.js:1158
+#: ../pkg/storaged/details.js:1157
 msgid "mounted on $0"
 msgstr "已挂载至 $0"
 
-#: ../pkg/storaged/details.js:1160
+#: ../pkg/storaged/details.js:1159
 msgid "not mounted"
 msgstr "未挂载"
 
-#: ../pkg/storaged/details.js:1164
+#: ../pkg/storaged/details.js:1163
 msgid "unlocked"
 msgstr "未锁定"
 
-#: ../pkg/storaged/details.js:1166
+#: ../pkg/storaged/details.js:1165
 msgid "locked"
 msgstr "已锁定"
 
-#: ../pkg/storaged/details.js:1235
+#: ../pkg/storaged/details.js:1234
 msgid "$0 Free Space for Logical Partitions"
 msgstr "逻辑分区剩余 $0 可用空间"
 
-#: ../pkg/storaged/details.js:1238
+#: ../pkg/storaged/details.js:1237
 msgid "$0 Free Space for Primary Partitions"
 msgstr "主分区剩余 $0 可用空间"
 
-#: ../pkg/storaged/details.js:1243
+#: ../pkg/storaged/details.js:1242
 msgid "$0 Free Space"
 msgstr "$0 可用空间"
 
-#: ../pkg/storaged/details.js:1247
+#: ../pkg/storaged/details.js:1246
 msgid "Create Partition"
 msgstr "创建分区"
 
-#: ../pkg/storaged/details.js:1255
+#: ../pkg/storaged/details.js:1254
 msgid "$0 Extended Partition"
 msgstr "$0 扩展分区"
 
-#: ../pkg/storaged/details.js:1292
+#: ../pkg/storaged/details.js:1291
 msgid "Logical Partition"
 msgstr "逻辑分区"
 
-#: ../pkg/storaged/details.js:1294
+#: ../pkg/storaged/details.js:1293
 msgid "Primary Partition"
 msgstr "主分区"
 
-#: ../pkg/storaged/details.js:1296 ../pkg/kubernetes/views/volume-body.html.h:5
+#: ../pkg/storaged/details.js:1295 ../pkg/kubernetes/views/volume-body.html.h:5
 msgid "Partition"
 msgstr "分区"
 
-#: ../pkg/storaged/details.js:1378 ../pkg/storaged/details.js:1530
+#: ../pkg/storaged/details.js:1377 ../pkg/storaged/details.js:1529
 msgid "Content"
 msgstr "内容"
 
-#: ../pkg/storaged/details.js:1396
+#: ../pkg/storaged/details.js:1395
 msgid "RAID 0"
 msgstr "RAID 0"
 
-#: ../pkg/storaged/details.js:1397
+#: ../pkg/storaged/details.js:1396
 msgid "RAID 1"
 msgstr "RAID 1"
 
-#: ../pkg/storaged/details.js:1398
+#: ../pkg/storaged/details.js:1397
 msgid "RAID 4"
 msgstr "RAID 4"
 
-#: ../pkg/storaged/details.js:1399
+#: ../pkg/storaged/details.js:1398
 msgid "RAID 5"
 msgstr "RAID 5"
 
-#: ../pkg/storaged/details.js:1400
+#: ../pkg/storaged/details.js:1399
 msgid "RAID 6"
 msgstr "RAID 6"
 
-#: ../pkg/storaged/details.js:1401
+#: ../pkg/storaged/details.js:1400
 msgid "RAID 10"
 msgstr "RAID 10"
 
-#: ../pkg/storaged/details.js:1402
+#: ../pkg/storaged/details.js:1401
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: ../pkg/storaged/details.js:1407
+#: ../pkg/storaged/details.js:1406
 msgid "$0 Disks"
 msgstr "$0 磁盘"
 
-#: ../pkg/storaged/details.js:1409
+#: ../pkg/storaged/details.js:1408
 msgid "$0 Chunk Size"
 msgstr "$0 区块大小"
 
-#: ../pkg/storaged/details.js:1420
+#: ../pkg/storaged/details.js:1419
 msgid "Data Scrubbing"
 msgstr "数据清理"
 
-#: ../pkg/storaged/details.js:1421
+#: ../pkg/storaged/details.js:1420
 msgid "Data Scrubbing and Repair"
 msgstr "数据清理及修复"
 
-#: ../pkg/storaged/details.js:1422
+#: ../pkg/storaged/details.js:1421
 msgid "Resyncing"
 msgstr "重新同步"
 
-#: ../pkg/storaged/details.js:1423
+#: ../pkg/storaged/details.js:1422
 msgid "Recovering "
 msgstr "恢复"
 
-#: ../pkg/storaged/details.js:1424
+#: ../pkg/storaged/details.js:1423
 msgid "Frozen"
 msgstr "冻结的"
 
-#: ../pkg/storaged/details.js:1431
+#: ../pkg/storaged/details.js:1430
 #, javascript-format
 msgid "$action, ${percent}% complete at $rate"
 msgstr "$action, ${percent}% 已完成, 速率 $rate"
 
-#: ../pkg/storaged/details.js:1435
+#: ../pkg/storaged/details.js:1434
 #, javascript-format
 msgid "$action, ${percent}% complete"
 msgstr "$action, ${percent}% 已完成"
 
-#: ../pkg/storaged/details.js:1440
+#: ../pkg/storaged/details.js:1439
 msgid ", $0 remaining"
 msgstr ", 剩余 $0"
 
-#: ../pkg/storaged/details.js:1454
-#, fuzzy
+#: ../pkg/storaged/details.js:1453
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
-msgstr[0] "$0 磁盘丢失"
+msgstr[0] "$0 磁盘缺失"
 
-#: ../pkg/storaged/details.js:1466 ../pkg/docker/index.html.h:10
+#: ../pkg/storaged/details.js:1465 ../pkg/docker/index.html.h:10
 #: ../pkg/ostree/index.html.h:7
 msgid "Running"
 msgstr "运行中"
 
-#: ../pkg/storaged/details.js:1466
+#: ../pkg/storaged/details.js:1465
 msgid "Not running"
 msgstr "未运行"
 
-#: ../pkg/storaged/details.js:1485
+#: ../pkg/storaged/details.js:1484
 msgid "FAILED"
 msgstr "失败"
 
-#: ../pkg/storaged/details.js:1486
+#: ../pkg/storaged/details.js:1485
 msgid "In Sync"
 msgstr "同步中"
 
-#: ../pkg/storaged/details.js:1487
+#: ../pkg/storaged/details.js:1486
 msgid "Spare"
 msgstr "备用"
 
-#: ../pkg/storaged/details.js:1487
+#: ../pkg/storaged/details.js:1486
 msgid "Recovering"
 msgstr "恢复"
 
-#: ../pkg/storaged/details.js:1488
+#: ../pkg/storaged/details.js:1487
 msgid "Write-mostly"
 msgstr "Write-mostly"
 
-#: ../pkg/storaged/details.js:1489
+#: ../pkg/storaged/details.js:1488
 msgid "Blocked"
 msgstr "受阻"
 
-#: ../pkg/storaged/details.js:1490
+#: ../pkg/storaged/details.js:1489
 msgid "Unknown ($0)"
 msgstr "未知 ($0)"
 
-#: ../pkg/storaged/details.js:1507
+#: ../pkg/storaged/details.js:1506
 msgid "Start Scrubbing"
 msgstr "开始擦除"
 
-#: ../pkg/storaged/details.js:1508
+#: ../pkg/storaged/details.js:1507
 msgid "Stop Scrubbing"
 msgstr "停止擦除"
 
-#: ../pkg/storaged/details.js:1542
+#: ../pkg/storaged/details.js:1541
 msgid "$size $desc"
 msgstr "$size $desc"
 
-#: ../pkg/storaged/details.js:1558
+#: ../pkg/storaged/details.js:1557
 #, javascript-format
 msgid "$size $desc<br/>${percent}% full"
 msgstr "$size $desc<br/>${percent}% 已满"
@@ -2462,148 +2529,150 @@ msgstr "$size $desc<br/>${percent}% 已满"
 #. volume, Storaged or something below is
 #. probably misbehaving, and we show it as
 #. "unsupported".
-#: ../pkg/storaged/details.js:1578
+#: ../pkg/storaged/details.js:1577
 msgid "$size $desc<br/>($state)"
 msgstr "$size $desc<br/>($state)"
 
-#: ../pkg/storaged/details.js:1581
+#: ../pkg/storaged/details.js:1580
 msgid "active, but unsupported"
 msgstr "激活，但不支持"
 
-#: ../pkg/storaged/details.js:1581
+#: ../pkg/storaged/details.js:1580
 msgid "inactive"
 msgstr "未激活"
 
-#: ../pkg/storaged/details.js:1600
+#: ../pkg/storaged/details.js:1599
 msgid "$0 Free Space for Logical Volumes"
 msgstr "逻辑卷剩余 $0 可用空间"
 
-#: ../pkg/storaged/details.js:1633 ../pkg/kubernetes/views/user-delete.html.h:5
+#: ../pkg/storaged/details.js:1632 ../pkg/kubernetes/views/user-delete.html.h:5
 #: ../pkg/kubernetes/views/group-delete.html.h:4
 #: ../pkg/kubernetes/views/user-group-remove.html.h:3
 #: ../pkg/kubernetes/views/remove-role-dialog.html.h:4
 msgid "Remove"
 msgstr "删除"
 
-#: ../pkg/storaged/details.js:1634
+#: ../pkg/storaged/details.js:1633
 msgid "Empty"
 msgstr "空"
 
-#: ../pkg/storaged/details.js:1640
+#: ../pkg/storaged/details.js:1639
 msgid "$0, $1 free"
 msgstr "$0, $1 可用"
 
-#: ../pkg/storaged/details.js:1665
+#: ../pkg/storaged/details.js:1664
 msgid "Logical Volumes"
 msgstr "逻辑卷"
 
-#: ../pkg/storaged/dialog.js:257
-#, fuzzy
-msgid "Size must be a number"
-msgstr "必须指定大小。"
-
 #: ../pkg/storaged/dialog.js:259
-#, fuzzy
-msgid "Size can not be zero"
-msgstr "名称不能为空."
+msgid "Size must be a number"
+msgstr "大小必须是一个数字"
 
 #: ../pkg/storaged/dialog.js:261
-#, fuzzy
-msgid "Size can not be negative"
-msgstr "名称不能为空."
+msgid "Size can not be zero"
+msgstr "大小不能为零"
 
 #: ../pkg/storaged/dialog.js:263
-msgid "Size is too large"
-msgstr ""
+msgid "Size can not be negative"
+msgstr "大小不能为负数"
 
-#: ../pkg/storaged/jobs.js:109
+#: ../pkg/storaged/dialog.js:265
+msgid "Size is too large"
+msgstr "大小太大"
+
+#: ../pkg/storaged/jobs.js:108
 msgid "SMART self-test of $target"
 msgstr "$target SMART 自检"
 
-#: ../pkg/storaged/jobs.js:110
+#: ../pkg/storaged/jobs.js:109
 msgid "Ejecting $target"
 msgstr "弹出 $target"
 
-#: ../pkg/storaged/jobs.js:111
+#: ../pkg/storaged/jobs.js:110
 msgid "Unlocking $target"
 msgstr "解锁 $target"
 
-#: ../pkg/storaged/jobs.js:112
+#: ../pkg/storaged/jobs.js:111
 msgid "Locking $target"
 msgstr "锁定 $target"
 
-#: ../pkg/storaged/jobs.js:113 ../pkg/storaged/jobs.js:118
-#: ../pkg/storaged/jobs.js:122
+#: ../pkg/storaged/jobs.js:112 ../pkg/storaged/jobs.js:117
+#: ../pkg/storaged/jobs.js:121
 msgid "Modifying $target"
 msgstr "修改 $target"
 
-#: ../pkg/storaged/jobs.js:114
+#: ../pkg/storaged/jobs.js:113
 msgid "Starting swapspace $target"
 msgstr "启动 swapspace $target"
 
-#: ../pkg/storaged/jobs.js:115
+#: ../pkg/storaged/jobs.js:114
 msgid "Stopping swapspace $target"
 msgstr "停止 swapspace $target"
 
-#: ../pkg/storaged/jobs.js:116
+#: ../pkg/storaged/jobs.js:115
 msgid "Mounting $target"
 msgstr "挂载 $target"
 
-#: ../pkg/storaged/jobs.js:117
+#: ../pkg/storaged/jobs.js:116
 msgid "Unmounting $target"
 msgstr "卸载 $target"
 
-#: ../pkg/storaged/jobs.js:119
+#: ../pkg/storaged/jobs.js:118
 msgid "Erasing $target"
 msgstr "擦除 $target"
 
-#: ../pkg/storaged/jobs.js:120
+#: ../pkg/storaged/jobs.js:119
 msgid "Creating filesystem on $target"
 msgstr "为 $target 创建文件系统"
 
-#: ../pkg/storaged/jobs.js:121
+#: ../pkg/storaged/jobs.js:120
 msgid "Setting up loop device $target"
 msgstr "创建 loop 设备 $target"
 
-#: ../pkg/storaged/jobs.js:123 ../pkg/storaged/jobs.js:133
+#: ../pkg/storaged/jobs.js:122 ../pkg/storaged/jobs.js:133
 msgid "Deleting $target"
 msgstr "删除 $target"
 
-#: ../pkg/storaged/jobs.js:124
+#: ../pkg/storaged/jobs.js:123
 msgid "Creating partition $target"
 msgstr "创建分区 $target"
 
-#: ../pkg/storaged/jobs.js:125
+#: ../pkg/storaged/jobs.js:124
 msgid "Cleaning up for $target"
 msgstr "清除 $target"
 
-#: ../pkg/storaged/jobs.js:126
+#: ../pkg/storaged/jobs.js:125
 msgid "Securely erasing $target"
 msgstr "安全擦除 $target"
 
-#: ../pkg/storaged/jobs.js:127
+#: ../pkg/storaged/jobs.js:126
 msgid "Very securely erasing $target"
 msgstr "多重安全擦除 $target"
 
-#: ../pkg/storaged/jobs.js:128
+#: ../pkg/storaged/jobs.js:127
 msgid "Stopping RAID Device $target"
 msgstr "停止 RAID 设备 $target"
 
-#: ../pkg/storaged/jobs.js:129
+#: ../pkg/storaged/jobs.js:128
 msgid "Starting RAID Device $target"
 msgstr "启动 RAID 设备 $target"
 
-#: ../pkg/storaged/jobs.js:130
+#: ../pkg/storaged/jobs.js:129
 msgid "Marking $target as faulty"
 msgstr "标记 $target 出现故障"
 
-#: ../pkg/storaged/jobs.js:131
+#: ../pkg/storaged/jobs.js:130
 msgid "Removing $target from RAID Device"
 msgstr "从 RAID 设备中删除 $target"
 
-#: ../pkg/storaged/jobs.js:132
+#: ../pkg/storaged/jobs.js:131
 msgid "Creating RAID Device $target"
 msgstr "创建 RAID 设备 $target"
+
+#: ../pkg/storaged/jobs.js:132
+#, fuzzy
+msgid "Synchronizing RAID Device $target"
+msgstr "停止 RAID 设备 $target"
 
 #: ../pkg/storaged/jobs.js:134
 msgid "Activating $target"
@@ -2661,113 +2730,33 @@ msgstr "未知目标"
 msgid "The user <b>$0</b> is not permitted to manage storage"
 msgstr "用户 <b>$0</b> 不允许管理存储"
 
-#: ../pkg/subscriptions/subscriptions.js:48
-msgid "Login cannot be empty"
-msgstr "用户名不能为空"
+#: ../pkg/subscriptions/main.js:49
+msgid "Username/Password or activation key required"
+msgstr ""
 
-#: ../pkg/subscriptions/subscriptions.js:54
-msgid "Password cannot be empty"
-msgstr "密码不能为空"
-
-#: ../pkg/subscriptions/subscriptions.js:390
+#: ../pkg/subscriptions/main.js:405
 msgid "Registering system..."
 msgstr "注册系统中..."
 
-#: ../pkg/subscriptions/subscriptions.js:449
+#: ../pkg/subscriptions/main.js:453
+msgid "Server expects an organization."
+msgstr ""
+
+#: ../pkg/subscriptions/main.js:467
 msgid "Failed to register the system"
 msgstr "注册系统失败"
 
-#: ../pkg/subscriptions/subscriptions.js:468
+#: ../pkg/subscriptions/main.js:486
 msgid ""
 "Unable to register at this time because a call to subscription manager is "
 "already in progress. Please try again."
 msgstr "当前无法注册, 因为正在处理订阅管理器的调用. 请重试."
 
-#: ../pkg/subscriptions/subscriptions.js:492
+#: ../pkg/subscriptions/main.js:511
 msgid "Invalid login or password."
 msgstr "无效的用户名或密码。"
 
-#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:27
-#: ../pkg/systemd/index.html.h:18 ../pkg/playground/patterns.html.h:28
-#: ../pkg/networkmanager/index.html.h:39 ../pkg/storaged/index.html.h:53
-msgid "On"
-msgstr "开"
-
-#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:28
-#: ../pkg/systemd/index.html.h:19 ../pkg/playground/patterns.html.h:29
-#: ../pkg/networkmanager/index.html.h:40 ../pkg/storaged/index.html.h:54
-msgid "Off"
-msgstr "关"
-
-#: ../pkg/base1/cockpit.js:2401
-msgid "$0 killed with signal $1"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:2403
-msgid "$0 exited with code $1"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:2405
-msgid "$0 failed"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3464
-msgid "Your session has been terminated."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3466
-msgid "Your session has expired. Please log in again."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3468
-msgid "Not permitted to perform this action."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3470
-msgid "Login failed"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3472
-msgid "The server refused to authenticate using any supported methods."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3474
-msgid "Untrusted host"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3476
-msgid "Host key is incorrect"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3478
-msgid "Internal error"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3480
-msgid "Connection has timed out."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3482
-msgid "Cockpit is not installed on the system."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3484
-msgid "Cannot forward login credentials"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3486
-msgid "Server has closed the connection."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3488
-msgid "Cockpit is not compatible with the software on the system."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3490
-msgid "Cockpit could not contact the given host."
-msgstr ""
-
-#: ../pkg/sosreport/index.js:50 ../pkg/sosreport/index.js:114
+#: ../pkg/sosreport/index.js:49 ../pkg/sosreport/index.js:113
 #: ../pkg/shell/templates/change-port.html.h:8
 #: ../pkg/shell/templates/unknown-hostkey.html.h:4
 #: ../pkg/shell/templates/not-supported.html.h:3
@@ -2777,7 +2766,7 @@ msgstr ""
 msgid "Close"
 msgstr "关闭"
 
-#: ../pkg/sosreport/index.js:56 ../pkg/shell/templates/change-port.html.h:6
+#: ../pkg/sosreport/index.js:55 ../pkg/shell/templates/change-port.html.h:6
 #: ../pkg/shell/templates/sync-users.html.h:7
 #: ../pkg/shell/templates/change-auth.html.h:11
 #: ../pkg/shell/templates/add-machine.html.h:5
@@ -2814,13 +2803,81 @@ msgstr "关闭"
 msgid "Cancel"
 msgstr "取消"
 
-#: ../pkg/sosreport/index.js:116
+#: ../pkg/sosreport/index.js:115
 msgid "No archive has been created."
-msgstr ""
+msgstr "没有档案被创建"
+
+#: ../src/base1/cockpit.js:2452
+msgid "$0 killed with signal $1"
+msgstr "$0 被信号 $1 杀掉"
+
+#: ../src/base1/cockpit.js:2454
+msgid "$0 exited with code $1"
+msgstr "$0 退出码 $1"
+
+#: ../src/base1/cockpit.js:2456
+msgid "$0 failed"
+msgstr "$0 失败"
+
+#: ../src/base1/cockpit.js:3515
+msgid "Your session has been terminated."
+msgstr "会话被终止。"
+
+#: ../src/base1/cockpit.js:3517
+msgid "Your session has expired. Please log in again."
+msgstr "会话超时。请重新登录。"
+
+#: ../src/base1/cockpit.js:3519
+msgid "Not permitted to perform this action."
+msgstr "不允许执行该动作。"
+
+#: ../src/base1/cockpit.js:3521
+msgid "Login failed"
+msgstr "登录失败"
+
+#: ../src/base1/cockpit.js:3523
+msgid "The server refused to authenticate using any supported methods."
+msgstr "服务器拒绝使用任何支持的方式来认证。"
+
+#: ../src/base1/cockpit.js:3525
+msgid "Untrusted host"
+msgstr "不可信的主机"
+
+#: ../src/base1/cockpit.js:3527
+msgid "Host key is incorrect"
+msgstr "主机密钥不正确"
+
+#: ../src/base1/cockpit.js:3529
+msgid "Internal error"
+msgstr "内部错误"
+
+#: ../src/base1/cockpit.js:3531
+msgid "Connection has timed out."
+msgstr "连接超时。"
+
+#: ../src/base1/cockpit.js:3533
+msgid "Cockpit is not installed on the system."
+msgstr "Cockpit 未安装在该系统上。"
+
+#: ../src/base1/cockpit.js:3535
+msgid "Cannot forward login credentials"
+msgstr "无法转发登录凭证"
+
+#: ../src/base1/cockpit.js:3537
+msgid "Server has closed the connection."
+msgstr "服务器关闭了连接。"
+
+#: ../src/base1/cockpit.js:3539
+msgid "Cockpit is not compatible with the software on the system."
+msgstr "Cockpit 与该系统上的软件不兼容。"
+
+#: ../src/base1/cockpit.js:3541
+msgid "Cockpit could not contact the given host."
+msgstr "Cockpit 无法联系指定的主机。"
 
 #: ../pkg/selinux/setroubleshoot.html.h:1
 msgid "SELinux Troubleshoot"
-msgstr ""
+msgstr "SELinux 排错"
 
 #: ../pkg/shell/simple.html.h:2 ../pkg/shell/index.html.h:5
 #: ../pkg/shell/stub.html.h:2
@@ -2854,8 +2911,8 @@ msgstr ""
 "            "
 
 #: ../pkg/shell/simple.html.h:9 ../pkg/shell/index.html.h:14
-#: ../pkg/shell/stub.html.h:9 ../pkg/systemd/index.html.h:9
-#: ../pkg/ostree/index.html.h:19 ../pkg/subscriptions/index.html.h:38
+#: ../pkg/shell/stub.html.h:9 ../pkg/systemd/index.html.h:13
+#: ../pkg/ostree/index.html.h:19 ../pkg/subscriptions/index.html.h:44
 msgid "Version"
 msgstr "版本"
 
@@ -2866,7 +2923,7 @@ msgstr "选择用于应用程序的语言"
 
 #: ../pkg/shell/simple.html.h:11 ../pkg/shell/index.html.h:16
 #: ../pkg/shell/stub.html.h:11 ../pkg/storaged/index.html.h:66
-#: ../pkg/subscriptions/index.html.h:29
+#: ../pkg/subscriptions/index.html.h:35
 msgid ""
 "\n"
 "              Cancel\n"
@@ -2914,50 +2971,52 @@ msgstr "重新连接"
 
 #: ../pkg/shell/templates/change-port.html.h:1
 msgid "Could not contact {{host}}"
-msgstr ""
+msgstr "无法联系 {{host}}"
 
 #: ../pkg/shell/templates/change-port.html.h:2
 msgid "Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}."
-msgstr ""
+msgstr "Cockpit 无法联系 {{#strong}}{{host}}{{/strong}}。"
 
 #: ../pkg/shell/templates/change-port.html.h:3
 msgid ""
 "To try a different port you will need to upgrade cockpit-ws to a newer "
 "version."
-msgstr ""
+msgstr "需要更新 cockpit-ws 到一个新版本来尝试一个不同的端口。"
 
 #: ../pkg/shell/templates/change-port.html.h:4
 msgid "Is sshd running on a different port?"
-msgstr ""
+msgstr "sshd 是否在一个不同的端口上运行？"
 
 #: ../pkg/shell/templates/change-port.html.h:7
 msgid "Update"
-msgstr ""
+msgstr "更新"
 
 #: ../pkg/shell/templates/sync-users.html.h:1 ../pkg/dashboard/index.html.h:7
 msgid "Synchronize users"
-msgstr ""
+msgstr "同步用户"
 
 #: ../pkg/shell/templates/sync-users.html.h:2
 msgid ""
 "Select the users that you would like to be synchronized with {{#strong}}"
 "{{host}}{{/strong}}"
-msgstr ""
+msgstr "选择你想要与 {{#strong}}{{host}}{{/strong}} 同步的用户"
 
 #: ../pkg/shell/templates/sync-users.html.h:3
 msgid "Error loading users: {{perm_failed}}"
-msgstr ""
+msgstr "加载用户: {{perm_failed}} 出错"
 
 #: ../pkg/shell/templates/sync-users.html.h:4
 msgid ""
 "You are connected to {{#strong}}{{host}}{{/strong}}, however in order to "
 "synchronize users, a user with superuser privileges is required."
 msgstr ""
+"已经连接到 {{#strong}}{{host}}{{/strong}}，然而为了同步用户，需要一个特权用"
+"户。"
 
 #: ../pkg/shell/templates/sync-users.html.h:5
 #: ../pkg/shell/templates/change-auth.html.h:4
 msgid "User name"
-msgstr ""
+msgstr "用户名"
 
 #: ../pkg/shell/templates/sync-users.html.h:6
 #: ../pkg/shell/templates/change-auth.html.h:6
@@ -2968,35 +3027,35 @@ msgstr "密码"
 
 #: ../pkg/shell/templates/sync-users.html.h:8
 msgid "Synchronize"
-msgstr ""
+msgstr "同步"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:1
 msgid "Unknown Host Key"
-msgstr ""
+msgstr "未知主机密钥"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:2
 msgid ""
 "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
 "established. Are you sure you want to continue connecting?"
-msgstr ""
+msgstr "主机 {{#strong}}{{host}}{{/strong}} 的认证无法完成。确认想要继续连接？"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:3 ../pkg/shell/index.html.h:4
 msgid "Fingerprint"
-msgstr ""
+msgstr "指印"
 
 #: ../pkg/shell/templates/unknown-hostkey.html.h:5
 #: ../pkg/kubernetes/views/auth-rejected-cert.html.h:6
 #: ../pkg/kubernetes/views/auth-form.html.h:14
 msgid "Connect"
-msgstr ""
+msgstr "连接"
 
 #: ../pkg/shell/templates/change-auth.html.h:1
 msgid "Log in to {{host}}"
-msgstr ""
+msgstr "登录到 {{host}}"
 
 #: ../pkg/shell/templates/change-auth.html.h:2
 msgid "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}."
-msgstr ""
+msgstr "Cockpit 无法登录到 {{#strong}}{{host}}{{/strong}}."
 
 #: ../pkg/shell/templates/change-auth.html.h:3
 msgid ""
@@ -3004,6 +3063,9 @@ msgid ""
 "change your authentication credentials below. {{#can_sync}}You may prefer to "
 "{{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}"
 msgstr ""
+"Cockpit 无法登录到 {{#strong}}{{host}}{{/strong}}。可以变更以下认证凭证。"
+"{{#can_sync}}也许想要 {{#sync_link}}同步账号和密码{{/sync_link}}.{{/"
+"can_sync}}"
 
 #: ../pkg/shell/templates/change-auth.html.h:5 ../pkg/shell/index.html.h:9
 #: ../pkg/realmd/operation.html.h:3 ../pkg/kubernetes/views/auth-form.html.h:8
@@ -3012,37 +3074,37 @@ msgstr "认证"
 
 #: ../pkg/shell/templates/change-auth.html.h:7
 msgid "Available"
-msgstr ""
+msgstr "可用的"
 
 #: ../pkg/shell/templates/change-auth.html.h:8
 msgid "Login Password"
-msgstr ""
+msgstr "登录密码"
 
 #: ../pkg/shell/templates/change-auth.html.h:9
 msgid "Kerberos Ticket"
-msgstr ""
+msgstr "Kerberos 权证"
 
 #: ../pkg/shell/templates/change-auth.html.h:10
 msgid "Checking for public keys"
-msgstr ""
+msgstr "检查公钥"
 
 #: ../pkg/shell/templates/change-auth.html.h:12
 msgid "Log In"
-msgstr ""
+msgstr "登录"
 
 #: ../pkg/shell/templates/not-supported.html.h:1
 msgid "Cockpit is not installed"
-msgstr ""
+msgstr "Cockpit 未安装"
 
 #: ../pkg/shell/templates/not-supported.html.h:2
 msgid ""
 "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
 "strong}}."
-msgstr ""
+msgstr "{{#strong}}{{host}}{{/strong}} 上未安装一个兼容版本的 Cockpit。"
 
 #: ../pkg/shell/templates/invalid-hostkey.html.h:1
 msgid "Incorrect Host Key"
-msgstr ""
+msgstr "不正确的主机密钥"
 
 #: ../pkg/shell/templates/invalid-hostkey.html.h:2
 msgid ""
@@ -3050,15 +3112,17 @@ msgid ""
 "in use. Unless this machine was recently replaced, it is likely that someone "
 "is trying to attack your connection to this machine."
 msgstr ""
+"{{#strong}}{{host}}{{/strong}} 的密钥与之前使用的不匹配。除非该主机最近被替"
+"换，否则可能有人正在攻击与该主机的连接。"
 
 #: ../pkg/shell/templates/invalid-hostkey.html.h:3
 msgid ""
 "You can remove the previously stored key by running the following command"
-msgstr ""
+msgstr "可以通过使用以下命令来移除之前保存的密钥"
 
 #: ../pkg/shell/templates/auth-failed.html.h:1
 msgid "Authentication Failed"
-msgstr ""
+msgstr "认证失败"
 
 #: ../pkg/shell/templates/auth-failed.html.h:2
 msgid ""
@@ -3066,14 +3130,17 @@ msgid ""
 "machine with cockpit you will need to enable one of the following "
 "authentication methods in the sshd config on {{#strong}}{{host}}{{/strong}}:"
 msgstr ""
+"Cockpit 无法登录到 {{#strong}}{{host}}{{/strong}}。 To use this machine with "
+"cockpit 需要在 {{#strong}}{{host}}{{/strong}} 上的 sshd 配置中启用以下认证方"
+"式其中之一 来使用该主机的 Cockpit:"
 
 #: ../pkg/shell/templates/auth-failed.html.h:4 ../pkg/shell/index.html.h:30
 msgid "Public Key"
-msgstr ""
+msgstr "公钥"
 
 #: ../pkg/shell/templates/auth-failed.html.h:5
 msgid "Kerberos Based SSO"
-msgstr ""
+msgstr "基于 Kerberos 的 SSO"
 
 #: ../pkg/shell/templates/auth-failed.html.h:6
 msgid ""
@@ -3082,23 +3149,26 @@ msgid ""
 "can_sync}} For more authentication options and troubleshooting support "
 "please upgrade cockpit-ws to a newer version."
 msgstr ""
+"Cockpit 无法登录到 {{#strong}}{{host}}{{/strong}}。 {{#can_sync}}也许想要尝"
+"试 {{#sync_link}}同步用户{{/sync_link}}。{{/can_sync}} 更多认证选项和排错支"
+"持，请更新 cockpit-ws 到一个新版本。"
 
 #: ../pkg/shell/templates/add-machine.html.h:1
 msgid "Add Machine to Dashboard"
-msgstr ""
+msgstr "添加主机到仪表板"
 
 #: ../pkg/shell/templates/add-machine.html.h:3 ../pkg/dashboard/index.html.h:5
 msgid "Color"
-msgstr ""
+msgstr "颜色"
 
 #: ../pkg/shell/templates/add-machine.html.h:4
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
-msgstr ""
+msgstr "不支持同时连接到超过 {{ limit }} 主机。"
 
 #: ../pkg/shell/index.html.h:2
 msgid "Comment"
-msgstr ""
+msgstr "说明"
 
 #: ../pkg/shell/index.html.h:8
 msgid "Account Settings"
@@ -3116,19 +3186,19 @@ msgstr ""
 
 #: ../pkg/shell/index.html.h:25
 msgid "Use my password for privileged tasks and to connect to other machines"
-msgstr ""
+msgstr "为特权任务使用密码并连接到其他主机"
 
 #: ../pkg/shell/index.html.h:26
 msgid "Use the following keys to authenticate against other systems"
-msgstr ""
+msgstr "使用以下密钥来认证其他系统"
 
 #: ../pkg/shell/index.html.h:29 ../pkg/kubernetes/index.html.h:6
 msgid "Details"
-msgstr ""
+msgstr "详情"
 
 #: ../pkg/shell/index.html.h:32
 msgid "Unlock Key"
-msgstr ""
+msgstr "解锁密钥"
 
 #: ../pkg/shell/index.html.h:33 ../pkg/users/index.html.h:23
 msgid "Old Password"
@@ -3144,7 +3214,7 @@ msgstr "确认"
 
 #: ../pkg/shell/index.html.h:36
 msgid "Change Password"
-msgstr ""
+msgstr "变更密码"
 
 #: ../pkg/shell/index.html.h:38 ../pkg/shell/stub.html.h:20
 msgid ""
@@ -3158,22 +3228,21 @@ msgstr ""
 
 #: ../pkg/shell/index.html.h:42 ../pkg/shell/stub.html.h:24
 msgid "Troubleshoot"
-msgstr ""
+msgstr "排错"
 
 #: ../pkg/users/index.html.h:1
 msgid "Local Accounts"
 msgstr "本地账户"
 
 #: ../pkg/users/index.html.h:2
-#, fuzzy
 msgid ""
 "\n"
 "            Close\n"
 "          "
 msgstr ""
 "\n"
-"              关闭\n"
-"            "
+"            关闭\n"
+"          "
 
 #: ../pkg/users/index.html.h:5
 msgid "Create New Account"
@@ -3238,7 +3307,7 @@ msgstr ""
 msgid "Confirm New Password"
 msgstr "确认新密码"
 
-#: ../pkg/users/index.html.h:26 ../pkg/docker/index.html.h:33
+#: ../pkg/users/index.html.h:26 ../pkg/docker/index.html.h:54
 #: ../pkg/networkmanager/index.html.h:42
 msgid ""
 "\n"
@@ -3263,7 +3332,7 @@ msgstr ""
 msgid "Delete Files"
 msgstr "删除文件"
 
-#: ../pkg/users/index.html.h:33 ../pkg/networkmanager/index.html.h:36
+#: ../pkg/users/index.html.h:33 ../pkg/networkmanager/index.html.h:38
 msgid ""
 "\n"
 "            Delete\n"
@@ -3335,7 +3404,7 @@ msgstr "实例"
 
 #: ../pkg/systemd/services.html.h:8
 msgid "Service Logs"
-msgstr ""
+msgstr "服务日志"
 
 #: ../pkg/systemd/services.html.h:9
 msgid "Note"
@@ -3350,71 +3419,93 @@ msgstr ""
 "          "
 
 #: ../pkg/systemd/index.html.h:2
-msgid "Synchronized with {{Server}}"
-msgstr ""
+#, fuzzy
+msgid "No host keys found."
+msgstr "没有找到地址"
 
 #: ../pkg/systemd/index.html.h:3
-msgid "Synchronized"
-msgstr ""
+msgid "Synchronized with {{Server}}"
+msgstr "与 {{Server}} 同步"
 
 #: ../pkg/systemd/index.html.h:4
-msgid "Trying to synchronize with {{Server}}"
-msgstr ""
+msgid "Synchronized"
+msgstr "已同步"
 
 #: ../pkg/systemd/index.html.h:5
-msgid "Not synchronized"
-msgstr ""
+msgid "Trying to synchronize with {{Server}}"
+msgstr "正在尝试与 {{Server}} 同步"
 
 #: ../pkg/systemd/index.html.h:6
-msgid "Hardware"
-msgstr ""
+msgid "Not synchronized"
+msgstr "未同步"
 
 #: ../pkg/systemd/index.html.h:7
-msgid "Asset Tag"
-msgstr ""
+msgid "Hardware"
+msgstr "硬件"
 
-#: ../pkg/systemd/index.html.h:8 ../pkg/kubernetes/views/nodes-page.html.h:6
+#: ../pkg/systemd/index.html.h:8
+msgid "Asset Tag"
+msgstr "资产标记"
+
+#: ../pkg/systemd/index.html.h:9 ../pkg/kubernetes/views/node-body.html.h:6
+msgid "Machine ID"
+msgstr "机器编号"
+
+#: ../pkg/systemd/index.html.h:10 ../pkg/kubernetes/views/nodes-page.html.h:6
 #: ../pkg/ostree/index.html.h:18
 msgid "Operating System"
-msgstr ""
-
-#: ../pkg/systemd/index.html.h:10 ../pkg/dashboard/index.html.h:3
-msgid "Host Name"
-msgstr ""
+msgstr "操作系统"
 
 #: ../pkg/systemd/index.html.h:11
-msgid "Domain"
+msgid "Secure Shell Keys"
 msgstr ""
 
 #: ../pkg/systemd/index.html.h:12
-msgid "System Time"
-msgstr ""
+#, fuzzy
+msgid "Show fingerprints"
+msgstr "指印"
 
-#: ../pkg/systemd/index.html.h:13
+#: ../pkg/systemd/index.html.h:14 ../pkg/dashboard/index.html.h:3
+msgid "Host Name"
+msgstr "主机名"
+
+#: ../pkg/systemd/index.html.h:15
+msgid "Domain"
+msgstr "域"
+
+#: ../pkg/systemd/index.html.h:16
+msgid "System Time"
+msgstr "系统时间"
+
+#: ../pkg/systemd/index.html.h:17
 msgid "Power Options"
 msgstr "电源选项"
 
-#: ../pkg/systemd/index.html.h:16
+#: ../pkg/systemd/index.html.h:20
 msgid "Performance Profile"
-msgstr ""
+msgstr "性能配置集"
 
-#: ../pkg/systemd/index.html.h:17
+#: ../pkg/systemd/index.html.h:21
 msgid "Store Performance Data"
+msgstr "保存性能数据"
+
+#: ../pkg/systemd/index.html.h:32
+msgid "Machine SSH Key Fingerprints"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:28
+#: ../pkg/systemd/index.html.h:33
 msgid "Pretty Host Name"
 msgstr "短主机名"
 
-#: ../pkg/systemd/index.html.h:29
+#: ../pkg/systemd/index.html.h:34
 msgid "Real Host Name"
 msgstr "实际主机名"
 
-#: ../pkg/systemd/index.html.h:30
+#: ../pkg/systemd/index.html.h:35
 msgid "Time Zone"
 msgstr "时区"
 
-#: ../pkg/systemd/index.html.h:31
+#: ../pkg/systemd/index.html.h:36
 msgid ""
 "\n"
 "                                    Invalid time zone\n"
@@ -3424,56 +3515,56 @@ msgstr ""
 "                                    无效时区\n"
 "                                "
 
-#: ../pkg/systemd/index.html.h:34
-msgid "Set time"
+#: ../pkg/systemd/index.html.h:39
+#, fuzzy
+msgid "Set Time"
 msgstr "设置时间"
 
-#: ../pkg/systemd/index.html.h:35
-#, fuzzy
+#: ../pkg/systemd/index.html.h:40
 msgid "Manually"
-msgstr "手动"
+msgstr "手动的"
 
-#: ../pkg/systemd/index.html.h:36
+#: ../pkg/systemd/index.html.h:41
 msgid "Automatically using NTP"
-msgstr ""
+msgstr "自动的（使用 NTP）"
 
-#: ../pkg/systemd/index.html.h:37
+#: ../pkg/systemd/index.html.h:42
 msgid "Automatically using specific NTP servers"
-msgstr ""
+msgstr "自动的（使用指定 NTP 服务器）"
 
-#: ../pkg/systemd/index.html.h:38
+#: ../pkg/systemd/index.html.h:43
 msgid "Delay"
 msgstr "延时"
 
-#: ../pkg/systemd/index.html.h:39
+#: ../pkg/systemd/index.html.h:44
 msgid "1 Minute"
 msgstr "1 分钟"
 
-#: ../pkg/systemd/index.html.h:40
+#: ../pkg/systemd/index.html.h:45
 msgid "5 Minutes"
 msgstr "5 分钟"
 
-#: ../pkg/systemd/index.html.h:41
+#: ../pkg/systemd/index.html.h:46
 msgid "20 Minutes"
 msgstr "20 分钟"
 
-#: ../pkg/systemd/index.html.h:42
+#: ../pkg/systemd/index.html.h:47
 msgid "40 Minutes"
 msgstr "40 分钟"
 
-#: ../pkg/systemd/index.html.h:43
+#: ../pkg/systemd/index.html.h:48
 msgid "60 Minutes"
 msgstr "60 分钟"
 
-#: ../pkg/systemd/index.html.h:44
+#: ../pkg/systemd/index.html.h:49
 msgid "No Delay"
 msgstr "无延时"
 
-#: ../pkg/systemd/index.html.h:45
+#: ../pkg/systemd/index.html.h:50
 msgid "Specific Time"
 msgstr "指定时间"
 
-#: ../pkg/systemd/index.html.h:46
+#: ../pkg/systemd/index.html.h:51
 msgid ""
 "\n"
 "                        Cancel\n"
@@ -3523,7 +3614,7 @@ msgstr "所有"
 #: ../pkg/kubernetes/views/container-page-inline.html.h:2
 #: ../pkg/kubernetes/views/container-panel.html.h:2
 msgid "Logs"
-msgstr ""
+msgstr "日志"
 
 #: ../pkg/systemd/logs.html.h:11
 msgid "Entry"
@@ -3569,9 +3660,8 @@ msgid "Docker is not installed or activated on the system"
 msgstr "系统中的 Docker 未安装或未启动"
 
 #: ../pkg/docker/index.html.h:5
-#, fuzzy
 msgid "Can&rsquo;t connect to Docker"
-msgstr "不能连接 Docker"
+msgstr "无法连接到 Docker"
 
 #: ../pkg/docker/index.html.h:6
 msgid "Start Docker"
@@ -3583,11 +3673,11 @@ msgstr "重试"
 
 #: ../pkg/docker/index.html.h:8
 msgid "Combined CPU usage"
-msgstr ""
+msgstr "结合 CPU 使用率"
 
 #: ../pkg/docker/index.html.h:9
 msgid "Combined memory usage"
-msgstr ""
+msgstr "结合内存使用率"
 
 #: ../pkg/docker/index.html.h:12
 msgid ""
@@ -3600,65 +3690,162 @@ msgstr ""
 "            "
 
 #: ../pkg/docker/index.html.h:15
-msgid "TCP"
-msgstr "TCP"
+#, fuzzy
+msgid "IP Address:"
+msgstr "IP 地址"
 
 #: ../pkg/docker/index.html.h:16
-msgid "{{host_port_label}}"
-msgstr "{{host_port_label}}"
+#, fuzzy
+msgid "IP Prefix Length:"
+msgstr "前缀长度"
 
 #: ../pkg/docker/index.html.h:17
-msgid "select container"
+msgid "Gateway:"
 msgstr ""
 
 #: ../pkg/docker/index.html.h:18
+#, fuzzy
+msgid "MAC Address:"
+msgstr "地址"
+
+#: ../pkg/docker/index.html.h:19 ../pkg/kubernetes/index.html.h:2
+#: ../pkg/kubernetes/registry.html.h:2
+msgid "Overview"
+msgstr "概览"
+
+#: ../pkg/docker/index.html.h:20
+#, fuzzy
+msgid "Reset"
+msgstr "预置"
+
+#: ../pkg/docker/index.html.h:21
+#, fuzzy
+msgid "Storage pool"
+msgstr "存储日志"
+
+#: ../pkg/docker/index.html.h:22
+msgid "Additional Storage"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:23
+msgid "TCP"
+msgstr "TCP"
+
+#: ../pkg/docker/index.html.h:24
+msgid "{{host_port_label}}"
+msgstr "{{host_port_label}}"
+
+#: ../pkg/docker/index.html.h:25
+#, fuzzy
+msgid "{{host_volume_label}}"
+msgstr "{{host_port_label}}"
+
+#: ../pkg/docker/index.html.h:27
+#, fuzzy
+msgid "ReadWrite"
+msgstr "读取中"
+
+#: ../pkg/docker/index.html.h:28
+#, fuzzy
+msgid "ReadOnly"
+msgstr "只读"
+
+#: ../pkg/docker/index.html.h:29
+#, fuzzy
+msgid "{{envvar_key_label}}"
+msgstr "{{alias_label}}"
+
+#: ../pkg/docker/index.html.h:30
+#, fuzzy
+msgid "{{envvar_value_label}}"
+msgstr "{{alias_label}}"
+
+#: ../pkg/docker/index.html.h:31
+msgid "select container"
+msgstr "选择容器"
+
+#: ../pkg/docker/index.html.h:32
 msgid "{{alias_label}}"
 msgstr "{{alias_label}}"
 
-#: ../pkg/docker/index.html.h:19 ../pkg/kubernetes/views/image-page.html.h:2
+#: ../pkg/docker/index.html.h:33 ../pkg/kubernetes/views/image-page.html.h:2
 #: ../pkg/kubernetes/views/image-panel.html.h:1
 #: ../pkg/kubernetes/views/container-body.html.h:2
 msgid "Image"
 msgstr "镜像"
 
-#: ../pkg/docker/index.html.h:20
+#: ../pkg/docker/index.html.h:34
 msgid "Container Name"
 msgstr "容器名称"
 
-#: ../pkg/docker/index.html.h:21
+#: ../pkg/docker/index.html.h:35
 msgid "Command"
 msgstr "命令"
 
-#: ../pkg/docker/index.html.h:22
+#: ../pkg/docker/index.html.h:36
 msgid "Memory limit"
 msgstr "内存限制"
 
-#: ../pkg/docker/index.html.h:23
+#: ../pkg/docker/index.html.h:37
+#, fuzzy
+msgid "MiB"
+msgstr "1 MiB"
+
+#: ../pkg/docker/index.html.h:38
 msgid "CPU priority"
 msgstr "CPU 优先级"
 
-#: ../pkg/docker/index.html.h:24
+#: ../pkg/docker/index.html.h:39
+#, fuzzy
+msgid "shares"
+msgstr "$0 共享"
+
+#: ../pkg/docker/index.html.h:40
 msgid "With terminal"
 msgstr "跟随终端"
 
-#: ../pkg/docker/index.html.h:25
+#: ../pkg/docker/index.html.h:41
 msgid "Links"
 msgstr "连接"
 
-#: ../pkg/docker/index.html.h:27 ../pkg/kubernetes/views/pod-body.html.h:4
-msgid "Restart Policy"
-msgstr ""
-
-#: ../pkg/docker/index.html.h:29
+#: ../pkg/docker/index.html.h:43
 #, fuzzy
-msgid "On Failure"
-msgstr "已失败"
+msgid "Expose container ports"
+msgstr "选择容器"
 
-#: ../pkg/docker/index.html.h:32
-msgid "Retries:"
+#: ../pkg/docker/index.html.h:44 ../pkg/kubernetes/views/image-config.html.h:9
+#: ../pkg/kubernetes/views/pod-page.html.h:3
+#: ../pkg/kubernetes/views/dashboard-page.html.h:4
+#: ../pkg/kubernetes/index.html.h:7
+msgid "Volumes"
+msgstr "卷"
+
+#: ../pkg/docker/index.html.h:45
+msgid "Mount container volumes"
 msgstr ""
 
-#: ../pkg/docker/index.html.h:36
+#: ../pkg/docker/index.html.h:46 ../pkg/kubernetes/views/image-config.html.h:6
+#: ../pkg/kubernetes/views/container-body.html.h:9
+msgid "Environment"
+msgstr "环境变量"
+
+#: ../pkg/docker/index.html.h:47
+msgid "Set container environment variables"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:48 ../pkg/kubernetes/views/pod-body.html.h:4
+msgid "Restart Policy"
+msgstr "重启策略"
+
+#: ../pkg/docker/index.html.h:50
+msgid "On Failure"
+msgstr "失败时"
+
+#: ../pkg/docker/index.html.h:53
+msgid "Retries:"
+msgstr "重试次数:"
+
+#: ../pkg/docker/index.html.h:57
 msgid ""
 "\n"
 "            Run\n"
@@ -3668,7 +3855,7 @@ msgstr ""
 "            运行\n"
 "          "
 
-#: ../pkg/docker/index.html.h:39
+#: ../pkg/docker/index.html.h:60
 msgid ""
 "\n"
 "            Download\n"
@@ -3678,7 +3865,7 @@ msgstr ""
 "            下载\n"
 "          "
 
-#: ../pkg/docker/index.html.h:42
+#: ../pkg/docker/index.html.h:63
 msgid ""
 "\n"
 "            Change\n"
@@ -3688,20 +3875,20 @@ msgstr ""
 "            修改\n"
 "          "
 
-#: ../pkg/docker/index.html.h:45
+#: ../pkg/docker/index.html.h:66
 msgid "Repository"
 msgstr "存储库"
 
-#: ../pkg/docker/index.html.h:46
+#: ../pkg/docker/index.html.h:67
 msgid "Tag"
 msgstr "标签"
 
-#: ../pkg/docker/index.html.h:47 ../pkg/kubernetes/views/image-listing.html.h:4
+#: ../pkg/docker/index.html.h:68 ../pkg/kubernetes/views/image-listing.html.h:4
 #: ../pkg/kubernetes/views/image-body.html.h:5
 msgid "Author"
 msgstr "作者"
 
-#: ../pkg/docker/index.html.h:48
+#: ../pkg/docker/index.html.h:69
 msgid ""
 "\n"
 "            Commit\n"
@@ -3711,93 +3898,117 @@ msgstr ""
 "            提交\n"
 "          "
 
-#: ../pkg/playground/patterns.html.h:1
-msgid "Cockpit Pattern Usage"
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:2
-msgid "Example Dialog"
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:3
-msgid ""
-"\n"
-"                                Label\n"
-"                            "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:6
-msgid ""
-"\n"
-"                                Select\n"
-"                            "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:9
-msgid "One"
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:10
-msgid ""
-"\n"
-"                    Cancel\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:13
-msgid ""
-"\n"
-"                    Clear\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:16
-msgid ""
-"\n"
-"                    Invalid\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:19
-msgid ""
-"\n"
-"                    Error\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:22
-msgid ""
-"\n"
-"                    Wait\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:25
-msgid ""
-"\n"
-"        Show Dialog\n"
-"    "
-msgstr ""
-
 #: ../pkg/playground/test.html.h:1
 msgid "Cockpit terminal"
-msgstr ""
+msgstr "Cockpit 终端"
 
 #: ../pkg/playground/test.html.h:2 ../pkg/networkmanager/index.html.h:1
 msgid "Networking"
 msgstr "组网"
 
+#: ../pkg/playground/jquery-patterns.html.h:1
+msgid "Cockpit Pattern Usage"
+msgstr "Cockpit 模式使用"
+
+#: ../pkg/playground/jquery-patterns.html.h:2
+msgid "Example Dialog"
+msgstr "示例对话框"
+
+#: ../pkg/playground/jquery-patterns.html.h:3
+msgid ""
+"\n"
+"                                Label\n"
+"                            "
+msgstr ""
+"\n"
+"                                标签\n"
+"                            "
+
+#: ../pkg/playground/jquery-patterns.html.h:6
+msgid ""
+"\n"
+"                                Select\n"
+"                            "
+msgstr ""
+"\n"
+"                                选择\n"
+"                            "
+
+#: ../pkg/playground/jquery-patterns.html.h:9
+msgid "One"
+msgstr "One"
+
+#: ../pkg/playground/jquery-patterns.html.h:10
+msgid ""
+"\n"
+"                    Cancel\n"
+"                "
+msgstr ""
+"\n"
+"                    取消\n"
+"                "
+
+#: ../pkg/playground/jquery-patterns.html.h:13
+msgid ""
+"\n"
+"                    Clear\n"
+"                "
+msgstr ""
+"\n"
+"                    清除\n"
+"                "
+
+#: ../pkg/playground/jquery-patterns.html.h:16
+msgid ""
+"\n"
+"                    Invalid\n"
+"                "
+msgstr ""
+"\n"
+"                    无效的\n"
+"                "
+
+#: ../pkg/playground/jquery-patterns.html.h:19
+msgid ""
+"\n"
+"                    Error\n"
+"                "
+msgstr ""
+"\n"
+"                    错误的\n"
+"                "
+
+#: ../pkg/playground/jquery-patterns.html.h:22
+msgid ""
+"\n"
+"                    Wait\n"
+"                "
+msgstr ""
+"\n"
+"                    等待\n"
+"                "
+
+#: ../pkg/playground/jquery-patterns.html.h:25
+msgid ""
+"\n"
+"        Show Dialog\n"
+"    "
+msgstr ""
+"\n"
+"        显示对话框\n"
+"    "
+
 #: ../pkg/playground/react-patterns.html.h:1
 msgid "Cockpit React Patterns Usage"
-msgstr ""
+msgstr "Cockpit React 模式用法"
 
 #: ../pkg/playground/react-patterns.html.h:2
 msgid "Show Dialog"
-msgstr ""
+msgstr "显示对话框"
 
 #: ../pkg/playground/react-patterns.html.h:3
 msgid "Show Error-Dialog"
-msgstr ""
+msgstr "显示错误-对话框"
 
 #: ../pkg/dashboard/index.html.h:2
 msgid "Lost connection. Trying to reconnect"
@@ -3805,239 +4016,202 @@ msgstr "连接失败。请重新连接"
 
 #: ../pkg/dashboard/index.html.h:6
 msgid "Avatar"
-msgstr ""
+msgstr "替身"
 
 #: ../pkg/dashboard/index.html.h:9
 msgid "Set"
-msgstr ""
+msgstr "设置"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:1
 #: ../pkg/kubernetes/views/pvc-body.html.h:1
-#, fuzzy
 msgid "Volume Type"
-msgstr "卷组"
+msgstr "卷类型"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:2
 msgid "{{ volume | formatVolumeType }}"
-msgstr ""
+msgstr "{{ volume | formatVolumeType }}"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:3
-#, fuzzy
 msgid "PD Name"
-msgstr "名称"
+msgstr "持久盘名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:4
 #: ../pkg/kubernetes/views/pv-modify.html.h:19
-#, fuzzy
 msgid "Filesystem Type"
 msgstr "文件系统类型"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:6
 #: ../pkg/kubernetes/views/pv-modify.html.h:20
-#, fuzzy
 msgid "Read Only"
-msgstr "就绪"
+msgstr "只读"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:7
-#, fuzzy
 msgid "Volume ID"
-msgstr "卷组"
+msgstr "卷编号"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:8
-#, fuzzy
 msgid "Repository URL"
-msgstr "存储库"
+msgstr "仓库网址"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:9
-#, fuzzy
 msgid "Revision"
-msgstr "版本"
+msgstr "修订"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:10
 #: ../pkg/kubernetes/views/image-config.html.h:3
 msgid "Directory"
-msgstr ""
+msgstr "目录"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:12
 msgid "Medium"
-msgstr ""
+msgstr "媒介"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:13
 #: ../pkg/kubernetes/views/pv-modify.html.h:14
-#, fuzzy
 msgid "Path"
 msgstr "路径"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:14
 msgid "Endpoint Name"
-msgstr ""
+msgstr "端点名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:15
 #: ../pkg/kubernetes/views/pv-modify.html.h:13
-#, fuzzy
 msgid "Volume Name"
-msgstr "全局名称"
+msgstr "卷名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:16
 #: ../pkg/kubernetes/views/pv-modify.html.h:11
-#, fuzzy
 msgid "Server"
-msgstr "服务"
+msgstr "服务器"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:17
-#, fuzzy
 msgid "Monitors"
-msgstr "ARP 监控"
+msgstr "监视器"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:18
-#, fuzzy
 msgid "Image Name"
-msgstr "镜像 $0"
+msgstr "镜像名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:19
-#, fuzzy
 msgid "Pool Name"
-msgstr "全名"
+msgstr "池名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:21
 msgid "Key Ring Path"
-msgstr ""
+msgstr "密匙环路径"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:22
-#, fuzzy
 msgid "Secret Volume"
-msgstr "创建稀疏卷"
+msgstr "口令卷"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:23
-#, fuzzy
 msgid "Target Portal"
-msgstr "目标"
+msgstr "目标门户"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:24
 #: ../pkg/kubernetes/views/pv-modify.html.h:16
-#, fuzzy
 msgid "Qualified Name"
-msgstr "全名"
+msgstr "限定名"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:25
 #: ../pkg/kubernetes/views/pv-modify.html.h:17
-#, fuzzy
 msgid "Logical Unit Number"
-msgstr "逻辑卷"
+msgstr "逻辑单元编号"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:26
 #: ../pkg/kubernetes/views/pv-modify.html.h:18
-#, fuzzy
 msgid "Interface"
 msgstr "接口"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:27
-#, fuzzy
 msgid "Ceph Monitors"
-msgstr "存储库"
+msgstr "Ceph 监视器"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:28
-#, fuzzy
 msgid "Secret File"
-msgstr "设备文件"
+msgstr "口令文件"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:29
-#, fuzzy
 msgid "Target World Wide Names"
-msgstr "全局名称"
+msgstr "目标全球通用名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:30
 msgid "Flocker Dataset Name"
-msgstr ""
+msgstr "Flocker 数据集名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:31
-#, fuzzy
 msgid "Driver"
 msgstr "驱动器"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:33
-#, fuzzy
 msgid "Share Name"
-msgstr "用户名"
+msgstr "共享名称"
 
 #: ../pkg/kubernetes/views/volume-body.html.h:34
-#, fuzzy
 msgid "Secret Name"
-msgstr "用户名"
+msgstr "口令名称"
 
 #: ../pkg/kubernetes/views/image-config.html.h:1
 msgid "Run as"
-msgstr ""
+msgstr "运行为"
 
 #: ../pkg/kubernetes/views/image-config.html.h:4
 msgid "Stop with"
-msgstr ""
+msgstr "停止为"
 
 #: ../pkg/kubernetes/views/image-config.html.h:5
-#: ../pkg/subscriptions/index.html.h:39
+#: ../pkg/subscriptions/index.html.h:45
 msgid "Architecture"
 msgstr "架构"
 
-#: ../pkg/kubernetes/views/image-config.html.h:6
-#: ../pkg/kubernetes/views/container-body.html.h:9
-msgid "Environment"
-msgstr ""
-
-#: ../pkg/kubernetes/views/image-config.html.h:9
-#: ../pkg/kubernetes/views/pod-page.html.h:3
-#: ../pkg/kubernetes/views/dashboard-page.html.h:4
-#: ../pkg/kubernetes/index.html.h:7
-msgid "Volumes"
-msgstr ""
-
 #: ../pkg/kubernetes/views/pvc-delete.html.h:1
 msgid "Delete Persistent Volume Claim"
-msgstr ""
+msgstr "删除持久卷声明"
 
 #: ../pkg/kubernetes/views/pvc-delete.html.h:2
 msgid ""
 "Do you want to delete the Persistent Volume Claim '{{item.metadata.name}}'?"
-msgstr ""
+msgstr "是否想要删除持久卷声明 '{{item.metadata.name}}'？"
 
 #: ../pkg/kubernetes/views/pvc-delete.html.h:3
 msgid ""
 "This claim is in use. Deleting it may cause issues with the following pod:"
-msgstr ""
+msgstr "该声明正在使用。删除它也许会对以下容器舱产生影响:"
 
 #: ../pkg/kubernetes/views/replicationcontroller-page.html.h:1
 msgid "Show all Replication Controllers"
-msgstr ""
+msgstr "显示所有复制控制器"
 
 #: ../pkg/kubernetes/views/replicationcontroller-page.html.h:2
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:1
 #: ../pkg/kubernetes/views/topology-page.html.h:5
 msgid "Replication Controller"
-msgstr ""
+msgstr "复制控制器"
 
 #: ../pkg/kubernetes/views/replicationcontroller-page.html.h:4
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:3
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:2
 #: ../pkg/kubernetes/views/deploymentconfig-page.html.h:3
 msgid "Template"
-msgstr ""
+msgstr "模板"
 
 #: ../pkg/kubernetes/views/replicationcontroller-page.html.h:5
 msgid "The replication controller '{{ target }}' does not exist."
-msgstr ""
+msgstr "复制控制器 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/route-panel.html.h:1
 #: ../pkg/kubernetes/views/route-page.html.h:2
-#, fuzzy
 msgid "Route"
 msgstr "路由"
 
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:1
 msgid "Create image stream"
-msgstr ""
+msgstr "创建镜像流"
 
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:2
 msgid "Change image stream"
-msgstr ""
+msgstr "变更镜像流"
 
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:4
 #: ../pkg/kubernetes/views/deploymentconfig-body.html.h:1
@@ -4054,56 +4228,55 @@ msgstr "项目"
 
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:5
 msgid "Populate"
-msgstr ""
+msgstr "填入"
 
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:6
 msgid "Pull from"
-msgstr ""
+msgstr "拉取自"
 
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:7
 #: ../pkg/kubernetes/views/image-listing.html.h:3
 #: ../pkg/kubernetes/views/image-body.html.h:10
 msgid "Tags"
-msgstr ""
+msgstr "标记"
 
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:8
 msgid "Remote registry is insecure"
-msgstr ""
+msgstr "远程注册表不安全"
 
 #: ../pkg/kubernetes/views/item-delete.html.h:1
 msgid "Delete {{ item.kind }}"
-msgstr ""
+msgstr "删除 {{ item.kind }}"
 
 #: ../pkg/kubernetes/views/item-delete.html.h:2
 msgid "Do you want to delete the {{ item.kind }} '{{item.metadata.name}}'?"
-msgstr ""
+msgstr "是否想要删除 {{ item.kind }} '{{item.metadata.name}}'？"
 
 #: ../pkg/kubernetes/views/item-delete.html.h:3
 msgid ""
 "Deleting a Pod will kill all associated containers. Pods may be "
 "automatically created again in some cases."
-msgstr ""
+msgstr "删除容器舱将会杀掉所有相关的容器。容器舱也许会在某些情况下被自动创建。"
 
 #: ../pkg/kubernetes/views/user-delete.html.h:1
-#, fuzzy
 msgid "Remove User"
-msgstr "删除"
+msgstr "移除用户"
 
 #: ../pkg/kubernetes/views/user-delete.html.h:2
 #: ../pkg/kubernetes/views/group-delete.html.h:2
 #: ../pkg/kubernetes/views/project-listing.html.h:2
 #: ../pkg/kubernetes/index.html.h:9 ../pkg/kubernetes/registry.html.h:4
 msgid "Projects"
-msgstr ""
+msgstr "项目"
 
 #: ../pkg/kubernetes/views/user-delete.html.h:3
 #: ../pkg/kubernetes/views/project-listing.html.h:8
 msgid "Groups"
-msgstr ""
+msgstr "组"
 
 #: ../pkg/kubernetes/views/route-modify.html.h:1
 msgid "Adjust Route"
-msgstr ""
+msgstr "调整路由"
 
 #: ../pkg/kubernetes/views/deploymentconfig-body.html.h:2
 #: ../pkg/kubernetes/views/replicationcontroller-body.html.h:2
@@ -4125,7 +4298,7 @@ msgstr "名称空间"
 #: ../pkg/kubernetes/views/route-body.html.h:3
 #: ../pkg/kubernetes/views/service-body.html.h:3
 msgid "Created"
-msgstr ""
+msgstr "创建于"
 
 #: ../pkg/kubernetes/views/deploymentconfig-body.html.h:4
 #: ../pkg/kubernetes/views/replicationcontroller-body.html.h:4
@@ -4137,15 +4310,15 @@ msgstr "复用"
 #: ../pkg/kubernetes/views/deploymentconfig-body.html.h:5
 #: ../pkg/kubernetes/views/details-page.html.h:14
 msgid "Latest Version"
-msgstr ""
+msgstr "最近的版本"
 
 #: ../pkg/kubernetes/views/deploymentconfig-body.html.h:6
 msgid "Deployment Causes"
-msgstr ""
+msgstr "部署原因"
 
 #: ../pkg/kubernetes/views/deploymentconfig-body.html.h:7
 msgid "Triggers"
-msgstr ""
+msgstr "触发器"
 
 #: ../pkg/kubernetes/views/deploymentconfig-body.html.h:8
 #: ../pkg/kubernetes/views/replicationcontroller-body.html.h:5
@@ -4155,45 +4328,44 @@ msgstr ""
 #: ../pkg/kubernetes/views/route-body.html.h:8
 #: ../pkg/kubernetes/views/service-body.html.h:9
 msgid "Labels"
-msgstr ""
+msgstr "标签"
 
 #: ../pkg/kubernetes/views/auth-rejected-cert.html.h:1
 msgid "The server uses a certificate signed by an unknown authority."
-msgstr ""
+msgstr "服务器使用率一个通过未知机构签名的证书。"
 
 #: ../pkg/kubernetes/views/auth-rejected-cert.html.h:2
 msgid ""
 "You can bypass the certificate check, but any data you send to the server "
 "could be intercepted by others."
-msgstr ""
+msgstr "可以通过证书检查，但是发送到服务器的任何数据可能被其他人拦截。"
 
 #: ../pkg/kubernetes/views/auth-rejected-cert.html.h:3
 #: ../pkg/kubernetes/views/auth-form.html.h:4
 msgid "Skip Certificate Verification"
-msgstr ""
+msgstr "跳过证书验证"
 
 #: ../pkg/kubernetes/views/auth-rejected-cert.html.h:4
 msgid "Trust this certificate for this connection"
-msgstr ""
+msgstr "为该连接信任该证书"
 
 #: ../pkg/kubernetes/views/image-page.html.h:1
 msgid "Show all images"
-msgstr ""
+msgstr "显示所有镜像"
 
 #: ../pkg/kubernetes/views/image-page.html.h:4
 #: ../pkg/kubernetes/views/image-panel.html.h:3
 #: ../pkg/kubernetes/views/imagestream-page.html.h:4
 msgid "Metadata"
-msgstr ""
+msgstr "元数据"
 
 #: ../pkg/kubernetes/views/group-delete.html.h:1
-#, fuzzy
 msgid "Remove Group"
-msgstr "重命名卷组"
+msgstr "移除组"
 
 #: ../pkg/kubernetes/views/user-modify.html.h:1
 msgid "Change User"
-msgstr ""
+msgstr "变更用户"
 
 #: ../pkg/kubernetes/views/user-modify.html.h:2
 #: ../pkg/kubernetes/views/add-group-dialog.html.h:2
@@ -4203,6 +4375,9 @@ msgid ""
 "                        Name\n"
 "                    "
 msgstr ""
+"\n"
+"                        名称\n"
+"                    "
 
 #: ../pkg/kubernetes/views/user-modify.html.h:5
 #: ../pkg/kubernetes/views/add-user-dialog.html.h:5
@@ -4211,18 +4386,21 @@ msgid ""
 "                        Identity\n"
 "                    "
 msgstr ""
+"\n"
+"                        身份\n"
+"                    "
 
 #: ../pkg/kubernetes/views/user-modify.html.h:9
 msgid "Modify"
-msgstr ""
+msgstr "修改"
 
 #: ../pkg/kubernetes/views/node-add.html.h:1
 msgid "Add Cluster Node"
-msgstr ""
+msgstr "添加集群节点"
 
 #: ../pkg/kubernetes/views/node-add.html.h:4
 msgid "Configuration"
-msgstr ""
+msgstr "配置"
 
 #: ../pkg/kubernetes/views/node-add.html.h:5
 msgid "Configure Kubelet and Proxy"
@@ -4234,71 +4412,77 @@ msgstr "配置 Flannel 网络"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:1
 msgid "Welcome to the Image Registry"
-msgstr ""
+msgstr "欢迎使用镜像注册表"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:2
 msgid ""
 "In order to begin pushing images to the registry, you need to create a "
 "project."
-msgstr ""
+msgstr "为了开始推送镜像到注册表，需要创建一个项目。"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:3
 #: ../pkg/kubernetes/views/project-modify.html.h:1
 msgid "New project"
-msgstr ""
+msgstr "新建项目"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:4
 msgid "Images by project"
-msgstr ""
+msgstr "镜像（按项目）"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:5
-msgid "Images pushed recently"
-msgstr ""
+#: ../pkg/kubernetes/views/imagestream-page.html.h:3
+#: ../pkg/kubernetes/views/image-listing.html.h:2
+#: ../pkg/kubernetes/index.html.h:8 ../pkg/kubernetes/registry.html.h:3
+msgid "Images"
+msgstr "镜像"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:6
-msgid "All images"
-msgstr ""
+msgid "Images pushed recently"
+msgstr "最近推送的镜像"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:7
-msgid "No images pushed"
-msgstr ""
+msgid "All images"
+msgstr "所有镜像"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:8
-msgid ""
-"In order to begin pushing images to the registry, use the commands below."
-msgstr ""
+msgid "No images pushed"
+msgstr "没有推送的镜像"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:9
-#: ../pkg/kubernetes/views/image-listing.html.h:1
-msgid "New image stream"
-msgstr ""
+msgid ""
+"In order to begin pushing images to the registry, use the commands below."
+msgstr "为了开始推送镜像到注册表，使用以下命令。"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:10
-msgid "Docker commands"
-msgstr ""
+#: ../pkg/kubernetes/views/image-listing.html.h:1
+msgid "New image stream"
+msgstr "新建镜像流"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:11
+msgid "Docker commands"
+msgstr "Docker 命令"
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:12
 msgid ""
 "Your login credentials do not give you access to use the docker registry "
 "from the command line."
-msgstr ""
-
-#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:12
-msgid "Push an image:"
-msgstr ""
+msgstr "登录凭证没有从命令行使用 Docker 注册表的权限"
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:13
+msgid "Push an image:"
+msgstr "推送镜像:"
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:14
 msgid "Pull an image:"
-msgstr ""
+msgstr "拉取镜像:"
 
 #: ../pkg/kubernetes/views/pv-delete.html.h:1
-#, fuzzy
 msgid "Delete Persistent Volume"
-msgstr "创建空卷"
+msgstr "删除持久卷"
 
 #: ../pkg/kubernetes/views/pv-delete.html.h:2
 msgid "Do you want to delete the Persistent Volume '{{item.metadata.name}}'?"
-msgstr ""
+msgstr "是否想要删除持久卷 '{{item.metadata.name}}'？"
 
 #: ../pkg/kubernetes/views/pv-delete.html.h:3
 msgid ""
@@ -4306,31 +4490,31 @@ msgid ""
 "{{ item.item.spec.claimRef.name }}. Deleting it will break that claim and "
 "may cause issues with any pods depending on it."
 msgstr ""
+"该卷已经被 {{ item.item.spec.claimRef.namespace }} / {{ item.item.spec."
+"claimRef.name }} 声明。删除它将会损坏该声明并且也许会对依赖于它的容器舱尝试影"
+"响。"
 
 #: ../pkg/kubernetes/views/filter-project.html.h:1
 msgid "All Projects"
-msgstr ""
+msgstr "所有项目"
 
 #: ../pkg/kubernetes/views/filter-project.html.h:2
 msgid "Project:"
-msgstr ""
+msgstr "项目:"
 
 #: ../pkg/kubernetes/views/project-delete.html.h:1
-#, fuzzy
 msgid "Delete Project"
-msgstr "项目"
+msgstr "删除项目"
 
 #: ../pkg/kubernetes/views/user-group-remove.html.h:1
-#, fuzzy
 msgid "Remove Member"
-msgstr "RAID 成员"
+msgstr "移除成员"
 
 #: ../pkg/kubernetes/views/project-body.html.h:1
 msgid "Project Members"
-msgstr ""
+msgstr "项目成员"
 
 #: ../pkg/kubernetes/views/project-body.html.h:3
-#, fuzzy
 msgid ""
 "\n"
 "                                {{ getRegistryRoles(user, project())."
@@ -4338,15 +4522,15 @@ msgid ""
 "                            "
 msgstr ""
 "\n"
-"                                    无效时区\n"
-"                                "
+"                                {{ getRegistryRoles(user, project())."
+"join() }}\n"
+"                            "
 
 #: ../pkg/kubernetes/views/project-body.html.h:6
 msgid "Admin"
-msgstr ""
+msgstr "管理"
 
 #: ../pkg/kubernetes/views/project-body.html.h:7
-#, fuzzy
 msgid ""
 "\n"
 "                                    {{ getRegistryRoles(group, project())."
@@ -4354,7 +4538,8 @@ msgid ""
 "                                "
 msgstr ""
 "\n"
-"                                    无效时区\n"
+"                                    {{ getRegistryRoles(group, project())."
+"join() }}\n"
 "                                "
 
 #: ../pkg/kubernetes/views/project-body.html.h:10
@@ -4363,83 +4548,86 @@ msgstr ""
 #: ../pkg/kubernetes/views/add-member-role-dialog.html.h:1
 #: ../pkg/kubernetes/views/group-panel.html.h:2
 msgid "Add Member"
-msgstr ""
+msgstr "添加成员"
 
 #: ../pkg/kubernetes/views/imagestream-meta.html.h:1
 #: ../pkg/kubernetes/views/image-meta.html.h:3
 #: ../pkg/kubernetes/views/node-body.html.h:21
 #: ../pkg/kubernetes/views/route-body.html.h:10
 msgid "Annotations"
-msgstr ""
+msgstr "注释"
 
 #: ../pkg/kubernetes/views/image-meta.html.h:2
 msgid "On Build"
-msgstr ""
+msgstr "构建中"
 
 #: ../pkg/kubernetes/views/image-meta.html.h:4
 msgid "Docker Version"
-msgstr ""
+msgstr "Docker 版本"
 
 #: ../pkg/kubernetes/views/image-meta.html.h:5
-#, fuzzy
 msgid "Image Layers"
-msgstr "镜像 $0"
+msgstr "镜像层"
 
 #: ../pkg/kubernetes/views/imagestream-delete.html.h:1
 msgid "Delete image stream"
-msgstr ""
+msgstr "删除镜像流"
 
 #: ../pkg/kubernetes/views/imagestream-delete.html.h:2
 msgid ""
 "Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
 "name}}' image stream?"
 msgstr ""
+"是否想要删除镜像流 '{{stream.metadata.namespace}}/{{stream.metadata."
+"name}}' ？"
 
 #: ../pkg/kubernetes/views/auth-dialog.html.h:1
-#, fuzzy
 msgid "Connection Settings"
-msgstr "绑定设置"
+msgstr "连接设置"
 
 #: ../pkg/kubernetes/views/auth-dialog.html.h:2
-#, fuzzy
 msgid "Connection Error"
-msgstr "正在连接 Docker"
+msgstr "连接错误"
 
 #: ../pkg/kubernetes/views/node-alerts.html.h:1
 msgid "The node doesn't have enough disk space"
-msgstr ""
+msgstr "节点没有足够的磁盘空间"
 
 #: ../pkg/kubernetes/views/node-alerts.html.h:2
 msgid "The node doesn't have enough free memory"
-msgstr ""
+msgstr "节点没有足够的空闲内存"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:1
 msgid "Select an object to see more details."
-msgstr ""
+msgstr "选择一个对象来查看更多详情。"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:2
 #: ../pkg/kubernetes/views/pod-page.html.h:2
 #: ../pkg/kubernetes/views/containers-listing.html.h:3
 msgid "Pod"
-msgstr ""
+msgstr "容器舱"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:3
 msgid ""
 "Pods contain one or more containers that run\n"
 "                together on a node, containing your application code."
 msgstr ""
+"容器舱包含运行在一个节点上的一个或多个容器，\n"
+"                包含应用代码。"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:6
 msgid ""
 "Replication controllers dynamically create instances of\n"
 "                pods from templates, and remove pods when necessary."
 msgstr ""
+"复制控制器动态从模板创建容器舱实例，\n"
+"                并在必要的时候移除容器舱。"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:8
 #: ../pkg/kubernetes/views/service-page.html.h:2
 #: ../pkg/kubernetes/views/service-panel.html.h:1
 msgid "Service"
-msgstr ""
+msgstr "服务"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:9
 msgid ""
@@ -4447,6 +4635,8 @@ msgid ""
 "                name and an optional, load-balanced IP address to access "
 "them."
 msgstr ""
+"服务组织容器舱并提供一个通用 DNS\n"
+"                名称和一个可选的负载均衡的 IP 地址来访问它们。"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:11
 #: ../pkg/kubernetes/views/pod-body.html.h:8
@@ -4454,130 +4644,117 @@ msgstr ""
 #: ../pkg/kubernetes/views/containers-listing.html.h:6
 #: ../pkg/kubernetes/views/node-panel.html.h:1
 msgid "Node"
-msgstr ""
+msgstr "节点"
 
 #: ../pkg/kubernetes/views/topology-page.html.h:12
 msgid "Nodes are the machines that run your containers."
-msgstr ""
+msgstr "节点是运行容器的主机。"
 
 #: ../pkg/kubernetes/views/auth-form.html.h:1
-#, fuzzy
 msgid "Cluster"
-msgstr "主"
+msgstr "集群"
 
 #: ../pkg/kubernetes/views/auth-form.html.h:2
 msgid "Add New Cluster"
-msgstr ""
+msgstr "添加新集群"
 
 #: ../pkg/kubernetes/views/auth-form.html.h:5
-#, fuzzy
 msgid "Requires Authentication"
-msgstr "认证"
+msgstr "需要认证"
 
 #: ../pkg/kubernetes/views/auth-form.html.h:7
 msgid "Add New User"
-msgstr ""
+msgstr "添加新用户"
 
 #: ../pkg/kubernetes/views/auth-form.html.h:9
 msgid "Client Certificate"
-msgstr ""
+msgstr "客户端证书"
 
 #: ../pkg/kubernetes/views/auth-form.html.h:10
-#, fuzzy
 msgid "Username"
 msgstr "用户名"
 
 #: ../pkg/kubernetes/views/auth-form.html.h:12
 msgid "Token"
-msgstr ""
+msgstr "令牌"
 
 #: ../pkg/kubernetes/views/group-page.html.h:1
 #: ../pkg/kubernetes/views/project-page.html.h:1
 #: ../pkg/kubernetes/views/user-page.html.h:1
 msgid "Show all Projects"
-msgstr ""
+msgstr "显示所有项目"
 
 #: ../pkg/kubernetes/views/group-page.html.h:2
 #: ../pkg/kubernetes/views/group-panel.html.h:1
-#, fuzzy
 msgid "Group Members"
-msgstr "成员"
+msgstr "组成员"
 
 #: ../pkg/kubernetes/views/group-page.html.h:4
 msgid "The group '{{ groupName }}' does not exist."
-msgstr ""
+msgstr "组 '{{ groupName }}' 不存在。"
 
 #: ../pkg/kubernetes/views/user-group-add.html.h:2
-#, fuzzy
 msgid ""
 "\n"
 "                        User\n"
 "                    "
 msgstr ""
 "\n"
-"                        取消\n"
+"                        用户\n"
 "                    "
 
 #: ../pkg/kubernetes/views/container-body.html.h:3
 msgid "Image ID"
-msgstr ""
+msgstr "镜像编号"
 
 #: ../pkg/kubernetes/views/container-body.html.h:4
 msgid "Container ID"
-msgstr ""
-
-#: ../pkg/kubernetes/views/container-body.html.h:6
-#: ../pkg/kubernetes/views/details-page.html.h:8
-msgid "State"
-msgstr ""
+msgstr "容器编号"
 
 #: ../pkg/kubernetes/views/container-body.html.h:7
 msgid "Since"
-msgstr ""
+msgstr "自从"
 
 #: ../pkg/kubernetes/views/container-body.html.h:8
 msgid "Restart Count"
-msgstr ""
+msgstr "重启次数"
 
 #: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:1
 msgid "Adjust Replication Controller {{ item.metadata.name }}"
-msgstr ""
+msgstr "调整复制控制器 {{ item.metadata.name }}"
 
 #: ../pkg/kubernetes/views/add-group-dialog.html.h:1
 msgid "Add Group"
-msgstr ""
+msgstr "添加组"
 
 #: ../pkg/kubernetes/views/node-delete.html.h:1
-#, fuzzy
 msgid "Delete Node"
-msgstr "删除"
+msgstr "删除节点"
 
 #: ../pkg/kubernetes/views/node-delete.html.h:2
 msgid "Do you want to delete this Node?"
-msgstr ""
+msgstr "是否想要删除该节点？"
 
 #: ../pkg/kubernetes/views/node-delete.html.h:3
 msgid " 1\">Do you want to delete the following Nodes?"
-msgstr ""
+msgstr " 1\">是否想要删除该节点？"
 
 #: ../pkg/kubernetes/views/pv-body.html.h:1
 #: ../pkg/kubernetes/views/pv-modify.html.h:8
 msgid "Reclaim Policy"
-msgstr ""
+msgstr "重新声明策略"
 
 #: ../pkg/kubernetes/views/pv-body.html.h:2
 #: ../pkg/kubernetes/views/pv-claim.html.h:3
 #: ../pkg/kubernetes/views/pvc-body.html.h:7
 #: ../pkg/kubernetes/views/pv-modify.html.h:10
-#, fuzzy
 msgid "Access Modes"
-msgstr "访问"
+msgstr "访问模式"
 
 #: ../pkg/kubernetes/views/pv-body.html.h:3
 #: ../pkg/kubernetes/views/node-page.html.h:3
 #: ../pkg/kubernetes/views/pvc-body.html.h:10
 #: ../pkg/kubernetes/views/pv-modify.html.h:7
-#, fuzzy
 msgid "Capacity"
 msgstr "容量"
 
@@ -4586,115 +4763,109 @@ msgstr "容量"
 #: ../pkg/kubernetes/views/node-body.html.h:18
 #: ../pkg/kubernetes/views/pvc-body.html.h:6
 msgid "Message"
-msgstr ""
+msgstr "消息"
 
 #: ../pkg/kubernetes/views/service-page.html.h:1
-#, fuzzy
 msgid "Show all Services"
-msgstr "服务"
+msgstr "显示所有服务"
 
 #: ../pkg/kubernetes/views/service-page.html.h:3
 #: ../pkg/kubernetes/views/service-panel.html.h:2
 msgid "Endpoints"
-msgstr ""
+msgstr "端点"
 
 #: ../pkg/kubernetes/views/service-page.html.h:4
 msgid "The service '{{ target }}' does not exist."
-msgstr ""
+msgstr "服务 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/add-member-role-dialog.html.h:2
 msgid "User or Group"
-msgstr ""
+msgstr "用户或组"
 
 #: ../pkg/kubernetes/views/container-page-inline.html.h:3
 #: ../pkg/kubernetes/views/container-panel.html.h:3
 msgid "Shell"
-msgstr ""
+msgstr "Shell"
 
 #: ../pkg/kubernetes/views/container-page-inline.html.h:4
 msgid "The container '{{ target }}' does not exist."
-msgstr ""
+msgstr "容器 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/pod-page.html.h:1
 msgid "Show all Pods"
-msgstr ""
+msgstr "显示所有容器舱"
 
 #: ../pkg/kubernetes/views/pod-page.html.h:4
 #: ../pkg/kubernetes/views/pod-panel.html.h:1
-#, fuzzy
 msgid "Mount Location"
-msgstr "挂载选项"
+msgstr "挂载位置"
 
 #: ../pkg/kubernetes/views/pod-page.html.h:7
 msgid "The pod '{{ target }}' does not exist."
-msgstr ""
+msgstr "容器舱 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/pv-claim.html.h:4
 msgid "Requests"
-msgstr ""
+msgstr "请求"
 
 #: ../pkg/kubernetes/views/pv-claim.html.h:5
 msgid "This volume has not been claimed"
-msgstr ""
+msgstr "该卷未被声明"
 
 #: ../pkg/kubernetes/views/pv-claim.html.h:10
 msgid "No Pods are using this claim"
-msgstr ""
+msgstr "没有容器舱使用该声明"
 
 #: ../pkg/kubernetes/views/user-add-membership.html.h:1
 msgid "Add membership"
-msgstr ""
+msgstr "添加成员关系"
 
 #: ../pkg/kubernetes/views/user-add-membership.html.h:2
-#, fuzzy
 msgid ""
 "\n"
 "                        Group or Project\n"
 "                    "
 msgstr ""
 "\n"
-"                        取消\n"
+"                       组或项目\n"
 "                    "
 
 #: ../pkg/kubernetes/views/user-add-membership.html.h:5
-#, fuzzy
 msgid ""
 "\n"
 "                        Role\n"
 "                    "
 msgstr ""
 "\n"
-"                        取消\n"
+"                        角色\n"
 "                    "
 
 #: ../pkg/kubernetes/views/pv-page.html.h:1
 msgid "Show all Persistent Volumes"
-msgstr ""
+msgstr "显示所有持久卷"
 
 #: ../pkg/kubernetes/views/pv-page.html.h:2
 #: ../pkg/kubernetes/views/pv-panel.html.h:1
 #: ../pkg/kubernetes/views/pvc-body.html.h:3
-#, fuzzy
 msgid "Volume"
-msgstr "卷组"
+msgstr "卷"
 
 #: ../pkg/kubernetes/views/pv-page.html.h:3
 #: ../pkg/kubernetes/views/pv-panel.html.h:2
 msgid "Claim"
-msgstr ""
+msgstr "声明"
 
 #: ../pkg/kubernetes/views/pv-page.html.h:4
 msgid "The persistent volume '{{ target }}' does not exist."
-msgstr ""
+msgstr "持久卷 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/user-body.html.h:1
 #: ../pkg/kubernetes/views/user-panel.html.h:2
 #: ../pkg/kubernetes/views/project-page.html.h:2
 msgid "Membership"
-msgstr ""
+msgstr "成员关系"
 
 #: ../pkg/kubernetes/views/user-body.html.h:2
-#, fuzzy
 msgid ""
 "\n"
 "                                    {{ getRegistryRoles(user(), member)."
@@ -4702,66 +4873,58 @@ msgid ""
 "                                "
 msgstr ""
 "\n"
-"                                    无效时区\n"
+"                                    {{ getRegistryRoles(user(), member)."
+"join() }}\n"
 "                                "
 
 #: ../pkg/kubernetes/views/user-body.html.h:5
 #: ../pkg/kubernetes/views/user-panel.html.h:7
-#, fuzzy
 msgid "Add Membership"
-msgstr "成员"
+msgstr "添加成员关系"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:1
 msgid "New Project"
-msgstr ""
-
-#: ../pkg/kubernetes/views/project-listing.html.h:4
-#: ../pkg/kubernetes/views/project-modify.html.h:5
-#: ../pkg/kubernetes/views/image-body.html.h:3
-msgid "Description"
-msgstr ""
+msgstr "新建项目"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:6
 msgid "No projects are present."
-msgstr ""
+msgstr "没有项目用于显示。"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:7
 msgid "New Group"
-msgstr ""
+msgstr "新建组"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:9
 msgid "No groups are present."
-msgstr ""
+msgstr "没有组用于显示。"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:10
 #: ../pkg/kubernetes/views/add-user-dialog.html.h:1
 msgid "Add User"
-msgstr ""
+msgstr "添加用户"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:11
 msgid "Users"
-msgstr ""
+msgstr "用户"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:12
 msgid "Identity"
-msgstr ""
+msgstr "身份"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:13
 msgid "Member of"
-msgstr ""
+msgstr "属于"
 
 #: ../pkg/kubernetes/views/project-listing.html.h:14
-#, fuzzy
 msgid "No users are present."
-msgstr "未指定用户名"
+msgstr "没有用户用于显示。"
 
 #: ../pkg/kubernetes/views/user-panel.html.h:3
 #: ../pkg/kubernetes/views/user-page.html.h:2
 msgid "Identities"
-msgstr ""
+msgstr "身份"
 
 #: ../pkg/kubernetes/views/user-panel.html.h:4
-#, fuzzy
 msgid ""
 "\n"
 "                                {{ getRegistryRoles(user(), member)."
@@ -4769,21 +4932,22 @@ msgid ""
 "                            "
 msgstr ""
 "\n"
-"                                    无效时区\n"
-"                                "
+"                                {{ getRegistryRoles(user(), member)."
+"join() }}\n"
+"                            "
 
 #: ../pkg/kubernetes/views/replicationcontroller-pods.html.h:1
 msgid "Pod Replicated"
-msgstr ""
+msgstr "复制的容器舱"
 
 #: ../pkg/kubernetes/views/replicationcontroller-pods.html.h:2
 msgid "No pods replicated"
-msgstr ""
+msgstr "没有复制的容器舱"
 
 #: ../pkg/kubernetes/views/replicationcontroller-pods.html.h:3
 #: ../pkg/kubernetes/views/service-endpoint.html.h:3
 msgid "Pod Selector"
-msgstr ""
+msgstr "容器舱选择器"
 
 #: ../pkg/kubernetes/views/deploy.html.h:1
 msgid "Deploy Application"
@@ -4791,156 +4955,148 @@ msgstr "部署应用"
 
 #: ../pkg/kubernetes/views/deploy.html.h:3
 msgid "{{ selected.name }}"
-msgstr ""
+msgstr "{{ selected.name }}"
 
 #: ../pkg/kubernetes/views/deploy.html.h:5
 #: ../pkg/kubernetes/views/dashboard-page.html.h:11
 msgid "Deploy"
-msgstr ""
+msgstr "部署"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:5
 msgid "Service Account"
-msgstr ""
+msgstr "服务账号"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:6
 msgid "DNS Policy"
-msgstr ""
+msgstr "DNS 策略"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:7
 msgid "Phase"
-msgstr ""
+msgstr "阶段"
 
 #: ../pkg/kubernetes/views/pod-body.html.h:9
 msgid "Pod Address"
-msgstr ""
+msgstr "容器舱地址"
 
 #: ../pkg/kubernetes/views/container-page.html.h:1
-#, fuzzy
 msgid "Show all Containers"
-msgstr "容器"
+msgstr "显示所有容器"
 
 #: ../pkg/kubernetes/views/deploymentconfig-panel.html.h:1
 #: ../pkg/kubernetes/views/deploymentconfig-page.html.h:2
 msgid "Deployment Config"
-msgstr ""
+msgstr "部署配置"
 
 #: ../pkg/kubernetes/views/node-capacity.html.h:1
 msgid "Scheduled Pods"
-msgstr ""
+msgstr "被调度的容器舱"
 
 #: ../pkg/kubernetes/views/node-capacity.html.h:2
 msgid "No pods scheduled"
-msgstr ""
+msgstr "没有被调度的容器舱"
 
 #: ../pkg/kubernetes/views/add-role-dialog.html.h:1
-#, fuzzy
 msgid "Add Role"
-msgstr "添加绑定"
+msgstr "添加角色"
 
 #: ../pkg/kubernetes/views/add-role-dialog.html.h:2
 msgid "Do you want to add the role '{{ fields.displayRole }}'?"
-msgstr ""
+msgstr "是否想要添加角色 '{{ fields.displayRole }}'？"
 
 #: ../pkg/kubernetes/views/imagestream-page.html.h:1
 msgid "Show all image streams"
-msgstr ""
+msgstr "显示所有镜像流"
 
 #: ../pkg/kubernetes/views/imagestream-page.html.h:2
 msgid "Image Stream"
-msgstr ""
-
-#: ../pkg/kubernetes/views/imagestream-page.html.h:3
-#: ../pkg/kubernetes/views/image-listing.html.h:2
-#: ../pkg/kubernetes/index.html.h:8 ../pkg/kubernetes/registry.html.h:3
-msgid "Images"
-msgstr ""
+msgstr "镜像流"
 
 #: ../pkg/kubernetes/views/node-page.html.h:1
 msgid "Show all Nodes"
-msgstr ""
+msgstr "显示所有节点"
 
 #: ../pkg/kubernetes/views/node-page.html.h:4
 msgid "The node '{{ target }}' does not exist."
-msgstr ""
+msgstr "节点 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/image-listing.html.h:5
 msgid "Last Updated"
-msgstr ""
+msgstr "最近更新时间"
 
 #: ../pkg/kubernetes/views/image-listing.html.h:6
 msgid "No image streams are present."
-msgstr ""
+msgstr "没有镜像流用于显示。"
 
 #: ../pkg/kubernetes/views/remove-role-dialog.html.h:1
-#, fuzzy
 msgid "Remove Role"
-msgstr "删除"
+msgstr "移除角色"
 
 #: ../pkg/kubernetes/views/remove-role-dialog.html.h:2
 msgid ""
 "Do you want to remove the role '{{ fields.displayRole }}' from member "
 "{{ fields.member.metadata.name }}?"
 msgstr ""
+"是否想要从成员 {{ fields.member.metadata.name }} 移除角色 '{{ fields."
+"displayRole }}'？"
 
 #: ../pkg/kubernetes/views/project-modify.html.h:2
 msgid "Change project"
-msgstr ""
+msgstr "变更项目"
 
 #: ../pkg/kubernetes/views/project-modify.html.h:4
 msgid "Display name"
-msgstr ""
+msgstr "显示名称"
 
 #: ../pkg/kubernetes/views/project-modify.html.h:6
 #: ../pkg/kubernetes/views/imagestream-body.html.h:1
 msgid "Access Policy"
-msgstr ""
+msgstr "访问策略"
 
 #: ../pkg/kubernetes/views/project-page.html.h:3
 msgid "The project '{{ projName }}' does not exist."
-msgstr ""
+msgstr "项目 '{{ projName }}' 不存在。"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:2
-#, fuzzy
 msgid "All running"
-msgstr "未运行"
+msgstr "所有运行的"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:3
 msgid "No pods deployed"
-msgstr ""
+msgstr "没有部署的容器舱"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:5
 msgid "All in use"
-msgstr ""
+msgstr "所有正在使用的"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:6
 msgid "No volumes in use"
-msgstr ""
+msgstr "没有正在使用的卷"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:7
-#: ../pkg/kubernetes/views/volumes-page.html.h:8
-msgid "Pending Volume Claims"
-msgstr ""
+#, fuzzy
+msgid "pending volume claims"
+msgstr "挂起的卷声明"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:8
 #: ../pkg/kubernetes/views/nodes-page.html.h:4 ../pkg/kubernetes/index.html.h:3
 msgid "Nodes"
-msgstr ""
+msgstr "节点"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:9
 msgid "All healthy"
-msgstr ""
+msgstr "所有健康的"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:10
 msgid "No nodes in cluster"
-msgstr ""
+msgstr "集群中没有节点"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:13
 msgid "Could not list services"
-msgstr ""
+msgstr "无法罗列服务"
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:14
 msgid "You can deploy an application to your cluster."
-msgstr ""
+msgstr "可以部署一个应用到集群中。"
 
 #: ../pkg/kubernetes/views/imagestream-body.html.h:2
 msgid ""
@@ -4948,6 +5104,9 @@ msgid ""
 "          Images may be pulled by any authenticated user or group\n"
 "        "
 msgstr ""
+"\n"
+"          镜像可以被任何认证的用户或组拉取\n"
+"        "
 
 #: ../pkg/kubernetes/views/imagestream-body.html.h:5
 msgid ""
@@ -4955,148 +5114,146 @@ msgid ""
 "          Images may only be pulled by specific users or groups\n"
 "        "
 msgstr ""
+"\n"
+"          镜像仅可以被指定的用户或组拉取\n"
+"        "
 
 #: ../pkg/kubernetes/views/imagestream-body.html.h:8
 msgid "Pull repository"
-msgstr ""
+msgstr "拉取仓库"
 
 #: ../pkg/kubernetes/views/imagestream-body.html.h:10
 msgid "Image count"
-msgstr ""
+msgstr "镜像计数"
 
 #: ../pkg/kubernetes/views/imagestream-body.html.h:11
 msgid "{{stream.status.tags.length}}"
-msgstr ""
+msgstr "{{stream.status.tags.length}}"
 
 #: ../pkg/kubernetes/views/imagestream-body.html.h:12
 msgid "To push to an image to this image stream:"
-msgstr ""
+msgstr "推送镜像到该镜像流:"
 
 #: ../pkg/kubernetes/views/deploymentconfig-page.html.h:1
 msgid "Show all Deployment Configs"
-msgstr ""
+msgstr "显示所有部署配置"
 
 #: ../pkg/kubernetes/views/deploymentconfig-page.html.h:4
 msgid "The deployment config '{{ target }}' does not exist."
-msgstr ""
+msgstr "部署配置 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/user-remove-membership.html.h:1
 msgid "Remove membership"
-msgstr ""
+msgstr "移除成员关系"
 
 #: ../pkg/kubernetes/views/image-body.html.h:2
 msgid "Summary"
-msgstr ""
+msgstr "汇总"
 
 #: ../pkg/kubernetes/views/image-body.html.h:4
 msgid "Source URL"
-msgstr ""
+msgstr "源网址"
 
 #: ../pkg/kubernetes/views/image-body.html.h:7
 msgid "Built"
-msgstr ""
+msgstr "构建于"
 
 #: ../pkg/kubernetes/views/image-body.html.h:8
 msgid "Digest"
-msgstr ""
+msgstr "摘要"
 
 #: ../pkg/kubernetes/views/image-body.html.h:9
 msgid "Identifier"
-msgstr ""
+msgstr "身份标识"
 
 #: ../pkg/kubernetes/views/image-body.html.h:11
 msgid "To pull this image:"
-msgstr ""
+msgstr "拉取该镜像:"
 
 #: ../pkg/kubernetes/views/node-body.html.h:3
 #: ../pkg/kubernetes/views/service-body.html.h:4
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 #: ../pkg/kubernetes/views/node-body.html.h:5
 msgid "OS"
-msgstr ""
-
-#: ../pkg/kubernetes/views/node-body.html.h:6
-msgid "Machine ID"
-msgstr ""
+msgstr "操作系统"
 
 #: ../pkg/kubernetes/views/node-body.html.h:7
 msgid "Boot ID"
-msgstr ""
+msgstr "启动编号"
 
 #: ../pkg/kubernetes/views/node-body.html.h:8
-#, fuzzy
 msgid "Kernel Version"
-msgstr "版本"
+msgstr "内核版本"
 
 #: ../pkg/kubernetes/views/node-body.html.h:9
 msgid "Container Runtime Version"
-msgstr ""
+msgstr "容器运行时版本"
 
 #: ../pkg/kubernetes/views/node-body.html.h:10
 msgid "Kubelet Version"
-msgstr ""
+msgstr "Kubelet 版本"
 
 #: ../pkg/kubernetes/views/node-body.html.h:11
 msgid "Proxy Version"
-msgstr ""
+msgstr "代理版本"
 
 #: ../pkg/kubernetes/views/node-body.html.h:17
 msgid "Reason"
-msgstr ""
+msgstr "原因"
 
 #: ../pkg/kubernetes/views/node-body.html.h:19
 msgid "Last Heartbeat"
-msgstr ""
+msgstr "最近的保活心跳"
 
 #: ../pkg/kubernetes/views/node-body.html.h:20
 msgid "Last Status Change"
-msgstr ""
+msgstr "最近的状态变更"
 
 #: ../pkg/kubernetes/views/route-body.html.h:5
 msgid "TLS Termination"
-msgstr ""
+msgstr "TLS 终止协议"
 
 #: ../pkg/kubernetes/views/route-body.html.h:6
 msgid "yes"
-msgstr ""
+msgstr "是"
 
 #: ../pkg/kubernetes/views/route-body.html.h:7
 msgid "no"
-msgstr ""
+msgstr "否"
 
 #: ../pkg/kubernetes/views/service-body.html.h:8
 msgid "Session Affinity"
-msgstr ""
+msgstr "会话关联"
 
 #: ../pkg/kubernetes/views/image-delete.html.h:1
 msgid "Remove image tag"
-msgstr ""
+msgstr "移除镜像标记"
 
 #: ../pkg/kubernetes/views/image-delete.html.h:2
 msgid ""
 "Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
 "{{stream.metadata.name}}:{{tag.tag}}'?"
 msgstr ""
+"是否想要移除镜像标记 '{{stream.metadata.namespace}}/{{stream.metadata.name}}:"
+"{{tag.tag}}'？"
 
 #: ../pkg/kubernetes/views/pvc-body.html.h:2
-#, fuzzy
 msgid "Claim Name"
-msgstr "容器名称"
+msgstr "声明名称"
 
 #: ../pkg/kubernetes/views/pvc-body.html.h:4
-#, fuzzy
 msgid "No Volume Bound"
-msgstr "卷组"
+msgstr "未绑定卷"
 
 #: ../pkg/kubernetes/views/pvc-body.html.h:8
 msgid "Requested"
-msgstr ""
+msgstr "请求的"
 
 #: ../pkg/kubernetes/views/pvc-body.html.h:9
 msgid "Actual"
-msgstr ""
+msgstr "真实的"
 
 #: ../pkg/kubernetes/views/service-modify.html.h:1
 msgid "Adjust Service"
@@ -5104,7 +5261,7 @@ msgstr "调整服务"
 
 #: ../pkg/kubernetes/views/service-modify.html.h:3
 msgid "{{ item.name }}"
-msgstr ""
+msgstr "{{ item.name }}"
 
 #: ../pkg/kubernetes/views/service-modify.html.h:5
 msgid "Adjust"
@@ -5115,135 +5272,122 @@ msgid "Select Manifest File..."
 msgstr "选择 Manifest 文件..."
 
 #: ../pkg/kubernetes/views/details-page.html.h:1
-#, fuzzy
 msgid "All Types"
-msgstr "类型"
+msgstr "所有类型"
 
 #: ../pkg/kubernetes/views/details-page.html.h:2
-#, fuzzy
 msgid "Type:"
-msgstr "类型"
+msgstr "类型:"
 
 #: ../pkg/kubernetes/views/details-page.html.h:15
 msgid "Not deployed"
-msgstr ""
+msgstr "未部署"
 
 #: ../pkg/kubernetes/views/pod-container.html.h:1
-#, fuzzy
 msgid "Show all Pod Containers"
-msgstr "容器"
+msgstr "显示所有容器舱容器"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:1
 msgid "Adjust Persistent Volume '{{ item.metadata.name }}'"
-msgstr ""
+msgstr "调整持久卷 '{{ item.metadata.name }}'"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:2
-#, fuzzy
 msgid "Register Persistent Volume"
-msgstr "注册系统"
+msgstr "注册持久卷"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:4
-#, fuzzy
 msgid "Warning:"
-msgstr "警告"
+msgstr "警告:"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:5
 msgid ""
 "This option is for single node testing only – local storage will not work in "
 "a multi-node cluster"
-msgstr ""
+msgstr "该选项是仅为单节点测试 – 本地存储，将在多节点集群中不工作"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:9
 msgid "{{ value }}"
-msgstr ""
+msgstr "{{ value }}"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:12
 msgid "Endpoint"
-msgstr ""
+msgstr "端点"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:15
-#, fuzzy
 msgid "Target"
 msgstr "目标"
 
 #: ../pkg/kubernetes/views/pv-modify.html.h:23
-#, fuzzy
 msgid "Register"
-msgstr "注册系统"
+msgstr "注册"
 
 #: ../pkg/kubernetes/views/route-page.html.h:1
 msgid "Show all Routes"
-msgstr ""
+msgstr "显示所有路由"
 
 #: ../pkg/kubernetes/views/route-page.html.h:3
 msgid "The route '{{ target }}' does not exist."
-msgstr ""
+msgstr "路由 '{{ target }}' 不存在。"
 
 #: ../pkg/kubernetes/views/user-page.html.h:3
 msgid "The user '{{ userName }}' does not exist."
-msgstr ""
+msgstr "用户 '{{ userName }}' 不存在。"
 
 #: ../pkg/kubernetes/views/service-endpoint.html.h:1
 msgid "Pod Endpoints"
-msgstr ""
+msgstr "容器舱端点"
 
 #: ../pkg/kubernetes/views/service-endpoint.html.h:2
 msgid "No pods selected"
-msgstr ""
+msgstr "没有选中的容器舱"
 
 #: ../pkg/kubernetes/views/volumes-page.html.h:1
-#, fuzzy
 msgid "Register New Volume"
-msgstr "注册系统"
+msgstr "注册新卷"
 
 #: ../pkg/kubernetes/views/volumes-page.html.h:2
-#, fuzzy
 msgid "Persistent Volumes"
-msgstr "物理卷"
+msgstr "持久卷"
 
 #: ../pkg/kubernetes/views/volumes-page.html.h:7
 msgid "No volumes are present."
-msgstr ""
+msgstr "没有卷用于显示。"
+
+#: ../pkg/kubernetes/views/volumes-page.html.h:8
+msgid "Pending Volume Claims"
+msgstr "挂起的卷声明"
 
 #: ../pkg/kubernetes/views/volumes-page.html.h:12
 msgid "When"
-msgstr ""
+msgstr "当"
 
 #: ../pkg/kubernetes/views/nodes-page.html.h:1
-#, fuzzy
 msgid "Delete Selected"
-msgstr "删除文件"
+msgstr "删除所选的"
 
 #: ../pkg/kubernetes/views/nodes-page.html.h:2
-#, fuzzy
 msgid "OS Versions"
-msgstr "版本"
+msgstr "操作系统版本"
 
 #: ../pkg/kubernetes/views/nodes-page.html.h:3
-#, fuzzy
 msgid "Add Kubernetes Node"
-msgstr "Kubernetes 集群"
+msgstr "添加 Kubernetes 节点"
 
 #: ../pkg/kubernetes/index.html.h:1
 msgid "Kubernetes Cluster"
 msgstr "Kubernetes 集群"
 
-#: ../pkg/kubernetes/index.html.h:2 ../pkg/kubernetes/registry.html.h:2
-#, fuzzy
-msgid "Overview"
-msgstr "服务"
-
 #: ../pkg/kubernetes/index.html.h:5
 msgid "Topology"
-msgstr ""
+msgstr "拓扑"
 
 #: ../pkg/kubernetes/index.html.h:10 ../pkg/kubernetes/registry.html.h:5
 msgid "Connecting..."
-msgstr ""
+msgstr "连接中..."
 
 #: ../pkg/kubernetes/index.html.h:11 ../pkg/kubernetes/registry.html.h:6
 msgid "Couldn't connect to server"
-msgstr ""
+msgstr "无法连接到服务器"
 
 #: ../pkg/kubernetes/index.html.h:12 ../pkg/kubernetes/registry.html.h:7
 msgid ""
@@ -5251,21 +5395,23 @@ msgid ""
 "                Reconnect\n"
 "            "
 msgstr ""
+"\n"
+"                重连\n"
+"            "
 
 #: ../pkg/kubernetes/index.html.h:15
-#, fuzzy
 msgid ""
 "\n"
 "                Troubleshoot\n"
 "            "
 msgstr ""
 "\n"
-"                工具\n"
-"              "
+"                排错\n"
+"            "
 
 #: ../pkg/kubernetes/registry.html.h:1
 msgid "Image Registry"
-msgstr ""
+msgstr "镜像注册表"
 
 #: ../pkg/networkmanager/index.html.h:2 ../pkg/storaged/index.html.h:23
 msgid "Go to now"
@@ -5332,62 +5478,67 @@ msgid "VLAN Id"
 msgstr "VLAN Id"
 
 #: ../pkg/networkmanager/index.html.h:20
+#, fuzzy
+msgid "Set to"
+msgstr "设置时间"
+
+#: ../pkg/networkmanager/index.html.h:22
 msgid "Spanning Tree Protocol (STP)"
 msgstr "生成树协议 (STP)"
 
-#: ../pkg/networkmanager/index.html.h:21
+#: ../pkg/networkmanager/index.html.h:23
 msgid "STP Priority"
 msgstr "STP 优先级"
 
-#: ../pkg/networkmanager/index.html.h:22
+#: ../pkg/networkmanager/index.html.h:24
 msgid "STP Forward delay"
 msgstr "STP 转发延迟"
 
-#: ../pkg/networkmanager/index.html.h:23
+#: ../pkg/networkmanager/index.html.h:25
 msgid "STP Hello time"
 msgstr "STP Hello 时间"
 
-#: ../pkg/networkmanager/index.html.h:24
+#: ../pkg/networkmanager/index.html.h:26
 msgid "STP Maximum message age"
 msgstr "STP 最大消息有效期"
 
-#: ../pkg/networkmanager/index.html.h:25
+#: ../pkg/networkmanager/index.html.h:27
 msgid "Priority"
 msgstr "优先级"
 
-#: ../pkg/networkmanager/index.html.h:26
+#: ../pkg/networkmanager/index.html.h:28
 msgid "Path cost"
 msgstr "路径开销"
 
-#: ../pkg/networkmanager/index.html.h:27
-msgid "Hair Pin mode"
-msgstr ""
-
 #: ../pkg/networkmanager/index.html.h:29
+msgid "Hair Pin mode"
+msgstr "发夹模式"
+
+#: ../pkg/networkmanager/index.html.h:31
 msgid "Mode"
 msgstr "模式"
 
-#: ../pkg/networkmanager/index.html.h:30
+#: ../pkg/networkmanager/index.html.h:32
 msgid "Primary"
 msgstr "主"
 
-#: ../pkg/networkmanager/index.html.h:31
+#: ../pkg/networkmanager/index.html.h:33
 msgid "Link Monitoring"
 msgstr "链路监控"
 
-#: ../pkg/networkmanager/index.html.h:32
+#: ../pkg/networkmanager/index.html.h:34
 msgid "Monitoring Interval"
 msgstr "监控间隔"
 
-#: ../pkg/networkmanager/index.html.h:33
+#: ../pkg/networkmanager/index.html.h:35
 msgid "Monitoring Targets"
 msgstr "监控目标"
 
-#: ../pkg/networkmanager/index.html.h:34
+#: ../pkg/networkmanager/index.html.h:36
 msgid "Link up delay"
 msgstr "链路启用延时"
 
-#: ../pkg/networkmanager/index.html.h:35
+#: ../pkg/networkmanager/index.html.h:37
 msgid "Link down delay"
 msgstr "链路断开延时"
 
@@ -5421,13 +5572,17 @@ msgstr "网桥端口设置"
 msgid "VLAN Settings"
 msgstr "VLAN 设置"
 
+#: ../pkg/networkmanager/index.html.h:52
+msgid "Ethernet MTU"
+msgstr ""
+
 #: ../pkg/ostree/index.html.h:1
 msgid "Software Updates"
-msgstr ""
+msgstr "软件更新"
 
 #: ../pkg/ostree/index.html.h:2
 msgid "Check for updates"
-msgstr ""
+msgstr "检查更新"
 
 #: ../pkg/ostree/index.html.h:3
 msgid ""
@@ -5435,10 +5590,13 @@ msgid ""
 "                    Update and reboot\n"
 "                "
 msgstr ""
+"\n"
+"                    更新并重启\n"
+"                "
 
 #: ../pkg/ostree/index.html.h:6
 msgid "Roll back and reboot"
-msgstr ""
+msgstr "回滚并重启"
 
 #: ../pkg/ostree/index.html.h:8
 msgid ""
@@ -5446,6 +5604,9 @@ msgid ""
 "                    Default\n"
 "                  "
 msgstr ""
+"\n"
+"                    默认\n"
+"                  "
 
 #: ../pkg/ostree/index.html.h:11
 msgid ""
@@ -5453,38 +5614,41 @@ msgid ""
 "                    Available\n"
 "                  "
 msgstr ""
+"\n"
+"                    可用的\n"
+"                  "
 
 #: ../pkg/ostree/index.html.h:15
 msgid "Updating"
-msgstr ""
+msgstr "更新"
 
 #: ../pkg/ostree/index.html.h:16
 msgid "Tree"
-msgstr ""
+msgstr "Tree"
 
 #: ../pkg/ostree/index.html.h:17
 msgid "Packages"
-msgstr ""
+msgstr "软件包"
 
 #: ../pkg/ostree/index.html.h:20
 msgid "Released"
-msgstr ""
+msgstr "发布于"
 
 #: ../pkg/ostree/index.html.h:21
 msgid "Additions"
-msgstr ""
+msgstr "添加"
 
 #: ../pkg/ostree/index.html.h:22
 msgid "Removals"
-msgstr ""
+msgstr "移除"
 
 #: ../pkg/ostree/index.html.h:23
 msgid "Updates"
-msgstr ""
+msgstr "更新"
 
 #: ../pkg/ostree/index.html.h:24
 msgid "Downgrades"
-msgstr ""
+msgstr "降级"
 
 #: ../pkg/ostree/index.html.h:25
 msgid ""
@@ -5493,22 +5657,25 @@ msgid ""
 "currently booted system\n"
 "                "
 msgstr ""
+"\n"
+"                    该部署包含相同的软件包作为当前启动的系统\n"
+"                "
 
 #: ../pkg/ostree/index.html.h:28
 msgid "Operating System Updates"
-msgstr ""
+msgstr "操作系统更新"
 
 #: ../pkg/ostree/index.html.h:29
 msgid "Connecting"
-msgstr ""
+msgstr "连接"
 
 #: ../pkg/ostree/index.html.h:30
 msgid "Unable to communicate with OSTree"
-msgstr ""
+msgstr "无法与 OSTree 通信"
 
 #: ../pkg/ostree/index.html.h:31
 msgid "No Deployments"
-msgstr ""
+msgstr "没有部署"
 
 #: ../pkg/ostree/index.html.h:32
 msgid ""
@@ -5516,6 +5683,9 @@ msgid ""
 "                    Reconnect\n"
 "                "
 msgstr ""
+"\n"
+"                    重连\n"
+"                "
 
 #: ../pkg/storaged/index.html.h:1
 msgid "Storage"
@@ -5546,7 +5716,7 @@ msgstr "RAID 设备"
 
 #: ../pkg/storaged/index.html.h:8
 msgid "No storage set up as RAID"
-msgstr ""
+msgstr "没有存储设置为 RAID"
 
 #: ../pkg/storaged/index.html.h:9
 msgid "Volume Groups"
@@ -5554,19 +5724,19 @@ msgstr "卷组"
 
 #: ../pkg/storaged/index.html.h:10
 msgid "No volume groups created"
-msgstr ""
+msgstr "没有创建的卷组"
 
 #: ../pkg/storaged/index.html.h:11
 msgid "iSCSI Targets"
-msgstr ""
+msgstr "iSCSI 目标"
 
 #: ../pkg/storaged/index.html.h:12
 msgid "{{Address}}:{{Port}}"
-msgstr ""
+msgstr "{{Address}}:{{Port}}"
 
 #: ../pkg/storaged/index.html.h:13
 msgid "No iSCSI targets set up"
-msgstr ""
+msgstr "没有设置 iSCSI 目标"
 
 #: ../pkg/storaged/index.html.h:14
 msgid "Drives"
@@ -5574,7 +5744,7 @@ msgstr "驱动器"
 
 #: ../pkg/storaged/index.html.h:15
 msgid "No drives attached"
-msgstr ""
+msgstr "没有附件的驱动器"
 
 #: ../pkg/storaged/index.html.h:16
 msgid "Other Devices"
@@ -5602,7 +5772,7 @@ msgstr "存储日志"
 
 #: ../pkg/storaged/index.html.h:32
 msgid "Create partition table"
-msgstr ""
+msgstr "创建分区表"
 
 #: ../pkg/storaged/index.html.h:33
 msgid "Drive"
@@ -5662,11 +5832,11 @@ msgstr "设备文件"
 #: ../pkg/storaged/index.html.h:45
 msgctxt "storage"
 msgid "Multipathed Devices"
-msgstr ""
+msgstr "多路径设备"
 
 #: ../pkg/storaged/index.html.h:46
 msgid "The RAID Array is in a degraded state"
-msgstr ""
+msgstr "RAID 阵列处于降级状态"
 
 #: ../pkg/storaged/index.html.h:47
 msgid "RAID Device"
@@ -5739,20 +5909,12 @@ msgid "Subscriptions"
 msgstr "订阅"
 
 #: ../pkg/subscriptions/index.html.h:2
-#, fuzzy
 msgid "System successfully subscribed."
-msgstr ""
-"\n"
-"          系统已成功订阅。\n"
-"        "
+msgstr "系统成功注册"
 
 #: ../pkg/subscriptions/index.html.h:3
-#, fuzzy
 msgid "You will now receive software updates."
-msgstr ""
-"\n"
-"          您将会接收软件更新。\n"
-"        "
+msgstr "现在将接收软件更新"
 
 #: ../pkg/subscriptions/index.html.h:4
 msgid ""
@@ -5839,7 +6001,29 @@ msgstr ""
 "                    密码\n"
 "                  "
 
+#: ../pkg/subscriptions/index.html.h:29
+#, fuzzy
+msgid ""
+"\n"
+"                    Activation Key\n"
+"                  "
+msgstr ""
+"\n"
+"                    可用的\n"
+"                  "
+
 #: ../pkg/subscriptions/index.html.h:32
+#, fuzzy
+msgid ""
+"\n"
+"                    Organization\n"
+"                  "
+msgstr ""
+"\n"
+"                    登陆\n"
+"                  "
+
+#: ../pkg/subscriptions/index.html.h:38
 msgid ""
 "\n"
 "              Register\n"
@@ -5849,29 +6033,29 @@ msgstr ""
 "              注册\n"
 "            "
 
-#: ../pkg/subscriptions/index.html.h:35
+#: ../pkg/subscriptions/index.html.h:41
 msgid "Installed Product ({{product_name}})"
 msgstr "已安装产品 ({{product_name}})"
 
-#: ../pkg/subscriptions/index.html.h:36
+#: ../pkg/subscriptions/index.html.h:42
 msgid "Product name"
 msgstr "产品名"
 
-#: ../pkg/subscriptions/index.html.h:37
+#: ../pkg/subscriptions/index.html.h:43
 msgid "Product ID"
 msgstr "产品 ID"
 
-#: ../pkg/subscriptions/index.html.h:41
+#: ../pkg/subscriptions/index.html.h:47
 msgid "Starts"
 msgstr "开头"
 
-#: ../pkg/subscriptions/index.html.h:42
+#: ../pkg/subscriptions/index.html.h:48
 msgid "Ends"
 msgstr "结尾"
 
 #: ../pkg/sosreport/index.html.h:1
 msgid "Diagnostic reports"
-msgstr ""
+msgstr "诊断报告"
 
 #: ../pkg/sosreport/index.html.h:2
 msgid ""
@@ -5881,6 +6065,11 @@ msgid ""
 "        with the system.\n"
 "      "
 msgstr ""
+"\n"
+"        该工具将会从该系统为有诊断系统问题的用户搜集系统配置和诊断信息。 \n"
+"        \n"
+"       \n"
+"      "
 
 #: ../pkg/sosreport/index.html.h:7
 msgid ""
@@ -5888,14 +6077,17 @@ msgid ""
 "        The collected information will be stored locally on the system.\n"
 "      "
 msgstr ""
+"\n"
+"       搜集的信息将会保存在系统本地。\n"
+"      "
 
 #: ../pkg/sosreport/index.html.h:10
 msgid "Create report"
-msgstr ""
+msgstr "创建报告"
 
 #: ../pkg/sosreport/index.html.h:11
 msgid "Create diagnostic report"
-msgstr ""
+msgstr "创建诊断报告"
 
 #: ../pkg/sosreport/index.html.h:12
 msgid ""
@@ -5906,37 +6098,38 @@ msgid ""
 "                third party.\n"
 "              "
 msgstr ""
+"\n"
+"                生成的文档包含被认为敏感的数据，并且在发送给第三方之前其内容"
+"应该被原始组织评审。\n"
+"                \n"
+"                \n"
+"              \n"
+"              "
 
 #: ../pkg/sosreport/index.html.h:18
 msgid "Generating report"
-msgstr ""
+msgstr "正在生成报告"
 
 #: ../pkg/sosreport/index.html.h:19
 msgid "Done!"
-msgstr ""
-
-#~ msgid "Sorry"
-#~ msgstr "抱歉"
-
-#~ msgid "Create Pool for Thin Logical Volumes"
-#~ msgstr "创建稀疏逻辑卷池"
-
-#~ msgid "Create Plain Logical Volume"
-#~ msgstr "创建空逻辑卷"
-
-#~ msgid "Reset"
-#~ msgstr "重置"
+msgstr "已完成！"
 
 #~ msgid ""
-#~ "\n"
-#~ "                    "
+#~ "WARNING: Docker may be reporting the size it has allocated to it's "
+#~ "storage pool using sparse files, not the actual space available to the "
+#~ "underlying storage device."
 #~ msgstr ""
-#~ "\n"
-#~ "                    "
+#~ "警告：Docker 报告已分配的容量来自使用稀疏文件的存储池, 而不是实际可用的存"
+#~ "储池."
 
-#, fuzzy
-#~ msgid "ARRAY IS DEGRADED"
-#~ msgstr "ARRAY 降级"
+#~ msgid "unlimited"
+#~ msgstr "无限制"
 
-#~ msgid "Custom URL"
-#~ msgstr "自定义 URL"
+#~ msgid "-"
+#~ msgstr "-"
+
+#~ msgid "Login cannot be empty"
+#~ msgstr "用户名不能为空"
+
+#~ msgid "Password cannot be empty"
+#~ msgstr "密码不能为空"

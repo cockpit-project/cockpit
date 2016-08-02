@@ -2904,6 +2904,8 @@ function free_slave_connection(con) {
     if (cs.slave_type) {
         delete cs.slave_type;
         delete cs.master;
+        delete con.Settings.team_port;
+        delete con.Settings.bridge_port;
         return con.apply();
     }
 }
@@ -2958,6 +2960,8 @@ function set_slave(model, master_connection, master_settings, slave_type,
             cs.master = master_settings.connection.uuid;
             delete main_connection.Settings.ipv4;
             delete main_connection.Settings.ipv6;
+            delete main_connection.Settings.team_port;
+            delete main_connection.Settings.bridge_port;
             return main_connection.apply().then(function () {
                 var dev = iface.Device;
                 if (dev && dev.ActiveConnection && dev.ActiveConnection.Connection === main_connection)

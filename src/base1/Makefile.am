@@ -1,4 +1,4 @@
-LINGUAS = ca de da pl pt_BR tr uk
+LINGUAS = ca de da pl pt_BR tr uk zh_CN
 
 # Mustache is distributed for compat reasons
 

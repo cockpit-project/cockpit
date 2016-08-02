@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-31 02:03-0700\n"
+"POT-Creation-Date: 2016-08-02 07:46-0700\n"
 "PO-Revision-Date: 2016-01-13 03:30-0500\n"
 "Last-Translator: MinWoo Joh <igtzhsou@naver.com>\n"
 "Language-Team: Korean\n"
@@ -105,23 +105,23 @@ msgstr ""
 msgid "Remote;Administration;"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:99
+#: ../pkg/tuned/dialog.js:97
 msgid "Tuned is not available"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:101
+#: ../pkg/tuned/dialog.js:99
 msgid "Tuned is not running"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:103
+#: ../pkg/tuned/dialog.js:101
 msgid "Tuned is off"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:105
+#: ../pkg/tuned/dialog.js:103
 msgid "This system is using the recommended profile"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:107
+#: ../pkg/tuned/dialog.js:105
 msgid "This system is using a custom profile"
 msgstr ""
 
@@ -129,25 +129,34 @@ msgstr ""
 msgid "Communication with tuned has failed"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:138
+#: ../pkg/tuned/dialog.js:136
+#, fuzzy
+msgid "Failed to disable tuned profile"
+msgstr " Docker 실행을 실패하였습니다: $0"
+
+#: ../pkg/tuned/dialog.js:148
 #, fuzzy
 msgid "Failed to switch profile"
 msgstr " Docker 실행을 실패하였습니다: $0"
 
-#: ../pkg/tuned/dialog.js:144
+#: ../pkg/tuned/dialog.js:172
+msgid "Failed to enable tuned"
+msgstr ""
+
+#: ../pkg/tuned/dialog.js:174
 #, fuzzy
-msgid "Failed to activate profile"
+msgid "Failed to disable tuned"
 msgstr " Docker 실행을 실패하였습니다: $0"
 
-#: ../pkg/tuned/dialog.js:162
+#: ../pkg/tuned/dialog.js:194
 msgid "Change Performance Profile"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:171
+#: ../pkg/tuned/dialog.js:203
 msgid "Change Profile"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:204 ../pkg/kubernetes/views/image-config.html.h:8
+#: ../pkg/tuned/dialog.js:236 ../pkg/kubernetes/views/image-config.html.h:8
 #: ../pkg/kubernetes/views/pod-page.html.h:5
 #: ../pkg/kubernetes/views/imagestream-body.html.h:9
 #: ../pkg/kubernetes/views/service-body.html.h:7
@@ -155,47 +164,65 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:205
+#: ../pkg/tuned/dialog.js:237
 msgid "Disable tuned"
 msgstr ""
 
-#: ../pkg/tuned/dialog.js:233
+#: ../pkg/tuned/dialog.js:265
 msgid "Tuned has failed to start"
 msgstr ""
 
-#: ../pkg/selinux/setroubleshoot.js:70
+#: ../pkg/selinux/setroubleshoot.js:65
 msgid "Error while setting SELinux mode: '$0'"
 msgstr ""
 
-#: ../pkg/selinux/setroubleshoot.js:243
+#: ../pkg/selinux/setroubleshoot.js:238
 #, fuzzy
 msgid "Not connected"
 msgstr "연결 해제됨"
 
-#: ../pkg/selinux/setroubleshoot.js:280
+#: ../pkg/selinux/setroubleshoot.js:275
 #, fuzzy
 msgid "Error while connecting."
 msgstr "다운로드 중 오류 발생"
 
-#: ../pkg/selinux/setroubleshoot-client.js:56
+#: ../pkg/selinux/setroubleshoot-client.js:52
 msgid "Unable to start setroubleshootd"
 msgstr ""
 
-#: ../pkg/selinux/setroubleshoot-client.js:155
+#: ../pkg/selinux/setroubleshoot-client.js:157
 msgid "Unable to get alert"
 msgstr ""
 
-#: ../pkg/selinux/setroubleshoot-client.js:170
+#: ../pkg/selinux/setroubleshoot-client.js:172
 msgid "Unable to run fix"
 msgstr ""
 
-#: ../pkg/selinux/setroubleshoot-client.js:185
+#: ../pkg/selinux/setroubleshoot-client.js:187
 msgid "Failed to delete alert"
 msgstr ""
 
-#: ../pkg/selinux/setroubleshoot-client.js:190
+#: ../pkg/selinux/setroubleshoot-client.js:192
 msgid "Error while deleting alert"
 msgstr ""
+
+#: ../pkg/shell/patterns.js:247 ../pkg/systemd/patterns.js:247
+#: ../pkg/docker/patterns.js:247 ../pkg/playground/patterns.js:247
+#: ../pkg/dashboard/patterns.js:247 ../pkg/networkmanager/patterns.js:247
+#: ../pkg/storaged/patterns.js:247 ../lib/patterns.js:247
+#: ../pkg/shell/index.html.h:27 ../pkg/systemd/index.html.h:22
+#: ../pkg/playground/jquery-patterns.html.h:28 ../pkg/storaged/index.html.h:53
+msgid "On"
+msgstr "활성"
+
+#: ../pkg/shell/patterns.js:247 ../pkg/systemd/patterns.js:247
+#: ../pkg/docker/patterns.js:247 ../pkg/playground/patterns.js:247
+#: ../pkg/dashboard/patterns.js:247 ../pkg/networkmanager/patterns.js:247
+#: ../pkg/storaged/patterns.js:247 ../lib/patterns.js:247
+#: ../pkg/shell/index.html.h:28 ../pkg/systemd/index.html.h:23
+#: ../pkg/playground/jquery-patterns.html.h:29 ../pkg/storaged/index.html.h:54
+msgid "Off"
+msgstr "비활성"
 
 #: ../pkg/shell/machine-dialogs.js:369
 msgid "This machine has already been added."
@@ -225,7 +252,7 @@ msgstr ""
 msgid "Enter IP address or host name"
 msgstr "IP 주소 또는 호스트 명을 입력하세요"
 
-#: ../pkg/shell/machine-dialogs.js:487
+#: ../pkg/shell/machine-dialogs.js:499
 msgid "Failed to edit machine: $0"
 msgstr ""
 
@@ -254,145 +281,145 @@ msgstr "장치에 연결할 수 없습니다"
 msgid "Cannot connect to an unknown machine"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:176
+#: ../pkg/shell/credentials.js:179
 msgid "No such file or directory"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:180
+#: ../pkg/shell/credentials.js:183
 msgid "The passwords do not match."
 msgstr ""
 
-#: ../pkg/shell/credentials.js:185
+#: ../pkg/shell/credentials.js:188
 msgid "Prompting via ssh-keygen timed out"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:207 ../pkg/users/local.js:83
+#: ../pkg/shell/credentials.js:210 ../pkg/users/local.js:78
 msgid "Old password not accepted"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:217 ../pkg/users/local.js:117
-#: ../pkg/users/local.js:149
+#: ../pkg/shell/credentials.js:220 ../pkg/users/local.js:112
+#: ../pkg/users/local.js:144
 msgid "Failed to change password"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:225 ../pkg/users/local.js:125
+#: ../pkg/shell/credentials.js:228 ../pkg/users/local.js:120
 msgid "New password was not accepted"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:242
+#: ../pkg/shell/credentials.js:245
 msgid "Not a valid private key"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:245
+#: ../pkg/shell/credentials.js:248
 msgid "Prompting via ssh-add timed out"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:268
+#: ../pkg/shell/credentials.js:271
 msgid "Invalid file permissions"
 msgstr ""
 
-#: ../pkg/shell/credentials.js:272
+#: ../pkg/shell/credentials.js:275
 msgid "Password not accepted"
 msgstr ""
 
-#: ../pkg/shell/base_index.js:641 ../pkg/users/local.js:1164
-#: ../pkg/docker/index.html.h:51 ../pkg/networkmanager/index.html.h:52
+#: ../pkg/shell/base_index.js:663 ../pkg/users/local.js:1164
+#: ../pkg/docker/index.html.h:72 ../pkg/networkmanager/index.html.h:53
 msgid "Unexpected error"
 msgstr "예상치 못한 오류"
 
-#: ../pkg/shell/base_index.js:642
+#: ../pkg/shell/base_index.js:664
 msgid "Cockpit had an unexpected internal error. <br/><br/>"
 msgstr "Cockpit 내부에서 예상치 못한 오류가 발생하였습니다. <br/><br/>"
 
-#: ../pkg/shell/base_index.js:643
+#: ../pkg/shell/base_index.js:665
 msgid "You can try restarting Cockpit by pressing refresh in your browser. "
 msgstr "브라우저의 새로고침을 눌러 Cockpit을 다시 시작하실 수 있습니다."
 
-#: ../pkg/shell/base_index.js:644
+#: ../pkg/shell/base_index.js:666
 msgid "The javascript console contains details about this error "
 msgstr "자바스크립트 콘솔에서 오류에 대한 데이터를 확인하실 수 있습니다."
 
-#: ../pkg/shell/base_index.js:645
+#: ../pkg/shell/base_index.js:667
 msgid "(<b>Ctrl-Shift-J</b> in most browsers)."
 msgstr "(대부분의 브라우저에서 <b>Ctrl-Shift-J</b> )."
 
-#: ../pkg/users/local.js:44
+#: ../pkg/users/local.js:40
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr ""
 
-#: ../pkg/users/local.js:61
+#: ../pkg/users/local.js:57
 msgid "Unable to delete root account"
 msgstr ""
 
-#: ../pkg/users/local.js:64
+#: ../pkg/users/local.js:59
 msgid "Unable to rename root account"
 msgstr ""
 
-#: ../pkg/users/local.js:87
+#: ../pkg/users/local.js:82
 msgid "Prompting via passwd timed out"
 msgstr ""
 
-#: ../pkg/users/local.js:252
+#: ../pkg/users/local.js:247
 msgid "Password is too weak"
 msgstr ""
 
-#: ../pkg/users/local.js:264
+#: ../pkg/users/local.js:259
 msgid "Password is not acceptable"
 msgstr ""
 
-#: ../pkg/users/local.js:289 ../pkg/users/local.js:597
+#: ../pkg/users/local.js:284 ../pkg/users/local.js:594
 msgctxt "page-title"
 msgid "Accounts"
 msgstr ""
 
-#: ../pkg/users/local.js:400 ../pkg/users/local.js:1084
+#: ../pkg/users/local.js:395 ../pkg/users/local.js:1082
 msgid "The passwords do not match"
 msgstr ""
 
-#: ../pkg/users/local.js:405
+#: ../pkg/users/local.js:400
 msgid "No user name specified"
 msgstr ""
 
-#: ../pkg/users/local.js:410
+#: ../pkg/users/local.js:405
 msgid "No real name specified"
 msgstr ""
 
-#: ../pkg/users/local.js:434 ../pkg/users/local.js:1106
+#: ../pkg/users/local.js:429 ../pkg/users/local.js:1104
 msgid "Excellent password"
 msgstr ""
 
-#: ../pkg/users/local.js:506
+#: ../pkg/users/local.js:501
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
 msgstr ""
 
-#: ../pkg/users/local.js:514
+#: ../pkg/users/local.js:509
 msgid "This user name already exists"
 msgstr ""
 
-#: ../pkg/users/local.js:685 ../pkg/users/local.js:686
+#: ../pkg/users/local.js:682 ../pkg/users/local.js:683
 msgid "Server Administrator"
 msgstr ""
 
-#: ../pkg/users/local.js:687
+#: ../pkg/users/local.js:684
 msgid "Container Administrator"
 msgstr ""
 
-#: ../pkg/users/local.js:842
+#: ../pkg/users/local.js:839
 msgid "Logged In"
 msgstr ""
 
-#: ../pkg/users/local.js:844
+#: ../pkg/users/local.js:841
 msgid "Never"
 msgstr ""
 
-#: ../pkg/users/local.js:1022
+#: ../pkg/users/local.js:1019
 msgid "Delete $0"
 msgstr ""
 
 #: ../pkg/users/local.js:1155 ../pkg/playground/react-patterns.js:91
-#: ../pkg/storaged/overview.js:675 ../pkg/storaged/details.js:956
+#: ../pkg/storaged/overview.js:670 ../pkg/storaged/details.js:955
 #: ../pkg/storaged/devices.js:112 ../pkg/systemd/services.html.h:13
 msgid "Error"
 msgstr ""
@@ -421,94 +448,123 @@ msgstr ""
 msgid "Journal entry not found"
 msgstr ""
 
-#: ../pkg/systemd/init.js:251
+#: ../pkg/systemd/init.js:236 ../pkg/systemd/init.js:250
+#, fuzzy
+msgid "unknown"
+msgstr "알 수 없음"
+
+#: ../pkg/systemd/init.js:263 ../pkg/kubernetes/views/project-listing.html.h:4
+#: ../pkg/kubernetes/views/project-modify.html.h:5
+#: ../pkg/kubernetes/views/image-body.html.h:3
+msgid "Description"
+msgstr ""
+
+#: ../pkg/systemd/init.js:264
+msgid "Id"
+msgstr ""
+
+#: ../pkg/systemd/init.js:266
+#, fuzzy
+msgid "Next Run"
+msgstr "다음"
+
+#: ../pkg/systemd/init.js:267
+msgid "Last Trigger"
+msgstr ""
+
+#: ../pkg/systemd/init.js:268 ../pkg/kubernetes/views/container-body.html.h:6
+#: ../pkg/kubernetes/views/details-page.html.h:8
+msgid "State"
+msgstr ""
+
+#: ../pkg/systemd/init.js:292
 msgid "Enabled"
 msgstr ""
 
-#: ../pkg/systemd/init.js:252 ../pkg/networkmanager/interfaces.js:1634
+#: ../pkg/systemd/init.js:293 ../pkg/networkmanager/interfaces.js:1666
 msgid "Disabled"
 msgstr "사용 안함"
 
-#: ../pkg/systemd/init.js:253
+#: ../pkg/systemd/init.js:294
 msgid "Static"
 msgstr ""
 
-#: ../pkg/systemd/init.js:325 ../pkg/systemd/init.js:608
+#: ../pkg/systemd/init.js:366 ../pkg/systemd/init.js:650
 msgid "$0 Template"
 msgstr ""
 
 #. <method>:<mode>
-#: ../pkg/systemd/init.js:464 ../pkg/storaged/details.js:1505
+#: ../pkg/systemd/init.js:506 ../pkg/storaged/details.js:1504
 msgid "Start"
 msgstr ""
 
-#: ../pkg/systemd/init.js:465 ../pkg/storaged/details.js:1506
+#: ../pkg/systemd/init.js:507 ../pkg/storaged/details.js:1505
 msgid "Stop"
 msgstr ""
 
-#: ../pkg/systemd/init.js:466 ../pkg/systemd/host.js:1199
-#: ../pkg/systemd/host.js:1201 ../pkg/systemd/index.html.h:14
+#: ../pkg/systemd/init.js:508 ../pkg/systemd/host.js:1322
+#: ../pkg/systemd/host.js:1324 ../pkg/systemd/index.html.h:18
 msgid "Restart"
 msgstr ""
 
-#: ../pkg/systemd/init.js:467
+#: ../pkg/systemd/init.js:509
 msgid "Reload"
 msgstr ""
 
-#: ../pkg/systemd/init.js:468
+#: ../pkg/systemd/init.js:510
 msgid "Reload or Restart"
 msgstr ""
 
-#: ../pkg/systemd/init.js:469
+#: ../pkg/systemd/init.js:511
 msgid "Try Restart"
 msgstr ""
 
-#: ../pkg/systemd/init.js:470
+#: ../pkg/systemd/init.js:512
 msgid "Reload or Try Restart"
 msgstr ""
 
-#: ../pkg/systemd/init.js:471
+#: ../pkg/systemd/init.js:513
 msgid "Isolate"
 msgstr ""
 
 #. <method>:<force>
-#: ../pkg/systemd/init.js:489
+#: ../pkg/systemd/init.js:531
 msgid "Enable"
 msgstr ""
 
-#: ../pkg/systemd/init.js:490
+#: ../pkg/systemd/init.js:532
 msgid "Enable Forcefully"
 msgstr ""
 
-#: ../pkg/systemd/init.js:491
+#: ../pkg/systemd/init.js:533
 msgid "Disable"
 msgstr ""
 
-#: ../pkg/systemd/init.js:492
+#: ../pkg/systemd/init.js:534
 msgid "Preset"
 msgstr ""
 
-#: ../pkg/systemd/init.js:493
+#: ../pkg/systemd/init.js:535
 msgid "Preset Forcefully"
 msgstr ""
 
-#: ../pkg/systemd/init.js:494
+#: ../pkg/systemd/init.js:536
 msgid "Mask"
 msgstr ""
 
-#: ../pkg/systemd/init.js:495
+#: ../pkg/systemd/init.js:537
 msgid "Mask Forcefully"
 msgstr ""
 
-#: ../pkg/systemd/init.js:496
+#: ../pkg/systemd/init.js:538
 msgid "Unmask"
 msgstr ""
 
-#: ../pkg/systemd/init.js:568
+#: ../pkg/systemd/init.js:610
 msgid "Since $0"
 msgstr ""
 
-#: ../pkg/systemd/init.js:586
+#: ../pkg/systemd/init.js:628
 msgid "This unit is an instance of the $0 template."
 msgstr ""
 
@@ -543,57 +599,62 @@ msgstr ""
 msgid "Go to"
 msgstr ""
 
-#: ../pkg/systemd/host.js:49
+#: ../pkg/systemd/host.js:48
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
 msgstr ""
 
-#: ../pkg/systemd/host.js:513
+#: ../pkg/systemd/host.js:570
 msgid "Set Host name"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1004
+#: ../pkg/systemd/host.js:672
+#, fuzzy
+msgid "failed to list ssh host keys: $0"
+msgstr " Docker 실행을 실패하였습니다: $0"
+
+#: ../pkg/systemd/host.js:1124
 msgid "Need at least one NTP server"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1080
+#: ../pkg/systemd/host.js:1201
 msgid "Invalid date format and invalid time format"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1082
+#: ../pkg/systemd/host.js:1203
 msgid "Invalid time format"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1084
+#: ../pkg/systemd/host.js:1205
 msgid "Invalid date format"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1138
+#: ../pkg/systemd/host.js:1261
 msgid "NTP Server"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1188
+#: ../pkg/systemd/host.js:1311
 msgid "Message to logged in users"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1195 ../pkg/systemd/host.js:1197
-#: ../pkg/systemd/index.html.h:15
+#: ../pkg/systemd/host.js:1318 ../pkg/systemd/host.js:1320
+#: ../pkg/systemd/index.html.h:19
 msgid "Shutdown"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1269
+#: ../pkg/systemd/host.js:1392
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1301 ../pkg/systemd/index.html.h:20
+#: ../pkg/systemd/host.js:1424 ../pkg/systemd/index.html.h:24
 msgid "I/O Wait"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1302 ../pkg/systemd/index.html.h:21
+#: ../pkg/systemd/host.js:1425 ../pkg/systemd/index.html.h:25
 msgid "Kernel"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1303 ../pkg/systemd/index.html.h:22
+#: ../pkg/systemd/host.js:1426 ../pkg/systemd/index.html.h:26
 #: ../pkg/dashboard/index.html.h:4
 #: ../pkg/kubernetes/views/volume-body.html.h:20
 #: ../pkg/kubernetes/views/auth-form.html.h:6
@@ -601,107 +662,100 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1304 ../pkg/systemd/index.html.h:23
+#: ../pkg/systemd/host.js:1427 ../pkg/systemd/index.html.h:27
 msgid "Nice"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1354
+#: ../pkg/systemd/host.js:1477
 msgctxt "page-title"
 msgid "Memory"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1387 ../pkg/systemd/index.html.h:24
+#: ../pkg/systemd/host.js:1510 ../pkg/systemd/index.html.h:28
 msgid "Swap Used"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1388 ../pkg/systemd/index.html.h:25
+#: ../pkg/systemd/host.js:1511 ../pkg/systemd/index.html.h:29
 msgid "Cached"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1389 ../pkg/kubernetes/scripts/nodes.js:804
-#: ../pkg/kubernetes/scripts/nodes.js:813 ../pkg/systemd/index.html.h:26
+#: ../pkg/systemd/host.js:1512 ../pkg/kubernetes/scripts/nodes.js:828
+#: ../pkg/kubernetes/scripts/nodes.js:837 ../pkg/systemd/index.html.h:30
 msgid "Used"
 msgstr ""
 
-#: ../pkg/systemd/host.js:1390 ../pkg/systemd/index.html.h:27
+#: ../pkg/systemd/host.js:1513 ../pkg/systemd/index.html.h:31
 msgid "Free"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:96 ../pkg/realmd/operation.js:101
+#: ../pkg/realmd/operation.js:95 ../pkg/realmd/operation.js:100
 msgid "page-title"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:97
+#: ../pkg/realmd/operation.js:96
 msgid "Join"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:102
+#: ../pkg/realmd/operation.js:101
 msgid "Leave"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:149
+#: ../pkg/realmd/operation.js:148
 msgid "Domain $0 could not be contacted"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:221
+#: ../pkg/realmd/operation.js:220
 msgid "Domain $0 is not supported"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:239 ../pkg/realmd/operation.js:245
+#: ../pkg/realmd/operation.js:238 ../pkg/realmd/operation.js:244
 msgid "e.g. \"$0\""
 msgstr ""
 
-#: ../pkg/realmd/operation.js:274
+#: ../pkg/realmd/operation.js:273
 msgid "Administrator Password"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:275 ../pkg/realmd/operation.html.h:5
+#: ../pkg/realmd/operation.js:274 ../pkg/realmd/operation.html.h:5
 msgid "User Password"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:276 ../pkg/realmd/operation.html.h:8
+#: ../pkg/realmd/operation.js:275 ../pkg/realmd/operation.html.h:8
 msgid "One Time Password"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:277 ../pkg/networkmanager/interfaces.js:1639
-#: ../pkg/networkmanager/interfaces.js:2502
-#: ../pkg/networkmanager/interfaces.js:2506
-#: ../pkg/networkmanager/interfaces.js:2512
+#: ../pkg/realmd/operation.js:276 ../pkg/networkmanager/interfaces.js:1671
+#: ../pkg/networkmanager/interfaces.js:2125
+#: ../pkg/networkmanager/interfaces.js:2578
+#: ../pkg/networkmanager/interfaces.js:2582
+#: ../pkg/networkmanager/interfaces.js:2588
+#: ../pkg/networkmanager/index.html.h:19
 msgid "Automatic"
 msgstr "자동"
 
-#: ../pkg/realmd/operation.js:348
+#: ../pkg/realmd/operation.js:347
 msgid "Joining this domain is not supported"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:367
+#: ../pkg/realmd/operation.js:366
 msgid "More"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:420
+#: ../pkg/realmd/operation.js:415
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:439
+#: ../pkg/realmd/operation.js:434
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr ""
 
-#: ../pkg/realmd/operation.js:456
+#: ../pkg/realmd/operation.js:451
 msgid "Join Domain"
 msgstr ""
 
-#: ../pkg/docker/overview.js:168
+#: ../pkg/docker/overview.js:169
 msgid "Run image"
 msgstr "이미지 실행"
-
-#: ../pkg/docker/overview.js:271
-msgid ""
-"WARNING: Docker may be reporting the size it has allocated to it's storage "
-"pool using sparse files, not the actual space available to the underlying "
-"storage device."
-msgstr ""
-"경고: Docker는 실제 저장 장치의 여유공간이 아닌 임시파일을 통하여 할당한 저"
-"장 공간을 표시하는 것일 수도 있습니다."
 
 #: ../pkg/docker/util.js:72
 msgid "Up since $StartedAt"
@@ -711,9 +765,9 @@ msgstr "$StartedAt 부터 켜져있음"
 msgid "Exited $ExitCode"
 msgstr "$ExitCode 로 종료"
 
-#: ../pkg/docker/util.js:80 ../pkg/docker/run.js:187
-#: ../pkg/kubernetes/scripts/volumes.js:986
-#: ../pkg/networkmanager/interfaces.js:1924 ../pkg/docker/index.html.h:28
+#: ../pkg/docker/util.js:80 ../pkg/docker/run.js:255
+#: ../pkg/kubernetes/scripts/volumes.js:991
+#: ../pkg/networkmanager/interfaces.js:1957 ../pkg/docker/index.html.h:49
 msgid "No"
 msgstr "아니오"
 
@@ -722,11 +776,11 @@ msgid "On failure, retry $0 time"
 msgid_plural "On failure, retry $0 times"
 msgstr[0] ""
 
-#: ../pkg/docker/util.js:85 ../pkg/docker/index.html.h:30
+#: ../pkg/docker/util.js:85 ../pkg/docker/index.html.h:51
 msgid "Always"
 msgstr ""
 
-#: ../pkg/docker/util.js:87 ../pkg/docker/index.html.h:31
+#: ../pkg/docker/util.js:87 ../pkg/docker/index.html.h:52
 #, fuzzy
 msgid "Unless Stopped"
 msgstr "정지됨"
@@ -743,38 +797,34 @@ msgstr "$0 공유"
 msgid "Stopped"
 msgstr "정지됨"
 
-#: ../pkg/docker/util.js:307
-msgid "unlimited"
-msgstr "무제한"
-
-#: ../pkg/docker/util.js:429
+#: ../pkg/docker/util.js:463
 msgid "Container is currently running."
 msgstr "컨테이너가 현재 실행중입니다."
 
-#: ../pkg/docker/util.js:431
+#: ../pkg/docker/util.js:465
 msgid ""
 "Container is currently marked as not running, but regular stopping failed."
 msgstr ""
 "컨테이너는 현재 실행중이지 않은 것으로 보이지만, 정상적인 종료가 되지 않았습"
 "니다."
 
-#: ../pkg/docker/util.js:432
+#: ../pkg/docker/util.js:466
 msgid "Error message from Docker:"
 msgstr "Docker로 부터의 오류 메세지:"
 
-#: ../pkg/docker/util.js:442
+#: ../pkg/docker/util.js:476
 msgid "Please confirm forced deletion of $0"
 msgstr "$0 강제 삭제를 확인해주세요"
 
-#: ../pkg/docker/util.js:444
+#: ../pkg/docker/util.js:478
 msgid "Force Delete"
 msgstr "강제 삭제"
 
-#: ../pkg/docker/util.js:485
+#: ../pkg/docker/util.js:519
 msgid "Failed to stop Docker scope: $0"
 msgstr "Docker Scope를 정지하지 못했습니다: $0"
 
-#: ../pkg/docker/image.js:38 ../pkg/docker/details.js:40
+#: ../pkg/docker/image.js:38 ../pkg/docker/details.js:41
 msgctxt "page-title"
 msgid "Containers"
 msgstr "컨테이너"
@@ -783,14 +833,14 @@ msgstr "컨테이너"
 msgid "Image $0"
 msgstr "이미지 $0"
 
-#: ../pkg/docker/image.js:105 ../pkg/docker/details.js:206
-#: ../pkg/storaged/details.js:1685
+#: ../pkg/docker/image.js:105 ../pkg/docker/details.js:215
+#: ../pkg/storaged/details.js:1684
 msgid "Not found"
 msgstr "찾을 수 없습니다."
 
-#: ../pkg/docker/image.js:148 ../pkg/docker/details.js:296
-#: ../pkg/storaged/details.js:548 ../pkg/storaged/details.js:744
-#: ../pkg/storaged/details.js:919
+#: ../pkg/docker/image.js:148 ../pkg/docker/details.js:309
+#: ../pkg/storaged/details.js:547 ../pkg/storaged/details.js:743
+#: ../pkg/storaged/details.js:918
 msgid "Please confirm deletion of $0"
 msgstr "$0 삭제를 확인해주세요"
 
@@ -804,11 +854,11 @@ msgstr ""
 "있습니다. 만일 이미지가 리포지터리에 한번도 푸쉬되지 않았다면, 다시 다운로드 "
 "하실 수 없습니다."
 
-#: ../pkg/docker/image.js:150 ../pkg/docker/details.js:298
-#: ../pkg/kubernetes/scripts/volumes.js:208 ../pkg/storaged/details.js:553
-#: ../pkg/storaged/details.js:750 ../pkg/storaged/details.js:925
-#: ../pkg/storaged/details.js:1035 ../pkg/storaged/details.js:1509
-#: ../pkg/storaged/details.js:1653 ../pkg/users/index.html.h:9
+#: ../pkg/docker/image.js:150 ../pkg/docker/details.js:311
+#: ../pkg/kubernetes/scripts/volumes.js:217 ../pkg/storaged/details.js:552
+#: ../pkg/storaged/details.js:749 ../pkg/storaged/details.js:924
+#: ../pkg/storaged/details.js:1034 ../pkg/storaged/details.js:1508
+#: ../pkg/storaged/details.js:1652 ../pkg/users/index.html.h:9
 #: ../pkg/kubernetes/views/pvc-delete.html.h:5
 #: ../pkg/kubernetes/views/item-delete.html.h:5
 #: ../pkg/kubernetes/views/pv-delete.html.h:5
@@ -820,15 +870,15 @@ msgstr ""
 msgid "Delete"
 msgstr "삭제"
 
-#: ../pkg/docker/details.js:177
+#: ../pkg/docker/details.js:182
 msgid "${hip}:${hport} -> $cport"
 msgstr "${hip}:${hport} -> $cport"
 
-#: ../pkg/docker/details.js:297
+#: ../pkg/docker/details.js:310
 msgid "Deleting a container will erase all data in it."
 msgstr "컨테이너를 삭제하시면, 내부의 모든 데이터도 함께 삭제됩니다. "
 
-#: ../pkg/docker/run.js:213 ../pkg/docker/console.html.h:1
+#: ../pkg/docker/run.js:281 ../pkg/docker/console.html.h:1
 #: ../pkg/kubernetes/views/image-page.html.h:3
 #: ../pkg/kubernetes/views/image-panel.html.h:2
 #: ../pkg/kubernetes/views/container-body.html.h:1
@@ -837,48 +887,61 @@ msgstr "컨테이너를 삭제하시면, 내부의 모든 데이터도 함께 �
 msgid "Container"
 msgstr "컨테이너 "
 
-#: ../pkg/docker/run.js:215 ../pkg/kubernetes/views/route-modify.html.h:2
+#: ../pkg/docker/run.js:283 ../pkg/kubernetes/views/route-modify.html.h:2
 #: ../pkg/kubernetes/views/route-body.html.h:4
 #: ../pkg/kubernetes/views/details-page.html.h:12
 msgid "Host"
 msgstr "호스트"
 
-#: ../pkg/docker/run.js:247
+#: ../pkg/docker/run.js:315
 msgid "Invalid port"
 msgstr "잘못된 포트"
 
-#: ../pkg/docker/run.js:257
+#: ../pkg/docker/run.js:325
 msgid "Duplicate port"
 msgstr "포트 복제"
 
 #. still valid if empty
-#: ../pkg/docker/run.js:345
+#: ../pkg/docker/run.js:413
 msgid "No alias specified"
 msgstr "alias가 지정되지 않았습니다"
 
-#: ../pkg/docker/run.js:355
+#: ../pkg/docker/run.js:423
 msgid "Duplicate alias"
 msgstr "alias 복제"
 
-#: ../pkg/docker/run.js:391
+#: ../pkg/docker/run.js:459
 msgid "No container specified"
 msgstr "컨테이너가 지정되지 않았습니다."
 
-#: ../pkg/docker/run.js:486
+#: ../pkg/docker/run.js:554
 msgid "to host port"
 msgstr "호스트 포트로"
 
-#: ../pkg/docker/run.js:487 ../pkg/docker/run.js:553
-#: ../pkg/kubernetes/views/node-body.html.h:13
+#: ../pkg/docker/run.js:555 ../pkg/docker/run.js:624 ../pkg/docker/run.js:689
+#: ../pkg/docker/run.js:748 ../pkg/kubernetes/views/node-body.html.h:13
 #: ../pkg/kubernetes/views/route-body.html.h:9
 msgid "none"
 msgstr "없음"
 
-#: ../pkg/docker/run.js:552
+#: ../pkg/docker/run.js:623
+#, fuzzy
+msgid "to host path"
+msgstr "호스트 포트로"
+
+#: ../pkg/docker/run.js:687
+msgid "key"
+msgstr ""
+
+#: ../pkg/docker/run.js:688
+msgid "value"
+msgstr ""
+
+#: ../pkg/docker/run.js:747
 msgid "alias"
 msgstr "alias"
 
-#: ../pkg/docker/containers.js:57
+#: ../pkg/docker/containers.js:58
 msgid "Failed to start Docker: $0"
 msgstr " Docker 실행을 실패하였습니다: $0"
 
@@ -933,29 +996,29 @@ msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "현재 직접적으로 이 서버에 연결되어 있습니다. 삭제하실 수 없습니다."
 
-#: ../pkg/kubernetes/scripts/details.js:166 ../pkg/systemd/services.html.h:1
+#: ../pkg/kubernetes/scripts/details.js:214 ../pkg/systemd/services.html.h:1
 #: ../pkg/kubernetes/views/dashboard-page.html.h:12
 #: ../pkg/kubernetes/views/details-page.html.h:3
 msgid "Services"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/details.js:169
-#: ../pkg/networkmanager/interfaces.js:2510
+#: ../pkg/kubernetes/scripts/details.js:217
+#: ../pkg/networkmanager/interfaces.js:2586
 #: ../pkg/kubernetes/views/details-page.html.h:11
 msgid "Routes"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/details.js:173
+#: ../pkg/kubernetes/scripts/details.js:221
 #: ../pkg/kubernetes/views/details-page.html.h:13
 msgid "Deployment Configs"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/details.js:177
+#: ../pkg/kubernetes/scripts/details.js:225
 #: ../pkg/kubernetes/views/details-page.html.h:16
 msgid "Replication Controllers"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/details.js:180
+#: ../pkg/kubernetes/scripts/details.js:228
 #: ../pkg/kubernetes/views/replicationcontroller-page.html.h:3
 #: ../pkg/kubernetes/views/replicationcontroller-panel.html.h:2
 #: ../pkg/kubernetes/views/pv-claim.html.h:9
@@ -964,126 +1027,127 @@ msgstr ""
 msgid "Pods"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/details.js:455
-#: ../pkg/kubernetes/scripts/details.js:578
+#: ../pkg/kubernetes/scripts/details.js:495
+#: ../pkg/kubernetes/scripts/details.js:618
 msgid "Not a valid number of replicas"
 msgstr "올바른 replica 숫자가 아닙니다."
 
-#: ../pkg/kubernetes/scripts/details.js:457
-#: ../pkg/kubernetes/scripts/details.js:580
+#: ../pkg/kubernetes/scripts/details.js:497
+#: ../pkg/kubernetes/scripts/details.js:620
 msgid "The maximum number of replicas is 128"
 msgstr "replica의 최대 수는 128개입니다."
 
-#: ../pkg/kubernetes/scripts/details.js:506
+#: ../pkg/kubernetes/scripts/details.js:546
 msgid "Not a valid value for Host"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/details.js:615
+#: ../pkg/kubernetes/scripts/details.js:655
 msgid "Updating $0..."
 msgstr "$0 업데이트 중..."
 
-#: ../pkg/kubernetes/scripts/charts.js:110
+#: ../pkg/kubernetes/scripts/charts.js:113
 #, fuzzy
 msgid "Unavailable"
 msgstr "사용할 수 없습니다"
 
-#: ../pkg/kubernetes/scripts/volumes.js:182
+#: ../pkg/kubernetes/scripts/volumes.js:191
 msgid "GCE Persistent Disk"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:183
-msgid "AWS Elastic Block Store"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:184
-#, fuzzy
-msgid "Git Repository"
-msgstr "리포지터리 "
-
-#: ../pkg/kubernetes/scripts/volumes.js:185
-msgid "Secret"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:186
-msgid "Empty Directory"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:187
-#: ../pkg/kubernetes/scripts/volumes.js:858
-#, fuzzy
-msgid "Host Path"
-msgstr "호스트"
-
-#: ../pkg/kubernetes/scripts/volumes.js:188
-msgid "Gluster FS"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:189
-msgid "NFS Mount"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:190
-msgid "Rados Block Device"
-msgstr ""
-
-#: ../pkg/kubernetes/scripts/volumes.js:191
-#: ../pkg/kubernetes/scripts/volumes.js:862
-msgid "ISCSI"
-msgstr ""
-
 #: ../pkg/kubernetes/scripts/volumes.js:192
-msgid "Cinder"
+msgid "AWS Elastic Block Store"
 msgstr ""
 
 #: ../pkg/kubernetes/scripts/volumes.js:193
 #, fuzzy
-msgid "Ceph Filesystem Mount"
-msgstr "파일 시스템 옵션"
+msgid "Git Repository"
+msgstr "리포지터리 "
 
 #: ../pkg/kubernetes/scripts/volumes.js:194
-msgid "Fibre Channel"
+msgid "Secret"
 msgstr ""
 
 #: ../pkg/kubernetes/scripts/volumes.js:195
+msgid "Empty Directory"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/volumes.js:196
+#: ../pkg/kubernetes/scripts/volumes.js:863
+#, fuzzy
+msgid "Host Path"
+msgstr "호스트"
+
+#: ../pkg/kubernetes/scripts/volumes.js:197
+msgid "Gluster FS"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/volumes.js:198
+msgid "NFS Mount"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/volumes.js:199
+msgid "Rados Block Device"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/volumes.js:200
+#: ../pkg/kubernetes/scripts/volumes.js:867
+msgid "ISCSI"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/volumes.js:201
+msgid "Cinder"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/volumes.js:202
+#, fuzzy
+msgid "Ceph Filesystem Mount"
+msgstr "파일 시스템 옵션"
+
+#: ../pkg/kubernetes/scripts/volumes.js:203
+msgid "Fibre Channel"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/volumes.js:204
 #, fuzzy
 msgid "Flocker"
 msgstr "잠금 해제"
 
-#: ../pkg/kubernetes/scripts/volumes.js:196
+#: ../pkg/kubernetes/scripts/volumes.js:205
 msgid "Flex"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:197
+#: ../pkg/kubernetes/scripts/volumes.js:206
 msgid "Azure"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:201
+#: ../pkg/kubernetes/scripts/volumes.js:210
 msgid "Read and write from a single node"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:202
+#: ../pkg/kubernetes/scripts/volumes.js:211
 msgid "Read only from multiple nodes"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:203
+#: ../pkg/kubernetes/scripts/volumes.js:212
 msgid "Read and write from multiple nodes"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:207
+#: ../pkg/kubernetes/scripts/volumes.js:216
 msgid "Retain"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:209
+#: ../pkg/kubernetes/scripts/volumes.js:218
 msgid "Recycle"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:256
-#: ../pkg/kubernetes/scripts/nodes.js:298
-#: ../pkg/kubernetes/scripts/nodes.js:642
-#: ../pkg/networkmanager/interfaces.js:589
-#: ../pkg/networkmanager/interfaces.js:997
-#: ../pkg/networkmanager/interfaces.js:1901
-#: ../pkg/networkmanager/interfaces.js:1903
+#: ../pkg/kubernetes/scripts/volumes.js:265
+#: ../pkg/kubernetes/scripts/nodes.js:316
+#: ../pkg/kubernetes/scripts/nodes.js:660
+#: ../pkg/kubernetes/scripts/nodes.js:753
+#: ../pkg/networkmanager/interfaces.js:596
+#: ../pkg/networkmanager/interfaces.js:1020
+#: ../pkg/networkmanager/interfaces.js:1934
+#: ../pkg/networkmanager/interfaces.js:1936
 #: ../pkg/kubernetes/views/pv-body.html.h:5
 #: ../pkg/kubernetes/views/pv-claim.html.h:7
 #: ../pkg/kubernetes/views/image-body.html.h:6
@@ -1092,360 +1156,382 @@ msgstr ""
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: ../pkg/kubernetes/scripts/volumes.js:459
+#: ../pkg/kubernetes/scripts/volumes.js:468
 #, fuzzy
 msgid "Please select a valid access mode"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:467
+#: ../pkg/kubernetes/scripts/volumes.js:476
 #, fuzzy
 msgid "Please provide a valid name"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:475
+#: ../pkg/kubernetes/scripts/volumes.js:484
 #, fuzzy
 msgid "Please provide a valid storage capacity."
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:483
+#: ../pkg/kubernetes/scripts/volumes.js:492
 msgid "Please select a valid policy option."
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:555
+#: ../pkg/kubernetes/scripts/volumes.js:564
 #, fuzzy
 msgid "Please select a valid endpoint"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:564
+#: ../pkg/kubernetes/scripts/volumes.js:573
 #, fuzzy
 msgid "Please provide a GlusterFS volume name"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:622
+#: ../pkg/kubernetes/scripts/volumes.js:631
 #, fuzzy
 msgid "Please provide a valid NFS server"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:630
-#: ../pkg/kubernetes/scripts/volumes.js:687
+#: ../pkg/kubernetes/scripts/volumes.js:639
+#: ../pkg/kubernetes/scripts/volumes.js:696
 #, fuzzy
 msgid "Please provide a valid path"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:775
+#: ../pkg/kubernetes/scripts/volumes.js:780
 #, fuzzy
 msgid "Please provide a valid target"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:783
+#: ../pkg/kubernetes/scripts/volumes.js:788
 #, fuzzy
 msgid "Please provide a valid qualified name"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:791
+#: ../pkg/kubernetes/scripts/volumes.js:796
 #, fuzzy
 msgid "Please provide a valid logical unit number"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:799
+#: ../pkg/kubernetes/scripts/volumes.js:804
 #, fuzzy
 msgid "Please provide a valid filesystem type"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:807
+#: ../pkg/kubernetes/scripts/volumes.js:812
 #, fuzzy
 msgid "Please provide a valid interface"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/volumes.js:854
+#: ../pkg/kubernetes/scripts/volumes.js:859
 msgid "NFS"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:866
+#: ../pkg/kubernetes/scripts/volumes.js:871
 msgid "GlusterFS"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:902
+#: ../pkg/kubernetes/scripts/volumes.js:907
 msgid "Sorry, I don't know how to modify this volume"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/volumes.js:984
-#: ../pkg/networkmanager/interfaces.js:1923
+#: ../pkg/kubernetes/scripts/volumes.js:989
+#: ../pkg/networkmanager/interfaces.js:1956
 msgid "Yes"
 msgstr "네"
 
-#: ../pkg/kubernetes/scripts/connection.js:73
+#: ../pkg/kubernetes/scripts/connection.js:88
 msgid "Error writing kubectl config"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/connection.js:499
+#: ../pkg/kubernetes/scripts/connection.js:514
 msgid "Couldn't find running API server"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/connection.js:501
+#: ../pkg/kubernetes/scripts/connection.js:516
 #, fuzzy
 msgid "Connection Error: $0"
 msgstr "Docker에 연결중입니다."
 
-#: ../pkg/kubernetes/scripts/connection.js:524
+#: ../pkg/kubernetes/scripts/connection.js:539
 #, fuzzy
 msgid "Please provide a valid address"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/connection.js:539
+#: ../pkg/kubernetes/scripts/connection.js:554
 #, fuzzy
 msgid "Please provide a username"
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/connection.js:635
+#: ../pkg/kubernetes/scripts/connection.js:650
 msgid "Error getting certificate details: $0"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/dashboard.js:366
+#: ../pkg/kubernetes/scripts/dashboard.js:374
 msgid "Namespace cannot be empty."
 msgstr "네임스페이스를 입력하셔야 합니다."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:368
+#: ../pkg/kubernetes/scripts/dashboard.js:376
 msgid "Please provide a valid namespace."
 msgstr "올바른 네임스페이스를 입력하세요."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:376
+#: ../pkg/kubernetes/scripts/dashboard.js:384
 msgid ""
 "No metadata file was selected. Please select a Kubernetes metadata file."
 msgstr ""
 "메타데이터 파일이 선택되지 않았습니다. Kubernetes 메타데이터 파일을 선택하세"
 "요."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:378
+#: ../pkg/kubernetes/scripts/dashboard.js:386
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "선택한 파일은 올바른 Kubernetes 메타데이터 파일이 아닙니다."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:393
+#: ../pkg/kubernetes/scripts/dashboard.js:401
 msgid "Unable to read the Kubernetes application manifest. Code $0."
 msgstr "Kubernetes 어플리케이션  manifest를 읽을 수 없습니다. 코드 $0."
 
-#: ../pkg/kubernetes/scripts/dashboard.js:405
+#: ../pkg/kubernetes/scripts/dashboard.js:413
 msgid "Unable to decode Kubernetes application manifest."
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/dashboard.js:433
+#: ../pkg/kubernetes/scripts/dashboard.js:441
 msgid "Please create another namespace for $0 \"$1\""
 msgstr " $0 \"$1\"을 위한 다른 네임스페이스를 생성하세요"
 
-#: ../pkg/kubernetes/scripts/dashboard.js:452
+#: ../pkg/kubernetes/scripts/dashboard.js:460
 msgid "Manifest"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/graphs.js:597
-#: ../pkg/kubernetes/scripts/nodes.js:693
-#: ../pkg/kubernetes/scripts/nodes.js:793
+#: ../pkg/kubernetes/scripts/graphs.js:601
+#: ../pkg/kubernetes/scripts/nodes.js:711
+#: ../pkg/kubernetes/scripts/nodes.js:817
 msgid "CPU"
 msgstr "CPU"
 
-#: ../pkg/kubernetes/scripts/graphs.js:602
-#: ../pkg/kubernetes/scripts/nodes.js:696
-#: ../pkg/kubernetes/scripts/nodes.js:802
+#: ../pkg/kubernetes/scripts/graphs.js:606
+#: ../pkg/kubernetes/scripts/nodes.js:715
+#: ../pkg/kubernetes/scripts/nodes.js:826
 msgid "Memory"
 msgstr "메모리"
 
-#: ../pkg/kubernetes/scripts/graphs.js:607
+#: ../pkg/kubernetes/scripts/graphs.js:611
 msgid "Network"
 msgstr "네트워크"
 
-#: ../pkg/kubernetes/scripts/nodes.js:301
+#: ../pkg/kubernetes/scripts/nodes.js:319
 #: ../pkg/kubernetes/views/node-body.html.h:16
 #: ../pkg/kubernetes/views/details-page.html.h:10
 msgid "Not Ready"
 msgstr "준비되지 않음"
 
-#: ../pkg/kubernetes/scripts/nodes.js:304
+#: ../pkg/kubernetes/scripts/nodes.js:322
 msgid "Scheduling Disabled"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/nodes.js:306
+#: ../pkg/kubernetes/scripts/nodes.js:324
 #: ../pkg/kubernetes/views/node-body.html.h:15
 #: ../pkg/kubernetes/views/details-page.html.h:9
 msgid "Ready"
 msgstr "준비됨"
 
-#: ../pkg/kubernetes/scripts/nodes.js:379
+#: ../pkg/kubernetes/scripts/nodes.js:397
 msgid "Please type an address"
 msgstr "주소를 입력해주세요"
 
-#: ../pkg/kubernetes/scripts/nodes.js:381
+#: ../pkg/kubernetes/scripts/nodes.js:399
 msgid "The address contains invalid characters"
 msgstr "주소에 잘못된 문자가 있습니다 "
 
-#: ../pkg/kubernetes/scripts/nodes.js:389
+#: ../pkg/kubernetes/scripts/nodes.js:407
 msgid "The name contains invalid characters"
 msgstr ""
 
-#: ../pkg/kubernetes/scripts/nodes.js:699
-#: ../pkg/kubernetes/scripts/nodes.js:811
+#: ../pkg/kubernetes/scripts/nodes.js:712
+msgid "CPU Utilization: $0%"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/nodes.js:716
+msgid "Memory Utilization: $0%"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/nodes.js:719
+#: ../pkg/kubernetes/scripts/nodes.js:835
 #, fuzzy
 msgid "Disk"
 msgstr "디스크 추가"
 
+#: ../pkg/kubernetes/scripts/nodes.js:720
+msgid "Disk Utilization: $0%"
+msgstr ""
+
+#: ../pkg/kubernetes/scripts/nodes.js:870
+msgid "$0% Free"
+msgid_plural "$0% Free"
+msgstr[0] ""
+
+#: ../pkg/kubernetes/scripts/nodes.js:872
+msgid "$0% Used"
+msgid_plural "$0% Used"
+msgstr[0] ""
+
 #. NM_DEVICE_STATE_UNAVAILABLE
-#: ../pkg/networkmanager/interfaces.js:751
+#: ../pkg/networkmanager/interfaces.js:763
 msgid "Not available"
 msgstr "사용할 수 없습니다"
 
 #. NM_DEVICE_STATE_DISCONNECTED
-#: ../pkg/networkmanager/interfaces.js:753
-#: ../pkg/networkmanager/interfaces.js:1214
-#: ../pkg/networkmanager/interfaces.js:1936
+#: ../pkg/networkmanager/interfaces.js:765
+#: ../pkg/networkmanager/interfaces.js:1241
+#: ../pkg/networkmanager/interfaces.js:1969
 msgid "Inactive"
 msgstr "비활성"
 
 #. NM_DEVICE_STATE_PREPARE
-#: ../pkg/networkmanager/interfaces.js:755
+#: ../pkg/networkmanager/interfaces.js:767
 msgid "Preparing"
 msgstr "준비 중입니다"
 
 #. NM_DEVICE_STATE_CONFIG
-#: ../pkg/networkmanager/interfaces.js:757
+#: ../pkg/networkmanager/interfaces.js:769
 msgid "Configuring"
 msgstr "설정 중입니다"
 
 #. NM_DEVICE_STATE_NEED_AUTH
-#: ../pkg/networkmanager/interfaces.js:759
+#: ../pkg/networkmanager/interfaces.js:771
 msgid "Authenticating"
 msgstr "인증 중입니다"
 
 #. NM_DEVICE_STATE_IP_CONFIG
-#: ../pkg/networkmanager/interfaces.js:761
+#: ../pkg/networkmanager/interfaces.js:773
 msgid "Configuring IP"
 msgstr "IP 인증 중입니다"
 
 #. NM_DEVICE_STATE_IP_CHECK
-#: ../pkg/networkmanager/interfaces.js:763
+#: ../pkg/networkmanager/interfaces.js:775
 msgid "Checking IP"
 msgstr "IP확인 중입니다"
 
 #. NM_DEVICE_STATE_SECONDARIES
-#: ../pkg/networkmanager/interfaces.js:765
+#: ../pkg/networkmanager/interfaces.js:777
 msgid "Waiting"
 msgstr "대기 중입니다"
 
 #. NM_DEVICE_STATE_ACTIVATED
-#: ../pkg/networkmanager/interfaces.js:767
+#: ../pkg/networkmanager/interfaces.js:779
 msgid "Active"
 msgstr "활성"
 
 #. NM_DEVICE_STATE_DEACTIVATING
-#: ../pkg/networkmanager/interfaces.js:769
+#: ../pkg/networkmanager/interfaces.js:781
 msgid "Deactivating"
 msgstr "비활성화 중 입니다"
 
 #. NM_DEVICE_STATE_FAILED
-#: ../pkg/networkmanager/interfaces.js:771 ../pkg/ostree/index.html.h:14
+#: ../pkg/networkmanager/interfaces.js:783 ../pkg/ostree/index.html.h:14
 msgid "Failed"
 msgstr "실패하였습니다"
 
-#: ../pkg/networkmanager/interfaces.js:1216
+#: ../pkg/networkmanager/interfaces.js:1243
 msgid "No carrier"
 msgstr "캐리어가 없습니다"
 
-#: ../pkg/networkmanager/interfaces.js:1256
+#: ../pkg/networkmanager/interfaces.js:1283
 msgid "Part of "
 msgstr "일부분"
 
-#: ../pkg/networkmanager/interfaces.js:1303
+#: ../pkg/networkmanager/interfaces.js:1329
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "사용자 <b>$0</b> 는 네트워크 설정 권한이 없습니다"
 
-#: ../pkg/networkmanager/interfaces.js:1364
-#: ../pkg/networkmanager/interfaces.js:1678
+#: ../pkg/networkmanager/interfaces.js:1390
+#: ../pkg/networkmanager/interfaces.js:1710
 msgctxt "page-title"
 msgid "Networking"
 msgstr "네트워킹"
 
-#: ../pkg/networkmanager/interfaces.js:1630
+#: ../pkg/networkmanager/interfaces.js:1662
 msgid "Automatic (DHCP)"
 msgstr "자동(DHCP)"
 
-#: ../pkg/networkmanager/interfaces.js:1631
-#: ../pkg/networkmanager/interfaces.js:1641
+#: ../pkg/networkmanager/interfaces.js:1663
+#: ../pkg/networkmanager/interfaces.js:1673
 msgid "Link local"
 msgstr "로컬 링크"
 
-#: ../pkg/networkmanager/interfaces.js:1632
-#: ../pkg/networkmanager/interfaces.js:1642
+#: ../pkg/networkmanager/interfaces.js:1664
+#: ../pkg/networkmanager/interfaces.js:1674
 msgid "Manual"
 msgstr "수동"
 
-#: ../pkg/networkmanager/interfaces.js:1633
+#: ../pkg/networkmanager/interfaces.js:1665
 msgid "Shared"
 msgstr "공유됨"
 
-#: ../pkg/networkmanager/interfaces.js:1640
+#: ../pkg/networkmanager/interfaces.js:1672
 msgid "Automatic (DHCP only)"
 msgstr "자동(DHCP only)"
 
-#: ../pkg/networkmanager/interfaces.js:1643
+#: ../pkg/networkmanager/interfaces.js:1675
 msgid "Ignore"
 msgstr "무시"
 
-#: ../pkg/networkmanager/interfaces.js:1648
+#: ../pkg/networkmanager/interfaces.js:1680
 msgid "Round Robin"
 msgstr "Round Robin"
 
-#: ../pkg/networkmanager/interfaces.js:1649
+#: ../pkg/networkmanager/interfaces.js:1681
 msgid "Active Backup"
 msgstr "활성화된 백업"
 
-#: ../pkg/networkmanager/interfaces.js:1650
+#: ../pkg/networkmanager/interfaces.js:1682
 msgid "XOR"
 msgstr "XOR"
 
-#: ../pkg/networkmanager/interfaces.js:1651
+#: ../pkg/networkmanager/interfaces.js:1683
 msgid "Broadcast"
 msgstr "브로트캐스트"
 
-#: ../pkg/networkmanager/interfaces.js:1652
+#: ../pkg/networkmanager/interfaces.js:1684
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: ../pkg/networkmanager/interfaces.js:1653
+#: ../pkg/networkmanager/interfaces.js:1685
 msgid "Adaptive transmit load balancing"
 msgstr "적응형 전송 로드 밸런싱"
 
-#: ../pkg/networkmanager/interfaces.js:1654
+#: ../pkg/networkmanager/interfaces.js:1686
 msgid "Adaptive load balancing"
 msgstr "적응형 로드 밸런싱"
 
-#: ../pkg/networkmanager/interfaces.js:1659
+#: ../pkg/networkmanager/interfaces.js:1691
 msgid "MII (Recommended)"
 msgstr "MII (권장 사항)"
 
-#: ../pkg/networkmanager/interfaces.js:1660
+#: ../pkg/networkmanager/interfaces.js:1692
 msgid "ARP"
 msgstr "ARP"
 
-#: ../pkg/networkmanager/interfaces.js:1887
-#: ../pkg/networkmanager/interfaces.js:1895
-#: ../pkg/networkmanager/interfaces.js:2091
+#: ../pkg/networkmanager/interfaces.js:1919
+#: ../pkg/networkmanager/interfaces.js:1928
+#: ../pkg/networkmanager/interfaces.js:2157
 msgid "Bond"
 msgstr "본드"
 
-#: ../pkg/networkmanager/interfaces.js:1889
-#: ../pkg/networkmanager/interfaces.js:1897
-#: ../pkg/networkmanager/interfaces.js:2155
+#: ../pkg/networkmanager/interfaces.js:1921
+#: ../pkg/networkmanager/interfaces.js:1930
+#: ../pkg/networkmanager/interfaces.js:2221
 msgid "VLAN"
 msgstr "VLAN"
 
-#: ../pkg/networkmanager/interfaces.js:1891
-#: ../pkg/networkmanager/interfaces.js:1899
-#: ../pkg/networkmanager/interfaces.js:2117
+#: ../pkg/networkmanager/interfaces.js:1923
+#: ../pkg/networkmanager/interfaces.js:1932
+#: ../pkg/networkmanager/interfaces.js:2183
 msgid "Bridge"
 msgstr "브릿지"
 
-#: ../pkg/networkmanager/interfaces.js:1920
+#: ../pkg/networkmanager/interfaces.js:1953
 msgid "Carrier"
 msgstr "캐리어"
 
-#: ../pkg/networkmanager/interfaces.js:1943
+#: ../pkg/networkmanager/interfaces.js:1976
 #: ../pkg/kubernetes/views/pv-body.html.h:4
 #: ../pkg/kubernetes/views/pv-claim.html.h:6
 #: ../pkg/kubernetes/views/node-body.html.h:14
@@ -1453,217 +1539,225 @@ msgstr "캐리어"
 #: ../pkg/kubernetes/views/containers-listing.html.h:7
 #: ../pkg/kubernetes/views/volumes-page.html.h:5
 #: ../pkg/kubernetes/views/nodes-page.html.h:8
-#: ../pkg/subscriptions/index.html.h:40
+#: ../pkg/subscriptions/index.html.h:46
 msgid "Status"
 msgstr "상태"
 
-#: ../pkg/networkmanager/interfaces.js:1976
+#: ../pkg/networkmanager/interfaces.js:2009
 msgid "Unknown configuration"
 msgstr "알 수 없는 설정"
 
-#: ../pkg/networkmanager/interfaces.js:2050
+#: ../pkg/networkmanager/interfaces.js:2091
 msgid "Configure"
 msgstr "설정"
 
-#: ../pkg/networkmanager/interfaces.js:2067
+#: ../pkg/networkmanager/interfaces.js:2123
+msgid "$mtu"
+msgstr ""
+
+#: ../pkg/networkmanager/interfaces.js:2127
+msgid "MTU"
+msgstr ""
+
+#: ../pkg/networkmanager/interfaces.js:2133
 msgid "Master"
 msgstr "마스터"
 
-#: ../pkg/networkmanager/interfaces.js:2086
+#: ../pkg/networkmanager/interfaces.js:2152
 msgid "ARP Monitoring"
 msgstr "ARP 모니터링"
 
-#: ../pkg/networkmanager/interfaces.js:2106
+#: ../pkg/networkmanager/interfaces.js:2172
 msgid "Spanning Tree Protocol"
 msgstr "Spanning Tree Protocol"
 
-#: ../pkg/networkmanager/interfaces.js:2108
-#: ../pkg/networkmanager/interfaces.js:2132
+#: ../pkg/networkmanager/interfaces.js:2174
+#: ../pkg/networkmanager/interfaces.js:2198
 msgid "Priority $priority"
 msgstr "우선순위 $priority"
 
-#: ../pkg/networkmanager/interfaces.js:2110
+#: ../pkg/networkmanager/interfaces.js:2176
 msgid "Forward delay $forward_delay"
 msgstr "포워드 딜레이 $forward_delay"
 
-#: ../pkg/networkmanager/interfaces.js:2112
+#: ../pkg/networkmanager/interfaces.js:2178
 msgid "Hello time $hello_time"
 msgstr "Hello 시간 $hello_time"
 
-#: ../pkg/networkmanager/interfaces.js:2114
+#: ../pkg/networkmanager/interfaces.js:2180
 msgid "Maximum message age $max_age"
 msgstr "최대 메세지 수명 $max_age"
 
-#: ../pkg/networkmanager/interfaces.js:2134
+#: ../pkg/networkmanager/interfaces.js:2200
 msgid "Path cost $path_cost"
 msgstr "Path cost $path_cost"
 
-#: ../pkg/networkmanager/interfaces.js:2136
+#: ../pkg/networkmanager/interfaces.js:2202
 msgid "Hairpin mode"
 msgstr "Hairpin 모드"
 
-#: ../pkg/networkmanager/interfaces.js:2138
+#: ../pkg/networkmanager/interfaces.js:2204
 msgid "Bridge port"
 msgstr "브릿지 포트"
 
-#: ../pkg/networkmanager/interfaces.js:2152
+#: ../pkg/networkmanager/interfaces.js:2218
 msgid "Parent $parent"
 msgstr "부모 $parent"
 
-#: ../pkg/networkmanager/interfaces.js:2153
+#: ../pkg/networkmanager/interfaces.js:2219
 msgid "Id $id"
 msgstr "Id $id"
 
-#: ../pkg/networkmanager/interfaces.js:2161
+#: ../pkg/networkmanager/interfaces.js:2227
 msgid "General"
 msgstr "일반"
 
-#: ../pkg/networkmanager/interfaces.js:2170
+#: ../pkg/networkmanager/interfaces.js:2236
 msgid "Connect automatically"
 msgstr "자동으로 연결"
 
-#: ../pkg/networkmanager/interfaces.js:2171
+#: ../pkg/networkmanager/interfaces.js:2240
 msgid "IPv4"
 msgstr "IPv4"
 
-#: ../pkg/networkmanager/interfaces.js:2172
+#: ../pkg/networkmanager/interfaces.js:2241
 msgid "IPv6"
 msgstr "IPv6"
 
-#: ../pkg/networkmanager/interfaces.js:2257
+#: ../pkg/networkmanager/interfaces.js:2328
 #: ../pkg/kubernetes/views/project-listing.html.h:5
-#: ../pkg/networkmanager/index.html.h:28
+#: ../pkg/networkmanager/index.html.h:30
 msgid "Members"
 msgstr "맴버"
 
-#: ../pkg/networkmanager/interfaces.js:2257 ../pkg/docker/index.html.h:26
+#: ../pkg/networkmanager/interfaces.js:2328 ../pkg/docker/index.html.h:42
 #: ../pkg/kubernetes/views/image-config.html.h:7
 #: ../pkg/kubernetes/views/container-body.html.h:5
 #: ../pkg/kubernetes/views/service-body.html.h:6
-#: ../pkg/networkmanager/index.html.h:19
+#: ../pkg/networkmanager/index.html.h:21
 msgid "Ports"
 msgstr "포트"
 
-#: ../pkg/networkmanager/interfaces.js:2476
-msgid "-"
-msgstr "-"
-
-#: ../pkg/networkmanager/interfaces.js:2491
+#: ../pkg/networkmanager/interfaces.js:2567
 msgid "Prefix length or Netmask"
 msgstr "접두 길이 또는 넷마스크"
 
-#: ../pkg/networkmanager/interfaces.js:2491
+#: ../pkg/networkmanager/interfaces.js:2567
 msgid "Prefix length"
 msgstr "접두 길이"
 
-#: ../pkg/networkmanager/interfaces.js:2494
+#: ../pkg/networkmanager/interfaces.js:2570
 #: ../pkg/kubernetes/views/details-page.html.h:7
 msgid "Addresses"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2501
+#: ../pkg/networkmanager/interfaces.js:2577
 msgid "DNS"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2505
+#: ../pkg/networkmanager/interfaces.js:2581
 msgid "DNS Search Domains"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2544
+#: ../pkg/networkmanager/interfaces.js:2620
 msgid "IPv4 Settings"
 msgstr ""
 
-#: ../pkg/networkmanager/interfaces.js:2544
+#: ../pkg/networkmanager/interfaces.js:2620
 msgid "IPv6 Settings"
 msgstr ""
 
-#: ../pkg/ostree/client.js:60
+#: ../pkg/networkmanager/interfaces.js:3391
+msgid "MTU must be a positive number"
+msgstr ""
+
+#: ../pkg/ostree/client.js:56
 msgid "Receiving delta parts"
 msgstr ""
 
-#: ../pkg/ostree/client.js:62
+#: ../pkg/ostree/client.js:58
 msgid "Receiving metadata objects"
 msgstr ""
 
-#: ../pkg/ostree/client.js:65
+#: ../pkg/ostree/client.js:61
 msgid "Receiving objects: $0%"
 msgstr ""
 
-#: ../pkg/ostree/client.js:68
+#: ../pkg/ostree/client.js:64
 msgid "Writing objects"
 msgstr ""
 
-#: ../pkg/ostree/client.js:70
+#: ../pkg/ostree/client.js:66
 msgid "Scanning metadata"
 msgstr ""
 
-#: ../pkg/ostree/client.js:489
+#: ../pkg/ostree/client.js:500
 msgid "OS $0 not found"
 msgstr ""
 
-#: ../pkg/ostree/app.js:80
+#: ../pkg/ostree/app.js:81
 msgid "Not authorized to update software on this system"
 msgstr ""
 
-#: ../pkg/ostree/app.js:82
+#: ../pkg/ostree/app.js:83
 msgid "OSTree is not available on this system"
 msgstr ""
 
-#: ../pkg/ostree/app.js:100
+#: ../pkg/ostree/app.js:101
 msgid "No OSTree deployments found"
 msgstr ""
 
-#: ../pkg/ostree/app.js:218
+#: ../pkg/ostree/app.js:219
 msgid "Checking for updates"
 msgstr ""
 
-#: ../pkg/ostree/app.js:304
+#: ../pkg/ostree/app.js:307
 msgid "$0 package"
 msgstr ""
 
-#: ../pkg/ostree/app.js:304
+#: ../pkg/ostree/app.js:307
 msgid "$0 packages"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:182
+#: ../pkg/storaged/overview.js:177
 msgctxt "storage"
 msgid "Hard Disk"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:184
+#: ../pkg/storaged/overview.js:179
 msgctxt "storage"
 msgid "Solid-State Disk"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:187 ../pkg/storaged/overview.js:189
+#: ../pkg/storaged/overview.js:182 ../pkg/storaged/overview.js:184
 msgctxt "storage"
 msgid "Removable Drive"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:191
+#: ../pkg/storaged/overview.js:186
 msgctxt "storage"
 msgid "Optical Drive"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:194 ../pkg/storaged/overview.js:196
+#: ../pkg/storaged/overview.js:189 ../pkg/storaged/overview.js:191
 msgctxt "storage"
 msgid "Drive"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:255
+#: ../pkg/storaged/overview.js:250
 msgid "$0 Block Device"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:416
+#: ../pkg/storaged/overview.js:411
 msgid "Create RAID Device"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:419 ../pkg/storaged/overview.js:477
-#: ../pkg/storaged/overview.js:610 ../pkg/storaged/overview.js:688
-#: ../pkg/storaged/details.js:156 ../pkg/storaged/details.js:372
-#: ../pkg/storaged/details.js:632 ../pkg/storaged/details.js:654
-#: ../pkg/storaged/details.js:692 ../pkg/storaged/details.js:721
-#: ../pkg/storaged/details.js:771 ../pkg/kubernetes/views/volume-body.html.h:11
+#: ../pkg/storaged/overview.js:414 ../pkg/storaged/overview.js:472
+#: ../pkg/storaged/overview.js:605 ../pkg/storaged/overview.js:683
+#: ../pkg/storaged/details.js:155 ../pkg/storaged/details.js:371
+#: ../pkg/storaged/details.js:631 ../pkg/storaged/details.js:653
+#: ../pkg/storaged/details.js:691 ../pkg/storaged/details.js:720
+#: ../pkg/storaged/details.js:770 ../pkg/kubernetes/views/volume-body.html.h:11
 #: ../pkg/kubernetes/views/imagestream-modify.html.h:3
 #: ../pkg/kubernetes/views/node-add.html.h:3
 #: ../pkg/kubernetes/views/pv-claim.html.h:1
@@ -1681,138 +1775,138 @@ msgstr ""
 msgid "Name"
 msgstr "이름"
 
-#: ../pkg/storaged/overview.js:422
+#: ../pkg/storaged/overview.js:417
 msgid "RAID Level"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:424
+#: ../pkg/storaged/overview.js:419
 msgid "RAID 0 (Stripe)"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:425
+#: ../pkg/storaged/overview.js:420
 msgid "RAID 1 (Mirror)"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:426
+#: ../pkg/storaged/overview.js:421
 msgid "RAID 4 (Dedicated Parity)"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:427
+#: ../pkg/storaged/overview.js:422
 msgid "RAID 5 (Distributed Parity)"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:428
+#: ../pkg/storaged/overview.js:423
 msgid "RAID 6 (Double Distributed Parity)"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:429
+#: ../pkg/storaged/overview.js:424
 msgid "RAID 10 (Stripe of Mirrors)"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:433
+#: ../pkg/storaged/overview.js:428
 msgid "Chunk Size"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:435
+#: ../pkg/storaged/overview.js:430
 msgid "4 KiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:436
+#: ../pkg/storaged/overview.js:431
 msgid "8 KiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:437
+#: ../pkg/storaged/overview.js:432
 msgid "16 KiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:438
+#: ../pkg/storaged/overview.js:433
 msgid "32 KiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:439
+#: ../pkg/storaged/overview.js:434
 msgid "64 KiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:440
+#: ../pkg/storaged/overview.js:435
 msgid "128 KiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:441
+#: ../pkg/storaged/overview.js:436
 msgid "512 KiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:442
+#: ../pkg/storaged/overview.js:437
 msgid "1 MiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:443
+#: ../pkg/storaged/overview.js:438
 msgid "2 MiB"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:450 ../pkg/storaged/overview.js:481
-#: ../pkg/storaged/details.js:510 ../pkg/storaged/details.js:839
+#: ../pkg/storaged/overview.js:445 ../pkg/storaged/overview.js:476
+#: ../pkg/storaged/details.js:509 ../pkg/storaged/details.js:838
 #: ../pkg/storaged/index.html.h:56
 msgid "Disks"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:457
+#: ../pkg/storaged/overview.js:452
 msgid "At least $0 disks are needed."
 msgstr "최소 $0 개의 디스크가 필요합니다."
 
-#: ../pkg/storaged/overview.js:463 ../pkg/storaged/overview.js:492
-#: ../pkg/storaged/details.js:668 ../pkg/storaged/details.js:704
-#: ../pkg/storaged/details.js:727 ../pkg/storaged/details.js:821
+#: ../pkg/storaged/overview.js:458 ../pkg/storaged/overview.js:487
+#: ../pkg/storaged/details.js:667 ../pkg/storaged/details.js:703
+#: ../pkg/storaged/details.js:726 ../pkg/storaged/details.js:820
 #: ../pkg/kubernetes/views/add-group-dialog.html.h:6
 #: ../pkg/kubernetes/views/project-modify.html.h:8
 msgid "Create"
 msgstr "생성"
 
-#: ../pkg/storaged/overview.js:474
+#: ../pkg/storaged/overview.js:469
 msgid "Create Volume Group"
 msgstr "볼륨 그룹 생성"
 
-#: ../pkg/storaged/overview.js:487 ../pkg/storaged/details.js:522
-#: ../pkg/storaged/details.js:854
+#: ../pkg/storaged/overview.js:482 ../pkg/storaged/details.js:521
+#: ../pkg/storaged/details.js:853
 msgid "At least one disk is needed."
 msgstr "최소 1개의 디스크가 필요합니다."
 
-#: ../pkg/storaged/overview.js:501
+#: ../pkg/storaged/overview.js:496
 msgid "Add iSCSI Portal"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:504
+#: ../pkg/storaged/overview.js:499
 msgid "Server Address"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:507
+#: ../pkg/storaged/overview.js:502
 msgid "Server address can not be empty."
 msgstr ""
 
-#: ../pkg/storaged/overview.js:519 ../pkg/realmd/operation.html.h:11
+#: ../pkg/storaged/overview.js:514 ../pkg/realmd/operation.html.h:11
 msgid "Next"
 msgstr "다음"
 
-#: ../pkg/storaged/overview.js:563 ../pkg/storaged/overview.js:654
+#: ../pkg/storaged/overview.js:558 ../pkg/storaged/overview.js:649
 msgid "Invalid username or password"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:568
+#: ../pkg/storaged/overview.js:563
 msgid "Unknown host name"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:572
+#: ../pkg/storaged/overview.js:567
 msgid "Unable to reach server"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:605
+#: ../pkg/storaged/overview.js:600
 msgid "Available targets on $0"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:609 ../pkg/systemd/services.html.h:2
+#: ../pkg/storaged/overview.js:604 ../pkg/systemd/services.html.h:2
 msgid "Targets"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:610 ../pkg/shell/templates/add-machine.html.h:2
+#: ../pkg/storaged/overview.js:605 ../pkg/shell/templates/add-machine.html.h:2
 #: ../pkg/kubernetes/views/node-add.html.h:2
 #: ../pkg/kubernetes/views/auth-form.html.h:3
 #: ../pkg/kubernetes/views/dashboard-page.html.h:16
@@ -1822,12 +1916,12 @@ msgstr ""
 msgid "Address"
 msgstr "주소"
 
-#: ../pkg/storaged/overview.js:610 ../pkg/shell/templates/change-port.html.h:5
+#: ../pkg/storaged/overview.js:605 ../pkg/shell/templates/change-port.html.h:5
 msgid "Port"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:615 ../pkg/storaged/overview.js:643
-#: ../pkg/storaged/details.js:527 ../pkg/storaged/details.js:859
+#: ../pkg/storaged/overview.js:610 ../pkg/storaged/overview.js:638
+#: ../pkg/storaged/details.js:526 ../pkg/storaged/details.js:858
 #: ../pkg/shell/templates/add-machine.html.h:6
 #: ../pkg/kubernetes/views/node-add.html.h:8
 #: ../pkg/kubernetes/views/user-group-add.html.h:6
@@ -1838,11 +1932,11 @@ msgstr ""
 msgid "Add"
 msgstr "추가"
 
-#: ../pkg/storaged/overview.js:685
+#: ../pkg/storaged/overview.js:680
 msgid "Change iSCSI Initiator Name"
 msgstr ""
 
-#: ../pkg/storaged/overview.js:693
+#: ../pkg/storaged/overview.js:688
 #: ../pkg/kubernetes/views/route-modify.html.h:4
 #: ../pkg/kubernetes/views/replicationcontroller-modify.html.h:4
 #: ../pkg/kubernetes/views/project-modify.html.h:9
@@ -1920,47 +2014,47 @@ msgstr "RAID 장치 $0"
 msgid "Volume Group $0"
 msgstr "볼륨 그룹 $0"
 
-#: ../pkg/storaged/details.js:81
+#: ../pkg/storaged/details.js:80
 msgid "Device $0 is mounted on $1"
 msgstr "장치 $0는 $1에 마운트되어 있습니다"
 
-#: ../pkg/storaged/details.js:87
+#: ../pkg/storaged/details.js:86
 msgid "Device $0 is a member of RAID Array $1"
 msgstr "장치 $0는 RAID 어레이 $1에 속해 있습니다"
 
-#: ../pkg/storaged/details.js:93
+#: ../pkg/storaged/details.js:92
 msgid "Device $0 is a physical volume of $1"
 msgstr "장치 $0는  $1의 물리 볼륨입니다"
 
-#: ../pkg/storaged/details.js:109
+#: ../pkg/storaged/details.js:108
 msgid "Create partition on $0"
 msgstr "$0에 파티션 만들기"
 
-#: ../pkg/storaged/details.js:111
+#: ../pkg/storaged/details.js:110
 msgid "Format $0"
 msgstr ""
 
-#: ../pkg/storaged/details.js:125 ../pkg/storaged/details.js:587
-#: ../pkg/storaged/details.js:658 ../pkg/storaged/details.js:696
-#: ../pkg/storaged/details.js:815
+#: ../pkg/storaged/details.js:124 ../pkg/storaged/details.js:586
+#: ../pkg/storaged/details.js:657 ../pkg/storaged/details.js:695
+#: ../pkg/storaged/details.js:814
 #: ../pkg/kubernetes/views/volumes-page.html.h:11
 #: ../pkg/storaged/index.html.h:20
 msgid "Size"
 msgstr ""
 
-#: ../pkg/storaged/details.js:133 ../pkg/storaged/details.js:282
+#: ../pkg/storaged/details.js:132 ../pkg/storaged/details.js:281
 msgid "Erase"
 msgstr ""
 
-#: ../pkg/storaged/details.js:135 ../pkg/storaged/details.js:284
+#: ../pkg/storaged/details.js:134 ../pkg/storaged/details.js:283
 msgid "Don't overwrite existing data"
 msgstr ""
 
-#: ../pkg/storaged/details.js:136 ../pkg/storaged/details.js:285
+#: ../pkg/storaged/details.js:135 ../pkg/storaged/details.js:284
 msgid "Overwrite existing data with zeros"
 msgstr ""
 
-#: ../pkg/storaged/details.js:140 ../pkg/shell/index.html.h:3
+#: ../pkg/storaged/details.js:139 ../pkg/shell/index.html.h:3
 #: ../pkg/kubernetes/views/deploy.html.h:2
 #: ../pkg/kubernetes/views/service-body.html.h:5
 #: ../pkg/kubernetes/views/pv-modify.html.h:3
@@ -1968,157 +2062,157 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: ../pkg/storaged/details.js:142
+#: ../pkg/storaged/details.js:141
 msgid "XFS - Red Hat Enterprise Linux 7 default"
 msgstr ""
 
-#: ../pkg/storaged/details.js:143
+#: ../pkg/storaged/details.js:142
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
 msgstr ""
 
-#: ../pkg/storaged/details.js:144
+#: ../pkg/storaged/details.js:143
 msgid "Encrypted XFS (LUKS)"
 msgstr ""
 
-#: ../pkg/storaged/details.js:145
+#: ../pkg/storaged/details.js:144
 msgid "Encrypted EXT4 (LUKS)"
 msgstr ""
 
-#: ../pkg/storaged/details.js:146
+#: ../pkg/storaged/details.js:145
 msgid "VFAT - Compatible with all systems and devices"
 msgstr ""
 
-#: ../pkg/storaged/details.js:147
+#: ../pkg/storaged/details.js:146
 msgid "NTFS - Compatible with most systems"
 msgstr ""
 
-#: ../pkg/storaged/details.js:148
+#: ../pkg/storaged/details.js:147
 msgid "Extended Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:151
+#: ../pkg/storaged/details.js:150
 msgid "No Filesystem"
 msgstr ""
 
-#: ../pkg/storaged/details.js:152
+#: ../pkg/storaged/details.js:151
 msgid "Custom (Enter filesystem type)"
 msgstr ""
 
-#: ../pkg/storaged/details.js:160
+#: ../pkg/storaged/details.js:159
 msgid "Filesystem type"
 msgstr ""
 
-#: ../pkg/storaged/details.js:166 ../pkg/storaged/details.js:419
+#: ../pkg/storaged/details.js:165 ../pkg/storaged/details.js:418
 msgid "Passphrase"
 msgstr ""
 
-#: ../pkg/storaged/details.js:169
+#: ../pkg/storaged/details.js:168
 msgid "Passphrase can not be empty"
 msgstr ""
 
-#: ../pkg/storaged/details.js:174
+#: ../pkg/storaged/details.js:173
 msgid "Confirm passphrase"
 msgstr ""
 
-#: ../pkg/storaged/details.js:177
+#: ../pkg/storaged/details.js:176
 msgid "Passphrases do not match"
 msgstr ""
 
-#: ../pkg/storaged/details.js:182
+#: ../pkg/storaged/details.js:181
 msgid "Store passphrase"
 msgstr ""
 
-#: ../pkg/storaged/details.js:186 ../pkg/storaged/details.js:467
-#: ../pkg/storaged/details.js:1004
+#: ../pkg/storaged/details.js:185 ../pkg/storaged/details.js:466
+#: ../pkg/storaged/details.js:1003
 msgid "Encryption Options"
 msgstr ""
 
-#: ../pkg/storaged/details.js:190 ../pkg/storaged/details.js:376
+#: ../pkg/storaged/details.js:189 ../pkg/storaged/details.js:375
 msgid "Mounting"
 msgstr "마운트"
 
-#: ../pkg/storaged/details.js:192 ../pkg/storaged/details.js:378
-#: ../pkg/kubernetes/views/image-config.html.h:2
+#: ../pkg/storaged/details.js:191 ../pkg/storaged/details.js:377
+#: ../pkg/docker/index.html.h:26 ../pkg/kubernetes/views/image-config.html.h:2
 #: ../pkg/subscriptions/index.html.h:22
 msgid "Default"
 msgstr "기본"
 
-#: ../pkg/storaged/details.js:193 ../pkg/storaged/details.js:379
+#: ../pkg/storaged/details.js:192 ../pkg/storaged/details.js:378
 msgid "Custom"
 msgstr "사용자 지정"
 
-#: ../pkg/storaged/details.js:198 ../pkg/storaged/details.js:383
+#: ../pkg/storaged/details.js:197 ../pkg/storaged/details.js:382
 #: ../pkg/storaged/index.html.h:19
 msgid "Mount Point"
 msgstr "마운트 포인트"
 
-#: ../pkg/storaged/details.js:204 ../pkg/storaged/details.js:390
+#: ../pkg/storaged/details.js:203 ../pkg/storaged/details.js:389
 msgid "Mount Options"
 msgstr "마운트 옵션"
 
-#: ../pkg/storaged/details.js:211
+#: ../pkg/storaged/details.js:210
 msgid "Create partition"
 msgstr "파티션 생성"
 
-#: ../pkg/storaged/details.js:211 ../pkg/storaged/details.js:300
-#: ../pkg/storaged/details.js:1031
+#: ../pkg/storaged/details.js:210 ../pkg/storaged/details.js:299
+#: ../pkg/storaged/details.js:1030
 msgid "Format"
 msgstr "포멧"
 
-#: ../pkg/storaged/details.js:213
+#: ../pkg/storaged/details.js:212
 msgid "Formatting a storage device will erase all data on it."
 msgstr "장치를 포멧하면 내부의 모든 데이터를 지우게 됩니다."
 
-#: ../pkg/storaged/details.js:278
+#: ../pkg/storaged/details.js:277
 msgid "Format Disk $0"
 msgstr "디스크 $0 포멧"
 
-#: ../pkg/storaged/details.js:289
+#: ../pkg/storaged/details.js:288
 msgid "Partitioning"
 msgstr "파티션"
 
-#: ../pkg/storaged/details.js:291
+#: ../pkg/storaged/details.js:290
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "모든 시스템과 장치와 호환됩니다 (MBR)"
 
-#: ../pkg/storaged/details.js:292
+#: ../pkg/storaged/details.js:291
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "최신 시스템과 2TB 이상의 하드 디스크와 호환됩니다 (GPT)"
 
-#: ../pkg/storaged/details.js:295
+#: ../pkg/storaged/details.js:294
 msgid "No partitioning"
 msgstr "파티션 설정하지 않음"
 
-#: ../pkg/storaged/details.js:301
+#: ../pkg/storaged/details.js:300
 msgid "Formatting a disk will erase all data on it."
 msgstr "디스크를 포멧하면 내부의 모든 데이터를 지우게 됩니다."
 
-#: ../pkg/storaged/details.js:369 ../pkg/storaged/details.js:998
+#: ../pkg/storaged/details.js:368 ../pkg/storaged/details.js:997
 msgid "Filesystem Options"
 msgstr "파일 시스템 옵션"
 
-#: ../pkg/storaged/details.js:398 ../pkg/storaged/details.js:479
+#: ../pkg/storaged/details.js:397 ../pkg/storaged/details.js:478
 msgid "Apply"
 msgstr "적용"
 
-#: ../pkg/storaged/details.js:416 ../pkg/storaged/details.js:423
-#: ../pkg/storaged/details.js:1003
+#: ../pkg/storaged/details.js:415 ../pkg/storaged/details.js:422
+#: ../pkg/storaged/details.js:1002
 msgid "Unlock"
 msgstr "잠금 해제"
 
-#: ../pkg/storaged/details.js:470
+#: ../pkg/storaged/details.js:469
 msgid "Stored Passphrase"
 msgstr "저장된 암호"
 
-#: ../pkg/storaged/details.js:474 ../pkg/kubernetes/views/volume-body.html.h:32
+#: ../pkg/storaged/details.js:473 ../pkg/kubernetes/views/volume-body.html.h:32
 msgid "Options"
 msgstr "옵션"
 
-#: ../pkg/storaged/details.js:507 ../pkg/storaged/details.js:836
+#: ../pkg/storaged/details.js:506 ../pkg/storaged/details.js:835
 msgid "Add Disks"
 msgstr "디스크 추가"
 
-#: ../pkg/storaged/details.js:554
+#: ../pkg/storaged/details.js:553
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "RAID 장치를 제거하면 내부의 모든 데이터를 지우게 됩니다."
 
@@ -2131,319 +2225,319 @@ msgstr "RAID 장치를 제거하면 내부의 모든 데이터를 지우게 됩�
 #. Note that shrinking a filesystem will not always
 #. succeed, but it is never dangerous.
 #.
-#: ../pkg/storaged/details.js:584
+#: ../pkg/storaged/details.js:583
 msgid "Resize Logical Volume"
 msgstr "논리 볼륨 크기 조정"
 
-#: ../pkg/storaged/details.js:596
+#: ../pkg/storaged/details.js:595
 msgid "Resize Filesystem"
 msgstr ""
 
-#: ../pkg/storaged/details.js:604 ../pkg/storaged/details.js:1008
+#: ../pkg/storaged/details.js:603 ../pkg/storaged/details.js:1007
 msgid "Resize"
 msgstr "크기 조정"
 
-#: ../pkg/storaged/details.js:613
+#: ../pkg/storaged/details.js:612
 msgid "This logical volume can not be made smaller."
 msgstr ""
 
-#: ../pkg/storaged/details.js:629
+#: ../pkg/storaged/details.js:628
 msgid "Renamee Logical Volume"
 msgstr "논리 볼륨 이름 바꾸기"
 
-#: ../pkg/storaged/details.js:637 ../pkg/storaged/details.js:1009
-#: ../pkg/storaged/details.js:1652
+#: ../pkg/storaged/details.js:636 ../pkg/storaged/details.js:1008
+#: ../pkg/storaged/details.js:1651
 msgid "Rename"
 msgstr ""
 
-#: ../pkg/storaged/details.js:651 ../pkg/storaged/details.js:1013
+#: ../pkg/storaged/details.js:650 ../pkg/storaged/details.js:1012
 msgid "Create Snapshot"
 msgstr ""
 
-#: ../pkg/storaged/details.js:689 ../pkg/storaged/details.js:1025
+#: ../pkg/storaged/details.js:688 ../pkg/storaged/details.js:1024
 msgid "Create Thin Volume"
 msgstr ""
 
-#: ../pkg/storaged/details.js:718
+#: ../pkg/storaged/details.js:717
 msgid "Rename Volume Group"
 msgstr ""
 
-#: ../pkg/storaged/details.js:749
+#: ../pkg/storaged/details.js:748
 msgid "Deleting a volume group will erase all data on it."
 msgstr ""
 
-#: ../pkg/storaged/details.js:768 ../pkg/storaged/details.js:1601
+#: ../pkg/storaged/details.js:767 ../pkg/storaged/details.js:1600
 #, fuzzy
 msgid "Create Logical Volume"
 msgstr "논리 볼륨 이름 바꾸기"
 
-#: ../pkg/storaged/details.js:775
+#: ../pkg/storaged/details.js:774
 msgid "Purpose"
 msgstr ""
 
-#: ../pkg/storaged/details.js:777
+#: ../pkg/storaged/details.js:776
 msgid "Block device for filesystems"
 msgstr ""
 
-#: ../pkg/storaged/details.js:780
+#: ../pkg/storaged/details.js:779
 #, fuzzy
 msgid "Pool for thinly provisioned volumes"
 msgstr "Thin 논리 볼륨을 위한 풀"
 
-#: ../pkg/storaged/details.js:912
+#: ../pkg/storaged/details.js:911
 msgid "Deleting a logical volume will delete all data in it."
 msgstr ""
 
-#: ../pkg/storaged/details.js:915
+#: ../pkg/storaged/details.js:914
 msgid "Deleting a partition will delete all data in it."
 msgstr ""
 
-#: ../pkg/storaged/details.js:996
+#: ../pkg/storaged/details.js:995
 msgid "Mount"
 msgstr ""
 
-#: ../pkg/storaged/details.js:997
+#: ../pkg/storaged/details.js:996
 msgid "Unmount"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1002
+#: ../pkg/storaged/details.js:1001
 msgid "Lock"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1016
+#: ../pkg/storaged/details.js:1015
 msgid "Activate"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1019
+#: ../pkg/storaged/details.js:1018
 msgid "Deactivate"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1101
+#: ../pkg/storaged/details.js:1100
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1104
+#: ../pkg/storaged/details.js:1103
 msgctxt "storage-id-desc"
 msgid "Linux MD-RAID Component"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1106
+#: ../pkg/storaged/details.js:1105
 msgctxt "storage-id-desc"
 msgid "LVM2 Physical Volume"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1108
+#: ../pkg/storaged/details.js:1107
 msgctxt "storage-id-desc"
 msgid "RAID Member"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1125
+#: ../pkg/storaged/details.js:1124
 msgctxt "storage-id-desc"
 msgid "LUKS Encrypted"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1127
+#: ../pkg/storaged/details.js:1126
 msgctxt "storage-id-desc"
 msgid "Encrypted"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1131
+#: ../pkg/storaged/details.js:1130
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1133
+#: ../pkg/storaged/details.js:1132
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1136
+#: ../pkg/storaged/details.js:1135
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1141 ../pkg/storaged/details.js:1147
+#: ../pkg/storaged/details.js:1140 ../pkg/storaged/details.js:1146
 msgid "$size $partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1158
+#: ../pkg/storaged/details.js:1157
 msgid "mounted on $0"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1160
+#: ../pkg/storaged/details.js:1159
 msgid "not mounted"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1164
+#: ../pkg/storaged/details.js:1163
 msgid "unlocked"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1166
+#: ../pkg/storaged/details.js:1165
 msgid "locked"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1235
+#: ../pkg/storaged/details.js:1234
 msgid "$0 Free Space for Logical Partitions"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1238
+#: ../pkg/storaged/details.js:1237
 msgid "$0 Free Space for Primary Partitions"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1243
+#: ../pkg/storaged/details.js:1242
 msgid "$0 Free Space"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1247
+#: ../pkg/storaged/details.js:1246
 msgid "Create Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1255
+#: ../pkg/storaged/details.js:1254
 msgid "$0 Extended Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1292
+#: ../pkg/storaged/details.js:1291
 msgid "Logical Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1294
+#: ../pkg/storaged/details.js:1293
 msgid "Primary Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1296 ../pkg/kubernetes/views/volume-body.html.h:5
+#: ../pkg/storaged/details.js:1295 ../pkg/kubernetes/views/volume-body.html.h:5
 msgid "Partition"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1378 ../pkg/storaged/details.js:1530
+#: ../pkg/storaged/details.js:1377 ../pkg/storaged/details.js:1529
 msgid "Content"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1396
+#: ../pkg/storaged/details.js:1395
 msgid "RAID 0"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1397
+#: ../pkg/storaged/details.js:1396
 msgid "RAID 1"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1398
+#: ../pkg/storaged/details.js:1397
 msgid "RAID 4"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1399
+#: ../pkg/storaged/details.js:1398
 msgid "RAID 5"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1400
+#: ../pkg/storaged/details.js:1399
 msgid "RAID 6"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1401
+#: ../pkg/storaged/details.js:1400
 msgid "RAID 10"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1402
+#: ../pkg/storaged/details.js:1401
 msgid "RAID ($0)"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1407
+#: ../pkg/storaged/details.js:1406
 msgid "$0 Disks"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1409
+#: ../pkg/storaged/details.js:1408
 msgid "$0 Chunk Size"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1420
+#: ../pkg/storaged/details.js:1419
 msgid "Data Scrubbing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1421
+#: ../pkg/storaged/details.js:1420
 msgid "Data Scrubbing and Repair"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1422
+#: ../pkg/storaged/details.js:1421
 msgid "Resyncing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1423
+#: ../pkg/storaged/details.js:1422
 msgid "Recovering "
 msgstr ""
 
-#: ../pkg/storaged/details.js:1424
+#: ../pkg/storaged/details.js:1423
 msgid "Frozen"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1431
+#: ../pkg/storaged/details.js:1430
 #, javascript-format
 msgid "$action, ${percent}% complete at $rate"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1435
+#: ../pkg/storaged/details.js:1434
 #, javascript-format
 msgid "$action, ${percent}% complete"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1440
+#: ../pkg/storaged/details.js:1439
 msgid ", $0 remaining"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1454
+#: ../pkg/storaged/details.js:1453
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] ""
 
-#: ../pkg/storaged/details.js:1466 ../pkg/docker/index.html.h:10
+#: ../pkg/storaged/details.js:1465 ../pkg/docker/index.html.h:10
 #: ../pkg/ostree/index.html.h:7
 msgid "Running"
 msgstr "작동중"
 
-#: ../pkg/storaged/details.js:1466
+#: ../pkg/storaged/details.js:1465
 msgid "Not running"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1485
+#: ../pkg/storaged/details.js:1484
 msgid "FAILED"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1486
+#: ../pkg/storaged/details.js:1485
 msgid "In Sync"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1487
+#: ../pkg/storaged/details.js:1486
 msgid "Spare"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1487
+#: ../pkg/storaged/details.js:1486
 msgid "Recovering"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1488
+#: ../pkg/storaged/details.js:1487
 msgid "Write-mostly"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1489
+#: ../pkg/storaged/details.js:1488
 msgid "Blocked"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1490
+#: ../pkg/storaged/details.js:1489
 msgid "Unknown ($0)"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1507
+#: ../pkg/storaged/details.js:1506
 msgid "Start Scrubbing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1508
+#: ../pkg/storaged/details.js:1507
 msgid "Stop Scrubbing"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1542
+#: ../pkg/storaged/details.js:1541
 msgid "$size $desc"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1558
+#: ../pkg/storaged/details.js:1557
 #, javascript-format
 msgid "$size $desc<br/>${percent}% full"
 msgstr ""
@@ -2452,146 +2546,150 @@ msgstr ""
 #. volume, Storaged or something below is
 #. probably misbehaving, and we show it as
 #. "unsupported".
-#: ../pkg/storaged/details.js:1578
+#: ../pkg/storaged/details.js:1577
 msgid "$size $desc<br/>($state)"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1581
+#: ../pkg/storaged/details.js:1580
 msgid "active, but unsupported"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1581
+#: ../pkg/storaged/details.js:1580
 msgid "inactive"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1600
+#: ../pkg/storaged/details.js:1599
 msgid "$0 Free Space for Logical Volumes"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1633 ../pkg/kubernetes/views/user-delete.html.h:5
+#: ../pkg/storaged/details.js:1632 ../pkg/kubernetes/views/user-delete.html.h:5
 #: ../pkg/kubernetes/views/group-delete.html.h:4
 #: ../pkg/kubernetes/views/user-group-remove.html.h:3
 #: ../pkg/kubernetes/views/remove-role-dialog.html.h:4
 msgid "Remove"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1634
+#: ../pkg/storaged/details.js:1633
 msgid "Empty"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1640
+#: ../pkg/storaged/details.js:1639
 msgid "$0, $1 free"
 msgstr ""
 
-#: ../pkg/storaged/details.js:1665
+#: ../pkg/storaged/details.js:1664
 msgid "Logical Volumes"
 msgstr ""
 
-#: ../pkg/storaged/dialog.js:257
+#: ../pkg/storaged/dialog.js:259
 msgid "Size must be a number"
 msgstr ""
 
-#: ../pkg/storaged/dialog.js:259
+#: ../pkg/storaged/dialog.js:261
 #, fuzzy
 msgid "Size can not be zero"
 msgstr "이름을 입력하셔야 합니다."
 
-#: ../pkg/storaged/dialog.js:261
+#: ../pkg/storaged/dialog.js:263
 #, fuzzy
 msgid "Size can not be negative"
 msgstr "이름을 입력하셔야 합니다."
 
-#: ../pkg/storaged/dialog.js:263
+#: ../pkg/storaged/dialog.js:265
 msgid "Size is too large"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:109
+#: ../pkg/storaged/jobs.js:108
 msgid "SMART self-test of $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:110
+#: ../pkg/storaged/jobs.js:109
 msgid "Ejecting $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:111
+#: ../pkg/storaged/jobs.js:110
 msgid "Unlocking $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:112
+#: ../pkg/storaged/jobs.js:111
 msgid "Locking $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:113 ../pkg/storaged/jobs.js:118
-#: ../pkg/storaged/jobs.js:122
+#: ../pkg/storaged/jobs.js:112 ../pkg/storaged/jobs.js:117
+#: ../pkg/storaged/jobs.js:121
 msgid "Modifying $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:114
+#: ../pkg/storaged/jobs.js:113
 msgid "Starting swapspace $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:115
+#: ../pkg/storaged/jobs.js:114
 msgid "Stopping swapspace $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:116
+#: ../pkg/storaged/jobs.js:115
 msgid "Mounting $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:117
+#: ../pkg/storaged/jobs.js:116
 msgid "Unmounting $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:119
+#: ../pkg/storaged/jobs.js:118
 msgid "Erasing $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:120
+#: ../pkg/storaged/jobs.js:119
 msgid "Creating filesystem on $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:121
+#: ../pkg/storaged/jobs.js:120
 msgid "Setting up loop device $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:123 ../pkg/storaged/jobs.js:133
+#: ../pkg/storaged/jobs.js:122 ../pkg/storaged/jobs.js:133
 msgid "Deleting $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:124
+#: ../pkg/storaged/jobs.js:123
 msgid "Creating partition $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:125
+#: ../pkg/storaged/jobs.js:124
 msgid "Cleaning up for $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:126
+#: ../pkg/storaged/jobs.js:125
 msgid "Securely erasing $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:127
+#: ../pkg/storaged/jobs.js:126
 msgid "Very securely erasing $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:128
+#: ../pkg/storaged/jobs.js:127
 msgid "Stopping RAID Device $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:129
+#: ../pkg/storaged/jobs.js:128
 msgid "Starting RAID Device $target"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:130
+#: ../pkg/storaged/jobs.js:129
 msgid "Marking $target as faulty"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:131
+#: ../pkg/storaged/jobs.js:130
 msgid "Removing $target from RAID Device"
 msgstr ""
 
-#: ../pkg/storaged/jobs.js:132
+#: ../pkg/storaged/jobs.js:131
 msgid "Creating RAID Device $target"
+msgstr ""
+
+#: ../pkg/storaged/jobs.js:132
+msgid "Synchronizing RAID Device $target"
 msgstr ""
 
 #: ../pkg/storaged/jobs.js:134
@@ -2650,113 +2748,33 @@ msgstr ""
 msgid "The user <b>$0</b> is not permitted to manage storage"
 msgstr ""
 
-#: ../pkg/subscriptions/subscriptions.js:48
-msgid "Login cannot be empty"
+#: ../pkg/subscriptions/main.js:49
+msgid "Username/Password or activation key required"
 msgstr ""
 
-#: ../pkg/subscriptions/subscriptions.js:54
-msgid "Password cannot be empty"
-msgstr ""
-
-#: ../pkg/subscriptions/subscriptions.js:390
+#: ../pkg/subscriptions/main.js:405
 msgid "Registering system..."
 msgstr ""
 
-#: ../pkg/subscriptions/subscriptions.js:449
+#: ../pkg/subscriptions/main.js:453
+msgid "Server expects an organization."
+msgstr ""
+
+#: ../pkg/subscriptions/main.js:467
 msgid "Failed to register the system"
 msgstr ""
 
-#: ../pkg/subscriptions/subscriptions.js:468
+#: ../pkg/subscriptions/main.js:486
 msgid ""
 "Unable to register at this time because a call to subscription manager is "
 "already in progress. Please try again."
 msgstr ""
 
-#: ../pkg/subscriptions/subscriptions.js:492
+#: ../pkg/subscriptions/main.js:511
 msgid "Invalid login or password."
 msgstr ""
 
-#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:27
-#: ../pkg/systemd/index.html.h:18 ../pkg/playground/patterns.html.h:28
-#: ../pkg/networkmanager/index.html.h:39 ../pkg/storaged/index.html.h:53
-msgid "On"
-msgstr "활성"
-
-#: ../pkg/base1/patterns.js:239 ../pkg/shell/index.html.h:28
-#: ../pkg/systemd/index.html.h:19 ../pkg/playground/patterns.html.h:29
-#: ../pkg/networkmanager/index.html.h:40 ../pkg/storaged/index.html.h:54
-msgid "Off"
-msgstr "비활성"
-
-#: ../pkg/base1/cockpit.js:2401
-msgid "$0 killed with signal $1"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:2403
-msgid "$0 exited with code $1"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:2405
-msgid "$0 failed"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3464
-msgid "Your session has been terminated."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3466
-msgid "Your session has expired. Please log in again."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3468
-msgid "Not permitted to perform this action."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3470
-msgid "Login failed"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3472
-msgid "The server refused to authenticate using any supported methods."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3474
-msgid "Untrusted host"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3476
-msgid "Host key is incorrect"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3478
-msgid "Internal error"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3480
-msgid "Connection has timed out."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3482
-msgid "Cockpit is not installed on the system."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3484
-msgid "Cannot forward login credentials"
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3486
-msgid "Server has closed the connection."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3488
-msgid "Cockpit is not compatible with the software on the system."
-msgstr ""
-
-#: ../pkg/base1/cockpit.js:3490
-msgid "Cockpit could not contact the given host."
-msgstr ""
-
-#: ../pkg/sosreport/index.js:50 ../pkg/sosreport/index.js:114
+#: ../pkg/sosreport/index.js:49 ../pkg/sosreport/index.js:113
 #: ../pkg/shell/templates/change-port.html.h:8
 #: ../pkg/shell/templates/unknown-hostkey.html.h:4
 #: ../pkg/shell/templates/not-supported.html.h:3
@@ -2766,7 +2784,7 @@ msgstr ""
 msgid "Close"
 msgstr "닫기"
 
-#: ../pkg/sosreport/index.js:56 ../pkg/shell/templates/change-port.html.h:6
+#: ../pkg/sosreport/index.js:55 ../pkg/shell/templates/change-port.html.h:6
 #: ../pkg/shell/templates/sync-users.html.h:7
 #: ../pkg/shell/templates/change-auth.html.h:11
 #: ../pkg/shell/templates/add-machine.html.h:5
@@ -2803,8 +2821,76 @@ msgstr "닫기"
 msgid "Cancel"
 msgstr "취소"
 
-#: ../pkg/sosreport/index.js:116
+#: ../pkg/sosreport/index.js:115
 msgid "No archive has been created."
+msgstr ""
+
+#: ../src/base1/cockpit.js:2452
+msgid "$0 killed with signal $1"
+msgstr ""
+
+#: ../src/base1/cockpit.js:2454
+msgid "$0 exited with code $1"
+msgstr ""
+
+#: ../src/base1/cockpit.js:2456
+msgid "$0 failed"
+msgstr ""
+
+#: ../src/base1/cockpit.js:3515
+msgid "Your session has been terminated."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3517
+msgid "Your session has expired. Please log in again."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3519
+msgid "Not permitted to perform this action."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3521
+msgid "Login failed"
+msgstr ""
+
+#: ../src/base1/cockpit.js:3523
+msgid "The server refused to authenticate using any supported methods."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3525
+msgid "Untrusted host"
+msgstr ""
+
+#: ../src/base1/cockpit.js:3527
+msgid "Host key is incorrect"
+msgstr ""
+
+#: ../src/base1/cockpit.js:3529
+msgid "Internal error"
+msgstr ""
+
+#: ../src/base1/cockpit.js:3531
+msgid "Connection has timed out."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3533
+msgid "Cockpit is not installed on the system."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3535
+msgid "Cannot forward login credentials"
+msgstr ""
+
+#: ../src/base1/cockpit.js:3537
+msgid "Server has closed the connection."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3539
+msgid "Cockpit is not compatible with the software on the system."
+msgstr ""
+
+#: ../src/base1/cockpit.js:3541
+msgid "Cockpit could not contact the given host."
 msgstr ""
 
 #: ../pkg/selinux/setroubleshoot.html.h:1
@@ -2843,8 +2929,8 @@ msgstr ""
 "            "
 
 #: ../pkg/shell/simple.html.h:9 ../pkg/shell/index.html.h:14
-#: ../pkg/shell/stub.html.h:9 ../pkg/systemd/index.html.h:9
-#: ../pkg/ostree/index.html.h:19 ../pkg/subscriptions/index.html.h:38
+#: ../pkg/shell/stub.html.h:9 ../pkg/systemd/index.html.h:13
+#: ../pkg/ostree/index.html.h:19 ../pkg/subscriptions/index.html.h:44
 msgid "Version"
 msgstr "버전"
 
@@ -2855,7 +2941,7 @@ msgstr "사용하실 언어를 선택해주세요"
 
 #: ../pkg/shell/simple.html.h:11 ../pkg/shell/index.html.h:16
 #: ../pkg/shell/stub.html.h:11 ../pkg/storaged/index.html.h:66
-#: ../pkg/subscriptions/index.html.h:29
+#: ../pkg/subscriptions/index.html.h:35
 msgid ""
 "\n"
 "              Cancel\n"
@@ -3224,7 +3310,7 @@ msgstr ""
 msgid "Confirm New Password"
 msgstr ""
 
-#: ../pkg/users/index.html.h:26 ../pkg/docker/index.html.h:33
+#: ../pkg/users/index.html.h:26 ../pkg/docker/index.html.h:54
 #: ../pkg/networkmanager/index.html.h:42
 msgid ""
 "\n"
@@ -3246,7 +3332,7 @@ msgstr ""
 msgid "Delete Files"
 msgstr ""
 
-#: ../pkg/users/index.html.h:33 ../pkg/networkmanager/index.html.h:36
+#: ../pkg/users/index.html.h:33 ../pkg/networkmanager/index.html.h:38
 msgid ""
 "\n"
 "            Delete\n"
@@ -3328,127 +3414,148 @@ msgid ""
 msgstr ""
 
 #: ../pkg/systemd/index.html.h:2
+#, fuzzy
+msgid "No host keys found."
+msgstr "찾을 수 없습니다."
+
+#: ../pkg/systemd/index.html.h:3
 msgid "Synchronized with {{Server}}"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:3
+#: ../pkg/systemd/index.html.h:4
 msgid "Synchronized"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:4
+#: ../pkg/systemd/index.html.h:5
 msgid "Trying to synchronize with {{Server}}"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:5
+#: ../pkg/systemd/index.html.h:6
 msgid "Not synchronized"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:6
+#: ../pkg/systemd/index.html.h:7
 msgid "Hardware"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:7
+#: ../pkg/systemd/index.html.h:8
 msgid "Asset Tag"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:8 ../pkg/kubernetes/views/nodes-page.html.h:6
+#: ../pkg/systemd/index.html.h:9 ../pkg/kubernetes/views/node-body.html.h:6
+msgid "Machine ID"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:10 ../pkg/kubernetes/views/nodes-page.html.h:6
 #: ../pkg/ostree/index.html.h:18
 msgid "Operating System"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:10 ../pkg/dashboard/index.html.h:3
-msgid "Host Name"
-msgstr ""
-
 #: ../pkg/systemd/index.html.h:11
-msgid "Domain"
+msgid "Secure Shell Keys"
 msgstr ""
 
 #: ../pkg/systemd/index.html.h:12
-msgid "System Time"
+msgid "Show fingerprints"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:13
-msgid "Power Options"
+#: ../pkg/systemd/index.html.h:14 ../pkg/dashboard/index.html.h:3
+msgid "Host Name"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:15
+msgid "Domain"
 msgstr ""
 
 #: ../pkg/systemd/index.html.h:16
-msgid "Performance Profile"
+msgid "System Time"
 msgstr ""
 
 #: ../pkg/systemd/index.html.h:17
+msgid "Power Options"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:20
+msgid "Performance Profile"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:21
 msgid "Store Performance Data"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:28
+#: ../pkg/systemd/index.html.h:32
+msgid "Machine SSH Key Fingerprints"
+msgstr ""
+
+#: ../pkg/systemd/index.html.h:33
 msgid "Pretty Host Name"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:29
+#: ../pkg/systemd/index.html.h:34
 msgid "Real Host Name"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:30
+#: ../pkg/systemd/index.html.h:35
 msgid "Time Zone"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:31
+#: ../pkg/systemd/index.html.h:36
 msgid ""
 "\n"
 "                                    Invalid time zone\n"
 "                                "
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:34
-msgid "Set time"
+#: ../pkg/systemd/index.html.h:39
+msgid "Set Time"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:35
+#: ../pkg/systemd/index.html.h:40
 #, fuzzy
 msgid "Manually"
 msgstr "수동"
 
-#: ../pkg/systemd/index.html.h:36
+#: ../pkg/systemd/index.html.h:41
 msgid "Automatically using NTP"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:37
+#: ../pkg/systemd/index.html.h:42
 msgid "Automatically using specific NTP servers"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:38
+#: ../pkg/systemd/index.html.h:43
 msgid "Delay"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:39
+#: ../pkg/systemd/index.html.h:44
 msgid "1 Minute"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:40
+#: ../pkg/systemd/index.html.h:45
 msgid "5 Minutes"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:41
+#: ../pkg/systemd/index.html.h:46
 msgid "20 Minutes"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:42
+#: ../pkg/systemd/index.html.h:47
 msgid "40 Minutes"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:43
+#: ../pkg/systemd/index.html.h:48
 msgid "60 Minutes"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:44
+#: ../pkg/systemd/index.html.h:49
 msgid "No Delay"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:45
+#: ../pkg/systemd/index.html.h:50
 msgid "Specific Time"
 msgstr ""
 
-#: ../pkg/systemd/index.html.h:46
+#: ../pkg/systemd/index.html.h:51
 msgid ""
 "\n"
 "                        Cancel\n"
@@ -3572,65 +3679,158 @@ msgstr ""
 "            "
 
 #: ../pkg/docker/index.html.h:15
-msgid "TCP"
-msgstr "TCP"
+#, fuzzy
+msgid "IP Address:"
+msgstr "IP 주소"
 
 #: ../pkg/docker/index.html.h:16
-msgid "{{host_port_label}}"
-msgstr "{{host_port_label}}"
+#, fuzzy
+msgid "IP Prefix Length:"
+msgstr "접두 길이"
 
 #: ../pkg/docker/index.html.h:17
-msgid "select container"
+msgid "Gateway:"
 msgstr ""
 
 #: ../pkg/docker/index.html.h:18
+#, fuzzy
+msgid "MAC Address:"
+msgstr "주소"
+
+#: ../pkg/docker/index.html.h:19 ../pkg/kubernetes/index.html.h:2
+#: ../pkg/kubernetes/registry.html.h:2
+msgid "Overview"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:20
+msgid "Reset"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:21
+msgid "Storage pool"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:22
+msgid "Additional Storage"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:23
+msgid "TCP"
+msgstr "TCP"
+
+#: ../pkg/docker/index.html.h:24
+msgid "{{host_port_label}}"
+msgstr "{{host_port_label}}"
+
+#: ../pkg/docker/index.html.h:25
+#, fuzzy
+msgid "{{host_volume_label}}"
+msgstr "{{host_port_label}}"
+
+#: ../pkg/docker/index.html.h:27
+msgid "ReadWrite"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:28
+#, fuzzy
+msgid "ReadOnly"
+msgstr "준비됨"
+
+#: ../pkg/docker/index.html.h:29
+#, fuzzy
+msgid "{{envvar_key_label}}"
+msgstr "{{alias_label}}"
+
+#: ../pkg/docker/index.html.h:30
+#, fuzzy
+msgid "{{envvar_value_label}}"
+msgstr "{{alias_label}}"
+
+#: ../pkg/docker/index.html.h:31
+msgid "select container"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:32
 msgid "{{alias_label}}"
 msgstr "{{alias_label}}"
 
-#: ../pkg/docker/index.html.h:19 ../pkg/kubernetes/views/image-page.html.h:2
+#: ../pkg/docker/index.html.h:33 ../pkg/kubernetes/views/image-page.html.h:2
 #: ../pkg/kubernetes/views/image-panel.html.h:1
 #: ../pkg/kubernetes/views/container-body.html.h:2
 msgid "Image"
 msgstr "이미지"
 
-#: ../pkg/docker/index.html.h:20
+#: ../pkg/docker/index.html.h:34
 msgid "Container Name"
 msgstr "컨테이너 이름"
 
-#: ../pkg/docker/index.html.h:21
+#: ../pkg/docker/index.html.h:35
 msgid "Command"
 msgstr "명령"
 
-#: ../pkg/docker/index.html.h:22
+#: ../pkg/docker/index.html.h:36
 msgid "Memory limit"
 msgstr "메모리 제한"
 
-#: ../pkg/docker/index.html.h:23
+#: ../pkg/docker/index.html.h:37
+msgid "MiB"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:38
 msgid "CPU priority"
 msgstr "CPU 우선순위"
 
-#: ../pkg/docker/index.html.h:24
+#: ../pkg/docker/index.html.h:39
+#, fuzzy
+msgid "shares"
+msgstr "$0 공유"
+
+#: ../pkg/docker/index.html.h:40
 msgid "With terminal"
 msgstr "터미널 실행"
 
-#: ../pkg/docker/index.html.h:25
+#: ../pkg/docker/index.html.h:41
 msgid "Links"
 msgstr "링크"
 
-#: ../pkg/docker/index.html.h:27 ../pkg/kubernetes/views/pod-body.html.h:4
+#: ../pkg/docker/index.html.h:43
+msgid "Expose container ports"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:44 ../pkg/kubernetes/views/image-config.html.h:9
+#: ../pkg/kubernetes/views/pod-page.html.h:3
+#: ../pkg/kubernetes/views/dashboard-page.html.h:4
+#: ../pkg/kubernetes/index.html.h:7
+msgid "Volumes"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:45
+msgid "Mount container volumes"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:46 ../pkg/kubernetes/views/image-config.html.h:6
+#: ../pkg/kubernetes/views/container-body.html.h:9
+msgid "Environment"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:47
+msgid "Set container environment variables"
+msgstr ""
+
+#: ../pkg/docker/index.html.h:48 ../pkg/kubernetes/views/pod-body.html.h:4
 msgid "Restart Policy"
 msgstr ""
 
-#: ../pkg/docker/index.html.h:29
+#: ../pkg/docker/index.html.h:50
 #, fuzzy
 msgid "On Failure"
 msgstr "실패하였습니다"
 
-#: ../pkg/docker/index.html.h:32
+#: ../pkg/docker/index.html.h:53
 msgid "Retries:"
 msgstr ""
 
-#: ../pkg/docker/index.html.h:36
+#: ../pkg/docker/index.html.h:57
 msgid ""
 "\n"
 "            Run\n"
@@ -3640,7 +3840,7 @@ msgstr ""
 "            실행\n"
 "          "
 
-#: ../pkg/docker/index.html.h:39
+#: ../pkg/docker/index.html.h:60
 msgid ""
 "\n"
 "            Download\n"
@@ -3650,7 +3850,7 @@ msgstr ""
 "            다운로드\n"
 "          "
 
-#: ../pkg/docker/index.html.h:42
+#: ../pkg/docker/index.html.h:63
 msgid ""
 "\n"
 "            Change\n"
@@ -3660,20 +3860,20 @@ msgstr ""
 "            변경\n"
 "          "
 
-#: ../pkg/docker/index.html.h:45
+#: ../pkg/docker/index.html.h:66
 msgid "Repository"
 msgstr "리포지터리 "
 
-#: ../pkg/docker/index.html.h:46
+#: ../pkg/docker/index.html.h:67
 msgid "Tag"
 msgstr "태그"
 
-#: ../pkg/docker/index.html.h:47 ../pkg/kubernetes/views/image-listing.html.h:4
+#: ../pkg/docker/index.html.h:68 ../pkg/kubernetes/views/image-listing.html.h:4
 #: ../pkg/kubernetes/views/image-body.html.h:5
 msgid "Author"
 msgstr "작성자"
 
-#: ../pkg/docker/index.html.h:48
+#: ../pkg/docker/index.html.h:69
 msgid ""
 "\n"
 "            Commit\n"
@@ -3683,74 +3883,6 @@ msgstr ""
 "            커밋\n"
 "          "
 
-#: ../pkg/playground/patterns.html.h:1
-msgid "Cockpit Pattern Usage"
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:2
-msgid "Example Dialog"
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:3
-msgid ""
-"\n"
-"                                Label\n"
-"                            "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:6
-msgid ""
-"\n"
-"                                Select\n"
-"                            "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:9
-msgid "One"
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:10
-msgid ""
-"\n"
-"                    Cancel\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:13
-msgid ""
-"\n"
-"                    Clear\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:16
-msgid ""
-"\n"
-"                    Invalid\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:19
-msgid ""
-"\n"
-"                    Error\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:22
-msgid ""
-"\n"
-"                    Wait\n"
-"                "
-msgstr ""
-
-#: ../pkg/playground/patterns.html.h:25
-msgid ""
-"\n"
-"        Show Dialog\n"
-"    "
-msgstr ""
-
 #: ../pkg/playground/test.html.h:1
 msgid "Cockpit terminal"
 msgstr ""
@@ -3758,6 +3890,74 @@ msgstr ""
 #: ../pkg/playground/test.html.h:2 ../pkg/networkmanager/index.html.h:1
 msgid "Networking"
 msgstr "네트워킹"
+
+#: ../pkg/playground/jquery-patterns.html.h:1
+msgid "Cockpit Pattern Usage"
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:2
+msgid "Example Dialog"
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:3
+msgid ""
+"\n"
+"                                Label\n"
+"                            "
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:6
+msgid ""
+"\n"
+"                                Select\n"
+"                            "
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:9
+msgid "One"
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:10
+msgid ""
+"\n"
+"                    Cancel\n"
+"                "
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:13
+msgid ""
+"\n"
+"                    Clear\n"
+"                "
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:16
+msgid ""
+"\n"
+"                    Invalid\n"
+"                "
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:19
+msgid ""
+"\n"
+"                    Error\n"
+"                "
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:22
+msgid ""
+"\n"
+"                    Wait\n"
+"                "
+msgstr ""
+
+#: ../pkg/playground/jquery-patterns.html.h:25
+msgid ""
+"\n"
+"        Show Dialog\n"
+"    "
+msgstr ""
 
 #: ../pkg/playground/react-patterns.html.h:1
 msgid "Cockpit React Patterns Usage"
@@ -3939,20 +4139,8 @@ msgid "Stop with"
 msgstr ""
 
 #: ../pkg/kubernetes/views/image-config.html.h:5
-#: ../pkg/subscriptions/index.html.h:39
+#: ../pkg/subscriptions/index.html.h:45
 msgid "Architecture"
-msgstr ""
-
-#: ../pkg/kubernetes/views/image-config.html.h:6
-#: ../pkg/kubernetes/views/container-body.html.h:9
-msgid "Environment"
-msgstr ""
-
-#: ../pkg/kubernetes/views/image-config.html.h:9
-#: ../pkg/kubernetes/views/pod-page.html.h:3
-#: ../pkg/kubernetes/views/dashboard-page.html.h:4
-#: ../pkg/kubernetes/index.html.h:7
-msgid "Volumes"
 msgstr ""
 
 #: ../pkg/kubernetes/views/pvc-delete.html.h:1
@@ -4214,42 +4402,49 @@ msgid "Images by project"
 msgstr ""
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:5
-msgid "Images pushed recently"
+#: ../pkg/kubernetes/views/imagestream-page.html.h:3
+#: ../pkg/kubernetes/views/image-listing.html.h:2
+#: ../pkg/kubernetes/index.html.h:8 ../pkg/kubernetes/registry.html.h:3
+msgid "Images"
 msgstr ""
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:6
-msgid "All images"
+msgid "Images pushed recently"
 msgstr ""
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:7
-msgid "No images pushed"
+msgid "All images"
 msgstr ""
 
 #: ../pkg/kubernetes/views/registry-dashboard-page.html.h:8
+msgid "No images pushed"
+msgstr ""
+
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:9
 msgid ""
 "In order to begin pushing images to the registry, use the commands below."
 msgstr ""
 
-#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:9
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:10
 #: ../pkg/kubernetes/views/image-listing.html.h:1
 msgid "New image stream"
 msgstr ""
 
-#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:10
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:11
 msgid "Docker commands"
 msgstr ""
 
-#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:11
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:12
 msgid ""
 "Your login credentials do not give you access to use the docker registry "
 "from the command line."
 msgstr ""
 
-#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:12
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:13
 msgid "Push an image:"
 msgstr ""
 
-#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:13
+#: ../pkg/kubernetes/views/registry-dashboard-page.html.h:14
 msgid "Pull an image:"
 msgstr ""
 
@@ -4479,11 +4674,6 @@ msgstr ""
 msgid "Container ID"
 msgstr ""
 
-#: ../pkg/kubernetes/views/container-body.html.h:6
-#: ../pkg/kubernetes/views/details-page.html.h:8
-msgid "State"
-msgstr ""
-
 #: ../pkg/kubernetes/views/container-body.html.h:7
 msgid "Since"
 msgstr ""
@@ -4661,12 +4851,6 @@ msgstr "맴버"
 msgid "New Project"
 msgstr ""
 
-#: ../pkg/kubernetes/views/project-listing.html.h:4
-#: ../pkg/kubernetes/views/project-modify.html.h:5
-#: ../pkg/kubernetes/views/image-body.html.h:3
-msgid "Description"
-msgstr ""
-
 #: ../pkg/kubernetes/views/project-listing.html.h:6
 msgid "No projects are present."
 msgstr ""
@@ -4790,12 +4974,6 @@ msgstr ""
 msgid "Image Stream"
 msgstr ""
 
-#: ../pkg/kubernetes/views/imagestream-page.html.h:3
-#: ../pkg/kubernetes/views/image-listing.html.h:2
-#: ../pkg/kubernetes/index.html.h:8 ../pkg/kubernetes/registry.html.h:3
-msgid "Images"
-msgstr ""
-
 #: ../pkg/kubernetes/views/node-page.html.h:1
 msgid "Show all Nodes"
 msgstr ""
@@ -4857,8 +5035,7 @@ msgid "No volumes in use"
 msgstr ""
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:7
-#: ../pkg/kubernetes/views/volumes-page.html.h:8
-msgid "Pending Volume Claims"
+msgid "pending volume claims"
 msgstr ""
 
 #: ../pkg/kubernetes/views/dashboard-page.html.h:8
@@ -4955,10 +5132,6 @@ msgstr ""
 
 #: ../pkg/kubernetes/views/node-body.html.h:5
 msgid "OS"
-msgstr ""
-
-#: ../pkg/kubernetes/views/node-body.html.h:6
-msgid "Machine ID"
 msgstr ""
 
 #: ../pkg/kubernetes/views/node-body.html.h:7
@@ -5139,6 +5312,10 @@ msgstr ""
 msgid "No volumes are present."
 msgstr ""
 
+#: ../pkg/kubernetes/views/volumes-page.html.h:8
+msgid "Pending Volume Claims"
+msgstr ""
+
 #: ../pkg/kubernetes/views/volumes-page.html.h:12
 msgid "When"
 msgstr ""
@@ -5160,10 +5337,6 @@ msgstr "Kubernetes 클러스터"
 #: ../pkg/kubernetes/index.html.h:1
 msgid "Kubernetes Cluster"
 msgstr "Kubernetes 클러스터"
-
-#: ../pkg/kubernetes/index.html.h:2 ../pkg/kubernetes/registry.html.h:2
-msgid "Overview"
-msgstr ""
 
 #: ../pkg/kubernetes/index.html.h:5
 msgid "Topology"
@@ -5264,62 +5437,66 @@ msgid "VLAN Id"
 msgstr "VLAN ID"
 
 #: ../pkg/networkmanager/index.html.h:20
+msgid "Set to"
+msgstr ""
+
+#: ../pkg/networkmanager/index.html.h:22
 msgid "Spanning Tree Protocol (STP)"
 msgstr "Spanning Tree Protocol (STP)"
 
-#: ../pkg/networkmanager/index.html.h:21
+#: ../pkg/networkmanager/index.html.h:23
 msgid "STP Priority"
 msgstr "STP 우선순위"
 
-#: ../pkg/networkmanager/index.html.h:22
+#: ../pkg/networkmanager/index.html.h:24
 msgid "STP Forward delay"
 msgstr "STP Forward delay"
 
-#: ../pkg/networkmanager/index.html.h:23
+#: ../pkg/networkmanager/index.html.h:25
 msgid "STP Hello time"
 msgstr "STP Hello time"
 
-#: ../pkg/networkmanager/index.html.h:24
+#: ../pkg/networkmanager/index.html.h:26
 msgid "STP Maximum message age"
 msgstr "STP Maximum message age"
 
-#: ../pkg/networkmanager/index.html.h:25
+#: ../pkg/networkmanager/index.html.h:27
 msgid "Priority"
 msgstr "우선순위"
 
-#: ../pkg/networkmanager/index.html.h:26
+#: ../pkg/networkmanager/index.html.h:28
 msgid "Path cost"
 msgstr "Path cost"
 
-#: ../pkg/networkmanager/index.html.h:27
+#: ../pkg/networkmanager/index.html.h:29
 msgid "Hair Pin mode"
 msgstr "Hair Pin 모드"
 
-#: ../pkg/networkmanager/index.html.h:29
+#: ../pkg/networkmanager/index.html.h:31
 msgid "Mode"
 msgstr "모드"
 
-#: ../pkg/networkmanager/index.html.h:30
+#: ../pkg/networkmanager/index.html.h:32
 msgid "Primary"
 msgstr "주"
 
-#: ../pkg/networkmanager/index.html.h:31
+#: ../pkg/networkmanager/index.html.h:33
 msgid "Link Monitoring"
 msgstr "링크 모니터링"
 
-#: ../pkg/networkmanager/index.html.h:32
+#: ../pkg/networkmanager/index.html.h:34
 msgid "Monitoring Interval"
 msgstr "모니터링 주기"
 
-#: ../pkg/networkmanager/index.html.h:33
+#: ../pkg/networkmanager/index.html.h:35
 msgid "Monitoring Targets"
 msgstr "모니터링 대상"
 
-#: ../pkg/networkmanager/index.html.h:34
+#: ../pkg/networkmanager/index.html.h:36
 msgid "Link up delay"
 msgstr "링크 업 딜레이"
 
-#: ../pkg/networkmanager/index.html.h:35
+#: ../pkg/networkmanager/index.html.h:37
 msgid "Link down delay"
 msgstr "링크 다운 딜레이"
 
@@ -5352,6 +5529,10 @@ msgstr "브릿지 포트 설정"
 #: ../pkg/networkmanager/index.html.h:51
 msgid "VLAN Settings"
 msgstr "VLAN 설정"
+
+#: ../pkg/networkmanager/index.html.h:52
+msgid "Ethernet MTU"
+msgstr ""
 
 #: ../pkg/ostree/index.html.h:1
 msgid "Software Updates"
@@ -5733,30 +5914,52 @@ msgid ""
 "                  "
 msgstr ""
 
+#: ../pkg/subscriptions/index.html.h:29
+#, fuzzy
+msgid ""
+"\n"
+"                    Activation Key\n"
+"                  "
+msgstr ""
+"\n"
+"                도구\n"
+"              "
+
 #: ../pkg/subscriptions/index.html.h:32
+#, fuzzy
+msgid ""
+"\n"
+"                    Organization\n"
+"                  "
+msgstr ""
+"\n"
+"                도구\n"
+"              "
+
+#: ../pkg/subscriptions/index.html.h:38
 msgid ""
 "\n"
 "              Register\n"
 "            "
 msgstr ""
 
-#: ../pkg/subscriptions/index.html.h:35
+#: ../pkg/subscriptions/index.html.h:41
 msgid "Installed Product ({{product_name}})"
 msgstr ""
 
-#: ../pkg/subscriptions/index.html.h:36
+#: ../pkg/subscriptions/index.html.h:42
 msgid "Product name"
 msgstr ""
 
-#: ../pkg/subscriptions/index.html.h:37
+#: ../pkg/subscriptions/index.html.h:43
 msgid "Product ID"
 msgstr ""
 
-#: ../pkg/subscriptions/index.html.h:41
+#: ../pkg/subscriptions/index.html.h:47
 msgid "Starts"
 msgstr ""
 
-#: ../pkg/subscriptions/index.html.h:42
+#: ../pkg/subscriptions/index.html.h:48
 msgid "Ends"
 msgstr ""
 
@@ -5805,3 +6008,17 @@ msgstr ""
 #: ../pkg/sosreport/index.html.h:19
 msgid "Done!"
 msgstr ""
+
+#~ msgid ""
+#~ "WARNING: Docker may be reporting the size it has allocated to it's "
+#~ "storage pool using sparse files, not the actual space available to the "
+#~ "underlying storage device."
+#~ msgstr ""
+#~ "경고: Docker는 실제 저장 장치의 여유공간이 아닌 임시파일을 통하여 할당한 "
+#~ "저장 공간을 표시하는 것일 수도 있습니다."
+
+#~ msgid "unlimited"
+#~ msgstr "무제한"
+
+#~ msgid "-"
+#~ msgstr "-"

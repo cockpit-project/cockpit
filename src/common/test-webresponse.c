@@ -1169,6 +1169,24 @@ test_negotiation_with_listing (void)
 }
 
 static void
+test_negotiation_locale (void)
+{
+  gchar *chosen = NULL;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
+                                            NULL, "zh-cn", &chosen, &error);
+
+  cockpit_assert_bytes_eq (bytes, "A translated test file\n", -1);
+  g_assert_no_error (error);
+  g_bytes_unref (bytes);
+
+  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/test-file.zh_CN.txt");
+  g_free (chosen);
+}
+
+static void
 test_negotiation_notfound (void)
 {
   gchar *chosen = NULL;
@@ -1287,6 +1305,7 @@ main (int argc,
 
   g_test_add_func ("/web-response/negotiation/first", test_negotiation_first);
   g_test_add_func ("/web-response/negotiation/last", test_negotiation_last);
+  g_test_add_func ("/web-response/negotiation/locale", test_negotiation_locale);
   g_test_add_func ("/web-response/negotiation/prune", test_negotiation_prune);
   g_test_add_func ("/web-response/negotiation/with-listing", test_negotiation_with_listing);
   g_test_add_func ("/web-response/negotiation/notfound", test_negotiation_notfound);

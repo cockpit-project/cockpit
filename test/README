@@ -62,7 +62,6 @@ For debugging:
 
  * vm-run: Run a test machine image
  * vm-copy: Copy files into a running test machine
- * vm-sh: Execute commands in a running test machine
 
 The verify test suite is the main test suite:
 
@@ -181,7 +180,8 @@ If you pass the "-s" ("sit on failure") option to a test program, it
 will pause when a failure occurs so that you can log into the test
 machine and investigate the problem.
 
-You can log into a running test-machine with "vm-sh".
+You can log into a running test-machine using the ssh credentials in
+./test/common/identity as the user root.
 
 You can also put calls to sit() into the tests themselves to stop them
 at strategic places.

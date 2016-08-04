@@ -115,7 +115,7 @@ class Machine:
             return
         print " ".join(args)
 
-    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None):
+    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
         """Overridden by machine classes to start the machine"""
         self.message("Assuming machine is already running")
 

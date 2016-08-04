@@ -893,13 +893,16 @@
                               }
                             });
             },
-            pvol_empty: function vgroup_add_disk(path) {
+            pvol_empty_and_remove: function vgroup_add_disk(path) {
                 var pvol = client.blocks_pvol[path];
                 var vgroup = pvol && client.vgroups[pvol.VolumeGroup];
                 if (!vgroup)
                     return;
 
-                return vgroup.EmptyDevice(path, {});
+                return (vgroup.EmptyDevice(path, {})
+                        .then(function () {
+                            vgroup.RemoveDevice(path, true, {});
+                        }));
             },
             pvol_remove: function vgroup_add_disk(path) {
                 var pvol = client.blocks_pvol[path];
@@ -987,9 +990,13 @@
                 });
         });
 
-        function create_simple_btn(title, action, args) {
-            return mustache.render('<button class="btn btn-default storage-privileged" data-action="{{Action}}" data-args="{{Args}}">{{Title}}</button>',
-                                   { Title: title, Action: action, Args: JSON.stringify(args) });
+        function create_simple_btn(title, action, args, excuse) {
+            if (action)
+                return mustache.render('<button class="btn btn-default storage-privileged" data-action="{{Action}}" data-args="{{Args}}">{{Title}}</button>',
+                                       { Title: title, Action: action, Args: JSON.stringify(args) });
+            else
+                return mustache.render('<button class="btn btn-default tooltip-ct" disabled title="{{Excuse}}">{{Title}}</button>',
+                                       { Title: title, Excuse: excuse });
         }
 
         var action_btn_tmpl = $("#action-btn-tmpl").html();
@@ -1645,6 +1652,8 @@
             if (!vgroup)
                 return;
 
+            var pvols = client.vgroups_pvols[vgroup.path];
+
             if (vgroup.NeedsPolling && poll_timer === null) {
                 poll_timer = window.setInterval(function () { vgroup.Poll(); }, 2000);
             } else if (!vgroup.NeedsPolling && poll_timer !== null) {
@@ -1659,10 +1668,20 @@
 
             function make_pvol(pvol) {
                 var block = client.blocks[pvol.path];
-                var actions = [
-                    { action: "pvol_remove", title: _("Remove") },
-                    { action: "pvol_empty",  title: _("Empty") }
-                ];
+                var action = null;
+                var excuse = null;
+                if (pvols.length == 1) {
+                    excuse = _("The last physical volume of a volume group can not be removed.");
+                } else if (pvol.FreeSize < pvol.Size) {
+                    if (pvol.Size <= vgroup.FreeSize)
+                        action = "pvol_empty_and_remove";
+                    else
+                        excuse = cockpit.format(_("There is not enough free space elsewhere to remove this physical volume.  At least $0 more free space is needed."),
+                                                utils.fmt_size(pvol.Size - vgroup.FreeSize));
+                } else {
+                    action = "pvol_remove";
+                }
+                var btn = create_simple_btn (_("Remove"), action, [ pvol.path ], excuse);
                 return {
                     dbus: block,
                     LinkTarget: utils.get_block_link_target(client, pvol.path),
@@ -1670,11 +1689,8 @@
                     Sizes: cockpit.format(_("$0, $1 free"),
                                           utils.fmt_size(pvol.Size),
                                           utils.fmt_size(pvol.FreeSize)),
-                    Button: mustache.render(action_btn_tmpl,
-                                            { arg: pvol.path,
-                                              def: actions[0], // Remove
-                                              actions: actions
-                                            })
+                    Button: btn
+
                 };
             }
 
@@ -1690,7 +1706,7 @@
                                                                      def: actions[0], // Rename
                                                                      actions: actions
                                                                    }),
-                                     PVols: client.vgroups_pvols[vgroup.path].map(make_pvol),
+                                     PVols: pvols.map(make_pvol),
                                      Content: mustache.render(content_tmpl,
                                                               { Title: _("Logical Volumes"),
                                                                 Entries: volume_group_content_entries(vgroup)
@@ -1709,9 +1725,12 @@
             else if (type == 'vgroup')
                 html = render_vgroup();
 
-            if (html)
+
+            if (html) {
+                $('#detail button.tooltip-ct').tooltip('destroy');
                 $('#detail').amend(html);
-            else
+                $('#detail button.tooltip-ct').tooltip();
+            } else
                 $('#detail').text(_("Not found"));
 
             jobs.update('#storage-detail');

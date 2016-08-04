@@ -205,7 +205,7 @@ var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_servers_privileged);
 
 function update_servers_privileged() {
-    $(".servers-priviliged").update_privileged(
+    $(".servers-privileged").update_privileged(
         permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to manage servers"),
             permission.user ? permission.user.name : '')

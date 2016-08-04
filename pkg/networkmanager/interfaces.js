@@ -1072,6 +1072,12 @@ function NetworkManagerModel() {
                                           objpath(connection), objpath(this), objpath(specific_object));
             },
 
+            activate_with_settings: function(settings, specific_object) {
+                return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
+                                          "org.freedesktop.NetworkManager", "AddAndActivateConnection",
+                                          settings_to_nm(settings), objpath(this), objpath(specific_object));
+            },
+
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect');
             }
@@ -1969,12 +1975,10 @@ PageNetworkInterface.prototype = {
                 fail(fail);
         }
 
-        if (self.ghost_settings) {
-            settings_manager.add_connection(self.ghost_settings).
-                done(activate).
-                fail(fail);
-        } else if (self.main_connection) {
+        if (self.main_connection) {
             activate(self.main_connection);
+        } else if (self.dev && self.ghost_settings) {
+            self.dev.activate_with_settings(self.ghost_settings, null).fail(fail);
         } else
             self.update();
     },
@@ -2013,7 +2017,8 @@ PageNetworkInterface.prototype = {
                 desc = _("VLAN");
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
-            }
+            } else
+                desc = _("Unknown");
         } else if (iface) {
             cs = connection_settings(iface.Connections[0]);
             if (cs.type == "bond")
@@ -2417,16 +2422,10 @@ PageNetworkInterface.prototype = {
         }
 
         function create_ghost_connection_settings() {
-            var uuid = generate_uuid();
             return {
                 connection: {
-                    id: uuid,
-                    uuid: uuid,
                     autoconnect: false,
-                    type: "802-3-ethernet",
                     interface_name: iface.Name
-                },
-                ethernet: {
                 },
                 ipv4: {
                     method: "auto",
@@ -2945,23 +2944,20 @@ function set_slave(model, master_connection, master_settings, slave_type,
     var cs = connection_settings(main_connection);
     if (val) {
         /* Turn the main_connection into a slave for master, if
-         * necessary.  If there is no main_connection, we assume that
-         * this is a ethernet device and create a suitable connection.
+         * necessary.  If there is no main_connection, we let NM
+         * create a new one.  Unfortunately, this requires us to
+         * activate it at the same time.
          */
 
         if (!main_connection) {
-            uuid = generate_uuid();
-            return model.get_settings().add_connection({ connection:
-                                                         { id: uuid,
-                                                           uuid: uuid,
-                                                           autoconnect: true,
-                                                           type: "802-3-ethernet",
+            if (!iface.Device)
+                return false;
+
+            return iface.Device.activate_with_settings({ connection:
+                                                         { autoconnect: true,
                                                            interface_name: iface.Name,
                                                            slave_type: slave_type,
                                                            master: master_settings.connection.uuid
-                                                         },
-                                                         ethernet:
-                                                         {
                                                          }
                                                        });
         } else if (cs.master != master_settings.connection.uuid) {

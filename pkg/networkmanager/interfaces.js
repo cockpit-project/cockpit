@@ -986,8 +986,9 @@ function NetworkManagerModel() {
                 // TODO - Nail down how NM really handles this.
 
                 function check_con(con) {
-                    var cs = connection_settings(con);
-                    if (cs.type == cs.slave_type) {
+                    var master_settings = connection_settings(con);
+                    var my_settings = connection_settings(obj);
+                    if (master_settings.type == my_settings.slave_type) {
                         obj.Masters.push(con);
                         con.Slaves.push(obj);
                     }
@@ -1001,7 +1002,6 @@ function NetworkManagerModel() {
                         obj.Masters.push(master);
                         master.Slaves.push(obj);
                     } else {
-
                         iface = peek_interface(cs.master);
                         if (iface) {
                             if (iface.Device)

@@ -52,7 +52,8 @@ define([
             }
 
             if (client.blocks_part[path] && client.blocks_part[path].IsContainer) {
-                client.blocks_partitions[path].forEach(function (part) {
+                var ptable_path = client.blocks_part[path].Table;
+                client.blocks_partitions[ptable_path].forEach(function (part) {
                     if (part.IsContained)
                         children.push(part.path);
                 });
@@ -983,7 +984,9 @@ define([
             var is_lvol               = (lvol || (block_lvm2 && block_lvm2.LogicalVolume != "/"));
             var is_lvol_pool          = (lvol && lvol.Type == "pool");
             var is_lvol_active        = (block || (lvol && lvol.Active));
-            var is_formattable        = (block && !block.ReadOnly);
+            var is_extended_part      = (block && client.blocks_part[block.path] &&
+                                         client.blocks_part[block.path].IsContainer);
+            var is_formattable        = (block && !block.ReadOnly && !is_extended_part);
 
             var lvol_arg;
             if (lvol)
@@ -1261,22 +1264,22 @@ define([
                 var n;
                 var last_end = container_start;
                 var total_end = container_start + container_size;
-                var block, start, size, type, is_container, partition_label;
+                var block, start, size, is_container, is_contained, partition_label;
 
                 for (n = 0; n < partitions.length; n++) {
                     block = client.blocks[partitions[n].path];
                     start = partitions[n].Offset;
                     size = partitions[n].Size;
-                    type = partitions[n].Type;
                     is_container = partitions[n].IsContainer;
+                    is_contained = partitions[n].IsContained;
 
                     if (block === null)
                         continue;
 
-                    if (level === device_level && type == 'l')
+                    if (level === device_level && is_contained)
                         continue;
 
-                    if (level == device_level+1 && type != 'l')
+                    if (level == device_level+1 && !is_contained)
                         continue;
 
                     if (start < container_start || start+size > container_start+container_size)

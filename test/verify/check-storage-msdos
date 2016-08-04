@@ -27,16 +27,6 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        # HACK: DOS Extended Partitions are broken on Fedora 21 and
-        # later with no known reasonable workaround.
-        #
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1135493
-        #
-        # The thing that seems to be broken is creating other
-        # partitions while a extended partition also exists, so we
-        # don't do that for now.  A workaround would be to reboot the
-        # machine.
-
         self.login_and_go("/storage")
 
         # Add a disk
@@ -80,14 +70,27 @@ class TestStorage(StorageCase):
         b.wait_in_text("#detail", "Extended Partition")
 
         b.wait_not_in_text("#detail", "Free Space for Primary Partitions")
+        b.wait_in_text("#detail", "Free Space for Logical Partitions")
 
-        # Open dialog for creating logical partitions and check that
-        # "dos-extended" is not offered.
+        # Create logical partitions and check that "dos-extended" is
+        # not offered.
         self.content_single_action(3, "Create Partition")
         self.dialog_wait_open()
         self.assertEqual(b.attr("[value='dos-extended']", "class"), "disabled")
-        self.dialog_cancel()
+        self.dialog_apply()
         self.dialog_wait_close()
+
+        b.wait_in_text("#detail", "Logical Partition (")
+        b.wait_not_in_text("#detail", "Free Space for Logical Partitions")
+
+        # Delete it
+
+        self.content_action(2, "Delete")
+        self.confirm()
+
+        b.wait_not_in_text("#detail", "Logical Partition (")
+        b.wait_not_in_text("#detail", "Free Space for Logical Partitions")
+        b.wait_in_text("#detail", "Free Space for Primary Partitions")
 
 if __name__ == '__main__':
     test_main()

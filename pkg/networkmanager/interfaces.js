@@ -781,6 +781,11 @@ function NetworkManagerModel() {
         case 12: return 'adsl';
         case 13: return 'bridge';
         case 15: return 'team';
+        case 16: return 'tun';
+        case 17: return 'ip_tunnel';
+        case 18: return 'macvlan';
+        case 19: return 'vxlan';
+        case 20: return 'veth';
         default: return '';
         }
     }
@@ -1564,14 +1569,6 @@ PageNetworking.prototype = {
             if (has_master(iface))
                 return;
 
-            // Skip everything that is not ethernet, bond, or bridge
-            if (iface.Device && iface.Device.DeviceType != 'ethernet' &&
-                iface.Device.DeviceType != 'bond' &&
-                iface.Device.DeviceType != 'team' &&
-                iface.Device.DeviceType != 'vlan' &&
-                iface.Device.DeviceType != 'bridge')
-                return;
-
             // Skip everything that's not Managed
             if (iface.Device && iface.Device.Managed === false) {
                 console.log("Hiding unmanaged interface:", iface.Device.Interface);
@@ -2007,8 +2004,8 @@ PageNetworkInterface.prototype = {
 
         var desc, cs;
         if (dev) {
-            if (dev.DeviceType == 'ethernet') {
-                desc = cockpit.format("$IdVendor $IdModel $Driver)", dev);
+            if (dev.DeviceType == 'ethernet' || dev.IdVendor || dev.IdModel) {
+                desc = cockpit.format("$IdVendor $IdModel $Driver", dev);
             } else if (dev.DeviceType == 'bond') {
                 desc = _("Bond");
             } else if (dev.DeviceType == 'team') {
@@ -2018,7 +2015,7 @@ PageNetworkInterface.prototype = {
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
             } else
-                desc = _("Unknown");
+                desc = cockpit.format(_('Unknown "$0"'), dev.DeviceType);
         } else if (iface) {
             cs = connection_settings(iface.Connections[0]);
             if (cs.type == "bond")
@@ -2029,6 +2026,8 @@ PageNetworkInterface.prototype = {
                 desc = _("VLAN");
             else if (cs.type == "bridge")
                 desc = _("Bridge");
+            else if (cs.type)
+                desc = cockpit.format(_('Unknown "$0"'), cs.type);
             else
                 desc = _("Unknown");
         } else

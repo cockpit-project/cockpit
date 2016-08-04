@@ -350,5 +350,35 @@ class TestNetworking(MachineCase):
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tbridge']")
 
+    def testOther(self):
+        b = self.browser
+        m = self.machine
+
+        iface = "tun0"
+
+        # Create a tun device and let NetworkManager manage it
+        try:
+            m.execute("ip tuntap add mode tun dev %s" % iface)
+            m.execute("nmcli --wait 0 dev con %s" % iface)
+        except:
+            return unittest.skip("No 'tun' support.")
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        # Configure a manual IP address
+        #
+        b.click("tr:contains('IPv4') a")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
+        b.click("#network-ip-settings-dialog a:contains('Manual')")
+        b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
+
 if __name__ == '__main__':
     test_main()

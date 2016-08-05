@@ -31,8 +31,9 @@ def trigger_pull(github, opts):
     # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
     # but issue a warning in case of an oversight
     login = pull["head"]["user"]["login"]
-    if login not in github.whitelist:
+    if not opts.allow and login not in github.whitelist:
         sys.stderr.write("warning: pull request author '{0}' isn't in github-whitelist.\n".format(login))
+        return 1
 
     revision = pull['head']['sha']
     statuses = github.statuses(revision)
@@ -68,6 +69,8 @@ def main():
     parser = argparse.ArgumentParser(description='Manually trigger CI Robots')
     parser.add_argument('-f', '--force', action="store_true",
                         help='Force setting the status even if the program logic thinks it shouldn''t be done')
+    parser.add_argument('-a', '--allow', action='store_true', dest='allow',
+                        help="Allow triggering for users that aren't whitelisted")
     parser.add_argument('--image', help='Trigger a image refresh instead of a testsuite run')
     parser.add_argument('pull', nargs='?', help='The pull request to trigger')
     parser.add_argument('context', nargs='?', help='The github task context to trigger')

@@ -5,7 +5,8 @@ define([
     "system/server",
     "shell/po",
     "system/moment",
-    "system/bootstrap-datepicker"
+    "system/bootstrap-datepicker",
+    "./patterns"
 ], function($, cockpit, mustache, server, po, moment) {
     cockpit.locale(po);
     cockpit.translate();
@@ -831,9 +832,23 @@ define([
     /* Timer Creation
      * timer_unit contains all the user's valid inputs from create-timer modal.
      */
+    var permission = cockpit.permission({ admin: true });
+    $(permission).on("changed", function() {
+        if (permission.allowed === false) {
+            $("#create-timer").addClass("accounts-privileged");
+            $(".accounts-privileged").update_privileged(
+                permission, cockpit.format(
+                    _("The user <b>$0</b> does not have permissions for creating timers"),
+                    permission.user ? permission.user.name : ''),
+                "left"
+            );
+        }
+    });
+
     $("#create-timer").on("click", function() {
         timer_init();
         $("#timer-dialog").modal("show");
+        update_time();
     });
 
     $("#timer-dialog").on("click", "#timer-save-button", function() {
@@ -910,16 +925,17 @@ define([
     });
     /* HACK - bootstrap datepicker positions itself incorrectly on modals
      * that has scroll bar. This hack finds how much user has scrolled
-     * and places the datepicker element correctly.
+     * and places the datepicker element accordingly.
+     * scroll_top: the amount user scrolled when datepicker is absent
+     * scroll_top_datepicker: the amount user scrolled when datepicker is present.
      */
     var scroll_top = 0;
     var scroll_top_datepicker = 0;
-    // Datepicker is hidden initially and shown in correct position when clicked.
+    // Datepicker is hidden initially and gets positioned correctly when clicked.
     $("#timer-dialog").on('click', "[data-content='datepicker']", function() {
         scroll_top = $("#timer-dialog").scrollTop();
         $(this).removeClass("has-error");
-        var index = $(this).attr('data-index');
-        $("[data-index='" + index + "'][data-content='date-error']").text("");
+        $("[data-index='" + $(this).attr('data-index') + "'][data-content='date-error']").text("");
         $(".datepicker-dropdown").css("margin-top", $("#timer-dialog").scrollTop());
         $(".datepicker-dropdown").css("visibility", "visible");
         $(".datepicker-dropdown .next").show();
@@ -932,7 +948,7 @@ define([
         else
             $(".datepicker.datepicker-dropdown.dropdown-menu").css("margin-top", scroll_top);
     });
-    // Calculates the new position when a scroll occurs.
+    // Calculates the new position when mouse enters the header of datepicker.
     $("#timer-dialog").on('mouseenter', ".datepicker.datepicker-dropdown [class*='datepicker-'] thead", function() {
         scroll_top_datepicker = $("#timer-dialog").scrollTop();
     });
@@ -1210,7 +1226,7 @@ define([
                         }
                     }
                     if (timer_unit.repeat["index"] === 44640 && repeat_array[i].days_value === '31')
-                        $("[data-index='" + i + "'][data-content='day-error']").text(_("Better avoid end of the month days like 31st."));
+                        $("[data-index='" + i + "'][data-content='day-error']").text(_("This day doesn't exist in all months. The timer will only be executed in months that have 31st."));
                 }
             }
         }
@@ -1264,9 +1280,9 @@ define([
     }
     function create_timer_file() {
         var unit = "[Unit]\nDescription=";
-        var service = "\n[Service]\nType=oneshot\nExecStart=";
+        var service = "\n[Service]\nExecStart=";
         var timer = "\n[Timer]\n";
-        var service_file = unit + timer_unit.Description + service + timer_unit.Command;
+        var service_file = unit + timer_unit.Description + service + timer_unit.Command + "\n[Install]\nWantedBy=default.target";
         var timer_file = " ";
         if (timer_unit.Calendar_or_Boot == "Boot") {
             var boottimer = timer +"OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit;

@@ -1226,8 +1226,9 @@ define([
                         }
                     }
                     if (timer_unit.repeat["index"] === 44640 && repeat_array[i].days_value === '31')
-                        $("[data-index='" + i + "'][data-content='day-error']").text(_("This day doesn't exist in all months. The timer will only be executed in months that have 31st."));
+                        $("[data-index='" + i + "'][data-content='day-error']").html(_("This day doesn't exist in all months.<br> The timer will only be executed in months that have 31st."));
                 }
+
             }
         }
         return error;
@@ -1267,7 +1268,7 @@ define([
             });
         } else if (timer_unit.repeat["index"] === 525600) {
             timer_unit.OnCalendar = repeat_array.map(function (item) {
-                return "OnCalendar=" + moment(item.date_to_parse).format('YYYY') + "-" + moment(item.date_to_parse).format('MM') + "-" + moment(item.date_to_parse).format('DD') + " " +Number(item.hours) + ":" + Number(item.minutes) + ":00";
+                return "OnCalendar=*-" + moment(item.date_to_parse).format('MM') + "-" + moment(item.date_to_parse).format('DD') + " " +Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
         }
         if (timer_unit.repeat["index"] !== 60)

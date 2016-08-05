@@ -1882,6 +1882,7 @@ PageNetworkInterface.prototype = {
         });
 
         function handle_usage_samples() {
+            // console.log(usage_samples);
             for (var iface in usage_samples) {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
@@ -2482,6 +2483,8 @@ PageNetworkInterface.prototype = {
             var slave_ifaces = { };
 
             tbody.empty();
+            self.rx_series.clear_instances();
+            self.tx_series.clear_instances();
 
             var cs = connection_settings(con);
             if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
@@ -2505,6 +2508,7 @@ PageNetworkInterface.prototype = {
 
                     self.rx_series.add_instance(iface.Name);
                     self.tx_series.add_instance(iface.Name);
+                    add_usage_monitor(iface.Name);
                     slave_ifaces[iface.Name] = true;
 
                     rows[iface.Name] =

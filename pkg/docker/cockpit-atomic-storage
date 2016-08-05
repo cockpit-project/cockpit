@@ -5,7 +5,8 @@
 # Storaged and hosts some code that is too experimental to even
 # consider adding it to "atomic storage".
 #
-# It can 'monitor', 'reset-and-reduce', 'add', and 'reset-and-add'.
+# It can 'monitor', 'reset-and-reduce', 'add', 'reset-and-add', and
+# 'create-vgroup'.
 
 # MONITOR
 #
@@ -67,12 +68,19 @@
 # reset will allow docker-storage-setup to finally succeed and create
 # a proper thinpool.
 
+# CREATE-VGROUP
+#
+# This both resets the pool before adding the devices, and also
+# configures docker-storage-setup to use the given volume group.  This
+# is used on systems that don't already have a volume group.
+
 import sys
 import os
 import subprocess
 import json
 import re
 import select
+import errno
 
 ## Utils
 
@@ -95,14 +103,18 @@ def query_pvs(pv, fields):
 
 def list_pvs(vgroup):
     res = [ ]
-    for l in check_output([ "pvs", "--noheadings", "-o",  "vg_name,pv_name" ]).splitlines():
-        fields = l.split()
-        if len(fields) == 2 and fields[0] == vgroup:
-            res.append(fields[1])
+    if vgroup:
+        for l in check_output([ "pvs", "--noheadings", "-o",  "vg_name,pv_name" ]).splitlines():
+            fields = l.split()
+            if len(fields) == 2 and fields[0] == vgroup:
+                res.append(fields[1])
     return res
 
 def list_lvs(vgroup):
-    return [s.strip() for s in check_output([ "lvs", "--noheadings", "-o", "name", vgroup ]).splitlines()]
+    if vgroup:
+        return [s.strip() for s in check_output([ "lvs", "--noheadings", "-o", "name", vgroup ]).splitlines()]
+    else:
+        return [ ]
 
 def list_parents(dev):
     return check_output([ "lsblk", "-snlp", "-o", "NAME", dev ]).splitlines()[1:]
@@ -388,6 +400,7 @@ def get_info(got_uevent):
 
         return { "loopback": os.path.exists("/var/lib/docker/devicemapper/devicemapper/data"),
                  "can_manage": can_manage,
+                 "vgroup": vgroup,
                  "total": total,
                  "used": used,
                  "pool_devices": pool_devices,
@@ -402,17 +415,24 @@ def print_info(data):
         sys.stdout.flush()
 
 def cmd_monitor():
-    # Figure out whether we can manage the pool.  For that, we need
-    # both a volume group to work with, and a recent enough version of
-    # the "atomic" utility.
+    # Figure out whether we can manage the pool.  For that, we
+    # need a recent enough version of the "atomic" utility.
     global can_manage
     can_manage = False
     try:
-        if get_dss_vgroup() != "":
-            with open("/dev/null", "w") as dev_null:
-                can_manage = call([ "atomic", "storage", "--help" ], stdout=dev_null) == 0
-    except:
+        help_text = check_output([ "atomic", "storage", "modify", "--help" ])
+    except subprocess.CalledProcessError:
         pass
+    except OSError as ex:
+        if ex.errno != errno.ENOENT:
+            raise
+    else:
+        if get_dss_vgroup() != "":
+            can_manage = True
+        else:
+            # If the pool ins't yet in a volume group, we need the
+            # --vgroup option to create one.
+            can_manage = "--vgroup" in help_text
 
     old_info = get_info(True)
     print_info(old_info)
@@ -440,7 +460,10 @@ def get_dss_vgroup():
         for l in open("/proc/mounts", "r").readlines():
             fields = l.split()
             if fields[1] == "/" and fields[0].startswith("/dev"):
-                vgroup = check_output([ "lvs", "--noheadings", "-o",  "vg_name", fields[0]]).strip()
+                try:
+                    vgroup = check_output([ "lvs", "--noheadings", "-o",  "vg_name", fields[0]]).strip()
+                except subprocess.CalledProcessError:
+                    pass
     return vgroup
 
 def cmd_reset_and_reduce():
@@ -491,6 +514,18 @@ def cmd_reset_and_add(devs):
     finally:
         call([ "systemctl", "start", "docker" ])
 
+def cmd_create_vgroup(devs):
+    atomic_cmd = [ "atomic", "storage", "modify", "--vgroup", "atomic-storage" ]
+    for d in devs:
+        check_call([ "wipefs", "-a", d ])
+        atomic_cmd.extend([ "--add-device", d ])
+    try:
+        check_call([ "systemctl", "stop", "docker" ])
+        check_call([ "atomic", "storage", "reset" ])
+        check_call(atomic_cmd)
+    finally:
+        call([ "systemctl", "start", "docker" ])
+
 ## Main
 
 if sys.argv[1] == "monitor":
@@ -501,3 +536,5 @@ elif sys.argv[1] == "add":
     cmd_add(sys.argv[2:])
 elif sys.argv[1] == "reset-and-add":
     cmd_reset_and_add(sys.argv[2:])
+elif sys.argv[1] == "create-vgroup":
+    cmd_create_vgroup(sys.argv[2:])

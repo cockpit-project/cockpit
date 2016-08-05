@@ -57,6 +57,7 @@
                                       // XXX - find the newlines here
                                       var info = JSON.parse(data);
                                       self.loopback = info.loopback;
+                                      self.vgroup = info.vgroup;
                                       self.pool_devices = info.pool_devices.sort(cmp_drive);
                                       self.extra_devices = info.extra_devices.sort(cmp_drive);
                                       self.total = info.total;
@@ -97,7 +98,7 @@
      *
      * model: The model as returned by get_storage_model.
      *
-     * callback: Called as callback(drives, needs_reset) when
+     * callback: Called as callback(drives, model) when
      *           the "Add" button is clicked.
      *
      */
@@ -141,7 +142,7 @@
                     }
                 }
                 self.setState({ checked: { } });
-                self.props.callback(drives, self.props.model.loopback);
+                self.props.callback(drives, self.props.model);
             }
         },
 
@@ -332,7 +333,7 @@
         }
     });
 
-    function add_storage(client, drives, loopback) {
+    function add_storage(client, drives, model) {
         function render_drive_rows() {
             return drives.map(function (drive) {
                 return (
@@ -349,7 +350,18 @@
         var docker_will_be_stopped = false;
         var action_caption = _("Reformat and add disks");
 
-        if (loopback) {
+        if (!model.vgroup) {
+            reset_warning = (
+                <div className="alert alert-danger">
+                    <span className="fa fa-exclamation-triangle"></span>
+                    <span className="alert-message">
+                        {_("The storage pool will be reset to optimize its layout.  All containers will be erased.")}
+                    </span>
+                </div>);
+            storage_action = "create-vgroup";
+            docker_will_be_stopped = true;
+            action_caption = _("Erase containers, reformat disks, and add them");
+        } else if (model.loopback) {
             reset_warning = (
                 <div className="alert alert-danger">
                     <span className="fa fa-exclamation-triangle"></span>
@@ -464,8 +476,8 @@
 
         $('#storage-reset').on('click', function () { reset_storage(client); });
 
-        function add_callback(drives, driver) {
-            add_storage(client, drives, driver);
+        function add_callback(drives, model) {
+            add_storage(client, drives, model);
         }
 
         var model = get_storage_model();

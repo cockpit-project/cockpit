@@ -568,6 +568,10 @@ class MachineCase(unittest.TestCase):
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
 
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
+        "type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
+        "type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
+
         # https://bugzilla.redhat.com/show_bug.cgi?id=1299054
         "(audit: )?type=1400 .*denied.*comm=\"rhsmcertd-worke\".*name=\".dbenv.lock\".*",
 

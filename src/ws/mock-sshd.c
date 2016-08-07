@@ -216,6 +216,42 @@ struct ssh_channel_callbacks_struct cb = {
     .userdata = NULL
 };
 
+static gboolean
+get_user_shell(const char* username,
+               char* shell_name,
+               int buffer_length)
+{
+	FILE *fp;
+	int status;
+	
+	char cmd[1024];
+
+	char *result;
+
+#define DEFAULT_SHELL "/bin/bash"
+	
+	snprintf(cmd, sizeof(cmd), "getent passwd %s | cut -d: -f7", username);
+	fp = popen(cmd, "r");
+	if (fp == NULL)
+	{
+		snprintf(shell_name, buffer_length, DEFAULT_SHELL);
+		return FALSE;
+	}
+
+	result = fgets(shell_name, buffer_length, fp);
+
+	pclose(fp);
+	
+	if (result == NULL)
+	{
+		snprintf(shell_name, buffer_length, DEFAULT_SHELL);
+		return FALSE;
+	}
+	
+	return TRUE;
+}
+
+
 static int
 do_shell (ssh_event event,
           ssh_channel chan)
@@ -226,12 +262,18 @@ do_shell (ssh_event event,
   short events;
   int fd_status;
 
+  char usershell[1024];
+
   state.childpid = forkpty (&fd, NULL, term, win);
   if (state.childpid == 0)
     {
       close (state.bind_fd);
       close (state.session_fd);
-      execl ("/bin/bash", "/bin/bash", NULL);
+	  if (!get_user_shell(state.user, usershell, sizeof(usershell)))
+		{
+			g_warning("unable to get user shell for user '%s', got: '%s'", state.user, usershell);
+		}
+      execl (usershell, usershell, NULL);
       _exit (127);
     }
   else if (state.childpid < 0)

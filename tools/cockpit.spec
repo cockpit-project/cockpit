@@ -311,6 +311,10 @@ cat subscriptions.list sosreport.list networkmanager.list >> shell.list
 # be out of sync with reality.
 /usr/share/pcp/lib/pmlogger reload
 
+%post shell
+# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
+( cd /var/lib/pcp/pmns && ./Rebuild -du )
+
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz

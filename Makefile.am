@@ -290,6 +290,9 @@ uninstall-local::
 print-%:
 	@echo $($*)
 
+print-%:
+	@echo $($*)
+
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
 	lib/ \

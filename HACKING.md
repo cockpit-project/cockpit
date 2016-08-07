@@ -19,6 +19,9 @@ Vagrant. After cloning the Git repository, run in its top level directory:
     $ npm install
     $ vagrant up
 
+> NOTE: some development environments (e.g. OS X) may require running
+`npm install` first to satisfy react requirements in the `/tools` directory.
+
 Cockpit will listen on port 9090 of the vagrant VM started, and also
 port 9090 of localhost if cockpit is not running locally. Access Cockpit
 at:

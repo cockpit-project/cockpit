@@ -72,6 +72,39 @@ generate_subject (void)
   return subject;
 }
 
+static gchar *
+generate_subject (void)
+{
+  static const char HEX[] = "0123456789abcdef";
+  gchar *content;
+  gchar *subject;
+
+  /*
+   * HACK: We have to use a unique value in DN because otherwise
+   * firefox hangs.
+   *
+   * https://bugzilla.redhat.com/show_bug.cgi?id=1204670
+   *
+   * In addition we have to generate the certificate with CA:TRUE
+   * because old versions of NSS refuse to process self-signed
+   * certificates if that's not the case.
+   *
+   */
+
+  if (g_file_get_contents ("/etc/machine-id", &content, NULL, NULL))
+    {
+      subject = g_strdup_printf ("/O=%s/CN=localhost",
+                                 g_strstrip (g_strcanon (content, HEX, ' ')));
+      g_free (content);
+    }
+  else
+    {
+      subject = g_strdup ("/CN=localhost");
+    }
+
+  return subject;
+}
+
 static gboolean
 openssl_make_dummy_cert (const gchar *key_file,
                          const gchar *out_file,

@@ -149,6 +149,7 @@ __all__ = (
     'HOSTNAME',
     'TESTING',
     'NOT_TESTED',
+    'NO_TESTING',
     'IMAGE_EXPIRE',
     'TEST_DIR',
 )

@@ -31,8 +31,8 @@ def trigger_pull(github, opts):
     # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
     # but issue a warning in case of an oversight
     login = pull["head"]["user"]["login"]
-    if not opts.allow and login not in github.whitelist:
-        sys.stderr.write("warning: pull request author '{0}' isn't in github-whitelist.\n".format(login))
+    if not opts.allow and not login in github.whitelist:
+        sys.stderr.write("Pull request author '{0}' isn't whitelisted. Override with --allow.\n".format(login))
         return 1
 
     revision = pull['head']['sha']
@@ -47,10 +47,15 @@ def trigger_pull(github, opts):
     ret = 0
     for context in contexts:
         status = statuses.get(context, { })
-        if status.get("state", all and "unknown" or "empty") not in ["empty", "error", "failure"]:
-            if not opts.force:
+        current_status = status.get("state", all and "unknown" or "empty")
+
+        if current_status not in ["empty", "error", "failure"]:
+            # allow changing if manual testing required, otherwise "pending" state indicates that testing is in progress
+            manual_testing = current_status == "pending" and status.get("description", None) == testinfra.NO_TESTING
+            # also allow override with --force
+            if not (manual_testing or opts.force):
                 if not all:
-                    sys.stderr.write("{0}: isn't in triggerable state: {1}\n".format(context, status["state"]))
+                    sys.stderr.write("{0}: isn't in triggerable state (is: {1})\n".format(context, status["state"]))
                     ret = 1
                 continue
         sys.stderr.write("{0}: triggering on pull request {1}\n".format(context, opts.pull))

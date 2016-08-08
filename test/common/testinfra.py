@@ -745,8 +745,13 @@ Times recorded: 1
 """.format(err_key, link, latest_occurrences))
                     updated = True
 
+                # This comment is already too long
+                body = "<hr>".join(parts)
+                if len(body) >= 65536:
+                    break
+
                 # update comment, no need to check others
-                return self.patch("issues/comments/{0}".format(comment['id']), { "body": "<hr>".join(parts) })
+                return self.patch("issues/comments/{0}".format(comment['id']), { "body": body })
 
         # create a new comment, since we didn't find one to update
 

@@ -262,6 +262,8 @@ rm -rf %{buildroot}/usr/src/debug
 cat subscriptions.list sosreport.list networkmanager.list >> shell.list
 %endif
 
+%find_lang %{name}
+
 # dwz has trouble with the go binaries
 # https://fedoraproject.org/wiki/PackagingDrafts/Go
 %global _dwz_low_mem_die_limit 0
@@ -313,7 +315,7 @@ cat subscriptions.list sosreport.list networkmanager.list >> shell.list
 # be out of sync with reality.
 /usr/share/pcp/lib/pmlogger reload
 
-%files ws
+%files ws -f %{name}.lang
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %doc %{_mandir}/man8/remotectl.8.gz

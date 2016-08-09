@@ -217,8 +217,9 @@ setup_prepare_passwd1 (GVariant *parameters,
 
   if (!g_str_equal (mechanism, "passwd1"))
     {
+      g_message ("unsupported setup mechanism: %s", mechanism);
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_NOT_SUPPORTED,
-                                             _("Unsupported setup mechanism: %s"), mechanism);
+                                             N_("Unsupported setup mechanism"));
     }
   else if (fgetpwent_callback (add_name_to_array, names) &&
            fgetgrent_callback (add_group_to_array, groups))
@@ -232,7 +233,7 @@ setup_prepare_passwd1 (GVariant *parameters,
   else
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                             _("Couldn't list users"));
+                                             N_("Couldn't list users"));
     }
 
   g_ptr_array_free (groups, TRUE);
@@ -355,14 +356,15 @@ setup_transfer_passwd1 (GVariant *parameters,
 
   if (!g_str_equal (mechanism, "passwd1"))
     {
+      g_message ("unsupported setup mechanism: %s", mechanism);
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_NOT_SUPPORTED,
-                                             _("Unsupported setup mechanism: %s"), mechanism);
+                                             N_("Unsupported setup mechanism"));
       goto out;
     }
   if (!g_variant_is_of_type (prepared, G_VARIANT_TYPE ("(asas)")))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                                             _("Bad data passed for passwd1 mechanism"));
+                                             N_("Bad data passed for passwd1 mechanism"));
       goto out;
     }
 
@@ -377,7 +379,7 @@ setup_transfer_passwd1 (GVariant *parameters,
       !fgetspent_callback (filter_and_add_passwd, context))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                             _("Couldn't load user data"));
+                                             N_("Couldn't load user data"));
     }
   else
     {
@@ -462,7 +464,7 @@ on_usermod_close (CockpitPipe *pipe,
   if (!check_pipe_exit_status (pipe, problem, "couldn't run usermod command"))
     {
       g_dbus_method_invocation_return_error (context->invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                             _("Couldn't change user groups"));
+                                             N_("Couldn't change user groups"));
       commit_passwd1_free (context);
     }
   else
@@ -515,7 +517,7 @@ on_chpasswd_close (CockpitPipe *pipe,
   if (!check_pipe_exit_status (pipe, problem, "couldn't run chpasswd command"))
     {
       g_dbus_method_invocation_return_error (context->invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                             _("Couldn't change user password"));
+                                             N_("Couldn't change user password"));
       commit_passwd1_free (context);
     }
   else
@@ -539,7 +541,7 @@ on_newusers_close (CockpitPipe *pipe,
   if (!check_pipe_exit_status (pipe, problem, "couldn't run newusers command"))
     {
       g_dbus_method_invocation_return_error (context->invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                             _("Couldn't create new users"));
+                                             N_("Couldn't create new users"));
       commit_passwd1_free (context);
     }
   else
@@ -618,14 +620,15 @@ setup_commit_passwd1 (GVariant *parameters,
 
   if (!g_str_equal (mechanism, "passwd1"))
     {
+      g_message ("unsupported setup mechanism: %s", mechanism);
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_NOT_SUPPORTED,
-                                             "Unsupported setup mechanism: %s", mechanism);
+                                             N_("Unsupported setup mechanism"));
       goto out;
     }
   if (!g_variant_is_of_type (transferred, G_VARIANT_TYPE ("(asas)")))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                                             "Bad data passed for passwd1 mechanism");
+                                             N_("Bad data passed for passwd1 mechanism"));
       goto out;
     }
 
@@ -636,7 +639,7 @@ setup_commit_passwd1 (GVariant *parameters,
       !fgetgrent_callback (add_group_to_hashtable, groups))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                             _("Couldn't list local users"));
+                                             N_("Couldn't list local users"));
       goto out;
     }
 

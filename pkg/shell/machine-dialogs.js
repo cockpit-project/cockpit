@@ -846,6 +846,7 @@ define([
                             }
                         })
                         .fail(function(ex) {
+                            ex.message = cockpit.gettext(ex.message);
                             perm_failed = ex;
                         })
                         .always(function(ex) {
@@ -914,7 +915,10 @@ define([
             proxy.wait(function() {
                 if (proxy.valid) {
                     proxy.Commit("passwd1", variant)
-                        .fail(dfd.reject)
+                        .fail(function(ex) {
+                            ex.message = cockpit.gettext(ex.message);
+                            dfd.reject(ex);
+                        })
                         .done(dfd.resolve);
                 }
             });

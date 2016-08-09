@@ -624,7 +624,7 @@ function NetworkManagerModel() {
                 return JSON.parse(str);
             }
             catch (e) {
-                return { };
+                return null;
             }
         }
 
@@ -2284,10 +2284,14 @@ PageNetworkInterface.prototype = {
 
                 var config = settings.team.config;
 
-                if (config.runner)
-                    parts.push(choice_title(team_runner_choices, config.runner.name, config.runner.name));
-                if (config.link_watch && config.link_watch.name != "ethtool")
-                    parts.push(choice_title(team_watch_choices, config.link_watch.name, config.link_watch.name));
+                if (config === null)
+                    parts.push(_("Broken configuration"));
+                else {
+                    if (config.runner)
+                        parts.push(choice_title(team_runner_choices, config.runner.name, config.runner.name));
+                    if (config.link_watch && config.link_watch.name != "ethtool")
+                        parts.push(choice_title(team_watch_choices, config.link_watch.name, config.link_watch.name));
+                }
 
                 if (parts.length > 0)
                     rows.push(parts.join (", "));
@@ -2312,6 +2316,13 @@ PageNetworkInterface.prototype = {
                       master_settings.team.config.runner.name == "lacp"))
                     return null;
 
+                var config = settings.team_port.config;
+
+                if (config === null)
+                    parts.push(_("Broken configuration"));
+
+                if (parts.length > 0)
+                    rows.push(parts.join (", "));
                 return render_settings_row(_("Team Port"), rows, configure_team_port_settings);
             }
 
@@ -3199,6 +3210,8 @@ PageNetworkTeamSettings.prototype = {
         var runner_btn, balancer_btn, watch_btn;
         var interval_input, target_input, updelay_input, downdelay_input;
 
+        if (!config)
+            settings.team.config = config = { };
         if (!config.runner)
             config.runner = { };
         if (!config.runner.name)
@@ -3350,6 +3363,9 @@ PageNetworkTeamPortSettings.prototype = {
         var config = settings.team_port.config;
 
         var ab_prio_input, ab_sticky_input, lacp_prio_input, lacp_key_input;
+
+        if (!config)
+            settings.team_port.config = config = { };
 
         function change() {
             // XXX - handle parse errors

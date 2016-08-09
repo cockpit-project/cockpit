@@ -88,6 +88,16 @@ class TestConnection(MachineCase):
         b.expect_load()
         b.enter_page("/system")
 
+        # Lets crash a process and see if we get a proper backtrace in the logs
+        # This helps with debugging failures in the tests elsewhere
+        if m.image in ["debian-unstable"]:
+            cron = "cron"
+        else:
+            cron = "crond"
+        m.execute("systemctl start {0}".format(cron))
+        m.execute("kill -SEGV $(pgrep {0})".format(cron))
+        wait(lambda: m.execute("journalctl -b | grep 'Process.*cron.*of user.*dumped core.'"))
+
         # Reauthorization can fail due to disconnects above
         self.allow_journal_messages("cockpit-polkit: user admin reauthorization failed")
         self.allow_restart_journal_messages()

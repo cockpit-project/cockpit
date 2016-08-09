@@ -174,7 +174,6 @@ systemctl disable kdump.service
 
 rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
-printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
 
 touch /.autorelabel
 

@@ -978,8 +978,9 @@
         "dialogData",
         "projectData",
         '$location',
+        '$timeout',
         "kubeMethods",
-        function($q, $scope, kselect, dialogData, projectData, $location, methods) {
+        function($q, $scope, kselect, dialogData, projectData, $location, $timeout, methods) {
             var project = dialogData.project || { };
             var meta = project.metadata || { };
             var annotations = meta.annotations || { };
@@ -987,16 +988,31 @@
             var DISPLAY = "openshift.io/display-name";
             var DESCRIPTION = "openshift.io/description";
 
-            var shared;
-            if (meta.name)
-                shared = projectData.sharedImages(meta.name);
-
             var fields = {
                 name: meta.name || "",
                 display: annotations[DISPLAY] || "",
                 description: annotations[DESCRIPTION] || "",
-                access: shared,
+                access: null,
             };
+
+            /*
+             * This data may not be available yet, so continue to ask until it is.
+             * The called function takes care of not making duplicate requests.
+             */
+            var timr;
+            function updateShared() {
+                timr = null;
+                if (fields.access === null)
+                    fields.access = projectData.sharedImages(meta.name);
+                if (fields.access === null)
+                    timr = $timeout(updateShared, 500);
+            }
+            updateShared();
+            $scope.$on("$destroy", function() {
+                if (timr !== null)
+                    $timeout.cancel(timr);
+            });
+
             angular.extend($scope, projectData);
             $scope.fields = fields;
             $scope.labels = {

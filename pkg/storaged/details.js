@@ -118,6 +118,25 @@ define([
                 return vals.type != "empty" && vals.type != "dos-extended";
             }
 
+            function add_fsys(storaged_name, entry) {
+                if (storaged_name === true ||
+                    !client.manager.SupportedFilesystems ||
+                    client.manager.SupportedFilesystems.indexOf(storaged_name) != -1)
+                    filesystem_options.push(entry);
+            }
+
+            var filesystem_options = [ ];
+            add_fsys("xfs",  { value: "xfs", Title: _("XFS - Red Hat Enterprise Linux 7 default") });
+            add_fsys("ext4", { value: "ext4", Title: _("ext4 - Red Hat Enterprise Linux 6 default") });
+            add_fsys("xfs",  { value: "luks+xfs", Title: _("Encrypted XFS (LUKS)") });
+            add_fsys("ext4", { value: "luks+ext4", Title: _("Encrypted EXT4 (LUKS)") });
+            add_fsys("vfat", { value: "vfat", Title: _("VFAT - Compatible with all systems and devices") });
+            add_fsys("ntfs", { value: "ntfs", Title: _("NTFS - Compatible with most systems") });
+            add_fsys(true, { value: "dos-extended", Title: _("Extended Partition"),
+                             disabled: !(create_partition && enable_dos_extended) });
+            add_fsys(true, { value: "empty", Title: _("No Filesystem") });
+            add_fsys(true, { value: "custom", Title: _("Custom (Enter filesystem type)") });
+
             dialog.open({ Title: title,
                           Alerts: get_usage_alerts(path),
                           Fields: [
@@ -138,19 +157,7 @@ define([
                               },
                               { SelectOne: "type",
                                 Title: _("Type"),
-                                Options: [
-                                    { value: "xfs", Title: _("XFS - Red Hat Enterprise Linux 7 default") },
-                                    { value: "ext4", Title: _("ext4 - Red Hat Enterprise Linux 6 default") },
-                                    { value: "luks+xfs", Title: _("Encrypted XFS (LUKS)") },
-                                    { value: "luks+ext4", Title: _("Encrypted EXT4 (LUKS)") },
-                                    { value: "vfat", Title: _("VFAT - Compatible with all systems and devices") },
-                                    { value: "ntfs", Title: _("NTFS - Compatible with most systems") },
-                                    { value: "dos-extended", Title: _("Extended Partition"),
-                                      disabled: !(create_partition && enable_dos_extended)
-                                    },
-                                    { value: "empty", Title: _("No Filesystem") },
-                                    { value: "custom", Title: _("Custom (Enter filesystem type)") }
-                                ]
+                                Options: filesystem_options
                               },
                               { TextInput: "name",
                                 Title: _("Name"),

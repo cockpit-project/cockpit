@@ -1408,20 +1408,25 @@
                 content_block = drive_block;
             }
 
-            return mustache.render(block_detail_tmpl,
-                                   { Block: block_model,
-                                     Drive: drive_model,
-                                     Content: (content_block &&
-                                               mustache.render(content_tmpl,
-                                                               { Title: _("Content"),
-                                                                 path: content_block.path,
-                                                                 Entries: block_content_entries(content_block)
-                                                               }))
-                                   });
+            return [ mustache.render(block_detail_tmpl,
+                                     { Block: block_model,
+                                       Drive: drive_model
+                                     }),
+                     null,
+                     (content_block &&
+                      mustache.render(content_tmpl,
+                                      { Title: _("Content"),
+                                        path: content_block.path,
+                                        Entries: block_content_entries(content_block)
+                                      }))
+                   ];
         }
 
         var mdraid_detail_tmpl = $("#mdraid-detail-tmpl").html();
         mustache.parse(mdraid_detail_tmpl);
+
+        var mdraid_members_tmpl = $("#mdraid-members-tmpl").html();
+        mustache.parse(mdraid_members_tmpl);
 
         function render_mdraid() {
             var mdraid = client.uuids_mdraid[name];
@@ -1518,23 +1523,27 @@
             else
                 def_action = actions[0];  // Start
 
-            return mustache.render(mdraid_detail_tmpl,
-                                   { MDRaid: mdraid_model,
-                                     MDRaidButton: mustache.render(action_btn_tmpl,
-                                                                   { arg: mdraid.path,
-                                                                     def: def_action,
-                                                                     actions: actions
-                                                                   }),
-                                     Block: block_model,
-                                     Members: client.mdraids_members[mdraid.path].map(make_member),
-                                     DynamicMembers: (mdraid.Level != "raid0"),
-                                     Content: (block &&
-                                               mustache.render(content_tmpl,
-                                                               { Title: _("Content"),
-                                                                 path: block.path,
-                                                                 Entries: block_content_entries(block)
-                                                               }))
-                                   });
+            return [ mustache.render(mdraid_detail_tmpl,
+                                     { MDRaid: mdraid_model,
+                                       MDRaidButton: mustache.render(action_btn_tmpl,
+                                                                     { arg: mdraid.path,
+                                                                       def: def_action,
+                                                                       actions: actions
+                                                                     }),
+                                       Block: block_model
+                                     }),
+                     mustache.render(mdraid_members_tmpl,
+                                     { MDRaid: mdraid_model,
+                                       Members: client.mdraids_members[mdraid.path].map(make_member),
+                                       DynamicMembers: (mdraid.Level != "raid0")
+                                     }),
+                     (block &&
+                      mustache.render(content_tmpl,
+                                      { Title: _("Content"),
+                                        path: block.path,
+                                        Entries: block_content_entries(block)
+                                      }))
+                   ];
         }
 
         function volume_group_content_entries(vgroup, level) {
@@ -1611,6 +1620,9 @@
         var vgroup_detail_tmpl = $("#vgroup-detail-tmpl").html();
         mustache.parse(vgroup_detail_tmpl);
 
+        var vgroup_pvs_tmpl = $("#vgroup-pvs-tmpl").html();
+        mustache.parse(vgroup_pvs_tmpl);
+
         var poll_timer;
 
         function render_vgroup() {
@@ -1656,7 +1668,6 @@
                                           utils.fmt_size(pvol.Size),
                                           utils.fmt_size(pvol.FreeSize)),
                     Button: btn
-
                 };
             }
 
@@ -1665,19 +1676,23 @@
                 { action: "vgroup_delete", title: _("Delete") }
             ];
 
-            return mustache.render(vgroup_detail_tmpl,
-                                   { VGroup: vgroup_model,
-                                     VGroupButton: mustache.render(action_btn_tmpl,
-                                                                   { arg: vgroup.path,
-                                                                     def: actions[0], // Rename
-                                                                     actions: actions
-                                                                   }),
-                                     PVols: pvols.map(make_pvol),
-                                     Content: mustache.render(content_tmpl,
-                                                              { Title: _("Logical Volumes"),
-                                                                Entries: volume_group_content_entries(vgroup)
-                                                              })
-                                   });
+            return [ mustache.render(vgroup_detail_tmpl,
+                                     { VGroup: vgroup_model,
+                                       VGroupButton: mustache.render(action_btn_tmpl,
+                                                                     { arg: vgroup.path,
+                                                                       def: actions[0], // Rename
+                                                                       actions: actions
+                                                                     }),
+                                     }),
+                     mustache.render(vgroup_pvs_tmpl,
+                                     { VGroup: vgroup_model,
+                                       PVols: pvols.map(make_pvol)
+                                     }),
+                     mustache.render(content_tmpl,
+                                     { Title: _("Logical Volumes"),
+                                       Entries: volume_group_content_entries(vgroup)
+                                     })
+                   ];
         }
 
         function render() {
@@ -1691,13 +1706,17 @@
             else if (type == 'vgroup')
                 html = render_vgroup();
 
-
             if (html) {
                 $('#detail button.tooltip-ct').tooltip('destroy');
-                $('#detail').amend(html);
+                $('#detail-header').amend(html[0]);
+                $('#detail-sidebar').amend(html[1]);
+                $('#detail-content').amend(html[2]);
                 $('#detail button.tooltip-ct').tooltip();
-            } else
-                $('#detail').text(_("Not found"));
+            } else {
+                $('#detail-header').text(_("Not found"));
+                $('#detail-sidebar').empty();
+                $('#detail-content').empty();
+            }
 
             jobs.update('#storage-detail');
             $('#detail-jobs').amend(jobs.render());

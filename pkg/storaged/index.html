@@ -522,7 +522,6 @@
         </table>
       </div>
     </div>
-    {{{Content}}}
   </script>
 
   <script id="mdraid-detail-tmpl" type="x-template/mustache">
@@ -580,6 +579,9 @@
       </table>
       {{/MDRaid}}
     </div>
+  </script>
+
+  <script id="mdraid-members-tmpl" type="x-template/mustache">
     <div class="panel panel-default" id="disks">
       <div class="panel-heading">
         <span translatable="yes">Disks</span>
@@ -616,7 +618,6 @@
         {{/Members}}
       </ul>
     </div>
-    {{{Content}}}
   </script>
 
   <script id="vgroup-detail-tmpl" type="x-template/mustache">
@@ -642,6 +643,9 @@
       </table>
       {{/VGroup}}
     </div>
+  </script>
+
+  <script id="vgroup-pvs-tmpl" type="x-template/mustache">
     <div class="panel panel-default" id="pvols">
       <div class="panel-heading">
         <span translatable="yes">Physical Volumes</span>
@@ -667,7 +671,6 @@
         {{/PVols}}
       </ul>
     </div>
-    {{{Content}}}
   </script>
 
   <div id="storage-detail" class="container-fluid" hidden>
@@ -676,7 +679,9 @@
       <li class="active"></li>
     </ol>
 
-    <div id="detail"></div>
+    <div id="detail-header"></div>
+    <div id="detail-sidebar"></div>
+    <div id="detail-content"></div>
     <div id="detail-jobs"></div>
 
     <div class="panel panel-default cockpit-log-panel">

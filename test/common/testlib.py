@@ -719,6 +719,7 @@ class Phantom:
         command = [
             "%s/phantom-command" % path,
             "%s/phantom-driver.js" % path,
+            "%s/sizzle.js" % path,
             "%s/phantom-lib.js" % path
         ]
         self._driver = subprocess.Popen(command, env=environ,

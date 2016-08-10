@@ -1408,18 +1408,18 @@
                 content_block = drive_block;
             }
 
-            return [ mustache.render(block_detail_tmpl,
-                                     { Block: block_model,
-                                       Drive: drive_model
-                                     }),
-                     null,
-                     (content_block &&
-                      mustache.render(content_tmpl,
-                                      { Title: _("Content"),
-                                        path: content_block.path,
-                                        Entries: block_content_entries(content_block)
-                                      }))
-                   ];
+            return { header: mustache.render(block_detail_tmpl,
+                                             { Block: block_model,
+                                               Drive: drive_model
+                                             }),
+                     sidebar: null,
+                     content: (content_block &&
+                               mustache.render(content_tmpl,
+                                               { Title: _("Content"),
+                                                 path: content_block.path,
+                                                 Entries: block_content_entries(content_block)
+                                               }))
+                   };
         }
 
         var mdraid_detail_tmpl = $("#mdraid-detail-tmpl").html();
@@ -1523,27 +1523,27 @@
             else
                 def_action = actions[0];  // Start
 
-            return [ mustache.render(mdraid_detail_tmpl,
-                                     { MDRaid: mdraid_model,
-                                       MDRaidButton: mustache.render(action_btn_tmpl,
-                                                                     { arg: mdraid.path,
-                                                                       def: def_action,
-                                                                       actions: actions
-                                                                     }),
-                                       Block: block_model
-                                     }),
-                     mustache.render(mdraid_members_tmpl,
-                                     { MDRaid: mdraid_model,
-                                       Members: client.mdraids_members[mdraid.path].map(make_member),
-                                       DynamicMembers: (mdraid.Level != "raid0")
-                                     }),
-                     (block &&
-                      mustache.render(content_tmpl,
-                                      { Title: _("Content"),
-                                        path: block.path,
-                                        Entries: block_content_entries(block)
-                                      }))
-                   ];
+            return { header: mustache.render(mdraid_detail_tmpl,
+                                             { MDRaid: mdraid_model,
+                                               MDRaidButton: mustache.render(action_btn_tmpl,
+                                                                             { arg: mdraid.path,
+                                                                               def: def_action,
+                                                                               actions: actions
+                                                                             }),
+                                               Block: block_model
+                                             }),
+                     sidebar: mustache.render(mdraid_members_tmpl,
+                                              { MDRaid: mdraid_model,
+                                                Members: client.mdraids_members[mdraid.path].map(make_member),
+                                                DynamicMembers: (mdraid.Level != "raid0")
+                                              }),
+                     content: (block &&
+                               mustache.render(content_tmpl,
+                                               { Title: _("Content"),
+                                                 path: block.path,
+                                                 Entries: block_content_entries(block)
+                                               }))
+                   };
         }
 
         function volume_group_content_entries(vgroup, level) {
@@ -1659,7 +1659,6 @@
                 } else {
                     action = "pvol_remove";
                 }
-                var btn = create_simple_btn (_("Remove"), action, [ pvol.path ], excuse);
                 return {
                     dbus: block,
                     LinkTarget: utils.get_block_link_target(client, pvol.path),
@@ -1667,7 +1666,9 @@
                     Sizes: cockpit.format(_("$0, $1 free"),
                                           utils.fmt_size(pvol.Size),
                                           utils.fmt_size(pvol.FreeSize)),
-                    Button: btn
+                    action: action,
+                    args: JSON.stringify([ pvol.path ]),
+                    Excuse: excuse
                 };
             }
 
@@ -1676,23 +1677,23 @@
                 { action: "vgroup_delete", title: _("Delete") }
             ];
 
-            return [ mustache.render(vgroup_detail_tmpl,
-                                     { VGroup: vgroup_model,
-                                       VGroupButton: mustache.render(action_btn_tmpl,
-                                                                     { arg: vgroup.path,
-                                                                       def: actions[0], // Rename
-                                                                       actions: actions
-                                                                     }),
-                                     }),
-                     mustache.render(vgroup_pvs_tmpl,
-                                     { VGroup: vgroup_model,
-                                       PVols: pvols.map(make_pvol)
-                                     }),
-                     mustache.render(content_tmpl,
-                                     { Title: _("Logical Volumes"),
-                                       Entries: volume_group_content_entries(vgroup)
-                                     })
-                   ];
+            return { header: mustache.render(vgroup_detail_tmpl,
+                                             { VGroup: vgroup_model,
+                                               VGroupButton: mustache.render(action_btn_tmpl,
+                                                                             { arg: vgroup.path,
+                                                                               def: actions[0], // Rename
+                                                                               actions: actions
+                                                                             }),
+                                             }),
+                     sidebar: mustache.render(vgroup_pvs_tmpl,
+                                              { VGroup: vgroup_model,
+                                                PVols: pvols.map(make_pvol)
+                                              }),
+                     content: mustache.render(content_tmpl,
+                                              { Title: _("Logical Volumes"),
+                                                Entries: volume_group_content_entries(vgroup)
+                                              })
+                   };
         }
 
         function render() {
@@ -1707,11 +1708,17 @@
                 html = render_vgroup();
 
             if (html) {
-                $('#detail button.tooltip-ct').tooltip('destroy');
-                $('#detail-header').amend(html[0]);
-                $('#detail-sidebar').amend(html[1]);
-                $('#detail-content').amend(html[2]);
-                $('#detail button.tooltip-ct').tooltip();
+                $('button.tooltip-ct').tooltip('destroy');
+                $('#detail-header').amend(html.header);
+                $('#detail-sidebar').amend(html.sidebar);
+                $('#detail-content').amend(html.content);
+                $('button.tooltip-ct').tooltip();
+
+                if (html.sidebar)
+                    $('#detail-body').attr("class", "col-md-8 col-lg-9 col-md-pull-4 col-lg-pull-3");
+                else
+                    $('#detail-body').attr("class", "col-md-12");
+
             } else {
                 $('#detail-header').text(_("Not found"));
                 $('#detail-sidebar').empty();

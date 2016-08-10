@@ -69,10 +69,19 @@ def stdchannel_redirected(stdchannel, dest_filename):
             dest_file.close()
 
 class Timeout:
-    def __init__(self, seconds=1, error_message='Timeout'):
+    """ Add a timeout to an operation
+        Specify machine to ensure that a machine's ssh operations are canceled when the timer expires.
+    """
+    def __init__(self, seconds=1, error_message='Timeout', machine=None):
         self.seconds = seconds
         self.error_message = error_message
+        self.machine = machine
     def handle_timeout(self, signum, frame):
+        if self.machine:
+            if self.machine.ssh_process:
+                self.machine.ssh_process.terminate()
+            self.machine.disconnect()
+
         raise Exception(self.error_message)
     def __enter__(self):
         signal.signal(signal.SIGALRM, self.handle_timeout)

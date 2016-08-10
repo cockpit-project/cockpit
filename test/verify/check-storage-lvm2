@@ -100,21 +100,36 @@ class TestStorage(StorageCase):
 
         self.dialog_with_retry(trigger = lambda: b.click('#create-volume-group'),
                                expect = lambda: (self.dialog_is_present('disks', "DISK1") and
-                                                 self.dialog_is_present('disks', "DISK2")),
-                               values = { "name": "TEST2",
-                                          "disks": { "DISK1": True,
+                                                 self.dialog_is_present('disks', "DISK2") and
+                                                 self.dialog_check({ "name": "vgroup0" })),
+                               values = { "disks": { "DISK1": True,
                                                      "DISK2": True }})
 
-        b.wait_in_text("#vgroups", "TEST2")
-        b.click('tr:contains("TEST2")')
+        b.wait_in_text("#vgroups", "vgroup0")
+
+        # Check that the next name is "vgroup1"
+        b.click('#create-volume-group')
+        self.dialog_wait_open()
+        self.dialog_wait_val("name", "vgroup1")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click('tr:contains("vgroup0")')
         b.wait_visible('#storage-detail')
 
         # create a logical volume
         self.content_single_action(1, "Create Logical Volume")
-        self.dialog({ "purpose": "block",
-                      "name": "one",
-                      "size": 20 })
-        b.wait_in_text("#content", "Logical Volume \"one\"")
+        self.dialog(expect = { "name": "lvol0" },
+                    values = { "purpose": "block",
+                               "size": 20 })
+        b.wait_in_text("#content", "Logical Volume \"lvol0\"")
+
+        # check that the next default name is "lvol1"
+        self.content_single_action(2, "Create Logical Volume")
+        self.dialog_wait_open()
+        self.dialog_wait_val("name", "lvol1")
+        self.dialog_cancel()
+        self.dialog_wait_close()
 
         # try to shrink it without a filesystem.
         self.content_action(1, "Resize")

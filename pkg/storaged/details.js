@@ -765,10 +765,27 @@ define([
                 if (!vgroup)
                     return;
 
+                function find_lvol(name) {
+                    var lvols = client.vgroups_lvols[path];
+                    for (var i = 0; i < lvols.length; i++) {
+                        if (lvols[i].Name == name)
+                            return lvols[i];
+                    }
+                    return null;
+                }
+
+                var name;
+                for (var i = 0; i < 1000; i++) {
+                    name = "lvol" + i.toFixed();
+                    if (!find_lvol(name))
+                        break;
+                }
+
                 dialog.open({ Title: _("Create Logical Volume"),
                               Fields: [
                                   { TextInput: "name",
                                     Title: _("Name"),
+                                    Value: name,
                                     validate: utils.validate_lvm2_name
                                   },
                                   { SelectOne: "purpose",

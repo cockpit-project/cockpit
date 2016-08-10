@@ -466,10 +466,26 @@ define([
         });
 
         $('#create-volume-group').on('click', function () {
+            function find_vgroup(name) {
+                for (var p in client.vgroups) {
+                    if (client.vgroups[p].Name == name)
+                        return client.vgroups[p];
+                }
+                return null;
+            }
+
+            var name;
+            for (var i = 0; i < 1000; i++) {
+                name = "vgroup" + i.toFixed();
+                if (!find_vgroup(name))
+                    break;
+            }
+
             dialog.open({ Title: _("Create Volume Group"),
                           Fields: [
                               { TextInput: "name",
                                 Title: _("Name"),
+                                Value: name,
                                 validate: utils.validate_lvm2_name
                               },
                               { SelectMany: "disks",

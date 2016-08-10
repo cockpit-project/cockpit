@@ -81,7 +81,9 @@ BuildRequires: krb5-server
 # For documentation
 BuildRequires: xmlto
 
-# Mandatory components of "cockpit"
+# This is the "cockpit" metapackage. It should only
+# Require, Suggest or Recommend other cockpit-xxx subpackages
+
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}

@@ -28,6 +28,8 @@ from common import testinfra
 BASE = testinfra.TEST_DIR
 IMAGES = os.path.join(BASE, "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
+# threshold in G below which unreferenced qcow2 images will be pruned, even if they aren't old
+PRUNE_THRESHOLD_G = float(os.environ.get("PRUNE_THRESHOLD_G", 15))
 DEVNULL = open("/dev/null", "r+")
 
 CONFIG = "~/.config/image-stores"
@@ -99,6 +101,13 @@ def download(link, force, stores):
     if not os.path.exists(image_file):
         os.symlink(os.path.abspath(dest), image_file)
 
+def enough_disk_space():
+    """Check if available disk space in our data store is sufficient
+    """
+    st = os.statvfs(DATA)
+    free = st.f_bavail * st.f_frsize / (1024*1024*1024)
+    return free >= PRUNE_THRESHOLD_G;
+
 def prune_images(force, dryrun):
     now = time.time()
     targets = []
@@ -118,9 +127,10 @@ def prune_images(force, dryrun):
         else:
             targets.append(target)
 
+    expiry_threshold = now - testinfra.IMAGE_EXPIRE * 86400
     for filename in os.listdir(DATA):
         path = os.path.join(DATA, filename)
-        if not force and os.lstat(path).st_mtime > now - testinfra.IMAGE_EXPIRE * 86400:
+        if not force and (enough_disk_space() and os.lstat(path).st_mtime > expiry_threshold):
             continue
         if os.path.isfile(path) and (path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:
             sys.stderr.write("Pruning {0}\n".format(filename))

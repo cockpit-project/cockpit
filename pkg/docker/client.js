@@ -197,7 +197,8 @@ define([
         var cgroup_prefixes = [
             "init.scope/system.slice/docker-",
             "system.slice/docker/",
-            "system.slice/docker-"
+            "system.slice/docker-",
+            "docker/"
         ];
 
         function update_usage_grid() {

@@ -114,7 +114,11 @@ class TestConnection(MachineCase):
             output = subprocess.check_output(cmd, stdin=null, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError, ex:
             m.message(ex.output)
-            self.assertIn("wrong version number", ex.output)
+            # Some operating systems fail SSL3 on the server side
+            if m.image in [ "debian-unstable" ]:
+                self.assertIn("ssl handshake failure", ex.output)
+            else:
+                self.assertIn("wrong version number", ex.output)
         else:
             m.message(output)
             self.fail("SSL3 should not have been successful")

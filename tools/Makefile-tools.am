@@ -5,6 +5,8 @@ update-lib:: update-bower
 	    $(BOWER)/qunit/qunit/qunit.js \
 	    $(BOWER)/qunit-tap/lib/qunit-tap.js \
 	    $(srcdir)/tools/qunit-config.js
+	sed -e 's/define\.amd/define\.amd_disabled/' -e 's/module\.exports/module\.exports_disabled/' \
+	    $(BOWER)/sizzle/dist/sizzle.js > $(srcdir)/test/common/sizzle.js
 
 if WITH_COVERAGE
 coverage:

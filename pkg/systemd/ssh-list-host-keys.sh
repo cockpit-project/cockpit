@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -eu
 port="22"
@@ -8,7 +8,6 @@ parse_addr() {
     if [ -n "$1" ]; then
         case "$1" in
             *:*)
-                # Bashisms to avoid multiple count and cut statements
                 t="$1"
                 p=${t##*:}
                 h=${t%:*}
@@ -23,7 +22,7 @@ parse_addr() {
         if [ "$p" -eq "$p" ] 2>/dev/null; then
             port="$p"
             host="$h"
-            if [ "$host" == "[::]" ]; then
+            if [ "$host" = "[::]" ]; then
                 host="::"
             fi
         fi

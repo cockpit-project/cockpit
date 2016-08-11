@@ -38,7 +38,7 @@ echo "$config" | while IFS='\n' read line; do
 done
 
 # Check with systemd
-systemd=$(systemctl show --property=Listen sshd.socket)
+systemd=$(systemctl show --property=Listen sshd.socket || true)
 echo "$systemd" | while IFS='=' read -r name value; do
     if [ "$name" = "ListenStream" ]; then
         parse_addr "$value"

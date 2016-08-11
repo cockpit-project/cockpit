@@ -10,13 +10,19 @@
 <dl>
     <dt translatable="yes">Access Policy</dt>
     <dd>
-      <div ng-if="sharedImages(stream.metadata.namespace)" >
+      <div ng-if="sharedImages(stream.metadata.namespace) == 'anonymous'" >
+        <a translatable="yes" ng-href="#/projects/{{ stream.metadata.namespace }}">
+          Images may be pulled by anonymous users
+        </a>
+        <i title="Images accessible to anonymous users" class="fa fa-unlock imagestream-lock"></i>
+      </div>
+      <div ng-if="sharedImages(stream.metadata.namespace) == 'shared'" >
         <a translatable="yes" ng-href="#/projects/{{ stream.metadata.namespace }}">
           Images may be pulled by any authenticated user or group
         </a>
-        <i title="Images shared with non-members" class="fa fa-unlock imagestream-lock"></i>
+        <i title="Images accessible to authenticated users" class="fa fa-lock imagestream-lock"></i>
       </div>
-      <div ng-if="!sharedImages(stream.metadata.namespace)">
+      <div ng-if="!sharedImages(stream.metadata.namespace) == 'private'">
         <a translatable="yes" ng-href="#/projects/{{ stream.metadata.namespace }}">
           Images may only be pulled by specific users or groups
         </a>

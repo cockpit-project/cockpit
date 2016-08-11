@@ -107,15 +107,15 @@
 
     utils.validate_lvm2_name = function validate_lvm2_name(name) {
         if (name === "")
-            return _("Name can not be empty.");
+            return _("Name cannot be empty.");
         if (name.length > 127)
-            return _("Name can not be longer than 127 characters.");
+            return _("Name cannot be longer than 127 characters.");
         var m = name.match(/[^a-zA-Z0-9+._-]/);
         if (m) {
             if (m[0].search(/\s+/) === -1)
-                return cockpit.format(_("Name can not contain the character '$0'."), m[0]);
+                return cockpit.format(_("Name cannot contain the character '$0'."), m[0]);
             else
-                    return cockpit.format(_("Name can not contain whitespace."), m[0]);
+                    return cockpit.format(_("Name cannot contain whitespace."), m[0]);
         }
     };
 

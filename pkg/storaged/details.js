@@ -177,7 +177,7 @@
                                 Title: _("Passphrase"),
                                 validate: function (phrase) {
                                     if (phrase === "")
-                                        return _("Passphrase can not be empty");
+                                        return _("Passphrase cannot be empty");
                                 },
                                 visible: is_encrypted
                               },
@@ -621,7 +621,7 @@
 
                                       var fsys = (block && block.IdUsage == "filesystem");
                                       if (!fsys && vals.size < lvol.Size)
-                                          return error(_("This logical volume can not be made smaller."));
+                                          return error(_("This logical volume cannot be made smaller."));
 
                                       var options = { };
                                       if (fsys)
@@ -1671,7 +1671,7 @@
                 var action = null;
                 var excuse = null;
                 if (pvols.length == 1) {
-                    excuse = _("The last physical volume of a volume group can not be removed.");
+                    excuse = _("The last physical volume of a volume group cannot be removed.");
                 } else if (pvol.FreeSize < pvol.Size) {
                     if (pvol.Size <= vgroup.FreeSize)
                         action = "pvol_empty_and_remove";

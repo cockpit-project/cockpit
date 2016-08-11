@@ -144,7 +144,7 @@ class TestStorage(StorageCase):
         self.dialog_wait_val("size", 20)
         self.dialog_set_val("size", 10)
         self.dialog_apply()
-        self.dialog_wait_error(None, "This logical volume can not be made smaller.")
+        self.dialog_wait_error(None, "This logical volume cannot be made smaller.")
         self.dialog_cancel()
 
         # grow it

@@ -448,7 +448,7 @@ WantedBy=default.target
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "boot_timer")
         b.set_val("#description", "Boot timer")
-        b.set_val("#command", "/usr/bin/sh -c 'echo hello >> /tmp/hello'")
+        b.set_val("#command", "/bin/sh -c 'echo hello >> /tmp/hello'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=1] a")
         b.set_val("#boot-time", "2")

@@ -606,7 +606,7 @@ class Machine:
                 self.execute("docker restart `docker ps | grep cockpit/ws | awk '{print $1;}'`")
             self.wait_for_cockpit_running()
         else:
-            self.execute("systemctl restart cockpit.socket")
+            self.execute("systemctl restart cockpit")
 
     def stop_cockpit(self):
         """Stop Cockpit.

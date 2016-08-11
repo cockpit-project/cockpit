@@ -51,7 +51,9 @@ Africa/Algiers
     <code>/etc/systemd/timesynd.conf.d/</code>.  Note that
     <code>systemd-timesyncd</code> is not always enabled, depending on
     the configuration of the machine.  In that case, Cockpit disabled the
-    UI for managing the list of NTP servers.</para>
+    UI for managing the list of NTP servers. In some cases use of
+    <code>ntpd</code> can cause the <code>timedated</code> daemon to
+    behave inconsistently with regards to time synchronization.</para>
 
   <para>Cockpit restarts or powers down the machine by using the
     <ulink url="http://www.freedesktop.org/software/systemd/man/shutdown.html"><code>shutdown</code></ulink>

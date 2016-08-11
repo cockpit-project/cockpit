@@ -12,5 +12,6 @@ trap "subscription-manager unregister" EXIT
 systemctl start docker || journalctl -u docker
 
 docker pull rhel7/rhel-tools
+docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
 
 /var/lib/testvm/atomic.setup

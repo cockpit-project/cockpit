@@ -479,7 +479,7 @@ define([
                         _("You don't have permission to manage the Docker storage pool."));
                 else
                     $('#storage-unsupported-message').text(
-                        _("The Docker storage pool can not be managed on this system."));
+                        _("The Docker storage pool cannot be managed on this system."));
                 $("#storage-unsupported").show();
                 $("#storage-details").hide();
             } else {

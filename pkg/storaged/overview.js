@@ -515,7 +515,7 @@ define([
                                 Title: _("Server Address"),
                                 validate: function (val) {
                                     if (val === "")
-                                        return _("Server address can not be empty.");
+                                        return _("Server address cannot be empty.");
                                 }
                               },
                               { TextInput: "username",

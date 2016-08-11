@@ -25,6 +25,9 @@ var sys = require('system');
 var fs = require('fs');
 var child = require("child_process");
 
+/* Avoid use of proxies while testing since we're connecting locally */
+phantom.setProxy("");
+
 var url = null;
 var server = [];
 var proc;

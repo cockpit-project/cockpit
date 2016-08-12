@@ -119,6 +119,8 @@ class TestDocker(MachineCase):
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
         b.click("#select-linked-containers form:last-child  button.fa-plus");
+        # new line should be the second group
+        b.wait_present("#select-linked-containers .form-group:eq(1)")
         b.click("#select-linked-containers form:last-child .link-container button")
         b.wait_visible("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
@@ -230,6 +232,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
                        'second_message': second_message})
         b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
         b.click(".containers-run-portmapping form:eq(0) .fa-plus")
+        b.wait_present(".containers-run-portmapping form:eq(1) input:eq(0)")
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(0)", nport)
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(1)", nport)
 
@@ -300,6 +303,7 @@ CMD ["/bin/sh"]
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(0)", "zero")
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(1)", "GGG")
         b.click("#select-claimed-envvars form:eq(0) .fa-plus")
+        b.wait_present("#select-claimed-envvars form:eq(2) input:eq(0)")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(0)", "SECOND")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(1)", "marmalade")
 

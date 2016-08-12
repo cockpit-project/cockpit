@@ -1061,10 +1061,16 @@
 
                 var env_p = CockpitEnvironment()
                     .then(function(result) {
-                        var value = result["REGISTRY_HOST"];
-                        if (value) {
-                            settings.registry.host = value;
+                        var regHost = result["REGISTRY_HOST"];
+                        if (regHost) {
+                            settings.registry.host = regHost;
                             settings.registry.host_explicit = true;
+                        }
+                        var kubehost = result["COCKPIT_KUBE_URL"];
+                        var kubeport = result["KUBERNETES_SERVICE_PORT"];
+                        if (kubehost) {
+                            settings.registry.kubehost = kubehost + ":" + kubeport;
+                            settings.registry.kubehost_explicit = true;
                         }
 
                     }, function(ex) {});

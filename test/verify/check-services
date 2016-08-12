@@ -196,8 +196,7 @@ WantedBy=default.target
         def svc_sel(service):
             return 'tr[data-goto-unit="%s"]' % service
         def wait_systemctl_timer(time):
-            with testvm.Timeout(seconds=20, error_message="Timeout while waiting for systemctl list-timers"):
-                m.execute("sleep 1")
+            with testvm.Timeout(seconds=20, machine=m, error_message="Timeout while waiting for systemctl list-timers"):
                 m.execute("cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
 
         m.execute("LC_ALL=C timedatectl set-timezone UTC")
@@ -460,7 +459,7 @@ WantedBy=default.target
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
         m.start_cockpit()
-        with testvm.Timeout(seconds=15, error_message="Timeout while waiting for boot timer to run"):
+        with testvm.Timeout(seconds=15, machine=m, error_message="Timeout while waiting for boot timer to run"):
             m.execute("while [ ! -f /tmp/hello ] ; do sleep 0.5; done")
         self.assertIn("hello", m.execute("cat /tmp/hello"))
         m.execute("timedatectl set-ntp on")

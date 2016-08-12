@@ -93,16 +93,17 @@
         <div class="card-pf-heading">
             <h2 class="card-pf-title">
                 <i class="fa fa-keyboard-o"></i>
-                <span translatable="yes">Docker commands</span>
+                <span translatable="yes">Login commands</span>
             </h2>
         </div>
         <div class="card-pf-body">
-            <p translatable="yes">Log into the registry:
+            <p>
+                <span translatable="yes">Log into the registry:</span>
                 <a ng-if="settings.registry.password"
                     tabindex="0" role="button" popover-trigger="focus"
-                    popover="The docker login command shown
-                    here is usually time limited. Come back to
-                    get another one when necessary.">
+                    popover="The docker login password token
+                    shown here is usually time limited. Come back
+                    to get another one when necessary.">
                     <span class="fa fa-lg fa-info-circle"></span>
                 </a>
             </p>
@@ -111,10 +112,48 @@
                 <span translatable="yes">Your login credentials do not give you access to use the docker registry from the command line.</span>
             </div>
 <code ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span></code>
-            <p translatable="yes">Push an image:</p>
+            <p ng-if="settings.registry.openshifthost_explicit">
+                <span translatable="yes">Log into OpenShift command line tools:</span>
+                <a ng-if="settings.registry.password"
+                    tabindex="0" role="button" popover-trigger="focus"
+                    popover="The registry backend is managed
+                    by an OpenShift server. The oc command line
+                    tool provides advanced administrative control
+                    of the registry.">
+                    <span class="fa fa-lg fa-info-circle"></span>
+                </a>
+            </p>
+<code ng-if="settings.registry.openshifthost_explicit">$ oc login --token {{settings.registry.password}} {{settings.registry.openshifthost}}</code>
+        </div>
+    </div>
+</div>
+<div class="container-cards-pf dashboard-cards">
+    <div class="card-pf dashboard-commands">
+        <div class="card-pf-heading">
+            <h2 class="card-pf-title">
+                <i class="fa fa-keyboard-o"></i>
+                <span translatable="yes">Image commands</span>
+            </h2>
+        </div>
+        <div class="card-pf-body">
+            <p>
+                <span translatable="yes">Push an image:</span>
+                <a tabindex="0" role="button" popover-trigger="focus"
+                    popover="You must login with docker
+                    to push an image.">
+                    <span class="fa fa-lg fa-info-circle"></span>
+                </a>
+            </p>
 <code>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em>
 $ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name</em></code>
-            <p translatable="yes">Pull an image:</p>
+            <p>
+                <span translatable="yes">Pull an image:</span>
+                <a tabindex="0" role="button" popover-trigger="focus"
+                    popover="Depending on project access settings
+                    you may need to login with docker to pull an image.">
+                    <span class="fa fa-lg fa-info-circle"></span>
+                </a>
+            </p>
 <code ng-if="settings.registry.host">$ sudo docker pull <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em></code>
         </div>
     </div>

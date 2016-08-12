@@ -1061,10 +1061,15 @@
 
                 var env_p = CockpitEnvironment()
                     .then(function(result) {
-                        var value = result["REGISTRY_HOST"];
-                        if (value) {
-                            settings.registry.host = value;
+                        var regHost = result["REGISTRY_HOST"];
+                        if (regHost) {
+                            settings.registry.host = regHost;
                             settings.registry.host_explicit = true;
+                        }
+                        var openshifthost = result["OPENSHIFT_OAUTH_PROVIDER_URL"];
+                        if (openshifthost) {
+                            settings.registry.openshifthost = openshifthost.replace(/^http(s?):\/\//i, "");
+                            settings.registry.openshifthost_explicit = true;
                         }
 
                     }, function(ex) {});

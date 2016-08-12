@@ -196,7 +196,8 @@ WantedBy=default.target
         def svc_sel(service):
             return 'tr[data-goto-unit="%s"]' % service
         def wait_systemctl_timer(time):
-            with testvm.Timeout(seconds=10, error_message="Timeout while waiting for systemctl list-timers"):
+            with testvm.Timeout(seconds=20, error_message="Timeout while waiting for systemctl list-timers"):
+                m.execute("sleep 1")
                 m.execute("cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
 
         m.execute("LC_ALL=C timedatectl set-timezone UTC")
@@ -207,7 +208,7 @@ WantedBy=default.target
         b.click('#create-timer')
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "testing timer")
-        b.set_val("#command", "/bin/sh -c 'while true; do sleep 5; done'")
+        b.set_val("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=2] a")
         b.wait_in_text("#boot-or-specific-time button", "At specific time")
@@ -267,7 +268,7 @@ WantedBy=default.target
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "monthly_timer")
         b.set_val("#description", "Monthly timer")
-        b.set_val("#command", "/bin/sh -c 'while true; do sleep 5; done'")
+        b.set_val("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=2] a")
         b.click("#drop-repeat button")
@@ -297,7 +298,7 @@ WantedBy=default.target
         wait_systemctl_timer("Wed 2020-01-08 21:12")
         self.assertIn("Wed 2020-01-08 21:12", m.execute("LC_ALL=C systemctl list-timers"))
         # checks if timer runs on next month February 2020 on same dates
-        m.execute("timedatectl set-time '2020-02-05 00:00:00'")
+        m.execute("timedatectl set-time '2020-01-08 21:23'")
         wait_systemctl_timer("Thu 2020-02-06 14:12")
         self.assertIn("Thu 2020-02-06 14:12", m.execute("LC_ALL=C systemctl list-timers"))
         # checks if timer runs on 8th March 2020 at 21:12
@@ -311,7 +312,7 @@ WantedBy=default.target
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "weekly_timer")
         b.set_val("#description", "Weekly timer")
-        b.set_val("#command", "/bin/sh -c 'while true; do sleep 5; done'")
+        b.set_val("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=2] a")
         b.click("#drop-repeat button")
@@ -354,7 +355,7 @@ WantedBy=default.target
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "daily_timer")
         b.set_val("#description", "Daily timer")
-        b.set_val("#command", "/bin/sh -c 'while true; do sleep 5; done'")
+        b.set_val("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=2] a")
         b.click("#drop-repeat button")
@@ -391,7 +392,7 @@ WantedBy=default.target
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "hourly_timer")
         b.set_val("#description", "Hourly timer")
-        b.set_val("#command", "/bin/sh -c 'while true; do sleep 5; done'")
+        b.set_val("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=2] a")
         b.click("#drop-repeat button")
@@ -426,7 +427,7 @@ WantedBy=default.target
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "no_repeat_timer")
         b.set_val("#description", "No repeat timer")
-        b.set_val("#command", "/bin/sh -c 'while true; do sleep 5; done'")
+        b.set_val("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=2] a")
         b.set_val("#hr", "23")

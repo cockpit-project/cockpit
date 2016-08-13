@@ -198,7 +198,7 @@ void
 cockpit_test_init (int *argc,
                    char ***argv)
 {
-  static gchar path[2048];
+  static gchar path[4096];
   gchar *basename;
 
   signal (SIGPIPE, SIG_IGN);

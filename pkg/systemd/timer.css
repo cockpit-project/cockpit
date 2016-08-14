@@ -1,0 +1,162 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+#create-timer {
+    display: none;
+}
+.vertical-scroll {
+    max-height: 150px;
+    overflow-y: scroll;
+}
+
+.position-colon {
+    display: inline-block;
+}
+
+div#boot {
+    display: inline-block;
+    float: right;
+}
+
+div#boot-or-specific-time {
+    width: 170px;
+    display: inline-block;
+}
+
+div#drop-time {
+    width: 100px;
+    display: inline-block;
+}
+
+input#boot-time {
+    width: 50px;
+    display: inline-block;
+    position: relative;
+    top: 2px;
+}
+
+.hr, .min {
+    width:30px;
+    display: inline-block;
+}
+
+.form-inline {
+    background: #f4f4f4;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-color: #bababa;
+    padding: 4px;
+}
+
+#boot-label {
+    position: relative;
+    right: 8px;
+    white-space: nowrap;
+    color: #888888;
+}
+
+#repeat-time .form-inline:first-of-type {
+    border-top: 1px solid #bababa;
+}
+
+#repeat-time [data-content="month-days"] {
+    width: 75px;
+}
+
+#repeat-time [data-content="week-days"] {
+    width: 100px;
+}
+
+#repeat-time [data-content="close"] {
+    position: relative;
+    float: right;
+    right: 8px;
+    top: 2px;
+}
+
+#repeat-time [data-content="add"] {
+    position: relative;
+    float: right;
+    right: 4px;
+    top: 2px;
+}
+
+#repeat-time [data-provide="datepicker"] {
+    width: 120px;
+}
+
+[data-content='day-error'].repeat-error {
+    display: block;
+    font-size: 11px;
+    color: #4d5258;
+    line-height: 14px;
+}
+
+.has-error {
+    border-color: #cc0000;
+}
+
+.has-error:hover {
+    border-color: #990000;
+}
+
+.has-error:focus {
+    border-color: #990000;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+}
+
+.repeat-error {
+    display: block;
+    font-size: 11px;
+    color: #cc0000;
+    line-height: 14px;
+}
+
+.datepicker-dropdown, .prev, .next {
+    display: none;
+    visibility: hidden;
+}
+
+.date {
+    width:120px;
+}
+
+#hr-error, #min-error {
+    font-size: 11px;
+    line-height: 13px;
+}
+
+.help-block {
+    position: relative;
+    bottom: 6px;
+}
+
+@media (min-width: 500px) {
+    .cockpit-timer-modal-md {
+        width: 500px;
+    }
+    .form-inline .form-control {
+        display: inline-block;
+        width: 30px;
+        vertical-align: middle;
+    }
+    .form-inline .date .bootstrap-datepicker {
+        width: 100px;
+    }
+}

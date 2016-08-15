@@ -52,8 +52,8 @@ class TestStorage(StorageCase):
         b.wait_in_text("#pvols", "DISK2")
 
         # Both of them should be empty and removable
-        b.wait_present('#pvols li:nth-child(1) button[data-action="pvol_remove"]')
-        b.wait_present('#pvols li:nth-child(2) button[data-action="pvol_remove"]')
+        b.wait_present('#pvols tr:nth-child(1) button[data-action="pvol_remove"]')
+        b.wait_present('#pvols tr:nth-child(2) button[data-action="pvol_remove"]')
 
         # Create two logical volumes
         m.execute("lvcreate TEST1 -n one -L 20m")
@@ -75,7 +75,7 @@ class TestStorage(StorageCase):
         b.wait_not_in_text("#pvols", "DISK2")
 
         # The remaining lone disk is not removable
-        b.wait_present('#pvols li:nth-child(1) button[disabled]')
+        b.wait_present('#pvols tr:nth-child(1) button[disabled]')
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.
@@ -176,10 +176,10 @@ class TestStorage(StorageCase):
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
 
         # remove disk
-        b.wait_present('#pvols li:nth-child(2) button')
-        b.click('#pvols li:nth-child(2) button')
+        b.wait_present('#pvols tr:nth-child(2) button')
+        b.click('#pvols tr:nth-child(2) button')
         b.wait_not_in_text("#pvols", "DISK2")
-        b.wait_in_text("#detail .info-table-ct", "48 MiB")
+        b.wait_in_text("#detail-header .info-table-ct", "48 MiB")
 
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
@@ -202,14 +202,14 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#pvols", "DISK2")
-        b.wait_in_text("#detail .info-table-ct", "96 MiB")
+        b.wait_in_text("#detail-header .info-table-ct", "96 MiB")
 
         self.content_action(1, "Resize")
         self.dialog({ "size": 70 })
 
         # There is not enough free space to remove any of the disks.
-        b.wait_present('#pvols li:nth-child(1) button[disabled]')
-        b.wait_present('#pvols li:nth-child(2) button[disabled]')
+        b.wait_present('#pvols tr:nth-child(1) button[disabled]')
+        b.wait_present('#pvols tr:nth-child(2) button[disabled]')
 
         # use almost all of the pool by erasing the thin volume
         self.content_default_action(2, "Format")

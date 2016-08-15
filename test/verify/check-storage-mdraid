@@ -107,7 +107,7 @@ class TestStorage(StorageCase):
         # Degrade and repair it
 
         def info_field(name):
-            return '#detail tr:contains("%s") td:nth-child(2)' % name
+            return '#detail-content tr:contains("%s") td:nth-child(2)' % name
 
         def wait_degraded_state(is_degraded):
             degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"

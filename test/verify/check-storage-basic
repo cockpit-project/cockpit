@@ -40,7 +40,7 @@ class TestStorage(StorageCase):
         b.wait_not_in_text('#content', "Partition")
 
         def info_field_value(name):
-            return b.text('#detail tr:contains("%s") td:nth-child(2)' % name)
+            return b.text('#detail-header tr:contains("%s") td:nth-child(2)' % name)
 
         self.assertEqual(self.inode(info_field_value("Device File")),
                          self.inode("/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL"))

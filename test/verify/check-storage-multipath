@@ -32,13 +32,13 @@ class TestStorage(StorageCase):
         b = self.browser
 
         def detail_row(index):
-            return '#detail tr:nth-child(%s)' % index
+            return '#detail-header tr:nth-child(%s)' % index
 
         def detail_row_name(index):
-            return '#detail tr:nth-child(%s) td:nth-child(1)' % index
+            return '#detail-header tr:nth-child(%s) td:nth-child(1)' % index
 
         def detail_row_value(index):
-            return '#detail tr:nth-child(%s) td:nth-child(2)' % index
+            return '#detail-header tr:nth-child(%s) td:nth-child(2)' % index
 
         def wait_detail_row(index, name):
             b.wait_present(detail_row(index))

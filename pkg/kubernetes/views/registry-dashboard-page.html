@@ -97,7 +97,9 @@
             </h2>
         </div>
         <div class="card-pf-body">
-            <p translatable="yes">Log into the registry:
+            <p>
+                <span translatable="yes"></span>
+                Log into the registry:
                 <a ng-if="settings.registry.password"
                     tabindex="0" role="button" popover-trigger="focus"
                     popover="The docker login password token
@@ -111,7 +113,9 @@
                 <span translatable="yes">Your login credentials do not give you access to use the docker registry from the command line.</span>
             </div>
 <code ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span></code>
-            <p translatable="yes">Log into OpenShift:
+            <p ng-if="settings.registry.openshifthost_explicit">
+                <span translatable="yes"></span>
+                Log into OpenShift:
                 <a ng-if="settings.registry.password"
                     tabindex="0" role="button" popover-trigger="focus"
                     popover="The registry backend is managed
@@ -121,7 +125,7 @@
                     <span class="fa fa-lg fa-info-circle"></span>
                 </a>
             </p>
-<code ng-if="settings.registry.password">$ oc login --token {{settings.registry.password}} <span ng-class="{ placeholder: !settings.registry.openshifthost_explicit }">{{settings.registry.openshifthost}}</span></code>
+<code ng-if="settings.registry.openshifthost_explicit">$ oc login --token {{settings.registry.password}} {{settings.registry.openshifthost}}</code>
         </div>
     </div>
 </div>
@@ -134,7 +138,9 @@
             </h2>
         </div>
         <div class="card-pf-body">
-            <p translatable="yes">Push an image:
+            <p>
+                <span translatable="yes"></span>
+                Push an image:
                 <a tabindex="0" role="button" popover-trigger="focus"
                     popover="You must login with docker
                     to push an image.">
@@ -143,7 +149,9 @@
             </p>
 <code>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em>
 $ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name</em></code>
-            <p translatable="yes">Pull an image:
+            <p>
+                <span translatable="yes"></span>
+                Pull an image:
                 <a tabindex="0" role="button" popover-trigger="focus"
                     popover="Depending on project access settings
                     you may need to login with docker to pull an image.">

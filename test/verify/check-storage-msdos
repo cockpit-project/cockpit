@@ -38,14 +38,14 @@ class TestStorage(StorageCase):
         # Format it with a DOS partition table
         b.click('[data-action="format_disk"]')
         self.dialog({ "type": "dos" })
-        b.wait_in_text("#detail", "Free Space")
+        b.wait_in_text("#detail-content", "Free Space")
 
         # Create a primary partition
         self.content_single_action(1, "Create Partition")
         self.dialog({ "size": 10,
                       "type": "ext4",
                       "name": "FIRST" })
-        b.wait_in_text("#detail", "FIRST")
+        b.wait_in_text("#detail-content", "FIRST")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
         self.content_action(1, "Format")
@@ -54,7 +54,7 @@ class TestStorage(StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.wait_in_text("#detail", "Free Space for Primary Partitions")
+        b.wait_in_text("#detail-content", "Free Space for Primary Partitions")
 
         # Create a extended partition to fill the rest of the disk
         self.content_single_action(2, "Create Partition")
@@ -67,10 +67,10 @@ class TestStorage(StorageCase):
         self.dialog_wait_not_visible("mount_options")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#detail", "Extended Partition")
+        b.wait_in_text("#detail-content", "Extended Partition")
 
-        b.wait_not_in_text("#detail", "Free Space for Primary Partitions")
-        b.wait_in_text("#detail", "Free Space for Logical Partitions")
+        b.wait_not_in_text("#detail-content", "Free Space for Primary Partitions")
+        b.wait_in_text("#detail-content", "Free Space for Logical Partitions")
 
         # Create logical partitions and check that "dos-extended" is
         # not offered.
@@ -80,17 +80,17 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_in_text("#detail", "Logical Partition (")
-        b.wait_not_in_text("#detail", "Free Space for Logical Partitions")
+        b.wait_in_text("#detail-content", "Logical Partition (")
+        b.wait_not_in_text("#detail-content", "Free Space for Logical Partitions")
 
         # Delete it
 
         self.content_action(2, "Delete")
         self.confirm()
 
-        b.wait_not_in_text("#detail", "Logical Partition (")
-        b.wait_not_in_text("#detail", "Free Space for Logical Partitions")
-        b.wait_in_text("#detail", "Free Space for Primary Partitions")
+        b.wait_not_in_text("#detail-content", "Logical Partition (")
+        b.wait_not_in_text("#detail-content", "Free Space for Logical Partitions")
+        b.wait_in_text("#detail-content", "Free Space for Primary Partitions")
 
 if __name__ == '__main__':
     test_main()

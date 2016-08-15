@@ -116,7 +116,7 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):
-            return b.wait_text('#detail tr:contains("%s") td:nth-child(2)' % name, value)
+            return b.wait_text('#detail-header tr:contains("%s") td:nth-child(2)' % name, value)
 
         wait_info_field_value("Serial Number", "MYDISK")
 

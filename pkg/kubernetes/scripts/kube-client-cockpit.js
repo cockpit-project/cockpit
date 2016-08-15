@@ -1066,11 +1066,10 @@
                             settings.registry.host = regHost;
                             settings.registry.host_explicit = true;
                         }
-                        var kubehost = result["COCKPIT_KUBE_URL"];
-                        var kubeport = result["KUBERNETES_SERVICE_PORT"];
-                        if (kubehost) {
-                            settings.registry.kubehost = kubehost + ":" + kubeport;
-                            settings.registry.kubehost_explicit = true;
+                        var openshifthost = result["OPENSHIFT_OAUTH_PROVIDER_URL"];
+                        if (openshifthost) {
+                            settings.registry.openshifthost = openshifthost.replace(/^http(s?):\/\//i, "");
+                            settings.registry.openshifthost_explicit = true;
                         }
 
                     }, function(ex) {});

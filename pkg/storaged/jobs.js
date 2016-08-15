@@ -184,7 +184,13 @@
                 var j = job(path);
 
                 var age_ms = server_now - j.StartTime/1000;
-                return age_ms >= 2000;
+                if (age_ms >= 2000)
+                    return true;
+
+                if (j.ExpectedEndTime > 0 && (j.ExpectedEndTime/1000 - server_now) >= 2000)
+                    return true;
+
+                return false;
             }
 
             function make_job(path) {

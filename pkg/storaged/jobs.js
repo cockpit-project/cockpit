@@ -107,6 +107,14 @@
         var jobs_tmpl;
 
         function render_jobs_panel() {
+
+            /* Human readable descriptions of the symbolic "Operation"
+             * property of job objects.  These are from the storaged
+             * documentation at
+             *
+             *   http://storaged.org/doc/udisks2-api/gdbus-org.freedesktop.UDisks2.Job.html
+             */
+
             var descriptions = {
                 'ata-smart-selftest':          _("SMART self-test of $target"),
                 'drive-eject':                 _("Ejecting $target"),
@@ -132,6 +140,9 @@
                 'md-raid-fault-device':        _("Marking $target as faulty"),
                 'md-raid-remove-device':       _("Removing $target from RAID Device"),
                 'md-raid-create':              _("Creating RAID Device $target"),
+                'mdraid-check-job':            _("Checking RAID Device $target"),
+                'mdraid-repair-job':           _("Checking and Repairing RAID Device $target"),
+                'mdraid-recover-job':          _("Recovering RAID Device $target"),
                 'mdraid-sync-job':             _("Synchronizing RAID Device $target"),
                 'lvm-lvol-delete':             _("Deleting $target"),
                 'lvm-lvol-activate':           _("Activating $target"),

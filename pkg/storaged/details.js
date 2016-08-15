@@ -1452,40 +1452,6 @@
                     Value: utils.decode_filename(mdraid.BitmapLocation) != "none"
                 };
 
-            var sync_action = null;
-            if (mdraid.SyncAction) {
-                var action = { "idle" : "",
-                               "check" : _("Data Scrubbing"),
-                               "repair" : _("Data Scrubbing and Repair"),
-                               "resync" : _("Resyncing"),
-                               "recover" : _("Recovering "),
-                               "frozen" : _("Frozen")
-                             }[mdraid.SyncAction] || mdraid.SyncAction;
-                var progress = null;
-
-                if (action && action != "idle") {
-                    var percent = Math.round(mdraid.SyncCompleted * 100).toString();
-                    if (mdraid.SyncRate > 0) {
-                        progress = cockpit.format(_("$action, ${percent}% complete at $rate"),
-                                                  { action: action, percent: percent,
-                                                    rate: utils.fmt_rate(mdraid.SyncRate) });
-                    } else {
-                        progress = cockpit.format(_("$action, ${percent}% complete"),
-                                                  { action: action, percent: percent });
-                    }
-
-                    if (mdraid.SyncRemainingTime > 0) {
-                        progress += cockpit.format(_(", $0 remaining"),
-                                                   utils.format_delay(mdraid.SyncRemainingTime / 1000));
-                    }
-                }
-
-                sync_action = {
-                    Name: name,
-                    Progress: progress
-                };
-            }
-
             var degraded_message = null;
             if (mdraid.Degraded > 0) {
                 degraded_message = cockpit.format(
@@ -1502,7 +1468,6 @@
                 Bitmap: bitmap,
                 Degraded: degraded_message,
                 State: mdraid.Running? _("Running") : _("Not running"),
-                SyncAction: sync_action
             };
 
             var block_model = null;

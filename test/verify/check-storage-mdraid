@@ -122,7 +122,6 @@ class TestStorage(StorageCase):
         wait_degraded_state(True)
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("mdadm --quiet %s --add /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
-        b.wait_in_text(info_field("State"), "Recovering")
         wait_degraded_state(False)
 
         # Turn it off and on again

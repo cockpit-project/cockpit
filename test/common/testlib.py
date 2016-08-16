@@ -717,6 +717,8 @@ class Phantom:
         environ = os.environ.copy()
         if self.lang:
             environ["LC_ALL"] = self.lang
+            environ["HTTP_PROXY"] = ""
+            environ["HTTPS_PROXY"] = ""
         path = os.path.dirname(__file__)
         command = [
             "%s/phantom-command" % path,

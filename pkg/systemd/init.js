@@ -804,18 +804,6 @@ define([
         $("body").show();
     }
 
-    function init() {
-        systemd_manager.wait(function () {
-            systemd_manager.Subscribe().
-                fail(function (error) {
-                    if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
-                        error.name != "org.freedesktop.DBus.Error.FileExists")
-                        console.warn("Subscribing to systemd signals failed", error);
-                });
-            update();
-        });
-    }
-
     $(cockpit).on("locationchanged", update);
 
     $('#service-navigate-home').on("click", function() {
@@ -828,7 +816,6 @@ define([
         unit_instantiate($('#service-template input').val());
     });
 
-    $(init);
     /* Timer Creation
      * timer_unit contains all the user's valid inputs from create-timer modal.
      */
@@ -1307,5 +1294,20 @@ define([
                 console.log(error);
             });
     }
+
+    /*
+     * Once the document is ready and loaded. Note that
+     * nothing is visible until we invoke this function
+     * and update() is called.
+     */
+    systemd_manager.wait(function() {
+        systemd_manager.Subscribe().
+            fail(function (error) {
+                if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+                    error.name != "org.freedesktop.DBus.Error.FileExists")
+                    console.warn("Subscribing to systemd signals failed", error);
+            });
+        $(update);
+    });
 });
 

@@ -98,8 +98,7 @@
         </div>
         <div class="card-pf-body">
             <p>
-                <span translatable="yes"></span>
-                Log into the registry:
+                <span translatable="yes">Log into the registry:</span>
                 <a ng-if="settings.registry.password"
                     tabindex="0" role="button" popover-trigger="focus"
                     popover="The docker login password token
@@ -114,8 +113,7 @@
             </div>
 <code ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span></code>
             <p ng-if="settings.registry.openshifthost_explicit">
-                <span translatable="yes"></span>
-                Log into OpenShift:
+                <span translatable="yes">Log into OpenShift command line tools:</span>
                 <a ng-if="settings.registry.password"
                     tabindex="0" role="button" popover-trigger="focus"
                     popover="The registry backend is managed
@@ -139,8 +137,7 @@
         </div>
         <div class="card-pf-body">
             <p>
-                <span translatable="yes"></span>
-                Push an image:
+                <span translatable="yes">Push an image:</span>
                 <a tabindex="0" role="button" popover-trigger="focus"
                     popover="You must login with docker
                     to push an image.">
@@ -150,8 +147,7 @@
 <code>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em>
 $ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name</em></code>
             <p>
-                <span translatable="yes"></span>
-                Pull an image:
+                <span translatable="yes">Pull an image:</span>
                 <a tabindex="0" role="button" popover-trigger="focus"
                     popover="Depending on project access settings
                     you may need to login with docker to pull an image.">

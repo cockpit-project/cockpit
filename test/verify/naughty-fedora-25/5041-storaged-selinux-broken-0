@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "storagelib.py", line 38, in setUp
+    ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version")
+  File "testvm.py", line 412, in execute
+    raise subprocess.CalledProcessError(proc.returncode, command, output=output)
+CalledProcessError: Command 'busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version' returned non-zero exit status 1

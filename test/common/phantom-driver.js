@@ -49,6 +49,11 @@ var onCheckpoint;
 var waitTimeout;
 var didTimeout;
 
+try {
+    phantom.setProxy("127.0.0.1", 8080, "none", "", "");
+} catch(ex) {
+    sys.stderr.writeLine('> ' + ex);
+}
 page.viewportSize = { width: 800, height: 480 };
 
 var unique = 1;

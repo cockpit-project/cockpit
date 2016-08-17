@@ -611,6 +611,7 @@ class MachineCase(unittest.TestCase):
 
                                     'localhost: dropping message while waiting for child to exit',
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',
+                                    '.*g_dbus_connection_call_finish_internal.*G_IS_DBUS_CONNECTION.*',
                                     )
 
     def allow_authorize_journal_messages(self):

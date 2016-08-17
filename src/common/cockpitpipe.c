@@ -58,7 +58,8 @@ enum {
   PROP_OUT_FD,
   PROP_ERR_FD,
   PROP_PID,
-  PROP_PROBLEM
+  PROP_PROBLEM,
+  PROP_READ_SIZE
 };
 
 struct _CockpitPipePrivate {
@@ -89,6 +90,8 @@ struct _CockpitPipePrivate {
   int err_fd;
   GSource *err_source;
   GByteArray *err_buffer;
+
+  int read_size;
 };
 
 typedef struct {
@@ -117,6 +120,7 @@ cockpit_pipe_init (CockpitPipe *self)
   self->priv->out_fd = -1;
   self->priv->err_fd = -1;
   self->priv->status = -1;
+  self->priv->read_size = 1024;
 
   self->priv->context = g_main_context_ref_thread_default ();
 }
@@ -271,8 +275,8 @@ dispatch_input (gint fd,
     {
       g_debug ("%s: reading input", self->priv->name);
 
-      g_byte_array_set_size (self->priv->in_buffer, len + 1024);
-      ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, 1024);
+      g_byte_array_set_size (self->priv->in_buffer, len + self->priv->read_size);
+      ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, self->priv->read_size);
       if (ret < 0)
         {
           g_byte_array_set_size (self->priv->in_buffer, len);
@@ -651,6 +655,9 @@ cockpit_pipe_set_property (GObject *obj,
       case PROP_PID:
         self->priv->pid = g_value_get_int (value);
         break;
+      case PROP_READ_SIZE:
+        self->priv->read_size = g_value_get_int (value);
+        break;
       case PROP_PROBLEM:
         self->priv->problem = g_value_dup_string (value);
         if (self->priv->problem)
@@ -686,6 +693,9 @@ cockpit_pipe_get_property (GObject *obj,
       break;
     case PROP_PID:
       g_value_set_int (value, self->priv->pid);
+      break;
+    case PROP_READ_SIZE:
+      g_value_set_int (value, self->priv->read_size);
       break;
     case PROP_PROBLEM:
       g_value_set_string (value, self->priv->problem);
@@ -821,6 +831,15 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
   g_object_class_install_property (gobject_class, PROP_PROBLEM,
                 g_param_spec_string ("problem", "problem", "problem", NULL,
                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * CockpitPipe:read_size:
+   *
+   * Bytes to read in each loop.
+   */
+  g_object_class_install_property (gobject_class, PROP_READ_SIZE,
+                g_param_spec_int ("read-size", "read-size", "read-size", 1024, G_MAXINT, 1024,
+                                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * CockpitPipe::read:

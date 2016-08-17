@@ -41,7 +41,7 @@ clean-local:
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
 
-SUFFIXES = .css .css.gz .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .map .map.gz .jsx .html .html.gz .min.html .min.html.gz .woff .woff.gz .1 .8 .5
+SUFFIXES = .css .css.gz .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .map .map.gz .jsx .html .html.gz .min.html .min.html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -108,6 +108,8 @@ GZ_RULE = \
 .min.js.min.js.gz:
 	$(GZ_RULE)
 .map.map.gz:
+	$(GZ_RULE)
+.svg.svg.gz:
 	$(GZ_RULE)
 .woff.woff.gz:
 	$(GZ_RULE)

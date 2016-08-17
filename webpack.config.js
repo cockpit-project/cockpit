@@ -28,6 +28,10 @@ var info = {
             "sosreport/index.js",
             "sosreport/sosreport.css",
         ],
+        "storaged/storage": [
+            "storaged/devices.js",
+            "storaged/storage.css",
+        ],
         "subscriptions/subscriptions": [
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
@@ -56,6 +60,11 @@ var info = {
         "sosreport/index.html",
         "sosreport/sosreport.png",
         "sosreport/manifest.json",
+
+        "storaged/index.html",
+        "storaged/manifest.json",
+        "storaged/images/storage-array.png",
+        "storaged/images/storage-disk.png",
 
         "users/index.html",
         "users/manifest.json",

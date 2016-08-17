@@ -25,9 +25,11 @@
 #endif
 #define G_LOG_DOMAIN "cockpit-protocol"
 
+#include "cockpitauthpipe.h"
 #include "cockpitsshtransport.h"
 #include "cockpitsshagent.h"
 
+#include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
 
 #include <libssh/libssh.h>
@@ -87,6 +89,9 @@ typedef struct {
 
   /* When connect is done this flag is cleared */
   gint *connecting;
+
+  int auth_fd;
+
 } CockpitSshData;
 
 static const gchar *
@@ -94,7 +99,7 @@ auth_method_description (int method)
 {
   if (method == SSH_AUTH_METHOD_NONE)
     return "none";
-  else if (method == SSH_AUTH_METHOD_PASSWORD)
+  else if (method == SSH_AUTH_METHOD_PASSWORD || method == SSH_AUTH_METHOD_INTERACTIVE)
     return "password";
   else if (method == SSH_AUTH_METHOD_PUBLICKEY)
     return "public-key";
@@ -111,8 +116,9 @@ auth_methods_line (int methods)
 {
   GString *string;
   int i = 0;
-  int check[5] = {
+  int check[6] = {
     SSH_AUTH_METHOD_NONE,
+    SSH_AUTH_METHOD_INTERACTIVE,
     SSH_AUTH_METHOD_PASSWORD,
     SSH_AUTH_METHOD_PUBLICKEY,
     SSH_AUTH_METHOD_HOSTBASED,
@@ -377,6 +383,157 @@ auth_result_string (int rc)
     }
 }
 
+static gboolean
+write_to_auth_fd (CockpitSshData *data,
+                  GBytes *bytes)
+{
+  int r = 0;
+  gsize len = 0;
+  gchar *buf;
+
+  buf = (gchar *)g_bytes_get_data (bytes, &len);
+
+  for (;;)
+    {
+      r = write (data->auth_fd, buf, len);
+      if (r < 0)
+        {
+          if (errno != EAGAIN && errno != EINTR)
+            {
+              g_warning ("%s: failed to write prompt to auth pipe", data->logname);
+              break;
+            }
+        }
+      else
+        {
+          if (r != len)
+            g_warning ("%s: failed to write prompt to auth pipe", data->logname);
+          break;
+        }
+    }
+
+  return r >= len;
+}
+
+static gboolean
+prompt_on_auth_fd (CockpitSshData *data,
+                   const gchar *prompt,
+                   const gchar *msg,
+                   const gchar echo)
+{
+  JsonObject *response = NULL;
+  GBytes *payload = NULL;
+  gboolean ret = FALSE;
+
+  if (data->auth_fd < 1)
+    goto out;
+
+  response = json_object_new ();
+  json_object_set_string_member (response, "prompt", prompt);
+  if (msg)
+    json_object_set_string_member (response, "message", msg);
+
+  json_object_set_boolean_member (response, "echo", echo ? TRUE : FALSE);
+  payload = cockpit_json_write_bytes (response);
+  ret = write_to_auth_fd (data, payload);
+
+out:
+  g_bytes_unref (payload);
+  json_object_unref (response);
+
+  return ret;
+}
+
+static gchar *
+wait_for_auth_fd_reply (CockpitSshData *data)
+{
+  char *buf = NULL;
+  int r;
+
+  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
+  if (!buf)
+    g_error ("%s: couldn't allocate memory for auth response", data->logname);
+
+  for (;;)
+    {
+      r = read (data->auth_fd, buf, MAX_AUTH_BUFFER);
+      if (r < 0)
+        {
+          if (errno == EAGAIN)
+            continue;
+          g_error ("%s: Couldn't read %d", data->logname, errno);
+          break;
+        }
+      else
+        {
+          break;
+        }
+    }
+
+  if (r == 0) {
+    free (buf);
+    return NULL;
+  }
+
+  buf[r] = '\0';
+  return buf;
+}
+
+static int
+do_interactive_auth (CockpitSshData *data)
+{
+  int rc;
+  gboolean sent_pw = FALSE;
+  const gchar *password = cockpit_creds_get_password (data->creds);
+  g_assert (password != NULL);
+
+  rc = ssh_userauth_kbdint (data->session, NULL, NULL);
+  while (rc == SSH_AUTH_INFO)
+    {
+      const gchar *msg;
+      int n, i;
+
+      msg = ssh_userauth_kbdint_getinstruction (data->session);
+      n = ssh_userauth_kbdint_getnprompts (data->session);
+
+      for (i = 0; i < n; i++)
+        {
+          const char *prompt;
+          char *answer = NULL;
+          char echo = '\0';
+          int status = 0;
+          prompt = ssh_userauth_kbdint_getprompt (data->session, i, &echo);
+          g_debug ("%s: Got prompt %s prompt", data->logname, prompt);
+          if (!sent_pw)
+            {
+              status = ssh_userauth_kbdint_setanswer (data->session, i, password);
+              sent_pw = TRUE;
+            }
+          else
+            {
+              if (prompt_on_auth_fd (data, prompt, msg, echo))
+                answer = wait_for_auth_fd_reply (data);
+
+              if (answer)
+                  status = ssh_userauth_kbdint_setanswer (data->session, i, answer);
+              else
+                  rc = SSH_AUTH_ERROR;
+
+              g_free (answer);
+            }
+
+          if (status < 0)
+            {
+              g_warning ("%s: failed to set answer for %s", data->logname, prompt);
+              rc = SSH_AUTH_ERROR;
+            }
+        }
+      rc = ssh_userauth_kbdint (data->session, NULL, NULL);
+    }
+
+  return rc;
+}
+
 static int
 do_password_auth (CockpitSshData *data)
 {
@@ -518,7 +675,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
   int rc;
   int methods_server;
   int methods_tried = 0;
-  int methods_to_try = SSH_AUTH_METHOD_PASSWORD |
+  int methods_to_try = SSH_AUTH_METHOD_INTERACTIVE |
                        SSH_AUTH_METHOD_GSSAPI_MIC;
 
 #ifdef HAVE_SSH_SET_AGENT_SOCKET
@@ -544,6 +701,15 @@ cockpit_ssh_authenticate (CockpitSshData *data)
     }
 
   methods_server = ssh_userauth_list (data->session, NULL);
+
+  /* If interactive isn't supported try password instead */
+  if (!(methods_server & SSH_AUTH_METHOD_INTERACTIVE) ||
+      data->auth_fd < 1)
+    {
+      methods_to_try = methods_to_try | SSH_AUTH_METHOD_PASSWORD;
+      methods_to_try = methods_to_try & ~SSH_AUTH_METHOD_INTERACTIVE;
+    }
+
   while (methods_to_try != 0)
     {
       int (*auth_func)(CockpitSshData *data);
@@ -556,6 +722,12 @@ cockpit_ssh_authenticate (CockpitSshData *data)
             auth_func = do_key_auth;
             method = SSH_AUTH_METHOD_PUBLICKEY;
             has_creds = TRUE;
+        }
+      else if (methods_to_try & SSH_AUTH_METHOD_INTERACTIVE)
+        {
+            auth_func = do_interactive_auth;
+            method = SSH_AUTH_METHOD_INTERACTIVE;
+            has_creds = cockpit_creds_get_password (data->creds) != NULL;
         }
       else if (methods_to_try & SSH_AUTH_METHOD_PASSWORD)
         {
@@ -628,6 +800,10 @@ cockpit_ssh_authenticate (CockpitSshData *data)
     }
 
 out:
+  if (data->auth_fd > 0)
+    close (data->auth_fd);
+  data->auth_fd = 0;
+
   return problem;
 }
 
@@ -718,6 +894,11 @@ cockpit_ssh_data_free (CockpitSshData *data)
   g_free (data->knownhosts_file);
   if (data->auth_results)
     g_hash_table_destroy (data->auth_results);
+
+  if (data->auth_fd > 0)
+    close (data->auth_fd);
+  data->auth_fd = 0;
+
   g_free (data);
 }
 
@@ -738,6 +919,7 @@ enum {
   PROP_KNOWN_HOSTS,
   PROP_IGNORE_KEY,
   PROP_AGENT,
+  PROP_AUTH_PIPE,
 };
 
 struct _CockpitSshTransport {
@@ -757,6 +939,9 @@ struct _CockpitSshTransport {
 
   /* Transport for ssh agent */
   CockpitSshAgent *agent;
+
+  /* Auth Pipe for auth prompts */
+  CockpitAuthPipe *auth_pipe;
 
   GSource *io;
   gboolean closing;
@@ -1042,6 +1227,9 @@ close_immediately (CockpitSshTransport *self,
 
   if (self->agent)
       cockpit_ssh_agent_close (self->agent);
+
+  if (self->auth_pipe)
+      cockpit_auth_pipe_close (self->auth_pipe, problem);
 
   if (problem == NULL)
     {
@@ -1385,6 +1573,9 @@ cockpit_ssh_source_prepare (GSource *source,
       if (self->agent)
         cockpit_ssh_agent_close (self->agent);
 
+      if (self->auth_pipe)
+        cockpit_auth_pipe_close (self->auth_pipe, self->data->problem);
+
       if (!self->result_emitted)
         {
           self->result_emitted = TRUE;
@@ -1576,6 +1767,12 @@ cockpit_ssh_transport_constructed (GObject *object)
     }
 #endif
 
+  if (self->auth_pipe)
+    {
+      self->data->auth_fd = cockpit_auth_pipe_claim_fd (self->auth_pipe);
+      cockpit_auth_pipe_expect_answer (self->auth_pipe);
+    }
+
   self->io = g_source_new (&source_funcs, sizeof (CockpitSshSource));
   ((CockpitSshSource *)self->io)->transport = self;
   g_source_attach (self->io, self->data->context);
@@ -1629,6 +1826,9 @@ cockpit_ssh_transport_set_property (GObject *obj,
       break;
     case PROP_AGENT:
       self->agent = g_value_dup_object (value);
+      break;
+    case PROP_AUTH_PIPE:
+      self->auth_pipe = g_value_dup_object (value);
       break;
     case PROP_COMMAND:
       string = g_value_get_string (value);
@@ -1696,6 +1896,9 @@ cockpit_ssh_transport_finalize (GObject *object)
 
   if (self->agent)
     g_object_unref (self->agent);
+
+  if (self->auth_pipe)
+    g_object_unref (self->auth_pipe);
 
   g_free (self->logname);
 
@@ -1801,6 +2004,10 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
 
   g_object_class_install_property (object_class, PROP_AGENT,
          g_param_spec_object ("agent", NULL, NULL, COCKPIT_TYPE_SSH_AGENT,
+                             G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_AUTH_PIPE,
+         g_param_spec_object ("auth-pipe", NULL, NULL, COCKPIT_TYPE_AUTH_PIPE,
                              G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   g_signal_new ("result", COCKPIT_TYPE_SSH_TRANSPORT, G_SIGNAL_RUN_FIRST, 0, NULL, NULL,

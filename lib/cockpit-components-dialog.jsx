@@ -17,12 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "base1/cockpit",
-    "./react",
-], function(cockpit, React) {
-
+(function (root, factory) {
+    /* globals module */
+    if (typeof exports === 'object') {
+        module.exports = factory(require('cockpit'), require('react'));
+    } else if (typeof define === 'function' && define.amd) {
+        define(['base1/cockpit', "./react"], factory);
+    } else {
+        // Browser globals
+        root.amdWeb = factory(root.cockpit, root.React);
+    }
+}(this, function(cockpit, React) {
 "use strict";
+
 var _ = cockpit.gettext;
 
 /*
@@ -254,5 +261,4 @@ return {
     show_modal_dialog: show_modal_dialog,
 };
 
-});
-
+}));

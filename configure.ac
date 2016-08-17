@@ -499,6 +499,8 @@ AC_SUBST(PAM_LIBS)
 # So that we can enforce this include to be evaluated at make runtime
 AC_SUBST([INCLUDE_WEBPACK_DEPS], ["-include Makefile-webpack.deps"])
 
+AC_DEFINE([MAX_AUTH_BUFFER], [65536], [Maximum size of auth message])
+
 AC_OUTPUT([
 Makefile
 pkg/storaged/override.json

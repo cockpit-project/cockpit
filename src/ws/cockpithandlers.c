@@ -341,23 +341,12 @@ get_remote_address (GIOStream *io)
 
 static void
 send_login_response (CockpitWebResponse *response,
-                     CockpitCreds *creds,
+                     JsonObject *object,
                      GHashTable *headers)
 {
-  JsonObject *object;
-  JsonObject *login_data;
   GBytes *content;
 
-  object = json_object_new ();
-  json_object_set_string_member (object, "user", cockpit_creds_get_user (creds));
-  json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (creds));
-
-  login_data = cockpit_creds_get_login_data (creds);
-  if (login_data)
-      json_object_set_object_member (object, "login-data", json_object_ref (login_data));
-
   content = cockpit_json_write_bytes (object);
-  json_object_unref (object);
 
   g_hash_table_replace (headers, g_strdup ("Content-Type"), g_strdup ("application/json"));
   cockpit_web_response_content (response, headers, content, NULL);
@@ -371,30 +360,43 @@ on_login_complete (GObject *object,
 {
   CockpitWebResponse *response = user_data;
   GError *error = NULL;
-  CockpitWebService *service;
+  JsonObject *response_data = NULL;
   CockpitAuthFlags flags = 0;
-  CockpitCreds *creds;
   GHashTable *headers;
   GIOStream *io_stream;
+  GBytes *content;
 
   io_stream = cockpit_web_response_get_stream (response);
   if (G_IS_SOCKET_CONNECTION (io_stream))
     flags |= COCKPIT_AUTH_COOKIE_INSECURE;
 
   headers = cockpit_web_server_new_table ();
-  service = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, flags, headers, &error);
+  response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, flags, headers, &error);
 
   if (error)
     {
-      cockpit_web_response_gerror (response, headers, error);
+      if (response_data)
+        {
+          g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup ("application/json"));
+          content = cockpit_json_write_bytes (response_data);
+          cockpit_web_response_headers_full (response, 401, "Authentication required", -1, headers);
+          cockpit_web_response_queue (response, content);
+          cockpit_web_response_complete (response);
+          g_bytes_unref (content);
+        }
+      else
+        {
+          cockpit_web_response_gerror (response, headers, error);
+        }
       g_error_free (error);
     }
   else
     {
-      creds = cockpit_web_service_get_creds (service);
-      send_login_response (response, creds, headers);
-      g_object_unref (service);
+      send_login_response (response, response_data, headers);
     }
+
+  if (response_data)
+    json_object_unref (response_data);
 
   g_hash_table_unref (headers);
   g_object_unref (response);
@@ -411,12 +413,14 @@ handle_login (CockpitHandlerData *data,
   gchar *remote_peer = NULL;
   GIOStream *io_stream;
   CockpitCreds *creds;
+  JsonObject *creds_json = NULL;
 
   if (service)
     {
       out_headers = cockpit_web_server_new_table ();
       creds = cockpit_web_service_get_creds (service);
-      send_login_response (response, creds, out_headers);
+      creds_json = cockpit_creds_to_json (creds);
+      send_login_response (response, creds_json, out_headers);
       g_hash_table_unref (out_headers);
     }
   else
@@ -427,6 +431,9 @@ handle_login (CockpitHandlerData *data,
                                 on_login_complete, g_object_ref (response));
       g_free (remote_peer);
     }
+
+  if (creds_json)
+    json_object_unref (creds_json);
 }
 
 static void

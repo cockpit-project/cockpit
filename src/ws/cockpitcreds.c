@@ -464,3 +464,20 @@ cockpit_creds_hash (gconstpointer v)
     }
   return hash;
 }
+
+JsonObject *
+cockpit_creds_to_json (CockpitCreds *creds)
+{
+  JsonObject *object = NULL;
+  JsonObject *login_data = NULL;
+
+  object = json_object_new ();
+  json_object_set_string_member (object, "user", cockpit_creds_get_user (creds));
+  json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (creds));
+
+  login_data = cockpit_creds_get_login_data (creds);
+  if (login_data)
+      json_object_set_object_member (object, "login-data", json_object_ref (login_data));
+
+  return object;
+}

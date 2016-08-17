@@ -35,6 +35,7 @@ struct _MockAuth {
   CockpitAuth parent;
   gchar *expect_user;
   gchar *expect_password;
+  JsonObject *failure_data;
 };
 
 typedef struct _CockpitAuthClass MockAuthClass;
@@ -44,7 +45,7 @@ G_DEFINE_TYPE (MockAuth, mock_auth, COCKPIT_TYPE_AUTH)
 static void
 mock_auth_init (MockAuth *self)
 {
-
+  self->failure_data = NULL;
 }
 
 static void
@@ -53,6 +54,8 @@ mock_auth_finalize (GObject *obj)
   MockAuth *self = MOCK_AUTH (obj);
   g_free (self->expect_user);
   g_free (self->expect_password);
+  if (self->failure_data)
+    json_object_unref (self->failure_data);
   G_OBJECT_CLASS (mock_auth_parent_class)->finalize (obj);
 }
 
@@ -105,6 +108,7 @@ static CockpitCreds *
 mock_auth_login_finish (CockpitAuth *auth,
                         GAsyncResult *async,
                         GHashTable *headers,
+                        JsonObject **prompt_data,
                         CockpitTransport **transport,
                         GError **error)
 {
@@ -120,7 +124,11 @@ mock_auth_login_finish (CockpitAuth *auth,
   };
 
   if (g_simple_async_result_propagate_error (result, error))
+    {
+      if (prompt_data && self->failure_data)
+        *prompt_data = json_object_ref (self->failure_data);
       return NULL;
+    }
 
   nonce = cockpit_auth_nonce (auth);
 
@@ -167,6 +175,14 @@ mock_auth_new (const char *expect_user,
   self->expect_password = g_strdup (expect_password);
 
   return COCKPIT_AUTH (self);
+}
+
+void
+mock_auth_set_failure_data (MockAuth *self,
+                            JsonObject *data)
+{
+  g_assert (self->failure_data == NULL);
+  self->failure_data = json_object_ref (data);
 }
 
 GHashTable *

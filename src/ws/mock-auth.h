@@ -34,3 +34,6 @@ CockpitAuth *    mock_auth_new        (const char *expect_user,
 
 GHashTable *     mock_auth_basic_header  (const gchar *user,
                                           const gchar *password);
+
+void             mock_auth_set_failure_data (MockAuth *self,
+                                             JsonObject *data);

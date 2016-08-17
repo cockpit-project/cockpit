@@ -75,6 +75,7 @@ gboolean        cockpit_creds_pop_thread_default_gssapi  (CockpitCreds *creds,
 
 JsonObject *    cockpit_creds_get_login_data             (CockpitCreds *creds);
 
+JsonObject *    cockpit_creds_to_json                    (CockpitCreds *creds);
 G_END_DECLS
 
 #endif

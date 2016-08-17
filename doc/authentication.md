@@ -59,12 +59,21 @@ The command will be called with two arguments
 
 cockpit-ws will then send contents of the Authorization http header, without the
 auth scheme, on fd #3 to the command. Once the command has processed the credentials
-it MUST write a JSON response to fd #3.
+it MUST write a JSON response to fd #3. Cockpit opens this fd using SOCK_SEQPACKET so
+messages can be sent and received in one operation. Each message should be no more
+than 65536 bytes.
 
 By default cockpit-ws will wait a maximum of 30 seconds to receive this response.
 The number of seconds to wait can be adjusted by adding a timeout parameter along
 side the auth schema configuration in your config file. The given value should be
 a number between 1 and 900.
+
+If more information is needed the command should response with a json object containing
+a ```prompt``` string. These message will be displayed to the user and the user will be
+prompted for a response. If the user does not respond within 30 seconds the command will be
+closed and the login aborted. The number of seconds to wait can be adjusted by adding a
+response-timeout parameter along side the auth schema configuration in your config file.
+The given value should be a number between 1 and 900.
 
 An error response should contain the following fields:
 

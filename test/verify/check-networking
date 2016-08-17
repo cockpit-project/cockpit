@@ -224,6 +224,10 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-bond-settings-dialog")
         b.wait_present("#networking-interfaces tr[data-interface='tbond']")
 
+        # Check that the configuration file has the expected sane name
+        # on systems that use "network-scripts".
+        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
+
         # Check that the members are displayed
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
@@ -285,6 +289,10 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-team-settings-dialog")
         b.wait_present("#networking-interfaces tr[data-interface='tteam']")
 
+        # Check that the configuration file has the expected sane name
+        # on systems that use "network-scripts".
+        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
+
         # Check that the members are displayed
         b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
         b.wait_visible("#network-interface")
@@ -342,6 +350,10 @@ class TestNetworking(MachineCase):
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bridge-settings-dialog")
         b.wait_present("#networking-interfaces tr[data-interface='tbridge']")
+
+        # Check that the configuration file has the expected sane name
+        # on systems that use "network-scripts".
+        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
 
         # Delete the bridge
         b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")

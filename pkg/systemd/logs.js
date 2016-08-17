@@ -46,11 +46,8 @@ define([
         var procs = [];
 
         function query_error(error) {
-          /* TODO: blank slate
-            if (error.name == "org.freedesktop.DBus.Error.AccessDenied")
-                end_box.text(_("You are not authorized."));
-            else
-                end_box.text(error.message);*/
+            /* TODO: blank slate */
+            console.warn(cockpit.message(error));
         }
 
         function prepend_entries(entries) {

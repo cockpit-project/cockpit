@@ -24,8 +24,24 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
     <script type="text/javascript" src="../../tools/qunit.js"></script>
-
-    <script type="text/javascript" src="../base1/require.js"></script>
+    <script>
+        function require(name) {
+            switch (name) {
+            case "jquery":
+                return jQuery;
+            case "cockpit":
+                return cockpit;
+            case "term":
+                return null;
+            default:
+                throw new Error("unknown shim module: " + name);
+            }
+        }
+        module = { };
+    </script>
+    <script type="text/javascript" src="../base1/jquery.js"></script>
+    <script type="text/javascript" src="../base1/cockpit.js"></script>
+    <script type="text/javascript" src="docker.js"></script>
   </head>
   <body>
     <h1 id="qunit-header">Docker Tests</h1>
@@ -35,7 +51,7 @@
     <div id="done-flag" style="display:none">Done</div>
   </body>
 <script type="text/javascript">
-require(['docker/docker'], function(docker) {
+    var docker = module.exports;
 
     test("bytes_from_format", function() {
         var checks = [
@@ -162,7 +178,6 @@ require(['docker/docker'], function(docker) {
     });
 
     QUnit.start();
-});
 
 </script>
 </html>

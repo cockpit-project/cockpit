@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-], function($) {
-"use strict";
+(function() {
+    "use strict";
+
+    var $ = require("jquery");
 
     /* ----------------------------------------------------------------------------
      * Bar Graphs (in table rows)
@@ -175,7 +175,7 @@ define([
     $(document).ready(setup_bar_graphs);
 
     /* Public API */
-    return {
+    module.exports = {
         create: function create(graph) {
             var div = $("<div>").addClass('bar-row').attr('graph', graph);
             setup_bar_graph(div);
@@ -187,4 +187,5 @@ define([
             });
         }
     };
-});
+
+}());

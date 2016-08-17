@@ -17,14 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "./mustache",
-    "./client",
-    "./util",
-    "./patterns",
-], function($, cockpit, Mustache, client, util) {
+var $ = require("jquery");
+$(function() {
+    "use strict";
+
+    var cockpit = require("cockpit");
+
+    var Mustache = require("mustache");
+    require("patterns");
+
+    var client = require("./client");
+    var util = require("./util");
+
     var _ = cockpit.gettext;
 
     /* RUN IMAGE DIALOG */

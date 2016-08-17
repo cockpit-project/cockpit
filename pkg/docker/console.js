@@ -1,8 +1,9 @@
-require([
-    "jquery",
-    "base1/cockpit",
-    "docker/docker"
-], function($, cockpit, docker) {
+(function() {
+    "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+    var docker = require("./docker");
 
     var box;
     function update() {
@@ -34,4 +35,4 @@ require([
 
     $(cockpit).on("locationchanged", update);
     $(update);
-});
+}());

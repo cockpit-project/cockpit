@@ -17,12 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "./term"
-], function($, cockpit, Terminal) {
+(function() {
     "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var Terminal = require("term");
 
     var docker = { };
 
@@ -749,5 +750,5 @@ define([
         return num;
     };
 
-    return docker;
-});
+    module.exports = docker;
+}());

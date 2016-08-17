@@ -17,13 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "docker/react",
-    "docker/cockpit-components-dialog",
-    "data!docker/cockpit-atomic-storage"
-], function($, cockpit, React, dialog_view, cockpit_atomic_storage) {
+(function() {
+    "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var React = require("react");
+    var dialog_view = require("cockpit-components-dialog.jsx");
+    var cockpit_atomic_storage = require("raw!./cockpit-atomic-storage");
+
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -505,10 +508,10 @@ define([
         };
     }
 
-    return {
+    module.exports = {
         get_storage_model: get_storage_model,
         OverviewBox: OverviewBox,
 
         init: init_storage
     };
-});
+}());

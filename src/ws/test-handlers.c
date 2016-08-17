@@ -176,7 +176,7 @@ test_login_with_cookie (Test *test,
 {
   GError *error = NULL;
   GAsyncResult *result = NULL;
-  CockpitWebService *service;
+  JsonObject *response;
   GHashTable *headers;
   const gchar *user;
   gboolean ret;
@@ -188,12 +188,12 @@ test_login_with_cookie (Test *test,
   g_hash_table_unref (headers);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
-  service = cockpit_auth_login_finish (test->auth, result, 0, test->headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, 0, test->headers, &error);
   g_object_unref (result);
 
   g_assert_no_error (error);
-  g_assert (service != NULL);
-  g_object_unref (service);
+  g_assert (response != NULL);
+  json_object_unref (response);
 
   include_cookie_as_if_client (test->headers, test->headers);
 
@@ -236,6 +236,30 @@ test_login_fail (Test *test,
 
   g_assert (ret == TRUE);
   cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
+}
+
+static void
+test_login_fail_with_data (Test *test,
+                           gconstpointer path)
+{
+  gboolean ret;
+  GHashTable *headers;
+  JsonObject *object = json_object_new ();
+
+  mock_auth_set_failure_data ((MockAuth *)test->auth, object);
+
+  headers = mock_auth_basic_header ("booo", "yah");
+  ret = cockpit_handler_default (test->server, path, test->headers, test->response, &test->data);
+  g_hash_table_unref (headers);
+
+  while (!test->response_done)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert (ret == TRUE);
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication required\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "*{}*");
+  cockpit_assert_strmatch (output_as_string (test), "*\r\nContent-Type: application/json\r\n*");
+  json_object_unref (object);
 }
 
 static GHashTable *
@@ -349,7 +373,7 @@ setup_default (Test *test,
                gconstpointer data)
 {
   const DefaultFixture *fixture = data;
-  CockpitWebService *service;
+  JsonObject *response;
   GError *error = NULL;
   GAsyncResult *result = NULL;
   GHashTable *headers;
@@ -374,12 +398,12 @@ setup_default (Test *test,
       g_hash_table_unref (headers);
       while (result == NULL)
         g_main_context_iteration (NULL, TRUE);
-      service = cockpit_auth_login_finish (test->auth, result, 0, test->headers, &error);
+      response = cockpit_auth_login_finish (test->auth, result, 0, test->headers, &error);
       g_object_unref (result);
 
       g_assert_no_error (error);
-      g_assert (service != NULL);
-      g_object_unref (service);
+      g_assert (response != NULL);
+      json_object_unref (response);
 
       include_cookie_as_if_client (test->headers, test->headers);
     }
@@ -722,6 +746,8 @@ main (int argc,
               setup, test_login_bad, teardown);
   g_test_add ("/handlers/login/post-fail", Test, "/cockpit/login",
               setup, test_login_fail, teardown);
+  g_test_add ("/handlers/login/post-fail-with-data", Test, "/cockpit/login",
+              setup, test_login_fail_with_data, teardown);
   g_test_add ("/handlers/login/post-accept", Test, "/cockpit/login",
               setup, test_login_accept, teardown);
 

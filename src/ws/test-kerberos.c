@@ -302,6 +302,7 @@ test_authenticate (TestCase *test,
   OM_uint32 flags = 0;
   CockpitCreds *creds;
   CockpitWebService *service;
+  JsonObject *response;
   GError *error = NULL;
 
   if (!mock_kdc_available)
@@ -333,17 +334,11 @@ test_authenticate (TestCase *test,
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  service = cockpit_auth_login_finish (test->auth, result, TRUE, out_headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, TRUE, out_headers, &error);
   g_object_unref (result);
   g_assert_no_error (error);
-  g_assert (service != NULL);
-
-  creds = cockpit_web_service_get_creds (service);
-  g_assert_cmpstr (g_get_user_name (), ==, cockpit_creds_get_user (creds));
-  g_assert_cmpstr ("cockpit+test", ==, cockpit_creds_get_application (creds));
-  g_assert_cmpstr (NULL, ==, cockpit_creds_get_password (creds));
-
-  g_object_unref (service);
+  g_assert (response != NULL);
+  json_object_unref (response);
 
   parse_authenticate_header (out_headers, &input);
   memset (&output, 0, sizeof (output));
@@ -368,6 +363,7 @@ test_authenticate (TestCase *test,
 
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (g_get_user_name (), ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("cockpit+test", ==, cockpit_creds_get_application (creds));
   g_assert_cmpstr (NULL, ==, cockpit_creds_get_password (creds));
 
   g_hash_table_unref (out_headers);

@@ -8,6 +8,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpitauthpipe.h \
+	src/ws/cockpitauthpipe.c \
 	src/ws/cockpitchannelresponse.h \
 	src/ws/cockpitchannelresponse.c \
 	src/ws/cockpitchannelsocket.h \
@@ -58,7 +60,6 @@ EXTRA_DIST += \
 	src/ws/mock-kdc.conf.in \
 	src/ws/mock-static \
 	src/ws/mock-config.conf \
-	src/ws/mock-auth-command \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------
@@ -89,10 +90,6 @@ cockpit.service : src/ws/cockpit.service.in Makefile.am
 	$(AM_V_GEN) $(SED_SUBST) $< > $@
 nodist_systemdunit_DATA += cockpit.service
 
-mock-auth-command: src/ws/mock-auth-command
-	$(AM_V_GEN) $(SED_SUBST) $< > $@
-	chmod +x $@
-
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml
 
@@ -109,7 +106,6 @@ EXTRA_DIST += \
 
 CLEANFILES += \
 	cockpit.service \
-	mock-auth-command \
 	$(NULL)
 
 @INTLTOOL_XML_RULE@
@@ -267,16 +263,18 @@ mock_echo_SOURCES = src/ws/mock-echo.c
 mock_echo_CFLAGS = $(COCKPIT_WS_CFLAGS)
 mock_echo_LDADD = $(COCKPIT_WS_LIBS)
 
+mock_auth_command_SOURCES = src/ws/mock-auth-command.c
+
 noinst_PROGRAMS += \
 	$(WS_CHECKS) \
 	mock-sshd \
 	mock-echo \
 	mock-agent-bridge \
+	mock-auth-command \
 	$(NULL)
 
 noinst_SCRIPTS += \
 	src/ws/mock-pid-cat \
-	mock-auth-command \
 	$(NULL)
 
 TESTS += $(WS_CHECKS)

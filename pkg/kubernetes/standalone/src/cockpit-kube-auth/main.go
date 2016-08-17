@@ -23,13 +23,13 @@ import (
 	"cockpit-kube-auth/helpers"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"syscall"
 )
 
 const MAX_BUFFER = 64 * 1024
+const AUTH_FD = 3;
 
 func jsonError(err error) ([]byte, error) {
 	log.Println(err)
@@ -45,18 +45,23 @@ func jsonError(err error) ([]byte, error) {
 	return json.Marshal(data)
 }
 
-func readData(file *os.File) ([]byte, error) {
+func readData(fd int) ([]byte, error) {
+	/* No EOF is expected so read
+	 * from the fd upto the max size
+	 * only return what is actually
+	 * read.
+	 */
 	result := make([]byte, MAX_BUFFER)
-	n, err := file.Read(result)
-	if err != nil && err != io.EOF {
+	n, err := syscall.Read(fd, result)
+	if err != nil {
 		return nil, err
 	}
+
 	return result[:n], nil
 }
 
-func sendAuthResponse(authFd *os.File, response []byte) {
-	defer authFd.Close()
-	_, err := authFd.Write(response)
+func sendAuthResponse(fd int, response []byte) {
+	_, err := syscall.Write(fd, response)
 	if err != nil {
 		log.Fatalf("Could't write authentication reponse %s", err)
 	}
@@ -67,8 +72,7 @@ func main() {
 		log.Fatal("Missing required authentication type")
 	}
 
-	authFd := os.NewFile(3, "")
-	authData, err := readData(authFd)
+	authData, err := readData(AUTH_FD)
 	if err != nil {
 		log.Fatal("Error reading authentication data ", err)
 	}
@@ -83,7 +87,11 @@ func main() {
 		}
 	}
 
-	sendAuthResponse(authFd, response)
+	sendAuthResponse(AUTH_FD, response)
+	e := syscall.Close(AUTH_FD);
+	if (e != nil) {
+		log.Fatal("Error closing auth FD ", e)
+	}
 
 	if loginErr == nil {
 		if os.Getenv("XDG_RUNTIME_DIR") == "" {

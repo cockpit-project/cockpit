@@ -235,15 +235,52 @@
                 }
             }
 
-            function login_failure(msg) {
+            function login_failure(msg, in_conversation) {
                 var el = id("login-error-message");
                 if (msg) {
+                    show_form(in_conversation);
                     el.style.display = 'block';
                     el.innerHTML = msg;
                 } else {
                     el.style.display = 'none';
                     el.innerHTML = '';
                 }
+            }
+
+            function login_note(msg) {
+                var el = id("login-note");
+                if (msg) {
+                    el.style.display = 'block';
+                    el.innerHTML = msg;
+                } else {
+                    el.innerHTML = '&nbsp;';
+                }
+            }
+
+            function call_login() {
+                login_failure(null);
+                var user = trim(id("login-user-input").value);
+                if (user === "") {
+                    login_failure("User name cannot be empty");
+                } else {
+                    id("login-button").removeEventListener("click", call_login);
+                    login(user, id("login-password-input").value);
+                }
+            }
+
+            function show_form(in_conversation) {
+                id("login").style.visibility = 'visible';
+                id("user-group").style.display = in_conversation ? "none" : "block";
+                id("password-group").style.display = in_conversation ? "none" : "block";
+                id("conversation-group").style.display = in_conversation ? "block" : "none";
+                id("login-button").innerHTML = "Log In";
+                id("login-password-input").value = '';
+
+                id("login-button").removeAttribute('disabled');
+                id("login-spinner").style.display = 'none';
+
+                if (!in_conversation)
+                    id("login-button").addEventListener("click", call_login);
             }
 
             function show_login() {
@@ -256,7 +293,8 @@
                 var b = document.createElement("b");
                 b.appendChild(document.createTextNode(title));
                 id("server-name").appendChild(b);
-                id("login").style.visibility = 'visible';
+
+                login_note("Log in with your server user account.");
                 id("login-user-input").focus();
                 id("login-user-input").addEventListener("keydown", function(e) {
                     login_failure(null);
@@ -264,22 +302,42 @@
                         id("login-password-input").focus();
                 }, false);
 
-                function call_login() {
-                    var user = trim(id("login-user-input").value);
-                    if (user === "")
-                        login_failure("User name cannot be empty");
-                    else
-                        login(user, id("login-password-input").value);
-                }
                 id("login-password-input").addEventListener("keydown", function(e) {
                     login_failure(null);
                     if (e.which == 13)
                         call_login();
                 });
-                id("login-button").addEventListener("click", function(e) {
-                    login_failure(null);
-                    call_login();
-                });
+                show_form();
+                phantom_checkpoint();
+            }
+
+            function show_converse(prompt_data) {
+                var type = prompt_data.echo ? "text" : "password";
+                id("conversation-input").value = "";
+                id("conversation-input-label").innerHTML = prompt_data.prompt;
+                id("conversation-input").setAttribute('type', type);
+                id("conversation-input").focus();
+
+                login_failure(prompt_data.error);
+                login_note(prompt_data.message);
+
+                function call_converse() {
+                    id("login-button").removeEventListener("click", call_converse);
+                    login_failure(null, true);
+                    converse(prompt_data.id, id("conversation-input").value);
+                }
+
+                function key_down(e) {
+                    login_failure(null, true);
+                    if (e.which == 13) {
+                        id("conversation-input").removeEventListener("keydown", key_down);
+                        call_converse();
+                    }
+                }
+
+                id("conversation-input").addEventListener("keydown", key_down);
+                id("login-button").addEventListener("click", call_converse);
+                show_form(true);
                 phantom_checkpoint();
             }
 
@@ -287,27 +345,81 @@
                 return unescape(encodeURIComponent(str));
             }
 
-            function login(user, password) {
+            function get_prompt_from_challenge (header, body) {
+                var parts;
+                var prompt;
+                var resp;
+                var id;
+                var prompt;
+
+                if (!header)
+                    return;
+
+                parts = header.split(' ');
+                if (parts[0].toLowerCase() !== 'X-Login-Reply' && parts.length != 3)
+                    return;
+
+                id = parts[1];
+                try {
+                    prompt = atob (parts[2]);
+                } catch (err) {
+                    if (window.console)
+                        console.error("Invalid prompt data", err);
+                    return;
+                }
+
+                try {
+                    resp = JSON.parse(body);
+                } catch (err) {
+                    if (window.console)
+                        console.log("Got invalid JSON response for prompt data", err);
+                    resp = {};
+                }
+
+                resp.id = id;
+                resp.prompt = prompt;
+                return resp;
+            }
+
+            function send_login_request(method, headers, is_conversation) {
                 id("login-button").setAttribute('disabled', "true");
                 id("login-spinner").style.display = 'block';
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", login_path, true);
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(utf8(user + ":" + password)));
+                var prompt_data;
+                var challenge;
+
+                var k;
+                for (k in headers)
+                    xhr.setRequestHeader(k, headers[k]);
+
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState != 4) {
                         return;
                     } else if (xhr.status == 200) {
-                        run(JSON.parse(xhr.responseText));
+                        var resp = JSON.parse(xhr.responseText);
+                        run(resp);
                     } else if (xhr.status == 401) {
-                        if (window.console)
-                            console.log(xhr.statusText);
-                        if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
-                            var user = trim(id("login-user-input").value);
-                            fatal("The server refused to authenticate '" + user + "' using password authentication, and no other supported authentication methods are available.");
-                        } else if (xhr.statusText.indexOf("terminated") > -1) {
-                            login_failure("Authentication Failed: Server closed connection");
+                        challenge = xhr.getResponseHeader("WWW-Authenticate")
+                        if (challenge && challenge.substring(0, 14) === 'X-Login-Reply ') {
+                            prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
+                            if (prompt_data)
+                                show_converse(prompt_data);
+                            else
+                                fatal("Internal Error: Invalid challenge header");
                         } else {
-                            login_failure("Wrong user name or password");
+                            if (window.console)
+                                console.log(xhr.statusText);
+                            if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
+                                var user = trim(id("login-user-input").value);
+                                fatal("The server refused to authenticate '" + user + "' using password authentication, and no other supported authentication methods are available.");
+                            } else if (xhr.statusText.indexOf("terminated") > -1) {
+                                login_failure("Authentication Failed: Server closed connection");
+                            } else if (is_conversation) {
+                                login_failure("Authentication failed");
+                            } else {
+                                login_failure("Wrong user name or password");
+                            }
                         }
                     } else if (xhr.status == 403) {
                         if (window.console)
@@ -323,6 +435,20 @@
                     phantom_checkpoint();
                 };
                 xhr.send();
+            }
+
+            function login(user, password) {
+                var headers = {
+                    "Authorization": "Basic " + btoa(utf8(user + ":" + password))
+                };
+                send_login_request("GET", headers, false);
+            }
+
+            function converse(id, msg) {
+                var headers = {
+                    "Authorization": "X-Login-Reply " + id + " " + btoa(utf8(msg))
+                };
+                send_login_request("GET", headers, true);
             }
 
             function run(response) {
@@ -833,6 +959,11 @@ label {
         .login-fatal {
             font-size: 130%;
         }
+        .conversation-input-label {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
         .control-label {
             white-space: nowrap;
             font-size: 13px;
@@ -875,13 +1006,21 @@ label {
 
         <div id="login" class="col-sm-7 col-md-6 col-lg-5 login-area" style="visibility: hidden;">
           <div id="login-form" class="form-horizontal" role="form">
-            <div class="form-group login-form">
+            <div id="conversation-group" class="form-group login-form" hidden>
+              <div class="col-sm-12 col-md-12">
+                <label id="conversation-input-label" for="conversation-input"></label>
+              </div>
+              <div class="col-sm-12 col-md-12">
+                <input type="password" class="form-control" id="conversation-input" tabindex="1">
+              </div>
+            </div>
+            <div id="user-group" class="form-group login-form">
               <label for="login-user-input" class="col-sm-2 col-md-2 control-label">User name</label>
               <div class="col-sm-10 col-md-10">
                 <input type="text" class="form-control" id="login-user-input" tabindex="1">
               </div>
             </div>
-            <div class="form-group login-form">
+            <div id="password-group" class="form-group login-form">
               <label for="login-password-input" class="col-sm-2 col-md-2 control-label">Password</label>
               <div class="col-sm-10 col-md-10">
                 <input type="password" class="form-control" id="login-password-input" tabindex="2">
@@ -908,7 +1047,7 @@ label {
           <p>
             <label id="server-name" class="control-label">Server: </label>
           </p>
-          <p class="login-note">Log in with your server user account.</p>
+          <p id="login-note" class="login-note"></p>
         </div><!--/.col-*-->
 
         <div style="display: none;" class="col-sm-7 col-md-6 col-lg-5" id="login-wait-validating">

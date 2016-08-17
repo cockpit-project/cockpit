@@ -464,5 +464,7 @@ WantedBy=default.target
         self.assertIn("hello", m.execute("cat /tmp/hello"))
         m.execute("timedatectl set-ntp on")
 
+        self.allow_restart_journal_messages()
+
 if __name__ == '__main__':
     test_main()

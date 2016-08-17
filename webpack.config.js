@@ -81,6 +81,7 @@ if (typeof(global.Promise) == "undefined")
 var srcdir = process.env.SRCDIR || __dirname;
 var pkgdir = srcdir + path.sep + "pkg";
 var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
+var libdir = path.resolve(srcdir, "lib");
 
 /* A standard nodejs and webpack pattern */
 var production = process.env.NODE_ENV === 'production';
@@ -130,7 +131,7 @@ module.exports = {
             "react": "react-lite-cockpit/dist/react-lite.js",
             "term": "term.js-cockpit/src/term.js",
         },
-        modulesDirectories: [ path.resolve(srcdir, "lib") ]
+        modulesDirectories: [ libdir ]
     },
     resolveLoader: {
         root: path.resolve(srcdir, 'node_modules')
@@ -165,7 +166,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: extract.extract("style-loader", "css-loader")
+                loader: extract.extract("style-loader", "css-loader?root=" + libdir)
             },
             {
                 test: /\.jsx$/,

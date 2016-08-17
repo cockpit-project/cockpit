@@ -1,4 +1,4 @@
-storageddir = $(pkgdatadir)/storage
+storageddir = $(pkgdatadir)/storaged
 nodist_storaged_DATA = \
 	pkg/storaged/override.json \
 	$(NULL)

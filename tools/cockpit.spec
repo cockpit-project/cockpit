@@ -210,8 +210,8 @@ find %{buildroot}%{_datadir}/%{name}/sosreport -type f >> sosreport.list
 echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
 find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
 
-echo '%dir %{_datadir}/%{name}/storage' > storaged.list
-find %{buildroot}%{_datadir}/%{name}/storage -type f >> storaged.list
+echo '%dir %{_datadir}/%{name}/storaged' > storaged.list
+find %{buildroot}%{_datadir}/%{name}/storaged -type f >> storaged.list
 
 echo '%dir %{_datadir}/%{name}/networkmanager' > networkmanager.list
 find %{buildroot}%{_datadir}/%{name}/networkmanager -type f >> networkmanager.list

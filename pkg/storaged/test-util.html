@@ -24,8 +24,25 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
     <script type="text/javascript" src="../../tools/qunit.js"></script>
-
-    <script type="text/javascript" src="../base1/require.js"></script>
+    <script>
+        function require(name) {
+            switch (name) {
+            case "jquery":
+                return jQuery;
+            case "cockpit":
+                return cockpit;
+            case "mustache":
+            case "service":
+                return null;
+            default:
+                throw new Error("module shim module: " + name);
+            }
+        }
+        module = { };
+    </script>
+    <script type="text/javascript" src="../base1/jquery.js"></script>
+    <script type="text/javascript" src="../base1/cockpit.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
   </head>
   <body>
     <h1 id="qunit-header">Util Tests</h1>
@@ -36,10 +53,7 @@
     <div id="testing"></div>
   </body>
 <script type="text/javascript">
-
-require([
-    "storaged/utils"
-], function(utils) {
+var utils = module.exports;
 
 test("format_delay", function() {
     var checks = [
@@ -54,8 +68,5 @@ test("format_delay", function() {
 });
 
 QUnit.start();
-
-});
-
 </script>
 </html>

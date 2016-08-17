@@ -17,11 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "docker/util",
-], function($, cockpit, util) {
+(function() {
+    "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+    var util = require("./util");
 
     /* DOCKER CLIENT
      */
@@ -671,7 +672,7 @@ define([
 
     var client;
 
-    return {
+    module.exports = {
         instance: function() {
             if (!client)
                 client = new DockerClient();
@@ -679,4 +680,4 @@ define([
         }
     };
 
-});
+}());

@@ -4,6 +4,13 @@
 
 var info = {
     entries: {
+        "docker/docker": [
+            "docker/containers.js",
+            "docker/docker.css",
+        ],
+        "docker/console.js": [
+            "docker/console.js",
+        ],
         "kubernetes/kubernetes": [
             "kubernetes/styles/main.less",
             "kubernetes/scripts/main.js",
@@ -42,6 +49,11 @@ var info = {
     },
 
     files: [
+        "docker/console.html",
+        "docker/manifest.json",
+        "docker/index.html",
+        "docker/images/drive-harddisk-symbolic.svg",
+
         "kubernetes/manifest.json",
         "kubernetes/override.json",
         "kubernetes/index.html",

@@ -17,12 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "docker/util",
-    "docker/docker",
-], function($, cockpit, util, docker) {
+(function() {
+    "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var util = require("./util");
+    var docker = require("./docker");
+
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -221,17 +224,19 @@ define([
     }
 
     var dialog = new PageSearchImage();
-    dialog.setup();
 
-    $("#containers-search-image-dialog").
-        on('show.bs.modal', function () { dialog.enter(); }).
-        on('shown.bs.modal', function () { dialog.show(); }).
-        on('hidden.bs.modal', function () { dialog.leave(); });
+    $(function() {
+        dialog.setup();
+        $("#containers-search-image-dialog").
+            on('show.bs.modal', function () { dialog.enter(); }).
+            on('shown.bs.modal', function () { dialog.show(); }).
+            on('hidden.bs.modal', function () { dialog.leave(); });
+    });
 
     function search(client) {
         PageSearchImage.client = client;
         $("#containers-search-image-dialog").modal('show');
     }
 
-    return search;
-});
+    module.exports = search;
+}());

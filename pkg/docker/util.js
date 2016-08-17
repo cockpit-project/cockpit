@@ -17,14 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "./mustache",
-    "./docker",
-    "./bar",
-    "./patterns",
-], function($, cockpit, Mustache, docker, bar) {
+(function() {
+    "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var Mustache = require("mustache");
+    require("patterns");
+
+    var docker = require("./docker");
+    var bar = require("./bar");
+
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
@@ -562,6 +566,5 @@ define([
         return deferred.promise();
     };
 
-    return util;
-
-});
+    module.exports = util;
+}());

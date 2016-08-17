@@ -38,8 +38,7 @@
 
 #define BUFSIZE          (8 * 1024)
 
-static gint auth_methods = SSH_AUTH_METHOD_PASSWORD | SSH_AUTH_METHOD_PUBLICKEY;
-
+static gint auth_methods = SSH_AUTH_METHOD_PASSWORD | SSH_AUTH_METHOD_PUBLICKEY | SSH_AUTH_METHOD_INTERACTIVE;
 struct {
   int bind_fd;
   int session_fd;
@@ -52,7 +51,85 @@ struct {
   ssh_key pkey;
   GByteArray *buffer;
   gboolean buffer_eof;
+  gboolean multi_step;
 } state;
+
+enum
+{
+  SUCCESS,
+  MORE,
+  FAILED,
+};
+
+static int
+auth_interactive (ssh_session session,
+                  ssh_message message,
+                  gint *round)
+{
+  static const char *prompts[2] = { "Password", "Token" };
+  static char echo[] = { 0, 1 };
+  static const char *again[1] = { "So Close" };
+  static char again_echo[] = { 0 };
+  const char *token;
+  int ret = FAILED;
+  gint count = 0;
+  gint spot = *round;
+
+  /* wait for a shell */
+  switch (spot)
+    {
+    case 0:
+      if (g_str_equal (ssh_message_auth_user (message), state.user))
+        {
+          ssh_message_auth_interactive_request (message, "Test Interactive",
+                                                state.multi_step ? "Password and Token" : "Password",
+                                                state.multi_step ? 2 : 1,
+                                                prompts, echo);
+          ret = MORE;
+        }
+      break;
+    case 1:
+      count = ssh_userauth_kbdint_getnanswers(session);
+      if (state.multi_step && count != 2)
+        goto out;
+      else if (!state.multi_step && count != 1)
+        goto out;
+
+      if (!g_str_equal (ssh_userauth_kbdint_getanswer(session, 0), state.password))
+        goto out;
+
+      if (state.multi_step)
+        {
+          token = ssh_userauth_kbdint_getanswer(session, 1);
+          if (g_str_equal (token,  "5"))
+            {
+              ret = SUCCESS;
+            }
+          else if (g_str_equal (token,  "6"))
+            {
+              ssh_message_auth_interactive_request (message, "Test Interactive",
+                                                    "Again", 1, again, again_echo);
+              ret = MORE;
+            }
+        }
+      else
+        {
+          ret = SUCCESS;
+        }
+      break;
+    case 2:
+      count = ssh_userauth_kbdint_getnanswers(session);
+      if (count != 1)
+        goto out;
+
+      if (g_str_equal (ssh_userauth_kbdint_getanswer(session, 0), "5"))
+        ret = SUCCESS;
+    }
+out:
+  if (ret == MORE)
+    *round = spot + 1;
+  return ret;
+}
 
 static gboolean
 auth_password (const gchar *user,
@@ -403,11 +480,24 @@ authenticate_callback (ssh_session session,
                        ssh_message message,
                        gpointer user_data)
 {
+  int rc;
+  int *round = user_data;
   switch (ssh_message_type (message))
     {
     case SSH_REQUEST_AUTH:
       switch (ssh_message_subtype (message))
         {
+        case SSH_AUTH_METHOD_INTERACTIVE:
+          if (auth_methods & SSH_AUTH_METHOD_INTERACTIVE)
+            {
+              rc = auth_interactive (session, message, round);
+              if (rc == SUCCESS)
+                goto accept;
+              else if (rc == MORE)
+                goto more;
+            }
+            ssh_message_auth_set_methods (message, auth_methods);
+            goto deny;
         case SSH_AUTH_METHOD_PASSWORD:
           if ((auth_methods & SSH_AUTH_METHOD_PASSWORD) &&
               auth_password (ssh_message_auth_user (message),
@@ -446,6 +536,8 @@ authenticate_callback (ssh_session session,
 
 deny:
   return 1;
+more:
+  return 0;
 accept:
   ssh_set_message_callback (state.session, channel_open_callback, &state.channel);
   ssh_message_auth_reply_success (message, 0);
@@ -456,7 +548,8 @@ static gint
 mock_ssh_server (const gchar *server_addr,
                  gint server_port,
                  const gchar *user,
-                 const gchar *password)
+                 const gchar *password,
+                 gboolean multi_step)
 {
   char portname[16];
   char addrname[16];
@@ -465,6 +558,7 @@ mock_ssh_server (const gchar *server_addr,
   ssh_bind sshbind;
   const char *msg;
   int r;
+  gint rounds = 0;
 
   state.event = ssh_event_new ();
   if (state.event == NULL)
@@ -490,6 +584,7 @@ mock_ssh_server (const gchar *server_addr,
   state.bind_fd = ssh_bind_get_fd (sshbind);
   state.user = user;
   state.password = password;
+  state.multi_step = multi_step;
   ssh_pki_import_pubkey_file (SRCDIR "/src/ws/test_rsa.pub",
                               &state.pkey);
   state.buffer = g_byte_array_new ();
@@ -518,7 +613,7 @@ mock_ssh_server (const gchar *server_addr,
   /* Close stdout (once above info is printed) */
   close (1);
 
-  ssh_set_message_callback (state.session, authenticate_callback, NULL);
+  ssh_set_message_callback (state.session, authenticate_callback, &rounds);
 
   r = ssh_bind_accept (sshbind, state.session);
   if (r == SSH_ERROR)
@@ -567,6 +662,7 @@ main (int argc,
   GError *error = NULL;
   gboolean verbose = FALSE;
   gboolean broken_auth = FALSE;
+  gboolean multi_step = FALSE;
   gint port = 0;
   int ret;
 
@@ -576,6 +672,7 @@ main (int argc,
     { "bind", 0, 0, G_OPTION_ARG_STRING, &bind, "Address to bind to", "addr" },
     { "port", 'p', 0, G_OPTION_ARG_INT, &port, "Port to bind to", "NN" },
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose info", NULL },
+    { "multi-step", 'm', 0, G_OPTION_ARG_NONE, &multi_step, "Multi Step Auth", NULL },
     { "broken-auth", 0, 0, G_OPTION_ARG_NONE, &broken_auth, "Break authentication", NULL },
     { NULL }
   };
@@ -609,7 +706,7 @@ main (int argc,
         auth_methods = SSH_AUTH_METHOD_HOSTBASED;
       if (verbose)
         ssh_set_log_level (SSH_LOG_PROTOCOL);
-      ret = mock_ssh_server (bind, port, user, password);
+      ret = mock_ssh_server (bind, port, user, password, multi_step);
     }
 
   g_option_context_free (context);

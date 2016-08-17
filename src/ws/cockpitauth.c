@@ -971,6 +971,7 @@ cockpit_auth_spawn_login_finish (CockpitAuth *self,
 typedef struct {
   CockpitCreds *creds;
   CockpitTransport *transport;
+  gboolean has_transport_result;
 } RemoteLoginData;
 
 static void
@@ -989,10 +990,11 @@ on_remote_login_done (CockpitSshTransport *transport,
                       const gchar *problem,
                       gpointer user_data)
 {
-  CockpitAuth *self = COCKPIT_AUTH (g_async_result_get_source_object (user_data));
-  GSimpleAsyncResult *task = user_data;
+  AuthData *ad = user_data;
   GHashTable *results = NULL;
   const gchar *pw_result;
+  GError *error = NULL;
+  RemoteLoginData *rl = ad->user_data;
 
   if (problem)
     {
@@ -1002,33 +1004,92 @@ on_remote_login_done (CockpitSshTransport *transport,
           pw_result = g_hash_table_lookup (results, "password");
           if (!pw_result || g_strcmp0 (pw_result, "no-server-support") == 0)
             {
-              g_simple_async_result_set_error (task, COCKPIT_ERROR,
-                                               COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                               "Authentication failed: authentication-not-supported");
+              g_set_error (&error, COCKPIT_ERROR,
+                           COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                           "Authentication failed: authentication-not-supported");
             }
           else
             {
-              g_simple_async_result_set_error (task, COCKPIT_ERROR,
-                                               COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                               "Authentication failed");
+              g_set_error (&error, COCKPIT_ERROR,
+                           COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                           "Authentication failed");
             }
         }
       else if (g_str_equal (problem, "terminated"))
         {
-              g_simple_async_result_set_error (task, COCKPIT_ERROR,
+              g_set_error (&error, COCKPIT_ERROR,
                                                COCKPIT_ERROR_AUTHENTICATION_FAILED,
                                                "Authentication failed: terminated");
         }
       else
         {
-          g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                           "Couldn't connect or authenticate: %s", problem);
+          g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                       "Couldn't connect or authenticate: %s", problem);
         }
     }
 
-  g_simple_async_result_complete (task);
-  g_object_unref (self);
-  g_object_unref (task);
+  rl->has_transport_result = TRUE;
+  auth_data_complete_result (ad, error);
+  if (error)
+    g_error_free (error);
+}
+
+
+static JsonObject *
+parse_ssh_prompt_results (CockpitAuth *self,
+                          gchar *response_data,
+                          GError **error)
+{
+  GError *json_error = NULL;
+  JsonObject *results = NULL;
+  const gchar *prompt;
+  gboolean success = FALSE;
+
+  g_debug ("ssh auth says: %s", response_data);
+
+  results = cockpit_json_parse_object (response_data,
+                                       strlen (response_data),
+                                       &json_error);
+
+  if (g_error_matches (json_error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_DATA))
+    {
+      g_message ("got non-utf8 data from ssh connection");
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Data is not UTF8 encoded");
+      g_error_free (json_error);
+    }
+  else if (!results)
+    {
+      g_warning ("couldn't parse ssh auth output: %s",
+                 json_error ? json_error->message : NULL);
+      g_error_free (json_error);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Authentication failed: no results");
+    }
+  else if (!cockpit_json_get_string (results, "prompt", NULL, &prompt))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Authentication failed: invalid results");
+    }
+  else if (!prompt)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Authentication failed: missing prompt");
+    }
+  else
+    {
+      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                   "X-Login-Reply needed");
+      success = TRUE;
+    }
+
+  if (!success && results)
+    {
+      json_object_unref (results);
+      results = NULL;
+    }
+
+  return results;
 }
 
 static void
@@ -1042,6 +1103,7 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
 {
   GSimpleAsyncResult *task;
   CockpitCreds *creds = NULL;
+  AuthData *ad = NULL;
   RemoteLoginData *rl;
   const gchar *password;
   gchar *csrf_token;
@@ -1074,18 +1136,38 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
 
   if (creds)
     {
+      ad = g_new0 (AuthData, 1);
+      ad->refs = 1;
+      ad->id = cockpit_auth_nonce (self);
+      ad->pending_result = NULL;
+      ad->response_data = NULL;
+      ad->tag = cockpit_auth_remote_login_async;
+      ad->destroy_func = remote_login_data_free;
+      ad->user_data = NULL;
+      ad->auth_pipe = g_object_new (COCKPIT_TYPE_AUTH_PIPE,
+                                    "pipe-timeout", timeout_option ("timeout", type),
+                                    "idle-timeout", timeout_option ("response-timeout", type),
+                                    "id", ad->id,
+                                    "logname", "ssh (localhost)",
+                                    NULL);
+
       rl = g_new0 (RemoteLoginData, 1);
       rl->creds = creds;
+      rl->has_transport_result = FALSE;
       rl->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                     "host", type_option (ACTION_SSH, "host", "127.0.0.1"),
                                     "port", cockpit_ws_specific_ssh_port,
                                     "command", cockpit_ws_bridge_program,
                                     "creds", creds,
                                     "ignore-key", TRUE,
+                                    "auth-pipe", ad->auth_pipe,
                                     NULL);
+      ad->user_data = rl;
 
-      g_simple_async_result_set_op_res_gpointer (task, rl, remote_login_data_free);
-      g_signal_connect (rl->transport, "result", G_CALLBACK (on_remote_login_done), g_object_ref (task));
+      g_simple_async_result_set_op_res_gpointer (task, auth_data_ref (ad), auth_data_unref);
+      auth_data_add_pending_result (ad, task);
+      g_signal_connect (rl->transport, "result", G_CALLBACK (on_remote_login_done), ad);
+      g_signal_connect (ad->auth_pipe, "message", G_CALLBACK (on_auth_pipe_result), ad);
     }
   else
     {
@@ -1093,6 +1175,9 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
                                        "Basic authentication required");
       g_simple_async_result_complete_in_idle (task);
     }
+
+  if (ad)
+    auth_data_unref (ad);
 
   g_object_unref (task);
 }
@@ -1105,7 +1190,10 @@ cockpit_auth_remote_login_finish (CockpitAuth *self,
                                   CockpitTransport **transport,
                                   GError **error)
 {
+  AuthData *ad;
   RemoteLoginData *rl;
+  CockpitCreds *creds = NULL;
+  JsonObject *results = NULL;
 
   g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
                         cockpit_auth_remote_login_async), NULL);
@@ -1113,12 +1201,36 @@ cockpit_auth_remote_login_finish (CockpitAuth *self,
   if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
     return NULL;
 
-  rl = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+  ad = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+  rl = ad->user_data;
 
-  if (transport)
-    *transport = g_object_ref (rl->transport);
+  if (rl->has_transport_result)
+    {
+      creds = cockpit_creds_ref (rl->creds);
+      if (transport)
+          *transport = g_object_ref (rl->transport);
+    }
+  else
+    {
+      results = parse_ssh_prompt_results (self, ad->response_data, error);
+      if (!results)
+        cockpit_transport_close (COCKPIT_TRANSPORT (rl->transport), "internal-error");
+    }
 
-  return cockpit_creds_ref (rl->creds);
+  if (results)
+    {
+      if (prompt_data)
+        {
+          cockpit_auth_prepare_login_reply (self, results, headers, ad);
+          *prompt_data = json_object_ref (results);
+        }
+      json_object_unref (results);
+    }
+
+  g_free (ad->response_data);
+  ad->response_data = NULL;
+
+  return creds;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1136,7 +1248,6 @@ cockpit_auth_none_login_async (CockpitAuth *self,
   g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                                    "Authentication disabled");
   g_simple_async_result_complete_in_idle (task);
-
   g_object_unref (task);
 }
 

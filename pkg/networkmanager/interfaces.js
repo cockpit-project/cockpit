@@ -1612,7 +1612,7 @@ PageNetworking.prototype = {
         PageNetworkBondSettings.settings =
             {
                 connection: {
-                    id: uuid,
+                    id: iface,
                     autoconnect: false,
                     type: "bond",
                     uuid: uuid,
@@ -1645,7 +1645,7 @@ PageNetworking.prototype = {
         PageNetworkTeamSettings.settings =
             {
                 connection: {
-                    id: uuid,
+                    id: iface,
                     autoconnect: false,
                     type: "team",
                     uuid: uuid,
@@ -1676,7 +1676,7 @@ PageNetworking.prototype = {
         PageNetworkBridgeSettings.settings =
             {
                 connection: {
-                    id: uuid,
+                    id: iface,
                     autoconnect: false,
                     type: "bridge",
                     uuid: uuid,
@@ -1697,7 +1697,7 @@ PageNetworking.prototype = {
     },
 
     add_vlan: function () {
-        var iface, i, uuid;
+        var uuid;
 
         uuid = generate_uuid();
 
@@ -1707,7 +1707,7 @@ PageNetworking.prototype = {
         PageNetworkVlanSettings.settings =
             {
                 connection: {
-                    id: uuid,
+                    id: "",
                     autoconnect: false,
                     type: "vlan",
                     uuid: uuid,
@@ -3105,6 +3105,7 @@ PageNetworkBondSettings.prototype = {
                     change(function (event) {
                         var val = $(event.target).val();
                         settings.bond.interface_name = val;
+                        settings.connection.id = val;
                         settings.connection.interface_name = val;
                     });
         body.find('#network-bond-settings-members').
@@ -3270,6 +3271,7 @@ PageNetworkTeamSettings.prototype = {
                     change(function (event) {
                         var val = $(event.target).val();
                         settings.team.interface_name = val;
+                        settings.connection.id = val;
                         settings.connection.interface_name = val;
                     });
         body.find('#network-team-settings-members').
@@ -3498,6 +3500,7 @@ PageNetworkBridgeSettings.prototype = {
                       change(function (event) {
                                 var val = $(event.target).val();
                                 options.interface_name = val;
+                                settings.connection.id = val;
                                 settings.connection.interface_name = val;
                             });
         body.find('#network-bridge-settings-slave-interfaces').
@@ -3684,6 +3687,7 @@ PageNetworkVlanSettings.prototype = {
                 name_input.val(options.parent + "." + options.id);
 
             options.interface_name = name_input.val();
+            settings.connection.id = options.interface_name;
             settings.connection.interface_name = options.interface_name;
         }
 

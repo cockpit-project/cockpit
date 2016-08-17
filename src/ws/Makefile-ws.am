@@ -279,6 +279,23 @@ noinst_SCRIPTS += \
 
 TESTS += $(WS_CHECKS)
 
+mock_pam_conv_mod_SOURCES = src/ws/mock-pam-conv-mod.c
+mock-pam-conv-mod: $(mock_pam_conv_mod_SOURCES)
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) \
+		-o $@ $^ $(PAM_LIBS) $(LDFLAGS)
+
+noinst_PROGRAMS += \
+	mock-pam-conv-mod \
+	$(NULL)
+
+testassets_data += \
+	mock-pam-conv-mod \
+	$(NULL)
+
+CLEANFILES += \
+	mock-pam-conv-mod \
+	$(NULL)
+
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d

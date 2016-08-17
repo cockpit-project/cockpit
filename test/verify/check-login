@@ -93,6 +93,56 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
+    def testConversation(self):
+        m = self.machine
+        b = self.browser
+        path = "/usr/share/cockpit-test-assets/mock-pam-conv-mod"
+        conf = "/etc/pam.d/cockpit"
+        if ('atomic' in m.image):
+            conf = "/etc/pam.d/sshd"
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+
+        m.execute("sed -i '5 a auth       required    {0}' {1}".format(path, conf))
+
+        m.start_cockpit()
+        b.open("/system")
+
+        def login(user, password):
+            b.wait_visible("#login")
+            b.wait_not_visible("#conversation-group")
+            b.wait_visible("#password-group")
+            b.wait_visible("#user-group")
+            b.set_val('#login-user-input', user)
+            b.set_val('#login-password-input', password)
+            b.click('#login-button')
+
+        # Try to login as a non-existing user
+        login("nonexisting", "blahblah")
+
+        b.wait_visible("#conversation-group")
+        b.wait_not_visible("#password-group")
+        b.wait_not_visible("#user-group")
+        b.wait_in_text("#conversation-input-label", "life the universe")
+        b.set_val('#conversation-input', '43')
+        b.click('#login-button')
+
+        b.wait_text_not("#login-error-message", "")
+        login("admin", "foobar")
+        b.wait_visible("#conversation-group")
+        b.wait_not_visible("#password-group")
+        b.wait_not_visible("#user-group")
+        b.wait_in_text("#conversation-input-label", "life the universe")
+        b.set_val('#conversation-input', '42')
+        b.click('#login-button')
+
+        with b.wait_timeout(10) as r:
+            b.expect_load()
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'Administrator')
+
+        self.allow_restart_journal_messages()
+
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass)
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',

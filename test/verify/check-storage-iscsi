@@ -27,6 +27,7 @@ from storagelib import *
 
 @unittest.skipIf("centos" in os.environ.get("TEST_OS", ""), "No storaged-iscsi on CentOS.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No storaged-iscsi on Debian.")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "Udisks doesn't have support for iSCSI")
 class TestStorage(StorageCase):
     def testISCSI(self):
         m = self.machine

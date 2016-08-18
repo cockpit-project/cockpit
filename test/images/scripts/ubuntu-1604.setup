@@ -20,6 +20,7 @@ libpolkit-agent-1-0 \
 libpolkit-gobject-1-0 \
 libpwquality-tools \
 libssh-4 \
+libvirt-daemon-system \
 network-manager \
 pcp \
 policykit-1 \
@@ -81,6 +82,8 @@ TEST_PACKAGES="\
 curl \
 gdb \
 iproute \
+mdadm \
+virtinst \
 "
 
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin
@@ -118,6 +121,9 @@ systemctl start docker || journalctl -u docker
 
 # in case there are unnecessary packages
 apt-get -y autoremove || true
+
+# Enalbe coredumping via systemd
+echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %e" > /etc/sysctl.d/50-coredump.conf
 
 # reduce image size
 apt-get clean

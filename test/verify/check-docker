@@ -370,6 +370,7 @@ CMD ["/bin/sh"]
 
         self.allow_authorize_journal_messages()
         self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:root.*")
+        self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:builder.*")
 
     def testRestart(self):
         b = self.browser

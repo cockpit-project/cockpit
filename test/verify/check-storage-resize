@@ -19,9 +19,12 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import unittest
+
 from testlib import *
 from storagelib import *
 
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "Udisks doesn't have support for LVM")
 class TestStorage(StorageCase):
     def testResize(self):
         m = self.machine

@@ -332,6 +332,13 @@ upload-pot:
 download-po:
 	zanata-cli -B pull --min-doc-percent 30 --project-config "$(srcdir)/tools/zanata.xml" -s "$(builddir)/po" -t "$(srcdir)/po"
 
+# Build and install po.xx.js files
+podir = $(pkgdatadir)/shell
+po_FILES = $(addprefix po/po.,$(addsuffix .js,$(shell cat $(srcdir)/po/LINGUAS)))
+nodist_po_DATA = $(po_FILES:.js=.js.gz) po/po.js.gz
+EXTRA_DIST += po/po.js $(po_FILES)
+CLEANFILES += $(nodist_po_DATA) po/po.js.gz $(po_FILES)
+
 BOWER = $(srcdir)/lib
 
 BOWER_CLEAN = \

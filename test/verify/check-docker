@@ -312,7 +312,7 @@ CMD ["/bin/sh"]
         b.wait_present("#select-mounted-volumes form:eq(0)")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
-        if m.image not in [ "debian-unstable" ]:
+        if m.image not in [ "debian-unstable", "ubuntu-1604" ]:
             m.execute("chcon -Rt svirt_sandbox_file_t /mnt")
         m.execute("touch /mnt/dripping.txt")
 

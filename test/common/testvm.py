@@ -562,7 +562,7 @@ class Machine:
         return messages
 
     def get_admin_group(self):
-        if "debian" in self.image:
+        if "debian" in self.image or "ubuntu" in self.image:
             return "sudo"
         else:
             return "wheel"

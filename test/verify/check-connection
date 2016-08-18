@@ -90,7 +90,7 @@ class TestConnection(MachineCase):
 
         # Lets crash a process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
-        if m.image in ["debian-unstable"]:
+        if m.image in ["debian-unstable", "ubuntu-1604"]:
             cron = "cron"
         else:
             cron = "crond"
@@ -125,7 +125,7 @@ class TestConnection(MachineCase):
         except subprocess.CalledProcessError, ex:
             m.message(ex.output)
             # Some operating systems fail SSL3 on the server side
-            if m.image in [ "debian-unstable", "fedora-25" ]:
+            if m.image in [ "debian-unstable", "ubuntu-1604", "fedora-25" ]:
                 self.assertIn("ssl handshake failure", ex.output)
             else:
                 self.assertIn("wrong version number", ex.output)
@@ -205,7 +205,7 @@ class TestConnection(MachineCase):
         self.assertFalse(m.execute("ls /etc/cockpit/ws-certs.d/* || true"))
 
         executable = "/usr/libexec/cockpit-ws"
-        if "debian" in m.image:
+        if "debian" in m.image or "ubuntu" in m.image:
             executable = "/usr/lib/cockpit/cockpit-ws"
 
         m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(executable))

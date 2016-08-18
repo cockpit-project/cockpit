@@ -65,6 +65,7 @@ guint cockpit_ws_process_idle = 90;
 
 /* The amount of time a spawned process has to complete authentication */
 guint cockpit_ws_auth_process_timeout = 30;
+guint cockpit_ws_auth_response_timeout = 60;
 
 /* Maximum number of pending authentication requests */
 const gchar *cockpit_ws_max_startups = NULL;
@@ -444,9 +445,10 @@ type_option (const gchar *type,
 
 static guint
 timeout_option (const gchar *name,
-                const gchar *type)
+                const gchar *type,
+                guint default_value)
 {
-  guint timeout = cockpit_ws_auth_process_timeout;
+  guint timeout = default_value;
   guint64 conf_timeout;
   const gchar* conf = type_option (type, name, NULL);
 
@@ -454,7 +456,7 @@ timeout_option (const gchar *name,
     {
       conf_timeout = g_ascii_strtoull (conf, NULL, 10);
       if (errno == ERANGE || errno == EINVAL)
-        timeout = cockpit_ws_auth_process_timeout;
+        timeout = default_value;
       else if (conf_timeout > MAX_AUTH_TIMEOUT || conf_timeout > UINT_MAX)
         timeout = (MAX_AUTH_TIMEOUT > UINT_MAX) ? UINT_MAX : MAX_AUTH_TIMEOUT;
       else if (conf_timeout < MIN_AUTH_TIMEOUT)
@@ -834,8 +836,10 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       ad->destroy_func = spawn_login_data_free;
       ad->user_data = NULL;
       ad->auth_pipe = g_object_new (COCKPIT_TYPE_AUTH_PIPE,
-                                    "pipe-timeout", timeout_option ("timeout", type),
-                                    "idle-timeout", timeout_option ("response-timeout", type),
+                                    "pipe-timeout", timeout_option ("timeout", type,
+                                                                    cockpit_ws_auth_process_timeout),
+                                    "idle-timeout", timeout_option ("response-timeout", type,
+                                                                    cockpit_ws_auth_response_timeout),
                                     "id", ad->id,
                                     "logname", command,
                                     NULL);
@@ -1145,8 +1149,10 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
       ad->destroy_func = remote_login_data_free;
       ad->user_data = NULL;
       ad->auth_pipe = g_object_new (COCKPIT_TYPE_AUTH_PIPE,
-                                    "pipe-timeout", timeout_option ("timeout", type),
-                                    "idle-timeout", timeout_option ("response-timeout", type),
+                                    "pipe-timeout", timeout_option ("timeout", type,
+                                                                    cockpit_ws_auth_process_timeout),
+                                    "idle-timeout", timeout_option ("response-timeout", type,
+                                                                    cockpit_ws_auth_response_timeout),
                                     "id", ad->id,
                                     "logname", "ssh (localhost)",
                                     NULL);

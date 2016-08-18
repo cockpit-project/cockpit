@@ -70,7 +70,7 @@ a number between 1 and 900.
 
 If more information is needed the command should response with a json object containing
 a ```prompt``` string. These message will be displayed to the user and the user will be
-prompted for a response. If the user does not respond within 30 seconds the command will be
+prompted for a response. If the user does not respond within 60 seconds the command will be
 closed and the login aborted. The number of seconds to wait can be adjusted by adding a
 response-timeout parameter along side the auth schema configuration in your config file.
 The given value should be a number between 1 and 900.

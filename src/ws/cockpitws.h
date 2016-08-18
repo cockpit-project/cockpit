@@ -35,6 +35,7 @@ extern gint cockpit_ws_specific_ssh_port;
 extern guint cockpit_ws_ping_interval;
 extern gint cockpit_ws_session_timeout;
 extern guint cockpit_ws_auth_process_timeout;
+extern guint cockpit_ws_auth_response_timeout;
 
 /* From cockpitauth.c */
 extern guint cockpit_ws_service_idle;

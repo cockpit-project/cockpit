@@ -30,7 +30,7 @@ class TestLoopback(MachineCase):
         b = self.browser
         m = self.machine
 
-        if "debian" in m.image:
+        if "debian" in m.image or "ubuntu" in m.image:
             cockpit_ws = "/usr/lib/cockpit/cockpit-ws"
         else:
             cockpit_ws = "/usr/libexec/cockpit-ws"

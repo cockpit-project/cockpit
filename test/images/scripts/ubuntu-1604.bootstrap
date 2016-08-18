@@ -1,0 +1,25 @@
+#! /bin/bash
+
+set -ex
+
+BASE=$(dirname $0)
+
+out=$1
+arch=$2
+
+if [ "$VIRT_BUILDER_NO_CACHE" == "yes" ]; then
+    virt_builder_caching="--no-cache"
+fi
+
+virt-builder ubuntu-16.04 \
+             $virt_builder_caching \
+             --output "$out" \
+             --size 8G \
+             --format qcow2 \
+             --arch "$arch" \
+             --root-password password:foobar \
+             --ssh-inject root:file:$BASE/../../common/identity.pub \
+             --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
+             --chmod 0600:/etc/ssh/ssh_host_rsa_key \
+             --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --run-command "export DEBIAN_FRONTEND=noninteractive; apt-get -y update; apt-get -y dist-upgrade"

@@ -26,6 +26,7 @@ import subprocess
 import unittest
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No sosreport on Debian.")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No sosreport on Ubuntu.")
 @unittest.skipIf("continuous-atomic" in os.environ.get("TEST_OS", ""), "No sosreport on Centos Atomic.")
 class TestSOS(MachineCase):
     def testBasic(self):

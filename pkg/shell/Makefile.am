@@ -1,13 +1,8 @@
 shelldir = $(pkgdatadir)/shell
-shell_PO = \
-	$(addprefix po/po.,$(addsuffix .js,$(shell cat $(srcdir)/po/LINGUAS))) \
-	$(NULL)
 nodist_shell_DATA = \
 	pkg/shell/bundle.min.js.gz \
-	pkg/shell/po.js.gz \
 	pkg/shell/shell.min.css.gz \
 	pkg/shell/shell.min.html.gz \
-	$(shell_PO:.js=.js.gz) \
 	$(NULL)
 
 shell_TEMPLATES = \
@@ -51,14 +46,12 @@ shelldebug_DATA = \
 	pkg/shell/machines.js \
 	pkg/shell/mustache.js \
 	pkg/shell/patterns.js \
-	pkg/shell/po.js \
 	pkg/shell/machine-dialogs.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
 	pkg/shell/simple.html \
 	pkg/shell/stub.html \
 	$(shell_SCRIPTS) \
-	$(shell_PO) \
 	$(NULL)
 
 shell_MINIFIED = \
@@ -116,8 +109,6 @@ CLEANFILES += \
 	$(shell_MINIFIED) \
 	$(nodist_shell_DATA) \
 	$(shell_MINFILES) \
-	$(shell_PO) \
-	$(shell_PO:.js=.min.js) \
 	$(NULL)
 
 EXTRA_DIST += \
@@ -129,6 +120,4 @@ EXTRA_DIST += \
 	pkg/shell/stub.min.html \
 	$(shell_MINFILES) \
 	$(shell_BUNDLE) \
-	$(shell_PO) \
-	$(shell_PO:.js=.min.js) \
 	$(NULL)

@@ -17,16 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function (root, factory) {
-    /* globals module */
-    if (typeof exports === 'object') {
-        module.exports = factory(require('cockpit'), require('react'));
-    } else if (typeof define === 'function' && define.amd) {
-        define(['base1/cockpit', "./react"], factory);
-    } else {
-        // Browser globals
-        root.amdWeb = factory(root.cockpit, root.React);
-    }
+(function(root, factory) {
+    if (typeof exports === "object")
+        module.exports = factory(require("cockpit"), require("react"));
+    else if (typeof define === "function" && define.amd)
+        define(["base1/cockpit", "./react"], factory);
 }(this, function(cockpit, React) {
 "use strict";
 

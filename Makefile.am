@@ -362,7 +362,6 @@ update-bower:
 
 include lib/Makefile.am
 include pkg/Makefile.am
-include pkg/systemd/Makefile.am
 include src/base1/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/default/Makefile.am

@@ -7,6 +7,7 @@ REACT_COMPONENTS = \
 
 lib_TESTS = \
 	lib/test-dummy.html \
+	lib/test-journal-renderer.html \
 	lib/test-patterns.html \
 	lib/test-machines.html \
 	$(NULL)

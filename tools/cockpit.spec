@@ -198,8 +198,8 @@ find %{buildroot}%{_datadir}/%{name}/tuned -type f >> shell.list
 echo '%dir %{_datadir}/%{name}/shell' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/shell -type f >> shell.list
 
-echo '%dir %{_datadir}/%{name}/system' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/system -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/systemd' >> shell.list
+find %{buildroot}%{_datadir}/%{name}/systemd -type f >> shell.list
 
 echo '%dir %{_datadir}/%{name}/users' >> shell.list
 find %{buildroot}%{_datadir}/%{name}/users -type f >> shell.list

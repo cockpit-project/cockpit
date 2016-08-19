@@ -266,9 +266,9 @@ class TestMultiMachine(MachineCase):
 
         # Modify the terminals to be different on the two machines.
         m1.needs_writable_usr()
-        m1.execute("gunzip -c /usr/share/cockpit/system/terminal.min.html.gz | sed -e 's|</body>|magic-m1-token</body>|' > /usr/share/cockpit/system/terminal.html")
+        m1.execute("gunzip -c /usr/share/cockpit/systemd/terminal.html.gz | sed -e 's|</body>|magic-m1-token</body>|' > /usr/share/cockpit/systemd/terminal.html")
         m2.needs_writable_usr()
-        m2.execute("gunzip -c /usr/share/cockpit/system/terminal.min.html.gz | sed -e 's|</body>|magic-m2-token</body>|' > /usr/share/cockpit/system/terminal.html")
+        m2.execute("gunzip -c /usr/share/cockpit/systemd/terminal.html.gz | sed -e 's|</body>|magic-m2-token</body>|' > /usr/share/cockpit/systemd/terminal.html")
 
         self.login_and_go("/dashboard")
         add_machine(b, m2.address)

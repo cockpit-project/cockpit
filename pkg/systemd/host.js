@@ -17,22 +17,21 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "./mustache",
-    "shell/po",
-    "./service",
-    "./plot",
-    "data!./ssh-list-host-keys.sh",
-    "system/bootstrap-datepicker",
-    "system/bootstrap-combobox",
-    "./patterns",
-    "./flot",
-], function($, cockpit, Mustache, po, service, plot, host_keys_script) {
-"use strict";
+var $ = require("jquery");
+var cockpit = require("cockpit");
 
-cockpit.locale(po);
+var Mustache = require("mustache");
+var plot = require("plot");
+var service = require("service");
+
+/* These add themselves to jQuery so just including is enough */
+require("flot");
+require("patterns");
+require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
+require("bootstrap-combobox/js/bootstrap-combobox");
+
+var host_keys_script = require("raw!./ssh-list-host-keys.sh");
+
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
@@ -1647,5 +1646,3 @@ function init() {
 }
 
 $(init);
-
-});

@@ -77,6 +77,19 @@ var info = {
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
         ],
+        "systemd/services": [
+            "systemd/init.js",
+        ],
+        "systemd/logs": [
+            "systemd/logs.js",
+        ],
+        "systemd/system": [
+            "systemd/host.js",
+            "systemd/host.css",
+        ],
+        "systemd/terminal": [
+            "systemd/terminal.jsx",
+        ],
         "tuned/performance": [
             "tuned/dialog.js",
         ],
@@ -140,6 +153,12 @@ var info = {
         "storaged/override.json",
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
+
+        "systemd/index.html",
+        "systemd/logs.html",
+        "systemd/manifest.json",
+        "systemd/services.html",
+        "systemd/terminal.html",
 
         "tuned/manifest.json",
 

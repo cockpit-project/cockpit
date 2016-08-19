@@ -529,6 +529,12 @@ handle_package_file (CockpitWebServer *server,
       g_free (parts[1]);
       parts[1] = g_strdup ("src");
     }
+  else if (g_strcmp0 (parts[2], "lib") == 0)
+    {
+      g_free (parts[1]);
+      parts[1] = g_strdup("lib");
+      parts++;
+    }
 
   rebuilt = g_strjoinv ("/", parts);
   cockpit_web_response_file (response, rebuilt,  cockpit_web_server_get_document_roots (server));

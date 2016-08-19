@@ -1,8 +1,8 @@
-require([
-    'jquery',
-    'playground/patterns',
-], function($) {
+var $ = require("jquery");
+$(function() {
     "use strict";
+
+    require("patterns");
 
     $(document).ready(function() {
         $("body").show();

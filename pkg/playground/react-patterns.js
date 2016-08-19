@@ -17,15 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-require([
-    "base1/cockpit",
-    "playground/react",
-    "playground/cockpit-components-dialog",
-    "playground/react-demo-dialog",
-    "playground/react-demo-listing",
-], function(cockpit, React, dialog_pattern, demo_dialog, demo_listing) {
-
+(function() {
     "use strict";
+
+    var cockpit = require("cockpit");
+    var React = require("react");
+
+    var dialog_pattern = require("cockpit-components-dialog.jsx");
+
+    var demo_dialog = require("./react-demo-dialog.jsx");
+    var demo_listing = require("./react-demo-listing.jsx");
 
     var _ = cockpit.gettext;
 
@@ -98,15 +99,16 @@ require([
         dialog_pattern.show_modal_dialog(dialog_props, footer_props);
     };
 
-    document.getElementById('demo-show-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, null), false);
-    document.getElementById('demo-show-error-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, 'Some static error'), false);
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('demo-show-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, null), false);
+        document.getElementById('demo-show-error-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, 'Some static error'), false);
 
-    /*-----------------------------------------------------------------------------
-      Listing Pattern
-      -----------------------------------------------------------------------------
-     */
-    // create the listing
-    demo_listing.demo(document.getElementById('demo-listing'), document.getElementById('demo-listing-empty'));
+        /*-----------------------------------------------------------------------------
+          Listing Pattern
+          -----------------------------------------------------------------------------
+         */
+        // create the listing
+        demo_listing.demo(document.getElementById('demo-listing'), document.getElementById('demo-listing-empty'));
+    });
 
-
-});
+}());

@@ -27,6 +27,24 @@ var info = {
             "ostree/app.js",
             "ostree/ostree.css",
         ],
+        "playground/jquery-patterns": [
+            "playground/jquery-patterns.js",
+        ],
+        "playground/metrics": [
+            "playground/metrics.js",
+        ],
+        "playground/plot": [
+            "playground/plot.js",
+        ],
+        "playground/react-patterns": [
+            "playground/react-patterns",
+        ],
+        "playground/service": [
+            "playground/service",
+        ],
+        "playground/test": [
+            "playground/test",
+        ],
         "realmd/domain": [
             "realmd/operation.js",
         ],
@@ -71,6 +89,17 @@ var info = {
 
         "ostree/manifest.json",
         "ostree/index.html",
+
+        "playground/hammer.gif",
+        "playground/manifest.json",
+        "playground/jquery-patterns.html",
+        "playground/metrics.html",
+        "playground/plot.html",
+        "playground/po.js",
+        "playground/po.de.js",
+        "playground/react-patterns.html",
+        "playground/service.html",
+        "playground/test.html",
 
         "realmd/manifest.json",
 

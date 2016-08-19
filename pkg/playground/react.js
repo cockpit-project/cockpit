@@ -1,1 +1,0 @@
-../../lib/react-lite-cockpit/dist/react-lite.js

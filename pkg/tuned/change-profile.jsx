@@ -17,12 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "base1/cockpit",
-    "./react",
-], function(cockpit, React) {
 
-"use strict";
+var cockpit = require("cockpit");
+var React = require("react");
+
 var _ = cockpit.gettext;
 
 /* Performance profile entry
@@ -108,5 +106,43 @@ var TunedDialogBody = React.createClass({
     }
 });
 
-return TunedDialogBody;
+var TunedLink = React.createClass({
+    render: function() {
+        var self = this;
+
+        var text = self.props.active;
+        var disabled = false;
+
+        if (self.props.failed) {
+            text = _("tuned-failure", "error");
+            disabled = true;
+        } else if (self.props.state != "running") {
+            text = _("tuned-not-running", "none");
+        }
+
+        if (self.props.state == "not-installed")
+            disabled = true;
+
+        var opts = { };
+        var classes = "action-trigger";
+        if (disabled) {
+            opts['disabled'] = 'disabled';
+            classes += " disabled";
+        }
+
+        return (
+            <div>
+                <a className={ classes } {...opts}>{ text }</a>
+                <a tabindex="0" data-toggle="popover" data-trigger="focus"
+                    data-placement="top" data-html="true" data-content="">
+                    <span className="fa fa-lg fa-info-circle"></span>
+                </a>
+            </div>
+        );
+    }
 });
+
+module.exports = {
+    dialog: TunedDialogBody,
+    link: TunedLink,
+};

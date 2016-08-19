@@ -35,6 +35,9 @@ var info = {
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
         ],
+        "tuned/performance": [
+            "tuned/dialog.js",
+        ],
         "users/users": [
             "users/local.js",
             "users/users.css",
@@ -61,6 +64,8 @@ var info = {
         "sosreport/index.html",
         "sosreport/sosreport.png",
         "sosreport/manifest.json",
+
+        "tuned/manifest.json",
 
         "users/index.html",
         "users/manifest.json",

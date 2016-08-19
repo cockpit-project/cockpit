@@ -22,7 +22,6 @@ define([
     "base1/cockpit",
     "./mustache",
     "shell/po",
-    "performance/dialog",
     "./service",
     "./plot",
     "data!./ssh-list-host-keys.sh",
@@ -30,7 +29,7 @@ define([
     "system/bootstrap-combobox",
     "./patterns",
     "./flot",
-], function($, cockpit, Mustache, po, performance, service, plot, host_keys_script) {
+], function($, cockpit, Mustache, po, service, plot, host_keys_script) {
 "use strict";
 
 cockpit.locale(po);
@@ -237,9 +236,6 @@ PageServer.prototype = {
         $('#system_information_systime_button').on('click', function () {
             change_systime_dialog.display(self.server_time);
         });
-
-        self.performance_link = performance.link();
-        $("#system-info-performance td.button-location").append(self.performance_link);
 
         self.server_time = new ServerTime();
         $(self.server_time).on("changed", function() {

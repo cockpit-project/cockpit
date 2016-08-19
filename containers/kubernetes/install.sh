@@ -13,7 +13,7 @@ fi
 /container/scripts/install-rpms.sh --nodeps cockpit-kubernetes-
 
 # Remove unwanted packages
-rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/system/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
+rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/systemd/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
 
 # Remove unwanted cockpit-bridge binaries
 rm -rf /usr/bin/cockpit-bridge

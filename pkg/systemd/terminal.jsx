@@ -1,13 +1,11 @@
-define([
-    "base1/cockpit",
-    "./react",
-    "./cockpit-components-terminal",
-    "shell/po",
-], function(cockpit, React, componentsTerminal, po) {
-
+(function() {
     "use strict";
 
-    cockpit.locale(po);
+    var cockpit = require("cockpit");
+
+    var React = require("react");
+    var componentsTerminal = require("cockpit-components-terminal.jsx");
+
     cockpit.translate();
 
     /*
@@ -90,4 +88,4 @@ define([
 
     /* And show the body */
     document.body.removeAttribute("hidden");
-});
+}());

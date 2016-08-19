@@ -69,7 +69,8 @@ function generateDeps(makefile, stats) {
         outputs.push(output)
 	if (!endsWith(output, "manifest.json") &&
             !endsWith(output, "override.json") &&
-	    !endsWith(output, ".png")) {
+	    !endsWith(output, ".png") &&
+	    !endsWith(output, ".gif")) {
             output += ".gz";
 	}
         installs.push(output);

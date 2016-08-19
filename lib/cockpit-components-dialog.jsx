@@ -23,6 +23,7 @@
     else if (typeof define === "function" && define.amd)
         define(["base1/cockpit", "./react"], factory);
 }(this, function(cockpit, React) {
+
 "use strict";
 
 var _ = cockpit.gettext;

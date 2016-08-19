@@ -72,7 +72,7 @@ var info = {
 
 var externals = {
     "cockpit": "cockpit",
-    "jquery": "$",
+    "jquery": "jQuery",
 }
 
 /* ---------------------------------------------------------------------

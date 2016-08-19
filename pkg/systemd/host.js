@@ -22,7 +22,6 @@ define([
     "base1/cockpit",
     "./mustache",
     "shell/po",
-    "domain/operation",
     "performance/dialog",
     "./service",
     "./plot",
@@ -31,7 +30,7 @@ define([
     "system/bootstrap-combobox",
     "./patterns",
     "./flot",
-], function($, cockpit, Mustache, po, domain, performance, service, plot, host_keys_script) {
+], function($, cockpit, Mustache, po, performance, service, plot, host_keys_script) {
 "use strict";
 
 cockpit.locale(po);
@@ -238,9 +237,6 @@ PageServer.prototype = {
         $('#system_information_systime_button').on('click', function () {
             change_systime_dialog.display(self.server_time);
         });
-
-        self.domain_link = domain.link();
-        $("#system-info-realms td.button-location").append(self.domain_link);
 
         self.performance_link = performance.link();
         $("#system-info-performance td.button-location").append(self.performance_link);

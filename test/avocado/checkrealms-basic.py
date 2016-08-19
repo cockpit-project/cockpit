@@ -45,15 +45,15 @@ class checkrealms_basic(cockpit.Test):
 
         def wait_number_domains(n):
             if n == 0:
-                b.wait_text("#system_information_realms_button", "Join Domain")
+                b.wait_text("#system-info-domain a", "Join Domain")
             else:
-                b.wait_text_not("#system_information_realms_button", "Join Domain")
-            b.wait_not_attr("#system_information_realms_button", "disabled", "disabled")
+                b.wait_text_not("#system-info-domain a", "Join Domain")
+            b.wait_not_attr("#system-info-domain a", "disabled", "disabled")
 
         wait_number_domains(0)
 
         # Join cockpit.lan
-        b.click("#system_information_realms_button")
+        b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         with b.wait_timeout(120):
             b.set_val(".realms-op-address", domain)
@@ -67,14 +67,14 @@ class checkrealms_basic(cockpit.Test):
             wait_number_domains(1)
 
         # Leave the domain
-        b.click("#system_information_realms_button")
+        b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.click(".realms-op-apply")
         b.wait_popdown("realms-op")
         wait_number_domains(0)
 
         # Send a wrong password
-        b.click("#system_information_realms_button")
+        b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(".realms-op-address", domain)
         b.wait_attr(".realms-op-admin", "placeholder", 'e.g. "admin"')
@@ -86,7 +86,7 @@ class checkrealms_basic(cockpit.Test):
         b.wait_popdown("realms-op")
 
         # Try to join a non-existing domain
-        b.click("#system_information_realms_button")
+        b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(".realms-op-address", "NOPE")
         b.wait_js_cond("$('.realms-op-address-error').attr('title') != ''")
@@ -94,7 +94,7 @@ class checkrealms_basic(cockpit.Test):
         b.wait_popdown("realms-op")
 
         # Cancel a join
-        b.click("#system_information_realms_button")
+        b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(".realms-op-address", domain)
         b.wait_attr(".realms-op-admin", "placeholder", 'e.g. "admin"')

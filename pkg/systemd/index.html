@@ -7,10 +7,12 @@
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="../shell/shell.css" rel="stylesheet">
     <link href="../system/host.css" rel="stylesheet">
-    <script data-main="system/host" src="../base1/bundle.js"></script>
+    <script data-main="system/host" src="../base1/require.js"></script>
+    <script src="../base1/jquery.js"></script>
+    <script src="../base1/cockpit.js"></script>
     <script src="../shell/bundle.js"></script>
     <script src="../system/bundle.js"></script>
-    <script src="../domain/bundle.js"></script>
+    <script src="../domain/domain.js"></script>
     <script src="../performance/bundle.js"></script>
 </head>
 <body hidden>
@@ -105,7 +107,7 @@
                     <td><a class="hostname-privileged"
                             id="system_information_hostname_button"></a></td>
                 </tr>
-                <tr id="system-info-realms">
+                <tr id="system-info-domain" hidden>
                     <td translatable="yes">Domain</td>
                     <td class="button-location">
                     </td>

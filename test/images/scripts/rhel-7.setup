@@ -98,6 +98,7 @@ TEST_PACKAGES="\
 systemtap-runtime-virtguest \
 valgrind \
 gdb \
+yum-utils \
 "
 
 # enable epel for mock and avocado
@@ -112,6 +113,9 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
 fi
 
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# For debugging storaged crashes
+debuginfo-install -y storaged storaged-lvm2 storaged-iscsi
 
 # Prepare for building
 

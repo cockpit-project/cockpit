@@ -520,6 +520,7 @@ define([
     ];
 
     function unit_action() {
+        /* jshint validthis:true */
         var parsed_action = $(this).attr("data-action").split(":");
         var method = parsed_action[0];
         var mode = parsed_action[1];
@@ -545,6 +546,7 @@ define([
     ];
 
     function unit_file_action() {
+        /* jshint validthis:true */
         var parsed_action = $(this).attr("data-action").split(":");
         var method = parsed_action[0];
         var force = parsed_action[1];
@@ -717,6 +719,7 @@ define([
     }
 
     function unit_goto() {
+        /* jshint validthis:true */
         cockpit.location.go([ $(this).attr("data-goto-unit") ]);
     }
 

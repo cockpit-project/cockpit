@@ -46,6 +46,9 @@ var info = {
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
         ],
+        "tuned/performance": [
+            "tuned/dialog.js",
+        ],
         "users/users": [
             "users/local.js",
             "users/users.css",
@@ -82,6 +85,8 @@ var info = {
         "storaged/manifest.json",
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
+
+        "tuned/manifest.json",
 
         "users/index.html",
         "users/manifest.json",

@@ -367,7 +367,6 @@ include pkg/playground/Makefile.am
 include pkg/shell/Makefile.am
 include pkg/systemd/Makefile.am
 include pkg/storaged/Makefile.am
-include pkg/tuned/Makefile.am
 include src/base1/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/default/Makefile.am

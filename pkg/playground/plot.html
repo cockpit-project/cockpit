@@ -5,7 +5,8 @@
     <title>Cockpit Plots</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../base1/require.js"></script>
+    <script src="../base1/jquery.js"></script>
+    <script src="plot.js"></script>
 </head>
 <body hidden>
   <div class="container-fluid">
@@ -38,27 +39,5 @@
 
     <div id="plot"    class="zoomable-plot" style="height:200px"></div>
   </div>
-  <script>
-require([
-    'jquery',
-    'base1/cockpit',
-    'playground/plot',
-    'playground/flot',
-], function($, cockpit, plot) {
-
-    var pl = plot.plot($('#plot'), 300);
-    pl.set_options(plot.plot_simple_template());
-    pl.add_metrics_sum_series({ direct: [ "mem.util.used" ]
-                                }, { });
-    $(function () {
-        $("body").show();
-        pl.resize();
-
-        var plot_controls = plot.setup_plot_controls($('body'), $('#toolbar'));
-        plot_controls.reset([ pl ]);
-    });
-
-});
-  </script>
 </body>
 </html>

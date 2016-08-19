@@ -17,13 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "base1/cockpit",
-    "playground/react",
-    "playground/cockpit-components-select",
-], function(cockpit, React, Select) {
-
+(function() {
     "use strict";
+
+    var cockpit = require("cockpit");
+
+    var React = require("react");
+    var Select = require("cockpit-components-select.jsx");
+
     var _ = cockpit.gettext;
 
     /* Sample dialog body
@@ -92,5 +93,5 @@ define([
         }
     });
 
-    return PatternDialogBody;
-});
+    module.exports = PatternDialogBody;
+}());

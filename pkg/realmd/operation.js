@@ -1,9 +1,9 @@
-define([
-    "jquery",
-    "base1/cockpit",
-    "data!./operation.html",
-], function(jQuery, cockpit, html) {
-    var module = { };
+(function() {
+    "use strict";
+
+    var jQuery = require("jquery");
+    var cockpit = require("cockpit");
+    require("patterns");
 
     var _ = cockpit.gettext;
 
@@ -15,7 +15,7 @@ define([
     var REALM = "org.freedesktop.realmd.Realm";
 
     function instance(realmd, mode, realm, button) {
-        var dialog = jQuery.parseHTML(html)[0];
+        var dialog = jQuery.parseHTML(require("raw!./operation.html"))[0];
 
         /* Scope the jQuery selector to our dialog */
         var $ = function(selector, context) {
@@ -396,8 +396,10 @@ define([
         return dialog;
     }
 
-    function setup(element) {
+    function setup() {
         var $ = jQuery;
+
+        var element = $("<a>");
 
         var realmd = cockpit.dbus("org.freedesktop.realmd");
         realmd.watch(MANAGER);
@@ -486,12 +488,14 @@ define([
         return element;
     }
 
-    module.link = function button() {
-        var $ = jQuery;
-        var element = $("<a>")
-            .attr("id", "system_information_realms_button");
-        return setup(element);
-    };
+    /* Hook this in when loaded */
+    jQuery(function() {
+        var placeholder = jQuery("#system-info-domain");
+        if (placeholder.length) {
+            placeholder.find(".button-location").append(setup());
+            placeholder.removeAttr('hidden');
+        }
+    });
 
     return module;
-});
+}());

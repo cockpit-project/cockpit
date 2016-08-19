@@ -20,6 +20,9 @@ var info = {
             "ostree/app.js",
             "ostree/ostree.css",
         ],
+        "realmd/domain": [
+            "realmd/operation.js",
+        ],
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
             "selinux/setroubleshoot.css",
@@ -49,6 +52,8 @@ var info = {
 
         "ostree/manifest.json",
         "ostree/index.html",
+
+        "realmd/manifest.json",
 
         "selinux/manifest.json",
         "selinux/setroubleshoot.html",

@@ -40,7 +40,7 @@ CockpitSshAgent *  cockpit_ssh_agent_new      (CockpitTransport *transport,
 
 void               cockpit_ssh_agent_close    (CockpitSshAgent *agent);
 
-int                cockpit_ssh_agent_claim_fd (CockpitSshAgent *agent);
+int                cockpit_ssh_agent_steal_fd (CockpitSshAgent *agent);
 G_END_DECLS
 
 #endif

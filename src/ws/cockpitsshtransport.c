@@ -1761,7 +1761,7 @@ cockpit_ssh_transport_constructed (GObject *object)
 #ifdef HAVE_SSH_SET_AGENT_SOCKET
   if (self->agent)
     {
-      int agent_fd = cockpit_ssh_agent_claim_fd (self->agent);
+      int agent_fd = cockpit_ssh_agent_steal_fd (self->agent);
       if (agent_fd > 0)
         ssh_set_agent_socket (self->data->session, agent_fd);
     }
@@ -1769,7 +1769,7 @@ cockpit_ssh_transport_constructed (GObject *object)
 
   if (self->auth_pipe)
     {
-      self->data->auth_fd = cockpit_auth_pipe_claim_fd (self->auth_pipe);
+      self->data->auth_fd = cockpit_auth_pipe_steal_fd (self->auth_pipe);
       cockpit_auth_pipe_expect_answer (self->auth_pipe);
     }
 

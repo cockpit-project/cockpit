@@ -390,7 +390,7 @@ cockpit_ssh_agent_close (CockpitSshAgent *agent)
 }
 
 int
-cockpit_ssh_agent_claim_fd (CockpitSshAgent *self)
+cockpit_ssh_agent_steal_fd (CockpitSshAgent *self)
 {
   int fd;
 

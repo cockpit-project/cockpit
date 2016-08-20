@@ -855,7 +855,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
 
       ad->user_data = sl;
 
-      child_pd = cockpit_auth_pipe_claim_fd (ad->auth_pipe);
+      child_pd = cockpit_auth_pipe_steal_fd (ad->auth_pipe);
       g_simple_async_result_set_op_res_gpointer (result,
                                                  auth_data_ref (ad), auth_data_unref);
 

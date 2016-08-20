@@ -40,7 +40,7 @@ const gchar *      cockpit_auth_pipe_get_id   (CockpitAuthPipe *self);
 void               cockpit_auth_pipe_close    (CockpitAuthPipe *auth_pipe,
                                                const gchar *problem);
 
-int                cockpit_auth_pipe_claim_fd (CockpitAuthPipe *auth_pipe);
+int                cockpit_auth_pipe_steal_fd (CockpitAuthPipe *auth_pipe);
 
 void               cockpit_auth_pipe_answer   (CockpitAuthPipe *auth_pipe,
                                                GBytes *auth_data);

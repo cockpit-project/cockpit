@@ -416,7 +416,7 @@ cockpit_auth_pipe_close (CockpitAuthPipe *self,
 }
 
 int
-cockpit_auth_pipe_claim_fd (CockpitAuthPipe *self)
+cockpit_auth_pipe_steal_fd (CockpitAuthPipe *self)
 {
   int fd;
 

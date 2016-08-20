@@ -208,7 +208,7 @@ setup_pipe (CockpitSshAgent *agent,
             TestCase *tc)
 {
   CockpitPipe *pipe = NULL;
-  int fd = cockpit_ssh_agent_claim_fd (agent);
+  int fd = cockpit_ssh_agent_steal_fd (agent);
   g_assert (fd > 0);
   pipe = g_object_new (COCKPIT_TYPE_PIPE,
                        "in-fd", fd,

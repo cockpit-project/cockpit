@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 
 /* Carefully cat stdin to stdout.
  *
@@ -19,9 +20,13 @@ main (void)
   char buffer[1024], *ptr;
   int n, m;
 
+  siginterrupt(SIGALRM, 1);
+
   while (1)
     {
+      alarm(120);
       n = read (0, buffer, sizeof(buffer));
+      alarm(0);
       if (n == 0)
         break;
 
@@ -34,7 +39,9 @@ main (void)
       ptr = buffer;
       while (n > 0)
         {
+          alarm(120);
           m = write (1, ptr, n);
+          alarm(0);
           if (m == 0)
             {
               fprintf(stderr, "write: closed\n");
@@ -56,6 +63,6 @@ main (void)
             }
         }
     }
-
+  fprintf(stdout, "\nAll done\n");
   exit (0);
 }

@@ -6,7 +6,9 @@ REACT_COMPONENTS = \
 	$(NULL)
 
 lib_TESTS = \
+	lib/test-dummy.html \
 	lib/test-patterns.html \
+	lib/test-machines.html \
 	$(NULL)
 
 TESTS += $(lib_TESTS)

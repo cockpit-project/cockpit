@@ -17,18 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-require([
-    "jquery",
-    "base1/cockpit",
-    "dashboard/mustache",
-    "dashboard/plot",
-    "shell/machines",
-    "dashboard/image-editor",
-    "shell/machine-dialogs",
-    "dashboard/patterns",
-    "dashboard/flot",
-], function($, cockpit, Mustache, plot, machines, image_editor, mdialogs) {
-"use strict";
+var $ = require("jquery");
+var cockpit = require("cockpit");
+
+var Mustache = require("mustache");
+var plot = require("plot");
+require("flot");
+
+var machines = require("machines");
+var mdialogs = require("machine-dialogs");
+require("patterns");
+
+var image_editor = require("./image-editor");
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
@@ -570,5 +570,4 @@ function init() {
     navigate();
 }
 
-init();
-});
+$(init);

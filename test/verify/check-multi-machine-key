@@ -71,17 +71,26 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.browser.eval_js("loaded = false")
         self.browser.eval_js("""
             load = function (user) {{
-                var k = require('shell/credentials').keys_instance();
-                k.path = user.home + '/.ssh';
-                k.load('{0}', '{1}').done(function () {{ loaded = true; }}).fail(function (ex) {{ console.log(ex); }});
+                var proc = cockpit.spawn([ 'ssh-add', '{0}' ], {{ pty: true, directory: user.home + '/.ssh' }})
+                    .stream(function(data) {{
+                        if (data.indexOf('passphrase') !== -1)
+                            proc.input('{1}\\n', true);
+                        console.log(data);
+                    }})
+                    .done(function() {{
+                        loaded = true;
+                    }})
+                    .fail(function(ex) {{
+                        console.log(ex);
+                    }});
             }}
         """.format(name, password))
-        self.browser.eval_js("require('base1/cockpit').user().done(load)")
+        self.browser.eval_js("cockpit.user().done(load)")
 
     def check_keys(self, keys):
         def normalize(k):
             return re.sub("/home/admin/\\.ssh/[^ ]*|test@test", "", k)
-        self.assertEqual(normalize(self.browser.eval_js("require('base1/cockpit').spawn([ 'ssh-add', '-l' ])")),
+        self.assertEqual(normalize(self.browser.eval_js("cockpit.spawn([ 'ssh-add', '-l' ])")),
                          normalize("\n".join(keys) + "\n"))
 
     def setUp(self):

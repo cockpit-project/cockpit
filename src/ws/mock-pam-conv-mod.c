@@ -63,10 +63,11 @@ pam_sm_authenticate (pam_handle_t *pamh,
     {
       syslog (LOG_WARNING, "missing response");
       res = PAM_CONV_ERR;
+      goto out;
     }
   else if (resp[0].resp == NULL )
     {
-    syslog (LOG_WARNING, "got null resp");
+      syslog (LOG_WARNING, "got null resp");
       res = PAM_AUTH_ERR;
       goto out;
     }

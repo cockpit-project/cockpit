@@ -856,6 +856,15 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       ad->user_data = sl;
 
       child_pd = cockpit_auth_pipe_steal_fd (ad->auth_pipe);
+      if (child_pd < 0)
+        {
+          g_warning ("Couldn't steal child fd");
+          g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                                           "Internal error starting %s", command);
+          g_simple_async_result_complete_in_idle (result);
+          goto out;
+        }
+
       g_simple_async_result_set_op_res_gpointer (result,
                                                  auth_data_ref (ad), auth_data_unref);
 
@@ -895,6 +904,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       g_simple_async_result_complete_in_idle (result);
     }
 
+out:
   if (input)
     g_bytes_unref (input);
 

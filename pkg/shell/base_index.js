@@ -19,12 +19,11 @@
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "manifests",
-], function($, cockpit, local_manifests) {
+(function() {
     "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
 
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
     var _ = cockpit.gettext;
@@ -530,7 +529,7 @@ define([
                 navbar.hide();
             } else {
                 var local_compiled = new CompiledComponants();
-                local_compiled.load(local_manifests, "dashboard");
+                local_compiled.load(cockpit.manifests, "dashboard");
                 navbar.append(local_compiled.ordered("dashboard").map(links));
             }
         }
@@ -705,7 +704,7 @@ define([
              * to produce this list. Perhaps we would include it somewhere in a
              * separate automatically generated file. Need to see.
              */
-            var manifest = local_manifests["shell"] || { };
+            var manifest = cockpit.manifests["shell"] || { };
             $(".display-language-menu").toggle(!!manifest.linguas);
             var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
             $.each(manifest.linguas || { }, function(code, name) {
@@ -851,7 +850,7 @@ define([
         }
     });
 
-    return {
+    module.exports = {
         new_index_from_proto: function (proto) {
             var o = new Object(proto);
             Index.call(o);
@@ -862,4 +861,4 @@ define([
             return new CompiledComponants();
         },
     };
-});
+}());

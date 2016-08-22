@@ -62,6 +62,16 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyOJ5garOYw0sm
 <programlisting>
 $ sudo remotectl certificate
 </programlisting>
+
+    <para>If using <code>certmonger</code> to manage certificates, following command can
+    be used to automatically prepare concatenated .cert file:</para>
+
+    <programlisting>
+CERT_FILE=/etc/pki/tls/certs/${hostname).pem
+KEY_FILE=/etc/pki/tls/private/${hostname).key
+
+getcert request -f ${CERT_FILE} -k ${KEY_FILE} -C "sed -n w/etc/cockpit/ws-certs.d/50-from-certmonger.cert ${CERT_FILE} ${KEY_FILE}"
+    </programlisting>
   </section>
 
   <section id="https-compat">

@@ -11,6 +11,9 @@ var info = {
         "docker/console.js": [
             "docker/console.js",
         ],
+        "dashboard/dashboard": [
+            "dashboard/list.js",
+        ],
         "kubernetes/kubernetes": [
             "kubernetes/styles/main.less",
             "kubernetes/scripts/main.js",
@@ -52,6 +55,16 @@ var info = {
             "selinux/setroubleshoot.js",
             "selinux/setroubleshoot.css",
         ],
+        "shell/index": [
+            "shell/index.js",
+            "shell/shell.css",
+        ],
+        "shell/index-stub": [
+            "shell/index-stub.js",
+        ],
+        "shell/index-no-machines": [
+            "shell/index-no-machines.js",
+        ],
         "sosreport/sosreport": [
             "sosreport/index.js",
             "sosreport/sosreport.css",
@@ -79,6 +92,9 @@ var info = {
         "docker/index.html",
         "docker/images/drive-harddisk-symbolic.svg",
 
+        "dashboard/index.html",
+        "dashboard/manifest.json",
+
         "kubernetes/manifest.json",
         "kubernetes/override.json",
         "kubernetes/index.html",
@@ -105,6 +121,15 @@ var info = {
 
         "selinux/manifest.json",
         "selinux/setroubleshoot.html",
+
+        "shell/images/server-error.png",
+        "shell/images/server-large.png",
+        "shell/images/server-small.png",
+        "shell/index.html",
+        "shell/manifest.json",
+        "shell/simple.html",
+        "shell/shell.html",
+        "shell/stub.html",
 
         "sosreport/index.html",
         "sosreport/sosreport.png",

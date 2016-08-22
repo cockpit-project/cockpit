@@ -161,7 +161,7 @@ class TestKeys(MachineCase):
         m = self.machine
 
         def list_keys():
-            return b.eval_js("require('base1/cockpit').spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
+            return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
 
         # Operating systems where auto loading doesn't work
         auto_load = "atomic" not in os.environ.get("TEST_OS", "")

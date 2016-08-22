@@ -69,13 +69,13 @@ class TestMultiOS(MachineCase):
 
     def check_spawn(self, b, address):
         result = b.call_js_func("""(function(address) {
-            return require("base1/cockpit").spawn(['echo', 'hi'], { host: address });
+            return cockpit.spawn(['echo', 'hi'], { host: address });
         })""", address)
         self.assertEqual(result, "hi\n")
 
     def check_dbus(self, b, address):
         b.call_js_func("""(function(address) {
-            return require("base1/cockpit").dbus("org.freedesktop.DBus", { host: address })
+            return cockpit.dbus("org.freedesktop.DBus", { host: address })
                 .proxy("org.freedesktop.DBus", "/").call("GetId");
         })""", address)
 

@@ -17,9 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-], function($) {
+var $ = require("jquery");
 
 /* Construct a simple image editor inside 'element'.  It can only crop
  * an image to a square region.
@@ -301,6 +299,4 @@ function image_editor(element, width, height) {
     return self;
 }
 
-return image_editor;
-
-});
+module.exports = image_editor;

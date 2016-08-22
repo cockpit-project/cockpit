@@ -466,7 +466,6 @@ class TestMultiMachine(MachineCase):
             start_machine_troubleshoot(b)
 
         check_failed_state(b, "Cockpit is not installed")
-        b.wait_visible(".curtains-ct div.spinner")
         b.wait_visible("#machine-reconnect")
         fix_bridge(m2)
 
@@ -492,7 +491,6 @@ class TestMultiMachine(MachineCase):
         self.login_and_go(None)
         b.go(machine_path)
 
-        b.wait_visible(".curtains-ct div.spinner")
         with b.wait_timeout(120):
             b.wait_visible("#machine-reconnect")
         start_machine_troubleshoot(b)
@@ -536,7 +534,6 @@ class TestMultiMachine(MachineCase):
         m2.disconnect()
         self.login_and_go(None)
         b.go(machine_path)
-        b.wait_visible(".curtains-ct div.spinner")
         with b.wait_timeout(120):
             b.wait_visible("#machine-reconnect")
         start_machine_troubleshoot(b)

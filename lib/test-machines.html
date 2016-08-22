@@ -24,8 +24,25 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
     <script type="text/javascript" src="../../tools/qunit.js"></script>
+    <script type="text/javascript" src="../pkg/base1/jquery.js"></script>
+    <script type="text/javascript" src="../pkg/base1/cockpit.js"></script>
+    <script>
+        function require(name) {
+            switch (name) {
+            case "jquery":
+                return jQuery;
+            case "cockpit":
+                return cockpit;
+            case "term":
+                return null;
+            default:
+                throw new Error("unknown shim module: " + name);
+            }
+        }
+        module = { };
+    </script>
+    <script type="text/javascript" src="machines.js"></script>
 
-    <script type="text/javascript" src="../base1/require.js"></script>
   </head>
   <body>
     <h1 id="qunit-header">Machines Tests</h1>
@@ -36,10 +53,7 @@
   </body>
 <script type="text/javascript">
 
-require([
-    "shell/machines"
-], function(machines) {
-
+var machines = module.exports;
 test("colors.parse()", function() {
     var colors = [
         [ "#960064", "rgb(150, 0, 100)" ],
@@ -53,8 +67,6 @@ test("colors.parse()", function() {
 });
 
 QUnit.start();
-
-});
 
 </script>
 </html>

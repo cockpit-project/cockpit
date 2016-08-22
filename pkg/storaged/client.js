@@ -17,19 +17,21 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "storage/utils",
-    "manifests"
-], function($, cockpit, utils, manifests) {
+(function() {
+    "use strict";
+
+    var $ = require('jquery');
+    var cockpit = require('cockpit');
+
+    var utils = require('./utils');
 
     /* STORAGED CLIENT
      */
 
+    /* HACK: https://github.com/storaged-project/storaged/pull/68 */
     var config = { };
-    if (manifests["storage"] && manifests["storage"]["config"])
-        config = manifests["storage"]["config"];
+    if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["config"])
+        config = cockpit.manifests["storage"]["config"];
 
     var client = { };
 
@@ -355,7 +357,7 @@ define([
                                          client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
                                          wait_all([ client.manager_lvm2, client.manager_iscsi],
                                                   function () {
-                                                      var iscsi = (config.with_storaged_iscsi_sessions == "yes" &&
+                                                      var iscsi = (config.with_storaged_iscsi_sessions != "no" &&
                                                                    client.manager_iscsi.valid &&
                                                                    client.manager_iscsi.SessionsSupported !== false);
                                                       client.features = { lvm2: client.manager_lvm2.valid,
@@ -409,5 +411,5 @@ define([
 
     client.init = init_storaged;
 
-    return client;
-});
+    module.exports = client;
+}());

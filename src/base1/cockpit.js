@@ -901,6 +901,8 @@ function basic_scope(cockpit, jquery) {
         return obj;
     };
 
+    cockpit.extend = extend;
+
     /* These can be filled in by loading ../manifests.js */
     cockpit.manifests = { };
 

@@ -1,14 +1,13 @@
-require([
-    'jquery',
-    'base1/cockpit',
-    'playground/po'
-], function($, cockpit, po) {
-    cockpit.locale(po);
+(function() {
+    "use strict";
+
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 
-    $(function () {
-
+    $(function() {
         $("#hammer").on("click", function () { $(this).hide(); });
 
         $("#translation").text(_("Translation"));
@@ -127,4 +126,4 @@ require([
         $(cockpit).on("visibilitychange", show_hidden);
         show_hidden();
     });
-});
+}());

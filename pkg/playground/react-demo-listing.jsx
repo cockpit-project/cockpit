@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-define([
-    "playground/react",
-    "playground/cockpit-components-listing",
-], function(React, cockpitListing) {
 
+(function() {
     "use strict";
+
+    var React = require("react");
+
+    var cockpitListing = require("cockpit-components-listing.jsx");
 
     /* Sample tab renderer for listing pattern
      * Shows a caption and the time it was instantiated
@@ -94,8 +95,7 @@ define([
         React.render(emptyListing, rootElementEmptyList);
     };
 
-    return {
+    module.exports = {
         demo: showListingDemo,
     };
-
-});
+}());

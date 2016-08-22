@@ -1,1 +1,0 @@
-../../lib/cockpit-components-select.jsx

@@ -17,30 +17,27 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "./service",
-    "data!./link.html",
-    "performance/cockpit-components-dialog",
-    "performance/change-profile",
-    "performance/react",
-], function($, cockpit, service, link_html, dialog_view, change_profile_template, React) {
+(function() {
     "use strict";
 
-    var module = { };
+    var $ = require("jquery");
+    var cockpit = require("cockpit");
+
+    var dialog_view = require("cockpit-components-dialog.jsx");
+    var service = require("service");
+    var React = require("react");
+
+    var change_profile = require("./change-profile.jsx");
 
     var _ = cockpit.gettext;
 
-    function debug() {
-        if (window.debugging == "all" || window.debugging == "tuned")
-            console.debug.apply(console, arguments);
-    }
+    function setup() {
 
-    function setup(element, click_target_selector) {
         var tuned_service = service.proxy('tuned.service');
 
-        var button = element.find(click_target_selector);
+        var element = $(require("raw!./link.html"));
+
+        var button = element.find(".action-trigger");
         var popover = element.find("[data-toggle=popover]");
 
         /* Tuned doesn't implement the DBus.Properties interface, so
@@ -51,7 +48,7 @@ define([
          */
 
         function poll(tuned) {
-            var dfd = $.Deferred();
+            var dfd = cockpit.defer();
 
             cockpit.all(tuned.call('/Tuned', 'com.redhat.tuned.control', 'is_running', []),
                         tuned.call('/Tuned', 'com.redhat.tuned.control', 'active_profile', []),
@@ -192,7 +189,7 @@ define([
                 dialog_selected = active_profile;
                 var dialog_props = {
                     'title': _("Change Performance Profile"),
-                    'body': React.createElement(change_profile_template, {
+                    'body': React.createElement(change_profile.dialog, {
                             'active_profile': active_profile,
                             'change_selected': update_selected_item,
                             'profiles': profiles,
@@ -286,13 +283,16 @@ define([
         popover.popover().on('click', update_button);
         update_button();
 
-        return element;
+        return element[0];
     }
 
-    module.link = function button() {
-        var element = $(link_html);
-        return setup(element, "a.action-trigger");
-    };
+    /* Hook this in when loaded */
+    $(function() {
+        var placeholder = $("#system-info-performance");
+        if (placeholder.length) {
+            placeholder.find(".button-location").append(setup());
+            placeholder.removeAttr('hidden');
+        }
+    });
 
-    return module;
-});
+}());

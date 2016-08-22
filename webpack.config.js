@@ -20,6 +20,24 @@ var info = {
             "ostree/app.js",
             "ostree/ostree.css",
         ],
+        "playground/jquery-patterns": [
+            "playground/jquery-patterns.js",
+        ],
+        "playground/metrics": [
+            "playground/metrics.js",
+        ],
+        "playground/plot": [
+            "playground/plot.js",
+        ],
+        "playground/react-patterns": [
+            "playground/react-patterns",
+        ],
+        "playground/service": [
+            "playground/service",
+        ],
+        "playground/test": [
+            "playground/test",
+        ],
         "realmd/domain": [
             "realmd/operation.js",
         ],
@@ -34,6 +52,9 @@ var info = {
         "subscriptions/subscriptions": [
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
+        ],
+        "tuned/performance": [
+            "tuned/dialog.js",
         ],
         "users/users": [
             "users/local.js",
@@ -53,6 +74,17 @@ var info = {
         "ostree/manifest.json",
         "ostree/index.html",
 
+        "playground/hammer.gif",
+        "playground/manifest.json",
+        "playground/jquery-patterns.html",
+        "playground/metrics.html",
+        "playground/plot.html",
+        "playground/po.js",
+        "playground/po.de.js",
+        "playground/react-patterns.html",
+        "playground/service.html",
+        "playground/test.html",
+
         "realmd/manifest.json",
 
         "selinux/manifest.json",
@@ -61,6 +93,8 @@ var info = {
         "sosreport/index.html",
         "sosreport/sosreport.png",
         "sosreport/manifest.json",
+
+        "tuned/manifest.json",
 
         "users/index.html",
         "users/manifest.json",
@@ -72,7 +106,7 @@ var info = {
 
 var externals = {
     "cockpit": "cockpit",
-    "jquery": "$",
+    "jquery": "jQuery",
 }
 
 /* ---------------------------------------------------------------------

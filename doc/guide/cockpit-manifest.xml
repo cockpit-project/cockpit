@@ -10,17 +10,11 @@
   <refsection>
     <title>Loading Manifests</title>
     <para>You can load manifest info by loading the <code>./manifest.json</code> file in
-      your package. In addition there is a shortcut: if you're using AMD loading you can
-      use a special module id to access all the manifests in one shot:</para>
+      your package. In addition there is a shortcut, by loading the <code>../manifests.json</code>
+      you can load all the manifests at once.</para>
 
-<programlisting>
-define([
-    'manifests',
-    'other.dep'
-], function(manifests, other) {
-    var manifest = manifests['package'];
-});
-</programlisting>
+    <para>Lastly load the <code>../manifests.js</code> file to register the manifests at
+      the <code>cockpit.manifests</code> global variable.</para>
   </refsection>
 
 </refentry>

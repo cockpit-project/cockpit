@@ -796,14 +796,18 @@ handle_package_manifests_js (CockpitWebServer *server,
                              CockpitWebResponse *response,
                              CockpitPackages *packages)
 {
+  const gchar *template =
+    "(function (root, data) { if (typeof define === 'function' && define.amd) { define(data); }"
+    " if(typeof cockpit === 'object') { cockpit.manifests = data; }"
+    " else { root.manifests = data; } }(this, ";
   GHashTable *out_headers;
   GBytes *content;
   GBytes *prefix;
   GBytes *suffix;
 
-  prefix = g_bytes_new_static ("define(", 7);
+  prefix = g_bytes_new_static (template, strlen (template));
   content = cockpit_json_write_bytes (packages->json);
-  suffix = g_bytes_new_static (");", 2);
+  suffix = g_bytes_new_static ("));", 3);
 
   out_headers = cockpit_web_server_new_table ();
 

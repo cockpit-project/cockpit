@@ -35,6 +35,9 @@ var info = {
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
         ],
+        "tuned/performance": [
+            "tuned/dialog.js",
+        ],
         "users/users": [
             "users/local.js",
             "users/users.css",
@@ -62,6 +65,8 @@ var info = {
         "sosreport/sosreport.png",
         "sosreport/manifest.json",
 
+        "tuned/manifest.json",
+
         "users/index.html",
         "users/manifest.json",
 
@@ -72,7 +77,7 @@ var info = {
 
 var externals = {
     "cockpit": "cockpit",
-    "jquery": "$",
+    "jquery": "jQuery",
 }
 
 /* ---------------------------------------------------------------------

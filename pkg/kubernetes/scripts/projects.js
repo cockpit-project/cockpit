@@ -421,7 +421,7 @@
             var sharedResource = "imagestreams/layers";
             var sharedRole = "registry-viewer";
             var sharedKind = "Group";
-            var anonymousGroup = "system:anonymous";
+            var anonymousGroup = "system:unauthenticated";
             var sharedGroup = "system:authenticated";
             var registryAdmin = "registry-admin";
 

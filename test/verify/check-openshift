@@ -742,7 +742,7 @@ class TestRegistry(MachineCase):
         b.wait_not_in_text(".listing-ct-body", "Project access policy allows all authenticated users to pull images. Grant additional access to specific members below.")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
         self.assertIn("system:authenticated", output)
-        self.assertNotIn("system:anonymous", output)
+        self.assertNotIn("system:unauthenticated", output)
 
         # Look for change in state
         b.go("#/")
@@ -762,7 +762,7 @@ class TestRegistry(MachineCase):
         b.wait_not_present("modal-dialog")
         b.wait_in_text(".listing-ct-body", "Project access policy allows anonymous users to pull images. Grant additional push or admin access to specific members below.")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
-        self.assertIn("system:anonymous", output)
+        self.assertIn("system:unauthenticated", output)
 
         # Look for change in state
         b.go("#/")

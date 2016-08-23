@@ -421,7 +421,7 @@
             var sharedResource = "imagestreams/layers";
             var sharedRole = "registry-viewer";
             var sharedKind = "Group";
-            var anonymousGroup = "system:anonymous";
+            var anonymousGroup = "system:unauthenticated";
             var sharedGroup = "system:authenticated";
             var registryAdmin = "registry-admin";
 
@@ -457,14 +457,20 @@
                 if (!response)
                     return null;
 
+                var projState = {};
+                projState[anonymousGroup] = null;
+                projState[sharedGroup] = null;
+
                 var i, len, groups = response.groups || [];
                 for (i = 0, len = groups.length; i < len; i++) {
-                    if (groups[i] == anonymousGroup)
-                        return "anonymous";
-                    else if (groups[i] == sharedGroup)
-                        return "shared";
+                    if (projState.hasOwnProperty(groups[i]))
+                        projState[groups[i]] = true;
                 }
 
+                if (projState[anonymousGroup])
+                    return "anonymous";
+                else if (projState[sharedGroup])
+                    return "shared";
                 return "private";
             }
 

@@ -219,6 +219,9 @@ find %{buildroot}%{_datadir}/%{name}/networkmanager -type f >> networkmanager.li
 echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
 
+echo '%dir %{_datadir}/%{name}/machines' > machines.list
+find %{buildroot}%{_datadir}/%{name}/machines -type f >> machines.list
+
 # on CentOS systems we don't have the required setroubleshoot-server packages
 %if 0%{?centos}
 rm -rf %{buildroot}%{_datadir}/%{name}/selinux
@@ -411,6 +414,18 @@ Requires: /usr/libexec/rpm-ostreed
 The Cockpit components for managing software updates for ostree based systems.
 
 %files ostree -f ostree.list
+
+%package machines
+Summary: Cockpit user interface for rpm-machines
+Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-shell >= %{stable_api}
+Requires: libvirt
+Requires: libvirt-client
+
+%description machines
+The Cockpit components for managing virtual machines.
+
+%files machines -f machines.list
 
 # Conditionally built packages below
 

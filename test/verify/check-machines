@@ -1,0 +1,72 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+import unittest
+import os
+
+def readFile(name):
+    content = ''
+    if os.path.exists(name):
+        with open(name, 'r') as f:
+            content = f.read().replace('\n', '')
+    return content
+
+class TestMachines(MachineCase):
+    def tryEnableNestedVirt(self):
+        print 'tryEnableNestedVirt() called'
+        m = self.machine
+        m.execute('(rmmod kvm-intel && modprobe kvm-intel nested=1) || true')
+        m.execute('(rmmod kvm-amd && modprobe kvm-amd nested=1) || true')
+
+        nestedIntel = readFile('/sys/module/kvm_intel/parameters/nested')
+        nestedAmd = readFile('/sys/module/kvm_amd/parameters/nested')
+        return 'Y' == nestedIntel or '1' == nestedAmd
+
+    def testBasic(self):
+        if not self.tryEnableNestedVirt():
+            print 'Nested virtualization is not enabled on this test image, skipping the test'
+            return
+
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "No VM is running or defined on this host")
+
+        vm1_name="subVmTest1"
+        vm1_id="#vm-{0}".format(vm1_name)
+        m.execute("qemu-img create -f qcow2 /tmp/{0}.img 256M".format(vm1_name))
+        m.execute("virt-install -r 128 --pxe --force --nographics --noautoconsole -f /tmp/{0}.img -n {0}".format(vm1_name))
+
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr th", vm1_name) # is VM name listed?
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_in_text("{0}-state".format(vm1_id), "running")
+
+        b.click("{0}-off-caret".format(vm1_id))
+        b.wait_visible("{0}-forceOff".format(vm1_id))
+        b.click("{0}-forceOff".format(vm1_id))
+        b.wait_in_text("{0}-state".format(vm1_id), "shut off")
+
+if __name__ == '__main__':
+    test_main()

@@ -587,6 +587,14 @@ cockpit_json_parse_bytes (GBytes *data,
                           GError **error)
 {
   gsize length = g_bytes_get_size (data);
+
+  if (length == 0)
+    {
+      g_set_error (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_PARSE,
+                   "JSON data was empty");
+      return NULL;
+    }
+
   return cockpit_json_parse_object (g_bytes_get_data (data, NULL), length, error);
 }
 

@@ -45,5 +45,7 @@
         default_title: "Cockpit"
     };
 
-    indexes.machines_index(options, machines, loader, dialogs);
+    document.addEventListener('DOMContentLoaded', function() {
+        indexes.machines_index(options, machines, loader, dialogs);
+    });
 }());

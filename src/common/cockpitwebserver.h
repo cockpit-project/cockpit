@@ -35,7 +35,8 @@ extern gsize cockpit_webserver_request_maximum;
 
 GType              cockpit_web_server_get_type      (void) G_GNUC_CONST;
 
-CockpitWebServer * cockpit_web_server_new           (gint port,
+CockpitWebServer * cockpit_web_server_new           (const gchar *address,
+                                                     gint port,
                                                      GTlsCertificate *certificate,
                                                      const gchar **document_roots,
                                                      GCancellable *cancellable,

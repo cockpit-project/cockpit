@@ -37,6 +37,8 @@ typedef struct {
 
 typedef struct {
     const gchar *cert_file;
+    gboolean local_only;
+    gboolean inet_only;
 } TestFixture;
 
 static void
@@ -49,7 +51,13 @@ setup (TestCase *tc,
   GError *error = NULL;
   GInetAddress *inet;
   gchar *str;
+  const gchar *address;
   gint port;
+
+  inet = cockpit_test_find_non_loopback_address ();
+  g_assert (inet != NULL);
+
+  str = g_inet_address_to_string (inet);
 
   if (fixture && fixture->cert_file)
     {
@@ -57,21 +65,23 @@ setup (TestCase *tc,
       g_assert_no_error (error);
     }
 
-  tc->web_server = cockpit_web_server_new (0, cert, roots, NULL, &error);
+  if (fixture && fixture->local_only)
+    address = "127.0.0.1";
+  else if (fixture && fixture->inet_only)
+    address = str;
+  else
+    address = NULL;
+
+  tc->web_server = cockpit_web_server_new (address, 0, cert, roots, NULL, &error);
   g_assert_no_error (error);
   g_clear_object (&cert);
 
   /* Automatically chosen by the web server */
   g_object_get (tc->web_server, "port", &port, NULL);
   tc->localport = g_strdup_printf ("localhost:%d", port);
-
-  inet = cockpit_test_find_non_loopback_address ();
-  g_assert (inet != NULL);
-
-  str = g_inet_address_to_string (inet);
   tc->hostport = g_strdup_printf ("%s:%d", str, port);
-  g_free (str);
   g_object_unref (inet);
+  g_free (str);
 }
 
 static void
@@ -694,7 +704,6 @@ test_webserver_host_header (TestCase *tc,
   g_free (resp);
 }
 
-
 static void
 test_url_root (TestCase *tc,
                  gconstpointer unused)
@@ -802,6 +811,88 @@ test_handle_resource_url_root (TestCase *tc,
   g_assert (invoked == NULL);
 }
 
+static void
+assert_cannot_connect (const gchar *hostport)
+{
+  GSocketClient *client;
+  GSocketConnection *conn;
+  GAsyncResult *result;
+  GError *error = NULL;
+
+  client = g_socket_client_new ();
+
+  result = NULL;
+  g_socket_client_connect_to_host_async (client, hostport, 1, NULL, on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  conn = g_socket_client_connect_to_host_finish (client, result, &error);
+  g_object_unref (result);
+  g_assert_null (conn);
+  g_assert_error (error,  G_IO_ERROR, G_IO_ERROR_CONNECTION_REFUSED);
+  g_clear_error (&error);
+  g_object_unref (client);
+}
+
+static void
+test_address (TestCase *tc,
+              gconstpointer data)
+{
+  gchar *resp = NULL;
+  const TestFixture *fix = data;
+
+  cockpit_web_server_set_redirect_tls (tc->web_server, FALSE);
+  if (fix->local_only)
+    {
+      resp = perform_http_request (tc->localport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+      cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+      g_free (resp);
+      resp = NULL;
+    }
+  else
+    {
+      assert_cannot_connect (tc->localport);
+    }
+
+  if (fix->inet_only)
+    {
+      resp = perform_http_request (tc->hostport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+      cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+      g_free (resp);
+      resp = NULL;
+    }
+  else
+    {
+      assert_cannot_connect (tc->hostport);
+    }
+}
+
+static void
+test_bad_address (TestCase *tc,
+                  gconstpointer unused)
+{
+  CockpitWebServer *server = NULL;
+  const gchar *roots[] = { SRCDIR, NULL };
+  GError *error = NULL;
+  gint port;
+
+  cockpit_expect_warning ("Couldn't parse IP address from: bad");
+  server = cockpit_web_server_new ("bad", 0, NULL, roots, NULL, &error);
+
+  g_assert_no_error (error);
+  g_object_get (server, "port", &port, NULL);
+  g_assert (port > 0);
+
+  g_object_unref (server);
+}
+
+static const TestFixture fixture_inet_address = {
+    .inet_only = TRUE
+};
+
+static const TestFixture fixture_local_address = {
+    .local_only = TRUE
+};
+
 int
 main (int argc,
       char *argv[])
@@ -857,5 +948,13 @@ main (int argc,
               setup, test_url_root, teardown);
   g_test_add ("/web-server/url-root-handlers", TestCase, NULL,
               setup, test_handle_resource_url_root, teardown);
+
+  g_test_add ("/web-server/local-address-only", TestCase, &fixture_local_address,
+              setup, test_address, teardown);
+  g_test_add ("/web-server/inet-address-only", TestCase, &fixture_inet_address,
+              setup, test_address, teardown);
+  g_test_add ("/web-server/bad-address", TestCase, NULL,
+              NULL, test_bad_address, NULL);
+
   return g_test_run ();
 }

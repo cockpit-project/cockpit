@@ -584,7 +584,7 @@ server_ready (void)
   else
     server_port = 8765;
 
-  server = cockpit_web_server_new (server_port, /* TCP port to listen to */
+  server = cockpit_web_server_new (NULL, server_port, /* TCP port to listen to */
                                    NULL, /* TLS cert */
                                    roots,/* Where to serve files from */
                                    NULL, /* GCancellable* */

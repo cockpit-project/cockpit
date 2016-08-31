@@ -42,6 +42,9 @@
       <arg><option>--port</option> <replaceable>PORT</replaceable></arg>
       <arg><option>--no-tls</option></arg>
       <arg><option>--local-ssh</option></arg>
+      <arg><option>--address</option> <replaceable>ADDRESS</replaceable></arg>
+      <arg><option>--config-dir</option> <replaceable>/PATH/TO/CONFIG_DIR</replaceable></arg>
+      <arg><option>--static-dir</option> <replaceable>/PATH/TO/STATIC_DIR</replaceable></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -128,6 +131,39 @@ $ sudo remotectl certificate
             activation, and this option has no effect. Update the
             <literal>ListenStream</literal> directive <filename>cockpit.socket</filename>
             file in the usual <command>systemd</command> manner.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--address</option> <replaceable>ADDRESS</replaceable></term>
+        <listitem>
+          <para>
+            Bind to address <replaceable>ADDRESS</replaceable> instead of binding to
+            all available addresses. Usually Cockpit is started on demand by
+            <command>systemd</command> socket activation, and this option has no effect.
+            In that case, update the <literal>ListenStream</literal> directive in the
+            <filename>cockpit.socket</filename> file in the usual <command>systemd</command> manner.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--config-dir</option> <replaceable>/PATH/TO/CONFIG_DIR</replaceable></term>
+        <listitem>
+          <para>
+            Sets the cockpit config directory. Cockpit will expect a
+            <filename>cockpit.conf</filename> file and a <filename>ws-certs.d</filename>
+            directory to be present. Defaults to <filename>/etc/cockpit/</filename> when
+            not provided.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--static-dir</option> <replaceable>/PATH/TO/STATIC_DIR</replaceable></term>
+        <listitem>
+          <para>
+            Sets the prefered location for cockpit's static files. Supersedes any
+            branding based locations. These are the files that can be served
+            to a non-logged in user.
           </para>
         </listitem>
       </varlistentry>

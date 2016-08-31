@@ -91,10 +91,24 @@ test_get_strvs (void)
 }
 
 static void
+test_load_dir (void)
+{
+  cockpit_config_dir = SRCDIR "/src/ws/";
+  cockpit_config_file = "mock-config.conf";
+
+  g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"),
+                   ==, "string");
+  g_assert_cmpstr (cockpit_conf_get_dir (),
+                   ==, SRCDIR "/src/ws/");
+  cockpit_conf_cleanup ();
+}
+
+static void
 test_fail_load (void)
 {
   cockpit_config_file = SRCDIR "does-not-exist";
   g_assert_null (cockpit_conf_string ("Section2", "value1"));
+  cockpit_conf_cleanup ();
 }
 
 int
@@ -107,6 +121,6 @@ main (int argc,
   g_test_add_func ("/conf/test-strings", test_get_strings);
   g_test_add_func ("/conf/test-strvs", test_get_strvs);
   g_test_add_func ("/conf/fail_load", test_fail_load);
-
+  g_test_add_func ("/conf/load_dir", test_load_dir);
   return g_test_run ();
 }

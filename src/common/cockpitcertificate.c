@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitcertificate.h"
+#include "cockpitconf.h"
 #include "cockpitlog.h"
 #include "cockpitmemory.h"
 
@@ -142,9 +143,9 @@ create_temp_file (const gchar *directory,
 }
 
 static gchar *
-generate_temp_cert (GError **error)
+generate_temp_cert (const gchar *dir,
+                    GError **error)
 {
-  const gchar *dir = PACKAGE_SYSCONF_DIR "/cockpit/ws-certs.d";
   gchar *cert_path = NULL;
   gchar *tmp_key = NULL;
   gchar *tmp_pem = NULL;
@@ -153,7 +154,7 @@ generate_temp_cert (GError **error)
   gchar *key_data = NULL;
   gchar *ret = NULL;
 
-  cert_path = g_strdup_printf ("%s/0-self-signed.cert", dir);
+  cert_path = g_build_filename (dir, "0-self-signed.cert", NULL);
 
   /* Generate self-signed cert, if it does not exist */
   if (g_file_test (cert_path, G_FILE_TEST_EXISTS))
@@ -259,7 +260,7 @@ cockpit_certificate_locate (gboolean create_if_necessary,
                             GError **error)
 {
   gchar *cert_path = NULL;
-  const gchar *cert_dir = PACKAGE_SYSCONF_DIR "/cockpit/ws-certs.d";
+  gchar *cert_dir = g_build_filename (cockpit_conf_get_dir (), "ws-certs.d", NULL);
   GError *local_error;
 
   local_error = NULL;
@@ -269,7 +270,7 @@ cockpit_certificate_locate (gboolean create_if_necessary,
       g_propagate_prefixed_error (error, local_error,
                                   "Error loading certificates from %s: ",
                                   cert_dir);
-      return NULL;
+      goto out;
     }
 
   /* Could be there's no certicate at all, so cert_path can indeed be
@@ -280,7 +281,7 @@ cockpit_certificate_locate (gboolean create_if_necessary,
     {
       if (create_if_necessary)
         {
-          cert_path = generate_temp_cert (error);
+          cert_path = generate_temp_cert (cert_dir, error);
         }
       else
         {
@@ -289,6 +290,8 @@ cockpit_certificate_locate (gboolean create_if_necessary,
         }
     }
 
+out:
+  g_free (cert_dir);
   return cert_path;
 }
 

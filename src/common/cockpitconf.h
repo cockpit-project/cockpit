@@ -24,6 +24,7 @@
 
 G_BEGIN_DECLS
 extern const gchar *cockpit_config_file;
+extern const gchar *cockpit_config_dir;
 
 const gchar *   cockpit_conf_string           (const gchar *section,
                                                const gchar *field);
@@ -36,6 +37,8 @@ const gchar **  cockpit_conf_strv             (const gchar *section,
 gboolean        cockpit_conf_bool             (const gchar *section,
                                                const gchar *field,
                                                gboolean defawlt);
+
+const gchar *   cockpit_conf_get_dir          (void);
 
 void            cockpit_conf_cleanup          (void);
 

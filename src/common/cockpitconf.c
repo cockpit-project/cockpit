@@ -25,7 +25,8 @@
 
 static GHashTable *cockpit_conf = NULL;
 static GHashTable *cached_strvs = NULL;
-const gchar *cockpit_config_file = PACKAGE_SYSCONF_DIR "/cockpit/cockpit.conf";
+const gchar *cockpit_config_file = "cockpit.conf";
+const gchar *cockpit_config_dir = PACKAGE_SYSCONF_DIR "/cockpit/";
 
 static gboolean
 load_key_file (const gchar *file_path,
@@ -78,28 +79,45 @@ void
 cockpit_conf_init (void)
 {
   GError *error = NULL;
+  gchar *file = NULL;
+  gchar *dir = NULL;
 
   cockpit_conf = g_hash_table_new_full (cockpit_str_case_hash, cockpit_str_case_equal, g_free,
                                         (GDestroyNotify)g_hash_table_unref);
   cached_strvs = g_hash_table_new_full (cockpit_str_case_hash, cockpit_str_case_equal, g_free,
                                         (GDestroyNotify)g_strfreev);
 
+
   if (cockpit_config_file)
+    dir = g_path_get_dirname (cockpit_config_file);
+
+  /* only add cockpit_config_dir if cockpit_config_file doesn't
+   * already have a directory
+   */
+  if (cockpit_config_dir && g_strcmp0 (dir, ".") == 0)
+    file = g_build_filename (cockpit_config_dir, cockpit_config_file, NULL);
+  else if (cockpit_config_file)
+    file = g_strdup (cockpit_config_file);
+
+  if (file)
     {
-      if (!load_key_file (cockpit_config_file, &error))
+      if (!load_key_file (file, &error))
         {
           if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
             {
               g_message ("couldn't load configuration file: %s: %s",
-                         cockpit_config_file, error->message);
+                         file, error->message);
             }
           g_clear_error (&error);
         }
 
-      g_debug ("Loaded configuration from: %s", cockpit_config_file);
+      g_debug ("Loaded configuration from: %s", file);
     }
   else
       g_debug ("No configuration to load");
+
+  g_free (file);
+  g_free (dir);
 }
 
 
@@ -127,6 +145,12 @@ ensure_cockpit_conf (void)
     cockpit_conf_init ();
 }
 
+
+const gchar *
+cockpit_conf_get_dir (void)
+{
+  return cockpit_config_dir;
+}
 
 const gchar *
 cockpit_conf_string (const gchar *section,

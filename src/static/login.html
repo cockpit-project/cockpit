@@ -184,7 +184,7 @@
                     } else if (xhr.status == 401) {
                         show_login();
                     } else if (xhr.statusText) {
-                        fatal(xhr.statusText);
+                        fatal(decodeURIComponent(xhr.statusText));
                     } else if (xhr.status == 0) {
                         show_login();
                     } else {
@@ -432,11 +432,9 @@
                             }
                         }
                     } else if (xhr.status == 403) {
-                        if (window.console)
-                            console.log(xhr.statusText);
-                        login_failure("Permission denied");
+                        login_failure(decodeURIComponent(xhr.statusText) || "Permission denied");
                     } else if (xhr.statusText) {
-                        fatal(xhr.statusText);
+                        fatal(decodeURIComponent(xhr.statusText));
                     } else {
                         fatal(xhr.status + " error");
                     }

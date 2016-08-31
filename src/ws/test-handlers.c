@@ -84,7 +84,7 @@ base_setup (Test *test)
   GError *error = NULL;
   const gchar *user;
 
-  test->server = cockpit_web_server_new (0, NULL, roots, NULL, &error);
+  test->server = cockpit_web_server_new (NULL, 0, NULL, roots, NULL, &error);
   g_assert_no_error (error);
 
   /* Other test->data fields are fine NULL */

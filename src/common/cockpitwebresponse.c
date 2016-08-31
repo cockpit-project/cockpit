@@ -1004,6 +1004,7 @@ cockpit_web_response_error (CockpitWebResponse *self,
 {
   va_list var_args;
   gchar *reason = NULL;
+  gchar *escaped = NULL;
   const gchar *message;
   GBytes *input = NULL;
   GList *output, *l;
@@ -1074,6 +1075,16 @@ cockpit_web_response_error (CockpitWebResponse *self,
 
   if (!input)
     input = g_bytes_new_static (default_failure_template, strlen (default_failure_template));
+  output = cockpit_template_expand (input, substitute_message, (gpointer)message);
+  g_bytes_unref (input);
+
+  /* If sending arbitrary messages, make sure they're escaped */
+  if (reason)
+    {
+      g_strstrip (reason);
+      escaped = g_uri_escape_string (reason, " :", FALSE);
+      message = escaped;
+    }
 
   if (headers)
     {
@@ -1086,9 +1097,6 @@ cockpit_web_response_error (CockpitWebResponse *self,
       cockpit_web_response_headers (self, code, message, -1, "Content-Type", "text/html; charset=utf8", NULL);
     }
 
-  output = cockpit_template_expand (input, substitute_message, (gpointer)message);
-  g_bytes_unref (input);
-
   for (l = output; l != NULL; l = g_list_next (l))
     {
       if (!cockpit_web_response_queue (self, l->data))
@@ -1099,6 +1107,7 @@ cockpit_web_response_error (CockpitWebResponse *self,
   g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
 
   g_free (reason);
+  g_free (escaped);
 }
 
 /**

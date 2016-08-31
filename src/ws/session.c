@@ -66,6 +66,7 @@ static char *auth_delimiter = "";
 static char *auth_msg = NULL;
 static size_t auth_msg_size = 0;
 static FILE *authf = NULL;
+static char *last_err_msg = NULL;
 
 #if DEBUG_SESSION
 #define debug(fmt, ...) (fprintf (stderr, "cockpit-session: " fmt "\n", ##__VA_ARGS__))
@@ -200,7 +201,12 @@ write_auth_code (int result_code)
     }
 
   if (result_code != PAM_SUCCESS)
-    write_auth_string ("message", pam_strerror (NULL, result_code));
+    {
+      if (last_err_msg)
+        write_auth_string ("message", last_err_msg);
+      else
+        write_auth_string ("message", pam_strerror (NULL, result_code));
+    }
 
   debug ("wrote result %d to cockpit-ws", result_code);
 }
@@ -379,6 +385,9 @@ pam_conv_func (int num_msg,
   int success = 1;
   int i;
 
+  free (last_err_msg);
+  last_err_msg = NULL;
+
   resp = calloc (sizeof (struct pam_response), num_msg);
   if (resp == NULL)
     {
@@ -477,10 +486,7 @@ pam_conv_func (int num_msg,
     }
 
   if (err_msg)
-    {
-      warnx ("pam: dropping error message %s", err_msg);
-      free (err_msg);
-    }
+    last_err_msg = err_msg;
 
   if (txt_msg)
     {
@@ -1155,6 +1161,8 @@ main (int argc,
 
   pam_end (pamh, PAM_SUCCESS);
 
+  free (last_err_msg);
+  last_err_msg = NULL;
 
   if (WIFEXITED(status))
     exit (WEXITSTATUS(status));

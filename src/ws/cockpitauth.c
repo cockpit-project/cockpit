@@ -757,8 +757,8 @@ parse_cockpit_spawn_results (CockpitAuth *self,
           else if (g_strcmp0 (error_str, "permission-denied") == 0)
             {
               g_debug ("permission denied %s", message);
-              g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_PERMISSION_DENIED,
-                           "Permission denied");
+              g_set_error_literal (error, COCKPIT_ERROR, COCKPIT_ERROR_PERMISSION_DENIED,
+                                   message ? message : "Permission denied");
             }
           else
             {

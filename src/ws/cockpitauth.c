@@ -444,31 +444,42 @@ type_option (const gchar *type,
 }
 
 static guint
-timeout_option (const gchar *name,
-                const gchar *type,
-                guint default_value)
+type_guint_option (const gchar *name,
+                   const gchar *type,
+                   guint default_value,
+                   guint64 max,
+                   guint64 min)
 {
-  guint timeout = default_value;
-  guint64 conf_timeout;
+  guint val = default_value;
+  guint64 conf_val;
   const gchar* conf = type_option (type, name, NULL);
 
   if (conf)
     {
-      conf_timeout = g_ascii_strtoull (conf, NULL, 10);
+      conf_val = g_ascii_strtoull (conf, NULL, 10);
       if (errno == ERANGE || errno == EINVAL)
-        timeout = default_value;
-      else if (conf_timeout > MAX_AUTH_TIMEOUT || conf_timeout > UINT_MAX)
-        timeout = (MAX_AUTH_TIMEOUT > UINT_MAX) ? UINT_MAX : MAX_AUTH_TIMEOUT;
-      else if (conf_timeout < MIN_AUTH_TIMEOUT)
-        timeout = MIN_AUTH_TIMEOUT;
+        val = default_value;
+      else if (conf_val > max || conf_val > UINT_MAX)
+        val = (max > UINT_MAX) ? UINT_MAX : max;
+      else if (conf_val < min)
+        val = min;
       else
-        timeout = (guint)conf_timeout;
+        val = (guint)conf_val;
 
-      if (conf_timeout != timeout)
-        g_message ("Invalid %s timeout value '%s', setting to %u", type, conf, timeout);
+      if (conf_val != val)
+        g_message ("Invalid %s %s value '%s', setting to %u", type, name, conf, val);
     }
 
-  return timeout;
+  return val;
+}
+
+static guint
+timeout_option (const gchar *name,
+                const gchar *type,
+                guint default_value)
+{
+  return type_guint_option (name, type, default_value,
+                            MAX_AUTH_TIMEOUT, MIN_AUTH_TIMEOUT);
 }
 
 /* ------------------------------------------------------------------------
@@ -487,6 +498,11 @@ typedef struct {
   const gchar *command;
 
 } SpawnLoginData;
+
+typedef struct {
+  guint wanted_fd_number;
+  gint open_fd;
+} ChildFds;
 
 static void
 spawn_login_data_free (gpointer data)
@@ -516,21 +532,21 @@ spawn_login_data_free (gpointer data)
 static void
 spawn_child_setup (gpointer data)
 {
-  gint auth_fd = GPOINTER_TO_INT (data);
-  if (cockpit_unix_fd_close_all (3, auth_fd) < 0)
+  ChildFds *child_fds = data;
+  if (cockpit_unix_fd_close_all (3, child_fds->open_fd) < 0)
     {
       g_printerr ("couldn't close file descriptors: %m");
       _exit (127);
     }
 
-  /* When running a spawn login command fd 3 is always auth */
-  if (dup2 (auth_fd, 3) < 0)
+  /* Dup to the configured fd */
+  if (dup2 (child_fds->open_fd, child_fds->wanted_fd_number) < 0)
     {
       g_printerr ("couldn't dup file descriptor: %m");
       _exit (127);
     }
 
-  close (auth_fd);
+  close (child_fds->open_fd);
 }
 
 
@@ -803,7 +819,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   GSimpleAsyncResult *result;
   SpawnLoginData *sl;
   AuthData *ad = NULL;
-  gint child_pd;
+  ChildFds child_fds = { };
 
   GBytes *input = NULL;
   const gchar *command;
@@ -820,6 +836,9 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
                                       cockpit_auth_spawn_login_async);
 
   command = type_option (type, "command", cockpit_ws_session_program);
+
+  /* Get the wanted authfd for this command, default is 3 */
+  child_fds.wanted_fd_number = type_guint_option ("authFD", type, 3, 1024, 3);
 
   input = cockpit_auth_parse_authorization (headers, decode_header);
   if (!input && !gssapi_not_avail && g_strcmp0 (type, "negotiate") == 0)
@@ -855,8 +874,8 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
 
       ad->user_data = sl;
 
-      child_pd = cockpit_auth_pipe_steal_fd (ad->auth_pipe);
-      if (child_pd < 0)
+      child_fds.open_fd = cockpit_auth_pipe_steal_fd (ad->auth_pipe);
+      if (child_fds.open_fd < 0)
         {
           g_warning ("Couldn't steal child fd");
           g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
@@ -872,7 +891,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
 
       if (g_spawn_async_with_pipes (NULL, (gchar **) argv, NULL,
                                      G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
-                                     spawn_child_setup, GINT_TO_POINTER (child_pd),
+                                     spawn_child_setup, &child_fds,
                                      &sl->process_pid, &sl->process_in, &sl->process_out, NULL, &error))
         {
           auth_data_add_pending_result (ad, result);
@@ -895,7 +914,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
         }
 
       /* Child process end of pipe */
-      close (child_pd);
+      close (child_fds.open_fd);
     }
   else
     {

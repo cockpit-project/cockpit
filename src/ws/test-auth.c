@@ -524,6 +524,12 @@ static const SuccessFixture fixture_data = {
   .header = "testscheme success-with-data"
 };
 
+static const SuccessFixture fixture_auth_fd = {
+  .warning = NULL,
+  .data = "data",
+  .header = "testscheme-fd-4 success-with-data"
+};
+
 static const ErrorFixture fixture_bad_command = {
   .error_code = COCKPIT_ERROR_FAILED,
   .error_message = "Internal error in login process",
@@ -1005,6 +1011,8 @@ main (int argc,
   g_test_add ("/auth/idle-timeout", Test, NULL, setup, test_idle_timeout, teardown);
   g_test_add ("/auth/process-timeout", Test, NULL, setup, test_process_timeout, teardown);
   g_test_add ("/auth/custom-success", Test, &fixture_no_data,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-success-auth-fd", Test, &fixture_auth_fd,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-success-bad-data", Test, &fixture_bad_data,
               setup_normal, test_custom_success, teardown_normal);

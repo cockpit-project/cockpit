@@ -58,10 +58,13 @@ The command will be called with two arguments
  * remote host: The remote host to use with pam.
 
 cockpit-ws will then send contents of the Authorization http header, without the
-auth scheme, on fd #3 to the command. Once the command has processed the credentials
-it MUST write a JSON response to fd #3. Cockpit opens this fd using SOCK_SEQPACKET so
-messages can be sent and received in one operation. Each message should be no more
-than 65536 bytes.
+auth scheme, on a special authentication fd to the command. By default this is fd #3.
+Once the command has processed the credentials it MUST write a JSON response to the
+same authentication fd. Cockpit opens this fd using SOCK_SEQPACKET so messages can be
+sent and received in one operation. Each message should be no more than 65536 bytes.
+If your command needs to use a different FD for some reason you may add a ```authFD```
+option to your auth schema configuration. The configured number must be greater than
+2 and less than 1024.
 
 By default cockpit-ws will wait a maximum of 30 seconds to receive this response.
 The number of seconds to wait can be adjusted by adding a timeout parameter along

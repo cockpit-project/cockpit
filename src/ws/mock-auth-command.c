@@ -98,98 +98,102 @@ main (int argc,
       char **argv)
 {
   int success = 0;
+  int fd = AUTH_FD;
   char *data = NULL;
 
-  data = read_seqpacket_message (AUTH_FD);
+  if (argc > 2 && strcmp (argv[1], "testscheme-fd-4") == 0)
+    fd = 4;
+
+  data = read_seqpacket_message (fd);
   if (strcmp (data, "failslow") == 0)
     {
       sleep (2);
-      write_resp (AUTH_FD, "{ \"error\": \"authentication-failed\" }");
+      write_resp (fd, "{ \"error\": \"authentication-failed\" }");
     }
   else if (strcmp (data, "fail") == 0)
     {
-      write_resp (AUTH_FD, "{ \"error\": \"authentication-failed\" }");
+      write_resp (fd, "{ \"error\": \"authentication-failed\" }");
     }
   else if (strcmp (data, "denied") == 0)
     {
-      write_resp (AUTH_FD, "{ \"error\": \"permission-denied\" }");
+      write_resp (fd, "{ \"error\": \"permission-denied\" }");
     }
   else if (strcmp (data, "success") == 0)
     {
-      write_resp (AUTH_FD, "{\"user\": \"me\" }");
+      write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
   else if (strcmp (data, "success-with-data") == 0)
     {
-      write_resp (AUTH_FD, "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }");
+      write_resp (fd, "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }");
       success = 1;
     }
   else if (strcmp (data, "two-step") == 0)
     {
       free(data);
-      write_resp (AUTH_FD, "{\"prompt\": \"type two\" }");
-      data = read_seqpacket_message (AUTH_FD);
+      write_resp (fd, "{\"prompt\": \"type two\" }");
+      data = read_seqpacket_message (fd);
       if (!data || strcmp (data, "two") != 0)
         {
-          write_resp (AUTH_FD, "{ \"error\": \"authentication-failed\" }");
+          write_resp (fd, "{ \"error\": \"authentication-failed\" }");
         }
       else
         {
-          write_resp (AUTH_FD, "{\"user\": \"me\" }");
+          write_resp (fd, "{\"user\": \"me\" }");
           success = 1;
         }
     }
   else if (strcmp (data, "three-step") == 0)
     {
       free(data);
-      write_resp (AUTH_FD, "{\"prompt\": \"type two\" }");
-      data = read_seqpacket_message (AUTH_FD);
+      write_resp (fd, "{\"prompt\": \"type two\" }");
+      data = read_seqpacket_message (fd);
       if (!data || strcmp (data, "two") != 0)
         {
-          write_resp (AUTH_FD, "{ \"error\": \"authentication-failed\" }");
+          write_resp (fd, "{ \"error\": \"authentication-failed\" }");
           goto out;
         }
 
-      write_resp (AUTH_FD, "{\"prompt\": \"type three\" }");
+      write_resp (fd, "{\"prompt\": \"type three\" }");
       free(data);
-      data = read_seqpacket_message (AUTH_FD);
+      data = read_seqpacket_message (fd);
       if (!data || strcmp (data, "three") != 0)
         {
-          write_resp (AUTH_FD, "{ \"error\": \"authentication-failed\" }");
+          write_resp (fd, "{ \"error\": \"authentication-failed\" }");
         }
       else
         {
-          write_resp (AUTH_FD, "{\"user\": \"me\" }");
+          write_resp (fd, "{\"user\": \"me\" }");
           success = 1;
         }
       success = 1;
     }
   else if (strcmp (data, "success-bad-data") == 0)
     {
-      write_resp (AUTH_FD, "{\"user\": \"me\", \"login-data\": \"bad\" }");
+      write_resp (fd, "{\"user\": \"me\", \"login-data\": \"bad\" }");
       success = 1;
     }
   else if (strcmp (data, "no-user") == 0)
     {
-      write_resp (AUTH_FD, "{ }");
+      write_resp (fd, "{ }");
     }
   else if (strcmp (data, "with-error") == 0)
     {
-      write_resp (AUTH_FD, "{ \"error\": \"unknown\", \"message\": \"detail for error\" }");
+      write_resp (fd, "{ \"error\": \"unknown\", \"message\": \"detail for error\" }");
     }
   else if (strcmp (data, "with-error") == 0)
     {
-      write_resp (AUTH_FD, "{ \"error\": \"unknown\", \"message\": \"detail for error\" }");
+      write_resp (fd, "{ \"error\": \"unknown\", \"message\": \"detail for error\" }");
     }
   else if (strcmp (data, "too-slow") == 0)
     {
       sleep (10);
-      write_resp (AUTH_FD, "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }");
+      write_resp (fd, "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }");
       success = 1;
     }
 
 out:
-  close(AUTH_FD);
+  close(fd);
 
   if (success)
     execlp ("cat", "cat", NULL);

@@ -53,6 +53,9 @@
 
 static gboolean cockpit_test_init_was_called = FALSE;
 
+/* In cockpitconf.c */
+extern const gchar *cockpit_config_file;
+
 G_LOCK_DEFINE (expected);
 
 typedef struct {

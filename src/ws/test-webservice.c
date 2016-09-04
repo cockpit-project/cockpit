@@ -45,6 +45,9 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 
+/* Mock override from cockpitconf.c */
+extern const gchar *cockpit_config_file;
+
 #define TIMEOUT 30
 
 #define WAIT_UNTIL(cond) \
@@ -1305,13 +1308,13 @@ static const TestFixture fixture_bad_origin_hixie76 = {
 static const TestFixture fixture_allowed_origin_rfc6455 = {
   .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
   .origin = "https://another-place.com",
-  .config = SRCDIR "/src/ws/mock-config.conf"
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf"
 };
 
 static const TestFixture fixture_allowed_origin_hixie76 = {
   .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
   .origin = "https://another-place.com:9090",
-  .config = SRCDIR "/src/ws/mock-config.conf"
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf"
 };
 
 static void

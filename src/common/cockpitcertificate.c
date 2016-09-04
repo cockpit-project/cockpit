@@ -259,39 +259,45 @@ gchar *
 cockpit_certificate_locate (gboolean create_if_necessary,
                             GError **error)
 {
-  gchar *cert_path = NULL;
-  gchar *cert_dir = g_build_filename (cockpit_conf_get_dir (), "ws-certs.d", NULL);
-  GError *local_error;
+  const gchar * const* dirs = cockpit_conf_get_dirs ();
+  GError *local_error = NULL;
+  gchar *cert_dir;
+  gchar *cert_path;
+  gint i;
 
-  local_error = NULL;
-  cert_path = load_cert_from_dir (cert_dir, &local_error);
-  if (local_error != NULL)
+  for (i = 0; dirs[i]; i++)
     {
-      g_propagate_prefixed_error (error, local_error,
-                                  "Error loading certificates from %s: ",
-                                  cert_dir);
-      goto out;
+      cert_dir = g_build_filename (dirs[i], "cockpit", "ws-certs.d", NULL);
+      cert_path = load_cert_from_dir (cert_dir, &local_error);
+
+      if (local_error != NULL)
+        {
+          g_propagate_prefixed_error (error, local_error,
+                                      "Error loading certificates from %s: ",
+                                      cert_dir);
+          g_free (cert_dir);
+          return NULL;
+        }
+
+      g_free (cert_dir);
+
+      if (cert_path)
+        return cert_path;
     }
 
-  /* Could be there's no certicate at all, so cert_path can indeed be
-   * NULL. If so, use (and possibly generate) a temporary self-signed
-   * certificate
-   */
-  if (cert_path == NULL)
+  cert_dir = g_build_filename (dirs[0], "cockpit", "ws-certs.d", NULL);
+  if (create_if_necessary)
     {
-      if (create_if_necessary)
-        {
-          cert_path = generate_temp_cert (cert_dir, error);
-        }
-      else
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                       "No certificate found in dir: %s", cert_dir);
-        }
+      cert_path = generate_temp_cert (cert_dir, error);
     }
-
-out:
+  else
+    {
+      cert_path = NULL;
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "No certificate found in dir: %s", cert_dir);
+    }
   g_free (cert_dir);
+
   return cert_path;
 }
 

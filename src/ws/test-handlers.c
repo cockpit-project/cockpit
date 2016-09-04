@@ -38,6 +38,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+/* Mock override this from cockpitconf.c */
+extern const gchar *cockpit_config_file;
+
 #define PASSWORD "this is the password"
 
 typedef struct {
@@ -552,7 +555,7 @@ static const DefaultFixture fixture_shell_configured_index = {
   .path = "/",
   .auth = "/cockpit",
   .with_home = TRUE,
-  .config = SRCDIR "/src/ws/mock-config.conf",
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
   .expect = "HTTP/1.1 200*"
       "<base href=\"/cockpit/@localhost/second/test.html\">*"
       "<title>In system dir</title>*"

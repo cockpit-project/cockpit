@@ -164,13 +164,9 @@ cockpit_remotectl_certificate (int argc,
   gchar *selinux = NULL;
   gchar *group = NULL;
   gchar *user = NULL;
-  gchar *opt_config_dir = NULL;
   int ret = 1;
 
   const GOptionEntry options[] = {
-    { "config-dir", 'c', 0, G_OPTION_ARG_STRING, &opt_config_dir,
-      "Configuration directory defaults to " PACKAGE_SYSCONF_DIR "/cockpit/ if unset)",
-      NULL},
     { "ensure", 0, 0, G_OPTION_ARG_NONE, &ensure,
       "Ensure that a certificate exists and can be loaded", NULL },
     { "user", 0, 0, G_OPTION_ARG_STRING, &user,
@@ -196,9 +192,6 @@ cockpit_remotectl_certificate (int argc,
     }
   else
     {
-      if (opt_config_dir)
-        cockpit_config_dir = opt_config_dir;
-
       g_set_prgname ("remotectl");
       if (ensure)
         ret = ensure_certificate (user, group, selinux);

@@ -25,10 +25,14 @@
 
 #include <glib.h>
 
+/* Mock override cockpitconf.c */
+extern const gchar *cockpit_config_file;
+extern const gchar *cockpit_config_dirs[];
+
 static void
 test_get_strings (void)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
+  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
 
   g_assert_null (cockpit_conf_string ("bad-section", "value"));
   g_assert_null (cockpit_conf_string ("Section1", "value"));
@@ -47,7 +51,7 @@ test_get_strings (void)
 static void
 test_get_bool (void)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
+  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
 
   g_assert_true (cockpit_conf_bool ("bad-section", "value", TRUE));
   g_assert_false (cockpit_conf_bool ("bad-section", "value", FALSE));
@@ -70,7 +74,7 @@ test_get_strvs (void)
   const gchar **space = NULL;
   const gchar **one = NULL;
 
-  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
+  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
 
   g_assert_null (cockpit_conf_strv ("bad-section", "value", ' '));
   g_assert_null (cockpit_conf_strv ("Section1", "value", ' '));
@@ -93,20 +97,18 @@ test_get_strvs (void)
 static void
 test_load_dir (void)
 {
-  cockpit_config_dir = SRCDIR "/src/ws/";
-  cockpit_config_file = "mock-config.conf";
+  cockpit_config_dirs[0] = SRCDIR "/src/ws/mock-config";
+  cockpit_config_file = "cockpit.conf";
 
-  g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"),
-                   ==, "string");
-  g_assert_cmpstr (cockpit_conf_get_dir (),
-                   ==, SRCDIR "/src/ws/");
+  g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"), ==, "string");
+  g_assert_cmpstr (cockpit_conf_get_dirs ()[0], ==, SRCDIR "/src/ws/mock-config");
   cockpit_conf_cleanup ();
 }
 
 static void
 test_fail_load (void)
 {
-  cockpit_config_file = SRCDIR "does-not-exist";
+  cockpit_config_file = SRCDIR "/does-not-exist";
   g_assert_null (cockpit_conf_string ("Section2", "value1"));
   cockpit_conf_cleanup ();
 }

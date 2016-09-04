@@ -45,7 +45,6 @@
 static gint      opt_port         = 9090;
 static gchar     *opt_address     = NULL;
 static gchar     *opt_static_dir  = NULL;
-static gchar     *opt_config_dir  = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_local_ssh    = FALSE;
 static gboolean  opt_version      = FALSE;
@@ -54,7 +53,6 @@ static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", NULL},
   {"static-dir", 's', 0, G_OPTION_ARG_STRING, &opt_static_dir, "Default static assets directory (discovered based on os-release if unset)", NULL},
-  {"config-dir", 'c', 0, G_OPTION_ARG_STRING, &opt_config_dir, "Configuration directory defaults to " PACKAGE_SYSCONF_DIR "/cockpit/ if unset)", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
   {"version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Print version information", NULL },
@@ -154,9 +152,6 @@ main (int argc,
     {
       goto out;
     }
-
-  if (opt_config_dir)
-    cockpit_config_dir = opt_config_dir;
 
   if (opt_version)
     {
@@ -262,7 +257,6 @@ out:
   g_strfreev (roots);
   g_free (opt_address);
   g_free (opt_static_dir);
-  g_free (opt_config_dir);
   cockpit_conf_cleanup ();
   return ret;
 }

@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+/* Mock override these from other files */
+extern const gchar *cockpit_config_file;
 extern const gchar *cockpit_ws_max_startups;
 
 typedef struct {
@@ -56,7 +58,7 @@ static void
 setup_normal (Test *test,
               gconstpointer data)
 {
-  cockpit_config_file = SRCDIR "/src/ws/mock-config.conf";
+  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
   test->auth = cockpit_auth_new (FALSE);
 }
 

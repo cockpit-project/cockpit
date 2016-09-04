@@ -35,6 +35,9 @@
 #include <glib/gstdio.h>
 #include <string.h>
 
+/* Override from cockpitconf.c */
+extern const gchar *cockpit_config_file;
+
 static GMainLoop *loop = NULL;
 static gboolean signalled = FALSE;
 static int exit_code = 0;

@@ -25,26 +25,31 @@
 
 static GHashTable *cockpit_conf = NULL;
 static GHashTable *cached_strvs = NULL;
+
 const gchar *cockpit_config_file = "cockpit.conf";
-const gchar *cockpit_config_dir = PACKAGE_SYSCONF_DIR "/cockpit/";
+const gchar *cockpit_config_dirs[] = { PACKAGE_SYSCONF_DIR, NULL };
 
 static gboolean
-load_key_file (const gchar *file_path,
-                GError **error)
+load_key_file (const gchar *file_path)
 {
   GKeyFile *key_file = NULL;
   GHashTable *section;
-  GError *err = NULL;
+  GError *error = NULL;
   gchar **groups;
   gint i;
   gint j;
+  gboolean ret = TRUE;
 
   key_file = g_key_file_new ();
 
-  if (!g_key_file_load_from_file (key_file, file_path, G_KEY_FILE_NONE, error))
+  if (!g_key_file_load_from_file (key_file, file_path, G_KEY_FILE_NONE, &error))
     {
-      g_key_file_free (key_file);
-      return FALSE;
+      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+        goto out;
+
+      g_message ("couldn't load configuration file: %s: %s", file_path, error->message);
+      ret = FALSE;
+      goto out;
     }
 
   groups = g_key_file_get_groups (key_file, NULL);
@@ -58,27 +63,31 @@ load_key_file (const gchar *file_path,
           g_hash_table_insert (cockpit_conf, g_strdup (groups[i]), section);
         }
 
-      keys = g_key_file_get_keys (key_file, groups[i], NULL, &err);
-      g_return_val_if_fail (err == NULL, FALSE);
+      keys = g_key_file_get_keys (key_file, groups[i], NULL, &error);
+      g_return_val_if_fail (error == NULL, FALSE);
 
       for (j = 0; keys[j] != NULL; j++)
         {
-          gchar *value = g_key_file_get_value (key_file, groups[i], keys[j], &err);
-          g_return_val_if_fail (err == NULL, FALSE);
+          gchar *value = g_key_file_get_value (key_file, groups[i], keys[j], &error);
+          g_return_val_if_fail (error == NULL, FALSE);
           g_hash_table_insert (section, g_strdup (keys[j]), value);
         }
       g_strfreev (keys);
     }
   g_strfreev (groups);
 
+  g_debug ("Loaded configuration from: %s", file_path);
+
+out:
+  g_clear_error (&error);
   g_key_file_free (key_file);
-  return TRUE;
+  return ret;
 }
 
 void
 cockpit_conf_init (void)
 {
-  GError *error = NULL;
+  const gchar *const *dirs;
   gchar *file = NULL;
   gchar *dir = NULL;
 
@@ -88,35 +97,30 @@ cockpit_conf_init (void)
                                         (GDestroyNotify)g_strfreev);
 
 
-  if (cockpit_config_file)
-    dir = g_path_get_dirname (cockpit_config_file);
-
-  /* only add cockpit_config_dir if cockpit_config_file doesn't
-   * already have a directory
-   */
-  if (cockpit_config_dir && g_strcmp0 (dir, ".") == 0)
-    file = g_build_filename (cockpit_config_dir, cockpit_config_file, NULL);
-  else if (cockpit_config_file)
-    file = g_strdup (cockpit_config_file);
-
-  if (file)
+  if (!cockpit_config_file)
     {
-      if (!load_key_file (file, &error))
-        {
-          if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
-            {
-              g_message ("couldn't load configuration file: %s: %s",
-                         file, error->message);
-            }
-          g_clear_error (&error);
-        }
+      g_debug ("No configuration to load");
+      return;
+    }
 
-      g_debug ("Loaded configuration from: %s", file);
+  dir = g_path_get_dirname (cockpit_config_file);
+  if (dir && g_strcmp0 (dir, ".") != 0)
+    {
+      load_key_file (cockpit_config_file);
     }
   else
-      g_debug ("No configuration to load");
+    {
+      dirs = cockpit_conf_get_dirs ();
+      while (dirs && dirs[0])
+        {
+          file = g_build_filename (dirs[0], "cockpit", cockpit_config_file, NULL);
+          load_key_file (file);
+          g_free (file);
 
-  g_free (file);
+          dirs++;
+        }
+    }
+
   g_free (dir);
 }
 
@@ -146,10 +150,16 @@ ensure_cockpit_conf (void)
 }
 
 
-const gchar *
-cockpit_conf_get_dir (void)
+const gchar * const*
+cockpit_conf_get_dirs (void)
 {
-  return cockpit_config_dir;
+  const gchar *env;
+
+  env = g_getenv ("XDG_CONFIG_DIRS");
+  if (env && env[0])
+    return g_get_system_config_dirs ();
+  else
+    return cockpit_config_dirs;
 }
 
 const gchar *

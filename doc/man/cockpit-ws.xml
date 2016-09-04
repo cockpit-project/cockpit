@@ -43,7 +43,6 @@
       <arg><option>--no-tls</option></arg>
       <arg><option>--local-ssh</option></arg>
       <arg><option>--address</option> <replaceable>ADDRESS</replaceable></arg>
-      <arg><option>--config-dir</option> <replaceable>/PATH/TO/CONFIG_DIR</replaceable></arg>
       <arg><option>--static-dir</option> <replaceable>/PATH/TO/STATIC_DIR</replaceable></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
@@ -147,17 +146,6 @@ $ sudo remotectl certificate
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><option>--config-dir</option> <replaceable>/PATH/TO/CONFIG_DIR</replaceable></term>
-        <listitem>
-          <para>
-            Sets the cockpit config directory. Cockpit will expect a
-            <filename>cockpit.conf</filename> file and a <filename>ws-certs.d</filename>
-            directory to be present. Defaults to <filename>/etc/cockpit/</filename> when
-            not provided.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
         <term><option>--static-dir</option> <replaceable>/PATH/TO/STATIC_DIR</replaceable></term>
         <listitem>
           <para>
@@ -179,6 +167,20 @@ $ sudo remotectl certificate
   </refsect1>
 
   <refsect1>
+    <title>ENVIRONMENT</title>
+    <para>
+      The <command>cockpit-ws</command> process will use the <literal>XDG_CONFIG_DIRS</literal>
+      environment variable from the
+      <ulink url="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+        basedir spec</ulink> to find its
+      <citerefentry>
+        <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+      </citerefentry>
+      configuration file.
+    </para>
+  </refsect1>
+
+  <refsect1>
     <title>BUGS</title>
     <para>
       Please send bug reports to either the distribution bug tracker or the
@@ -195,6 +197,10 @@ $ sudo remotectl certificate
   <refsect1>
     <title>SEE ALSO</title>
     <para>
+      <citerefentry>
+        <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+      </citerefentry>
+      ,
       <citerefentry>
         <refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum>
       </citerefentry>

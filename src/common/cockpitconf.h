@@ -23,8 +23,6 @@
 #include <glib.h>
 
 G_BEGIN_DECLS
-extern const gchar *cockpit_config_file;
-extern const gchar *cockpit_config_dir;
 
 const gchar *   cockpit_conf_string           (const gchar *section,
                                                const gchar *field);
@@ -38,7 +36,7 @@ gboolean        cockpit_conf_bool             (const gchar *section,
                                                const gchar *field,
                                                gboolean defawlt);
 
-const gchar *   cockpit_conf_get_dir          (void);
+const gchar * const * cockpit_conf_get_dirs   (void);
 
 void            cockpit_conf_cleanup          (void);
 

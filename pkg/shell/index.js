@@ -17,18 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "shell/indexes",
-    "shell/machines",
-    "shell/credentials",
-    'shell/po',
-    "shell/machine-dialogs",
-], function($, cockpit, indexes, machis, credentials, po, mdialogs) {
+(function() {
     "use strict";
 
-    cockpit.locale(po);
+    var machis = require("machines");
+    var credentials = require("credentials");
+    var mdialogs = require("machine-dialogs");
+
+    var indexes = require("./indexes");
 
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 
@@ -49,6 +45,7 @@ define([
         default_title: "Cockpit"
     };
 
-    indexes.machines_index(options, machines, loader, dialogs);
-
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        indexes.machines_index(options, machines, loader, dialogs);
+    });
+}());

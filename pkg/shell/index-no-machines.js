@@ -19,19 +19,14 @@
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
-define([
-    "jquery",
-    "base1/cockpit",
-    "shell/indexes",
-    'shell/po',
-    "manifests",
-], function($, cockpit, indexes, po, manifests) {
-    "use strict";
+var $ = require("jquery");
+var cockpit = require("cockpit");
 
-    cockpit.locale(po);
+var indexes = require("./indexes");
 
+$(function() {
     var default_title = "Cockpit";
-    var manifest = manifests["shell"] || { };
+    var manifest = cockpit.manifests["shell"] || { };
     if (manifest.title)
         default_title = manifest.title;
 

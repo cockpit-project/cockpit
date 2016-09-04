@@ -84,6 +84,7 @@ static void
 base_setup (Test *test)
 {
   const gchar *roots[] = { SRCDIR "/src/ws", NULL };
+  const gchar *static_roots[] = { SRCDIR "/src/static", SRCDIR "/src/branding/default", NULL };
   GError *error = NULL;
   const gchar *user;
 
@@ -95,7 +96,7 @@ base_setup (Test *test)
 
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
-  test->roots = cockpit_web_server_resolve_roots (SRCDIR "/src/static", SRCDIR "/src/branding/default", NULL);
+  test->roots = cockpit_web_server_resolve_roots (static_roots);
 
   test->data.auth = test->auth;
   test->data.static_roots = (const gchar **)test->roots;

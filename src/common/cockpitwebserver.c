@@ -207,8 +207,8 @@ cockpit_web_server_get_property (GObject *object,
     }
 }
 
-static gchar **
-filter_document_roots (const gchar **input)
+gchar **
+cockpit_web_server_resolve_roots (const gchar **input)
 {
   GPtrArray *roots;
   char *path;
@@ -225,30 +225,6 @@ filter_document_roots (const gchar **input)
     }
   g_ptr_array_add (roots, NULL);
   return (gchar **)g_ptr_array_free (roots, FALSE);
-}
-
-gchar **
-cockpit_web_server_resolve_roots (const gchar *root,
-                                  ...)
-{
-  gchar **resolved;
-  GPtrArray *input;
-  va_list va;
-
-  input = g_ptr_array_new ();
-
-  va_start (va, root);
-  while (root != NULL)
-    {
-      g_ptr_array_add (input, (gchar *)root);
-      root = va_arg (va, const gchar *);
-    }
-  va_end (va);
-
-  g_ptr_array_add (input, NULL);
-  resolved = filter_document_roots ((const gchar **)input->pdata);
-  g_ptr_array_free (input, TRUE);
-  return resolved;
 }
 
 static void
@@ -282,7 +258,7 @@ cockpit_web_server_set_property (GObject *object,
       break;
 
     case PROP_DOCUMENT_ROOTS:
-      server->document_roots = filter_document_roots (g_value_get_boxed (value));
+      server->document_roots = cockpit_web_server_resolve_roots (g_value_get_boxed (value));
       break;
 
     case PROP_SSL_EXCEPTION_PREFIX:

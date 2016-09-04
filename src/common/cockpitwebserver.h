@@ -57,8 +57,7 @@ gchar **           cockpit_web_server_parse_languages (GHashTable *headers,
 gboolean           cockpit_web_server_parse_encoding  (GHashTable *headers,
                                                        const gchar *encoding);
 
-gchar **           cockpit_web_server_resolve_roots (const gchar *root,
-                                                     ...) G_GNUC_NULL_TERMINATED;
+gchar **           cockpit_web_server_resolve_roots   (const gchar **roots);
 
 gboolean           cockpit_web_server_get_socket_activated (CockpitWebServer *self);
 

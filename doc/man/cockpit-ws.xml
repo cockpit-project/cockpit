@@ -43,7 +43,6 @@
       <arg><option>--no-tls</option></arg>
       <arg><option>--local-ssh</option></arg>
       <arg><option>--address</option> <replaceable>ADDRESS</replaceable></arg>
-      <arg><option>--static-dir</option> <replaceable>/PATH/TO/STATIC_DIR</replaceable></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -146,16 +145,6 @@ $ sudo remotectl certificate
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><option>--static-dir</option> <replaceable>/PATH/TO/STATIC_DIR</replaceable></term>
-        <listitem>
-          <para>
-            Sets the prefered location for cockpit's static files. Supersedes any
-            branding based locations. These are the files that can be served
-            to a non-logged in user.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
         <term><option>--no-tls</option></term>
         <listitem>
           <para>
@@ -177,6 +166,13 @@ $ sudo remotectl certificate
         <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
       </citerefentry>
       configuration file.
+    </para>
+    <para>
+      In addition the <literal>XDG_DATA_DIRS</literal> environment variable from the
+      <ulink url="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+        basedir spec</ulink>
+      can be used to override the location to serve static files from. These are the files that
+      are served to a non-logged in user.
     </para>
   </refsect1>
 

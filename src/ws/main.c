@@ -44,7 +44,6 @@
 
 static gint      opt_port         = 9090;
 static gchar     *opt_address     = NULL;
-static gchar     *opt_static_dir  = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_local_ssh    = FALSE;
 static gboolean  opt_version      = FALSE;
@@ -52,7 +51,6 @@ static gboolean  opt_version      = FALSE;
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", NULL},
-  {"static-dir", 's', 0, G_OPTION_ARG_STRING, &opt_static_dir, "Default static assets directory (discovered based on os-release if unset)", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
   {"version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Print version information", NULL },
@@ -69,17 +67,35 @@ print_version (void)
   g_print ("Authorization: crypt1\n");
 }
 
+static const gchar * const*
+get_system_data_dirs (void)
+{
+  const gchar *env;
+
+  env = g_getenv ("XDG_DATA_DIRS");
+  if (env && env[0])
+    return g_get_system_data_dirs ();
+
+  return NULL;
+}
+
 static gchar **
 calculate_static_roots (GHashTable *os_release)
 {
   const gchar *os_id = NULL;
   const gchar *os_variant_id = NULL;
-  gchar *dirs[5] = { NULL, };
+  const gchar * const* system;
+  GPtrArray *dirs;
   gchar **roots;
-  gint i = 0;
 
-  if (opt_static_dir)
-    dirs[i++] = g_strdup (opt_static_dir);
+  dirs = g_ptr_array_new ();
+
+  system = get_system_data_dirs ();
+  while (system && system[0])
+    {
+      g_ptr_array_add (dirs, g_build_filename (system[0], "cockpit", "static", NULL));
+      system++;
+    }
 
 #ifdef PACKAGE_BRAND
   os_id = PACKAGE_BRAND;
@@ -94,22 +110,20 @@ calculate_static_roots (GHashTable *os_release)
   if (os_id)
     {
       if (os_variant_id)
-          dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id);
-      dirs[i++] = g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id);
+          g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id));
+      g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id));
     }
-  dirs[i++] = g_strdup (DATADIR "/cockpit/branding/default");
-  dirs[i++] = g_strdup (DATADIR "/cockpit/static");
-  g_assert (i <= 4);
+  g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/branding/default"));
+  g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/static"));
+  g_ptr_array_add (dirs, NULL);
 
-  roots = cockpit_web_server_resolve_roots (dirs[0], dirs[1], dirs[2], dirs[3], NULL);
-
-  while (i > 0)
-    g_free (dirs[--i]);
+  roots = cockpit_web_server_resolve_roots ((const gchar **)dirs->pdata);
 
   /* Load the fail template */
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
+  g_ptr_array_free (dirs, TRUE);
   return roots;
 }
 
@@ -256,7 +270,6 @@ out:
   g_free (cert_path);
   g_strfreev (roots);
   g_free (opt_address);
-  g_free (opt_static_dir);
   cockpit_conf_cleanup ();
   return ret;
 }

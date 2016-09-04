@@ -198,10 +198,9 @@ class TestConnection(MachineCase):
     def testCommandline(self):
         m = self.machine
         m.execute('mkdir -p /test/cockpit/ws-certs.d && echo "[WebService]\nLoginTitle = A Custom Title" > /test/cockpit/cockpit.conf')
-        m.execute('mkdir -p /test/root/ && echo "<!DOCTYPE html><html><head></head><body><p>Custom Default Root</p></body></html>" > /test/root/login.html')
+        m.execute('mkdir -p /test/cockpit/static/ && echo "<!DOCTYPE html><html><head></head><body><p>Custom Default Root</p></body></html>" > /test/cockpit/static/login.html')
 
-        env = { "XDG_CONFIG_DIRS": "/test" }
-        m.execute("remotectl certificate --ensure", environment=env)
+        m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test remotectl certificate --ensure")
         self.assertTrue(m.execute("ls /test/cockpit/ws-certs.d/*"))
         self.assertFalse(m.execute("ls /etc/cockpit/ws-certs.d/* || true"))
 
@@ -209,7 +208,7 @@ class TestConnection(MachineCase):
         if "debian" in m.image:
             executable = "/usr/lib/cockpit/cockpit-ws"
 
-        m.execute("{} --port 9000 --address 127.0.0.1 --static-dir=/test/root/ 0<&- &>/dev/null &".format(executable), environment=env)
+        m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(executable))
 
         output = m.execute('curl -s -S -k https://{}:9000/ 2>&1 || true'.format(m.address))
         self.assertIn('Connection refused', output)

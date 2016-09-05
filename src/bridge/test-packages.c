@@ -25,6 +25,7 @@
 
 #include "mock-transport.h"
 
+#include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
 
@@ -86,7 +87,14 @@ setup (TestCase *tc,
     cockpit_expect_warning (fixture->expect);
 
   if (fixture->datadirs[0])
-    cockpit_bridge_data_dirs = (const gchar **)fixture->datadirs;
+    {
+      cockpit_bridge_data_dirs = (const gchar **)fixture->datadirs;
+    }
+  else
+    {
+      cockpit_expect_message ("incompatible: package requires a later version of cockpit: 999.5");
+      cockpit_expect_message ("requires: package has an unknown requirement: unknown");
+    }
 
   tc->packages = cockpit_packages_new ();
 
@@ -218,6 +226,50 @@ test_localized_unknown (TestCase *tc,
   g_bytes_unref (data);
 }
 
+static const Fixture fixture_version = {
+  .path = "/incompatible/test.html",
+};
+
+static void
+test_incompatible_version (TestCase *tc,
+                           gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_version);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":503,\"reason\":\"This package requires Cockpit version 999.5 or later\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}<html><head><title>This package requires Cockpit version 999.5 or later</title></head><body>This package requires Cockpit version 999.5 or later</body></html>\n", -1);
+  g_bytes_unref (data);
+}
+
+static const Fixture fixture_requires = {
+  .path = "/requires/test.html",
+};
+
+static void
+test_incompatible_requires (TestCase *tc,
+                            gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_requires);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":503,\"reason\":\"This package is not compatible with this version of Cockpit\",\"headers\":{\"Content-Type\":\"text/html; charset=utf8\"}}<html><head><title>This package is not compatible with this version of Cockpit</title></head><body>This package is not compatible with this version of Cockpit</body></html>\n", -1);
+  g_bytes_unref (data);
+}
+
 static const Fixture fixture_large = {
   .path = "/test/sub/COPYING",
 };
@@ -298,6 +350,14 @@ test_listing (TestCase *tc,
                           " },"
                           " \"test\": {"
                           "   \"description\" : \"dummy\""
+                          " },"
+                          " \"incompatible\": {"
+                          "   \"description\" : \"incompatible package\","
+                          "   \"requires\" : { \"cockpit\" : \"999.5\" }"
+                          " },"
+                          " \"requires\": {"
+                          "   \"description\" : \"requires package\","
+                          "   \"requires\" : { \"unknown\" : \"requirement\" }"
                           " }"
                           "}");
   json_node_free (node);
@@ -467,6 +527,8 @@ static void
 setup_basic (TestCase *tc,
              gconstpointer data)
 {
+  cockpit_expect_message ("incompatible: package requires a later version of cockpit: 999.5");
+  cockpit_expect_message ("requires: package has an unknown requirement: unknown");
   tc->packages = cockpit_packages_new ();
 }
 
@@ -553,6 +615,10 @@ main (int argc,
               setup, test_localized_translated, teardown);
   g_test_add ("/packages/localized-unknown", TestCase, &fixture_unknown,
               setup, test_localized_unknown, teardown);
+  g_test_add ("/packages/incompatible/version", TestCase, &fixture_version,
+              setup, test_incompatible_version, teardown);
+  g_test_add ("/packages/incompatible/requires", TestCase, &fixture_requires,
+              setup, test_incompatible_requires, teardown);
   g_test_add ("/packages/large", TestCase, &fixture_large,
               setup, test_large, teardown);
   g_test_add ("/packages/listing", TestCase, &fixture_listing,

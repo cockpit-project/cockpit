@@ -109,6 +109,12 @@ $ cockpit-bridge --packages
           field overrides that name.</para></listitem>
       </varlistentry>
       <varlistentry>
+        <term>requires</term>
+        <listitem><para>An optional JSON object that contains a <code>"cockpit"</code>
+          string version number. The package will only be usable if the Cockpit bridge
+          and javascript base are equal or newer than the given version number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
         <term>tools</term>
         <listitem><para>An optional JSON object containing all the tools that this package
           provides. These will be added into the Cockpit user interface under the 'Tools' menu.
@@ -141,6 +147,9 @@ $ cockpit-bridge --packages
 <programlisting>
 {
   "version": 0,
+  "require": {
+      "cockpit": "120"
+  },
   "tools": {
      "mytool": {
         "label": "My Tool",

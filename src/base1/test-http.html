@@ -58,7 +58,7 @@ asyncTest("simple request", function() {
     cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json")
         .done(function(data) {
             deepEqual(JSON.parse(data), {
-                version: 0,
+                version: "@VERSION@",
                 'requires': {
                     "cockpit": "0.114"
                 },

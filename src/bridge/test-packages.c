@@ -92,7 +92,7 @@ setup (TestCase *tc,
     }
   else
     {
-      cockpit_expect_message ("incompatible: package requires a later version of cockpit: 999.5");
+      cockpit_expect_message ("incompatible: package requires a later version of cockpit: 999.5*");
       cockpit_expect_message ("requires: package has an unknown requirement: unknown");
     }
 
@@ -527,7 +527,7 @@ static void
 setup_basic (TestCase *tc,
              gconstpointer data)
 {
-  cockpit_expect_message ("incompatible: package requires a later version of cockpit: 999.5");
+  cockpit_expect_message ("incompatible: package requires a later version of cockpit: 999.5*");
   cockpit_expect_message ("requires: package has an unknown requirement: unknown");
   tc->packages = cockpit_packages_new ();
 }

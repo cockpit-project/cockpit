@@ -93,7 +93,7 @@ calculate_static_roots (GHashTable *os_release)
   system = get_system_data_dirs ();
   while (system && system[0])
     {
-      g_ptr_array_add (dirs, g_strdup (system[0]));
+      g_ptr_array_add (dirs, g_build_filename (system[0], "cockpit", "static", NULL));
       system++;
     }
 

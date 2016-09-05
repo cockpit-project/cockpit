@@ -38,17 +38,18 @@ load_key_file (const gchar *file_path)
   gchar **groups;
   gint i;
   gint j;
+  gboolean ret = TRUE;
 
   key_file = g_key_file_new ();
 
   if (!g_key_file_load_from_file (key_file, file_path, G_KEY_FILE_NONE, &error))
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
-        return TRUE;
+        goto out;
 
       g_message ("couldn't load configuration file: %s: %s", file_path, error->message);
-      g_clear_error (&error);
-      return FALSE;
+      ret = FALSE;
+      goto out;
     }
 
   groups = g_key_file_get_groups (key_file, NULL);
@@ -76,8 +77,11 @@ load_key_file (const gchar *file_path)
   g_strfreev (groups);
 
   g_debug ("Loaded configuration from: %s", file_path);
+
+out:
+  g_clear_error (&error);
   g_key_file_free (key_file);
-  return TRUE;
+  return ret;
 }
 
 void

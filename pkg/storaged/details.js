@@ -1728,8 +1728,11 @@
 
             if (html) {
                 $('#detail button.tooltip-ct').tooltip('destroy');
-                $('#detail').amend(html);
-                $('#detail button.tooltip-ct').tooltip();
+                $('#detail').html(html);
+                // if we don't use setTimeout here, sometimes not all tooltips will be updated
+                window.setTimeout(function() {
+                    $('#detail button.tooltip-ct').tooltip();
+                }, 0);
             } else
                 $('#detail').text(_("Not found"));
 

@@ -558,7 +558,8 @@ check_package_compatible (CockpitPackage *package,
    */
   if (minimum && cockpit_version_compare (PACKAGE_VERSION, minimum) < 0)
     {
-      g_message ("%s: package requires a later version of cockpit: %s", package->name, minimum);
+      g_message ("%s: package requires a later version of cockpit: %s > %s",
+                 package->name, minimum, PACKAGE_VERSION);
       package->unavailable = g_strdup_printf (_("This package requires Cockpit version %s or later"), minimum);
     }
 

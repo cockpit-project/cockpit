@@ -27,11 +27,13 @@
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitsystem.h"
+#include "common/cockpitversion.h"
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
 
 #include <glib.h>
+#include <glib/gi18n.h>
 
 #include <string.h>
 
@@ -52,6 +54,7 @@ struct _CockpitPackage {
   gchar *directory;
   JsonObject *manifest;
   GHashTable *paths;
+  gchar *unavailable;
   gchar *content_security_policy;
   gchar *content_security_marker;
   GBytes *content_security_key;
@@ -89,6 +92,7 @@ cockpit_package_free (gpointer data)
     g_hash_table_unref (package->paths);
   if (package->manifest)
     json_object_unref (package->manifest);
+  g_free (package->unavailable);
   g_free (package);
 }
 
@@ -526,11 +530,63 @@ finish_content_security_policy (CockpitPackage *package,
 }
 
 static gboolean
+check_package_compatible (CockpitPackage *package,
+                          JsonObject *manifest)
+{
+  const gchar *minimum = NULL;
+  JsonObject *requires;
+  GList *l, *keys;
+
+  if (!cockpit_json_get_object (manifest, "requires", NULL, &requires))
+    {
+      g_warning ("%s: invalid \"requires\" field", package->name);
+      return FALSE;
+    }
+
+  if (!requires)
+    return TRUE;
+
+  if (!cockpit_json_get_string (requires, "cockpit", NULL, &minimum))
+    {
+      g_warning ("%s: invalid \"cockpit\" requirement field", package->name);
+      return FALSE;
+    }
+
+  /*
+   * This is the minimum version of the bridge and base package
+   * which should always be shipped together.
+   */
+  if (minimum && cockpit_version_compare (PACKAGE_VERSION, minimum) < 0)
+    {
+      g_message ("%s: package requires a later version of cockpit: %s", package->name, minimum);
+      package->unavailable = g_strdup_printf (_("This package requires Cockpit version %s or later"), minimum);
+    }
+
+  /* Look for any other unknown keys */
+  keys = json_object_get_members (requires);
+  for (l = keys; l != NULL; l = g_list_next (l))
+    {
+      /* All other requires are unknown until a later time */
+      if (!g_str_equal (l->data, "cockpit"))
+        {
+          g_message ("%s: package has an unknown requirement: %s", package->name, (gchar *)l->data);
+          package->unavailable = g_strdup (_("This package is not compatible with this version of Cockpit"));
+        }
+    }
+  g_list_free (keys);
+
+  return TRUE;
+}
+
+static gboolean
 setup_package_manifest (CockpitPackage *package,
                         JsonObject *manifest)
 {
   const gchar *field = "content-security-policy";
   const gchar *policy = NULL;
+
+  if (!check_package_compatible (package, manifest))
+    return FALSE;
 
   if (!cockpit_json_get_string (manifest, field, NULL, &policy) ||
       (policy && !cockpit_web_response_is_header_value (policy)))
@@ -910,6 +966,11 @@ handle_packages (CockpitWebServer *server,
       cockpit_web_response_error (response, 404, NULL, NULL);
       goto out;
     }
+  else if (package->unavailable)
+    {
+      cockpit_web_response_error (response, 503, NULL, "%s", package->unavailable);
+      goto out;
+    }
 
   if (g_str_has_suffix (chosen, ".gz"))
     g_hash_table_insert (out_headers, g_strdup ("Content-Encoding"), g_strdup ("gzip"));
@@ -947,11 +1008,12 @@ handle_packages (CockpitWebServer *server,
   cockpit_web_response_headers_full (response, 200, "OK", -1, out_headers);
 
   cockpit_web_response_queue (response, bytes);
-  g_bytes_unref (bytes);
 
   cockpit_web_response_complete (response);
 
 out:
+  if (bytes)
+    g_bytes_unref (bytes);
   if (out_headers)
     g_hash_table_unref (out_headers);
   g_strfreev (languages);

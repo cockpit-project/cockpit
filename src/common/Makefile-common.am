@@ -70,6 +70,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitunixfd.h \
 	src/common/cockpitunixsignal.c \
 	src/common/cockpitunixsignal.h \
+	src/common/cockpitversion.c \
+	src/common/cockpitversion.h \
 	src/common/cockpitwebfilter.h \
 	src/common/cockpitwebfilter.c \
 	src/common/cockpitwebinject.h \
@@ -115,6 +117,7 @@ COCKPIT_CHECKS = \
 	test-webserver \
 	test-config \
 	test-unicode \
+	test-version \
 	$(NULL)
 
 
@@ -158,6 +161,10 @@ test_unicode_LDADD = $(libcockpit_common_a_LIBS)
 test_unixsignal_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_unixsignal_SOURCES = src/common/test-unixsignal.c
 test_unixsignal_LDADD = $(libcockpit_common_a_LIBS)
+
+test_version_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_version_SOURCES = src/common/test-version.c
+test_version_LDADD = $(libcockpit_common_a_LIBS)
 
 test_webresponse_SOURCES = \
 	src/common/test-webresponse.c \

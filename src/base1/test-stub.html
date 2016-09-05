@@ -98,6 +98,9 @@ asyncTest("http", function() {
         .done(function(data) {
             deepEqual(JSON.parse(data), {
                 version: 0,
+                requires: {
+                    cockpit: "0.114"
+                },
                 tools: {
                     'patterns': {
                         label: "Design Patterns",

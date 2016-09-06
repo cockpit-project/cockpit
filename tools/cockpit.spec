@@ -219,8 +219,8 @@ find %{buildroot}%{_datadir}/%{name}/networkmanager -type f >> networkmanager.li
 echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
 
-# on RHEL systems we don't have the required setroubleshoot-server packages
-%if 0%{?rhel}%{?centos}
+# on CentOS systems we don't have the required setroubleshoot-server packages
+%if 0%{?centos}
 rm -rf %{buildroot}%{_datadir}/%{name}/selinux
 %else
 echo '%dir %{_datadir}/%{name}/selinux' > selinux.list
@@ -257,9 +257,9 @@ sed -i '/\.map\(\.gz\)\?$/d' *.list
 tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/usr/src/debug
 
-# On RHEL subscriptions, networkmanager, and sosreport are part of the shell package
+# On RHEL subscriptions, networkmanager, selinux, and sosreport are part of the shell package
 %if 0%{?rhel}
-cat subscriptions.list sosreport.list networkmanager.list >> shell.list
+cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.list
 %endif
 
 %find_lang %{name}

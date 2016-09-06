@@ -1,0 +1,7 @@
+#!/bin/bash
+
+./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
+make V=1 all
+sudo make enable-root-tests
+make distcheck
+make -j8 check-memory

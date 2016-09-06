@@ -1,3 +1,8 @@
+TESTS += \
+	pkg/docker/test-docker.html \
+	pkg/storaged/test-util.html \
+	$(NULL)
+
 if WITH_GOLANG
 
 AM_V_GO = $(am__v_GO_@AM_V@)

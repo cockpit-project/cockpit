@@ -44,7 +44,7 @@
     require('./volumes');
 
     /* And the actual application */
-    require('./app.js');
+    require('./app');
 
     angular.module('kubernetes', [
         'ngRoute',

@@ -23,10 +23,18 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <title>Kube client tests</title>
     <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
     <script type="text/javascript" src="../../../tools/qunit.js"></script>
-
-    <script src="../angular.js"></script>
-    <script src="../angular-route.js"></script>
-    <script src="../ui-bootstrap.js"></script>
+    <script>
+        function require(name) {
+            switch (name) {
+            case "angular":
+                return angular;
+            default:
+                throw new Error("unknown shim module: " + name);
+            }
+        }
+    </script>
+    <script src="../../../lib/angular/angular.js"></script>
+    <script src="../../../src/base1/cockpit.js"></script>
     <script src="../scripts/kube-client.js"></script>
     <script src="../scripts/kube-client-mock.js"></script>
     <script src="fixture-basic.js"></script>

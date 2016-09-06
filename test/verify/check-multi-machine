@@ -238,6 +238,7 @@ class TestMultiMachine(MachineCase):
         b.enter_page("/dashboard")
         add_machine(b, m2.address)
         b.enter_page("/system", host=m2.address)
+        b.wait_text("#system_information_hostname_button", "machine2")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@%s/system"' % m2.address)
 

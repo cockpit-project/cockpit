@@ -1152,11 +1152,11 @@ class VirtMachine(Machine):
     def reset_reboot_flag(self):
         self.event_handler.reset_domain_reboot_status(self._domain)
 
-    def wait_reboot(self):
+    def wait_reboot(self, wait_for_running_timeout=120):
         if not self.event_handler.wait_for_reboot(self._domain):
             raise Failure("system didn't notify us about a reboot")
         # we may have to check for a new dhcp lease, but the old one can be active for a bit
-        if not self.wait_execute(timeout_sec=60, get_new_address=lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
+        if not self.wait_execute(timeout_sec=wait_for_running_timeout, get_new_address=lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
             raise Failure("system didn't reboot properly")
         self.wait_user_login()
 

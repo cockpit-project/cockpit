@@ -266,9 +266,9 @@
                 if (isNaN(val))
                     msg = _("Size must be a number");
                 if (val === 0)
-                    msg = _("Size can not be zero");
+                    msg = _("Size cannot be zero");
                 if (val < 0)
-                    msg = _("Size can not be negative");
+                    msg = _("Size cannot be negative");
                 if (!field.AllowInfinite && val > field.Max)
                     msg = _("Size is too large");
             }

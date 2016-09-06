@@ -23,16 +23,33 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <title>Projects tests</title>
     <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
     <script type="text/javascript" src="../../../tools/qunit.js"></script>
+    <script>
+        function require(name) {
+            if (name == "angular")
+                return angular;
+            else if (["angular-route", "angular-bootstrap/ui-bootstrap.js", "kubernetes-object-describer/dist/object-describer.js", "kubernetes-container-terminal/dist/container-terminal.js", "moment", "cockpit"].indexOf(name) !== -1)
+                return null;
+            else if (name.indexOf("./") === 0 && name.lastIndexOf(".") === 0)
+                return null;
+            else if (name.indexOf(".html") == name.length - 5)
+                return "<unused></unused>";
+            else
+                throw new Error("unknown shim module: " + name);
+        }
+    </script>
 
-    <script src="../angular.js"></script>
-    <script src="../angular-route.js"></script>
-    <script src="../ui-bootstrap.js"></script>
-    <script src="../../base1/cockpit.js"></script>
+    <script src="../../../lib/angular/angular.js"></script>
+    <script src="../../../lib/angular-route/angular-route.js"></script>
+    <script src="../../../lib/angular-bootstrap/ui-bootstrap.js"></script>
+    <script src="../../../lib/angular-bootstrap/ui-bootstrap.js"></script>
+    <script src="../../../lib/momentjs/moment.js"></script>
+    <script src="../../../src/base1/cockpit.js"></script>
     <script src="../scripts/kube-client.js"></script>
     <script src="../scripts/kube-client-cockpit.js"></script>
     <script src="../scripts/listing.js"></script>
     <script src="../scripts/date.js"></script>
     <script src="../scripts/dialog.js"></script>
+    <script src="../scripts/main.js"></script>
     <script src="../scripts/volumes.js"></script>
     <script src="../scripts/utils.js"></script>
 </head>
@@ -55,6 +72,7 @@ function suite(fixtures) {
         "kubeClient",
         'kubeClient.cockpit',
         "kubernetes.volumes",
+        "kubeUtils",
     ])
 
     .config([

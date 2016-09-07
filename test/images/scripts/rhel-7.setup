@@ -52,6 +52,13 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     yum-config-manager --enable rhel-7-server-beta-rpms || true
     yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true
     yum-config-manager --disable rhel-7-server-htb-rpms || true
+
+    # Enable betas until 7.3 release
+    yum-config-manager --enable rhel-7-server-supplementary-beta-rpms
+    yum-config-manager --enable rhel-7-server-optional-beta-rpms
+    yum-config-manager --enable rhel-7-server-beta-rpms
+    yum-config-manager --enable rhel-7-server-rhevh-beta-rpms
+    yum-config-manager --enable rhel-atomic-host-beta-rpms
 fi
 
 yum --nogpgcheck -y update
@@ -75,6 +82,7 @@ pcp \
 python-pip \
 realmd \
 selinux-policy-targeted \
+setroubleshoot-server \
 subscription-manager \
 storaged \
 storaged-lvm2 \

@@ -378,7 +378,7 @@ This package contains the Cockpit shell UI assets.
 
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
-Requires: %{name}-bridge >= %{stable_api}
+Requires: %{name}-bridge >= %{version}-%{release}
 Requires: %{name}-shell >= %{stable_api}
 Requires: storaged >= 2.1.1
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8

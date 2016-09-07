@@ -22,6 +22,7 @@ import parent
 from testlib import *
 
 import os
+import re
 import subprocess
 import unittest
 
@@ -54,12 +55,23 @@ ssh -o StrictHostKeyChecking=no -o 'BatchMode=yes' -i ~/.ssh/test-avc-rsa localh
 mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
-@unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
+# We aren't running these tests on anything older than 7.2 for now, and starting 7.3 we have setroubleshoot
+def rhel_is_too_old(machine):
+    expression = """redhat-release-server-(.*)\.el.\.x86_64"""
+    version = machine.execute('rpm -q redhat-release-server', quiet=True)
+    matches = re.match(expression, version)
+    return matches.group(1).startswith("7.2")
+
 @unittest.skipIf("centos" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No setroubleshoot on debian.")
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "No setroubleshoot on atomic systems.")
 class TestSelinux(MachineCase):
     def testTroubleshootAlerts(self):
+        # if this is a rhel system and it's too old, skip
+        if "rhel" in os.environ.get("TEST_OS", "") and rhel_is_too_old(self.machine):
+            self.machine.message("Skipping test because the detected RHEL version is too old.")
+            return
+
         b = self.browser
 
         self.login_and_go("/selinux/setroubleshoot")
@@ -150,6 +162,11 @@ class TestSelinux(MachineCase):
         #b.wait_in_text("body", "No SELinux alerts.")
 
     def testEnforcingToggle(self):
+        # if this is a rhel system and it's too old, skip
+        if "rhel" in os.environ.get("TEST_OS", "") and rhel_is_too_old(self.machine):
+            self.machine.message("Skipping test because the detected RHEL version is too old.")
+            return
+
         b = self.browser
         m = self.machine
 

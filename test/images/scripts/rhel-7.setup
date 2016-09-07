@@ -84,6 +84,15 @@ sos \
 tuned \
 "
 
+# If the RHEL version is new enough, install setroubleshoot-server
+RHEL_VERSION=`rpm -q redhat-release-server`
+OLD_VERSION="redhat-release-server-7.2"
+if [ "${RHEL_VERSION/$OLD_VERSION}" = "$RHEL_VERSION" ]; then
+    echo "Skipping setroubleshoot-server"
+else
+    COCKPIT_DEPS+=" setroubleshoot-server"
+fi
+
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.
 # on epel/rhel we have ipa-client instead of freeipa-client

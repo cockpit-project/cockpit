@@ -7,7 +7,7 @@ Vagrant.configure(2) do |config|
 
     config.vm.box = "fedora/24-cloud-base"
     config.vm.synced_folder ".", "/vagrant", disabled: true
-    config.vm.synced_folder ".", "/cockpit", type: "rsync", rsync__exclude: ['/src/', '/test/', '/node_modules/', '/doc/', '/examples/', '/containers/', '/build/', '/x86_64/' ]
+    config.vm.synced_folder "./dist", "/cockpit/dist", type: "rsync"
     config.vm.network "private_network", ip: "192.168.50.10"
     config.vm.network "forwarded_port", guest: 9090, host: 9090
     config.vm.hostname = "cockpit-devel"
@@ -35,9 +35,9 @@ Vagrant.configure(2) do |config|
         chfn -f Vagrant vagrant
 
         mkdir -p /root/.local/share /home/admin/.local/share /usr/local/share
-        ln -snf /cockpit/pkg /usr/local/share/cockpit
-        ln -snf /cockpit/pkg /root/.local/share/cockpit
-        ln -snf /cockpit/pkg /home/admin/.local/share/cockpit
+        ln -snf /cockpit/dist /usr/local/share/cockpit
+        ln -snf /cockpit/dist /root/.local/share/cockpit
+        ln -snf /cockpit/dist /home/admin/.local/share/cockpit
 
         dnf copr enable -y @cockpit/cockpit-preview
         dnf install -y docker kubernetes atomic subscription-manager etcd pcp realmd \

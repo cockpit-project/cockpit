@@ -26,11 +26,41 @@ And lastly get Webpack and the development dependencies:
     $ sudo npm install -g webpack
     $ npm install
 
+## Working on Cockpit using Vagrant
+
+It is recommended to use a Vagrant virtual machine to develop Cockpit.
+
+Most of Cockpit is written in javascript. Almost all of this code is found
+in the packages in the pkg/ subdirectory of the Cockpit git checkout.
+
+To use Vagrant to develop Cockpit, run in its top level git checkout.
+In some cases you may need to use `sudo` with vagrant commands:
+
+    $ vagrant up
+
+Next can edit files in the `pkg/` subdirectory of the Cockpit sources.
+Use the `webpack` command to build the those sources. The changes should
+take effect after syncing them to the Vagrant VM. For example:
+
+    $ webpack
+    $ vagrant rsync
+
+Now log into Cockpit on the vagrant VM to see your changes. Use the
+user name 'admin' and the password 'foobar' to log in. The Cockpit
+instance in vagrant should be available at the following URL:
+
+http://localhost:9090
+
+If you want to setup automatic syncing as you edit javascript files
+you can:
+
+    $ vagrant rsync-auto &
+    $ webpack --progress --colors --watch
+
 ## Working on your local machine
 
-Most of Cockpit is written in javascript. It's easy to set up your local Linux
-machine for rapid development of Cockpit's javascript code. First install Cockpit
-on your local machine as described in:
+It's easy to set up your local Linux machine for rapid development of Cockpit's
+javascript code. First install Cockpit on your local machine as described in:
 
 http://cockpit-project.org/running.html
 

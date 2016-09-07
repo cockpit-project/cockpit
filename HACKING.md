@@ -1,69 +1,121 @@
 # Hacking on Cockpit
 
-It is recommended that you create one or more dedicated virtual
-machines to try out and develop Cockpit.
+Here's where to get the code:
 
-While playing with Cockpit you will very likely want to run
-experimental code that does dangerous things, such as formatting block
-devices.  And even if the code has no bugs, you might want to
-intentionally do destructive things that you would never want to do to
-a production system.  And last but not least, it is easier to add more
-virtual hardware to a virtual machine for testing, such as more hard
-disks or network adapters.
+    $ git clone https://github.com/cockpit-project/cockpit
+    $ cd cockpit/
 
-## Using Vagrant
+The remainder of the commands assume you're in the top level of the
+Cockpit git repository checkout.
 
-It's possible to test and work on Cockpit web assets by just using
-Vagrant. After cloning the Git repository, run in its top level directory:
+Cockpit uses Node.js during development. Node.js is not used at runtime.
+To make changes on Cockpit you'll want to install Node.js, NPM and
+various development dependencies like Webpack.
 
+On Debian or Ubuntu:
+
+    $ sudo apt-get install nodejs npm
+
+On Fedora:
+
+    $ sudo yum install nodejs npm
+    $ sudo npm install -g webpack
+
+And lastly get Webpack and the development dependencies:
+
+    $ sudo npm install -g webpack
     $ npm install
-    $ vagrant up
 
-Cockpit will listen on port 9090 of the vagrant VM started, and also
-port 9090 of localhost if cockpit is not running locally. Access Cockpit
-at:
+## Working on your local machine
 
-    http://localhost:9090
+Most of Cockpit is written in javascript. It's easy to set up your local Linux
+machine for rapid development of Cockpit's javascript code. First install Cockpit
+on your local machine as described in:
 
-and login with user `admin` and password `foobar`. Any changes you
-make to the system in the Vagrant VM won't affect the host machine.
+http://cockpit-project.org/running.html
 
-If instead of the Cockpit login prompt you see a message about
-incompatibility between Cockpit and the sources, you can checkout a
-matching version.  This command shows the installed version of
-Cockpit:
+Next run this command from your top level Cockpit checkout directory, and make
+sure to run it as the same user that you'll use to log into Cockpit below.
 
-    $ vagrant ssh -c "cockpit-bridge --version"
-    Version: 0.108
-    ...
+    $ mkdir -p ~/.local/share/
+    $ ln -s $(pwd)/dist ~/.local/share/cockpit
 
-To switch the sources to the same version, check out the corresponding
-tag (and sync the sources again with the VM):
+This will cause cockpit to read javascript and HTML files directly from the built
+package output directory instead of using the installed Cockpit UI files.
 
-    $ git checkout 0.108
-    $ vagrant rsync
+Next run Webpack to build the javascript code:
 
-You can edit files in the `pkg/` subdirectory of the Cockpit sources
-and the changes should take effect after syncing them to the Vagrant
-VM. Use one of the folowing commands to sync:
+    $ webpack
 
-    $ vagrant rsync
-    $ vagrant rsync-auto
+Now you can log into Cockpit on your local Linux machine at the following address.
+Use the same user and password that you used to log into your Linux desktop.
 
-The Vagrant VM is in debug mode, which means that resources will load
-into your web browser more slowly than in a production install of
-Cockpit.
+http://localhost:9090
 
-You may need to rebuild the Vagrant VM periodically, by running:
+If you want to setup automatic syncing as you edit javascript files you can:
 
-    $ vagrant destroy
-    $ vagrant up
+    $ webpack --progress --colors --watch
 
-## Development Dependencies
+To make Cockpit again use the installed code, rather than that from your
+git checkout directory, run the following, and log into Cockpit again:
 
-For more complex hacking on Cockpit, you need to build Cockpit locally
-and install the relevant dependencies. Currently, recent x86_64
-architectures of Fedora are most often used for development.
+    $ rm ~/.local/share/cockpit
+
+## Contributing a change
+
+Make a pull request on github.com with your change. All changes get
+reviewed, tested and iterated on before getting into Cockpit. Don't feel
+bad if there's multiple steps back and forth asking for changes or tweaks
+before your change gets in.
+
+You need to be familiar with git to contribute a change. Do your changes
+on a branch. Your change should be one or more git commits that each
+contain one single logical simple reviewable change, without modifications
+that are unrelated to the commit message.
+
+Cockpit is a designed project. Anything that the user will see should have
+design done first. This is done on the wiki and mailing list.
+
+Bigger changes need to be discussed on #cockpit or our mailing list
+cockpit-devel@lists.fedoraproject.org before you invest too much time and
+energy.
+
+## Debug logging of Cockpit processes
+
+All messages from the various cockpit processes go to the journal and can
+be seen with commands like:
+
+    $ sudo journalctl -f
+
+Much of Cockpit has more verbose internal debug logging that can be
+enabled when trying to track down a problem. To turn it on add a file
+to your system like this:
+
+    $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
+    $ sudo sh -c 'printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf'
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl restart cockpit
+
+In the above command you'll notice the string "cockpit-ws". This is a log
+domain. There are various log domains you can enable:
+
+ * cockpit-bridge: Cockpit bridge detailed debug messages
+ * cockpit-protocol: Very verbose low level traffic logging
+ * cockpit-ws: Cockpit Web Service detailed debug messages
+ * WebSocket: Verbose low level WebSocket logging
+
+To revert the above logging changes:
+
+    $ sudo rm /etc/systemd/system/cockpit.service.d/debug.conf
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl restart cockpit
+
+## Building Cockpit binaries
+
+For more complex hacking on Cockpit beyond the user interface, you need to
+build the Cockpit binaries locally and install the relevant dependencies.
+Currently, recent x86_64 architectures of Fedora are most often used for
+development.
 
 Check `tools/cockpit.spec` for the concrete Fedora build dependencies.
 The following should work in a fresh Git clone:
@@ -79,30 +131,17 @@ In addition for testing the following dependencies are required:
 
     $ npm install phantomjs-prebuilt
 
-## Building and Installing RPMs
-
-If you wish to test out a development branch on Fedora, you can just
-build installable RPMs.
-
-    $ tools/make-rpms --verbose
-    $ sudo yum install noarch/cockpit*-wip-1.rpm x86_64/cockpit*-wip-1.rpm
-
-If you want to develop Cockpit, then skip this section, and build from
-source.
-
-## Building and Installing from source
-
 Cockpit uses the autotools and thus there are the familiar `./configure`
 script and the familar Makefile targets.
 
 But after a fresh clone of the Cockpit sources, you need to prepare
-them by running `autogen.sh`.  Maybe like so:
+them by running `autogen.sh` like this:
 
     $ mkdir build
     $ cd build
-    $ ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug
+    $ ../autogen.sh --prefix=/usr --enable-debug
 
-As shown, `autogen.sh` also runs 'configure' with the given options, and it
+As shown, `autogen.sh` runs 'configure' with the given options, and it
 also prepares the build tree by downloading various nodejs dependencies.
 
 When working with a Git clone, it is therefore best to simply always
@@ -130,8 +169,6 @@ that `make install` not write outside that prefix, then specify the
 installation of Cockpit that does not work without further tweaking.
 For advanced users only.
 
-## Checking
-
 You can run unit tests of the current checkout:
 
     $ make check
@@ -140,142 +177,6 @@ These should finish very quickly and it is good practice to do it
 often.
 
 To run the integration tests, see `test/README`.
-
-## Running
-
-Once Cockpit has been installed, the normal way to run it is via
-systemd:
-
-    # systemctl start cockpit.socket
-
-This will cause systemd to listen on port 9090 and start cockpit-ws
-when someone connects to it.  Cockpit-ws will in turn activate
-cockpit-bridge when someone logs in successfully.
-
-To run Cockpit without systemd, start the cockpit-ws daemon manually:
-
-    # /usr/libexec/cockpit-ws
-
-Then you can connect to port 9090 of the virtual machine.  You might
-need to open the firewall for it.  On Fedora:
-
-    # firewall-cmd --reload
-    # firewall-cmd --add-service=cockpit
-    # firewall-cmd --add-service=cockpit --permanent
-
-Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:9090`
-
-and Cockpit should load after confirming the self-signed certificate.
-Log in as root with the normal root password (of the virtual machine).
-
-Cockpit consists of the systemd service: cockpit.service .
-After installing a new version, you should usually restart it:
-
-    # systemctl restart cockpit
-
-and then reload the browser.
-
-If you want to run `/usr/libexec/cockpit-ws` outside of systemd, stop
-it first, including the socket:
-
-    # systemctl stop cockpit.socket cockpit
-
-## Making a change
-
-Simple version. Edit the appropriate sources and then:
-
-    $ make
-    $ sudo make install
-    $ sudo systemctl restart cockpit
-
-Then refresh in your browser and your change should be visible. Note that
-for pure javascript changes you probably don't need to do the last part.
-
-## Contributing a change
-
-Bigger changes need to be discussed on #cockpit or our mailing list
-cockpit-devel@lists.fedoraproject.org before you invest too much time and
-energy.
-
-Cockpit is a designed project. Anything that the user will see should have
-design done first. This is done on the wiki and mailing list.
-
-You need to be familiar with git to contribute a change. Do your changes
-on a branch. Your change should be one or more git commits that each
-contain one single logical simple reviewable change, without modifications
-that are unrelated to the commit message.
-
-Make a pull request on github.com with your change. All changes get
-reviewed, tested and iterated on before getting into Cockpit. Don't feel
-bad if there's multiple steps back and forth asking for changes or tweaks
-before your change gets in.
-
-## Making Changes in the UI Code
-
-The Cockpit UI code is comprised of HTML, javascript and CSS. Almost all of
-this code is found in the packages in the pkg/ subdirectory of
-the Cockpit code.
-
-You can setup a system for rapid development of Cockpit UI code. This will
-allow you to simply refresh your browser and see any changes you've made
-to code in the pkg/ subdirectory.
-
-Run this command from your top level Cockpit checkout directory, and make
-sure to run it as the user that you will be using to log into Cockpit.
-
-    $ mkdir -p ~/.local/share/cockpit
-    $ ln -s $(pwd)/pkg/* ~/.local/share/cockpit
-
-This will cause cockpit to read UI files directly from the Cockpit code
-pkg/ directory instead of using the installed Cockpit UI files. But
-only for the user which ran the above command.
-
-To revert the above change, run:
-
-    $ rm ~/.local/share/cockpit/*
-
-## Debug logging of Cockpit processes
-
-All messages from the various cockpit services go to the journal and can
-be seen with commands like:
-
-    $ sudo journalctl -f
-
-Much of Cockpit has more verbose internal debug logging that can be
-enabled when trying to track down a problem. To turn it on add a file
-to your system like this:
-
-    $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
-    $ sudo sh -c 'printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf'
-    $ sudo systemctl daemon-reload
-    $ sudo systemctl restart cockpit
-
-In the above command you'll notice the string "cockpit-ws". This is a log
-domain. There are various log domains you can enable:
-
- * cockpit-bridge: Cockpit bridge detailed debug messages
- * cockpit-wrapper: Cockpit DBus wrapper detailed debug messages
- * cockpit-protocol: Very verbose low level traffic logging
- * cockpit-ws: Cockpit Web Service detailed debug messages
- * WebSocket: Verbose low level WebSocket logging
-
-To revert the above logging changes:
-
-    $ sudo rm /etc/systemd/system/cockpit.service.d/debug.conf
-    $ sudo systemctl daemon-reload
-    $ sudo systemctl restart cockpit
-
-## Debug logging of Cockpit protocol
-
-Cockpit communicates with the system via a WebSocket. To log all
-communication to the Web Browser's console, run one of the following
-commands in the console:
-
-    > window.debugging = "channel"
-
-Or in order to log starting at page reload:
-
-    > window.sessionStorage["debugging"] = "channel"
 
 ## Running Cockpit processes under a debugger
 
@@ -303,10 +204,3 @@ And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
 Note that cockpit-session and cockpit-bridge will run from the installed
 prefix, rather than your build tree.
-
-## Cockpit Web Service Privileged Container
-
-It is possible, to run Cockpit in a privileged container. The Dockerfile for
-this is here:
-
-https://github.com/cockpit-project/cockpit-container

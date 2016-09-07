@@ -1,6 +1,7 @@
-@import url('plot.css');
-@import url("term.css");
-@import url("journal.css");
+@import "/plot.css";
+@import "/term.css";
+@import "/journal.css";
+@import "./timer.css";
 
 a.disabled {
     text-decoration: none;
@@ -206,7 +207,7 @@ a.disabled {
 
 .service-unit-data {
     text-align: right;
-    white-space: nowrap;{{#HasFailed}}color:red;{{/HasFailed}}
+    white-space: nowrap;
 }
 
 .service-unit-failed {

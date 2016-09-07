@@ -23,9 +23,22 @@
   <meta charset="utf-8">
   <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
   <script type="text/javascript" src="../../tools/qunit.js"></script>
-  <script type="text/javascript" src="../base1/jquery.js"></script>
-  <script type="text/javascript" src="../base1/cockpit.js"></script>
-  <script type="text/javascript" src="/mustache.js"></script>
+    <script type="text/javascript" src="../pkg/base1/cockpit.js"></script>
+    <script type="text/javascript" src="mustache/mustache.js"></script>
+    <script>
+        function require(name) {
+            if (name == "cockpit")
+                return cockpit;
+            else if (name == "mustache")
+                return Mustache;
+            else if (name.indexOf("raw!") === 0)
+                return "unused";
+            else
+                throw new Error("unknown shim module: " + name);
+        }
+        module = { };
+    </script>
+    <script type="text/javascript" src="journal.js"></script>
 </head>
 <body>
   <h1 id="qunit-header">Journal Renderer Tests</h1>
@@ -171,9 +184,9 @@ var month_names = [         'January',
                             'December'
                           ];
 
-define("test", [
-    "./journal"
-], function(journal) {
+(function() {
+    var journal = module.exports;
+
     QUnit.testStart(function() {
         output = [ ];
         renderer = journal.renderer(funcs);
@@ -346,12 +359,9 @@ define("test", [
               { message: 'baz', count: 1 },
             ])
     });
-});
 
-require([ "test" ], function() {
     QUnit.start();
-});
-
+}());
 </script>
 </body>
 </html>

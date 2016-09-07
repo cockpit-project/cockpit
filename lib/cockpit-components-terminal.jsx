@@ -17,12 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-    "./react",
-    "./term",
-], function(React, Term) {
-
+(function() {
     "use strict";
+
+    var React = require("react");
+    var Term = require("term");
 
     /*
      * A terminal component that communicates over a cockpit channel.
@@ -134,5 +133,5 @@ define([
         }
     });
 
-    return { Terminal: Terminal };
-});
+    module.exports = { Terminal: Terminal };
+}());

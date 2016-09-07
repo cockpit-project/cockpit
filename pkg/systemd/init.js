@@ -1,14 +1,17 @@
-define([
-    "jquery",
-    "base1/cockpit",
-    "./mustache",
-    "./journal",
-    "shell/po",
-    "system/moment",
-    "system/bootstrap-datepicker",
-    "./patterns"
-], function($, cockpit, mustache, journal, po, moment) {
-    cockpit.locale(po);
+var $ = require("jquery");
+$(function() {
+    "use strict";
+
+    var cockpit = require("cockpit");
+
+    var mustache = require("mustache");
+    var moment = require("moment");
+    var journal = require("journal");
+
+    /* These add themselves to jQuery so just including is enough */
+    require("patterns");
+    require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
+
     cockpit.translate();
     var _ = cockpit.gettext;
 
@@ -520,6 +523,7 @@ define([
     ];
 
     function unit_action() {
+        /* jshint validthis:true */
         var parsed_action = $(this).attr("data-action").split(":");
         var method = parsed_action[0];
         var mode = parsed_action[1];
@@ -545,6 +549,7 @@ define([
     ];
 
     function unit_file_action() {
+        /* jshint validthis:true */
         var parsed_action = $(this).attr("data-action").split(":");
         var method = parsed_action[0];
         var force = parsed_action[1];
@@ -717,6 +722,7 @@ define([
     }
 
     function unit_goto() {
+        /* jshint validthis:true */
         cockpit.location.go([ $(this).attr("data-goto-unit") ]);
     }
 
@@ -1307,7 +1313,6 @@ define([
                     error.name != "org.freedesktop.DBus.Error.FileExists")
                     console.warn("Subscribing to systemd signals failed", error);
             });
-        $(update);
+        update();
     });
 });
-

@@ -88,6 +88,7 @@ CLEANFILES += \
 	src/base1/cockpit.min.js \
 	src/base1/cockpit.min.css \
 	src/base1/jquery.min.js \
+	src/base1/mustache.js \
 	src/base1/mustache.min.js \
 	src/base1/require.min.js \
 	$(nodist_base_DATA) \

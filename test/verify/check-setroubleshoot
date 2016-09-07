@@ -55,23 +55,11 @@ ssh -o StrictHostKeyChecking=no -o 'BatchMode=yes' -i ~/.ssh/test-avc-rsa localh
 mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
-# We aren't running these tests on anything older than 7.2 for now, and starting 7.3 we have setroubleshoot
-def rhel_is_too_old(machine):
-    expression = """redhat-release-server-(.*)\.el.\.x86_64"""
-    version = machine.execute('rpm -q redhat-release-server', quiet=True)
-    matches = re.match(expression, version)
-    return matches.group(1).startswith("7.2")
-
 @unittest.skipIf("centos" in os.environ.get("TEST_OS", ""), "DBUS API of setroubleshoot too old.")
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No setroubleshoot on debian.")
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "No setroubleshoot on atomic systems.")
 class TestSelinux(MachineCase):
     def testTroubleshootAlerts(self):
-        # if this is a rhel system and it's too old, skip
-        if "rhel" in os.environ.get("TEST_OS", "") and rhel_is_too_old(self.machine):
-            self.machine.message("Skipping test because the detected RHEL version is too old.")
-            return
-
         b = self.browser
 
         self.login_and_go("/selinux/setroubleshoot")
@@ -86,7 +74,7 @@ class TestSelinux(MachineCase):
         # trigger an alert
         self.machine.execute(script=SELINUX_ALERT_SCRIPT)
 
-        row_selector = "tbody:contains('SELinux is preventing ls from read access on the directory')"
+        row_selector = "tbody:contains('ls from read access on the directory')"
 
         # wait for the alert to appear
         b.wait_present(row_selector)
@@ -130,7 +118,7 @@ class TestSelinux(MachineCase):
         # trigger a fixable alert
         self.machine.execute(script=SELINUX_FIXABLE_ALERT_SCRIPT)
 
-        row_selector = "tbody:contains('SELinux is preventing sshd from open access on the file')"
+        row_selector = "tbody:contains('sshd from open access on the file')"
         # wait for the alert to appear
         b.wait_present(row_selector)
 
@@ -162,11 +150,6 @@ class TestSelinux(MachineCase):
         #b.wait_in_text("body", "No SELinux alerts.")
 
     def testEnforcingToggle(self):
-        # if this is a rhel system and it's too old, skip
-        if "rhel" in os.environ.get("TEST_OS", "") and rhel_is_too_old(self.machine):
-            self.machine.message("Skipping test because the detected RHEL version is too old.")
-            return
-
         b = self.browser
         m = self.machine
 

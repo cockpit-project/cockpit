@@ -53,7 +53,7 @@
  * this job.
  */
 
-#define DEBUG_SESSION 1
+#define DEBUG_SESSION 0
 #define AUTH_FD 3
 #define EX 127
 #define DEFAULT_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

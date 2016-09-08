@@ -8,7 +8,7 @@ var info = {
             "docker/containers.js",
             "docker/docker.css",
         ],
-        "docker/console.js": [
+        "docker/console": [
             "docker/console.js",
         ],
         "dashboard/dashboard": [

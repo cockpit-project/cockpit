@@ -9,6 +9,7 @@ pkg_TESTS = \
 	pkg/kubernetes/tests/test-tags.html \
 	pkg/kubernetes/tests/test-projects.html \
 	pkg/storaged/test-util.html \
+	pkg/users/test-list-public-keys.sh \
 	$(NULL)
 
 TESTS += $(pkg_TESTS)

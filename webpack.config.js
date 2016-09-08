@@ -150,7 +150,6 @@ var info = {
 
         "storaged/index.html",
         "storaged/manifest.json",
-        "storaged/override.json",
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
 

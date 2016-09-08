@@ -3,6 +3,12 @@ TESTS += \
 	pkg/storaged/test-util.html \
 	$(NULL)
 
+# HACK: https://github.com/storaged-project/storaged/pull/68
+storageddir = $(pkgdatadir)/storaged
+nodist_storaged_DATA = \
+       pkg/storaged/override.json \
+       $(NULL)
+
 if WITH_GOLANG
 
 AM_V_GO = $(am__v_GO_@AM_V@)

@@ -1,6 +1,28 @@
+OPENSANS_FONTS = \
+	OpenSans-Bold-webfont.woff \
+	OpenSans-BoldItalic-webfont.woff \
+	OpenSans-ExtraBold-webfont.woff  \
+	OpenSans-ExtraBoldItalic-webfont.woff \
+	OpenSans-Italic-webfont.woff \
+	OpenSans-Light-webfont.woff \
+	OpenSans-LightItalic-webfont.woff \
+	OpenSans-Regular-webfont.woff \
+	OpenSans-Semibold-webfont.woff \
+	OpenSans-SemiboldItalic-webfont.woff \
+	$(NULL)
+
 if WITH_COCKPIT_WS
 
 COCKPIT_BUILD_INFO = "Built on $(shell date)"
+
+staticdir = $(datadir)/cockpit/static
+static_DATA = \
+	src/ws/login.html \
+	$(NULL)
+
+staticfontsdir = $(staticdir)/fonts
+staticfonts_DATA = $(addprefix src/ws/fonts/, $(OPENSANS_FONTS))
+	$(NULL)
 
 noinst_LIBRARIES += libcockpit-ws.a
 
@@ -60,6 +82,8 @@ EXTRA_DIST += \
 	src/ws/mock-kdc.conf.in \
 	src/ws/mock-static \
 	src/ws/mock-config \
+	$(static_DATA) \
+	$(staticfonts_DATA) \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------

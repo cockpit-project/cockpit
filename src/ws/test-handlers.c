@@ -84,7 +84,7 @@ static void
 base_setup (Test *test)
 {
   const gchar *roots[] = { SRCDIR "/src/ws", NULL };
-  const gchar *static_roots[] = { SRCDIR "/src/static", SRCDIR "/src/branding/default", NULL };
+  const gchar *static_roots[] = { SRCDIR "/src/ws", SRCDIR "/src/branding/default", NULL };
   GError *error = NULL;
   const gchar *user;
 

@@ -323,7 +323,7 @@ read_package_manifest (const gchar *directory,
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
         g_debug ("%s: no manifest found", package);
-      else
+      else if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOTDIR))
         g_message ("%s: couldn't read manifest.json: %s", package, error->message);
       g_clear_error (&error);
     }

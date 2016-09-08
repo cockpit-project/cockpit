@@ -327,13 +327,23 @@
 
             function show_converse(prompt_data) {
                 var type = prompt_data.echo ? "text" : "password";
-                id("conversation-input").value = "";
-                id("conversation-input-label").textContent = prompt_data.prompt;
-                id("conversation-input").setAttribute('type', type);
-                id("conversation-input").focus();
+                id("conversation-prompt").textContent = prompt_data.prompt;
 
-                login_failure(prompt_data.error);
-                login_note(prompt_data.message);
+                var em = id("conversation-message");
+                var msg = prompt_data.error || prompt_data.message;
+                if (msg) {
+                    em.textContent = msg;
+                    em.style.display = "block";
+                } else {
+                    em.style.display = "none";
+                }
+
+                var ei = id("conversation-input");
+                ei.value = "";
+                ei.setAttribute('type', type);
+                ei.focus();
+
+                login_failure("");
 
                 function call_converse() {
                     id("login-button").removeEventListener("click", call_converse);
@@ -1023,7 +1033,8 @@ label {
           <div id="login-form" class="form-horizontal" role="form">
             <div id="conversation-group" class="form-group login-form" hidden>
               <div class="col-sm-12 col-md-12">
-                <label id="conversation-input-label" for="conversation-input"></label>
+                <div id="conversation-message"></div>
+                <label id="conversation-prompt" for="conversation-input"></label>
               </div>
               <div class="col-sm-12 col-md-12">
                 <input type="password" class="form-control" id="conversation-input" tabindex="1">

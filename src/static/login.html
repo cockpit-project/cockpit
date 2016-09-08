@@ -305,7 +305,6 @@
                 id("server-name").appendChild(b);
 
                 login_note("Log in with your server user account.");
-                id("login-user-input").focus();
                 id("login-user-input").addEventListener("keydown", function(e) {
                     login_failure(null);
                     if (e.which == 13)
@@ -318,6 +317,7 @@
                         call_login();
                 });
                 show_form();
+                id("login-user-input").focus();
                 phantom_checkpoint();
             }
 

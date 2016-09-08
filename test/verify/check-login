@@ -51,6 +51,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         def login(user, password):
             b.wait_visible("#login")
+            b.wait_visible("#login-user-input")
+            # :focus selector doesn't work in phantomjs
+            b.wait_js_cond("document.activeElement.getAttribute('id') === 'login-user-input'")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
             b.click('#login-button')

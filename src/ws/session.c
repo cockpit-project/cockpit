@@ -67,6 +67,7 @@ static char *auth_msg = NULL;
 static size_t auth_msg_size = 0;
 static FILE *authf = NULL;
 static char *last_err_msg = NULL;
+static char *last_txt_msg = NULL;
 
 #if DEBUG_SESSION
 #define debug(fmt, ...) (fprintf (stderr, "cockpit-session: " fmt "\n", ##__VA_ARGS__))
@@ -385,7 +386,9 @@ pam_conv_func (int num_msg,
   int success = 1;
   int i;
 
-  free (last_err_msg);
+  txt_msg = last_txt_msg;
+  last_txt_msg = NULL;
+  err_msg = last_err_msg;
   last_err_msg = NULL;
 
   resp = calloc (sizeof (struct pam_response), num_msg);
@@ -436,6 +439,7 @@ pam_conv_func (int num_msg,
             }
           if (ar < 0)
             errx (EX, "couldn't allocate memory for text variable");
+          warnx ("pam: %s", msg[i]->msg);
         }
       else
         {
@@ -487,12 +491,8 @@ pam_conv_func (int num_msg,
 
   if (err_msg)
     last_err_msg = err_msg;
-
   if (txt_msg)
-    {
-      warnx ("pam: dropping text message %s", txt_msg);
-      free (txt_msg);
-    }
+    last_txt_msg = txt_msg;
 
   *ret_resp = resp;
   return PAM_SUCCESS;
@@ -1163,6 +1163,8 @@ main (int argc,
 
   free (last_err_msg);
   last_err_msg = NULL;
+  free (last_txt_msg);
+  last_txt_msg = NULL;
 
   if (WIFEXITED(status))
     exit (WEXITSTATUS(status));

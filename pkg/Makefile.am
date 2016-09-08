@@ -1,4 +1,4 @@
-TESTS += \
+pkg_TESTS = \
 	pkg/docker/test-docker.html \
 	pkg/kubernetes/tests/test-utils.html \
 	pkg/kubernetes/tests/test-images.html \
@@ -11,11 +11,17 @@ TESTS += \
 	pkg/storaged/test-util.html \
 	$(NULL)
 
+TESTS += $(pkg_TESTS)
+
 # HACK: https://github.com/storaged-project/storaged/pull/68
 storageddir = $(pkgdatadir)/storaged
 nodist_storaged_DATA = \
        pkg/storaged/override.json \
        $(NULL)
+
+EXTRA_DIST += \
+	pkg/storaged/override.json.in \
+	$(pkg_TESTS)
 
 if WITH_GOLANG
 

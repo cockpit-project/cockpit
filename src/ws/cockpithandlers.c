@@ -244,16 +244,30 @@ add_oauth_to_environment (JsonObject *environment)
 static GBytes *
 build_environment (GHashTable *os_release)
 {
+  /*
+   * We don't include entirety of os-release into the
+   * environment for the login.html page. There could
+   * be unexpected things in here.
+   *
+   * However since we are displaying branding based on
+   * the OS name variant flavor and version, including
+   * the corresponding information is not a leak.
+   */
+  static const gchar *release_fields[] = {
+    "NAME", "VERSION", "ID", "VERSION_ID", "PRETTY_NAME", "VARIANT", "VARIANT_ID", "CPE_NAME",
+  };
+
   static const gchar *prefix = "\n    <script>\nvar environment = ";
   static const gchar *suffix = ";\n    </script>";
+
   GByteArray *buffer;
-  GHashTableIter iter;
   GBytes *bytes;
   JsonObject *object;
   const gchar *title;
   gchar *hostname;
-  gpointer key, value;
   JsonObject *osr;
+  const gchar *value;
+  gint i;
 
   object = json_object_new ();
 
@@ -270,9 +284,12 @@ build_environment (GHashTable *os_release)
   if (os_release)
     {
       osr = json_object_new ();
-      g_hash_table_iter_init (&iter, os_release);
-      while (g_hash_table_iter_next (&iter, &key, &value))
-        json_object_set_string_member (osr, key, value);
+      for (i = 0; i < G_N_ELEMENTS (release_fields); i++)
+        {
+          value = g_hash_table_lookup (os_release, release_fields[i]);
+          if (value)
+            json_object_set_string_member (osr, release_fields[i], value);
+        }
       json_object_set_object_member (object, "os-release", osr);
     }
 

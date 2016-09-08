@@ -75,7 +75,7 @@
                 id("login-fatal").style.display = 'block';
 
                 var el = id("login-fatal-message");
-                el.innerHTML = "";
+                el.textContent = "";
                 el.appendChild(document.createTextNode(msg));
             }
 
@@ -110,9 +110,11 @@
                         fatal("The web browser configuration prevents Cockpit from running (inaccessible " + name + ")");
                         throw ex;
                     }
-                    if (!ret)
+                    if (ret === undefined) {
                         fatal("This web browser is too old to run Cockpit (missing " + name + ")");
-                    return ret;
+                        return false;
+                    }
+                    return true;
                 }
                 return ("MozWebSocket" in window || req("WebSocket", window)) &&
                        req("XMLHttpRequest", window) &&
@@ -121,7 +123,8 @@
                        req("JSON", window) &&
                        req("defineProperty", Object) &&
                        req("console", window) &&
-                       req("pushState", window.history);
+                       req("pushState", window.history) &&
+                       req("textContent", document);
             }
 
             function trim(s) {
@@ -162,7 +165,7 @@
                     id("login").style.display = 'none';
                     if (logout_intent) {
                         build_oauth_redirect_to();
-                        id("login-again").innerHTML = "Login Again";
+                        id("login-again").textContent = "Login Again";
                         fatal("Logout Successful");
                     } else {
                         oauth_auto_login();
@@ -251,10 +254,10 @@
                 if (msg) {
                     show_form(in_conversation);
                     el.style.display = 'block';
-                    el.innerHTML = msg;
+                    el.textContent = msg;
                 } else {
                     el.style.display = 'none';
-                    el.innerHTML = '';
+                    el.textContent = '';
                 }
             }
 
@@ -262,7 +265,7 @@
                 var el = id("login-note");
                 if (msg) {
                     el.style.display = 'block';
-                    el.innerHTML = msg;
+                    el.textContent = msg;
                 } else {
                     el.innerHTML = '&nbsp;';
                 }
@@ -284,7 +287,7 @@
                 id("user-group").style.display = in_conversation ? "none" : "block";
                 id("password-group").style.display = in_conversation ? "none" : "block";
                 id("conversation-group").style.display = in_conversation ? "block" : "none";
-                id("login-button").innerHTML = "Log In";
+                id("login-button").textContent = "Log In";
                 id("login-password-input").value = '';
 
                 id("login-button").removeAttribute('disabled');
@@ -325,7 +328,7 @@
             function show_converse(prompt_data) {
                 var type = prompt_data.echo ? "text" : "password";
                 id("conversation-input").value = "";
-                id("conversation-input-label").innerHTML = prompt_data.prompt;
+                id("conversation-input-label").textContent = prompt_data.prompt;
                 id("conversation-input").setAttribute('type', type);
                 id("conversation-input").focus();
 

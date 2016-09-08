@@ -90,6 +90,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#go-account')
         b.enter_page("/users")
         b.wait_text ("#account-user-name", "admin")
+        try:
+            m.execute("journalctl -p 7 SYSLOG_IDENTIFIER=cockpit-ws | grep 'cockpit-session: opening pam session'")
+            assert False, "cockpit-session debug messsages found"
+        except subprocess.CalledProcessError:
+            pass
 
         self.allow_journal_messages ("Returning error-response ... with reason .*",
                             "pam_unix\(cockpit:auth\): authentication failure; .*",

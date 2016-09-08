@@ -104,13 +104,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_restart_journal_messages()
 
 
-    @unittest.skipIf("atomic" not in os.environ.get("TEST_OS", ""), "Resetting expired passwords currently only works with --local-ssh.")
     def testExpired(self):
         m = self.machine
         b = self.browser
 
-        m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
-        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+        # On atomic this happens over ssh
+        if "atomic" in m.image:
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+
         m.execute("chage -d 0 admin")
         m.start_cockpit()
         b.open("/system")
@@ -126,21 +128,62 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-input-label", "You are required to change your password")
+        if "atomic" in m.image:
+            b.wait_in_text("#conversation-prompt", "You are required to change your password")
+        else:
+            b.wait_in_text("#conversation-message", "You are required to change your password")
         b.set_val('#conversation-input', 'foobar')
         b.click('#login-button')
 
+        # Type a bad password
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-input-label", "New password")
+        b.wait_in_text("#conversation-prompt", "New password")
+        b.set_val('#conversation-input', 'admin')
+        b.click('#login-button')
+
+        # We should see a message
+        if "atomic" in m.image:
+            b.wait_in_text("#conversation-prompt", "BAD PASSWORD")
+        else:
+            b.wait_in_text("#conversation-message", "BAD PASSWORD")
+
+        # Now choose a better password
+        b.wait_visible("#conversation-group")
+        b.wait_not_visible("#password-group")
+        b.wait_not_visible("#user-group")
+        b.wait_in_text("#conversation-prompt", "New password")
         b.set_val('#conversation-input', '123foobar!@#')
         b.click('#login-button')
 
+        # Retype the password wrong
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-input-label", "Retype")
+        b.wait_in_text("#conversation-prompt", "Retype")
+        b.set_val('#conversation-input', '123foobar!') # wrong
+        b.click('#login-button')
+
+        # We should see a message
+        if "atomic" in m.image:
+            b.wait_in_text("#conversation-prompt", "passwords do not match")
+        else:
+            b.wait_in_text("#conversation-message", "passwords do not match")
+
+        # Type the password again
+        b.wait_visible("#conversation-group")
+        b.wait_not_visible("#password-group")
+        b.wait_not_visible("#user-group")
+        b.wait_in_text("#conversation-prompt", "New password")
+        b.set_val('#conversation-input', '123foobar!@#')
+        b.click('#login-button')
+
+        # Now type it right
+        b.wait_visible("#conversation-group")
+        b.wait_not_visible("#password-group")
+        b.wait_not_visible("#user-group")
+        b.wait_in_text("#conversation-prompt", "Retype")
         b.set_val('#conversation-input', '123foobar!@#')
         b.click('#login-button')
 
@@ -186,7 +229,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-input-label", "life the universe")
+        b.wait_in_text("#conversation-prompt", "life the universe")
         b.set_val('#conversation-input', '43')
         b.click('#login-button')
 
@@ -195,7 +238,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-input-label", "life the universe")
+        b.wait_in_text("#conversation-prompt", "life the universe")
         b.set_val('#conversation-input', '42')
         b.click('#login-button')
 

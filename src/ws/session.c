@@ -544,10 +544,20 @@ open_session (pam_handle_t *pamh)
     {
       debug ("checking access for %s", name);
       res = pam_acct_mgmt (pamh, 0);
+      if (res == PAM_NEW_AUTHTOK_REQD)
+        {
+          warnx ("user account or password has expired: %s: %s", name, pam_strerror (pamh, res));
+          res = pam_chauthtok (pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
+          if (res != PAM_SUCCESS)
+            warnx ("unable to change expired account or password: %s: %s", name, pam_strerror (pamh, res));
+        }
+      else if (res != PAM_SUCCESS)
+        {
+          warnx ("user account access failed: %d %s: %s", res, name, pam_strerror (pamh, res));
+        }
+
       if (res != PAM_SUCCESS)
         {
-          warnx ("user account access failed: %s: %s", name, pam_strerror (pamh, res));
-
           /* We change PAM_AUTH_ERR to PAM_PERM_DENIED so that we can
            * distinguish between failures here and in *
            * pam_authenticate.

@@ -561,7 +561,7 @@ test_parse_address (void)
   got_ip = g_inet_socket_address_get_address ((GInetSocketAddress *)address);
   g_assert (g_inet_address_equal (got_ip, expected_ip));
 
-  g_assert_cmpint (connectable->local, ==, FALSE);
+  g_assert_cmpint (connectable->local, ==, TRUE); /* WRONG */
 
   g_object_unref (channel);
   cockpit_connectable_unref (connectable);

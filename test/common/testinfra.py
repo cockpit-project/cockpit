@@ -76,7 +76,6 @@ DEFAULT_IMAGE_REFRESH = {
     'fedora-23': {
         'triggers': [
             "verify/fedora-23",
-            "verify/fedora-atomic",  # builds in fedora-23
             "avocado/fedora-23",
             "selenium/firefox",
             "selenium/chrome"
@@ -84,6 +83,7 @@ DEFAULT_IMAGE_REFRESH = {
     },
     'fedora-24': {
         'triggers': [
+            "verify/fedora-atomic",  # builds in fedora-24
             "verify/fedora-24",
         ]
     },

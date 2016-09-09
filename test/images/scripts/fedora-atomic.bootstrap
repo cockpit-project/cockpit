@@ -3,8 +3,8 @@
 
 set -e
 
-url="http://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images"
-prefix="Fedora-Cloud-Atomic-23"
+url="https://download.fedoraproject.org/pub/alt/atomic/stable/CloudImages/x86_64/images/"
+prefix="Fedora-Atomic-24"
 
 BASE=$(dirname $0)
 $BASE/atomic.bootstrap "$1" "$url" "$prefix"

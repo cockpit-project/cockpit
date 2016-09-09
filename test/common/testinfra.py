@@ -46,14 +46,14 @@ WHITELIST = os.path.join(TEST_DIR, "github-whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 HOSTNAME = socket.gethostname().split(".")[0]
-DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-24")
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
 
 BASELINE_PRIORITY = 10
 
 DEFAULT_VERIFY = {
-    'verify/fedora-23': [ 'master' ],
-    'verify/fedora-24': [ 'master', 'pulls' ],
-    'verify/fedora-25': [ ],
+    'verify/fedora-23': [ ],
+    'verify/fedora-24': [ 'master' ],
+    'verify/fedora-25': [ 'master', 'pulls' ],
     'verify/centos-7': [ 'master', 'pulls' ],
     'verify/continuous-atomic': [ 'master' ],
     'verify/rhel-7': [ 'master', 'pulls' ],
@@ -88,6 +88,11 @@ DEFAULT_IMAGE_REFRESH = {
             "selenium/chrome"
             "verify/fedora-24",
             "verify/fedora-atomic",  # builds in fedora-24
+        ]
+    },
+    'fedora-25': {
+        'triggers': [
+            "verify/fedora-25",
         ]
     },
     'fedora-atomic': {

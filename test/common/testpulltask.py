@@ -167,13 +167,15 @@ class GithubPullTask(object):
             subprocess.check_call([ "git", "fetch", "origin", self.ref ])
             subprocess.check_call([ "git", "checkout", "-f", self.revision ])
 
-        # Split a value like verify/fedora-23
+        # Split a value like verify/fedora-24
         (prefix, unused, value) = self.context.partition("/")
 
         os.environ["TEST_NAME"] = self.name
         os.environ["TEST_REVISION"] = self.revision
 
-        if prefix in [ 'container', 'selenium' ]:
+        if prefix in [ 'selenium' ]:
+            os.environ["TEST_OS"] = 'fedora-24'
+        elif prefix in [ 'container' ]:
             os.environ["TEST_OS"] = 'fedora-23'
         else:
             os.environ["TEST_OS"] = value

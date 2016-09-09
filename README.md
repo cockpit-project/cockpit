@@ -3,25 +3,31 @@
 # Cockpit
 **A remote manager for GNU/Linux servers**
 
-### About
+[cockpit-project.org](http://cockpit-project.org/)
+
 Cockpit is an interactive server admin interface. It is easy to use and very light weight.
+Cockpit interacts directly with the operating system from a real Linux session in a browser.
 
-#### Easy to use
-Cockpit is perfect for new sysadmins, allowing them to easily perform simple tasks such as storage administration, inspecting journals and starting and stopping services.
+### Using Cockpit
 
-#### No interference
-Jumping between the terminal and the web tool is no problem. A service started via Cockpit can be stopped via the terminal. Likewise, if an error occurs in the terminal, it can be seen in the Cockpit journal interface.
+You can [install Cockpit](http://cockpit-project.org/running.html) on many Linux operating
+systems including Debian, Fedora and RHEL.
 
-#### Multi-server
-You can monitor and administer several servers at the same time. Just add them with a single click and your machine will look after its buddies.
+Cockpit makes Linux discoverable, allowing sysadmins to easily perform tasks such as starting
+containers, storage administration, network configuration, inspecting logs and so on.
+
+Jumping between the terminal and the web tool is no problem. A service started via Cockpit
+can be stopped via the terminal. Likewise, if an error occurs in the terminal, it can be seen
+in the Cockpit journal interface.
+
+On the Cockpit dashboard, you can easily add other machines with Cockpit installed that are
+accessible via SSH.
 
 ### Development
 
- * [Building Cockpit](HACKING.md)
+ * [Making changes to Cockpit](HACKING.md)
+ * [Adding a new part of Cockpit](https://github.com/cockpit-project/cockpit/wiki/Hackfest)
  * IRC Channel: #cockpit on FreeNode
- * [Mailing List](https://lists.fedorahosted.org/pipermail/cockpit-devel/)
- * [Guiding Principles](http://stef.thewalter.net/ideals-of-cockpit.html)
-
-### Warning
-Unless you got Cockpit via a stable release of an OS, treat it as pre-release
-software. We recommend installing pre-release versions in a virtual machine.
+ * [Mailing List](https://lists.fedorahosted.org/admin/lists/cockpit-devel.lists.fedorahosted.org/)
+ * [Guiding Principles](http://cockpit-project.org/ideals.html)
+ * [Release Notes](http://cockpit-project.org/blog/category/release.html)

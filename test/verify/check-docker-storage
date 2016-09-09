@@ -44,7 +44,7 @@ def can_manage(machine, vg):
     # Fedora 24 has new enough "atomic", but the OS is not in a volume
     # group by default.  We can manage it when we explicitly configure
     # a dedicated volume group.
-    if machine.image == "fedora-24":
+    if machine.image in [ "fedora-24", "fedora-25" ]:
         return vg != ""
 
     # Everyone else either has no "atomic" at all or a version that is

@@ -1,4 +1,4 @@
-[![travis CI build status](https://travis-ci.org/cockpit-project/cockpit.svg?branch=master)](https://travis-ci.org/cockpit-project/cockpit) <br />
+[![semaphore ci build status](https://semaphoreci.com/api/v1/cockpit/cockpit/branches/master/badge.svg)](https://semaphoreci.com/cockpit/cockpit) <br />
 [![Fedora 23 build status](https://fedorapeople.org/groups/cockpit/status/fedora-23.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-23.html) <br />
 [![Fedora 24 build status](https://fedorapeople.org/groups/cockpit/status/fedora-24.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-24.html) <br />
 [![Fedora 23 Atomic Host status](https://fedorapeople.org/groups/cockpit/status/fedora-atomic.svg)](https://fedorapeople.org/groups/cockpit/status/fedora-atomic.html) <br />

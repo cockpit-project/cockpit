@@ -101,7 +101,7 @@ For example
 
 ```
 [basic]
-action = remote-ssh-login
+action = remote-login-ssh
 host = 10.10.122.12
 ```
 

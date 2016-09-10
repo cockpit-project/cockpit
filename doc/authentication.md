@@ -10,7 +10,7 @@ Cockpit supports the following authentication actions:
 
  * spawn-login-with-header
  * spawn-login-with-decoded
- * remote-ssh-login
+ * remote-login-ssh
  * none
 
 To configure an auth scheme add a section to cockpit.conf for that scheme. For example
@@ -101,7 +101,7 @@ For example
 
 ```
 [basic]
-action = remote-ssh-login
+action = remote-login-ssh
 host = 10.10.122.12
 ```
 

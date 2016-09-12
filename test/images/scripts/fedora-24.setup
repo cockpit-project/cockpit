@@ -42,6 +42,14 @@ tuned \
 virt-install \
 "
 
+AVOCADO_TEST_DEPS="\
+avocado \
+avocado-plugins-output-html \
+fontconfig \
+npm \
+python-selenium \
+"
+
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.
 #
@@ -72,7 +80,14 @@ useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
 dnf $DNF_OPTS -y upgrade
-dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# We need avocado for some integration tests
+dnf -y -q copr enable lmr/Autotest
+
+dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $AVOCADO_TEST_DEPS
+
+# integration tests need phantomjs to run locally
+npm -g install phantomjs-prebuilt
 
 # Prepare for building
 dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build

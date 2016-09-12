@@ -61,7 +61,7 @@ DEFAULT_VERIFY = {
     'verify/rhel-atomic': [ 'master', 'pulls' ],
     'verify/debian-unstable': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ 'master' ],
-    'avocado/fedora-23': [ 'master', 'pulls' ],
+    'avocado/fedora-24': [ 'master', 'pulls' ],
     'selenium/firefox': [ 'master', 'pulls' ],
     'selenium/chrome': [ 'master', 'pulls' ],
     'container/kubernetes': [ 'master', 'pulls' ],
@@ -79,11 +79,11 @@ DEFAULT_IMAGE_REFRESH = {
         'triggers': [
             "verify/fedora-23",
             "verify/fedora-atomic",  # builds in fedora-23
-            "avocado/fedora-23",
         ]
     },
     'fedora-24': {
         'triggers': [
+            "avocado/fedora-24",
             "selenium/firefox",
             "selenium/chrome"
             "verify/fedora-24",

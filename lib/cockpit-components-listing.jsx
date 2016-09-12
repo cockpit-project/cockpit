@@ -47,6 +47,8 @@ var ListingRow = React.createClass({
         columns: React.PropTypes.array.isRequired,
         tabRenderers: React.PropTypes.array,
         navigateToItem: React.PropTypes.func,
+        listingDetail: React.PropTypes.node,
+        listingActions: React.PropTypes.arrayOf(React.PropTypes.node)
     },
     getDefaultProps: function () {
         return {
@@ -228,18 +230,21 @@ var ListingRow = React.createClass({
  * - fullWidth optional: set width to 100% of parent, defaults to true
  * - emptyCaption header caption to show if list is empty, defaults to "No entries"
  * - columnTitles: array of column titles, as strings
+ * - actions: additional listing-wide actions (displayed next to the list's title)
  */
 var Listing = React.createClass({
     propTypes: {
         title: React.PropTypes.string.isRequired,
         fullWidth: React.PropTypes.bool,
         emptyCaption: React.PropTypes.string.isRequired,
-        columnTitles: React.PropTypes.arrayOf(React.PropTypes.string)
+        columnTitles: React.PropTypes.arrayOf(React.PropTypes.string),
+        actions: React.PropTypes.arrayOf(React.PropTypes.node)
     },
     getDefaultProps: function () {
         return {
             fullWidth: true,
-            columnTitles: []
+            columnTitles: [],
+            actions: []
         };
     },
     render: function() {
@@ -263,7 +268,7 @@ var Listing = React.createClass({
         }
         return (
             <table className={ bodyClasses.join(" ") }>
-                <caption className="cockpit-caption">{this.props.title}</caption>
+                <caption className="cockpit-caption">{this.props.title}{this.props.actions}</caption>
                 <thead className={headerClasses}>
                     {headerRow}
                 </thead>

@@ -227,16 +227,19 @@ var ListingRow = React.createClass({
  * - title
  * - fullWidth optional: set width to 100% of parent, defaults to true
  * - emptyCaption header caption to show if list is empty, defaults to "No entries"
+ * - columnTitles: array of column titles, as strings
  */
 var Listing = React.createClass({
     propTypes: {
         title: React.PropTypes.string.isRequired,
         fullWidth: React.PropTypes.bool,
         emptyCaption: React.PropTypes.string.isRequired,
+        columnTitles: React.PropTypes.arrayOf(React.PropTypes.string)
     },
     getDefaultProps: function () {
         return {
             fullWidth: true,
+            columnTitles: []
         };
     },
     render: function() {
@@ -244,10 +247,19 @@ var Listing = React.createClass({
         if (this.props.fullWidth)
             bodyClasses.push("listing-ct-wide");
         var headerClasses;
-        var headerRow = <tr/>;
+        var headerRow;
         if (!this.props.children || this.props.children.length === 0) {
             headerClasses = "listing-ct-empty";
             headerRow = <tr><td>{this.props.emptyCaption}</td></tr>;
+        } else if (this.props.columnTitles.length) {
+            headerRow = (
+                <tr>
+                    <th className="listing-ct-toggle"></th>
+                    { this.props.columnTitles.map(function (title) { return <th>{title}</th>; }) }
+                </tr>
+            );
+        } else {
+           headerRow = <tr/>
         }
         return (
             <table className={ bodyClasses.join(" ") }>

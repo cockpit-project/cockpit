@@ -2783,11 +2783,11 @@ function basic_scope(cockpit, jquery) {
 
         client.subscribe({ "path": path, "interface": iface }, signal, options.subscribe !== false);
 
-        function waited() {
+        function waited(ex) {
             if (valid)
                 waits.resolve();
             else
-                waits.reject();
+                waits.reject(ex);
         }
 
         /* If watching then do a proper watch, otherwise object is done */

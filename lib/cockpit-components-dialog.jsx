@@ -58,6 +58,7 @@ var DialogFooter = React.createClass({
             action_in_progress: false,
             action_in_progress_promise: null,
             action_progress_message: '',
+            action_canceled: false,
             error_message: null,
         };
     },
@@ -83,7 +84,12 @@ var DialogFooter = React.createClass({
         if (e && e.button !== 0)
             return;
         var self = this;
-        this.setState({ error_message: null, action_progress_message: '', action_in_progress: true });
+        this.setState({
+                          error_message: null,
+                          action_progress_message: '',
+                          action_in_progress: true,
+                          action_canceled: false,
+                      });
         this.state.action_in_progress_promise = handler(this.update_progress.bind(this))
             .done(function() {
                 self.setState({ action_in_progress: false, error_message: null });
@@ -91,6 +97,10 @@ var DialogFooter = React.createClass({
                     self.props.dialog_done(true);
             })
             .fail(function(error) {
+                if (self.state.action_canceled) {
+                    if (self.props.dialog_done)
+                        self.props.dialog_done(false);
+                }
                 self.setState({ action_in_progress: false, error_message: error });
             })
             .progress(this.update_progress.bind(this));
@@ -101,14 +111,18 @@ var DialogFooter = React.createClass({
         // only consider clicks with the primary button
         if (e && e.button !== 0)
             return;
+
+        this.setState({ action_canceled: true });
+
+        if (this.props.cancel_clicked)
+            this.props.cancel_clicked();
+
         // an action might be in progress, let that handler decide what to do if they added a cancel function
         if (this.state.action_in_progress && 'cancel' in this.state.action_in_progress_promise) {
             this.state.action_in_progress_promise.cancel();
             return;
         }
 
-        if (this.props.cancel_clicked)
-            this.props.cancel_clicked();
         if (this.props.dialog_done)
             this.props.dialog_done(false);
         if (e)

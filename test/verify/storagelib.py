@@ -31,6 +31,7 @@ class StorageCase(MachineCase):
             self.skipTest("No storage on Atomic")
 
         MachineCase.setUp(self)
+        self.storagectl_cmd = self.machine.execute("for cmd in storagedctl storagectl udisksctl; do if which $cmd 2>/dev/null; then break; fi; done").strip()
 
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
@@ -204,10 +205,8 @@ class StorageCase(MachineCase):
             self.dialog_cancel()
         self.dialog_wait_close()
 
-    # HACK - sometimes we have to use "storagedctl" and sometimes "storagectl".
-
     def wait_in_storaged_configuration(self, mount_point):
-        wait(lambda: mount_point in self.machine.execute("/usr/bin/storage*ctl dump | grep Configuration"))
+        wait(lambda: mount_point in self.machine.execute("%s dump | grep Configuration" % self.storagectl_cmd))
 
     def wait_not_in_storaged_configuration(self, mount_point):
-        wait(lambda: mount_point not in self.machine.execute("/usr/bin/storage*ctl dump | grep Configuration"))
+        wait(lambda: mount_point not in self.machine.execute("%s dump | grep Configuration" % self.storagectl_cmd))

@@ -176,7 +176,7 @@ class GithubPullTask(object):
         if prefix in [ 'selenium' ]:
             os.environ["TEST_OS"] = 'fedora-24'
         elif prefix in [ 'container' ]:
-            os.environ["TEST_OS"] = 'fedora-23'
+            os.environ["TEST_OS"] = 'fedora-24'
         else:
             os.environ["TEST_OS"] = value
 

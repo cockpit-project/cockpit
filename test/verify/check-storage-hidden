@@ -86,9 +86,7 @@ class TestStorage(StorageCase):
         # the Lock/Deactivate activities, so we explicitly wait for
         # that to have happened.
         #
-        # HACK - sometimes we have to use "storagedctl" and sometimes "storagectl".
-        #
-        wait(lambda: "my-crypto-tag" in m.execute("/usr/bin/storage*ctl dump | grep ChildConfiguration"))
+        wait(lambda: "my-crypto-tag" in m.execute("%s dump | grep ChildConfiguration" % self.storagectl_cmd))
 
         # Deleting the volume group should still remove the fstab entry
         b.click_action_btn('.panel-heading:contains("Volume Group") .btn-group', "Delete")

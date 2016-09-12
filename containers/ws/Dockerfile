@@ -1,4 +1,4 @@
-FROM fedora:22
+FROM fedora:24
 MAINTAINER "Stef Walter" <stefw@redhat.com>
 
 RUN dnf -y update
@@ -13,7 +13,7 @@ ARG VERSION
 ADD rpms/*.rpm /tmp/
 
 # Again see above ... we do our branching in shell script
-RUN cd /tmp && ( ls *.rpm > /dev/null 2> /dev/null && dnf -y install cockpit-ws*.rpm || dnf -y install sed https://kojipkgs.fedoraproject.org/packages/cockpit/$VERSION/$RELEASE.fc23/x86_64/cockpit-ws-$VERSION-$RELEASE.fc23.x86_64.rpm ) && dnf clean all
+RUN cd /tmp && ( ls *.rpm > /dev/null 2> /dev/null && dnf -y install cockpit-ws*.rpm || dnf -y install sed https://kojipkgs.fedoraproject.org/packages/cockpit/$VERSION/$RELEASE.fc23/x86_64/cockpit-ws-$VERSION-$RELEASE.fc24.x86_64.rpm ) && dnf clean all
 
 # And the stuff that starts the container
 RUN mkdir -p /container && ln -s /host/proc/1 /container/target-namespace

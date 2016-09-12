@@ -42,7 +42,7 @@ clean-local:
 	find $(srcdir) -name '*.pyc' -delete
 	find $(builddir)/dist -depth -name README.md -prune -o -name dist -prune -o -delete
 
-SUFFIXES = .css .css.gz .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .map .map.gz .jsx .html .html.gz .min.html .min.html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
+SUFFIXES = .css .css.gz .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .map .map.gz .jsx .html .html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -72,10 +72,6 @@ MIN_CSS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
 
-MIN_HTML_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/htmlmin $@ $<
-
 GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
@@ -92,17 +88,12 @@ GZ_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 		$(srcdir)/tools/missing $(srcdir)/tools/jsx < $< | \
 		$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs --mangle > $@.tmp && $(MV) $@.tmp $@
-.html.min.html:
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
-	$(MIN_HTML_RULE)
 
 .css.css.gz:
 	$(GZ_RULE)
 .min.css.min.css.gz:
 	$(GZ_RULE)
 .html.html.gz:
-	$(GZ_RULE)
-.min.html.min.html.gz:
 	$(GZ_RULE)
 .js.js.gz:
 	$(GZ_RULE)

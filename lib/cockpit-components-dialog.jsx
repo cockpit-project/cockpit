@@ -185,6 +185,7 @@ var DialogFooter = React.createClass({
 /*
  * React template for a Cockpit dialog
  * The primary action button is disabled while its action is in progress (waiting for promise)
+ * Removes focus on other elements on showing
  * Expected props:
  *  - title (string)
  *  - no_backdrop optional, skip backdrop if true
@@ -201,6 +202,11 @@ var Dialog = React.createClass({
         no_backdrop: React.PropTypes.bool,
         body: React.PropTypes.element.isRequired,
         footer: React.PropTypes.element.isRequired,
+    },
+    componentDidMount: function() {
+        // if we used a button to open this, make sure it's not focused anymore
+        if (document.activeElement)
+            document.activeElement.blur();
     },
     render: function() {
         var backdrop;

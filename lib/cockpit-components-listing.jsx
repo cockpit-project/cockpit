@@ -136,6 +136,8 @@ var ListingRow = React.createClass({
                 return (<td>{itm}</td>);
             else if ('header' in itm && itm.header)
                 return (<th>{itm.name}</th>);
+            else if ('tight' in itm && itm.tight)
+                return (<td className="listing-ct-actions">{itm.name || itm.element}</td>);
             else
                 return (<td>{itm.name}</td>);
         });

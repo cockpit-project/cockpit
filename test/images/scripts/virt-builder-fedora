@@ -35,7 +35,7 @@ if [ "$#" -gt 3 ]; then
       --upload $subscription_path/login:/root/.rhel/login \
       --upload $subscription_path/pass:/root/.rhel/pass"
 else
-    subscription_args="--touch /root/.skip_repos"
+    subscription_args="--write /root/.skip_repos:"
 fi
 
 BASE=$(dirname $0)

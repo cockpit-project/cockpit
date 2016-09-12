@@ -53,6 +53,7 @@ BASELINE_PRIORITY = 10
 DEFAULT_VERIFY = {
     'verify/fedora-23': [ 'master' ],
     'verify/fedora-24': [ 'master', 'pulls' ],
+    'verify/fedora-25': [ ],
     'verify/centos-7': [ 'master', 'pulls' ],
     'verify/continuous-atomic': [ 'master' ],
     'verify/rhel-7': [ 'master', 'pulls' ],
@@ -66,6 +67,7 @@ DEFAULT_VERIFY = {
     'container/kubernetes': [ 'master', 'pulls' ],
     'koji/fedora-23': [ ],
     'koji/fedora-24': [ ],
+    'koji/fedora-25': [ ],
 }
 
 TESTING = "Testing in progress"

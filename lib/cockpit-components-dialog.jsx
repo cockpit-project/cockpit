@@ -230,8 +230,15 @@ var Dialog = React.createClass({
  * For this, create a containing DOM node at the body level
  */
 var show_modal_dialog = function(dialog_props, footer_props) {
+    var dialog_name = 'cockpit_modal_dialog';
+    // don't allow nested dialogs
+    if (document.getElementById(dialog_name)) {
+        console.warn('Unable to create nested dialog');
+        return;
+    }
     // create an element to render into
     var root_element = document.createElement("div");
+    root_element.id = dialog_name;
     document.body.appendChild(root_element);
 
     // register our own on-close callback

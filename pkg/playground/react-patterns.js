@@ -43,7 +43,7 @@
         dfd.notify(_("Starting something long"));
         if (mode == 'steps') {
             var interval, count = 0;
-            window.setInterval(function() {
+            interval = window.setInterval(function() {
                 count += 1;
                 dfd.notify("Step " + count);
             }, 500);
@@ -53,7 +53,10 @@
             }, 5000);
             dfd.promise.cancel = function() {
                 window.clearTimeout(interval);
-                dfd.reject(_("Action canceled"));
+                dfd.notify("Canceling");
+                window.setTimeout(function() {
+                    dfd.reject(_("Action canceled"));
+                }, 1000);
             };
         } else if (mode == 'reject') {
             dfd.reject(_("Some error occurred"));

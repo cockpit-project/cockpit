@@ -61,6 +61,7 @@ DEFAULT_VERIFY = {
     'verify/rhel-atomic': [ 'master', 'pulls' ],
     'verify/debian-unstable': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ 'master' ],
+    'verify/ubuntu-1604': [ ],
     'avocado/fedora-24': [ 'master', 'pulls' ],
     'selenium/firefox': [ 'master', 'pulls' ],
     'selenium/chrome': [ 'master', 'pulls' ],

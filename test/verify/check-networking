@@ -279,6 +279,22 @@ class TestNetworking(MachineCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
+        # HACK - Avoid active slaves
+        #
+        # If an interface is active before Cockpit turns it into a
+        # slave, Cockpit will try to keep it active with the new
+        # settings.  This will fail on the Atomics because they don't
+        # have the "team" plugin installed.
+        #
+        # So we explicitly disconnect the interfaces.  Cockpit will
+        # then not try to activate them again, and we will end up with
+        # a new inactive team.  It can't be activated, but we don't
+        # care about that here.
+        #
+        m.execute("nmcli dev dis %s && nmcli dev dis %s" % (iface1, iface2))
+        b.wait_in_text("#networking-interfaces tr[data-interface='%s']" % iface1, "Inactive")
+        b.wait_in_text("#networking-interfaces tr[data-interface='%s']" % iface2, "Inactive")
+
         # team them
         b.click("button:contains('Add Team')")
         b.wait_popup("network-team-settings-dialog")

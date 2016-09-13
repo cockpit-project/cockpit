@@ -87,6 +87,19 @@
                                 <Select.Select />
                             </td>
                         </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label">
+                                    {_("Nested dialog")}
+                                </label>
+                            </td>
+                            <td>
+                                <button id="open-nested" onClick={ this.props.clickNested }>
+                                    {_("Try to nest dialog")}
+                                </button>
+                                <span>{_("Doesn't open a dialog, only shows a warning in the console.")}</span>
+                            </td>
+                        </tr>
                     </table>
                 </div>
             );

@@ -23,10 +23,10 @@
     var cockpit = require("cockpit");
     var React = require("react");
 
-    var dialog_pattern = require("cockpit-components-dialog.jsx");
+    var dialogPattern = require("cockpit-components-dialog.jsx");
 
-    var demo_dialog = require("./react-demo-dialog.jsx");
-    var demo_listing = require("./react-demo-listing.jsx");
+    var demoDialog = require("./react-demo-dialog.jsx");
+    var demoListing = require("./react-demo-listing.jsx");
 
     var _ = cockpit.gettext;
 
@@ -35,10 +35,10 @@
       -----------------------------------------------------------------------------
      */
 
-    var last_action = "";
+    var lastAction = "";
 
-    var on_dialog_standard_clicked = function(mode) {
-        last_action = mode;
+    var onDialogStandardClicked = function(mode) {
+        lastAction = mode;
         var dfd = cockpit.defer();
         dfd.notify(_("Starting something long"));
         if (mode == 'steps') {
@@ -66,52 +66,60 @@
         return dfd.promise;
     };
 
-    var on_dialog_done = function(success) {
+    var onDialogDone = function(success) {
         var result = success?"successful":"Canceled";
-        var action = success?last_action:"no action";
+        var action = success?lastAction:"no action";
         document.getElementById("demo-dialog-result").textContent = "Dialog closed: " + result + "(" + action + ")";
     };
 
-    var on_standard_demo_clicked = function(static_error) {
-        var dialog_props = {
-            'title': _("Example React Dialog"),
-            'body': React.createElement(demo_dialog, { 'clickNested': on_standard_demo_clicked }),
+    var onStandardDemoClicked = function(staticError) {
+        var dialogProps = {
+            'title': _("This shouldn't be seen"),
+            'body': React.createElement(demoDialog, { 'clickNested': onStandardDemoClicked }),
         };
-        var footer_props = {
+        // also test modifying properties in subsequent render calls
+        var footerProps = {
             'actions': [
-                  { 'clicked': on_dialog_standard_clicked.bind(null, 'standard action'),
+                  { 'clicked': onDialogStandardClicked.bind(null, 'standard action'),
                     'caption': _("OK"),
                     'style': 'primary',
                   },
-                  { 'clicked': on_dialog_standard_clicked.bind(null, 'dangerous action'),
+                  { 'clicked': onDialogStandardClicked.bind(null, 'dangerous action'),
                     'caption': _("Danger"),
                     'style': 'danger',
                   },
-                  { 'clicked': on_dialog_standard_clicked.bind(null, 'steps'),
+                  { 'clicked': onDialogStandardClicked.bind(null, 'steps'),
                     'caption': _("Wait"),
                     'style': 'primary',
                   },
-                  { 'clicked': on_dialog_standard_clicked.bind(null, 'reject'),
+              ],
+            'static_error': staticError,
+            'dialog_done': onDialogDone,
+        };
+        var dialogObj = dialogPattern.show_modal_dialog(dialogProps, footerProps);
+        // if this failed, exit (trying to create a nested dialog)
+        if (!dialogObj)
+            return;
+        footerProps.actions.push(
+                  { 'clicked': onDialogStandardClicked.bind(null, 'reject'),
                     'caption': _("Error"),
                     'style': 'primary',
-                  },
-              ],
-            'static_error': static_error,
-            'dialog_done': on_dialog_done,
-        };
-        dialog_pattern.show_modal_dialog(dialog_props, footer_props);
+                  });
+        dialogObj.setFooterProps(footerProps);
+        dialogProps.title = _("Example React Dialog");
+        dialogObj.setProps(dialogProps);
     };
 
     document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById('demo-show-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, null), false);
-        document.getElementById('demo-show-error-dialog').addEventListener("click", on_standard_demo_clicked.bind(null, 'Some static error'), false);
+        document.getElementById('demo-show-dialog').addEventListener("click", onStandardDemoClicked.bind(null, null), false);
+        document.getElementById('demo-show-error-dialog').addEventListener("click", onStandardDemoClicked.bind(null, 'Some static error'), false);
 
         /*-----------------------------------------------------------------------------
           Listing Pattern
           -----------------------------------------------------------------------------
          */
         // create the listing
-        demo_listing.demo(document.getElementById('demo-listing'), document.getElementById('demo-listing-empty'));
+        demoListing.demo(document.getElementById('demo-listing'), document.getElementById('demo-listing-empty'));
     });
 
 }());

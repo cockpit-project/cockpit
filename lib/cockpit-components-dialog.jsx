@@ -248,34 +248,67 @@ var Dialog = React.createClass({
 
 /* Create and show a dialog
  * For this, create a containing DOM node at the body level
+ * The returned object has the following methods:
+ *     - setFooterProps replace the current footerProps and render
+ *     - setProps       replace the current props and render
+ *     - render         render again using the stored props
+ * The DOM node and React metadata are freed once the dialog has closed
  */
-var show_modal_dialog = function(dialog_props, footer_props) {
-    var dialog_name = 'cockpit_modal_dialog';
+var show_modal_dialog = function(props, footerProps) {
+    var dialogName = 'cockpit_modal_dialog';
     // don't allow nested dialogs
-    if (document.getElementById(dialog_name)) {
+    if (document.getElementById(dialogName)) {
         console.warn('Unable to create nested dialog');
         return;
     }
     // create an element to render into
-    var root_element = document.createElement("div");
-    root_element.id = dialog_name;
-    document.body.appendChild(root_element);
+    var rootElement = document.createElement("div");
+    rootElement.id = dialogName;
+    document.body.appendChild(rootElement);
 
     // register our own on-close callback
-    var orig_callback = null;
-    if (typeof(footer_props) === 'object' && 'dialog_done' in footer_props)
-        orig_callback = footer_props.dialog_done;
-    var close_callback = function(args) {
-        if (orig_callback)
-            orig_callback.apply(this, arguments);
-        React.unmountComponentAtNode(root_element);
-        root_element.remove();
+    var origCallback;
+    var closeCallback = function(args) {
+        if (origCallback)
+            origCallback.apply(this, arguments);
+        React.unmountComponentAtNode(rootElement);
+        rootElement.remove();
     };
-    footer_props.dialog_done = close_callback;
-    dialog_props.footer = React.createElement(DialogFooter, footer_props);
 
-    // create the dialog
-    React.render(React.createElement(Dialog, dialog_props), root_element);
+    var dialogObj = { };
+    dialogObj.props = null;
+    dialogObj.footerProps = null;
+    dialogObj.render = function() {
+        dialogObj.props.footer = <DialogFooter {...dialogObj.footerProps} />;
+        React.render(<Dialog {...dialogObj.props} />, rootElement);
+    };
+    function updateFooterAndRender() {
+        if (dialogObj.props === null || dialogObj.props === undefined)
+            dialogObj.props = { };
+        dialogObj.props.footer = <DialogFooter {...dialogObj.footerProps} />;
+        dialogObj.render();
+    };
+    dialogObj.setFooterProps = function(footerProps) {
+        dialogObj.footerProps = footerProps;
+        if (dialogObj.footerProps === null || dialogObj.footerProps === undefined)
+            dialogObj.footerProps = { };
+        if (dialogObj.footerProps.dialog_done != closeCallback) {
+            origCallback = dialogObj.footerProps.dialog_done;
+            dialogObj.footerProps.dialog_done = closeCallback;
+        }
+        updateFooterAndRender();
+    };
+    dialogObj.setProps = function(props) {
+        dialogObj.props = props;
+        updateFooterAndRender();
+    };
+    dialogObj.setFooterProps(footerProps);
+    dialogObj.setProps(props);
+
+    // now actually render
+    dialogObj.render();
+
+    return dialogObj;
 };
 
 return {

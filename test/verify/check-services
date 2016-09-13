@@ -211,7 +211,7 @@ WantedBy=default.target
             return 'tr[data-goto-unit="%s"]' % service
         def wait_systemctl_timer(time):
             with testvm.Timeout(seconds=20, machine=m, error_message="Timeout while waiting for systemctl list-timers"):
-                m.execute("cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
+                m.execute("export LC_ALL=C; cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
 
         m.execute("LC_ALL=C timedatectl set-timezone UTC")
         m.execute("timedatectl set-ntp off; timedatectl set-time '2020-01-01 15:30:00'")

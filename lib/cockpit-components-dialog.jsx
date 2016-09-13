@@ -268,6 +268,7 @@ var show_modal_dialog = function(dialog_props, footer_props) {
     var close_callback = function(args) {
         if (orig_callback)
             orig_callback.apply(this, arguments);
+        React.unmountComponentAtNode(root_element);
         root_element.remove();
     };
     footer_props.dialog_done = close_callback;

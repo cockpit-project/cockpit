@@ -72,7 +72,7 @@
     var on_standard_demo_clicked = function(static_error) {
         var dialog_props = {
             'title': _("Example React Dialog"),
-            'body': React.createElement(demo_dialog),
+            'body': React.createElement(demo_dialog, { 'clickNested': on_standard_demo_clicked }),
         };
         var footer_props = {
             'actions': [

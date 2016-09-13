@@ -23,6 +23,14 @@ from testlib import *
 from common import testvm
 
 class TestServices(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+
+        # Make sure the system finishes "booting" so that
+        # when we add additional services to this target below
+        # we don't race with the boot process
+        self.machine.execute("systemctl start default.target")
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -74,6 +82,9 @@ Description=Test Timer
 [Timer]
 OnCalendar=*:1/2
 """)
+
+        # After writing files out tell systemd about them
+        m.execute("systemctl daemon-reload")
 
         self.login_and_go("/system/services")
 
@@ -169,6 +180,9 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 [Install]
 WantedBy=default.target
 """)
+
+        # After writing files out tell systemd about them
+        m.execute("systemctl daemon-reload")
 
         self.login_and_go("/playground/service#/test")
 

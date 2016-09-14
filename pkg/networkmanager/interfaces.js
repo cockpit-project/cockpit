@@ -1456,6 +1456,23 @@ PageNetworking.prototype = {
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
 
+        /* HACK - hide "Add Team" if it doesn't work due to missing bits
+         * https://bugzilla.redhat.com/show_bug.cgi?id=1375967
+         */
+
+        $("#networking-add-team").hide();
+        // We need both the plugin and teamd
+        cockpit.script("test -f /usr/bin/teamd && " +
+                       "( test -f /usr/lib64/NetworkManager/libnm-device-plugin-team.so || " +
+                       "  test -f /usr/lib/x86_64-linux-gnu/NetworkManager/libnm-device-plugin-team.so)",
+                       { err: "ignore" }).
+            done(function () {
+                $("#networking-add-team").show();
+            }).
+            always(function () {
+                $("#networking-add-team").attr("data-test-stable", "yes");
+            });
+
         function highlight_netdev_row(event, id) {
             $('#networking-interfaces tr').removeClass('highlight-ct');
             if (id) {
@@ -3922,7 +3939,7 @@ function init() {
 
         if (path.length === 0) {
             page_hide(interface_page);
-            page_show (overview_page);
+            page_show(overview_page);
         } else if (path.length === 1) {
             page_hide(overview_page);
             page_show(interface_page, path[0]);

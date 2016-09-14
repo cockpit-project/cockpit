@@ -268,6 +268,13 @@ class TestNetworking(MachineCase):
 
         self.login_and_go("/network")
 
+        can_add_teams = not "atomic" in m.image
+
+        b.wait_attr("#networking-add-team", "data-test-stable", "yes")
+        if not can_add_teams:
+            b.wait_not_visible("#networking-add-team")
+            return
+
         # Add interfaces and wait for them to be active or not (as
         # appropriate for the OS).
 

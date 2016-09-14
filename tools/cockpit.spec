@@ -216,6 +216,9 @@ find %{buildroot}%{_datadir}/%{name}/storaged -type f >> storaged.list
 echo '%dir %{_datadir}/%{name}/networkmanager' > networkmanager.list
 find %{buildroot}%{_datadir}/%{name}/networkmanager -type f >> networkmanager.list
 
+echo '%dir %{_datadir}/%{name}/networkmanager-team' > networkmanager-team.list
+find %{buildroot}%{_datadir}/%{name}/networkmanager-team -type f >> networkmanager-team.list
+
 echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
 
@@ -449,7 +452,7 @@ Requires: %{name}-shell >= %{stable_api}
 Requires: NetworkManager
 # Optional components (only when soft deps are supported)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
-Recommends: NetworkManager-team
+Recommends: %{name}-networkmanager-team
 %endif
 BuildArch: noarch
 
@@ -457,6 +460,16 @@ BuildArch: noarch
 The Cockpit component for managing networking.  This package uses NetworkManager.
 
 %files networkmanager -f networkmanager.list
+
+%package networkmanager-team
+Summary: Cockpit user interface add-on for networking teams, using NetworkManager
+Requires: NetworkManager-team
+BuildArch: noarch
+
+%description networkmanager-team
+A Cockpit add-on for managing networking team.  This package uses NetworkManager.
+
+%files networkmanager-team -f networkmanager-team.list
 
 %endif
 

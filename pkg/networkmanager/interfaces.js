@@ -1445,6 +1445,11 @@ PageNetworking.prototype = {
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
 
+        var enable_teams = (cockpit.manifests["networkmanager-team"] &&
+                            cockpit.manifests["networkmanager-team"].config &&
+                            cockpit.manifests["networkmanager-team"].config.enable_teams);
+        $("#networking-add-team").toggle(enable_teams);
+
         function highlight_netdev_row(event, id) {
             $('#networking-interfaces tr').removeClass('highlight-ct');
             if (id) {

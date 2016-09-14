@@ -115,6 +115,7 @@ var info = {
 
         "networkmanager/index.html",
         "networkmanager/manifest.json",
+        "networkmanager-team/manifest.json",
 
         "ostree/manifest.json",
         "ostree/index.html",

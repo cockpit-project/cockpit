@@ -780,6 +780,7 @@ function NetworkManagerModel() {
         case 11: return 'vlan';
         case 12: return 'adsl';
         case 13: return 'bridge';
+        case 14: return 'loopback';
         case 15: return 'team';
         case 16: return 'tun';
         case 17: return 'ip_tunnel';
@@ -1060,6 +1061,8 @@ function NetworkManagerModel() {
             HwAddress:            { },
             AvailableConnections: { conv: conv_Array(conv_Object(type_Connection)),   def: [] },
             ActiveConnection:     { conv: conv_Object(type_ActiveConnection) },
+            Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
+            Ip6Config:            { conv: conv_Object(type_Ipv6Config) },
             Udi:                  { trigger: refresh_udev },
             IdVendor:             { def: "" },
             IdModel:              { def: "" },
@@ -1287,6 +1290,12 @@ function device_state_text(dev) {
         return _("Inactive");
     if (dev.State == 100 && dev.Carrier === false)
         return _("No carrier");
+    if (!dev.Managed) {
+        if (!dev.ActiveConnection &&
+            (!dev.Ip4Config || dev.Ip4Config.Addresses.length === 0) &&
+            (!dev.Ip6Config || dev.Ip6Config.Addresses.length === 0))
+            return _("Inactive");
+    }
     return dev.StateText;
 }
 
@@ -1330,8 +1339,9 @@ function render_active_connection(dev, with_link, hide_link_local) {
                    (with_link? render_interface_link(con.Master.Interface) : con.Master.Interface));
     }
 
-    if (con && con.Ip4Config) {
-        con.Ip4Config.Addresses.forEach(function (a) {
+    var ip4config = con? con.Ip4Config : dev.Ip4Config;
+    if (ip4config) {
+        ip4config.Addresses.forEach(function (a) {
             parts.push(a[0] + "/" + a[1]);
         });
     }
@@ -1343,8 +1353,9 @@ function render_active_connection(dev, with_link, hide_link_local) {
                 addr.indexOf("feb") === 0);
     }
 
-    if (con && con.Ip6Config) {
-        con.Ip6Config.Addresses.forEach(function (a) {
+    var ip6config = con? con.Ip6Config : dev.Ip6Config;
+    if (ip6config) {
+        ip6config.Addresses.forEach(function (a) {
             if (!(hide_link_local && is_ipv6_link_local(a[0])))
                 parts.push(a[0] + "/" + a[1]);
         });
@@ -1552,10 +1563,14 @@ PageNetworking.prototype = {
 
     update_devices: function() {
         var self = this;
-        var tbody;
+        var managed_tbody, unmanaged_tbody;
 
-        tbody = $('#networking-interfaces tbody');
-        tbody.empty();
+        managed_tbody = $('#networking-interfaces tbody');
+        managed_tbody.empty();
+
+        unmanaged_tbody = $('#networking-unmanaged-interfaces tbody');
+        unmanaged_tbody.empty();
+        $('#networking-unmanaged-interfaces').hide();
 
         self.model.list_interfaces().forEach(function (iface) {
 
@@ -1565,34 +1580,39 @@ PageNetworking.prototype = {
                 return connections.some(function (c) { return c.Masters && c.Masters.length > 0; });
             }
 
+            // Skip loopback
+            if (iface.Device && iface.Device.DeviceType == 'loopback')
+                return;
+
             // Skip slaves
             if (has_master(iface))
                 return;
 
-            // Skip everything that's not Managed
-            if (iface.Device && iface.Device.Managed === false) {
-                console.log("Hiding unmanaged interface:", iface.Device.Interface);
-                return;
-            }
-
             var dev = iface.Device;
-            var is_active = (dev && dev.State == 100 && dev.Carrier === true);
+            var show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
 
             self.rx_series.add_instance(iface.Name);
             self.tx_series.add_instance(iface.Name);
             add_usage_monitor(iface.Name);
 
-            tbody.append($('<tr>', { "data-interface": encodeURIComponent(iface.Name),
-                                     "data-sample-id": is_active? encodeURIComponent(iface.Name) : null
+            var row = $('<tr>', { "data-interface": encodeURIComponent(iface.Name),
+                                     "data-sample-id": show_traffic? encodeURIComponent(iface.Name) : null
                                    }).
                          append($('<td>').text(iface.Name),
                                 $('<td>').html(render_active_connection(dev, false, true)),
-                                (is_active?
+                                (show_traffic?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
-                                 $('<td colspan="2">').text(device_state_text(dev)))).
-                         click(function () {
-                             cockpit.location.go([ iface.Name ]);
-                         }));
+                                 $('<td colspan="2">').text(device_state_text(dev))));
+
+            if (!dev || dev.Managed) {
+                managed_tbody.append(row.click(function () {
+                    cockpit.location.go([ iface.Name ]);
+                }));
+            } else {
+                unmanaged_tbody.append(row);
+                $('#networking-unmanaged-interfaces').show();
+            }
+
         });
     },
 
@@ -1999,6 +2019,7 @@ PageNetworkInterface.prototype = {
         var self = this;
         var iface = self.model.find_interface(self.dev_name);
         var dev = iface && iface.Device;
+        var managed = iface && (!dev || dev.Managed);
 
         self.iface = iface;
         self.dev = dev;
@@ -2040,12 +2061,13 @@ PageNetworkInterface.prototype = {
 
         this.device_onoff.onoff("disabled", !iface);
         this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
+        this.device_onoff.toggle(managed);
 
         var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' ||
                                                        dev.DeviceType == 'team' ||
                                                        dev.DeviceType == 'vlan' ||
                                                        dev.DeviceType == 'bridge'));
-        $('#network-interface-delete').toggle(!!is_deletable);
+        $('#network-interface-delete').toggle(is_deletable && managed);
 
         function render_carrier_status_row() {
             if (dev && dev.Carrier !== undefined) {
@@ -2067,7 +2089,7 @@ PageNetworkInterface.prototype = {
 
             if (!dev)
                 state = _("Inactive");
-            else if (dev.State != 100)
+            else if (managed && dev.State != 100)
                 state = dev.StateText;
             else
                 state = null;
@@ -2081,6 +2103,12 @@ PageNetworkInterface.prototype = {
         }
 
         function render_connection_settings_rows(con, settings) {
+            if (!managed) {
+                return $('<tr>').append(
+                    $('<td>'),
+                    $('<td>').text(_("This device cannot be managed here.")));
+            }
+
             if (!settings)
                 return [ ];
 
@@ -2502,8 +2530,10 @@ PageNetworkInterface.prototype = {
                     var dev = iface.Device;
                     var is_active = (dev && dev.State == 100 && dev.Carrier === true);
 
-                    // Don't show Unmanaged slaves
-                    if (dev && dev.Managed === false)
+                    /* Unmanaged devices shouldn't show up as slaves
+                     * but let's not take any chances.
+                     */
+                    if (dev && !dev.Managed)
                         return;
 
                     self.rx_series.add_instance(iface.Name);

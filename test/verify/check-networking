@@ -392,5 +392,24 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
 
+    def testUnmanaged(self):
+        b = self.browser
+        m = self.machine
+
+        mac = "52:54:00:9e:00:F2"
+        m.write("/etc/sysconfig/network-scripts/ifcfg-TEST",
+"""
+NAME="TEST"
+HWADDR=52:54:00:9e:00:F2
+NM_CONTROLLED=no
+""")
+        m.execute("nmcli con reload")
+
+        self.login_and_go("/network")
+        iface = self.add_iface(mac)
+        sel = "#networking-unmanaged-interfaces tr[data-interface='%s']" % iface
+        self.browser.wait_present(sel)
+        self.browser.wait_visible(sel)
+
 if __name__ == '__main__':
     test_main()

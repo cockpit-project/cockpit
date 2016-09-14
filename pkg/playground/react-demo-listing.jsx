@@ -51,6 +51,21 @@
             window.alert("navigated to item: " + msg);
         };
 
+        var handleAddClick = function(event) {
+            if (event.button !== 0)
+                return;
+
+            window.alert('This link could open a dialog to create a new entry');
+        };
+
+        var handlePlayClick = function(event) {
+            if (event.button !== 0)
+                return;
+
+            window.alert('This is a row-specific action');
+            event.stopPropagation();
+        };
+
         var tabRenderers = [
             {
                 name: 'onlyActive',
@@ -77,15 +92,27 @@
             },
         ];
 
+        var addLink = <a className="pull-right" onClick={handleAddClick}>Add Row</a>;
+
+        var rowAction = {
+            element: <button className="btn btn-default btn-control fa fa-play" onClick={handlePlayClick} />,
+            tight: true
+        };
+
         // create the dialog
         var listing = (
-            <cockpitListing.Listing title="Demo Listing Pattern with expandable rows">
+            <cockpitListing.Listing title="Demo Listing Pattern with expandable rows"
+                                    actions={addLink}
+                                    columnTitles={['Name', 'Random', 'IP', 'State']}>
                  <cockpitListing.ListingRow
                      columns={ [ { name: 'standard', 'header': true }, 'aoeuaoeu', '127.30.168.10', 'Running' ] }
                      tabRenderers={tabRenderers}
                      navigateToItem={navigateToItem.bind(this, 'frontend')}/>
                  <cockpitListing.ListingRow
                      columns={ [ { name: "can't navigate", 'header': true }, 'aoeuaoeu', '127.30.168.10', 'Running' ] }
+                     tabRenderers={tabRenderers}/>
+                 <cockpitListing.ListingRow
+                     columns={ [ { name: "with button", 'header': true }, 'aoeuaoeu', '127.30.168.10', rowAction ] }
                      tabRenderers={tabRenderers}/>
              </cockpitListing.Listing>
         );

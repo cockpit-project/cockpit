@@ -2843,11 +2843,7 @@ function is_interface_connection(iface, connection) {
 }
 
 function is_interesting_interface(iface) {
-    return (!iface.Device ||
-            iface.Device.DeviceType == 'ethernet' ||
-            iface.Device.DeviceType == 'bond' ||
-            iface.Device.DeviceType == 'vlan' ||
-            iface.Device.DeviceType == 'bridge');
+    return !iface.Device || iface.Device.Managed;
 }
 
 function array_find(array, predicate) {

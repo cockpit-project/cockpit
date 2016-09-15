@@ -1,0 +1,57 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testFormatTooSmall(self):
+        m = self.machine
+        b = self.browser
+
+        # Some day storaged/udisks will support the "dry-run-first" option.
+        #
+        # https://github.com/storaged-project/storaged/pull/82
+
+        storaged_supports_dry_run = (self.storaged_version >= [ 2, 6, 3])
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # Try to format a disk that is too small for XFS.
+
+        m.add_disk("5M", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+        b.click('#drives tr:contains("DISK1")')
+        b.wait_visible('#storage-detail')
+
+        self.content_default_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "xfs")
+        self.dialog_apply()
+
+        if storaged_supports_dry_run:
+            self.dialog_wait_error(None, "Error creating file system")
+        else:
+            self.dialog_wait_close()
+
+if __name__ == '__main__':
+    test_main()

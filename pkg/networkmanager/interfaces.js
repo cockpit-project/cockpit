@@ -1213,6 +1213,47 @@ function NetworkManagerModel() {
             ActiveConnections:  { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
         },
 
+        prototype: {
+            checkpoint_create: function (timeout) {
+                var dfd = $.Deferred();
+                call_object_method(this,
+                                   'org.freedesktop.NetworkManager',
+                                   'CheckpointCreate',
+                                   [ ],
+                                   timeout,
+                                   0).
+                    done(function (path) {
+                        dfd.resolve(path);
+                    }).
+                    fail(function (error) {
+                        if (error.name != "org.freedesktop.DBus.Error.UnknownMethod")
+                            console.warn(error.message || error);
+                        dfd.resolve(null);
+                    });
+                return dfd.promise();
+            },
+
+            checkpoint_destroy: function (checkpoint) {
+                if (checkpoint) {
+                    return call_object_method(this,
+                                              'org.freedesktop.NetworkManager',
+                                              'CheckpointDestroy',
+                                              checkpoint);
+                } else
+                    return $.when();
+            },
+
+            checkpoint_rollback: function (checkpoint) {
+                if (checkpoint) {
+                    return call_object_method(this,
+                                              'org.freedesktop.NetworkManager',
+                                              'CheckpointRollback',
+                                              checkpoint);
+                } else
+                    return $.when();
+            }
+        },
+
         exporters: [
             null,
 
@@ -1830,6 +1871,125 @@ function choice_title(choices, choice, def) {
     return def;
 }
 
+/* Support for automatically rolling back changes that break the
+ * connection to the server.
+ *
+ * The basic idea is to perform the following steps:
+ *
+ * 1) Create a checkpoint with automatic rollback
+ * 2) Make the change
+ * 3) Destroy the checkpoint
+ *
+ * If step 2 breaks the connection, step 3 wont happen and the
+ * checkpoint will roll back after some time.  This is supposed to
+ * restore connectivity, so steps 2 and 3 will complete at that time,
+ * and step 3 will fail because the checkpoint doesn't exist anymore.
+ *
+ * The failure of step 3 is our indication that the connection was
+ * temporarily broken, and we inform the user about that.
+ *
+ * Usually, step 2 completes successfully also for a change that
+ * breaks the connection, and connectivity is only lost after some
+ * delay.  Thus, we also delay step 3 by a short amount (settle_time,
+ * below).
+ *
+ * For a change that _doesn't_ break connectivity, this whole process
+ * is inherently a race: Steps 2 and 3 need to complete before the
+ * checkpoint created in step 1 reaches its timeout.
+ *
+ * It is better to wait a bit longer for salvation after making a
+ * mistake than to have many of your legitimate changes be cancelled
+ * by an impatient nanny mechanism.  Thus, we use a rather long
+ * checkpoint rollback timeout (rollback_time, below).
+ *
+ * For a good change, all three steps happen quickly, and the time we
+ * wait between steps 2 and 3 doesn't need to be very long either,
+ * apparently.  Thus, we delay any indication that something might be
+ * wrong by a short delay (curtain_time, below), and most changes can
+ * thus be made without the "Testing connection" curtain coming up.
+ */
+
+/* Considerations for chosing the times below
+ *
+ * curtain_time too short:  Curtain comes up too often for good changes.
+ *
+ * curtain_time too long:   User is left with a broken UI for a
+ *                          significant time in the case of a mistake.
+ *
+ * settle_time too short:   Some bad changes that take time to have any
+ *                          effect will be let through.
+ *
+ * settle_time too high:    All operations take a long time, and the
+ *                          curtain needs to come up to prevent the
+ *                          user form interacting with the page.  Thus settle_time
+ *                          should be shorter than curtain_time.
+ *
+ * rollback_time too short: Good changes that take a long time to complete
+ *                          (on a loaded machine, say) are cancelled spuriously.
+ *
+ * rollback_time too long:  The user has to wait a long time before
+ *                          his/her mistake is corrected and might
+ *                          consider Cockpit to be dead already.
+ */
+
+var curtain_time  =  0.5;
+var settle_time   =  0.3;
+var rollback_time = 15.0;
+
+function with_checkpoint(model, modify, fail_text, anyway_text) {
+    var manager = model.get_manager();
+    var curtain = $('#testing-connection-curtain');
+    var dialog = $('#confirm-breaking-change-popup');
+
+    var curtain_timeout;
+
+    function show_curtain() {
+        curtain_timeout = window.setTimeout(function () {
+            curtain_timeout = null;
+            curtain.show();
+        }, curtain_time*1000);
+    }
+
+    function hide_curtain() {
+        if (curtain_timeout)
+            window.clearTimeout(curtain_timeout);
+        curtain_timeout = null;
+        curtain.hide();
+    }
+
+    manager.checkpoint_create(rollback_time).
+        done(function (cp) {
+            if (!cp) {
+                modify();
+                return;
+            }
+
+            show_curtain ();
+            modify().
+                done(function () {
+                    window.setTimeout(function () {
+                        manager.checkpoint_destroy(cp).
+                            always(hide_curtain).
+                            fail(function (error) {
+                                dialog.find('#confirm-breaking-change-text').html(fail_text);
+                                dialog.find('.modal-footer .btn-danger').
+                                    off('click').
+                                    text(anyway_text).
+                                    click(function () {
+                                    dialog.modal('hide');
+                                        modify();
+                                    });
+                                dialog.modal('show');
+                            });
+                    }, settle_time*1000);
+                }).
+                fail(function () {
+                    hide_curtain();
+                    manager.checkpoint_rollback(cp);
+                });
+        });
+}
+
 PageNetworkInterface.prototype = {
     _init: function (model) {
         this.id = "network-interface";
@@ -1986,13 +2146,24 @@ PageNetworkInterface.prototype = {
                 return delete_connections(iface.Connections);
         }
 
-        if (this.iface) {
-            var location = cockpit.location;
-            delete_iface_connections(this.iface).
+        var location = cockpit.location;
+
+        function modify () {
+            return delete_iface_connections(self.iface).
                 done(function () {
                     location.go("/");
                 }).
                 fail(show_unexpected_error);
+        }
+
+        if (self.iface) {
+            with_checkpoint(
+                self.model,
+                modify,
+                cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, " +
+                                 "and will make the administration UI unavailable."),
+                               self.iface.Name),
+                cockpit.format(_("Delete $0"), self.iface.Name));
         }
     },
 
@@ -2000,22 +2171,31 @@ PageNetworkInterface.prototype = {
         var self = this;
         var settings_manager = self.model.get_settings();
 
+        if (!self.main_connection && !(self.dev && self.ghost_settings)) {
+            self.update();
+            return;
+        }
+
         function fail(error) {
             show_unexpected_error(error);
             self.update();
         }
 
-        function activate(con) {
-            con.activate(self.dev, null).
-                fail(fail);
+        function modify() {
+            if (self.main_connection) {
+                return self.main_connection.activate(self.dev, null).fail(fail);
+            } else {
+                return self.dev.activate_with_settings(self.ghost_settings, null).fail(fail);
+            }
         }
 
-        if (self.main_connection) {
-            activate(self.main_connection);
-        } else if (self.dev && self.ghost_settings) {
-            self.dev.activate_with_settings(self.ghost_settings, null).fail(fail);
-        } else
-            self.update();
+        with_checkpoint(
+            self.model,
+            modify,
+            cockpit.format(_("Switching on <b>$0</b>  will break the connection to the server, " +
+                             "and will make the administration UI unavailable."),
+                           self.dev.Interface),
+            cockpit.format(_("Switch on $0"), self.dev.Interface));
     },
 
     disconnect: function() {
@@ -2026,10 +2206,21 @@ PageNetworkInterface.prototype = {
             return;
         }
 
-        self.dev.disconnect().fail(function (error) {
-            show_unexpected_error(error);
-            self.update();
-        });
+        function modify () {
+            return self.dev.disconnect().
+                fail(function (error) {
+                    show_unexpected_error(error);
+                    self.update();
+                });
+        }
+
+        with_checkpoint(
+            self.model,
+            modify,
+            cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, " +
+                             "and will make the administration UI unavailable."),
+                           self.dev.Interface),
+            cockpit.format(_("Switch off $0"), self.dev.Interface));
     },
 
     update: function() {
@@ -2144,7 +2335,7 @@ PageNetworkInterface.prototype = {
 
             function reactivate_connection() {
                 if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
-                    con.activate(dev, null).
+                    return con.activate(dev, null).
                         fail(show_unexpected_error);
                 }
             }
@@ -2569,18 +2760,42 @@ PageNetworkInterface.prototype = {
                                    $('<td class="networking-row-configure">').append(
                                        switchbox(is_active, function(val) {
                                            if (val) {
-                                               slave_con.activate(iface.Device).
-                                                   fail(show_unexpected_error);
+                                               with_checkpoint(
+                                                   self.model,
+                                                   function () {
+                                                       return slave_con.activate(iface.Device).
+                                                           fail(show_unexpected_error);
+                                                   },
+                                                   cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, " +
+                                                                    "and will make the administration UI unavailable."),
+                                                                  iface.Name),
+                                                   cockpit.format(_("Switch on $0"), iface.Name));
                                            } else if (dev) {
-                                               dev.disconnect().
-                                                   fail(show_unexpected_error);
+                                               with_checkpoint(
+                                                   self.model,
+                                                   function () {
+                                                       return dev.disconnect().
+                                                           fail(show_unexpected_error);
+                                                   },
+                                                   cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, " +
+                                                                    "and will make the administration UI unavailable."),
+                                                                  iface.Name),
+                                                   cockpit.format(_("Switch off $0"), iface.Name));
                                            }
                                        }, "network-privileged")),
                                    $('<td width="28px">').append(
                                        $('<button class="btn btn-default btn-control-ct network-privileged fa fa-minus">').
                                            click(function () {
-                                               slave_con.delete_().
-                                                   fail(show_unexpected_error);
+                                               with_checkpoint(
+                                                   self.model,
+                                                   function () {
+                                                       return slave_con.delete_().
+                                                           fail(show_unexpected_error);
+                                                   },
+                                                   cockpit.format(_("Removing <b>$0</b> will break the connection to the server, " +
+                                                                    "and will make the administration UI unavailable."),
+                                                                  iface.Name),
+                                                   cockpit.format(_("Remove $0"), iface.Name));
                                                return false;
                                            }))).
                         click(function (event) {
@@ -2614,10 +2829,18 @@ PageNetworkInterface.prototype = {
                                         $('<a role="menuitem" class="network-privileged">').
                                             text(iface.Name).
                                             click(function () {
-                                                var cs = connection_settings(con);
-                                                set_slave(self.model, con, con.Settings,
-                                                          cs.type, iface.Name, true).
-                                                    fail(show_unexpected_error);
+                                                with_checkpoint(
+                                                    self.model,
+                                                    function () {
+                                                        var cs = connection_settings(con);
+                                                        return set_slave(self.model, con, con.Settings,
+                                                                         cs.type, iface.Name, true).
+                                                            fail(show_unexpected_error);
+                                                    },
+                                                    cockpit.format(_("Adding <b>$0</b> will break the connection to the server, " +
+                                                                     "and will make the administration UI unavailable."),
+                                                                   iface.Name),
+                                                    cockpit.format(_("Add $0"), iface.Name));
                                             }));
                                 }
                                 return null;
@@ -2645,6 +2868,15 @@ function switchbox(val, callback) {
         callback(onoff.onoff("value"));
     });
     return onoff;
+}
+
+function with_settings_checkpoint(model, modify) {
+    with_checkpoint(
+        model,
+        modify,
+        _("Changing the settings will break the connection to the server, " +
+          "and will make the administration UI unavailable."),
+        _("Change the settings"));
 }
 
 PageNetworkIpSettings.prototype = {
@@ -2859,24 +3091,28 @@ PageNetworkIpSettings.prototype = {
     },
 
     apply: function() {
-        function apply_or_create() {
-            if (PageNetworkIpSettings.connection)
-                return PageNetworkIpSettings.connection.apply();
-            else {
-                var settings_manager = PageNetworkIpSettings.model.get_settings();
-                return settings_manager.add_connection(PageNetworkIpSettings.settings);
+        function modify() {
+            function apply_or_create() {
+                if (PageNetworkIpSettings.connection)
+                    return PageNetworkIpSettings.connection.apply();
+                else {
+                    var settings_manager = PageNetworkIpSettings.model.get_settings();
+                    return settings_manager.add_connection(PageNetworkIpSettings.settings);
+                }
             }
+
+            return apply_or_create().
+                then(function () {
+                    $('#network-ip-settings-dialog').modal('hide');
+                    if (PageNetworkIpSettings.done)
+                        return PageNetworkIpSettings.done();
+                }).
+                fail(function (error) {
+                    $('#network-ip-settings-error').text(error.message || error.toString());
+                });
         }
 
-        apply_or_create().
-            done(function () {
-                $('#network-ip-settings-dialog').modal('hide');
-                if (PageNetworkIpSettings.done)
-                    PageNetworkIpSettings.done();
-            }).
-            fail(function (error) {
-                $('#network-ip-settings-error').text(error.message || error.toString());
-            });
+        with_settings_checkpoint(PageNetworkIpSettings.model, modify);
     }
 
 };
@@ -3186,19 +3422,31 @@ PageNetworkBondSettings.prototype = {
     },
 
     apply: function() {
-        apply_master_slave($('#network-bond-settings-body'),
-                           PageNetworkBondSettings.model,
-                           PageNetworkBondSettings.connection,
-                           PageNetworkBondSettings.settings,
-                           "bond").
-            done(function() {
-                $('#network-bond-settings-dialog').modal('hide');
-                if (PageNetworkBondSettings.done)
-                    PageNetworkBondSettings.done();
-            }).
-            fail(function (error) {
-                $('#network-bond-settings-error').text(error.message || error.toString());
-            });
+        function modify() {
+            return apply_master_slave($('#network-bond-settings-body'),
+                                      PageNetworkBondSettings.model,
+                                      PageNetworkBondSettings.connection,
+                                      PageNetworkBondSettings.settings,
+                                      "bond").
+                then(function() {
+                    $('#network-bond-settings-dialog').modal('hide');
+                    if (PageNetworkBondSettings.done)
+                        return PageNetworkBondSettings.done();
+                }).
+                fail(function (error) {
+                    $('#network-bond-settings-error').text(error.message || error.toString());
+                });
+        }
+
+        if (PageNetworkBondSettings.connection)
+            with_settings_checkpoint(PageNetworkBondSettings.model, modify);
+        else
+            with_checkpoint(
+                PageNetworkBondSettings.model,
+                modify,
+                _("Creating this bond will break the connection to the server, " +
+                  "and will make the administration UI unavailable."),
+                _("Create it"));
     }
 
 };
@@ -3351,19 +3599,31 @@ PageNetworkTeamSettings.prototype = {
     },
 
     apply: function() {
-        apply_master_slave($('#network-team-settings-body'),
-                           PageNetworkTeamSettings.model,
-                           PageNetworkTeamSettings.connection,
-                           PageNetworkTeamSettings.settings,
-                           "team").
-            done(function() {
-                $('#network-team-settings-dialog').modal('hide');
-                if (PageNetworkTeamSettings.done)
-                    PageNetworkTeamSettings.done();
-            }).
-            fail(function (error) {
-                $('#network-team-settings-error').text(error.message || error.toString());
-            });
+        function modify () {
+            return apply_master_slave($('#network-team-settings-body'),
+                                      PageNetworkTeamSettings.model,
+                                      PageNetworkTeamSettings.connection,
+                                      PageNetworkTeamSettings.settings,
+                                      "team").
+                then(function() {
+                    $('#network-team-settings-dialog').modal('hide');
+                    if (PageNetworkTeamSettings.done)
+                        return PageNetworkTeamSettings.done();
+                }).
+                fail(function (error) {
+                    $('#network-team-settings-error').text(error.message || error.toString());
+                });
+        }
+
+        if (PageNetworkTeamSettings.connection)
+            with_settings_checkpoint(PageNetworkTeamSettings.model, modify);
+        else
+            with_checkpoint(
+                PageNetworkTeamSettings.model,
+                modify,
+                _("Creating this team will break the connection to the server, " +
+                  "and will make the administration UI unavailable."),
+                _("Create it"));
     }
 
 };
@@ -3461,13 +3721,17 @@ PageNetworkTeamPortSettings.prototype = {
                 return settings_manager.add_connection(port_settings);
         }
 
-        update_port().
-            done(function () {
-                $('#network-teamport-settings-dialog').modal('hide');
-                if (PageNetworkTeamPortSettings.done)
-                    PageNetworkTeamPortSettings.done();
-            }).
-            fail(show_error);
+        function modify () {
+            return update_port().
+                then(function () {
+                    $('#network-teamport-settings-dialog').modal('hide');
+                    if (PageNetworkTeamPortSettings.done)
+                        return PageNetworkTeamPortSettings.done();
+                }).
+                fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify);
     }
 };
 
@@ -3571,19 +3835,31 @@ PageNetworkBridgeSettings.prototype = {
     },
 
     apply: function() {
-        apply_master_slave($('#network-bridge-settings-body'),
-                           PageNetworkBridgeSettings.model,
-                           PageNetworkBridgeSettings.connection,
-                           PageNetworkBridgeSettings.settings,
-                           "bridge").
-            done(function() {
-                $('#network-bridge-settings-dialog').modal('hide');
-                if (PageNetworkBridgeSettings.done)
-                    PageNetworkBridgeSettings.done();
-            }).
-            fail(function (error) {
-                $('#network-bridge-settings-error').text(error.message || error.toString());
-            });
+        function modify () {
+            return apply_master_slave($('#network-bridge-settings-body'),
+                                      PageNetworkBridgeSettings.model,
+                                      PageNetworkBridgeSettings.connection,
+                                      PageNetworkBridgeSettings.settings,
+                                      "bridge").
+                then(function() {
+                    $('#network-bridge-settings-dialog').modal('hide');
+                    if (PageNetworkBridgeSettings.done)
+                        return PageNetworkBridgeSettings.done();
+                }).
+                fail(function (error) {
+                    $('#network-bridge-settings-error').text(error.message || error.toString());
+                });
+        }
+
+        if (PageNetworkBridgeSettings.connection)
+            with_settings_checkpoint(PageNetworkBridgeSettings.model, modify);
+        else
+            with_checkpoint(
+                PageNetworkBridgeSettings.model,
+                modify,
+                _("Creating this bridge will break the connection to the server, " +
+                  "and will make the administration UI unavailable."),
+                _("Create it"));
     }
 
 };
@@ -3670,13 +3946,17 @@ PageNetworkBridgePortSettings.prototype = {
                 return settings_manager.add_connection(master_settings);
         }
 
-        update_master().
-            done(function () {
-                $('#network-bridgeport-settings-dialog').modal('hide');
-                if (PageNetworkBridgePortSettings.done)
-                    PageNetworkBridgePortSettings.done();
-            }).
-            fail(show_error);
+        function modify () {
+            return update_master().
+                then(function () {
+                    $('#network-bridgeport-settings-dialog').modal('hide');
+                    if (PageNetworkBridgePortSettings.done)
+                        return PageNetworkBridgePortSettings.done();
+                }).
+                fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify);
     }
 
 };
@@ -3791,13 +4071,25 @@ PageNetworkVlanSettings.prototype = {
                 return settings_manager.add_connection(master_settings);
         }
 
-        update_master().
-            done(function () {
-                $('#network-vlan-settings-dialog').modal('hide');
-                if (PageNetworkVlanSettings.done)
-                    PageNetworkVlanSettings.done();
-            }).
-            fail(show_error);
+        function modify () {
+            return update_master().
+                then(function () {
+                    $('#network-vlan-settings-dialog').modal('hide');
+                    if (PageNetworkVlanSettings.done)
+                        return PageNetworkVlanSettings.done();
+                }).
+                fail(show_error);
+        }
+
+        if (PageNetworkVlanSettings.connection)
+            with_settings_checkpoint(model, modify);
+        else
+            with_checkpoint(
+                PageNetworkVlanSettings.model,
+                modify,
+                _("Creating this VLAN will break the connection to the server, " +
+                  "and will make the administration UI unavailable."),
+                _("Create it"));
     }
 
 };
@@ -3879,13 +4171,17 @@ PageNetworkEthernetSettings.prototype = {
             }
         }
 
-        update_master().
-            done(function () {
-                $('#network-ethernet-settings-dialog').modal('hide');
-                if (PageNetworkEthernetSettings.done)
-                    PageNetworkEthernetSettings.done();
-            }).
-            fail(show_error);
+        function modify () {
+            return update_master().
+                then(function () {
+                    $('#network-ethernet-settings-dialog').modal('hide');
+                    if (PageNetworkEthernetSettings.done)
+                        return PageNetworkEthernetSettings.done();
+                }).
+                fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify);
     }
 
 };

@@ -1069,7 +1069,7 @@ function NetworkManagerModel() {
             Driver:               { def: "" },
             Carrier:              { def: true },
             Speed:                { },
-            Managed:              { def: true },
+            Managed:              { def: false },
             // See below for "Slaves"
         },
 

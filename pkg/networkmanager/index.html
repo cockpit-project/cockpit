@@ -32,6 +32,11 @@
 </head>
 <body hidden>
 
+  <div id="testing-connection-curtain" class="curtains-ct blank-slate-pf" hidden>
+    <h1><div class="spinner spinner-lg"></div></h1>
+    <h1 translatable="yes">Testing connection</h1>
+  </div>
+
   <div id="networking" class="container-fluid page-ct" hidden>
     <div class="row">
       <div id="networking-graph-toolbar" class="zoom-controls standard-zoom-controls">
@@ -775,6 +780,29 @@
         <div class="modal-footer">
           <button class="btn btn-primary" data-dismiss="modal">
             Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="confirm-breaking-change-popup"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Connection will be lost</h4>
+        </div>
+        <div class="modal-body">
+          <div class="pficon pficon-warning-triangle-o"></div>
+          <div id="confirm-breaking-change-text"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger">
+          </button>
+          <button class="btn btn-primary" data-dismiss="modal">
+            Keep connection
           </button>
         </div>
       </div>

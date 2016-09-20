@@ -61,11 +61,6 @@ require([
 		$("#connectioncontrols").hide();
 	});
 
-	$("#ctrl_alt_del").on("click", function () {
-		console.log("Send Ctrl-Alt-Del");
-		rfb.sendCtrlAltDel();
-	});
-
     function connect(path) {
         WebUtil.init_logging('warn');
 
@@ -92,8 +87,8 @@ require([
             console.log("password required");
         };
 
-        rfb = new RFB(options);
-        rfb.connect(window.location.hostname, window.location.port, "", path);
+		rfb = new RFB(options);
+		rfb.connect(window.location.hostname, window.location.port, "", path);
     }
 });
 </script>
@@ -113,17 +108,13 @@ require([
             </tr>
         </table>
 
-        <canvas id="canvas" width="640px" height="20px" style="border: 2px solid black;" hidden>
+        <canvas id="canvas" hidden>
              Canvas not supported.
         </canvas>
 
         <p id="connectioncontrols" hidden>
         	<button class="btn btn-default btn-primary" id="disconnect">
         		Disconnect
-        	</button>
-
-        	<button class="btn btn-default btn-primary" id="ctrl_alt_del">
-        		Send Ctrl-Alt-Del
         	</button>
         </p>
 

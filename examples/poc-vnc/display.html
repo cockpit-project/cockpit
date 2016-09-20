@@ -29,6 +29,7 @@ require([
     $("#connect").on("click", function() {
         $("canvas").show();
         $("table").hide();
+        $("#connectioncontrols").show();
 
         var query = window.btoa(JSON.stringify({
                 payload: "stream",
@@ -42,6 +43,16 @@ require([
         cockpit.transport.wait(function() {
             connect("cockpit/channel/" + cockpit.transport.csrf_token + "?" + query);
         });
+    });
+
+    var rfb;
+
+    $("#disconnect").on("click", function() {
+        console.log("disconnecting");
+        rfb.disconnect();
+        $("canvas").hide();
+        $("table").show();
+        $("#connectioncontrols").hide();
     });
 
     function connect(path) {
@@ -66,8 +77,8 @@ require([
             console.log("password required");
         };
 
-        var rfb = new RFB(options);
-        rfb.connect(window.location.hostname, window.location.port, "", path);
+		rfb = new RFB(options);
+		rfb.connect(window.location.hostname, window.location.port, "", path);
     }
 });
 </script>
@@ -87,9 +98,16 @@ require([
             </tr>
         </table>
 
-        <canvas id="canvas" width="640px" height="20px" style="border: 2px solid black;" hidden>
+        <canvas id="canvas" hidden>
              Canvas not supported.
         </canvas>
+
+        <p id="connectioncontrols" hidden>
+            <button class="btn btn-default btn-primary" id="disconnect">
+                Disconnect
+            </button>
+        </p>
+
     </div>
 </body>
 </html>

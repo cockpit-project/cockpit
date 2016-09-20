@@ -49,7 +49,7 @@ require([
 
         var options = {
             target: document.getElementById('canvas'),
-            encrypt: false,
+            encrypt: location.protocol === "https:",
             repeaterID: '',
             true_color: true,
             local_cursor: true,

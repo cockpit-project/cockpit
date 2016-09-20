@@ -1,6 +1,7 @@
 /*
  * noVNC: HTML5 VNC client
  * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2015 Samuel Mannehed for Cendio AB
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -9,155 +10,112 @@
 /*jslint browser: true, white: false */
 /*global Util, Base64, changeCursor */
 
-var Display;
+/* [module]
+ * import Util from "./util";
+ * import Base64 from "./base64";
+ */
+
+/* [module] export default */ function Display(defaults) {
+    this._drawCtx = null;
+    this._c_forceCanvas = false;
+
+    this._renderQ = [];  // queue drawing actions for in-oder rendering
+
+    // the full frame buffer (logical canvas) size
+    this._fb_width = 0;
+    this._fb_height = 0;
+
+    // the size limit of the viewport (start disabled)
+    this._maxWidth = 0;
+    this._maxHeight = 0;
+
+    // the visible "physical canvas" viewport
+    this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
+    this._cleanRect = { 'x1': 0, 'y1': 0, 'x2': -1, 'y2': -1 };
+
+    this._prevDrawStyle = "";
+    this._tile = null;
+    this._tile16x16 = null;
+    this._tile_x = 0;
+    this._tile_y = 0;
+
+    Util.set_defaults(this, defaults, {
+        'true_color': true,
+        'colourMap': [],
+        'scale': 1.0,
+        'viewport': false,
+        'render_mode': ''
+    });
+
+    Util.Debug(">> Display.constructor");
+
+    if (!this._target) {
+        throw new Error("Target must be set");
+    }
+
+    if (typeof this._target === 'string') {
+        throw new Error('target must be a DOM element');
+    }
+
+    if (!this._target.getContext) {
+        throw new Error("no getContext method");
+    }
+
+    if (!this._drawCtx) {
+        this._drawCtx = this._target.getContext('2d');
+    }
+
+    Util.Debug("User Agent: " + navigator.userAgent);
+    if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
+    if (Util.Engine.webkit) { Util.Debug("Browser: webkit " + Util.Engine.webkit); }
+    if (Util.Engine.trident) { Util.Debug("Browser: trident " + Util.Engine.trident); }
+    if (Util.Engine.presto) { Util.Debug("Browser: presto " + Util.Engine.presto); }
+
+    this.clear();
+
+    // Check canvas features
+    if ('createImageData' in this._drawCtx) {
+        this._render_mode = 'canvas rendering';
+    } else {
+        throw new Error("Canvas does not support createImageData");
+    }
+
+    if (this._prefer_js === null) {
+        Util.Info("Prefering javascript operations");
+        this._prefer_js = true;
+    }
+
+    // Determine browser support for setting the cursor via data URI scheme
+    if (this._cursor_uri || this._cursor_uri === null ||
+            this._cursor_uri === undefined) {
+        this._cursor_uri = Util.browserSupportsCursorURIs();
+    }
+
+    Util.Debug("<< Display.constructor");
+};
 
 (function () {
     "use strict";
 
-    Display = function (defaults) {
-        this._drawCtx = null;
-        this._c_forceCanvas = false;
+    var SUPPORTS_IMAGEDATA_CONSTRUCTOR = false;
+    try {
+        new ImageData(new Uint8ClampedArray(4), 1, 1);
+        SUPPORTS_IMAGEDATA_CONSTRUCTOR = true;
+    } catch (ex) {
+        // ignore failure
+    }
 
-        this._renderQ = [];  // queue drawing actions for in-oder rendering
-
-        // the full frame buffer (logical canvas) size
-        this._fb_width = 0;
-        this._fb_height = 0;
-
-        // the visible "physical canvas" viewport
-        this._viewportLoc = { 'x': 0, 'y': 0, 'w': 0, 'h': 0 };
-        this._cleanRect = { 'x1': 0, 'y1': 0, 'x2': -1, 'y2': -1 };
-
-        this._prevDrawStyle = "";
-        this._tile = null;
-        this._tile16x16 = null;
-        this._tile_x = 0;
-        this._tile_y = 0;
-
-        Util.set_defaults(this, defaults, {
-            'true_color': true,
-            'colourMap': [],
-            'scale': 1.0,
-            'viewport': false,
-            'render_mode': ''
-        });
-
-        Util.Debug(">> Display.constructor");
-
-        if (!this._target) {
-            throw new Error("Target must be set");
-        }
-
-        if (typeof this._target === 'string') {
-            throw new Error('target must be a DOM element');
-        }
-
-        if (!this._target.getContext) {
-            throw new Error("no getContext method");
-        }
-
-        if (!this._drawCtx) {
-            this._drawCtx = this._target.getContext('2d');
-        }
-
-        Util.Debug("User Agent: " + navigator.userAgent);
-        if (Util.Engine.gecko) { Util.Debug("Browser: gecko " + Util.Engine.gecko); }
-        if (Util.Engine.webkit) { Util.Debug("Browser: webkit " + Util.Engine.webkit); }
-        if (Util.Engine.trident) { Util.Debug("Browser: trident " + Util.Engine.trident); }
-        if (Util.Engine.presto) { Util.Debug("Browser: presto " + Util.Engine.presto); }
-
-        this.clear();
-
-        // Check canvas features
-        if ('createImageData' in this._drawCtx) {
-            this._render_mode = 'canvas rendering';
-        } else {
-            throw new Error("Canvas does not support createImageData");
-        }
-
-        if (this._prefer_js === null) {
-            Util.Info("Prefering javascript operations");
-            this._prefer_js = true;
-        }
-
-        // Determine browser support for setting the cursor via data URI scheme
-        var curDat = [];
-        for (var i = 0; i < 8 * 8 * 4; i++) {
-            curDat.push(255);
-        }
-        try {
-            var curSave = this._target.style.cursor;
-            Display.changeCursor(this._target, curDat, curDat, 2, 2, 8, 8);
-            if (this._target.style.cursor) {
-                if (this._cursor_uri === null || this._cursor_uri === undefined) {
-                    this._cursor_uri = true;
-                }
-                Util.Info("Data URI scheme cursor supported");
-            } else {
-                if (this._cursor_uri === null || this._cursor_uri === undefined) {
-                    this._cursor_uri = false;
-                }
-                Util.Warn("Data URI scheme cursor not supported");
-            }
-            this._target.style.cursor = curSave;
-        } catch (exc) {
-            Util.Error("Data URI scheme cursor test exception: " + exc);
-            this._cursor_uri = false;
-        }
-
-        Util.Debug("<< Display.constructor");
-    };
 
     Display.prototype = {
         // Public methods
-        viewportChange: function (deltaX, deltaY, width, height) {
+        viewportChangePos: function (deltaX, deltaY) {
             var vp = this._viewportLoc;
-            var cr = this._cleanRect;
-            var canvas = this._target;
+            deltaX = Math.floor(deltaX);
+            deltaY = Math.floor(deltaY);
 
             if (!this._viewport) {
-                Util.Debug("Setting viewport to full display region");
                 deltaX = -vp.w;  // clamped later of out of bounds
                 deltaY = -vp.h;
-                width = this._fb_width;
-                height = this._fb_height;
-            }
-
-            if (typeof(deltaX) === "undefined") { deltaX = 0; }
-            if (typeof(deltaY) === "undefined") { deltaY = 0; }
-            if (typeof(width) === "undefined") { width = vp.w; }
-            if (typeof(height) === "undefined") { height = vp.h; }
-
-            // Size change
-            if (width > this._fb_width) { width = this._fb_width; }
-            if (height > this._fb_height) { height = this._fb_height; }
-
-            if (vp.w !== width || vp.h !== height) {
-                // Change width
-                if (width < vp.w &&  cr.x2 > vp.x + width - 1) {
-                    cr.x2 = vp.x + width - 1;
-                }
-                vp.w = width;
-
-                // Change height
-                if (height < vp.h &&  cr.y2 > vp.y + height - 1) {
-                    cr.y2 = vp.y + height - 1;
-                }
-                vp.h = height;
-
-                var saveImg = null;
-                if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
-                    var img_width = canvas.width < vp.w ? canvas.width : vp.w;
-                    var img_height = canvas.height < vp.h ? canvas.height : vp.h;
-                    saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
-                }
-
-                canvas.width = vp.w;
-                canvas.height = vp.h;
-
-                if (saveImg) {
-                    this._drawCtx.putImageData(saveImg, 0, 0);
-                }
             }
 
             var vx2 = vp.x + vp.w - 1;
@@ -190,6 +148,7 @@ var Display;
             vy2 += deltaY;
 
             // Update the clean rectangle
+            var cr = this._cleanRect;
             if (vp.x > cr.x1) {
                 cr.x1 = vp.x;
             }
@@ -225,18 +184,97 @@ var Display;
                 h = deltaY;
             }
 
-            // Copy the valid part of the viewport to the shifted location
             var saveStyle = this._drawCtx.fillStyle;
+            var canvas = this._target;
             this._drawCtx.fillStyle = "rgb(255,255,255)";
+
+            // Due to this bug among others [1] we need to disable the image-smoothing to
+            // avoid getting a blur effect when panning.
+            //
+            // 1. https://bugzilla.mozilla.org/show_bug.cgi?id=1194719
+            //
+            // We need to set these every time since all properties are reset
+            // when the the size is changed
+            if (this._drawCtx.mozImageSmoothingEnabled) {
+                this._drawCtx.mozImageSmoothingEnabled = false;
+            } else if (this._drawCtx.webkitImageSmoothingEnabled) {
+                this._drawCtx.webkitImageSmoothingEnabled = false;
+            } else if (this._drawCtx.msImageSmoothingEnabled) {
+                this._drawCtx.msImageSmoothingEnabled = false;
+            } else if (this._drawCtx.imageSmoothingEnabled) {
+                this._drawCtx.imageSmoothingEnabled = false;
+            }
+
+            // Copy the valid part of the viewport to the shifted location
+            this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, -deltaX, -deltaY, vp.w, vp.h);
+
             if (deltaX !== 0) {
-                this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, -deltaX, 0, vp.w, vp.h);
                 this._drawCtx.fillRect(x1, 0, w, vp.h);
             }
             if (deltaY !== 0) {
-                this._drawCtx.drawImage(canvas, 0, 0, vp.w, vp.h, 0, -deltaY, vp.w, vp.h);
                 this._drawCtx.fillRect(0, y1, vp.w, h);
             }
             this._drawCtx.fillStyle = saveStyle;
+        },
+
+        viewportChangeSize: function(width, height) {
+
+            if (typeof(width) === "undefined" || typeof(height) === "undefined") {
+
+                Util.Debug("Setting viewport to full display region");
+                width = this._fb_width;
+                height = this._fb_height;
+            }
+
+            var vp = this._viewportLoc;
+            if (vp.w !== width || vp.h !== height) {
+
+                if (this._viewport) {
+                    if (this._maxWidth !== 0 && width > this._maxWidth) {
+                        width = this._maxWidth;
+                    }
+                    if (this._maxHeight !== 0 && height > this._maxHeight) {
+                        height = this._maxHeight;
+                    }
+                }
+
+                var cr = this._cleanRect;
+
+                if (width < vp.w &&  cr.x2 > vp.x + width - 1) {
+                    cr.x2 = vp.x + width - 1;
+                }
+                if (height < vp.h &&  cr.y2 > vp.y + height - 1) {
+                    cr.y2 = vp.y + height - 1;
+                }
+
+                vp.w = width;
+                vp.h = height;
+
+                var canvas = this._target;
+                if (canvas.width !== width || canvas.height !== height) {
+
+                    // We have to save the canvas data since changing the size will clear it
+                    var saveImg = null;
+                    if (vp.w > 0 && vp.h > 0 && canvas.width > 0 && canvas.height > 0) {
+                        var img_width = canvas.width < vp.w ? canvas.width : vp.w;
+                        var img_height = canvas.height < vp.h ? canvas.height : vp.h;
+                        saveImg = this._drawCtx.getImageData(0, 0, img_width, img_height);
+                    }
+
+                    if (canvas.width !== width) {
+                        canvas.width = width;
+                        canvas.style.width = width + 'px';
+                    }
+                    if (canvas.height !== height) {
+                        canvas.height = height;
+                        canvas.style.height = height + 'px';
+                    }
+
+                    if (saveImg) {
+                        this._drawCtx.putImageData(saveImg, 0, 0);
+                    }
+                }
+            }
         },
 
         // Return a map of clean and dirty areas of the viewport and reset the
@@ -304,7 +342,7 @@ var Display;
 
             this._rescale(this._scale);
 
-            this.viewportChange();
+            this.viewportChangeSize();
         },
 
         clear: function () {
@@ -325,18 +363,41 @@ var Display;
             this._renderQ = [];
         },
 
-        fillRect: function (x, y, width, height, color) {
-            this._setFillColor(color);
-            this._drawCtx.fillRect(x - this._viewportLoc.x, y - this._viewportLoc.y, width, height);
+        fillRect: function (x, y, width, height, color, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                this.renderQ_push({
+                    'type': 'fill',
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                    'color': color
+                });
+            } else {
+                this._setFillColor(color);
+                this._drawCtx.fillRect(x - this._viewportLoc.x, y - this._viewportLoc.y, width, height);
+            }
         },
 
-        copyImage: function (old_x, old_y, new_x, new_y, w, h) {
-            var x1 = old_x - this._viewportLoc.x;
-            var y1 = old_y - this._viewportLoc.y;
-            var x2 = new_x - this._viewportLoc.x;
-            var y2 = new_y - this._viewportLoc.y;
+        copyImage: function (old_x, old_y, new_x, new_y, w, h, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                this.renderQ_push({
+                    'type': 'copy',
+                    'old_x': old_x,
+                    'old_y': old_y,
+                    'x': new_x,
+                    'y': new_y,
+                    'width': w,
+                    'height': h,
+                });
+            } else {
+                var x1 = old_x - this._viewportLoc.x;
+                var y1 = old_y - this._viewportLoc.y;
+                var x2 = new_x - this._viewportLoc.x;
+                var y2 = new_y - this._viewportLoc.y;
 
-            this._drawCtx.drawImage(this._target, x1, y1, w, h, x2, y2, w, h);
+                this._drawCtx.drawImage(this._target, x1, y1, w, h, x2, y2, w, h);
+            }
         },
 
         // start updating a tile
@@ -368,7 +429,7 @@ var Display;
                     data[i + 3] = 255;
                 }
             } else {
-                this.fillRect(x, y, width, height, color);
+                this.fillRect(x, y, width, height, color, true);
             }
         },
 
@@ -399,7 +460,7 @@ var Display;
                     }
                 }
             } else {
-                this.fillRect(this._tile_x + x, this._tile_y + y, w, h, color);
+                this.fillRect(this._tile_x + x, this._tile_y + y, w, h, color, true);
             }
         },
 
@@ -412,20 +473,68 @@ var Display;
             // else: No-op -- already done by setSubTile
         },
 
-        blitImage: function (x, y, width, height, arr, offset) {
-            if (this._true_color) {
+        blitImage: function (x, y, width, height, arr, offset, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                // NB(directxman12): it's technically more performant here to use preallocated arrays,
+                // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+                // this probably isn't getting called *nearly* as much
+                var new_arr = new Uint8Array(width * height * 4);
+                new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
+                this.renderQ_push({
+                    'type': 'blit',
+                    'data': new_arr,
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                });
+            } else if (this._true_color) {
                 this._bgrxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             } else {
                 this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             }
         },
 
-        blitRgbImage: function (x, y , width, height, arr, offset) {
-            if (this._true_color) {
+        blitRgbImage: function (x, y , width, height, arr, offset, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                // NB(directxman12): it's technically more performant here to use preallocated arrays,
+                // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+                // this probably isn't getting called *nearly* as much
+                var new_arr = new Uint8Array(width * height * 3);
+                new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
+                this.renderQ_push({
+                    'type': 'blitRgb',
+                    'data': new_arr,
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                });
+            } else if (this._true_color) {
                 this._rgbImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             } else {
                 // probably wrong?
                 this._cmapImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
+            }
+        },
+
+        blitRgbxImage: function (x, y, width, height, arr, offset, from_queue) {
+            if (this._renderQ.length !== 0 && !from_queue) {
+                // NB(directxman12): it's technically more performant here to use preallocated arrays,
+                // but it's a lot of extra work for not a lot of payoff -- if we're using the render queue,
+                // this probably isn't getting called *nearly* as much
+                var new_arr = new Uint8Array(width * height * 4);
+                new_arr.set(new Uint8Array(arr.buffer, 0, new_arr.length));
+                this.renderQ_push({
+                    'type': 'blitRgbx',
+                    'data': new_arr,
+                    'x': x,
+                    'y': y,
+                    'width': width,
+                    'height': height,
+                });
+            } else {
+                this._rgbxImageData(x, y, this._viewportLoc.x, this._viewportLoc.y, width, height, arr, offset);
             }
         },
 
@@ -470,6 +579,24 @@ var Display;
             this._target.style.cursor = "default";
         },
 
+        disableLocalCursor: function () {
+            this._target.style.cursor = "none";
+        },
+
+        clippingDisplay: function () {
+            var vp = this._viewportLoc;
+
+            var fbClip = this._fb_width > vp.w || this._fb_height > vp.h;
+            var limitedVp = this._maxWidth !== 0 && this._maxHeight !== 0;
+            var clipping = false;
+
+            if (limitedVp) {
+                clipping = vp.w > this._maxWidth || vp.h > this._maxHeight;
+            }
+
+            return fbClip || (limitedVp && clipping);
+        },
+
         // Overridden getters/setters
         get_context: function () {
             return this._drawCtx;
@@ -480,51 +607,73 @@ var Display;
         },
 
         set_width: function (w) {
-            this.resize(w, this._fb_height);
+            this._fb_width = w;
         },
         get_width: function () {
             return this._fb_width;
         },
 
         set_height: function (h) {
-            this.resize(this._fb_width, h);
+            this._fb_height =  h;
         },
         get_height: function () {
             return this._fb_height;
         },
 
+        autoscale: function (containerWidth, containerHeight, downscaleOnly) {
+            var targetAspectRatio = containerWidth / containerHeight;
+            var fbAspectRatio = this._fb_width / this._fb_height;
+
+            var scaleRatio;
+            if (fbAspectRatio >= targetAspectRatio) {
+                scaleRatio = containerWidth / this._fb_width;
+            } else {
+                scaleRatio = containerHeight / this._fb_height;
+            }
+
+            var targetW, targetH;
+            if (scaleRatio > 1.0 && downscaleOnly) {
+                targetW = this._fb_width;
+                targetH = this._fb_height;
+                scaleRatio = 1.0;
+            } else if (fbAspectRatio >= targetAspectRatio) {
+                targetW = containerWidth;
+                targetH = Math.round(containerWidth / fbAspectRatio);
+            } else {
+                targetW = Math.round(containerHeight * fbAspectRatio);
+                targetH = containerHeight;
+            }
+
+            // NB(directxman12): If you set the width directly, or set the
+            //                   style width to a number, the canvas is cleared.
+            //                   However, if you set the style width to a string
+            //                   ('NNNpx'), the canvas is scaled without clearing.
+            this._target.style.width = targetW + 'px';
+            this._target.style.height = targetH + 'px';
+
+            this._scale = scaleRatio;
+
+            return scaleRatio;  // so that the mouse, etc scale can be set
+        },
+
         // Private Methods
         _rescale: function (factor) {
-            var canvas = this._target;
-            var properties = ['transform', 'WebkitTransform', 'MozTransform'];
-            var transform_prop;
-            while ((transform_prop = properties.shift())) {
-                if (typeof canvas.style[transform_prop] !== 'undefined') {
-                    break;
-                }
-            }
-
-            if (transform_prop === null) {
-                Util.Debug("No scaling support");
-                return;
-            }
-
-            if (typeof(factor) === "undefined") {
-                factor = this._scale;
-            } else if (factor > 1.0) {
-                factor = 1.0;
-            } else if (factor < 0.1) {
-                factor = 0.1;
-            }
-
-            if (this._scale === factor) {
-                return;
-            }
-
             this._scale = factor;
-            var x = canvas.width - (canvas.width * factor);
-            var y = canvas.height - (canvas.height * factor);
-            canvas.style[transform_prop] = 'scale(' + this._scale + ') translate(-' + x + 'px, -' + y + 'px)';
+
+            var w;
+            var h;
+
+            if (this._viewport &&
+                this._maxWidth !== 0 && this._maxHeight !== 0) {
+                w = Math.min(this._fb_width, this._maxWidth);
+                h = Math.min(this._fb_height, this._maxHeight);
+            } else {
+                w = this._fb_width;
+                h = this._fb_height;
+            }
+
+            this._target.style.width = Math.round(factor * w) + 'px';
+            this._target.style.height = Math.round(factor * h) + 'px';
         },
 
         _setFillColor: function (color) {
@@ -532,7 +681,7 @@ var Display;
             if (this._true_color) {
                 bgr = color;
             } else {
-                bgr = this._colourMap[color[0]];
+                bgr = this._colourMap[color];
             }
 
             var newStyle = 'rgb(' + bgr[2] + ',' + bgr[1] + ',' + bgr[0] + ')';
@@ -566,6 +715,18 @@ var Display;
             this._drawCtx.putImageData(img, x - vx, y - vy);
         },
 
+        _rgbxImageData: function (x, y, vx, vy, width, height, arr, offset) {
+            // NB(directxman12): arr must be an Type Array view
+            var img;
+            if (SUPPORTS_IMAGEDATA_CONSTRUCTOR) {
+                img = new ImageData(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4), width, height);
+            } else {
+                img = this._drawCtx.createImageData(width, height);
+                img.data.set(new Uint8ClampedArray(arr.buffer, arr.byteOffset, width * height * 4));
+            }
+            this._drawCtx.putImageData(img, x - vx, y - vy);
+        },
+
         _cmapImageData: function (x, y, vx, vy, width, height, arr, offset) {
             var img = this._drawCtx.createImageData(width, height);
             var data = img.data;
@@ -586,16 +747,19 @@ var Display;
                 var a = this._renderQ[0];
                 switch (a.type) {
                     case 'copy':
-                        this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height);
+                        this.copyImage(a.old_x, a.old_y, a.x, a.y, a.width, a.height, true);
                         break;
                     case 'fill':
-                        this.fillRect(a.x, a.y, a.width, a.height, a.color);
+                        this.fillRect(a.x, a.y, a.width, a.height, a.color, true);
                         break;
                     case 'blit':
-                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0);
+                        this.blitImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                         break;
                     case 'blitRgb':
-                        this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0);
+                        this.blitRgbImage(a.x, a.y, a.width, a.height, a.data, 0, true);
+                        break;
+                    case 'blitRgbx':
+                        this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                         break;
                     case 'img':
                         if (a.img.complete) {
@@ -614,7 +778,7 @@ var Display;
             }
 
             if (this._renderQ.length > 0) {
-                requestAnimFrame(this._scan_renderQ.bind(this));
+                requestAnimationFrame(this._scan_renderQ.bind(this));
             }
         },
     };
@@ -626,9 +790,11 @@ var Display;
         ['true_color', 'rw', 'bool'],  // Use true-color pixel data
         ['colourMap', 'rw', 'arr'],    // Colour map array (when not true-color)
         ['scale', 'rw', 'float'],      // Display area scale factor 0.0 - 1.0
-        ['viewport', 'rw', 'bool'],    // Use a viewport set with viewportChange()
+        ['viewport', 'rw', 'bool'],    // Use viewport clipping
         ['width', 'rw', 'int'],        // Display area width
         ['height', 'rw', 'int'],       // Display area height
+        ['maxWidth', 'rw', 'int'],     // Viewport max width (0 if disabled)
+        ['maxHeight', 'rw', 'int'],    // Viewport max height (0 if disabled)
 
         ['render_mode', 'ro', 'str'],  // Canvas rendering mode (read-only)
 

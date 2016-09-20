@@ -25,16 +25,16 @@
  *
  * Permission to use, copy, modify, and distribute this software
  * and its documentation for NON-COMMERCIAL or COMMERCIAL purposes and
- * without fee is hereby granted, provided that this copyright notice is kept 
- * intact. 
- * 
+ * without fee is hereby granted, provided that this copyright notice is kept
+ * intact.
+ *
  * WIDGET WORKSHOP MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY
  * OF THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
  * TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
  * PARTICULAR PURPOSE, OR NON-INFRINGEMENT. WIDGET WORKSHOP SHALL NOT BE LIABLE
  * FOR ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
  * DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
- * 
+ *
  * THIS SOFTWARE IS NOT DESIGNED OR INTENDED FOR USE OR RESALE AS ON-LINE
  * CONTROL EQUIPMENT IN HAZARDOUS ENVIRONMENTS REQUIRING FAIL-SAFE
  * PERFORMANCE, SUCH AS IN THE OPERATION OF NUCLEAR FACILITIES, AIRCRAFT
@@ -77,7 +77,7 @@
 
 /* jslint white: false */
 
-function DES(passwd) {
+/* [module] export default */ function DES(passwd) {
     "use strict";
 
     // Tables, permutations, S-boxes, etc.
@@ -273,4 +273,4 @@ function DES(passwd) {
     setKeys(passwd);             // Setup keys
     return {'encrypt': encrypt}; // Public interface
 
-} // function DES
+}; // function DES

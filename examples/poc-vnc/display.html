@@ -7,18 +7,24 @@
 <link href="../base1/cockpit.css" rel="stylesheet" type="text/css">
 
 <!-- TODO: These should be combined -->
+<!-- XXX: mbalmer thinks the layout should like in the upstream project. -->
 <script src="include/util.js"></script>
 <script src="include/webutil.js"></script>
 <script src="include/base64.js"></script>
 <script src="include/websock.js"></script>
 <script src="include/des.js"></script>
-<script src="include/keysym.js"></script>
-<script src="include/keysymdef.js"></script>
 <script src="include/keyboard.js"></script>
-<script src="include/input.js"></script>
+<script src="include/inflator.js"></script>
 <script src="include/display.js"></script>
 <script src="include/jsunzip.js"></script>
 <script src="include/rfb.js"></script>
+<script src="include/ui.js"></script>
+
+<script src="include/input/devices.js"></script>
+<script src="include/input/keysymdef.js"></script>
+<script src="include/input/keysym.js"></script>
+<script src="include/input/util.js"></script>
+<script src="include/input/xtscancodes.js"></script>
 
 <script src="../base1/jquery.js"></script>
 <script src="../base1/require.js"></script>
@@ -60,6 +66,10 @@ require([
 		rfb.sendCtrlAltDel();
 	});
 
+       function FBUComplete(rfb, fbu) {
+            rfb.set_onFBUComplete(function() { });
+        }
+
     function connect(path) {
         WebUtil.init_logging('warn');
 
@@ -70,7 +80,7 @@ require([
             true_color: true,
             local_cursor: true,
             shared: false,
-            view_only: false,
+            onFBUComplete: FBUComplete
         };
 
         options.onUpdateState = function updateState(rfb, state, oldstate, msg) {

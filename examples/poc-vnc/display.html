@@ -66,10 +66,6 @@ require([
 		rfb.sendCtrlAltDel();
 	});
 
-       function FBUComplete(rfb, fbu) {
-            rfb.set_onFBUComplete(function() { });
-        }
-
     function connect(path) {
         WebUtil.init_logging('warn');
 
@@ -80,11 +76,15 @@ require([
             true_color: true,
             local_cursor: true,
             shared: false,
-            onFBUComplete: FBUComplete
         };
 
         options.onUpdateState = function updateState(rfb, state, oldstate, msg) {
             console.log(state, msg);
+            if (state == 'disconnected') {
+				$("canvas").hide();
+				$("table").show();
+				$("#connectioncontrols").hide();
+          }
         };
 
         options.onXvpInit = function() { };

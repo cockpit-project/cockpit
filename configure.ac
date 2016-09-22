@@ -416,10 +416,10 @@ AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
 
 AC_MSG_CHECKING([for branding directory])
 AC_ARG_WITH(branding,
-            AC_HELP_STRING([--with-branding=default],
-                           [Specify which branding to use.  A value of "auto" means to detect it at run-time.])
+            AC_HELP_STRING([--with-branding=auto],
+                           [Specify which branding to use.  A value of "default" means upstream branding.])
 )
-BRAND=${with_branding:-default}
+BRAND=${with_branding:-auto}
 AC_MSG_RESULT($BRAND)
 if test "$BRAND" != "auto"; then
   AC_DEFINE_UNQUOTED([PACKAGE_BRAND], ["$BRAND"], [Which brand to show.])

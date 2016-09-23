@@ -23,6 +23,8 @@
 
 #include "cockpithash.h"
 
+#include "errno.h"
+
 static GHashTable *cockpit_conf = NULL;
 static GHashTable *cached_strvs = NULL;
 
@@ -264,4 +266,38 @@ cockpit_conf_strv (const gchar *section,
 
   g_free (key);
   return value;
+}
+
+guint
+cockpit_conf_guint (const gchar *section,
+                    const gchar *field,
+                    guint default_value,
+                    guint64 max,
+                    guint64 min)
+{
+  guint val = default_value;
+  guint64 conf_val;
+  gchar *endptr = NULL;
+
+  const gchar* conf = cockpit_conf_string (section, field);
+  if (conf)
+    {
+      conf_val = g_ascii_strtoull (conf, &endptr, 10);
+      if ((conf_val == G_MAXUINT64 || conf_val == 0) &&
+          (errno == ERANGE || errno == EINVAL))
+        val = default_value;
+      else if (endptr && endptr[0] != '\0')
+        val = default_value;
+      else if (conf_val > max || conf_val > UINT_MAX)
+        val = (max > UINT_MAX) ? UINT_MAX : max;
+      else if (conf_val < min)
+        val = min;
+      else
+        val = (guint)conf_val;
+
+      if (conf_val != val)
+        g_message ("Invalid %s %s value '%s', setting to %u", section, field, conf, val);
+    }
+
+  return val;
 }

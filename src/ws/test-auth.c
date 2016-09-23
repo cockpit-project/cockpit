@@ -495,7 +495,10 @@ test_custom_success (Test *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
-  g_assert_null (cockpit_creds_get_password (creds));
+  if (g_str_has_prefix (fix->header, "Basic"))
+    g_assert_cmpstr (cockpit_creds_get_password (creds), == , "this is the password");
+  else
+    g_assert_null (cockpit_creds_get_password (creds));
 
   login_data = cockpit_creds_get_login_data (creds);
   if (fix->data)
@@ -507,6 +510,63 @@ test_custom_success (Test *test,
   g_hash_table_destroy (headers);
   g_object_unref (service);
 }
+
+static const SuccessFixture fixture_ssh_basic = {
+  .warning = NULL,
+  .data = NULL,
+  .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ="
+};
+
+static const SuccessFixture fixture_ssh_no_data = {
+  .warning = NULL,
+  .data = NULL,
+  .header = "testsshscheme success"
+};
+
+static const SuccessFixture fixture_ssh_bad_data = {
+  .warning = "*received bad login-data*",
+  .data = NULL,
+  .header = "testsshscheme success-bad-data"
+};
+
+static const SuccessFixture fixture_ssh_data = {
+  .warning = NULL,
+  .data = "data",
+  .header = "testsshscheme success-with-data"
+};
+
+static const ErrorFixture fixture_ssh_basic_failed = {
+  .error_message = "Authentication failed",
+  .header = "Basic dXNlcjp0aGlzIGlzIHRoZSBwYXNzd29yZA=="
+};
+
+static const ErrorFixture fixture_ssh_auth_no_write = {
+  .error_message = "Authentication failed: no results",
+  .header = "testsshscheme no-write",
+};
+
+static const ErrorFixture fixture_ssh_not_supported = {
+  .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  .error_message = "Authentication failed: authentication-not-supported",
+  .header = "testsshscheme fail",
+};
+
+static const ErrorFixture fixture_ssh_auth_failed = {
+  .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  .error_message = "Authentication failed",
+  .header = "testsshscheme ssh-fail",
+};
+
+static const ErrorFixture fixture_ssh_auth_no_user = {
+  .error_message = "Authentication failed: missing user",
+  .header = "testsshscheme no-user",
+};
+
+static const ErrorFixture fixture_ssh_auth_with_error = {
+  .error_code = COCKPIT_ERROR_FAILED,
+  .error_message = "Authentication failed: unknown: detail for error",
+  .header = "testsshscheme with-error",
+};
 
 static const SuccessFixture fixture_no_data = {
   .warning = NULL,
@@ -846,6 +906,7 @@ test_multi_step_fail (Test *test,
 const gchar *two_steps[3] = { "testscheme two-step", "two", NULL };
 const gchar *two_prompts[2] = { "type two", NULL };
 const gchar *three_steps[4] = { "testscheme three-step", "two", "three", NULL };
+const gchar *three_steps_ssh[4] = { "testsshscheme three-step", "two", "three", NULL };
 const gchar *three_prompts[3] = { "type two", "type three", NULL };
 
 static const SuccessMultiFixture fixture_two_steps = {
@@ -858,6 +919,12 @@ static const SuccessMultiFixture fixture_three_steps = {
   .prompts = three_prompts,
 };
 
+static const SuccessMultiFixture fixture_ssh_three_steps = {
+  .headers = three_steps_ssh,
+  .prompts = three_prompts,
+};
+
+const gchar *two_steps_ssh_wrong[3] = { "testsshscheme two-step", "bad", NULL };
 const gchar *two_steps_wrong[3] = { "testscheme two-step", "bad", NULL };
 const gchar *three_steps_wrong[4] = { "testscheme three-step", "two", "bad", NULL };
 
@@ -870,6 +937,13 @@ static const ErrorMultiFixture fixture_fail_three_steps = {
 
 static const ErrorMultiFixture fixture_fail_two_steps = {
   .headers = two_steps_wrong,
+  .prompts = two_prompts,
+  .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  .error_message = "Authentication failed",
+};
+
+static const ErrorMultiFixture fixture_fail_ssh_two_steps = {
+  .headers = two_steps_ssh_wrong,
   .prompts = two_prompts,
   .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
   .error_message = "Authentication failed",
@@ -1032,6 +1106,32 @@ main (int argc,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-timeout", Test, &fixture_auth_timeout,
               setup_normal, test_custom_timeout, teardown_normal);
+
+  g_test_add ("/auth/custom-ssh-basic-success", Test, &fixture_ssh_basic,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-success", Test, &fixture_ssh_no_data,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-success-bad-data", Test, &fixture_ssh_bad_data,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-success-with-data", Test, &fixture_ssh_data,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-no-user", Test, &fixture_ssh_auth_no_user,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-ssh-fail-auth", Test, &fixture_ssh_auth_failed,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-ssh-fail-basic-auth", Test, &fixture_ssh_basic_failed,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-ssh-not-supported", Test, &fixture_ssh_not_supported,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-ssh-with-error", Test, &fixture_ssh_auth_with_error,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-ssh-no-write", Test, &fixture_ssh_auth_no_write,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/success-ssh-multi-step-three", Test, &fixture_ssh_three_steps,
+              setup_normal, test_multi_step_success, teardown_normal);
+  g_test_add ("/auth/fail-ssh-multi-step-two", Test, &fixture_fail_ssh_two_steps,
+              setup_normal, test_multi_step_fail, teardown_normal);
+
   g_test_add ("/auth/none", Test, &fixture_auth_none,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/bad-command", Test, &fixture_bad_command,

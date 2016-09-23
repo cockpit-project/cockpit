@@ -154,9 +154,6 @@ main (int argc,
 
   g_type_init ();
 
-  ssh_threads_set_callbacks (ssh_threads_get_pthread());
-  ssh_init ();
-
   memset (&data, 0, sizeof (data));
 
   context = g_option_context_new (NULL);

@@ -114,6 +114,10 @@ main (int argc,
     {
       write_resp (fd, "{ \"error\": \"authentication-failed\" }");
     }
+  else if (strcmp (data, "ssh-fail") == 0)
+    {
+      write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
+    }
   else if (strcmp (data, "denied") == 0)
     {
       write_resp (fd, "{ \"error\": \"permission-denied\" }");
@@ -122,6 +126,18 @@ main (int argc,
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
+    }
+  else if (strcmp (data, "this is the password") == 0)
+    {
+      if (argc == 4 && strcmp (argv[3], "me") == 0)
+        {
+          write_resp (fd, "{\"user\": \"me\" }");
+          success = 1;
+        }
+      else
+        {
+          write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
+        }
     }
   else if (strcmp (data, "success-with-data") == 0)
     {

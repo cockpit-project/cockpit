@@ -241,6 +241,24 @@ cockpit_creds_get_password (CockpitCreds *creds)
 }
 
 const gchar *
+cockpit_creds_get_gssapi_creds (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  if (g_atomic_int_get (&creds->poisoned))
+      return NULL;
+  return creds->gssapi_creds;
+}
+
+const gchar *
+cockpit_creds_get_krb5_ccache_name (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  if (g_atomic_int_get (&creds->poisoned))
+      return NULL;
+  return creds->krb5_ccache_name;
+}
+
+const gchar *
 cockpit_creds_get_csrf_token (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
@@ -279,41 +297,6 @@ cockpit_creds_get_rhost (CockpitCreds *creds)
   return creds->rhost;
 }
 
-static gpointer
-hex_decode (const gchar *hex,
-            gsize *data_len)
-{
-  static const char HEX[] = "0123456789abcdef";
-  const gchar *hpos;
-  const gchar *lpos;
-  gsize len;
-  gchar *out;
-  gint i;
-
-  len = strlen (hex);
-  if (len % 2 != 0)
-    return NULL;
-
-  out = g_malloc (len * 2 + 1);
-  for (i = 0; i < len / 2; i++)
-    {
-      hpos = strchr (HEX, hex[i * 2]);
-      lpos = strchr (HEX, hex[i * 2 + 1]);
-      if (hpos == NULL || lpos == NULL)
-        {
-          g_free (out);
-          return NULL;
-        }
-      out[i] = ((hpos - HEX) << 4) | ((lpos - HEX) & 0xf);
-    }
-
-  /* A convenience null termination */
-  out[i] = '\0';
-
-  *data_len = i;
-  return out;
-}
-
 /**
  * cockpit_creds_has_gssapi:
  * @creds: the credentials
@@ -329,101 +312,6 @@ cockpit_creds_has_gssapi (CockpitCreds *creds)
   if (!creds->gssapi_creds || !creds->krb5_ccache_name)
     return FALSE;
 
-  return TRUE;
-}
-
-/**
- * cockpit_creds_push_thread_default_gssapi:
- * @creds: the credentials
- *
- * Setup GSSAPI client credentials to be used in the calling
- * thread. Call cockpit_creds_pop_thread_default_creds() once
- * done.
- *
- * Returns: (transfer full): the gssapi credentials or GSS_C_NO_CREDENTIAL
- */
-gss_cred_id_t
-cockpit_creds_push_thread_default_gssapi (CockpitCreds *creds)
-{
-  gss_cred_id_t cred = GSS_C_NO_CREDENTIAL;
-  gss_buffer_desc buf = GSS_C_EMPTY_BUFFER;
-  OM_uint32 minor;
-  OM_uint32 major;
-
-  g_return_val_if_fail (creds != NULL, NULL);
-
-  if (g_atomic_int_get (&creds->poisoned))
-    goto out;
-
-  if (!creds->gssapi_creds || !creds->krb5_ccache_name)
-    goto out;
-
-  buf.value = hex_decode (creds->gssapi_creds, &buf.length);
-  if (buf.value == NULL)
-    {
-      g_critical ("invalid gssapi credentials returned from session");
-      goto out;
-    }
-
-    major = gss_krb5_ccache_name (&minor, creds->krb5_ccache_name, NULL);
-    if (GSS_ERROR (major))
-      {
-        g_critical ("couldn't setup kerberos thread ccache (%u.%u)", major, minor);
-        goto out;
-      }
-
-#ifdef HAVE_GSS_IMPORT_CRED
-    major = gss_import_cred (&minor, &buf, &cred);
-    if (GSS_ERROR (major))
-      {
-        g_critical ("couldn't parse gssapi credentials (%u.%u)", major, minor);
-        cred = GSS_C_NO_CREDENTIAL;
-        goto out;
-      }
-
-    g_debug ("setup thread kerberos credentials in ccache: %s", creds->krb5_ccache_name);
-
-#else /* !HAVE_GSS_IMPORT_CRED */
-
-  g_message ("unable to forward delegated gssapi kerberos credentials because the "
-             "version of krb5 on this system does not support it.");
-  goto out;
-
-#endif
-
-out:
-  g_free (buf.value);
-  return cred;
-}
-
-/**
- * cockpit_creds_pop_thread_default_gssapi:
- * @creds: the credentials
- * @gss_creds: the GSSAPI credentials to free
- *
- * Clear GSSPI client credentials that were setup for the
- * current thread.
- *
- * Returns: Whether successful
- */
-gboolean
-cockpit_creds_pop_thread_default_gssapi (CockpitCreds *creds,
-                                         gss_cred_id_t gss_creds)
-{
-  OM_uint32 major;
-  OM_uint32 minor;
-
-  if (gss_creds != GSS_C_NO_CREDENTIAL)
-    gss_release_cred (&minor, &gss_creds);
-
-  major = gss_krb5_ccache_name (&minor, NULL, NULL);
-  if (GSS_ERROR (major))
-    {
-      g_critical ("couldn't clear kerberos thread ccache (%u.%u)", major, minor);
-      return FALSE;
-    }
-
-  g_debug ("cleared thread kerberos credentials");
   return TRUE;
 }
 

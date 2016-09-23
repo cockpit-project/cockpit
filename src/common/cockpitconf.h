@@ -36,6 +36,12 @@ gboolean        cockpit_conf_bool             (const gchar *section,
                                                const gchar *field,
                                                gboolean defawlt);
 
+guint           cockpit_conf_guint            (const gchar *section,
+                                               const gchar *field,
+                                               guint default_value,
+                                               guint64 max,
+                                               guint64 min);
+
 const gchar * const * cockpit_conf_get_dirs   (void);
 
 void            cockpit_conf_cleanup          (void);

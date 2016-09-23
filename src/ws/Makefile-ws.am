@@ -30,8 +30,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
-	src/ws/cockpitauthpipe.h \
-	src/ws/cockpitauthpipe.c \
+	src/ws/cockpitauthprocess.h \
+	src/ws/cockpitauthprocess.c \
 	src/ws/cockpitchannelresponse.h \
 	src/ws/cockpitchannelresponse.c \
 	src/ws/cockpitchannelsocket.h \
@@ -88,7 +88,20 @@ EXTRA_DIST += \
 
 # ----------------------------------------------------------------------------------------------------
 
-libexec_PROGRAMS += cockpit-ws cockpit-session
+libexec_PROGRAMS += cockpit-ws cockpit-session cockpit-ssh
+
+cockpit_ssh_SOURCES = \
+	src/ws/ssh.c \
+	$(NULL)
+
+cockpit_ssh_LDADD = \
+	libcockpit-common.a \
+	$(COCKPIT_SSH_SESSION_LIBS) \
+	$(NULL)
+
+cockpit_ssh_CFLAGS = \
+	$(COCKPIT_SSH_SESSION_CFLAGS) \
+	$(NULL)
 
 cockpit_session_SOURCES = src/ws/session.c
 cockpit_session_LDADD = $(COCKPIT_SESSION_LIBS)
@@ -280,8 +293,16 @@ mock_agent_bridge_LDADD = libcockpit-ws.a \
 	$(NULL)
 
 mock_sshd_SOURCES = src/ws/mock-sshd.c
-mock_sshd_CFLAGS =  $(COCKPIT_WS_CFLAGS)
-mock_sshd_LDADD = $(COCKPIT_WS_LIBS) -lutil
+
+mock_sshd_LDADD = \
+	$(COCKPIT_WS_LIBS) \
+	$(COCKPIT_SSH_SESSION_LIBS) \
+	$(NULL)
+
+mock_sshd_CFLAGS = \
+	$(COCKPIT_WS_CFLAGS) \
+	$(COCKPIT_SSH_SESSION_CFLAGS) \
+	$(NULL)
 
 mock_echo_SOURCES = src/ws/mock-echo.c
 mock_echo_CFLAGS = $(COCKPIT_WS_CFLAGS)

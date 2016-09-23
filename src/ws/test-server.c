@@ -22,6 +22,7 @@
 #include "cockpitwebservice.h"
 #include "cockpitchannelresponse.h"
 #include "cockpitchannelsocket.h"
+#include "cockpitws.h"
 
 #include "common/cockpitpipe.h"
 #include "common/cockpitconf.h"
@@ -805,6 +806,9 @@ main (int argc,
   for (i = 0; i < argc; i++)
     bridge_argv[i] = argv[i];
   bridge_argv[i] = "cockpit-bridge";
+
+  // Use a local ssh session command
+  cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
 
   loop = g_main_loop_new (NULL, FALSE);
 

@@ -51,6 +51,10 @@
 const gchar *cockpit_ws_session_program =
     PACKAGE_LIBEXEC_DIR "/cockpit-session";
 
+/* Some tunables that can be set from tests */
+const gchar *cockpit_ws_ssh_program =
+    PACKAGE_LIBEXEC_DIR "/cockpit-ssh";
+
 const gchar *cockpit_ws_bridge_program = NULL;
 
 const gchar *cockpit_ws_known_hosts =
@@ -901,11 +905,7 @@ on_session_closed (CockpitTransport *transport,
   GBytes *payload;
   JsonObject *object = NULL;
 
-  GHashTableIter auth_iter;
-  GHashTable *auth_method_results = NULL; // owned by ssh transport
-  JsonObject *auth_json = NULL; // consumed by object
-  gpointer hkey;
-  gpointer hvalue;
+  JsonObject *auth_json = NULL; // owned by ssh transport
 
   gboolean primary;
 
@@ -920,12 +920,7 @@ on_session_closed (CockpitTransport *transport,
       if (COCKPIT_IS_SSH_TRANSPORT (transport))
         {
           ssh = COCKPIT_SSH_TRANSPORT (transport);
-          auth_method_results = cockpit_ssh_transport_get_auth_method_results (ssh);
-
-          auth_json = json_object_new ();
-          g_hash_table_iter_init (&auth_iter, auth_method_results);
-          while (g_hash_table_iter_next (&auth_iter, &hkey, &hvalue))
-            json_object_set_string_member (auth_json, hkey, hvalue);
+          auth_json = cockpit_ssh_transport_get_auth_method_results (ssh);
         }
 
       if ((g_strcmp0 (problem, "unknown-hostkey") == 0 ||
@@ -970,9 +965,6 @@ on_session_closed (CockpitTransport *transport,
         }
 
       cockpit_session_destroy (&self->sessions, session);
-
-      if (auth_json)
-        json_object_unref (auth_json);
 
       /* If this is the primary session, log the user out */
       if (primary)

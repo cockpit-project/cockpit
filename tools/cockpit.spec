@@ -332,6 +332,7 @@ cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-stub
+%{_libexecdir}/cockpit-ssh
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_localstatedir}/lib/%{name}
 %{_datadir}/%{name}/static

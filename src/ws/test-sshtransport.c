@@ -24,7 +24,7 @@
 
 #include "cockpitsshtransport.h"
 #include "cockpitsshagent.h"
-#include "cockpitauthpipe.h"
+#include "cockpitws.h"
 
 #include "common/cockpittest.h"
 #include "common/cockpiterror.h"
@@ -55,7 +55,6 @@ typedef struct {
 
   /* setup_agent_transport */
   CockpitTransport *agent_transport;
-  CockpitAuthPipe *auth_pipe;
   gboolean agent_closed;
   gboolean agent_started;
 
@@ -89,7 +88,6 @@ typedef struct {
     gboolean ignore_key;
     int ssh_log_level;
 
-    gboolean use_auth_pipe;
     const TestAuthResponse *responses;
     int responses_size;
 } TestFixture;
@@ -134,16 +132,21 @@ check_auth_results (TestCase *tc,
                     const gchar *expect_pw_result,
                     const gchar *expect_gss_result)
 {
-  GHashTable *ht = cockpit_ssh_transport_get_auth_method_results (COCKPIT_SSH_TRANSPORT (tc->transport));
+  gchar *expected;
+  JsonObject *json = cockpit_ssh_transport_get_auth_method_results (COCKPIT_SSH_TRANSPORT (tc->transport));
+
 
 #ifdef HAVE_SSH_SET_AGENT_SOCKET
-  g_assert_cmpstr (expect_key_result, ==,
-                   g_hash_table_lookup (ht, "public-key"));
+  expected = g_strdup_printf ("{\"public-key\":\"%s\",\"password\":\"%s\",\"gssapi-mic\":\"%s\"}",
+                              expect_key_result, expect_pw_result, expect_gss_result);
+#else
+  expected = g_strdup_printf ("{\"password\":\"%s\",\"gssapi-mic\":\"%s\"}",
+                              expect_pw_result, expect_gss_result);
 #endif
-  g_assert_cmpstr (expect_pw_result, ==,
-                   g_hash_table_lookup (ht, "password"));
-  g_assert_cmpstr (expect_gss_result, ==,
-                   g_hash_table_lookup (ht, "gssapi-mic"));
+
+
+  cockpit_assert_json_eq (json, expected);
+  g_free (expected);
 }
 
 static void
@@ -204,10 +207,6 @@ setup_transport (TestCase *tc,
   gchar *expect_knownhosts = NULL;
   gboolean ignore_key = FALSE;
 
-  tc->old_log_level = ssh_get_log_level ();
-  if (fixture->ssh_log_level)
-    ssh_set_log_level (fixture->ssh_log_level);
-
 #if WITH_MOCK
   setup_mock_sshd (tc, data);
 #endif
@@ -239,30 +238,20 @@ setup_transport (TestCase *tc,
   if (tc->agent_transport != NULL)
     agent = cockpit_ssh_agent_new (tc->agent_transport, "ssh-tests", "ssh-agent");
 
-  if (fixture->use_auth_pipe)
-    {
-      tc->auth_pipe = g_object_new (COCKPIT_TYPE_AUTH_PIPE,
-                                "logname", "ssh test",
-                                "pipe-timeout", 2,
-                                "idle-timeout", 2,
-                                NULL);
-    }
-
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                "host", "127.0.0.1",
-#if WITH_MOCK
-                                "port", (guint)tc->ssh_port,
-                                "agent", agent,
-                                "auth-pipe", tc->auth_pipe,
-#else
-                                "port", 22,
-#endif
-                                "command", command,
-                                "known-hosts", known_hosts,
-                                "creds", creds,
-                                "host-key", expect_knownhosts,
-                                "ignore-key", ignore_key,
-                                NULL);
+                              "host", "127.0.0.1",
+  #if WITH_MOCK
+                              "port", (guint)tc->ssh_port,
+                              "agent", agent,
+  #else
+                              "port", 22,
+  #endif
+                              "command", command,
+                              "known-hosts", known_hosts,
+                              "creds", creds,
+                              "host-key", expect_knownhosts,
+                              "ignore-key", ignore_key,
+                              NULL);
 
   cockpit_creds_unref (creds);
   g_free (expect_knownhosts);
@@ -285,17 +274,8 @@ teardown (TestCase *tc,
   g_object_add_weak_pointer (G_OBJECT (tc->transport), (gpointer*)&tc->transport);
   g_object_unref (tc->transport);
 
-  if (tc->auth_pipe)
-    {
-      g_object_add_weak_pointer (G_OBJECT (tc->auth_pipe), (gpointer*)&tc->auth_pipe);
-      g_object_unref (tc->auth_pipe);
-    }
-
   /* If this asserts, outstanding references  */
   g_assert (tc->transport == NULL);
-  g_assert (tc->auth_pipe == NULL);
-
-  ssh_set_log_level (tc->old_log_level);
 }
 
 static gboolean
@@ -351,11 +331,6 @@ static const TestFixture fixture_mock_echo = {
   .ssh_command = BUILDDIR "/mock-echo"
 };
 
-static const TestFixture fixture_kb_mock_echo = {
-  .ssh_command = BUILDDIR "/mock-echo",
-  .use_auth_pipe = TRUE,
-};
-
 static const TestFixture fixture_cat = {
   .ssh_command = "cat"
 };
@@ -368,21 +343,12 @@ test_echo_and_close (TestCase *tc,
   GBytes *received = NULL;
   GBytes *sent;
   gboolean closed = FALSE;
-  gboolean result = FALSE;
   const TestFixture *fixture = data;
 
   sent = g_bytes_new_static ("the message", 11);
-  g_signal_connect (tc->transport, "result", G_CALLBACK (on_closed_set_flag), &result);
   g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
   cockpit_transport_send (tc->transport, "546", sent);
-
-  /* The result should always be fired first */
-  while (!result)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert (received == NULL);
-  g_assert (closed == FALSE);
 
   while (received == NULL && !closed)
     g_main_context_iteration (NULL, TRUE);
@@ -425,13 +391,14 @@ test_echo_queue (TestCase *tc,
   cockpit_transport_send (tc->transport, "9", sent);
   g_bytes_unref (sent);
 
+  while (state != 2)
+    g_main_context_iteration (NULL, TRUE);
+
   /* Only closes after above are sent */
   cockpit_transport_close (tc->transport, NULL);
 
   while (!closed)
     g_main_context_iteration (NULL, TRUE);
-
-  g_assert_cmpint (state, ==, 2);
 }
 
 static void
@@ -536,21 +503,15 @@ test_unsupported_auth (TestCase *tc,
                        gconstpointer data)
 {
   gchar *problem = NULL;
-  gchar *result = NULL;
 
-  cockpit_expect_message ("*server offered unsupported authentication methods*");
-
-  g_signal_connect (tc->transport, "result", G_CALLBACK (on_closed_get_problem), &result);
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
   /* Gets fired first */
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (result, ==, problem);
   g_assert_cmpstr (problem, ==, "authentication-failed");
   g_free (problem);
-  g_free (result);
 
   check_auth_results (tc, "no-server-support", "no-server-support", "no-server-support");
 }
@@ -575,117 +536,94 @@ test_auth_failed (TestCase *tc,
   check_auth_results (tc, "denied", "denied", "no-server-support");
 }
 
-
-static void
-on_auth_pipe_closed_set_flag (CockpitAuthPipe *auth_pipe,
-                              GError *error,
-                              gpointer user_data)
+static gboolean
+on_prompt_do_nothing (CockpitSshTransport *transport,
+                      JsonObject *prompt,
+                      gpointer user_data)
 {
-  gboolean *flag = user_data;
-  g_assert (*flag == FALSE);
-  *flag = TRUE;
+  return TRUE;
 }
 
 static void
 test_multi_auth_timeout (TestCase *tc,
                          gconstpointer data)
 {
-  gboolean closed = FALSE;
+  gchar *problem = NULL;
+
+  // Ad a prompt handler that does nothing
+  g_signal_connect (COCKPIT_SSH_TRANSPORT (tc->transport), "prompt",
+                    G_CALLBACK (on_prompt_do_nothing),
+                    NULL);
 
   cockpit_expect_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
                       "*Auth pipe closed: timeout*");
 
-  g_signal_connect (tc->auth_pipe, "close",
-                    G_CALLBACK (on_auth_pipe_closed_set_flag),
-                    &closed);
-
-  test_auth_failed (tc, data);
-
-  while (closed == FALSE)
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
+  g_assert_cmpstr (problem, ==, "timeout");
+
+  g_free (problem);
   cockpit_assert_expected ();
 }
 
-static void
-on_auth_pipe_result (CockpitAuthPipe *auth_pipe,
-                     GBytes *message,
-                     gpointer user_data)
+static gboolean
+on_prompt (CockpitSshTransport *transport,
+           JsonObject *prompt,
+           gpointer user_data)
 {
   TestAuthResponseSet *rs = user_data;
   TestAuthResponse r;
+  CockpitAuthProcess *auth_process;
   GBytes *input = NULL;
 
   g_assert (rs->spot < rs->size);
   r = rs->responses[rs->spot];
   rs->spot++;
 
-  cockpit_assert_bytes_eq (message, r.expected, strlen (r.expected));
+  cockpit_assert_json_eq (prompt, r.expected);
   input = g_bytes_new_static (r.message, strlen (r.message));
-  cockpit_auth_pipe_answer (auth_pipe, input);
+  auth_process = cockpit_ssh_transport_get_auth_process (transport);
+  g_assert (auth_process != NULL);
+  cockpit_auth_process_write_auth_bytes (auth_process, input);
   g_bytes_unref (input);
+  return TRUE;
 }
 
 static void
 test_multi_auth_fail (TestCase *tc,
                       gconstpointer data)
 {
-
   const TestFixture *fixture = data;
   TestAuthResponseSet set = {
     .responses = fixture->responses,
     .size = fixture->responses_size,
   };
-  gboolean closed = FALSE;
 
-  cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
-                               "*Auth pipe closed: authentication-failed*");
-
-  g_signal_connect (tc->auth_pipe, "message",
-                    G_CALLBACK (on_auth_pipe_result),
+  g_signal_connect (COCKPIT_SSH_TRANSPORT (tc->transport), "prompt",
+                    G_CALLBACK (on_prompt),
                     &set);
-
-  g_signal_connect (tc->auth_pipe, "close",
-                    G_CALLBACK (on_auth_pipe_closed_set_flag),
-                    &closed);
-
   test_auth_failed (tc, data);
 
-  while (closed == FALSE)
-    g_main_context_iteration (NULL, TRUE);
-
   g_assert (set.spot == set.size);
-  cockpit_assert_expected ();
 }
 
 static void
 test_multi_auth (TestCase *tc,
                       gconstpointer data)
 {
-
   const TestFixture *fixture = data;
   TestAuthResponseSet set = {
     .responses = fixture->responses,
     .size = fixture->responses_size,
   };
-  gboolean closed = FALSE;
-
-  g_signal_connect (tc->auth_pipe, "message",
-                    G_CALLBACK (on_auth_pipe_result),
+  g_signal_connect (COCKPIT_SSH_TRANSPORT (tc->transport), "prompt",
+                    G_CALLBACK (on_prompt),
                     &set);
 
-  g_signal_connect (tc->auth_pipe, "close",
-                    G_CALLBACK (on_auth_pipe_closed_set_flag),
-                    &closed);
-
-
   test_echo_and_close (tc, data);
-
-  while (closed == FALSE)
-    g_main_context_iteration (NULL, TRUE);
-
   g_assert (set.spot == set.size);
-  cockpit_assert_expected ();
 }
 
 static const TestAuthResponse good_responses[1] = {
@@ -726,14 +664,12 @@ static const TestAuthResponse two_wrong_responses[2] = {
 
 static const TestFixture fixture_kb_auth_failed = {
   .client_password = "bad password",
-  .use_auth_pipe = TRUE,
   .responses = NULL,
   .responses_size = 0
 };
 
 static const TestFixture fixture_kb_multi_auth_failed = {
   .client_password = PASSWORD,
-  .use_auth_pipe = TRUE,
   .mock_sshd_arg = "--multi-step",
   .responses = wrong_responses,
   .responses_size = 1
@@ -741,7 +677,6 @@ static const TestFixture fixture_kb_multi_auth_failed = {
 
 static const TestFixture fixture_kb_multi_auth = {
   .client_password = PASSWORD,
-  .use_auth_pipe = TRUE,
   .mock_sshd_arg = "--multi-step",
   .responses = good_responses,
   .responses_size = 1
@@ -749,7 +684,6 @@ static const TestFixture fixture_kb_multi_auth = {
 
 static const TestFixture fixture_kb_multi_auth_3 = {
   .client_password = PASSWORD,
-  .use_auth_pipe = TRUE,
   .mock_sshd_arg = "--multi-step",
   .responses = two_responses,
   .responses_size = 2
@@ -757,7 +691,6 @@ static const TestFixture fixture_kb_multi_auth_3 = {
 
 static const TestFixture fixture_kb_multi_auth_3_failed = {
   .client_password = PASSWORD,
-  .use_auth_pipe = TRUE,
   .mock_sshd_arg = "--multi-step",
   .responses = two_wrong_responses,
   .responses_size = 2
@@ -774,8 +707,6 @@ test_unknown_hostkey (TestCase *tc,
                       gconstpointer data)
 {
   gchar *problem = NULL;
-
-  cockpit_expect_message ("*host key for server is not known*");
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   while (problem == NULL)
@@ -912,8 +843,6 @@ test_expect_bad_key (TestCase *tc,
   g_assert (fixture->known_hosts == NULL);
   g_assert (fixture->expect_key != NULL);
 
-  cockpit_expect_message ("*host key did not match expected*");
-
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, NULL);
 
@@ -942,8 +871,6 @@ test_expect_empty_key (TestCase *tc,
    */
   g_assert (fixture->known_hosts == NULL);
   g_assert (fixture->expect_key != NULL);
-
-  cockpit_expect_message ("*host key did not match expected*");
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, NULL);
@@ -999,8 +926,6 @@ test_cannot_connect (void)
   CockpitCreds *creds;
   gchar *problem = NULL;
 
-  cockpit_expect_message ("*couldn't connect*");
-
   creds = cockpit_creds_new ("user", "cockpit", COCKPIT_CRED_PASSWORD, "unused password", NULL);
   transport = cockpit_ssh_transport_new ("localhost", 65533, creds);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
@@ -1029,7 +954,6 @@ test_close_while_connecting (TestCase *tc,
 }
 
 #ifdef HAVE_SSH_SET_AGENT_SOCKET
-
 
 static gboolean
 on_bridge_control (CockpitTransport *transport,
@@ -1062,6 +986,8 @@ setup_key_transport (TestCase *tc,
       fixture->mock_agent_arg,
       NULL
   };
+  gboolean bridge_closed = FALSE;
+  guint c_sig = 0;
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
   tc->agent_transport = cockpit_pipe_transport_new (pipe);
@@ -1073,9 +999,13 @@ setup_key_transport (TestCase *tc,
 
   g_signal_connect (tc->agent_transport, "control",
                     G_CALLBACK (on_bridge_control), tc);
-  while (!tc->agent_started)
+  c_sig = g_signal_connect (tc->agent_transport, "closed",
+                            G_CALLBACK (on_closed_set_flag), &bridge_closed);
+  while (!tc->agent_started && !bridge_closed)
     g_main_context_iteration (NULL, TRUE);
 
+  g_assert (!bridge_closed);
+  g_signal_handler_disconnect (tc->agent_transport, c_sig);
   setup_transport (tc, data);
 }
 
@@ -1126,7 +1056,9 @@ int
 main (int argc,
       char *argv[])
 {
-  ssh_init ();
+  cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
+  cockpit_ws_auth_process_timeout = 3;
+  cockpit_ws_auth_response_timeout = 3;
 
   cockpit_test_init (&argc, &argv);
 
@@ -1159,8 +1091,8 @@ main (int argc,
   g_test_add ("/ssh-transport/kb-multi-auth-timeout", TestCase,
               &fixture_kb_multi_auth, setup_transport,
               test_multi_auth_timeout, teardown);
-  g_test_add ("/ssh-transport/kb-echo-message", TestCase, &fixture_kb_mock_echo,
-              setup_transport, test_echo_and_close, teardown);
+  g_test_add ("/ssh-transport/kb-echo-message", TestCase, &fixture_mock_echo,
+              setup_transport, test_multi_auth, teardown);
   g_test_add ("/ssh-transport/kb-multi-echo-message", TestCase,
               &fixture_kb_multi_auth,
               setup_transport, test_multi_auth, teardown);
@@ -1173,6 +1105,7 @@ main (int argc,
   g_test_add ("/ssh-transport/key-auth-failed", TestCase, &fixture_invalid_key_auth, setup_key_transport, test_key_auth_failed, key_teardown);
 #endif
 #endif
+
   g_test_add ("/ssh-transport/bad-command", TestCase, &fixture_bad_command,
               setup_transport, test_no_cockpit, teardown);
   g_test_add ("/ssh-transport/command-not-found", TestCase, &fixture_command_not_found,

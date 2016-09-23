@@ -68,14 +68,13 @@ gboolean        cockpit_creds_has_gssapi     (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_application            (CockpitCreds *creds);
 
-gss_cred_id_t   cockpit_creds_push_thread_default_gssapi (CockpitCreds *creds);
-
-gboolean        cockpit_creds_pop_thread_default_gssapi  (CockpitCreds *creds,
-                                                          gss_cred_id_t gss_cred);
-
 JsonObject *    cockpit_creds_get_login_data             (CockpitCreds *creds);
 
 JsonObject *    cockpit_creds_to_json                    (CockpitCreds *creds);
+
+const gchar *   cockpit_creds_get_krb5_ccache_name       (CockpitCreds *creds);
+
+const gchar *   cockpit_creds_get_gssapi_creds           (CockpitCreds *creds);
 G_END_DECLS
 
 #endif

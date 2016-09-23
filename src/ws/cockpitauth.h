@@ -30,6 +30,10 @@
 
 G_BEGIN_DECLS
 
+#define MAX_AUTH_TIMEOUT 900
+#define MIN_AUTH_TIMEOUT 1
+#define SSH_SECTION "Ssh-Login"
+
 #define COCKPIT_TYPE_AUTH         (cockpit_auth_get_type ())
 #define COCKPIT_AUTH(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_AUTH, CockpitAuth))
 #define COCKPIT_AUTH_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_AUTH, CockpitAuthClass))

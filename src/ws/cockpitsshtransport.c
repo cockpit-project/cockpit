@@ -25,12 +25,16 @@
 #endif
 #define G_LOG_DOMAIN "cockpit-protocol"
 
-#include "cockpitauthpipe.h"
+#include "cockpitauth.h"
+#include "cockpitauthprocess.h"
 #include "cockpitsshtransport.h"
 #include "cockpitsshagent.h"
+#include "cockpitws.h"
 
+#include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
+#include "common/cockpitpipetransport.h"
 
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
@@ -44,864 +48,13 @@
 /**
  * CockpitSshTransport:
  *
- * A #CockpitTransport implementation that shuttles data over an
- * ssh connection to an ssh server. Note this is the client side
- * of an SSH connection.  See doc/protocol.md for information on how the
+ * A #CockpitTransport implementation that spawns a command to start a
+ * cockpit-bridge over ssh. Note this is the client side
+ * of an SSH connection.  Differs from CockpitPipeTransport in that the pipe
+ * isn't started until after authentication has been succesfull.
+ * See doc/protocol.md for information on how the
  * framing looks ... including the MSB length prefix.
  */
-
-/* ----------------------------------------------------------------------------
- * Connect and Authenticate Thread
- *
- * Authentication happens in a secondary thread. This is because krb5 cannot
- * be made async anyway, and we hope that's our ideal form of authentication.
- * So rather than special case it, do all auth in a thread. This obviously only
- * ever happens for authenticated users, so isn't really the end of the world.
- *
- * We pass CockpitSshData to the thread. Everything here should be either
- * thread-safe or only accessed by the thread.
- *
- * The connecting flag is set by the connect thread when it's done. It's also
- * used as a way for the main thread to cancel the connect thread. In that case
- * the main thread also closes the socket, to cause the connect/auth to stop
- * immediately.
- */
-
-typedef struct {
-  /* context of the main thread */
-  GMainContext *context;
-
-  /* Input to the connect thread*/
-  const gchar *logname;
-  ssh_session session;
-  CockpitCreds *creds;
-  gchar *command;
-  gchar *expect_key;
-  gchar *knownhosts_file;
-  gboolean ignore_key;
-
-  /* Output from the connect thread */
-  ssh_channel channel;
-  const gchar *problem;
-  gchar *host_key;
-  gchar *host_fingerprint;
-  GHashTable *auth_results;
-
-  /* When connect is done this flag is cleared */
-  gint *connecting;
-
-  int auth_fd;
-
-} CockpitSshData;
-
-static const gchar *
-auth_method_description (int method)
-{
-  if (method == SSH_AUTH_METHOD_NONE)
-    return "none";
-  else if (method == SSH_AUTH_METHOD_PASSWORD || method == SSH_AUTH_METHOD_INTERACTIVE)
-    return "password";
-  else if (method == SSH_AUTH_METHOD_PUBLICKEY)
-    return "public-key";
-  else if (method == SSH_AUTH_METHOD_HOSTBASED)
-    return "host-based";
-  else if (method == SSH_AUTH_METHOD_GSSAPI_MIC)
-    return "gssapi-mic";
-  else
-    return "unknown";
-}
-
-static gchar *
-auth_methods_line (int methods)
-{
-  GString *string;
-  int i = 0;
-  int check[6] = {
-    SSH_AUTH_METHOD_NONE,
-    SSH_AUTH_METHOD_INTERACTIVE,
-    SSH_AUTH_METHOD_PASSWORD,
-    SSH_AUTH_METHOD_PUBLICKEY,
-    SSH_AUTH_METHOD_HOSTBASED,
-    SSH_AUTH_METHOD_GSSAPI_MIC
-  };
-
-  string = g_string_new ("");
-  if (methods == 0)
-    g_string_append (string, auth_method_description (methods));
-
-  for (i = 0; i < G_N_ELEMENTS (check); i++)
-    {
-      if (methods & check[i])
-        {
-          g_string_append (string, auth_method_description (check[i]));
-          g_string_append (string, " ");
-        }
-    }
-
-  return g_string_free (string, FALSE);
-}
-
-static gboolean
-ssh_msg_is_disconnected (const gchar *msg)
-{
-      return msg && (strstr (msg, "disconnected") ||
-                     strstr (msg, "SSH_MSG_DISCONNECT") ||
-                     strstr (msg, "Socket error: Success") ||
-                     strstr (msg, "Socket error: Connection reset by peer"));
-}
-
-/*
- * HACK: SELinux prevents us from writing to the directories we want to
- * write to, so we have to try multiple locations.
- *
- * https://bugzilla.redhat.com/show_bug.cgi?id=1279430
- */
-static gchar *
-create_knownhosts_temp (void)
-{
-  const gchar *directories[] = {
-      PACKAGE_LOCALSTATE_DIR,
-      "/tmp",
-      NULL,
-  };
-
-  gchar *name;
-  int i, fd, err;
-
-  for (i = 0; directories[i] != NULL; i++)
-    {
-      name = g_build_filename (directories[i], "known-hosts.XXXXXX", NULL);
-      fd = g_mkstemp (name);
-      err = errno;
-
-      if (fd >= 0)
-        {
-          close (fd);
-          return name;
-        }
-
-      g_free (name);
-
-      if ((err == ENOENT || err == EPERM || err == EACCES) && directories[i + 1] != NULL)
-        continue;
-
-      g_warning ("couldn't make temporary file for knownhosts line in %s: %m", directories[i]);
-      break;
-    }
-
-  return NULL;
-}
-
-
-/*
- * NOTE: This function changes the SSH_OPTIONS_KNOWNHOSTS option on
- * the session.
- *
- * We can't save and restore it since ssh_options_get doesn't allow us
- * to retrieve the old value of SSH_OPTIONS_KNOWNHOSTS.
- *
- * HACK: This function should be provided by libssh.
- *
- * https://red.libssh.org/issues/162
-*/
-static gchar *
-get_knownhosts_line (ssh_session session)
-{
-
-  gchar *name = NULL;
-  GError *error = NULL;
-  gchar *line = NULL;
-
-  name = create_knownhosts_temp ();
-  if (!name)
-    goto out;
-
-  if (ssh_options_set (session, SSH_OPTIONS_KNOWNHOSTS, name) != SSH_OK)
-    {
-      g_warning ("Couldn't set SSH_OPTIONS_KNOWNHOSTS option.");
-      goto out;
-    }
-
-  if (ssh_write_knownhost (session) != SSH_OK)
-    {
-      g_warning ("Couldn't write knownhosts file: %s", ssh_get_error (session));
-      goto out;
-    }
-
-  if (!g_file_get_contents (name, &line, NULL, &error))
-    {
-      g_warning ("Couldn't read temporary known_hosts %s: %s", name, error->message);
-      g_clear_error (&error);
-      goto out;
-    }
-
-  g_strstrip (line);
-
-out:
-  if (name)
-    {
-      g_unlink (name);
-      g_free (name);
-    }
-
-  return line;
-}
-
-static const gchar *
-verify_knownhost (CockpitSshData *data)
-{
-  const gchar *ret = "invalid-hostkey";
-  ssh_key key = NULL;
-  unsigned char *hash = NULL;
-  const char *type = NULL;
-  int state;
-  gsize len;
-
-  data->host_key = get_knownhosts_line (data->session);
-  if (data->host_key == NULL)
-    {
-      ret = "internal-error";
-      goto done;
-    }
-
-  if (ssh_get_publickey (data->session, &key) != SSH_OK)
-    {
-      g_warning ("Couldn't look up ssh host key");
-      ret = "internal-error";
-      goto done;
-    }
-
-  type = ssh_key_type_to_char (ssh_key_type (key));
-  if (type == NULL)
-    {
-      g_warning ("Couldn't lookup host key type");
-      ret = "internal-error";
-      goto done;
-    }
-
-  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_MD5, &hash, &len) < 0)
-    {
-      g_warning ("Couldn't hash ssh public key");
-      ret = "internal-error";
-      goto done;
-    }
-  else
-    {
-      data->host_fingerprint = ssh_get_hexa (hash, len);
-      ssh_clean_pubkey_hash (&hash);
-    }
-
-  if (data->expect_key)
-    {
-      /* Only check that the host key matches this specifically */
-      if (g_str_equal (data->host_key, data->expect_key))
-        {
-          g_debug ("%s: host key matched expected", data->logname);
-          ret = NULL; /* success */
-        }
-      else
-        {
-          /* A empty expect_key is used by the frontend to force
-             failure.  Don't warn about it.
-          */
-          if (data->expect_key[0])
-            g_message ("%s: host key did not match expected", data->logname);
-        }
-    }
-  else
-    {
-      if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, data->knownhosts_file) != SSH_OK)
-        {
-          g_warning ("Couldn't set knownhosts file location");
-          ret = "internal-error";
-          goto done;
-        }
-
-      state = ssh_is_server_known (data->session);
-      if (state == SSH_SERVER_KNOWN_OK)
-        {
-          g_debug ("%s: verified host key", data->logname);
-          ret = NULL; /* success */
-          goto done;
-        }
-      else if (state == SSH_SERVER_ERROR)
-        {
-          if (g_atomic_int_get (data->connecting))
-            g_warning ("%s: couldn't check host key: %s", data->logname,
-                       ssh_get_error (data->session));
-          ret = "internal-error";
-          goto done;
-        }
-
-      switch (state)
-        {
-        case SSH_SERVER_KNOWN_OK:
-        case SSH_SERVER_ERROR:
-          g_assert_not_reached ();
-          break;
-        case SSH_SERVER_KNOWN_CHANGED:
-          g_message ("%s: %s host key for server has changed to: %s",
-                     data->logname, type, data->host_fingerprint);
-          break;
-        case SSH_SERVER_FOUND_OTHER:
-          g_message ("%s: host key for this server changed key type: %s",
-                     data->logname, type);
-          break;
-        case SSH_SERVER_FILE_NOT_FOUND:
-          g_debug ("Couldn't find the known hosts file");
-          /* fall through */
-        case SSH_SERVER_NOT_KNOWN:
-          ret = "unknown-hostkey";
-          g_message ("%s: %s host key for server is not known: %s",
-                     data->logname, type, data->host_fingerprint);
-          break;
-        }
-    }
-
-done:
-  if (key)
-    ssh_key_free (key);
-  return ret;
-}
-
-static const gchar *
-auth_result_string (int rc)
-{
-  switch (rc)
-    {
-    case SSH_AUTH_SUCCESS:
-      return "succeeded";
-    case SSH_AUTH_DENIED:
-      return "denied";
-    case SSH_AUTH_PARTIAL:
-      return "partial";
-      break;
-    case SSH_AUTH_AGAIN:
-      return "again";
-    default:
-      return "error";
-    }
-}
-
-static gboolean
-write_to_auth_fd (CockpitSshData *data,
-                  GBytes *bytes)
-{
-  int r = 0;
-  gsize len = 0;
-  gchar *buf;
-
-  buf = (gchar *)g_bytes_get_data (bytes, &len);
-
-  for (;;)
-    {
-      r = write (data->auth_fd, buf, len);
-      if (r < 0)
-        {
-          if (errno != EAGAIN && errno != EINTR)
-            {
-              g_warning ("%s: failed to write prompt to auth pipe", data->logname);
-              break;
-            }
-        }
-      else
-        {
-          if (r != len)
-            g_warning ("%s: failed to write prompt to auth pipe", data->logname);
-          break;
-        }
-    }
-
-  return r >= len;
-}
-
-static gboolean
-prompt_on_auth_fd (CockpitSshData *data,
-                   const gchar *prompt,
-                   const gchar *msg,
-                   const gchar echo)
-{
-  JsonObject *response = NULL;
-  GBytes *payload = NULL;
-  gboolean ret = FALSE;
-
-  if (data->auth_fd < 1)
-    goto out;
-
-  response = json_object_new ();
-  json_object_set_string_member (response, "prompt", prompt);
-  if (msg)
-    json_object_set_string_member (response, "message", msg);
-
-  json_object_set_boolean_member (response, "echo", echo ? TRUE : FALSE);
-  payload = cockpit_json_write_bytes (response);
-  ret = write_to_auth_fd (data, payload);
-
-out:
-  g_bytes_unref (payload);
-  json_object_unref (response);
-
-  return ret;
-}
-
-static gchar *
-wait_for_auth_fd_reply (CockpitSshData *data)
-{
-  char *buf = NULL;
-  int r;
-
-  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
-  if (!buf)
-    g_error ("%s: couldn't allocate memory for auth response", data->logname);
-
-  for (;;)
-    {
-      r = read (data->auth_fd, buf, MAX_AUTH_BUFFER);
-      if (r < 0)
-        {
-          if (errno == EAGAIN)
-            continue;
-          g_error ("%s: Couldn't read %d", data->logname, errno);
-          break;
-        }
-      else
-        {
-          break;
-        }
-    }
-
-  if (r == 0) {
-    free (buf);
-    return NULL;
-  }
-
-  buf[r] = '\0';
-  return buf;
-}
-
-static int
-do_interactive_auth (CockpitSshData *data)
-{
-  int rc;
-  gboolean sent_pw = FALSE;
-  const gchar *password = cockpit_creds_get_password (data->creds);
-  g_assert (password != NULL);
-
-  rc = ssh_userauth_kbdint (data->session, NULL, NULL);
-  while (rc == SSH_AUTH_INFO)
-    {
-      const gchar *msg;
-      int n, i;
-
-      msg = ssh_userauth_kbdint_getinstruction (data->session);
-      n = ssh_userauth_kbdint_getnprompts (data->session);
-
-      for (i = 0; i < n; i++)
-        {
-          const char *prompt;
-          char *answer = NULL;
-          char echo = '\0';
-          int status = 0;
-          prompt = ssh_userauth_kbdint_getprompt (data->session, i, &echo);
-          g_debug ("%s: Got prompt %s prompt", data->logname, prompt);
-          if (!sent_pw)
-            {
-              status = ssh_userauth_kbdint_setanswer (data->session, i, password);
-              sent_pw = TRUE;
-            }
-          else
-            {
-              if (prompt_on_auth_fd (data, prompt, msg, echo))
-                answer = wait_for_auth_fd_reply (data);
-
-              if (answer)
-                  status = ssh_userauth_kbdint_setanswer (data->session, i, answer);
-              else
-                  rc = SSH_AUTH_ERROR;
-
-              g_free (answer);
-            }
-
-          if (status < 0)
-            {
-              g_warning ("%s: failed to set answer for %s", data->logname, prompt);
-              rc = SSH_AUTH_ERROR;
-            }
-        }
-      rc = ssh_userauth_kbdint (data->session, NULL, NULL);
-    }
-
-  return rc;
-}
-
-static int
-do_password_auth (CockpitSshData *data)
-{
-  const gchar *msg;
-  const gchar *password = NULL;
-  int rc;
-
-  password = cockpit_creds_get_password (data->creds);
-  g_assert (password != NULL);
-
-  rc = ssh_userauth_password (data->session, NULL, password);
-  switch (rc)
-    {
-    case SSH_AUTH_SUCCESS:
-      g_debug ("%s: password auth succeeded", data->logname);
-      break;
-    case SSH_AUTH_DENIED:
-      g_debug ("%s: password auth failed", data->logname);
-      break;
-    case SSH_AUTH_PARTIAL:
-      g_message ("%s: password auth worked, but server wants more authentication",
-                 data->logname);
-      break;
-    case SSH_AUTH_AGAIN:
-      g_message ("%s: password auth failed: server asked for retry",
-                 data->logname);
-      break;
-    default:
-      msg = ssh_get_error (data->session);
-      if (g_atomic_int_get (data->connecting))
-        g_message ("%s: couldn't authenticate: %s", data->logname, msg);
-    }
-
-  return rc;
-}
-
-static int
-do_key_auth (CockpitSshData *data)
-{
-  int rc;
-  const gchar *msg;
-
-  rc = ssh_userauth_agent (data->session, NULL);
-  switch (rc)
-    {
-    case SSH_AUTH_SUCCESS:
-      g_debug ("%s: key auth succeeded", data->logname);
-      break;
-    case SSH_AUTH_DENIED:
-      g_debug ("%s: key auth failed", data->logname);
-      break;
-    case SSH_AUTH_PARTIAL:
-      g_message ("%s: key auth worked, but server wants more authentication",
-                 data->logname);
-      break;
-    case SSH_AUTH_AGAIN:
-      g_message ("%s: key auth failed: server asked for retry",
-                 data->logname);
-      break;
-    default:
-      msg = ssh_get_error (data->session);
-      /*
-        HACK: https://red.libssh.org/issues/201
-        libssh returns error instead of denied
-        when agent has no keys. For now treat as
-        denied.
-       */
-      if (strstr (msg, "Access denied"))
-        {
-          rc = SSH_AUTH_DENIED;
-        }
-      else
-        {
-          if (g_atomic_int_get (data->connecting))
-            g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
-        }
-    }
-
-  return rc;
-}
-
-static int
-do_gss_auth (CockpitSshData *data)
-{
-  int rc;
-  const gchar *msg;
-  gss_cred_id_t gsscreds = GSS_C_NO_CREDENTIAL;
-
-  gsscreds = cockpit_creds_push_thread_default_gssapi (data->creds);
-  if (gsscreds != GSS_C_NO_CREDENTIAL)
-    {
-#ifdef HAVE_SSH_GSSAPI_SET_CREDS
-      ssh_gssapi_set_creds (data->session, gsscreds);
-#else
-      g_warning ("unable to forward delegated gssapi kerberos credentials because the "
-                 "version of libssh on this system does not support it.");
-#endif
-
-      rc = ssh_userauth_gssapi (data->session);
-
-#ifdef HAVE_SSH_GSSAPI_SET_CREDS
-      ssh_gssapi_set_creds (data->session, NULL);
-#endif
-
-      switch (rc)
-        {
-        case SSH_AUTH_SUCCESS:
-          g_debug ("%s: gssapi auth succeeded", data->logname);
-          break;
-        case SSH_AUTH_DENIED:
-          g_debug ("%s: gssapi auth failed", data->logname);
-          break;
-        case SSH_AUTH_PARTIAL:
-          g_message ("%s: gssapi auth worked, but server wants more authentication",
-                     data->logname);
-          break;
-        default:
-          msg = ssh_get_error (data->session);
-          if (g_atomic_int_get (data->connecting))
-            g_message ("%s: couldn't authenticate: %s", data->logname, msg);
-        }
-    }
-  else
-    {
-      rc = SSH_AUTH_DENIED;
-    }
-
-  cockpit_creds_pop_thread_default_gssapi (data->creds, gsscreds);
-  return rc;
-}
-
-static const gchar *
-cockpit_ssh_authenticate (CockpitSshData *data)
-{
-  const gchar *problem;
-  gboolean have_final_result = FALSE;
-  gchar *description;
-  const gchar *msg;
-  int rc;
-  int methods_server;
-  int methods_tried = 0;
-  int methods_to_try = SSH_AUTH_METHOD_INTERACTIVE |
-                       SSH_AUTH_METHOD_GSSAPI_MIC;
-
-#ifdef HAVE_SSH_SET_AGENT_SOCKET
-  methods_to_try = methods_to_try | SSH_AUTH_METHOD_PUBLICKEY;
-#endif
-
-  problem = "authentication-failed";
-
-  rc = ssh_userauth_none (data->session, NULL);
-  if (rc == SSH_AUTH_ERROR)
-    {
-      if (g_atomic_int_get (data->connecting))
-        g_message ("%s: server authentication handshake failed: %s",
-                   data->logname, ssh_get_error (data->session));
-      problem = "internal-error";
-      goto out;
-    }
-
-  if (rc == SSH_AUTH_SUCCESS)
-    {
-      problem = NULL;
-      goto out;
-    }
-
-  methods_server = ssh_userauth_list (data->session, NULL);
-
-  /* If interactive isn't supported try password instead */
-  if (!(methods_server & SSH_AUTH_METHOD_INTERACTIVE) ||
-      data->auth_fd < 1)
-    {
-      methods_to_try = methods_to_try | SSH_AUTH_METHOD_PASSWORD;
-      methods_to_try = methods_to_try & ~SSH_AUTH_METHOD_INTERACTIVE;
-    }
-
-  while (methods_to_try != 0)
-    {
-      int (*auth_func)(CockpitSshData *data);
-      const gchar *result_string;
-      int method;
-      gboolean has_creds = FALSE;
-
-      if (methods_to_try & SSH_AUTH_METHOD_PUBLICKEY)
-        {
-            auth_func = do_key_auth;
-            method = SSH_AUTH_METHOD_PUBLICKEY;
-            has_creds = TRUE;
-        }
-      else if (methods_to_try & SSH_AUTH_METHOD_INTERACTIVE)
-        {
-            auth_func = do_interactive_auth;
-            method = SSH_AUTH_METHOD_INTERACTIVE;
-            has_creds = cockpit_creds_get_password (data->creds) != NULL;
-        }
-      else if (methods_to_try & SSH_AUTH_METHOD_PASSWORD)
-        {
-            auth_func = do_password_auth;
-            method = SSH_AUTH_METHOD_PASSWORD;
-            has_creds = cockpit_creds_get_password (data->creds) != NULL;
-        }
-      else
-        {
-          auth_func = do_gss_auth;
-          method = SSH_AUTH_METHOD_GSSAPI_MIC;
-          has_creds = cockpit_creds_has_gssapi (data->creds);
-        }
-
-      methods_to_try = methods_to_try & ~method;
-
-      if (!(methods_server & method))
-        {
-          result_string = "no-server-support";
-        }
-      else if (!has_creds)
-        {
-          result_string = "not-provided";
-          methods_tried = methods_tried | method;
-        }
-      else
-        {
-          methods_tried = methods_tried | method;
-          if (!have_final_result)
-            {
-              rc = auth_func (data);
-              result_string = auth_result_string (rc);
-              if (rc == SSH_AUTH_SUCCESS)
-                {
-                  have_final_result = TRUE;
-                  problem = NULL;
-                }
-              else if (rc == SSH_AUTH_ERROR)
-                {
-                  have_final_result = TRUE;
-                  msg = ssh_get_error (data->session);
-                  if (g_atomic_int_get (data->connecting))
-                    g_message ("%s: couldn't authenticate: %s", data->logname, msg);
-                  if (ssh_msg_is_disconnected (msg))
-                    problem = "terminated";
-                  else
-                    problem = "internal-error";
-                }
-            }
-          else
-            {
-              result_string = "not-tried";
-            }
-        }
-
-        g_hash_table_insert (data->auth_results,
-                             g_strdup (auth_method_description (method)),
-                             g_strdup (result_string));
-    }
-
-  if (have_final_result)
-    goto out;
-
-  if (methods_tried == 0)
-    {
-      description = auth_methods_line (methods_server);
-      g_message ("%s: server offered unsupported authentication methods: %s",
-                 data->logname, description);
-      g_free (description);
-    }
-
-out:
-  if (data->auth_fd > 0)
-    close (data->auth_fd);
-  data->auth_fd = 0;
-
-  return problem;
-}
-
-static const gchar *
-cockpit_ssh_connect (CockpitSshData *data)
-{
-  const gchar *problem;
-  int rc;
-
-  /*
-   * If connect_done is set prematurely by another thread then the
-   * connection attempt was cancelled.
-   */
-
-  rc = ssh_connect (data->session);
-  if (rc != SSH_OK)
-    {
-      if (g_atomic_int_get (data->connecting))
-        g_message ("%s: couldn't connect: %s", data->logname,
-                   ssh_get_error (data->session));
-      return "no-host";
-    }
-
-  g_debug ("%s: connected", data->logname);
-
-  if (!data->ignore_key)
-    {
-      problem = verify_knownhost (data);
-      if (problem != NULL)
-        return problem;
-    }
-
-  /* The problem returned when auth failure */
-  problem = cockpit_ssh_authenticate (data);
-  if (problem != NULL)
-    return problem;
-
-  data->channel = ssh_channel_new (data->session);
-  g_return_val_if_fail (data->channel != NULL, NULL);
-
-  rc = ssh_channel_open_session (data->channel);
-  if (rc != SSH_OK)
-    {
-      if (g_atomic_int_get (data->connecting))
-        g_message ("%s: couldn't open session: %s", data->logname,
-                   ssh_get_error (data->session));
-      return "internal-error";
-    }
-
-  rc = ssh_channel_request_exec (data->channel, data->command);
-  if (rc != SSH_OK)
-    {
-      if (g_atomic_int_get (data->connecting))
-        g_message ("%s: couldn't execute command: %s: %s", data->logname,
-                   data->command, ssh_get_error (data->session));
-      return "internal-error";
-    }
-
-  g_debug ("%s: opened channel", data->logname);
-
-  /* Success */
-  return NULL;
-}
-
-static gpointer
-cockpit_ssh_connect_thread (gpointer user_data)
-{
-  CockpitSshData *data = user_data;
-  data->problem = cockpit_ssh_connect (data);
-  g_atomic_int_set (data->connecting, 0);
-  g_main_context_wakeup (data->context);
-  return data; /* give the data back */
-}
-
-static void
-cockpit_ssh_data_free (CockpitSshData *data)
-{
-  if (data->context)
-    g_main_context_unref (data->context);
-  g_free (data->command);
-  if (data->creds)
-    cockpit_creds_unref (data->creds);
-  g_free (data->expect_key);
-  g_free (data->host_key);
-  if (data->host_fingerprint)
-    ssh_string_free_char (data->host_fingerprint);
-  ssh_free (data->session);
-  g_free (data->knownhosts_file);
-  if (data->auth_results)
-    g_hash_table_destroy (data->auth_results);
-
-  if (data->auth_fd > 0)
-    close (data->auth_fd);
-  data->auth_fd = 0;
-
-  g_free (data);
-}
-
 
 /* ----------------------------------------------------------------------------
  * CockpitSshTransport implementation
@@ -919,874 +72,411 @@ enum {
   PROP_KNOWN_HOSTS,
   PROP_IGNORE_KEY,
   PROP_AGENT,
-  PROP_AUTH_PIPE,
 };
+
+enum
+{
+  PROMPT,
+  NUM_SIGNALS,
+};
+
+static guint signals[NUM_SIGNALS];
 
 struct _CockpitSshTransport {
   CockpitTransport parent_instance;
 
+  gboolean closed;
+  gboolean closing;
+  gboolean connecting;
+
+  CockpitAuthProcess *auth_process;
+
+  CockpitPipe *pipe;
+  gulong read_sig;
+  gulong close_sig;
+
+  CockpitCreds *creds;
+
+  gchar *host;
+  gchar *command;
+
   /* Name used for logging */
   gchar *logname;
-
-  /* Connecting happens in a thread */
-  GThread *connect_thread;
-  gint connecting;
-  gint connect_fd;
-  gboolean result_emitted;
-
-  /* Data shared with connect thread*/
-  CockpitSshData *data;
 
   /* Transport for ssh agent */
   CockpitSshAgent *agent;
 
-  /* Auth Pipe for auth prompts */
-  CockpitAuthPipe *auth_pipe;
-
-  GSource *io;
-  gboolean closing;
-  gboolean closed;
-  guint timeout_close;
-  const gchar *problem;
-  ssh_event event;
-  struct ssh_channel_callbacks_struct channel_cbs;
-
-  /* Output */
+  GPtrArray *command_args;
   GQueue *queue;
-  gsize partial;
-  gboolean send_eof;
-  gboolean sent_eof;
-  gboolean sent_close;
 
-  /* Input */
-  GByteArray *buffer;
-  gboolean drain_buffer;
-  gboolean received_frame;
-  gboolean received_eof;
-  gboolean received_close;
-  gboolean received_exit;
-
-  /* Error Data */
-  GString *errbuf;
-  gboolean not_cockpit;
+  // Output from auth
+  gchar *host_key;
+  gchar *host_fingerprint;
+  JsonObject *auth_results;
 };
 
 struct _CockpitSshTransportClass {
   CockpitTransportClass parent_class;
 };
 
-static void close_immediately (CockpitSshTransport *self,
-                               const gchar *problem);
-
 G_DEFINE_TYPE (CockpitSshTransport, cockpit_ssh_transport, COCKPIT_TYPE_TRANSPORT);
 
-static gboolean
-on_timeout_close (gpointer data)
+
+static void
+on_pipe_close (CockpitPipe *pipe,
+               const gchar *problem,
+               gpointer user_data)
 {
-  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (data);
-  self->timeout_close = 0;
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (user_data);
+  GError *error = NULL;
+  gint status;
 
-  g_debug ("%s: forcing close after timeout", self->logname);
-  close_immediately (self, NULL);
+  self->closing = TRUE;
+  self->closed = TRUE;
 
-  return FALSE;
+  /* This function is called by the base class when it is closed */
+  if (cockpit_pipe_get_pid (pipe, NULL))
+    {
+      if (problem == NULL ||
+          g_str_equal (problem, "internal-error") ||
+          g_str_equal (problem, "terminated"))
+        {
+          status = cockpit_pipe_exit_status (pipe);
+          if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
+            problem = "terminated";
+          else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
+            problem = "no-cockpit";      // cockpit-bridge not installed
+          else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
+            problem = "terminated";      // failed or got a signal, etc.
+          else if (!g_spawn_check_exit_status (status, &error))
+            {
+              if (problem == NULL)
+                problem = "internal-error";
+              g_warning ("%s: ssh session failed: %s", self->logname, error->message);
+              g_error_free (error);
+            }
+        }
+    }
+
+  g_debug ("%s: closed%s%s", self->logname,
+           problem ? ": " : "", problem ? problem : "");
+
+  cockpit_transport_emit_closed (COCKPIT_TRANSPORT (self), problem);
 }
 
-static gboolean
-close_maybe (CockpitSshTransport *self,
-             gint session_io_status)
+static void
+cockpit_ssh_transport_remove_auth_process (CockpitSshTransport *self)
 {
+  g_return_if_fail (self->auth_process != NULL);
+  if (self->agent)
+    cockpit_ssh_agent_close (self->agent);
+
+  if (!self->pipe)
+    cockpit_auth_process_terminate (self->auth_process);
+
+  g_clear_object (&self->auth_process);
+}
+
+static void
+cockpit_ssh_transport_close (CockpitTransport *transport,
+                             const gchar *problem)
+{
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
+
   if (self->closed)
-    return TRUE;
+    return;
 
-  if (!self->sent_close || !self->received_close)
-    return FALSE;
+  self->closing = TRUE;
 
-  /*
-   * Channel completely closed, and output buffers
-   * are empty. We're in a good place to close the
-   * SSH session and thus the transport.
+  /* If still connecting and there isn't a problem
+   * don't do anything yet
    */
-  if (self->received_exit && !(session_io_status & SSH_WRITE_PENDING))
+  if (self->connecting && !problem)
+    return;
+
+  if (self->pipe)
     {
-      close_immediately (self, NULL);
-      return TRUE;
+      cockpit_pipe_close (self->pipe, problem);
+    }
+  else if (self->auth_process)
+    {
+      cockpit_ssh_transport_remove_auth_process (self);
+      self->closed = TRUE;
+      cockpit_transport_emit_closed (COCKPIT_TRANSPORT (self), problem);
+    }
+}
+
+static void
+on_pipe_read (CockpitPipe *pipe,
+              GByteArray *input,
+              gboolean end_of_data,
+              gpointer user_data)
+{
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (user_data);
+  cockpit_transport_read_from_pipe (COCKPIT_TRANSPORT (self), self->logname,
+                                    pipe, input, end_of_data);
+}
+
+static void
+cockpit_ssh_transport_attach_pipe (CockpitSshTransport *self)
+{
+  g_return_if_fail (self->pipe == NULL);
+  g_return_if_fail (self->auth_process != NULL);
+
+  if (self->agent)
+    cockpit_ssh_agent_close (self->agent);
+
+  self->pipe = cockpit_auth_process_claim_as_pipe (self->auth_process);
+  self->read_sig = g_signal_connect (self->pipe, "read",
+                                     G_CALLBACK (on_pipe_read),
+                                     self);
+  self->close_sig = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
+  cockpit_ssh_transport_remove_auth_process (self);
+
+  while (g_queue_peek_head (self->queue))
+    {
+      GBytes *block = g_queue_pop_head (self->queue);
+      cockpit_pipe_write (self->pipe, block);
+      g_bytes_unref (block);
     }
 
-  /*
-   * Give a 3 second timeout for the session to get an
-   * exit signal and or drain its buffers. Otherwise force.
-   */
-  if (!self->timeout_close)
-    self->timeout_close = g_timeout_add_seconds (3, on_timeout_close, self);
+  if (self->closing && !self->closed)
+    cockpit_pipe_close (self->pipe, NULL);
+}
 
+static void
+on_auth_process_message (CockpitAuthProcess *auth_process,
+                         GBytes *bytes,
+                         gpointer user_data)
+{
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (user_data);
+  JsonObject *json = NULL;
+  gchar *response = NULL;
+  GError *error = NULL;
+  gsize len;
+  gboolean prompt_claimed;
+  gboolean final = TRUE;
+
+  const gchar *user;
+  const gchar *error_str;
+  const gchar *prompt;
+  const gchar *message;
+  const gchar *host_key = NULL;
+  const gchar *host_fp = NULL;
+  JsonObject *auth_result = NULL;
+  const gchar *problem = "internal-error";
+
+  len = g_bytes_get_size (bytes);
+  response = g_strndup (g_bytes_get_data (bytes, NULL), len);
+  json = cockpit_auth_process_parse_result (self->auth_process, response, &error);
+  if (json)
+    {
+      if (!cockpit_json_get_string (json, "error", NULL, &error_str) ||
+          !cockpit_json_get_string (json, "message", NULL, &message) ||
+          !cockpit_json_get_string (json, "prompt", NULL, &prompt) ||
+          !cockpit_json_get_string (json, "user", NULL, &user))
+        {
+          g_warning ("%s: got invalid authentication json", self->logname);
+        }
+      else if (error_str)
+        {
+          problem = error_str;
+          g_debug ("%s: got authentication error %s: %s", self->logname, error_str, message);
+        }
+      else if (prompt)
+        {
+          final = FALSE;
+          problem = NULL;
+          // Send the signal, if nothing handles it write a blank response.
+          g_signal_emit (self, signals[PROMPT], 0, json, &prompt_claimed);
+          if (!prompt_claimed)
+            cockpit_auth_process_write_auth_bytes (self->auth_process, NULL);
+        }
+      else if (user)
+        {
+          problem = NULL;
+          cockpit_ssh_transport_attach_pipe (self);
+        }
+      else
+        {
+          g_warning ("%s: got invalid authentication json", self->logname);
+        }
+    }
+  else
+    {
+      g_warning ("%s: got unexpected response: %s", self->logname, error->message);
+    }
+
+  if (final)
+    {
+      g_return_if_fail (self->host_key == NULL);
+      g_return_if_fail (self->host_fingerprint == NULL);
+      g_return_if_fail (self->auth_results == NULL);
+
+      self->connecting = FALSE;
+      if (!cockpit_json_get_string (json, "host-key", NULL, &host_key) ||
+          !cockpit_json_get_string (json, "host-fingerprint", NULL, &host_fp) ||
+          !cockpit_json_get_object (json, "auth-method-results", NULL, &auth_result))
+        {
+          g_warning ("%s: got invalid authentication json", self->logname);
+        }
+
+      self->host_key = g_strdup (host_key);
+      self->host_fingerprint = g_strdup (host_fp);
+
+      /* Take a ref so we can keep this data until the instance is destroyed */
+      if (auth_result)
+        self->auth_results = json_object_ref (auth_result);
+    }
+
+  if (problem)
+    cockpit_ssh_transport_close (COCKPIT_TRANSPORT (self), problem);
+
+  g_clear_error (&error);
+  if (json)
+    json_object_unref (json);
+  g_free (response);
+}
+
+
+static void
+on_auth_process_close (CockpitAuthProcess *auth_process,
+                       GError *error,
+                       const gchar *problem,
+                       gpointer user_data)
+{
+  /* If we get this signal something went wrong
+   * with authentication close with authentication-failed.
+   */
+  CockpitSshTransport *self = user_data;
+  g_signal_handlers_disconnect_by_data (self->auth_process, self);
+  if (self->connecting && error)
+    cockpit_ssh_transport_close (COCKPIT_TRANSPORT (self),
+                                 problem ? problem : "internal-error");
+}
+
+static gboolean
+cockpit_ssh_transport_fail_process (gpointer data)
+{
+  CockpitSshTransport *self = data;
+  if (data)
+    cockpit_ssh_transport_close (COCKPIT_TRANSPORT (self), "internal-error");
   return FALSE;
 }
 
-
-static int
-on_channel_data (ssh_session session,
-                 ssh_channel channel,
-                 void *data,
-                 uint32_t len,
-                 int is_stderr,
-                 void *userdata)
+static void
+cockpit_ssh_transport_start_process (CockpitSshTransport *self)
 {
-  CockpitSshTransport *self = userdata;
+  gint agent_fd = -1;
+  gchar **command;
+  GError *error = NULL;
+  GBytes *input = NULL;
 
-  if (is_stderr)
+  const gchar *password;
+  const gchar *gssapi_creds;
+  const gchar *krb5_ccache_name;
+
+  self->connecting = TRUE;
+
+  password = cockpit_creds_get_password (self->creds);
+  gssapi_creds = cockpit_creds_get_gssapi_creds (self->creds);
+
+  if (cockpit_creds_has_gssapi (self->creds))
     {
-      g_debug ("%s: received %d error bytes", self->logname, (int)len);
-      g_string_append_len (self->errbuf, data, len);
+      krb5_ccache_name = cockpit_creds_get_krb5_ccache_name (self->creds);
+      g_ptr_array_add (self->command_args, g_strdup ("--krb5-ccache-name"));
+      g_ptr_array_add (self->command_args, g_strdup (krb5_ccache_name));
+      input = g_bytes_new_static (gssapi_creds, strlen (gssapi_creds));
+      g_debug ("%s: preparing gssapi creds", self->logname);
+    }
+  else if (password)
+    {
+      input = g_bytes_new_static (password, strlen (password));
+      g_debug ("%s: preparing password creds", self->logname);
     }
   else
     {
-      g_debug ("%s: received %d bytes", self->logname, (int)len);
-      if (self->not_cockpit)
-        g_string_append_len (self->errbuf, data, len);
-      else
-        g_byte_array_append (self->buffer, data, len);
+      g_ptr_array_add (self->command_args, g_strdup ("--no-auth-data"));
     }
-  self->drain_buffer = TRUE;
-  return len;
-}
+  g_ptr_array_add (self->command_args, g_strdup (self->host));
+  g_ptr_array_add (self->command_args,
+                   g_strdup (cockpit_creds_get_user (self->creds)));
+  if (self->command)
+    g_ptr_array_add (self->command_args, g_strdup (self->command));
 
-static void
-on_channel_eof (ssh_session session,
-                ssh_channel channel,
-                void *userdata)
-{
-  CockpitSshTransport *self = userdata;
-  g_debug ("%s: received eof", self->logname);
-  self->received_eof = TRUE;
-  self->drain_buffer = TRUE;
-}
+  g_ptr_array_add (self->command_args, NULL);
+  command = (gchar **)g_ptr_array_free (self->command_args, FALSE);
+  self->command_args = NULL;
 
-static void
-on_channel_close (ssh_session session,
-                  ssh_channel channel,
-                  void *userdata)
-{
-  CockpitSshTransport *self = userdata;
-  g_debug ("%s: received close", self->logname);
-  self->received_close = TRUE;
-}
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+  if (self->agent)
+    agent_fd = cockpit_ssh_agent_steal_fd (self->agent);
+#endif
 
-static void
-on_channel_exit_signal (ssh_session session,
-                        ssh_channel channel,
-                        const char *signal,
-                        int core,
-                        const char *errmsg,
-                        const char *lang,
-                        void *userdata)
-{
-  CockpitSshTransport *self = userdata;
-  const gchar *problem = NULL;
-
-  g_return_if_fail (signal != NULL);
-
-  self->received_exit = TRUE;
-
-  if (g_ascii_strcasecmp (signal, "TERM") == 0 ||
-      g_ascii_strcasecmp (signal, "Terminated") == 0)
+  if (!cockpit_auth_process_start (self->auth_process,
+                                   (const gchar **)command,
+                                   agent_fd,
+                                   input ? FALSE : TRUE,
+                                   &error))
     {
-      g_debug ("%s: received TERM signal", self->logname);
-      problem = "terminated";
+      g_warning ("%s: couldn't start auth process: %s", self->logname, error->message);
+      g_idle_add_full (G_PRIORITY_HIGH_IDLE,
+                       cockpit_ssh_transport_fail_process,
+                       self, NULL);
     }
   else
     {
-      g_warning ("%s: bridge killed%s%s%s%s", self->logname,
-                 signal ? " by signal " : "", signal ? signal : "",
-                 errmsg && errmsg[0] ? ": " : "", errmsg ? errmsg : "");
-      problem = "internal-error";
+      g_signal_connect (self->auth_process, "message",
+                        G_CALLBACK (on_auth_process_message), self);
+      g_signal_connect (self->auth_process, "close",
+                        G_CALLBACK (on_auth_process_close), self);
+
+      if (input)
+        cockpit_auth_process_write_auth_bytes (self->auth_process, input);
     }
 
-  if (!self->problem)
-    self->problem = problem;
-
-  close_maybe (self, ssh_get_status (session));
-}
-
-static void
-on_channel_signal (ssh_session session,
-                   ssh_channel channel,
-                   const char *signal,
-                   void *userdata)
-{
-  /*
-   * HACK: So it looks like libssh is buggy and is confused about
-   * the difference between "exit-signal" and "signal" in section 6.10
-   * of the RFC. Accept signal as a usable substitute
-   */
-  if (g_ascii_strcasecmp (signal, "TERM") == 0 ||
-      g_ascii_strcasecmp (signal, "Terminated") == 0)
-    on_channel_exit_signal (session, channel, signal, 0, NULL, NULL, userdata);
-}
-
-static void
-on_channel_exit_status (ssh_session session,
-                        ssh_channel channel,
-                        int exit_status,
-                        void *userdata)
-{
-  CockpitSshTransport *self = userdata;
-  const gchar *problem = NULL;
-
-  self->received_exit = TRUE;
-  if (exit_status == 127)
-    {
-      g_debug ("%s: received exit status %d", self->logname, exit_status);
-      problem = "no-cockpit";        /* cockpit-bridge not installed */
-    }
-  else if (self->not_cockpit)
-    {
-      problem = "no-cockpit";
-    }
-  else if (!self->received_frame)
-    {
-      g_message ("%s: spawning remote bridge failed with %d status", self->logname, exit_status);
-      problem = "no-cockpit";
-    }
-  else if (exit_status)
-    {
-      g_message ("%s: remote bridge exited with %d status", self->logname, exit_status);
-      problem = "internal-error";
-    }
-  if (!self->problem)
-    self->problem = problem;
-
-  close_maybe (self, ssh_get_status (session));
+  g_strfreev (command);
+  g_bytes_unref (input);
 }
 
 static void
 cockpit_ssh_transport_init (CockpitSshTransport *self)
 {
-  static struct ssh_channel_callbacks_struct channel_cbs = {
-    .channel_data_function = on_channel_data,
-    .channel_eof_function = on_channel_eof,
-    .channel_close_function = on_channel_close,
-    .channel_signal_function = on_channel_signal,
-    .channel_exit_signal_function = on_channel_exit_signal,
-    .channel_exit_status_function = on_channel_exit_status,
-  };
-
-  self->data = g_new0 (CockpitSshData, 1);
-
-  self->data->context = g_main_context_get_thread_default ();
-  if (self->data->context)
-    g_main_context_ref (self->data->context);
-
-  self->data->session = ssh_new ();
-  self->data->auth_results = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  g_return_if_fail (self->data->session != NULL);
-
-  self->buffer = g_byte_array_new ();
-  self->errbuf = g_string_sized_new (64);
   self->queue = g_queue_new ();
-
-  memcpy (&self->channel_cbs, &channel_cbs, sizeof (channel_cbs));
-  self->channel_cbs.userdata = self;
-  ssh_callbacks_init (&self->channel_cbs);
-
-  self->event = ssh_event_new ();
-}
-
-static void
-close_immediately (CockpitSshTransport *self,
-                   const gchar *problem)
-{
-  GSource *source;
-  GThread *thread;
-
-  if (self->timeout_close)
-    {
-      g_source_remove (self->timeout_close);
-      self->timeout_close = 0;
-    }
-
-  if (self->closed)
-    return;
-
-  self->closed = TRUE;
-
-  if (self->connect_thread)
-    {
-      thread = self->connect_thread;
-      self->connect_thread = NULL;
-
-      /* This causes thread to fail */
-      g_atomic_int_set (&self->connecting, 0);
-      close (self->connect_fd);
-      self->connect_fd = -1;
-      g_assert (self->data == NULL);
-      self->data = g_thread_join (thread);
-    }
-
-  g_assert (self->data != NULL);
-
-  if (self->agent)
-      cockpit_ssh_agent_close (self->agent);
-
-  if (self->auth_pipe)
-      cockpit_auth_pipe_close (self->auth_pipe, problem);
-
-  if (problem == NULL)
-    {
-      if (self->not_cockpit)
-        problem = "no-cockpit";
-      else
-        problem = self->problem;
-    }
-
-  g_object_ref (self);
-
-  if (!self->result_emitted)
-    {
-      self->result_emitted = TRUE;
-      g_signal_emit_by_name (self, "result", problem);
-    }
-
-  g_debug ("%s: closing io%s%s", self->logname,
-           problem ? ": " : "", problem ? problem : "");
-
-  if (self->io)
-    {
-      source = self->io;
-      self->io = NULL;
-      g_source_destroy (source);
-      g_source_unref (source);
-    }
-
-  if (self->data->channel && ssh_channel_is_open (self->data->channel))
-    ssh_channel_close (self->data->channel);
-  ssh_disconnect (self->data->session);
-
-  cockpit_transport_emit_closed (COCKPIT_TRANSPORT (self), problem);
-
-  g_object_unref (self);
-}
-
-static void
-drain_error_buffer (CockpitSshTransport *self)
-{
-  gchar *data = self->errbuf->str;
-  gsize len = self->errbuf->len;
-  gchar *pos = data;
-
-  for (;;)
-    {
-      pos = memchr (data, '\n', len);
-      if (pos == NULL)
-        break;
-
-      pos[0] = '\0';
-      pos += 1;
-
-      g_printerr ("%s", data);
-
-      len -= (pos - data);
-      data = pos;
-    }
-
-  if (self->received_eof)
-    {
-      if (len > 0)
-          g_printerr ("%s", data);
-      g_string_erase (self->errbuf, 0, self->errbuf->len);
-      pos = NULL;
-    }
-  else
-    {
-      /* Drain the stuff that was consumed */
-      g_string_erase (self->errbuf, 0, self->errbuf->len - len);
-    }
-}
-
-static void
-drain_output_buffer (CockpitSshTransport *self)
-{
-  GBytes *message;
-  GBytes *payload;
-  gchar *channel;
-  guint32 size, i;
-  gchar *data;
-
-  for (;;)
-    {
-      size = 0;
-      data = (gchar *)self->buffer->data;
-      for (i = 0; i < self->buffer->len; i++)
-        {
-          /* Check invalid characters, prevent integer overflow, limit max length */
-          if (i > 7 || data[i] < '0' || data[i] > '9')
-            break;
-          size *= 10;
-          size += data[i] - '0';
-        }
-
-      if (i == self->buffer->len)
-        {
-          if (!self->received_eof)
-            g_debug ("%s: want len have %d", self->logname, (int)self->buffer->len);
-          break;
-        }
-
-      /*
-       * So we may be talking to a process that's not cockpit-bridge. How does
-       * that happen? ssh always executes commands inside of a shell ... and
-       * bash prints its 'cockpit-bridge: not found' message on stdout (!)
-       *
-       * So we degrade gracefully in this case, and start to treat output as
-       * error output.
-       */
-      if (data[i] != '\n')
-        {
-          if (self->received_frame)
-            {
-              g_message ("%s: incorrect protocol: received invalid length prefix", self->logname);
-              close_immediately (self, "protocol-error");
-            }
-          else
-            {
-              g_string_append_len (self->errbuf, (gchar *)self->buffer->data, self->buffer->len);
-              cockpit_pipe_skip (self->buffer, self->buffer->len);
-              self->not_cockpit = TRUE;
-            }
-          break;
-        }
-
-      if (self->buffer->len < i + 1 + size)
-        {
-          g_debug ("%s: want %d have %d", self->logname,
-                   (int)(size + sizeof (size)), (int)self->buffer->len);
-          break;
-        }
-
-      message = cockpit_pipe_consume (self->buffer, i + 1, size, 0);
-      if (self->received_frame)
-        payload = cockpit_transport_parse_frame (message, &channel);
-      else
-        payload = cockpit_transport_maybe_frame (message, &channel);
-      if (payload)
-        {
-          g_debug ("%s: received a %d byte payload", self->logname, (int)g_bytes_get_size (payload));
-          self->received_frame = TRUE;
-          cockpit_transport_emit_recv ((CockpitTransport *)self, channel, payload);
-          g_bytes_unref (payload);
-          g_free (channel);
-        }
-      else if (self->received_frame)
-        {
-          close_immediately (self, "protocol-error");
-          break;
-        }
-      else
-        {
-          g_string_append_len (self->errbuf, (gchar *)self->buffer->data, self->buffer->len);
-          cockpit_pipe_skip (self->buffer, self->buffer->len);
-          self->not_cockpit = TRUE;
-          break;
-        }
-      g_bytes_unref (message);
-    }
-
-  if (self->received_eof)
-    {
-      /* Received a partial message */
-      if (self->buffer->len > 0)
-        {
-          g_debug ("%s: received truncated %d byte frame", self->logname, (int)self->buffer->len);
-          close_immediately (self, "disconnected");
-        }
-    }
-}
-
-static void
-dispatch_close (CockpitSshTransport *self)
-{
-  g_assert (!self->sent_close);
-
-  switch (ssh_channel_close (self->data->channel))
-    {
-    case SSH_AGAIN:
-      g_debug ("%s: will send close later", self->logname);
-      break;
-    case SSH_OK:
-      g_debug ("%s: sent close", self->logname);
-      self->sent_close = TRUE;
-      break;
-    default:
-      if (ssh_get_error_code (self->data->session) == SSH_REQUEST_DENIED)
-        {
-          g_debug ("%s: couldn't send close: %s", self->logname,
-                   ssh_get_error (self->data->session));
-          self->sent_close = TRUE; /* channel is already closed */
-        }
-      else
-        {
-          g_warning ("%s: couldn't send close: %s", self->logname,
-                     ssh_get_error (self->data->session));
-          close_immediately (self, "internal-error");
-        }
-      break;
-    }
-}
-
-static void
-dispatch_eof (CockpitSshTransport *self)
-{
-  g_assert (!self->sent_eof);
-
-  switch (ssh_channel_send_eof (self->data->channel))
-    {
-    case SSH_AGAIN:
-      g_debug ("%s: will send eof later", self->logname);
-      break;
-    case SSH_OK:
-      g_debug ("%s: sent eof", self->logname);
-      self->sent_eof = TRUE;
-      break;
-    default:
-      if (ssh_get_error_code (self->data->session) == SSH_REQUEST_DENIED)
-        {
-          g_debug ("%s: couldn't send eof: %s", self->logname,
-                   ssh_get_error (self->data->session));
-          self->sent_eof = TRUE; /* channel is already closed */
-        }
-      else
-        {
-          g_warning ("%s: couldn't send eof: %s", self->logname,
-                     ssh_get_error (self->data->session));
-          close_immediately (self, "internal-error");
-        }
-      break;
-    }
-}
-
-static gboolean
-dispatch_queue (CockpitSshTransport *self)
-{
-  GBytes *block;
-  const guchar *data;
-  const gchar *msg;
-  gsize length;
-  gsize want;
-  int rc;
-
-  if (self->sent_eof)
-    return FALSE;
-  if (self->received_close)
-    return FALSE;
-
-  for (;;)
-    {
-      block = g_queue_peek_head (self->queue);
-      if (!block)
-        return FALSE;
-
-      data = g_bytes_get_data (block, &length);
-      g_assert (self->partial <= length);
-
-      want = length - self->partial;
-      rc = ssh_channel_write (self->data->channel, data + self->partial, want);
-      if (rc < 0)
-        {
-          msg = ssh_get_error (self->data->session);
-          if (ssh_get_error_code (self->data->session) == SSH_REQUEST_DENIED)
-            {
-              g_debug ("%s: couldn't write: %s", self->logname, msg);
-              return FALSE;
-            }
-          else if (ssh_msg_is_disconnected (msg))
-            {
-              g_message ("%s: couldn't write: %s", self->logname, msg);
-              close_immediately (self, "terminated");
-            }
-          else
-            {
-              g_warning ("%s: couldn't write: %s", self->logname, msg);
-              close_immediately (self, "internal-error");
-            }
-          break;
-        }
-
-      if (rc == want)
-        {
-          g_debug ("%s: wrote %d bytes", self->logname, rc);
-          g_queue_pop_head (self->queue);
-          g_bytes_unref (block);
-          self->partial = 0;
-        }
-      else
-        {
-          g_debug ("%s: wrote %d of %d bytes", self->logname, rc, (int)want);
-          g_return_val_if_fail (rc < want, FALSE);
-          self->partial += rc;
-          if (rc == 0)
-            break;
-        }
-    }
-
-  return TRUE;
-}
-
-typedef struct {
-  GSource source;
-  GPollFD pfd;
-  CockpitSshTransport *transport;
-} CockpitSshSource;
-
-static gboolean
-cockpit_ssh_source_check (GSource *source)
-{
-  CockpitSshSource *cs = (CockpitSshSource *)source;
-  return cs->transport->drain_buffer || (cs->pfd.events & cs->pfd.revents) != 0;
-}
-
-static gboolean
-cockpit_ssh_source_prepare (GSource *source,
-                            gint *timeout)
-{
-  CockpitSshSource *cs = (CockpitSshSource *)source;
-  CockpitSshTransport *self = cs->transport;
-  GThread *thread;
-  gint status;
-
-  *timeout = 1;
-
-  /* Connecting, check if done */
-  if (G_UNLIKELY (!self->data))
-    {
-      if (g_atomic_int_get (&self->connecting))
-        return FALSE;
-
-      g_object_ref (self);
-
-      /* Get the result from connecting thread */
-      thread = self->connect_thread;
-      self->connect_fd = -1;
-      self->connect_thread = NULL;
-      self->data = g_thread_join (thread);
-      g_assert (self->data != NULL);
-
-      if (self->agent)
-        cockpit_ssh_agent_close (self->agent);
-
-      if (self->auth_pipe)
-        cockpit_auth_pipe_close (self->auth_pipe, self->data->problem);
-
-      if (!self->result_emitted)
-        {
-          self->result_emitted = TRUE;
-          g_signal_emit_by_name (self, "result", self->data->problem);
-        }
-
-      if (self->data->problem)
-        {
-          close_immediately (self, self->data->problem);
-          g_object_unref (self);
-          return FALSE;
-        }
-
-      g_object_unref (self);
-
-      ssh_event_add_session (self->event, self->data->session);
-      ssh_set_channel_callbacks (self->data->channel, &self->channel_cbs);
-
-      /* Start watching the fd */
-      ssh_set_blocking (self->data->session, 0);
-      cs->pfd.fd = ssh_get_fd (self->data->session);
-      g_source_add_poll (source, &cs->pfd);
-
-      g_debug ("%s: starting io", self->logname);
-    }
-
-  status = ssh_get_status (self->data->session);
-
-  /* Short cut this ... we're ready now */
-  if (self->drain_buffer)
-    return TRUE;
-
-  /*
-   * Channel completely closed, and output buffers
-   * are empty. We're in a good place to close the
-   * SSH session and thus the transport.
-   */
-  if (close_maybe (self, status))
-    return FALSE;
-
-  cs->pfd.revents = 0;
-  cs->pfd.events = G_IO_IN | G_IO_ERR | G_IO_NVAL | G_IO_HUP;
-
-  /* libssh has something in its buffer: want to write */
-  if (status & SSH_WRITE_PENDING)
-    cs->pfd.events |= G_IO_OUT;
-
-  /* We have something in our queue: want to write */
-  else if (!g_queue_is_empty (self->queue))
-    cs->pfd.events |= G_IO_OUT;
-
-  /* We are closing and need to send eof: want to write */
-  else if (self->closing && !self->sent_eof)
-    cs->pfd.events |= G_IO_OUT;
-
-  /* Need to reply to an EOF or close */
-  if ((self->received_eof && self->sent_eof && !self->sent_close) ||
-      (self->received_close && !self->sent_close))
-    cs->pfd.events |= G_IO_OUT;
-
-  return cockpit_ssh_source_check (source);
-}
-
-static gboolean
-cockpit_ssh_source_dispatch (GSource *source,
-                             GSourceFunc callback,
-                             gpointer user_data)
-{
-  CockpitSshSource *cs = (CockpitSshSource *)source;
-  CockpitSshTransport *self = cs->transport;
-  GIOCondition cond = cs->pfd.revents;
-  gboolean ret = TRUE;
-  const gchar *msg;
-  gint rc;
-
-  g_return_val_if_fail ((cond & G_IO_NVAL) == 0, FALSE);
-  g_assert (self->data != NULL);
-
-  g_object_ref (self);
-
-  if (self->drain_buffer)
-    {
-      self->drain_buffer = 0;
-      drain_output_buffer (self);
-      drain_error_buffer (self);
-    }
-
-  if (cond & (G_IO_HUP | G_IO_ERR))
-    {
-      if (self->sent_close || self->sent_eof)
-        {
-          self->received_eof = TRUE;
-          self->received_close = TRUE;
-        }
-    }
-
-  /*
-   * HACK: Yes this is anohter poll() call. The async support in
-   * libssh is quite hacky right now.
-   *
-   * https://red.libssh.org/issues/155
-   */
-  rc = ssh_event_dopoll (self->event, 0);
-  switch (rc)
-    {
-    case SSH_OK:
-    case SSH_AGAIN:
-      break;
-    case SSH_ERROR:
-      msg = ssh_get_error (self->data->session);
-
-      /*
-       * HACK: There doesn't seem to be a way to get at the original socket errno
-       * here. So we have to screen scrape.
-       *
-       * https://red.libssh.org/issues/158
-       */
-      if (ssh_msg_is_disconnected (msg))
-        {
-          g_debug ("%s: failed to process channel: %s", self->logname, msg);
-          close_immediately (self, "terminated");
-        }
-      else
-        {
-          g_message ("%s: failed to process channel: %s", self->logname, msg);
-          close_immediately (self, "internal-error");
-        }
-      goto out;
-    default:
-      g_critical ("%s: ssh_event_dopoll() returned %d", self->logname, rc);
-      ret = FALSE;
-      goto out;
-    }
-
-  if (cond & G_IO_ERR)
-    {
-      g_message ("%s: error reading from ssh", self->logname);
-      close_immediately (self, "disconnected");
-      goto out;
-    }
-
-  if (self->drain_buffer)
-    {
-      self->drain_buffer = 0;
-      drain_output_buffer (self);
-      drain_error_buffer (self);
-    }
-
-  if (cond & G_IO_OUT)
-    {
-      if (!dispatch_queue (self) && self->closing && !self->sent_eof)
-        dispatch_eof (self);
-      if (self->received_eof && self->sent_eof && !self->sent_close)
-        dispatch_close (self);
-      if (self->received_close && !self->sent_close)
-        dispatch_close (self);
-    }
-
-out:
-  g_object_unref (self);
-  return ret;
+  self->command_args = g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (self->command_args, g_strdup (cockpit_ws_ssh_program));
 }
 
 static void
 cockpit_ssh_transport_constructed (GObject *object)
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (object);
-  CockpitSshData *data;
-
-  static GSourceFuncs source_funcs = {
-    cockpit_ssh_source_prepare,
-    cockpit_ssh_source_check,
-    cockpit_ssh_source_dispatch,
-    NULL,
-  };
+  guint pipe_timeout;
+  guint idle_timeout;
+  guint wanted_fd;
 
   G_OBJECT_CLASS (cockpit_ssh_transport_parent_class)->constructed (object);
 
-  g_return_if_fail (self->data->creds != NULL);
-  g_warn_if_fail (ssh_options_set (self->data->session, SSH_OPTIONS_USER,
-                                   cockpit_creds_get_user (self->data->creds)) == 0);
+  g_return_if_fail (self->creds != NULL);
+  g_return_if_fail (self->host != NULL);
 
-#ifdef HAVE_SSH_SET_AGENT_SOCKET
-  if (self->agent)
-    {
-      int agent_fd = cockpit_ssh_agent_steal_fd (self->agent);
-      if (agent_fd > 0)
-        ssh_set_agent_socket (self->data->session, agent_fd);
-    }
-#endif
+  /* How long to wait for the auth process to send some data */
+  pipe_timeout = cockpit_conf_guint (SSH_SECTION, "timeout",
+                                     cockpit_ws_auth_process_timeout, 1, 999);
+  /* How long to wait for a response from the client to a auth prompt */
+  idle_timeout = cockpit_conf_guint (SSH_SECTION, "response-timeout",
+                                     cockpit_ws_auth_response_timeout, 1, 999);
+  /* The wanted authfd for this command, default is 3 */
+  wanted_fd = cockpit_conf_guint (SSH_SECTION, "authFD", 3, 1024, 3);
 
-  if (self->auth_pipe)
-    {
-      self->data->auth_fd = cockpit_auth_pipe_steal_fd (self->auth_pipe);
-      cockpit_auth_pipe_expect_answer (self->auth_pipe);
-    }
-
-  self->io = g_source_new (&source_funcs, sizeof (CockpitSshSource));
-  ((CockpitSshSource *)self->io)->transport = self;
-  g_source_attach (self->io, self->data->context);
-
-  /* Setup for connect thread */
-  self->connect_fd = ssh_get_fd (self->data->session);
-  g_atomic_int_set (&self->connecting, 1);
-  self->data->connecting = &self->connecting;
-  data = self->data;
-  self->data = NULL;
-
-  self->connect_thread = g_thread_new ("ssh-transport-connect",
-                                       cockpit_ssh_connect_thread, data);
-
+  self->auth_process = g_object_new (COCKPIT_TYPE_AUTH_PROCESS,
+                                   "pipe-timeout", pipe_timeout,
+                                   "idle-timeout", idle_timeout,
+                                   "logname", g_ptr_array_index (self->command_args, 0),
+                                   "name", self->logname,
+                                   "wanted-auth-fd", wanted_fd,
+                                   NULL);
+  cockpit_ssh_transport_start_process (self);
   g_debug ("%s: constructed", self->logname);
 }
 
@@ -1798,49 +488,52 @@ cockpit_ssh_transport_set_property (GObject *obj,
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (obj);
   const gchar *string;
-  int port;
 
   switch (prop_id)
     {
     case PROP_HOST:
       self->logname = g_value_dup_string (value);
-      self->data->logname = self->logname;
-      g_warn_if_fail (ssh_options_set (self->data->session, SSH_OPTIONS_HOST,
-                                       g_value_get_string (value)) == 0);
+      self->host = g_value_dup_string (value);
       break;
     case PROP_PORT:
-      port = g_value_get_uint (value);
-      if (port == 0)
-        port = 22;
-      g_warn_if_fail (ssh_options_set (self->data->session, SSH_OPTIONS_PORT, &port) == 0);
+      if (g_value_get_uint (value))
+        {
+          g_ptr_array_add (self->command_args, g_strdup ("--port"));
+          g_ptr_array_add (self->command_args,
+                           g_strdup_printf ("%d", g_value_get_uint (value)));
+        }
       break;
     case PROP_KNOWN_HOSTS:
-      string = g_value_get_string (value);
-      if (string == NULL)
-        string = PACKAGE_LOCALSTATE_DIR "/known_hosts";
-      ssh_options_set (self->data->session, SSH_OPTIONS_KNOWNHOSTS, string);
-      self->data->knownhosts_file = g_strdup (string);
+      if (g_value_get_string (value) != NULL)
+        {
+          g_ptr_array_add (self->command_args, g_strdup ("--known-hosts"));
+          g_ptr_array_add (self->command_args, g_value_dup_string (value));
+        }
       break;
     case PROP_CREDS:
-      self->data->creds = g_value_dup_boxed (value);
+      self->creds = g_value_dup_boxed (value);
       break;
     case PROP_AGENT:
       self->agent = g_value_dup_object (value);
       break;
-    case PROP_AUTH_PIPE:
-      self->auth_pipe = g_value_dup_object (value);
-      break;
     case PROP_COMMAND:
-      string = g_value_get_string (value);
-      if (string == NULL)
-        string = "cockpit-bridge";
-      self->data->command = g_strdup (string);
+      self->command = g_value_dup_string (value);
       break;
     case PROP_HOST_KEY:
-      self->data->expect_key = g_value_dup_string (value);
+      string = g_value_get_string (value);
+      if (string && string[0] == '\0')
+        {
+          g_ptr_array_add (self->command_args, g_strdup ("--no-host-key"));
+        }
+      else if (string)
+        {
+          g_ptr_array_add (self->command_args, g_strdup ("--host-key"));
+          g_ptr_array_add (self->command_args, g_strdup (string));
+        }
       break;
     case PROP_IGNORE_KEY:
-      self->data->ignore_key = g_value_get_boolean (value);
+      if (g_value_get_boolean (value))
+        g_ptr_array_add (self->command_args, g_strdup ("--ignore-hostkey"));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -1874,40 +567,38 @@ cockpit_ssh_transport_get_property (GObject *obj,
 }
 
 static void
-cockpit_ssh_transport_dispose (GObject *object)
-{
-  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (object);
-
-  close_immediately (self, "disconnected");
-
-  G_OBJECT_CLASS (cockpit_ssh_transport_parent_class)->finalize (object);
-}
-
-static void
 cockpit_ssh_transport_finalize (GObject *object)
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (object);
 
-  /* libssh channels like to hang around even after they're freed */
-  memset (&self->channel_cbs, 0, sizeof (self->channel_cbs));
-  ssh_event_free (self->event);
-
-  cockpit_ssh_data_free (self->data);
-
   if (self->agent)
     g_object_unref (self->agent);
 
-  if (self->auth_pipe)
-    g_object_unref (self->auth_pipe);
+  if (self->creds)
+    cockpit_creds_unref (self->creds);
 
   g_free (self->logname);
+  g_free (self->host);
+  g_free (self->command);
+
+  g_free (self->host_key);
+  g_free (self->host_fingerprint);
+
+  if (self->auth_results)
+    json_object_unref (self->auth_results);
+
+
+  if (self->pipe)
+    {
+      g_signal_handler_disconnect (self->pipe, self->read_sig);
+      g_signal_handler_disconnect (self->pipe, self->close_sig);
+      g_object_unref (self->pipe);
+    }
+
+  if (self->command_args)
+    g_ptr_array_free (self->command_args, TRUE);
 
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
-  g_byte_array_free (self->buffer, TRUE);
-  g_string_free (self->errbuf, TRUE);
-
-  g_assert (self->io == NULL);
-
   G_OBJECT_CLASS (cockpit_ssh_transport_parent_class)->finalize (object);
 }
 
@@ -1918,11 +609,15 @@ cockpit_ssh_transport_send (CockpitTransport *transport,
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
   gchar *prefix;
+  GBytes *prefix_bytes;
   gsize channel_len;
   gsize payload_len;
-  gsize length;
 
-  g_return_if_fail (!self->closing);
+  if (self->closed)
+    {
+      g_debug ("dropping message on closed transport");
+      return;
+    }
 
   channel_len = channel ? strlen (channel) : 0;
   payload_len = g_bytes_get_size (payload);
@@ -1930,24 +625,32 @@ cockpit_ssh_transport_send (CockpitTransport *transport,
   prefix = g_strdup_printf ("%" G_GSIZE_FORMAT "\n%s\n",
                                 channel_len + 1 + payload_len,
                                 channel ? channel : "");
-  length = strlen (prefix);
+  prefix_bytes = g_bytes_new_take (prefix, strlen (prefix));
 
-  g_queue_push_tail (self->queue, g_bytes_new_take (prefix, length));
-  g_queue_push_tail (self->queue, g_bytes_ref (payload));
+  if (!self->pipe)
+    {
+      g_queue_push_tail (self->queue, g_bytes_ref (prefix_bytes));
+      g_queue_push_tail (self->queue, g_bytes_ref (payload));
+    }
+  else
+    {
+      cockpit_pipe_write (self->pipe, prefix_bytes);
+      cockpit_pipe_write (self->pipe, payload);
+    }
 
+  g_bytes_unref (prefix_bytes);
   g_debug ("%s: queued %" G_GSIZE_FORMAT " byte payload", self->logname, payload_len);
 }
 
 static void
-cockpit_ssh_transport_close (CockpitTransport *transport,
-                             const gchar *problem)
+cockpit_ssh_transport_dispose (GObject *object)
 {
-  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (object);
 
-  self->closing = TRUE;
+  if (!self->closed)
+    cockpit_ssh_transport_close (COCKPIT_TRANSPORT (self), "disconnected");
 
-  if (problem)
-    close_immediately (self, problem);
+  G_OBJECT_CLASS (cockpit_ssh_transport_parent_class)->dispose (object);
 }
 
 static void
@@ -1955,14 +658,9 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   CockpitTransportClass *transport_class = COCKPIT_TRANSPORT_CLASS (klass);
-  const gchar *env;
 
   transport_class->send = cockpit_ssh_transport_send;
   transport_class->close = cockpit_ssh_transport_close;
-
-  env = g_getenv ("G_MESSAGES_DEBUG");
-  if (env && strstr (env, "libssh"))
-    ssh_set_log_level (SSH_LOG_FUNCTIONS);
 
   object_class->constructed = cockpit_ssh_transport_constructed;
   object_class->get_property = cockpit_ssh_transport_get_property;
@@ -2006,12 +704,9 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
          g_param_spec_object ("agent", NULL, NULL, COCKPIT_TYPE_SSH_AGENT,
                              G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (object_class, PROP_AUTH_PIPE,
-         g_param_spec_object ("auth-pipe", NULL, NULL, COCKPIT_TYPE_AUTH_PIPE,
-                             G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
-
-  g_signal_new ("result", COCKPIT_TYPE_SSH_TRANSPORT, G_SIGNAL_RUN_FIRST, 0, NULL, NULL,
-                g_cclosure_marshal_generic, G_TYPE_NONE, 1, G_TYPE_STRING);
+  signals[PROMPT] = g_signal_new ("prompt", COCKPIT_TYPE_SSH_TRANSPORT, G_SIGNAL_RUN_LAST,
+                                  0, g_signal_accumulator_true_handled, NULL,
+                                  g_cclosure_marshal_generic, G_TYPE_BOOLEAN, 1, JSON_TYPE_OBJECT);
 
   g_object_class_override_property (object_class, PROP_NAME, "name");
 }
@@ -2056,10 +751,7 @@ const gchar *
 cockpit_ssh_transport_get_host_key (CockpitSshTransport *self)
 {
   g_return_val_if_fail (COCKPIT_IS_SSH_TRANSPORT (self), NULL);
-
-  if (!self->data)
-    return NULL;
-  return self->data->host_key;
+  return self->host_key;
 }
 
 /**
@@ -2077,10 +769,7 @@ const gchar *
 cockpit_ssh_transport_get_host_fingerprint (CockpitSshTransport *self)
 {
   g_return_val_if_fail (COCKPIT_IS_SSH_TRANSPORT (self), NULL);
-
-  if (!self->data)
-    return NULL;
-  return self->data->host_fingerprint;
+  return self->host_fingerprint;
 }
 
 /**
@@ -2091,7 +780,7 @@ cockpit_ssh_transport_get_host_fingerprint (CockpitSshTransport *self)
  * and since you can't detect that reliably, you really
  * should only be calling this after the transport closes.
  *
- * Returns: (transfer none): a GHashTable with a key for
+ * Returns: (transfer none): a JsonObject with a key for
  * each supported auth method. Possible values are:
  *   not-provided
  *   no-server-support
@@ -2100,13 +789,22 @@ cockpit_ssh_transport_get_host_fingerprint (CockpitSshTransport *self)
  *   partial
  *   error
  */
-GHashTable *
+JsonObject *
 cockpit_ssh_transport_get_auth_method_results (CockpitSshTransport *self)
 {
   g_return_val_if_fail (COCKPIT_IS_SSH_TRANSPORT (self), NULL);
+  return self->auth_results;
+}
 
-  if (!self->data)
-    return NULL;
-
-  return self->data->auth_results;
+/**
+ * cockpit_ssh_transport_get_auth_process
+ * @self: the ssh tranpsort
+ *
+ * Once authentication succeeds this will be null.
+ */
+CockpitAuthProcess *
+cockpit_ssh_transport_get_auth_process (CockpitSshTransport *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_SSH_TRANSPORT (self), NULL);
+  return self->auth_process;
 }

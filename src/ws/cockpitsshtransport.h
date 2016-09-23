@@ -21,8 +21,10 @@
 #define __COCKPIT_SSH_TRANSPORT_H__
 
 #include "common/cockpittransport.h"
+#include "common/cockpitjson.h"
 
 #include "cockpitcreds.h"
+#include "cockpitauthprocess.h"
 
 G_BEGIN_DECLS
 
@@ -43,8 +45,9 @@ const gchar *       cockpit_ssh_transport_get_host_key          (CockpitSshTrans
 
 const gchar *       cockpit_ssh_transport_get_host_fingerprint  (CockpitSshTransport *self);
 
-GHashTable *        cockpit_ssh_transport_get_auth_method_results (CockpitSshTransport *self);
+JsonObject *        cockpit_ssh_transport_get_auth_method_results (CockpitSshTransport *self);
 
+CockpitAuthProcess *   cockpit_ssh_transport_get_auth_process     (CockpitSshTransport *self);
 G_END_DECLS
 
 #endif /* __COCKPIT_SSH_TRANSPORT_H__ */

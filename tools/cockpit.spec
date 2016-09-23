@@ -167,7 +167,7 @@ make -j4 check
 
 %install
 make install DESTDIR=%{buildroot}
-%if %{defined gitcommit}
+%if %{defined gitcommit} || 0%{?rhel}
 make install-test-assets DESTDIR=%{buildroot}
 %else
 rm -rf %{buildroot}/%{_datadir}/%{name}/playground
@@ -514,7 +514,8 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %endif
 
-%if %{defined gitcommit}
+# we only build test assets on rhel or if we're building from a specific commit
+%if %{defined gitcommit} || 0%{?rhel}
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit

@@ -76,70 +76,8 @@ on_pipe_read (CockpitPipe *pipe,
               gpointer user_data)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (user_data);
-  GBytes *message;
-  GBytes *payload;
-  gchar *channel;
-  guint32 i, size;
-  gchar *data;
-
-  g_object_ref (self);
-
-  for (;;)
-    {
-      size = 0;
-      data = (gchar *)input->data;
-      for (i = 0; i < input->len; i++)
-        {
-          /* Check invalid characters, prevent integer overflow, limit max length */
-          if (i > 7 || data[i] < '0' || data[i] > '9')
-            break;
-          size *= 10;
-          size += data[i] - '0';
-        }
-
-      if (i == input->len)
-        {
-          if (!end_of_data)
-            g_debug ("%s: want more data", self->name);
-          break;
-        }
-
-      if (data[i] != '\n')
-        {
-          g_warning ("%s: incorrect protocol: received invalid length prefix", self->name);
-          cockpit_pipe_close (pipe, "protocol-error");
-          break;
-        }
-
-      if (input->len < i + 1 + size)
-        {
-          g_debug ("%s: want more data 2", self->name);
-          break;
-        }
-
-      message = cockpit_pipe_consume (input, i + 1, size, 0);
-      payload = cockpit_transport_parse_frame (message, &channel);
-      if (payload)
-        {
-          g_debug ("%s: received a %d byte payload", self->name, (int)size);
-          cockpit_transport_emit_recv ((CockpitTransport *)self, channel, payload);
-          g_bytes_unref (payload);
-          g_free (channel);
-        }
-      g_bytes_unref (message);
-    }
-
-  if (end_of_data)
-    {
-      /* Received a partial message */
-      if (input->len > 0)
-        {
-          g_debug ("%s: received truncated %d byte frame", self->name, input->len);
-          cockpit_pipe_close (pipe, "disconnected");
-        }
-    }
-
-  g_object_unref (self);
+  cockpit_transport_read_from_pipe (COCKPIT_TRANSPORT (self), self->name,
+                                    pipe, input, end_of_data);
 }
 
 static void
@@ -377,4 +315,82 @@ cockpit_pipe_transport_get_pipe (CockpitPipeTransport *self)
 {
   g_return_val_if_fail (COCKPIT_IS_PIPE_TRANSPORT (self), NULL);
   return self->pipe;
+}
+
+/**
+ * cockpit_transport_read_from_pipe:
+ *
+ * Meant to be used in a "read" handler for a #CockpitPipe
+ */
+ void
+cockpit_transport_read_from_pipe (CockpitTransport *self,
+                                  const gchar *logname,
+                                  CockpitPipe *pipe,
+                                  GByteArray *input,
+                                  gboolean end_of_data)
+{
+  GBytes *message;
+  GBytes *payload;
+  gchar *channel;
+  guint32 i, size;
+  gchar *data;
+
+  g_object_ref (self);
+
+  for (;;)
+    {
+      size = 0;
+      data = (gchar *)input->data;
+      for (i = 0; i < input->len; i++)
+        {
+          /* Check invalid characters, prevent integer overflow, limit max length */
+          if (i > 7 || data[i] < '0' || data[i] > '9')
+            break;
+          size *= 10;
+          size += data[i] - '0';
+        }
+
+      if (i == input->len)
+        {
+          if (!end_of_data)
+            g_debug ("%s: want more data", logname);
+          break;
+        }
+
+      if (data[i] != '\n')
+        {
+          g_warning ("%s: incorrect protocol: received invalid length prefix", logname);
+          cockpit_pipe_close (pipe, "protocol-error");
+          break;
+        }
+
+      if (input->len < i + 1 + size)
+        {
+          g_debug ("%s: want more data 2", logname);
+          break;
+        }
+
+      message = cockpit_pipe_consume (input, i + 1, size, 0);
+      payload = cockpit_transport_parse_frame (message, &channel);
+      if (payload)
+        {
+          g_debug ("%s: received a %d byte payload", logname, (int)size);
+          cockpit_transport_emit_recv (self, channel, payload);
+          g_bytes_unref (payload);
+          g_free (channel);
+        }
+      g_bytes_unref (message);
+    }
+
+  if (end_of_data)
+    {
+      /* Received a partial message */
+      if (input->len > 0)
+        {
+          g_debug ("%s: received truncated %d byte frame", logname, input->len);
+          cockpit_pipe_close (pipe, "disconnected");
+        }
+    }
+
+  g_object_unref (self);
 }

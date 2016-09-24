@@ -227,6 +227,7 @@
                                       vals.type = vals.custom;
 
                                   var options = { 'no-block': { t: 'b', v: true },
+                                                  'dry-run-first': { t: 'b', v: true },
                                                   'tear-down': { t: 'b', v: true }
                                                 };
                                   if (vals.erase != "no")

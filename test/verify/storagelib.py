@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 from testlib import *
 
 def content_action_btn(index):
@@ -32,6 +33,16 @@ class StorageCase(MachineCase):
 
         MachineCase.setUp(self)
         self.storagectl_cmd = self.machine.execute("for cmd in storagedctl storagectl udisksctl; do if which $cmd 2>/dev/null; then break; fi; done").strip()
+
+        if "udisksctl" in self.storagectl_cmd:
+            ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version")
+        else:
+            ver = self.machine.execute("busctl --system get-property org.storaged.Storaged /org/storaged/Storaged/Manager org.storaged.Storaged.Manager Version")
+        m = re.match('s "(.*)"', ver)
+        if m:
+            self.storaged_version = map(int, m.group(1).split("."))
+        else:
+            self.storaged_version = [ 0 ]
 
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)

@@ -469,6 +469,9 @@ table.listing-ct thead th:last-child {
 tbody tr.listing-ct-item {
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
+}
+
+tbody tr.listing-ct-canexpand {
     cursor: pointer;
 }
 
@@ -531,7 +534,7 @@ tbody:not(.open) tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-to
 
 /* use gray for a row that's expanded or if navigation isn't available */
 tbody.open tr.listing-ct-item:hover,
-tr.listing-ct-item.listing-ct-nonavigate:hover {
+tr.listing-ct-canexpand.listing-ct-nonavigate:hover {
     background-color: #ededed;
 }
 

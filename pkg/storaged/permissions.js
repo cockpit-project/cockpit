@@ -65,6 +65,7 @@
     $(permission).on("changed", update_storage_privileged);
 
     module.exports = {
+        permission: permission,
         update: update_storage_privileged
     };
 

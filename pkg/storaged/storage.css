@@ -355,6 +355,10 @@ td.job-action {
     text-align: right;
 }
 
+#detail-jobs .panel {
+    margin-top: 20px;
+}
+
 #storage-graph-toolbar .dropdown {
     display: inline-block;
 }
@@ -499,4 +503,50 @@ td.vgroup-action {
 
 #detail-sidebar .table td.storage-action {
     width: 51px;
+}
+
+.tab-actions {
+    float: right;
+    margin-top: -15px;
+    margin-right: -15px;
+}
+
+.tab-actions button {
+    margin-left: 0.3em;
+}
+
+a.disabled {
+    color: #7dc3e8;
+    text-decoration: none;
+    cursor: not-allowed;
+}
+
+.listing-ct-body .info-table-ct button {
+    margin-left: 2em;
+}
+
+.listing-ct caption .pull-right {
+    margin-right: 10px;
+}
+
+.info-table-ct td {
+    overflow: visible !important;
+}
+
+/* Layout fix for tooltip arrows.
+ *
+ * Sometimes when there are non-integer coordinates involved
+ * somewhere, rounding seems to make it so that there is a visible one
+ * pixel gap between tooltip-inner and tooltip-arrow.  We avoid that
+ * gap by letting the arrow and inner parts overlap by one pixel.
+ *
+ * This happens within the caption of the content listing.
+ */
+
+.tooltip.top .tooltip-arrow {
+    bottom: 1px;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    top: 1px;
 }

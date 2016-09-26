@@ -354,6 +354,70 @@
         $zone.removeClass('armed');
     };
 
+
+    function get_children(client, path) {
+        var children = [ ];
+
+        if (client.blocks_cleartext[path]) {
+            children.push(client.blocks_cleartext[path].path);
+        }
+
+        if (client.blocks_ptable[path]) {
+            client.blocks_partitions[path].forEach(function (part) {
+                if (!part.IsContainer)
+                    children.push(part.path);
+            });
+        }
+
+        if (client.blocks_part[path] && client.blocks_part[path].IsContainer) {
+            var ptable_path = client.blocks_part[path].Table;
+            client.blocks_partitions[ptable_path].forEach(function (part) {
+                if (part.IsContained)
+                    children.push(part.path);
+            });
+        }
+
+        if (client.vgroups[path]) {
+            client.vgroups_lvols[path].forEach(function (lvol) {
+                if (client.lvols_block[lvol.path])
+                    children.push(client.lvols_block[lvol.path].path);
+            });
+        }
+
+        return children;
+    }
+
+    utils.get_usage_alerts = function get_usage_alerts(client, path) {
+        var block = client.blocks[path];
+        var fsys = client.blocks_fsys[path];
+        var pvol = client.blocks_pvol[path];
+
+        var usage =
+            utils.flatten(get_children(client, path).map(
+                function (p) { return utils.get_usage_alerts (client, p); }));
+
+        if (fsys && fsys.MountPoints.length > 0)
+            usage.push({ usage: 'mounted',
+                         Message: cockpit.format(_("Device $0 is mounted on $1"),
+                                                 utils.block_name(block),
+                                                 utils.decode_filename(fsys.MountPoints[0]))
+                       });
+        if (block && client.mdraids[block.MDRaidMember])
+            usage.push({ usage: 'mdraid-member',
+                         Message: cockpit.format(_("Device $0 is a member of RAID Array $1"),
+                                                 utils.block_name(block),
+                                                 utils.mdraid_name(client.mdraids[block.MDRaidMember]))
+                       });
+        if (pvol && client.vgroups[pvol.VolumeGroup])
+            usage.push({ usage: 'pvol',
+                         Message: cockpit.format(_("Device $0 is a physical volume of $1"),
+                                                 utils.block_name(block),
+                                                 client.vgroups[pvol.VolumeGroup].Name)
+                       });
+
+        return usage;
+    };
+
     /* jQuery.amend function. This will be removed as we move towards React */
 
     function sync(output, input, depth) {

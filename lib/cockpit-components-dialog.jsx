@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*jshint node: true */
+
 (function(root, factory) {
     if (typeof exports === "object")
         module.exports = factory(require("cockpit"), require("react"));
@@ -287,7 +289,7 @@ var show_modal_dialog = function(props, footerProps) {
             dialogObj.props = { };
         dialogObj.props.footer = <DialogFooter {...dialogObj.footerProps} />;
         dialogObj.render();
-    };
+    }
     dialogObj.setFooterProps = function(footerProps) {
         dialogObj.footerProps = footerProps;
         if (dialogObj.footerProps === null || dialogObj.footerProps === undefined)

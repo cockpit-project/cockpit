@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*jshint node: true */
+
 (function() {
     "use strict";
 

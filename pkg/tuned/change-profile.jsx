@@ -126,7 +126,7 @@ var TunedLink = React.createClass({
         var opts = { };
         var classes = "action-trigger";
         if (disabled) {
-            opts['disabled'] = 'disabled';
+            opts.disabled = 'disabled';
             classes += " disabled";
         }
 

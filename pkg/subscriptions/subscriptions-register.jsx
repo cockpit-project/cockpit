@@ -17,6 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*jshint sub:true */
+/*Disable Warning Justification:
+ *    Using bracket notation so because one of the properties is a reserved keyword ('default')
+ */
+
 var cockpit = require("cockpit");
 var _ = cockpit.gettext;
 

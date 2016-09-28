@@ -69,6 +69,7 @@ echo foobar | passwd --stdin root
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
 COCKPIT_DEPS="\
+atomic \
 device-mapper-multipath \
 docker \
 etcd \
@@ -76,10 +77,13 @@ glib-networking \
 json-glib \
 kubernetes \
 libssh \
+libvirt \
+libvirt-client \
 NetworkManager-team \
 pcp-libs \
 pcp \
 python-pip \
+qemu \
 realmd \
 selinux-policy-targeted \
 setroubleshoot-server \
@@ -87,9 +91,9 @@ subscription-manager \
 storaged \
 storaged-lvm2 \
 storaged-iscsi \
-atomic \
 sos \
 tuned \
+virt-install\
 "
 
 # We also install the packages necessary to join a FreeIPA domain so

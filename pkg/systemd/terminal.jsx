@@ -1,91 +1,116 @@
-/* jshint node: true */
-
-"use strict";
-
-var cockpit = require("cockpit");
-
-var React = require("react");
-var componentsTerminal = require("cockpit-components-terminal.jsx");
-
-cockpit.translate();
-
 /*
- * A terminal component for the cockpit user.
+ * This file is part of Cockpit.
  *
- * Uses the Terminal component from base1 internally, but adds a header
- * with title and Reset button.
+ * Copyright (C) 2016 Red Hat, Inc.
  *
- * Spawns the user's shell in the user's home directory.
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-var UserTerminal = React.createClass({displayName: "UserTerminal",
-    createChannel: function (user) {
-        return cockpit.channel({
-            "payload": "stream",
-            "spawn": [ user.shell || "/bin/bash", "-i"],
-            "environ": [
-                "TERM=xterm-256color",
-                "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
-            ],
-            "directory": user.home || "/",
-            "pty": true
-        });
-    },
 
-    getInitialState: function () {
-        return {
-            title: 'Terminal'
-        };
-    },
+/*jshint node: true */
+/*jshint browser: true */
 
-    componentWillMount: function () {
-        cockpit.user().done(function (user) {
-            this.setState({ user: user, channel: this.createChannel(user) });
-        }.bind(this));
-    },
+(function() {
+    var cockpit = require("cockpit");
 
-    onTitleChanged: function (title) {
-        this.setState({ title: title });
-    },
+    var React = require("react");
+    var componentsTerminal = require("cockpit-components-terminal.jsx");
 
-    onResetClick: function (event) {
-        if (event.button !== 0)
-            return;
+    cockpit.translate();
 
-        if (this.state.channel)
-            this.state.channel.close();
+    /*
+     * A terminal component for the cockpit user.
+     *
+     * Uses the Terminal component from base1 internally, but adds a header
+     * with title and Reset button.
+     *
+     * Spawns the user's shell in the user's home directory.
+     */
+    var UserTerminal = React.createClass({
+        displayName: "UserTerminal",
 
-        if (this.state.user)
-            this.setState({ channel: this.createChannel(this.state.user) });
+        createChannel: function(user) {
+            return cockpit.channel({
+                "payload": "stream",
+                "spawn": [ user.shell || "/bin/bash", "-i"],
+                "environ": [
+                    "TERM=xterm-256color",
+                    "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
+                ],
+                "directory": user.home || "/",
+                "pty": true
+            });
+        },
 
-        // don't focus the button, but keep it on the terminal
-        this.refs.resetButton.blur();
-        this.refs.terminal.focus();
-    },
+        getInitialState: function() {
+            return {
+                title: 'Terminal'
+            };
+        },
 
-    render: function () {
-        var terminal;
-        if (this.state.channel)
-            terminal = (<componentsTerminal.Terminal ref="terminal"
-                                                     channel={this.state.channel}
-                                                     onTitleChanged={this.onTitleChanged} />);
-        else
-            terminal = <span>Loading...</span>;
+        componentWillMount: function() {
+            cockpit.user().done(function(user) {
+                this.setState({ user: user, channel: this.createChannel(user) });
+            }.bind(this));
+        },
 
-        return (
-            <div className="panel panel-default console-ct-container">
-                <div className="panel-heading">
-                    <tt className="terminal-title">{this.state.title}</tt>
-                    <button ref="resetButton"
-                            className="btn btn-default pull-right"
-                            onClick={this.onResetClick}>Reset</button>
+        onTitleChanged: function(title) {
+            this.setState({ title: title });
+        },
+
+        onResetClick: function(event) {
+            if (event.button !== 0)
+                return;
+
+            if (this.state.channel)
+                this.state.channel.close();
+
+            if (this.state.user)
+                this.setState({ channel: this.createChannel(this.state.user) });
+
+            // don't focus the button, but keep it on the terminal
+            this.refs.resetButton.blur();
+            this.refs.terminal.focus();
+        },
+
+        render: function() {
+            var terminal;
+            if (this.state.channel) {
+                terminal = (
+                    <componentsTerminal.Terminal ref="terminal"
+                                                 channel={this.state.channel}
+                                                 onTitleChanged={this.onTitleChanged} />
+                );
+            } else {
+                terminal = <span>Loading...</span>;
+            }
+
+            return (
+                <div className="panel panel-default console-ct-container">
+                    <div className="panel-heading">
+                        <tt className="terminal-title">{this.state.title}</tt>
+                        <button ref="resetButton"
+                                className="btn btn-default pull-right"
+                                onClick={this.onResetClick}>Reset</button>
+                    </div>
+                    {terminal}
                 </div>
-                {terminal}
-            </div>
-        );
-    }
-});
+            );
+        }
+    });
 
-React.render(<UserTerminal />, document.getElementById('terminal'));
+    React.render(<UserTerminal />, document.getElementById('terminal'));
 
-/* And show the body */
-document.body.removeAttribute("hidden");
+    /* And show the body */
+    document.body.removeAttribute("hidden");
+}());

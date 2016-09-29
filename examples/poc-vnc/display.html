@@ -7,19 +7,26 @@
 <link href="../base1/cockpit.css" rel="stylesheet" type="text/css">
 
 <!-- TODO: These should be combined -->
+<!-- XXX: mbalmer thinks the layout should like in the upstream project. -->
 <script src="include/util.js"></script>
 <script src="include/webutil.js"></script>
 <script src="include/base64.js"></script>
 <script src="include/websock.js"></script>
 <script src="include/des.js"></script>
-<script src="include/keysym.js"></script>
-<script src="include/keysymdef.js"></script>
 <script src="include/keyboard.js"></script>
-<script src="include/input.js"></script>
+<script src="include/inflator.js"></script>
 <script src="include/display.js"></script>
 <script src="include/jsunzip.js"></script>
 <script src="include/rfb.js"></script>
+<script src="include/ui.js"></script>
 
+<script src="include/input/devices.js"></script>
+<script src="include/input/keysymdef.js"></script>
+<script src="include/input/keysym.js"></script>
+<script src="include/input/util.js"></script>
+<script src="include/input/xtscancodes.js"></script>
+
+<script src="../base1/jquery.js"></script>
 <script src="../base1/require.js"></script>
 <script>
 require([
@@ -28,6 +35,7 @@ require([
     $("#connect").on("click", function() {
         $("canvas").show();
         $("table").hide();
+		$("#connectioncontrols").show();
 
         var query = window.btoa(JSON.stringify({
                 payload: "stream",
@@ -43,21 +51,35 @@ require([
         });
     });
 
+	var rfb;
+
+	$("#disconnect").on("click", function() {
+		console.log("disconnecting");
+		rfb.disconnect();
+		$("canvas").hide();
+		$("table").show();
+		$("#connectioncontrols").hide();
+	});
+
     function connect(path) {
         WebUtil.init_logging('warn');
 
         var options = {
             target: document.getElementById('canvas'),
-            encrypt: false,
+            encrypt: true,
             repeaterID: '',
             true_color: true,
             local_cursor: true,
             shared: false,
-            view_only: false,
         };
 
         options.onUpdateState = function updateState(rfb, state, oldstate, msg) {
             console.log(state, msg);
+            if (state == 'disconnected') {
+				$("canvas").hide();
+				$("table").show();
+				$("#connectioncontrols").hide();
+          }
         };
 
         options.onXvpInit = function() { };
@@ -65,8 +87,8 @@ require([
             console.log("password required");
         };
 
-        var rfb = new RFB(options);
-        rfb.connect(window.location.hostname, window.location.port, "", path);
+		rfb = new RFB(options);
+		rfb.connect(window.location.hostname, window.location.port, "", path);
     }
 });
 </script>
@@ -86,9 +108,16 @@ require([
             </tr>
         </table>
 
-        <canvas id="canvas" width="640px" height="20px" style="border: 2px solid black;" hidden>
+        <canvas id="canvas" hidden>
              Canvas not supported.
         </canvas>
+
+        <p id="connectioncontrols" hidden>
+        	<button class="btn btn-default btn-primary" id="disconnect">
+        		Disconnect
+        	</button>
+        </p>
+
     </div>
 </body>
 </html>

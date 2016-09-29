@@ -44,8 +44,7 @@ class TestMachines(MachineCase):
 
     def testBasic(self):
         if not self.tryEnableNestedVirt():
-            print 'Nested virtualization is not enabled on this test image, skipping the test'
-            return
+            raise unittest.SkipTest('Nested virtualization is not enabled on this test image, skipping the test')
 
         b = self.browser
         m = self.machine

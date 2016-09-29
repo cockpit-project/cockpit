@@ -30,6 +30,7 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "Don't run virtual machine tests on atomic systems.")
 class TestMachines(MachineCase):
     def tryEnableNestedVirt(self):
         print 'tryEnableNestedVirt() called'

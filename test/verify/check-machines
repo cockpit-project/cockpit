@@ -30,12 +30,12 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
+@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "Don't run virtual machine tests on atomic systems.")
 class TestMachines(MachineCase):
     def tryEnableNestedVirt(self):
-        print 'tryEnableNestedVirt() called'
         m = self.machine
-        m.execute('(rmmod kvm-intel && modprobe kvm-intel nested=1) || true')
-        m.execute('(rmmod kvm-amd && modprobe kvm-amd nested=1) || true')
+        m.execute(command='(rmmod kvm-intel && modprobe kvm-intel nested=1) || true', quiet=True)
+        m.execute(command='(rmmod kvm-amd && modprobe kvm-amd nested=1) || true', quiet=True)
 
         nestedIntel = readFile('/sys/module/kvm_intel/parameters/nested')
         nestedAmd = readFile('/sys/module/kvm_amd/parameters/nested')
@@ -43,8 +43,7 @@ class TestMachines(MachineCase):
 
     def testBasic(self):
         if not self.tryEnableNestedVirt():
-            print 'Nested virtualization is not enabled on this test image, skipping the test'
-            return
+            raise unittest.SkipTest('Nested virtualization is not enabled on this test image, skipping the test')
 
         b = self.browser
         m = self.machine

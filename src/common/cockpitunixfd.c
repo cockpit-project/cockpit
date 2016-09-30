@@ -125,6 +125,7 @@ cockpit_unix_fd_add_full (gint priority,
 typedef struct {
   int from;
   int except;
+  int until;
 } CloseAll;
 
 static int
@@ -133,7 +134,7 @@ closefd (void *data,
 {
   CloseAll *ca = data;
 
-  if (fd >= ca->from && fd != ca->except)
+  if (fd >= ca->from && fd != ca->except && fd < ca->until)
     {
       while (close (fd) < 0)
         {
@@ -228,6 +229,28 @@ int
 cockpit_unix_fd_close_all (int from,
                            int except)
 {
-  CloseAll ca = { from, except };
+  CloseAll ca = { from, except, G_MAXINT };
+  return fdwalk (closefd, &ca);
+}
+
+/**
+ * cockpit_unix_fd_close_until:
+ * @from: minimum FD to close, or -1
+ * @except: an FD to leave open, or -1
+ * @until: stop closing fds when this number is hit.
+ *
+ * Close all open file descriptors starting from @from
+ * and skipping @except up to but not including @until.
+ *
+ * Will set errno if a failure happens.
+ *
+ * Returns: zero if successful, -1 if not
+ */
+int
+cockpit_unix_fd_close_until (int from,
+                             int except,
+                             int until)
+{
+  CloseAll ca = { from, except, until };
   return fdwalk (closefd, &ca);
 }

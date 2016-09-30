@@ -1033,6 +1033,17 @@
                 }
             },
 
+            swap_start: function swap_start(path) {
+                var block_swap = client.blocks_swap[path];
+                if (block_swap)
+                    return block_swap.Start({});
+            },
+            swap_stop: function swap_start(path) {
+                var block_swap = client.blocks_swap[path];
+                if (block_swap)
+                    return block_swap.Stop({});
+            },
+
             job_cancel: function job_cancel(path) {
                 var job = client.storaged_jobs[path] || client.udisks_jobs[path];
                 if (job)

@@ -99,6 +99,16 @@ asyncTest("binary read", function() {
         });
 });
 
+/* regression: passing 'binary: false' made cockpit-ws close the whole connection */
+asyncTest("binary false", function() {
+    expect(1);
+    cockpit.file(dir + "/foo.bin", { binary: false }).read().
+        done(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
 asyncTest("simple replace", function() {
     expect(2);
     cockpit.file(dir + "/bar").replace("4321\n").

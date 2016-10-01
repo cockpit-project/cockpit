@@ -764,6 +764,8 @@ function Channel(options) {
                 command.binary = "base64";
                 base64 = true;
             }
+        } else {
+            delete command.binary;
         }
 
         transport.send_control(command);

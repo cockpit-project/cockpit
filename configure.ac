@@ -21,6 +21,17 @@ AC_INIT([Cockpit],
         [cockpit],
         [http://www.cockpit-project.org/])
 
+# The above git-version-gen command can either use .git or a .tarball file
+# in the top level directory to determine the version. If that didn't work
+# bail early. Cockpit needs to know its own version number
+AC_MSG_CHECKING(that PACKAGE_VERSION is properly set)
+if test -z "$PACKAGE_VERSION"; then
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR(Please build from a .git checkout or .tar.xz tarball)
+else
+  AC_MSG_RESULT(yes)
+fi
+
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([tools])

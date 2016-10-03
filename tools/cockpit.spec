@@ -345,7 +345,9 @@ getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/no
 %systemd_post cockpit.socket
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
-
+# HACK: Until policy changes make it downstream
+# https://bugzilla.redhat.com/show_bug.cgi?id=1381331
+test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
 %preun ws
 %systemd_preun cockpit.socket
 

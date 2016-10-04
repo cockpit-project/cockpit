@@ -74,11 +74,12 @@
         'KubeFormatProvider',
         'kubernetesContainerSocketProvider',
         'KubeDiscoverSettingsProvider',
+        'KubeBrowserStorageProvider',
         '$provide',
         function($routeProvider, KubeWatchProvider, KubeRequestProvider,
                  KubeSocketProvider, KubeTranslateProvider, KubeFormatProvider,
                  kubernetesContainerSocketProvider, KubeDiscoverSettingsProvider,
-                 $provide) {
+                 KubeBrowserStorageProvider, $provide) {
 
             $routeProvider.otherwise({ redirectTo: '/' });
 
@@ -89,6 +90,7 @@
             KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
             KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
             KubeDiscoverSettingsProvider.KubeDiscoverSettingsFactory = "cockpitKubeDiscoverSettings";
+            KubeBrowserStorageProvider.KubeBrowserStorageFactory = "cockpitBrowserStorage";
 
             /* Tell the container-terminal that we want to be involved in WebSocket creation */
             kubernetesContainerSocketProvider.WebSocketFactory = 'cockpitContainerWebSocket';

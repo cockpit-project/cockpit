@@ -79,6 +79,7 @@ base_TESTS = \
 	src/base1/test-framed-cache.html \
 	src/base1/test-websocket.html \
 	src/base1/test-stub.html \
+	src/base1/test-cockpit-browser-storage.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)

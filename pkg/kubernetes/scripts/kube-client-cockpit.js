@@ -883,7 +883,8 @@
         "CockpitKubeRequest",
         "cockpitKubectlConfig",
         "cockpitConnectionInfo",
-        function($q, CockpitKubeRequest, cockpitKubectlConfig, info) {
+        "cockpitBrowserStorage",
+        function($q, CockpitKubeRequest, cockpitKubectlConfig, info, browser) {
             var defer = null;
 
             return function cockpitKubeDiscover(force) {
@@ -891,7 +892,7 @@
                     return defer.promise;
 
                 var last, req, kubectl, loginOptions;
-                var loginData = window.localStorage.getItem('login-data');
+                var loginData = browser.localStorage.getItem('login-data', true);
                 defer = $q.defer();
 
                 var schemes = [
@@ -1109,6 +1110,20 @@
                     });
 
                 return promise;
+            };
+        }
+    ])
+
+    .factory("cockpitBrowserStorage", [
+        "$window",
+        function($window) {
+            var base = $window;
+            if (cockpit && cockpit.sessionStorage && cockpit.localStorage)
+                base = cockpit;
+
+            return {
+                sessionStorage: base.sessionStorage,
+                localStorage: base.localStorage
             };
         }
     ])

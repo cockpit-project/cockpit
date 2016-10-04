@@ -1,0 +1,11 @@
+#! /bin/bash
+
+useradd -c Administrator -G wheel admin
+echo foobar | passwd --stdin admin
+
+dnf -y update
+dnf -y install fedora-release-server
+firewall-cmd --permanent --add-service cockpit
+
+# Phantom can't use TLS..
+sed -i -e 's/ExecStart=.*/\0 --no-tls/' /usr/lib/systemd/system/cockpit.service

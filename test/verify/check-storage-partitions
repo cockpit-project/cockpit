@@ -48,15 +48,15 @@ class TestStorage(StorageCase):
 
         b.click('button:contains(Create partition table)')
         self.dialog({ "type": "gpt" })
-        b.wait_in_text('#content', "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free Space")
 
-        self.content_single_action(1, "Create Partition")
+        self.content_row_action(1, "Create Partition")
         self.dialog({ "type": "ext4" })
-        b.wait_in_text('#content', "ext4 File System")
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
 
-        self.content_action(1, "Delete")
+        self.content_head_action(1, "Delete")
         self.confirm()
-        b.wait_in_text('#content', "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free Space")
 
 if __name__ == '__main__':
     test_main()

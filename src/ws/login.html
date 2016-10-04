@@ -130,6 +130,30 @@
                 return s.replace(/^\s+|\s+$/g, '');
             }
 
+            /* Sets values for application, url_root and login_path */
+            function setup_path_globals (path) {
+                var parser = document.createElement('a');
+                path = path || "/";
+                parser.href = document.baseURI;
+                if (parser.pathname != "/") {
+                    url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
+                    window.localStorage.setItem('url-root', url_root);
+                    if (url_root && path.indexOf('/' + url_root) === 0)
+                        path = path.replace('/' + url_root, '') || '/';
+                }
+
+                if (path.indexOf("/=") === 0)
+                    path = "/cockpit+" + path.split("/")[1];
+                else if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
+                    path = "/cockpit";
+
+                application = path.split("/")[1];
+
+                login_path = "/" + application + "/login";
+                if (url_root)
+                    login_path = "/" + url_root + login_path;
+            }
+
             function boot() {
                 window.onload = null;
 
@@ -145,24 +169,7 @@
                     sessionStorage.removeItem("logout-intent");
                 localStorage.setItem('os-release', os_release);
 
-                var parser = document.createElement('a');
-                var path = window.location.pathname || "/";
-                parser.href = document.baseURI;
-                if (parser.pathname != "/") {
-                    url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
-                    localStorage.setItem('url-root', url_root);
-                    if (url_root && path.indexOf('/' + url_root) === 0)
-                        path = path.replace('/' + url_root, '') || '/';
-                }
-
-                if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
-                    path = "/cockpit";
-
-                application = path.split("/")[1];
-                login_path = "/" + application + "/login";
-
-                if (url_root)
-                    login_path = "/" + url_root + login_path;
+                setup_path_globals (window.location.pathname);
 
                 /* Try automatic/kerberos authentication? */
                 if (oauth) {
@@ -214,6 +221,7 @@
             }
 
             function oauth_auto_login() {
+                var parser = document.createElement('a');
                 if (!oauth.URL)
                     return fatal("Cockpit authentication is configured incorrectly.");
 
@@ -227,6 +235,11 @@
                 build_oauth_redirect_to();
 
                 if (query[oauth.TokenParam]) {
+                    if (window.sessionStorage.getItem('login-wanted')) {
+                        parser.href = window.sessionStorage.getItem('login-wanted');
+                        setup_path_globals (parser.pathname);
+                    }
+
                     token_val = query[oauth.TokenParam];
                     id("login-wait-validating").style.display = "block";
                     var xhr = new XMLHttpRequest();
@@ -238,7 +251,16 @@
                         } else if (xhr.status == 200) {
                             run(JSON.parse(xhr.responseText));
                         } else {
-                            fatal(xhr.statusText);
+                            challenge = xhr.getResponseHeader("WWW-Authenticate")
+                            if (challenge && challenge.substring(0, 14) === 'X-Login-Reply ') {
+                                prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
+                                if (prompt_data)
+                                    show_converse(prompt_data);
+                                else
+                                    fatal(xhr.statusText);
+                            } else {
+                                fatal(xhr.statusText);
+                            }
                         }
                     };
                     xhr.send();
@@ -257,9 +279,14 @@
             function login_failure(msg, in_conversation) {
                 var el = id("login-error-message");
                 if (msg) {
-                    show_form(in_conversation);
-                    el.style.display = 'block';
-                    el.textContent = msg;
+                    /* OAuth failures are always fatal */
+                    if (oauth) {
+                        fatal(msg);
+                    } else {
+                        show_form(in_conversation);
+                        el.style.display = 'block';
+                        el.textContent = msg;
+                    }
                 } else {
                     el.style.display = 'none';
                     el.textContent = '';
@@ -288,7 +315,9 @@
             }
 
             function show_form(in_conversation) {
+                id("login-wait-validating").style.display = "none";
                 id("login").style.visibility = 'visible';
+                id("login").style.display = "block";
                 id("user-group").style.display = in_conversation ? "none" : "block";
                 id("password-group").style.display = in_conversation ? "none" : "block";
                 id("conversation-group").style.display = in_conversation ? "block" : "none";
@@ -351,6 +380,7 @@
                 login_failure("");
 
                 function call_converse() {
+                    id("conversation-input").removeEventListener("keydown", key_down);
                     id("login-button").removeEventListener("click", call_converse);
                     login_failure(null, true);
                     converse(prompt_data.id, id("conversation-input").value);
@@ -359,7 +389,6 @@
                 function key_down(e) {
                     login_failure(null, true);
                     if (e.which == 13) {
-                        id("conversation-input").removeEventListener("keydown", key_down);
                         call_converse();
                     }
                 }
@@ -478,12 +507,66 @@
                 send_login_request("GET", headers, true);
             }
 
-            function run(response) {
-                var wanted = window.sessionStorage.getItem('login-wanted');
-                var str;
+            function login_reload (wanted) {
+                if (wanted && wanted != window.location.href)
+                    window.location = wanted;
 
-                window.localStorage.removeItem(application + ':login-data');
+                // Force a reload if the above didn't trigger it
+                setTimeout(function() {
+                    window.location.reload(true);
+                }, 100);
+            }
+
+            function machine_application_login_reload (wanted) {
+                var base = '/' + application + '/@localhost/'
+                if (url_root)
+                    base = '/' + url_root + base;
+                var embeded_url = base + 'shell/index.html';
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", base + 'manifests.json', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState != 4) {
+                        return;
+                    } else if (xhr.status == 200) {
+                        var resp = JSON.parse(xhr.responseText);
+                        var base1 = resp ? resp['base1'] : {};
+                        if (!base1['version'] || base1['version'] < "119.x") {
+                            login_reload (embeded_url);
+                        } else
+                            login_reload (wanted);
+                    } else {
+                        login_reload (embeded_url);
+                    }
+                    phantom_checkpoint();
+                };
+                xhr.send();
+            }
+
+            function clear_storage (storage, prefix, full) {
+                var i = 0;
+                while (i < storage.length) {
+                    var k = storage.key(i);
+                    if (full && k.indexOf("cockpit") !== 0)
+                        storage.removeItem(k);
+                    else if (k.indexOf(prefix) === 0)
+                        storage.removeItem(k);
+                    else
+                        i++;
+                }
+            }
+
+            function setup_localstorage (response) {
+                /* Clear anything not prefixed with
+                 * different application from sessionStorage
+                 */
+                clear_storage (window.sessionStorage, application, true);
+
+                /* Clear anything prefixed with our application
+                 * and login-data, but not other non-application values.
+                 */
                 window.localStorage.removeItem('login-data');
+                clear_storage (window.localStorage, application, false);
+
                 if (response && response["login-data"]) {
                     str = JSON.stringify(response["login-data"]);
                     try {
@@ -503,15 +586,28 @@
                  * by application
                  */
                 if (url_root)
-                    localStorage.setItem('url-root', url_root);
+                    window.localStorage.setItem('url-root', url_root);
+            }
 
-                if (wanted && wanted != window.location.href)
-                    window.location = wanted;
+            function run(response) {
+                var wanted = window.sessionStorage.getItem('login-wanted');
+                var str;
 
-                // Force a reload if the above didn't trigger it
-                setTimeout(function() {
-                    window.location.reload(true);
-                }, 100);
+                /* clean up sessionStorage. clear anything that isn't prefixed
+                 * with an application and anything prefixed with our application.
+                 */
+                clear_storage(window.sessionStorage, application, false);
+
+                setup_localstorage(response);
+
+                /* Make sure that the base1 version is new enough to handle
+                 * urls that reference machines.
+                 */
+                if (application.indexOf("cockpit+=") === 0) {
+                    machine_application_login_reload (wanted);
+                } else {
+                    login_reload (wanted);
+                }
             }
 
             window.onload = boot;

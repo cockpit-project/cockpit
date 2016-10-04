@@ -153,6 +153,30 @@ function MockWebSocket(url, protocol) {
 
 WebSocket = MockWebSocket;
 
+function check_transport (base_url, application, socket, url_root) {
+    var old_url = window.mock.url;
+    var i;
+    var arr = [base_url];
+    if (base_url.slice(-1) == '/')
+        arr.push(base_url + "other");
+    else
+        arr.push(base_url + '/', base_url + '/other');
+
+    window.mock.url = null;
+    window.mock.url_root = url_root;
+    for (i = 0; i < arr.length; i++) {
+        window.mock.pathname = arr[i];
+        equal(cockpit.transport.application(), application,
+              arr[i] + " transport.application is " + socket);
+        equal(cockpit.transport.uri(), "ws://" + window.location.host + socket,
+              arr[i] + " transport.uri is " + socket);
+    }
+
+    window.mock.url = old_url;
+    window.mock.url_root = null;
+    window.mock.pathname = null;
+}
+
 test("public api", function() {
     var channel = cockpit.channel({ "host": "host.example.com" });
     equal(typeof channel, "object", "cockpit.channel() constructor");
@@ -171,6 +195,18 @@ test("public api", function() {
         equal(cockpit.transport.origin, window.location.origin, "cockpit.transport.origin is correct");
     else
         equal(typeof cockpit.transport.origin, "string", "cockpit.transport.origin is present");
+
+    check_transport ('/', 'cockpit', '/cockpit/socket');
+    check_transport ('/cockpit', 'cockpit', '/cockpit/socket');
+    check_transport ('/cockpitother/', 'cockpit', '/cockpit/socket');
+    check_transport ('/cockpita+pplication/', 'cockpit', '/cockpit/socket');
+    check_transport ('/cockpit+application', 'cockpit+application', '/cockpit+application/socket');
+    check_transport ('/=machine', 'cockpit+=machine', '/cockpit+=machine/socket');
+    check_transport ('/url-root', 'cockpit', '/url-root/cockpit/socket', 'url-root');
+    check_transport ('/url-root/cockpit', 'cockpit', '/url-root/cockpit/socket', 'url-root');
+    check_transport ('/url-root/cockpit+application', 'cockpit+application',
+                     '/url-root/cockpit+application/socket', 'url-root');
+    check_transport ('/url-root/=machine', 'cockpit+=machine', '/url-root/cockpit+=machine/socket', 'url-root');
 });
 
 asyncTest("open channel", function() {

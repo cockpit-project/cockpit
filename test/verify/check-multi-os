@@ -176,5 +176,47 @@ class TestMultiOS(MachineCase):
     def testFedora22(self):
         self.checkStock()
 
+class TestMultiOSDirect(MachineCase):
+    additional_machines = {
+        'fedora-23-stock': { 'machine': { 'image': 'fedora-23-stock' } }
+    }
+
+    def testFedora23Direct(self):
+        b = self.browser
+
+        self.allow_hostkey_messages()
+
+        self.login_and_go("/dashboard")
+        inject_extras(b)
+
+        dev_dashboard_addresses = [ "localhost" ]
+        wait_dashboard_addresses (b, dev_dashboard_addresses)
+
+        stock_m = self.machines['fedora-23-stock']
+        stock_m.execute("hostnamectl set-hostname stock")
+
+        new_add_machine(b, stock_m.address)
+        dev_dashboard_addresses.append(stock_m.address)
+        wait_dashboard_addresses (b, dev_dashboard_addresses)
+        b.logout()
+
+        # Access stock directly from dev
+        b.open("/={}".format(stock_m.address))
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load()
+
+        b.wait_present("iframe.container-frame[name='cockpit1:localhost/system'][data-loaded]")
+        b.wait_not_visible(".curtains")
+        b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system']")
+        b.switch_to_frame("cockpit1:localhost/system")
+        b.wait_present("body")
+        b.wait_visible("body")
+        b.wait_in_text('#system_information_hostname_button', "stock")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname.indexOf("shell/index.html") > -1')
+
 if __name__ == '__main__':
     test_main()

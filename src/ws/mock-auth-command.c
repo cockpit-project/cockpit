@@ -127,11 +127,28 @@ main (int argc,
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
+  else if (strcmp (data, "ssh-remote-switch") == 0 && argc == 3 && strcmp (argv[2], "machine") == 0)
+    {
+      write_resp (fd, "{\"user\": \"me\" }");
+      success = 1;
+    }
   else if (strcmp (data, "this is the password") == 0)
     {
-      if (argc == 4 && strcmp (argv[3], "me") == 0)
+      if (argc == 4 && strcmp (argv[3], "me") == 0 && strcmp (argv[2], "localhost") == 0)
         {
           write_resp (fd, "{\"user\": \"me\" }");
+          success = 1;
+        }
+      else
+        {
+          write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
+        }
+    }
+  else if (strcmp (data, "this is the machine password") == 0)
+    {
+      if (argc == 4 && strcmp (argv[3], "remote-user") == 0 && strcmp (argv[2], "machine") == 0)
+        {
+          write_resp (fd, "{\"user\": \"remote-user\" }");
           success = 1;
         }
       else

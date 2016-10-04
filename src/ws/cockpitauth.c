@@ -503,34 +503,17 @@ build_gssapi_output_header (GHashTable *headers,
 }
 
 static const gchar *
-auth_parse_application (const gchar *path,
-                        gchar **memory)
+application_parse_host (const gchar *application)
 {
-  const gchar *pos;
+  const gchar *prefix = "cockpit+=";
+  gint len = strlen (prefix);
 
-  g_return_val_if_fail (path != NULL, NULL);
-  g_return_val_if_fail (path[0] == '/', NULL);
+  g_return_val_if_fail (application != NULL, NULL);
 
-  path += 1;
-
-  /* We are being embedded as a specific application */
-  if (g_str_has_prefix (path, "cockpit+") && path[8] != '\0')
-    {
-      pos = strchr (path, '/');
-      if (pos)
-        {
-          *memory = g_strndup (path, pos - path);
-          return *memory;
-        }
-      else
-        {
-          return path;
-        }
-    }
+  if (g_str_has_prefix (application, prefix) && application[len] != '\0')
+    return application + len;
   else
-    {
-      return "cockpit";
-    }
+    return "localhost";
 }
 
 static CockpitCreds *
@@ -910,6 +893,7 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
 
   const gchar *data = NULL;
   const gchar *command;
+  const gchar *host;
 
   const gchar *argv[] = {
       cockpit_ws_ssh_program,
@@ -921,8 +905,6 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
 
   task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                     cockpit_auth_remote_login_async);
-
-
   if (g_strcmp0 (type, "basic") == 0)
     {
       input = cockpit_auth_parse_authorization (headers, TRUE);
@@ -949,7 +931,10 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
       argv[3] = user;
       argv[0] = command;
 
-      ad = create_auth_data (self, "127.0.0.1", application,
+      host = application_parse_host (application);
+      argv[2] = host;
+
+      ad = create_auth_data (self, host, application,
                              SSH_SECTION, remote_peer, command, input);
       start_auth_process (self, ad, auth_bytes, task,
                           cockpit_auth_remote_login_async, argv);
@@ -1121,16 +1106,23 @@ cockpit_auth_resume_async (CockpitAuth *self,
 
 static const gchar *
 action_for_type (const gchar *type,
+                 const gchar *application,
                  gboolean force_ssh)
 {
   const gchar *action;
+  const gchar *host;
 
   g_return_val_if_fail (type != NULL, NULL);
+  g_return_val_if_fail (application != NULL, NULL);
 
+  host = application_parse_host (application);
   if (g_strcmp0 (type, ACTION_LOGIN_REPLY) == 0)
     action = ACTION_LOGIN_REPLY;
 
-  /* ssh only supports basic right now */
+  else if (g_strcmp0 (host, "localhost") != 0)
+    action = ACTION_SSH;
+
+  /* Only force_ssh for basic */
   else if (force_ssh && g_strcmp0 (type, "basic") == 0)
     action = ACTION_SSH;
 
@@ -1164,7 +1156,7 @@ cockpit_auth_choose_login_async (CockpitAuth *self,
   if (!type)
     type = g_strdup ("negotiate");
 
-  action = action_for_type (type, self->login_loopback);
+  action = action_for_type (type, application, self->login_loopback);
   if (g_strcmp0 (action, ACTION_SPAWN_HEADER) == 0)
     {
       cockpit_auth_spawn_login_async (self, application, type, FALSE,
@@ -1275,13 +1267,12 @@ authenticated_for_headers (CockpitAuth *self,
   gchar *raw = NULL;
   const char *prefix = "v=2;k=";
   CockpitAuthenticated *ret = NULL;
-  const gchar *application;
-  gchar *memory = NULL;
+  gchar *application;
 
   g_return_val_if_fail (self != NULL, FALSE);
   g_return_val_if_fail (in_headers != NULL, FALSE);
 
-  application = auth_parse_application (path, &memory);
+  application = cockpit_auth_parse_application (path);
   if (!application)
     return NULL;
 
@@ -1300,7 +1291,7 @@ authenticated_for_headers (CockpitAuth *self,
       g_free (raw);
     }
 
-  g_free (memory);
+  g_free (application);
   return ret;
 }
 
@@ -1571,11 +1562,43 @@ cockpit_auth_new (gboolean login_loopback)
 gchar *
 cockpit_auth_parse_application (const gchar *path)
 {
-  const gchar *application;
-  gchar *memory = NULL;
+  const gchar *pos;
+  gchar *tmp = NULL;
+  gchar *val = NULL;
 
-  application = auth_parse_application (path, &memory);
-  if (!memory)
-    memory = g_strdup (application);
-  return memory;
+  g_return_val_if_fail (path != NULL, NULL);
+  g_return_val_if_fail (path[0] == '/', NULL);
+
+  path += 1;
+
+  /* We are being embedded as a specific application */
+  if (g_str_has_prefix (path, "cockpit+") && path[8] != '\0')
+    {
+      pos = strchr (path, '/');
+      if (pos)
+        val = g_strndup (path, pos - path);
+      else
+        val =  g_strdup (path);
+    }
+  else if (path[0] == '=' && path[1] != '\0')
+    {
+      pos = strchr (path, '/');
+      if (pos)
+        {
+          tmp = g_strndup (path, pos - path);
+          val = g_strdup_printf ("cockpit+%s", tmp);
+        }
+      else
+        {
+          val = g_strdup_printf ("cockpit+%s", path);
+        }
+
+    }
+  else
+    {
+      val = g_strdup ("cockpit");
+    }
+
+  g_free (tmp);
+  return val;
 }

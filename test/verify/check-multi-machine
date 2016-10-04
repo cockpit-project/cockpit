@@ -198,6 +198,53 @@ class TestMultiMachine(MachineCase):
                 self.check_journal_messages(self.machine3)
         MachineCase.tearDown(self)
 
+    def checkDirectLogin(self, root='/'):
+        b = self.browser
+        m2 = self.machine2
+
+        name = self.machine.execute("hostname")
+        b.switch_to_top()
+        b.go("{}/system".format(root));
+        b.enter_page("/system")
+        b.wait_in_text('#system_information_hostname_button', name.strip())
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "{0}system"'.format(root))
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.wait_present("a[data-address='{}']".format(m2.address))
+
+        # Direct to machine2, new login
+        m2.execute("echo admin:alt-password | chpasswd")
+        b.switch_to_top()
+        b.open("{0}={1}".format(root, m2.address));
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "alt-password")
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/system")
+        b.wait_in_text('#system_information_hostname_button', "machine2")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "{0}={1}/system"'.format(root, m2.address))
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.wait_present("a[data-address='localhost']")
+        b.wait_in_text("a[data-address='localhost']", m2.address)
+        b.wait_not_present("a[data-address='{}']".format(m2.address))
+        b.logout()
+
+        # Might happen when we switch away.
+        self.allow_journal_messages(".*: Connection reset by peer",
+                                    "connection unexpectedly closed by peer")
+
+    def testDirectLogin(self):
+        b = self.browser
+        m2 = self.machine2
+
+        self.login_and_go("/dashboard")
+        add_machine(b, m2.address)
+        self.checkDirectLogin('/');
+
     def testUrlRoot(self):
         b = self.browser
         m = self.machine
@@ -257,6 +304,8 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@%s/users"' % m2.address)
         b.wait_js_cond('window.location.hash == "#/admin"')
 
+
+        self.checkDirectLogin('/cockpit-new/');
         self.allow_hostkey_messages()
 
     def testExternalPage(self):

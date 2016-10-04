@@ -252,26 +252,37 @@ function event_mixin(obj, handlers) {
 
 function calculate_application() {
     var path = window.location.pathname || "/";
+    var _url_root = url_root;
     if (window.mock && window.mock.pathname)
         path = window.mock.pathname;
+    if (window.mock && window.mock.url_root)
+        _url_root = window.mock.url_root;
 
-    if (url_root && path.indexOf('/' + url_root) === 0)
-        path = path.replace('/' + url_root, '') || '/';
+    if (_url_root && path.indexOf('/' + _url_root) === 0)
+        path = path.replace('/' + _url_root, '') || '/';
 
-    if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
-        path = "/cockpit";
+    if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0) {
+        if (path.indexOf("/=") === 0)
+            path = "/cockpit+" + path.split("/")[1];
+        else
+            path = "/cockpit";
+    }
 
     return path.split("/")[1];
 }
 
 function calculate_url() {
     var window_loc = window.location.toString();
+    var _url_root = url_root;
+
     if (window.mock && window.mock.url)
         return window.mock.url;
+    if (window.mock && window.mock.url_root)
+        _url_root = window.mock.url_root;
 
     var prefix = calculate_application();
-    if (url_root)
-        prefix = url_root + "/" + prefix;
+    if (_url_root)
+        prefix = _url_root + "/" + prefix;
 
     if (window_loc.indexOf('http:') === 0) {
         return "ws://" + window.location.host + "/" + prefix + "/socket";
@@ -2314,6 +2325,13 @@ function basic_scope(cockpit, jquery) {
 
     function Location() {
         var self = this;
+        var application = cockpit.transport.application();
+        self.url_root = url_root || "";
+        if (application.indexOf("cockpit+=") === 0) {
+            if (self.url_root)
+                self.url_root += '/';
+            self.url_root = self.url_root + application.replace("cockpit+", '');
+        }
 
         var href = get_window_location_hash();
         var options = { };
@@ -2323,8 +2341,8 @@ function basic_scope(cockpit, jquery) {
             var parts = input.split('/').map(decodeURIComponent);
             var result, i, pre_parts = [];
 
-            if (url_root)
-                pre_parts = url_root.split('/').map(decodeURIComponent);
+            if (self.url_root)
+                pre_parts = self.url_root.split('/').map(decodeURIComponent);
 
             if (input && input[0] !== "/") {
                 result = [].concat(path);
@@ -2350,11 +2368,12 @@ function basic_scope(cockpit, jquery) {
                 path = decode_path(path, self.path);
 
             var href = "/" + path.map(encodeURIComponent).join("/");
-            if (with_root && url_root && href.indexOf("/" + url_root + "/" !== 0))
-                href = "/" + url_root + href;
+            if (with_root && self.url_root && href.indexOf("/" + self.url_root + "/" !== 0))
+                href = "/" + self.url_root + href;
 
             /* Undo unnecessary encoding of these */
             href = href.replace("%40", "@");
+            href = href.replace("%3D", "=");
 
             var i, opt, value, query = [];
             function push_option(v) {
@@ -2477,7 +2496,7 @@ function basic_scope(cockpit, jquery) {
 
     cockpit.jump = function jump(path, host) {
         if (is_array(path))
-            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@");
+            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@").replace("%3D", "=");
         else
             path = "" + path;
         var options = { command: "jump", location: path, host: host };

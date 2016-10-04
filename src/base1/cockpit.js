@@ -250,14 +250,26 @@ function event_mixin(obj, handlers) {
     });
 }
 
-function calculate_url() {
-    if (window.mock && window.mock.url)
-        return window.mock.url;
-    var window_loc = window.location.toString();
+function calculate_application() {
     var path = window.location.pathname || "/";
+    if (window.mock && window.mock.pathname)
+        path = window.mock.pathname;
+
+    if (url_root && path.indexOf('/' + url_root) === 0)
+        path = path.replace('/' + url_root, '') || '/';
+
     if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
         path = "/cockpit";
-    var prefix = path.split("/")[1];
+
+    return path.split("/")[1];
+}
+
+function calculate_url() {
+    var window_loc = window.location.toString();
+    if (window.mock && window.mock.url)
+        return window.mock.url;
+
+    var prefix = calculate_application();
     if (url_root)
         prefix = url_root + "/" + prefix;
 
@@ -349,6 +361,7 @@ function ParentWebSocket(parent) {
 /* Private Transport class */
 function Transport() {
     var self = this;
+    self.application = calculate_application();
 
     /* We can trigger events */
     event_mixin(self, { });
@@ -1044,6 +1057,11 @@ function basic_scope(cockpit, jquery) {
         origin: transport_origin,
         options: { },
         uri: calculate_url,
+        application: function () {
+            if (!default_transport || window.mock)
+                return calculate_application();
+            return default_transport.application;
+        },
     };
 
     /* ------------------------------------------------------------------------------------
@@ -1470,6 +1488,58 @@ function basic_scope(cockpit, jquery) {
     };
 
     /* ---------------------------------------------------------------------
+     * Storage Helper.
+     *
+     * Use application to prefix data stored in browser storage
+     * with helpers for compatibility.
+     */
+    function StorageHelper(storage) {
+        var self = this;
+
+        self.prefixedKey = function (key) {
+            return cockpit.transport.application() + ":" + key;
+        };
+
+        self.getItem = function (key, both) {
+            var value = storage.getItem(self.prefixedKey(key));
+            if (!value && both)
+                value = storage.getItem(key);
+            return value;
+        };
+
+        self.setItem = function (key, value, both) {
+            storage.setItem(self.prefixedKey(key), value);
+            if (both)
+                storage.setItem(key, value);
+        };
+
+        self.removeItem = function(key, both) {
+            storage.removeItem(self.prefixedKey(key));
+            if (both)
+                storage.removeItem(key);
+        };
+
+        /* Instead of clearing, purge anything that isn't prefixed with an application
+         * and anything prefixed with our application.
+         */
+        self.clear = function(full) {
+            var i = 0;
+            while (i < storage.length) {
+                var k = storage.key(i);
+                if (full && k.indexOf("cockpit") !== 0)
+                    storage.removeItem(k);
+                else if (k.indexOf(cockpit.transport.application()) === 0)
+                    storage.removeItem(k);
+                else
+                    i++;
+            }
+        };
+    }
+
+    cockpit.localStorage = new StorageHelper(window.localStorage);
+    cockpit.sessionStorage = new StorageHelper(window.sessionStorage);
+
+    /* ---------------------------------------------------------------------
      * Shared data cache.
      *
      * We cannot use sessionStorage when keeping lots of data in memory and
@@ -1491,8 +1561,9 @@ function basic_scope(cockpit, jquery) {
         return storage;
     }
 
-    function StorageCache(key, provider, consumer) {
+    function StorageCache(org_key, provider, consumer) {
         var self = this;
+        var key = cockpit.transport.application() + ":" + org_key;
 
         /* For triggering events and ownership */
         var trigger = window.sessionStorage;
@@ -1506,7 +1577,7 @@ function basic_scope(cockpit, jquery) {
         function callback() {
             /* Only run the callback if we have a result */
             if (storage[key] !== undefined) {
-                if (consumer(storage[key], key) === false)
+                if (consumer(storage[key], org_key) === false)
                     self.close();
             }
         }
@@ -1533,7 +1604,7 @@ function basic_scope(cockpit, jquery) {
 
         self.claim = function claim() {
             if (!source)
-                source = provider(result, key);
+                source = provider(result, org_key);
         };
 
         function unclaim() {
@@ -2147,8 +2218,14 @@ function basic_scope(cockpit, jquery) {
     }
 
     cockpit.logout = function logout(reload) {
-        window.sessionStorage.clear();
-        window.localStorage.removeItem('login-data');
+        /* fully clear session storage */
+        cockpit.sessionStorage.clear(true);
+
+        /* Only clean application data from localStorage,
+         * except for login-data. Clear that completely */
+        cockpit.localStorage.removeItem('login-data', true);
+        cockpit.localStorage.clear(false);
+
         if (reload !== false)
             reload_after_disconnect = true;
         ensure_transport(function(transport) {

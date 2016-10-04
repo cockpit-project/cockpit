@@ -59,7 +59,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         /* Reconnect button */
         $("#machine-reconnect").on("click", function(ev) {
             if (watchdog_problem) {
-                window.sessionStorage.clear();
+                cockpit.sessionStorage.clear();
                 window.location.reload(true);
             } else {
                 navigate(null, true);
@@ -482,7 +482,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         /* Reconnect button */
         $("#machine-reconnect").on("click", function(ev) {
-            window.sessionStorage.clear();
+            cockpit.sessionStorage.clear();
             window.location.reload(true);
         });
 
@@ -612,4 +612,3 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     }
 
 }());
-

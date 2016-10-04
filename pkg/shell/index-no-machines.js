@@ -41,7 +41,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         default_title: default_title
     });
 
-    var login_data = window.localStorage.getItem('login-data');
+    var login_data = cockpit.localStorage.getItem('login-data', true);
     if (login_data) {
         var data = JSON.parse(login_data);
         $("#content-user-name").text(data["displayName"]);

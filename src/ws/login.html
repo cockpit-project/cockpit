@@ -12,7 +12,6 @@
         var url_root;
 
         (function(console) {
-            window.localStorage.removeItem('login-data');
             window.localStorage.removeItem('url-root');
             var environment = window.environment || { };
             var oauth = environment.OAuth || null;
@@ -23,7 +22,7 @@
                     oauth.ErrorParam = "error_description";
             }
 
-            var login_path;
+            var login_path, application;
             var qs_re = /[?&]?([^=]+)=([^&]*)/g;
             var oauth_redirect_to = null;
 
@@ -146,18 +145,24 @@
                     sessionStorage.removeItem("logout-intent");
                 localStorage.setItem('os-release', os_release);
 
-                var path = window.location.pathname || "/";
-                if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
-                    path = "/cockpit";
-                login_path = "/" + path.split("/")[1] + "/login";
-
                 var parser = document.createElement('a');
+                var path = window.location.pathname || "/";
                 parser.href = document.baseURI;
                 if (parser.pathname != "/") {
                     url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
-                    login_path = "/" + url_root + login_path;
                     localStorage.setItem('url-root', url_root);
+                    if (url_root && path.indexOf('/' + url_root) === 0)
+                        path = path.replace('/' + url_root, '') || '/';
                 }
+
+                if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
+                    path = "/cockpit";
+
+                application = path.split("/")[1];
+                login_path = "/" + application + "/login";
+
+                if (url_root)
+                    login_path = "/" + url_root + login_path;
 
                 /* Try automatic/kerberos authentication? */
                 if (oauth) {
@@ -476,8 +481,9 @@
             function run(response) {
                 var wanted = window.sessionStorage.getItem('login-wanted');
                 var str;
-                window.sessionStorage.clear();
 
+                window.localStorage.removeItem(application + ':login-data');
+                window.localStorage.removeItem('login-data');
                 if (response && response["login-data"]) {
                     str = JSON.stringify(response["login-data"]);
                     try {
@@ -485,12 +491,17 @@
                          * cookies are available after the page
                          * session ends login-data should be too.
                          */
+                        window.localStorage.setItem(application + 'login-data', str);
+                        /* Backwards compatbility for packages that aren't application prefixed */
                         window.localStorage.setItem('login-data', str);
                     } catch(ex) {
                         console.warn("Error storing login-data:", ex);
                     }
                 }
 
+                /* URL Root is set by cockpit ws and shouldn't be prefixed
+                 * by application
+                 */
                 if (url_root)
                     localStorage.setItem('url-root', url_root);
 

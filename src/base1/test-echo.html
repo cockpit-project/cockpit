@@ -62,43 +62,22 @@ asyncTest("basic", function() {
     channel.send("the payload");
 });
 
-asyncTest("base64", function() {
-    expect(1);
-
-    var channel = cockpit.channel({
-        "payload": "http-stream1",
-        "method": "GET",
-        "internal": "packages",
-        "path": "/another/test.html",
-        "binary": "base64"
-    });
-
-    var first = true;
-    channel.control({ "command": "done" });
-
-    $(channel).on("message", function(ev, payload) {
-        if (first) {
-            first = false;
-            return;
-        }
-        strictEqual(payload, "PGh0bWw+CjxoZWFkPgo8dGl0bGU+SW4gaG9tZSBkaXI8L3RpdGxlPgo8L2hlYWQ+Cjxib2R5PkluIGhvbWUgZGlyPC9ib2R5Pgo8L2h0bWw+Cg==", "got the right payload");
-        $(channel).off();
-        start();
-    });
-});
-
-asyncTest("base64 empty", function() {
-    expect(1);
+asyncTest("binary empty", function() {
+    expect(2);
 
     var channel = cockpit.channel({
         "payload": "echo",
-        "binary": "base64"
+        "binary": true
     });
 
     var first = true;
 
     $(channel).on("message", function(ev, payload) {
-        strictEqual(payload, "", "got the right payload");
+        if (window.Uint8Array)
+            ok(payload instanceof window.Uint8Array, "got a byte array");
+        else
+            ok($.isArray(payload), "got a byte array");
+        strictEqual(payload.length, 0, "got the right payload");
         $(channel).off();
         start();
     });

@@ -45,9 +45,9 @@ class TestStorage(StorageCase):
 
         b.click('tr:contains("DISK1")')
         b.wait_visible("#storage-detail")
-        b.wait_in_text("#content", "/mnt")
+        self.content_tab_wait_in_info(2, 1, "Mounted At", "/mnt")
 
-        self.content_action(2, "Format")
+        self.content_tab_action(2, 1, "Format")
         self.dialog_wait_open()
         self.dialog_wait_alert("is mounted on /mnt")
         self.dialog_cancel()
@@ -57,13 +57,13 @@ class TestStorage(StorageCase):
         if self.storaged_is_old_udisks:
             return
 
-        self.content_action(1, "Delete")
+        self.content_head_action(1, "Delete")
         self.dialog_wait_open()
         self.dialog_wait_alert("is mounted on /mnt")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click('[data-action="format_disk"]')
+        b.click('button:contains(Create partition table)')
         self.dialog_wait_open()
         self.dialog_wait_alert("is mounted on /mnt")
         self.dialog_cancel()
@@ -72,12 +72,11 @@ class TestStorage(StorageCase):
         # Unmount and format the disk.
 
         m.execute("umount /mnt")
-        b.wait_in_text("#content", "not mounted")
+        b.wait_not_present(self.content_tab_info_row(2, 1, "Mount Points"))
 
-        b.click('[data-action="format_disk"]')
+        b.click('button:contains(Create partition table)')
         self.dialog({})
-
-        b.wait_in_text("#content", "50 MiB Free Space")
+        self.content_row_wait_in_col(1, 1, "Free Space")
 
 if __name__ == '__main__':
     test_main()

@@ -60,17 +60,18 @@ class TestStorage(StorageCase):
 
         # Create two logical volumes
         m.execute("lvcreate TEST1 -n one -L 20m")
-        b.wait_in_text("#content", "Logical Volume \"one\"")
+        self.content_row_wait_in_col(1, 2, "/dev/TEST1/one")
         m.execute("lvcreate TEST1 -n two -L 20m")
-        b.wait_in_text("#content", "Logical Volume \"two\"")
+        self.content_row_wait_in_col(2, 2, "/dev/TEST1/two")
 
         # Deactivate one
         m.execute("lvchange TEST1/one -a n")
-        b.wait_in_text("#content", "(inactive)")
+        self.content_row_wait_in_col(1, 1, "Inactive volume")
+        self.content_row_wait_in_col(1, 2, "one")
 
         # and remove it
         m.execute("lvremove TEST1/one")
-        b.wait_not_in_text("#content", "Logical Volume \"one\"")
+        b.wait_not_in_text("#detail-content", "one")
 
         # remove a disk from the volume group
         m.execute("pvmove %s &>/dev/null || true" % dev_2)
@@ -91,13 +92,13 @@ class TestStorage(StorageCase):
 
         # Thin volumes
         m.execute("lvcreate TEST1 --thinpool pool -L 20m")
-        b.wait_in_text("#content", "Pool for Thin Logical Volumes \"pool\"")
+        self.content_row_wait_in_col(1, 2, "pool")
         m.execute("lvcreate -T TEST1/pool -n thin -V 100m")
-        b.wait_in_text("#content", "Thin Logical Volume \"thin\"")
+        self.content_row_wait_in_col(2, 2, "/dev/TEST1/thin")
         m.execute("dd if=/dev/urandom of=/dev/mapper/TEST1-thin bs=1M count=10 status=none")
-        b.wait_in_text("#content", "50% full")
+        self.content_tab_wait_in_info(1, 1, "Data Used", "50%")
         m.execute("lvremove -f TEST1/thin")
-        b.wait_in_text("#content", "1% full")
+        self.content_tab_wait_in_info(1, 1, "Data Used", "0%")
 
         # remove the volume group
         b.go("#/")
@@ -128,21 +129,21 @@ class TestStorage(StorageCase):
         b.wait_visible('#storage-detail')
 
         # create a logical volume
-        self.content_single_action(1, "Create Logical Volume")
+        b.click("a:contains(Create new Logical Volume)")
         self.dialog(expect = { "name": "lvol0" },
                     values = { "purpose": "block",
                                "size": 20 })
-        b.wait_in_text("#content", "Logical Volume \"lvol0\"")
+        self.content_row_wait_in_col(1, 2, "/dev/vgroup0/lvol0")
 
         # check that the next default name is "lvol1"
-        self.content_single_action(2, "Create Logical Volume")
+        b.click("a:contains(Create new Logical Volume)")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "lvol1")
         self.dialog_cancel()
         self.dialog_wait_close()
 
         # try to shrink it without a filesystem.
-        self.content_action(1, "Resize")
+        self.content_tab_info_action(1, 1, "Size")
         self.dialog_wait_open()
         self.dialog_wait_val("size", 20)
         self.dialog_set_val("size", 10)
@@ -151,31 +152,31 @@ class TestStorage(StorageCase):
         self.dialog_cancel()
 
         # grow it
-        self.content_action(1, "Resize")
+        self.content_tab_info_action(1, 1, "Size")
         self.dialog({ "size": 30 })
 
         # format and mount it
-        self.content_default_action(1, "Format")
+        self.content_tab_action(1, 2, "Format")
         self.dialog({ "type": "ext4",
                       "mounting": "custom",
                       "mount_point": mount_point_one })
-        b.wait_in_text("#content", "(ext4 File System)")
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_one)
-        self.content_default_action(1, "Mount")
-        b.wait_in_text("#content", "mounted on %s" % mount_point_one)
+        self.content_tab_action(1, 2, "Mount")
+        self.content_tab_wait_in_info(1, 2, "Mounted At", mount_point_one)
 
         # unmount it
-        self.content_default_action(1, "Unmount")
-        b.wait_in_text("#content", "not mounted")
+        self.content_tab_action(1, 2, "Unmount")
+        b.wait_not_present(self.content_tab_info_row(1, 2, "Mounted At"))
 
         # shrink it, this time with a filesystem.
-        self.content_action(1, "Resize")
+        self.content_tab_info_action(1, 1, "Size")
         self.dialog({ "size": 10 })
 
         # delete it
-        self.content_action(1, "Delete")
+        self.content_head_action(1, "Delete")
         self.confirm()
-        b.wait_not_in_text("#content", "Logical Volume \"one\"")
+        b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
 
         # remove disk
@@ -186,17 +187,17 @@ class TestStorage(StorageCase):
 
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
-        self.content_single_action(1, "Create Logical Volume")
+        b.click("a:contains(Create new Logical Volume)")
         self.dialog(expect = { "size": 48 },
                     values = { "purpose": "pool",
                                "name": "pool",
                                "size": 38 })
-        b.wait_in_text('#content', "Pool for Thin Logical Volumes \"pool\"")
+        self.content_row_wait_in_col(1, 2, "pool")
 
-        self.content_default_action(1, "Create Thin Volume")
+        self.content_row_action(1, "Create Thin Volume")
         self.dialog({ "name": "thin",
                       "size": 50 })
-        b.wait_in_text('#content', "Thin Logical Volume \"thin\"")
+        self.content_row_wait_in_col(2, 2, "/dev/vgroup0/thin")
 
         # add a disk and resize the pool
         b.click('[data-action="vgroup_add_disk"]')
@@ -207,7 +208,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#pvols", "DISK2")
         b.wait_in_text("#detail-header .info-table-ct", "96 MiB")
 
-        self.content_action(1, "Resize")
+        self.content_tab_info_action(1, 1, "Size")
         self.dialog({ "size": 70 })
 
         # There is not enough free space to remove any of the disks.
@@ -215,12 +216,12 @@ class TestStorage(StorageCase):
         b.wait_present('#pvols tr:nth-child(2) button[disabled]')
 
         # use almost all of the pool by erasing the thin volume
-        self.content_default_action(2, "Format")
+        self.content_tab_action(2, 2, "Format")
         self.dialog({ "erase": "zero",
                       "type": "ext4",
                       "mounting": "custom",
                       "mount_point": mount_point_thin })
-        b.wait_in_text("#content", "(ext4 File System)")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_thin)
 
         # remove volume group

@@ -58,32 +58,40 @@ class TestStorage(StorageCase):
 
         # Format it
 
-        self.content_default_action(1, "Format")
+        self.content_tab_action(1, 1, "Format")
         self.dialog({ "type": "ext4",
                       "name": "FILESYSTEM",
                       "mounting": "custom",
                       "mount_point": mount_point_foo })
-        b.wait_in_text("#content", "FILESYSTEM")
-
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
         if not self.storaged_is_old_udisks:
             self.wait_in_storaged_configuration(mount_point_foo)
 
-        self.content_default_action(1, "Mount");
-        b.wait_in_text("#content", "mounted on %s" % mount_point_foo)
+        if not self.storaged_is_old_udisks:
+            self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_foo)
+        self.content_tab_action(1, 1, "Mount");
+        self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_foo)
 
-        self.content_default_action(1, "Unmount");
-        b.wait_in_text("#content", "not mounted")
+        self.content_tab_action(1, 1, "Unmount");
+        if not self.storaged_is_old_udisks:
+            b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
+
+        self.content_tab_info_action(1, 1, "Name");
+        self.dialog({ "name": "filesystem" })
+        self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
         if not self.storaged_is_old_udisks:
-            self.dialog_with_retry(trigger = lambda: self.content_action(1, "Filesystem Options"),
-                                   expect = { "name": "FILESYSTEM",
-                                              "mounting": "custom",
+            self.dialog_with_retry(trigger = lambda: self.content_tab_info_action(1, 1, "Mount Point"),
+                                   expect = { "mounting": "custom",
                                               "mount_point": mount_point_foo },
                                    values = { "mount_point": mount_point_bar })
             self.wait_in_storaged_configuration(mount_point_bar)
+        else:
+            mount_point_bar = "/media/admin/filesystem"
 
-        self.content_default_action(1, "Mount");
-        b.wait_in_text("#content", "mounted on %s" % mount_point_bar)
+        self.content_tab_action(1, 1, "Mount");
+        self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_bar)
 
         # Go to overview page and check that the filesystem usage is
         # displayed correctly.
@@ -108,7 +116,7 @@ class TestStorage(StorageCase):
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute("umount %s" % mount_point_bar)
         b.wait_not_in_text("#storage_mounts", mount_point_bar)
-        b.click('#storage_mounts tr:contains("FILESYSTEM")')
+        b.click('#storage_mounts tr:contains("filesystem")')
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):
@@ -116,24 +124,21 @@ class TestStorage(StorageCase):
 
         wait_info_field_value("Serial Number", "MYDISK")
 
-        b.wait_in_text("#content", "not mounted")
-
         if not self.storaged_is_old_udisks:
-            self.content_action(1, "Filesystem Options");
-            self.dialog(expect = { "name": "FILESYSTEM" },
-                        values = { "mounting": "default" })
+            b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
+            self.content_tab_info_action(1, 1, "Mount Point");
+            self.dialog(values = { "mounting": "default" })
             self.wait_not_in_storaged_configuration(mount_point_bar)
 
-            self.content_default_action(1, "Mount");
-            b.wait_in_text("#content", "mounted on /run/media/admin/FILESYSTEM")
+            self.content_tab_action(1, 1, "Mount");
+            self.content_tab_wait_in_info(1, 1, "Mounted At", "/run/media/admin/filesystem")
 
-            self.content_default_action(1, "Unmount");
-            b.wait_in_text("#content", "not mounted")
+            self.content_tab_action(1, 1, "Unmount");
+            b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
 
-        self.content_action(1, "Format")
+        self.content_tab_action(1, 1, "Format")
         self.dialog({ "type": "empty" })
-
-        b.wait_in_text("#content", "Unrecognized Data")
+        self.content_row_wait_in_col(1, 1, "Unrecognized Data")
 
 if __name__ == '__main__':
     test_main()

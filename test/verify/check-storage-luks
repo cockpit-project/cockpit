@@ -36,14 +36,14 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "MYDISK")
         b.click('tr:contains("MYDISK")')
         b.wait_visible("#storage-detail")
-        b.click('[data-action="format_disk"]')
+        b.click('button:contains(Create partition table)')
         self.dialog({ "type": "gpt" })
-        b.wait_in_text("#content", "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free Space")
 
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
 
         # Format it with luks
-        self.content_single_action(1, "Create Partition")
+        self.content_row_action(1, "Create Partition")
         self.dialog({ "size": 10,
                       "type": "luks+ext4",
                       "name": "ENCRYPTED",
@@ -51,11 +51,10 @@ class TestStorage(StorageCase):
                       "passphrase2": "vainu-reku-toma-rolle-kaja",
                       "store_passphrase": True,
                       "mounting": "custom",
-                      "mount_point": mount_point_secret })
-        b.wait_in_text("#content", "LUKS Encrypted")
-        b.wait_in_text("#content", "unlocked")
-        b.wait_in_text("#content", "ENCRYPTED")
-
+                      "mount_point": mount_point_secret,
+                      "crypto_options": "crypto,options" })
+        self.content_row_wait_in_col(1, 1, "Encrypted data")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
 
         if not self.storaged_is_old_udisks:
             self.wait_in_storaged_configuration(mount_point_secret)
@@ -65,39 +64,42 @@ class TestStorage(StorageCase):
             assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
 
         # Lock it
-        self.content_default_action(1, "Lock")
-        b.wait_in_text("#content", "locked")
-        b.wait_not_in_text("#content", "ENCRYPTED")
+        self.content_head_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
 
         # Unlock
-        self.content_default_action(1, "Unlock")
+        self.content_head_action(1, "Unlock")
         self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja" })
-        b.wait_in_text("#content", "unlocked")
-        b.wait_in_text("#content", "ENCRYPTED")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
 
         if not self.storaged_is_old_udisks:
 
             # Change options.  We keep trying until the stack has synched
-            # up with crypttab and we see the old passphrase.
-
-            self.dialog_with_retry(trigger = lambda: self.content_action(1, "Encryption Options"),
-                                   expect = { "passphrase": "vainu-reku-toma-rolle-kaja" },
-                                   values = { "passphrase": "wrong-passphrase",
-                                              "options": "weird,options" })
+            # up with crypttab and we see the old options.
+            self.dialog_with_retry(trigger = lambda: self.content_tab_info_action(1, 2, "Options"),
+                                   expect = { "options": "crypto,options" },
+                                   values = { "options": "weird,options" })
 
             assert m.execute("grep 'weird,options' /etc/crypttab") != ""
-            assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
-
             self.wait_in_storaged_configuration("weird,options")
+
+            # Change passphrase
+            edit_button = self.content_tab_info_row(1, 2, "Stored passphrase") + " button"
+            self.dialog_with_retry(trigger = lambda: b.click(edit_button),
+                                   expect = { "passphrase": "vainu-reku-toma-rolle-kaja" },
+                                   values = { "passphrase": "wrong-passphrase" })
+
+            assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
 
             # Delete the partition.
 
-            self.content_action(1, "Delete")
+            self.content_head_action(1, "Delete")
             self.confirm()
-            b.wait_in_text("#content", "Free Space")
-            b.wait_not_in_text("#content", "ENCRYPTED")
-            assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
-            assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
+            self.content_row_wait_in_col(1, 1, "Free Space")
+            b.wait_not_in_text("#detail-content", "ext4 File System")
+
+        assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
+        assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
 if __name__ == '__main__':
     test_main()

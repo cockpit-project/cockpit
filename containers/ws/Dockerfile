@@ -1,28 +1,14 @@
 FROM fedora:24
 MAINTAINER "Stef Walter" <stefw@redhat.com>
 
-RUN dnf -y update
-RUN dnf install -y sed
-
 ARG RELEASE
 ARG VERSION
+ARG COCKPIT_RPM_URL=https://kojipkgs.fedoraproject.org/packages/cockpit
 
-# If there are rpm files in the current directory we'll install those,
-# otherwise use cockpit-preview repo. The Dockerfile is a hack around
-# Dockerfile lack of support for branches
-ADD rpms/*.rpm /tmp/
+ADD . /container
 
 # Again see above ... we do our branching in shell script
-RUN cd /tmp && export OS=$(rpm -q --qf "%{release}" basesystem | sed -n -e 's/^[0-9]*\.\(\S\+\).*/\1/p') && ( ls *.rpm > /dev/null 2> /dev/null && dnf -y install cockpit-ws*.rpm || dnf -y install https://kojipkgs.fedoraproject.org/packages/cockpit/$VERSION/$RELEASE.$OS/x86_64/cockpit-ws-$VERSION-$RELEASE.$OS.x86_64.rpm ) && dnf clean all
-
-# And the stuff that starts the container
-RUN mkdir -p /container && ln -s /host/proc/1 /container/target-namespace
-ADD atomic-install /container/atomic-install
-ADD atomic-uninstall /container/atomic-uninstall
-ADD atomic-run /container/atomic-run
-RUN chmod -v +x /container/atomic-install
-RUN chmod -v +x /container/atomic-uninstall
-RUN chmod -v +x /container/atomic-run
+RUN /container/install-package.sh
 
 # Make the container think it's the host OS version
 RUN rm -f /etc/os-release /usr/lib/os-release && ln -sv /host/etc/os-release /etc/os-release && ln -sv /host/usr/lib/os-release /usr/lib/os-release

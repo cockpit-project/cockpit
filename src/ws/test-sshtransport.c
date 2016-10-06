@@ -90,6 +90,7 @@ typedef struct {
 
     const TestAuthResponse *responses;
     int responses_size;
+    int timeout;
 } TestFixture;
 
 #if WITH_MOCK
@@ -192,6 +193,9 @@ setup_mock_sshd (TestCase *tc,
 }
 #endif
 
+static guint old_process_timeout = 0;
+static guint old_response_timeout = 0;
+
 static void
 setup_transport (TestCase *tc,
                  gconstpointer data)
@@ -206,6 +210,18 @@ setup_transport (TestCase *tc,
   const gchar *command;
   gchar *expect_knownhosts = NULL;
   gboolean ignore_key = FALSE;
+
+  /* First time around */
+  if (old_process_timeout == 0)
+    old_process_timeout = cockpit_ws_auth_process_timeout;
+  if (old_response_timeout == 0)
+    old_response_timeout = cockpit_ws_auth_response_timeout;
+
+  if (fixture->timeout)
+    {
+      cockpit_ws_auth_process_timeout = fixture->timeout;
+      cockpit_ws_auth_response_timeout = fixture->timeout;
+    }
 
 #if WITH_MOCK
   setup_mock_sshd (tc, data);
@@ -276,6 +292,9 @@ teardown (TestCase *tc,
 
   /* If this asserts, outstanding references  */
   g_assert (tc->transport == NULL);
+
+  cockpit_ws_auth_process_timeout = old_process_timeout;
+  cockpit_ws_auth_response_timeout = old_response_timeout;
 }
 
 static gboolean
@@ -682,6 +701,14 @@ static const TestFixture fixture_kb_multi_auth = {
   .responses_size = 1
 };
 
+static const TestFixture fixture_kb_multi_auth_timeout = {
+  .client_password = PASSWORD,
+  .mock_sshd_arg = "--multi-step",
+  .responses = good_responses,
+  .responses_size = 1,
+  .timeout = 3
+};
+
 static const TestFixture fixture_kb_multi_auth_3 = {
   .client_password = PASSWORD,
   .mock_sshd_arg = "--multi-step",
@@ -1057,8 +1084,6 @@ main (int argc,
       char *argv[])
 {
   cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
-  cockpit_ws_auth_process_timeout = 3;
-  cockpit_ws_auth_response_timeout = 3;
 
   cockpit_test_init (&argc, &argv);
 
@@ -1089,7 +1114,7 @@ main (int argc,
               &fixture_kb_multi_auth_3_failed, setup_transport,
               test_multi_auth_fail, teardown);
   g_test_add ("/ssh-transport/kb-multi-auth-timeout", TestCase,
-              &fixture_kb_multi_auth, setup_transport,
+              &fixture_kb_multi_auth_timeout, setup_transport,
               test_multi_auth_timeout, teardown);
   g_test_add ("/ssh-transport/kb-echo-message", TestCase, &fixture_mock_echo,
               setup_transport, test_multi_auth, teardown);

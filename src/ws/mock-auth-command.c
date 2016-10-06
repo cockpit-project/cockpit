@@ -134,7 +134,9 @@ main (int argc,
     }
   else if (strcmp (data, "this is the password") == 0)
     {
-      if (argc == 4 && strcmp (argv[3], "me") == 0 && strcmp (argv[2], "localhost") == 0)
+      if (argc == 4 && strcmp (argv[3], "me") == 0 &&
+          strcmp (argv[2], "localhost") == 0 &&
+          strcmp (argv[1], "--ignore-hostkey") == 0)
         {
           write_resp (fd, "{\"user\": \"me\" }");
           success = 1;
@@ -146,7 +148,9 @@ main (int argc,
     }
   else if (strcmp (data, "this is the machine password") == 0)
     {
-      if (argc == 4 && strcmp (argv[3], "remote-user") == 0 && strcmp (argv[2], "machine") == 0)
+      if (argc == 4 && strcmp (argv[3], "remote-user") == 0 &&
+          strcmp (argv[2], "machine") == 0 &&
+          strcmp (argv[1], "--prompt-unknown-hostkey") == 0)
         {
           write_resp (fd, "{\"user\": \"remote-user\" }");
           success = 1;

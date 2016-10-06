@@ -932,6 +932,8 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
       argv[0] = command;
 
       host = application_parse_host (application);
+      if (g_strcmp0 (host, "localhost") != 0)
+        argv[1] = "--prompt-unknown-hostkey";
       argv[2] = host;
 
       ad = create_auth_data (self, host, application,

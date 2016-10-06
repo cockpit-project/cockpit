@@ -374,6 +374,8 @@
 
                 var ei = id("conversation-input");
                 ei.value = "";
+                if (prompt_data.default)
+                    ei.value = prompt_data.default;
                 ei.setAttribute('type', type);
                 ei.focus();
 

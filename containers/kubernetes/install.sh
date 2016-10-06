@@ -3,14 +3,19 @@
 set -ex
 
 # Install packages without dependencies
-if [ -z "$VERSION" ] && [ -z "$OFFLINE" ]; then
+if [ ! -z "$CENTOS" ] && [ -z "$VERSION" ] && [ -z "$OFFLINE" ]; then
     eval $(/container/scripts/get-version-env.sh)
 fi
 
-/container/scripts/install-rpms.sh --nodeps cockpit-bridge-
-/container/scripts/install-rpms.sh -a noarch --nodeps cockpit-shell-
-/container/scripts/install-rpms.sh cockpit-ws-
-/container/scripts/install-rpms.sh --nodeps cockpit-kubernetes-
+if [ -z "$CENTOS" ]; then
+	/container/scripts/install-rpms.sh --nodeps cockpit-bridge-
+	/container/scripts/install-rpms.sh -a noarch --nodeps cockpit-shell-
+	/container/scripts/install-rpms.sh cockpit-ws-
+	/container/scripts/install-rpms.sh --nodeps cockpit-kubernetes-
+else
+	INSTALL_PKGS="cockpit cockpit-bridge cockpit-shell cockpit-ws cockpit-kubernetes"
+	yum install -y ${INSTALL_PKGS} && yum clean all
+fi
 
 # Remove unwanted packages
 rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/systemd/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
@@ -35,4 +40,6 @@ chmod 775 /usr/share/cockpit/shell
 chmod 775 /usr/share/cockpit/kubernetes
 
 # Move kubernetes index file away so we only link it when we want it
-mv /usr/share/cockpit/kubernetes/index.html.gz /usr/share/cockpit/kubernetes/original-index.gz
+if [ -z "$CENTOS" ]; then
+	mv /usr/share/cockpit/kubernetes/index.html.gz /usr/share/cockpit/kubernetes/original-index.gz
+fi

@@ -1,0 +1,14 @@
+FROM centos
+
+ARG RELEASE
+ARG VERSION
+ARG COCKPIT_RPM_URL
+ARG INSTALLER
+ARG OFFLINE
+ARG CENTOS="true"
+
+ADD . /container
+RUN yum update -y && yum clean all
+RUN /container/install.sh
+
+CMD ["/usr/libexec/cockpit-kube-launch"]

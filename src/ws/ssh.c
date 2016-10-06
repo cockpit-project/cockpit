@@ -60,6 +60,7 @@ typedef struct {
   const gchar *knownhosts_file;
   const gchar *krb5_ccache_name;
   gboolean ignore_key;
+  gboolean prompt_unknown_keys;
 
   ssh_session session;
   gchar *initial_auth_data;
@@ -69,6 +70,7 @@ typedef struct {
 
   gchar *host_key;
   gchar *host_fingerprint;
+  const gchar *host_key_type;
   GHashTable *auth_results;
 
 } CockpitSshData;
@@ -233,6 +235,105 @@ ssh_msg_is_disconnected (const gchar *msg)
                      strstr (msg, "Socket error: Connection reset by peer"));
 }
 
+static gboolean
+write_to_auth_fd (CockpitSshData *data,
+                  GBytes *bytes)
+{
+  int r = 0;
+  gsize len = 0;
+  gchar *buf;
+
+  buf = (gchar *)g_bytes_get_data (bytes, &len);
+  for (;;)
+    {
+      r = write (data->auth_fd, buf, len);
+      if (r < 0)
+        {
+          if (errno != EAGAIN && errno != EINTR)
+            {
+              g_warning ("%s: failed to write prompt to auth pipe: %s",
+                         data->logname, g_strerror (errno));
+              break;
+            }
+        }
+      else
+        {
+          if (r != len)
+            g_warning ("%s: failed to write prompt to auth pipe", data->logname);
+          break;
+        }
+    }
+
+  return r >= len;
+}
+
+static gboolean
+prompt_on_auth_fd (CockpitSshData *data,
+                   const gchar *prompt,
+                   const gchar *msg,
+                   const gchar *default_value,
+                   const gchar echo)
+{
+  JsonObject *response = NULL;
+  GBytes *payload = NULL;
+  gboolean ret = FALSE;
+
+  if (data->auth_fd < 1)
+    goto out;
+
+  response = json_object_new ();
+  json_object_set_string_member (response, "prompt", prompt);
+  if (msg)
+    json_object_set_string_member (response, "message", msg);
+  if (default_value)
+    json_object_set_string_member (response, "default", default_value);
+
+  json_object_set_boolean_member (response, "echo", echo ? TRUE : FALSE);
+  payload = cockpit_json_write_bytes (response);
+  ret = write_to_auth_fd (data, payload);
+
+out:
+  g_bytes_unref (payload);
+  json_object_unref (response);
+
+  return ret;
+}
+
+static gchar *
+wait_for_auth_fd_reply (CockpitSshData *data)
+{
+  char *buf = NULL;
+  int r;
+
+  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
+  if (!buf)
+    g_error ("%s: couldn't allocate memory for auth response", data->logname);
+
+  for (;;)
+    {
+      r = read (data->auth_fd, buf, MAX_AUTH_BUFFER);
+      if (r < 0)
+        {
+          if (errno == EAGAIN)
+            continue;
+          g_error ("%s: Couldn't read: %s", data->logname, g_strerror (errno));
+          break;
+        }
+      else
+        {
+          break;
+        }
+    }
+
+  if (r == 0) {
+    free (buf);
+    return NULL;
+  }
+
+  buf[r] = '\0';
+  return buf;
+}
+
 /*
  * HACK: SELinux prevents us from writing to the directories we want to
  * write to, so we have to try multiple locations.
@@ -331,12 +432,51 @@ out:
 }
 
 static const gchar *
+prompt_for_host_key (CockpitSshData *data)
+{
+  const gchar *ret;
+  gchar *answer = NULL;
+  gchar *host = NULL;
+  guint port = 22;
+  gchar *message = NULL;
+  gchar *prompt = NULL;
+
+  if (ssh_options_get (data->session, SSH_OPTIONS_HOST, &host) < 0)
+    {
+      g_warning ("Failed to get host");
+      goto out;
+    }
+
+  if (ssh_options_get_port (data->session, &port) < 0)
+    {
+      g_warning ("Failed to get port");
+      goto out;
+    }
+
+  message = g_strdup_printf ("The authenticity of host '%s:%d' can't be established. Do you want to proceed this time?",
+                             host, port);
+  prompt = g_strdup_printf ("MD5 Fingerprint (%s):", data->host_key_type);
+  if (prompt_on_auth_fd (data, prompt, message, data->host_fingerprint, 1))
+    answer = wait_for_auth_fd_reply (data);
+
+out:
+  if (answer && g_strcmp0 (answer, data->host_fingerprint) == 0)
+    ret = NULL;
+  else
+    ret = "unknown-hostkey";
+
+  g_free (message);
+  g_free (prompt);
+  g_free (answer);
+  return ret;
+}
+
+static const gchar *
 verify_knownhost (CockpitSshData *data)
 {
   const gchar *ret = "invalid-hostkey";
   ssh_key key = NULL;
   unsigned char *hash = NULL;
-  const char *type = NULL;
   int state;
   gsize len;
 
@@ -354,8 +494,8 @@ verify_knownhost (CockpitSshData *data)
       goto done;
     }
 
-  type = ssh_key_type_to_char (ssh_key_type (key));
-  if (type == NULL)
+  data->host_key_type = ssh_key_type_to_char (ssh_key_type (key));
+  if (data->host_key_type == NULL)
     {
       g_warning ("Couldn't lookup host key type");
       ret = "internal-error";
@@ -423,19 +563,26 @@ verify_knownhost (CockpitSshData *data)
           break;
         case SSH_SERVER_KNOWN_CHANGED:
           g_message ("%s: %s host key for server has changed to: %s",
-                     data->logname, type, data->host_fingerprint);
+                     data->logname, data->host_key_type, data->host_fingerprint);
           break;
         case SSH_SERVER_FOUND_OTHER:
           g_message ("%s: host key for this server changed key type: %s",
-                     data->logname, type);
+                     data->logname, data->host_key_type);
           break;
         case SSH_SERVER_FILE_NOT_FOUND:
           g_debug ("Couldn't find the known hosts file");
           /* fall through */
         case SSH_SERVER_NOT_KNOWN:
-          ret = "unknown-hostkey";
-          g_message ("%s: %s host key for server is not known: %s",
-                     data->logname, type, data->host_fingerprint);
+          if (data->prompt_unknown_keys)
+            ret = prompt_for_host_key (data);
+          else
+            ret = "unknown-hostkey";
+
+          if (ret)
+            {
+              g_message ("%s: %s host key for server is not known: %s",
+                         data->logname, data->host_key_type, data->host_fingerprint);
+            }
           break;
         }
     }
@@ -463,102 +610,6 @@ auth_result_string (int rc)
     default:
       return "error";
     }
-}
-
-static gboolean
-write_to_auth_fd (CockpitSshData *data,
-                  GBytes *bytes)
-{
-  int r = 0;
-  gsize len = 0;
-  gchar *buf;
-
-  buf = (gchar *)g_bytes_get_data (bytes, &len);
-  for (;;)
-    {
-      r = write (data->auth_fd, buf, len);
-      if (r < 0)
-        {
-          if (errno != EAGAIN && errno != EINTR)
-            {
-              g_warning ("%s: failed to write prompt to auth pipe: %s",
-                         data->logname, g_strerror (errno));
-              break;
-            }
-        }
-      else
-        {
-          if (r != len)
-            g_warning ("%s: failed to write prompt to auth pipe", data->logname);
-          break;
-        }
-    }
-
-  return r >= len;
-}
-
-static gboolean
-prompt_on_auth_fd (CockpitSshData *data,
-                   const gchar *prompt,
-                   const gchar *msg,
-                   const gchar echo)
-{
-  JsonObject *response = NULL;
-  GBytes *payload = NULL;
-  gboolean ret = FALSE;
-
-  if (data->auth_fd < 1)
-    goto out;
-
-  response = json_object_new ();
-  json_object_set_string_member (response, "prompt", prompt);
-  if (msg)
-    json_object_set_string_member (response, "message", msg);
-
-  json_object_set_boolean_member (response, "echo", echo ? TRUE : FALSE);
-  payload = cockpit_json_write_bytes (response);
-  ret = write_to_auth_fd (data, payload);
-
-out:
-  g_bytes_unref (payload);
-  json_object_unref (response);
-
-  return ret;
-}
-
-static gchar *
-wait_for_auth_fd_reply (CockpitSshData *data)
-{
-  char *buf = NULL;
-  int r;
-
-  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
-  if (!buf)
-    g_error ("%s: couldn't allocate memory for auth response", data->logname);
-
-  for (;;)
-    {
-      r = read (data->auth_fd, buf, MAX_AUTH_BUFFER);
-      if (r < 0)
-        {
-          if (errno == EAGAIN)
-            continue;
-          g_error ("%s: Couldn't read: %s", data->logname, g_strerror (errno));
-          break;
-        }
-      else
-        {
-          break;
-        }
-    }
-
-  if (r == 0) {
-    free (buf);
-    return NULL;
-  }
-
-  buf[r] = '\0';
-  return buf;
 }
 
 static int
@@ -592,7 +643,7 @@ do_interactive_auth (CockpitSshData *data)
             }
           else
             {
-              if (prompt_on_auth_fd (data, prompt, msg, echo))
+              if (prompt_on_auth_fd (data, prompt, msg, NULL, echo))
                 answer = wait_for_auth_fd_reply (data);
 
               if (answer)
@@ -1513,10 +1564,11 @@ main (int argc,
   gboolean ignore_hostkey = FALSE;
   gboolean no_auth_data = FALSE;
   gboolean no_host_key = FALSE;
-
+  gboolean prompt_unknown_keys = FALSE;
   GOptionEntry cmd_entries[] = {
     {"port", 'p', 0, G_OPTION_ARG_INT, &port, "SSH port to connect to (22 if unset)", NULL},
     {"ignore-hostkey", 0, 0, G_OPTION_ARG_NONE, &ignore_hostkey, "Ignore host key", NULL},
+    {"prompt-unknown-hostkey", 0, 0, G_OPTION_ARG_NONE, &prompt_unknown_keys, "Prompt for permission to use unknown host key", NULL},
     {"no-auth-data", 0, 0, G_OPTION_ARG_NONE, &no_auth_data, "don't expect initial auth data", NULL},
     {"krb5-ccache-name", 0, 0, G_OPTION_ARG_STRING, &krb5_ccache_name, "krb5 ccache name, use when providing gssapi credentials", NULL},
     {"known-hosts", 0, 0, G_OPTION_ARG_STRING, &knownhosts_file, "known hosts file (" PACKAGE_LOCALSTATE_DIR "/known_hosts if unset)", NULL},
@@ -1585,6 +1637,7 @@ main (int argc,
   data->krb5_ccache_name = krb5_ccache_name;
   data->expected_host_key = host_key;
   data->ignore_key = ignore_hostkey;
+  data->prompt_unknown_keys = prompt_unknown_keys;
   data->knownhosts_file = knownhosts_file ? knownhosts_file : default_knownhosts;
   data->logname = logname;
   data->auth_results = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);

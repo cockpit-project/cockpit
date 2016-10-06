@@ -554,6 +554,9 @@ class MachineCase(unittest.TestCase):
         # pam_lastlog outdated complaints
         ".*/var/log/lastlog: No such file or directory",
 
+        # ssh messages may be dropped when closing
+        '10.*: dropping message while waiting for child to exit',
+
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",

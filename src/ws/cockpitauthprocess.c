@@ -665,12 +665,22 @@ cockpit_auth_process_get_authenticated_user (CockpitAuthProcess *self,
             }
           else
             {
-              g_debug ("%s: error from %s: %s", self->logname,
+              g_debug ("%s: errored %s: %s", self->logname,
                        error_str, message);
-              g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                           "Authentication failed: %s: %s",
-                           error_str,
-                           message);
+              if (message)
+                {
+                  g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                               "Authentication failed: %s: %s",
+                               error_str,
+                               message);
+                }
+              else
+                {
+                  g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                               "Authentication failed: %s",
+                               error_str);
+                }
+
             }
         }
     }

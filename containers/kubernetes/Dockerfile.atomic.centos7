@@ -1,0 +1,16 @@
+FROM centos
+
+ARG RELEASE
+ARG VERSION
+ARG COCKPIT_RPM_URL
+ARG INSTALLER
+ARG OFFLINE
+ARG CENTOS="true"
+
+ADD . /container
+RUN yum update -y && yum clean all
+RUN echo -e "[cockpit_test]\nname=Cockpit Test\nbaseurl=http://cbs.centos.org/repos/atomic7-cockpit-preview-testing/x86_64/os/\ngpgcheck=0\nenabled=1" > /etc/yum.repos.d/cockpit.repo
+
+RUN /container/install.sh
+
+CMD ["/usr/libexec/cockpit-kube-launch"]

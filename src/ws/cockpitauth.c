@@ -513,7 +513,7 @@ application_parse_host (const gchar *application)
   if (g_str_has_prefix (application, prefix) && application[len] != '\0')
     return application + len;
   else
-    return "localhost";
+    return NULL;
 }
 
 static CockpitCreds *
@@ -894,12 +894,16 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   const gchar *data = NULL;
   const gchar *command;
   const gchar *host;
+  const gchar *host_arg;
+  gint next_arg = 1;
 
   const gchar *argv[] = {
       cockpit_ws_ssh_program,
-      "--ignore-hostkey",
-      "127.0.0.1",
-      NULL, /* User, filled in when known */
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
       NULL,
   };
 
@@ -928,15 +932,31 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   if (application && auth_bytes && input)
     {
       command = type_option (SSH_SECTION, "command", cockpit_ws_ssh_program);
-      argv[3] = user;
       argv[0] = command;
 
       host = application_parse_host (application);
-      if (g_strcmp0 (host, "localhost") != 0)
-        argv[1] = "--prompt-unknown-hostkey";
-      argv[2] = host;
+      if (host)
+        {
+          host_arg = host;
+          if (g_strcmp0 (remote_peer, "127.0.0.1") == 0 ||
+              g_strcmp0 (remote_peer, "::1") == 0 ||
+              cockpit_conf_bool (SSH_SECTION, "allowUnknown", FALSE))
+            {
+              argv[next_arg++] = "--prompt-unknown-hostkey";
+            }
+        }
+      else
+        {
+          argv[next_arg++] = "--ignore-hostkey";
+          if (cockpit_conf_string (SSH_SECTION, "host"))
+            host_arg = cockpit_conf_string (SSH_SECTION, "host");
+          else
+            host_arg = "localhost";
+        }
 
-      ad = create_auth_data (self, host, application,
+      argv[next_arg++] = host_arg;
+      argv[next_arg++] = user;
+      ad = create_auth_data (self, host_arg, application,
                              SSH_SECTION, remote_peer, command, input);
       start_auth_process (self, ad, auth_bytes, task,
                           cockpit_auth_remote_login_async, argv);
@@ -1121,7 +1141,7 @@ action_for_type (const gchar *type,
   if (g_strcmp0 (type, ACTION_LOGIN_REPLY) == 0)
     action = ACTION_LOGIN_REPLY;
 
-  else if (g_strcmp0 (host, "localhost") != 0)
+  else if (host)
     action = ACTION_SSH;
 
   /* Only force_ssh for basic */

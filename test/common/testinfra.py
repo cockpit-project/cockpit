@@ -85,7 +85,7 @@ DEFAULT_IMAGE_REFRESH = {
         'triggers': [
             "avocado/fedora-24",
             "selenium/firefox",
-            "selenium/chrome"
+            "selenium/chrome",
             "verify/fedora-24",
             "verify/fedora-atomic",  # builds in fedora-24
         ]

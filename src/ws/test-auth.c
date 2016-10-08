@@ -63,11 +63,20 @@ setup_normal (Test *test,
 }
 
 static void
+setup_alt_config (Test *test,
+              gconstpointer data)
+{
+  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf";
+  test->auth = cockpit_auth_new (FALSE);
+}
+
+static void
 teardown_normal (Test *test,
                  gconstpointer data)
 {
   cockpit_assert_expected ();
   g_object_unref (test->auth);
+  cockpit_conf_cleanup ();
 }
 
 static void
@@ -452,6 +461,7 @@ typedef struct {
   const gchar *user;
   const gchar *password;
   const gchar *application;
+  const gchar *remote_peer;
 } SuccessFixture;
 
 static void
@@ -538,7 +548,7 @@ test_custom_success (Test *test,
 
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
-  cockpit_auth_login_async (test->auth, path, headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, headers, fix->remote_peer, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -599,6 +609,26 @@ static const SuccessFixture fixture_ssh_remote_switched = {
   .header = "testscheme ssh-remote-switch",
   .path = "/cockpit+=machine",
   .application = "cockpit+=machine"
+};
+
+static const SuccessFixture fixture_ssh_local_peer = {
+  .data = NULL,
+  .header = "testscheme ssh-local-peer",
+  .path = "/cockpit+=machine",
+  .application = "cockpit+=machine",
+  .remote_peer = "127.0.0.1"
+};
+
+static const SuccessFixture fixture_ssh_alt_default = {
+  .data = NULL,
+  .header = "testsshscheme ssh-alt-default",
+};
+
+static const SuccessFixture fixture_ssh_alt = {
+  .data = NULL,
+  .path = "/cockpit+=machine",
+  .application = "cockpit+=machine",
+  .header = "testsshscheme ssh-alt-machine",
 };
 
 static const SuccessFixture fixture_ssh_bad_data = {
@@ -1198,6 +1228,12 @@ main (int argc,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-remote-switched", Test, &fixture_ssh_remote_switched,
               setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-local-peer", Test, &fixture_ssh_local_peer,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-with-conf-default", Test, &fixture_ssh_alt_default,
+              setup_alt_config, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-with-conf-allow", Test, &fixture_ssh_alt,
+              setup_alt_config, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-success", Test, &fixture_ssh_no_data,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-success-bad-data", Test, &fixture_ssh_bad_data,

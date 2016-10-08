@@ -24,6 +24,7 @@
 #include "common/cockpitlog.h"
 #include "common/cockpittest.h"
 #include "common/cockpitunixfd.h"
+#include "common/cockpitknownhosts.h"
 
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
@@ -61,6 +62,7 @@ typedef struct {
   const gchar *krb5_ccache_name;
   gboolean ignore_key;
   gboolean prompt_unknown_keys;
+  gboolean allow_unknown;
 
   ssh_session session;
   gchar *initial_auth_data;
@@ -987,6 +989,16 @@ cockpit_ssh_connect (CockpitSshData *data,
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
                                    data->knownhosts_file) == 0);
 
+  if (!data->allow_unknown)
+    {
+      if (!cockpit_is_host_known (data->knownhosts_file, host, port))
+        {
+          g_message ("%s: refusing to connect to unknown host: %s:%d", data->logname, host, port);
+          problem = "unknown-host";
+          goto out;
+        }
+    }
+
   rc = ssh_connect (data->session);
   if (rc != SSH_OK)
     {
@@ -1565,9 +1577,12 @@ main (int argc,
   gboolean no_auth_data = FALSE;
   gboolean no_host_key = FALSE;
   gboolean prompt_unknown_keys = FALSE;
+  gboolean allow_unknown = FALSE;
+
   GOptionEntry cmd_entries[] = {
     {"port", 'p', 0, G_OPTION_ARG_INT, &port, "SSH port to connect to (22 if unset)", NULL},
     {"ignore-hostkey", 0, 0, G_OPTION_ARG_NONE, &ignore_hostkey, "Ignore host key", NULL},
+    {"allow-unknown", 0, 0, G_OPTION_ARG_NONE, &allow_unknown, "Allow connecting to unknown hosts", NULL},
     {"prompt-unknown-hostkey", 0, 0, G_OPTION_ARG_NONE, &prompt_unknown_keys, "Prompt for permission to use unknown host key", NULL},
     {"no-auth-data", 0, 0, G_OPTION_ARG_NONE, &no_auth_data, "don't expect initial auth data", NULL},
     {"krb5-ccache-name", 0, 0, G_OPTION_ARG_STRING, &krb5_ccache_name, "krb5 ccache name, use when providing gssapi credentials", NULL},
@@ -1632,12 +1647,16 @@ main (int argc,
 
   cockpit_set_journal_logging (NULL, !isatty (2));
 
+  if (prompt_unknown_keys || ignore_hostkey)
+    allow_unknown = TRUE;
+
   data = g_new0 (CockpitSshData, 1);
   data->session = session;
   data->krb5_ccache_name = krb5_ccache_name;
   data->expected_host_key = host_key;
   data->ignore_key = ignore_hostkey;
   data->prompt_unknown_keys = prompt_unknown_keys;
+  data->allow_unknown = allow_unknown;
   data->knownhosts_file = knownhosts_file ? knownhosts_file : default_knownhosts;
   data->logname = logname;
   data->auth_results = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);

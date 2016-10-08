@@ -398,6 +398,8 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self)
     {
       g_ptr_array_add (self->command_args, g_strdup ("--no-auth-data"));
     }
+
+  g_ptr_array_add (self->command_args, g_strdup ("--allow-unknown"));
   g_ptr_array_add (self->command_args, g_strdup (self->host));
   g_ptr_array_add (self->command_args,
                    g_strdup (cockpit_creds_get_user (self->creds)));

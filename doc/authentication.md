@@ -95,17 +95,23 @@ speaking the cockpit protocol on stdin and stdout.
 # SSH Logins
 
 The ```remote-login-ssh``` action uses ssh to authenticate the user and and launch a bridge.
-Currently this should only be used with basic authentication.
-
-For example
 
 ```
 [basic]
 action = remote-login-ssh
-host = 10.10.122.12
 ```
 
-If not provided host will default to 127.0.0.1
+Cockpit will also default to using ssh when a remote machine is provided by using a application
+name that begins with ```cockpit+=```.
+
+The section ```SSH-Login``` defines the options for all ssh commands. The section takes
+has the same options as the other authentication sections with the following additions.
+
+ * ```host``` The default host to log into. Defaults to 127.0.0.1.
+ * ```allowUnknown```. By default cockpit will refuse to connect to any machines that
+ are not already present in it's known_hosts file (usually ```/var/lib/cockpit/known_hosts```).
+ Set this to ```true``` is to allow those connections to proceed.
+
 
 # None
 

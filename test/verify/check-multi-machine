@@ -236,7 +236,21 @@ class TestMultiMachine(MachineCase):
 
         # Clear host key.
         m.execute("echo '' > /var/lib/cockpit/known_hosts")
-        b.open("{0}={1}".format(root, m2.address));
+        b.open("{0}={1}".format(root, m2.address))
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "alt-password")
+        b.click('#login-button')
+
+        b.wait_not_visible("#conversation-group")
+        b.wait_not_visible("#password-group")
+        b.wait_not_visible("#user-group")
+        b.wait_in_text("#login-fatal-message", "unknown-host")
+        b.reload()
+
+        m.execute("echo '\n[SSH-Login]\nallowUnknown = true' >> /etc/cockpit/cockpit.conf")
+        m.restart_cockpit()
+        b.open("{0}={1}".format(root, m2.address))
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "alt-password")

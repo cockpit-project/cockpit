@@ -113,6 +113,11 @@ class TestRealms(MachineCase):
         b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
+        # HACK sssd regression
+        # https://github.com/cockpit-project/cockpit/issues/5142
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1380953
+        self.allow_journal_messages('.*denied.*{ getattr } for.*comm="sssd" name="/".*')
+
     def testNotSupported(self):
         m = self.machine
         b = self.browser

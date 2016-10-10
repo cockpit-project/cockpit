@@ -1,0 +1,62 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testPartitions(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # A loopback device ends with a digit and partitions have
+        # names like "/dev/loop0p1".  Check that the storage stack has
+        # no difficulties with that.
+        #
+        # We are especially careful to use a device name that doesn't
+        # end in all zeros, because that would be too easy and
+        # wouldn't trigger this bug:
+        #
+        # https://github.com/storaged-project/storaged/issues/97.
+
+        dev = m.execute("dd if=/dev/zero of=/disk1 bs=1M count=10 && losetup --show loop12 /disk1")
+
+        b.wait_in_text("#others", dev)
+        b.click('tr:contains("%s")' % dev)
+        b.wait_visible('#storage-detail')
+
+        b.click('button:contains(Create partition table)')
+        self.dialog({ "type": "gpt" })
+        b.wait_in_text('#content', "Free Space")
+
+        self.content_single_action(1, "Create Partition")
+        self.dialog({ "type": "ext4" })
+        b.wait_in_text('#content', "ext4 File System")
+
+        self.content_action(1, "Delete")
+        self.confirm()
+        b.wait_in_text('#content', "Free Space")
+
+if __name__ == '__main__':
+    test_main()

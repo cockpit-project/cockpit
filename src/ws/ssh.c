@@ -1615,8 +1615,8 @@ main (int argc,
 
   if (!connected || !channel)
     {
-      goto out;
       ret = AUTHENTICATION_FAILED;
+      goto out;
     }
 
   relay = cockpit_ssh_relay_new (session, channel, outfd, logname);

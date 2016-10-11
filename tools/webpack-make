@@ -9,15 +9,22 @@ var ops = stdio.getopt({
     deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" }
 });
 
-if (!ops.args || ops.args.length !== 1) {
-    console.log("usage: webpack config");
+if (!ops.args || ops.args.length < 1 || ops.args.length > 2) {
+    console.log("usage: webpack config [section]");
     process.exit(2);
+}
+
+var srcdir = process.env.SRCDIR;
+var makefile = ops.deps;
+var prefix = "section";
+
+if (makefile) {
+    prefix = makefile.split("-")[1].split(".")[0];
+    process.env["ONLYDIR"] = prefix + "/";
 }
 
 var cwd = process.cwd();
 var config = require(path.resolve(cwd, ops.args[0]));
-
-var srcdir = process.env.SRCDIR;
 
 webpack(config, function(err, stats) {
     // process.stdout.write(stats.toString({colors: true}) + "\n");
@@ -35,7 +42,6 @@ webpack(config, function(err, stats) {
         return;
     }
 
-    var makefile = ops.deps;
     if (makefile)
         generateDeps(makefile, stats);
 });
@@ -82,16 +88,24 @@ function generateDeps(makefile, stats) {
     // Output a makefile
 
     var lines = [
-        "WEBPACK_INPUTS += " + inputs.join(" "),
-        "WEBPACK_OUTPUTS += " + outputs.join(" "),
-        "WEBPACK_INSTALL += " + installs.join(" "),
+        prefix + "_INPUTS = " + inputs.join(" "),
+        prefix + "_OUTPUTS = " + outputs.join(" "),
+        prefix + "_INSTALL = " + installs.join(" "),
 	"",
     ];
 
     outputs.forEach(function(name) {
-        lines.push(name + ": $(WEBPACK_CONFIG) $(WEBPACK_INPUTS)");
-        lines.push("\t$(WEBPACK_RULE)");
+        lines.push(name + ": $(WEBPACK_CONFIG) $(" + prefix + "_INPUTS)");
+        if (makefile)
+            lines.push("\t$(WEBPACK_RULE) -d " + makefile + " $(WEBPACK_CONFIG)");
+        else
+            lines.push("\t$(WEBPACK_RULE) $(WEBPACK_CONFIG)");
     });
+
+    lines.push("");
+    lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
+    lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
+    lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
 
     data = lines.join("\n");
     fs.writeFileSync(makefile, data);

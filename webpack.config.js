@@ -200,6 +200,7 @@ var srcdir = process.env.SRCDIR || __dirname;
 var pkgdir = srcdir + path.sep + "pkg";
 var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
 var libdir = path.resolve(srcdir, "lib");
+var section = process.env.ONLYDIR || null;
 
 /* A standard nodejs and webpack pattern */
 var production = process.env.NODE_ENV === 'production';
@@ -211,6 +212,10 @@ var production = process.env.NODE_ENV === 'production';
 
 /* Qualify all the paths in entries */
 Object.keys(info.entries).forEach(function(key) {
+    if (section && key.indexOf(section) !== 0) {
+        delete info.entries[key];
+        return;
+    }
     info.entries[key] = info.entries[key].map(function(value) {
         if (value.indexOf("/") === -1)
             return value;
@@ -220,9 +225,12 @@ Object.keys(info.entries).forEach(function(key) {
 });
 
 /* Qualify all the paths in files listed */
-info.files = info.files.map(function(value) {
-    return { from: pkgdir + path.sep + value, to: value };
+var files = [];
+info.files.forEach(function(value) {
+    if (!section || value.indexOf(section) === 0)
+        files.push({ from: pkgdir + path.sep + value, to: value });
 });
+info.files = files;
 
 var plugins = [
     new webpack.DefinePlugin({

@@ -114,25 +114,57 @@ po/po.%.js: po/%.po
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  dist/";
+V_WEBPACK_0 = @echo "  WEBPACK  $(@:Makefile-%.deps=%)";
 
-WEBPACK_INPUTS =
-WEBPACK_OUTPUTS =
-WEBPACK_CONFIG = webpack.config.js
+WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 
-noinst_SCRIPTS += Makefile-webpack.deps $(WEBPACK_INSTALL)
-CLEANFILES += Makefile-webpack.deps $(WEBPACK_OUTPUTS)
-EXTRA_DIST += Makefile-webpack.deps $(WEBPACK_CONFIG)
+WEBPACK_DEPS = \
+	Makefile-dashboard.deps \
+	Makefile-docker.deps \
+	Makefile-kubernetes.deps \
+	Makefile-machines.deps \
+	Makefile-networkmanager.deps \
+	Makefile-ostree.deps \
+	Makefile-playground.deps \
+	Makefile-realmd.deps \
+	Makefile-selinux.deps \
+	Makefile-shell.deps \
+	Makefile-sosreport.deps \
+	Makefile-storaged.deps \
+	Makefile-subscriptions.deps \
+	Makefile-systemd.deps \
+	Makefile-tuned.deps \
+	Makefile-users.deps \
+	$(NULL)
 
-@INCLUDE_WEBPACK_DEPS@
+noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
+CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
+EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_CONFIG)
+
+-include Makefile-dashboard.deps
+-include Makefile-docker.deps
+-include Makefile-kubernetes.deps
+-include Makefile-machines.deps
+-include Makefile-networkmanager.deps
+-include Makefile-ostree.deps
+-include Makefile-playground.deps
+-include Makefile-realmd.deps
+-include Makefile-selinux.deps
+-include Makefile-shell.deps
+-include Makefile-sosreport.deps
+-include Makefile-storaged.deps
+-include Makefile-subscriptions.deps
+-include Makefile-systemd.deps
+-include Makefile-tuned.deps
+-include Makefile-users.deps
 
 WEBPACK_RULE = $(V_WEBPACK) NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
-	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make -d $@ $<
+	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 
-Makefile-webpack.deps: $(WEBPACK_CONFIG) tools/webpack-make $(WEBPACK_INPUTS)
-	$(WEBPACK_RULE)
+Makefile-%.deps: $(WEBPACK_CONFIG)
+	$(WEBPACK_RULE) -d $@ $<
 
-all-local:: Makefile-webpack.deps $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
+all-local:: $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
 	@true
 distclean-local::
 	rm -rf dist/

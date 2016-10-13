@@ -1259,15 +1259,27 @@
             function append_free_space (level, start, size) {
                 var desc;
 
-                // Storaged rounds the start up to the next MiB,
-                // so let's do the same and see whether there is
-                // anything left that is worth showing.  (Storaged
-                // really uses the formula below, and will really
-                // 'round' start == 1 MiB to 2 MiB, for example.)
+                // There is a lot of rounding and aligning going on in
+                // the storage stack.  All of udisks2, libblockdev,
+                // and libparted seem to contribute their own ideas of
+                // where a partition really should start.
+                //
+                // The start of partitions are aggressively rounded
+                // up, sometimes twice, but the end is not aligned in
+                // the same way.  This means that a few megabytes of
+                // free space will show up between partitions.
+                //
+                // We hide these small free spaces because they are
+                // unexpected and can't be used for anything anyway.
+                //
+                // "Small" is anything less than 3 MiB, which seems to
+                // work okay.  (The worst case is probably creating
+                // the first logical partition inside a extended
+                // partition with udisks+libblockdev.  It leads to a 2
+                // MiB gap.)
 
-                var real_start = (Math.floor(start / (1024*1024)) + 1) * 1024*1024;
                 var enable_dos_extended = false;
-                if (start + size - real_start >= 1024*1024) {
+                if (size >= 3*1024*1024) {
                     if (is_dos_partitioned) {
                         if (level > device_level) {
                             desc = cockpit.format(_("$0 Free Space for Logical Partitions"),

@@ -23,6 +23,7 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
     var util = require("./util");
+    var docker = require("./docker");
 
     /* DOCKER CLIENT
      */
@@ -81,6 +82,9 @@
 
         /* Containers we're waiting for an action to complete on */
         this.waiting = { };
+
+        /* images we're currently pulling */
+        this.pulling = [];
 
         var containers_meta = { };
         var containers_by_name = { };
@@ -603,6 +607,35 @@
                 .always(function() {
                     not_waiting(id);
                 });
+        };
+
+        this.pull = function (repo, tag, registry) {
+            var job = {
+                name: repo
+            };
+
+            docker.pull(repo, tag, registry).
+                progress(function(message, progress) {
+                    job.status = progress.status;
+                    if (progress.progressDetail && 'current' in progress.progressDetail && 'total' in progress.progressDetail)
+                        job.progress = progress.progressDetail;
+                    else
+                        delete job.progress;
+                    $(self).trigger("pulling");
+                }).
+                done(function () {
+                    self.pulling = self.pulling.filter(function (j) {
+                        return j !== job;
+                    });
+                    $(self).trigger("pulling");
+                }).
+                fail(function (error) {
+                    job.status = 'Error getting image: ' + error.message;
+                    delete job.progress;
+                    $(self).trigger("pulling");
+                });
+
+           self.pulling.push(job);
         };
 
         function change_cgroup(directory, cgroup, filename, value) {

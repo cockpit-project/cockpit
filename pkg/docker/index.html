@@ -85,87 +85,34 @@
 
   <!-- OVERVIEW -->
 
-  <div id="containers" class="container-fluid page-ct" hidden>
-    <div class="col-md-12 col-lg-8">
-      <div class="row">
-        <div class="col-sm-6">
-          <div>
-            <span class="plot-unit" id="containers-cpu-unit">%</span><span class="plot-title" translatable="yes">Combined CPU usage</span>
+  <div id="containers" hidden>
+    <div id="containers-header"></div>
+    <div class="container-fluid page-ct">
+      <div class="col-md-12 col-lg-8">
+        <div class="row">
+          <div class="col-sm-4">
+            <div>
+              <span class="plot-unit" id="containers-cpu-unit">%</span><span class="plot-title" translatable="yes">Combined CPU usage</span>
+            </div>
+            <div id="containers-cpu-graph"></div>
           </div>
-          <div id="containers-cpu-graph"></div>
-        </div>
-        <div class="col-sm-6">
-          <div>
-            <span class="plot-unit" id="containers-mem-unit"></span><span class="plot-title" translatable="yes">Combined memory usage</span>
+          <div class="col-sm-4">
+            <div>
+              <span class="plot-unit" id="containers-mem-unit"></span><span class="plot-title" translatable="yes">Combined memory usage</span>
+            </div>
+            <div id="containers-mem-graph"></div>
           </div>
-          <div id="containers-mem-graph"></div>
-        </div>
-      </div>
-      <br/>
-      <div class="panel panel-default" id="containers-containers">
-        <div class="panel-heading">
-          <span class="pull-right">
-              <div class="btn-group dropdown" id="containers-containers-filter">
-                  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                      <span translatable="yes">Running</span>
-                      <div class="caret"></div>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-right">
-                      <li><a translatable="yes" value="all">All</a></li>
-                      <li><a translatable="yes" value="running">Running</a></li>
-                  </ul>
+          <div class="col-sm-4">
+            <div class="panel-body">
+              <div id="containers-storage-details">
               </div>
-          </span>
-          Containers
-        </div>
-        <table class="table table-hover filter-unimportant">
-          <thead>
-            <tr>
-              <th class="container-column-name">Name</th>
-              <th class="container-column-image">Image</th>
-              <th class="container-column-command">Command</th>
-              <th class="container-column-cpu">CPU</th>
-              <th class="container-column-memory-graph">Memory</th>
-              <th class="container-column-memory-text"></th>
-              <th class="container-column-actions cell-buttons"></th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="col-md-12 col-lg-4">
-      <div class="panel panel-default" id="containers-storage">
-        <div class="panel-body">
-          <div id="containers-storage-details">
+            </div>
           </div>
         </div>
+        <br/>
       </div>
-    </div>
-    <div class="col-md-12 col-lg-4">
-      <div class="panel panel-default" id="containers-images">
-        <div class="panel-heading">
-          <span class="pull-right">
-            <button class="btn btn-primary" id="containers-images-search" translatable="yes">
-              Get new image
-            </button>
-          </span>
-          Images
-        </div>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th class="image-column-tags">Tags</th>
-              <th class="image-column-created">Created</th>
-              <th class="image-column-size-text">Size</th>
-              <th class="cell-buttons"><!-- Action --></th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
+      <div id="containers-containers"></div>
+      <div id="containers-images"></div>
     </div>
   </div>
 

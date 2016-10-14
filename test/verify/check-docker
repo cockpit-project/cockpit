@@ -70,7 +70,7 @@ class TestDocker(MachineCase):
         b.wait_visible("#containers-containers")
         b.click("#containers-containers-filter button")
         b.wait_visible("#containers-containers-filter .dropdown-menu")
-        b.click("#containers-containers-filter a[value='all']")
+        b.click("#containers-containers-filter li[data-data='all'] a")
 
         # Run it
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
@@ -144,18 +144,16 @@ class TestDocker(MachineCase):
         # delete PROBE2 from dash
         b.click("#container-details ol.breadcrumb a")
         b.wait_visible("#containers-containers")
-        b.wait_in_text('#containers-containers tbody', "PROBE2")
-        b.wait_not_visible("#containers-containers tbody tr:contains('PROBE2') button.btn-delete")
-        b.click("#containers-containers button.enable-danger")
-        b.wait_visible("#containers-containers tbody tr:contains('PROBE2') button.btn-delete")
-        b.wait_not_present("#containers-containers tbody tr:contains('PROBE2') button.btn-delete.disabled")
-        b.click("#containers-containers tbody tr:contains('PROBE2') button.btn-delete")
+        b.wait_in_text('#containers-containers', "PROBE2")
+        b.click('#containers-containers tbody tr:contains("PROBE2") td.listing-ct-toggle')
+        b.wait_visible('#containers-containers tbody tr:contains("PROBE2") + tr button.btn-delete')
+        b.click('#containers-containers tbody tr:contains("PROBE2") + tr button.btn-delete')
         with b.wait_timeout(20):
             try:
-                b.wait_not_in_text('#containers-containers tbody', "PROBE2")
+                b.wait_not_in_text('#containers-containers', "PROBE2")
             except:
                 self.confirm()
-                b.wait_not_in_text('#containers-containers tbody', "PROBE2")
+                b.wait_not_in_text('#containers-containers', "PROBE2")
 
         # Check output of PROBE1
         b.click('#containers-containers tr:contains("PROBE1")')
@@ -276,7 +274,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         # Select to view all running containers
         b.wait_visible("#containers-containers-filter button")
         b.click("#containers-containers-filter button")
-        b.click("#containers-containers-filter li a[value='all']")
+        b.click("#containers-containers-filter li[data-data='all'] a")
 
         # Create an updated image, add environment variable
         m.execute("mkdir /var/tmp/container-probe")
@@ -418,12 +416,16 @@ CMD ["/bin/sh"]
         m.execute("systemctl restart docker")
         self.login_and_go("/docker")
 
+        # show all containers to interact with stopped ones
+        b.wait_visible("#containers-containers")
+        b.click("#containers-containers-filter button")
+        b.wait_visible("#containers-containers-filter .dropdown-menu")
+        b.click("#containers-containers-filter li[data-data='all'] a")
+
         # Now check that one restarts
         b.wait_in_text("#containers-images", "busybox:latest")
-        b.wait_present("#containers-containers tr:contains(\"YAYRESTART\")")
-        b.wait_visible("#containers-containers tr:contains(\"YAYRESTART\")")
-        b.wait_present("#containers-containers tr:contains(\"NORESTART\")")
-        b.wait_not_visible("#containers-containers tr:contains(\"NORESTART\")")
+        b.wait_present('#containers-containers tr:contains("YAYRESTART") td:contains("running")')
+        b.wait_present('#containers-containers tr:contains("NORESTART") td:contains("exited")')
 
     def testResources(self):
         b = self.browser

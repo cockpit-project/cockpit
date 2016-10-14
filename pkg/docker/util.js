@@ -122,6 +122,9 @@
     };
 
     util.format_memory_and_limit = function format_memory_and_limit(usage, limit) {
+        if (usage === undefined || isNaN(usage))
+            return "";
+
         var mtext = "";
         var units = 1024;
         var parts;

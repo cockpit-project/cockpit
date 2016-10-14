@@ -112,7 +112,7 @@ var PatternDialogBody = React.createClass({
                         </td>
                         <td>
                             <Select.Select key='urlSource' onChange={ this.props.onChange.bind(this, 'url') }
-                                           id="subscription-register-url" initial={ urlEntries['default'] }>
+                                           id="subscription-register-url" initial="default">
                                 <Select.SelectEntry data='default' key='default'>{ urlEntries['default'] }</Select.SelectEntry>
                                 <Select.SelectEntry data='custom' key='custom'>{ urlEntries['custom'] }</Select.SelectEntry>
                             </Select.Select>

@@ -43,9 +43,9 @@ if __name__ == "__main__":
 
     # The Atomic variants can't build their own packages, so we build in
     # their non-Atomic siblings.  For example, fedora-atomic is build
-    # in fedora-23
+    # in fedora-24
     if test_os == "fedora-atomic":
-        build_os = "fedora-23"
+        build_os = "fedora-24"
     elif test_os == "rhel-atomic":
         build_os = "rhel-7"
     elif test_os == "continuous-atomic":

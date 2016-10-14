@@ -29,10 +29,10 @@
     require("flot");
 
     var util = require("./util");
-    var search_image = require("./search");
     var docker = require("./docker");
     var storage = require("./storage.jsx");
     var bar = require("./bar");
+    var view = require("./containers-view.jsx");
 
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -41,36 +41,33 @@
      */
 
     function init_overview (client) {
+        var headerNode = document.getElementById('containers-header');
+        var containerNode = document.getElementById('containers-containers');
+        var imageNode = document.getElementById('containers-images');
 
-        var danger_enabled = false;
-
-        function set_danger_enabled(val) {
-            danger_enabled = val;
-            $('#containers-containers button.enable-danger').toggleClass('active', danger_enabled);
-            $("#containers-containers td.container-column-actions").toggle(!danger_enabled);
-            $("#containers-containers td.container-column-danger").toggle(danger_enabled);
+        function update_container_list(onlyShowRunning, filterText) {
+            React.render(React.createElement(view.ContainerList, {
+                client: client,
+                onlyShowRunning: onlyShowRunning,
+                filterText: filterText
+            }), containerNode);
         }
 
-        util.setup_danger_button('#containers-containers', "#containers",
-                                 function() {
-                                     set_danger_enabled(!danger_enabled);
-                                 });
+        React.render(React.createElement(view.ContainerHeader, {
+            onFilterChanged: function (filter, filterText) {
+                update_container_list(filter === 'running', filterText);
+            }
+        }), headerNode);
 
-        $('#containers-containers-filter a').on('click', function() {
-            var el = $(this);
-            $("#containers-containers-filter button span").text(el.text());
-            $("#containers-containers table").toggleClass("filter-unimportant", el.attr('value') === "running");
+        update_container_list(true, '');
+        React.render(React.createElement(view.ImageList, { client: client }), imageNode);
+
+        $(client).on('container.containers', function(event, id, container) {
+            if (container && container.CGroup) {
+                cpu_series.add_instance(container.CGroup);
+                mem_series.add_instance(container.CGroup);
+            }
         });
-
-        $('#containers-images-search').on("click", function() {
-            search_image(client);
-            return false;
-        });
-
-        function highlight_container_row(event, selector) {
-            $('#containers-containers tr').removeClass('highlight-ct');
-            $(selector).addClass('highlight-ct');
-        }
 
         var cpu_data = {
             internal: "cgroup.cpu.usage",
@@ -103,7 +100,6 @@
             $('#containers-cpu-text').text(util.format_cpu_usage(value));
         });
         cpu_plot.start_walking();
-        $(cpu_series).on('hover', highlight_container_row);
 
         var mem_data = {
             internal: "cgroup.memory.usage",
@@ -135,111 +131,63 @@
             $('#containers-mem-text').text(cockpit.format_bytes(value, 1024));
         });
         mem_plot.start_walking();
-        $(mem_series).on('hover', highlight_container_row);
 
         $(window).on('resize', function () {
             cpu_plot.resize();
             mem_plot.resize();
         });
 
-        function render_container(id, container) {
-            if (container && container.CGroup) {
-                cpu_series.add_instance(container.CGroup, "#" + id);
-                mem_series.add_instance(container.CGroup, "#" + id);
-            }
-            util.render_container(client, $('#containers-containers'),
-                                  "", id, container, danger_enabled);
-        }
-
-        function render_image(id, image) {
-
-            // Docker ID can contain funny characters such as ":" so
-            // we take care not to embed them into jQuery query
-            // strings or HTML.
-
-            var tr = $(document.getElementById(id));
-
-            if (!image ||
-                !image.RepoTags ||
-                image.RepoTags[0] == "<none>:<none>") {
-                tr.remove();
-                return;
-            }
-
-            var added = false;
-            if (!tr.length) {
-                var button = $('<button class="btn btn-default btn-control-ct fa fa-play">')
-                    .attr("title", _("Run image"))
-                    .attr("data-target", "#containers_run_image_dialog")
-                    .attr("data-toggle", "modal")
-                    .attr("data-image", id);
-                tr = $('<tr>', { 'id': id }).append(
-                    $('<td class="image-column-tags">'),
-                    $('<td class="image-column-created">'),
-                    $('<td class="image-column-size-graph">'),
-                    $('<td class="image-column-size-text">'),
-                    $('<td class="cell-buttons">').append(button));
-                tr.on('click', function(ev) {
-                    if (ev.target.tagName !== 'BUTTON')
-                        cockpit.location.go([ 'image', id ]);
-                });
-
-                added = true;
-            }
-
-            var row = tr.children("td");
-            $(row[0]).html(util.multi_line(image.RepoTags));
-
-            /* if an image is older than two days, don't show the time */
-            var threshold_date = new Date(image.Created * 1000);
-            threshold_date.setDate(threshold_date.getDate() + 2);
-
-            if (threshold_date > (new Date())) {
-                $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
-            } else {
-                var creation_date = new Date(image.Created * 1000);
-
-                /* we hide the time, so put full timestamp in the hover text */
-                $(row[1])
-                    .text(creation_date.toLocaleDateString())
-                    .attr("title", creation_date.toLocaleString());
-            }
-
-            $(row[2]).children("div").attr("value", image.VirtualSize);
-            $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024));
-
-            if (added) {
-                util.insert_table_sorted($('#containers-images table'), tr);
-            }
-        }
-
-        $('#containers-containers table tbody tr').remove();
-        $('#containers-images table tbody tr').remove();
-
-        /* Every time a container appears, disappears, changes */
-        $(client).on('container.containers', function(event, id, container) {
-            render_container(id, container);
-        });
-
-        /* Every time a image appears, disappears, changes */
-        $(client).on('image.containers', function(event, id, image) {
-            render_image(id, image);
-        });
-
-        var id;
-        $("#containers-containers button.enable-danger").toggle(false);
-        for (id in client.containers) {
-            render_container(id, client.containers[id]);
-        }
-
-        for (id in client.images) {
-            render_image(id, client.images[id]);
-        }
-
         React.render(React.createElement(storage.OverviewBox,
                                          { model: storage.get_storage_model(),
                                            small: true }),
                      $("#containers-storage-details")[0]);
+
+        var commit = $('#container-commit-dialog')[0];
+        $(commit).
+            on("show.bs.modal", function(event) {
+                var container = client.containers[event.relatedTarget.dataset.containerId];
+
+                $(commit).find(".container-name").text(container.Name.replace(/^\//, ''));
+                $(commit).attr('data-container-id', container.Id);
+
+                var image = client.images[container.Config.Image];
+                var repo = "";
+                if (image && image.RepoTags)
+                    repo = image.RepoTags[0].split(":", 1)[0];
+                $(commit).find(".container-repository").attr('value', repo);
+
+                $(commit).find(".container-tag").attr('value', "");
+
+                cockpit.user().done(function (user) {
+                    var author = user.full_name || user.name;
+                    $(commit).find(".container-author").attr('value', author);
+                });
+
+                var command = "";
+                if (container.Config)
+                    command = util.quote_cmdline(container.Config.Cmd);
+                if (!command)
+                    command = container.Command;
+                $(commit).find(".container-command").attr('value', command);
+            }).
+            find(".btn-primary").on("click", function() {
+                var location = cockpit.location;
+                var run = { "Cmd": util.unquote_cmdline($(commit).find(".container-command").val()) };
+                var options = {
+                    "author": $(commit).find(".container-author").val()
+                };
+                var tag = $(commit).find(".container-tag").val();
+                if (tag)
+                    options["tag"] = tag;
+                var repository = $(commit).find(".container-repository").val();
+                client.commit($(commit).attr('data-container-id'), repository, options, run).
+                    fail(function(ex) {
+                        util.show_unexpected_error(ex);
+                    }).
+                    done(function() {
+                        location.go("/");
+                    });
+            });
 
         function hide() {
             $('#containers').hide();

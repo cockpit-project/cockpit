@@ -750,5 +750,15 @@
         return num;
     };
 
+    /*
+     * Returns the short id of a docker container or image id.
+     */
+    docker.truncate_id = function (id) {
+        var c = id.indexOf(':');
+        if (c >= 0)
+            id = id.slice(c + 1);
+        return id.substr(0, 12);
+    };
+
     module.exports = docker;
 }());

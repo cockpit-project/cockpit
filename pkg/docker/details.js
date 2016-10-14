@@ -88,52 +88,6 @@
                     }
                     $('#container-resources-dialog').dialog('promise', prom);
                 });
-
-            var commit = $('#container-commit-dialog')[0];
-            $(commit).
-                on("show.bs.modal", function() {
-                    var info = self.client.containers[self.container_id];
-
-                    $(commit).find(".container-name").text(self.name);
-
-                    var image = self.client.images[info.Config.Image];
-                    var repo = "";
-                    if (image && image.RepoTags)
-                        repo = image.RepoTags[0].split(":", 1)[0];
-                    $(commit).find(".container-repository").attr('value', repo);
-
-                    $(commit).find(".container-tag").attr('value', "");
-
-                    cockpit.user().done(function (user) {
-                        var author = user.full_name || user.name;
-                        $(commit).find(".container-author").attr('value', author);
-                    });
-
-                    var command = "";
-                    if (info.Config)
-                        command = util.quote_cmdline(info.Config.Cmd);
-                    if (!command)
-                        command = info.Command;
-                    $(commit).find(".container-command").attr('value', command);
-                }).
-                find(".btn-primary").on("click", function() {
-                    var location = cockpit.location;
-                    var run = { "Cmd": util.unquote_cmdline($(commit).find(".container-command").val()) };
-                    var options = {
-                        "author": $(commit).find(".container-author").val()
-                    };
-                    var tag = $(commit).find(".container-tag").val();
-                    if (tag)
-                        options["tag"] = tag;
-                    var repository = $(commit).find(".container-repository").val();
-                    self.client.commit(self.container_id, repository, options, run).
-                        fail(function(ex) {
-                            util.show_unexpected_error(ex);
-                        }).
-                        done(function() {
-                            location.go("/");
-                        });
-                });
         },
 
         enter: function(container_id) {
@@ -154,6 +108,8 @@
                 if (id == self.container_id)
                     self.update();
             });
+
+            $('#container-details-commit')[0].dataset.containerId = container_id;
 
             this.update();
         },

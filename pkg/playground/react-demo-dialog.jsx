@@ -57,9 +57,8 @@
                                 <Select.Select onChange={this.selectChanged} id="primary-select">
                                     <Select.SelectEntry data='one'>{_("One")}</Select.SelectEntry>
                                     <Select.SelectEntry data='two'>{_("Two")}</Select.SelectEntry>
-                                    <Select.SelectEntry>{_("Three")}</Select.SelectEntry>
+                                    <Select.SelectEntry data='three'>{_("Three")}</Select.SelectEntry>
                                     <Select.SelectEntry data='four'></Select.SelectEntry>
-                                    <Select.SelectEntry></Select.SelectEntry>
                                 </Select.Select>
                             </td>
                         </tr>
@@ -70,10 +69,10 @@
                                 </label>
                             </td>
                             <td>
-                                <Select.Select initial={_("Two")}>
-                                    <Select.SelectEntry>{_("One")}</Select.SelectEntry>
-                                    <Select.SelectEntry>{_("Two")}</Select.SelectEntry>
-                                    <Select.SelectEntry>{_("Three")}</Select.SelectEntry>
+                                <Select.Select initial="two">
+                                    <Select.SelectEntry data="one">{_("One")}</Select.SelectEntry>
+                                    <Select.SelectEntry data="two">{_("Two")}</Select.SelectEntry>
+                                    <Select.SelectEntry data="three">{_("Three")}</Select.SelectEntry>
                                 </Select.Select>
                             </td>
                         </tr>

@@ -56,8 +56,7 @@
         getInitialState: function() {
             return {
                 open: false,
-                currentData: undefined,
-                currentValue: undefined,
+                currentData: this.props.initial,
                 documentClickHandler: undefined,
             };
         },
@@ -74,9 +73,9 @@
 
                 this.setState({ open: false });
                 // if the item didn't change, don't do anything
-                if (elementValue === this.state.currentValue && elementData === this.state.currentData)
+                if (elementData === this.state.currentData)
                     return;
-                this.setState({ currentValue: elementValue, currentData: elementData });
+                this.setState({ currentData: elementData });
                 if (this.props.onChange)
                     this.props.onChange(elementData);
             } else {
@@ -85,26 +84,20 @@
         },
         render: function() {
             var self = this;
-            var currentValue = this.state.currentValue;
-            if (currentValue === undefined && 'initial' in this.props)
-                currentValue = this.props.initial;
+            var currentValue;
 
-            var listItems;
-            if (this.props.children) {
-                listItems = this.props.children.map(function(itm) {
-                    var data = ('data' in itm.props)?itm.props.data:undefined;
-                    // we need to have some kind of value
-                    var value = (itm.props.children !== undefined)?itm.props.children:textForUndefined;
-                    // if we don't have anything selected, take the first item
-                    if (currentValue === undefined) {
-                        currentValue = value;
-                        self.setState({ currentValue: currentValue, currentData: data });
-                        self.props.onChange(data);
-                    }
-                    return <li data-value={value} data-data={data}>{itm}</li>;
-                });
-            }
-            var classes = "btn-group bootstrap-select dropdown form-control";
+            var listItems = React.Children.map(this.props.children, function(itm) {
+                var data = ('data' in itm.props) ? itm.props.data : undefined;
+                // we need to have some kind of value
+                var value = (itm.props.children !== undefined) ? itm.props.children : textForUndefined;
+                if (data === self.state.currentData)
+                    currentValue = value;
+                // if there's no initial value, use the first one
+                else if (!self.props.initial && currentValue === undefined)
+                    currentValue = value;
+                return <li data-value={value} data-data={data}>{itm}</li>;
+            });
+            var classes = "btn-group bootstrap-select dropdown";
             if (this.state.open)
                 classes += " open";
 
@@ -133,7 +126,7 @@
             data: React.PropTypes.string.isRequired,
         },
         render: function() {
-            var value = (this.props.children !== undefined)?this.props.children:textForUndefined;
+            var value = (this.props.children !== undefined) ? this.props.children : textForUndefined;
             return <a>{value}</a>;
         }
     });

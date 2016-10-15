@@ -1,6 +1,26 @@
-(function() {
-    "use strict";
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2016 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
+/*jshint node: true */
+/*jshint browser: true */
+
+(function() {
     var cockpit = require("cockpit");
 
     var React = require("react");
@@ -16,8 +36,10 @@
      *
      * Spawns the user's shell in the user's home directory.
      */
-    var UserTerminal = React.createClass({displayName: "UserTerminal",
-        createChannel: function (user) {
+    var UserTerminal = React.createClass({
+        displayName: "UserTerminal",
+
+        createChannel: function(user) {
             return cockpit.channel({
                 "payload": "stream",
                 "spawn": [ user.shell || "/bin/bash", "-i"],
@@ -30,23 +52,23 @@
             });
         },
 
-        getInitialState: function () {
+        getInitialState: function() {
             return {
                 title: 'Terminal'
             };
         },
 
-        componentWillMount: function () {
-            cockpit.user().done(function (user) {
+        componentWillMount: function() {
+            cockpit.user().done(function(user) {
                 this.setState({ user: user, channel: this.createChannel(user) });
             }.bind(this));
         },
 
-        onTitleChanged: function (title) {
+        onTitleChanged: function(title) {
             this.setState({ title: title });
         },
 
-        onResetClick: function (event) {
+        onResetClick: function(event) {
             if (event.button !== 0)
                 return;
 
@@ -61,14 +83,17 @@
             this.refs.terminal.focus();
         },
 
-        render: function () {
+        render: function() {
             var terminal;
-            if (this.state.channel)
-                terminal = (<componentsTerminal.Terminal ref="terminal"
-                                                         channel={this.state.channel}
-                                                         onTitleChanged={this.onTitleChanged} />);
-            else
+            if (this.state.channel) {
+                terminal = (
+                    <componentsTerminal.Terminal ref="terminal"
+                                                 channel={this.state.channel}
+                                                 onTitleChanged={this.onTitleChanged} />
+                );
+            } else {
                 terminal = <span>Loading...</span>;
+            }
 
             return (
                 <div className="panel panel-default console-ct-container">

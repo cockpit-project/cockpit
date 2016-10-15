@@ -17,129 +17,130 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function() {
-    "use strict";
+/*jshint node: true */
+/*jshint browser: true */
 
-    var cockpit = require("cockpit");
-    var React = require("react");
+"use strict";
 
-    var _ = cockpit.gettext;
+var cockpit = require("cockpit");
+var React = require("react");
 
-    var textForUndefined = _('undefined');
+var _ = cockpit.gettext;
 
-    /* React pattern component for a dropdown/select control
-     * Entries should be child components of type SelectEntry (html <a>)
-     * Expected properties:
-     *  - initial (optional) initial value to display, default: first entry
-     *  - onChange (optional) callback (parameter data) when the selection has changed
-     *  - id (optional) html id of the top level node
-     */
-    var Select = React.createClass({
-        propTypes: {
-            initial: React.PropTypes.string,
-            onChange: React.PropTypes.func,
-            id: React.PropTypes.string,
-        },
-        handleDocumentClick: function(node, ev) {
-            // clicking outside the select control should ensure it's closed
-            if (!node.contains(ev.target))
-                this.setState({ open: false });
-        },
-        componentDidMount: function() {
-            var handler = this.handleDocumentClick.bind(this, React.findDOMNode(this));
-            this.setState({ documentClickHandler: handler });
-            document.addEventListener('click', handler, false);
-        },
-        componentWillUnmount: function() {
-            document.removeEventListener('click', this.state.documentClickHandler, false);
-        },
-        getInitialState: function() {
-            return {
-                open: false,
-                currentData: undefined,
-                currentValue: undefined,
-                documentClickHandler: undefined,
-            };
-        },
-        clickHandler: function(ev) {
-            // only consider clicks with the primary button
-            if (ev && ev.button !== 0)
+var textForUndefined = _('undefined');
+
+/* React pattern component for a dropdown/select control
+ * Entries should be child components of type SelectEntry (html <a>)
+ * Expected properties:
+ *  - initial (optional) initial value to display, default: first entry
+ *  - onChange (optional) callback (parameter data) when the selection has changed
+ *  - id (optional) html id of the top level node
+ */
+var Select = React.createClass({
+    propTypes: {
+        initial: React.PropTypes.string,
+        onChange: React.PropTypes.func,
+        id: React.PropTypes.string,
+    },
+    handleDocumentClick: function(node, ev) {
+        // clicking outside the select control should ensure it's closed
+        if (!node.contains(ev.target))
+            this.setState({ open: false });
+    },
+    componentDidMount: function() {
+        var handler = this.handleDocumentClick.bind(this, React.findDOMNode(this));
+        this.setState({ documentClickHandler: handler });
+        document.addEventListener('click', handler, false);
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('click', this.state.documentClickHandler, false);
+    },
+    getInitialState: function() {
+        return {
+            open: false,
+            currentData: undefined,
+            currentValue: undefined,
+            documentClickHandler: undefined,
+        };
+    },
+    clickHandler: function(ev) {
+        // only consider clicks with the primary button
+        if (ev && ev.button !== 0)
+            return;
+        if (ev.target.tagName == 'A') {
+            var liElement = ev.target.offsetParent;
+            var elementValue = liElement.attributes['data-value'].value;
+            var elementData;
+            if ('data-data' in liElement.attributes)
+                elementData = liElement.attributes['data-data'].value;
+
+            this.setState({ open: false });
+            // if the item didn't change, don't do anything
+            if (elementValue === this.state.currentValue && elementData === this.state.currentData)
                 return;
-            if (ev.target.tagName == 'A') {
-                var liElement = ev.target.offsetParent;
-                var elementValue = liElement.attributes['data-value'].value;
-                var elementData;
-                if ('data-data' in liElement.attributes)
-                    elementData = liElement.attributes['data-data'].value;
-
-                this.setState({ open: false });
-                // if the item didn't change, don't do anything
-                if (elementValue === this.state.currentValue && elementData === this.state.currentData)
-                    return;
-                this.setState({ currentValue: elementValue, currentData: elementData });
-                if (this.props.onChange)
-                    this.props.onChange(elementData);
-            } else {
-                this.setState({ open: !this.state.open });
-            }
-        },
-        render: function() {
-            var self = this;
-            var currentValue = this.state.currentValue;
-            if (currentValue === undefined && 'initial' in this.props)
-                currentValue = this.props.initial;
-
-            var listItems;
-            if (this.props.children) {
-                listItems = this.props.children.map(function(itm) {
-                    var data = ('data' in itm.props)?itm.props.data:undefined;
-                    // we need to have some kind of value
-                    var value = (itm.props.children !== undefined)?itm.props.children:textForUndefined;
-                    // if we don't have anything selected, take the first item
-                    if (currentValue === undefined) {
-                        currentValue = value;
-                        self.setState({ currentValue: currentValue, currentData: data });
-                        self.props.onChange(data);
-                    }
-                    return <li data-value={value} data-data={data}>{itm}</li>;
-                });
-            }
-            var classes = "btn-group bootstrap-select dropdown form-control";
-            if (this.state.open)
-                classes += " open";
-
-            return (
-                <div className={classes} onClick={this.clickHandler} id={this.props.id}>
-                    <button className="btn btn-default dropdown-toggle" type="button">
-                        <span className="pull-left">{currentValue}</span>
-                        <span className="caret"></span>
-                    </button>
-                    <ul className="dropdown-menu">
-                        { listItems }
-                    </ul>
-                </div>
-            );
+            this.setState({ currentValue: elementValue, currentData: elementData });
+            if (this.props.onChange)
+                this.props.onChange(elementData);
+        } else {
+            this.setState({ open: !this.state.open });
         }
-    });
+    },
+    render: function() {
+        var self = this;
+        var currentValue = this.state.currentValue;
+        if (currentValue === undefined && 'initial' in this.props)
+            currentValue = this.props.initial;
 
-    /* Entry class for the select component
-     * Dynamic lists should make sure to also provide 'key' props for react to use
-     * Expected properties:
-     *  - data optional, will be passed to the select's onChange callback
-     * Example: <SelectEntry data="foo">Some entry</SelectEntry>
-     */
-    var SelectEntry = React.createClass({
-        propTypes: {
-            data: React.PropTypes.string.isRequired,
-        },
-        render: function() {
-            var value = (this.props.children !== undefined)?this.props.children:textForUndefined;
-            return <a>{value}</a>;
+        var listItems;
+        if (this.props.children) {
+            listItems = this.props.children.map(function(itm) {
+                var data = ('data' in itm.props)?itm.props.data:undefined;
+                // we need to have some kind of value
+                var value = (itm.props.children !== undefined)?itm.props.children:textForUndefined;
+                // if we don't have anything selected, take the first item
+                if (currentValue === undefined) {
+                    currentValue = value;
+                    self.setState({ currentValue: currentValue, currentData: data });
+                    self.props.onChange(data);
+                }
+                return <li data-value={value} data-data={data}>{itm}</li>;
+            });
         }
-    });
+        var classes = "btn-group bootstrap-select dropdown form-control";
+        if (this.state.open)
+            classes += " open";
 
-    module.exports = {
-        Select: Select,
-        SelectEntry: SelectEntry,
-    };
-}());
+        return (
+            <div className={classes} onClick={this.clickHandler} id={this.props.id}>
+                <button className="btn btn-default dropdown-toggle" type="button">
+                    <span className="pull-left">{currentValue}</span>
+                    <span className="caret"></span>
+                </button>
+                <ul className="dropdown-menu">
+                    { listItems }
+                </ul>
+            </div>
+        );
+    }
+});
+
+/* Entry class for the select component
+ * Dynamic lists should make sure to also provide 'key' props for react to use
+ * Expected properties:
+ *  - data optional, will be passed to the select's onChange callback
+ * Example: <SelectEntry data="foo">Some entry</SelectEntry>
+ */
+var SelectEntry = React.createClass({
+    propTypes: {
+        data: React.PropTypes.string.isRequired,
+    },
+    render: function() {
+        var value = (this.props.children !== undefined)?this.props.children:textForUndefined;
+        return <a>{value}</a>;
+    }
+});
+
+module.exports = {
+    Select: Select,
+    SelectEntry: SelectEntry,
+};

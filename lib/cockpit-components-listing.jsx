@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*jshint node: true */
 "use strict";
 
 var React = require('react');
@@ -266,7 +267,7 @@ var Listing = React.createClass({
                 </tr>
             );
         } else {
-           headerRow = <tr/>
+           headerRow = <tr/>;
         }
         return (
             <table className={ bodyClasses.join(" ") }>

@@ -587,7 +587,7 @@ class Machine:
                 cmd += "/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh\n"
             else:
                 cmd += "/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls\n"
-            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to start"):
+            with Timeout(seconds=90, error_message="Timeout while waiting for cockpit/ws to start"):
                 self.execute(script=cmd)
             if atomic_wait_for_host:
                 self.wait_for_cockpit_running(atomic_wait_for_host)
@@ -611,7 +611,7 @@ class Machine:
         """Restart Cockpit.
         """
         if "atomic" in self.image:
-            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to restart"):
+            with Timeout(seconds=90, error_message="Timeout while waiting for cockpit/ws to restart"):
                 self.execute("docker restart `docker ps | grep cockpit/ws | awk '{print $1;}'`")
             self.wait_for_cockpit_running()
         else:
@@ -621,7 +621,7 @@ class Machine:
         """Stop Cockpit.
         """
         if "atomic" in self.image:
-            with Timeout(seconds=30, error_message="Timeout while waiting for cockpit/ws to stop"):
+            with Timeout(seconds=60, error_message="Timeout while waiting for cockpit/ws to stop"):
                 self.execute("docker kill `docker ps | grep cockpit/ws | awk '{print $1;}'`")
         else:
             self.execute("systemctl stop cockpit.socket")

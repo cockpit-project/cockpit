@@ -3,8 +3,11 @@
 
 set -e
 
-url="http://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images"
-prefix="Fedora-Cloud-Atomic-23"
+url="https://download.fedoraproject.org/pub/alt/atomic/stable/"
 
 BASE=$(dirname $0)
-$BASE/atomic.bootstrap "$1" "$url" "$prefix"
+
+# The Fedora URLs have the version twice in the name. for example:
+# https://dl.fedoraproject.org/pub/alt/atomic/stable/Fedora-Atomic-24-20160921.0/CloudImages/x86_64/images/Fedora-Cloud-Base-24-20160921.0.x86_64.qcow2
+$BASE/atomic.bootstrap "$1" "$url" \
+    "Fedora-Atomic-24-[0-9\.]+" "CloudImages" "x86_64" "images" "Fedora-Atomic-24-[0-9\.]+.x86_64.qcow2"

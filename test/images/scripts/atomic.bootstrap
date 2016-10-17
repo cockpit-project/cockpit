@@ -22,15 +22,20 @@ set -e
 
 out=$1
 base=$2
-prefix=$3
 
-# download the newest base image
-if [[ "$prefix" == *qcow2 ]]; then
-    pattern="$prefix"
-else
-    pattern="$prefix-[0-9\.]+.x86_64.qcow2"
-fi
-newest=`wget -q -O- $base | egrep -o $pattern | sort -V | tail -1`
+# Lookup the newest base image recursively
+url=$base
+while [ $# -gt 2 ]; do
+    pattern="$3"
+    newest=`wget -q -O- $url | egrep -o $pattern | sort -V | tail -1`
+    if [ -z "$newest" ]; then
+        echo "Could not find '$pattern' at: $url" >&2
+        exit 1
+    fi
+    base="$url"
+    url="$base/$newest"
+    shift
+done
 
 if [ -n "$TEST_DATA" -a -f "$TEST_DATA/$newest" ]; then
     echo Using "$TEST_DATA/$newest"

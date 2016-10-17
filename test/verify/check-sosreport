@@ -36,7 +36,7 @@ class TestSOS(MachineCase):
         b.click('[data-target="#sos"]')
         b.wait_visible("#sos")
 
-        with b.wait_timeout(180):
+        with b.wait_timeout(360):
             b.wait_visible("#sos-download")
 
         # There doesn't seem to be a easy way to do a real download

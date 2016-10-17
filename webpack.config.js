@@ -4,6 +4,10 @@
 
 var info = {
     entries: {
+        "dashboard/dashboard": [
+            "dashboard/list.js",
+        ],
+
         "docker/docker": [
             "docker/containers.js",
             "docker/docker.css",
@@ -11,9 +15,7 @@ var info = {
         "docker/console": [
             "docker/console.js",
         ],
-        "dashboard/dashboard": [
-            "dashboard/list.js",
-        ],
+
         "kubernetes/kubernetes": [
             "kubernetes/styles/main.less",
             "kubernetes/scripts/main.js",
@@ -22,14 +24,22 @@ var info = {
             "kubernetes/styles/registry.less",
             "kubernetes/scripts/registry.js",
         ],
+
+        "machines/machines": [
+            "machines/index.js",
+            "machines/machines.css",
+        ],
+
         "networkmanager/network": [
             "networkmanager/interfaces.js",
             "networkmanager/networking.css",
         ],
+
         "ostree/ostree": [
             "ostree/app.js",
             "ostree/ostree.css",
         ],
+
         "playground/jquery-patterns": [
             "playground/jquery-patterns.js",
         ],
@@ -48,13 +58,16 @@ var info = {
         "playground/test": [
             "playground/test",
         ],
+
         "realmd/domain": [
             "realmd/operation.js",
         ],
+
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
             "selinux/setroubleshoot.css",
         ],
+
         "shell/index": [
             "shell/index.js",
             "shell/shell.css",
@@ -65,18 +78,22 @@ var info = {
         "shell/index-no-machines": [
             "shell/index-no-machines.js",
         ],
+
         "sosreport/sosreport": [
             "sosreport/index.js",
             "sosreport/sosreport.css",
         ],
+
         "storaged/storage": [
             "storaged/devices.js",
             "storaged/storage.css",
         ],
+
         "subscriptions/subscriptions": [
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
         ],
+
         "systemd/services": [
             "systemd/init.js",
         ],
@@ -90,13 +107,11 @@ var info = {
         "systemd/terminal": [
             "systemd/terminal.jsx",
         ],
+
         "tuned/performance": [
             "tuned/dialog.js",
         ],
-        "machines/machines": [
-            "machines/index.js",
-            "machines/machines.css",
-        ],
+
         "users/users": [
             "users/local.js",
             "users/users.css",
@@ -104,18 +119,21 @@ var info = {
     },
 
     files: [
+        "dashboard/index.html",
+        "dashboard/manifest.json",
+
         "docker/console.html",
         "docker/manifest.json",
         "docker/index.html",
         "docker/images/drive-harddisk-symbolic.svg",
 
-        "dashboard/index.html",
-        "dashboard/manifest.json",
-
         "kubernetes/manifest.json",
         "kubernetes/override.json",
         "kubernetes/index.html",
         "kubernetes/registry.html",
+
+        "machines/index.html",
+        "machines/manifest.json",
 
         "networkmanager/index.html",
         "networkmanager/manifest.json",
@@ -157,6 +175,9 @@ var info = {
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
 
+        "subscriptions/index.html",
+        "subscriptions/manifest.json",
+
         "systemd/index.html",
         "systemd/logs.html",
         "systemd/manifest.json",
@@ -167,12 +188,6 @@ var info = {
 
         "users/index.html",
         "users/manifest.json",
-
-        "subscriptions/index.html",
-        "subscriptions/manifest.json",
-
-        "machines/index.html",
-        "machines/manifest.json"
     ]
 };
 

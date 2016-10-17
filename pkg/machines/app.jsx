@@ -18,13 +18,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React, { PropTypes } from "react";
-import HostVmsList from "./hostvmslist.es6";
+import HostVmsList from "./hostvmslist.jsx";
 
-function App({ store }) {
+const App = ({ store }) => {
     const { vms } = store.getState();
     const dispatch = store.dispatch;
 
-    return React.createElement(HostVmsList, {vms: vms, dispatch: dispatch});
+    return (<HostVmsList vms={vms} dispatch={dispatch} />)
+}
+App.propTypes = {
+    store: PropTypes.object.isRequired
 }
 
 export default App;

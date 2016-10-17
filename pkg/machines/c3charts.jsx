@@ -90,10 +90,10 @@ class DonutChart extends React.Component {
     render() {
         this._renderChart();
 
-        return React.createElement('div', null,
-            React.createElement('div', {id: this.domId}),
-            React.createElement('div', {className: "usage-donut-caption"}, this.props['caption'])
-        );
+        return (<div>
+            <div id={this.domId} />
+            <div className='usage-donut-caption'>{this.props['caption']}</div>
+        </div>);
     }
 }
 

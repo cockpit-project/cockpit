@@ -22,13 +22,21 @@ set -e
 
 # The docker pool should grow automatically as needed, but we grow it
 # explicitly here anyway.  This is hopefully more reliable.
-systemctl start docker
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
 lvresize atomicos/root        -l+50%FREE -r
 lvresize atomicos/docker-pool -l+100%FREE
 
 # Configure kubernetes. Since this writes to /etc have to do before upgrade
 /var/lib/testvm/kubernetes.setup
 
+# we need cockpit/ws as well
+docker pull cockpit/ws
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
+
+# fully upgrade host. Anything past this point can't touch /etc
 # Upgrade host if there is a valid upgrade available (we might be on a RC)
 if rpm-ostree upgrade --check; then
     atomic host upgrade
@@ -47,20 +55,8 @@ fi
 
 ostree checkout "$checkout" /var/local-tree
 
-# HACK: docker falls over regularly, print its log if it does
-systemctl start docker || journalctl -u docker
-
-# we need cockpit/ws as well
-docker pull cockpit/ws
-
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
-
 # reduce image size
 /var/lib/testvm/zero-disk.setup
 
 # Final tweaks
-
 rm -rf /var/log/journal/*
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
-printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf

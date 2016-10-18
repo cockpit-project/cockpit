@@ -30,8 +30,12 @@ import unittest
 class TestSOS(MachineCase):
     def testBasic(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/sosreport")
+
+        # Disable default gateway to prevent external internet access during testing
+        m.execute("ip route del default")
 
         b.click('[data-target="#sos"]')
         b.wait_visible("#sos")

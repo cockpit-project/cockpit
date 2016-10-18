@@ -369,7 +369,7 @@
   <script id="role-entry-tmpl" type="x-template/mustache">
     {{#roles}}
     <div class="checkbox accounts-privileged" data-container="body">
-      <label>
+      <label title="Unix group: {{name}}">
         <input type="checkbox" name="account-role-checkbox-{{id}}"
                data-gid="{{id}}" data-name="{{name}}"
                id="account-role-checkbox-{{id}}" {{#member}}checked{{/member}}/>

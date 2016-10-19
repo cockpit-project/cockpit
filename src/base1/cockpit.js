@@ -17,7 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var url_root = window.localStorage.getItem('url-root');
+var url_root;
+
+try {
+    // Sometimes this throws a SecurityError such as during testing
+    url_root = window.localStorage.getItem('url-root');
+} catch(e) { }
 
 var mock = mock || { };
 
@@ -27,8 +32,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 "use strict";
 
 if (typeof window.debugging === "undefined") {
-    window.debugging = window.sessionStorage["debugging"] ||
-                       window.localStorage["debugging"];
+    try {
+        // Sometimes this throws a SecurityError such as during testing
+        window.debugging = window.sessionStorage["debugging"] ||
+                           window.localStorage["debugging"];
+    } catch(e) { }
 }
 
 function in_array(array, val) {

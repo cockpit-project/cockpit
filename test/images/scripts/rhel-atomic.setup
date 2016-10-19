@@ -14,4 +14,9 @@ systemctl start docker || journalctl -u docker
 docker pull rhel7/rhel-tools
 docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
 
+# What we need for kubernetes
+docker pull rhel7/kubernetes-controller-mgr
+docker pull rhel7/kubernetes-apiserver
+docker pull rhel7/kubernetes-scheduler
+
 /var/lib/testvm/atomic.setup

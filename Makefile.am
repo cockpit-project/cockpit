@@ -141,6 +141,9 @@ noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
 CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
 EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_CONFIG)
 
+Makefile-%.deps: $(WEBPACK_CONFIG)
+	$(WEBPACK_RULE) -d $@ $<
+
 -include Makefile-dashboard.deps
 -include Makefile-docker.deps
 -include Makefile-kubernetes.deps
@@ -160,9 +163,6 @@ EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_CONFIG)
 
 WEBPACK_RULE = $(V_WEBPACK) NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
-
-Makefile-%.deps: $(WEBPACK_CONFIG)
-	$(WEBPACK_RULE) -d $@ $<
 
 all-local:: $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
 	@true

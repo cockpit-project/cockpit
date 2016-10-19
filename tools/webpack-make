@@ -94,15 +94,14 @@ function generateDeps(makefile, stats) {
 	"",
     ];
 
+    lines.push(makefile + ": $(WEBPACK_CONFIG) $(" + prefix + "_INPUTS)");
+    lines.push("\t$(WEBPACK_RULE) -d " + makefile + " $(WEBPACK_CONFIG)");
+
     outputs.forEach(function(name) {
-        lines.push(name + ": $(WEBPACK_CONFIG) $(" + prefix + "_INPUTS)");
-        if (makefile)
-            lines.push("\t$(WEBPACK_RULE) -d " + makefile + " $(WEBPACK_CONFIG)");
-        else
-            lines.push("\t$(WEBPACK_RULE) $(WEBPACK_CONFIG)");
+        lines.push(name + ": " + makefile);
+        lines.push("")
     });
 
-    lines.push("");
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");

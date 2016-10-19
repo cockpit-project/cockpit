@@ -1,0 +1,95 @@
+#!/bin/bash
+set -e
+
+cp /usr/lib/systemd/system/docker.service /etc/systemd/system/
+sed -i s/MountFlags=slave/MountFlags=/g /etc/systemd/system/docker.service
+
+# selinux tweeks
+mkdir -p /var/lib/kubelet/
+chcon -R -t svirt_sandbox_file_t /var/lib/kubelet/
+chcon -R -t svirt_sandbox_file_t /var/lib/docker/
+
+mkdir -p /etc/kubernetes
+cd /etc/kubernetes/
+
+# Certificate
+cat <<EOF > openssl.conf
+oid_section             = new_oids
+[new_oids]
+[req]
+encrypt_key             = no
+string_mask             = nombstr
+req_extensions          = v3_req
+distinguished_name      = v3_name
+[v3_name]
+commonName              = kubernetes
+[v3_req]
+basicConstraints        = CA:FALSE
+subjectAltName          = @alt_names
+[alt_names]
+DNS.1                   = kubernetes
+DNS.2                   = kubernetes.default
+DNS.3                   = kubernetes.default.svc
+DNS.4                   = kubernetes.default.svc.cluster.local
+IP.1                    = 127.0.0.1
+IP.2                    = 10.254.0.1
+IP.3                    = 172.17.0.1
+EOF
+
+openssl genrsa -out ca.key 2048
+openssl req -x509 -new -nodes -key ca.key -days 3072 -out ca.crt -subj '/CN=kubernetes'
+openssl genrsa -out server.key 2048
+openssl req -config openssl.conf -new -key server.key -out server.csr -subj '/CN=kubernetes'
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 3072 -extensions v3_req -extfile openssl.conf
+
+# Auth files
+echo -e '{"user":"admin"}\n{"user":"scruffy","readonly": true}' > /etc/kubernetes/authorization
+echo -e 'fubar,admin,10101\nscruffy,scruffy,10102' > /etc/kubernetes/passwd
+
+echo 'KUBE_MASTER="--master=http://172.17.0.1:8080"' > /etc/kubernetes/config
+
+# Pull docker containers
+docker pull gscrivano/etcd
+docker pull jasonbrooks/kubernetes-apiserver:centos
+docker pull jasonbrooks/kubernetes-scheduler:centos
+docker pull jasonbrooks/kubernetes-controller-manager:centos
+docker pull jasonbrooks/kubernetes-proxy:centos
+docker pull jasonbrooks/kubernetes-kubelet:centos
+
+# Setup start command
+cat <<EOF > /etc/kubernetes/start-kubernetes
+#!/bin/bash
+atomic install --system gscrivano/etcd
+systemctl start etcd
+
+docker run -d -v /etc/kubernetes:/etc/kubernetes:ro --privileged --net=host jasonbrooks/kubernetes-apiserver:centos --service_account_key_file=/etc/kubernetes/server.key --client-ca-file=/etc/kubernetes/ca.crt --tls-cert-file=/etc/kubernetes/server.crt --tls-private-key-file=/etc/kubernetes/server.key --admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota --basic_auth_file=/etc/kubernetes/passwd --authorization_mode=ABAC --authorization_policy_file=/etc/kubernetes/authorization --address=0.0.0.0 --service-cluster-ip-range=10.254.0.0/16 --etcd-servers=http://172.17.0.1:2379
+
+for a in \$(seq 0 30); do
+    if curl -o /dev/null -k -s https://localhost:6443; then
+        break
+    fi
+    sleep 1
+done
+docker run -d -v /etc/kubernetes:/etc/kubernetes:ro --net=host --privileged jasonbrooks/kubernetes-controller-manager:centos --root-ca-file=/etc/kubernetes/ca.crt --service-account-private-key-file=/etc/kubernetes/server.key
+docker run -d -v /etc/kubernetes:/etc/kubernetes:ro --privileged --net=host jasonbrooks/kubernetes-scheduler:centos
+atomic run --opt1="-v /etc/kubernetes:/etc/kubernetes:ro" --opt3="--master=http://172.17.0.1:8080 --healthz-bind-address=0.0.0.0 --hostname-override=127.0.0.1" jasonbrooks/kubernetes-proxy:centos
+atomic run --opt1="-v /etc/kubernetes:/etc/kubernetes:ro" --opt3="--address=0.0.0.0 --hostname-override=127.0.0.1 --api-servers=http://172.17.0.1:8080" jasonbrooks/kubernetes-kubelet:centos
+EOF
+chmod +x /etc/kubernetes/start-kubernetes
+
+cat <<EOF > /etc/kubernetes/stop-kubernetes
+#!/bin/bash
+systemctl stop etcd
+
+docker stop $(docker ps -q --filter image="kubernetes-scheduler")
+docker stop $(docker ps -q --filter image="kubernetes-controller-manager")
+docker stop $(docker ps -q --filter image="kubernetes-apiserver")
+docker stop $(docker ps -q --filter image="kubernetes-proxy")
+docker stop $(docker ps -q --filter image="kubernetes-kubelet")
+EOF
+chmod +x /etc/kubernetes/stop-kubernetes
+
+
+# Get a kubectl binary
+curl -sSL https://storage.googleapis.com/kubernetes-release/release/$(curl -sSL "https://storage.googleapis.com/kubernetes-release/release/stable.txt")/bin/linux/amd64/kubectl > /usr/local/bin/kubectl
+chmod +x /usr/local/bin/kubectl

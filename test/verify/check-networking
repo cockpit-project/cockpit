@@ -168,7 +168,9 @@ class TestNetworking(MachineCase):
         b.click("#network-ethernet-settings-apply")
         b.wait_popdown("network-ethernet-settings-dialog")
         b.wait_in_text("tr:contains('MTU')", "1400")
-        wait(lambda: "mtu 1400" in m.execute("ip link show %s" % iface))
+
+        # We're debugging failures here log status to journal for diagnosis
+        wait(lambda: "mtu 1400" in m.execute("ip link show %s | logger -s 2>&1" % iface))
 
         # Go back to main page
         b.click("#network-interface ol.breadcrumb li:first-child a")

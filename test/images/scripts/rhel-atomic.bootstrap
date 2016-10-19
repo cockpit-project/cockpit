@@ -4,7 +4,6 @@
 set -e
 
 url="http://cdn.stage.redhat.com/content/dist/rhel/atomic/7/7Server/x86_64/images/"
-prefix="rhel-atomic-cloud-7.2"
 
 BASE=$(dirname $0)
-$BASE/atomic.bootstrap "$1" "$url" "$prefix"
+$BASE/atomic.bootstrap "$1" "$url" "rhel-atomic-cloud-7.2.[0-9\.]+.x86_64.qcow2"

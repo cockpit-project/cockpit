@@ -41,6 +41,8 @@ class TestRealms(MachineCase):
         m = self.machine
         b = self.browser
 
+        self.login_and_go("/system")
+
         # Use the FreeIPA instance as the DNS server
         prepare_resolv(m, self.machines['ipa'].address)
 
@@ -48,8 +50,6 @@ class TestRealms(MachineCase):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
         #
         wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
-
-        self.login_and_go("/system")
 
         def wait_number_domains(n):
             if n == 0:
@@ -130,6 +130,8 @@ class TestRealms(MachineCase):
 
         m.execute("echo -e '[providers]\nsssd = no\n' >>%s" % realmd_distro_conf)
 
+        self.login_and_go("/system")
+
         # Use the FreeIPA instance as the DNS server
         prepare_resolv(m, self.machines['ipa'].address)
 
@@ -137,8 +139,6 @@ class TestRealms(MachineCase):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
         #
         wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
-
-        self.login_and_go("/system")
 
         # Join cockpit.lan
         b.click("#system-info-domain a")

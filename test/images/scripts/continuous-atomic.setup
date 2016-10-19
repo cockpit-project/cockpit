@@ -25,7 +25,7 @@ lvresize atomicos/root        -l+50%FREE -r
 lvresize atomicos/docker-pool -l+100%FREE
 
 # Configure kubernetes. Since this writes to /etc have to do before upgrade
-/var/lib/testvm/kubernetes.setup
+/var/lib/testvm/kubernetes-container.setup
 
 # Switch to continuous stream
 ostree remote add --set=gpg-verify=false centos-atomic-continuous https://ci.centos.org/artifacts/sig-atomic/rdgo/centos-continuous/ostree/repo/

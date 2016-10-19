@@ -108,9 +108,9 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.logout()
 
         # Remove authentication stuff
-        m.execute("systemctl stop kube-apiserver")
+        self.stop_kubernetes()
         m.execute("sed -i '/KUBE_API_ARGS=/d' /etc/kubernetes/apiserver")
-        m.execute("systemctl start kube-apiserver")
+        self.start_kubernetes()
         b.reload()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Unauthenticated')

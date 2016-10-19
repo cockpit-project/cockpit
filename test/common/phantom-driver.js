@@ -120,7 +120,16 @@ var driver = {
         }
 
         page.onResourceError = function(ex) {
-            failure = ex.errorString + " " + ex.url;
+            /*
+             * This failure seems to happen semi regularly after doing a Cockpit
+             * logout. It's possible that this is due to an iframe that hasn't loaded
+             * yet cancelling and failing its load. We're experimenting by disabling
+             * this specific failure and seeing its effect on the tests.
+             */
+            if (ex.errorString === "Network access is disabled.")
+                sys.stderr.writeLine("expect_load ignoring: " + ex.errorString)
+            else
+                failure = ex.errorString + " " + ex.url;
         };
 
         /*

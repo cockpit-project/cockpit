@@ -17,9 +17,7 @@ nodist_noinst_DATA =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-TESTS = \
-	pkg/users/test-list-public-keys.sh \
-	$(NULL)
+TESTS =
 
 CLEANFILES = \
 	$(man_MANS) \
@@ -117,6 +115,9 @@ V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
 V_WEBPACK_0 = @echo "  WEBPACK  $(@:Makefile-%.deps=%)";
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
+WEBPACK_INPUTS =
+WEBPACK_OUTPUTS =
+WEBPACK_INSTALL =
 
 WEBPACK_DEPS = \
 	Makefile-dashboard.deps \

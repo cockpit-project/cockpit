@@ -1,75 +1,42 @@
-<!DOCTYPE html>
-<!--
-This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright (C) 2015 Red Hat, Inc.
+var angular = require("angular");
+var QUnit = require("qunit-tests");
 
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
+require("./projects");
 
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Projects tests</title>
-    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../../tools/qunit.js"></script>
-    <script>
-        function require(name) {
-            if (name == "angular")
-                return angular;
-            else if (["angular-route", "angular-bootstrap/ui-bootstrap.js"].indexOf(name) !== -1)
-                return null;
-            else if (name.indexOf("./") === 0 && name.lastIndexOf(".") === 0)
-                return null;
-            else if (name.indexOf(".html") == name.length - 5)
-                return "<unused></unused>";
-            else
-                throw new Error("unknown shim module: " + name);
-        }
-    </script>
-    <script src="../../../lib/angular/angular.js"></script>
-    <script src="../../../lib/angular-route/angular-route.js"></script>
-    <script src="../../../lib/angular-bootstrap/ui-bootstrap.js"></script>
-    <script src="../../../src/base1/cockpit.js"></script>
-    <script src="../scripts/kube-client.js"></script>
-    <script src="../scripts/listing.js"></script>
-    <script src="../scripts/dialog.js"></script>
-    <script src="../scripts/policy.js"></script>
-    <script src="../scripts/projects.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Projects tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-<script>
 function suite(fixtures) {
     "use strict";
 
     /* Filled in with a function */
     var inject;
+    var assert = QUnit;
 
     var module = angular.module("registry.projects.tests", [
         "kubeClient",
         "registry.projects",
-    ])
+    ]);
 
     function projectsTest(name, count, fixtures, func) {
-        asyncTest(name, function() {
-            expect(count);
+        QUnit.asyncTest(name, function() {
+            assert.expect(count);
 
             inject([
                 "kubeLoader",
@@ -96,16 +63,16 @@ function suite(fixtures) {
         'kubeSelect',
         function(projectUtil, select) {
             var user = select().kind("User").name("amanda");
-            equal(user.length, 1, "number of users");
-            equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
-                "finance,", "number of groups");
+            assert.equal(user.length, 1, "number of users");
+            assert.equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
+                         "finance,", "number of groups");
             user = select().kind("User").name("jay");
-            equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
-                "4 Groups", "number of groups");
+            assert.equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
+                         "4 Groups", "number of groups");
             var group = select().kind("Group").name("finance");
-            equal(projectUtil.formatMembers(user.one().groups, 'Users'),
-                "4 Users", "number of users");
-            start();
+            assert.equal(projectUtil.formatMembers(user.one().groups, 'Users'),
+                         "4 Users", "number of users");
+            QUnit.start();
         }
     ]);
 
@@ -115,26 +82,26 @@ function suite(fixtures) {
         function(projectUtil, select) {
             var user = select().kind("User").name("amanda");
             var policybinding = select().kind("PolicyBinding").namespace("financeprj").name(":default");
-            equal(user.length, 1, "number of users");
-            equal(policybinding.length, 1, "number of policybinding");
+            assert.equal(user.length, 1, "number of users");
+            assert.equal(policybinding.length, 1, "number of policybinding");
             var rolesArray = projectUtil.getAllRoles("", "");
-            equal(rolesArray.length, 0, "no values passed 1 ");
+            assert.equal(rolesArray.length, 0, "no values passed 1 ");
             rolesArray = projectUtil.getAllRoles();
-            equal(rolesArray.length, 0, "no values passed 2");
-            rolesArray = projectUtil.getAllRoles(user.one(), "financeprj")
-            equal(rolesArray.length, 3, "values passed");
+            assert.equal(rolesArray.length, 0, "no values passed 2");
+            rolesArray = projectUtil.getAllRoles(user.one(), "financeprj");
+            assert.equal(rolesArray.length, 3, "values passed");
 
-            var regRolesArray = projectUtil.getRegistryRoles(user.one(), "financeprj")
-            equal(regRolesArray[0], "Admin", "getRegistryRoles displayRole values");
+            var regRolesArray = projectUtil.getRegistryRoles(user.one(), "financeprj");
+            assert.equal(regRolesArray[0], "Admin", "getRegistryRoles displayRole values");
             regRolesArray = projectUtil.getRegistryRoles("", "");
-            equal(regRolesArray.length, 0, "no values passed 3 ");
+            assert.equal(regRolesArray.length, 0, "no values passed 3 ");
             regRolesArray = projectUtil.getRegistryRoles();
-            equal(regRolesArray.length, 0, "no values passed 4");
+            assert.equal(regRolesArray.length, 0, "no values passed 4");
 
-            equal(projectUtil.isRegistryRole(user.one(), "Admin", "financeprj"), true, "check if Admin registry role");
-            equal(projectUtil.isRegistryRole("system:unauthenticated", "Pull", "financeprj"), true, "check if Pull registry role");
-            equal(projectUtil.isRoles(user.one(), "financeprj"), true, "check if any role exist");
-            start();
+            assert.equal(projectUtil.isRegistryRole(user.one(), "Admin", "financeprj"), true, "check if Admin registry role");
+            assert.equal(projectUtil.isRegistryRole("system:unauthenticated", "Pull", "financeprj"), true, "check if Pull registry role");
+            assert.equal(projectUtil.isRoles(user.one(), "financeprj"), true, "check if any role exist");
+            QUnit.start();
         }
     ]);
 
@@ -441,7 +408,3 @@ suite([
       }
     }
 ]);
-
-</script>
-</body>
-</html>

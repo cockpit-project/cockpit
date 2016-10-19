@@ -1,68 +1,36 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2014 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-  Copyright (C) 2014 Red Hat, Inc.
-
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-  <title>Journal Renderer Tests</title>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
-  <script type="text/javascript" src="../../tools/qunit.js"></script>
-    <script type="text/javascript" src="../pkg/base1/cockpit.js"></script>
-    <script type="text/javascript" src="mustache/mustache.js"></script>
-    <script>
-        function require(name) {
-            if (name == "cockpit")
-                return cockpit;
-            else if (name == "mustache")
-                return Mustache;
-            else if (name.indexOf("raw!") === 0)
-                return "unused";
-            else
-                throw new Error("unknown shim module: " + name);
-        }
-        module = { };
-    </script>
-    <script type="text/javascript" src="journal.js"></script>
-</head>
-<body>
-  <h1 id="qunit-header">Journal Renderer Tests</h1>
-
-  <h2 id="qunit-banner"></h2>
-  <div id="qunit-testrunner-toolbar"></div>
-  <h2 id="qunit-userAgent"></h2>
-  <ol id="qunit-tests"></ol>
-  <div id="qunit-fixture">test markup, will be hidden</div>
-  <div id="done-flag" style="display:none">Done</div>
-
-<script type="text/javascript">
+var QUnit = require("qunit-tests");
+var journal = require("journal");
 
 var debug = false;
 
 function C_(ctxt, str) { return str; }
 
 function pk(label, obj) {
-    putstr(label);
+    var str = label;
     if (obj) {
-        putstr(": ");
-        putstr(obj.toSource());
+        str += ": ";
+        str += obj.toSource();
     }
-    putstr("\n");
+    console.log(str);
 }
 
 function dbg(label, obj) {
@@ -167,7 +135,7 @@ function jexpect(label, expected) {
         return true;
     }
 
-    ok(check(expected), label);
+    QUnit.ok(check(expected), label);
 }
 
 var month_names = [         'January',
@@ -185,8 +153,6 @@ var month_names = [         'January',
                           ];
 
 (function() {
-    var journal = module.exports;
-
     QUnit.testStart(function() {
         output = [ ];
         renderer = journal.renderer(funcs);
@@ -194,39 +160,39 @@ var month_names = [         'January',
         expected_day = month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
     });
 
-    test("append", function() {
+    QUnit.test("append", function() {
         append('foo');
         append('foo');
         append_flush();
         jexpect('two repeated lines',
                  [ { day: expected_day },
                    { message: 'foo', count: 2 }
-                 ])
+                 ]);
         append('foo');
         append_flush();
         jexpect('three repeated lines after flush',
                 [ { day: expected_day },
                   { message: 'foo', count: 3 }
-                ])
+                ]);
     });
 
-    test('prepend', function() {
+    QUnit.test('prepend', function() {
         prepend('foo');
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
                 [ { day: expected_day },
                   { message: 'foo', count: 2 }
-                ])
+                ]);
         prepend('foo');
         prepend_flush();
         jexpect('three repeated lines after flush',
             [ { day: expected_day },
               { message: 'foo', count: 3 }
-            ])
+            ]);
     });
 
-    test('prepend after append', function() {
+    QUnit.test('prepend after append', function() {
         append('foo');
         append_flush();
         prepend('foo');
@@ -234,10 +200,10 @@ var month_names = [         'January',
         jexpect('two repeated lines',
             [ { day: expected_day },
               { message: 'foo', count: 2 }
-            ])
+            ]);
     });
 
-    test('prepend after append', function() {
+    QUnit.test('prepend after append', function() {
         append('foo');
         append_flush();
         prepend('bar');
@@ -246,10 +212,10 @@ var month_names = [         'January',
             [ { day: expected_day },
               { message: 'bar', count: 1 },
               { message: 'foo', count: 1 }
-            ])
+            ]);
     });
 
-    test('append after prepend', function() {
+    QUnit.test('append after prepend', function() {
         prepend('foo');
         prepend_flush();
         append('foo');
@@ -257,10 +223,10 @@ var month_names = [         'January',
         jexpect('two repeated lines',
             [ { day: expected_day },
               { message: 'foo', count: 2 }
-            ])
+            ]);
     });
 
-    test('append after split', function() {
+    QUnit.test('append after split', function() {
         prepend('bar');
         prepend('baz');
         prepend_flush();
@@ -271,10 +237,10 @@ var month_names = [         'January',
               { message: 'baz', count: 1 },
               { message: 'bar', count: 1 },
               { message: 'foo', count: 1 }
-            ])
+            ]);
     });
 
-    test('append after split', function() {
+    QUnit.test('append after split', function() {
         prepend('bar');
         prepend('baz');
         prepend_flush();
@@ -284,10 +250,10 @@ var month_names = [         'January',
             [ { day: expected_day },
               { message: 'baz', count: 1 },
               { message: 'bar', count: 2 },
-            ])
+            ]);
     });
 
-    test('prepend after split', function() {
+    QUnit.test('prepend after split', function() {
         append('foo');
         append('bar');
         append_flush();
@@ -298,10 +264,10 @@ var month_names = [         'January',
               { message: 'baz', count: 1 },
               { message: 'foo', count: 1 },
               { message: 'bar', count: 1 },
-            ])
+            ]);
     });
 
-    test('prepend after split', function() {
+    QUnit.test('prepend after split', function() {
         append('foo');
         append('bar');
         append_flush();
@@ -311,10 +277,10 @@ var month_names = [         'January',
             [ { day: expected_day },
               { message: 'foo', count: 2 },
               { message: 'bar', count: 1 },
-            ])
+            ]);
     });
 
-    test('reboot', function() {
+    QUnit.test('reboot', function() {
         append('foo');
         append('foo');
         reboot();
@@ -325,10 +291,10 @@ var month_names = [         'January',
               { message: 'foo', count: 2 },
               { reboot: true },
               { message: 'foo', count: 1 },
-            ])
+            ]);
     });
 
-    test('prepend to reboot same day', function() {
+    QUnit.test('prepend to reboot same day', function() {
         append('foo');
         append('baz');
         append_flush();
@@ -341,10 +307,10 @@ var month_names = [         'January',
               { reboot: true },
               { message: 'foo', count: 1 },
               { message: 'baz', count: 1 },
-            ])
+            ]);
     });
 
-    test('prepend to reboot same day', function() {
+    QUnit.test('prepend to reboot same day', function() {
         append('foo');
         append('baz');
         append_flush();
@@ -357,11 +323,8 @@ var month_names = [         'January',
               { reboot: true },
               { message: 'foo', count: 1 },
               { message: 'baz', count: 1 },
-            ])
+            ]);
     });
 
     QUnit.start();
 }());
-</script>
-</body>
-</html>

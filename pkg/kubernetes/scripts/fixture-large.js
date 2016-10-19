@@ -1,4 +1,4 @@
-var FIXTURE_LARGE = {
+module.exports = {
     "namespaces/default/pods/mock-0": {
         "kind": "Pod",
         "metadata": {

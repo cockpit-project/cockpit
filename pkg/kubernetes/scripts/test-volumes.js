@@ -1,72 +1,34 @@
-<!DOCTYPE html>
-<!--
-This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2016 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright (C) 2016 Red Hat, Inc.
+var angular = require("angular");
+var QUnit = require("qunit-tests");
 
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
+require("./volumes");
+require("./kube-client-cockpit");
 
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Projects tests</title>
-    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../../tools/qunit.js"></script>
-    <script>
-        function require(name) {
-            if (name == "angular")
-                return angular;
-            else if (["angular-route", "angular-bootstrap/ui-bootstrap.js", "kubernetes-object-describer/dist/object-describer.js", "kubernetes-container-terminal/dist/container-terminal.js", "moment", "cockpit"].indexOf(name) !== -1)
-                return null;
-            else if (name.indexOf("./") === 0 && name.lastIndexOf(".") === 0)
-                return null;
-            else if (name.indexOf(".html") == name.length - 5)
-                return "<unused></unused>";
-            else
-                throw new Error("unknown shim module: " + name);
-        }
-    </script>
-
-    <script src="../../../lib/angular/angular.js"></script>
-    <script src="../../../lib/angular-route/angular-route.js"></script>
-    <script src="../../../lib/angular-bootstrap/ui-bootstrap.js"></script>
-    <script src="../../../lib/angular-bootstrap/ui-bootstrap.js"></script>
-    <script src="../../../lib/momentjs/moment.js"></script>
-    <script src="../../../src/base1/cockpit.js"></script>
-    <script src="../scripts/kube-client.js"></script>
-    <script src="../scripts/kube-client-cockpit.js"></script>
-    <script src="../scripts/listing.js"></script>
-    <script src="../scripts/date.js"></script>
-    <script src="../scripts/dialog.js"></script>
-    <script src="../scripts/main.js"></script>
-    <script src="../scripts/volumes.js"></script>
-    <script src="../scripts/utils.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Projects tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-<script>
 function suite(fixtures) {
     "use strict";
 
     /* Filled in with a function */
     var inject;
+    var assert = QUnit;
 
     var module = angular.module("kubernetes.volumes.tests", [
         "kubeClient",
@@ -82,11 +44,11 @@ function suite(fixtures) {
             KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
             KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
         }
-    ])
+    ]);
 
     function volumesTest(name, count, fixtures, func) {
-        test(name, function() {
-            expect(count);
+        QUnit.test(name, function() {
+            assert.expect(count);
             inject([
                 "kubeLoader",
                 function(loader, data) {
@@ -105,14 +67,14 @@ function suite(fixtures) {
         function(volumeData, select) {
             var claim = select().kind("PersistentVolumeClaim").name("bound-claim").one();
             var pods = volumeData.podsForClaim(claim);
-            equal(pods.length, 1, "number of pods");
-            equal(pods.one().metadata.name, "mock-pod", "correct pod");
+            assert.equal(pods.length, 1, "number of pods");
+            assert.equal(pods.one().metadata.name, "mock-pod", "correct pod");
 
             pods = volumeData.podsForClaim();
-            deepEqual(pods.length, 0, "null claim pods");
+            assert.deepEqual(pods.length, 0, "null claim pods");
 
             pods = volumeData.podsForClaim({});
-            deepEqual(pods.length, 0, "empty claim pods");
+            assert.deepEqual(pods.length, 0, "empty claim pods");
         }
     ]);
 
@@ -122,7 +84,7 @@ function suite(fixtures) {
         function(volumeData, select) {
             var pod = select().kind("Pod").one();
             var volumes = volumeData.volumesForPod(pod);
-            deepEqual(volumes, {
+            assert.deepEqual(volumes, {
               "default-token-luvqo": {
                 "name": "default-token-luvqo",
                 "secret": {
@@ -176,10 +138,10 @@ function suite(fixtures) {
                 }
               }
             });
-            equal(volumes, volumeData.volumesForPod(pod), "same object");
+            assert.equal(volumes, volumeData.volumesForPod(pod), "same object");
 
-            deepEqual(volumeData.volumesForPod(), {}, "No null volumes");
-            deepEqual(volumeData.volumesForPod({}), {}, "No empty volumes");
+            assert.deepEqual(volumeData.volumesForPod(), {}, "No null volumes");
+            assert.deepEqual(volumeData.volumesForPod({}), {}, "No empty volumes");
         }
     ]);
 
@@ -191,11 +153,11 @@ function suite(fixtures) {
             var volumes = volumeData.volumesForPod(pod);
             var source = volumes["host-tmp"]["persistentVolumeClaim"];
             var claim = volumeData.claimFromVolumeSource(source, "default");
-            equal(claim.metadata.name, "bound-claim", "correct claim");
-            equal(claim.kind, "PersistentVolumeClaim", "correct type");
+            assert.equal(claim.metadata.name, "bound-claim", "correct claim");
+            assert.equal(claim.kind, "PersistentVolumeClaim", "correct type");
 
-            deepEqual(volumeData.claimFromVolumeSource(), null, "No null volumes");
-            deepEqual(volumeData.claimFromVolumeSource({}), null, "No empty volumes");
+            assert.deepEqual(volumeData.claimFromVolumeSource(), null, "No null volumes");
+            assert.deepEqual(volumeData.claimFromVolumeSource({}), null, "No empty volumes");
         }
     ]);
 
@@ -206,14 +168,14 @@ function suite(fixtures) {
             var bound = select().kind("PersistentVolume").name("bound").one();
             var claim = volumeData.claimForVolume(bound);
 
-            equal(claim.metadata.name, "bound-claim", "correct claim");
-            equal(claim.kind, "PersistentVolumeClaim", "correct claim");
+            assert.equal(claim.metadata.name, "bound-claim", "correct claim");
+            assert.equal(claim.kind, "PersistentVolumeClaim", "correct claim");
 
             var unbound = select().kind("PersistentVolume").name("unbound").one();
-            equal(volumeData.claimForVolume(unbound), null, "no claim");
+            assert.equal(volumeData.claimForVolume(unbound), null, "no claim");
 
-            equal(volumeData.claimForVolume(), null, "null volume");
-            equal(volumeData.claimForVolume(), null, "empty volume");
+            assert.equal(volumeData.claimForVolume(), null, "null volume");
+            assert.equal(volumeData.claimForVolume(), null, "empty volume");
         }
     ]);
 
@@ -222,10 +184,10 @@ function suite(fixtures) {
         'kubeSelect',
         function(volumeData, select) {
             var claim = select().kind("PersistentVolumeClaim").statusPhase("Bound").one();
-            equal(claim.metadata.name, "bound-claim", "select bound claims");
+            assert.equal(claim.metadata.name, "bound-claim", "select bound claims");
 
             var pending = select().kind("PersistentVolumeClaim").statusPhase("Pending").one();
-            equal(pending.metadata.name, "unbound-claim", "select unbound claims");
+            assert.equal(pending.metadata.name, "unbound-claim", "select unbound claims");
         }
     ]);
 
@@ -235,10 +197,10 @@ function suite(fixtures) {
         function(volumeData, select) {
             var pv = select().kind("PersistentVolume").name("bound").one();
             var volumes = volumeData.volumesForPod(select().kind("Pod").one());
-            equal(volumeData.getVolumeType(pv.spec), "nfs", "correct type");
-            equal(volumeData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
-            equal(volumeData.getVolumeType(), undefined, "null volume");
-            equal(volumeData.getVolumeType({}), undefined, "empty volume");
+            assert.equal(volumeData.getVolumeType(pv.spec), "nfs", "correct type");
+            assert.equal(volumeData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
+            assert.equal(volumeData.getVolumeType(), undefined, "null volume");
+            assert.equal(volumeData.getVolumeType({}), undefined, "empty volume");
         }
     ]);
 
@@ -247,9 +209,9 @@ function suite(fixtures) {
         'kubeSelect',
         function(volumeData, select) {
             var pv = select().kind("PersistentVolume").name("bound").one();
-            equal(volumeData.getVolumeLabel(), "Unknown", "null volume");
-            equal(volumeData.getVolumeLabel({}), "Unknown", "empty volume");
-            equal(volumeData.getVolumeLabel(pv.spec), "NFS Mount", "volume label");
+            assert.equal(volumeData.getVolumeLabel(), "Unknown", "null volume");
+            assert.equal(volumeData.getVolumeLabel({}), "Unknown", "empty volume");
+            assert.equal(volumeData.getVolumeLabel(pv.spec), "NFS Mount", "volume label");
         }
     ]);
 
@@ -272,9 +234,9 @@ function suite(fixtures) {
               }
             };
 
-            deepEqual(blank_fields, volumeFields.build(), "default fields");
-            deepEqual(blank_fields, volumeFields.build({}), "empty fields");
-            deepEqual({
+            assert.deepEqual(blank_fields, volumeFields.build(), "default fields");
+            assert.deepEqual(blank_fields, volumeFields.build({}), "empty fields");
+            assert.deepEqual({
               "accessModes": {
                 "ReadOnlyMany": "Read only from multiple nodes",
                 "ReadWriteMany": "Read and write from multiple nodes",
@@ -296,13 +258,13 @@ function suite(fixtures) {
         "defaultVolumeFields",
         "kubeSelect",
         function(volumeFields, select) {
-            var result = volumeFields.validate(null, {})
-            equal(result.data, null, "blank fields blank data");
-            equal(result.errors.length, 4);
-            equal(result.errors[0].target, "#last-access", "blank fields access error");
-            equal(result.errors[1].target, "#modify-name", "blank fields name error");
-            equal(result.errors[2].target, "#modify-capacity", "blank fields capacity error");
-            equal(result.errors[3].target, "#last-policy", "blank fields policy error");
+            var result = volumeFields.validate(null, {});
+            assert.equal(result.data, null, "blank fields blank data");
+            assert.equal(result.errors.length, 4);
+            assert.equal(result.errors[0].target, "#last-access", "blank fields access error");
+            assert.equal(result.errors[1].target, "#modify-name", "blank fields name error");
+            assert.equal(result.errors[2].target, "#modify-capacity", "blank fields capacity error");
+            assert.equal(result.errors[3].target, "#last-policy", "blank fields policy error");
 
             var invalid = {
                 "reclaimPolicies": { "policy1": "policy2" },
@@ -313,12 +275,12 @@ function suite(fixtures) {
                 "capacity": "invalid"
             };
             result = volumeFields.validate(null, invalid);
-            equal(result.data, null, "invalid fields invalid data");
-            equal(result.errors.length, 4);
-            equal(result.errors[0].target, "#last-access", "invalid fields access error");
-            equal(result.errors[1].target, "#modify-name", "invalid fields name error");
-            equal(result.errors[2].target, "#modify-capacity", "invalid fields capacity error");
-            equal(result.errors[3].target, "#last-policy", "invalid fields policy error");
+            assert.equal(result.data, null, "invalid fields invalid data");
+            assert.equal(result.errors.length, 4);
+            assert.equal(result.errors[0].target, "#last-access", "invalid fields access error");
+            assert.equal(result.errors[1].target, "#modify-name", "invalid fields name error");
+            assert.equal(result.errors[2].target, "#modify-capacity", "invalid fields capacity error");
+            assert.equal(result.errors[3].target, "#last-policy", "invalid fields policy error");
 
             var valid = {
                 "reclaimPolicies": { "policy1": "policy2" },
@@ -336,19 +298,19 @@ function suite(fixtures) {
                   "storage": "2Gi"
                 },
                 "persistentVolumeReclaimPolicy": "policy1"
-            }
+            };
             result = volumeFields.validate(null, valid);
-            deepEqual(result.data, {
+            assert.deepEqual(result.data, {
               "kind": "PersistentVolume",
               "metadata": {
                 "name": "name"
               },
               "spec": spec
             }, "no item full object");
-            equal(result.errors.length, 0);
+            assert.equal(result.errors.length, 0);
 
             result = volumeFields.validate({}, valid);
-            deepEqual(result.data, { "spec": spec }, "with item only spec");
+            assert.deepEqual(result.data, { "spec": spec }, "with item only spec");
         }
     ]);
 
@@ -356,7 +318,7 @@ function suite(fixtures) {
         "glusterfsVolumeFields",
         "kubeSelect",
         function(gfs, select) {
-            var endpoints = select().kind("Endpoints");;
+            var endpoints = select().kind("Endpoints");
             var blank_fields = {
               "glusterfsPath": undefined,
               "endpoint": undefined,
@@ -367,9 +329,9 @@ function suite(fixtures) {
               }
             };
 
-            deepEqual(blank_fields, gfs.build(), "default gluster fields");
-            deepEqual(blank_fields, gfs.build({}), "empty gluster fields");
-            deepEqual({
+            assert.deepEqual(blank_fields, gfs.build(), "default gluster fields");
+            assert.deepEqual(blank_fields, gfs.build({}), "empty gluster fields");
+            assert.deepEqual({
               "glusterfsPath": "kube_vo",
               "endpointOptions": endpoints,
               "readOnly": undefined,
@@ -384,20 +346,20 @@ function suite(fixtures) {
     volumesTest("gfs volume validate", 9, fixtures, [
         "glusterfsVolumeFields",
         function(nfsVolumeFields) {
-            var result = nfsVolumeFields.validate(null, {})
-            equal(result.data, null, "blank fields blank data");
-            equal(result.errors.length, 2);
-            equal(result.errors[0].target, "#modify-endpoint", "blank fields endpoint error");
-            equal(result.errors[1].target, "#modify-glusterfs-path", "blank fields path error");
+            var result = nfsVolumeFields.validate(null, {});
+            assert.equal(result.data, null, "blank fields blank data");
+            assert.equal(result.errors.length, 2);
+            assert.equal(result.errors[0].target, "#modify-endpoint", "blank fields endpoint error");
+            assert.equal(result.errors[1].target, "#modify-glusterfs-path", "blank fields path error");
 
             var invalid = {
                 "endpoint": "bad",
                 "glusterfsPath": "name"
             };
             result = nfsVolumeFields.validate(null, invalid);
-            equal(result.data, null, "invalid fields invalid data");
-            equal(result.errors.length, 1);
-            equal(result.errors[0].target, "#modify-endpoint", "invalid endpoint error");
+            assert.equal(result.data, null, "invalid fields invalid data");
+            assert.equal(result.errors.length, 1);
+            assert.equal(result.errors[0].target, "#modify-endpoint", "invalid endpoint error");
 
             var valid = {
                 "endpoint": "my-gluster-endpoint",
@@ -409,8 +371,8 @@ function suite(fixtures) {
                 "readOnly": false
             };
             result = nfsVolumeFields.validate(null, valid);
-            deepEqual(result.data, source, "valid source result");
-            equal(result.errors.length, 0, "no errors when valid");
+            assert.deepEqual(result.data, source, "valid source result");
+            assert.equal(result.errors.length, 0, "no errors when valid");
         }
     ]);
 
@@ -428,9 +390,9 @@ function suite(fixtures) {
               "server": undefined
             };
 
-            deepEqual(blank_fields, nfsVolumeFields.build(), "default nfs fields");
-            deepEqual(blank_fields, nfsVolumeFields.build({}), "empty nfs fields");
-            deepEqual({
+            assert.deepEqual(blank_fields, nfsVolumeFields.build(), "default nfs fields");
+            assert.deepEqual(blank_fields, nfsVolumeFields.build({}), "empty nfs fields");
+            assert.deepEqual({
               "path": "/tmp",
               "readOnly": true,
               "reclaimPolicies": {
@@ -445,21 +407,21 @@ function suite(fixtures) {
     volumesTest("nfs volume validate", 10, fixtures, [
         "nfsVolumeFields",
         function(nfsVolumeFields) {
-            var result = nfsVolumeFields.validate(null, {})
-            equal(result.data, null, "blank fields blank data");
-            equal(result.errors.length, 2);
-            equal(result.errors[0].target, "#nfs-modify-server", "blank fields server error");
-            equal(result.errors[1].target, "#modify-path", "blank fields path error");
+            var result = nfsVolumeFields.validate(null, {});
+            assert.equal(result.data, null, "blank fields blank data");
+            assert.equal(result.errors.length, 2);
+            assert.equal(result.errors[0].target, "#nfs-modify-server", "blank fields server error");
+            assert.equal(result.errors[1].target, "#modify-path", "blank fields path error");
 
             var invalid = {
                 "server": "server/bad",
                 "path": "bad",
             };
             result = nfsVolumeFields.validate(null, invalid);
-            equal(result.data, null, "invalid fields invalid data");
-            equal(result.errors.length, 2);
-            equal(result.errors[0].target, "#nfs-modify-server", "invalid fields server error");
-            equal(result.errors[1].target, "#modify-path", "invalid fields path error");
+            assert.equal(result.data, null, "invalid fields invalid data");
+            assert.equal(result.errors.length, 2);
+            assert.equal(result.errors[0].target, "#nfs-modify-server", "invalid fields server error");
+            assert.equal(result.errors[1].target, "#modify-path", "invalid fields path error");
 
             var valid = {
                 "server": "host.or-ip:port",
@@ -471,8 +433,8 @@ function suite(fixtures) {
                 "readOnly": false
             };
             result = nfsVolumeFields.validate(null, valid);
-            deepEqual(result.data, source, "valid source result");
-            equal(result.errors.length, 0, "no errors when valid");
+            assert.deepEqual(result.data, source, "valid source result");
+            assert.equal(result.errors.length, 0, "no errors when valid");
         }
     ]);
 
@@ -805,7 +767,3 @@ suite([
 }
 
 ]);
-
-</script>
-</body>
-</html>

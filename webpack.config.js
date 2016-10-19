@@ -118,6 +118,26 @@ var info = {
         ]
     },
 
+    tests: [
+        "docker/test-docker",
+
+        "storaged/test-util",
+
+        "kubernetes/scripts/test-utils",
+        "kubernetes/scripts/test-images",
+        "kubernetes/scripts/test-projects",
+        "kubernetes/scripts/test-nodes",
+        "kubernetes/scripts/test-kube-client",
+        "kubernetes/scripts/test-tags",
+        "kubernetes/scripts/test-connection",
+        "kubernetes/scripts/test-volumes",
+
+        "playground/test-dummy",
+        "playground/test-journal-renderer",
+        "playground/test-machines",
+        "playground/test-patterns",
+    ],
+
     files: [
         "dashboard/index.html",
         "dashboard/manifest.json",
@@ -194,7 +214,7 @@ var info = {
 var externals = {
     "cockpit": "cockpit",
     "jquery": "jQuery",
-}
+};
 
 /* ---------------------------------------------------------------------
  * Implementation
@@ -202,6 +222,7 @@ var externals = {
 
 var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
+var html = require('html-webpack-plugin');
 var extract = require("extract-text-webpack-plugin");
 var extend = require("extend");
 var path = require("path");
@@ -231,6 +252,7 @@ Object.keys(info.entries).forEach(function(key) {
         delete info.entries[key];
         return;
     }
+
     info.entries[key] = info.entries[key].map(function(value) {
         if (value.indexOf("/") === -1)
             return value;
@@ -263,6 +285,20 @@ if (production) {
         },
     }));
 }
+
+/* Fill in the tests properly */
+info.tests.forEach(function(test) {
+    if (!section || test.indexOf(section) === 0) {
+        info.entries[test] = pkgdir + path.sep + test + ".js";
+        plugins.push(new html({
+            title: path.basename(test),
+            filename: test + ".html",
+            template: srcdir + path.sep + "tools" + path.sep + "qunit-template.html",
+            builddir: test.split("/").map(function() { return "../" }).join(""),
+            inject: false,
+        }));
+    }
+});
 
 module.exports = {
     resolve: {

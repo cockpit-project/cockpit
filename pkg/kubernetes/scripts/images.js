@@ -21,6 +21,7 @@
     "use strict";
 
     var angular = require('angular');
+    require("angular-route");
 
     require('./dialog');
     require('./kube-client');

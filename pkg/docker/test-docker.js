@@ -1,59 +1,30 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2014 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-  Copyright (C) 2014 Red Hat, Inc.
+(function() {
+    "use strict";
 
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
+    var docker = require("./docker");
+    var QUnit = require("qunit-tests");
+    var assert = QUnit;
 
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-
-<html>
-  <head>
-    <title>Docker Tests</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../tools/qunit.js"></script>
-    <script>
-        function require(name) {
-            switch (name) {
-            case "jquery":
-                return jQuery;
-            case "cockpit":
-                return cockpit;
-            case "term":
-                return null;
-            default:
-                throw new Error("unknown shim module: " + name);
-            }
-        }
-        module = { };
-    </script>
-    <script type="text/javascript" src="../base1/jquery.js"></script>
-    <script type="text/javascript" src="../base1/cockpit.js"></script>
-    <script type="text/javascript" src="docker.js"></script>
-  </head>
-  <body>
-    <h1 id="qunit-header">Docker Tests</h1>
-    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-  </body>
-<script type="text/javascript">
-    var docker = module.exports;
-
-    test("bytes_from_format", function() {
+    QUnit.test("bytes_from_format", function() {
         var checks = [
             [ "999", 999 ],
             [ "1.9 kb", 1945.6],
@@ -65,14 +36,14 @@
 
         var i;
 
-        expect(checks.length);
+        assert.expect(checks.length);
         for (i = 0; i < checks.length; i++) {
-            strictEqual(docker.bytes_from_format(checks[i][0]), checks[i][1],
-                        "bytes_from_format(" + checks[i][0] + ") = " + checks[i][1]);
+            assert.strictEqual(docker.bytes_from_format(checks[i][0]), checks[i][1],
+                               "bytes_from_format(" + checks[i][0] + ") = " + checks[i][1]);
         }
     });
 
-    test("json_skip", function() {
+    QUnit.test("json_skip", function() {
         var checks = [
             [ "number", "0123456789",
                 [ 10, 0 ] ],
@@ -122,7 +93,7 @@
                 [ 0 ] ],
         ];
 
-        expect(checks.length);
+        assert.expect(checks.length);
         for (var i = 0; i < checks.length; i++) {
             var res = [];
             var pos = undefined;
@@ -134,11 +105,11 @@
                     break;
                 pos = next;
             }
-            deepEqual(res, checks[i][2], "json_skip(): " + checks[i][0]);
+            assert.deepEqual(res, checks[i][2], "json_skip(): " + checks[i][0]);
         }
     });
 
-    test("quote_cmdline", function() {
+    QUnit.test("quote_cmdline", function() {
         var checks = [
             [ [ "foo" ],          "foo" ],
             [ [ "foo", "bar" ],   "foo bar" ],
@@ -149,14 +120,14 @@
             [ [ "f \"o" ],        "\"f \\\"o\"" ]
         ];
 
-        expect(checks.length);
+        assert.expect(checks.length);
         for (var i = 0; i < checks.length; i++)
-            strictEqual(docker.quote_cmdline(checks[i][0]), checks[i][1],
-                        "quote(" + String(checks[i][0]) + ") = " + checks[i][1]);
+            assert.strictEqual(docker.quote_cmdline(checks[i][0]), checks[i][1],
+                               "quote(" + String(checks[i][0]) + ") = " + checks[i][1]);
 
     });
 
-    test("unquote_cmdline", function() {
+    QUnit.test("unquote_cmdline", function() {
         var checks = [
             [ [ "foo" ],            "  foo  " ],
             [ [ "foo", "bar" ],     "foo    bar  " ],
@@ -170,14 +141,12 @@
             [ [ "f'" , "o\" \"o" ], "f\\' 'o\" \"o" ]
         ];
 
-        expect(checks.length);
+        assert.expect(checks.length);
         for (var i = 0; i < checks.length; i++)
-            deepEqual(docker.unquote_cmdline(checks[i][1]), checks[i][0],
-                      "unquote(" + String(checks[i][1]) + ") = " + checks[i][0]);
+            assert.deepEqual(docker.unquote_cmdline(checks[i][1]), checks[i][0],
+                             "unquote(" + String(checks[i][1]) + ") = " + checks[i][0]);
 
     });
 
     QUnit.start();
-
-</script>
-</html>
+}());

@@ -1,64 +1,42 @@
-<!DOCTYPE html>
-<!--
-This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright (C) 2016 Red Hat, Inc.
+var angular = require("angular");
+var QUnit = require("qunit-tests");
 
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
+require("./tags");
 
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Tags tests</title>
-    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../../tools/qunit.js"></script>
-    <script>
-        function require(name) {
-            switch (name) {
-            case "angular":
-                return angular;
-            default:
-                throw new Error("unknown shim module: " + name);
-            }
-        }
-    </script>
-    <script src="../../../lib/angular/angular.js"></script>
-    <script src="../scripts/tags.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Tags tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-<script>
 function suite() {
     "use strict";
 
     /* Filled in with a function */
     var inject;
+    var assert = QUnit;
 
     var module = angular.module("registry.tags.tests", [
         "registry.tags"
-    ])
+    ]);
 
     function tagsTest(name, count, func) {
-        test(name, function() {
+        QUnit.test(name, function() {
 	    /* Nothing happening with fixtures yet */
-            expect(count);
+            assert.expect(count);
             inject(func);
         });
     }
@@ -67,7 +45,7 @@ function suite() {
         "imageTagData",
         function(data) {
             var names = data.parseSpec(specData);
-            deepEqual(names, ["1", "1.23", "1.24.0", "1.24.2", "latest" ], "parsed names correctly");
+            assert.deepEqual(names, ["1", "1.23", "1.24.0", "1.24.2", "latest" ], "parsed names correctly");
         }
     ]);
 
@@ -76,7 +54,7 @@ function suite() {
         function(data) {
             var spec = angular.extend({ }, specData);
             spec = data.buildSpec(["2.5", "latest", "second"], spec, true);
-            deepEqual(spec, {
+            assert.deepEqual(spec, {
                 "dockerImageRepository": "busybox",
                 "tags": [
                     { "name": "2.5", "importPolicy": { "insecure": true } },
@@ -167,7 +145,3 @@ var specData = {
 };
 
 suite();
-
-</script>
-</body>
-</html>

@@ -66,6 +66,7 @@ function generateDeps(makefile, stats) {
     // All the dependent files
     var outputs = [];
     var installs = [];
+    var tests = [];
     var asset, output;
     var now = Math.floor(Date.now() / 1000);
 
@@ -73,6 +74,12 @@ function generateDeps(makefile, stats) {
         output = path.join(stats.compilation.outputOptions.path, asset);
         fs.utimesSync(output, now, now);
         outputs.push(output)
+
+	if (output.indexOf("/test-") !== -1 && endsWith(output, ".html")) {
+            tests.push(output);
+            continue;
+        }
+
 	if (!endsWith(output, "manifest.json") &&
             !endsWith(output, "override.json") &&
             !endsWith(output, "shell/index.html") &&
@@ -91,6 +98,7 @@ function generateDeps(makefile, stats) {
         prefix + "_INPUTS = " + inputs.join(" "),
         prefix + "_OUTPUTS = " + outputs.join(" "),
         prefix + "_INSTALL = " + installs.join(" "),
+        prefix + "_TESTS = " + tests.join(" "),
 	"",
     ];
 
@@ -105,6 +113,7 @@ function generateDeps(makefile, stats) {
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
+    lines.push("TESTS += $(" + prefix + "_TESTS)");
 
     data = lines.join("\n");
     fs.writeFileSync(makefile, data);

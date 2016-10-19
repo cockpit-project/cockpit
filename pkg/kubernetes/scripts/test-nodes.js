@@ -1,69 +1,34 @@
-<!DOCTYPE html>
-<!--
-This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2016 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright (C) 2016 Red Hat, Inc.
+var angular = require("angular");
+var QUnit = require("qunit-tests");
 
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
+require("./nodes");
+require("./kube-client-cockpit");
 
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Projects tests</title>
-    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../../tools/qunit.js"></script>
-    <script>
-        function require(name) {
-            if (name == "angular")
-                return angular;
-            else if (["angular-route", "angular-bootstrap/ui-bootstrap.js", "moment", "d3", "cockpit"].indexOf(name) !== -1)
-                return null;
-            else if (name.indexOf("./") === 0 && name.lastIndexOf(".") === 0)
-                return null;
-            else if (name.indexOf(".html") == name.length - 5)
-                return "<unused></unused>";
-            else
-                throw new Error("unknown shim module: " + name);
-        }
-    </script>
-    <script src="../../../lib/angular/angular.js"></script>
-    <script src="../../../lib/angular-route/angular-route.js"></script>
-    <script src="../../../lib/angular-bootstrap/ui-bootstrap.js"></script>
-    <script src="../../../src/base1/cockpit.js"></script>
-    <script src="../scripts/kube-client.js"></script>
-    <script src="../scripts/kube-client-cockpit.js"></script>
-    <script src="../scripts/listing.js"></script>
-    <script src="../scripts/date.js"></script>
-    <script src="../scripts/dialog.js"></script>
-    <script src="../scripts/nodes.js"></script>
-    <script src="../scripts/charts.js"></script>
-    <script src="../scripts/utils.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Node tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-<script>
 function suite(fixtures) {
     "use strict";
 
     /* Filled in with a function */
     var inject;
+    var assert = QUnit;
 
     var module = angular.module("kubernetes.nodes.tests", [
         "kubeClient",
@@ -78,11 +43,11 @@ function suite(fixtures) {
             KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
             KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
         }
-    ])
+    ]);
 
     function nodesTest(name, count, fixtures, func) {
-        test(name, function() {
-            expect(count);
+        QUnit.test(name, function() {
+            assert.expect(count);
             inject([
                 "kubeLoader",
                 function(loader, data) {
@@ -100,16 +65,16 @@ function suite(fixtures) {
         "kubeSelect",
         function(nodeData, select) {
             var nodes = select().kind("Node");
-            equal(nodeData.nodeStatus(), "Unknown", "undefined node");
-            equal(nodeData.nodeStatus({}), "Unknown", "empty node");
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unknown-node']), "Unknown", "no conditions");
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unknown-node2']), "Unknown", "no ready condition");;
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/failed-node']), "Not Ready", "failed");
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/ready-node']), "Ready",  "ready");
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-node']),  "Scheduling Disabled", "ready but unschedulable");
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-failed-node']), "Not Ready", "not ready and unschedulable");
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/disk-node']), "Ready", "out of disk");
-            equal(nodeData.nodeStatus(nodes['/api/v1/nodes/mem-node']), "Ready", "out of memory");
+            assert.equal(nodeData.nodeStatus(), "Unknown", "undefined node");
+            assert.equal(nodeData.nodeStatus({}), "Unknown", "empty node");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unknown-node']), "Unknown", "no conditions");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unknown-node2']), "Unknown", "no ready condition");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/failed-node']), "Not Ready", "failed");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/ready-node']), "Ready",  "ready");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-node']),  "Scheduling Disabled", "ready but unschedulable");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-failed-node']), "Not Ready", "not ready and unschedulable");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/disk-node']), "Ready", "out of disk");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/mem-node']), "Ready", "out of memory");
         }
     ]);
 
@@ -118,16 +83,16 @@ function suite(fixtures) {
         "kubeSelect",
         function(nodeData, select) {
             var nodes = select().kind("Node");
-            equal(nodeData.nodeStatusIcon(), "wait", "undefined node");
-            equal(nodeData.nodeStatusIcon({}), "wait", "empty node");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unknown-node']), "wait", "no conditions");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unknown-node2']), "wait", "no ready condition");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/failed-node']), "fail", "failed");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/ready-node']),  "");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unschedulable-node']), "", "ready but unschedulable");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unschedulable-failed-node']), "fail", "not ready and unschedulable");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/disk-node']), "warn", "out of disk");
-            equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/mem-node']), "warn", "out of memory");
+            assert.equal(nodeData.nodeStatusIcon(), "wait", "undefined node");
+            assert.equal(nodeData.nodeStatusIcon({}), "wait", "empty node");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unknown-node']), "wait", "no conditions");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unknown-node2']), "wait", "no ready condition");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/failed-node']), "fail", "failed");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/ready-node']),  "");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unschedulable-node']), "", "ready but unschedulable");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unschedulable-failed-node']), "fail", "not ready and unschedulable");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/disk-node']), "warn", "out of disk");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/mem-node']), "warn", "out of memory");
         }
     ]);
 
@@ -136,11 +101,11 @@ function suite(fixtures) {
         "kubeSelect",
         function(nodeData, select) {
             var nodes = select().kind("Node");
-            equal(nodeData.nodeConditions(), undefined);
-            equal(nodeData.nodeConditions(null), undefined);
-            deepEqual(nodeData.nodeConditions({}), {});
-            var conditions = nodeData.nodeConditions(nodes['/api/v1/nodes/unschedulable-node'])
-            deepEqual(conditions, {
+            assert.equal(nodeData.nodeConditions(), undefined);
+            assert.equal(nodeData.nodeConditions(null), undefined);
+            assert.deepEqual(nodeData.nodeConditions({}), {});
+            var conditions = nodeData.nodeConditions(nodes['/api/v1/nodes/unschedulable-node']);
+            assert.deepEqual(conditions, {
               "OutOfDisk": {
                 "status": "False",
                 "type": "OutOfDisk"
@@ -150,7 +115,7 @@ function suite(fixtures) {
                 "type": "Ready"
               }
             }, "Correct object");
-            strictEqual(conditions, nodeData.nodeConditions(nodes['/api/v1/nodes/unschedulable-node']), "identical when called with the same object");
+            assert.strictEqual(conditions, nodeData.nodeConditions(nodes['/api/v1/nodes/unschedulable-node']), "identical when called with the same object");
         }
     ]);
 
@@ -337,7 +302,3 @@ suite([
     }
 }
 ]);
-
-</script>
-</body>
-</html>

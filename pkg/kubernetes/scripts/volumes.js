@@ -27,6 +27,7 @@
     require('./dialog');
     require('./listing');
     require('./kube-client');
+    require('./utils');
 
     require('../views/volumes-page.html');
     require('../views/pv-page.html');

@@ -1,14 +1,4 @@
 pkg_TESTS = \
-	pkg/docker/test-docker.html \
-	pkg/kubernetes/tests/test-utils.html \
-	pkg/kubernetes/tests/test-images.html \
-	pkg/kubernetes/tests/test-volumes.html \
-	pkg/kubernetes/tests/test-nodes.html \
-	pkg/kubernetes/tests/test-connection.html \
-	pkg/kubernetes/tests/test-kube-client.html \
-	pkg/kubernetes/tests/test-tags.html \
-	pkg/kubernetes/tests/test-projects.html \
-	pkg/storaged/test-util.html \
 	pkg/users/test-list-public-keys.sh \
 	$(NULL)
 

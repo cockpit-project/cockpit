@@ -1,59 +1,38 @@
-<!DOCTYPE html>
-<!--
-This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright (C) 2015 Red Hat, Inc.
+var angular = require("angular");
+var QUnit = require("qunit-tests");
 
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
+require("./kube-client");
+require("./kube-client-cockpit");
+require("./kube-client-mock");
 
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
+var FIXTURE_BASIC = require("./fixture-basic");
+var FIXTURE_LARGE = require("./fixture-large");
 
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Kube client tests</title>
-    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../../tools/qunit.js"></script>
-    <script>
-        function require(name) {
-            switch (name) {
-            case "angular":
-                return angular;
-            default:
-                throw new Error("unknown shim module: " + name);
-            }
-        }
-    </script>
-    <script src="../../../lib/angular/angular.js"></script>
-    <script src="../../../src/base1/cockpit.js"></script>
-    <script src="../scripts/kube-client.js"></script>
-    <script src="../scripts/kube-client-mock.js"></script>
-    <script src="fixture-basic.js"></script>
-    <script src="fixture-large.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Kube client tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-<script>
 (function() {
     "use strict";
 
     /* Filled in with a function */
     var inject;
+    var assert = QUnit;
 
     var module = angular.module("kubeClient.tests", [
         "kubeClient",
@@ -70,8 +49,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     ]);
 
     function kubeTest(name, count, fixtures, func) {
-        asyncTest(name, function() {
-            expect(count);
+        QUnit.asyncTest(name, function() {
+            assert.expect(count);
             inject([
                 "$q",
                 '$exceptionHandler',
@@ -87,17 +66,17 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         result = inject(func);
                     } catch(ex) {
                         $exceptionHandler(ex);
-                        ok(!true, "test failed with exception: " + String(ex));
-                        start();
+                        assert.ok(!true, "test failed with exception: " + String(ex));
+                        QUnit.start();
                         return;
                     }
 
                     $q.when(result, function() {
-                        start();
+                        QUnit.start();
                     }, function(ex) {
                         $exceptionHandler(ex);
-                        ok(!true, "test failed with exception: " + String(ex));
-                        start();
+                        assert.ok(!true, "test failed with exception: " + String(ex));
+                        QUnit.start();
                     });
                 }
             ]);
@@ -108,15 +87,15 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         function(loader) {
             var promise = loader.load("nodes");
-            ok(!!promise, "promise returned");
-            equal(typeof promise.then, "function", "promise has then");
-            equal(typeof promise.catch, "function", "promise has catch");
-            equal(typeof promise.finally, "function", "promise has finally");
+            assert.ok(!!promise, "promise returned");
+            assert.equal(typeof promise.then, "function", "promise has then");
+            assert.equal(typeof promise.catch, "function", "promise has catch");
+            assert.equal(typeof promise.finally, "function", "promise has finally");
 
             return promise.then(function(items) {
-                ok(angular.isArray(items), "got items array");
-                equal(items.length, 1, "one node");
-                equal(items[0].metadata.name, "127.0.0.1", "localhost node");
+                assert.ok(angular.isArray(items), "got items array");
+                assert.equal(items.length, 1, "one node");
+                assert.equal(items[0].metadata.name, "127.0.0.1", "localhost node");
             });
         }
     ]);
@@ -126,11 +105,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function(loader) {
             var promise = loader.load("nonexistant");
             return promise.then(function(data) {
-                ok(!true, "successfully loaded");
+                assert.ok(!true, "successfully loaded");
             }, function(response) {
-                equal(response.code, 404, "not found");
-                equal(response.message, "Not found here", "not found message");
-                ok(true, "not sucessfully loaded");
+                assert.equal(response.code, 404, "not found");
+                assert.equal(response.message, "Not found here", "not found message");
+                assert.ok(true, "not sucessfully loaded");
             });
         }
     ]);
@@ -139,10 +118,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         function(loader) {
             return loader.watch("nodes").then(function(response) {
-                ok("/api/v1/nodes/127.0.0.1" in loader.objects, "found node");
+                assert.ok("/api/v1/nodes/127.0.0.1" in loader.objects, "found node");
                 var node = loader.objects["/api/v1/nodes/127.0.0.1"];
-                equal(node.metadata.name, "127.0.0.1", "localhost node");
-                equal(typeof node.spec.capacity, "object", "node has resources");
+                assert.equal(node.metadata.name, "127.0.0.1", "localhost node");
+                assert.equal(typeof node.spec.capacity, "object", "node has resources");
             });
         }
     ]);
@@ -153,19 +132,19 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function(loader, select) {
             return loader.watch("nodes").then(function() {
                 var nodes = select().kind("Node");
-                ok("/api/v1/nodes/127.0.0.1" in nodes, "found node");
+                assert.ok("/api/v1/nodes/127.0.0.1" in nodes, "found node");
                 var node = nodes["/api/v1/nodes/127.0.0.1"];
-                equal(node.metadata.name, "127.0.0.1", "localhost node");
-                equal(typeof node.spec.capacity, "object", "node has resources");
+                assert.equal(node.metadata.name, "127.0.0.1", "localhost node");
+                assert.equal(typeof node.spec.capacity, "object", "node has resources");
 
                 /* The same thing should be returned */
                 var nodes1 = select().kind("Node");
-                strictEqual(nodes, nodes1, "same object returned");
+                assert.strictEqual(nodes, nodes1, "same object returned");
 
                 /* Key should not be encoded as JSON */
                 var parsed = JSON.parse(JSON.stringify(node));
-                ok(!("key" in parsed), "key should not be serialized")
-                strictEqual(parsed.key, undefined, "key not be undefined after serialize");
+                assert.ok(!("key" in parsed), "key should not be serialized");
+                assert.strictEqual(parsed.key, undefined, "key not be undefined after serialize");
             });
         }
     ]);
@@ -176,10 +155,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function(loader, select) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
-                equal(pods.length, 3, "found pods");
+                assert.equal(pods.length, 3, "found pods");
                 var pod = pods["/api/v1/namespaces/default/pods/apache"];
-                equal(typeof pod, "object", "found pod")
-                equal(pod.metadata.labels.name, "apache", "pod has label");
+                assert.equal(typeof pod, "object", "found pod");
+                assert.equal(pod.metadata.labels.name, "apache", "pod has label");
             });
         }
     ]);
@@ -191,24 +170,24 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function($q, loader, select) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
-                equal(pods.length, 3, "number of pods");
-                strictEqual(loader.limits.namespace, null, "namespace is null");
+                assert.equal(pods.length, 3, "number of pods");
+                assert.strictEqual(loader.limits.namespace, null, "namespace is null");
 
                 loader.limit({ namespace: "other" });
-                strictEqual(loader.limits.namespace, "other", "namespace is other");
+                assert.strictEqual(loader.limits.namespace, "other", "namespace is other");
 
                 pods = select().kind("Pod");
-                equal(pods.length, 1, "pods from namespace other");
-                ok("/api/v1/namespaces/other/pods/apache" in pods, "other pod")
+                assert.equal(pods.length, 1, "pods from namespace other");
+                assert.ok("/api/v1/namespaces/other/pods/apache" in pods, "other pod");
 
                 loader.limit({ namespace: null });
-                strictEqual(loader.limits.namespace, null, "namespace is null again");
+                assert.strictEqual(loader.limits.namespace, null, "namespace is null again");
                 var defer = $q.defer();
                 var listened = false;
                 var x = loader.listen(function() {
                     if (listened) {
                         pods = select().kind("Pod");
-                        equal(pods.length, 3, "all pods back");
+                        assert.equal(pods.length, 3, "all pods back");
                         x.cancel();
                         defer.resolve();
                     }
@@ -228,16 +207,16 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function($q, loader, select, data) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
-                equal(pods.length, 3, "number of pods");
-                equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
+                assert.equal(pods.length, 3, "number of pods");
+                assert.equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
                       "apache", "pod has label");
 
                 var defer = $q.defer();
                 var x = loader.listen(function() {
                     var pods = select().kind("Pod");
                     if (pods.length === 4) {
-                        equal(pods["/api/v1/namespaces/default/pods/aardvark"].metadata.labels.name,
-                              "aardvark", "new pod present in items");
+                        assert.equal(pods["/api/v1/namespaces/default/pods/aardvark"].metadata.labels.name,
+                                     "aardvark", "new pod present in items");
                         x.cancel();
                         defer.resolve();
                     }
@@ -274,9 +253,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function($q, loader, select, data) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
-                equal(pods.length, 3, "number of pods");
-                equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
-                      "apache", "pod has label");
+                assert.equal(pods.length, 3, "number of pods");
+                assert.equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
+                             "apache", "pod has label");
 
                 var defer = $q.defer();
                 var listened = false;
@@ -284,8 +263,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                     var pods;
                     if (listened) {
                         pods = select().kind("Pod");
-                        equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
-                              "apachepooo", "pod has changed");
+                        assert.equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
+                                     "apachepooo", "pod has changed");
                         x.cancel();
                         defer.resolve();
                     }
@@ -317,9 +296,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function($q, loader, select, data) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
-                equal(pods.length, 3, "number of pods");
-                equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
-                      "apache", "pod has label");
+                assert.equal(pods.length, 3, "number of pods");
+                assert.equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
+                             "apache", "pod has label");
 
                 var defer = $q.defer();
                 var listened = false;
@@ -327,10 +306,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                     var pods;
                     if (listened) {
                         pods = select().kind("Pod");
-                        equal(pods.length, 2, "removed a pod");
-                        strictEqual(pods["/api/v1/namespaces/default/pods/apache"], undefined, "removed pod");
-                        equal(pods["/api/v1/namespaces/default/pods/database-1"].metadata.labels.name,
-                              "wordpressreplica", "other pod");
+                        assert.equal(pods.length, 2, "removed a pod");
+                        assert.strictEqual(pods["/api/v1/namespaces/default/pods/apache"], undefined, "removed pod");
+                        assert.equal(pods["/api/v1/namespaces/default/pods/database-1"].metadata.labels.name,
+                                     "wordpressreplica", "other pod");
                         x.cancel();
                         defer.resolve();
                     }
@@ -354,9 +333,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                     svc = services[x];
                     break;
                 }
-                equal(services.length, 2, "number of services");
-                equal(svc.metadata.name, "kubernetes", "service id");
-                equal(svc.spec.selector.component, "apiserver", "service has label");
+                assert.equal(services.length, 2, "number of services");
+                assert.equal(svc.metadata.name, "kubernetes", "service id");
+                assert.equal(svc.spec.selector.component, "apiserver", "service has label");
             });
         }
     ]);
@@ -404,8 +383,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             loader.watch("nodes");
             loader.watch("namespaces");
             return methods.create(CREATE_ITEMS, "namespace1").then(function() {
-                equal(loader.objects["/api/v1/namespaces/namespace1/pods/pod1"].metadata.name, "pod1", "pod object");
-                equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node object");
+                assert.equal(loader.objects["/api/v1/namespaces/namespace1/pods/pod1"].metadata.name, "pod1", "pod object");
+                assert.equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node object");
             });
         }
     ]);
@@ -425,11 +404,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             };
 
             return methods.create(NAMESPACE_ITEM).then(function() {
-                ok("/api/v1/namespaces/namespace1" in loader.objects, "namespace created");
+                assert.ok("/api/v1/namespaces/namespace1" in loader.objects, "namespace created");
 
                 return methods.create(CREATE_ITEMS, "namespace1").then(function() {
-                    ok("/api/v1/namespaces/namespace1/pods/pod1" in loader.objects, "pod created");
-                    ok("/api/v1/nodes/node1" in loader.objects, "node created");
+                    assert.ok("/api/v1/namespaces/namespace1/pods/pod1" in loader.objects, "pod created");
+                    assert.ok("/api/v1/nodes/node1" in loader.objects, "node created");
                 });
             });
         }
@@ -443,8 +422,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             loader.watch("nodes");
             loader.watch("namespaces");
             return methods.create(CREATE_ITEMS).then(function() {
-                equal(loader.objects["/api/v1/namespaces/default/pods/pod1"].metadata.name, "pod1", "pod created");
-                equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node created");
+                assert.equal(loader.objects["/api/v1/namespaces/default/pods/pod1"].metadata.name, "pod1", "pod created");
+                assert.equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node created");
             });
         }
     ]);
@@ -461,9 +440,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             items.push(items[0]);
 
             return methods.create(items).then(function(response) {
-                equal(response, false, "should have failed");
+                assert.equal(response, false, "should have failed");
             }, function(response) {
-                equal(response.code, 409, "http already exists");
+                assert.equal(response.code, 409, "http already exists");
             });
         }
     ]);
@@ -475,11 +454,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             var watch = loader.watch("pods");
 
             return methods.create(CREATE_ITEMS, "namespace2").then(function() {
-                ok("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects, "pod created");
+                assert.ok("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects, "pod created");
                 return methods.delete("/api/v1/namespaces/namespace2/pods/pod1").then(function() {
-                    ok(true, "remove succeeded");
+                    assert.ok(true, "remove succeeded");
                     return watch.finally(function() {
-                        ok(!("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects), "pod was removed");
+                        assert.ok(!("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects), "pod was removed");
                     });
                 });
             });
@@ -494,14 +473,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             var path = "/api/v1/namespaces/namespace2/pods/pod1";
 
             return methods.create(CREATE_ITEMS, "namespace2").then(function() {
-                ok(path in loader.objects, "pod created");
+                assert.ok(path in loader.objects, "pod created");
                 return methods.patch(path, { "extra": "blah" }).then(function() {
-                    ok(true, "patch succeeded");
+                    assert.ok(true, "patch succeeded");
                     return methods.patch(loader.objects[path], { "second": "test" }).then(function() {
                         return watch.finally(function() {
                             var pod = loader.objects[path];
-                            equal(pod.extra, "blah", "pod has changed");
-                            equal(pod.second, "test", "pod changed by own object");
+                            assert.equal(pod.extra, "blah", "pod has changed");
+                            assert.equal(pod.second, "test", "pod changed by own object");
                         });
                     });
                 });
@@ -514,7 +493,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeMethods",
         function(loader, methods) {
             return methods.post("/api/v1/namespaces/namespace1/pods", CREATE_ITEMS[0]).then(function(response) {
-                equal(response.metadata.name, "pod1", "pod object");
+                assert.equal(response.metadata.name, "pod1", "pod object");
             });
         }
     ]);
@@ -524,9 +503,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeMethods",
         function(loader, methods) {
             return methods.post("/api/v1/nodes", FIXTURE_BASIC["nodes/127.0.0.1"]).then(function() {
-                ok(false, "shouldn't succeed");
+                assert.ok(false, "shouldn't succeed");
             }, function(response) {
-                deepEqual(response, { "code": 409, "message": "Already exists" }, "got failure code");
+                assert.deepEqual(response, { "code": 409, "message": "Already exists" }, "got failure code");
             });
         }
     ]);
@@ -535,9 +514,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         "kubeLoader",
         "kubeMethods",
         function(loader, methods) {
-            var node = { "kind": "Node", "metadata": { "name": "127.0.0.1", labels: { "test": "value" } } }
+            var node = { "kind": "Node", "metadata": { "name": "127.0.0.1", labels: { "test": "value" } } };
             return methods.put("/api/v1/nodes/127.0.0.1", node).then(function(response) {
-                deepEqual(response.metadata.labels, { "test": "value" }, "put returned object");
+                assert.deepEqual(response.metadata.labels, { "test": "value" }, "put returned object");
             });
         }
     ]);
@@ -555,9 +534,9 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function(methods) {
             var data = { kind: "Blah", metadata: { name: "" } };
             return methods.check(data).catch(function(ex) {
-                ok(angular.isArray(ex), "threw array of failures");
-                equal(ex.length, 1, "number of errors");
-                ok(ex[0] instanceof Error, "threw an error");
+                assert.ok(angular.isArray(ex), "threw array of failures");
+                assert.equal(ex.length, 1, "number of errors");
+                assert.ok(ex[0] instanceof Error, "threw an error");
             });
         }
     ]);
@@ -567,7 +546,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         function(methods) {
             var data = { kind: "Blah", metadata: {  } };
             return methods.check(data).then(function() {
-                ok(true, "passed check");
+                assert.ok(true, "passed check");
             }, null);
         }
     ]);
@@ -578,12 +557,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             var data = { kind: "Blah", metadata: { name: "a#a", namespace: "" } };
             var targets = { "metadata.name": "#name", "metadata.namespace": "#namespace" };
             return methods.check(data, targets).catch(function(ex) {
-                ok(angular.isArray(ex), "threw array of failures");
-                equal(ex.length, 2, "number of errors");
-                ok(ex[0] instanceof Error, "threw an error");
-                equal(ex[0].target, "#name", "correct name target");
-                ok(ex[1] instanceof Error, "threw an error");
-                equal(ex[1].target, "#namespace", "correct name target");
+                assert.ok(angular.isArray(ex), "threw array of failures");
+                assert.equal(ex.length, 2, "number of errors");
+                assert.ok(ex[0] instanceof Error, "threw an error");
+                assert.equal(ex[0].target, "#name", "correct name target");
+                assert.ok(ex[1] instanceof Error, "threw an error");
+                assert.equal(ex[1].target, "#namespace", "correct name target");
             });
         }
     ]);
@@ -594,10 +573,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             var data = { kind: "Blah", metadata: { name: "aa", namespace: "" } };
             var targets = { "metadata.name": "#name", "metadata.namespace": "#namespace" };
             return methods.check(data, targets).catch(function(ex) {
-                ok(angular.isArray(ex), "threw array of failures");
-                equal(ex.length, 1, "number of errors");
-                ok(ex[0] instanceof Error, "threw an error");
-                equal(ex[0].target, "#namespace", "correct name target");
+                assert.ok(angular.isArray(ex), "threw array of failures");
+                assert.equal(ex.length, 1, "number of errors");
+                assert.ok(ex[0] instanceof Error, "threw an error");
+                assert.equal(ex[0].target, "#namespace", "correct name target");
             });
         }
     ]);
@@ -610,14 +589,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 /* Get the item */
                 var item = select().kind("Pod").one();
                 var uid = item.metadata.uid;
-                ok(uid, "Have uid");
+                assert.ok(uid, "Have uid");
 
                 var by_uid_item = select().uid(uid).one();
-                strictEqual(item, by_uid_item, "load uid");
+                assert.strictEqual(item, by_uid_item, "load uid");
 
                 /* Shouldn't match */
                 item = select().uid("bad").one();
-                strictEqual(item, null, "mismatch uid");
+                assert.strictEqual(item, null, "mismatch uid");
             });
         }
     ]);
@@ -629,11 +608,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             return loader.watch("pods").then(function() {
                 /* Get the item */
                 var item = select().host("127.0.0.1").one();
-                deepEqual(item.metadata.selfLink, "/api/v1/namespaces/default/pods/database-1", "correct pod");
+                assert.deepEqual(item.metadata.selfLink, "/api/v1/namespaces/default/pods/database-1", "correct pod");
 
                 /* Shouldn't match */
                 item = select().host("127.0.0.2").one();
-                strictEqual(item, null, "mismatch host");
+                assert.strictEqual(item, null, "mismatch host");
             });
         }
     ]);
@@ -658,23 +637,23 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             return loader.watch("replicationcontrollers").then(function() {
                 /* Get the item */
                 var item = select().kind("ReplicationController").name("3controller").namespace("default").one();
-                deepEqual(item, expected, "correct item");
+                assert.deepEqual(item, expected, "correct item");
 
                 /* The same item, without namespace */
                 item = select().kind("ReplicationController").name("3controller").one();
-                deepEqual(item, expected, "selected without namespace");
+                assert.deepEqual(item, expected, "selected without namespace");
 
                 /* Any replication controller */
                 item = select().kind("ReplicationController").one();
-                equal(item.kind, "ReplicationController", "any replication controller");
+                assert.equal(item.kind, "ReplicationController", "any replication controller");
 
                 /* Shouldn't match */
                 item = select().kind("BadKind").name("3controller").namespace("default").one();
-                strictEqual(item, null, "mismatch kind");
+                assert.strictEqual(item, null, "mismatch kind");
                 item = select().kind("ReplicationController").name("badcontroller").namespace("default").one();
-                strictEqual(item, null, "mismatch name");
+                assert.strictEqual(item, null, "mismatch name");
                 item = select().kind("ReplicationController").name("3controller").namespace("baddefault").one();
-                strictEqual(item, null, "mismatch namespace");
+                assert.strictEqual(item, null, "mismatch namespace");
             });
         }
     ]);
@@ -689,52 +668,52 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 /* same thing twice */
                 var first = select(image);
                 var second = select(image);
-                strictEqual(first, second, "identical for single object");
+                assert.strictEqual(first, second, "identical for single object");
 
                 /* null thing twice */
-                var first = select(null);
-                var second = select(null);
-                strictEqual(first, second, "identical for null object");
+                first = select(null);
+                second = select(null);
+                assert.strictEqual(first, second, "identical for null object");
 
                 /* Select everything odd, 500 pods */
                 var results = select().namespace("default").label({ "type": "odd" });
-                equal(results.length, 500, "correct amount");
+                assert.equal(results.length, 500, "correct amount");
 
                 /* The same thing should be returned */
                 var results1 = select().namespace("default").label({ "type": "odd" });
-                strictEqual(results, results1, "same object returned");
+                assert.strictEqual(results, results1, "same object returned");
 
                 /* Select everything odd, but wrong namespace, no pods */
                 results = select().namespace("other").label({ "type": "odd" });
-                equal(results.length, 0, "other namespace no pods");
+                assert.equal(results.length, 0, "other namespace no pods");
 
                 /* The same ones selected even when a second (present) label */
                 results = select().namespace("default").label({ "type": "odd", "tag": "silly"  });
-                equal(results.length, 500, "with additional label");
+                assert.equal(results.length, 500, "with additional label");
 
                 /* Nothing selected when additional invalid field */
                 results = select().namespace("default").label({ "type": "odd", "tag": "billy"  });
-                equal(results.length, 0, "no objects");
+                assert.equal(results.length, 0, "no objects");
 
                 /* Limit by kind */
-                var results = select().kind("Pod").namespace("default").label({ "type": "odd" });
-                equal(results.length, 500, "by kind");
+                results = select().kind("Pod").namespace("default").label({ "type": "odd" });
+                assert.equal(results.length, 500, "by kind");
 
                 /* Limit by invalid kind */
-                var results = select().kind("Ood").namespace("default").label({ "type": "odd" });
-                equal(results.length, 0, "nothing for invalid kind");
+                results = select().kind("Ood").namespace("default").label({ "type": "odd" });
+                assert.equal(results.length, 0, "nothing for invalid kind");
 
                 /* Everything selected when no selector */
                 results = select().namespace("default");
-                equal(results.length, 1000, "all pods");
+                assert.equal(results.length, 1000, "all pods");
 
                 /* Nothing selected when bad namespace */
                 results = select().namespace("bad");
-                equal(results.length, 0, "bad namespace no objects");
+                assert.equal(results.length, 0, "bad namespace no objects");
 
                 /* Nothing selected when empty selector */
                 results = select().label({ });
-                equal(results.length, 0, "nothing selected");
+                assert.equal(results.length, 0, "nothing selected");
             });
         }
     ]);
@@ -758,6 +737,3 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
     angular.bootstrap(document, ['kubeClient.tests']);
 }());
-</script>
-</body>
-</html>

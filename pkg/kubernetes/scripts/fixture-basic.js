@@ -1,4 +1,4 @@
-var FIXTURE_BASIC = {
+module.exports = {
     "nodes/127.0.0.1": {
         "kind": "Node",
         "metadata": {

@@ -1,76 +1,45 @@
-<!DOCTYPE html>
-<!--
-This file is part of Cockpit.
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright (C) 2016 Red Hat, Inc.
+var angular = require("angular");
+require("./connection");
 
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
+var QUnit = require("qunit-tests");
 
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Connection tests</title>
-    <link rel="stylesheet" href="../../../tools/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../../tools/qunit.js"></script>
-    <script>
-        function require(name) {
-            if (name == "angular")
-                return angular;
-            else if (["angular-route", "angular-bootstrap/ui-bootstrap.js", "cockpit"].indexOf(name) !== -1)
-                return null;
-            else if (name.indexOf("./") === 0 && name.lastIndexOf(".") === 0)
-                return null;
-            else if (name.indexOf(".html") == name.length - 5)
-                return "<unused></unused>";
-            else
-                throw new Error("unknown shim module: " + name);
-        }
-    </script>
-    <script src="../../../lib/angular/angular.js"></script>
-    <script src="../../../lib/angular-route/angular-route.js"></script>
-    <script src="../../../lib/angular-bootstrap/ui-bootstrap.js"></script>
-    <script src="../../base1/cockpit.js"></script>
-    <script src="../scripts/kube-client.js"></script>
-    <script src="../scripts/kube-client-cockpit.js"></script>
-    <script src="../scripts/dialog.js"></script>
-    <script src="../scripts/connection.js"></script>
-    <script src="../scripts/utils.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Connection tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-<script>
-function suite(fixtures) {
+(function() {
     "use strict";
+
+    var fixtures = [];
 
     /* Filled in with a function */
     var inject;
+    var assert = QUnit;
 
     var module = angular.module("kubernetes.connection.tests", [
         "kubeClient",
         'kubeClient.cockpit',
         "kubernetes.connection",
-    ])
+    ]);
 
     function connectionTest(name, count, fixtures, func) {
-        test(name, function() {
-            expect(count);
+        QUnit.test(name, function() {
+            assert.expect(count);
             inject([
                 "kubeLoader",
                 function(loader, data) {
@@ -86,14 +55,14 @@ function suite(fixtures) {
     connectionTest("sessionCertificates test", 5, fixtures, [
         "sessionCertificates",
         function(sessionCertificates) {
-            sessionCertificates.trustCert(null, "data")
-            equal(sessionCertificates.getCert("localhost"), "data", "data retrive");
-            equal(sessionCertificates.getCert(null), "data", "null is localhost");
-            sessionCertificates.trustCert({}, "data1")
-            equal(sessionCertificates.getCert("localhost"), "data1", "blank server retrive");
-            equal(sessionCertificates.getCert("address"), undefined, "missing is undefined");
-            sessionCertificates.trustCert({ server: "address"} , "address-data")
-            equal(sessionCertificates.getCert("address"), undefined, "address data");
+            sessionCertificates.trustCert(null, "data");
+            assert.equal(sessionCertificates.getCert("localhost"), "data", "data retrive");
+            assert.equal(sessionCertificates.getCert(null), "data", "null is localhost");
+            sessionCertificates.trustCert({}, "data1");
+            assert.equal(sessionCertificates.getCert("localhost"), "data1", "blank server retrive");
+            assert.equal(sessionCertificates.getCert("address"), undefined, "missing is undefined");
+            sessionCertificates.trustCert({ server: "address"} , "address-data");
+            assert.equal(sessionCertificates.getCert("address"), undefined, "address data");
         }
     ]);
 
@@ -102,7 +71,7 @@ function suite(fixtures) {
         function(connectionActions) {
             var cluster, context, user, data, config;
             data = connectionActions.prepareData();
-            deepEqual(data, {
+            assert.deepEqual(data, {
                 "cluster": {
                  "cluster": {
                    "server": "http://localhost:8080"
@@ -143,7 +112,7 @@ function suite(fixtures) {
             };
 
             data = connectionActions.prepareData(config, cluster, user);
-            deepEqual(data, {
+            assert.deepEqual(data, {
                 "cluster": {
                     "cluster": {"server": "https://127.0.0.1:8000" },
                     "name": "name"
@@ -159,7 +128,7 @@ function suite(fixtures) {
             delete cluster.name;
             delete user.name;
             data = connectionActions.prepareData({}, cluster, user);
-            deepEqual(data, {
+            assert.deepEqual(data, {
                 "cluster": {
                     "cluster": {"server": "https://127.0.0.1:8000" },
                     "name": "127-0-0-1:8000"
@@ -183,23 +152,23 @@ function suite(fixtures) {
             };
             data = connectionActions.prepareData(config, cluster, user);
             var pos = data.context.name.indexOf("127-0-0-1:8000/user/127-0-0-1:8000");
-            ok(data.context.name != "127-0-0-1:8000/user/127-0-0-1:8000" && pos === 0, "dedup context name");
+            assert.ok(data.context.name != "127-0-0-1:8000/user/127-0-0-1:8000" && pos === 0, "dedup context name");
 
             config = {
                 clusters: [{ "name": "127-0-0-1:8000" }],
             };
-            delete cluster.name
+            delete cluster.name;
             data = connectionActions.prepareData(config, cluster, user);
-            var pos = data.cluster.name.indexOf("127-0-0-1:8000");
-            ok(data.cluster.name != "127-0-0-1:8000" && pos === 0, "dedup cluster name");
+            pos = data.cluster.name.indexOf("127-0-0-1:8000");
+            assert.ok(data.cluster.name != "127-0-0-1:8000" && pos === 0, "dedup cluster name");
 
             config = {
                 users: [{ "name": "user/127-0-0-1:8000" }],
             };
-            delete user.name
+            delete user.name;
             data = connectionActions.prepareData(config, cluster, user);
-            var pos = data.user.name.indexOf("user/127-0-0-1:8000");
-            ok(data.user.name != "user/127-0-0-1:8000" && pos === 0, "dedup user name");
+            pos = data.user.name.indexOf("user/127-0-0-1:8000");
+            assert.ok(data.user.name != "user/127-0-0-1:8000" && pos === 0, "dedup user name");
         }
     ]);
 
@@ -221,11 +190,5 @@ function suite(fixtures) {
     ]);
 
     angular.bootstrap(document, ['kubernetes.connection.tests']);
-}
 
-/* Invoke the test suite with this data */
-suite([]);
-
-</script>
-</body>
-</html>
+}());

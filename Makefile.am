@@ -300,7 +300,6 @@ print-%:
 COMMITTED_DIST = \
 	lib/ \
 	pkg/ \
-	lib/ \
 	tools/ \
 	test/ \
 	$(NULL)
@@ -314,6 +313,9 @@ dist-hook::
 	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
 
+dist-gzip: distdir
+	tar --format=posix -cf - "$(distdir)" | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 dist-xz: distdir
 	tar --format=posix -cf - "$(distdir)" | xz -ec > $(distdir).tar.xz
 	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"

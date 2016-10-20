@@ -67,6 +67,7 @@ function generateDeps(makefile, stats) {
     var outputs = [];
     var installs = [];
     var tests = [];
+    var debugs = [];
     var asset, output;
     var now = Math.floor(Date.now() / 1000);
 
@@ -80,16 +81,23 @@ function generateDeps(makefile, stats) {
             continue;
         }
 
+        var install = output;
 	if (!endsWith(output, "manifest.json") &&
             !endsWith(output, "override.json") &&
             !endsWith(output, "shell/index.html") &&
             !endsWith(output, "shell/stub.html") &&
             !endsWith(output, "shell/simple.html") &&
             !endsWith(output, ".png") &&
+            !endsWith(output, ".map") &&
             !endsWith(output, ".gif")) {
-            output += ".gz";
-	}
-        installs.push(output);
+            install += ".gz";
+        }
+
+        // Debug output gets installed separately
+        if (endsWith(install, ".map"))
+            debugs.push(install);
+        else
+            installs.push(install);
     }
 
     // Output a makefile
@@ -98,6 +106,7 @@ function generateDeps(makefile, stats) {
         prefix + "_INPUTS = " + inputs.join(" "),
         prefix + "_OUTPUTS = " + outputs.join(" "),
         prefix + "_INSTALL = " + installs.join(" "),
+        prefix + "_DEBUG = " + debugs.join(" "),
         prefix + "_TESTS = " + tests.join(" "),
 	"",
     ];
@@ -113,6 +122,7 @@ function generateDeps(makefile, stats) {
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
+    lines.push("WEBPACK_DEBUG += $(" + prefix + "_DEBUG)");
     lines.push("TESTS += $(" + prefix + "_TESTS)");
 
     data = lines.join("\n");

@@ -41,7 +41,7 @@
      */
 
     function init_overview (client) {
-        var headerNode = document.getElementById('containers-header');
+        var headerNode = document.querySelector('#containers .content-filter');
         var containerNode = document.getElementById('containers-containers');
         var imageNode = document.getElementById('containers-images');
 

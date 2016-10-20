@@ -86,7 +86,7 @@
   <!-- OVERVIEW -->
 
   <div id="containers" hidden>
-    <div id="containers-header"></div>
+    <div class="content-filter"></div>
     <div class="container-fluid page-ct">
       <div class="col-md-12 col-lg-8">
         <div class="row">
@@ -119,10 +119,13 @@
   <!-- CONTAINER DETAILS -->
 
   <div id="container-details" class="container-fluid" hidden>
-    <ol class="breadcrumb">
-      <li><a translatable="yes">Containers</a></li>
-      <li class="active"></li>
-    </ol>
+    <div class="content-filter">
+      <h3>
+        <i class="fa fa-cube fa-fw"></i>
+        <span></span>
+      </h3>
+      <a translatable="yes">Show all containers</a>
+    </div>
     <div class="panel-default panel">
       <div class="panel-heading">
         <div class="pull-right">
@@ -230,10 +233,13 @@
   <!-- IMAGE DETAILS -->
 
   <div id="image-details" class="container-fluid" hidden>
-    <ol class="breadcrumb">
-      <li><a translatable="yes">Containers</a></li>
-      <li class="active"></li>
-    </ol>
+    <div class="content-filter">
+      <h3>
+        <i class="pficon pficon-image"></i>
+        <span></span>
+      </h3>
+      <a translatable="yes">Show all images</a>
+    </div>
     <div class="panel-default panel">
       <div class="panel-heading">
         <div class="pull-right" id="image-details-buttons">

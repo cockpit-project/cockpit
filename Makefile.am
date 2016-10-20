@@ -147,6 +147,8 @@ distclean-local::
 install-data-local:: $(WEBPACK_INSTALL)
 	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 	$(SED_SUBST) -i $(DESTDIR)$(pkgdatadir)/*/manifest.json
+install-data-local:: $(WEBPACK_DEBUG)
+	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
 	rm -rf $(DESTDIR)$(pkgdatadir)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)

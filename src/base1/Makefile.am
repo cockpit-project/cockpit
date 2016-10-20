@@ -25,12 +25,6 @@ basedebug_DATA = \
 	src/base1/cockpit.js \
 	$(NULL)
 
-base_BUNDLE = \
-	src/base1/require.min.js \
-	src/base1/cockpit.min.js \
-	src/base1/jquery.min.js \
-	$(NULL)
-
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $^ --mangle > $@.tmp && $(MV) $@.tmp $@
@@ -38,8 +32,10 @@ MIN_JS_RULE = \
 src/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
-src/base1/bundle.min.js: $(base_BUNDLE)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+src/base1/bundle.js: src/base1/require.js src/base1/cockpit.js src/base1/jquery.js
+	$(AM_V_GEN) cat $^ > $@.tmp && $(MV) $@.tmp $@
+src/base1/bundle.min.js: src/base1/bundle.js
+	$(MIN_JS_RULE)
 src/base1/require.min.js: src/base1/require.js
 	$(MIN_JS_RULE)
 src/base1/jquery.min.js: src/base1/jquery.js

@@ -31,9 +31,21 @@ base_BUNDLE = \
 	src/base1/jquery.min.js \
 	$(NULL)
 
+MIN_JS_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $^ --mangle > $@.tmp && $(MV) $@.tmp $@
+
+src/base1/cockpit.min.css: src/base1/cockpit.css
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
 src/base1/bundle.min.js: $(base_BUNDLE)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
+src/base1/require.min.js: src/base1/require.js
+	$(MIN_JS_RULE)
 src/base1/jquery.min.js: src/base1/jquery.js
+	$(MIN_JS_RULE)
+src/base1/cockpit.min.js: src/base1/cockpit.js
+	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
 	$(MIN_JS_RULE)
 src/base1/mustache.js: lib/mustache/mustache.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && cp $^ $@.tmp && mv $@.tmp $@

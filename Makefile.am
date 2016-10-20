@@ -40,7 +40,7 @@ clean-local:
 	find $(srcdir) -name '*.pyc' -delete
 	find $(builddir)/dist -depth -name README.md -prune -o -name dist -prune -o -delete
 
-SUFFIXES = .css .css.gz .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .map .map.gz .jsx .html .html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
+SUFFIXES = .css .css.gz .js .js.gz .map .map.gz .jsx .html .html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -62,40 +62,15 @@ COPY_RULE = \
         $(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp && $(MV) $@.tmp $@
 
-MIN_JS_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $^ --mangle > $@.tmp && $(MV) $@.tmp $@
-
-MIN_CSS_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
-
 GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
 
-.css.min.css:
-	$(MIN_CSS_RULE)
-.js.min.js:
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
-	$(MIN_JS_RULE)
-.jsx.js:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-		$(srcdir)/tools/missing $(srcdir)/tools/jsx < $< > $@.tmp && $(MV) $@.tmp $@
-.jsx.min.js:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-		$(srcdir)/tools/missing $(srcdir)/tools/jsx < $< | \
-		$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs --mangle > $@.tmp && $(MV) $@.tmp $@
-
 .css.css.gz:
-	$(GZ_RULE)
-.min.css.min.css.gz:
 	$(GZ_RULE)
 .html.html.gz:
 	$(GZ_RULE)
 .js.js.gz:
-	$(GZ_RULE)
-.min.js.min.js.gz:
 	$(GZ_RULE)
 .map.map.gz:
 	$(GZ_RULE)
@@ -105,8 +80,8 @@ GZ_RULE = \
 	$(GZ_RULE)
 
 po/po.%.js: po/%.po
-	@$(MKDIR_P) $(dir $@)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/po2json --module $^ $@
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/tools/po2json --module $^ $@
 
 # Webpack related
 

@@ -187,11 +187,9 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Logout
         b.logout()
         b.wait_visible("#login")
-        try:
-            m1.execute("ps xa | grep ssh-agent | grep -v grep")
-            assert False, "Logout did not stop ssh agent."
-        except subprocess.CalledProcessError:
-            pass
+
+        # Make sure ssh-agent exits
+        wait(lambda: "ssh-agent" not in m1.execute("ps xa | grep ss[h]-agent || true"))
 
         # Remove authorized keys
         m2.execute("rm /home/user/.ssh/authorized_keys")

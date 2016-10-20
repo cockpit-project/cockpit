@@ -151,6 +151,7 @@ install-data-local:: $(WEBPACK_DEBUG)
 	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
 	rm -rf $(DESTDIR)$(pkgdatadir)
+	rm -rf $(DESTDIR)$(debugdir)$(pkgdatadir)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
 	tar -cf - $^ | tar -C $(distdir) -xvf -
 

@@ -523,6 +523,8 @@ test_bad_command (Test *test,
                                "*Auth pipe closed: terminated*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
                                "*couldn't write: Connection refused*");
+  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                               "*couldn't write: Connection refused*");
   test_custom_fail (test, data);
 }
 

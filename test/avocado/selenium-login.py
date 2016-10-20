@@ -63,8 +63,8 @@ class BasicTestSuite(SeleniumTest):
         if self.wait_xpath("//*[@data-action='docker-start']", fatal=False, overridetry=5, cond=clickable):
             self.click(self.wait_xpath("//*[@data-action='docker-start']",cond=clickable))
         self.wait_id('containers')
-        self.wait_id('containers-storage')
-        self.click(self.wait_id('containers-images-search', cond=clickable))
+        self.wait_id('containers-images')
+        self.click(self.wait_link('Get new image', cond=clickable))
         self.wait_id('containers-search-image-dialog')
         self.send_keys(self.wait_id('containers-search-image-search'), "fedora")
         self.wait_id('containers-search-image-results')
@@ -72,7 +72,7 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_xpath(
             "//div[@id='containers-search-image-dialog']//button[contains(text(), '%s')]" % "Cancel",cond=clickable))
         self.wait_id('containers-search-image-dialog',cond=invisible)
-        self.click(self.wait_id('containers-images-search',cond=clickable))
+        self.click(self.wait_link('Get new image', cond=clickable))
         self.wait_id('containers-search-image-dialog')
         self.send_keys(self.wait_id('containers-search-image-search'), "cockpit")
         self.wait_id('containers-search-image-results')

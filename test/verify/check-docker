@@ -142,7 +142,7 @@ class TestDocker(MachineCase):
                          set(["/PROBE1:/PROBE2/alias1", "/PROBE1:/PROBE2/alias2"]))
 
         # delete PROBE2 from dash
-        b.click("#container-details ol.breadcrumb a")
+        b.click("#container-details .content-filter a")
         b.wait_visible("#containers-containers")
         b.wait_in_text('#containers-containers', "PROBE2")
         b.click('#containers-containers tbody tr:contains("PROBE2") td.listing-ct-toggle')

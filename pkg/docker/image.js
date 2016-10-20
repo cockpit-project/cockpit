@@ -55,7 +55,7 @@
         setup: function() {
             var self = this;
 
-            $('#image-details .breadcrumb a').on("click", function() {
+            $('#image-details .content-filter a').on("click", function() {
                 cockpit.location.go('/');
             });
 
@@ -120,7 +120,7 @@
             if (info.RepoTags && info.RepoTags.length > 0)
                 this.name = info.RepoTags[0];
 
-            $('#image-details .breadcrumb .active').text(this.name);
+            $('#image-details .content-filter h3 span').text(this.name);
 
             $('#image-details-id').text(info.Id);
             $('#image-details-tags').html(util.multi_line(info.RepoTags));

@@ -49,7 +49,7 @@
         setup: function() {
             var self = this;
 
-            $('#container-details .breadcrumb a').on("click", function() {
+            $('#container-details .content-filter a').on("click", function() {
                 cockpit.location.go('/');
             });
 
@@ -189,7 +189,7 @@
             $('#container-details-resource-row').toggle(!!info.State.Running);
 
             this.name = util.render_container_name(info.Name);
-            $('#container-details .breadcrumb .active').text(this.name);
+            $('#container-details .content-filter h3 span').text(this.name);
 
             var port_bindings = [ ];
             if (info.NetworkSettings)

@@ -6,3 +6,5 @@ find $1/dist $1/pkg -name '*.gz' -print | tee /dev/stderr | sort | while read fi
         echo "Refusing to distribute gzip files" >&2
         exit 1
 done
+
+find $1/dist $1/src -name '*.js|*.css' 

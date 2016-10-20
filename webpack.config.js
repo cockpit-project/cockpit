@@ -361,7 +361,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: extract.extract("style-loader", "css-loader?root=" + libdir)
+                loader: extract.extract("style-loader", "css-loader?minimize=&root=" + libdir)
             },
             {
                 test: /\.jsx$/,
@@ -373,7 +373,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                loader: extract.extract('css?sourceMap!' + 'less?sourceMap')
+                loader: extract.extract('css?sourceMap&minimize=!' + 'less?sourceMap&minimize=')
             },
             {
                 test: /views\/[^\/]+\.html$/,

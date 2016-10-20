@@ -311,7 +311,8 @@ var ImageDetails = React.createClass({
 var ImageList = React.createClass({
     getDefaultProps: function () {
         return {
-            client: {}
+            client: {},
+            filterText: ''
         };
     },
 
@@ -381,7 +382,11 @@ var ImageList = React.createClass({
     },
 
     render: function () {
-        var imageRows = this.state.images.map(function (image) {
+        var filtered = this.state.images.filter(function (image) {
+            return (image.RepoTags[0].toLowerCase().indexOf(this.props.filterText.toLowerCase()) >= 0);
+        }.bind(this));
+
+        var imageRows = filtered.map(function (image) {
             var columns = [
                 { name: image.RepoTags[0], header: true },
                 moment.unix(image.Created).fromNow(),
@@ -438,11 +443,17 @@ var ImageList = React.createClass({
             return <p className="status">{job.name}: {job.status} {detail}</p>;
         });
 
+        var emptyCaption;
+        if (this.props.filterText === '')
+            emptyCaption = _('No images');
+        else
+            emptyCaption = _('No images that match the current filter');
+
         return (
             <div>
                 <Listing.Listing title={_('Images')}
                                  columnTitles={columnTitles}
-                                 emptyCaption={_("No images")}
+                                 emptyCaption={emptyCaption}
                                  actions={getNewImageAction}>
                     {imageRows}
                 </Listing.Listing>

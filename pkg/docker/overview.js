@@ -53,14 +53,22 @@
             }), containerNode);
         }
 
+        function update_image_list(filterText) {
+            React.render(React.createElement(view.ImageList, {
+                client: client,
+                filterText: filterText
+            }), imageNode);
+        }
+
         React.render(React.createElement(view.ContainerHeader, {
             onFilterChanged: function (filter, filterText) {
                 update_container_list(filter === 'running', filterText);
+                update_image_list(filterText);
             }
         }), headerNode);
 
         update_container_list(true, '');
-        React.render(React.createElement(view.ImageList, { client: client }), imageNode);
+        update_image_list('');
 
         $(client).on('container.containers', function(event, id, container) {
             if (container && container.CGroup) {

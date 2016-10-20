@@ -31,7 +31,7 @@ UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
 
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle \
+	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle --beautify \
 		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
 	$(MV) $@.tmp $@
 

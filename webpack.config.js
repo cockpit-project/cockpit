@@ -282,6 +282,7 @@ var plugins = [
 /* Only minimize when in production mode */
 if (production) {
     plugins.unshift(new webpack.optimize.UglifyJsPlugin({
+        beautify: true,
         compress: {
             warnings: false
         },

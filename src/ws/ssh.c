@@ -1542,7 +1542,7 @@ cockpit_ssh_relay_new (ssh_session session,
   ssh_set_channel_callbacks (channel, &relay->channel_cbs);
   ssh_set_blocking (session, 0);
   cockpit_unix_fd_add (ssh_get_fd (session),
-                       G_IO_IN | G_IO_OUT | G_IO_PRI | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
+                       G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
                        do_event_poll, relay);
   ssh_event_add_session (relay->event, session);
 

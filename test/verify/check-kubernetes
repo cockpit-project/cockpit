@@ -238,7 +238,6 @@ class TestNulecule(kubelib.KubernetesCase):
     def testDeployDialog(self):
         b = self.browser
         m = self.machine
-        b.wait_timeout(120)
 
         self.login_and_go("/kubernetes")
         b.wait_present("#node-list")

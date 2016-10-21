@@ -148,6 +148,8 @@ on_pipe_close (CockpitPipe *pipe,
             problem = "no-cockpit";      // cockpit-bridge not installed
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
             problem = "terminated";      // failed or got a signal, etc.
+          else if (WIFEXITED (status) && WEXITSTATUS (status) == 254)
+            problem = "disconnected";    // got IO_ERR.
           else if (!g_spawn_check_exit_status (status, &error))
             {
               if (problem == NULL)

@@ -318,7 +318,7 @@ class Browser:
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
             except Error, ex:
-                if reconnect and ex.msg == 'timeout':
+                if reconnect and ex.msg.startswith('timeout'):
                     reconnect = False
                     if self.is_present("#machine-reconnect"):
                         self.click("#machine-reconnect", True)

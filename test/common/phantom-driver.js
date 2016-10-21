@@ -45,6 +45,7 @@
 var page = require('webpage').create();
 var sys = require('system');
 var injected = false;
+var messages = "";
 var onCheckpoint;
 var waitTimeout;
 var didTimeout;
@@ -243,7 +244,7 @@ var driver = {
 
     arm_timeout: function(respond, timeout) {
         if (waitTimeout) {
-            respond({ error: "timeout already armed" });
+            respond({ error: "already armed timeout" });
             return;
         }
 
@@ -333,7 +334,7 @@ function step() {
         if (responded)
             sys.stderr.writeLine("WARNING: " + line + " was true after timeout, add more checkpoints");
         else
-            respond({ error: "timeout" });
+            respond({ error: "timeout" + messages });
     }, cmd.timeout || 60 * 1000);
 
     /* This function is called when functions want to respond */
@@ -347,6 +348,7 @@ function step() {
         window.clearTimeout(timeout);
         page.onError = null;
         timeout = null;
+        messages = "";
         responded = true;
         onCheckpoint = null;
 
@@ -360,7 +362,7 @@ function step() {
             backtrace += "\n" + trace[i].file + " " + trace[i].line + " " + trace[i].function;
         sys.stderr.writeLine("Page error: " + msg + backtrace);
         respond({ error: msg });
-    }
+    };
 
     if (cmd.cmd in driver) {
         args = (cmd.args || []).slice();
@@ -383,8 +385,10 @@ page.onConsoleMessage = function(msg, lineNum, sourceId) {
         // sys.stderr.writeLine("CHECKPOINT");
         if (onCheckpoint)
             onCheckpoint();
-    } else
+    } else {
+        messages += "\n" + msg;
         sys.stderr.writeLine('> ' + msg);
+    }
 };
 
 step();

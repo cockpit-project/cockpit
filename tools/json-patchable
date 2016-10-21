@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+var fs;
+
+try {
+    fs = require('fs');
+} catch(ex) {
+    fatal(ex.message, 127); /* missing looks for this */
+}
+
+var input;
+
+function fatal(message, code) {
+    console.log((input || "json-patchable") + ": " + message);
+    process.exit(code || 1);
+}
+
+if (process.argv.length < 3) {
+    console.log("usage: json-patchable file");
+    process.exit(2);
+}
+
+input = process.argv[2];
+fs.readFile(input, { encoding: "utf-8" }, function(err, data) {
+    if (err)
+        fatal(err.message);
+
+    try {
+        data = JSON.stringify(JSON.parse(data), null, 1);
+    } catch(e) {
+        fatal(e);
+    }
+
+    fs.writeFile(input, data, function(err) {
+        if (err)
+            fatal(err.message);
+        process.exit(0);
+    });
+});

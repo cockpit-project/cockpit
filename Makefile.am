@@ -38,7 +38,9 @@ EXTRA_DIST = \
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
-	find $(builddir)/dist -depth -name README.md -prune -o -name dist -prune -o -delete
+	if test -d $(builddir)/dist; then \
+		find $(builddir)/dist -depth -name README.md -prune -o -name dist -prune -o -delete; \
+	fi
 
 SUFFIXES = .css .css.gz .js .js.gz .map .map.gz .jsx .html .html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
 

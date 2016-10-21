@@ -34,8 +34,8 @@ def readFile(name):
 class TestMachines(MachineCase):
     def tryEnableNestedVirt(self):
         m = self.machine
-        m.execute(command='(rmmod kvm-intel && modprobe kvm-intel nested=1) || true', quiet=True)
-        m.execute(command='(rmmod kvm-amd && modprobe kvm-amd nested=1) || true', quiet=True)
+        m.execute(command='(rmmod kvm-intel; modprobe kvm-intel nested=1) || true', quiet=True)
+        m.execute(command='(rmmod kvm-amd; modprobe kvm-amd nested=1) || true', quiet=True)
 
         nestedIntel = readFile('/sys/module/kvm_intel/parameters/nested')
         nestedAmd = readFile('/sys/module/kvm_amd/parameters/nested')

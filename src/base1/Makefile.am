@@ -40,7 +40,7 @@ dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --skip-import --source-map --source-map-inline-sources $^
 dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --source-map --source-map-inline-sources $^
+	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --source-map --source-map-inline-sources $^
 dist/base1/bundle.js: dist/base1/require.js src/base1/cockpit.js dist/base1/jquery.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $^ > $@.tmp && $(MV) $@.tmp $@

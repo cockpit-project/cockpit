@@ -373,7 +373,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                loader: extract.extract('css?sourceMap&minimize=!' + 'less?sourceMap&minimize=')
+                loader: extract.extract('css?sourceMap&minimize=!' + 'less?sourceMap&compress=false')
             },
             {
                 test: /views\/[^\/]+\.html$/,

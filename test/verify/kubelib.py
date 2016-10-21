@@ -35,6 +35,9 @@ __all__ = (
 )
 
 class KubernetesCase(testlib.MachineCase):
+    def setUp(self):
+        testlib.MachineCase.setUp(self)
+        self.browser.wait_timeout(120)
 
     def stop_kubernetes(self):
         try:
@@ -241,8 +244,7 @@ class VolumeTests(object):
         base_sel = ".pv-listing tbody[data-id='{}']".format(pv_id)
         b.wait_present(base_sel)
         b.click("{} td.listing-ct-toggle".format(base_sel))
-        with b.wait_timeout(120):
-            b.wait_in_text("{} tr.listing-ct-item td:last-child".format(base_sel), "Available")
+        b.wait_in_text("{} tr.listing-ct-item td:last-child".format(base_sel), "Available")
 
         m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
         m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
@@ -357,8 +359,8 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_not_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"']")
 
     def testDashboard(self):
-        b = self.browser
         m = self.machine
+        b = self.browser
 
         self.login_and_go("/kubernetes")
         b.wait_present("#node-list")
@@ -408,8 +410,7 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_not_present("modal-dialog")
 
         # Make sure pod has started
-        with b.wait_timeout(120):
-            b.wait_text("#service-list tr[data-name='mock']:first-of-type td.containers", "1")
+        b.wait_text("#service-list tr[data-name='mock']:first-of-type td.containers", "1")
 
         # Adjust the service
         b.click("#services-enable-change")
@@ -619,8 +620,7 @@ class KubernetesCommonTests(VolumeTests):
         self.login_and_go("/kubernetes")
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
         b.wait_present("#service-list tr[data-name='mock'] td.containers")
-        with b.wait_timeout(120):
-            b.wait_text("#service-list tr[data-name='mock'] td.containers", "1")
+        b.wait_text("#service-list tr[data-name='mock'] td.containers", "1")
 
         # Switch to topology view
         b.click("a[href='#/topology']")
@@ -665,7 +665,6 @@ class OpenshiftCommonTests(VolumeTests):
     def testDelete(self):
         m = self.machine
         b = self.browser
-        b.wait_timeout(120)
 
         self.login_and_go("/kubernetes")
         b.wait_present("#service-list")

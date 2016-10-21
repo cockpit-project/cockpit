@@ -49,6 +49,7 @@
 /* EXIT CODE CONSTANTS */
 #define INTERNAL_ERROR 1
 #define AUTHENTICATION_FAILED 2
+#define DISCONNECTED 254
 #define TERMINATED 255
 #define NO_COCKPIT 127
 
@@ -1089,6 +1090,9 @@ typedef struct {
   gboolean pipe_closed;
   CockpitPipe *pipe;
 
+  GQueue *queue;
+  gsize partial;
+
   const gchar *logname;
   ssh_session session;
   ssh_channel channel;
@@ -1109,6 +1113,8 @@ cockpit_ssh_relay_free (CockpitSshRelay *self)
   self->sig_close = 0;
 
   g_object_unref (self->pipe);
+
+  g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
 
   ssh_event_free (self->event);
   /* libssh channels like to hang around even after they're freed */
@@ -1285,6 +1291,74 @@ on_channel_exit_status (ssh_session session,
     self->exit_code = exit_code;
 }
 
+static gboolean
+dispatch_queue (CockpitSshRelay *self)
+{
+  GBytes *block;
+  const guchar *data;
+  const gchar *msg;
+  gsize length;
+  gsize want;
+  int rc;
+
+  if (self->sent_eof)
+    return FALSE;
+  if (self->received_close)
+    return FALSE;
+
+  for (;;)
+    {
+      block = g_queue_peek_head (self->queue);
+      if (!block)
+        return FALSE;
+
+      data = g_bytes_get_data (block, &length);
+      g_assert (self->partial <= length);
+
+      want = length - self->partial;
+      rc = ssh_channel_write (self->channel, data + self->partial, want);
+      if (rc < 0)
+        {
+          msg = ssh_get_error (self->session);
+          if (ssh_get_error_code (self->session) == SSH_REQUEST_DENIED)
+            {
+              g_debug ("%s: couldn't write: %s", self->logname, msg);
+              return FALSE;
+            }
+          else if (ssh_msg_is_disconnected (msg))
+            {
+              g_message ("%s: couldn't write: %s", self->logname, msg);
+              self->received_close = TRUE;
+              self->received_eof = TRUE;
+              return FALSE;
+            }
+          else
+            {
+              g_warning ("%s: couldn't write: %s", self->logname, msg);
+              return FALSE;
+            }
+          break;
+        }
+
+      if (rc == want)
+        {
+          g_debug ("%s: wrote %d bytes", self->logname, rc);
+          g_queue_pop_head (self->queue);
+          g_bytes_unref (block);
+          self->partial = 0;
+        }
+      else
+        {
+          g_debug ("%s: wrote %d of %d bytes", self->logname, rc, (int)want);
+          g_return_val_if_fail (rc < want, FALSE);
+          self->partial += rc;
+          if (rc == 0)
+            break;
+        }
+    }
+
+  return TRUE;
+}
 
 static void
 dispatch_close (CockpitSshRelay *self)
@@ -1311,6 +1385,7 @@ dispatch_close (CockpitSshRelay *self)
         {
           g_warning ("%s: couldn't send close: %s", self->logname,
                      ssh_get_error (self->session));
+          self->received_exit = TRUE;
           if (!self->exit_code)
             self->exit_code = INTERNAL_ERROR;
         }
@@ -1343,6 +1418,7 @@ dispatch_eof (CockpitSshRelay *self)
         {
           g_warning ("%s: couldn't send eof: %s", self->logname,
                      ssh_get_error (self->session));
+          self->received_exit = TRUE;
           if (!self->exit_code)
             self->exit_code = INTERNAL_ERROR;
         }
@@ -1358,63 +1434,20 @@ on_pipe_read (CockpitPipe *pipe,
 {
   CockpitSshRelay *self = user_data;
   GByteArray *buf = NULL;
-  const gchar *msg;
-  guint offset;
-  guint want;
-  gint rc;
 
   buf = cockpit_pipe_get_buffer (pipe);
-  offset = 0;
-
-  if (self->sent_eof)
-    goto out;
-  if (self->received_close)
-    goto out;
-
-  if (!buf->len)
-    return;
-
-  want = buf->len;
-
-  for (;;)
-    {
-      want = buf->len - offset;
-      rc = ssh_channel_write (self->channel, buf->data + offset, want);
-      if (rc < 0)
-        {
-          msg = ssh_get_error (self->session);
-          if (ssh_get_error_code (self->session) == SSH_REQUEST_DENIED)
-            {
-              g_debug ("%s: couldn't write: %s", self->logname, msg);
-              break;
-            }
-          else if (ssh_msg_is_disconnected (msg))
-            {
-              g_message ("%s: couldn't write: %s", self->logname, msg);
-            }
-          else
-            {
-              g_warning ("%s: couldn't write: %s", self->logname, msg);
-            }
-          break;
-        }
-
-      if (rc == want)
-        {
-          g_debug ("%s: wrote %d bytes", self->logname, rc);
-          break;
-        }
-      else
-        {
-          g_debug ("%s: wrote %d of %d bytes", self->logname, rc, (int)want);
-          offset = offset + rc;
-        }
-    }
-
-out:
-  /* When array is reffed, this just clears byte array */
   g_byte_array_ref (buf);
-  g_byte_array_free (buf, TRUE);
+
+  if (!self->sent_eof && !self->received_close && buf->len > 0)
+    {
+      g_debug ("%s: queued %d bytes", self->logname, buf->len);
+      g_queue_push_tail (self->queue, g_byte_array_free_to_bytes (buf));
+    }
+  else
+    {
+      g_debug ("%s: dropping %d bytes", self->logname, buf->len);
+      g_byte_array_free (buf, TRUE);
+    }
 }
 
 static void
@@ -1425,20 +1458,83 @@ on_pipe_close (CockpitPipe *pipe,
   CockpitSshRelay *self = user_data;
 
   self->pipe_closed = TRUE;
+  // Pipe closing before data was received doesn't mean no-cockpit
+  self->received_frame = TRUE;
 
   if (!self->received_eof)
     dispatch_eof (self);
 }
 
+typedef struct {
+  GSource source;
+  GPollFD pfd;
+  CockpitSshRelay *relay;
+} CockpitSshSource;
+
 static gboolean
-do_event_poll (gint fd,
-               GIOCondition cond,
-               gpointer user_data)
+cockpit_ssh_source_check (GSource *source)
 {
+  CockpitSshSource *cs = (CockpitSshSource *)source;
+  return (cs->pfd.events & cs->pfd.revents) != 0;
+}
+
+static gboolean
+cockpit_ssh_source_prepare (GSource *source,
+                            gint *timeout)
+{
+  CockpitSshSource *cs = (CockpitSshSource *)source;
+  CockpitSshRelay *self = cs->relay;
+  gint status;
+
+  *timeout = 1;
+
+  status = ssh_get_status (self->session);
+
+  cs->pfd.revents = 0;
+  cs->pfd.events = G_IO_IN | G_IO_ERR | G_IO_NVAL | G_IO_HUP;
+
+  /* libssh has something in its buffer: want to write */
+  if (status & SSH_WRITE_PENDING)
+    cs->pfd.events |= G_IO_OUT;
+
+  /* We have something in our queue: want to write */
+  else if (!g_queue_is_empty (self->queue))
+    cs->pfd.events |= G_IO_OUT;
+
+  /* We are closing and need to send eof: want to write */
+  else if (self->pipe_closed && !self->sent_eof)
+    cs->pfd.events |= G_IO_OUT;
+
+  /* Need to reply to an EOF or close */
+  if ((self->received_eof && self->sent_eof && !self->sent_close) ||
+      (self->received_close && !self->sent_close))
+    cs->pfd.events |= G_IO_OUT;
+
+  return cockpit_ssh_source_check (source);
+}
+
+static gboolean
+cockpit_ssh_source_dispatch (GSource *source,
+                             GSourceFunc callback,
+                             gpointer user_data)
+{
+  CockpitSshSource *cs = (CockpitSshSource *)source;
   int rc;
   const gchar *msg;
   gboolean ret = TRUE;
-  CockpitSshRelay *self = user_data;
+  CockpitSshRelay *self = cs->relay;
+  GIOCondition cond = cs->pfd.revents;
+
+  g_return_val_if_fail ((cond & G_IO_NVAL) == 0, FALSE);
+
+  if (cond & (G_IO_HUP | G_IO_ERR))
+    {
+      if (self->sent_close || self->sent_eof)
+        {
+          self->received_eof = TRUE;
+          self->received_close = TRUE;
+        }
+    }
 
   if (self->received_exit)
     return FALSE;
@@ -1474,29 +1570,44 @@ do_event_poll (gint fd,
       else
         {
           g_message ("%s: failed to process channel: %s", self->logname, msg);
-          if (!self->received_exit)
-            {
-              self->received_exit = TRUE;
-              if (!self->exit_code)
-                self->exit_code = INTERNAL_ERROR;
-            }
-        }
-      ret = FALSE;
-      break;
-    default:
-      if (!self->received_exit)
-        {
           self->received_exit = TRUE;
           if (!self->exit_code)
             self->exit_code = INTERNAL_ERROR;
         }
+      ret = FALSE;
+      break;
+    default:
+      self->received_exit = TRUE;
+      if (!self->exit_code)
+        self->exit_code = INTERNAL_ERROR;
       g_critical ("%s: ssh_event_dopoll() returned %d", self->logname, rc);
       ret = FALSE;
     }
 
-  if (self->received_eof && !self->received_close && !self->sent_close)
-    dispatch_close (self);
+  if (!ret)
+    goto out;
 
+  if (cond & G_IO_ERR)
+    {
+      g_message ("%s: error reading from ssh", self->logname);
+      ret = FALSE;
+      self->received_exit = TRUE;
+      if (!self->exit_code)
+        self->exit_code = DISCONNECTED;
+      goto out;
+    }
+
+  if (cond & G_IO_OUT)
+    {
+      if (!dispatch_queue (self) && self->pipe_closed && !self->sent_eof)
+        dispatch_eof (self);
+      if (self->received_eof && self->sent_eof && !self->sent_close)
+        dispatch_close (self);
+      if (self->received_eof && !self->received_close && !self->sent_close)
+        dispatch_close (self);
+    }
+
+out:
   return ret;
 }
 
@@ -1522,6 +1633,7 @@ cockpit_ssh_relay_new (ssh_session session,
   relay->channel = channel;
   relay->logname = logname;
   relay->event = ssh_event_new ();
+  relay->queue = g_queue_new ();
 
   relay->pipe = g_object_new (COCKPIT_TYPE_PIPE,
                               "in-fd", 0,
@@ -1541,12 +1653,27 @@ cockpit_ssh_relay_new (ssh_session session,
   ssh_callbacks_init (&relay->channel_cbs);
   ssh_set_channel_callbacks (channel, &relay->channel_cbs);
   ssh_set_blocking (session, 0);
-  cockpit_unix_fd_add (ssh_get_fd (session),
-                       G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
-                       do_event_poll, relay);
   ssh_event_add_session (relay->event, session);
 
   return relay;
+}
+
+static GSource *
+cockpit_ssh_relay_start_source (CockpitSshRelay *self) {
+  static GSourceFuncs source_funcs = {
+    cockpit_ssh_source_prepare,
+    cockpit_ssh_source_check,
+    cockpit_ssh_source_dispatch,
+    NULL,
+  };
+  GSource *source = g_source_new (&source_funcs, sizeof (CockpitSshSource));
+  CockpitSshSource *cs = (CockpitSshSource *)source;
+  cs->relay = self;
+  cs->pfd.fd = ssh_get_fd (self->session);
+  g_source_add_poll (source, &cs->pfd);
+  g_source_attach (source, g_main_context_default ());
+
+  return source;
 }
 
 int
@@ -1562,6 +1689,7 @@ main (int argc,
   ssh_channel channel = NULL;
   CockpitSshData *data = NULL;
   CockpitSshRelay *relay = NULL;
+  GSource *io = NULL;
 
   const gchar *env;
   const gchar *host;
@@ -1692,6 +1820,7 @@ main (int argc,
     }
 
   relay = cockpit_ssh_relay_new (session, channel, outfd, logname);
+  io = cockpit_ssh_relay_start_source (relay);
   while (!relay->received_exit)
     g_main_context_iteration (NULL, TRUE);
 
@@ -1699,6 +1828,8 @@ main (int argc,
 
   ret = relay->exit_code;
 
+  g_source_destroy (io);
+  g_source_unref (io);
   cockpit_ssh_relay_free (relay);
 
 out:

@@ -20,6 +20,7 @@ libpolkit-agent-1-0 \
 libpolkit-gobject-1-0 \
 libpwquality-tools \
 libssh-4 \
+libvirt-daemon-system \
 network-manager \
 pcp \
 policykit-1 \
@@ -78,6 +79,7 @@ TEST_PACKAGES="\
 curl \
 gdb \
 systemd-coredump \
+virtinst \
 "
 
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin
@@ -98,6 +100,9 @@ echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >debian-8.install-build-d
 pbuilder --execute --save-after-exec debian-8.install-build-deps
 # Disable build-dep installation for the real builds
 echo PBUILDERSATISFYDEPENDSCMD=true >~/.pbuilderrc
+
+# Debian does not automatically start the default libvirt network
+virsh net-autostart default
 
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker

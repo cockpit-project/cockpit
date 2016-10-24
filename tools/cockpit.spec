@@ -419,7 +419,7 @@ The Cockpit components for managing software updates for ostree based systems.
 %files ostree -f ostree.list
 
 %package machines
-Summary: Cockpit user interface for rpm-machines
+Summary: Cockpit user interface for virtual machines
 Requires: %{name}-bridge >= %{stable_api}
 Requires: %{name}-shell >= %{stable_api}
 Requires: libvirt

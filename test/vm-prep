@@ -79,6 +79,16 @@ EOF
         echo "$rule" >> ${qemu_config_dir}/bridge.conf
       fi
   done
+
+    # We really want nested virtualization
+    if [ ! -f /etc/modprobe.d/kvm-intel.conf ]; then
+        echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
+        rmmod kvm-intel && modprobe kvm-intel || true
+    fi
+    if [ ! -f /etc/modprobe.d/kvm-amd.conf ]; then
+        echo "options kvm-amd nested=1" > /etc/modprobe.d/kvm-amd.conf
+        rmmod kvm-amd && modprobe kvm-amd || true
+    fi
 }
 
 unprepare()

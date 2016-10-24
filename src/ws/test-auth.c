@@ -516,7 +516,7 @@ test_bad_command (Test *test,
                   gconstpointer data)
 {
   cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING,
-                               "*couldn't read*");
+                               "*couldn't recv*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
                                "*Auth pipe closed: internal-error*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_WARNING,

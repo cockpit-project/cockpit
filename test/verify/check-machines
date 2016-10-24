@@ -30,21 +30,13 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
+# If this test fails to run, the host machine needs:
+# echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
+# rmmod kvm-intel && modprobe kvm-intel || true
+
 @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "Don't run virtual machine tests on atomic systems.")
 class TestMachines(MachineCase):
-    def tryEnableNestedVirt(self):
-        m = self.machine
-        m.execute(command='(rmmod kvm-intel; modprobe kvm-intel nested=1) || true', quiet=True)
-        m.execute(command='(rmmod kvm-amd; modprobe kvm-amd nested=1) || true', quiet=True)
-
-        nestedIntel = readFile('/sys/module/kvm_intel/parameters/nested')
-        nestedAmd = readFile('/sys/module/kvm_amd/parameters/nested')
-        return 'Y' == nestedIntel or '1' == nestedAmd
-
     def testBasic(self):
-        if not self.tryEnableNestedVirt():
-            raise unittest.SkipTest('Nested virtualization is not enabled on this test image, skipping the test')
-
         b = self.browser
         m = self.machine
 

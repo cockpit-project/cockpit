@@ -276,18 +276,18 @@ dispatch_input (gint fd,
    */
   if (cond != G_IO_HUP)
     {
-      g_byte_array_set_size (self->priv->in_buffer, len + MAX_SEQ_PACKET);
+      g_byte_array_set_size (self->priv->in_buffer, len + MAX_PACKET_SIZE);
       if (self->priv->seq_packet)
         {
           g_debug ("%s: receiving input", self->priv->name);
-          vec.iov_len = MAX_SEQ_PACKET;
+          vec.iov_len = MAX_PACKET_SIZE;
           vec.iov_base = self->priv->in_buffer->data + len;
           ret = recvmsg (self->priv->in_fd, &msg, 0);
         }
       else
         {
           g_debug ("%s: reading input %x", self->priv->name, cond);
-          ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, MAX_SEQ_PACKET);
+          ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, MAX_PACKET_SIZE);
         }
 
       errn = errno;

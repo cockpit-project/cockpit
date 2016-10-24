@@ -19,6 +19,9 @@
 
 #include "config.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include <err.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -32,11 +35,12 @@
 static char *
 read_seqpacket_message (int fd)
 {
-  char *buf = NULL;
+  struct iovec vec = { .iov_len = MAX_SEQ_PACKET, };
+  struct msghdr msg;
   int r;
 
-  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
-  if (!buf)
+  vec.iov_base = malloc (vec.iov_len + 1);
+  if (!vec.iov_base)
     errx (EX, "couldn't allocate memory for data");
 
   /* Assume only one successful read needed
@@ -44,13 +48,16 @@ read_seqpacket_message (int fd)
    */
   for (;;)
     {
-      r = read (fd, buf, MAX_AUTH_BUFFER);
+      memset (&msg, 0, sizeof (msg));
+      msg.msg_iov = &vec;
+      msg.msg_iovlen = 1;
+      r = recvmsg (fd, &msg, 0);
       if (r < 0)
         {
           if (errno == EAGAIN)
             continue;
 
-          err (EX, "couldn't read data");
+          err (EX, "couldn't recv data");
         }
       else
         {
@@ -58,17 +65,8 @@ read_seqpacket_message (int fd)
         }
     }
 
-  if (r == 0) {
-    free (buf);
-    return NULL;
-  }
-
-  buf = realloc (buf, r + 1);
-  if (!buf)
-    errx (EX, "couldn't reallocate memory for data");
-
-  buf[r] = '\0';
-  return buf;
+  ((char *)vec.iov_base)[r] = '\0';
+  return vec.iov_base;
 }
 
 static void
@@ -78,13 +76,13 @@ write_resp (int fd,
   int r;
   for (;;)
     {
-      r = write (fd, data, strlen (data));
+      r = send (fd, data, strlen (data), 0);
       if (r < 0)
         {
           if (errno == EAGAIN)
             continue;
 
-          err (EX, "couldn't write auth data");
+          err (EX, "couldn't send auth data");
         }
       else
         {

@@ -80,11 +80,12 @@ read_seqpacket_message (int fd,
                         const char *what,
                         size_t *out_len)
 {
-  char *buf = NULL;
+  struct iovec vec = { .iov_len = MAX_SEQ_PACKET, };
+  struct msghdr msg;
   int r;
 
-  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
-  if (!buf)
+  vec.iov_base = malloc (vec.iov_len + 1);
+  if (!vec.iov_base)
     errx (EX, "couldn't allocate memory for %s", what);
 
   /* Assume only one successful read needed
@@ -92,33 +93,26 @@ read_seqpacket_message (int fd,
    */
   for (;;)
     {
-      r = read (fd, buf, MAX_AUTH_BUFFER);
+      memset (&msg, 0, sizeof (msg));
+      msg.msg_iov = &vec;
+      msg.msg_iovlen = 1;
+      r = recvmsg (fd, &msg, 0);
       if (r < 0)
         {
           if (errno == EAGAIN)
             continue;
 
-          err (EX, "couldn't read %s", what);
+          err (EX, "couldn't recv %s", what);
         }
       else
         {
           break;
         }
     }
-
-  if (r == 0) {
-    free (buf);
-    return NULL;
-  }
-
-  buf = realloc (buf, r + 1);
-  if (!buf)
-    errx (EX, "couldn't reallocate memory for %s", what);
-
-  buf[r] = '\0';
+  ((char *)vec.iov_base)[r] = '\0';
   if (out_len)
     *out_len = r;
-  return buf;
+  return vec.iov_base;
 }
 
 static void

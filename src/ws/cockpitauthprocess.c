@@ -413,7 +413,7 @@ cockpit_auth_process_constructed (GObject *object)
                              "in-fd", pair[1],
                              "out-fd", pair[1],
                              "name", self->logname,
-                             "read-size", MAX_AUTH_BUFFER,
+                             "seq-packet", TRUE,
                              NULL);
 
   self->sig_pipe_read = g_signal_connect (self->pipe,
@@ -703,9 +703,6 @@ void
 cockpit_auth_process_write_auth_bytes (CockpitAuthProcess *self,
                                        GBytes *auth_bytes)
 {
-  unsigned char nb = '\0';
-  GBytes *blank = g_bytes_new_static (&nb, 1);
-
   g_return_if_fail (self->send_signal == FALSE);
 
   if (self->pipe_closed)
@@ -715,11 +712,7 @@ cockpit_auth_process_write_auth_bytes (CockpitAuthProcess *self,
     }
 
   expect_response (self);
-  if (auth_bytes && g_bytes_get_size (auth_bytes) > 0)
-    cockpit_pipe_write (self->pipe, auth_bytes);
-  else
-    cockpit_pipe_write (self->pipe, blank);
-  g_bytes_unref (blank);
+  cockpit_pipe_write (self->pipe, auth_bytes);
 }
 
 gboolean

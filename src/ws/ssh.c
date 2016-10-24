@@ -305,21 +305,23 @@ out:
 static gchar *
 wait_for_auth_fd_reply (CockpitSshData *data)
 {
-  char *buf = NULL;
+  struct iovec vec = { .iov_len = MAX_SEQ_PACKET, };
+  struct msghdr msg;
   int r;
 
-  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
-  if (!buf)
-    g_error ("%s: couldn't allocate memory for auth response", data->logname);
+  vec.iov_base = g_malloc (vec.iov_len + 1);
 
   for (;;)
     {
-      r = read (data->auth_fd, buf, MAX_AUTH_BUFFER);
+      memset (&msg, 0, sizeof (msg));
+      msg.msg_iov = &vec;
+      msg.msg_iovlen = 1;
+      r = recvmsg (data->auth_fd, &msg, 0);
       if (r < 0)
         {
           if (errno == EAGAIN)
             continue;
-          g_error ("%s: Couldn't read: %s", data->logname, g_strerror (errno));
+          g_error ("%s: Couldn't recv packet: %s", data->logname, g_strerror (errno));
           break;
         }
       else
@@ -328,13 +330,8 @@ wait_for_auth_fd_reply (CockpitSshData *data)
         }
     }
 
-  if (r == 0) {
-    free (buf);
-    return NULL;
-  }
-
-  buf[r] = '\0';
-  return buf;
+  ((char *)vec.iov_base)[r] = '\0';
+  return vec.iov_base;
 }
 
 /*
@@ -1639,7 +1636,6 @@ cockpit_ssh_relay_new (ssh_session session,
                               "in-fd", 0,
                               "out-fd", outfd,
                               "name", logname,
-                              "read-size", MAX_AUTH_BUFFER,
                               NULL);
   relay->sig_read = g_signal_connect (relay->pipe,
                                       "read",

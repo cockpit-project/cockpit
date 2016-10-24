@@ -59,7 +59,7 @@ enum {
   PROP_ERR_FD,
   PROP_PID,
   PROP_PROBLEM,
-  PROP_READ_SIZE
+  PROP_SEQ_PACKET
 };
 
 struct _CockpitPipePrivate {
@@ -91,7 +91,7 @@ struct _CockpitPipePrivate {
   GSource *err_source;
   GByteArray *err_buffer;
 
-  int read_size;
+  gboolean seq_packet;
 };
 
 typedef struct {
@@ -120,7 +120,7 @@ cockpit_pipe_init (CockpitPipe *self)
   self->priv->out_fd = -1;
   self->priv->err_fd = -1;
   self->priv->status = -1;
-  self->priv->read_size = 1024;
+  self->priv->seq_packet = FALSE;
 
   self->priv->context = g_main_context_ref_thread_default ();
 }
@@ -259,9 +259,12 @@ dispatch_input (gint fd,
                 gpointer user_data)
 {
   CockpitPipe *self = (CockpitPipe *)user_data;
+  struct iovec vec = { NULL, };
+  struct msghdr msg = { .msg_iov = &vec, .msg_iovlen = 1, };
   gssize ret = 0;
   gsize len;
   gboolean eof;
+  int errn;
 
   g_return_val_if_fail (self->priv->in_source, FALSE);
   len = self->priv->in_buffer->len;
@@ -273,20 +276,37 @@ dispatch_input (gint fd,
    */
   if (cond != G_IO_HUP)
     {
-      g_debug ("%s: reading input", self->priv->name);
+      g_byte_array_set_size (self->priv->in_buffer, len + MAX_SEQ_PACKET);
+      if (self->priv->seq_packet)
+        {
+          g_debug ("%s: receiving input", self->priv->name);
+          vec.iov_len = MAX_SEQ_PACKET;
+          vec.iov_base = self->priv->in_buffer->data + len;
+          ret = recvmsg (self->priv->in_fd, &msg, 0);
+        }
+      else
+        {
+          g_debug ("%s: reading input %x", self->priv->name, cond);
+          ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, MAX_SEQ_PACKET);
+        }
 
-      g_byte_array_set_size (self->priv->in_buffer, len + self->priv->read_size);
-      ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, self->priv->read_size);
+      errn = errno;
       if (ret < 0)
         {
           g_byte_array_set_size (self->priv->in_buffer, len);
-          if (errno != EAGAIN && errno != EINTR)
+          if (errn == EAGAIN && errn == EINTR)
             {
-              set_problem_from_errno (self, "couldn't read", errno);
+              return TRUE;
+            }
+          else
+            {
+              if (self->priv->seq_packet)
+                set_problem_from_errno (self, "couldn't recv", errn);
+              else
+                set_problem_from_errno (self, "couldn't read", errn);
               close_immediately (self, NULL); /* problem already set */
               return FALSE;
             }
-          return TRUE;
         }
     }
 
@@ -463,6 +483,75 @@ dispatch_connect (CockpitPipe *self)
 }
 
 static gboolean
+dispatch_packet (gint fd,
+                 GIOCondition cond,
+                 gpointer user_data)
+{
+  CockpitPipe *self = (CockpitPipe *)user_data;
+  gconstpointer data;
+  gsize length;
+  GBytes *bytes;
+  gssize ret;
+
+  if (self->priv->connecting && !dispatch_connect (self))
+    return TRUE;
+
+  g_return_val_if_fail (self->priv->out_source, FALSE);
+
+  bytes = g_queue_peek_head (self->priv->out_queue);
+  if (!bytes)
+    {
+      g_debug ("%s: output queue empty", self->priv->name);
+
+      /* If all messages are done, then stop polling out fd */
+      stop_output (self);
+
+      if (self->priv->closing)
+        close_output (self);
+      else
+        close_maybe (self);
+
+      return TRUE;
+    }
+
+  data = g_bytes_get_data (bytes, &length);
+  g_debug ("%s: sending %d byte message", self->priv->name, (gint)length);
+
+  ret = send (self->priv->out_fd, data, length, 0);
+
+  if (ret < 0)
+    {
+      if (errno != EAGAIN && errno != EINTR)
+        {
+          if (errno == EPIPE)
+            {
+              g_debug ("%s: couldn't send: %s", self->priv->name, g_strerror (errno));
+              close_immediately (self, "terminated");
+            }
+          else
+            {
+              set_problem_from_errno (self, "couldn't send", errno);
+              close_immediately (self, NULL); /* already set */
+            }
+        }
+      return FALSE;
+    }
+
+  if (ret > 0 && ret != length)
+    {
+        g_warning ("%s: partial send %d of %d bytes", self->priv->name, (gint)ret, (gint)length);
+        ret = length;
+    }
+  if (ret == length)
+    {
+      g_queue_pop_head (self->priv->out_queue);
+      g_bytes_unref (bytes);
+    }
+
+  return TRUE;
+}
+
+static gboolean
 dispatch_output (gint fd,
                  GIOCondition cond,
                  gpointer user_data)
@@ -561,7 +650,10 @@ start_output (CockpitPipe *self)
   g_assert (self->priv->out_source == NULL);
   self->priv->out_source = cockpit_unix_fd_source_new (self->priv->out_fd, G_IO_OUT);
   g_source_set_name (self->priv->out_source, "pipe-output");
-  g_source_set_callback (self->priv->out_source, (GSourceFunc)dispatch_output, self, NULL);
+  if (self->priv->seq_packet)
+    g_source_set_callback (self->priv->out_source, (GSourceFunc)dispatch_packet, self, NULL);
+  else
+    g_source_set_callback (self->priv->out_source, (GSourceFunc)dispatch_output, self, NULL);
   g_source_attach (self->priv->out_source, self->priv->context);
 }
 
@@ -655,8 +747,8 @@ cockpit_pipe_set_property (GObject *obj,
       case PROP_PID:
         self->priv->pid = g_value_get_int (value);
         break;
-      case PROP_READ_SIZE:
-        self->priv->read_size = g_value_get_int (value);
+      case PROP_SEQ_PACKET:
+        self->priv->seq_packet = g_value_get_boolean (value);
         break;
       case PROP_PROBLEM:
         self->priv->problem = g_value_dup_string (value);
@@ -694,8 +786,8 @@ cockpit_pipe_get_property (GObject *obj,
     case PROP_PID:
       g_value_set_int (value, self->priv->pid);
       break;
-    case PROP_READ_SIZE:
-      g_value_set_int (value, self->priv->read_size);
+    case PROP_SEQ_PACKET:
+      g_value_set_int (value, self->priv->seq_packet);
       break;
     case PROP_PROBLEM:
       g_value_set_string (value, self->priv->problem);
@@ -833,12 +925,12 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
-   * CockpitPipe:read_size:
+   * CockpitPipe:seq-packet:
    *
-   * Bytes to read in each loop.
+   * Whether the fd is a SOCK_SEQPACKET socket or not.
    */
-  g_object_class_install_property (gobject_class, PROP_READ_SIZE,
-                g_param_spec_int ("read-size", "read-size", "read-size", 1024, G_MAXINT, 1024,
+  g_object_class_install_property (gobject_class, PROP_SEQ_PACKET,
+                g_param_spec_boolean ("seq-packet", "seq-packet", "seq-packet", FALSE,
                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
@@ -926,7 +1018,7 @@ _cockpit_pipe_write (CockpitPipe *self,
       return;
     }
 
-  if (g_bytes_get_size (data) == 0)
+  if (!self->priv->seq_packet && g_bytes_get_size (data) == 0)
     {
       g_debug ("%s: ignoring zero byte data block", self->priv->name);
       return;

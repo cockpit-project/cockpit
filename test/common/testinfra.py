@@ -51,7 +51,7 @@ DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
 BASELINE_PRIORITY = 10
 
 DEFAULT_VERIFY = {
-    'verify/fedora-24': [ 'master' ],
+    'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],
     'verify/centos-7': [ 'master', 'pulls' ],
     'verify/continuous-atomic': [ 'master' ],
@@ -59,7 +59,7 @@ DEFAULT_VERIFY = {
     'verify/fedora-atomic': [ 'master', 'pulls' ],
     'verify/rhel-atomic': [ 'master', 'pulls' ],
     'verify/debian-unstable': [ 'master', 'pulls' ],
-    'verify/fedora-testing': [ 'master' ],
+    'verify/fedora-testing': [ ],
     'verify/ubuntu-1604': [ ],
     'avocado/fedora-24': [ 'master', 'pulls' ],
     'selenium/firefox': [ 'master', 'pulls' ],

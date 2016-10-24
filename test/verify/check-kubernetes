@@ -28,6 +28,7 @@ from testlib import *
 import kubelib
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No kubernetes on Ubuntu (yet).")
 class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
 
     def setUp(self):
@@ -40,6 +41,7 @@ class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
         self.wait_api_server()
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No kubernetes on Ubuntu (yet).")
 class TestConnection(kubelib.KubernetesCase):
     def testConnect(self):
         m = self.machine
@@ -226,6 +228,7 @@ class TestConnection(kubelib.KubernetesCase):
                                     ".*: Error sending data: Broken pipe.*")
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No kubernetes on Ubuntu (yet).")
 @unittest.skipIf(True, "Nulecule deploys temporarily removed.")
 class TestNulecule(kubelib.KubernetesCase):
     def setUp(self):

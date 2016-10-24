@@ -51,7 +51,6 @@ DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
 BASELINE_PRIORITY = 10
 
 DEFAULT_VERIFY = {
-    'verify/fedora-23': [ ],
     'verify/fedora-24': [ 'master' ],
     'verify/fedora-25': [ 'master', 'pulls' ],
     'verify/centos-7': [ 'master', 'pulls' ],
@@ -66,7 +65,6 @@ DEFAULT_VERIFY = {
     'selenium/firefox': [ 'master', 'pulls' ],
     'selenium/chrome': [ 'master', 'pulls' ],
     'container/kubernetes': [ 'master', 'pulls' ],
-    'koji/fedora-23': [ ],
     'koji/fedora-24': [ ],
     'koji/fedora-25': [ ],
 }
@@ -76,11 +74,6 @@ NOT_TESTED = "Not yet tested"
 NO_TESTING = "Manual testing required"
 
 DEFAULT_IMAGE_REFRESH = {
-    'fedora-23': {
-        'triggers': [
-            "verify/fedora-23",
-        ]
-    },
     'fedora-24': {
         'triggers': [
             "avocado/fedora-24",

@@ -142,8 +142,9 @@ var ListingRow = React.createClass({
                 return (<td>{itm.name}</td>);
         });
 
+        var allowExpand = (this.props.tabRenderers.length > 0);
         var expandToggle = null;
-        if (this.props.tabRenderers.length > 0) {
+        if (allowExpand) {
             expandToggle = <td className="listing-ct-toggle" onClick={ allowNavigate?this.handleExpandClick:undefined }>
                                <i className="fa fa-fw"></i>
                            </td>;
@@ -154,8 +155,8 @@ var ListingRow = React.createClass({
         var listingItemClasses = ["listing-ct-item"];
         if (!allowNavigate)
             listingItemClasses.push("listing-ct-nonavigate");
-        if (this.props.tabRenderers.length > 0)
-            listingItemClasses.push("listing-ct-canexpand");
+        if (!allowExpand)
+            listingItemClasses.push("listing-ct-noexpand");
 
         var listingItem = (
             <tr className={ listingItemClasses.join(' ') }

@@ -35,7 +35,7 @@
 static char *
 read_seqpacket_message (int fd)
 {
-  struct iovec vec = { .iov_len = MAX_SEQ_PACKET, };
+  struct iovec vec = { .iov_len = MAX_PACKET_SIZE, };
   struct msghdr msg;
   int r;
 

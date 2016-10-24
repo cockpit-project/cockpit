@@ -511,7 +511,7 @@ AC_MSG_RESULT($enable_strict)
 AC_SUBST(REAUTHORIZE_LIBS)
 AC_SUBST(PAM_LIBS)
 
-AC_DEFINE([MAX_SEQ_PACKET], [65536], [Maximum size of seq packet messages])
+AC_DEFINE([MAX_PACKET_SIZE], [65536], [Maximum size of packet messages])
 
 AC_OUTPUT([
 Makefile

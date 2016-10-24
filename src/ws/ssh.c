@@ -305,7 +305,7 @@ out:
 static gchar *
 wait_for_auth_fd_reply (CockpitSshData *data)
 {
-  struct iovec vec = { .iov_len = MAX_SEQ_PACKET, };
+  struct iovec vec = { .iov_len = MAX_PACKET_SIZE, };
   struct msghdr msg;
   int r;
 

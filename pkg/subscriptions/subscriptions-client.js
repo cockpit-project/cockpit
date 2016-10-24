@@ -309,7 +309,10 @@ var requestUpdate = function() {
         });
 
     /* TODO: Don't use a timeout here. Needs better API */
-    updateTimeout = window.setTimeout(statusUpdateFailed.bind(this, "timeout"), 30000);
+    updateTimeout = window.setTimeout(
+        function() {
+            statusUpdateFailed("timeout");
+        }, 30000);
 };
 
 function processStatusOutput(text, exitDetails) {

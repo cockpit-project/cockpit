@@ -1,0 +1,133 @@
+#! /bin/bash
+
+set -ex
+
+# Enable a console on ttyS0 so that we can log-in via vm-run.
+#
+echo 'GRUB_CMDLINE_LINUX="console=ttyS0,115200"' >>/etc/default/grub
+update-grub
+
+# We install all dependencies of the cockpit packages since we want
+# them to not spontaneously change from one test run to the next when
+# the distribution repository is updated.
+#
+COCKPIT_DEPS="\
+cryptsetup \
+docker.io \
+libjson-glib-1.0-0 \
+libpcp3 \
+libpolkit-agent-1-0 \
+libpolkit-gobject-1-0 \
+libpwquality-tools \
+libssh-4 \
+network-manager \
+pcp \
+policykit-1 \
+realmd \
+selinux-basics \
+thin-provisioning-tools \
+xdg-utils \
+"
+
+# storaged \
+# storaged-lvm2 \
+
+# HACK - https://github.com/cockpit-project/cockpit/issues/3298
+# We have a  explicit list of build dependencies here until we figure
+# out how to let pbuilder install them.
+#
+COCKPIT_BUILD_DEPS="\
+debhelper \
+dh-make \
+dh-autoreconf \
+autoconf \
+automake \
+intltool \
+libssh-dev \
+libssl-dev \
+zlib1g-dev \
+libkrb5-dev \
+libxslt1-dev \
+libkeyutils-dev \
+libglib2.0-dev \
+libsystemd-dev \
+libpolkit-agent-1-dev \
+libpcp3-dev \
+libjson-glib-dev \
+libpam0g-dev \
+libpcp-import1-dev \
+libpcp-pmda3-dev \
+systemd \
+xsltproc \
+xmlto \
+docbook-xsl \
+glib-networking \
+nodejs-legacy \
+npm \
+openssh-client \
+"
+
+# We also install the packages necessary to join a FreeIPA domain so
+# that we don't have to go to the network during a test run.
+#
+IPA_CLIENT_PACKAGES="\
+sssd-tools \
+packagekit \
+freeipa-client \
+"
+
+TEST_PACKAGES="\
+curl \
+gdb \
+iproute \
+"
+
+useradd -m -U -c Administrator -G sudo -s /bin/bash admin
+echo admin:foobar | chpasswd
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get -y install software-properties-common python-software-properties
+add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe"
+apt-get -y update
+apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# Prepare for building
+#
+apt-get -y install dpkg-dev pbuilder dh-make
+
+# Disable build-dep installation for the real builds
+cat > ~/.pbuilderrc <<- EOF
+PBUILDERSATISFYDEPENDSCMD=true
+COMPONENTS="main universe"
+EOF
+
+pbuilder --create
+echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >ubuntu.install-build-deps
+pbuilder --execute --save-after-exec ubuntu.install-build-deps
+
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
+
+# in case there are unnecessary packages
+apt-get -y autoremove || true
+
+# reduce image size
+apt-get clean
+/var/lib/testvm/zero-disk.setup
+
+# Final tweaks
+
+# Enable persistent journal
+mkdir /var/log/journal
+
+# Allow root login with password
+sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# Disable old SSH init script.  Something is calling "/etc/init.d/ssh
+# reload" during boot and that results in the ssh port being
+# unreachable temporarily.
+#
+chmod a-x /etc/init.d/ssh

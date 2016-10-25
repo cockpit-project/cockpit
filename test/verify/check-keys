@@ -43,7 +43,7 @@ class TestKeys(MachineCase):
         self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
 
         # Create a user without any role
-        m.execute("useradd user -c 'User' || true")
+        m.execute("useradd user -m -c 'User' || true")
         m.execute("echo user:foobar | chpasswd")
 
         m.start_cockpit()

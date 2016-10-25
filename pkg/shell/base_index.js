@@ -750,7 +750,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         function setup_account(id, user) {
             $(id).on("click", function() {
                 self.jump({ host: "localhost", component: "users", hash: "/" + user.name });
-            });
+            }).show();
         }
 
         /* User information */

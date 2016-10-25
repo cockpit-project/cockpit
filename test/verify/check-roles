@@ -54,6 +54,7 @@ class TestRoles(MachineCase):
 
         # Check permissions for own account
         b.click('#content-user-name')
+        b.wait_visible('#go-account')
         b.click('#go-account')
         b.enter_page("/users")
 

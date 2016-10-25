@@ -102,7 +102,7 @@
                     var obj = keys[0];
                     if (obj && obj.valid) {
                         df.notify(_("Adding key"));
-                        cockpit.script(adder, [ user_name, home_dir ], { superuser: "try" })
+                        cockpit.script(adder, [ user_name, home_dir ], { superuser: "try", err: "message" })
                             .input(obj.raw + "\n")
                             .done(function() {
                                 df.resolve();

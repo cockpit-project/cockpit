@@ -383,7 +383,8 @@ var ImageList = React.createClass({
 
     render: function () {
         var filtered = this.state.images.filter(function (image) {
-            return (image.RepoTags[0].toLowerCase().indexOf(this.props.filterText.toLowerCase()) >= 0);
+            return (image.RepoTags &&
+                    image.RepoTags[0].toLowerCase().indexOf(this.props.filterText.toLowerCase()) >= 0);
         }.bind(this));
 
         var imageRows = filtered.map(function (image) {

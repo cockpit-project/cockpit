@@ -58,7 +58,7 @@ class TestStorage(StorageCase):
 
         self.wait_in_storaged_configuration(mount_point_secret)
 
-        assert m.execute("grep 'UUID=' /etc/crypttab") != ""
+        assert m.execute("grep 'ENCRYPTED' /etc/crypttab") != ""
         assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
         assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
 

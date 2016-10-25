@@ -36,6 +36,43 @@
     /* DETAILS
      */
 
+    /*
+     * Older Udisks implementations don't fill in missing ConfigurationItems
+     * for us. So we make the same or similar guesses and fill them in here.
+     */
+    function complete_configuration_item(block, config_item, old_config_item) {
+        var name, defaults, key = config_item[0];
+        if (!old_config_item)
+            old_config_item = [ key, { } ];
+
+        /* Figure out the default settings */
+        if (key === "fstab") {
+            defaults = {
+                fsname: { t: 'ay', v: utils.encode_filename(utils.auto_fstab_spec(block)) },
+                type: { t: 'ay', v: utils.encode_filename("auto") },
+                opts: { t: 'ay', v: utils.encode_filename("defaults") },
+                freq: { t: 'i', v: 0 },
+                passno: { t: 'i', v: 0 },
+            };
+        } else if (key == "crypttab") {
+            if (old_config_item[1].name)
+                name = utils.decode_filename(old_config_item[1].name.v);
+            else
+                name = utils.auto_luks_name(block);
+            defaults = {
+                name: { t: 'ay', v: utils.encode_filename(name) },
+                device: { t: 'ay', v: utils.encode_filename(utils.auto_fstab_spec(block) ) },
+                "passphrase-path": { t: 'ay', v: utils.encode_filename("/etc/luks-keys/" + name) },
+                "passphrase-contents": { t: 'ay', v: utils.encode_filename("") },
+                options: { t: 'ay', v: utils.encode_filename("") },
+            };
+        } else {
+            defaults = { };
+        }
+
+        return [key, cockpit.extend(defaults, old_config_item[1], config_item[1]) ];
+    }
+
     function init_details(client, jobs) {
         var type, name;
 
@@ -127,6 +164,28 @@
                     !client.manager.SupportedFilesystems ||
                     client.manager.SupportedFilesystems.indexOf(storaged_name) != -1)
                     filesystem_options.push(entry);
+            }
+
+            /*
+             * Older Udisks/storaged implementations don't have CreateAndFormatPartition
+             * so we simulate it. Note that in addition, the older Udisks does not fill defaults
+             * for various configuration automatically. So we make the same or similar guesses
+             * and fill them in here.
+             */
+            function create_and_format_partition(block_ptable, start, size, type, options, config_items) {
+                return block_ptable.CreatePartition(start, size, "", "", { })
+                    .then(function(partition) {
+                        var block = client.blocks[partition];
+                        var promises = config_items.map(function(item) {
+                            item = complete_configuration_item(block, item);
+                            return block.AddConfigurationItem(item, { });
+                        });
+                        return cockpit.all(promises).then(function() {
+                            return block.Format(type, options).then(function() {
+                                return partition;
+                            });
+                        });
+                    });
             }
 
             var filesystem_options = [ ];
@@ -255,6 +314,8 @@
                                           options: { t: 'ay', v: utils.encode_filename(vals.crypto_options) },
                                           "track-parents": { t: 'b', v: true }
                                       };
+                                      if (vals.name)
+                                          item.name = { t: 'ay', v: utils.encode_filename(vals.name) };
                                       if (vals.store_passphrase) {
                                           item["passphrase-contents"] =
                                               { t: 'ay', v: utils.encode_filename(vals.passphrase) };
@@ -265,19 +326,23 @@
                                       config_items.push([ "crypttab", item ]);
                                   }
 
-                                  if (config_items.length > 0)
-                                      options["config-items"] = { t: 'a(sa{sv})', v: config_items };
-
                                   if (create_partition) {
-                                      if (vals.type == "dos-extended")
+                                      if (vals.type == "dos-extended") {
                                           return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
-                                      else if (vals.type == "empty")
+                                      } else if (vals.type == "empty") {
                                           return block_ptable.CreatePartition(start, vals.size, "", "", { });
-                                      else
-                                          return block_ptable.CreatePartitionAndFormat (start, vals.size, "", "", { },
-                                                                                        vals.type, options);
-                                  } else
+                                      } else if (block_ptable.CreatePartitionAndFormat) {
+                                          if (config_items.length > 0)
+                                              options["config-items"] = { t: 'a(sa{sv})', v: config_items };
+                                          return block_ptable.CreatePartitionAndFormat(start, vals.size, "", "", { },
+                                                                                       vals.type, options);
+                                      } else {
+                                          return create_and_format_partition(block_ptable, start, vals.size,
+                                                                             vals.type, options, config_items);
+                                      }
+                                  } else {
                                       return block.Format(vals.type, options);
+                                  }
                               }
                           }
                         });
@@ -359,15 +424,13 @@
                 function maybe_update_config(new_is_custom, new_dir, new_opts) {
                     var new_config = null;
                     if (new_is_custom) {
-                        new_config = [
+                        new_config = complete_configuration_item(block, [
                             "fstab", {
                                 dir: { t: 'ay', v: utils.encode_filename(new_dir) },
-                                type: { t: 'ay', v: utils.encode_filename("auto") },
                                 opts: { t: 'ay', v: utils.encode_filename(new_opts || "defaults") },
-                                freq: { t: 'i', v: 0 },
-                                passno: { t: 'i', v: 0 },
                                 "track-parents": { t: 'b', v: true }
-                            }];
+                            }
+                        ], old_config);
                     }
 
                     if (!old_config && new_config)
@@ -461,14 +524,13 @@
 
                         function maybe_change_config(new_passphrase, new_options) {
                             if (new_passphrase != old_passphrase || new_options != old_options) {
-                                var new_config =
-                                    [ "crypttab",
-                                      {
-                                          options: { t: 'ay', v: utils.encode_filename(new_options) },
-                                          "track-parents": { t: 'b', v: true },
-                                          "passphrase-contents": { t: 'ay', v: utils.encode_filename(new_passphrase) }
-                                      }
-                                    ];
+                                var new_config = complete_configuration_item(block, [
+                                    "crypttab", {
+                                        options: { t: 'ay', v: utils.encode_filename(new_options) },
+                                        "track-parents": { t: 'b', v: true },
+                                        "passphrase-contents": { t: 'ay', v: utils.encode_filename(new_passphrase) }
+                                    }
+                                ], old_config);
                                 if (old_config)
                                     return block.UpdateConfigurationItem(old_config, new_config, { });
                                 else
@@ -1477,6 +1539,11 @@
                                    );
             }
 
+            /* Older versions of Udisks/storaged don't have a Running property */
+            var running = mdraid.Running;
+            if (running === undefined)
+                running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
+
             var mdraid_model = {
                 dbus: mdraid,
                 Name: utils.mdraid_name(mdraid),
@@ -1484,7 +1551,7 @@
                 Level: level,
                 Bitmap: bitmap,
                 Degraded: degraded_message,
-                State: mdraid.Running? _("Running") : _("Not running"),
+                State: running ? _("Running") : _("Not running"),
             };
 
             var block_model = null;
@@ -1530,7 +1597,7 @@
             ];
 
             var def_action;
-            if (mdraid.Running)
+            if (running)
                 def_action = actions[1];  // Stop
             else
                 def_action = actions[0];  // Start

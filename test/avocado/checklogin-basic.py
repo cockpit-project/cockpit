@@ -87,6 +87,7 @@ class checklogin_basic(Test):
         b.wait_text('#content-user-name', 'Administrator')
 
         b.click("#content-user-name")
+        b.wait_visible('#go-account')
         b.click('#go-account')
         b.enter_page("/users")
         b.wait_text("#account-user-name", "admin")

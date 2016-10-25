@@ -127,7 +127,7 @@ var driver = {
              * yet cancelling and failing its load. We're experimenting by disabling
              * this specific failure and seeing its effect on the tests.
              */
-            if (ex.errorString === "Network access is disabled.")
+            if (ex.errorString === "Network access is disabled." || ex.errorString === "Operation cancelled")
                 sys.stderr.writeLine("expect_load ignoring: " + ex.errorString)
             else
                 failure = ex.errorString + " " + ex.url;

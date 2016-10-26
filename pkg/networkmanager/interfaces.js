@@ -26,7 +26,6 @@ var journal = require('journal');
 
 /* jQuery extensions */
 require('patterns');
-require('flot');
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;

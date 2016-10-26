@@ -9,11 +9,3 @@ EXTRA_DIST += \
 	$(REACT_COMPONENTS) \
 	$(lib_TESTS) \
 	$(NULL)
-
-update-lib:: update-bower
-	$(JSMODULE) -m -d 'jquery' \
-	    -o $(srcdir)/lib/flot.js \
-	    $(BOWER)/jquery-flot/jquery.flot.js \
-	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
-	    $(BOWER)/jquery-flot/jquery.flot.time.js \
-	    $(NULL)

@@ -22,7 +22,6 @@ var cockpit = require("cockpit");
 
 var Mustache = require("mustache");
 var plot = require("plot");
-require("flot");
 
 var machines = require("machines");
 var mdialogs = require("machine-dialogs");

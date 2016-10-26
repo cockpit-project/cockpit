@@ -58,8 +58,6 @@ V_COPY_0 = @echo "  COPY    " $@;
 
 MV = mv -f
 
-JSMODULE = $(srcdir)/tools/missing $(srcdir)/tools/jsmodule
-
 COPY_RULE = \
         $(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp && $(MV) $@.tmp $@

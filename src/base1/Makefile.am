@@ -41,7 +41,7 @@ dist/base1/cockpit.min.css: src/base1/cockpit.css
 dist/base1/patternfly.min.css: dist/base1/patternfly.css dist/base1/patternfly-additions.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --source-map --source-map-inline-sources $^
-dist/base1/bundle.js: dist/base1/require.js src/base1/cockpit.js src/base1/jquery.js
+dist/base1/bundle.js: dist/base1/require.js src/base1/cockpit.js dist/base1/jquery.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $^ > $@.tmp && $(MV) $@.tmp $@
 dist/base1/bundle.min.js: dist/base1/bundle.js
@@ -51,7 +51,10 @@ dist/base1/require.js: src/base1/require-config.js $(BOWER)/requirejs/require.js
 	cat $^ > $@.tmp && $(MV) $@.tmp $@
 dist/base1/require.min.js: dist/base1/require.js
 	$(MIN_JS_RULE)
-dist/base1/jquery.min.js: src/base1/jquery.js
+dist/base1/jquery.js: $(BOWER)/jquery/dist/jquery.js $(BOWER)/bootstrap/dist/js/bootstrap.js $(BOWER)/patternfly/dist/js/patternfly.js
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	cat $^ > $@.tmp && $(MV) $@.tmp $@
+dist/base1/jquery.min.js: dist/base1/jquery.js
 	$(MIN_JS_RULE)
 dist/base1/cockpit.min.js: src/base1/cockpit.js
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
@@ -134,6 +137,7 @@ EXTRA_DIST += \
 	dist/base1/cockpit.min.css.map \
 	dist/base1/cockpit.min.js \
 	dist/base1/cockpit.min.js.map \
+	dist/base1/jquery.js \
 	dist/base1/jquery.min.js \
 	dist/base1/jquery.min.js.map \
 	dist/base1/mustache.min.js \
@@ -149,7 +153,6 @@ EXTRA_DIST += \
 	dist/base1/require.min.js.map \
 	src/base1/cockpit.css \
 	src/base1/cockpit.js \
-	src/base1/jquery.js \
 	src/base1/manifest.json \
 	src/base1/require-config.js \
 	src/base1/require-loaders.js \
@@ -158,10 +161,3 @@ EXTRA_DIST += \
 	$(base_TESTS) \
 	$(basefonts_DATA) \
 	$(NULL)
-
-update-lib:: update-bower
-	$(JSMODULE) -o $(srcdir)/src/base1/jquery.js \
-	    $(BOWER)/jquery/dist/jquery.js \
-	    $(BOWER)/bootstrap/dist/js/bootstrap.js \
-	    $(BOWER)/patternfly/dist/js/patternfly.js \
-	    $(NULL)

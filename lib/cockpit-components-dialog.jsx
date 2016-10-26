@@ -17,14 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(root, factory) {
-    if (typeof exports === "object")
-        module.exports = factory(require("cockpit"), require("react"));
-    else if (typeof define === "function" && define.amd)
-        define(["base1/cockpit", "./react"], factory);
-}(this, function(cockpit, React) {
-"use strict";
-
+var cockpit = require("cockpit");
+var React = require("react");
 var _ = cockpit.gettext;
 
 require("page.css");
@@ -320,10 +314,8 @@ var show_modal_dialog = function(props, footerProps) {
     return dialogObj;
 };
 
-return {
+module.exports = {
     Dialog: Dialog,
     DialogFooter: DialogFooter,
     show_modal_dialog: show_modal_dialog,
 };
-
-}));

@@ -3,6 +3,7 @@
 basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
 	dist/base1/cockpit.min.css.gz \
+	dist/base1/patternfly.min.css.gz \
 	dist/base1/require.min.js.gz \
 	dist/base1/mustache.min.js.gz \
 	dist/base1/jquery.min.js.gz \
@@ -17,6 +18,7 @@ basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	dist/base1/bundle.min.js.map \
 	dist/base1/cockpit.min.css.map \
+	dist/base1/patternfly.min.css.map \
 	dist/base1/mustache.min.js.map \
 	dist/base1/require.min.js.map \
 	dist/base1/jquery.min.js.map \
@@ -33,7 +35,10 @@ MIN_JS_RULE = \
 		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
 	$(MV) $@.tmp $@
 
-dist/base1/cockpit.min.css: dist/base1/patternfly.css dist/base1/patternfly-additions.css src/base1/cockpit.css
+dist/base1/cockpit.min.css: src/base1/cockpit.css
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --skip-import --source-map --source-map-inline-sources $^
+dist/base1/patternfly.min.css: dist/base1/patternfly.css dist/base1/patternfly-additions.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --source-map --source-map-inline-sources $^
 dist/base1/bundle.js: src/base1/require.js src/base1/cockpit.js src/base1/jquery.js
@@ -66,6 +71,8 @@ dist/base1/jquery.min.js.map: dist/base1/jquery.min.js
 dist/base1/mustache.min.js.map: dist/base1/mustache.min.js
 
 dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
+
+dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
 
 # Modify the patternfly files appropriately
 dist/base1/patternfly.css: $(BOWER)/patternfly/dist/css/patternfly.css dist/base1/patternfly.css.map
@@ -130,6 +137,8 @@ EXTRA_DIST += \
 	dist/base1/mustache.min.js \
 	dist/base1/mustache.min.js.map \
 	dist/base1/patternfly.css \
+	dist/base1/patternfly.min.css \
+	dist/base1/patternfly.min.css.map \
 	dist/base1/patternfly.css.map \
 	dist/base1/patternfly-additions.css \
 	dist/base1/patternfly-additions.css.map \

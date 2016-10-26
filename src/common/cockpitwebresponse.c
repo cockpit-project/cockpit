@@ -1597,7 +1597,7 @@ cockpit_web_response_content_type (const gchar *path)
     { ".gif", "image/gif" },
     { ".eot", "application/vnd.ms-fontobject" },
     { ".html", "text/html" },
-    { ".ico", "image/vnd.microsoft.icon" },
+    /* { ".ico", "image/vnd.microsoft.icon" }, */
     { ".jpg", "image/jpg" },
     { ".js", "application/javascript" },
     { ".json", "application/json" },

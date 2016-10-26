@@ -433,9 +433,6 @@ CMD ["/bin/sh"]
 
         m.execute("systemctl start docker")
 
-        # Memory limits not supported on Debian
-        memory_supported = "debian" not in m.image
-
         self.login_and_go("/docker")
         b.wait_visible("#containers-images")
         b.wait_in_text("#containers-images", "busybox:latest")
@@ -446,11 +443,8 @@ CMD ["/bin/sh"]
         b.set_val("#containers-run-image-name", "RESOURCE")
         b.set_val("#containers-run-image-command", "/bin/sleep 1000000")
         b.click("#containers-run-image-with-terminal");
-        if memory_supported:
-            b.click("#containers-run-image-memory input[type='checkbox']");
-            b.set_val("#containers-run-image-memory input.size-text-ct", "236");
-        else:
-            b.wait_not_visible("#containers-run-image-memory")
+        b.click("#containers-run-image-memory input[type='checkbox']");
+        b.set_val("#containers-run-image-memory input.size-text-ct", "236");
         b.click("#containers-run-image-cpu input[type='checkbox']");
         b.set_val("#containers-run-image-cpu input.size-text-ct", "512");
         b.click("#containers-run-image-run");
@@ -463,31 +457,25 @@ CMD ["/bin/sh"]
         b.wait_visible('#containers-containers tr:contains("RESOURCE")')
         b.click('#containers-containers tr:contains("RESOURCE")')
         b.wait_visible("#container-details")
-        if memory_supported:
-            b.wait_in_text("#container-details-memory-row", "/ 236 MiB")
+        b.wait_in_text("#container-details-memory-row", "/ 236 MiB")
         b.wait_in_text("#container-details-cpu-row", "512 shares")
 
         # Now adjust things
         b.click("#container-details-resource-row button")
         b.wait_popup("container-resources-dialog")
-        if memory_supported:
-            b.set_val(".memory-slider input.size-text-ct", "246");
-        else:
-            b.wait_not_visible(".memory-slider")
+        b.set_val(".memory-slider input.size-text-ct", "246");
         b.set_val(".cpu-slider input.size-text-ct", "256");
         b.click("#container-resources-dialog .btn-primary")
         b.wait_popdown("container-resources-dialog")
 
         # This should be updated
-        if memory_supported:
-            b.wait_in_text("#container-details-memory-row", "/ 246 MiB")
+        b.wait_in_text("#container-details-memory-row", "/ 246")
         b.wait_in_text("#container-details-cpu-row", "256 shares")
 
         # Remove the restrictions
         b.click("#container-details-resource-row button")
         b.wait_popup("container-resources-dialog")
-        if memory_supported:
-            b.click(".memory-slider input[type='checkbox']");
+        b.click(".memory-slider input[type='checkbox']");
         b.click(".cpu-slider input[type='checkbox']");
         b.click("#container-resources-dialog .btn-primary")
         b.wait_popdown("container-resources-dialog")

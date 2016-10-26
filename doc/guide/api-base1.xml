@@ -44,31 +44,26 @@
   <xi:include href="cockpit-cache.xml"/>
   <xi:include href="cockpit-manifest.xml"/>
 
-  <refentry id="api-base1-cockpit-css">
+  <refentry id="api-base1-patternfly">
     <refmeta>
-      <refentrytitle>cockpit.css</refentrytitle>
+      <refentrytitle>patternfly.css</refentrytitle>
     </refmeta>
 
     <refnamediv>
-      <refname>cockpit.css</refname>
-      <refpurpose>Cockpit standard style sheets</refpurpose>
+      <refname>patternfly.css</refname>
+      <refpurpose>Patternfly standard style sheets</refpurpose>
     </refnamediv>
 
     <refsection>
       <title>Description</title>
 
 <programlisting>
-&lt;link href="../base1/cockpit.css" type="text/css" rel="stylesheet"&gt;
-@import url('../base1/cockpit.css');
+&lt;link href="../base1/patternfly.css" type="text/css" rel="stylesheet"&gt;
+@import url('../base1/patternfly.css');
 </programlisting>
 
-      <para>These are the standard Cockpit CSS stylesheets. They automatically pull in the PatternFly
-        and Bootstrap styles that they depend on. When you bring these into your component, do not
-        include <code>patternfly.css</code> explicitly as well.</para>
-
-      <para>The exact styles available beyond what's in PatternFly is not yet documented or public
-        API.</para>
-
+      <para>The standard <ulink url="https://www.patternfly.org/">PatternFly</ulink> CSS stylesheets.
+        They automatically pull in the PatternFly and Bootstrap styles that they depend on.</para>
     </refsection>
   </refentry>
 
@@ -102,35 +97,6 @@
 
     </refsection>
 
-  </refentry>
-
-  <refentry id="api-base1-patternfly">
-    <refmeta>
-      <refentrytitle>patternfly.css</refentrytitle>
-    </refmeta>
-
-    <refnamediv>
-      <refname>patternfly.css</refname>
-      <refpurpose>PatternFly standard style sheets</refpurpose>
-    </refnamediv>
-
-    <refsection>
-      <title>Description</title>
-
-<programlisting>
-&lt;link href="../base1/patternfly.css" type="text/css" rel="stylesheet"&gt;
-@import url('../base1/patternfly.css');
-</programlisting>
-
-      <para>The standard <ulink url="https://www.patternfly.org/">PatternFly</ulink> stylesheets.
-        If you include <code>cockpit.css</code> then don't include this directly. It is firmly
-        recommended to use PatternFly as the feel for your Cockpit component.</para>
-
-      <para>The version of PatternFly is an early prototype, and will be updated soon. See the
-        <ulink url="https://www.patternfly.org/">PatternFly documentation</ulink> for information
-        on the widgets and classes available.</para>
-
-    </refsection>
   </refentry>
 
   <refentry id="api-base1-require">

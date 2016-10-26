@@ -26,7 +26,6 @@
     var mustache = require("mustache");
     var plot = require("plot");
     var journal = require("journal");
-    require("flot");
 
     var utils = require("./utils");
     var dialog = require("./dialog");

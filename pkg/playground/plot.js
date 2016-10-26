@@ -1,6 +1,5 @@
 var $ = require("jquery");
 var plot = require("plot");
-require("flot");
 
 require("plot.css");
 

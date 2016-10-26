@@ -25,7 +25,6 @@ var plot = require("plot");
 var service = require("service");
 
 /* These add themselves to jQuery so just including is enough */
-require("flot");
 require("patterns");
 require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
 require("bootstrap-combobox/js/bootstrap-combobox");

@@ -26,7 +26,6 @@
     var Mustache = require("mustache");
     var React = require("react");
     var plot = require("plot");
-    require("flot");
 
     var util = require("./util");
     var docker = require("./docker");

@@ -641,7 +641,7 @@
         function change_cgroup(directory, cgroup, filename, value) {
             /* TODO: Yup need a nicer way of doing this ... likely systemd once we're geard'd out */
             var path = "/sys/fs/cgroup/" + directory + "/" + cgroup + "/" + filename;
-            var command = "echo '" + value.toFixed(0) + "' > " + path;
+            var command = "if test -f " + path + "; then echo '" + value.toFixed(0) + "' > " + path + "; fi";
             util.docker_debug("changing cgroup:", command);
 
             return cockpit.spawn(["sh", "-c", command], { "superuser": "try", "err": "message" });

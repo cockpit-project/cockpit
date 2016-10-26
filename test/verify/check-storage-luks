@@ -86,14 +86,16 @@ class TestStorage(StorageCase):
 
         self.wait_in_storaged_configuration("weird,options")
 
-        # Delete the partition
-        self.content_action(1, "Delete")
-        self.confirm()
-        b.wait_in_text("#content", "Free Space")
-        b.wait_not_in_text("#content", "ENCRYPTED")
+        # Delete the partition.  This only works properly on new
+        # implementations of Storaged/UDisks2.
 
-        assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
-        assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
+        if self.storaged_version > [ 2, 3 ]:
+            self.content_action(1, "Delete")
+            self.confirm()
+            b.wait_in_text("#content", "Free Space")
+            b.wait_not_in_text("#content", "ENCRYPTED")
+            assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
+            assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
 if __name__ == '__main__':
     test_main()

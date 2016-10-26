@@ -1115,8 +1115,13 @@
                 [ { title: _("Format"),             action: "format" }
                 ];
 
+            var disable_delete = false;
+            // The old UDisks2 can't properly delete unlocked luks devices
+            if (client.is_old_udisks2 && is_crypto && !is_crypto_locked)
+                disable_delete = true;
+
             var delete_action_spec =
-                [ { title: _("Delete"),             action: "delete" }
+                [ { title: _("Delete"),             action: "delete", disabled: disable_delete }
                 ];
 
             var default_op = null;

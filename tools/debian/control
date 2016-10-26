@@ -41,7 +41,8 @@ Depends: ${misc:Depends},
          cockpit-ws,
          cockpit-shell,
          xdg-utils
-Recommends: cockpit-docker
+Recommends: cockpit-docker,
+            cockpit-storaged
 Suggests: cockpit-doc,
           cockpit-pcp
 Description: User interface for Linux servers
@@ -74,6 +75,13 @@ Depends: ${misc:Depends},
          pcp
 Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
+
+Package: cockpit-storaged
+Architecture: any
+Depends: ${misc:Depends},
+         udisks2 | storaged
+Description: Cockpit user interface for storage
+ The Cockpit components for interacting with storage.
 
 Package: cockpit-ws
 Architecture: any

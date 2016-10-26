@@ -24,6 +24,7 @@ import unittest
 import os
 
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No tuned on Debian.")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No tuned on Ubuntu.")
 @unittest.skipIf("fedora-atomic" in os.environ.get("TEST_OS", ""), "No tuned on Fedora Atomic.")
 class TestTuned(MachineCase):
     def testBasic(self):

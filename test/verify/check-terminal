@@ -49,8 +49,15 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.focus('.terminal')
 
         # wait for prompt in first line and remember it
-        b.wait_text_not(line_sel(1), line_text(""))
-        prompt = b.text(line_sel(1))
+        n = 1
+        b.wait_text_not(line_sel(n), line_text(""))
+        prompt = b.text(line_sel(n))
+
+        # If there's a helpful instructions about sudo as a prefix ignore them
+        if "sudo" in prompt:
+            n = 4
+            b.wait_text_not(line_sel(n), line_text(""))
+            prompt = b.text(line_sel(n))
 
         # Make sure we are started in home directory
         # Account for non-standard prompting
@@ -61,11 +68,11 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         # Run some commands
         b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
-        wait_line(2, "admin")
+        wait_line(n + 1, "admin")
 
-        wait_line(3, prompt)
+        wait_line(n + 2, prompt)
         b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ä', 'ö', 'ü', 'Return' ])
-        wait_line(4, u'äöü')
+        wait_line(n + 3, u'äöü')
 
         # The '@' sign is in the default prompt
         b.wait_in_text(".terminal-title", '@')
@@ -76,9 +83,9 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.focus('.terminal')
 
         # terminal should be empty, so we look at lines 1 and 2 again
-        wait_line(1, prompt)
+        wait_line(n, prompt)
         b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ß', 'm', 'i', 'Return' ])
-        wait_line(2, u'ßmi')
+        wait_line(n + 1, u'ßmi')
 
 if __name__ == '__main__':
     test_main()

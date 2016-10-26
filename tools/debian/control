@@ -42,7 +42,8 @@ Depends: ${misc:Depends},
          cockpit-shell,
          xdg-utils
 Recommends: cockpit-docker,
-            cockpit-storaged
+            cockpit-storaged,
+            cockpit-networkmanager
 Suggests: cockpit-doc,
           cockpit-pcp
 Description: User interface for Linux servers
@@ -66,6 +67,13 @@ Depends: ${misc:Depends},
 Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on
  the system on behalf of the web based user interface.
+
+Package: cockpit-networkmanager
+Architecture: any
+depends: ${misc:Depends},
+         network-manager
+Description: Cockpit user interface for networking
+ The Cockpit components for interacting with networking configuration.
 
 Package: cockpit-pcp
 Architecture: any

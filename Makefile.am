@@ -351,21 +351,6 @@ CLEANFILES += $(nodist_po_DATA) po/po.js.gz $(po_FILES)
 
 BOWER = $(srcdir)/lib
 
-BOWER_CLEAN = \
-	$(BOWER)/bootstrap-switch/ \
-	$(BOWER)/bootstrap-touchspin/ \
-	$(BOWER)/bootstrap-treeview \
-	$(BOWER)/datatables* \
-	$(BOWER)/google-code-prettify \
-	$(BOWER)/matchHeight \
-	$(BOWER)/patternfly/less/lib \
-	$(BOWER)/term.js \
-	$(NULL)
-
-update-bower:
-	cd $(srcdir) && bower update
-	rm -rf $(BOWER_CLEAN)
-
 include lib/Makefile.am
 include pkg/Makefile.am
 include src/base1/Makefile.am

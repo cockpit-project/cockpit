@@ -21,6 +21,7 @@ import os
 import sys
 import subprocess
 import shutil
+import stat
 import tempfile
 import time
 from common import testinfra
@@ -54,8 +55,13 @@ def download(link, force, stores):
     if os.path.exists(dest) and not os.path.exists(link):
         os.symlink(dest, os.path.join(IMAGES, os.readlink(link)))
 
-    # file already exists
+    # The image file in the images directory, may be same as dest
+    image_file = os.path.join(IMAGES, os.readlink(link))
+
+    # file already exists, double check that symlink in place
     if not force and os.path.exists(dest):
+        if not os.path.exists(image_file):
+            os.symlink(os.path.abspath(dest), image_file)
         return
 
     if not stores:
@@ -90,6 +96,7 @@ def download(link, force, stores):
             raise Exception("unxz: unable to unpack image (returned: %s)" % ret)
 
         os.close(fd)
+        os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
         shutil.move(temp, dest)
     finally:
         # if we had an error and the temp file is left over, delete it
@@ -97,7 +104,6 @@ def download(link, force, stores):
             os.unlink(temp)
 
     # Handle alternate TEST_DATA
-    image_file = os.path.join(IMAGES, os.readlink(link))
     if not os.path.exists(image_file):
         os.symlink(os.path.abspath(dest), image_file)
 

@@ -370,6 +370,7 @@ include lib/Makefile.am
 include pkg/Makefile.am
 include src/base1/Makefile.am
 include src/branding/centos/Makefile.am
+include src/branding/debian/Makefile.am
 include src/branding/default/Makefile.am
 include src/branding/fedora/Makefile.am
 include src/branding/kubernetes/Makefile.am

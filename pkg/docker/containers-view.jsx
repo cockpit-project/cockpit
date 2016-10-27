@@ -24,6 +24,7 @@ var _ = cockpit.gettext;
 
 var $ = require("jquery");
 var docker = require('./docker');
+var atomic = require('./atomic');
 var util = require('./util');
 var searchImage = require("./search");
 var React = require('react');
@@ -308,6 +309,50 @@ var ImageDetails = React.createClass({
     }
 });
 
+var ImageSecurity = React.createClass({
+    render: function () {
+        var info = this.props.info;
+        var text, rows;
+        var args = {
+            time: info.finishedTime.format('MMM Do'),
+            type: info.scanType,
+            count: info.vulnerabilities.length
+        };
+
+        if (info.successful === false) {
+            text = _('The scan from $time ($type) was not successful.');
+
+        } else if (info.vulnerabilities.length === 0) {
+            text = _('The scan from $time ($type) found no vulnerabilities.');
+
+        } else {
+            text = cockpit.ngettext('The scan from $time ($type) found one vulnerability:',
+                                    'The scan from $time ($type) found $count vulnerabilities:',
+                                    info.vulnerabilities.length);
+
+            rows = info.vulnerabilities.map(function (vulnerability) {
+                return (
+                    <div className="vulnerability-row-ct-docker" title={vulnerability.description}>
+                        <span>{vulnerability.title}</span>
+                        <span className="pull-right">{vulnerability.severity}</span>
+                    </div>
+                );
+            });
+        }
+
+        return (
+            <div>
+                <div className="listing-ct-body-header">
+                    { cockpit.format(text, args) }
+                </div>
+                <div>
+                    {rows}
+                </div>
+            </div>
+        );
+    }
+});
+
 var ImageList = React.createClass({
     getDefaultProps: function () {
         return {
@@ -319,7 +364,8 @@ var ImageList = React.createClass({
     getInitialState: function () {
         return {
             images: [],
-            pulling: []
+            pulling: [],
+            vulnerableInfos: {}
         };
     },
 
@@ -371,14 +417,86 @@ var ImageList = React.createClass({
         this.setState({ pulling: this.props.client.pulling });
     },
 
+    vulnerableInfoChanged: function (event, infos) {
+        this.setState({ vulnerableInfos: infos });
+    },
+
     componentDidMount: function () {
         $(this.props.client).on('image.containers', this.imagesChanged);
         $(this.props.client).on('pulling.containers', this.pullingChanged);
+
+        atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
     },
 
     componentWillUnmount: function () {
         $(this.props.client).off('image.containers', this.imagesChanged);
         $(this.props.client).off('pulling.containers', this.pullingChanged);
+
+        atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
+    },
+
+    renderRow: function (image) {
+        var vulnerabilityColumn = '';
+
+        var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
+        var count;
+
+        if (vulnerableInfo) {
+            count = vulnerableInfo.vulnerabilities.length;
+            if (count > 0)
+                vulnerabilityColumn = (
+                    <div>
+                        <span className="pficon pficon-warning-triangle-o"></span>
+                        &nbsp;
+                        { cockpit.format(cockpit.ngettext('1 Vulnerability', '$0 Vulnerabilities', count), count) }
+                    </div>
+                );
+        }
+
+        var columns = [
+            { name: image.RepoTags[0], header: true },
+            vulnerabilityColumn,
+            moment.unix(image.Created).fromNow(),
+            cockpit.format_bytes(image.VirtualSize),
+            {
+                element: <button className="btn btn-default btn-control-ct fa fa-play"
+                    onClick={ this.showRunImageDialog.bind(this) }
+                    data-image={image.Id} />,
+                    tight: true
+            }
+        ];
+
+        var tabs = [];
+
+        tabs.push({
+            name: _('Details'),
+            renderer: ImageDetails,
+            data: { image: image }
+        });
+
+        if (vulnerableInfo !== undefined) {
+            tabs.push({
+                name: _('Security'),
+                renderer: ImageSecurity,
+                data: {
+                    image: image,
+                    info: vulnerableInfo,
+                    atomic: this.atomic
+                }
+            });
+        }
+
+        var actions = [
+            <button className="btn btn-danger btn-delete pficon pficon-delete"
+                    onClick={ this.deleteImage.bind(this, image) } />
+        ];
+
+        return <Listing.ListingRow key={image.Id}
+                                   rowId={image.Id}
+                                   columns={columns}
+                                   tabRenderers={tabs}
+                                   navigateToItem={ this.navigateToImage.bind(this, image) }
+                                   listingActions={actions}/>;
     },
 
     render: function () {
@@ -387,44 +505,13 @@ var ImageList = React.createClass({
                     image.RepoTags[0].toLowerCase().indexOf(this.props.filterText.toLowerCase()) >= 0);
         }.bind(this));
 
-        var imageRows = filtered.map(function (image) {
-            var columns = [
-                { name: image.RepoTags[0], header: true },
-                moment.unix(image.Created).fromNow(),
-                cockpit.format_bytes(image.VirtualSize),
-                {
-                    element: <button className="btn btn-default btn-control-ct fa fa-play"
-                                     onClick={ this.showRunImageDialog.bind(this) }
-                                     data-image={image.Id} />,
-                    tight: true
-                }
-            ];
-
-            var tabs = [
-                {
-                    name: _("Details"),
-                    renderer: ImageDetails,
-                    data: { image: image }
-                }
-            ];
-
-            var actions = [
-                <button className="btn btn-danger btn-delete pficon pficon-delete"
-                        onClick={ this.deleteImage.bind(this, image) } />
-            ];
-
-            return <Listing.ListingRow key={image.Id}
-                                       columns={columns}
-                                       tabRenderers={tabs}
-                                       navigateToItem={ this.navigateToImage.bind(this, image) }
-                                       listingActions={actions}/>;
-        }, this);
+        var imageRows = filtered.map(this.renderRow, this);
 
         var getNewImageAction = <a onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
                                     <span className="pficon pficon-add-circle-o"></span>{_("Get new image")}
                                 </a>;
 
-        var columnTitles = [ _("Name"), _("Created"), _("Size"), '' ];
+        var columnTitles = [ _("Name"), '', _("Created"), _("Size"), '' ];
 
         var pendingRows = this.state.pulling.map(function (job) {
             if (job.error)

@@ -174,7 +174,12 @@ class TestMultiOS(MachineCase):
         self.allow_journal_messages("usermod: user 'postfix' does not exist")
 
     def testFedora22(self):
-        self.checkStock()
+        try:
+            self.checkStock()
+        except Error, e:
+            # Old versions of Cockpit in Fedora 22 have a race which throws an exception
+            if e.msg != "Error: TypeError: null is not an object (evaluating 'o.client.lookup')":
+                raise
 
 class TestMultiOSDirect(MachineCase):
     additional_machines = {

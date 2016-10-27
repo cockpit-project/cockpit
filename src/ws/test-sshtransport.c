@@ -196,6 +196,14 @@ setup_mock_sshd (TestCase *tc,
 static guint old_process_timeout = 0;
 static guint old_response_timeout = 0;
 
+static const TestFixture fixture_mock_echo = {
+  .ssh_command = BUILDDIR "/mock-echo"
+};
+
+static const TestFixture fixture_cat = {
+  .ssh_command =  SRCDIR "/src/ws/mock-cat-with-init"
+};
+
 static void
 setup_transport (TestCase *tc,
                  gconstpointer data)
@@ -245,7 +253,7 @@ setup_transport (TestCase *tc,
     }
   command = fixture->ssh_command;
   if (!command)
-    command = "cat";
+    command = fixture_cat.ssh_command;
 
   if (fixture->expect_key)
     expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
@@ -345,14 +353,6 @@ on_closed_set_flag (CockpitTransport *transport,
   g_assert (*flag == FALSE);
   *flag = TRUE;
 }
-
-static const TestFixture fixture_mock_echo = {
-  .ssh_command = BUILDDIR "/mock-echo"
-};
-
-static const TestFixture fixture_cat = {
-  .ssh_command = "cat"
-};
 
 static void
 test_echo_and_close (TestCase *tc,

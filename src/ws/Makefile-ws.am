@@ -77,6 +77,7 @@ EXTRA_DIST += \
 	src/ws/mock_cert \
 	src/ws/mock_known_hosts \
 	src/ws/mock-pid-cat \
+	src/ws/mock-cat-with-init \
 	src/ws/mock-kdc \
 	src/ws/mock-krb5.conf.in \
 	src/ws/mock-kdc.conf.in \
@@ -320,6 +321,7 @@ noinst_PROGRAMS += \
 
 noinst_SCRIPTS += \
 	src/ws/mock-pid-cat \
+	src/ws/mock-cat-with-init \
 	$(NULL)
 
 TESTS += $(WS_CHECKS)

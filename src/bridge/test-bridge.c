@@ -24,9 +24,7 @@
 #include "common/cockpitpipetransport.h"
 #include "common/cockpittest.h"
 
-#include <json-glib/json-glib.h>
-
-#include <gio/gio.h>
+#include <string.h>
 
 static gboolean
 on_recv_get_bytes (CockpitTransport *transport,
@@ -58,7 +56,9 @@ test_bridge_init (void)
   GBytes *bytes = NULL;
   JsonObject *object;
   JsonObject *os_release;
+  JsonObject *packages;
   GError *error = NULL;
+  GList *list;
 
   const gchar *argv[] = {
     BUILDDIR "/cockpit-bridge",
@@ -86,9 +86,21 @@ test_bridge_init (void)
 
   g_assert_cmpstr (json_object_get_string_member (object, "command"), ==, "init");
 
+  /* Make sure we've included /etc/os-release information */
   os_release = json_object_get_object_member (object, "os-release");
   g_assert (os_release != NULL);
   g_assert (json_object_has_member (os_release, "NAME"));
+
+  /* Make sure we have right packages listed */
+  packages = json_object_get_object_member (object, "packages");
+  g_assert (packages != NULL);
+  list = json_object_get_members (packages);
+  list = g_list_sort (list, (GCompareFunc)strcmp);
+  g_assert_cmpuint (g_list_length (list), ==, 3);
+  g_assert_cmpstr (list->data, ==, "another");
+  g_assert_cmpstr (list->next->data, ==, "second");
+  g_assert_cmpstr (list->next->next->data, ==, "test");
+  g_list_free (list);
 
   json_object_unref (object);
 }

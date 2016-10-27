@@ -96,10 +96,10 @@ send_init_command (CockpitTransport *transport,
                    GHashTable *os_release)
 {
   const gchar *checksum;
-  const gchar *name;
   const gchar *value;
   JsonObject *object;
   JsonObject *block;
+  gchar **names;
   GBytes *bytes;
   gint i;
 
@@ -116,10 +116,13 @@ send_init_command (CockpitTransport *transport,
   if (checksum)
     json_object_set_string_member (object, "checksum", checksum);
 
-  /* Happens when we're in --interact mode */
-  name = cockpit_dbus_internal_name ();
-  if (name)
-    json_object_set_string_member (object, "bridge-dbus-name", name);
+  /* This is encoded as an object to allow for future expansion */
+  block = json_object_new ();
+  names = cockpit_packages_get_names (packages);
+  for (i = 0; names && names[i] != NULL; i++)
+    json_object_set_null_member (block, names[i]);
+  json_object_set_object_member (object, "packages", block);
+  g_free (names);
 
   if (os_release)
     {

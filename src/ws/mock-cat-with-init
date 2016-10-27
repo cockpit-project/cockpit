@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Here we send a init message the exec cat
+
+/usr/bin/printf "22\n{ \"command\" : \"init\" }"
+exec /bin/cat

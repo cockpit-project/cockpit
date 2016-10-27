@@ -78,6 +78,26 @@ typedef struct {
 
 } CockpitSshData;
 
+static const gchar*
+exit_code_problem (int exit_code)
+{
+  switch (exit_code)
+    {
+      case 0:
+        return NULL;
+      case AUTHENTICATION_FAILED:
+        return "authentication-failed";
+      case DISCONNECTED:
+        return "disconnected";
+      case TERMINATED:
+        return "terminated";
+      case NO_COCKPIT:
+        return "no-cockpit";
+      default:
+        return "internal-error";
+    }
+}
+
 static gpointer
 hex_decode (const gchar *hex,
             gsize *data_len)
@@ -965,10 +985,14 @@ send_auth_reply (CockpitSshData *data,
   ret = write_to_auth_fd (data, message);
   g_bytes_unref (message);
   json_object_unref (object);
+
+  if (!ret)
+    g_warning ("%s: Error sending authentication reply", data->logname);
+
   return ret;
 }
 
-static gboolean
+static const gchar*
 cockpit_ssh_connect (CockpitSshData *data,
                      int port,
                      const gchar *host,
@@ -1043,10 +1067,7 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   *out_channel = channel;
 out:
-  if (!send_auth_reply (data, username, problem))
-    return FALSE;
-  else
-    return problem == NULL;
+  return problem;
 }
 
 static void
@@ -1678,7 +1699,6 @@ main (int argc,
 {
   gint ret = 1;
   gint outfd;
-  gboolean connected = FALSE;
   GOptionContext *context;
   GError *error = NULL;
   ssh_session session;
@@ -1691,6 +1711,7 @@ main (int argc,
   const gchar *host;
   const gchar *username;
   const gchar *command;
+  const gchar *problem;
 
   gint port = 22;
   gchar *logname = NULL;
@@ -1806,17 +1827,27 @@ main (int argc,
   if (!no_auth_data)
       data->initial_auth_data = wait_for_auth_fd_reply (data);
 
-  connected = cockpit_ssh_connect (data, port, host, username, command, &channel);
-  cockpit_ssh_data_free (data);
-
-  if (!connected || !channel)
+  problem = cockpit_ssh_connect (data, port, host, username, command, &channel);
+  if (problem)
     {
+      send_auth_reply (data, NULL, problem);
+      cockpit_ssh_data_free (data);
       ret = AUTHENTICATION_FAILED;
       goto out;
     }
 
   relay = cockpit_ssh_relay_new (session, channel, outfd, logname);
   io = cockpit_ssh_relay_start_source (relay);
+  while (!relay->received_exit && !relay->received_frame)
+    g_main_context_iteration (NULL, TRUE);
+
+  problem = exit_code_problem (relay->exit_code);
+  if (problem)
+    send_auth_reply (data, NULL, problem);
+  else
+    send_auth_reply (data, username, NULL);
+  cockpit_ssh_data_free (data);
+
   while (!relay->received_exit)
     g_main_context_iteration (NULL, TRUE);
 

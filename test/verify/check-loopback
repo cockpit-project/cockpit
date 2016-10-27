@@ -40,6 +40,15 @@ class TestLoopback(MachineCase):
         m.wait_for_cockpit_running()
 
         b.login_and_go("/system", user="admin")
+        b.logout()
+        b.wait_visible("#login")
+
+        m.execute("rm /usr/bin/cockpit-bridge")
+        b.set_val('#login-user-input', "admin")
+        b.set_val('#login-password-input', "foobar")
+        b.click('#login-button')
+        b.wait_visible('#login-fatal')
+        self.assertIn("no-cockpit", b.text('#login-fatal'));
 
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
 
@@ -50,7 +59,7 @@ class TestLoopback(MachineCase):
         #
         m.execute("! systemctl --quiet is-enabled sshd || systemctl restart sshd")
 
-        b.logout()
+        b.reload()
         b.wait_visible("#login")
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")

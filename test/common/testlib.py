@@ -813,7 +813,7 @@ class Naughty(object):
         return True
 
     def check_issue(self, trace):
-        directories =  [ os.path.join(testinfra.TEST_DIR, "verify", "naughty") ]
+        directories =  [ ]
         image_naughty = os.path.join(testinfra.TEST_DIR, "verify", "naughty-" + testinfra.DEFAULT_IMAGE)
         if os.path.exists(image_naughty):
             directories.append(image_naughty)

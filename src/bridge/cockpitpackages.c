@@ -56,9 +56,6 @@ struct _CockpitPackage {
   GHashTable *paths;
   gchar *unavailable;
   gchar *content_security_policy;
-  gchar *content_security_marker;
-  GBytes *content_security_key;
-  guint content_security_nonce;
 };
 
 /*
@@ -85,9 +82,6 @@ cockpit_package_free (gpointer data)
   g_free (package->name);
   g_free (package->directory);
   g_free (package->content_security_policy);
-  g_free (package->content_security_marker);
-  if (package->content_security_key)
-    g_bytes_unref (package->content_security_key);
   if (package->paths)
     g_hash_table_unref (package->paths);
   if (package->manifest)
@@ -388,40 +382,14 @@ strv_have_prefix (gchar **strv,
   return FALSE;
 }
 
-static gchar *
-find_nonce_marker (const gchar *name,
-                   const gchar *input)
-{
-  gchar *beg;
-  gchar *end;
-
-  /* Find beginning of nonce string */
-  beg = strstr (input, "'nonce-");
-  if (beg == NULL)
-    return NULL;
-  beg += 7;
-
-  /* Find the end of nonce string */
-  end = strchr (beg, '\'');
-  if (end == NULL || beg == end)
-    {
-      g_warning ("%s: invalid \"content-security-policy\" nonce field in manifest", name);
-      return NULL;
-    }
-
-  return g_strndup (beg, end - beg);
-}
-
 static gboolean
 setup_content_security_policy (CockpitPackage *package,
                                const gchar *input)
 {
   const gchar *default_src = "default-src 'self'";
   const gchar *connect_src = "connect-src 'self' ws: wss:";
-  gchar *marker = NULL;
   gchar **parts = NULL;
   GString *result;
-  gchar *found;
   gint i;
 
   result = g_string_sized_new (128);
@@ -447,86 +415,14 @@ setup_content_security_policy (CockpitPackage *package,
     {
       g_strstrip (parts[i]);
       g_string_append_printf (result, "%s; ", parts[i]);
-
-      found = find_nonce_marker (package->name, parts[i]);
-      if (found)
-        {
-          if (marker)
-            {
-              if (!g_str_equal (found, marker))
-                {
-                  g_warning ("%s: invalid \"content-security-policy\" has varying nonce", package->name);
-                  g_strfreev (parts);
-                  return FALSE;
-                }
-
-              g_free (found);
-            }
-          else
-            {
-              marker = found;
-            }
-        }
-
     }
 
   g_strfreev (parts);
 
-  package->content_security_key = cockpit_system_random_nonce (64);
-  if (!package->content_security_key)
-    {
-      g_warning ("%s: couldn't generate nonce for \"content-security-policy\"", package->name);
-      return FALSE;
-    }
-
   /* Remove trailing semicolon */
   g_string_set_size (result, result->len - 2);
   package->content_security_policy = g_string_free (result, FALSE);
-  package->content_security_nonce = 1;
-  package->content_security_marker = marker;
   return TRUE;
-}
-
-static gchar *
-finish_content_security_policy (CockpitPackage *package,
-                                GBytes **nonce)
-{
-  GString *result;
-  gchar *nonce_str;
-  gsize nonce_len;
-  gchar *found;
-  const gchar *where;
-  gsize at;
-  const guchar *key;
-  gsize len;
-
-  result = g_string_new (package->content_security_policy);
-  if (package->content_security_marker)
-    {
-      package->content_security_nonce++;
-      key = g_bytes_get_data (package->content_security_key, &len);
-      nonce_str = g_compute_hmac_for_data (G_CHECKSUM_SHA1, key, len,
-                                           (gpointer)(&package->content_security_nonce),
-                                           sizeof (package->content_security_nonce));
-
-      nonce_len = strlen (nonce_str);
-
-      at = 0;
-      for (;;)
-        {
-          where = result->str + at;
-          found = strstr (where, package->content_security_marker);
-          if (!found)
-            break;
-          at += (found - where) + strlen (package->content_security_marker);
-          g_string_insert (result, at, nonce_str);
-          at += strlen (nonce_str);
-        }
-
-      *nonce = g_bytes_new_take (nonce_str, nonce_len);
-    }
-
-  return g_string_free (result, FALSE);
 }
 
 static gboolean
@@ -913,7 +809,6 @@ handle_packages (CockpitWebServer *server,
                  CockpitPackages *packages)
 {
   CockpitPackage *package;
-  CockpitWebFilter *inject;
   gchar *filename = NULL;
   GError *error = NULL;
   gchar *name;
@@ -922,8 +817,6 @@ handle_packages (CockpitWebServer *server,
   const gchar *type;
   GBytes *bytes = NULL;
   gchar *chosen = NULL;
-  GBytes *nonce = NULL;
-  gchar *policy = NULL;
   gchar **languages = NULL;
 
   name = cockpit_web_response_pop_path (response);
@@ -984,21 +877,8 @@ handle_packages (CockpitWebServer *server,
         {
           if (package->content_security_policy)
             {
-              policy = finish_content_security_policy (package, &nonce);
-              if (!policy)
-                {
-                  cockpit_web_response_error (response, 500, NULL, NULL);
-                  goto out;
-                }
-
-              g_hash_table_insert (out_headers, g_strdup ("Content-Security-Policy"), policy);
-              if (nonce)
-                {
-                  inject = cockpit_web_inject_new (package->content_security_marker, nonce, G_MAXUINT);
-                  cockpit_web_response_add_filter (response, inject);
-                  g_object_unref (inject);
-                  g_bytes_unref (nonce);
-                }
+              g_hash_table_insert (out_headers, g_strdup ("Content-Security-Policy"),
+                                   g_strdup (package->content_security_policy));
             }
         }
     }

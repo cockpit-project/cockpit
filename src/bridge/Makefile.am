@@ -154,6 +154,7 @@ BRIDGE_CHECKS = \
 	test-setup \
 	test-websocketstream \
 	test-environment \
+	test-bridge \
 	$(NULL)
 
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
@@ -162,6 +163,10 @@ mock_bridge_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 mock_bridge_LDADD = $(libcockpit_bridge_LIBS)
+
+test_bridge_SOURCES = src/bridge/test-bridge.c
+test_bridge_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_bridge_LDADD = $(libcockpit_bridge_LIBS)
 
 test_channel_SOURCES = \
 	src/bridge/test-channel.c \

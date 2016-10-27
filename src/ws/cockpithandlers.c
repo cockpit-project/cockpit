@@ -254,7 +254,7 @@ build_environment (GHashTable *os_release)
    * the corresponding information is not a leak.
    */
   static const gchar *release_fields[] = {
-    "NAME", "VERSION", "ID", "VERSION_ID", "PRETTY_NAME", "VARIANT", "VARIANT_ID", "CPE_NAME",
+    "NAME", "ID", "PRETTY_NAME", "VARIANT", "VARIANT_ID", "CPE_NAME",
   };
 
   static const gchar *prefix = "\n    <script>\nvar environment = ";

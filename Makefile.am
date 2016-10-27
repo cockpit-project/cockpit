@@ -17,9 +17,7 @@ nodist_noinst_DATA =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-TESTS = \
-	pkg/users/test-list-public-keys.sh \
-	$(NULL)
+TESTS =
 
 CLEANFILES = \
 	$(man_MANS) \
@@ -40,9 +38,11 @@ EXTRA_DIST = \
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
-	find $(builddir)/dist -depth -name README.md -prune -o -name dist -prune -o -delete
+	if test -d $(builddir)/dist; then \
+		find $(builddir)/dist -depth -name README.md -prune -o -name dist -prune -o -delete; \
+	fi
 
-SUFFIXES = .css .css.gz .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .map .map.gz .jsx .html .html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
+SUFFIXES = .css .css.gz .js .js.gz .map .map.gz .jsx .html .html.gz .svg .svg.gz .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -64,40 +64,15 @@ COPY_RULE = \
         $(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp && $(MV) $@.tmp $@
 
-MIN_JS_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $^ --mangle > $@.tmp && $(MV) $@.tmp $@
-
-MIN_CSS_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
-
 GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
 
-.css.min.css:
-	$(MIN_CSS_RULE)
-.js.min.js:
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
-	$(MIN_JS_RULE)
-.jsx.js:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-		$(srcdir)/tools/missing $(srcdir)/tools/jsx < $< > $@.tmp && $(MV) $@.tmp $@
-.jsx.min.js:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-		$(srcdir)/tools/missing $(srcdir)/tools/jsx < $< | \
-		$(srcdir)/tools/missing $(srcdir)/tools/uglifyjs --mangle > $@.tmp && $(MV) $@.tmp $@
-
 .css.css.gz:
-	$(GZ_RULE)
-.min.css.min.css.gz:
 	$(GZ_RULE)
 .html.html.gz:
 	$(GZ_RULE)
 .js.js.gz:
-	$(GZ_RULE)
-.min.js.min.js.gz:
 	$(GZ_RULE)
 .map.map.gz:
 	$(GZ_RULE)
@@ -107,40 +82,78 @@ GZ_RULE = \
 	$(GZ_RULE)
 
 po/po.%.js: po/%.po
-	@$(MKDIR_P) $(dir $@)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/po2json --module $^ $@
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/tools/po2json --module $^ $@
 
 # Webpack related
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  dist/";
+V_WEBPACK_0 = @echo "  WEBPACK  $(@:Makefile-%.deps=%)";
 
+WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
 WEBPACK_OUTPUTS =
-WEBPACK_CONFIG = webpack.config.js
+WEBPACK_INSTALL =
 
-noinst_SCRIPTS += Makefile-webpack.deps $(WEBPACK_INSTALL)
-CLEANFILES += Makefile-webpack.deps $(WEBPACK_OUTPUTS)
-EXTRA_DIST += Makefile-webpack.deps $(WEBPACK_CONFIG)
+WEBPACK_DEPS = \
+	Makefile-dashboard.deps \
+	Makefile-docker.deps \
+	Makefile-kubernetes.deps \
+	Makefile-machines.deps \
+	Makefile-networkmanager.deps \
+	Makefile-ostree.deps \
+	Makefile-playground.deps \
+	Makefile-realmd.deps \
+	Makefile-selinux.deps \
+	Makefile-shell.deps \
+	Makefile-sosreport.deps \
+	Makefile-storaged.deps \
+	Makefile-subscriptions.deps \
+	Makefile-systemd.deps \
+	Makefile-tuned.deps \
+	Makefile-users.deps \
+	$(NULL)
 
-@INCLUDE_WEBPACK_DEPS@
+noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
+CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
+EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_CONFIG)
+
+Makefile-%.deps: $(WEBPACK_CONFIG)
+	$(WEBPACK_RULE) -d $@ $<
+
+-include Makefile-dashboard.deps
+-include Makefile-docker.deps
+-include Makefile-kubernetes.deps
+-include Makefile-machines.deps
+-include Makefile-networkmanager.deps
+-include Makefile-ostree.deps
+-include Makefile-playground.deps
+-include Makefile-realmd.deps
+-include Makefile-selinux.deps
+-include Makefile-shell.deps
+-include Makefile-sosreport.deps
+-include Makefile-storaged.deps
+-include Makefile-subscriptions.deps
+-include Makefile-systemd.deps
+-include Makefile-tuned.deps
+-include Makefile-users.deps
 
 WEBPACK_RULE = $(V_WEBPACK) NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
-	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make -d $@ $<
+	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 
-Makefile-webpack.deps: $(WEBPACK_CONFIG) tools/webpack-make $(WEBPACK_INPUTS)
-	$(WEBPACK_RULE)
-
-all-local:: Makefile-webpack.deps $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
+all-local:: $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
 	@true
 distclean-local::
 	rm -rf dist/
 install-data-local:: $(WEBPACK_INSTALL)
 	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 	$(SED_SUBST) -i $(DESTDIR)$(pkgdatadir)/*/manifest.json
+install-data-local:: $(WEBPACK_DEBUG)
+	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
 	rm -rf $(DESTDIR)$(pkgdatadir)
+	rm -rf $(DESTDIR)$(debugdir)$(pkgdatadir)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
 	tar -cf - $^ | tar -C $(distdir) -xvf -
 
@@ -289,7 +302,6 @@ print-%:
 COMMITTED_DIST = \
 	lib/ \
 	pkg/ \
-	lib/ \
 	tools/ \
 	test/ \
 	$(NULL)
@@ -303,6 +315,9 @@ dist-hook::
 	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
 
+dist-gzip: distdir
+	tar --format=posix -cf - "$(distdir)" | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 dist-xz: distdir
 	tar --format=posix -cf - "$(distdir)" | xz -ec > $(distdir).tar.xz
 	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"

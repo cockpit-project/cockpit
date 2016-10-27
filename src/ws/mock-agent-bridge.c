@@ -26,6 +26,7 @@
 #include "common/cockpitpipetransport.h"
 
 #include <gio/gunixsocketaddress.h>
+#include <glib/gstdio.h>
 #include <glib-unix.h>
 
 #include <signal.h>
@@ -192,7 +193,8 @@ main (int argc,
   int ret = 0;
   int outfd;
 
-  const gchar *ssh_auth_sock = BUILDDIR "/test-agent.sock";
+  gchar *ssh_auth_sock = g_strdup (BUILDDIR "/test-agent.XXXXXX");
+  gint ssh_auth_fd = -1;
 
   int agent = 0;
   gchar *agent_output = NULL;
@@ -217,6 +219,20 @@ main (int argc,
     {
       g_warning ("bridge couldn't redirect stdout to stderr");
       outfd = 1;
+    }
+
+  ssh_auth_fd = g_mkstemp (ssh_auth_sock);
+  if (ssh_auth_fd < 0)
+    {
+      g_warning ("couldn't create ssh agent socket filename: %s", g_strerror (errno));
+      ret = 1;
+      goto out;
+    }
+  else
+    {
+      if (g_unlink (ssh_auth_sock) < 0)
+        g_warning ("couldn't unlink ssh agent socket: %s", g_strerror (errno));
+      close (ssh_auth_fd);
     }
 
   g_setenv ("SSH_AUTH_SOCK", ssh_auth_sock, TRUE);

@@ -151,12 +151,6 @@ class TestStorage(StorageCase):
         b.wait_in_text("#content", "Two")
         b.wait_not_in_text("#content", "Free Space")
 
-        # Delete first partition
-        self.content_action(1, "Delete")
-        self.confirm()
-        b.wait_in_text("#content", "Free Space")
-        b.wait_not_in_text("#content", "One")
-
         # Play with disks
 
         # Add a spare

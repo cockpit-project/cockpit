@@ -101,6 +101,10 @@ var DialogFooter = React.createClass({
                     if (self.props.dialog_done)
                         self.props.dialog_done(false);
                 }
+
+                /* Always log global dialog errors for easier debugging */
+                console.warn(error);
+
                 self.setState({ action_in_progress: false, error_message: error });
             })
             .progress(this.update_progress.bind(this));
@@ -289,6 +293,9 @@ var show_modal_dialog = function(props, footerProps) {
         dialogObj.render();
     };
     dialogObj.setFooterProps = function(footerProps) {
+        /* Always log error messages to console for easier debugging */
+        if (footerProps.static_error)
+            console.warn(footerProps.static_error);
         dialogObj.footerProps = footerProps;
         if (dialogObj.footerProps === null || dialogObj.footerProps === undefined)
             dialogObj.footerProps = { };

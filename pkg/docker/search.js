@@ -45,6 +45,9 @@
 
             $(this.client).off('.containers-search-image-dialog');
             this.client = null;
+
+            this.dfd.reject();
+            this.dfd = null;
         },
 
         setup: function() {
@@ -59,6 +62,7 @@
 
         enter: function() {
             this.client = PageSearchImage.client;
+            this.dfd = PageSearchImage.dfd;
 
             // Clear the previous results and search string from previous time
             $('#containers-search-image-results tbody tr').remove();
@@ -86,62 +90,7 @@
             var registry = $('#containers-search-download').data('registry') || undefined;
             var tag = $('#containers-search-tag').val();
 
-            $('#containers-search-tag').prop('disabled', true);
-            $('#containers-search-download').data('repo', '');
-            $('#containers-search-download').prop('disabled', true);
-
-            var tr = $('<tr id="imagedl_' + repo.replace("/", "_") + '">').append(
-                $('<td class="container-column-tags">').text(repo + ':' + tag),
-                $('<td class="container-column-created">').text('Downloading'),
-                $('<td class="image-column-size-graph">').append(
-                    $('<div class="progress progress-striped active">').append(
-                        $('<div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">'))),
-                $('<td class="image-column-size-text">'),
-                $('<td class="cell-buttons">'));
-
-            util.insert_table_sorted($('#containers-images table'), tr);
-
-            var created = tr.children('td.container-column-created');
-            var size = tr.children('td.image-column-size-text');
-
-            var failed = false;
-            var layers = {};
-
-            docker.pull(repo, tag, registry).
-                progress(function(message, progress) {
-                    if("id" in progress) {
-                        var new_string = progress['status'];
-                        if(progress['status'] == 'Downloading') {
-                            new_string += ': ' + progress['progressDetail']['current'] + '/' + progress['progressDetail']['total'];
-                        }
-                        layers[progress['id']] = new_string;
-                        if(progress['status'] == 'Download complete') {
-                            // We probably don't care anymore about completed layers
-                            // This also keeps the size of the row to a minimum
-                            delete layers[progress['id']];
-                        }
-                    }
-                    var full_status = '';
-                    for(var layer in layers) {
-                        full_status += layer + ': ' + layers[layer] + '&nbsp;&nbsp;&nbsp;&nbsp;';
-                    }
-                    size.html(full_status);
-                }).
-                fail(function(ex) {
-                    console.warn("pull failed:", ex);
-                    failed = true;
-                    created.text(_('Error downloading'));
-                    size.text(ex.message).attr('title', ex.message);
-                    tr.on('click', function() {
-                        // Make the row be gone when clicking it
-                        tr.remove();
-                    });
-                }).
-                always(function() {
-                    // According to Docker, download was finished.
-                    if(!failed)
-                        tr.remove();
-                });
+            this.dfd.resolve(repo, tag, registry);
 
             $("#containers-search-image-dialog").modal('hide');
         },
@@ -235,7 +184,11 @@
 
     function search(client) {
         PageSearchImage.client = client;
+        PageSearchImage.dfd = cockpit.defer();
+
         $("#containers-search-image-dialog").modal('show');
+
+        return PageSearchImage.dfd.promise;
     }
 
     module.exports = search;

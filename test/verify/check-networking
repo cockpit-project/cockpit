@@ -168,7 +168,9 @@ class TestNetworking(MachineCase):
         b.click("#network-ethernet-settings-apply")
         b.wait_popdown("network-ethernet-settings-dialog")
         b.wait_in_text("tr:contains('MTU')", "1400")
-        wait(lambda: "mtu 1400" in m.execute("ip link show %s" % iface))
+
+        # We're debugging failures here log status to journal for diagnosis
+        wait(lambda: "mtu 1400" in m.execute("ip link show %s | logger -s 2>&1" % iface))
 
         # Go back to main page
         b.click("#network-interface ol.breadcrumb li:first-child a")
@@ -267,6 +269,13 @@ class TestNetworking(MachineCase):
         self.switch_off_rp_filter(m)
 
         self.login_and_go("/network")
+
+        can_add_teams = not "atomic" in m.image
+
+        b.wait_attr("#networking-add-team", "data-test-stable", "yes")
+        if not can_add_teams:
+            b.wait_not_visible("#networking-add-team")
+            return
 
         # Add interfaces and wait for them to be active or not (as
         # appropriate for the OS).
@@ -410,6 +419,34 @@ NM_CONTROLLED=no
         sel = "#networking-unmanaged-interfaces tr[data-interface='%s']" % iface
         self.browser.wait_present(sel)
         self.browser.wait_visible(sel)
+
+    @unittest.skipIf("fedora-25" not in os.environ.get("TEST_OS", ""), "No network checkpoints here.")
+    def testCheckpoint(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.get_iface(m, m.macaddr)
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        # Disconnect
+        b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
+        b.wait_visible("#confirm-breaking-change-popup")
+        b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+
+        # Change IP
+        b.click("tr:contains('IPv4') a")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
+        b.click("#network-ip-settings-dialog a:contains('Manual')")
+        b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_visible("#confirm-breaking-change-popup")
+        b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
 if __name__ == '__main__':
     test_main()

@@ -518,10 +518,15 @@ handle_shell (CockpitHandlerData *data,
   /* Check if a valid path for a shell to be served at */
   valid = g_str_equal (path, "/") ||
           g_str_has_prefix (path, "/@") ||
+          g_str_has_prefix (path, "/=") ||
           strspn (path + 1, COCKPIT_RESOURCE_PACKAGE_VALID) == strcspn (path + 1, "/");
 
-  if (g_str_has_prefix (path, "/@/") || g_str_has_prefix (path, "//"))
-    valid = FALSE;
+  if (g_str_has_prefix (path, "/=/") ||
+      g_str_has_prefix (path, "/@/") ||
+      g_str_has_prefix (path, "//"))
+    {
+      valid = FALSE;
+    }
 
   if (!valid)
     {

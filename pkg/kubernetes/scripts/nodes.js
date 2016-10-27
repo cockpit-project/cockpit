@@ -87,10 +87,10 @@
         'nodeData',
         'nodeStatsSummary',
         '$timeout',
-        '$window',
+        'KubeBrowserStorage',
         function($scope, loader, select,  ListingState, filterService,
                  $routeParams, $location, actions, nodeData, statsSummary,
-                 $timeout, $window) {
+                 $timeout, browser) {
             var target = $routeParams["target"] || "";
             $scope.target = target;
 
@@ -162,7 +162,7 @@
             };
 
             $scope.jump = function (node) {
-                var host, key, ip;
+                var host, ip;
                 if (!node || !node.spec)
                     return;
 
@@ -172,7 +172,7 @@
                 if (ip == "127.0.0.1" || ip == "::1") {
                     ip = "localhost";
                 } else {
-                    $window.sessionStorage.setItem(
+                    browser.sessionStorage.setItem(
                         "v1-session-machine/" + ip,
                         JSON.stringify({"address": ip,
                                         "label": host,

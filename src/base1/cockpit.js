@@ -17,7 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var url_root = window.localStorage.getItem('url-root');
+var url_root;
+
+try {
+    // Sometimes this throws a SecurityError such as during testing
+    url_root = window.localStorage.getItem('url-root');
+} catch(e) { }
 
 var mock = mock || { };
 
@@ -27,8 +32,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 "use strict";
 
 if (typeof window.debugging === "undefined") {
-    window.debugging = window.sessionStorage["debugging"] ||
-                       window.localStorage["debugging"];
+    try {
+        // Sometimes this throws a SecurityError such as during testing
+        window.debugging = window.sessionStorage["debugging"] ||
+                           window.localStorage["debugging"];
+    } catch(e) { }
 }
 
 function in_array(array, val) {
@@ -250,16 +258,39 @@ function event_mixin(obj, handlers) {
     });
 }
 
+function calculate_application() {
+    var path = window.location.pathname || "/";
+    var _url_root = url_root;
+    if (window.mock && window.mock.pathname)
+        path = window.mock.pathname;
+    if (window.mock && window.mock.url_root)
+        _url_root = window.mock.url_root;
+
+    if (_url_root && path.indexOf('/' + _url_root) === 0)
+        path = path.replace('/' + _url_root, '') || '/';
+
+    if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0) {
+        if (path.indexOf("/=") === 0)
+            path = "/cockpit+" + path.split("/")[1];
+        else
+            path = "/cockpit";
+    }
+
+    return path.split("/")[1];
+}
+
 function calculate_url() {
+    var window_loc = window.location.toString();
+    var _url_root = url_root;
+
     if (window.mock && window.mock.url)
         return window.mock.url;
-    var window_loc = window.location.toString();
-    var path = window.location.pathname || "/";
-    if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
-        path = "/cockpit";
-    var prefix = path.split("/")[1];
-    if (url_root)
-        prefix = url_root + "/" + prefix;
+    if (window.mock && window.mock.url_root)
+        _url_root = window.mock.url_root;
+
+    var prefix = calculate_application();
+    if (_url_root)
+        prefix = _url_root + "/" + prefix;
 
     if (window_loc.indexOf('http:') === 0) {
         return "ws://" + window.location.host + "/" + prefix + "/socket";
@@ -349,6 +380,7 @@ function ParentWebSocket(parent) {
 /* Private Transport class */
 function Transport() {
     var self = this;
+    self.application = calculate_application();
 
     /* We can trigger events */
     event_mixin(self, { });
@@ -764,6 +796,8 @@ function Channel(options) {
                 command.binary = "base64";
                 base64 = true;
             }
+        } else {
+            delete command.binary;
         }
 
         transport.send_control(command);
@@ -1042,6 +1076,11 @@ function basic_scope(cockpit, jquery) {
         origin: transport_origin,
         options: { },
         uri: calculate_url,
+        application: function () {
+            if (!default_transport || window.mock)
+                return calculate_application();
+            return default_transport.application;
+        },
     };
 
     /* ------------------------------------------------------------------------------------
@@ -1468,6 +1507,58 @@ function basic_scope(cockpit, jquery) {
     };
 
     /* ---------------------------------------------------------------------
+     * Storage Helper.
+     *
+     * Use application to prefix data stored in browser storage
+     * with helpers for compatibility.
+     */
+    function StorageHelper(storage) {
+        var self = this;
+
+        self.prefixedKey = function (key) {
+            return cockpit.transport.application() + ":" + key;
+        };
+
+        self.getItem = function (key, both) {
+            var value = storage.getItem(self.prefixedKey(key));
+            if (!value && both)
+                value = storage.getItem(key);
+            return value;
+        };
+
+        self.setItem = function (key, value, both) {
+            storage.setItem(self.prefixedKey(key), value);
+            if (both)
+                storage.setItem(key, value);
+        };
+
+        self.removeItem = function(key, both) {
+            storage.removeItem(self.prefixedKey(key));
+            if (both)
+                storage.removeItem(key);
+        };
+
+        /* Instead of clearing, purge anything that isn't prefixed with an application
+         * and anything prefixed with our application.
+         */
+        self.clear = function(full) {
+            var i = 0;
+            while (i < storage.length) {
+                var k = storage.key(i);
+                if (full && k.indexOf("cockpit") !== 0)
+                    storage.removeItem(k);
+                else if (k.indexOf(cockpit.transport.application()) === 0)
+                    storage.removeItem(k);
+                else
+                    i++;
+            }
+        };
+    }
+
+    cockpit.localStorage = new StorageHelper(window.localStorage);
+    cockpit.sessionStorage = new StorageHelper(window.sessionStorage);
+
+    /* ---------------------------------------------------------------------
      * Shared data cache.
      *
      * We cannot use sessionStorage when keeping lots of data in memory and
@@ -1489,8 +1580,9 @@ function basic_scope(cockpit, jquery) {
         return storage;
     }
 
-    function StorageCache(key, provider, consumer) {
+    function StorageCache(org_key, provider, consumer) {
         var self = this;
+        var key = cockpit.transport.application() + ":" + org_key;
 
         /* For triggering events and ownership */
         var trigger = window.sessionStorage;
@@ -1504,7 +1596,7 @@ function basic_scope(cockpit, jquery) {
         function callback() {
             /* Only run the callback if we have a result */
             if (storage[key] !== undefined) {
-                if (consumer(storage[key], key) === false)
+                if (consumer(storage[key], org_key) === false)
                     self.close();
             }
         }
@@ -1531,7 +1623,7 @@ function basic_scope(cockpit, jquery) {
 
         self.claim = function claim() {
             if (!source)
-                source = provider(result, key);
+                source = provider(result, org_key);
         };
 
         function unclaim() {
@@ -2145,8 +2237,14 @@ function basic_scope(cockpit, jquery) {
     }
 
     cockpit.logout = function logout(reload) {
-        window.sessionStorage.clear();
-        window.localStorage.removeItem('login-data');
+        /* fully clear session storage */
+        cockpit.sessionStorage.clear(true);
+
+        /* Only clean application data from localStorage,
+         * except for login-data. Clear that completely */
+        cockpit.localStorage.removeItem('login-data', true);
+        cockpit.localStorage.clear(false);
+
         if (reload !== false)
             reload_after_disconnect = true;
         ensure_transport(function(transport) {
@@ -2235,6 +2333,13 @@ function basic_scope(cockpit, jquery) {
 
     function Location() {
         var self = this;
+        var application = cockpit.transport.application();
+        self.url_root = url_root || "";
+        if (application.indexOf("cockpit+=") === 0) {
+            if (self.url_root)
+                self.url_root += '/';
+            self.url_root = self.url_root + application.replace("cockpit+", '');
+        }
 
         var href = get_window_location_hash();
         var options = { };
@@ -2244,8 +2349,8 @@ function basic_scope(cockpit, jquery) {
             var parts = input.split('/').map(decodeURIComponent);
             var result, i, pre_parts = [];
 
-            if (url_root)
-                pre_parts = url_root.split('/').map(decodeURIComponent);
+            if (self.url_root)
+                pre_parts = self.url_root.split('/').map(decodeURIComponent);
 
             if (input && input[0] !== "/") {
                 result = [].concat(path);
@@ -2271,11 +2376,12 @@ function basic_scope(cockpit, jquery) {
                 path = decode_path(path, self.path);
 
             var href = "/" + path.map(encodeURIComponent).join("/");
-            if (with_root && url_root && href.indexOf("/" + url_root + "/" !== 0))
-                href = "/" + url_root + href;
+            if (with_root && self.url_root && href.indexOf("/" + self.url_root + "/" !== 0))
+                href = "/" + self.url_root + href;
 
             /* Undo unnecessary encoding of these */
             href = href.replace("%40", "@");
+            href = href.replace("%3D", "=");
 
             var i, opt, value, query = [];
             function push_option(v) {
@@ -2398,7 +2504,7 @@ function basic_scope(cockpit, jquery) {
 
     cockpit.jump = function jump(path, host) {
         if (is_array(path))
-            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@");
+            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@").replace("%3D", "=");
         else
             path = "" + path;
         var options = { command: "jump", location: path, host: host };

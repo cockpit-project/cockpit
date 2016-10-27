@@ -15,6 +15,12 @@
     <link linkend="privileges">escalate the user's privileges</link> via Polkit
     or sudo before connecting to the socket.</para>
 
+  <para>Alternatively one may
+    <ulink url="https://docs.docker.com/engine/installation/linux/rhel/#/create-a-docker-group">create a <code>docker</code> unix group</ulink>. Anyone in that <code>docker</code> group can then access
+    the Docker API, and gain root privileges on the system. This
+    <ulink url="https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface">impacts system security</ulink>
+    and is not recommended for general usage.</para>
+
   <para>Similar container functionality is available on the command line via the
     <filename>docker</filename> tool:</para>
 

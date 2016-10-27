@@ -552,6 +552,15 @@ static const DefaultFixture fixture_shell_index = {
       "<title>In home dir</title>*"
 };
 
+static const DefaultFixture fixture_machine_shell_index = {
+  .path = "/=machine",
+  .auth = "/cockpit+=machine",
+  .with_home = TRUE,
+  .expect = "HTTP/1.1 200*"
+      "<base href=\"/cockpit+=machine/@localhost/another/test.html\">*"
+      "<title>In home dir</title>*"
+};
+
 static const DefaultFixture fixture_shell_configured_index = {
   .path = "/",
   .auth = "/cockpit",
@@ -587,6 +596,12 @@ static const DefaultFixture fixture_shell_host_short = {
 
 static const DefaultFixture fixture_shell_package_short = {
   .path = "//page",
+  .auth = "/cockpit",
+  .expect = "HTTP/1.1 404*"
+};
+
+static const DefaultFixture fixture_machine_shell_package_short = {
+  .path = "/=/",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 404*"
 };
@@ -813,6 +828,8 @@ main (int argc,
 
   g_test_add ("/handlers/shell/index", Test, &fixture_shell_index,
               setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/shell/machine-index", Test, &fixture_machine_shell_index,
+              setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/configured_index", Test, &fixture_shell_configured_index,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/package", Test, &fixture_shell_package,
@@ -822,6 +839,8 @@ main (int argc,
   g_test_add ("/handlers/shell/host-short", Test, &fixture_shell_host_short,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/package-short", Test, &fixture_shell_package_short,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/shell/machine-package-short", Test, &fixture_machine_shell_package_short,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/package-invalid", Test, &fixture_shell_package_invalid,
               setup_default, test_default, teardown_default);

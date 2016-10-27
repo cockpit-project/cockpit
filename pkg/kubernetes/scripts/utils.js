@@ -143,6 +143,39 @@
         }
     ])
 
+    .provider('KubeBrowserStorage', [
+        function() {
+            var self = this;
+
+            /* Until we come up with a good default implementation, must be provided */
+            self.KubeBrowserStorageFactory = "DefaultKubeBrowserStorage";
+
+            function load(injector, name) {
+                if (angular.isString(name))
+                    return injector.get(name, "DefaultKubeBrowserStorage");
+                else
+                    return injector.invoke(name);
+            }
+
+            self.$get = [
+                "$injector",
+                function($injector) {
+                    return load($injector, self.KubeBrowserStorageFactory);
+                }
+            ];
+        }
+    ])
+
+    .factory("DefaultKubeBrowserStorage", [
+        "$window",
+        function($window) {
+            return {
+                localStorage: $window.localStorage,
+                sessionStorage: $window.sessionStorage,
+            };
+        }
+    ])
+
     .filter('formatCapacityName', function() {
         return function(key) {
             var data;

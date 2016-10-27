@@ -22,7 +22,7 @@ import $ from 'jquery';
 
 import React from 'react';
 import store from './store.es6';
-import App from './app.es6';
+import App from './app.jsx';
 import { getAllVms, navigate } from './actions.es6';
 import { logDebug } from './helpers.es6';
 

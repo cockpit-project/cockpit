@@ -36,8 +36,7 @@ class AtomicCockpitInstaller:
     # Support installing random packages if needed.
     external_packages = {}
 
-    packages_force_install = [ "cockpit-kubernetes",
-                               "cockpit-docker",
+    packages_force_install = [ "cockpit-docker",
                                "cockpit-networkmanager",
                                "cockpit-ostree",
                                "cockpit-sosreport" ]
@@ -231,9 +230,10 @@ class AtomicCockpitInstaller:
                 os.remove(name)
 
         self.install_packages(packages_to_install)
-        test_assets = [x for x in self.rpms \
-                       if os.path.split(x)[-1].startswith("cockpit-test-assets")]
-        self.install_packages(test_assets, deps=False, replace=True)
+        no_deps = [x for x in self.rpms \
+                       if os.path.split(x)[-1].startswith("cockpit-test-assets") or
+                          os.path.split(x)[-1].startswith("cockpit-kubernetes")]
+        self.install_packages(no_deps, deps=False, replace=True)
 
         self.commit_to_repo()
         self.switch_to_local_tree()

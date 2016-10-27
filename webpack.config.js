@@ -4,6 +4,10 @@
 
 var info = {
     entries: {
+        "dashboard/dashboard": [
+            "dashboard/list.js",
+        ],
+
         "docker/docker": [
             "docker/containers.js",
             "docker/docker.css",
@@ -11,9 +15,7 @@ var info = {
         "docker/console": [
             "docker/console.js",
         ],
-        "dashboard/dashboard": [
-            "dashboard/list.js",
-        ],
+
         "kubernetes/kubernetes": [
             "kubernetes/styles/main.less",
             "kubernetes/scripts/main.js",
@@ -22,14 +24,22 @@ var info = {
             "kubernetes/styles/registry.less",
             "kubernetes/scripts/registry.js",
         ],
+
+        "machines/machines": [
+            "machines/index.js",
+            "machines/machines.css",
+        ],
+
         "networkmanager/network": [
             "networkmanager/interfaces.js",
             "networkmanager/networking.css",
         ],
+
         "ostree/ostree": [
             "ostree/app.js",
             "ostree/ostree.css",
         ],
+
         "playground/jquery-patterns": [
             "playground/jquery-patterns.js",
         ],
@@ -48,13 +58,16 @@ var info = {
         "playground/test": [
             "playground/test",
         ],
+
         "realmd/domain": [
             "realmd/operation.js",
         ],
+
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
             "selinux/setroubleshoot.css",
         ],
+
         "shell/index": [
             "shell/index.js",
             "shell/shell.css",
@@ -65,18 +78,22 @@ var info = {
         "shell/index-no-machines": [
             "shell/index-no-machines.js",
         ],
+
         "sosreport/sosreport": [
             "sosreport/index.js",
             "sosreport/sosreport.css",
         ],
+
         "storaged/storage": [
             "storaged/devices.js",
             "storaged/storage.css",
         ],
+
         "subscriptions/subscriptions": [
             "subscriptions/main.js",
             "subscriptions/subscriptions.css",
         ],
+
         "systemd/services": [
             "systemd/init.js",
         ],
@@ -90,32 +107,53 @@ var info = {
         "systemd/terminal": [
             "systemd/terminal.jsx",
         ],
+
         "tuned/performance": [
             "tuned/dialog.js",
         ],
-        "machines/machines": [
-            "machines/index.js",
-            "machines/machines.css",
-        ],
+
         "users/users": [
             "users/local.js",
             "users/users.css",
         ]
     },
 
+    tests: [
+        "docker/test-docker",
+
+        "storaged/test-util",
+
+        "kubernetes/scripts/test-utils",
+        "kubernetes/scripts/test-images",
+        "kubernetes/scripts/test-projects",
+        "kubernetes/scripts/test-nodes",
+        "kubernetes/scripts/test-kube-client",
+        "kubernetes/scripts/test-tags",
+        "kubernetes/scripts/test-connection",
+        "kubernetes/scripts/test-volumes",
+
+        "playground/test-dummy",
+        "playground/test-journal-renderer",
+        "playground/test-machines",
+        "playground/test-patterns",
+    ],
+
     files: [
+        "dashboard/index.html",
+        "dashboard/manifest.json",
+
         "docker/console.html",
         "docker/manifest.json",
         "docker/index.html",
         "docker/images/drive-harddisk-symbolic.svg",
 
-        "dashboard/index.html",
-        "dashboard/manifest.json",
-
         "kubernetes/manifest.json",
         "kubernetes/override.json",
         "kubernetes/index.html",
         "kubernetes/registry.html",
+
+        "machines/index.html",
+        "machines/manifest.json",
 
         "networkmanager/index.html",
         "networkmanager/manifest.json",
@@ -157,6 +195,9 @@ var info = {
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
 
+        "subscriptions/index.html",
+        "subscriptions/manifest.json",
+
         "systemd/index.html",
         "systemd/logs.html",
         "systemd/manifest.json",
@@ -167,19 +208,13 @@ var info = {
 
         "users/index.html",
         "users/manifest.json",
-
-        "subscriptions/index.html",
-        "subscriptions/manifest.json",
-
-        "machines/index.html",
-        "machines/manifest.json"
     ]
 };
 
 var externals = {
     "cockpit": "cockpit",
     "jquery": "jQuery",
-}
+};
 
 /* ---------------------------------------------------------------------
  * Implementation
@@ -187,6 +222,7 @@ var externals = {
 
 var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
+var html = require('html-webpack-plugin');
 var extract = require("extract-text-webpack-plugin");
 var extend = require("extend");
 var path = require("path");
@@ -200,6 +236,7 @@ var srcdir = process.env.SRCDIR || __dirname;
 var pkgdir = srcdir + path.sep + "pkg";
 var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
 var libdir = path.resolve(srcdir, "lib");
+var section = process.env.ONLYDIR || null;
 
 /* A standard nodejs and webpack pattern */
 var production = process.env.NODE_ENV === 'production';
@@ -211,6 +248,11 @@ var production = process.env.NODE_ENV === 'production';
 
 /* Qualify all the paths in entries */
 Object.keys(info.entries).forEach(function(key) {
+    if (section && key.indexOf(section) !== 0) {
+        delete info.entries[key];
+        return;
+    }
+
     info.entries[key] = info.entries[key].map(function(value) {
         if (value.indexOf("/") === -1)
             return value;
@@ -220,9 +262,12 @@ Object.keys(info.entries).forEach(function(key) {
 });
 
 /* Qualify all the paths in files listed */
-info.files = info.files.map(function(value) {
-    return { from: pkgdir + path.sep + value, to: value };
+var files = [];
+info.files.forEach(function(value) {
+    if (!section || value.indexOf(section) === 0)
+        files.push({ from: pkgdir + path.sep + value, to: value });
 });
+info.files = files;
 
 var plugins = [
     new webpack.DefinePlugin({
@@ -240,6 +285,20 @@ if (production) {
         },
     }));
 }
+
+/* Fill in the tests properly */
+info.tests.forEach(function(test) {
+    if (!section || test.indexOf(section) === 0) {
+        info.entries[test] = pkgdir + path.sep + test + ".js";
+        plugins.push(new html({
+            title: path.basename(test),
+            filename: test + ".html",
+            template: srcdir + path.sep + "tools" + path.sep + "qunit-template.html",
+            builddir: test.split("/").map(function() { return "../" }).join(""),
+            inject: false,
+        }));
+    }
+});
 
 module.exports = {
     resolve: {

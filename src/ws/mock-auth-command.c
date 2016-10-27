@@ -19,6 +19,9 @@
 
 #include "config.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include <err.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -32,11 +35,12 @@
 static char *
 read_seqpacket_message (int fd)
 {
-  char *buf = NULL;
+  struct iovec vec = { .iov_len = MAX_PACKET_SIZE, };
+  struct msghdr msg;
   int r;
 
-  buf = realloc (buf, MAX_AUTH_BUFFER + 1);
-  if (!buf)
+  vec.iov_base = malloc (vec.iov_len + 1);
+  if (!vec.iov_base)
     errx (EX, "couldn't allocate memory for data");
 
   /* Assume only one successful read needed
@@ -44,13 +48,16 @@ read_seqpacket_message (int fd)
    */
   for (;;)
     {
-      r = read (fd, buf, MAX_AUTH_BUFFER);
+      memset (&msg, 0, sizeof (msg));
+      msg.msg_iov = &vec;
+      msg.msg_iovlen = 1;
+      r = recvmsg (fd, &msg, 0);
       if (r < 0)
         {
           if (errno == EAGAIN)
             continue;
 
-          err (EX, "couldn't read data");
+          err (EX, "couldn't recv data");
         }
       else
         {
@@ -58,17 +65,8 @@ read_seqpacket_message (int fd)
         }
     }
 
-  if (r == 0) {
-    free (buf);
-    return NULL;
-  }
-
-  buf = realloc (buf, r + 1);
-  if (!buf)
-    errx (EX, "couldn't reallocate memory for data");
-
-  buf[r] = '\0';
-  return buf;
+  ((char *)vec.iov_base)[r] = '\0';
+  return vec.iov_base;
 }
 
 static void
@@ -78,13 +76,13 @@ write_resp (int fd,
   int r;
   for (;;)
     {
-      r = write (fd, data, strlen (data));
+      r = send (fd, data, strlen (data), 0);
       if (r < 0)
         {
           if (errno == EAGAIN)
             continue;
 
-          err (EX, "couldn't write auth data");
+          err (EX, "couldn't send auth data");
         }
       else
         {
@@ -127,11 +125,52 @@ main (int argc,
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
+  else if (strcmp (data, "ssh-remote-switch") == 0 && argc == 2 && strcmp (argv[1], "machine") == 0)
+    {
+      write_resp (fd, "{\"user\": \"me\" }");
+      success = 1;
+    }
+  else if (strcmp (data, "ssh-local-peer") == 0 && argc == 3 &&
+           strcmp (argv[1], "--prompt-unknown-hostkey") == 0 &&
+           strcmp (argv[2], "machine") == 0)
+    {
+      write_resp (fd, "{\"user\": \"me\" }");
+      success = 1;
+    }
+  else if (strcmp (data, "ssh-alt-machine") == 0 && argc == 3 &&
+           strcmp (argv[1], "--prompt-unknown-hostkey") == 0 &&
+           strcmp (argv[2], "machine") == 0)
+    {
+      write_resp (fd, "{\"user\": \"me\" }");
+      success = 1;
+    }
+  else if (strcmp (data, "ssh-alt-default") == 0 && argc == 3 &&
+           strcmp (argv[1], "--ignore-hostkey") == 0 &&
+           strcmp (argv[2], "default-host") == 0)
+    {
+      write_resp (fd, "{\"user\": \"me\" }");
+      success = 1;
+    }
   else if (strcmp (data, "this is the password") == 0)
     {
-      if (argc == 4 && strcmp (argv[3], "me") == 0)
+      if (argc == 4 && strcmp (argv[3], "me") == 0 &&
+          strcmp (argv[2], "localhost") == 0 &&
+          strcmp (argv[1], "--ignore-hostkey") == 0)
         {
           write_resp (fd, "{\"user\": \"me\" }");
+          success = 1;
+        }
+      else
+        {
+          write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
+        }
+    }
+  else if (strcmp (data, "this is the machine password") == 0)
+    {
+      if (argc == 3 && strcmp (argv[2], "remote-user") == 0 &&
+          strcmp (argv[1], "machine") == 0)
+        {
+          write_resp (fd, "{\"user\": \"remote-user\" }");
           success = 1;
         }
       else

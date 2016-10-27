@@ -2,47 +2,80 @@
 
 basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
-	src/base1/cockpit.min.css.gz \
-	src/base1/require.min.js.gz \
-	src/base1/mustache.min.js.gz \
-	src/base1/jquery.min.js.gz \
-	src/base1/cockpit.min.js.gz \
-	src/base1/bundle.min.js.gz \
+	dist/base1/cockpit.min.css.gz \
+	dist/base1/require.min.js.gz \
+	dist/base1/mustache.min.js.gz \
+	dist/base1/jquery.min.js.gz \
+	dist/base1/cockpit.min.js.gz \
+	dist/base1/bundle.min.js.gz \
 	$(NULL)
 base_DATA = \
-	src/base1/manifest.json \
+	dist/base1/manifest.json \
 	$(NULL)
 
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
-	src/base1/bundle.js \
-	src/base1/cockpit.css \
-	src/base1/mustache.js \
-	src/base1/patternfly.css \
-	src/base1/patternfly-additions.css \
-	src/base1/require.js \
-	src/base1/jquery.js \
-	src/base1/cockpit.js \
+	dist/base1/bundle.min.js.map \
+	dist/base1/cockpit.min.css.map \
+	dist/base1/mustache.min.js.map \
+	dist/base1/require.min.js.map \
+	dist/base1/jquery.min.js.map \
+	dist/base1/cockpit.min.js.map \
 	$(NULL)
 
-base_BUNDLE = \
-	src/base1/require.min.js \
-	src/base1/cockpit.min.js \
-	src/base1/jquery.min.js \
-	$(NULL)
+CLEAN_CSS = $(srcdir)/node_modules/.bin/cleancss
 
-src/base1/bundle.min.js: $(base_BUNDLE)
-	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
-src/base1/jquery.min.js: src/base1/jquery.js
-	$(MIN_JS_RULE)
-src/base1/mustache.js: lib/mustache/mustache.js
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && cp $^ $@.tmp && mv $@.tmp $@
-src/base1/mustache.min.js: src/base1/mustache.js
-	$(MIN_JS_RULE)
+UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
 
-install-data-local::
-	$(MKDIR_P) $(DESTDIR)$(basedebugdir)
-	$(LN_S) -f require.js $(DESTDIR)$(basedebugdir)/bundle.js
+MIN_JS_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle \
+		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
+	$(MV) $@.tmp $@
+
+dist/base1/cockpit.min.css: dist/base1/patternfly.css dist/base1/patternfly-additions.css src/base1/cockpit.css
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --source-map --source-map-inline-sources $^
+dist/base1/bundle.js: src/base1/require.js src/base1/cockpit.js src/base1/jquery.js
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	cat $^ > $@.tmp && $(MV) $@.tmp $@
+dist/base1/bundle.min.js: dist/base1/bundle.js
+	$(MIN_JS_RULE)
+dist/base1/require.min.js: src/base1/require.js
+	$(MIN_JS_RULE)
+dist/base1/jquery.min.js: src/base1/jquery.js
+	$(MIN_JS_RULE)
+dist/base1/cockpit.min.js: src/base1/cockpit.js
+	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
+	$(MIN_JS_RULE)
+dist/base1/mustache.min.js: $(BOWER)/mustache/mustache.js
+	$(MIN_JS_RULE)
+dist/base1/manifest.json: src/base1/manifest.json
+	$(COPY_RULE)
+
+
+# All map files are built as side effects of minification
+dist/base1/bundle.min.js.map: dist/base1/bundle.min.js
+
+dist/base1/require.min.js.map: dist/base1/require.min.js
+
+dist/base1/cockpit.min.js.map: dist/base1/cockpit.min.js
+
+dist/base1/jquery.min.js.map: dist/base1/jquery.min.js
+
+dist/base1/mustache.min.js.map: dist/base1/mustache.min.js
+
+dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
+
+# Modify the patternfly files appropriately
+dist/base1/patternfly.css: $(BOWER)/patternfly/dist/css/patternfly.css dist/base1/patternfly.css.map
+	$(AM_V_GEN) sed -f $(srcdir)/tools/patternfly.sed $< > $@.tmp && $(MV) $@.tmp $@
+dist/base1/patternfly.css.map: $(BOWER)/patternfly/dist/css/patternfly.css.map
+	$(COPY_RULE)
+dist/base1/patternfly-additions.css: $(BOWER)/patternfly/dist/css/patternfly-additions.css dist/base1/patternfly-additions.css.map
+	$(AM_V_GEN) sed -f $(srcdir)/tools/patternfly.sed $< > $@.tmp && $(MV) $@.tmp $@
+dist/base1/patternfly-additions.css.map: $(BOWER)/patternfly/dist/css/patternfly-additions.css.map
+	$(COPY_RULE)
 
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
@@ -79,41 +112,43 @@ base_TESTS = \
 	src/base1/test-framed-cache.html \
 	src/base1/test-websocket.html \
 	src/base1/test-stub.html \
+	src/base1/test-browser-storage.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)
 
-CLEANFILES += \
-	src/base1/bundle.min.js \
-	src/base1/cockpit.min.js \
-	src/base1/cockpit.min.css \
-	src/base1/jquery.min.js \
-	src/base1/mustache.js \
-	src/base1/mustache.min.js \
-	src/base1/require.min.js \
-	$(nodist_base_DATA) \
-	$(NULL)
-
 EXTRA_DIST += \
-	src/base1/bundle.min.js \
-	src/base1/cockpit.min.css \
-	src/base1/jquery.min.js \
-	src/base1/require.min.js \
-	src/base1/mustache.js \
-	src/base1/mustache.min.js \
+	dist/base1/bundle.js \
+	dist/base1/bundle.min.js \
+	dist/base1/bundle.min.js.map \
+	dist/base1/cockpit.min.css \
+	dist/base1/cockpit.min.css.map \
+	dist/base1/cockpit.min.js \
+	dist/base1/cockpit.min.js.map \
+	dist/base1/jquery.min.js \
+	dist/base1/jquery.min.js.map \
+	dist/base1/mustache.min.js \
+	dist/base1/mustache.min.js.map \
+	dist/base1/patternfly.css \
+	dist/base1/patternfly.css.map \
+	dist/base1/patternfly-additions.css \
+	dist/base1/patternfly-additions.css.map \
+	dist/base1/require.min.js \
+	dist/base1/require.min.js.map \
+	src/base1/cockpit.css \
+	src/base1/cockpit.js \
+	src/base1/jquery.js \
+	src/base1/manifest.json \
+	src/base1/require.js \
+	src/base1/require-config.js \
+	src/base1/require-loaders.js \
 	src/base1/test-dbus-common.js \
-	$(base_BUNDLE) \
 	$(base_DATA) \
 	$(base_TESTS) \
-	$(basedebug_DATA) \
 	$(basefonts_DATA) \
 	$(NULL)
 
 update-lib:: update-bower
-	sed -f $(srcdir)/tools/patternfly.sed \
-		$(BOWER)/patternfly/dist/css/patternfly.css > $(srcdir)/src/base1/patternfly.css
-	sed -f $(srcdir)/tools/patternfly.sed \
-		$(BOWER)/patternfly/dist/css/patternfly-additions.css > $(srcdir)/src/base1/patternfly-additions.css
 	$(JSMODULE) -o $(srcdir)/src/base1/jquery.js \
 	    $(BOWER)/jquery/dist/jquery.js \
 	    $(BOWER)/bootstrap/dist/js/bootstrap.js \

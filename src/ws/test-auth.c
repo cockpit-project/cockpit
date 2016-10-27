@@ -63,11 +63,20 @@ setup_normal (Test *test,
 }
 
 static void
+setup_alt_config (Test *test,
+              gconstpointer data)
+{
+  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf";
+  test->auth = cockpit_auth_new (FALSE);
+}
+
+static void
 teardown_normal (Test *test,
                  gconstpointer data)
 {
   cockpit_assert_expected ();
   g_object_unref (test->auth);
+  cockpit_conf_cleanup ();
 }
 
 static void
@@ -95,6 +104,57 @@ include_cookie_as_if_client (GHashTable *resp_headers,
   end[0] = '\0';
 
   g_hash_table_insert (req_headers, g_strdup ("Cookie"), cookie);
+}
+
+static void
+test_application (Test *test,
+                  gconstpointer data)
+{
+  gchar *application = NULL;
+
+  application = cockpit_auth_parse_application ("/");
+  g_assert_cmpstr ("cockpit", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/=");
+  g_assert_cmpstr ("cockpit", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/other/other");
+  g_assert_cmpstr ("cockpit", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/=other/other");
+  g_assert_cmpstr ("cockpit+=other", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/=other");
+  g_assert_cmpstr ("cockpit+=other", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/=other/");
+  g_assert_cmpstr ("cockpit+=other", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/cockpit");
+  g_assert_cmpstr ("cockpit", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/cockpit/login");
+  g_assert_cmpstr ("cockpit", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/cockpit+application");
+  g_assert_cmpstr ("cockpit+application", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/cockpit+application/");
+  g_assert_cmpstr ("cockpit+application", ==, application);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/cockpit+application/other/other");
+  g_assert_cmpstr ("cockpit+application", ==, application);
+  g_clear_pointer (&application, g_free);
 }
 
 static void
@@ -389,6 +449,7 @@ typedef struct {
   const gchar *header;
   const gchar *error_message;
   const gchar *warning;
+  const gchar *path;
   int error_code;
 } ErrorFixture;
 
@@ -396,6 +457,11 @@ typedef struct {
   const gchar *data;
   const gchar *warning;
   const gchar *header;
+  const gchar *path;
+  const gchar *user;
+  const gchar *password;
+  const gchar *application;
+  const gchar *remote_peer;
 } SuccessFixture;
 
 static void
@@ -407,6 +473,7 @@ test_custom_fail (Test *test,
   GError *error = NULL;
   GHashTable *headers;
   const ErrorFixture *fix = data;
+  const gchar *path = fix->path ? fix->path : "/cockpit";
 
   if (fix->warning)
     cockpit_expect_warning (fix->warning);
@@ -414,7 +481,7 @@ test_custom_fail (Test *test,
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
 
-  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, headers, NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -449,12 +516,14 @@ test_bad_command (Test *test,
                   gconstpointer data)
 {
   cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING,
-                               "*couldn't read*");
+                               "*couldn't recv*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
                                "*Auth pipe closed: internal-error*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
                                "*Auth pipe closed: terminated*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_WARNING,
+                               "*couldn't write: Connection refused*");
+  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
                                "*couldn't write: Connection refused*");
   test_custom_fail (test, data);
 }
@@ -471,13 +540,17 @@ test_custom_success (Test *test,
   GHashTable *headers;
   JsonObject *login_data;
   const SuccessFixture *fix = data;
+  const gchar *path = fix->path ? fix->path : "/cockpit";
+  const gchar *user = fix->user ? fix->user : "me";
+  const gchar *password = fix->password ? fix->password : "this is the password";
+  const gchar *application = fix->application ? fix->application : "cockpit";
 
   if (fix->warning)
     cockpit_expect_warning (fix->warning);
 
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
-  cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, headers, fix->remote_peer, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -491,12 +564,12 @@ test_custom_success (Test *test,
   json_object_unref (response);
 
   include_cookie_as_if_client (headers, headers);
-  service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
+  service = cockpit_auth_check_cookie (test->auth, path, headers);
   creds = cockpit_web_service_get_creds (service);
-  g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
-  g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
+  g_assert_cmpstr (user, ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
   if (g_str_has_prefix (fix->header, "Basic"))
-    g_assert_cmpstr (cockpit_creds_get_password (creds), == , "this is the password");
+    g_assert_cmpstr (cockpit_creds_get_password (creds), == , password);
   else
     g_assert_null (cockpit_creds_get_password (creds));
 
@@ -517,10 +590,47 @@ static const SuccessFixture fixture_ssh_basic = {
   .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ="
 };
 
+static const SuccessFixture fixture_ssh_remote_basic = {
+  .warning = NULL,
+  .data = NULL,
+  .header = "Basic cmVtb3RlLXVzZXI6dGhpcyBpcyB0aGUgbWFjaGluZSBwYXNzd29yZA==",
+  .path = "/cockpit+=machine",
+  .user = "remote-user",
+  .password = "this is the machine password",
+  .application = "cockpit+=machine"
+};
+
 static const SuccessFixture fixture_ssh_no_data = {
   .warning = NULL,
   .data = NULL,
   .header = "testsshscheme success"
+};
+
+static const SuccessFixture fixture_ssh_remote_switched = {
+  .data = NULL,
+  .header = "testscheme ssh-remote-switch",
+  .path = "/cockpit+=machine",
+  .application = "cockpit+=machine"
+};
+
+static const SuccessFixture fixture_ssh_local_peer = {
+  .data = NULL,
+  .header = "testscheme ssh-local-peer",
+  .path = "/cockpit+=machine",
+  .application = "cockpit+=machine",
+  .remote_peer = "127.0.0.1"
+};
+
+static const SuccessFixture fixture_ssh_alt_default = {
+  .data = NULL,
+  .header = "testsshscheme ssh-alt-default",
+};
+
+static const SuccessFixture fixture_ssh_alt = {
+  .data = NULL,
+  .path = "/cockpit+=machine",
+  .application = "cockpit+=machine",
+  .header = "testsshscheme ssh-alt-machine",
 };
 
 static const SuccessFixture fixture_ssh_bad_data = {
@@ -538,6 +648,12 @@ static const SuccessFixture fixture_ssh_data = {
 static const ErrorFixture fixture_ssh_basic_failed = {
   .error_message = "Authentication failed",
   .header = "Basic dXNlcjp0aGlzIGlzIHRoZSBwYXNzd29yZA=="
+};
+
+static const ErrorFixture fixture_ssh_remote_basic_failed = {
+  .error_message = "Authentication failed",
+  .header = "Basic d3Jvbmc6dGhpcyBpcyB0aGUgbWFjaGluZSBwYXNzd29yZA==",
+  .path = "/cockpit+=machine"
 };
 
 static const ErrorFixture fixture_ssh_auth_no_write = {
@@ -1080,6 +1196,7 @@ main (int argc,
 
   cockpit_test_init (&argc, &argv);
 
+  g_test_add ("/auth/application", Test, NULL, NULL, test_application, NULL);
   g_test_add ("/auth/userpass-header-check", Test, NULL, setup, test_userpass_cookie_check, teardown);
   g_test_add ("/auth/userpass-bad", Test, NULL, setup, test_userpass_bad, teardown);
   g_test_add ("/auth/userpass-emptypass", Test, NULL, setup, test_userpass_emptypass, teardown);
@@ -1109,6 +1226,16 @@ main (int argc,
 
   g_test_add ("/auth/custom-ssh-basic-success", Test, &fixture_ssh_basic,
               setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-remote-basic-success", Test, &fixture_ssh_remote_basic,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-remote-switched", Test, &fixture_ssh_remote_switched,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-local-peer", Test, &fixture_ssh_local_peer,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-with-conf-default", Test, &fixture_ssh_alt_default,
+              setup_alt_config, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-with-conf-allow", Test, &fixture_ssh_alt,
+              setup_alt_config, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-success", Test, &fixture_ssh_no_data,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-success-bad-data", Test, &fixture_ssh_bad_data,
@@ -1120,6 +1247,8 @@ main (int argc,
   g_test_add ("/auth/custom-ssh-fail-auth", Test, &fixture_ssh_auth_failed,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-ssh-fail-basic-auth", Test, &fixture_ssh_basic_failed,
+              setup_normal, test_custom_fail, teardown_normal);
+  g_test_add ("/auth/custom-ssh-remote-fail-basic-auth", Test, &fixture_ssh_remote_basic_failed,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-ssh-not-supported", Test, &fixture_ssh_not_supported,
               setup_normal, test_custom_fail, teardown_normal);

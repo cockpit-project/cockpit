@@ -62,22 +62,36 @@ function inject_basics() {
     var i, len;
 
     if (!page.evaluate(function(x) { return x in window; }, canary)) {
-        if (!injected) {
-            page.evaluate(function(x) {
+        page.evaluate(function(inj) {
+            if (!inj)
                 localStorage.clear();
-            });
-        }
+
+            /* Temporarily disable AMD while loading javascript here */
+            if (typeof define === "function" && define.amd) {
+                define.amd_overridden = define.amd;
+                delete define.amd
+            }
+        }, injected);
 
         injected = true;
-        for (i = 1, len = sys.args.length; i < len; i++) {
+
+        for (i = 1, len = sys.args.length; i < len; i++)
             page.injectJs(sys.args[i]);
-            page.evaluate(function(x) {
-                window.phantom_checkpoint = function() {
-                    console.log("-*-CHECKPOINT-*-");
-                };
-                window[x] = x;
-            }, canary);
-        }
+
+        page.evaluate(function(x) {
+            window.phantom_checkpoint = function() {
+                console.log("-*-CHECKPOINT-*-");
+            };
+
+            /* Setup the canary for above check */
+            window[x] = x;
+
+            /* Reenable AMD if disabled above */
+            if (typeof define === "function" && define.amd_overridden) {
+                define.amd = define.amd_overridden;
+                delete define.amd_overridden;
+            }
+        }, canary);
     }
 }
 

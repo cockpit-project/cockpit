@@ -1,9 +1,4 @@
 
-update-sizzle:
-	cd $(srcdir) && bower update
-	sed -e 's/define\.amd/define\.amd_disabled/' -e 's/module\.exports/module\.exports_disabled/' \
-	    $(BOWER)/sizzle/dist/sizzle.js > $(srcdir)/test/common/sizzle.js
-
 if WITH_COVERAGE
 coverage:
 	mkdir -p tools/coverage

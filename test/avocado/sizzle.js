@@ -1,1 +1,1 @@
-../common/sizzle.js
+../../lib/sizzle/dist/sizzle.js

@@ -32,10 +32,11 @@ class TestStorage(StorageCase):
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {
           var found = { };
-          $('#disks li').each(function (i, e) {
-            var cols = $(e).find('td').map(function (i, e) { return $(e).text(); }).get();
-            if (cols.length >= 3)
-              found[cols[1]] = cols[2].trim();
+          $('#disks tr').each(function (i, tr) {
+            var cell = $(tr).find('td:nth-child(2)');
+            var name = $(cell).find('a').text();
+            var state = $(cell).find('span:nth-child(3)').text();
+            found[name] = state;
           });
           for (s in states) {
             if (states[s] != found[s])
@@ -52,7 +53,7 @@ class TestStorage(StorageCase):
         self.dialog_wait_close()
 
     def raid_remove_disk(self, name):
-        self.browser.click('#disks li:contains("%s") button' % name)
+        self.browser.click('#disks tr:contains("%s") button' % name)
 
     def raid_action(self, action):
         self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
@@ -107,7 +108,7 @@ class TestStorage(StorageCase):
         # Degrade and repair it
 
         def info_field(name):
-            return '#detail-content tr:contains("%s") td:nth-child(2)' % name
+            return '#detail-header tr:contains("%s") td:nth-child(2)' % name
 
         def wait_degraded_state(is_degraded):
             degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"

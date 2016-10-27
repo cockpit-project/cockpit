@@ -29,6 +29,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 extern const gchar **cockpit_bridge_data_dirs;
@@ -598,6 +599,33 @@ test_resolve_not_found (TestCase *tc,
   g_assert (path == NULL);
 }
 
+static int
+compar_str (const void *pa,
+            const void *pb)
+{
+  return strcmp (*(const char**)pa, *(const char**)pb);
+}
+
+static void
+test_get_names (TestCase *tc,
+                gconstpointer fixture)
+{
+  gchar **names;
+  gchar *result;
+
+  names = cockpit_packages_get_names (tc->packages);
+  g_assert (names != NULL);
+
+  qsort (names, g_strv_length (names), sizeof (gchar *), compar_str);
+  result = g_strjoinv (", ", names);
+
+  /* Note that unavailable packages are not included */
+  g_assert_cmpstr (result, ==, "another, second, test");
+
+  g_free (result);
+  g_free (names);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -652,6 +680,9 @@ main (int argc,
               setup_basic, test_resolve_bad_package, teardown_basic);
   g_test_add ("/packages/resolve/not-found", TestCase, NULL,
               setup_basic, test_resolve_not_found, teardown_basic);
+
+  g_test_add ("/packages/get-names", TestCase, NULL,
+              setup_basic, test_get_names, teardown_basic);
 
   return g_test_run ();
 }

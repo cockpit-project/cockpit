@@ -997,6 +997,30 @@ cockpit_packages_get_checksum (CockpitPackages *packages)
   return packages->checksum;
 }
 
+gchar **
+cockpit_packages_get_names (CockpitPackages *packages)
+{
+  GHashTableIter iter;
+  GPtrArray *array;
+  gpointer key;
+  gpointer value;
+  CockpitPackage *package;
+
+  g_return_val_if_fail (packages != NULL, NULL);
+
+  array = g_ptr_array_new ();
+  g_hash_table_iter_init (&iter, packages->listing);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      package = value;
+      if (!package->unavailable)
+        g_ptr_array_add (array, key);
+    }
+  g_ptr_array_add (array, NULL);
+
+  return (gchar **)g_ptr_array_free (array, FALSE);
+}
+
 void
 cockpit_packages_free (CockpitPackages *packages)
 {

@@ -1,4 +1,4 @@
-OPENSANS_FONTS = \
+FONTS = \
 	OpenSans-Bold-webfont.woff \
 	OpenSans-BoldItalic-webfont.woff \
 	OpenSans-ExtraBold-webfont.woff  \
@@ -9,6 +9,7 @@ OPENSANS_FONTS = \
 	OpenSans-Regular-webfont.woff \
 	OpenSans-Semibold-webfont.woff \
 	OpenSans-SemiboldItalic-webfont.woff \
+	fontawesome-webfont.woff \
 	$(NULL)
 
 if WITH_COCKPIT_WS
@@ -21,7 +22,7 @@ static_DATA = \
 	$(NULL)
 
 staticfontsdir = $(staticdir)/fonts
-staticfonts_DATA = $(addprefix src/ws/fonts/, $(OPENSANS_FONTS))
+staticfonts_DATA = $(addprefix src/ws/fonts/, $(FONTS))
 	$(NULL)
 
 noinst_LIBRARIES += libcockpit-ws.a

@@ -166,7 +166,7 @@ class TestRealms(MachineCase):
         b.wait_text(".realms-op-error", "Joining this domain is not supported")
 
 JOIN_SCRIPT = """
-set -e
+set -ex
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
 for x in 1 2 3 4 5 6 7 8 9 10; do
     if nslookup -type=SRV _ldap._tcp.cockpit.lan; then
@@ -175,6 +175,7 @@ for x in 1 2 3 4 5 6 7 8 9 10; do
         sleep $x
     fi
 done
+
 if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
     journalctl -u realmd.service
 fi
@@ -183,6 +184,15 @@ fi
 echo '%(password)s' | kinit admin@COCKPIT.LAN
 curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
 ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
+
+# HACK: https://bugs.freedesktop.org/show_bug.cgi?id=98479
+if ! grep -q 'services.*nss' /etc/sssd/sssd.conf; then
+    sed -i 's/^services = sudo, ssh$/services = sudo, ssh, nss, pam/' /etc/sssd/sssd.conf
+    systemctl restart sssd
+fi
+
+# This needs to work
+getent passwd admin@cockpit.lan
 """
 
 # This is here because our test framework can't run ipa VM's twice

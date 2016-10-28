@@ -668,6 +668,78 @@ perform_basic (const char *rhost)
   return pamh;
 }
 
+static char *
+map_gssapi_to_local (gss_name_t name,
+                     gss_OID mech_type)
+{
+  gss_buffer_desc local = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc display = GSS_C_EMPTY_BUFFER;
+  OM_uint32 major, minor;
+  char *str = NULL;
+
+  major = gss_localname (&minor, name, mech_type, &local);
+  if (major == GSS_S_COMPLETE)
+    {
+      minor = 0;
+      str = dup_string (local.value, local.length);
+      if (getpwnam (str))
+        {
+          debug ("mapped gssapi name to local user '%s'", str);
+        }
+      else
+        {
+          debug ("ignoring non-existant gssapi local user '%s'", str);
+
+          /* If the local user doesn't exist, pretend gss_localname() failed */
+          free (str);
+          str = NULL;
+          major = GSS_S_FAILURE;
+          minor = KRB5_NO_LOCALNAME;
+        }
+    }
+
+  /* Try a more pragmatic approach */
+  if (!str)
+    {
+      if (minor == (OM_uint32)KRB5_NO_LOCALNAME ||
+          minor == (OM_uint32)KRB5_LNAME_NOTRANS ||
+          minor == (OM_uint32)ENOENT)
+        {
+          major = gss_display_name (&minor, name, &display, NULL);
+          if (GSS_ERROR (major))
+            {
+              warnx ("couldn't get gssapi display name: %s", gssapi_strerror (major, minor));
+            }
+          else
+            {
+              str = dup_string (display.value, display.length);
+              if (getpwnam (str))
+                {
+                  debug ("no local user mapping for gssapi name '%s'", str);
+                }
+              else
+                {
+                  warnx ("non-existant local user '%s'", str);
+                  free (str);
+                  str = NULL;
+                }
+            }
+        }
+      else
+        {
+          warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (major, minor));
+        }
+    }
+
+  if (display.value)
+    gss_release_buffer (&minor, &display);
+  if (local.value)
+    gss_release_buffer (&minor, &local);
+
+  return str;
+}
+
+
 static pam_handle_t *
 perform_gssapi (const char *rhost)
 {
@@ -677,8 +749,6 @@ perform_gssapi (const char *rhost)
   gss_cred_id_t server = GSS_C_NO_CREDENTIAL;
   gss_buffer_desc input = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc output = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc local = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc display = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc export = GSS_C_EMPTY_BUFFER;
   gss_name_t name = GSS_C_NO_NAME;
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
@@ -762,49 +832,11 @@ perform_gssapi (const char *rhost)
       write_auth_begin ();
     }
 
-  major = gss_localname (&minor, name, mech_type, &local);
-  if (major == GSS_S_COMPLETE)
-    {
-      minor = 0;
-      str = dup_string (local.value, local.length);
-      debug ("mapped gssapi name to local user '%s'", str);
+  str = map_gssapi_to_local (name, mech_type);
+  if (!str)
+    goto out;
 
-      if (getpwnam (str))
-        {
-          res = pam_start ("cockpit", str, &conv, &pamh);
-        }
-      else
-        {
-          /* If the local user doesn't exist, pretend gss_localname() failed */
-          free (str);
-          str = NULL;
-          major = GSS_S_FAILURE;
-          minor = KRB5_NO_LOCALNAME;
-        }
-    }
-
-  if (major != GSS_S_COMPLETE)
-    {
-      if (minor == (OM_uint32)KRB5_NO_LOCALNAME || minor == (OM_uint32)KRB5_LNAME_NOTRANS)
-        {
-          major = gss_display_name (&minor, name, &display, NULL);
-          if (GSS_ERROR (major))
-            {
-              warnx ("couldn't get gssapi display name: %s", gssapi_strerror (major, minor));
-              goto out;
-            }
-
-          str = dup_string (display.value, display.length);
-          debug ("no local user mapping for gssapi name '%s'", str);
-
-          res = pam_start ("cockpit", str, &conv, &pamh);
-        }
-      else
-        {
-          warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (major, minor));
-          goto out;
-        }
-    }
+  res = pam_start ("cockpit", str, &conv, &pamh);
 
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
@@ -835,14 +867,10 @@ out:
 
   write_auth_end ();
 
-  if (display.value)
-    gss_release_buffer (&minor, &display);
   if (output.value)
     gss_release_buffer (&minor, &output);
   if (export.value)
     gss_release_buffer (&minor, &export);
-  if (local.value)
-    gss_release_buffer (&minor, &local);
   if (client != GSS_C_NO_CREDENTIAL)
     gss_release_cred (&minor, &client);
   if (server != GSS_C_NO_CREDENTIAL)

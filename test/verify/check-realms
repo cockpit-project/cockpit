@@ -231,9 +231,28 @@ class TestKerberos(MachineCase):
         self.configure_kerberos()
         self.machine.restart_cockpit()
 
-        output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
+        output = self.machine.execute(['/usr/bin/curl', '-v', '-s', '--negotiate', '-u', ':', "-D", "-",
                                        '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
-                                       'http://x0.cockpit.lan:9090/cockpit/login'])
+                                       'http://x0.cockpit.lan:9090/cockpit/login', '2>&1'])
+
+        # So curl on centos-7 is broken here. You can verify this by
+        # checking access from another machine. Just get to this failure
+        # point, and then put this in your other machine /etc/krb5.conf
+        #
+        #   [realms]
+        #    COCKPIT.LAN = {
+        #     kdc = 10.111.112.100
+        #     master_kdc = 10.111.112.100
+        # }
+        #
+        # Now run with password  'foobarfoo'
+        # $ kinit admin@COCKPIT.LAN
+        #
+        # And run the above curl command. It should be successful
+        if "centos" in self.machine.image and "gss_init_sec_context() failed: : Success" in output:
+            self.skipTest("curl with --negotiate is broken on CentOS 7")
+            return
+
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"admin@cockpit.lan"', output)
 

@@ -121,7 +121,10 @@ write_auth_string (const char *field,
   const unsigned char *at;
   char buf[8];
 
-  debug ("Writing %s %s", field, str);
+  if (!str)
+    return;
+
+  debug ("writing %s %s", field, str);
   fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
   for (at = (const unsigned char *)str; *at; at++)
     {
@@ -147,6 +150,7 @@ write_auth_hex (const char *field,
   static const char hex[] = "0123456789abcdef";
   size_t i;
 
+  debug ("writing %s", field);
   fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
   for (i = 0; i < len; i++)
     {
@@ -162,9 +166,9 @@ static void
 write_auth_bool (const char *field,
                  int val)
 {
-  fprintf (authf, "%s \"%s\": %s",
-           auth_delimiter, field,
-           val ? "true" : "false");
+  const char *str = val ? "true" : "false";
+  debug ("writing %s %s", field, str);
+  fprintf (authf, "%s \"%s\": %s", auth_delimiter, field, str);
   auth_delimiter = ",";
 }
 
@@ -246,6 +250,7 @@ write_auth_end (void)
         }
     }
 
+  debug ("finished auth response");
   free (auth_msg);
   auth_msg = NULL;
   authf = NULL;

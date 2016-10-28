@@ -22,7 +22,7 @@
                     oauth.ErrorParam = "error_description";
             }
 
-            var login_path, application;
+            var login_path, application, org_login_path, org_application;
             var qs_re = /[?&]?([^=]+)=([^&]*)/g;
             var oauth_redirect_to = null;
 
@@ -142,16 +142,36 @@
                         path = path.replace('/' + url_root, '') || '/';
                 }
 
-                if (path.indexOf("/=") === 0)
+                if (path.indexOf("/=") === 0) {
+                    environment.hostname = path.substring(2);
                     path = "/cockpit+" + path.split("/")[1];
-                else if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0)
+                } else if (path.indexOf("/cockpit/") !== 0 && path.indexOf("/cockpit+") !== 0) {
                     path = "/cockpit";
+                }
 
                 application = path.split("/")[1];
-
                 login_path = "/" + application + "/login";
                 if (url_root)
                     login_path = "/" + url_root + login_path;
+
+                org_application = application;
+                org_login_path = login_path;
+            }
+
+            function toggle_options(show) {
+                if (show === undefined)
+                    show = id("server-group").style.display === "none";
+
+                id("option-group").setAttribute("data-state", show);
+                if (show) {
+                    id("server-group").style.display = 'block';
+                    id("option-caret").setAttribute("class", "caret caret-down");
+                    id("option-caret").setAttribute("className", "caret caret-down");
+                } else {
+                    id("server-group").style.display = 'none';
+                    id("option-caret").setAttribute("class", "caret caret-right");
+                    id("option-caret").setAttribute("className", "caret caret-right");
+                }
             }
 
             function boot() {
@@ -159,6 +179,9 @@
 
                 brand("badge", "");
                 brand("brand", "Cockpit");
+                id("option-group").addEventListener("click", function () {
+                    toggle_options();
+                });
 
                 if (!requisites())
                     return;
@@ -272,8 +295,18 @@
                 }
             }
 
+            function clear_errors() {
+                var ids = ["login-error-host", "login-error-message"];
+                var i;
+                for (i = 0; i < ids.length; i++) {
+                    var el = id(ids[i]).style.display = 'none';
+                    el.textContent = "";
+                }
+            }
+
             function login_failure(msg, in_conversation) {
                 var el = id("login-error-message");
+                clear_errors();
                 if (msg) {
                     /* OAuth failures are always fatal */
                     if (oauth) {
@@ -283,9 +316,20 @@
                         el.style.display = 'block';
                         el.textContent = msg;
                     }
+                }
+            }
+
+            function host_failure(msg) {
+                var el = id("login-error-host");
+                var host = id("server-field").value;
+                if (!host) {
+                    login_failure(msg, false);
                 } else {
-                    el.style.display = 'none';
-                    el.textContent = '';
+                    clear_errors();
+                    el.textContent = msg;
+                    el.style.display = 'block';
+                    toggle_options(true);
+                    show_form();
                 }
             }
 
@@ -305,20 +349,39 @@
                 if (user === "") {
                     login_failure("User name cannot be empty");
                 } else {
+                    machine = id("server-field").value;
+                    if (machine) {
+                        application = "cockpit+=" + machine;
+                        login_path = org_login_path.replace("/" + org_application + "/", "/" + application + "/");
+                    } else {
+                        application = org_application;
+                        login_path = org_login_path;
+                    }
+
+                    id("server-name").textContent = machine || environment.hostname;
                     id("login-button").removeEventListener("click", call_login);
                     login(user, id("login-password-input").value);
                 }
             }
 
             function show_form(in_conversation) {
+                var option_state = id("option-group").getAttribute("data-state");
                 id("login-wait-validating").style.display = "none";
                 id("login").style.visibility = 'visible';
                 id("login").style.display = "block";
                 id("user-group").style.display = in_conversation ? "none" : "block";
                 id("password-group").style.display = in_conversation ? "none" : "block";
+                id("option-group").style.display = in_conversation ? "none" : "block";
                 id("conversation-group").style.display = in_conversation ? "block" : "none";
                 id("login-button").textContent = "Log In";
                 id("login-password-input").value = '';
+
+                if (in_conversation) {
+                    id("server-group").style.display = in_conversation ? "none" : "block";
+                } else {
+                    id("server-group").style.display = option_state ? "block" : "none";
+                }
+
 
                 id("login-button").removeAttribute('disabled');
                 id("login-spinner").style.display = 'none';
@@ -334,10 +397,7 @@
                     title = environment.hostname;
 
                 document.title = title;
-                var b = document.createElement("b");
-                b.appendChild(document.createTextNode(title));
-                id("server-name").appendChild(b);
-
+                id("server-name").textContent = title;
                 login_note("Log in with your server user account.");
                 id("login-user-input").addEventListener("keydown", function(e) {
                     login_failure(null);
@@ -471,6 +531,14 @@
                                 fatal("The server refused to authenticate '" + user + "' using password authentication, and no other supported authentication methods are available.");
                             } else if (xhr.statusText.indexOf("terminated") > -1) {
                                 login_failure("Authentication Failed: Server closed connection");
+                            } else if (xhr.statusText.indexOf("no-host") > -1) {
+                                host_failure("Unable to connect to that address");
+                            } else if (xhr.statusText.indexOf("unknown-hostkey") > -1) {
+                                host_failure("Refusing to connect. Hostkey is unknown");
+                            } else if (xhr.statusText.indexOf("unknown-host") > -1) {
+                                host_failure("Refusing to connect. Host is unknown");
+                            } else if (xhr.statusText.indexOf("invalid-hostkey") > -1) {
+                                host_failure("Refusing to connect. Hostkey does not match");
                             } else if (is_conversation) {
                                 login_failure("Authentication failed");
                             } else {
@@ -589,7 +657,14 @@
 
             function run(response) {
                 var wanted = window.sessionStorage.getItem('login-wanted');
+                var machine = id("server-field").value
                 var str;
+
+                if (machine && application != org_application) {
+                    wanted = "/=" + machine;
+                    if (url_root)
+                        wanted = "/" + url_root + wanted;
+                }
 
                 /* clean up sessionStorage. clear anything that isn't prefixed
                  * with an application and anything prefixed with our application.
@@ -968,6 +1043,12 @@ label {
   font-weight: 700;
   src: url('cockpit/static/fonts/OpenSans-Bold-webfont.woff') format('woff');
 }
+@font-face {
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: 700;
+  src: url('cockpit/static/fonts/fontawesome-webfont.woff') format('woff');
+}
 .form-control:hover {
   border-color: #7BB2DD;
 }
@@ -1082,6 +1163,30 @@ label {
   width: 24px;
 }
 
+.caret {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+}
+
+.caret-down::before {
+  content: "\f0d7";
+}
+
+.caret-right::before {
+  content: "\f0da";
+}
+
+.error-block {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 0;
+  color: #c73737;
+}
+
+#option-group {
+  cursor: pointer;
+}
+
         /* Login page specific overrides */
         body {
             color: #fff;
@@ -1155,15 +1260,27 @@ label {
               <label for="login-password-input" class="col-sm-2 col-md-2 control-label">Password</label>
               <div class="col-sm-10 col-md-10">
                 <input type="password" class="form-control" id="login-password-input" tabindex="2">
+                <span class="error-block" id="login-error-message" style="display: none;"></span>
+              </div>
+            </div>
+            <div id="option-group" class="form-group login-form">
+              <div class="col-sm-2 col-md-2"></div>
+              <div class="col-sm-10 col-md-10">
+                <i id="option-caret" class="caret caret-right" aria-hidden="true"></i>
+                <span>Other Options</span>
+              </div>
+            </div>
+            <div id="server-group" class="form-group login-form" style="display: none;">
+              <label title="Log in to another system. Leave blank to log in to the local system." for="server-field" class="col-sm-2 col-md-2 control-label">Connect to</label>
+              <div class="col-sm-10 col-md-10">
+                <input type="text" class="form-control" id="server-field" tabindex="2">
+                <span class="error-block" id="login-error-host" style="display: none;"></span>
               </div>
             </div>
             <div class="form-group login-form">
               <div class="col-sm-2">
                 <div class="spinner col-xs-15" id="login-spinner" hidden>
                 </div>
-              </div>
-              <div class="col-xs-12 col-sm-7">
-                <span class="help-block" id="login-error-message"></span>
               </div>
               <div class="col-sm-3 login-button-container">
                 <button class="btn btn-primary btn-lg col-xs-12" id="login-button" tabindex="3">
@@ -1176,7 +1293,7 @@ label {
 
         <div class="col-sm-5 col-md-6 col-lg-7 details" id="login-details">
           <p>
-            <label id="server-name" class="control-label">Server: </label>
+            <label class="control-label">Server: <b id="server-name"></b></label>
           </p>
           <p id="login-note" class="login-note"></p>
         </div><!--/.col-*-->

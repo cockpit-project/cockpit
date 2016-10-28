@@ -52,6 +52,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         def login(user, password):
             b.wait_visible("#login")
             b.wait_visible("#login-user-input")
+            b.wait_not_present("#login-button:disabled")
             # :focus selector doesn't work in phantomjs
             b.wait_js_cond("document.activeElement.getAttribute('id') === 'login-user-input'")
             b.set_val('#login-user-input', user)
@@ -151,6 +152,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_in_text("#conversation-message", "BAD PASSWORD")
 
         # Now choose a better password
+        b.wait_not_present("#login-button:disabled")
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")

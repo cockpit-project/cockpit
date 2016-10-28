@@ -68,7 +68,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         # Try to login, no api var
         b.open("/")
         b.wait_visible("#login")
-        b.wait_text("#server-name b", "Kubernetes Cockpit")
+        b.wait_text("#server-name", "Kubernetes Cockpit")
         login("admin", "fubar")
         b.wait_in_text("#login-fatal-message", "No kubernetes")
         b.wait_not_visible('#login-button')
@@ -78,7 +78,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
 
         b.open("/")
         b.wait_visible("#login")
-        b.wait_text("#server-name b", "Kubernetes Cockpit")
+        b.wait_text("#server-name", "Kubernetes Cockpit")
         login("admin", "fubar")
         b.wait_in_text("#login-fatal-message", "Couldn't connect to the api")
         b.wait_not_visible('#login-button')

@@ -57,6 +57,7 @@ class checklogin_basic(Test):
         b.wait_visible("#login")
 
         def login(user, password):
+            b.wait_not_present("#login-button:disabled")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
             b.click('#login-button')

@@ -10,6 +10,18 @@
     system. This functionality is present in the Cockpit
     <emphasis>storaged</emphasis> package.</para>
 
+  <para>The <code>storaged</code> project is originally based on a project called
+    <ulink url="https://www.freedesktop.org/wiki/Software/udisks/"><code>udisks</code></ulink>
+    and added support for many more features such as
+    <ulink url="https://en.wikipedia.org/wiki/Logical_Volume_Manager_(Linux)">LVM</ulink>,
+    <ulink url="https://en.wikipedia.org/wiki/ISCSI">iSCSI</ulink>,
+    <ulink url="https://en.wikipedia.org/wiki/Linux_DM_Multipath">Multipath</ulink>, and
+    <ulink url="https://btrfs.wiki.kernel.org/index.php/Main_Page">BTRFS</ulink>.
+    The same tools and backwards compatible API are available between <code>storaged</code>
+    and <code>udisks</code> the projects. Cockpit can use <code>udisks</code> but disables
+    many of it's storage related features, including updating <code>/etc/fstab</code>
+    and <code>/etc/crypttab</code> for stability reasons.</para>
+
   <para>For non root users, storaged controls access to its APIs via
     <link linkend="privileges">Policy Kit</link> and a user logged into Cockpit will have
     the same permissions as they do from the command line.</para>
@@ -17,7 +29,7 @@
   <para>To perform similar tasks from the command line, use the <code>storagedctl</code> command:</para>
 
 <programlisting>
-$ <command>storagedctl dump</command>
+$ <command>udisksctl dump</command>
 ...
 </programlisting>
 

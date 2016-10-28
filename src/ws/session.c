@@ -699,6 +699,8 @@ perform_gssapi (const char *rhost)
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_seqpacket_message (AUTH_FD, "gssapi data", &input.length);
 
+  write_auth_begin ();
+
   debug ("acquiring server credentials");
   major = gss_acquire_cred (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
                             GSS_C_ACCEPT, &server, NULL, NULL);
@@ -712,26 +714,53 @@ perform_gssapi (const char *rhost)
       goto out;
     }
 
-  major = gss_accept_sec_context (&minor, &context, server, &input,
-                                  GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
-                                  &output, &flags, &caps, &client);
-
-  if (GSS_ERROR (major))
+  if (input.length == 0)
     {
-      warnx ("gssapi auth failed: %s", gssapi_strerror (major, minor));
+      debug ("initial gssapi negotiate output");
+      write_auth_hex ("gssapi-output", NULL, 0);
       goto out;
     }
 
-  /*
-   * In general gssapi mechanisms can require multiple challenge response
-   * iterations keeping &context between each, however Kerberos doesn't
-   * require this, so we don't care :O
-   *
-   * If we ever want this to work with something other than Kerberos, then
-   * we'll have to have some sorta session that holds the context.
-   */
-  if (major & GSS_S_CONTINUE_NEEDED)
-    goto out;
+  for (;;)
+    {
+      debug ("gssapi negotiation");
+
+      if (client != GSS_C_NO_CREDENTIAL)
+        gss_release_cred (&minor, &client);
+      if (name != GSS_C_NO_NAME)
+        gss_release_name (&minor, &name);
+      if (output.value)
+        gss_release_buffer (&minor, &output);
+
+      major = gss_accept_sec_context (&minor, &context, server, &input,
+                                      GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
+                                      &output, &flags, &caps, &client);
+
+      if (GSS_ERROR (major))
+        {
+          warnx ("gssapi auth failed: %s", gssapi_strerror (major, minor));
+          goto out;
+        }
+
+      write_auth_hex ("gssapi-output", output.value, output.length);
+
+      if ((major & GSS_S_CONTINUE_NEEDED) == 0)
+        break;
+
+      debug ("need to continue gssapi negotiation");
+
+      /*
+       * The GSSAPI mechanism can require multiple chanllenge response
+       * iterations ... so do that here.
+       */
+      write_auth_code (PAM_AUTH_ERR);
+      write_auth_end ();
+
+      free (input.value);
+      input.value = read_seqpacket_message (AUTH_FD, "gssapi data", &input.length);
+
+      write_auth_begin ();
+    }
 
   major = gss_localname (&minor, name, mech_type, &local);
   if (major == GSS_S_COMPLETE)
@@ -786,17 +815,9 @@ perform_gssapi (const char *rhost)
   res = open_session (pamh);
 
 out:
-  write_auth_begin ();
   write_auth_code (res);
   if (pwd)
     write_auth_string ("user", pwd->pw_name);
-  if (output.value)
-    write_auth_hex ("gssapi-output", output.value, output.length);
-
-  if (output.value)
-    gss_release_buffer (&minor, &output);
-  output.value = NULL;
-  output.length = 0;
 
   if (caps & GSS_C_DELEG_FLAG && client != GSS_C_NO_CREDENTIAL)
     {

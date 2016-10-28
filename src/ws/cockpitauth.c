@@ -68,7 +68,8 @@ static guint max_startups = 10;
 
 static guint sig__idling = 0;
 
-static gboolean gssapi_not_avail = FALSE;
+/* Tristate tracking whether gssapi works properly */
+static gint gssapi_available = -1;
 
 /* Used by test to overide known hosts */
 const gchar *cockpit_ws_known_hosts = NULL;
@@ -417,11 +418,15 @@ cockpit_auth_steal_authorization (GHashTable *headers,
     }
   else
     {
-      /* We default back to Negotiate authentication first time around */
-      if (gssapi_not_avail)
+      /*
+       * If we don't yet know that Negotiate authentication is possible
+       * or not, then we ask our session to try to do Negotiate auth
+       * but without any input data.
+       */
+      if (gssapi_available == -1)
+        line = g_strdup ("Negotiate");
+      else
         return NULL;
-
-      line = g_strdup ("Negotiate");
     }
 
   length = strlen (line);
@@ -530,6 +535,9 @@ build_gssapi_output_header (JsonObject *results)
   if (!output)
     goto out;
 
+  /* We've received indication from the bridge that GSSAPI is supported */
+  gssapi_available = 1;
+
   data = cockpit_hex_decode (output, &length);
   if (!data)
     {
@@ -541,10 +549,6 @@ build_gssapi_output_header (JsonObject *results)
       encoded = g_base64_encode (data, length);
       value = g_strdup_printf ("Negotiate %s", encoded);
       g_free (encoded);
-    }
-  else
-    {
-      value = g_strdup ("Negotiate");
     }
   g_free (data);
 
@@ -660,7 +664,8 @@ parse_cockpit_spawn_results (CockpitAuth *self,
               g_str_equal (ad->auth_type, "negotiate") &&
               !ad->is_ssh)
             {
-              gssapi_not_avail = TRUE;
+              /* The session told us that GSSAPI is not available */
+              gssapi_available = 0;
               g_debug ("negotiate auth is not available, disabling");
               g_clear_error (error);
               g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
@@ -977,6 +982,10 @@ cockpit_auth_spawn_login_finish (CockpitAuth *self,
     {
       g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), gssapi_header);
       g_debug ("gssapi: WWW-Authenticate: %s", gssapi_header);
+    }
+  else if (gssapi_available > 0)
+    {
+      g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), g_strdup ("Negotiate"));
     }
 
   if (creds)

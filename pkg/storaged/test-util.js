@@ -45,6 +45,14 @@ QUnit.test("compare_versions", function() {
         [ "2..6",  "2.0.6", 0 ],
     ];
 
+    /* Polyfill during testing */
+    Math.sign = Math.sign || function(x) {
+        x = +x; /* convert to a number */
+        if (x === 0 || isNaN(x))
+            return Number(x);
+        return x > 0 ? 1 : -1;
+    };
+
     function check(a, b, expected) {
         assert.strictEqual(Math.sign(utils.compare_versions(a, b)), expected,
                            "compare_versions(" + a + ", " + b + ") = ", expected);

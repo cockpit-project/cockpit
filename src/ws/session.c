@@ -679,6 +679,7 @@ perform_gssapi (const char *rhost)
   gss_buffer_desc output = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc local = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc display = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc export = GSS_C_EMPTY_BUFFER;
   gss_name_t name = GSS_C_NO_NAME;
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
   gss_OID mech_type = GSS_C_NO_OID;
@@ -800,11 +801,11 @@ out:
   if (caps & GSS_C_DELEG_FLAG && client != GSS_C_NO_CREDENTIAL)
     {
 #ifdef HAVE_GSS_IMPORT_CRED
-      major = gss_export_cred (&minor, client, &output);
+      major = gss_export_cred (&minor, client, &export);
       if (GSS_ERROR (major))
         warnx ("couldn't export gssapi credentials: %s", gssapi_strerror (major, minor));
-      else if (output.value)
-        write_auth_hex ("gssapi-creds", output.value, output.length);
+      else if (export.value)
+        write_auth_hex ("gssapi-creds", export.value, export.length);
 #else
       /* cockpit-ws will complain for us, if they're ever used */
       write_auth_hex ("gssapi-creds", (void *)"", 0);
@@ -817,6 +818,8 @@ out:
     gss_release_buffer (&minor, &display);
   if (output.value)
     gss_release_buffer (&minor, &output);
+  if (export.value)
+    gss_release_buffer (&minor, &export);
   if (local.value)
     gss_release_buffer (&minor, &local);
   if (client != GSS_C_NO_CREDENTIAL)

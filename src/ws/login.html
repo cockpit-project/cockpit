@@ -254,10 +254,12 @@
                             challenge = xhr.getResponseHeader("WWW-Authenticate")
                             if (challenge && challenge.substring(0, 14) === 'X-Login-Reply ') {
                                 prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
-                                if (prompt_data)
+                                if (prompt_data) {
+                                    prompt_data.conversation = xhr.getResponseHeader("X-Conversation");
                                     show_converse(prompt_data);
-                                else
+                                } else {
                                     fatal(xhr.statusText);
+                                }
                             } else {
                                 fatal(xhr.statusText);
                             }
@@ -385,7 +387,7 @@
                     id("conversation-input").removeEventListener("keydown", key_down);
                     id("login-button").removeEventListener("click", call_converse);
                     login_failure(null, true);
-                    converse(prompt_data.id, id("conversation-input").value);
+                    converse(prompt_data.conversation, id("conversation-input").value);
                 }
 
                 function key_down(e) {
@@ -409,19 +411,17 @@
                 var parts;
                 var prompt;
                 var resp;
-                var id;
                 var prompt;
 
                 if (!header)
                     return;
 
                 parts = header.split(' ');
-                if (parts[0].toLowerCase() !== 'X-Login-Reply' && parts.length != 3)
+                if (parts[0].toLowerCase() !== 'X-Login-Reply' && parts.length != 2)
                     return;
 
-                id = parts[1];
                 try {
-                    prompt = atob (parts[2]);
+                    prompt = atob (parts[1]);
                 } catch (err) {
                     if (window.console)
                         console.error("Invalid prompt data", err);
@@ -436,7 +436,6 @@
                     resp = {};
                 }
 
-                resp.id = id;
                 resp.prompt = prompt;
                 return resp;
             }
@@ -463,10 +462,12 @@
                         challenge = xhr.getResponseHeader("WWW-Authenticate")
                         if (challenge && challenge.substring(0, 14) === 'X-Login-Reply ') {
                             prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
-                            if (prompt_data)
+                            if (prompt_data) {
+                                prompt_data.conversation = xhr.getResponseHeader("X-Conversation");
                                 show_converse(prompt_data);
-                            else
+                            } else {
                                 fatal("Internal Error: Invalid challenge header");
+                            }
                         } else {
                             if (window.console)
                                 console.log(xhr.statusText);
@@ -502,9 +503,10 @@
                 send_login_request("GET", headers, false);
             }
 
-            function converse(id, msg) {
+            function converse(conversation, msg) {
                 var headers = {
-                    "Authorization": "X-Login-Reply " + id + " " + btoa(utf8(msg))
+                    "Authorization": "X-Login-Reply " + btoa(utf8(msg)),
+                    "X-Conversation": conversation,
                 };
                 send_login_request("GET", headers, true);
             }

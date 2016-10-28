@@ -458,7 +458,7 @@ timeout_option (const gchar *name,
  *  Login by spawning a new command
  */
 
-static void
+static gboolean
 build_gssapi_output_header (GHashTable *headers,
                             JsonObject *results)
 {
@@ -473,18 +473,18 @@ build_gssapi_output_header (GHashTable *headers,
       if (!cockpit_json_get_string (results, "gssapi-output", NULL, &output))
         {
           g_warning ("received invalid gssapi-output field");
-          return;
+          return FALSE;
         }
     }
 
   if (!output)
-    return;
+    return FALSE;
 
   data = cockpit_hex_decode (output, &length);
   if (!data)
     {
       g_warning ("received invalid gssapi-output field");
-      return;
+      return FALSE;
     }
   if (length)
     {
@@ -500,6 +500,7 @@ build_gssapi_output_header (GHashTable *headers,
 
   g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), value);
   g_debug ("gssapi: WWW-Authenticate: %s", value);
+  return TRUE;
 }
 
 static const gchar *
@@ -598,7 +599,13 @@ parse_cockpit_spawn_results (CockpitAuth *self,
             }
         }
 
-      build_gssapi_output_header (headers, results);
+      if (build_gssapi_output_header (headers, results))
+        {
+          /* When we don't yet have credentials, allow this authentication conversation to continue */
+          if (!creds && !gssapi_not_avail)
+            g_hash_table_insert (self->authentication_pending, ad->conversation, auth_data_ref (ad));
+        }
+
       json_object_unref (results);
     }
 
@@ -1131,15 +1138,18 @@ cockpit_auth_resume_async (CockpitAuth *self,
 }
 
 static const gchar *
-action_for_type (const gchar *type,
+action_for_type (CockpitAuth *self,
+                 const gchar *type,
                  const gchar *application,
+                 const gchar *conversation,
                  gboolean force_ssh)
 {
   const gchar *action;
   const gchar *host;
 
-  g_return_val_if_fail (type != NULL, NULL);
-  g_return_val_if_fail (application != NULL, NULL);
+  g_assert (type != NULL);
+  g_assert (application != NULL);
+  g_assert (conversation != NULL);
 
   host = application_parse_host (application);
   if (g_str_equal (type, "x-login-reply"))
@@ -1155,9 +1165,17 @@ action_for_type (const gchar *type,
   else if (type && cockpit_conf_string (type, "action"))
       action = cockpit_conf_string (type, "action");
 
-  else if (g_strcmp0 (type, "basic") == 0 ||
-           g_strcmp0 (type, "negotiate") == 0)
+  else if (g_str_equal (type, "basic"))
       action = ACTION_SPAWN_DECODE;
+
+  /* When negotiate is pending resume conversation */
+  else if (g_str_equal (type, "negotiate"))
+    {
+      if (g_hash_table_lookup (self->authentication_pending, conversation))
+        action = ACTION_RESUME;
+      else
+        action = ACTION_SPAWN_DECODE;
+    }
 
   else
       action = ACTION_NONE;

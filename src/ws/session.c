@@ -296,7 +296,8 @@ dup_string (const char *str,
 }
 
 static const char *
-gssapi_strerror (OM_uint32 major_status,
+gssapi_strerror (gss_OID mech_type,
+                 OM_uint32 major_status,
                  OM_uint32 minor_status)
 {
   static char buffer[1024];
@@ -343,7 +344,7 @@ gssapi_strerror (OM_uint32 major_status,
    for (;;)
      {
        major = gss_display_status (&minor, minor_status, GSS_C_MECH_CODE,
-                                   GSS_C_NULL_OID, &ctx, &status);
+                                   mech_type, &ctx, &status);
        if (GSS_ERROR (major))
          break;
 
@@ -708,7 +709,7 @@ map_gssapi_to_local (gss_name_t name,
           major = gss_display_name (&minor, name, &display, NULL);
           if (GSS_ERROR (major))
             {
-              warnx ("couldn't get gssapi display name: %s", gssapi_strerror (major, minor));
+              warnx ("couldn't get gssapi display name: %s", gssapi_strerror (mech_type, major, minor));
             }
           else
             {
@@ -727,7 +728,7 @@ map_gssapi_to_local (gss_name_t name,
         }
       else
         {
-          warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (major, minor));
+          warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (mech_type, major, minor));
         }
     }
 
@@ -777,7 +778,7 @@ perform_gssapi (const char *rhost)
   if (GSS_ERROR (major))
     {
       /* This is a routine error message, don't litter */
-      msg = gssapi_strerror (major, minor);
+      msg = gssapi_strerror (mech_type, major, minor);
       if (input.length == 0 && !strstr (msg, "nonexistent or empty"))
         warnx ("couldn't acquire server credentials: %s", msg);
       res = PAM_AUTHINFO_UNAVAIL;
@@ -808,7 +809,7 @@ perform_gssapi (const char *rhost)
 
       if (GSS_ERROR (major))
         {
-          warnx ("gssapi auth failed: %s", gssapi_strerror (major, minor));
+          warnx ("gssapi auth failed: %s", gssapi_strerror (mech_type, major, minor));
           goto out;
         }
 
@@ -856,7 +857,7 @@ out:
 #ifdef HAVE_GSS_IMPORT_CRED
       major = gss_export_cred (&minor, client, &export);
       if (GSS_ERROR (major))
-        warnx ("couldn't export gssapi credentials: %s", gssapi_strerror (major, minor));
+        warnx ("couldn't export gssapi credentials: %s", gssapi_strerror (mech_type, major, minor));
       else if (export.value)
         write_auth_hex ("gssapi-creds", export.value, export.length);
 #else

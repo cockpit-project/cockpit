@@ -1527,6 +1527,11 @@
                                    );
             }
 
+            /* Older versions of Udisks/storaged don't have a Running property */
+            var running = mdraid.Running;
+            if (running === undefined)
+                running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
+
             var mdraid_model = {
                 dbus: mdraid,
                 Name: utils.mdraid_name(mdraid),
@@ -1534,7 +1539,7 @@
                 Level: level,
                 Bitmap: bitmap,
                 Degraded: degraded_message,
-                State: mdraid.Running? _("Running") : _("Not running"),
+                State: running ? _("Running") : _("Not running"),
             };
 
             var block_model = null;
@@ -1580,7 +1585,7 @@
             ];
 
             var def_action;
-            if (mdraid.Running)
+            if (running)
                 def_action = actions[1];  // Stop
             else
                 def_action = actions[0];  // Start

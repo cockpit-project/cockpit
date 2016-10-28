@@ -673,10 +673,14 @@ map_gssapi_to_local (gss_name_t name,
     {
       minor = 0;
       str = dup_string (local.value, local.length);
-      debug ("mapped gssapi name to local user '%s'", str);
-
-      if (!getpwnam (str))
+      if (getpwnam (str))
         {
+          debug ("mapped gssapi name to local user '%s'", str);
+        }
+      else
+        {
+          debug ("ignoring non-existant gssapi local user '%s'", str);
+
           /* If the local user doesn't exist, pretend gss_localname() failed */
           free (str);
           str = NULL;
@@ -685,10 +689,12 @@ map_gssapi_to_local (gss_name_t name,
         }
     }
 
+  /* Try a more pragmatic approach */
   if (!str)
     {
       if (minor == (OM_uint32)KRB5_NO_LOCALNAME ||
-          minor == (OM_uint32)KRB5_LNAME_NOTRANS)
+          minor == (OM_uint32)KRB5_LNAME_NOTRANS ||
+          minor == (OM_uint32)ENOENT)
         {
           major = gss_display_name (&minor, name, &display, NULL);
           if (GSS_ERROR (major))
@@ -698,12 +704,20 @@ map_gssapi_to_local (gss_name_t name,
           else
             {
               str = dup_string (display.value, display.length);
-              debug ("no local user mapping for gssapi name '%s'", str);
+              if (getpwnam (str))
+                {
+                  debug ("no local user mapping for gssapi name '%s'", str);
+                }
+              else
+                {
+                  warnx ("non-existant local user '%s'", str);
+                  free (str);
+                  str = NULL;
+                }
             }
         }
       else
         {
-          warnx ("major is %d minor is %d", (int)major, (int)minor);
           warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (major, minor));
         }
     }

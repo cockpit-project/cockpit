@@ -653,9 +653,18 @@ cockpit_auth_process_get_authenticated_user (CockpitAuthProcess *self,
           if (g_strcmp0 (error_str, "authentication-failed") == 0 ||
                    g_strcmp0 (error_str, "authentication-unavailable") == 0)
             {
-              g_debug ("%s %s", error_str, message);
+              g_debug ("%s: %s %s", self->logname, error_str, message);
               g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                            "Authentication failed");
+            }
+          else if (g_strcmp0 (error_str, "no-host") == 0 ||
+                   g_strcmp0 (error_str, "invalid-hostkey") == 0 ||
+                   g_strcmp0 (error_str, "unknown-hostkey") == 0 ||
+                   g_strcmp0 (error_str, "unknown-host") == 0)
+            {
+              g_debug ("%s: %s", self->logname, error_str);
+              g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                           "Authentication failed: %s", error_str);
             }
           else if (g_strcmp0 (error_str, "permission-denied") == 0)
             {

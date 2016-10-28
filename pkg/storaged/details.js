@@ -122,11 +122,48 @@
                 return vals.type != "empty" && vals.type != "dos-extended";
             }
 
+            /* Older UDisks2 implementation also don't have good
+             * enough support for maintaining fstab and crypptab, so
+             * we don't offer that in the UI.  (Most importantly, they
+             * miss the 'tear-down' option and without that we'll end
+             * up with obsolete fstab files all the time, which will
+             * break the next boot.)
+             */
+
+            function is_encrypted_and_not_old_udisks2(vals) {
+                return !client.is_old_udisks2 && is_encrypted(vals);
+            }
+
+            function is_filesystem_and_not_old_udisks2(vals) {
+                return !client.is_old_udisks2 && is_filesystem(vals);
+            }
+
             function add_fsys(storaged_name, entry) {
                 if (storaged_name === true ||
                     !client.manager.SupportedFilesystems ||
                     client.manager.SupportedFilesystems.indexOf(storaged_name) != -1)
                     filesystem_options.push(entry);
+            }
+
+            /* Older UDisks2 implementations don't have
+             * CreateAndFormatPartition, so we simulate that.
+             */
+
+            function create_partition_and_format(ptable,
+                                                 start, size,
+                                                 part_type, part_name, part_options,
+                                                 type, options) {
+                if (!client.is_old_udisks2)
+                    return ptable.CreatePartitionAndFormat(start, size,
+                                                           part_type, part_name, part_options,
+                                                           type, options);
+
+                return ptable.CreatePartition(start, size, part_type, part_name, part_options)
+                    .then(function(partition) {
+                        return client.blocks[partition].Format(type, options).then(function() {
+                            return partition;
+                        });
+                    });
             }
 
             var filesystem_options = [ ];
@@ -191,11 +228,11 @@
                               },
                               { CheckBox: "store_passphrase",
                                 Title: _("Store passphrase"),
-                                visible: is_encrypted
+                                visible: is_encrypted_and_not_old_udisks2
                               },
                               { TextInput: "crypto_options",
                                 Title: _("Encryption Options"),
-                                visible: is_encrypted
+                                visible: is_encrypted_and_not_old_udisks2
                               },
                               { SelectOne: "mounting",
                                 Title: _("Mounting"),
@@ -203,18 +240,18 @@
                                     { value: "default", Title: _("Default") },
                                     { value: "custom", Title: _("Custom") }
                                 ],
-                                visible: is_filesystem
+                                visible: is_filesystem_and_not_old_udisks2
                               },
                               { TextInput: "mount_point",
                                 Title: _("Mount Point"),
                                 visible: function (vals) {
-                                    return is_filesystem(vals) && vals.mounting == "custom";
+                                    return is_filesystem_and_not_old_udisks2(vals) && vals.mounting == "custom";
                                 }
                               },
                               { TextInput: "mount_options",
                                 Title: _("Mount Options"),
                                 visible: function (vals) {
-                                    return is_filesystem(vals) && vals.mounting == "custom";
+                                    return is_filesystem_and_not_old_udisks2(vals) && vals.mounting == "custom";
                                 }
                               }
                           ],
@@ -274,8 +311,9 @@
                                       else if (vals.type == "empty")
                                           return block_ptable.CreatePartition(start, vals.size, "", "", { });
                                       else
-                                          return block_ptable.CreatePartitionAndFormat (start, vals.size, "", "", { },
-                                                                                        vals.type, options);
+                                          return create_partition_and_format(block_ptable, start, vals.size,
+                                                                             "", "", { },
+                                                                             vals.type, options);
                                   } else
                                       return block.Format(vals.type, options);
                               }
@@ -1033,13 +1071,21 @@
             var filesystem_action_spec =
                 [ { title: _("Mount"),              action: "mount",   disabled: is_filesystem_mounted },
                   { title: _("Unmount"),            action: "unmount", disabled: !is_filesystem_mounted },
-                  { title: _("Filesystem Options"), action: "fsys_options" }
+                ];
+
+            // See format_dialog above for why we don't offer this for the old UDisks2
+            var filesystem_action_spec_not_old_udisks2 =
+                [ { title: _("Filesystem Options"), action: "fsys_options" }
                 ];
 
             var crypto_action_spec =
                 [ { title: _("Lock"),               action: "lock",    disabled: is_crypto_locked },
-                  { title: _("Unlock"),             action: "unlock",  disabled: !is_crypto_locked },
-                  { title: _("Encryption Options"), action: "crypto_options" }
+                  { title: _("Unlock"),             action: "unlock",  disabled: !is_crypto_locked }
+                ];
+
+            // See format_dialog above for why we don't offer this for the old UDisks2
+            var crypto_action_spec_not_old_udisks2 =
+                [ { title: _("Encryption Options"), action: "crypto_options" }
                 ];
 
             var lvol_action_spec =
@@ -1078,12 +1124,16 @@
 
             if (is_filesystem) {
                 action_spec = action_spec.concat(filesystem_action_spec);
+                if (!client.is_old_udisks2)
+                    action_spec = action_spec.concat(filesystem_action_spec_not_old_udisks2);
                 if (is_filesystem_mounted)
                     default_op = filesystem_action_spec[1]; // unmount
                 else
                     default_op = filesystem_action_spec[0]; // mount
             } else if (is_crypto) {
                 action_spec = action_spec.concat(crypto_action_spec);
+                if (!client.is_old_udisks2)
+                    action_spec = action_spec.concat(crypto_action_spec_not_old_udisks2);
                 if (is_crypto_locked)
                     default_op = crypto_action_spec[1]; // unlock
                 else

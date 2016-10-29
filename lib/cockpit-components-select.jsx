@@ -23,6 +23,8 @@
     var cockpit = require("cockpit");
     var React = require("react");
 
+    require("page.css");
+
     var _ = cockpit.gettext;
 
     var textForUndefined = _('undefined');

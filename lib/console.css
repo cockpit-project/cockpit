@@ -1,0 +1,50 @@
+@import "term.css";
+
+/* Our terminal or logs */
+.console-ct {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 10px;
+    text-align: center;
+    line-height: 1;
+}
+
+@media (min-width: 568px) {
+    .console-ct {
+        font-size: 12px;
+    }
+}
+
+.console-ct > pre {
+    padding: 10px;
+    text-align: left;
+    display: block;
+    font-family: inherit;
+    font-size: inherit;
+    width: 48em;
+    height: 310px;
+    overflow-y: scroll;
+    white-space: pre-wrap;
+    margin: 0 auto;
+}
+
+.console-ct > .terminal {
+    color: #F0F0F0;
+    text-align: left;
+    outline: medium none;
+    background-color: black;
+    border: 1px solid black;
+    padding: 10px;
+    display: inline-block; /* size DIV to contents */
+}
+
+.console-ct .terminal-cursor {
+    color: #000;
+    background: #f0f0f0;
+}
+
+.console-ct-container {
+    display: table;
+    margin: 1em auto;
+}

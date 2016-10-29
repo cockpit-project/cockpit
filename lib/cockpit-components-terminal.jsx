@@ -23,6 +23,8 @@
     var React = require("react");
     var Term = require("term");
 
+    require("console.css");
+
     /*
      * A terminal component that communicates over a cockpit channel.
      *

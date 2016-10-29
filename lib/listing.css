@@ -1,0 +1,549 @@
+/* Listing pattern */
+
+table.listing-ct {
+    margin-top: 15px;
+    min-width: 65%;
+}
+
+table.listing-ct > caption,
+table.listing-ct > thead h3 {
+    font-size: 22px;
+    padding: 10px 0px 10px;
+    font-weight: 300;
+    margin-top: 0px;
+}
+
+table.listing-ct > caption {
+    color: inherit;
+    line-height: 1.1;
+}
+
+table.listing-ct > thead td {
+    padding-top: 20px;
+}
+
+table.listing-ct > thead:first-child td {
+    padding-top: 0px;
+}
+
+table.listing-ct > thead td > a {
+    line-height: 30px;
+    padding: 10px 0px 10px;
+}
+
+table.listing-ct thead th {
+    border-top: 1px solid #eee;
+    font-weight: normal;
+    padding: 10px;
+    color: #888;
+}
+
+table.listing-ct thead th:first-child {
+    padding-left: 20px;
+}
+
+table.listing-ct thead th:last-child {
+    text-align: right;
+}
+
+/* A listing item is a row in the table */
+tbody tr.listing-ct-item {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+table.listing-ct tbody:last-child {
+    border-bottom: 1px solid #eee;
+}
+table.listing-ct tbody + thead {
+    border-top: 1px solid #eee;
+}
+table.listing-ct tbody.open:last-child {
+    border-bottom: none;
+}
+table.listing-ct tbody.open + thead {
+    border-top: none;
+}
+
+tbody.open tr.listing-ct-item {
+    background-color: #ededed;
+    border-bottom: none;
+    border-top: none;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+tbody.open tr.listing-ct-item td,
+tbody.open tr.listing-ct-item th {
+    border-top: 1px solid #ccc;
+}
+
+tbody.open td div.listing-ct-head {
+    background-color: white;
+}
+
+tbody.open .listing-ct-panel {
+    border: 1px solid #ccc;
+}
+
+tbody.open .listing-ct-panel .listing-ct-body {
+    border: none;
+}
+
+tbody.open tr.listing-ct-panel + tr.listing-ct-body {
+    border-top: none;
+}
+
+tbody.open tr.listing-ct-panel td div.listing-ct-head {
+    border: none;
+    border-bottom: 1px solid #ccc;
+}
+
+/* only highlight the row if navigation is available */
+tbody:not(.open) tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
+    background-color: #d4edfa;
+}
+
+/* if we can't navigate to a row but expand is available, highlight the caret */
+tbody:not(.open) tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
+    color: #65bedf;
+}
+
+/* use gray for a row that's expanded or if navigation isn't available */
+tbody.open tr.listing-ct-item:hover,
+tr.listing-ct-item.listing-ct-nonavigate:hover {
+    background-color: #ededed;
+}
+
+/* always highlight caret when hovering over an expanded row */
+tbody.open tr.listing-ct-item:hover td.listing-ct-toggle {
+    color: #65bedf;
+}
+
+tr.listing-ct-item .listing-ct-toggle {
+    padding: 0 !important;
+    width: 35px;
+    color: #000000;
+}
+
+table.listing-ct thead .listing-ct-toggle + th,
+tr.listing-ct-item .listing-ct-toggle + td,
+tr.listing-ct-item .listing-ct-toggle + th {
+    padding-left: 0;
+}
+
+td.listing-ct-toggle:hover {
+    color: #65bedf;
+    background-color: #ededed;
+}
+
+td.listing-ct-toggle i {
+    font-size: 24px;
+    visibility: hidden;
+}
+
+tr.listing-ct-item:hover td.listing-ct-toggle i,
+tr.listing-ct-item td.listing-ct-toggle:hover i {
+    visibility: visible;
+}
+
+td.listing-ct-toggle i:before {
+    content: "\f105";
+}
+
+tbody.open td.listing-ct-toggle i {
+    visibility: visible;
+}
+
+tbody.open td.listing-ct-toggle i:before {
+    content: "\f107";
+}
+
+td.listing-ct-toggle:hover ~ td,
+td.listing-ct-toggle:hover ~ th
+{
+    background-color: #ededed;
+}
+
+
+/* Listing items have decent padding ... */
+tr.listing-ct-item td {
+    padding: 10px;
+}
+
+tr.listing-ct-item th {
+    padding: 10px 10px 10px 15px;
+}
+
+/* Listing caption is text next to the actions, text should be similar to nav (.nav-tabs-pf > li > a)*/
+.listing-ct-actions > .listing-ct-caption {
+    font-size: 13px;
+    vertical-align: middle;
+    color: #4d5258;
+    padding-right: 5px;
+}
+
+/* Listing actions can be used directly as a cell */
+tr.listing-ct-item td.listing-ct-actions,
+td.listing-ct-actions {
+    padding: 5px 10px;
+    text-align: right;
+    float: none;
+}
+
+.listing-ct-head .listing-ct-actions {
+    margin-top: -7px;
+}
+
+tr.listing-ct-item td:first-child {
+    padding-left: 20px;
+}
+
+/* The last column of a listing is always right aligned */
+tr.listing-ct-item td:last-child {
+    text-align: right;
+}
+
+div.listing-ct-panel {
+    box-shadow: 1px 1px 1px 1px #f5f5f5;
+    margin-bottom: 15px;
+}
+
+div.listing-ct-maybe {
+    border: 1px dashed #ddd;
+    box-shadow: none;
+}
+
+div.listing-ct-head {
+    padding: 10px 10px 0px 10px;
+    background-color: #f6f6f6;
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 1px 1px 0px 1px;
+    overflow: hidden;
+}
+
+div.listing-ct-head:last-child {
+    padding-bottom: 10px;
+}
+
+div.listing-ct-maybe div.listing-ct-head,
+div.listing-ct-maybe div.listing-ct-body {
+    background-color: white;
+    border: none;
+}
+
+tbody.active .listing-ct-head {
+    border-top: 3px solid #0099d3;
+}
+
+.listing-ct-head h3 {
+    font-weight: normal;
+    font-size: 18px;
+    margin-top: 0px;
+    margin-left: 5px;
+    margin-bottom: 10px;
+}
+
+.listing-ct-head h3 i {
+    float: left;
+    padding-right: 7px;
+}
+
+.listing-ct-head .nav li a {
+    padding-top: 0px;
+    font-size: 13px;
+}
+
+.listing-ct-head .nav-tabs {
+    border-bottom: none;
+}
+
+.listing-ct-head .nav-tabs-pf {
+    margin-left: -10px;
+}
+
+/* To display info instead of tabs */
+.listing-ct-head dl {
+    display: inline-block;
+    height: 1.6em;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    margin-right: 45px;
+    margin-left: 5px;
+}
+
+.listing-ct-head dt {
+    font-weight: normal;
+    display: inline;
+    margin-right: 0.5em;
+    color: #888;
+}
+
+.listing-ct-head dd {
+    display: inline;
+    color: black;
+}
+
+.listing-ct-body {
+    padding: 20px 25px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    background-color: white;
+}
+
+.listing-ct-inline > .listing-ct-body {
+    border: none;
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-bottom: 0px;
+}
+
+.listing-ct-inline > h3 {
+    border-top: 1px solid #ccc;
+    padding-top: 20px;
+    margin-top: 30px;
+}
+
+.listing-ct-inline > h3:first-child {
+    border-top: none;
+    padding-top: 0px;
+    margin-top: 20px;
+}
+
+.listing-ct-actions {
+    float: right;
+    min-height: 26px;
+}
+
+.listing-ct-status {
+    float: right;
+    clear: right;
+}
+
+.listing-ct-error {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+.listing-ct-error.alert {
+    margin-bottom: 0;
+}
+
+.listing-ct-body tt {
+    font-size: 12px
+}
+
+.listing-ct-body dl {
+    margin: 0;
+}
+
+.listing-ct-body dl dd dl.inline-dl dt,
+.listing-ct-body dt {
+    clear: left;
+    float: left;
+    width: 100px;
+    min-height: 26px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #888;
+    font-weight: normal;
+}
+
+.listing-ct-body dt {
+    text-align: right;
+}
+
+.listing-ct-body dl dd dl dt {
+    text-align: left;
+}
+
+.listing-ct-body dd {
+    margin-left: 110px;
+    min-height: 26px;
+    max-width: 1000px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.listing-ct-body dl.full-width dt {
+    text-align: left;
+    min-width: none;
+    max-width: none;
+    float: none;
+    width: auto;
+}
+
+.listing-ct-body dl.full-width dd {
+    margin-left: 0px;
+}
+
+table.listing-ct tbody.open {
+    box-shadow: 1px 1px 1px 1px #f5f5f5;
+}
+
+/* By default these thincgs are hidden */
+tbody tr.listing-ct-panel,
+tbody tr.listing-ct-body {
+    display: none;
+}
+
+/* ... unless they are in the right state */
+tbody.open tr.listing-ct-head,
+tbody.open tr.listing-ct-panel,
+tbody.open tr.listing-ct-body {
+    display: table-row;
+}
+
+tbody.open tr.listing-ct-head {
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 1px 1px 0px 1px;
+    border-top: 3px solid #0099d3;
+    background-color: #f6f6f6;
+}
+
+tr.listing-ct-head + tr.listing-ct-head {
+    border-top: none;
+}
+
+tr.listing-ct-head + tr.listing-ct-head td {
+    padding: 0px 10px 0px 10px;
+}
+
+tr.listing-ct-body td {
+    padding: 20px 25px;
+    font-size: 13px;
+}
+
+.listing-ct-empty {
+    color: #888;
+    text-align: center;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+/* Used at the end of a group of tbody to show an 'empty' message */
+thead.listing-ct-empty td,
+table.listing-ct > thead.listing-ct-empty td {
+    padding: 10px;
+}
+
+tbody + thead.listing-ct-empty {
+    display: none;
+}
+
+/* Listing pattern defaults to using full width of parent */
+.listing-ct-wide {
+    width: 100%;
+}
+
+div.listing-ct-head {
+        overflow: visible;
+}
+
+.listing-ct-head .btn-group,
+.listing-ct-head button:not(.dropdown-toggle) {
+        margin-left: 0.3em;
+}
+
+table.listing-ct > caption a {
+        font-size: 16px;
+}
+
+tbody tr.listing-ct-noexpand {
+    cursor: default;
+}
+
+/* Fix up nav-tabs-pf to work properly */
+
+.nav-tabs-pf > li:first-child a {
+    margin-left: 0px !important;
+    padding-left: 15px !important;
+}
+
+.nav-tabs-pf > li a:before {
+    right: 0px !important;
+}
+
+.nav-tabs-pf > li > a:active:before,
+.nav-tabs-pf > li > a:focus:before,
+.nav-tabs-pf > li > a:hover:before,
+.nav-tabs-pf > li.active a:before {
+    height: 3px;
+    left: 0px;
+}
+
+/* Timelines */
+
+div.timeline-ct {
+    border-left: 6px solid #ccc;
+    position: relative;
+    margin-left: 25px;
+    padding-left: 30px;
+    min-height: 1px;
+    padding-bottom: 15px;
+}
+
+div.timeline-ct .timeline-ct-point {
+    position: absolute;
+    left: -13.5px;
+    font-size: 21px;
+    text-align: center;
+    width: 20px;
+    height: 27px;
+    display: block;
+    line-height: 21px;
+    background-color: white;
+    padding: 3px 0px;
+    color: #ccc;
+}
+
+div.timeline-ct .timeline-ct-point.active {
+    color: #3f9c35;
+}
+
+div.timeline-ct .timeline-ct-md {
+    font-size: 24px;
+    width: 24px;
+    height: 32px;
+    line-height: 24px;
+    padding: 4px 0px;
+    left: -16px;
+}
+
+div.timeline-ct .timeline-ct-lg {
+    font-size: 40px;
+    width: 40px;
+    height: 44px;
+    line-height: 40px;
+    left: -23.5px;
+    padding: 2px 0px;
+}
+
+div.timeline-ct .fa-caret-up {
+    font-size: 30px;
+    line-height: 20px;
+    height: 24px;
+}
+
+div.timeline-ct div.listing-ct-panel {
+    margin-bottom: 0px;
+}
+
+div.timeline-ct.timeline-ct-end {
+    min-height: 30px;
+    padding-left: 36px;
+    background-repeat: repeat-y;
+    background-position: 0% 100%;
+    background-size: 6px 5px;
+    background-image: linear-gradient(#ccc 33%, #fff 0%);
+    border-left: none;
+}
+
+div.timeline-ct.timeline-ct-end .timeline-ct-md {
+    left: -10px;
+}

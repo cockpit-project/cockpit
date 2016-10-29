@@ -27,6 +27,8 @@
 
 var _ = cockpit.gettext;
 
+require("page.css");
+
 /*
  * React template for a Cockpit dialog footer
  * It can display an error, wait for an action to complete,

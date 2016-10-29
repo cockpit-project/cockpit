@@ -21,7 +21,7 @@
 
 var React = require('react');
 
-require('./cockpit-components-listing.css');
+require('./listing.css');
 
 /* entry for an alert in the listing, can be expanded (with details) or standard
  * columns list of columns to show in the header

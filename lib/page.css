@@ -1,0 +1,223 @@
+a {
+    cursor: pointer;
+}
+
+.disabled {
+    pointer-events: auto;
+}
+
+.btn {
+    min-height: 26px;
+    min-width: 26px;
+}
+
+.btn.disabled {
+    pointer-events: auto;
+}
+
+.btn.disabled:hover {
+  z-index: auto;
+}
+
+.dropdown-menu > li > a.disabled,
+.dropdown-menu > li > a.disabled:hover,
+.dropdown-menu > li > a.disabled:focus {
+  color: #999999;
+}
+
+.dropdown-menu > li > a.disabled:hover,
+.dropdown-menu > li > a.disabled:focus {
+  text-decoration: none;
+  background-color: transparent;
+  background-image: none;
+  border-color: transparent;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  cursor: default;
+}
+
+/* Limit dropdown menus to 90% of the viewport size */
+.dropdown-menu {
+    height: auto;
+    overflow-x: hidden;
+    max-height: 90vh;
+}
+/* Align these buttons more nicely */
+.btn.fa-minus,
+.btn.fa-plus {
+    padding-top: 4px;
+}
+
+/* HACK: Workaround for https://github.com/patternfly/patternfly/issues/174*/
+
+.page-ct {
+    margin-top: 20px;
+}
+
+.highlight-ct {
+    background-color: #d4edfa;
+}
+
+/* Well and Blankslate */
+
+.curtains-ct {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
+
+.panel .well {
+    margin-bottom: 0px;
+    border: none;
+    border-radius: 0px;
+    background-color: #FAFAFA;
+}
+
+.well.blank-slate-pf {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05) inset;
+    padding-top: 40px;
+}
+
+.blank-slate-pf .spinner-lg {
+    height: 58px;
+    width: 58px;
+}
+
+/*
+ * Control buttons such as play and stop
+ * Used with .btn .btn-default
+ */
+
+.btn-control-ct,
+.btn-control-ct:hover {
+    background-position: center center;
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
+    background-image: none;
+    -webkit-border-radius: 2;
+    -moz-border-radius: 2;
+    border-radius: 2px;
+    height: 28px;
+    width: 28px;
+    box-shadow: none;
+}
+
+.btn-control-ct {
+    background-color: #eeeeee;
+}
+
+.btn-control-ct:hover {
+   background-color: #e0e0e0;
+}
+
+
+/* On/off switch */
+
+.btn-onoff-ct {
+    margin: 1px 0px;
+    text-transform: uppercase;
+}
+
+.btn-onoff-ct .btn {
+    color: transparent;
+    border-color: #B7B7B7;
+    padding: 2px 6px 1px 6px;
+    background-color: white;
+    background-image: linear-gradient(to bottom, rgb(250, 250, 250) 0px, rgb(237, 237, 237) 100%);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    width: 37px;
+}
+
+.btn-onoff-ct .btn:first-child {
+    border-right: #00435F;
+}
+
+.btn-onoff-ct .btn:last-child {
+    border-left: #00435F;
+    padding-left: 5px;
+}
+
+.btn-onoff-ct .btn.active {
+    background-image: none;
+    width: 36px;
+}
+
+.btn-onoff-ct .btn.active:first-child {
+    background-color: #0086CF;
+    color: white;
+    border-right: 1px solid #0071b0;
+}
+
+.btn-onoff-ct .btn.active:last-child {
+    color: #000;
+    border-left: 1px solid #d6d6d6;
+}
+
+.btn-onoff-ct .btn.disabled {
+    pointer-events: none;
+    color: transparent !important;
+}
+
+.btn-onoff-ct .btn.active.disabled {
+    background-color: #888 !important;
+    color: white !important;
+}
+
+/* Small list inside a dialog */
+/* Alert fixups */
+
+/* HACK: word-wrap workaround for long alerts https://github.com/patternfly/patternfly/issues/491 */
+
+.modal-content .alert {
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    word-wrap: break-word;
+}
+
+.modal-content .alert .fa {
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    font-size: 20px;
+}
+
+.modal-content .alert .pficon {
+    top: 5px;
+}
+
+.alert.alert-danger .fa {
+    color: #af151a;
+}
+
+/* Dialog patterns */
+
+.dialog-wait-ct {
+    margin-top: 3px;
+}
+
+.dialog-wait-ct .spinner {
+    display: inline-block;
+}
+
+.dialog-wait-ct span {
+    vertical-align: 4px;
+    padding-left: 10px;
+}
+
+.dialog-list-ct {
+    max-height: 230px;
+    overflow-x: auto;
+    border: 1px solid #CCC;
+    margin-bottom: 0px;
+}
+
+/* HACK: https://github.com/patternfly/patternfly/issues/255 */
+input[type=number] {
+  padding: 0 0 0 5px;
+}
+
+/* Make a dialog visible */
+.dialog-ct-visible {
+    display: block;
+}

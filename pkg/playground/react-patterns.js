@@ -23,6 +23,8 @@
     var cockpit = require("cockpit");
     var React = require("react");
 
+    require("table.css");
+
     var dialogPattern = require("cockpit-components-dialog.jsx");
 
     var demoDialog = require("./react-demo-dialog.jsx");

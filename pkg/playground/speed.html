@@ -5,7 +5,9 @@
     <title>Cockpit Speed Tests</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../base1/require.js"></script>
+    <script src="../base1/jquery.js"></script>
+    <script src="../base1/cockpit.js"></script>
+    <script src="speed.js"></script>
 </head>
 <body hidden>
     <div class="container-fluid">
@@ -13,19 +15,19 @@
         <table class="form-table-ct">
             <tr>
                 <td><label class="control-label" for="message">Message</label></td>
-                <td><input class="form-control" id="message" value="100000" style='max-width: 100px'></td>
+                <td><input class="form-control" id="message" value="100000"></td>
             </tr>
             <tr>
                 <td><label class="control-label" for="batch">Batch</label></td>
-                <td><input class="form-control" id="batch" value="1" style='max-width: 100px'></td>
+                <td><input class="form-control" id="batch" value="1"></td>
             </tr>
             <tr>
                 <td><label class="control-label" for="interval">Interval</label></td>
-                <td><input class="form-control" id="interval" value="100" style='max-width: 100px'></td>
+                <td><input class="form-control" id="interval" value="100"></td>
             </tr>
             <tr>
                 <td><label class="control-label" for="binary">Binary</label></td>
-                <td><div class="checkbox"><input type="checkbox" id="binary"></div></td>
+                <td><input type="checkbox" id="binary"></td>
             </tr>
             <tr>
                 <td><button class="btn btn-default btn-primary" id="normal">Normal Channel</button></td>
@@ -37,139 +39,5 @@
             </tr>
         </table>
     </div>
-<script>
-require([
-    'jquery',
-    'base1/cockpit'
-], function($, cockpit) {
-    function speed(bytes, start, suffix) {
-        var done = Date.now();
-        suffix = suffix || "";
-        $("#speed").text(cockpit.format_bytes_per_sec((bytes * 1000) / (done - start)) + suffix);
-    }
-
-    function generate(length, binary) {
-        if (binary)
-            return new window.ArrayBuffer(length);
-        else
-            return (new Array(length)).join("x");
-    }
-
-    function normal() {
-        $("#speed").empty();
-
-        var length = parseInt($("#message").val(), 10);
-        var batch = parseInt($("#batch").val(), 10);
-        var interval = parseInt($("#interval").val(), 10);
-
-        if (isNaN(length) || isNaN(interval) || isNaN(batch)) {
-            window.alert("Bad value");
-            return;
-        }
-
-        var binary = $("#binary").prop('checked');
-        var options = { payload: "echo" };
-        if (binary)
-            options.binary = true;
-        var channel = cockpit.channel(options);
-
-        var total = 0;
-        $(channel).on("message", function(event, data) {
-            total += data.length;
-        });
-
-        $(channel).on("close", function(event, options) {
-            if (options.problem)
-                window.alert(options.problem);
-        });
-
-        var input = generate(length, binary);
-        var start = Date.now();
-        for (var i = 0; i < batch; i++)
-            channel.send(input);
-
-        var update = window.setInterval(function() {
-            speed(total, start, "...");
-        }, 500);
-
-        var timer = window.setInterval(function() {
-            for (var i = 0; i < batch; i++)
-                channel.send(input);
-        }, interval);
-
-        window.setTimeout(function() {
-            window.clearInterval(timer);
-            window.clearInterval(update);
-            channel.close();
-            speed(total, start);
-        }, 10000);
-    }
-
-    function sideband() {
-        $("#speed").empty();
-
-        var length = parseInt($("#message").val(), 10);
-        var batch = parseInt($("#batch").val(), 10);
-        var interval = parseInt($("#interval").val(), 10);
-
-        if (isNaN(length) || isNaN(interval) || isNaN(batch)) {
-            window.alert("Bad value");
-            return;
-        }
-
-        var binary = $("#binary").prop('checked');
-        var params = { payload: "echo" };
-        if (binary)
-            params.binary = "raw";
-        var ws = new window.WebSocket(cockpit.transport.uri() + "?" + JSON.stringify(params));
-
-        ws.binaryType = 'arraybuffer';
-
-        var input = generate(length, binary);
-        var done = false;
-        var start;
-        var total = 0;
-        var timer;
-
-        ws.onopen = function() {
-            start = new Date();
-            for (var i = 0; i < batch; i++)
-                ws.send(input);
-            timer = window.setInterval(function() {
-                for (var i = 0; i < batch; i++)
-                    ws.send(input);
-            }, interval);
-        };
-
-        ws.onmessage = function(event) {
-            if (binary)
-                total += event.data.byteLength;
-            else
-                total += event.data.length;
-        };
-
-        var update = window.setInterval(function() {
-            speed(total, start, "...");
-        }, 500);
-
-        ws.onclose = function(event) {
-            if (!done)
-                window.alert("channel closed");
-        };
-
-        window.setTimeout(function() {
-            done = true;
-            window.clearInterval(timer);
-            window.clearInterval(update);
-            ws.close();
-            speed(total, start);
-        }, 10000);
-    }
-
-    $("#normal").on("click", normal);
-    $("#sideband").on("click", sideband);
-    $("body").show();
-});
-</script>
 </body>
 </html>

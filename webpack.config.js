@@ -55,6 +55,9 @@ var info = {
         "playground/service": [
             "playground/service",
         ],
+        "playground/speed": [
+            "playground/speed",
+        ],
         "playground/test": [
             "playground/test",
         ],
@@ -170,6 +173,7 @@ var info = {
         "playground/po.de.js",
         "playground/react-patterns.html",
         "playground/service.html",
+        "playground/speed.html",
         "playground/test.html",
 
         "realmd/manifest.json",

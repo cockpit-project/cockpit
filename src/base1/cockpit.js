@@ -279,7 +279,9 @@ function calculate_application() {
     return path.split("/")[1];
 }
 
-function calculate_url() {
+function calculate_url(suffix) {
+    if (!suffix)
+        suffix = "socket";
     var window_loc = window.location.toString();
     var _url_root = url_root;
 
@@ -293,9 +295,9 @@ function calculate_url() {
         prefix = _url_root + "/" + prefix;
 
     if (window_loc.indexOf('http:') === 0) {
-        return "ws://" + window.location.host + "/" + prefix + "/socket";
+        return "ws://" + window.location.host + "/" + prefix + "/" + suffix;
     } else if (window_loc.indexOf('https:') === 0) {
-        return "wss://" + window.location.host + "/" + prefix + "/socket";
+        return "wss://" + window.location.host + "/" + prefix + "/" + suffix;
     } else {
         transport_debug("Cockpit must be used over http or https");
         return null;

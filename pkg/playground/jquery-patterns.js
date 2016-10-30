@@ -4,6 +4,10 @@ $(function() {
 
     require("patterns");
 
+    require("page.css");
+    require("listing.css");
+    require("table.css");
+
     $(document).ready(function() {
         $("body").show();
     });

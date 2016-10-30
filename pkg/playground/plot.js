@@ -2,6 +2,8 @@ var $ = require("jquery");
 var plot = require("plot");
 require("flot");
 
+require("plot.css");
+
 var pl = plot.plot($('#plot'), 300);
 pl.set_options(plot.plot_simple_template());
 pl.add_metrics_sum_series({ direct: [ "mem.util.used" ]

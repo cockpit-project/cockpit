@@ -4,6 +4,8 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
+    require("plot.css");
+
     var metrics = [ { name: "block.device.read"
                     }
                   ];

@@ -124,6 +124,10 @@
                                               { watch: false });
     }
 
+    client.call = function call(path, iface, method, args, options) {
+        return client.storaged_client.call(path, STORAGED_IFACE_PFX + "." + iface, method, args, options);
+    };
+
     function init_proxies () {
         client.storaged_client.watch({ path_namespace: STORAGED_OPATH_PFX });
 

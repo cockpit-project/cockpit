@@ -39,8 +39,14 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        mount_point_foo = "/run/foo"
-        mount_point_bar = "/run/bar"
+        if not self.storaged_is_old_udisks:
+            mount_point_foo = "/run/foo"
+            mount_point_bar = "/run/bar"
+        else:
+            # We don't get to set the mountpoint with old UDisks so we
+            # expect UDisks default.  (XXX - I think this is Ubuntu specific.)
+            mount_point_foo = "/media/admin/FILESYSTEM"
+            mount_point_bar = "/media/admin/FILESYSTEM"
 
         self.login_and_go("/storage")
 
@@ -71,7 +77,9 @@ class TestStorage(StorageCase):
                       "mounting": "custom",
                       "mount_point": mount_point_foo })
         b.wait_in_text("#content", "FILESYSTEM")
-        self.wait_in_storaged_configuration(mount_point_foo)
+
+        if not self.storaged_is_old_udisks:
+            self.wait_in_storaged_configuration(mount_point_foo)
 
         self.content_default_action(1, "Mount");
         b.wait_in_text("#content", "mounted on %s" % mount_point_foo)
@@ -79,12 +87,13 @@ class TestStorage(StorageCase):
         self.content_default_action(1, "Unmount");
         b.wait_in_text("#content", "not mounted")
 
-        self.dialog_with_retry(trigger = lambda: self.content_action(1, "Filesystem Options"),
-                               expect = { "name": "FILESYSTEM",
-                                          "mounting": "custom",
-                                          "mount_point": mount_point_foo },
-                               values = { "mount_point": mount_point_bar })
-        self.wait_in_storaged_configuration(mount_point_bar)
+        if not self.storaged_is_old_udisks:
+            self.dialog_with_retry(trigger = lambda: self.content_action(1, "Filesystem Options"),
+                                   expect = { "name": "FILESYSTEM",
+                                              "mounting": "custom",
+                                              "mount_point": mount_point_foo },
+                                   values = { "mount_point": mount_point_bar })
+            self.wait_in_storaged_configuration(mount_point_bar)
 
         self.content_default_action(1, "Mount");
         b.wait_in_text("#content", "mounted on %s" % mount_point_bar)
@@ -122,16 +131,17 @@ class TestStorage(StorageCase):
 
         b.wait_in_text("#content", "not mounted")
 
-        self.content_action(1, "Filesystem Options");
-        self.dialog(expect = { "name": "FILESYSTEM" },
-                    values = { "mounting": "default" })
-        self.wait_not_in_storaged_configuration(mount_point_bar)
+        if not self.storaged_is_old_udisks:
+            self.content_action(1, "Filesystem Options");
+            self.dialog(expect = { "name": "FILESYSTEM" },
+                        values = { "mounting": "default" })
+            self.wait_not_in_storaged_configuration(mount_point_bar)
 
-        self.content_default_action(1, "Mount");
-        b.wait_in_text("#content", "mounted on /run/media/admin/FILESYSTEM")
+            self.content_default_action(1, "Mount");
+            b.wait_in_text("#content", "mounted on /run/media/admin/FILESYSTEM")
 
-        self.content_default_action(1, "Unmount");
-        b.wait_in_text("#content", "not mounted")
+            self.content_default_action(1, "Unmount");
+            b.wait_in_text("#content", "not mounted")
 
         self.content_action(1, "Format")
         self.dialog({ "type": "empty" })

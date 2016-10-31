@@ -56,11 +56,12 @@ class TestStorage(StorageCase):
         b.wait_in_text("#content", "unlocked")
         b.wait_in_text("#content", "ENCRYPTED")
 
-        self.wait_in_storaged_configuration(mount_point_secret)
 
-        assert m.execute("grep 'UUID=' /etc/crypttab") != ""
-        assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
-        assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
+        if not self.storaged_is_old_udisks:
+            self.wait_in_storaged_configuration(mount_point_secret)
+            assert m.execute("grep 'UUID=' /etc/crypttab") != ""
+            assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
+            assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
 
         # Lock it
         self.content_default_action(1, "Lock")
@@ -73,23 +74,23 @@ class TestStorage(StorageCase):
         b.wait_in_text("#content", "unlocked")
         b.wait_in_text("#content", "ENCRYPTED")
 
-        # Change options.  We keep trying until the stack has synched
-        # up with crypttab and we see the old passphrase.
+        if not self.storaged_is_old_udisks:
 
-        self.dialog_with_retry(trigger = lambda: self.content_action(1, "Encryption Options"),
-                               expect = { "passphrase": "vainu-reku-toma-rolle-kaja" },
-                               values = { "passphrase": "wrong-passphrase",
-                                          "options": "weird,options" })
+            # Change options.  We keep trying until the stack has synched
+            # up with crypttab and we see the old passphrase.
 
-        assert m.execute("grep 'weird,options' /etc/crypttab") != ""
-        assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
+            self.dialog_with_retry(trigger = lambda: self.content_action(1, "Encryption Options"),
+                                   expect = { "passphrase": "vainu-reku-toma-rolle-kaja" },
+                                   values = { "passphrase": "wrong-passphrase",
+                                              "options": "weird,options" })
 
-        self.wait_in_storaged_configuration("weird,options")
+            assert m.execute("grep 'weird,options' /etc/crypttab") != ""
+            assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
 
-        # Delete the partition.  This only works properly on new
-        # implementations of Storaged/UDisks2.
+            self.wait_in_storaged_configuration("weird,options")
 
-        if self.storaged_version > [ 2, 3 ]:
+            # Delete the partition.
+
             self.content_action(1, "Delete")
             self.confirm()
             b.wait_in_text("#content", "Free Space")

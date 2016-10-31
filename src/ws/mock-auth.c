@@ -80,8 +80,7 @@ mock_auth_login_async (CockpitAuth *auth,
   g_object_set_data_full (G_OBJECT (result), "remote", g_strdup (remote_peer), g_free);
   g_object_set_data_full (G_OBJECT (result), "application", cockpit_auth_parse_application (path), g_free);
 
-  type = cockpit_auth_parse_authorization_type (headers);
-  userpass = cockpit_auth_parse_authorization (headers, TRUE);
+  type = cockpit_auth_steal_authorization (headers, &userpass, TRUE);
   if (userpass && g_str_equal (type, "basic"))
     {
       split = g_strsplit (g_bytes_get_data (userpass, NULL), ":", 2);

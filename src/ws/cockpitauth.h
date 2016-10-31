@@ -39,10 +39,6 @@ G_BEGIN_DECLS
 #define COCKPIT_AUTH_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_AUTH, CockpitAuthClass))
 #define COCKPIT_IS_AUTH_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_AUTH))
 
-typedef enum {
-    COCKPIT_AUTH_COOKIE_INSECURE = 1 << 1
-} CockpitAuthFlags;
-
 typedef struct _CockpitAuth        CockpitAuth;
 typedef struct _CockpitAuthClass   CockpitAuthClass;
 
@@ -92,14 +88,12 @@ gchar *         cockpit_auth_nonce           (CockpitAuth *self);
 void            cockpit_auth_login_async     (CockpitAuth *self,
                                               const gchar *path,
                                               GHashTable *headers,
-                                              const gchar *conversation,
-                                              const gchar *remote_peer,
+                                              GIOStream *connection,
                                               GAsyncReadyCallback callback,
                                               gpointer user_data);
 
 JsonObject *    cockpit_auth_login_finish    (CockpitAuth *self,
                                               GAsyncResult *result,
-                                              CockpitAuthFlags flags,
                                               GHashTable *out_headers,
                                               GError **error);
 
@@ -109,7 +103,7 @@ CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
 
 gchar *         cockpit_auth_parse_application    (const gchar *path);
 
-GBytes *        cockpit_auth_parse_authorization      (GHashTable *headers,
+GBytes *        cockpit_auth_steal_authorization      (GHashTable *headers,
                                                        gboolean base64_decode);
 
 gchar *        cockpit_auth_parse_authorization_type  (GHashTable *headers);

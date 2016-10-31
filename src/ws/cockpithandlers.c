@@ -341,39 +341,6 @@ send_login_html (CockpitWebResponse *response,
     g_object_unref (filter2);
 }
 
-static gchar *
-get_remote_address (GIOStream *io)
-{
-  GSocketAddress *remote = NULL;
-  GSocketConnection *connection = NULL;
-  GIOStream *base;
-  gchar *result = NULL;
-
-  if (G_IS_TLS_CONNECTION (io))
-    {
-      g_object_get (io, "base-io-stream", &base, NULL);
-      if (G_IS_SOCKET_CONNECTION (base))
-        connection = g_object_ref (base);
-      g_object_unref (base);
-    }
-  else if (G_IS_SOCKET_CONNECTION (io))
-    {
-      connection = g_object_ref (io);
-    }
-
-  if (connection)
-    remote = g_socket_connection_get_remote_address (connection, NULL);
-  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-    result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
-
-  if (remote)
-    g_object_unref (remote);
-  if (connection)
-    g_object_unref (connection);
-
-  return result;
-}
-
 static void
 send_login_response (CockpitWebResponse *response,
                      JsonObject *object,
@@ -396,23 +363,11 @@ on_login_complete (GObject *object,
   CockpitWebResponse *response = user_data;
   GError *error = NULL;
   JsonObject *response_data = NULL;
-  CockpitAuthFlags flags = 0;
   GHashTable *headers;
-  GIOStream *io_stream;
-  const gchar *conversation;
   GBytes *content;
 
-  io_stream = cockpit_web_response_get_stream (response);
-  if (G_IS_SOCKET_CONNECTION (io_stream))
-    flags |= COCKPIT_AUTH_COOKIE_INSECURE;
-
   headers = cockpit_web_server_new_table ();
-  response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, flags, headers, &error);
-
-  /* Make a keep-alive connection work as our conversation medium */
-  conversation = g_object_get_data (G_OBJECT (io_stream), "conversation");
-  g_assert (conversation != NULL);
-  g_hash_table_insert (headers, g_strdup ("X-Conversation"), g_strdup (conversation));
+  response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, headers, &error);
 
   if (error)
     {
@@ -451,13 +406,9 @@ handle_login (CockpitHandlerData *data,
               CockpitWebResponse *response)
 {
   GHashTable *out_headers;
-  gchar *remote_peer = NULL;
   GIOStream *io_stream;
   CockpitCreds *creds;
   JsonObject *creds_json = NULL;
-  const gchar *conversation;
-  const gchar *stored;
-  gchar *value;
 
   if (service)
     {
@@ -471,30 +422,8 @@ handle_login (CockpitHandlerData *data,
     }
 
   io_stream = cockpit_web_response_get_stream (response);
-
-  /*
-   * Figure out the conversation we're going to use for this login
-   * Note we respect both a X-Conversation header, and as a fallback
-   * the keep-alive connection. This allows for Negotiate authentication
-   * connection based conversations.
-   */
-  conversation = g_hash_table_lookup (headers, "X-Conversation");
-
-  /* Store the conversation appropriately on the connection stream itself */
-  stored = g_object_get_data (G_OBJECT (io_stream), "conversation");
-  if (!conversation || g_strcmp0 (conversation, stored) != 0)
-    {
-      if (conversation)
-        value = g_strdup (conversation);
-      else
-        conversation = value = cockpit_auth_nonce (data->auth);
-      g_object_set_data_full (G_OBJECT (io_stream), "conversation", value, g_free);
-    }
-
-  remote_peer = get_remote_address (io_stream);
-  cockpit_auth_login_async (data->auth, path, headers, conversation, remote_peer,
+  cockpit_auth_login_async (data->auth, path, headers, io_stream,
                             on_login_complete, g_object_ref (response));
-  g_free (remote_peer);
 }
 
 static void

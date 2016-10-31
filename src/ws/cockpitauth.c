@@ -49,8 +49,8 @@
 #define ACTION_SPAWN_HEADER "spawn-login-with-header"
 #define ACTION_SPAWN_DECODE "spawn-login-with-decoded"
 #define ACTION_SSH "remote-login-ssh"
-#define ACTION_LOGIN_REPLY "x-login-reply"
-#define LOGIN_REPLY_HEADER "X-Login-Reply"
+#define ACTION_CONVERSATION "x-conversation"
+#define LOGIN_REPLY_HEADER "X-Conversation"
 #define ACTION_NONE "none"
 
 /* Timeout of authenticated session when no connections */
@@ -1138,8 +1138,8 @@ action_for_type (const gchar *type,
   g_return_val_if_fail (application != NULL, NULL);
 
   host = application_parse_host (application);
-  if (g_strcmp0 (type, ACTION_LOGIN_REPLY) == 0)
-    action = ACTION_LOGIN_REPLY;
+  if (g_strcmp0 (type, ACTION_CONVERSATION) == 0)
+    action = ACTION_CONVERSATION;
 
   else if (host)
     action = ACTION_SSH;
@@ -1197,7 +1197,7 @@ cockpit_auth_choose_login_async (CockpitAuth *self,
                                        headers, remote_peer,
                                        callback, user_data);
     }
-  else if (g_strcmp0 (action, ACTION_LOGIN_REPLY) == 0)
+  else if (g_strcmp0 (action, ACTION_CONVERSATION) == 0)
     {
       cockpit_auth_resume_async (self, application, type,
                                  headers, remote_peer,

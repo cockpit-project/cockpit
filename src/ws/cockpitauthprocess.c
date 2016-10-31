@@ -634,7 +634,7 @@ cockpit_auth_process_get_authenticated_user (CockpitAuthProcess *self,
         {
           *prompt_data = json_object_ref (results);
           g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                       "X-Login-Reply needed");
+                       "X-Conversation needed");
         }
       else if (!error_str)
         {

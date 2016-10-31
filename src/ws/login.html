@@ -179,8 +179,14 @@
 
                 brand("badge", "");
                 brand("brand", "Cockpit");
+
                 id("option-group").addEventListener("click", function () {
-                    toggle_options();
+-                    toggle_options();
+                });
+                id("server-clear").addEventListener("click", function () {
+                    var el = id("server-field");
+                    el.value = "";
+                    el.focus();
                 });
 
                 if (!requisites())
@@ -1220,6 +1226,22 @@ label {
             -moz-transform-origin: 8px 8px;
             -webkit-transform-origin: 8px 8px;
         }
+        .server-box {
+            position: relative;
+        }
+        .cross {
+            position: absolute;
+            right: 25px;
+            top: 2px;
+            font-weight: bold;
+            font-size: 14px;
+            color: black;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        .cross:hover {
+            opacity: 1;
+        }
         #option-group svg {
             opacity: 0.7;
         }
@@ -1277,8 +1299,9 @@ label {
             </div>
             <div id="server-group" class="form-group login-form" style="display: none;">
               <label title="Log in to another system. Leave blank to log in to the local system." for="server-field" class="col-sm-2 col-md-2 control-label">Connect to</label>
-              <div class="col-sm-10 col-md-10">
+              <div class="col-sm-10 col-md-10 server-box">
                 <input type="text" class="form-control" id="server-field" tabindex="2">
+                <span class="cross" id="server-clear" aria-hidden="true">&#x274c;</span>
                 <span class="error-block" id="login-error-host" style="display: none;"></span>
               </div>
             </div>

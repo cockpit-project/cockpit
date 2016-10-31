@@ -251,16 +251,12 @@
                         } else if (xhr.status == 200) {
                             run(JSON.parse(xhr.responseText));
                         } else {
-                            challenge = xhr.getResponseHeader("WWW-Authenticate")
-                            if (challenge && challenge.substring(0, 14) === 'X-Login-Reply ') {
-                                prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
-                                if (prompt_data)
-                                    show_converse(prompt_data);
-                                else
-                                    fatal(xhr.statusText);
-                            } else {
+                            prompt_data = get_prompt_from_challenge(xhr.getResponseHeader("WWW-Authenticate"),
+                                                                    xhr.responseText);
+                            if (prompt_data)
+                                show_converse(prompt_data);
+                            else
                                 fatal(xhr.statusText);
-                            }
                         }
                     };
                     xhr.send();
@@ -413,11 +409,11 @@
                 var prompt;
 
                 if (!header)
-                    return;
+                    return null;
 
                 parts = header.split(' ');
-                if (parts[0].toLowerCase() !== 'X-Login-Reply' && parts.length != 3)
-                    return;
+                if (parts[0].toLowerCase() !== 'x-conversation' && parts.length != 3)
+                    return null;
 
                 id = parts[1];
                 try {
@@ -425,7 +421,7 @@
                 } catch (err) {
                     if (window.console)
                         console.error("Invalid prompt data", err);
-                    return;
+                    return null;
                 }
 
                 try {
@@ -460,8 +456,8 @@
                         var resp = JSON.parse(xhr.responseText);
                         run(resp);
                     } else if (xhr.status == 401) {
-                        challenge = xhr.getResponseHeader("WWW-Authenticate")
-                        if (challenge && challenge.substring(0, 14) === 'X-Login-Reply ') {
+                        challenge = xhr.getResponseHeader("WWW-Authenticate");
+                        if (challenge && challenge.toLowerCase().indexOf("x-conversation") === 0) {
                             prompt_data = get_prompt_from_challenge(challenge, xhr.responseText);
                             if (prompt_data)
                                 show_converse(prompt_data);
@@ -504,7 +500,7 @@
 
             function converse(id, msg) {
                 var headers = {
-                    "Authorization": "X-Login-Reply " + id + " " + btoa(utf8(msg))
+                    "Authorization": "X-Conversation " + id + " " + btoa(utf8(msg))
                 };
                 send_login_request("GET", headers, true);
             }

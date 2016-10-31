@@ -797,8 +797,7 @@ parse_login_reply_challenge (GHashTable *headers,
 
   // Check challenge type
   line = str_skip (line, ' ');
-  if (g_ascii_strncasecmp (line, "X-Login-Reply ",
-                            strlen("X-Login-Reply ")) != 0)
+  if (g_ascii_strncasecmp (line, "X-Conversation ", strlen("X-Conversation ")) != 0)
     goto out;
 
   next = strchr (line, ' ');
@@ -865,7 +864,7 @@ test_multi_step_success (Test *test,
           g_assert (id != NULL);
           out = g_base64_encode ((guint8 *)header, strlen (header));
           g_hash_table_insert (headers, g_strdup ("Authorization"),
-                               g_strdup_printf  ("X-Login-Reply %s %s", id, out));
+                               g_strdup_printf  ("X-Conversation %s %s", id, out));
           g_free (id);
           g_free (out);
           out = NULL;
@@ -952,7 +951,7 @@ test_multi_step_fail (Test *test,
           g_assert (id != NULL);
           out = g_base64_encode ((guint8 *)header, strlen (header));
           g_hash_table_insert (headers, g_strdup ("Authorization"),
-                               g_strdup_printf  ("X-Login-Reply %s %s", id, out));
+                               g_strdup_printf  ("X-Conversation %s %s", id, out));
           g_free (id);
           g_free (out);
           out = NULL;

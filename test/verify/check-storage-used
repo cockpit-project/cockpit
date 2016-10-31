@@ -53,6 +53,10 @@ class TestStorage(StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
+        # Further tear down doesn't work with the old UDisks2
+        if self.storaged_is_old_udisks:
+            return
+
         self.content_action(1, "Delete")
         self.dialog_wait_open()
         self.dialog_wait_alert("is mounted on /mnt")

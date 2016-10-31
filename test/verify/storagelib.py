@@ -44,6 +44,9 @@ class StorageCase(MachineCase):
         else:
             self.storaged_version = [ 0 ]
 
+        self.storaged_is_old_udisks = ("udisksctl" in self.storagectl_cmd and self.storaged_version < [2, 6, 0])
+
+
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
 

@@ -122,12 +122,12 @@
                 return vals.type != "empty" && vals.type != "dos-extended";
             }
 
-            /* Older UDisks2 implementation also don't have good
-             * enough support for maintaining fstab and crypptab, so
-             * we don't offer that in the UI.  (Most importantly, they
-             * miss the 'tear-down' option and without that we'll end
-             * up with obsolete fstab files all the time, which will
-             * break the next boot.)
+            /* Older UDisks2 implementations don't have good enough
+             * support for maintaining fstab and crypptab, so we don't
+             * offer that in the UI.  (Most importantly, they miss the
+             * 'tear-down' option and without that we'll end up with
+             * obsolete fstab files all the time, which will break the
+             * next boot.)
              */
 
             function is_encrypted_and_not_old_udisks2(vals) {
@@ -160,7 +160,14 @@
 
                 return ptable.CreatePartition(start, size, part_type, part_name, part_options)
                     .then(function(partition) {
-                        return client.blocks[partition].Format(type, options).then(function() {
+                        // We don't use client.blocks[partition] here
+                        // because it might not be defined.  In that
+                        // case, we prefer storaged to tell us in a
+                        // D-Bus error instead of causing a JavaScript
+                        // exception.
+                        //
+                        // See https://github.com/cockpit-project/cockpit/issues/4181
+                        return client.call(partition, "Block", "Format", [ type, options ]).then(function() {
                             return partition;
                         });
                     });

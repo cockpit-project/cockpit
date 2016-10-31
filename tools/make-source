@@ -42,6 +42,6 @@ else
     builddir=.
 fi
 
-make -C $builddir --silent dist-gzip distdir=cockpit-wip 1>&2
+make -j8 -C $builddir --silent dist-gzip distdir=cockpit-wip 1>&2
 directory=$(make -C $builddir --silent print-abs_builddir)
 echo $directory/cockpit-wip.tar.gz

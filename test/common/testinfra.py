@@ -60,7 +60,7 @@ DEFAULT_VERIFY = {
     'verify/rhel-atomic': [ 'master', 'pulls' ],
     'verify/debian-unstable': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ ],
-    'verify/ubuntu-1604': [ ],
+    'verify/ubuntu-1604': [ 'master', 'pulls' ],
     'avocado/fedora-24': [ 'master', 'pulls' ],
     'selenium/firefox': [ 'master', 'pulls' ],
     'selenium/chrome': [ 'master', 'pulls' ],
@@ -102,6 +102,9 @@ DEFAULT_IMAGE_REFRESH = {
     },
     'continuous-atomic': {
         'triggers': [ "verify/continuous-atomic", ]
+    },
+    'ubuntu-1604': {
+        'triggers': [ "verify/ubuntu-1604", ]
     }
 }
 

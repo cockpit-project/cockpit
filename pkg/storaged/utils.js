@@ -34,6 +34,25 @@
 
     var utils = { };
 
+    utils.compare_versions = function compare_versions(a, b) {
+        function to_ints(str) {
+            return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0; });
+        }
+
+        var a_ints = to_ints(a);
+        var b_ints = to_ints(b);
+        var len = Math.min(a_ints.length, b_ints.length);
+        var i;
+
+        for (i = 0; i < len; i++) {
+            if (a_ints[i] == b_ints[i])
+                continue;
+            return a_ints[i] - b_ints[i];
+        }
+
+        return a_ints.length - b_ints.length;
+    };
+
     var hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
 
     utils.array_find = function array_find(array, pred) {

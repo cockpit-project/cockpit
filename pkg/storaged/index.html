@@ -364,8 +364,9 @@
       </button>
       <ul class="dropdown-menu action-dropdown-menu" role="menu">
         {{#actions}}
-        <li class="presentation {{#disabled}}disabled{{/disabled}}">
-          <a class=" storage-privileged" data-action="{{action}}" data-arg="{{arg}}" role="menuitem">{{title}}</a>
+        <li class="presentation">
+          <a class="{{#disabled}}disabled{{/disabled}}"
+             data-action="{{action}}" data-arg="{{arg}}" role="menuitem">{{title}}</a>
         </li>
         {{/actions}}
       </ul>

@@ -291,7 +291,7 @@ var subscriptionStatusValues = [
     'RHSM_PARTIALLY_VALID',
     'RHSM_REGISTRATION_REQUIRED'
 ];
-var requestUpdate = function() {
+function requestUpdate() {
     service.call(
         '/EntitlementStatus',
         'com.redhat.SubscriptionManager.EntitlementStatus',
@@ -313,7 +313,7 @@ var requestUpdate = function() {
         function() {
             statusUpdateFailed("timeout");
         }, 30000);
-};
+}
 
 function processStatusOutput(text, exitDetails) {
     if (exitDetails && exitDetails.problem === 'access-denied') {

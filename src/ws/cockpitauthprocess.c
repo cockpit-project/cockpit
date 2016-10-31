@@ -718,6 +718,7 @@ cockpit_auth_process_write_auth_bytes (CockpitAuthProcess *self,
 gboolean
 cockpit_auth_process_start (CockpitAuthProcess *self,
                             const gchar** command_args,
+                            const gchar** environment,
                             gint agent_fd,
                             gboolean should_respond,
                             GError **error)

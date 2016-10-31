@@ -37,7 +37,8 @@ typedef struct      _CockpitAuthProcessClass        CockpitAuthProcessClass;
 GType              cockpit_auth_process_get_type    (void) G_GNUC_CONST;
 
 gboolean           cockpit_auth_process_start       (CockpitAuthProcess *self,
-                                                     const gchar** command_args,
+                                                     const gchar** argv,
+                                                     const gchar** env,
                                                      gint agent_fd,
                                                      gboolean should_respond,
                                                      GError **error);

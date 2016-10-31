@@ -1043,12 +1043,6 @@ label {
   font-weight: 700;
   src: url('cockpit/static/fonts/OpenSans-Bold-webfont.woff') format('woff');
 }
-@font-face {
-  font-family: 'FontAwesome';
-  font-style: normal;
-  font-weight: 700;
-  src: url('cockpit/static/fonts/fontawesome-webfont.woff') format('woff');
-}
 .form-control:hover {
   border-color: #7BB2DD;
 }
@@ -1163,19 +1157,6 @@ label {
   width: 24px;
 }
 
-.caret {
-  display: inline-block;
-  font: normal normal normal 14px/1 FontAwesome;
-}
-
-.caret-down::before {
-  content: "\f0d7";
-}
-
-.caret-right::before {
-  content: "\f0da";
-}
-
 .error-block {
   display: block;
   margin-top: 5px;
@@ -1226,6 +1207,25 @@ label {
                 float: right;
           }
         }
+        .caret {
+            display: inline-block;
+            position: relative;
+            top: 4px;
+        }
+        .caret-down {
+            transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -webkit-transform: rotate(90deg);
+            transform-origin: 8px 8px;
+            -moz-transform-origin: 8px 8px;
+            -webkit-transform-origin: 8px 8px;
+        }
+        #option-group svg {
+            opacity: 0.7;
+        }
+        #option-group:hover svg {
+            opacity: 1.0;
+        }
     </style>
     <link href="cockpit/static/branding.css" type="text/css" rel="stylesheet">
   </head>
@@ -1266,7 +1266,12 @@ label {
             <div id="option-group" class="form-group login-form">
               <div class="col-sm-2 col-md-2"></div>
               <div class="col-sm-10 col-md-10">
-                <i id="option-caret" class="caret caret-right" aria-hidden="true"></i>
+                <i id="option-caret" class="caret caret-right" aria-hidden="true">
+                    <svg height="16" width="16" viewBox="0 0 16 16">
+                        <polygon fill="#ffffff" points="4,0 4,14 12,7"/>
+                        <polygon>
+                    </svg>
+                </i>
                 <span>Other Options</span>
               </div>
             </div>

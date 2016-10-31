@@ -33,4 +33,44 @@ QUnit.test("format_delay", function() {
     }
 });
 
+QUnit.test("auto_fstab_spec", function() {
+    var checks = [
+        {
+            name: "with-uuid",
+            block: { IdUUID: "thisismyuuid", Device: "L2Rldi9zZGExAA==" },
+            result: "UUID=thisismyuuid",
+        },
+        {
+            name: "without-uuid",
+            block: { Device: "L2Rldi9zZGExAA==" },
+            result: "/dev/sda1",
+        }
+    ];
+
+    assert.expect(checks.length);
+    checks.forEach(function(check) {
+        assert.strictEqual(utils.auto_fstab_spec(check.block), check.result, check.name);
+    });
+});
+
+QUnit.test("auto_luks_name", function() {
+    var checks = [
+        {
+            name: "with-uuid",
+            block: { IdUUID: "thisismyuuid", Device: "L2Rldi9zZGExAA==" },
+            result: "luks-thisismyuuid",
+        },
+        {
+            name: "without-uuid",
+            block: { Device: "L2Rldi9zZGExAA==" },
+            result: "luks-sda1",
+        }
+    ];
+
+    assert.expect(checks.length);
+    checks.forEach(function(check) {
+        assert.strictEqual(utils.auto_luks_name(check.block), check.result, check.name);
+    });
+});
+
 QUnit.start();

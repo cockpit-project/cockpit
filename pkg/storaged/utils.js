@@ -154,6 +154,19 @@
         return mustache.render('{{Type}} "{{Name}}"', { Type: type, Name: lvol.Name });
     };
 
+    utils.auto_fstab_spec = function auto_fstab_spec(block) {
+        if (block.IdUUID)
+            return "UUID=" + block.IdUUID;
+        return utils.decode_filename(block.Device);
+    };
+
+    utils.auto_luks_name = function auto_luks_name(block) {
+        if (block.IdUUID)
+            return "luks-" + block.IdUUID;
+        var parts = utils.decode_filename(block.Device).split("/");
+        return "luks-" + parts[parts.length - 1];
+    };
+
     utils.drive_name = function drive_name(drive) {
         var name_parts = [ ];
         if (drive.Vendor)

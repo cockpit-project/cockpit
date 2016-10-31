@@ -150,24 +150,8 @@ class TestRealms(MachineCase):
         b.click(".realms-op-apply")
         b.wait_text(".realms-op-error", "Joining this domain is not supported")
 
-KRB5_TEMPLATE = """
-[logging]
- default = FILE:%(dir)s/krb5.log
-[libdefaults]
- dns_lookup_realm = false
- default_realm = COCKPIT.LAN
- rdns = false
-[realms]
- COCKPIT.LAN = {
-   kdc = %(addr)s
-   master_kdc = %(addr)s
- }
-[domain_realm]
- %(addr)s = COCKPIT.LAN
-"""
-
 JOIN_SCRIPT = """
-set -e
+set -ex
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
 for x in 1 2 3 4 5 6 7 8 9 10; do
     if nslookup -type=SRV _ldap._tcp.cockpit.lan; then
@@ -176,6 +160,7 @@ for x in 1 2 3 4 5 6 7 8 9 10; do
         sleep $x
     fi
 done
+
 if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
     journalctl -u realmd.service
 fi
@@ -184,6 +169,15 @@ fi
 echo '%(password)s' | kinit admin@COCKPIT.LAN
 curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
 ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
+
+# HACK: https://bugs.freedesktop.org/show_bug.cgi?id=98479
+if ! grep -q 'services.*nss' /etc/sssd/sssd.conf; then
+    sed -i 's/^services = sudo, ssh$/services = sudo, ssh, nss, pam/' /etc/sssd/sssd.conf
+    systemctl restart sssd
+fi
+
+# This needs to work
+getent passwd admin@cockpit.lan
 """
 
 # This is here because our test framework can't run ipa VM's twice
@@ -221,9 +215,28 @@ class TestKerberos(MachineCase):
         self.configure_kerberos()
         self.machine.restart_cockpit()
 
-        output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
+        output = self.machine.execute(['/usr/bin/curl', '-v', '-s', '--negotiate', '-u', ':', "-D", "-",
                                        '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
-                                       'http://x0.cockpit.lan:9090/cockpit/login'])
+                                       'http://x0.cockpit.lan:9090/cockpit/login', '2>&1'])
+
+        # So curl on centos-7 is broken here. You can verify this by
+        # checking access from another machine. Just get to this failure
+        # point, and then put this in your other machine /etc/krb5.conf
+        #
+        #   [realms]
+        #    COCKPIT.LAN = {
+        #     kdc = 10.111.112.100
+        #     master_kdc = 10.111.112.100
+        # }
+        #
+        # Now run with password  'foobarfoo'
+        # $ kinit admin@COCKPIT.LAN
+        #
+        # And run the above curl command. It should be successful
+        if "centos" in self.machine.image and "gss_init_sec_context() failed: : Success" in output:
+            self.skipTest("curl with --negotiate is broken on CentOS 7")
+            return
+
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"admin@cockpit.lan"', output)
 

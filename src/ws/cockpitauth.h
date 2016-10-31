@@ -70,6 +70,7 @@ struct _CockpitAuthClass
   void           (* login_async)         (CockpitAuth *auth,
                                           const gchar *path,
                                           GHashTable *headers,
+                                          const gchar *conversation,
                                           const gchar *remote_peer,
                                           GAsyncReadyCallback callback,
                                           gpointer user_data);
@@ -91,6 +92,7 @@ gchar *         cockpit_auth_nonce           (CockpitAuth *self);
 void            cockpit_auth_login_async     (CockpitAuth *self,
                                               const gchar *path,
                                               GHashTable *headers,
+                                              const gchar *conversation,
                                               const gchar *remote_peer,
                                               GAsyncReadyCallback callback,
                                               gpointer user_data);

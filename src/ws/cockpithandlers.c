@@ -399,6 +399,7 @@ on_login_complete (GObject *object,
   CockpitAuthFlags flags = 0;
   GHashTable *headers;
   GIOStream *io_stream;
+  const gchar *conversation;
   GBytes *content;
 
   io_stream = cockpit_web_response_get_stream (response);
@@ -407,6 +408,11 @@ on_login_complete (GObject *object,
 
   headers = cockpit_web_server_new_table ();
   response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, flags, headers, &error);
+
+  /* Make a keep-alive connection work as our conversation medium */
+  conversation = g_object_get_data (G_OBJECT (io_stream), "conversation");
+  g_assert (conversation != NULL);
+  g_hash_table_insert (headers, g_strdup ("X-Conversation"), g_strdup (conversation));
 
   if (error)
     {
@@ -449,6 +455,9 @@ handle_login (CockpitHandlerData *data,
   GIOStream *io_stream;
   CockpitCreds *creds;
   JsonObject *creds_json = NULL;
+  const gchar *conversation;
+  const gchar *stored;
+  gchar *value;
 
   if (service)
     {
@@ -457,18 +466,36 @@ handle_login (CockpitHandlerData *data,
       creds_json = cockpit_creds_to_json (creds);
       send_login_response (response, creds_json, out_headers);
       g_hash_table_unref (out_headers);
-    }
-  else
-    {
-      io_stream = cockpit_web_response_get_stream (response);
-      remote_peer = get_remote_address (io_stream);
-      cockpit_auth_login_async (data->auth, path, headers, remote_peer,
-                                on_login_complete, g_object_ref (response));
-      g_free (remote_peer);
+      json_object_unref (creds_json);
+      return;
     }
 
-  if (creds_json)
-    json_object_unref (creds_json);
+  io_stream = cockpit_web_response_get_stream (response);
+
+  /*
+   * Figure out the conversation we're going to use for this login
+   * Note we respect both a X-Conversation header, and as a fallback
+   * the keep-alive connection. This allows for Negotiate authentication
+   * connection based conversations.
+   */
+  conversation = cockpit_auth_pop_conversation xxxx
+  conversation = g_hash_table_lookup (headers, "X-Conversation");
+
+  /* Store the conversation appropriately on the connection stream itself */
+  stored = g_object_get_data (G_OBJECT (io_stream), "conversation");
+  if (!conversation || g_strcmp0 (conversation, stored) != 0)
+    {
+      if (conversation)
+        value = g_strdup (conversation);
+      else
+        conversation = value = cockpit_auth_nonce (data->auth);
+      g_object_set_data_full (G_OBJECT (io_stream), "conversation", value, g_free);
+    }
+
+  remote_peer = get_remote_address (io_stream);
+  cockpit_auth_login_async (data->auth, path, headers, conversation, remote_peer,
+                            on_login_complete, g_object_ref (response));
+  g_free (remote_peer);
 }
 
 static void

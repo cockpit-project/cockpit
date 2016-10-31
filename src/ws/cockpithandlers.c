@@ -478,6 +478,7 @@ handle_login (CockpitHandlerData *data,
    * the keep-alive connection. This allows for Negotiate authentication
    * connection based conversations.
    */
+  conversation = cockpit_auth_pop_conversation xxxx
   conversation = g_hash_table_lookup (headers, "X-Conversation");
 
   /* Store the conversation appropriately on the connection stream itself */

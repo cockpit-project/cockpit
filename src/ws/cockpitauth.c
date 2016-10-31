@@ -52,7 +52,7 @@
 #define ACTION_RESUME "x-resume"
 #define ACTION_NONE "none"
 
-#define LOGIN_REPLY_HEADER "X-Login-Reply"
+#define CONVERSATION_HEADER "X-Conversation"
 
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;
@@ -289,8 +289,8 @@ purge_auth_id (CockpitAuthProcess *auth_process,
                gpointer user_data)
 {
   CockpitAuth *self = user_data;
-  const gchar *id = cockpit_auth_process_get_id (auth_process);
-  g_hash_table_remove (self->authentication_pending, id);
+  const gchar *conversation = cockpit_auth_process_get_conversation (auth_process);
+  g_hash_table_remove (self->authentication_pending, conversation);
 }
 
 static void
@@ -309,7 +309,7 @@ cockpit_auth_prepare_login_reply (CockpitAuth *self,
   encoded_data = g_base64_encode ((guint8 *)prompt, strlen (prompt));
 
   g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"),
-                        g_strdup_printf ("%s %s", LOGIN_REPLY_HEADER, encoded_data));
+                        g_strdup_printf ("%s %s %s", CONVERSATION_HEADER, ad->conversation, encoded_data));
 
   g_hash_table_insert (self->authentication_pending, ad->conversation, auth_data_ref (ad));
 
@@ -670,7 +670,7 @@ create_auth_data (CockpitAuth *self,
   ad->auth_process = g_object_new (COCKPIT_TYPE_AUTH_PROCESS,
                                    "pipe-timeout", pipe_timeout,
                                    "idle-timeout", idle_timeout,
-                                   "id", ad->conversation,
+                                   "conversation", ad->conversation,
                                    "logname", logname,
                                    "name", name,
                                    "wanted-auth-fd", wanted_fd,

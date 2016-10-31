@@ -193,7 +193,7 @@ test_login_with_cookie (Test *test,
   user = g_get_user_name ();
   headers = mock_auth_basic_header (user, PASSWORD);
 
-  cockpit_auth_login_async (test->auth, path, headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, headers, "test", NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -410,7 +410,7 @@ setup_default (Test *test,
       user = g_get_user_name ();
       headers = mock_auth_basic_header (user, PASSWORD);
 
-      cockpit_auth_login_async (test->auth, fixture->auth, headers, NULL, on_ready_get_result, &result);
+      cockpit_auth_login_async (test->auth, fixture->auth, headers, "test", NULL, on_ready_get_result, &result);
       g_hash_table_unref (headers);
       while (result == NULL)
         g_main_context_iteration (NULL, TRUE);

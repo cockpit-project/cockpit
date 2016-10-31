@@ -591,12 +591,24 @@ open_session (pam_handle_t *pamh)
   return PAM_SUCCESS;
 }
 
+static void
+setup_remote_host (pam_handle_t *pamh)
+{
+  const char *rhost = getenv ("COCKPIT_REMOTE_HOST");
+  if (rhost)
+    {
+      if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
+        errx (EX, "couldn't setup pam");
+    }
+}
+
 static pam_handle_t *
 perform_basic (void)
 {
   struct pam_conv conv = { pam_conv_func, };
   pam_handle_t *pamh;
   char *input = NULL;
+  const gchar *rhost;
   char *password;
   int res;
 
@@ -625,8 +637,7 @@ perform_basic (void)
   /* Move the password into place for use during auth */
   memmove (input, password, strlen (password) + 1);
 
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
-    errx (EX, "couldn't setup pam");
+  setup_remote_host (pamh);
 
   debug ("authenticating");
 
@@ -765,9 +776,7 @@ perform_gssapi (void)
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
 
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
-    errx (EX, "couldn't setup pam");
-
+  setup_remote_host (pamh);
   res = open_session (pamh);
 
 out:
@@ -820,6 +829,35 @@ out:
 
   if (res != PAM_SUCCESS)
     exit (5);
+
+  return pamh;
+}
+
+static pam_handle_t *
+perform_auth (void)
+{
+  pam_handle_t *pamh = NULL;
+  unsigned char *input;
+  unsigned char *sep;
+  size_t length;
+
+  input = read_seqpacket_message (AUTH_FD, "password", &length);
+  sep = memchr (input, ' ', length);
+  if (sep)
+    {
+      *(sep++) = '\0';
+      while (sep[0] == ' ')
+        sep++;
+      length -= (sep - input);
+
+      if (strcmp (input, "basic") == 0)
+        pamh = perform_basic (sep, length);
+      else if (strncmp (input, "basic") == 0)
+        pamh = perform_gssapi (sep, length);
+    }
+
+  if (!pamh)
+    errx (2, "unrecognized authentication method: %s", input);
 
   return pamh;
 }
@@ -1032,6 +1070,7 @@ pass_to_child (int signo)
 static const char *env_names[] = {
   "G_DEBUG",
   "G_MESSAGES_DEBUG",
+  "COCKPIT_REMOTE_HOST",
   "G_SLICE",
   "PATH",
   NULL
@@ -1077,7 +1116,7 @@ main (int argc,
   if (isatty (0))
     errx (2, "this command is not meant to be run from the console");
 
-  if (argc != 3)
+  if (argc != 2)
     errx (2, "invalid arguments to cockpit-session");
 
   /* Cleanup the umask */
@@ -1107,8 +1146,7 @@ main (int argc,
   if (flags < 0 || fcntl (AUTH_FD, F_SETFD, flags | FD_CLOEXEC))
     err (1, "couldn't set auth fd flags");
 
-  auth = argv[1];
-  rhost = argv[2];
+  /* argv[1] is ignored */
 
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
@@ -1116,12 +1154,7 @@ main (int argc,
   signal (SIGHUP, SIG_IGN);
   signal (SIGPIPE, SIG_IGN);
 
-  if (strcmp (auth, "basic") == 0)
-    pamh = perform_basic ();
-  else if (strcmp (auth, "negotiate") == 0)
-    pamh = perform_gssapi ();
-  else
-    errx (2, "unrecognized authentication method: %s", auth);
+  pamh = perform_auth ();
 
   for (i = 0; env_saved[i] != NULL; i++)
     pam_putenv (pamh, env_saved[i]);

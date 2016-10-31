@@ -171,7 +171,7 @@ test_userpass_cookie_check (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("me", "this is the password");
-  cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit/", headers, "test", NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -227,7 +227,7 @@ test_userpass_bad (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("me", "bad");
-  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit", headers, "test", NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -254,7 +254,7 @@ test_userpass_emptypass (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("aaaaaa", "");
-  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit", headers, "test", NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -327,7 +327,7 @@ test_idle_timeout (Test *test,
   g_assert (cockpit_ws_service_idle == 1);
 
   headers = mock_auth_basic_header ("me", "this is the password");
-  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit", headers, "test", NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -408,10 +408,10 @@ test_max_startups (Test *test,
   g_hash_table_insert (headers_fail, g_strdup ("Authorization"), g_strdup ("testscheme fail"));
 
   /* Slow request that takes a while to complete */
-  cockpit_auth_login_async (test->auth, "/cockpit", headers_slow, NULL, on_ready_get_result, &result1);
+  cockpit_auth_login_async (test->auth, "/cockpit", headers_slow, "test", NULL, on_ready_get_result, &result1);
 
   /* Request that gets dropped */
-  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, NULL, on_ready_get_result, &result2);
+  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, "test", NULL, on_ready_get_result, &result2);
   while (result2 == NULL)
     g_main_context_iteration (NULL, TRUE);
   response = cockpit_auth_login_finish (test->auth, result2, 0, NULL, &error2);
@@ -429,7 +429,7 @@ test_max_startups (Test *test,
 
   /* Now that first is finished we can successfully run another one */
   g_hash_table_insert (headers_fail, g_strdup ("Authorization"), g_strdup ("testscheme fail"));
-  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, NULL, on_ready_get_result, &result3);
+  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, "test", NULL, on_ready_get_result, &result3);
   while (result3 == NULL)
     g_main_context_iteration (NULL, TRUE);
   response = cockpit_auth_login_finish (test->auth, result3, 0, NULL, &error3);
@@ -481,7 +481,7 @@ test_custom_fail (Test *test,
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
 
-  cockpit_auth_login_async (test->auth, path, headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, headers, "test", NULL, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -550,7 +550,7 @@ test_custom_success (Test *test,
 
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
-  cockpit_auth_login_async (test->auth, path, headers, fix->remote_peer, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, headers, "test", fix->remote_peer, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
@@ -778,13 +778,11 @@ str_skip (gchar *v,
 
 static gboolean
 parse_login_reply_challenge (GHashTable *headers,
-                             gchar **out_id,
                              gchar **out_prompt)
 {
   gchar *original;
   gchar *line;
   gchar *next;
-  gchar *id = NULL;
   gchar *prompt = NULL;
   gboolean ret = FALSE;
   gpointer key;
@@ -805,14 +803,6 @@ parse_login_reply_challenge (GHashTable *headers,
   if (!next)
     goto out;
 
-  // Get id
-  line = next;
-  line = str_skip (line, ' ');
-  next = strchr (line, ' ');
-  if (!next)
-    goto out;
-  id = g_strndup (line, next - line);
-
   // Rest should be the base64 prompt
   next = str_skip (next, ' ');
   prompt = g_strdup (next);
@@ -824,13 +814,11 @@ parse_login_reply_challenge (GHashTable *headers,
 out:
   if (ret)
     {
-      *out_id = id;
       *out_prompt = prompt;
     }
   else
     {
       g_warning ("Got invalid WWW-Authenticate header: %s", original);
-      g_free (id);
       g_free (prompt);
     }
 
@@ -841,11 +829,11 @@ static void
 test_multi_step_success (Test *test,
                          gconstpointer data)
 {
+  const gchar *conversation = "myconversation";
   CockpitWebService *service;
   CockpitCreds *creds;
   GHashTable *headers = NULL;
   gint spot = 0;
-  gchar *id = NULL;
 
   const SuccessMultiFixture *fix = data;
 
@@ -860,23 +848,20 @@ test_multi_step_success (Test *test,
       gchar *prompt = NULL;
 
       headers = web_socket_util_new_headers ();
-      if (id)
+      if (spot > 0)
         {
-          g_assert (id != NULL);
           out = g_base64_encode ((guint8 *)header, strlen (header));
           g_hash_table_insert (headers, g_strdup ("Authorization"),
-                               g_strdup_printf  ("X-Login-Reply %s %s", id, out));
-          g_free (id);
+                               g_strdup_printf  ("X-Login-Reply %s", out));
           g_free (out);
           out = NULL;
-          id = NULL;
         }
       else
         {
           g_hash_table_insert (headers, g_strdup ("Authorization"),
                                g_strdup (header));
         }
-      cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+      cockpit_auth_login_async (test->auth, "/cockpit/", headers, conversation, NULL, on_ready_get_result, &result);
       g_hash_table_unref (headers);
 
       while (result == NULL)
@@ -891,11 +876,9 @@ test_multi_step_success (Test *test,
       if (expect_prompt)
         {
           g_assert (prompt == NULL);
-          g_assert (id == NULL);
 
-          g_assert (parse_login_reply_challenge (headers, &id, &prompt));
+          g_assert (parse_login_reply_challenge (headers, &prompt));
           g_assert_cmpstr (expect_prompt, ==, prompt);
-          g_assert (id != NULL);
           g_free (prompt);
           prompt = NULL;
 
@@ -927,9 +910,9 @@ static void
 test_multi_step_fail (Test *test,
                       gconstpointer data)
 {
+  const gchar *conversation = "otherconversation";
   GHashTable *headers = NULL;
   gint spot = 0;
-  gchar *id = NULL;
   gchar *prompt = NULL;
   const ErrorMultiFixture *fix = data;
 
@@ -947,23 +930,20 @@ test_multi_step_fail (Test *test,
       gboolean ready_for_next = TRUE;
 
       headers = web_socket_util_new_headers ();
-      if (id)
+      if (spot > 0)
         {
-          g_assert (id != NULL);
           out = g_base64_encode ((guint8 *)header, strlen (header));
           g_hash_table_insert (headers, g_strdup ("Authorization"),
-                               g_strdup_printf  ("X-Login-Reply %s %s", id, out));
-          g_free (id);
+                               g_strdup_printf  ("X-Login-Reply %s", out));
           g_free (out);
           out = NULL;
-          id = NULL;
         }
       else
         {
           g_hash_table_insert (headers, g_strdup ("Authorization"),
                                g_strdup (header));
         }
-      cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+      cockpit_auth_login_async (test->auth, "/cockpit/", headers, conversation, NULL, on_ready_get_result, &result);
       g_hash_table_unref (headers);
 
       while (result == NULL)
@@ -978,11 +958,9 @@ test_multi_step_fail (Test *test,
       if (expect_prompt)
         {
           g_assert (prompt == NULL);
-          g_assert (id == NULL);
 
-          g_assert (parse_login_reply_challenge (headers, &id, &prompt));
+          g_assert (parse_login_reply_challenge (headers, &prompt));
           g_assert_cmpstr (expect_prompt, ==, prompt);
-          g_assert (id != NULL);
           g_free (prompt);
           prompt = NULL;
           if (fix->pause)
@@ -1069,7 +1047,7 @@ static const ErrorMultiFixture fixture_fail_step_timeout = {
   .headers = two_steps,
   .prompts = two_prompts,
   .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
-  .error_message = "Invalid resume token",
+  .error_message = "Invalid conversation token",
   .warning = "*Auth pipe closed: timeout*",
   .pause = 3,
 };

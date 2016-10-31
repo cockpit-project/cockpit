@@ -49,9 +49,6 @@
 #define ACTION_SPAWN_HEADER "spawn-login-with-header"
 #define ACTION_SPAWN_DECODE "spawn-login-with-decoded"
 #define ACTION_SSH "remote-login-ssh"
-#define ACTION_LOGIN_REPLY "x-login-reply"
-#define LOGIN_REPLY_HEADER "X-Login-Reply"
-#define ACTION_NONE "none"
 
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;
@@ -130,12 +127,12 @@ cockpit_authenticated_free (gpointer data)
 
 typedef struct {
   CockpitAuthProcess *auth_process;
-  gchar *id;
+  gchar *conversation;
   gchar *response_data;
   GBytes *authorization;
-  gchar *remote_peer;
-  gchar *auth_type;
+  const gchar *auth_type;
   gchar *application;
+  gchar *remote_peer;
 
   GSimpleAsyncResult *pending_result;
 
@@ -159,10 +156,8 @@ auth_data_free (gpointer data)
   if (ad->authorization)
     g_bytes_unref (ad->authorization);
 
-  g_free (ad->auth_type);
   g_free (ad->application);
-  g_free (ad->remote_peer);
-  g_free (ad->id);
+  g_free (ad->conversation);
   g_free (ad->response_data);
 
   g_free (ad);
@@ -281,6 +276,39 @@ cockpit_auth_nonce (CockpitAuth *self)
                                   (guchar *)&seed, sizeof (seed));
 }
 
+static gchar *
+get_remote_address (GIOStream *io)
+{
+  GSocketAddress *remote = NULL;
+  GSocketConnection *connection = NULL;
+  GIOStream *base;
+  gchar *result = NULL;
+
+  if (G_IS_TLS_CONNECTION (io))
+    {
+      g_object_get (io, "base-io-stream", &base, NULL);
+      if (G_IS_SOCKET_CONNECTION (base))
+        connection = g_object_ref (base);
+      g_object_unref (base);
+    }
+  else if (G_IS_SOCKET_CONNECTION (io))
+    {
+      connection = g_object_ref (io);
+    }
+
+  if (connection)
+    remote = g_socket_connection_get_remote_address (connection, NULL);
+  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
+    result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
+
+  if (remote)
+    g_object_unref (remote);
+  if (connection)
+    g_object_unref (connection);
+
+  return result;
+}
+
 static void
 purge_auth_id (CockpitAuthProcess *auth_process,
                GError *error,
@@ -288,8 +316,8 @@ purge_auth_id (CockpitAuthProcess *auth_process,
                gpointer user_data)
 {
   CockpitAuth *self = user_data;
-  const gchar *id = cockpit_auth_process_get_id (auth_process);
-  g_hash_table_remove (self->authentication_pending, id);
+  const gchar *conversation = cockpit_auth_process_get_conversation (auth_process);
+  g_hash_table_remove (self->authentication_pending, conversation);
 }
 
 static void
@@ -308,10 +336,9 @@ cockpit_auth_prepare_login_reply (CockpitAuth *self,
   encoded_data = g_base64_encode ((guint8 *)prompt, strlen (prompt));
 
   g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"),
-                        g_strdup_printf ("%s %s %s", LOGIN_REPLY_HEADER,
-                                         ad->id, encoded_data));
+                        g_strdup_printf ("X-Conversation %s %s", ad->conversation, encoded_data));
 
-  g_hash_table_insert (self->authentication_pending, ad->id, auth_data_ref (ad));
+  g_hash_table_insert (self->authentication_pending, ad->conversation, auth_data_ref (ad));
 
   json_object_remove_member (prompt_data, "prompt");
   g_free (encoded_data);
@@ -389,7 +416,7 @@ cockpit_auth_parse_authorization_type (GHashTable *headers)
  * Removes the Authorization header from the hashtable.
  */
 GBytes *
-cockpit_auth_parse_authorization (GHashTable *headers,
+cockpit_auth_steal_authorization (GHashTable *headers,
                                   gboolean base64_decode)
 {
   gchar *line;
@@ -414,21 +441,7 @@ cockpit_auth_parse_authorization (GHashTable *headers,
     }
 
   contents = str_skip (next, ' ');
-  if (base64_decode)
-    {
-      if (g_base64_decode_inplace (contents, &length) == NULL)
-        {
-          g_free (line);
-          return NULL;
-        }
-
-      /* Null terminate for convenience, but null count not included in GBytes */
-      contents[length] = '\0';
-    }
-  else
-    {
-      length = strlen (contents);
-    }
+  length = strlen (contents);
 
   /* Avoid copying by using the line directly */
   return g_bytes_new_with_free_func (contents, length, clear_free_authorization, line);
@@ -631,64 +644,25 @@ on_auth_process_close (CockpitAuthProcess *auth_process,
     auth_data_complete_result (ad, error);
 }
 
-static AuthData *
-create_auth_data (CockpitAuth *self,
-                  const gchar *name,
-                  const gchar *application,
-                  const gchar *type,
-                  const gchar *remote_peer,
-                  const gchar *logname,
-                  GBytes *input)
-{
-  guint pipe_timeout;
-  guint idle_timeout;
-  guint wanted_fd;
-  AuthData *ad = NULL;
-
-  /* How long to wait for the auth process to send some data */
-  pipe_timeout = timeout_option ("timeout", type, cockpit_ws_auth_process_timeout);
-  /* How long to wait for a response from the client to a auth prompt */
-  idle_timeout = timeout_option ("response-timeout", type,
-                                 cockpit_ws_auth_response_timeout);
-  /* The wanted authfd for this command, default is 3 */
-  wanted_fd = cockpit_conf_guint (type, "authFD", 3, 1024, 3);
-
-  ad = g_new0 (AuthData, 1);
-  ad->refs = 1;
-  ad->id = cockpit_auth_nonce (self);
-  ad->pending_result = NULL;
-  ad->response_data = NULL;
-  ad->tag = NULL;
-  ad->remote_peer = g_strdup (remote_peer);
-  ad->auth_type = g_strdup (type);
-  ad->authorization = g_bytes_ref (input);
-  ad->application = g_strdup (application);
-
-  ad->auth_process = g_object_new (COCKPIT_TYPE_AUTH_PROCESS,
-                                   "pipe-timeout", pipe_timeout,
-                                   "idle-timeout", idle_timeout,
-                                   "id", ad->id,
-                                   "logname", logname,
-                                   "name", name,
-                                   "wanted-auth-fd", wanted_fd,
-                                   NULL);
-  return ad;
-}
-
 static void
 start_auth_process (CockpitAuth *self,
                     AuthData *ad,
-                    GBytes *input,
+                    GBytes *authorization,
                     GSimpleAsyncResult *result,
-                    gpointer tag,
                     const gchar **argv)
 {
   GError *error = NULL;
+  gchar **environment;
 
-  g_simple_async_result_set_op_res_gpointer (result,
-                                             auth_data_ref (ad), auth_data_unref);
+  environment = g_get_environ ();
+  if (ad->remote_peer)
+    g_environ_setenv (environment, "COCKPIT_REMOTE_HOST", ad->remote_peer, TRUE);
+  else
+    g_environ_unsetenv (environment, "COCKPIT_REMOTE_HOST");
 
-  if (cockpit_auth_process_start (ad->auth_process, argv, -1, FALSE, &error))
+  g_simple_async_result_set_op_res_gpointer (result, auth_data_ref (ad), auth_data_unref);
+
+  if (cockpit_auth_process_start (ad->auth_process, argv, (const gchar **)environment, -1, FALSE, &error))
     {
       auth_data_add_pending_result (ad, result);
       g_signal_connect (ad->auth_process, "message",
@@ -700,7 +674,7 @@ start_auth_process (CockpitAuth *self,
       g_signal_connect (ad->auth_process, "close",
                         G_CALLBACK (purge_auth_id),
                         self);
-      cockpit_auth_process_write_auth_bytes (ad->auth_process, input);
+      cockpit_auth_process_write_auth_bytes (ad->auth_process, authorization);
     }
   else
     {
@@ -708,63 +682,84 @@ start_auth_process (CockpitAuth *self,
       g_error_free (error);
 
       g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                       "Internal error starting %s", argv[0]);
+                                       "Internal error starting authentication process");
       g_simple_async_result_complete_in_idle (result);
     }
+
+  g_strfreev (environment);
 }
 
 static void
 cockpit_auth_spawn_login_async (CockpitAuth *self,
-                                const gchar *application,
+                                const gchar *path,
+                                GIOStream *connection,
                                 const gchar *type,
-                                gboolean decode_header,
-                                GHashTable *headers,
-                                const gchar *remote_peer,
+                                GBytes *authorization,
                                 GAsyncReadyCallback callback,
                                 gpointer user_data)
 {
   GSimpleAsyncResult *result;
-  GBytes *input = NULL;
+  const gchar *program_default;
   AuthData *ad = NULL;
   const gchar *command;
+  guint pipe_timeout;
+  guint idle_timeout;
+  guint wanted_fd;
+  const gchar *host;
 
   const gchar *argv[] = {
       "command",
-      type,
-      remote_peer ? remote_peer : "",
+      "host",
       NULL,
   };
 
-  result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                      cockpit_auth_spawn_login_async);
+  ad = g_new0 (AuthData, 1);
+  ad->refs = 1;
+  ad->conversation = cockpit_auth_nonce (self);
+  ad->pending_result = NULL;
+  ad->response_data = NULL;
+  ad->tag = NULL;
+  ad->auth_type = type;
+  ad->remote_peer = get_remote_address (connection);
+  ad->authorization = g_bytes_ref (authorization);
+  ad->application = cockpit_auth_parse_application (path);
 
-  command = type_option (type, "command", cockpit_ws_session_program);
-
-  input = cockpit_auth_parse_authorization (headers, decode_header);
-  if (!input && !gssapi_not_avail && g_strcmp0 (type, "negotiate") == 0)
-    input = g_bytes_new_static ("", 0);
-
-  if (input && application)
-    {
-      argv[0] = command;
-      ad = create_auth_data (self, "localhost", application,
-                             type, remote_peer, command, input);
-      start_auth_process (self, ad, input, result,
-                          cockpit_auth_spawn_login_async, argv);
-    }
+  /* Figure out what command to execute */
+  host = application_parse_host (ad->application);
+  if (self->login_loopback && g_str_equal (type, "basic"))
+    program_default = cockpit_ws_ssh_program;
+  else if (host)
+    program_default = cockpit_ws_ssh_program;
   else
-    {
-      g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Authentication required");
-      g_simple_async_result_complete_in_idle (result);
-    }
+    program_default = cockpit_ws_session_program;
+  command = type_option (type, "command", program_default);
 
-  if (input)
-    g_bytes_unref (input);
+  /* How long to wait for the auth process to send some data */
+  pipe_timeout = timeout_option ("timeout", type, cockpit_ws_auth_process_timeout);
 
-  if (ad)
-    auth_data_unref (ad);
+  /* How long to wait for a response from the client to a auth prompt */
+  idle_timeout = timeout_option ("response-timeout", type,
+                                 cockpit_ws_auth_response_timeout);
 
+  /* The wanted authfd for this command, default is 3 */
+  wanted_fd = cockpit_conf_guint (type, "authFD", 3, 1024, 3);
+
+  ad->auth_process = g_object_new (COCKPIT_TYPE_AUTH_PROCESS,
+                                   "pipe-timeout", pipe_timeout,
+                                   "idle-timeout", idle_timeout,
+                                   "conversation", ad->conversation,
+                                   "logname", command,
+                                   "name", host ? host : "localhost",
+                                   "wanted-auth-fd", wanted_fd,
+                                   NULL);
+
+  argv[0] = command;
+  argv[1] = host;
+
+  result = g_simple_async_result_new (G_OBJECT (self), callback, user_data, cockpit_auth_spawn_login_async);
+  start_auth_process (self, ad, authorization, result, argv);
+
+  auth_data_unref (ad);
   g_object_unref (result);
 }
 
@@ -875,114 +870,6 @@ parse_ssh_spawn_results (CockpitAuth *self,
   return creds;
 }
 
-static void
-cockpit_auth_remote_login_async (CockpitAuth *self,
-                                 const gchar *application,
-                                 const gchar *type,
-                                 GHashTable *headers,
-                                 const gchar *remote_peer,
-                                 GAsyncReadyCallback callback,
-                                 gpointer user_data)
-{
-  GSimpleAsyncResult *task;
-  AuthData *ad = NULL;
-  GBytes *input = NULL;
-  GBytes *auth_bytes = NULL;
-  gchar *user = NULL;
-  gchar *password = NULL; /* owned by input */
-
-  const gchar *data = NULL;
-  const gchar *command;
-  const gchar *host;
-  const gchar *host_arg;
-  gint next_arg = 1;
-
-  const gchar *argv[] = {
-      cockpit_ws_ssh_program,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-  };
-
-  task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                    cockpit_auth_remote_login_async);
-  if (g_strcmp0 (type, "basic") == 0)
-    {
-      input = cockpit_auth_parse_authorization (headers, TRUE);
-      data = g_bytes_get_data (input, NULL);
-
-      password = strchr (data, ':');
-      if (password != NULL)
-        {
-          user = g_strndup (data, password - data);
-          password++;
-          auth_bytes = g_bytes_new_static (password, strlen(password));
-        }
-    }
-  else
-    {
-      input = cockpit_auth_parse_authorization (headers, FALSE);
-      if (input)
-        auth_bytes = g_bytes_ref (input);
-    }
-
-  if (application && auth_bytes && input)
-    {
-      command = type_option (SSH_SECTION, "command", cockpit_ws_ssh_program);
-      argv[0] = command;
-
-      host = application_parse_host (application);
-      if (host)
-        {
-          host_arg = host;
-          if (g_strcmp0 (remote_peer, "127.0.0.1") == 0 ||
-              g_strcmp0 (remote_peer, "::1") == 0 ||
-              cockpit_conf_bool (SSH_SECTION, "allowUnknown", FALSE))
-            {
-              argv[next_arg++] = "--prompt-unknown-hostkey";
-            }
-        }
-      else
-        {
-          argv[next_arg++] = "--ignore-hostkey";
-          if (cockpit_conf_string (SSH_SECTION, "host"))
-            host_arg = cockpit_conf_string (SSH_SECTION, "host");
-          else
-            host_arg = "localhost";
-        }
-
-      argv[next_arg++] = host_arg;
-      argv[next_arg++] = user;
-      ad = create_auth_data (self, host_arg, application,
-                             SSH_SECTION, remote_peer, command, input);
-      start_auth_process (self, ad, auth_bytes, task,
-                          cockpit_auth_remote_login_async, argv);
-    }
-  else
-    {
-      g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Basic authentication required");
-      g_simple_async_result_complete_in_idle (task);
-    }
-
-  if (auth_bytes)
-    g_bytes_unref (auth_bytes);
-
-  if (input)
-    g_bytes_unref (input);
-
-  if (ad)
-    auth_data_unref (ad);
-
-  if (user)
-    g_free (user);
-
-  g_object_unref (task);
-}
-
 static CockpitCreds *
 cockpit_auth_remote_login_finish (CockpitAuth *self,
                                   GAsyncResult *result,
@@ -1069,6 +956,7 @@ cockpit_auth_resume_async (CockpitAuth *self,
                            const gchar *application,
                            const gchar *type,
                            GHashTable *headers,
+                           const gchar *conversation,
                            const gchar *remote_peer,
                            GAsyncReadyCallback callback,
                            gpointer user_data)
@@ -1080,13 +968,7 @@ cockpit_auth_resume_async (CockpitAuth *self,
   gchar *header = NULL;
   gsize length;
 
-  header = g_hash_table_lookup (headers, "Authorization");
-  if (header)
-    parts = g_strsplit (header, " ", 3);
-
-  if (parts && g_strv_length (parts) == 3)
-      ad = g_hash_table_lookup (self->authentication_pending, parts[1]);
-
+  ad = g_hash_table_lookup (self->authentication_pending, conversation);
   if (!ad)
     {
       task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
@@ -1094,102 +976,220 @@ cockpit_auth_resume_async (CockpitAuth *self,
 
       g_simple_async_result_set_error (task, COCKPIT_ERROR,
                                        COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Invalid resume token");
+                                       "Invalid conversation token");
       g_simple_async_result_complete_in_idle (task);
     }
   else
     {
-
       task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                         ad->tag);
       g_simple_async_result_set_op_res_gpointer (task, auth_data_ref (ad), auth_data_unref);
-      g_hash_table_remove (self->authentication_pending, parts[1]);
+      g_hash_table_remove (self->authentication_pending, conversation);
 
-      if (!g_base64_decode_inplace (parts[2], &length) || length < 1)
+      header = g_hash_table_lookup (headers, "Authorization");
+      if (header)
+        parts = g_strsplit (header, " ", 2);
+
+      if (!parts || !parts[1] || !g_base64_decode_inplace (parts[1], &length) || length < 1)
         {
           g_simple_async_result_set_error (task, COCKPIT_ERROR,
                                            COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                           "Invalid resume token");
+                                           "Invalid authorization data");
           g_simple_async_result_complete_in_idle (task);
         }
       else
         {
-          input = g_bytes_new (parts[2], length);
+          input = g_bytes_new (parts[1], length);
           auth_data_add_pending_result (ad, task);
           cockpit_auth_process_write_auth_bytes (ad->auth_process, input);
           g_bytes_unref (input);
         }
+
+      if (parts)
+        g_strfreev (parts);
     }
 
-  if (parts)
-    g_strfreev (parts);
   g_object_unref (task);
 }
 
-static const gchar *
-action_for_type (const gchar *type,
-                 const gchar *application,
-                 gboolean force_ssh)
+const GBytes *
+cockpit_auth_steal_authorization (CockpitAuth *self,
+                                  GHashTable *headers,
+                                  GIOStream *connection,
+                                  const gchar **ret_type,
+                                  const gchar **ret_conversation)
 {
-  const gchar *action;
-  const gchar *host;
+  const gchar *conversation = NULL;
+  const gchar *type = NULL;
+  GBytes *base;
+  GBytes *ret;
+  gchar *line;
+  gsize length;
+  gchar *next;
+  gsize len;
 
-  g_return_val_if_fail (type != NULL, NULL);
-  g_return_val_if_fail (application != NULL, NULL);
+  g_assert (self != NULL);
+  g_assert (header != NULL);
+  g_assert (connection != NULL);
+  g_assert (ret_conversation != NULL);
+  g_assert (ret_input != NULL);
 
-  host = application_parse_host (application);
-  if (g_strcmp0 (type, ACTION_LOGIN_REPLY) == 0)
-    action = ACTION_LOGIN_REPLY;
-
-  else if (host)
-    action = ACTION_SSH;
-
-  /* Only force_ssh for basic */
-  else if (force_ssh && g_strcmp0 (type, "basic") == 0)
-    action = ACTION_SSH;
-
-  else if (type && cockpit_conf_string (type, "action"))
-      action = cockpit_conf_string (type, "action");
-
-  else if (g_strcmp0 (type, "basic") == 0 ||
-           g_strcmp0 (type, "negotiate") == 0)
-      action = ACTION_SPAWN_DECODE;
-
+  /* Avoid copying as it can contain passwords */
+  if (g_hash_table_lookup_extended (headers, "Authorization", &key, (gpointer *)&line))
+    {
+      g_hash_table_steal (headers, "Authorization");
+      g_free (key);
+    }
   else
-      action = ACTION_NONE;
+    {
+      /* We default back to Negotiate authentication first time around */
+      if (gssapi_not_avail)
+        return NULL;
 
-  return action;
+      line = g_strdup ("Negotiate");
+    }
+
+  length = strlen (line);
+
+  /* Find and normalize the type */
+  type = str_skip (line, ' ');
+  for (next = type; *next != ' ' && *next != '\0'; next++)
+    *next = g_ascii_tolower (*next);
+
+  /* Split the string at the type line */
+  if (*next != '\0')
+    {
+      *(next++) = '\0';
+      next = str_skip (next, ' ');
+    }
+
+  /* If this is a conversation, get that part out too */
+  if (g_str_equal (type, "x-conversation"))
+    {
+      conversation = next;
+      next = strchr (conversation, ' ');
+      if (next)
+        *(next++) = '\0';
+      else
+        next = strlen (conversation);
+      goto out;
+    }
+
+  /*
+   * So for negotiate authentication, conversation happens on a
+   * single connection. Yes that's right, GSSAPI, NTLM, and all
+   * those nice mechanisms are keep-alive based, not HTTP request based.
+   */
+  if (g_str_equal (type, "negotiate"))
+    {
+      /* Resume an already running conversation? */
+      conversation = g_object_get_data (G_IO_STREAM (connection), type);
+      if (conversation)
+        goto out;
+
+      /* Setup a new conversation for future requests on this, but don't use it yet */
+      g_object_set_data (G_IO_STREAM (connection), type, cockpit_auth_nonce (self), g_free);
+    }
+
+  action = cockpit_conf_string (type, "action");
+  if (action == NULL || action == ACTION_SPAWN_DECODE)
+    {
+      g_base64_decode_inplace (next, &len);
+      next[len] = '\0';
+    }
+
+  /*
+   * We keep everything allocated in place without copying due to
+   * password data and make sure to clear it when freed.
+   */
+out:
+  base = g_bytes_new_with_free_func (line, length, clear_free_authorization, line);
+  *ret_type = type;
+  *ret_conversation = conversation;
+  ret = g_bytes_new_from_bytes (base, next - length, strlen (next));
+  g_bytes_unref (base);
+  return ret;
 }
 
 static void
 cockpit_auth_choose_login_async (CockpitAuth *self,
                                  const gchar *path,
                                  GHashTable *headers,
-                                 const gchar *remote_peer,
+                                 GIOStream *connection,
                                  GAsyncReadyCallback callback,
                                  gpointer user_data)
 {
+  GByteArray *authorization;
   const gchar *action;
+  const gchar *remainder;
+  gchar *remote_peer = NULL;
   gchar *application = NULL;
   gchar *type = NULL;
+  GBytes *input;
 
   application = cockpit_auth_parse_application (path);
-  type = cockpit_auth_parse_authorization_type (headers);
-  if (!type)
-    type = g_strdup ("negotiate");
+  g_assert (application != NULL);
 
-  action = action_for_type (type, application, self->login_loopback);
-  if (g_strcmp0 (action, ACTION_SPAWN_HEADER) == 0)
+  remote_peer = get_remote_address (io_stream);
+
+  type = cockpit_auth_steal_authorization (headers, &authorization);
+  if (!type)
     {
+      type = g_strdup ("negotiate");
+      authorization = g_byte_array_new ();
+    }
+
+  /*
+   * So for negotiate authentication, conversation happens on a
+   * single connection. Yes that's right, GSSAPI, NTLM, and all
+   * those nice mechanisms are connection based not request based.
+   */
+  if (g_str_equal (type, "negotiate"))
+    {
+      conversation = g_object_get_data (G_IO_STREAM (connection), type);
+    }
+
+  /*
+   * In x-conversation authentication, the conversation identifier
+   * is the next word in the authentication string.
+   */
+  else if (g_str_equal (type, "x-conversation"))
+    {
+      conversation = value = authorization_pop_word (&authorization);
+      g_message ("invalid missing conversation token", action);
+    }
+
+  action = action_for_type (self, type, application, connection, authorization, self->login_loopback);
+
+  /* Decode and finalize the remainder of the authorization header */
+  if (action && g_str_equal (action, ACTION_SPAWN_DECODE))
+    authorization_decode_base64 (authorization);
+  input = g_byte_array_free_to_bytes (authorization);
+
+  /* No known authorization type */
+  if (action == NULL)
+    {
+      g_message ("received unknown authorization type: %s", type);
+      cockpit_auth_none_login_async (self, callback, user_data);
+    }
+
+  /* Spawn an application and hand over the data */
+  else if (g_str_equal (action, ACTION_SPAWN_HEADER) ||
+           g_str_equal (action, ACTION_SPAWN_DECODE))
+    {
+      if (g_str_equal (action, ACTION_SPAWN_DECODE))
+        {
+          authorization_decode_base64 (input);
+        }
+
       cockpit_auth_spawn_login_async (self, application, type, FALSE,
-                                      headers, remote_peer,
-                                      callback, user_data);
+                                      headers, io_stream, callback, user_data);
     }
   else if (g_strcmp0 (action, ACTION_SPAWN_DECODE) == 0)
     {
       cockpit_auth_spawn_login_async (self, application, type, TRUE,
-                                       headers, remote_peer,
-                                       callback, user_data);
+                                      headers, remote_peer,
+                                      callback, user_data);
     }
   else if (g_strcmp0 (action, ACTION_SSH) == 0)
     {
@@ -1197,24 +1197,19 @@ cockpit_auth_choose_login_async (CockpitAuth *self,
                                        headers, remote_peer,
                                        callback, user_data);
     }
-  else if (g_strcmp0 (action, ACTION_LOGIN_REPLY) == 0)
-    {
-      cockpit_auth_resume_async (self, application, type,
-                                 headers, remote_peer,
-                                 callback, user_data);
-    }
-  else if (g_strcmp0 (action, ACTION_NONE) == 0)
-    {
-      cockpit_auth_none_login_async (self, callback, user_data);
-    }
   else
     {
-      g_message ("got unknown login action: %s", action);
-      cockpit_auth_none_login_async (self, callback, user_data);
+      cockpit_auth_resume_async (self, application, type,
+                                 headers, conversation, remote_peer,
+                                 callback, user_data);
     }
 
   g_free (type);
+  g_free (value);
   g_free (application);
+  g_free (remote_peer);
+  g_byte_array_unref (authorization);
+  g_bytes_unref (input);
 }
 
 static CockpitCreds *
@@ -1295,8 +1290,7 @@ authenticated_for_headers (CockpitAuth *self,
   g_return_val_if_fail (in_headers != NULL, FALSE);
 
   application = cockpit_auth_parse_application (path);
-  if (!application)
-    return NULL;
+  g_assert (application != NULL);
 
   raw = cockpit_web_server_parse_cookie (in_headers, application);
   if (raw)
@@ -1323,6 +1317,9 @@ cockpit_auth_check_cookie (CockpitAuth *self,
                            GHashTable *in_headers)
 {
   CockpitAuthenticated *authenticated;
+
+  g_return_val_if_fail (path != NULL, NULL);
+  g_return_val_if_fail (path[0] == '/', NULL);
 
   authenticated = authenticated_for_headers (self, path, in_headers);
   if (authenticated)
@@ -1383,6 +1380,7 @@ void
 cockpit_auth_login_async (CockpitAuth *self,
                           const gchar *path,
                           GHashTable *headers,
+                          const gchar *conversation,
                           const gchar *remote_peer,
                           GAsyncReadyCallback callback,
                           gpointer user_data)
@@ -1390,12 +1388,16 @@ cockpit_auth_login_async (CockpitAuth *self,
   CockpitAuthClass *klass = COCKPIT_AUTH_GET_CLASS (self);
   GSimpleAsyncResult *result = NULL;
 
+  g_return_if_fail (conversation != NULL);
+  g_return_if_fail (headers != NULL);
+  g_return_if_fail (path != NULL);
+  g_return_if_fail (path[0] == '/');
   g_return_if_fail (klass->login_async != NULL);
 
   self->startups++;
   if (can_start_auth (self))
     {
-      klass->login_async (self, path, headers, remote_peer, callback, user_data);
+      klass->login_async (self, path, headers, conversation, remote_peer, callback, user_data);
     }
   else
     {
@@ -1468,7 +1470,6 @@ on_web_service_destroy (CockpitWebService *service,
 JsonObject *
 cockpit_auth_login_finish (CockpitAuth *self,
                            GAsyncResult *result,
-                           CockpitAuthFlags flags,
                            GHashTable *out_headers,
                            GError **error)
 {
@@ -1520,6 +1521,11 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
   if (out_headers)
     {
+      xxxx;
+  io_stream = cockpit_web_response_get_stream (response);
+  if (G_IS_SOCKET_CONNECTION (io_stream))
+    flags |= COCKPIT_AUTH_COOKIE_INSECURE;
+
       gboolean force_secure = !(flags & COCKPIT_AUTH_COOKIE_INSECURE);
       cookie_b64 = g_base64_encode ((guint8 *)authenticated->cookie, strlen (authenticated->cookie));
       header = g_strdup_printf ("%s=%s; Path=/; %s HttpOnly",

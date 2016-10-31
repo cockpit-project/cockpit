@@ -24,7 +24,7 @@ this.
 
 
 ```
-WWW-Authenticate X-Login-Reply id base64(prompt)
+WWW-Authenticate X-Conversation conversation base64(prompt)
 ```
 
 This may be accompanied by a JSON object in the body of the response to provide additional context.
@@ -41,9 +41,9 @@ Cockpit will then display the prompt and provide a field for the user to type th
 To send the answer the Authorization header is built like this.
 
 ```
-X-Login-Reply id base64(response)
+Authorization: X-Conversation conversation base64(response)
 ```
 
-Where id is the same id that was received with the WWW-Authenticate challenge header.
+Where conversation is the same conversation that was received with the WWW-Authenticate response.
 
 This can continue until either a success or an error response is received.

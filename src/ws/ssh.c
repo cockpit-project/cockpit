@@ -1759,7 +1759,7 @@ main (int argc,
 
   session = ssh_new ();
 
-  context = g_option_context_new ("- cockpit-ssh host user [command]");
+  context = g_option_context_new ("- cockpit-ssh [user@]host [command]");
   g_option_context_add_main_entries (context, cmd_entries, NULL);
 
   if (!g_option_context_parse (context, &argc, &argv, &error))
@@ -1775,6 +1775,7 @@ main (int argc,
       goto out;
     }
 
+  xxxx split out user@host
   host = argv[1];
   username = argv[2];
   if (argc > 3)
@@ -1827,6 +1828,24 @@ main (int argc,
   if (!no_auth_data)
       data->initial_auth_data = wait_for_auth_fd_reply (data);
 
+  remote_peer = g_getenv ("COCKPIT_REMOTE_HOST");
+  if (remote_peer)
+    {
+      if (g_strcmp0 (remote_peer, "127.0.0.1") == 0 ||
+          g_strcmp0 (remote_peer, "::1") == 0)
+        {
+          argv[next_arg++] = "--prompt-unknown-hostkey";
+        }
+    }
+  else
+    {
+      argv[next_arg++] = "--ignore-hostkey";
+      if (cockpit_conf_string (SSH_SECTION, "host"))
+        host_arg = cockpit_conf_string (SSH_SECTION, "host");
+      else
+        host_arg = "localhost";
+    }
+
   problem = cockpit_ssh_connect (data, port, host, username, command, &channel);
   if (problem)
     {
@@ -1876,3 +1895,17 @@ out:
     }
   return ret;
 }
+      else
+        {
+          argv[next_arg++] = "--ignore-hostkey";
+          if (cockpit_conf_string (SSH_SECTION, "host"))
+            host_arg = cockpit_conf_string (SSH_SECTION, "host");
+          else
+            host_arg = "localhost";
+        }
+
+      g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                       "Basic authentication required");
+      g_simple_async_result_complete_in_idle (task);
+    }
+

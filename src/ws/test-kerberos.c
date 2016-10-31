@@ -328,7 +328,7 @@ test_authenticate (TestCase *test,
   build_authorization_header (in_headers, &output);
   gss_release_buffer (&minor, &output);
 
-  cockpit_auth_login_async (test->auth, "/cockpit+test", in_headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit+test", in_headers, "test", NULL, on_ready_get_result, &result);
   g_hash_table_unref (in_headers);
 
   while (result == NULL)

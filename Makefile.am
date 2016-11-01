@@ -27,10 +27,13 @@ CLEANFILES = \
 DISTCLEANFILES = \
 	$(srcdir)/Makefile \
 	node_modules \
+	cockpit-cache-*.tar.xz \
 	$(NULL)
 
 EXTRA_DIST = \
+	.bowerrc \
 	bower.json \
+	package.json \
 	src/branding \
 	README.md \
 	bower_components/README \
@@ -114,7 +117,7 @@ WEBPACK_DEPS = \
 
 noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
 CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
-EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_CONFIG)
+EXTRA_DIST += $(WEBPACK_DEPS) webpack.config.js
 
 Makefile-%.deps: $(WEBPACK_CONFIG)
 	$(WEBPACK_RULE) -d $@ $<
@@ -297,7 +300,6 @@ print-%:
 
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
-	lib/ \
 	pkg/ \
 	tools/ \
 	test/ \
@@ -307,16 +309,22 @@ COMMITTED_DIST = \
 dist-hook::
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
-	tar -C $(srcdir) -cf - --exclude='phantomjs*' --exclude='jshint*' node_modules/ | tar -C $(distdir) -xf -
+	tar -C $(srcdir) -cf - --exclude='phantomjs*' node_modules/ | tar -C $(distdir) -xf -
+	tar -C $(srcdir) -cf - bower_components/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
 
+DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' --exclude='bower_components' "$(distdir)"
+DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/bower_components" package.json bower.json .bowerrc
+
 dist-gzip: distdir
-	tar --format=posix -cf - "$(distdir)" | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	$(DIST_TAR_MAIN) | GZIP=$(GZIP_ENV) gzip -c > $(distdir).tar.gz
+	$(DIST_TAR_CACHE) | GZIP=$(GZIP_ENV) gzip -c > cockpit-cache-$(VERSION).tar.gz
 	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 dist-xz: distdir
-	tar --format=posix -cf - "$(distdir)" | xz -ec > $(distdir).tar.xz
+	$(DIST_TAR_MAIN) | xz -ec > $(distdir).tar.xz
+	$(DIST_TAR_CACHE) | xz -ec > cockpit-cache-$(VERSION).tar.xz
 	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 
 distcheck-hook::

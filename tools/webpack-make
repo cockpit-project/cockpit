@@ -141,8 +141,11 @@ function generateDeps(makefile, stats) {
 
 function maybePushInput(inputs, input) {
     // Don't include node_modules files or external refs
-    if (input.split(path.sep).indexOf("node_modules") === -1 && !endsWith(input, '/') &&
-        input.indexOf("external ") !== 0 && input.indexOf("multi ") !== 0) {
+    if (input.split(path.sep).indexOf("node_modules") === -1 &&
+        input.split(path.sep).indexOf("bower_components") === -1 &&
+        !endsWith(input, '/') &&
+        input.indexOf("external ") !== 0 &&
+        input.indexOf("multi ") !== 0) {
         input = path.relative(cwd, input);
 	if (srcdir && input.indexOf(srcdir) === 0)
 		input = "$(srcdir)" + input.substr(srcdir.length);

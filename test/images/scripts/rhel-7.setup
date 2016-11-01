@@ -147,6 +147,8 @@ if [ -n "$TEST_SOURCE" ]; then
     su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 fi
 
+yum clean all
+
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     subscription-manager unregister
 fi
@@ -180,7 +182,6 @@ if type "docker" >/dev/null 2>&1; then
     /var/lib/testvm/docker-images.setup
 fi
 
-yum clean all
 /var/lib/testvm/zero-disk.setup --keep-mock-cache
 
 # HACK - kdump.service interferes with our storage tests, by loading

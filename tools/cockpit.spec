@@ -16,10 +16,10 @@
 
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g -DWITH_DEBUG'
-%define stable_api %{gitcommit}
+%define required_base %{gitcommit}
 %else
 # The first version with a stable APIs
-%define stable_api 0.114
+%define required_base 0.114
 %endif
 
 %if 0%{?centos}
@@ -385,7 +385,7 @@ This package contains the Cockpit shell UI assets.
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
 Requires: %{name}-bridge >= %{version}-%{release}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-shell >= %{required_base}
 Requires: storaged >= 2.1.1
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
 Recommends: storaged-lvm2 >= 2.1.1
@@ -405,8 +405,8 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 %if 0%{?fedora} > 0 && 0%{?fedora} < 24
 Requires: rpm-ostree >= 2015.10-1
 %else
@@ -420,8 +420,8 @@ The Cockpit components for managing software updates for ostree based systems.
 
 %package machines
 Summary: Cockpit user interface for virtual machines
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
 
@@ -436,8 +436,8 @@ The Cockpit components for managing virtual machines.
 
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 Requires: sos
 BuildArch: noarch
 
@@ -449,8 +449,8 @@ sosreport tool.
 
 %package subscriptions
 Summary: Cockpit subscription user interface package
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 Requires: subscription-manager >= 1.13
 BuildArch: noarch
 
@@ -462,8 +462,8 @@ subscription management.
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 Requires: NetworkManager
 # Optional components (only when soft deps are supported)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
@@ -482,8 +482,8 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %package selinux
 Summary: Cockpit SELinux package
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 Requires: setroubleshoot-server >= 3.3.3
 BuildArch: noarch
 
@@ -499,8 +499,8 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %package docker
 Summary: Cockpit user interface for Docker containers
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 Requires: docker >= 1.3.0
 Requires: python
 
@@ -517,8 +517,8 @@ This package is not yet complete.
 %package kubernetes
 Summary: Cockpit user interface for Kubernetes cluster
 Requires: /usr/bin/kubectl
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 BuildRequires: golang-bin
 BuildRequires: golang-src
 
@@ -537,8 +537,8 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit
-Requires: %{name}-bridge >= %{stable_api}
-Requires: %{name}-shell >= %{stable_api}
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 Requires: openssh-clients
 
 %description test-assets

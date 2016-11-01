@@ -146,7 +146,7 @@ dist/base1/qunit.js:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cat $(BOWER)/qunit/qunit/qunit.js \
 	    $(BOWER)/qunit-tap/lib/qunit-tap.js \
-            $(srcdir)/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
+            $(srcdir)/pkg/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/qunit.css:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \

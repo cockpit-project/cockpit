@@ -1,19 +1,19 @@
 @import "variables.less";
-@import "angular-csp.less";
+@import (less) "../../../bower_components/angular/angular-csp.css";
 
-@import (less) "../../../lib/page.css";
-@import (less) "../../../lib/listing.css";
-@import (less) "../../../lib/console.css";
-@import (less) "../../../lib/table.css";
+@import (less) "../../lib/page.css";
+@import (less) "../../lib/listing.css";
+@import (less) "../../lib/console.css";
+@import (less) "../../lib/table.css";
 
 /* Depends on number of items in the sidebar */
 @sidebar-height-lg: 630px;
 
 @import "app.less";
-@import "container-terminal.less";
+@import (less) "../../../bower_components/kubernetes-container-terminal/dist/container-terminal.css";
 @import "containers.less";
 @import "details.less";
-@import "topology-graph.less";
+@import (less) "../../../bower_components/kubernetes-topology-graph/dist/topology-graph.css";
 @import "topology.less";
 @import "revealable.less";
 @import "dashboard.less";

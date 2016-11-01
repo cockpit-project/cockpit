@@ -28,6 +28,7 @@ import unittest
 # https://github.com/cockpit-project/cockpit/issues/3341
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No networking on Debian (yet).")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No networking on Debian (yet).")
 class TestNetworking(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)

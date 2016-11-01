@@ -19,18 +19,14 @@
 -->
 <html>
 <head>
+    <title>@TEST@</title>
     <meta charset="utf-8">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.title %>.css" type="text/css" />
-    <script src="<%= htmlWebpackPlugin.options.builddir %>dist/base1/jquery.min.js"></script>
-    <script src="<%= htmlWebpackPlugin.options.builddir %>dist/base1/cockpit.min.js"></script>
-    <script src="<%= htmlWebpackPlugin.options.title %>.js"></script>
+    <script src="simple-tap.js"></script>
+    <script src="cockpit.js"></script>
 </head>
 <body>
-    <h1 id="qunit-header"><%= htmlWebpackPlugin.options.title %></h1>
-    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display: none;">Done</div>
+    <h2 id="title">@TEST@</h2>
+    <pre id="output"></pre>
+    <script src="@TEST@"></script>
 </body>
 </html>

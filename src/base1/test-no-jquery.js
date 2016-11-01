@@ -1,33 +1,5 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/* global cockpit, test */
 
-  Copyright (C) 2014 Red Hat, Inc.
-
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <title>Cockpti Loading: No Jquery</title>
-    <meta charset="utf-8">
-    <script src="../../tools/simple-tap.js"></script>
-    <script src="cockpit.js"></script>
-</head>
-<body>
-    <h2>Test without jQuery</h2>
-    <pre id="output"></pre>
-    <script>
         test.assert(typeof jQuery === "undefined", "jQuery is not defined");
         test.assert(typeof $ === "undefined", "$ is not defined");
         test.assert(typeof cockpit === "object", "cockpit is defined");
@@ -52,6 +24,3 @@
                 test.done(8);
             }
         };
-    </script>
-</body>
-</html>

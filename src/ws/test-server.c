@@ -473,10 +473,10 @@ inject_address (CockpitWebResponse *response,
 
   if (value)
     {
-      line = g_strconcat ("\nvar ", name, " = '", value, "';\n", NULL);
+      line = g_strconcat ("\n<script>\nvar ", name, " = '", value, "';\n</script>", NULL);
 
       inject = g_bytes_new (line, strlen (line));
-      filter = cockpit_web_inject_new ("<script id='dbus-tests'>", inject, 1);
+      filter = cockpit_web_inject_new ("<head>", inject, 1);
       g_bytes_unref (inject);
 
       cockpit_web_response_add_filter (response, filter);
@@ -575,8 +575,11 @@ on_handle_source (CockpitWebServer *server,
                   gpointer user_data)
 {
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
-  inject_address (response, "bus_address", bus_address);
-  inject_address (response, "direct_address", direct_address);
+  if (g_str_has_suffix (path, ".html"))
+    {
+      inject_address (response, "bus_address", bus_address);
+      inject_address (response, "direct_address", direct_address);
+    }
   cockpit_web_response_file (response, path,  cockpit_web_server_get_document_roots (server));
   return TRUE;
 }

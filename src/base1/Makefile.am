@@ -38,7 +38,7 @@ MIN_JS_RULE = \
 dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --skip-import --source-map --source-map-inline-sources $^
-dist/base1/patternfly.min.css: dist/base1/patternfly.css dist/base1/patternfly-additions.css
+dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --source-map --source-map-inline-sources $^
 dist/base1/bundle.js: dist/base1/require.js src/base1/cockpit.js dist/base1/jquery.js
@@ -81,7 +81,7 @@ dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
 
 # Modify the patternfly files appropriately
-dist/base1/patternfly.css: $(BOWER)/patternfly/dist/css/patternfly.css dist/base1/patternfly.css.map
+dist/base1/patternfly-base.css: $(BOWER)/patternfly/dist/css/patternfly.css dist/base1/patternfly.css.map
 	$(AM_V_GEN) sed -f $(srcdir)/tools/patternfly.sed $< > $@.tmp && $(MV) $@.tmp $@
 dist/base1/patternfly.css.map: $(BOWER)/patternfly/dist/css/patternfly.css.map
 	$(COPY_RULE)
@@ -142,7 +142,7 @@ EXTRA_DIST += \
 	dist/base1/jquery.min.js.map \
 	dist/base1/mustache.min.js \
 	dist/base1/mustache.min.js.map \
-	dist/base1/patternfly.css \
+	dist/base1/patternfly-base.css \
 	dist/base1/patternfly.min.css \
 	dist/base1/patternfly.min.css.map \
 	dist/base1/patternfly.css.map \

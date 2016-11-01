@@ -270,7 +270,25 @@ install-data-hook::
 	chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit || true
 	chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
 
-LATEST = latest/
+# Fonts are used by multiple things so put them here
+OPENSANS_FONTS = \
+	dist/fonts/OpenSans-Bold-webfont.woff \
+	dist/fonts/OpenSans-BoldItalic-webfont.woff \
+	dist/fonts/OpenSans-ExtraBold-webfont.woff  \
+	dist/fonts/OpenSans-ExtraBoldItalic-webfont.woff \
+	dist/fonts/OpenSans-Italic-webfont.woff \
+	dist/fonts/OpenSans-Light-webfont.woff \
+	dist/fonts/OpenSans-LightItalic-webfont.woff \
+	dist/fonts/OpenSans-Regular-webfont.woff \
+	dist/fonts/OpenSans-Semibold-webfont.woff \
+	dist/fonts/OpenSans-SemiboldItalic-webfont.woff \
+	$(NULL)
+
+dist/fonts/%.woff:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp -L $(subst dist/fonts,$(BOWER)/patternfly/dist/fonts,$@) $@.tmp && $(MV) $@.tmp $@
+
+EXTRA_DIST += $(OPENSANS_FONTS)
 
 if ENABLE_DOC
 

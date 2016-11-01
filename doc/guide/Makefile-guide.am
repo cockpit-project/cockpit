@@ -49,8 +49,14 @@ GUIDE_INCLUDES = \
 	$(NULL)
 
 GUIDE_STATIC = \
+	doc/guide/static/FOOTER.html \
+	doc/guide/static/home.png \
 	doc/guide/static/gtk-doc.css \
+	doc/guide/static/left.png \
+	doc/guide/static/README.html \
+	doc/guide/static/right.png \
 	doc/guide/static/style.css \
+	doc/guide/static/up.png \
 	$(NULL)
 
 GUIDE_XSLT = \
@@ -58,16 +64,14 @@ GUIDE_XSLT = \
 	doc/guide/version-greater-or-equal.xsl \
 	$(NULL)
 
-GUIDE_FONTS = $(addprefix doc/guide/html/, $(OPENSANS_FONTS))
-
-doc/guide/html/%.woff: $(BOWER)/patternfly/dist/fonts/%.woff
-	$(COPY_RULE)
+GUIDE_FONTS = $(subst dist/fonts/,doc/guide/html/,$(OPENSANS_FONTS))
 
 EXTRA_DIST += \
 	$(GUIDE_DOCBOOK) \
 	$(GUIDE_INCLUDES) \
 	$(GUIDE_XSLT) \
-	doc/guide/static \
+	$(GUIDE_FONTS) \
+	$(GUIDE_STATIC) \
 	doc/guide/html \
 	doc/guide/version.in \
 	$(NULL)
@@ -77,9 +81,12 @@ CLEANFILES += \
 	*.tmp \
 	$(NULL)
 
+$(GUIDE_FONTS): $(OPENSANS_FONTS)
+	$(V_COPY) $(MKDIR_P) doc/guide/html && cp $^ doc/guide/html/
+
 doc/guide/html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
-	$(AM_V_GEN) mkdir -p doc/guide/html/ && rm -rf doc/guide/html/* && \
-		cp $(srcdir)/doc/guide/static/* doc/guide/html/ && \
+	$(AM_V_GEN) $(MKDIR_P) doc/guide/html/ && \
+		cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) doc/guide/html/ && \
 		LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \
 			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 			$(srcdir)/$(GUIDE_DOCBOOK)

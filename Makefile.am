@@ -33,6 +33,7 @@ EXTRA_DIST = \
 	bower.json \
 	src/branding \
 	README.md \
+	bower_components/README \
 	$(NULL)
 
 clean-local:
@@ -345,9 +346,8 @@ nodist_po_DATA = $(po_FILES:.js=.js.gz) po/po.js.gz
 EXTRA_DIST += po/po.js $(po_FILES)
 CLEANFILES += $(nodist_po_DATA) po/po.js.gz $(po_FILES)
 
-BOWER = $(srcdir)/lib
+BOWER = $(srcdir)/bower_components
 
-include lib/Makefile.am
 include pkg/Makefile.am
 include src/base1/Makefile.am
 include src/branding/centos/Makefile.am

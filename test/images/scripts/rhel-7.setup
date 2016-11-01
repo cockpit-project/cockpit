@@ -115,17 +115,6 @@ qemu-system-x86 \
 qemu-kvm \
 "
 
-# enable epel for mock and avocado
-if [ ! -f "$SKIP_REPO_FLAG" ]; then
-    mkdir /tmp/dep
-    cd /tmp/dep
-    yum -y install wget
-    wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    rpm -Uvh epel-release-*.rpm
-    cd
-    rm -rf /tmp/dep
-fi
-
 yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # For debugging storaged crashes
@@ -135,7 +124,24 @@ debuginfo-install -y storaged storaged-lvm2 storaged-iscsi
 
 # only install mock and build if TEST_SOURCE is set
 if [ -n "$TEST_SOURCE" ]; then
-    yum -y install mock rpm-build
+    yum -y install rpm-build
+
+    # enable epel for mock
+    if [ ! -f "$SKIP_REPO_FLAG" ]; then
+        mkdir /tmp/dep
+        cd /tmp/dep
+        yum -y install wget
+        wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        yum -y remove wget
+        rpm -Uvh epel-release-*.rpm
+        cd
+        rm -rf /tmp/dep
+    fi
+    yum -y install mock
+
+    # disable epel again
+    yum-config-manager --disable 'epel*'
+
     useradd -c Builder -G mock builder
     srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
     su builder -c "/usr/bin/mock --verbose --installdeps $srpm"

@@ -147,7 +147,7 @@ if [ -n "$TEST_SOURCE" ]; then
     su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 fi
 
-yum clean all
+yum clean all || true
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     subscription-manager unregister

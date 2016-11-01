@@ -121,6 +121,11 @@ var info = {
     tests: [
         "docker/test-docker",
 
+        "lib/test-dummy",
+        "lib/test-journal-renderer",
+        "lib/test-machines",
+        "lib/test-patterns",
+
         "storaged/test-util",
 
         "kubernetes/scripts/test-utils",
@@ -131,11 +136,6 @@ var info = {
         "kubernetes/scripts/test-tags",
         "kubernetes/scripts/test-connection",
         "kubernetes/scripts/test-volumes",
-
-        "playground/test-dummy",
-        "playground/test-journal-renderer",
-        "playground/test-machines",
-        "playground/test-patterns",
     ],
 
     files: [

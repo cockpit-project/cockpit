@@ -29,6 +29,7 @@
     var docker = require("./docker");
     var util = require("./util");
 
+    require("console.css");
 
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;

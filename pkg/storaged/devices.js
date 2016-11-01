@@ -29,6 +29,12 @@
     var details = require("./details");
     var utils = require("./utils");
 
+    require("page.css");
+    require("table.css");
+    require("plot.css");
+    require("journal.css");
+    require("./storage.css");
+
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 

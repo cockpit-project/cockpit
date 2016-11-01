@@ -33,6 +33,8 @@
     var bar = require("./bar");
     var view = require("./containers-view.jsx");
 
+    require("plot.css");
+
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 

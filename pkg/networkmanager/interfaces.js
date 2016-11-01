@@ -27,6 +27,12 @@ var journal = require('journal');
 /* jQuery extensions */
 require('patterns');
 
+require("page.css");
+require("table.css");
+require("plot.css");
+require("journal.css");
+require("./networking.css");
+
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 

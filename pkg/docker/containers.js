@@ -32,6 +32,10 @@
     var image_details = require("./image");
     var storage = require("./storage.jsx");
 
+    require("page.css");
+    require("table.css");
+    require("./docker.css");
+
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
 

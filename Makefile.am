@@ -89,7 +89,7 @@ po/po.%.js: po/%.po
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  $(@:Makefile-%.deps=%)";
+V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/Makefile-%.deps=%)";
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
@@ -97,50 +97,55 @@ WEBPACK_OUTPUTS =
 WEBPACK_INSTALL =
 
 WEBPACK_DEPS = \
-	Makefile-dashboard.deps \
-	Makefile-docker.deps \
-	Makefile-kubernetes.deps \
-	Makefile-machines.deps \
-	Makefile-networkmanager.deps \
-	Makefile-ostree.deps \
-	Makefile-playground.deps \
-	Makefile-realmd.deps \
-	Makefile-selinux.deps \
-	Makefile-shell.deps \
-	Makefile-sosreport.deps \
-	Makefile-storaged.deps \
-	Makefile-subscriptions.deps \
-	Makefile-systemd.deps \
-	Makefile-tuned.deps \
-	Makefile-users.deps \
+	dist/Makefile-dashboard.deps \
+	dist/Makefile-docker.deps \
+	dist/Makefile-kubernetes.deps \
+	dist/Makefile-machines.deps \
+	dist/Makefile-networkmanager.deps \
+	dist/Makefile-ostree.deps \
+	dist/Makefile-playground.deps \
+	dist/Makefile-realmd.deps \
+	dist/Makefile-selinux.deps \
+	dist/Makefile-shell.deps \
+	dist/Makefile-sosreport.deps \
+	dist/Makefile-storaged.deps \
+	dist/Makefile-subscriptions.deps \
+	dist/Makefile-systemd.deps \
+	dist/Makefile-tuned.deps \
+	dist/Makefile-users.deps \
 	$(NULL)
 
 noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
 CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
 EXTRA_DIST += $(WEBPACK_DEPS) webpack.config.js
 
-Makefile-%.deps: $(WEBPACK_CONFIG)
-	$(WEBPACK_RULE) -d $@ $<
+# Run webpack if we don't have the include file or if its out of date
+# If we have distributed a copy in a tarball, copy that into place
+dist/Makefile-%.deps: $(WEBPACK_CONFIG)
+	$(AM_V_GEN) if test $(srcdir)/dist/$(notdir $@) -nt $(WEBPACK_CONFIG); \
+	then $(MKDIR_P) $(dir $@) && cp -p $(srcdir)/dist/$(notdir $@) $@.tmp && $(MV) $@.tmp $@; \
+	else $(WEBPACK_MAKE) -d $@ $<; fi
 
--include Makefile-dashboard.deps
--include Makefile-docker.deps
--include Makefile-kubernetes.deps
--include Makefile-machines.deps
--include Makefile-networkmanager.deps
--include Makefile-ostree.deps
--include Makefile-playground.deps
--include Makefile-realmd.deps
--include Makefile-selinux.deps
--include Makefile-shell.deps
--include Makefile-sosreport.deps
--include Makefile-storaged.deps
--include Makefile-subscriptions.deps
--include Makefile-systemd.deps
--include Makefile-tuned.deps
--include Makefile-users.deps
+-include dist/Makefile-dashboard.deps
+-include dist/Makefile-docker.deps
+-include dist/Makefile-kubernetes.deps
+-include dist/Makefile-machines.deps
+-include dist/Makefile-networkmanager.deps
+-include dist/Makefile-ostree.deps
+-include dist/Makefile-playground.deps
+-include dist/Makefile-realmd.deps
+-include dist/Makefile-selinux.deps
+-include dist/Makefile-shell.deps
+-include dist/Makefile-sosreport.deps
+-include dist/Makefile-storaged.deps
+-include dist/Makefile-subscriptions.deps
+-include dist/Makefile-systemd.deps
+-include dist/Makefile-tuned.deps
+-include dist/Makefile-users.deps
 
-WEBPACK_RULE = $(V_WEBPACK) NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
+WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
+WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
 
 all-local:: $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
 	@true
@@ -312,11 +317,10 @@ dist-hook::
 	tar -C $(srcdir) -cf - --exclude='phantomjs*' node_modules/ | tar -C $(distdir) -xf -
 	tar -C $(srcdir) -cf - bower_components/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
-	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
 
 DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' --exclude='bower_components' "$(distdir)"
-DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/bower_components" package.json bower.json .bowerrc
+DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/bower_components" "$(distdir)/package.json" "$(distdir)/bower.json" "$(distdir)/.bowerrc"
 
 dist-gzip: distdir
 	$(DIST_TAR_MAIN) | GZIP=$(GZIP_ENV) gzip -c > $(distdir).tar.gz

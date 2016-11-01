@@ -1,15 +1,3 @@
-OPENSANS_FONTS = \
-	OpenSans-Bold-webfont.woff \
-	OpenSans-BoldItalic-webfont.woff \
-	OpenSans-ExtraBold-webfont.woff  \
-	OpenSans-ExtraBoldItalic-webfont.woff \
-	OpenSans-Italic-webfont.woff \
-	OpenSans-Light-webfont.woff \
-	OpenSans-LightItalic-webfont.woff \
-	OpenSans-Regular-webfont.woff \
-	OpenSans-Semibold-webfont.woff \
-	OpenSans-SemiboldItalic-webfont.woff \
-	$(NULL)
 
 if WITH_COCKPIT_WS
 
@@ -21,11 +9,7 @@ static_DATA = \
 	$(NULL)
 
 staticfontsdir = $(staticdir)/fonts
-staticfonts_DATA = $(addprefix src/ws/fonts/, $(OPENSANS_FONTS))
-	$(NULL)
-
-src/ws/fonts/%.woff: $(BOWER)/patternfly/dist/fonts/%.woff
-	$(COPY_RULE)
+staticfonts_DATA = $(OPENSANS_FONTS)
 
 noinst_LIBRARIES += libcockpit-ws.a
 

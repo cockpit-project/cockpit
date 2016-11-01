@@ -18,8 +18,8 @@
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g -DWITH_DEBUG'
 %define required_base %{gitcommit}
 %else
-# The first version with a stable APIs
-%define required_base 0.114
+# earliest base that the subpackages work on
+%define required_base 122
 %endif
 
 %if 0%{?centos}

@@ -587,7 +587,7 @@ on_handle_source (CockpitWebServer *server,
 static void
 server_ready (void)
 {
-  const gchar *roots[] = { ".", SRCDIR, NULL };
+  const gchar *roots[] = { ".", SRCDIR, BUILDDIR, NULL };
   GError *error = NULL;
   CockpitWebServer *server;
   gchar *url;
@@ -614,7 +614,7 @@ server_ready (void)
                     G_CALLBACK (on_handle_stream_external), NULL);
   g_signal_connect (server, "handle-resource::/pkg/",
                     G_CALLBACK (on_handle_resource), NULL);
-  g_signal_connect (server, "handle-resource::/src/",
+  g_signal_connect (server, "handle-resource::/dist/",
                     G_CALLBACK (on_handle_source), NULL);
   g_signal_connect (server, "handle-resource::/mock/",
                     G_CALLBACK (on_handle_mock), NULL);
@@ -631,7 +631,7 @@ server_ready (void)
       g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " %s/src/base1/test-dbus.html\n"
+           " %s/dist/base1/test-dbus.html\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"

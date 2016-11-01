@@ -9,8 +9,7 @@ var info = {
         ],
 
         "docker/docker": [
-            "docker/containers.js",
-            "docker/docker.css",
+            "docker/containers.js"
         ],
         "docker/console": [
             "docker/console.js",
@@ -31,8 +30,7 @@ var info = {
         ],
 
         "networkmanager/network": [
-            "networkmanager/interfaces.js",
-            "networkmanager/networking.css",
+            "networkmanager/interfaces.js"
         ],
 
         "ostree/ostree": [
@@ -88,8 +86,7 @@ var info = {
         ],
 
         "storaged/storage": [
-            "storaged/devices.js",
-            "storaged/storage.css",
+            "storaged/devices.js"
         ],
 
         "subscriptions/subscriptions": [

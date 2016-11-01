@@ -6,6 +6,7 @@ REACT_COMPONENTS = \
 	$(NULL)
 
 EXTRA_DIST += \
+	lib/qunit-template.html \
 	$(REACT_COMPONENTS) \
 	$(lib_TESTS) \
 	$(NULL)

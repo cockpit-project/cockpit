@@ -294,7 +294,7 @@ info.tests.forEach(function(test) {
         plugins.push(new html({
             title: path.basename(test),
             filename: test + ".html",
-            template: srcdir + path.sep + "tools" + path.sep + "qunit-template.html",
+            template: libdir + path.sep + "qunit-template.html",
             builddir: test.split("/").map(function() { return "../" }).join(""),
             inject: false,
         }));

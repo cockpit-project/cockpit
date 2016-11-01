@@ -1,40 +1,11 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/* global cockpit, test */
 
-  Copyright (C) 2014 Red Hat, Inc.
-
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <title>Cockpit Frame: Communicate via Parent</title>
-    <meta charset="utf-8">
-    <script src="../../tools/simple-tap.js"></script>
-    <script src="../../lib/jquery/dist/jquery.js"></script>
-    <script src="cockpit.js"></script>
-</head>
-<body>
-    <h2 id="title"></h2>
-    <pre id="output"></pre>
-    <script>
     var parent_tests = 6;
     var frame_tests = 6;
 
     /* Top level window */
     function parent_window() {
-        $("#title").text("Cockpit Parent Frame");
+        document.getElementById("title").innerHTML = "Cockpit Parent Frame";
         var count = 0;
         var frame;
         var cache;
@@ -76,13 +47,15 @@
         }
 
         cache = cockpit.cache("cross-frame-cache", provider, consumer, 'parent');
-        $(document.body).append($("<iframe>").attr("name", "blah").
-                attr("src", window.location.href + "?sub"));
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("name", "cockpit1:blah");
+        iframe.setAttribute("src", window.location.href + "?sub");
+        document.body.appendChild(iframe);
         frame = window.frames["blah"];
     }
 
     function child_frame() {
-        $("#title").text("Cockpit Child Frame");
+        document.getElementById("title").innerHTML = "Cockpit Child Frame";
         var count = 0;
         var cache;
 
@@ -121,7 +94,3 @@
     } else {
         child_frame();
     }
-
-</script>
-</body>
-</html>

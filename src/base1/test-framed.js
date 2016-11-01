@@ -1,34 +1,5 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/* global cockpit, test */
 
-  Copyright (C) 2014 Red Hat, Inc.
-
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <title>Cockpit Frame: Communicate via Parent</title>
-    <meta charset="utf-8">
-    <script src="../../tools/simple-tap.js"></script>
-    <script src="../../lib/jquery/dist/jquery.js"></script>
-    <script src="cockpit.js"></script>
-</head>
-<body>
-    <h2 id="title"></h2>
-    <pre id="output"></pre>
-    <script>
         /* This is *NOT* a development guide, we take lots of shortcuts here */
 
         var parent_tests = 1;
@@ -36,7 +7,7 @@
 
         /* Top level window */
         function parent_window() {
-            $("#title").text("Cockpit Parent Frame");
+            document.getElementById("title").innerHTML = "Cockpit Parent Frame";
             window.name = "cockpit1";
             var initialized = false;
             var frame;
@@ -56,18 +27,20 @@
                                            "a": "b", "host" : "frame_host"  }',
                                       cockpit.transport.origin);
                 } else {
-                    ret = cockpit.transport.inject(message);
+                    var ret = cockpit.transport.inject(message);
                     if (!ret) console.error("inject failed");
                 }
             }, false);
 
             /* This keeps coming up in tests ... how to open the transport */
             var chan = cockpit.channel({ "payload": "resource2" });
-            $(chan).on("close", function() {
+            chan.addEventListener("close", function() {
                  test.equal(cockpit.transport.host, "localhost",
                             "parent cockpit.transport.host");
-                 $(document.body).append($("<iframe>").attr("name", "cockpit1:blah").
-                         attr("src", window.location.href + "?sub"));
+                 var iframe = document.createElement("iframe");
+                 iframe.setAttribute("name", "cockpit1:blah");
+                 iframe.setAttribute("src", window.location.href + "?sub");
+                 document.body.appendChild(iframe);
                  frame = window.frames["cockpit1:blah"];
             });
         }
@@ -78,7 +51,7 @@
 
             test.start_from(parent_tests);
 
-            $("#title").text("Cockpit Child Frame");
+            document.getElementById("title").innerHTML = "Cockpit Child Frame";
             cockpit.spawn(["/bin/sh", "-c", "echo hi"],
                           { "host" : "localhost"}).
                 done(function(resp) {
@@ -97,7 +70,7 @@
 
             var channel = cockpit.channel({ "payload": "echo", "binary": true,
                                             "host" : "localhost"});
-            $(channel).on("message", function(ev, payload) {
+            channel.addEventListener("message", function(ev, payload) {
                 test.assert(typeof payload[0] == "number", "binary channel got a byte array");
 
                 var match = true;
@@ -108,7 +81,7 @@
                 test.assert(match === true, "binary channel got back right data");
                 channel.close();
             });
-            $(channel).on("close", function(ev, options) {
+            channel.addEventListener("close", function(ev, options) {
                 test.assert(!options.reason, "binary channel close cleanly");
                 binary_done = true;
                 if (spawn_done && binary_done) {
@@ -127,6 +100,3 @@
             parent_window();
         else
             child_frame();
-    </script>
-</body>
-</html>

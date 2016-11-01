@@ -1,106 +1,70 @@
-<!DOCTYPE html>
-<!--
-This file is part of Cockpit.
+/* global $, cockpit, QUnit, unescape, escape, WebSocket */
 
-Copyright (C) 2016 Red Hat, Inc.
-
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Cockpit Stub Tests</title>
-    <link rel="stylesheet" href="../../lib/qunit/qunit/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/qunit/qunit/qunit.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-tap/lib/qunit-tap.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-config.js"></script>
-
-    <script src="../../lib/jquery/dist/jquery.js"></script>
-    <script type="text/javascript" src="cockpit.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Cockpit Stub Tests</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-<script id='dbus-tests'>
+/* To help with future migration */
+var assert = QUnit;
 
 /* Tell cockpit to use an alternate url to connect to test-server */
 window.mock.url = cockpit.transport.uri();
 window.mock.url += "?cockpit-stub";
 
 function internal_test(options) {
-    expect(2);
+    assert.expect(2);
     var dbus = cockpit.dbus(null, options);
     dbus.call("/", "org.freedesktop.DBus.Introspectable", "Introspect")
         .done(function(resp) {
-            ok(String(resp[0]).indexOf("<node") !== -1, "introspected internal");
+            assert.ok(String(resp[0]).indexOf("<node") !== -1, "introspected internal");
         })
         .always(function() {
-            equal(this.state(), "resolved", "called internal");
-            start();
+            assert.equal(this.state(), "resolved", "called internal");
+            QUnit.start();
         });
 }
 
-asyncTest("internal dbus", function() {
+QUnit.asyncTest("internal dbus", function() {
     internal_test({"bus": "internal"});
 });
 
-asyncTest("internal dbus bus none", function() {
+QUnit.asyncTest("internal dbus bus none", function() {
     internal_test({"bus": "none"});
 });
 
-asyncTest("internal dbus bus none with address", function() {
+QUnit.asyncTest("internal dbus bus none with address", function() {
     internal_test({"bus": "none", "address": "internal"});
 });
 
-asyncTest("echo", function() {
-    expect(4);
+QUnit.asyncTest("echo", function() {
+    assert.expect(4);
 
     var channel = cockpit.channel({ "payload": "echo" });
     var pass = 0;
 
     $(channel).on("control", function(ev, options) {
-        if (pass == 0) {
-            equal(options.command, "ready", "got ready");
+        if (pass === 0) {
+            assert.equal(options.command, "ready", "got ready");
             pass += 1;
         } else {
-            equal(options.command, "done", "got done");
+            assert.equal(options.command, "done", "got done");
             channel.close();
             $(channel).off();
-            start();
+            QUnit.start();
         }
     });
 
     $(channel).on("message", function(ev, payload) {
-        strictEqual(payload, "the payload", "got the right payload");
+        assert.strictEqual(payload, "the payload", "got the right payload");
         channel.control({ command: "done" });
     });
 
-    strictEqual(channel.binary, false, "not binary");
+    assert.strictEqual(channel.binary, false, "not binary");
     channel.send("the payload");
 });
 
-asyncTest("http", function() {
-    expect(2);
+QUnit.asyncTest("http", function() {
+    assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json")
         .done(function(data) {
-            deepEqual(JSON.parse(data), {
+            assert.deepEqual(JSON.parse(data), {
                 version: "@VERSION@",
                 requires: {
                     cockpit: "122"
@@ -117,49 +81,49 @@ asyncTest("http", function() {
             }, "returned right data");
         })
         .always(function() {
-            equal(this.state(), "resolved", "didn't fail");
-            start();
+            assert.equal(this.state(), "resolved", "didn't fail");
+            QUnit.start();
         });
 });
 
-asyncTest("internal dbus environment", function() {
-    expect(1);
+QUnit.asyncTest("internal dbus environment", function() {
+    assert.expect(1);
 
     var dbus = cockpit.dbus(null, { "bus": "internal" });
     var proxy = dbus.proxy("cockpit.Environment", "/environment");
     proxy.wait(function () {
-        ok(typeof proxy.Variables["PATH"] === 'string', "has PATH environment var");
-        start();
+        assert.ok(typeof proxy.Variables["PATH"] === 'string', "has PATH environment var");
+        QUnit.start();
     });
 });
 
-asyncTest("internal user dbus", function() {
-    expect(2);
+QUnit.asyncTest("internal user dbus", function() {
+    assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "internal" });
     dbus.call("/user", "org.freedesktop.DBus.Properties",
               "GetAll", [ "cockpit.User" ],
               { "type": "s" })
         .fail(function(ex) {
-            equal(ex.message, "No such interface 'org.freedesktop.DBus.Properties' on object at path /user");
+            assert.equal(ex.message, "No such interface 'org.freedesktop.DBus.Properties' on object at path /user");
         })
         .always(function() {
-            equal(this.state(), "rejected", "finished successfuly");
-            start();
+            assert.equal(this.state(), "rejected", "finished successfuly");
+            QUnit.start();
         });
 });
 
 
-asyncTest("not supported types", function() {
+QUnit.asyncTest("not supported types", function() {
     var failures = 7;
     var seen = 0;
-    expect(failures);
+    assert.expect(failures);
 
     function failed(ev, ex) {
-        equal(ex.problem, "not-supported", "not-supported");
+        assert.equal(ex.problem, "not-supported", "not-supported");
         seen++;
         if (failures == seen)
-            start();
+            QUnit.start();
     }
 
     var flist = cockpit.channel({"payload":"fslist1","path":"/foo"});
@@ -185,13 +149,13 @@ asyncTest("not supported types", function() {
                                    source: "internal"});
     $(metrics).on("close", failed);
 
-    setTimeout(function () {
-        start();
+    window.setTimeout(function () {
+        QUnit.start();
     }, 5000);
 });
 
-asyncTest("external channel websocket", function() {
-    expect(3);
+QUnit.asyncTest("external channel websocket", function() {
+    assert.expect(3);
 
     var query = window.btoa(JSON.stringify({
         payload: "websocket-stream1",
@@ -201,31 +165,28 @@ asyncTest("external channel websocket", function() {
     }));
 
     var count = 0;
-    var ws = new WebSocket("ws://" + location.host + "/cockpit/channel/" +
+    var ws = new WebSocket("ws://" + window.location.host + "/cockpit/channel/" +
                            cockpit.transport.csrf_token + '?' + query);
     ws.onopen = function() {
-        ok(true, "websocket is open");
+        assert.ok(true, "websocket is open");
         ws.send("oh marmalade");
     };
     ws.onerror = function() {
-        ok(false, "websocket error");
+        assert.ok(false, "websocket error");
     };
     ws.onmessage = function(ev) {
-        if (count == 0) {
-            equal(ev.data, "OH MARMALADE", "got payload");
+        if (count === 0) {
+            assert.equal(ev.data, "OH MARMALADE", "got payload");
             ws.send("another test");
             count += 1;
         } else {
-            equal(ev.data, "ANOTHER TEST", "got payload again");
+            assert.equal(ev.data, "ANOTHER TEST", "got payload again");
             ws.close(1000);
         }
     };
     ws.onclose = function(ev) {
-        start();
-    }
+        QUnit.start();
+    };
 });
 
 QUnit.start();
-</script>
-</body>
-</html>

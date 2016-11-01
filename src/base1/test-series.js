@@ -1,72 +1,37 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/* global $, cockpit, QUnit, unescape, escape */
 
-  Copyright (C) 2014 Red Hat, Inc.
+/* To help with future migration */
+var assert = QUnit;
 
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <title>Series Tests</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../../lib/qunit/qunit/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/qunit/qunit/qunit.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-tap/lib/qunit-tap.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-config.js"></script>
-
-    <script src="../../lib/jquery/dist/jquery.js"></script>
-    <script src="cockpit.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Series Tests</h1>
-    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-</body>
-<script>
-
-test("public api", function() {
-    equal(typeof cockpit.grid, "function", "cockpit.grid is a function");
-    equal(typeof cockpit.series, "function", "cockpit.series is a function");
+QUnit.test("public api", function() {
+    assert.equal(typeof cockpit.grid, "function", "cockpit.grid is a function");
+    assert.equal(typeof cockpit.series, "function", "cockpit.series is a function");
 
     var grid = cockpit.grid(555, 3, 8);
-    strictEqual(grid.interval, 555, "grid.interval");
-    strictEqual(grid.beg, 3, "grid.beg");
-    strictEqual(grid.end, 8, "grid.end");
-    equal(typeof grid.add, "function", "grid.add()");
-    equal(typeof grid.remove, "function", "grid.remove()");
-    equal(typeof grid.close, "function", "grid.close()");
-    equal(typeof grid.notify, "function", "grid.notify()");
-    equal(typeof grid.move, "function", "grid.move()");
-    equal(typeof grid.sync, "function", "grid.sync()");
+    assert.strictEqual(grid.interval, 555, "grid.interval");
+    assert.strictEqual(grid.beg, 3, "grid.beg");
+    assert.strictEqual(grid.end, 8, "grid.end");
+    assert.equal(typeof grid.add, "function", "grid.add()");
+    assert.equal(typeof grid.remove, "function", "grid.remove()");
+    assert.equal(typeof grid.close, "function", "grid.close()");
+    assert.equal(typeof grid.notify, "function", "grid.notify()");
+    assert.equal(typeof grid.move, "function", "grid.move()");
+    assert.equal(typeof grid.sync, "function", "grid.sync()");
 
     grid = cockpit.grid(555, 3);
-    strictEqual(grid.beg, 3, "not-null grid.beg");
-    strictEqual(grid.end, 3, "same grid.end");
+    assert.strictEqual(grid.beg, 3, "not-null grid.beg");
+    assert.strictEqual(grid.end, 3, "same grid.end");
 
     grid = cockpit.grid(555, 0);
-    strictEqual(grid.end, 0, "zero grid.end");
+    assert.strictEqual(grid.end, 0, "zero grid.end");
 
     var sink = cockpit.series(888);
-    strictEqual(sink.interval, 888, "series.interval");
-    equal(typeof sink.input, "function", "series.input()");
-    equal(typeof sink.load, "function", "series.load()");
+    assert.strictEqual(sink.interval, 888, "series.interval");
+    assert.equal(typeof sink.input, "function", "series.input()");
+    assert.equal(typeof sink.load, "function", "series.load()");
 });
 
-test("calculated row", function() {
+QUnit.test("calculated row", function() {
     var grid = cockpit.grid(1000, 3, 8);
     var calculated = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
@@ -74,10 +39,10 @@ test("calculated row", function() {
     });
 
     grid.notify(1, 4);
-    deepEqual(calculated, [ undefined, 0, 1, 2, 3 ], "array contents");
+    assert.deepEqual(calculated, [ undefined, 0, 1, 2, 3 ], "array contents");
 });
 
-test("calculated order", function() {
+QUnit.test("calculated order", function() {
     var grid = cockpit.grid(1000, 3, 8);
 
     var calculated = grid.add(function(row, x, n) {
@@ -92,10 +57,10 @@ test("calculated order", function() {
     });
 
     grid.notify(1, 4);
-    deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
+    assert.deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
 });
 
-test("calculated early", function() {
+QUnit.test("calculated early", function() {
     var grid = cockpit.grid(1000, 3, 8);
 
     var calculated;
@@ -113,10 +78,10 @@ test("calculated early", function() {
     }, true);
 
     grid.notify(1, 4);
-    deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
+    assert.deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
 });
 
-test("notify limit", function() {
+QUnit.test("notify limit", function() {
     var grid = cockpit.grid(1000, 5, 15);
 
     var called = -1;
@@ -125,16 +90,16 @@ test("notify limit", function() {
     });
 
     grid.notify(10, 8);
-    strictEqual(called, -1, "not called out of bounds");
+    assert.strictEqual(called, -1, "not called out of bounds");
 
     grid.notify(1, 0);
-    strictEqual(called, -1, "not called zero length");
+    assert.strictEqual(called, -1, "not called zero length");
 
     grid.notify(1, 20);
-    strictEqual(called, 9, "truncated to right limit");
+    assert.strictEqual(called, 9, "truncated to right limit");
 });
 
-test("sink row", function() {
+QUnit.test("sink row", function() {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -167,16 +132,16 @@ test("sink row", function() {
 
     sink.input(7, items);
 
-    deepEqual(notified, [ 2, 3 ]);
+    assert.deepEqual(notified, [ 2, 3 ]);
 
-    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
-    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
-    deepEqual(calc, [undefined, undefined, 404, 604, 804], "row with calculated");
+    assert.deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
+    assert.deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
+    assert.deepEqual(calc, [undefined, undefined, 404, 604, 804], "row with calculated");
 
     grid.close();
 });
 
-test("sink no path", function() {
+QUnit.test("sink no path", function() {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -186,10 +151,10 @@ test("sink no path", function() {
 
     sink.input(8, items);
 
-    deepEqual(row, [undefined, undefined, undefined,  567, 768, { "hello": "scruffy" }], "row without a path");
+    assert.deepEqual(row, [undefined, undefined, undefined,  567, 768, { "hello": "scruffy" }], "row without a path");
 });
 
-test("sink after close", function() {
+QUnit.test("sink after close", function() {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -198,18 +163,18 @@ test("sink after close", function() {
     var items = [ 1, 2, 3 ];
 
     sink.input(5, items);
-    deepEqual(row, [1, 2, 3], "row got values");
+    assert.deepEqual(row, [1, 2, 3], "row got values");
 
     sink.input(8, items);
-    deepEqual(row, [1, 2, 3, 1, 2, 3], "row got more values");
+    assert.deepEqual(row, [1, 2, 3, 1, 2, 3], "row got more values");
 
     grid.close();
 
     sink.input(11, items);
-    deepEqual(row, [1, 2, 3, 1, 2, 3], "row got no more values");
+    assert.deepEqual(row, [1, 2, 3, 1, 2, 3], "row got no more values");
 });
 
-test("sink mapping", function() {
+QUnit.test("sink mapping", function() {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -239,14 +204,14 @@ test("sink mapping", function() {
 
     sink.input(5, items, mapping);
 
-    deepEqual(row1, [2001, 3001, 4001], "mapped with trailing");
-    deepEqual(row2, [[ 200, 201, 202 ], [ 300, 301, 302 ], [ 400, 401, 402 ]], "mapped simply");
-    deepEqual(row3, [undefined, undefined, undefined], "mapped undefined");
+    assert.deepEqual(row1, [2001, 3001, 4001], "mapped with trailing");
+    assert.deepEqual(row2, [[ 200, 201, 202 ], [ 300, 301, 302 ], [ 400, 401, 402 ]], "mapped simply");
+    assert.deepEqual(row3, [undefined, undefined, undefined], "mapped undefined");
 
     grid.close();
 });
 
-test("cache simple", function() {
+QUnit.test("cache simple", function() {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -285,18 +250,18 @@ test("cache simple", function() {
 
     grid.sync();
 
-    deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
-    deepEqual(notified, [ 0, 10 ], "notified about right indexes");
+    assert.deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
+    assert.deepEqual(notified, [ 0, 10 ], "notified about right indexes");
 
-    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
-    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
-    deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
+    assert.deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
+    assert.deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
+    assert.deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
                      undefined, undefined, undefined, undefined ], "row with calculated");
 
     grid.close();
 });
 
-test("cache multiple", function() {
+QUnit.test("cache multiple", function() {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -335,18 +300,18 @@ test("cache multiple", function() {
 
     grid.sync();
 
-    deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
-    deepEqual(notified, [ 0, 10 ], "notified about right indexes");
+    assert.deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
+    assert.deepEqual(notified, [ 0, 10 ], "notified about right indexes");
 
-    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
-    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
-    deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
+    assert.deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
+    assert.deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
+    assert.deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
                      undefined, undefined, undefined, undefined ], "row with calculated");
 
     grid.close();
 });
 
-test("cache overlap", function() {
+QUnit.test("cache overlap", function() {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -378,7 +343,7 @@ test("cache overlap", function() {
     }]);
 
 
-    deepEqual(row1, [undefined, 202, 202, 302, 302, 902], "row with with initial data");
+    assert.deepEqual(row1, [undefined, 202, 202, 302, 302, 902], "row with with initial data");
 
     /* Overlaying the data currently throws overlapping stuff out of the cache */
     sink.input(7, [{
@@ -392,13 +357,13 @@ test("cache overlap", function() {
     var row2 = grid.add(sink, "one.sub.2");
     grid.sync();
 
-    deepEqual(row1, [undefined, 202, 402, 402, 302, 902], "row with with filled data");
-    deepEqual(row2, [undefined, 202, 402, 402, 302, 902], "row with with overlapping data");
+    assert.deepEqual(row1, [undefined, 202, 402, 402, 302, 902], "row with with filled data");
+    assert.deepEqual(row2, [undefined, 202, 402, 402, 302, 902], "row with with overlapping data");
 
     grid.close();
 });
 
-test("cache limit", function() {
+QUnit.test("cache limit", function() {
     var series = cockpit.series(1000, null);
     series.limit = 5;
     series.input(8, [ "eight" ]);
@@ -409,27 +374,27 @@ test("cache limit", function() {
     var row = grid.add(series, null);
     grid.sync();
 
-    deepEqual(row, [ undefined, "six", "seven", "eight", "nine" ], "initial data correct");
+    assert.deepEqual(row, [ undefined, "six", "seven", "eight", "nine" ], "initial data correct");
 
     /* Force an expiry by adding too much data */
     series.input(10, [ "ten", "eleven" ]);
 
     /* Should have removed some data from cache */
     grid.move(4, 14);
-    deepEqual(row, [ undefined, undefined, "six", "seven", undefined, "nine", "ten", "eleven" ], "expired");
+    assert.deepEqual(row, [ undefined, undefined, "six", "seven", undefined, "nine", "ten", "eleven" ], "expired");
 
     /* Force further expiry */
     series.input(3, [ "three", "four", "five" ]);
 
     /* Should have removed move data from cache */
     grid.move(3, 13);
-    deepEqual(row, [ "three", "four", "five", undefined, undefined, undefined,
+    assert.deepEqual(row, [ "three", "four", "five", undefined, undefined, undefined,
                      undefined, "ten", "eleven" ], "expired more");
 
     grid.close();
 });
 
-test("move", function() {
+QUnit.test("move", function() {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -463,43 +428,43 @@ test("move", function() {
         "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
     }]);
 
-    deepEqual(fetched, [], "fetched no data");
-    strictEqual(notified, null, "not notified");
+    assert.deepEqual(fetched, [], "fetched no data");
+    assert.strictEqual(notified, null, "not notified");
 
-    deepEqual(row1, [], "row1 empty");
-    deepEqual(row2, [], "row2 empty");
-    deepEqual(calc, [], "calc empty");
+    assert.deepEqual(row1, [], "row1 empty");
+    assert.deepEqual(row2, [], "row2 empty");
+    assert.deepEqual(calc, [], "calc empty");
 
     grid.move(5, 15);
 
-    deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
-    deepEqual(notified, [0, 10], "not notified");
+    assert.deepEqual(fetched, [[5, 7], [ 10, 15 ]], "fetched right data");
+    assert.deepEqual(notified, [0, 10], "not notified");
 
-    deepEqual(row1, [undefined, undefined, 202, 302, 402], "row1 with data");
-    deepEqual(row2, [undefined, undefined, 202, 302, 402], "row2 with data");
-    deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
+    assert.deepEqual(row1, [undefined, undefined, 202, 302, 402], "row1 with data");
+    assert.deepEqual(row2, [undefined, undefined, 202, 302, 402], "row2 with data");
+    assert.deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
                      undefined, undefined, undefined, undefined ], "row with calculated");
 
     grid.close();
 });
 
-test("move negative", function() {
+QUnit.test("move negative", function() {
     var now = $.now();
     var grid = cockpit.grid(1000, -20, -5);
 
-    equal(grid.beg, Math.floor(now / 1000) - 20);
-    equal(grid.end, Math.floor(now / 1000) - 5);
+    assert.equal(grid.beg, Math.floor(now / 1000) - 20);
+    assert.equal(grid.end, Math.floor(now / 1000) - 5);
 
     grid.move(-30, -0);
 
-    equal(grid.beg, Math.floor(now / 1000) - 30);
-    equal(grid.end, Math.floor(now / 1000));
+    assert.equal(grid.beg, Math.floor(now / 1000) - 30);
+    assert.equal(grid.end, Math.floor(now / 1000));
 
     grid.close();
 });
 
-asyncTest("walk", function() {
-    expect(5);
+QUnit.asyncTest("walk", function() {
+    assert.expect(5);
 
     var fetched = [];
     function fetch(beg, end) {
@@ -517,11 +482,11 @@ asyncTest("walk", function() {
     $(grid).on("notify", function() {
         count += 1;
 
-        equal(count, fetched.length, "fetched " + count);
+        assert.equal(count, fetched.length, "fetched " + count);
 
         if (count == 5) {
             grid.close();
-            start();
+            QUnit.start();
         }
     });
 });
@@ -530,9 +495,6 @@ asyncTest("walk", function() {
  */
 $.now = Date.now = function() {
     return 0;
-}
+};
 
 QUnit.start();
-
-</script>
-</html>

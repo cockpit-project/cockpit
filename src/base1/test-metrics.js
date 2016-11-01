@@ -1,42 +1,7 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/* global $, cockpit, QUnit */
 
-  Copyright (C) 2015 Red Hat, Inc.
-
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-  <head>
-    <title>Metrics Tests</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../../lib/qunit/qunit/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/qunit/qunit/qunit.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-tap/lib/qunit-tap.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-config.js"></script>
-
-    <script src="../../lib/jquery/dist/jquery.js"></script>
-    <script type="text/javascript" src="cockpit.js"></script>
-  </head>
-  <body>
-    <h1 id="qunit-header">Metrics Tests</h1>
-    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-  </body>
-<script type="text/javascript">
+/* To help with future migration */
+var assert = QUnit;
 
 function MockPeer() {
     /*
@@ -68,12 +33,12 @@ function MockPeer() {
             channel.dispatchEvent("message", payload);
         else
             console.log("dropping message after close");
-    }
+    };
 
     /* send a object as JSON */
     this.send_json = function(payload) {
         this.send(JSON.stringify(payload));
-    }
+    };
 
     /* peer closes the channel */
     this.close = function(channel, options) {
@@ -82,7 +47,7 @@ function MockPeer() {
             channel.valid = false;
             channel.dispatchEvent("close", options || { });
         }
-    }
+    };
 
     var peer = this;
     var last_channel = 0;
@@ -95,9 +60,11 @@ function MockPeer() {
 
         var channel = this;
 
-        this.transport = new function() {
-            this.close = function(problem) { console.assert(arguments.length == 1); }
-        };
+        function Transport() {
+            this.close = function(problem) { console.assert(arguments.length == 1); };
+        }
+
+        this.transport = new Transport();
 
         this.send = function(payload) {
             console.assert(arguments.length == 1);
@@ -139,8 +106,8 @@ function MockSink(expected, callback) {
     return self;
 }
 
-test("non-instanced decompression", function() {
-    expect(1);
+QUnit.test("non-instanced decompression", function() {
+    assert.expect(1);
 
     var peer = new MockPeer();
     var sink = new MockSink();
@@ -157,10 +124,7 @@ test("non-instanced decompression", function() {
     peer.send_json([ [ 10 ] ]);
     peer.send_json([ [ ] ]);
 
-    deepEqual(sink.samples, [ [ 10 ], [ 10 ] ], "got correct samples");
+    assert.deepEqual(sink.samples, [ [ 10 ], [ 10 ] ], "got correct samples");
 });
 
 QUnit.start();
-
-</script>
-</html>

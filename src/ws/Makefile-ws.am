@@ -24,6 +24,9 @@ staticfontsdir = $(staticdir)/fonts
 staticfonts_DATA = $(addprefix src/ws/fonts/, $(OPENSANS_FONTS))
 	$(NULL)
 
+src/ws/fonts/%.woff: $(BOWER)/patternfly/dist/fonts/%.woff
+	$(COPY_RULE)
+
 noinst_LIBRARIES += libcockpit-ws.a
 
 libcockpit_ws_a_SOURCES = \

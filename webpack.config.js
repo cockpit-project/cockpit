@@ -236,7 +236,8 @@ if (typeof(global.Promise) == "undefined")
 var srcdir = process.env.SRCDIR || __dirname;
 var pkgdir = srcdir + path.sep + "pkg";
 var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
-var libdir = path.resolve(srcdir, "lib");
+var libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
+var bowerdir = path.resolve(srcdir, "bower_components");
 var section = process.env.ONLYDIR || null;
 
 /* A standard nodejs and webpack pattern */
@@ -307,7 +308,7 @@ if (!section || section.indexOf("base1") === 0) {
         from: srcdir + path.sep + "src/base1/cockpit.js",
         to: "base1/cockpit.js"
     }, {
-        from: libdir + path.sep + "jquery/dist/jquery.js",
+        from: bowerdir + path.sep + "jquery/dist/jquery.js",
         to: "base1/jquery.js"
     });
 }
@@ -323,7 +324,7 @@ module.exports = {
             "react": "react-lite-cockpit/dist/react-lite.js",
             "term": "term.js-cockpit/src/term.js",
         },
-        modulesDirectories: [ libdir ]
+        modulesDirectories: [ libdir, bowerdir ]
     },
     resolveLoader: {
         root: path.resolve(srcdir, 'node_modules')
@@ -343,7 +344,7 @@ module.exports = {
         preLoaders: [
             {
                 test: /\.js$/, // include .js files
-                exclude: /lib\/.*\/|\/node_modules\//, // exclude external dependencies
+                exclude: /bower_components\/.*\/|\/node_modules\//, // exclude external dependencies
                 loader: "jshint-loader"
             },
             {
@@ -354,6 +355,7 @@ module.exports = {
         loaders: [
             {
                 test: /\.js$/,
+                exclude: /bower_components\/.*\//,
                 loader: 'strict' // Adds "use strict"
             },
             {

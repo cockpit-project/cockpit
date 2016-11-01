@@ -35,10 +35,15 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
+# Development dependencies: See node_modules/README
 npm prune
 npm install # see package.json
 
 find node_modules -name test | xargs rm -rf
+
+# Build dependencies: See bower_components/README
+find bower_components -mindepth 1 -name README -prune -o -print | xargs rm -rf
+node_modules/.bin/bower update
 
 rm -rf autom4te.cache
 

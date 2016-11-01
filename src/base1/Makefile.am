@@ -90,11 +90,18 @@ dist/base1/patternfly-additions.css: $(BOWER)/patternfly/dist/css/patternfly-add
 dist/base1/patternfly-additions.css.map: $(BOWER)/patternfly/dist/css/patternfly-additions.css.map
 	$(COPY_RULE)
 
+dist/base1/fonts/fontawesome.woff: $(BOWER)/patternfly/dist/fonts/fontawesome-webfont.woff
+	$(COPY_RULE)
+dist/base1/fonts/glyphicons.woff: $(BOWER)/patternfly/dist/fonts/glyphicons-halflings-regular.woff
+	$(COPY_RULE)
+dist/base1/fonts/patternfly.woff: $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff
+	$(COPY_RULE)
+
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
-	src/base1/fonts/fontawesome.woff \
-	src/base1/fonts/patternfly.woff \
-	src/base1/fonts/glyphicons.woff \
+	dist/base1/fonts/fontawesome.woff \
+	dist/base1/fonts/patternfly.woff \
+	dist/base1/fonts/glyphicons.woff \
 	$(NULL)
 
 base_TESTS = \

@@ -396,6 +396,11 @@ class TestNetworking(MachineCase):
         b.click(".panel-heading .btn:contains('On')")
         b.wait_not_in_text("tr:contains('Status')", "Inactive")
 
+        # Check that the actual kernel device has the REORDER_HDR flag
+        # set.  NetworkManager stopped doing that for connections
+        # created via D-Bus at some point.
+        self.assertIn("REORDER_HDR", m.execute("ip -d link show tvlan | grep vlan"))
+
         # Delete it
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")

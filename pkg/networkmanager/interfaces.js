@@ -748,6 +748,8 @@ function NetworkManagerModel() {
             set("vlan", "parent",         's', settings.vlan.parent);
             set("vlan", "id",             'u', settings.vlan.id);
             set("vlan", "interface-name", 's', settings.vlan.interface_name);
+            // '1' is the default, but we need to set it explicitly anyway.
+            set("vlan", "flags",          'u', 1);
         }
 
         if (settings.ethernet) {

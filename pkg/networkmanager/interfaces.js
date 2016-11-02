@@ -2144,8 +2144,8 @@ PageNetworkInterface.prototype = {
                 modify,
                 cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, " +
                                  "and will make the administration UI unavailable."),
-                               self.iface.Name),
-                cockpit.format(_("Delete $0"), self.iface.Name));
+                               self.dev_name),
+                cockpit.format(_("Delete $0"), self.dev_name));
         }
     },
 
@@ -2176,8 +2176,8 @@ PageNetworkInterface.prototype = {
             modify,
             cockpit.format(_("Switching on <b>$0</b>  will break the connection to the server, " +
                              "and will make the administration UI unavailable."),
-                           self.dev.Interface),
-            cockpit.format(_("Switch on $0"), self.dev.Interface));
+                           self.dev_name),
+            cockpit.format(_("Switch on $0"), self.dev_name));
     },
 
     disconnect: function() {
@@ -2201,8 +2201,8 @@ PageNetworkInterface.prototype = {
             modify,
             cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, " +
                              "and will make the administration UI unavailable."),
-                           self.dev.Interface),
-            cockpit.format(_("Switch off $0"), self.dev.Interface));
+                           self.dev_name),
+            cockpit.format(_("Switch off $0"), self.dev_name));
     },
 
     update: function() {

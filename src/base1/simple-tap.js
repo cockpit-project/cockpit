@@ -8,7 +8,7 @@ var test = { };
         console.log("phantom-tap-error");
         window.clearTimeout(timeout);
         return false;
-    }
+    };
 
     timeout = window.setTimeout(function() {
         console.log("test timed out, failed");

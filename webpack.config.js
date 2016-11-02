@@ -294,12 +294,23 @@ info.tests.forEach(function(test) {
         plugins.push(new html({
             title: path.basename(test),
             filename: test + ".html",
-            template: srcdir + path.sep + "tools" + path.sep + "qunit-template.html",
+            template: libdir + path.sep + "qunit-template.html",
             builddir: test.split("/").map(function() { return "../" }).join(""),
             inject: false,
         }));
     }
 });
+
+/* Just for the sake of tests, jquery.js and cockpit.js files */
+if (!section || section.indexOf("base1") === 0) {
+    files.push({
+        from: srcdir + path.sep + "src/base1/cockpit.js",
+        to: "base1/cockpit.js"
+    }, {
+        from: libdir + path.sep + "jquery/dist/jquery.js",
+        to: "base1/jquery.js"
+    });
+}
 
 module.exports = {
     resolve: {

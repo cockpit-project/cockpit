@@ -1,52 +1,18 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/* global $, cockpit, QUnit, unescape, escape */
 
-  Copyright (C) 2014 Red Hat, Inc.
+/* To help with future migration */
+var assert = QUnit;
 
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-  <head>
-    <title>UTF8 Tests</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../../lib/qunit/qunit/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/qunit/qunit/qunit.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-tap/lib/qunit-tap.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-config.js"></script>
-
-    <script type="text/javascript" src="cockpit.js"></script>
-  </head>
-  <body>
-    <h1 id="qunit-header">UTF8 Tests</h1>
-    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-  </body>
-<script type="text/javascript">
-
-test("utf8 basic", function() {
+QUnit.test("utf8 basic", function() {
     var str = "Base 64 \u2014 Mozilla Developer Network";
     var expect = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, 128, 148, 32, 77,
                    111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
                    111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
 
     var encoded = cockpit.utf8_encoder().encode(str);
-    deepEqual(encoded, expect, "encoded");
+    assert.deepEqual(encoded, expect, "encoded");
 
-    equal(cockpit.utf8_decoder().decode(encoded), str, "decoded");
+    assert.equal(cockpit.utf8_decoder().decode(encoded), str, "decoded");
 });
 
 // Copyright 2014 Joshua Bell. All rights reserved.
@@ -68,7 +34,7 @@ test("utf8 basic", function() {
 
 // Helpers for test_utf_roundtrip.
 
-test("utf8 round trip", function() {
+QUnit.test("utf8 round trip", function() {
     var MIN_CODEPOINT = 0;
     var MAX_CODEPOINT = 0x10FFFF;
     var BLOCK_SIZE = 0x1000;
@@ -122,28 +88,28 @@ test("utf8 round trip", function() {
         var length = block.length;
         for (var j = 0; j < length; j++) {
             if (block[j] != decoded[j]) {
-                deepEqual(block, decoded, "round trip " + block_tag);
+                assert.deepEqual(block, decoded, "round trip " + block_tag);
                 return;
             }
         }
     }
 
-    ok(true, "round trip all code points");
+    assert.ok(true, "round trip all code points");
 });
 
-test("utf8 samples", function() {
+QUnit.test("utf8 samples", function() {
     // z, cent, CJK water, G-Clef, Private-use character
     var sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
     var expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
 
     var encoded = cockpit.utf8_encoder().encode(sample);
-    deepEqual(encoded, expected, "encoded");
+    assert.deepEqual(encoded, expected, "encoded");
 
     var decoded = cockpit.utf8_decoder().decode(expected);
-    deepEqual(decoded, sample, "decoded");
+    assert.deepEqual(decoded, sample, "decoded");
 });
 
-test("utf8 stream", function() {
+QUnit.test("utf8 stream", function() {
     // z, cent, CJK water, G-Clef, Private-use character
     var sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
     var expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
@@ -155,10 +121,10 @@ test("utf8 stream", function() {
         decoded += decoder.decode(expected.slice(i, i + 2), { stream: true });
     decoded += decoder.decode();
 
-    deepEqual(decoded, sample, "decoded");
+    assert.deepEqual(decoded, sample, "decoded");
 });
 
-test("utf8 invalid", function() {
+QUnit.test("utf8 invalid", function() {
     var sample = "Base 64 \ufffd\ufffd Mozilla Developer Network";
     var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
                    111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
@@ -166,18 +132,15 @@ test("utf8 invalid", function() {
 
     var decoded = cockpit.utf8_decoder().decode(data);
 
-    deepEqual(decoded, sample, "decoded");
+    assert.deepEqual(decoded, sample, "decoded");
 });
 
-test("utf8 fatal", function() {
+QUnit.test("utf8 fatal", function() {
     var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
                    111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
                    111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
 
-    throws(function() { cockpit.utf8_decoder(fatal).decode(data); }, "fatal throws error");
+    assert.throws(function() { cockpit.utf8_decoder(true).decode(data); }, "fatal throws error");
 });
 
 QUnit.start();
-
-</script>
-</html>

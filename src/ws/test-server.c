@@ -473,10 +473,10 @@ inject_address (CockpitWebResponse *response,
 
   if (value)
     {
-      line = g_strconcat ("\nvar ", name, " = '", value, "';\n", NULL);
+      line = g_strconcat ("\n<script>\nvar ", name, " = '", value, "';\n</script>", NULL);
 
       inject = g_bytes_new (line, strlen (line));
-      filter = cockpit_web_inject_new ("<script id='dbus-tests'>", inject, 1);
+      filter = cockpit_web_inject_new ("<head>", inject, 1);
       g_bytes_unref (inject);
 
       cockpit_web_response_add_filter (response, filter);
@@ -575,8 +575,11 @@ on_handle_source (CockpitWebServer *server,
                   gpointer user_data)
 {
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
-  inject_address (response, "bus_address", bus_address);
-  inject_address (response, "direct_address", direct_address);
+  if (g_str_has_suffix (path, ".html"))
+    {
+      inject_address (response, "bus_address", bus_address);
+      inject_address (response, "direct_address", direct_address);
+    }
   cockpit_web_response_file (response, path,  cockpit_web_server_get_document_roots (server));
   return TRUE;
 }
@@ -584,7 +587,7 @@ on_handle_source (CockpitWebServer *server,
 static void
 server_ready (void)
 {
-  const gchar *roots[] = { ".", SRCDIR, NULL };
+  const gchar *roots[] = { ".", SRCDIR, BUILDDIR, NULL };
   GError *error = NULL;
   CockpitWebServer *server;
   gchar *url;
@@ -611,7 +614,7 @@ server_ready (void)
                     G_CALLBACK (on_handle_stream_external), NULL);
   g_signal_connect (server, "handle-resource::/pkg/",
                     G_CALLBACK (on_handle_resource), NULL);
-  g_signal_connect (server, "handle-resource::/src/",
+  g_signal_connect (server, "handle-resource::/dist/",
                     G_CALLBACK (on_handle_source), NULL);
   g_signal_connect (server, "handle-resource::/mock/",
                     G_CALLBACK (on_handle_mock), NULL);
@@ -628,7 +631,7 @@ server_ready (void)
       g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " %s/src/base1/test-dbus.html\n"
+           " %s/dist/base1/test-dbus.html\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"

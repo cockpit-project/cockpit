@@ -1,55 +1,21 @@
-<!DOCTYPE html>
-<!--
-  This file is part of Cockpit.
+/* global $, cockpit, QUnit, unescape, escape */
 
-  Copyright (C) 2014 Red Hat, Inc.
+/* To help with future migration */
+var assert = QUnit;
 
-  Cockpit is free software; you can redistribute it and/or modify it
-  under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation; either version 2.1 of the License, or
-  (at your option) any later version.
-
-  Cockpit is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public License
-  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-<head>
-    <title>Format Tests</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../../lib/qunit/qunit/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/qunit/qunit/qunit.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-tap/lib/qunit-tap.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-config.js"></script>
-
-    <script src="cockpit.js"></script>
-</head>
-<body>
-    <h1 id="qunit-header">Format Tests</h1>
-    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-</body>
-<script>
-
-test("format", function() {
-    equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
+QUnit.test("format", function() {
+    assert.equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
           "My special message with lots of things", "named keys");
-    equal(cockpit.format("My $0 message with $1 of things", [ "special", "lots" ]),
+    assert.equal(cockpit.format("My $0 message with $1 of things", [ "special", "lots" ]),
           "My special message with lots of things", "number keys");
-    equal(cockpit.format("My $0 message with $1 of things", "special", "lots"),
+    assert.equal(cockpit.format("My $0 message with $1 of things", "special", "lots"),
           "My special message with lots of things", "vararg keys");
-    equal(cockpit.format("My $0 message with lots of things", "special"),
+    assert.equal(cockpit.format("My $0 message with lots of things", "special"),
           "My special message with lots of things", "vararg one key");
-    equal(cockpit.format("Undefined $value", { }), "Undefined ", "missing value");
+    assert.equal(cockpit.format("Undefined $value", { }), "Undefined ", "missing value");
 });
 
-test("format_number", function () {
+QUnit.test("format_number", function () {
     var checks = [
         [ 123.4, "123.4" ],
         [ 123.45, "123.5" ],
@@ -71,14 +37,14 @@ test("format_number", function () {
         [ undefined, "" ],
     ];
 
-    expect(checks.length);
-    for (i = 0; i < checks.length; i++) {
-        strictEqual(cockpit.format_number(checks[i][0]), checks[i][1],
+    assert.expect(checks.length);
+    for (var i = 0; i < checks.length; i++) {
+        assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][1],
                     "format_number(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });
 
-test("format_bytes", function() {
+QUnit.test("format_bytes", function() {
     var checks = [
         [ 999, 1000, "999" ],
         [ 1934, undefined, "1.9 KiB" ],
@@ -104,19 +70,19 @@ test("format_bytes", function() {
 
     var i, split;
 
-    expect(checks.length * 2);
+    assert.expect(checks.length * 2);
     for (i = 0; i < checks.length; i++) {
-        strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
+        assert.strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
                     "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
     }
     for (i = 0; i < checks.length; i++) {
         split = checks[i][2].split(" ");
-        deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], true), split,
+        assert.deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], true), split,
                    "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
     }
 });
 
-test("get_byte_units", function() {
+QUnit.test("get_byte_units", function() {
     var mib = 1024*1024;
     var gib = mib*1024;
     var tib = gib*1024;
@@ -141,26 +107,26 @@ test("get_byte_units", function() {
         [ 20000*gib, 1024,    [ mib_unit, gib_unit, selected(tib_unit) ] ]
     ];
 
-    expect(checks.length);
-    for (i = 0; i < checks.length; i++) {
-        deepEqual(cockpit.get_byte_units(checks[i][0], checks[i][1]), checks[i][2],
+    assert.expect(checks.length);
+    for (var i = 0; i < checks.length; i++) {
+        assert.deepEqual(cockpit.get_byte_units(checks[i][0], checks[i][1]), checks[i][2],
                   "get_byte_units(" + checks[i][0] + ", " + checks[i][1] + ") = " + JSON.stringify(checks[i][2]));
     }
 });
 
-test("format_bytes_per_sec", function() {
+QUnit.test("format_bytes_per_sec", function() {
     var checks = [
         [ 2555, "2.5 KiB/s" ]
     ];
 
-    expect(checks.length);
+    assert.expect(checks.length);
     for (var i = 0; i < checks.length; i++) {
-        strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
+        assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
                     "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });
 
-test("format_bits_per_sec", function() {
+QUnit.test("format_bits_per_sec", function() {
     var checks = [
         [ 555, "555 bps" ],
         [ 555.23456789, "555.2 bps" ],
@@ -171,14 +137,11 @@ test("format_bits_per_sec", function() {
         [ 2003, "2.0 Kbps" ]
     ];
 
-    expect(checks.length);
+    assert.expect(checks.length);
     for (var i = 0; i < checks.length; i++) {
-        strictEqual(cockpit.format_bits_per_sec(checks[i][0]), checks[i][1],
+        assert.strictEqual(cockpit.format_bits_per_sec(checks[i][0]), checks[i][1],
                     "format_bits_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });
 
 QUnit.start();
-
-</script>
-</html>

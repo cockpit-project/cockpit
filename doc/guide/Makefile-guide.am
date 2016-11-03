@@ -75,6 +75,6 @@ CLEANFILES += \
 doc/guide/html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT)
 	$(AM_V_GEN) mkdir -p doc/guide/html/ && rm -rf doc/guide/html/* && \
 		cp --dereference $(srcdir)/doc/guide/static/* doc/guide/html/ && \
-		$(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \
+		LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \
 			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 			$(srcdir)/$(GUIDE_DOCBOOK)

@@ -23,6 +23,7 @@ from testlib import *
 import subprocess
 import socket
 import time
+import re
 
 def break_hostkey(m, address):
     line = "{0} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T".format(address)
@@ -309,7 +310,8 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
 
         try:
-            line = m2.execute("ssh-keygen -l -E md5 -f /etc/ssh/ssh_host_ed25519_key.pub", quiet=True)
+            algo = re.sub(r'MD5 Fingerprint \(ssh-(.*)\):', r'\1', b.text("#conversation-prompt"))
+            line = m2.execute("ssh-keygen -l -E md5 -f /etc/ssh/ssh_host_%s_key.pub" % algo, quiet=True)
             fp = line.split(" ")[1].replace('MD5:', '')
             self.assertEqual(b.val('#conversation-input'), fp)
         # ssh-keygen doesn't support -E, just make sure we have a fp

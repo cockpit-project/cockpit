@@ -581,6 +581,9 @@ class MachineCase(unittest.TestCase):
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",
 
+        # apparmor noise
+        "(audit: )?type=1400.*apparmor=\"ALLOWED\".*",
+
         # Messages from systemd libraries when they are in debug mode
         'Successfully loaded SELinux database in.*',
         'calling: info',

@@ -36,7 +36,6 @@ EXTRA_DIST = \
 	package.json \
 	src/branding \
 	README.md \
-	bower_components/README \
 	$(NULL)
 
 clean-local:

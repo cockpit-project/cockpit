@@ -8,11 +8,9 @@
 # Check first cockpit-devel@lists.fedorahosted.org
 #
 # Globals that may be defined elsewhere
+#  * Version 122
 #  * gitcommit xxxx
-#  * tag 0.91
 #
-
-%define rev 1
 
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC -g -DWITH_DEBUG'
@@ -36,10 +34,8 @@
 Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
-%else
-Version:        %{tag}
 %endif
-Release:        %{rev}%{?dist}
+Release:        1%{?dist}
 Summary:        A user interface for Linux servers
 
 License:        LGPLv2+
@@ -67,6 +63,7 @@ BuildRequires: docbook-style-xsl
 BuildRequires: keyutils-libs-devel
 BuildRequires: glib-networking
 BuildRequires: sed
+BuildRequires: git
 
 BuildRequires: glib2-devel >= 2.37.4
 BuildRequires: systemd-devel
@@ -155,6 +152,13 @@ The Cockpit Web Service listens on the network, and authenticates users.
 
 %prep
 %setup -q
+
+# Apply patches using git
+git init
+git config user.email "unused@example.com" && git config user.name "Unused"
+git config core.autocrlf false && git config core.safecrlf false
+git add -f . && git commit -a -q -m "Base"
+echo "" | git am %{patches}
 
 %build
 exec 2>&1
@@ -551,5 +555,5 @@ pulls in some necessary packages via dependencies.
 
 %endif
 
+# The changelog is automatically generated and merged
 %changelog
-# Upstream changelog is empty

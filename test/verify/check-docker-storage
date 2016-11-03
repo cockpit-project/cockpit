@@ -64,8 +64,8 @@ def initially_loopbacked(machine):
     if "atomic" in machine.image:
         return False
 
-    # Debian uses the overlayfs driver by default.
-    if "debian" in machine.image:
+    # Debian and Ubuntu use the overlayfs driver by default.
+    if "debian" in machine.image or "ubuntu" in machine.image:
         return False
 
     # The rest don't have space in the root volume group, or don't

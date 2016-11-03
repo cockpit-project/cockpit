@@ -4,7 +4,7 @@ set -euf
 
 found=""
 cat $1/README
-find $1 -name 'COPYING' -o -name '*LICENSE*' -print | sort | while read filename; do
+find $1 -name 'COPYING' -o -name '*LICENSE*' -print | LC_ALL=C sort | while read filename; do
     directory=$(dirname $filename)
     name=$(basename $directory)
 

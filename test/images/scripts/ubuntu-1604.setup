@@ -124,8 +124,8 @@ systemctl start docker || journalctl -u docker
 # in case there are unnecessary packages
 apt-get -y autoremove || true
 
-# Enalbe coredumping via systemd
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %e" > /etc/sysctl.d/50-coredump.conf
+# Enable coredumping via systemd
+echo "kernel.core_pattern=|/lib/systemd/systemd-coredump %P %u %g %s %t %c %e" > /etc/sysctl.d/50-coredump.conf
 
 # reduce image size
 apt-get clean

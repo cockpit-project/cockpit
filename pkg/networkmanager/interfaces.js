@@ -1160,7 +1160,8 @@ function NetworkManagerModel() {
                 if (obj.Connections) {
                     obj.Connections.forEach(function (con) {
                         function add_to_interface(name) {
-                            get_interface(name).Connections.push(con);
+                            if (name)
+                                get_interface(name).Connections.push(con);
                         }
 
                         if (con.Settings) {

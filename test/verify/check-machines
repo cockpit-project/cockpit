@@ -45,8 +45,10 @@ class TestMachines(MachineCase):
 
         vm1_name="subVmTest1"
         vm1_id="#vm-{0}".format(vm1_name)
-        m.execute("qemu-img create -f qcow2 /tmp/{0}.img 256M".format(vm1_name))
-        m.execute("virt-install -r 128 --pxe --force --nographics --noautoconsole -f /tmp/{0}.img -n {0}".format(vm1_name))
+        vm1_img = "/var/lib/libvirt/images/{0}.img".format(vm1_name)
+
+        m.execute("qemu-img create -f qcow2 {0} 256M".format(vm1_img))
+        m.execute("virt-install -r 128 --pxe --force --nographics --noautoconsole -f {0} -n {1}".format(vm1_img, vm1_name))
 
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr th", vm1_name) # is VM name listed?

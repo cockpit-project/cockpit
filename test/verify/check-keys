@@ -102,9 +102,12 @@ class TestKeys(MachineCase):
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "admin")
 
-        # Not allowed
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "You do not have permission")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+        m.debug_shell()
+
+        # Not allowed, except on Ubuntu, where we can find out that ~/.ssh doesn't exist, which is shown as "no keys".
+        if not "ubuntu" in m.image:
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "You do not have permission")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
 
         b.logout()
 

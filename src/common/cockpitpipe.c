@@ -294,7 +294,7 @@ dispatch_input (gint fd,
       if (ret < 0)
         {
           g_byte_array_set_size (self->priv->in_buffer, len);
-          if (errn == EAGAIN && errn == EINTR)
+          if (errn == EAGAIN || errn == EINTR)
             {
               return TRUE;
             }

@@ -193,6 +193,10 @@ find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
 echo '%dir %{_datadir}/%{name}/machines' > machines.list
 find %{buildroot}%{_datadir}/%{name}/machines -type f >> machines.list
 
+echo '%dir %{_datadir}/%{name}/devices' > devices.list
+find %{buildroot}%{_datadir}/%{name}/devices -type f >> devices.list
+
+
 # on CentOS systems we don't have the required setroubleshoot-server packages
 %if 0%{?centos}
 rm -rf %{buildroot}%{_datadir}/%{name}/selinux
@@ -295,6 +299,17 @@ Requires: libvirt-client
 The Cockpit components for managing virtual machines.
 
 %files machines -f machines.list
+
+%package devices
+Summary: Cockpit user interface for machine devices
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
+## Temporarily disable: Requires: pciutils
+
+%description devices
+The Cockpit component for managing machine devices.
+
+%files devices -f devices.list
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree

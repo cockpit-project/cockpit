@@ -101,6 +101,13 @@ Depends: ${misc:Depends},
 Description: Cockpit user interface for virtual machines
  The Cockpit components for managing virtual machines.
 
+Package: cockpit-devices
+Architecture: any
+Depends: ${misc:Depends},
+         pciutils
+Description: Cockpit user interface for machine devices
+ The Cockpit component for managing machine devices.
+
 Package: cockpit-networkmanager
 Architecture: all
 Depends: ${misc:Depends},

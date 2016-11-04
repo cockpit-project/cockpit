@@ -127,6 +127,7 @@ WEBPACK_DEPS = \
 	dist/systemd/Makefile.deps \
 	dist/tuned/Makefile.deps \
 	dist/users/Makefile.deps \
+	dist/devices/Makefile.deps \
 	$(NULL)
 
 noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
@@ -157,9 +158,10 @@ dist/%/Makefile.deps: $(WEBPACK_CONFIG)
 -include dist/systemd/Makefile.deps
 -include dist/tuned/Makefile.deps
 -include dist/users/Makefile.deps
+-include dist/devices/Makefile.deps
 
 WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
-	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
+              $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
 
 distclean-local::

@@ -35,7 +35,7 @@ file.close()
 </programlisting>
   </refsynopsisdiv>
 
-  <refsection>
+  <refsection id="cockpit-file-simple">
     <title>Simple reading and writing</title>
 
     <para>You can read a file with code like this:</para>
@@ -93,7 +93,7 @@ cockpit.file("/path/to/file").replace("my new content\n")
       transactional updates to a file.</para>
   </refsection>
 
-  <refsection>
+  <refsection id="cockpit-file-format">
     <title>File format</title>
     <para>By default, a file is assumed to be text encoded in UTF-8, and the
       <code>read()</code> and <code>replace()</code> functions use strings to
@@ -124,7 +124,7 @@ cockpit.file("/path/to/file", { syntax: syntax_object })
       functions.</para>
   </refsection>
 
-  <refsection>
+  <refsection id="cockpit-file-binary">
     <title>Binary files</title>
     <para>By default the content of the file is assumed to be text encoded as
       UTF-8 and it can not contain zero bytes.  The content is represented
@@ -135,7 +135,7 @@ cockpit.file("/path/to/file", { syntax: syntax_object })
       JavaScript.</para>
   </refsection>
 
-  <refsection>
+  <refsection id="cockpit-file-atomic">
     <title>Atomic modifications</title>
     <para>Use <code>modify()</code> to modify the content of the file safely.  A
       call to <code>modify()</code> will read the content of the file, call
@@ -180,7 +180,7 @@ cockpit.file("/path/to/file").modify(shout)
       given values.</para>
   </refsection>
 
-  <refsection>
+  <refsection id="cockpit-file-notify">
     <title>Change notifications</title>
     <para>Calling <code>watch()</code> will start monitoring the file for
       external changes.
@@ -200,13 +200,13 @@ handle = file.watch(callback);
     <para>To free the resources used for monitoring, call <code>handle.remove()</code>.</para>
   </refsection>
 
-  <refsection>
+  <refsection id="cockpit-file-path">
     <title>file.path</title>
     <para>A string containing the path that was passed to the <code>cockpit.file()</code>
       method.</para>
   </refsection>
 
-  <refsection>
+  <refsection id="cockpit-file-close">
     <title>Closing</title>
     <para>Call the <code>close()</code> method on a file proxy to cancel all
       ongoing operations, such as reading, writing, and monitoring. The

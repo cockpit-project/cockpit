@@ -102,17 +102,27 @@ function generateDeps(makefile, stats) {
 
     // Output a makefile
 
-    var lines = [
-        prefix + "_INPUTS = " + inputs.join(" "),
-        prefix + "_OUTPUTS = " + outputs.join(" "),
-        prefix + "_INSTALL = " + installs.join(" "),
-        prefix + "_DEBUG = " + debugs.join(" "),
-        prefix + "_TESTS = " + tests.join(" "),
-	"",
-    ];
+    var lines = [ "# Generated Makefile data for " + prefix, "" ];
+
+    function makeArray(name, values) {
+        lines.push(name + " = \\");
+        values.sort().forEach(function(value) {
+            lines.push("\t" + value + " \\");
+        });
+        lines.push("\t$(NULL)");
+        lines.push("");
+    }
+
+    makeArray(prefix + "_INPUTS", inputs);
+    makeArray(prefix + "_OUTPUTS", outputs);
+    makeArray(prefix + "_INSTALL", installs);
+    makeArray(prefix + "_DEBUG", debugs);
+    makeArray(prefix + "_TESTS", tests);
+    makeArray(prefix + "_INPUTS", inputs);
 
     lines.push(makefile + ": $(WEBPACK_CONFIG) $(" + prefix + "_INPUTS)");
     lines.push("\t$(WEBPACK_RULE) -d " + makefile + " $(WEBPACK_CONFIG)");
+    lines.push("")
 
     outputs.forEach(function(name) {
         lines.push(name + ": " + makefile);

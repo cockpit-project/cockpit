@@ -12,6 +12,7 @@ nodist_storaged_DATA = \
 
 EXTRA_DIST += \
 	pkg/storaged/override.json.in \
+	pkg/lib/qunit-template.html \
 	$(pkg_TESTS)
 
 if WITH_GOLANG

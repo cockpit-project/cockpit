@@ -121,6 +121,11 @@ var info = {
     tests: [
         "docker/test-docker",
 
+        "lib/test-dummy",
+        "lib/test-journal-renderer",
+        "lib/test-machines",
+        "lib/test-patterns",
+
         "storaged/test-util",
 
         "kubernetes/scripts/test-utils",
@@ -131,11 +136,6 @@ var info = {
         "kubernetes/scripts/test-tags",
         "kubernetes/scripts/test-connection",
         "kubernetes/scripts/test-volumes",
-
-        "playground/test-dummy",
-        "playground/test-journal-renderer",
-        "playground/test-machines",
-        "playground/test-patterns",
     ],
 
     files: [
@@ -236,7 +236,8 @@ if (typeof(global.Promise) == "undefined")
 var srcdir = process.env.SRCDIR || __dirname;
 var pkgdir = srcdir + path.sep + "pkg";
 var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
-var libdir = path.resolve(srcdir, "lib");
+var libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
+var bowerdir = path.resolve(srcdir, "bower_components");
 var section = process.env.ONLYDIR || null;
 
 /* A standard nodejs and webpack pattern */
@@ -281,6 +282,7 @@ var plugins = [
 /* Only minimize when in production mode */
 if (production) {
     plugins.unshift(new webpack.optimize.UglifyJsPlugin({
+        beautify: true,
         compress: {
             warnings: false
         },
@@ -307,7 +309,7 @@ if (!section || section.indexOf("base1") === 0) {
         from: srcdir + path.sep + "src/base1/cockpit.js",
         to: "base1/cockpit.js"
     }, {
-        from: libdir + path.sep + "jquery/dist/jquery.js",
+        from: bowerdir + path.sep + "jquery/dist/jquery.js",
         to: "base1/jquery.js"
     });
 }
@@ -323,7 +325,7 @@ module.exports = {
             "react": "react-lite-cockpit/dist/react-lite.js",
             "term": "term.js-cockpit/src/term.js",
         },
-        modulesDirectories: [ libdir ]
+        modulesDirectories: [ libdir, bowerdir ]
     },
     resolveLoader: {
         root: path.resolve(srcdir, 'node_modules')
@@ -343,7 +345,7 @@ module.exports = {
         preLoaders: [
             {
                 test: /\.js$/, // include .js files
-                exclude: /lib\/.*\/|\/node_modules\//, // exclude external dependencies
+                exclude: /bower_components\/.*\/|\/node_modules\//, // exclude external dependencies
                 loader: "jshint-loader"
             },
             {
@@ -354,11 +356,12 @@ module.exports = {
         loaders: [
             {
                 test: /\.js$/,
+                exclude: /bower_components\/.*\//,
                 loader: 'strict' // Adds "use strict"
             },
             {
                 test: /\.css$/,
-                loader: extract.extract("style-loader", "css-loader?root=" + libdir)
+                loader: extract.extract("style-loader", "css-loader?minimize=&root=" + libdir)
             },
             {
                 test: /\.jsx$/,
@@ -370,7 +373,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                loader: extract.extract('css?sourceMap!' + 'less?sourceMap')
+                loader: extract.extract('css?sourceMap&minimize=!' + 'less?sourceMap&compress=false')
             },
             {
                 test: /views\/[^\/]+\.html$/,

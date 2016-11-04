@@ -31,7 +31,7 @@ UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
 
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle \
+	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle --beautify \
 		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
 	$(MV) $@.tmp $@
 
@@ -40,20 +40,20 @@ dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --skip-import --source-map --source-map-inline-sources $^
 dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --source-map --source-map-inline-sources $^
+	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --source-map --source-map-inline-sources $^
 dist/base1/bundle.js: dist/base1/require.js src/base1/cockpit.js dist/base1/jquery.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $^ > $@.tmp && $(MV) $@.tmp $@
 dist/base1/bundle.min.js: dist/base1/bundle.js
 	$(MIN_JS_RULE)
-dist/base1/require.js: src/base1/require-config.js $(BOWER)/requirejs/require.js src/base1/require-loaders.js
+dist/base1/require.js: src/base1/require-config.js src/base1/require-loaders.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $^ > $@.tmp && $(MV) $@.tmp $@
+	cat $(srcdir)/src/base1/require-config.js $(BOWER)/requirejs/require.js $(srcdir)/src/base1/require-loaders.js > $@.tmp && $(MV) $@.tmp $@
 dist/base1/require.min.js: dist/base1/require.js
 	$(MIN_JS_RULE)
-dist/base1/jquery.js: $(BOWER)/jquery/dist/jquery.js $(BOWER)/bootstrap/dist/js/bootstrap.js $(BOWER)/patternfly/dist/js/patternfly.js
+dist/base1/jquery.js:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $^ > $@.tmp && $(MV) $@.tmp $@
+	cat $(BOWER)/jquery/dist/jquery.js $(BOWER)/bootstrap/dist/js/bootstrap.js $(BOWER)/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
 dist/base1/jquery.min.js: dist/base1/jquery.js
 	$(MIN_JS_RULE)
 dist/base1/cockpit.js: src/base1/cockpit.js
@@ -61,7 +61,10 @@ dist/base1/cockpit.js: src/base1/cockpit.js
 	$(COPY_RULE)
 dist/base1/cockpit.min.js: dist/base1/cockpit.js
 	$(MIN_JS_RULE)
-dist/base1/mustache.min.js: $(BOWER)/mustache/mustache.js
+dist/base1/mustache.js:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp $(BOWER)/mustache/mustache.js $@.tmp && $(MV) $@.tmp $@
+dist/base1/mustache.min.js: dist/base1/mustache.js
 	$(MIN_JS_RULE)
 dist/base1/manifest.json: src/base1/manifest.json
 	$(COPY_RULE)
@@ -83,21 +86,28 @@ dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
 
 # Modify the patternfly files appropriately
-dist/base1/patternfly-base.css: $(BOWER)/patternfly/dist/css/patternfly.css dist/base1/patternfly.css.map
-	$(AM_V_GEN) sed -f $(srcdir)/tools/patternfly.sed $< > $@.tmp && $(MV) $@.tmp $@
-dist/base1/patternfly.css.map: $(BOWER)/patternfly/dist/css/patternfly.css.map
-	$(COPY_RULE)
-dist/base1/patternfly-additions.css: $(BOWER)/patternfly/dist/css/patternfly-additions.css dist/base1/patternfly-additions.css.map
-	$(AM_V_GEN) sed -f $(srcdir)/tools/patternfly.sed $< > $@.tmp && $(MV) $@.tmp $@
-dist/base1/patternfly-additions.css.map: $(BOWER)/patternfly/dist/css/patternfly-additions.css.map
-	$(COPY_RULE)
+dist/base1/patternfly-base.css: dist/base1/patternfly.css.map
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	sed -f $(srcdir)/tools/patternfly.sed $(BOWER)/patternfly/dist/css/patternfly.css > $@.tmp && $(MV) $@.tmp $@
+dist/base1/patternfly.css.map:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp $(BOWER)/patternfly/dist/css/patternfly.css.map $@.tmp && $(MV) $@.tmp $@
+dist/base1/patternfly-additions.css: dist/base1/patternfly-additions.css.map
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	sed -f $(srcdir)/tools/patternfly.sed $(BOWER)/patternfly/dist/css/patternfly-additions.css > $@.tmp && $(MV) $@.tmp $@
+dist/base1/patternfly-additions.css.map:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp $(BOWER)/patternfly/dist/css/patternfly-additions.css.map $@.tmp && $(MV) $@.tmp $@
 
-dist/base1/fonts/fontawesome.woff: $(BOWER)/patternfly/dist/fonts/fontawesome-webfont.woff
-	$(COPY_RULE)
-dist/base1/fonts/glyphicons.woff: $(BOWER)/patternfly/dist/fonts/glyphicons-halflings-regular.woff
-	$(COPY_RULE)
-dist/base1/fonts/patternfly.woff: $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff
-	$(COPY_RULE)
+dist/base1/fonts/fontawesome.woff:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp $(BOWER)/patternfly/dist/fonts/fontawesome-webfont.woff $@.tmp && $(MV) $@.tmp $@
+dist/base1/fonts/glyphicons.woff:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp $(BOWER)/patternfly/dist/fonts/glyphicons-halflings-regular.woff $@.tmp && $(MV) $@.tmp $@
+dist/base1/fonts/patternfly.woff:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff $@.tmp && $(MV) $@.tmp $@
 
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
@@ -146,7 +156,7 @@ dist/base1/qunit.js:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cat $(BOWER)/qunit/qunit/qunit.js \
 	    $(BOWER)/qunit-tap/lib/qunit-tap.js \
-            $(srcdir)/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
+            $(srcdir)/pkg/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/qunit.css:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
@@ -214,6 +224,7 @@ EXTRA_DIST += \
 	dist/base1/jquery.js \
 	dist/base1/jquery.min.js \
 	dist/base1/jquery.min.js.map \
+	dist/base1/mustache.js \
 	dist/base1/mustache.min.js \
 	dist/base1/mustache.min.js.map \
 	dist/base1/patternfly-base.css \

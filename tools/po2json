@@ -81,7 +81,7 @@ po2json.parseFile(input, { "fuzzy": true }, function(err, jsonData) {
     if (header)
         plurals = prepare_header(header);
 
-    var data = JSON.stringify(jsonData);
+    var data = JSON.stringify(jsonData, null, 2);
 
     /* We know the brace in is the location to insert our function */
     if (plurals) {

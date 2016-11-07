@@ -49,12 +49,10 @@ def main():
     # Make a distribution
     try:
         subprocess.check_call(["../../../autogen.sh && make dist"], shell=True, env=env)
-        with open(os.path.join(directory, "GNUmakefile"), "w") as f:
-            f.write('include Makefile\nprint-DIST_ARCHIVES:\n\t@echo $(DIST_ARCHIVES)')
-        dist = subprocess.check_output(["make", "-s", "print-DIST_ARCHIVES"]).strip()
+        archives = subprocess.check_output(["make", "-s", "print-DIST_ARCHIVES"]).strip().split(" ")
 
         # Do a build
-        subprocess.check_call(["../../../tools/make-srpm", dist])
+        subprocess.check_call(["../../../tools/make-srpm", archives[0]])
         cmd = ["koji", "build", "--wait", "--scratch", system, glob.glob("*.src.rpm")[0]]
         subprocess.check_call(cmd)
     finally:

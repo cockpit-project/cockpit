@@ -601,6 +601,26 @@
                 if (!mdraid)
                     return;
 
+                function delete_() {
+                    if (mdraid.Delete)
+                        return mdraid.Delete({ 'tear-down': { t: 'b', v: true } });
+
+                    // If we don't have a Delete method, we simulate
+                    // it by stopping the array and wiping all
+                    // members.
+
+                    function wipe_members() {
+                        return cockpit.all(client.mdraids_members[path].map(function (member) {
+                            return member.Format('empty', { });
+                        }));
+                    }
+
+                    if (mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0)
+                        return mdraid.Stop({}).then(wipe_members);
+                    else
+                        return wipe_members();
+                }
+
                 var block = client.mdraids_block[path];
                 dialog.open({ Title: cockpit.format(_("Please confirm deletion of $0"),
                                                     utils.mdraid_name(mdraid)),
@@ -610,10 +630,10 @@
                                   Title: _("Delete"),
                                   Danger: _("Deleting a RAID device will erase all data on it."),
                                   action: function (vals) {
-                                      return client.mdraids[path].Delete({ 'tear-down': { t: 'b', v: true } }).
-                                          done(function () {
-                                              location.go('/');
-                                          });
+                                      return delete_().
+                                              done(function () {
+                                                  location.go('/');
+                                              });
                                   }
                               }
                             });

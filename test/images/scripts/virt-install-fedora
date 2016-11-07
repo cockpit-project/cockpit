@@ -42,7 +42,8 @@ text
 shutdown
 lang en_US.UTF-8
 keyboard us
-network --bootproto dhcp
+network --bootproto=dhcp
+network --bootproto=dhcp --device=eth0
 rootpw foobar
 firewall --enabled --ssh
 selinux --enforcing

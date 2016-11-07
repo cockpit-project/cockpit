@@ -70,9 +70,10 @@ Description: Cockpit bridge server-side component
 
 Package: cockpit-networkmanager
 Architecture: any
+# Lock bridge dependency due to --with-networkmanager-needs-root
+# which uses new less stable /manifests.js request path.
 depends: ${misc:Depends},
          cockpit-bridge (= ${binary:Version}),
-         cockpit-shell (= ${binary:Version}),
          network-manager
 Description: Cockpit user interface for networking
  The Cockpit components for interacting with networking configuration.

@@ -61,6 +61,7 @@ KEY_IDS_MD5 = [
 
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=805030
 @unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No ssh keys on Debian (yet).")
+@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "libssh too old on Ubuntu.")
 class TestMultiMachineKeyAuth(MachineCase):
     additional_machines = {
         'machine2': { }

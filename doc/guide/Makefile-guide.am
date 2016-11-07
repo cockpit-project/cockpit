@@ -81,8 +81,8 @@ CLEANFILES += \
 	*.tmp \
 	$(NULL)
 
-$(GUIDE_FONTS): $(OPENSANS_FONTS)
-	$(V_COPY) $(MKDIR_P) doc/guide/html && cp $^ doc/guide/html/
+doc/guide/html/%.woff: dist/fonts/%.woff
+	$(V_COPY) $(MKDIR_P) doc/guide/html && cp -L $^ $@.tmp && $(MV) $@.tmp $@
 
 doc/guide/html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
 	$(AM_V_GEN) $(MKDIR_P) doc/guide/html/ && \

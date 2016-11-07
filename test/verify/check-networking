@@ -24,10 +24,6 @@ import time
 import os
 import unittest
 
-# https://github.com/cockpit-project/cockpit/issues/1308
-# https://github.com/cockpit-project/cockpit/issues/3341
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162
-@skipImage("Networking is disabled", "debian-unstable", "ubuntu-1604")
 class TestNetworking(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -183,7 +179,10 @@ class TestNetworking(MachineCase):
         b.logout()
 
         # Now mark this interface as unmanaged
-        m.execute("echo -e 'NM_CONTROLLED=no\\nDEVICE=\"{0}\"\\n' >> /etc/sysconfig/network-scripts/ifcfg-{0}".format(unmanaged))
+        if "ubuntu" in m.image or "debian" in m.image:
+            m.execute("printf 'iface {0} inet static\n' >> /etc/network/interfaces".format(unmanaged))
+        else:
+            m.execute("echo -e 'NM_CONTROLLED=no\\nDEVICE=\"{0}\"\\n' >> /etc/sysconfig/network-scripts/ifcfg-{0}".format(unmanaged))
         m.execute("systemctl restart NetworkManager")
 
         # Log in and make sure it doesn't show up
@@ -228,7 +227,8 @@ class TestNetworking(MachineCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
 
         # Check that the members are displayed
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
@@ -300,7 +300,8 @@ class TestNetworking(MachineCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
 
         # Check that the members are displayed
         b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
@@ -362,7 +363,8 @@ class TestNetworking(MachineCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
 
         # Delete the bridge
         b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
@@ -406,7 +408,7 @@ class TestNetworking(MachineCase):
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tvlan']")
 
-    @skipImage("No 'tun' support", "centos-7", "rhel-atomic")
+    @skipImage("No 'tun' support", "centos-7", "rhel-atomic", "ubuntu-1604")
     def testOther(self):
         b = self.browser
         m = self.machine
@@ -434,6 +436,7 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
 
+    @skipImage("Can not mark unmanaged by mac address", "debian-unstable", "ubuntu-1604")
     def testUnmanaged(self):
         b = self.browser
         m = self.machine

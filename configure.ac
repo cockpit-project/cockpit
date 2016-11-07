@@ -340,6 +340,19 @@ AC_ARG_WITH(storaged-iscsi-sessions,
             [with_storaged_iscsi_sessions=yes])
 AC_SUBST(with_storaged_iscsi_sessions)
 
+# HACK - Debian has a broken policy for NetworkManager where it
+#        only allows local sessions or root to perform actions.
+#
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162
+
+AC_ARG_WITH(networkmanager-needs-root,
+	    AC_HELP_STRING([--with-networkmanager-needs-root=yes/no],
+			   [Whether NetworkManager requires root access]),
+            [],
+	    [with_networkmanager_needs_root=yes])
+AC_SUBST(with_networkmanager_needs_root)
+
+
 # Address sanitizer
 
 AC_MSG_CHECKING([for asan flags])
@@ -517,6 +530,7 @@ AC_DEFINE([MAX_PACKET_SIZE], [65536], [Maximum size of packet messages])
 
 AC_OUTPUT([
 Makefile
+pkg/networkmanager/override.json
 pkg/storaged/override.json
 doc/guide/version
 po/Makefile.in

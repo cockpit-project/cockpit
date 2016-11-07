@@ -10,7 +10,14 @@ nodist_storaged_DATA = \
        pkg/storaged/override.json \
        $(NULL)
 
+# HACK: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162
+networkmanagerdir = $(pkgdatadir)/networkmanager
+nodist_networkmanager_DATA = \
+       pkg/networkmanager/override.json \
+       $(NULL)
+
 EXTRA_DIST += \
+	pkg/networkmanager/override.json.in \
 	pkg/storaged/override.json.in \
 	pkg/lib/qunit-template.html \
 	$(pkg_TESTS)

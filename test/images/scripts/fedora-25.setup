@@ -106,9 +106,6 @@ docker build -t cockpit/base /var/tmp/cockpit-base
 dnf clean all
 /var/lib/testvm/zero-disk.setup
 
-# Final tweaks
-printf "[Coredump]\nStorage=journal\n" > /etc/systemd/coredump.conf
-
 ln -sf ../selinux/config /etc/sysconfig/selinux
 printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
 

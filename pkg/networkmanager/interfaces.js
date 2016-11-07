@@ -188,7 +188,15 @@ function NetworkManagerModel() {
     var self = this;
     var byteorder = null;
 
-    var client = cockpit.dbus("org.freedesktop.NetworkManager");
+    /* HACK: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162 */
+    var hacks = { };
+    if (cockpit.manifests["network"] && cockpit.manifests["network"]["hacks"])
+        hacks = cockpit.manifests["network"]["hacks"];
+    var options = { };
+    if (hacks.with_networkmanager_needs_root)
+        options["superuser"] = "try";
+
+    var client = cockpit.dbus("org.freedesktop.NetworkManager", options);
 
     self.client = client;
 

@@ -603,10 +603,12 @@
                                   Title: _("Delete"),
                                   Danger: _("Deleting a RAID device will erase all data on it."),
                                   action: function (vals) {
-                                      return client.mdraids[path].Delete({ 'tear-down': { t: 'b', v: true } }).
-                                          done(function () {
-                                              location.go('/');
-                                          });
+                                      return mdraid.wait().then(function() {
+                                          return mdraid.Delete({ 'tear-down': { t: 'b', v: true } }).
+                                              done(function () {
+                                                  location.go('/');
+                                              });
+                                      });
                                   }
                               }
                             });

@@ -2875,7 +2875,7 @@ PageNetworkIpSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-ip-settings-error').text("");
+        $('#network-ip-settings-error').hide();
         this.settings = PageNetworkIpSettings.settings || PageNetworkIpSettings.connection.copy_settings();
         this.update();
     },
@@ -3091,7 +3091,7 @@ PageNetworkIpSettings.prototype = {
                         return PageNetworkIpSettings.done();
                 }).
                 fail(function (error) {
-                    $('#network-ip-settings-error').text(error.message || error.toString());
+                    $('#network-ip-settings-error').show().find('span').text(error.message || error.toString());
                 });
         }
 
@@ -3284,7 +3284,7 @@ PageNetworkBondSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-bond-settings-error').text("");
+        $('#network-bond-settings-error').hide();
         this.settings = PageNetworkBondSettings.settings || PageNetworkBondSettings.connection.copy_settings();
         this.update();
     },
@@ -3415,7 +3415,7 @@ PageNetworkBondSettings.prototype = {
                         return PageNetworkBondSettings.done();
                 }).
                 fail(function (error) {
-                    $('#network-bond-settings-error').text(error.message || error.toString());
+                    $('#network-bond-settings-error').show().find('span').text(error.message || error.toString());
                 });
         }
 
@@ -3449,7 +3449,7 @@ PageNetworkTeamSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-team-settings-error').text("");
+        $('#network-team-settings-error').hide();
         this.settings = PageNetworkTeamSettings.settings || PageNetworkTeamSettings.connection.copy_settings();
         this.update();
     },
@@ -3590,7 +3590,7 @@ PageNetworkTeamSettings.prototype = {
                         return PageNetworkTeamSettings.done();
                 }).
                 fail(function (error) {
-                    $('#network-team-settings-error').text(error.message || error.toString());
+                    $('#network-team-settings-error').show().find('span').text(error.message || error.toString());
                 });
         }
 
@@ -3624,7 +3624,7 @@ PageNetworkTeamPortSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-teamport-settings-error').text("");
+        $('#network-teamport-settings-error').hide();
         this.settings = PageNetworkTeamPortSettings.settings || PageNetworkTeamPortSettings.connection.copy_settings();
         this.update();
     },
@@ -3686,7 +3686,7 @@ PageNetworkTeamPortSettings.prototype = {
         var settings_manager = model.get_settings();
 
         function show_error(error) {
-            $('#network-teamport-settings-error').text(error.message || error.toString());
+            $('#network-teamport-settings-error').show().find('span').text(error.message || error.toString());
         }
 
         function update_port() {
@@ -3727,7 +3727,7 @@ PageNetworkBridgeSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-bridge-settings-error').text("");
+        $('#network-bridge-settings-error').hide();
         this.settings = PageNetworkBridgeSettings.settings || PageNetworkBridgeSettings.connection.copy_settings();
         this.update();
     },
@@ -3821,7 +3821,7 @@ PageNetworkBridgeSettings.prototype = {
                         return PageNetworkBridgeSettings.done();
                 }).
                 fail(function (error) {
-                    $('#network-bridge-settings-error').text(error.message || error.toString());
+                    $('#network-bridge-settings-error').show().find('span').text(error.message || error.toString());
                 });
         }
 
@@ -3855,7 +3855,7 @@ PageNetworkBridgePortSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-bridgeport-settings-error').text("");
+        $('#network-bridgeport-settings-error').hide();
         this.settings = PageNetworkBridgePortSettings.settings || PageNetworkBridgePortSettings.connection.copy_settings();
         this.update();
     },
@@ -3906,7 +3906,7 @@ PageNetworkBridgePortSettings.prototype = {
         var settings_manager = model.get_settings();
 
         function show_error(error) {
-            $('#network-bridgeport-settings-error').text(error.message || error.toString());
+            $('#network-bridgeport-settings-error').show().find('span').text(error.message || error.toString());
         }
 
         function update() {
@@ -3948,7 +3948,7 @@ PageNetworkVlanSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-vlan-settings-error').text("");
+        $('#network-vlan-settings-error').hide();
         this.settings = PageNetworkVlanSettings.settings || PageNetworkVlanSettings.connection.copy_settings();
         this.update();
     },
@@ -4027,7 +4027,7 @@ PageNetworkVlanSettings.prototype = {
         var settings_manager = model.get_settings();
 
         function show_error(error) {
-            $('#network-vlan-settings-error').text(error.message || error.toString());
+            $('#network-vlan-settings-error').show().find('span').text(error.message || error.toString());
         }
 
         function update() {
@@ -4077,7 +4077,7 @@ PageNetworkEthernetSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-ethernet-settings-error').text("");
+        $('#network-ethernet-settings-error').hide();
         this.settings = PageNetworkEthernetSettings.settings || PageNetworkEthernetSettings.connection.copy_settings();
         this.update();
     },
@@ -4111,7 +4111,7 @@ PageNetworkEthernetSettings.prototype = {
         var settings_manager = model.get_settings();
 
         function show_error(error) {
-            $('#network-ethernet-settings-error').text(error.message || error.toString());
+            $('#network-ethernet-settings-error').show().find('span').text(error.message || error.toString());
         }
 
         function update() {

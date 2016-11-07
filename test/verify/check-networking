@@ -128,7 +128,7 @@ class TestNetworking(MachineCase):
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.0.8")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
-        b.wait_text_not("#network-ip-settings-error", "")
+        b.wait_text_not("#network-ip-settings-error span", "")
         b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.192.0")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")

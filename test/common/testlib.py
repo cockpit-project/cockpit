@@ -480,6 +480,7 @@ class MachineCase(unittest.TestCase):
             self.failed = True
             self.snapshot("FAIL")
             self.copy_journal("FAIL")
+            self.copy_cores("FAIL")
             if opts.sit:
                 print >> sys.stderr, err
                 if self.machine:
@@ -661,6 +662,7 @@ class MachineCase(unittest.TestCase):
                     first = m
         if not all_found:
             self.copy_journal("FAIL")
+            self.copy_cores("FAIL")
             raise Error(first)
 
     def snapshot(self, title, label=None):
@@ -680,6 +682,17 @@ class MachineCase(unittest.TestCase):
                     m.execute("journalctl", stdout=fp)
                     print "Journal extracted to %s" % (log)
                     attach(log)
+
+    def copy_cores(self, title, label=None):
+        for name, m in self.machines.iteritems():
+            if m.address:
+                dest = "%s-%s-%s.core" % (label or self.label(), m.address, title)
+                m.download_dir("/var/lib/systemd/coredump", dest)
+                try:
+                    os.rmdir(dest)
+                except OSError:
+                    print "Core dumps downloaded to %s" % (dest)
+                    attach(dest)
 
 some_failed = False
 

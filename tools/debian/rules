@@ -7,6 +7,7 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
+		--with-networkmanager-needs-root=yes \
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
 		--libexecdir=/usr/lib/cockpit
 

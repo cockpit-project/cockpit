@@ -98,6 +98,10 @@ class TestConnection(MachineCase):
         m.execute("kill -SEGV $(pgrep {0})".format(cron))
         wait(lambda: m.execute("journalctl -b | grep 'Process.*cron.*of user.*dumped core.'"))
 
+        # Make sure the core dumps exist in the directory, so we can download them
+        cores = m.execute("find /var/lib/systemd/coredump -type f")
+        self.assertNotEqual(cores, "")
+
         # Reauthorization can fail due to disconnects above
         self.allow_journal_messages("cockpit-polkit: user admin reauthorization failed")
         self.allow_restart_journal_messages()

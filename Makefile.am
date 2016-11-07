@@ -339,6 +339,10 @@ dist-hook::
 DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' --exclude='bower_components' "$(distdir)"
 DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/bower_components" "$(distdir)/package.json" "$(distdir)/bower.json" "$(distdir)/.bowerrc"
 
+DIST_ARCHIVES = \
+	cockpit-$(VERSION).tar.xz \
+	cockpit-cache-$(VERSION).tar.xz
+
 dist-gzip: distdir
 	$(DIST_TAR_MAIN) | GZIP=$(GZIP_ENV) gzip -c > $(distdir).tar.gz
 	$(DIST_TAR_CACHE) | GZIP=$(GZIP_ENV) gzip -c > cockpit-cache-$(VERSION).tar.gz

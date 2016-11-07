@@ -325,7 +325,8 @@ changequote([,])dnl
 
 AC_CHECK_FUNCS(fdwalk)
 
-# Storaged
+
+# Package specific settings
 
 # HACK - Storaged before 2.5.3 doesn't tell us when it supports
 #        sessions, so we allow it to be switched off explicitly.

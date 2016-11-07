@@ -29,9 +29,9 @@
      */
 
     /* HACK: https://github.com/storaged-project/storaged/pull/68 */
-    var config = { };
-    if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["config"])
-        config = cockpit.manifests["storage"]["config"];
+    var hacks = { };
+    if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["hacks"])
+        hacks = cockpit.manifests["storage"]["hacks"];
 
     var client = { };
 
@@ -361,7 +361,7 @@
                     client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
                     wait_all([ client.manager_lvm2, client.manager_iscsi],
                             function () {
-                                var iscsi = (config.with_storaged_iscsi_sessions != "no" &&
+                                var iscsi = (hacks.with_storaged_iscsi_sessions != "no" &&
                                         client.manager_iscsi.valid &&
                                         client.manager_iscsi.SessionsSupported !== false);
                                 defer.resolve({ lvm2: client.manager_lvm2.valid, iscsi: iscsi });

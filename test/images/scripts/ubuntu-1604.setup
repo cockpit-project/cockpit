@@ -126,6 +126,7 @@ apt-get -y autoremove || true
 
 # Enable coredumping via systemd
 echo "kernel.core_pattern=|/lib/systemd/systemd-coredump %P %u %g %s %t %c %e" > /etc/sysctl.d/50-coredump.conf
+printf 'DefaultLimitCORE=infinity\n' >> /etc/systemd/system.conf
 
 # reduce image size
 apt-get clean

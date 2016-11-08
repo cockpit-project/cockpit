@@ -152,18 +152,34 @@ function create_tabs(client, target, is_partition) {
         if (!crypto)
             return;
 
-        dialog.open({ Title: _("Unlock"),
-                      Fields: [
-                          { PassInput: "passphrase",
-                            Title: _("Passphrase")
+        /* If there is a stored passphrase, the Unlock method will
+         * use it unconditionally.  So we don't ask for one in
+         * that case.
+         *
+         * https://udisks.freedesktop.org/docs/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-method-org-freedesktop-UDisks2-Block.GetSecretConfiguration
+         */
+        return block.GetSecretConfiguration({}).then(function (items) {
+            for (var i = 0; i < items.length; i++) {
+                if (items[i][0] == 'crypttab' &&
+                    items[i][1]['passphrase-contents'] &&
+                    utils.decode_filename(items[i][1]['passphrase-contents'].v)) {
+                    return crypto.Unlock("", { });
+                }
+            }
+
+            dialog.open({ Title: _("Unlock"),
+                          Fields: [
+                              { PassInput: "passphrase",
+                                Title: _("Passphrase")
+                              }
+                          ],
+                          Action: {
+                              Title: _("Unlock"),
+                              action: function (vals) {
+                                  return crypto.Unlock(vals.passphrase, {});
+                              }
                           }
-                      ],
-                      Action: {
-                          Title: _("Unlock"),
-                          action: function (vals) {
-                              return crypto.Unlock(vals.passphrase, {});
-                          }
-                      }
+                        });
         });
     }
 

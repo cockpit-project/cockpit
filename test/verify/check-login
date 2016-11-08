@@ -141,12 +141,22 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-prompt", "New password")
+
+        # On Debian 8 we are asked to retype before detecting a bad password
+        if "debian-8" in m.image:
+            b.wait_in_text("#conversation-prompt", "Enter new UNIX password")
+            b.set_val('#conversation-input', 'admin')
+            b.click('#login-button')
+            b.wait_in_text("#conversation-prompt", "Retype")
+        else:
+            b.wait_in_text("#conversation-prompt", "New password")
         b.set_val('#conversation-input', 'admin')
         b.click('#login-button')
 
         # We should see a message
-        if "atomic" in m.image:
+        if "debian-8" in m.image:
+            b.wait_in_text("#conversation-message", "You must choose a longer password")
+        elif "atomic" in m.image:
             b.wait_in_text("#conversation-prompt", "BAD PASSWORD")
         else:
             b.wait_in_text("#conversation-message", "BAD PASSWORD")
@@ -156,7 +166,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-prompt", "New password")
+        if "debian-8" in m.image:
+            b.wait_in_text("#conversation-prompt", "Enter new UNIX password")
+        else:
+            b.wait_in_text("#conversation-prompt", "New password")
         b.set_val('#conversation-input', '123foobar!@#')
         b.click('#login-button')
 
@@ -178,7 +191,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        b.wait_in_text("#conversation-prompt", "New password")
+
+        # On Debian we have to start all over again
+        if "debian-8" in m.image:
+            b.wait_in_text("#conversation-prompt", "(current) UNIX password")
+            b.set_val('#conversation-input', 'foobar')
+            b.click('#login-button')
+            b.wait_in_text("#conversation-prompt", "Enter new UNIX password")
+        else:
+            b.wait_in_text("#conversation-prompt", "New password")
         b.set_val('#conversation-input', '123foobar!@#')
         b.click('#login-button')
 

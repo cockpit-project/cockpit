@@ -102,7 +102,7 @@ class TestNetworking(MachineCase):
 
         m.execute("nmcli connection add type ethernet ifname %s con-name TEST" % iface)
         m.execute("nmcli connection add type ethernet ifname %s con-name TEST2" % iface)
-        m.execute("nmcli connection modify TEST ipv4.method link-local")
+        m.execute("nmcli connection modify TEST ipv4.method shared")
         m.execute('nmcli connection up TEST')
 
         self.wait_for_iface(iface)
@@ -112,7 +112,7 @@ class TestNetworking(MachineCase):
         # Make sure we are working on the settings written above.
         #
         b.wait_present("tr:contains('IPv4')")
-        b.wait_in_text("tr:contains('IPv4')", "Link local")
+        b.wait_in_text("tr:contains('IPv4')", "Shared")
 
         # Configure a manual IP address
         #
@@ -262,7 +262,7 @@ class TestNetworking(MachineCase):
         self.allow_journal_messages(".*Connection reset by peer.*",
                                     "connection unexpectedly closed by peer")
 
-    @unittest.skipIf("ubuntu-1604" in os.environ.get("TEST_OS", ""), "NetworkManager-team not packaged on Ubuntu")
+    @skipImage("No 'team' support packaged", "debian-8", "ubuntu-1604")
     def testTeam(self):
         b = self.browser
         m = self.machine
@@ -410,7 +410,7 @@ class TestNetworking(MachineCase):
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tvlan']")
 
-    @skipImage("No 'tun' support", "centos-7", "rhel-atomic", "ubuntu-1604")
+    @skipImage("No 'tun' support", "centos-7", "debian-8", "rhel-atomic", "ubuntu-1604")
     def testOther(self):
         b = self.browser
         m = self.machine
@@ -439,7 +439,7 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
 
-    @skipImage("Can not mark unmanaged by mac address", "debian-unstable", "ubuntu-1604")
+    @skipImage("Can not mark unmanaged by mac address", "debian-8", "debian-unstable", "ubuntu-1604")
     def testUnmanaged(self):
         b = self.browser
         m = self.machine
@@ -459,7 +459,7 @@ NM_CONTROLLED=no
         self.browser.wait_present(sel)
         self.browser.wait_visible(sel)
 
-    @skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-unstable", "fedora-24", "fedora-atomic", "rhel-7", "rhel-atomic", "ubuntu-1604")
+    @skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-8", "debian-unstable", "fedora-24", "fedora-atomic", "rhel-7", "rhel-atomic", "ubuntu-1604")
     def testCheckpoint(self):
         b = self.browser
         m = self.machine

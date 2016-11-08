@@ -46,6 +46,7 @@ def prepare_resolv(machine, address):
     machine.execute(script=RESOLV_SCRIPT.format(address=address))
 
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No freeipa available", "debian-8")
 class TestRealms(MachineCase):
     additional_machines = {
         'ipa': { 'machine': { 'image': 'ipa' } }
@@ -186,6 +187,7 @@ ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 
 # This is here because our test framework can't run ipa VM's twice
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No freeipa available", "debian-8")
 class TestKerberos(MachineCase):
     additional_machines = {
         'ipa': { 'machine': { 'image': 'ipa' } }

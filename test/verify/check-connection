@@ -88,6 +88,14 @@ class TestConnection(MachineCase):
         b.expect_load()
         b.enter_page("/system")
 
+        # Reauthorization can fail due to disconnects above
+        self.allow_journal_messages("cockpit-polkit: user admin reauthorization failed")
+        self.allow_restart_journal_messages()
+
+        # Debian 8 doesn't have systemd with coredump support
+        if m.image in [ "debian-8" ]:
+            return
+
         # Lets crash a process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
         if m.image in ["debian-unstable", "ubuntu-1604"]:
@@ -101,10 +109,6 @@ class TestConnection(MachineCase):
         # Make sure the core dumps exist in the directory, so we can download them
         cores = m.execute("find /var/lib/systemd/coredump -type f")
         self.assertNotEqual(cores, "")
-
-        # Reauthorization can fail due to disconnects above
-        self.allow_journal_messages("cockpit-polkit: user admin reauthorization failed")
-        self.allow_restart_journal_messages()
 
     def testTls(self):
         m = self.machine

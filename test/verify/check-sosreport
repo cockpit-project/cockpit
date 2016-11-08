@@ -25,7 +25,7 @@ import os
 import subprocess
 import unittest
 
-@skipImage("No sosreport", "continuous-atomic", "debian-unstable", "ubuntu-1604")
+@skipImage("No sosreport", "continuous-atomic", "debian-8", "debian-unstable", "ubuntu-1604")
 class TestSOS(MachineCase):
     def testBasic(self):
         b = self.browser

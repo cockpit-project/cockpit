@@ -12,8 +12,8 @@ process()
     \#*)
         ;;
     *)
-        echo "$1" > authorized_keys
-        echo "$(ssh-keygen -l -f authorized_keys)"
+        echo "$1"> authorized_keys
+        echo "$(LC_ALL=C ssh-keygen -l -f authorized_keys)"
         echo "$1"
         ;;
     esac

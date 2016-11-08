@@ -5,10 +5,12 @@ cd $(dirname $0)
 
 echo "1..4"
 
+# Normalize across various ssh-keygen versions
 normalize()
 {
     sed -e 's/\([0-9]\+ \)[A-Za-z0-9:]\+ \+/\1FINGERPRINT /' \
         -e 's/authorized_keys is not a public key file.//' \
+        -e 's/FINGERPRINT Comment Here (RSA)/FINGERPRINT no comment (RSA)/' \
         -e 's/FINGERPRINT authorized_keys (RSA)/FINGERPRINT no comment (RSA)/'
 }
 

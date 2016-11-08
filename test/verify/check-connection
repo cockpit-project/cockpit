@@ -181,7 +181,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
-    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "different way of changing ports")
+    @skipImage("Atomic changes ports differently", "fedora-atomic", "rhel-atomic", "continuous-atomic")
     def testSocketPort(self):
         m = self.machine
 
@@ -198,7 +198,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages(".*Peer failed to perform TLS handshake")
 
-    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "no local cockpit-ws")
+    @skipImage("Atomic doesn't have cockpit-ws", "fedora-atomic", "rhel-atomic", "continuous-atomic")
     def testCommandline(self):
         m = self.machine
         m.execute('mkdir -p /test/cockpit/ws-certs.d && echo "[WebService]\nLoginTitle = A Custom Title" > /test/cockpit/cockpit.conf')

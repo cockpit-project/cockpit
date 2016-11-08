@@ -51,22 +51,22 @@ DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
 BASELINE_PRIORITY = 10
 
 DEFAULT_VERIFY = {
-    'verify/fedora-24': [ ],
-    'verify/fedora-25': [ 'master', 'pulls' ],
-    'verify/centos-7': [ 'master', 'pulls' ],
-    'verify/continuous-atomic': [ 'master' ],
-    'verify/rhel-7': [ 'master', 'pulls' ],
-    'verify/fedora-atomic': [ 'master', 'pulls' ],
-    'verify/rhel-atomic': [ 'master', 'pulls' ],
-    'verify/debian-unstable': [ 'master', 'pulls' ],
-    'verify/fedora-testing': [ ],
-    'verify/ubuntu-1604': [ 'master', 'pulls' ],
     'avocado/fedora-24': [ 'master', 'pulls' ],
-    'selenium/firefox': [ 'master', 'pulls' ],
-    'selenium/chrome': [ 'master', 'pulls' ],
     'container/kubernetes': [ 'master', 'pulls' ],
     'koji/fedora-24': [ ],
     'koji/fedora-25': [ ],
+    'selenium/firefox': [ 'master', 'pulls' ],
+    'selenium/chrome': [ 'master', 'pulls' ],
+    'verify/centos-7': [ 'master', 'pulls' ],
+    'verify/continuous-atomic': [ 'master' ],
+    'verify/debian-unstable': [ 'master', 'pulls' ],
+    'verify/fedora-24': [ ],
+    'verify/fedora-25': [ 'master', 'pulls' ],
+    'verify/fedora-atomic': [ 'master', 'pulls' ],
+    'verify/fedora-testing': [ ],
+    'verify/rhel-7': [ 'master', 'pulls' ],
+    'verify/rhel-atomic': [ 'master', 'pulls' ],
+    'verify/ubuntu-1604': [ 'master', 'pulls' ],
 }
 
 TESTING = "Testing in progress"
@@ -74,6 +74,15 @@ NOT_TESTED = "Not yet tested"
 NO_TESTING = "Manual testing required"
 
 DEFAULT_IMAGE_REFRESH = {
+    'centos-7': {
+        'triggers': [ "verify/centos-7", ]
+    },
+    'continuous-atomic': {
+        'triggers': [ "verify/continuous-atomic", ]
+    },
+    'debian-unstable': {
+        'triggers': [ "verify/debian-unstable" ]
+    },
     'fedora-24': {
         'triggers': [
             "avocado/fedora-24",
@@ -91,17 +100,8 @@ DEFAULT_IMAGE_REFRESH = {
     'fedora-atomic': {
         'triggers': [ "verify/fedora-atomic" ]
     },
-    'debian-unstable': {
-        'triggers': [ "verify/debian-unstable" ]
-    },
     'fedora-testing': {
         'triggers': [ "verify/fedora-testing" ]
-    },
-    'centos-7': {
-        'triggers': [ "verify/centos-7", ]
-    },
-    'continuous-atomic': {
-        'triggers': [ "verify/continuous-atomic", ]
     },
     'ubuntu-1604': {
         'triggers': [ "verify/ubuntu-1604", ]

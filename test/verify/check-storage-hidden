@@ -24,7 +24,7 @@ import unittest
 from testlib import *
 from storagelib import *
 
-@skipImage("UDisks doesn't have support for LVM", "ubuntu-1604")
+@skipImage("UDisks doesn't have support for LVM", "debian-8", "ubuntu-1604")
 class TestStorage(StorageCase):
     def testHiddenLuks(self):
         m = self.machine

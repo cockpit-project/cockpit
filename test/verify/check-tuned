@@ -23,7 +23,7 @@ from testlib import *
 import unittest
 import os
 
-@skipImage("No tuned packaged", "debian-unstable", "fedora-atomic", "ubuntu-1604")
+@skipImage("No tuned packaged", "debian-8", "debian-unstable", "fedora-atomic", "ubuntu-1604")
 class TestTuned(MachineCase):
     def testBasic(self):
         b = self.browser

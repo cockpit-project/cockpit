@@ -213,6 +213,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.go("#/?prio=*&start=oldest&service=slow10.service")
         wait_slow10()
 
+        # Debian 8 doesn't have persistent journal logging across boots
+        if m.image in [ "debian-8" ]:
+            return
+
         # insert messages as errors because we know these will be shown by default
         m.execute("systemctl start systemd-journald.service")
         m.execute("logger -p user.err --tag check-journal BEFORE BOOT");

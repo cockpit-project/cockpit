@@ -59,6 +59,7 @@ DEFAULT_VERIFY = {
     'selenium/chrome': [ 'master', 'pulls' ],
     'verify/centos-7': [ 'master', 'pulls' ],
     'verify/continuous-atomic': [ 'master' ],
+    'verify/debian-8': [ ],
     'verify/debian-unstable': [ 'master', 'pulls' ],
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],

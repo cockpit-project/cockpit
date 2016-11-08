@@ -516,6 +516,20 @@ application_parse_host (const gchar *application)
     return NULL;
 }
 
+static gchar *
+application_cookie_name (const gchar *application)
+{
+  const gchar *host = application_parse_host (application);
+  gchar *cookie_name = NULL;
+
+  if (host)
+      cookie_name = g_strdup_printf ("machine-cockpit+%s", host);
+  else
+      cookie_name = g_strdup (application);
+
+  return cookie_name;
+}
+
 static CockpitCreds *
 create_creds_for_spawn_authenticated (CockpitAuth *self,
                                       const gchar *user,
@@ -1290,6 +1304,7 @@ authenticated_for_headers (CockpitAuth *self,
   const char *prefix = "v=2;k=";
   CockpitAuthenticated *ret = NULL;
   gchar *application;
+  gchar *cookie_name = NULL;
 
   g_return_val_if_fail (self != NULL, FALSE);
   g_return_val_if_fail (in_headers != NULL, FALSE);
@@ -1298,7 +1313,8 @@ authenticated_for_headers (CockpitAuth *self,
   if (!application)
     return NULL;
 
-  raw = cockpit_web_server_parse_cookie (in_headers, application);
+  cookie_name = application_cookie_name (application);
+  raw = cockpit_web_server_parse_cookie (in_headers, cookie_name);
   if (raw)
     {
       cookie = base64_decode_string (raw);
@@ -1314,6 +1330,7 @@ authenticated_for_headers (CockpitAuth *self,
     }
 
   g_free (application);
+  g_free (cookie_name);
   return ret;
 }
 
@@ -1478,6 +1495,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
   JsonObject *prompt_data = NULL;
   CockpitCreds *creds;
   gchar *cookie_b64 = NULL;
+  gchar *cookie_name = NULL;
   gchar *header;
   gchar *id;
 
@@ -1521,11 +1539,13 @@ cockpit_auth_login_finish (CockpitAuth *self,
   if (out_headers)
     {
       gboolean force_secure = !(flags & COCKPIT_AUTH_COOKIE_INSECURE);
+      cookie_name = application_cookie_name (cockpit_creds_get_application (creds));
       cookie_b64 = g_base64_encode ((guint8 *)authenticated->cookie, strlen (authenticated->cookie));
       header = g_strdup_printf ("%s=%s; Path=/; %s HttpOnly",
-                                cockpit_creds_get_application (creds),
-                                cookie_b64, force_secure ? " Secure;" : "");
+                                cookie_name, cookie_b64,
+                                force_secure ? " Secure;" : "");
       g_free (cookie_b64);
+      g_free (cookie_name);
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);
     }
 

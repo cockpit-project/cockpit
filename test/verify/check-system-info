@@ -246,10 +246,7 @@ class TestSystemInfo(MachineCase):
         self.assertIn("Mon Jun  4 06:34:", m.execute("LC_ALL=C date"))
         self.assertIn("EEST 2018\n", m.execute("LC_ALL=C date"))
 
-    @unittest.skipIf("rhel-7" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-7.")
-    @unittest.skipIf("centos" in os.environ.get("TEST_OS", ""), "No NTP servers config on centos.")
-    @unittest.skipIf("continuous-atomic" == os.environ.get("TEST_OS", ""), "No NTP servers config on continuous-atomic.")
-    @unittest.skipIf("rhel-atomic" == os.environ.get("TEST_OS", ""), "No NTP servers config on rhel-atomic.")
+    @skipImage("No NTP servers config", "centos-7", "continuous-atomic", "rhel-7", "rhel-atomic")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

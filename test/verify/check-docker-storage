@@ -217,9 +217,8 @@ class TestDockerStorage(MachineCase):
         b.wait_not_in_text("#storage-drives", "DISK2")
         check_loopback(False)
 
+    @skipImage("Switching vgroups not tested on loopbacked docker storage", "continuous-atomic", "debian-unstable", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
     def testDevmapperVGroup(self):
-        if not initially_loopbacked(self.machine):
-            return unittest.skip("Switching vgroups not yet tested")
         self.testDevmapper("dockah")
 
 if __name__ == '__main__':

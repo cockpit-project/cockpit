@@ -27,8 +27,8 @@ import unittest
 # https://github.com/cockpit-project/cockpit/issues/1308
 # https://github.com/cockpit-project/cockpit/issues/3341
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162
-@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No networking on Debian (yet).")
-@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No networking on Debian (yet).")
+@skipImage("Networking is disabled", "debian-unstable", "ubuntu-1604")
+@skipImage("No 'tun' support", "centos-7", "rhel-atomic")
 class TestNetworking(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -414,11 +414,8 @@ class TestNetworking(MachineCase):
         iface = "tun0"
 
         # Create a tun device and let NetworkManager manage it
-        try:
-            m.execute("ip tuntap add mode tun dev %s" % iface)
-            m.execute("nmcli --wait 0 dev con %s" % iface)
-        except:
-            return unittest.skip("No 'tun' support.")
+        m.execute("ip tuntap add mode tun dev %s" % iface)
+        m.execute("nmcli --wait 0 dev con %s" % iface)
 
         self.login_and_go("/network")
         self.wait_for_iface(iface)
@@ -456,7 +453,7 @@ NM_CONTROLLED=no
         self.browser.wait_present(sel)
         self.browser.wait_visible(sel)
 
-    @unittest.skipIf("fedora-25" not in os.environ.get("TEST_OS", ""), "No network checkpoints here.")
+    @skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-unstable", "fedora-24", "fedora-atomic", "rhel-7", "rhel-atomic", "ubuntu-1604")
     def testCheckpoint(self):
         b = self.browser
         m = self.machine

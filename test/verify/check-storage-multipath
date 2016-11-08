@@ -25,8 +25,8 @@ import parent
 from testlib import *
 from storagelib import *
 
-@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No multipath on Debian (yet).")
-@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "Udisks doesn't have support for LVM")
+@skipImage("UDisks doesn't have support for multipath", "ubuntu-1604")
+@skipImage("No multipath on Debian", "debian-unstable")
 class TestStorage(StorageCase):
     def testBasic(self):
         m = self.machine

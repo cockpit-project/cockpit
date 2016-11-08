@@ -49,8 +49,7 @@ def wait_project(machine, project):
             i = i + 1
             time.sleep(2)
 
-@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
-@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No kubernetes on Ubuntu (yet).")
+@skipImage("Kubernetes not packaged", "debian-unstable", "ubuntu-1604")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
     additional_machines = {
         'openshift': { 'machine': { 'image': 'openshift' } }
@@ -290,8 +289,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_present(".details-listing tbody[data-id='pods/default/helloapache'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/helloapache'] th"), "helloapache")
 
-@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No kubernetes on Debian (yet).")
-@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No kubernetes on Ubuntu (yet).")
+@skipImage("Kubernetes not packaged", "debian-unstable", "ubuntu-1604")
 class TestRegistry(MachineCase):
     additional_machines = {
         'openshift': { 'machine': { 'image': 'openshift' } }

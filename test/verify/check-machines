@@ -34,7 +34,7 @@ def readFile(name):
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
 
-@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "Don't run virtual machine tests on atomic systems.")
+@skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestMachines(MachineCase):
     def testBasic(self):
         b = self.browser

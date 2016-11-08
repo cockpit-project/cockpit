@@ -73,7 +73,7 @@ def generate_new_commit(m, pkg_to_remove):
     command = "ostree commit -s cockpit-tree2 --repo {0} -b {1} --add-metadata-string version=cockpit-base.2 --tree=dir={2}"
     m.execute(command.format(*commit_args))
 
-@unittest.skipIf("atomic" not in os.environ.get("TEST_OS", ""), "Skipping check-ostree on non atomic systems.")
+@skipImage("No OSTree available", "centos-7", "debian-unstable", "fedora-24", "fedora-25", "rhel-7", "ubuntu-1604")
 class OstreeRestartCase(MachineCase):
 
     def setUp(self):
@@ -263,7 +263,7 @@ class OstreeRestartCase(MachineCase):
         self.allow_restart_journal_messages()
 
 
-@unittest.skipIf("atomic" not in os.environ.get("TEST_OS", ""), "Skipping check-ostree on non atomic systems.")
+@skipImage("No OSTree available", "centos-7", "debian-unstable", "fedora-24", "fedora-25", "rhel-7", "ubuntu-1604")
 class OstreeCase(MachineCase):
 
     def testPermission(self):

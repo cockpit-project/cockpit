@@ -50,6 +50,7 @@ __all__ = (
     'arg_parser',
     'Browser',
     'MachineCase',
+    'skipImage',
 
     'sit',
     'wait',
@@ -771,6 +772,12 @@ def list_directories(dirs):
         for f in os.listdir(d):
             result.append(os.path.join(d, f))
     return result
+
+def skipImage(reason, *args):
+    image = testinfra.DEFAULT_IMAGE
+    if image in args:
+        return unittest.skip("{0}: {1}".format(image, reason))
+    return lambda func: func
 
 class Naughty(object):
     def normalize_traceback(self, trace):

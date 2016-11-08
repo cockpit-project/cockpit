@@ -262,6 +262,7 @@ class TestNetworking(MachineCase):
         self.allow_journal_messages(".*Connection reset by peer.*",
                                     "connection unexpectedly closed by peer")
 
+    @unittest.skipIf("ubuntu-1604" in os.environ.get("TEST_OS", ""), "NetworkManager-team not packaged on Ubuntu")
     def testTeam(self):
         b = self.browser
         m = self.machine

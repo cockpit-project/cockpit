@@ -24,7 +24,11 @@ if (makefile) {
 }
 
 var cwd = process.cwd();
-var config = require(path.resolve(cwd, ops.args[0]));
+var config_path = path.resolve(cwd, ops.args[0]);
+var config = require(config_path);
+
+// The latest input file time updated and used below
+var latest = fs.statSync(config_path).mtime;
 
 webpack(config, function(err, stats) {
     // process.stdout.write(stats.toString({colors: true}) + "\n");
@@ -102,7 +106,7 @@ function generateDeps(makefile, stats) {
 
     // Output a makefile
 
-    var lines = [ "# Generated Makefile data for " + prefix, "" ];
+    var lines = [ "# Generated Makefile data for " + prefix, "# Stamp: " + latest, "" ];
 
     function makeArray(name, values) {
         lines.push(name + " = \\");
@@ -146,6 +150,13 @@ function maybePushInput(inputs, input) {
         !endsWith(input, '/') &&
         input.indexOf("external ") !== 0 &&
         input.indexOf("multi ") !== 0) {
+
+        // The latest modified date
+        var stats = fs.statSync(input);
+        if (stats.mtime > latest)
+            latest = stats.mtime;
+
+        // Qualify the input file and add it
         input = path.relative(cwd, input);
 	if (srcdir && input.indexOf(srcdir) === 0)
 		input = "$(srcdir)" + input.substr(srcdir.length);

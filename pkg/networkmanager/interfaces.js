@@ -961,6 +961,7 @@ function NetworkManagerModel() {
 
         exporters: [
             function (obj) {
+                obj.Masters = [ ];
                 obj.Slaves = [ ];
                 obj.Interfaces = [ ];
             },
@@ -992,7 +993,6 @@ function NetworkManagerModel() {
                     }
                 }
 
-                obj.Masters = [ ];
                 var cs = connection_settings(obj);
                 if (cs.slave_type) {
                     master = connections_by_uuid[cs.master];

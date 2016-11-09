@@ -31,7 +31,7 @@ def prepare_resolv(machine, address):
     # so instead of overwriting, delete it and write a new one
     machine.execute("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' >/etc/resolv2.conf; mv /etc/resolv2.conf /etc/resolv.conf; chattr +i /etc/resolv.conf" % address)
 
-@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
+@skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestRealms(MachineCase):
     additional_machines = {
         'ipa': { 'machine': { 'image': 'ipa' } }
@@ -171,7 +171,7 @@ ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 """
 
 # This is here because our test framework can't run ipa VM's twice
-@unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "atomic: missing bind-utils")
+@skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestKerberos(MachineCase):
     additional_machines = {
         'ipa': { 'machine': { 'image': 'ipa' } }

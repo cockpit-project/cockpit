@@ -333,7 +333,7 @@ CMD ["/bin/sh"]
 
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
-    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "we can't use cockpit on atomic if docker is stopped")
+    @skipImage("No Cockpit on Atomic with Docker stopped", "fedora-atomic", "rhel-atomic", "continuous-atomic")
     def testFailure(self):
         b = self.browser
         m = self.machine

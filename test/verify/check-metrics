@@ -131,8 +131,7 @@ class TestMetrics(MachineCase):
         b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
         m.execute("kill %d" % net_pid)
 
-    @unittest.skipIf("rhel" in os.environ.get("TEST_OS", ""), "No PCP on RHEL.")
-    @unittest.skipIf("atomic" in os.environ.get("TEST_OS", ""), "No PCP on Atomics.")
+    @skipImage("No PCP available on Atomic", "fedora-atomic", "rhel-atomic", "continuous-atomic")
     def testPcp(self):
         b = self.browser
         m = self.machine

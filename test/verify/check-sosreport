@@ -25,9 +25,7 @@ import os
 import subprocess
 import unittest
 
-@unittest.skipIf("debian" in os.environ.get("TEST_OS", ""), "No sosreport on Debian.")
-@unittest.skipIf("ubuntu" in os.environ.get("TEST_OS", ""), "No sosreport on Ubuntu.")
-@unittest.skipIf("continuous-atomic" in os.environ.get("TEST_OS", ""), "No sosreport on Centos Atomic.")
+@skipImage("No sosreport", "continuous-atomic", "debian-unstable", "ubuntu-1604")
 class TestSOS(MachineCase):
     def testBasic(self):
         b = self.browser

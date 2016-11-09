@@ -2,7 +2,6 @@ ubuntubrandingdir = $(datadir)/cockpit/branding/ubuntu
 
 ubuntubranding_DATA = \
 	src/branding/ubuntu/branding.css \
-	src/branding/ubuntu/bg-login.jpg \
 	$(NULL)
 
 # Opportunistically use plymouth ubuntu logo

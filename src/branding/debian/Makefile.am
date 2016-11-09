@@ -2,7 +2,6 @@ debianbrandingdir = $(datadir)/cockpit/branding/debian
 
 debianbranding_DATA = \
 	src/branding/debian/branding.css \
-	src/branding/debian/bg-login.jpg \
 	$(NULL)
 
 # Opportunistically use debconf debian logos

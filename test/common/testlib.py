@@ -25,6 +25,7 @@ from time import sleep
 from urlparse import urlparse
 
 import argparse
+import fnmatch
 import subprocess
 import os
 import atexit
@@ -822,8 +823,9 @@ class Naughty(object):
             except:
                 continue
             with open(naughty, "r") as fp:
-                contents = self.normalize_traceback(fp.read())
-            if contents in trace:
+                match = "*" + self.normalize_traceback(fp.read()) + "*"
+            # Match as in a file name glob, albeit multi line, and account for literal pastes with '[]'
+            if fnmatch.fnmatchcase(trace, match) or fnmatch.fnmatchcase(trace, match.replace("[", "?")):
                 number = n
         if not number:
             return False

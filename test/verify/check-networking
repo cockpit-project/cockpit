@@ -28,7 +28,6 @@ import unittest
 # https://github.com/cockpit-project/cockpit/issues/3341
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162
 @skipImage("Networking is disabled", "debian-unstable", "ubuntu-1604")
-@skipImage("No 'tun' support", "centos-7", "rhel-atomic")
 class TestNetworking(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -407,6 +406,7 @@ class TestNetworking(MachineCase):
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tvlan']")
 
+    @skipImage("No 'tun' support", "centos-7", "rhel-atomic")
     def testOther(self):
         b = self.browser
         m = self.machine

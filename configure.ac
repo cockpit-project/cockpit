@@ -458,6 +458,7 @@ if test "$enable_debug" = "yes"; then
   debug_status="yes"
   debugdir=
   CFLAGS="$CFLAGS -O0"
+  NODE_ENV="development"
 elif test "$enable_debug" = "no"; then
   debug_status="no"
   CFLAGS="$CFLAGS -O2"

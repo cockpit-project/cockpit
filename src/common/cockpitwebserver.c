@@ -582,7 +582,10 @@ cockpit_web_server_parse_cookie (GHashTable *headers,
   const gchar *pos;
   const gchar *value;
   const gchar *end;
+  gboolean at_start = TRUE;
   gchar *decoded;
+  gint diff;
+  gint offset;
 
   header = g_hash_table_lookup (headers, "Cookie");
   if (!header)
@@ -591,11 +594,27 @@ cockpit_web_server_parse_cookie (GHashTable *headers,
   for (;;)
     {
       pos = strstr (header, name);
-      if (!pos || (pos != header && *(pos - 1) != ';' && !g_ascii_isspace (*(pos - 1))))
+      if (!pos)
         return NULL;
 
+      if (pos != header)
+        {
+          diff = strlen (header) - strlen (pos);
+          offset = 1;
+          at_start = FALSE;
+          while (offset < diff)
+            {
+              if (!g_ascii_isspace (*(pos - offset)))
+                {
+                  at_start = *(pos - offset) == ';';
+                  break;
+                }
+              offset++;
+            }
+        }
+
       pos += strlen (name);
-      if (*pos == '=')
+      if (*pos == '=' && at_start)
         {
           value = pos + 1;
           end = strchr (value, ';');
@@ -608,7 +627,10 @@ cockpit_web_server_parse_cookie (GHashTable *headers,
 
           return decoded;
         }
-
+      else
+        {
+          at_start = FALSE;
+        }
       header = pos;
     }
 }

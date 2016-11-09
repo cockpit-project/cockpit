@@ -279,6 +279,12 @@ var plugins = [
     new extract("[name].css")
     ];
 
+var output = {
+    path: distdir,
+    filename: "[name].js",
+    sourceMapFilename: "[file].map",
+};
+
 /* Only minimize when in production mode */
 if (production) {
     plugins.unshift(new webpack.optimize.UglifyJsPlugin({
@@ -286,10 +292,14 @@ if (production) {
             warnings: false
         },
     }));
+
+    /* Rename output files when minimizing */
+    output.filename = "[name].min.js";
 }
 
 /* Fill in the tests properly */
 info.tests.forEach(function(test) {
+    var ext = production ? ".min.js" : ".js";
     if (!section || test.indexOf(section) === 0) {
         info.entries[test] = pkgdir + path.sep + test + ".js";
         plugins.push(new html({
@@ -297,6 +307,7 @@ info.tests.forEach(function(test) {
             filename: test + ".html",
             template: libdir + path.sep + "qunit-template.html",
             builddir: test.split("/").map(function() { return "../" }).join(""),
+            script: path.basename(test + ext),
             inject: false,
         }));
     }
@@ -330,11 +341,7 @@ module.exports = {
         root: path.resolve(srcdir, 'node_modules')
     },
     entry: info.entries,
-    output: {
-        path: distdir,
-        filename: "[name].js",
-        sourceMapFilename: "[file].map",
-    },
+    output: output,
     externals: externals,
     plugins: plugins,
 

@@ -51,6 +51,7 @@ __all__ = (
     'Browser',
     'MachineCase',
     'skipImage',
+    'Error',
 
     'sit',
     'wait',

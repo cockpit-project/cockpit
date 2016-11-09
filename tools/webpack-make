@@ -1,16 +1,32 @@
 #!/usr/bin/env node
 
-var webpack = require("webpack");
-var path = require("path");
-var stdio = require("stdio");
-var fs = require("fs");
+/*
+ * Builds with webpack and generates a Makefile include that
+ * lists all dependencies, inputs, outputs, and installable files
+ */
+
+function fatal(message, code) {
+    console.log("webpack-make: " + message);
+    process.exit(code || 1);
+}
+
+var webpack, path, stdio, fs;
+
+try {
+    webpack = require("webpack");
+    path = require("path");
+    stdio = require("stdio");
+    fs = require("fs");
+} catch(ex) {
+    fatal(ex.message, 127); /* missing looks for this */
+}
 
 var ops = stdio.getopt({
     deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" }
 });
 
 if (!ops.args || ops.args.length < 1 || ops.args.length > 2) {
-    console.log("usage: webpack config [section]");
+    console.log("usage: webpack-make config [section]");
     process.exit(2);
 }
 

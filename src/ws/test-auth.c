@@ -525,6 +525,8 @@ test_bad_command (Test *test,
                                "*couldn't write: Connection refused*");
   cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
                                "*couldn't write: Connection refused*");
+  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                               "*couldn't send: Connection refused*");
   test_custom_fail (test, data);
 }
 

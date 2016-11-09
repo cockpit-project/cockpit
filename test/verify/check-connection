@@ -191,7 +191,7 @@ class TestConnection(MachineCase):
         m.start_cockpit(tls=True)
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
-        self.assertIn('Cockpit starting...', output)
+        self.assertIn('Loading...', output)
 
         output = m.execute('curl -k https://localhost:9090 2>&1 || true')
         self.assertIn('Connection refused', output)

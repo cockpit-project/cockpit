@@ -159,7 +159,7 @@ uninstall-local::
 	rm -rf $(DESTDIR)$(pkgdatadir)
 	rm -rf $(DESTDIR)$(debugdir)$(pkgdatadir)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
-	tar -cf - $^ | tar -C $(distdir) -xvf -
+	tar -cf - $^ | tar -C $(distdir) -xf -
 
 #
 

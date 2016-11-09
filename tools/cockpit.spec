@@ -158,9 +158,10 @@ The Cockpit Web Service listens on the network, and authenticates users.
 # Apply patches using git
 git init
 git config user.email "unused@example.com" && git config user.name "Unused"
-git config core.autocrlf false && git config core.safecrlf false
+git config core.autocrlf false && git config core.safecrlf false && git config gc.auto 0
 git add -f . && git commit -a -q -m "Base"
-echo "" | git am %{patches}
+echo "" | git am --whitespace=nowarn %{patches}
+rm -rf .git
 
 %build
 exec 2>&1

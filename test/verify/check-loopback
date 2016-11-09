@@ -50,14 +50,10 @@ class TestLoopback(MachineCase):
         b.wait_visible('#login-fatal')
         self.assertIn("no-cockpit", b.text('#login-fatal'));
 
-        m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config")
-
-        # When ssd is not socket activated, we need to restart it so
-        # that it reloads its configuration.  When it _is_ socket
-        # activated, we must avoid starting the service, since that
-        # would fail and break ssh connectivity from that point on.
-        #
-        m.execute("! systemctl --quiet is-enabled sshd || systemctl restart sshd")
+        m.disconnect()
+        m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config", direct=True)
+        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+        m.wait_execute()
 
         b.reload()
         b.wait_visible("#login")

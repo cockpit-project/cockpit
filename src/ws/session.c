@@ -498,6 +498,7 @@ open_session (pam_handle_t *pamh)
   struct passwd *buf = NULL;
   const char *name;
   int res;
+  int i;
 
   name = NULL;
   pwd = NULL;
@@ -541,9 +542,18 @@ open_session (pam_handle_t *pamh)
       if (res == PAM_NEW_AUTHTOK_REQD)
         {
           warnx ("user account or password has expired: %s: %s", name, pam_strerror (pamh, res));
-          res = pam_chauthtok (pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
-          if (res != PAM_SUCCESS)
-            warnx ("unable to change expired account or password: %s: %s", name, pam_strerror (pamh, res));
+
+          /*
+           * Certain PAM implementations return PAM_AUTHTOK_ERR if the users input does not
+           * match criteria. Let the conversation happen three times in that case.
+           */
+          for (i = 0; i < 3; i++) {
+              res = pam_chauthtok (pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
+              if (res != PAM_SUCCESS)
+                warnx ("unable to change expired account or password: %s: %s", name, pam_strerror (pamh, res));
+              if (res != PAM_AUTHTOK_ERR)
+                break;
+          }
         }
       else if (res != PAM_SUCCESS)
         {

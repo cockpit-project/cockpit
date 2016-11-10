@@ -27,9 +27,6 @@ systemctl start docker || journalctl -u docker
 lvresize atomicos/root        -l+50%FREE -r
 lvresize atomicos/docker-pool -l+100%FREE
 
-# Configure kubernetes. Since this writes to /etc have to do before upgrade
-/var/lib/testvm/kubernetes.setup
-
 # we need cockpit/ws as well
 docker pull cockpit/ws
 

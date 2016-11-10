@@ -621,12 +621,7 @@
                     send: { value: send },
                 });
 
-                if (protocols) {
-                    if (angular.isArray(protocols))
-                        base64 = protocols.indexOf("base64.channel.k8s.io") !== -1;
-                    else
-                        base64 = protocols === "base64.channel.k8s.io";
-                }
+                base64 = protocols.indexOf("base64.channel.k8s.io") !== -1;
 
                 $q.when(connect, function connected(options) {
                     cockpit.event_target(ws);
@@ -634,7 +629,7 @@
                     channel = cockpit.channel(angular.extend({ }, options, {
                         payload: "websocket-stream1",
                         path: url,
-                        protocols: protocols,
+                        protocols: protocols.length > 0 ? protocols : undefined,
                     }));
 
                     channel.addEventListener("close", function(ev, options) {

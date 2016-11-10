@@ -312,7 +312,7 @@ function requestUpdate() {
     updateTimeout = window.setTimeout(
         function() {
             statusUpdateFailed("timeout");
-        }, 30000);
+        }, 60000);
 }
 
 function processStatusOutput(text, exitDetails) {

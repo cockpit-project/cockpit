@@ -50,6 +50,7 @@ def wait_project(machine, project):
             time.sleep(2)
 
 @skipImage("Kubernetes not packaged", "debian-unstable", "ubuntu-1604")
+@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
     additional_machines = {
         'openshift': { 'machine': { 'image': 'openshift' } }
@@ -290,6 +291,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/helloapache'] th"), "helloapache")
 
 @skipImage("Kubernetes not packaged", "debian-unstable", "ubuntu-1604")
+@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestRegistry(MachineCase):
     additional_machines = {
         'openshift': { 'machine': { 'image': 'openshift' } }

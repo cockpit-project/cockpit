@@ -410,7 +410,7 @@ class TestNetworking(MachineCase):
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tvlan']")
 
-    @skipImage("No 'tun' support", "centos-7", "rhel-atomic", "ubuntu-1604")
+    @skipImage("No 'tun' support", "debian-unstable", "centos-7", "rhel-atomic", "ubuntu-1604")
     def testOther(self):
         b = self.browser
         m = self.machine

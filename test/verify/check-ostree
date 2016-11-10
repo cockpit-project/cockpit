@@ -29,7 +29,7 @@ import testinfra
 INSTALL_RPMS = [
     "empty-1-0.noarch",
     "cockpit-ostree-wip-0.1.noarch",
-    "cockpit-kubernetes-wip-2.noarch",
+    "cockpit-machines-99999-2.noarch",
 ]
 
 REPO_LOCATION = "/var/local-repo"
@@ -105,7 +105,7 @@ class OstreeRestartCase(MachineCase):
         m.execute("systemctl stop rhsmcertd || true")
 
         cockpit_shell = m.execute("rpm -qa | grep cockpit-ostree").strip()
-        cockpit_kube = m.execute("rpm -qa | grep cockpit-kubernetes").strip()
+        cockpit_machines = m.execute("rpm -qa | grep cockpit-machines").strip()
 
         self.login_and_go("/updates")
         b.enter_page("/updates")
@@ -178,7 +178,7 @@ class OstreeRestartCase(MachineCase):
                                 ['upgrades', 'downgrades',
                                  'additions', 'removals'])
 
-        b.wait_text("table.listing-ct tbody:nth-child(3) dl.upgrades dd", "cockpit-kubernetes-wip-2.noarch")
+        b.wait_text("table.listing-ct tbody:nth-child(3) dl.upgrades dd", "cockpit-machines-99999-2.noarch")
         b.wait_text("table.listing-ct tbody:nth-child(3) dl.downgrades dd", "cockpit-ostree-wip-0.1.noarch")
         b.wait_text("table.listing-ct tbody:nth-child(3) dl.additions dd", "empty-1-0.noarch")
         b.wait_text("table.listing-ct tbody:nth-child(3) dl.removals dd", docker_pkg)
@@ -233,7 +233,7 @@ class OstreeRestartCase(MachineCase):
                                  'additions', 'removals'])
 
         b.wait_text("table.listing-ct tbody:nth-child(4) dl.upgrades dd", cockpit_shell)
-        b.wait_text("table.listing-ct tbody:nth-child(4) dl.downgrades dd", cockpit_kube)
+        b.wait_text("table.listing-ct tbody:nth-child(4) dl.downgrades dd", cockpit_machines)
         b.wait_text("table.listing-ct tbody:nth-child(4) dl.additions dd", docker_pkg)
         b.wait_text("table.listing-ct tbody:nth-child(4) dl.removals dd", "empty-1-0.noarch")
 

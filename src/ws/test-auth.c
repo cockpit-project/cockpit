@@ -92,10 +92,12 @@ on_ready_get_result (GObject *source,
 
 static void
 include_cookie_as_if_client (GHashTable *resp_headers,
-                             GHashTable *req_headers)
+                             GHashTable *req_headers,
+                             const gchar *cookie_name)
 {
   gchar *cookie;
   gchar *end;
+  gchar *expected = g_strdup_printf ("%s=", cookie_name);
 
   cookie = g_strdup (g_hash_table_lookup (resp_headers, "Set-Cookie"));
   g_assert (cookie != NULL);
@@ -103,7 +105,10 @@ include_cookie_as_if_client (GHashTable *resp_headers,
   g_assert (end != NULL);
   end[0] = '\0';
 
+  g_assert (strncmp (cookie, expected, strlen(expected)) == 0);
+
   g_hash_table_insert (req_headers, g_strdup ("Cookie"), cookie);
+  g_free (expected);
 }
 
 static void
@@ -181,7 +186,7 @@ test_userpass_cookie_check (Test *test,
   response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
 
   /* Get the service */
-  include_cookie_as_if_client (headers, headers);
+  include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
 
   g_object_unref (result);
@@ -201,7 +206,7 @@ test_userpass_cookie_check (Test *test,
   prev_creds = creds;
   creds = NULL;
 
-  include_cookie_as_if_client (headers, headers);
+  include_cookie_as_if_client (headers, headers, "cockpit");
 
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   g_assert (prev_service == service);
@@ -341,7 +346,7 @@ test_idle_timeout (Test *test,
   g_assert_no_error (error);
 
   /* Logged in ... the webservice is idle though */
-  include_cookie_as_if_client (headers, headers);
+  include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   g_assert (service != NULL);
   g_assert (cockpit_web_service_get_idling (service));
@@ -462,6 +467,7 @@ typedef struct {
   const gchar *password;
   const gchar *application;
   const gchar *remote_peer;
+  const gchar *cookie_name;
 } SuccessFixture;
 
 static void
@@ -565,7 +571,8 @@ test_custom_success (Test *test,
   g_assert (response != NULL);
   json_object_unref (response);
 
-  include_cookie_as_if_client (headers, headers);
+  include_cookie_as_if_client (headers, headers,
+                               fix->cookie_name ? fix->cookie_name : "cockpit");
   service = cockpit_auth_check_cookie (test->auth, path, headers);
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (user, ==, cockpit_creds_get_user (creds));
@@ -599,7 +606,8 @@ static const SuccessFixture fixture_ssh_remote_basic = {
   .path = "/cockpit+=machine",
   .user = "remote-user",
   .password = "this is the machine password",
-  .application = "cockpit+=machine"
+  .application = "cockpit+=machine",
+  .cookie_name = "machine-cockpit+machine"
 };
 
 static const SuccessFixture fixture_ssh_no_data = {
@@ -612,7 +620,8 @@ static const SuccessFixture fixture_ssh_remote_switched = {
   .data = NULL,
   .header = "testscheme ssh-remote-switch",
   .path = "/cockpit+=machine",
-  .application = "cockpit+=machine"
+  .application = "cockpit+=machine",
+  .cookie_name = "machine-cockpit+machine"
 };
 
 static const SuccessFixture fixture_ssh_local_peer = {
@@ -620,7 +629,8 @@ static const SuccessFixture fixture_ssh_local_peer = {
   .header = "testscheme ssh-local-peer",
   .path = "/cockpit+=machine",
   .application = "cockpit+=machine",
-  .remote_peer = "127.0.0.1"
+  .remote_peer = "127.0.0.1",
+  .cookie_name = "machine-cockpit+machine"
 };
 
 static const SuccessFixture fixture_ssh_alt_default = {
@@ -633,6 +643,7 @@ static const SuccessFixture fixture_ssh_alt = {
   .path = "/cockpit+=machine",
   .application = "cockpit+=machine",
   .header = "testsshscheme ssh-alt-machine",
+  .cookie_name = "machine-cockpit+machine"
 };
 
 static const SuccessFixture fixture_ssh_bad_data = {
@@ -913,7 +924,7 @@ test_multi_step_success (Test *test,
       json_object_unref (response);
     }
 
-  include_cookie_as_if_client (headers, headers);
+  include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));

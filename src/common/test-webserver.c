@@ -156,6 +156,33 @@ test_cookie_multiple (void)
 }
 
 static void
+test_cookie_overlap (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar *result;
+
+  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cookie1cookie1cookie1=value;cookie1=cookie23-value2;   cookie2=a value for cookie23=inline; cookie23=value3"));
+
+  result = cockpit_web_server_parse_cookie (table, "cookie1cookie1cookie1");
+  g_assert_cmpstr (result, ==, "value");
+  g_free (result);
+
+  result = cockpit_web_server_parse_cookie (table, "cookie1");
+  g_assert_cmpstr (result, ==, "cookie23-value2");
+  g_free (result);
+
+  result = cockpit_web_server_parse_cookie (table, "cookie2");
+  g_assert_cmpstr (result, ==, "a value for cookie23=inline");
+  g_free (result);
+
+  result = cockpit_web_server_parse_cookie (table, "cookie23");
+  g_assert_cmpstr (result, ==, "value3");
+  g_free (result);
+
+  g_hash_table_unref (table);
+}
+
+static void
 test_cookie_no_header (void)
 {
   GHashTable *table = cockpit_web_server_new_table ();
@@ -907,6 +934,7 @@ main (int argc,
 
   g_test_add_func ("/web-server/cookie/simple", test_cookie_simple);
   g_test_add_func ("/web-server/cookie/multiple", test_cookie_multiple);
+  g_test_add_func ("/web-server/cookie/overlap", test_cookie_overlap);
   g_test_add_func ("/web-server/cookie/no-header", test_cookie_no_header);
   g_test_add_func ("/web-server/cookie/substring", test_cookie_substring);
   g_test_add_func ("/web-server/cookie/decode", test_cookie_decode);

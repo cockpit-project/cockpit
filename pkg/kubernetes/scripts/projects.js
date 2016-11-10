@@ -113,11 +113,6 @@
             var namespace = $routeParams["namespace"] || "";
             $scope.projName = namespace;
             if (namespace) {
-                var projObj = select().kind("Project").name(namespace);
-                if (!projObj || projObj.length < 1) {
-                    $scope.project = null;
-                    return;
-                }
                 $scope.listing = new ListingState($scope);
                 $scope.project = function() {
                     return select().kind("Project").name(namespace).one();
@@ -160,11 +155,6 @@
             var user = $routeParams["user"] || "";
             $scope.userName = user;
             if (user) {
-                var userObj = select().kind("User").name(user);
-                if (!userObj || userObj.length < 1) {
-                    $scope.user = null;
-                    return;
-                }
                 $scope.user = function() {
                     return select().kind("User").name(user).one();
                 };

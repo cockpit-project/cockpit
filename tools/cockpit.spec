@@ -97,49 +97,19 @@ Requires: %{name}-docker = %{version}-%{release}
 
 %endif
 
-
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux
 machines.
 
-%package bridge
-Summary: Cockpit bridge server-side component
-Obsoletes: %{name}-daemon < 0.48-2
-Requires: polkit
-
-%description bridge
-The Cockpit bridge component installed server side and runs commands on the
-system on behalf of the web based user interface.
-
-%package doc
-Summary: Cockpit deployment and developer guide
-
-%description doc
-The Cockpit Deployment and Developer Guide shows sysadmins how to
-deploy Cockpit on their machines as well as helps developers who want to
-embed or extend Cockpit.
-
-%package pcp
-Summary: Cockpit PCP integration
-Requires: %{name}-bridge = %{version}-%{release}
-Requires: pcp
-
-%description pcp
-Cockpit support for reading PCP metrics and loading PCP archives.
-
-%package ws
-Summary: Cockpit Web Service
-Requires: glib-networking
-Requires: openssl
-Requires: glib2 >= 2.37.4
-Requires: libssh >= %{libssh_version}
-Obsoletes: cockpit-selinux-policy <= 0.83
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
-
-%description ws
-The Cockpit Web Service listens on the network, and authenticates users.
+%files
+%{_docdir}/%{name}/AUTHORS
+%{_docdir}/%{name}/COPYING
+%{_docdir}/%{name}/README.md
+%dir %{_datadir}/%{name}
+%{_datadir}/appdata/cockpit.appdata.xml
+%{_datadir}/applications/cockpit.desktop
+%{_datadir}/pixmaps/cockpit.png
+%doc %{_mandir}/man1/cockpit.1.gz
 
 %prep
 %setup -q
@@ -275,15 +245,18 @@ cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.
    cat debug.partial >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
 %{nil}
 
-%files
-%{_docdir}/%{name}/AUTHORS
-%{_docdir}/%{name}/COPYING
-%{_docdir}/%{name}/README.md
-%dir %{_datadir}/%{name}
-%{_datadir}/appdata/cockpit.appdata.xml
-%{_datadir}/applications/cockpit.desktop
-%{_datadir}/pixmaps/cockpit.png
-%doc %{_mandir}/man1/cockpit.1.gz
+# -------------------------------------------------------------------------------
+# Sub-packages
+
+%package bridge
+Summary: Cockpit bridge server-side component
+Obsoletes: %{name}-daemon < 0.48-2
+Requires: glib-networking
+Requires: polkit
+
+%description bridge
+The Cockpit bridge component installed server side and runs commands on the
+system on behalf of the web based user interface.
 
 %files bridge -f base.list
 %{_datadir}/%{name}/base1/bundle.min.js.gz
@@ -292,11 +265,55 @@ cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %{_libdir}/security/pam_reauthorize.so
 
+%package doc
+Summary: Cockpit deployment and developer guide
+
+%description doc
+The Cockpit Deployment and Developer Guide shows sysadmins how to
+deploy Cockpit on their machines as well as helps developers who want to
+embed or extend Cockpit.
+
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS
 %exclude %{_docdir}/%{name}/COPYING
 %exclude %{_docdir}/%{name}/README.md
 %{_docdir}/%{name}
+
+%package machines
+Summary: Cockpit user interface for virtual machines
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
+Requires: libvirt
+Requires: libvirt-client
+
+%description machines
+The Cockpit components for managing virtual machines.
+
+%files machines -f machines.list
+
+%package ostree
+Summary: Cockpit user interface for rpm-ostree
+# Requires: Uses new translations functionality
+Requires: %{name}-bridge > 124
+Requires: %{name}-shell > 124
+%if 0%{?fedora} > 0 && 0%{?fedora} < 24
+Requires: rpm-ostree >= 2015.10-1
+%else
+Requires: /usr/libexec/rpm-ostreed
+%endif
+
+%description ostree
+The Cockpit components for managing software updates for ostree based systems.
+
+%files ostree -f ostree.list
+
+%package pcp
+Summary: Cockpit PCP integration
+Requires: %{name}-bridge = %{version}-%{release}
+Requires: pcp
+
+%description pcp
+Cockpit support for reading PCP metrics and loading PCP archives.
 
 %files pcp
 %{_libexecdir}/cockpit-pcp
@@ -307,44 +324,6 @@ cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.
 # We can't use "systemctl reload-or-try-restart" since systemctl might
 # be out of sync with reality.
 /usr/share/pcp/lib/pmlogger condrestart
-
-%files ws -f %{name}.lang
-%doc %{_mandir}/man5/cockpit.conf.5.gz
-%doc %{_mandir}/man8/cockpit-ws.8.gz
-%doc %{_mandir}/man8/remotectl.8.gz
-%doc %{_mandir}/man8/pam_ssh_add.8.gz
-%config(noreplace) %{_sysconfdir}/%{name}
-%config(noreplace) %{_sysconfdir}/pam.d/cockpit
-%{_unitdir}/cockpit.service
-%{_unitdir}/cockpit.socket
-%{_prefix}/lib/firewalld/services/cockpit.xml
-%{_sbindir}/remotectl
-%{_libdir}/security/pam_ssh_add.so
-%{_libexecdir}/cockpit-ws
-%{_libexecdir}/cockpit-stub
-%{_libexecdir}/cockpit-ssh
-%attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
-%attr(775, -, wheel) %{_localstatedir}/lib/%{name}
-%{_datadir}/%{name}/static
-%{_datadir}/%{name}/branding
-
-%pre ws
-getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
-
-%post ws
-%systemd_post cockpit.socket
-# firewalld only partially picks up changes to its services files without this
-test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
-# HACK: Until policy changes make it downstream
-# https://bugzilla.redhat.com/show_bug.cgi?id=1381331
-test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
-%preun ws
-%systemd_preun cockpit.socket
-
-%postun ws
-%systemd_postun_with_restart cockpit.socket
-%systemd_postun_with_restart cockpit.service
 
 %package shell
 Summary: Cockpit Shell user interface package
@@ -397,35 +376,61 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %files storaged -f storaged.list
 
-%package ostree
-Summary: Cockpit user interface for rpm-ostree
-# Requires: Uses new translations functionality
-Requires: %{name}-bridge > 124
-Requires: %{name}-shell > 124
-%if 0%{?fedora} > 0 && 0%{?fedora} < 24
-Requires: rpm-ostree >= 2015.10-1
-%else
-Requires: /usr/libexec/rpm-ostreed
-%endif
+%package ws
+Summary: Cockpit Web Service
+Requires: glib-networking
+Requires: openssl
+Requires: glib2 >= 2.37.4
+Requires: libssh >= %{libssh_version}
+Obsoletes: cockpit-selinux-policy <= 0.83
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
-%description ostree
-The Cockpit components for managing software updates for ostree based systems.
+%description ws
+The Cockpit Web Service listens on the network, and authenticates users.
 
-%files ostree -f ostree.list
+%files ws -f %{name}.lang
+%doc %{_mandir}/man5/cockpit.conf.5.gz
+%doc %{_mandir}/man8/cockpit-ws.8.gz
+%doc %{_mandir}/man8/remotectl.8.gz
+%doc %{_mandir}/man8/pam_ssh_add.8.gz
+%config(noreplace) %{_sysconfdir}/%{name}
+%config(noreplace) %{_sysconfdir}/pam.d/cockpit
+%{_unitdir}/cockpit.service
+%{_unitdir}/cockpit.socket
+%{_prefix}/lib/firewalld/services/cockpit.xml
+%{_sbindir}/remotectl
+%{_libdir}/security/pam_ssh_add.so
+%{_libexecdir}/cockpit-ws
+%{_libexecdir}/cockpit-stub
+%{_libexecdir}/cockpit-ssh
+%attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
+%attr(775, -, wheel) %{_localstatedir}/lib/%{name}
+%{_datadir}/%{name}/static
+%{_datadir}/%{name}/branding
 
-%package machines
-Summary: Cockpit user interface for virtual machines
-Requires: %{name}-bridge >= %{required_base}
-Requires: %{name}-shell >= %{required_base}
-Requires: libvirt
-Requires: libvirt-client
+%pre ws
+getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
+getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
 
-%description machines
-The Cockpit components for managing virtual machines.
+%post ws
+%systemd_post cockpit.socket
+# firewalld only partially picks up changes to its services files without this
+test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
+# HACK: Until policy changes make it downstream
+# https://bugzilla.redhat.com/show_bug.cgi?id=1381331
+test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
 
-%files machines -f machines.list
+%preun ws
+%systemd_preun cockpit.socket
 
-# Conditionally built packages below
+%postun ws
+%systemd_postun_with_restart cockpit.socket
+%systemd_postun_with_restart cockpit.service
+
+# -------------------------------------------------------------------------------
+# Conditional Sub-packages
 
 %if 0%{?rhel} == 0
 

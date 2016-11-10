@@ -50,15 +50,6 @@ Description: User interface for Linux servers
  Cockpit runs in a browser and can manage your network of GNU/Linux
  machines.
 
-Package: cockpit-doc
-Section: doc
-Architecture: all
-Depends: ${misc:Depends}
-Description: Cockpit deployment and developer guide
- The Cockpit Deployment and Developer Guide shows sysadmins how to deploy
- Cockpit on their machines as well as helps developers who want to embed
- or extend Cockpit.
-
 Package: cockpit-bridge
 Architecture: any
 Depends: ${misc:Depends},
@@ -68,6 +59,30 @@ Depends: ${misc:Depends},
 Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on
  the system on behalf of the web based user interface.
+
+Package: cockpit-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Description: Cockpit deployment and developer guide
+ The Cockpit Deployment and Developer Guide shows sysadmins how to deploy
+ Cockpit on their machines as well as helps developers who want to embed
+ or extend Cockpit.
+
+Package: cockpit-docker
+Architecture: amd64 armel armhf i386
+Depends: ${misc:Depends},
+         docker.io (>= 1.3.0) | docker-engine (>= 1.3.0),
+         python
+Description: Cockpit user interface for Docker containers
+ The Cockpit components for interacting with Docker and user interface.
+
+Package: cockpit-machines
+Architecture: any
+Depends: ${misc:Depends},
+         libvirt-daemon-system
+Description: Cockpit user interface for virtual machines
+ The Cockpit components for managing virtual machines.
 
 Package: cockpit-networkmanager
 Architecture: any
@@ -88,22 +103,6 @@ Depends: ${misc:Depends},
 Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
 
-Package: cockpit-storaged
-Architecture: any
-Depends: ${misc:Depends},
-         udisks2 | storaged
-Description: Cockpit user interface for storage
- The Cockpit components for interacting with storage.
-
-Package: cockpit-ws
-Architecture: any
-Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         glib-networking
-Description: Cockpit Web Service
- The Cockpit Web Service listens on the network, and authenticates
- users.
-
 Package: cockpit-shell
 Architecture: any
 Depends: ${misc:Depends},
@@ -113,23 +112,24 @@ Depends: ${misc:Depends},
 Description: Cockpit Shell user interface package
  This package contains the Cockpit shell UI assets.
 
-Package: cockpit-docker
-Architecture: amd64 armel armhf i386
-Depends: ${misc:Depends},
-         docker.io (>= 1.3.0) | docker-engine (>= 1.3.0),
-         python
-Description: Cockpit user interface for Docker containers
- The Cockpit components for interacting with Docker and user interface.
-
-Package: cockpit-machines
+Package: cockpit-storaged
 Architecture: any
 Depends: ${misc:Depends},
-         libvirt-daemon-system
-Description: Cockpit user interface for virtual machines
- The Cockpit components for managing virtual machines.
+         udisks2 | storaged
+Description: Cockpit user interface for storage
+ The Cockpit components for interacting with storage.
 
 Package: cockpit-test-assets
 Architecture: any
 Depends: ${misc:Depends},
          openssh-client
 Description: Addition files for the Cockpit integration tests
+
+Package: cockpit-ws
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         glib-networking
+Description: Cockpit Web Service
+ The Cockpit Web Service listens on the network, and authenticates
+ users.

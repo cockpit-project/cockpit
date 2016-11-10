@@ -169,23 +169,31 @@ class AtomicCockpitInstaller:
             return None
 
     def update_container(self):
-        """ Install the latest cockpit-ws in our container"""
-        install = None
+        """ Install the latest cockpit-ws and cockpit-dashboard in our container"""
+        ws = None
+        dashboard = None
         for package in self.rpms:
             if 'cockpit-ws' in package:
-                install = package
-                break
+                ws = package
+            if 'cockpit-dashboard' in package:
+                dashboard = package
 
-        if self.verbose:
-            print "installing cockpit-ws in container"
-
-        if install:
-            path = "/host" + install;
+        if ws or dashboard:
             subprocess.check_call(["docker", "run", "--name", "build-cockpit",
                                    "-d", "--privileged", "-v", "/:/host",
                                    "cockpit/ws", "sleep", "1d"])
-            subprocess.check_call(["docker", "exec", "build-cockpit",
-                                   "rpm", "-U", "--force", path])
+            if ws:
+                if self.verbose:
+                    print "updating cockpit-ws in container"
+                path = "/host" + ws;
+                subprocess.check_call(["docker", "exec", "build-cockpit",
+                                       "rpm", "-U", "--force", path])
+            if dashboard:
+                if self.verbose:
+                    print "updating cockpit-dashboard in container"
+                path = "/host" + dashboard;
+                subprocess.check_call(["docker", "exec", "build-cockpit",
+                                       "rpm", "-U", "--force", path])
             subprocess.check_call(["docker", "commit", "build-cockpit",
                                    "cockpit/ws"])
             subprocess.check_call(["docker", "kill", "build-cockpit"])

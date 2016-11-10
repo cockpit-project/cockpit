@@ -170,6 +170,7 @@ class TestMultiOS(MachineCase):
         self.allow_journal_messages("couldn't run usermod command: Child process exited with code 6")
         self.allow_journal_messages("usermod: user 'postfix' does not exist")
 
+    @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
     def testFedora22(self):
         try:
             self.checkStock()
@@ -183,6 +184,7 @@ class TestMultiOSDirect(MachineCase):
         'fedora-23-stock': { 'machine': { 'image': 'fedora-23-stock' } }
     }
 
+    @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
     def testFedora23Direct(self):
         b = self.browser
 

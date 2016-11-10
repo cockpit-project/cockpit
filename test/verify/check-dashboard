@@ -70,6 +70,7 @@ class DashBoardHelpers:
             b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
+@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
     additional_machines = {
         'machine2': { },
@@ -183,6 +184,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
+@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardSetup(MachineCase, DashBoardHelpers):
     additional_machines = {
         'machine2': { }
@@ -276,6 +278,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()
 
+@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
     def testEdit(self):
         b = self.browser

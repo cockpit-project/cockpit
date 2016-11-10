@@ -38,6 +38,7 @@ Package: cockpit
 Architecture: any
 Depends: ${misc:Depends},
          cockpit-bridge (= ${binary:Version}),
+         cockpit-dashboard (= ${binary:Version}),
          cockpit-ws (= ${binary:Version}),
          cockpit-system (= ${binary:Version}),
          xdg-utils
@@ -117,6 +118,16 @@ Provides: cockpit-realmd,
 Description: Cockpit admin interface for a system
  Cockpit admin interface package for configuring and
  troubleshooting a system.
+
+Package: cockpit-dashboard
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         cockpit-ws (= ${binary:Version})
+Provides: cockpit-ssh
+Description: Cockpit SSH remoting and dashboard
+  Cockpit support for remoting to other servers, bastion hosts, and
+  a basic dashboard.
 
 Package: cockpit-storaged
 Architecture: any

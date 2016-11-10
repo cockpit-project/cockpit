@@ -74,6 +74,7 @@ BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
+Requires: %{name}-dashboard = %{version}-%{release}
 Requires: %{name}-system = %{version}-%{release}
 
 # Optional components (for f24 we use soft deps)
@@ -152,8 +153,8 @@ echo '{ "linguas": null, "machine-limit": 5 }' > %{buildroot}%{_datadir}/%{name}
 echo '%dir %{_datadir}/%{name}/base1' > base.list
 find %{buildroot}%{_datadir}/%{name}/base1 -type f >> base.list
 
-echo '%dir %{_datadir}/%{name}/dashboard' >> system.list
-find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> system.list
+echo '%dir %{_datadir}/%{name}/dashboard' >> dashboard.list
+find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> dashboard.list
 
 echo '%dir %{_datadir}/%{name}/realmd' >> system.list
 find %{buildroot}%{_datadir}/%{name}/realmd -type f >> system.list
@@ -325,6 +326,23 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 # be out of sync with reality.
 /usr/share/pcp/lib/pmlogger condrestart
 
+%package dashboard
+Summary: Cockpit SSH remoting and dashboard
+Requires: libssh >= %{libssh_version}
+Requires: cockpit-ws = %{version}-%{release}
+Provides: cockpit-ssh = %{version}-%{release}
+
+%description dashboard
+Cockpit support for remoting to other servers, bastion hosts, and a basic dashboard
+
+%files dashboard -f dashboard.list
+%{_libexecdir}/cockpit-ssh
+
+%post dashboard
+# HACK: Until policy changes make it downstream
+# https://bugzilla.redhat.com/show_bug.cgi?id=1381331
+test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
+
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
 # Lock bridge dependency due to --with-storaged-iscsi-sessions
@@ -388,7 +406,6 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
-Requires: libssh >= %{libssh_version}
 Obsoletes: cockpit-selinux-policy <= 0.83
 Requires(post): systemd
 Requires(preun): systemd
@@ -411,7 +428,6 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-stub
-%{_libexecdir}/cockpit-ssh
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_localstatedir}/lib/%{name}
 %{_datadir}/%{name}/static
@@ -425,9 +441,6 @@ getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/no
 %systemd_post cockpit.socket
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
-# HACK: Until policy changes make it downstream
-# https://bugzilla.redhat.com/show_bug.cgi?id=1381331
-test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
 
 %preun ws
 %systemd_preun cockpit.socket

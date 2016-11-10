@@ -318,12 +318,10 @@ cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.
 %{_localstatedir}/lib/pcp/config/pmlogconf/tools/cockpit
 
 %post pcp
-# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
-( cd %{_localstatedir}/lib/pcp/pmns && ./Rebuild -du )
 # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185764
 # We can't use "systemctl reload-or-try-restart" since systemctl might
 # be out of sync with reality.
-/usr/share/pcp/lib/pmlogger reload
+/usr/share/pcp/lib/pmlogger condrestart
 
 %files ws -f %{name}.lang
 %doc %{_mandir}/man5/cockpit.conf.5.gz

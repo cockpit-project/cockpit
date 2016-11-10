@@ -408,6 +408,8 @@ on_login_complete (GObject *object,
   headers = cockpit_web_server_new_table ();
   response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, flags, headers, &error);
 
+  /* Never cache a login response */
+  cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
   if (error)
     {
       if (response_data)

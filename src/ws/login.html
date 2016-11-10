@@ -133,8 +133,19 @@
             /* Sets values for application, url_root and login_path */
             function setup_path_globals (path) {
                 var parser = document.createElement('a');
+                var base = document.baseURI;
+                var base_tags;
+                /* Some IEs don't support baseURI */
+                if (!base) {
+                    base_tags = document.getElementsByTagName ("base");
+                    if (base_tags.length > 0)
+                        base = base_tags[0].href;
+                    else
+                        base = "/";
+                }
+
                 path = path || "/";
-                parser.href = document.baseURI;
+                parser.href = base;
                 if (parser.pathname != "/") {
                     url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
                     window.localStorage.setItem('url-root', url_root);

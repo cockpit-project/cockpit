@@ -106,6 +106,7 @@ def change_ssh_port(machine, port=None, timeout_sec=120):
 
     raise error
 
+@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestMultiMachineAdd(MachineCase):
     additional_machines = {
         'machine2': { },
@@ -144,9 +145,11 @@ class TestMultiMachineAdd(MachineCase):
         b.go("/dashboard")
         b.enter_page("/dashboard")
         kill_user_admin(m2)
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
 
         kill_user_admin(m3)
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m3.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m3.address, 'src', '../shell/images/server-error.png')
 
         # Navigating reconnects
@@ -180,6 +183,7 @@ class TestMultiMachineAdd(MachineCase):
                                     ".*: bridge program failed: Child process exited with code .*")
 
 
+@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestMultiMachine(MachineCase):
     additional_machines = {
         'machine2': { }

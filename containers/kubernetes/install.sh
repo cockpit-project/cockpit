@@ -13,7 +13,7 @@ elif [ -z "$VERSION" ] && [ -z "$OFFLINE" ]; then
 fi
 
 # Install packages without dependencies
-/container/scripts/install-rpms.sh cockpit-ws
+/container/scripts/install-rpms.sh cockpit-ws cockpit-dashboard
 /container/scripts/install-rpms.sh --nodeps cockpit-bridge
 /container/scripts/install-rpms.sh -a noarch --nodeps cockpit-system
 /container/scripts/install-rpms.sh --nodeps cockpit-kubernetes

@@ -217,22 +217,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Change user
         authorize_user(m2, "user")
 
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
-        b.click('#dashboard-enable-edit')
-        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
-        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
-        b.wait_popup('host-edit-dialog')
-        b.wait_visible('#host-edit-user')
-        self.assertEqual(b.val("#host-edit-user"), "")
-        b.set_val('#host-edit-user', 'user')
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
-        b.wait_not_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m2.address))
-
-        b.click("#dashboard-hosts .list-group-item[data-address='{0}']".format(m2.address))
-        b.enter_page("/system", host="user@{0}".format(m2.address))
-
         self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
         # Might happen when killing the bridge.
@@ -246,6 +230,28 @@ class TestMultiMachineKeyAuth(MachineCase):
                                     "Error executing command as another user: Not authorized",
                                     "This incident has been reported.",
                                     "sudo: a password is required")
+
+        # No dashboard on Atomic Host
+        if m1.image in [ "continuous-atomic", "fedora-atomic", "rhel-atomic" ]:
+            return
+
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
+        b.click('#dashboard-enable-edit')
+        b.wait_present("#dashboard-hosts .list-group-item[data-address='{0}']".format(m2.address))
+        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
+        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
+        b.wait_popup('host-edit-dialog')
+        b.wait_visible('#host-edit-user')
+        self.assertEqual(b.val("#host-edit-user"), "")
+        b.set_val('#host-edit-user', 'user')
+        b.click('#host-edit-apply')
+        b.wait_popdown('host-edit-dialog')
+        b.wait_not_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m2.address))
+
+        b.click("#dashboard-hosts .list-group-item[data-address='{0}']".format(m2.address))
+        b.enter_page("/system", host="user@{0}".format(m2.address))
+
 
 if __name__ == '__main__':
     test_main()

@@ -76,6 +76,8 @@ EXTRA_DIST += \
 	doc/guide/version.in \
 	$(NULL)
 
+noinst_DATA += doc/guide/html/index.html
+
 CLEANFILES += \
 	doc/guide/html/* \
 	*.tmp \
@@ -84,7 +86,7 @@ CLEANFILES += \
 doc/guide/html/%.woff: dist/fonts/%.woff
 	$(V_COPY) $(MKDIR_P) doc/guide/html && cp -L $^ $@.tmp && $(MV) $@.tmp $@
 
-doc/guide/html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
+doc/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
 	$(AM_V_GEN) $(MKDIR_P) doc/guide/html/ && \
 		cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) doc/guide/html/ && \
 		LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \

@@ -297,8 +297,6 @@ include doc/Makefile-doc.am
 include doc/guide/Makefile-guide.am
 include doc/man/Makefile-man.am
 
-noinst_DATA += doc/guide/html
-
 dist-doc-hook:
 	@true
 

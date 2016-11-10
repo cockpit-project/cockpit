@@ -26,9 +26,17 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <link href="ocserv.css" type="text/css" rel="stylesheet">
     <script type="text/javascript" src="../base1/bundle.js"></script>
 </head>
-<body>
+<body hidden>
 
-    <div id="status-info" class="container-fluid">
+    <div class="curtain-ocserv blank-slate-pf" hidden>
+      <div class="blank-slate-pf-icon">
+        <div class="fa fa-exclamation-circle"></div>
+      </div>
+      <h1>Couldn't connect to OpenConnect Server</h1>
+      <p></p>
+    </div>
+
+    <div id="status-info" class="container-fluid page-ct">
         <div class="panel panel-default">
             <div class="panel-heading">
                <span id="head">Server status</span>
@@ -73,7 +81,8 @@ require([
         occtl_status_run();
 
         function occtl_users_run() {
-            var proc = cockpit.spawn(["/usr/bin/occtl", "-n", "-j", "show", "users"]);
+            var proc = cockpit.spawn(["/usr/bin/occtl", "-n", "-j", "show", "users"],
+                                     { err: "message", superuser: "try" });
             proc.done(occtl_users_success);
             proc.stream(occtl_users_output);
             proc.fail(occtl_users_fail);
@@ -115,10 +124,18 @@ require([
                 );
                 $("#users-table-tbody").append(row);
             });
+
+            $('.curtain-ocserv').hide();
+            $('body').show();
         }
 
-        function occtl_users_fail() {
-            console.warn("FAIL!");
+        function occtl_users_fail(ex) {
+            if (ex.problem == "not-found")
+                console.warn("occtl executable was not found");
+            else
+                console.warn(cockpit.message(ex));
+            $('.curtain-ocserv').show();
+            $('body').show();
         }
 
         function occtl_users_output(data) {
@@ -132,7 +149,8 @@ require([
 
             status_raw = "";
 
-            var proc = cockpit.spawn(["/usr/bin/occtl", "-n", "-j", "show", "status"]);
+            var proc = cockpit.spawn(["/usr/bin/occtl", "-n", "-j", "show", "status"],
+                                     { err: "message", superuser: "try" });
             proc.done(occtl_status_success);
             proc.stream(occtl_status_output);
             proc.fail(occtl_status_fail);
@@ -146,25 +164,29 @@ require([
                     console.warn(e, obj);
             }
 
-            $("#status_table").empty();
-
+            $("#status-table").empty();
             if (!obj) {
                 occtl_status_fail();
             } else {
-                $("#status_table").append('<tr><td>Status</td><td>' +
-                    obj.Status + '</td></tr>').toString();
-                $("#status_table").append('<tr><td>Uptime</td><td>' +
-                    obj["_Up since"] + '</td></tr>').toString();
-                $("#status_table").append('<tr><td>Connected users</td><td>' +
-                    obj["Clients"] + '</td></tr>').toString();
-                $("#status_table").append('<tr><td>IPs in ban list</td><td>' +
-                    obj["IPs in ban list"] + '</td></tr>').toString();
+                $("#status-table").append('<tr><td>Status</td><td>' +
+                    obj.Status + '</td></tr>');
+                $("#status-table").append('<tr><td>Uptime</td><td>' +
+                    obj["_Up since"] + '</td></tr>');
+                $("#status-table").append('<tr><td>Connected users</td><td>' +
+                    obj["Clients"] + '</td></tr>');
+                $("#status-table").append('<tr><td>IPs in ban list</td><td>' +
+                    obj["IPs in ban list"] + '</td></tr>');
             }
         }
 
-        function occtl_status_fail() {
-            $("#status_table").empty();
-            $("#status_table").append('<tr><td>Status</td><td>offline</td></tr>').toString();
+        function occtl_status_fail(ex) {
+            console.log("status fail", ex);
+            var message = ex ? cockpit.message(ex) : "offline";
+            $("#status-table")
+                .empty()
+                .append('<tr>')
+                    .append($('<td>Status</td>'),
+                            $('<td>').text(message));
         }
 
 });

@@ -74,7 +74,7 @@ def add_machine(b, address, known_host=False):
     b.enter_page("/system", host=address)
 
 def kill_user_admin(machine):
-    machine.execute("loginctl kill-user admin")
+    machine.execute("loginctl terminate-user admin")
 
 def change_ssh_port(machine, port=None, timeout_sec=120):
     try:

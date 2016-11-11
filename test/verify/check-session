@@ -58,7 +58,7 @@ class TestSession(MachineCase):
         wait_session(True)
 
         # Kill session from the outside
-        m.execute("loginctl kill-user admin")
+        m.execute("loginctl terminate-user admin")
         wait_session(False)
 
         b.relogin("/system", "admin")

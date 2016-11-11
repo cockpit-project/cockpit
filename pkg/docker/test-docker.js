@@ -21,6 +21,7 @@
     "use strict";
 
     var docker = require("./docker");
+    var util = require("./util");
     var QUnit = require("qunit-tests");
     var assert = QUnit;
 
@@ -146,6 +147,24 @@
             assert.deepEqual(docker.unquote_cmdline(checks[i][1]), checks[i][0],
                              "unquote(" + String(checks[i][1]) + ") = " + checks[i][0]);
 
+    });
+
+    QUnit.test("render_container_status", function() {
+        var checks = [
+            [ { Status: "blah", Running: true }, "blah" ],
+            [ { Running: true, Paused: false }, "running" ],
+            [ { Running: false, Paused: true }, "paused" ],
+            [ { Restarting: true }, "restarting" ],
+            [ { FinishedAt: "0001-01-01" }, "created" ],
+            [ { FinishedAt: "2016-11-11" }, "exited" ],
+            [ {  }, "exited" ],
+        ];
+
+        assert.expect(checks.length);
+        checks.forEach(function(check) {
+            assert.equal(util.render_container_status(check[0]), check[1],
+                    "render_container_status = " + check[1]);
+        });
     });
 
     QUnit.start();

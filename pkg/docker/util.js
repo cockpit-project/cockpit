@@ -64,6 +64,24 @@
             return container.Command;
     };
 
+    /*
+     * Recent versions of docker have a 'Status' field in the state,
+     * but earlier versions have distinct fields which we need to combine.
+     */
+    util.render_container_status = function render_container_status(state) {
+        if (state.Status)
+            return state.Status;
+        if (state.Running)
+            return "running";
+        if (state.Paused)
+            return "paused";
+        if (state.Restarting)
+            return "restarting";
+        if (state.FinishedAt && state.FinishedAt.indexOf("0001") === 0)
+            return "created";
+        return "exited";
+    };
+
     util.render_container_name = function render_container_name (name) {
         if (name.length > 0 && name[0] == "/")
             return name.slice(1);

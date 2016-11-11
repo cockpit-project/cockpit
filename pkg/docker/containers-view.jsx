@@ -214,7 +214,7 @@ var ContainerList = React.createClass({
                 util.render_container_cmdline(container),
                 util.format_cpu_usage(container.CpuUsage),
                 util.format_memory_and_limit(container.MemoryUsage, container.MemoryLimit),
-                container.State.Status
+                util.render_container_status(container.State)
             ];
 
             var startStopActions = [];

@@ -23,7 +23,8 @@
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
 
-#include "common/cockpitconnect.h"
+#include "cockpitconnect.h"
+
 #include "common/cockpittransport.h"
 
 G_BEGIN_DECLS

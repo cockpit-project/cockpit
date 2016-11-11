@@ -59,7 +59,8 @@ class TestStorage(StorageCase):
 
         if not self.storaged_is_old_udisks:
             self.wait_in_storaged_configuration(mount_point_secret)
-            assert m.execute("grep 'UUID=' /etc/crypttab") != ""
+            # HACK: Put /etc/crypttab in the journal, in order to debug updating issues
+            assert m.execute("cat /etc/crypttab | logger -s 2>&1 | grep 'UUID='") != ""
             assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
             assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
 

@@ -419,7 +419,8 @@ class TestNetworking(MachineCase):
 
         # Create a tun device and let NetworkManager manage it
         m.execute("ip tuntap add mode tun dev %s" % iface)
-        m.execute("nmcli --wait 0 dev con %s" % iface)
+        # HACK: https://bugzilla.gnome.org/show_bug.cgi?id=774266
+        wait(lambda: m.execute("nmcli --wait 0 dev con %s" % iface) == "")
 
         self.login_and_go("/network")
         self.wait_for_iface(iface)

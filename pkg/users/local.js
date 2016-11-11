@@ -988,7 +988,7 @@ PageAccount.prototype = {
     },
 
     logout_account: function() {
-        cockpit.spawn(["/usr/bin/loginctl", "kill-user", this.account["name"]],
+        cockpit.spawn(["/usr/bin/loginctl", "terminate-user", this.account["name"]],
                       { "superuser": "try", err: "message"})
            .done($.proxy (this, "get_logged"))
            .fail(show_unexpected_error);

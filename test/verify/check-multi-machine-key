@@ -31,7 +31,7 @@ import re
 def kill_user_admin(machine):
     # logind from systemd 208 is buggy, so we use systemd directly if it fails
     # https://bugs.freedesktop.org/show_bug.cgi?id=71092
-    machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
+    machine.execute("loginctl terminate-user admin || systemctl kill user-1000.slice")
 
 def authorize_user(m, user):
     m.execute("mkdir -p /home/{0}/.ssh".format(user))

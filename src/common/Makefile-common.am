@@ -33,8 +33,6 @@ EXTRA_DIST += \
 noinst_LIBRARIES += libcockpit-common.a
 
 libcockpit_common_a_SOURCES = \
-	src/common/cockpitconnect.c \
-	src/common/cockpitconnect.h \
 	src/common/cockpitenums.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
 	src/common/cockpithash.c \
@@ -55,8 +53,6 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitpipe.h \
 	src/common/cockpitpipetransport.c \
 	src/common/cockpitpipetransport.h \
-	src/common/cockpitstream.c \
-	src/common/cockpitstream.h \
 	src/common/cockpitsystem.c \
 	src/common/cockpitsystem.h \
 	src/common/cockpittemplate.c \
@@ -110,8 +106,6 @@ COCKPIT_CHECKS = \
 	test-json \
 	test-knownhosts \
 	test-pipe \
-	test-connect \
-	test-stream \
 	test-transport \
 	test-unixsignal \
 	test-template \
@@ -122,10 +116,6 @@ COCKPIT_CHECKS = \
 	test-version \
 	$(NULL)
 
-
-test_connect_CFLAGS = $(libcockpit_common_a_CFLAGS)
-test_connect_SOURCES = src/common/test-connect.c
-test_connect_LDADD = $(libcockpit_common_a_LIBS)
 
 test_hash_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_hash_SOURCES = src/common/test-hash.c
@@ -146,11 +136,6 @@ test_knownhosts_LDADD = $(libcockpit_common_a_LIBS)
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c
 test_pipe_LDADD = $(libcockpit_common_a_LIBS)
-
-test_stream_CFLAGS = $(libcockpit_common_a_CFLAGS)
-test_stream_SOURCES = src/common/test-stream.c \
-	src/common/mock-io-stream.c src/common/mock-io-stream.h
-test_stream_LDADD = $(libcockpit_common_a_LIBS)
 
 test_template_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_template_SOURCES = src/common/test-template.c

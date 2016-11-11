@@ -1181,8 +1181,8 @@ main (int argc,
 
   g_test_add_func ("/pipe/problem-later", test_problem_later);
 
-  g_test_add_func ("/test-stream/connect/not-found", test_fail_not_found);
-  g_test_add_func ("/test-stream/connect/access-denied", test_fail_access_denied);
+  g_test_add_func ("/pipe/connect/not-found", test_fail_not_found);
+  g_test_add_func ("/pipe/connect/access-denied", test_fail_access_denied);
 
   return g_test_run ();
 }

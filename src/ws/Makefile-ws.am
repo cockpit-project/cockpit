@@ -19,6 +19,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
 	src/ws/cockpitauthprocess.h \
 	src/ws/cockpitauthprocess.c \
+	src/ws/cockpitcertificate.c \
+	src/ws/cockpitcertificate.h \
 	src/ws/cockpitchannelresponse.h \
 	src/ws/cockpitchannelresponse.c \
 	src/ws/cockpitchannelsocket.h \
@@ -76,6 +78,8 @@ EXTRA_DIST += \
 
 # ----------------------------------------------------------------------------------------------------
 
+sbin_PROGRAMS += remotectl
+
 libexec_PROGRAMS += cockpit-ws cockpit-session cockpit-ssh
 
 cockpit_ssh_SOURCES = \
@@ -107,6 +111,23 @@ cockpit_ws_CFLAGS = 					\
 cockpit_ws_LDADD = 					\
 	$(libcockpit_ws_LIBS) \
 	$(COCKPIT_WS_LIBS)					\
+	$(NULL)
+
+remotectl_SOURCES = \
+	src/ws/cockpitcertificate.c \
+	src/ws/cockpitcertificate.h \
+	src/ws/remotectl-certificate.c \
+	src/ws/remotectl.c \
+	src/ws/remotectl.h \
+	$(NULL)
+
+remotectl_CFLAGS = \
+	$(COCKPIT_CFLAGS) \
+	$(NULL)
+
+remotectl_LDADD = \
+	libcockpit-common.a \
+	$(COCKPIT_LIBS) \
 	$(NULL)
 
 dist_systemdunit_DATA += src/ws/cockpit.socket

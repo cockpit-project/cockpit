@@ -20,9 +20,10 @@
 #include "config.h"
 
 #include "cockpitcertificate.h"
-#include "cockpitconf.h"
-#include "cockpitlog.h"
-#include "cockpitmemory.h"
+
+#include "common/cockpitconf.h"
+#include "common/cockpitlog.h"
+#include "common/cockpitmemory.h"
 
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>

@@ -195,8 +195,9 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(1, 2, "pool")
 
         self.content_row_action(1, "Create Thin Volume")
-        self.dialog({ "name": "thin",
-                      "size": 50 })
+        self.dialog(expect = { "name": "lvol0" },
+                    values = { "name": "thin",
+                               "size": 50 })
         self.content_row_wait_in_col(2, 2, "/dev/vgroup0/thin")
 
         # add a disk and resize the pool

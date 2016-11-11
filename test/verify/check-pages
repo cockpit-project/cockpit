@@ -132,7 +132,6 @@ WantedBy=default.target
         b.switch_to_top()
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
-        b.expect_load()
         b.wait_present("iframe.container-frame[name='%s'][data-ready]" % frame)
 
         b.enter_page("/playground/test")

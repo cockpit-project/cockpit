@@ -27,10 +27,11 @@
 #include <string.h>
 
 #include "cockpitws.h"
+
+#include "cockpitcertificate.h"
 #include "cockpithandlers.h"
 
 #include "common/cockpitassets.h"
-#include "common/cockpitcertificate.h"
 #include "common/cockpitconf.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"

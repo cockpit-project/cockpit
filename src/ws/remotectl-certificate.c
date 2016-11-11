@@ -21,7 +21,8 @@
 
 #include "remotectl.h"
 
-#include "common/cockpitcertificate.h"
+#include "cockpitcertificate.h"
+
 #include "common/cockpitconf.h"
 
 #include <glib.h>

@@ -188,8 +188,21 @@
             function boot() {
                 window.onload = null;
 
-                brand("badge", "");
-                brand("brand", "Cockpit");
+                setup_path_globals (window.location.pathname);
+
+                // Setup title
+                var title = environment.title;
+                if (!title)
+                    title = environment.hostname;
+                document.title = title;
+
+                if (application.indexOf("cockpit+=") === 0) {
+                    id("brand").style.display = "none";
+                    id("badge").style.display = "none";
+                } else {
+                    brand("badge", "");
+                    brand("brand", "Cockpit");
+                }
 
                 id("option-group").addEventListener("click", toggle_options);
                 id("server-clear").addEventListener("click", function () {
@@ -206,8 +219,6 @@
                 if (logout_intent)
                     sessionStorage.removeItem("logout-intent");
                 localStorage.setItem('os-release', os_release);
-
-                setup_path_globals (window.location.pathname);
 
                 /* Try automatic/kerberos authentication? */
                 if (oauth) {
@@ -407,12 +418,7 @@
 
             function show_login() {
                 /* Show the login screen */
-                var title = environment.title;
-                if (!title)
-                    title = environment.hostname;
-
-                document.title = title;
-                id("server-name").textContent = title;
+                id("server-name").textContent = document.title;
                 login_note("Log in with your server user account.");
                 id("login-user-input").addEventListener("keydown", function(e) {
                     login_failure(null);

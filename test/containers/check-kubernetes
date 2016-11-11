@@ -88,6 +88,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         self.wait_api_server(port=6443, scheme='https')
 
         b.reload()
+        b.wait_visible("#login")
         login("admin", "bad")
         b.wait_text_not("#login-error-message", "")
         b.wait_visible('#login-button')

@@ -35,7 +35,6 @@ class TestEmbed(MachineCase):
         b.wait_present("#embed-loaded")
         b.set_val("#embed-address", "http://" + m.address)
         b.click("#embed-full")
-        b.expect_load()
         b.wait_present("iframe[name='embed-full'][loaded]")
         b.switch_to_frame("embed-full")
         b.wait_visible("#login")

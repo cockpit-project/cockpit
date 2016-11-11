@@ -23,11 +23,12 @@ import traceback
 import testinfra
 
 class GithubPullTask(object):
-    def __init__(self, name, revision, ref, context):
+    def __init__(self, name, revision, ref, context, base=None):
         self.name = name
         self.revision = revision
         self.ref = ref
         self.context = context
+        self.base = base or "master"
 
         self.sink = None
         self.github_status_data = None
@@ -119,13 +120,13 @@ class GithubPullTask(object):
 
     def rebase(self, offline=False):
         try:
-            sys.stderr.write("Rebasing onto origin/master ...\n")
+            sys.stderr.write("Rebasing onto origin/" + self.base + " ...\n")
             if not offline:
-                subprocess.check_call([ "git", "fetch", "origin", "master" ])
+                subprocess.check_call([ "git", "fetch", "origin", self.base ])
             if self.sink:
-                master = subprocess.check_output([ "git", "rev-parse", "origin/master" ]).strip()
+                master = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ]).strip()
                 self.sink.status["master"] = master
-            subprocess.check_call([ "git", "rebase", "origin/master" ])
+            subprocess.check_call([ "git", "rebase", "origin/" + self.base ])
             return None
         except:
             subprocess.call([ "git", "rebase", "--abort" ])

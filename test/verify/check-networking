@@ -419,7 +419,7 @@ class TestNetworking(MachineCase):
 
         # Create a tun device and let NetworkManager manage it
         m.execute("ip tuntap add mode tun dev %s" % iface)
-        m.execute("nmcli --wait 0 dev con %s" % iface)
+        wait(lambda: m.execute("nmcli --wait 0 dev con %s" % iface) == "")
 
         self.login_and_go("/network")
         self.wait_for_iface(iface)

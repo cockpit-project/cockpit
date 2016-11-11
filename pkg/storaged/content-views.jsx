@@ -45,6 +45,26 @@ var UnrecognizedTab = require("./unrecognized-tab.jsx").UnrecognizedTab;
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
+function next_default_logical_volume_name(client, vgroup) {
+    function find_lvol(name) {
+        var lvols = client.vgroups_lvols[vgroup.path];
+        for (var i = 0; i < lvols.length; i++) {
+            if (lvols[i].Name == name)
+                return lvols[i];
+        }
+        return null;
+    }
+
+    var name;
+    for (var i = 0; i < 1000; i++) {
+        name = "lvol" + i.toFixed();
+        if (!find_lvol(name))
+            break;
+    }
+
+    return name;
+}
+
 function create_tabs(client, target, is_partition) {
     function endsWith(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
@@ -85,6 +105,7 @@ function create_tabs(client, target, is_partition) {
                       Fields: [
                           { TextInput: "name",
                             Title: _("Name"),
+                            Value: next_default_logical_volume_name(client, vgroup),
                             validate: utils.validate_lvm2_name
                           },
                           { SizeSlider: "size",
@@ -650,27 +671,11 @@ var VGroup = React.createClass({
             if (vgroup.FreeSize == 0)
                 return;
 
-            function find_lvol(name) {
-                var lvols = self.props.client.vgroups_lvols[vgroup.path];
-                for (var i = 0; i < lvols.length; i++) {
-                    if (lvols[i].Name == name)
-                        return lvols[i];
-                }
-                return null;
-            }
-
-            var name;
-            for (var i = 0; i < 1000; i++) {
-                name = "lvol" + i.toFixed();
-                if (!find_lvol(name))
-                    break;
-            }
-
             dialog.open({ Title: _("Create Logical Volume"),
                           Fields: [
                               { TextInput: "name",
                                 Title: _("Name"),
-                                Value: name,
+                                Value: next_default_logical_volume_name(self.props.client, vgroup),
                                 validate: utils.validate_lvm2_name
                               },
                               { SelectOne: "purpose",

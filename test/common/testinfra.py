@@ -575,6 +575,7 @@ class GitHub(object):
             revision = pull["head"]["sha"]
             statuses = self.statuses(revision)
             login = pull["head"]["user"]["login"]
+            base = pull["base"]["ref"]  # The branch this pull request targets
 
             for context in contexts.keys():
                 status = statuses.get(context, None)
@@ -595,8 +596,8 @@ class GitHub(object):
 
                 (priority, changes) = self.prioritize(status, labels, baseline, context)
                 if update_status(revision, context, status, changes):
-                    results.append(GitHub.TaskEntry(priority, GithubPullTask("pull-%d" % number, revision,
-                                                                             "pull/%d/head" % number, context)))
+                    pulltask = GithubPullTask("pull-%d" % number, revision, "pull/%d/head" % number, context, base)
+                    results.append(GitHub.TaskEntry(priority, pulltask))
 
         return results
 

@@ -386,7 +386,7 @@ class TestNetworking(MachineCase):
         # Make a VLAN interface
         b.click("button:contains('Add VLAN')")
         b.wait_popup("network-vlan-settings-dialog")
-        b.click("#network-vlan-settings-dialog tr:contains('Parent') a:contains(%s)" % iface, True)
+        b.click("#network-vlan-settings-dialog tr:contains('Parent') li[value='%s'] a" % iface, True)
         b.set_val("#network-vlan-settings-dialog tr:contains('Name') input", "tvlan")
         b.set_val("#network-vlan-settings-dialog tr:contains('VLAN Id') input", "123")
         b.click("#network-vlan-settings-dialog button:contains('Apply')")

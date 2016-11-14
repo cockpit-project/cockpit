@@ -581,6 +581,10 @@ class GitHub(object):
                 status = statuses.get(context, None)
                 baseline = BASELINE_PRIORITY
 
+                # modify the baseline slightly to favor older pull requests, so that we don't
+                # end up with a bunch of half tested pull requests
+                baseline += 1.0 - (min(100000, float(number)) / 100000)
+
                 # Only create new status for those requested
                 if not status:
                     if context not in pull_contexts:

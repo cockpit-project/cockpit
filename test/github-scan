@@ -38,7 +38,7 @@ def main():
     github = testinfra.GitHub()
 
     for entry in github.scan(not opts.dry, opts.context, opts.except_context):
-        sys.stdout.write("{0}: {1}\n".format(entry.priority, entry.task.description()))
+        sys.stdout.write("{0}: {1}\n".format(int(entry.priority), entry.task.description()))
 
     for image, wait_time in github.scan_image_wait_times().items():
         # Images with wait_time <= 0 are already included in the list

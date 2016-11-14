@@ -156,8 +156,10 @@ install-data-local:: $(WEBPACK_INSTALL)
 install-data-local:: $(WEBPACK_DEBUG)
 	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
-	rm -rf $(DESTDIR)$(pkgdatadir)
-	rm -rf $(DESTDIR)$(debugdir)$(pkgdatadir)
+	find $(DESTDIR)$(pkgdatadir) -type f -delete
+	find $(DESTDIR)$(pkgdatadir) -type d -empty -delete
+	find $(DESTDIR)$(debugdir)$(pkgdatadir) -type f -delete
+	find $(DESTDIR)$(debugdir)$(pkgdatadir) -type d -empty -delete
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
 	tar -cf - $^ | tar -C $(distdir) -xf -
 

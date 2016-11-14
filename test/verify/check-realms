@@ -25,11 +25,25 @@ import os
 import subprocess
 import unittest
 
+RESOLV_SCRIPT = """
+set -e
+# HACK: Racing with operating systems reading/updating resolv.conf and
+# the fact that resolv.conf can be a symbolic link. Avoid failures like:
+# chattr: Operation not supported while reading flags on /etc/resolv.conf
+for x in 1 2 3 4 5; do
+    hostnamectl set-hostname x0.cockpit.lan
+    printf 'domain cockpit.lan\nsearch cockpit.lan\nnameserver {address}\n' >/etc/resolv2.conf
+    mv /etc/resolv2.conf /etc/resolv.conf
+    if chattr +i /etc/resolv.conf; then
+        break
+    else
+        sleep $x
+    fi
+done
+"""
+
 def prepare_resolv(machine, address):
-    machine.execute("hostnamectl set-hostname x0.cockpit.lan")
-    # on Debian, /etc/resolv.conf can be a symbolic link
-    # so instead of overwriting, delete it and write a new one
-    machine.execute("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' >/etc/resolv2.conf; mv /etc/resolv2.conf /etc/resolv.conf; chattr +i /etc/resolv.conf" % address)
+    machine.execute(script=RESOLV_SCRIPT.format(address=address))
 
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestRealms(MachineCase):

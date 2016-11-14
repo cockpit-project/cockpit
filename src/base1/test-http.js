@@ -319,7 +319,7 @@ QUnit.asyncTest("address with params", function() {
     // use our window's host and port to request external
     assert.expect(2);
 
-    cockpit.http({ port: parseInt(window.location.port),
+    cockpit.http({ port: parseInt(window.location.port, 10),
                    address: window.location.hostname })
         .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
         .done(function(resp) {

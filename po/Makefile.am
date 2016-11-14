@@ -1,0 +1,125 @@
+
+GETTEXT_PACKAGE = cockpit
+
+# The concrete set of linguas we are using
+LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
+
+# The full list of various input and output file types
+PO_LINGUAS = $(addprefix po/,$(LINGUAS))
+PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
+MO_FILES = $(addsuffix .mo,$(PO_LINGUAS))
+PO_JAVASCRIPT = $(addprefix po/po.,$(addsuffix .js,$(LINGUAS)))
+
+podir = $(pkgdatadir)/shell
+nodist_po_DATA = po/po.js.gz $(addsuffix .gz,$(PO_JAVASCRIPT))
+
+# Used to list files in src/ws in the po file
+FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\.\)\?/src/ws/[^:]\+\).*|-N \1|p' $<
+
+# Include only the stuff in src/ws in the po file
+.po.mo:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+		$(MSGGREP) `$(FILTER_PO_SRC_WS)` $< > $@.tmp && \
+		$(MSGFMT) -o $@ $@.tmp && rm $@.tmp && touch $@
+
+# Include everything not in src/ws in the javascript file
+po/po.%.js: po/%.po
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(MSGGREP) --invert-match `$(FILTER_PO_SRC_WS)` $< > $@.tmp && \
+	$(srcdir)/tools/missing $(srcdir)/po/po2json --module $@.tmp $@
+
+# Always build the binary gettext data
+all-local:: $(MO_FILES) $(PO_JAVASCRIPT)
+
+# Called to install the binary gettext data
+install-data-local:: $(MO_FILES)
+	for lang in $(LINGUAS); do \
+		$(MKDIR_P) $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES; \
+		$(INSTALL_DATA) po/$$lang.mo $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(GETTEXT_PACKAGE).mo; \
+	done
+
+# Called to ininstall the binary gettext data
+uninstall-local::
+	for lang in $(LINGUAS); do rm -f $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(GETTEXT_PACKAGE).mo; done
+
+# A target that pre-extracts things ready for xgettext to work on
+# This currently just does what intltoolize used to do
+# TODO: Does not yet handle translations of attributes or angular-gettext
+prepare-po::
+	rm -rf ./tmp/pkg/
+	( cd $(srcdir) && find pkg/ -name '*.html' ) | while read name; do \
+		$(INTLTOOL_EXTRACT) -l --type=gettext/glade $(srcdir)/$$name && \
+		$(MKDIR_P) ./tmp/`dirname $$name` && mv ./tmp/`basename $$name`.h ./tmp/$$name.h; \
+	done
+
+# Lists of files we need to extract from
+po/POTFILES.c.in:
+	$(MKDIR_P) $(notdir $@)
+	( cd $(srcdir) && find src/ws/ src/bridge/ -name '*.c' ) > $@
+po/POTFILES.js.in:
+	$(MKDIR_P) $(notdir $@)
+	( cd $(srcdir) && find src/base1/ pkg/ -name '*.js' -o -name '*.jsx' -o -name '*.es6' ) > $@
+po/POTFILES.pre.in: prepare-po
+	$(MKDIR_P) $(notdir $@)
+	( cd tmp/ && find . -type f ) > $@
+.PHONY: po/POTFILES.c.in po/POTFILES.js.in po/POTFILES.pre.in
+
+# Extract from GLib based C code files
+po/cockpit.c.pot: po/POTFILES.c.in
+	$(XGETTEXT) --default-domain=cockpit --output=$@ --language=C \
+		--keyword=_ --keyword=N_ --keyword=C_:1c,2 --keyword=NC_:1c,2 --keyword=Q_ \
+		--keyword=g_dgettext:2 --keyword=g_dngettext:2,3 --keyword=g_dpgettext:2 \
+		--keyword=g_dpgettext2=2c,3 \
+		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^
+
+# Extract cockpit style javascript translations
+po/cockpit.js.pot: po/POTFILES.js.in
+	$(XGETTEXT) --default-domain=cockpit --output=$@ --language=C --keyword= \
+		--keyword=_:1,1t --keyword=_:1c,2,1t --keyword=C_:1c,2 \
+		--keyword=N_ --keyword=NC_:1c,2 \
+		--keyword=gettext:1,1t --keyword=gettext:1c,2,2t \
+		--keyword=ngettext:1,2,3t --keyword=ngettext:1c,2,3,4t \
+		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^
+
+# Extract pre-processed prepare-po data in tmp/
+po/cockpit.pre.pot: po/POTFILES.pre.in
+	$(XGETTEXT) --default-domain=cockpit --output=$@ \
+		--language=C --keyword=N_ \
+		--from-code=UTF-8 --directory=$(builddir)/tmp --files-from=$^
+
+# Combine the above pot files into one
+po/cockpit.pot: po/cockpit.c.pot po/cockpit.js.pot po/cockpit.pre.pot
+	$(MSGCAT) --output-file=$@ $^
+
+# Actually update the old translations with new translatable text
+update-po: po/cockpit.pot
+	for lang in $(LINGUAS); do \
+		$(MSGMERGE) --output-file=$(srcdir)/po/$$lang.po $(srcdir)/po/$$lang.po $<; \
+	done
+
+upload-pot:
+	zanata-cli push --project-config "$(srcdir)/po/zanata.xml" \
+		-s "$(builddir)/po" -t "$(srcdir)/po"
+
+download-po:
+	zanata-cli -B pull --project-config "$(srcdir)/po/zanata.xml" \
+		--min-doc-percent 30 -s "$(builddir)/po" -t "$(srcdir)/po"
+
+CLEANFILES += \
+	$(MO_FILES) \
+	$(POJS_FILES) \
+	$(nodist_po_DATA) \
+	$(PO_JAVASCRIPT) \
+	po/POTFILES.*.in \
+	po/cockpit*.pot \
+	po/po.js.gz \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(PO_INPUTS) \
+	$(PO_JAVASCRIPT) \
+	po/LINGUAS \
+	po/po.js \
+	po/po2json \
+	po/zanata.xml \
+	$(NULL)

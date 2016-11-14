@@ -49,8 +49,6 @@ rm -rf autom4te.cache
 
 autoreconf -f -i -I tools
 
-intltoolize --force --copy || exit $?
-
 set +x
 
 # NOCONFIGURE is used by gnome-common; support both

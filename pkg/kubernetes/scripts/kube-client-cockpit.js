@@ -510,10 +510,27 @@
                 }
 
                 function send(data) {
-                    if (base64)
+                    if (base64) {
+                        /*
+                         * HACK: container-terminal sends Width/Height commands but
+                         * many of the kubernetes implementations don't yet support
+                         * that. So filter them out here for now.
+                         */
+                        if (data[0] === "4")
+                            return;
                         data = window.atob(data.slice(1));
+                    }
+
                     if (channel)
                         channel.send(data);
+                }
+
+                var valid = true;
+                if (protocols) {
+                    if (angular.isArray(protocols))
+                        valid = base64 = protocols.indexOf("base64.channel.k8s.io") !== -1;
+                    else
+                        valid = base64 = protocols === "base64.channel.k8s.io";
                 }
 
                 /* A fake WebSocket */
@@ -527,14 +544,6 @@
                     close: { value: close },
                     send: { value: send },
                 });
-
-                var valid = true;
-                if (protocols) {
-                    if (angular.isArray(protocols))
-                        valid = base64 = protocols.indexOf("base64.channel.k8s.io") !== -1;
-                    else
-                        valid = base64 = "base64.channel.k8s.io";
-                }
 
                 if (valid) {
                     window.setTimeout(open);
@@ -553,6 +562,7 @@
         "$injector",
         function($q, $injector) {
             return function CockpitKubeSocket(url, config) {
+                var base64 = false;
                 var connect;
                 var state = 0; /* CONNECTING */
                 var ws = { };
@@ -587,6 +597,14 @@
                 }
 
                 function send(data) {
+                    /*
+                     * HACK: container-terminal sends Width/Height commands but
+                     * many of the kubernetes implementations don't yet support
+                     * that. So filter them out here for now.
+                     */
+                    if (base64 && data[0] === "4")
+                        return;
+
                     if (channel)
                         channel.send(data);
                 }
@@ -603,13 +621,15 @@
                     send: { value: send },
                 });
 
+                base64 = protocols.indexOf("base64.channel.k8s.io") !== -1;
+
                 $q.when(connect, function connected(options) {
                     cockpit.event_target(ws);
 
                     channel = cockpit.channel(angular.extend({ }, options, {
                         payload: "websocket-stream1",
                         path: url,
-                        protocols: protocols,
+                        protocols: protocols.length > 0 ? protocols : undefined,
                     }));
 
                     channel.addEventListener("close", function(ev, options) {

@@ -223,9 +223,9 @@
                 else if (f.SelectOne)
                     vals[n] = $f.val();
                 else if (f.SizeInput)
-                    vals[n] = parseInt($f.val())*1024*1024;
+                    vals[n] = parseInt($f.val(), 10)*1024*1024;
                 else if (f.SizeSlider)
-                    vals[n] = parseInt($f.val());
+                    vals[n] = parseInt($f.val(), 10);
                 else if (f.CheckBox)
                     vals[n] = $f.prop('checked');
                 else if (f.SelectMany) {

@@ -234,7 +234,8 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
       else if (g_str_equal (problem, "no-host") ||
                g_str_equal (problem, "no-cockpit") ||
                g_str_equal (problem, "unknown-hostkey") ||
-               g_str_equal (problem, "authentication-failed"))
+               g_str_equal (problem, "authentication-failed") ||
+               g_str_equal (problem, "disconnected"))
         {
           g_debug ("%s: remote server unavailable: %s", chesp->logname, problem);
           cockpit_web_response_error (chesp->response, 502, NULL, NULL);

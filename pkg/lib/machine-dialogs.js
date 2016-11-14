@@ -515,8 +515,10 @@
 
         self.load = function() {
             var machine = dialog.machines_ins.lookup(dialog.address);
-            if (!machine)
+            if (!machine) {
                 dialog.get_sel().modal('hide');
+                return;
+            }
 
             dialog.render({ 'port' : machine.port,
                             'allow_connection_string' : machines.allow_connection_string });

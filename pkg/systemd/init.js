@@ -644,7 +644,7 @@ $(function() {
                                            Unit: cur_unit,
                                            Since: since,
                                            HasLoadError: cur_unit.LoadState !== "loaded",
-                                           LoadError: cur_unit.LoadError[1],
+                                           LoadError: cur_unit.LoadError ? cur_unit.LoadError[1] : null,
                                            UnitFileState: cur_unit_file_state,
                                            TemplateDescription: template_description,
                                            UnitButton: unit_action_btn,

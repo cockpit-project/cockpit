@@ -116,7 +116,7 @@
                     if (!maxSize || isNaN(maxSize)) {
                         maxSize = 64;
                     } else {
-                        maxSize = parseInt(maxSize);
+                        maxSize = parseInt(maxSize, 10);
                         if (maxSize < 5)
                             maxSize = 5;
                         else if (maxSize > 64)

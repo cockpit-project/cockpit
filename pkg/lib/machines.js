@@ -383,7 +383,7 @@
             }
 
             if (port_spot > -1) {
-                var port = parseInt(conn_to.substring(port_spot+1));
+                var port = parseInt(conn_to.substring(port_spot+1), 10);
                 if (!isNaN(port)) {
                     parts.port = port;
                     conn_to = conn_to.substring(0, port_spot);

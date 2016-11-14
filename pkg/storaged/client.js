@@ -345,7 +345,7 @@
         function pull_time() {
             return cockpit.spawn(["date", "+%s"])
                 .then(function (now) {
-                    client.time_offset = parseInt(now)*1000 - new Date().getTime();
+                    client.time_offset = parseInt(now, 10) * 1000 - new Date().getTime();
                 });
         }
 

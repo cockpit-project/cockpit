@@ -50,7 +50,6 @@
         "unknown-hostkey": "unknown-hostkey",
         "invalid-hostkey": "invalid-hostkey",
         "not-found": "add-machine",
-        "no-host": "change-port",
         "sync-users": "sync-users"
     };
 
@@ -515,8 +514,10 @@
 
         self.load = function() {
             var machine = dialog.machines_ins.lookup(dialog.address);
-            if (!machine)
+            if (!machine) {
                 dialog.get_sel().modal('hide');
+                return;
+            }
 
             dialog.render({ 'port' : machine.port,
                             'allow_connection_string' : machines.allow_connection_string });
@@ -1003,6 +1004,9 @@
                 return;
 
             var template = codes[machine.problem];
+            if (machine.problem == "no-host")
+                template = "change-port";
+
             var dialog = new Dialog(selector, machine.address, machines_ins, codes);
             dialog.render_template(template);
             dialog.show();
@@ -1011,6 +1015,9 @@
         self.needs_troubleshoot = function (machine) {
             if (!machine || !machine.problem)
                 return false;
+
+            if (machine.problem == "no-host")
+                return true;
 
             return codes[machine.problem] ? true : false;
         };

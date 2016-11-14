@@ -24,7 +24,7 @@ export function spawnProcess({ cmd, args = [], stdin}) {
     const spawnArgs = [cmd, ...args];
     logDebug(`spawn process args: ${spawnArgs}`);
 
-    return spawn(cockpit.spawn(spawnArgs, {superuser: "try"})
+    return spawn(cockpit.spawn(spawnArgs, { superuser: "try", err: "message" })
         .input(stdin))
         .fail((ex, data) =>
             console.error(`spawn '${cmd}' process error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
@@ -34,7 +34,7 @@ export function spawnScript({ script }) {
     const spawnArgs = [script];
     logDebug(`spawn script args: ${spawnArgs}`);
 
-    return spawn(cockpit.script(spawnArgs))
+    return spawn(cockpit.script(spawnArgs, [], { err: "message" }))
         .fail((ex, data) =>
             console.error(`spawn '${script}' script error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
 }

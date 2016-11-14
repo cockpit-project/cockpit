@@ -165,8 +165,8 @@ function extract(text) {
                 });
     var entries = [];
     if (m = tap_range.exec(text)) {
-        first = parseInt(m[1]);
-        last = parseInt(m[2]);
+        first = parseInt(m[1], 10);
+        last = parseInt(m[2], 10);
         total = last-first+1;
 
         passed = 0;
@@ -240,15 +240,15 @@ function extract(text) {
             entries.push({ idx: entry.idx, entry: entry, html: Mustache.render(entry_template, entry) });
         });
         entries.sort(function(a, b) {
-            a = isNaN(parseInt(a.idx)) ? a.idx : parseInt(a.idx)
-            b = isNaN(parseInt(b.idx)) ? b.idx : parseInt(b.idx)
+            a = isNaN(parseInt(a.idx), 10) ? a.idx : parseInt(a.idx, 10);
+            b = isNaN(parseInt(b.idx), 10) ? b.idx : parseInt(b.idx, 10);
             return a < b ? -1 : (a > b ? 1 : 0);
         });
         altered_text = Mustache.render(tests_template, { tests: entries });
         // for the overview list, put the failed entries first
         entries.sort(function(a, b) {
-                var a_idx = isNaN(parseInt(a.idx)) ? a.idx : parseInt(a.idx)
-                var b_idx = isNaN(parseInt(b.idx)) ? b.idx : parseInt(b.idx)
+                var a_idx = isNaN(parseInt(a.idx, 10)) ? a.idx : parseInt(a.idx, 10);
+                var b_idx = isNaN(parseInt(b.idx, 10)) ? b.idx : parseInt(b.idx, 10);
                 if (a.entry.skipped == b.entry.skipped)
                     return a_idx < b_idx ? -1 : (a_idx > b_idx ? 1 : 0);
                 else if (!a.entry.skipped)

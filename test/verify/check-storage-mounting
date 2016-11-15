@@ -56,19 +56,6 @@ class TestStorage(StorageCase):
         b.click('#drives tr:contains("MYDISK")')
         b.wait_visible('#storage-detail')
 
-        # Check that all expected filesystems are supported
-
-        self.content_default_action(1, "Format")
-        self.dialog_wait_open()
-        b.wait_present("[value='xfs']")
-        b.wait_present("[value='ext4']")
-        b.wait_present("[value='luks+xfs']")
-        b.wait_present("[value='luks+ext4']")
-        b.wait_present("[value='vfat']")
-        b.wait_present("[value='ntfs']")
-        self.dialog_cancel()
-        self.dialog_wait_close()
-
         # Format it
 
         self.content_default_action(1, "Format")

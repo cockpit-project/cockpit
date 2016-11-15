@@ -43,7 +43,7 @@
     var onDialogStandardClicked = function(mode) {
         lastAction = mode;
         var dfd = cockpit.defer();
-        dfd.notify(_("Starting something long"));
+        dfd.notify("Starting something long");
         if (mode == 'steps') {
             var interval, count = 0;
             interval = window.setInterval(function() {
@@ -58,11 +58,11 @@
                 window.clearTimeout(interval);
                 dfd.notify("Canceling");
                 window.setTimeout(function() {
-                    dfd.reject(_("Action canceled"));
+                    dfd.reject("Action canceled");
                 }, 1000);
             };
         } else if (mode == 'reject') {
-            dfd.reject(_("Some error occurred"));
+            dfd.reject("Some error occurred");
         } else {
             dfd.resolve();
         }
@@ -77,22 +77,22 @@
 
     var onStandardDemoClicked = function(staticError) {
         var dialogProps = {
-            'title': _("This shouldn't be seen"),
+            'title': "This shouldn't be seen",
             'body': React.createElement(demoDialog, { 'clickNested': onStandardDemoClicked }),
         };
         // also test modifying properties in subsequent render calls
         var footerProps = {
             'actions': [
                   { 'clicked': onDialogStandardClicked.bind(null, 'standard action'),
-                    'caption': _("OK"),
+                    'caption': "OK",
                     'style': 'primary',
                   },
                   { 'clicked': onDialogStandardClicked.bind(null, 'dangerous action'),
-                    'caption': _("Danger"),
+                    'caption': "Danger",
                     'style': 'danger',
                   },
                   { 'clicked': onDialogStandardClicked.bind(null, 'steps'),
-                    'caption': _("Wait"),
+                    'caption': "Wait",
                     'style': 'primary',
                   },
               ],
@@ -105,11 +105,11 @@
             return;
         footerProps.actions.push(
                   { 'clicked': onDialogStandardClicked.bind(null, 'reject'),
-                    'caption': _("Error"),
+                    'caption': "Error",
                     'style': 'primary',
                   });
         dialogObj.setFooterProps(footerProps);
-        dialogProps.title = _("Example React Dialog");
+        dialogProps.title = "Example React Dialog";
         dialogObj.setProps(dialogProps);
     };
 

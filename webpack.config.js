@@ -288,6 +288,7 @@ var output = {
 /* Only minimize when in production mode */
 if (production) {
     plugins.unshift(new webpack.optimize.UglifyJsPlugin({
+        beautify: true,
         compress: {
             warnings: false
         },
@@ -367,7 +368,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: extract.extract("style-loader", "css-loader?root=" + libdir)
+                loader: extract.extract("style-loader", "css-loader?minimize=&root=" + libdir)
             },
             {
                 test: /\.jsx$/,
@@ -379,7 +380,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                loader: extract.extract('css?sourceMap!' + 'less?sourceMap')
+                loader: extract.extract('css?sourceMap&minimize=!' + 'less?sourceMap&compress=false')
             },
             {
                 test: /views\/[^\/]+\.html$/,

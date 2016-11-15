@@ -158,9 +158,24 @@ $(function() {
 
         // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
 
-        var left = [ "happy", "jolly", "dreamy", "sad", "angry", "pensive", "focused", "sleepy", "grave", "distracted", "determined", "stoic", "stupefied", "sharp", "agitated", "cocky", "tender", "goofy", "furious", "desperate", "hopeful", "compassionate", "silly", "lonely", "condescending", "naughty", "kickass", "drunk", "boring", "nostalgic", "ecstatic", "insane", "cranky", "mad", "jovial", "sick", "hungry", "thirsty", "elegant", "backstabbing", "clever", "trusting", "loving", "suspicious", "berserk", "high", "romantic", "prickly", "evil" ];
+        var left = [
+            "happy", "jolly", "dreamy", "sad", "angry", "pensive", "focused", "sleepy",
+            "grave", "distracted", "determined", "stoic", "stupefied", "sharp", "agitated",
+            "cocky", "tender", "goofy", "furious", "desperate", "hopeful", "compassionate",
+            "silly", "lonely", "condescending", "naughty", "kickass", "drunk", "boring",
+            "nostalgic", "ecstatic", "insane", "cranky", "mad", "jovial", "sick", "hungry",
+            "thirsty", "elegant", "backstabbing", "clever", "trusting", "loving", "suspicious",
+            "berserk", "high", "romantic", "prickly", "evil"
+        ];
 
-        var right = [ "lovelace", "franklin", "tesla", "einstein", "bohr", "davinci", "pasteur", "nobel", "curie", "darwin", "turing", "ritchie", "torvalds", "pike", "thompson", "wozniak", "galileo", "euclid", "newton", "fermat", "archimedes", "poincare", "heisenberg", "feynman", "hawking", "fermi", "pare", "mccarthy", "engelbart", "babbage", "albattani", "ptolemy", "bell", "wright", "lumiere", "morse", "mclean", "brown", "bardeen", "brattain", "shockley" ];
+        var right = [
+            "lovelace", "franklin", "tesla", "einstein", "bohr", "davinci", "pasteur", "nobel",
+            "curie", "darwin", "turing", "ritchie", "torvalds", "pike", "thompson", "wozniak",
+            "galileo", "euclid", "newton", "fermat", "archimedes", "poincare", "heisenberg",
+            "feynman", "hawking", "fermi", "pare", "mccarthy", "engelbart", "babbage",
+            "albattani", "ptolemy", "bell", "wright", "lumiere", "morse", "mclean", "brown",
+            "bardeen", "brattain", "shockley"
+        ];
 
         function make_name() {
             function ranchoice(array) {

@@ -1,4 +1,3 @@
-/* global cockpit */
 (function (root, data) {
     if (typeof define === 'function' && define.amd) {
         define(data);

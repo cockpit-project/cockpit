@@ -28,7 +28,9 @@
 #define VARCHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._"
 
 static gchar *
-find_variable (const gchar *data,
+find_variable (const gchar *start_marker,
+               const gchar *end_marker,
+               const gchar *data,
                const gchar *end,
                const gchar **before,
                const gchar **after)
@@ -40,22 +42,20 @@ find_variable (const gchar *data,
 
   for (;;)
     {
-      /* Look for @@xxxx@@ */
-      a = memchr (data, '@', end - data);
+      /* Look for start_marker to end_marker */
+      a = memmem (data, strlen(data), start_marker, strlen (start_marker));
       if (a == NULL)
         return NULL;
-      data = a + 1;
-      if (data[0] != '@')
-        continue;
-      data++;
+
+      data = a + strlen (start_marker);
       b = data;
-      c = memchr (data, '@', end - data);
+
+      c = memmem (data, strlen(data), end_marker, strlen (end_marker));
       if (c == NULL)
         return NULL;
-      data = c + 1;
-      if (data[0] != '@')
-        continue;
-      d = data + 1;
+
+      data = c + strlen (end_marker);
+      d = data;
 
       /*
        * We've found a variable like this:
@@ -65,7 +65,6 @@ find_variable (const gchar *data,
        *
        * Check that the name makes sense.
        */
-
       if (b != c && b + strspn (b, VARCHARS) == c)
         break;
     }
@@ -80,6 +79,8 @@ find_variable (const gchar *data,
 GList *
 cockpit_template_expand (GBytes *input,
                          CockpitTemplateFunc func,
+                         const gchar *start_marker,
+                         const gchar *end_marker,
                          gpointer user_data)
 {
   GList *output = NULL;
@@ -97,7 +98,7 @@ cockpit_template_expand (GBytes *input,
 
   for (;;)
     {
-      name = find_variable (data, end, &before, &after);
+      name = find_variable (start_marker, end_marker, data, end, &before, &after);
       if (name == NULL)
         break;
 

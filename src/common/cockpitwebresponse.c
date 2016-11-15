@@ -986,6 +986,17 @@ substitute_message (const gchar *variable,
   return NULL;
 }
 
+static GBytes *
+substitute_hash_value (const gchar *variable,
+                       gpointer user_data)
+{
+  GHashTable *data = user_data;
+  gchar *value = g_hash_table_lookup (data, variable);
+  if (value)
+    return g_bytes_new (value, strlen (value));
+  return g_bytes_new ("", 0);
+}
+
 /**
  * cockpit_web_response_error:
  * @self: the response
@@ -1076,7 +1087,8 @@ cockpit_web_response_error (CockpitWebResponse *self,
 
   if (!input)
     input = g_bytes_new_static (default_failure_template, strlen (default_failure_template));
-  output = cockpit_template_expand (input, substitute_message, (gpointer)message);
+  output = cockpit_template_expand (input, substitute_message,
+                                    "@@", "@@", (gpointer)message);
   g_bytes_unref (input);
 
   /* If sending arbitrary messages, make sure they're escaped */
@@ -1165,18 +1177,12 @@ path_has_prefix (const gchar *path,
   return FALSE;
 }
 
-/**
- * cockpit_web_response_file:
- * @response: the response
- * @path: escaped path, or NULL to get from response
- * @roots: directories to look for file in
- *
- * Serve a file from disk as an HTTP response.
- */
-void
-cockpit_web_response_file (CockpitWebResponse *response,
-                           const gchar *escaped,
-                           const gchar **roots)
+static void
+web_response_file (CockpitWebResponse *response,
+                   const gchar *escaped,
+                   const gchar **roots,
+                   CockpitTemplateFunc template_func,
+                   gpointer user_data)
 {
   const gchar *csp_header;
   GError *error = NULL;
@@ -1185,6 +1191,9 @@ cockpit_web_response_file (CockpitWebResponse *response,
   GMappedFile *file = NULL;
   const gchar *root;
   GBytes *body;
+  GList *output = NULL;
+  GList *l = NULL;
+  gint content_length = -1;
 
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
 
@@ -1248,26 +1257,38 @@ again:
     }
 
   body = g_mapped_file_get_bytes (file);
+  if (template_func)
+    {
+      output = cockpit_template_expand (body, template_func, "${", "}", user_data);
+    }
+  else
+    {
+      output = g_list_prepend (output, g_bytes_ref (body));
+      content_length = g_bytes_get_size (body);
+    }
+  g_bytes_unref (body);
 
   /*
    * The default Content-Security-Policy for .html files allows
    * the site to have inline <script> and <style> tags. This code
-   * is not used when serving resources once logged in, only for
-   * static resources when we don't yet have a session.
+   * is only used for static resources that do not use the session.
    */
 
   csp_header = NULL;
   if (g_str_has_suffix (unescaped, ".html"))
     csp_header = "Content-Security-Policy";
 
-  cockpit_web_response_headers (response, 200, "OK", g_bytes_get_size (body),
+  cockpit_web_response_headers (response, 200, "OK", content_length,
                                 csp_header, "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
                                 NULL);
 
-  if (cockpit_web_response_queue (response, body))
+  for (l = output; l != NULL; l = g_list_next (l))
+    {
+      if (!cockpit_web_response_queue (response, l->data))
+        break;
+    }
+  if (l == NULL)
     cockpit_web_response_complete (response);
-
-  g_bytes_unref (body);
 
 out:
   g_free (unescaped);
@@ -1275,6 +1296,34 @@ out:
   g_free (path);
   if (file)
     g_mapped_file_unref (file);
+
+  if (output)
+    g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
+}
+
+/**
+ * cockpit_web_response_file:
+ * @response: the response
+ * @path: escaped path, or NULL to get from response
+ * @roots: directories to look for file in
+ *
+ * Serve a file from disk as an HTTP response.
+ */
+void
+cockpit_web_response_file (CockpitWebResponse *response,
+                           const gchar *escaped,
+                           const gchar **roots)
+{
+  web_response_file (response, escaped, roots, NULL, NULL);
+}
+
+void
+cockpit_web_response_template (CockpitWebResponse *response,
+                                   const gchar *escaped,
+                                   const gchar **roots,
+                                   GHashTable *values)
+{
+  web_response_file (response, escaped, roots, substitute_hash_value, values);
 }
 
 static gboolean

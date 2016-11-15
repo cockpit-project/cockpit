@@ -340,6 +340,27 @@ test_content_type (TestCase *tc,
   g_hash_table_unref (headers);
 }
 
+static const TestFixture template_fixture = {
+  .path = "/test.css"
+};
+
+static void
+test_template (TestCase *tc,
+               gconstpointer user_data)
+{
+  const gchar *roots[] = { SRCDIR "/src/common/mock-content/", NULL };
+  const gchar *resp;
+  GHashTable *data = g_hash_table_new (g_str_hash, g_str_equal);
+
+  g_hash_table_insert (data, "NAME", "test");
+  g_hash_table_insert (data, "VARIANT", "VALUE");
+  cockpit_web_response_template (tc->response, NULL, roots, data);
+
+  resp = output_as_string (tc);
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nTransfer-Encoding: chunked\r\n\r\n17\r\n#brand {\n    content: \"\r\n4\r\ntest\r\n4\r\n <b>\r\n5\r\nVALUE\r\n9\r\n</b>\";\n}\n\r\n0\r\n\r\n");
+  g_hash_table_unref (data);
+}
+
 static const TestFixture cache_forever_fixture = {
   .path = "/pkg/shell/index.html",
   .cache = COCKPIT_WEB_RESPONSE_CACHE_FOREVER,
@@ -1293,6 +1314,8 @@ main (int argc,
               setup, test_file_breakout_denied, teardown);
   g_test_add ("/web-response/file/breakout-non-existant", TestCase, NULL,
               setup, test_file_breakout_non_existant, teardown);
+  g_test_add ("/web-reponse/file/template", TestCase, &template_fixture,
+              setup, test_template, teardown);
   g_test_add ("/web-response/content-type", TestCase, &content_type_fixture,
               setup, test_content_type, teardown);
   g_test_add ("/web-response/content-encoding", TestCase, NULL,

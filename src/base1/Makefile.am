@@ -29,16 +29,16 @@ UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
 
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle --comments 'preserve' \
+	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle --comments 'preserve' --beautify \
 		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
 	$(MV) $@.tmp $@
 
 dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --skip-import --source-map --source-map-inline-sources $^
+	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --skip-import --source-map --source-map-inline-sources $^
 dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --output=$@ --source-map --source-map-inline-sources $^
+	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --source-map --source-map-inline-sources $^
 dist/base1/require.js: src/base1/deprecated.js src/base1/require-config.js src/base1/require-loaders.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/src/base1/require-config.js $(BOWER)/requirejs/require.js $(srcdir)/src/base1/require-loaders.js > $@.tmp && $(MV) $@.tmp $@

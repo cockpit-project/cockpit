@@ -23,7 +23,6 @@ $(function() {
 
     var cockpit = require("cockpit");
 
-    var Mustache = require("mustache");
     var journal = require("journal");
 
     cockpit.translate();

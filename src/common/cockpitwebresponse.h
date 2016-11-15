@@ -136,6 +136,10 @@ void         cockpit_web_response_set_cache_type         (CockpitWebResponse *se
 
 const gchar *  cockpit_web_response_get_url_root         (CockpitWebResponse *response);
 
+void           cockpit_web_response_template             (CockpitWebResponse *response,
+                                                          const gchar *escaped,
+                                                          const gchar **roots,
+                                                          GHashTable *values);
 
 G_END_DECLS
 

@@ -60,18 +60,27 @@ lookup_table (const char *name,
 }
 
 typedef struct {
+  const char *start;
+  const char *end;
   const char *name;
   const char *input;
   const char *output[8];
 } Fixture;
 
 static const Fixture expand_fixtures[] = {
-  { "simple", "Test @@oh@@ suffix", { "Test ", "marmalade", " suffix", NULL } },
-  { "extra-at", "Te@st @@oh@@ suffix", { "Te@st ", "marmalade", " suffix", NULL } },
-  { "no-ending", "Test @@oh@@ su@@ffix", { "Test ", "marmalade", " su@@ffix", NULL } },
-  { "extra-at-after", "Test @@oh@@ su@@ff@ix", { "Test ", "marmalade", " su@@ff@ix", NULL } },
-  { "unknown", "Test @@unknown@@ suffix", { "Test ", "@@unknown@@", " suffix", NULL } },
-  { "lots", "Oh @@oh@@ says Scruffy @@empty@@ the @@Scruffy@@",
+  { "@@", "@@", "simple", "Test @@oh@@ suffix", { "Test ", "marmalade", " suffix", NULL } },
+  { "@@", "@@", "extra-at", "Te@st @@oh@@ suffix", { "Te@st ", "marmalade", " suffix", NULL } },
+  { "@@", "@@", "no-ending", "Test @@oh@@ su@@ffix", { "Test ", "marmalade", " su@@ffix", NULL } },
+  { "@@", "@@", "extra-at-after", "Test @@oh@@ su@@ff@ix", { "Test ", "marmalade", " su@@ff@ix", NULL } },
+  { "@@", "@@", "unknown", "Test @@unknown@@ suffix", { "Test ", "@@unknown@@", " suffix", NULL } },
+  { "@@", "@@", "lots", "Oh @@oh@@ says Scruffy @@empty@@ the @@Scruffy@@",
+      { "Oh ", "marmalade", " says Scruffy ", " the ", "janitor", NULL }
+  },
+  { "${", "}", "brackets-simple", "Test ${oh} suffix", { "Test ", "marmalade", " suffix", NULL } },
+  { "${", "}", "brackets-not-full", "Te$st ${oh} suffix", { "Te$st ", "marmalade", " suffix", NULL } },
+  { "${", "}", "brackets-no-ending", "Test ${oh} su${ffix", { "Test ", "marmalade", " su${ffix", NULL } },
+  { "${", "}", "brackets-unknown", "Test ${unknown} suffix", { "Test ", "${unknown}", " suffix", NULL } },
+  { "${", "}", "brackets-lots", "Oh ${oh} says Scruffy ${empty} the ${Scruffy}",
       { "Oh ", "marmalade", " says Scruffy ", " the ", "janitor", NULL }
   },
 };
@@ -88,7 +97,7 @@ test_expand (TestCase *tc,
 
   input = g_bytes_new_static (fixture->input, strlen (fixture->input));
 
-  output = cockpit_template_expand (input, lookup_table, tc->variables);
+  output = cockpit_template_expand (input, lookup_table, fixture->start, fixture->end, tc->variables);
   g_bytes_unref (input);
 
   for (i = 0, l = output; fixture->output[i] != NULL; i++, l = g_list_next (l))

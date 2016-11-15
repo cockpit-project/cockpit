@@ -107,6 +107,9 @@ main (int argc, char *argv[])
   /* Cleanup the umask */
   umask (077);
 
+  /* Line buffering for stderr */
+  setvbuf(stderr, NULL, _IOLBF, 0);
+
   /* check that we are setuid root */
   if (geteuid () != 0)
     errx (2, "needs to be setuid root");

@@ -8,6 +8,8 @@ var pig_latin = {
         var nplurals, plural; nplurals=2; plural=(n != 1); return plural;
     } },
     "Control": [ null, "Ontrolcay" ],
+    "User": [ null, "Useray" ],
+    "Waiting": [ null, "Aitingway" ],
     "$0 disk is missing": [
         "$0 disk is missing",
         "$0 isksbay is issingmay",
@@ -85,4 +87,68 @@ QUnit.test("ngettext complex", function() {
     assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 2), "$0 bytes", "default multiple");
 });
 
-QUnit.start();
+QUnit.test("translate document", function() {
+    cockpit.locale(null);
+    cockpit.locale(pig_latin);
+
+    $("#translations")
+        .empty()
+        .append("<span translatable='yes' id='translatable-html'>Control</span>");
+
+    cockpit.translate();
+    assert.equal($("#translatable-html").text(), "Ontrolcay", "translatable element");
+    assert.strictEqual($("#translatable-html").attr("translatable"), undefined, "translatable element attribute removed");
+});
+
+QUnit.test("translate elements", function() {
+    cockpit.locale(null);
+    cockpit.locale(pig_latin);
+
+    var div1 = $("<div><span translatable='yes' id='translatable-html'>Control</span>" +
+                 "<span translatable='yes' context='key' id='translatable-context-html'>Control</span></div>");
+
+    var div2 = $("<div translatable='yes'>User</div>");
+
+    var div3 = $("<div><span><i translatable='yes'>Waiting</i></span></div>");
+
+    $("#translations")
+        .empty()
+        .append(div1, div2, div3);
+
+    cockpit.translate(div1[0], div2[0], div3[0]);
+    assert.equal($("#translatable-html").text(), "Ontrolcay", "translatable element");
+    assert.strictEqual($("#translatable-html").attr("translatable"), undefined, "translatable element removed");
+    assert.equal($("#translatable-context-html").text(), "OntrolCAY", "translatable context");
+    assert.strictEqual($("#translatable-context-html").attr("translatable"), undefined, "translatable context attribute removed");
+});
+
+QUnit.test("translate array", function() {
+    cockpit.locale(null);
+    cockpit.locale(pig_latin);
+
+    var div1 = $("<div><span translatable='yes' id='translatable-html'>Control</span>" +
+                 "<span translatable='yes' context='key' id='translatable-context-html'>Control</span></div>");
+
+    var div2 = $("<div translatable='yes'>User</div>");
+
+    var div3 = $("<div><span><i translatable='yes'>Waiting</i></span></div>");
+
+    $("#translations")
+        .empty()
+        .append(div1, div2, div3);
+
+    cockpit.translate($("#translations div"));
+    assert.equal($("#translatable-html").text(), "Ontrolcay", "translatable element");
+    assert.strictEqual($("#translatable-html").attr("translatable"), undefined, "translatable element no attribute");
+    assert.equal($("#translatable-context-html").text(), "OntrolCAY", "translatable context");
+    assert.strictEqual($("#translatable-context-html").attr("translatable"), undefined, "translatable context attribute removed");
+});
+
+$(function() {
+
+    /* Area for translate tests to play in */
+    $("body").append("<div id='translations' hidden>");
+
+    /* Ready to go */
+    QUnit.start();
+});

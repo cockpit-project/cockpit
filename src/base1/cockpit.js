@@ -3573,15 +3573,33 @@ function basic_scope(cockpit, jquery) {
         cockpit.language = lang;
     };
 
-    cockpit.translate = function translate(el) {
-        var list = (el || document).querySelectorAll("[translatable=\"yes\"]");
-        var e, translated, i, len;
-        if (list) {
-            for (i = 0, len = list.length; i < len; i++) {
-                e = list[i];
-                translated = cockpit.gettext(e.getAttribute("context"), e.textContent);
-                e.removeAttribute("translatable");
-                e.textContent = translated;
+    cockpit.translate = function translate(/* ... */) {
+	var list, el, translated, i, ilen, w, wlen, what;
+
+        /* Called without arguments, entire document */
+	if (arguments.length === 0)
+            what = [ document ];
+
+        /* Called with a single array like argument */
+        else if (arguments.length === 1 && arguments[0].length)
+            what = arguments[0];
+
+        /* Called with 1 or more element arguments */
+        else
+            what = arguments;
+
+        /* Translate all the things */
+	for (w = 0, wlen = what.length; w < wlen; w++) {
+            list = null;
+            if (what[w].querySelectorAll)
+                list = what[w].querySelectorAll("[translatable=\"yes\"]");
+            if (list) {
+                for (i = 0, ilen = list.length; i < ilen; i++) {
+                    el = list[i];
+                    translated = cockpit.gettext(el.getAttribute("context"), el.textContent);
+                    el.removeAttribute("translatable");
+                    el.textContent = translated;
+                }
             }
         }
     };

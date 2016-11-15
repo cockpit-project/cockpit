@@ -76,6 +76,9 @@ QUnit.asyncTest("http", function() {
                     },
                     'react-patterns': {
                         label: "React Patterns"
+                    },
+                    'translate': {
+                        label: "Translating"
                     }
                 }
             }, "returned right data");

@@ -38,6 +38,7 @@ WantedBy=default.target
 """)
 
         self.allow_restart_journal_messages()
+        self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
         # login so that we have a cookie.
         self.login_and_go("/system/services#/test.service")
@@ -102,21 +103,48 @@ WantedBy=default.target
 
         # Lets try changing the language
         # Translations are not ready for RHEL yet
-        if "rhel" not in m.image:
-            b.switch_to_top()
-            b.click("#content-user-name")
-            b.click(".display-language-menu a")
-            b.wait_popup('display-language')
-            b.set_val("#display-language select", "de")
-            b.click("#display-language-select-button")
-            b.expect_load()
-            b.wait_present("#content")
-            b.go("/system")
-            b.enter_page("/system")
-            b.wait_present("#server")
-            b.wait_in_text("#server", "Neustarten")
+        if "rhel" in m.image:
+            return
 
-        self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
+        b.switch_to_top()
+        b.click("#content-user-name")
+        b.click(".display-language-menu a")
+        b.wait_popup('display-language')
+        b.set_val("#display-language select", "de")
+        b.click("#display-language-select-button")
+        b.expect_load()
+        b.wait_present("#content")
+
+        # Check that the system page is translated
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_present("#server")
+        b.wait_in_text("#server", "Neustarten")
+
+        # Check the playground page
+        b.switch_to_top()
+        b.go("/playground/translate")
+        b.enter_page("/playground/translate")
+        self.assertEqual(b.text("#translatable-html"), "Abbrechen")
+        self.assertEqual(b.text("#translatable-mustache"), "Benutzer")
+        self.assertEqual(b.text("#underscore-empty"), "Leer")
+        self.assertEqual(b.text("#underscore-context-empty"), "Leeren")
+        self.assertEqual(b.text("#cunderscore-context-empty"), "Leeren")
+        self.assertEqual(b.text("#gettext-control"), "Steuerung")
+        self.assertEqual(b.text("#gettext-context-control"), "Strg")
+        self.assertEqual(b.text("#ngettext-disks-1"), "$0 Festplatte fehlt")
+        self.assertEqual(b.text("#ngettext-disks-2"), "$0 Festplatten fehlen")
+        self.assertEqual(b.text("#ngettext-context-disks-1"), u"$0 Datenträger fehlt")
+        self.assertEqual(b.text("#ngettext-context-disks-2"), u"$0 Datenträger fehlen")
+
+        # TODO: Not yet translated
+        # translate-html
+        # translate-html-yes
+        # translate-html-title
+        # translate-mustache
+        # translate-mustache-yes
+        # translate-mustache-title
+
 
     def testFrameReload(self):
         b = self.browser

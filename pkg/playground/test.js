@@ -4,14 +4,8 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
-
     $(function() {
         $("#hammer").on("click", function () { $(this).hide(); });
-
-        $("#translation").text(_("Translation"));
-        $("#reverse").text(C_("reverse", "Translation"));
 
         $(".cockpit-internal-reauthorize .btn").on("click", function() {
             $(".cockpit-internal-reauthorize span").text("checking...");

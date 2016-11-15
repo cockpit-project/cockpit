@@ -45,7 +45,7 @@ if [ -n "$do_build" ]; then
     rm -rf cockpit-wip
     tar -xzf cockpit-wip.tar.gz
     ( cd cockpit-wip
-      mv tools/debian .
+      cp -rp tools/debian debian
       debuild -S -uc -us
     )
 

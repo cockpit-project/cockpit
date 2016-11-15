@@ -50,8 +50,7 @@ function prepare_header(header) {
 	statement = header["plural-forms"];
         if (statement[statement.length - 1] != ';')
             statement += ';';
-	body = '\nvar nplurals, plural;\n' + statement + '\nreturn plural;';
-	ret = new Function("n", body);
+	ret = 'function(n) {\nvar nplurals, plural;\n' + statement + '\nreturn plural;\n}';
 
         /* Added back in later */
         delete header["plural-forms"];
@@ -81,7 +80,7 @@ po2json.parseFile(input, { "fuzzy": true }, function(err, jsonData) {
     if (header)
         plurals = prepare_header(header);
 
-    var data = JSON.stringify(jsonData);
+    var data = JSON.stringify(jsonData, null, 1);
 
     /* We know the brace in is the location to insert our function */
     if (plurals) {
@@ -90,7 +89,7 @@ po2json.parseFile(input, { "fuzzy": true }, function(err, jsonData) {
     }
 
     if (module)
-	data = "/* global cockpit */\n(function (root, data) { if (typeof define === 'function' && define.amd) { define(data); } else if(typeof cockpit === 'object') { cockpit.locale(data); } else { root.po = data; } }(this, " + data + "));";
+	data = "(function (root, data) { if (typeof define === 'function' && define.amd) { define(data); } else if(typeof cockpit === 'object') { cockpit.locale(data); } else { root.po = data; } }(this, " + data + "));";
 
     fs.writeFile(output, data, function(err) {
         if (err)

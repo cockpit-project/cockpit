@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cockpit playground</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
+    <script src="../base1/jquery.js"></script>
+    <script src="../base1/cockpit.js"></script>
+    <script src="../shell/po.js"></script>
+</head>
+<body hidden>
+    <div id="internal" class="container-fluid">
+        <h2>HTML Translations</h2>
+        <p>
+            <code>&lt;span translatable="yes"&gt;Cancel&lt;/span&gt;</code>
+            = <span translatable="yes" id="translatable-html">Cancel</span>
+        </p>
+
+        <p>
+            <code>&lt;span translate&gt;Ready&lt;/span&gt;</code>
+            = <span translate id="translate-html">Ready</span>
+        </p>
+
+        <p>
+            <code>&lt;span translate="yes"&gt;Not Ready&lt;/span&gt;</code>
+            = <span translate="yes" id="translate-html-yes">Not Ready</span>
+        </p>
+
+        <p>
+            <code>&lt;span translate-title title="Unavailable"&gt;Button&lt;/span&gt;</code>
+            = <span translate-title title="Unavailable" id="translate-html-title">Button</span>
+        </p>
+
+        <h2>Mustache Translations</h2>
+
+        <div id="mustache-output">
+        </div>
+
+        <script id="mustache-input" type="x-template/mustache">
+            <p>
+                <code>&lt;span translatable="yes"&gt;User&lt;/span&gt;</code>
+                = <span translatable="yes" id="translatable-mustache">User</span>
+            </p>
+
+            <p>
+                <code>&lt;span translate&gt;Memory&lt;/span&gt;</code>
+                = <span translate id="translate-mustache">Memory</span>
+            </p>
+
+            <p>
+                <code>&lt;span translate="yes"&gt;Network&lt;/span&gt;</code>
+                = <span translate="yes" id="translate-mustache-yes">Network</span>
+            </p>
+
+            <p>
+                <code>&lt;span translate-title title="Error"&gt;Button&lt;/span&gt;</code>
+                = <span translate-title title="Error" id="translate-mustache-title">Button</span>
+            </p>
+        </script>
+
+        <h2>Code Translations</h2>
+
+        <p>
+            <code>_("Empty")</code>
+            = <span id="underscore-empty"></span>
+        </p>
+
+        <p>
+            <code>_("verb", "Empty")</code>
+            = <span id="underscore-context-empty"></span>
+        </p>
+
+        <p>
+            <code>C_("verb", "Empty")</code>
+            = <span id="cunderscore-context-empty"></span>
+        </p>
+
+        <p>
+            <code>cockpit.gettext("Control")</code>
+            = <span id="gettext-control"></span>
+        </p>
+
+        <p>
+            <code>cockpit.gettext("key", "Control")</code>
+            = <span id="gettext-context-control"></span>
+        </p>
+
+        <p>
+            <code>cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 1)</code>
+            = <span id="ngettext-disks-1"></span>
+        </p>
+
+        <p>
+            <code>cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 2)</code>
+            = <span id="ngettext-disks-2"></span>
+        </p>
+
+        <p>
+            <code>cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 1)</code>
+            = <span id="ngettext-context-disks-1"></span>
+        </p>
+
+        <p>
+            <code>cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 2)</code>
+            = <span id="ngettext-context-disks-2"></span>
+        </p>
+
+    </div>
+    <script src="translate.js"></script>
+</body>
+</html>

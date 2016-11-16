@@ -135,7 +135,7 @@ main (int argc,
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
 
-  bridge = cockpit_bridge_new (transport, payload_types, FALSE);
+  bridge = cockpit_bridge_new (transport, payload_types, NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
   send_init_command (transport);
 

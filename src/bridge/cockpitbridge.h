@@ -42,7 +42,7 @@ GType           cockpit_bridge_get_type     (void) G_GNUC_CONST;
 
 CockpitBridge * cockpit_bridge_new          (CockpitTransport *transport,
                                              CockpitPayloadType *supported_payloads,
-                                             gboolean init_received);
+                                             const gchar *init_host);
 
 G_END_DECLS
 

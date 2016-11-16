@@ -231,6 +231,9 @@ class Browser:
     def wait_val(self, selector, val):
         return self.wait_js_func('ph_has_val', selector, val)
 
+    def wait_not_val(self, selector, val):
+        return self.wait_js_func('!ph_has_val', selector, val)
+
     def wait_attr(self, selector, attr, val):
         return self.wait_js_func('ph_has_attr', selector, attr, val)
 

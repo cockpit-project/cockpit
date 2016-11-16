@@ -447,12 +447,14 @@
                     <h4 class="modal-title"></h4>
                 </div>
                 <div class="modal-body">
-                    <textarea class="form-control" id="shutdown-message">
+                    <textarea class="form-control">
                     </textarea>
                     <table>
                         <tr>
-                            <td translatable="yes">Delay</td>
-                            <td id="shutdown-delay">
+                            <td>
+                                <label translatable="yes">Delay</label>
+                            </td>
+                            <td>
                                 <div class="btn-group bootstrap-select dropdown form-control">
                                     <button class="btn btn-default dropdown-toggle" type="button"
                                         data-toggle="dropdown">
@@ -472,33 +474,21 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="row" id="shutdown-time">
-                                    <div class="col-md-7">
-                                        <input type='text' class="col-md-offset-1 form-control"
-                                            id="shutdown-date-input"/>
-                                    </div>
-                                    <div class="col-md-5 row nomargin nopadding">
-                                        <div class="col-md-offset-1 col-md-5 nopadding">
-                                            <input type='text' class="form-control" id="shutdown-time-hours"/>
-                                        </div>
-                                        <div class="col-md-1 text-center nopadding">:</div>
-                                        <div class="col-md-5 nopadding">
-                                            <input type='text' class="form-control" id="shutdown-time-minutes"/>
-                                        </div>
-                                    </div>
+                                <div>
+                                    <input class="form-control shutdown-date" type="text">
+                                    <input class="form-control shutdown-hours" type="text">
+                                    :
+                                    <input class="form-control shutdown-minutes" type="text">
                                 </div>
                             </td>
                         </tr>
                     </table>
-                    <div class="has-error">
-                        <span id="shutdown-parse-error" class="help-block"></span>
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default btn-danger" translatable="yes" data-dismiss="modal">
+                    <button class="btn btn-default" translatable="yes" data-dismiss="modal">
                         Cancel
                     </button>
-                    <button class="btn btn-danger" id="shutdown-action">
+                    <button class="btn btn-danger">
                     </button>
                 </div>
             </div>

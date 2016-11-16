@@ -137,22 +137,29 @@ function ServerTime() {
         $(self).triggerHandler("changed");
     }, 30000);
 
-    function offsets(timems, offsetms) {
-        var now = new Date();
-        time_offset = (timems - now.valueOf());
-        remote_offset = offsetms;
-        $(self).triggerHandler("changed");
-    }
+    self.wait = function wait() {
+        if (remote_offset === null)
+            return self.update();
+        return cockpit.resolve();
+    };
 
     self.update = function update() {
-        cockpit.spawn(["date", "+%s:%:z"])
+        return cockpit.spawn(["date", "+%s:%:z"], { err: "message" })
             .done(function(data) {
                 var parts = data.trim().split(":").map(function(x) {
                     return parseInt(x, 10);
                 });
                 if (parts[1] < 0)
                     parts[2] = -(parts[2]);
-                offsets(parts[0] * 1000, (parts[1] * 3600000) + parts[2] * 60000);
+                var timems = parts[0] * 1000;
+                var offsetms = (parts[1] * 3600000) + parts[2] * 60000;
+                var now = new Date();
+                time_offset = (timems - now.valueOf());
+                remote_offset = offsetms;
+                $(self).triggerHandler("changed");
+            })
+            .fail(function(ex) {
+                console.log("Couldn't calculate server time offset: " + cockpit.message(ex));
             });
     };
 

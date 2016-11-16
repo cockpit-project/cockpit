@@ -49,6 +49,7 @@ CockpitPipe *      cockpit_pipe_transport_get_pipe   (CockpitPipeTransport *self
 void               cockpit_transport_read_from_pipe  (CockpitTransport *self,
                                                       const gchar *logname,
                                                       CockpitPipe *pipe,
+                                                      gboolean *closed,
                                                       GByteArray *input,
                                                       gboolean end_of_data);
 G_END_DECLS

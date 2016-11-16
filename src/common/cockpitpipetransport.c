@@ -77,7 +77,7 @@ on_pipe_read (CockpitPipe *pipe,
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (user_data);
   cockpit_transport_read_from_pipe (COCKPIT_TRANSPORT (self), self->name,
-                                    pipe, input, end_of_data);
+                                    pipe, &self->closed, input, end_of_data);
 }
 
 static void
@@ -321,11 +321,14 @@ cockpit_pipe_transport_get_pipe (CockpitPipeTransport *self)
  * cockpit_transport_read_from_pipe:
  *
  * Meant to be used in a "read" handler for a #CockpitPipe
+ * Closed is pointer to a boolean value that may be updated
+ * during the read and parse loop.
  */
- void
+void
 cockpit_transport_read_from_pipe (CockpitTransport *self,
                                   const gchar *logname,
                                   CockpitPipe *pipe,
+                                  gboolean *closed,
                                   GByteArray *input,
                                   gboolean end_of_data)
 {
@@ -335,9 +338,11 @@ cockpit_transport_read_from_pipe (CockpitTransport *self,
   guint32 i, size;
   gchar *data;
 
+  /* This may be updated during the loop. */
+  g_assert (closed != NULL);
   g_object_ref (self);
 
-  for (;;)
+  while (!*closed)
     {
       size = 0;
       data = (gchar *)input->data;

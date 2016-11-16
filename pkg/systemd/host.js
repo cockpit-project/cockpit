@@ -1304,9 +1304,9 @@ PageShutdownDialog.prototype = {
         self.delay = $("#shutdown-delay li:first-child").attr("value");
 
         if (PageShutdownDialog.type == 'shutdown') {
-          $('#shutdown-dialog .modal-title').text(_("Shutdown"));
+          $('#shutdown-dialog .modal-title').text(_("Shut Down"));
           $("#shutdown-action").click($.proxy(this, "shutdown"));
-          $("#shutdown-action").text(_("Shutdown"));
+          $("#shutdown-action").text(_("Shut Down"));
         } else {
           $('#shutdown-dialog .modal-title').text(_("Restart"));
           $("#shutdown-action").click($.proxy(this, "restart"));

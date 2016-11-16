@@ -234,7 +234,7 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 touch docker.list
 %endif
 
-%ifarch x86_64
+%ifarch x86_64 ppc64le
 %if %{defined wip}
 %else
 rm %{buildroot}/%{_datadir}/%{name}/kubernetes/override.json
@@ -506,7 +506,7 @@ This package is not yet complete.
 
 %endif
 
-%ifarch x86_64
+%ifarch x86_64 ppc64le
 
 %package kubernetes
 Summary: Cockpit user interface for Kubernetes cluster

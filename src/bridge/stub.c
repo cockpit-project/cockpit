@@ -113,7 +113,7 @@ run_bridge (const gchar *interactive)
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  gboolean init_received = FALSE;
+  const gchar *init_host = NULL;
   guint sig_term;
   guint sig_int;
   int outfd;
@@ -146,7 +146,7 @@ run_bridge (const gchar *interactive)
   if (interactive)
     {
       /* Allow skipping the init message when interactive */
-      init_received = TRUE;
+      init_host = "localhost";
       transport = cockpit_interact_transport_new (0, outfd, interactive);
     }
   else
@@ -157,7 +157,7 @@ run_bridge (const gchar *interactive)
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
-  bridge = cockpit_bridge_new (transport, payload_types, init_received);
+  bridge = cockpit_bridge_new (transport, payload_types, init_host);
   cockpit_dbus_environment_startup ();
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);

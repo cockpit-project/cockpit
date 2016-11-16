@@ -371,7 +371,6 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
   CockpitChannel *self = COCKPIT_CHANNEL (channel);
   JsonObject *options;
   const gchar *binary;
-  const gchar *payload;
 
   options = cockpit_channel_get_options (self);
 
@@ -380,19 +379,7 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
 
   if (G_OBJECT_TYPE (channel) == COCKPIT_TYPE_CHANNEL)
     {
-      if (!cockpit_json_get_string (options, "payload", NULL, &payload))
-        payload = NULL;
-
-      if (payload)
-        {
-          g_warning ("bridge doesn't support payloads of type: %s", payload);
-          cockpit_channel_close (channel, "not-supported");
-        }
-      else
-        {
-          g_warning ("no payload type present in request to open channel");
-          cockpit_channel_close (channel, "protocol-error");
-        }
+      cockpit_channel_close (channel, "not-supported");
       return;
     }
 

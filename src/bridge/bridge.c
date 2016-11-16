@@ -388,7 +388,7 @@ run_bridge (const gchar *interactive,
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  gboolean init_received = FALSE;
+  const gchar *init_host = NULL;
   GHashTable *os_release = NULL;
   CockpitPortal *super = NULL;
   CockpitPortal *pcp = NULL;
@@ -467,7 +467,7 @@ run_bridge (const gchar *interactive,
   if (interactive)
     {
       /* Allow skipping the init message when interactive */
-      init_received = TRUE;
+      init_host = "localhost";
       transport = cockpit_interact_transport_new (0, outfd, interactive);
     }
   else
@@ -488,7 +488,7 @@ run_bridge (const gchar *interactive,
 
   pcp = cockpit_portal_new_pcp (transport);
 
-  bridge = cockpit_bridge_new (transport, payload_types, init_received);
+  bridge = cockpit_bridge_new (transport, payload_types, init_host);
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
   cockpit_dbus_environment_startup ();

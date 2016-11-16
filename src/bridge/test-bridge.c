@@ -105,6 +105,183 @@ test_bridge_init (void)
   json_object_unref (object);
 }
 
+#if 0
+static void
+on_closed_get_problem (CockpitTransport *transport,
+                       const gchar *problem,
+                       gpointer user_data)
+{
+  gchar **result = (gchar **)user_data;
+  g_assert (result != NULL);
+  g_assert (*result == NULL);
+  g_assert (problem != NULL);
+  *result = g_strdup (problem);
+}
+#endif
+
+static void
+on_closed_set_flag (CockpitTransport *transport,
+                    const gchar *problem,
+                    gpointer user_data)
+{
+  gboolean *flag = (gboolean *)user_data;
+  *flag = TRUE;
+}
+
+static gboolean
+on_control_get_close (CockpitTransport *transport,
+                      const gchar *command,
+                      const gchar *channel,
+                      JsonObject *options,
+                      GBytes *payload,
+                      gpointer user_data)
+{
+  JsonObject **result = (JsonObject **)user_data;
+  g_assert (result != NULL);
+  g_assert (*result == NULL);
+  g_assert (command != NULL);
+  if (g_str_equal (command, "close"))
+    {
+      *result = json_object_ref (options);
+      return TRUE;
+    }
+  return FALSE;
+}
+
+typedef struct {
+    const gchar *host;
+    guint64 version;
+} InitProblem;
+
+static void
+test_bridge_init_problem (gconstpointer user_data)
+{
+  const InitProblem *fixture = user_data;
+  CockpitTransport *transport;
+  CockpitPipe *pipe;
+  GBytes *bytes;
+  gboolean closed = FALSE;
+  JsonObject *input;
+
+  g_assert (fixture != NULL);
+
+  const gchar *argv[] = {
+    BUILDDIR "/cockpit-bridge",
+    NULL
+  };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+  transport = cockpit_pipe_transport_new (pipe);
+  g_object_unref (pipe);
+
+  /* First send the actual init message */
+  input = json_object_new ();
+  json_object_set_string_member (input, "command", "init");
+  if (fixture->version != 0)
+    json_object_set_int_member (input, "version", fixture->version);
+  if (fixture->host)
+    json_object_set_string_member (input, "host", fixture->host);
+  bytes = cockpit_json_write_bytes (input);
+  cockpit_transport_send (transport, NULL, bytes);
+  g_bytes_unref (bytes);
+  json_object_unref (input);
+
+  /* The bridge should terminate */
+  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handlers_disconnect_by_func (transport, on_closed_set_flag, &closed);
+
+  g_object_unref (transport);
+
+  /* Just checking that it closes by itself here */
+}
+
+typedef struct {
+    const gchar *host;
+    const gchar *open_host;
+    const gchar *problem;
+} OpenProblem;
+
+static void
+test_bridge_open_problem (gconstpointer user_data)
+{
+  const OpenProblem *fixture = user_data;
+  CockpitTransport *transport;
+  CockpitPipe *pipe;
+  GBytes *bytes;
+  JsonObject *object = NULL;
+  JsonObject *input;
+
+  g_assert (fixture != NULL);
+  g_assert (fixture->problem != NULL);
+
+  const gchar *argv[] = {
+    BUILDDIR "/cockpit-bridge",
+    NULL
+  };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+  transport = cockpit_pipe_transport_new (pipe);
+  g_object_unref (pipe);
+
+  /* First send the actual init message */
+  input = json_object_new ();
+  json_object_set_string_member (input, "command", "init");
+  json_object_set_int_member (input, "version", 1);
+  if (fixture->host)
+    json_object_set_string_member (input, "host", fixture->host);
+  bytes = cockpit_json_write_bytes (input);
+  cockpit_transport_send (transport, NULL, bytes);
+  g_bytes_unref (bytes);
+  json_object_unref (input);
+
+  /* Next maybe send an open message */
+  input = json_object_new ();
+  json_object_set_string_member (input, "command", "open");
+  json_object_set_string_member (input, "channel", "444");
+  json_object_set_string_member (input, "payload", "null");
+  if (fixture->open_host)
+    json_object_set_string_member (input, "host", fixture->open_host);
+  bytes = cockpit_json_write_bytes (input);
+  cockpit_transport_send (transport, NULL, bytes);
+  g_bytes_unref (bytes);
+  json_object_unref (input);
+
+  /* Listen for a close message */
+  g_signal_connect (transport, "control", G_CALLBACK (on_control_get_close), &object);
+
+  while (object == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handlers_disconnect_by_func (transport, on_control_get_close, &object);
+
+  g_object_unref (transport);
+
+  g_assert_cmpstr (json_object_get_string_member (object, "problem"), ==, fixture->problem);
+  json_object_unref (object);
+}
+
+static InitProblem bad_version = {
+    .version = 5,
+};
+
+static InitProblem missing_version = {
+    .version = 0,
+};
+
+static InitProblem missing_host = {
+    .version = 1,
+};
+
+static OpenProblem wrong_host = {
+    .host = "marmalade",
+    .open_host = "juggs",
+    .problem = "not-supported",
+};
+
 int
 main (int argc,
       char *argv[])
@@ -115,6 +292,10 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/bridge/init-message", test_bridge_init);
+  g_test_add_data_func ("/bridge/bad-version", &bad_version, test_bridge_init_problem);
+  g_test_add_data_func ("/bridge/missing-version", &missing_version, test_bridge_init_problem);
+  g_test_add_data_func ("/bridge/missing-host", &missing_host, test_bridge_init_problem);
+  g_test_add_data_func ("/bridge/wrong-host", &wrong_host, test_bridge_open_problem);
 
   return g_test_run ();
 }

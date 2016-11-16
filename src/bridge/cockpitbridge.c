@@ -28,7 +28,7 @@
 struct _CockpitBridge {
   GObjectClass parent;
 
-  gboolean init_received;
+  gchar *init_host;
   gulong signal_id;
 
   CockpitTransport *transport;
@@ -46,7 +46,7 @@ G_DEFINE_TYPE (CockpitBridge, cockpit_bridge, G_TYPE_OBJECT);
 enum {
   PROP_0,
   PROP_TRANSPORT,
-  PROP_INIT_RECEIVED,
+  PROP_INIT_HOST,
 };
 
 typedef GType (* TypeFunction) (void);
@@ -65,23 +65,51 @@ process_init (CockpitBridge *self,
               CockpitTransport *transport,
               JsonObject *options)
 {
+  const gchar *problem = NULL;
+  const gchar *host;
   gint64 version = -1;
 
-  if (!cockpit_json_get_int (options, "version", -1, &version))
+  if (self->init_host)
     {
-      g_warning ("invalid version field in init message");
-      cockpit_transport_close (transport, "protocol-error");
+      g_warning ("caller already sent another 'init' message");
+      problem = "protocol-error";
+    }
+  else if (!cockpit_json_get_int (options, "version", -1, &version))
+    {
+      g_warning ("invalid 'version' field in init message");
+      problem = "protocol-error";
+    }
+  else if (version == -1)
+    {
+      g_warning ("missing 'version' field in init message");
+      problem = "protocol-error";
+    }
+  else if (!cockpit_json_get_string (options, "host", NULL, &host))
+    {
+      g_warning ("invalid 'host' field in init message");
+      problem = "protocol-error";
+    }
+  else if (host == NULL)
+    {
+      g_message ("missing 'host' field in init message");
+      problem = "protocol-error";
+    }
+  else if (version != 1)
+    {
+      g_message ("unsupported 'version' of cockpit protocol: %" G_GINT64_FORMAT, version);
+      problem = "not-supported";
     }
 
-  if (version == 1)
+  if (problem)
     {
-      g_debug ("received init message");
-      self->init_received = TRUE;
+      cockpit_transport_close (transport, problem);
     }
   else
     {
-      g_message ("unsupported version of cockpit protocol: %" G_GINT64_FORMAT, version);
-      cockpit_transport_close (transport, "not-supported");
+      g_debug ("received init message");
+      g_assert (host != NULL);
+      self->init_host = g_strdup (host);
+      problem = NULL;
     }
 }
 
@@ -94,7 +122,8 @@ process_open (CockpitBridge *self,
   CockpitChannel *channel;
   GType channel_type;
   TypeFunction channel_function = NULL;
-  const gchar *payload;
+  const gchar *payload = NULL;
+  const gchar *host = NULL;
 
   if (!channel_id)
     {
@@ -106,28 +135,36 @@ process_open (CockpitBridge *self,
       g_warning ("%s: caller tried to reuse a channel that's already in use", channel_id);
       cockpit_transport_close (transport, "protocol-error");
     }
-
   else
     {
-      if (!cockpit_json_get_string (options, "payload", NULL, &payload))
-        payload = NULL;
+      if (!cockpit_json_get_string (options, "host", self->init_host, &host))
+        g_warning ("%s: caller specified invalid 'host' field in open message", channel_id);
+      else if (g_strcmp0 (self->init_host, host) != 0)
+        g_message ("%s: this process does not support connecting to another host", channel_id);
+      else if (!cockpit_json_get_string (options, "payload", NULL, &payload))
+        g_warning ("%s: caller specified invalid 'payload' field in open message", channel_id);
+      else if (payload == NULL)
+        g_warning ("%s: caller didn't provide a 'payload' field in open message", channel_id);
 
-      if (payload)
-        channel_function = g_hash_table_lookup (self->payloads, payload);
-      else
-        g_warning ("%s: caller didn't provide a payload", channel_id);
-
-      /* This will close with "not-supported" */
+      /* This will close with "not-supported", both bad payload and host get this code */
       channel_type = COCKPIT_TYPE_CHANNEL;
 
-      if (channel_function != NULL)
-          channel_type = channel_function ();
+      if (payload)
+        {
+          channel_function = g_hash_table_lookup (self->payloads, payload);
+          if (channel_function)
+            channel_type = channel_function ();
+          if (channel_type == COCKPIT_TYPE_CHANNEL)
+            g_warning ("%s: bridge doesn't support 'payload' of type: %s", channel_id, payload);
+        }
+
 
       channel = g_object_new (channel_type,
                               "transport", transport,
                               "id", channel_id,
                               "options", options,
                               NULL);
+
       g_hash_table_insert (self->channels, g_strdup (channel_id), channel);
       g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), self);
     }
@@ -149,7 +186,7 @@ on_transport_control (CockpitTransport *transport,
       return TRUE;
     }
 
-  if (!self->init_received)
+  if (!self->init_host)
     {
       g_warning ("caller did not send 'init' message first");
       cockpit_transport_close (transport, "protocol-error");
@@ -210,6 +247,7 @@ cockpit_bridge_finalize (GObject *object)
   if (self->transport)
     g_object_unref (self->transport);
 
+  g_free (self->init_host);
   g_hash_table_destroy (self->channels);
   g_hash_table_destroy (self->payloads);
 
@@ -226,8 +264,8 @@ cockpit_bridge_set_property (GObject *obj,
 
   switch (prop_id)
     {
-    case PROP_INIT_RECEIVED:
-      self->init_received = g_value_get_boolean (value);
+    case PROP_INIT_HOST:
+      self->init_host = g_value_dup_string (value);
       break;
     case PROP_TRANSPORT:
       self->transport = g_value_dup_object (value);
@@ -270,9 +308,8 @@ cockpit_bridge_class_init (CockpitBridgeClass *class)
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (object_class, PROP_INIT_RECEIVED,
-                                   g_param_spec_boolean ("init-received", NULL,
-                                                         NULL, FALSE,
+  g_object_class_install_property (object_class, PROP_INIT_HOST,
+                                   g_param_spec_string ("init-host", NULL, NULL, NULL,
                                                          G_PARAM_WRITABLE |
                                                          G_PARAM_CONSTRUCT_ONLY |
                                                          G_PARAM_STATIC_STRINGS));
@@ -290,7 +327,7 @@ cockpit_bridge_add_payload (CockpitBridge *self,
 CockpitBridge *
 cockpit_bridge_new (CockpitTransport *transport,
                     CockpitPayloadType *payload_types,
-                    gboolean init_received)
+                    const gchar *init_host)
 {
   gint i;
   CockpitBridge *bridge;
@@ -299,7 +336,7 @@ cockpit_bridge_new (CockpitTransport *transport,
 
   bridge = g_object_new (COCKPIT_TYPE_BRIDGE,
                          "transport", transport,
-                         "init-received", init_received,
+                         "init-host", init_host,
                          NULL);
 
   /* Set a path if nothing is set */

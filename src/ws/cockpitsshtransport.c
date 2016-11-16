@@ -216,7 +216,7 @@ on_pipe_read (CockpitPipe *pipe,
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (user_data);
   cockpit_transport_read_from_pipe (COCKPIT_TRANSPORT (self), self->logname,
-                                    pipe, input, end_of_data);
+                                    pipe, &self->closed, input, end_of_data);
 }
 
 static void

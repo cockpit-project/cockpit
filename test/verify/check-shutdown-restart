@@ -52,10 +52,10 @@ class TestShutdownRestart(MachineCase):
         m.reset_reboot_flag()
         b.click("#shutdown-group button.btn-danger")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-action", 'Restart')
-        b.click("#shutdown-delay button")
+        b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('No Delay')")
-        b.click("#shutdown-action")
+        b.click("#shutdown-dialog .btn-danger")
         b.switch_to_top()
 
         b.wait_visible(".curtains-ct")
@@ -93,10 +93,10 @@ class TestShutdownRestart(MachineCase):
         m.reset_reboot_flag()
         b2.click("#shutdown-group button.btn-danger")
         b2.wait_popup("shutdown-dialog")
-        b2.wait_in_text("#shutdown-action", 'Restart')
-        b2.click("#shutdown-delay button")
+        b2.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b2.click("#shutdown-dialog .dropdown button")
         b2.click("a:contains('No Delay')")
-        b2.click("#shutdown-action")
+        b2.click("#shutdown-dialog .btn-danger")
         b2.switch_to_top()
 
         b2.wait_visible(".curtains-ct")
@@ -108,17 +108,26 @@ class TestShutdownRestart(MachineCase):
         b2.wait_not_visible(".curtains-ct")
         b2.enter_page("/system", host=m.address, reconnect=False)
 
-        # Poweroff
+        # Power off with invalid date
         self.login_and_go("/system")
         b.enter_page("/system")
         b.click("#shutdown-group span.caret")
         b.click("#shutdown-group a:contains('Shut Down')")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-action", 'Shut Down')
-        b.click("#shutdown-delay button")
-        b.click("a:contains('No Delay')")
-        b.click("#shutdown-action")
+        b.click("#shutdown-dialog .dropdown button")
+        b.click("a:contains('Specific Time')")
+        b.wait_not_val("#shutdown-dialog input.shutdown-hours", "")
+        old = b.val("#shutdown-dialog input.shutdown-hours")
+        b.set_val("#shutdown-dialog input.shutdown-hours", "blah")
+        b.click("#shutdown-dialog .btn-danger")
+        b.wait_present("#shutdown-dialog .dialog-error")
+        b.wait_text("#shutdown-dialog .dialog-error", "Invalid time format")
+
+        # Now set a correct time and power off
+        b.set_val("#shutdown-dialog input.shutdown-hours", old)
+        b.click("#shutdown-dialog .btn-danger")
         b.switch_to_top()
+
         # we don't need to wait for the dialog to close here, just the disconnect
         b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")

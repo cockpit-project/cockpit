@@ -29,6 +29,8 @@ require("patterns");
 require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
 require("bootstrap-combobox/js/bootstrap-combobox");
 
+var shutdown = require("./shutdown");
+
 var host_keys_script = require("raw!./ssh-list-host-keys.sh");
 
 var _ = cockpit.gettext;
@@ -710,9 +712,7 @@ PageServer.prototype = {
     },
 
     shutdown: function(action_type) {
-        PageShutdownDialog.type = action_type;
-        PageShutdownDialog.server_time = this.server_time;
-        $('#shutdown-dialog').modal('show');
+        shutdown(action_type, this.server_time);
     },
 };
 
@@ -1290,224 +1290,6 @@ function PageSystemInformationChangeSystime() {
     this._init();
 }
 
-PageShutdownDialog.prototype = {
-    _init: function() {
-        this.id = "shutdown-dialog";
-        this.delay = 0;
-    },
-
-    setup: function() {
-        var self = this;
-
-        $("#shutdown-delay li").on("click", function(ev) {
-            self.delay = $(this).attr("value");
-            self.update();
-        });
-
-        $('#shutdown-date-input').datepicker({
-            autoclose: true,
-            todayHighlight: true,
-            format: 'yyyy-mm-dd',
-            startDate: "today",
-        });
-
-        $("#shutdown-time input").change($.proxy(self, "update"));
-
-        self.date = null;
-        $('#shutdown-time-minutes').on('focusout', $.proxy(this, "update_minutes"));
-        $('#shutdown-date-input').on('focusin', $.proxy(this, "store_date"));
-        $('#shutdown-date-input').on('focusout', $.proxy(this, "restore_date"));
-    },
-
-    enter: function(event) {
-        var self = this;
-
-        $("#shutdown-message").
-            val("").
-            attr("placeholder", _("Message to logged in users")).
-            attr("rows", 5);
-
-        /* Track the value correctly */
-        self.delay = $("#shutdown-delay li:first-child").attr("value");
-
-        var server_time = PageShutdownDialog.server_time;
-        $('#shutdown-date-input').val(server_time.format());
-        $('#shutdown-time-hours').val(server_time.now.getUTCHours());
-        $('#shutdown-time-minutes').val(server_time.now.getUTCMinutes());
-
-        self.show_errors(false);
-
-        if (PageShutdownDialog.type == 'shutdown') {
-          $('#shutdown-dialog .modal-title').text(_("Shut Down"));
-          $("#shutdown-action").click($.proxy(this, "shutdown"));
-          $("#shutdown-action").text(_("Shut Down"));
-        } else {
-          $('#shutdown-dialog .modal-title').text(_("Restart"));
-          $("#shutdown-action").click($.proxy(this, "restart"));
-          $("#shutdown-action").text(_("Restart"));
-        }
-
-        self.update_minutes();
-        self.update();
-    },
-
-    show_errors: function(show) {
-        $('#shutdown-parse-error').css('visibility', show ? 'visible' : 'hidden');
-        $('#shutdown-action').prop('disabled', show);
-        $("#shutdown-time").toggleClass("has-error", show);
-    },
-
-    show: function(e) {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        var self = this;
-        var disabled = false;
-
-        $("#shutdown-time").toggle(self.delay == "x");
-        if (self.delay == "x") {
-            var h = parseInt($("#shutdown-time input:nth-child(1)").val(), 10);
-            var m = parseInt($("#shutdown-time input:nth-child(3)").val(), 10);
-            var valid = (h >= 0 && h < 24) && (m >= 0 && m < 60);
-            $("#shutdown-time").toggleClass("has-error", !valid);
-            if (!valid)
-                disabled = true;
-        }
-
-        $("#shutdown-delay button span").text($("#shutdown-delay li[value='" + self.delay + "']").text());
-        $("#shutdown-action").prop('disabled', disabled);
-    },
-
-    validate: function() {
-        var valid = true;
-        var self = this;
-
-        if (self.delay == "x") {
-            var time_error = false;
-            var date_error = false;
-
-            var h = parseInt($("#shutdown-time-hours").val(), 10);
-            var m = parseInt($("#shutdown-time-minutes").val(), 10);
-
-            if (isNaN(h) || h < 0 || h > 23  ||
-                isNaN(m) || m < 0 || m > 59) {
-               time_error = true;
-            }
-
-            var date = new Date($("#shutdown-date-input").val());
-
-            if (isNaN(date.getTime()) || date.getTime() < 0)
-                date_error = true;
-
-            if (time_error && date_error) {
-                $('#shutdown-parse-error').text(_("Invalid date format and invalid time format"));
-            } else if (time_error) {
-                $('#shutdown-parse-error').text(_("Invalid time format"));
-            } else if (date_error) {
-                $('#shutdown-parse-error').text(_("Invalid date format"));
-            } else {
-                self.show_errors(false);
-            }
-
-            valid = ! time_error && ! date_error;
-        }
-
-        self.show_errors(! valid);
-        return valid;
-    },
-
-    do_action: function(op) {
-        var self = this;
-        var message = $("#shutdown-message").val();
-        var when;
-
-        var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
-
-        var promise = cockpit.spawn(["shutdown", arg, when, message], { superuser: "try" });
-        $('#shutdown-dialog').dialog("promise", promise);
-
-        var dfd = $.Deferred();
-        function get_server_date() {
-            if (self.delay == "x") {
-                var datestr = $("#shutdown-date-input").val();
-                var hourstr = $("#shutdown-time-hours").val();
-                var minstr = $("#shutdown-time-minutes").val();
-
-                cockpit.spawn(["/usr/bin/date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
-                    .fail(function(ex) {
-                        dfd.reject(ex);
-                    })
-                    .done(function(data) {
-                        var input_timestamp = parseInt(data, 10);
-                        var server_timestamp = parseInt(PageShutdownDialog.server_time.raw_now.getTime() / 1000, 10);
-                        var when = Math.ceil((input_timestamp - server_timestamp) / 60);
-                        dfd.resolve(when);
-                    });
-            } else {
-                dfd.resolve(self.delay);
-            }
-
-            return dfd.promise();
-        }
-
-        if (!self.validate())
-            return;
-
-        $.when(get_server_date()).done(function(when) {
-            if (when < 0) {
-                $('#shutdown-parse-error').text(_("Cannot schedule event in the past"));
-                self.show_errors(true);
-            } else {
-                when = "+" + when;
-            }
-
-            var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
-            if (op == "restart")
-                cockpit.hint("restart");
-
-            var message = $("#shutdown-message").val();
-            cockpit.spawn(["shutdown", arg, when, message], { superuser: true })
-                .fail(function(ex) {
-                    $('#shutdown-dialog').modal('hide');
-                    console.log(ex); /* XXXX */
-                })
-                .done(function(ex) {
-                    $('#shutdown-dialog').modal('hide');
-                });
-        });
-    },
-
-    restart: function() {
-        this.do_action('restart');
-    },
-
-    shutdown: function() {
-        this.do_action('shutdown');
-    },
-
-    update_minutes: function() {
-        var val = parseInt($('#shutdown-time-minutes').val(), 10);
-        if (val < 10)
-            $('#shutdown-time-minutes').val("0" + val);
-    },
-
-    store_date: function() {
-        this.date = $("#shutdown-date-input").val();
-    },
-
-    restore_date: function() {
-        if ($("#shutdown-date-input").val().length === 0)
-            $("#shutdown-date-input").val(this.date);
-    }
-};
-
-function PageShutdownDialog() {
-    this._init();
-}
-
 PageCpuStatus.prototype = {
     _init: function() {
         this.id = "cpu_status";
@@ -1774,7 +1556,6 @@ function init() {
 
     dialog_setup(new PageSystemInformationChangeHostname());
     dialog_setup(change_systime_dialog = new PageSystemInformationChangeSystime());
-    dialog_setup(new PageShutdownDialog());
 
     $(cockpit).on("locationchanged", navigate);
     navigate();

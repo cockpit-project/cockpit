@@ -73,7 +73,8 @@ class TestStorage(StorageCase):
         check_type("xfs")
         check_type("ext4")
         check_type("vfat")
-        check_type("ntfs")
+        if not m.image in [ "rhel-7", "centos-7" ]:
+            check_type("ntfs")
 
 if __name__ == '__main__':
     test_main()

@@ -22,6 +22,7 @@
 
     var angular = require('angular');
     require('angular-route');
+    require('angular-gettext/dist/angular-gettext.js');
     require('angular-bootstrap/ui-bootstrap.js');
     require('angular-bootstrap/ui-bootstrap-tpls.js');
 
@@ -42,6 +43,7 @@
         'ngRoute',
         'ui.bootstrap',
         'ui.bootstrap.popover',
+        'gettext',
         'kubernetes.app',
         'kubernetes.date',
         'registry.images',

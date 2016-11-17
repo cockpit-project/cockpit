@@ -307,9 +307,9 @@ dist-hook:: dist-doc-hook
 	@true
 distcheck-hook:: dist-doc-hook
 	@true
-install-data-local:: doc/guide/html/index.html
+install-data-local:: dist/guide/html/index.html
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
-	$(INSTALL_DATA) `dirname $<`/* $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) $(dir $<)/* $(DESTDIR)$(htmldir)
 uninstall-local::
 	rm -rf $(DESTDIR)$(htmldir)
 

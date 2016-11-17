@@ -5,9 +5,9 @@
     </div>
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}">
-            <a ng-click="tab('main', $event)" translatable="yes">Deployment Config</a></li>
+            <a ng-click="tab('main', $event)" translate>Deployment Config</a></li>
         <li ng-class="{active: tab('template')}" ng-if="item.spec.template">
-            <a ng-click="tab('template', $event)" translatable="yes">Template</a></li>
+            <a ng-click="tab('template', $event)" translate>Template</a></li>
     </ul>
 </div>
 <div class="listing-ct-body" deploymentconfig-body ng-show="tab('main')"></div>

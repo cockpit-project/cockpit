@@ -1,61 +1,61 @@
 <div class="col-xs-12 col-md-6">
     <dl>
-        <dt translatable="yes">Created</dt>
+        <dt translate>Created</dt>
         <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
-        <dt translatable="yes">Address</dt>
+        <dt translate>Address</dt>
         <dd>
             <a class="machine-jump" ng-if="item.status.addresses" ng-click="jump(item)">{{item.spec.externalID}}</a>
             <span ng-if="!item.status.addresses">{{item.spec.externalID}}</span>
         </dd>
-        <dt translatable="yes">IP</dt>
+        <dt translate>IP</dt>
         <dd ng-if="item.status.addresses">{{ nodeExternalIP(item) }}</dd>
-        <dd ng-if="!item.status.addresses" translatable="yes">Unknown</dd>
-        <dt ng-if="item.status.nodeInfo.osImage" translatable="yes">OS</dt>
+        <dd ng-if="!item.status.addresses" translate>Unknown</dd>
+        <dt ng-if="item.status.nodeInfo.osImage" translate>OS</dt>
         <dd ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</dd>
-        <dt ng-if="item.status.nodeInfo.machineID" translatable="yes">Machine ID</dt>
+        <dt ng-if="item.status.nodeInfo.machineID" translate>Machine ID</dt>
         <dd ng-if="item.status.nodeInfo.machineID"><tt>{{item.status.nodeInfo.machineID}}</tt></dd>
-        <dt ng-if="item.status.nodeInfo.bootID" translatable="yes">Boot ID</dt>
+        <dt ng-if="item.status.nodeInfo.bootID" translate>Boot ID</dt>
         <dd ng-if="item.status.nodeInfo.bootID"><tt>{{item.status.nodeInfo.bootID}}</tt></dd>
-        <dt ng-if="item.status.nodeInfo.kernelVersion" translatable="yes">Kernel Version</dt>
+        <dt ng-if="item.status.nodeInfo.kernelVersion" translate>Kernel Version</dt>
         <dd ng-if="item.status.nodeInfo.kernelVersion">{{item.status.nodeInfo.kernelVersion}}</dd>
-        <dt ng-if="item.status.nodeInfo.containerRuntimeVersion" translatable="yes">Container Runtime Version</dt>
+        <dt ng-if="item.status.nodeInfo.containerRuntimeVersion" translate>Container Runtime Version</dt>
         <dd ng-if="item.status.nodeInfo.containerRuntimeVersion">{{item.status.nodeInfo.containerRuntimeVersion}}</dd>
-        <dt ng-if="item.status.nodeInfo.kubeletVersion" translatable="yes">Kubelet Version</dt>
+        <dt ng-if="item.status.nodeInfo.kubeletVersion" translate>Kubelet Version</dt>
         <dd ng-if="item.status.nodeInfo.kubeletVersion">{{item.status.nodeInfo.kubeletVersion}}</dd>
-        <dt ng-if="item.status.nodeInfo.kubeProxyVersion" translatable="yes">Proxy Version</dt>
+        <dt ng-if="item.status.nodeInfo.kubeProxyVersion" translate>Proxy Version</dt>
         <dd ng-if="item.status.nodeInfo.kubeProxyVersion">{{item.status.nodeInfo.kubeProxyVersion}}</dd>
     </dl>
 </div>
 <div class="col-xs-12 col-md-6">
     <dl class="full-width">
-        <dt translatable="yes">Labels</dt>
+        <dt translate>Labels</dt>
         <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
-        <dd ng-if="!item.metadata.labels" translatable="yes">none</dd>
+        <dd ng-if="!item.metadata.labels" translate>none</dd>
     </dl>
 </div>
 <div class="clearfix visible-md-block visible-lg-block"></div>
 <div class="col-xs-12 col-md-6">
     <dl ng-repeat="ready in nodeConditions(item)" ng-if="ready.type == 'Ready'">
-        <dt translatable="yes">Status</dt>
+        <dt translate>Status</dt>
         <dd class="status" ng-switch="ready.status">
-            <span ng-switch-when="True" translatable="yes">Ready</span>
-            <span ng-switch-when="False" translatable="yes">Not Ready</span>
-            <span ng-switch-default translatable="yes">Unknown</span>
+            <span ng-switch-when="True" translate>Ready</span>
+            <span ng-switch-when="False" translate>Not Ready</span>
+            <span ng-switch-default translate>Unknown</span>
         </dd>
-        <dt translatable="yes" ng-if="ready.reason">Reason</dt>
+        <dt translate ng-if="ready.reason">Reason</dt>
         <dd ng-if="ready.reason">{{ready.reason }}</dd>
-        <dt translatable="yes" ng-if="ready.message">Message</dt>
+        <dt translate ng-if="ready.message">Message</dt>
         <dd ng-if="ready.message">{{ready.reason }}</dd>
-        <dt translatable="yes" ng-if="ready.lastHeartbeatTime">Last Heartbeat</dt>
+        <dt translate ng-if="ready.lastHeartbeatTime">Last Heartbeat</dt>
         <dd ng-if="ready.lastHeartbeatTime">{{ready.lastHeartbeatTime | dateRelative }}</dd>
-        <dt translatable="yes" ng-if="ready.lastTransitionTime">Last Status Change</dt>
+        <dt translate ng-if="ready.lastTransitionTime">Last Status Change</dt>
         <dd ng-if="ready.lastTransitionTime">{{ready.lastTransitionTime | dateRelative }}</dd>
     </dl>
 </div>
 <div class="col-xs-12 col-md-6">
     <dl class="full-width">
-        <dt translatable="yes">Annotations</dt>
+        <dt translate>Annotations</dt>
         <dd ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
-        <dd ng-if="!item.metadata.annotations" translatable="yes">none</dd>
+        <dd ng-if="!item.metadata.annotations" translate>none</dd>
     </dl>
 </div>

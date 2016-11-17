@@ -1,17 +1,17 @@
 <modal-dialog>
     <div class="modal-header">
-        <h4 class="modal-title" translatable="yes" >Remove User</h4>
+        <h4 class="modal-title" translate >Remove User</h4>
     </div>
     <div class="modal-body">
         <div ng-if="fields.members.length != 0"> 
             <p>The user '{{ fields.user.metadata.name }}' will be removed from the following: </p>
             <div class="user-membership-body">
                 <div ng-repeat="member in getProjectsWithMember(fields.projects, fields.user.metadata.name) track by member.metadata.name">
-                    <h4 translatable="yes" ng-if="$first">Projects</h4>
+                    <h4 translate ng-if="$first">Projects</h4>
                     <span>{{ member.metadata.name }}</span>
                 </div>
                 <div ng-repeat="member in getGroupsWithMember(fields.groups, fields.user.metadata.name) track by member.metadata.name">
-                    <h4 translatable="yes" ng-if="$first">Groups</h4>
+                    <h4 translate ng-if="$first">Groups</h4>
                     <span>{{ member.metadata.name }}</span>
                 </div>
             </div>
@@ -21,7 +21,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-primary" ng-click="complete(performDelete(fields.user))" translatable="yes">Remove</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
+        <button class="btn btn-primary" ng-click="complete(performDelete(fields.user))" translate>Remove</button>
     </div>
 </modal-dialog>

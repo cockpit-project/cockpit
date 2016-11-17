@@ -1,12 +1,12 @@
 <div class="listing-ct-head">
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}">
-            <a ng-click="tab('main', $event)" translatable="yes">Container</a></li>
+            <a ng-click="tab('main', $event)" translate>Container</a></li>
         <li ng-class="{active: tab('logs')}">
-            <a class="logs" ng-click="tab('logs', $event); tabbed = true" translatable="yes">Logs</a></li>
+            <a class="logs" ng-click="tab('logs', $event); tabbed = true" translate>Logs</a></li>
         <li ng-class="{active: tab('shell')}"
             ng-if="item.status.phase == 'Running' && container.status.state.running">
-                <a class="shell" ng-click="tab('shell', $event); tabbed = true" translatable="yes">Shell</a></li>
+                <a class="shell" ng-click="tab('shell', $event); tabbed = true" translate>Shell</a></li>
     </ul>
 </div>
 <div class="listing-ct-body" ng-show="tab('main')">

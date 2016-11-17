@@ -6,17 +6,17 @@
     </div>
     <h3 ng-if="item"><i class="fa fa-database fa-fw"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="fa fa-database fa-fw"></i>{{ target }}</h3>
-    <a ng-href="#{{ viewUrl('volumes', true) }}" translatable="yes" class="hidden-xs">Show all Persistent Volumes</a>
+    <a ng-href="#{{ viewUrl('volumes', true) }}" translate class="hidden-xs">Show all Persistent Volumes</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">
-    <h3 translatable="yes">Volume</h3>
+    <h3 translate>Volume</h3>
     <div class="listing-ct-body container-fluid" pv-body></div>
 
-    <h3 translatable="yes">Claim</h3>
+    <h3 translate>Claim</h3>
     <div class="listing-ct-body container-fluid" pv-claim></div>
 </div>
 
 <div class="listing-ct-inline" ng-if="!item">
-    <h3 translatable="yes">The persistent volume '{{ target }}' does not exist.</h3>
+    <h3 translate>The persistent volume '{{ target }}' does not exist.</h3>
 </div>

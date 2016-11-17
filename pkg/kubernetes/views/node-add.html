@@ -1,11 +1,11 @@
 <modal-dialog>
     <div class="modal-header">
-        <h3 class="modal-title" translatable="yes">Add Cluster Node</h3>
+        <h3 class="modal-title" translate>Add Cluster Node</h3>
     </div>
     <div class="modal-body">
         <table class="form-table-ct">
             <tr>
-                <td class="top"><label class="control-label" for="node-name" translatable="yes"
+                <td class="top"><label class="control-label" for="node-name" translate
                         placeholder="eg: 198.51.10.25">Address</label></td>
                 <td class="top">
                     <input id="node-address" type="text" class="form-control"
@@ -13,7 +13,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="top"><label class="control-label" for="node-name" translatable="yes"
+                <td class="top"><label class="control-label" for="node-name" translate
                         placeholder="eg: node-1">Name</label></td>
                 <td class="top">
                     <input id="node-name" type="text" class="form-control"
@@ -21,7 +21,7 @@
                 </td>
             </tr>
           <tr class="node-configure-header">
-                <td colspan="2" class="header" translatable="yes">Configuration</td>
+                <td colspan="2" class="header" translate>Configuration</td>
             </tr>
           <tr class="configure-option">
                 <td></td>
@@ -29,7 +29,7 @@
                     <label>
                         <!-- We don't support configuration for now -->
                         <input type="checkbox" ng-model="fields.proxy" disabled>
-                        <span translatable="yes">Configure Kubelet and Proxy</span>
+                        <span translate>Configure Kubelet and Proxy</span>
                     </label>
                 </td>
             </tr>
@@ -39,14 +39,14 @@
                     <label>
                         <!-- We don't support configuration for now -->
                         <input type="checkbox" ng-model="fields.networking" disabled>
-                        <span translatable="yes">Configure Flannel networking</span>
+                        <span translate>Configure Flannel networking</span>
                     </label>
                 </td>
             </tr>
         </table>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-primary" translatable="yes" ng-click="complete(performAdd())">Add</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
+        <button class="btn btn-primary" translate ng-click="complete(performAdd())">Add</button>
     </div>
 </modal-dialog>

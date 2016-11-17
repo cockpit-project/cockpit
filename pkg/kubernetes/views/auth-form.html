@@ -2,13 +2,13 @@
     <table class="form-table-ct" ng-if="fields">
         <tr ng-if="haveKubectl">
             <td class="top">
-                <label class="control-label" translatable="yes">Cluster</label>
+                <label class="control-label" translate>Cluster</label>
             </td>
             <td class="dialog-wrapper">
                 <div id="kubernetes-cluster" class="btn-group bootstrap-select form-control" dropdown>
                     <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
                         <span class="pull-left" ng-if="currentCluster.name">{{ currentCluster.name }}</span>
-                        <span class="pull-left" ng-if="!currentCluster.name" translatable="yes">Add New Cluster</span>
+                        <span class="pull-left" ng-if="!currentCluster.name" translate>Add New Cluster</span>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
@@ -17,7 +17,7 @@
                         </li>
                         <li role="separator" class="divider"></li>
                         <li ng-class="{ checked: !currentCluster.name }">
-                            <a ng-click="selectCluster()" translatable="yes">Add New Cluster</a>
+                            <a ng-click="selectCluster()" translate>Add New Cluster</a>
                         </li>
                     </ul>
                 </div>
@@ -27,7 +27,7 @@
         <tr>
             <td class="top">
                 <label class="control-label" for="kubernetes-address"
-                    translatable="yes">Address</label>
+                    translate>Address</label>
             </td>
             <td>
                 <input id="kubernetes-address" class="form-control" type="text"
@@ -40,7 +40,7 @@
             <td>
                 <label>
                     <input id="kubernetes-skip-verify" type="checkbox" ng-model="fields.skipVerify">
-                    <span translatable="yes">Skip Certificate Verification</span>
+                    <span translate>Skip Certificate Verification</span>
                 </label>
             </td>
         </tr>
@@ -51,20 +51,20 @@
             <td>
                 <label>
                     <input id="kubernetes-requires-auth" type="checkbox" ng-checked="useAuth" ng-click="toggleAuth()">
-                    <span translatable="yes">Requires Authentication</span>
+                    <span translate>Requires Authentication</span>
                 </label>
             </td>
         </tr>
 
         <tr ng-if="haveKubectl && useAuth">
             <td class="top">
-                <label class="control-label" translatable="yes">User</label>
+                <label class="control-label" translate>User</label>
             </td>
             <td class="dialog-wrapper">
                 <div id="kubernetes-user" class="btn-group bootstrap-select form-control" dropdown>
                     <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
                         <span class="pull-left" ng-if="currentUser.name">{{ currentUser.name }}</span>
-                        <span class="pull-left" ng-if="!currentUser.name" translatable="yes">Add New User</span>
+                        <span class="pull-left" ng-if="!currentUser.name" translate>Add New User</span>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
@@ -73,7 +73,7 @@
                         </li>
                         <li role="separator" class="divider"></li>
                         <li ng-class="{ checked: !currentUser.name }">
-                            <a ng-click="selectUser()" translatable="yes">Add New User</a>
+                            <a ng-click="selectUser()" translate>Add New User</a>
                         </li>
                     </ul>
                 </div>
@@ -82,17 +82,17 @@
 
         <tr ng-if="useAuth && hasCert(currentUser)">
             <td class="top">
-                <label class="control-label" translatable="yes">Authentication</label>
+                <label class="control-label" translate>Authentication</label>
             </td>
             <td>
-                <span translatable="yes">Client Certificate</span>
+                <span translate>Client Certificate</span>
             </td>
         </tr>
 
         <tr ng-if="useAuth && (!currentUser || currentUser.user.username)">
             <td class="top">
                 <label class="control-label" for="kubernetes-username"
-                    translatable="yes">Username</label>
+                    translate>Username</label>
             </td>
             <td>
                 <input id="kubernetes-username" class="form-control" type="text"
@@ -103,7 +103,7 @@
         <tr ng-if="useAuth && (!currentUser || currentUser.user.username)">
             <td class="top">
                 <label class="control-label" for="kubernetes-password"
-                    translatable="yes">Password</label>
+                    translate>Password</label>
             </td>
             <td>
                 <input id="kubernetes-password" class="form-control" type="password"
@@ -114,7 +114,7 @@
         <tr ng-if="useAuth && currentUser.user.token">
             <td class="top">
                 <label class="control-label" for="kubernetes-token"
-                    translatable="yes">Token</label>
+                    translate>Token</label>
             </td>
             <td>
                 <input id="kubernetes-token" class="form-control" type="text"
@@ -125,8 +125,8 @@
 </div>
 
 <div class="modal-footer">
-    <button class="btn btn-default btn-cancel" ng-click="$dismiss()" translatable="yes">Cancel</button>
+    <button class="btn btn-default btn-cancel" ng-click="$dismiss()" translate>Cancel</button>
     <button ng-if="error.problem != 'untrusted-host'" class="btn btn-primary" ng-click="complete(update())">
-        <span translatable="yes">Connect</span>
+        <span translate>Connect</span>
     </button>
 </div>

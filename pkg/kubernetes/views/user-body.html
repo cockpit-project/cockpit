@@ -1,9 +1,9 @@
     <table listing-table class="listing-ct projects-listing">
         <thead>
             <tr>
-                <th translatable="yes">Membership</th>
-                <th translatable="yes"></th>
-                <th translatable="yes"></th>
+                <th translate>Membership</th>
+                <th translate></th>
+                <th translate></th>
             </tr>
         </thead>
         <tbody ng-repeat="member in getProjectsWithMember(projects(), user().metadata.name) track by member.metadata.name"
@@ -19,7 +19,7 @@
                     <div ng-if='member.kind == "Project"' class="btn-group bootstrap-select namespace-filter" dropdown>
                         <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
                             <span class="pull-left">
-                                <span ng-if="isRoles(user(), member)" translatable="yes">
+                                <span ng-if="isRoles(user(), member)" translate>
                                     {{ getRegistryRoles(user(), member).join() }}
                                 </span>
                             </span>
@@ -37,7 +37,7 @@
                     </div>
                 </td>
                 <td><a class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
-                        <i translatable="yes" class=" pficon-close"></i>
+                        <i translate class=" pficon-close"></i>
                     </a>
                 </td>
             </tr>
@@ -54,7 +54,7 @@
                 <td>
                 </td>
                 <td><a class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
-                        <i translatable="yes" class=" pficon-close"></i>
+                        <i translate class=" pficon-close"></i>
                     </a>
                 </td>
             </tr>
@@ -63,8 +63,8 @@
             <tr>
                 <td colspan="3">
                     <a class="pull-left" ng-click="addMemberToParent(user())">
-                        <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                        <span translatable="yes">Add Membership</span>
+                        <i translate class="pficon pficon-add-circle-o"></i>
+                        <span translate>Add Membership</span>
                     </a>
                 </td>
             </tr>

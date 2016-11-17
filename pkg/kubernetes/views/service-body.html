@@ -1,29 +1,29 @@
 <div class="row">
     <div class="col-sm-6">
         <dl>
-            <dt ng-if="settings.flavor == 'openshift'" translatable="yes">Project</dt>
-            <dt ng-if="settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
+            <dt ng-if="settings.flavor == 'openshift'" translate>Project</dt>
+            <dt ng-if="settings.flavor != 'openshift'" translate>Namespace</dt>
             <dd>{{ item.metadata.namespace }}</dd>
-            <dt translatable="yes">Created</dt>
+            <dt translate>Created</dt>
             <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
-            <dt translatable="yes">IP</dt>
+            <dt translate>IP</dt>
             <dd>{{ item.spec.clusterIP }}</dd>
-            <dt translatable="yes">Type</dt>
+            <dt translate>Type</dt>
             <dd>{{ item.spec.type }}</dd>
-            <dt translatable="yes">Ports</dt>
+            <dt translate>Ports</dt>
             <dd>
-                <div ng-if="!item.spec.ports.length" translatable="yes">None</div>
+                <div ng-if="!item.spec.ports.length" translate>None</div>
                 <div ng-repeat="portMapping in item.spec.ports | orderBy:'port'">
                     {{portMapping.port}}/{{portMapping.protocol}} &#8594; {{portMapping.nodePort || portMapping.targetPort}}
                 </div>
             </dd>
-            <dt translatable="yes">Session Affinity</dt>
+            <dt translate>Session Affinity</dt>
             <dd>{{ item.spec.sessionAffinity }}</dd>
         </dl>
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt translatable="yes">Labels</dt>
+            <dt translate>Labels</dt>
             <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
         </dl>
     </div>

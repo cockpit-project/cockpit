@@ -1,17 +1,17 @@
 <div class="listing-ct-inline" ng-if="container">
-    <h3 translatable="yes">Container</h3>
+    <h3 translate>Container</h3>
     <div class="listing-ct-body container-fluid">
         <kube-container-body>
         </kube-container-body>
     </div>
 
-    <h3 translatable="yes">Logs</h3>
+    <h3 translate>Logs</h3>
     <div class="container-fluid">
         <kube-console pod="pod" container="container.spec.name">
         </kube-console>
     </div>
 
-    <h3 translatable="yes">Shell</h3>
+    <h3 translate>Shell</h3>
     <div class="container-fluid">
         <kubernetes-container-terminal  pod="pod" container="container.spec.name" ng-if="pod.status.phase == 'Running' && container.status.state.running">
         </kubernetes-container-terminal>
@@ -19,5 +19,5 @@
 </div>
 
 <div class="listing-ct-inline" ng-if="!container">
-    <h3 translatable="yes">The container '{{ target }}' does not exist.</h3>
+    <h3 translate>The container '{{ target }}' does not exist.</h3>
 </div>

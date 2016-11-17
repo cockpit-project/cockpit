@@ -1,7 +1,7 @@
 <modal-dialog>
     <div class="modal-header">
-        <h3 class="modal-title" ng-if="!error" translatable="yes">Connection Settings</h3>
-        <h3 class="modal-title" ng-if="error" translatable="yes">Connection Error</h3>
+        <h3 class="modal-title" ng-if="!error" translate>Connection Settings</h3>
+        <h3 class="modal-title" ng-if="error" translate>Connection Error</h3>
     </div>
 
     <auth-form ng-if="error.problem != 'unknown-hostkey'"></auth-form>

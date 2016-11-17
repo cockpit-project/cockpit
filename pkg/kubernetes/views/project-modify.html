@@ -1,19 +1,19 @@
 <modal-dialog>
     <div class="modal-header">
         <h4 class="modal-title" ng-if="!project">
-          <span translatable="yes">New project</span>
+          <span translate>New project</span>
           <a tabindex="0" role="button" popover-placement="right" popover-trigger="focus"
               popover="A repository namespace for images">
             <span class="fa fa-lg fa-info-circle"></span>
           </a>
         </h4>
-        <h3 class="modal-title" ng-if="project" translatable="yes">Change project</h3>
+        <h3 class="modal-title" ng-if="project" translate>Change project</h3>
     </div>
     <div class="modal-body">
         <table class="form-table-ct">
             <tr>
                 <td class="top">
-                    <label translatable="yes" class="control-label" for="project-new-name">Name</label>
+                    <label translate class="control-label" for="project-new-name">Name</label>
                 </td>
                 <td>
                     <a class="input-icon" ng-if="!project" popover-placement="left"
@@ -28,7 +28,7 @@
             </tr>
             <tr>
                 <td class="top">
-                    <label class="control-label" for="project-new-display" translatable="yes">Display name</label>
+                    <label class="control-label" for="project-new-display" translate>Display name</label>
                 </td>
                 <td>
                     <input id="project-new-display" class="form-control" type="text"
@@ -37,7 +37,7 @@
             </tr>
             <tr>
                 <td class="top">
-                    <label class="control-label" for="project-new-description" translatable="yes">Description</label>
+                    <label class="control-label" for="project-new-description" translate>Description</label>
                 </td>
                 <td>
                     <input id="project-new-description" class="form-control" type="text"
@@ -47,7 +47,7 @@
             <tr>
                 <td>
                     <label class="control-label" for="project-access-policy"
-                        translatable="yes">Access Policy</label>
+                        translate>Access Policy</label>
                 </td>
                 <td>
                     <div class="btn-group bootstrap-select form-control" dropdown
@@ -68,10 +68,10 @@
         </table>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
         <button class="btn btn-primary" ng-if="!project" ng-click="complete(performCreate())"
-            translatable="yes">Create</button>
+            translate>Create</button>
         <button class="btn btn-primary" ng-if="project" ng-click="complete(performModify())"
-            translatable="yes">Change</button>
+            translate>Change</button>
     </div>
 </modal-dialog>

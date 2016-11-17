@@ -2,11 +2,11 @@
     <div class="blank-slate-pf-icon">
         <i class="pficon pficon-add-circle-o"></i>
     </div>
-    <h1 translatable="yes">Welcome to the Image Registry</h1>
-    <p translatable="yes">In order to begin pushing images to the registry, you need to create a project.</p>
+    <h1 translate>Welcome to the Image Registry</h1>
+    <p translate>In order to begin pushing images to the registry, you need to create a project.</p>
     <div class="blank-slate-pf-main-action">
         <a ng-click="createProject(settings.currentUser)" class="card-pf-link-with-icon">
-            <i class="pficon pficon-add-circle-o"></i><span translatable="yes">New project</span>
+            <i class="pficon pficon-add-circle-o"></i><span translate>New project</span>
         </a>
     </div>
 </div>
@@ -15,9 +15,9 @@
     <div class="card-pf dashboard-images">
         <div class="card-pf-heading">
             <h2 class="pull-left card-pf-title hidden-sm hidden-xs"
-                translatable="yes">Images by project</h2>
+                translate>Images by project</h2>
             <h2 class="pull-left card-pf-title hidden-md hidden-lg"
-                translatable="yes">Images</h2>
+                translate>Images</h2>
             <h2 class="pull-right card-pf-link-with-icon new-project-link">
               <a ng-click="createProject(settings.currentUser)">
                 <i class="pficon pficon-add-circle-o"></i>
@@ -45,13 +45,13 @@
         </div>
         <div class="card-pf-footer">
             <a ng-click="createProject(settings.currentUser)" class="card-pf-link-with-icon new-project-link">
-                <i class="pficon pficon-add-circle-o"></i><span translatable="yes">New project</span>
+                <i class="pficon pficon-add-circle-o"></i><span translate>New project</span>
             </a>
         </div>
     </div>
     <div class="card-pf card-pf-wide dashboard-images">
         <div class="card-pf-heading">
-            <h2 class="card-pf-title pull-left" translatable="yes">Images pushed recently</h2>
+            <h2 class="card-pf-title pull-left" translate>Images pushed recently</h2>
             <filter-project class="pull-right">
             </filter-project>
         </div>
@@ -71,19 +71,19 @@
                     </li>
                 </ul>
             </div>
-            <a href="#/images" class="all-images" translatable="yes">All images</a>
+            <a href="#/images" class="all-images" translate>All images</a>
         </div>
         <div class="card-pf-body blank-slate-pf" ng-if="!recentlyUpdated().length">
             <div class="blank-slate-pf-icon">
                 <i class="pficon pficon-add-circle-o"></i>
             </div>
-            <h1 translatable="yes">No images pushed</h1>
-            <p translatable="yes">In order to begin pushing images to the registry, use the commands below.</p>
+            <h1 translate>No images pushed</h1>
+            <p translate>In order to begin pushing images to the registry, use the commands below.</p>
         </div>
         <div class="card-pf-footer">
             <a class="card-pf-link-with-icon" ng-click="createImageStream()">
-                <span translatable="yes" class="pficon pficon-add-circle-o"></span>
-                <span translatable="yes">New image stream</span>
+                <span translate class="pficon pficon-add-circle-o"></span>
+                <span translate>New image stream</span>
             </a>
         </div>
     </div>
@@ -93,12 +93,12 @@
         <div class="card-pf-heading">
             <h2 class="card-pf-title">
                 <i class="fa fa-keyboard-o"></i>
-                <span translatable="yes">Login commands</span>
+                <span translate>Login commands</span>
             </h2>
         </div>
         <div class="card-pf-body">
             <p>
-                <span translatable="yes">Log into the registry:</span>
+                <span translate>Log into the registry:</span>
                 <a ng-if="settings.registry.password"
                     tabindex="0" role="button" popover-trigger="focus"
                     popover="The docker login password token
@@ -109,11 +109,11 @@
             </p>
             <div class="alert alert-warning" ng-if="!settings.registry.password">
                 <span class="pficon pficon-warning-triangle-o"></span>
-                <span translatable="yes">Your login credentials do not give you access to use the docker registry from the command line.</span>
+                <span translate>Your login credentials do not give you access to use the docker registry from the command line.</span>
             </div>
 <code ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span></code>
             <p ng-if="settings.registry.openshifthost_explicit">
-                <span translatable="yes">Log into OpenShift command line tools:</span>
+                <span translate>Log into OpenShift command line tools:</span>
                 <a ng-if="settings.registry.password"
                     tabindex="0" role="button" popover-trigger="focus"
                     popover="The registry backend is managed
@@ -132,12 +132,12 @@
         <div class="card-pf-heading">
             <h2 class="card-pf-title">
                 <i class="fa fa-keyboard-o"></i>
-                <span translatable="yes">Image commands</span>
+                <span translate>Image commands</span>
             </h2>
         </div>
         <div class="card-pf-body">
             <p>
-                <span translatable="yes">Push an image:</span>
+                <span translate>Push an image:</span>
                 <a tabindex="0" role="button" popover-trigger="focus"
                     popover="You must login with docker
                     to push an image.">
@@ -147,7 +147,7 @@
 <code>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em>
 $ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name</em></code>
             <p>
-                <span translatable="yes">Pull an image:</span>
+                <span translate>Pull an image:</span>
                 <a tabindex="0" role="button" popover-trigger="focus"
                     popover="Depending on project access settings
                     you may need to login with docker to pull an image.">

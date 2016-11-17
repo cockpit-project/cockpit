@@ -6,8 +6,8 @@
 </div>
 <div class="col-sm-6">
     <dl class="full-width"">
-        <dt translatable="yes">Scheduled Pods</dt>
+        <dt translate>Scheduled Pods</dt>
         <dd ng-repeat="pod in nodePods(item)">{{ pod.metadata.name }}</dd>
-        <dd ng-if="!nodePods(item).length" translatable="yes">No pods scheduled</dd>
+        <dd ng-if="!nodePods(item).length" translate>No pods scheduled</dd>
     </dl>
 </div>

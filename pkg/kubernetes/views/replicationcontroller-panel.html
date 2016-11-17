@@ -7,11 +7,11 @@
     </div>
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}">
-            <a ng-click="tab('main', $event)" translatable="yes">Replication Controller</a></li>
+            <a ng-click="tab('main', $event)" translate>Replication Controller</a></li>
         <li ng-class="{active: tab('pods')}">
-            <a ng-click="tab('pods', $event)" translatable="yes">Pods</a></li>
+            <a ng-click="tab('pods', $event)" translate>Pods</a></li>
         <li ng-class="{active: tab('template')}">
-            <a ng-click="tab('template', $event)" translatable="yes">Template</a></li>
+            <a ng-click="tab('template', $event)" translate>Template</a></li>
     </ul>
 </div>
 <div class="listing-ct-body" replicationcontroller-body ng-show="tab('main')">

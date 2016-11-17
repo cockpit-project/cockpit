@@ -1,25 +1,25 @@
 <div class="row">
     <div class="col-sm-6">
         <dl>
-            <dt ng-if="settings.flavor == 'openshift'" translatable="yes">Project</dt>
-            <dt ng-if="settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
+            <dt ng-if="settings.flavor == 'openshift'" translate>Project</dt>
+            <dt ng-if="settings.flavor != 'openshift'" translate>Namespace</dt>
             <dd>{{ item.metadata.namespace }}</dd>
-            <dt translatable="yes">Created</dt>
+            <dt translate>Created</dt>
             <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
-            <dt translatable="yes">Replicas</dt>
+            <dt translate>Replicas</dt>
             <dd>{{ item.spec.replicas }}</dd>
 
-            <dt ng-if="item.spec.strategy.type" translatable="yes">Strategy</dd>
+            <dt ng-if="item.spec.strategy.type" translate>Strategy</dd>
             <dd ng-if="item.spec.strategy.type">{{item.spec.strategy.type}}</dd>
 
-            <dt translatable="yes">Latest Version</dt>
+            <dt translate>Latest Version</dt>
             <dd ng-if="item.status.latestVersion">{{ item.status.latestVersion }}</dd>
-            <dd ng-if="!item.status.latestVersion" translatable="yes">Not deployed</td>
+            <dd ng-if="!item.status.latestVersion" translate>Not deployed</td>
         </dl>
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt translatable="yes" ng-if="item.status.details">Deployment Causes</dt>
+            <dt translate ng-if="item.status.details">Deployment Causes</dt>
             <dd ng-if="item.status.details.message">{{ item.status.details.message }}</dd>
             <dd ng-repeat="cause in item.status.details.causes">
                 {{ cause.type }}
@@ -29,7 +29,7 @@
             </dd>
         </dl>
         <dl class="full-width">
-            <dt translatable="yes" ng-if="item.spec.triggers">Triggers</dt>
+            <dt translate ng-if="item.spec.triggers">Triggers</dt>
             <dd class="full" ng-repeat="trigger in item.spec.triggers">
                 {{ trigger.type }}
                 <span ng-if="trigger.imageChangeParams.from">
@@ -38,7 +38,7 @@
             </dd>
         </dl>
         <dl class="full-width">
-            <dt translatable="yes">Labels</dt>
+            <dt translate>Labels</dt>
             <dd ng-if="!item.metadata.labels">none</span>
             <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
         </dl>

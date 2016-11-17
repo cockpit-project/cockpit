@@ -20,16 +20,16 @@
             {{ projName }}
         </span>
     </h3>
-    <a ng-href="#/projects" translatable="yes">Show all Projects</a>
+    <a ng-href="#/projects" translate>Show all Projects</a>
 </div>
 <div class="listing-ct-inline" ng-if="project()">
     <p class="project-description" ng-if="project().metadata.annotations['openshift.io/description']">
         {{ project().metadata.annotations['openshift.io/description'] }}
     </p>
-    <h3 translatable="yes">Membership</h3>
+    <h3 translate>Membership</h3>
     <div project-body class="listing-ct-body">
     </div>
 </div>
 <div class="listing-ct-inline" ng-if="!project()">
-    <h3 translatable="yes">The project '{{ projName }}' does not exist.</h3>
+    <h3 translate>The project '{{ projName }}' does not exist.</h3>
 </div>

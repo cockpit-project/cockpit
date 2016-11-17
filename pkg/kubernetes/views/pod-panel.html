@@ -48,9 +48,9 @@
             <dl ng-if="podVolume.persistentVolumeClaim" pvc-body settings="settings"
                 item="claimFromVolumeSource(podVolume.persistentVolumeClaim, item.metadata.namespace)"></dl>
             <dl>
-                <dt translatable="yes">Mount Location</dt>
+                <dt translate>Mount Location</dt>
                 <dd>
-                    <span ng-if="!podVolume.mounts" translatable="yes">None</span>
+                    <span ng-if="!podVolume.mounts" translate>None</span>
                     <dl class="full-width" ng-if="podVolume.mounts">
                         <dt ng-repeat-start="(name, data) in podVolume.mounts">{{ name }}</dt>
                         <dd ng-repeat-end>{{ data.mountPath }}</dd>

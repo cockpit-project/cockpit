@@ -5,16 +5,16 @@
     </div>
     <h3 ng-if="item"><i class="fa pficon-service"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="fa pficon-service"></i>{{ target }}</h3>
-    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Services</a>
+    <a ng-click="navigate(type)" translate class="hidden-xs">Show all Services</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">
-    <h3 translatable="yes">Service</h3>
+    <h3 translate>Service</h3>
     <div class="listing-ct-body container-fluid" service-body></div>
-    <h3 translatable="yes">Endpoints</h3>
+    <h3 translate>Endpoints</h3>
     <div class="listing-ct-body container-fluid" service-endpoint></div>
 </div>
 
 <div class="listing-ct-inline" ng-if="!item">
-    <h3 translatable="yes">The service '{{ target }}' does not exist.</h3>
+    <h3 translate>The service '{{ target }}' does not exist.</h3>
 </div>

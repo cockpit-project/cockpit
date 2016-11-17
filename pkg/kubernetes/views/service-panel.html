@@ -5,8 +5,8 @@
                 ng-click="deleteItem(item)"></button>
         </div>
         <ul class="nav nav-tabs nav-tabs-pf">
-            <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)" translatable="yes">Service</a></li>
-            <li ng-class="{active: tab('endpoints')}"><a ng-click="tab('endpoints', $event)" translatable="yes">Endpoints</a></li>
+            <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)" translate>Service</a></li>
+            <li ng-class="{active: tab('endpoints')}"><a ng-click="tab('endpoints', $event)" translate>Endpoints</a></li>
         </ul>
     </div>
     <div class="listing-ct-body" service-body ng-show="tab('main')">

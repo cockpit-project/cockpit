@@ -1,38 +1,38 @@
 <dl>
-    <dt translatable="yes">Volume Type</dt>
+    <dt translate>Volume Type</dt>
     <dd>Persistent Volume</dd>
-    <dt translatable="yes">Claim Name</dt>
+    <dt translate>Claim Name</dt>
     <dd>{{ item.metadata.name }}</dd>
-    <dt translatable="yes">Volume</dt>
+    <dt translate>Volume</dt>
     <dd>
         <a ng-if="item.spec.volumeName && settings.isAdmin" href="#/volumes/{{ item.spec.volumeName }}">{{ item.spec.volumeName }}</a>
         <span ng-if="item.spec.volumeName && !settings.isAdmin">{{ item.spec.volumeName }}</span>
-        <span ng-if="!item.spec.volumeName" translatable="yes">No Volume Bound</span>
+        <span ng-if="!item.spec.volumeName" translate>No Volume Bound</span>
     </dd>
 
-    <dt ng-if="item.status.phase" translatable="yes">Status</dt>
+    <dt ng-if="item.status.phase" translate>Status</dt>
     <dd ng-if="item.status.phase">{{ item.status.phase }}</dd>
-    <dt ng-if="item.status.message" translatable="yes">Message</dt>
+    <dt ng-if="item.status.message" translate>Message</dt>
     <dd ng-if="item.status.message">{{ item.status.message }}</dd>
 
-    <dt ng-if="item.spec.accessModes || item.status.accessModes" translatable="yes">Access Modes</dt>
+    <dt ng-if="item.spec.accessModes || item.status.accessModes" translate>Access Modes</dt>
     <dd ng-if="item.spec.accessModes || item.status.accessModes">
         <dl>
-            <dt ng-if="item.spec.accessModes" class="left" translatable="yes">Requested</dt>
+            <dt ng-if="item.spec.accessModes" class="left" translate>Requested</dt>
             <dd ng-if="item.spec.accessModes">
                 <span ng-repeat="mode in item.spec.accessModes">{{ mode  | accessModeLabel }}<span ng-if="!$last">,</span></span>
             </dd>
-            <dt ng-if="item.status.accessModes" translatable="yes">Actual</dt>
+            <dt ng-if="item.status.accessModes" translate>Actual</dt>
             <dd ng-if="item.status.accessModes">
                 <span ng-repeat="mode in item.status.accessModes">{{ mode | accessModeLabel }}<span ng-if="!$last">, </span></span>
             </dd>
         </dl>
     </dd>
 
-    <dt ng-if="item.spec.resources.requests || item.status.capacity" translatable="yes">Capacity</dt>
+    <dt ng-if="item.spec.resources.requests || item.status.capacity" translate>Capacity</dt>
     <dd>
         <dl class="full-width" ng-if="item.spec.resources.requests">
-            <dt translatable="yes">Requested</dt>
+            <dt translate>Requested</dt>
             <dd>
                 <dl class="inline-dl">
                     <dt class="inline-dt" ng-repeat-start="(key, value) in item.spec.resources.requests">{{ key | formatCapacityName }}</dt>
@@ -42,7 +42,7 @@
         </dl>
 
         <dl ng-if="item.status.capacity" class="full-width">
-            <dt translatable="yes">Actual</dt>
+            <dt translate>Actual</dt>
             <dd>
                 <dl class="inline-dl">
                     <dt class="inline-dt" ng-repeat-start="(key, value) in item.status.capacity">{{ key | formatCapacityName }}</dt>

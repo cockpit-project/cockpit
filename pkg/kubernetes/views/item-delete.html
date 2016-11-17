@@ -1,13 +1,13 @@
 <modal-dialog>
     <div class="modal-header">
-        <h3 class="modal-title" translatable="yes">Delete {{ item.kind }}</h3>
+        <h3 class="modal-title" translate>Delete {{ item.kind }}</h3>
     </div>
     <div class="modal-body">
-        <p translatable="yes">Do you want to delete the {{ item.kind }} '{{item.metadata.name}}'?</p>
-        <p ng-if="item.kind === 'Pod'" translatable="yes">Deleting a Pod will kill all associated containers. Pods may be automatically created again in some cases.</p>
+        <p translate>Do you want to delete the {{ item.kind }} '{{item.metadata.name}}'?</p>
+        <p ng-if="item.kind === 'Pod'" translate>Deleting a Pod will kill all associated containers. Pods may be automatically created again in some cases.</p>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-danger" translatable="yes" ng-click="complete(performDelete())">Delete</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
+        <button class="btn btn-danger" translate ng-click="complete(performDelete())">Delete</button>
     </div>
 </modal-dialog>

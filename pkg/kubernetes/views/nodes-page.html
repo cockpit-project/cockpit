@@ -1,6 +1,6 @@
 <div class="content-filter">
 <div class="action-menu">
-    <button class="btn btn-danger" translatable="yes"
+    <button class="btn btn-danger" translate
         ng-class="{ disabled: !listing.hasSelected() }"
         ng-if="listing.enableActions"
         ng-click="deleteSelectedNodes()">Delete Selected</button>
@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="card-pf card-pf-accented nodes-os-card">
-        <h2 class="card-pf-title" translatable="yes">OS Versions</h2>
+        <h2 class="card-pf-title" translate>OS Versions</h2>
         <div class="card-pf-body">
             <div node-os-graph class="row" nodes="nodes">
             </div>
@@ -30,18 +30,18 @@
         <tr>
             <td colspan="5">
                 <a id="add-node" class="pull-right" ng-click="addNode()">
-                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                    <span translatable="yes">Add Kubernetes Node</span>
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>Add Kubernetes Node</span>
                 </a>
-                <h3 translatable="yes">Nodes</h3>
+                <h3 translate>Nodes</h3>
             </td>
         </tr>
         <tr>
             <th></th>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">Operating System</th>
-            <th translatable="yes">Address</th>
-            <th translatable="yes">Status</th>
+            <th translate>Name</th>
+            <th translate>Operating System</th>
+            <th translate>Address</th>
+            <th translate>Status</th>
         </tr>
     </thead>
     <tbody ng-repeat="(link, item) in nodes track by item.metadata.name"

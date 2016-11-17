@@ -3,8 +3,8 @@
     <div class="btn-group bootstrap-select type-filter" dropdown>
         <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
             <span class="pull-left">
-                <span ng-if="showAll" translatable="yes">All Types</span>
-                <span ng-if="name"><span class="namespace-meta" translatable="yes">Type:</span> {{ name }}</span>
+                <span ng-if="showAll" translate>All Types</span>
+                <span ng-if="name"><span class="namespace-meta" translate>Type:</span> {{ name }}</span>
             </span>
             <span class="caret"></span>
         </button>
@@ -26,16 +26,16 @@
         <thead id="services" ng-if="showAll || services">
             <tr>
                 <td colspan="5">
-                    <h3 translatable="yes">Services</h3>
+                    <h3 translate>Services</h3>
                 </td>
             </tr>
             <tr>
                 <th></th>
-                <th translatable="yes">Name</th>
-                <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-                <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
-                <th translatable="yes">Addresses</th>
-                <th translatable="yes">State</th>
+                <th translate>Name</th>
+                <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+                <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
+                <th translate>Addresses</th>
+                <th translate>State</th>
             </tr>
         </thead>
         <tbody ng-repeat="item in services | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by itemIdentifier(item)" ng-init="id = itemIdentifier(item)"
@@ -49,8 +49,8 @@
                 <td>{{item.metadata.namespace}}</td>
                 <td><kubernetes-service-cluster></td>
                 <td>
-                    <span ng-if="serviceEndpoint(item).subsets.length !== 0" translatable="yes">Ready</span>
-                    <span ng-if="serviceEndpoint(item).subsets.length === 0" translatable="yes">Not Ready</span>
+                    <span ng-if="serviceEndpoint(item).subsets.length !== 0" translate>Ready</span>
+                    <span ng-if="serviceEndpoint(item).subsets.length === 0" translate>Not Ready</span>
                 </td>
             </tr>
             <tr class="listing-ct-panel" ng-if="listing.expanded(id)">
@@ -62,16 +62,16 @@
         <thead id="routes" ng-if="(showAll || routes) && settings.flavor == 'openshift'">
             <tr>
                 <td colspan="5">
-                    <h3 translatable="yes">Routes</h3>
+                    <h3 translate>Routes</h3>
                 </td>
             </tr>
             <tr>
                 <th></th>
-                <th translatable="yes">Name</th>
-                <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-                <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
-                <th translatable="yes">Host</th>
-                <th translatable="yes"></th>
+                <th translate>Name</th>
+                <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+                <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
+                <th translate>Host</th>
+                <th translate></th>
             </tr>
         </thead>
         <tbody ng-repeat="item in routes | orderObjectBy:['metadata.namespace', 'metadata.name']  as filtered_result track by itemIdentifier(item)"
@@ -95,16 +95,16 @@
         <thead id="deployment-configs" ng-if="(showAll || deploymentconfigs) && settings.flavor == 'openshift'">
             <tr>
                 <td colspan="5">
-                    <h3 translatable="yes">Deployment Configs</h3>
+                    <h3 translate>Deployment Configs</h3>
                 </td>
             </tr>
             <tr>
                 <th></th>
-                <th translatable="yes">Name</th>
-                <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-                <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
-                <th translatable="yes"></th>
-                <th translatable="yes">Latest Version</th>
+                <th translate>Name</th>
+                <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+                <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
+                <th translate></th>
+                <th translate>Latest Version</th>
             </tr>
         </thead>
         <tbody ng-repeat="item in deploymentconfigs | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by itemIdentifier(item)"
@@ -119,7 +119,7 @@
                 <td>{{item.metadata.namespace}}</td>
                 <td></td>
                 <td ng-if="item.status.latestVersion">{{ item.status.latestVersion }}</td>
-                <td ng-if="!item.status.latestVersion" translatable="yes">Not deployed</td>
+                <td ng-if="!item.status.latestVersion" translate>Not deployed</td>
             </tr>
             <tr class="listing-ct-panel" ng-if="listing.expanded(id)">
                 <td listing-panel kind="DeploymentConfig" colspan="5"></td>
@@ -129,16 +129,16 @@
         <thead id="replication-controllers" ng-if="showAll || replicationcontrollers">
             <tr>
                 <td colspan="5">
-                    <h3 translatable="yes">Replication Controllers</h3>
+                    <h3 translate>Replication Controllers</h3>
                 </td>
             </tr>
             <tr>
                 <th></th>
-                <th translatable="yes">Name</th>
-                <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-                <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
-                <th translatable="yes"></th>
-                <th translatable="yes">Replicas</th>
+                <th translate>Name</th>
+                <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+                <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
+                <th translate></th>
+                <th translate>Replicas</th>
             </tr>
         </thead>
         <tbody ng-repeat="item in replicationcontrollers | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by itemIdentifier(item)"
@@ -163,16 +163,16 @@
         <thead id="pods" ng-if="showAll || pods">
             <tr>
                 <td colspan="5">
-                    <h3 translatable="yes">Pods</h3>
+                    <h3 translate>Pods</h3>
                 </td>
             </tr>
             <tr>
                 <th></th>
-                <th translatable="yes">Name</th>
-                <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-                <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
-                <th translatable="yes">Address</th>
-                <th translatable="yes">State</th>
+                <th translate>Name</th>
+                <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+                <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
+                <th translate>Address</th>
+                <th translate>State</th>
             </tr>
         </thead>
         <tbody ng-repeat="item in pods | orderObjectBy:['metadata.namespace', 'metadata.name'] as filtered_result track by itemIdentifier(item)"

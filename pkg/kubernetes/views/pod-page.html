@@ -5,26 +5,26 @@
         </div>
     <h3 ng-if="item"><i class="fa fa-cubes"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="fa fa-cubes"></i>{{ target }}</h3>
-    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Pods</a>
+    <a ng-click="navigate(type)" translate class="hidden-xs">Show all Pods</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">
-    <h3 translatable="yes">Pod</h3>
+    <h3 translate>Pod</h3>
     <div class="listing-ct-body container-fluid">
         <kube-pod-body ng-init="pod = item">
         </kube-pod-body>
     </div>
 
-    <h3 translatable="yes">Volumes</h3>
+    <h3 translate>Volumes</h3>
     <div class="listing-ct-body container-fluid" ng-repeat="podVolume in volumesForPod(item)" data-id="{{ podVolume.name }}">
         <h4>{{ podVolume.name }}</h4>
         <dl ng-if="!podVolume.persistentVolumeClaim" volume-body volume="podVolume"></dl>
         <dl ng-if="podVolume.persistentVolumeClaim" pvc-body settings="settings"
             item="claimFromVolumeSource(podVolume.persistentVolumeClaim, item.metadata.namespace)"></dl>
         <dl>
-            <dt translatable="yes">Mount Location</dt>
+            <dt translate>Mount Location</dt>
             <dd>
-                <span ng-if="!podVolume.mounts" translatable="yes">None</span>
+                <span ng-if="!podVolume.mounts" translate>None</span>
                 <dl class="full-width" ng-if="podVolume.mounts">
                     <dt ng-repeat-start="(name, data) in podVolume.mounts">{{ name }}</dt>
                     <dd ng-repeat-end>{{ data.mountPath }}</dd>
@@ -33,9 +33,9 @@
         </dl>
     </div>
 
-    <h3 translatable="yes">Containers</h3>
+    <h3 translate>Containers</h3>
     <div class="listing-ct-body" ng-init="pods=[item]" containers-listing></div>
 
 <div class="listing-ct-inline" ng-if="!item">
-    <h3 translatable="yes">The pod '{{ target }}' does not exist.</h3>
+    <h3 translate>The pod '{{ target }}' does not exist.</h3>
 </div>

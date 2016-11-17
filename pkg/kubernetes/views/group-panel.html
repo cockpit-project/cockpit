@@ -9,15 +9,15 @@
         <table listing-table class="listing-ct project-body">
             <thead >
                 <tr >
-                    <th translatable="yes">Group Members</th>
-                    <th translatable="yes"></th>
+                    <th translate>Group Members</th>
+                    <th translate></th>
                 </tr>
             </thead>
             <tbody colspan="3" ng-repeat="user in group().users">
                 <tr class="listing-ct-item inner-project-listing">
                     <td><i class=" pficon-user"></i>  {{ user }}</span></td>
                     <td><a class="pull-right close-icon">
-                        <i translatable="yes" class="pficon-close " ng-click="removeUserFromGroup(user, group())"></i>
+                        <i translate class="pficon-close " ng-click="removeUserFromGroup(user, group())"></i>
                     </a></td>
                 </tr>
             </tbody>
@@ -25,8 +25,8 @@
                 <tr>
                     <td colspan="3">
                         <a class="pull-left" disabled>
-                            <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                            <span translatable="yes" ng-click="addUserToGroup(group())">Add Member</span>
+                            <i translate class="pficon pficon-add-circle-o"></i>
+                            <span translate ng-click="addUserToGroup(group())">Add Member</span>
                         </a>
                     </td>
                 </tr>

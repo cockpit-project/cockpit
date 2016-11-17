@@ -957,11 +957,11 @@ lookup_internal_address (const gchar *name,
 }
 
 static gchar *
-unique_internal_name (void)
+unique_internal_name (const gchar *prefix)
 {
-  /* We are not multi-threaded */
-  static guint64 unique = 999;
-  return g_strdup_printf ("internal-channel-%" G_GUINT64_FORMAT, unique++);
+  /* We are not multi-threaded. Also don't make this look like normal fd numbers */
+  static guint64 unique = 911111;
+  return g_strdup_printf ("%s-%" G_GUINT64_FORMAT, prefix, unique++);
 }
 
 const gchar *
@@ -985,7 +985,7 @@ cockpit_channel_add_internal_address (const gchar *name,
   if (name)
     id = g_strdup (name);
   else
-    id = unique_internal_name ();
+    id = unique_internal_name ("internal-address");
   g_hash_table_replace (internal_values, id, value);
   return id;
 }
@@ -1005,7 +1005,7 @@ cockpit_channel_add_internal_fd (gint fd)
   value = g_new0 (InternalValue, 1);
   value->fd = fd;
 
-  id = unique_internal_name ();
+  id = unique_internal_name ("file-descriptor");
   g_hash_table_replace (internal_values, id, value);
   return id;
 }

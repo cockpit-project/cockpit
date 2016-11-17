@@ -520,6 +520,9 @@ parse_json (JsonNode *node,
         {
           return parse_json_signature (node, error);
         }
+      else if (g_variant_type_equal (type, G_VARIANT_CLASS_HANDLE))
+        {
+          return parse_json_fd_channel (node, error);
       else
         {
           parse_not_supported (type, error);
@@ -666,6 +669,7 @@ static JsonNode *
 build_json_fd_channel (GVariant *value,
                        VariantContext *context)
 {
+  JsonObject *object;
   GError *error = NULL;
   JsonNode *node;
   gint fd = -1;
@@ -691,7 +695,7 @@ build_json_fd_channel (GVariant *value,
       g_assert (context->fdlist != NULL);
       g_assert (context->fdids != NULL);
 
-      node = json_node_new (JSON_NODE_VALUE);
+      node = json_node_new (JSON_NODE_OBJECT);
 
       /* Add a new internal channel name for this file descriptor */
       id = cockpit_channel_add_internal_fd (fd);
@@ -705,7 +709,12 @@ build_json_fd_channel (GVariant *value,
             g_warn_if_reached ();
         }
 
-      json_node_set_string (node, id);
+      /* This is sent back as the list of channel options to use */
+      object = json_object_new ();
+      json_object_set_string_member (object, "payload", "stream");
+      json_object_set_string_member (object, "internal", id);
+      json_node_set_object (node, object);
+      json_object_unref (object);
     }
 
   return node;

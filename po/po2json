@@ -1,42 +1,41 @@
 #!/usr/bin/env node
 
-var fs, po2json, Jed;
-
 function fatal(message, code) {
-    console.log("po2json: " + message);
+    console.log((filename || "html2po") + ": " + message);
     process.exit(code || 1);
 }
 
 function usage() {
-    console.log("usage: po2json [--module] input output");
+    console.log("usage: po2json [--module=template.js] input output");
     process.exit(2);
 }
 
+var fs, po2json, Jed, stdio;
 
 try {
     fs = require('fs');
     po2json = require('po2json');
     Jed = require('jed');
+    stdio = require('stdio');
 } catch(ex) {
     fatal(ex.message, 127); /* missing looks for this */
 }
 
 var argi = 2;
-var module = false;
+var filename = null;
 
-if (process.argv[argi] == "--module") {
-    module = true;
-    argi++;
-}
+var opts = stdio.getopt({
+    module: { key: "m", args: 1, description: "Module template to include" },
+    output: { key: "o", args: 1, description: "Output file" },
+});
 
-if (process.argv.length != argi + 2) {
+if (opts.args.length != 1) {
     usage();
 }
 
-var input = process.argv[argi];
-var output = process.argv[argi + 1];
+parse();
 
-function prepare_header(header) {
+function prepareHeader(header) {
     var body, statement, plurals = header["plural-forms"], ret = null;
     if (plurals) {
         try {
@@ -70,29 +69,56 @@ function prepare_header(header) {
     return ret;
 }
 
-po2json.parseFile(input, { "fuzzy": true }, function(err, jsonData) {
-    var plurals, pos;
+/* Parse and process the po data */
+function parse() {
+    filename = opts.args[0];
+    po2json.parseFile(opts.args[0], { "fuzzy": true }, function(err, jsonData) {
+        var plurals, pos;
 
-    if (err)
-        fatal(err.message);
-
-    var header = jsonData[""];
-    if (header)
-        plurals = prepare_header(header);
-
-    var data = JSON.stringify(jsonData, null, 1);
-
-    /* We know the brace in is the location to insert our function */
-    if (plurals) {
-        pos = data.indexOf('{', 1);
-        data = data.substr(0, pos + 1) + "'plural-forms':" + String(plurals) + "," + data.substr(pos + 1);
-    }
-
-    if (module)
-	data = "(function (root, data) { if (typeof define === 'function' && define.amd) { define(data); } else if(typeof cockpit === 'object') { cockpit.locale(data); } else { root.po = data; } }(this, " + data + "));";
-
-    fs.writeFile(output, data, function(err) {
         if (err)
-	    fatal(err.message);
+            fatal(err.message);
+
+        var header = jsonData[""];
+        if (header)
+            plurals = prepareHeader(header);
+
+        var data = JSON.stringify(jsonData, null, 1);
+
+        /* We know the brace in is the location to insert our function */
+        if (plurals) {
+            pos = data.indexOf('{', 1);
+            data = data.substr(0, pos + 1) + "'plural-forms':" + String(plurals) + "," + data.substr(pos + 1);
+        }
+
+        wrap(data);
     });
-});
+}
+
+/* Wrap the data if desired */
+function wrap(data) {
+    if (opts.module) {
+        filename = opts.module;
+        fs.readFile(opts.module, { encoding: "utf-8" }, function(err, template) {
+            if (err)
+                fatal(err.message);
+            data = template.replace('{"":{"language":"en"}}', data);
+            finish(data);
+        });
+    } else {
+        finish(data);
+    }
+}
+
+/* Write it out */
+function finish(data) {
+    if (opts.output) {
+        fs.writeFile(opts.output, data, function(err) {
+            if (err)
+	        fatal(err.message);
+            process.exit(0);
+        });
+    } else {
+        process.stdout.write(data);
+        process.exit(0);
+    }
+}

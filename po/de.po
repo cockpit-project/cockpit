@@ -593,22 +593,17 @@ msgstr "1 Minute"
 msgid "1 day"
 msgstr "1 Tag"
 
-#: pkg/storaged/index.html:310 pkg/networkmanager/index.html:53
-#: pkg/networkmanager/index.html:499
-msgid "1 hour"
-msgstr "1 Stunde"
-
 #: pkg/storaged/index.html:313 pkg/networkmanager/index.html:56
 #: pkg/networkmanager/index.html:502
 msgid "1 week"
 msgstr "1 Woche"
 
-#: pkg/playground/translate.html:190
-#, fuzzy
-msgid "1% Free"
-msgid_plural "{{$count}}% Free"
-msgstr[0] "Verfügbar"
-msgstr[1] "Verfügbar"
+#: pkg/storaged/index.html:310 pkg/networkmanager/index.html:53
+#: pkg/networkmanager/index.html:499
+msgid "1 hour"
+msgid_plural "{{count}} hours"
+msgstr[0] "{{count}} Stunde"
+msgstr[1] "{{count}} Stunden"
 
 #: pkg/storaged/overview.js:438
 msgid "128 KiB"
@@ -1956,9 +1951,13 @@ msgstr ""
 msgid "Delete image stream"
 msgstr ""
 
-#: pkg/playground/translate.html:184 pkg/kubernetes/views/item-delete.html:3
+#: pkg/kubernetes/views/item-delete.html:3
 msgid "Delete {{ item.kind }}"
-msgstr ""
+msgstr "{{ item.kind }} löschen"
+
+#: pkg/playground/translate.html:184
+msgid "Delete '{{ name }}'"
+msgstr "'{{ name }}' löschen"
 
 #: pkg/storaged/jobs.js:133 pkg/storaged/jobs.js:147
 msgid "Deleting $target"

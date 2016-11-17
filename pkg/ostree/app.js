@@ -6,6 +6,7 @@
 
     var angular = require('angular');
     require('angular-route');
+    require('angular-gettext/dist/angular-gettext.js');
     require('angular-bootstrap/ui-bootstrap.js');
     require('angular-bootstrap/ui-bootstrap-tpls.js');
 
@@ -51,6 +52,7 @@
 
     angular.module('ostree', [
             'ngRoute',
+            'gettext',
         ])
         .config([
             '$routeProvider',

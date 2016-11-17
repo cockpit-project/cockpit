@@ -20,12 +20,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <html ng-csp>
 
 <head>
-  <title translatable="yes">Software Updates</title>
+  <title translate>Software Updates</title>
   <meta charset="utf-8">
   <link href="../base1/patternfly.css" rel="stylesheet">
   <link href="ostree.css" rel="stylesheet">
   <script src="../base1/cockpit.js"></script>
   <script src="ostree.js"></script>
+  <script src="../shell/po.js"></script>
 </head>
 <body ng-app='ostree' hidden>
 
@@ -45,7 +46,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 {{ error }}
             </div>
             <div class="listing-ct-actions">
-                <button class="btn btn-default" ng-class="{ disabled: runningMethod, enabled: !runningMethod }" ng-click="checkForUpgrades()" translatable="yes">Check for Updates</button>
+                <button class="btn btn-default" ng-class="{ disabled: runningMethod, enabled: !runningMethod }" ng-click="checkForUpgrades()" translate>Check for Updates</button>
             </div>
         </div>
     </div>
@@ -67,37 +68,33 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
                         ng-click="doUpgrade(item.osname.v, item.checksum.v)"
                         ng-if="matches('CachedUpdate') && !matches('DefaultDeployment')"
-                        class="btn btn-primary" translatable="yes">
-                    Update and Reboot
-                </button>
+                        class="btn btn-primary" translate>Update and Reboot</button>
                 <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
                         ng-click="doRollback(item.osname.v)"
                         ng-if="matches('RollbackDeployment') && !matches('CachedUpdate')"
-                        translatable="yes" class="btn btn-default">Roll Back and Reboot</button>
+                        translate class="btn btn-default">Roll Back and Reboot</button>
             </div>
             <h3>{{ item | releaseName }}</h3>
             <div ng-if="!isRunning" class="listing-ct-status">
               <span ng-if="!error">
                   <span ng-if="matches('BootedDeployment')">
                     <i class="pficon pficon-ok"></i>
-                    <span translatable="yes">Running</span>
+                    <span translate>Running</span>
                   </span>
-                  <span ng-if="!matches('BootedDeployment') && matches('DefaultDeployment')" translatable="yes">
-                    Default
-                  </span>
-                  <span ng-if="!matches('BootedDeployment') && !matches('DefaultDeployment')" translatable="yes">
-                    Available
-                  </span>
+                  <span ng-if="!matches('BootedDeployment') && matches('DefaultDeployment')"
+                        translate>Default</span>
+                  <span ng-if="!matches('BootedDeployment') && !matches('DefaultDeployment')"
+                        translate>Available</span>
               </span>
-              <span ng-if="error" translatable="yes">Failed</span>
+              <span ng-if="error" translate>Failed</span>
             </div>
             <div ng-if="isRunning" class="listing-ct-status">
                 <div class="ostree-progress" ng-if="progressMsg">{{ progressMsg }}</div>
-                <div class="ostree-progress" ng-if="!progressMsg" translatable="yes">Updating</div>
+                <div class="ostree-progress" ng-if="!progressMsg" translate>Updating</div>
             </div>
             <ul class="nav nav-tabs nav-tabs-pf">
-                <li ng-class="{active: activeTab('tree')}"><a translatable="yes" ng-click="switchTab('tree')">Tree</a></li>
-                <li ng-class="{active: activeTab('packages') }"><a translatable="yes" ng-click="switchTab('packages')">Packages</a></li>
+                <li ng-class="{active: activeTab('tree')}"><a translate ng-click="switchTab('tree')">Tree</a></li>
+                <li ng-class="{active: activeTab('packages') }"><a translate ng-click="switchTab('packages')">Packages</a></li>
             </ul>
         </div>
         <div class="listing-ct-error alert" ng-if="error">
@@ -108,23 +105,23 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <div class="row">
                 <div class="col-sm-6">
                     <dl>
-                        <dt ng-if="item.osname.v" translatable="yes">Operating System</dt>
+                        <dt ng-if="item.osname.v" translate>Operating System</dt>
                         <dd class="os" ng-if="item.osname.v"> {{ item.osname.v }}</dd>
-                        <dt ng-if="item.version.v" translatable="yes">Version</dt>
+                        <dt ng-if="item.version.v" translate>Version</dt>
                         <dd class="version" ng-if="item.version.v">{{ item.version.v }}</dd>
-                        <dt ng-if="item.timestamp.v" translatable="yes">Released</dt>
+                        <dt ng-if="item.timestamp.v" translate>Released</dt>
                         <dd class="timestamp" ng-if="item.timestamp.v" title="{{ item.timestamp.v | dateFormat }}">{{ item.timestamp.v | timeAgo }}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages">
                     <dl>
-                        <dt ng-if="packages.adds" translatable="yes">Additions</dt>
+                        <dt ng-if="packages.adds" translate>Additions</dt>
                         <dd class="adds" ng-if="packages.adds">{{ packages.adds.length|packages }}</dd>
-                        <dt ng-if="packages.removes" translatable="yes">Removals</dt>
+                        <dt ng-if="packages.removes" translate>Removals</dt>
                         <dd class="removes" ng-if="packages.removes">{{ packages.removes.length|packages }}</dd>
-                        <dt ng-if="packages.up" translatable="yes">Updates</dt>
+                        <dt ng-if="packages.up" translate>Updates</dt>
                         <dd class="updates" ng-if="packages.up">{{ packages.up.length|packages }}</dd>
-                        <dt ng-if="packages.down" translatable="yes">Downgrades</dt>
+                        <dt ng-if="packages.down" translate>Downgrades</dt>
                         <dd class="downgrades" ng-if="packages.down">{{ packages.down.length|packages }}</dd>
                     </dl>
                 </div>
@@ -132,30 +129,29 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
         <div class="listing-ct-body hidden packages" ng-class="{active: activeTab('packages')}">
             <div class="row">
-                <div class="col-sm-6" ng-if="packages.empty" translatable="yes">
-                    This deployment contains the same packages as your currently booted system
-                </div>
+                <div class="col-sm-6" ng-if="packages.empty"
+                    translate>This deployment contains the same packages as your currently booted system</div>
                 <div class="col-sm-6" ng-if="packages.adds">
                     <dl class="additions full-width">
-                        <dt translatable="yes">Additions</dt>
+                        <dt translate>Additions</dt>
                         <dd ng-repeat="package in packages.adds">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages.removes">
                     <dl class="removals full-width">
-                        <dt translatable="yes">Removals</dt>
+                        <dt translate>Removals</dt>
                         <dd ng-repeat="package in packages.removes">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages.up">
                     <dl class="upgrades full-width">
-                        <dt translatable="yes">Updates</dt>
+                        <dt translate>Updates</dt>
                         <dd ng-repeat="package in packages.up">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages.down">
                     <dl class="downgrades full-width">
-                        <dt translatable="yes">Downgrades</dt>
+                        <dt translate>Downgrades</dt>
                         <dd ng-repeat="package in packages.down">{{package.name}}-{{package.version}}.{{package.arch}}</dd>
                     </dl>
                 </div>
@@ -183,7 +179,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <thead>
         <tr>
             <td colspan="2">
-                <h3 translatable="yes" ng-if="os_list.length == 1">Operating System Updates</h3>
+                <h3 translate ng-if="os_list.length == 1">Operating System Updates</h3>
                 <h3 ng-if="os_list.length > 1">{{ os }}</h3>
             </td>
         </tr>
@@ -215,14 +211,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <div class="spinner spinner-lg" ng-if="curtains.state == 'connecting'"></div>
                 <i class="fa fa-exclamation-circle" ng-if="curtains.failure"></i>
             </div>
-            <h1 ng-if="curtains.state == 'connecting'" translatable="yes">Connecting</h1>
-            <h1 ng-if="curtains.state == 'failed'" translatable="yes">Unable to communicate with OSTree</h1>
-            <h1 ng-if="curtains.state == 'empty'" translatable="yes">No Deployments</h1>
+            <h1 ng-if="curtains.state == 'connecting'" translate>Connecting to OSTree</h1>
+            <h1 ng-if="curtains.state == 'failed'" translate>Unable to communicate with OSTree</h1>
+            <h1 ng-if="curtains.state == 'empty'" translate>No Deployments</h1>
             <p ng-if="curtains.message">{{curtains.message}}</p>
             <div class="blank-slate-pf-main-action" ng-if="curtains.state == 'failed' && !curtains.final">
-                <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
-                    Reconnect
-                </button>
+                <button class="btn btn-primary btn-lg" translate ng-click="reconnect()">Reconnect</button>
             </div>
         </div>
     </div>

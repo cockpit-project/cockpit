@@ -25,6 +25,9 @@ find $1/dist -type f | while read file; do
         if [ "$lines" -eq 0 ]; then
             lines=1
         fi
+        if [ "$bytes" -eq 0 ]; then
+            bytes=1
+        fi
 
         value=$(expr "$bytes" / "$lines")
         if [ "$value" -gt "$ratio" ]; then

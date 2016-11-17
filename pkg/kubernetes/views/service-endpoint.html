@@ -1,18 +1,18 @@
 <div class="row">
     <div class="col-sm-6">
         <dl class="full-width" ng-repeat="subset in serviceEndpoint(item).subsets">
-            <dt translatable="yes">Pod Endpoints</dt>
+            <dt translate>Pod Endpoints</dt>
             <dd ng-repeat="address in subset.addresses">
                 {{ address.ip }} &#8594; {{ address.targetRef.name }}</dd>
         </dl>
         <dl ng-if="!serviceEndpoint(item).subsets.length">
-            <dt translatable="yes">Pod Endpoints</dt>
-            <dd translatable="yes">No pods selected</dd>
+            <dt translate>Pod Endpoints</dt>
+            <dd translate>No pods selected</dd>
         </dl>
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt translatable="yes">Pod Selector</dt>
+            <dt translate>Pod Selector</dt>
             <dd ng-repeat="(key, value) in item.spec.selector">{{key}}={{value}}</dd>
         </dl>
     </div>

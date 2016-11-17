@@ -4,10 +4,10 @@
 </div>
 <div ng-if="nodeCondition(item, 'OutOfDisk').status == 'True'" class="alert alert-warning" ng-class="{'node-alert' : target}">
   <span class="pficon pficon-warning-triangle-o"></span>
-  <strong translatable="yes">The node doesn't have enough disk space</strong>.
+  <strong translate>The node doesn't have enough disk space</strong>.
 </div>
 <div ng-if="nodeCondition(item, 'OutOfMemory').status == 'True'" class="alert alert-warning" ng-class="{'node-alert' : target}">
   <span class="pficon pficon-warning-triangle-o"></span>
-  <strong translatable="yes">The node doesn't have enough free memory</strong>.
+  <strong translate>The node doesn't have enough free memory</strong>.
 </div>
 </div>

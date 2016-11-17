@@ -1,17 +1,17 @@
 <modal-dialog>
     <div class="modal-header">
-        <h3 class="modal-title" translatable="yes">Delete Persistent Volume Claim</h3>
+        <h3 class="modal-title" translate>Delete Persistent Volume Claim</h3>
     </div>
     <div class="modal-body">
-        <p translatable="yes">Do you want to delete the Persistent Volume Claim '{{item.metadata.name}}'?</p>
-        <p ng-if="pods.length > 1" translatable="yes">This claim is in use. Deleting it may cause issues with the following pods:</p>
-        <p ng-if="pods.length == 1" translatable="yes">This claim is in use. Deleting it may cause issues with the following pod:</p>
+        <p translate>Do you want to delete the Persistent Volume Claim '{{item.metadata.name}}'?</p>
+        <p ng-if="pods.length > 1" translate>This claim is in use. Deleting it may cause issues with the following pods:</p>
+        <p ng-if="pods.length == 1" translate>This claim is in use. Deleting it may cause issues with the following pod:</p>
         <ul ng-class="{'dialog-list-ct': pods.length > 1}">
             <li ng-repeat="pod in pods">{{ pod.metadata.name }}</li>
         </ul>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-danger" translatable="yes" ng-click="complete(performDelete())">Delete</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
+        <button class="btn btn-danger" translate ng-click="complete(performDelete())">Delete</button>
     </div>
 </modal-dialog>

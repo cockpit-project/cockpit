@@ -7,17 +7,17 @@
     </div>
     <h3 ng-if="item"><i class="fa pficon-replicator"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="fa pficon-replicator"></i>{{ target }}</h3>
-    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Replication Controllers</a>
+    <a ng-click="navigate(type)" translate class="hidden-xs">Show all Replication Controllers</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">
-    <h3 translatable="yes">Replication Controller</h3>
+    <h3 translate>Replication Controller</h3>
     <div class="listing-ct-body container-fluid" replicationcontroller-body></div>
 
-    <h3 translatable="yes">Pods</h3>
+    <h3 translate>Pods</h3>
     <div class="listing-ct-body container-fluid" replicationcontroller-pods></div>
 
-    <h3 translatable="yes">Template</h3>
+    <h3 translate>Template</h3>
     <div class="listing-ct-body container-fluid">
         <kube-pod-body ng-init="pod = item.spec.template">
         </kube-pod-body>
@@ -27,5 +27,5 @@
 </div>
 
 <div class="listing-ct-inline" ng-if="!item">
-    <h3 translatable="yes">The replication controller '{{ target }}' does not exist.</h3>
+    <h3 translate>The replication controller '{{ target }}' does not exist.</h3>
 </div>

@@ -2,18 +2,18 @@
     <thead>
         <tr ng-if="!listing.inline">
             <td colspan="6">
-                <h3 translatable="yes">Containers</h3>
+                <h3 translate>Containers</h3>
             </td>
         </tr>
         <tr>
             <tr>
                 <th></th>
-                <th translatable="yes">Name</th>
-                <th translatable="yes">Pod</th>
-                <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-                <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
-                <th translatable="yes">Node</th>
-                <th translatable="yes">Status</th>
+                <th translate>Name</th>
+                <th translate>Pod</th>
+                <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+                <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
+                <th translate>Node</th>
+                <th translate>Status</th>
             </tr>
         </tr>
     </thead>

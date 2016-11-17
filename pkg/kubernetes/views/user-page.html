@@ -14,17 +14,17 @@
         <span>{{ userName }}</span>
     </h3>
     <a ng-href="#/projects"
-        translatable="yes" class="hidden-xs">Show all Projects</a>
+        translate class="hidden-xs">Show all Projects</a>
 </div>
 <div class="listing-ct-body user-body" ng-if="user()">
     <p>
     </p>
     <dl>
-        <dt translatable="yes">Identities</dt>
+        <dt translate>Identities</dt>
         <dd>{{ user().identities }}</dd>
     </dl>
     <div user-body></div>
 </div>
 <div class="listing-ct-inline" ng-if="!user()">
-    <h3 translatable="yes">The user '{{ userName }}' does not exist.</h3>
+    <h3 translate>The user '{{ userName }}' does not exist.</h3>
 </div>

@@ -3,14 +3,14 @@
         <dl volume-body volume="item.spec">
         </dl>
         <dl>
-            <dt ng-if="item.spec.persistentVolumeReclaimPolicy" translatable="yes">Reclaim Policy</dt>
+            <dt ng-if="item.spec.persistentVolumeReclaimPolicy" translate>Reclaim Policy</dt>
             <dd ng-if="item.spec.persistentVolumeReclaimPolicy">{{ item.spec.persistentVolumeReclaimPolicy | reclaimLabel }}</dd>
 
-            <dt ng-if="item.spec.accessModes" translatable="yes">Access Modes</dt>
+            <dt ng-if="item.spec.accessModes" translate>Access Modes</dt>
             <dd ng-if="item.spec.accessModes">
                 <span ng-repeat="mode in item.spec.accessModes">{{ mode |  accessModeLabel }}<span ng-if="!$last">, </span></span>
             </dd>
-            <dt translatable="yes">Capacity</dt>
+            <dt translate>Capacity</dt>
             <dd>
                 <dl>
                     <dt ng-repeat-start="(key, value) in item.spec.capacity">{{ key | formatCapacityName }}</dt>
@@ -21,10 +21,10 @@
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt ng-if="target" translatable="yes">Status</dt>
+            <dt ng-if="target" translate>Status</dt>
             <dd ng-if="target && item.status.phase">{{ item.status.phase }}</dd>
-            <dd ng-if="target && !item.status.phase" translatable="yes">Unknown</dd>
-            <dt ng-if="item.status.message" translatable="yes">Message</dt>
+            <dd ng-if="target && !item.status.phase" translate>Unknown</dd>
+            <dt ng-if="item.status.message" translate>Message</dt>
             <dd ng-if="item.status.message">{{ item.status.message }}</dd>
         </dl>
     </div>

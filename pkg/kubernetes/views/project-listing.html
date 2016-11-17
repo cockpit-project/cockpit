@@ -3,17 +3,17 @@
         <tr>
             <td colspan="4">
                 <a class="pull-right" id="add-project" ng-click="createProject(settings.currentUser)">
-                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                    <span translatable="yes">New Project</span>
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>New Project</span>
                 </a>
-                <h3 translatable="yes">Projects</h3>
+                <h3 translate>Projects</h3>
             </td>
         </tr>
         <tr>
             <th class="listing-ct-toggle"></th>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">Description</th>
-            <th translatable="yes">Members</th>
+            <th translate>Name</th>
+            <th translate>Description</th>
+            <th translate>Members</th>
         </tr>
     </thead>
     <tbody ng-repeat-start="item in projects() track by item.metadata.name"  ng-init="sid = item.metadata.name" 
@@ -34,7 +34,7 @@
     <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end></tbody>
     <thead class="listing-ct-empty">
         <tr>
-            <td colspan="4" ng-if="!failure" translatable="yes">No projects are present.</td>
+            <td colspan="4" ng-if="!failure" translate>No projects are present.</td>
             <td colspan="4" ng-if="failure">{{failure}}</td>
         </tr>
     </thead>
@@ -42,17 +42,17 @@
         <tr>
             <td colspan="4">
                 <a class="pull-right" id="add-group" ng-click="createGroup()">
-                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                    <span translatable="yes">New Group</span>
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>New Group</span>
                 </a>
-                <h3 translatable="yes">Groups</h3>
+                <h3 translate>Groups</h3>
             </td>
         </tr>
         <tr>
             <th class="listing-ct-toggle"></th>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">Description</th>
-            <th translatable="yes">Members</th>
+            <th translate>Name</th>
+            <th translate>Description</th>
+            <th translate>Members</th>
         </tr>
     </thead>
     <tbody ng-repeat="item in groups() track by item.metadata.name"  ng-init="gid = item.metadata.name"  class="active"
@@ -71,7 +71,7 @@
     </tbody>
     <thead class="listing-ct-empty">
         <tr>
-            <td colspan="4" ng-if="!failure" translatable="yes">No groups are present.</td>
+            <td colspan="4" ng-if="!failure" translate>No groups are present.</td>
             <td colspan="4" ng-if="failure">{{failure}}</td>
         </tr>
     </thead>
@@ -79,17 +79,17 @@
         <tr>
             <td colspan="4">
                 <a class="pull-right" id="add-user" ng-click="createUser()">
-                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                    <span translatable="yes">Add User</span>
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>Add User</span>
                 </a>
-                <h3 translatable="yes">Users</h3>
+                <h3 translate>Users</h3>
             </td>
         </tr>
         <tr>
             <th class="listing-ct-toggle"></th>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">Identity</th>
-            <th translatable="yes">Member of</th>
+            <th translate>Name</th>
+            <th translate>Identity</th>
+            <th translate>Member of</th>
         </tr>
     </thead>
     <tbody ng-repeat="item in users() track by item.metadata.name"  ng-init="sid = item.metadata.name" 
@@ -109,7 +109,7 @@
     </tbody>
     <thead class="listing-ct-empty">
         <tr>
-            <td colspan="4" ng-if="!failure" translatable="yes">No users are present.</td>
+            <td colspan="4" ng-if="!failure" translate>No users are present.</td>
             <td colspan="4" ng-if="failure">{{failure}}</td>
         </tr>
     </thead>

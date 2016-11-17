@@ -1,14 +1,14 @@
 <div class="row">
     <div class="col-sm-6">
         <dl class="full-width" ng-init="pods = replicationcontrollerPods(item)">
-            <dt translatable="yes">Pod Replicated</dt>
+            <dt translate>Pod Replicated</dt>
             <dd ng-repeat="pod in pods">{{ pod.metadata.name }}</dd>
-            <dd ng-if="!pods.length" translatable="yes">No pods replicated</dd>
+            <dd ng-if="!pods.length" translate>No pods replicated</dd>
         </dl>
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt translatable="yes">Pod Selector</dt>
+            <dt translate>Pod Selector</dt>
             <dd ng-repeat="(key, value) in item.spec.selector">{{key}}={{value}}</dd>
         </dl>
     </div>

@@ -11,22 +11,22 @@
         <i class="pficon pficon-users"></i>
         <span>{{ groupName }}</span>
     </h3>
-    <a ng-href="#/projects" translatable="yes">Show all Projects</a>
+    <a ng-href="#/projects" translate>Show all Projects</a>
 </div>
 <div class="project-panel" ng-if="group()">
     <div>
         <table listing-table class="listing-ct project-body" >
             <thead>
                 <tr>
-                    <th translatable="yes">Group Members</th>
-                    <th translatable="yes"></th>
+                    <th translate>Group Members</th>
+                    <th translate></th>
                 </tr>
             </thead>
             <tbody colspan="3" ng-repeat="user in group().users" data-id="{{ user }}">
                 <tr class="listing-ct-item inner-project-listing">
                     <td ng-click="listing.activate('/users/' + user)"><i class=" pficon-user"></i>  {{ user }}</span></td>
                     <td><a class="pull-right close-icon" ng-click="removeUserFromGroup(user, group())">
-                        <i translatable="yes" class="pficon-close"></i>
+                        <i translate class="pficon-close"></i>
                     </a></td>
                 </tr>
             </tbody>
@@ -34,8 +34,8 @@
                 <tr>
                     <td colspan="3">
                         <a class="pull-left" ng-click="addUserToGroup(group())">
-                            <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                            <span translatable="yes">Add Member</span>
+                            <i translate class="pficon pficon-add-circle-o"></i>
+                            <span translate>Add Member</span>
                         </a>
                     </td>
                 </tr>
@@ -44,5 +44,5 @@
     </div>
 </div>
 <div class="listing-ct-inline" ng-if="!group()">
-    <h3 translatable="yes">The group '{{ groupName }}' does not exist.</h3>
+    <h3 translate>The group '{{ groupName }}' does not exist.</h3>
 </div>

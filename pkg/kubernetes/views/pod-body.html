@@ -1,29 +1,29 @@
 <div class="row">
     <div class="col-sm-6">
         <dl>
-            <dt ng-if="item === pod && settings.flavor == 'openshift'" translatable="yes">Project</dt>
-            <dt ng-if="item === pod && settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
+            <dt ng-if="item === pod && settings.flavor == 'openshift'" translate>Project</dt>
+            <dt ng-if="item === pod && settings.flavor != 'openshift'" translate>Namespace</dt>
             <dd ng-if="item === pod">{{ pod.metadata.namespace }}</dd>
-            <dt ng-if="pod.metadata.creationTimestamp" translatable="yes">Created</dt>
+            <dt ng-if="pod.metadata.creationTimestamp" translate>Created</dt>
             <dd ng-if="pod.metadata.creationTimestamp"
                 title="{{ pod.metadata.creationTimestamp }}">{{ pod.metadata.creationTimestamp | dateRelative }}</dd>
-            <dt translatable="yes">Restart Policy</dt>
+            <dt translate>Restart Policy</dt>
             <dd>{{ pod.spec.restartPolicy }}</dd>
-            <dt translatable="yes">Service Account</dt>
+            <dt translate>Service Account</dt>
             <dd>{{ pod.spec.serviceAccountName }}</dd>
-            <dt translatable="yes">DNS Policy</dt>
+            <dt translate>DNS Policy</dt>
             <dd>{{ pod.spec.dnsPolicy }}</dd>
-            <dt ng-if="pod.status" translatable="yes">Phase</dt>
+            <dt ng-if="pod.status" translate>Phase</dt>
             <dd ng-if="pod.status">{{pod.status.phase}}</dd>
-            <dt ng-if="pod.spec.host" translatable="yes">Node</dt>
+            <dt ng-if="pod.spec.host" translate>Node</dt>
             <dd ng-if="pod.spec.host">{{pod.spec.host}}</dd>
-            <dt ng-if="pod.status" translatable="yes">Pod Address</dt>
+            <dt ng-if="pod.status" translate>Pod Address</dt>
             <dd ng-if="pod.status">{{pod.status.podIP}}</dd>
         </dl>
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt translatable="yes">Labels</dt>
+            <dt translate>Labels</dt>
             <dd ng-repeat="(key, value) in pod.metadata.labels">{{key}}={{value}}</dd>
         </dl>
     </div>

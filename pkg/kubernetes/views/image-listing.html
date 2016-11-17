@@ -3,17 +3,17 @@
         <tr ng-if="!listing.inline">
             <td colspan="4">
                 <a class="pull-right" ng-click="createImageStream()">
-                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                    <span translatable="yes">New image stream</span>
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>New image stream</span>
                 </a>
-                <h3 translatable="yes">Images</h3>
+                <h3 translate>Images</h3>
             </td>
         </tr>
         <tr>
             <th class="listing-ct-toggle"></th>
-            <th translatable="yes">Tags</th>
-            <th translatable="yes">Author</th>
-            <th translatable="yes">Last Updated</th>
+            <th translate>Tags</th>
+            <th translate>Author</th>
+            <th translate>Last Updated</th>
         </tr>
     </thead>
     <tbody ng-repeat-start="(link, stream) in imagestreams() track by link"
@@ -67,7 +67,7 @@
     </tbody>
     <thead class="listing-ct-empty" ng-if="!quiet">
         <tr>
-            <td colspan="4" ng-if="!failure" translatable="yes">No image streams are present.</td>
+            <td colspan="4" ng-if="!failure" translate>No image streams are present.</td>
             <td colspan="4" ng-if="failure">{{failure}}</td>
         </tr>
     </thead>

@@ -5,20 +5,20 @@
     </div>
     <h3 ng-if="item"><i class="pficon pficon-container-node"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="pficon pficon-container-node"></i>{{ target }}</h3>
-    <a ng-href="#/nodes" translatable="yes" class="hidden-xs">Show all Nodes</a>
+    <a ng-href="#/nodes" translate class="hidden-xs">Show all Nodes</a>
 </div>
 
 <div node-alerts></div>
 
 <div class="listing-ct-inline" ng-if="item">
-    <h3 translatable="yes">Node</h3>
+    <h3 translate>Node</h3>
     <div class="listing-ct-body container-fluid" node-body></div>
 
-    <h3 translatable="yes">Capacity</h3>
+    <h3 translate>Capacity</h3>
     <div class="listing-ct-body container-fluid" node-capacity></div>
     <div class="listing-ct-body container-fluid" node-stats></div>
 </div>
 
 <div class="listing-ct-inline" ng-if="!item">
-    <h3 translatable="yes">The node '{{ target }}' does not exist.</h3>
+    <h3 translate>The node '{{ target }}' does not exist.</h3>
 </div>

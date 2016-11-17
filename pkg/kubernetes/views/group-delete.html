@@ -1,13 +1,13 @@
 <modal-dialog>
     <div class="modal-header">
-        <h4 class="modal-title" translatable="yes">Remove Group</h4>
+        <h4 class="modal-title" translate>Remove Group</h4>
     </div>
     <div class="modal-body">
         <div ng-if="fields.members.length != 0">
             <p>The '{{ fields.group.metadata.name }}' group will be deleted from projects:</p>
             <div class="user-membership-body">
                 <div ng-repeat="member in getProjectsWithMember(fields.projects, fields.group.metadata.name) track by member.metadata.name">
-                    <h4 translatable="yes" ng-if="$first">Projects</h4>
+                    <h4 translate ng-if="$first">Projects</h4>
                     <span>{{ member.metadata.name }}</span>
                 </div>
             </div>
@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-primary" ng-click="complete(performDelete(fields.group))" translatable="yes">Remove</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
+        <button class="btn btn-primary" ng-click="complete(performDelete(fields.group))" translate>Remove</button>
     </div>
 </modal-dialog>

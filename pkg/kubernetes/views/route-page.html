@@ -7,14 +7,14 @@
     </div>
     <h3 ng-if="item"><i class="pficon pficon-route"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="pficon pficon-route"></i>{{ target }}</h3>
-    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Routes</a>
+    <a ng-click="navigate(type)" translate class="hidden-xs">Show all Routes</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">
-    <h3 translatable="yes">Route</h3>
+    <h3 translate>Route</h3>
     <div class="listing-ct-body container-fluid" route-body></div>
 </div>
 
 <div class="listing-ct-inline" ng-if="!item">
-    <h3 translatable="yes">The route '{{ target }}' does not exist.</h3>
+    <h3 translate>The route '{{ target }}' does not exist.</h3>
 </div>

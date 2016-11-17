@@ -15,7 +15,7 @@
 
 <div class="container-cards-pf dashboard-cards">
     <div class="card-pf card-pf-aggregate-status card-pf-accented dashboard-status">
-        <h2 class="card-pf-title">{{pods.length}} <span translatable="yes">Pods</span></h2>
+        <h2 class="card-pf-title">{{pods.length}} <span translate>Pods</span></h2>
         <div class="card-pf-body">
             <p class="card-pf-aggregate-status-notifications">
                 <span class="card-pf-aggregate-status-notification" ng-if="status.pods.Pending.length"
@@ -34,17 +34,17 @@
                     ng-if="!status.pods.Pending.length && !status.pods.Failed.length && !status.pods.Unknown.length">
                     <span ng-if="pods.length > 0">
                         <span class="pficon pficon-ok"></span>
-                        <span class="card-pf-aggregate-status-text" translatable="yes">All running</span>
+                        <span class="card-pf-aggregate-status-text" translate>All running</span>
                     </span>
                     <span ng-if="pods.length == 0">
-                        <span class="card-pf-aggregate-status-text" translatable="yes">No pods deployed</span>
+                        <span class="card-pf-aggregate-status-text" translate>No pods deployed</span>
                     </span>
                 </span>
             </p>
         </div>
     </div>
     <div class="card-pf card-pf-aggregate-status card-pf-accented dashboard-status">
-        <h2 class="card-pf-title">{{volumes.length}} <span translatable="yes">Volumes</span></h2>
+        <h2 class="card-pf-title">{{volumes.length}} <span translate>Volumes</span></h2>
         <div class="card-pf-body">
             <p class="card-pf-aggregate-status-notifications">
                 <span class="card-pf-aggregate-status-notification" ng-if="status.volumes.Pending.length"
@@ -67,11 +67,11 @@
                     ng-if="!status.volumes.Pending.length && !status.volumes.Released.length && !status.volumes.Failed.length && !status.volumes.Available.length">
                     <span ng-if="volumes.length > 0">
                         <span class="pficon pficon-ok"></span><span class="card-pf-aggregate-status-text"
-                            translatable="yes">All in use</span>
+                            translate>All in use</span>
                     </span>
                     <span ng-if="volumes.length == 0">
                         <span class="card-pf-aggregate-status-text"
-                            translatable="yes">No volumes in use</span>
+                            translate>No volumes in use</span>
                     </span>
                 </span>
             </p>
@@ -80,14 +80,14 @@
                     <span class="pficon pficon-info"></span>
                     <a href="#{{ viewUrl('volumes', true) }}">
                         <span class="card-pf-aggregate-status-text">{{status.volumes.PendingClaims.length}}</span>
-                        <span class="card-pf-aggregate-status-text" translatable="yes">pending volume claims</span>
+                        <span class="card-pf-aggregate-status-text" translate>pending volume claims</span>
                     </a>
                 </span>
             </p>
         </div>
     </div>
     <div class="card-pf card-pf-aggregate-status card-pf-accented dashboard-status">
-        <h2 class="card-pf-title">{{nodes.length}} <span translatable="yes">Nodes</span></h2>
+        <h2 class="card-pf-title">{{nodes.length}} <span translate>Nodes</span></h2>
         <div class="card-pf-body">
             <p class="card-pf-aggregate-status-notifications">
                 <span class="card-pf-aggregate-status-notification" ng-if="status.nodes.Pending.length"
@@ -110,11 +110,11 @@
                     ng-if="!status.nodes.Pending.length && !status.nodes.Terminated.length && !status.nodes.NotReady.length && !status.nodes.OutofDisk.length">
                     <span ng-if="nodes.length > 0">
                         <span class="pficon pficon-ok"></span><span class="card-pf-aggregate-status-text"
-                            translatable="yes">All healthy</span>
+                            translate>All healthy</span>
                     </span>
                     <span ng-if="nodes.length == 0">
                         <span class="pficon pficon-warning-triangle-o"></span>
-                        <span class="card-pf-aggregate-status-text" translatable="yes">No nodes in cluster</span>
+                        <span class="card-pf-aggregate-status-text" translate>No nodes in cluster</span>
                     </span>
                 </span>
             </p>
@@ -129,9 +129,9 @@
                 <button class="btn btn-default fa fa-check" id="services-enable-change" title="Change"
                     ng-click="toggleServiceChange()" ng-class="{ active: editServices }"></button>
                 <button class="btn btn-primary" id="deploy-app" ng-click="deploy(namespaces(), namespace)"
-                    translatable="yes">Deploy</button>
+                    translate>Deploy</button>
             </div>
-            <h2 class="card-pf-title" translatable="yes">Services</h2>
+            <h2 class="card-pf-title" translate>Services</h2>
         </div>
         <div class="card-pf-body">
             <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'failed'">
@@ -139,7 +139,7 @@
                     <i ng-if="failure.status == 403" class="fa fa-lock"></i>
                     <i ng-if="failure.status != 403" class="fa fa-exclamation-circle"></i>
                 </div>
-                <h3 translatable="yes">Could not list services</h3>
+                <h3 translate>Could not list services</h3>
                 <p>{{failure.message}}</p>
             </div>
             <div class="well blank-slate-pf spacious" ng-if="servicesState() == 'empty'">
@@ -147,17 +147,17 @@
                     <i class="fa fa-rocket"></i>
                 </div>
                 <h3>No services present</h3>
-                <p translatable="yes">You can deploy an application to your cluster.</p>
+                <p translate>You can deploy an application to your cluster.</p>
             </div>
             <table class="listing-ct dashboard-list" ng-if="servicesState() == 'ready'"
                 ng-class="{editable: editServices}">
                 <thead>
                     <tr>
-                        <th translatable="yes">Name</th>
-                        <th translatable="yes">Address</th>
-                        <th translatable="yes">Containers</th>
-                        <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-                        <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
+                        <th translate>Name</th>
+                        <th translate>Address</th>
+                        <th translate>Containers</th>
+                        <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+                        <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
                         <th class="status"></th>
                     </tr>
                 </thead>
@@ -189,14 +189,14 @@
                 <button title="Add Kubernetes Node" id="add-node" class="btn btn-primary fa fa-plus"
                     ng-click="addNode()"></button>
             </div>
-            <h2 class="card-pf-title" translatable="yes">Nodes</h2>
+            <h2 class="card-pf-title" translate>Nodes</h2>
         </div>
         <div class="card-pf-body">
             <table class="listing-ct dashboard-list">
                 <thead>
                     <tr>
-                        <th translatable="yes">Name</th>
-                        <th translatable="yes">Containers</th>
+                        <th translate>Name</th>
+                        <th translate>Containers</th>
                         <th class="status"></th>
                     </tr>
                 </thead>

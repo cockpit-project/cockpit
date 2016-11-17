@@ -1,6 +1,6 @@
 <input id="deploy-app-manifest-file" type="file">
 <button id="deploy-app-manifest-file-button" class="btn btn-default form-control" type="button"
     ng-class="{manifest_file_default: !fields.filename, manifest_file: fields.filename}">
-    <span ng-if="!fields.filename" translatable="yes">Select Manifest File...</span>
+    <span ng-if="!fields.filename" translate>Select Manifest File...</span>
     <span ng-if="fields.filename">{{ fields.filename }}</span>
 </button>

@@ -1,15 +1,15 @@
 <p ng-if="sharedImages(project()) == 'anonymous'">
-    <span translatable="yes">
+    <span translate>
         <a ng-click="modifyProject(project())">Project access policy</a> allows anonymous users to pull images. Grant additional push or admin access to specific members below.
     </span>
 </p>
 <p ng-if="sharedImages(project()) == 'shared'">
-    <span translatable="yes">
+    <span translate>
         <a ng-click="modifyProject(project())">Project access policy</a> allows any authenticated user to pull images. Grant additional push or admin access to specific members below.
     </span>
 </p>
 <p ng-if="sharedImages(project()) == 'private'">
-    <span translatable="yes">
+    <span translate>
         <a ng-click="modifyProject(project())">Project access policy</a> only allows specific members to access images. Grant access to specific members below.
     </span>
 </p>
@@ -17,9 +17,9 @@
 <table listing-table class="listing-ct project-body">
     <thead >
         <tr >
-            <th translatable="yes">Project Members</th>
-            <th translatable="yes">Roles</th>
-            <th translatable="yes"></th>
+            <th translate>Project Members</th>
+            <th translate>Roles</th>
+            <th translate></th>
         </tr>
     </thead>
     <tbody colspan="3" ng-repeat="user in users()" data-id="{{ user.metadata.name }}" ng-if="user && project() && subjectIsMember(user, project())">
@@ -34,7 +34,7 @@
                 <div ng-if="!isSameUser(settings.currentUser, user)"  class="btn-group bootstrap-select namespace-filter" dropdown>
                     <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
                         <span class="pull-left">
-                            <span ng-if="isRoles(user, project())" translatable="yes">
+                            <span ng-if="isRoles(user, project())" translate>
                                 {{ getRegistryRoles(user, project()).join() }}
                             </span>
                         </span>
@@ -53,14 +53,14 @@
                 <div ng-if="isSameUser(settings.currentUser, user)"  class="btn-group bootstrap-select namespace-filter" dropdown disabled>
                     <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle disabled>
                         <span class="pull-left">
-                            <span translatable="yes">Admin</span>
+                            <span translate>Admin</span>
                         </span>
                         <span class="caret"></span>
                     </button>
                 </div>
             </td>
             <td><a class="pull-right close-icon">
-                    <i translatable="yes" class=" pficon-close" ng-click="removeMemberFromParent(user, project())"></i>
+                    <i translate class=" pficon-close" ng-click="removeMemberFromParent(user, project())"></i>
                 </a>
             </td>
         </tr>
@@ -77,7 +77,7 @@
                 <div class="btn-group bootstrap-select namespace-filter" dropdown>
                         <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
                             <span class="pull-left">
-                                <span ng-if="isRoles(group, project())" translatable="yes">
+                                <span ng-if="isRoles(group, project())" translate>
                                     {{ getRegistryRoles(group, project()).join() }}
                                 </span>
                             </span>
@@ -95,7 +95,7 @@
                     </div>
             </td>
             <td><a class="pull-right close-icon">
-                    <i translatable="yes" class=" pficon-close" ng-click="removeMemberFromParent(group, project())"></i>
+                    <i translate class=" pficon-close" ng-click="removeMemberFromParent(group, project())"></i>
                 </a>
             </td>
         </tr>
@@ -104,8 +104,8 @@
         <tr>
             <td colspan="3">
                 <a class="pull-left" ng-click="addMember(project())">
-                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                    <span translatable="yes">Add Member</span>
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>Add Member</span>
                 </a>
             </td>
         </tr>

@@ -1,17 +1,17 @@
 <div class="row">
     <div class="col-sm-6">
         <dl>
-            <dt ng-if="settings.flavor == 'openshift'" translatable="yes">Project</dt>
-            <dt ng-if="settings.flavor != 'openshift'" translatable="yes">Namespace</dt>
+            <dt ng-if="settings.flavor == 'openshift'" translate>Project</dt>
+            <dt ng-if="settings.flavor != 'openshift'" translate>Namespace</dt>
             <dd>{{ item.metadata.namespace }}</dd>
-            <dt translatable="yes">Created</dt>
+            <dt translate>Created</dt>
             <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
-            <dt translatable="yes">Host</dt>
+            <dt translate>Host</dt>
             <dd>{{ item.spec.host }}</dd>
 
-            <dt translatable="yes">TLS Termination</dt>
-            <dd ng-if="item.spec.tls.termination" translatable="yes">yes</dd>
-            <dd ng-if="!item.spec.tls.termination" translatable="yes">no</dd>
+            <dt translate>TLS Termination</dt>
+            <dd ng-if="item.spec.tls.termination" translate>yes</dd>
+            <dd ng-if="!item.spec.tls.termination" translate>no</dd>
 
             <dt ng-if="item.spec.to">{{ item.spec.to.kind }}</dd>
             <dd ng-if="item.spec.to">{{item.spec.to.name}}</dd>
@@ -19,14 +19,14 @@
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt translatable="yes">Labels</dt>
+            <dt translate>Labels</dt>
             <dd ng-repeat="(key, value) in item.metadata.labels">{{key}}={{value}}</dd>
-            <dd ng-if="!item.metadata.labels" translatable="yes">none</dd>
+            <dd ng-if="!item.metadata.labels" translate>none</dd>
         </dl>
         <dl class="full-width">
-            <dt translatable="yes">Annotations</dt>
+            <dt translate>Annotations</dt>
             <dd ng-repeat="(key, value) in item.metadata.annotations">{{key}}={{value}}</dd>
-            <dd ng-if="!item.metadata.annotations" translatable="yes">none</dd>
+            <dd ng-if="!item.metadata.annotations" translate>none</dd>
         </dl>
     </div>
 </div>

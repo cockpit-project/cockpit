@@ -1,29 +1,29 @@
 <div class="row">
     <div class="col-sm-6">
         <dl>
-            <dt ng-if="item !== container" translatable="yes">Container</dt>
+            <dt ng-if="item !== container" translate>Container</dt>
             <dd ng-if="item !== container">{{container.spec.name}}</dd>
-            <dt translatable="yes">Image</dt>
+            <dt translate>Image</dt>
             <dd>{{container.spec.image}}</dd>
-            <dt ng-if="container.status.imageID" translatable="yes">Image ID</dt>
+            <dt ng-if="container.status.imageID" translate>Image ID</dt>
             <dd ng-if="container.status.imageID"><tt>{{container.status.imageID | kubeIdentifier }}</tt></dd>
-            <dt ng-if="container.status.containerID" translatable="yes">Container ID</dt>
+            <dt ng-if="container.status.containerID" translate>Container ID</dt>
             <dd ng-if="container.status.containerID" revealable-text><tt>{{container.status.containerID | kubeIdentifier }}</tt></dd>
-            <dt translatable="yes">Ports</dt>
+            <dt translate>Ports</dt>
             <dd>
                 <span ng-repeat="port in container.spec.ports">{{port.containerPort}}/{{port.protocol}}</span>
             </dd>
-            <dt ng-repeat-start="(state, args) in container.status.state" translatable="yes">State</dt>
+            <dt ng-repeat-start="(state, args) in container.status.state" translate>State</dt>
             <dd>{{state}}</dd>
-            <dt translatable="yes">Since</dt>
+            <dt translate>Since</dt>
             <dd ng-repeat-end>{{args.startedAt}}</dd>
-            <dt ng-if="container.status" translatable="yes">Restart Count</dt>
+            <dt ng-if="container.status" translate>Restart Count</dt>
             <dd ng-if="container.status">{{container.status.restartCount}}</dd>
         </dl>
     </div>
     <div class="col-sm-6">
         <dl class="full-width">
-            <dt ng-if="container.spec.env.length" translatable="yes">Environment</dt>
+            <dt ng-if="container.spec.env.length" translate>Environment</dt>
             <dd revealable-text
                 ng-repeat="env in container.spec.env"><tt>{{env.name}}=<span
                 ng-class="{masked: should_mask(env.name)}">{{env.value}}</span></tt>

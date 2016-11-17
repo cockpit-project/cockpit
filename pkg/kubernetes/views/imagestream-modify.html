@@ -1,14 +1,14 @@
 <modal-dialog>
     <div class="modal-header">
-        <h3 class="modal-title" ng-if="!stream" translatable="yes">Create image stream</h3>
-        <h3 class="modal-title" ng-if="stream" translatable="yes">Change image stream</h3>
+        <h3 class="modal-title" ng-if="!stream" translate>Create image stream</h3>
+        <h3 class="modal-title" ng-if="stream" translate>Change image stream</h3>
     </div>
     <div class="modal-body">
         <table class="form-table-ct">
             <tr>
                 <td>
                     <label class="control-label" for="imagestream-modify-name"
-                        translatable="yes">Name</label>
+                        translate>Name</label>
                 </td>
                 <td>
                     <input id="imagestream-modify-name" class="form-control" type="text"
@@ -19,7 +19,7 @@
             <tr>
                 <td class="top">
                     <label class="control-label" for="imagestream-modify-project-text"
-                        translatable="yes">Project</label>
+                        translate>Project</label>
                 </td>
                 <td>
                     <div ng-if="!stream" id="imagestream-modify-project" class="input-group input-combo">
@@ -43,7 +43,7 @@
             <tr>
                 <td class="top">
                     <label class="control-label" for="imagestream-modify-populate"
-                        translatable="yes">Populate</label>
+                        translate>Populate</label>
                 </td>
                 <td>
                     <div class="btn-group bootstrap-select form-control" dropdown
@@ -64,7 +64,7 @@
             <tr ng-show="fields.populate != 'none'">
                 <td class="top">
                     <label class="control-label" for="imagestream-modify-pull"
-                        translatable="yes">Pull from</label>
+                        translate>Pull from</label>
                 </td>
                 <td>
                     <input id="imagestream-modify-pull" class="form-control" type="text"
@@ -74,7 +74,7 @@
             <tr ng-show="fields.populate == 'tags'">
                 <td class="top">
                     <label class="control-label" for="imagestream-modify-tags"
-                        translatable="yes">Tags</label>
+                        translate>Tags</label>
                 </td>
                 <td>
                     <div image-tag-editor id="imagestream-modify-tags" tags="fields.tags">
@@ -86,14 +86,14 @@
                 <td>
                     <label>
                         <input type="checkbox" ng-checked="hasInsecureTag(stream.spec)" ng-model="fields.insecure">
-                        <span translatable="yes">Remote registry is insecure</span>
+                        <span translate>Remote registry is insecure</span>
                     </label>
                 </td>
             </tr>
         </table>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
         <button class="btn btn-primary" ng-if="stream" ng-click="complete(performModify())">Change</button>
         <button class="btn btn-primary" ng-if="!stream" ng-click="complete(performCreate())">Create</button>
     </div>

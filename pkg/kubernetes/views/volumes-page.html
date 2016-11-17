@@ -8,17 +8,17 @@
         <tr>
             <td colspan="4">
                 <a ng-if="!pvFailure" id="register-volume" class="pull-right" ng-click="createPV()">
-                    <i translatable="yes" class="pficon pficon-add-circle-o"></i>
-                    <span translatable="yes">Register New Volume</span>
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>Register New Volume</span>
                 </a>
-                <h3 translatable="yes">Persistent Volumes</h3>
+                <h3 translate>Persistent Volumes</h3>
             </td>
         </tr>
         <tr>
             <th class="listing-ct-toggle"></th>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">Type</th>
-            <th translatable="yes">Status</th>
+            <th translate>Name</th>
+            <th translate>Type</th>
+            <th translate>Status</th>
         </tr>
     </thead>
     <tbody ng-repeat-start="item in pvs track by item.metadata.uid"
@@ -32,7 +32,7 @@
             <th>{{ item.metadata.name }}</th>
             <td>{{ item.spec | formatVolumeType }}</td>
             <td ng-if="item.status.phase">{{ item.status.phase}}</td>
-            <td ng-if="!item.status.phase"  translatable="yes">Unknown</td>
+            <td ng-if="!item.status.phase"  translate>Unknown</td>
         </tr>
         <tr class="listing-ct-panel" ng-if="listing.expanded(sid)" ng-init="id = sid">
             <td listing-panel kind="pv" colspan="4"></td>
@@ -41,7 +41,7 @@
     <tbody data-ng-rubbish="" ng-if="0" ng-repeat-end></tbody>
     <thead ng-if="!pvs.length" class="listing-ct-empty">
         <tr>
-            <td colspan="4" ng-if="!pvFailure" translatable="yes">No volumes are present.</td>
+            <td colspan="4" ng-if="!pvFailure" translate>No volumes are present.</td>
             <td colspan="4" ng-if="pvFailure">{{pvFailure}}</td>
         </tr>
     </thead>
@@ -50,15 +50,15 @@
     <thead>
         <tr>
             <td colspan="4">
-                <h3 translatable="yes">Pending Volume Claims</h3>
+                <h3 translate>Pending Volume Claims</h3>
             </td>
         </tr>
         <tr>
-            <th translatable="yes">Name</th>
-            <th translatable="yes" ng-if="settings.flavor == 'openshift'">Project</th>
-            <th translatable="yes" ng-if="settings.flavor != 'openshift'">Namespace</th>
-            <th translatable="yes">Size</th>
-            <th translatable="yes">When</th>
+            <th translate>Name</th>
+            <th translate ng-if="settings.flavor == 'openshift'">Project</th>
+            <th translate ng-if="settings.flavor != 'openshift'">Namespace</th>
+            <th translate>Size</th>
+            <th translate>When</th>
             <th></th>
         </tr>
     </thead>

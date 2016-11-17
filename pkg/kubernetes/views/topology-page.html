@@ -4,15 +4,15 @@
 <div class="kube-pane">
     <div class="sidebar-pf sidebar-pf-right">
         <div class="sidebar-help" ng-if="!selected">
-            <p translatable="yes">Select an object to see more details.</p>
+            <p translate>Select an object to see more details.</p>
 
             <kubernetes-topology-icon kind="Pod">
               <svg class="kube-topology">
                 <use xlink:href="#vertex-Pod" x="16" y="16"></use>
               </svg>
             </kubernetes-topology-icon>
-            <h3 translatable="yes">Pod</h3>
-            <p translatable="yes">Pods contain one or more containers that run
+            <h3 translate>Pod</h3>
+            <p translate>Pods contain one or more containers that run
                 together on a node, containing your application code.</p>
 
             <kubernetes-topology-icon kind="ReplicationController">
@@ -20,8 +20,8 @@
                 <use xlink:href="#vertex-ReplicationController" x="16" y="16"></use>
               </svg>
             </kubernetes-topology-icon>
-            <h3 translatable="yes">Replication Controller</h3>
-            <p translatable="yes">Replication controllers dynamically create instances of
+            <h3 translate>Replication Controller</h3>
+            <p translate>Replication controllers dynamically create instances of
                 pods from templates, and remove pods when necessary.</p>
 
             <kubernetes-topology-icon kind="Service">
@@ -29,8 +29,8 @@
                 <use xlink:href="#vertex-Service" x="16" y="16"></use>
               </svg>
             </kubernetes-topology-icon>
-            <h3 translatable="yes">Service</h3>
-            <p translatable="yes">Services group pods and provide a common DNS
+            <h3 translate>Service</h3>
+            <p translate>Services group pods and provide a common DNS
                 name and an optional, load-balanced IP address to access them.</p>
 
             <kubernetes-topology-icon kind="Node">
@@ -38,8 +38,8 @@
                 <use xlink:href="#vertex-Node" x="16" y="16"></use>
               </svg>
             </kubernetes-topology-icon>
-            <h3 translatable="yes">Node</h3>
-            <p translatable="yes">Nodes are the machines that run your containers.</p>
+            <h3 translate>Node</h3>
+            <p translate>Nodes are the machines that run your containers.</p>
         </div>
         <div class="topology-actions" ng-if='selected && !(selected.kind === "Node")'>
           <div ng-if='selected.kind === "Pod"'>

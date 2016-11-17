@@ -5,14 +5,14 @@
     </div>
     <h3 ng-if="item"><i class="fa fa-gear"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="fa fa-gear"></i>{{ target }}</h3>
-    <a ng-click="navigate(type)" translatable="yes" class="hidden-xs">Show all Deployment Configs</a>
+    <a ng-click="navigate(type)" translate class="hidden-xs">Show all Deployment Configs</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">
-    <h3 translatable="yes">Deployment Config</h3>
+    <h3 translate>Deployment Config</h3>
     <div class="listing-ct-body container-fluid" deploymentconfig-body></div>
 
-    <h3 translatable="yes">Template</h3>
+    <h3 translate>Template</h3>
     <div class="listing-ct-body container-fluid">
         <kube-pod-body ng-init="pod = item.spec.template">
         </kube-pod-body>
@@ -22,5 +22,5 @@
 </div>
 
 <div class="listing-ct-inline" ng-if="!item">
-    <h3 translatable="yes">The deployment config '{{ target }}' does not exist.</h3>
+    <h3 translate>The deployment config '{{ target }}' does not exist.</h3>
 </div>

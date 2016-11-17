@@ -9,15 +9,15 @@
         <i class="fa fa-folder"></i>
         {{ stream.metadata.namespace }}/{{ stream.metadata.name}}
     </h3>
-    <a ng-href="#{{ viewUrl('images') }}" translatable="yes">Show all image streams</a>
+    <a ng-href="#{{ viewUrl('images') }}" translate>Show all image streams</a>
 </div>
 
 <div class="listing-ct-inline">
-    <h3 translatable="yes">Image Stream</h3>
+    <h3 translate>Image Stream</h3>
     <div class="listing-ct-body" imagestream-body></div>
-    <h3 translatable="yes">Images</h3>
+    <h3 translate>Images</h3>
     <div image-listing>
     </div>
-    <h3 translatable="yes" ng-if="stream.metadata.annotations">Metadata</h3>
+    <h3 translate ng-if="stream.metadata.annotations">Metadata</h3>
     <div class="listing-ct-body" imagestream-meta></div>
 </div>

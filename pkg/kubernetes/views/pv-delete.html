@@ -1,13 +1,13 @@
 <modal-dialog>
     <div class="modal-header">
-        <h3 class="modal-title" translatable="yes">Delete Persistent Volume</h3>
+        <h3 class="modal-title" translate>Delete Persistent Volume</h3>
     </div>
     <div class="modal-body">
-        <p translatable="yes">Do you want to delete the Persistent Volume '{{item.metadata.name}}'?</p>
-        <p ng-if="item.spec.claimRef" translatable="yes">This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / {{ item.item.spec.claimRef.name }}. Deleting it will break that claim and may cause issues with any pods depending on it.</p>
+        <p translate>Do you want to delete the Persistent Volume '{{item.metadata.name}}'?</p>
+        <p ng-if="item.spec.claimRef" translate>This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / {{ item.item.spec.claimRef.name }}. Deleting it will break that claim and may cause issues with any pods depending on it.</p>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-danger" translatable="yes" ng-click="complete(performDelete())">Delete</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
+        <button class="btn btn-danger" translate ng-click="complete(performDelete())">Delete</button>
     </div>
 </modal-dialog>

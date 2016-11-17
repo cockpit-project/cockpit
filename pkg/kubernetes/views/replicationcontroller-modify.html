@@ -1,11 +1,11 @@
 <modal-dialog>
     <div class="modal-header">
-        <h3 class="modal-title" translatable="yes">Adjust Replication Controller {{ item.metadata.name }}</h3>
+        <h3 class="modal-title" translate>Adjust Replication Controller {{ item.metadata.name }}</h3>
     </div>
     <div class="modal-body">
         <table class="form-table-ct">
             <tr class="adjust-replicas-header">
-                <td class="top"><label class="control-label" translatable="yes">Replicas</label></td>
+                <td class="top"><label class="control-label" translate>Replicas</label></td>
                 <td>
                     <input class="form-control adjust-replica" type="text" id="replicas" ng-model="fields.replicas">
                 </td>
@@ -13,7 +13,7 @@
         </table>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-cancel" translatable="yes">Cancel</button>
-        <button class="btn btn-primary" translatable="yes" ng-click="complete(performModify())">Change</button>
+        <button class="btn btn-default btn-cancel" translate>Cancel</button>
+        <button class="btn btn-primary" translate ng-click="complete(performModify())">Change</button>
     </div>
 </modal-dialog>

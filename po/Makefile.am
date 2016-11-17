@@ -89,7 +89,7 @@ po/cockpit.pre.pot: po/POTFILES.pre.in
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.js.pot po/cockpit.pre.pot
-	$(MSGCAT) --output-file=$@ $^
+	$(MSGCAT) --sort-output --use-first --output-file=$@ $^
 
 # Actually update the old translations with new translatable text
 update-po: po/cockpit.pot

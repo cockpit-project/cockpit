@@ -64,7 +64,7 @@ GUIDE_XSLT = \
 	doc/guide/version-greater-or-equal.xsl \
 	$(NULL)
 
-GUIDE_FONTS = $(subst dist/fonts/,doc/guide/html/,$(OPENSANS_FONTS))
+GUIDE_FONTS = $(subst dist/fonts/,dist/guide/html/,$(OPENSANS_FONTS))
 
 EXTRA_DIST += \
 	$(GUIDE_DOCBOOK) \
@@ -72,23 +72,23 @@ EXTRA_DIST += \
 	$(GUIDE_XSLT) \
 	$(GUIDE_FONTS) \
 	$(GUIDE_STATIC) \
-	doc/guide/html \
+	dist/guide/html \
 	doc/guide/version.in \
 	$(NULL)
 
 noinst_DATA += doc/guide/html/index.html
 
 CLEANFILES += \
-	doc/guide/html/* \
+	dist/guide/html/* \
 	*.tmp \
 	$(NULL)
 
-doc/guide/html/%.woff: dist/fonts/%.woff
-	$(V_COPY) $(MKDIR_P) doc/guide/html && cp -L $^ $@.tmp && $(MV) $@.tmp $@
+dist/guide/html/%.woff: dist/fonts/%.woff
+	$(V_COPY) $(MKDIR_P) $(dir $@) && cp -L $^ $@.tmp && $(MV) $@.tmp $@
 
-doc/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
-	$(AM_V_GEN) $(MKDIR_P) doc/guide/html/ && \
-		cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) doc/guide/html/ && \
-		LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \
+dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
+	$(AM_V_GEN) $(MKDIR_P) dist/guide/html/ && \
+		cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/ && \
+		LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
 			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 			$(srcdir)/$(GUIDE_DOCBOOK)

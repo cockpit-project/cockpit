@@ -125,8 +125,30 @@ WantedBy=default.target
         b.switch_to_top()
         b.go("/playground/translate")
         b.enter_page("/playground/translate")
-        self.assertEqual(b.text("#translatable-html"), "Abbrechen")
+
+        # HTML section
+        self.assertEqual(b.text("#translate-html"), "Bereit")
+        self.assertEqual(b.text("#translate-html-context"), "Bereiten")
+        self.assertEqual(b.text("#translate-html-yes"), "Nicht bereit")
+        self.assertEqual(b.attr("#translate-html-title", "title"), u"Nicht verfügbar")
+        self.assertEqual(b.text("#translate-html-title"), "Cancel")
+        self.assertEqual(b.attr("#translate-html-yes-title", "title"), u"Nicht verfügbar")
+        self.assertEqual(b.text("#translate-html-yes-title"), "Abbrechen")
+
+        # Glade section
+        self.assertEqual(b.text("#translatable-glade"), "Leer")
+        self.assertEqual(b.text("#translatable-glade-context"), "Leeren")
+
+        # Mustache section
         self.assertEqual(b.text("#translatable-mustache"), "Benutzer")
+        self.assertEqual(b.text("#translate-mustache"), "Speicher")
+        self.assertEqual(b.text("#translate-mustache-yes"), "Netzwerk")
+        self.assertEqual(b.attr("#translate-mustache-title", "title"), "Fehler")
+        self.assertEqual(b.text("#translate-mustache-title"), "User")
+        self.assertEqual(b.attr("#translate-mustache-yes-title", "title"), "Fehler")
+        self.assertEqual(b.text("#translate-mustache-yes-title"), "Benutzer")
+
+        # Javascript
         self.assertEqual(b.text("#underscore-empty"), "Leer")
         self.assertEqual(b.text("#underscore-context-empty"), "Leeren")
         self.assertEqual(b.text("#cunderscore-context-empty"), "Leeren")
@@ -136,15 +158,6 @@ WantedBy=default.target
         self.assertEqual(b.text("#ngettext-disks-2"), "$0 Festplatten fehlen")
         self.assertEqual(b.text("#ngettext-context-disks-1"), u"$0 Datenträger fehlt")
         self.assertEqual(b.text("#ngettext-context-disks-2"), u"$0 Datenträger fehlen")
-
-        # TODO: Not yet translated
-        # translate-html
-        # translate-html-yes
-        # translate-html-title
-        # translate-mustache
-        # translate-mustache-yes
-        # translate-mustache-title
-
 
     def testFrameReload(self):
         b = self.browser

@@ -3574,7 +3574,7 @@ function basic_scope(cockpit, jquery) {
     };
 
     cockpit.translate = function translate(/* ... */) {
-	var list, el, translated, i, ilen, w, wlen, what;
+	var what;
 
         /* Called without arguments, entire document */
 	if (arguments.length === 0)
@@ -3589,17 +3589,37 @@ function basic_scope(cockpit, jquery) {
             what = arguments;
 
         /* Translate all the things */
+        var w, wlen, val, i, ilen, t, tlen, list, tasks, el;
 	for (w = 0, wlen = what.length; w < wlen; w++) {
+
+            /* The list of things to translate */
             list = null;
             if (what[w].querySelectorAll)
-                list = what[w].querySelectorAll("[translatable=\"yes\"]");
-            if (list) {
-                for (i = 0, ilen = list.length; i < ilen; i++) {
-                    el = list[i];
-                    translated = cockpit.gettext(el.getAttribute("context"), el.textContent);
-                    el.removeAttribute("translatable");
-                    el.textContent = translated;
+                list = what[w].querySelectorAll("[translatable], [translate]");
+            if (!list)
+                continue;
+
+            /* Each element */
+            for (i = 0, ilen = list.length; i < ilen; i++) {
+                el = list[i];
+
+                val = el.getAttribute("translate") || el.getAttribute("translatable") || "yes";
+                if (val == "no")
+                    continue;
+
+                /* Each thing to translate */
+                tasks = val.split(" ");
+                val = el.getAttribute("translate-context") || el.getAttribute("context");
+                for (t = 0, tlen = tasks.length; t < tlen; t++) {
+                    if (tasks[t] == "yes" || tasks[t] == "translate")
+                        el.textContent = cockpit.gettext(val, el.textContent);
+                    else if (tasks[t])
+                        el.setAttribute(tasks[t], cockpit.gettext(val, el.getAttribute(tasks[t]) || ""));
                 }
+
+                /* Mark this thing as translated */
+                el.removeAttribute("translatable");
+                el.removeAttribute("translate");
             }
         }
     };

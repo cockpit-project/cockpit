@@ -11,15 +11,18 @@
 </head>
 <body hidden>
     <div id="internal" class="container-fluid">
-        <h2>HTML Translations</h2>
-        <p>
-            <code>&lt;span translatable="yes"&gt;Cancel&lt;/span&gt;</code>
-            = <span translatable="yes" id="translatable-html">Cancel</span>
-        </p>
+        <h2>HTML translations</h2>
+
+        <p>For translating HTML use these forms:<p>
 
         <p>
             <code>&lt;span translate&gt;Ready&lt;/span&gt;</code>
             = <span translate id="translate-html">Ready</span>
+        </p>
+
+        <p>
+            <code>&lt;span translate translate-context="verb"&gt;Ready&lt;/span&gt;</code>
+            = <span translate translate-context="verb" id="translate-html-context">Ready</span>
         </p>
 
         <p>
@@ -28,11 +31,51 @@
         </p>
 
         <p>
-            <code>&lt;span translate-title title="Unavailable"&gt;Button&lt;/span&gt;</code>
-            = <span translate-title title="Unavailable" id="translate-html-title">Button</span>
+            <code>&lt;span translate="title" title="Unavailable"&gt;Cancel&lt;/span&gt;</code>
+            = <span translate="title" title="Unavailable" id="translate-html-title">Cancel</span>
         </p>
 
-        <h2>Mustache Translations</h2>
+        <p>
+            <code>&lt;span translate="yes title" title="Unavailable"&gt;Cancel&lt;/span&gt;</code>
+            = <span translate="yes title" title="Unavailable" id="translate-html-yes-title">Cancel</span>
+        </p>
+
+        <p>Note that we do <b>not support</b>:<p>
+        <ul>
+            <li>Interpolation of variables.</li>
+            <li>Pluralization</li>
+            <li>The <code>&lt;translate&gt;</code> element</li>
+        </ul>
+
+        <hr>
+
+        <h2>Old Glade style</h2>
+
+        <p>The old Glade style is not recommended:<p>
+
+        <p>
+            <code>&lt;span translatable="yes"&gt;Empty&lt;/span&gt;</code>
+            = <span translatable="yes" id="translatable-glade">Empty</span>
+        </p>
+
+        <p>
+            <code>&lt;span translatable="yes" context="verb"&gt;Empty&lt;/span&gt;</code>
+            = <span translatable="yes" context="verb" id="translatable-glade-context">Empty</span>
+        </p>
+
+        <p>Note that we do <b>not support</b>:<p>
+        <ul>
+            <li>Interpolation of variables.</li>
+            <li>Tranlatable attributes.</li>
+            <li>Pluralization</li>
+            <li>The <code>&lt;translate&gt;</code> element</li>
+        </ul>
+
+        <hr>
+
+        <h2>Mustache translations</h2>
+
+        <p>For translating Mustache use these forms:<p>
 
         <div id="mustache-output">
         </div>
@@ -54,12 +97,27 @@
             </p>
 
             <p>
-                <code>&lt;span translate-title title="Error"&gt;Button&lt;/span&gt;</code>
-                = <span translate-title title="Error" id="translate-mustache-title">Button</span>
+                <code>&lt;span translate="title" title="Error"&gt;User&lt;/span&gt;</code>
+                = <span translate="title" title="Error" id="translate-mustache-title">User</span>
+            </p>
+
+            <p>
+                <code>&lt;span translate="yes title" title="Error"&gt;User&lt;/span&gt;</code>
+                = <span translate="yes title" title="Error" id="translate-mustache-yes-title">User</span>
             </p>
         </script>
 
+        <p>Note that we do <b>not support</b>:<p>
+        <ul>
+            <li>Interpolation of variables.</li>
+            <li>Pluralization</li>
+            <li>The <code>&lt;translate&gt;</code> element</li>
+        </ul>
+        <hr>
+
         <h2>Code Translations</h2>
+
+        <p>For translating in javascript code, use these forms:</p>
 
         <p>
             <code>_("Empty")</code>
@@ -106,6 +164,38 @@
             = <span id="ngettext-context-disks-2"></span>
         </p>
 
+        <hr>
+        <h2>Angular Translations</h2>
+
+        <p>In Angular use these forms. These are not properly translated in this demo page:<p>
+
+        <p>
+            <code>&lt;translate&gt;Cancel&lt;/translate&gt;</code>
+            = <translate>Cancel</translate>
+        </p>
+
+        <p>
+            <code>&lt;span translate&gt;Ready&lt;/span&gt;</code>
+            = <span translate>Ready</span>
+        </p>
+
+        <p>
+            <code>&lt;span translate&gt;Delete {{ item.kind }}&lt;/span&gt;</code>
+            = <span translate>Delete {{ item.kind }}</span>
+        </p>
+
+        <p>
+            <code>&lt;span translate translate-n="percentFree"
+            translate-plural="{{$count}}% Free"&gt;1% Free&lt;/span&gt;</code>
+            = <span translate translate-n="percentFree" translate-plural="{{$count}}% Free">1% Free</span>
+        </p>
+
+        <p>When translating Angular we <b>not support</b>:<p>
+        <ul>
+            <li>The <code>translatable</code> attribute.</li>
+            <li>The <code>translate="attr"</code> translating of attribute values.</li>
+            <li>The <code>{{value|translate}}</code> filter, even though documented on angular-gettext.</li>
+        </ul>
     </div>
     <script src="translate.js"></script>
 </body>

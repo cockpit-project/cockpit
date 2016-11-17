@@ -42,27 +42,20 @@ install-data-local:: $(MO_FILES)
 uninstall-local::
 	for lang in $(LINGUAS); do rm -f $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(GETTEXT_PACKAGE).mo; done
 
-# A target that pre-extracts things ready for xgettext to work on
-# This currently just does what intltoolize used to do
-# TODO: Does not yet handle translations of attributes or angular-gettext
-prepare-po::
-	rm -rf ./tmp/pkg/
-	( cd $(srcdir) && find pkg/ -name '*.html' ) | while read name; do \
-		$(INTLTOOL_EXTRACT) -l --type=gettext/glade $(srcdir)/$$name && \
-		$(MKDIR_P) ./tmp/`dirname $$name` && mv ./tmp/`basename $$name`.h ./tmp/$$name.h; \
-	done
-
 # Lists of files we need to extract from
 po/POTFILES.c.in:
 	$(MKDIR_P) $(notdir $@)
 	( cd $(srcdir) && find src/ws/ src/bridge/ -name '*.c' ) > $@
+po/POTFILES.html.in:
+	$(MKDIR_P) $(notdir $@)
+	( cd $(srcdir) && find pkg/ -name '*.html' ) > $@
 po/POTFILES.js.in:
 	$(MKDIR_P) $(notdir $@)
 	( cd $(srcdir) && find src/base1/ pkg/ -name '*.js' -o -name '*.jsx' -o -name '*.es6' ) > $@
 po/POTFILES.pre.in: prepare-po
 	$(MKDIR_P) $(notdir $@)
 	( cd tmp/ && find . -type f ) > $@
-.PHONY: po/POTFILES.c.in po/POTFILES.js.in po/POTFILES.pre.in
+.PHONY: po/POTFILES.c.in po/POTFILES.html.in po/POTFILES.js.in po/POTFILES.pre.in
 
 # Extract from GLib based C code files
 po/cockpit.c.pot: po/POTFILES.c.in
@@ -71,6 +64,10 @@ po/cockpit.c.pot: po/POTFILES.c.in
 		--keyword=g_dgettext:2 --keyword=g_dngettext:2,3 --keyword=g_dpgettext:2 \
 		--keyword=g_dpgettext2=2c,3 \
 		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^
+
+# Extract translate attribute, Glade style, angular-gettext HTML translations
+po/cockpit.html.pot: po/POTFILES.html.in
+	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -f $^ -o $@
 
 # Extract cockpit style javascript translations
 po/cockpit.js.pot: po/POTFILES.js.in
@@ -88,7 +85,7 @@ po/cockpit.pre.pot: po/POTFILES.pre.in
 		--from-code=UTF-8 --directory=$(builddir)/tmp --files-from=$^
 
 # Combine the above pot files into one
-po/cockpit.pot: po/cockpit.c.pot po/cockpit.js.pot po/cockpit.pre.pot
+po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.pre.pot
 	$(MSGCAT) --sort-output --use-first --output-file=$@ $^
 
 # Actually update the old translations with new translatable text

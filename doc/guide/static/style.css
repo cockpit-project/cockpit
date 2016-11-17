@@ -39,18 +39,27 @@ H1.guides {
 	padding: 5px 0px 5px 20px;
 }
 
+H2.guides {
+    margin-left: 20px;
+}
+
 DIV.guides {
 	margin-left: 20px;
 	margin-right: 20px;
 	font-family: 'Open Sans', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
-	font-size: 13px;
+	font-size: 11pt;
 }
 
-DIV.guides + PRE {
-	margin-left: 20px;
+DIV.guides > p {
+    margin-left: 20px;
+}
+
+DIV.guides > A {
+	margin-left: 40px;
 	margin-right: 20px;
 	font-size: 13px;
 	line-height: 200%;
+        display: block;
 }
 
 TABLE.navigation {

@@ -49,11 +49,9 @@ GUIDE_INCLUDES = \
 	$(NULL)
 
 GUIDE_STATIC = \
-	doc/guide/static/FOOTER.html \
 	doc/guide/static/home.png \
 	doc/guide/static/gtk-doc.css \
 	doc/guide/static/left.png \
-	doc/guide/static/README.html \
 	doc/guide/static/right.png \
 	doc/guide/static/style.css \
 	doc/guide/static/up.png \
@@ -73,13 +71,21 @@ EXTRA_DIST += \
 	$(GUIDE_FONTS) \
 	$(GUIDE_STATIC) \
 	dist/guide/html \
+	dist/guide/links.html \
+	dist/guide/index.html \
+	doc/guide/directory.html \
+	doc/guide/footer.html \
 	doc/guide/version.in \
 	$(NULL)
 
-noinst_DATA += doc/guide/html/index.html
+noinst_DATA += \
+	dist/guide/html/index.html \
+	dist/guide/index.html
 
 CLEANFILES += \
 	dist/guide/html/* \
+	dist/guide/links.html \
+	dist/guide/index.html \
 	*.tmp \
 	$(NULL)
 
@@ -92,3 +98,10 @@ dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUI
 		LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
 			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 			$(srcdir)/$(GUIDE_DOCBOOK)
+
+dist/guide/links.html:
+	$(AM_V_GEN) (git -C $(srcdir) tag -l --sort=-version:refname --format \
+		'<a href="./%(refname:strip=2)/">%(refname:strip=2)</a>' | head -n15 || true) > $@.tmp && mv $@.tmp $@
+
+dist/guide/index.html: doc/guide/directory.html dist/guide/links.html doc/guide/footer.html
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && cat $^ > $@.tmp && mv $@.tmp $@

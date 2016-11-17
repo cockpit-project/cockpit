@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-csp>
 <head>
     <meta charset="utf-8">
     <title>Cockpit playground</title>
@@ -7,7 +7,6 @@
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
     <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
-    <script src="../shell/po.js"></script>
 </head>
 <body hidden>
     <div id="internal" class="container-fluid">
@@ -167,36 +166,41 @@
         <hr>
         <h2>Angular Translations</h2>
 
-        <p>In Angular use these forms. These are not properly translated in this demo page:<p>
-
-        <p>
-            <code>&lt;translate&gt;Cancel&lt;/translate&gt;</code>
-            = <translate>Cancel</translate>
-        </p>
+        <p>In Angular use these forms:<p>
 
         <p>
             <code>&lt;span translate&gt;Ready&lt;/span&gt;</code>
-            = <span translate>Ready</span>
+            = <span translate id="angular-translate">Ready</span>
         </p>
 
         <p>
-            <code>&lt;span translate&gt;Delete {{ item.kind }}&lt;/span&gt;</code>
-            = <span translate>Delete {{ item.kind }}</span>
+            <code>&lt;span translate translate-context="verb"&gt;Ready&lt;/span&gt;</code>
+            = <span translate translate-context="verb" id="angular-context">Ready</span>
         </p>
 
         <p>
-            <code>&lt;span translate translate-n="percentFree"
-            translate-plural="{{$count}}% Free"&gt;1% Free&lt;/span&gt;</code>
-            = <span translate translate-n="percentFree" translate-plural="{{$count}}% Free">1% Free</span>
+            <code>&lt;span translate&gt;Delete '{{ name }}'&lt;/span&gt;</code>
+            = <span translate ng-init="name='Marmalade'"id="angular-interpolate">Delete '{{ name }}'</span>
         </p>
+
+        <!--
+        <p ng-init="count=5" >
+            <code>&lt;span translate translate-n="count"
+                translate-plural="{&zwj;{count}} hours"&gt;{&zwj;{count}} hour&lt;/span&gt;</code>
+            = <span translate translate-n="count" translate-plural="{{count}} hours"
+                id="angular-plural">1 hour</span>
+        </p>
+        -->
 
         <p>When translating Angular we <b>not support</b>:<p>
         <ul>
             <li>The <code>translatable</code> attribute.</li>
             <li>The <code>translate="attr"</code> translating of attribute values.</li>
             <li>The <code>{{value|translate}}</code> filter, even though documented on angular-gettext.</li>
+            <li>The <code>&lt;translate&gt;</code> element</li>
         </ul>
     </div>
     <script src="translate.js"></script>
+    <script src="../shell/po.js"></script>
 </body>
 </html>

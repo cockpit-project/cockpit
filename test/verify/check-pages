@@ -159,6 +159,11 @@ WantedBy=default.target
         self.assertEqual(b.text("#ngettext-context-disks-1"), u"$0 Datenträger fehlt")
         self.assertEqual(b.text("#ngettext-context-disks-2"), u"$0 Datenträger fehlen")
 
+        # Angular
+        self.assertEqual(b.text("#angular-translate"), "Bereit")
+        self.assertEqual(b.text("#angular-context"), "Bereiten")
+        self.assertEqual(b.text("#angular-interpolate"), u"'Marmalade' löschen")
+
     def testFrameReload(self):
         b = self.browser
         frame = "cockpit1:localhost/playground/test"

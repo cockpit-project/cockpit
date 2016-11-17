@@ -45,7 +45,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 {{ error }}
             </div>
             <div class="listing-ct-actions">
-                <button class="btn btn-default" ng-class="{ disabled: runningMethod, enabled: !runningMethod }" ng-click="checkForUpgrades()" translatable="yes">Check for updates</button>
+                <button class="btn btn-default" ng-class="{ disabled: runningMethod, enabled: !runningMethod }" ng-click="checkForUpgrades()" translatable="yes">Check for Updates</button>
             </div>
         </div>
     </div>
@@ -68,12 +68,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         ng-click="doUpgrade(item.osname.v, item.checksum.v)"
                         ng-if="matches('CachedUpdate') && !matches('DefaultDeployment')"
                         class="btn btn-primary" translatable="yes">
-                    Update and reboot
+                    Update and Reboot
                 </button>
                 <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
                         ng-click="doRollback(item.osname.v)"
                         ng-if="matches('RollbackDeployment') && !matches('CachedUpdate')"
-                        translatable="yes" class="btn btn-default">Roll back and reboot</button>
+                        translatable="yes" class="btn btn-default">Roll Back and Reboot</button>
             </div>
             <h3>{{ item | releaseName }}</h3>
             <div ng-if="!isRunning" class="listing-ct-status">

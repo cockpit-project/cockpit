@@ -25,8 +25,10 @@ FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\.\)\?/src/ws/[^:]\+\).*|-N \1|p' $<
 # Include everything not in src/ws in the javascript file
 po/po.%.js: po/%.po
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(MSGGREP) --invert-match `$(FILTER_PO_SRC_WS)` $< > $@.tmp && \
-	$(srcdir)/tools/missing $(srcdir)/po/po2json --module $@.tmp $@
+	$(MSGGREP) --invert-match `$(FILTER_PO_SRC_WS)` $< > $@.po.tmp && \
+	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.js -o $@.js.tmp $@.po.tmp && \
+	$(srcdir)/tools/missing $(UGLIFY_JS) $@.js.tmp --mangle --beautify > $@.tmp && \
+	rm -f $@.po.tmp $@.js.tmp && mv $@.tmp $@
 
 # Always build the binary gettext data
 all-local:: $(MO_FILES) $(PO_JAVASCRIPT)
@@ -42,16 +44,21 @@ install-data-local:: $(MO_FILES)
 uninstall-local::
 	for lang in $(LINGUAS); do rm -f $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(GETTEXT_PACKAGE).mo; done
 
+# General code packages to translate
+TRANSLATE = \
+	pkg/ \
+	$(NULL)
+
 # Lists of files we need to extract from
 po/POTFILES.c.in:
 	$(MKDIR_P) $(notdir $@)
 	( cd $(srcdir) && find src/ws/ src/bridge/ -name '*.c' ) > $@
 po/POTFILES.html.in:
 	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find pkg/ -name '*.html' ) > $@
+	( cd $(srcdir) && find $(TRANSLATE) -name '*.html' ) > $@
 po/POTFILES.js.in:
 	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find src/base1/ pkg/ -name '*.js' -o -name '*.jsx' -o -name '*.es6' ) > $@
+	( cd $(srcdir) && find src/base1/ $(TRANSLATE) -name '*.js' -o -name '*.jsx' -o -name '*.es6' ) > $@
 po/POTFILES.pre.in: prepare-po
 	$(MKDIR_P) $(notdir $@)
 	( cd tmp/ && find . -type f ) > $@
@@ -76,6 +83,7 @@ po/cockpit.js.pot: po/POTFILES.js.in
 		--keyword=N_ --keyword=NC_:1c,2 \
 		--keyword=gettext:1,1t --keyword=gettext:1c,2,2t \
 		--keyword=ngettext:1,2,3t --keyword=ngettext:1c,2,3,4t \
+		--keyword=gettextCatalog.getString:1,3c --keyword=gettextCatalog.getPlural:2,3,4c \
 		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^
 
 # Extract pre-processed prepare-po data in tmp/

@@ -148,7 +148,7 @@ function tag(node) {
     var nest = true;
 
     /* Extract translate strings */
-    if (node.name == "translate" || "translate" in attrs || "translatable" in attrs) {
+    if ("translate" in attrs || "translatable" in attrs) {
         tasks = (attrs["translate"] || attrs["translatable"] || "yes").split(" ");
 
         /* Calculate the line location taking into account nested parsing */

@@ -25,8 +25,6 @@ basedebug_DATA = \
 
 CLEAN_CSS = $(srcdir)/node_modules/.bin/cleancss
 
-UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
-
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle --comments 'preserve' --beautify \

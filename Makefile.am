@@ -246,6 +246,8 @@ SED_SUBST = sed \
         -e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
         $(NULL)
 
+UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
+
 testassetsdir = $(datadir)/cockpit-test-assets
 testassets_programs =
 testassets_data =

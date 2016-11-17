@@ -631,7 +631,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
     {
       inet = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
       address = g_inet_socket_address_new (inet, atoi (port));
-      cockpit_channel_internal_address ("/test-server", address);
+      cockpit_channel_add_internal_address ("/test-server", address);
       g_object_unref (address);
       g_object_unref (inet);
     }
@@ -901,31 +901,43 @@ cockpit_channel_control (CockpitChannel *self,
   g_bytes_unref (message);
 }
 
-static GHashTable *internal_addresses;
+typedef struct {
+  GSocketConnectable *connectable;
+  gint fd;
+} InternalValue;
+
+static GHashTable *internal_values;
 
 static void
-safe_unref (gpointer data)
+internal_value_free (gpointer data)
 {
-  GObject *object = data;
-  if (object != NULL)
-    g_object_unref (object);
+  InternalValue *value = data;
+  if (value->connectable)
+    g_object_unref (value->connectable);
+  if (value->fd != -1)
+    close (value->fd);
+  g_free (value);
 }
 
 static gboolean
-lookup_internal (const gchar *name,
-                 GSocketConnectable **connectable)
+lookup_internal_address (const gchar *name,
+                         GSocketConnectable **connectable)
 {
   const gchar *env;
   gboolean ret = FALSE;
   GSocketAddress *address;
+  InternalValue *value = NULL;
 
   g_assert (name != NULL);
   g_assert (connectable != NULL);
 
-  if (internal_addresses)
+  if (internal_values)
     {
-      ret = g_hash_table_lookup_extended (internal_addresses, name, NULL,
-                                          (gpointer *)connectable);
+      if (g_hash_table_lookup_extended (internal_values, name, NULL, (gpointer *)&value))
+        {
+          *connectable = value->connectable;
+          ret = TRUE;
+        }
     }
 
   if (!ret && g_str_equal (name, "ssh-agent"))
@@ -936,7 +948,7 @@ lookup_internal (const gchar *name,
         {
           address = g_unix_socket_address_new (env);
           *connectable = G_SOCKET_CONNECTABLE (address);
-          cockpit_channel_internal_address ("ssh-agent", address);
+          cockpit_channel_add_internal_address ("ssh-agent", address);
         }
       ret = TRUE;
     }
@@ -944,28 +956,66 @@ lookup_internal (const gchar *name,
   return ret;
 }
 
-void
-cockpit_channel_internal_address (const gchar *name,
-                                  GSocketAddress *address)
+static gchar *
+unique_internal_name (void)
 {
-  if (!internal_addresses)
+  /* We are not multi-threaded */
+  static guint64 unique = 999;
+  return g_strdup_printf ("internal-channel-%" G_GUINT64_FORMAT, unique++);
+}
+
+const gchar *
+cockpit_channel_add_internal_address (const gchar *name,
+                                      GSocketAddress *address)
+{
+  InternalValue *value;
+  gchar *id;
+
+  if (!internal_values)
     {
-      internal_addresses = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                  g_free, safe_unref);
+      internal_values = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                               g_free, internal_value_free);
     }
 
+  value = g_new0 (InternalValue, 1);
   if (address)
-    address = g_object_ref (address);
+    value->connectable = g_object_ref (address);
+  value->fd = -1;
 
-  g_hash_table_replace (internal_addresses, g_strdup (name), address);
+  if (name)
+    id = g_strdup (name);
+  else
+    id = unique_internal_name ();
+  g_hash_table_replace (internal_values, id, value);
+  return id;
+}
+
+const gchar *
+cockpit_channel_add_internal_fd (gint fd)
+{
+  InternalValue *value;
+  gchar *id;
+
+  if (!internal_values)
+    {
+      internal_values = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                               g_free, internal_value_free);
+    }
+
+  value = g_new0 (InternalValue, 1);
+  value->fd = fd;
+
+  id = unique_internal_name ();
+  g_hash_table_replace (internal_values, id, value);
+  return id;
 }
 
 gboolean
-cockpit_channel_remove_internal_address (const gchar *name)
+cockpit_channel_remove_internal (const gchar *id)
 {
   gboolean ret = FALSE;
-  if (internal_addresses)
-      ret = g_hash_table_remove (internal_addresses, name);
+  if (internal_values)
+      ret = g_hash_table_remove (internal_values, id);
   return ret;
 }
 
@@ -1061,7 +1111,7 @@ parse_address (CockpitChannel *self,
     }
   else if (internal)
     {
-      gboolean reg = lookup_internal (internal, &connectable);
+      gboolean reg = lookup_internal_address (internal, &connectable);
 
       if (!connectable)
         {

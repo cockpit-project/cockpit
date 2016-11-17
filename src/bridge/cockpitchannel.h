@@ -96,10 +96,12 @@ JsonObject *        cockpit_channel_close_options     (CockpitChannel *self);
 GSocketAddress *    cockpit_channel_parse_address     (CockpitChannel *self,
                                                        gchar **possible_name);
 
-void                cockpit_channel_internal_address  (const gchar *name,
-                                                       GSocketAddress *address);
+const gchar *       cockpit_channel_add_internal_address    (const gchar *name,
+                                                             GSocketAddress *address);
 
-gboolean            cockpit_channel_remove_internal_address (const gchar *name);
+const gchar *       cockpit_channel_add_internal_fd         (gint fd);
+
+gboolean            cockpit_channel_remove_internal         (const gchar *id);
 
 CockpitConnectable * cockpit_channel_parse_stream     (CockpitChannel *self);
 

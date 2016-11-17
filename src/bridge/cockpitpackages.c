@@ -959,7 +959,7 @@ cockpit_packages_new (void)
     }
 
   cockpit_bridge_packages_port = (gint)g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (address));
-  cockpit_channel_internal_address ("packages", address);
+  cockpit_channel_add_internal_address ("packages", address);
 
   g_debug ("package server port: %d", cockpit_bridge_packages_port);
 

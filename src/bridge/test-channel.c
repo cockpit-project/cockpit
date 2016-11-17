@@ -466,17 +466,17 @@ static void
 test_internal_not_registered (void)
 {
   cockpit_expect_warning ("couldn't find internal address: test");
-  cockpit_channel_internal_address ("other", NULL);
+  cockpit_channel_add_internal_address ("other", NULL);
   test_invalid_internal ();
-  cockpit_channel_remove_internal_address ("other");
+  cockpit_channel_remove_internal ("other");
 }
 
 static void
 test_internal_null_registered (void)
 {
-  cockpit_channel_internal_address ("test", NULL);
+  cockpit_channel_add_internal_address ("test", NULL);
   test_invalid_internal ();
-  cockpit_channel_remove_internal_address ("test");
+  cockpit_channel_remove_internal ("test");
 }
 
 static void

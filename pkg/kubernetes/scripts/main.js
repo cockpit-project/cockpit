@@ -23,6 +23,7 @@
     /* Tell webpack what to bundle here */
     var angular = require('angular');
     require('angular-route');
+    require('angular-gettext/dist/angular-gettext.js');
     require('angular-bootstrap/ui-bootstrap.js');
     require('kubernetes-object-describer/dist/object-describer.js');
     require('kubernetes-container-terminal/dist/container-terminal.js');
@@ -49,6 +50,7 @@
     angular.module('kubernetes', [
         'ngRoute',
         'ui.bootstrap',
+        'gettext',
         'kubeClient',
         'kubeClient.cockpit',
         'kubernetes.app',

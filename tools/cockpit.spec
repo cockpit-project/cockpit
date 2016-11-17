@@ -399,8 +399,9 @@ The Cockpit component for managing storage.  This package uses Storaged.
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree
-Requires: %{name}-bridge >= %{required_base}
-Requires: %{name}-shell >= %{required_base}
+# Requires: Uses new translations functionality
+Requires: %{name}-bridge > 124
+Requires: %{name}-shell > 124
 %if 0%{?fedora} > 0 && 0%{?fedora} < 24
 Requires: rpm-ostree >= 2015.10-1
 %else

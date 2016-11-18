@@ -388,6 +388,43 @@ function RPMOSTreeDBusClient() {
         return proxy;
     };
 
+    /* This is a little fragile because the
+     * the dbus varient is simply 'av'.
+     * Ostree promises to not remove or change the
+     * order of any of these attributes.
+     *  https://github.com/ostreedev/ostree/commit/4a2733f9e7e2ca127ff27433c045c977000ca346#diff-c38f32cb7112030f3326b43e305f2accR424
+     * Here's the definition this relies on
+     * - bool valid
+     * - bool is sig expired
+     * - bool is key expired
+     * - bool is key revoked
+     * - bool is key missing
+     * - str key fingerprint
+     * - int signature timestamp
+     * - int signature expiry timestamp
+     * - str key algo name
+     * - str key hash algo name
+     * - str key user name
+     * - str key user email
+     */
+    self.signature_obj = function(signature) {
+        if (!signature.v)
+            return;
+
+        var by = signature.v[11];
+        if (signature.v[10])
+            by = by ? cockpit.format("$0 <$1>", signature.v[10], by) : signature.v[10];
+
+        return {
+            'fp' : signature.v[5],
+            'fp_name' : signature.v[8] ? cockpit.format(_("$0 key ID"), signature.v[8]) : null,
+            'expired' : signature.v[1] || signature.v[2],
+            'valid' : signature.v[0],
+            'timestamp' : signature.v[6],
+            'by' : by
+        };
+    };
+
     /* Because all our deployment package diffs can only
      * change when the machine is rebooted we
      * fetch and store them once here and

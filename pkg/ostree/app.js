@@ -266,6 +266,8 @@
                             scope.packages.removeEventListener("changed", on_changed);
                         });
 
+                        scope.signature_obj = client.signature_obj;
+
                         scope.isRunning = false;
                         set_running();
                         scope.$watch("runningMethod", set_running);

@@ -95,11 +95,35 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <ul class="nav nav-tabs nav-tabs-pf">
                 <li ng-class="{active: activeTab('tree')}"><a translate ng-click="switchTab('tree')">Tree</a></li>
                 <li ng-class="{active: activeTab('packages') }"><a translate ng-click="switchTab('packages')">Packages</a></li>
+                <li ng-class="{active: activeTab('signature') }"><a translate ng-click="switchTab('signature')">Signature</a></li>
             </ul>
         </div>
         <div class="listing-ct-error alert" ng-if="error">
             <span class="pficon pficon-warning-triangle-o"></span>
             {{ error }}
+        </div>
+        <div class="listing-ct-body hidden signatures" ng-class="{active: activeTab('signature')}">
+            <div class="row">
+                <div class="col-sm-6" ng-repeat="v in item.signatures.v"
+                    ng-init="sig = signature_obj(v)" ng-if="item.signatures">
+                    <dl>
+                        <dt ng-if="sig.by" translate>Signed by</dt>
+                        <dd ng-if="sig.by">{{ sig.by }}</dd>
+
+                        <dt ng-if="sig.timestamp" translate>When</dt>
+                        <dd ng-if="sig.timestamp">{{ sig.timestamp | dateFormat }}</dd>
+
+                        <dt ng-if="sig.fp && sig.fp_name" translate>{{ sig.fp_name }}</dt>
+                        <dd ng-if="sig.fp && sig.fp_name">{{ sig.fp }}</dd>
+
+                        <dt translate>Status</dt>
+                        <dd ng-if="sig.valid" translate>Good Signature</dd>
+                        <dd ng-if="sig.expired" translate>Expired Signature</dd>
+                        <dd ng-if="!sig.valid && !sig.expired" translate>Invalid Signature</dd>
+                    </dl>
+                </div>
+                <div ng-if="!item.signatures" class="text-center" translate>No signature avaliable</div>
+            </div>
         </div>
         <div class="listing-ct-body hidden tree" ng-class="{active: activeTab('tree')}">
             <div class="row">

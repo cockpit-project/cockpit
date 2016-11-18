@@ -176,6 +176,149 @@ QUnit.asyncTest("wait fail", function() {
     });
 });
 
+QUnit.asyncTest("no default name", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", [ "Browser-side JS" ], { "name": "com.redhat.Cockpit.DBusTests.Test" }).
+        then(function(reply) {
+            assert.deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ], "replied");
+        }, function(ex) {
+            assert.ok(false, "shouldn't fail");
+        }).always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("no default name bad", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", [ "Browser-side JS" ], { "name": 5 }).
+        then(function(reply) {
+            assert.ok(false, "shouldn't succeed");
+        }, function(ex) {
+            assert.equal(ex.message, "The \"name\" field is invalid in call", "error message");
+        }).always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("no default name invalid", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", [ "Browser-side JS" ], { "name": "!invalid!" }).
+        then(function(reply) {
+            assert.ok(false, "shouldn't succeed");
+        }, function(ex) {
+            assert.equal(ex.message, "The \"name\" field is not a valid bus name", "error message");
+        }).always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("no default name missing", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", [ "Browser-side JS" ]).
+        then(function(reply) {
+            assert.ok(false, "shouldn't succeed");
+        }, function(ex) {
+            assert.equal(ex.message, "The \"name\" field is missing in call", "error message");
+        }).always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("no default name second", function() {
+    assert.expect(2);
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
+            { "name": "com.redhat.Cockpit.DBusTests.Test" })
+        .then(function(reply) {
+            assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Test" ], "right name");
+            return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
+                    { "name": "com.redhat.Cockpit.DBusTests.Second" })
+                .then(function(reply) {
+                    assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Second" ], "second name");
+                }, function(ex) {
+                    assert.ok(false, "shouldn't fail");
+                });
+        }, function(ex) {
+            console.log(ex);
+            assert.ok(false, "shouldn't fail");
+        }).always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("override default name", function() {
+    assert.expect(2);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ])
+        .then(function(reply) {
+            assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Test" ], "right name");
+            return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
+                    { "name": "com.redhat.Cockpit.DBusTests.Second" })
+                .then(function(reply) {
+                    assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Second" ], "second name");
+                }, function(ex) {
+                    assert.ok(false, "shouldn't fail");
+                });
+        }, function(ex) {
+            console.log(ex);
+            assert.ok(false, "shouldn't fail");
+        }).always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("watch no default name", function() {
+    assert.expect(1);
+
+    var cache = { };
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.addEventListener("notify", function(event, data) {
+        $.extend(true, cache, data);
+    });
+
+    var ret = dbus.watch({ "path": "/otree/frobber", "name": "com.redhat.Cockpit.DBusTests.Second" })
+        .then(function() {
+            assert.equal(typeof cache["/otree/frobber"], "object", "has path");
+        }, function(ex) {
+            assert.ok(false, "shouldn't fail");
+        })
+        .always(function() {
+            dbus.close();
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("watch missing name", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.watch("/otree/frobber")
+        .then(function() {
+            assert.ok(false, "shouldn't succeed");
+        }, function(ex) {
+            assert.equal(ex.message, "protocol-error", "error message");
+        })
+        .always(function() {
+            dbus.close();
+            QUnit.start();
+        });
+});
+
 function internal_test(options) {
     assert.expect(2);
     var dbus = cockpit.dbus(null, options);

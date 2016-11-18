@@ -3573,15 +3573,53 @@ function basic_scope(cockpit, jquery) {
         cockpit.language = lang;
     };
 
-    cockpit.translate = function translate(el) {
-        var list = (el || document).querySelectorAll("[translatable=\"yes\"]");
-        var e, translated, i, len;
-        if (list) {
-            for (i = 0, len = list.length; i < len; i++) {
-                e = list[i];
-                translated = cockpit.gettext(e.getAttribute("context"), e.textContent);
-                e.removeAttribute("translatable");
-                e.textContent = translated;
+    cockpit.translate = function translate(/* ... */) {
+	var what;
+
+        /* Called without arguments, entire document */
+	if (arguments.length === 0)
+            what = [ document ];
+
+        /* Called with a single array like argument */
+        else if (arguments.length === 1 && arguments[0].length)
+            what = arguments[0];
+
+        /* Called with 1 or more element arguments */
+        else
+            what = arguments;
+
+        /* Translate all the things */
+        var w, wlen, val, i, ilen, t, tlen, list, tasks, el;
+	for (w = 0, wlen = what.length; w < wlen; w++) {
+
+            /* The list of things to translate */
+            list = null;
+            if (what[w].querySelectorAll)
+                list = what[w].querySelectorAll("[translatable], [translate]");
+            if (!list)
+                continue;
+
+            /* Each element */
+            for (i = 0, ilen = list.length; i < ilen; i++) {
+                el = list[i];
+
+                val = el.getAttribute("translate") || el.getAttribute("translatable") || "yes";
+                if (val == "no")
+                    continue;
+
+                /* Each thing to translate */
+                tasks = val.split(" ");
+                val = el.getAttribute("translate-context") || el.getAttribute("context");
+                for (t = 0, tlen = tasks.length; t < tlen; t++) {
+                    if (tasks[t] == "yes" || tasks[t] == "translate")
+                        el.textContent = cockpit.gettext(val, el.textContent);
+                    else if (tasks[t])
+                        el.setAttribute(tasks[t], cockpit.gettext(val, el.getAttribute(tasks[t]) || ""));
+                }
+
+                /* Mark this thing as translated */
+                el.removeAttribute("translatable");
+                el.removeAttribute("translate");
             }
         }
     };

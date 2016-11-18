@@ -59,6 +59,9 @@ var info = {
         "playground/test": [
             "playground/test",
         ],
+        "playground/translate": [
+            "playground/translate",
+        ],
 
         "realmd/domain": [
             "realmd/operation.js",
@@ -172,6 +175,7 @@ var info = {
         "playground/service.html",
         "playground/speed.html",
         "playground/test.html",
+        "playground/translate.html",
 
         "realmd/manifest.json",
 

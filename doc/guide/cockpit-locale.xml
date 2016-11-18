@@ -86,12 +86,18 @@ translated = cockpit.ngettext([context], string1, stringN, number)
   <refsection id="cockpit-locale-translate">
     <title>cockpit.translate()</title>
 <programlisting>
-cockpit.translate([sel])
+cockpit.translate()
+cockpit.translate(element, ...)
+cockpit.translate(selection)
 </programlisting>
 
     <para>The document will be scanned for translatable tags and they will be translated according
-      to the strings in loaded locale data. If <code>sel</code> is specified, this should be a DOM
-      element for the specific part of the document to translate.</para>
+      to the strings in loaded locale data. One or more <code>element</code> arguments may be specified.
+      These are DOM elements for specific parts of the document to be translated. If no <code>element</code>
+      is specified then the entire document is translated.</para>
+
+    <para>If an array or array-like object is passed as a <code>selection</code> then all DOM elements
+      in the array will be treated as parts of the document to be translated.</para>
   </refsection>
 
 </refentry>

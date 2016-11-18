@@ -37,6 +37,9 @@ QUnit.asyncTest("simple request", function() {
                     },
                     'react-patterns': {
                         label: "React Patterns"
+                    },
+                    'translate': {
+                        label: "Translating"
                     }
                 }
             }, "returned right data");

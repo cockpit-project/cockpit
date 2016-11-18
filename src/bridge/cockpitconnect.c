@@ -21,8 +21,6 @@
 
 #include "cockpitconnect.h"
 
-#include <glib/gi18n.h>
-
 CockpitConnectable *
 cockpit_connectable_ref (CockpitConnectable *connectable)
 {
@@ -280,7 +278,7 @@ cockpit_connect_stream_finish (GAsyncResult *result,
     }
   else
     {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_HOST_NOT_FOUND, _("No addresses found"));
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_HOST_NOT_FOUND, "No addresses found");
       return NULL;
     }
 }

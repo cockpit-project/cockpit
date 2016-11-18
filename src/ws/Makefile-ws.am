@@ -19,6 +19,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
 	src/ws/cockpitauthprocess.h \
 	src/ws/cockpitauthprocess.c \
+	src/ws/cockpitcertificate.c \
+	src/ws/cockpitcertificate.h \
 	src/ws/cockpitchannelresponse.h \
 	src/ws/cockpitchannelresponse.c \
 	src/ws/cockpitchannelsocket.h \
@@ -76,6 +78,8 @@ EXTRA_DIST += \
 
 # ----------------------------------------------------------------------------------------------------
 
+sbin_PROGRAMS += remotectl
+
 libexec_PROGRAMS += cockpit-ws cockpit-session cockpit-ssh
 
 cockpit_ssh_SOURCES = \
@@ -109,6 +113,23 @@ cockpit_ws_LDADD = 					\
 	$(COCKPIT_WS_LIBS)					\
 	$(NULL)
 
+remotectl_SOURCES = \
+	src/ws/cockpitcertificate.c \
+	src/ws/cockpitcertificate.h \
+	src/ws/remotectl-certificate.c \
+	src/ws/remotectl.c \
+	src/ws/remotectl.h \
+	$(NULL)
+
+remotectl_CFLAGS = \
+	$(COCKPIT_CFLAGS) \
+	$(NULL)
+
+remotectl_LDADD = \
+	libcockpit-common.a \
+	$(COCKPIT_LIBS) \
+	$(NULL)
+
 dist_systemdunit_DATA += src/ws/cockpit.socket
 
 cockpit.service : src/ws/cockpit.service.in Makefile.am
@@ -133,27 +154,31 @@ CLEANFILES += \
 	cockpit.service \
 	$(NULL)
 
-@INTLTOOL_XML_RULE@
 appdatadir = $(datadir)/appdata
-appdata_DATA = src/ws/cockpit.appdata.xml
-appdata_in_files = src/ws/cockpit.appdata.xml.in
+nodist_appdata_DATA = src/ws/cockpit.appdata.xml
+appdata_in = src/ws/cockpit.appdata.xml.in
 
-@INTLTOOL_DESKTOP_RULE@
+$(nodist_appdata_DATA): $(appdata_in) $(PO_FILES)
+	$(AM_V_GEN) LC_ALL=C $(INTLTOOL_MERGE) -q -x -u $(top_srcdir)/po $< $@
+
 desktopdir = $(datadir)/applications
-desktop_in_files = src/ws/cockpit.desktop.in
-desktop_DATA = src/ws/cockpit.desktop
+nodist_desktop_DATA = src/ws/cockpit.desktop
+desktop_in = src/ws/cockpit.desktop.in
+
+$(nodist_desktop_DATA): $(desktop_in) $(PO_FILES)
+	$(AM_V_GEN) LC_ALL=C $(INTLTOOL_MERGE) -q -d -u $(top_srcdir)/po $< $@
 
 pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = src/ws/cockpit.png
 
 CLEANFILES += \
-	$(appdata_DATA) \
-	$(desktop_DATA) \
+	$(nodist_appdata_DATA) \
+	$(nodist_desktop_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
-	$(appdata_in_files) \
-	$(desktop_in_files) \
+	$(appdata_in) \
+	$(desktop_in) \
 	$(pixmap_DATA) \
 	$(NULL)
 
@@ -269,6 +294,7 @@ test_kerberos_CFLAGS = $(cockpit_ws_CFLAGS)
 
 mock_agent_bridge_SOURCES = src/ws/mock-agent-bridge.c \
 	src/bridge/cockpitchannel.c src/bridge/cockpitchannel.h \
+	src/bridge/cockpitconnect.c src/bridge/cockpitconnect.h \
 	src/bridge/cockpitpipechannel.c src/bridge/cockpitpipechannel.h \
     $(NULL)
 
@@ -340,3 +366,7 @@ update-known-hosts:
 			$(srcdir)/src/ws/mock_known_hosts
 
 endif
+
+prepare-po::
+	$(INTLTOOL_EXTRACT) -l --type=gettext/xml $(srcdir)/$(appdata_in)
+	$(INTLTOOL_EXTRACT) -l --type=gettext/ini $(srcdir)/$(desktop_in)

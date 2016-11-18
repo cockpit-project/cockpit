@@ -40,7 +40,7 @@
                         <tr>
                             <td className="top">
                                 <label className="control-label" for="control-1">
-                                    {_("Label")}
+                                    Label
                                 </label>
                             </td>
                             <td>
@@ -50,14 +50,14 @@
                         <tr>
                             <td className="top">
                                 <label className="control-label">
-                                    {_("Select")}
+                                    Select
                                 </label>
                             </td>
                             <td>
                                 <Select.Select onChange={this.selectChanged} id="primary-select">
-                                    <Select.SelectEntry data='one'>{_("One")}</Select.SelectEntry>
-                                    <Select.SelectEntry data='two'>{_("Two")}</Select.SelectEntry>
-                                    <Select.SelectEntry data='three'>{_("Three")}</Select.SelectEntry>
+                                    <Select.SelectEntry data='one'>One</Select.SelectEntry>
+                                    <Select.SelectEntry data='two'>Two</Select.SelectEntry>
+                                    <Select.SelectEntry data='three'>Three</Select.SelectEntry>
                                     <Select.SelectEntry data='four'></Select.SelectEntry>
                                 </Select.Select>
                             </td>
@@ -65,21 +65,21 @@
                         <tr>
                             <td className="top">
                                 <label className="control-label">
-                                    {_("Preselected")}
+                                    Preselected
                                 </label>
                             </td>
                             <td>
                                 <Select.Select initial="two">
-                                    <Select.SelectEntry data="one">{_("One")}</Select.SelectEntry>
-                                    <Select.SelectEntry data="two">{_("Two")}</Select.SelectEntry>
-                                    <Select.SelectEntry data="three">{_("Three")}</Select.SelectEntry>
+                                    <Select.SelectEntry data="one">One</Select.SelectEntry>
+                                    <Select.SelectEntry data="two">Two</Select.SelectEntry>
+                                    <Select.SelectEntry data="three">Three</Select.SelectEntry>
                                 </Select.Select>
                             </td>
                         </tr>
                         <tr>
                             <td className="top">
                                 <label className="control-label">
-                                    {_("Empty Select")}
+                                    Empty Select
                                 </label>
                             </td>
                             <td>
@@ -89,14 +89,14 @@
                         <tr>
                             <td className="top">
                                 <label className="control-label">
-                                    {_("Nested dialog")}
+                                    Nested dialog
                                 </label>
                             </td>
                             <td>
                                 <button id="open-nested" onClick={ this.props.clickNested }>
-                                    {_("Try to nest dialog")}
+                                    Try to nest dialog
                                 </button>
-                                <span>{_("Doesn't open a dialog, only shows a warning in the console.")}</span>
+                                <span>Doesn't open a dialog, only shows a warning in the console.</span>
                             </td>
                         </tr>
                     </table>

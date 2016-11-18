@@ -241,7 +241,7 @@ test_cannot_connect (TestGeneral *tt,
   JsonObject *object;
   gboolean closed;
 
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+  cockpit_expect_log ("cockpit-bridge", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
 
   options = json_object_new ();
   json_object_set_int_member (options, "port", 5555);
@@ -813,9 +813,9 @@ test_tls_authority_bad (TestTls *test,
                           "options", options,
                           NULL);
 
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+  cockpit_expect_log ("cockpit-bridge", G_LOG_LEVEL_MESSAGE,
                       "*Unacceptable TLS certificate:*untrusted-issuer*");
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+  cockpit_expect_log ("cockpit-bridge", G_LOG_LEVEL_MESSAGE,
                       "*Unacceptable TLS certificate");
 
   json_object_unref (options);

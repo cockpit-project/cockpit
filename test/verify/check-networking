@@ -487,5 +487,37 @@ NM_CONTROLLED=no
         b.wait_visible("#confirm-breaking-change-popup")
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
+    @skipImage("Main interface can't be managed", "debian-8", "debian-unstable", "ubuntu-1604")
+    def testBondingMain(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.get_iface(m, m.macaddr)
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+
+        # Put the main interface into a bond.  Everything should keep working.
+        b.click("button:contains('Add Bond')")
+        b.wait_popup("network-bond-settings-dialog")
+        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_checked("input[data-iface='%s']" % iface, True)
+        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
+
+        # Check that it has the main connection enslaved and the right IP address
+        b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+        b.wait_in_text("#network-interface .panel:contains('tbond')", m.address)
+
+        # Delete the bond
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_visible("#networking")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
+        b.wait_present("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_in_text("#networking-interfaces tr[data-interface='%s']" % iface, m.address)
+
 if __name__ == '__main__':
     test_main()

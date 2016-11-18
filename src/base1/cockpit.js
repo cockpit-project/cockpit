@@ -3021,7 +3021,8 @@ function factory() {
             extend(args, options);
         }
         args.payload = "dbus-json3";
-        args.name = name;
+        if (name)
+            args.name = name;
         self.options = options;
         self.unique_name = null;
 
@@ -3199,16 +3200,10 @@ function factory() {
             var dfd = cockpit.defer();
             var id = String(last_cookie);
             last_cookie++;
-            var method_call = {
+            var method_call = extend({ }, options, {
                 "call": [ path, iface, method, args || [] ],
                 "id": id
-            };
-            if (options) {
-                if (options.type)
-                    method_call.type = options.type;
-                if (options.flags !== undefined)
-                    method_call.flags = options.flags;
-            }
+            });
 
             var msg = JSON.stringify(method_call);
             dbus_debug("dbus:", msg);
@@ -3225,7 +3220,7 @@ function factory() {
 
         this.subscribe = function subscribe(match, callback, rule) {
             var subscription = {
-                match: match || { },
+                match: extend({ }, match),
                 callback: callback
             };
 
@@ -3262,7 +3257,7 @@ function factory() {
         self.watch = function watch(path) {
             var match;
             if (is_plain_object(path))
-                match = path;
+                match = extend({ }, path);
             else
                 match = { path: String(path) };
 

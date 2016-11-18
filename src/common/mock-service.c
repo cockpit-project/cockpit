@@ -423,6 +423,18 @@ on_release_other_name (TestFrobber *frobber,
 
 }
 
+static gboolean
+on_tell_me_your_name (TestFrobber *frobber,
+                      GDBusMethodInvocation *invocation,
+                      gpointer user_data)
+{
+  GDBusMessage *message = g_dbus_method_invocation_get_message (invocation);
+  GVariant *name = g_variant_new_string (g_dbus_message_get_destination (message));
+  g_dbus_method_invocation_return_value (invocation, g_variant_new_tuple (&name, 1));
+  return TRUE;
+
+}
+
 /* ------------------------------------------------------------------------
  * Non object manager stuff
  */
@@ -700,6 +712,8 @@ mock_service_create_and_export (GDBusConnection *connection,
                     G_CALLBACK (on_claim_other_name), mock_data);
   g_signal_connect (exported_frobber, "handle-release-other-name",
                     G_CALLBACK (on_release_other_name), mock_data);
+  g_signal_connect (exported_frobber, "handle-tell-me-your-name",
+                    G_CALLBACK (on_tell_me_your_name), mock_data);
 
   g_object_unref (exported_frobber);
   mock_service_create_introspect_fail (connection);

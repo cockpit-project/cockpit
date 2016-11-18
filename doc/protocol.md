@@ -339,8 +339,9 @@ type:
  * "bus": The DBus bus to connect to either "session", "system" or "none".
    Defaults to "system" if not present. If set to "none" you must also
    provide the address parameter.
- * "name": A service name of the DBus service to communicate with. Set to
-   null if "bus" is "none".
+ * "name": A service name of the DBus service to communicate with by default.
+   Always omit this field if "bus" is "none". If omitted and "bus" is not
+   "none" then a "name" field must be specified explicitly on other messages.
  * "address": A dbus supported address to connect to. This option is only
    used when bus is set to "none". Accepts any valid DBus address or
    "internal" to communicate with the internal bridge DBus connection.
@@ -366,6 +367,9 @@ then it is expected to be the DBus method type signature (no tuple). If a
 "flags" field is a string, then this includes message flags. None are
 defined yet.
 
+If no "name" field was specified in the "open" call, indicating which DBus
+service to talk to, then one must be specified here along with the "call".
+
 If a DBus method call fails an "error" message will be sent back. An error
 will also be sent back in parameters or arguments in the "call" message are
 invalid.
@@ -376,6 +380,7 @@ sent back in a "reply" or "error" message with the same "id" field.
 Method reply messages are JSON objects with a "reply" field whose value is
 an array, the array contains another array of out arguments, or null if
 the DBus reply had no body.
+
     {
         "reply": [ [ "arg0", 1, 2 ] ],
         "id": "cookie"
@@ -416,12 +421,17 @@ a "protocol-error".
 
     {
         "add-match": {
+            "name": "org.the.Name",
             "path": "/the/path",
             "interface": "org.Interface",
             "member": "SignalName",
             "arg0": "first argument",
         }
     }
+
+If the "name" field is omitted, it will be populated from the "open" message.
+If no "name" was specified in the "open" message, then DBus messages from any
+bus name will be matched.
 
 To unsubscribe from DBus signals, use the "remove-match" message. If a
 match was added more than once, it must be removed the same number of
@@ -431,6 +441,7 @@ The form of "remove-match" is identical to "add-match".
 
     {
         "remove-match": {
+            "name": "org.the.Name",
             "path": "/the/path",
             "interface": "org.Interface",
             "member": "SignalName",
@@ -446,6 +457,17 @@ may be null if the DBus signal had no body.
         "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
     }
 
+If a signal message is sent to the bridge, the signal will be emitted.
+In addition a "destination" field may be present to indicate whether
+the signal should be broadcast or not.
+
+    {
+        "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
+    }
+
+If the bus name of the sender of the signal does not match the "name" field of
+the "open" message, then a "name" field will be included with the "signal" message.
+
 Properties can be watched with the "watch" request. Either a "path" or
 "path_namespace" can be watched. Property changes are listened for with
 DBus PropertiesChanged signals.  If a "path_namespace" is watched and
@@ -456,6 +478,7 @@ the watch has sent "notify" messages about the things being watched.
 
     {
         "watch": {
+            "name": "org.the.Name",
 	    "path": "/the/path/to/watch",
             "interface": org.Interface
         }
@@ -470,6 +493,9 @@ request.
             "path": "/the/path/to/watch"
         }
     }
+
+If the "name" field is omitted, it will be populated from the "open" message.
+Either a "name" field must be specified here or in the "open" message.
 
 Property changes will be sent using a "notify" message. This includes
 addition of interfaces without properties, which will be an empty
@@ -491,6 +517,9 @@ changes since the last "notify" message will be sent.
         }
     }
 
+If the bus name of the sender of the signal does not match the "name" field of
+the "open" message, then a "name" field will be included with the "notify" message.
+
 Interface introspection data is sent using "meta" message. Before the
 first time an interface is sent using a "notify" message, a "meta"
 will be sent with that interface introspection info. Additional fields
@@ -511,13 +540,16 @@ will be defined here, but this is it for now.
         }
     }
 
-When the owner of the DBus name changes an "owner" message is sent.
-The owner value will be the id of the owner or null if the name is unowned.
+If the bus name of the sender of the signal does not match the "name" field of
+the "open" message, then a "name" field will be included with the "meta" message.
+
+When the owner of the DBus "name" (specified in the open message) changes an "owner"
+message is sent. The owner value will be the id of the owner or null if the name
+is unowned.
 
     {
         "owner": "1:"
     }
-
 
 DBus types are encoded in various places in these messages, such as the
 arguments. These types are encoded as follows:

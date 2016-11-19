@@ -681,6 +681,43 @@ cockpit_channel_close (CockpitChannel *self,
   (klass->close) (self, problem);
 }
 
+/*
+ * cockpit_channel_fail:
+ * @self: a channel
+ * @problem: the problem
+ *
+ * Close the channel with a @problem. In addition a "message" field
+ * will be set on the channel, using the @format argument to bulid
+ * the message. The message will also be logged.
+ *
+ * See cockpit_channel_close() for further info.
+ */
+void
+cockpit_channel_fail (CockpitChannel *self,
+                      const gchar *problem,
+                      const gchar *format,
+                      ...)
+{
+  JsonObject *options;
+  gchar *message;
+  va_list va;
+
+  g_return_if_fail (problem != NULL);
+  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
+
+  va_start (va, format);
+  message = g_strdup_vprintf (format, va);
+  va_end (va);
+
+  options = cockpit_channel_close_options (self);
+  if (!json_object_has_member (options, "message"))
+    json_object_set_string_member (options, "message", message);
+  g_message ("%s: %s", self->priv->id, message);
+  g_free (message);
+
+  cockpit_channel_close (self, problem);
+}
+
 /* Used by implementations */
 
 /**

@@ -737,6 +737,8 @@ function Channel(options) {
         self.valid = valid = false;
         if (transport && id)
             transport.unregister(id);
+        if (data.message)
+            console.warn(data.message);
         self.dispatchEvent("close", data);
     }
 

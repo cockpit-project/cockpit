@@ -103,12 +103,12 @@ update-po: po/cockpit.pot
 	done
 
 upload-pot:
-	zanata-cli push --project-config "$(srcdir)/po/zanata.xml" \
-		-s "$(builddir)/po" -t "$(srcdir)/po"
+	zanata-cli push --includes cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
+		-s "$(builddir)/po"
 
 download-po:
 	zanata-cli -B pull --project-config "$(srcdir)/po/zanata.xml" \
-		--min-doc-percent 30 -s "$(builddir)/po" -t "$(srcdir)/po"
+		--min-doc-percent 1 -s "$(builddir)/po" -t "$(srcdir)/po"
 
 CLEANFILES += \
 	$(MO_FILES) \

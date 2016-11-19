@@ -26,6 +26,8 @@
 #include "common/cockpitunixfd.h"
 #include "common/cockpitknownhosts.h"
 
+#include "cockpitauthoptions.h"
+
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
 
@@ -44,7 +46,6 @@
 
 
 #define AUTH_FD 3
-#define SSH_AGENT_FD 4
 
 /* EXIT CODE CONSTANTS */
 #define INTERNAL_ERROR 1
@@ -53,23 +54,18 @@
 #define TERMINATED 255
 #define NO_COCKPIT 127
 
-static const gchar *default_knownhosts = PACKAGE_LOCALSTATE_DIR "/known_hosts";
-static const gchar *default_command = "cockpit-bridge";
-
 typedef struct {
   const gchar *logname;
-  const gchar *expected_host_key;
-  const gchar *knownhosts_file;
-  const gchar *krb5_ccache_name;
-  gboolean ignore_key;
-  gboolean prompt_unknown_keys;
-  gboolean allow_unknown;
-
-  ssh_session session;
   gchar *initial_auth_data;
 
+  CockpitSshOptions *ssh_options;
+  CockpitAuthOptions *auth_options;
+
+  gchar *username;
+
+  ssh_session session;
+
   gint auth_fd;
-  gint agent_fd;
 
   gchar *host_key;
   gchar *host_fingerprint;
@@ -140,8 +136,9 @@ gssapi_push_creds (CockpitSshData *data)
   gss_buffer_desc buf = GSS_C_EMPTY_BUFFER;
   OM_uint32 minor;
   OM_uint32 major;
+  const gchar *cache_name = data->ssh_options->krb5_ccache_name;
 
-  if (!data->initial_auth_data || !data->krb5_ccache_name)
+  if (!cache_name || !data->initial_auth_data)
     goto out;
 
   buf.value = hex_decode (data->initial_auth_data, &buf.length);
@@ -151,7 +148,7 @@ gssapi_push_creds (CockpitSshData *data)
       goto out;
     }
 
-  major = gss_krb5_ccache_name (&minor, data->krb5_ccache_name, NULL);
+  major = gss_krb5_ccache_name (&minor, cache_name, NULL);
   if (GSS_ERROR (major))
     {
       g_critical ("couldn't setup kerberos ccache (%u.%u)", major, minor);
@@ -167,7 +164,7 @@ gssapi_push_creds (CockpitSshData *data)
         goto out;
       }
 
-    g_debug ("setup kerberos credentials in ccache: %s", data->krb5_ccache_name);
+    g_debug ("setup kerberos credentials in ccache: %s", cache_name);
 
 #else /* !HAVE_GSS_IMPORT_CRED */
 
@@ -383,7 +380,6 @@ create_knownhosts_temp (void)
           close (fd);
           return name;
         }
-
       g_free (name);
 
       if ((err == ENOENT || err == EPERM || err == EACCES) && directories[i + 1] != NULL)
@@ -488,6 +484,7 @@ out:
   g_free (message);
   g_free (prompt);
   g_free (answer);
+  g_free (host);
   return ret;
 }
 
@@ -534,10 +531,10 @@ verify_knownhost (CockpitSshData *data)
       ssh_clean_pubkey_hash (&hash);
     }
 
-  if (data->expected_host_key)
+  if (data->ssh_options->expected_hostkey)
     {
       /* Only check that the host key matches this specifically */
-      if (g_str_equal (data->host_key, data->expected_host_key))
+      if (g_str_equal (data->host_key, data->ssh_options->expected_hostkey))
         {
           g_debug ("%s: host key matched expected", data->logname);
           ret = NULL; /* success */
@@ -547,13 +544,14 @@ verify_knownhost (CockpitSshData *data)
           /* A empty expect_key is used by the frontend to force
              failure.  Don't warn about it.
           */
-          if (data->expected_host_key[0])
+          if (data->ssh_options->expected_hostkey[0])
             g_message ("%s: host key did not match expected", data->logname);
         }
     }
   else
     {
-      if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, data->knownhosts_file) != SSH_OK)
+      if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
+                           data->ssh_options->knownhosts_file) != SSH_OK)
         {
           g_warning ("Couldn't set knownhosts file location");
           ret = "internal-error";
@@ -593,7 +591,8 @@ verify_knownhost (CockpitSshData *data)
           g_debug ("Couldn't find the known hosts file");
           /* fall through */
         case SSH_SERVER_NOT_KNOWN:
-          if (data->prompt_unknown_keys)
+          if (data->auth_options->supports_conversations &&
+              data->ssh_options->supports_hostkey_prompt)
             ret = prompt_for_host_key (data);
           else
             ret = "unknown-hostkey";
@@ -725,6 +724,17 @@ do_key_auth (CockpitSshData *data)
   int rc;
   const gchar *msg;
 
+  if (data->ssh_options->agent_fd)
+    {
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+      ssh_set_agent_socket (data->session, data->ssh_options->agent_fd);
+#else
+      g_message ("%s: Skipping key auth because it is not supported by this version of libssh",
+                 data->logname);
+      return SSH_AUTH_DENIED;
+#endif
+    }
+
   rc = ssh_userauth_agent (data->session, NULL);
   switch (rc)
     {
@@ -846,7 +856,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
 
   /* If interactive isn't supported try password instead */
   if (!(methods_server & SSH_AUTH_METHOD_INTERACTIVE) ||
-      data->auth_fd < 1)
+      !data->auth_options->supports_conversations)
     {
       methods_to_try = methods_to_try | SSH_AUTH_METHOD_PASSWORD;
       methods_to_try = methods_to_try & ~SSH_AUTH_METHOD_INTERACTIVE;
@@ -861,27 +871,34 @@ cockpit_ssh_authenticate (CockpitSshData *data)
 
       if (methods_to_try & SSH_AUTH_METHOD_PUBLICKEY)
         {
-            auth_func = do_key_auth;
-            method = SSH_AUTH_METHOD_PUBLICKEY;
-            has_creds = TRUE;
+          method = SSH_AUTH_METHOD_PUBLICKEY;
+          auth_func = do_key_auth;
+          has_creds = TRUE;
         }
       else if (methods_to_try & SSH_AUTH_METHOD_INTERACTIVE)
         {
-            auth_func = do_interactive_auth;
-            method = SSH_AUTH_METHOD_INTERACTIVE;
-            has_creds = data->initial_auth_data != NULL && data->krb5_ccache_name == NULL;
+          auth_func = do_interactive_auth;
+          method = SSH_AUTH_METHOD_INTERACTIVE;
+          has_creds = data->initial_auth_data != NULL && \
+                      data->auth_options->supports_conversations &&
+                      g_strcmp0 (data->auth_options->auth_type,
+                                 auth_method_description (method)) == 0;
         }
       else if (methods_to_try & SSH_AUTH_METHOD_PASSWORD)
         {
-            auth_func = do_password_auth;
-            method = SSH_AUTH_METHOD_PASSWORD;
-            has_creds = data->initial_auth_data != NULL &&  data->krb5_ccache_name == NULL;
+          auth_func = do_password_auth;
+          method = SSH_AUTH_METHOD_PASSWORD;
+          has_creds = data->initial_auth_data != NULL && \
+                      g_strcmp0 (data->auth_options->auth_type,
+                                 auth_method_description (method)) == 0;
         }
       else
         {
           auth_func = do_gss_auth;
           method = SSH_AUTH_METHOD_GSSAPI_MIC;
-          has_creds = data->initial_auth_data != NULL &&  data->krb5_ccache_name != NULL;
+          has_creds = data->initial_auth_data != NULL && \
+                      g_strcmp0 (data->auth_options->auth_type,
+                                 auth_method_description (method)) == 0;
         }
 
       methods_to_try = methods_to_try & ~method;
@@ -902,6 +919,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
             {
               rc = auth_func (data);
               result_string = auth_result_string (rc);
+
               if (rc == SSH_AUTH_SUCCESS)
                 {
                   have_final_result = TRUE;
@@ -992,30 +1010,96 @@ send_auth_reply (CockpitSshData *data,
   return ret;
 }
 
+static void
+parse_host (const gchar *host,
+            gchar **hostname,
+            gchar **username,
+            guint *port)
+{
+  gchar *user_arg = NULL;
+  gchar *host_arg = NULL;
+  gchar *tmp = NULL;
+  gchar *end = NULL;
+
+  guint64 tmp_num;
+
+  gsize host_offset = 0;
+  gsize host_length = strlen (host);
+
+  tmp = strrchr (host, '@');
+  if (tmp)
+    {
+      if (tmp[0] != host[0])
+      {
+        user_arg = g_strndup (host, tmp - host);
+        host_offset = strlen (user_arg) + 1;
+        host_length = host_length - host_offset;
+      }
+      else
+        {
+          g_message ("ignoring blank user in %s", host);
+        }
+    }
+
+  tmp = strrchr (host, ':');
+  if (tmp)
+    {
+      tmp_num = g_ascii_strtoull (tmp + 1, &end, 10);
+      if (end[0] == '\0' && tmp_num > 0 && tmp_num < G_MAXUSHORT)
+        {
+          *port = (guint) tmp_num;
+          host_length = host_length - strlen (tmp);
+        }
+      else
+        {
+          g_message ("ignoring invalid port in %s", host);
+        }
+    }
+
+  host_arg = g_strndup (host + host_offset, host_length);
+  *hostname = g_strdup (host_arg);
+  *username = g_strdup (user_arg);
+
+  g_free (host_arg);
+  g_free (user_arg);
+}
+
 static const gchar*
 cockpit_ssh_connect (CockpitSshData *data,
-                     int port,
-                     const gchar *host,
-                     const gchar *username,
-                     const gchar *command,
+                     const gchar *host_arg,
                      ssh_channel *out_channel)
 {
   const gchar *problem;
+
+  guint port = 22;
+  gchar *host;
+
   ssh_channel channel;
   int rc;
 
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, username) == 0);
+  parse_host (host_arg, &host, &data->username, &port);
+
+  if (!data->username)
+    {
+      g_message ("%s: No username provided", data->logname);
+      problem = "authentication-failed";
+      goto out;
+    }
+
+  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_PORT, &port) == 0);
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);;
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                                   data->knownhosts_file) == 0);
+                                   data->ssh_options->knownhosts_file) == 0);
 
-  if (!data->allow_unknown)
+  if (!data->ssh_options->allow_unknown_hosts)
     {
-      if (!cockpit_is_host_known (data->knownhosts_file, host, port))
+      if (!cockpit_is_host_known (data->ssh_options->knownhosts_file,
+                                  host, port))
         {
-          g_message ("%s: refusing to connect to unknown host: %s:%d", data->logname, host, port);
+          g_message ("%s: refusing to connect to unknown host: %s:%d",
+                     data->logname, host, port);
           problem = "unknown-host";
           goto out;
         }
@@ -1032,7 +1116,7 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   g_debug ("%s: connected", data->logname);
 
-  if (!data->ignore_key)
+  if (!data->ssh_options->ignore_hostkey)
     {
       problem = verify_knownhost (data);
       if (problem != NULL)
@@ -1054,11 +1138,12 @@ cockpit_ssh_connect (CockpitSshData *data,
       goto out;
     }
 
-  rc = ssh_channel_request_exec (channel, command ? command : default_command);
+  rc = ssh_channel_request_exec (channel, data->ssh_options->command);
   if (rc != SSH_OK)
     {
       g_message ("%s: couldn't execute command: %s: %s", data->logname,
-                 command, ssh_get_error (data->session));
+                 data->ssh_options->command,
+                 ssh_get_error (data->session));
       problem = "internal-error";
       goto out;
     }
@@ -1067,6 +1152,7 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   *out_channel = channel;
 out:
+  g_free (host);
   return problem;
 }
 
@@ -1090,6 +1176,9 @@ cockpit_ssh_data_free (CockpitSshData *data)
     close (data->auth_fd);
   data->auth_fd = 0;
 
+  g_free (data->username);
+  g_free (data->ssh_options);
+  g_free (data->auth_options);
   g_free (data);
 }
 
@@ -1705,37 +1794,13 @@ main (int argc,
   ssh_channel channel = NULL;
   CockpitSshData *data = NULL;
   CockpitSshRelay *relay = NULL;
+  gchar **env = g_get_environ ();
   GSource *io = NULL;
 
-  const gchar *env;
-  const gchar *host;
-  const gchar *username;
-  const gchar *command;
+  const gchar *debug;
   const gchar *problem;
 
-  gint port = 22;
   gchar *logname = NULL;
-  gchar *krb5_ccache_name  = NULL;
-  gchar *host_key = NULL;
-  gchar *knownhosts_file = NULL;
-  gboolean ignore_hostkey = FALSE;
-  gboolean no_auth_data = FALSE;
-  gboolean no_host_key = FALSE;
-  gboolean prompt_unknown_keys = FALSE;
-  gboolean allow_unknown = FALSE;
-
-  GOptionEntry cmd_entries[] = {
-    {"port", 'p', 0, G_OPTION_ARG_INT, &port, "SSH port to connect to (22 if unset)", NULL},
-    {"ignore-hostkey", 0, 0, G_OPTION_ARG_NONE, &ignore_hostkey, "Ignore host key", NULL},
-    {"allow-unknown", 0, 0, G_OPTION_ARG_NONE, &allow_unknown, "Allow connecting to unknown hosts", NULL},
-    {"prompt-unknown-hostkey", 0, 0, G_OPTION_ARG_NONE, &prompt_unknown_keys, "Prompt for permission to use unknown host key", NULL},
-    {"no-auth-data", 0, 0, G_OPTION_ARG_NONE, &no_auth_data, "don't expect initial auth data", NULL},
-    {"krb5-ccache-name", 0, 0, G_OPTION_ARG_STRING, &krb5_ccache_name, "krb5 ccache name, use when providing gssapi credentials", NULL},
-    {"known-hosts", 0, 0, G_OPTION_ARG_STRING, &knownhosts_file, "known hosts file (" PACKAGE_LOCALSTATE_DIR "/known_hosts if unset)", NULL},
-    {"host-key", 0, 0, G_OPTION_ARG_STRING, &host_key, "Expect this host key", NULL},
-    {"no-host-key", 0, 0, G_OPTION_ARG_STRING, &no_host_key, "Force host key check to fail", NULL},
-    {NULL}
-  };
 
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
@@ -1748,19 +1813,15 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
-  /* Any interaction with a krb5 ccache should be explicit */
-  g_setenv ("KRB5CCNAME", "FILE:/dev/null", TRUE);
-
   g_type_init ();
 
-  env = g_getenv ("G_MESSAGES_DEBUG");
-  if (env && (strstr (env, "libssh") || g_strcmp0 (env, "all") == 0))
+  debug = g_getenv ("G_MESSAGES_DEBUG");
+  if (debug && (strstr (debug, "libssh") || g_strcmp0 (debug, "all") == 0))
     ssh_set_log_level (SSH_LOG_FUNCTIONS);
 
   session = ssh_new ();
 
-  context = g_option_context_new ("- cockpit-ssh host user [command]");
-  g_option_context_add_main_entries (context, cmd_entries, NULL);
+  context = g_option_context_new ("- cockpit-ssh [user@]host[:port]");
 
   if (!g_option_context_parse (context, &argc, &argv, &error))
     {
@@ -1768,49 +1829,24 @@ main (int argc,
       goto out;
     }
 
-  if (argc < 3)
+  if (argc != 2)
     {
-      g_printerr ("cockpit-ssh: missing required arguments\n");
+      g_printerr ("cockpit-ssh: missing required argument\n");
       ret = INTERNAL_ERROR;
       goto out;
     }
 
-  host = argv[1];
-  username = argv[2];
-  if (argc > 3)
-    command = argv[3];
-  else
-    command = default_command;
-
-  logname = g_strdup_printf ("cockpit-ssh %s", host);
-  if (no_host_key)
-    {
-      if (host_key)
-        g_free (host_key);
-      host_key = g_strdup ("");
-    }
+  logname = g_strdup_printf ("cockpit-ssh %s", argv[1]);
 
   cockpit_set_journal_logging (NULL, !isatty (2));
 
-  if (prompt_unknown_keys || ignore_hostkey)
-    allow_unknown = TRUE;
-
   data = g_new0 (CockpitSshData, 1);
   data->session = session;
-  data->krb5_ccache_name = krb5_ccache_name;
-  data->expected_host_key = host_key;
-  data->ignore_key = ignore_hostkey;
-  data->prompt_unknown_keys = prompt_unknown_keys;
-  data->allow_unknown = allow_unknown;
-  data->knownhosts_file = knownhosts_file ? knownhosts_file : default_knownhosts;
   data->logname = logname;
   data->auth_results = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   data->auth_fd = AUTH_FD;
-
-#ifdef HAVE_SSH_SET_AGENT_SOCKET
-  if (fcntl(SSH_AGENT_FD, F_GETFD) != -1 || errno != EBADF)
-    ssh_set_agent_socket (session, SSH_AGENT_FD);
-#endif
+  data->auth_options = cockpit_auth_options_from_env (env);
+  data->ssh_options = cockpit_ssh_options_from_env (env);
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write
@@ -1824,10 +1860,10 @@ main (int argc,
       outfd = 1;
     }
 
-  if (!no_auth_data)
+  if (g_strcmp0 (data->auth_options->auth_type, "none") != 0)
       data->initial_auth_data = wait_for_auth_fd_reply (data);
 
-  problem = cockpit_ssh_connect (data, port, host, username, command, &channel);
+  problem = cockpit_ssh_connect (data, argv[1], &channel);
   if (problem)
     {
       send_auth_reply (data, NULL, problem);
@@ -1845,7 +1881,7 @@ main (int argc,
   if (problem)
     send_auth_reply (data, NULL, problem);
   else
-    send_auth_reply (data, username, NULL);
+    send_auth_reply (data, data->username, NULL);
   cockpit_ssh_data_free (data);
 
   while (!relay->received_exit)
@@ -1861,11 +1897,8 @@ main (int argc,
 
 out:
   ssh_free (session);
-
-  g_free (krb5_ccache_name);
-  g_free (host_key);
   g_free (logname);
-  g_free (knownhosts_file);
+  g_strfreev (env);
 
   g_option_context_free (context);
 

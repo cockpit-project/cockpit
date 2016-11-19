@@ -26,6 +26,7 @@
 #define G_LOG_DOMAIN "cockpit-protocol"
 
 #include "cockpitauth.h"
+#include "cockpitauthoptions.h"
 #include "cockpitauthprocess.h"
 #include "cockpitsshtransport.h"
 #include "cockpitsshagent.h"
@@ -72,6 +73,7 @@ enum {
   PROP_KNOWN_HOSTS,
   PROP_IGNORE_KEY,
   PROP_AGENT,
+  PROP_PROMPT_HOSTKEY,
 };
 
 enum
@@ -99,6 +101,11 @@ struct _CockpitSshTransport {
 
   gchar *host;
   gchar *command;
+  gchar *knownhosts_file;
+  gchar *expected_hostkey;
+  guint port;
+  gboolean ignore_hostkey;
+  gboolean prompt_hostkey;
 
   /* Name used for logging */
   gchar *logname;
@@ -106,7 +113,6 @@ struct _CockpitSshTransport {
   /* Transport for ssh agent */
   CockpitSshAgent *agent;
 
-  GPtrArray *command_args;
   GQueue *queue;
 
   // Output from auth
@@ -258,6 +264,7 @@ on_auth_process_message (CockpitAuthProcess *auth_process,
   gsize len;
   gboolean prompt_claimed;
   gboolean final = TRUE;
+  GBytes *blank = NULL;
 
   const gchar *user;
   const gchar *error_str;
@@ -292,7 +299,11 @@ on_auth_process_message (CockpitAuthProcess *auth_process,
           // Send the signal, if nothing handles it write a blank response.
           g_signal_emit (self, signals[PROMPT], 0, json, &prompt_claimed);
           if (!prompt_claimed)
-            cockpit_auth_process_write_auth_bytes (self->auth_process, NULL);
+            {
+              blank = g_bytes_new_static ("", 0);
+              cockpit_auth_process_write_auth_bytes (self->auth_process, blank);
+              g_bytes_unref (blank);
+            }
         }
       else if (user)
         {
@@ -367,58 +378,72 @@ cockpit_ssh_transport_fail_process (gpointer data)
 }
 
 static void
-cockpit_ssh_transport_start_process (CockpitSshTransport *self)
+cockpit_ssh_transport_start_process (CockpitSshTransport *self,
+                                     guint wanted_fd)
 {
   gint agent_fd = -1;
-  gchar **command;
+  const gchar *argv[] = {
+      cockpit_ws_ssh_program,
+      NULL,
+      NULL,
+  };
+
+  gchar **env = g_get_environ ();
   GError *error = NULL;
   GBytes *input = NULL;
+  CockpitAuthOptions *options = g_new0 (CockpitAuthOptions, 1);
+  CockpitSshOptions *ssh_options = g_new0 (CockpitSshOptions, 1);
 
   const gchar *password;
   const gchar *gssapi_creds;
-  const gchar *krb5_ccache_name;
+  gchar *host_arg = NULL;
 
   self->connecting = TRUE;
+
+  options->supports_conversations = TRUE;
+  options->remote_peer = cockpit_creds_get_rhost (self->creds);
+  ssh_options->allow_unknown_hosts = TRUE;
+  ssh_options->supports_hostkey_prompt = self->prompt_hostkey;
+  ssh_options->command = self->command;
+  ssh_options->knownhosts_file = self->knownhosts_file;
+  ssh_options->ignore_hostkey = self->ignore_hostkey;
+  ssh_options->expected_hostkey = self->expected_hostkey;
 
   password = cockpit_creds_get_password (self->creds);
   gssapi_creds = cockpit_creds_get_gssapi_creds (self->creds);
 
   if (cockpit_creds_has_gssapi (self->creds))
     {
-      krb5_ccache_name = cockpit_creds_get_krb5_ccache_name (self->creds);
-      g_ptr_array_add (self->command_args, g_strdup ("--krb5-ccache-name"));
-      g_ptr_array_add (self->command_args, g_strdup (krb5_ccache_name));
+      ssh_options->krb5_ccache_name = cockpit_creds_get_krb5_ccache_name (self->creds);
+      options->auth_type = "gssapi-mic";
       input = g_bytes_new_static (gssapi_creds, strlen (gssapi_creds));
       g_debug ("%s: preparing gssapi creds", self->logname);
     }
   else if (password)
     {
+      options->auth_type = "password";
       input = g_bytes_new_static (password, strlen (password));
       g_debug ("%s: preparing password creds", self->logname);
     }
-  else
-    {
-      g_ptr_array_add (self->command_args, g_strdup ("--no-auth-data"));
-    }
 
-  g_ptr_array_add (self->command_args, g_strdup ("--allow-unknown"));
-  g_ptr_array_add (self->command_args, g_strdup (self->host));
-  g_ptr_array_add (self->command_args,
-                   g_strdup (cockpit_creds_get_user (self->creds)));
-  if (self->command)
-    g_ptr_array_add (self->command_args, g_strdup (self->command));
+  host_arg = g_strdup_printf ("%s@%s:%d",
+                              cockpit_creds_get_user (self->creds),
+                              self->host,
+                              self->port ? self->port : 22);
 
-  g_ptr_array_add (self->command_args, NULL);
-  command = (gchar **)g_ptr_array_free (self->command_args, FALSE);
-  self->command_args = NULL;
-
-#ifdef HAVE_SSH_SET_AGENT_SOCKET
   if (self->agent)
     agent_fd = cockpit_ssh_agent_steal_fd (self->agent);
-#endif
+
+  if (agent_fd > 0)
+    ssh_options->agent_fd = wanted_fd + 1;
+
+  env = cockpit_auth_options_to_env (options, env);
+  env = cockpit_ssh_options_to_env (ssh_options, env);
+  argv[1] = host_arg;
 
   if (!cockpit_auth_process_start (self->auth_process,
-                                   (const gchar **)command,
+                                   argv,
+                                   (const gchar **)env,
                                    agent_fd,
                                    input ? FALSE : TRUE,
                                    &error))
@@ -439,7 +464,10 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self)
         cockpit_auth_process_write_auth_bytes (self->auth_process, input);
     }
 
-  g_strfreev (command);
+  g_strfreev (env);
+  g_free (options);
+  g_free (ssh_options);
+  g_free (host_arg);
   g_bytes_unref (input);
 }
 
@@ -447,8 +475,6 @@ static void
 cockpit_ssh_transport_init (CockpitSshTransport *self)
 {
   self->queue = g_queue_new ();
-  self->command_args = g_ptr_array_new_with_free_func (g_free);
-  g_ptr_array_add (self->command_args, g_strdup (cockpit_ws_ssh_program));
 }
 
 static void
@@ -476,11 +502,11 @@ cockpit_ssh_transport_constructed (GObject *object)
   self->auth_process = g_object_new (COCKPIT_TYPE_AUTH_PROCESS,
                                    "pipe-timeout", pipe_timeout,
                                    "idle-timeout", idle_timeout,
-                                   "logname", g_ptr_array_index (self->command_args, 0),
+                                   "logname", cockpit_ws_ssh_program,
                                    "name", self->logname,
                                    "wanted-auth-fd", wanted_fd,
                                    NULL);
-  cockpit_ssh_transport_start_process (self);
+  cockpit_ssh_transport_start_process (self, wanted_fd);
   g_debug ("%s: constructed", self->logname);
 }
 
@@ -491,7 +517,6 @@ cockpit_ssh_transport_set_property (GObject *obj,
                                     GParamSpec *pspec)
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (obj);
-  const gchar *string;
 
   switch (prop_id)
     {
@@ -500,19 +525,10 @@ cockpit_ssh_transport_set_property (GObject *obj,
       self->host = g_value_dup_string (value);
       break;
     case PROP_PORT:
-      if (g_value_get_uint (value))
-        {
-          g_ptr_array_add (self->command_args, g_strdup ("--port"));
-          g_ptr_array_add (self->command_args,
-                           g_strdup_printf ("%d", g_value_get_uint (value)));
-        }
+        self->port = g_value_get_uint (value);
       break;
     case PROP_KNOWN_HOSTS:
-      if (g_value_get_string (value) != NULL)
-        {
-          g_ptr_array_add (self->command_args, g_strdup ("--known-hosts"));
-          g_ptr_array_add (self->command_args, g_value_dup_string (value));
-        }
+      self->knownhosts_file = g_value_dup_string (value);
       break;
     case PROP_CREDS:
       self->creds = g_value_dup_boxed (value);
@@ -524,20 +540,13 @@ cockpit_ssh_transport_set_property (GObject *obj,
       self->command = g_value_dup_string (value);
       break;
     case PROP_HOST_KEY:
-      string = g_value_get_string (value);
-      if (string && string[0] == '\0')
-        {
-          g_ptr_array_add (self->command_args, g_strdup ("--no-host-key"));
-        }
-      else if (string)
-        {
-          g_ptr_array_add (self->command_args, g_strdup ("--host-key"));
-          g_ptr_array_add (self->command_args, g_strdup (string));
-        }
+      self->expected_hostkey = g_value_dup_string (value);
       break;
     case PROP_IGNORE_KEY:
-      if (g_value_get_boolean (value))
-        g_ptr_array_add (self->command_args, g_strdup ("--ignore-hostkey"));
+      self->ignore_hostkey = g_value_get_boolean (value);
+      break;
+    case PROP_PROMPT_HOSTKEY:
+      self->prompt_hostkey = g_value_get_boolean (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -584,6 +593,8 @@ cockpit_ssh_transport_finalize (GObject *object)
   g_free (self->logname);
   g_free (self->host);
   g_free (self->command);
+  g_free (self->knownhosts_file);
+  g_free (self->expected_hostkey);
 
   g_free (self->host_key);
   g_free (self->host_fingerprint);
@@ -598,9 +609,6 @@ cockpit_ssh_transport_finalize (GObject *object)
       g_signal_handler_disconnect (self->pipe, self->close_sig);
       g_object_unref (self->pipe);
     }
-
-  if (self->command_args)
-    g_ptr_array_free (self->command_args, TRUE);
 
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
   G_OBJECT_CLASS (cockpit_ssh_transport_parent_class)->finalize (object);
@@ -698,6 +706,10 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
 
   g_object_class_install_property (object_class, PROP_IGNORE_KEY,
          g_param_spec_boolean ("ignore-key", NULL, NULL, FALSE,
+                               G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_PROMPT_HOSTKEY,
+         g_param_spec_boolean ("prompt-hostkey", NULL, NULL, FALSE,
                                G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class, PROP_CREDS,

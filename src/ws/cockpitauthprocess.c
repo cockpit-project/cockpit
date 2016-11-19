@@ -46,7 +46,6 @@
 /* The amount of time auth pipe will stay open */
 guint default_timeout = 60;
 
-
 typedef struct {
   guint wanted_fd_number;
   gint auth_fd;
@@ -727,6 +726,7 @@ cockpit_auth_process_write_auth_bytes (CockpitAuthProcess *self,
 gboolean
 cockpit_auth_process_start (CockpitAuthProcess *self,
                             const gchar** command_args,
+                            const gchar** env,
                             gint agent_fd,
                             gboolean should_respond,
                             GError **error)
@@ -736,7 +736,7 @@ cockpit_auth_process_start (CockpitAuthProcess *self,
   g_debug ("spawning %s", command_args[0]);
 
   self->child_data.agent_fd = agent_fd;
-  ret = g_spawn_async_with_pipes (NULL, (gchar **) command_args, NULL,
+  ret = g_spawn_async_with_pipes (NULL, (gchar **) command_args, (gchar **) env,
                                   G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
                                   spawn_child_setup, &self->child_data,
                                   &self->process_pid, &self->process_in,

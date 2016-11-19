@@ -17,6 +17,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpitauthoptions.h \
+	src/ws/cockpitauthoptions.c \
 	src/ws/cockpitauthprocess.h \
 	src/ws/cockpitauthprocess.c \
 	src/ws/cockpitcertificate.c \
@@ -83,6 +85,8 @@ sbin_PROGRAMS += remotectl
 libexec_PROGRAMS += cockpit-ws cockpit-session cockpit-ssh
 
 cockpit_ssh_SOURCES = \
+	src/ws/cockpitauthoptions.h \
+	src/ws/cockpitauthoptions.c \
 	src/ws/ssh.c \
 	$(NULL)
 
@@ -205,6 +209,7 @@ test_server_LDADD = 					\
 WS_CHECKS = \
 	test-creds \
 	test-auth \
+	test-authoptions \
 	test-sshtransport \
 	test-sshagent \
 	test-webservice \
@@ -225,6 +230,12 @@ test_auth_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
+
+test_authoptions_CFLAGS = $(cockpit_ws_CFLAGS)
+test_authoptions_SOURCES = src/ws/test-authoptions.c
+test_authoptions_LDADD = \
+	libcockpit-ws.a \
+	$(cockpit_ws_LDADD)
 
 test_channelresponse_CFLAGS = $(cockpit_ws_CFLAGS)
 test_channelresponse_SOURCES = src/ws/test-channelresponse.c \

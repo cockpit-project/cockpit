@@ -86,6 +86,7 @@ typedef struct {
 
     gboolean no_password;
     gboolean ignore_key;
+    gboolean prompt_hostkey;
     int ssh_log_level;
 
     const TestAuthResponse *responses;
@@ -218,6 +219,7 @@ setup_transport (TestCase *tc,
   const gchar *command;
   gchar *expect_knownhosts = NULL;
   gboolean ignore_key = FALSE;
+  gboolean prompt_hostkey = FALSE;
 
   /* First time around */
   if (old_process_timeout == 0)
@@ -258,6 +260,7 @@ setup_transport (TestCase *tc,
   if (fixture->expect_key)
     expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
   ignore_key = fixture->ignore_key;
+  prompt_hostkey = fixture->prompt_hostkey;
 
   if (tc->agent_transport != NULL)
     agent = cockpit_ssh_agent_new (tc->agent_transport, "ssh-tests", "ssh-agent");
@@ -275,6 +278,7 @@ setup_transport (TestCase *tc,
                               "creds", creds,
                               "host-key", expect_knownhosts,
                               "ignore-key", ignore_key,
+                              "prompt-hostkey", prompt_hostkey,
                               NULL);
 
   cockpit_creds_unref (creds);
@@ -729,6 +733,11 @@ static const TestFixture fixture_unknown_hostkey = {
   .known_hosts = "/dev/null"
 };
 
+static const TestFixture fixture_prompt_hostkey = {
+  .known_hosts = "/dev/null",
+  .prompt_hostkey = TRUE
+};
+
 static void
 test_unknown_hostkey (TestCase *tc,
                       gconstpointer data)
@@ -1144,6 +1153,8 @@ main (int argc,
   g_test_add_func ("/ssh-transport/cannot-connect", test_cannot_connect);
 
   g_test_add ("/ssh-transport/unknown-hostkey", TestCase, &fixture_unknown_hostkey,
+              setup_transport, test_unknown_hostkey, teardown);
+  g_test_add ("/ssh-transport/prompt-hostkey-fail", TestCase, &fixture_prompt_hostkey,
               setup_transport, test_unknown_hostkey, teardown);
   g_test_add ("/ssh-transport/ignore-hostkey", TestCase, &fixture_ignore_hostkey,
               setup_transport, test_ignore_hostkey, teardown);

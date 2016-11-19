@@ -40,6 +40,7 @@ const gchar *      cockpit_auth_process_get_id      (CockpitAuthProcess *self);
 
 gboolean           cockpit_auth_process_start       (CockpitAuthProcess *self,
                                                      const gchar** command_args,
+                                                     const gchar** env,
                                                      gint agent_fd,
                                                      gboolean should_respond,
                                                      GError **error);
@@ -60,6 +61,7 @@ const gchar *      cockpit_auth_process_get_authenticated_user  (CockpitAuthProc
                                                                  JsonObject *results,
                                                                  JsonObject **prompt_data,
                                                                  GError **error);
+
 G_END_DECLS
 
 #endif

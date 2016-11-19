@@ -21,6 +21,7 @@
 
 #include "cockpitauth.h"
 
+#include "cockpitauthoptions.h"
 #include "cockpitauthprocess.h"
 #include "cockpitsshtransport.h"
 #include "cockpitws.h"
@@ -695,14 +696,15 @@ start_auth_process (CockpitAuth *self,
                     GBytes *input,
                     GSimpleAsyncResult *result,
                     gpointer tag,
-                    const gchar **argv)
+                    const gchar **argv,
+                    const gchar **env)
 {
   GError *error = NULL;
 
   g_simple_async_result_set_op_res_gpointer (result,
                                              auth_data_ref (ad), auth_data_unref);
 
-  if (cockpit_auth_process_start (ad->auth_process, argv, -1, FALSE, &error))
+  if (cockpit_auth_process_start (ad->auth_process, argv, env, -1, FALSE, &error))
     {
       auth_data_add_pending_result (ad, result);
       g_signal_connect (ad->auth_process, "message",
@@ -764,7 +766,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       ad = create_auth_data (self, "localhost", application,
                              type, remote_peer, command, input);
       start_auth_process (self, ad, input, result,
-                          cockpit_auth_spawn_login_async, argv);
+                          cockpit_auth_spawn_login_async, argv, NULL);
     }
   else
     {
@@ -904,22 +906,21 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   GBytes *auth_bytes = NULL;
   gchar *user = NULL;
   gchar *password = NULL; /* owned by input */
+  gchar *host_arg = NULL;
+  CockpitAuthOptions *options = NULL;
+  CockpitSshOptions *ssh_options = NULL;
 
   const gchar *data = NULL;
   const gchar *command;
   const gchar *host;
-  const gchar *host_arg;
-  gint next_arg = 1;
 
   const gchar *argv[] = {
       cockpit_ws_ssh_program,
       NULL,
       NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
   };
+
+  gchar **env = g_get_environ ();
 
   task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                     cockpit_auth_remote_login_async);
@@ -943,37 +944,44 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
         auth_bytes = g_bytes_ref (input);
     }
 
+  /* TODO: This will change with standardization refactoring */
   if (application && auth_bytes && input)
     {
       command = type_option (SSH_SECTION, "command", cockpit_ws_ssh_program);
       argv[0] = command;
 
+      options = g_new0 (CockpitAuthOptions, 1);
+      options->remote_peer = remote_peer;
+      options->auth_type = "password";
+      options->supports_conversations = TRUE;
+
+      ssh_options = g_new0 (CockpitSshOptions, 1);
+      ssh_options->supports_hostkey_prompt = TRUE;
+
       host = application_parse_host (application);
-      if (host)
+      if (!host)
         {
-          host_arg = host;
-          if (g_strcmp0 (remote_peer, "127.0.0.1") == 0 ||
-              g_strcmp0 (remote_peer, "::1") == 0 ||
-              cockpit_conf_bool (SSH_SECTION, "allowUnknown", FALSE))
-            {
-              argv[next_arg++] = "--prompt-unknown-hostkey";
-            }
-        }
-      else
-        {
-          argv[next_arg++] = "--ignore-hostkey";
+          ssh_options->ignore_hostkey = TRUE;
           if (cockpit_conf_string (SSH_SECTION, "host"))
-            host_arg = cockpit_conf_string (SSH_SECTION, "host");
+            host = cockpit_conf_string (SSH_SECTION, "host");
           else
-            host_arg = "localhost";
+            host = "localhost";
         }
 
-      argv[next_arg++] = host_arg;
-      argv[next_arg++] = user;
+      if (user && user[0] != '\0')
+          host_arg = g_strdup_printf ("%s@%s", user, host);
+      else
+          host_arg = g_strdup (host);
+
+      env = cockpit_auth_options_to_env (options, env);
+      env = cockpit_ssh_options_to_env (ssh_options, env);
+
+      argv[1] = host_arg;
       ad = create_auth_data (self, host_arg, application,
                              SSH_SECTION, remote_peer, command, input);
       start_auth_process (self, ad, auth_bytes, task,
-                          cockpit_auth_remote_login_async, argv);
+                          cockpit_auth_remote_login_async, argv,
+                          (const gchar **) env);
     }
   else
     {
@@ -991,9 +999,11 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   if (ad)
     auth_data_unref (ad);
 
-  if (user)
-    g_free (user);
-
+  g_strfreev (env);
+  g_free (host_arg);
+  g_free (user);
+  g_free (options);
+  g_free (ssh_options);
   g_object_unref (task);
 }
 

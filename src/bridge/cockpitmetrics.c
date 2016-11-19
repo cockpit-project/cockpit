@@ -79,8 +79,7 @@ static void
 cockpit_metrics_recv (CockpitChannel *channel,
                       GBytes *message)
 {
-  g_warning ("received unexpected metrics1 payload");
-  cockpit_channel_close (channel, "protocol-error");
+  cockpit_channel_fail (channel, "protocol-error", "received unexpected metrics1 payload");
 }
 
 static void
@@ -190,8 +189,8 @@ on_timeout_tick (gpointer data)
     self->priv->timeout = g_timeout_add_seconds (next_interval / 1000, on_timeout_tick, self);
   else
     {
-      g_warning ("invalid metric timeout tick offset");
-      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
+                            "invalid metric timeout tick offset");
     }
 
   return FALSE;
@@ -239,6 +238,7 @@ update_for_meta (CockpitMetrics *self,
                  JsonObject *meta,
                  gboolean reset)
 {
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
   JsonArray *array;
   JsonObject *info;
   JsonArray *instances;
@@ -261,7 +261,8 @@ update_for_meta (CockpitMetrics *self,
     }
   else if (self->priv->n_metrics != length)
     {
-      g_warning ("number of metrics must not change");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "number of metrics must not change");
       return FALSE;
     }
 
@@ -272,7 +273,8 @@ update_for_meta (CockpitMetrics *self,
 
       if (!cockpit_json_get_string (info, "derive", NULL, &derive))
         {
-          g_warning ("unsupported derive value: not a string");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "unsupported derive value: not a string");
           return FALSE;
         }
 
@@ -290,13 +292,15 @@ update_for_meta (CockpitMetrics *self,
         }
       else
         {
-          g_warning ("unsupported derive function: %s", derive);
+          cockpit_channel_fail (channel, "protocol-error",
+                                "unsupported derive function: %s", derive);
           return FALSE;
         }
 
       if (!cockpit_json_get_array (info, "instances", NULL, &instances))
         {
-          g_warning ("unsupported instances value: not a string");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "unsupported instances value: not a string");
           return FALSE;
         }
 
@@ -353,13 +357,8 @@ cockpit_metrics_send_meta (CockpitMetrics *self,
     json_object_unref (self->priv->next_meta);
   self->priv->next_meta = json_object_ref (meta);
 
-  if (!update_for_meta (self, meta, reset))
-    {
-      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
-      return;
-    }
-
-  send_object (self, meta);
+  if (update_for_meta (self, meta, reset))
+    send_object (self, meta);
 }
 
 static void

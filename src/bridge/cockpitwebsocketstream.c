@@ -275,7 +275,9 @@ on_socket_connect (GObject *object,
   io = cockpit_connect_stream_finish (result, &error);
   if (error)
     {
-      problem = cockpit_stream_problem (error, self->origin, "couldn't connect", NULL);
+      problem = cockpit_stream_problem (error, self->origin, "couldn't connect",
+                                        cockpit_channel_close_options (channel));
+      cockpit_channel_close (channel, problem);
       goto out;
     }
 
@@ -283,7 +285,8 @@ on_socket_connect (GObject *object,
 
   if (!cockpit_json_get_strv (options, "protocols", NULL, &protocols))
     {
-      g_warning ("%s: invalid \"protocol\" value in WebSocket stream request", self->origin);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"protocol\" value in WebSocket stream request", self->origin);
       goto out;
     }
 
@@ -306,7 +309,8 @@ on_socket_connect (GObject *object,
     {
       if (!JSON_NODE_HOLDS_OBJECT (node))
         {
-          g_warning ("%s: invalid \"headers\" field in WebSocket stream request", self->origin);
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: invalid \"headers\" field in WebSocket stream request", self->origin);
           goto out;
         }
 
@@ -317,8 +321,9 @@ on_socket_connect (GObject *object,
           node = json_object_get_member (headers, l->data);
           if (!node || !JSON_NODE_HOLDS_VALUE (node) || json_node_get_value_type (node) != G_TYPE_STRING)
             {
-              g_warning ("%s: invalid header value in WebSocket stream request: %s",
-                         self->origin, (gchar *)l->data);
+              cockpit_channel_fail (channel, "protocol-error",
+                                    "%s: invalid header value in WebSocket stream request: %s",
+                                    self->origin, (gchar *)l->data);
               goto out;
             }
           value = json_node_get_string (node);
@@ -337,8 +342,6 @@ on_socket_connect (GObject *object,
   problem = NULL;
 
 out:
-  if (problem)
-    cockpit_channel_close (channel, problem);
   g_clear_error (&error);
   g_strfreev (protocols);
   if (io)
@@ -353,7 +356,6 @@ cockpit_web_socket_stream_prepare (CockpitChannel *channel)
   CockpitConnectable *connectable = NULL;
   JsonObject *options;
   const gchar *path;
-  gboolean started = FALSE;
 
   COCKPIT_CHANNEL_CLASS (cockpit_web_socket_stream_parent_class)->prepare (channel);
 
@@ -367,12 +369,14 @@ cockpit_web_socket_stream_prepare (CockpitChannel *channel)
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "path", NULL, &path))
     {
-      g_warning ("%s: bad \"path\" field in WebSocket stream request", self->origin);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: bad \"path\" field in WebSocket stream request", self->origin);
       goto out;
     }
   else if (path == NULL || path[0] != '/')
     {
-      g_warning ("%s: invalid or missing \"path\" field in WebSocket stream request", self->origin);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid or missing \"path\" field in WebSocket stream request", self->origin);
       goto out;
     }
 
@@ -383,15 +387,10 @@ cockpit_web_socket_stream_prepare (CockpitChannel *channel)
   self->binary = json_object_has_member (options, "binary");
 
   cockpit_connect_stream_full (connectable, NULL, on_socket_connect, g_object_ref (self));
-  started = TRUE;
 
 out:
   if (connectable)
-    {
-      cockpit_connectable_unref (connectable);
-      if (!started)
-        cockpit_channel_close (channel, "protocol-error");
-    }
+    cockpit_connectable_unref (connectable);
 }
 
 static void

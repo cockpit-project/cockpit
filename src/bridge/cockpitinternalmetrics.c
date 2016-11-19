@@ -374,6 +374,7 @@ convert_metric_description (CockpitInternalMetrics *self,
                             MetricInfo *info,
                             int index)
 {
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *name;
   const gchar *units;
 
@@ -382,25 +383,29 @@ convert_metric_description (CockpitInternalMetrics *self,
       if (!cockpit_json_get_string (json_node_get_object (node), "name", NULL, &name)
           || name == NULL)
         {
-          g_warning ("invalid \"metrics\" option was specified (no name for metric %d)", index);
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"metrics\" option was specified (no name for metric %d)", index);
           return FALSE;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "units", NULL, &units))
         {
-          g_warning ("invalid units for metric %s (not a string)", name);
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid units for metric %s (not a string)", name);
           return FALSE;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "derive", NULL, &info->derive))
         {
-          g_warning ("invalid derivation mode for metric %s (not a string)", name);
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid derivation mode for metric %s (not a string)", name);
           return FALSE;
         }
     }
   else
     {
-      g_warning ("invalid \"metrics\" option was specified (not an object for metric %d)", index);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"metrics\" option was specified (not an object for metric %d)", index);
       return FALSE;
     }
 
@@ -413,7 +418,8 @@ convert_metric_description (CockpitInternalMetrics *self,
     {
       if (units && g_strcmp0 (desc->units, units) != 0)
         {
-          g_warning ("%s has units %s, not %s", name, desc->units, units);
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s has units %s, not %s", name, desc->units, units);
           return FALSE;
         }
 
@@ -431,7 +437,6 @@ static void
 cockpit_internal_metrics_prepare (CockpitChannel *channel)
 {
   CockpitInternalMetrics *self = COCKPIT_INTERNAL_METRICS (channel);
-  const gchar *problem = "protocol-error";
   JsonObject *options;
   JsonArray *metrics;
   int i;
@@ -443,23 +448,26 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
   /* "instances" option */
   if (!cockpit_json_get_strv (options, "instances", NULL, (gchar ***)&self->instances))
     {
-      g_warning ("invalid \"instances\" option (not an array of strings)");
-      goto out;
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"instances\" option (not an array of strings)");
+      return;
     }
 
   /* "omit-instances" option */
   if (!cockpit_json_get_strv (options, "omit-instances", NULL, (gchar ***)&self->omit_instances))
     {
-      g_warning ("invalid \"omit-instances\" option (not an array of strings)");
-      goto out;
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"omit-instances\" option (not an array of strings)");
+      return;
     }
 
   /* "metrics" option */
   self->n_metrics = 0;
   if (!cockpit_json_get_array (options, "metrics", NULL, &metrics))
     {
-      g_warning ("invalid \"metrics\" option was specified (not an array)");
-      goto out;
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"metrics\" option was specified (not an array)");
+      return;
     }
   if (metrics)
     self->n_metrics = json_array_get_length (metrics);
@@ -469,35 +477,31 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
     {
       MetricInfo *info = &self->metrics[i];
       if (!convert_metric_description (self, json_array_get_element (metrics, i), info, i))
-        goto out;
+        return;
       if (!info->desc)
         {
-          problem = "not-supported";
-          goto out;
+          cockpit_channel_close (channel, "not-supported");
+          return;
         }
     }
 
   /* "interval" option */
   if (!cockpit_json_get_int (options, "interval", 1000, &self->interval))
     {
-      g_warning ("invalid \"interval\" option");
-      goto out;
+      cockpit_channel_fail (channel, "protocol-error", "invalid \"interval\" option");
+      return;
     }
   else if (self->interval <= 0 || self->interval > G_MAXINT)
     {
-      g_warning ("invalid \"interval\" value: %" G_GINT64_FORMAT, self->interval);
-      goto out;
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"interval\" value: %" G_GINT64_FORMAT, self->interval);
+      return;
     }
 
   self->need_meta = TRUE;
 
-  problem = NULL;
   cockpit_metrics_metronome (COCKPIT_METRICS (self), self->interval);
   cockpit_channel_ready (channel);
-
-out:
-  if (problem)
-    cockpit_channel_close (channel, problem);
 }
 
 static void

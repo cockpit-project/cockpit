@@ -58,35 +58,23 @@ typedef struct {
 
 G_DEFINE_TYPE (CockpitFsreplace, cockpit_fsreplace, COCKPIT_TYPE_CHANNEL);
 
-static const gchar *
-prepare_for_close_with_errno (CockpitFsreplace *self,
-                              const gchar *diagnostic,
-                              int err)
-{
-  JsonObject *options;
-
-  if (err == EPERM || err == EACCES)
-    {
-      g_debug ("%s: %s: %s", self->path, diagnostic, strerror (err));
-      return "access-denied";
-    }
-  else
-    {
-      g_message ("%s: %s: %s", self->path, diagnostic, strerror (err));
-
-      options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
-      json_object_set_string_member (options, "message", strerror (err));
-      return "internal-error";
-    }
-}
-
 static void
 close_with_errno (CockpitFsreplace *self,
                   const gchar *diagnostic,
                   int err)
 {
-  cockpit_channel_close (COCKPIT_CHANNEL (self),
-                         prepare_for_close_with_errno (self, diagnostic, err));
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+
+  if (err == EPERM || err == EACCES)
+    {
+      g_debug ("%s: %s: %s", self->path, diagnostic, strerror (err));
+      cockpit_channel_close (channel, "access-denied");
+    }
+  else
+    {
+      cockpit_channel_fail (channel, "internal-error",
+                            "%s: %s: %s", self->path, diagnostic, strerror (err));
+    }
 }
 
 static void
@@ -148,23 +136,28 @@ cockpit_fsreplace_control (CockpitChannel *channel,
                            JsonObject *unused)
 {
   CockpitFsreplace *self = COCKPIT_FSREPLACE (channel);
-  const gchar *problem = NULL;
+  gchar *actual_tag = NULL;
+  gchar *new_tag = NULL;
   JsonObject *options;
 
   if (!g_str_equal (command, "done"))
     return FALSE;
 
+  g_object_ref (self);
+
   /* Commit the changes when there was no problem  */
   if (xfsync (self->fd) < 0 || xclose (self->fd) < 0)
     {
-      problem = prepare_for_close_with_errno (self, "couldn't sync", errno);
+      close_with_errno (self, "couldn't sync", errno);
+      goto out;
     }
   else
     {
-      gchar *actual_tag = cockpit_get_file_tag (self->path);
+      actual_tag = cockpit_get_file_tag (self->path);
       if (self->expected_tag && g_strcmp0 (self->expected_tag, actual_tag))
         {
-          problem = "out-of-date";
+          cockpit_channel_close (channel, "out-of-date");
+          goto out;
         }
       else
         {
@@ -172,25 +165,34 @@ cockpit_fsreplace_control (CockpitChannel *channel,
           if (!self->got_content)
             {
               json_object_set_string_member (options, "tag", "-");
-              if (unlink (self->path) < 0 && errno != ENOENT)
-                problem = prepare_for_close_with_errno (self, "couldn't unlink", errno);
               if (unlink (self->tmp_path) < 0)
                 g_message ("%s: couldn't remove temp file: %s", self->tmp_path, g_strerror (errno));
+              if (unlink (self->path) < 0 && errno != ENOENT)
+                {
+                  close_with_errno (self, "couldn't unlink", errno);
+                  goto out;
+                }
             }
           else
             {
-              gchar *new_tag = cockpit_get_file_tag (self->tmp_path);
+              new_tag = cockpit_get_file_tag (self->tmp_path);
               json_object_set_string_member (options, "tag", new_tag);
               if (rename (self->tmp_path, self->path) < 0)
-                problem = prepare_for_close_with_errno (self, "couldn't rename", errno);
-              g_free (new_tag);
+                {
+                  close_with_errno (self, "couldn't rename", errno);
+                  goto out;
+                }
             }
         }
-      g_free (actual_tag);
     }
 
+  cockpit_channel_close (channel, NULL);
+
+out:
+  g_free (new_tag);
+  g_free (actual_tag);
   self->fd = -1;
-  cockpit_channel_close (channel, problem);
+  g_object_unref (self);
   return TRUE;
 }
 
@@ -225,7 +227,6 @@ static void
 cockpit_fsreplace_prepare (CockpitChannel *channel)
 {
   CockpitFsreplace *self = COCKPIT_FSREPLACE (channel);
-  const gchar *problem = "protocol-error";
   JsonObject *options;
   gchar *actual_tag = NULL;
 
@@ -234,25 +235,28 @@ cockpit_fsreplace_prepare (CockpitChannel *channel)
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "path", NULL, &self->path))
     {
-      g_warning ("invalid \"path\" option for fsreplace1 channel");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"path\" option for fsreplace1 channel");
       goto out;
     }
   else if (self->path == NULL || g_str_equal (self->path, ""))
     {
-      g_warning ("missing \"path\" option for fsreplace1 channel");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "missing \"path\" option for fsreplace1 channel");
       goto out;
     }
 
   if (!cockpit_json_get_string (options, "tag", NULL, &self->expected_tag))
     {
-      g_warning ("%s: invalid \"tag\" option for fsreplace1 channel", self->path);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"tag\" option for fsreplace1 channel", self->path);
       goto out;
     }
 
   actual_tag = cockpit_get_file_tag (self->path);
   if (self->expected_tag && g_strcmp0 (self->expected_tag, actual_tag))
     {
-      problem = "change-conflict";
+      cockpit_channel_close (channel, "change-conflict");
       goto out;
     }
 
@@ -270,7 +274,6 @@ cockpit_fsreplace_prepare (CockpitChannel *channel)
       self->tmp_path = NULL;
     }
 
-  problem = NULL;
   if (self->fd < 0)
     close_with_errno (self, "couldn't open unique file", errno);
   else
@@ -278,8 +281,6 @@ cockpit_fsreplace_prepare (CockpitChannel *channel)
 
 out:
   g_free (actual_tag);
-  if (problem)
-      cockpit_channel_close (channel, problem);
 }
 
 static void

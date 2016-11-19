@@ -59,8 +59,7 @@ static void
 cockpit_fslist_recv (CockpitChannel *channel,
                     GBytes *message)
 {
-  g_warning ("received unexpected message in fslist1 channel");
-  cockpit_channel_close (channel, "protocol-error");
+  cockpit_channel_fail (channel, "protocol-error", "Received unexpected message in fslist1 channel");
 }
 
 static void
@@ -204,7 +203,6 @@ static void
 cockpit_fslist_prepare (CockpitChannel *channel)
 {
   CockpitFslist *self = COCKPIT_FSLIST (channel);
-  const gchar *problem = "protocol-error";
   JsonObject *options;
   GError *error = NULL;
   GFile *file = NULL;
@@ -215,18 +213,18 @@ cockpit_fslist_prepare (CockpitChannel *channel)
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "path", NULL, &self->path))
     {
-      g_warning ("invalid \"path\" option for fslist1 channel");
+      cockpit_channel_fail (channel, "protocol-error", "invalid \"path\" option for fslist1 channel");
       goto out;
     }
   if (self->path == NULL || *(self->path) == 0)
     {
-      g_warning ("missing \"path\" option for fslist1 channel");
+      cockpit_channel_fail (channel, "protocol-error", "missing \"path\" option for fslist1 channel");
       goto out;
     }
 
   if (!cockpit_json_get_bool (options, "watch", TRUE, &watch))
     {
-      g_warning ("invalid \"watch\" option for fslist1 channel");
+      cockpit_channel_fail (channel, "protocol-error", "invalid \"watch\" option for fslist1 channel");
       goto out;
     }
 
@@ -239,10 +237,8 @@ cockpit_fslist_prepare (CockpitChannel *channel)
       self->monitor = g_file_monitor_directory (file, 0, NULL, &error);
       if (self->monitor == NULL)
         {
-          g_message ("%s: couldn't monitor directory: %s", self->path, error->message);
-          options = cockpit_channel_close_options (channel);
-          json_object_set_string_member (options, "message", error->message);
-          problem = "internal-error";
+          cockpit_channel_fail (channel, "internal-error",
+                                "%s: couldn't monitor directory: %s", self->path, error->message);
           goto out;
         }
 
@@ -256,14 +252,10 @@ cockpit_fslist_prepare (CockpitChannel *channel)
                                    self->cancellable,
                                    on_enumerator_ready,
                                    self);
-  problem = NULL;
-
 out:
   g_clear_error (&error);
   if (file)
     g_object_unref (file);
-  if (problem)
-    cockpit_channel_close (channel, problem);
 }
 
 static void

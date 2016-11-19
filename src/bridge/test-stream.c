@@ -372,7 +372,6 @@ test_read_error (void)
   out = dup (2);
   g_assert (out >= 0);
 
-  cockpit_expect_warning ("*Bad file descriptor");
   cockpit_expect_message ("*Bad file descriptor");
 
   /* Using wrong end of the pipe */
@@ -414,7 +413,6 @@ test_write_error (void)
   if (pipe (fds) < 0)
     g_assert_not_reached ();
 
-  cockpit_expect_warning ("*Bad file descriptor");
   cockpit_expect_message ("*Bad file descriptor");
 
   io = mock_io_stream_for_fds (fds[0], fds[1]);

@@ -354,8 +354,8 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
   rc = pmFetch (self->numpmid, self->pmidlist, &result);
   if (rc < 0)
     {
-      g_warning ("%s: couldn't fetch metrics: %s", self->name, pmErrStr (rc));
-      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
+                            "%s: couldn't fetch metrics: %s", self->name, pmErrStr (rc));
       return;
     }
 
@@ -421,8 +421,8 @@ on_idle_batch (gpointer user_data)
             }
           else
             {
-              g_message ("%s: couldn't read from archive: %s", self->name, pmErrStr (rc));
-              cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+              cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
+                                    "%s: couldn't read from archive: %s", self->name, pmErrStr (rc));
             }
 
           return FALSE;
@@ -468,13 +468,14 @@ units_convertible (pmUnits *a,
   return pmConvScale (PM_TYPE_DOUBLE, &dummy, a, &dummy, b) >= 0;
 }
 
-static const gchar *
+static gboolean
 convert_metric_description (CockpitPcpMetrics *self,
                             JsonNode *node,
                             MetricInfo *info,
-                            int index)
+                            int index,
+                            gboolean *not_found)
 {
-  const gchar *problem = "protocol-error";
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *units;
   int rc;
 
@@ -483,60 +484,81 @@ convert_metric_description (CockpitPcpMetrics *self,
       if (!cockpit_json_get_string (json_node_get_object (node), "name", NULL, &info->name)
           || info->name == NULL)
         {
-          g_warning ("%s: invalid \"metrics\" option was specified (no name for metric %d)",
-                     self->name, index);
-          goto out;
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: invalid \"metrics\" option was specified (no name for metric %d)",
+                                self->name, index);
+          return FALSE;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "units", NULL, &units))
         {
-          g_warning ("%s: invalid units for metric %s (not a string)",
-                     self->name, info->name);
-          goto out;
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: invalid units for metric %s (not a string)",
+                                self->name, info->name);
+          return FALSE;
         }
 
       if (!cockpit_json_get_string (json_node_get_object (node), "derive", NULL, &info->derive))
         {
-          g_warning ("%s: invalid derivation mode for metric %s (not a string)",
-                     self->name, info->name);
-          goto out;
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: invalid derivation mode for metric %s (not a string)",
+                                self->name, info->name);
+          return FALSE;
         }
     }
   else
     {
-      g_warning ("%s: invalid \"metrics\" option was specified (not an object for metric %d)",
-                 self->name, index);
-      goto out;
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"metrics\" option was specified (not an object for metric %d)",
+                            self->name, index);
+      return FALSE;
     }
 
   rc = pmLookupName (1, (char **)&info->name, &info->id);
   if (rc < 0)
     {
-      g_message ("%s: no such metric: %s: %s", self->name, info->name, pmErrStr (rc));
-      problem = "not-found";
-      goto out;
+      if (not_found)
+        {
+          *not_found = TRUE;
+          g_message ("%s: no such metric: %s: %s", self->name, info->name, pmErrStr (rc));
+        }
+      else
+        {
+          cockpit_channel_fail (channel, "not-found",
+                                "%s: no such metric: %s: %s", self->name, info->name, pmErrStr (rc));
+        }
+      return FALSE;
     }
 
   rc = pmLookupDesc (info->id, &info->desc);
   if (rc < 0)
     {
-      g_message ("%s: no such metric: %s: %s", self->name, info->name, pmErrStr (rc));
-      problem = "not-found";
-      goto out;
+      if (not_found)
+        {
+          *not_found = TRUE;
+        }
+      else
+        {
+          cockpit_channel_fail (channel, "not-found",
+                                "%s: no such metric: %s: %s", self->name, info->name, pmErrStr (rc));
+        }
+      return FALSE;
     }
 
   if (units)
     {
       if (my_pmParseUnitsStr (units, &info->units_buf, &info->factor) < 0)
         {
-          g_warning ("%s: failed to parse units: %s", self->name, units);
-          goto out;
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: failed to parse units: %s", self->name, units);
+          return FALSE;
         }
 
       if (!units_convertible (&info->desc.units, &info->units_buf))
         {
-          g_warning ("%s: can't convert metric %s to units %s", self->name, info->name, units);
-          goto out;
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: can't convert metric %s to units %s", self->name, info->name, units);
+          return FALSE;
         }
 
       if (info->factor != 1.0 || !units_equal (&info->desc.units, &info->units_buf))
@@ -549,20 +571,19 @@ convert_metric_description (CockpitPcpMetrics *self,
       info->factor = 1.0;
     }
 
-  problem = NULL;
-
-out:
-  return problem;
+  return TRUE;
 }
 
-static const gchar *
-prepare_current_context (CockpitPcpMetrics *self)
+static gboolean
+prepare_current_context (CockpitPcpMetrics *self,
+                         gboolean *not_found)
 {
-  const gchar *problem = "protocol-error";
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
   JsonObject *options;
   gchar **instances = NULL;
   gchar **omit_instances = NULL;
   JsonArray *metrics;
+  gboolean ret = FALSE;
   int i;
 
   g_free (self->metrics);
@@ -572,26 +593,29 @@ prepare_current_context (CockpitPcpMetrics *self)
   self->metrics = NULL;
   self->pmidlist = NULL;
 
-  options = cockpit_channel_get_options (COCKPIT_CHANNEL (self));
+  options = cockpit_channel_get_options (channel);
 
   /* "instances" option */
   if (!cockpit_json_get_strv (options, "instances", NULL, (gchar ***)&instances))
     {
-      g_warning ("%s: invalid \"instances\" option (not an array of strings)", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"instances\" option (not an array of strings)", self->name);
       goto out;
     }
 
   /* "omit-instances" option */
   if (!cockpit_json_get_strv (options, "omit-instances", NULL, (gchar ***)&omit_instances))
     {
-      g_warning ("%s: invalid \"omit-instances\" option (not an array of strings)", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"omit-instances\" option (not an array of strings)", self->name);
       goto out;
     }
 
   /* "metrics" option */
   if (!cockpit_json_get_array (options, "metrics", NULL, &metrics))
     {
-      g_warning ("%s: invalid \"metrics\" option was specified (not an array)", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"metrics\" option was specified (not an array)", self->name);
       goto out;
     }
   if (metrics)
@@ -602,8 +626,7 @@ prepare_current_context (CockpitPcpMetrics *self)
   for (i = 0; i < self->numpmid; i++)
     {
       MetricInfo *info = &self->metrics[i];
-      problem = convert_metric_description (self, json_array_get_element (metrics, i), info, i);
-      if (problem)
+      if (!convert_metric_description (self, json_array_get_element (metrics, i), info, i, not_found))
         goto out;
 
       self->pmidlist[i] = info->id;
@@ -633,21 +656,20 @@ prepare_current_context (CockpitPcpMetrics *self)
         }
     }
 
-  problem = NULL;
+  ret = TRUE;
 
  out:
   g_free (instances);
   g_free (omit_instances);
-  return problem;
+  return ret;
 }
 
 static void start_archive (CockpitPcpMetrics *self, gint64 timestamp);
 
-static const gchar *
+static gboolean
 add_archive (CockpitPcpMetrics *self,
              const gchar *name)
 {
-  const gchar *problem = NULL;
   ArchiveInfo *info;
   pmLogLabel label;
   int rc;
@@ -659,30 +681,32 @@ add_archive (CockpitPcpMetrics *self,
       if (info->context == -ENOENT)
         {
           g_debug ("%s: couldn't find pcp archive for %s", self->name, name);
-          problem = "not-found";
+          cockpit_channel_close (COCKPIT_CHANNEL (self), "not-found");
         }
       else
         {
-          g_message ("%s: couldn't create pcp archive context for %s: %s",
-                     self->name, name, pmErrStr (info->context));
-          problem = "internal-error";
+          cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
+                                "%s: couldn't create pcp archive context for %s: %s",
+                                self->name, name, pmErrStr (info->context));
         }
       g_free (info);
-      return problem;
+      return FALSE;
     }
 
   rc = pmGetArchiveLabel (&label);
   if (rc < 0)
     {
-      g_message ("%s: couldn't read archive label of %s: %s", self->name, name, pmErrStr (rc));
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
+                            "%s: couldn't read archive label of %s: %s",
+                            self->name, name, pmErrStr (rc));
       pmDestroyContext (info->context);
       g_free (info);
-      return "internal-error";
+      return FALSE;
     }
 
   info->start = label.ll_start.tv_sec * 1000 + label.ll_start.tv_usec / 1000;
   self->archives = g_list_prepend (self->archives, info);
-  return NULL;
+  return TRUE;
 }
 
 static gint
@@ -700,13 +724,12 @@ cmp_archive_start (gconstpointer a,
     return 0;
 }
 
-static const gchar *
+static gboolean
 prepare_archives (CockpitPcpMetrics *self,
                   const gchar *name,
                   gint64 timestamp)
 {
-  const gchar *problem = NULL;
-  const gchar *ret = NULL;
+  gboolean ret = TRUE;
   GDir *dir;
   int count;
   GError *error = NULL;
@@ -722,9 +745,8 @@ prepare_archives (CockpitPcpMetrics *self,
             {
               gchar *path = g_build_filename (name, entry, NULL);
               path[strlen(path)-strlen(".meta")] = '\0';
-              ret = add_archive (self, path);
-              if (ret != NULL)
-                problem = ret;
+              if (!add_archive (self, path))
+                ret = FALSE;
               g_free (path);
               count += 1;
             }
@@ -733,37 +755,40 @@ prepare_archives (CockpitPcpMetrics *self,
     }
   else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
     {
-      ret = add_archive (self, name);
-      if (ret != NULL)
-        problem = ret;
+      if (!add_archive (self, name))
+        ret = FALSE;
     }
   else
     {
-      g_message ("%s: %s", name, error->message);
-      problem = "internal-error";
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
+                            "%s: %s", name, error->message);
+      ret = FALSE;
     }
 
   g_clear_error (&error);
 
-  if (self->archives == NULL) {
-    if (problem == NULL)
-      problem = "not-found";
-    return problem;
-  }
+  if (self->archives == NULL)
+    {
+      if (ret)
+        cockpit_channel_close (COCKPIT_CHANNEL (self), "not-found");
+      return FALSE;
+    }
 
   self->archives = g_list_sort (self->archives, cmp_archive_start);
 
   self->cur_archive = self->archives;
   start_archive (self, timestamp);
-  return NULL;
+  return TRUE;
 }
 
 static void
-start_archive (CockpitPcpMetrics *self, gint64 timestamp)
+start_archive (CockpitPcpMetrics *self,
+               gint64 timestamp)
 {
-  const gchar *problem;
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
   ArchiveInfo *info;
   struct timeval stamp;
+  gboolean not_found;
   int rc;
 
   while (self->cur_archive && self->cur_archive->next
@@ -773,7 +798,7 @@ start_archive (CockpitPcpMetrics *self, gint64 timestamp)
  again:
   if (self->cur_archive == NULL)
     {
-      cockpit_channel_close (COCKPIT_CHANNEL (self), NULL);
+      cockpit_channel_close (channel, NULL);
       return;
     }
 
@@ -788,28 +813,27 @@ start_archive (CockpitPcpMetrics *self, gint64 timestamp)
   rc = pmUseContext (info->context);
   if (rc < 0)
     {
-      g_message ("%s: couldn't switch pcp context: %s", self->name, pmErrStr (rc));
-      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+      cockpit_channel_fail (channel, "internal-error",
+                            "%s: couldn't switch pcp context: %s", self->name, pmErrStr (rc));
       return;
     }
 
   rc = pmSetMode (PM_MODE_INTERP | PM_XTB_SET(PM_TIME_MSEC), &stamp, self->interval);
   if (rc < 0)
     {
-      g_message ("%s: couldn't set pcp mode: %s", self->name, pmErrStr (rc));
-      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+      cockpit_channel_fail (channel, "internal-error",
+                            "%s: couldn't set pcp mode: %s", self->name, pmErrStr (rc));
       return;
     }
 
-  problem = prepare_current_context (self);
-  if (problem && g_str_equal (problem, "not-found"))
+  not_found = TRUE;
+  if (!prepare_current_context (self, &not_found))
     {
-      self->cur_archive = self->cur_archive->next;
-      goto again;
-    }
-  else if (problem)
-    {
-      cockpit_channel_close (COCKPIT_CHANNEL (self), problem);
+      if (not_found)
+        {
+          self->cur_archive = self->cur_archive->next;
+          goto again;
+        }
       return;
     }
 
@@ -831,7 +855,7 @@ next_archive (CockpitPcpMetrics *self)
 }
 
 static gboolean
-ensure_pcp_conf (void)
+ensure_pcp_conf (CockpitChannel *channel)
 {
   gboolean res = TRUE;
   gchar *prefix;
@@ -858,7 +882,7 @@ ensure_pcp_conf (void)
   if (access((const char *)conf, R_OK) < 0 ||
       (fp = fopen(conf, "r")) == NULL)
     {
-      g_warning ("Could not access %s: %m", conf);
+      cockpit_channel_fail (channel, "internal-error", "could not access %s: %m", conf);
       res = FALSE;
     }
 
@@ -872,7 +896,6 @@ static void
 cockpit_pcp_metrics_prepare (CockpitChannel *channel)
 {
   CockpitPcpMetrics *self = COCKPIT_PCP_METRICS (channel);
-  const gchar *problem = "protocol-error";
   JsonObject *options;
   const gchar *source;
   int type;
@@ -883,21 +906,20 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
 
   options = cockpit_channel_get_options (channel);
 
-  if (!ensure_pcp_conf ())
-    {
-      problem = "internal-error";
-      goto out;
-    }
+  if (!ensure_pcp_conf (channel))
+    goto out;
 
   /* "source" option */
   if (!cockpit_json_get_string (options, "source", NULL, &source))
     {
-      g_warning ("invalid \"source\" option for metrics channel");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"source\" option for metrics channel");
       goto out;
     }
   else if (!source)
     {
-      g_warning ("no \"source\" option specified for metrics channel");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "no \"source\" option specified for metrics channel");
       goto out;
     }
   else if (g_str_has_prefix (source, "/"))
@@ -911,8 +933,7 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
       gchar hostname[HOST_NAME_MAX + 1];
       if (gethostname (hostname, HOST_NAME_MAX) < 0)
         {
-          g_warning ("Error getting hostname: %m");
-          problem = "internal-error";
+          cockpit_channel_fail (channel, "internal-error", "error getting hostname: %m");
           goto out;
         }
       hostname[HOST_NAME_MAX] = '\0';
@@ -931,8 +952,8 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
     }
   else
     {
-      g_message ("unsupported \"source\" option specified for metrics: %s", source);
-      problem = "not-supported";
+      cockpit_channel_fail (channel, "not-supported",
+                            "unsupported \"source\" option specified for metrics: %s", source);
       goto out;
     }
 
@@ -941,12 +962,14 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
   /* "timestamp" option */
   if (!cockpit_json_get_int (options, "timestamp", 0, &timestamp))
     {
-      g_warning ("%s: invalid \"timestamp\" option", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"timestamp\" option", self->name);
       goto out;
     }
   if (timestamp / 1000 < G_MINLONG || timestamp / 1000 > G_MAXLONG)
     {
-      g_warning ("%s: invalid \"timestamp\" value: %" G_GINT64_FORMAT, self->name, timestamp);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"timestamp\" value: %" G_GINT64_FORMAT, self->name, timestamp);
       goto out;
     }
 
@@ -960,31 +983,34 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
   /* "limit" option */
   if (!cockpit_json_get_int (options, "limit", G_MAXINT64, &self->limit))
     {
-      g_warning ("%s: invalid \"limit\" option", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"limit\" option", self->name);
       goto out;
     }
   else if (self->limit <= 0)
     {
-      g_warning ("%s: invalid \"limit\" option value: %" G_GINT64_FORMAT, self->name, self->limit);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"limit\" option value: %" G_GINT64_FORMAT, self->name, self->limit);
       goto out;
     }
 
   /* "interval" option */
   if (!cockpit_json_get_int (options, "interval", 1000, &self->interval))
     {
-      g_warning ("%s: invalid \"interval\" option", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"interval\" option", self->name);
       goto out;
     }
   else if (self->interval <= 0 || self->interval > G_MAXINT)
     {
-      g_warning ("%s: invalid \"interval\" value: %" G_GINT64_FORMAT, self->name, self->interval);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"interval\" value: %" G_GINT64_FORMAT, self->name, self->interval);
       goto out;
     }
 
   if (type == PM_CONTEXT_ARCHIVE)
     {
-      problem = prepare_archives (self, name, timestamp);
-      if (problem)
+      if (!prepare_archives (self, name, timestamp))
         goto out;
     }
   else
@@ -995,29 +1021,26 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
           if (self->direct_context == -ENOENT)
             {
               g_debug ("%s: couldn't create PCP context: %s", self->name, pmErrStr (self->direct_context));
-              problem = "not-supported";
+              cockpit_channel_close (channel, "not-supported");
             }
           else
             {
-              g_warning ("%s: couldn't create PCP context: %s", self->name, pmErrStr (self->direct_context));
-              problem = "internal-error";
+              cockpit_channel_fail (channel, "internal-error",
+                                    "%s: couldn't create PCP context: %s",
+                                    self->name, pmErrStr (self->direct_context));
             }
           goto out;
         }
 
-      problem = prepare_current_context (self);
-      if (problem)
+      if (!prepare_current_context (self, NULL))
         goto out;
     }
 
-  problem = NULL;
   if (type != PM_CONTEXT_ARCHIVE)
       cockpit_metrics_metronome (COCKPIT_METRICS (self), self->interval);
   cockpit_channel_ready (channel);
 
 out:
-  if (problem)
-    cockpit_channel_close (channel, problem);
   g_free (name);
 }
 

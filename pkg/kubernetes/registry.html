@@ -20,7 +20,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <html lang="en" ng-csp class="no-js">
 <head>
 <meta charset="utf-8">
-<title translatable="yes">Image Registry</title>
+<title translate>Image Registry</title>
 <meta name="description" content="">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -40,19 +40,19 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <li ng-class="{ active: viewActive(null)}">
                     <a ng-href="#{{ viewUrl(null) }}">
                         <i class="fa fa-dashboard fa-fw" title="Overview"></i><br>
-                        <span class="list-group-item-value" translatable="yes">Overview</span>
+                        <span class="list-group-item-value" translate>Overview</span>
                     </a>
                 </li>
                 <li ng-class="{ active: viewActive('images')}">
                     <a ng-href="#{{ viewUrl('images') }}">
                         <i class="pficon pficon-image fa-fw" title="Images"></i><br>
-                        <span class="list-group-item-value" translatable="yes">Images</span>
+                        <span class="list-group-item-value" translate>Images</span>
                     </a>
                 </li>
                 <li ng-class="{ active: viewActive('projects')}">
                     <a ng-href="#{{ viewUrl('projects') }}">
                         <i class="pficon pficon-project fa-fw" title="Projects"></i><br>
-                        <span class="list-group-item-value" translatable="yes">Projects</span>
+                        <span class="list-group-item-value" translate>Projects</span>
                     </a>
                 </li>
             </ul>
@@ -68,11 +68,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <i class="fa fa-exclamation-circle" ng-if="curtains.status && curtains.status != 403"></i>
             <i class="fa fa-lock" ng-if="curtains.status == 403"></i>
         </div>
-        <h1 ng-if="!curtains.status" translatable="yes">Connecting...</h1>
-        <h1 ng-if="curtains.status" translatable="yes">Couldn't connect to server</h1>
+        <h1 ng-if="!curtains.status" translate>Connecting...</h1>
+        <h1 ng-if="curtains.status" translate>Couldn't connect to server</h1>
         <p ng-if="curtains.message">{{curtains.message}}</p>
         <div class="blank-slate-pf-main-action" ng-if="curtains.status">
-            <button class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
+            <button class="btn btn-primary btn-lg" translate ng-click="reconnect()">
                 Reconnect
             </button>
         </div>

@@ -20,7 +20,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <html lang="en" ng-csp class="no-js">
 <head>
   <meta charset="utf-8">
-  <title translatable="yes">Kubernetes Cluster</title>
+  <title translate>Kubernetes Cluster</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../base1/patternfly.css">
@@ -37,52 +37,52 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                 <li class="list-group-item" ng-class="{ active: viewActive(null)}">
                     <a ng-href="#{{ viewUrl(null) }}">
                         <i class="fa fa-dashboard fa-fw" title="Overview"></i>
-                        <span class="list-group-item-value" translatable="yes">Overview</span>
+                        <span class="list-group-item-value" translate>Overview</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('nodes')}">
                     <a ng-href="#/nodes">
                         <i class="pficon pficon-container-node" title="Nodes"></i>
-                        <span class="list-group-item-value" translatable="yes">Nodes</span>
+                        <span class="list-group-item-value" translate>Nodes</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('pods')}">
                     <a ng-href="#{{ viewUrl('pods') }}">
                         <i class="fa fa-cubes fa-fw" title="Containers"></i>
-                        <span class="list-group-item-value" translatable="yes">Containers</span>
+                        <span class="list-group-item-value" translate>Containers</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('topology')}">
                     <a ng-href="#{{ viewUrl('topology') }}">
                         <i class="pficon pficon-topology fa-fw" title="Topology"></i>
-                        <span class="list-group-item-value" translatable="yes">Topology</span>
+                        <span class="list-group-item-value" translate>Topology</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('list')}">
                     <a ng-href="#{{ viewUrl('list') }}">
                         <i class="fa fa-list fa-fw" title="Details"></i>
-                        <span class="list-group-item-value" translatable="yes">Details</span>
+                        <span class="list-group-item-value" translate>Details</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('volumes')}">
                     <!-- Directly to avoid any namespace filtering -->
                     <a id="kubernetes-volumes" ng-href="#{{ viewUrl('volumes', true) }}">
                         <i class="fa fa-database fa-fw" title="Volumes"></i>
-                        <span class="list-group-item-value" translatable="yes">Volumes</span>
+                        <span class="list-group-item-value" translate>Volumes</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('images')}"
                     ng-if="settings.flavor == 'openshift'">
                     <a ng-href="#{{ viewUrl('images') }}">
                         <i class="pficon pficon-image fa-fw" title="Images"></i>
-                        <span class="list-group-item-value" translatable="yes">Images</span>
+                        <span class="list-group-item-value" translate>Images</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('projects')}"
                     ng-if="settings.flavor == 'openshift'">
                     <a ng-href="#{{ viewUrl('projects') }}">
                         <i class="pficon pficon-project fa-fw" title="Projects"></i>
-                        <span class="list-group-item-value" translatable="yes">Projects</span>
+                        <span class="list-group-item-value" translate>Projects</span>
                     </a>
                 </li>
             </ul>
@@ -98,14 +98,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <i class="fa fa-exclamation-circle" ng-if="curtains.status && curtains.status != 403"></i>
             <i class="fa fa-lock" ng-if="curtains.status == 403"></i>
         </div>
-        <h1 ng-if="!curtains.status" translatable="yes">Connecting...</h1>
-        <h1 ng-if="curtains.status" translatable="yes">Couldn't connect to server</h1>
+        <h1 ng-if="!curtains.status" translate>Connecting...</h1>
+        <h1 ng-if="curtains.status" translate>Couldn't connect to server</h1>
         <p ng-if="curtains.message">{{curtains.message}}</p>
         <div class="blank-slate-pf-main-action" ng-if="curtains.status">
-            <button id="kubernetes-reconnect" class="btn btn-primary btn-lg" translatable="yes" ng-click="reconnect()">
+            <button id="kubernetes-reconnect" class="btn btn-primary btn-lg" translate ng-click="reconnect()">
                 Reconnect
             </button>
-            <button id="kubernetes-connection-tb" class="btn btn-primary btn-lg" translatable="yes" ng-click="changeAuth(curtains.resp)">
+            <button id="kubernetes-connection-tb" class="btn btn-primary btn-lg" translate ng-click="changeAuth(curtains.resp)">
                 Troubleshoot
             </button>
         </div>

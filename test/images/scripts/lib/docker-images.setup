@@ -23,6 +23,7 @@ docker pull busybox:buildroot-2014.02
 # docker pull submod/helloapache:0.1.11
 docker pull gcr.io/google_containers/pause:2.0
 docker pull gcr.io/google_containers/pause:0.8.0
+docker pull gcr.io/google_containers/pause-amd64:3.0
 
 # Disable all further pulling from online during the tests
 cat >> /etc/hosts <<EOF

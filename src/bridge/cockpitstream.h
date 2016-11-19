@@ -24,6 +24,8 @@
 
 #include "cockpitconnect.h"
 
+#include "common/cockpitjson.h"
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_STREAM         (cockpit_stream_get_type ())
@@ -77,7 +79,7 @@ GByteArray *       cockpit_stream_get_buffer   (CockpitStream *self);
 const gchar *      cockpit_stream_problem      (GError *error,
                                                 const gchar *name,
                                                 const gchar *summary,
-                                                GIOStream *stream);
+                                                JsonObject *object);
 
 G_END_DECLS
 

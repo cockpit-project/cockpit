@@ -58,8 +58,8 @@ static void
 cockpit_fswatch_recv (CockpitChannel *channel,
                       GBytes *message)
 {
-  g_warning ("received unexpected message in fswatch channel");
-  cockpit_channel_close (channel, "protocol-error");
+  cockpit_channel_fail (channel, "protocol-error",
+                        "received unexpected message in fswatch channel");
 }
 
 static void
@@ -173,7 +173,6 @@ static void
 cockpit_fswatch_prepare (CockpitChannel *channel)
 {
   CockpitFswatch *self = COCKPIT_FSWATCH (channel);
-  const gchar *problem = "protocol-error";
   JsonObject *options;
   GError *error = NULL;
   const gchar *path;
@@ -183,12 +182,14 @@ cockpit_fswatch_prepare (CockpitChannel *channel)
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "path", NULL, &path))
     {
-      g_warning ("invalid \"path\" option for fswatch channel");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"path\" option for fswatch channel");
       goto out;
     }
   else if (path == NULL || *path == 0)
     {
-      g_warning ("missing \"path\" option for fswatch channel");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "missing \"path\" option for fswatch channel");
       goto out;
     }
 
@@ -198,10 +199,7 @@ cockpit_fswatch_prepare (CockpitChannel *channel)
 
   if (monitor == NULL)
     {
-      g_message ("%s: %s", self->path, error->message);
-      options = cockpit_channel_close_options (channel);
-      json_object_set_string_member (options, "message", error->message);
-      problem = "internal-error";
+      cockpit_channel_fail (channel, "internal-error", "%s: %s", self->path, error->message);
       goto out;
     }
 
@@ -209,12 +207,9 @@ cockpit_fswatch_prepare (CockpitChannel *channel)
   self->sig_changed = g_signal_connect (self->monitor, "changed", G_CALLBACK (on_changed), self);
 
   cockpit_channel_ready (channel);
-  problem = NULL;
 
 out:
   g_clear_error (&error);
-  if (problem)
-    cockpit_channel_close (channel, problem);
 }
 
 static void

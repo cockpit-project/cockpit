@@ -486,7 +486,7 @@ test_bad_receive (TestCase *tc,
 {
   GBytes *bad;
 
-  cockpit_expect_warning ("444: channel received message after done");
+  cockpit_expect_message ("444: channel received message after done");
 
   /* A resource2 channel should never have payload sent to it */
   bad = g_bytes_new_static ("bad", 3);

@@ -110,27 +110,26 @@ cockpit_pipe_channel_control (CockpitChannel *channel,
                               JsonObject *message)
 {
   CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
-  const gchar *problem = NULL;
   gboolean ret = TRUE;
 
   /* New set of options for channel */
   if (g_str_equal (command, "options"))
     {
-      problem = "protocol-error";
       if (!cockpit_json_get_int (message, "batch", self->batch, &self->batch))
         {
-          g_warning ("invalid \"batch\" option for stream channel");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"batch\" option for stream channel");
           goto out;
         }
 
       if (!cockpit_json_get_int (message, "latency", self->latency, &self->latency) ||
           self->latency < 0 || self->latency >= G_MAXUINT)
         {
-          g_warning ("invalid \"latency\" option for stream channel");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"latency\" option for stream channel");
           goto out;
         }
 
-      problem = NULL;
       process_pipe_buffer (self, NULL);
     }
 
@@ -154,8 +153,6 @@ cockpit_pipe_channel_control (CockpitChannel *channel,
     }
 
 out:
-  if (problem)
-    cockpit_channel_close (channel, problem);
   return ret;
 }
 
@@ -325,7 +322,8 @@ environ_find (gchar **env,
 }
 
 static gchar **
-parse_environ (JsonObject *options,
+parse_environ (CockpitChannel *channel,
+               JsonObject *options,
                const gchar *directory)
 {
   gchar **envset = NULL;
@@ -336,7 +334,7 @@ parse_environ (JsonObject *options,
 
   if (!cockpit_json_get_strv (options, "environ", NULL, &envset))
     {
-      g_warning ("invalid \"environ\" option for stream channel");
+      cockpit_channel_fail (channel, "protocol-error", "invalid \"environ\" option for stream channel");
       return NULL;
     }
 
@@ -378,7 +376,6 @@ static void
 cockpit_pipe_channel_prepare (CockpitChannel *channel)
 {
   CockpitPipeChannel *self = COCKPIT_PIPE_CHANNEL (channel);
-  const gchar *problem = "protocol-error";
   GSocketAddress *address;
   CockpitPipeFlags flags;
   JsonObject *options;
@@ -394,7 +391,8 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
 
   if (!cockpit_json_get_strv (options, "spawn", NULL, &argv))
     {
-      g_warning ("invalid \"spawn\" option for stream channel");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"spawn\" option for stream channel");
       goto out;
     }
 
@@ -407,7 +405,8 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
     {
       if (!cockpit_json_get_string (options, "err", NULL, &error))
         {
-          g_warning ("invalid \"err\" options for stream channel");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"err\" options for stream channel");
           goto out;
         }
 
@@ -422,15 +421,17 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
       self->name = g_strdup (argv[0]);
       if (!cockpit_json_get_string (options, "directory", NULL, &dir))
         {
-          g_warning ("invalid \"directory\" option for stream channel");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"directory\" option for stream channel");
           goto out;
         }
       if (!cockpit_json_get_bool (options, "pty", FALSE, &pty))
         {
-          g_warning ("invalid \"pty\" option for stream channel");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"pty\" option for stream channel");
           goto out;
         }
-      env = parse_environ (options, dir);
+      env = parse_environ (channel, options, dir);
       if (!env)
         goto out;
       if (pty)
@@ -440,7 +441,6 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
     }
   else
     {
-      problem = NULL; /* closing handled elsewhere */
       address = cockpit_channel_parse_address (channel, &self->name);
       if (!address)
         goto out;
@@ -452,13 +452,10 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
   self->open = TRUE;
   cockpit_channel_ready (channel);
-  problem = NULL;
 
 out:
   g_free (argv);
   g_strfreev (env);
-  if (problem)
-    cockpit_channel_close (channel, problem);
 }
 
 static void

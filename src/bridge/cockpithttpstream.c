@@ -229,6 +229,7 @@ G_DEFINE_TYPE (CockpitHttpStream, cockpit_http_stream, COCKPIT_TYPE_CHANNEL);
 
 static gboolean
 parse_content_length (CockpitHttpStream *self,
+                      CockpitChannel *channel,
                       guint status,
                       GHashTable *headers)
 {
@@ -252,12 +253,14 @@ parse_content_length (CockpitHttpStream *self,
   value = g_ascii_strtoull (header, &end, 10);
   if (end[0] != '\0')
     {
-      g_message ("%s: received invalid Content-Length in HTTP stream response", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received invalid Content-Length in HTTP stream response", self->name);
       return FALSE;
     }
   else if (value > G_MAXSSIZE)
     {
-      g_message ("%s: received Content-Length that was too big", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received Content-Length that was too big", self->name);
       return FALSE;
     }
 
@@ -269,6 +272,7 @@ parse_content_length (CockpitHttpStream *self,
 
 static gboolean
 parse_transfer_encoding (CockpitHttpStream *self,
+                         CockpitChannel *channel,
                          GHashTable *headers)
 {
   const gchar *header;
@@ -282,8 +286,9 @@ parse_transfer_encoding (CockpitHttpStream *self,
 
   if (!g_str_equal (header, "chunked"))
     {
-      g_message ("%s: received unsupported Transfer-Encoding in HTTP response: %s",
-                 self->name, header);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received unsupported Transfer-Encoding in HTTP response: %s",
+                            self->name, header);
       return FALSE;
     }
 
@@ -325,6 +330,7 @@ cockpit_http_stream_parse_keep_alive (const gchar *version,
 
 static gboolean
 parse_keep_alive (CockpitHttpStream *self,
+                  CockpitChannel *channel,
                   const gchar *version,
                   GHashTable *headers)
 {
@@ -337,7 +343,6 @@ relay_headers (CockpitHttpStream *self,
                CockpitChannel *channel,
                GByteArray *buffer)
 {
-  const gchar *problem = "protocol-error";
   GHashTable *headers = NULL;
   gchar *version = NULL;
   gchar *reason = NULL;
@@ -362,7 +367,8 @@ relay_headers (CockpitHttpStream *self,
 
   if (offset < 0)
     {
-      g_message ("%s: received response with bad HTTP status line", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received response with bad HTTP status line", self->name);
       goto out;
     }
 
@@ -372,7 +378,8 @@ relay_headers (CockpitHttpStream *self,
 
   if (offset2 < 0)
     {
-      g_message ("%s: received response with bad HTTP headers", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received response with bad HTTP headers", self->name);
       goto out;
     }
 
@@ -381,12 +388,11 @@ relay_headers (CockpitHttpStream *self,
   while (g_hash_table_iter_next (&iter, &key, &value))
     g_debug ("%s: header: %s %s", self->name, (gchar *)key, (gchar *)value);
 
-  if (!parse_transfer_encoding (self, headers) ||
-      !parse_content_length (self, status, headers) ||
-      !parse_keep_alive (self, version, headers))
+  if (!parse_transfer_encoding (self, channel, headers) ||
+      !parse_content_length (self, channel, status, headers) ||
+      !parse_keep_alive (self, channel, version, headers))
     goto out;
 
-  problem = NULL;
   cockpit_pipe_skip (buffer, offset + offset2);
 
   if (!self->binary)
@@ -423,8 +429,6 @@ relay_headers (CockpitHttpStream *self,
   json_object_unref (object);
 
 out:
-  if (problem)
-    cockpit_channel_close (channel, problem);
   if (headers)
     g_hash_table_unref (headers);
   g_free (version);
@@ -489,13 +493,13 @@ relay_chunked (CockpitHttpStream *self,
   size = g_ascii_strtoull (data, &end, 16);
   if (pos[1] != '\n' || end != pos)
     {
-      g_message ("%s: received invalid HTTP chunk", self->name);
-      cockpit_channel_close (channel, "protocol-error");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received invalid HTTP chunk", self->name);
     }
   else if (size > G_MAXSSIZE)
     {
-      g_message ("%s: received extremely large HTTP chunk", self->name);
-      cockpit_channel_close (channel, "protocol-error");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received extremely large HTTP chunk", self->name);
     }
   else if (length < beg + size + 2)
     {
@@ -503,8 +507,8 @@ relay_chunked (CockpitHttpStream *self,
     }
   else if (data[beg + size] != '\r' || data[beg + size + 1] != '\n')
     {
-      g_message ("%s: received invalid HTTP chunk data", self->name);
-      cockpit_channel_close (channel, "protocol-error");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: received invalid HTTP chunk data", self->name);
     }
   else if (size == 0)
     {
@@ -604,8 +608,8 @@ on_stream_read (CockpitStream *stream,
     {
       if (buffer->len != 0)
         {
-          g_message ("%s: received data before HTTP request was sent", self->name);
-          cockpit_channel_close (channel, "protocol-error");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: received data before HTTP request was sent", self->name);
         }
     }
   else if (self->state < RELAY_DATA)
@@ -617,8 +621,8 @@ on_stream_read (CockpitStream *stream,
         }
       else if (end_of_data)
         {
-          g_message ("%s: received truncated HTTP response", self->name);
-          cockpit_channel_close (channel, "protocol-error");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: received truncated HTTP response", self->name);
         }
     }
   while (self->state == RELAY_DATA)
@@ -676,8 +680,8 @@ on_stream_close (CockpitStream *stream,
         }
       else
         {
-          g_message ("%s: received truncated HTTP response", self->name);
-          cockpit_channel_close (channel, "protocol-error");
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: received truncated HTTP response", self->name);
         }
     }
 }
@@ -738,7 +742,6 @@ static void
 send_http_request (CockpitHttpStream *self)
 {
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
-  const gchar *problem = "protocol-error";
   JsonObject *options;
   gboolean had_host;
   gboolean had_encoding;
@@ -764,33 +767,39 @@ send_http_request (CockpitHttpStream *self)
 
   if (!cockpit_json_get_string (options, "path", NULL, &path))
     {
-      g_warning ("%s: bad \"path\" field in HTTP stream request", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: bad \"path\" field in HTTP stream request", self->name);
       goto out;
     }
   else if (path == NULL)
     {
-      g_warning ("%s: missing \"path\" field in HTTP stream request", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: missing \"path\" field in HTTP stream request", self->name);
       goto out;
     }
   else if (!cockpit_web_response_is_simple_token (path))
     {
-      g_warning ("%s: invalid \"path\" field in HTTP stream request", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"path\" field in HTTP stream request", self->name);
       goto out;
     }
 
   if (!cockpit_json_get_string (options, "method", NULL, &method))
     {
-      g_warning ("%s: bad \"method\" field in HTTP stream request", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: bad \"method\" field in HTTP stream request", self->name);
       goto out;
     }
   else if (method == NULL)
     {
-      g_warning ("%s: missing \"method\" field in HTTP stream request", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: missing \"method\" field in HTTP stream request", self->name);
       goto out;
     }
   else if (!cockpit_web_response_is_simple_token (method))
     {
-      g_warning ("%s: invalid \"method\" field in HTTP stream request", self->name);
+      cockpit_channel_fail (channel, "protocol-error",
+                            "%s: invalid \"method\" field in HTTP stream request", self->name);
       goto out;
     }
 
@@ -806,7 +815,8 @@ send_http_request (CockpitHttpStream *self)
     {
       if (!JSON_NODE_HOLDS_OBJECT (node))
         {
-          g_warning ("%s: invalid \"headers\" field in HTTP stream request", self->name);
+          cockpit_channel_fail (channel, "protocol-error",
+                                "%s: invalid \"headers\" field in HTTP stream request", self->name);
           goto out;
         }
 
@@ -817,24 +827,28 @@ send_http_request (CockpitHttpStream *self)
           header = l->data;
           if (!cockpit_web_response_is_simple_token (header))
             {
-              g_warning ("%s: invalid header in HTTP stream request: %s", self->name, header);
+              cockpit_channel_fail (channel, "protocol-error",
+                                    "%s: invalid header in HTTP stream request: %s", self->name, header);
               goto out;
             }
           node = json_object_get_member (headers, header);
           if (!node || !JSON_NODE_HOLDS_VALUE (node) || json_node_get_value_type (node) != G_TYPE_STRING)
             {
-              g_warning ("%s: invalid header value in HTTP stream request: %s", self->name, header);
+              cockpit_channel_fail (channel, "protocol-error",
+                                    "%s: invalid header value in HTTP stream request: %s", self->name, header);
               goto out;
             }
           value = json_node_get_string (node);
           if (disallowed_header (header, value, self->binary))
             {
-              g_warning ("%s: disallowed header in HTTP stream request: %s", self->name, header);
+              cockpit_channel_fail (channel, "protocol-error",
+                                    "%s: disallowed header in HTTP stream request: %s", self->name, header);
               goto out;
             }
           if (!cockpit_web_response_is_header_value (value))
             {
-              g_warning ("%s: invalid header value in HTTP stream request: %s", self->name, header);
+              cockpit_channel_fail (channel, "protocol-error",
+                                    "%s: invalid header value in HTTP stream request: %s", self->name, header);
               goto out;
             }
 
@@ -860,7 +874,6 @@ send_http_request (CockpitHttpStream *self)
   if (!self->binary)
     g_string_append (string, "Accept-Charset: UTF-8\r\n");
 
-  problem = NULL;
   request = g_list_reverse (self->request);
   self->request = NULL;
 
@@ -888,8 +901,6 @@ out:
   g_list_free_full (request, (GDestroyNotify)g_bytes_unref);
   if (string)
     g_string_free (string, TRUE);
-  if (problem)
-    cockpit_channel_close (COCKPIT_CHANNEL (self), problem);
 }
 
 static void
@@ -986,15 +997,15 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "connection", NULL, &connection))
     {
-      g_warning ("bad \"connection\" field in HTTP stream request");
-      cockpit_channel_close (channel, "protocol-error");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "bad \"connection\" field in HTTP stream request");
       goto out;
     }
 
   if (!cockpit_json_get_string (options, "path", "/", &path))
     {
-      g_warning ("bad \"path\" field in HTTP stream request");
-      cockpit_channel_close (channel, "protocol-error");
+      cockpit_channel_fail (channel, "protocol-error",
+                            "bad \"path\" field in HTTP stream request");
       goto out;
     }
 

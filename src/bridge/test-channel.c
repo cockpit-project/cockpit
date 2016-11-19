@@ -430,13 +430,53 @@ test_capable (void)
 }
 
 static void
-test_invalid_internal (void)
+test_internal_not_registered (void)
 {
   CockpitConnectable *connectable;
   JsonObject *options;
   MockTransport *transport;
   CockpitChannel *channel;
   JsonObject *sent;
+
+  cockpit_expect_message ("55: couldn't find internal address: test");
+  cockpit_channel_internal_address ("other", NULL);
+
+  options = json_object_new ();
+  json_object_set_string_member (options, "internal", "test");
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          "options", options,
+                          NULL);
+  json_object_unref (options);
+  connectable = cockpit_channel_parse_stream (channel);
+  g_assert (connectable == NULL);
+  while (g_main_context_iteration (NULL, FALSE));
+
+  sent = mock_transport_pop_control (transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
+                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-found\", \"message\":\"couldn't find internal address: test\"}");
+  g_object_unref (channel);
+  g_object_unref (transport);
+  cockpit_assert_expected ();
+
+  cockpit_channel_remove_internal_address ("other");
+}
+
+static void
+test_internal_null_registered (void)
+{
+  CockpitConnectable *connectable;
+  JsonObject *options;
+  MockTransport *transport;
+  CockpitChannel *channel;
+  JsonObject *sent;
+
+  cockpit_channel_internal_address ("test", NULL);
 
   options = json_object_new ();
   json_object_set_string_member (options, "internal", "test");
@@ -460,22 +500,7 @@ test_invalid_internal (void)
   g_object_unref (channel);
   g_object_unref (transport);
   cockpit_assert_expected ();
-}
 
-static void
-test_internal_not_registered (void)
-{
-  cockpit_expect_warning ("couldn't find internal address: test");
-  cockpit_channel_internal_address ("other", NULL);
-  test_invalid_internal ();
-  cockpit_channel_remove_internal_address ("other");
-}
-
-static void
-test_internal_null_registered (void)
-{
-  cockpit_channel_internal_address ("test", NULL);
-  test_invalid_internal ();
   cockpit_channel_remove_internal_address ("test");
 }
 

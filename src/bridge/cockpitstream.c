@@ -21,6 +21,8 @@
 
 #include "cockpitstream.h"
 
+#include "common/cockpitjson.h"
+
 #include <errno.h>
 #include <string.h>
 
@@ -286,9 +288,10 @@ const gchar *
 cockpit_stream_problem (GError *error,
                         const gchar *name,
                         const gchar *summary,
-                        GIOStream *io)
+                        JsonObject *options)
 {
   const gchar *problem = NULL;
+  gchar *message;
 
   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
     problem = "access-denied";
@@ -320,13 +323,20 @@ cockpit_stream_problem (GError *error,
 
   if (problem)
     {
-      g_message ("%s: %s: %s", name, summary, error->message);
+      message = g_strdup_printf ("%s: %s: %s", name, summary, error->message);
     }
   else
     {
-      g_warning ("%s: %s: %s", name, summary, error->message);
+      message = g_strdup_printf ("%s: %s: %s", name, summary, error->message);
       problem = "internal-error";
     }
+  if (options)
+    {
+      if (!json_object_has_member (options, "message"))
+        json_object_set_string_member (options, "message", message);
+    }
+  g_message ("%s", message);
+  g_free (message);
 
   return problem;
 }
@@ -348,7 +358,7 @@ set_problem_from_error (CockpitStream *self,
     }
   else
     {
-      problem = cockpit_stream_problem (error, self->priv->name, summary, self->priv->io);
+      problem = cockpit_stream_problem (error, self->priv->name, summary, NULL);
     }
 
   g_free (self->priv->problem);

@@ -125,3 +125,24 @@ option to the ```WebService``` section of your cockpit configuration.
 Additional connections will be dropped until authentication succeeds or
 the connections are closed. See the man page for cockpit.conf for more
 details. By default the limit is set to 10.
+
+Environment Variables
+================================
+
+The following environment variables are set by cockpit-ws when spawning an auth process
+
+ * **COCKPIT_REMOTE_PEER** Set to the ip address of the connecting user.
+ * **COCKPIT_AUTH_MESSAGE_TYPE** A string representing the type of message that will be sent on the authentication fd. When the message is passed durning login, this will be set to the value of the auth scheme that was included in the the Authorization http header.
+ * **COCKPIT_SUPPORTS_CONVERSATION** Set to ```1``` if conversations are supported.
+
+The following environment variables are used to set options for the ```cockpit-ssh``` process.
+
+ * **COCKPIT_SSH_NO_HOST_KEY**` Set the expected host key to an empty string. This will force the host key check to fail. Used by the frontend to get a valid host key for the given host. Setting this value always allows cockpit-ssh to connect to this host.
+ * **COCKPIT_SSH_HOST_KEY** Expect the given value to match the host key for this server.  Setting this value always allows cockpit-ssh to connect to this host.
+ * **COCKPIT_SSH_IGNORE_HOST_KEY** Set to ```1``` to skip host key validation. Setting this value always allows cockpit-ssh to connect to this host.
+ * **COCKPIT_SSH_ALLOW_UNKNOWN**` Set to ```1``` to  allow connecting to hosts that are not saved in the current knownhosts file. If not set cockpit will only connect to unknown hosts if either the remote_peer is local or if the ```Ssh-Login``` section in ```cockpit.conf``` has a ```allowUnknown``` option set to a truthy value (```1```, ```yes``` or ```true```).
+ * **COCKPIT_SSH_KNOWN_HOSTS_FILE** Path to knownhost files. Defaults to ```PACKAGE_LOCALSTATE_DIR/known_hosts```
+ * **COCKPIT_SSH_BRIDGE_COMMAND** Command to launch after a ssh connection is established. Defaults to ```cockpit-bridge``` if not provided.
+ * **COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT** Set to ```1``` if caller supports prompting users for unknown host keys.
+ * **KRB5CCNAME** Kerberos credentials cache name. Not set when no active kerberos session is active.
+ * **SSH_AUTH_SOCK** When calling process has a cockpit ssh-agent already running this value is set to the FD # of . Otherwise this value is left untouched.

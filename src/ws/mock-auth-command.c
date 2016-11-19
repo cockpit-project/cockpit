@@ -125,37 +125,31 @@ main (int argc,
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
-  else if (strcmp (data, "ssh-remote-switch") == 0 && argc == 2 && strcmp (argv[1], "machine") == 0)
+  else if (strcmp (data, "ssh-remote-switch") == 0 &&
+           strcmp (argv[1], "machine") == 0 &&
+           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
-  else if (strcmp (data, "ssh-local-peer") == 0 && argc == 3 &&
-           strcmp (argv[1], "--prompt-unknown-hostkey") == 0 &&
-           strcmp (argv[2], "machine") == 0)
+  else if (strcmp (data, "ssh-alt-machine") == 0 &&
+           strcmp (argv[1], "machine") == 0 &&
+           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
-  else if (strcmp (data, "ssh-alt-machine") == 0 && argc == 3 &&
-           strcmp (argv[1], "--prompt-unknown-hostkey") == 0 &&
-           strcmp (argv[2], "machine") == 0)
+  else if (strcmp (data, "ssh-alt-default") == 0 &&
+           strcmp (argv[1], "default-host") == 0 &&
+           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "1") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
-  else if (strcmp (data, "ssh-alt-default") == 0 && argc == 3 &&
-           strcmp (argv[1], "--ignore-hostkey") == 0 &&
-           strcmp (argv[2], "default-host") == 0)
+  else if (strcmp (data, "this is the password") == 0 &&
+           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "1") == 0)
     {
-      write_resp (fd, "{\"user\": \"me\" }");
-      success = 1;
-    }
-  else if (strcmp (data, "this is the password") == 0)
-    {
-      if (argc == 4 && strcmp (argv[3], "me") == 0 &&
-          strcmp (argv[2], "localhost") == 0 &&
-          strcmp (argv[1], "--ignore-hostkey") == 0)
+      if (strcmp (argv[1], "me@localhost") == 0)
         {
           write_resp (fd, "{\"user\": \"me\" }");
           success = 1;
@@ -165,10 +159,10 @@ main (int argc,
           write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
         }
     }
-  else if (strcmp (data, "this is the machine password") == 0)
+  else if (strcmp (data, "this is the machine password") == 0 &&
+           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "") == 0)
     {
-      if (argc == 3 && strcmp (argv[2], "remote-user") == 0 &&
-          strcmp (argv[1], "machine") == 0)
+      if (strcmp (argv[1], "remote-user@machine") == 0)
         {
           write_resp (fd, "{\"user\": \"remote-user\" }");
           success = 1;

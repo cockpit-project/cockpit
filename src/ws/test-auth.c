@@ -626,15 +626,6 @@ static const SuccessFixture fixture_ssh_remote_switched = {
   .cookie_name = "machine-cockpit+machine"
 };
 
-static const SuccessFixture fixture_ssh_local_peer = {
-  .data = NULL,
-  .header = "testscheme ssh-local-peer",
-  .path = "/cockpit+=machine",
-  .application = "cockpit+=machine",
-  .remote_peer = "127.0.0.1",
-  .cookie_name = "machine-cockpit+machine"
-};
-
 static const SuccessFixture fixture_ssh_alt_default = {
   .data = NULL,
   .header = "testsshscheme ssh-alt-default",
@@ -1243,8 +1234,6 @@ main (int argc,
   g_test_add ("/auth/custom-ssh-remote-basic-success", Test, &fixture_ssh_remote_basic,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-remote-switched", Test, &fixture_ssh_remote_switched,
-              setup_normal, test_custom_success, teardown_normal);
-  g_test_add ("/auth/custom-ssh-local-peer", Test, &fixture_ssh_local_peer,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-with-conf-default", Test, &fixture_ssh_alt_default,
               setup_alt_config, test_custom_success, teardown_normal);

@@ -129,43 +129,41 @@
     <div class="panel-default panel">
       <div class="panel-heading">
         <div class="pull-right">
-          <button class="btn btn-default" id="container-details-start">Start</button>
-          <button class="btn btn-default" id="container-details-stop">Stop</button>
-          <button class="btn btn-default" id="container-details-restart">Restart</button>
-          <button class="btn btn-danger" id="container-details-delete">Delete</button>
+          <button class="btn btn-default" id="container-details-start" translate>Start</button>
+          <button class="btn btn-default" id="container-details-stop" translate>Stop</button>
+          <button class="btn btn-default" id="container-details-restart" translate>Restart</button>
+          <button class="btn btn-danger" id="container-details-delete" translate>Delete</button>
           <button class="btn btn-default" id="container-details-commit"
-                  data-toggle="modal" data-target="#container-commit-dialog">
-            Commit
-          </button>
+                  data-toggle="modal" data-target="#container-commit-dialog" translate>Commit</button>
           <div class="spinner" hidden></div>
         </div>
-        Container:
+        <span translate>Container:</span>
         <span id="container-details-names"></span>
       </div>
       <div class="panel-body">
         <table class="info-table-ct">
           <tr>
-            <td>Id:</td>
+            <td translate>Id:</td>
             <td colspan="3" id="container-details-id"></td>
           </tr>
           <tr>
-            <td>Created:</td>
+            <td translate>Created:</td>
             <td colspan="3" id="container-details-created"></td>
           </tr>
           <tr>
-            <td>Image:</td>
+            <td translate>Image:</td>
             <td colspan="3" id="container-details-image"></td>
           </tr>
           <tr>
-            <td>Command:</td>
+            <td translate>Command:</td>
             <td colspan="3" id="container-details-command"></td>
           </tr>
           <tr>
-            <td>State:</td>
+            <td translate>State:</td>
             <td colspan="3" id="container-details-state"></td>
           </tr>
           <tr>
-            <td>Restart Policy:</td>
+            <td translate>Restart Policy:</td>
             <td colspan="3" id="container-details-restart-policy"></td>
           </tr>
           <tr>
@@ -185,11 +183,11 @@
             <td colspan="3" id="container-details-macaddr"></td>
           </tr>
           <tr id="container-details-ports-row" hidden>
-            <td>Ports:</td>
+            <td translate>Ports:</td>
             <td colspan="3" id="container-details-ports"></td>
           </tr>
           <tr id="container-details-links-row" hidden>
-            <td>Links:</td>
+            <td translate>Links:</td>
             <td colspan="3" id="container-details-links"></td>
           </tr>
           <tr>
@@ -200,14 +198,14 @@
             </td>
           </tr>
           <tr id="container-details-memory-row" class="interactive" hidden>
-            <td>Memory usage:</td>
+            <td translate>Memory usage:</td>
             <td colspan="2" id="container-details-memory">
               <div class="bar-row" graph="container-details"></div>
             </td>
             <td class="shrink resource-value" id="container-details-memory-text"></td>
           </tr>
           <tr id="container-details-cpu-row" class="interactive" hidden>
-            <td>CPU usage:</td>
+            <td translate>CPU usage:</td>
             <td colspan="2">
               <span class="cpu-usage"></span>
             </td>
@@ -219,9 +217,7 @@
             <td></td>
             <td>
               <button class="btn btn-default resource-button" data-toggle="modal"
-                      data-target="#container-resources-dialog">
-                Change resource limits
-              </button>
+                      data-target="#container-resources-dialog" translate>Change resource limits</button>
             </td>
           </tr>
         </table>
@@ -244,36 +240,36 @@
       <div class="panel-heading">
         <div class="pull-right" id="image-details-buttons">
           <button class="btn btn-default" id="image-details-run"
-              data-toggle="modal" data-target="#containers_run_image_dialog">Run</button>
-          <button class="btn btn-danger" id="image-details-delete">Delete</button>
+              data-toggle="modal" data-target="#containers_run_image_dialog" translate>Run</button>
+          <button class="btn btn-danger" id="image-details-delete" translate>Delete</button>
           <div class="spinner" hidden></div>
         </div>
-        Image: <span id="image-details-tags"></span>
+        <span translate>Image:</span> <span id="image-details-tags"></span>
       </div>
       <div class="panel-body">
         <table class="info-table-ct">
 	  <tr>
-            <td>Id:</td>
+            <td translate>Id:</td>
             <td id="image-details-id"></td>
           </tr>
 	  <tr>
-            <td>Entrypoint:</td>
+            <td translate>Entrypoint:</td>
             <td id="image-details-entrypoint"></td>
           </tr>
 	  <tr>
-            <td>Command:</td>
+            <td translate>Command:</td>
             <td id="image-details-command"></td>
           </tr>
 	  <tr>
-            <td>Created:</td>
+            <td translate>Created:</td>
             <td id="image-details-created"></td>
           </tr>
 	  <tr>
-            <td>Author:</td>
+            <td translate>Author:</td>
             <td id="image-details-author"></td>
           </tr>
 	  <tr>
-            <td>Ports:</td>
+            <td translate>Ports:</td>
             <td id="image-details-ports"></td>
           </tr>
         </table>
@@ -281,17 +277,15 @@
     </div>
 
     <div class="panel panel-default" id="image-details-containers">
-      <div class="panel-heading">
-        Containers
-      </div>
+      <div class="panel-heading" translate>Containers</div>
       <table class="table table-hover">
         <thead>
           <tr>
-            <th class="container-column-name">Name</th>
-            <th class="container-column-image">Image</th>
-            <th class="container-column-command">Command</th>
-            <th class="container-column-cpu">CPU</th>
-            <th class="container-column-memory-graph">Memory</th>
+            <th class="container-column-name" translate>Name</th>
+            <th class="container-column-image" translate>Image</th>
+            <th class="container-column-command" translate>Command</th>
+            <th class="container-column-cpu" translate>CPU</th>
+            <th class="container-column-memory-graph" translate>Memory</th>
             <th class="container-column-memory-text"></th>
             <th class="container-column-actions cell-buttons"></th>
           </tr>
@@ -307,7 +301,7 @@
   <div id="storage" class="container-fluid" hidden>
     <ol class="breadcrumb">
       <li><a translatable="yes">Containers</a></li>
-      <li class="active">Storage</li>
+      <li class="active" translate>Storage</li>
     </ol>
 
     <div class="blank-slate-pf" id="storage-unsupported" hidden>
@@ -350,13 +344,13 @@
                   <div class="caret"></div>
               </button>
               <ul class="dropdown-menu">
-                  <li><a value="TCP">TCP</a></li>
-                  <li><a value="UDP">UDP</a></li>
+                  <li><a value="TCP" translate>TCP</a></li>
+                  <li><a value="UDP" translate>UDP</a></li>
               </ul>
           </div>
       </div>
       <div class="form-group">
-        <label translatable="yes">{{host_port_label}}</label>
+        <label>{{host_port_label}}</label>
         <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
       </div>
     </form>
@@ -370,7 +364,7 @@
         <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
       </div>
       <div class="form-group">
-        <label translatable="yes">{{host_volume_label}}</label>
+        <label>{{host_volume_label}}</label>
         <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
       </div>
       <div class="form-group">
@@ -400,11 +394,11 @@
       <button type="button" class="btn btn-default fa fa-plus"/>
       <button type="button" class="btn btn-default pficon-close"/>
       <div class="form-group">
-        <label translatable="yes">{{envvar_key_label}}</label>
+        <label>{{envvar_key_label}}</label>
         <input type="text" name="envvar_key" class="form-control" placeholder="{{placeholder}}">
       </div>
       <div class="form-group">
-        <label translatable="yes">{{envvar_value_label}}</label>
+        <label>{{envvar_value_label}}</label>
         <input type="text" name="envvar_value" class="form-control" placeholder="{{placeholder}}">
       </div>
       <div hidden>
@@ -432,7 +426,7 @@
           </div>
       </div>
       <div class="form-group">
-        <label translatable="yes">{{alias_label}}</label>
+        <label>{{alias_label}}</label>
         <input type="text" name="alias" class="form-control" placeholder="{{placeholder}}">
       </div>
     </form>
@@ -444,7 +438,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Run Image</h4>
+          <h4 class="modal-title" translate>Run Image</h4>
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
@@ -515,7 +509,7 @@
               <td colspan="4">
                 <label>
                   <input type="checkbox" name="link-containers" id="link-containers" checked="false"/>
-                  Link to another container
+                  <span translate>Link to another container</span>
                 </label>
                 <div id="select-linked-containers" class="containers-run-inline">
                 </div>
@@ -581,12 +575,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-            Cancel
-          </button>
-          <button class="btn btn-primary" id="containers-run-image-run" translatable="yes">
-            Run
-          </button>
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" id="containers-run-image-run" translatable="yes">Run</button>
         </div>
       </div>
     </div>
@@ -600,7 +590,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Image Search</h4>
+          <h4 class="modal-title" translate>Image Search</h4>
         </div>
         <div class="modal-body">
           <div class="form-group has-feedback">
@@ -619,12 +609,8 @@
         </div>
         <div class="modal-footer">
           <input type="text" id="containers-search-tag" class="form-control" disabled="disabled" placeholder="Tag" />
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-            Cancel
-          </button>
-          <button class="btn btn-default" translatable="yes" disabled="disabled" id="containers-search-download">
-            Download
-          </button>
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-default" translatable="yes" disabled="disabled" id="containers-search-download">Download</button>
         </div>
       </div>
     </div>
@@ -638,7 +624,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Change resources limits</h4>
+          <h4 class="modal-title" translate>Change resources limits</h4>
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
@@ -685,12 +671,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-            Cancel
-          </button>
-          <button class="btn btn-primary" translatable="yes">
-            Change
-          </button>
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" translatable="yes">Change</button>
         </div>
       </div>
     </div>
@@ -704,7 +686,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Commit Image</h4>
+          <h4 class="modal-title" translate>Commit Image</h4>
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
@@ -741,12 +723,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-            Cancel
-          </button>
-          <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
-            Commit
-          </button>
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" data-dismiss="modal">Commit</button>
         </div>
       </div>
     </div>
@@ -766,9 +744,7 @@
           <p id="error-popup-message"></p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" data-dismiss="modal">
-            Close
-          </button>
+          <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
         </div>
       </div>
     </div>
@@ -787,9 +763,7 @@
         <div class="modal-body" id="confirmation-dialog-body">
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">
-            Cancel
-          </button>
+          <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">Cancel</button>
           <button class="btn btn-danger" id="confirmation-dialog-confirm">
           </button>
         </div>

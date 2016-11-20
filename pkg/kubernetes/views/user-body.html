@@ -19,7 +19,7 @@
                     <div ng-if='member.kind == "Project"' class="btn-group bootstrap-select namespace-filter" dropdown>
                         <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
                             <span class="pull-left">
-                                <span ng-if="isRoles(user(), member)" translate>
+                                <span ng-if="isRoles(user(), member)">
                                     {{ getRegistryRoles(user(), member).join() }}
                                 </span>
                             </span>

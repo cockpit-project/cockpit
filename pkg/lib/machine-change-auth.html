@@ -39,9 +39,9 @@
                         </button>
                         <ul class="dropdown-menu">
                             {{#allows_password}}
-                            <li value="password"><a>Type a password</a></li>
+                            <li value="password"><a translate>Type a password</a></li>
                             {{/allows_password}}
-                            <li value="stored"><a>Using available credentials</a></li>
+                            <li value="stored"><a translate>Using available credentials</a></li>
                         </ul>
                     </div>
                 </td>
@@ -55,7 +55,7 @@
                 </td>
                 <td>
                     <a tabindex="0" role="button" data-toggle="popover"
-                        data-trigger="focus" data-placement="bottom"
+                        data-trigger="focus" data-placement="bottom" translate="data-content"
                         data-content="Entering a different password here means you will need to retype it every time you reconnect to this machine">
                         <span class="fa fa-lg fa-info-circle"></span>
                     </a>

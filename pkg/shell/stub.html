@@ -56,7 +56,7 @@
             <a id="machine-color"></a>
             <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
                 aria-haspopup="true" role="button" aria-expanded="false">
-               <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar"><span>Machines</span>
+               <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar"><span translate>Machines</span>
                <b class="caret"></b>
             </a>
             <ul class="dropdown-menu" role="menu" aria-labelledby="machine-link">
@@ -73,24 +73,18 @@
             <h4 class="modal-title" translatable="yes">About Cockpit</h4>
           </div>
           <div class="modal-body">
-            <div translatable="yes">
-              Cockpit is an interactive Linux server admin interface.
-            </div>
-            <div translatable="yes">
-              <a target="_blank" href="http://cockpit-project.org/">Project website</a>
-            </div>
+            <div translae>Cockpit is an interactive Linux server admin interface.</div>
+            <div><a target="_blank" href="http://cockpit-project.org/" translate>Project website</a></div>
             <div>
               <span translatable="yes">Version</span> <span id="about-version"></span>.
             </div>
-            <div translatable="yes">
-              Licensed under the <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
-                  target="_blank">GNU LGPL version 2.1</a>
+            <div><span translate>Licensed under:</span>
+                <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
+                    target="_blank">GNU LGPL version 2.1</a>
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal">
-              Close
-            </button>
+            <button class="btn btn-primary" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -116,12 +110,8 @@
             </select>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" translatable="yes">
-              Cancel
-            </button>
-            <button class="btn btn-primary" id="display-language-select-button" translatable="yes">
-              Select
-            </button>
+            <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
+            <button class="btn btn-primary" id="display-language-select-button" translate>Select</button>
           </div>
         </div>
       </div>
@@ -137,9 +127,7 @@
             <p id="error-popup-message"></p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal" translatable="yes">
-              Close
-            </button>
+            <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
           </div>
         </div>
       </div>
@@ -154,9 +142,7 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a data-toggle="collapse" data-target="#tools-panel" class="collapsed" translatable="yes">
-                Tools
-              </a>
+              <a data-toggle="collapse" data-target="#tools-panel" class="collapsed" translate>Tools</a>
             </h4>
           </div>
           <div id="tools-panel" class="panel-collapse collapse">
@@ -174,7 +160,7 @@
         <div class="spinner spinner-lg" hidden></div>
         <i class="fa fa-exclamation-circle"></i>
       </div>
-      <h1 translatable="yes"></h1>
+      <h1></h1>
       <p></p>
       <div class="blank-slate-pf-main-action">
         <button id="machine-reconnect" class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>

@@ -235,13 +235,13 @@
             $(".realm-active-directory-only").toggle(!server || server == "active-directory");
 
             if (realm && realm.Name && !$(".realms-op-address")[0].placeholder) {
-                $(".realms-op-address")[0].placeholder = cockpit.format(_('e.g. "$0"'), realm.Name);
+                $(".realms-op-address")[0].placeholder = cockpit.format(_("e.g. \"$0\""), realm.Name);
             }
 
             var placeholder = "";
             if (kerberos) {
                 if (kerberos.SuggestedAdministrator)
-                    placeholder = cockpit.format(_('e.g. "$0"'), kerberos.SuggestedAdministrator);
+                    placeholder = cockpit.format(_("e.g. \"$0\""), kerberos.SuggestedAdministrator);
             }
             $(".realms-op-admin")[0].placeholder = placeholder;
 
@@ -270,10 +270,10 @@
             }
 
             list.empty();
-            add_choice('administrator', "password", _('Administrator Password'));
-            add_choice('user', "password", _('User Password'));
-            add_choice(null, "secret", _('One Time Password'));
-            add_choice(null, "automatic", _('Automatic'));
+            add_choice('administrator', "password", _("Administrator Password"));
+            add_choice('user', "password", _("User Password"));
+            add_choice(null, "secret", _("One Time Password"));
+            add_choice(null, "automatic", _("Automatic"));
             $(".realms-authentification-row").toggle(count > 1);
             list.prop('disabled', !!operation).val(!first);
         }

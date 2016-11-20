@@ -64,7 +64,7 @@ var SELinuxEventDetails = React.createClass({
             return (
                 <EmptyState
                     icon={ waiting ? 'waiting' : 'error' }
-                    description={ waiting ? _('Waiting for details...') : _('Unable to get alert details.') }
+                    description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
                     message={null}
                     relative={true}/>
             );
@@ -162,7 +162,7 @@ var SELinuxEventLog = React.createClass({
             return (
                 <EmptyState
                     icon={ waiting ? 'waiting' : 'error' }
-                    description={ waiting ? _('Waiting for details...') : _('Unable to get alert details.') }
+                    description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
                     message={null}
                     relative={true}/>
             );
@@ -251,8 +251,8 @@ var DismissableError = React.createClass({
 var OnOffSwitch = React.createClass({
     getDefaultProps: function() {
         return {
-            captionOff: _('Off'),
-            captionOn: _('On'),
+            captionOff: _("Off"),
+            captionOn: _("On"),
         };
     },
     handleOnOffClick: function(newState, e) {
@@ -417,12 +417,12 @@ var SETroubleshootPage = React.createClass({
                 );
                 var tabRenderers = [
                     {
-                        name: _('Solutions'),
+                        name: _("Solutions"),
                         renderer: SELinuxEventDetails,
                         data: itm,
                     },
                     {
-                        name: _('Audit log'),
+                        name: _("Audit log"),
                         renderer: SELinuxEventLog,
                         data: itm,
                     },

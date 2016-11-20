@@ -27,7 +27,7 @@
 
     var _ = cockpit.gettext;
 
-    var textForUndefined = _('undefined');
+    var textForUndefined = _("undefined");
 
     /* React pattern component for a dropdown/select control
      * Entries should be child components of type SelectEntry (html <a>)

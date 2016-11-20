@@ -44,18 +44,18 @@
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation"><a role="menuitem" tabindex="-1"
-                                data-action="goto-now">Go to now</a></li>
+                                data-action="goto-now" translate >Go to now</a></li>
                             <li role="presentation" class="divider"></li>
                             <li role="presentation"><a role="menuitem" tabindex="-1"
-                                data-range="300">5 minutes</a></li>
+                                data-range="300" translate >5 minutes</a></li>
                             <li role="presentation"><a role="menuitem" tabindex="-1"
-                                data-range="3600">1 hour</a></li>
+                                data-range="3600" translate>1 hour</a></li>
                             <li role="presentation"><a role="menuitem" tabindex="-1"
-                                data-range="21600">6 hours</a></li>
+                                data-range="21600" translate>6 hours</a></li>
                             <li role="presentation"><a role="menuitem" tabindex="-1"
-                                data-range="86400">1 day</a></li>
+                                data-range="86400" translate>1 day</a></li>
                             <li role="presentation"><a role="menuitem" tabindex="-1"
-                                data-range="604800">1 week</a></li>
+                                data-range="604800" translate>1 week</a></li>
                         </ul>
                     </div>
                     <button class="btn btn-default" data-action="zoom-out">
@@ -87,7 +87,7 @@
                             id="dashboard-add" title="Add Server"></button>
                         <button class="btn btn-default fa fa-check"
                             id="dashboard-enable-edit" title="Edit Server"></button>
-                        <span>Servers</span>
+                        <span translate>Servers</span>
                     </div>
                     <div class="list-group">
                     </div>
@@ -117,13 +117,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="error-popup-title">Unexpected error</h4>
+                    <h4 class="modal-title" id="error-popup-title" translate>Unexpected error</h4>
                 </div>
                 <div class="modal-body">
                     <p id="error-popup-message"></p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
                 </div>
             </div>
         </div>
@@ -141,7 +141,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Edit Server</h4>
+                    <h4 class="modal-title" translate>Edit Server</h4>
                 </div>
                 <div class="modal-body">
                 <div>
@@ -161,7 +161,7 @@
                             </td>
                             <td>
                                 <a tabindex="0" role="button" data-toggle="popover"
-                                    data-trigger="focus" data-placement="bottom"
+                                    data-trigger="focus" data-placement="bottom" translate="data-content"
                                     data-content="Leave blank to connect to this machine as the currently logged in user. If you enter a different username, that user will always be used when connecting to this machine.">
                                     <span class="fa fa-lg fa-info-circle"></span>
                                 </a>

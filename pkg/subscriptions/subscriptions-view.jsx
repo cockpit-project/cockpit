@@ -206,7 +206,7 @@ var SubscriptionsPage = React.createClass({
         var entries = this.props.products.map(function(itm) {
             var tabRenderers = [
                 {
-                    name: _('Details'),
+                    name: _("Details"),
                     renderer: SubscriptionProductDetails,
                     data: itm,
                 },

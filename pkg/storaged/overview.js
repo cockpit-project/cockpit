@@ -642,14 +642,14 @@
         }
 
         function iscsi_add_with_creds(discover_vals, login_vals) {
-            dialog.open({ Title: "Authentication required",
+            dialog.open({ Title: _("Authentication required"),
                           Fields: [
                               { TextInput: "username",
-                                Title: "Username",
+                                Title: _("Username"),
                                 Value: discover_vals.username
                               },
                               { PassInput: "password",
-                                Title: "Password",
+                                Title: _("Password"),
                                 Value: discover_vals.password
                               }
                           ],

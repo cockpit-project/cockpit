@@ -154,7 +154,7 @@ client.init = function(capabilitiesChangedCallback) {
             .fail(function(ex) {
                 console.warn("Unable to get alert for id " + localId);
                 console.warn(ex);
-                dfdResult.reject(new Error(_("Unable to get alert") + ": " + localId));
+                dfdResult.reject(new Error(cockpit.format(_("Unable to get alert: $0"), localId)));
             });
         return dfdResult.promise();
     };
@@ -169,7 +169,7 @@ client.init = function(capabilitiesChangedCallback) {
                 dfdResult.resolve(result[0]);
             })
             .fail(function(ex) {
-                dfdResult.reject(new Error(_("Unable to run fix") + ": " + ex));
+                dfdResult.reject(new Error(cockpit.format(_("Unable to run fix: %0"), + ex)));
             });
         return dfdResult.promise();
     };
@@ -184,12 +184,12 @@ client.init = function(capabilitiesChangedCallback) {
                 if (success)
                     dfdResult.resolve();
                 else
-                    dfdResult.reject(new Error(_("Failed to delete alert") + ": " + localId));
+                    dfdResult.reject(new Error(cockpit.format(_("Failed to delete alert: $0"), localId)));
             })
             .fail(function(ex) {
                 console.warn("Unable to delete alert with id " + localId);
                 console.warn(ex);
-                dfdResult.reject(new Error(_("Error while deleting alert") + ": " + localId));
+                dfdResult.reject(new Error(cockpit.format(_("Error while deleting alert: $0"), localId)));
             });
         return dfdResult.promise();
     };

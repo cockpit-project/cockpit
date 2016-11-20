@@ -113,7 +113,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         <dt ng-if="sig.timestamp" translate>When</dt>
                         <dd ng-if="sig.timestamp">{{ sig.timestamp | dateFormat }}</dd>
 
-                        <dt ng-if="sig.fp && sig.fp_name" translate>{{ sig.fp_name }}</dt>
+                        <dt ng-if="sig.fp && sig.fp_name">{{ sig.fp_name }}</dt>
                         <dd ng-if="sig.fp && sig.fp_name">{{ sig.fp }}</dd>
 
                         <dt translate>Status</dt>

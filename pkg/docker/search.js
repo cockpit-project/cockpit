@@ -52,7 +52,7 @@
 
         setup: function() {
             $("#containers-search-image-search").on('keypress', $.proxy(this, "input"));
-            $("#containers-search-image-search").attr( "placeholder", "search by name, namespace or description" );
+            $("#containers-search-image-search").attr( "placeholder", _("search by name, namespace or description"));
             $("#containers-search-download").on('click', $.proxy(this, 'start_download'));
             $('#containers-search-tag').prop('disabled', true);
             $('#containers-search-download').prop('disabled', true);
@@ -146,7 +146,11 @@
                         });
                     } else {
                         // No results
-                        $('#containers-search-image-no-results').html('No results for ' + term + "<br />Please try another term");
+                        $('#containers-search-image-no-results').empty().append(
+                              $("<span>").text(cockpit.format(_("No results for $0"), term)),
+                              $("<br />"),
+                              $("span>").text(_("Please try another term"))
+                        );
                         $('#containers-search-image-no-results').show();
                     }
                 });

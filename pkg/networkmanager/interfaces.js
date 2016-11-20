@@ -2153,8 +2153,7 @@ PageNetworkInterface.prototype = {
             with_checkpoint(
                 self.model,
                 modify,
-                cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, " +
-                                 "and will make the administration UI unavailable."),
+                cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                self.dev_name),
                 cockpit.format(_("Delete $0"), self.dev_name));
         }
@@ -2185,8 +2184,7 @@ PageNetworkInterface.prototype = {
         with_checkpoint(
             self.model,
             modify,
-            cockpit.format(_("Switching on <b>$0</b>  will break the connection to the server, " +
-                             "and will make the administration UI unavailable."),
+            cockpit.format(_("Switching on <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."),
                            self.dev_name),
             cockpit.format(_("Switch on $0"), self.dev_name));
     },
@@ -2210,8 +2208,7 @@ PageNetworkInterface.prototype = {
         with_checkpoint(
             self.model,
             modify,
-            cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, " +
-                             "and will make the administration UI unavailable."),
+            cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."),
                            self.dev_name),
             cockpit.format(_("Switch off $0"), self.dev_name));
     },
@@ -2238,7 +2235,7 @@ PageNetworkInterface.prototype = {
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
             } else
-                desc = cockpit.format(_('Unknown "$0"'), dev.DeviceType);
+                desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
             cs = connection_settings(iface.Connections[0]);
             if (cs.type == "bond")
@@ -2250,7 +2247,7 @@ PageNetworkInterface.prototype = {
             else if (cs.type == "bridge")
                 desc = _("Bridge");
             else if (cs.type)
-                desc = cockpit.format(_('Unknown "$0"'), cs.type);
+                desc = cockpit.format(_("Unknown \"$0\""), cs.type);
             else
                 desc = _("Unknown");
         } else
@@ -2350,15 +2347,15 @@ PageNetworkInterface.prototype = {
                     addrs.push(addr);
                 });
                 if (addrs.length > 0)
-                    parts.push(cockpit.format(addr_is_extra ? "Additional address $val" : "Address $val",
+                    parts.push(cockpit.format(addr_is_extra ? _("Additional address $val") : _("Address $val"),
                                  { val: addrs.join(", ") }));
 
                 var dns_is_extra = (!params["ignore-auto-dns"] && params.method != "manual");
                 if (params.dns.length > 0)
-                    parts.push(cockpit.format(dns_is_extra ? "Additional DNS $val" : "DNS $val",
+                    parts.push(cockpit.format(dns_is_extra ? _("Additional DNS $val") : _("DNS $val"),
                                  { val: params.dns.join(", ") }));
                 if (params.dns_search.length > 0)
-                    parts.push(cockpit.format(dns_is_extra ? "Additional DNS Search Domains $val" : "DNS Search Domains $val",
+                    parts.push(cockpit.format(dns_is_extra ? _("Additional DNS Search Domains $val") : _("DNS Search Domains $val"),
                                  { val: params.dns_search.join(", ") }));
 
                 return parts;
@@ -2759,8 +2756,7 @@ PageNetworkInterface.prototype = {
                                                        return slave_con.activate(iface.Device).
                                                            fail(show_unexpected_error);
                                                    },
-                                                   cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, " +
-                                                                    "and will make the administration UI unavailable."),
+                                                   cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                                                   iface.Name),
                                                    cockpit.format(_("Switch on $0"), iface.Name));
                                            } else if (dev) {
@@ -2770,8 +2766,7 @@ PageNetworkInterface.prototype = {
                                                        return dev.disconnect().
                                                            fail(show_unexpected_error);
                                                    },
-                                                   cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, " +
-                                                                    "and will make the administration UI unavailable."),
+                                                   cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                                                   iface.Name),
                                                    cockpit.format(_("Switch off $0"), iface.Name));
                                            }
@@ -2785,8 +2780,7 @@ PageNetworkInterface.prototype = {
                                                        return slave_con.delete_().
                                                            fail(show_unexpected_error);
                                                    },
-                                                   cockpit.format(_("Removing <b>$0</b> will break the connection to the server, " +
-                                                                    "and will make the administration UI unavailable."),
+                                                   cockpit.format(_("Removing <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                                                   iface.Name),
                                                    cockpit.format(_("Remove $0"), iface.Name));
                                                return false;
@@ -2830,8 +2824,7 @@ PageNetworkInterface.prototype = {
                                                                          cs.type, iface.Name, true).
                                                             fail(show_unexpected_error);
                                                     },
-                                                    cockpit.format(_("Adding <b>$0</b> will break the connection to the server, " +
-                                                                     "and will make the administration UI unavailable."),
+                                                    cockpit.format(_("Adding <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                                                    iface.Name),
                                                     cockpit.format(_("Add $0"), iface.Name));
                                             }));
@@ -2867,8 +2860,7 @@ function with_settings_checkpoint(model, modify) {
     with_checkpoint(
         model,
         modify,
-        _("Changing the settings will break the connection to the server, " +
-          "and will make the administration UI unavailable."),
+        _("Changing the settings will break the connection to the server, and will make the administration UI unavailable."),
         _("Change the settings"));
 }
 
@@ -3839,8 +3831,7 @@ PageNetworkBridgeSettings.prototype = {
             with_checkpoint(
                 PageNetworkBridgeSettings.model,
                 modify,
-                _("Creating this bridge will break the connection to the server, " +
-                  "and will make the administration UI unavailable."),
+                _("Creating this bridge will break the connection to the server, and will make the administration UI unavailable."),
                 _("Create it"));
     }
 
@@ -4061,8 +4052,7 @@ PageNetworkVlanSettings.prototype = {
             with_checkpoint(
                 PageNetworkVlanSettings.model,
                 modify,
-                _("Creating this VLAN will break the connection to the server, " +
-                  "and will make the administration UI unavailable."),
+                _("Creating this VLAN will break the connection to the server, and will make the administration UI unavailable."),
                 _("Create it"));
     }
 

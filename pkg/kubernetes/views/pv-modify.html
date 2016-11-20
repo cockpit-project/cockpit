@@ -58,7 +58,7 @@
                 <td>
                     <label class="inline" ng-repeat="(key, value) in fields.reclaimPolicies">
                         <input id="modify-policy-{{key}}" type="radio" ng-model="fields.policy" value="{{key}}">
-                        <span translate>{{ value }}</span>
+                        <span>{{ value }}</span>
                     </label>
                     <span id="last-policy"></span>
                 </td>
@@ -71,7 +71,7 @@
                 <td>
                     <label class="inline" ng-repeat="(key, value) in fields.accessModes">
                         <input id="modify-access-{{key}}" type="checkbox" ng-model="fields[key]">
-                        <span translate>{{ value }}</span>
+                        <span>{{ value }}</span>
                     </label>
                     <span id="last-access"></span>
                 </td>

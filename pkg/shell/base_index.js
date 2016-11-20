@@ -668,10 +668,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 return;
             oops.children("a").on("click", function() {
                 $("#error-popup-title").text(_("Unexpected error"));
-                var details = _("Cockpit had an unexpected internal error. <br/><br/>") +
-                              _("You can try restarting Cockpit by pressing refresh in your browser. ") +
-                              _("The javascript console contains details about this error ") +
-                              _("(<b>Ctrl-Shift-J</b> in most browsers).");
+                var details = _("Cockpit had an unexpected internal error. <br/><br/>You can try restarting Cockpit by pressing refresh in your browser. The javascript console contains details about this error (<b>Ctrl-Shift-J</b> in most browsers).");
                 $("#error-popup-message").html(details);
                 $('#error-popup').modal('show');
             });

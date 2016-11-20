@@ -13,7 +13,7 @@
                 <td colspan="2" class="header">Replicas</td>
             </tr>
             <tr ng-repeat="item in fields track by item.name" class="adjust-replicas">
-                <td class="top"><label class="control-label" for="{{ item.name }}" translate>{{ item.name }}</label></td>
+                <td class="top"><label class="control-label" for="{{ item.name }}">{{ item.name }}</label></td>
                 <td>
                     <input class="form-control adjust-replica" type="text" id="{{ item.name }}" ng-model="item.replicas">
                 </td>

@@ -427,8 +427,8 @@ $(function() {
                 port_internal_editable = true;
 
             var row = $(Mustache.render(template, {
-                host_port_label: _('to host port'),
-                placeholder: _('none'),
+                host_port_label: _("to host port"),
+                placeholder: _("none"),
             }));
             row.children("button.fa-plus").on('click', add_row);
             if (port_internal_editable) {
@@ -483,8 +483,8 @@ $(function() {
                 volume_internal_editable = true;
 
             var row = $(Mustache.render(template, {
-                host_volume_label: _('to host path'),
-                placeholder: _('none')
+                host_volume_label: _("to host path"),
+                placeholder: _("none")
             }));
             row.children("button.fa-plus").on('click', add_row);
             if (volume_internal_editable) {
@@ -536,9 +536,9 @@ $(function() {
                 envvar_internal_editable = true;
 
             var row = $(Mustache.render(template, {
-                envvar_key_label: _('key'),
-                envvar_value_label: _('value'),
-                placeholder: _('none')
+                envvar_key_label: _("key"),
+                envvar_value_label: _("value"),
+                placeholder: _("none")
             }));
             row.children("button.fa-plus").on('click', add_row);
             if (envvar_internal_editable) {
@@ -584,8 +584,8 @@ $(function() {
         function render(containers) {
             var row = $(Mustache.render(template, {
                 containers: container_names,
-                alias_label: _('alias'),
-                placeholder: _('none')
+                alias_label: _("alias"),
+                placeholder: _("none")
             }));
             row.children("button.fa-plus").on('click', add_row);
             row.children("button.pficon-close").on('click', remove_row);

@@ -24,12 +24,14 @@ import { canReset, canShutdown, canRun, rephraseUI, logDebug, toGigaBytes } from
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
+const _ = cockpit.gettext;
+
 const NoVm = () => {
     return (<div className="cockpit-log-warning">
         <div className="blank-slate-pf">
             <div className="blank-slate-pf-icon">
                 <i className="pficon pficon-virtual-machine"></i>
-                <h1>No VM is running or defined on this host</h1>
+                <h1>{ _("No VM is running or defined on this host") }</h1>
             </div>
         </div>
     </div>);
@@ -38,11 +40,11 @@ const NoVm = () => {
 const VmActions = ({ vmId, state, onStart, onReboot, onForceReboot, onShutdown, onForceoff }) => {
     const reset = canReset(state) ? DropdownButtons({
         buttons: [{
-            title: 'Restart',
+            title: _("Restart"),
             action: onReboot,
             id: `${vmId}-reboot`
         }, {
-            title: 'Force Restart',
+            title: _("Force Restart"),
             action: onForceReboot,
             id: `${vmId}-forceReboot`
         }]
@@ -50,17 +52,17 @@ const VmActions = ({ vmId, state, onStart, onReboot, onForceReboot, onShutdown, 
 
     const shutdown = canShutdown(state) ? DropdownButtons({
         buttons: [{
-            title: 'Shut Down',
+            title: _("Shut Down"),
             action: onShutdown,
             id: `${vmId}-off`
         }, {
-            title: 'Force Shut Down',
+            title: _("Force Shut Down"),
             action: onForceoff,
             id: `${vmId}-forceOff`
         }]
     }) : '';
 
-    const run = canRun(state) ? (<button className="btn btn-default btn-danger" onClick={onStart}>Run</button>) : '';
+    const run = canRun(state) ? (<button className="btn btn-default btn-danger" onClick={onStart}>{_("Run")}</button>) : '';
 
     return (<div>
         {reset}
@@ -93,25 +95,25 @@ IconElement.propTypes = {
 const StateIcon = ({ state }) => {
     switch (state) {
         case 'running':// TODO: display VM screenshot if available or the ok-icon otherwise
-            return (<IconElement state={state} className='pficon pficon-ok icon-1x-vms' title='The VM is running.'/>);
+            return (<IconElement state={state} className='pficon pficon-ok icon-1x-vms' title={_("The VM is running.")}/>);
         case 'idle':
-            return (<IconElement state={state} className='pficon pficon-running icon-1x-vms' title='The VM is idle.'/>);
+            return (<IconElement state={state} className='pficon pficon-running icon-1x-vms' title={_("The VM is idle.")}/>);
         case 'paused':
-            return (<IconElement state={state} className='pficon pficon-pause icon-1x-vms' title='The VM is paused.'/>);
+            return (<IconElement state={state} className='pficon pficon-pause icon-1x-vms' title={_("The VM is paused.")}/>);
         case 'shutdown':
             return (<IconElement state={state} className='glyphicon glyphicon-wrench icon-1x-vms'
-                                 title='The VM is going down.'/>);
+                                 title={_("The VM is going down.")}/>);
         case 'shut off':
-            return (<IconElement state={state} className='fa fa-arrow-circle-o-down icon-1x-vms' title='The VM is down.'/>);
+            return (<IconElement state={state} className='fa fa-arrow-circle-o-down icon-1x-vms' title={_("The VM is down.")}/>);
         case 'crashed':
             return (<IconElement state={state} className='pficon pficon-error-circle-o icon-1x-vms'
-                                 title='The VM crashed.'/>);
+                                 title={_("The VM crashed.")}/>);
         case 'dying':
             return (<IconElement state={state} className='pficon pficon-warning-triangle-o icon-1x-vms'
-                                 title='The VM is in process of dying (shut down or crash is not completed).'/>);
+                                 title={_("The VM is in process of dying (shut down or crash is not completed).")}/>);
         case 'pmsuspended':
             return (<IconElement state={state} className='pficon pficon-ok icon-1x-vms'
-                                 title='The VM is suspended by guest power management.'/>);
+                                 title={_("The VM is suspended by guest power management.")}/>);
         case undefined:
             return (<div/>);
         default:
@@ -186,17 +188,17 @@ const VmOverviewTab = ({ vm }) => {
             <td>
                 <table className='form-table-ct'>
                     <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr='State:' value={vm.state}/>
-                    <VmOverviewTabRecord descr='Memory:'
+                    <VmOverviewTabRecord descr={_("Memory:")}
                                          value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
-                    <VmOverviewTabRecord descr='vCPUs:' value={vm.vcpus}/>
+                    <VmOverviewTabRecord descr={_("vCPUs:")} value={vm.vcpus}/>
                 </table>
             </td>
 
             <td>
                 <table className='form-table-ct'>
-                    <VmOverviewTabRecord descr='ID:' value={vm.id}/>
-                    <VmOverviewTabRecord descr='OS Type:' value={vm.osType}/>
-                    <VmOverviewTabRecord descr='Autostart:' value={rephraseUI('autostart', vm.autostart)}/>
+                    <VmOverviewTabRecord descr={_("ID:")} value={vm.id}/>
+                    <VmOverviewTabRecord descr={_("OS Type:")} value={vm.osType}/>
+                    <VmOverviewTabRecord descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
                 </table>
             </td>
         </tr>
@@ -224,8 +226,8 @@ const VmUsageTab = ({ vm }) => {
 
     const memChartData = {
         columns: [
-            ["Used", toGigaBytes(rssMem, 'KiB')],
-            ["Available", toGigaBytes(available, 'KiB')]
+            [_("Used"), toGigaBytes(rssMem, 'KiB')],
+            [_("Available"), toGigaBytes(available, 'KiB')]
         ],
         groups: [
             ["used", "available"]
@@ -235,8 +237,8 @@ const VmUsageTab = ({ vm }) => {
 
     const cpuChartData = {
         columns: [
-            ["Used", cpuUsage],
-            ["Available", 100.0 - cpuUsage]
+            [_("Used"), cpuUsage],
+            [_("Available"), 100.0 - cpuUsage]
         ],
         groups: [
             ["used", "available"]
@@ -277,8 +279,8 @@ const Vm = ({ vm, onStart, onShutdown, onForceoff, onReboot, onForceReboot }) =>
     const stateIcon = (<StateIcon state={vm.state} />);
     return (<ListingRow
         columns={[{name: vm.name, 'header': true}, stateIcon]}
-        tabRenderers={[ {name: 'Overview', renderer: VmOverviewTab, data: {vm: vm}},
-            {name: 'Usage', renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' } ]}
+        tabRenderers={[ {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
+            {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' } ]}
         listingActions={VmActions({vmId: vmId(vm.name), state: vm.state,
             onStart, onReboot, onForceReboot, onShutdown, onForceoff})}/>);
 };
@@ -302,7 +304,7 @@ const HostVmsList = ({ vms, dispatch }) => {
     }
 
     return (<div className='container-fluid'>
-        <Listing title='Virtual Machines' columnTitles={['Name', 'State']}>
+        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("State")]}>
             {vms.map(vm => {
                 return (
                     <Vm vm={vm} onStart={() => dispatch(startVm(vm.name))} onReboot={() => dispatch(rebootVm(vm.name))}

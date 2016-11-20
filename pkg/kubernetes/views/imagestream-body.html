@@ -11,28 +11,22 @@
     <dt translate>Access Policy</dt>
     <dd>
       <div ng-if="sharedImages(stream.metadata.namespace) == 'anonymous'" >
-        <a translate ng-href="#/projects/{{ stream.metadata.namespace }}">
-          Images may be pulled by anonymous users
-        </a>
+        <a translate ng-href="#/projects/{{ stream.metadata.namespace }}">Images may be pulled by anonymous users</a>
         <i title="Images accessible to anonymous users" class="fa fa-unlock imagestream-lock"></i>
       </div>
       <div ng-if="sharedImages(stream.metadata.namespace) == 'shared'" >
-        <a translate ng-href="#/projects/{{ stream.metadata.namespace }}">
-          Images may be pulled by any authenticated user or group
-        </a>
+        <a translate ng-href="#/projects/{{ stream.metadata.namespace }}">Images may be pulled by any authenticated user or group</a>
         <i title="Images accessible to authenticated users" class="fa fa-lock imagestream-lock"></i>
       </div>
       <div ng-if="!sharedImages(stream.metadata.namespace) == 'private'">
-        <a translate ng-href="#/projects/{{ stream.metadata.namespace }}">
-          Images may only be pulled by specific users or groups
-        </a>
+        <a translate ng-href="#/projects/{{ stream.metadata.namespace }}">Images may only be pulled by specific users or groups</a>
         <i title="Images only accessible to members" class="fa fa-lock imagestream-lock"></i>
       </div>
     <dt translate>Pull repository</dt>
     <dd ng-if="stream.spec.dockerImageRepository"><tt>{{stream.spec.dockerImageRepository}}</tt></dd>
     <dd ng-if="!stream.spec.dockerImageRepository"><em translate>None</em></dd>
     <dt translate>Image count</dt>
-    <dd translate>{{stream.status.tags.length}}</dd>
+    <dd>{{stream.status.tags.length}}</dd>
 </dl>
 <p>
     <i class="fa fa-info-circle"></i>

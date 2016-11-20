@@ -211,21 +211,21 @@
             var _ = translate.gettext;
             var names = {
                 'services': {
-                    'name' : _('Services')
+                    'name' : _("Services")
                 },
                 'routes': {
-                    'name' : _('Routes'),
+                    'name' : _("Routes"),
                     'flavor': "openshift"
                 },
                 'deploymentconfigs': {
-                    'name': _('Deployment Configs'),
+                    'name': _("Deployment Configs"),
                     'flavor': "openshift"
                 },
                 'replicationcontrollers': {
-                     'name' : _('Replication Controllers')
+                     'name' : _("Replication Controllers")
                 },
                 'pods': {
-                    'name' : _('Pods')
+                    'name' : _("Pods")
                 }
             };
 

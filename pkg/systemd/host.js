@@ -794,8 +794,8 @@ PageSystemInformationChangeHostname.prototype = {
         var valid = false;
         var can_apply = false;
 
-        var charError = "Real host name can only contain lower-case characters, digits, dashes, and periods (with populated subdomains)";
-        var lengthError = "Real host name must be 64 characters or less";
+        var charError = _("Real host name can only contain lower-case characters, digits, dashes, and periods (with populated subdomains)");
+        var lengthError = _("Real host name must be 64 characters or less");
 
         var validLength = $("#sich-hostname").val().length <= 64;
         var hostname = $("#sich-hostname").val();
@@ -1398,11 +1398,11 @@ PageMemoryStatus.prototype = {
                     }
                    },
             xaxis: {show: true,
-                    ticks: [[0.0*60, "5 min"],
-                            [1.0*60, "4 min"],
-                            [2.0*60, "3 min"],
-                            [3.0*60, "2 min"],
-                            [4.0*60, "1 min"]]},
+                    ticks: [[0.0 * 60, _("5 min")],
+                            [1.0 * 60, _("4 min")],
+                            [2.0 * 60, _("3 min")],
+                            [3.0 * 60, _("2 min")],
+                            [4.0 * 60, _("1 min")]]},
             x_rh_stack_graphs: true
         };
 

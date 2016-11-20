@@ -284,19 +284,20 @@
         };
     }
 
-    var month_names = [         'January',
-                                'February',
-                                'March',
-                                'April',
-                                'May',
-                                'June',
-                                'July',
-                                'August',
-                                'September',
-                                'October',
-                                'November',
-                                'December'
-                              ];
+    var month_names = [
+        C_("month-name", 'January'),
+        C_("month-name", 'February'),
+        C_("month-name", 'March'),
+        C_("month-name", 'April'),
+        C_("month-name", 'May'),
+        C_("month-name", 'June'),
+        C_("month-name", 'July'),
+        C_("month-name", 'August'),
+        C_("month-name", 'September'),
+        C_("month-name", 'October'),
+        C_("month-name", 'November'),
+        C_("month-name", 'December')
+    ];
 
     /* Render the journal entries by passing suitable HTML strings back to
        the caller via the 'output_funcs'.
@@ -388,7 +389,7 @@
             return {
                 cursor: journal_entry["__CURSOR"],
                 full: journal_entry,
-                day: C_("month-name", month_names[d.getMonth()]) + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed(),
+                day: month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed(),
                 time: pad(d.getHours()) + ':' + pad(d.getMinutes()),
                 bootid: journal_entry["_BOOT_ID"],
                 ident: journal_entry["SYSLOG_IDENTIFIER"] || journal_entry["_COMM"],

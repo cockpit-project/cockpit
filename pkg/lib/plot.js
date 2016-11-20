@@ -682,7 +682,20 @@ plotter.memory_ticks = function memory_ticks(opts) {
     return ticks;
 };
 
-var month_names = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+var month_names = [
+    C_("month-name", 'Jan'),
+    C_("month-name", 'Feb'),
+    C_("month-name", 'Mar'),
+    C_("month-name", 'Apr'),
+    C_("month-name", 'May'),
+    C_("month-name", 'Jun'),
+    C_("month-name", 'Jul'),
+    C_("month-name", 'Aug'),
+    C_("month-name", 'Sep'),
+    C_("month-name", 'Oct'),
+    C_("month-name", 'Nov'),
+    C_("month-name", 'Dec')
+];
 
 plotter.format_date_tick = function format_date_tick(val, axis) {
     function pad(n) {
@@ -744,7 +757,7 @@ plotter.format_date_tick = function format_date_tick(val, axis) {
     if (year_index >= begin && year_index <= end)
         label += d.getFullYear().toFixed() + " ";
     if (month_index >= begin && month_index <= end)
-        label += C_("month-name", month_names[d.getMonth()]) + " ";
+        label += month_names[d.getMonth()] + " ";
     if (day_index >= begin && day_index <= end)
         label += d.getDate().toFixed() + " ";
     if (hour_minute_index >= begin && hour_minute_index <= end)
@@ -863,21 +876,26 @@ plotter.setup_plot_controls = function setup_plot_controls(container, element, p
     }
 
     function format_range(seconds) {
-        function fmt(sing, plur, n) {
-            return cockpit.format(cockpit.ngettext(sing, plur, n), n);
+        var n;
+        if (seconds >= 365*24*60*60) {
+            n = Math.ceil(seconds / (365*24*60*60));
+            return cockpit.format(cockpit.ngettext("$0 year", "$0 years", n), n);
+        } else if (seconds >= 30*24*60*60) {
+            n = Math.ceil(seconds / (30*24*60*60));
+            return cockpit.format(cockpit.ngettext("$0 month", "$0 months", n), n);
+        } else if (seconds >= 7*24*60*60) {
+            n = Math.ceil(seconds / (7*24*60*60));
+            return cockpit.format(cockpit.ngettext("$0 week", "$0 weeks", n), n);
+        } else if (seconds >= 24*60*60) {
+            n = Math.ceil(seconds / (24*60*60));
+            return cockpit.format(cockpit.ngettext("$0 day", "$0 days", n), n);
+        } else if (seconds >= 60*60) {
+            n = Math.ceil(seconds / (60*60));
+            return cockpit.format(cockpit.ngettext("$0 hour", "$0 hours", n), n);
+        } else {
+            n = Math.ceil(seconds / 60);
+            return cockpit.format(cockpit.ngettext("$0 minute", "$0 minutes", n), n);
         }
-        if (seconds >= 365*24*60*60)
-            return fmt("$0 year", "$0 years", Math.ceil(seconds / (365*24*60*60)));
-        else if (seconds >= 30*24*60*60)
-            return fmt("$0 month", "$0 months", Math.ceil(seconds / (30*24*60*60)));
-        else if (seconds >= 7*24*60*60)
-            return fmt("$0 week", "$0 weeks", Math.ceil(seconds / (7*24*60*60)));
-        else if (seconds >= 24*60*60)
-            return fmt("$0 day", "$0 days", Math.ceil(seconds / (24*60*60)));
-        else if (seconds >= 60*60)
-            return fmt("$0 hour", "$0 hours", Math.ceil(seconds / (60*60)));
-        else
-            return fmt("$0 minute", "$0 minutes", Math.ceil(seconds / 60));
     }
 
     function update_plot_buttons() {

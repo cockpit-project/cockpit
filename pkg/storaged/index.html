@@ -48,9 +48,7 @@
       <span class="pficon pficon-error-circle-o"></span>
       <button id="activate-multipath" translatable="yes"
               class="btn btn-default pull-right">Start Multipath</button>
-      <span class="alert-message" translatable="yes">
-        There are devices with multiple paths on the system, but the multipath service is not running.
-      </span>
+      <span class="alert-message" translatable="yes">There are devices with multiple paths on the system, but the multipath service is not running.</span>
     </div>
   </div>
 
@@ -144,7 +142,7 @@
           <td class="row">
             <span class="col-md-12">{{Name}}</span>
             <br>
-            <span class="col-md-12 col-lg-5" translatable="yes">{{Address}}:{{Port}}</span>
+            <span class="col-md-12 col-lg-5">{{Address}}:{{Port}}</span>
           </td>
           <td class="storage-icon">
             <button class="btn btn-danger pficon pficon-delete btn-delete needs-arming"
@@ -703,9 +701,7 @@
           <p id="error-popup-message"></p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" data-dismiss="modal">
-            Close
-          </button>
+          <button class="btn btn-default" data-dismiss="modal" translate>Close</button>
         </div>
       </div>
     </div>
@@ -766,7 +762,7 @@
                             <div class="btn-group bootstrap-select dropdown form-control size-unit">
                               <button class="btn btn-default dropdown-toggle" type="button"
                                       data-toggle="dropdown">
-                                <span class="pull-left" translatable="yes"></span>
+                                <span class="pull-left"></span>
                                 <span class="caret"></span>
                               </button>
                               <ul class="dropdown-menu">
@@ -798,7 +794,7 @@
                   <div class="btn-group bootstrap-select dropdown form-control" data-field={{.}}>
                     <button class="btn btn-default dropdown-toggle" type="button"
                             data-toggle="dropdown">
-                      <span class="pull-left" translatable="yes"></span>
+                      <span class="pull-left"></span>
                       <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
@@ -859,9 +855,7 @@
             {{#Action}}
             {{#Danger}}<div class="modal-footer-danger">{{.}}</div>{{/Danger}}
             <div class="spinner spinner-sm pull-left" hidden></div>
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-              Cancel
-            </button>
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
             <button class="btn {{#Danger}}btn-danger{{/Danger}}{{^Danger}}btn-primary{{/Danger}}"
                     data-action="apply">{{Title}}</button>
             {{/Action}}

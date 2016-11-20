@@ -102,12 +102,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <h1 ng-if="curtains.status" translate>Couldn't connect to server</h1>
         <p ng-if="curtains.message">{{curtains.message}}</p>
         <div class="blank-slate-pf-main-action" ng-if="curtains.status">
-            <button id="kubernetes-reconnect" class="btn btn-primary btn-lg" translate ng-click="reconnect()">
-                Reconnect
-            </button>
-            <button id="kubernetes-connection-tb" class="btn btn-primary btn-lg" translate ng-click="changeAuth(curtains.resp)">
-                Troubleshoot
-            </button>
+            <button id="kubernetes-reconnect" class="btn btn-primary btn-lg" translate ng-click="reconnect()">Reconnect</button>
+            <button id="kubernetes-connection-tb" class="btn btn-primary btn-lg" translate ng-click="changeAuth(curtains.resp)">Troubleshoot</button>
         </div>
     </div>
 </body>

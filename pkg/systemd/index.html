@@ -61,7 +61,7 @@
       {{^Server}}
       <div translatable="yes">Not synchronized</div>
       {{#service}}
-      <a data-goto-service="{{.}}" class="small-messages">Log messages</a>
+      <a data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
       {{/service}}
       {{/Server}}
       {{/Synched}}
@@ -170,18 +170,18 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li role="presentation"><a role="menuitem" tabindex="-1"
-                            data-action="goto-now">Go to now</a></li>
+                            data-action="goto-now" translate>Go to now</a></li>
                         <li role="presentation" class="divider"></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1"
-                            data-range="300">5 minutes</a></li>
+                            data-range="300" translate>5 minutes</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1"
-                            data-range="3600">1 hour</a></li>
+                            data-range="3600" translate>1 hour</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1"
-                            data-range="21600">6 hours</a></li>
+                            data-range="21600" translate>6 hours</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1"
-                            data-range="86400">1 day</a></li>
+                            data-range="86400" translate>1 day</a></li>
                         <li role="presentation"><a role="menuitem" tabindex="-1"
-                            data-range="604800">1 week</a></li>
+                            data-range="604800" translate>1 week</a></li>
                     </ul>
                 </div>
                 <button class="btn btn-default" data-action="zoom-out">
@@ -193,22 +193,22 @@
                 </div>
             </div>
             <div>
-              <span class="plot-unit" id="server_cpu_unit">%</span><a id="link-cpu">CPU</a>
+              <span class="plot-unit" id="server_cpu_unit">%</span><a id="link-cpu" translate>CPU</a>
             </div>
             <div id="server_cpu_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
-              <span class="plot-unit" id="server_memory_unit"></span><a id="link-memory">Memory</a>
+              <span class="plot-unit" id="server_memory_unit"></span><a id="link-memory" translate>Memory</a>
             </div>
             <div id="server_memory_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
-              <span class="plot-unit" id="server_disk_io_unit"></span><a id="link-disk">Disk I/O</a>
+              <span class="plot-unit" id="server_disk_io_unit"></span><a id="link-disk" translate>Disk I/O</a>
             </div>
             <div id="server_disk_io_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
-              <span class="plot-unit" id="server_network_traffic_unit"></span><a id="link-network">Network Traffic</a>
+              <span class="plot-unit" id="server_network_traffic_unit"></span><a id="link-network" translate>Network Traffic</a>
             </div>
             <div id="server_network_traffic_graph" class="server-graph zoomable-plot"></div>
         </div>
@@ -262,13 +262,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="error-popup-title">Unexpected error</h4>
+                    <h4 class="modal-title" id="error-popup-title" translate>Unexpected error</h4>
                 </div>
                 <div class="modal-body">
                     <p id="error-popup-message"></p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
                 </div>
             </div>
         </div>
@@ -290,7 +290,7 @@
                     <div class="content" hidden></div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button class="btn btn-default" data-dismiss="modal" translate>Close</button>
                 </div>
             </div>
         </div>
@@ -301,7 +301,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Change Host Name</h4>
+                    <h4 class="modal-title" translate>Change Host Name</h4>
                 </div>
                 <div class="modal-body">
                     <table class="form-table-ct">
@@ -344,8 +344,8 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-primary" id="sich-apply-button">Change</button>
+                    <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
+                    <button class="btn btn-primary" id="sich-apply-button" translate>Change</button>
                 </div>
             </div>
         </div>
@@ -370,7 +370,7 @@
         <div class="modal-dialog cockpit-modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Change System Time</h4>
+                    <h4 class="modal-title" translate>Change System Time</h4>
                 </div>
                 <div class="modal-body">
                     <table class="form-table-ct">
@@ -386,9 +386,7 @@
                         <tr>
                             <td></td>
                             <td class="has-error">
-                                <span id="systime-timezone-error" class="help-block" translatable="yes">
-                                    Invalid time zone
-                                </span>
+                                <span id="systime-timezone-error" class="help-block" translatable="yes">Invalid time zone</span>
                             </td>
                         </tr>
                         <tr>
@@ -433,8 +431,8 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-primary" id="systime-apply-button">Change</button>
+                    <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
+                    <button class="btn btn-primary" id="systime-apply-button" translate>Change</button>
                 </div>
             </div>
         </div>
@@ -485,11 +483,8 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" translatable="yes" data-dismiss="modal">
-                        Cancel
-                    </button>
-                    <button class="btn btn-danger">
-                    </button>
+                    <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger"></button>
                 </div>
             </div>
         </div>
@@ -504,9 +499,7 @@
                 <div class="modal-body" id="confirmation-dialog-body">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">
-                        Cancel
-                    </button>
+                    <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">Cancel</button>
                     <button class="btn btn-danger" id="confirmation-dialog-confirm">
                     </button>
                 </div>

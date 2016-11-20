@@ -703,7 +703,7 @@
                 if (!lvol)
                     return;
 
-                dialog.open({ Title: _("Renamee Logical Volume"),
+                dialog.open({ Title: _("Rename Logical Volume"),
                               Fields: [
                                   { TextInput: "name",
                                     Title: _("Name"),

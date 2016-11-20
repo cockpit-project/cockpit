@@ -97,14 +97,14 @@ var ContainerHeader = React.createClass({
         return (
             <div>
                 <Select.Select id="containers-containers-filter" initial="running" onChange={this.handleFilterChange}>
-                    <Select.SelectEntry data='all'>{_('Everything')}</Select.SelectEntry>
-                    <Select.SelectEntry data='running'>{_('Images and running containers')}</Select.SelectEntry>
+                    <Select.SelectEntry data='all'>{_("Everything")}</Select.SelectEntry>
+                    <Select.SelectEntry data='running'>{_("Images and running containers")}</Select.SelectEntry>
                 </Select.Select>
                 <input type="text"
                        id="containers-filter"
                        ref="filterTextInput"
                        className="form-control"
-                       placeholder={_('Type to filter…')}
+                       placeholder={_("Type to filter…")}
                        onChange={this.handleFilterTextChange} />
             </div>
         );
@@ -117,11 +117,11 @@ var ContainerDetails = React.createClass({
         return (
             <div className='listing-body'>
                 <dl>
-                    <dt>{_('Id')}      </dt> <dd>{ container.Id }</dd>
-                    <dt>{_('Created')} </dt> <dd>{ container.Created }</dd>
-                    <dt>{_('Image')}   </dt> <dd>{ container.Image }</dd>
-                    <dt>{_('Commmand')}</dt> <dd>{ util.render_container_cmdline(container) }</dd>
-                    <dt>{_('State')}   </dt> <dd>{ util.render_container_state(container.State) }</dd>
+                    <dt>{_("Id")}      </dt> <dd>{ container.Id }</dd>
+                    <dt>{_("Created")} </dt> <dd>{ container.Created }</dd>
+                    <dt>{_("Image")}   </dt> <dd>{ container.Image }</dd>
+                    <dt>{_("Commmand")}</dt> <dd>{ util.render_container_cmdline(container) }</dd>
+                    <dt>{_("State")}   </dt> <dd>{ util.render_container_state(container.State) }</dd>
                 </dl>
             </div>
         );
@@ -219,12 +219,12 @@ var ContainerList = React.createClass({
 
             var startStopActions = [];
             if (isRunning)
-                startStopActions.push({ label: _('Stop'), onActivate: this.stopContainer.bind(this, container) });
+                startStopActions.push({ label: _("Stop"), onActivate: this.stopContainer.bind(this, container) });
             else
-                startStopActions.push({ label: _('Start'), onActivate: this.startContainer.bind(this, container) });
+                startStopActions.push({ label: _("Start"), onActivate: this.startContainer.bind(this, container) });
 
             startStopActions.push({
-                label: _('Restart'),
+                label: _("Restart"),
                 onActivate: this.restartContainer.bind(this, container),
                 disabled: !isRunning
             });
@@ -243,7 +243,7 @@ var ContainerList = React.createClass({
 
             var tabs = [
                 {
-                    name: _('Details'),
+                    name: _("Details"),
                     renderer: ContainerDetails,
                     data: { container: container }
                 }
@@ -256,23 +256,23 @@ var ContainerList = React.createClass({
                                        listingActions={actions}/>;
         }, this);
 
-        var columnTitles =  [ _('Name'), _('Image'), _('Command'), _('CPU'), _('Memory'), _('State')];
+        var columnTitles =  [ _("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
 
         var emptyCaption;
         if (this.props.onlyShowRunning) {
             if (this.props.filterText === '')
-                emptyCaption = _('No running containers');
+                emptyCaption = _("No running containers");
             else
-                emptyCaption = _('No running containers that match the current filter');
+                emptyCaption = _("No running containers that match the current filter");
         } else {
             if (this.props.filterText === '')
-                emptyCaption = _('No containers');
+                emptyCaption = _("No containers");
             else
-                emptyCaption = _('No containers that match the current filter');
+                emptyCaption = _("No containers that match the current filter");
         }
 
         return (
-            <Listing.Listing title={_('Containers')} columnTitles={columnTitles} emptyCaption={emptyCaption}>
+            <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
                 {rows}
             </Listing.Listing>
         );
@@ -340,8 +340,8 @@ var ImageList = React.createClass({
         if (event.button !== 0)
             return;
 
-        util.confirm(cockpit.format(_('Delete $0'), image.RepoTags[0]),
-                     _('Are you sure you want to delete this image?'), _('Delete')).
+        util.confirm(cockpit.format(_("Delete $0"), image.RepoTags[0]),
+                     _("Are you sure you want to delete this image?"), _("Delete")).
             done(function () {
                 this.props.client.rmi(image.Id).
                     fail(function(ex) {
@@ -402,7 +402,7 @@ var ImageList = React.createClass({
 
             var tabs = [
                 {
-                    name: _('Details'),
+                    name: _("Details"),
                     renderer: ImageDetails,
                     data: { image: image }
                 }
@@ -424,7 +424,7 @@ var ImageList = React.createClass({
                                     <span className="pficon pficon-add-circle-o"></span>Get new image
                                 </a>;
 
-        var columnTitles = [ _('Name'), _('Created'), _('Size'), '' ];
+        var columnTitles = [ _("Name"), _("Created"), _("Size"), '' ];
 
         var pendingRows = this.state.pulling.map(function (job) {
             if (job.error)
@@ -446,13 +446,13 @@ var ImageList = React.createClass({
 
         var emptyCaption;
         if (this.props.filterText === '')
-            emptyCaption = _('No images');
+            emptyCaption = _("No images");
         else
-            emptyCaption = _('No images that match the current filter');
+            emptyCaption = _("No images that match the current filter");
 
         return (
             <div>
-                <Listing.Listing title={_('Images')}
+                <Listing.Listing title={_("Images")}
                                  columnTitles={columnTitles}
                                  emptyCaption={emptyCaption}
                                  actions={getNewImageAction}>

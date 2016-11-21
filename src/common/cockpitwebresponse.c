@@ -29,6 +29,7 @@
 #include "cockpitwebfilter.h"
 
 #include "common/cockpiterror.h"
+#include "common/cockpitlocale.h"
 #include "common/cockpittemplate.h"
 
 #include <errno.h>
@@ -1451,28 +1452,6 @@ load_file (const gchar *filename,
   return bytes;
 }
 
-static gchar *
-language_to_locale (const gchar *value) {
-  const gchar *spot = strchr (value, '-');
-  gchar *country = NULL;
-  gchar *lang = NULL;
-  gchar *result = NULL;
-  if (spot)
-    {
-      country = g_ascii_strup (spot + 1, -1);
-      lang = g_ascii_strdown (value, spot - value);
-      result = g_strconcat (lang, "_", country, NULL);
-    }
-  else
-    {
-      result = g_strdup (value);
-    }
-
-  g_free (country);
-  g_free (lang);
-  return result;
-}
-
 /**
  * cockpit_web_response_negotiation:
  * @path: likely filesystem path
@@ -1502,10 +1481,11 @@ cockpit_web_response_negotiation (const gchar *path,
   GBytes *bytes = NULL;
   GError *local_error = NULL;
   gchar *locale = NULL;
+  gchar *shorter = NULL;
   gint i;
 
   if (language)
-      locale = language_to_locale (language);
+      locale = cockpit_locale_from_language (language, NULL, &shorter);
 
   ext = find_extension (path);
   if (ext)
@@ -1520,31 +1500,39 @@ cockpit_web_response_negotiation (const gchar *path,
 
   while (!bytes)
     {
-      if (locale)
+      if (locale && shorter)
         i = 0;
-      else
+      else if (locale)
         i = 2;
-      for (; i < 6; i++)
+      else
+        i = 4;
+      for (; i < 8; i++)
         {
           g_free (name);
           switch (i)
             {
             case 0:
-              name = g_strconcat (base, ".", locale, ext, NULL);
+              name = g_strconcat (base, ".", shorter, ext, NULL);
               break;
             case 1:
-              name = g_strconcat (base, ".", locale, ext, ".gz", NULL);
+              name = g_strconcat (base, ".", shorter, ext, ".gz", NULL);
               break;
             case 2:
-              name = g_strconcat (base, ext, NULL);
+              name = g_strconcat (base, ".", locale, ext, NULL);
               break;
             case 3:
-              name = g_strconcat (base, ".min", ext, NULL);
+              name = g_strconcat (base, ".", locale, ext, ".gz", NULL);
               break;
             case 4:
-              name = g_strconcat (base, ext, ".gz", NULL);
+              name = g_strconcat (base, ext, NULL);
               break;
             case 5:
+              name = g_strconcat (base, ".min", ext, NULL);
+              break;
+            case 6:
+              name = g_strconcat (base, ext, ".gz", NULL);
+              break;
+            case 7:
               name = g_strconcat (base, ".min", ext, ".gz", NULL);
               break;
             default:
@@ -1583,6 +1571,7 @@ out:
   g_free (name);
   g_free (base);
   g_free (locale);
+  g_free (shorter);
   return bytes;
 }
 

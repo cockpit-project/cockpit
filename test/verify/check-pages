@@ -40,6 +40,17 @@ WantedBy=default.target
         self.allow_restart_journal_messages()
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
+        # On Debian and Ubuntu we have to generate the other locales :S
+        if m.image in ["debian-8", "debian-unstable" ]:
+            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
+        elif m.image in [ "ubuntu-1604" ]:
+            m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
+
+        # On Atomic no locales other than en_US are supported on the host itself
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
+        elif m.image in [ "continuous-atomic", "fedora-atomic", "rhel-atomic" ]:
+            self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
+
         # login so that we have a cookie.
         self.login_and_go("/system/services#/test.service")
 
@@ -110,7 +121,7 @@ WantedBy=default.target
         b.click("#content-user-name")
         b.click(".display-language-menu a")
         b.wait_popup('display-language')
-        b.set_val("#display-language select", "de")
+        b.set_val("#display-language select", "de-de")
         b.click("#display-language-select-button")
         b.expect_load()
         b.wait_present("#content")

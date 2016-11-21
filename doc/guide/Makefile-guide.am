@@ -100,7 +100,8 @@ dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUI
 			$(srcdir)/$(GUIDE_DOCBOOK)
 
 dist/guide/links.html:
-	$(AM_V_GEN) (git -C $(srcdir) tag -l --sort=-version:refname --format \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	(git -C $(srcdir) tag -l --sort=-version:refname --format \
 		'<a href="./%(refname:strip=2)/">%(refname:strip=2)</a>' | head -n15 || true) > $@.tmp && mv $@.tmp $@
 
 dist/guide/index.html: doc/guide/directory.html dist/guide/links.html doc/guide/footer.html

@@ -24,6 +24,7 @@ CLEANFILES += $(COCKPIT_ASSETS)
 
 EXTRA_DIST += \
 	src/common/mock-content \
+	src/common/mock-locale \
 	src/common/mock_known_hosts \
 	src/common/com.redhat.Cockpit.DBusTests.xml \
 	src/common/cockpitassets.gresource.xml \
@@ -44,6 +45,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitknownhosts.c \
 	src/common/cockpitknownhosts.h \
 	src/common/cockpitlog.h src/common/cockpitlog.c \
+	src/common/cockpitlocale.c \
+	src/common/cockpitlocale.h \
 	src/common/cockpitloopback.c \
 	src/common/cockpitloopback.h \
 	src/common/cockpitmemory.c \
@@ -104,6 +107,7 @@ COCKPIT_CHECKS = \
 	test-hash \
 	test-hex \
 	test-json \
+	test-locale \
 	test-knownhosts \
 	test-pipe \
 	test-transport \
@@ -132,6 +136,10 @@ test_json_LDADD = $(libcockpit_common_a_LIBS)
 test_knownhosts_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_knownhosts_SOURCES = src/common/test-knownhosts.c
 test_knownhosts_LDADD = $(libcockpit_common_a_LIBS)
+
+test_locale_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_locale_SOURCES = src/common/test-locale.c
+test_locale_LDADD = $(libcockpit_common_a_LIBS)
 
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c
@@ -175,6 +183,12 @@ test_config_LDADD = $(libcockpit_common_a_LIBS)
 
 noinst_PROGRAMS += $(COCKPIT_CHECKS)
 TESTS += $(COCKPIT_CHECKS)
+
+# For the test-locale test
+noinst_SCRIPTS += \
+	src/common/mock-locale/de_DE/LC_MESSAGES/test.mo \
+	src/common/mock-locale/zh_CN/LC_MESSAGES/test.mo \
+	$(NULL)
 
 EXTRA_DIST += \
 	src/common/mock-stderr \

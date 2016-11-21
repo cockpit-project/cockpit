@@ -26,6 +26,7 @@
 #include "common/cockpitenums.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
+#include "common/cockpitlocale.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpitversion.h"
 #include "common/cockpitwebinject.h"
@@ -47,6 +48,7 @@ struct _CockpitPackages {
   GHashTable *listing;
   gchar *checksum;
   JsonObject *json;
+  gchar *locale;
 };
 
 struct _CockpitPackage {
@@ -838,6 +840,13 @@ handle_packages (CockpitWebServer *server,
     }
 
   languages = cockpit_web_server_parse_languages (headers, NULL);
+
+  /*
+   * This is how we find out about the frontends cockpitlang
+   * environment. We tell this process to update its locale
+   * if it has changed.
+   */
+  cockpit_locale_set_language (languages[0]);
 
   bytes = cockpit_web_response_negotiation (filename, package->paths, languages[0], &chosen, &error);
   if (error)

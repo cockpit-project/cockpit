@@ -711,11 +711,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
              * separate automatically generated file. Need to see.
              */
             var manifest = cockpit.manifests["shell"] || { };
-            $(".display-language-menu").toggle(!!manifest.linguas);
+            $(".display-language-menu").toggle(!!manifest.locales);
             var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
             if (!language)
-                language = "en";
-            $.each(manifest.linguas || { }, function(code, name) {
+                language = "en-us";
+            $.each(manifest.locales || { }, function(code, name) {
                 var el = $("<option>").text(name).val(code);
                 if (code == language)
                     el.attr("selected", "true");

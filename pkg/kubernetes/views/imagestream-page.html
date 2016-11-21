@@ -14,10 +14,19 @@
 
 <div class="listing-ct-inline">
     <h3 translate>Image Stream</h3>
-    <div class="listing-ct-body" imagestream-body></div>
+    <div class="listing-ct-body">
+        <registry-imagestream-body imagestream="stream" imagestream-modify="modifyImageStream"
+            project-modify="modifyProject" project-sharing="sharedImages">
+        </registry-imagestream-body>
+        <registry-imagestream-push settings="settings" imagestream="stream">
+        </registry-imagestream-push>
+    </div>
     <h3 translate>Images</h3>
     <div image-listing>
     </div>
     <h3 translate ng-if="stream.metadata.annotations">Metadata</h3>
-    <div class="listing-ct-body" imagestream-meta></div>
+    <div class="listing-ct-body" ng-if="stream.metadata.annotations">
+        <registry-imagestream-meta imagestream="stream">
+        </registry-imagestream-meta>
+    </div>
 </div>

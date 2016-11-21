@@ -8,11 +8,19 @@
         </div>
         <ul class="nav nav-tabs nav-tabs-pf">
             <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Image stream</a></li>
-            <li ng-class="{active: tab('meta')}"><a ng-click="tab('meta', $event)">Metadata</a></li>
+            <li ng-class="{active: tab('meta')}" ng-if="stream.metadata.annotations">
+                <a ng-click="tab('meta', $event)">Metadata</a></li>
         </ul>
     </div>
-    <div imagestream-body class="listing-ct-body" ng-show="tab('main')">
+    <div class="listing-ct-body" ng-show="tab('main')">
+        <registry-imagestream-body imagestream="stream" imagestream-modify="modifyImageStream"
+            project-modify="modifyProject" project-sharing="sharedImages">
+        </registry-imagestream-body>
+        <registry-imagestream-push imagestream="stream" settings="settings">
+        </registry-imagestream-push>
     </div>
-    <div imagestream-meta class="listing-ct-body" ng-show="tab('meta')">
+    <div class="listing-ct-body" ng-if="tab('meta')" ng-if="stream.metadata.annotations">
+        <registry-imagestream-meta imagestream="stream">
+        </registry-imagestream-meta>
     </div>
 </div>

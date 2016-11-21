@@ -653,6 +653,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             build_navbar();
             self.navigate();
+            cockpit.translate();
             $("body").show();
         };
 

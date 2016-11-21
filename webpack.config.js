@@ -169,8 +169,6 @@ var info = {
         "playground/jquery-patterns.html",
         "playground/metrics.html",
         "playground/plot.html",
-        "playground/po.js",
-        "playground/po.de.js",
         "playground/react-patterns.html",
         "playground/service.html",
         "playground/speed.html",

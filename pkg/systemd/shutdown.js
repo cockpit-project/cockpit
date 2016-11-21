@@ -152,7 +152,13 @@ function calculate() {
         var input_timestamp = parseInt(data, 10);
         var server_timestamp = parseInt(server_time.now.getTime() / 1000, 10);
         var offset = Math.ceil((input_timestamp - server_timestamp) / 60);
-        if (offset < 0) {
+
+        /* If the time in minutes just changed, make it happen now */
+        if (offset === -1) {
+            offset = 0;
+
+        /* Otherwise this is a failure */
+        } else if (offset < 0) {
             console.log("Shutdown offset in minutes is in the past:", offset);
             ex = new Error(_("Cannot schedule event in the past"));
             ex.target = "table td:last-child div";

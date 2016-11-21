@@ -102,7 +102,7 @@ JSHINT_RULE = \
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/Makefile-%.deps=%)";
+V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/Makefile.deps=%)";
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
@@ -110,22 +110,22 @@ WEBPACK_OUTPUTS =
 WEBPACK_INSTALL =
 
 WEBPACK_DEPS = \
-	dist/Makefile-dashboard.deps \
-	dist/Makefile-docker.deps \
-	dist/Makefile-kubernetes.deps \
-	dist/Makefile-machines.deps \
-	dist/Makefile-networkmanager.deps \
-	dist/Makefile-ostree.deps \
-	dist/Makefile-playground.deps \
-	dist/Makefile-realmd.deps \
-	dist/Makefile-selinux.deps \
-	dist/Makefile-shell.deps \
-	dist/Makefile-sosreport.deps \
-	dist/Makefile-storaged.deps \
-	dist/Makefile-subscriptions.deps \
-	dist/Makefile-systemd.deps \
-	dist/Makefile-tuned.deps \
-	dist/Makefile-users.deps \
+	dist/dashboard/Makefile.deps \
+	dist/docker/Makefile.deps \
+	dist/kubernetes/Makefile.deps \
+	dist/machines/Makefile.deps \
+	dist/networkmanager/Makefile.deps \
+	dist/ostree/Makefile.deps \
+	dist/playground/Makefile.deps \
+	dist/realmd/Makefile.deps \
+	dist/selinux/Makefile.deps \
+	dist/shell/Makefile.deps \
+	dist/sosreport/Makefile.deps \
+	dist/storaged/Makefile.deps \
+	dist/subscriptions/Makefile.deps \
+	dist/systemd/Makefile.deps \
+	dist/tuned/Makefile.deps \
+	dist/users/Makefile.deps \
 	$(NULL)
 
 noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
@@ -134,27 +134,27 @@ EXTRA_DIST += $(WEBPACK_DEPS) webpack.config.js
 
 # Run webpack if we don't have the include file or if its out of date
 # If we have distributed a copy in a tarball, copy that into place
-dist/Makefile-%.deps: $(WEBPACK_CONFIG)
-	$(AM_V_GEN) if test $(srcdir)/dist/$(notdir $@) -nt $(WEBPACK_CONFIG); \
-	then $(MKDIR_P) $(dir $@) && cp -p $(srcdir)/dist/$(notdir $@) $@.tmp && $(MV) $@.tmp $@; \
+dist/%/Makefile.deps: $(WEBPACK_CONFIG)
+	$(AM_V_GEN) if test $(srcdir)/dist/$*/Makefile.deps -nt $(WEBPACK_CONFIG); \
+	then $(MKDIR_P) $(dir $@) && cp -p $(srcdir)/dist/$*/Makefile.deps $@.tmp && $(MV) $@.tmp $@; \
 	else $(WEBPACK_MAKE) -d $@ $<; fi
 
--include dist/Makefile-dashboard.deps
--include dist/Makefile-docker.deps
--include dist/Makefile-kubernetes.deps
--include dist/Makefile-machines.deps
--include dist/Makefile-networkmanager.deps
--include dist/Makefile-ostree.deps
--include dist/Makefile-playground.deps
--include dist/Makefile-realmd.deps
--include dist/Makefile-selinux.deps
--include dist/Makefile-shell.deps
--include dist/Makefile-sosreport.deps
--include dist/Makefile-storaged.deps
--include dist/Makefile-subscriptions.deps
--include dist/Makefile-systemd.deps
--include dist/Makefile-tuned.deps
--include dist/Makefile-users.deps
+-include dist/dashboard/Makefile.deps
+-include dist/docker/Makefile.deps
+-include dist/kubernetes/Makefile.deps
+-include dist/machines/Makefile.deps
+-include dist/networkmanager/Makefile.deps
+-include dist/ostree/Makefile.deps
+-include dist/playground/Makefile.deps
+-include dist/realmd/Makefile.deps
+-include dist/selinux/Makefile.deps
+-include dist/shell/Makefile.deps
+-include dist/sosreport/Makefile.deps
+-include dist/storaged/Makefile.deps
+-include dist/subscriptions/Makefile.deps
+-include dist/systemd/Makefile.deps
+-include dist/tuned/Makefile.deps
+-include dist/users/Makefile.deps
 
 WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make

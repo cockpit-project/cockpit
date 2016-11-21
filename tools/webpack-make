@@ -35,7 +35,7 @@ var makefile = ops.deps;
 var prefix = "packages";
 
 if (makefile) {
-    prefix = makefile.split("-")[1].split(".")[0];
+    prefix = makefile.split("/").slice(-2, -1)[0];
     process.env["ONLYDIR"] = prefix + "/";
 }
 

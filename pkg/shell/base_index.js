@@ -712,6 +712,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             var manifest = cockpit.manifests["shell"] || { };
             $(".display-language-menu").toggle(!!manifest.linguas);
             var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            if (!language)
+                language = "en";
             $.each(manifest.linguas || { }, function(code, name) {
                 var el = $("<option>").text(name).val(code);
                 if (code == language)

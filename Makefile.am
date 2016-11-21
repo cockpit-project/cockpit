@@ -39,7 +39,7 @@ EXTRA_DIST = \
 	README.md \
 	$(NULL)
 
-clean-local:
+clean-local::
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
 	find $(builddir)/dist -mindepth 1 -name README.md -prune -o -print | xargs rm -rf
@@ -161,8 +161,6 @@ WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
 
-all-local:: $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS) $(WEBPACK_INSTALL)
-	@true
 distclean-local::
 	rm -rf dist/
 install-data-local:: $(WEBPACK_INSTALL)

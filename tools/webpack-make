@@ -32,7 +32,7 @@ if (!ops.args || ops.args.length < 1 || ops.args.length > 2) {
 
 var srcdir = process.env.SRCDIR;
 var makefile = ops.deps;
-var prefix = "section";
+var prefix = "packages";
 
 if (makefile) {
     prefix = makefile.split("-")[1].split(".")[0];
@@ -163,6 +163,16 @@ function generateDeps(makefile, stats) {
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
     lines.push("WEBPACK_DEBUG += $(" + prefix + "_DEBUG)");
     lines.push("TESTS += $(" + prefix + "_TESTS)");
+    lines.push("")
+
+    lines.push(prefix + ": " + makefile + " $(" + prefix + "_OUTPUTS) $(" + prefix + "_INSTALL)");
+    lines.push("\t@true");
+    lines.push("clean-" + prefix + ": ");
+    lines.push("\trm -rf $(" + prefix + "_OUTPUTS) " + makefile);
+    lines.push("all-local:: " + prefix);
+    lines.push("\t@true");
+    lines.push("clean-local:: clean-" + prefix);
+    lines.push("\t@true");
 
     data = lines.join("\n");
     fs.writeFileSync(makefile, data);

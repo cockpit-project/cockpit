@@ -29,13 +29,13 @@
                 <tr ng-repeat="(key, project) in projects() track by key" data-name="{{ project.metadata.name }}">
                     <td>
                         <i ng-if="sharedImages(project) == 'anonymous'" title="Images accessible to anonymous users"
-                          class="fa fa-unlock imagestream-lock dashboard-access"></i>
+                          class="fa fa-unlock registry-imagestream-lock dashboard-access"></i>
                         <i ng-if="sharedImages(project) == 'shared'" title="Images accessible to authenticated users"
-                            class="fa fa-unlock-alt imagestream-lock dashboard-access"></i>
+                            class="fa fa-unlock-alt registry-imagestream-lock dashboard-access"></i>
                         <i ng-if="sharedImages(project) == 'private'" title="Images only accessible to members"
-                            class="fa fa-lock imagestream-lock dashboard-access"></i>
+                            class="fa fa-lock registry-imagestream-lock dashboard-access"></i>
                         <i ng-if="sharedImages(project) == null" title="Accessibility data not yet loaded"
-                            class="fa fa-ellipsis-h imagestream-lock dashboard-access"></i>
+                            class="fa fa-ellipsis-h registry-imagestream-lock dashboard-access"></i>
                         <a ng-href="#/images/{{ project.metadata.name }}">
                             {{ project.metadata.name }}
                         </a>

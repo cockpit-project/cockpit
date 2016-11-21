@@ -35,8 +35,6 @@
     require('../views/imagestream-page.html');
     require('../views/image-page.html');
     require('../views/image-panel.html');
-    require('../views/imagestream-body.html');
-    require('../views/imagestream-meta.html');
     require('../views/image-listing.html');
     require('../views/imagestream-delete.html');
     require('../views/imagestream-modify.html');
@@ -256,24 +254,6 @@
             };
         }
     ])
-
-    .directive('imagestreamBody',
-        function() {
-            return {
-                restrict: 'A',
-                templateUrl: 'views/imagestream-body.html'
-            };
-        }
-    )
-
-    .directive('imagestreamMeta',
-        function() {
-            return {
-                restrict: 'A',
-                templateUrl: 'views/imagestream-meta.html'
-            };
-        }
-    )
 
     .directive('imageListing',
         function() {
@@ -523,7 +503,8 @@
 
     .factory('imageActions', [
         '$modal',
-        function($modal) {
+        '$location',
+        function($modal, $location) {
             function deleteImageStream(stream) {
                 return $modal.open({
                     animation: false,
@@ -578,11 +559,17 @@
                 return modal.result;
             }
 
+            function modifyProject(project) {
+                $location.path("/projects/" + project);
+                return false;
+            }
+
             return {
                 createImageStream: createImageStream,
                 modifyImageStream: modifyImageStream,
                 deleteImageStream: deleteImageStream,
                 deleteTag: deleteTag,
+                modifyProject: modifyProject,
             };
         }
     ])

@@ -408,7 +408,7 @@ class TestRegistry(MachineCase):
         b.wait_present(".content-filter h3")
         b.wait_in_text(".content-filter h3", "default/busybox")
         b.wait_in_text("#content", "Annotations")
-        b.wait_in_text("div[imagestream-meta]", "openshift.io/image.dockerRepositoryCheck")
+        b.wait_in_text("registry-imagestream-meta", "openshift.io/image.dockerRepositoryCheck")
 
         # Delete the tagged image from its own screen
         b.go("#/images/marmalade/busybee:0.x")

@@ -7,28 +7,36 @@ LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
 # The full list of various input and output file types
 PO_LINGUAS = $(addprefix po/,$(LINGUAS))
 PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
-MO_FILES = $(addsuffix .mo,$(PO_LINGUAS))
-PO_JAVASCRIPT = $(addprefix po/po.,$(addsuffix .js,$(LINGUAS)))
+MO_FILES = $(addprefix src/ws/,$(addsuffix .mo,$(LINGUAS)))
+PO_JAVASCRIPT = $(addprefix dist/shell/po.,$(addsuffix .js,$(LINGUAS)))
 
 podir = $(pkgdatadir)/shell
 nodist_po_DATA = po/po.js.gz $(addsuffix .gz,$(PO_JAVASCRIPT))
 
 # Used to list files in src/ws in the po file
-FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\.\)\?/src/ws/[^:]\+\).*|-N \1|p' $<
+FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\./\)\?src/ws/[^:]\+\).*|-N \1|p' $<
 
-# Include only the stuff in src/ws in the po file
+# A filtered po file with just src/ws
+src/ws/%.po: po/%.po
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(MSGGREP) `$(FILTER_PO_SRC_WS)` $< > $@.tmp && mv $@.tmp $@
+
+# A filtered po file without src/ws
+dist/shell/%.po: po/%.po
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(MSGGREP) --invert-match `$(FILTER_PO_SRC_WS)` $< > $@.tmp && mv $@.tmp $@
+
+# Build a binary mo file from po
 .po.mo:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-		$(MSGGREP) `$(FILTER_PO_SRC_WS)` $< > $@.tmp && \
-		$(MSGFMT) -o $@ $@.tmp && rm $@.tmp && touch $@
+	$(MSGFMT) -o $@.tmp $< && mv $@.tmp $@ && touch $@
 
-# Include everything not in src/ws in the javascript file
-po/po.%.js: po/%.po
+# Build a javascript file from a po
+po.%.js: %.po
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(MSGGREP) --invert-match `$(FILTER_PO_SRC_WS)` $< > $@.po.tmp && \
-	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.js -o $@.js.tmp $@.po.tmp && \
+	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.js -o $@.js.tmp $< && \
 	$(srcdir)/tools/missing $(UGLIFY_JS) $@.js.tmp --mangle --beautify > $@.tmp && \
-	rm -f $@.po.tmp $@.js.tmp && mv $@.tmp $@
+	rm -f $@.js.tmp && mv $@.tmp $@
 
 # Always build the binary gettext data
 all-local:: $(MO_FILES) $(PO_JAVASCRIPT)
@@ -37,7 +45,7 @@ all-local:: $(MO_FILES) $(PO_JAVASCRIPT)
 install-data-local:: $(MO_FILES)
 	for lang in $(LINGUAS); do \
 		$(MKDIR_P) $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES; \
-		$(INSTALL_DATA) po/$$lang.mo $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(GETTEXT_PACKAGE).mo; \
+		$(INSTALL_DATA) src/ws/$$lang.mo $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(GETTEXT_PACKAGE).mo; \
 	done
 
 # Called to ininstall the binary gettext data
@@ -117,6 +125,8 @@ CLEANFILES += \
 	$(nodist_po_DATA) \
 	$(PO_JAVASCRIPT) \
 	po/POTFILES.*.in \
+	dist/shell/*.po /
+	src/ws/*.po /
 	po/cockpit*.pot \
 	po/po.js.gz \
 	$(NULL)

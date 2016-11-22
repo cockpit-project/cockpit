@@ -60,9 +60,6 @@ function create_tabs(client, target, is_partition) {
 
     var is_filesystem         = (block && block.IdUsage == 'filesystem');
     var is_crypto             = (block && block.IdUsage == 'crypto');
-    var is_extended_part      = (block && client.blocks_part[block.path] &&
-                                 client.blocks_part[block.path].IsContainer);
-    var is_formattable        = (block && !block.ReadOnly && !is_extended_part);
 
     var tabs = [ ];
     var row_action = null;
@@ -499,7 +496,7 @@ function block_content(client, block) {
 
     var format_disk_btn = (
         <div className="pull-right">
-            <StorageButton onClick={format_disk}>
+            <StorageButton onClick={format_disk} excuse={block.ReadOnly? _("Device is read-only") : null}>
                 {_("Create partition table")}
             </StorageButton>
         </div>);

@@ -260,7 +260,12 @@ var FormatButton = React.createClass({
         format_dialog(this.props.client, this.props.block.path);
     },
     render: function () {
-        return <StorageControls.StorageButton onClick={this.onClick}>{_("Format")}</StorageControls.StorageButton>;
+        return (
+            <StorageControls.StorageButton onClick={this.onClick}
+                                           excuse={this.props.block.ReadOnly? _("Device is read-only") : null}>
+                {_("Format")}
+            </StorageControls.StorageButton>
+        );
     }
 });
 

@@ -36,28 +36,27 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
 
         # Format it with a DOS partition table
-        b.click('[data-action="format_disk"]')
+        b.click('button:contains(Create partition table)')
         self.dialog({ "type": "dos" })
-        b.wait_in_text("#detail-content", "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free Space")
 
         # Create a primary partition
-        self.content_single_action(1, "Create Partition")
+        self.content_row_action(1, "Create Partition")
         self.dialog({ "size": 10,
                       "type": "ext4",
                       "name": "FIRST" })
-        b.wait_in_text("#detail-content", "FIRST")
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
-        self.content_action(1, "Format")
+        self.content_tab_action(1, 2, "Format")
         self.dialog_wait_open()
         self.assertEqual(b.attr("[value='dos-extended']", "class"), "disabled")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.wait_in_text("#detail-content", "Free Space for Primary Partitions")
-
         # Create a extended partition to fill the rest of the disk
-        self.content_single_action(2, "Create Partition")
+        self.content_row_action(2, "Create Partition")
         self.dialog_wait_open()
         b.wait_not_attr("[value='dos-extended']", "class", "disabled")
         self.dialog_set_val("type", "dos-extended")
@@ -67,30 +66,24 @@ class TestStorage(StorageCase):
         self.dialog_wait_not_visible("mount_options")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#detail-content", "Extended Partition")
-
-        b.wait_not_in_text("#detail-content", "Free Space for Primary Partitions")
-        b.wait_in_text("#detail-content", "Free Space for Logical Partitions")
+        self.content_row_wait_in_col(2, 1, "Extended Partition")
+        self.content_row_wait_in_col(3, 1, "Free Space")
 
         # Create logical partitions and check that "dos-extended" is
         # not offered.
-        self.content_single_action(3, "Create Partition")
+        self.content_row_action(3, "Create Partition")
         self.dialog_wait_open()
         self.assertEqual(b.attr("[value='dos-extended']", "class"), "disabled")
         self.dialog_apply()
         self.dialog_wait_close()
-
-        b.wait_in_text("#detail-content", "Logical Partition (")
-        b.wait_not_in_text("#detail-content", "Free Space for Logical Partitions")
+        self.content_row_wait_in_col(3, 1, "xfs File System")
 
         # Delete it
 
-        self.content_action(2, "Delete")
+        self.content_head_action(2, "Delete")
         self.confirm()
 
-        b.wait_not_in_text("#detail-content", "Logical Partition (")
-        b.wait_not_in_text("#detail-content", "Free Space for Logical Partitions")
-        b.wait_in_text("#detail-content", "Free Space for Primary Partitions")
+        self.content_row_wait_in_col(2, 1, "Free Space")
 
 if __name__ == '__main__':
     test_main()

@@ -43,7 +43,7 @@ class TestStorage(StorageCase):
         b.click('#drives tr:contains("DISK1")')
         b.wait_visible('#storage-detail')
 
-        self.content_default_action(1, "Format")
+        self.content_tab_action(1, 1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "xfs")
         self.dialog_apply()
@@ -66,9 +66,9 @@ class TestStorage(StorageCase):
         b.wait_visible('#storage-detail')
 
         def check_type(type):
-            self.content_action(1, "Format")
+            self.content_tab_action(1, 1, "Format")
             self.dialog({ "type": type })
-            b.wait_in_text("#content", type)
+            self.content_row_wait_in_col(1, 1, type + " File System")
 
         check_type("xfs")
         check_type("ext4")

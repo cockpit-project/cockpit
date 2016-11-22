@@ -38,7 +38,7 @@
     /* Metrics
      */
 
-    function instance_sampler(metrics) {
+    function instance_sampler(metrics, source) {
         var instances;
         var self = {
             data: { },
@@ -74,7 +74,7 @@
         }
 
         var channel = cockpit.channel({ payload: "metrics1",
-                                        source: "internal",
+                                        source: source || "internal",
                                         metrics: metrics
                                       });
         $(channel).on("closed", function (event, error) {
@@ -143,6 +143,7 @@
         client.blocks_pvol = proxies("PhysicalVolume");
         client.blocks_fsys = proxies("Filesystem");
         client.blocks_crypto = proxies("Encrypted");
+        client.blocks_swap = proxies("Swapspace");
         client.iscsi_sessions = proxies("ISCSI.Session");
         client.storaged_jobs = proxies("Job");
 
@@ -162,6 +163,10 @@
     client.fsys_sizes = instance_sampler([ { name: "mount.used" },
                                            { name: "mount.total" }
                                          ]);
+
+    client.swap_sizes = instance_sampler([ { name: "swapdev.length" },
+                                           { name: "swapdev.free" },
+                                         ], "direct");
 
     client.blockdev_io = instance_sampler([ { name: "block.device.read", derive: "rate" },
                                             { name: "block.device.written", derive: "rate" }

@@ -118,7 +118,14 @@ class TestStorage(StorageCase):
             else:
                 b.wait_not_present(degraded_selector)
 
+
+        # The preferred device should be /dev/md/ARR, but a freshly
+        # created array seems to have no symlink in /dev/md/.
+        #
+        # See https://bugzilla.redhat.com/show_bug.cgi?id=1397320
+        #
         dev = b.text(info_field("Device"))
+
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 --remove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         wait_degraded_state(True)
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
@@ -130,27 +137,42 @@ class TestStorage(StorageCase):
         b.wait_in_text(info_field("State"), "Not running")
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State"), "Running")
-        b.wait_text_not(info_field("Device"), "--")
+
+        # Stopping and starting the array will create the expected
+        # symlink in /dev/md/.
+        #
+        b.wait_text(info_field("Device"), "/dev/md/ARR")
+
+        # Partitions also get symlinks in /dev/md/, so they should
+        # have names like "/dev/md/ARR1".  Existing storaged versions
+        # don't pick them up as the preferred device, however, so we
+        # will see "/dev/md127p1", for example.
+        #
+        # (https://github.com/storaged-project/storaged/issues/98)
+        #
+        part_prefix = dev + "p"
 
         # Create partition table
-        b.wait_present('[data-action="format_disk"]')
-        b.click('[data-action="format_disk"]')
+        b.click('button:contains(Create partition table)')
         self.dialog({ "type": "gpt" })
-        b.wait_in_text("#content", "Free Space")
+        self.content_row_wait_in_col(1, 1, "Free Space")
 
         # Create first partition
-        self.content_single_action(1, "Create Partition")
+        self.content_row_action(1, "Create Partition")
         self.dialog({ "size": 20,
                       "type": "ext4",
                       "name": "One" })
-        b.wait_in_text("#content", "One")
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_row_wait_in_col(1, 2, part_prefix + "1")
 
         # Create second partition
-        self.content_single_action(2, "Create Partition")
+        self.content_row_action(2, "Create Partition")
         self.dialog({ "type": "ext4",
                       "name": "Two" })
-        b.wait_in_text("#content", "Two")
-        b.wait_not_in_text("#content", "Free Space")
+
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_row_wait_in_col(2, 2, part_prefix + "2")
+        b.wait_not_in_text("#detail-content", "Free Space")
 
         # Play with disks
 

@@ -99,6 +99,8 @@ dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUI
 			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 			$(srcdir)/$(GUIDE_DOCBOOK)
 
+dist/guide/html: dist/guide/html/index.html
+
 dist/guide/links.html:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	(git -C $(srcdir) tag -l --sort=-version:refname --format \

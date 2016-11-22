@@ -457,6 +457,9 @@ function block_content(client, block) {
     if (!block)
         return null;
 
+    if (block.Size === 0)
+        return null;
+
     function format_disk() {
         dialog.open({ Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
                       Alerts: utils.get_usage_alerts(client, block.path),

@@ -149,6 +149,11 @@ function generateDeps(makefile, stats) {
         lines.push("")
     });
 
+    inputs.forEach(function(name) {
+        lines.push(name + ":");
+        lines.push("")
+    });
+
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");

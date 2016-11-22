@@ -120,7 +120,7 @@ var ContainerDetails = React.createClass({
                     <dt>{_("Id")}      </dt> <dd>{ container.Id }</dd>
                     <dt>{_("Created")} </dt> <dd>{ container.Created }</dd>
                     <dt>{_("Image")}   </dt> <dd>{ container.Image }</dd>
-                    <dt>{_("Commmand")}</dt> <dd>{ util.render_container_cmdline(container) }</dd>
+                    <dt>{_("Command")}</dt> <dd>{ util.render_container_cmdline(container) }</dd>
                     <dt>{_("State")}   </dt> <dd>{ util.render_container_state(container.State) }</dd>
                 </dl>
             </div>

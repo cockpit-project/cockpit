@@ -89,7 +89,8 @@ void                cockpit_channel_control           (CockpitChannel *self,
                                                        const gchar *command,
                                                        JsonObject *message);
 
-void                cockpit_channel_ready             (CockpitChannel *self);
+void                cockpit_channel_ready             (CockpitChannel *self,
+                                                       JsonObject *message);
 
 void                cockpit_channel_send              (CockpitChannel *self,
                                                        GBytes *payload,

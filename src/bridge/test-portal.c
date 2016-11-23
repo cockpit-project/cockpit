@@ -69,7 +69,7 @@ static void
 mock_echo_channel_constructed (GObject *obj)
 {
   G_OBJECT_CLASS (mock_echo_channel_parent_class)->constructed (obj);
-  cockpit_channel_ready (COCKPIT_CHANNEL (obj));
+  cockpit_channel_ready (COCKPIT_CHANNEL (obj), NULL);
 }
 
 static void

@@ -135,7 +135,7 @@ test_recv_and_send (TestCase *tc,
   GBytes *payload;
 
   /* Ready to go */
-  cockpit_channel_ready (tc->channel);
+  cockpit_channel_ready (tc->channel, NULL);
 
   payload = g_bytes_new ("Yeehaw!", 7);
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", payload);
@@ -161,13 +161,32 @@ test_recv_and_queue (TestCase *tc,
   g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 0);
 
   /* Ready to go */
-  cockpit_channel_ready (tc->channel);
+  cockpit_channel_ready (tc->channel, NULL);
 
   sent = mock_transport_pop_channel (tc->transport, "554");
   g_assert (sent != NULL);
 
   g_assert (g_bytes_equal (payload, sent));
   g_bytes_unref (payload);
+}
+
+static void
+test_ready_message (TestCase *tc,
+                    gconstpointer unused)
+{
+  JsonObject *message;
+  JsonObject *sent;
+
+  message = json_object_new ();
+  json_object_set_string_member (message, "mop", "bucket");
+
+  /* Ready to go */
+  cockpit_channel_ready (tc->channel, message);
+  json_object_unref (message);
+
+  sent = mock_transport_pop_control (tc->transport);
+  cockpit_assert_json_eq (sent,
+                  "{ \"command\": \"ready\", \"channel\": \"554\", \"mop\": \"bucket\" }");
 }
 
 static void
@@ -261,7 +280,7 @@ test_close_transport (TestCase *tc,
   gchar *problem = NULL;
 
   chan = (MockEchoChannel *)tc->channel;
-  cockpit_channel_ready (tc->channel);
+  cockpit_channel_ready (tc->channel, NULL);
 
   sent = g_bytes_new ("Yeehaw!", 7);
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
@@ -623,6 +642,8 @@ main (int argc,
               setup, test_recv_and_send, teardown);
   g_test_add ("/channel/recv-queue", TestCase, NULL,
               setup, test_recv_and_queue, teardown);
+  g_test_add ("/channel/ready-message", TestCase, NULL,
+              setup, test_ready_message, teardown);
   g_test_add ("/channel/close-immediately", TestCase, NULL,
               setup, test_close_immediately, teardown);
   g_test_add ("/channel/close-option", TestCase, NULL,

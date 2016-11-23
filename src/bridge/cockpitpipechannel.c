@@ -451,7 +451,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
   self->open = TRUE;
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
 
 out:
   g_free (argv);

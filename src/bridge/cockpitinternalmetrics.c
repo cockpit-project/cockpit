@@ -501,7 +501,7 @@ cockpit_internal_metrics_prepare (CockpitChannel *channel)
   self->need_meta = TRUE;
 
   cockpit_metrics_metronome (COCKPIT_METRICS (self), self->interval);
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
 }
 
 static void

@@ -171,7 +171,7 @@ on_web_socket_open (WebSocketConnection *connection,
   cockpit_channel_control (channel, "response", object);
   json_object_unref (object);
 
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
 }
 
 static void

@@ -277,7 +277,7 @@ cockpit_fsreplace_prepare (CockpitChannel *channel)
   if (self->fd < 0)
     close_with_errno (self, "couldn't open unique file", errno);
   else
-    cockpit_channel_ready (channel);
+    cockpit_channel_ready (channel, NULL);
 
 out:
   g_free (actual_tag);

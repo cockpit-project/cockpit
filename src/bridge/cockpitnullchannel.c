@@ -59,7 +59,7 @@ static void
 cockpit_null_channel_prepare (CockpitChannel *channel)
 {
   COCKPIT_CHANNEL_CLASS (cockpit_null_channel_parent_class)->prepare (channel);
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
 }
 
 static void

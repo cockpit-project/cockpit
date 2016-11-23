@@ -1038,7 +1038,7 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
 
   if (type != PM_CONTEXT_ARCHIVE)
       cockpit_metrics_metronome (COCKPIT_METRICS (self), self->interval);
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
 
 out:
   g_free (name);

@@ -192,7 +192,7 @@ QUnit.asyncTest("no default name", function() {
 });
 
 QUnit.asyncTest("no default name bad", function() {
-    assert.expect(1);
+    assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
@@ -200,14 +200,15 @@ QUnit.asyncTest("no default name bad", function() {
         then(function(reply) {
             assert.ok(false, "shouldn't succeed");
         }, function(ex) {
-            assert.equal(ex.message, "The \"name\" field is invalid in call", "error message");
+            assert.equal(ex.problem, "protocol-error", "error problem");
+            assert.equal(ex.message, "the \"name\" field is invalid in dbus call", "error message");
         }).always(function() {
             QUnit.start();
         });
 });
 
 QUnit.asyncTest("no default name invalid", function() {
-    assert.expect(1);
+    assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
@@ -215,14 +216,15 @@ QUnit.asyncTest("no default name invalid", function() {
         then(function(reply) {
             assert.ok(false, "shouldn't succeed");
         }, function(ex) {
-            assert.equal(ex.message, "The \"name\" field is not a valid bus name", "error message");
+            assert.equal(ex.problem, "protocol-error", "error problem");
+            assert.equal(ex.message, "the \"name\" field in dbus call is not a valid bus name: !invalid!", "error message");
         }).always(function() {
             QUnit.start();
         });
 });
 
 QUnit.asyncTest("no default name missing", function() {
-    assert.expect(1);
+    assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
@@ -230,7 +232,8 @@ QUnit.asyncTest("no default name missing", function() {
         then(function(reply) {
             assert.ok(false, "shouldn't succeed");
         }, function(ex) {
-            assert.equal(ex.message, "The \"name\" field is missing in call", "error message");
+            assert.equal(ex.problem, "protocol-error", "error problem");
+            assert.equal(ex.message, "the \"name\" field is missing in dbus call", "error message");
         }).always(function() {
             QUnit.start();
         });
@@ -304,14 +307,15 @@ QUnit.asyncTest("watch no default name", function() {
 });
 
 QUnit.asyncTest("watch missing name", function() {
-    assert.expect(1);
+    assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
     dbus.watch("/otree/frobber")
         .then(function() {
             assert.ok(false, "shouldn't succeed");
         }, function(ex) {
-            assert.equal(ex.message, "protocol-error", "error message");
+            assert.equal(ex.problem, "protocol-error", "error problem");
+            assert.equal(ex.message, "session: no \"name\" specified in match", "error message");
         })
         .always(function() {
             dbus.close();

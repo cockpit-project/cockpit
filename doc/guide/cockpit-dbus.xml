@@ -139,6 +139,16 @@ client = cockpit.dbus(name, [options])
     </variablelist>
   </refsection>
 
+  <refsection id="cockpit-dbus-wait">
+    <title>client.wait()</title>
+<programlisting>
+proxy = client.wait([callback])
+</programlisting>
+
+    <para>Returns a <code>promise</code> that is ready when the client is ready, or fails if the
+      client closes. If a <code>callback</code> is specified, it is attached to the promise.</para>
+  </refsection>
+
   <refsection id="cockpit-dbus-close">
     <title>client.close()</title>
 <programlisting>

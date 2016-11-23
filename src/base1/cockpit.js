@@ -3036,6 +3036,9 @@ function factory() {
 
         self.constructors = { "*": DBusProxy };
 
+        /* Allows waiting on the channel if necessary */
+        self.wait = channel.wait;
+
         function ensure_cache() {
             if (!cache)
                 cache = new DBusCache();

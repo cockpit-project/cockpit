@@ -1824,7 +1824,7 @@ on_name_appeared (GDBusConnection *connection,
   if (!self->name_appeared)
     {
       self->name_appeared = TRUE;
-      cockpit_channel_ready (COCKPIT_CHANNEL (self));
+      cockpit_channel_ready (COCKPIT_CHANNEL (self), NULL);
     }
 
   send_owned (self, name_owner);
@@ -1904,7 +1904,7 @@ process_connection (CockpitDBusJson *self,
       else
         {
           subscribe_and_cache (self);
-          cockpit_channel_ready (COCKPIT_CHANNEL (self));
+          cockpit_channel_ready (COCKPIT_CHANNEL (self), NULL);
         }
     }
 }
@@ -2018,7 +2018,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       self->logname = self->name;
 
       subscribe_and_cache (self);
-      cockpit_channel_ready (channel);
+      cockpit_channel_ready (channel, NULL);
     }
   else
     {

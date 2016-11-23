@@ -249,7 +249,7 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   self->queue = g_queue_new ();
   push_bytes (self->queue, g_mapped_file_get_bytes (mapped));
   self->idler = g_idle_add (on_idle_send_block, self);
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
   g_mapped_file_unref (mapped);
 }
 

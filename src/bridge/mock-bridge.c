@@ -95,7 +95,7 @@ mock_case_channel_constructed (GObject *obj)
   else
     g_assert_not_reached ();
 
-  cockpit_channel_ready (COCKPIT_CHANNEL (self));
+  cockpit_channel_ready (COCKPIT_CHANNEL (self), NULL);
 }
 
 static void

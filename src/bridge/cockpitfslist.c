@@ -111,7 +111,7 @@ on_files_listed (GObject *source_object,
       g_clear_object (&self->cancellable);
       g_object_unref (source_object);
 
-      cockpit_channel_ready (COCKPIT_CHANNEL (self));
+      cockpit_channel_ready (COCKPIT_CHANNEL (self), NULL);
 
       if (self->monitor == NULL)
         {

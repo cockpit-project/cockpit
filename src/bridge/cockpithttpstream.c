@@ -589,7 +589,7 @@ on_stream_open (CockpitStream *stream,
                 gpointer user_data)
 {
   CockpitChannel *channel = user_data;
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
 }
 
 static void
@@ -1058,7 +1058,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
 
   /* If not waiting for open */
   if (!self->sig_open)
-    cockpit_channel_ready (channel);
+    cockpit_channel_ready (channel, NULL);
 
 out:
   if (connectable)

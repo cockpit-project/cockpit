@@ -206,7 +206,7 @@ cockpit_fswatch_prepare (CockpitChannel *channel)
   self->monitor = monitor;
   self->sig_changed = g_signal_connect (self->monitor, "changed", G_CALLBACK (on_changed), self);
 
-  cockpit_channel_ready (channel);
+  cockpit_channel_ready (channel, NULL);
 
 out:
   g_clear_error (&error);

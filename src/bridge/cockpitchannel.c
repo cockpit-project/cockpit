@@ -719,6 +719,7 @@ cockpit_channel_fail (CockpitChannel *self,
 /**
  * cockpit_channel_ready:
  * @self: a pipe
+ * @message: an optional control message, or NULL
  *
  * Called by channel implementations to signal when they're
  * ready. Any messages received before the channel was ready
@@ -730,7 +731,8 @@ cockpit_channel_fail (CockpitChannel *self,
  * can connect appropriately.
  */
 void
-cockpit_channel_ready (CockpitChannel *self)
+cockpit_channel_ready (CockpitChannel *self,
+                       JsonObject *message)
 {
   CockpitChannelClass *klass;
   GBytes *decoded;
@@ -763,7 +765,7 @@ cockpit_channel_ready (CockpitChannel *self)
       g_queue_free (queue);
     }
 
-  cockpit_channel_control (self, "ready", NULL);
+  cockpit_channel_control (self, "ready", message);
   self->priv->ready = TRUE;
 
   /* No more data coming? */

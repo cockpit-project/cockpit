@@ -706,7 +706,9 @@ function Channel(options) {
     event_mixin(self, { });
 
     var transport;
-    var valid = true;
+    var ready = null;
+    var closed = null;
+    var waiting = null;
     var received_done = false;
     var sent_done = false;
     var id = null;
@@ -720,7 +722,7 @@ function Channel(options) {
     var queue = [ ];
 
     /* Handy for callers, but not used by us */
-    self.valid = valid;
+    self.valid = true;
     self.options = options;
     self.binary = binary;
     self.id = id;
@@ -737,18 +739,28 @@ function Channel(options) {
     }
 
     function on_close(data) {
-        self.valid = valid = false;
+        closed = data;
+        self.valid = false;
         if (transport && id)
             transport.unregister(id);
-        if (data.message)
-            console.warn(data.message);
-        self.dispatchEvent("close", data);
+        if (closed.message)
+            console.warn(closed.message);
+        self.dispatchEvent("close", closed);
+        if (waiting)
+            waiting.resolve(closed);
+    }
+
+    function on_ready(data) {
+        ready = data;
+        self.dispatchEvent("ready", ready);
     }
 
     function on_control(data) {
         if (data.command == "close") {
             on_close(data);
             return;
+        } else if (data.command == "ready") {
+            on_ready(data);
         }
 
         var done = data.command === "done";
@@ -775,7 +787,7 @@ function Channel(options) {
 
     ensure_transport(function(trans) {
         transport = trans;
-        if (!valid)
+        if (closed)
             return;
 
         id = transport.next_channel();
@@ -822,7 +834,7 @@ function Channel(options) {
     });
 
     self.send = function send(message) {
-        if (!valid)
+        if (closed)
             console.warn("sending message on closed channel");
         else if (sent_done)
             console.warn("sending message after done");
@@ -845,8 +857,30 @@ function Channel(options) {
             transport.send_control(options);
     };
 
+    self.wait = function wait(callback) {
+        if (!waiting) {
+            waiting = cockpit.defer();
+            if (closed) {
+                waiting.reject(closed);
+            } else if (ready) {
+                waiting.resolve(ready);
+            } else {
+                self.addEventListener("ready", function(event, data) {
+                    waiting.resolve(data);
+                });
+                self.addEventListener("close", function(event, data) {
+                    waiting.reject(data);
+                });
+            }
+        }
+        var promise = waiting.promise;
+        if (callback)
+            promise.then(callback, callback);
+        return promise;
+    };
+
     self.close = function close(options) {
-        if (!valid)
+        if (closed)
             return;
 
         if (!options)
@@ -908,7 +942,7 @@ function Channel(options) {
 
     self.toString = function toString() {
         var host = options["host"] || "localhost";
-        return "[Channel " + (valid ? id : "<invalid>") + " -> " + host + "]";
+        return "[Channel " + (self.valid ? id : "<invalid>") + " -> " + host + "]";
     };
 }
 

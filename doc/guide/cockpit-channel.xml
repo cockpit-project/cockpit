@@ -110,6 +110,20 @@ channel.control(options)
       options field. To indicate that no further messages will be sent through the channel.</para>
   </refsection>
 
+  <refsection id="cockpit-channels-wait">
+    <title>channel.wait()</title>
+<programlisting>
+promise = channel.wait([callback])
+</programlisting>
+
+    <para>Returns a <code>promise</code> that is ready when the channel is ready, or fails if the
+      client closes. If a <code>callback</code> is specified, it is attached to the promise. The
+      promise will be rejected or resolved with the contents <code>options</code> passed to the
+      <link linkend="cockpit-channels-onready">channel.onready</link> and
+      <link linkend="cockpit-channels-close-ev">channel.onclose</link> events respectively.</para>
+    <para>In general it's not necessary to wait for the channel before starting to use the channel.</para>
+  </refsection>
+
   <refsection id="cockpit-channels-close">
     <title>channel.close()</title>
 <programlisting>
@@ -149,6 +163,17 @@ channel.addEventListener("control", function(event, options) { ... })
       <code>"done"</code> then no further messages will be received in the channel.
       The exact form of these messages depend on the <code>"payload"</code> of the
       channel.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-onready">
+    <title>channel.onready</title>
+<programlisting>
+$(channel).on("ready", function(event, options) { ... })
+channel.addEventListener("ready", function(event, options) { ... })
+</programlisting>
+    <para>An event triggered when the other end of the channel is ready to start processing
+      messages. This indicates the channel is completely open. It is possible to start
+      sending messages on the channel before this point.</para>
   </refsection>
 
   <refsection id="cockpit-channels-close-ev">
@@ -212,6 +237,7 @@ cockpit.transport.wait(callback)
       This will start the initialization if not already in progress or completed. If the
       channel transport is already initialized, then <code>callback</code> will be called
       immediately.</para>
+    <para>In general it's not necessary to wait for the transport before starting to open channels.</para>
   </refsection>
 
   <refsection id="cockpit-transport-close">

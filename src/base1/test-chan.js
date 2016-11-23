@@ -474,6 +474,56 @@ QUnit.asyncTest("close socket", function() {
     mock_peer.close();
 });
 
+QUnit.asyncTest("wait ready", function() {
+    assert.expect(5);
+
+    var channel = cockpit.channel({ "payload": "echo" });
+    channel.wait().then(function(options) {
+        assert.ok(true, "channel is ready");
+        assert.equal(typeof options, "object", "wait options");
+        assert.ok(!!options, "wait options not null");
+        assert.equal(options.command, "ready", "wait is ready");
+        assert.strictEqual(channel.valid, true, "when valid");
+    }, function() {
+        assert.ok(false, "should not fail");
+    }).always(function() {
+        QUnit.start();
+    });
+});
+
+QUnit.asyncTest("wait close", function() {
+    assert.expect(6);
+
+    var channel = cockpit.channel({ "payload": "unsupported" });
+    channel.wait().then(function() {
+        assert.ok(false, "should not succeed");
+    }, function(options) {
+        assert.ok(true, "channel is closed");
+        assert.equal(typeof options, "object", "wait options");
+        assert.ok(!!options, "wait options not null");
+        assert.equal(options.command, "close", "wait is close");
+        assert.equal(options.problem, "not-supported", "wait options has fields");
+        assert.strictEqual(channel.valid, false, "channel not valid");
+    }).always(function() {
+        QUnit.start();
+    });
+});
+
+QUnit.asyncTest("wait callback", function() {
+    assert.expect(5);
+
+    var channel = cockpit.channel({ "payload": "unsupported" });
+    channel.wait(function(options) {
+        assert.equal(typeof options, "object", "wait options");
+        assert.ok(!!options, "wait options not null");
+        assert.equal(options.command, "close", "wait is close");
+        assert.equal(options.problem, "not-supported", "wait options has fields");
+        assert.strictEqual(channel.valid, false, "channel not valid");
+    }).always(function() {
+        QUnit.start();
+    });
+});
+
 QUnit.asyncTest("logout", function() {
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);

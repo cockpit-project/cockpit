@@ -180,7 +180,7 @@ $(client).on("owner", function(event, owner) { ... })
   </refsection>
 
   <refsection id="cockpit-dbus-proxy">
-    <title>client.proxy</title>
+    <title>client.proxy()</title>
 <programlisting>
 proxy = client.proxy([interface, path], [options])
 </programlisting>
@@ -392,7 +392,7 @@ $(proxy).on("signal", function(event, name, args) {
   </refsection>
 
   <refsection id="cockpit-dbus-proxies">
-    <title>client.proxies</title>
+    <title>client.proxies()</title>
 <programlisting>
 proxies = client.proxies([interface], [path_namespace], [options])
 </programlisting>
@@ -668,7 +668,7 @@ subscription.remove()
   </refsection>
 
   <refsection id="cockpit-dbus-watch">
-    <title>client.watch</title>
+    <title>client.watch()</title>
 <programlisting>
 watch = client.watch(path)
 watch = client.watch({ "path_namespace": path_namespace, "interface": interface })

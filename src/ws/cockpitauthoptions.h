@@ -28,7 +28,6 @@ G_BEGIN_DECLS
 
 typedef struct {
   const gchar *remote_peer;
-  gboolean supports_conversations;
   const gchar *auth_type;
 } CockpitAuthOptions;
 

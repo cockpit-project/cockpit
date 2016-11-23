@@ -34,24 +34,20 @@ test_auth_options (void)
   CockpitAuthOptions *options = NULL;
 
   options = cockpit_auth_options_from_env (env);
-  g_assert_false (options->supports_conversations);
   g_assert_cmpstr (options->auth_type, ==, "none");
   g_assert_cmpstr (options->remote_peer, ==, "localhost");
 
   options->auth_type = "test";
   options->remote_peer = "other";
-  options->supports_conversations = TRUE;
 
   env = cockpit_auth_options_to_env (options, NULL);
 
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_REMOTE_PEER"), ==, "other");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_AUTH_MESSAGE_TYPE"), ==, "test");
-  g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SUPPORTS_CONVERSATION"), ==, "1");
 
   g_free (options);
 
   options = cockpit_auth_options_from_env (env);
-  g_assert_true (options->supports_conversations);
   g_assert_cmpstr (options->auth_type, ==, "test");
   g_assert_cmpstr (options->remote_peer, ==, "other");
 

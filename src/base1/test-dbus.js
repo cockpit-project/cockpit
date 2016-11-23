@@ -323,6 +323,95 @@ QUnit.asyncTest("watch missing name", function() {
         });
 });
 
+
+QUnit.asyncTest("emit signal meta", function() {
+    assert.expect(4);
+
+    var meta = {
+        "borkety.Bork": {
+            "signals": {
+                "Bork": {
+                    "in": [ "i", "i", "i", "i", "s" ]
+                }
+            }
+        }
+    };
+
+    var received = false;
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.meta(meta);
+    dbus.wait(function() {
+
+        dbus.subscribe({ "path": "/bork", "name": dbus.unique_name }, function(path, iface, signal, args) {
+            assert.equal(path, "/bork", "reflected path");
+            assert.equal(iface, "borkety.Bork", "reflected interface");
+            assert.equal(signal, "Bork", "reflected signal");
+            assert.deepEqual(args, [ 1, 2, 3, 4, "Bork" ], "reflected arguments");
+            received = true;
+            dbus.close();
+            QUnit.start();
+        });
+
+        dbus.addEventListener("close", function(event, ex) {
+            if (!received) {
+                console.log(ex);
+                assert.ok(false, "shouldn't fail");
+                QUnit.start();
+            }
+        });
+
+        dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ],
+                    { "type": "iiiis" });
+    });
+});
+
+QUnit.asyncTest("emit signal type", function() {
+    assert.expect(4);
+
+    var received = false;
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+    dbus.wait(function() {
+
+        dbus.subscribe({ "path": "/bork", "name": dbus.unique_name }, function(path, iface, signal, args) {
+            assert.equal(path, "/bork", "reflected path");
+            assert.equal(iface, "borkety.Bork", "reflected interface");
+            assert.equal(signal, "Bork", "reflected signal");
+            assert.deepEqual(args, [ 1, 2, 3, 4, "Bork" ], "reflected arguments");
+            received = true;
+            dbus.close();
+            QUnit.start();
+        });
+
+        dbus.addEventListener("close", function(event, ex) {
+            if (!received) {
+                console.log(ex);
+                assert.ok(false, "shouldn't fail");
+                QUnit.start();
+            }
+        });
+
+        dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ],
+                    { "type": "iiiis" });
+    });
+});
+
+QUnit.asyncTest("emit signal no meta", function() {
+    assert.expect(2);
+
+    var dbus = cockpit.dbus(null, { "bus": "session" });
+
+    function closed(event, ex) {
+        assert.equal(ex.problem, "protocol-error", "correct problem");
+        assert.equal(ex.message, "signal argument types for signal borkety.Bork Bork unknown", "correct message");
+        dbus.removeEventListener("close", closed);
+        dbus.close();
+        QUnit.start();
+    }
+
+    dbus.addEventListener("close", closed);
+    dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ]);
+});
+
 function internal_test(options) {
     assert.expect(2);
     var dbus = cockpit.dbus(null, options);

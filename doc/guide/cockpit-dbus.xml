@@ -189,6 +189,12 @@ $(client).on("owner", function(event, owner) { ... })
       the client.</para>
   </refsection>
 
+  <refsection id="cockpit-dbus-unique-name">
+    <title>client.unique_name</title>
+    <para>The unique DBus name of the client. Initially null, and becomes valid once the
+      the client is ready.</para>
+  </refsection>
+
   <refsection id="cockpit-dbus-proxy">
     <title>client.proxy()</title>
 <programlisting>

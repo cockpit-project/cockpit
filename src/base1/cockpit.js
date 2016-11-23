@@ -3023,6 +3023,7 @@ function factory() {
         args.payload = "dbus-json3";
         args.name = name;
         self.options = options;
+        self.unique_name = null;
 
         dbus_debug("dbus open: ", args);
 
@@ -3174,14 +3175,21 @@ function factory() {
                 close_perform(options);
         };
 
+        function on_ready(event, message) {
+            dbus_debug("dbus ready:", options);
+            self.unique_name = message["unique-name"];
+        }
+
         function on_close(event, options) {
             dbus_debug("dbus close:", options);
+            channel.removeEventListener("ready", on_ready);
             channel.removeEventListener("message", on_message);
             channel.removeEventListener("close", on_close);
             channel = null;
             close_perform(options);
         }
 
+        channel.addEventListener("control", on_ready);
         channel.addEventListener("message", on_message);
         channel.addEventListener("close", on_close);
 

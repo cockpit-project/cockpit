@@ -1815,6 +1815,22 @@ send_owned (CockpitDBusJson *self,
 }
 
 static void
+send_ready (CockpitDBusJson *self)
+{
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  const gchar *unique_name = NULL;
+  JsonObject *message;
+
+  message = json_object_new ();
+  unique_name = g_dbus_connection_get_unique_name (self->connection);
+  if (unique_name)
+    json_object_set_string_member (message, "unique-name", unique_name);
+
+  cockpit_channel_ready (channel, message);
+  json_object_unref (message);
+}
+
+static void
 on_name_appeared (GDBusConnection *connection,
                   const gchar *name,
                   const gchar *name_owner,
@@ -1824,7 +1840,7 @@ on_name_appeared (GDBusConnection *connection,
   if (!self->name_appeared)
     {
       self->name_appeared = TRUE;
-      cockpit_channel_ready (COCKPIT_CHANNEL (self), NULL);
+      send_ready (self);
     }
 
   send_owned (self, name_owner);
@@ -1904,7 +1920,7 @@ process_connection (CockpitDBusJson *self,
       else
         {
           subscribe_and_cache (self);
-          cockpit_channel_ready (COCKPIT_CHANNEL (self), NULL);
+          send_ready (self);
         }
     }
 }
@@ -2018,7 +2034,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       self->logname = self->name;
 
       subscribe_and_cache (self);
-      cockpit_channel_ready (channel, NULL);
+      send_ready (self);
     }
   else
     {

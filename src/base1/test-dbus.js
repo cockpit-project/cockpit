@@ -150,6 +150,32 @@ QUnit.asyncTest("bad dbus bus", function() {
     });
 });
 
+QUnit.asyncTest("wait ready", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    dbus.wait().then(function(options) {
+        assert.ok(!!dbus.unique_name, "wait fills unique_name");
+    }, function() {
+        assert.ok(false, "shouldn't fail");
+    }).always(function() {
+        QUnit.start();
+    });
+});
+
+QUnit.asyncTest("wait fail", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus(null, { "bus": "none", "address": "bad" });
+    dbus.wait().then(function(options) {
+        assert.ok(false, "shouldn't succeed");
+    }, function() {
+        assert.ok(true, "should fail");
+    }).always(function() {
+        QUnit.start();
+    });
+});
+
 function internal_test(options) {
     assert.expect(2);
     var dbus = cockpit.dbus(null, options);

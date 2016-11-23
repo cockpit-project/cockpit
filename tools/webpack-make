@@ -67,7 +67,14 @@ webpack(config, function(err, stats) {
 });
 
 function generateDeps(makefile, stats) {
+
+    // Note that these are cheap ways of doing a set
     var inputs = { };
+    var outputs = { };
+    var installs = { };
+    var tests = { };
+    var debugs = { };
+
     stats.compilation.modules.forEach(function(module) {
         var parts = module.identifier().split("!");
         parts.concat(module.fileDependencies || []).forEach(function(part) {
@@ -80,24 +87,17 @@ function generateDeps(makefile, stats) {
         maybePushInput(inputs, file);
     });
 
-    // That was a cheap way of doing a set
-    inputs = Object.keys(inputs);
-
     // All the dependent files
-    var outputs = [];
-    var installs = [];
-    var tests = [];
-    var debugs = [];
     var asset, output;
     var now = Math.floor(Date.now() / 1000);
 
     for(asset in stats.compilation.assets) {
         output = path.join(stats.compilation.outputOptions.path, asset);
         fs.utimesSync(output, now, now);
-        outputs.push(output)
+        outputs[output] = output;
 
 	if (output.indexOf("/test-") !== -1 && endsWith(output, ".html")) {
-            tests.push(output);
+            tests[output] = output;
             continue;
         }
 
@@ -115,18 +115,23 @@ function generateDeps(makefile, stats) {
 
         // Debug output gets installed separately
         if (endsWith(install, ".map"))
-            debugs.push(install);
+            debugs[install] = install;
         else
-            installs.push(install);
+            installs[install] = install;
     }
 
-    // Output a makefile
+    // Finalize all the sets into arrays
+    inputs = Object.keys(inputs).sort();
+    outputs = Object.keys(outputs).sort();
+    installs = Object.keys(installs).sort();
+    tests = Object.keys(tests).sort();
+    debugs = Object.keys(debugs).sort();
 
     var lines = [ "# Generated Makefile data for " + prefix, "# Stamp: " + latest, "" ];
 
     function makeArray(name, values) {
         lines.push(name + " = \\");
-        values.sort().forEach(function(value) {
+        values.forEach(function(value) {
             lines.push("\t" + value + " \\");
         });
         lines.push("\t$(NULL)");
@@ -138,7 +143,6 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_INSTALL", installs);
     makeArray(prefix + "_DEBUG", debugs);
     makeArray(prefix + "_TESTS", tests);
-    makeArray(prefix + "_INPUTS", inputs);
 
     lines.push(makefile + ": $(WEBPACK_CONFIG) $(" + prefix + "_INPUTS)");
     lines.push("\t$(WEBPACK_RULE) -d " + makefile + " $(WEBPACK_CONFIG)");

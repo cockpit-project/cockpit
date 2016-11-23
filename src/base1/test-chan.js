@@ -15,13 +15,44 @@ function console_ignore_log(exp) {
 
 /* The other end of the mock websocket */
 function MockPeer() {
+    var self = this;
+    var echos = { };
+
     /* These are events */
-    this.open = function(event) { };
-    this.recv = function(event, channel, payload) { };
+    self.onopen = function(event) { };
+    self.onrecv = function(event, channel, payload) {
+        var command;
+
+        /* A rudimentary echo channel implementation */
+        if (channel) {
+            if (channel in echos)
+                self.send(channel, payload);
+            return;
+        }
+
+        command = JSON.parse(payload);
+        if (command.command == "open") {
+            if (command.payload == "echo") {
+                echos[command.channel] = true;
+                self.send(null, JSON.stringify({
+                    "command": "ready",
+                    "channel": command.channel
+                }));
+            } else {
+                self.send(null, JSON.stringify({
+                    "command": "close",
+                    "channel": command.channel,
+                    "problem": "not-supported",
+                }));
+            }
+        } else if (command.command == "close") {
+            delete echos[command.channel];
+        }
+    };
 
     /* Methods filled in by MockWebSocket */
-    this.send = function(channel, payload) { throw "not reached"; };
-    this.close = function(options) { throw "not reached"; };
+    self.send = function(channel, payload) { throw "not reached"; };
+    self.close = function(options) { throw "not reached"; };
 }
 
 window.mock = { url: "ws://url" };
@@ -75,16 +106,22 @@ function MockWebSocket(url, protocol) {
         this.onclose({"name": "close", "code": code || 1000, "reason": reason, "wasClean": true });
     };
 
-    /* console.log("MockWebSocket " + url + " " + protocol); */
-
     /* Instantiate the global mock peer */
+    var sending = [ ];
     mock.send = function(channel, payload) {
+        if (!channel)
+            channel = "";
         var event = {
             "name": "message",
             "data": channel.toString() + "\n" + payload
         };
-        window.setTimeout(function() { ws.onmessage(event); }, 5);
+        sending.push(event);
+        window.setTimeout(function() {
+            if (ws.readyState == 1)
+                ws.onmessage(sending.shift());
+        }, 5);
     };
+
     mock.close = function(options) {
         if (!options)
             options = { };
@@ -446,8 +483,8 @@ QUnit.asyncTest("logout", function() {
         }
     });
 
-    var channel = cockpit.channel({ });
-    var channelb = cockpit.channel({ });
+    var channel = cockpit.channel({ "payload": "echo" });
+    var channelb = cockpit.channel({ "payload": "echo" });
 
     $(channel).on("close", function(event, options) {
         assert.equal(options.problem, "disconnected", "received reason");
@@ -530,7 +567,7 @@ QUnit.asyncTest("send after close", function() {
 QUnit.asyncTest("ignore other commands", function() {
     assert.expect(1);
 
-    var channel = cockpit.channel({ });
+    var channel = cockpit.channel({ "payload": "echo" });
 
     console_ignore_log(/unhandled control message.*/);
 
@@ -549,18 +586,14 @@ QUnit.asyncTest("filter message", function() {
     var filtered = 0;
     cockpit.transport.filter(function(message, channel, control) {
         if (message[0] != '\n') {
+            console.log("filtered", message);
             filtered += 1;
             return (filtered != 1);
         }
     });
 
-    $(mock_peer).on("recv", function(event, chan, payload) {
-        if (chan)
-            mock_peer.send(chan, "blah");
-    });
-
     var received = 0;
-    var channel = cockpit.channel({ });
+    var channel = cockpit.channel({ "payload": "echo" });
     $(channel).on("message", function(data) {
         received += 1;
 

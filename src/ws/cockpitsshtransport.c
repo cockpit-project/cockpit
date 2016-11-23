@@ -400,7 +400,6 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
 
   self->connecting = TRUE;
 
-  options->supports_conversations = TRUE;
   options->remote_peer = cockpit_creds_get_rhost (self->creds);
   ssh_options->allow_unknown_hosts = TRUE;
   ssh_options->supports_hostkey_prompt = self->prompt_hostkey;

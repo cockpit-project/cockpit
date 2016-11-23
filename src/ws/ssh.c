@@ -591,8 +591,7 @@ verify_knownhost (CockpitSshData *data)
           g_debug ("Couldn't find the known hosts file");
           /* fall through */
         case SSH_SERVER_NOT_KNOWN:
-          if (data->auth_options->supports_conversations &&
-              data->ssh_options->supports_hostkey_prompt)
+          if (data->ssh_options->supports_hostkey_prompt)
             ret = prompt_for_host_key (data);
           else
             ret = "unknown-hostkey";
@@ -855,8 +854,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
   methods_server = ssh_userauth_list (data->session, NULL);
 
   /* If interactive isn't supported try password instead */
-  if (!(methods_server & SSH_AUTH_METHOD_INTERACTIVE) ||
-      !data->auth_options->supports_conversations)
+  if (!(methods_server & SSH_AUTH_METHOD_INTERACTIVE))
     {
       methods_to_try = methods_to_try | SSH_AUTH_METHOD_PASSWORD;
       methods_to_try = methods_to_try & ~SSH_AUTH_METHOD_INTERACTIVE;
@@ -880,7 +878,6 @@ cockpit_ssh_authenticate (CockpitSshData *data)
           auth_func = do_interactive_auth;
           method = SSH_AUTH_METHOD_INTERACTIVE;
           has_creds = data->initial_auth_data != NULL && \
-                      data->auth_options->supports_conversations &&
                       g_strcmp0 (data->auth_options->auth_type,
                                  auth_method_description (method)) == 0;
         }

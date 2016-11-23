@@ -953,7 +953,6 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
       options = g_new0 (CockpitAuthOptions, 1);
       options->remote_peer = remote_peer;
       options->auth_type = "password";
-      options->supports_conversations = TRUE;
 
       ssh_options = g_new0 (CockpitSshOptions, 1);
       ssh_options->supports_hostkey_prompt = TRUE;

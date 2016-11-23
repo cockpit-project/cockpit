@@ -120,8 +120,6 @@ cockpit_auth_options_from_env (gchar **env)
 {
   CockpitAuthOptions *options = g_new0 (CockpitAuthOptions, 1);
   options->auth_type = get_environment_val (env, "COCKPIT_AUTH_MESSAGE_TYPE", "none");
-  options->supports_conversations = get_environment_bool (env, "COCKPIT_SUPPORTS_CONVERSATION",
-                                                           FALSE);
   options->remote_peer = get_environment_val (env, "COCKPIT_REMOTE_PEER", "localhost");
   return options;
 }
@@ -132,8 +130,6 @@ cockpit_auth_options_to_env (CockpitAuthOptions *options,
 {
   env = g_environ_setenv (env, "COCKPIT_AUTH_MESSAGE_TYPE",
                           options->auth_type ? options->auth_type : "none", TRUE);
-  env = set_environment_bool (env, "COCKPIT_SUPPORTS_CONVERSATION",
-                              options->supports_conversations);
   env = set_environment_val (env, "COCKPIT_REMOTE_PEER",
                              options->remote_peer);
   return env;

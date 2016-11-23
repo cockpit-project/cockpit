@@ -67,12 +67,11 @@ class TestStorage(StorageCase):
         self.content_head_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
-        # Unlock
-        self.content_head_action(1, "Unlock")
-        self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja" })
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
-
         if not self.storaged_is_old_udisks:
+
+            # Unlock, this uses the stored passphrase
+            self.content_head_action(1, "Unlock")
+            self.content_row_wait_in_col(2, 1, "ext4 File System")
 
             # Change options.  We keep trying until the stack has synched
             # up with crypttab and we see the old options.
@@ -91,12 +90,33 @@ class TestStorage(StorageCase):
 
             assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
 
-            # Delete the partition.
+            # Remove passphrase
+            edit_button = self.content_tab_info_row(1, 2, "Stored passphrase") + " button"
+            self.dialog_with_retry(trigger = lambda: b.click(edit_button),
+                                   expect = { "passphrase": "wrong-passphrase" },
+                                   values = { "passphrase": "" })
 
+            # Lock it
+            self.content_head_action(1, "Lock")
+            b.wait_not_in_text("#detail-content", "ext4 File System")
+
+            # Unlock, this asks for a passphrase
+            self.content_head_action(1, "Unlock")
+            self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja" })
+            self.content_row_wait_in_col(2, 1, "ext4 File System")
+
+            # Delete the partition.
             self.content_head_action(1, "Delete")
             self.confirm()
             self.content_row_wait_in_col(1, 1, "Free Space")
             b.wait_not_in_text("#detail-content", "ext4 File System")
+
+        else:
+
+            # Unlock, this asks for a passphrase because we don't store one with older UDisks2.
+            self.content_head_action(1, "Unlock")
+            self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja" })
+            self.content_row_wait_in_col(2, 1, "ext4 File System")
 
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""

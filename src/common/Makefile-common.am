@@ -26,6 +26,7 @@ EXTRA_DIST += \
 	src/common/mock-content \
 	src/common/mock-locale \
 	src/common/mock_known_hosts \
+	src/common/mock-stderr \
 	src/common/com.redhat.Cockpit.DBusTests.xml \
 	src/common/cockpitassets.gresource.xml \
 	src/common/fail.html \
@@ -133,13 +134,23 @@ test_json_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_json_SOURCES = src/common/test-json.c
 test_json_LDADD = $(libcockpit_common_a_LIBS)
 
-test_knownhosts_CFLAGS = $(libcockpit_common_a_CFLAGS)
-test_knownhosts_SOURCES = src/common/test-knownhosts.c
-test_knownhosts_LDADD = $(libcockpit_common_a_LIBS)
+test_locale_PO = \
+	src/common/mock-locale/de_DE/LC_MESSAGES/test.po \
+	src/common/mock-locale/zh_CN/LC_MESSAGES/test.po \
+	$(NULL)
+
+test_locale_MO = $(test_locale_PO:.po=.mo)
 
 test_locale_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_locale_SOURCES = src/common/test-locale.c
 test_locale_LDADD = $(libcockpit_common_a_LIBS)
+
+# Tell make that we depend on these files being built here
+src/common/test-locale.c: $(test_locale_MO)
+
+test_knownhosts_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_knownhosts_SOURCES = src/common/test-knownhosts.c
+test_knownhosts_LDADD = $(libcockpit_common_a_LIBS)
 
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c
@@ -190,6 +201,6 @@ noinst_SCRIPTS += \
 	src/common/mock-locale/zh_CN/LC_MESSAGES/test.mo \
 	$(NULL)
 
-EXTRA_DIST += \
-	src/common/mock-stderr \
+CLEANFILES += \
+	$(test_locale_MO) \
 	$(NULL)

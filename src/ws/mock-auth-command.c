@@ -127,27 +127,27 @@ main (int argc,
     }
   else if (strcmp (data, "ssh-remote-switch") == 0 &&
            strcmp (argv[1], "machine") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "") == 0)
+           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
   else if (strcmp (data, "ssh-alt-machine") == 0 &&
            strcmp (argv[1], "machine") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "") == 0)
+           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
   else if (strcmp (data, "ssh-alt-default") == 0 &&
            strcmp (argv[1], "default-host") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "1") == 0)
+           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "*") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
   else if (strcmp (data, "this is the password") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "1") == 0)
+           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "*") == 0)
     {
       if (strcmp (argv[1], "me@localhost") == 0)
         {
@@ -160,7 +160,7 @@ main (int argc,
         }
     }
   else if (strcmp (data, "this is the machine password") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_IGNORE_HOST_KEY"), "") == 0)
+           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
     {
       if (strcmp (argv[1], "remote-user@machine") == 0)
         {

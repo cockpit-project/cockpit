@@ -406,7 +406,7 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
   ssh_options->command = self->command;
   ssh_options->knownhosts_file = self->knownhosts_file;
   ssh_options->ignore_hostkey = self->ignore_hostkey;
-  ssh_options->expected_hostkey = self->expected_hostkey;
+  ssh_options->knownhosts_data = self->expected_hostkey;
 
   password = cockpit_creds_get_password (self->creds);
   gssapi_creds = cockpit_creds_get_gssapi_creds (self->creds);

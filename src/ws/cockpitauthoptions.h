@@ -37,7 +37,7 @@ gchar **             cockpit_auth_options_to_env    (CockpitAuthOptions *options
                                                      gchar **env);
 
 typedef struct {
-  const gchar *expected_hostkey;
+  const gchar *knownhosts_data;
   const gchar *knownhosts_file;
   const gchar *command;
   const gchar *krb5_ccache_name;

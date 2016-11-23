@@ -1,4 +1,4 @@
 #!/bin/bash
 
 BASE=$(dirname $0)
-$BASE/virt-builder-fedora "$1" rhel-7.2 x86_64 ${SUBSCRIPTION_PATH:-~/.rhel}
+$BASE/virt-install-fedora "$1" x86_64 "http://download-node-02.eng.bos.redhat.com/released/RHEL-7/7.3/Server/x86_64/os/" ${SUBSCRIPTION_PATH:-~/.rhel}

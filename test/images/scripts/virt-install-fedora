@@ -24,8 +24,8 @@
 
 set -ex
 
-if [ "$#" != 3 ]; then
-    echo >&2 "Usage: virt-install-fedora IMAGE ARCH URL"
+if [ "$#" -lt 3 ]; then
+    echo >&2 "Usage: virt-install-fedora IMAGE ARCH URL [SUBSCRIPTION_PATH]"
     exit 1
 fi
 
@@ -34,7 +34,7 @@ arch=$2
 url=$3
 
 base=$(dirname $0)
-ks=fedora.ks
+ks=builder.ks
 
 cat <<EOF >$ks
 install
@@ -42,7 +42,8 @@ text
 shutdown
 lang en_US.UTF-8
 keyboard us
-network --bootproto dhcp
+network --bootproto=dhcp
+network --bootproto=dhcp --device=eth0
 rootpw foobar
 firewall --enabled --ssh
 selinux --enforcing
@@ -57,17 +58,32 @@ autopart
 %end
 
 %post
-mkdir /root/.ssh
+mkdir -p /root/.ssh
 chmod 700 /root/.ssh
 echo "$(cat $base/../../common/identity.pub)" > /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
+EOF
+
+# If we have subscription details as an arg, upload those into the vm
+# Otherwise ensure subscription is skipped during setup
+if [ "$#" -gt 3 ]; then
+cat << EOF >>$ks
+mkdir /root/.rhel
+echo "$(cat $4/login)" > /root/.rhel/login
+echo "$(cat $4/pass)" > /root/.rhel/pass
 %end
 EOF
+else
+cat << EOF >>$ks
+touch /root/.skip_repos
+%end
+EOF
+fi
 
 qemu-img create -f qcow2 "$out" 8G
 
 connect="--connect=qemu:///session"
-name=fedora-builder
+name=image-builder
 
 cleanup_builder_vm () {
   if virsh $connect list --state-running --name | grep -q $name; then

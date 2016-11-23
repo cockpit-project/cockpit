@@ -3055,7 +3055,7 @@ function factory() {
                 return false;
             if (match.member && signal[2] !== match.member)
                 return false;
-            if (match.arg0 && signal[3] !== match.arg0)
+            if (match.arg0 && (!signal[3] || signal[3][0] !== match.arg0))
                 return false;
             return true;
         }
@@ -3231,6 +3231,19 @@ function factory() {
             }
 
             return dfd.promise;
+        };
+
+        self.signal = function signal(path, iface, member, args, options) {
+            if (!channel || !channel.valid)
+                return;
+
+            var message = extend({ }, options, {
+                "signal": [ path, iface, member, args || [] ]
+            });
+
+            var payload = JSON.stringify(message);
+            dbus_debug("dbus:", payload);
+            channel.send(payload);
         };
 
         this.subscribe = function subscribe(match, callback, rule) {

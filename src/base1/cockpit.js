@@ -31,6 +31,9 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 (function() {
 "use strict";
 
+var cockpit = { };
+event_mixin(cockpit, { });
+
 if (typeof window.debugging === "undefined") {
     try {
         // Sometimes this throws a SecurityError such as during testing
@@ -928,7 +931,7 @@ function resolve_path_dots(parts) {
     return out;
 }
 
-function basic_scope(cockpit, jquery) {
+function factory() {
 
     cockpit.channel = function channel(options) {
         return new Channel(options);
@@ -4271,23 +4274,12 @@ function basic_scope(cockpit, jquery) {
         };
     }
 
+    return cockpit;
 } /* scope end */
 
 /*
  * Register this script as a module and/or with globals
  */
-
-var cockpit = { };
-event_mixin(cockpit, { });
-
-var basics = false;
-function factory() {
-    if (!basics) {
-        basic_scope(cockpit);
-        basics = true;
-    }
-    return cockpit;
-}
 
 var self_module_id;
 

@@ -258,7 +258,13 @@ setup_transport (TestCase *tc,
     command = fixture_cat.ssh_command;
 
   if (fixture->expect_key)
-    expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
+    {
+      if (fixture->expect_key[0] == '\0')
+        expect_knownhosts = g_strdup ("");
+      else
+        expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
+
+    }
   ignore_key = fixture->ignore_key;
   prompt_hostkey = fixture->prompt_hostkey;
 

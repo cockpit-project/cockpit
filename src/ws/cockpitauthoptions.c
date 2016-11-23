@@ -23,6 +23,8 @@
 
 static const gchar *default_knownhosts = PACKAGE_LOCALSTATE_DIR "/known_hosts";
 static const gchar *default_command = "cockpit-bridge";
+static const gchar *ignore_hosts_data = "*";
+static const gchar *hostkey_mismatch_data = "* invalid key";
 
 static gboolean
 has_environment_val (gchar **env,
@@ -72,15 +74,6 @@ set_environment_bool (gchar **env,
                       gboolean val)
 {
   return g_environ_setenv (env, name, val ? "1" : "", TRUE);
-}
-
-static const gchar *
-get_expected_hostkey (gchar **env)
-{
-  if (get_environment_bool (env, "COCKPIT_SSH_NO_HOST_KEY", FALSE))
-    return "";
-
-  return get_environment_val (env, "COCKPIT_SSH_HOST_KEY", NULL);
 }
 
 static guint
@@ -140,16 +133,19 @@ cockpit_ssh_options_from_env (gchar **env)
 {
 
   CockpitSshOptions *options = g_new0 (CockpitSshOptions, 1);
-  options->expected_hostkey = get_expected_hostkey (env);
+  options->knownhosts_data = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA",
+                                                 NULL);
+  if (g_strcmp0 (options->knownhosts_data, ignore_hosts_data) == 0)
+    options->ignore_hostkey = TRUE;
+
   options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                                                   default_knownhosts);
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
   options->krb5_ccache_name = get_environment_val (env, "KRB5CCNAME", NULL);
-  options->ignore_hostkey = get_environment_bool (env, "COCKPIT_SSH_IGNORE_HOST_KEY", FALSE);
   options->supports_hostkey_prompt = get_environment_bool (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", FALSE);
   options->agent_fd = get_agent_fd (env);
 
-  if (options->ignore_hostkey || options->expected_hostkey != NULL)
+  if (options->knownhosts_data != NULL)
     options->allow_unknown_hosts = TRUE;
   else
     options->allow_unknown_hosts = get_allow_unknown_hosts (env);
@@ -162,23 +158,26 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
                             gchar **env)
 {
   gchar *agent = NULL;
+  const gchar *knownhosts_data;
 
   env = set_environment_bool (env, "COCKPIT_SSH_ALLOW_UNKNOWN",
                               options->allow_unknown_hosts);
   env = set_environment_bool (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT",
                               options->supports_hostkey_prompt);
-  env = set_environment_bool (env, "COCKPIT_SSH_IGNORE_HOST_KEY",
-                              options->ignore_hostkey);
   env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                              options->knownhosts_file);
+
+  if (options->ignore_hostkey)
+    knownhosts_data = ignore_hosts_data;
+  else if (options->knownhosts_data && options->knownhosts_data[0] == '\0')
+    knownhosts_data = hostkey_mismatch_data;
+  else
+    knownhosts_data = options->knownhosts_data;
+
+  env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA",
+                             knownhosts_data);
   env = set_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND",
                              options->command);
-  env = set_environment_val (env, "COCKPIT_SSH_HOST_KEY",
-                             options->expected_hostkey);
-  /* If an empty string we set a different env var */
-  env = set_environment_bool (env, "COCKPIT_SSH_NO_HOST_KEY",
-                              g_strcmp0 (options->expected_hostkey, "") == 0);
-
   env = set_environment_val (env, "KRB5CCNAME", options->krb5_ccache_name);
 
   if (options->agent_fd)

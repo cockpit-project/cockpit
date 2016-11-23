@@ -491,6 +491,9 @@ out:
 static const gchar *
 verify_knownhost (CockpitSshData *data)
 {
+  FILE *fp = NULL;
+  const gchar *knownhosts_file;
+  gchar *tmp_knownhost_file = NULL;
   const gchar *ret = "invalid-hostkey";
   ssh_key key = NULL;
   unsigned char *hash = NULL;
@@ -531,81 +534,102 @@ verify_knownhost (CockpitSshData *data)
       ssh_clean_pubkey_hash (&hash);
     }
 
-  if (data->ssh_options->expected_hostkey)
+  if (data->ssh_options->knownhosts_data)
     {
-      /* Only check that the host key matches this specifically */
-      if (g_str_equal (data->host_key, data->ssh_options->expected_hostkey))
+      tmp_knownhost_file = create_knownhosts_temp ();
+      if (!tmp_knownhost_file)
         {
-          g_debug ("%s: host key matched expected", data->logname);
-          ret = NULL; /* success */
+          ret = "internal-error";
+          goto done;
         }
-      else
+
+      fp = fopen (tmp_knownhost_file, "a");
+      if (fp == NULL)
         {
-          /* A empty expect_key is used by the frontend to force
-             failure.  Don't warn about it.
-          */
-          if (data->ssh_options->expected_hostkey[0])
-            g_message ("%s: host key did not match expected", data->logname);
+          g_warning ("%s: couldn't open temporary known host file for data: %s",
+                     data->logname, tmp_knownhost_file);
+          ret = "internal-error";
+          goto done;
         }
+
+      if (fputs (data->ssh_options->knownhosts_data, fp) < 0)
+        {
+          g_warning ("%s: couldn't write to data to temporary known host file: %s",
+                     data->logname, g_strerror (errno));
+          ret = "internal-error";
+          fclose (fp);
+          goto done;
+        }
+
+      fclose (fp);
+      knownhosts_file = tmp_knownhost_file;
     }
   else
     {
-      if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                           data->ssh_options->knownhosts_file) != SSH_OK)
-        {
-          g_warning ("Couldn't set knownhosts file location");
-          ret = "internal-error";
-          goto done;
-        }
+      knownhosts_file = data->ssh_options->knownhosts_file;
+    }
 
-      state = ssh_is_server_known (data->session);
-      if (state == SSH_SERVER_KNOWN_OK)
-        {
-          g_debug ("%s: verified host key", data->logname);
-          ret = NULL; /* success */
-          goto done;
-        }
-      else if (state == SSH_SERVER_ERROR)
-        {
-          g_warning ("%s: couldn't check host key: %s", data->logname,
-                     ssh_get_error (data->session));
-          ret = "internal-error";
-          goto done;
-        }
+  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
+                       knownhosts_file) != SSH_OK)
+    {
+      g_warning ("Couldn't set knownhosts file location");
+      ret = "internal-error";
+      goto done;
+    }
 
-      switch (state)
+  state = ssh_is_server_known (data->session);
+  if (state == SSH_SERVER_KNOWN_OK)
+    {
+      g_debug ("%s: verified host key", data->logname);
+      ret = NULL; /* success */
+      goto done;
+    }
+  else if (state == SSH_SERVER_ERROR)
+    {
+      g_warning ("%s: couldn't check host key: %s", data->logname,
+                 ssh_get_error (data->session));
+      ret = "internal-error";
+      goto done;
+    }
+
+  switch (state)
+    {
+    case SSH_SERVER_KNOWN_OK:
+    case SSH_SERVER_ERROR:
+      g_assert_not_reached ();
+      break;
+    case SSH_SERVER_KNOWN_CHANGED:
+      g_message ("%s: %s host key for server has changed to: %s",
+                 data->logname, data->host_key_type, data->host_fingerprint);
+      break;
+    case SSH_SERVER_FOUND_OTHER:
+      g_message ("%s: host key for this server changed key type: %s",
+                 data->logname, data->host_key_type);
+      break;
+    case SSH_SERVER_FILE_NOT_FOUND:
+      g_debug ("Couldn't find the known hosts file");
+      /* fall through */
+    case SSH_SERVER_NOT_KNOWN:
+      if (data->ssh_options->supports_hostkey_prompt)
+        ret = prompt_for_host_key (data);
+      else
+        ret = "unknown-hostkey";
+
+      if (ret)
         {
-        case SSH_SERVER_KNOWN_OK:
-        case SSH_SERVER_ERROR:
-          g_assert_not_reached ();
-          break;
-        case SSH_SERVER_KNOWN_CHANGED:
-          g_message ("%s: %s host key for server has changed to: %s",
+          g_message ("%s: %s host key for server is not known: %s",
                      data->logname, data->host_key_type, data->host_fingerprint);
-          break;
-        case SSH_SERVER_FOUND_OTHER:
-          g_message ("%s: host key for this server changed key type: %s",
-                     data->logname, data->host_key_type);
-          break;
-        case SSH_SERVER_FILE_NOT_FOUND:
-          g_debug ("Couldn't find the known hosts file");
-          /* fall through */
-        case SSH_SERVER_NOT_KNOWN:
-          if (data->ssh_options->supports_hostkey_prompt)
-            ret = prompt_for_host_key (data);
-          else
-            ret = "unknown-hostkey";
-
-          if (ret)
-            {
-              g_message ("%s: %s host key for server is not known: %s",
-                         data->logname, data->host_key_type, data->host_fingerprint);
-            }
-          break;
         }
+      break;
     }
 
 done:
+  if (tmp_knownhost_file)
+    {
+      g_unlink (tmp_knownhost_file);
+      g_free (tmp_knownhost_file);
+    }
+
   if (key)
     ssh_key_free (key);
   return ret;

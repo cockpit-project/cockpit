@@ -1250,134 +1250,155 @@ array_string_element (JsonArray *array,
 #define G_DBUS_ERROR_UNKNOWN_OBJECT G_DBUS_ERROR_UNKNOWN_METHOD
 #endif
 
+static gboolean
+parse_json_method (CockpitDBusJson *self,
+                   JsonNode *node,
+                   const gchar *description,
+                   const gchar **path,
+                   const gchar **interface,
+                   const gchar **method,
+                   JsonNode **args)
+{
+  JsonArray *array;
+
+  g_assert (description != NULL);
+  g_assert (path != NULL);
+  g_assert (interface != NULL);
+  g_assert (method != NULL);
+  g_assert (args != NULL);
+
+  if (!JSON_NODE_HOLDS_ARRAY (node))
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "incorrect '%s' field in dbus command", description);
+      return FALSE;
+    }
+
+  array = json_node_get_array (node);
+  *path = array_string_element (array, 0);
+  *interface = array_string_element (array, 1);
+  *method = array_string_element (array, 2);
+
+  *args = json_array_get_element (array, 3);
+  if (!*args || !JSON_NODE_HOLDS_ARRAY (*args))
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "arguments field is invalid in dbus \"%s\"", description);
+    }
+  else if (!*path || !g_variant_is_object_path (*path))
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "object path is invalid in dbus \"%s\": %s", description, *path);
+    }
+  else if (!*interface || !g_dbus_is_interface_name (*interface))
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "interface name is invalid in dbus \"%s\": %s", description, *interface);
+    }
+  else if (!*method || !g_dbus_is_member_name (*method))
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "member name is invalid in dbus \"%s\": %s", description, *method);
+    }
+  else
+    {
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 handle_dbus_call (CockpitDBusJson *self,
                   JsonObject *object)
 {
   CockpitDBusPeer *peer = NULL;
-  GError *error = NULL;
   CallData *call;
-  JsonArray *array;
   JsonNode *node;
   gchar *type;
 
   node = json_object_get_member (object, "call");
   g_return_if_fail (node != NULL);
-
-  if (!JSON_NODE_HOLDS_ARRAY (node))
-    {
-      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
-                            "incorrect 'call' field in dbus command");
-      return;
-    }
-
   call = g_slice_new0 (CallData);
-  array = json_node_get_array (node);
 
-  call->path = array_string_element (array, 0);
-  call->interface = array_string_element (array, 1);
-  call->method = array_string_element (array, 2);
-
-  call->args = json_array_get_element (array, 3);
-  if (!call->args || !JSON_NODE_HOLDS_ARRAY (call->args))
+  if (!parse_json_method (self, node, "call", &call->path, &call->interface, &call->method, &call->args))
     {
-      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
-                            "incorrect arguments field in dbus 'call'");
-      call_data_free (call);
-      return;
-    }
-
-  if (!cockpit_json_get_string (object, "id", NULL, &call->cookie))
-    {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "The 'id' field is invalid in call");
+      /* fall through to call invalid */
     }
   else if (!cockpit_json_get_string (object, "name", self->default_name, &call->name))
     {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "The \"name\" field is invalid in call");
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"name\" field is invalid in dbus call");
     }
   else if (self->bus_type != G_BUS_TYPE_NONE && call->name == NULL)
     {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "The \"name\" field is missing in call");
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"name\" field is missing in dbus call");
     }
   else if (call->name != NULL && !g_dbus_is_name (call->name))
     {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "The \"name\" field is not a valid bus name");
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"name\" field in dbus call is not a valid bus name: %s", call->name);
+    }
+  else if (!cockpit_json_get_string (object, "id", NULL, &call->cookie))
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"id\" field is invalid in call");
     }
   else if (!cockpit_json_get_string (object, "type", NULL, &call->type))
     {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "The 'type' field is invalid in call");
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"type\" field is invalid in call");
+    }
+  else if (call->type && !g_variant_is_signature (call->type))
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"type\" signature is not valid in dbus call: %s", call->type);
     }
   else if (!cockpit_json_get_string (object, "flags", NULL, &call->flags))
     {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "The 'flags' field is invalid in call");
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"flags\" field is invalid in dbus call");
     }
-  else if (!call->path || !g_variant_is_object_path (call->path))
+  else
     {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_OBJECT,
-                   "Object path is not valid: %s", call->path);
-    }
-  else if (!call->interface || !g_dbus_is_interface_name (call->interface))
-    {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_INTERFACE,
-                   "Interface name is not valid: %s", call->interface);
-    }
-  else if (!call->method || !g_dbus_is_member_name (call->method))
-    {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD,
-                   "Method name is not valid: %s", call->method);
-    }
-  else if (call->type)
-    {
-      if (!g_variant_is_signature (call->type))
-        {
-          g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                       "Type signature is not valid: %s", call->type);
-        }
-      else
+      if (call->type)
         {
           type = g_strdup_printf ("(%s)", call->type);
           call->param_type = g_variant_type_new (type);
           g_free (type);
         }
-    }
 
-  if (error)
-    {
-      send_dbus_error (self, call, error);
-      g_error_free (error);
-      call_data_free (call);
+      /* No arguments or zero arguments, can make call without introspecting */
+      if (!call->param_type)
+        {
+          if (json_array_get_length (json_node_get_array (call->args)) == 0)
+            call->param_type = g_variant_type_new ("()");
+        }
+
+      call->dbus_json = self;
+      call->request = json_object_ref (object);
+      self->active_calls = g_list_prepend (self->active_calls, call);
+      call->link = g_list_find (self->active_calls, call);
+
+      if (call->param_type)
+        {
+          /* Frees call data when done */
+          handle_dbus_call_on_interface (self, call);
+        }
+      else
+        {
+          peer = ensure_peer (self, call->name);
+          cockpit_dbus_cache_introspect (peer->cache, call->path,
+                                         call->interface, on_introspect_ready, call);
+        }
+
+      /* Start processing call */
       return;
     }
 
-  /* No arguments or zero arguments, can make call without introspecting */
-  if (!call->param_type)
-    {
-      if (json_array_get_length (json_node_get_array (call->args)) == 0)
-        call->param_type = g_variant_type_new ("()");
-    }
-
-  call->dbus_json = self;
-  call->request = json_object_ref (object);
-  self->active_calls = g_list_prepend (self->active_calls, call);
-  call->link = g_list_find (self->active_calls, call);
-
-  if (call->param_type)
-    {
-      /* Frees call data when done */
-      handle_dbus_call_on_interface (self, call);
-    }
-  else
-    {
-      peer = ensure_peer (self, call->name);
-      cockpit_dbus_cache_introspect (peer->cache, call->path,
-                                     call->interface, on_introspect_ready, call);
-    }
+  /* call was invalid */
+  call_data_free (call);
 }
 
 static void
@@ -1922,6 +1943,9 @@ on_name_appeared (GDBusConnection *connection,
                   gpointer user_data)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
+
+  g_object_ref (self);
+
   if (!self->default_appeared)
     {
       self->default_appeared = TRUE;
@@ -1929,6 +1953,8 @@ on_name_appeared (GDBusConnection *connection,
     }
 
   send_owned (self, name, name_owner);
+
+  g_object_unref (self);
 }
 
 static void

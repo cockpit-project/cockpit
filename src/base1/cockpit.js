@@ -2721,11 +2721,11 @@ function factory() {
             console.debug.apply(console, arguments);
     }
 
-    function DBusError(arg) {
+    function DBusError(arg, arg1) {
         if (typeof(arg) == "string") {
             this.problem = arg;
             this.name = null;
-            this.message = cockpit.message(arg);
+            this.message = arg1 || cockpit.message(arg);
         } else {
             this.problem = null;
             this.name = arg[0];
@@ -3160,7 +3160,7 @@ function factory() {
             var id, outstanding = calls;
             calls = { };
             for (id in outstanding) {
-                outstanding[id].reject(new DBusError(closed));
+                outstanding[id].reject(new DBusError(closed, options.message));
             }
             self.dispatchEvent("close", options);
         }

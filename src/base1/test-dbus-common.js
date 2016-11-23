@@ -377,6 +377,61 @@ function common_dbus_tests(channel_options, bus_name)
             });
     });
 
+    QUnit.asyncTest("bad object path", function() {
+        assert.expect(2);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.call("invalid/path", "borkety.Bork", "Echo", [ 1 ]).
+            fail(function(ex) {
+                assert.equal(ex.problem, "protocol-error", "error name");
+                assert.equal(ex.message, "object path is invalid in dbus \"call\": invalid/path", "error message");
+            }).
+            always(function() {
+                QUnit.start();
+            });
+    });
+
+    QUnit.asyncTest("bad interface name", function() {
+        assert.expect(2);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.call("/path", "!invalid!interface!", "Echo", [ 1 ]).
+            fail(function(ex) {
+                assert.equal(ex.problem, "protocol-error", "error name");
+                assert.equal(ex.message, "interface name is invalid in dbus \"call\": !invalid!interface!", "error message");
+            }).
+            always(function() {
+                QUnit.start();
+            });
+    });
+
+    QUnit.asyncTest("bad method name", function() {
+        assert.expect(2);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.call("/path", "borkety.Bork", "!Invalid!Method!", [ 1 ]).
+            fail(function(ex) {
+                assert.equal(ex.problem, "protocol-error", "error name");
+                assert.equal(ex.message, "member name is invalid in dbus \"call\": !Invalid!Method!", "error message");
+            }).
+            always(function() {
+                QUnit.start();
+            });
+    });
+
+    QUnit.asyncTest("bad flags", function() {
+        assert.expect(2);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.call("/path", "borkety.Bork", "Method", [ 1 ], { "flags": 5 }).
+            fail(function(ex) {
+                assert.equal(ex.problem, "protocol-error", "error name");
+                assert.equal(ex.message, "the \"flags\" field is invalid in dbus call", "error message");
+            }).
+            always(function() {
+                QUnit.start();
+            });
+    });
 
     QUnit.asyncTest("bad types", function() {
         assert.expect(3);
@@ -385,8 +440,23 @@ function common_dbus_tests(channel_options, bus_name)
         dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ],
                   { type: "!!%%" }).
             fail(function(ex) {
-                assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                assert.equal(ex.message, "Type signature is not valid: !!%%", "error message");
+                assert.equal(ex.problem, "protocol-error", "error name");
+                assert.equal(ex.message, "the \"type\" signature is not valid in dbus call: !!%%", "error message");
+            }).
+            always(function() {
+                assert.equal(this.state(), "rejected", "should fail");
+                QUnit.start();
+            });
+    });
+
+    QUnit.asyncTest("bad type invalid", function() {
+        assert.expect(3);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ], { type: 5 /* invalid */ }).
+            fail(function(ex) {
+                assert.equal(ex.problem, "protocol-error", "error name");
+                assert.equal(ex.message, "the \"type\" field is invalid in call", "error message");
             }).
             always(function() {
                 assert.equal(this.state(), "rejected", "should fail");
@@ -852,6 +922,7 @@ function common_dbus_tests(channel_options, bus_name)
                                             assert.equal(this.state(), "resolved", "removed object");
                                             assert.strictEqual(removed, added, "removed fired");
                                             assert.strictEqual(removed.valid, false, "removed is invalid");
+                                            dbus.close();
                                             $(dbus).off();
                                             QUnit.start();
                                         });

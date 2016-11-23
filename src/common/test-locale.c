@@ -158,6 +158,10 @@ main (int argc,
   gchar *name;
   gint i;
 
+  g_unsetenv ("LANG");
+  g_unsetenv ("LC_ALL");
+  g_unsetenv ("LC_MESSAGES");
+
   bindtextdomain ("test", BUILDDIR "/src/common/mock-locale");
   cockpit_test_init (&argc, &argv);
 

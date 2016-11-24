@@ -493,5 +493,27 @@
         return this;
     };
 
+    /* Prevent flicker due to the marriage of jQuery and React here */
+    utils.hide = function hide(selector) {
+        var element = document.querySelector("#storage-detail");
+        element.setAttribute("hidden", "");
+    };
+
+    utils.show_soon = function show_soon(selector, ready) {
+        var element = document.querySelector(selector);
+        if (!element.hasAttribute("hidden"))
+            return;
+        var val = element.getAttribute("hidden");
+        if (ready) {
+            element.removeAttribute("hidden");
+            window.clearTimeout(parseInt(val, 10));
+        } else if (!val) {
+            val = window.setTimeout(function() {
+                show_soon(selector, true);
+            }, 2000);
+            element.setAttribute("hidden", String(val));
+        }
+    };
+
     module.exports = utils;
 }());

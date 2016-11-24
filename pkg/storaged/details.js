@@ -580,7 +580,7 @@
 
         function hide() {
             name = null;
-            $('#storage-detail').hide();
+            utils.hide("#storage-detail");
         }
 
         function show(t, n) {
@@ -593,28 +593,26 @@
             name = n;
             render();
 
-            React.unmountComponentAtNode($("#detail-content")[0]);
+            var content = document.querySelector("#detail-content");
+            React.unmountComponentAtNode(content);
             if (type == 'block') {
                 React.render(React.createElement(ContentViews.Block,
                                                  { client: client,
                                                    name: name
-                                                 }),
-                             $("#detail-content")[0]);
+                                                 }), content);
             } else if (type == 'mdraid') {
                 React.render(React.createElement(ContentViews.MDRaid,
                                                  { client: client,
                                                    name: name
-                                                 }),
-                             $("#detail-content")[0]);
+                                                 }), content);
             } else if (type == 'vgroup') {
                 React.render(React.createElement(ContentViews.VGroup,
                                                  { client: client,
                                                    name: name
-                                                 }),
-                             $("#detail-content")[0]);
+                                                 }), content);
             }
 
-            $('#storage-detail').show();
+            utils.show_soon("#storage-detail", !!content.firstChild);
         }
 
         return {

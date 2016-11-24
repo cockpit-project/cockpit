@@ -1621,6 +1621,53 @@ on_cache_meta (CockpitDBusCache *cache,
   json_object_unref (message);
 }
 
+static void
+handle_dbus_meta (CockpitDBusJson *self,
+                  JsonObject *object)
+{
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  GDBusInterfaceInfo *iface;
+  JsonObject *interface;
+  GError *error = NULL;
+  JsonObject *meta;
+  GList *names, *l;
+  JsonNode *node;
+
+  node = json_object_get_member (object, "meta");
+  g_return_if_fail (node != NULL);
+
+  if (!JSON_NODE_HOLDS_OBJECT (node))
+    {
+      cockpit_channel_fail (channel, "protocol-error", "incorrect \"meta\" field in dbus command");
+      return;
+    }
+
+  meta = json_node_get_object (node);
+  names = json_object_get_members (meta);
+  for (l = names; l != NULL; l = g_list_next (l))
+    {
+      if (!cockpit_json_get_object (meta, l->data, NULL, &interface))
+        {
+          cockpit_channel_fail (channel, "protocol-error", "invalid interface in dbus \"meta\" command");
+          break;
+        }
+
+      iface = cockpit_dbus_meta_parse (l->data, interface, &error);
+      if (iface)
+        {
+          g_hash_table_insert (self->interface_info, iface->name, iface);
+        }
+      else
+        {
+          cockpit_channel_fail (channel, "protocol-error", "%s", error->message);
+          g_error_free (error);
+          break;
+        }
+    }
+
+  g_list_free (names);
+}
+
 static JsonObject *
 build_json_update (GHashTable *paths)
 {
@@ -1777,6 +1824,8 @@ cockpit_dbus_json_recv (CockpitChannel *channel,
     handle_dbus_watch (self, object);
   else if (json_object_has_member (object, "unwatch"))
     handle_dbus_unwatch (self, object);
+  else if (json_object_has_member (object, "meta"))
+    handle_dbus_meta (self, object);
   else
     {
       cockpit_channel_fail (channel, "protocol-error", "got unsupported dbus command");

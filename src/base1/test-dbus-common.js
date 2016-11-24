@@ -360,6 +360,40 @@ function common_dbus_tests(channel_options, bus_name)
             });
     });
 
+    QUnit.asyncTest("with meta", function() {
+        assert.expect(2);
+
+        var meta = {
+            "borkety.Bork": {
+                "methods": {
+                    "Echo": {
+                        "in": [ "a{ss}", "u", "i", "t" ],
+                        "out": [ "a{ss}", "u", "i", "t" ]
+                    }
+                }
+            }
+        };
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+        dbus.addEventListener("meta", function(event, data) {
+            assert.deepEqual(data, meta, "got meta data");
+        });
+
+        dbus.meta(meta);
+        dbus.call("/bork", "borkety.Bork", "Echo",
+                  [ {one: "red", two: "blue"}, 55, 66, 32 ])
+            .then(function(reply) {
+                assert.deepEqual(reply, [ {one: "red", two: "blue"}, 55, 66, 32 ], "returned round trip");
+            }, function(ex) {
+                console.log(ex);
+                assert.ok(false, "shouldn't fail");
+            }).
+            always(function() {
+                dbus.close();
+                QUnit.start();
+            });
+    });
+
     QUnit.asyncTest("empty base64", function() {
         assert.expect(3);
 

@@ -358,7 +358,9 @@
                     call
                         .fail(function(ex) {
                             busy(null);
-                            if (ex.name != "com.redhat.Cockpit.Error.Cancelled") {
+                            if (ex.name == "org.freedesktop.realmd.Error.Cancelled") {
+                                $(dialog).modal("hide");
+                            } else {
                                 console.log("Failed to join domain: " + realm.Name + ": " + ex);
                                 $(".realms-op-error").empty().text(ex + " ").show();
                                 if (diagnostics) {
@@ -385,7 +387,7 @@
 
         function cancel() {
             if (operation) {
-                realmd.call(SERVICE, MANAGER, "Cancel", [ operation ]);
+                realmd.call(MANAGER, SERVICE, "Cancel", [ operation ]);
                 busy(null);
                 return true;
             }

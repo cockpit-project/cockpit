@@ -207,6 +207,9 @@
             var known_hosts = cockpit.file(known_hosts_path, { superuser: "try" });
             return known_hosts
                 .modify(function(data) {
+                    if (!data)
+                        data = "";
+
                     return data + "\n" + host_key;
                 })
                 .always(function() {

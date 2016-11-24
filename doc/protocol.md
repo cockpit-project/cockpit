@@ -542,6 +542,8 @@ will be defined here, but this is it for now.
 
 If the bus name of the sender of the signal does not match the "name" field of
 the "open" message, then a "name" field will be included with the "meta" message.
+Such meta information can also be sent to the bridge, in order to populate the
+cache of introspection data for the channel.
 
 When the owner of the DBus "name" (specified in the open message) changes an "owner"
 message is sent. The owner value will be the id of the owner or null if the name

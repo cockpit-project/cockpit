@@ -18,6 +18,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitdbusjson.c \
 	src/bridge/cockpitdbusjson.h \
 	src/bridge/cockpitdbusprocess.c \
+	src/bridge/cockpitdbusmeta.c \
+	src/bridge/cockpitdbusmeta.h \
 	src/bridge/cockpitdbusrules.c \
 	src/bridge/cockpitdbusrules.h \
 	src/bridge/cockpitechochannel.c \
@@ -154,6 +156,7 @@ BRIDGE_CHECKS = \
 	test-portal \
 	test-pipe-channel \
 	test-packages \
+	test-dbus-meta \
 	test-fs \
 	test-metrics \
 	test-connect \
@@ -185,6 +188,10 @@ test_channel_LDADD = $(libcockpit_bridge_LIBS)
 test_connect_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_connect_SOURCES = src/bridge/test-connect.c
 test_connect_LDADD = $(libcockpit_bridge_LIBS)
+
+test_dbus_meta_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_dbus_meta_SOURCES = src/bridge/test-dbus-meta.c
+test_dbus_meta_LDADD = $(libcockpit_bridge_LIBS)
 
 test_packages_SOURCES = src/bridge/test-packages.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h

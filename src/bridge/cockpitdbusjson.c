@@ -24,6 +24,7 @@
 #include "cockpitchannel.h"
 #include "cockpitdbuscache.h"
 #include "cockpitdbusinternal.h"
+#include "cockpitdbusmeta.h"
 #include "cockpitdbusrules.h"
 
 #include "common/cockpitjson.h"
@@ -861,80 +862,6 @@ build_json_signal (const gchar *path,
   return object;
 }
 
-static JsonArray *
-build_json_meta_args (GDBusArgInfo **args)
-{
-  JsonArray *array = json_array_new ();
-  while (*args)
-    {
-      json_array_add_string_element (array, (*args)->signature);
-      args++;
-    }
-  return array;
-}
-
-static JsonObject *
-build_json_meta (GDBusInterfaceInfo *iface)
-{
-  JsonObject *object;
-  JsonObject *meta;
-  JsonObject *interface;
-  JsonObject *methods;
-  JsonObject *method;
-  JsonObject *properties;
-  JsonObject *property;
-  GString *flags;
-  guint i;
-
-  interface = json_object_new ();
-
-  if (iface->methods)
-    {
-      methods = json_object_new ();
-      for (i = 0; iface->methods[i] != NULL; i++)
-        {
-          method = json_object_new ();
-          if (iface->methods[i]->in_args)
-            json_object_set_array_member (method, "in", build_json_meta_args (iface->methods[i]->in_args));
-          if (iface->methods[i]->out_args)
-            json_object_set_array_member (method, "out", build_json_meta_args (iface->methods[i]->out_args));
-          json_object_set_object_member (methods, iface->methods[i]->name, method);
-        }
-      json_object_set_object_member (interface, "methods", methods);
-    }
-
-  if (iface->properties)
-    {
-      flags = g_string_new ("");
-      properties = json_object_new ();
-      for (i = 0; iface->properties[i] != NULL; i++)
-        {
-          g_string_set_size (flags, 0);
-          property = json_object_new ();
-          if (iface->properties[i]->flags & G_DBUS_PROPERTY_INFO_FLAGS_READABLE)
-            g_string_append_c (flags, 'r');
-          if (iface->properties[i]->flags & G_DBUS_PROPERTY_INFO_FLAGS_WRITABLE)
-            g_string_append_c (flags, 'w');
-          json_object_set_string_member (property, "flags", flags->str);
-          if (iface->properties[i]->signature)
-            json_object_set_string_member (property, "type", iface->properties[i]->signature);
-          json_object_set_object_member (properties, iface->properties[i]->name, property);
-        }
-      g_string_free (flags, TRUE);
-      json_object_set_object_member (interface, "properties", properties);
-    }
-
-
-  meta = json_object_new ();
-  json_object_set_object_member (meta, iface->name, interface);
-
-  object = json_object_new ();
-  json_object_set_object_member (object, "meta", meta);
-
-  return object;
-}
-
-
 /* ---------------------------------------------------------------------------------------------------- */
 
 typedef struct {
@@ -1677,10 +1604,21 @@ on_cache_meta (CockpitDBusCache *cache,
                gpointer user_data)
 {
   CockpitDBusPeer *peer = user_data;
-  JsonObject *object = build_json_meta (iface);
-  maybe_include_name (peer->dbus_json, object, peer->name);
-  send_json_object (peer->dbus_json, object);
-  json_object_unref (object);
+  JsonObject *interface;
+  JsonObject *meta;
+  JsonObject *message;
+
+  interface = cockpit_dbus_meta_build (iface);
+
+  meta = json_object_new ();
+  json_object_set_object_member (meta, iface->name, interface);
+
+  message = json_object_new ();
+  json_object_set_object_member (message, "meta", meta);
+
+  maybe_include_name (peer->dbus_json, message, peer->name);
+  send_json_object (peer->dbus_json, message);
+  json_object_unref (message);
 }
 
 static JsonObject *

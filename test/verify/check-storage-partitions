@@ -46,6 +46,7 @@ class TestStorage(StorageCase):
         b.click('tr:contains("%s")' % dev)
         b.wait_visible('#storage-detail')
 
+        b.wait_visible('button:contains(Create partition table)')
         b.click('button:contains(Create partition table)')
         self.dialog({ "type": "gpt" })
         self.content_row_wait_in_col(1, 1, "Free Space")

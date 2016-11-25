@@ -700,6 +700,23 @@ class Machine:
         cmd = "dnsmasq --domain=cockpit.lan --interface=\"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" --bind-dynamic"
         self.execute(cmd.format(mac=mac))
 
+TEST_CONSOLE_XML="""
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+"""
+
+TEST_GRAPHICS_XML="""
+    <video>
+      <model type='vga' heads='1' primary='yes'/>
+      <alias name='video0'/>
+      <address type='pci' bus='0x00' slot='0x07'/>
+    </video>
+    <graphics type='vnc' autoport='yes' listen='127.0.0.1'>
+      <listen type='address' address='127.0.0.1'/>
+    </graphics>
+"""
+
 TEST_DOMAIN_XML="""
 <domain type='{type}' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>{label}</name>
@@ -717,13 +734,11 @@ TEST_DOMAIN_XML="""
     <disk type='file' snapshot='external'>
       <driver name='qemu' type='qcow2'/>
       <source file='{drive}'/>
-      <target dev='vda' bus='virtio'/>
+      <target dev='vda' bus='{disk}'/>
       <serial>ROOT</serial>
     </disk>
     <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
-    <console type='pty'>
-      <target type='serial' port='0'/>
-    </console>
+    {console}
     <disk type='file' device='cdrom'>
       <source file='{iso}'/>
       <target dev='hdb' bus='ide'/>
@@ -731,7 +746,8 @@ TEST_DOMAIN_XML="""
     </disk>
   </devices>
   <qemu:commandline>
-    {qemu}
+    {ethernet}
+    {redir}
   </qemu:commandline>
 </domain>
 """
@@ -859,15 +875,15 @@ class VirtNetwork:
 
         if isolate:
             result["bridge"] = ""
-            result["qemu"] = ""
+            result["ethernet"] = ""
         elif self.bridge:
             result["bridge"] = self.bridge
-            result["qemu"] = TEST_BRIDGE_XML.format(**result)
+            result["ethernet"] = TEST_BRIDGE_XML.format(**result)
         else:
             result["bridge"] = ""
-            result["qemu"] = TEST_MCAST_XML.format(**result)
+            result["ethernet"] = TEST_MCAST_XML.format(**result)
         result["forwards"] = ",".join(forwards)
-        result["qemu"] += TEST_REDIR_XML.format(**result)
+        result["redir"] = TEST_REDIR_XML.format(**result)
         return result
 
     def kill(self):
@@ -984,6 +1000,15 @@ class VirtMachine(Machine):
 
         keys.update(self.networking)
         keys["name"] = "{image}-{control}".format(**keys)
+
+        # No need or use for redir network on windows
+        if "windows" in self.image:
+            keys["disk"] = "ide"
+            keys["console"] = TEST_GRAPHICS_XML.format(**keys)
+            keys["redir"] = ""
+        else:
+            keys["disk"] = "virtio"
+            keys["console"] = TEST_CONSOLE_XML.format(**keys)
         test_domain_desc = TEST_DOMAIN_XML.format(**keys)
 
         # add the virtual machine

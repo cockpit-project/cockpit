@@ -33,9 +33,15 @@ KVM_TASKS = [
     "image-refresh"
 ]
 
+# RHEL tasks have to be done inside Red Hat network
 REDHAT_TASKS = [
     "rhel-7",
     "rhel-atomic"
+]
+
+# Windows tasks have to be done by a human
+WINDOWS_TASKS = [
+    "windows"
 ]
 
 # Server to tell us if we can create Red Hat images
@@ -78,6 +84,8 @@ def main():
         if not kvm and contains_any(result, KVM_TASKS):
             continue
         elif not redhat and contains_any(result, REDHAT_TASKS):
+            continue
+        elif contains_any(result, WINDOWS_TASKS):
             continue
         sys.stdout.write(result + "\n")
 

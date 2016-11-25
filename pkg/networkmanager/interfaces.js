@@ -1985,22 +1985,34 @@ var rollback_time = 15.0;
 function with_checkpoint(model, modify, fail_text, anyway_text) {
     var manager = model.get_manager();
     var curtain = $('#testing-connection-curtain');
+    var curtain_testing = $('#testing-connection-curtain-testing');
+    var curtain_restoring = $('#testing-connection-curtain-restoring');
     var dialog = $('#confirm-breaking-change-popup');
 
     var curtain_timeout;
+    var curtain_title_timeout;
 
     function show_curtain() {
         cockpit.hint("ignore_transport_health_check", { data: true });
         curtain_timeout = window.setTimeout(function () {
             curtain_timeout = null;
+            curtain_testing.show();
+            curtain_restoring.hide();
             curtain.show();
         }, curtain_time*1000);
+        curtain_title_timeout = window.setTimeout(function () {
+            curtain_title_timeout = null;
+            curtain_testing.hide();
+            curtain_restoring.show();
+        }, rollback_time*1000);
     }
 
     function hide_curtain() {
         if (curtain_timeout)
             window.clearTimeout(curtain_timeout);
         curtain_timeout = null;
+        if (curtain_title_timeout)
+            window.clearTimeout(curtain_title_timeout);
         curtain.hide();
         cockpit.hint("ignore_transport_health_check", { data: false });
     }

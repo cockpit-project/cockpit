@@ -26,6 +26,7 @@ import sys
 import subprocess
 import glob
 import re
+import time
 
 # we use symlinked files
 # the directory structure breaks on the second run with .pyc files
@@ -162,7 +163,7 @@ until curl -s --connect-timeout 3 http://%s:%d >/dev/null; do
 sleep 0.5;
 done;
 """ % (host, port)
-    with testvm.Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
+    with testvm.Timeout(seconds=300, error_message="Timeout while waiting for selenium to start"):
         machine.execute(script=WAIT_SELENIUM_RUNNING)
 
 def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
@@ -170,10 +171,13 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
     image = os.environ.get("TEST_OS", "fedora-24")
     network = testvm.VirtNetwork()
     machine = testvm.VirtMachine(verbose=verbose, networking=network.host(), image=image)
-    selenium = None
+    selenium = windows = None
 
     if use_selenium:
-        selenium = testvm.VirtMachine(image="selenium", verbose=verbose, networking=network.host())
+        if "explorer" in browser:
+            windows = testvm.VirtMachine(image="windows-8", verbose=verbose, networking=network.host())
+        else:
+            selenium = testvm.VirtMachine(image="selenium", verbose=verbose, networking=network.host())
 
     try:
         # just start the machine without waiting for it to boot, get the ip address later
@@ -187,6 +191,9 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             # start selenium on the server
             selenium.upload([ "avocado/selenium_start.sh"], "/root")
             selenium.execute(command="/root/selenium_start.sh")
+        elif windows:
+            selenium = windows
+            selenium.start()
 
         machine.wait_boot()
         machine.set_address("10.111.113.1/20")
@@ -229,7 +236,7 @@ def main():
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
                         help='Verbose output')
     parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
-    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome'],
+    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome', 'explorer'],
                     default='none',
                     help="selenium browser choice - in case of none, selenium isn't started")
     parser.add_argument("-s", "--selenium-tests", dest='selenium_tests', action='store_true',

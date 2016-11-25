@@ -42,7 +42,6 @@ autoconf \
 automake \
 intltool \
 libssh-dev \
-libssl-dev \
 zlib1g-dev \
 libkrb5-dev \
 libxslt1-dev \
@@ -61,7 +60,6 @@ xmlto \
 docbook-xsl \
 glib-networking \
 nodejs-legacy \
-npm \
 openssh-client \
 "
 
@@ -126,8 +124,9 @@ apt-get clean
 # Enable persistent journal
 mkdir /var/log/journal
 
-# Allow root login with password
+# Configure SSH appropriately for being driven by verify machine
 sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+/var/lib/testvm/sshd-socket.setup
 
 # Disable old SSH init script.  Something is calling "/etc/init.d/ssh
 # reload" during boot and that results in the ssh port being

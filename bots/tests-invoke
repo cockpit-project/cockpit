@@ -192,7 +192,7 @@ class PullTask(object):
             # Download all the additional images so that even older branches find them
             subprocess.check_call([ os.path.join(BOTS, "image-download"),
                 "candlepin", "fedora-stock", "fedora-23-stock", "fedora-26",
-                "ipa", "openshift", "selenium"
+                "ipa", "openshift", "selenium", "windows-8"
             ])
 
         except subprocess.CalledProcessError:
@@ -350,7 +350,7 @@ class PullTask(object):
             cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
                     "--quick", "--tests" ]
         elif prefix == "selenium":
-            if value not in ['firefox', 'chrome']:
+            if value not in ['firefox', 'chrome', 'explorer']:
                 ret = "Unknown browser for selenium test"
             cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
                     "--quick", "--selenium-tests", "--browser", value]

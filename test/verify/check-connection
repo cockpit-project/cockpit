@@ -218,12 +218,13 @@ class TestConnection(MachineCase):
 
         m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(executable))
 
+        # The port may not be available immediately, so wait for it
+        wait(lambda: 'Custom Default Root' in m.execute('curl -s -k https://localhost:9000/'))
+        output = m.execute('curl -s -k https://localhost:9000/')
+        self.assertIn('A Custom Title', output)
+
         output = m.execute('curl -s -S -k https://{}:9000/ 2>&1 || true'.format(m.address))
         self.assertIn('Connection refused', output)
-
-        output = m.execute('curl -s -k https://localhost:9000/')
-        self.assertIn('Custom Default Root', output)
-        self.assertIn('A Custom Title', output)
 
 if __name__ == '__main__':
     test_main()

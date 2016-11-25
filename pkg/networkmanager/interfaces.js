@@ -2367,6 +2367,8 @@ PageNetworkInterface.prototype = {
                 PageNetworkIpSettings.settings = null;
                 PageNetworkIpSettings.topic = topic;
                 PageNetworkIpSettings.done = reactivate_connection;
+   				PageNetworkIpSettings.ghost = create_ghost_connection_settings();
+				PageNetworkIpSettings.DeviceType = self.dev.DeviceType;            
                 $('#network-ip-settings-dialog').modal('show');
             }
 
@@ -2876,7 +2878,19 @@ PageNetworkIpSettings.prototype = {
 
     enter: function () {
         $('#network-ip-settings-error').hide();
-        this.settings = PageNetworkIpSettings.settings || PageNetworkIpSettings.connection.copy_settings();
+        /*It will create first connection if any connection does not exist*/
+		if (PageNetworkIpSettings.settings || PageNetworkIpSettings.connection)
+		{this.settings = PageNetworkIpSettings.settings || PageNetworkIpSettings.connection.copy_settings()}
+		else {
+			this.settings = PageNetworkIpSettings.ghost;
+			if (PageNetworkIpSettings.DeviceType == "ethernet")
+				{
+				this.settings.connection.type = "802-3-ethernet";
+				this.settings.ethernet = {};
+				}
+			this.settings.connection.uuid = generate_uuid();
+			this.settings.connection.id = "First wired connection";
+			};        
         this.update();
     },
 

@@ -272,7 +272,7 @@ cockpit_is_host_known (const gchar *known_hosts_file,
       return FALSE;
     }
 
-  hostport = g_strdup_printf ("[%s:%d]", host, port);
+  hostport = g_strdup_printf ("[%s]:%d", host, port);
   while (fgets (buffer, sizeof (buffer), file))
     {
       gchar **tokens = NULL;

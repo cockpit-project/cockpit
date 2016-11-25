@@ -31,8 +31,6 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 
-#include <libssh/libssh.h>
-
 #include <sys/wait.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -61,7 +59,6 @@ typedef struct {
   /* setup_mock_sshd */
   GPid mock_sshd;
   guint16 ssh_port;
-  int old_log_level;
 } TestCase;
 
 
@@ -87,7 +84,6 @@ typedef struct {
     gboolean no_password;
     gboolean ignore_key;
     gboolean prompt_hostkey;
-    int ssh_log_level;
 
     const TestAuthResponse *responses;
     int responses_size;

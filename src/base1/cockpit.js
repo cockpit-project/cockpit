@@ -398,6 +398,7 @@ function Transport() {
 
     var ws;
     var check_health_timer;
+    var ignore_health_check = false;
     var got_message = false;
 
     /* See if we should communicate via parent */
@@ -431,8 +432,12 @@ function Transport() {
 
         check_health_timer = window.setInterval(function () {
             if (!got_message) {
-                console.log("health check failed");
-                self.close({ "problem": "timeout" });
+                if (ignore_health_check) {
+                    console.log("health check failure ignored");
+                } else {
+                    console.log("health check failed");
+                    self.close({ "problem": "timeout" });
+                }
             }
             got_message = false;
         }, 30000);
@@ -671,6 +676,12 @@ function Transport() {
     self.send_control = function send_control(data) {
         if(!ws && (data.command == "close" || data.command == "kill"))
             return; /* don't complain if closed and closing */
+        if (check_health_timer &&
+            data.command == "hint" && data.hint == "ignore_transport_health_check") {
+            /* This is for us, process it directly. */
+            ignore_health_check = data.data;
+            return;
+        }
         self.send_message("", JSON.stringify(data));
     };
 
@@ -1082,14 +1093,13 @@ function factory() {
     };
 
     /* Not public API ... yet? */
-    cockpit.hint = function hint(name, host) {
-        if (!host)
-            host = default_host;
-
-        var options = { "command": "hint",
-                        "hint": name,
-                        "host": host };
-
+    cockpit.hint = function hint(name, options) {
+        if (!options)
+            options = default_host;
+        if (typeof options == "string")
+            options = { "host": options };
+        options["command"] = "hint";
+        options["hint"] = name;
         ensure_transport(function(transport) {
             transport.send_control(options);
         });

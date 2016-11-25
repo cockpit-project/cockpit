@@ -1930,11 +1930,29 @@ function choice_title(choices, choice, def) {
  * by an impatient nanny mechanism.  Thus, we use a rather long
  * checkpoint rollback timeout (rollback_time, below).
  *
- * For a good change, all three steps happen quickly, and the time we
- * wait between steps 2 and 3 doesn't need to be very long either,
- * apparently.  Thus, we delay any indication that something might be
- * wrong by a short delay (curtain_time, below), and most changes can
- * thus be made without the "Testing connection" curtain coming up.
+ * For a good change, all three steps usually happen quickly, and the
+ * time we wait between steps 2 and 3 doesn't need to be very long
+ * either, apparently.  Thus, we delay any indication that something
+ * might be wrong by a short delay (curtain_time, below), and most
+ * changes can thus be made without the "Testing connection" curtain
+ * coming up.
+ *
+ * Some changes will be rolled back although the user really wants to
+ * make them.  For example, the user might want to change the IP
+ * address of the machine, and although this will disconnect Cockpit,
+ * the user can connect again on the new address.
+ *
+ * In order to give the user the option to avoid this unwanted
+ * rollback, we let him/her do the same change without a checkpoint
+ * directly from the dialog that explains the problem.
+ */
+
+/* To avoid interference, we switch off the global transport health
+ * check while a checkpoint exists.  For example, if the rollback
+ * takes a really long time, Cockpit would otherwise disconnect itself
+ * forcefully and the user would not get to see the dialog with the
+ * "Do it anyway" button.  This dialog is the only way to make certain
+ * changes, and it is thus important to show it if at all possible.
  */
 
 /* Considerations for chosing the times below
@@ -1972,6 +1990,7 @@ function with_checkpoint(model, modify, fail_text, anyway_text) {
     var curtain_timeout;
 
     function show_curtain() {
+        cockpit.hint("ignore_transport_health_check", { data: true });
         curtain_timeout = window.setTimeout(function () {
             curtain_timeout = null;
             curtain.show();
@@ -1983,6 +2002,7 @@ function with_checkpoint(model, modify, fail_text, anyway_text) {
             window.clearTimeout(curtain_timeout);
         curtain_timeout = null;
         curtain.hide();
+        cockpit.hint("ignore_transport_health_check", { data: false });
     }
 
     manager.checkpoint_create(rollback_time).
@@ -2004,7 +2024,7 @@ function with_checkpoint(model, modify, fail_text, anyway_text) {
                                     off('click').
                                     text(anyway_text).
                                     click(function () {
-                                    dialog.modal('hide');
+                                        dialog.modal('hide');
                                         modify();
                                     });
                                 dialog.modal('show');

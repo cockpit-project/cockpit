@@ -566,6 +566,56 @@ NM_CONTROLLED=no
         self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
                          "auto")
 
+    @skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-8", "debian-unstable", "fedora-24", "fedora-atomic", "rhel-7", "rhel-atomic", "ubuntu-1604")
+    def testCheckpointSlowRollback(self):
+        b = self.browser
+        m = self.machine
+
+        # Slow down DHCP requests.  This would normally cause the
+        # global health check to fail during rollback and prevent
+        # showing the #confirm-breaking-change-popup.  We expect the
+        # global health check failure to be ignored.
+
+        # We need at least 60 seconds of network disconnection to let
+        # the health check fail reliably.  A rollback is started 15
+        # seconds after disconnection, so we need to delay the DHCP
+        # request by at least 45 seconds.  However, NetworkManager has
+        # a default DHCP timeout of 45 seconds, so we need to increase
+        # that.
+
+        dhcp_delay = 60
+        dhcp_timeout = 120
+
+        # HACK - the ipv4.dhcp-timeout doesn't survive a rollback, so
+        # we get the default of 45 seconds and have to use a shorter
+        # delay.  This seems to work, but it's too tight for comfort...
+        #
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1400540
+
+        dhcp_delay = 40
+
+        m.needs_writable_usr()
+        m.execute("mv /usr/sbin/dhclient /usr/sbin/dhclient.real")
+        m.write("/usr/sbin/dhclient", "#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real" % dhcp_delay)
+        m.execute("chmod a+x /usr/sbin/dhclient")
+
+        iface = self.get_iface(m, m.macaddr)
+
+        # Set the DHCP timeout
+        con_id = m.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
+        m.execute('nmcli con mod "%s" ipv4.dhcp-timeout %s' % (con_id, dhcp_timeout))
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        # Disconnect
+        b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
+        with b.wait_timeout(120):
+            b.wait_visible("#confirm-breaking-change-popup")
+            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+
     def testOtherSettings(self):
         b = self.browser
         m = self.machine

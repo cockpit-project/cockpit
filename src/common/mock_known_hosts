@@ -13,10 +13,10 @@ single-alone ssh-rsa key-goes-here
 # Single with wildcards
 single-wild* ssh-rsa key-goes-here
 single-?.test ssh-rsa key-goes-here
-[single-portwild:*] ssh-rsa key-goes-here
+[single-portwild]:* ssh-rsa key-goes-here
 
 # Multiple
-multiple1,[multiple2:1111],multiple-?.test,multiple-wild* ssh-rsa key-goes-here
+multiple1,[multiple2]:1111,multiple-?.test,multiple-wild* ssh-rsa key-goes-here
 
 # hashedmachine
 |1|6ipvcCN2lAo9KvNGuSvRKWI2gm4=|nRtFuoyz7Am0MsCzUnmosLd7c5I= ssh-dss key-goes-here

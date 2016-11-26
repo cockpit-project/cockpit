@@ -341,39 +341,6 @@ send_login_html (CockpitWebResponse *response,
     g_object_unref (filter2);
 }
 
-static gchar *
-get_remote_address (GIOStream *io)
-{
-  GSocketAddress *remote = NULL;
-  GSocketConnection *connection = NULL;
-  GIOStream *base;
-  gchar *result = NULL;
-
-  if (G_IS_TLS_CONNECTION (io))
-    {
-      g_object_get (io, "base-io-stream", &base, NULL);
-      if (G_IS_SOCKET_CONNECTION (base))
-        connection = g_object_ref (base);
-      g_object_unref (base);
-    }
-  else if (G_IS_SOCKET_CONNECTION (io))
-    {
-      connection = g_object_ref (io);
-    }
-
-  if (connection)
-    remote = g_socket_connection_get_remote_address (connection, NULL);
-  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-    result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
-
-  if (remote)
-    g_object_unref (remote);
-  if (connection)
-    g_object_unref (connection);
-
-  return result;
-}
-
 static void
 send_login_response (CockpitWebResponse *response,
                      JsonObject *object,
@@ -396,17 +363,15 @@ on_login_complete (GObject *object,
   CockpitWebResponse *response = user_data;
   GError *error = NULL;
   JsonObject *response_data = NULL;
-  CockpitAuthFlags flags = 0;
   GHashTable *headers;
   GIOStream *io_stream;
   GBytes *content;
 
   io_stream = cockpit_web_response_get_stream (response);
-  if (G_IS_SOCKET_CONNECTION (io_stream))
-    flags |= COCKPIT_AUTH_COOKIE_INSECURE;
 
   headers = cockpit_web_server_new_table ();
-  response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, flags, headers, &error);
+  response_data = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
+                                             io_stream, headers, &error);
 
   /* Never cache a login response */
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
@@ -447,7 +412,6 @@ handle_login (CockpitHandlerData *data,
               CockpitWebResponse *response)
 {
   GHashTable *out_headers;
-  gchar *remote_peer = NULL;
   GIOStream *io_stream;
   CockpitCreds *creds;
   JsonObject *creds_json = NULL;
@@ -459,18 +423,13 @@ handle_login (CockpitHandlerData *data,
       creds_json = cockpit_creds_to_json (creds);
       send_login_response (response, creds_json, out_headers);
       g_hash_table_unref (out_headers);
-    }
-  else
-    {
-      io_stream = cockpit_web_response_get_stream (response);
-      remote_peer = get_remote_address (io_stream);
-      cockpit_auth_login_async (data->auth, path, headers, remote_peer,
-                                on_login_complete, g_object_ref (response));
-      g_free (remote_peer);
+      json_object_unref (creds_json);
+      return;
     }
 
-  if (creds_json)
-    json_object_unref (creds_json);
+  io_stream = cockpit_web_response_get_stream (response);
+  cockpit_auth_login_async (data->auth, path,io_stream, headers,
+                            on_login_complete, g_object_ref (response));
 }
 
 static void

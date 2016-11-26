@@ -328,13 +328,13 @@ test_authenticate (TestCase *test,
   build_authorization_header (in_headers, &output);
   gss_release_buffer (&minor, &output);
 
-  cockpit_auth_login_async (test->auth, "/cockpit+test", in_headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit+test", NULL, in_headers, on_ready_get_result, &result);
   g_hash_table_unref (in_headers);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  response = cockpit_auth_login_finish (test->auth, result, TRUE, out_headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, NULL, out_headers, &error);
   g_object_unref (result);
   g_assert_no_error (error);
   g_assert (response != NULL);

@@ -37,3 +37,7 @@ GHashTable *     mock_auth_basic_header  (const gchar *user,
 
 void             mock_auth_set_failure_data (MockAuth *self,
                                              JsonObject *data);
+
+void            mock_auth_include_cookie_as_if_client (GHashTable *resp_headers,
+                                                       GHashTable *req_headers,
+                                                       const gchar *cookie_name);

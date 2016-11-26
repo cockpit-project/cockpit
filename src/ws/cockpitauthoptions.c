@@ -176,9 +176,14 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
 
   env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA",
                              knownhosts_data);
-  env = set_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND",
-                             options->command);
   env = set_environment_val (env, "KRB5CCNAME", options->krb5_ccache_name);
+
+  /* Don't reset these vars unless we have values for them */
+  if (options->command)
+    {
+      env = set_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND",
+                                 options->command);
+    }
 
   if (options->agent_fd)
     {

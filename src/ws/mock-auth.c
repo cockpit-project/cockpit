@@ -62,8 +62,8 @@ mock_auth_finalize (GObject *obj)
 static void
 mock_auth_login_async (CockpitAuth *auth,
                        const gchar *path,
+                       GIOStream *connection,
                        GHashTable *headers,
-                       const gchar *remote_peer,
                        GAsyncReadyCallback callback,
                        gpointer user_data)
 {
@@ -72,15 +72,14 @@ mock_auth_login_async (CockpitAuth *auth,
   GBytes *userpass;
   gchar **split;
   gboolean correct = FALSE;
-  gchar *type = NULL;
+  const gchar *type;
+  const gchar *conversation;
 
   result = g_simple_async_result_new (G_OBJECT (auth), callback, user_data, NULL);
 
-  g_object_set_data_full (G_OBJECT (result), "remote", g_strdup (remote_peer), g_free);
   g_object_set_data_full (G_OBJECT (result), "application", cockpit_auth_parse_application (path), g_free);
 
-  type = cockpit_auth_parse_authorization_type (headers);
-  userpass = cockpit_auth_parse_authorization (headers, TRUE);
+  userpass = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
   if (userpass && g_str_equal (type, "basic"))
     {
       split = g_strsplit (g_bytes_get_data (userpass, NULL), ":", 2);
@@ -99,14 +98,13 @@ mock_auth_login_async (CockpitAuth *auth,
 
   g_simple_async_result_complete_in_idle (result);
   g_object_unref (result);
-
-  g_free (type);
   g_bytes_unref (userpass);
 }
 
 static CockpitCreds *
 mock_auth_login_finish (CockpitAuth *auth,
                         GAsyncResult *async,
+                        GIOStream *connection,
                         GHashTable *headers,
                         JsonObject **prompt_data,
                         CockpitTransport **transport,
@@ -204,4 +202,25 @@ mock_auth_basic_header (const gchar *user,
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), header);
   return headers;
+}
+
+void
+mock_auth_include_cookie_as_if_client (GHashTable *resp_headers,
+                                       GHashTable *req_headers,
+                                       const gchar *cookie_name)
+{
+  gchar *cookie;
+  gchar *end;
+  gchar *expected = g_strdup_printf ("%s=", cookie_name);
+
+  cookie = g_strdup (g_hash_table_lookup (resp_headers, "Set-Cookie"));
+  g_assert (cookie != NULL);
+  end = strchr (cookie, ';');
+  g_assert (end != NULL);
+  end[0] = '\0';
+
+  g_assert (strncmp (cookie, expected, strlen(expected)) == 0);
+
+  g_hash_table_insert (req_headers, g_strdup ("Cookie"), cookie);
+  g_free (expected);
 }

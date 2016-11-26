@@ -59,7 +59,6 @@
 #define DEFAULT_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 static struct passwd *pwd;
-const char *rhost;
 static pid_t child;
 static int want_session = 1;
 static char *auth_delimiter = "";
@@ -602,7 +601,7 @@ open_session (pam_handle_t *pamh)
 }
 
 static pam_handle_t *
-perform_basic (void)
+perform_basic (const char *rhost)
 {
   struct pam_conv conv = { pam_conv_func, };
   pam_handle_t *pamh;
@@ -665,7 +664,7 @@ perform_basic (void)
 }
 
 static pam_handle_t *
-perform_gssapi (void)
+perform_gssapi (const char *rhost)
 {
   struct pam_conv conv = { pam_conv_func, };
   OM_uint32 major, minor;
@@ -835,7 +834,8 @@ out:
 }
 
 static void
-utmp_log (int login)
+utmp_log (int login,
+          const char *rhost)
 {
   char id[UT_LINESIZE + 1];
   struct utmp ut;
@@ -1072,12 +1072,20 @@ save_environment (void)
   env_saved[j] = NULL;
 }
 
+static const char *
+get_environ_var (const char *name,
+                 const char *defawlt)
+{
+  return getenv (name) ? getenv (name) : defawlt;
+}
+
 int
 main (int argc,
       char **argv)
 {
   pam_handle_t *pamh = NULL;
   const char *auth;
+  const char *rhost;
   char **env;
   int status;
   int flags;
@@ -1087,11 +1095,15 @@ main (int argc,
   if (isatty (0))
     errx (2, "this command is not meant to be run from the console");
 
-  if (argc != 3)
+  /* argv[1] is ignored */
+  if (argc != 2)
     errx (2, "invalid arguments to cockpit-session");
 
   /* Cleanup the umask */
   umask (077);
+
+  auth = get_environ_var ("COCKPIT_AUTH_MESSAGE_TYPE", "");
+  rhost = get_environ_var ("COCKPIT_REMOTE_PEER", "");
 
   save_environment ();
 
@@ -1117,9 +1129,6 @@ main (int argc,
   if (flags < 0 || fcntl (AUTH_FD, F_SETFD, flags | FD_CLOEXEC))
     err (1, "couldn't set auth fd flags");
 
-  auth = argv[1];
-  rhost = argv[2];
-
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
   signal (SIGTSTP, SIG_IGN);
@@ -1127,10 +1136,11 @@ main (int argc,
   signal (SIGPIPE, SIG_IGN);
 
   if (strcmp (auth, "basic") == 0)
-    pamh = perform_basic ();
+    pamh = perform_basic (rhost);
   else if (strcmp (auth, "negotiate") == 0)
-    pamh = perform_gssapi ();
-  else
+    pamh = perform_gssapi (rhost);
+
+  if (!pamh)
     errx (2, "unrecognized authentication method: %s", auth);
 
   for (i = 0; env_saved[i] != NULL; i++)
@@ -1151,11 +1161,11 @@ main (int argc,
       signal (SIGINT, pass_to_child);
       signal (SIGQUIT, pass_to_child);
 
-      utmp_log (1);
+      utmp_log (1, rhost);
 
       status = fork_session (env);
 
-      utmp_log (0);
+      utmp_log (0, rhost);
 
       signal (SIGTERM, SIG_DFL);
       signal (SIGINT, SIG_DFL);

@@ -654,13 +654,37 @@ auth_result_string (int rc)
     }
 }
 
+static const gchar *
+parse_auth_password (const gchar *auth_type,
+                     const gchar *auth_data)
+{
+  const gchar *password;
+
+  g_assert (auth_data != NULL);
+  g_assert (auth_type != NULL);
+
+  if (g_strcmp0 (auth_type, "basic") != 0)
+    return auth_data;
+
+  /* password is null terminated, see below */
+  password = strchr (auth_data, ':');
+  if (password != NULL)
+    password++;
+  else
+    password = "";
+
+  return password;
+}
+
 static int
 do_interactive_auth (CockpitSshData *data)
 {
   int rc;
   gboolean sent_pw = FALSE;
-  g_assert (data->initial_auth_data != NULL);
+  const gchar *password;
 
+  password = parse_auth_password (data->auth_options->auth_type,
+                                  data->initial_auth_data);
   rc = ssh_userauth_kbdint (data->session, NULL, NULL);
   while (rc == SSH_AUTH_INFO)
     {
@@ -680,7 +704,7 @@ do_interactive_auth (CockpitSshData *data)
           g_debug ("%s: Got prompt %s prompt", data->logname, prompt);
           if (!sent_pw)
             {
-              status = ssh_userauth_kbdint_setanswer (data->session, i, data->initial_auth_data);
+              status = ssh_userauth_kbdint_setanswer (data->session, i, password);
               sent_pw = TRUE;
             }
           else
@@ -713,10 +737,12 @@ do_password_auth (CockpitSshData *data)
 {
   const gchar *msg;
   int rc;
+  const gchar *password;
 
-  g_assert (data->initial_auth_data != NULL);
+  password = parse_auth_password (data->auth_options->auth_type,
+                                  data->initial_auth_data);
 
-  rc = ssh_userauth_password (data->session, NULL, data->initial_auth_data);
+  rc = ssh_userauth_password (data->session, NULL, password);
   switch (rc)
     {
     case SSH_AUTH_SUCCESS:
@@ -902,16 +928,18 @@ cockpit_ssh_authenticate (CockpitSshData *data)
           auth_func = do_interactive_auth;
           method = SSH_AUTH_METHOD_INTERACTIVE;
           has_creds = data->initial_auth_data != NULL && \
-                      g_strcmp0 (data->auth_options->auth_type,
-                                 auth_method_description (method)) == 0;
+                      (g_strcmp0 (data->auth_options->auth_type, "basic") == 0 ||
+                       g_strcmp0 (data->auth_options->auth_type,
+                                 auth_method_description (method)) == 0);
         }
       else if (methods_to_try & SSH_AUTH_METHOD_PASSWORD)
         {
           auth_func = do_password_auth;
           method = SSH_AUTH_METHOD_PASSWORD;
           has_creds = data->initial_auth_data != NULL && \
-                      g_strcmp0 (data->auth_options->auth_type,
-                                 auth_method_description (method)) == 0;
+                      (g_strcmp0 (data->auth_options->auth_type, "basic") == 0 ||
+                       g_strcmp0 (data->auth_options->auth_type,
+                                 auth_method_description (method)) == 0);
         }
       else
         {
@@ -1085,6 +1113,16 @@ parse_host (const gchar *host,
   g_free (user_arg);
 }
 
+static gchar *
+username_from_basic (const gchar *basic_data)
+{
+  gchar *tmp = strchr (basic_data, ':');
+  if (tmp != NULL)
+    return g_strndup (basic_data, tmp - basic_data);
+  else
+    return g_strdup (basic_data);
+}
+
 static const gchar*
 cockpit_ssh_connect (CockpitSshData *data,
                      const gchar *host_arg,
@@ -1099,6 +1137,13 @@ cockpit_ssh_connect (CockpitSshData *data,
   int rc;
 
   parse_host (host_arg, &host, &data->username, &port);
+
+  /* Username always comes from auth message when using basic */
+  if (g_strcmp0 (data->auth_options->auth_type, "basic") == 0)
+    {
+      g_free (data->username);
+      data->username = username_from_basic (data->initial_auth_data);
+    }
 
   if (!data->username)
     {
@@ -1129,8 +1174,8 @@ cockpit_ssh_connect (CockpitSshData *data,
   rc = ssh_connect (data->session);
   if (rc != SSH_OK)
     {
-      g_message ("%s: %d couldn't connect: %s", data->logname, rc,
-                 ssh_get_error (data->session));
+      g_message ("%s: %d couldn't connect: %s '%s' '%d'", data->logname, rc,
+                 ssh_get_error (data->session), host, port);
       problem = "no-host";
       goto out;
     }

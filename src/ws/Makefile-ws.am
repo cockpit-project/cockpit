@@ -210,6 +210,7 @@ WS_CHECKS = \
 	test-creds \
 	test-auth \
 	test-authoptions \
+	test-authssh \
 	test-sshtransport \
 	test-sshagent \
 	test-webservice \
@@ -234,6 +235,16 @@ test_auth_LDADD = \
 test_authoptions_CFLAGS = $(cockpit_ws_CFLAGS)
 test_authoptions_SOURCES = src/ws/test-authoptions.c
 test_authoptions_LDADD = \
+	libcockpit-ws.a \
+	$(cockpit_ws_LDADD)
+
+test_authssh_CFLAGS = $(cockpit_ws_CFLAGS)
+test_authssh_SOURCES = \
+	src/ws/test-authssh.c \
+	src/ws/mock-auth.c \
+	src/ws/mock-auth.h \
+	$(NULL)
+test_authssh_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD)
 

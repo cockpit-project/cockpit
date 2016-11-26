@@ -29,7 +29,7 @@ import (
 )
 
 const MAX_BUFFER = 64 * 1024
-const AUTH_FD = 3;
+const AUTH_FD = 3
 
 func jsonError(err error) ([]byte, error) {
 	log.Println(err)
@@ -68,17 +68,14 @@ func sendAuthResponse(fd int, response []byte) {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("Missing required authentication type")
-	}
-
+	authType := os.Getenv("COCKPIT_AUTH_MESSAGE_TYPE")
 	authData, err := readData(AUTH_FD)
 	if err != nil {
 		log.Fatal("Error reading authentication data ", err)
 	}
 
 	client := helpers.NewClient()
-	response, loginErr := client.Login(string(os.Args[1]), string(authData))
+	response, loginErr := client.Login(authType, string(authData))
 	if loginErr != nil {
 		var respErr error
 		response, respErr = jsonError(loginErr)
@@ -88,8 +85,8 @@ func main() {
 	}
 
 	sendAuthResponse(AUTH_FD, response)
-	e := syscall.Close(AUTH_FD);
-	if (e != nil) {
+	e := syscall.Close(AUTH_FD)
+	if e != nil {
 		log.Fatal("Error closing auth FD ", e)
 	}
 

@@ -3,75 +3,50 @@ Cockpit Authentication
 ================================
 
 Cockpit authorizes users by looking at the Authorization header on requests
-to /login. Cockpit will atempt to perform the authentication action that
+to /login. Cockpit will attempt to perform the start the authentication command that
 is configured for the auth scheme contained in the header.
 
-Cockpit supports the following authentication actions:
-
- * spawn-login-with-header
- * spawn-login-with-decoded
- * remote-login-ssh
- * none
-
 To configure an auth scheme add a section to cockpit.conf for that scheme. For example
-to configure an action for the "Bearer" auth scheme your cockpit.conf should contain
+to configure an command for the "Bearer" auth scheme your cockpit.conf should contain
 the following section.
 
 ```
 [bearer]
-action = spawn-login-with-header
 command = example-verify-token
+timeout = 300
 ```
 
-When no configuration exists ```spawn-login-with-decoded``` is the default.
-
-# Spawning
-
-The ```spawn-login-with-header``` and ```spawn-login-with-decoded```
-actions send the contents of the Authorization header to an external command
-that is then responsible to:
+The command is then responsible to:
 
  * verify the given credentials
  * setup an appropriate session and enviroment based on those credentials
  * launch a bridge that speaks the cockpit protocol on stdin and stdout.
 
-These actions are identical except that ```spawn-login-with-decoded``` base64
-decodes the contents of the Authorization header before sending it to the spawned
-process while ```spawn-login-with-header```sends the data as is.
-
-These spawning actions should be configured with the name of the command to run.
-For example
-
-```
-[bearer]
-action = spawn-login-with-header
-command = example-verify-token
-timeout = 300
-```
-
 The default command is ```cockpit-session``` it is able to handle basic and gssapi
 authentication.
 
-The command will be called with two arguments
-
- * type: the auth scheme that was included in the the Authorization http header
- * remote host: The remote host to use with pam.
+The command will be called with a single argument which is the host that the user
+is connecting to.
 
 cockpit-ws will then send contents of the Authorization http header, without the
-auth scheme, on a special authentication fd to the command. By default this is fd #3.
+auth scheme, on a special authentication fd to the command. For ```basic```
+and ```negotiate``` auth schemes the data will be base64 decoded before sending. For
+any other auth schemes. The data will be untouched.
+
 Once the command has processed the credentials it MUST write a JSON response to the
 same authentication fd. Cockpit opens this fd using SOCK_SEQPACKET so messages can be
 sent and received in one operation. Each message should be no more than 65536 bytes.
-If your command needs to use a different FD for some reason you may add a ```authFD```
-option to your auth schema configuration. The configured number must be greater than
-2 and less than 1024.
+
+By default the special authentication fd is fd #3. If your command needs to use a
+different FD for some reason you may add a ```authFD``` option to your auth schema
+configuration. The configured number must be greater than 2 and less than 1024.
 
 By default cockpit-ws will wait a maximum of 30 seconds to receive this response.
 The number of seconds to wait can be adjusted by adding a timeout parameter along
 side the auth schema configuration in your config file. The given value should be
 a number between 1 and 900.
 
-If more information is needed the command should response with a json object containing
+If more information is needed the command should respond with a json object containing
 a ```prompt``` string. These message will be displayed to the user and the user will be
 prompted for a response. If the user does not respond within 60 seconds the command will be
 closed and the login aborted. The number of seconds to wait can be adjusted by adding a
@@ -92,19 +67,13 @@ json object that object will be included in the HTTP response sent to client.
 Once the response has been sent fd #3 should be closed and a bridge should be launched
 speaking the cockpit protocol on stdin and stdout.
 
-# SSH Logins
+# Remote machines
 
-The ```remote-login-ssh``` action uses ssh to authenticate the user and and launch a bridge.
+Cockpit also supports logging directly into remote machines. The remote machine to
+connect to is provided by using a application name that begins with ```cockpit+=```.
+The default command used for this is cockpit-ssh.
 
-```
-[basic]
-action = remote-login-ssh
-```
-
-Cockpit will also default to using ssh when a remote machine is provided by using a application
-name that begins with ```cockpit+=```.
-
-The section ```SSH-Login``` defines the options for all ssh commands. The section takes
+The section ```SSH-Login``` defines the options for all ssh commands. The section
 has the same options as the other authentication sections with the following additions.
 
  * ```host``` The default host to log into. Defaults to 127.0.0.1.
@@ -112,10 +81,21 @@ has the same options as the other authentication sections with the following add
  are not already present in it's known_hosts file (usually ```/var/lib/cockpit/known_hosts```).
  Set this to ```true``` is to allow those connections to proceed.
 
+# Actions
 
-# None
+Setting an action can modify the behavior for an auth scheme. Currently two actions
+are supported.
 
-The ```none``` action forces an immediate authentication denied message.
+ * **remote-login-ssh** Use the ```SSH-Login``` section instead.
+ * **none** Disable this auth scheme.
+
+To configure an action add the ```action``` option. For example to disable basic authentication.
+cockpit.conf should contain the following section.
+
+```
+[basic]
+action = none
+```
 
 # Limits
 

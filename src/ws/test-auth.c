@@ -91,27 +91,6 @@ on_ready_get_result (GObject *source,
 }
 
 static void
-include_cookie_as_if_client (GHashTable *resp_headers,
-                             GHashTable *req_headers,
-                             const gchar *cookie_name)
-{
-  gchar *cookie;
-  gchar *end;
-  gchar *expected = g_strdup_printf ("%s=", cookie_name);
-
-  cookie = g_strdup (g_hash_table_lookup (resp_headers, "Set-Cookie"));
-  g_assert (cookie != NULL);
-  end = strchr (cookie, ';');
-  g_assert (end != NULL);
-  end[0] = '\0';
-
-  g_assert (strncmp (cookie, expected, strlen(expected)) == 0);
-
-  g_hash_table_insert (req_headers, g_strdup ("Cookie"), cookie);
-  g_free (expected);
-}
-
-static void
 test_application (Test *test,
                   gconstpointer data)
 {
@@ -176,17 +155,17 @@ test_userpass_cookie_check (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("me", "this is the password");
-  cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit/", NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
 
   /* Get the service */
-  include_cookie_as_if_client (headers, headers, "cockpit");
+  mock_auth_include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
 
   g_object_unref (result);
@@ -206,7 +185,7 @@ test_userpass_cookie_check (Test *test,
   prev_creds = creds;
   creds = NULL;
 
-  include_cookie_as_if_client (headers, headers, "cockpit");
+  mock_auth_include_cookie_as_if_client (headers, headers, "cockpit");
 
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   g_assert (prev_service == service);
@@ -232,14 +211,14 @@ test_userpass_bad (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("me", "bad");
-  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit", NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
   g_object_unref (result);
 
   g_assert (response == NULL);
@@ -259,14 +238,14 @@ test_userpass_emptypass (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("aaaaaa", "");
-  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit", NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
   g_object_unref (result);
 
   g_assert (response == NULL);
@@ -332,21 +311,21 @@ test_idle_timeout (Test *test,
   g_assert (cockpit_ws_service_idle == 1);
 
   headers = mock_auth_basic_header ("me", "this is the password");
-  cockpit_auth_login_async (test->auth, "/cockpit", headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, "/cockpit", NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  login_response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  login_response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
   g_assert (login_response != NULL);
   json_object_unref (login_response);
   g_object_unref (result);
   g_assert_no_error (error);
 
   /* Logged in ... the webservice is idle though */
-  include_cookie_as_if_client (headers, headers, "cockpit");
+  mock_auth_include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   g_assert (service != NULL);
   g_assert (cockpit_web_service_get_idling (service));
@@ -413,13 +392,13 @@ test_max_startups (Test *test,
   g_hash_table_insert (headers_fail, g_strdup ("Authorization"), g_strdup ("testscheme fail"));
 
   /* Slow request that takes a while to complete */
-  cockpit_auth_login_async (test->auth, "/cockpit", headers_slow, NULL, on_ready_get_result, &result1);
+  cockpit_auth_login_async (test->auth, "/cockpit", NULL, headers_slow, on_ready_get_result, &result1);
 
   /* Request that gets dropped */
-  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, NULL, on_ready_get_result, &result2);
+  cockpit_auth_login_async (test->auth, "/cockpit", NULL, headers_fail, on_ready_get_result, &result2);
   while (result2 == NULL)
     g_main_context_iteration (NULL, TRUE);
-  response = cockpit_auth_login_finish (test->auth, result2, 0, NULL, &error2);
+  response = cockpit_auth_login_finish (test->auth, result2, NULL, NULL, &error2);
   g_object_unref (result2);
   g_assert (response == NULL);
   g_assert_cmpstr ("Connection closed by host", ==, error2->message);
@@ -427,17 +406,17 @@ test_max_startups (Test *test,
   /* Wait for first request to finish */
   while (result1 == NULL)
     g_main_context_iteration (NULL, TRUE);
-  response = cockpit_auth_login_finish (test->auth, result1, 0, NULL, &error1);
+  response = cockpit_auth_login_finish (test->auth, result1, NULL, NULL, &error1);
   g_object_unref (result1);
   g_assert (response == NULL);
   g_assert_cmpstr ("Authentication failed", ==, error1->message);
 
   /* Now that first is finished we can successfully run another one */
   g_hash_table_insert (headers_fail, g_strdup ("Authorization"), g_strdup ("testscheme fail"));
-  cockpit_auth_login_async (test->auth, "/cockpit", headers_fail, NULL, on_ready_get_result, &result3);
+  cockpit_auth_login_async (test->auth, "/cockpit", NULL, headers_fail, on_ready_get_result, &result3);
   while (result3 == NULL)
     g_main_context_iteration (NULL, TRUE);
-  response = cockpit_auth_login_finish (test->auth, result3, 0, NULL, &error3);
+  response = cockpit_auth_login_finish (test->auth, result3, NULL, NULL, &error3);
   g_object_unref (result3);
   g_assert (response == NULL);
   g_assert_cmpstr ("Authentication failed", ==, error3->message);
@@ -466,7 +445,6 @@ typedef struct {
   const gchar *user;
   const gchar *password;
   const gchar *application;
-  const gchar *remote_peer;
   const gchar *cookie_name;
 } SuccessFixture;
 
@@ -487,14 +465,14 @@ test_custom_fail (Test *test,
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
 
-  cockpit_auth_login_async (test->auth, path, headers, NULL, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
   g_object_unref (result);
 
   g_assert (response == NULL);
@@ -560,20 +538,20 @@ test_custom_success (Test *test,
 
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
-  cockpit_auth_login_async (test->auth, path, headers, fix->remote_peer, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+  response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
   g_object_unref (result);
   g_assert_no_error (error);
   g_assert (response != NULL);
   json_object_unref (response);
 
-  include_cookie_as_if_client (headers, headers,
+  mock_auth_include_cookie_as_if_client (headers, headers,
                                fix->cookie_name ? fix->cookie_name : "cockpit");
   service = cockpit_auth_check_cookie (test->auth, path, headers);
   creds = cockpit_web_service_get_creds (service);
@@ -670,7 +648,7 @@ static const ErrorFixture fixture_ssh_auth_no_write = {
 static const ErrorFixture fixture_ssh_not_supported = {
   .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
   .error_message = "Authentication failed: authentication-not-supported",
-  .header = "testsshscheme fail",
+  .header = "testsshscheme not-supported",
 };
 
 static const ErrorFixture fixture_ssh_auth_failed = {
@@ -881,14 +859,14 @@ test_multi_step_success (Test *test,
           g_hash_table_insert (headers, g_strdup ("Authorization"),
                                g_strdup (header));
         }
-      cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+      cockpit_auth_login_async (test->auth, "/cockpit/", NULL, headers, on_ready_get_result, &result);
       g_hash_table_unref (headers);
 
       while (result == NULL)
         g_main_context_iteration (NULL, TRUE);
 
       headers = web_socket_util_new_headers ();
-      response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+      response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
       g_object_unref (result);
       g_assert (response != NULL);
 
@@ -917,7 +895,7 @@ test_multi_step_success (Test *test,
       json_object_unref (response);
     }
 
-  include_cookie_as_if_client (headers, headers, "cockpit");
+  mock_auth_include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
@@ -968,14 +946,14 @@ test_multi_step_fail (Test *test,
           g_hash_table_insert (headers, g_strdup ("Authorization"),
                                g_strdup (header));
         }
-      cockpit_auth_login_async (test->auth, "/cockpit/", headers, NULL, on_ready_get_result, &result);
+      cockpit_auth_login_async (test->auth, "/cockpit/", NULL, headers, on_ready_get_result, &result);
       g_hash_table_unref (headers);
 
       while (result == NULL)
         g_main_context_iteration (NULL, TRUE);
 
       headers = web_socket_util_new_headers ();
-      response = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
+      response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
       g_object_unref (result);
       g_assert (error != NULL);
 
@@ -1074,7 +1052,7 @@ static const ErrorMultiFixture fixture_fail_step_timeout = {
   .headers = two_steps,
   .prompts = two_prompts,
   .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
-  .error_message = "Invalid resume token",
+  .error_message = "Invalid conversation token",
   .warning = "*Auth pipe closed: timeout*",
   .pause = 3,
 };

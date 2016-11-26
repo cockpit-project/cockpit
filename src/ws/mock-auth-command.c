@@ -98,8 +98,9 @@ main (int argc,
   int success = 0;
   int fd = AUTH_FD;
   char *data = NULL;
+  char *type = getenv ("COCKPIT_AUTH_MESSAGE_TYPE");
 
-  if (argc > 2 && strcmp (argv[1], "testscheme-fd-4") == 0)
+  if (type && strcmp (type, "testscheme-fd-4") == 0)
     fd = 4;
 
   data = read_seqpacket_message (fd);
@@ -111,6 +112,10 @@ main (int argc,
   else if (strcmp (data, "fail") == 0)
     {
       write_resp (fd, "{ \"error\": \"authentication-failed\" }");
+    }
+  else if (strcmp (data, "not-supported") == 0)
+    {
+      write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { } }");
     }
   else if (strcmp (data, "ssh-fail") == 0)
     {
@@ -146,10 +151,11 @@ main (int argc,
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
-  else if (strcmp (data, "this is the password") == 0 &&
+  else if (type && strcmp (type, "basic") == 0 &&
+           strcmp (argv[1], "127.0.0.1") == 0 &&
            strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "*") == 0)
     {
-      if (strcmp (argv[1], "me@localhost") == 0)
+      if (strcmp (data, "me:this is the password") == 0)
         {
           write_resp (fd, "{\"user\": \"me\" }");
           success = 1;
@@ -159,10 +165,11 @@ main (int argc,
           write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
         }
     }
-  else if (strcmp (data, "this is the machine password") == 0 &&
+  else if (type && strcmp (type, "basic") == 0 &&
+           strcmp (argv[1], "machine") == 0 &&
            strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
     {
-      if (strcmp (argv[1], "remote-user@machine") == 0)
+      if (strcmp (data, "remote-user:this is the machine password") == 0)
         {
           write_resp (fd, "{\"user\": \"remote-user\" }");
           success = 1;
@@ -243,7 +250,7 @@ main (int argc,
 
 out:
   close(fd);
-
   if (success)
     execlp ("cat", "cat", NULL);
+
 }

@@ -3046,6 +3046,15 @@ function factory() {
                 cache = new DBusCache();
         }
 
+        function send(payload) {
+            if (channel && channel.valid) {
+                dbus_debug("dbus:", payload);
+                channel.send(payload);
+                return true;
+            }
+            return false;
+        }
+
         function matches(signal, match) {
             if (match.path && signal[0] !== match.path)
                 return false;
@@ -3146,10 +3155,7 @@ function factory() {
                 "meta": data
             });
 
-            var payload = JSON.stringify(message);
-            dbus_debug("dbus:", payload);
-            channel.send(payload);
-
+            send(JSON.stringify(message));
             meta(data);
         };
 
@@ -3221,14 +3227,10 @@ function factory() {
             });
 
             var msg = JSON.stringify(method_call);
-            dbus_debug("dbus:", msg);
-
-            if (channel) {
-                channel.send(msg);
+            if (send(msg))
                 calls[id] = dfd;
-            } else {
+            else
                 dfd.reject(new DBusError(closed));
-            }
 
             return dfd.promise;
         };
@@ -3241,9 +3243,7 @@ function factory() {
                 "signal": [ path, iface, member, args || [] ]
             });
 
-            var payload = JSON.stringify(message);
-            dbus_debug("dbus:", payload);
-            channel.send(payload);
+            send(JSON.stringify(message));
         };
 
         this.subscribe = function subscribe(match, callback, rule) {
@@ -3252,11 +3252,8 @@ function factory() {
                 callback: callback
             };
 
-            if (rule !== false && channel && channel.valid) {
-                var msg = JSON.stringify({ "add-match": subscription.match });
-                dbus_debug("dbus:", msg);
-                channel.send(msg);
-            }
+            if (rule !== false)
+                send(JSON.stringify({ "add-match": subscription.match }));
 
             var id;
             if (callback) {
@@ -3273,11 +3270,8 @@ function factory() {
                         if (prev)
                             delete subscribers[id];
                     }
-                    if (rule !== false && channel && channel.valid && prev) {
-                        var msg = JSON.stringify({ "remove-match": prev.match });
-                        dbus_debug("dbus:", msg);
-                        channel.send(msg);
-                    }
+                    if (rule !== false && prev)
+                        send(JSON.stringify({ "remove-match": prev.match }));
                 }
             };
         };
@@ -3295,21 +3289,13 @@ function factory() {
             calls[id] = dfd;
 
             var msg = JSON.stringify({ "watch": match, "id": id });
-            if (channel && channel.valid) {
-                dbus_debug("dbus:", msg);
-                channel.send(msg);
-            } else {
+            if (!send(msg))
                 dfd.reject(new DBusError(closed));
-            }
 
             var ret = dfd.promise;
             ret.remove = function remove() {
                 delete calls[id];
-                if (channel && channel.valid) {
-                    msg = JSON.stringify({ "unwatch": match });
-                    dbus_debug("dbus:", msg);
-                    channel.send(msg);
-                }
+                send(JSON.stringify({ "unwatch": match }));
             };
             return ret;
         };

@@ -519,5 +519,52 @@ NM_CONTROLLED=no
         b.wait_present("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_in_text("#networking-interfaces tr[data-interface='%s']" % iface, m.address)
 
+    def testNoConnectionSettings(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        iface = self.add_iface()
+        self.wait_for_iface(iface)
+
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        # Edit and apply the ghost settings
+        b.click("tr:contains('IPv4') a")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
+        b.click("#network-ip-settings-dialog a:contains('Manual')")
+        b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_in_text("tr:contains('IPv4')", "Address 1.2.3.4/24")
+
+        # Check that we now have connection settings
+        con_id = m.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
+        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
+                         "manual")
+
+        # The interface will be activated. Deactivate it.
+        b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
+        b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
+        b.wait_in_text("tr:contains('Status')", "Inactive")
+
+        # Delete the connection settings again and wait for the ghost
+        # settings to be re-created.
+        m.execute('nmcli con del "%s"' % con_id)
+        b.wait_in_text("tr:contains('IPv4')", "Automatic")
+
+        # Activate with ghost settings
+        b.click(".panel-heading:contains('%s') .btn:contains('On')" % iface)
+        b.wait_in_text("tr:contains('Status')", "10.111.")
+
+        # Check again that we now have connection settings
+        con_id = m.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
+        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
+                         "auto")
+
 if __name__ == '__main__':
     test_main()

@@ -21,7 +21,6 @@
 
 #include "mock-auth.h"
 
-#include "common/cockpitenums.h"
 #include "common/cockpiterror.h"
 #include "common/cockpitpipetransport.h"
 

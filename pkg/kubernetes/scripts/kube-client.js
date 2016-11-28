@@ -1283,6 +1283,8 @@
 
             function generalMethodRequest(method, resource, body, config) {
                 var path = resourcePath([resource]);
+                if (method != "GET")
+                    path += "?timeout=" + REQ_TIMEOUT;
                 var promise = new KubeRequest(method, path, JSON.stringify(body), config);
                 return promise.then(function(response) {
                     var resp = response.data;

@@ -71,27 +71,26 @@ void
 cockpit_locale_set_language (const gchar *value)
 {
   const gchar *encoding = NULL;
-  gchar *locale;
+  gchar *locale = NULL;
 
   if (value == NULL)
-    {
-      value = "C";
-    }
+    value = "C";
   else
+    encoding = "UTF-8";
+
+  if (strlen (value) > sizeof (previous) - 1)
     {
-      encoding = "UTF-8";
-      if (strlen (value) > sizeof (previous) - 1)
-        {
-          g_printerr ("invalid language: %s\n", value);
-          return;
-        }
+      g_printerr ("invalid language: %s\n", value);
+      return;
     }
 
-  /* Already set our locale to this language */
-  if (strncmp (value, previous, sizeof (previous)) == 0)
-    return;
+  /* Already set our locale to this language? */
+  if (g_strcmp0 (value, previous) == 0)
+      return;
 
   locale = cockpit_locale_from_language (value, encoding, NULL);
+  g_assert (locale != NULL);
+
   if (setlocale (LC_ALL, locale) == NULL)
     {
       /* Note we use g_printerr directly, since we want no gettext invocations on this line */
@@ -103,6 +102,7 @@ cockpit_locale_set_language (const gchar *value)
       g_setenv ("LANG", locale, TRUE);
     }
 
-  strncpy (previous, locale, sizeof (previous));
+  strncpy (previous, value, sizeof (previous) - 1);
+  previous[sizeof (previous) - 1] = '\0';
   g_free (locale);
 }

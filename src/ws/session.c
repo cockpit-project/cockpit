@@ -121,7 +121,10 @@ write_auth_string (const char *field,
   const unsigned char *at;
   char buf[8];
 
-  debug ("Writing %s %s", field, str);
+  if (!str)
+    return;
+
+  debug ("writing %s %s", field, str);
   fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
   for (at = (const unsigned char *)str; *at; at++)
     {
@@ -147,6 +150,7 @@ write_auth_hex (const char *field,
   static const char hex[] = "0123456789abcdef";
   size_t i;
 
+  debug ("writing %s", field);
   fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
   for (i = 0; i < len; i++)
     {
@@ -162,9 +166,9 @@ static void
 write_auth_bool (const char *field,
                  int val)
 {
-  fprintf (authf, "%s \"%s\": %s",
-           auth_delimiter, field,
-           val ? "true" : "false");
+  const char *str = val ? "true" : "false";
+  debug ("writing %s %s", field, str);
+  fprintf (authf, "%s \"%s\": %s", auth_delimiter, field, str);
   auth_delimiter = ",";
 }
 
@@ -246,6 +250,7 @@ write_auth_end (void)
         }
     }
 
+  debug ("finished auth response");
   free (auth_msg);
   auth_msg = NULL;
   authf = NULL;
@@ -291,7 +296,8 @@ dup_string (const char *str,
 }
 
 static const char *
-gssapi_strerror (OM_uint32 major_status,
+gssapi_strerror (gss_OID mech_type,
+                 OM_uint32 major_status,
                  OM_uint32 minor_status)
 {
   static char buffer[1024];
@@ -338,7 +344,7 @@ gssapi_strerror (OM_uint32 major_status,
    for (;;)
      {
        major = gss_display_status (&minor, minor_status, GSS_C_MECH_CODE,
-                                   GSS_C_NULL_OID, &ctx, &status);
+                                   mech_type, &ctx, &status);
        if (GSS_ERROR (major))
          break;
 
@@ -663,6 +669,78 @@ perform_basic (const char *rhost)
   return pamh;
 }
 
+static char *
+map_gssapi_to_local (gss_name_t name,
+                     gss_OID mech_type)
+{
+  gss_buffer_desc local = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc display = GSS_C_EMPTY_BUFFER;
+  OM_uint32 major, minor;
+  char *str = NULL;
+
+  major = gss_localname (&minor, name, mech_type, &local);
+  if (major == GSS_S_COMPLETE)
+    {
+      minor = 0;
+      str = dup_string (local.value, local.length);
+      if (getpwnam (str))
+        {
+          debug ("mapped gssapi name to local user '%s'", str);
+        }
+      else
+        {
+          debug ("ignoring non-existant gssapi local user '%s'", str);
+
+          /* If the local user doesn't exist, pretend gss_localname() failed */
+          free (str);
+          str = NULL;
+          major = GSS_S_FAILURE;
+          minor = KRB5_NO_LOCALNAME;
+        }
+    }
+
+  /* Try a more pragmatic approach */
+  if (!str)
+    {
+      if (minor == (OM_uint32)KRB5_NO_LOCALNAME ||
+          minor == (OM_uint32)KRB5_LNAME_NOTRANS ||
+          minor == (OM_uint32)ENOENT)
+        {
+          major = gss_display_name (&minor, name, &display, NULL);
+          if (GSS_ERROR (major))
+            {
+              warnx ("couldn't get gssapi display name: %s", gssapi_strerror (mech_type, major, minor));
+            }
+          else
+            {
+              str = dup_string (display.value, display.length);
+              if (getpwnam (str))
+                {
+                  debug ("no local user mapping for gssapi name '%s'", str);
+                }
+              else
+                {
+                  warnx ("non-existant local user '%s'", str);
+                  free (str);
+                  str = NULL;
+                }
+            }
+        }
+      else
+        {
+          warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (mech_type, major, minor));
+        }
+    }
+
+  if (display.value)
+    gss_release_buffer (&minor, &display);
+  if (local.value)
+    gss_release_buffer (&minor, &local);
+
+  return str;
+}
+
+
 static pam_handle_t *
 perform_gssapi (const char *rhost)
 {
@@ -672,8 +750,7 @@ perform_gssapi (const char *rhost)
   gss_cred_id_t server = GSS_C_NO_CREDENTIAL;
   gss_buffer_desc input = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc output = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc local = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc display = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc export = GSS_C_EMPTY_BUFFER;
   gss_name_t name = GSS_C_NO_NAME;
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
   gss_OID mech_type = GSS_C_NO_OID;
@@ -693,83 +770,67 @@ perform_gssapi (const char *rhost)
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_seqpacket_message (AUTH_FD, "gssapi data", &input.length);
 
+  write_auth_begin ();
+
   debug ("acquiring server credentials");
   major = gss_acquire_cred (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
                             GSS_C_ACCEPT, &server, NULL, NULL);
   if (GSS_ERROR (major))
     {
       /* This is a routine error message, don't litter */
-      msg = gssapi_strerror (major, minor);
+      msg = gssapi_strerror (mech_type, major, minor);
       if (input.length == 0 && !strstr (msg, "nonexistent or empty"))
         warnx ("couldn't acquire server credentials: %s", msg);
       res = PAM_AUTHINFO_UNAVAIL;
       goto out;
     }
 
-  major = gss_accept_sec_context (&minor, &context, server, &input,
-                                  GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
-                                  &output, &flags, &caps, &client);
-
-  if (GSS_ERROR (major))
+  for (;;)
     {
-      warnx ("gssapi auth failed: %s", gssapi_strerror (major, minor));
-      goto out;
-    }
+      debug ("gssapi negotiation");
 
-  /*
-   * In general gssapi mechanisms can require multiple challenge response
-   * iterations keeping &context between each, however Kerberos doesn't
-   * require this, so we don't care :O
-   *
-   * If we ever want this to work with something other than Kerberos, then
-   * we'll have to have some sorta session that holds the context.
-   */
-  if (major & GSS_S_CONTINUE_NEEDED)
-    goto out;
+      if (client != GSS_C_NO_CREDENTIAL)
+        gss_release_cred (&minor, &client);
+      if (name != GSS_C_NO_NAME)
+        gss_release_name (&minor, &name);
+      if (output.value)
+        gss_release_buffer (&minor, &output);
 
-  major = gss_localname (&minor, name, mech_type, &local);
-  if (major == GSS_S_COMPLETE)
-    {
-      minor = 0;
-      str = dup_string (local.value, local.length);
-      debug ("mapped gssapi name to local user '%s'", str);
+      major = gss_accept_sec_context (&minor, &context, server, &input,
+                                      GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
+                                      &output, &flags, &caps, &client);
 
-      if (getpwnam (str))
+      if (GSS_ERROR (major))
         {
-          res = pam_start ("cockpit", str, &conv, &pamh);
-        }
-      else
-        {
-          /* If the local user doesn't exist, pretend gss_localname() failed */
-          free (str);
-          str = NULL;
-          major = GSS_S_FAILURE;
-          minor = KRB5_NO_LOCALNAME;
-        }
-    }
-
-  if (major != GSS_S_COMPLETE)
-    {
-      if (minor == (OM_uint32)KRB5_NO_LOCALNAME || minor == (OM_uint32)KRB5_LNAME_NOTRANS)
-        {
-          major = gss_display_name (&minor, name, &display, NULL);
-          if (GSS_ERROR (major))
-            {
-              warnx ("couldn't get gssapi display name: %s", gssapi_strerror (major, minor));
-              goto out;
-            }
-
-          str = dup_string (display.value, display.length);
-          debug ("no local user mapping for gssapi name '%s'", str);
-
-          res = pam_start ("cockpit", str, &conv, &pamh);
-        }
-      else
-        {
-          warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (major, minor));
+          warnx ("gssapi auth failed: %s", gssapi_strerror (mech_type, major, minor));
           goto out;
         }
+
+      write_auth_hex ("gssapi-output", output.value, output.length);
+
+      if ((major & GSS_S_CONTINUE_NEEDED) == 0)
+        break;
+
+      debug ("need to continue gssapi negotiation");
+
+      /*
+       * The GSSAPI mechanism can require multiple chanllenge response
+       * iterations ... so do that here.
+       */
+      write_auth_code (PAM_AUTH_ERR);
+      write_auth_end ();
+
+      free (input.value);
+      input.value = read_seqpacket_message (AUTH_FD, "gssapi data", &input.length);
+
+      write_auth_begin ();
     }
+
+  str = map_gssapi_to_local (name, mech_type);
+  if (!str)
+    goto out;
+
+  res = pam_start ("cockpit", str, &conv, &pamh);
 
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
@@ -780,26 +841,18 @@ perform_gssapi (const char *rhost)
   res = open_session (pamh);
 
 out:
-  write_auth_begin ();
   write_auth_code (res);
   if (pwd)
     write_auth_string ("user", pwd->pw_name);
-  if (output.value)
-    write_auth_hex ("gssapi-output", output.value, output.length);
-
-  if (output.value)
-    gss_release_buffer (&minor, &output);
-  output.value = NULL;
-  output.length = 0;
 
   if (caps & GSS_C_DELEG_FLAG && client != GSS_C_NO_CREDENTIAL)
     {
 #ifdef HAVE_GSS_IMPORT_CRED
-      major = gss_export_cred (&minor, client, &output);
+      major = gss_export_cred (&minor, client, &export);
       if (GSS_ERROR (major))
-        warnx ("couldn't export gssapi credentials: %s", gssapi_strerror (major, minor));
-      else if (output.value)
-        write_auth_hex ("gssapi-creds", output.value, output.length);
+        warnx ("couldn't export gssapi credentials: %s", gssapi_strerror (mech_type, major, minor));
+      else if (export.value)
+        write_auth_hex ("gssapi-creds", export.value, export.length);
 #else
       /* cockpit-ws will complain for us, if they're ever used */
       write_auth_hex ("gssapi-creds", (void *)"", 0);
@@ -808,12 +861,10 @@ out:
 
   write_auth_end ();
 
-  if (display.value)
-    gss_release_buffer (&minor, &display);
   if (output.value)
     gss_release_buffer (&minor, &output);
-  if (local.value)
-    gss_release_buffer (&minor, &local);
+  if (export.value)
+    gss_release_buffer (&minor, &export);
   if (client != GSS_C_NO_CREDENTIAL)
     gss_release_cred (&minor, &client);
   if (server != GSS_C_NO_CREDENTIAL)

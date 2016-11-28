@@ -20,7 +20,7 @@
 #ifndef __COCKPIT_ERROR_H__
 #define __COCKPIT_ERROR_H__
 
-#include "common/cockpittypes.h"
+#include <glib.h>
 
 G_BEGIN_DECLS
 
@@ -32,6 +32,19 @@ G_BEGIN_DECLS
  * domains.
  */
 #define COCKPIT_ERROR (cockpit_error_quark ())
+
+/**
+ * CockpitError:
+ * @COCKPIT_ERROR_FAILED: The operation failed.
+ *
+ * Error codes for the #COCKPIT_ERROR error domain and the corresponding
+ * D-Bus error names.
+ */
+typedef enum {
+  COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  COCKPIT_ERROR_PERMISSION_DENIED,
+  COCKPIT_ERROR_FAILED,
+} CockpitError;
 
 GQuark cockpit_error_quark (void);
 

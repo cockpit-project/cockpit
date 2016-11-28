@@ -26,26 +26,19 @@
  * @title: CockpitError
  * @short_description: Possible errors that can be returned
  *
- * Error codes and D-Bus errors.
+ * Error codes.
  */
-
-static const GDBusErrorEntry dbus_error_entries[] =
-{
-  {COCKPIT_ERROR_NO_SUCH_REALM,                "com.redhat.Cockpit.Error.NoSuchRealm"},
-  {COCKPIT_ERROR_AUTHENTICATION_FAILED,        "com.redhat.Cockpit.Error.AuthenticationFailed"},
-  {COCKPIT_ERROR_PERMISSION_DENIED,            "com.redhat.Cockpit.Error.PermissionDenied"},
-  {COCKPIT_ERROR_CANCELLED,                    "com.redhat.Cockpit.Error.Cancelled"},
-  {COCKPIT_ERROR_FAILED,                       "com.redhat.Cockpit.Error.Failed"},
-};
 
 GQuark
 cockpit_error_quark (void)
 {
-  G_STATIC_ASSERT (G_N_ELEMENTS (dbus_error_entries) == COCKPIT_ERROR_NUM_ENTRIES);
+  static GQuark domain = 0;
   static volatile gsize quark_volatile = 0;
-  g_dbus_error_register_error_domain ("cockpit-error-quark",
-                                      &quark_volatile,
-                                      dbus_error_entries,
-                                      G_N_ELEMENTS (dbus_error_entries));
-  return (GQuark) quark_volatile;
+
+  if (g_once_init_enter (&quark_volatile)) {
+      domain = g_quark_from_static_string ("cockpit-error");
+      g_once_init_leave (&quark_volatile, 1);
+  }
+
+  return domain;
 }

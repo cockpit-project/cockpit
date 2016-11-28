@@ -23,7 +23,6 @@
 
 #include "cockpitchannel.h"
 
-#include "common/cockpitenums.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlocale.h"

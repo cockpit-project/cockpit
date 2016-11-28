@@ -28,7 +28,6 @@
 
 #include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
-#include "common/cockpitenums.h"
 #include "common/cockpitwebinject.h"
 
 #include "websocket/websocket.h"

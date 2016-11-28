@@ -105,7 +105,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
         <div class="listing-ct-body hidden signatures" ng-class="{active: activeTab('signature')}">
             <div class="row">
-                <div class="col-sm-6" ng-repeat="v in item.signatures.v"
+                <div class="col-sm-12" ng-repeat="v in item.signatures.v"
                     ng-init="sig = signature_obj(v)" ng-if="item.signatures">
                     <dl>
                         <dt ng-if="sig.by" translate>Signed by</dt>

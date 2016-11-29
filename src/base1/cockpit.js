@@ -3040,6 +3040,7 @@ function factory() {
 
         var channel = cockpit.channel(args);
         var subscribers = { };
+        var published = { };
         var calls = { };
         var cache;
 
@@ -3129,6 +3130,8 @@ function factory() {
                                 subscription.callback.apply(self, msg.signal);
                         }
                     }
+                } else if (msg.call) {
+                    handle(msg.call, msg.id);
                 } else if (msg.notify) {
                     notify(msg.notify);
                 } else if (msg.meta) {
@@ -3257,7 +3260,7 @@ function factory() {
         };
 
         this.subscribe = function subscribe(match, callback, rule) {
-            var subscription = {
+            var msg, subscription = {
                 match: extend({ }, match),
                 callback: callback
             };
@@ -3296,16 +3299,102 @@ function factory() {
             var id = String(last_cookie);
             last_cookie++;
             var dfd = cockpit.defer();
-            calls[id] = dfd;
 
             var msg = JSON.stringify({ "watch": match, "id": id });
-            if (!send(msg))
+            if (send(msg))
+                calls[id] = dfd;
+            else
                 dfd.reject(new DBusError(closed));
 
             var ret = dfd.promise;
             ret.remove = function remove() {
-                delete calls[id];
+                if (id in calls) {
+                    dfd.reject(new DBusError("cancelled"));
+                    delete calls[id];
+                }
                 send(JSON.stringify({ "unwatch": match }));
+            };
+            return ret;
+        };
+
+        function unknown_interface(path, iface) {
+            var message = "DBus interface " + iface + " not available at " + path;
+            return cockpit.reject(new DBusError([ "org.freedesktop.DBus.Error.UnknownInterface", [ message ] ]));
+        }
+
+        function unknown_method(path, iface, method) {
+            var message = "DBus method " + iface + " " + method + " not available at " + path;
+            return cockpit.reject(new DBusError([ "org.freedesktop.DBus.Error.UnknownMethod", [ message ] ]));
+        }
+
+        function not_implemented(path, iface, method) {
+            console.warn("method is not implemented properly: ", path, iface, method);
+            return unknown_method(path, iface, method);
+        }
+
+        function invoke(call) {
+            var path = call[0];
+            var iface = call[1];
+            var method = call[2];
+            var object = published[path + "\n" + iface];
+            var info = cache.meta[iface];
+            if (!object || !info)
+                return unknown_interface(path, iface);
+            if (!info.methods || !(method in info.methods))
+                return unknown_method(path, iface, method);
+            if (typeof object[method] != "function")
+                return not_implemented(path, iface, method);
+            return object[method].apply(object, call[3]);
+        }
+
+        function handle(call, cookie) {
+            var result = invoke(call);
+            if (!cookie)
+                return; /* Discard result */
+            cockpit.when(result).then(function() {
+                var out = Array.prototype.slice.call(arguments, 0);
+                if (out.length == 1 && typeof out[0] == "undefined")
+                    out = [ ];
+                send(JSON.stringify({ "reply": [ out ], "id": cookie }));
+            }, function(ex) {
+                var error = [ ];
+                error[0] = ex.name || " org.freedesktop.DBus.Error.Failed";
+                error[1] = [ cockpit.message(ex) || error[0] ];
+                send(JSON.stringify({ "error": error, "id": cookie }));
+            });
+        }
+
+        self.publish = function(path, iface, object, options) {
+            var publish = [ path, iface ];
+
+            var id = String(last_cookie);
+            last_cookie++;
+            var dfd = calls[id] = cockpit.defer();
+
+            var payload = JSON.stringify(extend({ }, options, {
+                "publish": publish,
+                "id": id,
+            }));
+
+            if (send(payload))
+                calls[id] = dfd;
+            else
+                dfd.reject(new DBusError(closed));
+
+            var key = path + "\n" + iface;
+            dfd.promise.then(function() {
+                published[key] = object;
+            });
+
+            /* Return a way to remove this object */
+            var ret = dfd.promise;
+            ret.remove = function remove() {
+                if (id in calls) {
+                    dfd.reject(new DBusError("cancelled"));
+                    delete calls[id];
+                }
+                delete published[key];
+                send(JSON.stringify({ "unpublish": publish }));
             };
             return ret;
         };

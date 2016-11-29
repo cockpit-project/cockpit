@@ -478,7 +478,7 @@ run_bridge (const gchar *interactive,
   bridge = cockpit_bridge_new (transport, payload_types, init_host);
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
-  cockpit_dbus_environment_startup ();
+  cockpit_dbus_process_startup ();
 
   g_free (pwd);
   pwd = NULL;

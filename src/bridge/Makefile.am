@@ -17,9 +17,9 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitdbusinternal.c \
 	src/bridge/cockpitdbusjson.c \
 	src/bridge/cockpitdbusjson.h \
+	src/bridge/cockpitdbusprocess.c \
 	src/bridge/cockpitdbusrules.c \
 	src/bridge/cockpitdbusrules.h \
-	src/bridge/cockpitdbusenvironment.c \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \
 	src/bridge/cockpithttpstream.c \
@@ -161,7 +161,7 @@ BRIDGE_CHECKS = \
 	test-httpstream \
 	test-setup \
 	test-websocketstream \
-	test-environment \
+	test-process \
 	test-bridge \
 	$(NULL)
 
@@ -213,9 +213,9 @@ test_stream_SOURCES = src/bridge/test-stream.c \
 	src/common/mock-io-stream.c src/common/mock-io-stream.h
 test_stream_LDADD = $(libcockpit_bridge_LIBS)
 
-test_environment_SOURCES = src/bridge/test-environment.c
-test_environment_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_environment_LDADD = $(libcockpit_bridge_LIBS)
+test_process_SOURCES = src/bridge/test-process.c
+test_process_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_process_LDADD = $(libcockpit_bridge_LIBS)
 
 test_pipe_channel_SOURCES = \
 	src/bridge/test-pipe-channel.c \

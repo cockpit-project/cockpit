@@ -31,6 +31,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpitsystem.h"
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
@@ -113,6 +114,7 @@ cockpit_session_free (gpointer data)
     g_signal_handler_disconnect (session->transport, session->closed_sig);
   g_object_unref (session->transport);
   cockpit_creds_unref (session->creds);
+
   g_free (session->checksum);
   g_free (session->host);
   g_free (session);
@@ -448,6 +450,7 @@ typedef struct {
 
 static guint sig_idling = 0;
 static guint sig_destroy = 0;
+static guint sig_transport_init = 0;
 
 G_DEFINE_TYPE (CockpitWebService, cockpit_web_service, G_TYPE_OBJECT);
 
@@ -724,6 +727,9 @@ process_session_init (CockpitWebService *self,
     {
       g_debug ("%s: received init message", session->host);
       session->init_received = TRUE;
+      g_object_set_data_full (G_OBJECT (session->transport), "init",
+                              json_object_ref (options),
+                              (GDestroyNotify) json_object_unref);
     }
   else
     {
@@ -738,6 +744,7 @@ process_session_init (CockpitWebService *self,
   g_free (session->checksum);
   session->checksum = g_strdup (checksum);
 
+  g_signal_emit (self, sig_transport_init, 0, session->transport);
   return NULL;
 }
 
@@ -960,6 +967,9 @@ on_session_closed (CockpitTransport *transport,
                 }
             }
         }
+
+      /* Emit the init changed signal */
+      g_signal_emit (self, sig_transport_init, 0, session->transport);
 
       cockpit_session_destroy (&self->sessions, session);
 
@@ -1679,6 +1689,10 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
   sig_destroy = g_signal_new ("destroy", COCKPIT_TYPE_WEB_SERVICE,
                               G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
                               G_TYPE_NONE, 0);
+
+  sig_transport_init = g_signal_new ("transport-init-changed", COCKPIT_TYPE_WEB_SERVICE,
+                                     G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
+                                     G_TYPE_NONE, 1, COCKPIT_TYPE_TRANSPORT);
 }
 
 /**
@@ -1871,6 +1885,77 @@ cockpit_web_service_ensure_transport (CockpitWebService *self,
   g_return_val_if_fail (session != NULL, NULL);
 
   return session->transport;
+}
+
+static void
+on_transport_init (CockpitWebService *service,
+                   CockpitTransport *transport,
+                   gpointer user_data)
+{
+  GSimpleAsyncResult *result = user_data;
+  CockpitTransport *watched_transport = g_simple_async_result_get_op_res_gpointer (result);
+
+  if (transport != watched_transport)
+    return;
+
+  g_signal_handlers_disconnect_by_data (service, result);
+  g_simple_async_result_complete_in_idle (result);
+  g_object_unref (result);
+}
+
+void
+cockpit_web_service_get_transport_init_message_aysnc (CockpitWebService *self,
+                                                      CockpitTransport *transport,
+                                                      GAsyncReadyCallback callback,
+                                                      gpointer user_data)
+{
+  CockpitSession *session;
+  GSimpleAsyncResult *result;
+  gboolean waiting = FALSE;
+
+  g_return_if_fail (COCKPIT_IS_WEB_SERVICE (self));
+  g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
+
+  result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
+                                      cockpit_web_service_get_transport_init_message_aysnc);
+
+  g_simple_async_result_set_op_res_gpointer (result,
+                                             g_object_ref (transport),
+                                             g_object_unref);
+  session = cockpit_session_by_transport (&self->sessions, transport);
+  if (session && !g_object_get_data (G_OBJECT (transport), "init"))
+    {
+      g_signal_connect (self, "transport-init-changed",
+                        (GCallback) on_transport_init, g_object_ref (result));
+      waiting = TRUE;
+    }
+
+  if (!waiting)
+    g_simple_async_result_complete_in_idle (result);
+
+  g_object_unref (result);
+}
+
+JsonObject *
+cockpit_web_service_get_transport_init_message_finish (CockpitWebService *self,
+                                                       GAsyncResult *result)
+{
+  CockpitSession *session = NULL;
+  CockpitTransport *transport = NULL;
+  JsonObject *init = NULL;
+
+  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
+  g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
+                        cockpit_web_service_get_transport_init_message_aysnc), NULL);
+
+  transport = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+  if (transport)
+    session = cockpit_session_by_transport (&self->sessions, transport);
+
+  if (session && session->transport)
+    init = g_object_get_data (G_OBJECT (transport), "init");
+
+  return init;
 }
 
 CockpitTransport *

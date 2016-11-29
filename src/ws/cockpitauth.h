@@ -101,7 +101,8 @@ CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
                                                    const gchar *path,
                                                    GHashTable *in_headers);
 
-gchar *         cockpit_auth_parse_application    (const gchar *path);
+gchar *         cockpit_auth_parse_application    (const gchar *path,
+                                                   gboolean *is_host);
 
 GBytes *        cockpit_auth_steal_authorization      (GHashTable *headers,
                                                        GIOStream *connection,

@@ -845,7 +845,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_auth_spawn_login_async);
 
-  application = cockpit_auth_parse_application (path);
+  application = cockpit_auth_parse_application (path, NULL);
   authorization = cockpit_auth_steal_authorization (headers, connection,
                                                     &type, &conversation);
 
@@ -1067,7 +1067,7 @@ authenticated_for_headers (CockpitAuth *self,
   g_return_val_if_fail (self != NULL, FALSE);
   g_return_val_if_fail (in_headers != NULL, FALSE);
 
-  application = cockpit_auth_parse_application (path);
+  application = cockpit_auth_parse_application (path, NULL);
   if (!application)
     return NULL;
 
@@ -1361,7 +1361,8 @@ cockpit_auth_new (gboolean login_loopback)
 }
 
 gchar *
-cockpit_auth_parse_application (const gchar *path)
+cockpit_auth_parse_application (const gchar *path,
+                                gboolean *is_host)
 {
   const gchar *pos;
   gchar *tmp = NULL;
@@ -1399,6 +1400,9 @@ cockpit_auth_parse_application (const gchar *path)
     {
       val = g_strdup ("cockpit");
     }
+
+  if (is_host)
+    *is_host = application_parse_host (val) != NULL;
 
   g_free (tmp);
   return val;

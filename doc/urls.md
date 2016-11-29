@@ -13,7 +13,9 @@ are valid for any application, just replace ```/cockpit/``` with ```/cockpit+app
 
  * ```/cockpit/static``` static files available without authentication. Files
    are cached for as long as possible, and names *must* change when the
-   contents of the file changes.
+   contents of the file changes. The exception to this is when the application
+   refers to a different machine. In that case the user must be authenticated
+   to serve those files and the cache varies on cookie.
 
  * ```/cockpit/login``` authenticates a user and sets cookie based on application
  name.

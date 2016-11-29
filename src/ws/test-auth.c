@@ -94,48 +94,60 @@ test_application (Test *test,
                   gconstpointer data)
 {
   gchar *application = NULL;
+  gboolean is_host = FALSE;
 
-  application = cockpit_auth_parse_application ("/");
+  application = cockpit_auth_parse_application ("/", &is_host);
   g_assert_cmpstr ("cockpit", ==, application);
+  g_assert_false (is_host);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/=");
+  application = cockpit_auth_parse_application ("/=", &is_host);
   g_assert_cmpstr ("cockpit", ==, application);
+  g_assert_false (is_host);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/other/other");
+  application = cockpit_auth_parse_application ("/other/other", &is_host);
   g_assert_cmpstr ("cockpit", ==, application);
+  g_assert_false (is_host);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/=other/other");
+  application = cockpit_auth_parse_application ("/=other/other", &is_host);
+  g_assert_true (is_host);
   g_assert_cmpstr ("cockpit+=other", ==, application);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/=other");
+  application = cockpit_auth_parse_application ("/=other", &is_host);
+  g_assert_true (is_host);
   g_assert_cmpstr ("cockpit+=other", ==, application);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/=other/");
+  application = cockpit_auth_parse_application ("/=other/", &is_host);
+  g_assert_true (is_host);
   g_assert_cmpstr ("cockpit+=other", ==, application);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/cockpit");
+  application = cockpit_auth_parse_application ("/cockpit", &is_host);
   g_assert_cmpstr ("cockpit", ==, application);
+  g_assert_false (is_host);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/cockpit/login");
+  application = cockpit_auth_parse_application ("/cockpit/login", &is_host);
   g_assert_cmpstr ("cockpit", ==, application);
+  g_assert_false (is_host);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/cockpit+application");
+  application = cockpit_auth_parse_application ("/cockpit+application", &is_host);
+  g_assert_cmpstr ("cockpit+application", ==, application);
+  g_assert_false (is_host);
+  g_clear_pointer (&application, g_free);
+
+  application = cockpit_auth_parse_application ("/cockpit+application/", &is_host);
+  g_assert_false (is_host);
   g_assert_cmpstr ("cockpit+application", ==, application);
   g_clear_pointer (&application, g_free);
 
-  application = cockpit_auth_parse_application ("/cockpit+application/");
-  g_assert_cmpstr ("cockpit+application", ==, application);
-  g_clear_pointer (&application, g_free);
-
-  application = cockpit_auth_parse_application ("/cockpit+application/other/other");
+  application = cockpit_auth_parse_application ("/cockpit+application/other/other", &is_host);
+  g_assert_false (is_host);
   g_assert_cmpstr ("cockpit+application", ==, application);
   g_clear_pointer (&application, g_free);
 }

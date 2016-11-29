@@ -30,6 +30,7 @@
 
 #include "cockpitcertificate.h"
 #include "cockpithandlers.h"
+#include "cockpitbranding.h"
 
 #include "common/cockpitassets.h"
 #include "common/cockpitconf.h"
@@ -68,63 +69,30 @@ print_version (void)
   g_print ("Authorization: crypt1\n");
 }
 
-static const gchar * const*
-get_system_data_dirs (void)
-{
-  const gchar *env;
-
-  env = g_getenv ("XDG_DATA_DIRS");
-  if (env && env[0])
-    return g_get_system_data_dirs ();
-
-  return NULL;
-}
-
 static gchar **
-calculate_static_roots (GHashTable *os_release)
+setup_static_roots (GHashTable *os_release)
 {
-  const gchar *os_id = NULL;
-  const gchar *os_variant_id = NULL;
-  const gchar * const* system;
-  GPtrArray *dirs;
   gchar **roots;
+  const gchar *os_variant_id;
+  const gchar *os_id;
 
-  dirs = g_ptr_array_new ();
-
-  system = get_system_data_dirs ();
-  while (system && system[0])
-    {
-      g_ptr_array_add (dirs, g_build_filename (system[0], "cockpit", "static", NULL));
-      system++;
-    }
-
-#ifdef PACKAGE_BRAND
-  os_id = PACKAGE_BRAND;
-#else
   if (os_release)
     {
       os_id = g_hash_table_lookup (os_release, "ID");
       os_variant_id = g_hash_table_lookup (os_release, "VARIANT_ID");
     }
-#endif
-
-  if (os_id)
+  else
     {
-      if (os_variant_id)
-          g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id));
-      g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id));
+      os_id = NULL;
+      os_variant_id = NULL;
     }
-  g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/branding/default"));
-  g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/static"));
-  g_ptr_array_add (dirs, NULL);
 
-  roots = cockpit_web_server_resolve_roots ((const gchar **)dirs->pdata);
+  roots = cockpit_branding_calculate_static_roots (os_id, os_variant_id, TRUE);
 
   /* Load the fail template */
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
-  g_ptr_array_free (dirs, TRUE);
   return roots;
 }
 
@@ -192,7 +160,7 @@ main (int argc,
 
   data.os_release = cockpit_system_load_os_release ();
   data.auth = cockpit_auth_new (opt_local_ssh);
-  roots = calculate_static_roots (data.os_release);
+  roots = setup_static_roots (data.os_release);
 
   data.static_roots = (const gchar **)roots;
 

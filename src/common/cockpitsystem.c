@@ -28,6 +28,24 @@
 #include <string.h>
 #include <unistd.h>
 
+static const gchar *os_release_fields[] = {
+  "NAME",
+  "VERSION",
+  "ID",
+  "VERSION_ID",
+  "PRETTY_NAME",
+  "VARIANT",
+  "VARIANT_ID",
+  "CPE_NAME",
+  NULL
+};
+
+const gchar **
+cockpit_system_os_release_fields (void)
+{
+  return os_release_fields;
+}
+
 GHashTable *
 cockpit_system_load_os_release (void)
 {

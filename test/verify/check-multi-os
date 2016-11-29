@@ -208,6 +208,8 @@ class TestMultiOSDirect(MachineCase):
         # Access stock directly from dev
         b.open("/={}".format(stock_m.address))
         b.wait_visible("#login")
+        b.wait_not_visible("#badge")
+        b.wait_not_visible("#brand")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
@@ -221,6 +223,9 @@ class TestMultiOSDirect(MachineCase):
         b.wait_visible("body")
         b.wait_in_text('#system_information_hostname_button', "stock")
         b.switch_to_top()
+
+        # Branding uses default because there is no os information
+        b.wait_in_text("#index-brand", "Cockpit")
         b.wait_js_cond('window.location.pathname.indexOf("shell/index.html") > -1')
 
 if __name__ == '__main__':

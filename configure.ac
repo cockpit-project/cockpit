@@ -624,6 +624,7 @@ echo "
         Supports key auth:          ${key_auth}
 
         pkexec:                     ${PKEXEC}
+        polkit-agent-helper-1:      ${POLKIT_AGENT_HELPER}
         ssh-add:                    ${SSH_ADD}
         ssh-agent:                  ${SSH_AGENT}
         sudo:                       ${SUDO}

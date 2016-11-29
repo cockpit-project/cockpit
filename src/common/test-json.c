@@ -273,6 +273,44 @@ test_get_object (TestCase *tc,
 }
 
 static void
+test_hashtable_objects (void)
+{
+  JsonObject *object = json_object_new ();
+  GHashTable *ht = NULL;
+  const gchar *fields[] = {
+    "test",
+    "test2",
+    "test4",
+    "test5",
+    NULL,
+  };
+
+  json_object_set_string_member (object, "test", "one");
+  json_object_set_string_member (object, "test2", "two");
+  json_object_set_string_member (object, "test3", "three");
+  json_object_set_null_member (object, "test4");
+  json_object_set_string_member (object, "test5", "five");
+
+  ht = cockpit_json_to_hash_table (object, fields);
+  g_assert_cmpstr (g_hash_table_lookup (ht, "test"), ==, "one");
+  g_assert_cmpstr (g_hash_table_lookup (ht, "test2"), ==, "two");
+  g_assert_cmpstr (g_hash_table_lookup (ht, "test5"), ==, "five");
+  g_assert_false (g_hash_table_contains (ht, "test3"));
+  g_assert_false (g_hash_table_contains (ht, "test4"));
+  json_object_unref (object);
+
+  object = cockpit_json_from_hash_table (ht, fields);
+  g_assert_cmpstr (json_object_get_string_member (object, "test"), ==, "one");
+  g_assert_cmpstr (json_object_get_string_member (object, "test2"), ==, "two");
+  g_assert_cmpstr (json_object_get_string_member (object, "test5"), ==, "five");
+  g_assert_false (json_object_has_member (object, "test3"));
+  g_assert_true (json_object_get_null_member (object, "test4"));
+
+  json_object_unref (object);
+  g_hash_table_unref (ht);
+}
+
+static void
 test_int_hash (void)
 {
   gint64 one = 1;
@@ -670,6 +708,7 @@ main (int argc,
     }
 
   g_test_add_func ("/json/write/infinite-nan", test_write_infinite_nan);
+  g_test_add_func ("/json/hashtable-objects", test_hashtable_objects);
 
 
   return g_test_run ();

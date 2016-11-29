@@ -95,4 +95,9 @@ guint          cockpit_json_int_hash          (gconstpointer v);
 gboolean       cockpit_json_int_equal         (gconstpointer v1,
                                                gconstpointer v2);
 
+JsonObject *   cockpit_json_from_hash_table   (GHashTable *hash_table,
+                                               const gchar **fields);
+
+GHashTable *   cockpit_json_to_hash_table     (JsonObject *object,
+                                               const gchar **fields);
 #endif /* COCKPIT_JSON_H__ */

@@ -96,7 +96,7 @@ enum {
   PROP_CONNECTION = 1,
   PROP_NAME,
   PROP_LOGNAME,
-  PROP_NAME_OWNER
+  PROP_INTERFACE_INFO
 };
 
 static guint signal_meta;
@@ -321,10 +321,6 @@ cockpit_dbus_cache_init (CockpitDBusCache *self)
 
   self->cancellable = g_cancellable_new ();
 
-  /* The key is owned by the value */
-  self->introspected = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
-                                              (GDestroyNotify)g_dbus_interface_info_unref);
-
   self->managed = cockpit_paths_new ();
 
   /* Becomes a whole tree of hash tables */
@@ -370,7 +366,7 @@ introspect_complete (CockpitDBusCache *self,
 
   if (id->interface)
     {
-      iface = g_hash_table_lookup (self->introspected, id->interface);
+      iface = cockpit_dbus_interface_info_lookup (self->introspected, id->interface);
       if (!iface)
         {
           g_debug ("%s: introspect interface %s didn't work", self->logname, id->interface);
@@ -383,11 +379,11 @@ introspect_complete (CockpitDBusCache *self,
            */
 
           iface = g_new0 (GDBusInterfaceInfo, 1);
-          iface->ref_count = -1;
-          iface->name = (gchar *)id->interface;
+          iface->ref_count = 1;
+          iface->name = g_strdup (id->interface);
 
-          self->trash = g_list_prepend (self->trash, iface);
-          g_hash_table_replace (self->introspected, iface->name, iface);
+          cockpit_dbus_interface_info_push (self->introspected, iface);
+          g_dbus_interface_info_unref (iface);
         }
     }
 
@@ -602,7 +598,7 @@ introspect_maybe (CockpitDBusCache *self,
   g_assert (path);
   g_assert (interface);
 
-  iface = g_hash_table_lookup (self->introspected, interface);
+  iface = cockpit_dbus_interface_info_lookup (self->introspected, interface);
   if (iface)
     {
       (callback) (self, iface, user_data);
@@ -1200,6 +1196,9 @@ cockpit_dbus_cache_constructed (GObject *object)
 
   g_return_if_fail (self->connection != NULL);
 
+  if (!self->introspected)
+    self->introspected = cockpit_dbus_interface_info_new ();
+
   self->subscribe_properties = g_dbus_connection_signal_subscribe (self->connection,
                                                                    self->name,
                                                                    "org.freedesktop.DBus.Properties",
@@ -1241,6 +1240,9 @@ cockpit_dbus_cache_set_property (GObject *obj,
         break;
       case PROP_LOGNAME:
         self->logname = g_value_dup_string (value);
+        break;
+      case PROP_INTERFACE_INFO:
+        self->introspected = g_value_dup_boxed (value);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -1328,6 +1330,9 @@ cockpit_dbus_cache_class_init (CockpitDBusCacheClass *klass)
   g_object_class_install_property (gobject_class, PROP_LOGNAME,
        g_param_spec_string ("logname", "logname", "logname", "internal",
                             G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_INTERFACE_INFO,
+       g_param_spec_boxed ("interface-info", NULL, NULL, G_TYPE_HASH_TABLE,
+                           G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
 static GHashTable *
@@ -1641,15 +1646,14 @@ process_introspect_node (CockpitDBusCache *self,
         }
 
       /* Cache this interface for later use elsewhere */
-      prev = g_hash_table_lookup (self->introspected, iface->name);
+      prev = cockpit_dbus_interface_info_lookup (self->introspected, iface->name);
       if (prev)
         {
           iface = prev;
         }
       else
         {
-          g_hash_table_replace (self->introspected, iface->name,
-                                g_dbus_interface_info_ref (iface));
+          cockpit_dbus_interface_info_push (self->introspected, iface);
         }
 
       /* Skip these interfaces */
@@ -1982,11 +1986,40 @@ cockpit_dbus_cache_poke (CockpitDBusCache *self,
 CockpitDBusCache *
 cockpit_dbus_cache_new (GDBusConnection *connection,
                         const gchar *name,
-                        const gchar *logname)
+                        const gchar *logname,
+                        GHashTable *interface_info)
 {
   return g_object_new (COCKPIT_TYPE_DBUS_CACHE,
                        "connection", connection,
                        "name", name,
                        "logname", logname,
+                       "interface-info", interface_info,
                        NULL);
+}
+
+GHashTable *
+cockpit_dbus_interface_info_new (void)
+{
+  /* The key is owned by the value */
+  return g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+                                (GDestroyNotify)g_dbus_interface_info_unref);
+}
+
+GDBusInterfaceInfo *
+cockpit_dbus_interface_info_lookup (GHashTable *interface_info,
+                                    const gchar *interface_name)
+{
+  g_return_val_if_fail (interface_info != NULL, NULL);
+  g_return_val_if_fail (interface_name != NULL, NULL);
+  return g_hash_table_lookup (interface_info, interface_name);
+}
+
+void
+cockpit_dbus_interface_info_push (GHashTable *interface_info,
+                                  GDBusInterfaceInfo *iface)
+{
+  g_return_if_fail (interface_info != NULL);
+  g_return_if_fail (iface != NULL);
+  g_hash_table_replace (interface_info, iface->name,
+                        g_dbus_interface_info_ref (iface));
 }

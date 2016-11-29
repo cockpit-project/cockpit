@@ -59,6 +59,7 @@ typedef struct {
   /* Call related */
   GCancellable *cancellable;
   GList *active_calls;
+  GHashTable *interface_info;
 
   /* Signal related */
   CockpitDBusRules *rules;
@@ -1801,6 +1802,7 @@ cockpit_dbus_json_init (CockpitDBusJson *self)
   self->cancellable = g_cancellable_new ();
 
   self->rules = cockpit_dbus_rules_new ();
+  self->interface_info = cockpit_dbus_interface_info_new ();
 }
 
 static void
@@ -1867,7 +1869,8 @@ subscribe_and_cache (CockpitDBusJson *self)
 {
   g_dbus_connection_set_exit_on_close (self->connection, FALSE);
 
-  self->cache = cockpit_dbus_cache_new (self->connection, self->name, self->logname);
+  self->cache = cockpit_dbus_cache_new (self->connection, self->name,
+                                        self->logname, self->interface_info);
   self->meta_sig = g_signal_connect (self->cache, "meta", G_CALLBACK (on_cache_meta), self);
   self->update_sig = g_signal_connect (self->cache, "update",
                                        G_CALLBACK (on_cache_update), self);
@@ -2140,6 +2143,7 @@ cockpit_dbus_json_finalize (GObject *object)
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
 
   g_clear_object (&self->connection);
+  g_hash_table_unref (self->interface_info);
   g_object_unref (self->cancellable);
   cockpit_dbus_rules_free (self->rules);
 

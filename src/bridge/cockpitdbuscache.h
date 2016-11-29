@@ -53,7 +53,8 @@ GType                 cockpit_dbus_cache_get_type          (void) G_GNUC_CONST;
 
 CockpitDBusCache *    cockpit_dbus_cache_new               (GDBusConnection *connection,
                                                             const gchar *name,
-                                                            const gchar *logname);
+                                                            const gchar *logname,
+                                                            GHashTable *interface_info);
 
 void                  cockpit_dbus_cache_barrier           (CockpitDBusCache *self,
                                                             CockpitDBusBarrierFunc callback,
@@ -81,6 +82,14 @@ void                  cockpit_dbus_cache_introspect        (CockpitDBusCache *se
                                                             const gchar *interface,
                                                             CockpitDBusIntrospectFunc callback,
                                                             gpointer user_data);
+
+GHashTable *          cockpit_dbus_interface_info_new      (void);
+
+GDBusInterfaceInfo *  cockpit_dbus_interface_info_lookup   (GHashTable *interface_info,
+                                                            const gchar *interface_name);
+
+void                  cockpit_dbus_interface_info_push     (GHashTable *interface_info,
+                                                            GDBusInterfaceInfo *interface);
 
 G_END_DECLS
 

@@ -77,5 +77,5 @@ The ```branding.css``` file should override the following areas of the navigatio
         content: "${NAME} <b>${VARIANT}</b>";
     }
 
-Notice how we can use variables from ```/etc/os-release``` in the branding. This can
-only be done in the specific CSS selectors mentioned above.
+Notice how we can use variables from ```/etc/os-release``` in the branding.
+The value for these variables come from the machine that cockpit is logged into.

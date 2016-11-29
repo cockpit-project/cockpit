@@ -21,6 +21,7 @@
 
 #include "cockpithandlers.h"
 
+#include "cockpitbranding.h"
 #include "cockpitchannelresponse.h"
 #include "cockpitchannelsocket.h"
 #include "cockpitwebservice.h"
@@ -522,6 +523,9 @@ cockpit_handler_default (CockpitWebServer *server,
              g_str_has_prefix (path, "/cockpit+") ||
              g_str_equal (path, "/cockpit");
 
+  // Check for auth
+  service = cockpit_auth_check_cookie (data->auth, path, headers);
+
   /* Stuff in /cockpit or /cockpit+xxx */
   if (resource)
     {
@@ -535,15 +539,11 @@ cockpit_handler_default (CockpitWebServer *server,
         }
       else if (g_str_has_prefix (remainder, "/static/"))
         {
-          /* Static stuff is served without authentication */
-          cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_CACHE_FOREVER);
-          cockpit_web_response_file (response, remainder + 8, data->static_roots);
+          cockpit_branding_serve (service, response, path, remainder + 8,
+                                  data->os_release, data->static_roots);
           return TRUE;
         }
     }
-
-  /* Remainder of stuff needs authentication */
-  service = cockpit_auth_check_cookie (data->auth, path, headers);
 
   if (resource)
     {

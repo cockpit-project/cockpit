@@ -96,7 +96,7 @@
                     if ((content[0] === '"' || content[0] === '\'') &&
                         len > 2 && content[len - 1] === content[0])
                         content = content.substr(1, len - 2);
-                    elt.innerHTML = format(content, environment["os-release"]) || def;
+                    elt.innerHTML = format(content) || def;
                 }
             }
 

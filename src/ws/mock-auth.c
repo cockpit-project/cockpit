@@ -76,7 +76,9 @@ mock_auth_login_async (CockpitAuth *auth,
 
   result = g_simple_async_result_new (G_OBJECT (auth), callback, user_data, NULL);
 
-  g_object_set_data_full (G_OBJECT (result), "application", cockpit_auth_parse_application (path), g_free);
+  g_object_set_data_full (G_OBJECT (result), "application",
+                          cockpit_auth_parse_application (path, NULL),
+                          g_free);
 
   userpass = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
   if (userpass && g_str_equal (type, "basic"))

@@ -205,6 +205,11 @@ class TestMultiMachine(MachineCase):
         m = self.machine
 
         name = self.machine.execute("hostname")
+
+        # Change os-release pretty name on m2
+        m2.execute("sed -i '/NAME=.*/d' /etc/os-release")
+        m2.execute("echo 'NAME=\"A Pretty Name\"' >> /etc/os-release")
+
         b.switch_to_top()
         b.go("{}/system".format(root));
         b.enter_page("/system")
@@ -221,6 +226,8 @@ class TestMultiMachine(MachineCase):
         b.open("{0}={1}".format(root, m2.address))
         b.wait_visible("#login")
         b.wait_visible("#server-name")
+        b.wait_not_visible("#badge")
+        b.wait_not_visible("#brand")
         b.wait_in_text("#server-name", m2.address)
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "alt-password")
@@ -229,7 +236,11 @@ class TestMultiMachine(MachineCase):
         b.enter_page("/system")
         b.wait_in_text('#system_information_hostname_button', "machine2")
         b.switch_to_top()
+
+        # Branding uses m2 pretty name
+        b.wait_in_text ("#index-brand", "A Pretty Name")
         b.wait_js_cond('window.location.pathname == "{0}={1}/system"'.format(root, m2.address))
+
         b.click("a[href='/dashboard']")
         b.enter_page("/dashboard")
         b.wait_present("a[data-address='localhost']")

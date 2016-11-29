@@ -675,16 +675,32 @@ static const DefaultFixture fixture_resource_login = {
 
 static const DefaultFixture fixture_static_simple = {
   .path = "/cockpit/static/branding.css",
-  .auth = NULL,
+  .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
+    "Cache-Control: max-age=31556926, public*"
     "#badge*"
     "url(\"logo.png\");*"
+};
+
+static const DefaultFixture fixture_host_static = {
+  .path = "/cockpit+=host/static/branding.css",
+  .auth = "/cockpit+=host",
+  .expect = "HTTP/1.1 200*"
+    "Cache-Control: max-age=86400, private*"
+    "#badge*"
+    "url(\"logo.png\");*"
+};
+
+static const DefaultFixture fixture_host_static_no_auth = {
+  .path = "/cockpit+=host/static/branding.css",
+  .expect = "HTTP/1.1 403*"
 };
 
 static const DefaultFixture fixture_static_application = {
   .path = "/cockpit+application/static/branding.css",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
+    "Cache-Control: max-age=31556926, public*"
     "#badge*"
     "url(\"logo.png\");*"
 };
@@ -876,6 +892,10 @@ main (int argc,
               setup_default, test_default, teardown_default);
 
   g_test_add ("/handlers/static/simple", Test, &fixture_static_simple,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/static/host-static", Test, &fixture_host_static,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/static/host-static-no-auth", Test, &fixture_host_static_no_auth,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/static/application", Test, &fixture_static_application,
               setup_default, test_default, teardown_default);

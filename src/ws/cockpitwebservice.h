@@ -81,6 +81,13 @@ gboolean                cockpit_web_service_parse_external   (JsonObject *open,
                                                               const gchar **content_disposition,
                                                               gchar ***protocols);
 
+void           cockpit_web_service_get_transport_init_message_aysnc  (CockpitWebService *self,
+                                                                      CockpitTransport *transport,
+                                                                      GAsyncReadyCallback callback,
+                                                                      gpointer user_data);
+
+JsonObject *   cockpit_web_service_get_transport_init_message_finish (CockpitWebService *self,
+                                                                      GAsyncResult *result);
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVICE_H__ */

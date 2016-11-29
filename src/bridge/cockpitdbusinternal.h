@@ -39,7 +39,7 @@ void                  cockpit_dbus_user_startup          (struct passwd *pwd);
 
 void                  cockpit_dbus_setup_startup         (void);
 
-void                  cockpit_dbus_environment_startup   (void);
+void                  cockpit_dbus_process_startup       (void);
 
 G_END_DECLS
 

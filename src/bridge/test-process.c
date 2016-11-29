@@ -36,7 +36,7 @@ setup (TestCase *tc,
 {
   cockpit_dbus_internal_startup (FALSE);
 
-  cockpit_dbus_environment_startup ();
+  cockpit_dbus_process_startup ();
   while (g_main_context_iteration (NULL, FALSE));
 
   tc->connection = cockpit_dbus_internal_client();
@@ -100,14 +100,14 @@ test_get_properties (TestCase *tc,
 
   GError *error = NULL;
 
-  retval = dbus_call_with_main_loop (tc, "/environment", "org.freedesktop.DBus.Properties", "GetAll",
-                                     g_variant_new ("(s)", "cockpit.Environment"),
+  retval = dbus_call_with_main_loop (tc, "/bridge", "org.freedesktop.DBus.Properties", "GetAll",
+                                     g_variant_new ("(s)", "cockpit.Process"),
                                      G_VARIANT_TYPE ("(a{sv})"), &error);
 
   g_assert_no_error (error);
 
   inner = g_variant_get_child_value (retval, 0);
-  variable = g_variant_lookup_value (inner, "Variables", G_VARIANT_TYPE ("a{ss}"));
+  variable = g_variant_lookup_value (inner, "Environment", G_VARIANT_TYPE ("a{ss}"));
   for (i = 0; environ[i] != NULL; i++)
     {
       gchar *value = NULL;
@@ -127,7 +127,7 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/environment/get-properties", TestCase, NULL,
+  g_test_add ("/process/get-properties", TestCase, NULL,
               setup, test_get_properties, teardown);
 
   return g_test_run ();

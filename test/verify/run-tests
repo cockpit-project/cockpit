@@ -82,10 +82,6 @@ def main():
     if not revision:
         revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
 
-    # Master is always thorough
-    if os.environ.get("TEST_NAME") == "master":
-        opts.thorough = True
-
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision
     testinfra.DEFAULT_IMAGE = image

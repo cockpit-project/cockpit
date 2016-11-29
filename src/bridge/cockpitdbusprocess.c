@@ -21,6 +21,13 @@
 
 #include "cockpitdbusinternal.h"
 
+#include "common/cockpitsystem.h"
+
+#include <systemd/sd-login.h>
+
+#include <errno.h>
+#include <stdlib.h>
+
 static GVariant *
 build_environment (void)
 {
@@ -44,6 +51,30 @@ build_environment (void)
 }
 
 static GVariant *
+lookup_session_id (void)
+{
+  GVariant *variant;
+  char *session_id;
+  pid_t pid;
+  int res;
+
+  pid = getppid ();
+  res = sd_pid_get_session (pid, &session_id);
+  if (res == 0)
+    {
+      variant = g_variant_new_string (session_id);
+      free (session_id);
+      return variant;
+    }
+  else
+    {
+      if (res != -ENODATA && res != -ENXIO)
+        g_message ("could not look up session id for bridge process: %u: %s", pid, g_strerror (-res));
+      return g_variant_new_string ("");
+    }
+}
+
+static GVariant *
 process_get_property (GDBusConnection *connection,
                       const gchar *sender,
                       const gchar *object_path,
@@ -54,7 +85,15 @@ process_get_property (GDBusConnection *connection,
 {
   g_return_val_if_fail (property_name != NULL, NULL);
 
-  if (g_str_equal (property_name, "Environment") || g_str_equal (property_name, "Variables"))
+  if (g_str_equal (property_name, "Pid"))
+    return g_variant_new_uint32 (getpid ());
+  else if (g_str_equal (property_name, "Uid"))
+    return g_variant_new_int32 (getuid ());
+  else if (g_str_equal (property_name, "SessionId"))
+    return lookup_session_id ();
+  else if (g_str_equal (property_name, "StartTime"))
+    return g_variant_new_uint64 (cockpit_system_process_start_time ());
+  else if (g_str_equal (property_name, "Environment") || g_str_equal (property_name, "Variables"))
     return build_environment ();
   else
     g_return_val_if_reached (NULL);
@@ -64,12 +103,32 @@ static GDBusInterfaceVTable process_vtable = {
   .get_property = process_get_property,
 };
 
-static GDBusPropertyInfo process_variables_property = {
+static GDBusPropertyInfo pid_property = {
+  -1, "Pid", "u", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
+};
+
+static GDBusPropertyInfo uid_property = {
+  -1, "Uid", "i", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
+};
+
+static GDBusPropertyInfo start_time_property = {
+  -1, "StartTime", "t", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
+};
+
+static GDBusPropertyInfo session_id_property = {
+  -1, "SessionId", "s", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL,
+};
+
+static GDBusPropertyInfo environment_property = {
   -1, "Environment", "a{ss}", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
 };
 
 static GDBusPropertyInfo *process_properties[] = {
-  &process_variables_property,
+  &pid_property,
+  &uid_property,
+  &start_time_property,
+  &session_id_property,
+  &environment_property,
   NULL
 };
 

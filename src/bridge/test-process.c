@@ -114,8 +114,28 @@ test_get_properties (TestCase *tc,
       g_assert_true (g_variant_lookup (variable, environ[i], "&s", &value));
       g_assert_cmpstr (g_getenv (environ[i]), ==, value);
     }
-
   g_variant_unref (variable);
+
+  variable = g_variant_lookup_value (inner, "Pid", G_VARIANT_TYPE ("u"));
+  g_assert (variable != NULL);
+  g_assert_cmpuint (g_variant_get_uint32 (variable), ==, getpid ());
+  g_variant_unref (variable);
+
+  variable = g_variant_lookup_value (inner, "Uid", G_VARIANT_TYPE ("i"));
+  g_assert (variable != NULL);
+  g_assert_cmpuint (g_variant_get_int32 (variable), ==, getuid ());
+  g_variant_unref (variable);
+
+  variable = g_variant_lookup_value (inner, "SessionId", G_VARIANT_TYPE ("s"));
+  g_assert (variable != NULL);
+  /* Not always a valid string during testing */
+  g_variant_unref (variable);
+
+  variable = g_variant_lookup_value (inner, "StartTime", G_VARIANT_TYPE ("t"));
+  g_assert (variable != NULL);
+  g_assert_cmpuint (g_variant_get_uint64 (variable), !=, 0);
+  g_variant_unref (variable);
+
   g_variant_unref (inner);
   g_variant_unref (retval);
   g_strfreev (environ);

@@ -66,7 +66,7 @@ LIBSSH_VERSION="0.6.0"
 
 GIO_REQUIREMENT="gio-unix-2.0 >= $GLIB_VERSION"
 LIBSYSTEMD_REQUIREMENT="libsystemd"
-LIBSYSTEMD_REQUIREMENT_OLD="libsystemd-journal >= 187 libsystemd-daemon"
+LIBSYSTEMD_REQUIREMENT_OLD="libsystemd-journal >= 187 libsystemd-daemon libsystemd-login"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
 POLKIT_REQUIREMENT="polkit-agent-1 >= 0.105"
 

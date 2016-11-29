@@ -335,7 +335,7 @@ cockpit_dbus_cache_init (CockpitDBusCache *self)
   self->rules = cockpit_dbus_rules_new ();
 
   self->introspects = g_queue_new ();
-  self->introsent = g_hash_table_new (g_direct_hash, g_direct_equal);
+  self->introsent = g_hash_table_new (g_str_hash, g_str_equal);
 
   self->batches = g_queue_new ();
   self->barriers = g_queue_new ();
@@ -723,6 +723,7 @@ ensure_properties (CockpitDBusCache *self,
 {
   GHashTable *interfaces;
   GHashTable *properties;
+  const gchar *name;
 
   interfaces = ensure_interfaces (self, path);
   properties = g_hash_table_lookup (interfaces, iface->name);
@@ -736,9 +737,10 @@ ensure_properties (CockpitDBusCache *self,
       emit_change (self, path, iface, NULL, NULL);
     }
 
-  if (!g_hash_table_lookup (self->introsent, iface))
+  name = intern_string (self, iface->name);
+  if (!g_hash_table_lookup (self->introsent, name))
     {
-      g_hash_table_add (self->introsent, iface);
+      g_hash_table_add (self->introsent, (gpointer)name);
       g_signal_emit (self, signal_meta, 0, iface);
     }
 

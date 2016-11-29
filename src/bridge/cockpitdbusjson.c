@@ -63,6 +63,11 @@ typedef struct {
 
   /* Per name information */
   GHashTable *peers;
+
+  /* Invocations and publishing */
+  GHashTable *invocations;
+  GHashTable *registered;
+  guint last_invocation;
 } CockpitDBusJson;
 
 typedef struct {
@@ -1819,7 +1824,8 @@ handle_dbus_meta (CockpitDBusJson *self,
       iface = cockpit_dbus_meta_parse (l->data, interface, &error);
       if (iface)
         {
-          g_hash_table_insert (self->interface_info, iface->name, iface);
+          cockpit_dbus_interface_info_push (self->interface_info, iface);
+          g_dbus_interface_info_unref (iface);
         }
       else
         {
@@ -1962,6 +1968,421 @@ handle_dbus_unwatch (CockpitDBusJson *self,
   cockpit_dbus_cache_unwatch (peer->cache, path, is_namespace, interface);
 }
 
+static GVariantType *
+calculate_reply_param_type (CockpitChannel *channel,
+                            GDBusMethodInvocation *invocation)
+{
+  const GVariantType *arg_types[256];
+  const GDBusMethodInfo *method_info;
+  guint n;
+
+  method_info = g_dbus_method_invocation_get_method_info (invocation);
+  if (method_info == NULL)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "reply argument types for signal %s %s unknown",
+                            g_dbus_method_invocation_get_interface_name (invocation),
+                            g_dbus_method_invocation_get_method_name (invocation));
+      return NULL;
+    }
+  else if (method_info->out_args)
+    {
+      for (n = 0; method_info->out_args[n] != NULL; n++)
+        {
+          /* DBus places a hard limit of 255 on signature length.
+           * therefore number of args must be less than 256.
+           */
+          if (n >= G_N_ELEMENTS (arg_types))
+            g_return_val_if_reached (NULL);
+
+          arg_types[n] = G_VARIANT_TYPE (method_info->out_args[n]->signature);
+
+          if G_UNLIKELY (arg_types[n] == NULL)
+            g_return_val_if_reached (NULL);
+        }
+    }
+  else
+    {
+      n = 0;
+    }
+  return g_variant_type_new_tuple (arg_types, n);
+}
+
+static void
+handle_dbus_reply (CockpitDBusJson *self,
+                   JsonObject *object)
+{
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  gpointer invocation = NULL;
+  GVariantType *param_type;
+  const gchar *cookie;
+  GVariant *parameters;
+  GError *error = NULL;
+  JsonNode *args;
+  JsonNode *node;
+
+  node = json_object_get_member (object, "reply");
+  g_return_if_fail (node != NULL);
+
+  if (!JSON_NODE_HOLDS_ARRAY (node))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "incorrect \"reply\" field in dbus command");
+    }
+  else if (json_array_get_length (json_node_get_array (node)) < 1)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "missing values in dbus method \"reply\"");
+    }
+  else if (!cockpit_json_get_string (object, "id", NULL, &cookie))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"id\" in dbus method reply");
+    }
+  else if (cookie == NULL)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "missing \"id\" in dbus method reply");
+    }
+  else if (!self->invocations ||
+           !g_hash_table_lookup_extended (self->invocations, cookie, NULL, &invocation))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "unknown \"id\" in dbus method reply: %s", cookie);
+    }
+  else
+    {
+      param_type = calculate_reply_param_type (channel, invocation);
+      args = json_array_get_element (json_node_get_array (node), 0);
+      parameters = parse_json (args, param_type, &error);
+      g_variant_type_free (param_type);
+
+      if (error)
+        {
+          /* The invocation will be cleaned up by our dispose function */
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid argument in dbus method reply: %s", error->message);
+          g_error_free (error);
+        }
+      else
+        {
+          /* Reference to parameters is consumed */
+          g_dbus_method_invocation_return_value (invocation, parameters);
+          g_hash_table_remove (self->invocations, cookie);
+        }
+    }
+}
+
+static gboolean
+parse_json_error (CockpitChannel *channel,
+                  JsonNode *node,
+                  const gchar **error_name,
+                  const gchar **error_message)
+{
+  JsonArray *array;
+  JsonNode *nested;
+  JsonArray *params;
+  guint length;
+
+  g_assert (error_name != NULL);
+  g_assert (error_message != NULL);
+
+  *error_name = NULL;
+  *error_message = NULL;
+
+  if (!JSON_NODE_HOLDS_ARRAY (node))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"error\" field in dbus command");
+      return FALSE;
+    }
+
+  array = json_node_get_array (node);
+  length = json_array_get_length (array);
+  if (length < 1)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "missing \"error\" error name in dbus command");
+      return FALSE;
+    }
+
+  *error_name = array_string_element (array, 0);
+  if (!*error_name)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"error\" error name in dbus command");
+      return FALSE;
+    }
+
+  if (length >= 2)
+    {
+      nested = json_array_get_element (array, 1);
+      if (!JSON_NODE_HOLDS_ARRAY (nested))
+        {
+          cockpit_channel_fail (channel, "protocol-error",
+                                "invalid \"error\" parameters in dbus command");
+          return FALSE;
+        }
+
+      params = json_node_get_array (nested);
+      if (json_array_get_length (params) > 0)
+        *error_message = array_string_element (params, 0);
+    }
+
+  if (!*error_message)
+    *error_message = *error_name;
+  return TRUE;
+}
+
+static void
+handle_dbus_error (CockpitDBusJson *self,
+                   JsonObject *object)
+{
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  const gchar *error_message = NULL;
+  const gchar *error_name = NULL;
+  const gchar *cookie = NULL;
+  gpointer invocation = NULL;
+  JsonNode *node;
+
+  node = json_object_get_member (object, "error");
+  g_return_if_fail (node != NULL);
+
+  if (!JSON_NODE_HOLDS_ARRAY (node))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "incorrect \"error\" field in dbus command");
+    }
+  else if (!parse_json_error (channel, node, &error_name, &error_message))
+    {
+      /* Fail */
+    }
+  else if (!cockpit_json_get_string (object, "id", NULL, &cookie))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"id\" in dbus method error");
+    }
+  else if (cookie == NULL)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "missing \"id\" in dbus method error");
+    }
+  else if (!self->invocations ||
+           !g_hash_table_lookup_extended (self->invocations, cookie, NULL, &invocation))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "unknown \"id\" in dbus method error: %s", cookie);
+    }
+  else
+    {
+      g_dbus_method_invocation_return_dbus_error (invocation, error_name, error_message);
+      g_hash_table_remove (self->invocations, cookie);
+    }
+}
+
+static void
+on_method_invocation (GDBusConnection *connection,
+                      const gchar *sender,
+                      const gchar *object_path,
+                      const gchar *interface_name,
+                      const gchar *method_name,
+                      GVariant *parameters,
+                      GDBusMethodInvocation *invocation,
+                      gpointer user_data)
+{
+  CockpitDBusJson *self = user_data;
+  GDBusMessageFlags flags;
+  GDBusMessage *message;
+  gchar *cookie = NULL;
+  JsonObject *object;
+  JsonArray *call;
+
+  message = g_dbus_method_invocation_get_message (invocation);
+  flags = g_dbus_message_get_flags (message);
+
+  object = json_object_new ();
+  call = json_array_new ();
+  json_array_add_string_element (call, object_path);
+  json_array_add_string_element (call, interface_name);
+  json_array_add_string_element (call, method_name);
+  json_array_add_element (call, build_json (parameters));
+  json_object_set_array_member (object, "call", call);
+
+  if (!(flags & G_DBUS_MESSAGE_FLAGS_NO_REPLY_EXPECTED))
+    {
+      g_assert (self->invocations != NULL);
+      cookie = g_strdup_printf ("%d", self->last_invocation++);
+      g_hash_table_insert (self->invocations, cookie, g_object_ref (invocation));
+      json_object_set_string_member (object, "id", cookie);
+    }
+
+  if (sender)
+    json_object_set_string_member (object, "name", sender);
+
+  send_json_object (self, object);
+  json_object_unref (object);
+}
+
+static gboolean
+parse_json_publish (CockpitChannel *channel,
+                    JsonNode *node,
+                    const gchar **object_path,
+                    const gchar **interface_name)
+{
+  JsonArray *array;
+
+  g_assert (object_path != NULL);
+  g_assert (interface_name != NULL);
+
+  *object_path = NULL;
+  *interface_name = NULL;
+
+  if (!JSON_NODE_HOLDS_ARRAY (node))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid publish field in dbus command");
+      return FALSE;
+    }
+
+  array = json_node_get_array (node);
+  *object_path = array_string_element (array, 0);
+  *interface_name = array_string_element (array, 1);
+
+  if (!*object_path && !g_variant_is_object_path (*object_path))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "publish dbus object path is not valid: %s", *object_path);
+    }
+  else if (!*interface_name && !g_dbus_is_interface_name (*interface_name))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "publish dbus interface name is not valid: %s", *interface_name);
+    }
+  else
+    {
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static void
+handle_dbus_publish (CockpitDBusJson *self,
+                     JsonObject *object)
+{
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  const gchar *interface_name = NULL;
+  const gchar *object_path = NULL;
+  GHashTable *registered = NULL;
+  const gchar *cookie = NULL;
+  GDBusInterfaceInfo *iface;
+  guint registration_id;
+  GError *error = NULL;
+  JsonNode *node;
+  gchar *key;
+
+  static const GDBusInterfaceVTable vtable = {
+      on_method_invocation,
+      NULL, NULL /* Property access handled as invocations */
+  };
+
+  node = json_object_get_member (object, "publish");
+  g_return_if_fail (node != NULL);
+
+  if (!parse_json_publish (channel, node, &object_path, &interface_name))
+    return;
+
+  iface = g_hash_table_lookup (self->interface_info, interface_name);
+  if (!iface)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "no \"meta\" introspection data available for interface: %s", interface_name);
+      return;
+    }
+
+  /* Start up the necessary hash tables for exporting objects */
+  registered = g_object_get_data (G_OBJECT (self->connection), "registered-objects");
+  if (!registered)
+    {
+      registered = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+      g_object_set_data_full (G_OBJECT (self->connection), "registered-objects",
+                              registered, (GDestroyNotify)g_hash_table_unref);
+    }
+  if (!self->registered)
+    self->registered = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  if (!self->invocations)
+    self->invocations = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+
+  /* If there's an old object registered here, unregister it */
+  key = g_strdup_printf ("%s\n%s", object_path, interface_name);
+  registration_id = GPOINTER_TO_UINT (g_hash_table_lookup (registered, key));
+  if (registration_id)
+    g_dbus_connection_unregister_object (self->connection, registration_id);
+
+  /* Register the object */
+  registration_id = g_dbus_connection_register_object (self->connection, object_path,
+                                                       iface, &vtable, self, NULL, &error);
+
+  if (error)
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "could not publish interface %s at %s: %s",
+                            interface_name, object_path, error->message);
+      g_error_free (error);
+      g_free (key);
+      return;
+    }
+
+  /* All done mark this so we're able to later unpublish */
+  g_hash_table_insert (registered, g_strdup (key), GUINT_TO_POINTER (registration_id));
+  g_hash_table_insert (self->registered, key, GUINT_TO_POINTER (registration_id));
+
+  /* Caller wants a reply to know when published */
+  if (cockpit_json_get_string (object, "id", NULL, &cookie))
+    {
+      object = json_object_new ();
+      json_object_set_array_member (object, "reply", json_array_new ());
+      json_object_set_string_member (object, "id", cookie);
+      send_json_object (self, object);
+      json_object_unref (object);
+    }
+}
+
+static void
+handle_dbus_unpublish (CockpitDBusJson *self,
+                       JsonObject *object)
+{
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  const gchar *interface_name = NULL;
+  const gchar *object_path = NULL;
+  GHashTable *registered;
+  JsonNode *node;
+  gchar *key;
+  guint id = 0;
+
+  node = json_object_get_member (object, "unpublish");
+  g_return_if_fail (node != NULL);
+
+  if (!parse_json_publish (channel, node, &object_path, &interface_name))
+    return;
+
+  key = g_strdup_printf ("%s\n%s", object_path, interface_name);
+  if (self->registered)
+    {
+      id = GPOINTER_TO_UINT (g_hash_table_lookup (self->registered, key));
+      g_hash_table_remove (self->registered, key);
+
+      /* A per connection list of all interfaces and objects registered */
+      registered = g_object_get_data (G_OBJECT (self->connection), "registered-objects");
+      g_hash_table_remove (registered, key);
+    }
+  g_free (key);
+
+  if (id != 0)
+    g_dbus_connection_unregister_object (self->connection, id);
+}
+
+
 static void
 cockpit_dbus_json_recv (CockpitChannel *channel,
                         GBytes *message)
@@ -1992,6 +2413,14 @@ cockpit_dbus_json_recv (CockpitChannel *channel,
     handle_dbus_unwatch (self, object);
   else if (json_object_has_member (object, "meta"))
     handle_dbus_meta (self, object);
+  else if (json_object_has_member (object, "error"))
+    handle_dbus_error (self, object);
+  else if (json_object_has_member (object, "reply"))
+    handle_dbus_reply (self, object);
+  else if (json_object_has_member (object, "publish"))
+    handle_dbus_publish (self, object);
+  else if (json_object_has_member (object, "unpublish"))
+    handle_dbus_unpublish (self, object);
   else
     {
       cockpit_channel_fail (channel, "protocol-error", "got unsupported dbus command");
@@ -2378,9 +2807,11 @@ static void
 cockpit_dbus_json_dispose (GObject *object)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+  GHashTable *registered = NULL;
   CockpitDBusPeer *peer;
   GHashTableIter iter;
   gpointer value;
+  gpointer key;
   GList *l;
 
   g_cancellable_cancel (self->cancellable);
@@ -2409,6 +2840,31 @@ cockpit_dbus_json_dispose (GObject *object)
       g_free (peer);
     }
 
+  /* Remove and cancel all pending invocations */
+  if (self->connection)
+    registered = g_object_get_data (G_OBJECT (self->connection), "registered-objects");
+  if (self->registered)
+    {
+      g_hash_table_iter_init (&iter, self->registered);
+      while (g_hash_table_iter_next (&iter, &key, &value))
+        {
+          if (registered)
+            g_hash_table_remove (registered, key);
+          g_dbus_connection_unregister_object (self->connection, GPOINTER_TO_UINT (value));
+          g_hash_table_iter_remove (&iter);
+        }
+    }
+  if (self->invocations)
+    {
+      g_hash_table_iter_init (&iter, self->invocations);
+      while (g_hash_table_iter_next (&iter, NULL, &value))
+        {
+          g_hash_table_iter_remove (&iter);
+          g_dbus_method_invocation_return_dbus_error (value, "org.freedesktop.DBus.Error.Failed",
+                                                      "The DBus interface for this method has been disconnected");
+        }
+    }
+
   /* Divorce ourselves the outstanding calls */
   for (l = self->active_calls; l != NULL; l = g_list_next (l))
     ((CallData *)l->data)->dbus_json = NULL;
@@ -2426,6 +2882,10 @@ cockpit_dbus_json_finalize (GObject *object)
   g_clear_object (&self->connection);
   g_hash_table_unref (self->interface_info);
   g_hash_table_unref (self->peers);
+  if (self->registered)
+    g_hash_table_unref (self->registered);
+  if (self->invocations)
+    g_hash_table_unref (self->invocations);
   g_object_unref (self->cancellable);
 
   G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->finalize (object);

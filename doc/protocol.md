@@ -397,6 +397,9 @@ invalid.
 An optional "id" field indicates that a response is desired, which will be
 sent back in a "reply" or "error" message with the same "id" field.
 
+If an interface has been exported, then the bridge will send "call" messages
+in its direction for calls received for on that interface.
+
 Method reply messages are JSON objects with a "reply" field whose value is
 an array, the array contains another array of out arguments, or null if
 the DBus reply had no body.
@@ -572,6 +575,25 @@ is unowned.
     {
         "owner": "1:"
     }
+
+A "publish" message can be used to export DBus interfaces on the bus. The bridge
+will then send "call" messages back to the frontend for each method invocation
+on the published interface and object path. The interface must first be described
+with DBus meta information. If a cookie is specified then a reply will be sent
+when the interface is published. If the interface is already published at the given
+path, it will be replaced.
+
+   {
+       "publish": [ "/a/path", "org.Interface" ],
+       "id": "cookie"
+   }
+
+An "unpublish" message will unexport a DBus interface on the bus. It is not an
+error if no such interface has been published.
+
+   {
+       "unpublish": [ "/a/path", "org.Interface" ],
+   }
 
 DBus types are encoded in various places in these messages, such as the
 arguments. These types are encoded as follows:

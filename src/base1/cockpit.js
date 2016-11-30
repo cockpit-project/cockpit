@@ -3338,9 +3338,52 @@ function factory() {
 
     }
 
+    /* Well known busses */
+    var shared_dbus = {
+        internal: null,
+        session: null,
+        system: null,
+    };
+
     /* public */
     cockpit.dbus = function dbus(name, options) {
-        return new DBusClient(name, options);
+        if (!options)
+            options = { "bus": "system" };
+
+        /*
+         * Figure out if this we should use a shared bus.
+         *
+         * This is only the case if a null name *and* the
+         * options are just a simple { "bus": "xxxx" }
+         */
+        var keys = Object.keys(options);
+        var bus = options.bus;
+        var shared = !name && keys.length == 1 && bus in shared_dbus;
+
+        if (shared && shared_dbus[bus])
+            return shared_dbus[bus];
+
+        var client = new DBusClient(name, options);
+
+        /*
+         * Store the shared bus for next time. Override the
+         * close function to only work when a problem is
+         * indicated.
+         */
+        var old_close;
+        if (shared) {
+            client.close = function() {
+                if (arguments.length > 0)
+                    old_close.apply(client, arguments);
+            };
+            client.addEventListener("close", function() {
+                if (shared_dbus[bus] == client)
+                    shared_dbus[bus] = null;
+            });
+            shared_dbus[bus] = client;
+        }
+
+        return client;
     };
 
     cockpit.variant = function variant(type, value) {

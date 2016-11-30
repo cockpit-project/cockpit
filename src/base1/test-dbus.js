@@ -309,7 +309,7 @@ QUnit.asyncTest("watch no default name", function() {
 QUnit.asyncTest("watch missing name", function() {
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
     dbus.watch("/otree/frobber")
         .then(function() {
             assert.ok(false, "shouldn't succeed");
@@ -323,6 +323,43 @@ QUnit.asyncTest("watch missing name", function() {
         });
 });
 
+QUnit.asyncTest("shared client", function() {
+    assert.expect(2);
+
+    var dbus1 = cockpit.dbus(null, { "bus": "session" });
+    var dbus2 = cockpit.dbus(null, { "bus": "session" });
+
+    /* Is identical */
+    assert.strictEqual(dbus1, dbus2, "shared bus returned");
+
+    /* Closing shouldn't close shared */
+    dbus1.close();
+
+    dbus2.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", [ "Browser-side JS" ], { "name": "com.redhat.Cockpit.DBusTests.Test" }).
+        then(function(reply) {
+            assert.deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ],
+                    "call still works");
+        }, function(ex) {
+            assert.ok(false, "shouldn't fail");
+        }).always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.test("not shared option", function() {
+    assert.expect(1);
+
+    var dbus1 = cockpit.dbus(null, { "bus": "session" });
+    var dbus2 = cockpit.dbus(null, { "bus": "session", "other": "option" });
+
+    /* Should not be identical */
+    assert.notStrictEqual(dbus1, dbus2, "shared bus returned");
+
+    /* Closing shouldn't close shared */
+    dbus1.close();
+    dbus2.close();
+});
 
 QUnit.asyncTest("emit signal meta", function() {
     assert.expect(4);
@@ -338,7 +375,7 @@ QUnit.asyncTest("emit signal meta", function() {
     };
 
     var received = false;
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
     dbus.meta(meta);
     dbus.wait(function() {
 
@@ -369,7 +406,7 @@ QUnit.asyncTest("emit signal type", function() {
     assert.expect(4);
 
     var received = false;
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
     dbus.wait(function() {
 
         dbus.subscribe({ "path": "/bork", "name": dbus.unique_name }, function(path, iface, signal, args) {
@@ -398,7 +435,7 @@ QUnit.asyncTest("emit signal type", function() {
 QUnit.asyncTest("emit signal no meta", function() {
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
 
     function closed(event, ex) {
         assert.equal(ex.problem, "protocol-error", "correct problem");

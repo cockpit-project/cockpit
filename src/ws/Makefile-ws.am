@@ -10,6 +10,7 @@ staticdebugdir = $(debugdir)$(staticdir)
 staticdebug_DATA = dist/static/login.html
 
 dist/static/login.js: src/ws/login.js
+	$(JSHINT_RULE)
 	$(COPY_RULE)
 dist/static/login.min.js: dist/static/login.js
 	$(MIN_JS_RULE)

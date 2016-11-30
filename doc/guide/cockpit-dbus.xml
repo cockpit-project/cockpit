@@ -137,6 +137,11 @@ client = cockpit.dbus(name, [options])
           from the DBus bus.</para></listitem>
       </varlistentry>
     </variablelist>
+
+    <para>If the <code>name</code> argument is null, and no options other than <code>"bus"</code>
+      are specified, then a shared DBus <code>client</code> is created. When using such a client
+      with a DBus bus, a <code>"name"</code> option must be specified on various other methods
+      in order to specify which client to talk to.</para>
   </refsection>
 
   <refsection id="cockpit-dbus-wait">

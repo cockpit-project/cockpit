@@ -312,6 +312,8 @@ send_login_html (CockpitWebResponse *response,
 
   CockpitWebFilter *filter;
   GBytes *environment;
+  GError *error = NULL;
+  GBytes *bytes;
 
   GBytes *url_bytes = NULL;
   CockpitWebFilter *filter2 = NULL;
@@ -322,6 +324,7 @@ send_login_html (CockpitWebResponse *response,
   filter = cockpit_web_inject_new (marker, environment, 1);
   g_bytes_unref (environment);
   cockpit_web_response_add_filter (response, filter);
+  g_object_unref (filter);
 
   url_root = cockpit_web_response_get_url_root (response);
   if (url_root)
@@ -333,12 +336,33 @@ send_login_html (CockpitWebResponse *response,
   filter2 = cockpit_web_inject_new (marker, url_bytes, 1);
   g_bytes_unref (url_bytes);
   cockpit_web_response_add_filter (response, filter2);
+  g_object_unref (filter2);
 
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
-  cockpit_web_response_file (response, "/login.html", ws->static_roots);
-  g_object_unref (filter);
-  if (filter2)
-    g_object_unref (filter2);
+
+  bytes = cockpit_web_response_negotiation (ws->login_html, NULL, NULL, NULL, &error);
+  if (error)
+    {
+      g_message ("%s", error->message);
+      cockpit_web_response_error (response, 500, NULL, NULL);
+      g_error_free (error);
+    }
+  else if (!bytes)
+    {
+      cockpit_web_response_error (response, 404, NULL, NULL);
+    }
+  else
+    {
+      /* The login Content-Security-Policy allows the page to have inline <script> and <style> tags. */
+      cockpit_web_response_headers (response, 200, "OK", -1,
+                                    "Content-Security-Policy",
+                                    "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
+                                    NULL);
+      if (cockpit_web_response_queue (response, bytes))
+        cockpit_web_response_complete (response);
+
+      g_bytes_unref (bytes);
+    }
 }
 
 static void
@@ -540,7 +564,7 @@ cockpit_handler_default (CockpitWebServer *server,
       else if (g_str_has_prefix (remainder, "/static/"))
         {
           cockpit_branding_serve (service, response, path, remainder + 8,
-                                  data->os_release, data->static_roots);
+                                  data->os_release, data->branding_roots);
           return TRUE;
         }
     }
@@ -574,7 +598,7 @@ cockpit_handler_root (CockpitWebServer *server,
                       CockpitHandlerData *ws)
 {
   /* Don't cache forever */
-  cockpit_web_response_file (response, path, ws->static_roots);
+  cockpit_web_response_file (response, path, ws->branding_roots);
   return TRUE;
 }
 

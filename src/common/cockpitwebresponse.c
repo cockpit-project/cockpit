@@ -1293,7 +1293,6 @@ again:
    * the site to have inline <script> and <style> tags. This code
    * is only used for static resources that do not use the session.
    */
-
   csp_header = NULL;
   if (g_str_has_suffix (unescaped, ".html"))
     csp_header = "Content-Security-Policy";

@@ -56,6 +56,7 @@ typedef struct {
   GByteArray *buffer;
   gchar *scratch;
   gchar **roots;
+  gchar *login_html;
 } Test;
 
 static void
@@ -96,9 +97,11 @@ base_setup (Test *test)
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
   test->roots = cockpit_web_response_resolve_roots (static_roots);
+  test->login_html = g_strdup(SRCDIR "/src/ws/login.html");
 
   test->data.auth = test->auth;
-  test->data.static_roots = (const gchar **)test->roots;
+  test->data.branding_roots = (const gchar **)test->roots;
+  test->data.login_html = (const gchar *)test->login_html;
 
   test->headers = cockpit_web_server_new_table ();
 
@@ -129,6 +132,7 @@ teardown (Test *test,
   g_clear_object (&test->output);
   g_clear_object (&test->input);
   g_clear_object (&test->io);
+  g_free (test->login_html);
   g_hash_table_destroy (test->headers);
   g_free (test->scratch);
   g_object_unref (test->response);

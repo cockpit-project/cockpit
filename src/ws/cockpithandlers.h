@@ -29,7 +29,8 @@ extern const gchar *cockpit_ws_shell_component;
 
 typedef struct {
   CockpitAuth *auth;
-  const gchar **static_roots;
+  const gchar *login_html;
+  const gchar **branding_roots;
   GHashTable *os_release;
 } CockpitHandlerData;
 

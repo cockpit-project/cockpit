@@ -543,7 +543,7 @@ static const DefaultFixture fixture_shell_path_login = {
   .expect = "HTTP/1.1 200*"
       "<html>*"
       "<base href=\"/path/\">*"
-      "show_login()*"
+      "login-button*"
 };
 
 static const DefaultFixture fixture_shell_index = {
@@ -621,7 +621,7 @@ static const DefaultFixture fixture_shell_login = {
   .expect = "HTTP/1.1 200*"
       "<html>*"
       "<base href=\"/\">*"
-      "show_login()*"
+      "login-button*"
 };
 
 static const DefaultFixture fixture_resource_short = {
@@ -673,7 +673,7 @@ static const DefaultFixture fixture_resource_login = {
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
     "<html>*"
-    "show_login()*"
+    "login-button*"
 };
 
 static const DefaultFixture fixture_static_simple = {

@@ -4,12 +4,56 @@ if WITH_COCKPIT_WS
 COCKPIT_BUILD_INFO = "Built on $(shell date)"
 
 staticdir = $(datadir)/cockpit/static
-static_DATA = \
-	src/ws/login.html \
-	$(NULL)
+nodist_static_DATA = dist/static/login.min.html
+
+staticdebugdir = $(debugdir)$(staticdir)
+staticdebug_DATA = dist/static/login.html
+
+dist/static/login.js: src/ws/login.js
+	$(COPY_RULE)
+dist/static/login.min.js: dist/static/login.js
+	$(MIN_JS_RULE)
+dist/static/login.css: src/ws/login.css
+	$(COPY_RULE)
+dist/static/login.min.css: dist/static/login.css
+	$(MIN_CSS_RULE)
+dist/static/login.html: src/ws/login.html dist/static/login.js dist/static/login.css
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	sed -e '/<script>/ r dist/static/login.js' \
+	    -e '/<style>/ r dist/static/login.css' $< > $@.tmp && \
+	$(MV) $@.tmp $@
+dist/static/login.min.html: src/ws/login.html dist/static/login.min.js dist/static/login.min.css
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	sed -e '/<script>/ r dist/static/login.min.js' \
+	    -e '/<style>/ r dist/static/login.min.css' $< > $@.tmp && \
+	$(MV) $@.tmp $@
 
 staticfontsdir = $(staticdir)/fonts
 staticfonts_DATA = $(OPENSANS_FONTS)
+
+CLEANFILES += \
+	dist/static/login.html \
+	dist/static/login.min.html \
+	dist/static/login.js \
+	dist/static/login.min.js \
+	dist/static/login.css \
+	dist/static/login.min.css \
+	$(NULL)
+
+EXTRA_DIST += \
+	dist/static/login.html \
+	dist/static/login.min.html \
+	dist/static/login.js \
+	dist/static/login.min.js \
+	dist/static/login.css \
+	dist/static/login.min.css \
+	src/ws/login.html \
+	src/ws/login.js \
+	src/ws/login.css \
+	$(staticfonts_DATA) \
+	$(NULL)
+
+# ----------------------------------------------------------------------------------------------------
 
 noinst_LIBRARIES += libcockpit-ws.a
 
@@ -76,8 +120,6 @@ EXTRA_DIST += \
 	src/ws/mock-kdc.conf.in \
 	src/ws/mock-static \
 	src/ws/mock-config \
-	$(static_DATA) \
-	$(staticfonts_DATA) \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------

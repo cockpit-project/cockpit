@@ -23,20 +23,11 @@ basedebug_DATA = \
 	dist/base1/cockpit.min.js.map \
 	$(NULL)
 
-CLEAN_CSS = $(srcdir)/node_modules/.bin/cleancss
-
-MIN_JS_RULE = \
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle --comments 'preserve' --beautify \
-		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
-	$(MV) $@.tmp $@
-
 dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --skip-import --source-map --source-map-inline-sources $^
 dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --source-map --source-map-inline-sources $^
+	$(MIN_CSS_RULE)
 dist/base1/require.js: src/base1/deprecated.js src/base1/require-config.js src/base1/require-loaders.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/src/base1/require-config.js $(BOWER)/requirejs/require.js $(srcdir)/src/base1/require-loaders.js > $@.tmp && $(MV) $@.tmp $@
@@ -48,7 +39,7 @@ dist/base1/jquery.js:
 dist/base1/jquery.min.js: dist/base1/jquery.js
 	$(MIN_JS_RULE)
 dist/base1/cockpit.js: src/base1/cockpit.js
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
+	$(JSHINT_RULE)
 	$(COPY_RULE)
 dist/base1/cockpit.min.js: dist/base1/cockpit.js
 	$(MIN_JS_RULE)
@@ -155,12 +146,12 @@ dist/base1/qunit.css:
 	cp $(BOWER)/qunit/qunit/qunit.css $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/test-dbus-common.js: src/base1/test-dbus-common.js
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
+	$(JSHINT_RULE)
 	$(COPY_RULE)
 
 $(base_QUNIT_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_QUNIT_DEPS)
+	$(JSHINT_RULE)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/jshint $< && \
 	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
 	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/qunit-template.html > $@.tmp && $(MV) $@.tmp $@
 
@@ -180,12 +171,12 @@ base_SIMPLE_DEPS = \
 	$(NULL)
 
 dist/base1/simple-tap.js: src/base1/simple-tap.js
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
+	$(JSHINT_RULE)
 	$(COPY_RULE)
 
 $(base_SIMPLE_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_SIMPLE_DEPS)
+	$(JSHINT_RULE)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/tools/jshint $< && \
 	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
 	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/simple-template.html > $@.tmp && $(MV) $@.tmp $@
 

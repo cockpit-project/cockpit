@@ -68,6 +68,24 @@ GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@
 
+UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
+
+CLEAN_CSS = $(srcdir)/node_modules/.bin/cleancss
+
+MIN_JS_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(UGLIFY_JS) $^ --mangle --comments 'preserve' --beautify \
+		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
+	$(MV) $@.tmp $@
+
+MIN_CSS_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ \
+		--source-map --source-map-inline-sources $^
+
+JSHINT_RULE = \
+	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
+
 .css.css.gz:
 	$(GZ_RULE)
 .html.html.gz:
@@ -246,8 +264,6 @@ SED_SUBST = sed \
         -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
         -e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
         $(NULL)
-
-UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
 
 testassetsdir = $(datadir)/cockpit-test-assets
 testassets_programs =

@@ -117,6 +117,7 @@ COCKPIT_CHECKS = \
 	test-config \
 	test-unicode \
 	test-version \
+	test-system \
 	$(NULL)
 
 
@@ -153,6 +154,10 @@ test_knownhosts_LDADD = $(libcockpit_common_a_LIBS)
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c
 test_pipe_LDADD = $(libcockpit_common_a_LIBS)
+
+test_system_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_system_SOURCES = src/common/test-system.c
+test_system_LDADD = $(libcockpit_common_a_LIBS)
 
 test_template_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_template_SOURCES = src/common/test-template.c

@@ -412,7 +412,8 @@ page.onResourceError = function(ex) {
      * cancelled loads, and racy state in phantomjs
      */
     if (ex.errorString === "Network access is disabled." ||
-        ex.errorString === "Operation cancelled") {
+        ex.errorString === "Operation cancelled" ||
+        ex.errorString === "Operation canceled") {
         prefix = "Ignoring Resource Error: ";
     } else {
         loadFailure = ex.errorString + " " + ex.url;

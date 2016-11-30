@@ -148,6 +148,7 @@ func main() {
 	confData["oauth_url"] = oauth_url
 	confData["is_openshift"] = isOpenShift
 	confData["is_registry"] = isRegistry
+	confData["origins"] = os.Getenv("COCKPIT_KUBE_URL");
 	writeConfigFile(confData)
 
 	override := path.Join(*confDir, fmt.Sprintf("%s-override.json", name))

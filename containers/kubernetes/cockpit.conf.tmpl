@@ -1,5 +1,7 @@
 [WebService]
-
+{{ if .origins }}
+Origins = {{.origins}}
+{{end}}
 {{if .is_registry }}
 LoginTitle = Atomic Registry
 Shell = /shell/simple.html

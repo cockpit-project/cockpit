@@ -8,6 +8,7 @@ Shell = /shell/simple.html
 {{else}}
 Shell = /shell/stub.html
 {{if .is_openshift }}
+ProtocolHeader = X-Forwarded-Proto
 LoginTitle = Openshift Cockpit
 {{else}}
 LoginTitle = Kubernetes Cockpit

@@ -48,6 +48,9 @@
 /* Mock override from cockpitconf.c */
 extern const gchar *cockpit_config_file;
 
+/* Mock override from cockpitwebservice.c */
+extern const gchar *cockpit_ws_default_protocol_header;
+
 #define TIMEOUT 30
 
 #define WAIT_UNTIL(cond) \
@@ -82,6 +85,7 @@ typedef struct {
   WebSocketFlavor web_socket_flavor;
   const char *origin;
   const char *config;
+  const char *forward;
 } TestFixture;
 
 static GString *
@@ -496,6 +500,7 @@ start_web_service_and_create_client (TestCase *test,
 
   /* Matching the above origin */
   cockpit_ws_default_host_header = "127.0.0.1";
+  cockpit_ws_default_protocol_header = fixture ? fixture->forward : NULL;
 
   *service = cockpit_web_service_new (test->creds, NULL);
 
@@ -1314,6 +1319,26 @@ static const TestFixture fixture_allowed_origin_hixie76 = {
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf"
 };
 
+static const TestFixture fixture_allowed_origin_proto_header = {
+  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
+  .origin = "https://127.0.0.1",
+  .forward = "https",
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
+};
+
+static const TestFixture fixture_bad_origin_proto_no_header = {
+  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
+  .origin = "https://127.0.0.1",
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
+};
+
+static const TestFixture fixture_bad_origin_proto_no_config = {
+  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
+  .origin = "https://127.0.0.1",
+  .forward = "https",
+  .config = NULL
+};
+
 static void
 test_bad_origin (TestCase *test,
                  gconstpointer data)
@@ -1991,6 +2016,16 @@ main (int argc,
               test_handshake_and_auth, teardown_for_socket);
   g_test_add ("/web-service/allowed-origin/hixie76", TestCase,
               &fixture_allowed_origin_hixie76, setup_for_socket,
+              test_handshake_and_auth, teardown_for_socket);
+
+  g_test_add ("/web-service/bad-origin/protocol-no-config", TestCase,
+              &fixture_bad_origin_proto_no_config, setup_for_socket,
+              test_bad_origin, teardown_for_socket);
+  g_test_add ("/web-service/bad-origin/protocol-no-header", TestCase,
+              &fixture_bad_origin_proto_no_header, setup_for_socket,
+              test_bad_origin, teardown_for_socket);
+  g_test_add ("/web-service/allowed-origin/protocol-header", TestCase,
+              &fixture_allowed_origin_proto_header, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
 
   g_test_add ("/web-service/auth-results", TestCase,

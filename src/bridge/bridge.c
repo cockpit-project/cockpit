@@ -32,7 +32,6 @@
 #include "cockpitpackages.h"
 #include "cockpitpipechannel.h"
 #include "cockpitinternalmetrics.h"
-#include "cockpitpolkitagent.h"
 #include "cockpitrouter.h"
 #include "cockpitwebsocketstream.h"
 
@@ -390,7 +389,6 @@ run_bridge (const gchar *interactive,
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  gpointer polkit_agent = NULL;
   const gchar *directory;
   struct passwd *pwd;
   GPid daemon_pid = 0;
@@ -477,10 +475,14 @@ run_bridge (const gchar *interactive,
     }
 
   if (uid != 0)
+<<<<<<< HEAD
     {
       if (!interactive)
         polkit_agent = cockpit_polkit_agent_register (transport, NULL);
     }
+=======
+    super = cockpit_portal_new_superuser (transport);
+>>>>>>> 03f680f... ws: Remove most of the polkit and reauthorization code
 
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
@@ -501,8 +503,13 @@ run_bridge (const gchar *interactive,
   while (!terminated && !closed && !interupted)
     g_main_context_iteration (NULL, TRUE);
 
+<<<<<<< HEAD
   if (polkit_agent)
     cockpit_polkit_agent_unregister (polkit_agent);
+=======
+  if (super)
+    g_object_unref (super);
+>>>>>>> 03f680f... ws: Remove most of the polkit and reauthorization code
 
   g_object_unref (router);
   g_object_unref (transport);

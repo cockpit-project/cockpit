@@ -544,7 +544,6 @@ class MachineCase(unittest.TestCase):
         # Reauth stuff
         '.*Reauthorizing unix-user:.*',
         '.*user .* was reauthorized.*',
-        'cockpit-polkit helper exited with status: 0',
 
         # Reboots are ok
         "-- Reboot --",

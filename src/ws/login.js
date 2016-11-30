@@ -1,3 +1,5 @@
+/* global XMLHttpRequest */
+
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
 (function(console) {
@@ -22,7 +24,10 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         var params = {};
         var tokens;
 
-        while (tokens = qs_re.exec(qs)) {
+        for (;;) {
+            tokens = qs_re.exec(qs);
+            if (!tokens)
+                break;
             params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
         }
         return params;
@@ -74,7 +79,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     }
 
     function brand(_id, def) {
-        var sytle, elt = id(_id);
+        var style, elt = id(_id);
         if (elt)
             style = window.getComputedStyle(elt);
         if (!style)
@@ -205,10 +210,10 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             return;
 
         var os_release = JSON.stringify(environment["os-release"]);
-        var logout_intent = sessionStorage.getItem("logout-intent") == "explicit";
+        var logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
-            sessionStorage.removeItem("logout-intent");
-        localStorage.setItem('os-release', os_release);
+            window.sessionStorage.removeItem("logout-intent");
+        window.localStorage.setItem('os-release', os_release);
 
         /* Try automatic/kerberos authentication? */
         if (oauth) {
@@ -240,7 +245,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 show_login();
             } else if (xhr.statusText) {
                 fatal(decodeURIComponent(xhr.statusText));
-            } else if (xhr.status == 0) {
+            } else if (xhr.status === 0) {
                 show_login();
             } else {
                 fatal(xhr.status + " error");
@@ -270,7 +275,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         /* Not all providers allow hashes in redirect urls */
 
-        var token_val;
+        var token_val, prompt_data, xhr;
         build_oauth_redirect_to();
 
         if (query[oauth.TokenParam]) {
@@ -281,7 +286,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             token_val = query[oauth.TokenParam];
             id("login-wait-validating").style.display = "block";
-            var xhr = new XMLHttpRequest();
+            xhr = new XMLHttpRequest();
             xhr.open("GET", login_path, true);
             xhr.setRequestHeader("Authorization", "Bearer " + token_val);
             xhr.onreadystatechange = function () {
@@ -361,7 +366,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
     function call_login() {
         login_failure(null);
-        var user = trim(id("login-user-input").value);
+        var machine, user = trim(id("login-user-input").value);
         if (user === "") {
             login_failure("User name cannot be empty");
         } else {
@@ -469,7 +474,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     }
 
     function utf8(str) {
-        return unescape(encodeURIComponent(str));
+        return window.unescape(encodeURIComponent(str));
     }
 
     function get_prompt_from_challenge (header, body) {
@@ -477,7 +482,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         var prompt;
         var resp;
         var id;
-        var prompt;
 
         if (!header)
             return null;
@@ -488,7 +492,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         id = parts[1];
         try {
-            prompt = atob (parts[2]);
+            prompt = window.atob(parts[2]);
         } catch (err) {
             if (window.console)
                 console.error("Invalid prompt data", err);
@@ -572,14 +576,14 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
     function login(user, password) {
         var headers = {
-            "Authorization": "Basic " + btoa(utf8(user + ":" + password))
+            "Authorization": "Basic " + window.btoa(utf8(user + ":" + password))
         };
         send_login_request("GET", headers, false);
     }
 
     function converse(id, msg) {
         var headers = {
-            "Authorization": "X-Conversation " + id + " " + btoa(utf8(msg))
+            "Authorization": "X-Conversation " + id + " " + window.btoa(utf8(msg))
         };
         send_login_request("GET", headers, true);
     }
@@ -589,13 +593,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             window.location = wanted;
 
         // Force a reload if the above didn't trigger it
-        setTimeout(function() {
+        window.setTimeout(function() {
             window.location.reload(true);
         }, 100);
     }
 
     function machine_application_login_reload (wanted) {
-        var base = '/' + application + '/@localhost/'
+        var base = '/' + application + '/@localhost/';
         if (url_root)
             base = '/' + url_root + base;
         var embeded_url = base + 'shell/index.html';
@@ -644,6 +648,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         window.localStorage.removeItem('login-data');
         clear_storage (window.localStorage, application, false);
 
+        var str;
         if (response && response["login-data"]) {
             str = JSON.stringify(response["login-data"]);
             try {
@@ -668,7 +673,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
     function run(response) {
         var wanted = window.sessionStorage.getItem('login-wanted');
-        var machine = id("server-field").value
+        var machine = id("server-field").value;
         var str;
 
         if (machine && application != org_application) {

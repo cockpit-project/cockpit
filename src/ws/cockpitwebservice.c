@@ -61,6 +61,8 @@ const gchar *cockpit_ws_bridge_program = NULL;
 const gchar *cockpit_ws_default_host_header =
     "0.0.0.0:0"; /* Must be something invalid */
 
+const gchar *cockpit_ws_default_protocol_header = NULL;
+
 gint cockpit_ws_specific_ssh_port = 0;
 
 guint cockpit_ws_ping_interval = 5;
@@ -1739,7 +1741,9 @@ cockpit_web_service_create_socket (const gchar **protocols,
 {
   WebSocketConnection *connection;
   const gchar *host = NULL;
+  const gchar *protocol = NULL;
   const gchar **origins;
+  const gchar *protocol_header;
   gchar *allocated = NULL;
   gchar *origin = NULL;
   gchar *defaults[2];
@@ -1754,6 +1758,20 @@ cockpit_web_service_create_socket (const gchar **protocols,
     host = cockpit_ws_default_host_header;
 
   secure = G_IS_TLS_CONNECTION (io_stream);
+
+  /* Check for a proxy header to see if we were on a TLS connection */
+  if (!secure)
+    {
+      protocol_header = cockpit_conf_string ("WebService", "ProtocolHeader");
+      if (protocol_header && headers)
+        protocol = g_hash_table_lookup (headers, protocol_header);
+
+      /* No headers case for tests */
+      if (protocol_header && !headers)
+        protocol = cockpit_ws_default_protocol_header;
+
+      secure = g_strcmp0 (protocol, "https") == 0;
+    }
 
   url = g_strdup_printf ("%s://%s%s",
                          secure ? "wss" : "ws",

@@ -334,7 +334,6 @@ module.exports = {
             "angular-route": "angular-route/angular-route.js",
             "d3": "d3/d3.js",
             "moment": "momentjs/moment.js",
-            "mustache": "mustache/mustache.js",
             "react": "react-lite-cockpit/dist/react-lite.js",
             "term": "term.js-cockpit/src/term.js",
         },

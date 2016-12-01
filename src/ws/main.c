@@ -168,7 +168,6 @@ main (int argc,
                                    opt_port,
                                    certificate,
                                    NULL,
-                                   NULL,
                                    error);
   if (server == NULL)
     {

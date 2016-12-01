@@ -51,7 +51,6 @@ struct _CockpitWebServer {
   GInetAddress *address;
   gboolean socket_activated;
   GTlsCertificate *certificate;
-  gchar **document_roots;
   GString *ssl_exception_prefix;
   GString *url_root;
   gint request_timeout;
@@ -85,7 +84,6 @@ enum
   PROP_PORT,
   PROP_ADDRESS,
   PROP_CERTIFICATE,
-  PROP_DOCUMENT_ROOTS,
   PROP_SSL_EXCEPTION_PREFIX,
   PROP_SOCKET_ACTIVATED,
   PROP_REDIRECT_TLS,
@@ -121,18 +119,6 @@ cockpit_web_server_init (CockpitWebServer *server)
 }
 
 static void
-cockpit_web_server_constructed (GObject *object)
-{
-  CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
-  static gchar *default_roots[] = { ".", NULL };
-
-  G_OBJECT_CLASS (cockpit_web_server_parent_class)->constructed (object);
-
-  if (server->document_roots == NULL)
-    server->document_roots = g_strdupv (default_roots);
-}
-
-static void
 cockpit_web_server_dispose (GObject *object)
 {
   CockpitWebServer *self = COCKPIT_WEB_SERVER (object);
@@ -149,7 +135,6 @@ cockpit_web_server_finalize (GObject *object)
 
   g_clear_object (&server->address);
   g_clear_object (&server->certificate);
-  g_strfreev (server->document_roots);
   g_hash_table_destroy (server->requests);
   if (server->main_context)
     g_main_context_unref (server->main_context);
@@ -178,10 +163,6 @@ cockpit_web_server_get_property (GObject *object,
       g_value_set_object (value, server->certificate);
       break;
 
-    case PROP_DOCUMENT_ROOTS:
-      g_value_set_boxed (value, cockpit_web_server_get_document_roots (server));
-      break;
-
     case PROP_SSL_EXCEPTION_PREFIX:
       g_value_set_string (value, server->ssl_exception_prefix->str);
       break;
@@ -205,26 +186,6 @@ cockpit_web_server_get_property (GObject *object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
-}
-
-gchar **
-cockpit_web_server_resolve_roots (const gchar **input)
-{
-  GPtrArray *roots;
-  char *path;
-  gint i;
-
-  roots = g_ptr_array_new ();
-  for (i = 0; input && input[i]; i++)
-    {
-      path = realpath (input[i], NULL);
-      if (path == NULL)
-        g_debug ("couldn't resolve document root: %s: %m", input[i]);
-      else
-        g_ptr_array_add (roots, path);
-    }
-  g_ptr_array_add (roots, NULL);
-  return (gchar **)g_ptr_array_free (roots, FALSE);
 }
 
 static void
@@ -255,10 +216,6 @@ cockpit_web_server_set_property (GObject *object,
 
     case PROP_CERTIFICATE:
       server->certificate = g_value_dup_object (value);
-      break;
-
-    case PROP_DOCUMENT_ROOTS:
-      server->document_roots = cockpit_web_server_resolve_roots (g_value_get_boxed (value));
       break;
 
     case PROP_SSL_EXCEPTION_PREFIX:
@@ -406,10 +363,7 @@ cockpit_web_server_default_handle_resource (CockpitWebServer *self,
                                             GHashTable *headers,
                                             CockpitWebResponse *response)
 {
-  if (self->document_roots)
-    cockpit_web_response_file (response, path, (const gchar **)self->document_roots);
-  else
-    cockpit_web_response_error (response, 404, NULL, NULL);
+  cockpit_web_response_error (response, 404, NULL, NULL);
   return TRUE;
 }
 
@@ -422,7 +376,6 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
   klass->handle_resource = cockpit_web_server_default_handle_resource;
 
   gobject_class = G_OBJECT_CLASS (klass);
-  gobject_class->constructed = cockpit_web_server_constructed;
   gobject_class->dispose = cockpit_web_server_dispose;
   gobject_class->finalize = cockpit_web_server_finalize;
   gobject_class->set_property = cockpit_web_server_set_property;
@@ -448,15 +401,6 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                    PROP_CERTIFICATE,
                                    g_param_spec_object ("certificate", NULL, NULL,
                                                         G_TYPE_TLS_CERTIFICATE,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class,
-                                   PROP_DOCUMENT_ROOTS,
-                                   g_param_spec_boxed ("document-roots", NULL, NULL,
-                                                        G_TYPE_STRV,
                                                         G_PARAM_READABLE |
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
@@ -511,7 +455,6 @@ CockpitWebServer *
 cockpit_web_server_new (const gchar *address,
                         gint port,
                         GTlsCertificate *certificate,
-                        const gchar **document_roots,
                         GCancellable *cancellable,
                         GError **error)
 {
@@ -522,7 +465,6 @@ cockpit_web_server_new (const gchar *address,
                              "port", port,
                              "address", address,
                              "certificate", certificate,
-                             "document-roots", document_roots,
                              NULL);
   if (initable != NULL)
     return COCKPIT_WEB_SERVER (initable);
@@ -536,12 +478,6 @@ gboolean
 cockpit_web_server_get_socket_activated (CockpitWebServer *self)
 {
   return self->socket_activated;
-}
-
-const gchar **
-cockpit_web_server_get_document_roots (CockpitWebServer *self)
-{
-  return (const gchar **)self->document_roots;
 }
 
 gint

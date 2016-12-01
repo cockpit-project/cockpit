@@ -79,7 +79,7 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
   g_ptr_array_add (dirs, g_strdup (DATADIR "/cockpit/static"));
   g_ptr_array_add (dirs, NULL);
 
-  roots = cockpit_web_server_resolve_roots ((const gchar **)dirs->pdata);
+  roots = cockpit_web_response_resolve_roots ((const gchar **)dirs->pdata);
 
   g_ptr_array_free (dirs, TRUE);
   return roots;

@@ -317,16 +317,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     }
 
     function clear_errors() {
-        var ids = ["login-error-host", "login-error-message"];
-        var i;
-        for (i = 0; i < ids.length; i++) {
-            var el = id(ids[i]).style.display = 'none';
-            el.textContent = "";
-        }
+        id("error-group").style.display = "none";
+        id("login-error-message").textContent = "";
     }
 
     function login_failure(msg, in_conversation) {
-        var el = id("login-error-message");
         clear_errors();
         if (msg) {
             /* OAuth failures are always fatal */
@@ -334,21 +329,20 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 fatal(msg);
             } else {
                 show_form(in_conversation);
-                el.style.display = 'block';
-                el.textContent = msg;
+                id("login-error-message").textContent = msg;
+                id("error-group").style.display = "block";
             }
         }
     }
 
     function host_failure(msg) {
-        var el = id("login-error-host");
         var host = id("server-field").value;
         if (!host) {
             login_failure(msg, false);
         } else {
             clear_errors();
-            el.textContent = msg;
-            el.style.display = 'block';
+            id("login-error-message").textContent = msg;
+            id("error-group").style.display = "block";
             toggle_options(null, true);
             show_form();
         }
@@ -394,7 +388,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         id("password-group").style.display = in_conversation ? "none" : "block";
         id("option-group").style.display = in_conversation ? "none" : "block";
         id("conversation-group").style.display = in_conversation ? "block" : "none";
-        id("login-button").textContent = "Log In";
+        id("login-button-text").textContent = "Log In";
         id("login-password-input").value = '';
 
         if (in_conversation) {
@@ -405,7 +399,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
 
         id("login-button").removeAttribute('disabled');
-        id("login-spinner").style.display = 'none';
 
         if (!in_conversation)
             id("login-button").addEventListener("click", call_login);
@@ -514,7 +507,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
     function send_login_request(method, headers, is_conversation) {
         id("login-button").setAttribute('disabled', "true");
-        id("login-spinner").style.display = 'block';
         var xhr = new XMLHttpRequest();
         xhr.open("GET", login_path, true);
         var prompt_data;
@@ -568,7 +560,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 fatal(xhr.status + " error");
             }
             id("login-button").removeAttribute('disabled');
-            id("login-spinner").style.display = 'none';
             phantom_checkpoint();
         };
         xhr.send();

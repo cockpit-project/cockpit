@@ -261,7 +261,6 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_not_visible("#login-error-host")
         b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Hostkey does not match")
 
@@ -276,7 +275,6 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_not_visible("#login-error-host")
         b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Host is unknown")
 
@@ -303,7 +301,6 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_not_visible("#login-error-host")
         b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Hostkey is unknown")
 
@@ -348,20 +345,18 @@ class TestMultiMachine(MachineCase):
         b.set_val("#login-password-input", "bad-password")
         b.click('#login-button')
         b.wait_visible("#login-error-message")
-        b.wait_not_visible("#login-error-host")
 
         # Connect to bad machine
         b.set_val("#login-password-input", "bad-password")
-        b.click('#option-group')
+        b.click('#option-group span')
         b.wait_visible("#server-group")
         b.set_val("#server-field", "bad")
-        b.click('#option-group')
+        b.click('#option-group span')
         b.wait_not_visible("#server-group")
         b.click('#login-button')
         b.wait_visible("#server-group")
-        b.wait_visible("#login-error-host")
-        b.wait_in_text("#login-error-host", "Unable to connect")
-        b.wait_not_visible("#login-error-message")
+        b.wait_visible("#login-error-message")
+        b.wait_in_text("#login-error-message", "Unable to connect")
 
         # Connect to machine2
         b.set_val("#server-field", m2.address)

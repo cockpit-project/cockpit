@@ -206,13 +206,11 @@ static void
 setup_mock_webserver (TestCase *test,
                       gconstpointer data)
 {
-  const gchar *roots[] = { SRCDIR "/src/ws", NULL };
-
   GError *error = NULL;
   const gchar *user;
 
   /* Zero port makes server choose its own */
-  test->web_server = cockpit_web_server_new (NULL, 0, NULL, roots, NULL, &error);
+  test->web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
   g_assert_no_error (error);
 
   user = g_get_user_name ();

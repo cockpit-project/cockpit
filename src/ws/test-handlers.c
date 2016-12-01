@@ -83,12 +83,11 @@ on_web_response_done_set_flag (CockpitWebResponse *response,
 static void
 base_setup (Test *test)
 {
-  const gchar *roots[] = { SRCDIR "/src/ws", NULL };
   const gchar *static_roots[] = { SRCDIR "/src/ws", SRCDIR "/src/branding/default", NULL };
   GError *error = NULL;
   const gchar *user;
 
-  test->server = cockpit_web_server_new (NULL, 0, NULL, roots, NULL, &error);
+  test->server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
   g_assert_no_error (error);
 
   /* Other test->data fields are fine NULL */
@@ -96,7 +95,7 @@ base_setup (Test *test)
 
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
-  test->roots = cockpit_web_server_resolve_roots (static_roots);
+  test->roots = cockpit_web_response_resolve_roots (static_roots);
 
   test->data.auth = test->auth;
   test->data.static_roots = (const gchar **)test->roots;

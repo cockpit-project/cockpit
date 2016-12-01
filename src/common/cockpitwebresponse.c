@@ -1177,6 +1177,26 @@ path_has_prefix (const gchar *path,
   return FALSE;
 }
 
+gchar **
+cockpit_web_response_resolve_roots (const gchar **input)
+{
+  GPtrArray *roots;
+  char *path;
+  gint i;
+
+  roots = g_ptr_array_new ();
+  for (i = 0; input && input[i]; i++)
+    {
+      path = realpath (input[i], NULL);
+      if (path == NULL)
+        g_debug ("couldn't resolve document root: %s: %m", input[i]);
+      else
+        g_ptr_array_add (roots, path);
+    }
+  g_ptr_array_add (roots, NULL);
+  return (gchar **)g_ptr_array_free (roots, FALSE);
+}
+
 static void
 web_response_file (CockpitWebResponse *response,
                    const gchar *escaped,

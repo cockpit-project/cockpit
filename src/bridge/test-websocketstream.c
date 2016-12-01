@@ -113,7 +113,7 @@ static void
 setup (TestCase *test,
        gconstpointer data)
 {
-  test->server = cockpit_web_server_new (NULL, 0, NULL, NULL, NULL, NULL);
+  test->server = cockpit_web_server_new (NULL, 0, NULL, NULL, NULL);
   test->port = cockpit_web_server_get_port (test->server);
   test->transport = mock_transport_new ();
   test->ws_closed = FALSE;
@@ -229,7 +229,7 @@ setup_tls (TestTls *test,
   test->certificate = g_tls_certificate_new_from_files (SRCDIR "/src/bridge/mock-server.crt",
                                                         SRCDIR "/src/bridge/mock-server.key", &error);
   g_assert_no_error (error);
-  test->server = cockpit_web_server_new (NULL, 0, test->certificate, NULL, NULL, &error);
+  test->server = cockpit_web_server_new (NULL, 0, test->certificate, NULL, &error);
   g_assert_no_error (error);
 
   test->port = cockpit_web_server_get_port (test->server);

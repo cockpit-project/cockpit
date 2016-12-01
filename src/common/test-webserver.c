@@ -45,7 +45,6 @@ static void
 setup (TestCase *tc,
        gconstpointer data)
 {
-  const gchar *roots[] = { SRCDIR, NULL };
   const TestFixture *fixture = data;
   GTlsCertificate *cert = NULL;
   GError *error = NULL;
@@ -72,7 +71,7 @@ setup (TestCase *tc,
   else
     address = NULL;
 
-  tc->web_server = cockpit_web_server_new (address, 0, cert, roots, NULL, &error);
+  tc->web_server = cockpit_web_server_new (address, 0, cert, NULL, &error);
   g_assert_no_error (error);
   g_clear_object (&cert);
 
@@ -438,30 +437,23 @@ perform_http_request (const gchar *hostport,
   return g_string_free (reply, FALSE);
 }
 
-static void
-test_webserver_content_type (TestCase *tc,
-                             gconstpointer user_data)
+static gboolean
+on_shell_index_html (CockpitWebServer *server,
+                     const gchar *path,
+                     GHashTable *headers,
+                     CockpitWebResponse *response,
+                     gpointer user_data)
 {
-  GHashTable *headers;
-  gchar *resp;
-  gsize length;
-  guint status;
-  gssize off;
+  GBytes *bytes;
+  const gchar *data;
 
-  resp = perform_http_request (tc->localport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", &length);
-  g_assert (resp != NULL);
-  g_assert_cmpuint (length, >, 0);
+  g_assert_cmpstr (path, ==, "/shell/index.html");
+  data = "<!DOCTYPE html><html><body>index.html</body></html>";
+  bytes = g_bytes_new_static (data, strlen (data));
 
-  off = web_socket_util_parse_status_line (resp, length, NULL, &status, NULL);
-  g_assert_cmpuint (off, >, 0);
-  g_assert_cmpint (status, ==, 200);
-
-  off = web_socket_util_parse_headers (resp + off, length - off, &headers);
-  g_assert_cmpuint (off, >, 0);
-
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Content-Type"), ==, "text/html");
-  g_hash_table_unref (headers);
-  g_free (resp);
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+  return TRUE;
 }
 
 static void
@@ -471,7 +463,8 @@ test_with_query_string (TestCase *tc,
   gchar *resp;
   gsize length;
 
-  resp = perform_http_request (tc->localport, "GET /pkg/shell/index.html?blah HTTP/1.0\r\nHost:test\r\n\r\n", &length);
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_http_request (tc->localport, "GET /shell/index.html?blah HTTP/1.0\r\nHost:test\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -499,27 +492,6 @@ test_webserver_not_found (TestCase *tc,
   g_free (resp);
 }
 
-static void
-test_webserver_access_denied (TestCase *tc,
-                              gconstpointer user_data)
-{
-  gchar *resp;
-  gsize length;
-  guint status;
-  gssize off;
-
-  /* Listing a directory will result in 403 (except / -> /cockpit/shell/shell.html) */
-  resp = perform_http_request (tc->localport, "GET /po HTTP/1.0\r\nHost:test\r\n\r\n", &length);
-  g_assert (resp != NULL);
-  g_assert_cmpuint (length, >, 0);
-
-  off = web_socket_util_parse_status_line (resp, length, NULL, &status, NULL);
-  g_assert_cmpuint (off, >, 0);
-  g_assert_cmpint (status, ==, 403);
-
-  g_free (resp);
-}
-
 static const TestFixture fixture_with_cert = {
     .cert_file = SRCDIR "/src/ws/mock_cert"
 };
@@ -530,7 +502,8 @@ test_webserver_redirect_notls (TestCase *tc,
 {
   gchar *resp;
 
-  resp = perform_http_request (tc->hostport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
   g_free (resp);
 }
@@ -541,7 +514,8 @@ test_webserver_noredirect_localhost (TestCase *tc,
 {
   gchar *resp;
 
-  resp = perform_http_request (tc->localport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
@@ -552,8 +526,9 @@ test_webserver_noredirect_exception (TestCase *tc,
 {
   gchar *resp;
 
-  g_object_set (tc->web_server, "ssl-exception-prefix", "/pkg", NULL);
-  resp = perform_http_request (tc->hostport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_object_set (tc->web_server, "ssl-exception-prefix", "/shell", NULL);
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
@@ -565,8 +540,8 @@ test_webserver_noredirect_override (TestCase *tc,
   gchar *resp;
 
   cockpit_web_server_set_redirect_tls (tc->web_server, FALSE);
-
-  resp = perform_http_request (tc->hostport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
@@ -868,9 +843,10 @@ test_address (TestCase *tc,
   const TestFixture *fix = data;
 
   cockpit_web_server_set_redirect_tls (tc->web_server, FALSE);
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   if (fix->local_only)
     {
-      resp = perform_http_request (tc->localport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+      resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
       cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
       g_free (resp);
       resp = NULL;
@@ -882,7 +858,7 @@ test_address (TestCase *tc,
 
   if (fix->inet_only)
     {
-      resp = perform_http_request (tc->hostport, "GET /pkg/shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+      resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
       cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
       g_free (resp);
       resp = NULL;
@@ -898,12 +874,11 @@ test_bad_address (TestCase *tc,
                   gconstpointer unused)
 {
   CockpitWebServer *server = NULL;
-  const gchar *roots[] = { SRCDIR, NULL };
   GError *error = NULL;
   gint port;
 
   cockpit_expect_warning ("Couldn't parse IP address from: bad");
-  server = cockpit_web_server_new ("bad", 0, NULL, roots, NULL, &error);
+  server = cockpit_web_server_new ("bad", 0, NULL, NULL, &error);
 
   g_assert_no_error (error);
   g_object_get (server, "port", &port, NULL);
@@ -949,16 +924,12 @@ main (int argc,
   g_test_add_func ("/web-server/encoding/no-header", test_encoding_no_header);
   g_test_add_func ("/web-server/encoding/zero-qvalue", test_encoding_zero_qvalue);
 
-  g_test_add ("/web-server/content-type", TestCase, NULL,
-              setup, test_webserver_content_type, teardown);
   g_test_add ("/web-server/query-string", TestCase, NULL,
               setup, test_with_query_string, teardown);
   g_test_add ("/web-server/host-header", TestCase, NULL,
               setup, test_webserver_host_header, teardown);
   g_test_add ("/web-server/not-found", TestCase, NULL,
               setup, test_webserver_not_found, teardown);
-  g_test_add ("/web-server/access-denied", TestCase, NULL,
-              setup, test_webserver_access_denied, teardown);
 
   g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert,
               setup, test_webserver_redirect_notls, teardown);

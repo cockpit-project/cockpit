@@ -46,6 +46,7 @@ static gint server_port = 0;
 static gchar **bridge_argv;
 static const gchar *bus_address;
 static const gchar *direct_address;
+static gchar **server_roots;
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -538,7 +539,7 @@ handle_package_file (CockpitWebServer *server,
     }
 
   rebuilt = g_strjoinv ("/", parts);
-  cockpit_web_response_file (response, rebuilt,  cockpit_web_server_get_document_roots (server));
+  cockpit_web_response_file (response, rebuilt, (const gchar **)server_roots);
   g_free (rebuilt);
 }
 
@@ -580,7 +581,7 @@ on_handle_source (CockpitWebServer *server,
       inject_address (response, "bus_address", bus_address);
       inject_address (response, "direct_address", direct_address);
     }
-  cockpit_web_response_file (response, path,  cockpit_web_server_get_document_roots (server));
+  cockpit_web_response_file (response, path, (const gchar **)server_roots);
   return TRUE;
 }
 
@@ -597,9 +598,9 @@ server_ready (void)
   else
     server_port = 8765;
 
+  server_roots = cockpit_web_response_resolve_roots (roots);
   server = cockpit_web_server_new (NULL, server_port, /* TCP port to listen to */
                                    NULL, /* TLS cert */
-                                   roots,/* Where to serve files from */
                                    NULL, /* GCancellable* */
                                    &error);
   if (server == NULL)
@@ -853,6 +854,7 @@ main (int argc,
   g_clear_object (&direct_b);
   g_main_loop_unref (loop);
 
+  g_strfreev (server_roots);
   g_test_dbus_down (bus);
   g_object_unref (bus);
   g_free (bridge_argv);

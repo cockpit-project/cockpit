@@ -39,6 +39,17 @@ try:
     os.chdir(BASE)
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
 
+    # Hack to make things easier for users who don't know about kubeconfig
+    if args.image == 'openshift':
+        kubeconfig = os.path.join(os.path.expanduser("~"), ".kube", "config")
+        if not os.path.lexists(kubeconfig):
+            d = os.path.dirname(kubeconfig)
+            src = os.path.abspath(os.path.join("verify", "files", "openshift.kubeconfig"))
+            if not os.path.exists(d):
+                os.makedirs(d)
+            sys.stderr.write("vm-run: linking kubeconfig into ~/.kube/config\n")
+            os.symlink(src, kubeconfig)
+
     # Check that things are configured
     with open(os.devnull, 'w') as fp:
         if subprocess.call(["ip", "address", "show", "dev", "cockpit1"], stdout=fp, stderr=fp) != 0:

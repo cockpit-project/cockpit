@@ -36,7 +36,7 @@ from common.testvm import VirtMachine
 from verify import kubelib
 
 class OCBrowser(Browser):
-    def login_and_go(self, path=None, user=None, host=None):
+    def login_and_go(self, path=None, user=None, host=None, authorized=None):
         if user is None:
             user = self.default_user
         href = path

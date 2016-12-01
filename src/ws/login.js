@@ -209,6 +209,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         if (!requisites())
             return;
 
+        /* Setup the user's last choice about the authorized button */
+        var authorized = window.localStorage.getItem('authorized-default') || "";
+        if (authorized.indexOf("password") !== -1)
+            id("authorized-input").checked = true;
+
         var os_release = JSON.stringify(environment["os-release"]);
         var logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
@@ -375,7 +380,19 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             id("server-name").textContent = machine || environment.hostname;
             id("login-button").removeEventListener("click", call_login);
-            login(user, id("login-password-input").value);
+
+
+            /* When checked we tell the server to keep authentication */
+            var authorized = id("authorized-input").checked ? "password" : "";
+            var password = id("login-password-input").value;
+            window.localStorage.setItem('authorized-default', authorized);
+
+            var headers = {
+                "Authorization": "Basic " + window.btoa(utf8(user + ":" + password)),
+                "X-Authorize": authorized,
+            };
+
+            send_login_request("GET", headers, false);
         }
     }
 
@@ -563,13 +580,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             phantom_checkpoint();
         };
         xhr.send();
-    }
-
-    function login(user, password) {
-        var headers = {
-            "Authorization": "Basic " + window.btoa(utf8(user + ":" + password))
-        };
-        send_login_request("GET", headers, false);
     }
 
     function converse(id, msg) {

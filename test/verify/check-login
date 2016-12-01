@@ -57,6 +57,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_js_cond("document.activeElement.getAttribute('id') === 'login-user-input'")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
+            b.set_checked('#authorized-input', True)
             b.click('#login-button')
 
         # Try to login as a non-existing user
@@ -245,6 +246,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_visible("#user-group")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
+            b.set_checked('#authorized-input', True)
             b.click('#login-button')
 
         # Try to login as a non-existing user

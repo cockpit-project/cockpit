@@ -54,6 +54,7 @@ class TestSession(MachineCase):
         # Login again
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
+        b.set_checked("#authorized-input", True)
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")

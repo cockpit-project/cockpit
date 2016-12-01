@@ -143,6 +143,7 @@ typedef struct {
   GBytes *authorization;
 
   const gchar *auth_type;
+  gboolean authorize_password;
 
   gint refs;
 
@@ -601,7 +602,7 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
    * passing it back and forth possibly leaking it.
    */
 
-  if (g_str_equal (ad->auth_type, "basic"))
+  if (ad->authorize_password && g_str_equal (ad->auth_type, "basic"))
     password = parse_basic_auth_password (ad->authorization, NULL);
 
   if (!cockpit_json_get_string (results, "gssapi-creds", NULL, &gssapi_creds))
@@ -830,6 +831,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   const gchar *host;
   const gchar *command;
   const gchar *conversation;
+  const gchar *authorized;
 
   gchar *application = NULL;
   gchar *remote_peer = get_remote_address (connection);
@@ -891,6 +893,12 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   ad->auth_type = type;
   ad->authorization = g_bytes_ref (authorization);
   ad->application = g_strdup (application);
+
+  /* Hang onto the password in credentials if requested */
+  authorized = g_hash_table_lookup (headers, "X-Authorize");
+  if (!authorized)
+    authorized = "";
+  ad->authorize_password = (strstr (authorized, "password") != NULL);
 
   if (g_strcmp0 (section, SSH_SECTION) == 0)
     {

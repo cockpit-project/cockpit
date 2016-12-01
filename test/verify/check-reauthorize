@@ -29,14 +29,19 @@ class TestReauthorize(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/playground/test")
-
+        # Log in without being authorized
+        self.login_and_go("/playground/test", authorized=False)
         b.click(".cockpit-internal-reauthorize .btn")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
+        self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
+        # Log in again but be authorized
+        b.relogin("/playground/test", authorized=True)
+        b.click(".cockpit-internal-reauthorize .btn")
+        b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
-        # Deauthorize
+        # Deauthorize from the menu
         b.leave_page()
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
@@ -69,7 +74,7 @@ class TestReauthorize(MachineCase):
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("#credential-authorize button")
-        b.wait_not_present("#credential-authorize button")
+        b.wait_not_visible("#credential-authorize button")
         b.click("#credentials-dialog [data-dismiss]")
 
         b.enter_page("/playground/test")

@@ -166,6 +166,7 @@ test_basic_good (TestCase *test,
   gchar *cookie = NULL;
 
   in_headers = mock_auth_basic_header ("me", PASSWORD);
+  g_hash_table_insert (in_headers, g_strdup ("X-Authorize"), g_strdup ("password"));
   out_headers = cockpit_web_server_new_table ();
 
   application = g_strdup_printf ("cockpit+=127.0.0.1:%d", test->ssh_port);
@@ -225,6 +226,7 @@ test_basic_fail (TestCase *test,
 
   headers = cockpit_web_server_new_table ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
+  g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
 
   application = g_strdup_printf ("cockpit+=127.0.0.1:%d", test->ssh_port);
   path = g_strdup_printf ("/%s", application);

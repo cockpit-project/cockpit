@@ -159,6 +159,10 @@ This function is only for internal purposes:
             self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("change", true, false); arguments[0].dispatchEvent(ev);', element)
             self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("keydown", true, false); arguments[0].dispatchEvent(ev);', element)
 
+    def check_box(self, element, checked=True):
+        if element.get_attribute('checked') != checked:
+            element.click()
+
     def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck):
         """
 This function is low level, tests should prefer to use the wait_* functions:
@@ -247,6 +251,7 @@ parameters:
     def login(self, tmpuser=user, tmppasswd=passwd):
         self.send_keys(self.wait_id('login-user-input'), tmpuser)
         self.send_keys(self.wait_id('login-password-input'), tmppasswd)
+        self.check_box(self.wait_id('authorized-input'))
         self.click(self.wait_id("login-button", cond=clickable))
 
     def logout(self):

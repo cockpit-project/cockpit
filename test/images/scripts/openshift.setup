@@ -8,6 +8,8 @@ xfs_growfs /
 
 echo foobar | passwd --stdin root
 
+printf "\nOPENSHIFT CONSOLE: https://10.111.112.101:8443\n\n" >> /etc/issue
+
 # Disable these things
 ln -sf ../selinux/config /etc/sysconfig/selinux
 printf 'SELINUX=permissive\nSELINUXTYPE=targeted\n' > /etc/selinux/config
@@ -15,8 +17,6 @@ setenforce 0
 systemctl stop firewalld
 dnf -y remove firewalld
 iptables -F
-
-dnf -y install docker python libselinux-python
 
 # Wait for x for many minutes
 function wait() {
@@ -29,10 +29,12 @@ function wait() {
     exit 6
 }
 
+wait dnf -y install docker python libselinux-python
+
 hostnamectl set-hostname f1.cockpit.lan
 
 # Setup a nfs server
-dnf install -y nfs-utils
+wait dnf install -y nfs-utils
 mkdir /nfsexport
 echo "/nfsexport *(rw,sync)" > /etc/exports
 
@@ -43,10 +45,13 @@ systemctl enable docker
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 
+# Can't use latest because release on older versions are done out of order
+VERSION=$(curl -s https://api.github.com/repos/openshift/origin/releases | python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True)[0])")
+
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages
-docker pull openshift/origin
-container=$(docker create openshift/origin)
+docker pull "openshift/origin:$VERSION"
+container=$(docker create "openshift/origin:$VERSION")
 docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oadm bin/kubectl
 
 # Runs a master if on the right address, otherwise runs a node
@@ -91,15 +96,17 @@ systemctl enable openshift
 systemctl start openshift || journalctl -u openshift
 
 # Now pull all the images we're going to use with openshift
-docker pull openshift/origin-deployer:v1.1.2
-docker pull openshift/origin-docker-registry:v1.1.2
-docker pull openshift/origin-pod:v1.1.2
+docker pull "openshift/origin-deployer:$VERSION"
+docker pull "openshift/origin-docker-registry:$VERSION"
+docker pull "openshift/origin-pod:$VERSION"
 
 mkdir -p /root/.kube
 cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
 
 # Check if we can connect to openshift
 wait oc get namespaces
+
+wait oc get scc/restricted
 
 # Tell openshift to allow root containers by default. Otherwise most
 # development examples just plain fail to work
@@ -168,7 +175,7 @@ docker push registry:5000/marmalade/juggs
 # Tag this image twice
 docker tag -f docker.io/busybox:latest registry:5000/marmalade/origin
 docker push registry:5000/marmalade/origin
-docker tag -f openshift/origin registry:5000/marmalade/origin
+docker tag -f "openshift/origin:$VERSION" registry:5000/marmalade/origin
 docker push registry:5000/marmalade/origin
 
 oc new-project pizzazz

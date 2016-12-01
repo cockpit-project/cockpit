@@ -22,8 +22,13 @@
         </div><!--/.col-*-->
 
         <div id="login" class="col-sm-7 col-md-6 col-lg-5 login-area" style="visibility: hidden;">
-          <div id="login-form" class="form-horizontal" role="form">
-            <div id="conversation-group" class="form-group login-form" hidden>
+          <div role="form">
+
+            <div id="error-group" class="alert alert-danger" hidden>
+              <span id="login-error-message"></span>
+            </div>
+
+            <div id="conversation-group" class="form-group" hidden>
               <div class="col-sm-12 col-md-12">
                 <div id="conversation-message"></div>
                 <label id="conversation-prompt" for="conversation-input"></label>
@@ -32,22 +37,23 @@
                 <input type="password" class="form-control" id="conversation-input" tabindex="1">
               </div>
             </div>
-            <div id="user-group" class="form-group login-form">
+
+            <div id="user-group" class="form-group">
               <label for="login-user-input" class="col-sm-2 col-md-2 control-label">User name</label>
               <div class="col-sm-10 col-md-10">
                 <input type="text" class="form-control" id="login-user-input" tabindex="1">
               </div>
             </div>
-            <div id="password-group" class="form-group login-form">
+
+            <div id="password-group" class="form-group">
               <label for="login-password-input" class="col-sm-2 col-md-2 control-label">Password</label>
               <div class="col-sm-10 col-md-10">
                 <input type="password" class="form-control" id="login-password-input" tabindex="2">
-                <span class="error-block" id="login-error-message" style="display: none;"></span>
               </div>
             </div>
-            <div id="option-group" class="form-group login-form">
-              <div class="col-sm-2 col-md-2"></div>
-              <div class="col-sm-10 col-md-10">
+
+            <div id="option-group">
+              <div class="col-sm-5 col-md-5">
                 <i id="option-caret" class="caret caret-right" aria-hidden="true">
                     <svg height="16" width="16" viewBox="0 0 16 16">
                         <polygon fill="#ffffff" points="4,0 4,14 12,7"/>
@@ -57,22 +63,20 @@
                 <span>Other Options</span>
               </div>
             </div>
-            <div id="server-group" class="form-group login-form" style="display: none;">
+
+            <div id="server-group" class="form-group" hidden>
               <label title="Log in to another system. Leave blank to log in to the local system." for="server-field" class="col-sm-2 col-md-2 control-label">Connect to</label>
               <div class="col-sm-10 col-md-10 server-box">
                 <input type="text" class="form-control" id="server-field" tabindex="2">
                 <span class="cross" id="server-clear" aria-hidden="true">&#x274c;</span>
-                <span class="error-block" id="login-error-host" style="display: none;"></span>
               </div>
             </div>
-            <div class="form-group login-form">
-              <div class="col-sm-2">
-                <div class="spinner col-xs-15" id="login-spinner" hidden>
-                </div>
-              </div>
-              <div class="col-sm-3 login-button-container">
+
+            <div class="form-group">
+              <div class="col-md-3 col-sm-3 login-button-container">
                 <button class="btn btn-primary btn-lg col-xs-12" id="login-button" tabindex="3">
-                  Log In
+                  <div class="spinner"></div>
+                  <div id="login-button-text">Log In</div>
                 </button>
               </div>
             </div>
@@ -86,19 +90,19 @@
           <p id="login-note" class="login-note"></p>
         </div><!--/.col-*-->
 
-        <div style="display: none;" class="col-sm-7 col-md-6 col-lg-5" id="login-wait-validating">
+        <div class="col-sm-7 col-md-6 col-lg-5" id="login-wait-validating" hidden>
           <div class=" col-xs-12 col-sm-offset-2 col-sm-6">
             <span class="help-block">Validating authentication token</span>
           </div>
           <div class="col-sm-1">
-            <div class="spinner col-xs-15" id="login-spinner">
+            <div class="spinner col-xs-15">
             </div>
           </div>
         </div>
 
-        <div id="login-fatal" style="display: none;">
+        <div id="login-fatal" hidden>
           <span id="login-fatal-message"></span>
-          <a style="display: none;" id="login-again">Try Again</a>
+          <a id="login-again" hidden>Try Again</a>
         </div>
 
       </div><!--/.row-->

@@ -185,13 +185,16 @@ label {
   font-weight: bold;
 }
 .form-control {
-  display: block;
-  width: 100%;
   height: 26px;
-  padding: 2px 6px;
-  font-size: 12px;
   line-height: 1.66666667;
   color: #333333;
+}
+.form-control[type='text'],
+.form-control[type='password'] {
+  display: block;
+  width: 100%;
+  padding: 2px 6px;
+  font-size: 12px;
   background-color: #ffffff;
   background-image: none;
   border: 1px solid #bababa;
@@ -224,34 +227,32 @@ label {
   color: #999999;
   font-style: italic;
 }
-.form-group {
-  margin-bottom: 15px;
-}
 .help-block {
   display: block;
   margin-top: 5px;
   margin-bottom: 10px;
   color: #737373;
 }
-.form-horizontal .control-label {
+.control-label {
   margin-top: 0;
   margin-bottom: 0;
   padding-top: 3px;
 }
-.form-horizontal .form-group {
+.form-group {
   margin-left: -20px;
   margin-right: -20px;
 }
-.form-horizontal .form-group:after {
+.form-group:after {
   clear: both;
+  margin-bottom: 15px;
 }
-.form-horizontal .form-group:before,
-.form-horizontal .form-group:after {
+.form-group:before,
+.form-group:after {
   content: " ";
   display: table;
 }
 @media (min-width: 768px) {
-  .form-horizontal .control-label {
+  .control-label {
     text-align: right;
   }
 }
@@ -414,8 +415,10 @@ label {
   margin-top: 25px;
 }
 @media (min-width: 768px) {
+  .login-pf .container .login-area {
+    border-right: 1px solid #474747;
+  }
   .login-pf .container .details {
-    border-left: 1px solid #474747;
     padding-left: 40px;
   }
   .login-pf .container .details p:first-child {
@@ -427,13 +430,13 @@ label {
 .login-pf .container .details p {
   margin-bottom: 2px;
 }
-.login-pf .container .form-horizontal .control-label {
+.login-pf .container .control-label {
   font-size: 13px;
   font-weight: 400;
   text-align: left;
 }
-.login-pf .container .form-horizontal .form-group:last-child,
-.login-pf .container .form-horizontal .form-group:last-child .help-block:last-child {
+.login-pf .container .form-group:last-child,
+.login-pf .container .form-group:last-child .help-block:last-child {
   margin-bottom: 0;
 }
 .login-pf .container .help-block {
@@ -468,16 +471,28 @@ label {
   position: relative;
   width: 24px;
 }
-
-.error-block {
-  display: block;
-  margin-top: 5px;
-  margin-bottom: 0;
-  color: #c73737;
+.alert {
+  padding: 7px 11px;
+  margin-bottom: 20px;
+  border: 2px solid transparent;
+  border-radius: 1px;
+}
+.alert-danger {
+  background: transparent;
+  color: #fff;
+  border-color: #cc0000;
+  font-weight: bold;
 }
 
 #option-group {
   cursor: pointer;
+  margin-left: -20px;
+  margin-right: -20px;
+}
+
+#server-group:before {
+  clear: both;
+  margin-top: 5px;
 }
 
 /* Login page specific overrides */
@@ -548,9 +563,32 @@ body {
 .cross:hover {
     opacity: 1;
 }
+#option-group div {
+    margin-left: -3px;
+    margin-top: 3px;
+    margin-bottom: 10px;
+}
 #option-group svg {
     opacity: 0.7;
 }
 #option-group:hover svg {
     opacity: 1.0;
+}
+#login-button {
+    padding: 7px;
+}
+#login-button .spinner {
+    display: none;
+}
+#login-button[disabled] {
+    padding: 0px;
+    background-color: #333;
+    background-image: none;
+    border-color: #555;
+}
+#login-button[disabled] .spinner {
+    display: inline-block;
+}
+#login-button[disabled] #login-button-text {
+    display: none;
 }

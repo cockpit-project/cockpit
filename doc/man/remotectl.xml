@@ -66,6 +66,16 @@
         <para>
           <option>--group groupname</option> The unix group that should read the certificate. Only takes effect if used with <option>--ensure</option>.
         </para>
+
+        <para>
+          If any additional arguments are given, they are treated as files that should be combined to create a certificate file. If the combined files validate, they will be saved in the appropriate location using the name of the first file given with the extension changed to .cert. For example:
+        </para>
+
+        <para><command>remotectl certificate server.pem chain.pem key.pem</command></para>
+
+        <para>will result in <literal>server.cert</literal>. If <literal>server.cert</literal> already exists it will be overwritten.
+        </para>
+
       </listitem>
       </varlistentry>
     </variablelist>

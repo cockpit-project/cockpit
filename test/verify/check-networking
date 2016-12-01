@@ -566,5 +566,28 @@ NM_CONTROLLED=no
         self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
                          "auto")
 
+    def testOtherSettings(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.add_iface()
+        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
+        m.execute("nmcli con add type ethernet ifname %s con-name TEST" % iface)
+        m.execute("nmcli con mod TEST ipv4.dhcp-hostname foo")
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+
+        b.click("#networking-interfaces tr[data-interface='%s'] td:first-child" % iface)
+        b.wait_visible("#network-interface")
+
+        b.click("tr:contains('IPv4') a")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-ip-settings-dialog")
+
+        self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.dhcp-hostname con show TEST").strip(),
+                         "foo")
+
 if __name__ == '__main__':
     test_main()

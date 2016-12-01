@@ -26,12 +26,14 @@
 #include "common/cockpitconf.h"
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
+#include <string.h>
 
 static int
 locate_certificate (void)
@@ -62,15 +64,14 @@ locate_certificate (void)
 }
 
 static int
-ensure_certificate (const gchar *user,
-                    const gchar *group,
-                    const gchar *selinux)
+set_cert_attributes (const gchar *path,
+                     const gchar *user,
+                     const gchar *group,
+                     const gchar *selinux)
 {
+  GError *error = NULL;
   struct passwd *pwd = NULL;
   struct group *gr = NULL;
-  GTlsCertificate *certificate = NULL;
-  GError *error = NULL;
-  gchar *path = NULL;
   gint status = 0;
   mode_t mode;
   int ret = 1;
@@ -103,16 +104,6 @@ ensure_certificate (const gchar *user,
           g_message ("couldn't lookup group: %s: %s", group, g_strerror (errno));
           goto out;
         }
-    }
-
-  path = cockpit_certificate_locate (TRUE, &error);
-  if (path != NULL)
-    certificate = cockpit_certificate_load (path, &error);
-
-  if (!certificate)
-    {
-      g_message ("%s", error->message);
-      goto out;
     }
 
   /* If group specified then group readable */
@@ -149,9 +140,124 @@ ensure_certificate (const gchar *user,
   ret = 0;
 
 out:
+  g_clear_error (&error);
+  return ret;
+}
+
+static int
+ensure_certificate (const gchar *user,
+                    const gchar *group,
+                    const gchar *selinux)
+{
+  GError *error = NULL;
+  GTlsCertificate *certificate = NULL;
+  gchar *path = NULL;
+  gint ret = 1;
+
+  path = cockpit_certificate_locate (TRUE, &error);
+  if (path != NULL)
+    certificate = cockpit_certificate_load (path, &error);
+
+  if (!certificate)
+    {
+      g_message ("%s", error->message);
+      goto out;
+    }
+
+  ret = set_cert_attributes (path, user, group, selinux);
+
+out:
   g_clear_object (&certificate);
   g_clear_error (&error);
   g_free (path);
+  return ret;
+}
+
+static gint
+cockpit_certificate_combine (gchar **pem_files,
+                             const gchar *user,
+                             const gchar *group,
+                             const gchar *selinux)
+{
+  const gchar * const* dirs = cockpit_conf_get_dirs ();
+
+  GError *error = NULL;
+  GTlsCertificate *certificate = NULL;
+  GString *combined = g_string_new ("");
+
+  gchar *cert_dir = NULL;
+  gchar *name = NULL;
+  gchar *spot = NULL;
+
+  gchar *target_name = NULL;
+  gchar *target_path = NULL;
+
+  gint ret = 1;
+  gint i;
+
+  cert_dir = g_build_filename (dirs[0], "cockpit", "ws-certs.d", NULL);
+  if (g_mkdir_with_parents (cert_dir, 0700) != 0)
+    {
+      g_message ("Error creating directory %s: %m", cert_dir);
+      goto out;
+    }
+
+  /* target file is named after the first file */
+  name = g_path_get_basename (pem_files[0]);
+  spot = strrchr (name, '.');
+  if (spot != NULL)
+    *spot = '\0';
+
+  target_name = g_strdup_printf ("%s.cert", name);
+  target_path = g_build_filename (cert_dir, target_name, NULL);
+
+  for (i = 0; pem_files[i] != NULL; i++)
+    {
+      gchar *data = NULL;
+      gsize length;
+      gboolean success = g_file_get_contents (pem_files[i], &data, &length, &error);
+
+      if (success)
+        g_string_append_printf (combined, "%s\n", data);
+
+      g_free (data);
+
+      if (!success)
+        goto out;
+    }
+
+  if (!g_file_set_contents (target_path, combined->str, combined->len, &error))
+    goto out;
+
+  g_debug ("Wrote to combined file %s", target_path);
+
+  certificate = cockpit_certificate_load (target_path, &error);
+  if (!certificate)
+    {
+      if (g_unlink (target_path) < 0)
+        g_message ("Failed to delete invalid certificate %s: %m", target_path);
+      goto out;
+    }
+  else
+    {
+      g_print ("generated combined certificate file: %s\n", target_path);
+    }
+
+  ret = set_cert_attributes (target_path, user, group, selinux);
+
+out:
+  if (error)
+    {
+      g_message ("Error combining PEM files: %s", error->message);
+      g_clear_error (&error);
+    }
+
+  g_clear_object (&certificate);
+  g_string_free (combined, TRUE);
+  g_free (name);
+  g_free (target_path);
+  g_free (target_name);
+  g_free (cert_dir);
   return ret;
 }
 
@@ -163,6 +269,7 @@ cockpit_remotectl_certificate (int argc,
   GError *error = NULL;
   gboolean ensure = FALSE;
   gchar *selinux = NULL;
+  gchar **pem_files = NULL;
   gchar *group = NULL;
   gchar *user = NULL;
   int ret = 1;
@@ -176,10 +283,11 @@ cockpit_remotectl_certificate (int argc,
       "The unix group that should read the certificate", "group" },
     { "selinux-type", 0, 0, G_OPTION_ARG_STRING, &selinux,
       "The SELinux security context type for the certificate", "selinux" },
-    { G_OPTION_REMAINING, 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK,
-      cockpit_remotectl_no_arguments, NULL, NULL },
+    { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &pem_files,
+      "If provided the given files are combined into a single .cert file and placed in the correct location", "[PEM-FILES..]" },
     { NULL },
   };
+
 
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, options, NULL);
@@ -194,7 +302,9 @@ cockpit_remotectl_certificate (int argc,
   else
     {
       g_set_prgname ("remotectl");
-      if (ensure)
+      if (pem_files)
+        ret = cockpit_certificate_combine (pem_files, user, group, selinux);
+      else if (ensure)
         ret = ensure_certificate (user, group, selinux);
       else
         ret = locate_certificate ();
@@ -205,5 +315,6 @@ cockpit_remotectl_certificate (int argc,
   g_free (selinux);
   g_free (group);
   g_free (user);
+  g_strfreev (pem_files);
   return ret;
 }

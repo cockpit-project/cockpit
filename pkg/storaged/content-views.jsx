@@ -518,7 +518,7 @@ function block_content(client, block) {
         </div>);
 
     return (
-        <CockpitListing.Listing title="Content"
+        <CockpitListing.Listing title={_("Content")}
                                 actions={format_disk_btn}>
             { block_rows(client, block) }
         </CockpitListing.Listing>

@@ -9,7 +9,7 @@
             <dt translate>Replicas</dt>
             <dd>{{ item.spec.replicas }}</dd>
 
-            <dt ng-if="item.spec.strategy.type" translate>Strategy</dd>
+            <dt ng-if="item.spec.strategy.type" translate>Strategy</dt>
             <dd ng-if="item.spec.strategy.type">{{item.spec.strategy.type}}</dd>
 
             <dt translate>Latest Version</dt>

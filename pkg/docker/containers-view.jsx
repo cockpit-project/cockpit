@@ -421,7 +421,7 @@ var ImageList = React.createClass({
         }, this);
 
         var getNewImageAction = <a onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
-                                    <span className="pficon pficon-add-circle-o"></span>Get new image
+                                    <span className="pficon pficon-add-circle-o"></span>{_("Get new image")}
                                 </a>;
 
         var columnTitles = [ _("Name"), _("Created"), _("Size"), '' ];

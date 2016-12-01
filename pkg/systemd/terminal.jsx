@@ -2,6 +2,7 @@
     "use strict";
 
     var cockpit = require("cockpit");
+    var _ = cockpit.gettext;
 
     var React = require("react");
     var componentsTerminal = require("cockpit-components-terminal.jsx");
@@ -76,7 +77,7 @@
                         <tt className="terminal-title">{this.state.title}</tt>
                         <button ref="resetButton"
                                 className="btn btn-default pull-right"
-                                onClick={this.onResetClick}>Reset</button>
+                                onClick={this.onResetClick}>{_("Reset")}</button>
                     </div>
                     {terminal}
                 </div>

@@ -522,11 +522,11 @@
                                 }
                               },
                               { TextInput: "username",
-                                Title: "Username"
+                                Title: _("Username")
 
                               },
                               { PassInput: "password",
-                                Title: "Password"
+                                Title: _("Password")
                               }
                           ],
                           Action: {

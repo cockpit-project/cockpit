@@ -12,7 +12,7 @@
                 </td>
                 <td>
                     <input id="imagestream-modify-name" class="form-control" type="text"
-                        ng-if="!stream" ng-model="fields.name" placeholder="eg: my-image-stream" autofocus>
+                        ng-if="!stream" ng-model="fields.name" placeholder="{{ placeholder }}" autofocus>
                     <span id="imagestream-modify-name" ng-if="stream">{{ fields.name }}</span>
                 </td>
             </tr>

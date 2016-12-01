@@ -202,7 +202,7 @@
                     <div className="drives-panel-footer">
                         <button className="btn btn-primary"
                                 disabled={ !button_enabled }
-                                onClick={ self.onButtonClicked }>Add Storage</button>
+                                onClick={ self.onButtonClicked }>{_("Add Storage")}</button>
                     </div>
                 </div>
             );
@@ -302,7 +302,7 @@
                             <div className="progress-bar" style={{width: used_perc}}>
                             </div>
                         </div>
-                        {self.state.error? "" : <a translatable="yes" href="#/storage">configure storage...</a>}
+                        {self.state.error? "" : <a translatable="yes" href="#/storage">{_("Configure storage...")}</a>}
                     </div>);
             } else {
                 return (

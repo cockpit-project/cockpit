@@ -976,10 +976,12 @@
         '$location',
         '$timeout',
         "kubeMethods",
-        function($q, $scope, kselect, dialogData, projectData, $location, $timeout, methods) {
+        "gettextCatalog",
+        function($q, $scope, kselect, dialogData, projectData, $location, $timeout, methods, gettextCatalog) {
             var project = dialogData.project || { };
             var meta = project.metadata || { };
             var annotations = meta.annotations || { };
+            var _ = gettextCatalog.getString.bind(gettextCatalog);
 
             var DISPLAY = "openshift.io/display-name";
             var DESCRIPTION = "openshift.io/description";
@@ -1013,9 +1015,9 @@
             $scope.fields = fields;
             $scope.labels = {
                 access: {
-                    "private": "Private: Allow only specific users or groups to pull images",
-                    "shared": "Shared: Allow any authenticated user to pull images",
-                    "anonymous" : "Anonymous: Allow all unauthenticated users to pull images",
+                    "private": _("Private: Allow only specific users or groups to pull images"),
+                    "shared": _("Shared: Allow any authenticated user to pull images"),
+                    "anonymous" : _("Anonymous: Allow all unauthenticated users to pull images"),
                 }
             };
             function getProjects() {

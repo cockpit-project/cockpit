@@ -23,7 +23,6 @@
     var cockpit = require("cockpit");
     var $ = require("jquery");
 
-    cockpit.translate();
     var _ = cockpit.gettext;
 
     var run_sosreport_sh = require("raw!./run-sosreport.sh");
@@ -159,6 +158,7 @@
             $("#sos-cancel").on("click", sos_cancel);
             $('#sos-download button').on('click', sos_download);
 
+            cockpit.translate();
             $('body').show();
 
             // Send a 'init' message.  This tells the tests that we

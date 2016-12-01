@@ -595,10 +595,12 @@
         "imageTagData",
         "kubeMethods",
         "filterService",
-        function($scope, $instance, dialogData, tagData, methods, filter) {
+        "gettextCatalog",
+        function($scope, $instance, dialogData, tagData, methods, filter, gettextCatalog) {
             var stream = dialogData.stream || { };
             var meta = stream.metadata || { };
             var spec = stream.spec || { };
+            var _ = gettextCatalog.getString.bind(gettextCatalog);
 
             var populate = "none";
             if (spec.dockerImageRepository)
@@ -618,15 +620,17 @@
             $scope.fields = fields;
             $scope.labels = {
                 populate: {
-                    none: "Don't pull images automatically",
-                    pull: "Sync all tags from a remote image repository",
-                    tags: "Pull specific tags from another image repository",
+                    none: _("Don't pull images automatically"),
+                    pull: _("Sync all tags from a remote image repository"),
+                    tags: _("Pull specific tags from another image repository"),
                 }
             };
 
+            $scope.placeholder = _("eg: my-image-stream");
+
             /* During creation we have a different label */
             if (!dialogData.stream)
-                $scope.labels.populate.none = "Create empty image stream";
+                $scope.labels.populate.none = _("Create empty image stream");
 
             function performModify() {
                 var data = { spec: { dockerImageRepository: null, tags: null } };

@@ -106,6 +106,12 @@ DEFAULT_IMAGE_REFRESH = {
     },
     'ubuntu-1604': {
         'triggers': [ "verify/ubuntu-1604", ]
+    },
+    'openshift': {
+        'triggers': [ "container/kubernetes",
+                      "verify/fedora-25",
+                      "verify/rhel-7" ],
+        'refresh-days': 30
     }
 }
 
@@ -614,7 +620,8 @@ class GitHub(object):
             for issue in issues:
                 if issue['title'] == ISSUE_TITLE_IMAGE_REFRESH.format(image):
                     age = time.time() - time.mktime(time.strptime(issue['created_at'], "%Y-%m-%dT%H:%M:%SZ"))
-                    wait_time = IMAGE_REFRESH - (age / (24 * 60 * 60))
+                    refresh_days = config.get("refresh-days", IMAGE_REFRESH)
+                    wait_time = refresh_days - (age / (24 * 60 * 60))
                     if wait_time > wait_times[image]:
                         wait_times[image] = wait_time
         return wait_times

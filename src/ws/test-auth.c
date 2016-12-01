@@ -457,6 +457,7 @@ typedef struct {
   const gchar *password;
   const gchar *application;
   const gchar *cookie_name;
+  gboolean authorized;
 } SuccessFixture;
 
 static void
@@ -549,6 +550,8 @@ test_custom_success (Test *test,
 
   headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
+  if (fix->authorized)
+    g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
   cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
@@ -568,7 +571,7 @@ test_custom_success (Test *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (user, ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
-  if (g_str_has_prefix (fix->header, "Basic"))
+  if (fix->authorized && g_str_has_prefix (fix->header, "Basic"))
     g_assert_cmpstr (cockpit_creds_get_password (creds), == , password);
   else
     g_assert_null (cockpit_creds_get_password (creds));
@@ -587,7 +590,15 @@ test_custom_success (Test *test,
 static const SuccessFixture fixture_ssh_basic = {
   .warning = NULL,
   .data = NULL,
-  .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ="
+  .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=",
+  .authorized = TRUE
+};
+
+static const SuccessFixture fixture_ssh_not_authorized = {
+  .warning = NULL,
+  .data = NULL,
+  .header = "Basic bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=",
+  .authorized = FALSE
 };
 
 static const SuccessFixture fixture_ssh_remote_basic = {
@@ -1226,6 +1237,8 @@ main (int argc,
               setup_normal, test_custom_timeout, teardown_normal);
 
   g_test_add ("/auth/custom-ssh-basic-success", Test, &fixture_ssh_basic,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-ssh-basic-success-not-authorized", Test, &fixture_ssh_not_authorized,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-remote-basic-success", Test, &fixture_ssh_remote_basic,
               setup_normal, test_custom_success, teardown_normal);

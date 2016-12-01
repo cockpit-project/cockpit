@@ -60,6 +60,7 @@ class checklogin_basic(Test):
             b.wait_not_present("#login-button:disabled")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
+            b.set_checked('#authorized-input', True)
             b.click('#login-button')
 
         # Try to login as a non-existing user

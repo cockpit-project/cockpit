@@ -12,8 +12,13 @@
     using <ulink url="http://www.freedesktop.org/wiki/Software/polkit/">Policy Kit</ulink>
     or <ulink url="http://www.sudo.ws/">sudo</ulink>. If the user is able to escalate
     privileges from the command line, then Cockpit will use that same capability to
-    perform certain privileged tasks. Cockpit can use the user's login password internally to
-    escalate privileges unless the user has chosen to prevent that from happening.</para>
+    perform certain privileged tasks.</para>
+
+  <para>Cockpit can use the user's login password internally to escalate privileges
+    in these situations. By selecting the
+    <emphasis>Reuse my password for privileged tasks</emphasis> option on the login screen
+    the login password will be cached internally and passed to <emphasis>Policy Kit</emphasis>
+    when requested in order to escalate privileges.</para>
 
   <para>To test out whether Cockpit can escalate privileges, you can run these commands
     from a the <link linkend="feature-terminal">terminal built into Cockpit</link>.</para>
@@ -28,8 +33,7 @@ $ pkexec cockpit-bridge
   <para>If either of these commands succeed without prompting for a password,
     Cockpit will be able to start a privileged copy of the
     <filename>cockpit-bridge</filename> and use it to perform privileged tasks
-    when necessary. When running these commands from the terminal built into Cockpit
-    neither should prompt for a password.</para>
+    when necessary.</para>
 
   <para>Usually a user needs to be in the <code>wheel</code> Unix user group for the
     user to be able to escalate privileges in this way. However both Policy Kit and

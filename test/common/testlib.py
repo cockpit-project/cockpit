@@ -351,7 +351,7 @@ class Browser:
         else:
             self.click(sel + ' button:first-child');
 
-    def login_and_go(self, path=None, user=None, host=None):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True):
         if user is None:
             user = self.default_user
         href = path
@@ -363,6 +363,8 @@ class Browser:
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', self.password)
+        self.set_checked('#authorized-input', authorized)
+
         self.click('#login-button')
         self.expect_load()
         self.wait_present('#content')
@@ -377,13 +379,15 @@ class Browser:
         self.click('#go-logout')
         self.expect_load()
 
-    def relogin(self, path=None, user=None):
+    def relogin(self, path=None, user=None, authorized=None):
         if user is None:
             user = self.default_user
         self.logout()
         self.wait_visible("#login")
         self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", self.password)
+        if authorized is not None:
+            self.set_checked('#authorized-input', authorized)
         self.click('#login-button')
         self.expect_load()
         self.wait_present('#content')
@@ -534,9 +538,9 @@ class MachineCase(unittest.TestCase):
             self.check_journal_messages()
         shutil.rmtree(self.tmpdir)
 
-    def login_and_go(self, path=None, user=None, host=None):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True):
         self.machine.start_cockpit(host)
-        self.browser.login_and_go(path, user=user, host=host)
+        self.browser.login_and_go(path, user=user, host=host, authorized=authorized)
 
     allowed_messages = [
         # This is a failed login, which happens every time

@@ -70,8 +70,12 @@ func setupCertificates() {
 		log.Fatalf("Couldn't create certificate directory %s", dErr)
 	}
 
-	// Setting ownership on the certificate may fail
-	// so execute ensure and the check results without
+	// Finding these certificate files or setting ownership on
+	// the certificate may fail so execute combine and ensure
+	// and the check results without
+	exec.Command("/usr/sbin/remotectl", "certificate",
+		"/var/run/secrets/ws-certs.d/tls.crt",
+		"/var/run/secrets/ws-certs.d/tls.key").CombinedOutput()
 	exec.Command("/usr/sbin/remotectl", "certificate", "--ensure").CombinedOutput()
 	out, rErr := exec.Command("/usr/sbin/remotectl", "certificate").CombinedOutput()
 	if rErr != nil {
@@ -160,10 +164,10 @@ func main() {
 		registry_override := path.Join(*confDir, "registry-dashboard-override.json")
 		linkFiles(registry_override, "/usr/share/cockpit/kubernetes/override.json")
 		linkFiles("/usr/share/cockpit/kubernetes/registry.html.gz",
-				  "/usr/share/cockpit/kubernetes/index.html.gz")
+			"/usr/share/cockpit/kubernetes/index.html.gz")
 	} else {
 		linkFiles("/usr/share/cockpit/kubernetes/original-index.gz",
-				  "/usr/share/cockpit/kubernetes/index.html.gz")
+			"/usr/share/cockpit/kubernetes/index.html.gz")
 	}
 
 	syscall.Exec(args[0], args, os.Environ())

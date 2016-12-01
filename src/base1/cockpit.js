@@ -3138,6 +3138,21 @@ function factory() {
             self.dispatchEvent("meta", data);
         }
 
+        self.meta = function(data, options) {
+            if (!channel || !channel.valid)
+                return;
+
+            var message = extend({ }, options, {
+                "meta": data
+            });
+
+            var payload = JSON.stringify(message);
+            dbus_debug("dbus:", payload);
+            channel.send(payload);
+
+            meta(data);
+        };
+
         function notify(data) {
             ensure_cache();
             var path, iface, props;

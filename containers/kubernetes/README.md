@@ -55,7 +55,9 @@ Web Certificates
 
 Cockpit looks at ```/etc/cockpit/ws-certs.d/``` to find its SSL certificate. You should create a Kubernetes secret API object to place your PEM encoded certificates and key in a ```.cert``` file in that location.
 
-If there are no certificates present in that location cockpit will generate and use a self-signed certificate. However the CN will be based on the container name so this option should be avoided for most deployments.
+Alternatively if you have a seperate certificate and key file, and you are unable to combine them in advance. You may mount them as ```/var/run/secrets/ws-certs.d/tls.crt``` and ```/var/run/secrets/ws-certs.d/tls.key```. If these are present and valid cockpit will use them.
+
+Otherwise if no certificates could be found cockpit will generate and use a self-signed certificate. However the CN will be based on the container name so this option should be avoided for most deployments.
 
 You can also choose to serve cockpit without SSL by setting the ```COCKPIT_KUBE_INSECURE``` environment variable to ```true```.
 

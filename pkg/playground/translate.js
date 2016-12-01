@@ -38,8 +38,7 @@ $(function () {
     $("#ngettext-context-disks-2").text(text);
 
     var template = $("#mustache-input").text();
-    var output = $.parseHTML(mustache.render(template));
-    cockpit.translate(output);
+    var output = mustache.render(template);
     $("#mustache-output").empty().append(output);
 
     var module = angular.module('playgroundTranslate', [ 'gettext' ]);

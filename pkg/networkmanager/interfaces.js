@@ -708,32 +708,34 @@ function NetworkManagerModel() {
         set("connection", "slave-type", 's', settings.connection.slave_type);
         set("connection", "master", 's', settings.connection.master);
 
-        delete result.ipv4;
         if (settings.ipv4)
             set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', ip4_from_text);
+        else
+            delete result.ipv4;
 
-        delete result.ipv6;
         if (settings.ipv6)
             set_ip("ipv6", 'a(ayuay)', ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', ip6_from_text);
+        else
+            delete result.ipv6;
 
-        delete result.bond;
         if (settings.bond) {
             set("bond", "options", 'a{ss}', settings.bond.options);
             set("bond", "interface-name", 's', settings.bond.interface_name);
-        }
+        } else
+            delete result.bond;
 
-        delete result.team;
         if (settings.team) {
             set("team", "config", 's', JSON.stringify(settings.team.config));
             set("team", "interface-name", 's', settings.team.interface_name);
-        }
+        } else
+            delete result.team;
 
-        delete result["team-port"];
-        if (settings.team_port) {
+        if (settings.team_port)
             set("team-port", "config", 's', JSON.stringify(settings.team_port.config));
-        }
+        else
+            delete result["team-port"];
 
-        delete result.bridge;
+
         if (settings.bridge) {
             set("bridge", "interface-name", 's', settings.bridge.interface_name);
             set("bridge", "stp", 'b', settings.bridge.stp);
@@ -742,23 +744,24 @@ function NetworkManagerModel() {
             set("bridge", "hello-time", 'u', settings.bridge.hello_time);
             set("bridge", "max-age", 'u', settings.bridge.max_age);
             set("bridge", "ageing-time", 'u', settings.bridge.ageing_time);
-        }
+        } else
+            delete result.bridge;
 
-        delete result["bridge-port"];
         if (settings.bridge_port) {
             set("bridge-port", "priority", 'u', settings.bridge_port.priority);
             set("bridge-port", "path-cost", 'u', settings.bridge_port.path_cost);
             set("bridge-port", "hairpin-mode", 'b', settings.bridge_port.hairpin_mode);
-        }
+        } else
+            delete result["bridge-port"];
 
-        delete result.vlan;
         if (settings.vlan) {
             set("vlan", "parent",         's', settings.vlan.parent);
             set("vlan", "id",             'u', settings.vlan.id);
             set("vlan", "interface-name", 's', settings.vlan.interface_name);
             // '1' is the default, but we need to set it explicitly anyway.
             set("vlan", "flags",          'u', 1);
-        }
+        } else
+            delete result.vlan;
 
         if (settings.ethernet) {
             set("802-3-ethernet", "mtu", 'u', settings.ethernet.mtu);

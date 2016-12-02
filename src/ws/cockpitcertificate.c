@@ -585,7 +585,7 @@ tls_certificate_new_from_pem  (const gchar *data,
   if (length == -1)
     length = strlen (data);
 
-  key_pem = parse_private_key (data, length, FALSE, &child_error);
+  key_pem = parse_private_key (data, length, TRUE, &child_error);
   if (child_error != NULL)
     {
       g_propagate_error (error, child_error);

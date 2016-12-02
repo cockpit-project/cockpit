@@ -651,24 +651,29 @@ process_authorize (CockpitWebService *self,
   char *response = NULL;
   const gchar *challenge;
   const gchar *password;
-  gboolean ret = FALSE;
   int rc;
 
   host = session->host;
 
   if (!cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
-      !cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
-      challenge == NULL ||
-      reauthorize_type (challenge, &type) < 0 ||
-      reauthorize_user (challenge, &user) < 0)
+      !cockpit_json_get_string (options, "cookie", NULL, &cookie))
     {
       g_warning ("%s: received invalid authorize command", host);
-      goto out;
+      return FALSE;
     }
 
-  if (!g_str_equal (cockpit_creds_get_user (session->creds), user))
+  if (!challenge || !cookie)
     {
-      g_warning ("%s: received authorize command for wrong user: %s", host, user);
+      g_message ("%s: unsupported or unknown authorize command", host);
+    }
+  else if (reauthorize_type (challenge, &type) < 0 ||
+           reauthorize_user (challenge, &user) < 0)
+    {
+      g_message ("%s: received invalid authorize challenge command", host);
+    }
+  else if (!g_str_equal (cockpit_creds_get_user (session->creds), user))
+    {
+      g_message ("%s: received authorize command for wrong user: %s", host, user);
     }
   else if (g_str_equal (type, "crypt1"))
     {
@@ -681,7 +686,7 @@ process_authorize (CockpitWebService *self,
         {
           rc = reauthorize_crypt1 (challenge, password, &response);
           if (rc < 0)
-            g_warning ("%s: failed to reauthorize crypt1 challenge", host);
+            g_message ("%s: failed to reauthorize crypt1 challenge", host);
         }
     }
 
@@ -702,13 +707,11 @@ process_authorize (CockpitWebService *self,
       cockpit_transport_send (session->transport, NULL, payload);
       g_bytes_unref (payload);
     }
-  ret = TRUE;
 
-out:
   free (user);
   free (type);
   free (response);
-  return ret;
+  return TRUE;
 }
 
 static const gchar *

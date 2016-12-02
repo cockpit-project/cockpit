@@ -519,6 +519,44 @@ NM_CONTROLLED=no
         b.wait_present("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_in_text("#networking-interfaces tr[data-interface='%s']" % iface, m.address)
 
+    @skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-8", "debian-unstable", "fedora-24", "fedora-atomic", "rhel-7", "rhel-atomic", "ubuntu-1604")
+    @skipImage("Main interface can't be managed", "debian-8", "debian-unstable", "ubuntu-1604")
+    def testBondingMainSlowly(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.get_iface(m, m.macaddr)
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+
+        # Slow down DHCP enough that it would trigger a rollback.
+
+        dhcp_delay = 15
+
+        m.needs_writable_usr()
+        m.execute("mv /usr/sbin/dhclient /usr/sbin/dhclient.real")
+        m.write("/usr/sbin/dhclient", "#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real" % dhcp_delay)
+        m.execute("chmod a+x /usr/sbin/dhclient")
+
+        # Put the main interface into a bond.  Everything should keep
+        # working since checkpoints are not used and thus no rollback
+        # is actually triggered.
+
+        b.click("button:contains('Add Bond')")
+        b.wait_popup("network-bond-settings-dialog")
+        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_checked("input[data-iface='%s']" % iface, True)
+        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
+
+        # Check that it has the main connection enslaved and the right IP address
+        b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+        b.wait_in_text("#network-interface .panel:contains('tbond')", m.address)
+
     def testNoConnectionSettings(self):
         b = self.browser
         m = self.machine

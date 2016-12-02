@@ -1202,6 +1202,7 @@ function NetworkManagerModel() {
         ],
 
         props: {
+            Version:  { },
             Devices: {
                 conv: conv_Array(conv_Object(type_Device)),
                 def: []
@@ -1295,6 +1296,29 @@ function NetworkManagerModel() {
     self.get_settings = function () {
         return get_object("/org/freedesktop/NetworkManager/Settings",
                           type_Settings);
+    };
+
+    function compare_versions(a, b) {
+        function to_ints(str) {
+            return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0; });
+        }
+
+        var a_ints = to_ints(a);
+        var b_ints = to_ints(b);
+        var len = Math.min(a_ints.length, b_ints.length);
+        var i;
+
+        for (i = 0; i < len; i++) {
+            if (a_ints[i] == b_ints[i])
+                continue;
+            return a_ints[i] - b_ints[i];
+        }
+
+        return a_ints.length - b_ints.length;
+    }
+
+    self.at_least_version = function at_least_version (version) {
+        return compare_versions (self.get_manager().Version, version) >= 0;
     };
 
     /* Initialization.
@@ -1982,7 +2006,7 @@ var curtain_time  =  0.5;
 var settle_time   =  0.3;
 var rollback_time = 15.0;
 
-function with_checkpoint(model, modify, fail_text, anyway_text) {
+function with_checkpoint(model, modify, fail_text, anyway_text, hack_does_add_or_remove) {
     var manager = model.get_manager();
     var curtain = $('#testing-connection-curtain');
     var curtain_testing = $('#testing-connection-curtain-testing');
@@ -2015,6 +2039,19 @@ function with_checkpoint(model, modify, fail_text, anyway_text) {
             window.clearTimeout(curtain_title_timeout);
         curtain.hide();
         cockpit.hint("ignore_transport_health_check", { data: false });
+    }
+
+    // HACK - Let's not use checkpoints for changes that involve
+    // adding or removing connections.
+    //
+    // https://bugzilla.redhat.com/show_bug.cgi?id=1378393
+    // https://bugzilla.redhat.com/show_bug.cgi?id=1398316
+    //
+    // These bugs are expected to be fixed in NM 1.6
+
+    if (hack_does_add_or_remove && !model.at_least_version("1.6")) {
+        modify();
+        return;
     }
 
     manager.checkpoint_create(rollback_time).
@@ -2222,7 +2259,8 @@ PageNetworkInterface.prototype = {
                 modify,
                 cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                self.dev_name),
-                cockpit.format(_("Delete $0"), self.dev_name));
+                cockpit.format(_("Delete $0"), self.dev_name),
+                true);
         }
     },
 
@@ -2818,7 +2856,8 @@ PageNetworkInterface.prototype = {
                                                    },
                                                    cockpit.format(_("Removing <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                                                   iface.Name),
-                                                   cockpit.format(_("Remove $0"), iface.Name));
+                                                   cockpit.format(_("Remove $0"), iface.Name),
+                                                   true);
                                                return false;
                                            }))).
                         click(function (event) {
@@ -2862,7 +2901,8 @@ PageNetworkInterface.prototype = {
                                                     },
                                                     cockpit.format(_("Adding <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
                                                                    iface.Name),
-                                                    cockpit.format(_("Add $0"), iface.Name));
+                                                    cockpit.format(_("Add $0"), iface.Name),
+                                                    true);
                                             }));
                                 }
                                 return null;
@@ -2892,12 +2932,13 @@ function switchbox(val, callback) {
     return onoff;
 }
 
-function with_settings_checkpoint(model, modify) {
+function with_settings_checkpoint(model, modify, hack_does_add_or_remove) {
     with_checkpoint(
         model,
         modify,
         _("Changing the settings will break the connection to the server, and will make the administration UI unavailable."),
-        _("Change the settings"));
+        _("Change the settings"),
+        hack_does_add_or_remove);
 }
 
 PageNetworkIpSettings.prototype = {
@@ -3441,14 +3482,15 @@ PageNetworkBondSettings.prototype = {
         }
 
         if (PageNetworkBondSettings.connection)
-            with_settings_checkpoint(PageNetworkBondSettings.model, modify);
+            with_settings_checkpoint(PageNetworkBondSettings.model, modify, true);
         else
             with_checkpoint(
                 PageNetworkBondSettings.model,
                 modify,
                 _("Creating this bond will break the connection to the server, " +
                   "and will make the administration UI unavailable."),
-                _("Create it"));
+                _("Create it"),
+                true);
     }
 
 };
@@ -3617,14 +3659,15 @@ PageNetworkTeamSettings.prototype = {
         }
 
         if (PageNetworkTeamSettings.connection)
-            with_settings_checkpoint(PageNetworkTeamSettings.model, modify);
+            with_settings_checkpoint(PageNetworkTeamSettings.model, modify, true);
         else
             with_checkpoint(
                 PageNetworkTeamSettings.model,
                 modify,
                 _("Creating this team will break the connection to the server, " +
                   "and will make the administration UI unavailable."),
-                _("Create it"));
+                _("Create it"),
+                true);
     }
 
 };
@@ -3842,13 +3885,14 @@ PageNetworkBridgeSettings.prototype = {
         }
 
         if (PageNetworkBridgeSettings.connection)
-            with_settings_checkpoint(PageNetworkBridgeSettings.model, modify);
+            with_settings_checkpoint(PageNetworkBridgeSettings.model, modify, true);
         else
             with_checkpoint(
                 PageNetworkBridgeSettings.model,
                 modify,
                 _("Creating this bridge will break the connection to the server, and will make the administration UI unavailable."),
-                _("Create it"));
+                _("Create it"),
+                true);
     }
 
 };
@@ -4049,13 +4093,14 @@ PageNetworkVlanSettings.prototype = {
         }
 
         if (PageNetworkVlanSettings.connection)
-            with_settings_checkpoint(model, modify);
+            with_settings_checkpoint(model, modify, true);
         else
             with_checkpoint(
                 PageNetworkVlanSettings.model,
                 modify,
                 _("Creating this VLAN will break the connection to the server, and will make the administration UI unavailable."),
-                _("Create it"));
+                _("Create it"),
+                true);
     }
 
 };

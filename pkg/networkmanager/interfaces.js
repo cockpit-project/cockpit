@@ -1102,6 +1102,7 @@ function NetworkManagerModel() {
             function (obj) {
                 obj.Device = null;
                 obj.Connections = [ ];
+                obj.MainConnection = null;
             },
 
             null,
@@ -1110,19 +1111,29 @@ function NetworkManagerModel() {
             //        type_Interface.Connections
             //
             // Sets:  type_Connection.Interfaces
-            //
+            //        type_Interface.MainConnection
+
             function (obj) {
                 if (!obj.Device && obj.Connections.length === 0) {
                     drop_object(priv(obj).path);
                     return;
                 }
 
+                function consider_as_main(con) {
+                    if (!obj.MainConnection ||
+                        connection_settings(obj.MainConnection).timestamp < connection_settings(con).timestamp) {
+                        obj.MainConnection = con;
+                    }
+                }
+
                 if (obj.Device) {
                     obj.Device.AvailableConnections.forEach(function (con) {
+                        consider_as_main(con);
                         con.Interfaces.push(obj);
                     });
                 } else {
                     obj.Connections.forEach(function (con) {
+                        consider_as_main(con);
                         con.Interfaces.push(obj);
                     });
                 }
@@ -2748,26 +2759,14 @@ PageNetworkInterface.prototype = {
         self.main_connection = null;
         self.connection_settings = null;
 
-        function find_main_connection(cons) {
-            cons.forEach(function(c) {
-                if (!self.main_connection ||
-                    connection_settings(self.main_connection).timestamp < connection_settings(c).timestamp) {
-                    self.main_connection = c;
-                }
-            });
+        if (iface) {
+            self.main_connection = iface.MainConnection;
             if (self.main_connection) {
                 self.connection_settings = self.main_connection.Settings;
             } else {
                 self.ghost_settings = create_ghost_connection_settings();
                 self.connection_settings = self.ghost_settings;
             }
-        }
-
-        if (iface) {
-            if (iface.Device)
-                find_main_connection(iface.Device.AvailableConnections);
-            else
-                find_main_connection(iface.Connections);
         }
 
         $('#network-interface-settings').
@@ -3260,19 +3259,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
     if (!iface)
         return false;
 
-    function find_main_connection(cons) {
-        cons.forEach(function(c) {
-            if (!main_connection ||
-                connection_settings(main_connection).timestamp < connection_settings(c).timestamp) {
-                main_connection = c;
-            }
-        });
-    }
-
-    if (iface.Device)
-        find_main_connection(iface.Device.AvailableConnections);
-    else
-        find_main_connection(iface.Connections);
+    main_connection = iface.MainConnection;
 
     var cs = connection_settings(main_connection);
     if (val) {

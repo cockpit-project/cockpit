@@ -1119,7 +1119,7 @@ function NetworkManagerModel() {
                     return;
                 }
 
-                function consider_as_main(con) {
+                function consider_for_main(con) {
                     if (!obj.MainConnection ||
                         connection_settings(obj.MainConnection).timestamp < connection_settings(con).timestamp) {
                         obj.MainConnection = con;
@@ -1128,12 +1128,12 @@ function NetworkManagerModel() {
 
                 if (obj.Device) {
                     obj.Device.AvailableConnections.forEach(function (con) {
-                        consider_as_main(con);
+                        consider_for_main(con);
                         con.Interfaces.push(obj);
                     });
                 } else {
                     obj.Connections.forEach(function (con) {
-                        consider_as_main(con);
+                        consider_for_main(con);
                         con.Interfaces.push(obj);
                     });
                 }
@@ -3307,6 +3307,8 @@ function set_slave(model, master_connection, master_settings, slave_type,
 
 function apply_master_slave(choices, model, apply_master, master_connection, master_settings, slave_type) {
     var settings_manager = model.get_settings();
+    var active_settings = [ ];
+    var iface;
 
     function set_all_slaves() {
         var deferreds = choices.find('input[data-iface]').map(function (i, elt) {
@@ -3314,6 +3316,31 @@ function apply_master_slave(choices, model, apply_master, master_connection, mas
                              $(elt).attr("data-iface"), $(elt).prop('checked'));
         });
         return cockpit.all(deferreds.get());
+    }
+
+    if (!master_connection) {
+        if (master_settings.bond &&
+            master_settings.bond.options &&
+            master_settings.bond.options.primary) {
+            iface = model.find_interface(master_settings.bond.options.primary);
+            if (iface && iface.MainConnection)
+                active_settings.push(iface.MainConnection.Settings);
+        } else {
+            choices.find('input[data-iface]').map(function (i, elt) {
+                var iface;
+                if ($(elt).prop('checked')) {
+                    iface = model.find_interface($(elt).attr("data-iface"));
+                    if (iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Connection) {
+                        active_settings.push(iface.Device.ActiveConnection.Connection.Settings);
+                    }
+                }
+            });
+        }
+
+        if (active_settings.length == 1) {
+            master_settings.ipv4 = $.extend(true, { }, active_settings[0].ipv4);
+            master_settings.ipv6 = $.extend(true, { }, active_settings[0].ipv6);
+        }
     }
 
     return apply_master(master_settings).then(set_all_slaves);

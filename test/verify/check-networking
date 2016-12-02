@@ -677,5 +677,42 @@ NM_CONTROLLED=no
         self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.dhcp-hostname con show TEST").strip(),
                          "foo")
 
+    def testNonDefaultBondSettings(self):
+        b = self.browser
+        m = self.machine
+
+        iface1 = self.add_iface()
+        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface1))
+
+        iface2 = self.add_iface()
+        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface2))
+
+        m.execute("nmcli con add type ethernet ifname %s con-name TEST1" % iface1)
+        m.execute("nmcli con add type ethernet ifname %s con-name TEST2" % iface2)
+        m.execute("nmcli con mod TEST1 ipv4.method shared")
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+        m.execute("nmcli con up TEST1")
+        m.execute("nmcli dev dis %s" % iface2)
+
+        b.wait_in_text("tr[data-interface='%s'] td:nth-child(2)" % iface1, "10.42.")
+        b.wait_text("tr[data-interface='%s'] td:nth-child(3)" % iface2, "Inactive")
+
+        b.click("button:contains('Add Bond')")
+        b.wait_popup("network-bond-settings-dialog")
+        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_checked("input[data-iface='%s']" % iface1, True)
+        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
+
+        b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.wait_in_text("tr:contains('IPv4')", "Shared")
+
 if __name__ == '__main__':
     test_main()

@@ -638,10 +638,61 @@ process_kill (CockpitWebService *self,
   return TRUE;
 }
 
+static void
+send_socket_hints (CockpitWebService *self,
+                   const gchar *name,
+                   const gchar *value)
+{
+  CockpitSocket *socket;
+  GHashTableIter iter;
+  GBytes *payload;
+
+  payload = cockpit_transport_build_control ("command", "hint", name, value, NULL);
+  g_hash_table_iter_init (&iter, self->sockets.by_connection);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&socket))
+    {
+      if (web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
+        {
+              web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT,
+                                          self->control_prefix, payload);
+        }
+    }
+  g_bytes_unref (payload);
+}
+
 static gboolean
-process_authorize (CockpitWebService *self,
-                   CockpitSession *session,
-                   JsonObject *options)
+process_socket_authorize (CockpitWebService *self,
+                          CockpitSocket *socket,
+                          JsonObject *options)
+{
+  const gchar *credential = NULL;
+
+  if (!cockpit_json_get_string (options, "credential", NULL, &credential))
+    {
+      g_warning ("%s: received invalid authorize command", socket->id);
+      return FALSE;
+    }
+  else if (!credential)
+    {
+      g_warning ("%s: unknown or unsupported authorize command", socket->id);
+    }
+  else if (g_str_equal (credential, "clear"))
+    {
+      cockpit_creds_poison (self->creds);
+      send_socket_hints (self, "credential", credential);
+    }
+  else
+    {
+      g_warning ("%s: unsupported authorize command credential: %s", socket->id, credential);
+    }
+
+  return TRUE;
+}
+
+static gboolean
+process_session_authorize (CockpitWebService *self,
+                           CockpitSession *session,
+                           JsonObject *options)
 {
   const gchar *cookie = NULL;
   GBytes *payload;
@@ -788,7 +839,7 @@ on_session_control (CockpitTransport *transport,
         }
       else if (g_strcmp0 (command, "authorize") == 0)
         {
-          valid = process_authorize (self, session, options);
+          valid = process_session_authorize (self, session, options);
         }
       else if (g_strcmp0 (command, "ping") == 0)
         {
@@ -1357,6 +1408,7 @@ process_logout (CockpitWebService *self,
     {
       g_info ("Deauthorizing user %s",
               cockpit_creds_get_rhost (self->creds));
+      send_socket_hints (self, "credential", "clear");
     }
 
   return TRUE;
@@ -1444,6 +1496,10 @@ dispatch_inbound_command (CockpitWebService *self,
   if (g_strcmp0 (command, "open") == 0)
     {
       valid = process_and_relay_open (self, socket, channel, options);
+    }
+  else if (g_strcmp0 (command, "authorize") == 0)
+    {
+      valid = process_socket_authorize (self, socket, options);
     }
   else if (g_strcmp0 (command, "logout") == 0)
     {
@@ -1585,6 +1641,10 @@ on_web_socket_open (WebSocketConnection *connection,
 
   web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, command);
   g_bytes_unref (command);
+
+  /* Do we have an authorize password? if so tell the frontend */
+  if (cockpit_creds_get_password (self->creds))
+    send_socket_hints (self, "credential", "password");
 
   g_signal_connect (connection, "message",
                     G_CALLBACK (on_web_socket_message), self);

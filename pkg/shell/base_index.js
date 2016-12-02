@@ -201,6 +201,9 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 if (control.channel !== undefined) {
                     for (seed in source_by_seed)
                         source_by_seed[seed].window.postMessage(message, origin);
+                } else if (control.command == "hint") {
+                    if (control.credential)
+                        index.authorize_changed(control.credential);
                 }
                 return true; /* still deliver locally */
 
@@ -662,6 +665,10 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         self.expect_restart = function (host) {
             $(self).triggerHandler("expect_restart", host);
+        };
+
+        self.authorize_changed = function(value) {
+            $(self.credential_sel).toggle(value != "clear");
         };
 
         /* Menu items */

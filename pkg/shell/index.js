@@ -42,6 +42,7 @@
         about_sel: "#about-version",
         account_sel: "#go-account",
         user_sel: "#content-user-name",
+        credential_sel: "#credential-authorize",
         default_title: "Cockpit"
     };
 

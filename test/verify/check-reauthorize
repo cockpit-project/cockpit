@@ -40,8 +40,9 @@ class TestReauthorize(MachineCase):
         b.leave_page()
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
+        b.wait_visible("#credential-authorize button")
         b.click("#credential-authorize button")
-        b.wait_not_present("#credential-authorize button")
+        b.wait_not_visible("#credential-authorize button")
         b.click("#credentials-dialog [data-dismiss]")
 
         b.enter_page("/playground/test")

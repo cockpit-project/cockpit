@@ -307,7 +307,6 @@
 
         /* The button to deauthorize cockpit */
         $("#credential-authorize button").on("click", function(ev) {
-            $("#credential-authorize").remove();
             cockpit.drop_privileges(false);
             ev.preventDefault();
         });

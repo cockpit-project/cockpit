@@ -252,7 +252,7 @@ Command: authorize
 The "authorize" command is for communication of reauthorization challenges
 and responses between cockpit-bridge and cockpit-ws.
 
-The following fields are defined:
+For challenge/response authorization, the following fields are defined:
 
  * "cookie": an string sent with a challenge, that must be present in
    the corresponding response.
@@ -277,6 +277,14 @@ Example authorize challenge and response messages:
         "cookie": "555",
         "response": "crypt1:$6$r0oetn2039ntoen..."
     }
+
+For credential cache authorization, the following fields are defined:
+
+ * "credential": The word "clear"
+
+When the "credential" is set to "clear", all cached credentials will be
+cleared.
+
 
 Command: kill
 -------------
@@ -311,6 +319,13 @@ Example logout message:
     }
 
 The "logout" command is broadcast to all bridge instances.
+
+
+Command: hint
+-------------
+
+The "hint" command provides hints to other components about the state of things
+or what's going to happen next. The remainder of the fields are extensible.
 
 
 Payload: null

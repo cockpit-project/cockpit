@@ -1,0 +1,22 @@
+FROM registry.centos.org/centos/centos
+MAINTAINER "Stef Walter" <stefw@redhat.com>
+
+ARG RELEASE
+ARG VERSION
+ARG USE_REPO=1
+ARG INSTALLER="yum"
+
+ADD . /container
+
+RUN echo -e "[cockpit_test]\nname=Cockpit Test\nbaseurl=http://cbs.centos.org/repos/atomic7-cockpit-preview-testing/x86_64/os/\ngpgcheck=0\nenabled=1" > /etc/yum.repos.d/cockpit.repo
+
+# Again see above ... we do our branching in shell script
+RUN /container/install-package.sh && /container/prep-container.sh
+
+LABEL INSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /container/atomic-install
+LABEL UNINSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /container/atomic-uninstall
+LABEL RUN /usr/bin/docker run -d --privileged --pid=host -v /:/host IMAGE /container/atomic-run --local-ssh
+
+# Look ma, no EXPOSE
+
+CMD ["/container/atomic-run"]

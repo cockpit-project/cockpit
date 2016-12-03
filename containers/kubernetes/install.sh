@@ -42,6 +42,6 @@ chmod 775 /usr/share/cockpit/kubernetes
 
 # Move kubernetes index file away so we only link it when we want it
 mv /usr/share/cockpit/kubernetes/index.html.gz /usr/share/cockpit/kubernetes/original-index.gz || true
-mv /usr/share/cockpit/kubernetes/index.html /usr/share/cockpit/kubernetes/original-index.html || true
+mv /usr/share/cockpit/kubernetes/index.min.html.gz /usr/share/cockpit/kubernetes/original-index.gz || true
 
 "$INSTALLER" clean all

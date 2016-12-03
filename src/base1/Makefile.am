@@ -232,3 +232,42 @@ EXTRA_DIST += \
 	$(base_TESTS_SOURCE) \
 	$(base_TESTS_JAVASCRIPT) \
 	$(NULL)
+
+CLEANFILES += \
+	dist/base1/cockpit.js \
+	dist/base1/cockpit.min.css \
+	dist/base1/cockpit.min.css.gz \
+	dist/base1/cockpit.min.css.map \
+	dist/base1/cockpit.min.js \
+	dist/base1/cockpit.min.js.gz \
+	dist/base1/cockpit.min.js.map \
+	dist/base1/fonts/fontawesome.woff \
+	dist/base1/fonts/glyphicons.woff \
+	dist/base1/fonts/patternfly.woff \
+	dist/base1/jquery.js \
+	dist/base1/jquery.min.js \
+	dist/base1/jquery.min.js.gz \
+	dist/base1/jquery.min.js.map \
+	dist/base1/manifest.json \
+	dist/base1/mustache.js \
+	dist/base1/mustache.min.js \
+	dist/base1/mustache.min.js.gz \
+	dist/base1/mustache.min.js.map \
+	dist/base1/patternfly-base.css \
+	dist/base1/patternfly.min.css \
+	dist/base1/patternfly.min.css.gz \
+	dist/base1/patternfly.min.css.map \
+	dist/base1/patternfly.css.map \
+	dist/base1/patternfly-additions.css \
+	dist/base1/patternfly-additions.css.map \
+	dist/base1/qunit.css \
+	dist/base1/qunit.js \
+	dist/base1/require.js \
+	dist/base1/require.min.js \
+	dist/base1/require.min.js.gz \
+	dist/base1/require.min.js.map \
+	dist/base1/simple-tap.js \
+	dist/base1/test-dbus-common.js \
+	$(base_TESTS) \
+	$(base_TESTS_JAVASCRIPT) \
+	$(NULL)

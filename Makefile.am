@@ -42,7 +42,6 @@ EXTRA_DIST = \
 clean-local::
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
-	find $(builddir)/dist -mindepth 1 -name README.md -prune -o -print | xargs rm -rf
 
 SUFFIXES = .css .css.gz .html .html.gz .js .js.gz .jsx .map .map.gz .mo .po .svg .svg.gz .woff .woff.gz .1 .8 .5
 
@@ -301,6 +300,8 @@ dist/fonts/%.woff:
 	cp -L $(subst dist/fonts,$(BOWER)/patternfly/dist/fonts,$@) $@.tmp && $(MV) $@.tmp $@
 
 EXTRA_DIST += $(OPENSANS_FONTS)
+
+CLEANFILES += $(OPENSANS_FONTS)
 
 if ENABLE_DOC
 

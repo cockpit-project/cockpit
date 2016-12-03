@@ -24,12 +24,12 @@ CLEANFILES += $(COCKPIT_ASSETS)
 
 EXTRA_DIST += \
 	src/common/mock-content \
-	src/common/mock-locale \
 	src/common/mock_known_hosts \
 	src/common/mock-stderr \
 	src/common/com.redhat.Cockpit.DBusTests.xml \
 	src/common/cockpitassets.gresource.xml \
 	src/common/fail.html \
+	$(test_locale_PO) \
 	$(NULL)
 
 noinst_LIBRARIES += libcockpit-common.a
@@ -199,7 +199,7 @@ noinst_PROGRAMS += $(COCKPIT_CHECKS)
 TESTS += $(COCKPIT_CHECKS)
 
 # For the test-locale test
-noinst_SCRIPTS += \
+nodist_noinst_SCRIPTS += \
 	src/common/mock-locale/de_DE/LC_MESSAGES/test.mo \
 	src/common/mock-locale/zh_CN/LC_MESSAGES/test.mo \
 	$(NULL)

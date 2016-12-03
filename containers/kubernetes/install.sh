@@ -2,15 +2,21 @@
 
 set -ex
 
-# Install packages without dependencies
-if [ -z "$VERSION" ] && [ -z "$OFFLINE" ]; then
+if [ -z "$INSTALLER" ]; then
+    INSTALLER="dnf"
+fi
+
+if [ -n "$USE_REPO" ]; then
+    "$INSTALLER" -y update
+elif [ -z "$VERSION" ] && [ -z "$OFFLINE" ]; then
     eval $(/container/scripts/get-version-env.sh)
 fi
 
-/container/scripts/install-rpms.sh --nodeps cockpit-bridge-
-/container/scripts/install-rpms.sh -a noarch --nodeps cockpit-shell-
-/container/scripts/install-rpms.sh cockpit-ws-
-/container/scripts/install-rpms.sh --nodeps cockpit-kubernetes-
+# Install packages without dependencies
+/container/scripts/install-rpms.sh cockpit-ws
+/container/scripts/install-rpms.sh --nodeps cockpit-bridge
+/container/scripts/install-rpms.sh -a noarch --nodeps cockpit-shell
+/container/scripts/install-rpms.sh --nodeps cockpit-kubernetes
 
 # Remove unwanted packages
 rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/systemd/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
@@ -35,4 +41,7 @@ chmod 775 /usr/share/cockpit/shell
 chmod 775 /usr/share/cockpit/kubernetes
 
 # Move kubernetes index file away so we only link it when we want it
-mv /usr/share/cockpit/kubernetes/index.html.gz /usr/share/cockpit/kubernetes/original-index.gz
+mv /usr/share/cockpit/kubernetes/index.html.gz /usr/share/cockpit/kubernetes/original-index.gz || true
+mv /usr/share/cockpit/kubernetes/index.html /usr/share/cockpit/kubernetes/original-index.html || true
+
+"$INSTALLER" clean all

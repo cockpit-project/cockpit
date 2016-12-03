@@ -43,9 +43,22 @@ fi
 
 for package in $@
 do
-    rpm=$(ls /container/rpms/$package*.rpm || true)
-    if [ -z "$rpm" ] && [ -z "$OFFLINE" ]; then
-        rpm="$COCKPIT_RPM_URL/$VERSION/$RELEASE.$OS/$arch/$package$VERSION-$RELEASE.$OS.$arch.rpm"
+    rpm=$(ls /container/rpms/$package-*.$arch.rpm || true)
+    if [ -z "$rpm" ] && [ -n "$USE_REPO" ]; then
+        if [ -z "$nodeps" ]; then
+            rpm="$package"
+        else
+            if [ "$INSTALLER" = "yum" ]; then
+                yum install yum-utils
+                yumdownloader --destdir=/container/rpms "$package"
+            else
+                dnf install -y 'dnf-command(download)'
+                dnf download --destdir=/container/rpms "$package-"
+            fi
+            rpm=$(ls /container/rpms/$package-*.$arch.rpm || true)
+        fi
+    elif [ -z "$rpm" ] && [ -z "$OFFLINE" ]; then
+        rpm="$COCKPIT_RPM_URL/$VERSION/$RELEASE.$OS/$arch/$package-$VERSION-$RELEASE.$OS.$arch.rpm"
     fi
 
     echo "$rpm"
@@ -61,5 +74,3 @@ do
         rpm --nodeps -i "$rpm"
     fi
 done
-
-$INSTALLER clean all

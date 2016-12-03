@@ -13,6 +13,7 @@ sbin_PROGRAMS =
 noinst_LIBRARIES =
 noinst_DATA =
 nodist_noinst_DATA =
+nodist_noinst_SCRIPTS =
 
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =

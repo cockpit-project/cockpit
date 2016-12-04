@@ -229,6 +229,7 @@ var html = require('html-webpack-plugin');
 var extract = require("extract-text-webpack-plugin");
 var extend = require("extend");
 var path = require("path");
+var fs = require("fs");
 
 /* For node 0.10.x we need this defined */
 if (typeof(global.Promise) == "undefined")
@@ -237,7 +238,8 @@ if (typeof(global.Promise) == "undefined")
 /* These can be overridden, typically from the Makefile.am */
 var srcdir = process.env.SRCDIR || __dirname;
 var pkgdir = srcdir + path.sep + "pkg";
-var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
+var builddir = process.env.BUILDDIR || __dirname;
+var distdir = builddir + path.sep + "dist";
 var libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
 var bowerdir = path.resolve(srcdir, "bower_components");
 var section = process.env.ONLYDIR || null;
@@ -330,16 +332,26 @@ if (!section || section.indexOf("base1") === 0) {
     });
 }
 
+/* Short hand names for various components */
+var aliases =  {
+    "angular": "angular/angular.js",
+    "angular-route": "angular-route/angular-route.js",
+    "d3": "d3/d3.js",
+    "moment": "momentjs/moment.js",
+    "react": "react-lite-cockpit/dist/react-lite.js",
+    "term": "term.js-cockpit/src/term.js",
+};
+
+/* Mark our generated config.json as in use */
+var config_json = path.resolve(builddir, "config.json");
+if (fs.existsSync(config_json))
+    aliases["config.json"] = config_json;
+else
+    externals["config.json"] = "{ }";
+
 module.exports = {
     resolve: {
-        alias: {
-            "angular": "angular/angular.js",
-            "angular-route": "angular-route/angular-route.js",
-            "d3": "d3/d3.js",
-            "moment": "momentjs/moment.js",
-            "react": "react-lite-cockpit/dist/react-lite.js",
-            "term": "term.js-cockpit/src/term.js",
-        },
+        alias: aliases,
         modulesDirectories: [ libdir, bowerdir ]
     },
     resolveLoader: {
@@ -369,6 +381,10 @@ module.exports = {
                 test: /\.js$/,
                 exclude: /bower_components\/.*\//,
                 loader: 'strict' // Adds "use strict"
+            },
+            {
+                test: /\.json$/,
+                loader: "json-loader"
             },
             {
                 test: /\.css$/,

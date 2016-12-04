@@ -11,7 +11,7 @@ MO_FILES = $(addprefix src/ws/,$(addsuffix .mo,$(LINGUAS)))
 PO_JAVASCRIPT = $(addprefix dist/shell/po.,$(addsuffix .js,$(LINGUAS)))
 
 podir = $(pkgdatadir)/shell
-nodist_po_DATA = po/po.js.gz $(addsuffix .gz,$(PO_JAVASCRIPT))
+nodist_po_DATA = dist/shell/po.js.gz $(addsuffix .gz,$(PO_JAVASCRIPT))
 
 # Used to list files in src/ws in the po file
 FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\./\)\?src/ws/[^:]\+\).*|-N \1|p' $<
@@ -20,6 +20,9 @@ FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\./\)\?src/ws/[^:]\+\).*|-N \1|p' $<
 src/ws/%.po: po/%.po
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(MSGGREP) `$(FILTER_PO_SRC_WS)` $< > $@.tmp && mv $@.tmp $@
+
+dist/shell/po.js: po/po.js
+	$(COPY_RULE)
 
 # A filtered po file without src/ws
 dist/shell/%.po: po/%.po

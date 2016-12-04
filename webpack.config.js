@@ -324,6 +324,9 @@ if (!section || section.indexOf("base1") === 0) {
     }, {
         from: bowerdir + path.sep + "jquery/dist/jquery.js",
         to: "base1/jquery.js"
+    }, {
+        from: srcdir + path.sep + "po/po.js",
+        to: "shell/po.js"
     });
 }
 

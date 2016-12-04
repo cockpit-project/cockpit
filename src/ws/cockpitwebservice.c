@@ -30,6 +30,7 @@
 #include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
+#include "common/cockpitmemory.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpitwebinject.h"
@@ -663,9 +664,16 @@ send_socket_hints (CockpitWebService *self,
 static gboolean
 process_socket_authorize (CockpitWebService *self,
                           CockpitSocket *socket,
-                          JsonObject *options)
+                          const gchar *channel,
+                          JsonObject *options,
+                          GBytes *payload)
 {
   const gchar *credential = NULL;
+  CockpitSession *session = NULL;
+  const gchar *string = NULL;
+  GBytes *password;
+  gpointer data;
+  gsize length;
 
   if (!cockpit_json_get_string (options, "credential", NULL, &credential))
     {
@@ -678,8 +686,54 @@ process_socket_authorize (CockpitWebService *self,
     }
   else if (g_str_equal (credential, "password"))
     {
-      cockpit_creds_poison (self->creds);
-      send_socket_hints (self, "credential", credential);
+      if (!cockpit_json_get_string (options, "password", NULL, &string))
+        {
+          g_warning ("%s: received invalid \"password\" field in \"authorize\" command", socket->id);
+          return FALSE;
+        }
+
+      if (string == NULL)
+        {
+          send_socket_hints (self, "credential", "clear");
+          password = NULL;
+        }
+      else
+        {
+          send_socket_hints (self, "credential", "password");
+          password = g_bytes_new_with_free_func (string, strlen (string),
+                                                 (GDestroyNotify)json_object_unref,
+                                                 json_object_ref (options));
+        }
+
+      cockpit_creds_set_password (self->creds, password);
+
+      /* Clear out the payload memory */
+      if (password)
+        {
+          data = (gpointer)g_bytes_get_data (payload, &length);
+          cockpit_secclear (data, length);
+          g_bytes_unref (password);
+        }
+    }
+  else if (g_str_equal (credential, "inject"))
+    {
+      if (channel)
+        session = cockpit_session_by_channel (&self->sessions, channel);
+      if (!session)
+        {
+          g_message ("%s: channel to inject password credentials does not exist: %s",
+                     socket->id, channel ? channel : "");
+        }
+      else if (!session->sent_done)
+        {
+          password = cockpit_creds_get_password (self->creds);
+          if (password)
+            g_bytes_ref (password);
+          else
+            password = g_bytes_new_static ("", 0);
+          cockpit_transport_send (session->transport, channel, password);
+          g_bytes_unref (password);
+        }
     }
   else
     {
@@ -1506,7 +1560,7 @@ dispatch_inbound_command (CockpitWebService *self,
     }
   else if (g_strcmp0 (command, "authorize") == 0)
     {
-      valid = process_socket_authorize (self, socket, options);
+      valid = process_socket_authorize (self, socket, channel, options, payload);
     }
   else if (g_strcmp0 (command, "logout") == 0)
     {
@@ -1631,6 +1685,7 @@ on_web_socket_open (WebSocketConnection *connection,
   json_array_add_string_element (capabilities, "connection-string");
   json_array_add_string_element (capabilities, "auth-method-results");
   json_array_add_string_element (capabilities, "multi");
+  json_array_add_string_element (capabilities, "credentials");
 
   if (web_socket_connection_get_flavor (connection) == WEB_SOCKET_FLAVOR_RFC6455)
     {

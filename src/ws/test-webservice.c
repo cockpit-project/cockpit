@@ -1968,6 +1968,119 @@ test_hint_credential (TestCase *test,
 }
 
 static void
+test_authorize_password (TestCase *test,
+                         gconstpointer data)
+{
+  WebSocketConnection *ws;
+  JsonObject *control = NULL;
+  CockpitWebService *service;
+  GBytes *payload = NULL;
+  gconstpointer content;
+  gchar *password;
+  gsize length;
+  gulong handler1;
+  gulong handler2;
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  /* Send the logout control message */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
+  send_control_message (ws, "open", "444", "payload", "echo", NULL);
+
+  handler1 = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_control), &control);
+  handler2 = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &payload);
+
+  /* First an init message */
+  while (control == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "init");
+  json_object_unref (control);
+  control = NULL;
+
+  /* Then a hint that we have a password */
+  while (control == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"hint\",\"credential\":\"password\"}");
+  json_object_unref (control);
+  control = NULL;
+
+  /* Then a message that echo channel is open */
+  while (control == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"444\",\"payload\":\"echo\"}");
+  json_object_unref (control);
+  control = NULL;
+
+  /* Ask for that password to be injected in a channel */
+  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
+
+  /* We should receive the password on the channel */
+  while (payload == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  content = g_bytes_get_data (payload, &length);
+  password = g_strndup (content, length);
+  g_assert_cmpstr (password, ==, "444\nthis is the password");
+  g_free (password);
+  g_bytes_unref (payload);
+  payload = NULL;
+
+  /* Now set a new password and then ask for that to be injected */
+  send_control_message (ws, "authorize", NULL, "credential", "password", "password", "marmalade", NULL);
+  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
+
+  /* We should now get a hint that we have no password */
+  while (control == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"hint\",\"credential\":\"password\"}");
+  json_object_unref (control);
+  control = NULL;
+
+  /* We should now receive the password on the channel */
+  while (payload == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  content = g_bytes_get_data (payload, &length);
+  password = g_strndup (content, length);
+  g_assert_cmpstr (password, ==, "444\nmarmalade");
+  g_free (password);
+  g_bytes_unref (payload);
+  payload = NULL;
+
+  /* Now clear the password */
+  send_control_message (ws, "authorize", NULL, "credential", "password", NULL);
+  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
+
+  /* We should now get a hint that we have no password */
+  while (control == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"hint\",\"credential\":\"clear\"}");
+  json_object_unref (control);
+  control = NULL;
+
+  /* Inject the password on the channel */
+  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
+
+  /* We should get a zero length message */
+  while (payload == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  content = g_bytes_get_data (payload, &length);
+  password = g_strndup (content, length);
+  g_assert_cmpstr (password, ==, "444\n");
+  g_free (password);
+  g_bytes_unref (payload);
+  payload = NULL;
+
+  g_signal_handler_disconnect (ws, handler1);
+  g_signal_handler_disconnect (ws, handler2);
+
+  if (control != NULL)
+    json_object_unref (control);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
 test_parse_external (void)
 {
   const gchar *content_disposition;
@@ -2209,6 +2322,8 @@ main (int argc,
 
   g_test_add ("/web-service/authorize/hint", TestCase, NULL,
               setup_for_socket, test_hint_credential, teardown_for_socket);
+  g_test_add ("/web-service/authorize/password", TestCase, NULL,
+              setup_for_socket, test_authorize_password, teardown_for_socket);
 
   g_test_add_func ("/web-service/parse-external/success", test_parse_external);
   for (i = 0; i < G_N_ELEMENTS (external_failure_fixtures); i++)

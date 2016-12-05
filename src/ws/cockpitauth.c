@@ -451,7 +451,7 @@ cockpit_auth_steal_authorization (GHashTable *headers,
       if (next)
         *(next++) = '\0';
       else
-        next = next + strlen (conversation);
+        next = conversation + strlen (conversation);
     }
 
   /*

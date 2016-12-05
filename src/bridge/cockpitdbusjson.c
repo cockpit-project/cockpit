@@ -1417,8 +1417,7 @@ handle_dbus_signal_on_interface (CockpitDBusJson *self,
         }
       g_error_free (error);
     }
-  if (parameters)
-    g_variant_unref (parameters);
+
   if (message)
     g_object_unref (message);
 }

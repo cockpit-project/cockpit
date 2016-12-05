@@ -95,6 +95,7 @@ class TestStorage(StorageCase):
             self.dialog_with_retry(trigger = lambda: b.click(edit_button),
                                    expect = { "passphrase": "wrong-passphrase" },
                                    values = { "passphrase": "" })
+            self.wait_in_storaged_configuration("'passphrase-path': <b''>")
 
             # Lock it
             self.content_head_action(1, "Lock")

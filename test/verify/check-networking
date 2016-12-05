@@ -239,7 +239,7 @@ class TestNetworking(MachineCase):
         # Deactivate the bond and make sure it is still there after a
         # reload.
         b.wait_text_not("#network-interface-mac", "")
-        b.wait_not_in_text("tr:contains('Status')", "Inactive")
+        b.wait_present(".panel-heading:contains('tbond') .btn.active:contains('On')")
         b.click(".panel-heading:contains('tbond') .btn:contains('Off')")
         b.wait_in_text("tr:contains('Status')", "Inactive")
         self.assertNotIn("disabled",

@@ -44,6 +44,7 @@ require('./listing.less');
  * listingActions optional: buttons that are presented as actions for the expanded item
  * selectChanged optional: callback will be used when the "selected" state changes
  * selected optional: true if the item is selected, can't be true if row has navigation or expansion
+ * initiallyExpanded optional: the entry will be initially rendered as expanded, but then behaves normally
  */
 var ListingRow = React.createClass({
     propTypes: {
@@ -54,7 +55,8 @@ var ListingRow = React.createClass({
         listingDetail: React.PropTypes.node,
         listingActions: React.PropTypes.arrayOf(React.PropTypes.node),
         selectChanged: React.PropTypes.func,
-        selected: React.PropTypes.bool
+        selected: React.PropTypes.bool,
+        initiallyExpanded: React.PropTypes.bool,
     },
     getDefaultProps: function () {
         return {
@@ -64,7 +66,7 @@ var ListingRow = React.createClass({
     },
     getInitialState: function() {
         return {
-            expanded: false, // show expanded view if true, otherwise one line compact
+            expanded: this.props.initiallyExpanded, // show expanded view if true, otherwise one line compact
             activeTab: 0,    // currently active tab in expanded mode, defaults to first tab
             loadedTabs: {},  // which tabs were already loaded - this is important for 'loadOnDemand' setting
                              // contains tab indices

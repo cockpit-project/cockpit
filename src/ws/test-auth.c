@@ -640,6 +640,11 @@ static const SuccessFixture fixture_ssh_data = {
   .header = "testsshscheme success-with-data"
 };
 
+static const ErrorFixture fixture_bad_conversation = {
+  .header = "X-Conversation conversation-id",
+  .error_message = "Invalid conversation token"
+};
+
 static const ErrorFixture fixture_ssh_basic_failed = {
   .error_message = "Authentication failed",
   .header = "Basic dXNlcjp0aGlzIGlzIHRoZSBwYXNzd29yZA=="
@@ -1197,6 +1202,8 @@ main (int argc,
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);
   g_test_add ("/auth/idle-timeout", Test, NULL, setup, test_idle_timeout, teardown);
   g_test_add ("/auth/process-timeout", Test, NULL, setup, test_process_timeout, teardown);
+  g_test_add ("/auth/bad-coversation", Test, &fixture_bad_conversation,
+              setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-success", Test, &fixture_no_data,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-success-auth-fd", Test, &fixture_auth_fd,

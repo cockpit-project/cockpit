@@ -46,7 +46,6 @@ var CryptoTab = React.createClass({
 
             function commit() {
                 new_config[1]["track-parents"] = { t: 'b', v: true };
-                console.log(old_config, new_config);
                 if (old_config)
                     return block.UpdateConfigurationItem(old_config, new_config, { });
                 else

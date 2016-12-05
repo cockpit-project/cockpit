@@ -2225,6 +2225,7 @@ PageNetworkInterface.prototype = {
         var self = this;
 
         if (!self.dev) {
+            console.log("Trying to switch off without a device?");
             self.update();
             return;
         }

@@ -101,7 +101,7 @@
                     else
                         status = _("This system is using a custom profile");
 
-                    button.text(state == "running"? active : "none");
+                    button.text(state == "running"? active : _("none"));
                     button.prop('disabled', state == "not-installed");
                     button.toggleClass('disabled', state == "not-installed");
                     set_status(status);

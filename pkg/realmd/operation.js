@@ -92,12 +92,12 @@
 
         var title, label;
         if (mode == 'join') {
-            title = _("page-title", "Join a Domain");
+            title = _("page-title", _("Join a Domain"));
             label = _("Join");
             $(".realms-op-join-only-row").show();
             check("");
         } else {
-            title = _("page-title", "Leave Domain");
+            title = _("page-title", _("Leave Domain"));
             label = _("Leave");
             $(".realms-op-join-only-row").hide();
         }
@@ -475,6 +475,7 @@
                 .attr("id", "realms-op")
                 .appendTo("body")
                 .modal('show');
+            cockpit.translate();
         });
 
         element.close = function close() {

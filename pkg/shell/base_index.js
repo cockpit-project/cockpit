@@ -361,9 +361,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     return;
 
                 } else if (control.command === "hint") {
-                    /* watchdog handles current host for now */
-                    if (control.hint == "restart" && control.host != cockpit.transport.host)
-                        index.expect_restart(control.host);
+                    if (control.hint == "restart") {
+                        /* watchdog handles current host for now */
+                        if (control.host != cockpit.transport.host)
+                            index.expect_restart(control.host);
+                    } else
+                        cockpit.hint(control.hint, control);
                     return;
                 } else if (control.command == "oops") {
                     index.show_oops();

@@ -193,7 +193,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         if (application.indexOf("cockpit+=") === 0) {
             id("brand").style.display = "none";
-            id("badge").style.display = "none";
+            id("badge").style.visibility = "hidden";
         } else {
             brand("badge", "");
             brand("brand", "Cockpit");

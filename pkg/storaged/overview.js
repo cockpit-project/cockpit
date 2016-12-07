@@ -239,7 +239,8 @@
                         block.CryptoBackingDevice == "/" &&
                         block.MDRaid == "/" &&
                         (!block_lvm2 || block_lvm2.LogicalVolume == "/") &&
-                        !block.HintIgnore);
+                        !block.HintIgnore &&
+                        block.Size > 0);
             }
 
             function make_other(path) {

@@ -772,19 +772,18 @@ do_key_auth (CockpitSshData *data)
 {
   int rc;
   const gchar *msg;
+  ssh_key key;
 
-  if (data->ssh_options->agent_fd)
+  g_assert (data->initial_auth_data != NULL);
+
+  rc = ssh_pki_import_privkey_base64 (data->initial_auth_data, NULL, NULL, NULL, &key);
+  if (rc != SSH_OK)
     {
-#ifdef HAVE_SSH_SET_AGENT_SOCKET
-      ssh_set_agent_socket (data->session, data->ssh_options->agent_fd);
-#else
-      g_message ("%s: Skipping key auth because it is not supported by this version of libssh",
-                 data->logname);
-      return SSH_AUTH_DENIED;
-#endif
+      g_message ("%s: Got invalid key data, %s", data->logname, data->initial_auth_data);
+      return rc;
     }
 
-  rc = ssh_userauth_agent (data->session, NULL);
+  rc = ssh_userauth_publickey (data->session, NULL, key);
   switch (rc)
     {
     case SSH_AUTH_SUCCESS:
@@ -803,6 +802,49 @@ do_key_auth (CockpitSshData *data)
       break;
     default:
       msg = ssh_get_error (data->session);
+      g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
+    }
+
+  ssh_key_free (key);
+  return rc;
+}
+
+static int
+do_agent_auth (CockpitSshData *data)
+{
+  int rc;
+  const gchar *msg;
+
+  if (data->ssh_options->agent_fd)
+    {
+#ifdef HAVE_SSH_SET_AGENT_SOCKET
+      ssh_set_agent_socket (data->session, data->ssh_options->agent_fd);
+#else
+      g_message ("%s: Skipping key auth because it is not supported by this version of libssh",
+                 data->logname);
+      return SSH_AUTH_DENIED;
+#endif
+    }
+
+  rc = ssh_userauth_agent (data->session, NULL);
+  switch (rc)
+    {
+    case SSH_AUTH_SUCCESS:
+      g_debug ("%s: agent auth succeeded", data->logname);
+      break;
+    case SSH_AUTH_DENIED:
+      g_debug ("%s: agent auth failed", data->logname);
+      break;
+    case SSH_AUTH_PARTIAL:
+      g_message ("%s: agent auth worked, but server wants more authentication",
+                 data->logname);
+      break;
+    case SSH_AUTH_AGAIN:
+      g_message ("%s: agent auth failed: server asked for retry",
+                 data->logname);
+      break;
+    default:
+      msg = ssh_get_error (data->session);
       /*
         HACK: https://red.libssh.org/issues/201
         libssh returns error instead of denied
@@ -812,7 +854,7 @@ do_key_auth (CockpitSshData *data)
       if (strstr (msg, "Access denied"))
         rc = SSH_AUTH_DENIED;
       else
-        g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
+        g_message ("%s: couldn't agent authenticate: %s", data->logname, msg);
     }
 
   return rc;
@@ -882,6 +924,9 @@ cockpit_ssh_authenticate (CockpitSshData *data)
 
 #ifdef HAVE_SSH_SET_AGENT_SOCKET
   methods_to_try = methods_to_try | SSH_AUTH_METHOD_PUBLICKEY;
+#else
+  if (g_strcmp0 (data->auth_options->auth_type, "private-key") == 0)
+    methods_to_try = methods_to_try | SSH_AUTH_METHOD_PUBLICKEY;
 #endif
 
   problem = "authentication-failed";
@@ -920,8 +965,16 @@ cockpit_ssh_authenticate (CockpitSshData *data)
       if (methods_to_try & SSH_AUTH_METHOD_PUBLICKEY)
         {
           method = SSH_AUTH_METHOD_PUBLICKEY;
-          auth_func = do_key_auth;
-          has_creds = TRUE;
+          if (g_strcmp0 (data->auth_options->auth_type, "private-key") == 0)
+            {
+              auth_func = do_key_auth;
+              has_creds = data->initial_auth_data != NULL;
+            }
+          else
+            {
+              auth_func = do_agent_auth;
+              has_creds = TRUE;
+            }
         }
       else if (methods_to_try & SSH_AUTH_METHOD_INTERACTIVE)
         {

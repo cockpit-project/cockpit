@@ -23,14 +23,16 @@ import React from 'react';
 
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import PCIDevices, { pciActions } from './pci.jsx';
+import USBDevices, { usbActions } from './usb.jsx';
 
 const _ = cockpit.gettext;
 
 const Router = ({ deviceActions, state }) => {
-    const { visibility, pciDevices, pciDrivers } = state;
+    const { visibility, pciDevices, pciDrivers, usbDevices } = state;
 
-    /* TODO: Add USB and SCSCI devices */
     switch (visibility.bus) {
+        case 'usb':
+            return (<USBDevices visibility={visibility} usbDevices={usbDevices} deviceActions={deviceActions} />);
         case 'pci':
         default:
             return (<PCIDevices visibility={visibility} pciDevices={pciDevices} pciDrivers={pciDrivers} deviceActions={deviceActions} />)
@@ -41,12 +43,11 @@ const NavBar = ({ deviceActions, visibility }) => {
     const active = visibility.bus;
     const isActive = (bus) => bus === active ? 'active' : '';
 
-    return (
+    return (// TODO: something nicer than just buttons
         <div className='content-filter'>
             <div className='btn-group'>
                 <button className={`btn btn-default ${isActive('pci')}`} onClick={() => deviceActions.onPciClassSelected(null)}>{_('PCI')}</button>
-                <button className={`btn btn-default ${isActive('scsi')}`}>{_('SCSI')}</button>
-                <button className={`btn btn-default ${isActive('usb')}`}>{_('USB')}</button>
+                <button className={`btn btn-default ${isActive('usb')}`} onClick={() => deviceActions.onUsbSelected()}>{_('USB')}</button>
             </div>
         </div>
     );
@@ -56,7 +57,7 @@ const App = ({ store }) => {
     const state = store.getState();
     const dispatch = store.dispatch;
 
-    const deviceActions = Object.assign({}, pciActions(dispatch));
+    const deviceActions = Object.assign({}, pciActions(dispatch), usbActions(dispatch));
 
     return (
         <div className='app-devices'>

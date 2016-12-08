@@ -23,7 +23,8 @@
  */
 const CONFIG = {
     directories: {
-        pciDevs: '/sys/bus/pci/devices'
+        pciDevs: '/sys/bus/pci/devices',
+        usbDevs: '/sys/bus/usb/devices',
     },
     udevMonitoringRestartDelay: 2000, // in ms
     refreshPeriod: 5000, // in ms, At most one data refresh per this time period

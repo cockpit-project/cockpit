@@ -20,73 +20,9 @@
 
 import cockpit from 'cockpit';
 import CONFIG from './config.es6';
-import { logDebug, logError, spawnScript, getRandomInt } from './helpers.es6';
-import { updatePciDevices, addPciDrivers, pciDeviceActionFailed, fullRefreshAction, monitorUdevAction, updatePciDeviceIommuGroupAction } from './actions.es6';
-/*
-function readFile({ path, mustExist = false, doneCallback = content => {}}) {
-    const file = cockpit.file(path, {superuser: 'try'});
-    file.read()
-        .done(content => {
-            if (content) { // null if file does not exist
-                doneCallback(content);
-            } else if (mustExist) {
-                logError(`Content of ${path} cannot be read`);
-            }
-        }).fail(error => {
-            logError(`File '${path}' read error: ${error}`);
-        }).always(() => {
-            file.close();
-        });
-}
-*/
-
-/**
- * Same as readFile() but avoids 'mmap() failed' on '/sys/...' files by using 'cat'.
- *
- * @param path
- * @param mustExist
- * @param doneCallback
- */
-/*function readSysfsFile({ path, mustExist = false, doneCallback = content => {}}) {
-    // TODO: LC_ALL=C
-    cockpit.script(`cat ${path}`, [], {superuser: 'try', err: 'out'})
-        .done( content => {
-            if (content) {
-                doneCallback(content);
-            }
-        }).fail(() => {
-            if (mustExist) {
-                logError(`Content of ${path} cannot be read`);
-            }
-        } );
-}
-
-function refreshPciDevice({ pciAddr, dispatch }) {
-    logDebug(`refreshPciDevice: ${pciAddr}`);
-    const DEVDIR = `${CONFIG.directories.pciDevs}/${pciAddr}`;
-
-    readSysfsFile({path: `${DEVDIR}/vendor`, mustExist: true, doneCallback: vendor => {
-        readSysfsFile({path: `${DEVDIR}/class`, mustExist: true, doneCallback: devClass => {
-            readSysfsFile({path: `${DEVDIR}/device`, mustExist: true, doneCallback: device => {
-// TODO:                dispatch(updatePciDevice({pciAddr, vendor, devClass, device}));
-            }});
-        }});
-    }});
-}
-
-function fullRefreshFromFS(dispatch) {
-    logDebug('Sysfs.FULL_REFRESH() called');
-
-    // Potential optimization: prepare shell script gathering all data at once
-    spawnScript(`ls -1 ${CONFIG.directories.pciDevs}`).then( output => { // result of 'ls'
-        output.split('\n').forEach( pciAddr => {
-            if (pciAddr) { // non-empty only
-                refreshPciDevice({ pciAddr, dispatch });
-            }
-        });
-    });
-}
-*/
+import { logDebug, logError, spawnScript } from './helpers.es6';
+import { updatePciDevices, addPciDrivers, pciDeviceActionFailed, fullRefreshAction, monitorUdevAction,
+    updatePciDeviceIommuGroupAction, addUsbDevice } from './actions.es6';
 
 function parseKeyValuePair(line) {
     const chunks = line.split(':');
@@ -100,10 +36,7 @@ function checkMandatoryDeviceProps (device) {
     return device.Device && device.Slot && device.Class;
 }
 
-function fullRefresh({ dispatch }) {
-    logDebug('Sysfs.FULL_REFRESH() called');
-
-    // TODO: check whether lspci is locale-specific; if so set to english - translation is done at rendering
+function refreshPci ({ dispatch }) {
     spawnScript(`lspci -vmmkD`).then( output => { // output of 'lspci' with human readable vendor/devices codes
         const devicesMap = {};
 
@@ -183,6 +116,77 @@ function fullRefresh({ dispatch }) {
     });
 }
 
+function parseUsbDeviceUdevadmDetails (usbDev, output) {
+    const validKeys = ['BUSNUM', 'DEVNAME', 'DEVNUM', 'DEVPATH', 'DRIVER', 'ID_MODEL', 'ID_MODEL_ID', 'ID_REVISION',
+        'ID_SERIAL', 'ID_VENDOR_FROM_DATABASE', 'ID_VENDOR_ID' ];
+
+    const parsed = {
+        name: usbDev
+    };
+
+    output.split('\n').forEach(line => {
+        if (line) { // format: 'prefex: key=value'
+            const afterPrefix = line.substr(line.indexOf(':') + 1);
+            if (afterPrefix) {
+                if (line[0] === 'E') {
+                    const attr = afterPrefix.trim().split('=');
+                    if (attr[0] && attr[1]) {
+                        if (validKeys.indexOf(attr[0]) >= 0) {
+                            parsed[attr[0]] = attr[1];
+                        }
+                    } else {
+                        logDebug(`Unexpected udevadm info format (key=value): ${afterPrefix}`);
+                    }
+                }
+            } else {
+                logDebug(`Unexpected udevadm info format (prefix): ${line}`);
+            }
+        }
+    });
+
+    return parsed;
+}
+
+function refreshUsbDevice ({ usbDev, parent, children, prefix, dispatch }) {
+    // udevadm takes care of HW DB and wraps access to multiple files
+    // naming: root_hub-hub_port:config.interface
+    spawnScript(`udevadm info -p ${CONFIG.directories.usbDevs}/${usbDev}`).then( output => {
+        const device = parseUsbDeviceUdevadmDetails(usbDev, output);
+        dispatch(addUsbDevice({ device, parent }));
+
+        const directChildren = children.filter( dev => dev.substring(prefix.length).indexOf('.') === -1 ); // of same level, example: 2-3, 2-6, not 2-3.1
+        directChildren.forEach( child => {
+            const newPrefix = `${child}.`;
+            const grandChildren = children.filter( dev => dev.indexOf(newPrefix) >= 0 );
+            refreshUsbDevice({ usbDev: child, parent: usbDev, children: grandChildren, prefix: newPrefix, dispatch});
+        });
+    });
+}
+
+function refreshUsb ({ dispatch }) {
+    // list of all usb devices (without interfaces)
+    spawnScript(`ls -1 ${CONFIG.directories.usbDevs} | grep -v ':'`).then( output => {
+        const allDevs = output.split('\n').filter(dev => dev); // non-empty only
+        const rootHubs = allDevs.filter(dev => dev.indexOf('usb') === 0);
+        logDebug(`refreshUsb: root hubs found: ${JSON.stringify(rootHubs)}`);
+
+        rootHubs.forEach( rootHub => { // example: usb1
+            const busNum = rootHub.substring('usb'.length);
+            const children = allDevs.filter(dev => dev.indexOf(busNum) === 0);// example: all '1-.*' devices
+            logDebug(`children for busNum=${busNum}: ${JSON.stringify(children)}`);
+
+            refreshUsbDevice({ usbDev: rootHub, parent: null, children, prefix: `${busNum}-`, dispatch });
+        });
+    });
+
+}
+
+function fullRefresh({ dispatch }) {
+    logDebug('Sysfs.FULL_REFRESH() called');
+    refreshPci({ dispatch });
+    refreshUsb({ dispatch });
+}
+
 function readIommuGroups ({ dispatch, devicesMap }) {
     spawnScript(`ls /sys/kernel/iommu_groups`)
         .then( ls => {
@@ -228,7 +232,7 @@ let refreshRequested = false; // if true, the fullRefreshAction() will be called
 
 function refreshIfNeeded ({ dispatch }) {
     logDebug('refreshIfNeeded called');
-    if (refreshRequested) { // TODO: is the plugin rendered?
+    if (refreshRequested && !cockpit.hidden) { // TODO: is the plugin rendered?
         refreshRequested = false;
         dispatch(fullRefreshAction());
     }

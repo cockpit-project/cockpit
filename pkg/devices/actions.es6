@@ -105,3 +105,31 @@ export function pciDeviceActionFailed ({ busId, msg }) {
         }
     };
 }
+
+export function selectUsb () {
+    return {
+        type: 'SELECT_USB',
+        payload: {}
+    };
+}
+
+export function setUsbDeviceExpand ({ name, expanded }) {
+    return {
+        type: 'SET_USB_DEV_EXPAND',
+        payload: {
+            name,
+            expanded
+        }
+    };
+
+}
+
+export function addUsbDevice ({ device, parent }) {
+    return {
+      type: 'ADD_USB_DEVICE',
+      payload: {
+          device,
+          parent
+      }
+    };
+}

@@ -1,0 +1,13 @@
+FROM ppc64le/fedora:25
+
+ARG RELEASE
+ARG VERSION
+ARG COCKPIT_RPM_URL="http://ppc.koji.fedoraproject.org/packages/cockpit"
+ARG INSTALLER
+ARG OFFLINE
+ARG USE_REPO
+
+ADD . /container
+RUN /container/install.sh
+
+CMD ["/usr/libexec/cockpit-kube-launch"]

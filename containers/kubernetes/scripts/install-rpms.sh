@@ -10,7 +10,7 @@
 set -ex
 
 nodeps=
-arch="x86_64"
+arch=`uname -p`
 args=$(getopt -o "da:" -l "nodeps" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do

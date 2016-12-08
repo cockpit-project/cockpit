@@ -79,11 +79,11 @@ collect_memory (CockpitSamples *samples,
       memsw_limit_in_bytes = read_double (path, "memory.memsw.limit_in_bytes");
 
       /* If at max for arch, then unlimited => zero */
-      if (mem_limit_in_bytes == (double)G_MAXSIZE ||
-          mem_limit_in_bytes == (double)G_MAXSSIZE)
+      if (mem_limit_in_bytes >= (double)G_MAXSIZE ||
+          mem_limit_in_bytes >= (double)G_MAXSSIZE)
         mem_limit_in_bytes = 0;
-      if (memsw_limit_in_bytes == (double)G_MAXSIZE ||
-          memsw_limit_in_bytes == (double)G_MAXSSIZE)
+      if (memsw_limit_in_bytes >= (double)G_MAXSIZE ||
+          memsw_limit_in_bytes >= (double)G_MAXSSIZE)
         memsw_limit_in_bytes = 0;
 
       cockpit_samples_sample (samples, "cgroup.memory.usage", cgroup, mem_usage_in_bytes);

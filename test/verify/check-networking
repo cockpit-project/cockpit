@@ -716,5 +716,40 @@ NM_CONTROLLED=no
         b.wait_visible("#network-interface")
         b.wait_in_text("tr:contains('IPv4')", "Shared")
 
+    def testBondRename(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        # Wait until the page is really ready by waiting for the main interface
+        # to show up in some row.
+        iface = self.get_iface(m, m.macaddr)
+        b.wait_present("tr[data-interface='%s']" % iface)
+
+        # Make a simple bond without any members.  This is enough to
+        # test the renaming.
+
+        b.click("button:contains('Add Bond')")
+        b.wait_popup("network-bond-settings-dialog")
+        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
+
+        # Rename while it is active
+
+        b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.click(".panel-heading .btn:contains('On')")
+        b.wait_in_text("tr:contains('Status')", "Configuring")
+
+        b.click("tr:contains('Bond') a")
+        b.wait_popup("network-bond-settings-dialog")
+        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond3000")
+        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_text("#network-interface-name", "tbond3000")
+
 if __name__ == '__main__':
     test_main()

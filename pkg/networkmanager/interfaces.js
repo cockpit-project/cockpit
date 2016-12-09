@@ -946,6 +946,7 @@ function NetworkManagerModel() {
             },
 
             apply_settings: function (settings) {
+                set_settings(this, settings);
                 return call_object_method(this,
                                           "org.freedesktop.NetworkManager.Settings.Connection", "Update",
                                           settings_to_nm(settings, priv(this).orig));
@@ -2433,8 +2434,14 @@ PageNetworkInterface.prototype = {
 
             function reactivate_connection() {
                 if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
-                    return con.activate(dev, null).
-                        fail(show_unexpected_error);
+                    if (con.Settings.connection.interface_name &&
+                        con.Settings.connection.interface_name != dev.Interface) {
+                        return dev.disconnect().then(function () { return con.activate(null, null); }).
+                            fail(show_unexpected_error);
+                    } else {
+                        return con.activate(dev, null).
+                            fail(show_unexpected_error);
+                    }
                 }
             }
 

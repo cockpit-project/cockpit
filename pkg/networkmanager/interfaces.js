@@ -3487,6 +3487,8 @@ PageNetworkBondSettings.prototype = {
                                       "bond").
                 then(function() {
                     $('#network-bond-settings-dialog').modal('hide');
+                    if (PageNetworkBondSettings.connection)
+                        cockpit.location.go([ self.settings.connection.interface_name ]);
                     if (PageNetworkBondSettings.done)
                         return PageNetworkBondSettings.done();
                 }).
@@ -3664,6 +3666,8 @@ PageNetworkTeamSettings.prototype = {
                                       "team").
                 then(function() {
                     $('#network-team-settings-dialog').modal('hide');
+                    if (PageNetworkTeamSettings.connection)
+                        cockpit.location.go([ self.settings.connection.interface_name ]);
                     if (PageNetworkTeamSettings.done)
                         return PageNetworkTeamSettings.done();
                 }).
@@ -3890,6 +3894,8 @@ PageNetworkBridgeSettings.prototype = {
                                       "bridge").
                 then(function() {
                     $('#network-bridge-settings-dialog').modal('hide');
+                    if (PageNetworkBridgeSettings.connection)
+                        cockpit.location.go([ self.settings.connection.interface_name ]);
                     if (PageNetworkBridgeSettings.done)
                         return PageNetworkBridgeSettings.done();
                 }).
@@ -4100,6 +4106,8 @@ PageNetworkVlanSettings.prototype = {
             return PageNetworkVlanSettings.apply_settings(self.settings).
                 then(function () {
                     $('#network-vlan-settings-dialog').modal('hide');
+                    if (PageNetworkVlanSettings.connection)
+                        cockpit.location.go([ self.settings.connection.interface_name ]);
                     if (PageNetworkVlanSettings.done)
                         return PageNetworkVlanSettings.done();
                 }).

@@ -108,6 +108,8 @@ on_recv_get_payload (CockpitTransport *transport,
                      gpointer user_data)
 {
   GBytes **received = user_data;
+  if (channel == NULL)
+    return FALSE;
   g_assert_cmpstr (channel, ==, "546");
   g_assert (*received == NULL);
   *received = g_bytes_ref (message);
@@ -124,6 +126,8 @@ on_recv_multiple (CockpitTransport *transport,
   gint *state = user_data;
   GBytes *check;
 
+  if (channel == NULL)
+    return FALSE;
   g_assert_cmpstr (channel, ==, "9");
 
   if (*state == 0)

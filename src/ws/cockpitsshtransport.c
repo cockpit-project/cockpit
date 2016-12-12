@@ -394,7 +394,7 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
   CockpitAuthOptions *options = g_new0 (CockpitAuthOptions, 1);
   CockpitSshOptions *ssh_options = g_new0 (CockpitSshOptions, 1);
 
-  const gchar *password;
+  GBytes *password;
   const gchar *gssapi_creds;
   gchar *host_arg = NULL;
 
@@ -421,7 +421,7 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
   else if (password)
     {
       options->auth_type = "password";
-      input = g_bytes_new_static (password, strlen (password));
+      input = g_bytes_ref (password);
       g_debug ("%s: preparing password creds", self->logname);
     }
 

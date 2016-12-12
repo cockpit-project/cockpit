@@ -192,7 +192,7 @@ test_basic_good (TestCase *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
-  g_assert_cmpstr (PASSWORD, ==, cockpit_creds_get_password (creds));
+  g_assert_cmpstr (PASSWORD, ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
 
   g_hash_table_unref (out_headers);
   g_object_unref (service);
@@ -396,7 +396,7 @@ test_key_good (TestCase *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
-  g_assert_cmpstr (NULL, ==, cockpit_creds_get_password (creds));
+  g_assert (NULL == cockpit_creds_get_password (creds));
 
   g_hash_table_unref (out_headers);
   g_object_unref (service);

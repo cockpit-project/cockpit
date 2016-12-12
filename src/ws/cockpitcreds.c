@@ -36,7 +36,7 @@ struct _CockpitCreds {
   gint poisoned;
   gchar *user;
   gchar *application;
-  gchar *password;
+  GBytes *password;
   gchar *rhost;
   gchar *gssapi_creds;
   gchar *csrf_token;
@@ -53,10 +53,13 @@ cockpit_creds_free (gpointer data)
 {
   CockpitCreds *creds = data;
 
+  cockpit_creds_poison (creds);
+
+  if (creds->password)
+    g_bytes_unref (creds->password);
+
   g_free (creds->user);
   g_free (creds->application);
-  cockpit_secclear (creds->password, -1);
-  g_free (creds->password);
   g_free (creds->rhost);
   g_free (creds->gssapi_creds);
   g_free (creds->csrf_token);
@@ -118,6 +121,9 @@ out:
  * a COCKPIT_CRED_PASSWORD, COCKPIT_CRED_RHOST, or similar constant
  * followed by the value.
  *
+ * COCKPIT_CRED_PASSWORD is a GBytes and should contain a null terminated
+ * string with the terminator not included in the count.
+ *
  * Returns: (transfer full): the new set of credentials.
  */
 CockpitCreds *
@@ -128,6 +134,8 @@ cockpit_creds_new (const gchar *user,
   krb5_error_code code;
   CockpitCreds *creds;
   const char *type;
+  gconstpointer data;
+  gsize length;
   va_list va;
 
   g_return_val_if_fail (user != NULL, NULL);
@@ -147,7 +155,7 @@ cockpit_creds_new (const gchar *user,
       if (type == NULL)
         break;
       else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
-        creds->password = g_strdup (va_arg (va, const char *));
+        creds->password = va_arg (va, GBytes *);
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
         creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_GSSAPI))
@@ -160,6 +168,14 @@ cockpit_creds_new (const gchar *user,
         g_assert_not_reached ();
     }
   va_end (va);
+
+  /* Check password is null terminated */
+  if (creds->password)
+    {
+      data = g_bytes_get_data (creds->password, &length);
+      g_assert (((const gchar *)data)[length] == '\0');
+      g_bytes_ref (creds->password);
+    }
 
   if (creds->gssapi_creds)
     {
@@ -211,10 +227,17 @@ cockpit_creds_unref (gpointer creds)
 void
 cockpit_creds_poison (CockpitCreds *creds)
 {
+  gpointer data;
+  gsize length;
+
   g_return_if_fail (creds != NULL);
   g_atomic_int_set (&creds->poisoned, 1);
+
   if (creds->password)
-    memset (creds->password, 0, strlen (creds->password));
+    {
+      data = (gpointer)g_bytes_get_data (creds->password, &length);
+      cockpit_secclear (data, length);
+    }
 }
 
 const gchar *
@@ -231,7 +254,7 @@ cockpit_creds_get_application (CockpitCreds *creds)
   return creds->application;
 }
 
-const gchar *
+GBytes *
 cockpit_creds_get_password (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);

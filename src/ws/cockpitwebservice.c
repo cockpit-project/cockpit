@@ -676,7 +676,7 @@ process_socket_authorize (CockpitWebService *self,
     {
       g_warning ("%s: unknown or unsupported authorize command", socket->id);
     }
-  else if (g_str_equal (credential, "clear"))
+  else if (g_str_equal (credential, "password"))
     {
       cockpit_creds_poison (self->creds);
       send_socket_hints (self, "credential", credential);
@@ -702,6 +702,7 @@ process_session_authorize (CockpitWebService *self,
   char *response = NULL;
   const gchar *challenge;
   const gchar *password;
+  GBytes *data;
   int rc;
 
   host = session->host;
@@ -728,13 +729,14 @@ process_session_authorize (CockpitWebService *self,
     }
   else if (g_str_equal (type, "crypt1"))
     {
-      password = cockpit_creds_get_password (session->creds);
-      if (!password)
+      data = cockpit_creds_get_password (session->creds);
+      if (!data)
         {
           g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
         }
       else
         {
+          password = g_bytes_get_data (data, NULL);
           rc = reauthorize_crypt1 (challenge, password, &response);
           if (rc < 0)
             g_message ("%s: failed to reauthorize crypt1 challenge", host);
@@ -1119,6 +1121,7 @@ lookup_or_open_session (CockpitWebService *self,
   const gchar *specific_user;
   const gchar *creds_user;
   const gchar *password;
+  GBytes *bytes;
   gboolean private;
   gboolean new_creds = FALSE;
 
@@ -1175,11 +1178,15 @@ lookup_or_open_session (CockpitWebService *self,
 
       if (new_creds)
         {
+          bytes = NULL;
+          if (password)
+            bytes = g_bytes_new_take (g_strdup (password), strlen (password));
           creds = cockpit_creds_new (specific_user != NULL ? specific_user : username,
                                      cockpit_creds_get_application (self->creds),
-                                     COCKPIT_CRED_PASSWORD, password,
+                                     COCKPIT_CRED_PASSWORD, bytes,
                                      COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->creds),
                                      NULL);
+          g_bytes_unref (bytes);
         }
       else
         {

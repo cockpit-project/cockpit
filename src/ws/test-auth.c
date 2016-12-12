@@ -187,7 +187,7 @@ test_userpass_cookie_check (Test *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
-  g_assert_cmpstr ("this is the password", ==, cockpit_creds_get_password (creds));
+  g_assert_cmpstr ("this is the password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
 
   prev_service = service;
   g_object_unref (service);
@@ -205,7 +205,7 @@ test_userpass_cookie_check (Test *test,
   g_assert (prev_creds == creds);
 
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
-  g_assert_cmpstr ("this is the password", ==, cockpit_creds_get_password (creds));
+  g_assert_cmpstr ("this is the password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
 
   g_hash_table_destroy (headers);
   g_object_unref (service);
@@ -572,9 +572,16 @@ test_custom_success (Test *test,
   g_assert_cmpstr (user, ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
   if (fix->authorized && g_str_has_prefix (fix->header, "Basic"))
-    g_assert_cmpstr (cockpit_creds_get_password (creds), == , password);
+    {
+      if (password == NULL)
+        g_assert_null (cockpit_creds_get_password (creds));
+      else
+        g_assert_cmpstr (g_bytes_get_data (cockpit_creds_get_password (creds), NULL), ==, password);
+    }
   else
-    g_assert_null (cockpit_creds_get_password (creds));
+    {
+      g_assert_null (cockpit_creds_get_password (creds));
+    }
 
   login_data = cockpit_creds_get_login_data (creds);
   if (fix->data)

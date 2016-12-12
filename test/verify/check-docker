@@ -498,5 +498,79 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
+@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-8", "debian-unstable", "ubuntu-1604", "rhel-atomic", "fedora-atomic")
+class TestAtomicScan(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl start docker")
+
+        # HACK put scan results for one of the images into /var/lib/atomic
+        #
+        # This mimics what `atomic scan` would put there, without us having to install
+        # a known vulnerable image and initiating a scan from this test.
+
+        infos = json.loads(m.execute("docker inspect docker.io/busybox"))
+        image_id = infos[0]["Id"]
+        short_id = image_id.replace("sha256:", "")
+        result_path = os.path.join("/var/lib/atomic/atomic_scan_openscap/2016-12-11-12-09-57-674487/", short_id)
+        result_filename = os.path.join(result_path, "json")
+
+        scan_summary = {
+            short_id: {
+                "Scan Type": "Standards Compliance",
+                "json_file": result_filename,
+                "Scanner": "openscap",
+                "Time": "2016-12-11T12:09:59",
+                "Vulnerable": True,
+                "UUID": short_id
+            }
+        }
+
+        scan_result = {
+            "Scanner": "openscap",
+            "Vulnerabilities": [
+                {
+                    "Description": "\nThe RPM package management system can check file access\npermissions of installed software packages, including many that are\nimportant to system security. \nAfter locating a file with incorrect permissions, run the following command to determine which package owns it:\n",
+                    "Title": "Verify and Correct File Permissions with RPM",
+                    "Custom": {
+                        "XCCDF result": "fail"
+                    },
+                    "Severity": "Low"
+                },
+                {
+                    "Description": "\nSystem executables are stored in the following directories by default:\n",
+                    "Title": "Verify that System Executables Have Restrictive Permissions",
+                    "Custom": {
+                        "XCCDF result": "fail"
+                    },
+                    "Severity": "Moderate"
+                }
+            ],
+            "Finished Time": "2016-12-11T12:10:27",
+            "UUID": "/scanin/d6fe5fdc49c2886ccad1c781d38a0c9fe679c6e7ca0297d23186c385873e86fa",
+            "Scan Type": "Standard Compliance",
+            "Time": "2016-12-11T12:09:59",
+            "Successful": "true"
+        }
+
+        m.execute("mkdir -p " + result_path)
+        m.execute("echo '%s' > /var/lib/atomic/scan_summary.json" % json.dumps(scan_summary))
+        m.execute("echo '%s' > %s" % (json.dumps(scan_result), result_filename))
+
+        self.login_and_go("/docker")
+
+        row_selector = '#containers-images tr[data-row-id="%s"]' % image_id
+
+        # warning badge should exist
+        b.wait_present(row_selector + ' td span.pficon-warning-triangle-o')
+        b.wait_visible(row_selector + ' td span.pficon-warning-triangle-o')
+
+        # Security tab should exist
+        b.click(row_selector + ' td.listing-ct-toggle')
+        b.wait_visible(row_selector + ' + tr a:contains("Security")')
+
+
 if __name__ == '__main__':
     test_main()

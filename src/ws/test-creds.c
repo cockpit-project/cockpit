@@ -68,10 +68,47 @@ test_gssapi (void)
 }
 
 static void
+test_set_password (void)
+{
+  CockpitCreds *creds;
+  GBytes *password;
+  GBytes *out;
+  GBytes *two;
+
+  password = g_bytes_new_take (g_strdup ("password"), 8);
+  creds = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, password, NULL);
+  g_bytes_unref (password);
+
+  g_assert (creds != NULL);
+
+  out = cockpit_creds_get_password (creds);
+  g_assert (out != NULL);
+  g_assert_cmpstr ("password", ==, g_bytes_get_data (out, NULL));
+
+  password = g_bytes_new_take (g_strdup ("second"), 6);
+  cockpit_creds_set_password (creds, password);
+  g_bytes_unref (password);
+
+  two = cockpit_creds_get_password (creds);
+  g_assert (two != NULL);
+  g_assert_cmpstr ("second", ==, g_bytes_get_data (two, NULL));
+
+  cockpit_creds_set_password (creds, NULL);
+  g_assert (NULL == cockpit_creds_get_password (creds));
+
+  /* Still hold references to all old passwords, but they are cleared */
+  g_assert_cmpstr ("\252\252\252\252\252\252\252\252", ==, g_bytes_get_data (out, NULL));
+  g_assert_cmpstr ("\252\252\252\252\252\252", ==, g_bytes_get_data (two, NULL));
+
+  cockpit_creds_unref (creds);
+}
+
+static void
 test_poison (void)
 {
   CockpitCreds *creds;
   GBytes *password;
+  GBytes *out;
 
   password = g_bytes_new_take (g_strdup ("password"), 8);
   creds = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, password, NULL);
@@ -83,9 +120,18 @@ test_poison (void)
   g_assert_cmpstr ("password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
   g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
 
+  out = cockpit_creds_get_password (creds);
   cockpit_creds_poison (creds);
 
   g_assert (NULL == cockpit_creds_get_password (creds));
+
+  password = g_bytes_new_take (g_strdup ("second"), 6);
+  cockpit_creds_set_password (creds, password);
+  g_bytes_unref (password);
+
+  /* Even though we set a new password, still NULL */
+  g_assert (NULL == cockpit_creds_get_password (creds));
+  g_assert_cmpstr ("\252\252\252\252\252\252\252\252", ==, g_bytes_get_data (out, NULL));
 
   cockpit_creds_unref (creds);
 }
@@ -247,6 +293,7 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/creds/basic-password", test_password);
+  g_test_add_func ("/creds/set-password", test_set_password);
   g_test_add_func ("/creds/poison", test_poison);
   g_test_add_func ("/creds/rhost", test_rhost);
   g_test_add_func ("/creds/multiple", test_multiple);

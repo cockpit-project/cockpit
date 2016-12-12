@@ -44,6 +44,7 @@ struct _CockpitCreds {
   krb5_ccache krb5_ccache;
   gchar *krb5_ccache_name;
   JsonObject *login_data;
+  GList *bytes;
 };
 
 G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
@@ -55,8 +56,7 @@ cockpit_creds_free (gpointer data)
 
   cockpit_creds_poison (creds);
 
-  if (creds->password)
-    g_bytes_unref (creds->password);
+  g_list_free_full (creds->bytes, (GDestroyNotify)g_bytes_unref);
 
   g_free (creds->user);
   g_free (creds->application);
@@ -131,11 +131,10 @@ cockpit_creds_new (const gchar *user,
                    const gchar *application,
                    ...)
 {
+  GBytes *password = NULL;
   krb5_error_code code;
   CockpitCreds *creds;
   const char *type;
-  gconstpointer data;
-  gsize length;
   va_list va;
 
   g_return_val_if_fail (user != NULL, NULL);
@@ -155,7 +154,7 @@ cockpit_creds_new (const gchar *user,
       if (type == NULL)
         break;
       else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
-        creds->password = va_arg (va, GBytes *);
+        password = va_arg (va, GBytes *);
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
         creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_GSSAPI))
@@ -169,13 +168,8 @@ cockpit_creds_new (const gchar *user,
     }
   va_end (va);
 
-  /* Check password is null terminated */
-  if (creds->password)
-    {
-      data = g_bytes_get_data (creds->password, &length);
-      g_assert (((const gchar *)data)[length] == '\0');
-      g_bytes_ref (creds->password);
-    }
+  if (password)
+    cockpit_creds_set_password (creds, password);
 
   if (creds->gssapi_creds)
     {
@@ -227,17 +221,9 @@ cockpit_creds_unref (gpointer creds)
 void
 cockpit_creds_poison (CockpitCreds *creds)
 {
-  gpointer data;
-  gsize length;
-
   g_return_if_fail (creds != NULL);
   g_atomic_int_set (&creds->poisoned, 1);
-
-  if (creds->password)
-    {
-      data = (gpointer)g_bytes_get_data (creds->password, &length);
-      cockpit_secclear (data, length);
-    }
+  cockpit_creds_set_password (creds, NULL);
 }
 
 const gchar *
@@ -261,6 +247,30 @@ cockpit_creds_get_password (CockpitCreds *creds)
   if (g_atomic_int_get (&creds->poisoned))
       return NULL;
   return creds->password;
+}
+
+void
+cockpit_creds_set_password (CockpitCreds *creds,
+                            GBytes *password)
+{
+  gpointer data;
+  gsize length;
+
+  g_return_if_fail (creds != NULL);
+
+  if (creds->password)
+    {
+      data = (gpointer)g_bytes_get_data (creds->password, &length);
+      cockpit_secclear (data, length);
+      creds->password = NULL;
+    }
+  if (password)
+    {
+      data = (gpointer)g_bytes_get_data (password, &length);
+      g_assert (((gchar *)data)[length] == '\0');
+      creds->password = g_bytes_ref (password);
+      creds->bytes = g_list_prepend (creds->bytes, creds->password);
+    }
 }
 
 const gchar *

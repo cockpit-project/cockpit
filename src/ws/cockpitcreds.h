@@ -55,6 +55,9 @@ const gchar *   cockpit_creds_get_user       (CockpitCreds *creds);
 
 GBytes *        cockpit_creds_get_password   (CockpitCreds *creds);
 
+void            cockpit_creds_set_password   (CockpitCreds *creds,
+                                              GBytes *password);
+
 const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_csrf_token (CockpitCreds *creds);

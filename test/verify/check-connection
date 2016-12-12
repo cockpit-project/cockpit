@@ -89,7 +89,7 @@ class TestConnection(MachineCase):
         b.enter_page("/system")
 
         # Reauthorization can fail due to disconnects above
-        self.allow_journal_messages("cockpit-polkit: user admin reauthorization failed")
+        self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
         # Debian 8 doesn't have systemd with coredump support

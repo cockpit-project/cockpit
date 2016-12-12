@@ -51,10 +51,12 @@ class StorageCase(MachineCase):
         b = self.browser
         b.arm_timeout()
         while True:
-            setup()
+            if setup:
+                setup()
             if check():
                 break
-            teardown()
+            if teardown:
+                teardown()
             b.wait_checkpoint()
         b.disarm_timeout()
 
@@ -73,10 +75,13 @@ class StorageCase(MachineCase):
         self.browser.wait_present(btn)
         self.browser.click(btn)
 
+    # The row might come and go a couple of times until it has the
+    # expected content.  However, wait_in_text can not deal with a
+    # temporarily disappearing element, so we use self.retry.
+
     def content_row_wait_in_col(self, row_index, col_index, val):
         col = "#detail-content tbody:nth-of-type(%d) .listing-ct-item :nth-child(%d)" % (row_index, col_index+1)
-        self.browser.wait_present(col)
-        self.browser.wait_in_text(col, val)
+        self.retry(None, lambda: self.browser.is_present(col) and val in self.browser.text(col), None)
 
     def content_head_action(self, index, title):
         self.content_row_expand(index)

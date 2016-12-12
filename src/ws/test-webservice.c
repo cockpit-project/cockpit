@@ -212,6 +212,7 @@ setup_mock_webserver (TestCase *test,
 {
   GError *error = NULL;
   const gchar *user;
+  GBytes *password;
 
   /* Zero port makes server choose its own */
   test->web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
@@ -220,10 +221,12 @@ setup_mock_webserver (TestCase *test,
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
 
+  password = g_bytes_new_take (g_strdup (PASSWORD), strlen (PASSWORD));
   test->creds = cockpit_creds_new (user, "cockpit",
-                                   COCKPIT_CRED_PASSWORD, PASSWORD,
+                                   COCKPIT_CRED_PASSWORD, password,
                                    COCKPIT_CRED_CSRF_TOKEN, "my-csrf-token",
                                    NULL);
+  g_bytes_unref (password);
 }
 
 static void

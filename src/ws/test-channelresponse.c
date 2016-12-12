@@ -72,6 +72,7 @@ setup_resource (TestResourceCase *tc,
   gchar **environ;
   const gchar *user;
   const gchar *home = NULL;
+  GBytes *password;
 
   const gchar *argv[] = {
     BUILDDIR "/cockpit-bridge",
@@ -93,7 +94,9 @@ setup_resource (TestResourceCase *tc,
   g_strfreev (environ);
 
   user = g_get_user_name ();
-  creds = cockpit_creds_new (user, "cockpit", COCKPIT_CRED_PASSWORD, PASSWORD, NULL);
+  password = g_bytes_new_take (g_strdup (PASSWORD), strlen (PASSWORD));
+  creds = cockpit_creds_new (user, "cockpit", COCKPIT_CRED_PASSWORD, password, NULL);
+  g_bytes_unref (password);
 
   transport = cockpit_pipe_transport_new (tc->pipe);
   tc->service = cockpit_web_service_new (creds, transport);

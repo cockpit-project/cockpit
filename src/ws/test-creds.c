@@ -27,12 +27,16 @@ static void
 test_password (void)
 {
   CockpitCreds *creds;
+  GBytes *password;
 
-  creds = cockpit_creds_new ("user", "test", COCKPIT_CRED_PASSWORD, "password", NULL);
+  password = g_bytes_new_take (g_strdup ("password"), 8);
+  creds = cockpit_creds_new ("user", "test", COCKPIT_CRED_PASSWORD, password, NULL);
+  g_bytes_unref (password);
+
   g_assert (creds != NULL);
 
   g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
-  g_assert_cmpstr ("password", ==, cockpit_creds_get_password (creds));
+  g_assert_cmpstr ("password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
   g_assert_cmpstr ("test", ==, cockpit_creds_get_application (creds));
 
   cockpit_creds_unref (creds);
@@ -42,8 +46,12 @@ static void
 test_gssapi (void)
 {
   CockpitCreds *creds;
+  GBytes *password;
 
-  creds = cockpit_creds_new ("user", "test", COCKPIT_CRED_PASSWORD, "password", NULL);
+  password = g_bytes_new_take (g_strdup ("password"), 8);
+  creds = cockpit_creds_new ("user", "test", COCKPIT_CRED_PASSWORD, password, NULL);
+  g_bytes_unref (password);
+
   g_assert (creds != NULL);
 
   g_assert_false (cockpit_creds_has_gssapi (creds));
@@ -63,17 +71,21 @@ static void
 test_poison (void)
 {
   CockpitCreds *creds;
+  GBytes *password;
 
-  creds = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, "password", NULL);
+  password = g_bytes_new_take (g_strdup ("password"), 8);
+  creds = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, password, NULL);
+  g_bytes_unref (password);
+
   g_assert (creds != NULL);
 
   g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
-  g_assert_cmpstr ("password", ==, cockpit_creds_get_password (creds));
+  g_assert_cmpstr ("password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
   g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
 
   cockpit_creds_poison (creds);
 
-  g_assert_cmpstr (NULL, ==, cockpit_creds_get_password (creds));
+  g_assert (NULL == cockpit_creds_get_password (creds));
 
   cockpit_creds_unref (creds);
 }
@@ -97,29 +109,38 @@ static void
 test_multiple (void)
 {
   CockpitCreds *creds;
+  GBytes *password;
 
+  password = g_bytes_new_take (g_strdup ("password"), 8);
   creds = cockpit_creds_new ("user", "app",
-                             COCKPIT_CRED_PASSWORD, "password",
+                             COCKPIT_CRED_PASSWORD, password,
                              COCKPIT_CRED_RHOST, "remote",
                              NULL);
   g_assert (creds != NULL);
 
   g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("remote", ==, cockpit_creds_get_rhost (creds));
-  g_assert_cmpstr ("password", ==, cockpit_creds_get_password (creds));
+  g_assert_cmpstr ("password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
   g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
 
+  g_bytes_unref (password);
   cockpit_creds_unref (creds);
 }
 
 static void
 test_hash (void)
 {
-  CockpitCreds *one = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, "pass1", NULL);
-  CockpitCreds *rhost = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, "pass1",
+  GBytes *pass1 = g_bytes_new_take (g_strdup ("pass1"), 5);
+  GBytes *pass2 = g_bytes_new_take (g_strdup ("pass2"), 5);
+
+  CockpitCreds *one = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
+  CockpitCreds *rhost = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1,
                                            COCKPIT_CRED_RHOST, "meh", NULL);
-  CockpitCreds *app = cockpit_creds_new ("user", "app2", COCKPIT_CRED_PASSWORD, "pass1", NULL);
-  CockpitCreds *copy = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, "pass1", NULL);
+  CockpitCreds *app = cockpit_creds_new ("user", "app2", COCKPIT_CRED_PASSWORD, pass1, NULL);
+  CockpitCreds *copy = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
+
+  g_bytes_unref (pass1);
+  g_bytes_unref (pass2);
 
   g_assert_cmpuint (cockpit_creds_hash (one), !=, cockpit_creds_hash (rhost));
   g_assert_cmpuint (cockpit_creds_hash (one), !=, cockpit_creds_hash (app));
@@ -135,13 +156,19 @@ test_hash (void)
 static void
 test_equal (void)
 {
-  CockpitCreds *one = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, "pass1", NULL);
-  CockpitCreds *rhost = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, "pass1",
+  GBytes *pass1 = g_bytes_new_take (g_strdup ("pass1"), 5);
+  GBytes *pass2 = g_bytes_new_take (g_strdup ("pass2"), 5);
+
+  CockpitCreds *one = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
+  CockpitCreds *rhost = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1,
                                            COCKPIT_CRED_RHOST, "meh", NULL);
-  CockpitCreds *app = cockpit_creds_new ("user", "app2", COCKPIT_CRED_PASSWORD, "pass1", NULL);
-  CockpitCreds *scruffy = cockpit_creds_new ("scruffy", "app", COCKPIT_CRED_PASSWORD, "pass1", NULL);
-  CockpitCreds *two = cockpit_creds_new ("user2", "app", COCKPIT_CRED_PASSWORD, "pass2", NULL);
-  CockpitCreds *copy = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, "pass1", NULL);
+  CockpitCreds *app = cockpit_creds_new ("user", "app2", COCKPIT_CRED_PASSWORD, pass1, NULL);
+  CockpitCreds *scruffy = cockpit_creds_new ("scruffy", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
+  CockpitCreds *two = cockpit_creds_new ("user2", "app", COCKPIT_CRED_PASSWORD, pass2, NULL);
+  CockpitCreds *copy = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
+
+  g_bytes_unref (pass1);
+  g_bytes_unref (pass2);
 
   g_assert (!cockpit_creds_equal (one, two));
   g_assert (cockpit_creds_equal (one, one));

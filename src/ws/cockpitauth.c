@@ -370,7 +370,7 @@ clear_free_authorization (gpointer data)
   g_free (data);
 }
 
-static const gchar *
+static GBytes *
 parse_basic_auth_password (GBytes *input,
                            gchar **user)
 {
@@ -388,7 +388,9 @@ parse_basic_auth_password (GBytes *input,
       password++;
     }
 
-  return password;
+  return g_bytes_new_with_free_func (password, strlen (password),
+                                     (GDestroyNotify)g_bytes_unref,
+                                     g_bytes_ref (input));
 }
 
 GBytes *
@@ -592,7 +594,7 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
                                       JsonObject *results,
                                       const gchar *raw_data)
 {
-  const gchar *password = NULL;
+  GBytes *password = NULL;
   const gchar *gssapi_creds = NULL;
   CockpitCreds *creds = NULL;
   gchar *csrf_token;
@@ -621,6 +623,9 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
                              COCKPIT_CRED_GSSAPI, gssapi_creds,
                              COCKPIT_CRED_CSRF_TOKEN, csrf_token,
                              NULL);
+
+  if (password)
+    g_bytes_unref (password);
 
   g_free (csrf_token);
   return creds;

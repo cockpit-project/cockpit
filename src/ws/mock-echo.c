@@ -34,7 +34,7 @@ main (void)
   gssize count;
   gint i;
 
-  g_print ("22\n{ \"command\" : \"init\" }");
+  g_print ("37\n\n{ \"command\" : \"init\", \"version\": 1 }");
   for (i = 0; TRUE; i++)
     {
       count = read (0, buffer, sizeof (buffer));

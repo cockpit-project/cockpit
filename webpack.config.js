@@ -376,11 +376,17 @@ module.exports = {
             },
             {
                 test: /\.jsx$/,
-                loader: "babel-loader"
+                loader: "babel-loader",
+                query: {
+                    presets: ["react"]
+                }
             },
             {
                 test: /\.es6$/,
-                loader: "babel-loader"
+                loader: "babel-loader",
+                query: {
+                    presets: ["es2015"]
+                }
             },
             {
                 test: /\.less$/,

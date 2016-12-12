@@ -112,6 +112,7 @@ WEBPACK_INSTALL =
 WEBPACK_DEPS = \
 	dist/dashboard/Makefile.deps \
 	dist/docker/Makefile.deps \
+	dist/kdump/Makefile.deps \
 	dist/kubernetes/Makefile.deps \
 	dist/machines/Makefile.deps \
 	dist/networkmanager/Makefile.deps \
@@ -141,6 +142,7 @@ dist/%/Makefile.deps: $(WEBPACK_CONFIG)
 
 -include dist/dashboard/Makefile.deps
 -include dist/docker/Makefile.deps
+-include dist/kdump/Makefile.deps
 -include dist/kubernetes/Makefile.deps
 -include dist/machines/Makefile.deps
 -include dist/networkmanager/Makefile.deps

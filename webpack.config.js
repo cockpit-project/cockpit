@@ -15,6 +15,11 @@ var info = {
             "docker/console.js",
         ],
 
+        "kdump/kdump": [
+            "kdump/kdump.js",
+            "kdump/kdump.css",
+        ],
+
         "kubernetes/kubernetes": [
             "kubernetes/styles/main.less",
             "kubernetes/scripts/main.js",
@@ -125,6 +130,8 @@ var info = {
     tests: [
         "docker/test-docker",
 
+        "kdump/test-config-client",
+
         "lib/test-dummy",
         "lib/test-journal-renderer",
         "lib/test-machines",
@@ -154,6 +161,9 @@ var info = {
         "docker/manifest.json",
         "docker/index.html",
         "docker/images/drive-harddisk-symbolic.svg",
+
+        "kdump/index.html",
+        "kdump/manifest.json",
 
         "kubernetes/manifest.json",
         "kubernetes/override.json",

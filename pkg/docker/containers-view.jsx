@@ -290,7 +290,7 @@ var ImageDetails = React.createClass({
         if (image.Config) {
             entrypoint = image.Config.Entrypoint;
             command = image.Config.Cmd;
-            ports = image.Config.ExposedPorts || [];
+            ports = Object.keys(image.Config.ExposedPorts || {});
         }
 
         return (

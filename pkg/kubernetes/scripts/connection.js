@@ -22,7 +22,7 @@
 
     var angular = require('angular');
 
-    require('./dialog');
+    require('angular-dialog.js');
     require('./kube-client-cockpit');
     require('./utils');
 

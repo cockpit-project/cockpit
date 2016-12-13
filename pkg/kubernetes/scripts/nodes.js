@@ -29,10 +29,10 @@
     var angular = require('angular');
     var d3 = require('d3');
     require('angular-route');
+    require('angular-dialog.js');
 
     require('./charts');
     require('./date');
-    require('./dialog');
     require('./kube-client');
     require('./listing');
     require('./utils');

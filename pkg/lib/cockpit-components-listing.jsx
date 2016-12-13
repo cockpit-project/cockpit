@@ -24,6 +24,7 @@ var React = require('react');
 require('./listing.css');
 
 /* entry for an alert in the listing, can be expanded (with details) or standard
+ * rowId optional: an identifier for the row which will be set as "data-row-id" attribute on the <tr>
  * columns list of columns to show in the header
  *     columns to show, can be a string, react component or object with { name: 'name', 'header': false }
  *     'header' (or if simple string) defaults to false
@@ -44,6 +45,7 @@ require('./listing.css');
  */
 var ListingRow = React.createClass({
     propTypes: {
+        rowId: React.PropTypes.string,
         columns: React.PropTypes.array.isRequired,
         tabRenderers: React.PropTypes.array,
         navigateToItem: React.PropTypes.func,
@@ -159,7 +161,8 @@ var ListingRow = React.createClass({
             listingItemClasses.push("listing-ct-noexpand");
 
         var listingItem = (
-            <tr className={ listingItemClasses.join(' ') }
+            <tr data-row-id={ this.props.rowId }
+                className={ listingItemClasses.join(' ') }
                 onClick={ allowNavigate?this.handleNavigateClick:this.handleExpandClick }>
                 {expandToggle}
                 {headerEntries}

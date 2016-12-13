@@ -570,6 +570,18 @@ NM_CONTROLLED=no
         b = self.browser
         m = self.machine
 
+        def iface_con_id(iface):
+            con_id = m.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
+            if con_id == "--":
+                return None
+            else:
+                return con_id
+
+        # Clean out rogue connections and prevent NM from automatically creating new ones.
+        m.execute("""nmcli -f UUID,DEVICE connection show | awk '$2 == "--" { print $1 }' | xargs -r nmcli con del""")
+        m.write("/etc/NetworkManager/conf.d/99-test.conf", "[main]\nno-auto-default=*\n")
+        m.execute("systemctl reload-or-restart NetworkManager")
+
         self.login_and_go("/network")
 
         iface = self.add_iface()
@@ -577,6 +589,10 @@ NM_CONTROLLED=no
 
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
+
+        # Check that there is no connection for the device
+        cons = m.execute("nmcli -t -m tabular -f CONNECTIONS.AVAILABLE-CONNECTION-PATHS dev show %s" % iface)
+        self.assertEqual(cons.strip(), "")
 
         # Edit and apply the ghost settings
         b.click("tr:contains('IPv4') a")
@@ -590,7 +606,7 @@ NM_CONTROLLED=no
         b.wait_in_text("tr:contains('IPv4')", "Address 1.2.3.4/24")
 
         # Check that we now have connection settings
-        con_id = m.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
+        con_id = wait(lambda: iface_con_id(iface))
         self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
                          "manual")
 
@@ -609,7 +625,7 @@ NM_CONTROLLED=no
         b.wait_in_text("tr:contains('Status')", "10.111.")
 
         # Check again that we now have connection settings
-        con_id = m.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
+        con_id = wait(lambda: iface_con_id(iface))
         self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
                          "auto")
 

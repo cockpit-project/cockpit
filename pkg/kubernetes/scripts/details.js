@@ -22,10 +22,10 @@
 
     var angular = require('angular');
     require('kubernetes-object-describer/dist/object-describer.js');
+    require('angular-dialog.js');
 
     require('./containers');
     require('./date');
-    require('./dialog');
     require('./kube-client');
     require('./listing');
     require('./utils');

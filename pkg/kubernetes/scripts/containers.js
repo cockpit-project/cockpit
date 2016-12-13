@@ -22,8 +22,8 @@
 
     var angular = require('angular');
     require('angular-route');
+    require('angular-dialog.js');
     require('./kube-client');
-    require('./dialog');
     require('./listing');
 
     var phantom_checkpoint = phantom_checkpoint || function () { };

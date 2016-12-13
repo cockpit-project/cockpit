@@ -22,8 +22,8 @@
 
     var angular = require('angular');
     require('angular-route');
+    require('angular-dialog.js');
 
-    require('./dialog');
     require('./kube-client');
     require('./listing');
     require('./policy');

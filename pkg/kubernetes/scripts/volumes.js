@@ -22,9 +22,9 @@
 
     var angular = require('angular');
     require('angular-route');
+    require('angular-dialog.js');
 
     require('./date');
-    require('./dialog');
     require('./listing');
     require('./kube-client');
     require('./utils');

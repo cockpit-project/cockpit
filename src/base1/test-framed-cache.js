@@ -30,7 +30,7 @@
             var timer = window.setTimeout(function() {
                 result({ myobject: "value" });
                 window.clearTimeout(timer);
-            }, 200);
+            }, 1000);
             return {
                 close: function() {}
             };
@@ -67,7 +67,7 @@
             var timer = window.setTimeout(function() {
                 result({ myobject: "value2" });
                 window.clearTimeout(timer);
-            }, 200);
+            }, 1000);
             return {
                 close: function() {}
             };

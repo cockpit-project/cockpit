@@ -19,7 +19,6 @@ On Debian or Ubuntu:
 On Fedora:
 
     $ sudo yum install nodejs npm
-    $ sudo npm install -g webpack
 
 And lastly get Webpack and the development dependencies:
 

@@ -24,6 +24,7 @@ And lastly get Webpack and the development dependencies:
 
     $ sudo npm install -g webpack
     $ npm install
+    $ ./node_modules/bower/bin/bower install
 
 ## Working on Cockpit using Vagrant
 

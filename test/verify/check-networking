@@ -538,7 +538,7 @@ NM_CONTROLLED=no
 
         m.needs_writable_usr()
         m.execute("mv /usr/sbin/dhclient /usr/sbin/dhclient.real")
-        m.write("/usr/sbin/dhclient", "#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real" % dhcp_delay)
+        m.write("/usr/sbin/dhclient", '#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real "$@"' % dhcp_delay)
         m.execute("chmod a+x /usr/sbin/dhclient")
 
         # Put the main interface into a bond.  Everything should keep
@@ -636,7 +636,7 @@ NM_CONTROLLED=no
 
         m.needs_writable_usr()
         m.execute("mv /usr/sbin/dhclient /usr/sbin/dhclient.real")
-        m.write("/usr/sbin/dhclient", "#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real" % dhcp_delay)
+        m.write("/usr/sbin/dhclient", '#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real "$@"' % dhcp_delay)
         m.execute("chmod a+x /usr/sbin/dhclient")
 
         iface = self.get_iface(m, m.macaddr)

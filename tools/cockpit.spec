@@ -357,7 +357,7 @@ Requires: /usr/bin/date
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 Provides: %{name}-networkmanager = %{version}-%{release}
-Requires: NetworkManager
+Requires: NetworkManager >= 1.0
 # Optional components (only when soft deps are supported)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
 Recommends: NetworkManager-team
@@ -459,7 +459,7 @@ subscription management.
 Summary: Cockpit user interface for networking, using NetworkManager
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
-Requires: NetworkManager
+Requires: NetworkManager >= 1.0
 # Optional components (only when soft deps are supported)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
 Recommends: NetworkManager-team

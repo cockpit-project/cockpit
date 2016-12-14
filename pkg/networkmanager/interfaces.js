@@ -121,7 +121,7 @@ function connection_settings(c) {
  * For example,
  *
  *    var manager = model.get_manager();
- *    manager.Devices[0].ActiveConnection.Ipv4Config.Addresses[0][0]
+ *    manager.Devices[0].ActiveConnection.Ipv4Config.Addresses[0].address
  *
  * is the first IPv4 address of the first device as a string.
  *
@@ -415,6 +415,13 @@ function NetworkManagerModel() {
     /* NetworkManager specific data conversions and utility functions.
      */
 
+    /* HACK - These low level, byte swapping, bit shifting functions
+     * are only needed because NetworkManager doesn't have a textual
+     * API variant for DNS stuff.
+     *
+     * https://bugzilla.gnome.org/show_bug.cgi?id=775881
+     */
+
     function toDec(n) {
         return n.toString(10);
     }
@@ -461,64 +468,6 @@ function NetworkManagerModel() {
             return 0;
     }
 
-    var text_to_prefix_bits = {
-        "255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0
-    };
-
-    function ip4_prefix_from_text(text) {
-        if (/^[0-9]+$/.test(text.trim()))
-            return parseInt(text, 10);
-        var parts = text.split('.');
-        if (parts.length != 4)
-            return -1;
-        var prefix = 0;
-        var i;
-        for (i = 0; i < 4; i++) {
-            var p = text_to_prefix_bits[parts[i].trim()];
-            if (p !== undefined) {
-                prefix += p;
-                if (p < 8)
-                    break;
-            } else
-                return -1;
-        }
-        for (i += 1; i < 4; i++) {
-            if (/^0+$/.test(parts[i].trim()) === false)
-                return -1;
-        }
-        return prefix;
-    }
-
-    function ip4_address_from_nm(addr) {
-        return [ ip4_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip4_to_text(addr[2])
-               ];
-    }
-
-    function ip4_address_to_nm(addr) {
-        return [ ip4_from_text(addr[0]),
-                 ip4_prefix_from_text(addr[1]),
-                 ip4_from_text(addr[2])
-               ];
-    }
-
-    function ip4_route_from_nm(addr) {
-        return [ ip4_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip4_to_text(addr[2]),
-                 addr[3].toString()
-               ];
-    }
-
-    function ip4_route_to_nm(addr) {
-        return [ ip4_from_text(addr[0]),
-                 ip4_prefix_from_text(addr[1]),
-                 ip4_from_text(addr[2]),
-                 parseInt(addr[3], 10) || 0
-               ];
-    }
-
     function ip6_from_text(text) {
         var parts = text.split(':');
         var bytes = [];
@@ -538,34 +487,152 @@ function NetworkManagerModel() {
         return parts.join(':');
     }
 
-    function ip6_address_from_nm(addr) {
-        return [ ip6_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip6_to_text(addr[2])
-               ];
+    /* End HACK */
+
+    var text_to_prefix_bits = {
+        "255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0
+    };
+
+    function ip4_prefix_from_text(text) {
+        function invalid() {
+            throw cockpit.format(_("Invalid prefix or netmask $0"), text);
+        }
+
+        if (/^[0-9]+$/.test(text.trim()))
+            return parseInt(text, 10);
+        var parts = text.split('.');
+        if (parts.length != 4)
+            invalid();
+        var prefix = 0;
+        var i;
+        for (i = 0; i < 4; i++) {
+            var p = text_to_prefix_bits[parts[i].trim()];
+            if (p !== undefined) {
+                prefix += p;
+                if (p < 8)
+                    break;
+            } else
+                invalid();
+        }
+        for (i += 1; i < 4; i++) {
+            if (/^0+$/.test(parts[i].trim()) === false)
+                invalid();
+        }
+        return prefix;
+    }
+
+    function address_from_nm(addr) {
+        return { address: addr.address.v,
+                 prefix: addr.prefix.v.toString()
+               };
+    }
+
+    function validate_ip4_address(text) {
+        function invalid() {
+            throw cockpit.format(_("Invalid address $0"), text);
+        }
+
+        var parts = text.split('.'), i, n;
+        if (parts.length != 4)
+            invalid();
+        for (i = 0; i < parts.length; i++) {
+            n = parseInt(parts[i]);
+            if (isNaN(n) || n < 0 || n > 255)
+                invalid();
+        }
+    }
+
+    function validate_ip6_address(text) {
+        function invalid() {
+            throw cockpit.format(_("Invalid address $0"), text);
+        }
+
+        var parts = text.split(':'), i, n;
+        var seen_empty = false;
+        if (parts.length === 0 || parts.length > 8)
+            invalid();
+        if (parts[0] === "")
+            parts[0] = "0";
+        if (parts[parts.length-1] === "")
+            parts[parts.length-1] = "0";
+        for (i = 0; i < parts.length; i++) {
+            if (parts[i] === "") {
+                if (seen_empty)
+                    invalid();
+                seen_empty = true;
+            } else {
+                n = parseInt(parts[i], 16);
+                if (isNaN(n) || n < 0 || n > 0xFFFF)
+                    invalid();
+            }
+        }
+        if (parts.length != 8 && !seen_empty)
+            invalid();
+    }
+
+    function validate_ip6_prefix(text) {
+        if (isNaN(parseInt(text, 10)))
+            throw cockpit.format(_("Invalid prefix $0"), text);
+    }
+
+    function validate_ip6_metric(text) {
+        if (isNaN(parseInt(text, 10)))
+            throw cockpit.format(_("Invalid metric $0"), text);
+    }
+
+    function ip4_address_to_nm(addr) {
+        validate_ip4_address(addr.address);
+        return { address: cockpit.variant('s', addr.address),
+                 prefix: cockpit.variant('u', ip4_prefix_from_text(addr.prefix))
+               };
     }
 
     function ip6_address_to_nm(addr) {
-        return [ ip6_from_text(addr[0]),
-                 parseInt(addr[1], 10) || 64,
-                 ip6_from_text(addr[2])
-               ];
+        validate_ip6_address(addr.address);
+        validate_ip6_prefix(addr.prefix);
+        return { address: cockpit.variant('s', addr.address),
+                 prefix: cockpit.variant('u', parseInt(addr.prefix, 10))
+               };
     }
 
-    function ip6_route_from_nm(addr) {
-        return [ ip6_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip6_to_text(addr[2]),
-                 addr[3].toString()
-               ];
+    function route_from_nm(route) {
+        return { address: route.address.v,
+                 prefix: route.prefix.v.toString(),
+                 gateway: route.gateway? route.gateway.v : "",
+                 metric: route.metric? route.metric.v.toString() : "",
+               };
     }
 
-    function ip6_route_to_nm(addr) {
-        return [ ip6_from_text(addr[0]),
-                 parseInt(addr[1], 10) || 64,
-                 ip6_from_text(addr[2]),
-                 parseInt(addr[3], 10) || 0
-               ];
+    function ip4_route_to_nm(route) {
+        validate_ip4_address(route.address);
+        validate_ip4_address(route.gateway);
+        var res = { address: cockpit.variant('s', route.address),
+                    prefix: cockpit.variant('u', ip4_prefix_from_text(route.prefix)),
+                  };
+        if (route.gateway) {
+            res.gateway = cockpit.variant('s', route.gateway);
+        }
+        if (route.metric) {
+            res.metric = cockpit.variant('u', parseInt(route.metric, 10));
+        }
+        return res;
+    }
+
+    function ip6_route_to_nm(route) {
+        validate_ip6_address(route.address);
+        validate_ip6_prefix(route.prefix);
+        validate_ip6_address(route.gateway);
+        validate_ip6_metric(route.metric);
+        var res = { address: cockpit.variant('s', route.address),
+                    prefix: cockpit.variant('u', parseInt(route.prefix, 10)),
+                  };
+        if (route.gateway) {
+            res.gateway = cockpit.variant('s', route.gateway);
+        }
+        if (route.metric) {
+            res.metric = cockpit.variant('u', parseInt(route.metric, 10));
+        }
+        return res;
     }
 
     function settings_from_nm(settings) {
@@ -577,15 +644,16 @@ function NetworkManagerModel() {
                 return def;
         }
 
-        function get_ip(first, addr_from_nm, route_from_nm, ip_to_text) {
+        function get_ip(first, ip_to_text) {
             return {
                 method:             get(first, "method", "auto"),
                 ignore_auto_dns:    get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
-                addresses:          get(first, "addresses", []).map(addr_from_nm),
+                addresses:          get(first, "address-data", []).map(address_from_nm),
+                gateway:            get(first, "gateway", ""),
                 dns:                get(first, "dns", []).map(ip_to_text),
                 dns_search:         get(first, "dns-search", []),
-                routes:             get(first, "routes", []).map(route_from_nm)
+                routes:             get(first, "route-data", []).map(route_from_nm)
             };
         }
 
@@ -603,8 +671,8 @@ function NetworkManagerModel() {
         };
 
         if (!settings.connection.master) {
-            result.ipv4 = get_ip("ipv4", ip4_address_from_nm, ip4_route_from_nm, ip4_to_text);
-            result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, ip6_to_text);
+            result.ipv4 = get_ip("ipv4", ip4_to_text);
+            result.ipv6 = get_ip("ipv6", ip6_to_text);
         }
 
         if (settings["802-3-ethernet"]) {
@@ -683,14 +751,21 @@ function NetworkManagerModel() {
                 delete result[first][second];
         }
 
-        function set_ip(first, addrs_sig, addr_to_nm, routes_sig, route_to_nm, ips_sig, ip_from_text) {
+        function set_ip(first, address_to_nm, route_to_nm, ips_sig, ip_from_text) {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
-            set(first, "addresses", addrs_sig, settings[first].addresses.map(addr_to_nm));
+            set(first, "address-data", 'aa{sv}', settings[first].addresses.map(address_to_nm));
+            if (settings[first].gateway)
+                validate_ip4_address(settings[first].gateway);
+            set(first, "gateway", 's', settings[first].gateway);
             set(first, "dns", ips_sig, settings[first].dns.map(ip_from_text));
             set(first, "dns-search", 'as', settings[first].dns_search);
-            set(first, "routes", routes_sig, settings[first].routes.map(route_to_nm));
+            set(first, "route-data", 'aa{sv}', settings[first].routes.map(route_to_nm));
+
+            // So that address-data and route-data gets used
+            delete result[first].addresses;
+            delete result[first].routes;
 
             // Never pass "address-labels" back to NetworkManager.  It
             // is documented as "internal only", but needs to somehow
@@ -709,12 +784,12 @@ function NetworkManagerModel() {
         set("connection", "master", 's', settings.connection.master);
 
         if (settings.ipv4)
-            set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', ip4_from_text);
+            set_ip("ipv4", ip4_address_to_nm, ip4_route_to_nm, 'au', ip4_from_text);
         else
             delete result.ipv4;
 
         if (settings.ipv6)
-            set_ip("ipv6", 'a(ayuay)', ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', ip6_from_text);
+            set_ip("ipv6", ip6_address_to_nm, ip6_route_to_nm, 'aay', ip6_from_text);
         else
             delete result.ipv6;
 
@@ -907,7 +982,7 @@ function NetworkManagerModel() {
         ],
 
         props: {
-            Addresses:            { conv: conv_Array(ip4_address_from_nm), def: [] }
+            Addresses:            { prop: "AddressData", conv: conv_Array(address_from_nm), def: [] }
         }
     };
 
@@ -917,7 +992,7 @@ function NetworkManagerModel() {
         ],
 
         props: {
-            Addresses:            { conv: conv_Array(ip6_address_from_nm), def: [] }
+            Addresses:            { prop: "AddressData", conv: conv_Array(address_from_nm), def: [] }
         }
     };
 
@@ -946,9 +1021,14 @@ function NetworkManagerModel() {
             },
 
             apply_settings: function (settings) {
-                return call_object_method(this,
-                                          "org.freedesktop.NetworkManager.Settings.Connection", "Update",
-                                          settings_to_nm(settings, priv(this).orig));
+                try {
+                    return call_object_method(this,
+                                              "org.freedesktop.NetworkManager.Settings.Connection", "Update",
+                                              settings_to_nm(settings, priv(this).orig));
+                }
+                catch (e) {
+                    return cockpit.reject(e);
+                }
             },
 
             activate: function (dev, specific_object) {
@@ -1076,9 +1156,14 @@ function NetworkManagerModel() {
             },
 
             activate_with_settings: function(settings, specific_object) {
-                return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
-                                          "org.freedesktop.NetworkManager", "AddAndActivateConnection",
-                                          settings_to_nm(settings), objpath(this), objpath(specific_object));
+                try {
+                    return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
+                                              "org.freedesktop.NetworkManager", "AddAndActivateConnection",
+                                              settings_to_nm(settings), objpath(this), objpath(specific_object));
+                }
+                catch (e) {
+                    return cockpit.reject(e);
+                }
             },
 
             disconnect: function () {
@@ -1164,16 +1249,21 @@ function NetworkManagerModel() {
         prototype: {
             add_connection: function (conf) {
                 var dfd = $.Deferred();
-                call_object_method(this,
-                                   'org.freedesktop.NetworkManager.Settings',
-                                   'AddConnection',
-                                   settings_to_nm(conf, { })).
-                    done(function (path) {
-                        dfd.resolve(get_object(path, type_Connection));
-                    }).
-                    fail(function (error) {
-                        dfd.reject(error);
-                    });
+                try {
+                    call_object_method(this,
+                                       'org.freedesktop.NetworkManager.Settings',
+                                       'AddConnection',
+                                       settings_to_nm(conf, { })).
+                        done(function (path) {
+                            dfd.resolve(get_object(path, type_Connection));
+                        }).
+                        fail(function (error) {
+                            dfd.reject(error);
+                        });
+                }
+                catch (e) {
+                    dfd.reject(e);
+                }
                 return dfd.promise();
             }
         },
@@ -1414,7 +1504,7 @@ function render_active_connection(dev, with_link, hide_link_local) {
     var ip4config = con? con.Ip4Config : dev.Ip4Config;
     if (ip4config) {
         ip4config.Addresses.forEach(function (a) {
-            parts.push(a[0] + "/" + a[1]);
+            parts.push(a.address + "/" + a.prefix);
         });
     }
 
@@ -1428,8 +1518,8 @@ function render_active_connection(dev, with_link, hide_link_local) {
     var ip6config = con? con.Ip6Config : dev.Ip6Config;
     if (ip6config) {
         ip6config.Addresses.forEach(function (a) {
-            if (!(hide_link_local && is_ipv6_link_local(a[0])))
-                parts.push(a[0] + "/" + a[1]);
+            if (!(hide_link_local && is_ipv6_link_local(a.address)))
+                parts.push(a.address + "/" + a.prefix);
         });
     }
 
@@ -2449,14 +2539,14 @@ PageNetworkInterface.prototype = {
                 var addr_is_extra = (params.method != "manual");
                 var addrs = [ ];
                 params.addresses.forEach(function (a) {
-                    var addr = a[0] + "/" + a[1];
-                    if (a[2] && a[2] != "0.0.0.0" && a[2] != "0:0:0:0:0:0:0:0")
-                        addr += " via " + a[2];
-                    addrs.push(addr);
+                    addrs.push(a.address + "/" + a.prefix);
                 });
                 if (addrs.length > 0)
                     parts.push(cockpit.format(addr_is_extra ? _("Additional address $val") : _("Address $val"),
                                  { val: addrs.join(", ") }));
+
+                if (params.gateway)
+                    parts.push(cockpit.format(_("Gateway $val"), { val: params.gateway }));
 
                 var dns_is_extra = (!params["ignore-auto-dns"] && params.method != "manual");
                 if (params.dns.length > 0)
@@ -2968,7 +3058,7 @@ PageNetworkIpSettings.prototype = {
         var topic = PageNetworkIpSettings.topic;
         var params = self.settings[topic];
 
-        var method_btn, addresses_table;
+        var method_btn, addresses_table, gateway_input;
         var auto_dns_btn, dns_table;
         var auto_dns_search_btn, dns_search_table;
         var auto_routes_btn, routes_table;
@@ -2999,27 +3089,44 @@ PageNetworkIpSettings.prototype = {
             return btn;
         }
 
-        function tablebox(title, p, columns, def, header_buttons) {
+        function textbox(title, placeholder, p) {
+            return (
+                $('<div class="network-ip-settings-row">').append(
+                    $('<div>').append(
+                        $('<strong>').text(title),
+                        $('<div class="pull-right">').append(
+                            $('<input class="form-control">').
+                                val(params[p]).
+                                change(function () {
+                                    params[p] = $(this).val();
+                                }).
+                                attr("placeholder", placeholder).
+                                css("position", "relative").
+                                css("top", "-5px").
+                                css("left", "-40px")))));
+        }
+
+        function tablebox(title, p, columns, def, header_buttons, extra_rows) {
             var direct = false;
             var add_btn;
 
             if (typeof columns == "string") {
                 direct = true;
-                columns = [ columns ];
+                columns = [ { title: columns } ];
             }
 
             function get(i, j) {
                 if (direct)
                     return params[p][i];
                 else
-                    return params[p][i][j];
+                    return params[p][i][columns[j].field];
             }
 
             function set(i, j, val) {
                 if (direct)
                     params[p][i] = val;
                 else
-                    params[p][i][j] = val;
+                    params[p][i][columns[j].field] = val;
             }
 
             function add() {
@@ -3052,7 +3159,7 @@ PageNetworkIpSettings.prototype = {
                                     return $('<td>').append(
                                         $('<input class="form-control">').
                                             val(get(i,j)).
-                                            attr('placeholder', c).
+                                            attr('placeholder', c.title).
                                             change(function (event) {
                                                 set(i,j, $(event.target).val());
                                             }));
@@ -3060,7 +3167,8 @@ PageNetworkIpSettings.prototype = {
                                 $('<td>').append(
                                     $('<button class="btn btn-default fa fa-minus">').
                                         click(remove(i)))));
-                        })));
+                        }),
+                        extra_rows));
 
             // For testing
             panel.attr("data-field", p);
@@ -3076,11 +3184,26 @@ PageNetworkIpSettings.prototype = {
             var prefix_text = (topic == "ipv4")? _("Prefix length or Netmask") : _("Prefix length");
             var body =
                 $('<div>').append(
-                    addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", prefix_text, "Gateway" ],
-                             [ "", "", "" ],
-                             method_btn = choicebox("method", (topic == "ipv4")?
-                                                    ipv4_method_choices : ipv6_method_choices).
-                                              css('display', 'inline-block')),
+                    addresses_table = tablebox(_("Addresses"), "addresses",
+                                               [ { title: _("Address"), field: "address" },
+                                                 { title: prefix_text, field: "prefix" }
+                                               ],
+                                               { address: "", prefix: "" },
+                                               method_btn = choicebox("method", (topic == "ipv4")?
+                                                                      ipv4_method_choices : ipv6_method_choices).
+                                               css('display', 'inline-block'),
+                                               (params.addresses.length > 0) ?
+                                               [ $('<tr>').append(
+                                                   $('<td>').append(
+                                                       $('<input class="form-control">').
+                                                           attr("placeholder", _("Gateway")).
+                                                           val(params.gateway).
+                                                           change(function () {
+                                                               params.gateway = $(this).val();
+                                                           })),
+                                                   $('<td>'),
+                                                   $('<td>'))
+                                               ] : null),
                     $('<br>'),
                     dns_table =
                         tablebox(_("DNS"), "dns", "Server", "",
@@ -3089,11 +3212,16 @@ PageNetworkIpSettings.prototype = {
                     dns_search_table =
                         tablebox(_("DNS Search Domains"), "dns_search", "Search Domain", "",
                                  auto_dns_search_btn = inverted_switchbox(_("Automatic"),
-                                                                                         "ignore_auto_dns")),
+                                                                          "ignore_auto_dns")),
                     $('<br>'),
                     routes_table =
                         tablebox(_("Routes"), "routes",
-                                 [ "Address", prefix_text, "Gateway", "Metric" ], [ "", "", "", "" ],
+                                 [ { title: _("Address"), field: "address" },
+                                   { title: prefix_text, field: "prefix" },
+                                   { title: _("Gateway"), field: "gateway" },
+                                   { title: _("Metric"), field: "metric" }
+                                 ],
+                                 { address: "", prefix: "", gateway: "", metric: "" },
                                  auto_routes_btn = inverted_switchbox(_("Automatic"), "ignore_auto_routes")));
             return body;
         }
@@ -3101,7 +3229,7 @@ PageNetworkIpSettings.prototype = {
         // The manual method needs at least one address
         //
         if (params.method == "manual" && params.addresses.length === 0)
-            params.addresses = [ [ "", "", "" ] ];
+            params.addresses = [ { address: "", prefix: "" } ];
 
         // The link local, shared, and disabled methods can't take any
         // addresses, dns servers, or dns search domains.  Routes,
@@ -3124,6 +3252,9 @@ PageNetworkIpSettings.prototype = {
         if (is_off) {
             params.routes = [ ];
         }
+
+        if (params.addresses.length === 0)
+            params.gateway = "";
 
         $('#network-ip-settings-dialog .modal-title').text(
             (topic == "ipv4")? _("IPv4 Settings") : _("IPv6 Settings"));

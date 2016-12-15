@@ -31,8 +31,42 @@
      * Implements a <modal-dialog> directive that works with ui-bootstrap's
      * $modal service. Implements Cockpit dialog HIG behavior.
      *
+     * This wraps <modal-group> and provides a default implementation
+     * of result and cancel where the dialog is closed when either method
+     * is called.
+     */
+    .directive('modalDialog', [
+        "$q",
+        function($q) {
+            return {
+                restrict: 'E',
+                transclude: true,
+                template: '<modal-group><ng-transclude></ng-transclude></modal-group>',
+                link: function(scope, element, attrs) {
+
+                    scope.cancel = function() {
+                        scope.$dismiss();
+                    };
+
+                    scope.result = function(success, result) {
+                        /* Close dialog on success */
+                        if (success)
+                            scope.$close(result);
+                    };
+                },
+            };
+        }
+    ])
+
+    /*
+     * Implements a <modal-group> directive that works with ui-bootstrap's
+     * $modal service. Implements Cockpit dialog HIG behavior.
+     *
+     * To use this directive your parent scope must implement a result
+     * and cancel method. See <modal-dialog> for the default implementation.
+     *
      * This dialog treats a button with .btn-cancel class as a cancel
-     * button. Clicking it will dismiss the dialog or (see below) cancel
+     * button. Clicking it will call the cancel method or (see below) cancel
      * a completion promise.
      *
      * From inside the dialog, you can invoke the following methods on
@@ -56,15 +90,15 @@
      *
      * Complete the dialog. If a promise is passed, then the dialog will
      * enter into a wait state until the promise completes. If promise resolves
-     * then the dialog will be closed with the resolve value. If the promise
+     * then the result method with be called with the resolve value. If the promise
      * rejects, then failures will be displayed by invoking failure() above.
      *
      * While the promise is completing, all .form-control and .btn will
      * be disabled. If promise.cancel() is a method, then the .btn-cancel
      * will remain clickable, and clicking it will cancel the promise, and
-     * when the promise completes, will dismiss the dialog.
+     * when the promise completes, will call the cancel method.
      */
-    .directive('modalDialog', [
+    .directive('modalGroup', [
         "$q",
         function($q) {
             return {
@@ -81,10 +115,13 @@
                     }
 
                     scope.complete = function(thing) {
+                        var buttonSel = scope.modalGroupButtonSel || ".modal-footer";
+                        var errorAfter = scope.modalGroupErrorAfter || false;
+
                         detach();
                         if (!thing || !thing.then)
                             thing = $q(thing);
-                        state = new DialogState(element, thing, scope);
+                        state = new DialogState(element, buttonSel, errorAfter, thing, scope);
                     };
 
                     scope.failure = function(/* ... */) {
@@ -111,7 +148,7 @@
 
                     /* Dialog cancellation before promises kick in */
                     function dismissDialog() {
-                        scope.$dismiss();
+                        scope.cancel();
                     }
 
                     var cancel = queryFirst(element, ".btn-cancel");
@@ -134,7 +171,7 @@
             list = element[i].querySelectorAll(selector);
             if (list) {
                 for (j = 0, jlen = list.length; j < jlen; j++)
-                    result.push(list[i]);
+                    result.push(list[j]);
             }
         }
         return angular.element(result);
@@ -156,7 +193,7 @@
      * state = true: succeeded
      * state = false: failed
      */
-    function DialogState(element, promise, scope) {
+    function DialogState(element, btnSel, errorAfter, promise, scope) {
         var state = null;
         var result = null;
 
@@ -203,17 +240,19 @@
                 return;
             state = value;
             if (cancelled) {
-                scope.$dismiss();
+                scope.cancel();
                 return;
             } else if (state === null) {
                 clearErrors();
                 displayWait();
             } else if (state === true) {
                 clearErrors();
-                scope.$close(result); /* Close dialog */
+                clearWait();
+                scope.result(true, result);
             } else if (state === false) {
                 clearWait();
                 displayErrors(result);
+                scope.result(false, result);
             } else {
                 console.warn("invalid dialog state", state);
             }
@@ -248,11 +287,15 @@
             alert.text(error.message || error.toString());
             alert.prepend(angular.element("<span class='fa fa-exclamation-triangle'>"));
 
-            var wrapper = queryFirst(element, ".modal-footer");
-            if (wrapper.length)
-                wrapper.prepend(alert);
-            else
+            var wrapper = queryFirst(element, btnSel);
+            if (wrapper.length) {
+                if (errorAfter)
+                    wrapper.append(alert);
+                else
+                    wrapper.prepend(alert);
+            } else {
                 element.append(alert);
+            }
         }
 
         function fieldError(target, error) {
@@ -320,7 +363,7 @@
             clearWait();
 
             /* Insert the wait area */
-            queryFirst(element, ".modal-footer").prepend(wait);
+            queryFirst(element, btnSel).prepend(wait);
 
             /* Disable everything and stash previous disabled state */
             function disable(el) {
@@ -333,6 +376,7 @@
             }
 
             angular.forEach(queryAll(element, ".form-control"), disable);
+            angular.forEach(queryAll(element, ".form-checkbox"), disable);
             angular.forEach(queryAll(element, ".btn"), disable);
 
             queryFirst(element, ".btn-cancel").on("click", handleCancel);

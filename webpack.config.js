@@ -142,6 +142,8 @@ var info = {
         "kubernetes/scripts/test-tags",
         "kubernetes/scripts/test-connection",
         "kubernetes/scripts/test-volumes",
+
+        "ostree/test-utils",
     ],
 
     files: [

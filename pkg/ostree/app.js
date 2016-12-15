@@ -5,12 +5,14 @@
     var moment = require('moment');
 
     var angular = require('angular');
+    require('angular-dialog.js');
     require('angular-route');
     require('angular-gettext/dist/angular-gettext.js');
     require('angular-bootstrap/ui-bootstrap.js');
     require('angular-bootstrap/ui-bootstrap-tpls.js');
 
     var client = require('./client');
+    require('./remotes');
 
     var _ = cockpit.gettext;
     cockpit.translate();
@@ -53,6 +55,8 @@
     angular.module('ostree', [
             'ngRoute',
             'gettext',
+            'ui.cockpit',
+            'ostree.remotes',
         ])
         .config([
             '$routeProvider',
@@ -200,7 +204,16 @@
         }])
 
         .directive('ostreeCheck', [
-            function() {
+            '$modal',
+            function($modal) {
+                function bootedOrigin (osName) {
+                    var origin;
+                    var os = client.get_os_proxy(osName);
+                    if (os && os.BootedDeployment)
+                        origin = client.get_origin_object(os.BootedDeployment);
+                    return origin;
+                }
+
                 return {
                     restrict: 'E',
                     templateUrl: "ostree-check.html",
@@ -212,6 +225,8 @@
                         scope.error = null;
                         scope.progressMsg = null;
                         scope.isRunning = false;
+                        scope.currentOrigin = bootedOrigin(scope.os);
+
                         scope.$watch("runningMethod", function() {
                             var expected = "DownloadUpdateRpmDiff:" + scope.os;
                             scope.isRunning = expected === client.running_method;
@@ -223,6 +238,34 @@
                             var promise = client.run_transaction("DownloadUpdateRpmDiff",
                                                                  null, scope.os);
                             notify_result(promise, scope);
+                        };
+
+                        scope.remoteLabel = function() {
+                            if (!scope.currentOrigin)
+                                return;
+
+                            return cockpit.format(_("Currently using $0 repository"),
+                                                  scope.currentOrigin.remote);
+                        };
+
+                        scope.changeRepository = function() {
+                            scope.error = null;
+                            var promise = $modal.open({
+                                animation: false,
+                                controller: 'ChangeRepositoryCtrl',
+                                templateUrl: 'repository-dialog.html',
+                                resolve: {
+                                    dialogData: function() {
+                                        return scope.currentOrigin;
+                                    }
+                                },
+                            }).result;
+
+                            /* If the change is successful */
+                            promise.then(function(result) {
+                                scope.currentOrigin = result;
+                            });
+                            return promise;
                         };
                     }
                 };

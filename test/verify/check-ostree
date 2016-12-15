@@ -85,6 +85,12 @@ def generate_new_commit(m, pkg_to_remove):
     command = "ostree commit -s cockpit-tree2 --repo {0} -b {1} --add-metadata-string version=cockpit-base.2 --tree=dir={2} --gpg-sign={3} --gpg-homedir=/root/"
     m.execute(command.format(*commit_args))
 
+def rhsmcertd_hack(m):
+    # HACK: https://github.com/candlepin/subscription-manager/issues/1404
+    m.execute("systemctl disable rhsmcertd || true")
+    m.execute("systemctl stop rhsmcertd || true")
+
+
 @skipImage("No OSTree available", "centos-7", "debian-8", "debian-unstable", "fedora-24", "fedora-25", "fedora-testing", "rhel-7", "ubuntu-1604")
 class OstreeRestartCase(MachineCase):
 
@@ -123,9 +129,7 @@ class OstreeRestartCase(MachineCase):
 
         docker_pkg = m.execute("rpm -qa | grep cockpit-docker").strip()
 
-        # HACK: https://github.com/candlepin/subscription-manager/issues/1404
-        m.execute("systemctl disable rhsmcertd || true")
-        m.execute("systemctl stop rhsmcertd || true")
+        rhsmcertd_hack(m)
 
         cockpit_shell = m.execute("rpm -qa | grep cockpit-ostree").strip()
         cockpit_machines = m.execute("rpm -qa | grep cockpit-machines").strip()
@@ -320,13 +324,168 @@ class OstreeRestartCase(MachineCase):
 @skipImage("No OSTree available", "centos-7", "debian-8", "debian-unstable", "fedora-24", "fedora-25", "fedora-testing", "rhel-7", "ubuntu-1604")
 class OstreeCase(MachineCase):
 
+    def testRemoteManagement(self):
+        m = self.machine
+        b = self.browser
+
+        rhsmcertd_hack(m)
+        self.login_and_go("/updates")
+        b.enter_page("/updates")
+
+        b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
+                       "Currently using local repository")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-head .btn-repository")
+        b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert')
+        b.click("table.listing-ct tbody:nth-child(2) .btn-repository")
+
+        b.wait_present("modal-dialog")
+        b.wait_in_text("modal-dialog .modal-title", "Change Repository")
+        b.wait_present("modal-dialog .modal-body .list-group")
+        b.wait_in_text("modal-dialog .modal-body .list-group", "-atomic")
+        b.wait_in_text("modal-dialog .modal-body .list-group .active", "local")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "Add New Repository")
+
+        b.wait_present("modal-dialog .modal-footer button.btn-primary")
+
+        b.click("modal-dialog .modal-body .list-group-item:last")
+        b.wait_present("modal-dialog .modal-footer button.disabled")
+        b.wait_present("modal-dialog #remote-name")
+        b.wait_present("modal-dialog #remote-url")
+        b.wait_present("modal-dialog #gpg-verify")
+        b.click("modal-dialog #gpg-verify")
+        b.set_val("modal-dialog #remote-url", "http://zremote-test1")
+        b.set_val("modal-dialog #remote-name", "zremote test")
+        b.wait_present("modal-dialog .group-buttons button.btn-primary")
+        b.wait_in_text("modal-dialog .group-buttons button.btn-primary", "Add")
+        b.click("modal-dialog .group-buttons button.btn-primary")
+        b.wait_present("modal-dialog .list-group-item:last div.dialog-error")
+        b.set_val("modal-dialog #remote-name", "zremote-test1")
+        b.click("modal-dialog .group-buttons button.btn-primary")
+
+        b.wait_not_present ("modal-dialog #remote-name")
+        b.wait_not_present ("modal-dialog .group-buttons")
+        b.wait_not_present("modal-dialog .modal-footer button.disabled")
+        b.wait_present("modal-dialog .modal-footer button.btn-primary")
+        b.wait_in_text("modal-dialog .modal-body .list-group .active", "local")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "zremote-test1")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(4)", "Add New Repository")
+        b.click("modal-dialog .modal-body .list-group-item:nth-child(3)")
+
+        b.click("modal-dialog .modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
+                       "Currently using zremote-test1 repository")
+
+        # Config created
+        self.assertEqual(m.execute("cat /etc/ostree/remotes.d/zremote-test1.conf").strip(),
+                        '[remote "zremote-test1"]\nurl=http://zremote-test1\ngpg-verify=true')
+        # No custom keyring
+        self.assertFalse(m.execute("ls /sysroot/ostree/repo/zremote-test1.trustedkeys.gpg || true"))
+
+        # Refresh goes back to default
+        b.reload()
+        b.enter_page("/updates")
+        b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
+                       "Currently using local repository")
+
+        # Edit
+        b.click("table.listing-ct tbody:nth-child(2) .btn-repository")
+        b.wait_present("modal-dialog")
+        b.wait_present("modal-dialog .modal-body .list-group")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "zremote-test1")
+        b.wait_present("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.click("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.wait_present("modal-dialog .group-buttons")
+        b.wait_present("modal-dialog .modal-footer button.disabled")
+        b.wait_present("modal-dialog .group-buttons button.btn-primary")
+        b.wait_in_text("modal-dialog .group-buttons", "zremote-test1")
+        b.wait_present("modal-dialog .form-table-ct")
+        b.wait_in_text("modal-dialog .form-table-ct", "http://zremote-test1")
+        b.wait_present("modal-dialog .form-table-ct #gpg-verify:checked")
+        b.wait_not_present("modal-dialog #gpg-data")
+        b.wait_present("modal-dialog .form-table-ct button.btn-default")
+        b.click("modal-dialog .form-table-ct button.btn-default")
+        b.wait_present("modal-dialog #gpg-data")
+        b.wait_not_present("modal-dialog .form-table-ct button.btn-default")
+        b.set_val("modal-dialog #gpg-data", "bad")
+        b.click("modal-dialog .group-buttons button.btn-primary")
+        b.wait_present("modal-dialog .group-buttons div.dialog-error")
+
+        with open(os.path.join(testinfra.TEST_DIR, "verify",
+                               "files", "publickey.asc"), 'rb') as fp:
+            gpg_data = fp.read()
+
+        b.set_val("modal-dialog #gpg-data", gpg_data)
+        b.click("modal-dialog .group-buttons button.btn-primary")
+        b.wait_not_present ("modal-dialog .group-buttons")
+        b.wait_not_present("modal-dialog .form-table-ct")
+        b.wait_not_present("modal-dialog .modal-footer button.disabled")
+        m.execute("ls /sysroot/ostree/repo/zremote-test1.trustedkeys.gpg")
+
+        b.wait_present("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.click("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.wait_present("modal-dialog .group-buttons")
+        b.wait_present("modal-dialog .modal-footer button.disabled")
+        b.wait_present("modal-dialog .group-buttons button.btn-primary")
+        b.wait_present("modal-dialog .form-table-ct")
+        b.wait_in_text("modal-dialog .form-table-ct", "http://zremote-test1")
+        b.wait_present("modal-dialog .form-table-ct button.btn-default")
+        b.wait_present("modal-dialog .form-table-ct #gpg-verify:checked")
+        b.click("modal-dialog .form-table-ct #gpg-verify")
+        b.click("modal-dialog .group-buttons button.btn-primary")
+        b.wait_not_present("modal-dialog .form-table-ct")
+        b.wait_not_present ("modal-dialog .group-buttons")
+        b.wait_not_present("modal-dialog .modal-footer button.disabled")
+        b.click("modal-dialog .modal-body .list-group-item:nth-child(3)")
+        b.click("modal-dialog .modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
+                       "Currently using zremote-test1 repository")
+
+        self.assertEqual(m.execute("cat /etc/ostree/remotes.d/zremote-test1.conf").strip(),
+                         '[remote "zremote-test1"]\nurl=http://zremote-test1\ngpg-verify = false')
+
+        # delete
+        b.click("table.listing-ct tbody:nth-child(2) .btn-repository")
+        b.wait_present("modal-dialog")
+        b.wait_present("modal-dialog .modal-body .list-group")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "zremote-test1")
+        b.wait_present("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.click("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.wait_present("modal-dialog .group-buttons")
+        b.wait_present("modal-dialog .group-buttons button.btn-danger")
+        b.wait_present("modal-dialog .modal-footer button.disabled")
+        b.wait_present("modal-dialog .form-table-ct")
+        b.wait_in_text("modal-dialog .form-table-ct", "http://zremote-test1")
+        b.wait_present("#gpg-verify")
+        b.wait_present("modal-dialog .form-table-ct #gpg-verify:not(:checked)")
+        b.click("modal-dialog .group-buttons button.btn-danger")
+        b.wait_not_present("modal-dialog .form-table-ct")
+        b.wait_not_present("modal-dialog .group-buttons")
+
+        b.wait_present("modal-dialog .modal-body .list-group")
+        b.wait_not_in_text("modal-dialog .modal-body .list-group", "zremote-test1")
+        b.wait_in_text("modal-dialog .modal-body .list-group", "local")
+        b.wait_not_present("modal-dialog .modal-body .list-group .active")
+        b.wait_present("modal-dialog .modal-footer button.disabled")
+        b.click("modal-dialog .modal-body .list-group-item:nth-child(1)")
+        b.wait_present("modal-dialog .modal-body .list-group .active")
+        b.click("modal-dialog .modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+        b.wait_not_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
+                           "Currently using zremote-test1 repository")
+
+        self.allow_authorize_journal_messages()
+
     def testPermission(self):
         m = self.machine
         b = self.browser
 
-        # HACK: https://github.com/candlepin/subscription-manager/issues/1404
-        m.execute("systemctl disable rhsmcertd || true")
-        m.execute("systemctl stop rhsmcertd || true")
+        rhsmcertd_hack(m)
 
         # Create a user
         m.execute("useradd user -c 'User' || true")

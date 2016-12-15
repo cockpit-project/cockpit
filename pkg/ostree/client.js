@@ -376,6 +376,20 @@ function RPMOSTreeDBusClient() {
         return list;
     };
 
+    self.get_origin_object = function (deployment) {
+        var origin;
+        var parts;
+        if (deployment.origin) {
+            parts = deployment.origin.v.split(':');
+            if (parts.length > 1) {
+                origin = { "remote": parts[0] };
+                parts.shift();
+                origin.branch = parts.join(':');
+            }
+        }
+        return origin;
+    };
+
     self.get_os_proxy = function(os_name) {
         var path = os_names[os_name];
         var proxy = null;

@@ -163,9 +163,11 @@ WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
 distclean-local::
 	rm -rf dist/
 install-data-local:: $(WEBPACK_INSTALL)
+	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 	$(SED_SUBST) -i $(DESTDIR)$(pkgdatadir)/*/manifest.json
 install-data-local:: $(WEBPACK_DEBUG)
+	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -type f -delete

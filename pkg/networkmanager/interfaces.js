@@ -946,10 +946,15 @@ function NetworkManagerModel() {
             },
 
             apply_settings: function (settings) {
-                set_settings(this, settings);
-                return call_object_method(this,
-                                          "org.freedesktop.NetworkManager.Settings.Connection", "Update",
-                                          settings_to_nm(settings, priv(this).orig));
+                try {
+                    set_settings(this, settings);
+                    return call_object_method(this,
+                                              "org.freedesktop.NetworkManager.Settings.Connection", "Update",
+                                              settings_to_nm(settings, priv(this).orig));
+                }
+                catch (e) {
+                    return cockpit.reject(e);
+                }
             },
 
             activate: function (dev, specific_object) {
@@ -1077,9 +1082,14 @@ function NetworkManagerModel() {
             },
 
             activate_with_settings: function(settings, specific_object) {
-                return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
-                                          "org.freedesktop.NetworkManager", "AddAndActivateConnection",
-                                          settings_to_nm(settings), objpath(this), objpath(specific_object));
+                try {
+                    return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
+                                              "org.freedesktop.NetworkManager", "AddAndActivateConnection",
+                                              settings_to_nm(settings), objpath(this), objpath(specific_object));
+                }
+                catch (e) {
+                    return cockpit.reject(e);
+                }
             },
 
             disconnect: function () {
@@ -1165,16 +1175,21 @@ function NetworkManagerModel() {
         prototype: {
             add_connection: function (conf) {
                 var dfd = $.Deferred();
-                call_object_method(this,
-                                   'org.freedesktop.NetworkManager.Settings',
-                                   'AddConnection',
-                                   settings_to_nm(conf, { })).
-                    done(function (path) {
-                        dfd.resolve(get_object(path, type_Connection));
-                    }).
-                    fail(function (error) {
-                        dfd.reject(error);
-                    });
+                try {
+                    call_object_method(this,
+                                       'org.freedesktop.NetworkManager.Settings',
+                                       'AddConnection',
+                                       settings_to_nm(conf, { })).
+                        done(function (path) {
+                            dfd.resolve(get_object(path, type_Connection));
+                        }).
+                        fail(function (error) {
+                            dfd.reject(error);
+                        });
+                }
+                catch (e) {
+                    dfd.reject(e);
+                }
                 return dfd.promise();
             }
         },

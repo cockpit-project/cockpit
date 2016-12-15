@@ -20,6 +20,8 @@
 var $ = require('jquery');
 var cockpit = require('cockpit');
 
+var utils = require('./utils');
+
 var Mustache = require('mustache');
 var plot = require('plot');
 var journal = require('journal');
@@ -186,7 +188,6 @@ function NetworkManagerModel() {
      */
 
     var self = this;
-    var byteorder = null;
 
     /* HACK: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162 */
     var hacks = { };
@@ -386,9 +387,9 @@ function NetworkManagerModel() {
         done(function(reply, options) {
             if (options.flags) {
                 if (options.flags.indexOf(">") !== -1)
-                    byteorder = "be";
+                    utils.set_byteorder("be");
                 else if (options.flags.indexOf("<") !== -1)
-                    byteorder = "le";
+                    utils.set_byteorder("le");
             }
         });
 
@@ -415,156 +416,62 @@ function NetworkManagerModel() {
     /* NetworkManager specific data conversions and utility functions.
      */
 
-    function toDec(n) {
-        return n.toString(10);
-    }
-
-    function bytes_from_nm32(num) {
-        var bytes = [], i;
-        if (byteorder == "be") {
-            for (i = 3; i >= 0; i--) {
-                bytes[i] = num & 0xFF;
-                num = num >>> 8;
-            }
-        } else {
-            for (i = 0; i < 4; i++) {
-                bytes[i] = num & 0xFF;
-                num = num >>> 8;
-            }
-        }
-        return bytes;
-    }
-
-    function bytes_to_nm32(bytes) {
-        var num = 0, i;
-        if (byteorder == "be") {
-            for (i = 0; i < 4; i++) {
-                num = 256*num + bytes[i];
-            }
-        } else {
-            for (i = 3; i >= 0; i--) {
-                num = 256*num + bytes[i];
-            }
-        }
-        return num;
-    }
-
-    function ip4_to_text(num) {
-        return bytes_from_nm32(num).map(toDec).join('.');
-    }
-
-    function ip4_from_text(text) {
-        var parts = text.split('.');
-        if (parts.length == 4)
-            return bytes_to_nm32(parts.map(function(s) { return parseInt(s, 10); }));
-        else // XXX - error
-            return 0;
-    }
-
-    var text_to_prefix_bits = {
-        "255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0
-    };
-
-    function ip4_prefix_from_text(text) {
-        if (/^[0-9]+$/.test(text.trim()))
-            return parseInt(text, 10);
-        var parts = text.split('.');
-        if (parts.length != 4)
-            return -1;
-        var prefix = 0;
-        var i;
-        for (i = 0; i < 4; i++) {
-            var p = text_to_prefix_bits[parts[i].trim()];
-            if (p !== undefined) {
-                prefix += p;
-                if (p < 8)
-                    break;
-            } else
-                return -1;
-        }
-        for (i += 1; i < 4; i++) {
-            if (/^0+$/.test(parts[i].trim()) === false)
-                return -1;
-        }
-        return prefix;
-    }
-
     function ip4_address_from_nm(addr) {
-        return [ ip4_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip4_to_text(addr[2])
+        return [ utils.ip4_to_text(addr[0]),
+                 utils.ip_prefix_to_text(addr[1]),
+                 utils.ip4_to_text(addr[2], true)
                ];
     }
 
     function ip4_address_to_nm(addr) {
-        return [ ip4_from_text(addr[0]),
-                 ip4_prefix_from_text(addr[1]),
-                 ip4_from_text(addr[2])
+        return [ utils.ip4_from_text(addr[0]),
+                 utils.ip4_prefix_from_text(addr[1]),
+                 utils.ip4_from_text(addr[2], true)
                ];
     }
 
     function ip4_route_from_nm(addr) {
-        return [ ip4_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip4_to_text(addr[2]),
-                 addr[3].toString()
+        return [ utils.ip4_to_text(addr[0]),
+                 utils.ip_prefix_to_text(addr[1]),
+                 utils.ip4_to_text(addr[2], true),
+                 utils.ip_metric_to_text(addr[3])
                ];
     }
 
     function ip4_route_to_nm(addr) {
-        return [ ip4_from_text(addr[0]),
-                 ip4_prefix_from_text(addr[1]),
-                 ip4_from_text(addr[2]),
-                 parseInt(addr[3], 10) || 0
+        return [ utils.ip4_from_text(addr[0]),
+                 utils.ip4_prefix_from_text(addr[1]),
+                 utils.ip4_from_text(addr[2], true),
+                 utils.ip_metric_from_text(addr[3])
                ];
     }
-
-    function ip6_from_text(text) {
-        var parts = text.split(':');
-        var bytes = [];
-        for (var i = 0; i < 8; i++) {
-            var num = parseInt(parts[i], 16) || 0;
-            bytes[2*i] = num >> 8;
-            bytes[2*i+1] = num & 255;
-        }
-        return cockpit.base64_encode(bytes);
-    }
-
-    function ip6_to_text(data) {
-        var parts = [];
-        var bytes = cockpit.base64_decode(data);
-        for (var i = 0; i < 8; i++)
-            parts[i] = ((bytes[2*i] << 8) + bytes[2*i+1]).toString(16);
-        return parts.join(':');
-    }
-
     function ip6_address_from_nm(addr) {
-        return [ ip6_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip6_to_text(addr[2])
+        return [ utils.ip6_to_text(addr[0]),
+                 utils.ip_prefix_to_text(addr[1]),
+                 utils.ip6_to_text(addr[2], true)
                ];
     }
 
     function ip6_address_to_nm(addr) {
-        return [ ip6_from_text(addr[0]),
+        return [ utils.ip6_from_text(addr[0]),
                  parseInt(addr[1], 10) || 64,
-                 ip6_from_text(addr[2])
+                 utils.ip6_from_text(addr[2], true)
                ];
     }
 
     function ip6_route_from_nm(addr) {
-        return [ ip6_to_text(addr[0]),
-                 addr[1].toString(),
-                 ip6_to_text(addr[2]),
-                 addr[3].toString()
+        return [ utils.ip6_to_text(addr[0]),
+                 utils.ip_prefix_to_text(addr[1]),
+                 utils.ip6_to_text(addr[2], true),
+                 utils.ip_metric_to_text(addr[1]),
                ];
     }
 
     function ip6_route_to_nm(addr) {
-        return [ ip6_from_text(addr[0]),
-                 parseInt(addr[1], 10) || 64,
-                 ip6_from_text(addr[2]),
-                 parseInt(addr[3], 10) || 0
+        return [ utils.ip6_from_text(addr[0]),
+                 utils.ip_prefix_from_text(addr[1]),
+                 utils.ip6_from_text(addr[2], true),
+                 utils.ip_metric_from_text(addr[3])
                ];
     }
 
@@ -603,8 +510,8 @@ function NetworkManagerModel() {
         };
 
         if (!settings.connection.master) {
-            result.ipv4 = get_ip("ipv4", ip4_address_from_nm, ip4_route_from_nm, ip4_to_text);
-            result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, ip6_to_text);
+            result.ipv4 = get_ip("ipv4", ip4_address_from_nm, ip4_route_from_nm, utils.ip4_to_text);
+            result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, utils.ip6_to_text);
         }
 
         if (settings["802-3-ethernet"]) {
@@ -709,12 +616,12 @@ function NetworkManagerModel() {
         set("connection", "master", 's', settings.connection.master);
 
         if (settings.ipv4)
-            set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', ip4_from_text);
+            set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', utils.ip4_from_text);
         else
             delete result.ipv4;
 
         if (settings.ipv6)
-            set_ip("ipv6", 'a(ayuay)', ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', ip6_from_text);
+            set_ip("ipv6", 'a(ayuay)', ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', utils.ip6_from_text);
         else
             delete result.ipv6;
 

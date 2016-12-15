@@ -30,6 +30,144 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 </head>
 <body ng-app='ostree' hidden>
 
+<script type="text/ng-template" id="edit-remote.html">
+<modal-group>
+    <div class="list-group-item">
+        <div class="group-buttons">
+            <div class="listing-ct-actions">
+                <button class="btn btn-danger" ng-click="complete(delete())" translate>Delete</button>
+                <button class="btn btn-primary" ng-click="complete(update())" ng-class="{disabled: !fields}" translate>Apply</button>
+            </div>
+            <p><strong>{{ remote }}</strong></p>
+        </div>
+
+        <table class="form-table-ct" ng-if="fields">
+            <tbody>
+            <tr>
+                <td>
+                    <label class="control-label" translate>URL</label>
+                </td>
+                <td>
+                    <span>{{ fields.url }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="top">
+                    <label>
+                        <input id="gpg-verify" class="form-checkbox" type="checkbox" ng-model="fields.gpgVerify" translate>
+                        <span translate>Use trusted GPG key</span>
+                    </label>
+
+                </td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td>
+                    <textarea id="gpg-data"
+                        class="form-control"
+                        placeholder="Begins with '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
+                        ng-model="fields.gpgData"
+                        translate="placeholder"
+                        ng-if="showGpgData">
+                    </textarea>
+                    <button class="btn btn-default" ng-click="toggleGpgData()"
+                        ng-if="!showGpgData" translate>Add Another Key</button>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</modal-group>
+</script>
+
+<script type="text/ng-template" id="add-remote.html">
+<modal-group>
+    <div class="group-buttons">
+        <div class="listing-ct-actions">
+            <button class="btn btn-primary" ng-click="complete(add())" translate>Add</button>
+        </div>
+        <p><strong translate>- Add New Repository</strong></p>
+    </div>
+
+    <table class="form-table-ct">
+        <tbody>
+            <tr>
+                <td>
+                    <label class="control-label" translate>Name</label>
+                </td>
+                <td>
+                    <input id="remote-name" class="form-control" type="text"
+                        ng-model="fields.name">
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label class="control-label" translate>URL</label>
+                </td>
+                <td>
+                    <input id="remote-url" class="form-control" type="text"
+                        ng-model="fields.url">
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="top">
+                    <label>
+                        <input id="gpg-verify" class="form-checkbox" type="checkbox" ng-model="fields.gpgVerify" translate>
+                        <span translate>Use trusted GPG key</span>
+                    </label>
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</modal-group>
+</script>
+
+<script type="text/ng-template" id="repository-dialog.html">
+<modal-dialog>
+    <div class="modal-header">
+        <h3 class="modal-title" translate>Change Repository</h3>
+    </div>
+
+    <div class="modal-body modal-scrollable">
+        <div class="alert alert-warning" ng-if="loading_error">
+          <span class="pficon pficon-warning-triangle-o"></span>
+          <strong>{{ loading_error }}</strong>
+        </div>
+        <div class="spinner spinner-lg" ng-if="loading"></div>
+
+        <div class="list-group dialog-list-ct" ng-if="!loading">
+            <div ng-if="0" ng-repeat-start="r in remotes"></div>
+                <div class="list-group-item" ng-if="editing != r" ng-class="{'active' : remote == r}"
+                    ng-click="toggleSelected(r)">
+                    <div class="listing-ct-actions">
+                        <button class="btn btn-default pficon pficon-edit"
+                            ng-if="r != editing" ng-click="toggleEdit(r, $event)"></button>
+                    </div>
+                    <p>{{ r }}</p>
+                </div>
+                <edit-remote remote="r" ng-if="r == editing"></edit-remote>
+            <div ng-if="0" ng-repeat-end></div>
+            <div class="list-group-item" ng-click="openAdd()">
+                <p ng-if="!adding">+ Add New Repository</p>
+                <add-remote ng-if="adding"></add-remote>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-default btn-cancel" ng-click="$dismiss()" translate>Cancel</button>
+        <button class="btn btn-primary" ng-class="{'disabled': !canSubmit()}" ng-click="complete(update())">Change Repository</button>
+    </div>
+
+</modal-dialog>
+</script>
+
 <script type="text/ng-template" id="ostree-check.html">
 <div class="timeline-ct timeline-ct-end">
     <div class="timeline-ct-point timeline-ct-md" ng-if="isRunning">
@@ -41,15 +179,19 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <div ng-if="isRunning" class="display-inline">
                 {{ progressMsg }}
             </div>
-            <div class="display-inline alert" ng-if="error">
-                <span class="pficon pficon-warning-triangle-o"></span>
-                {{ error }}
+            <div ng-if="currentOrigin && !isRunning" class="display-inline">
+                {{ remoteLabel() }}
+                <button class="btn btn-default btn-repository" ng-class="{ disabled: runningMethod }" ng-click="changeRepository()" translate>Change Repository</button>
             </div>
+            <div class="display-inline">&nbsp;</div>
             <div class="listing-ct-actions">
                 <button class="btn btn-default" ng-class="{ disabled: runningMethod, enabled: !runningMethod }" ng-click="checkForUpgrades()" translate>Check for Updates</button>
             </div>
+            <div class="alert alert-warning" ng-if="error && !runningMethod">
+                <span class="pficon pficon-warning-triangle-o"></span>
+                {{ error }}
+            </div>
         </div>
-        &nbsp;
     </div>
 </div>
 </script>
@@ -74,6 +216,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         ng-click="doRollback(item.osname.v)"
                         ng-if="matches('RollbackDeployment') && !matches('CachedUpdate')"
                         translate class="btn btn-default">Roll Back and Reboot</button>
+
             </div>
             <h3>{{ item | releaseName }}</h3>
             <div ng-if="!isRunning" class="listing-ct-status">

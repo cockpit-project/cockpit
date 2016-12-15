@@ -30,7 +30,8 @@ var info = {
         ],
 
         "networkmanager/network": [
-            "networkmanager/interfaces.js"
+            "networkmanager/interfaces.js",
+            "networkmanager/utils.js"
         ],
 
         "ostree/ostree": [
@@ -128,6 +129,8 @@ var info = {
         "lib/test-journal-renderer",
         "lib/test-machines",
         "lib/test-patterns",
+
+        "networkmanager/test-utils",
 
         "storaged/test-util",
 

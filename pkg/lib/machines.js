@@ -70,7 +70,7 @@
 
         function sync(machine, values, overlay) {
             var desired = $.extend({ }, values || { }, overlay || { });
-            var prop, value;
+            var prop;
             for (prop in desired) {
                 if (machine[prop] !== desired[prop])
                     machine[prop] = desired[prop];

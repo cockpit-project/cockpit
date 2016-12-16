@@ -613,16 +613,12 @@
         var self = this;
         var error_options = null;
         var allows_password = false;
-        var available = null;
-        var supported = null;
         var keys = null;
         var machine = dialog.machines_ins.lookup(dialog.address);
 
         self.user = { };
 
         function update_keys() {
-            var loaded_keys = [];
-            var txt;
             var key_div = dialog.get_sel('.keys');
 
             if (key_div) {

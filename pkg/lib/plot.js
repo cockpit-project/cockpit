@@ -26,7 +26,6 @@ require("jquery-flot/jquery.flot.time");
 
 var plotter = { };
 
-var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 /* A thin abstraction over flot and metrics channels.  It mostly
@@ -1001,7 +1000,6 @@ function setup_plot(graph_id, grid, data, user_options) {
               }
     };
 
-    var num_points = 300;
     var plot;
     var running = false;
     var self;
@@ -1097,7 +1095,7 @@ function setup_plot(graph_id, grid, data, user_options) {
     return self;
 }
 
-function setup_plot_x(graph_id, resmon, data, user_options, store_samples) {
+function setup_plot_x(graph_id, resmon, data, user_options, store_samples) { // jshint ignore:line
     var options = {
         colors: [ "#0099d3" ],
         legend: { show: false },
@@ -1238,7 +1236,7 @@ function setup_plot_x(graph_id, resmon, data, user_options, store_samples) {
     function new_samples (samples)
     {
         var series;
-        var i, n, m, floor;
+        var n, m;
 
         for (n = 0; n < data.length; n++) {
             series = data[n].data;

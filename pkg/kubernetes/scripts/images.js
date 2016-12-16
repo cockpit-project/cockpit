@@ -317,7 +317,7 @@
              * name to the image itself.
              */
             function handle_image(image) {
-                var item, history, manifest = image.dockerImageManifest;
+                var item, manifest = image.dockerImageManifest;
                 if (manifest) {
                     manifest = JSON.parse(manifest);
                     angular.forEach(manifest.history || [], function(item) {
@@ -370,7 +370,7 @@
              * item in the given TagEvent.
              */
             select.register("taggedFirst", function(tag) {
-                var len, results = { };
+                var results = { };
                 if (!tag.items)
                     return select(null);
                 if (tag.items.length)

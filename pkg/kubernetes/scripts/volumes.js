@@ -289,7 +289,7 @@
             }
 
             function volumesForPod(item) {
-                var volumes, mounts;
+                var volumes;
                 var i, j, container, volumeMounts, name;
                 if (item && !item.volumes) {
                     if (item.spec)
@@ -554,7 +554,7 @@
             }
 
             function validate (item, fields) {
-                var data, ex, endpoint, path;
+                var ex, endpoint, path;
                 var ret = {
                     errors: [],
                     data: null,
@@ -621,7 +621,7 @@
             function validate (item, fields) {
                 var regex = /^[a-z0-9.:-]+$/i;
 
-                var data, ex, server, path;
+                var ex, server, path;
                 var ret = {
                     errors: [],
                     data: null,
@@ -684,8 +684,6 @@
             }
 
             function validate (item, fields) {
-                var regex = /^[a-z0-9.-]+$/i;
-
                 var ex, path;
                 var ret = {
                     errors: [],
@@ -898,7 +896,7 @@
 
             function validate() {
                 var defer = $q.defer();
-                var ex, resp, main_resp, spec, errors = [];
+                var resp, main_resp, errors = [];
 
                 if (!$scope.item) {
                     valName = $scope.current_type+VOLUME_FACTORY_SUFFIX;

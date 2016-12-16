@@ -641,7 +641,6 @@
 
             $scope.performModify = function performModify() {
                 var defer = $q.defer();
-                var link;
                 var req;
 
                 validate().then(function (objects) {

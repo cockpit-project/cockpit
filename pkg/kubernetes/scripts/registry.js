@@ -126,13 +126,6 @@
                 return (b < a ? -1 : (b > a ? 1 : 0));
             }
 
-            function recentTags(data) {
-                var status = data.stream.status || { };
-                var tags = (status.tags || []).slice();
-                tags.sort(compareCreated);
-                tags.splice(MAX_RECENT_TAGS);
-            }
-
             select.register("buildRecentStreams", function() {
                 var link, array = [];
                 for (link in this)

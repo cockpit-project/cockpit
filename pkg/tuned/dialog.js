@@ -158,8 +158,6 @@
                 var action = enable ? "start" : "stop";
                 return tuned.call('/Tuned', 'com.redhat.tuned.control', action, [])
                     .then(function(results) {
-                        var msg;
-
                         /* Yup this is how tuned returns failures */
                         if (!results[0]) {
                             console.warn("Failed to " + action + " tuned:", results);

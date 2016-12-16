@@ -403,6 +403,7 @@ module.exports = {
         sub: true,
         multistr: true,
         undef: true,
+        unused: "vars",
         predef: [ "window", "document", "console" ],
         reporter: function (errors) {
             var loader = this;

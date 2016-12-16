@@ -30,7 +30,6 @@ require("patterns");
 var image_editor = require("./image-editor");
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 /* Handles an href link to a server */
 $(document).on("click", "a[data-address]", function(ev) {
@@ -515,17 +514,9 @@ function PageDashboard() {
  * pages and dialogs, and expects page.setup, page.enter, page.show,
  * and page.leave to be called at the right times.
  *
- * We cater to this with a little compatability shim consisting of
+ * We cater to this with a little compatibility shim consisting of
  * 'dialog_setup', 'page_show', and 'page_hide'.
  */
-
-function dialog_setup(d) {
-    d.setup();
-    $('#' + d.id).
-        on('show.bs.modal', function () { d.enter(); }).
-        on('shown.bs.modal', function () { d.show(); }).
-        on('hidden.bs.modal', function () { d.leave(); });
-}
 
 function page_show(p, arg) {
     if (p._entered_)
@@ -534,14 +525,6 @@ function page_show(p, arg) {
     p._entered_ = true;
     $('#' + p.id).show();
     p.show();
-}
-
-function page_hide(p) {
-    $('#' + p.id).hide();
-    if (p._entered_) {
-        p.leave();
-        p._entered_ = false;
-    }
 }
 
 function init() {

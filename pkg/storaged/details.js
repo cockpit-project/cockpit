@@ -34,7 +34,6 @@
     var permissions = require("./permissions");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* DETAILS
      */

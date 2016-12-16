@@ -28,7 +28,6 @@
     var utils = require("./utils");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* JOBS
      */

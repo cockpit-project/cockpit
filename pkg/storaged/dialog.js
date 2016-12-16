@@ -27,7 +27,6 @@
     require("patterns");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* GENERIC STORAGE DIALOG SUPPORT
      */

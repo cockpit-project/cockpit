@@ -194,7 +194,6 @@
         "KubeStringToBytes",
         function (format, stringToBytes) {
             return function(value, key) {
-                var data;
                 if (key == "memory") {
                     var raw = stringToBytes(value);
                     if (raw)

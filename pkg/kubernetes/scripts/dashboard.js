@@ -367,7 +367,7 @@
 
             function validate_manifest() {
                 var defer = $q.defer();
-                var ex, data, fails = [];
+                var ex, fails = [];
 
                 var ns = fields.namespace;
                 if (!ns)
@@ -432,7 +432,6 @@
                         defer.resolve();
                     })
                     .catch(function(response) {
-                        var msg;
                         var ex;
                         var resp = response.data;
 

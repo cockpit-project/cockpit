@@ -549,7 +549,7 @@
                 };
 
                 self.close = function close() {
-                    var name, body;
+                    var name;
                     if (interval)
                         $interval.cancel(interval);
 

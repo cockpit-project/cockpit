@@ -322,7 +322,6 @@
                     /* Shouldn't return success. Not OAuth capable */
                     return "";
                 }, function(response) {
-                    var result;
                     if (response.status == 302) {
                         var token, header = response.headers["Location"];
                         if (header) {
@@ -352,7 +351,6 @@
             }
 
             function writeKubectlConfig(cluster, user, context) {
-                var defer = $q.defer();
                 var cluster_args, user_args, cmd_args;
                 var commands = [];
                 var promise;
@@ -666,7 +664,6 @@
                     }
 
                     $scope.update = function update() {
-                        var promise;
                         var cluster = { cluster: { server: $scope.address } };
                         if ($scope.currentCluster)
                             cluster = $scope.currentCluster;

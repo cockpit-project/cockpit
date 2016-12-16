@@ -57,7 +57,7 @@
      */
 
     function parseCertOption(object, option) {
-        var match, data, blob = object[option + "-data"];
+        var blob = object[option + "-data"];
         if (blob !== undefined)
             return { data: window.atob(blob) };
 
@@ -585,12 +585,6 @@
                 else
                     connect = $injector.get('cockpitKubeDiscover')();
 
-                function fail() {
-                    var ev = document.createEvent('Event');
-                    ev.initEvent('close', false, false, false, 1002, "protocol-error");
-                    ws.dispatchEvent(ev);
-                }
-
                 function close(code, reason) {
                     if (channel)
                         channel.close(reason);
@@ -715,7 +709,6 @@
                     });
 
                     channel.addEventListener("close", function(ev, options) {
-                        var type;
                         channel = null;
 
                         response.options = options;

@@ -51,8 +51,6 @@
 
                 var last = { };
 
-                var unique = 0;
-
                 var requests = { };
 
                 /* Holds the container specs */
@@ -678,8 +676,6 @@
                 var width = 300;
                 var height = 300;
 
-                var changing = false;
-
                 var rendered = false;
                 window.setTimeout(function() {
                     rendered = true;
@@ -779,7 +775,7 @@
                     var series = stage.selectAll("path.line")
                         .data(rows, function(d, i) { return i; });
 
-                    var trans = series
+                    series
                         .style("stroke", function(d, i) { return colors(i); })
                         .attr("d", function(d) { return line(d); })
                         .classed("highlight", function(d) { return d.uid === highlighted; });
@@ -827,6 +823,9 @@
                         notified();
                     },
                     close: function close() {
+                        if (timer)
+                            window.clearInterval(timer);
+                        timer = null;
                         window.removeEventListener('resize', resized);
                         grid.removeEventListener('notify', notified);
                         grid.removeEventListener('changed', changed);

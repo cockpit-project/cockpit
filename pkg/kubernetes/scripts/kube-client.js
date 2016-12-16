@@ -201,7 +201,7 @@
         var self = this;
 
         self.delete = function delete_(obj) {
-            var x, map = obj[weak_property];
+            var map = obj[weak_property];
             if (map)
                 delete map[local_property];
         };
@@ -477,7 +477,7 @@
 
                 var present = { };
                 var removed = { };
-                var i, len, frame, link, resource, key;
+                var i, len, link, resource;
                 var cVersion, lVersion;
                 for (i = 0, len = drain.length; i < len; i++) {
                     resource = drain[i].object;
@@ -527,7 +527,7 @@
             }
 
             function resetLoader() {
-                var link, path;
+                var link;
 
                 /* We drop any batched objects in flight */
                 window.clearTimeout(batchTimeout);
@@ -598,7 +598,7 @@
                 batchTimeout = null;
 
                 /* Convert this to our native format */
-                var i, len, only = { };
+                var only = { };
                 if (value === null) {
                     only = null;
                 } else if (angular.isArray(value)) {
@@ -789,8 +789,6 @@
 
             /* Create a new index and populate */
             function indexCreate() {
-                var name, filter;
-
                 /* TODO: Derive this value from cluster size */
                 index = new HashIndex(262139);
 
@@ -904,7 +902,7 @@
             }
 
             function digestFilter(filter, what, criteria) {
-                var p, pl, key, keyo, possible, link, object;
+                var p, pl, key, possible, link, object;
                 var results = { }, count = 0;
 
                 key = filter.digest.apply(null, criteria);

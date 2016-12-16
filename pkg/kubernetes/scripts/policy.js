@@ -193,7 +193,7 @@
                     kind: "RoleBinding",
                     apiVersion: "v1",
                     metadata: {
-                        name: role,
+                        name: name,
                         namespace: namespace,
                         creationTimestamp: null,
                     },
@@ -226,14 +226,13 @@
             function removeMemberFromPolicyBinding(policyBinding, project, subjectRoleBindings, subject) {
                 var registryRoles = ["registry-admin", "registry-edit", "registry-view"];
                 var chain = $q.when();
-                var roleBinding, i, defaultPolicybinding;
+                var defaultPolicybinding;
                 var roleBindings = [];
 
                 if(policyBinding && policyBinding.one()){
                     defaultPolicybinding = policyBinding.one();
                     roleBindings = defaultPolicybinding.roleBindings;
                 }
-                var patchData = {"roleBindings": roleBindings};
                 angular.forEach(subjectRoleBindings, function(o) {
                     angular.forEach(roleBindings, function(role) {
                         //Since we only added registry roles

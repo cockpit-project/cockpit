@@ -106,7 +106,6 @@
                 },
                 link: function($scope, element, attributes) {
                     var data;
-                    var lastSize = {};
                     var padding = 2;
                     var thresholdDefaults = [0, 0.7, 0.8, 0.9];
                     var heatmapColorDefaults = ['#bbbbbb', '#d4f0fa', '#F9D67A', '#EC7A08', '#CE0000' ];

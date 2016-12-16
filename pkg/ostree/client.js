@@ -237,9 +237,6 @@ function RPMOSTreeDBusClient() {
             local_running = null;
             booted_id = null;
 
-            var timer = null;
-            var skipped = false;
-
             waits = cockpit.defer();
             waits.promise.done(trigger_changed);
 
@@ -269,7 +266,7 @@ function RPMOSTreeDBusClient() {
                     os_proxies.wait(function() {
                         for (var path in os_proxies) {
                             var proxy = os_proxies[path];
-                            os_names[path] = path;
+                            os_names[proxy.Name] = path;
                         }
                         waits.resolve();
                     });
@@ -313,7 +310,6 @@ function RPMOSTreeDBusClient() {
         if (data) {
             for (var i = 0; i < data.length; i++) {
                 var deployment = data[i];
-                var id = deployment.id.v;
                 var os = deployment.osname.v;
 
                 if (!seen[os])

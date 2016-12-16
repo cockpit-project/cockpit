@@ -205,7 +205,6 @@
 
 
         function update() {
-            var have_one = 0;
             var message;
 
             $(".realms-op-spinner").toggle(!!operation);

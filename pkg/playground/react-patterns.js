@@ -31,8 +31,6 @@
     var demoListing = require("./react-demo-listing.jsx");
     var demoTooltip = require("./react-demo-tooltip.jsx");
 
-    var _ = cockpit.gettext;
-
     /*-----------------------------------------------------------------------------
       Modal Dialog
       -----------------------------------------------------------------------------

@@ -151,8 +151,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 frame.setAttribute("name", name);
                 frame.style.display = "none";
 
-                var parts = component.split("/");
-
                 var base, checksum;
                 if (machine)
                     checksum = machine.checksum;
@@ -537,7 +535,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     .append(a);
             }
 
-            var machine, items = { };
             if (shell_embedded) {
                 navbar.hide();
             } else {

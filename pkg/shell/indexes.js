@@ -535,7 +535,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             });
 
             var item = compiled.items[state.component];
-            delete state.sidebar;
+            if (item && item.section == "dashboard")
+                delete state.sidebar;
 
             $("#machine-link span").text(default_title);
             if ($(".dashboard-link").length < 2)
@@ -551,7 +552,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         }
 
         function update_frame(state) {
-            var title;
             var current_frame = index.current_frame();
 
             var hash = state.hash;

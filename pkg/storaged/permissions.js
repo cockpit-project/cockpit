@@ -24,7 +24,6 @@
     var cockpit = require("cockpit");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* PERMISSIONS
      */

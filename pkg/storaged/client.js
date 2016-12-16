@@ -188,7 +188,7 @@
     }
 
     function update_indices() {
-        var path, block, dev, mdraid, vgroup, pvol, lvol, part, i;
+        var path, block, mdraid, vgroup, pvol, lvol, part, i;
 
         client.broken_multipath_present = false;
         client.drives_multipath_blocks = { };

@@ -36,7 +36,6 @@
     require("./storage.css");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* INITIALIZATION AND NAVIGATION
      */

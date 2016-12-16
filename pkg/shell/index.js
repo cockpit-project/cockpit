@@ -26,8 +26,6 @@
 
     var indexes = require("./indexes");
 
-    var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
-
     var machines = machis.instance();
     var loader = machis.loader(machines);
     var dialogs = mdialogs.new_manager(machines);

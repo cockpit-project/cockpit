@@ -65,7 +65,7 @@ You can also choose to serve cockpit without SSL by setting the ```COCKPIT_KUBE_
 Container Contents
 ==================
 
-This container installs cockpit-ws, cockpit-shell and cockpit-kubernetes rpms. If you include these rpms in this directory they will be installed, otherwise the version specified in the Dockerfile will be fetched from koji.
+This container installs cockpit-ws, cockpit-system and cockpit-kubernetes rpms. If you include these rpms in this directory they will be installed, otherwise the version specified in the Dockerfile will be fetched from koji.
 
 The following commands are used in the container:
 

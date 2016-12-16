@@ -39,7 +39,7 @@ Architecture: any
 Depends: ${misc:Depends},
          cockpit-bridge (= ${binary:Version}),
          cockpit-ws (= ${binary:Version}),
-         cockpit-shell (= ${binary:Version}),
+         cockpit-system (= ${binary:Version}),
          xdg-utils
 Recommends: cockpit-docker (= ${binary:Version}),
             cockpit-storaged (= ${binary:Version}),
@@ -103,14 +103,20 @@ Depends: ${misc:Depends},
 Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
 
-Package: cockpit-shell
+Package: cockpit-system
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          cockpit-bridge (= ${binary:Version}),
          libpwquality-tools
-Description: Cockpit Shell user interface package
- This package contains the Cockpit shell UI assets.
+Provides: cockpit-realmd,
+          cockpit-shell,
+          cockpit-systemd,
+          cockpit-tuned,
+          cockpit-users
+Description: Cockpit admin interface for a system
+ Cockpit admin interface package for configuring and
+ troubleshooting a system.
 
 Package: cockpit-storaged
 Architecture: any

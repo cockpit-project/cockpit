@@ -10,7 +10,7 @@ Run it like so:
 
 And then use your web browser to log into port 9090 on your host IP address as usual.
 
-Important: This expects that Atomic (the host operating system) has the cockpit-bridge executable and cockpit-shell package.
+Important: This expects that Atomic (the host operating system) has the cockpit-bridge executable and cockpit-system package.
 
 ## More Info
 

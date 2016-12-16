@@ -23,9 +23,6 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    var Mustache = require("mustache");
-
-    var docker = require("./docker");
     var util = require("./util");
 
     require("./run");

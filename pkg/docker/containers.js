@@ -37,7 +37,6 @@
     require("./docker.css");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* CURTAIN
      */

@@ -23,20 +23,14 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    var Mustache = require("mustache");
     var React = require("react");
     var plot = require("plot");
 
     var util = require("./util");
-    var docker = require("./docker");
     var storage = require("./storage.jsx");
-    var bar = require("./bar");
     var view = require("./containers-view.jsx");
 
     require("plot.css");
-
-    var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* OVERVIEW PAGE
      */

@@ -30,7 +30,6 @@
     var bar = require("./bar");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     var util = { };
 
@@ -214,7 +213,6 @@
         var cputext;
         var memuse, memlimit;
         var membar, memtext, memtextstyle;
-        var barvalue;
 
         if (container.State && container.State.Running) {
             cputext = util.format_cpu_usage(container.CpuUsage);

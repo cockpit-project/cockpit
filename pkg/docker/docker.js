@@ -653,8 +653,6 @@
      */
 
     docker.quote_cmdline = function quote_cmdline(words) {
-        var text;
-
         words = words || [];
 
         function is_whitespace(c) {

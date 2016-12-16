@@ -18,7 +18,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import { combineReducers } from 'redux';
-import cockpit from 'cockpit';
 import VMS_CONFIG from "./config.es6";
 import { logDebug } from './helpers.es6';
 

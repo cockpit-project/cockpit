@@ -36,7 +36,9 @@ class AtomicCockpitInstaller:
     # Support installing random packages if needed.
     external_packages = {}
 
-    packages_force_install = [ "cockpit-docker",
+    # Temporarily force cockpit-system instead of cockpit-shell
+    packages_force_install = [ "cockpit-system",
+                               "cockpit-docker",
                                "cockpit-networkmanager",
                                "cockpit-ostree",
                                "cockpit-sosreport" ]

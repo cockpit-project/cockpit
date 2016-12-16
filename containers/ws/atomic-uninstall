@@ -16,7 +16,7 @@ if [ ! -f /host/usr/bin/cockpit-bridge ]; then
     exit 1
 fi
 if [ ! -d /host/usr/share/cockpit ]; then
-    echo "cockpit-shell and other resources must be installed in the host" >&2
+    echo "cockpit-system and other resources must be installed in the host" >&2
     exit 1
 fi
 if [ -f /host/usr/libexec/cockpit-ws ]; then

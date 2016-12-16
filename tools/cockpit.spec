@@ -74,7 +74,7 @@ BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
-Requires: %{name}-shell = %{version}-%{release}
+Requires: %{name}-system = %{version}-%{release}
 
 # Optional components (for f24 we use soft deps)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
@@ -152,23 +152,23 @@ echo '{ "linguas": null, "machine-limit": 5 }' > %{buildroot}%{_datadir}/%{name}
 echo '%dir %{_datadir}/%{name}/base1' > base.list
 find %{buildroot}%{_datadir}/%{name}/base1 -type f >> base.list
 
-echo '%dir %{_datadir}/%{name}/dashboard' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/dashboard' >> system.list
+find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> system.list
 
-echo '%dir %{_datadir}/%{name}/realmd' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/realmd -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/realmd' >> system.list
+find %{buildroot}%{_datadir}/%{name}/realmd -type f >> system.list
 
-echo '%dir %{_datadir}/%{name}/tuned' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/tuned -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/tuned' >> system.list
+find %{buildroot}%{_datadir}/%{name}/tuned -type f >> system.list
 
-echo '%dir %{_datadir}/%{name}/shell' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/shell -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/shell' >> system.list
+find %{buildroot}%{_datadir}/%{name}/shell -type f >> system.list
 
-echo '%dir %{_datadir}/%{name}/systemd' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/systemd -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/systemd' >> system.list
+find %{buildroot}%{_datadir}/%{name}/systemd -type f >> system.list
 
-echo '%dir %{_datadir}/%{name}/users' >> shell.list
-find %{buildroot}%{_datadir}/%{name}/users -type f >> shell.list
+echo '%dir %{_datadir}/%{name}/users' >> system.list
+find %{buildroot}%{_datadir}/%{name}/users -type f >> system.list
 
 echo '%dir %{_datadir}/%{name}/sosreport' > sosreport.list
 find %{buildroot}%{_datadir}/%{name}/sosreport -type f >> sosreport.list
@@ -226,9 +226,9 @@ sed -i '/\.map\(\.gz\)\?$/d' *.list
 tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/usr/src/debug
 
-# On RHEL subscriptions, networkmanager, selinux, and sosreport are part of the shell package
+# On RHEL subscriptions, networkmanager, selinux, and sosreport are part of the system package
 %if 0%{?rhel}
-cat subscriptions.list sosreport.list networkmanager.list selinux.list >> shell.list
+cat subscriptions.list sosreport.list networkmanager.list selinux.list >> system.list
 %endif
 
 %find_lang %{name}
@@ -282,7 +282,7 @@ embed or extend Cockpit.
 %package machines
 Summary: Cockpit user interface for virtual machines
 Requires: %{name}-bridge >= %{required_base}
-Requires: %{name}-shell >= %{required_base}
+Requires: %{name}-system >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
 
@@ -295,7 +295,7 @@ The Cockpit components for managing virtual machines.
 Summary: Cockpit user interface for rpm-ostree
 # Requires: Uses new translations functionality
 Requires: %{name}-bridge > 124
-Requires: %{name}-shell > 124
+Requires: %{name}-system > 124
 %if 0%{?fedora} > 0 && 0%{?fedora} < 24
 Requires: rpm-ostree >= 2015.10-1
 %else
@@ -325,32 +325,6 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 # be out of sync with reality.
 /usr/share/pcp/lib/pmlogger condrestart
 
-%package shell
-Summary: Cockpit Shell user interface package
-Requires: %{name}-bridge = %{version}-%{release}
-Requires: shadow-utils
-Requires: grep
-Requires: libpwquality
-Requires: /usr/bin/date
-%if 0%{?rhel}
-Provides: %{name}-subscriptions = %{version}-%{release}
-Requires: subscription-manager >= 1.13
-Provides: %{name}-networkmanager = %{version}-%{release}
-Requires: NetworkManager
-# Optional components (only when soft deps are supported)
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
-Recommends: NetworkManager-team
-%endif
-%endif
-Provides: %{name}-assets
-Obsoletes: %{name}-assets < 0.32
-BuildArch: noarch
-
-%description shell
-This package contains the Cockpit shell UI assets.
-
-%files shell -f shell.list
-
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
 # Lock bridge dependency due to --with-storaged-iscsi-sessions
@@ -375,6 +349,39 @@ BuildArch: noarch
 The Cockpit component for managing storage.  This package uses Storaged.
 
 %files storaged -f storaged.list
+
+%package system
+Summary: Cockpit admin interface package for configuring and troubleshooting a system
+BuildArch: noarch
+Requires: %{name}-bridge = %{version}-%{release}
+Requires: shadow-utils
+Requires: grep
+Requires: libpwquality
+Requires: /usr/bin/date
+Provides: %{name}-assets
+Obsoletes: %{name}-assets < 0.32
+Provides: %{name}-realmd = %{version}-%{release}
+Provides: %{name}-shell = %{version}-%{release}
+Provides: %{name}-systemd = %{version}-%{release}
+Provides: %{name}-tuned = %{version}-%{release}
+Provides: %{name}-users = %{version}-%{release}
+%if 0%{?rhel}
+Provides: %{name}-networkmanager = %{version}-%{release}
+Requires: NetworkManager
+# Optional components (only when soft deps are supported)
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: NetworkManager-team
+%endif
+Provides: %{name}-selinux = %{version}-%{release}
+Provides: %{name}-sosreport = %{version}-%{release}
+Provides: %{name}-subscriptions = %{version}-%{release}
+Requires: subscription-manager >= 1.13
+%endif
+
+%description system
+This package contains the Cockpit shell and system configuration interfaces.
+
+%files system -f system.list
 
 %package ws
 Summary: Cockpit Web Service

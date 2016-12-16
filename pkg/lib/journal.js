@@ -133,10 +133,9 @@
         var entries = [];
         var streamers = [];
         var interval = null;
-        var entry;
 
         function fire_streamers() {
-            var ents, i, length;
+            var ents, i;
             if (streamers.length && entries.length > 0) {
                 ents = entries;
                 entries = [];
@@ -150,8 +149,6 @@
 
         var proc = cockpit.spawn(cmd, { host: options.host, batch: 8192, latency: 300, superuser: "try" }).
             stream(function(data) {
-                var pos = 0;
-                var next;
 
                 if (buffer)
                     data = buffer + data;

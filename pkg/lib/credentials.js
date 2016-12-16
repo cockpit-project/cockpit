@@ -315,7 +315,7 @@
 
             /* Show and hide panels */
             .on("click", "tr.listing-ct-item", function(ev) {
-                var body, open;
+                var body;
                 if ($(ev.target).parents(".listing-ct-actions, ul").length === 0) {
                     body = $(ev.target).parents("tbody");
                     body.toggleClass("open").removeClass("unlock");
@@ -416,7 +416,7 @@
             })
 
             .on("change keypress", "input", function(ev) {
-                var dl, body = $(this).parents("tbody");
+                var body = $(this).parents("tbody");
                 if (ev.type == "keypress" && ev.keyCode == 13)
                     $(this).parents("dl").find(".btn-primary").click();
                 body.find(".alert").hide();

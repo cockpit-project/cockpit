@@ -416,7 +416,6 @@
 
     $.fn.slider = function Slider(action) {
         var sel = this;
-        var div;
         if (arguments.length === 0 || action == "refresh") {
             sel.each(function() {
                 setup_slider(this);

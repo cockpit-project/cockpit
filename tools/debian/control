@@ -37,15 +37,15 @@ Homepage: http://cockpit-project.org/
 Package: cockpit
 Architecture: any
 Depends: ${misc:Depends},
-         cockpit-bridge,
-         cockpit-ws,
-         cockpit-shell,
+         cockpit-bridge (= ${binary:Version}),
+         cockpit-ws (= ${binary:Version}),
+         cockpit-shell (= ${binary:Version}),
          xdg-utils
-Recommends: cockpit-docker,
-            cockpit-storaged,
-            cockpit-networkmanager
-Suggests: cockpit-doc,
-          cockpit-pcp
+Recommends: cockpit-docker (= ${binary:Version}),
+            cockpit-storaged (= ${binary:Version}),
+            cockpit-networkmanager (= ${binary:Version})
+Suggests: cockpit-doc (= ${binary:Version}),
+          cockpit-pcp (= ${binary:Version})
 Description: User interface for Linux servers
  Cockpit runs in a browser and can manage your network of GNU/Linux
  machines.

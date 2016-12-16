@@ -129,7 +129,6 @@ function passwd_self(old_pass, new_pass) {
 function passwd_change(user, new_pass) {
     var dfd = $.Deferred();
 
-    var buffer = "";
     cockpit.spawn([ "chpasswd" ], {superuser: "require", err: "out" })
         .input(user + ":" + new_pass)
         .done(function() {
@@ -999,8 +998,6 @@ PageAccount.prototype = {
 function PageAccount(user) {
     this._init(user);
 }
-
-var crop_handle_width = 20;
 
 PageAccountConfirmDelete.prototype = {
     _init: function() {

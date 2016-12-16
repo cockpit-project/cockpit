@@ -24,10 +24,8 @@
     var cockpit = require("cockpit");
 
     var util = require("./util");
-    var docker = require("./docker");
 
     var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
 
     /* SEARCH DIALOG */
 

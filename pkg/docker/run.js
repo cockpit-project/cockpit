@@ -41,8 +41,6 @@ $(function() {
     var image = null;
 
     (function() {
-        var table = $('#containers_run_image_dialog .modal-body table');
-
         var prenderer = port_renderer();
         $('#expose-ports').on('change', function() {
             var items = $('#select-exposed-ports');
@@ -122,9 +120,6 @@ $(function() {
         image = docker.images[image_id];
 
         util.docker_debug("run-image", image);
-
-        var checked;
-        var value;
 
         /* This slider is only visible if docker says this option is available */
         $("#containers-run-image-memory").toggle(!!docker.info.MemoryLimit);
@@ -256,13 +251,6 @@ $(function() {
     function validate() {
         var exs = [];
 
-        function port_prefix(is_container) {
-            if (is_container)
-                return _("Container") + ": ";
-            else
-                return _("Host") + ": ";
-        }
-
         function add_port_message(port, message, is_container) {
             var ex = new Error(message);
             ex.target = port.parent();
@@ -370,7 +358,6 @@ $(function() {
                 return;
 
             var aliases = [];
-            var containers = [];
 
             /* gather all aliases */
             $('#select-linked-containers').children('form').each(function() {
@@ -610,7 +597,6 @@ $(function() {
         var cmd = $("#containers-run-image-command").val();
         var port_bindings = { };
         var volume_bindings = [ ];
-        var p, mapping;
         var map_from, map_to, map_protocol;
         var mount_from, mount_to, mount_mode;
         var links = [];

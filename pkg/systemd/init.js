@@ -490,8 +490,6 @@ $(function() {
      * interesting properties (unfortunately), so they are handled as
      * a very simple special case (cur_unit_is_template is true).
      *
-     * Another even simpler special case are invalid units
-     * (cur_unit_error is true).
      */
 
     var cur_unit_id;
@@ -499,7 +497,6 @@ $(function() {
     var cur_unit_file_state;
     var cur_unit_is_template;
     var cur_unit_template;
-    var cur_unit_error;
     var cur_journal_watcher;
 
     var action_btn_template = $("#action-btn-tmpl").html();

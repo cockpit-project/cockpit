@@ -36,7 +36,7 @@ require("./networking.css");
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
-function nm_debug() {
+function nm_debug() { // jshint ignore:line
     if (window.debugging == "all" || window.debugging == "nm")
         console.debug.apply(console, arguments);
 }
@@ -1657,8 +1657,6 @@ PageNetworking.prototype = {
     },
 
     enter: function () {
-        var self = this;
-
         this.log_box = journal.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
                                        "_SYSTEMD_UNIT=firewalld.service" ], 10);
         $('#networking-log').empty().append(this.log_box);
@@ -2278,7 +2276,6 @@ PageNetworkInterface.prototype = {
 
     connect: function() {
         var self = this;
-        var settings_manager = self.model.get_settings();
 
         if (!self.main_connection && !(self.dev && self.ghost_settings)) {
             self.update();
@@ -2971,7 +2968,6 @@ PageNetworkIpSettings.prototype = {
 
     update: function() {
         var self = this;
-        var con = PageNetworkIpSettings.connection;
         var topic = PageNetworkIpSettings.topic;
         var params = self.settings[topic];
 
@@ -3259,7 +3255,7 @@ function free_slave_connection(con) {
 
 function set_slave(model, master_connection, master_settings, slave_type,
                    iface_name, val) {
-    var iface, uuid;
+    var iface;
     var main_connection;
 
     iface = model.find_interface(iface_name);
@@ -3313,7 +3309,6 @@ function set_slave(model, master_connection, master_settings, slave_type,
 }
 
 function apply_master_slave(choices, model, apply_master, master_connection, master_settings, slave_type) {
-    var settings_manager = model.get_settings();
     var active_settings = [ ];
     var iface;
 
@@ -3727,8 +3722,6 @@ PageNetworkTeamPortSettings.prototype = {
 
     update: function() {
         var self = this;
-        var model = PageNetworkTeamPortSettings.model;
-        var con = PageNetworkTeamPortSettings.connection;
         var master_config = PageNetworkTeamPortSettings.master_settings.team.config;
         var config = self.settings.team_port.config;
 
@@ -3773,7 +3766,6 @@ PageNetworkTeamPortSettings.prototype = {
     apply: function() {
         var self = this;
         var model = PageNetworkTeamPortSettings.model;
-        var settings_manager = model.get_settings();
 
         function show_error(error) {
             $('#network-teamport-settings-error').show().find('span').text(error.message || error.toString());
@@ -3954,8 +3946,6 @@ PageNetworkBridgePortSettings.prototype = {
 
     update: function() {
         var self = this;
-        var model = PageNetworkBridgePortSettings.model;
-        var con = PageNetworkBridgePortSettings.connection;
         var options = self.settings.bridge_port;
 
         var priority_input, path_cost_input, hairpin_mode_input;
@@ -3989,7 +3979,6 @@ PageNetworkBridgePortSettings.prototype = {
     apply: function() {
         var self = this;
         var model = PageNetworkBridgePortSettings.model;
-        var settings_manager = model.get_settings();
 
         function show_error(error) {
             $('#network-bridgeport-settings-error').show().find('span').text(error.message || error.toString());
@@ -4041,7 +4030,6 @@ PageNetworkVlanSettings.prototype = {
     update: function() {
         var self = this;
         var model = PageNetworkVlanSettings.model;
-        var con = PageNetworkVlanSettings.connection;
         var options = self.settings.vlan;
 
         var auto_update_name = true;
@@ -4103,7 +4091,6 @@ PageNetworkVlanSettings.prototype = {
     apply: function() {
         var self = this;
         var model = PageNetworkVlanSettings.model;
-        var settings_manager = model.get_settings();
 
         function show_error(error) {
             $('#network-vlan-settings-error').show().find('span').text(error.message || error.toString());
@@ -4164,8 +4151,6 @@ PageNetworkEthernetSettings.prototype = {
 
     update: function() {
         var self = this;
-        var model = PageNetworkEthernetSettings.model;
-        var con = PageNetworkEthernetSettings.connection;
         var options = self.settings.ethernet;
 
         var body = $(Mustache.render(self.ethernet_settings_template, options));
@@ -4182,7 +4167,6 @@ PageNetworkEthernetSettings.prototype = {
     apply: function() {
         var self = this;
         var model = PageNetworkEthernetSettings.model;
-        var settings_manager = model.get_settings();
 
         function show_error(error) {
             $('#network-ethernet-settings-error').show().find('span').text(error.message || error.toString());

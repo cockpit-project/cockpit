@@ -271,7 +271,7 @@ class TestNetworking(MachineCase):
 
         self.login_and_go("/network")
 
-        can_add_teams = not "atomic" in m.image
+        can_add_teams = m.image not in [ "continuous-atomic", "rhel-atomic" ]
 
         b.wait_attr("#networking-add-team", "data-test-stable", "yes")
         if not can_add_teams:

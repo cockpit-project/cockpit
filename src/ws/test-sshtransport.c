@@ -239,7 +239,11 @@ setup_transport (TestCase *tc,
   else
     password = fixture->client_password ? fixture->client_password : PASSWORD;
 
-  bytes = g_bytes_new_take (g_strdup (password), strlen (password));
+  if (password)
+    bytes = g_bytes_new_take (g_strdup (password), strlen (password));
+  else
+    bytes = NULL;
+
   creds = cockpit_creds_new (g_get_user_name (), "cockpit", COCKPIT_CRED_PASSWORD, bytes, NULL);
   g_bytes_unref (bytes);
 

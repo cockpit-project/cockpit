@@ -73,7 +73,7 @@ function updateVulnerableInfo() {
                     atomic.dispatchEvent("vulnerableInfoChanged", detailedInfos);
                 });
             }
-        }.bind(this));
+        });
 }
 
 function visibilityChanged() {

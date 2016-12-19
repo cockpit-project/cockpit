@@ -387,6 +387,10 @@ parse_basic_auth_password (GBytes *input,
         *user = g_strndup (data, password - data);
       password++;
     }
+  else
+    {
+      return NULL;
+    }
 
   return g_bytes_new_with_free_func (password, strlen (password),
                                      (GDestroyNotify)g_bytes_unref,

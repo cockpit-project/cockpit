@@ -25,6 +25,7 @@ var utils = require('./utils');
 var Mustache = require('mustache');
 var plot = require('plot');
 var journal = require('journal');
+var hacks = require('config.json').hacks || { };
 
 /* jQuery extensions */
 require('patterns');
@@ -190,9 +191,6 @@ function NetworkManagerModel() {
     var self = this;
 
     /* HACK: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162 */
-    var hacks = { };
-    if (cockpit.manifests["network"] && cockpit.manifests["network"]["hacks"])
-        hacks = cockpit.manifests["network"]["hacks"];
     var options = { };
     if (hacks.with_networkmanager_needs_root)
         options["superuser"] = "try";

@@ -25,13 +25,11 @@
 
     var utils = require('./utils');
 
+    /* HACK: https://github.com/storaged-project/storaged/pull/68 */
+    var hacks = require('config.json').hacks || { };
+
     /* STORAGED CLIENT
      */
-
-    /* HACK: https://github.com/storaged-project/storaged/pull/68 */
-    var hacks = { };
-    if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["hacks"])
-        hacks = cockpit.manifests["storage"]["hacks"];
 
     var client = { };
 

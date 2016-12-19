@@ -8,6 +8,6 @@ url="https://download.fedoraproject.org/pub/alt/atomic/stable/"
 BASE=$(dirname $0)
 
 # The Fedora URLs have the version twice in the name. for example:
-# https://dl.fedoraproject.org/pub/alt/atomic/stable/Fedora-Atomic-24-20160921.0/CloudImages/x86_64/images/Fedora-Cloud-Base-24-20160921.0.x86_64.qcow2
+# https://dl.fedoraproject.org/pub/alt/atomic/stable/Fedora-Atomic-25-20160921.0/CloudImages/x86_64/images/Fedora-Cloud-Base-25-20160921.0.x86_64.qcow2
 $BASE/atomic.bootstrap "$1" "$url" \
-    "Fedora-Atomic-24-[0-9\.]+" "CloudImages" "x86_64" "images" "Fedora-Atomic-24-[0-9\.]+.x86_64.qcow2"
+    "Fedora-Atomic-25-[0-9\.]+" "CloudImages" "x86_64" "images" "Fedora-Atomic-25-[0-9\.]+.x86_64.qcow2"

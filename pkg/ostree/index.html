@@ -179,9 +179,31 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <div ng-if="isRunning" class="display-inline">
                 {{ progressMsg }}
             </div>
-            <div ng-if="currentOrigin && !isRunning" class="display-inline">
-                {{ remoteLabel() }}
-                <button class="btn btn-default btn-repository" ng-class="{ disabled: runningMethod }" ng-click="changeRepository()" translate>Change Repository</button>
+            <div ng-if="!isRunning" class="display-inline">
+                <span ng-if="currentOrigin">
+                    <span translate>Currently using:</span>
+                    <a id="change-repo" ng-click="changeRepository()">{{ currentOrigin.remote }}</a>
+                    <span translate>at</span>
+                    <span class="dropdown main-nav" dropdown>
+                        <a id="change-branch" class="dropdown-toggle" dropdown-toggle>
+                            <span>{{ currentOrigin.branch }}</span>
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li ng-if="branches.error">
+                                <div class="alert">
+                                <span class="pficon pficon-warning-triangle-o"></span>
+                                {{ branches.error }}
+                                </div>
+                            </li>
+                            <li ng-repeat="branch in branches.list"
+                                ng-class="{ checked: currentOrigin.branch == branch }">
+                                <a ng-click="switchBranch(branch)" value="{{branch}}">{{branch}}</a>
+                            </li>
+                        </ul>
+                    </span>
+                </a>
+                <span ng-if="!currentOrigin">No configured remote</span>
             </div>
             <div class="display-inline">&nbsp;</div>
             <div class="listing-ct-actions">
@@ -210,13 +232,16 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <div class="listing-ct-actions">
                 <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
                         ng-click="doUpgrade(item.osname.v, item.checksum.v)"
-                        ng-if="matches('CachedUpdate') && !matches('DefaultDeployment')"
+                        ng-if="isUpdate()"
                         class="btn btn-primary" translate>Update and Reboot</button>
                 <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
                         ng-click="doRollback(item.osname.v)"
-                        ng-if="matches('RollbackDeployment') && !matches('CachedUpdate')"
+                        ng-if="isRollback()"
                         translate class="btn btn-default">Roll Back and Reboot</button>
-
+                <button ng-class="{ disabled: runningMethod, enabled: !runningMethod }"
+                        ng-click="doRebase(item.osname.v, item.origin.v, item.checksum.v)"
+                        ng-if="isRebase()"
+                        translate class="btn btn-default">Rebase and Reboot</button>
             </div>
             <h3>{{ item | releaseName }}</h3>
             <div ng-if="!isRunning" class="listing-ct-status">
@@ -341,25 +366,34 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 </script>
 
 <script type="text/ng-template" id="index.html">
-<table class="listing-ct" ng-repeat="os in os_list"
-    ng-init="first = $first"
-    ng-class="{ listingtop: first}">
+<table class="listing-ct listingtop">
     <thead>
         <tr>
             <td colspan="2">
-                <h3 translate ng-if="os_list.length == 1">Operating System Updates</h3>
-                <h3 ng-if="os_list.length > 1">{{ os }}</h3>
+                <h3 translate>Operating System Updates</h3>
+                <div class="btn-group bootstrap-select os-list" ng-if="os_list.length > 1" dropdown>
+                    <button class="btn btn-default dropdown-toggle" type="button" dropdown-toggle>
+                        <span class="pull-left">{{ os }}</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="name in os_list"
+                            ng-class="{ checked: os == name }">
+                            <a ng-click="displayOS(name)" value="{{name}}">{{name}}</a>
+                        </li>
+                    </ul>
+                </div>
             </td>
         </tr>
     </thead>
-    <tbody>
+    <tbody ng-if="os">
         <tr>
             <td>
-                <ostree-check os="os" running-method = "runningMethod"></ostree-check>
+                <ostree-check os="os" running-method = "runningMethod" current-origin="currentOrigin"></ostree-check>
             </td>
         </tr>
     </tbody>
-    <tbody ng-repeat="item in knownVersions(os) track by track_id(item)"
+    <tbody ng-repeat="item in knownVersions() track by track_id(item)"
            ng-class="{ active: itemMatches(item, 'BootedDeployment') }">
         <tr>
             <td>

@@ -27,6 +27,7 @@
     require('./utils');
 
     var _ = cockpit.gettext;
+    var client = require('./client');
 
     angular.module('ostree.remotes', [
         'ui.cockpit',
@@ -43,6 +44,22 @@
                                      { "superuser" : "try", "err" : "message"}).
                     then(function(data) {
                         var d = data.trim().split(/\r\n|\r|\n/);
+                        return d.sort();
+                    });
+            }
+
+            function listBranches(remote) {
+                return cockpit.spawn(["ostree", "remote", "refs", remote],
+                                     { "superuser" : "try", "err" : "message"}).
+                    then(function(data) {
+                        var d = [];
+                        angular.forEach(data.trim().split(/\r\n|\r|\n/), function (v, k) {
+                            var parts = v.split(":");
+                            if (parts.length > 1)
+                                d.push(parts.slice(1).join(":"));
+                            else
+                                d.push(v);
+                        });
                         return d.sort();
                     });
             }
@@ -126,6 +143,7 @@
 
             return {
                 listRemotes: listRemotes,
+                listBranches: listBranches,
                 loadRemoteSettings: loadRemoteSettings,
                 updateRemoteSettings: updateRemoteSettings,
                 addRemote: addRemote,
@@ -359,10 +377,35 @@
             };
 
             $scope.update = function () {
-                return $q.when({
-                    remote: $scope.remote,
-                    brand: $scope.branch,
-                });
+                var result = {
+                    "remote": $scope.remote,
+                    "branch": $scope.branch,
+                    "branches": {
+                        "remote": $scope.remote
+                    }
+                };
+
+                return remoteActions.listBranches(result.remote)
+                    .then(function (data) {
+                        result.branches.list = data;
+                        // Current branch doesn't exist change
+                        // to the first listed branch
+                        if (data.indexOf(result.branch) < 0)
+                            result.branch = data[0];
+                    }, function (ex) {
+                        // Can't list branches use default branch
+                        result.branches.error = cockpit.message(ex);
+                        result.branch = null;
+                    })
+                    .then(function () {
+                        return client.cache_update_for($scope.os, result.remote,
+                                                       result.branch)
+                                    .then(function () {
+                                        return result;
+                                    }, function () {
+                                        return result;
+                                    });
+                    });
             };
 
             refreshRemotes();

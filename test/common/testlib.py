@@ -578,6 +578,9 @@ class MachineCase(unittest.TestCase):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1298171
         "(audit: )?type=1400 .*denied.*comm=\"iptables\".*name=\"xtables.lock\".*",
 
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1386624
+        ".*type=1400 .*denied  { name_bind } for.*dhclient.*",
+
         # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",

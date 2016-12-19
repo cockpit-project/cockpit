@@ -37,15 +37,24 @@ CHECKOUT_LOCATION = "/var/local-tree"
 RPM_LOCATION = "/usr/share/rpm"
 KEY_ID = "95A8BA1754D0E95E2B3A98A7EE15015654780CBD"
 
-def start_trivial_httpd(m):
-    remote = m.execute("ostree remote show-url local")
+def get_os_name(m):
+    if "rhel-atomic" in m.image:
+        return "rhel-atomic-host"
+    elif 'continuous' in m.image:
+        return 'centos-atomic-host'
+    else:
+        return "fedora-atomic"
+
+def start_trivial_httpd(m, remote="local", location=REPO_LOCATION):
+    remote = m.execute(["ostree", "remote", "show-url", remote])
     parts = remote.strip().split(":")
     port = parts[-1]
 
-    script = "cd {0}\nsetsid python -m SimpleHTTPServer {1} >/dev/null 2>&1 < /dev/null &\necho $!".format(REPO_LOCATION, port)
+    script = "cd {0}\nsetsid python -m SimpleHTTPServer {1} >/dev/null 2>&1 < /dev/null &\necho $!".format(location, port)
     result = m.execute(script=script,
                        environment={"PYTHONUNBUFFERED" : "1"})
 
+    m.execute(["ostree", "summary", "--repo={}".format(location), "-u"])
     m.wait_for_cockpit_running(port=port)
     return result.strip()
 
@@ -84,6 +93,7 @@ def generate_new_commit(m, pkg_to_remove):
     commit_args = [REPO_LOCATION, branch.strip(), CHECKOUT_LOCATION, KEY_ID]
     command = "ostree commit -s cockpit-tree2 --repo {0} -b {1} --add-metadata-string version=cockpit-base.2 --tree=dir={2} --gpg-sign={3} --gpg-homedir=/root/"
     m.execute(command.format(*commit_args))
+    m.execute(["ostree", "summary", "--repo={}".format(REPO_LOCATION), "-u"])
 
 def rhsmcertd_hack(m):
     # HACK: https://github.com/candlepin/subscription-manager/issues/1404
@@ -137,12 +147,7 @@ class OstreeRestartCase(MachineCase):
         self.login_and_go("/updates")
         b.enter_page("/updates")
 
-        if "rhel-atomic" in m.image:
-            name = "rhel-atomic-host"
-        elif 'continuous' in m.image:
-            name = 'centos-atomic-host'
-        else:
-            name = "fedora-atomic"
+        name = get_os_name(m)
 
         # Check current and rollback target
         b.wait_present('table.listing-ct')
@@ -185,9 +190,9 @@ class OstreeRestartCase(MachineCase):
         # Check for new commit, get error
         b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
         b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for Updates")
-        b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert')
+        b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert-warning')
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
-        b.wait_present('table.listing-ct tbody:nth-child(2) div.alert')
+        b.wait_present('table.listing-ct tbody:nth-child(2) div.alert-warning')
         b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
 
         # Serve repo
@@ -203,9 +208,9 @@ class OstreeRestartCase(MachineCase):
 
         # Check again not trusted
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
-        b.wait_present('table.listing-ct tbody:nth-child(2) div.alert')
+        b.wait_present('table.listing-ct tbody:nth-child(2) div.alert-warning')
         b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
-        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.alert", "trusted keyring")
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.alert-warning", "trusted keyring")
 
         m.upload(["verify/files/publickey.asc"], "/root/")
         m.execute("ostree remote gpg-import local -k /root/publickey.asc")
@@ -320,6 +325,79 @@ class OstreeRestartCase(MachineCase):
 
         self.allow_restart_journal_messages()
 
+    def testRebase(self):
+        m = self.machine
+        b = self.browser
+
+        name = get_os_name(m)
+
+        server_pid = start_trivial_httpd(m)
+        branch = m.execute("ostree refs --repo={0}".format(REPO_LOCATION)).strip()
+
+        # Add a new branch to the default repo
+        m.execute(["ostree", "commit", "--repo={}".format(REPO_LOCATION),
+                   "-b", "znew-branch", "--tree=ref={}".format(branch),
+                   "--add-metadata-string", "version=branch-version"])
+        m.execute(["ostree", "summary", "--repo={}".format(REPO_LOCATION), "-u"])
+
+        rhsmcertd_hack(m)
+        self.login_and_go("/updates")
+        b.enter_page("/updates")
+
+        b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "local")
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", branch)
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li")
+        b.wait_not_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li div.alert")
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:last", "znew-branch")
+        b.call_js_func("ph_count_check", "table.listing-ct tbody:nth-child(2) ul.dropdown-menu li",  2)
+        b.click("#change-branch")
+        b.click("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:last a")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for Updates")
+        b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
+
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " branch-version")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+        b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Available")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Rebase")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", name)
+        b.wait_not_visible("table.listing-ct tbody:nth-child(3) div.packages")
+        b.wait_present('table.listing-ct tbody:nth-child(3) ul')
+        b.click('table.listing-ct tbody:nth-child(3) ul li a:contains("Packages")')
+        b.wait_visible("table.listing-ct tbody:nth-child(3) div.packages")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.packages", "contains the same packages as your currently booted")
+
+        # Apply update
+        b.click("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(3) div.ostree-progress")
+        b.wait_not_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
+
+        b.switch_to_top()
+        with b.wait_timeout(120):
+            b.wait_visible(".curtains-ct")
+
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+        m.wait_reboot()
+        m.start_cockpit()
+        b.reload()
+        b.login_and_go("/updates")
+        m.reset_reboot_flag()
+
+        # After reboot, check commit
+        b.wait_present('table.listing-ct')
+        b.wait_present('table.listing-ct tbody')
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " branch-version")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+        b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-panel,active')
+
+        self.allow_restart_journal_messages()
 
 @skipImage("No OSTree available", "centos-7", "debian-8", "debian-unstable", "fedora-24", "fedora-25", "fedora-testing", "rhel-7", "ubuntu-1604")
 class OstreeCase(MachineCase):
@@ -328,23 +406,34 @@ class OstreeCase(MachineCase):
         m = self.machine
         b = self.browser
 
+        name = get_os_name(m)
+
+        server_pid = start_trivial_httpd(m)
+        branch = m.execute("ostree refs --repo={0}".format(REPO_LOCATION)).strip()
+
         rhsmcertd_hack(m)
         self.login_and_go("/updates")
         b.enter_page("/updates")
 
         b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
-        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
-                       "Currently using local repository")
-        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-head .btn-repository")
-        b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert')
-        b.click("table.listing-ct tbody:nth-child(2) .btn-repository")
+        b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert-warning')
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "local")
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", branch)
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li")
+        b.wait_not_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li div.alert")
+        b.call_js_func("ph_count_check", "table.listing-ct tbody:nth-child(2) ul.dropdown-menu li",  1)
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li", branch)
+        b.click("#change-repo")
 
         b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog .modal-title", "Change Repository")
         b.wait_present("modal-dialog .modal-body .list-group")
         b.wait_in_text("modal-dialog .modal-body .list-group", "-atomic")
         b.wait_in_text("modal-dialog .modal-body .list-group .active", "local")
-        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "Add New Repository")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:last", "Add New Repository")
 
         b.wait_present("modal-dialog .modal-footer button.btn-primary")
 
@@ -354,7 +443,7 @@ class OstreeCase(MachineCase):
         b.wait_present("modal-dialog #remote-url")
         b.wait_present("modal-dialog #gpg-verify")
         b.click("modal-dialog #gpg-verify")
-        b.set_val("modal-dialog #remote-url", "http://zremote-test1")
+        b.set_val("modal-dialog #remote-url", "http://localhost:12344")
         b.set_val("modal-dialog #remote-name", "zremote test")
         b.wait_present("modal-dialog .group-buttons button.btn-primary")
         b.wait_in_text("modal-dialog .group-buttons button.btn-primary", "Add")
@@ -368,19 +457,26 @@ class OstreeCase(MachineCase):
         b.wait_not_present("modal-dialog .modal-footer button.disabled")
         b.wait_present("modal-dialog .modal-footer button.btn-primary")
         b.wait_in_text("modal-dialog .modal-body .list-group .active", "local")
-        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "zremote-test1")
-        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(4)", "Add New Repository")
-        b.click("modal-dialog .modal-body .list-group-item:nth-child(3)")
+        b.wait_present("modal-dialog .modal-body .list-group-item:contains('zremote-test1')")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:last", "Add New Repository")
+        b.click("modal-dialog .modal-body .list-group-item:contains('zremote-test1')")
 
         b.click("modal-dialog .modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
 
-        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
-                       "Currently using zremote-test1 repository")
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "zremote-test1")
+        # Branch is still default
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", branch)
+        # But can't list
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu div.alert")
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu div.alert", "Connection refused")
 
         # Config created
         self.assertEqual(m.execute("cat /etc/ostree/remotes.d/zremote-test1.conf").strip(),
-                        '[remote "zremote-test1"]\nurl=http://zremote-test1\ngpg-verify=true')
+                        '[remote "zremote-test1"]\nurl=http://localhost:12344\ngpg-verify=true')
         # No custom keyring
         self.assertFalse(m.execute("ls /sysroot/ostree/repo/zremote-test1.trustedkeys.gpg || true"))
 
@@ -388,22 +484,48 @@ class OstreeCase(MachineCase):
         b.reload()
         b.enter_page("/updates")
         b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
-        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
-                       "Currently using local repository")
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "local")
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", branch)
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li")
+        b.wait_not_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu div.alert")
+
+        # Create a new remote with commits, just use the rpm dir
+        zrepo = "/var/zrepo"
+        m.execute("mkdir -p {}".format(zrepo))
+        m.execute("mkdir -p /tmp/rpm-data/usr/share")
+        m.execute("cp -r /usr/share/rpm /tmp/rpm-data/usr/share/")
+        m.execute(["ostree", "init", "--repo", zrepo, "--mode", "archive-z2"])
+        m.execute(["ostree", "commit", "--repo={}".format(zrepo),
+                   "-b", "zremote-branch1", "--orphan", "--tree=dir=/tmp/rpm-data",
+                   "--add-metadata-string", "version=zremote-branch1.1"])
+        m.execute(["ostree", "commit", "--repo={}".format(zrepo),
+                   "-b", "zremote-branch2", "--orphan", "--tree=dir=/tmp/rpm-data",
+                   "--add-metadata-string", "version=zremote-branch2.1"])
+        server2_pid = start_trivial_httpd(m, remote="zremote-test1",
+                                          location=zrepo)
+
+        # Add a new branch to the default repo
+        m.execute(["ostree", "commit", "--repo={}".format(REPO_LOCATION),
+                   "-b", branch, "--tree=ref={}".format(branch),
+                   "--add-metadata-string", "version=bad-version"])
+        m.execute(["ostree", "summary", "--repo={}".format(REPO_LOCATION), "-u"])
 
         # Edit
-        b.click("table.listing-ct tbody:nth-child(2) .btn-repository")
+        b.click("#change-repo")
         b.wait_present("modal-dialog")
         b.wait_present("modal-dialog .modal-body .list-group")
-        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "zremote-test1")
-        b.wait_present("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
-        b.click("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.wait_present("modal-dialog .modal-body .list-group-item:contains('zremote-test1')")
+        b.wait_present("modal-dialog .modal-body .list-group-item:contains('zremote-test1') .listing-ct-actions button.pficon-edit")
+        b.click("modal-dialog .modal-body .list-group-item:contains('zremote-test1') .listing-ct-actions button.pficon-edit")
         b.wait_present("modal-dialog .group-buttons")
         b.wait_present("modal-dialog .modal-footer button.disabled")
         b.wait_present("modal-dialog .group-buttons button.btn-primary")
         b.wait_in_text("modal-dialog .group-buttons", "zremote-test1")
         b.wait_present("modal-dialog .form-table-ct")
-        b.wait_in_text("modal-dialog .form-table-ct", "http://zremote-test1")
+        b.wait_in_text("modal-dialog .form-table-ct", "http://localhost:12344")
         b.wait_present("modal-dialog .form-table-ct #gpg-verify:checked")
         b.wait_not_present("modal-dialog #gpg-data")
         b.wait_present("modal-dialog .form-table-ct button.btn-default")
@@ -425,13 +547,13 @@ class OstreeCase(MachineCase):
         b.wait_not_present("modal-dialog .modal-footer button.disabled")
         m.execute("ls /sysroot/ostree/repo/zremote-test1.trustedkeys.gpg")
 
-        b.wait_present("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
-        b.click("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.wait_present("modal-dialog .modal-body .list-group-item:contains('zremote-test1') .listing-ct-actions button.pficon-edit")
+        b.click("modal-dialog .modal-body .list-group-item:contains('zremote-test1') .listing-ct-actions button.pficon-edit")
         b.wait_present("modal-dialog .group-buttons")
         b.wait_present("modal-dialog .modal-footer button.disabled")
         b.wait_present("modal-dialog .group-buttons button.btn-primary")
         b.wait_present("modal-dialog .form-table-ct")
-        b.wait_in_text("modal-dialog .form-table-ct", "http://zremote-test1")
+        b.wait_in_text("modal-dialog .form-table-ct", "http://localhost:12344")
         b.wait_present("modal-dialog .form-table-ct button.btn-default")
         b.wait_present("modal-dialog .form-table-ct #gpg-verify:checked")
         b.click("modal-dialog .form-table-ct #gpg-verify")
@@ -439,28 +561,105 @@ class OstreeCase(MachineCase):
         b.wait_not_present("modal-dialog .form-table-ct")
         b.wait_not_present ("modal-dialog .group-buttons")
         b.wait_not_present("modal-dialog .modal-footer button.disabled")
-        b.click("modal-dialog .modal-body .list-group-item:nth-child(3)")
+        b.click("modal-dialog .modal-body .list-group-item:contains('zremote-test1')")
         b.click("modal-dialog .modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
 
-        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
-                       "Currently using zremote-test1 repository")
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "zremote-test1")
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", "zremote-branch1")
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li")
+        b.wait_not_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu div.alert")
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:first", "zremote-branch1")
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:last", "zremote-branch2")
+        b.call_js_func("ph_count_check", "table.listing-ct tbody:nth-child(2) ul.dropdown-menu li",  2)
 
         self.assertEqual(m.execute("cat /etc/ostree/remotes.d/zremote-test1.conf").strip(),
-                         '[remote "zremote-test1"]\nurl=http://zremote-test1\ngpg-verify = false')
+                         '[remote "zremote-test1"]\nurl=http://localhost:12344\ngpg-verify = false')
 
-        # delete
-        b.click("table.listing-ct tbody:nth-child(2) .btn-repository")
+        # Check updates display
+        b.wait_present("table.listing-ct tbody:nth-child(3)")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for Updates")
+        b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
+
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " zremote-branch1.1")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+        b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Available")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Rebase")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", name)
+        b.wait_not_visible("table.listing-ct tbody:nth-child(3) div.packages")
+        b.wait_present('table.listing-ct tbody:nth-child(3) ul')
+        b.click('table.listing-ct tbody:nth-child(3) ul li a:contains("Packages")')
+        b.wait_visible("table.listing-ct tbody:nth-child(3) div.packages")
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.packages", "contains the same packages as your currently booted")
+
+        # Switching branch hides other
+        b.click("#change-branch")
+        b.wait_visible("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:last", "zremote-branch2")
+        b.click("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:last a")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+
+        # Switching back shows pulled
+        b.wait_present('#change-branch')
+        b.click("#change-branch")
+        b.wait_visible("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:first", "zremote-branch1")
+        b.click("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:first a")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " zremote-branch1.1")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+
+        # Refresh, back to local, pull in update
+        b.reload()
+        b.enter_page("/updates")
+        b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "local")
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", branch)
+        b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for Updates")
+        b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
+        b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " bad-version")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+
+        # Switching to branch shows pulled
+        b.click("#change-repo")
         b.wait_present("modal-dialog")
         b.wait_present("modal-dialog .modal-body .list-group")
-        b.wait_in_text("modal-dialog .modal-body .list-group-item:nth-child(3)", "zremote-test1")
-        b.wait_present("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
-        b.click("modal-dialog .modal-body .list-group-item:nth-child(3) .listing-ct-actions button.pficon-edit")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:contains('zremote-test1')", "zremote-test1")
+        b.click("modal-dialog .modal-body .list-group-item:contains('zremote-test1')")
+        b.click("modal-dialog .modal-footer button.btn-primary")
+        b.wait_not_present("modal-dialog")
+
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "zremote-test1")
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", "zremote-branch1")
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " zremote-branch1.1")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+        b.wait_not_in_text('table.listing-ct', name + " bad-version")
+
+        # delete
+        b.wait_present('#change-repo')
+        b.click("#change-repo")
+        b.wait_present("modal-dialog")
+        b.wait_present("modal-dialog .modal-body .list-group")
+        b.wait_in_text("modal-dialog .modal-body .list-group-item:contains('zremote-test1')", "zremote-test1")
+        b.wait_present("modal-dialog .modal-body .list-group-item:contains('zremote-test1') .listing-ct-actions button.pficon-edit")
+        b.click("modal-dialog .modal-body .list-group-item:contains('zremote-test1') .listing-ct-actions button.pficon-edit")
         b.wait_present("modal-dialog .group-buttons")
         b.wait_present("modal-dialog .group-buttons button.btn-danger")
         b.wait_present("modal-dialog .modal-footer button.disabled")
         b.wait_present("modal-dialog .form-table-ct")
-        b.wait_in_text("modal-dialog .form-table-ct", "http://zremote-test1")
+        b.wait_in_text("modal-dialog .form-table-ct", "http://localhost:12344")
         b.wait_present("#gpg-verify")
         b.wait_present("modal-dialog .form-table-ct #gpg-verify:not(:checked)")
         b.click("modal-dialog .group-buttons button.btn-danger")
@@ -472,14 +671,21 @@ class OstreeCase(MachineCase):
         b.wait_in_text("modal-dialog .modal-body .list-group", "local")
         b.wait_not_present("modal-dialog .modal-body .list-group .active")
         b.wait_present("modal-dialog .modal-footer button.disabled")
-        b.click("modal-dialog .modal-body .list-group-item:nth-child(1)")
+        b.click("modal-dialog .modal-body .list-group-item:contains('local')")
         b.wait_present("modal-dialog .modal-body .list-group .active")
         b.click("modal-dialog .modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_not_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-head",
-                           "Currently using zremote-test1 repository")
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "local")
+        b.wait_present("#change-branch")
+        b.wait_in_text("#change-branch", branch)
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li")
+        b.wait_not_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li div.alert")
+        b.call_js_func("ph_count_check", "table.listing-ct tbody:nth-child(2) ul.dropdown-menu li",  1)
+        b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " bad-version")
+        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
 
-        self.allow_authorize_journal_messages()
 
     def testPermission(self):
         m = self.machine

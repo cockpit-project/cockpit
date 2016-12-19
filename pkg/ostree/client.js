@@ -170,6 +170,7 @@ function RPMOSTreeDBusClient() {
 
     var os_names = {};
     var packages_cache = {};
+    var update_cache = {};
 
     var local_running = null;
     var booted_id = null;
@@ -233,12 +234,18 @@ function RPMOSTreeDBusClient() {
 
             os_names = {};
             packages_cache = {};
+            update_cache = {};
 
             local_running = null;
             booted_id = null;
 
             waits = cockpit.defer();
-            waits.promise.done(trigger_changed);
+            waits.promise.done(function () {
+                if (sysroot && sysroot.valid)
+                    build_os_list(sysroot.Deployments);
+                else
+                    trigger_changed();
+            });
 
             client = cockpit.dbus(DEST, {"superuser" : true,
                                          "capabilities" : ["address"]});
@@ -250,15 +257,11 @@ function RPMOSTreeDBusClient() {
             sysroot = client.proxy(SYSROOT, SYSROOT_PATH);
             sysroot.addEventListener("changed", on_sysroot_changed);
             sysroot.wait(function() {
-                if (sysroot && sysroot.valid)
-                    build_os_list(sysroot.Deployments);
-
                 if (client) {
                     os_proxies = client.proxies(OS, PATH);
                     os_proxies_added = function(event, proxy) {
                         if (proxy.Name)
                             os_names[proxy.Name] = proxy.path;
-                        trigger_changed();
                     };
                     os_proxies.addEventListener("changed", trigger_changed);
                     os_proxies.addEventListener("added", os_proxies_added);
@@ -307,8 +310,10 @@ function RPMOSTreeDBusClient() {
     function build_os_list(data) {
         var seen = {};
         var os_list = [];
+        var i;
+
         if (data) {
-            for (var i = 0; i < data.length; i++) {
+            for (i = 0; i < data.length; i++) {
                 var deployment = data[i];
                 var os = deployment.osname.v;
 
@@ -330,6 +335,40 @@ function RPMOSTreeDBusClient() {
         }
     }
 
+    function get_os_origin (os) {
+        var origin;
+        var proxy = self.get_os_proxy(os);
+
+        if (!proxy && sysroot)
+            proxy = os_proxies[sysroot.Booted];
+
+        if (proxy) {
+            origin = resolve_nested(proxy, "BootedDeployment.origin.v");
+            if (!origin)
+                origin = resolve_nested(proxy, "DefaultDeployment.origin.v");
+        }
+
+        return origin;
+    }
+
+    function build_change_refspec(os, remote, branch) {
+        var current_origin = self.get_default_origin(os);
+
+        if (!remote && current_origin)
+            remote = current_origin.remote;
+
+        if (!branch && current_origin)
+            branch = current_origin.branch;
+
+        if (current_origin && current_origin.branch == branch && current_origin.remote == remote)
+            return;
+
+        if (!remote || !branch)
+            return;
+
+        return remote + ":" + branch;
+    }
+
     self.connect = function() {
         var dp = cockpit.defer();
         get_client();
@@ -342,7 +381,7 @@ function RPMOSTreeDBusClient() {
         return dp.promise;
     };
 
-    self.known_versions_for = function(os_name) {
+    self.known_versions_for = function(os_name, remote, branch) {
         /* The number of deployments should always be a small
          * number. If that turns out to not be the case we
          * can cache this on a local property.
@@ -350,21 +389,34 @@ function RPMOSTreeDBusClient() {
         var deployments = sysroot ? sysroot.Deployments : [];
         var list = [];
         var upgrade_checksum;
+        var update, cached_origin;
+        var alt_refspec = build_change_refspec(os_name, remote, branch);
 
         var proxy = self.get_os_proxy(os_name);
-        if (proxy)
-            upgrade_checksum = resolve_nested(proxy, "CachedUpdate.checksum.v");
+        if (proxy) {
+            cached_origin = resolve_nested(proxy, "CachedUpdate.origin.v");
+            if (cached_origin)
+                update_cache[cached_origin] = proxy.CachedUpdate;
+        }
+
+        update = alt_refspec ? update_cache[alt_refspec] : update_cache[cached_origin];
+
+        if (update)
+            upgrade_checksum = resolve_nested(update, "checksum.v");
 
         for (var i = 0; i < deployments.length; i++) {
             var deployment = deployments[i];
             var checksum = resolve_nested(deployment, "checksum.v");
+
+            if (deployment.id && resolve_nested(deployment, "osname.v") != os_name)
+                continue;
 
             // always show the default deployment,
             // skip showing the upgrade if it is the
             // same as the default.
             if (self.item_matches(deployment, "DefaultDeployment")) {
                 if (upgrade_checksum && checksum !== upgrade_checksum)
-                    list.push(proxy.CachedUpdate);
+                    list.push(update);
                 list.push(deployment);
 
             // skip other deployments if it is the same as the upgrade
@@ -376,17 +428,19 @@ function RPMOSTreeDBusClient() {
         return list;
     };
 
-    self.get_origin_object = function (deployment) {
-        var origin;
+    self.get_default_origin = function (os) {
         var parts;
-        if (deployment.origin) {
-            parts = deployment.origin.v.split(':');
+        var origin = get_os_origin(os);
+
+        if (origin) {
+            parts = origin.split(':');
             if (parts.length > 1) {
                 origin = { "remote": parts[0] };
                 parts.shift();
                 origin.branch = parts.join(':');
             }
         }
+
         return origin;
     };
 
@@ -472,7 +526,7 @@ function RPMOSTreeDBusClient() {
                                              [booted_id, id]);
                     packages = new Packages(promise,
                                             process_diff_list);
-                } else {
+                } else if (item.origin.v === get_os_origin(proxy.Name)) {
                     promise = proxy.call("GetCachedUpdateRpmDiff", [""]);
                     packages = new Packages(promise,
                                             process_diff_list);
@@ -483,7 +537,7 @@ function RPMOSTreeDBusClient() {
         return packages_cache[key];
     };
 
-    self.item_matches = function(item, attr) {
+    self.item_matches = function(item, proxy_attr, attr) {
         var os_name = resolve_nested(item, "osname.v");
         var proxy = null;
         var item2 = null;
@@ -492,9 +546,70 @@ function RPMOSTreeDBusClient() {
             return false;
 
         proxy = self.get_os_proxy(os_name);
-        item2 = resolve_nested(proxy, attr);
+        item2 = resolve_nested(proxy, proxy_attr);
 
-        return resolve_nested(item, "checksum.v") === resolve_nested(item2, "checksum.v");
+        if (!attr)
+            attr = "checksum";
+        attr = attr + ".v";
+        return resolve_nested(item, attr) === resolve_nested(item2, attr);
+    };
+
+    self.cache_update_for = function(os, remote, branch) {
+        var dp = cockpit.defer();
+        var refspec = build_change_refspec(os, remote, branch);
+        var proxy = self.get_os_proxy(os);
+
+        if (proxy) {
+            if (!refspec)
+                return cockpit.when(proxy.CachedUpdate);
+
+            proxy.call("GetCachedRebaseRpmDiff", [refspec, []])
+                .done(function (data) {
+                    var item;
+                    if (data && data.length == 2 && resolve_nested(data[1], "checksum.v")) {
+                        item = data[1];
+                        update_cache[refspec] = item;
+                        packages_cache[item.checksum.v] = new Packages(cockpit.when([data[0]]),
+                                                                       process_diff_list);
+                    }
+
+                    if (item)
+                        dp.resolve(item);
+                    else
+                        dp.reject({ "problem" : "protocol-error"});
+                })
+                .fail(function (ex) {
+                    dp.reject(ex);
+                });
+        } else {
+            dp.reject(cockpit.format(_("OS $0 not found"), os));
+        }
+
+        return dp.promise();
+    };
+
+    self.check_for_updates = function(os, remote, branch) {
+        var promise;
+        var refspec = build_change_refspec(os, remote, branch);
+        if (refspec) {
+            promise = self.run_transaction("DownloadRebaseRpmDiff",
+                                             [refspec, []], os)
+                        .then(function () {
+                            // Need to get and store the cached data.
+                            // Make it like this is part of the download
+                            // call.
+                            local_running = "DownloadRebaseRpmDiff" + ":" + os;
+                            return self.cache_update_for(os, remote, branch)
+                                        .always(function () {
+                                            local_running = null;
+                                            trigger_changed();
+                                        });
+                        });
+        } else {
+            promise = self.run_transaction("DownloadUpdateRpmDiff",
+                                             null, os);
+        }
+        return promise;
     };
 
     self.run_transaction = function(method, method_args, os) {

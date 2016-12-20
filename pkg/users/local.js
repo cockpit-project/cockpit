@@ -102,7 +102,7 @@ function passwd_self(old_pass, new_pass) {
             for (i = 0; i < old_exps.length; i++) {
                 if (old_exps[i].test(buffer)) {
                     buffer = "";
-                    proc.input(old_pass + "\n", true);
+                    this.input(old_pass + "\n", true);
                     return;
                 }
             }
@@ -110,7 +110,7 @@ function passwd_self(old_pass, new_pass) {
             for (i = 0; i < new_exps.length; i++) {
                 if (new_exps[i].test(buffer)) {
                     buffer = "";
-                    proc.input(new_pass + "\n", true);
+                    this.input(new_pass + "\n", true);
                     failure = _("Failed to change password");
                     sent_new = true;
                     return;

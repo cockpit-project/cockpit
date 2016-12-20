@@ -192,7 +192,7 @@ QUnit.asyncTest("channel options", function() {
 });
 
 QUnit.asyncTest("streaming", function() {
-    assert.expect(12);
+    assert.expect(15);
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
@@ -202,16 +202,20 @@ QUnit.asyncTest("streaming", function() {
     });
 
     var at = 0;
-    cockpit.spawn(["/unused"]).
+    var promise = cockpit.spawn(["/unused"]).
         stream(function(resp) {
             assert.equal(String(at), resp, "stream got right data");
+            if (at === 0)
+                assert.strictEqual(this, promise, "stream got right this");
             at++;
         }).
         done(function(resp) {
             assert.ok(!resp, "stream didn't send data to done");
+            assert.strictEqual(this, promise, "done got right this");
         }).
         always(function() {
             assert.equal(this.state(), "resolved", "split response didn't fail");
+            assert.strictEqual(this, promise, "always got right this");
             QUnit.start();
         });
 });

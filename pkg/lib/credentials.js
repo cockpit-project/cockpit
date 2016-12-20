@@ -212,7 +212,7 @@
                         if (old_exps[i].test(buffer)) {
                             buffer = "";
                             failure = _("Old password not accepted");
-                            proc.input(old_pass + "\n", true);
+                            this.input(old_pass + "\n", true);
                             return;
                         }
                     }
@@ -220,7 +220,7 @@
                     for (i = 0; i < new_exps.length; i++) {
                         if (new_exps[i].test(buffer)) {
                             buffer = "";
-                            proc.input(new_pass + "\n", true);
+                            this.input(new_pass + "\n", true);
                             failure = _("Failed to change password");
                             sent_new = true;
                             return;
@@ -278,10 +278,10 @@
                     } else if (ask_exp.test(buffer)) {
                         buffer = "";
                         failure = _("Password not accepted");
-                        proc.input(password + "\n", true);
+                        this.input(password + "\n", true);
                     } else if (bad_exp.test(buffer)) {
                         buffer = "";
-                        proc.input("\n", true);
+                        this.input("\n", true);
                     }
                 });
 

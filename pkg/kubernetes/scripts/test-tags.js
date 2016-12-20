@@ -22,6 +22,8 @@ var QUnit = require("qunit-tests");
 
 require("./tags");
 
+var specData;
+
 function suite() {
     "use strict";
 
@@ -86,7 +88,7 @@ function suite() {
     angular.bootstrap(document, ['registry.tags.tests']);
 }
 
-var specData = {
+specData = {
     "dockerImageRepository": "busybox",
     "tags": [
         {

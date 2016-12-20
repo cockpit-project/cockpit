@@ -94,6 +94,7 @@
                                    final: final });
                 }
 
+                var timeout;
                 function check_empty() {
                     window.clearTimeout(timeout);
                     timeout = null;
@@ -109,7 +110,7 @@
                 }
 
                 $scope.curtains = { state: 'silent' };
-                var timeout = window.setTimeout(function() {
+                timeout = window.setTimeout(function() {
                     set_curtains({ state: 'connecting' });
                     document.body.removeAttribute('hidden');
                     timeout = null;

@@ -146,6 +146,7 @@ $(function() {
      */
 
     var units_initialized = false;
+    var clock_realtime_now, clock_monotonic_now;
 
     function ensure_units() {
         if (!units_initialized) {
@@ -847,7 +848,6 @@ $(function() {
             $("#timer-dialog").modal("toggle");
     });
 
-    var clock_realtime_now, clock_monotonic_now;
     function update_time() {
         cockpit.spawn(["grep", "\\w", "timer_list"],
                       { directory: "/proc" }).

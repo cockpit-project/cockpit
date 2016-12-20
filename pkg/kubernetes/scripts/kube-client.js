@@ -378,6 +378,8 @@
         "KubeRequest",
         "KUBE_SCHEMA",
         function($q, $timeout, KubeWatch, KubeRequest, KUBE_SCHEMA) {
+            var self;
+
             var callbacks = [];
             var limits = { namespace: null };
 
@@ -660,7 +662,7 @@
                 }
             }
 
-            var self = {
+            self = {
                 watch: function watch(what, until) {
                     var ret = ensureWatches(what, 1);
                     connectUntil(ret, until);

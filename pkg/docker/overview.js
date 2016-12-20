@@ -65,6 +65,9 @@
         update_container_list(true, '');
         update_image_list('');
 
+        var cpu_series;
+        var mem_series;
+
         $(client).on('container.containers', function(event, id, container) {
             if (container && container.CGroup) {
                 cpu_series.add_instance(container.CGroup);
@@ -98,7 +101,7 @@
 
         var cpu_plot = plot.plot($("#containers-cpu-graph"), 300);
         cpu_plot.set_options(cpu_options);
-        var cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
+        cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
         $(cpu_series).on("value", function(ev, value) {
             $('#containers-cpu-text').text(util.format_cpu_usage(value));
         });
@@ -129,7 +132,7 @@
 
         var mem_plot = plot.plot($("#containers-mem-graph"), 300);
         mem_plot.set_options(mem_options);
-        var mem_series = mem_plot.add_metrics_stacked_instances_series(mem_data, { });
+        mem_series = mem_plot.add_metrics_stacked_instances_series(mem_data, { });
         $(mem_series).on("value", function(ev, value) {
             $('#containers-mem-text').text(cockpit.format_bytes(value, 1024));
         });

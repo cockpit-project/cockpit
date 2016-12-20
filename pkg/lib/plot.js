@@ -437,6 +437,9 @@ plotter.plot = function plot(element, x_range_seconds, x_stop_seconds) {
                                });
         }
 
+        var instances = { };
+        var last_instance = null;
+
         function reset_series() {
             if (channel)
                 channel.close();
@@ -459,9 +462,6 @@ plotter.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             sync_suppressed--;
             sync();
         }
-
-        var instances = { };
-        var last_instance = null;
 
         function add_instance(name, selector) {
             if (instances[name])

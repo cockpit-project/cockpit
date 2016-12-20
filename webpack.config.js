@@ -403,6 +403,7 @@ module.exports = {
     jshint: {
         emitErrors: false,
         failOnHint: true,
+        latedef: "nofunc",
         sub: true,
         multistr: true,
         undef: true,

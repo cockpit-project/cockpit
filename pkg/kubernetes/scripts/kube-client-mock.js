@@ -412,6 +412,8 @@ var angular = require("angular");
         return true;
     }
 
+    var unique = 0;
+
     angular.module("kubeClient.mock", [
         "kubeClient",
     ])
@@ -569,7 +571,5 @@ var angular = require("angular");
             };
         }
     ]);
-
-    var unique = 0;
 
 }());

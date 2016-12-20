@@ -120,9 +120,6 @@ class OstreeRestartCase(MachineCase):
         m.execute("systemctl disable rhsmcertd || true")
         m.execute("systemctl stop rhsmcertd || true")
 
-        # Require signatures
-        m.execute("sed -i /gpg-verify/d /etc/ostree/remotes.d/local.conf")
-
         cockpit_shell = m.execute("rpm -qa | grep cockpit-ostree").strip()
         cockpit_machines = m.execute("rpm -qa | grep cockpit-machines").strip()
 
@@ -138,6 +135,7 @@ class OstreeRestartCase(MachineCase):
 
         # Check current and rollback target
         b.wait_present('table.listing-ct')
+        b.wait_present('table.listing-ct tbody')
         b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
         b.wait_present('table.listing-ct tbody:nth-child(3).active')
@@ -158,6 +156,12 @@ class OstreeRestartCase(MachineCase):
         b.click('table.listing-ct tbody:nth-child(3) ul li a:contains("Signature")')
         b.wait_visible("table.listing-ct tbody:nth-child(3) div.signatures")
         b.wait_in_text("table.listing-ct tbody:nth-child(3) div.signatures", "No signature avaliable")
+
+        # Require signatures
+        m.execute("sed -i /gpg-verify/d /etc/ostree/remotes.d/local.conf")
+        # HACK: rpm-ostree doesn't reload remote settings properly
+        # https://github.com/projectatomic/rpm-ostree/issues/401
+        m.execute("systemctl restart rpm-ostreed")
 
         b.wait_not_in_text('table.listing-ct tbody:nth-child(4) div.listing-ct-head h3', "cockpit")
         b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-circle')
@@ -248,6 +252,7 @@ class OstreeRestartCase(MachineCase):
 
         # After reboot, check commit
         b.wait_present('table.listing-ct')
+        b.wait_present('table.listing-ct tbody')
         b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.2")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
         b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-panel,active')
@@ -295,6 +300,8 @@ class OstreeRestartCase(MachineCase):
         m.reset_reboot_flag()
 
         # After reboot upgrade but no rollback target
+        b.wait_present('table.listing-ct')
+        b.wait_present('table.listing-ct tbody')
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
         b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Update")
         b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-check-circle-o')

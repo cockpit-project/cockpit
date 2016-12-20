@@ -27,11 +27,14 @@ import argparse
 import datetime
 import json
 
+BASEDIR = os.path.dirname(__file__)
+
 class AtomicCockpitInstaller:
     branch = None
     checkout_location = "/var/local-tree"
     repo_location = "/var/local-repo"
     rpm_location = "/usr/share/rpm"
+    key_id = "95A8BA1754D0E95E2B3A98A7EE15015654780CBD"
 
     # Support installing random packages if needed.
     external_packages = {}
@@ -118,7 +121,9 @@ class AtomicCockpitInstaller:
                                "--repo", self.repo_location,
                                "-b", self.branch,
                                "--add-metadata-string", "version=cockpit-base.1",
-                               "--tree=dir={0}".format(self.checkout_location)])
+                               "--tree=dir={0}".format(self.checkout_location),
+                               "--gpg-sign={0}".format(self.key_id),
+                               "--gpg-homedir={0}".format(BASEDIR)])
 
     def install_packages(self, packages, deps=True, replace=False):
         args = ["rpm", "-U", "--root", self.checkout_location,

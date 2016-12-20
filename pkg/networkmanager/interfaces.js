@@ -51,7 +51,9 @@ function generate_uuid() {
 }
 
 function show_unexpected_error(error) {
-    $("#error-popup-message").text(error.message || error || "???");
+    var msg = error.message || error || "???";
+    console.warn(msg);
+    $("#error-popup-message").text(msg);
     $('.modal[role="dialog"]').modal('hide');
     $('#error-popup').modal('show');
 }
@@ -2867,6 +2869,12 @@ function with_settings_checkpoint(model, modify, hack_does_add_or_remove) {
         hack_does_add_or_remove);
 }
 
+function show_dialog_error(error_id, error) {
+    var msg = error.message || error.toString();
+    console.warn(msg);
+    $(error_id).show().find('span').text(msg);
+}
+
 PageNetworkIpSettings.prototype = {
     _init: function () {
         this.id = "network-ip-settings-dialog";
@@ -3084,7 +3092,7 @@ PageNetworkIpSettings.prototype = {
                         return PageNetworkIpSettings.done();
                 }).
                 fail(function (error) {
-                    $('#network-ip-settings-error').show().find('span').text(error.message || error.toString());
+                    show_dialog_error('#network-ip-settings-error', error);
                 });
         }
 
@@ -3418,7 +3426,7 @@ PageNetworkBondSettings.prototype = {
                         return PageNetworkBondSettings.done();
                 }).
                 fail(function (error) {
-                    $('#network-bond-settings-error').show().find('span').text(error.message || error.toString());
+                    show_dialog_error('#network-bond-settings-error', error);
                 });
         }
 
@@ -3597,7 +3605,7 @@ PageNetworkTeamSettings.prototype = {
                         return PageNetworkTeamSettings.done();
                 }).
                 fail(function (error) {
-                    $('#network-team-settings-error').show().find('span').text(error.message || error.toString());
+                    show_dialog_error('#network-team-settings-error', error);
                 });
         }
 
@@ -3690,10 +3698,6 @@ PageNetworkTeamPortSettings.prototype = {
         var self = this;
         var model = PageNetworkTeamPortSettings.model;
 
-        function show_error(error) {
-            $('#network-teamport-settings-error').show().find('span').text(error.message || error.toString());
-        }
-
         function modify () {
             return PageNetworkTeamPortSettings.apply_settings(self.settings).
                 then(function () {
@@ -3701,7 +3705,9 @@ PageNetworkTeamPortSettings.prototype = {
                     if (PageNetworkTeamPortSettings.done)
                         return PageNetworkTeamPortSettings.done();
                 }).
-                fail(show_error);
+                fail(function (error) {
+                    show_dialog_error('#network-teamport-settings-error', error);
+                });
         }
 
         with_settings_checkpoint(model, modify);
@@ -3903,10 +3909,6 @@ PageNetworkBridgePortSettings.prototype = {
         var self = this;
         var model = PageNetworkBridgePortSettings.model;
 
-        function show_error(error) {
-            $('#network-bridgeport-settings-error').show().find('span').text(error.message || error.toString());
-        }
-
         function modify () {
             return PageNetworkBridgePortSettings.apply_settings(self.settings).
                 then(function () {
@@ -3914,7 +3916,9 @@ PageNetworkBridgePortSettings.prototype = {
                     if (PageNetworkBridgePortSettings.done)
                         return PageNetworkBridgePortSettings.done();
                 }).
-                fail(show_error);
+                fail(function (error) {
+                    show_dialog_error('#network-bridgeport-settings-error', error);
+                });
         }
 
         with_settings_checkpoint(model, modify);
@@ -4015,10 +4019,6 @@ PageNetworkVlanSettings.prototype = {
         var self = this;
         var model = PageNetworkVlanSettings.model;
 
-        function show_error(error) {
-            $('#network-vlan-settings-error').show().find('span').text(error.message || error.toString());
-        }
-
         function modify () {
             return PageNetworkVlanSettings.apply_settings(self.settings).
                 then(function () {
@@ -4028,7 +4028,9 @@ PageNetworkVlanSettings.prototype = {
                     if (PageNetworkVlanSettings.done)
                         return PageNetworkVlanSettings.done();
                 }).
-                fail(show_error);
+                fail(function (error) {
+                    show_dialog_error('#network-vlan-settings-error', error);
+                });
         }
 
         if (PageNetworkVlanSettings.connection)
@@ -4092,7 +4094,7 @@ PageNetworkEthernetSettings.prototype = {
         var model = PageNetworkEthernetSettings.model;
 
         function show_error(error) {
-            $('#network-ethernet-settings-error').show().find('span').text(error.message || error.toString());
+            show_dialog_error('#network-ethernet-settings-error', error);
         }
 
         if ($("#network-ethernet-settings-mtu-auto").prop('checked'))

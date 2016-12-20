@@ -319,6 +319,8 @@ function NetworkManagerModel() {
     }
 
     var interface_types = { };
+    var max_export_phases = 0;
+    var export_pending;
 
     function set_object_types(all_types) {
         all_types.forEach(function (type) {
@@ -355,9 +357,6 @@ function NetworkManagerModel() {
         /* For NetworkManager we can make this assumption */
         drop_object(path);
     }
-
-    var max_export_phases = 0;
-    var export_pending;
 
     function export_model() {
         function doit() {
@@ -808,6 +807,8 @@ function NetworkManagerModel() {
      * code and using the data conversion functions.
      */
 
+    var type_Manager;
+
     var type_Ipv4Config = {
         interfaces: [
             "org.freedesktop.NetworkManager.IP4Config"
@@ -1130,7 +1131,7 @@ function NetworkManagerModel() {
         ]
     };
 
-    var type_Manager = {
+    type_Manager = {
         interfaces: [
             "org.freedesktop.NetworkManager"
         ],

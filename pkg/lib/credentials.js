@@ -187,12 +187,13 @@
                 return dfd.promise();
             }
 
+            var proc;
             var timeout = window.setTimeout(function() {
                 failure = _("Prompting via ssh-keygen timed out");
                 proc.close("terminated");
             }, 10 * 1000);
 
-            var proc = cockpit.spawn(["ssh-keygen", "-p", "-f", name],
+            proc = cockpit.spawn(["ssh-keygen", "-p", "-f", name],
                     { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
                 .always(function() {
                     window.clearInterval(timeout);
@@ -247,12 +248,13 @@
             var output = "";
             var failure = _("Not a valid private key");
 
+            var proc;
             var timeout = window.setTimeout(function() {
                 failure = _("Prompting via ssh-add timed out");
                 proc.close("terminated");
             }, 10 * 1000);
 
-            var proc = cockpit.spawn(["ssh-add", name],
+            proc = cockpit.spawn(["ssh-add", name],
                     { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
                 .always(function() {
                     window.clearInterval(timeout);

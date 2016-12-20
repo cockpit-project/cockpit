@@ -268,6 +268,7 @@
         'kubeSelect',
         'kubeLoader',
         function(select, loader) {
+            var watching = false;
 
             /* Called when we have to load images via imagestreams */
             loader.listen(function(objects) {
@@ -337,7 +338,6 @@
             }
 
             /* Load images, but fallback to loading individually */
-            var watching = false;
             function watchImages(until) {
                 watching = true;
                 var a = loader.watch("images", until);

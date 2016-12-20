@@ -34,7 +34,7 @@
 
     function init_jobs(client) {
 
-        jobs_tmpl = $("#jobs-tmpl").html();
+        var jobs_tmpl = $("#jobs-tmpl").html();
         mustache.parse(jobs_tmpl);
 
         /* As a special service, we try to also show UDisks2 jobs.
@@ -102,8 +102,6 @@
         $(client.udisks_jobs).on('added removed changed', function () {
             update_job_spinners('body');
         });
-
-        var jobs_tmpl;
 
         function render_jobs_panel() {
 

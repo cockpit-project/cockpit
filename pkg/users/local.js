@@ -78,12 +78,13 @@ function passwd_self(old_pass, new_pass) {
     var failure = _("Old password not accepted");
     var i;
 
+    var proc;
     var timeout = window.setTimeout(function() {
         failure = _("Prompting via passwd timed out");
         proc.close("terminated");
     }, 10 * 1000);
 
-    var proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
+    proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
         .always(function() {
             window.clearInterval(timeout);
         })

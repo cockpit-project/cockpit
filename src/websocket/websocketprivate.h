@@ -68,18 +68,11 @@ void             _web_socket_connection_take_io_stream    (WebSocketConnection *
 void             _web_socket_connection_take_incoming     (WebSocketConnection *self,
                                                            GByteArray *input_buffer);
 
-void             _web_socket_connection_set_flavor        (WebSocketConnection *self,
-                                                           WebSocketFlavor flavor);
-
 gboolean         _web_socket_connection_choose_protocol   (WebSocketConnection *self,
                                                            const gchar **protocols,
                                                            const gchar *value);
 
 gchar *          _web_socket_complete_accept_key_rfc6455  (const gchar *key);
-
-guint8 *         _web_socket_complete_challenge_hixie76   (guint number_1,
-                                                           guint number_2,
-                                                           guint8 challenge[16]);
 
 G_END_DECLS
 

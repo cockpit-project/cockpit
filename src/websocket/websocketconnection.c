@@ -83,7 +83,6 @@ enum {
   PROP_READY_STATE,
   PROP_BUFFERED_AMOUNT,
   PROP_IO_STREAM,
-  PROP_FLAVOR,
 };
 
 enum {
@@ -108,9 +107,6 @@ struct _WebSocketConnectionPrivate
 {
   /* FALSE if client, TRUE if server */
   gboolean server_side;
-
-  /* Which flavor to talk */
-  gint flavor;
 
   /*
    * On the client this is the url we connect to,
@@ -313,10 +309,7 @@ on_timeout_close_io (gpointer user_data)
   WebSocketConnectionPrivate *pv = self->pv;
 
   pv->close_timeout = 0;
-
-  /* Previous flavors expected client to just disconnect */
-  if (pv->flavor == WEB_SOCKET_FLAVOR_RFC6455)
-    g_message ("peer did not close io when expected");
+  g_message ("peer did not close io when expected");
 
   close_io_stream (self);
 
@@ -348,31 +341,6 @@ xor_with_mask_rfc6455 (const guint8 *mask,
   /* Do the masking */
   for (n = 0; n < len; n++)
     data[n] ^= mask[n & 3];
-}
-
-static void
-send_text_hixie76 (WebSocketConnection *self,
-                   const guint8 *prefix,
-                   gsize prefix_len,
-                   const guint8 *payload,
-                   gsize payload_len)
-{
-  guchar b00 = 0x00;
-  guchar bff = 0xff;
-  GByteArray *bytes;
-  gsize frame_len;
-
-  bytes = g_byte_array_sized_new (2 + prefix_len + payload_len);
-
-  g_byte_array_append (bytes, &b00, 1);
-  g_byte_array_append (bytes, prefix, prefix_len);
-  g_byte_array_append (bytes, payload, payload_len);
-  g_byte_array_append (bytes, &bff, 1);
-
-  frame_len = bytes->len;
-  _web_socket_connection_queue (self, WEB_SOCKET_QUEUE_NORMAL,
-                                g_byte_array_free (bytes, FALSE), frame_len, payload_len);
-  g_debug ("queued hixie76 text frame of len %u", (guint) frame_len);
 }
 
 static void
@@ -479,21 +447,6 @@ send_message_rfc6455 (WebSocketConnection *self,
 }
 
 static void
-send_close_hixie76 (WebSocketConnection *self,
-                    WebSocketQueueFlags flags)
-{
-  guchar *bytes;
-
-  bytes = g_malloc(2);
-  bytes[0] = 0xFF;
-  bytes[1] = 0x00;
-
-  _web_socket_connection_queue (self, flags, bytes, 2, 0);
-  g_debug ("queued hixie76 close frame");
-  self->pv->close_sent = TRUE;
-}
-
-static void
 send_close_rfc6455 (WebSocketConnection *self,
                     WebSocketQueueFlags flags,
                     gushort code,
@@ -569,8 +522,6 @@ _web_socket_connection_error_and_close (WebSocketConnection *self,
 
   if (!self->pv->handshake_done)
     prejudice = TRUE;
-  if (self->pv->flavor == WEB_SOCKET_FLAVOR_UNKNOWN)
-    prejudice = TRUE;
 
   /* If already closing, so just ignore this stuff */
   switch (web_socket_connection_get_ready_state (self))
@@ -597,12 +548,7 @@ _web_socket_connection_error_and_close (WebSocketConnection *self,
   else
     {
       g_debug ("requesting close due to error");
-      if (self->pv->flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-        send_close_hixie76 (self, WEB_SOCKET_QUEUE_URGENT | WEB_SOCKET_QUEUE_LAST);
-      else if (self->pv->flavor == WEB_SOCKET_FLAVOR_RFC6455)
-        send_close_rfc6455 (self, WEB_SOCKET_QUEUE_URGENT | WEB_SOCKET_QUEUE_LAST, code, NULL);
-      else
-        g_assert_not_reached ();
+      send_close_rfc6455 (self, WEB_SOCKET_QUEUE_URGENT | WEB_SOCKET_QUEUE_LAST, code, NULL);
     }
 }
 
@@ -708,32 +654,6 @@ receive_close_rfc6455 (WebSocketConnection *self,
     {
       /* Send back the response */
       web_socket_connection_close (self, pv->peer_close_code, NULL);
-    }
-}
-
-static void
-receive_close_hixie76 (WebSocketConnection *self)
-{
-  WebSocketConnectionPrivate *pv = self->pv;
-
-  pv->peer_close_code = 0;
-  g_free (pv->peer_close_data);
-  pv->peer_close_data = NULL;
-  pv->close_received = TRUE;
-
-  /* Once we receive close response on server, close immediately */
-  if (pv->close_sent)
-    {
-      shutdown_wr_io_stream (self);
-      if (pv->server_side)
-        close_io_stream (self);
-    }
-
-  /* Respond to the close frame */
-  else
-    {
-      /* Send back the response */
-      web_socket_connection_close (self, 0, NULL);
     }
 }
 
@@ -982,83 +902,6 @@ process_frame_rfc6455 (WebSocketConnection *self)
 }
 
 static void
-process_text_hixie76 (WebSocketConnection *self,
-                      const gchar *data,
-                      gsize len)
-{
-  GBytes *message;
-
-  g_debug ("received hixie76 text frame with %d payload", (int)len);
-  if (g_utf8_validate (data, len, NULL))
-    {
-      /* Guarantee that messages are null-terminated (outside of len) */
-      message = g_bytes_new_take (g_strndup (data, len), len);
-      g_debug ("message: delivering text message with %d length", (int)len);
-      g_signal_emit (self, signals[MESSAGE], 0, (int)WEB_SOCKET_DATA_TEXT, message);
-      g_bytes_unref (message);
-    }
-  else
-    {
-      g_message ("received invalid non-UTF8 text data");
-      bad_data_error_and_close (self);
-    }
-}
-
-static gboolean
-process_frame_hixie76 (WebSocketConnection *self)
-{
-  WebSocketConnectionPrivate *pv = self->pv;
-  guint8 *end;
-  gsize len;
-
-  if (pv->incoming->len < 2)
-    return FALSE; /* need more data */
-
-  switch (pv->incoming->data[0])
-    {
-    /* a close frame */
-    case 0xFF:
-      if (pv->incoming->data[1] != 0x00)
-        {
-          g_message ("received invalid close frame");
-          protocol_error_and_close_full (self, TRUE);
-        }
-      else
-        {
-          g_debug ("received hixie76 close frame");
-          receive_close_hixie76 (self);
-        }
-      g_byte_array_remove_range (pv->incoming, 0, 2);
-      break;
-
-    /* a text frame */
-    case 0x00:
-      end = memchr (pv->incoming->data, 0xff, pv->incoming->len);
-      if (end == NULL)
-        {
-          if (pv->incoming->len > MAX_PAYLOAD)
-            too_big_error_and_close (self, pv->incoming->len);
-          return FALSE; /* need more data */
-        }
-      len = (end - pv->incoming->data) - 1;
-      if (pv->close_received)
-          g_message ("received message after close was received");
-      else
-          process_text_hixie76 (self, (gchar *)pv->incoming->data + 1, len);
-      g_byte_array_remove_range (pv->incoming, 0, len + 2);
-      break;
-
-    /* an invalid frame */
-    default:
-      g_message ("received invalid frame from server");
-      protocol_error_and_close_full (self, TRUE);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-static void
 process_incoming (WebSocketConnection *self)
 {
   WebSocketConnectionPrivate *pv = self->pv;
@@ -1081,12 +924,7 @@ process_incoming (WebSocketConnection *self)
     {
       do
         {
-          if (pv->flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-            more = process_frame_hixie76 (self);
-          else if (pv->flavor == WEB_SOCKET_FLAVOR_RFC6455)
-            more = process_frame_rfc6455 (self);
-          else
-            g_assert_not_reached ();
+          more = process_frame_rfc6455 (self);
         }
       while (more);
     }
@@ -1141,15 +979,7 @@ on_web_socket_input (GObject *pollable_stream,
       if (!pv->close_sent || !pv->close_received)
         {
           pv->dirty_close = TRUE;
-
-          /*
-           * Some versions of the hixie drafts don't have a close handshake,
-           * which is pretty wild. But what can you do. So don't raise a stink
-           * about it if we're talking hixie76
-           */
-
-          if (pv->flavor != WEB_SOCKET_FLAVOR_HIXIE76)
-            g_message ("connection unexpectedly closed by peer");
+          g_message ("connection unexpectedly closed by peer");
         }
       else
         {
@@ -1453,7 +1283,6 @@ web_socket_connection_set_property (GObject *object,
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (object);
   WebSocketConnectionPrivate *pv = self->pv;
   GIOStream *io_stream;
-  gint flavor;
 
   switch (prop_id)
     {
@@ -1467,11 +1296,6 @@ web_socket_connection_set_property (GObject *object,
       io_stream = g_value_dup_object (value);
       if (io_stream)
         _web_socket_connection_take_io_stream (self, io_stream);
-      break;
-
-    case PROP_FLAVOR:
-      flavor = g_value_get_int (value);
-      _web_socket_connection_set_flavor (self, flavor);
       break;
 
     default:
@@ -1595,16 +1419,6 @@ web_socket_connection_class_init (WebSocketConnectionClass *klass)
   g_object_class_install_property (gobject_class, PROP_IO_STREAM,
                                    g_param_spec_object ("io-stream", "IO Stream", "Underlying io stream", G_TYPE_IO_STREAM,
                                                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
-
-  /**
-   * WebSocketConnection:flavor:
-   *
-   * Force the WebSocket to communicate with a given draft of the WebSocket
-   * flavors.
-   */
-  g_object_class_install_property (gobject_class, PROP_FLAVOR,
-                                   g_param_spec_int ("flavor", "WebSocket flavor", "Flavor of WebSockets to speak with peer",
-                                                     0, G_MAXINT, 0, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * WebSocketConnection::open:
@@ -1892,28 +1706,15 @@ web_socket_connection_send (WebSocketConnection *self,
         }
       break;
     case WEB_SOCKET_DATA_BINARY:
-      if (self->pv->flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-        {
-          g_critical ("cannot send binary data via old WebSocket flavor");
-          return;
-        }
-      else
-        {
-          opcode = 0x02;
-        }
+      opcode = 0x02;
       break;
     default:
       g_critical ("invalid @type argument for web_socket_connection_send()");
       return;
     }
 
-  if (self->pv->flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-    send_text_hixie76 (self, pref, prefix_len, payload, payload_len);
-  else if (self->pv->flavor == WEB_SOCKET_FLAVOR_RFC6455)
-    send_prefixed_message_rfc6455 (self, WEB_SOCKET_QUEUE_NORMAL, opcode,
-                                   pref, prefix_len, payload, payload_len);
-  else
-    g_assert_not_reached ();
+  send_prefixed_message_rfc6455 (self, WEB_SOCKET_QUEUE_NORMAL, opcode,
+                                 pref, prefix_len, payload, payload_len);
 
   g_object_notify (G_OBJECT (self), "buffered-amount");
 }
@@ -1951,17 +1752,12 @@ web_socket_connection_close (WebSocketConnection *self,
   if (self->pv->close_received)
     g_debug ("responding to close request");
 
-  if (self->pv->flavor != WEB_SOCKET_FLAVOR_UNKNOWN)
+  if (self->pv->handshake_done)
     {
       flags = 0;
       if (self->pv->server_side && self->pv->close_received)
         flags |= WEB_SOCKET_QUEUE_LAST;
-      if (self->pv->flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-        send_close_hixie76 (self, flags);
-      else if (self->pv->flavor == WEB_SOCKET_FLAVOR_RFC6455)
-        send_close_rfc6455 (self, flags, code, data);
-      else
-        g_assert_not_reached ();
+      send_close_rfc6455 (self, flags, code, data);
       close_io_after_timeout (self);
     }
   else
@@ -2026,48 +1822,6 @@ _web_socket_connection_choose_protocol (WebSocketConnection *self,
       g_message ("received invalid or unsupported Sec-WebSocket-Protocol: %s", value);
 
   return chosen;
-}
-
-/**
- * web_socket_connection_get_flavor:
- * @self: the WebSocket
- *
- * Get the protocol flavor of a WebSocket.
- *
- * The only reason we even attempt this silliness is to remain compatible
- * with iPads and so on
- *
- * Note this is different from protocols as in Sec-WebSocket-Protocol
- * which is a protocol spoken over the WebSocket (such as cockpit1, or xmpp)
- *
- * Returns: the flavor
- */
-WebSocketFlavor
-web_socket_connection_get_flavor (WebSocketConnection *self)
-{
-  g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), 0);
-  return self->pv->flavor;
-}
-
-void
-_web_socket_connection_set_flavor (WebSocketConnection *self,
-                                   WebSocketFlavor flavor)
-{
-  g_return_if_fail (WEB_SOCKET_IS_CONNECTION (self));
-  g_return_if_fail (self->pv->handshake_done == FALSE);
-
-  switch (flavor)
-    {
-    case WEB_SOCKET_FLAVOR_RFC6455:
-    case WEB_SOCKET_FLAVOR_HIXIE76:
-    case WEB_SOCKET_FLAVOR_UNKNOWN:
-      self->pv->flavor = flavor;
-      break;
-    default:
-      g_critical ("unsupported value %d provided for flavor", flavor);
-      break;
-    }
-  g_object_notify (G_OBJECT (self), "flavor");
 }
 
 GMainContext *

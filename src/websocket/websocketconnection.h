@@ -94,8 +94,6 @@ void            web_socket_connection_close               (WebSocketConnection *
                                                            gushort code,
                                                            const gchar *data);
 
-WebSocketFlavor web_socket_connection_get_flavor          (WebSocketConnection *self);
-
 G_END_DECLS
 
 #endif /* __WEB_SOCKET_CONNECTION_H__ */

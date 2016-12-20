@@ -106,47 +106,10 @@ verify_handshake_rfc6455 (WebSocketClient *self,
 }
 
 static gboolean
-verify_handshake_hixie76 (WebSocketClient *self,
-                          WebSocketConnection *conn,
-                          GHashTable *headers,
-                          guint8 response[16])
-{
-  /*
-   * This is a client verifying a handshake response it's received
-   * from the server.
-   */
-
-  if (!_web_socket_util_header_equals (headers, "Upgrade", "websocket") ||
-      !_web_socket_util_header_contains (headers, "Connection", "upgrade") ||
-      !_web_socket_connection_choose_protocol (conn, (const gchar **)self->possible_protocols,
-                                               g_hash_table_lookup (headers, "Sec-Websocket-Protocol")))
-    {
-      protocol_error_and_close (conn);
-      return FALSE;
-    }
-
-  /*
-   * We filled in accept_key when we did a handshake request
-   * earlier in request_handshake_hixie76(). The response was
-   * in the HTTP body.
-   */
-  if (self->accept_key == NULL || memcmp (response, self->accept_key, 16) != 0)
-    {
-      g_message ("received invalid response to key challenge");
-      protocol_error_and_close (conn);
-      return FALSE;
-    }
-
-  g_debug ("verified hixie76 handshake");
-  return TRUE;
-}
-
-static gboolean
 parse_handshake_response (WebSocketClient *self,
                           WebSocketConnection *conn,
                           GByteArray *incoming)
 {
-  WebSocketFlavor flavor;
   GHashTable *headers;
   gchar *reason;
   gboolean verified;
@@ -197,32 +160,7 @@ parse_handshake_response (WebSocketClient *self,
 
   if (status == 101)
     {
-      flavor = web_socket_connection_get_flavor (conn);
-      if (flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-        {
-          /*
-           * Want 16 more bytes from incoming, as hixie76 has a
-           * challenge/response in the body :S
-           */
-          if (incoming->len < consumed + 16)
-            {
-              consumed = 0; /* try again once more data arrives*/
-              verified = FALSE;
-              g_debug ("waiting for handshake response body");
-            }
-          else
-            {
-              verified = verify_handshake_hixie76 (self, conn, headers,
-                                                   incoming->data + consumed);
-              consumed += 16;
-            }
-        }
-      else if (flavor == WEB_SOCKET_FLAVOR_RFC6455)
-        {
-          verified = verify_handshake_rfc6455 (self, conn, headers);
-        }
-      else
-          g_assert_not_reached ();
+      verified = verify_handshake_rfc6455 (self, conn, headers);
       if (verified)
         {
           /* Handshake is successful */
@@ -325,102 +263,10 @@ request_handshake_rfc6455 (WebSocketClient *self,
   g_debug ("queued rfc6455 handshake request");
 }
 
-static gchar *
-generate_crack_for_hixie76 (guint32 *out_number)
-{
-  guint spaces, max, number, product, chars;
-  GString *key;
-  gchar ch;
-  gint i;
-
-  /* WTF. This hixie76 draft protocol screams "PHP developer" */
-
-  spaces = g_random_int_range (1, 12 + 1);
-  max = 2147483647 / spaces;
-  number = g_random_int_range (0, max);
-  product = number * spaces;
-
-  key = g_string_new ("");
-  g_string_printf (key, "%u", product);
-
-  chars = g_random_int_range (1, 12 + 1);
-  for (i = 0; i < chars; i++)
-    {
-      do
-        {
-          ch = g_random_int_range (0x21, 0x7F);
-        }
-      while (g_ascii_isdigit (ch));
-      g_string_insert_c (key, g_random_int_range (0, key->len), ch);
-    }
-
-  for (i = 0; i < spaces; i++)
-    g_string_insert_c (key, g_random_int_range (1, key->len - 1), ' ');
-
-  *out_number = number;
-  return g_string_free (key, FALSE);
-}
-
-static void
-request_handshake_hixie76 (WebSocketClient *self,
-                           WebSocketConnection *conn,
-                           const gchar *host,
-                           const gchar *path)
-{
-  guint number_1, number_2;
-  guchar challenge[8];
-  gchar *key_1, *key_2;
-  GString *handshake;
-  gchar *protocols;
-  gsize len;
-  gint i;
-
-
-  key_1 = generate_crack_for_hixie76 (&number_1);
-  key_2 = generate_crack_for_hixie76 (&number_2);
-
-  for (i = 0; i < 8; i++)
-    challenge[i] = g_random_int_range (0, 256);
-
-  g_free (self->accept_key);
-  self->accept_key = _web_socket_complete_challenge_hixie76 (number_1, number_2, challenge);
-
-  handshake = g_string_new ("");
-  g_string_printf (handshake, "GET %s HTTP/1.1\r\n"
-                              "Host: %s\r\n"
-                              "Connection: Upgrade\r\n"
-                              "Upgrade: WebSocket\r\n"
-                              "Sec-WebSocket-Key1: %s\r\n"
-                              "Sec-WebSocket-Key2: %s\r\n"
-                              "Origin: %s\r\n",
-                              path, host, key_1, key_2,
-                              self->origin ? self->origin : "null");
-
-  g_free (key_1);
-  g_free (key_2);
-
-  if (self->possible_protocols)
-    {
-      protocols = g_strjoinv (" ", self->possible_protocols);
-      g_string_append_printf (handshake, "Sec-WebSocket-Protocol: %s\r\n", protocols);
-      g_free (protocols);
-    }
-
-  include_custom_headers (self, handshake);
-  g_string_append (handshake, "\r\n");
-  g_string_append_len (handshake, (gchar *)challenge, 8);
-
-  len = handshake->len;
-  _web_socket_connection_queue (conn, WEB_SOCKET_QUEUE_URGENT,
-                                g_string_free (handshake, FALSE), len, 0);
-  g_debug ("queued hixie76 handshake request");
-}
-
 static void
 request_handshake (WebSocketClient *self,
                    WebSocketConnection *conn)
 {
-  WebSocketFlavor flavor;
   GError *error = NULL;
   const gchar *url;
   gchar *host;
@@ -435,19 +281,7 @@ request_handshake (WebSocketClient *self,
       return;
     }
 
-  flavor = web_socket_connection_get_flavor (conn);
-  if (flavor == WEB_SOCKET_FLAVOR_UNKNOWN)
-    {
-      flavor = WEB_SOCKET_FLAVOR_RFC6455;
-      _web_socket_connection_set_flavor (conn, flavor);
-    }
-
-  if (flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-    request_handshake_hixie76 (self, conn, host, path);
-  else if (flavor == WEB_SOCKET_FLAVOR_RFC6455)
-    request_handshake_rfc6455 (self, conn, host, path);
-  else
-    g_assert_not_reached ();
+  request_handshake_rfc6455 (self, conn, host, path);
 
   g_free (host);
   g_free (path);

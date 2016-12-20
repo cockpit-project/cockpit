@@ -32,11 +32,6 @@ typedef struct {
   WebSocketConnection *server;
 } Test;
 
-typedef struct {
-  WebSocketFlavor flavor;
-  const gchar *flavor_name;
-} FlavorFixture;
-
 static void
 null_log_handler (const gchar *log_domain,
                   GLogLevelFlags log_level,
@@ -479,33 +474,17 @@ on_error_copy (WebSocketConnection *ws,
   return TRUE;
 }
 
-static WebSocketConnection *
-client_new_for_stream_and_flavor (GIOStream *io,
-                                  WebSocketFlavor flavor)
-{
-  /* The default */
-  if (flavor == WEB_SOCKET_FLAVOR_RFC6455 || flavor == WEB_SOCKET_FLAVOR_UNKNOWN)
-    return web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, io);
-  else
-    return g_object_new (WEB_SOCKET_TYPE_CLIENT,
-                         "url", "ws://localhost/unix",
-                         "io-stream", io,
-                         "flavor", flavor,
-                         NULL);
-}
-
 static void
 setup_pair (Test *test,
             gconstpointer data)
 {
-  const FlavorFixture *fixture = data;
   GIOStream *ioc;
   GIOStream *ios;
 
   create_iostream_pair (&ioc, &ios);
 
   test->server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL, NULL, ios, NULL, NULL);
-  test->client = client_new_for_stream_and_flavor (ioc, fixture->flavor);
+  test->client =  web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, ioc);
 
   g_signal_connect (test->server, "error", G_CALLBACK (on_error_not_reached), NULL);
 
@@ -699,7 +678,6 @@ static void
 test_send_bad_data (Test *test,
                     gconstpointer unused)
 {
-  WebSocketFlavor flavor;
   GError *error = NULL;
   GIOStream *io;
   gsize written;
@@ -715,12 +693,8 @@ test_send_bad_data (Test *test,
 
   logid = g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, null_log_handler, NULL);
 
-  /* Bad UTF-8 raw frames, for each flavor */
-  flavor = web_socket_connection_get_flavor (test->client);
-  if (flavor == WEB_SOCKET_FLAVOR_RFC6455)
-      frame = "\x81\x04\xEE\xEE\xEE\xEE";
-  else
-      frame = "\x00\xEE\xEE\xEE\xEE\xFF";
+  /* Bad UTF-8 raw frames */
+  frame = "\x81\x04\xEE\xEE\xEE\xEE";
 
   if (!g_output_stream_write_all (g_io_stream_get_output_stream (io),
                                   frame, 6, &written, NULL, NULL))
@@ -732,10 +706,7 @@ test_send_bad_data (Test *test,
 
   WAIT_UNTIL (web_socket_connection_get_ready_state (test->client) == WEB_SOCKET_STATE_CLOSED);
 
-  /* Hixie76 doesn't support close codes */
-  if (flavor == WEB_SOCKET_FLAVOR_RFC6455)
-    g_assert_cmpuint (web_socket_connection_get_close_code (test->client), ==, WEB_SOCKET_CLOSE_BAD_DATA);
-
+  g_assert_cmpuint (web_socket_connection_get_close_code (test->client), ==, WEB_SOCKET_CLOSE_BAD_DATA);
   g_error_free (error);
 
   g_log_remove_handler (G_LOG_DOMAIN, logid);
@@ -851,13 +822,9 @@ test_close_clean_client (Test *test,
   g_assert (close_event_client);
   g_assert (close_event_server);
 
-  /* No close code in hixie76 */
-  if (web_socket_connection_get_flavor (test->client) != WEB_SOCKET_FLAVOR_HIXIE76)
-    {
-      g_assert_cmpint (web_socket_connection_get_close_code (test->client), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
-      g_assert_cmpint (web_socket_connection_get_close_code (test->server), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
-      g_assert_cmpstr (web_socket_connection_get_close_data (test->server), ==, "give me a reason");
-    }
+  g_assert_cmpint (web_socket_connection_get_close_code (test->client), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
+  g_assert_cmpint (web_socket_connection_get_close_code (test->server), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
+  g_assert_cmpstr (web_socket_connection_get_close_data (test->server), ==, "give me a reason");
 }
 
 static void
@@ -882,13 +849,9 @@ test_close_clean_server (Test *test,
   g_assert (close_event_client);
   g_assert (close_event_server);
 
-  /* No close code in hixie76 */
-  if (web_socket_connection_get_flavor (test->client) != WEB_SOCKET_FLAVOR_HIXIE76)
-    {
-      g_assert_cmpint (web_socket_connection_get_close_code (test->server), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
-      g_assert_cmpint (web_socket_connection_get_close_code (test->client), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
-      g_assert_cmpstr (web_socket_connection_get_close_data (test->client), ==, "another reason");
-    }
+  g_assert_cmpint (web_socket_connection_get_close_code (test->server), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
+  g_assert_cmpint (web_socket_connection_get_close_code (test->client), ==, WEB_SOCKET_CLOSE_GOING_AWAY);
+  g_assert_cmpstr (web_socket_connection_get_close_data (test->client), ==, "another reason");
 }
 
 static void
@@ -1121,31 +1084,6 @@ client_thread (gpointer data)
   return NULL;
 }
 
-static gpointer
-server_thread (gpointer data)
-{
-  WebSocketConnection *server;
-  GMainContext *context;
-
-  context = g_main_context_new ();
-  g_main_context_push_thread_default (context);
-
-  /* Create a server and respond to handshake */
-  server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL,
-                                             NULL, data, NULL, NULL);
-  g_signal_connect (server, "error", G_CALLBACK (on_error_not_reached), NULL);
-
-  while (web_socket_connection_get_ready_state (server) != WEB_SOCKET_STATE_CLOSED)
-    g_main_context_iteration (context, TRUE);
-
-  g_object_unref (server);
-
-  g_main_context_pop_thread_default (context);
-  g_main_context_unref (context);
-
-  return NULL;
-}
-
 static void
 test_handshake_with_buffer_and_headers (void)
 {
@@ -1196,225 +1134,12 @@ test_handshake_with_buffer_and_headers (void)
   g_object_unref (ios);
 }
 
-typedef struct {
-  const gchar *name;
-  const gchar *key1;
-  const gchar *key2;
-} BadHixie76KeyFixture;
-
-static BadHixie76KeyFixture bad_hixie76_key_fixtures[] = {
-    { "no-numbers", "no numbers", "no numbers" },
-    { "no-spaces", "33456", "992929" },
-};
-
-static void
-test_bad_hixie76_keys (Test *unused,
-                       gconstpointer data)
-{
-  const BadHixie76KeyFixture *fixture = data;
-  WebSocketConnection *server;
-  GIOStream *ioc;
-  GIOStream *ios;
-  gsize count;
-  GError *error = NULL;
-  gchar *handshake;
-  guint logid;
-
-  create_iostream_pair (&ioc, &ios);
-
-  handshake = g_strdup_printf ("GET / HTTP/1.1\r\n"
-                               "Host: localhost\r\n"
-                               "Upgrade: websocket\r\n"
-                               "Connection: upgrade\r\n"
-                               "Sec-WebSocket-Key1: %s\r\n"
-                               "Sec-WebSocket-Key2: %s\r\n"
-                               "\r\n"
-                               "01234567", fixture->key1, fixture->key2);
-
-  /* We rely on kernel buffers here, to prevent deadlock in this test */
-  if (!g_output_stream_write_all (g_io_stream_get_output_stream (ioc), handshake,
-                                  strlen (handshake), &count, NULL, NULL))
-    g_assert_not_reached ();
-  g_assert_cmpint (count, ==, strlen (handshake));
-
-  logid = g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, null_log_handler, NULL);
-
-  server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL,
-                                             NULL, ios, NULL, NULL);
-  g_signal_connect (server, "error", G_CALLBACK (on_error_copy), &error);
-
-  WAIT_UNTIL (web_socket_connection_get_ready_state (server) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert_error (error, WEB_SOCKET_ERROR, WEB_SOCKET_CLOSE_PROTOCOL);
-
-  /* Should close by itself when invalid handshake */
-  WAIT_UNTIL (web_socket_connection_get_ready_state (server) == WEB_SOCKET_STATE_CLOSED);
-
-  g_free (handshake);
-  g_error_free (error);
-  g_object_unref (server);
-  g_object_unref (ioc);
-  g_object_unref (ios);
-
-  g_log_remove_handler (G_LOG_DOMAIN, logid);
-}
-
-static void
-test_hixie76_response_headers (void)
-{
-  GIOStream *ioc;
-  GIOStream *ios;
-  gsize written;
-  gssize count;
-  gchar buffer[1024];
-  GHashTable *headers;
-  guint status;
-  const gchar *handshake;
-  gssize in1, in2;
-  GThread *thread;
-
-  create_iostream_pair (&ioc, &ios);
-
-  handshake = "GET /this/is/my/path HTTP/1.1\r\n"
-              "Host: example.com:3838\r\n"
-              "Upgrade: websocket\r\n"
-              "Connection: upgrade\r\n"
-              "Sec-WebSocket-Key1: m2 304 4880M 4. } Y z 6\r\n"
-              "Sec-WebSocket-Key2: u1   9 944  5$ %s40   <  U96`\r\n"
-              "Sec-WebSocket-Protocol: cockpit1\r\n"
-              "Origin: http://example.com\r\n"
-              "\r\n"
-              "01234567";
-
-  /* We rely on kernel buffers here, to prevent deadlock in this test */
-  if (!g_output_stream_write_all (g_io_stream_get_output_stream (ioc), handshake,
-                                  strlen (handshake), &written, NULL, NULL))
-    g_assert_not_reached ();
-  g_assert_cmpint (written, ==, strlen (handshake));
-
-  thread = g_thread_new ("server-thread", server_thread, ios);
-
-  /* We rely on kernel buffers here, to prevent deadlock in this test */
-  count = g_input_stream_read (g_io_stream_get_input_stream (ioc), buffer,
-                               sizeof (buffer), NULL, NULL);
-  g_assert (count > 0);
-
-  /* Parse things out */
-  in1 = web_socket_util_parse_status_line (buffer, count, NULL, &status, NULL);
-  g_assert_cmpint (in1, >, 0);
-  in2 = web_socket_util_parse_headers (buffer + in1, count - in1, &headers);
-  g_assert_cmpint (in2, >, 0);
-
-  /* Check what we got back */
-  g_assert_cmpuint (status, ==, 101);
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Sec-WebSocket-Location"), ==, "ws://example.com:3838/this/is/my/path");
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Sec-WebSocket-Origin"), ==, "http://example.com");
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Sec-WebSocket-Protocol"), ==, "cockpit1");
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Upgrade"), ==, "WebSocket");
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Connection"), ==, "Upgrade");
-
-  g_object_unref (ioc);
-
-  g_thread_join (thread);
-  g_hash_table_unref (headers);
-  g_object_unref (ios);
-}
-
-static gpointer
-close_rough_thread (gpointer data)
-{
-  GIOStream *io = data;
-  const gchar *handshake;
-  gchar buffer[1024];
-  GError *error = NULL;
-  gssize count;
-  gsize written;
-
-  /* hixie76 handshake */
-  handshake = "GET /this/is/my/path HTTP/1.1\r\n"
-              "Host: example.com:3838\r\n"
-              "Upgrade: websocket\r\n"
-              "Connection: upgrade\r\n"
-              "Sec-WebSocket-Key1: m2 304 4880M 4. } Y z 6\r\n"
-              "Sec-WebSocket-Key2: u1   9 944  5$ %s40   <  U96`\r\n"
-              "Sec-WebSocket-Protocol: cockpit1\r\n"
-              "Origin: http://example.com\r\n"
-              "\r\n"
-              "01234567";
-
-  /* We rely on kernel buffers here, to prevent deadlock in this test */
-  if (!g_output_stream_write_all (g_io_stream_get_output_stream (io), handshake,
-                                  strlen (handshake), &written, NULL, NULL))
-    g_assert_not_reached ();
-  g_assert_cmpint (written, ==, strlen (handshake));
-
-  /* We rely on kernel buffers here, to prevent deadlock in this test */
-  count = g_input_stream_read (g_io_stream_get_input_stream (io), buffer,
-                               sizeof (buffer), NULL, NULL);
-  g_assert (count > 0);
-
-  /* Now close it hard */
-  g_io_stream_close (io, NULL, &error);
-  g_assert_no_error (error);
-
-  return NULL;
-}
-
-static void
-test_hixie76_rough_close (void)
-{
-  gboolean opened = FALSE;
-  WebSocketConnection *server;
-  GMainContext *context;
-  GIOStream *ioc;
-  GIOStream *ios;
-  GThread *thread;
-
-  create_iostream_pair (&ioc, &ios);
-
-  context = g_main_context_new ();
-  g_main_context_push_thread_default (context);
-
-  /* Create a server and respond to handshake */
-  server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL,
-                                             NULL, ios, NULL, NULL);
-  g_signal_connect (server, "error", G_CALLBACK (on_error_not_reached), NULL);
-  g_signal_connect (server, "open", G_CALLBACK (on_open_set_flag), &opened);
-
-  thread = g_thread_new ("rough-thread", close_rough_thread, ioc);
-
-  while (web_socket_connection_get_ready_state (server) != WEB_SOCKET_STATE_CLOSED)
-    g_main_context_iteration (context, TRUE);
-
-  /*
-   * HACK: in the future assert no g_message, but message asserts are broken in glib + g_debug
-   * https://bugzilla.gnome.org/show_bug.cgi?id=710991
-   */
-  g_assert (opened == TRUE);
-  g_assert (g_io_stream_is_closed (ios));
-
-  g_thread_join (thread);
-  g_assert (g_io_stream_is_closed (ioc));
-
-  g_object_unref (server);
-
-  g_main_context_pop_thread_default (context);
-  g_main_context_unref (context);
-
-  g_object_unref (ioc);
-  g_object_unref (ios);
-}
-
 int
 main (int argc,
       char *argv[])
 {
   gchar *name;
-  gint i, j;
-
-  FlavorFixture fixtures[] = {
-      { WEB_SOCKET_FLAVOR_RFC6455, "rfc6455" },
-      { WEB_SOCKET_FLAVOR_HIXIE76, "hixie76" },
-  };
+  gint j;
 
   struct {
     void (* func) (Test *, gconstpointer);
@@ -1469,14 +1194,11 @@ main (int argc,
   g_test_add_func ("/web-socket/header-contains", test_header_contains);
   g_test_add_func ("/web-socket/header-empty", test_header_empty);
 
-  for (i = 0; i < G_N_ELEMENTS (fixtures); i++)
+  for (j = 0; j < G_N_ELEMENTS (tests_with_client_server_pair); j++)
     {
-      for (j = 0; j < G_N_ELEMENTS (tests_with_client_server_pair); j++)
-        {
-          name = g_strdup_printf ("/web-socket/%s/%s", fixtures[i].flavor_name, tests_with_client_server_pair[j].name);
-          g_test_add (name, Test, fixtures + i, setup_pair, tests_with_client_server_pair[j].func, teardown);
-          g_free (name);
-        }
+      name = g_strdup_printf ("/web-socket/%s", tests_with_client_server_pair[j].name);
+      g_test_add (name, Test, NULL, setup_pair, tests_with_client_server_pair[j].func, teardown);
+      g_free (name);
     }
 
   g_test_add_func ("/web-socket/close-immediately", test_close_immediately);
@@ -1485,18 +1207,7 @@ main (int argc,
   g_test_add_func ("/web-socket/receive-fragmented", test_receive_fragmented);
   g_test_add_func ("/web-socket/handshake-with-buffer-headers", test_handshake_with_buffer_and_headers);
 
-  g_test_add ("/web-socket/message-after-closing", Test, fixtures,
-              setup_pair, test_message_after_closing, teardown);
-
-  for (i = 0; i < G_N_ELEMENTS (bad_hixie76_key_fixtures); i++)
-    {
-      name = g_strdup_printf ("/web-socket/hixie76/bad-keys-%s", bad_hixie76_key_fixtures[i].name);
-      g_test_add (name, Test, bad_hixie76_key_fixtures + i, NULL, test_bad_hixie76_keys, NULL);
-      g_free (name);
-    }
-
-  g_test_add_func ("/web-socket/hixie76/response-headers", test_hixie76_response_headers);
-  g_test_add_func ("/web-socket/hixie76/rough-close", test_hixie76_rough_close);
+  g_test_add ("/web-socket/message-after-closing", Test, NULL, setup_pair, test_message_after_closing, teardown);
 
   return g_test_run ();
 }

@@ -84,7 +84,6 @@ struct _CockpitChannelPrivate {
 
     /* Binary options */
     gboolean binary_ok;
-    gboolean base64_encoding;
 
     /* Other state */
     JsonObject *close_options;
@@ -124,55 +123,6 @@ cockpit_channel_init (CockpitChannel *self)
   self->priv->prepare_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_prepare, self, NULL);
 }
 
-static GBytes *
-base64_decode (GBytes *bytes)
-{
-  gconstpointer data;
-  guchar *decoded;
-  gsize length;
-  gint state = 0;
-  guint save = 0;
-
-  data = g_bytes_get_data (bytes, &length);
-
-  if (length == 0)
-    return g_bytes_new_static ("", 0);
-
-  /* We can use a smaller limit here, since we know the saved state is 0,
-     +1 used to avoid calling g_malloc0(0), and hence returning NULL */
-  decoded = g_malloc0 ((length / 4) * 3 + 3);
-  length = g_base64_decode_step (data, length, decoded, &state, &save);
-
-  return g_bytes_new_take (decoded, length);
-}
-
-static GBytes *
-base64_encode (GBytes *bytes)
-{
-  gconstpointer data;
-  gchar *encoded;
-  gsize length;
-  gint state = 0;
-  gint save = 0;
-
-  data = g_bytes_get_data (bytes, &length);
-
-  if (length == 0)
-    return g_bytes_new_static ("", 0);
-
-  /* We can use a smaller limit here, since we know the saved state is 0,
-     +1 is needed for trailing \0, also check for unlikely integer overflow */
-
-  if (length >= ((G_MAXSIZE - 1) / 4 - 1) * 3)
-    g_error ("%s: input too large for Base64 encoding (%"G_GSIZE_FORMAT" chars)", G_STRLOC, length);
-
-  encoded = g_malloc ((length / 3 + 1) * 4 + 4);
-  length = g_base64_encode_step (data, length, FALSE, encoded, &state, &save);
-  length += g_base64_encode_close (FALSE, encoded + length, &state, &save);
-
-  return g_bytes_new_take (encoded, length);
-}
-
 static gboolean
 on_transport_recv (CockpitTransport *transport,
                    const gchar *channel_id,
@@ -181,7 +131,6 @@ on_transport_recv (CockpitTransport *transport,
 {
   CockpitChannel *self = user_data;
   CockpitChannelClass *klass;
-  GBytes *decoded = NULL;
 
   if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
@@ -194,8 +143,6 @@ on_transport_recv (CockpitTransport *transport,
 
   if (self->priv->ready)
     {
-      if (self->priv->base64_encoding)
-        data = decoded = base64_decode (data);
       klass = COCKPIT_CHANNEL_GET_CLASS (self);
       g_assert (klass->recv);
       (klass->recv) (self, data);
@@ -206,9 +153,6 @@ on_transport_recv (CockpitTransport *transport,
         self->priv->received = g_queue_new ();
       g_queue_push_tail (self->priv->received, g_bytes_ref (data));
     }
-
-  if (decoded)
-    g_bytes_unref (decoded);
 
   return TRUE;
 }
@@ -387,11 +331,7 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
   else if (binary != NULL)
     {
       self->priv->binary_ok = TRUE;
-      if (g_str_equal (binary, "base64"))
-        {
-          self->priv->base64_encoding = TRUE;
-        }
-      else if (!g_str_equal (binary, "raw"))
+      if (!g_str_equal (binary, "raw"))
         {
           cockpit_channel_fail (self, "protocol-error",
                                 "channel has invalid \"binary\" option: %s", binary);
@@ -735,7 +675,6 @@ cockpit_channel_ready (CockpitChannel *self,
                        JsonObject *message)
 {
   CockpitChannelClass *klass;
-  GBytes *decoded;
   GBytes *payload;
   GQueue *queue;
 
@@ -753,12 +692,6 @@ cockpit_channel_ready (CockpitChannel *self,
           payload = g_queue_pop_head (queue);
           if (payload == NULL)
             break;
-          if (self->priv->base64_encoding)
-            {
-              decoded = base64_decode (payload);
-              g_bytes_unref (payload);
-              payload = decoded;
-            }
           (klass->recv) (self, payload);
           g_bytes_unref (payload);
         }
@@ -794,7 +727,6 @@ cockpit_channel_send (CockpitChannel *self,
                       GBytes *payload,
                       gboolean trust_is_utf8)
 {
-  GBytes *encoded = NULL;
   GBytes *validated = NULL;
 
   if (!trust_is_utf8)
@@ -803,13 +735,8 @@ cockpit_channel_send (CockpitChannel *self,
         payload = validated = cockpit_unicode_force_utf8 (payload);
     }
 
-  if (self->priv->base64_encoding)
-    payload = encoded = base64_encode (payload);
-
   cockpit_transport_send (self->priv->transport, self->priv->id, payload);
 
-  if (encoded)
-    g_bytes_unref (encoded);
   if (validated)
     g_bytes_unref (validated);
 }

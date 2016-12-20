@@ -112,8 +112,6 @@ var process_hints = null;
 var incoming_filters = null;
 var outgoing_filters = null;
 
-var have_array_buffer = !!window.ArrayBuffer;
-
 var transport_origin = window.location.origin;
 
 if (!transport_origin) {
@@ -152,7 +150,7 @@ function base64_encode(data) {
     if (typeof data === "string")
         return window.btoa(data);
     /* For when the caller has chosen to use ArrayBuffer */
-    if (have_array_buffer && data instanceof window.ArrayBuffer)
+    if (data instanceof window.ArrayBuffer)
         data = new window.Uint8Array(data);
     var length = data.length, mod3 = 2, str = "";
     for (var uint24 = 0, i = 0; i < length; i++) {
@@ -387,7 +385,7 @@ function parse_channel(data) {
     var binary, length, pos, channel;
 
     /* A binary message, split out the channel */
-    if (have_array_buffer && data instanceof window.ArrayBuffer) {
+    if (data instanceof window.ArrayBuffer) {
         binary = new window.Uint8Array(data);
         length = binary.length;
         for (pos = 0; pos < length; pos++) {
@@ -488,9 +486,7 @@ function Transport() {
     var control_cbs = { };
     var message_cbs = { };
     var waiting_for_init = true;
-    var binary_type_available = false;
     self.ready = false;
-    self.binary = false;
 
     /* Called when ready for channels to interact */
     function ready_for_channels() {
@@ -502,10 +498,8 @@ function Transport() {
 
     ws.onopen = function() {
         if (ws) {
-            if (typeof ws.binaryType !== "undefined" && have_array_buffer) {
+            if (typeof ws.binaryType !== "undefined")
                 ws.binaryType = "arraybuffer";
-                binary_type_available = true;
-            }
             ws.send("\n{ \"command\": \"init\", \"version\": 1 }");
         }
     };
@@ -533,7 +527,7 @@ function Transport() {
             return false;
 
         var payload, control;
-        if (have_array_buffer && message instanceof window.ArrayBuffer)
+        if (message instanceof window.ArrayBuffer)
             payload = new window.Uint8Array(message, channel.length + 1);
         else
             payload = message.substring(channel.length + 1);
@@ -594,8 +588,6 @@ function Transport() {
             return;
         }
 
-        if (in_array(options["capabilities"] || [], "binary"))
-            self.binary = binary_type_available;
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
         if (options["host"])
@@ -743,7 +735,6 @@ function Channel(options) {
     var received_done = false;
     var sent_done = false;
     var id = null;
-    var base64 = false;
     var binary = (options.binary === true);
 
     /*
@@ -763,8 +754,6 @@ function Channel(options) {
             console.warn("received message after done");
             self.close("protocol-error");
         } else {
-            if (base64)
-                payload = base64_decode(payload, window.Uint8Array || Array);
             self.dispatchEvent("message", payload);
         }
     }
@@ -807,9 +796,7 @@ function Channel(options) {
     }
 
     function send_payload(payload) {
-        if (binary && base64) {
-            payload = base64_encode(payload);
-        } else if (!binary) {
+        if (!binary) {
             if (typeof payload !== "string")
                 payload = String(payload);
         }
@@ -839,16 +826,10 @@ function Channel(options) {
                 command.host = default_host;
         }
 
-        if (binary) {
-            if (transport.binary) {
-                command.binary = "raw";
-            } else {
-                command.binary = "base64";
-                base64 = true;
-            }
-        } else {
+        if (binary)
+            command.binary = "raw";
+        else
             delete command.binary;
-        }
 
         transport.send_control(command);
 

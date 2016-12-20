@@ -72,19 +72,6 @@ typedef enum {
   WEB_SOCKET_STATE_CLOSED = 3,
 } WebSocketState;
 
-/*
- * The WebSocket flavors we speak, the only reason we even attempt
- * this silliness is to remain compatible with iPads and so on
- *
- * Note this is different from protocols as in Sec-WebSocket-Protocol
- * which is a protocol spoken over the WebSocket (such as cockpit1, or xmpp)
- */
-typedef enum {
-  WEB_SOCKET_FLAVOR_UNKNOWN = 0,   /* No flavor decided yet */
-  WEB_SOCKET_FLAVOR_RFC6455 = 13,  /* http://tools.ietf.org/html/rfc6455 */
-  WEB_SOCKET_FLAVOR_HIXIE76 = 76,  /* http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76 */
-} WebSocketFlavor;
-
 typedef struct _WebSocketConnection       WebSocketConnection;
 typedef struct _WebSocketConnectionClass  WebSocketConnectionClass;
 typedef struct _WebSocketClient           WebSocketClient;

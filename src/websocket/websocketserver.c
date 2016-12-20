@@ -97,156 +97,6 @@ respond_handshake_bad (WebSocketConnection *conn)
   _web_socket_connection_error (conn, error);
 }
 
-guint8 *
-_web_socket_complete_challenge_hixie76 (guint key_1,
-                                        guint key_2,
-                                        guint8 challenge[8])
-{
-  GChecksum *checksum;
-  guchar buffer[16];
-  guchar *response;
-  gsize len;
-
-  buffer[0] = (key_1 >> 24) & 0xff;
-  buffer[1] = (key_1 >> 16) & 0xff;
-  buffer[2] = (key_1 >>  8) & 0xff;
-  buffer[3] = (key_1 >>  0) & 0xff;
-  buffer[4] = (key_2 >> 24) & 0xff;
-  buffer[5] = (key_2 >> 16) & 0xff;
-  buffer[6] = (key_2 >>  8) & 0xff;
-  buffer[7] = (key_2 >>  0) & 0xff;
-  memcpy (buffer + 8, challenge, 8);
-
-  response = g_malloc (16);
-  checksum = g_checksum_new (G_CHECKSUM_MD5);
-  g_checksum_update (checksum, buffer, 16);
-  len = 16;
-  g_checksum_get_digest (checksum, response, &len);
-  g_checksum_free (checksum);
-
-  return response;
-}
-
-static gboolean
-parse_crack_for_hixie76 (const gchar *p,
-                         guint *ret_key)
-{
-  gint num_space = 0;
-  guint64 key = 0;
-
-  if (p == NULL)
-    return FALSE;
-  while (*p != 0)
-    {
-      if (g_ascii_isdigit (*p))
-        key = key * 10 + g_ascii_digit_value (*p);
-      else if (*p == ' ')
-        num_space++;
-      p++;
-    }
-
-  if (num_space == 0 || key == 0 || key >= G_MAXUINT)
-    return FALSE;
-  *ret_key = key / num_space;
-  return TRUE;
-}
-
-static gboolean
-respond_handshake_hixie76 (WebSocketServer *self,
-                           WebSocketConnection *conn,
-                           const gchar *path,
-                           GHashTable *headers,
-                           guint8 challenge[8])
-{
-  const gchar *keystr1 = NULL;
-  const gchar *keystr2 = NULL;
-  guint key1 = 0, key2 = 0;
-  const gchar *protocol;
-  const gchar *origin;
-  const gchar *host;
-  GString *handshake;
-  guint8 *response;
-  gsize len;
-  guint i;
-
-  if (!_web_socket_util_header_equals (headers, "Upgrade", "websocket") ||
-      !_web_socket_util_header_contains (headers, "Connection", "upgrade") ||
-      !_web_socket_connection_choose_protocol (conn, (const gchar **)self->allowed_protocols,
-                                               g_hash_table_lookup (headers, "Sec-WebSocket-Protocol")))
-    {
-      respond_handshake_bad (conn);
-      return FALSE;
-    }
-
-  self->protocol_chosen = TRUE;
-  keystr1 = g_hash_table_lookup (headers, "Sec-WebSocket-Key1");
-  keystr2 = g_hash_table_lookup (headers, "Sec-WebSocket-Key2");
-
-  if (!parse_crack_for_hixie76 (keystr1, &key1) ||
-      !parse_crack_for_hixie76 (keystr2, &key2))
-    {
-      g_message ("received missing or invalid Sec-WebSocket-Key1 and/or Sec-WebSocket-Key2");
-      respond_handshake_bad (conn);
-      return FALSE;
-    }
-
-  origin = g_hash_table_lookup (headers, "Origin");
-  if (!origin)
-    {
-      g_message ("received request without Origin");
-      respond_handshake_bad (conn);
-      return FALSE;
-    }
-  host = g_hash_table_lookup (headers, "Host");
-  if (host == NULL)
-    {
-      g_message ("received request without Host");
-      respond_handshake_bad (conn);
-      return FALSE;
-    }
-
-  if (self->allowed_origins)
-    {
-      for (i = 0; self->allowed_origins[i] != NULL; i++)
-        {
-          if (g_ascii_strcasecmp (origin, self->allowed_origins[i]) == 0)
-            break;
-        }
-      if (self->allowed_origins[i] == NULL)
-        {
-          g_message ("received request from bad Origin: %s", origin);
-          respond_handshake_forbidden (conn);
-          return FALSE;
-        }
-    }
-
-  response = _web_socket_complete_challenge_hixie76 (key1, key2, challenge);
-
-  handshake = g_string_new ("");
-  g_string_printf (handshake, "HTTP/1.1 101 WebSocket Protocol Handshake\r\n"
-                              "Upgrade: WebSocket\r\n"
-                              "Connection: Upgrade\r\n"
-                              "Sec-WebSocket-Origin: %s\r\n"
-                              "Sec-WebSocket-Location: %s://%s%s\r\n",
-                              origin, g_str_has_prefix (origin, "https") ? "wss" : "ws",
-                              host, path);
-
-  protocol = web_socket_connection_get_protocol (conn);
-  if (protocol)
-    g_string_append_printf (handshake, "Sec-WebSocket-Protocol: %s\r\n", protocol);
-
-  g_string_append (handshake, "\r\n");
-  g_string_append_len (handshake, (gchar *)response, 16);
-  g_free (response);
-
-  len = handshake->len;
-  _web_socket_connection_queue (conn, WEB_SOCKET_QUEUE_URGENT,
-                                g_string_free (handshake, FALSE), len, 0);
-  g_debug ("queued response to hixie76 handshake");
-
-  return TRUE;
-}
-
 gchar *
 _web_socket_complete_accept_key_rfc6455 (const gchar *key)
 {
@@ -386,7 +236,6 @@ parse_handshake_request (WebSocketServer *self,
                          WebSocketConnection *conn,
                          GByteArray *incoming)
 {
-  WebSocketFlavor flavor;
   GHashTable *headers;
   gchar *method;
   gchar *resource;
@@ -447,42 +296,7 @@ parse_handshake_request (WebSocketServer *self,
     }
   else
     {
-      /* At this point auto-detect version */
-      flavor = web_socket_connection_get_flavor (conn);
-      if (flavor == WEB_SOCKET_FLAVOR_UNKNOWN)
-        {
-          if (g_hash_table_lookup (headers, "Sec-WebSocket-Key1"))
-            flavor = WEB_SOCKET_FLAVOR_HIXIE76;
-          else
-            flavor = WEB_SOCKET_FLAVOR_RFC6455;
-          _web_socket_connection_set_flavor (conn, flavor);
-        }
-
-      if (flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-        {
-          /*
-           * Want 8 more bytes from incoming, as hixie76 has a
-           * challenge/response in the body :S
-           */
-          if (incoming->len < consumed + 8)
-            {
-              consumed = 0; /* try again once more data arrives*/
-              valid = FALSE;
-              g_debug ("waiting for handshake challenge in body");
-            }
-          else
-            {
-              valid = respond_handshake_hixie76 (self, conn, resource, headers,
-                                                 incoming->data + consumed);
-              consumed += 8;
-            }
-        }
-      else if (flavor == WEB_SOCKET_FLAVOR_RFC6455)
-        {
-          valid = respond_handshake_rfc6455 (self, conn, headers);
-        }
-      else
-        g_assert_not_reached ();
+      valid = respond_handshake_rfc6455 (self, conn, headers);
     }
 
   if (valid)

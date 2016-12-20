@@ -99,7 +99,7 @@ The "open" command opens a new channel for payload.
 
 The following fields are defined:
 
- * "binary": If present, either "base64" or "raw"
+ * "binary": If present set to "raw"
  * "channel": A uniquely chosen channel id
  * "payload": A payload type, see below
  * "host": The destination host for the channel, defaults to "localhost"
@@ -110,9 +110,7 @@ The following fields are defined:
  * "capabilities": Optional, array of capability strings required from the bridge
  * "session": Optional, set to "private" or "shared". Defaults to "shared"
 
-If "binary" is set then this channel transfers binary messages. If "binary"
-is set to "base64" then messages in the channel are encoded using "base64",
-otherwise if it's set to "raw" they are transferred directly.
+If "binary" is set to "raw" then this channel transfers binary messages.
 
 After the command is sent, then the channel is assumed to be open. No response
 is sent. If for some reason the channel shouldn't or cannot be opened, then

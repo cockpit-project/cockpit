@@ -24,9 +24,6 @@ QUnit.test("base64 array", function() {
 });
 
 QUnit.test("base64 arraybuffer", function() {
-    if (!window.Uint8Array)
-        return;
-
     var view = new Uint8Array(5);
     for (var i = 0; i < 5; i++)
         view[i] = i;

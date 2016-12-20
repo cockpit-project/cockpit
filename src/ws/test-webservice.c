@@ -82,7 +82,6 @@ typedef struct {
 } TestCase;
 
 typedef struct {
-  WebSocketFlavor web_socket_flavor;
   const char *origin;
   const char *config;
   const char *forward;
@@ -495,12 +494,11 @@ start_web_service_and_create_client (TestCase *test,
   if (!origin)
     origin = "http://127.0.0.1";
 
-  /* This is web_socket_client_new_for_stream() with a flavor passed in fixture */
+  /* This is web_socket_client_new_for_stream() */
   *ws = g_object_new (WEB_SOCKET_TYPE_CLIENT,
                      "url", "ws://127.0.0.1/unused",
                      "origin", origin,
                      "io-stream", test->io_a,
-                     "flavor", fixture ? fixture->web_socket_flavor : 0,
                      NULL);
 
   g_signal_connect (*ws, "error", G_CALLBACK (on_error_not_reached), NULL);
@@ -1370,44 +1368,27 @@ test_expect_host_key_public (TestCase *test,
 }
 
 static const TestFixture fixture_bad_origin_rfc6455 = {
-  .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
-  .origin = "http://another-place.com",
-  .config = NULL
-};
-
-static const TestFixture fixture_bad_origin_hixie76 = {
-  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
   .origin = "http://another-place.com",
   .config = NULL
 };
 
 static const TestFixture fixture_allowed_origin_rfc6455 = {
-  .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
   .origin = "https://another-place.com",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf"
 };
 
-static const TestFixture fixture_allowed_origin_hixie76 = {
-  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
-  .origin = "https://another-place.com:9090",
-  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf"
-};
-
 static const TestFixture fixture_allowed_origin_proto_header = {
-  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
   .origin = "https://127.0.0.1",
   .forward = "https",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
 };
 
 static const TestFixture fixture_bad_origin_proto_no_header = {
-  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
   .origin = "https://127.0.0.1",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
 };
 
 static const TestFixture fixture_bad_origin_proto_no_config = {
-  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
   .origin = "https://127.0.0.1",
   .forward = "https",
   .config = NULL
@@ -1818,12 +1799,11 @@ test_idling (TestCase *test,
 
   cockpit_ws_default_host_header = "127.0.0.1";
 
-  /* This is web_socket_client_new_for_stream() with a flavor passed in fixture */
+  /* This is web_socket_client_new_for_stream() */
   client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
                          "url", "ws://127.0.0.1/unused",
                          "origin", "http://127.0.0.1",
                          "io-stream", test->io_a,
-                         "flavor", 0,
                          NULL);
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
@@ -1872,12 +1852,11 @@ test_dispose (TestCase *test,
 
   cockpit_ws_default_host_header = "127.0.0.1";
 
-  /* This is web_socket_client_new_for_stream() with a flavor passed in fixture */
+  /* This is web_socket_client_new_for_stream() */
   client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
                          "url", "ws://127.0.0.1/unused",
                          "origin", "http://127.0.0.1",
                          "io-stream", test->io_a,
-                         "flavor", 0,
                          NULL);
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
@@ -2213,27 +2192,15 @@ main (int argc,
   cockpit_ws_ping_interval = G_MAXUINT;
 
   static const TestFixture fixture_rfc6455 = {
-      .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
-      .config = NULL
-  };
-
-  static const TestFixture fixture_hixie76 = {
-      .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
       .config = NULL
   };
 
   g_test_add ("/web-service/handshake-and-auth/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
-  g_test_add ("/web-service/handshake-and-auth/hixie76", TestCase,
-              &fixture_hixie76, setup_for_socket,
-              test_handshake_and_auth, teardown_for_socket);
 
   g_test_add ("/web-service/echo-message/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,
-              test_handshake_and_echo, teardown_for_socket);
-  g_test_add ("/web-service/echo-message/hixie76", TestCase,
-              &fixture_hixie76, setup_for_socket,
               test_handshake_and_echo, teardown_for_socket);
   g_test_add ("/web-service/echo-message/large", TestCase,
               &fixture_rfc6455, setup_for_socket,
@@ -2263,17 +2230,11 @@ main (int argc,
   g_test_add ("/web-service/bad-origin/rfc6455", TestCase,
               &fixture_bad_origin_rfc6455, setup_for_socket,
               test_bad_origin, teardown_for_socket);
-  g_test_add ("/web-service/bad-origin/hixie76", TestCase,
-              &fixture_bad_origin_hixie76, setup_for_socket,
-              test_bad_origin, teardown_for_socket);
   g_test_add ("/web-service/bad-origin/withallowed", TestCase,
               &fixture_bad_origin_rfc6455, setup_for_socket,
               test_bad_origin, teardown_for_socket);
   g_test_add ("/web-service/allowed-origin/rfc6455", TestCase,
               &fixture_allowed_origin_rfc6455, setup_for_socket,
-              test_handshake_and_auth, teardown_for_socket);
-  g_test_add ("/web-service/allowed-origin/hixie76", TestCase,
-              &fixture_allowed_origin_hixie76, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
 
   g_test_add ("/web-service/bad-origin/protocol-no-config", TestCase,
@@ -2291,9 +2252,6 @@ main (int argc,
               test_auth_results, teardown_for_socket);
   g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,
-              test_fail_spawn, teardown_for_socket);
-  g_test_add ("/web-service/fail-spawn/hixie76", TestCase,
-              &fixture_hixie76, setup_for_socket,
               test_fail_spawn, teardown_for_socket);
 
   g_test_add ("/web-service/kill-group", TestCase, &fixture_kill_group,

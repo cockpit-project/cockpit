@@ -1646,11 +1646,7 @@ on_web_socket_open (WebSocketConnection *connection,
   json_array_add_string_element (capabilities, "auth-method-results");
   json_array_add_string_element (capabilities, "multi");
   json_array_add_string_element (capabilities, "credentials");
-
-  if (web_socket_connection_get_flavor (connection) == WEB_SOCKET_FLAVOR_RFC6455)
-    {
-      json_array_add_string_element (capabilities, "binary");
-    }
+  json_array_add_string_element (capabilities, "binary");
   json_object_set_array_member (object, "capabilities", capabilities);
 
   info = json_object_new ();

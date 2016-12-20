@@ -318,7 +318,7 @@
             for (i in items)
                 sorted.push(items[i]);
             if (!angular.isArray(field))
-                field = [ String(criteria) ];
+                field = [ String(field) ];
             var criteria = field.map(function(v) {
                 return v.split('.');
             });

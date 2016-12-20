@@ -129,7 +129,7 @@ QUnit.asyncTest("stream", function() {
     proc.input("33\n");
 });
 
-QUnit.asyncTest("stream", function() {
+QUnit.asyncTest("stream packets", function() {
     assert.expect(3);
 
     var streamed = "";

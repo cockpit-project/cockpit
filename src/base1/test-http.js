@@ -65,12 +65,13 @@ QUnit.asyncTest("with params", function() {
 });
 
 QUnit.asyncTest("not found", function() {
-    assert.expect(6);
+    assert.expect(7);
 
-    cockpit.http({ "internal": "/test-server" })
+    var promise = cockpit.http({ "internal": "/test-server" })
         .get("/not/found")
         .response(function(status, headers) {
             assert.equal(status, 404, "status code");
+            assert.strictEqual(this, promise, "got right this");
         })
         .fail(function(ex, data) {
             assert.strictEqual(ex.problem, null, "mapped to cockpit code");
@@ -85,13 +86,15 @@ QUnit.asyncTest("not found", function() {
 });
 
 QUnit.asyncTest("streaming", function() {
-    assert.expect(2);
+    assert.expect(3);
 
     var at = 0;
     var got = "";
-    cockpit.http({ "internal": "/test-server" })
+    var promise = cockpit.http({ "internal": "/test-server" })
         .get("/mock/stream")
         .stream(function(resp) {
+            if (at === 0)
+                assert.strictEqual(this, promise, "got right this");
             got += resp;
             at++;
         })
@@ -114,7 +117,7 @@ QUnit.asyncTest("close", function() {
     req.stream(function(resp) {
             at += 1;
             assert.equal(resp, "0 ", "first stream part");
-            req.close("bad-boy");
+            this.close("bad-boy");
         })
         .fail(function(ex) {
             assert.equal(ex.problem, "bad-boy", "right problem");

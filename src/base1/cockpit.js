@@ -2706,7 +2706,7 @@ function factory() {
 
         var ret = dfd.promise;
         ret.stream = function(callback) {
-            buffer.callback = callback;
+            buffer.callback = callback.bind(ret);
             return this;
         };
 
@@ -3995,6 +3995,7 @@ function factory() {
 
         self.request = function request(req) {
             var dfd = cockpit.defer();
+            var ret = dfd.promise;
 
             if (!req.path)
                 req.path = "/";
@@ -4056,14 +4057,14 @@ function factory() {
                     /* Anyone looking for response details? */
                     if (responsers) {
                         resp.headers = resp.headers || { };
-                        invoke_functions(responsers, self, [resp.status, resp.headers]);
+                        invoke_functions(responsers, ret, [resp.status, resp.headers]);
                     }
                     return true;
                 }
 
                 /* Fire any streamers */
                 if (resp.status >= 200 && resp.status <= 299 && streamer)
-                    return streamer(data);
+                    return streamer.call(ret, data);
 
                 return 0;
             });
@@ -4102,7 +4103,6 @@ function factory() {
 
             channel.addEventListener("close", on_close);
 
-            var ret = dfd.promise;
             ret.stream = function(callback) {
                 streamer = callback;
                 return ret;

@@ -401,7 +401,7 @@ module.exports = {
     },
 
     jshint: {
-        emitErrors: false,
+        emitErrors: true,
         failOnHint: true,
         latedef: "nofunc",
         sub: true,
@@ -409,11 +409,5 @@ module.exports = {
         undef: true,
         unused: "vars",
         predef: [ "window", "document", "console" ],
-        reporter: function (errors) {
-            var loader = this;
-            errors.forEach(function(err) {
-                console.log(loader.resource + ":" + err.line + ":" + err.character + ": " + err.reason);
-            });
-        }
     },
 };

@@ -38,6 +38,7 @@ def can_manage(machine):
                               "fedora-testing",
                               "fedora-24",
                               "rhel-7",
+                              "centos-7",
                               "rhel-atomic",
                               "fedora-atomic",
                               "continuous-atomic" ]
@@ -59,12 +60,12 @@ def initially_loopbacked(machine):
     # have a root volume group at all.
     return True
 
-# Returns whether the pool is initially in a volume group.  If not,
-# Cockpit will create a dedicated volume group when the first device
-# is added.
+# Returns whether the pool is initially in a volume group or not.  If
+# not, Cockpit will create a dedicated volume group when the first
+# device is added.
 #
 def initially_without_vgroup(machine):
-    return machine.image in [ "fedora-24", "rhel-7" ]
+    return machine.image in [ "fedora-24", "rhel-7", "centos-7" ]
 
 class TestDockerStorage(MachineCase):
 

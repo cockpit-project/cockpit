@@ -253,30 +253,34 @@ cockpit.transport.close([problem])
   <refsection id="cockpit-transport-filter">
     <title>cockpit.transport.filter()</title>
 <programlisting>
-cockpit.transport.filter(function(message, channel, control) { ... })
+cockpit.transport.filter(function(message, channelid, control) { ... }, [out])
 </programlisting>
     <para>Add a filter to the underlying channel transport. All incoming messages will be
-      passed to each of the filter callbacks that are registered.</para>
+      passed to each of the filter callbacks that are registered. If the <code>out</code>
+      argument is equal to <code>true</code> then the filter will receive outgoing messages
+      that being sent on the underlying channel transport.</para>
     <para>This function is rarely used.</para>
     <para>Filter callbacks are called in the order they are registered. If a filter
       callback returns <code>false</code> then the message will not be dispatched
       further, whether to other filters, or to channels, etc.</para>
 
     <para>The <code>message</code> is the string or array with the raw message including,
-      the framing. If <code>channel</code> is set to a string this is a payload
-      message in the specified channel. If <code>control</code> is set then this is
-      a control message, and the <code>control</code> argument contains the parsed
-      JSON object of the control message.</para>
+      the framing. The <code>channelid</code> is the channel identifier or an empty string
+      for control messages. If <code>control</code> is set then this is a control message,d
+      and the <code>control</code> argument contains the parsed JSON object of the
+      control message.</para>
   </refsection>
 
   <refsection id="cockpit-transport-inject">
     <title>cockpit.transport.inject()</title>
 <programlisting>
-cockpit.transport.inject(message)
+cockpit.transport.inject(message, [out])
 </programlisting>
     <para>Inject a message into the underlying channel transport. The <code>message</code>
       should be a <code>string</code> or an array of bytes, and should be valid
-      according to the Cockpit message protocol.</para>
+      according to the Cockpit message protocol. If the <code>out</code> argument is equal
+      to <code>false</code> then the message will be injected as an incoming message as if
+      it was received on the underlying channel transport.</para>
     <para>This function is rarely used. In general you should only <code>inject()</code>
       messages you got from a <code><link linkend="cockpit-transport-filter">filter()</link></code>.</para>
   </refsection>

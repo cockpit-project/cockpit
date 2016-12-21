@@ -109,7 +109,8 @@ var expect_disconnect = false;
 var init_callback = null;
 var default_host = null;
 var process_hints = null;
-var filters = [ ];
+var incoming_filters = null;
+var outgoing_filters = null;
 
 var have_array_buffer = !!window.ArrayBuffer;
 
@@ -382,6 +383,40 @@ function ParentWebSocket(parent) {
     }, 0);
 }
 
+function parse_channel(data) {
+    var binary, length, pos, channel;
+
+    /* A binary message, split out the channel */
+    if (have_array_buffer && data instanceof window.ArrayBuffer) {
+        binary = new window.Uint8Array(data);
+        length = binary.length;
+        for (pos = 0; pos < length; pos++) {
+            if (binary[pos] == 10) /* new line */
+                break;
+        }
+        if (pos === length) {
+            console.warn("binary message without channel");
+            return null;
+        } else if (pos === 0) {
+            console.warn("binary control message");
+            return null;
+        } else {
+            channel = String.fromCharCode.apply(null, binary.subarray(0, pos));
+        }
+
+    /* A textual message */
+    } else {
+        pos = data.indexOf('\n');
+        if (pos === -1) {
+            console.warn("text message without channel");
+            return null;
+        }
+        channel = data.substring(0, pos);
+    }
+
+    return channel;
+}
+
 /* Private Transport class */
 function Transport() {
     var self = this;
@@ -487,49 +522,21 @@ function Transport() {
         self.close();
     };
 
-    ws.onmessage = function(event) {
+    ws.onmessage = self.dispatch_data = function(arg) {
         got_message = true;
 
         /* The first line of a message is the channel */
-        var data = event.data;
-        var binary = null;
-        var length;
-        var channel;
-        var pos;
+        var message = arg.data;
 
-        /* A binary message, split out the channel */
-        if (have_array_buffer && data instanceof window.ArrayBuffer) {
-            binary = new window.Uint8Array(data);
-            length = binary.length;
-            for (pos = 0; pos < length; pos++) {
-                if (binary[pos] == 10) /* new line */
-                    break;
-            }
-            if (pos === length) {
-                console.warn("binary message without channel");
-                return;
-            } else if (pos === 0) {
-                console.warn("binary control message");
-                return;
-            } else {
-                channel = String.fromCharCode.apply(null, binary.subarray(0, pos));
-            }
-
-        /* A textual message */
-        } else {
-            pos = data.indexOf('\n');
-            if (pos === -1) {
-                console.warn("text message without channel");
-                return;
-            }
-            channel = data.substring(0, pos);
-        }
+        var channel = parse_channel(message);
+        if (channel === null)
+            return false;
 
         var payload, control;
-        if (binary)
-            payload = new window.Uint8Array(binary.buffer, pos + 1);
+        if (have_array_buffer && message instanceof window.ArrayBuffer)
+            payload = new window.Uint8Array(message, channel.length + 1);
         else
-            payload = data.substring(pos + 1);
+            payload = message.substring(channel.length + 1);
 
         /* A control message, always string */
         if (!channel) {
@@ -539,10 +546,10 @@ function Transport() {
             transport_debug("recv " + channel + ":", payload);
         }
 
-        length = filters.length;
-        for (var i = 0; i < length; i++) {
-            if (filters[i](data, channel, control) === false)
-                return;
+        var i, length = incoming_filters ? incoming_filters.length : 0;
+        for (i = 0; i < length; i++) {
+            if (incoming_filters[i](message, channel, control) === false)
+                return false;
         }
 
         if (!channel)
@@ -551,6 +558,7 @@ function Transport() {
             process_message(channel, payload);
 
         phantom_checkpoint();
+        return true;
     };
 
     self.close = function close(options) {
@@ -644,17 +652,29 @@ function Transport() {
             func.apply(null, [payload]);
     }
 
-    self.send_data = function send_data(data) {
+    /* The channel/control arguments is used by filters, and auto-populated if necessary */
+    self.send_data = function send_data(data, channel, control) {
         if (!ws) {
             console.log("transport closed, dropped message: ", data);
             return false;
-        } else {
-            ws.send(data);
-            return true;
         }
+
+        var i, length = outgoing_filters ? outgoing_filters.length : 0;
+        for (i = 0; i < length; i++) {
+            if (channel === undefined)
+                channel = parse_channel(data);
+            if (!channel && control === undefined)
+                control = JSON.parse(data);
+            if (outgoing_filters[i](data, channel, control) === false)
+                return false;
+        }
+
+        ws.send(data);
+        return true;
     };
 
-    self.send_message = function send_message(channel, payload) {
+    /* The control arguments is used by filters, and auto populated if necessary */
+    self.send_message = function send_message(payload, channel, control) {
         if (channel)
             transport_debug("send " + channel, payload);
         else
@@ -665,11 +685,11 @@ function Transport() {
             if (payload instanceof window.ArrayBuffer)
                 payload = new window.Uint8Array(payload);
             var output = join_data([array_from_raw_string(channel), [ 10 ], payload ], true);
-            return self.send_data(output.buffer);
+            return self.send_data(output.buffer, channel, control);
 
         /* A string message */
         } else {
-            return self.send_data(channel.toString() + "\n" + payload);
+            return self.send_data(channel.toString() + "\n" + payload, channel, control);
         }
     };
 
@@ -682,7 +702,7 @@ function Transport() {
             ignore_health_check = data.data;
             return;
         }
-        self.send_message("", JSON.stringify(data));
+        self.send_message(JSON.stringify(data), "", data);
     };
 
     self.register = function register(channel, control_cb, message_cb) {
@@ -793,7 +813,7 @@ function Channel(options) {
             if (typeof payload !== "string")
                 payload = String(payload);
         }
-        transport.send_message(id, payload);
+        transport.send_message(payload, id);
     }
 
     ensure_transport(function(trans) {
@@ -1107,13 +1127,24 @@ function factory() {
 
     cockpit.transport = public_transport = {
         wait: ensure_transport,
-        inject: function inject(message) {
+        inject: function inject(message, out) {
             if (!default_transport)
                 return false;
-            return default_transport.send_data(message);
+            if (out === undefined || out)
+                return default_transport.send_data(message);
+            else
+                return default_transport.dispatch_data({ data: message });
         },
-        filter: function filter(callback) {
-            filters.push(callback);
+        filter: function filter(callback, out) {
+            if (out) {
+                if (!outgoing_filters)
+                    outgoing_filters = [ ];
+                outgoing_filters.push(callback);
+            } else {
+                if (!incoming_filters)
+                    incoming_filters = [ ];
+                incoming_filters.push(callback);
+            }
         },
         close: function close(problem) {
             var options;

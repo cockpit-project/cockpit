@@ -203,7 +203,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     if (control.credential)
                         index.authorize_changed(control.credential);
                 }
-                return true; /* still deliver locally */
 
             /* Forward message to relevant frame */
             } else if (channel) {
@@ -216,10 +215,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                         return false; /* Stop delivery */
                     }
                 }
-                /* Still deliver the message locally */
-                return true;
             }
-        });
+
+            /* Still deliver the message locally */
+            return true;
+        }, false);
 
         function perform_jump(child, control) {
             var current_frame = index.current_frame();
@@ -330,6 +330,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 return;
 
             var source = source_by_name[child.name];
+            var control;
 
             /* Closing the transport */
             if (data.length === 0) {
@@ -340,7 +341,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             /* A control message */
             if (data[0] == '\n') {
-                var control = JSON.parse(data.substring(1));
+                control = JSON.parse(data.substring(1));
                 if (control.command === "init") {
                     if (source)
                         unregister(source);
@@ -390,7 +391,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             }
 
             /* Everything else gets forwarded */
-            cockpit.transport.inject(data);
+            cockpit.transport.inject(data, true);
         }
 
 

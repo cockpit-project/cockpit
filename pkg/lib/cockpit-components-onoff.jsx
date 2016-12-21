@@ -30,19 +30,22 @@ require("./cockpit-components-onoff.css");
  * captionOff optional string, default 'Off'
  * captionOn  optional string, default 'On'
  * onChange   triggered when the switch is flipped, parameter: new state
+ * enabled    whether the component is enabled or not, defaults to true
  */
 var OnOffSwitch = React.createClass({
     getDefaultProps: function() {
         return {
             captionOff: _("Off"),
             captionOn: _("On"),
+            enabled: true,
         };
     },
     handleOnOffClick: function(newState, e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
-        if (this.props.onChange)
+        // only notify if the component is enabled
+        if (this.props.onChange && this.props.enabled)
             this.props.onChange(newState);
         e.stopPropagation();
     },
@@ -53,9 +56,13 @@ var OnOffSwitch = React.createClass({
             onClasses.push("active");
         else
             offClasses.push("active");
+        if (!this.props.enabled) {
+            onClasses.push("disabled");
+            offClasses.push("disabled");
+        }
         var clickHandler = this.handleOnOffClick.bind(this, !this.props.state);
         return (
-            <div className="btn-group btn-onoff-ct">
+            <div className="btn-group btn-onoff-ct" enabled={this.props.enabled}>
                 <label className={ onClasses.join(" ") }>
                     <input type="radio" />
                     <span onClick={clickHandler}>{this.props.captionOn}</span>

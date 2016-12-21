@@ -13,8 +13,8 @@ RUN /container/install-package.sh && /container/prep-container.sh
 
 
 
-LABEL INSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /container/atomic-install
-LABEL UNINSTALL /usr/bin/docker run -ti --rm --privileged -v /:/host IMAGE /container/atomic-uninstall
+LABEL INSTALL /usr/bin/docker run --rm --privileged -v /:/host IMAGE /container/atomic-install
+LABEL UNINSTALL /usr/bin/docker run --rm --privileged -v /:/host IMAGE /container/atomic-uninstall
 LABEL RUN /usr/bin/docker run -d --privileged --pid=host -v /:/host IMAGE /container/atomic-run --local-ssh
 
 # Look ma, no EXPOSE

@@ -107,6 +107,7 @@ The following fields are defined:
  * "superuser": Optional. Use "require" to run as root, or "try" to attempt to run as root.
  * "group": A group that can later be used with the "kill" command.
  * "capabilities": Optional, array of capability strings required from the bridge
+ * "session": Optional, set to "private" or "shared". Defaults to "shared"
 
 If "binary" is set then this channel transfers binary messages. If "binary"
 is set to "base64" then messages in the channel are encoded using "base64",
@@ -128,6 +129,12 @@ An example of an open:
     }
 
 This message is sent to the cockpit-bridge.
+
+The caller can control whether to open a new bridge session or not by setting
+the "session" field to "private" or "shared". A "private" session will always
+start another bridge just for this channel. If this option is not specified
+then typically the channel will share an already existing session. There are
+certain heuristics for compatibility, where it defaults to private.
 
 The open fields are also used with external channels. External channels are
 channels that have their payload sent via a separate HTTP request or another

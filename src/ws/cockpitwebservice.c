@@ -1172,17 +1172,30 @@ lookup_or_open_session (CockpitWebService *self,
 
   const gchar *host_key = NULL;
   const gchar *host = NULL;
+  const gchar *sharable = NULL;
   const gchar *specific_user;
   const gchar *creds_user;
   const gchar *password;
   GBytes *bytes;
-  gboolean private;
+  gboolean private = FALSE;
   gboolean new_creds = FALSE;
 
   if (!cockpit_json_get_string (options, "host", "localhost", &host))
     host = "localhost";
   if (host == NULL || g_strcmp0 (host, "") == 0)
     host = "localhost";
+
+  if (!cockpit_json_get_string (options, "password", NULL, &password))
+    password = NULL;
+
+  if (cockpit_json_get_string (options, "user", NULL, &specific_user))
+    {
+      if (g_strcmp0 (specific_user, "") == 0)
+        specific_user = NULL;
+    }
+
+  if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
+    host_key = NULL;
 
   /*
    * Some sessions shouldn't be shared by multiple channels, such as those that
@@ -1194,26 +1207,20 @@ lookup_or_open_session (CockpitWebService *self,
    *
    * This means the session doesn't show up in the by_host table.
    */
-  private = FALSE;
-
-  if (!cockpit_json_get_string (options, "password", NULL, &password))
-    password = NULL;
-
-  if (cockpit_json_get_string (options, "user", NULL, &specific_user)
-      && specific_user && !g_str_equal (specific_user, ""))
+  if (!cockpit_json_get_string (options, "session", NULL, &sharable))
+    sharable = NULL;
+  if (!sharable)
     {
-      /* Forcing a user means a private session, unless otherwise specified */
-      if (!cockpit_json_get_bool (options, "temp-session", TRUE, &private))
+      /* Fallback to older ways of indicating this */
+      if (specific_user || host_key)
+        private = TRUE;
+      if (private && !cockpit_json_get_bool (options, "temp-session", TRUE, &private))
         private = TRUE;
     }
-
-  if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
-    host_key = NULL;
-
-  /* Forcing a host-key means a private session, unless otherwise specified */
-  if (host_key && !cockpit_json_get_bool (options, "temp-session",
-                                          TRUE, &private))
-    private = TRUE;
+  else if (g_str_equal (sharable, "private"))
+    {
+      private = TRUE;
+    }
 
   if (!private)
     session = cockpit_session_by_host (&self->sessions, host);

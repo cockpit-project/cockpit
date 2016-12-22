@@ -525,7 +525,8 @@
             };
 
             if (!machine.on_disk && machine.host_key) {
-                options['temp-session'] = false;
+                options['temp-session'] = false; /* Compatibility option */
+                options['session'] = 'shared';
                 options['host-key'] = machine.host_key;
             }
 

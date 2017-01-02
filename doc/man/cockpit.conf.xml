@@ -84,6 +84,15 @@ ProtocolHeader = X-Forwarded-Proto
         <listitem><para>Set the browser title for the login screen.</para></listitem>
       </varlistentry>
       <varlistentry>
+        <term><option>LoginTo</option></term>
+        <listitem>
+          <para>When set to <literal>true</literal> the <emphasis>Connect to</emphasis> option
+            on the login screen is visible and allows logging into another server. If this
+            option is not specified then it will be automatically detected based on whether
+            the <command>cockpit-ssh</command> process is available or not.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term><option>MaxStartups</option></term>
         <listitem><para>Same as the <command>sshd</command> configuration option by the same name.
             Specifies the maximum number of concurrent login attempts
@@ -122,33 +131,33 @@ ProtocolHeader = X-Forwarded-Proto
   </refsect1>
 
   <refsect1 id="cockpit-conf-oauth">
-	  <title>OAuth</title>
-        <para>Cockpit can be configured to support the <ulink url="https://tools.ietf.org/html/rfc6749#section-4.2">
+    <title>OAuth</title>
+    <para>Cockpit can be configured to support the <ulink url="https://tools.ietf.org/html/rfc6749#section-4.2">
         implicit grant</ulink> OAuth authorization flow. When successful the resulting oauth
         token will be passed to cockpit-ws using the <literal>Bearer</literal> auth-scheme.
         For a login to be successful, cockpit will also need a to be configured to verify
         and allow <literal>Bearer</literal> tokens.</para>
-	<variablelist>
-	  <varlistentry>
-	    <term><option>URL</option></term>
-	    <listitem>
+      <variablelist>
+        <varlistentry>
+          <term><option>URL</option></term>
+          <listitem>
           <para>This is the url that cockpit will redirect the users browser to when it needs
           to obtain an oauth token. Cockpit will add a redirect_uri parameter to the url with
           the location of where the oauth provider should redirect to once a token has been
           obtained.</para>
-        </listitem>
-      </varlistentry>
-	  <varlistentry>
-	    <term><option>ErrorParam</option></term>
-	    <listitem>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+	  <term><option>ErrorParam</option></term>
+	  <listitem>
           <para>When a oauth provider redirects a user back to cockpit, look for this parameter
           in the querystring or fragment portion of the url to find a error message. When not
           provided it will default to <literal>error_description</literal></para>
-        </listitem>
-      </varlistentry>
-	  <varlistentry>
-	    <term><option>TokenParam</option></term>
-	    <listitem>
+          </listitem>
+        </varlistentry>
+	<varlistentry>
+        <term><option>TokenParam</option></term>
+        <listitem>
           <para>When a oauth provider redirects a user back to cockpit, look for this parameter
           in the querystring or fragment portion of the url to find the access token. When not
           provided it will default to <literal>access_token</literal></para>

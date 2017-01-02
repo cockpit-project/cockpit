@@ -1,5 +1,4 @@
 (function() {
-    var $ = require("jquery");
     var cockpit = require("cockpit");
 
     var lister = require("raw!./ssh-list-public-keys.sh");
@@ -15,6 +14,8 @@
         var watch = null;
         var last_tag = null;
 
+        cockpit.event_target(self);
+
         self.keys = [];
         self.state = "loading";
 
@@ -28,7 +29,7 @@
                 self.state = "failed";
                 console.warn("Error proccessing authentication keys: "+ ex);
             }
-            $(self).triggerHandler("changed");
+            self.dispatchEvent("changed");
         }
 
         function update_keys(keys, tag) {
@@ -37,7 +38,7 @@
 
             self.keys = keys;
             self.state = "ready";
-            $(self).triggerHandler("changed");
+            self.dispatchEvent("changed");
         }
 
         /*

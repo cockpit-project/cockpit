@@ -241,6 +241,30 @@ add_oauth_to_environment (JsonObject *environment)
   }
 }
 
+static void
+add_page_to_environment (JsonObject *object)
+{
+  static gint page_login_to = -1;
+  JsonObject *page;
+  const gchar *value;
+
+  page = json_object_new ();
+
+  value = cockpit_conf_string ("WebService", "LoginTitle");
+  if (value)
+    json_object_set_string_member (page, "title", value);
+
+  if (page_login_to < 0)
+    {
+      page_login_to = cockpit_conf_bool ("WebService", "LoginTo",
+                                         g_file_test (cockpit_ws_ssh_program,
+                                                      G_FILE_TEST_IS_EXECUTABLE));
+    }
+
+  json_object_set_boolean_member (page, "connect", page_login_to);
+  json_object_set_object_member (object, "page", page);
+}
+
 static GBytes *
 build_environment (GHashTable *os_release)
 {
@@ -263,17 +287,13 @@ build_environment (GHashTable *os_release)
   GByteArray *buffer;
   GBytes *bytes;
   JsonObject *object;
-  const gchar *title;
+  const gchar *value;
   gchar *hostname;
   JsonObject *osr;
-  const gchar *value;
   gint i;
 
   object = json_object_new ();
-
-  title = cockpit_conf_string ("WebService", "LoginTitle");
-  if (title)
-    json_object_set_string_member (object, "title", title);
+  add_page_to_environment (object);
 
   hostname = g_malloc0 (HOST_NAME_MAX + 1);
   gethostname (hostname, HOST_NAME_MAX);

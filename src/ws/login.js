@@ -186,7 +186,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         setup_path_globals (window.location.pathname);
 
         // Setup title
-        var title = environment.title;
+        var title = environment.page.title;
         if (!title)
             title = environment.hostname;
         document.title = title;
@@ -397,21 +397,22 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     }
 
     function show_form(in_conversation) {
-        var option_state = id("option-group").getAttribute("data-state");
+        var connectable = environment.page.connect;
+        var expanded = id("option-group").getAttribute("data-state");
         id("login-wait-validating").style.display = "none";
         id("login").style.visibility = 'visible';
         id("login").style.display = "block";
         id("user-group").style.display = in_conversation ? "none" : "block";
         id("password-group").style.display = in_conversation ? "none" : "block";
-        id("option-group").style.display = in_conversation ? "none" : "block";
+        id("option-group").style.display = !connectable || in_conversation ? "none" : "block";
         id("conversation-group").style.display = in_conversation ? "block" : "none";
         id("login-button-text").textContent = "Log In";
         id("login-password-input").value = '';
 
-        if (in_conversation) {
+        if (!connectable || in_conversation) {
             id("server-group").style.display = "none";
         } else {
-            id("server-group").style.display = option_state ? "block" : "none";
+            id("server-group").style.display = expanded ? "block" : "none";
         }
 
 

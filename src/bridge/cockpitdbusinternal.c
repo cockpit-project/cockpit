@@ -21,12 +21,15 @@
 
 #include "cockpitdbusinternal.h"
 
+#include "common/cockpitsystem.h"
+
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <stdlib.h>
 
 typedef struct {
   GIOStream parent;
@@ -258,4 +261,38 @@ cockpit_dbus_internal_cleanup (void)
 {
   g_clear_object (&the_client);
   g_clear_object (&the_server);
+}
+
+/*
+ * Internal specific variant values. Typically used for non-remotable
+ * information about the current process.
+ *
+ * Used with silly but core DBus APIs like Polkit which expect you to
+ * recite information about yourself, and then the method turns around
+ * and retrieves the same information and cross checks it. Useless.
+ */
+JsonNode *
+cockpit_dbus_internal_variant (const gchar *name)
+{
+  JsonNode *node;
+  char *session_id;
+
+  g_return_val_if_fail (name != NULL, NULL);
+
+  if (g_str_equal (name, "user-id"))
+    return json_node_init_int (json_node_alloc (), getuid ());
+  else if (g_str_equal (name, "process-id"))
+    return json_node_init_int (json_node_alloc (), getpid ());
+  else if (g_str_equal (name, "process-start"))
+    return json_node_init_int (json_node_alloc (), cockpit_system_process_start_time ());
+
+  if (g_str_equal (name, "session-id"))
+    {
+      session_id = cockpit_system_session_id ();
+      node = json_node_init_string (json_node_alloc (), session_id);
+      free (session_id);
+      return node;
+    }
+
+  return NULL;
 }

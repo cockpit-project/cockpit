@@ -23,6 +23,8 @@
 #include <gio/gio.h>
 #include <pwd.h>
 
+#include "common/cockpitjson.h"
+
 G_BEGIN_DECLS
 
 GDBusConnection *     cockpit_dbus_internal_client       (void);
@@ -30,6 +32,8 @@ GDBusConnection *     cockpit_dbus_internal_client       (void);
 GDBusConnection *     cockpit_dbus_internal_server       (void);
 
 const gchar *         cockpit_dbus_internal_name         (void);
+
+JsonNode *            cockpit_dbus_internal_variant      (const gchar *name);
 
 void                  cockpit_dbus_internal_startup      (gboolean interact);
 

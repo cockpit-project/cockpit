@@ -278,10 +278,12 @@ parse_json_variant (JsonNode *node,
                     GError **error)
 {
   GVariantType *inner_type;
+  JsonNode *internal = NULL;
   JsonObject *object;
   GVariant *inner;
   JsonNode *val;
   const gchar *sig;
+  const gchar *name;
 
   if (!check_type (node, JSON_NODE_OBJECT, 0, error))
     return NULL;
@@ -307,9 +309,31 @@ parse_json_variant (JsonNode *node,
       return NULL;
     }
 
+  /*
+   * Internal specific variant values. Typically used for non-remotable
+   * information about the current process.
+   *
+   * Used with silly but core DBus APIs like Polkit which expect you to
+   * recite information about yourself, and then the method turns around
+   * and retrieves the same information and cross checks it. Useless.
+   */
+  if (JSON_NODE_HOLDS_NULL (val))
+    {
+      name = json_object_get_string_member (object, "internal");
+      if (name)
+        {
+          internal = cockpit_dbus_internal_variant (name);
+          if (internal)
+            val = internal;
+        }
+    }
+
   inner_type = g_variant_type_new (sig);
   inner = parse_json (val, inner_type, error);
   g_variant_type_free (inner_type);
+
+  if (internal)
+    json_node_free (internal);
 
   if (!inner)
     return NULL;

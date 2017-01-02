@@ -285,6 +285,7 @@ Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-system >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
+Requires: ImageMagick
 
 %description machines
 The Cockpit components for managing virtual machines.

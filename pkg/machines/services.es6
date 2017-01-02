@@ -30,13 +30,18 @@ export function spawnProcess({ cmd, args = [], stdin}) {
             console.error(`spawn '${cmd}' process error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
 }
 
-export function spawnScript({ script }) {
+export function spawnScript({ script, failHandler }) {
     const spawnArgs = [script];
     logDebug(`spawn script args: ${spawnArgs}`);
 
     return spawn(cockpit.script(spawnArgs, [], { err: "message" }))
-        .fail((ex, data) =>
-            console.error(`spawn '${script}' script error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
+        .fail((ex, data) => {
+            if (failHandler) {
+                failHandler(ex, data);
+            } else {
+                console.error(`spawn '${script}' script error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`);
+            }
+        });
 }
 
 function spawn(command) {

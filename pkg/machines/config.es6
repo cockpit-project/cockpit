@@ -25,7 +25,8 @@
 const VMS_CONFIG = {
     DefaultRefreshInterval: 10000, // in ms
     Virsh: {
-        ConnectionParams: ['-c', 'qemu:///system']
+        ConnectionParams: ['-c', 'qemu:///system'],
+        ScreenshotResizeGeometry: 200,
     },
     isDev: false // TODO: make it configurable based on process.env.NODE_ENV
 };

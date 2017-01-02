@@ -108,6 +108,10 @@ export function rephraseUI(key, original) {
     return transform[key][original];
 }
 
+export function random(min, max) {
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
+
 // --- VM state functions --
 export function canReset(vmState) {
     return vmState == 'running' || vmState == 'idle' || vmState == 'paused';

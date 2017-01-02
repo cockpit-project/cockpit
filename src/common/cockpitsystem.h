@@ -35,6 +35,8 @@ const gchar **       cockpit_system_os_release_fields          (void);
 
 guint64              cockpit_system_process_start_time         (void);
 
+char *               cockpit_system_session_id                 (void);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_SYSTEM_H__ */

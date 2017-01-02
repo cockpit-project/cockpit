@@ -23,8 +23,6 @@
 
 #include "common/cockpitsystem.h"
 
-#include <systemd/sd-login.h>
-
 #include <errno.h>
 #include <stdlib.h>
 
@@ -53,25 +51,13 @@ build_environment (void)
 static GVariant *
 lookup_session_id (void)
 {
-  GVariant *variant;
   char *session_id;
-  pid_t pid;
-  int res;
+  GVariant *variant;
 
-  pid = getppid ();
-  res = sd_pid_get_session (pid, &session_id);
-  if (res == 0)
-    {
-      variant = g_variant_new_string (session_id);
-      free (session_id);
-      return variant;
-    }
-  else
-    {
-      if (res != -ENODATA && res != -ENXIO)
-        g_message ("could not look up session id for bridge process: %u: %s", pid, g_strerror (-res));
-      return g_variant_new_string ("");
-    }
+  session_id = cockpit_system_session_id ();
+  variant = g_variant_new_string (session_id ? session_id : "");
+  free (session_id);
+  return variant;
 }
 
 static GVariant *

@@ -21,7 +21,7 @@
 
 #include "cockpitchannel.h"
 #include "cockpitpcpmetrics.h"
-#include "cockpitbridge.h"
+#include "cockpitrouter.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
@@ -76,7 +76,7 @@ main (int argc,
       char **argv)
 {
   CockpitTransport *transport;
-  CockpitBridge *bridge;
+  CockpitRouter *router;
   gboolean terminated = FALSE;
   gboolean closed = FALSE;
   GOptionContext *context;
@@ -135,14 +135,14 @@ main (int argc,
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
 
-  bridge = cockpit_bridge_new (transport, payload_types, NULL);
+  router = cockpit_router_new (transport, payload_types, NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
   send_init_command (transport);
 
   while (!closed && !terminated)
     g_main_context_iteration (NULL, TRUE);
 
-  g_object_unref (bridge);
+  g_object_unref (router);
   g_object_unref (transport);
 
   g_source_remove (sig_term);

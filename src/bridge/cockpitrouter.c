@@ -20,12 +20,12 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
-#include "cockpitbridge.h"
+#include "cockpitrouter.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpittransport.h"
 
-struct _CockpitBridge {
+struct _CockpitRouter {
   GObjectClass parent;
 
   gchar *init_host;
@@ -37,11 +37,11 @@ struct _CockpitBridge {
   GHashTable *channels;
 };
 
-struct _CockpitBridgeClass {
+typedef struct _CockpitRouterClass {
   GObjectClass parent_class;
-};
+} CockpitRouterClass;
 
-G_DEFINE_TYPE (CockpitBridge, cockpit_bridge, G_TYPE_OBJECT);
+G_DEFINE_TYPE (CockpitRouter, cockpit_router, G_TYPE_OBJECT);
 
 enum {
   PROP_0,
@@ -56,12 +56,12 @@ on_channel_closed (CockpitChannel *channel,
                    const gchar *problem,
                    gpointer user_data)
 {
-  CockpitBridge *self = user_data;
+  CockpitRouter *self = user_data;
   g_hash_table_remove (self->channels, cockpit_channel_get_id (channel));
 }
 
 static void
-process_init (CockpitBridge *self,
+process_init (CockpitRouter *self,
               CockpitTransport *transport,
               JsonObject *options)
 {
@@ -114,7 +114,7 @@ process_init (CockpitBridge *self,
 }
 
 static void
-process_open (CockpitBridge *self,
+process_open (CockpitRouter *self,
               CockpitTransport *transport,
               const gchar *channel_id,
               JsonObject *options)
@@ -178,7 +178,7 @@ on_transport_control (CockpitTransport *transport,
                       GBytes *message,
                       gpointer user_data)
 {
-  CockpitBridge *self = user_data;
+  CockpitRouter *self = user_data;
 
   if (g_str_equal (command, "init"))
     {
@@ -205,22 +205,13 @@ on_transport_control (CockpitTransport *transport,
           g_warning ("Caller tried to close channel without an id");
           cockpit_transport_close (transport, "protocol-error");
         }
-      else
-        {
-          /*
-           * The channel may no longer exist due to a race of the bridge closing
-           * a channel and the web closing it at the same time.
-           */
-
-          g_debug ("already closed channel %s", channel_id);
-        }
     }
 
   return FALSE;
 }
 
 static void
-cockpit_bridge_init (CockpitBridge *self)
+cockpit_router_init (CockpitRouter *self)
 {
   /* Owns the channels */
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
@@ -228,9 +219,9 @@ cockpit_bridge_init (CockpitBridge *self)
 }
 
 static void
-cockpit_bridge_dispose (GObject *object)
+cockpit_router_dispose (GObject *object)
 {
-  CockpitBridge *self = COCKPIT_BRIDGE (object);
+  CockpitRouter *self = COCKPIT_ROUTER (object);
 
   if (self->signal_id)
     {
@@ -240,9 +231,9 @@ cockpit_bridge_dispose (GObject *object)
 }
 
 static void
-cockpit_bridge_finalize (GObject *object)
+cockpit_router_finalize (GObject *object)
 {
-  CockpitBridge *self = COCKPIT_BRIDGE (object);
+  CockpitRouter *self = COCKPIT_ROUTER (object);
 
   if (self->transport)
     g_object_unref (self->transport);
@@ -251,16 +242,16 @@ cockpit_bridge_finalize (GObject *object)
   g_hash_table_destroy (self->channels);
   g_hash_table_destroy (self->payloads);
 
-  G_OBJECT_CLASS (cockpit_bridge_parent_class)->finalize (object);
+  G_OBJECT_CLASS (cockpit_router_parent_class)->finalize (object);
 }
 
 static void
-cockpit_bridge_set_property (GObject *obj,
+cockpit_router_set_property (GObject *obj,
                              guint prop_id,
                              const GValue *value,
                              GParamSpec *pspec)
 {
-  CockpitBridge *self = COCKPIT_BRIDGE (obj);
+  CockpitRouter *self = COCKPIT_ROUTER (obj);
 
   switch (prop_id)
     {
@@ -277,11 +268,11 @@ cockpit_bridge_set_property (GObject *obj,
 }
 
 static void
-cockpit_bridge_constructed (GObject *object)
+cockpit_router_constructed (GObject *object)
 {
-  CockpitBridge *self = COCKPIT_BRIDGE (object);
+  CockpitRouter *self = COCKPIT_ROUTER (object);
 
-  G_OBJECT_CLASS (cockpit_bridge_parent_class)->constructed (object);
+  G_OBJECT_CLASS (cockpit_router_parent_class)->constructed (object);
 
   g_return_if_fail (self->transport != NULL);
 
@@ -291,15 +282,15 @@ cockpit_bridge_constructed (GObject *object)
 }
 
 static void
-cockpit_bridge_class_init (CockpitBridgeClass *class)
+cockpit_router_class_init (CockpitRouterClass *class)
 {
   GObjectClass *object_class;
 
   object_class = G_OBJECT_CLASS (class);
-  object_class->set_property = cockpit_bridge_set_property;
-  object_class->finalize = cockpit_bridge_finalize;
-  object_class->dispose = cockpit_bridge_dispose;
-  object_class->constructed = cockpit_bridge_constructed;
+  object_class->set_property = cockpit_router_set_property;
+  object_class->finalize = cockpit_router_finalize;
+  object_class->dispose = cockpit_router_dispose;
+  object_class->constructed = cockpit_router_constructed;
 
   g_object_class_install_property (object_class, PROP_TRANSPORT,
                                    g_param_spec_object ("transport", "transport", "transport",
@@ -316,7 +307,7 @@ cockpit_bridge_class_init (CockpitBridgeClass *class)
 }
 
 static gboolean
-cockpit_bridge_add_payload (CockpitBridge *self,
+cockpit_router_add_payload (CockpitRouter *self,
                             const gchar *type,
                             TypeFunction channel_function)
 {
@@ -324,29 +315,26 @@ cockpit_bridge_add_payload (CockpitBridge *self,
                               channel_function);
 }
 
-CockpitBridge *
-cockpit_bridge_new (CockpitTransport *transport,
+CockpitRouter *
+cockpit_router_new (CockpitTransport *transport,
                     CockpitPayloadType *payload_types,
                     const gchar *init_host)
 {
   gint i;
-  CockpitBridge *bridge;
+  CockpitRouter *router;
 
   g_return_val_if_fail (transport != NULL, NULL);
 
-  bridge = g_object_new (COCKPIT_TYPE_BRIDGE,
+  router = g_object_new (COCKPIT_TYPE_ROUTER,
                          "transport", transport,
                          "init-host", init_host,
                          NULL);
 
-  /* Set a path if nothing is set */
-  g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
-
   for (i = 0; payload_types[i].name != NULL; i++)
     {
-      cockpit_bridge_add_payload (bridge, payload_types[i].name,
+      cockpit_router_add_payload (router, payload_types[i].name,
                                   payload_types[i].function);
     }
 
-  return bridge;
+  return router;
 }

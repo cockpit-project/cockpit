@@ -5,8 +5,6 @@ noinst_LIBRARIES += \
 	$(NULL)
 
 libcockpit_stub_a_SOURCES = \
-	src/bridge/cockpitbridge.c \
-	src/bridge/cockpitbridge.h \
 	src/bridge/cockpitchannel.c \
 	src/bridge/cockpitchannel.h \
 	src/bridge/cockpitconnect.c \
@@ -34,6 +32,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitpaths.h \
 	src/bridge/cockpitnullchannel.c \
 	src/bridge/cockpitnullchannel.h \
+	src/bridge/cockpitrouter.c \
+	src/bridge/cockpitrouter.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitwebsocketstream.c \
@@ -278,8 +278,6 @@ libexec_PROGRAMS += cockpit-pcp
 noinst_LIBRARIES += libcockpit-pcp.a
 
 libcockpit_pcp_a_SOURCES = \
-	src/bridge/cockpitbridge.c \
-	src/bridge/cockpitbridge.h \
 	src/bridge/cockpitchannel.c \
 	src/bridge/cockpitchannel.h \
 	src/bridge/cockpitconnect.c \
@@ -288,6 +286,8 @@ libcockpit_pcp_a_SOURCES = \
 	src/bridge/cockpitmetrics.h \
 	src/bridge/cockpitpcpmetrics.c \
 	src/bridge/cockpitpcpmetrics.h \
+	src/bridge/cockpitrouter.c \
+	src/bridge/cockpitrouter.h \
 	$(NULL)
 
 libcockpit_pcp_a_CFLAGS = \

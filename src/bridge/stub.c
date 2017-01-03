@@ -18,7 +18,6 @@
  */
 #include "config.h"
 
-#include "cockpitbridge.h"
 #include "cockpitchannel.h"
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusjson.h"
@@ -27,6 +26,7 @@
 #include "cockpithttpstream.h"
 #include "cockpitnullchannel.h"
 #include "cockpitpackages.h"
+#include "cockpitrouter.h"
 #include "cockpitwebsocketstream.h"
 
 #include "common/cockpittransport.h"
@@ -109,7 +109,7 @@ static int
 run_bridge (const gchar *interactive)
 {
   CockpitTransport *transport;
-  CockpitBridge *bridge;
+  CockpitRouter *router;
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
@@ -157,7 +157,10 @@ run_bridge (const gchar *interactive)
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
-  bridge = cockpit_bridge_new (transport, payload_types, init_host);
+  /* Set a path if nothing is set */
+  g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
+
+  router = cockpit_router_new (transport, payload_types, init_host);
   cockpit_dbus_process_startup ();
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
@@ -166,7 +169,7 @@ run_bridge (const gchar *interactive)
   while (!terminated && !closed && !interupted)
     g_main_context_iteration (NULL, TRUE);
 
-  g_object_unref (bridge);
+  g_object_unref (router);
   g_object_unref (transport);
   cockpit_packages_free (packages);
   packages = NULL;

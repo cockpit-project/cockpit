@@ -18,8 +18,6 @@
  */
 #include "config.h"
 
-#include "cockpitbridge.h"
-
 #include "cockpitchannel.h"
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusjson.h"
@@ -36,6 +34,7 @@
 #include "cockpitinternalmetrics.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitportal.h"
+#include "cockpitrouter.h"
 #include "cockpitwebsocketstream.h"
 
 #include "common/cockpitassets.h"
@@ -373,7 +372,7 @@ run_bridge (const gchar *interactive,
             gboolean privileged_slave)
 {
   CockpitTransport *transport;
-  CockpitBridge *bridge;
+  CockpitRouter *router;
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
@@ -418,6 +417,9 @@ run_bridge (const gchar *interactive,
       g_setenv ("HOME", pwd->pw_dir, TRUE);
       g_setenv ("SHELL", pwd->pw_shell, TRUE);
     }
+
+  /* Set a path if nothing is set */
+  g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
 
   /* Reset the umask, typically this is done in .bashrc for a login shell */
   umask (022);
@@ -475,7 +477,7 @@ run_bridge (const gchar *interactive,
 
   pcp = cockpit_portal_new_pcp (transport);
 
-  bridge = cockpit_bridge_new (transport, payload_types, init_host);
+  router = cockpit_router_new (transport, payload_types, init_host);
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
   cockpit_dbus_process_startup ();
@@ -495,7 +497,7 @@ run_bridge (const gchar *interactive,
     g_object_unref (super);
 
   g_object_unref (pcp);
-  g_object_unref (bridge);
+  g_object_unref (router);
   g_object_unref (transport);
 
   cockpit_dbus_internal_cleanup ();

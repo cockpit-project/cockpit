@@ -5,6 +5,7 @@ auth       include      postlogin
 auth       optional     pam_reauthorize.so prepare
 auth       optional     pam_ssh_add.so
 account    required     pam_nologin.so
+account    required     pam_shells.so
 account    include      password-auth
 password   include      password-auth
 # pam_selinux.so close should be the first session rule

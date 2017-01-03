@@ -75,6 +75,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         else:
             b.wait_text("#login-error-message", "Permission denied")
 
+        # Try to login with disabled shell; this does not work on Atomic where
+        # we log in through ssh
+        if m.image not in ["continuous-atomic", "fedora-atomic", "rhel-atomic"]:
+            m.execute("usermod --shell /bin/false admin")
+            login("admin", "foobar")
+            b.wait_text_not("#login-error-message", "")
+            m.execute("usermod --shell /bin/bash admin")
+
         # Login as admin
         b.open("/system")
         login("admin", "foobar")

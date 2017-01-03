@@ -4,6 +4,7 @@ auth       substack     common-auth
 auth       optional     pam_reauthorize.so prepare
 auth       optional     pam_ssh_add.so
 account    required     pam_nologin.so
+account    required     pam_shells.so
 account    include      common-account
 password   include      common-password
 # pam_selinux.so close should be the first session rule

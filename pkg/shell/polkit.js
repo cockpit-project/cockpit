@@ -30,6 +30,8 @@ var AGENT_INFO = { "methods": {
     "CancelAuthentication": { "in": [ "s" ] },
 } };
 
+var PROPS_IFACE = "org.freedesktop.DBus.Properties";
+
 function spawnHelper(path, cookie) {
 
     /*
@@ -110,22 +112,35 @@ function spawnHelper(path, cookie) {
     return defer.promise;
 }
 
-function PolkitAgent(options) {
+function PolkitAgent(opts) {
     var self = this;
 
     /* The information that polkit needs about us. Even though it can look it up itself. */
-    var subject = [ "unix-session",
-        { "session-id": { 'v': null, 't': 's', 'internal': 'session-id' } }
-    ];
+    var subject = null;
 
     var published = null;
     var authenticating = { };
 
-    var bus = cockpit.dbus(null, {
-        host: options.host,
-        user: options.user,
-        password: options.password,
-    });
+    /* Options to access the right host and auth */
+    var options = {
+        host: opts.host,
+        user: opts.user,
+        password: opts.password,
+    };
+
+console.log(cockpit.extend({
+    bus: "system",
+}, options));
+
+    var bus = cockpit.dbus(null, cockpit.extend({
+        bus: "system"
+    }, options));
+
+    /*
+     * The internal DBus connection is also a fence that blocks off other
+     * channel creation until it is closed.
+     */
+    var internal = null;
 
     /*
      * Because the palkit-agent-helper-1 is installed at different paths on
@@ -181,6 +196,25 @@ function PolkitAgent(options) {
             helper.cancel();
     };
 
+    function discoverContext() {
+        return internal.call("/bridge", PROPS_IFACE, "GetAll",
+                             [ "cockpit.Process" ], { "type": "s" })
+            .then(function(reply) {
+                var process = reply[0];
+                if (process.SessionId && process.SessionId.v) {
+                    subject = [
+                        "unix-session",
+                        { "session-id": process.SessionId }
+                    ];
+                } else {
+                    subject = [
+                        "unix-process",
+                        { "pid": process.Pid, "start-time": process.StartTime, "uid": process.Uid }
+                    ];
+                }
+            });
+    }
+
     function publishAgent() {
 
         /* First tell the bridge about the introspection data */
@@ -200,11 +234,29 @@ function PolkitAgent(options) {
                         { "type": "(sa{sv})ss", name: AUTHORITY_NAME });
     }
 
-    publishAgent()
-        .then(registerAgent)
-        .catch(function(ex) {
-            console.warn(cockpit.message(ex));
-        });
+    function fenceUp() {
+        internal = cockpit.dbus(null, cockpit.extend({
+            bus: "internal",
+            group: "fence",
+        }, options));
+    }
+
+    function fenceDown() {
+        console.log("fence down");
+        internal.close();
+        internal = null;
+    }
+
+    self.register = function() {
+        fenceUp();
+        return publishAgent()
+            .then(discoverContext)
+            .then(registerAgent)
+            .always(fenceDown)
+            .catch(function(ex) {
+                console.warn(cockpit.message(ex));
+            });
+    };
 }
 
 module.exports = {

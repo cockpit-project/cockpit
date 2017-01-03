@@ -34,7 +34,7 @@
 
     /* Creates a new agent for a given host */
     function agent(options) {
-        return require("./polkit").agent(options);
+        return require("./polkit").agent(options).register();
     }
 
     var options = {

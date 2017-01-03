@@ -216,5 +216,37 @@ class TestNetworking(NetworkCase):
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .panel:contains('tbond')", m.address)
 
+    def testAmbiguousSlave(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        iface = self.add_iface()
+        self.wait_for_iface(iface)
+
+        # Now 'iface' has a normal connection
+        con_id = self.iface_con_id(iface)
+        self.assertTrue(con_id != None)
+
+        # Manually create a bond and make 'iface' its slave via a
+        # second connection.  Cockpit should ignore that second
+        # connection and still show iface as a normal interface.
+        m.execute("nmcli con add type bond-slave ifname %s  con-name bond0-slave-1 master bond0" % iface)
+        m.execute("nmcli con add type bond ifname bond0 con-name bond0")
+
+        self.wait_for_iface("bond0", state="Configuring")
+        self.wait_for_iface(iface)
+
+        # Now activate 'iface' as a slave.  Cockpit should now ignore
+        # the first connection and show 'iface' as a slave of bond0.
+
+        m.execute("nmcli con up bond0-slave-1")
+        b.wait_not_present("#networking-interfaces tr[data-interface='%s']" % iface)
+
+        b.click("#networking-interfaces tr[data-interface='bond0'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
+
 if __name__ == '__main__':
     test_main()

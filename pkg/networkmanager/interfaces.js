@@ -1625,9 +1625,8 @@ PageNetworking.prototype = {
         self.model.list_interfaces().forEach(function (iface) {
 
             function has_master(iface) {
-                var connections =
-                    (iface.Device ? iface.Device.AvailableConnections : iface.Connections);
-                return connections.some(function (c) { return c.Masters && c.Masters.length > 0; });
+                return ((iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Master) ||
+                        (iface.MainConnection && iface.MainConnection.Masters.length > 0));
             }
 
             // Skip loopback
@@ -2736,6 +2735,9 @@ PageNetworkInterface.prototype = {
 
             con.Slaves.forEach(function (slave_con) {
                 slave_con.Interfaces.forEach(function(iface) {
+                    if (iface.MainConnection != slave_con)
+                        return;
+
                     var dev = iface.Device;
                     var is_active = (dev && dev.State == 100 && dev.Carrier === true);
 

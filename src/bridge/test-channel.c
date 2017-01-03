@@ -30,6 +30,8 @@
 
 #include <gio/gio.h>
 
+#include <string.h>
+
 extern const gchar *cockpit_bridge_local_address;
 
 /* ----------------------------------------------------------------------------
@@ -54,6 +56,15 @@ mock_echo_channel_recv (CockpitChannel *channel,
   cockpit_channel_send (channel, message, FALSE);
 }
 
+static gboolean
+mock_echo_channel_control (CockpitChannel *channel,
+                           const gchar *command,
+                           JsonObject *options)
+{
+  cockpit_channel_control (channel, command, options);
+  return TRUE;
+}
+
 static void
 mock_echo_channel_close (CockpitChannel *channel,
                          const gchar *problem)
@@ -74,6 +85,7 @@ mock_echo_channel_class_init (MockEchoChannelClass *klass)
 {
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
   channel_class->recv = mock_echo_channel_recv;
+  channel_class->control = mock_echo_channel_control;
   channel_class->close = mock_echo_channel_close;
 }
 
@@ -152,10 +164,17 @@ test_recv_and_queue (TestCase *tc,
                      gconstpointer unused)
 {
   GBytes *payload;
+  GBytes *control;
+  const gchar *data;
   GBytes *sent;
+  JsonObject *object;
 
   payload = g_bytes_new ("Yeehaw!", 7);
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", payload);
+
+  data = "{ \"command\": \"blah\", \"channel\": \"554\" }";
+  control = g_bytes_new_static (data, strlen (data));
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), NULL, control);
 
   /* Shouldn't have received it yet */
   g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 0);
@@ -163,9 +182,14 @@ test_recv_and_queue (TestCase *tc,
   /* Ready to go */
   cockpit_channel_ready (tc->channel, NULL);
 
+  /* The control message */
+  object = mock_transport_pop_control (tc->transport);
+  g_assert (object != NULL);
+  cockpit_assert_json_eq (object, data);
+  g_bytes_unref (control);
+
   sent = mock_transport_pop_channel (tc->transport, "554");
   g_assert (sent != NULL);
-
   g_assert (g_bytes_equal (payload, sent));
   g_bytes_unref (payload);
 }

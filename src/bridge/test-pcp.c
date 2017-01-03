@@ -123,7 +123,7 @@ setup_metrics_channel_json (TestCase *tc, JsonObject *options)
                               NULL);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
-  cockpit_channel_prepare (tc->channel);
+  cockpit_channel_thaw (tc->channel);
 
   /* We work with real timestamps here but we don't want the
      interpolation to change any of our sample values.

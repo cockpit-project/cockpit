@@ -73,10 +73,18 @@ if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then
 fi
 $srcdir/configure --enable-maintainer-mode ${AUTOGEN_CONFIGURE_ARGS:-} "$@" || exit $?
 
-# Put a redirect makefile here
-if [ -z "${NOREDIRECTMAKEFILE:-}" -a ! -f $srcdir/Makefile ]; then
-    cat $srcdir/tools/Makefile.redirect > $srcdir/Makefile
-    printf "\nREDIRECT = %s\n" "$(realpath $olddir)" >> $srcdir/Makefile
+# Put a redirect makefile and dist directory here
+if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then
+    if [ ! -e $srcdir/Makefile ]; then
+        cat $srcdir/tools/Makefile.redirect > $srcdir/Makefile
+        printf "\nREDIRECT = %s\n" "$(realpath $olddir)" >> $srcdir/Makefile
+    fi
+
+    mkdir -p $olddir/dist
+    cp $srcdir/tools/README.dist $olddir/dist/README.md
+    if [ ! -e $srcdir/dist ]; then
+        ln -s $olddir/dist $srcdir/dist
+    fi
 fi
 
 echo

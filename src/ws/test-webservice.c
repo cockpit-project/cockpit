@@ -86,6 +86,7 @@ typedef struct {
   const char *origin;
   const char *config;
   const char *forward;
+  const char *bridge;
 } TestFixture;
 
 static GString *
@@ -244,6 +245,7 @@ static void
 setup_io_streams (TestCase *test,
                   gconstpointer data)
 {
+  const TestFixture *fixture = data;
   GSocket *socket1, *socket2;
   GError *error = NULL;
   int fds[2];
@@ -263,7 +265,10 @@ setup_io_streams (TestCase *test,
   g_object_unref (socket1);
   g_object_unref (socket2);
 
-  cockpit_ws_bridge_program = BUILDDIR "/mock-echo";
+  if (fixture && fixture->bridge)
+    cockpit_ws_bridge_program = fixture->bridge;
+  else
+    cockpit_ws_bridge_program = BUILDDIR "/mock-echo";
 }
 
 static void
@@ -525,7 +530,7 @@ start_web_service_and_connect_client (TestCase *test,
 
   /* Send the open control message that starts the bridge. */
   send_control_message (*ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (*ws, "open", "4", "payload", "test-text", NULL);
+  send_control_message (*ws, "open", "4", "payload", "echo", NULL);
 
   /* This message should be echoed */
   message = g_bytes_new ("4\ntest", 6);
@@ -1544,6 +1549,10 @@ test_fail_spawn (TestCase *test,
   close_client_and_stop_web_service (test, ws, service);
 }
 
+static const TestFixture fixture_kill_group = {
+    .bridge = BUILDDIR "/cockpit-bridge"
+};
+
 static void
 test_kill_group (TestCase *test,
                  gconstpointer data)
@@ -1603,7 +1612,7 @@ test_kill_group (TestCase *test,
       g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
       g_bytes_unref (payload);
 
-      if (!g_str_equal (command, "open"))
+      if (!g_str_equal (command, "open") && !g_str_equal (command, "ready"))
         {
           g_assert_cmpstr (command, ==, "close");
           g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "terminated");
@@ -1688,7 +1697,7 @@ test_kill_host (TestCase *test,
       g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
       g_bytes_unref (payload);
 
-      if (!g_str_equal (command, "open"))
+      if (!g_str_equal (command, "open") && !g_str_equal (command, "ready"))
         {
           g_assert_cmpstr (command, ==, "close");
           g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "terminated");
@@ -2287,9 +2296,9 @@ main (int argc,
               &fixture_hixie76, setup_for_socket,
               test_fail_spawn, teardown_for_socket);
 
-  g_test_add ("/web-service/kill-group", TestCase, &fixture_rfc6455,
+  g_test_add ("/web-service/kill-group", TestCase, &fixture_kill_group,
               setup_for_socket, test_kill_group, teardown_for_socket);
-  g_test_add ("/web-service/kill-host", TestCase, &fixture_rfc6455,
+  g_test_add ("/web-service/kill-host", TestCase, &fixture_kill_group,
               setup_for_socket, test_kill_host, teardown_for_socket);
 
   g_test_add ("/web-service/specified-creds", TestCase,

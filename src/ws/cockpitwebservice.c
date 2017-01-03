@@ -444,7 +444,6 @@ struct _CockpitWebService {
   guint ping_timeout;
   gint callers;
   guint next_internal_id;
-  GHashTable *channel_groups;
 };
 
 typedef struct {
@@ -501,7 +500,6 @@ cockpit_web_service_finalize (GObject *object)
   cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
     g_source_remove (self->ping_timeout);
-  g_hash_table_destroy (self->channel_groups);
 
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->finalize (object);
 }
@@ -549,7 +547,6 @@ process_close (CockpitWebService *self,
     cockpit_session_remove_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_remove_channel (&self->sockets, socket, channel);
-  g_hash_table_remove (self->channel_groups, channel);
 
   return TRUE;
 }
@@ -574,68 +571,34 @@ process_and_relay_close (CockpitWebService *self,
 static gboolean
 process_kill (CockpitWebService *self,
               CockpitSocket *socket,
-              JsonObject *options)
+              JsonObject *options,
+              GBytes *payload)
 {
   CockpitSession *session;
   GHashTableIter iter;
-  gpointer channel;
   const gchar *host;
-  const gchar *group;
-  GBytes *payload;
-  GList *list, *l;
 
-  if (!cockpit_json_get_string (options, "host", NULL, &host) ||
-      !cockpit_json_get_string (options, "group", NULL, &group))
+  if (!cockpit_json_get_string (options, "host", NULL, &host))
     {
       g_warning ("%s: received invalid kill command", socket->id);
       return FALSE;
     }
 
-  list = NULL;
-  g_hash_table_iter_init (&iter, socket->channels);
-  while (g_hash_table_iter_next (&iter, &channel, NULL))
+  if (host)
     {
-      if (host)
-        {
-          session = cockpit_session_by_channel (&self->sessions, channel);
-          if (!session || !g_str_equal (host, session->host))
-            continue;
-        }
-      if (group)
-        {
-          if (g_strcmp0 (g_hash_table_lookup (self->channel_groups, channel), group) != 0)
-            continue;
-        }
-
-      list = g_list_prepend (list, g_strdup (channel));
+      session = cockpit_session_by_host (&self->sessions, host);
+      if (session && !session->sent_done)
+        cockpit_transport_send (session->transport, NULL, payload);
     }
-
-  for (l = list; l != NULL; l = g_list_next (l))
+  else
     {
-      channel = l->data;
-
-      g_debug ("%s killing channel: %s", socket->id, (gchar *)channel);
-
-      /* Send a close message to both parties */
-      payload = cockpit_transport_build_control ("command", "close",
-                                                 "channel", (gchar *)channel,
-                                                 "problem", "terminated",
-                                                 NULL);
-      g_warn_if_fail (process_and_relay_close (self, socket, channel, payload));
-      if (web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
+      g_hash_table_iter_init (&iter, self->sessions.by_host);
+      while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
-              web_socket_connection_send (socket->connection,
-                                          WEB_SOCKET_DATA_TEXT,
-                                          self->control_prefix,
-                                          payload);
+          if (!session->sent_done)
+            cockpit_transport_send (session->transport, NULL, payload);
         }
-
-      g_bytes_unref (payload);
-
-      g_free (channel);
     }
-
-  g_list_free (list);
   return TRUE;
 }
 
@@ -1407,7 +1370,6 @@ process_and_relay_open (CockpitWebService *self,
 {
   WebSocketDataType data_type = WEB_SOCKET_DATA_TEXT;
   CockpitSession *session = NULL;
-  const gchar *group;
   GBytes *payload;
 
   if (self->closing)
@@ -1422,12 +1384,6 @@ process_and_relay_open (CockpitWebService *self,
       return FALSE;
     }
 
-  if (!cockpit_json_get_string (options, "group", NULL, &group))
-    {
-      g_warning ("received open command with invalid group");
-      return FALSE;
-    }
-
   if (!cockpit_web_service_parse_binary (options, &data_type))
     return FALSE;
 
@@ -1436,8 +1392,6 @@ process_and_relay_open (CockpitWebService *self,
   cockpit_session_add_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
-  if (group)
-    g_hash_table_insert (self->channel_groups, g_strdup (channel), g_strdup (group));
 
   if (!session->sent_done)
     {
@@ -1597,8 +1551,7 @@ dispatch_inbound_command (CockpitWebService *self,
     }
   else if (g_strcmp0 (command, "kill") == 0)
     {
-      /* This command is never forwarded */
-      valid = process_kill (self, socket, options);
+      valid = process_kill (self, socket, options, payload);
     }
   else if (channel)
     {
@@ -1807,7 +1760,6 @@ cockpit_web_service_init (CockpitWebService *self)
   cockpit_sessions_init (&self->sessions);
   cockpit_sockets_init (&self->sockets);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
-  self->channel_groups = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 }
 
 static void

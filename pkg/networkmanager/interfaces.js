@@ -2750,7 +2750,7 @@ PageNetworkInterface.prototype = {
                                     [ $('<td>').text(""), $('<td>').text("") ] :
                                     $('<td colspan="2">').text(device_state_text(dev))),
                                    $('<td class="networking-row-configure">').append(
-                                       switchbox(is_active, function(val) {
+                                       switchbox(!!(dev && dev.ActiveConnection), function(val) {
                                            if (val) {
                                                with_checkpoint(
                                                    self.model,

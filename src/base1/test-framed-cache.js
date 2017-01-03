@@ -26,11 +26,7 @@
         function provider(result, key) {
             test.equal(key, "cross-frame-cache", "parent provider got right key");
             test.equal(typeof result, "function", "parent provider got result function");
-
-            var timer = window.setTimeout(function() {
-                result({ myobject: "value" });
-                window.clearTimeout(timer);
-            }, 1000);
+            result({ myobject: "value" });
             return {
                 close: function() {}
             };
@@ -41,7 +37,7 @@
             test.equal(key, "cross-frame-cache", "parent consumer got right key");
             if (count === 1) {
                 test.equal(value.myobject, "value", "parent consumer got parent value");
-            } else {
+            } else if (count === 2) {
                 test.equal(value.myobject, "value2", "parent consumer got child value");
             }
         }
@@ -79,7 +75,7 @@
             if (count === 1) {
                 test.equal(value.myobject, "value", "child consumer got parent value");
                 cache.claim();
-            } else {
+            } else if (count == 2) {
                 test.equal(value.myobject, "value2", "child consumer got child value");
                 window.parent.postMessage("child-done", "*");
                 test.done();

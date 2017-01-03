@@ -51,13 +51,10 @@ QUnit.asyncTest("multi cache", function() {
         assert.equal(key, "test-key-b", "provider1 got right key");
         assert.equal(typeof result, "function", "provider1 got result function");
 
-        var timer = window.setTimeout(function() {
-            result({ myobject: "value1" });
-        }, 200);
+        result({ myobject: "value1" });
 
         return {
             close: function() {
-                window.clearTimeout(timer);
                 closed1 = true;
             }
         };

@@ -1645,10 +1645,15 @@ function factory() {
         var source;
 
         function callback() {
+            var value;
+
             /* Only run the callback if we have a result */
             if (storage[key] !== undefined) {
-                if (consumer(storage[key], org_key) === false)
-                    self.close();
+                value = storage[key];
+                window.setTimeout(function() {
+                    if (consumer(value, org_key) === false)
+                        self.close();
+                });
             }
         }
 
@@ -1673,8 +1678,18 @@ function factory() {
         }
 
         self.claim = function claim() {
-            if (!source)
-                source = provider(result, org_key);
+            if (source)
+                return;
+
+            /* In case we're unclaimed during the callback */
+            var claiming = { close: function() { } };
+            source = claiming;
+
+            var changed = provider(result, org_key);
+            if (source === claiming)
+                source = changed;
+            else
+                changed.close();
         };
 
         function unclaim() {

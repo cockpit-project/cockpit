@@ -33,6 +33,7 @@ set -e
 for x in 1 2 3 4 5; do
     hostnamectl set-hostname x0.cockpit.lan
     printf 'domain cockpit.lan\nsearch cockpit.lan\nnameserver {address}\n' >/etc/resolv2.conf
+    chcon -v unconfined_u:object_r:net_conf_t:s0 /etc/resolv.conf || true
     mv /etc/resolv2.conf /etc/resolv.conf
     if chattr +i /etc/resolv.conf; then
         break

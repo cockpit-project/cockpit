@@ -35,6 +35,7 @@ struct _CockpitRouter {
 
   GHashTable *payloads;
   GHashTable *channels;
+  GHashTable *groups;
 };
 
 typedef struct _CockpitRouterClass {
@@ -57,7 +58,9 @@ on_channel_closed (CockpitChannel *channel,
                    gpointer user_data)
 {
   CockpitRouter *self = user_data;
-  g_hash_table_remove (self->channels, cockpit_channel_get_id (channel));
+  const gchar *id = cockpit_channel_get_id (channel);
+  g_hash_table_remove (self->channels, id);
+  g_hash_table_remove (self->groups, id);
 }
 
 static void
@@ -124,6 +127,7 @@ process_open (CockpitRouter *self,
   TypeFunction channel_function = NULL;
   const gchar *payload = NULL;
   const gchar *host = NULL;
+  const gchar *group = NULL;
 
   if (!channel_id)
     {
@@ -141,6 +145,8 @@ process_open (CockpitRouter *self,
         g_warning ("%s: caller specified invalid 'host' field in open message", channel_id);
       else if (g_strcmp0 (self->init_host, host) != 0)
         g_message ("%s: this process does not support connecting to another host", channel_id);
+      else if (!cockpit_json_get_string (options, "group", NULL, &group))
+        g_warning ("%s: caller specified invalid 'group' field in open message", channel_id);
       else if (!cockpit_json_get_string (options, "payload", NULL, &payload))
         g_warning ("%s: caller specified invalid 'payload' field in open message", channel_id);
       else if (payload == NULL)
@@ -158,7 +164,6 @@ process_open (CockpitRouter *self,
             g_warning ("%s: bridge doesn't support 'payload' of type: %s", channel_id, payload);
         }
 
-
       channel = g_object_new (channel_type,
                               "transport", transport,
                               "id", channel_id,
@@ -166,8 +171,53 @@ process_open (CockpitRouter *self,
                               NULL);
 
       g_hash_table_insert (self->channels, g_strdup (channel_id), channel);
+      if (group)
+        g_hash_table_insert (self->groups, g_strdup (channel_id), g_strdup (group));
       g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), self);
     }
+}
+
+static void
+process_kill (CockpitRouter *self,
+              JsonObject *options)
+{
+  CockpitChannel *channel;
+  GHashTableIter iter;
+  const gchar *group;
+  gpointer id, value;
+  GList *list, *l;
+
+  if (!cockpit_json_get_string (options, "group", NULL, &group))
+    {
+      g_warning ("received invalid \"group\" field in kill command");
+      return;
+    }
+
+  list = NULL;
+  if (group)
+    g_hash_table_iter_init (&iter, self->groups);
+  else
+    g_hash_table_iter_init (&iter, self->channels);
+  while (g_hash_table_iter_next (&iter, &id, &value))
+    {
+      if (!group || g_str_equal (group, value))
+        {
+          channel = g_hash_table_lookup (self->channels, id);
+          if (channel)
+            {
+              g_debug ("killing channel: %s", (gchar *)id);
+              list = g_list_prepend (list, g_object_ref (channel));
+            }
+        }
+    }
+
+  for (l = list; l != NULL; l = g_list_next (l))
+    {
+      cockpit_channel_close (l->data, "terminated");
+      g_object_unref (l->data);
+    }
+
+  g_list_free (list);
 }
 
 static gboolean
@@ -198,6 +248,11 @@ on_transport_control (CockpitTransport *transport,
       process_open (self, transport, channel_id, options);
       return TRUE;
     }
+  else if (g_str_equal (command, "kill"))
+    {
+      process_kill (self, options);
+      return TRUE;
+    }
   else if (g_str_equal (command, "close"))
     {
       if (!channel_id)
@@ -215,6 +270,7 @@ cockpit_router_init (CockpitRouter *self)
 {
   /* Owns the channels */
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+  self->groups = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   self->payloads = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
 }
 
@@ -241,6 +297,7 @@ cockpit_router_finalize (GObject *object)
   g_free (self->init_host);
   g_hash_table_destroy (self->channels);
   g_hash_table_destroy (self->payloads);
+  g_hash_table_destroy (self->groups);
 
   G_OBJECT_CLASS (cockpit_router_parent_class)->finalize (object);
 }

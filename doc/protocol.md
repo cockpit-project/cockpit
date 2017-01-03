@@ -105,7 +105,8 @@ The following fields are defined:
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
  * "superuser": Optional. Use "require" to run as root, or "try" to attempt to run as root.
- * "group": A group that can later be used with the "kill" command.
+ * "group": A group that can later be used with the "kill" command. You should avoid
+   using group names without punctuation as they can have special meanings.
  * "capabilities": Optional, array of capability strings required from the bridge
  * "session": Optional, set to "private" or "shared". Defaults to "shared"
 
@@ -309,9 +310,7 @@ The following fields are defined:
  * "host": optional string kills channels with the given host
  * "group": optional string to select only channels opened with the given "group"
 
-If no fields are specified then all channels are terminated. The "kill" command
-is not forwarded.
-
+If no fields are specified then all channels are terminated.
 
 Command: logout
 ---------------

@@ -95,7 +95,7 @@ setup_fsread_channel (TestCase *tc,
   tc->channel = cockpit_fsread_open (COCKPIT_TRANSPORT (tc->transport), "1234", path);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
-  cockpit_channel_prepare (tc->channel);
+  cockpit_channel_thaw (tc->channel);
 }
 
 static void
@@ -106,7 +106,7 @@ setup_fsreplace_channel (TestCase *tc,
   tc->channel = cockpit_fsreplace_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, tag);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
-  cockpit_channel_prepare (tc->channel);
+  cockpit_channel_thaw (tc->channel);
 }
 
 static void
@@ -116,7 +116,7 @@ setup_fswatch_channel (TestCase *tc,
   tc->channel = cockpit_fswatch_open (COCKPIT_TRANSPORT (tc->transport), "1234", path);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
-  cockpit_channel_prepare (tc->channel);
+  cockpit_channel_thaw (tc->channel);
 }
 
 static void

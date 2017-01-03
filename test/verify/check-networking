@@ -603,6 +603,7 @@ NM_CONTROLLED=no
         b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
+        b.wait_present("tr:contains('IPv4')")
         b.wait_in_text("tr:contains('IPv4')", "Address 1.2.3.4/24")
 
         # Check that we now have connection settings

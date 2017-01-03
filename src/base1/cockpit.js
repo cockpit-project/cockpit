@@ -357,7 +357,7 @@ function ParentWebSocket(parent) {
         if (event.origin !== transport_origin || event.source !== parent)
             return;
         var data = event.data;
-        if (data === undefined || data.length === undefined)
+        if (data === undefined || (data.length === undefined && data.byteLength === undefined))
             return;
         if (data.length === 0) {
             self.readyState = 3;

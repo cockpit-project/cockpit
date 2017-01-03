@@ -21,7 +21,7 @@
                 var message = event.data;
                 if (message.length === 0) {
                     test.done(parent_tests + frame_tests);
-                } else if (message.indexOf('"init"') !== -1) {
+                } else if (message.indexOf && message.indexOf('"init"') !== -1) {
                     initialized = true;
                     frame.postMessage('\n{ "command": "init", "version": 1, \
                                            "a": "b", "host" : "frame_host"  }',

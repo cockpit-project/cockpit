@@ -434,8 +434,12 @@ cockpit_channel_set_property (GObject *object,
     case PROP_FROZEN:
       if (g_value_get_boolean (value))
         {
+          if (!self->priv->frozen)
+            self->priv->frozen = g_queue_new ();
+        }
+      else
+        {
           g_assert (self->priv->frozen == NULL);
-          self->priv->frozen = g_queue_new ();
         }
       break;
     default:
@@ -603,7 +607,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
    */
   g_object_class_install_property (gobject_class, PROP_FROZEN,
                                    g_param_spec_boolean ("frozen", "frozen", "frozen", FALSE,
-                                                         G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+                                                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * CockpitChannel::closed:

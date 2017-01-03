@@ -36,6 +36,9 @@ struct _CockpitRouter {
   GHashTable *payloads;
   GHashTable *channels;
   GHashTable *groups;
+
+  GHashTable *fences;
+  guint thawing;
 };
 
 typedef struct _CockpitRouterClass {
@@ -52,15 +55,44 @@ enum {
 
 typedef GType (* TypeFunction) (void);
 
+static gboolean
+on_idle_thaw (gpointer user_data)
+{
+  CockpitRouter *self = user_data;
+  GList *list, *l;
+
+  self->thawing = 0;
+
+  list = g_hash_table_get_values (self->channels);
+  for (l = list; l != NULL; l = g_list_next (l))
+    cockpit_channel_thaw (l->data);
+  g_list_free (list);
+
+  return FALSE;
+}
+
 static void
 on_channel_closed (CockpitChannel *channel,
                    const gchar *problem,
                    gpointer user_data)
 {
   CockpitRouter *self = user_data;
-  const gchar *id = cockpit_channel_get_id (channel);
+  const gchar *id;
+
+  id = cockpit_channel_get_id (channel);
   g_hash_table_remove (self->channels, id);
   g_hash_table_remove (self->groups, id);
+
+  /*
+   * If this was the last channel in the fence group,
+   * then resume all other channels as there's no barrier
+   * preventing them from functioning.
+   */
+  if (!self->thawing)
+    {
+      if (g_hash_table_remove (self->fences, id) && g_hash_table_size (self->fences) == 0)
+        self->thawing = g_idle_add_full (G_PRIORITY_HIGH, on_idle_thaw, self, NULL);
+    }
 }
 
 static void
@@ -128,6 +160,7 @@ process_open (CockpitRouter *self,
   const gchar *payload = NULL;
   const gchar *host = NULL;
   const gchar *group = NULL;
+  gboolean frozen;
 
   if (!channel_id)
     {
@@ -164,15 +197,21 @@ process_open (CockpitRouter *self,
             g_warning ("%s: bridge doesn't support 'payload' of type: %s", channel_id, payload);
         }
 
+      frozen = g_hash_table_size (self->fences) ? TRUE : FALSE;
       channel = g_object_new (channel_type,
                               "transport", transport,
                               "id", channel_id,
                               "options", options,
+                              "frozen", frozen,
                               NULL);
 
       g_hash_table_insert (self->channels, g_strdup (channel_id), channel);
       if (group)
-        g_hash_table_insert (self->groups, g_strdup (channel_id), g_strdup (group));
+        {
+          g_hash_table_insert (self->groups, g_strdup (channel_id), g_strdup (group));
+          if (g_str_equal (group, "fence"))
+            g_hash_table_add (self->fences, g_strdup (channel_id));
+        }
       g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), self);
     }
 }
@@ -271,6 +310,7 @@ cockpit_router_init (CockpitRouter *self)
   /* Owns the channels */
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
   self->groups = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  self->fences = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   self->payloads = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
 }
 
@@ -284,6 +324,10 @@ cockpit_router_dispose (GObject *object)
       g_signal_handler_disconnect (self->transport, self->signal_id);
       self->signal_id = 0;
     }
+
+  g_hash_table_remove_all (self->channels);
+  g_hash_table_remove_all (self->groups);
+  g_hash_table_remove_all (self->fences);
 }
 
 static void
@@ -294,10 +338,14 @@ cockpit_router_finalize (GObject *object)
   if (self->transport)
     g_object_unref (self->transport);
 
+  if (self->thawing)
+    g_source_remove (self->thawing);
+
   g_free (self->init_host);
   g_hash_table_destroy (self->channels);
   g_hash_table_destroy (self->payloads);
   g_hash_table_destroy (self->groups);
+  g_hash_table_destroy (self->fences);
 
   G_OBJECT_CLASS (cockpit_router_parent_class)->finalize (object);
 }

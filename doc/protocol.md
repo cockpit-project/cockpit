@@ -105,8 +105,7 @@ The following fields are defined:
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
  * "superuser": Optional. Use "require" to run as root, or "try" to attempt to run as root.
- * "group": A group that can later be used with the "kill" command. You should avoid
-   using group names without punctuation as they can have special meanings.
+ * "group": An optional channel group
  * "capabilities": Optional, array of capability strings required from the bridge
  * "session": Optional, set to "private" or "shared". Defaults to "shared"
 
@@ -143,6 +142,16 @@ WebSocket. In this case the "channel" field must not be present, and an
  * "content-disposition": a Content-Disposition header for GET responses
  * "content-type": a Content-Type header for GET responses
  * "protocols": an array of possible protocols for a WebSocket
+
+Channel "group" fields can be used to group channels into groups. You should
+prefix your groups with a reverse domain name so they don't conflict with
+other or Cockpit's group names. Group names without any punctuation are
+reserved.
+
+One such special group name is the "fence" group. While any channels are
+open in the "fence" group, any channels opened after that point will be
+blocked and wait until all channels in the "fence" group are closed before
+resuming.
 
 Command: close
 --------------

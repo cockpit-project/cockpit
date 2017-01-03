@@ -92,4 +92,38 @@ QUnit.asyncTest("binary", function() {
     channel.send(buffer);
 });
 
+QUnit.asyncTest("fence", function() {
+    assert.expect(2);
+
+    var before = cockpit.channel({ "payload": "echo" });
+    before.addEventListener("message", onMessage);
+
+    var fence = cockpit.channel({ "payload": "echo", "group": "fence" });
+    fence.addEventListener("message", onMessage);
+
+    var after = cockpit.channel({ "payload": "echo" });
+    after.addEventListener("message", onMessage);
+
+    var received = [ ];
+    function onMessage(ev, payload) {
+        received.push(payload);
+        if (received.length == 3) {
+            assert.deepEqual(received, [ "1", "2", "3", ], "got back before and fence data");
+            fence.close();
+        } else if (received.length == 5) {
+            assert.deepEqual(received, [ "1", "2", "3", "4", "5" ], "got back data in right order");
+            before.close();
+            after.close();
+            QUnit.start();
+        }
+    }
+
+    /* We send messages in this order, but they should echoed in numeric order */
+    before.send("1");
+    after.send("4");
+    after.send("5");
+    fence.send("2");
+    fence.send("3");
+});
+
 QUnit.start();

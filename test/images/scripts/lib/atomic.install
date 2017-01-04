@@ -79,8 +79,18 @@ class AtomicCockpitInstaller:
         if self.verbose:
             print "install new ostree commit"
 
-        port = subprocess.check_output(["ostree", "trivial-httpd", self.repo_location,
-                                        "-p", "-", "-d"])
+        newenv = dict(os.environ)
+        newenv['PYTHONUNBUFFERED'] = '1'
+        webserver_proc = subprocess.Popen(['python', '-m', 'SimpleHTTPServer', '0'],
+                                          stdout=subprocess.PIPE,
+                                          cwd=self.repo_location, env=newenv)
+        webserver_status = webserver_proc.stdout.readline()
+        pattern = r'port ([0-9]+)'
+        m = re.search(pattern, webserver_status)
+        if m is None:
+            sys.stderr.write("Failed to find {} in {}\n".format(pattern, webserver_status))
+            sys.exit(1)
+        port = int(m.group(1))
 
         # Not an error if this fails
         subprocess.call(["ostree", "remote", "delete", "local"])

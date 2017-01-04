@@ -222,7 +222,6 @@ main (int argc,
           write_resp (fd, "{\"user\": \"me\" }");
           success = 1;
         }
-      success = 1;
     }
   else if (strcmp (data, "success-bad-data") == 0)
     {

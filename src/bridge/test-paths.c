@@ -128,6 +128,7 @@ test_paths_add_remove (void)
 
   /* Add another value */
   value = cockpit_paths_add (paths, "/two");
+  g_assert (value != NULL);
 
   g_assert_cmpstr (cockpit_paths_contain (paths, "/one"), ==, "/one");
   g_assert_cmpstr (cockpit_paths_contain (paths, "/two"), ==, "/two");

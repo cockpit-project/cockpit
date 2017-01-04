@@ -1067,6 +1067,16 @@ function NetworkManagerModel() {
                         con.Interfaces.push(obj);
                     });
                 }
+
+                // Explicitly prefer the active connection.  The
+                // active connection should have the most recent
+                // timestamp, but only when the activation was
+                // successful.  Also, there don't seem to be change
+                // notifications when the timestamp changes.
+
+                if (obj.Device && obj.Device.ActiveConnection && obj.Device.ActiveConnection.Connection) {
+                    obj.MainConnection = obj.Device.ActiveConnection.Connection;
+                }
             }
         ]
 

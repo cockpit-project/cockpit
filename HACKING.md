@@ -159,8 +159,6 @@ In addition for testing the following dependencies are required:
          curl libvirt-client libvirt-python libvirt python-lxml \
          krb5-workstation krb5-server selinux-policy-devel
 
-    $ npm install phantomjs-prebuilt
-
 Cockpit uses the autotools and thus there are the familiar `./configure`
 script and the familar Makefile targets.
 

@@ -694,7 +694,7 @@ do_interactive_auth (CockpitSshData *data)
       msg = ssh_userauth_kbdint_getinstruction (data->session);
       n = ssh_userauth_kbdint_getnprompts (data->session);
 
-      for (i = 0; i < n; i++)
+      for (i = 0; i < n && rc == SSH_AUTH_INFO; i++)
         {
           const char *prompt;
           char *answer = NULL;
@@ -726,7 +726,9 @@ do_interactive_auth (CockpitSshData *data)
               rc = SSH_AUTH_ERROR;
             }
         }
-      rc = ssh_userauth_kbdint (data->session, NULL, NULL);
+
+      if (rc == SSH_AUTH_INFO)
+        rc = ssh_userauth_kbdint (data->session, NULL, NULL);
     }
 
   return rc;

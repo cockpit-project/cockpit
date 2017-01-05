@@ -298,6 +298,7 @@ var ImageDetails = React.createClass({
             <div className='listing-ct-body'>
                 <dl>
                     <dt>{_("Id")}</dt>         <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
+                    <dt>{_("Tags")}</dt>       <dd>{ image.RepoTags.join(" ") }</dd>
                     <dt>{_("Entrypoint")}</dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>
                     <dt>{_("Command")}</dt>    <dd>{ util.quote_cmdline(command) }</dd>
                     <dt>{_("Created")}</dt>    <dd title={ created.toLocaleString() }>{ created.fromNow() }</dd>
@@ -348,6 +349,61 @@ var ImageSecurity = React.createClass({
                 <div>
                     {rows}
                 </div>
+            </div>
+        );
+    }
+});
+
+var ImageInline = React.createClass({
+    getInitialState: function () {
+        return {
+            vulnerableInfos: {}
+        };
+    },
+
+    vulnerableInfoChanged: function(event, infos) {
+        this.setState({ vulnerableInfos: infos });
+    },
+
+    componentDidMount: function () {
+        atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
+    },
+
+    componentWillUnmount: function () {
+        atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
+    },
+
+    render: function() {
+        var image = this.props.image;
+
+        if (!image) {
+            return (
+                <div className="curtains-ct blank-slate-pf">
+                    <div className="blank-slate-pf-icon">
+                        <i className="fa fa-exclamation-circle"></i>
+                    </div>
+                    <h1>{_("This image does not exist.")}</h1>
+                </div>
+            );
+        }
+
+        var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
+
+        if (vulnerableInfo) {
+            return (
+                <div className="listing-ct-inline">
+                    <h3>{_("Details")}</h3>
+                    <ImageDetails image={image}/>
+                    <h3>{_("Security")}</h3>
+                    <ImageSecurity image={image} info={vulnerableInfo}/>
+                </div>
+            );
+        }
+
+        return (
+            <div className="listing-ct-inline">
+                <h3>{_("Details")}</h3>
+                <ImageDetails image={image}/>
             </div>
         );
     }
@@ -553,5 +609,6 @@ var ImageList = React.createClass({
 module.exports = {
     ContainerHeader: ContainerHeader,
     ContainerList: ContainerList,
-    ImageList: ImageList
+    ImageList: ImageList,
+    ImageInline: ImageInline,
 };

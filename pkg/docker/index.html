@@ -228,71 +228,45 @@
 
   <!-- IMAGE DETAILS -->
 
-  <div id="image-details" class="container-fluid" hidden>
+  <div id="image-details" hidden>
     <div class="content-filter">
+      <div class="listing-ct-actions" id="image-details-buttons">
+        <button class="btn btn-default" id="image-details-run"
+            data-toggle="modal" data-target="#containers_run_image_dialog" translate>Run</button>
+        <button  title="Delete" translate="title" id="image-details-delete"
+            class="btn btn-danger btn-delete pficon pficon-delete"></button>
+        <div class="spinner" hidden></div>
+      </div>
       <h3>
         <i class="pficon pficon-image"></i>
         <span></span>
       </h3>
       <a translatable="yes">Show all images</a>
     </div>
-    <div class="panel-default panel">
-      <div class="panel-heading">
-        <div class="pull-right" id="image-details-buttons">
-          <button class="btn btn-default" id="image-details-run"
-              data-toggle="modal" data-target="#containers_run_image_dialog" translate>Run</button>
-          <button class="btn btn-danger" id="image-details-delete" translate>Delete</button>
-          <div class="spinner" hidden></div>
-        </div>
-        <span translate>Image:</span> <span id="image-details-tags"></span>
-      </div>
-      <div class="panel-body">
-        <table class="info-table-ct">
-	  <tr>
-            <td translate>Id:</td>
-            <td id="image-details-id"></td>
-          </tr>
-	  <tr>
-            <td translate>Entrypoint:</td>
-            <td id="image-details-entrypoint"></td>
-          </tr>
-	  <tr>
-            <td translate>Command:</td>
-            <td id="image-details-command"></td>
-          </tr>
-	  <tr>
-            <td translate>Created:</td>
-            <td id="image-details-created"></td>
-          </tr>
-	  <tr>
-            <td translate>Author:</td>
-            <td id="image-details-author"></td>
-          </tr>
-	  <tr>
-            <td translate>Ports:</td>
-            <td id="image-details-ports"></td>
-          </tr>
-        </table>
-      </div>
+
+    <div class="content">
     </div>
 
-    <div class="panel panel-default image-details-used" id="image-details-containers">
-      <div class="panel-heading" translate>Containers</div>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th class="container-column-name" translate>Name</th>
-            <th class="container-column-image" translate>Image</th>
-            <th class="container-column-command" translate>Command</th>
-            <th class="container-column-cpu" translate>CPU</th>
-            <th class="container-column-memory-graph" translate>Memory</th>
-            <th class="container-column-memory-text"></th>
-            <th class="container-column-actions cell-buttons"></th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
+    <div class="listing-ct-inline image-details-used">
+      <div><!-- TODO: This tag is a hack until below code is migrated to React --></div>
+      <h3 translate>Used by Containers</h3>
+      <div class="panel panel-default" id="image-details-containers">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th class="container-column-name" translate>Name</th>
+              <th class="container-column-image" translate>Image</th>
+              <th class="container-column-command" translate>Command</th>
+              <th class="container-column-cpu" translate>CPU</th>
+              <th class="container-column-memory-graph" translate>Memory</th>
+              <th class="container-column-memory-text"></th>
+              <th class="container-column-actions cell-buttons"></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 

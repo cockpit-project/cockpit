@@ -22,8 +22,10 @@
 
     var $ = require("jquery");
     var cockpit = require("cockpit");
+    var React = require("react");
 
     var util = require("./util");
+    var view = require("./containers-view.jsx");
 
     require("./run");
 
@@ -95,46 +97,23 @@
         },
 
         update: function() {
-            $('#image-details-id').text("");
-            $('#image-details-entrypoint').text("");
-            $('#image-details-command').text("");
-            $('#image-details-created').text("");
-            $('#image-details-author').text("");
-            $('#image-details-ports').text("");
-
             var info = this.client.images[this.image_id];
             util.docker_debug("image-details", this.image_id, info);
 
-            if (!info) {
-                $('#image-details-id').text(_("Not found"));
-                return;
-            }
+            React.render(React.createElement(view.ImageInline, {
+                image: info
+            }), document.querySelector('#image-details .content'));
 
             var waiting = !!(this.client.waiting[this.image_id]);
-            $('#image-details-buttons div.waiting').toggle(waiting);
-            $('#image-details-buttons button').toggle(!waiting);
+            $('#image-details-buttons div.waiting').toggle(info && waiting);
+            $('#image-details-buttons button').toggle(info && !waiting);
 
-            if (info.RepoTags && info.RepoTags.length > 0)
-                this.name = info.RepoTags[0];
-
-            $('#image-details .content-filter h3 span').text(this.name);
-
-            $('#image-details-id').text(info.Id);
-            $('#image-details-tags').html(util.multi_line(info.RepoTags));
-            $('#image-details-created').text(info.Created);
-            $('#image-details-author').text(info.Author);
-
-            var config = info.Config;
-            if (config) {
-                var ports = [ ];
-                for (var p in config.ExposedPorts) {
-                    ports.push(p);
-                }
-
-                $('#image-details-entrypoint').text(util.quote_cmdline(config.Entrypoint));
-                $('#image-details-command').text(util.quote_cmdline(config.Cmd));
-                $('#image-details-ports').text(ports.join(', '));
+            if (info) {
+                if (info.RepoTags && info.RepoTags.length > 0)
+                    this.name = info.RepoTags[0];
             }
+
+            $('#image-details .content-filter h3 span').text(this.name || this.image_id);
         },
 
         maybe_render_container: function(id, container) {

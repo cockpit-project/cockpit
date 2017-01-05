@@ -481,7 +481,6 @@ var ImageList = React.createClass({
                 data: {
                     image: image,
                     info: vulnerableInfo,
-                    atomic: this.atomic
                 }
             });
         }

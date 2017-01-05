@@ -456,15 +456,16 @@ on_introspect_reply (GObject *source,
   GVariant *retval;
   const gchar *xml;
 
-  /* Has been freed due to flush */
-  if (g_cancellable_is_cancelled (self->cancellable))
+  /* All done with this introspect */
+  id = g_queue_pop_head (self->introspects);
+
+  /* Introspects have been flushed */
+  if (!id)
     {
       g_object_unref (self);
       return;
     }
 
-  /* All done with this introspect */
-  id = g_queue_pop_head (self->introspects);
   g_assert (id->introspecting);
 
   retval = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source), result, &error);
@@ -539,7 +540,7 @@ introspect_flush (CockpitDBusCache *self)
       for (;;)
         {
           id = g_queue_pop_tail (self->introspects);
-          if (!id || id->introspecting)
+          if (!id)
             break;
           g_queue_push_head (queue, id);
         }
@@ -1288,6 +1289,7 @@ cockpit_dbus_cache_finalize (GObject *object)
   g_queue_free (self->batches);
   g_queue_free (self->barriers);
 
+  g_assert (self->introspects->head == NULL);
   g_queue_free (self->introspects);
 
   g_hash_table_unref (self->introsent);

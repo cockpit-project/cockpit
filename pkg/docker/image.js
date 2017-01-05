@@ -37,7 +37,7 @@
         },
 
         getTitle: function() {
-            return C_("page-title", "Containers");
+            return C_("page-title", "Images");
         },
 
         toggle_danger: function(val) {

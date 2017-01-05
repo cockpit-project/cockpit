@@ -1,0 +1,63 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+class TestNetworking(NetworkCase):
+    def testVlan(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        iface = self.add_iface()
+        self.wait_for_iface(iface)
+
+        # Make a VLAN interface
+        b.click("button:contains('Add VLAN')")
+        b.wait_popup("network-vlan-settings-dialog")
+        b.click("#network-vlan-settings-dialog tr:contains('Parent') li[value='%s'] a" % iface, True)
+        b.set_val("#network-vlan-settings-dialog tr:contains('Name') input", "tvlan")
+        b.set_val("#network-vlan-settings-dialog tr:contains('VLAN Id') input", "123")
+        b.click("#network-vlan-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-vlan-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tvlan']")
+
+        # Activate it.  It wont get an IP address, but that's okay.
+        b.click("#networking-interfaces tr[data-interface='tvlan'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.wait_in_text("tr:contains('Status')", "Inactive")
+        b.click(".panel-heading .btn:contains('On')")
+        b.wait_not_in_text("tr:contains('Status')", "Inactive")
+
+        # Check that the actual kernel device has the REORDER_HDR flag
+        # set.  NetworkManager stopped doing that for connections
+        # created via D-Bus at some point.
+        self.assertIn("REORDER_HDR", m.execute("ip -d link show tvlan | grep vlan"))
+
+        # Delete it
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_visible("#networking")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tvlan']")
+
+if __name__ == '__main__':
+    test_main()

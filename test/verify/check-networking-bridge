@@ -1,0 +1,66 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+class TestNetworking(NetworkCase):
+    def testBridge(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        # The second interface is connected to a different outside
+        # network than the first to avoid a cycle between the
+        # "cockpit1" bridge that all VMs are connected to, and the
+        # bridge we are creating here.
+
+        iface1 = self.add_iface()
+        iface2 = self.add_iface(vlan=1, activate=False)
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2, active=False)
+
+        # Bridge them
+        b.click("button:contains('Add Bridge')")
+        b.wait_popup("network-bridge-settings-dialog")
+        b.set_val("#network-bridge-settings-dialog tr:contains('Name') input", "tbridge")
+        b.set_checked("input[data-iface='%s']" % iface1, True)
+        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.click("#network-bridge-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bridge-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tbridge']")
+
+        # Check that the configuration file has the expected sane name
+        # on systems that use "network-scripts".
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
+
+        # Delete the bridge
+        b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_visible("#networking")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tbridge']")
+
+
+if __name__ == '__main__':
+    test_main()

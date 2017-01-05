@@ -1,0 +1,44 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+class TestNetworking(NetworkCase):
+    def testUnmanaged(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.add_iface()
+
+        # Now mark this interface as unmanaged
+        if "ubuntu" in m.image or "debian" in m.image:
+            m.execute("printf 'iface {0} inet static\n' >> /etc/network/interfaces".format(iface))
+        else:
+            m.execute("echo -e 'NM_CONTROLLED=no\\nDEVICE=\"{0}\"\\n' >> /etc/sysconfig/network-scripts/ifcfg-{0}".format(iface))
+        m.execute("systemctl restart NetworkManager")
+
+        self.login_and_go("/network")
+
+        b.wait_present("#networking-unmanaged-interfaces tr[data-interface='" + iface + "']")
+
+if __name__ == '__main__':
+    test_main()

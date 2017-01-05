@@ -1,0 +1,90 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+class TestNetworking(NetworkCase):
+    def testTeam(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        can_add_teams = m.image not in [ "continuous-atomic", "rhel-atomic",
+                                         "debian-8", "ubuntu-1604" ]
+
+        b.wait_attr("#networking-add-team", "data-test-stable", "yes")
+        if not can_add_teams:
+            b.wait_not_visible("#networking-add-team")
+            return
+
+        iface1 = self.add_iface()
+        iface2 = self.add_iface()
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+        # team them
+        b.click("button:contains('Add Team')")
+        b.wait_popup("network-team-settings-dialog")
+        b.set_val("#network-team-settings-dialog tr:contains('Name') input", "tteam")
+        b.set_checked("input[data-iface='%s']" % iface1, True)
+        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.click("#network-team-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-team-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tteam']")
+
+        # Check that the configuration file has the expected sane name
+        # on systems that use "network-scripts".
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
+
+        # Check that the members are displayed
+        b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
+        b.wait_visible("#network-interface")
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
+
+        # Deactivate the team and make sure it is still there after a
+        # reload.
+        b.wait_text_not("#network-interface-mac", "")
+        b.wait_present(".panel-heading:contains('tteam') .btn.active:contains('On')")
+        b.click(".panel-heading:contains('tteam') .btn:contains('Off')")
+        b.wait_in_text("tr:contains('Status')", "Inactive")
+        b.reload()
+        b.enter_page("/network")
+        b.wait_present("#network-interface-name")
+        b.wait_text("#network-interface-name", "tteam")
+        b.wait_text("#network-interface-hw", "Team")
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
+        b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
+
+        # Delete the team
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_visible("#networking")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tteam']")
+
+        # Due to above reload
+        self.allow_journal_messages(".*Connection reset by peer.*",
+                                    "connection unexpectedly closed by peer")
+
+if __name__ == '__main__':
+    test_main()

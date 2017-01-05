@@ -25,6 +25,14 @@
     var util = require("./util");
     var docker = require("./docker");
 
+    function ignoreException(ex) {
+        if (ex.status == 500 && ex.message && ex.message.indexOf("layer does not exist") === 0) {
+            console.warn(ex);
+            return true;
+        }
+        return false;
+    }
+
     /* DOCKER CLIENT
      */
 
@@ -187,7 +195,7 @@
                     });
                 }).
                 fail(function(ex) {
-                    if (connected) {
+                    if (connected && !ignoreException(ex)) {
                         got_failure = true;
                         $(self).trigger("failure", [ex]);
                     }
@@ -322,7 +330,7 @@
                     });
                 }).
                 fail(function(ex) {
-                    if (connected) {
+                    if (connected && !ignoreException(ex)) {
                         got_failure = true;
                         $(self).trigger("failure", [ex]);
                     }

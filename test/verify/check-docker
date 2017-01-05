@@ -579,6 +579,15 @@ class TestAtomicScan(MachineCase):
         # Security tab should exist
         b.click(row_selector + ' td.listing-ct-toggle')
         b.wait_visible(row_selector + ' + tr a:contains("Security")')
+        b.click(row_selector + ' + tr a:contains("Security")')
+        b.wait_in_text(row_selector + ' + tr', 'Verify and Correct File Permissions with RPM')
+
+        # Collapse the tab and click through to the image
+        b.click(row_selector + ' td.listing-ct-toggle')
+        b.click(row_selector + ' th')
+        b.wait_visible("#image-details")
+        b.wait_in_text("#image-details", "Security")
+        b.wait_in_text("#image-details", "Verify and Correct File Permissions with RPM")
 
 
 if __name__ == '__main__':

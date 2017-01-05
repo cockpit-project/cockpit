@@ -297,12 +297,12 @@ var ImageDetails = React.createClass({
         return (
             <div className='listing-body'>
                 <dl>
-                    <dt>Id         </dt> <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
-                    <dt>Entrypoint </dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>
-                    <dt>Command    </dt> <dd>{ util.quote_cmdline(command) }</dd>
-                    <dt>Created    </dt> <dd title={ created.toLocaleString() }>{ created.fromNow() }</dd>
-                    <dt>Author     </dt> <dd>{ image.Author}</dd>
-                    <dt>Ports      </dt> <dd>{ ports.join(', ')  }</dd>
+                    <dt>{_("Id")}</dt>         <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
+                    <dt>{_("Entrypoint")}</dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>
+                    <dt>{_("Command")}</dt>    <dd>{ util.quote_cmdline(command) }</dd>
+                    <dt>{_("Created")}</dt>    <dd title={ created.toLocaleString() }>{ created.fromNow() }</dd>
+                    <dt>{_("Author")}</dt>     <dd>{ image.Author}</dd>
+                    <dt>{_("Ports")}</dt>      <dd>{ ports.join(', ')  }</dd>
                 </dl>
             </div>
         );

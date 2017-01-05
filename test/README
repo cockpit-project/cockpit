@@ -139,7 +139,10 @@ working copy of Cockpit like this:
 
   $ ./vm-install $(../tools/make-rpms)
 
-This will modify the test machine image that is used for the next run,
+This either needs a configured/built tree (build in mock or a development VM)
+or cockpit's build dependencies installed.
+
+vm-install will modify the test machine image that is used for the next run,
 but will not modify the saved version in $TEST_DATA/images.  Use
 vm-reset to revert the test machine images for the next run to the
 versions in $TEST_DATA/images.

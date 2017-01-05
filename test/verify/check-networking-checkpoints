@@ -1,0 +1,110 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+@skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-8", "fedora-24", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
+class TestNetworking(NetworkCase):
+    def testCheckpoint(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.get_iface(m, m.macaddr)
+
+        if m.image in [ "debian-testing", "debian-8", "ubuntu-1604" ]:
+            m.execute("sed -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf")
+            m.execute("systemctl restart NetworkManager")
+            # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
+            wait(lambda: m.execute("nmcli dev con %s" % iface))
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        # Disconnect
+        b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
+        b.wait_visible("#confirm-breaking-change-popup")
+        b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+
+        if m.image not in [ "debian-testing", "debian-8", "ubuntu-1604" ]:
+            # Change IP
+            b.click("tr:contains('IPv4') a")
+            b.wait_popup("network-ip-settings-dialog")
+            b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
+            b.click("#network-ip-settings-dialog a:contains('Manual')")
+            b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
+            b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
+            b.click("#network-ip-settings-dialog button:contains('Apply')")
+            b.wait_visible("#confirm-breaking-change-popup")
+            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+
+
+    @skipImage("Main interface settings are read-only", "debian-8", "debian-testing", "ubuntu-1604")
+    def testCheckpointSlowRollback(self):
+        b = self.browser
+        m = self.machine
+
+        # Slow down DHCP requests.  This would normally cause the
+        # global health check to fail during rollback and prevent
+        # showing the #confirm-breaking-change-popup.  We expect the
+        # global health check failure to be ignored.
+
+        # We need at least 60 seconds of network disconnection to let
+        # the health check fail reliably.  A rollback is started 15
+        # seconds after disconnection, so we need to delay the DHCP
+        # request by at least 45 seconds.  However, NetworkManager has
+        # a default DHCP timeout of 45 seconds, so we need to increase
+        # that.
+
+        dhcp_delay = 60
+        dhcp_timeout = 120
+
+        # HACK - the ipv4.dhcp-timeout doesn't survive a rollback, so
+        # we get the default of 45 seconds and have to use a shorter
+        # delay.  This seems to work, but it's too tight for comfort...
+        #
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1400540
+
+        dhcp_delay = 40
+
+        self.slow_down_dhcp(dhcp_delay)
+
+        iface = self.get_iface(m, m.macaddr)
+
+        # Set the DHCP timeout
+        con_id = self.iface_con_id(iface)
+        m.execute('nmcli con mod "%s" ipv4.dhcp-timeout %s' % (con_id, dhcp_timeout))
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        # Disconnect
+        b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
+        with b.wait_timeout(120):
+            b.wait_visible("#confirm-breaking-change-popup")
+            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+
+if __name__ == '__main__':
+    test_main()

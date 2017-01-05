@@ -1,0 +1,105 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+class TestNetworking(NetworkCase):
+    def testNoConnectionSettings(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        iface = self.add_iface(activate=False)
+        self.wait_for_iface(iface, active=False)
+
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        # Check that there is no connection for the device
+        cons = m.execute("nmcli -t -m tabular -f CONNECTIONS.AVAILABLE-CONNECTION-PATHS dev show %s" % iface)
+        self.assertEqual(cons.strip(), "")
+
+        # Edit and apply the ghost settings
+        b.click("tr:contains('IPv4') a")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
+        b.click("#network-ip-settings-dialog a:contains('Manual')")
+        b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_present("tr:contains('IPv4')")
+        b.wait_in_text("tr:contains('IPv4')", "Address 1.2.3.4/24")
+
+        # Check that we now have connection settings
+        con_id = wait(lambda: self.iface_con_id(iface))
+        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
+                         "manual")
+
+        # The interface will be activated. Deactivate it.
+        b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
+        b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
+        b.wait_in_text("tr:contains('Status')", "Inactive")
+
+        # Delete the connection settings again and wait for the ghost
+        # settings to be re-created.
+        m.execute('nmcli con del "%s"' % con_id)
+        b.wait_in_text("tr:contains('IPv4')", "Automatic")
+
+        # Activate with ghost settings
+        b.click(".panel-heading:contains('%s') .btn:contains('On')" % iface)
+        b.wait_in_text("tr:contains('Status')", "10.111.")
+
+        # Check again that we now have connection settings
+        con_id = wait(lambda: self.iface_con_id(iface))
+        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
+                         "auto")
+
+    def testOtherSettings(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.add_iface()
+        con_id = self.iface_con_id(iface)
+        m.execute("nmcli con mod '%s' ipv4.dhcp-hostname foo" % con_id)
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+
+        b.click("#networking-interfaces tr[data-interface='%s'] td:first-child" % iface)
+        b.wait_visible("#network-interface")
+
+        b.click("tr:contains('IPv4') a")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
+        b.click("#network-ip-settings-dialog a:contains('Shared')")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-ip-settings-dialog")
+
+        self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.method con show '%s'" % con_id).strip(),
+                         "shared")
+        self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.dhcp-hostname con show '%s'" % con_id).strip(),
+                         "foo")
+
+if __name__ == '__main__':
+    test_main()

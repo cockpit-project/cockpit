@@ -169,7 +169,7 @@ class TestKeys(MachineCase):
             return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
 
         # Operating systems where auto loading doesn't work
-        auto_load = "atomic" not in os.environ.get("TEST_OS", "")
+        auto_load = "atomic" not in m.image
 
         # Put all the keys in place
         m.execute("mkdir -p /home/admin/.ssh")

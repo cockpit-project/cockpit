@@ -40,11 +40,18 @@ KEY_ID = "95A8BA1754D0E95E2B3A98A7EE15015654780CBD"
 def start_trivial_httpd(m):
     remote = m.execute("ostree remote show-url local")
     parts = remote.strip().split(":")
+    port = parts[-1]
 
-    # If ostree supports rpm-ostreed then it support the -P option
-    args = [parts[-1], REPO_LOCATION]
-    m.execute("ostree trivial-httpd -d -P {0} {1} ".format(*args))
+    script = "cd {0}\nsetsid python -m SimpleHTTPServer {1} >/dev/null 2>&1 < /dev/null &\necho $!".format(REPO_LOCATION, port)
+    result = m.execute(script=script,
+                       environment={"PYTHONUNBUFFERED" : "1"})
 
+    m.wait_for_cockpit_running(port=port)
+    return result.strip()
+
+def stop_trivial_httpd(m, pid):
+    if pid:
+        m.execute(["kill", pid])
 
 def generate_new_commit(m, pkg_to_remove):
     # Make one change of each type to a new rpm tree
@@ -180,7 +187,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_present("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button.enabled")
 
         # Serve repo
-        start_trivial_httpd(m)
+        server_pid = start_trivial_httpd(m)
 
         # Check for new commit
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
@@ -225,14 +232,13 @@ class OstreeRestartCase(MachineCase):
         self.check_sig (b, "table.listing-ct tbody:nth-child(3)")
 
         # Force an error
-        pid = m.execute('ps -C ostree -o pid h')
-        m.execute('kill {0}'.format(pid))
+        stop_trivial_httpd(m, server_pid)
         b.wait_not_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
         b.click("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")
         b.wait_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button.disabled")
         b.wait_present("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button.enabled")
         b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-error')
-        start_trivial_httpd(m)
+        server_pid = start_trivial_httpd(m)
 
         # Apply update
         b.click("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button")

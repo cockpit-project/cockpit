@@ -209,13 +209,20 @@ var ContainerList = React.createClass({
         var rows = filtered.map(function (container) {
             var isRunning = !!container.State.Running;
 
+            var state;
+            if (this.props.client.waiting[container.Id]) {
+                state = { element: <div className="spinner"></div>, tight: true }
+            } else {
+                state = util.render_container_status(container.State)
+            }
+
             var columns = [
                 { name: container.Name.replace(/^\//, ''), header: true },
                 docker.truncate_id(container.Image),
                 util.render_container_cmdline(container),
                 util.format_cpu_usage(container.CpuUsage),
                 util.format_memory_and_limit(container.MemoryUsage, container.MemoryLimit),
-                util.render_container_status(container.State)
+                state,
             ];
 
             var startStopActions = [];
@@ -509,16 +516,23 @@ var ImageList = React.createClass({
                 );
         }
 
+        var element;
+        if (this.props.client.waiting[image.Id]) {
+            element = <div className="spinner"></div>
+        } else {
+            element = <button className="btn btn-default btn-control-ct fa fa-play"
+                    onClick={ this.showRunImageDialog.bind(this) }
+                    data-image={image.Id} />
+        }
+
         var columns = [
             { name: image.RepoTags[0], header: true },
             vulnerabilityColumn,
             moment.unix(image.Created).fromNow(),
             cockpit.format_bytes(image.VirtualSize),
             {
-                element: <button className="btn btn-default btn-control-ct fa fa-play"
-                    onClick={ this.showRunImageDialog.bind(this) }
-                    data-image={image.Id} />,
-                    tight: true
+                element: element,
+                tight: true
             }
         ];
 

@@ -105,7 +105,7 @@
             }), document.querySelector('#image-details .content'));
 
             var waiting = !!(this.client.waiting[this.image_id]);
-            $('#image-details-buttons div.waiting').toggle(info && waiting);
+            $('#image-details-buttons div.spinner').toggle(info && waiting);
             $('#image-details-buttons button').toggle(info && !waiting);
 
             if (info) {

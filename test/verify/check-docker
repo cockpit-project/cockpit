@@ -172,11 +172,20 @@ class TestDocker(MachineCase):
         b.click("#container-details-stop")
         b.wait_in_text("#container-details-state", "Exited")
 
-        self.del_container_from_details("PROBE1")
-
-        # Delete image
+        # Delete the container from the image-details page
+        b.click("#container-details .content-filter a")
+        b.wait_present('#containers-images tr:contains("busybox:latest")')
+        b.wait_visible('#containers-images tr:contains("busybox:latest")')
         b.click('#containers-images tr:contains("busybox:latest")')
         b.wait_visible("#image-details")
+        b.wait_present(".image-details-used")
+        b.wait_present(".image-details-used tr td")
+        b.wait_visible(".image-details-used tr td:first-child")
+        b.click(".image-details-used .enable-danger")
+        b.click(".image-details-used .btn-delete")
+        b.wait_not_present(".image-details-used tr td")
+
+        # Delete image itself
         b.click("#image-details-delete")
         self.confirm()
         b.wait_visible("#containers")

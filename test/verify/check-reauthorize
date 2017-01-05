@@ -104,7 +104,7 @@ class TestReauthorize(MachineCase):
         m = self.machine
         b = self.browser
 
-        m.execute("useradd user -c 'Barney' || true")
+        m.execute("useradd user -s /bin/bash -c 'Barney' || true")
         m.execute("echo user:foobar | chpasswd")
 
 

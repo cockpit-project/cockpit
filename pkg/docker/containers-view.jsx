@@ -116,7 +116,7 @@ var ContainerDetails = React.createClass({
     render: function () {
         var container = this.props.container;
         return (
-            <div className='listing-body'>
+            <div className='listing-ct-body'>
                 <dl>
                     <dt>{_("Id")}      </dt> <dd>{ container.Id }</dd>
                     <dt>{_("Created")} </dt> <dd>{ container.Created }</dd>
@@ -295,7 +295,7 @@ var ImageDetails = React.createClass({
         }
 
         return (
-            <div className='listing-body'>
+            <div className='listing-ct-body'>
                 <dl>
                     <dt>{_("Id")}</dt>         <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
                     <dt>{_("Entrypoint")}</dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>

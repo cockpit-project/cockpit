@@ -80,15 +80,15 @@
                     self.update();
             });
 
+            $('#image-details .image-details-used').toggle(false);
+
             $(this.client).on('container.image-details', function(event, id, container) {
-                if (!container || (container.Config && container.Config.Image == self.image_id))
-                    self.render_container(id, container);
+                self.maybe_render_container(id, container);
             });
 
             for (var cid in this.client.containers) {
                 var c = this.client.containers[cid];
-                if (c.Config && c.Config.Image == self.image_id)
-                    self.render_container(c.Id, c);
+                self.maybe_render_container(c.Id, c);
             }
 
             this.update();
@@ -137,9 +137,20 @@
             }
         },
 
-        render_container: function (id, container) {
-            util.render_container(this.client, $('#image-details-containers'), "I",
-                                  id, container, this.danger_enabled);
+        maybe_render_container: function(id, container) {
+
+            /* Does this container match? */
+            if (container &&
+                container.Image != this.image_id &&
+                (container.Config && container.Config.Image != this.image_id)) {
+                container = null;
+            }
+
+            var panel = $('#image-details-containers');
+            util.render_container(this.client, panel, "I", id, container, this.danger_enabled);
+
+            /* Hide the entire block if no containers listed */
+            $('#image-details .image-details-used').toggle(panel.find('table > tbody > tr > td').length > 0);
         },
 
         delete_image: function () {

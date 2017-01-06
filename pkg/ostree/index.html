@@ -304,6 +304,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         <dd class="version" ng-if="item.version.v">{{ item.version.v }}</dd>
                         <dt ng-if="item.timestamp.v" translate>Released</dt>
                         <dd class="timestamp" ng-if="item.timestamp.v" title="{{ item.timestamp.v | dateFormat }}">{{ item.timestamp.v | timeAgo }}</dd>
+                        <dt ng-if="item.origin.v" translate>Origin</dt>
+                        <dd class="origin" ng-if="item.origin.v">{{ item.origin.v }}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-6" ng-if="packages">

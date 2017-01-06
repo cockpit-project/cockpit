@@ -358,6 +358,7 @@ class OstreeRestartCase(MachineCase):
         b.click("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li:last a")
         b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.origin", "local:{}".format(branch))
 
         b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for Updates")
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
@@ -368,6 +369,8 @@ class OstreeRestartCase(MachineCase):
         b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Available")
         b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Rebase")
         b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", name)
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.origin", "local:znew-branch")
+
         b.wait_not_visible("table.listing-ct tbody:nth-child(3) div.packages")
         b.wait_present('table.listing-ct tbody:nth-child(3) ul')
         b.click('table.listing-ct tbody:nth-child(3) ul li a:contains("Packages")')
@@ -396,6 +399,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " branch-version")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
         b.wait_present('table.listing-ct tbody:nth-child(3) div.listing-ct-panel,active')
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.origin", "local:znew-branch")
 
         self.allow_restart_journal_messages()
 
@@ -583,6 +587,8 @@ class OstreeCase(MachineCase):
         b.wait_present("table.listing-ct tbody:nth-child(3)")
         b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.origin", "local:{}".format(branch))
+
 
         b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for Updates")
         b.click("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button")
@@ -593,6 +599,8 @@ class OstreeCase(MachineCase):
         b.wait_in_text('table.listing-ct tbody:nth-child(3) div.listing-ct-status', "Available")
         b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Rebase")
         b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.os", name)
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.origin", "zremote-test1:zremote-branch1")
+
         b.wait_not_visible("table.listing-ct tbody:nth-child(3) div.packages")
         b.wait_present('table.listing-ct tbody:nth-child(3) ul')
         b.click('table.listing-ct tbody:nth-child(3) ul li a:contains("Packages")')
@@ -685,7 +693,7 @@ class OstreeCase(MachineCase):
         b.call_js_func("ph_count_check", "table.listing-ct tbody:nth-child(2) ul.dropdown-menu li",  1)
         b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " bad-version")
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
-
+        b.wait_in_text("table.listing-ct tbody:nth-child(3) dd.origin", "local:{}".format(branch))
 
     def testPermission(self):
         m = self.machine

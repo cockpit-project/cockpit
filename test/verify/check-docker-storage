@@ -57,7 +57,7 @@ def can_manage(machine, vg):
 def initially_loopbacked(machine):
     # The Atomics leave space in the root volume group for a
     # proper thin pool.
-    if "atomic" in machine.image:
+    if machine.atomic_image:
         return False
 
     # Debian and Ubuntu use the overlayfs driver by default.
@@ -91,7 +91,7 @@ class TestDockerStorage(MachineCase):
         # We can't do that both on a single machine since resetting
         # the pool would kill the cockpit-ws container.
 
-        if "atomic" in self.machine.image:
+        if self.machine.atomic_image:
             m = self.new_machine(machine_key='additional')
             m.start()
             m.wait_boot()

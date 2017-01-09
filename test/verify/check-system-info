@@ -153,7 +153,7 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_change_hostname button:contains('Change')")
         b.wait_popdown("system_information_change_hostname")
 
-        if "atomic" in m.image:
+        if m.atomic_image:
             b.wait_present('#system-ostree-version')
             b.wait_visible('#system-ostree-version')
             b.wait_text('#system-ostree-version-link', "cockpit-base.1")

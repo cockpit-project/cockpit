@@ -35,7 +35,7 @@ RPM_LOCATION = "/usr/share/rpm"
 KEY_ID = "95A8BA1754D0E95E2B3A98A7EE15015654780CBD"
 
 def get_os_name(m):
-    if "rhel-atomic" in m.image:
+    if m.image == "rhel-atomic":
         return "rhel-atomic-host"
     elif 'continuous' in m.image:
         return 'centos-atomic-host'

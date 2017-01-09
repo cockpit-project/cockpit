@@ -154,6 +154,9 @@ IMAGE_REFRESH = 7
 # Days after which images expire if not in use
 IMAGE_EXPIRE = 14
 
+# Images which are Atomic based
+ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
+
 __all__ = (
     'Sink',
     'GitHub',
@@ -166,6 +169,7 @@ __all__ = (
     'NO_TESTING',
     'IMAGE_EXPIRE',
     'TEST_DIR',
+    'ATOMIC_IMAGES',
 )
 
 def determine_github_base():

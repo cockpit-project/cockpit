@@ -20,9 +20,6 @@
 
 import parent
 from testlib import *
-import time
-import os
-import unittest
 
 @skipImage("Atomic always uses loopback", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestLoopback(MachineCase):

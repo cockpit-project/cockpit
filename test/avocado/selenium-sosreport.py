@@ -3,14 +3,13 @@
 # we need to be able to find and import seleniumlib, so add this directory
 import os
 import sys
-import time
+
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
 from avocado import main
 from avocado.utils import process
-import libdisc
 from seleniumlib import *
 from timeoutlib import Retry
 
@@ -47,3 +46,6 @@ class SosReportingTab(SeleniumTest):
         self.wait_text("This tool will collect system configuration and diagnostic")
         self.mainframe()
         self.error = False
+
+if __name__ == '__main__':
+    main()

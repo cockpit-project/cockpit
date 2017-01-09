@@ -313,7 +313,6 @@ class TestRegistry(MachineCase):
 
     def testImages(self):
         b = self.browser
-        m = self.machine
         o = self.openshift
 
         self.login_and_go("/kubernetes/registry")
@@ -452,9 +451,7 @@ class TestRegistry(MachineCase):
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta", "build-date=2016-03-04")
 
     def testProjectGroups(self):
-        o = self.openshift
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/kubernetes/registry")
         b.go("#/projects")
@@ -510,12 +507,11 @@ class TestRegistry(MachineCase):
     def testProjectUsers(self):
         o = self.openshift
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/kubernetes/registry")
         b.go("#/projects")
-        output = o.execute("oc get projects")
-        output = o.execute("oc get rolebinding -n marmalade")
+        o.execute("oc get projects")
+        o.execute("oc get rolebinding -n marmalade")
         b.wait_present("tbody[data-id='default']")
 
         # Create a new project
@@ -529,7 +525,7 @@ class TestRegistry(MachineCase):
 
         #wait for it
         b.wait_present("tbody[data-id='testprojectuserproj']")
-        output = o.execute("oc get projects")
+        o.execute("oc get projects")
 
         # Create a new user
         b.click("#add-user")
@@ -614,7 +610,6 @@ class TestRegistry(MachineCase):
     def testProjectPolicy(self):
         o = self.openshift
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/kubernetes/registry")
         b.wait_present(".dashboard-images")
@@ -634,7 +629,7 @@ class TestRegistry(MachineCase):
 
         #wait for it
         b.wait_present("tbody[data-id='testprojectpolicyproj']")
-        output = o.execute("oc get projects")
+        o.execute("oc get projects")
 
         #goto project page
         b.click("tbody[data-id='testprojectpolicyproj'] tr:first-child td:nth-of-type(2)")

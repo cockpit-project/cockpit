@@ -20,9 +20,6 @@
 
 import parent
 from testlib import *
-import time
-import os
-import unittest
 
 class TestNetworking(MachineCase):
     def setUp(self):
@@ -443,7 +440,6 @@ class TestNetworking(MachineCase):
 
     @skipImage("Can not mark unmanaged by mac address", "debian-8", "debian-unstable", "ubuntu-1604")
     def testUnmanaged(self):
-        b = self.browser
         m = self.machine
 
         mac = "52:54:00:9e:00:F2"

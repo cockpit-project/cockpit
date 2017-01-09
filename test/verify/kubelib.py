@@ -631,7 +631,6 @@ class KubernetesCommonTests(VolumeTests):
 class OpenshiftCommonTests(VolumeTests):
 
     def testBasic(self):
-        m = self.machine
         b = self.browser
 
         # populate routes
@@ -663,7 +662,6 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_present("svg line.RouteService")
 
     def testDelete(self):
-        m = self.machine
         b = self.browser
 
         self.login_and_go("/kubernetes")

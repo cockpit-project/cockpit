@@ -19,9 +19,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
-import json
-import os
-import sys
 import unittest
 
 from testlib import *
@@ -232,7 +229,6 @@ class TestConnection(kubelib.KubernetesCase):
 class TestNulecule(kubelib.KubernetesCase):
     def setUp(self):
         kubelib.KubernetesCase.setUp(self)
-        m = self.machine
 
         self.start_kubernetes()
         self.wait_api_server()

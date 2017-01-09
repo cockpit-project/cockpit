@@ -35,6 +35,8 @@ class checkexample_foo(Test):
         c = cockpit.Cockpit()
         b = c.browser
 
+        b.open("/system")
+        b.wait_visible("#login")
 
 if __name__ == "__main__":
     main()

@@ -20,7 +20,6 @@
 import contextlib
 import errno
 import fcntl
-import json
 import libvirt
 import libvirt_qemu
 import os
@@ -33,7 +32,6 @@ import socket
 import subprocess
 import tempfile
 import sys
-import shutil
 import threading
 import time
 
@@ -930,7 +928,7 @@ class VirtMachine(Machine):
             else:
                 flags |= fcntl.LOCK_SH
             fcntl.flock(fd, flags)
-        except IOError, ex:
+        except IOError:
             os.close(fd)
             return False
         else:
@@ -1086,7 +1084,7 @@ class VirtMachine(Machine):
                 if not self._domain.isActive():
                     self._domain.start()
                 self._maintaining = maintain
-            except RepeatableFailure, ex:
+            except RepeatableFailure:
                 self.kill()
                 if tries < 5:
                     tries += 1

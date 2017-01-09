@@ -21,9 +21,6 @@
 import parent
 from testlib import *
 
-import socket
-import time
-
 def inject_extras(browser):
     browser.eval_js("""
     dashboard_addresses = function () {

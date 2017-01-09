@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 import os
 
 import parent
@@ -95,7 +94,6 @@ class TestMetrics(MachineCase):
         # can not reliably create 100% load in a virtual machine since
         # we only get as much as the qemu process itself gets.
 
-        base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         m.upload([ "verify/files/measure-cpu" ], "/var/lib/testvm/")
 
         cpu_start = m.execute("/var/lib/testvm/measure-cpu start")
@@ -118,7 +116,7 @@ class TestMetrics(MachineCase):
 
         # Disk.  Anything above 100 kiB/s is good for now.
         #
-        disk = m.add_disk("10M", serial="MYSERIAL")
+        m.add_disk("10M", serial="MYSERIAL")
         disk_pid = m.spawn("while true; do dd if=/dev/sda of=/dev/sda; done", "load-disk.log")
         b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100*1024, None, 5, "disk io");
         m.execute("kill %d" % disk_pid)
@@ -133,7 +131,6 @@ class TestMetrics(MachineCase):
 
     @skipImage("No PCP available on Atomic", "fedora-atomic", "rhel-atomic", "continuous-atomic")
     def testPcp(self):
-        b = self.browser
         m = self.machine
 
         self.login_and_go("/system")
@@ -142,7 +139,6 @@ class TestMetrics(MachineCase):
         m.execute("pgrep cockpit-pcp")
 
     def testInternal(self):
-        b = self.browser
         m = self.machine
 
         m.execute("! [ -f /usr/libexec/cockpit-pcp ] || rm /usr/libexec/cockpit-pcp")

@@ -18,15 +18,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess
-import time
-
 import parent
 from testlib import *
 
 class TestReauthorize(MachineCase):
     def testBasic(self):
-        m = self.machine
         b = self.browser
 
         # Log in without being authorized
@@ -59,7 +55,6 @@ class TestReauthorize(MachineCase):
         self.allow_authorize_journal_messages()
 
     def testSuper(self):
-        m = self.machine
         b = self.browser
 
         self.login_and_go("/playground/test")

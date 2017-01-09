@@ -21,7 +21,6 @@
 import parent
 from testlib import *
 import subprocess
-import socket
 import time
 import re
 
@@ -128,7 +127,6 @@ class TestMultiMachineAdd(MachineCase):
 
     def testBasic(self):
         b = self.browser
-        m1 = self.machine
         m2 = self.machine2
         m3 = self.machine3
 
@@ -489,7 +487,6 @@ class TestMultiMachine(MachineCase):
 
     def testFrameNavigation(self):
         b = self.browser
-        m1 = self.machine
         m2 = self.machine2
 
         m2_path = "/@%s/playground/test"% m2.address
@@ -574,7 +571,6 @@ class TestMultiMachine(MachineCase):
 
     def testFrameReload(self):
         b = self.browser
-        m1 = self.machine
         m2 = self.machine2
 
         frame = "cockpit1:%s/playground/test" % m2.address

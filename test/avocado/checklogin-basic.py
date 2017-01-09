@@ -78,7 +78,7 @@ class checklogin_basic(Test):
         # Login as admin
         b.open("/system")
         login("admin", "foobar")
-        with b.wait_timeout(10) as r:
+        with b.wait_timeout(10):
             b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')

@@ -101,7 +101,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("journal")
         self.wait_id("journal-current-day")
         checkt = "ahojnotice"
-        out = process.run("systemd-cat -p notice echo '%s'" % checkt, shell=True)
+        process.run("systemd-cat -p notice echo '%s'" % checkt, shell=True)
         self.click(self.wait_text(checkt, cond=clickable))
         self.wait_id('journal-entry')
         self.mainframe()

@@ -198,7 +198,6 @@ parameters:
                 # sample screenshot name is: screenshot-test20Login.png
                 # it stores super caller method to name via inspection code stack
                 screenshot_file = "screenshot%s.png" % str(inspect.stack()[2][3])
-                additional_text = ""
                 try:
                     self.driver.save_screenshot(os.path.join(actualpath,screenshot_file))
                     self.error = False

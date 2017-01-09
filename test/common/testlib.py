@@ -22,23 +22,18 @@ Tools for writing Cockpit test cases.
 """
 
 from time import sleep
-from urlparse import urlparse
 
 import argparse
 import fnmatch
 import subprocess
 import os
-import atexit
 import select
 import shutil
 import sys
 import traceback
-import exceptions
 import random
 import re
 import json
-import shutil
-import subprocess
 import tempfile
 import time
 import unittest

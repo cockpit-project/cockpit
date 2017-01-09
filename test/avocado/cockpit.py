@@ -21,7 +21,6 @@ import os
 import re
 import subprocess
 import shutil
-import imp
 
 from avocado.utils import process
 from testlib import Browser

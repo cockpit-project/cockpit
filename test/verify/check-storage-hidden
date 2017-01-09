@@ -19,7 +19,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
-import unittest
 
 from testlib import *
 from storagelib import *
@@ -31,7 +30,6 @@ class TestStorage(StorageCase):
         b = self.browser
 
         mount_point_1 = "/run/mount1"
-        mount_point_2 = "/run/mount2"
 
         self.login_and_go("/storage")
 
@@ -102,7 +100,6 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        mount_point_1 = "/run/mount1"
         mount_point_2 = "/run/mount2"
 
         self.login_and_go("/storage")

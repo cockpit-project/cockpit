@@ -429,7 +429,7 @@ class InterceptResult(object):
     def addUnexpectedSuccess(self, test):
         func = self.func
         func(test, "Unexpected success: " + str(test))
-        self.original.addFailure(test, err)
+        self.original.addFailure(test, Exception("unexpected success"))
 
 class MachineCase(unittest.TestCase):
     runner = None

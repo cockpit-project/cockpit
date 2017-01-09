@@ -68,14 +68,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Try to login as user with correct password
         login ("user", "abcdefg")
-        if 'atomic' in m.image:
+        if m.atomic_image:
             b.wait_in_text("#login-error-message", "Server closed connection")
         else:
             b.wait_text("#login-error-message", "Permission denied")
 
         # Try to login with disabled shell; this does not work on Atomic where
         # we log in through ssh
-        if m.image not in ["continuous-atomic", "fedora-atomic", "rhel-atomic"]:
+        if not m.atomic_image:
             m.execute("usermod --shell /bin/false admin")
             login("admin", "foobar")
             b.wait_text_not("#login-error-message", "")
@@ -122,7 +122,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#option-group")
 
         # And now we remove cockpit-ssh which affects the default
-        if m.image not in [ "continuous-atomic", "fedora-atomic", "rhel-atomic" ]:
+        if not m.atomic_image:
             m.execute("rm -f /usr/libexec/cockpit-ssh /usr/lib/cockpit/cockpit-ssh")
             m.restart_cockpit()
             b.open("/system")
@@ -142,7 +142,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b = self.browser
 
         # On atomic this happens over ssh
-        if "atomic" in m.image:
+        if m.atomic_image:
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
             m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
 
@@ -161,7 +161,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")
-        if "atomic" in m.image:
+        if m.atomic_image:
             b.wait_in_text("#conversation-prompt", "You are required to change your password")
         else:
             b.wait_in_text("#conversation-message", "You are required to change your password")
@@ -187,7 +187,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # We should see a message
         if "debian-8" in m.image:
             b.wait_in_text("#conversation-message", "You must choose a longer password")
-        elif "atomic" in m.image:
+        elif m.atomic_image:
             b.wait_in_text("#conversation-prompt", "BAD PASSWORD")
         else:
             b.wait_in_text("#conversation-message", "BAD PASSWORD")
@@ -213,7 +213,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         # We should see a message
-        if "atomic" in m.image:
+        if m.atomic_image:
             b.wait_in_text("#conversation-prompt", "passwords do not match")
         else:
             b.wait_in_text("#conversation-message", "passwords do not match")
@@ -259,7 +259,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b = self.browser
         path = "/usr/share/cockpit-test-assets/mock-pam-conv-mod"
         conf = "/etc/pam.d/cockpit"
-        if ('atomic' in m.image):
+        if m.atomic_image:
             conf = "/etc/pam.d/sshd"
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
             m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)

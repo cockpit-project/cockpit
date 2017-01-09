@@ -128,7 +128,7 @@ class TestMultiMachineKeyAuth(MachineCase):
             assert False, "No running ssh-agent found"
 
         # pam-ssh-add isn't used on atomic
-        if 'atomic' in m1.image:
+        if m1.atomic_image:
             self.load_key('id_rsa', 'foobar')
             b.wait_js_cond('loaded === true');
             if 'rhel' in m1.image or 'centos' in m1.image or m1.image == "continuous-atomic":
@@ -168,7 +168,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_not_in_text("#login-available", "Login Password")
         b.wait_in_text("#login-available", "id_rsa")
 
-        if not 'atomic' in m1.image:
+        if not m1.atomic_image:
             b.wait_in_text("#login-available", "id_ecdsa")
             b.wait_in_text("#login-available", "id_ed25519")
 
@@ -194,7 +194,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.login_and_go("/system")
         b.switch_to_top()
         # pam-ssh-add isn't used on atomic
-        if 'atomic' in m1.image:
+        if m1.atomic_image:
             self.load_key('id_rsa', 'foobar')
 
         b.go("/@%s" % m2.address)

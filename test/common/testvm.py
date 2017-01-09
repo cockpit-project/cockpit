@@ -105,6 +105,7 @@ class Machine:
         self.arch = "x86_64"
 
         self.image = image or testinfra.DEFAULT_IMAGE
+        self.atomic_image = self.image in testinfra.ATOMIC_IMAGES
         self.fetch = fetch
         self.vm_username = "root"
         self.address = address
@@ -572,7 +573,7 @@ class Machine:
         allow you to make modifications before it starts.
         """
 
-        if "atomic" in self.image:
+        if self.atomic_image:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1228776
             # we want to run:
             # self.execute("atomic run cockpit/ws --no-tls")
@@ -608,7 +609,7 @@ class Machine:
     def restart_cockpit(self):
         """Restart Cockpit.
         """
-        if "atomic" in self.image:
+        if self.atomic_image:
             with Timeout(seconds=90, error_message="Timeout while waiting for cockpit/ws to restart"):
                 self.execute("docker restart `docker ps | grep cockpit/ws | awk '{print $1;}'`")
             self.wait_for_cockpit_running()
@@ -618,7 +619,7 @@ class Machine:
     def stop_cockpit(self):
         """Stop Cockpit.
         """
-        if "atomic" in self.image:
+        if self.atomic_image:
             with Timeout(seconds=60, error_message="Timeout while waiting for cockpit/ws to stop"):
                 self.execute("docker kill `docker ps | grep cockpit/ws | awk '{print $1;}'`")
         else:
@@ -1373,7 +1374,7 @@ class VirtMachine(Machine):
 
     def needs_writable_usr(self):
         # On atomic systems, we need a hack to change files in /usr/lib/systemd
-        if "atomic" in self.image:
+        if self.atomic_image:
             self.execute(command="mount -o remount,rw /usr")
 
     def wait_for_cockpit_running(self, address="localhost", port=9090, seconds=30):

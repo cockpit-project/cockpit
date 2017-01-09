@@ -257,10 +257,6 @@ class Sink(object):
         self.ssh = subprocess.Popen([ "ssh", host, "--", "python", "sink", identifier ], stdin=subprocess.PIPE)
 
         # Send the status line
-        if status is None:
-            line = "\n"
-        else:
-            json.dumps(status) + "\n"
         self.ssh.stdin.write(json.dumps(status) + "\n")
 
         # Now dup our own output and errors into the pipeline

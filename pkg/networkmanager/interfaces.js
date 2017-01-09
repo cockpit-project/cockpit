@@ -595,10 +595,19 @@ function NetworkManagerModel() {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
-            set(first, "addresses", addrs_sig, settings[first].addresses.map(addr_to_nm));
-            set(first, "dns", ips_sig, settings[first].dns.map(ip_from_text));
+
+            var addresses = settings[first].addresses;
+            if (addresses)
+                set(first, "addresses", addrs_sig, addresses.map(addr_to_nm));
+
+            var dns = settings[first].dns;
+            if (dns)
+                set(first, "dns", ips_sig, dns.map(ip_from_text));
             set(first, "dns-search", 'as', settings[first].dns_search);
-            set(first, "routes", routes_sig, settings[first].routes.map(route_to_nm));
+
+            var routes = settings[first].routes;
+            if (routes)
+                set(first, "routes", routes_sig, routes.map(route_to_nm));
 
             // Never pass "address-labels" back to NetworkManager.  It
             // is documented as "internal only", but needs to somehow

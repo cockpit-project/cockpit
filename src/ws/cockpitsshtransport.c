@@ -371,9 +371,15 @@ on_auth_process_close (CockpitAuthProcess *auth_process,
 static gboolean
 cockpit_ssh_transport_fail_process (gpointer data)
 {
-  CockpitSshTransport *self = data;
   if (data)
-    cockpit_ssh_transport_close (COCKPIT_TRANSPORT (self), "internal-error");
+    cockpit_ssh_transport_close (COCKPIT_TRANSPORT (data), "internal-error");
+  return FALSE;
+}
+
+static gboolean
+cockpit_ssh_transport_not_supported (gpointer data)
+{
+  cockpit_ssh_transport_close (COCKPIT_TRANSPORT (data), "not-supported");
   return FALSE;
 }
 
@@ -397,6 +403,7 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
   GBytes *password;
   const gchar *gssapi_creds;
   gchar *host_arg = NULL;
+  GSourceFunc fail_func;
 
   self->connecting = TRUE;
 
@@ -448,9 +455,14 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
                                    &error))
     {
       g_warning ("%s: couldn't start auth process: %s", self->logname, error->message);
-      g_idle_add_full (G_PRIORITY_HIGH_IDLE,
-                       cockpit_ssh_transport_fail_process,
-                       self, NULL);
+
+      /* If the cockpit-ssh is not found then we return "not-supported" */
+      if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
+        fail_func = cockpit_ssh_transport_not_supported;
+      else
+        fail_func = cockpit_ssh_transport_fail_process;
+
+      g_idle_add_full (G_PRIORITY_HIGH_IDLE, fail_func, self, NULL);
     }
   else
     {

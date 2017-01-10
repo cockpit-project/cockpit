@@ -61,6 +61,16 @@ Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on
  the system on behalf of the web based user interface.
 
+Package: cockpit-dashboard
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         cockpit-ws (= ${binary:Version})
+Provides: cockpit-ssh
+Description: Cockpit SSH remoting and dashboard
+  Cockpit support for remoting to other servers, bastion hosts, and
+  a basic dashboard.
+
 Package: cockpit-doc
 Section: doc
 Architecture: all
@@ -104,6 +114,13 @@ Depends: ${misc:Depends},
 Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
 
+Package: cockpit-storaged
+Architecture: any
+Depends: ${misc:Depends},
+         udisks2 | storaged
+Description: Cockpit user interface for storage
+ The Cockpit components for interacting with storage.
+
 Package: cockpit-system
 Architecture: any
 Depends: ${misc:Depends},
@@ -120,23 +137,6 @@ Replaces: cockpit-shell
 Description: Cockpit admin interface for a system
  Cockpit admin interface package for configuring and
  troubleshooting a system.
-
-Package: cockpit-dashboard
-Architecture: any
-Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         cockpit-ws (= ${binary:Version})
-Provides: cockpit-ssh
-Description: Cockpit SSH remoting and dashboard
-  Cockpit support for remoting to other servers, bastion hosts, and
-  a basic dashboard.
-
-Package: cockpit-storaged
-Architecture: any
-Depends: ${misc:Depends},
-         udisks2 | storaged
-Description: Cockpit user interface for storage
- The Cockpit components for interacting with storage.
 
 Package: cockpit-test-assets
 Architecture: any

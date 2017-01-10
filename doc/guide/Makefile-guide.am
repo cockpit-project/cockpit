@@ -103,7 +103,7 @@ dist/guide/html: dist/guide/html/index.html
 
 dist/guide/links.html:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	(git -C $(srcdir) tag -l --sort=-version:refname --format \
+	(git -C $(srcdir) tag -l '[0-9]*' --sort=-version:refname --format \
 		'<a href="./%(refname:strip=2)/">%(refname:strip=2)</a>' | head -n15 || true) > $@.tmp && mv $@.tmp $@
 
 dist/guide/index.html: doc/guide/directory.html dist/guide/links.html doc/guide/footer.html

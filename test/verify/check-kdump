@@ -1,0 +1,137 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+@skipImage("kexec-tools not installed", "fedora-24", "fedora-testing", "fedora-atomic", "centos-7", "debian-8", "debian-testing", "ubuntu-1604")
+class TestKdump(MachineCase):
+    def rreplace(self, s, old, new, count):
+        li = s.rsplit(old, count)
+        return new.join(li)
+
+    def enableKdump(self):
+        # we need to make sure that the kernel command line options include our crashkernel parameter
+        if "atomic" in self.machine.image:
+            # on atomic we have a crashkernel option already, but for auto
+            contents = self.machine.execute(command="cat /boot/grub2/grub.cfg", quiet=True)
+            self.machine.write("/boot/grub2/grub.cfg", contents.replace("crashkernel=auto", "crashkernel=256M"))
+        else:
+            lines = self.machine.execute(command="cat /etc/default/grub", quiet=True).split("\n")
+            lines = map(lambda line: self.rreplace(line, '"', ' crashkernel=256M"', 1) if line.startswith("GRUB_CMDLINE_LINUX") else line, lines)
+            self.machine.write("/etc/default/grub", "\n".join(lines))
+            self.machine.execute("grub2-mkconfig -o /boot/grub2/grub.cfg")
+        self.machine.execute("mkdir -p /var/crash")
+
+    def rebootMachine(self):
+        # Now reboot things
+        self.machine.reset_reboot_flag()
+        self.machine.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
+        self.machine.wait_reboot()
+        self.machine.start_cockpit()
+        self.browser.switch_to_top()
+        self.browser.relogin("/kdump")
+
+    def testBasic(self):
+        self.browser.wait_timeout(120)
+
+        self.allow_restart_journal_messages()
+
+        if not "atomic" in self.machine.image:
+            self.machine.execute("systemctl enable kdump && systemctl start kdump || true")
+
+        self.login_and_go("/kdump")
+
+        self.browser.wait_visible("#app")
+
+        # right now we have no memory reserved
+        self.browser.wait_in_text("#app", "No memory reserved.")
+        # service should indicate an error and the button should be off
+        self.browser.wait_in_text("#app", "Service has an error")
+        onOffSelectorActive = "div.btn-onoff-ct label.active"
+        self.browser.wait_in_text(onOffSelectorActive, "Off")
+
+        # there shouldn't be any crash reports in the target directory
+        self.assertEqual(self.machine.execute("""find "/var/crash" -maxdepth 1 -mindepth 1 -type d -exec echo {} \;"""), "")
+
+        self.enableKdump()
+        self.rebootMachine()
+        self.browser.wait_visible("#app")
+
+        # we should have the amount of memory reserved that we indicated
+        self.browser.wait_in_text("#app", "256 MiB")
+        # service should start up properly and the button should be on
+        self.browser.wait_in_text("#app", "Service is running")
+        self.browser.wait_in_text(onOffSelectorActive, "On")
+
+        customPath = "/var/crash2"
+        # try to change the path to a directory that doesn't exist
+        settingsLink = "a:contains('locally in /var/crash')"
+        self.browser.wait_present(settingsLink)
+        self.browser.wait_visible(settingsLink)
+        self.browser.click(settingsLink, True)
+        pathInput = "#kdump-settings-local-directory"
+        self.browser.wait_present(pathInput)
+        self.browser.wait_visible(pathInput)
+        self.browser.set_val(pathInput, customPath)
+        # make sure the backend is updated before we try hitting apply
+        self.browser.wait_attr(pathInput, "data-stored", customPath)
+        self.browser.click("button.btn-primary:contains('Apply')")
+        # we should get an error
+        self.browser.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        # also allow the journal message about failed touch
+        self.allow_journal_messages(".*mktemp: failed to create file via template.*")
+        # create the directory and try again
+        self.machine.execute("mkdir -p {0}".format(customPath))
+        self.browser.click("button.btn-primary:contains('Apply')")
+        self.browser.wait_not_present(pathInput)
+        self.browser.wait_present("a:contains('locally in {0}')".format(customPath))
+
+        # service has to restart after changing the config, wait for it to be running
+        # otherwise the button to test will be disabled
+        self.browser.wait_in_text("#app", "Service is running")
+        self.browser.wait_in_text(onOffSelectorActive, "On")
+
+        # crash the kernel and make sure it wrote a report into the right directory
+        self.browser.click("button.btn-default")
+        # we should get a warning dialog, confirm
+        crashButton = "button.btn-danger:contains('Crash system')"
+        self.browser.wait_present(crashButton)
+        self.browser.wait_visible(crashButton)
+        self.browser.click(crashButton)
+
+        # wait until we've actuall triggered a crash
+        self.browser.wait_present("div.spinner")
+        self.browser.wait_visible("div.spinner")
+
+        # wait for disconnect and then try connecting again
+        self.browser.switch_to_top()
+        self.browser.wait_present("div.curtains-ct")
+        self.browser.wait_visible("div.curtains-ct")
+        self.browser.wait_in_text("div.curtains-ct h1", "Disconnected")
+        self.machine.disconnect()
+        self.machine.wait_boot(wait_for_running_timeout=300)
+        #self.browser.click("#machine-reconnect")
+        #self.browser.expect_load()
+        #self.browser.wait_visible("#login")
+        self.assertNotEqual(self.machine.execute("""find "{0}" -maxdepth 1 -mindepth 1 -type d -exec echo {{}} \;""".format(customPath)), "")
+
+if __name__ == '__main__':
+    test_main()

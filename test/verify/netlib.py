@@ -56,13 +56,20 @@ class NetworkCase(MachineCase):
             m.execute("nmcli dev con %s" % iface)
         return iface
 
-    def wait_for_iface(self, iface, active=True):
+    def wait_for_iface(self, iface, active=True, state=None):
         sel = "#networking-interfaces tr[data-interface='%s']" % iface
+
+        if state:
+            text = state
+        elif active:
+            text = "10.111."
+        else:
+            text = "Inactive"
 
         try:
             self.browser.wait_present(sel)
             self.browser.wait_visible(sel)
-            self.browser.wait_in_text(sel, "10.111." if active else "Inactive")
+            self.browser.wait_in_text(sel, text)
         except:
             print "Interface %s didn't show up." % iface
             print self.browser.eval_js("$('#networking-interfaces').html()")

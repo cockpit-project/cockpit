@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import testinfra
 from testlib import *
 import os
 
@@ -327,7 +328,7 @@ class OstreeRestartCase(MachineCase):
 
         name = get_os_name(m)
 
-        server_pid = start_trivial_httpd(m)
+        start_trivial_httpd(m)
         branch = m.execute("ostree refs --repo={0}".format(REPO_LOCATION)).strip()
 
         # Add a new branch to the default repo
@@ -408,7 +409,7 @@ class OstreeCase(MachineCase):
 
         name = get_os_name(m)
 
-        server_pid = start_trivial_httpd(m)
+        start_trivial_httpd(m)
         branch = m.execute("ostree refs --repo={0}".format(REPO_LOCATION)).strip()
 
         rhsmcertd_hack(m)
@@ -504,8 +505,7 @@ class OstreeCase(MachineCase):
         m.execute(["ostree", "commit", "--repo={}".format(zrepo),
                    "-b", "zremote-branch2", "--orphan", "--tree=dir=/tmp/rpm-data",
                    "--add-metadata-string", "version=zremote-branch2.1"])
-        server2_pid = start_trivial_httpd(m, remote="zremote-test1",
-                                          location=zrepo)
+        start_trivial_httpd(m, remote="zremote-test1", location=zrepo)
 
         # Add a new branch to the default repo
         m.execute(["ostree", "commit", "--repo={}".format(REPO_LOCATION),

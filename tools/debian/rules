@@ -9,7 +9,7 @@ ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
 endif
 
 %:
-	dh $@
+	dh $@ --with=systemd
 
 override_dh_auto_configure:
 	dh_auto_configure -- \

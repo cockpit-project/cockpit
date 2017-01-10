@@ -90,12 +90,12 @@ DEFAULT_IMAGE_REFRESH = {
             "selenium/firefox",
             "selenium/chrome",
             "verify/fedora-24",
-            "verify/fedora-atomic",  # builds in fedora-24
         ]
     },
     'fedora-25': {
         'triggers': [
             "verify/fedora-25",
+            "verify/fedora-atomic",  # builds in fedora-25
         ]
     },
     'fedora-atomic': {

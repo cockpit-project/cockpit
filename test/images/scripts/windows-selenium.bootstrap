@@ -4,20 +4,30 @@
 
 set -e
 
-ORIGIN=image.qcow2
-FINAL=selenium-windows-01.qcow2
+BASE=$(dirname $0)
+
+ORIGIN=windows-base.qcow2
+FINAL=$1
 VM_NAME=win8.1
 
-test -e IE11.Win8.1.For.Windows.VMware.zip || wget https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VMware/IE11/Windows/IE11.Win8.1.For.Windows.VMware.zip
+# we want to have the base machine in the images directory
+BASEIMAGE_PATH=$BASE/../IE11.Win8.1.For.Windows.VMware.zip
+
+TMP_PATH=$BASE/../../tmp
+test -e $BASEIMAGE_PATH || wget -o $BASEIMAGE_PATH https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VMware/IE11/Windows/IE11.Win8.1.For.Windows.VMware.zip
+
+mkdir -p $TMP_PATH
+cd $TMP_PATH
 test -e selenium.zip || wget http://selenium-release.storage.googleapis.com/2.53/IEDriverServer_Win32_2.53.1.zip -O selenium.zip
 test -e java-installer.exe || wget http://javadl.oracle.com/webapps/download/AutoDL?BundleId=216432 -O java-installer.exe
 test -e selenium.jar || wget https://goo.gl/Lyo36k -O selenium.jar
 
-unzip -o IE11.Win8.1.For.Windows.VMware.zip
-unzip -o selenium.zip
+# we don't want to overwrite files we have already extracted
+unzip -n $BASEIMAGE_PATH
+unzip -n selenium.zip
 
 cat <<'EOF' > Autorun.inf
-[autorun] 
+[autorun]
 open=install.exe
 label=Selenium installer
 EOF
@@ -36,7 +46,7 @@ goto :eof
 :run
 netsh advfirewall firewall add rule name="Open Port 4444" dir=in action=allow protocol=TCP localport=4444
 netsh advfirewall firewall add rule name="Open Port 5555" dir=in action=allow protocol=TCP localport=5555
-NetSh Advfirewall set allprofiles state off
+netsh advfirewall set allprofiles state off
 d:\java-installer.exe /s
 mkdir c:\selenium
 echo f | xcopy /f /y d:\selenium.jar c:\selenium\selenium.jar
@@ -51,22 +61,24 @@ timeout 5
 shutdown -s -t 0 -f
 EOF
 
-genisoimage -output wininit.iso -volid cidata -joliet *.bat *.exe selenium.jar Autorun.inf
+genisoimage -output wininit.iso -volid initdata -joliet -rock \
+    Autorun.inf \
+    install.bat \
+    selenium.bat \
+    java-installer.exe \
+    IEDriverServer.exe \
+    selenium.jar
 
+# always convert, since the created image may have already been changed
 echo "starting converting vmdk to qcow2"
 qemu-img convert -f vmdk -O qcow2 *.vmdk $ORIGIN
-echo "starting MANUAL part of installation, log in to the machine"
+echo "starting MANUAL part of installation, log in to the machine and run install.bat script (automatic shutdown)
 virt-install -n $VM_NAME -r 4000 --vcpus=4 --os-type=windows --disk $ORIGIN,device=disk --network user -c wininit.iso --noautoconsole --wait=-1 --noreboot
-echo "installation finished, starting compressing or image"
-qemu-img convert -c -f qcow2 -O qcow2 $ORIGIN $FINAL
 
-echo "win image finished"
-echo "FILE: `pwd`/$FINAL"
-echo "MD5SUM: `md5sum $FINAL`"
-echo "SHASUM: `shasum $FINAL`"
+echo "installation finished"
+# move to output location
+mv $ORIGIN $FINAL
+# if running manually, it might be desirable to compress the image instead
+#qemu-img convert -c -f qcow2 -O qcow2 $ORIGIN $FINAL
 
-# qemu-img create -f qcow2 -b selenium-windows-01.qcow2 snapshot.qcow2
-# sudo virt-install -n $VM_NAME -r 4000 --vcpus=4 --os-type=windows --disk snapshot.qcow2,device=disk --network network=default --noautoconsole --import 
-# DESTROY MACHINE
-#virsh destroy $VM_NAME
-#virsh undefine $VM_NAME
+echo "win image finished: $FINAL"

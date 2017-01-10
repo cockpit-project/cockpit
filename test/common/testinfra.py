@@ -84,6 +84,9 @@ DEFAULT_IMAGE_REFRESH = {
     'debian-unstable': {
         'triggers': [ "verify/debian-unstable" ]
     },
+    'debian-8': {
+        'triggers': [ "verify/debian-8" ]
+    },
     'fedora-24': {
         'triggers': [
             "avocado/fedora-24",

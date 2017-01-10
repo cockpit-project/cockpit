@@ -2459,6 +2459,24 @@ PageNetworkInterface.prototype = {
                 show_dialog(PageNetworkEthernetSettings, '#network-ethernet-settings-dialog');
             }
 
+            function render_autoconnect_row() {
+                if (settings.connection.autoconnect !== undefined) {
+                    return (
+                        $('<tr>').append(
+                            $('<td>').text(_("General")),
+                            $('<td class="networking-controls">').append(
+                                $('<label>').append(
+                                    $('<input type="checkbox">').
+                                        prop('checked', settings.connection.autoconnect).
+                                        change(function () {
+                                            settings.connection.autoconnect = $(this).prop('checked');
+                                            settings_applier(self.model, self.dev, con)(settings);
+                                        }),
+                                    $('<span>').text(_("Connect automatically")))))
+                    );
+                }
+            }
+
             function render_settings_row(title, rows, configure) {
                 var link_text = [ ];
                 for (var i = 0; i < rows.length; i++) {
@@ -2653,20 +2671,7 @@ PageNetworkInterface.prototype = {
             }
 
             return [ render_master(),
-                     $('<tr>').append(
-                         $('<td>').text(_("General")),
-                         $('<td class="networking-controls">').append(
-                             $('<label>').append(
-                                 $('<input type="checkbox">').
-                                     prop('checked', settings.connection.autoconnect).
-                                     change(function () {
-                                         settings.connection.autoconnect = $(this).prop('checked');
-                                         settings_applier(self.model, self.dev, con)(settings);
-                                     }),
-                                    $('<span>').text(_("Connect automatically"))
-                                 )
-                             )
-                         ),
+                     render_autoconnect_row(),
                      render_ip_settings_row("ipv4", _("IPv4")),
                      render_ip_settings_row("ipv6", _("IPv6")),
                      render_ethernet_settings_row(),
@@ -2682,7 +2687,6 @@ PageNetworkInterface.prototype = {
         function create_ghost_connection_settings() {
             return {
                 connection: {
-                    autoconnect: false,
                     interface_name: iface.Name
                 },
                 ipv4: {

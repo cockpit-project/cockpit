@@ -35,18 +35,21 @@ Homepage: http://cockpit-project.org/
 #Vcs-Browser: https://anonscm.debian.org/cgit/collab-main/cockpit.git
 
 Package: cockpit
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends},
-         cockpit-bridge (= ${binary:Version}),
-         cockpit-dashboard (= ${binary:Version}),
-         cockpit-ws (= ${binary:Version}),
+         cockpit-bridge (>= ${source:Version}),
+         cockpit-bridge (<< ${source:Version}.1~),
+         cockpit-dashboard (>= ${source:Version}),
+         cockpit-dashboard (<< ${source:Version}.1~),
+         cockpit-ws (>= ${source:Version}),
+         cockpit-ws (<< ${source:Version}.1~),
          cockpit-system (= ${binary:Version}),
          xdg-utils
 Recommends: cockpit-docker (= ${binary:Version}),
             cockpit-storaged (= ${binary:Version}),
             cockpit-networkmanager (= ${binary:Version})
 Suggests: cockpit-doc (= ${binary:Version}),
-          cockpit-pcp (= ${binary:Version})
+          cockpit-pcp (>= ${source:Version})
 Description: User interface for Linux servers
  Cockpit runs in a browser and can manage your network of GNU/Linux
  machines.
@@ -81,26 +84,27 @@ Description: Cockpit deployment and developer guide
  or extend Cockpit.
 
 Package: cockpit-docker
-Architecture: amd64 armel armhf i386
+Architecture: all
 Depends: ${misc:Depends},
          docker.io (>= 1.3.0) | docker-engine (>= 1.3.0),
-         python
+         python,
+         cockpit-bridge (>= ${source:Version}),
+         cockpit-bridge (<< ${source:Version}.1~)
 Description: Cockpit user interface for Docker containers
  The Cockpit components for interacting with Docker and user interface.
 
 Package: cockpit-machines
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends},
          libvirt-daemon-system
 Description: Cockpit user interface for virtual machines
  The Cockpit components for managing virtual machines.
 
 Package: cockpit-networkmanager
-Architecture: any
-# Lock bridge dependency due to --with-networkmanager-needs-root
-# which uses new less stable /manifests.js request path.
-depends: ${misc:Depends},
-         cockpit-bridge (= ${binary:Version}),
+Architecture: all
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${source:Version}),
+         cockpit-bridge (<< ${source:Version}.1~),
          network-manager
 Description: Cockpit user interface for networking
  The Cockpit components for interacting with networking configuration.
@@ -115,17 +119,19 @@ Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
 
 Package: cockpit-storaged
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends},
-         udisks2 | storaged
+         udisks2 | storaged,
+         cockpit-bridge (>= ${source:Version}),
+         cockpit-bridge (<< ${source:Version}.1~)
 Description: Cockpit user interface for storage
  The Cockpit components for interacting with storage.
 
 Package: cockpit-system
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         cockpit-bridge (= ${binary:Version}),
+         cockpit-bridge (>= ${source:Version}),
+         cockpit-bridge (<< ${source:Version}.1~),
          libpwquality-tools
 Provides: cockpit-realmd,
           cockpit-shell,

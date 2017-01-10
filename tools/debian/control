@@ -2,7 +2,8 @@ Source: cockpit
 Section: admin
 Priority: optional
 Maintainer: Cockpit <cockpit@cockpit-project.org>
-Build-Depends: debhelper (>= 9),
+Build-Depends: debhelper (>= 9.20141010),
+               dpkg-dev (>= 1.17.14),
                dh-autoreconf,
                autoconf,
                automake,
@@ -27,7 +28,7 @@ Build-Depends: debhelper (>= 9),
                glib-networking,
                nodejs-legacy,
                npm,
-               openssh-client
+               openssh-client <!nocheck>,
 Standards-Version: 3.9.6
 Homepage: http://cockpit-project.org/
 #Vcs-Git: git://anonscm.debian.org/collab-maint/cockpit.git

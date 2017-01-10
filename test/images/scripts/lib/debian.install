@@ -46,7 +46,7 @@ if [ -n "$do_build" ]; then
     tar -xzf cockpit-*.tar.gz
     ( cd cockpit-*/
       cp -rp tools/debian debian
-      debuild -S -uc -us
+      debuild -S -uc -us -nc
     )
 
     # Some unit tests want a real network interface

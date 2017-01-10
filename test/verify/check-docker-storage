@@ -41,14 +41,14 @@ def can_manage(machine, vg):
     if machine.image in [ "rhel-atomic", "fedora-atomic", "continuous-atomic" ]:
         return True
 
-    # Fedora 25, too
-    if machine.image in [ "fedora-25", "fedora-testing" ]:
+    # Fedora testing, too
+    if machine.image in [ "fedora-testing" ]:
         return True
 
-    # Fedora 24 has new enough "atomic", but the OS is not in a volume
-    # group by default.  We can manage it when we explicitly configure
-    # a dedicated volume group.
-    if machine.image in [ "fedora-24" ]:
+    # Fedora 24/25 have new enough "atomic", but the OS is not in a
+    # volume group for images created by virt-builder.  We can manage
+    # it when we explicitly configure a dedicated volume group.
+    if machine.image in [ "fedora-25", "fedora-24" ]:
         return vg != ""
 
     # Everyone else either has no "atomic" at all or a version that is

@@ -1693,7 +1693,7 @@ PageNetworking.prototype = {
             {
                 connection: {
                     id: iface,
-                    autoconnect: false,
+                    autoconnect: true,
                     type: "bond",
                     uuid: uuid,
                     interface_name: iface
@@ -1727,7 +1727,7 @@ PageNetworking.prototype = {
             {
                 connection: {
                     id: iface,
-                    autoconnect: false,
+                    autoconnect: true,
                     type: "team",
                     uuid: uuid,
                     interface_name: iface
@@ -1759,7 +1759,7 @@ PageNetworking.prototype = {
             {
                 connection: {
                     id: iface,
-                    autoconnect: false,
+                    autoconnect: true,
                     type: "bridge",
                     uuid: uuid,
                     interface_name: iface
@@ -1791,7 +1791,7 @@ PageNetworking.prototype = {
             {
                 connection: {
                     id: "",
-                    autoconnect: false,
+                    autoconnect: true,
                     type: "vlan",
                     uuid: uuid,
                     interface_name: ""
@@ -3224,8 +3224,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
     if (val) {
         /* Turn the main_connection into a slave for master, if
          * necessary.  If there is no main_connection, we let NM
-         * create a new one.  Unfortunately, this requires us to
-         * activate it at the same time.
+         * create a new one.
          */
 
         var master_iface;
@@ -3252,14 +3251,13 @@ function set_slave(model, master_connection, master_settings, slave_type,
         } else if (cs.master != master_settings.connection.uuid) {
             cs.slave_type = slave_type;
             cs.master = master_iface;
+            main_connection.Settings.connection.autoconnect = true;
             delete main_connection.Settings.ipv4;
             delete main_connection.Settings.ipv6;
             delete main_connection.Settings.team_port;
             delete main_connection.Settings.bridge_port;
             return main_connection.apply_settings(main_connection.Settings).then(function () {
-                var dev = iface.Device;
-                if (dev && dev.ActiveConnection && dev.ActiveConnection.Connection === main_connection)
-                    return main_connection.activate(dev, null);
+                return main_connection.activate(iface.Device, null);
             });
         }
     } else {
@@ -3311,7 +3309,39 @@ function apply_master_slave(choices, model, apply_master, master_connection, mas
         }
     }
 
-    return apply_master(master_settings).then(set_all_slaves);
+    /* When creating a master with autoconnect = yes, it will be
+       immediately activated and it doesn't seem to be possible to
+       also activate slaves until it has settled somewhat.  We
+       explicitly activate slaves since that is the only way to give
+       them connection settings while letting NetworkManager fill in
+       the details.
+
+       Thus, we wait a bit until the master has a active connection
+       before adding any slaves.
+    */
+
+    function wait_for_master() {
+        var dfd = cockpit.defer();
+
+        function check() {
+            var iface = model.find_interface(master_settings.connection.interface_name);
+            if (!iface || !iface.Device || !iface.Device.ActiveConnection)
+                return;
+            $(model).off('changed', check);
+            dfd.resolve();
+        }
+
+        if (!master_connection && master_settings.connection.autoconnect) {
+            check();
+            $(model).on('changed', check);
+        } else {
+            dfd.resolve();
+        }
+
+        return dfd.promise();
+    }
+
+    return apply_master(master_settings).then(wait_for_master).then(set_all_slaves);
 }
 
 PageNetworkBondSettings.prototype = {

@@ -30,9 +30,9 @@ class TestNetworking(NetworkCase):
         self.login_and_go("/network")
 
         iface1 = self.add_iface()
-        iface2 = self.add_iface()
+        iface2 = self.add_iface(activate=False)
         self.wait_for_iface(iface1)
-        self.wait_for_iface(iface2)
+        self.wait_for_iface(iface2, active=False)
 
         # Bond them
         b.click("button:contains('Add Bond')")
@@ -49,11 +49,13 @@ class TestNetworking(NetworkCase):
         if "ubuntu" not in m.image and "debian" not in m.image:
             m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
 
-        # Check that the members are displayed
+        # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
+        b.wait_present("#network-interface-slaves tr[data-interface='%s'] .btn.active:contains('On')" % iface1)
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
+        b.wait_present("#network-interface-slaves tr[data-interface='%s'] .btn.active:contains('On')" % iface2)
 
         # Deactivate the bond and make sure it is still there after a
         # reload.

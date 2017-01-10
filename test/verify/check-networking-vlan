@@ -42,12 +42,8 @@ class TestNetworking(NetworkCase):
         b.wait_popdown("network-vlan-settings-dialog")
         b.wait_present("#networking-interfaces tr[data-interface='tvlan']")
 
-        # Activate it.  It wont get an IP address, but that's okay.
-        b.click("#networking-interfaces tr[data-interface='tvlan'] td:first-child")
-        b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('Status')", "Inactive")
-        b.click(".panel-heading .btn:contains('On')")
-        b.wait_not_in_text("tr:contains('Status')", "Inactive")
+        # It automatically activates.  It wont get an IP address, but that's okay.
+        self.wait_for_iface("tvlan", state="Configuring IP")
 
         # Check that the actual kernel device has the REORDER_HDR flag
         # set.  NetworkManager stopped doing that for connections
@@ -55,6 +51,8 @@ class TestNetworking(NetworkCase):
         self.assertIn("REORDER_HDR", m.execute("ip -d link show tvlan | grep vlan"))
 
         # Delete it
+        b.click("#networking-interfaces tr[data-interface='tvlan'] td:first-child")
+        b.wait_visible("#network-interface")
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tvlan']")

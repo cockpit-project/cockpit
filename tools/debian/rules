@@ -27,7 +27,6 @@ override_dh_systemd_enable:
 
 override_dh_systemd_start:
 	dh_systemd_start -p cockpit-ws cockpit.socket
-	dh_systemd_start -p cockpit-ws --no-start --restart-after-upgrade cockpit.service
 
 override_dh_install:
 	dh_install --list-missing -Xusr/src/debug

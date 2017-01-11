@@ -147,6 +147,7 @@ Description: Cockpit admin interface for a system
 Package: cockpit-test-assets
 Architecture: any
 Depends: ${misc:Depends},
+         ${shlibs:Depends},
          openssh-client
 Description: Additional files for the Cockpit integration tests
  These files are not required for running Cockpit.

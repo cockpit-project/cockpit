@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+
+# restart cockpit.service on package upgrades, if it's already running
+if [ -d /run/systemd/system ] && [ -n "$2" ]; then
+    deb-systemd-invoke try-restart cockpit.service >/dev/null || true
+fi

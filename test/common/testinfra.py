@@ -60,8 +60,7 @@ DEFAULT_VERIFY = {
     'verify/centos-7': [ 'master', 'pulls' ],
     'verify/continuous-atomic': [ 'master' ],
     'verify/debian-8': [ 'master', 'pulls', ],
-    'verify/debian-testing': [ ],
-    'verify/debian-unstable': [ 'master', 'pulls' ],
+    'verify/debian-testing': [ 'master', 'pulls' ],
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],
     'verify/fedora-atomic': [ 'master', 'pulls' ],
@@ -82,8 +81,8 @@ DEFAULT_IMAGE_REFRESH = {
     'continuous-atomic': {
         'triggers': [ "verify/continuous-atomic", ]
     },
-    'debian-unstable': {
-        'triggers': [ "verify/debian-unstable" ]
+    'debian-testing': {
+        'triggers': [ "verify/debian-testing" ]
     },
     'debian-8': {
         'triggers': [ "verify/debian-8" ]

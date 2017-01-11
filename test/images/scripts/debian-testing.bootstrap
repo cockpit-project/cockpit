@@ -22,5 +22,5 @@ virt-builder debian-8 \
              --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
              --chmod 0600:/etc/ssh/ssh_host_rsa_key \
              --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
-             --write /etc/apt/sources.list:"deb http://ftp.uk.debian.org/debian unstable main" \
+             --write /etc/apt/sources.list:"deb http://ftp.uk.debian.org/debian testing main" \
              --run-command "export DEBIAN_FRONTEND=noninteractive; apt-get -y update; apt-get -y dist-upgrade"

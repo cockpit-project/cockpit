@@ -47,7 +47,7 @@ import os
 # register with: activation key "awesome_os_pool" and org "admin"
 # or: subscription-manager register --activationkey awesome_os_pool --org admin --serverurl https://$IP:8443/candlepin
 
-@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-8", "debian-unstable", "fedora-24", "fedora-25", "fedora-atomic", "fedora-testing", "ubuntu-1604")
+@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-atomic", "fedora-testing", "ubuntu-1604")
 class TestSubscriptions(MachineCase):
     additional_machines = {
         'candlepin': { 'machine': { 'image': 'candlepin' } }

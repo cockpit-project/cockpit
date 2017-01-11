@@ -702,6 +702,9 @@ class OpenshiftCommonTests(VolumeTests):
         m = self.machine
         b = self.browser
 
+        # Make sure we can find openshift
+        m.execute("echo '{}  f1.cockpit.lan' >> /etc/hosts".format(self.openshift.address))
+
         self.login_and_go("/kubernetes")
         b.wait_present("a[href='#/nodes']")
         b.click("a[href='#/nodes']")

@@ -22,4 +22,6 @@ virt-builder ubuntu-16.04 \
              --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
              --chmod 0600:/etc/ssh/ssh_host_rsa_key \
              --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --write /etc/dpkg/dpkg.cfg.d/unsafe-io:"force-unsafe-io" \
+             --write /etc/apt/apt.conf.d/90nolanguages:'Acquire::Languages "none";' \
              --run-command "export DEBIAN_FRONTEND=noninteractive; apt-get -y update; apt-get -y dist-upgrade"

@@ -73,7 +73,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.wait_in_text("#login-fatal-message", "No kubernetes")
         b.wait_not_visible('#login-button')
 
-        m.execute('docker stop $(docker ps -q --filter image="cockpit/kubernetes")')
+        m.execute('docker stop $(docker ps -q --filter ancestor="cockpit/kubernetes")')
         m.start_cockpit()
 
         b.open("/")

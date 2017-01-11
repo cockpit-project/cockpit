@@ -48,10 +48,11 @@
 
         function update() {
             if (!cockpit.hidden && !process) {
-                process = cockpit.spawn([ "python", "-c", cockpit_atomic_storage, "monitor" ],
+                process = cockpit.spawn([ "python", "-", "monitor" ],
                                         { err: "ignore",
-                                          superuser: true }).
-                                  stream(function (data) {
+                                          superuser: true })
+                                  .input(cockpit_atomic_storage)
+                                  .stream(function (data) {
                                       // XXX - find the newlines here
                                       var info = JSON.parse(data);
                                       self.loopback = info.loopback;
@@ -380,10 +381,11 @@
             var devs = drives.map(function (d) { return d.path; });
             if (docker_will_be_stopped)
                 client.close();
-            var process = cockpit.spawn([ "python", "-c", cockpit_atomic_storage, storage_action ].concat(devs),
+            var process = cockpit.spawn([ "python", "-", storage_action ].concat(devs),
                                          { 'err': 'out',
-                                           'superuser': true }).
-                                  done(function (data) {
+                                           'superuser': true })
+                                  .input(cockpit_atomic_storage)
+                                  .done(function (data) {
                                       if (docker_will_be_stopped) {
                                           client.connect().done(function () {
                                               dfd.resolve();
@@ -427,10 +429,11 @@
         function reset() {
             var dfd = $.Deferred();
             client.close();
-            var process = cockpit.spawn([ "python", "-c", cockpit_atomic_storage, "reset-and-reduce" ],
+            var process = cockpit.spawn([ "python", "-", "reset-and-reduce" ],
                                         { 'err': 'out',
-                                          'superuser': true }).
-                                  done(function (data) {
+                                          'superuser': true })
+                                  .input(cockpit_atomic_storage)
+                                  .done(function (data) {
                                       client.connect().done(function () {
                                           dfd.resolve();
                                       });

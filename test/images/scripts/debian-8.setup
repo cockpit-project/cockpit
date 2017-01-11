@@ -78,7 +78,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS
 
 # Install docker separately from jessie-backports
-echo "deb http://ftp.uk.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/backports.list
+echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/backports.list
 apt-get -y update
 apt-get -y install docker.io
 rm /etc/apt/sources.list.d/backports.list

@@ -84,9 +84,9 @@ useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
 
 # For storaged
-echo "deb http://ftp.uk.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
+echo "deb http://deb.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
 # FIXME: we need to enable jessie-backports until docker.io gets back into testing
-echo "deb http://ftp.uk.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
+echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
 apt-get -y update
 
 export DEBIAN_FRONTEND=noninteractive

@@ -264,7 +264,7 @@ SED_SUBST = sed \
         -e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
         $(NULL)
 
-testassetsdir = $(datadir)/cockpit-test-assets
+testassetsdir = $(prefix)/lib/cockpit-test-assets
 testassets_programs =
 testassets_data =
 testassets_systemdunit_data =

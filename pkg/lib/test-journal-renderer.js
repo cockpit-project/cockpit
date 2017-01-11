@@ -22,8 +22,6 @@ var journal = require("journal");
 
 var debug = false;
 
-function C_(ctxt, str) { return str; }
-
 function pk(label, obj) {
     var str = label;
     if (obj) {
@@ -52,10 +50,6 @@ function make_entry(message) {
         "PRIORITY": "3",
         "MESSAGE": message
     };
-}
-
-function next_day() {
-    time += 24*60*60*1e6;
 }
 
 function reboot() {

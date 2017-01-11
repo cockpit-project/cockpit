@@ -438,7 +438,7 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
 
-    @skipImage("Can not mark unmanaged by mac address", "debian-8", "debian-unstable", "ubuntu-1604")
+    @skipImage("Can not mark unmanaged by mac address", "debian-8", "debian-testing", "ubuntu-1604")
     def testUnmanaged(self):
         m = self.machine
 
@@ -464,7 +464,7 @@ NM_CONTROLLED=no
 
         iface = self.get_iface(m, m.macaddr)
 
-        if m.image in [ "debian-unstable", "debian-8", "ubuntu-1604" ]:
+        if m.image in [ "debian-testing", "debian-8", "ubuntu-1604" ]:
             m.execute("sed -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf")
             m.execute("systemctl restart NetworkManager")
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
@@ -480,7 +480,7 @@ NM_CONTROLLED=no
         b.wait_visible("#confirm-breaking-change-popup")
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
-        if m.image not in [ "debian-unstable", "debian-8", "ubuntu-1604" ]:
+        if m.image not in [ "debian-testing", "debian-8", "ubuntu-1604" ]:
             # Change IP
             b.click("tr:contains('IPv4') a")
             b.wait_popup("network-ip-settings-dialog")
@@ -492,7 +492,7 @@ NM_CONTROLLED=no
             b.wait_visible("#confirm-breaking-change-popup")
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
-    @skipImage("Main interface can't be managed", "debian-8", "debian-unstable", "ubuntu-1604")
+    @skipImage("Main interface can't be managed", "debian-8", "debian-testing", "ubuntu-1604")
     def testBondingMain(self):
         b = self.browser
         m = self.machine
@@ -525,7 +525,7 @@ NM_CONTROLLED=no
         b.wait_in_text("#networking-interfaces tr[data-interface='%s']" % iface, m.address)
 
     @skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-8", "fedora-24", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
-    @skipImage("Main interface can't be managed", "debian-8", "debian-unstable", "ubuntu-1604")
+    @skipImage("Main interface can't be managed", "debian-8", "debian-testing", "ubuntu-1604")
     def testBondingMainSlowly(self):
         b = self.browser
         m = self.machine
@@ -627,7 +627,7 @@ NM_CONTROLLED=no
                          "auto")
 
     @skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-8", "fedora-24", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
-    @skipImage("Main interface settings are read-only", "debian-8", "debian-unstable", "ubuntu-1604")
+    @skipImage("Main interface settings are read-only", "debian-8", "debian-testing", "ubuntu-1604")
     def testCheckpointSlowRollback(self):
         b = self.browser
         m = self.machine

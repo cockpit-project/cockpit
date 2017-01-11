@@ -56,7 +56,7 @@ KEY_IDS_MD5 = [
 ]
 
 # HACK: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=805030
-@skipImage("libssh is too old", "debian-8", "debian-unstable", "ubuntu-1604")
+@skipImage("libssh is too old", "debian-8", "debian-testing", "ubuntu-1604")
 class TestMultiMachineKeyAuth(MachineCase):
     additional_machines = {
         'machine2': { }

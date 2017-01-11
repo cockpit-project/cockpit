@@ -96,7 +96,7 @@ class TestConnection(MachineCase):
 
         # Lets crash a process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
-        if m.image in ["debian-unstable", "ubuntu-1604"]:
+        if m.image in ["debian-testing", "ubuntu-1604"]:
             binary = "cron"
             m.execute("systemctl start cron")
         elif m.image in ["fedora-atomic"]:
@@ -134,7 +134,7 @@ class TestConnection(MachineCase):
         except subprocess.CalledProcessError, ex:
             m.message(ex.output)
             # Some operating systems fail SSL3 on the server side
-            if m.image in [ "debian-unstable", "fedora-25", "fedora-testing" ]:
+            if m.image in [ "debian-testing", "fedora-25", "fedora-testing" ]:
                 self.assertIn("ssl handshake failure", ex.output)
             else:
                 self.assertIn("wrong version number", ex.output)

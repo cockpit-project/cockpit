@@ -23,7 +23,7 @@ from testlib import *
 from storagelib import *
 
 @skipImage("UDisks doesn't have support for multipath", "debian-8", "ubuntu-1604")
-@skipImage("No multipath on Debian", "debian-unstable")
+@skipImage("No multipath on Debian", "debian-testing")
 class TestStorage(StorageCase):
     def testBasic(self):
         m = self.machine

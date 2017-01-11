@@ -71,7 +71,6 @@ openssh-client \
 IPA_CLIENT_PACKAGES="\
 sssd-tools \
 packagekit \
-freeipa-client \
 "
 
 TEST_PACKAGES="\
@@ -86,6 +85,8 @@ echo admin:foobar | chpasswd
 
 # For storaged
 echo "deb http://ftp.uk.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
+# FIXME: we need to enable jessie-backports until docker.io gets back into testing
+echo "deb http://ftp.uk.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
 apt-get -y update
 
 export DEBIAN_FRONTEND=noninteractive
@@ -94,17 +95,20 @@ apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 # Prepare for building
 #
 apt-get -y install dpkg-dev pbuilder
+echo "DISTRIBUTION=testing" > ~/.pbuilderrc
 pbuilder --create
 echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >debian-8.install-build-deps
 pbuilder --execute --save-after-exec debian-8.install-build-deps
 # Disable build-dep installation for the real builds
-echo PBUILDERSATISFYDEPENDSCMD=true >~/.pbuilderrc
+echo PBUILDERSATISFYDEPENDSCMD=true >>~/.pbuilderrc
 
 # Debian does not automatically start the default libvirt network
 virsh net-autostart default
 
 # HACK: docker falls over regularly, print its log if it does
-systemctl start docker || journalctl -u docker
+# we also need to restart it in case aufs-dkms was installed after docker.io
+# and thus docker.io auto-switches its backend
+systemctl restart docker || journalctl -u docker
 
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup

@@ -115,6 +115,7 @@ WEBPACK_DEPS = \
 	dist/kubernetes/Makefile.deps \
 	dist/machines/Makefile.deps \
 	dist/networkmanager/Makefile.deps \
+	dist/nfsserver/Makefile.deps \
 	dist/ostree/Makefile.deps \
 	dist/playground/Makefile.deps \
 	dist/realmd/Makefile.deps \
@@ -144,6 +145,7 @@ dist/%/Makefile.deps: $(WEBPACK_CONFIG)
 -include dist/kubernetes/Makefile.deps
 -include dist/machines/Makefile.deps
 -include dist/networkmanager/Makefile.deps
+-include dist/nfsserver/Makefile.deps
 -include dist/ostree/Makefile.deps
 -include dist/playground/Makefile.deps
 -include dist/realmd/Makefile.deps

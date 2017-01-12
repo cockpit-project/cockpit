@@ -68,6 +68,10 @@ var info = {
             "realmd/operation.js",
         ],
 
+        "nfsserver/nfsserver": [
+            "nfsserver/nfsserver.jsx"
+        ],
+
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
             "selinux/setroubleshoot.css",
@@ -181,6 +185,9 @@ var info = {
         "playground/translate.html",
 
         "realmd/manifest.json",
+
+        "nfsserver/manifest.json",
+        "nfsserver/index.html",
 
         "selinux/manifest.json",
         "selinux/setroubleshoot.html",

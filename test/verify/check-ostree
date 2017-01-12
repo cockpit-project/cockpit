@@ -432,7 +432,6 @@ class OstreeCase(MachineCase):
         b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog .modal-title", "Change Repository")
         b.wait_present("modal-dialog .modal-body .list-group")
-        b.wait_in_text("modal-dialog .modal-body .list-group", "-atomic")
         b.wait_in_text("modal-dialog .modal-body .list-group .active", "local")
         b.wait_in_text("modal-dialog .modal-body .list-group-item:last", "Add New Repository")
 

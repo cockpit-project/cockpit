@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# Because we access the test machines via sshd it's important
+# that it's predictable and reliable. Socket activated OpenSSH
+# is *way* more predictable (especially when you're booting
+# tens of thousands of times a day) ... than the sshd.service
+
+cat > /etc/systemd/system/sshd-keygen@.service << EOF
+[Unit]
+Description=OpenBSD %i Secure Shell Server Key Generation
+ConditionFileNotEmpty=|!/etc/ssh/ssh_host_%i_key
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/ssh
+ExecStart=/usr/libexec/openssh/sshd-keygen %i
+[Install]
+WantedBy=sshd-keygen.target
+EOF
+
+cat > /etc/systemd/system/sshd-keygen.target << EOF
+[Unit]
+Wants=sshd-keygen@rsa.service
+Wants=sshd-keygen@ecdsa.service
+Wants=sshd-keygen@ed25519.service
+PartOf=sshd.service
+EOF
+
+cat > /etc/systemd/system/sshd@.service << EOF
+[Unit]
+Description=OpenBSD Secure Shell per-connection server
+Documentation=man:sshd(8) man:sshd_config(5)
+Wants=sshd-keygen.target
+After=sshd-keygen.target
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStart=-/usr/sbin/sshd -i $SSHD_OPTS
+StandardInput=socket
+EOF
+
+cat > /etc/systemd/system/sshd.socket << EOF
+[Unit]
+Description=OpenSSH Server Socket
+Documentation=man:sshd(8) man:sshd_config(5)
+Conflicts=sshd.service
+[Socket]
+ListenStream=22
+Accept=yes
+[Install]
+WantedBy=sockets.target
+EOF
+
+systemctl daemon-reload
+systemctl disable sshd.service
+systemctl enable sshd.socket

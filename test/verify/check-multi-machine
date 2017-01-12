@@ -91,7 +91,10 @@ def change_ssh_port(machine, port=None, timeout_sec=120):
     # daemon.  This is more portable and reloading/restarting the
     # socket doesn't seem to work well.
     #
-    machine.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+    if machine.image in [ "ubuntu-1604" ]:
+        machine.execute("systemctl stop sshd.socket && systemctl restart ssh.service")
+    else:
+        machine.execute("systemctl stop sshd.socket && systemctl restart sshd.service")
     machine.ssh_port = port
 
     start_time = time.time()

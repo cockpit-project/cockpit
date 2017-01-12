@@ -49,7 +49,7 @@ class TestLoopback(MachineCase):
 
         m.disconnect()
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config", direct=True)
-        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+        m.execute("systemctl stop sshd.socket && systemctl restart sshd.service", direct=True)
         m.wait_execute()
 
         b.reload()

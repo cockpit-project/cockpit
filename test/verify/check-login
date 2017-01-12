@@ -144,7 +144,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # On atomic this happens over ssh
         if m.atomic_image:
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
-            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
 
         m.execute("chage -d 0 admin")
         m.start_cockpit()
@@ -262,7 +261,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if m.atomic_image:
             conf = "/etc/pam.d/sshd"
             m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
-            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+            m.execute("systemctl stop sshd.socket && systemctl restart sshd.service", direct=True)
 
         m.execute("sed -i '5 a auth       required    {0}' {1}".format(path, conf))
 

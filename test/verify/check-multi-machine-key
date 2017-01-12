@@ -97,7 +97,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.machine2.disconnect()
         self.machine2.execute("useradd user -c 'User' || true", direct=True)
         self.machine2.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config", direct=True)
-        self.machine2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+        self.machine2.execute("systemctl stop sshd.socket && systemctl restart sshd.service", direct=True)
         self.machine2.wait_execute()
 
     def tearDown(self):

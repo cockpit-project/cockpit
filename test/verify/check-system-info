@@ -31,19 +31,6 @@ VERSION_ID="2.0"
 PRETTY_NAME="Foobar Adventure Linux Server 2.0 (Day of Doom)"
 """
 
-def ssh_reconnect(machine, timeout_sec=120):
-    start_time = time.time()
-    error = None
-    while (time.time() - start_time) < timeout_sec:
-        try:
-            machine.execute("true", quiet=True)
-            return
-        except Exception, e:
-            error = e
-        time.sleep(0.5)
-
-    raise error
-
 class TestSystemInfo(MachineCase):
 
     def testBasic(self):
@@ -121,9 +108,8 @@ class TestSystemInfo(MachineCase):
         m.execute("echo '' >> /etc/ssh/sshd_config")
         m.execute("echo 'HostKey /etc/ssh/weirdname' >> /etc/ssh/sshd_config")
 
-        # Restart sshd but stop socket so we can make sure we are restarted
-        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
-        ssh_reconnect(m)
+        m.disconnect()
+        m.execute("systemctl stop sshd.socket && systemctl restart sshd.service", direct=True)
 
         b.click("#system-ssh-keys-link")
         b.wait_popup("system_information_ssh_keys")

@@ -158,12 +158,12 @@ static const TestFixture fixture_good_file = {
 };
 
 static const TestFixture fixture_bad_file = {
-  .expected_message = "*Failed to open file 'bad': No such file or directory",
+  .expected_message = "*Failed to open file *bad*: No such file or directory",
   .files = bad_files
 };
 
 static const TestFixture fixture_bad_file2 = {
-  .expected_message = "*Failed to open file 'bad2': No such file or directory",
+  .expected_message = "*Failed to open file *bad2*: No such file or directory",
   .files = bad_files2
 };
 

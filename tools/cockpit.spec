@@ -47,6 +47,7 @@ BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
+BuildRequires: /usr/bin/python
 BuildRequires: intltool
 BuildRequires: libssh-devel >= %{libssh_version}
 BuildRequires: openssl-devel

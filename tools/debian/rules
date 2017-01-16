@@ -2,6 +2,12 @@
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
+# only build cockpit-pcp if pcp is available
+ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
+	export DH_OPTIONS = -Ncockpit-pcp
+	CONFIG_OPTIONS = --disable-pcp
+endif
+
 %:
 	dh $@
 
@@ -9,7 +15,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		--with-networkmanager-needs-root=yes \
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
-		--libexecdir=/usr/lib/cockpit
+		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 
 override_dh_auto_install:
 	dh_auto_install -- install-test-assets

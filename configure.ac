@@ -63,8 +63,9 @@ AC_MSG_RESULT($enable_prefix_only)
 
 GLIB_VERSION="2.34"
 LIBSSH_VERSION="0.6.0"
+GIO_VERSION="2.37.4" # For appropriate version of TLS logic
 
-GIO_REQUIREMENT="gio-unix-2.0 >= $GLIB_VERSION"
+GIO_REQUIREMENT="gio-unix-2.0 >= $GIO_VERSION gio-2.0 >= $GIO_VERSION"
 LIBSYSTEMD_REQUIREMENT="libsystemd"
 LIBSYSTEMD_REQUIREMENT_OLD="libsystemd-journal >= 187 libsystemd-daemon libsystemd-login"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
@@ -117,29 +118,41 @@ COCKPIT_POLKIT_LIBS="$GIO_LIBS $POLKIT_LIBS"
 AC_SUBST(COCKPIT_POLKIT_CFLAGS)
 AC_SUBST(COCKPIT_POLKIT_LIBS)
 
-# whether to build cockpit-ws
-AC_ARG_ENABLE(ws, AC_HELP_STRING([--disable-ws], [Disable cockpit-ws build]))
+COCKPIT_WS_CFLAGS="$COCKPIT_CFLAGS $KRB5_CFLAGS"
+COCKPIT_WS_LIBS="$COCKPIT_LIBS $KRB5_LIBS"
+AC_SUBST(COCKPIT_WS_CFLAGS)
+AC_SUBST(COCKPIT_WS_LIBS)
 
-AC_MSG_CHECKING([build with cockpit-ws])
-if test "$enable_ws" != "no"; then
-  enable_ws="yes"
-  AC_MSG_RESULT([$enable_ws])
-  PKG_CHECK_MODULES(GLIB_TLS, [glib-2.0 >= 2.37.4])
+# whether to build cockpit-ssh
+AC_ARG_ENABLE(ssh, AC_HELP_STRING([--disable-ssh], [Disable cockpit-ssh build and libssh dependency]))
+AC_MSG_CHECKING([build with cockpit-ssh])
+if test "$enable_ssh" != "no"; then
+  enable_ssh="yes"
+  AC_MSG_RESULT([$enable_ssh])
   PKG_CHECK_MODULES(LIBSSH, [libssh >= $LIBSSH_VERSION libssh_threads])
-  COCKPIT_WS_CFLAGS="$COCKPIT_CFLAGS $KRB5_CFLAGS"
-  COCKPIT_WS_LIBS="$COCKPIT_LIBS $KRB5_LIBS"
+
+  AC_CHECK_LIB(ssh, ssh_gssapi_set_creds, [
+    AC_DEFINE_UNQUOTED(HAVE_SSH_GSSAPI_SET_CREDS, 1, Whether ssh_gssapi_set_creds is available)
+  ])
+
+  AC_CHECK_LIB(ssh, ssh_set_agent_socket, [
+    AC_DEFINE_UNQUOTED(HAVE_SSH_SET_AGENT_SOCKET, 1, Whether ssh_set_agent_socket is available)
+    key_auth="yes"
+  ], [key_auth="no"])
+
+  AC_DEFINE_UNQUOTED(WITH_COCKPIT_SSH, 1, [Build cockpit-ssh and include libssh dependency])
+
   COCKPIT_SSH_SESSION_CFLAGS="$COCKPIT_CFLAGS $LIBSSH_CFLAGS $KRB5_CFLAGS"
   COCKPIT_SSH_SESSION_LIBS="$COCKPIT_LIBS $LIBSSH_LIBS $KRB5_LIBS"
-  AC_SUBST(COCKPIT_WS_CFLAGS)
-  AC_SUBST(COCKPIT_WS_LIBS)
   AC_SUBST(COCKPIT_SSH_SESSION_LIBS)
   AC_SUBST(COCKPIT_SSH_SESSION_CFLAGS)
 else
-  enable_ws="no"
-  AC_MSG_RESULT([$enable_ws])
+  enable_ssh="no"
+  key_auth="no"
+  AC_MSG_RESULT([$enable_ssh])
 fi
 
-AM_CONDITIONAL(WITH_COCKPIT_WS, test "$enable_ws" = "yes")
+AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" = "yes")
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,
@@ -220,14 +233,6 @@ AM_CONDITIONAL([ENABLE_PCP], [test "$enable_pcp" = "yes"])
 # gssapi
 AC_CHECK_LIB(gssapi_krb5, gss_import_cred,
   [AC_DEFINE_UNQUOTED(HAVE_GSS_IMPORT_CRED, 1, Whether gss_import_cred is available)])
-AC_CHECK_LIB(ssh, ssh_gssapi_set_creds,
-  [AC_DEFINE_UNQUOTED(HAVE_SSH_GSSAPI_SET_CREDS, 1, Whether ssh_gssapi_set_creds is available)])
-
-# key auth
-AC_CHECK_LIB(ssh, ssh_set_agent_socket,
-  [AC_DEFINE_UNQUOTED(HAVE_SSH_SET_AGENT_SOCKET, 1, Whether ssh_set_agent_socket is available)
-  key_auth="yes"],
-  [key_auth="no"])
 
 # systemd
 AC_ARG_WITH([systemdunitdir], [AC_HELP_STRING([--with-systemdunitdir=DIR],
@@ -586,7 +591,6 @@ echo "
         cflags:                     ${CFLAGS}
         cppflags:                   ${CPPFLAGS}
 
-        cockpit-ws:                 ${enable_ws}
         cockpit-ws user:            ${COCKPIT_USER}
         cockpit-ws group:           ${COCKPIT_GROUP}
         selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
@@ -598,6 +602,8 @@ echo "
         With address sanitizer:     ${asan_status}
         With PCP:                   ${enable_pcp}
 	Branding:                   ${BRAND}
+
+        cockpit-ssh:                ${enable_ssh}
         Supports key auth:          ${key_auth}
 
         pkexec:                     ${PKEXEC}

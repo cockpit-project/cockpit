@@ -46,6 +46,9 @@ if [ -n "$do_build" ]; then
     tar -xzf cockpit-*.tar.gz
     ( cd cockpit-*/
       cp -rp tools/debian debian
+      # Hack: Remove PCP build dependencies while pcp is not in testing
+      # (https://tracker.debian.org/pcp)
+      sed -i '/libpcp.*-dev/d' debian/control
       debuild -S -uc -us -nc
     )
 

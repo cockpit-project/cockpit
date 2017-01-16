@@ -381,6 +381,7 @@ Provides: %{name}-assets
 Obsoletes: %{name}-assets < 0.32
 Provides: %{name}-realmd = %{version}-%{release}
 Provides: %{name}-shell = %{version}-%{release}
+Obsoletes: %{name}-shell < 127
 Provides: %{name}-systemd = %{version}-%{release}
 Provides: %{name}-tuned = %{version}-%{release}
 Provides: %{name}-users = %{version}-%{release}

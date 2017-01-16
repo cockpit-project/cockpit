@@ -283,6 +283,13 @@ if args.build:
 
 if args.install:
     os.chdir("build-results")
+    # Force skip cockpit-dashboard
+    if args.skip:
+        skip = list(args.skip)
+    else:
+        skip = []
+    skip.append("cockpit-dashboard")
+
     rpms = map(os.path.abspath,
                filter(lambda f: (f.endswith(".rpm")
                                  and not f.endswith(".src.rpm")

@@ -49,7 +49,7 @@ if [ -n "$do_build" ]; then
       # Hack: Remove PCP build dependencies while pcp is not in testing
       # (https://tracker.debian.org/pcp)
       sed -i '/libpcp.*-dev/d' debian/control
-      debuild -S -uc -us -nc
+      dpkg-buildpackage -S -uc -us -nc
     )
 
     # Some unit tests want a real network interface
@@ -63,6 +63,7 @@ if [ -n "$do_build" ]; then
     pbuilder build --buildresult "$resultdir" \
                    --logfile "$resultdir/build.log" \
                    cockpit_0-1.dsc >$stdout_dest
+    lintian $resultdir/cockpit_*_$(dpkg --print-architecture).changes
 fi
 
 # Install

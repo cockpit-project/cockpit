@@ -409,14 +409,12 @@ QUnit.asyncTest("closing", function() {
 });
 
 QUnit.asyncTest("channel options", function() {
-    assert.expect(2);
-    var file = cockpit.file(dir + "/foobarbaz", { host: "horst.example" });
-    file.read()
-        .always(function () {
-            assert.equal(this.state(), "rejected", "failed");
-        }).
-        fail(function (error) {
-            assert.equal(error.problem, "no-host", "failed to connect");
+    assert.expect(1);
+    cockpit.file(dir + "/foo", { binary: true }).read()
+        .done(function(data) {
+            assert.ok(data instanceof window.Uint8Array, "options applied, got binary data");
+        })
+        .always(function() {
             QUnit.start();
         });
 });

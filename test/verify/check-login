@@ -257,7 +257,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testConversation(self):
         m = self.machine
         b = self.browser
-        path = "/usr/lib/cockpit-test-assets/mock-pam-conv-mod"
+        path = "/usr/lib/cockpit-test-assets/mock-pam-conv-mod.so"
         conf = "/etc/pam.d/cockpit"
         if m.atomic_image:
             conf = "/etc/pam.d/sshd"

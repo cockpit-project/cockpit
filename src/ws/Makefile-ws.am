@@ -369,21 +369,21 @@ noinst_SCRIPTS += \
 
 TESTS += $(WS_CHECKS)
 
-mock_pam_conv_mod_SOURCES = src/ws/mock-pam-conv-mod.c
-mock-pam-conv-mod$(EXEEXT): $(mock_pam_conv_mod_SOURCES)
+mock_pam_conv_mod_so_SOURCES = src/ws/mock-pam-conv-mod.c
+mock-pam-conv-mod.so: $(mock_pam_conv_mod_so_SOURCES)
 	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) \
 		-o $@ $^ $(PAM_LIBS) $(LDFLAGS)
 
 noinst_PROGRAMS += \
-	mock-pam-conv-mod \
+	mock-pam-conv-mod.so \
 	$(NULL)
 
 testassets_data += \
-	mock-pam-conv-mod \
+	mock-pam-conv-mod.so \
 	$(NULL)
 
 CLEANFILES += \
-	mock-pam-conv-mod \
+	mock-pam-conv-mod.so \
 	$(NULL)
 
 install-exec-hook::

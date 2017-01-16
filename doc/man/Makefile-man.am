@@ -6,8 +6,6 @@ EXTRA_DIST += \
 	doc/man/cockpit-bridge.xml \
 	$(NULL)
 
-if WITH_COCKPIT_WS
-
 man_MANS += \
 	doc/man/cockpit.1 \
 	doc/man/cockpit-ws.8 \
@@ -23,8 +21,6 @@ EXTRA_DIST += \
 	doc/man/pam_ssh_add.xml \
 	doc/man/remotectl.xml \
 	$(NULL)
-
-endif
 
 MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
 	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<

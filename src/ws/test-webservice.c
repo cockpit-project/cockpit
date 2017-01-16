@@ -88,6 +88,8 @@ typedef struct {
   const char *bridge;
 } TestFixture;
 
+#ifdef WITH_COCKPIT_SSH
+
 static GString *
 read_all_into_string (int fd)
 {
@@ -121,12 +123,15 @@ read_all_into_string (int fd)
     }
 }
 
-static void
+#endif
+
+static gboolean
 start_mock_sshd (const gchar *user,
                  const gchar *password,
                  GPid *out_pid,
                  gushort *out_port)
 {
+#ifdef WITH_COCKPIT_SSH
   GError *error = NULL;
   GString *port;
   gchar *endptr;
@@ -139,6 +144,7 @@ start_mock_sshd (const gchar *user,
       "--password", password,
       NULL
   };
+
 
   g_spawn_async_with_pipes (BUILDDIR, (gchar **)argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
                             out_pid, NULL, &out_fd, NULL, &error);
@@ -161,6 +167,13 @@ start_mock_sshd (const gchar *user,
 
   *out_port = (gushort)value;
   g_string_free (port, TRUE);
+  return TRUE;
+#else
+
+  *out_pid = 0;
+  *out_port = 0;
+  return FALSE;
+#endif
 }
 
 static void
@@ -568,6 +581,12 @@ test_handshake_and_auth (TestCase *test,
   WebSocketConnection *ws;
   CockpitWebService *service;
 
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
   start_web_service_and_connect_client (test, data, &ws, &service);
   close_client_and_stop_web_service (test, ws, service);
 }
@@ -639,6 +658,12 @@ test_handshake_and_echo (TestCase *test,
   gulong handler;
   const gchar *token;
 
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
   /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
 
@@ -681,6 +706,12 @@ test_echo_large (TestCase *test,
   gchar *contents;
   GBytes *sent;
   gulong handler;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   start_web_service_and_create_client (test, data, &ws, &service);
   while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
@@ -727,6 +758,12 @@ test_close_error (TestCase *test,
   WebSocketConnection *ws;
   GBytes *received = NULL;
   CockpitWebService *service;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   start_web_service_and_connect_client (test, data, &ws, &service);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
@@ -906,6 +943,12 @@ test_specified_creds (TestCase *test,
   GBytes *sent;
   CockpitWebService *service;
 
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
@@ -939,6 +982,12 @@ test_specified_creds_overide_host (TestCase *test,
   GBytes *received = NULL;
   GBytes *sent;
   CockpitWebService *service;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
@@ -975,6 +1024,12 @@ test_user_host_fail (TestCase *test,
   GBytes *received = NULL;
   CockpitWebService *service;
   const gchar *expect_problem = "authentication-failed";
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
@@ -1022,6 +1077,12 @@ test_user_host_reuse_password (TestCase *test,
   const gchar *user = g_get_user_name ();
   gchar *user_host = NULL;
 
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
@@ -1059,6 +1120,12 @@ test_host_port (TestCase *test,
   gchar *host = NULL;
   GPid pid;
   gushort port;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   /* start a new mock sshd on a different port */
   start_mock_sshd ("auser", "apassword", &pid, &port);
@@ -1102,6 +1169,12 @@ test_specified_creds_fail (TestCase *test,
   WebSocketConnection *ws;
   GBytes *received = NULL;
   CockpitWebService *service;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
@@ -1180,7 +1253,15 @@ test_unknown_host_key (TestCase *test,
   WebSocketConnection *ws;
   CockpitWebService *service;
   GBytes *received = NULL;
-  gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
+  gchar *knownhosts;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
+  knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   cockpit_expect_info ("*New connection from*");
 
@@ -1230,8 +1311,15 @@ test_expect_host_key (TestCase *test,
   GBytes *received = NULL;
   GBytes *message;
   gulong handler;
+  gchar *knownhosts;
 
-  gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
+  knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   /* No known hosts */
   cockpit_ws_known_hosts = "/dev/null";
@@ -1304,8 +1392,15 @@ test_expect_host_key_public (TestCase *test,
   GBytes *payload;
   JsonBuilder *builder;
   gulong handler;
+  gchar *knownhosts;
 
-  gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
+  knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   /* No known hosts */
   cockpit_ws_known_hosts = "/dev/null";
@@ -1436,6 +1531,12 @@ test_auth_results (TestCase *test,
   const gchar *channel;
   const gchar *command;
 
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
   /* Fail to spawn this program */
   cockpit_ws_bridge_program = "/nonexistant";
 
@@ -1500,6 +1601,12 @@ test_fail_spawn (TestCase *test,
   GBytes *received = NULL;
   CockpitWebService *service;
 
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
   /* Fail to spawn this program */
   cockpit_ws_bridge_program = "/nonexistant";
 
@@ -1549,6 +1656,12 @@ test_kill_group (TestCase *test,
   GBytes *sent;
   GBytes *payload;
   gulong handler;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
@@ -1636,6 +1749,12 @@ test_kill_host (TestCase *test,
   GBytes *payload;
   gulong handler;
 
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
+
   /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
 
@@ -1714,6 +1833,12 @@ test_timeout_session (TestCase *test,
   pid_t pid;
   guint sig;
   guint tag;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   cockpit_ws_session_timeout = 1;
 
@@ -1968,6 +2093,12 @@ test_authorize_password (TestCase *test,
   gsize length;
   gulong handler1;
   gulong handler2;
+
+  if (!test->mock_sshd)
+    {
+      cockpit_test_skip ("built without libssh and mock-sshd");
+      return;
+    }
 
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);

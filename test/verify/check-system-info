@@ -183,9 +183,6 @@ class TestSystemInfo(MachineCase):
         if m.image in {"debian-8", "rhel-7", "centos-7", "rhel-atomic", "continuous-atomic"}:
             network_time_prefix = "NTP enabled"
 
-        if m.image in [ "debian-unstable" ]:
-            m.execute("systemctl stop ntp")
-
         # make sure system is on expected timezone EEST
         m.execute("LC_ALL=C timedatectl set-timezone Europe/Helsinki")
 

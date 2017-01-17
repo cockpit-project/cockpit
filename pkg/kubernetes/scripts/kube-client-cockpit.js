@@ -694,6 +694,8 @@
                     });
 
                     opts.headers = angular.extend(heads, config.headers || { }, options.headers || { });
+
+                    debug("request:", method, path, opts);
                     channel = cockpit.channel(opts);
 
                     var response = { };

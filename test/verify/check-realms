@@ -167,7 +167,7 @@ class TestRealms(MachineCase):
 JOIN_SCRIPT = """
 set -ex
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
-for x in 1 2 3 4 5 6 7 8 9 10; do
+for x in $(seq 1 20); do
     if nslookup -type=SRV _ldap._tcp.cockpit.lan; then
         break
     else

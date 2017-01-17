@@ -284,7 +284,9 @@
 
         function globalError(error) {
             var alert = angular.element("<div class='alert alert-danger dialog-error'>");
-            alert.text(error.message || error.toString());
+            var message = error.message || error.toString();
+            console.warn(message);
+            alert.text(message);
             alert.prepend(angular.element("<span class='fa fa-exclamation-triangle'>"));
 
             var wrapper = queryFirst(element, btnSel);

@@ -30,6 +30,8 @@
     var demoDialog = require("./react-demo-dialog.jsx");
     var demoListing = require("./react-demo-listing.jsx");
     var demoTooltip = require("./react-demo-tooltip.jsx");
+    var demoOnOff = require("./react-demo-onoff.jsx");
+
 
     /*-----------------------------------------------------------------------------
       Modal Dialog
@@ -124,6 +126,9 @@
 
         /* Tooltip */
         demoTooltip.demo(document.getElementById('demo-tooltip'), document.getElementById('demo-tooltip-top'));
+
+        // OnOff
+        demoOnOff.demo(document.getElementById('demo-onoff'));
     });
 
 }());

@@ -24,6 +24,7 @@ var React = require("react");
 var moment = require("moment");
 
 var cockpitListing = require("cockpit-components-listing.jsx");
+var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
 
 /* Show details for an alert, including possible solutions
  * Props correspond to an item in the setroubleshoot dataStore
@@ -237,50 +238,6 @@ var DismissableError = React.createClass({
                 <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
                     <span className="pficon pficon-close"/>
                 </button>
-            </div>
-        );
-    }
-});
-
-/* Component to show an on/off switch
- * state      boolean value (off or on)
- * captionOff optional string, default 'Off'
- * captionOn  optional string, default 'On'
- * onChange   triggered when the switch is flipped, parameter: new state
- */
-var OnOffSwitch = React.createClass({
-    getDefaultProps: function() {
-        return {
-            captionOff: _("Off"),
-            captionOn: _("On"),
-        };
-    },
-    handleOnOffClick: function(newState, e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
-        if (this.props.onChange)
-            this.props.onChange(newState);
-        e.stopPropagation();
-    },
-    render: function() {
-        var onClasses = ["btn"];
-        var offClasses = ["btn"];
-        if (this.props.state)
-            onClasses.push("active");
-        else
-            offClasses.push("active");
-        var clickHandler = this.handleOnOffClick.bind(this, !this.props.state);
-        return (
-            <div className="btn-group btn-onoff-ct">
-                <label className={ onClasses.join(" ") }>
-                    <input type="radio" />
-                    <span onClick={clickHandler}>{this.props.captionOn}</span>
-                </label>
-                <label className={ offClasses.join(" ") }>
-                    <input type="radio" />
-                    <span onClick={clickHandler}>{this.props.captionOff}</span>
-                </label>
             </div>
         );
     }

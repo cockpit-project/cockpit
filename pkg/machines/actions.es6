@@ -162,7 +162,7 @@ export function setRefreshInterval(refreshInterval) {
 }
 
 export function updateOrAddVm({ id, name, state, osType, fqdn, uptime, currentMemory, rssMemory, vcpus, autostart,
-    actualTimeInMs, cpuTime }) {
+    actualTimeInMs, cpuTime, screenshot }) {
     let vm = {};
 
     if (id !== undefined) vm.id = id;
@@ -178,6 +178,7 @@ export function updateOrAddVm({ id, name, state, osType, fqdn, uptime, currentMe
 
     if (actualTimeInMs !== undefined) vm.actualTimeInMs = actualTimeInMs;
     if (cpuTime !== undefined) vm.cpuTime = cpuTime;
+    if (screenshot !== undefined) vm.screenshot = screenshot;
 
     return {
         type: 'UPDATE_ADD_VM',

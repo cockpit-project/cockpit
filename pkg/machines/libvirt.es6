@@ -25,7 +25,7 @@ import cockpit from 'cockpit';
 import $ from 'jquery';
 import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs} from './actions.es6';
 import { spawnScript, spawnProcess } from './services.es6';
-import { toKiloBytes, isEmpty, logDebug, isRunning } from './helpers.es6';
+import { toKiloBytes, isEmpty, logDebug, isRunning, random} from './helpers.es6';
 import VMS_CONFIG from './config.es6';
 
 // --- compatibility hack
@@ -88,6 +88,13 @@ export default {
                 }).then(domstats => {
                     if (domstats) {
                         parseDomstats(dispatch, name, domstats);
+                        return spawnGetScreenshot(name);
+                    }
+                }).then(screenshot => {
+                    if (screenshot) {
+                        dispatch(updateOrAddVm({name, screenshot}));
+                    } else {
+                        dispatch(updateOrAddVm({name, screenshot: null}));
                     }
                 }); // end of GET_VM return
             }
@@ -166,6 +173,27 @@ function spawnVirshReadOnly(method, name) {
         cmd: 'virsh',
         args: VMS_CONFIG.Virsh.ConnectionParams.concat(['-r', method, name])
     });
+}
+
+function spawnGetScreenshot (name) {
+    const unique = `${Date.now()}.${random(10457, 324568)}`; // do not search for meaning of these numbers
+    const filename = `/tmp/${name.replace(/[^a-z0-9]/gi, '_')}.${unique}`;
+    const png = `${filename}.png`;
+    const ppm = `${filename}.ppm`;
+    const connect = VMS_CONFIG.Virsh.ConnectionParams.join(' ');
+    const geometry = VMS_CONFIG.Virsh.ScreenshotResizeGeometry;
+
+    const failHandler = ex => {
+        // no big deal if the screenshot can't be retrieved (most probably VM graphics is not configured or utilities are missing)
+        logDebug(`Can't get screenshot for '${name}'. Is ImageMagick installed? Exception: ${JSON.stringify(ex)}`);
+    };
+
+    return spawnScript({
+        // the 'grep' is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1358179
+        script: `(virsh ${connect} screenshot ${name} ${ppm} && convert ${ppm} -resize ${geometry} ${png} && ` +
+         `base64 -w 0 ${png}) | grep -v 'image/x-portable' ; rm -f ${ppm} ${png}`,
+        failHandler
+    }).catch(failHandler);
 }
 
 function parseDumpxml(dispatch, domXml) {

@@ -182,6 +182,21 @@ VmOverviewTabRecord.propTypes = {
     value: PropTypes.string.isRequired
 }
 
+const VmScreenshot = ({alt, img}) => {
+    if (!img) {
+        return null;
+    }
+
+    const src = `data:image/png;base64,${img}`;
+    return (<td>
+        <img src={src} alt={alt} />
+    </td>);
+};
+VmScreenshot.propTypes = {
+    alt: PropTypes.string,
+    img: PropTypes.string.isRequired,
+};
+
 const VmOverviewTab = ({ vm }) => {
     return (<table className='machines-width-max'>
         <tr className='machines-listing-ct-body-detail'>
@@ -201,6 +216,8 @@ const VmOverviewTab = ({ vm }) => {
                     <VmOverviewTabRecord descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
                 </table>
             </td>
+
+            <VmScreenshot alt={vm.name} img={vm.screenshot} />
         </tr>
     </table>);
 };

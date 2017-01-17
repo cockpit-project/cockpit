@@ -121,7 +121,7 @@ apt-get clean
 mkdir /var/log/journal
 
 # Allow root login with password
-sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/^[# ]*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # Disable old SSH init script.  Something is calling "/etc/init.d/ssh
 # reload" during boot and that results in the ssh port being

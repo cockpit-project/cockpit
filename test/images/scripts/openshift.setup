@@ -8,7 +8,10 @@ xfs_growfs /
 
 echo foobar | passwd --stdin root
 
-printf "\nOPENSHIFT CONSOLE: https://10.111.112.101:8443\n\n" >> /etc/issue
+printf "\nLOGIN\n  User: root/admin  Password: foobar\n\n" >> /etc/issue
+printf "SSH ACCESS\n  $ ssh root@10.111.112.101\n  Password: foobar\n\n" >> /etc/issue
+printf "OPENSHIFT CONSOLE\n  https://10.111.112.101:8443\n  Login: scruffy  Password: scruffy\n\n" >> /etc/issue
+printf "OPENSHIFT LISTENING ON LOCALHOST\n  $ ssh -NL 8443:localhost:8443 root@10.111.112.101\n\n" >> /etc/issue
 
 # Disable these things
 ln -sf ../selinux/config /etc/sysconfig/selinux

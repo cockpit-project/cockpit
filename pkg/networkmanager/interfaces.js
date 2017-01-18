@@ -3250,7 +3250,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
         /* Free the main_connection from being a slave if it is our slave.  If there is
          * no main_connection, we don't need to do anything.
          */
-        if (main_connection && cs.master == master_settings.connection.uuid) {
+        if (main_connection && main_connection.Masters.indexOf(master_connection) != -1) {
             free_slave_connection(main_connection);
         }
     }

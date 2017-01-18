@@ -110,6 +110,14 @@ Bigger changes need to be discussed on #cockpit or our mailing list
 cockpit-devel@lists.fedoraproject.org before you invest too much time and
 energy.
 
+Feature changes should have a video and/or screenshots that show the
+change. This video should be uploaded to Youtube or another service that
+allows video embedding. Use a command like this to record a video including
+the browser frame:
+
+    $ recordmydesktop -x 1 -y 200 --width 1024 --height 576 \
+        --fps 24 --freq 44100 --v_bitrate 2000000
+
 ## Debug logging of Cockpit processes
 
 All messages from the various cockpit processes go to the journal and can

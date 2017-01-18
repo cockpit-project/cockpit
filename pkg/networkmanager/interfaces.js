@@ -3212,6 +3212,16 @@ function set_slave(model, master_connection, master_settings, slave_type,
          * activate it at the same time.
          */
 
+        var master_iface;
+        if (master_connection) {
+            master_iface = master_connection.Interfaces[0].Name;
+        } else {
+            master_iface = master_settings.connection.interface_name;
+        }
+
+        if (!master_iface)
+            return false;
+
         if (!main_connection) {
             if (!iface.Device)
                 return false;
@@ -3220,12 +3230,12 @@ function set_slave(model, master_connection, master_settings, slave_type,
                                                          { autoconnect: true,
                                                            interface_name: iface.Name,
                                                            slave_type: slave_type,
-                                                           master: master_settings.connection.uuid
+                                                           master: master_iface
                                                          }
                                                        });
         } else if (cs.master != master_settings.connection.uuid) {
             cs.slave_type = slave_type;
-            cs.master = master_settings.connection.uuid;
+            cs.master = master_iface;
             delete main_connection.Settings.ipv4;
             delete main_connection.Settings.ipv6;
             delete main_connection.Settings.team_port;

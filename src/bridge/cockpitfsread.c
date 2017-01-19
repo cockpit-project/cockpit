@@ -30,6 +30,8 @@
 #include <errno.h>
 #include <string.h>
 
+#define DEFAULT_MAX_READ_SIZE (16*1024*1024)
+
 /**
  * CockpitFsread:
  *
@@ -194,13 +196,16 @@ cockpit_fsread_prepare (CockpitChannel *channel)
 {
   CockpitFsread *self = COCKPIT_FSREAD (channel);
   JsonObject *options;
+  gint64 max_read_size;
   GMappedFile *mapped;
   GBytes *bytes = NULL;
   GError *error = NULL;
+  struct stat statbuf;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->prepare (channel);
 
   options = cockpit_channel_get_options (channel);
+
   if (!cockpit_json_get_string (options, "path", NULL, &self->path))
     {
       cockpit_channel_fail (channel, "protocol-error", "invalid \"path\" option for fsread channel");
@@ -209,6 +214,12 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   if (self->path == NULL || *(self->path) == 0)
     {
       cockpit_channel_fail (channel, "protocol-error", "missing \"path\" option for fsread channel");
+      return;
+    }
+
+  if (!cockpit_json_get_int (options, "max_read_size", DEFAULT_MAX_READ_SIZE, &max_read_size))
+    {
+      cockpit_channel_fail (channel, "protocol-error", "invalid \"max_read_size\" option for fsread channel");
       return;
     }
 
@@ -235,6 +246,24 @@ cockpit_fsread_prepare (CockpitChannel *channel)
                                     "%s: couldn't open: %s", self->path, strerror (err));
             }
         }
+      return;
+    }
+
+  if (fstat (self->fd, &statbuf) < 0)
+    {
+      cockpit_channel_fail (channel, "internal-error", "%s: couldn't stat: %s", self->path, strerror (errno));
+      return;
+    }
+
+  if ((statbuf.st_mode & S_IFMT) != S_IFREG)
+    {
+      cockpit_channel_fail (channel, "internal-error", "%s: not a regular file", self->path);
+      return;
+    }
+
+  if (statbuf.st_size > max_read_size)
+    {
+      cockpit_channel_close (channel, "too-large");
       return;
     }
 

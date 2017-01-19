@@ -3937,6 +3937,8 @@ function factory() {
             return _("Cockpit is not compatible with the software on the system.");
         else if (problem == "no-host")
             return _("Cockpit could not contact the given host.");
+        else if (problem == "too-large")
+            return _("Too much data");
         else
             return problem;
     };

@@ -11,7 +11,8 @@
 <programlisting>
 file = cockpit.file(path,
                     { syntax: syntax_object,
-                      binary: boolean
+                      binary: boolean,
+                      max_read_size: int,
                     })
 
 promise = file.read()
@@ -60,6 +61,10 @@ cockpit.file("/path/to/file").read()
     <para>It is not an error when the file does not exist. In this case, the
       <code>done()</code> callback will be called with a <code>null</code>
       value for <code>content</code> and <code>tag</code> is <code>"-"</code>.</para>
+    <para>You can use the <code>max_read_size</code> option to limit
+      the amount of data that is read.  If the file is larger than the
+      given limit, no data is read and the channel is closed with
+      problem code <code>too-large</code>.  The default limit is 16 MiB.</para>
     <para>To write to a file, use code like this:
 <programlisting>
 cockpit.file("/path/to/file").replace("my new content\n")

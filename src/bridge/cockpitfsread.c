@@ -195,6 +195,7 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   CockpitFsread *self = COCKPIT_FSREAD (channel);
   JsonObject *options;
   GMappedFile *mapped;
+  GBytes *bytes = NULL;
   GError *error = NULL;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->prepare (channel);
@@ -238,19 +239,34 @@ cockpit_fsread_prepare (CockpitChannel *channel)
     }
 
   mapped = g_mapped_file_new_from_fd (self->fd, FALSE, &error);
+  if (mapped)
+    {
+      bytes = g_mapped_file_get_bytes (mapped);
+    }
+  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NODEV))
+    {
+      gchar *contents;
+      gsize length;
+
+      g_clear_error (&error);
+      if (g_file_get_contents (self->path, &contents, &length, &error))
+        bytes = g_bytes_new_take (contents, length);
+    }
+
   if (error)
     {
-      cockpit_channel_fail (channel, "internal-error", "couldn't map: %s", error->message);
+      cockpit_channel_fail (channel, "internal-error", "couldn't read: %s", error->message);
       g_error_free (error);
       return;
     }
 
   self->start_tag = cockpit_get_file_tag_from_fd (self->fd);
   self->queue = g_queue_new ();
-  push_bytes (self->queue, g_mapped_file_get_bytes (mapped));
+  push_bytes (self->queue, bytes);
   self->idler = g_idle_add (on_idle_send_block, self);
   cockpit_channel_ready (channel, NULL);
-  g_mapped_file_unref (mapped);
+  if (mapped)
+    g_mapped_file_unref (mapped);
 }
 
 static void

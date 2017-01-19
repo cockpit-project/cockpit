@@ -435,6 +435,37 @@ test_read_removed (TestCase *tc,
 }
 
 static void
+test_read_non_mmappable (TestCase *tc,
+                         gconstpointer unused)
+{
+  gchar *tag;
+  JsonObject *control;
+  const gchar *path = "/sys/power/state";
+
+  tag = cockpit_get_file_tag (path);
+
+  if (g_strcmp0 (tag, "-") == 0)
+    {
+      cockpit_test_skip ("No /sys/power/state");
+      return;
+    }
+
+  setup_fsread_channel (tc, path);
+  wait_channel_closed (tc);
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert (json_object_get_member (control, "problem") == NULL);
+  g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, tag);
+  g_free (tag);
+}
+
+static void
 test_write_simple (TestCase *tc,
                    gconstpointer unused)
 {
@@ -970,6 +1001,8 @@ main (int argc,
               setup, test_read_replaced, teardown);
   g_test_add ("/fsread/removed", TestCase, NULL,
               setup, test_read_removed, teardown);
+  g_test_add ("/fsread/non-mmappable", TestCase, NULL,
+              setup, test_read_non_mmappable, teardown);
 
   g_test_add ("/fsreplace/simple", TestCase, NULL,
               setup, test_write_simple, teardown);

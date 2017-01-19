@@ -19,7 +19,7 @@
  */
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
-import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm } from "./actions.es6";
+import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm, setRefreshInterval } from "./actions.es6";
 import { canReset, canShutdown, canRun, rephraseUI, logDebug, toGigaBytes } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
@@ -278,7 +278,7 @@ VmUsageTab.propTypes = {
 const Vm = ({ vm, onStart, onShutdown, onForceoff, onReboot, onForceReboot }) => {
     const stateIcon = (<StateIcon state={vm.state} />);
     return (<ListingRow
-        columns={[{name: vm.name, 'header': true}, stateIcon]}
+        columns={[{name: vm.name, 'header': true}, rephraseUI('connections', vm.connectionName), stateIcon]}
         tabRenderers={[ {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
             {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' } ]}
         listingActions={VmActions({vmId: vmId(vm.name), state: vm.state,
@@ -304,13 +304,15 @@ const HostVmsList = ({ vms, dispatch }) => {
     }
 
     return (<div className='container-fluid'>
-        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("State")]}>
+        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]}>
             {vms.map(vm => {
                 return (
-                    <Vm vm={vm} onStart={() => dispatch(startVm(vm.name))} onReboot={() => dispatch(rebootVm(vm.name))}
-                        onForceReboot={() => dispatch(forceRebootVm(vm.name))}
-                        onShutdown={() => dispatch(shutdownVm(vm.name))}
-                        onForceoff={() => dispatch(forceVmOff(vm.name))}/>);
+                    <Vm vm={vm}
+                        onStart={() => dispatch(startVm(vm.connectionName, vm.name))}
+                        onReboot={() => dispatch(rebootVm(vm.connectionName, vm.name))}
+                        onForceReboot={() => dispatch(forceRebootVm(vm.connectionName, vm.name))}
+                        onShutdown={() => dispatch(shutdownVm(vm.connectionName, vm.name))}
+                        onForceoff={() => dispatch(forceVmOff(vm.connectionName, vm.name))}/>);
             })}
         </Listing>
     </div>);

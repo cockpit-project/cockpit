@@ -1,0 +1,12 @@
+Tests: avocado
+Depends: cockpit,
+         python,
+         python-pip,
+         python-wheel,
+         python-setuptools,
+         npm,
+         nodejs-legacy,
+         libfontconfig1,
+         curl,
+# test changes PAM configs and creates admin users
+Restrictions: needs-root, allow-stderr, isolation-machine, breaks-testbed

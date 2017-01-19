@@ -353,8 +353,8 @@ dist-hook::
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
 
-DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' --exclude='bower_components' "$(distdir)"
-DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/bower_components" "$(distdir)/package.json" "$(distdir)/bower.json" "$(distdir)/.bowerrc"
+DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' "$(distdir)" "$(distdir)/bower.json" "$(distdir)/.bowerrc"
+DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/package.json"
 
 DIST_ARCHIVES = \
 	cockpit-$(VERSION).tar.xz \

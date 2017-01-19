@@ -41,7 +41,7 @@ class checklogin_basic(Test):
         b = c.browser
 
         # Setup users and passwords
-        setup_cmd = "useradd %s -c 'Barney Bär'; echo %s:abcdefg | chpasswd" % (
+        setup_cmd = "useradd %s -s /bin/bash -c 'Barney Bär'; echo %s:abcdefg | chpasswd" % (
             username, username)
         cleanup_cmd = "userdel -r %s" % username
         c.run_shell_command(setup_cmd, cleanup_cmd)

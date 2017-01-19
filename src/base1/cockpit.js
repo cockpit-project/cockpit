@@ -628,7 +628,9 @@ function Transport() {
             /* 'ping' messages are ignored */
 
         } else if (data.command == "hint") {
-            if (process_hints)
+            if (data.hint == "ignore-health-check")
+                ignore_health_check = data.data;
+            else if (process_hints)
                 process_hints(data);
 
         } else if (channel !== undefined) {

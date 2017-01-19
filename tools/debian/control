@@ -133,7 +133,8 @@ Architecture: all
 Depends: ${misc:Depends},
          cockpit-bridge (>= ${source:Version}),
          cockpit-bridge (<< ${source:Version}.1~),
-         libpwquality-tools
+         libpwquality-tools,
+         openssl,
 Provides: cockpit-realmd,
           cockpit-shell,
           cockpit-systemd,

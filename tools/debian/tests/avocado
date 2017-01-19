@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+# test expects this user and Fedora group "wheel"
+addgroup wheel
+useradd -m -U -c Administrator -G sudo,wheel -s /bin/bash admin
+echo admin:foobar | chpasswd
+
+# avocado is not packaged, thus install through pip
+pip install avocado-framework
+
+# packaged phantomjs crashes with "QXcbConnection: Could not connect to display"
+npm install sizzle phantomjs-prebuilt
+
+test/avocado/checklogin-raw.py
+test/avocado/checklogin-basic.py

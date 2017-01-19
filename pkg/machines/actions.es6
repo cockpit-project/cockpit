@@ -28,32 +28,39 @@ import { logDebug } from './helpers.es6';
  */
 
 // --- Provider actions -----------------------------------------
-export function getAllVms() {
-    return virt('GET_ALL_VMS');
+/**
+ *
+ * @param connectionName optional - if `undefined` then for all connections
+ */
+export function getAllVms(connectionName) {
+    return virt('GET_ALL_VMS', {connectionName});
 }
 
-export function getVm(lookupId) {
-    return virt('GET_VM', {lookupId}); // provider-specific (i.e. libvirt uses vm_name)
+export function getVm(connectionName, lookupId) {
+    return virt('GET_VM', {
+        lookupId, // provider-specific (i.e. libvirt uses vm_name)
+        connectionName
+    });
 }
 
-export function shutdownVm(name) {
-    return virt('SHUTDOWN_VM', {name});
+export function shutdownVm(connectionName, name) {
+    return virt('SHUTDOWN_VM', {connectionName, name});
 }
 
-export function forceVmOff(name) {
-    return virt('FORCEOFF_VM', {name});
+export function forceVmOff(connectionName, name) {
+    return virt('FORCEOFF_VM', {connectionName, name});
 }
 
-export function rebootVm(name) {
-    return virt('REBOOT_VM', {name});
+export function rebootVm(connectionName, name) {
+    return virt('REBOOT_VM', {connectionName, name});
 }
 
-export function forceRebootVm(name) {
-    return virt('FORCEREBOOT_VM', {name});
+export function forceRebootVm(connectionName, name) {
+    return virt('FORCEREBOOT_VM', {connectionName, name});
 }
 
-export function startVm(name) {
-    return virt('START_VM', {name});
+export function startVm(connectionName, name) {
+    return virt('START_VM', {connectionName, name});
 }
 
 /**
@@ -161,12 +168,13 @@ export function setRefreshInterval(refreshInterval) {
     };
 }
 
-export function updateOrAddVm({ id, name, state, osType, fqdn, uptime, currentMemory, rssMemory, vcpus, autostart,
+export function updateOrAddVm({ id, name, connectionName, state, osType, fqdn, uptime, currentMemory, rssMemory, vcpus, autostart,
     actualTimeInMs, cpuTime }) {
     let vm = {};
 
     if (id !== undefined) vm.id = id;
     if (name !== undefined) vm.name = name;
+    if (connectionName !== undefined) vm.connectionName = connectionName;
     if (state !== undefined) vm.state = state;
     if (osType !== undefined) vm.osType = osType;
     if (currentMemory !== undefined) vm.currentMemory = currentMemory;
@@ -185,24 +193,10 @@ export function updateOrAddVm({ id, name, state, osType, fqdn, uptime, currentMe
     };
 }
 
-export function deleteUnlistedVMs(vmNames) {
+export function deleteUnlistedVMs(connectionName, vmNames) {
     return {
         type: 'DELETE_UNLISTED_VMS',
-        vmNames
-    };
-}
-
-export function hostVmsListToggleVmExpand({name}) { // VM name has ben clicked in a list
-    return {
-        type: 'HOSTVMSLIST_TOGGLE_VM_EXPAND',
-        name
-    };
-}
-
-export function hostVmsListShowSubtab({name, order}) { // VM subtab has been clicked
-    return {
-        type: 'HOSTVMSLIST_SHOW_VM_SUBTAB',
-        name,
-        order
+        vmNames,
+        connectionName
     };
 }

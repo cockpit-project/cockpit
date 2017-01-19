@@ -67,6 +67,42 @@ QUnit.asyncTest("binary read", function() {
         });
 });
 
+QUnit.asyncTest("read non-regular", function() {
+    assert.expect(2);
+    cockpit.file(dir, { binary: true }).read().
+        fail(function(error) {
+            assert.equal(error.problem, "internal-error", "got error");
+        }).
+        always(function() {
+            assert.equal(this.state(), "rejected", "failed");
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("read large", function() {
+    assert.expect(2);
+    cockpit.file(dir + "/large.bin", { binary: true }).read().
+        done(function(resp) {
+            assert.equal(resp.length, 512*1024, "correct result");
+        }).
+        always(function() {
+            assert.equal(this.state(), "resolved", "didn't fail");
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("read too large", function() {
+    assert.expect(2);
+    cockpit.file(dir + "/large.bin", { binary: true, max_read_size: 8*1024 }).read().
+        fail(function(error) {
+            assert.equal(error.problem, "too-large", "got error");
+        }).
+        always(function() {
+            assert.equal(this.state(), "rejected", "failed");
+            QUnit.start();
+        });
+});
+
 /* regression: passing 'binary: false' made cockpit-ws close the whole connection */
 QUnit.asyncTest("binary false", function() {
     assert.expect(1);
@@ -428,7 +464,7 @@ QUnit.asyncTest("remove testdir", function() {
         });
 });
 
-cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; echo $d"]).
+cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; dd if=/dev/zero of=$d/large.bin bs=1k count=512; echo $d"]).
     done(function (resp) {
         dir = resp.replace(/\n$/, "");
         QUnit.start();

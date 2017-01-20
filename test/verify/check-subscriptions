@@ -47,6 +47,17 @@ import os
 # register with: activation key "awesome_os_pool" and org "admin"
 # or: subscription-manager register --activationkey awesome_os_pool --org admin --serverurl https://$IP:8443/candlepin
 
+WAIT_SCRIPT = """
+set -ex
+for x in $(seq 1 200); do
+    if curl --insecure -s https://%(addr)s:8443/candlepin; then
+        break
+    else
+        sleep 1
+    fi
+done
+"""
+
 @skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-atomic", "fedora-testing", "ubuntu-1604")
 class TestSubscriptions(MachineCase):
     additional_machines = {
@@ -72,6 +83,10 @@ class TestSubscriptions(MachineCase):
 
         # make sure that rhsm skips certificate checks for the server
         m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
+
+        # Wait for the web service to be accessible
+        args = { "addr": self.candlepin.address }
+        m.execute(script=WAIT_SCRIPT % args)
 
     def testRegister(self):
         b = self.browser

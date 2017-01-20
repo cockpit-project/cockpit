@@ -5,7 +5,7 @@ $(function() {
     require("patterns");
 
     require("page.css");
-    require("listing.css");
+    require("listing.less");
     require("timeline.css");
     require("table.css");
 

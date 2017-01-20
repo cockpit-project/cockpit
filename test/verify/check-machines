@@ -39,6 +39,9 @@ class TestMachines(MachineCase):
         b = self.browser
         m = self.machine
 
+        # We race with running the test after boot but before the libvirt network has started
+        m.execute("virsh net-start default 2> /dev/null || true")
+
         self.login_and_go("/machines")
         b.wait_in_text("body", "No VM is running or defined on this host")
 

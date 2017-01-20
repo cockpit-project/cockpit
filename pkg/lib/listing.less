@@ -3,16 +3,16 @@
 @import "./variables.less";
 
 table.listing-ct {
-    margin-top: 15px;
+    margin-top: @listing-ct-spacing;
     min-width: 65%;
 }
 
 table.listing-ct > caption,
 table.listing-ct > thead h3 {
-    font-size: 22px;
-    padding: 10px 0px 10px;
+    font-size: @font-size-h2;
+    padding: @listing-ct-padding 0px @listing-ct-padding;
     font-weight: 300;
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 table.listing-ct > caption {
@@ -21,27 +21,27 @@ table.listing-ct > caption {
 }
 
 table.listing-ct > thead td {
-    padding-top: 20px;
+    padding-top: @listing-ct-padding * 2;
 }
 
 table.listing-ct > thead:first-child td {
-    padding-top: 0px;
+    padding-top: 0;
 }
 
 table.listing-ct > thead td > a {
     line-height: 30px;
-    padding: 10px 0px 10px;
+    padding: @listing-ct-padding 0 @listing-ct-padding;
 }
 
 table.listing-ct thead th {
-    border-top: 1px solid #eee;
+    border-top: 1px solid @gray-lighter;
     font-weight: normal;
-    padding: 10px;
-    color: #888;
+    padding: @listing-ct-padding;
+    color: @listing-ct-metadata;
 }
 
 table.listing-ct thead th:first-child {
-    padding-left: 20px;
+    padding-left: @listing-ct-padding * 2;
 }
 
 table.listing-ct thead th:last-child {
@@ -50,16 +50,16 @@ table.listing-ct thead th:last-child {
 
 /* A listing item is a row in the table */
 tbody tr.listing-ct-item {
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid @gray-lighter;
+    border-bottom: 1px solid @gray-lighter;
     cursor: pointer;
 }
 
 table.listing-ct tbody:last-child {
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid @gray-lighter;
 }
 table.listing-ct tbody + thead {
-    border-top: 1px solid #eee;
+    border-top: 1px solid @gray-lighter;
 }
 table.listing-ct tbody.open:last-child {
     border-bottom: none;
@@ -69,28 +69,28 @@ table.listing-ct tbody.open + thead {
 }
 
 tbody tr.listing-ct-item.listing-ct-warning {
-    background-color: #fbc7c7;
+    background-color: @listing-ct-warning-color;
 }
 
 tbody.open tr.listing-ct-item {
-    background-color: #ededed;
+    background-color: @color-pf-black-200;
     border-bottom: none;
     border-top: none;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+    border-left: 1px solid @listing-ct-border;
+    border-right: 1px solid @listing-ct-border;
 }
 
 tbody.open tr.listing-ct-item td,
 tbody.open tr.listing-ct-item th {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid @listing-ct-border;
 }
 
 tbody.open td div.listing-ct-head {
-    background-color: white;
+    background-color: @color-pf-white;
 }
 
 tbody.open .listing-ct-panel {
-    border: 1px solid #ccc;
+    border: 1px solid @listing-ct-border;
 }
 
 tbody.open .listing-ct-panel .listing-ct-body {
@@ -103,34 +103,34 @@ tbody.open tr.listing-ct-panel + tr.listing-ct-body {
 
 tbody.open tr.listing-ct-panel td div.listing-ct-head {
     border: none;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid @listing-ct-border;
 }
 
 /* only highlight the row if navigation is available */
 tbody:not(.open) tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
-    background-color: #d4edfa;
+    background-color: @listing-ct-hover;
 }
 
 /* if we can't navigate to a row but expand is available, highlight the caret */
 tbody:not(.open) tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
-    color: #65bedf;
+    color: @listing-ct-active;
 }
 
 /* use gray for a row that's expanded or if navigation isn't available */
 tbody.open tr.listing-ct-item:hover,
 tr.listing-ct-item.listing-ct-nonavigate:hover {
-    background-color: #ededed;
+    background-color: @color-pf-black-200;
 }
 
 /* always highlight caret when hovering over an expanded row */
 tbody.open tr.listing-ct-item:hover td.listing-ct-toggle {
-    color: #65bedf;
+    color: @listing-ct-active;
 }
 
 tr.listing-ct-item .listing-ct-toggle {
     padding: 0 !important;
     width: 35px;
-    color: #000000;
+    color: @color-pf-black;
 }
 
 table.listing-ct thead .listing-ct-toggle + th,
@@ -140,8 +140,8 @@ tr.listing-ct-item .listing-ct-toggle + th {
 }
 
 td.listing-ct-toggle:hover {
-    color: #65bedf;
-    background-color: #ededed;
+    color: @listing-ct-active;
+    background-color: @color-pf-black-200;
 }
 
 td.listing-ct-toggle i {
@@ -167,33 +167,32 @@ tbody.open td.listing-ct-toggle i:before {
 }
 
 td.listing-ct-toggle:hover ~ td,
-td.listing-ct-toggle:hover ~ th
-{
-    background-color: #ededed;
+td.listing-ct-toggle:hover ~ th {
+    background-color: @color-pf-black-200;
 }
 
 
 /* Listing items have decent padding ... */
 tr.listing-ct-item td {
-    padding: 10px;
+    padding: @listing-ct-padding;
 }
 
 tr.listing-ct-item th {
-    padding: 10px 10px 10px 15px;
+    padding: @listing-ct-padding @listing-ct-padding @listing-ct-padding @listing-ct-spacing;
 }
 
 /* Listing caption is text next to the actions, text should be similar to nav (.nav-tabs-pf > li > a)*/
 .listing-ct-actions > .listing-ct-caption {
-    font-size: 13px;
+    font-size: @font-size-h5;
     vertical-align: middle;
-    color: #4d5258;
-    padding-right: 5px;
+    color: @link-color;
+    padding-right: @listing-ct-padding / 2;
 }
 
 /* Listing actions can be used directly as a cell */
 tr.listing-ct-item td.listing-ct-actions,
 td.listing-ct-actions {
-    padding: 5px 10px;
+    padding: @listing-ct-padding / 2 @listing-ct-padding;
     text-align: right;
     float: none;
 }
@@ -203,7 +202,7 @@ td.listing-ct-actions {
 }
 
 tr.listing-ct-item td:first-child {
-    padding-left: 20px;
+    padding-left: @listing-ct-padding * 2;
 }
 
 /* The last column of a listing is always right aligned */
@@ -212,44 +211,44 @@ tr.listing-ct-item td:last-child {
 }
 
 div.listing-ct-panel {
-    box-shadow: 1px 1px 1px 1px #f5f5f5;
-    margin-bottom: 15px;
+    box-shadow: 1px 1px 1px 1px @listing-ct-open;
+    margin-bottom: @listing-ct-spacing;
 }
 
 div.listing-ct-maybe {
-    border: 1px dashed #ddd;
+    border: 1px dashed @listing-ct-border-maybe;
     box-shadow: none;
 }
 
 div.listing-ct-head {
-    padding: 10px 10px 0px 10px;
-    background-color: #f6f6f6;
-    border-color: #ccc;
+    padding: @listing-ct-padding @listing-ct-padding 0 @listing-ct-padding;
+    background-color: @listing-ct-open;
+    border-color: @listing-ct-border;
     border-style: solid;
-    border-width: 1px 1px 0px 1px;
+    border-width: 1px 1px 0 1px;
     overflow: hidden;
 }
 
 div.listing-ct-head:last-child {
-    padding-bottom: 10px;
+    padding-bottom: @listing-ct-padding;
 }
 
 div.listing-ct-maybe div.listing-ct-head,
 div.listing-ct-maybe div.listing-ct-body {
-    background-color: white;
+    background-color: @color-pf-white;
     border: none;
 }
 
 tbody.active .listing-ct-head {
-    border-top: 3px solid #0099d3;
+    border-top: @listing-ct-open-width solid #0099d3;
 }
 
 .listing-ct-head h3 {
     font-weight: normal;
     font-size: 18px;
     margin-top: 0px;
-    margin-left: 5px;
-    margin-bottom: 10px;
+    margin-left: @listing-ct-padding / 2;
+    margin-bottom: @listing-ct-padding;
 }
 
 .listing-ct-head h3 i {
@@ -267,7 +266,7 @@ tbody.active .listing-ct-head {
 }
 
 .listing-ct-head .nav-tabs-pf {
-    margin-left: -10px;
+    margin-left: -@listing-ct-padding;
 }
 
 /* To display info instead of tabs */
@@ -284,7 +283,7 @@ tbody.active .listing-ct-head {
     font-weight: normal;
     display: inline;
     margin-right: 0.5em;
-    color: #888;
+    color: @listing-ct-metadata;
 }
 
 .listing-ct-head dd {
@@ -293,21 +292,21 @@ tbody.active .listing-ct-head {
 }
 
 .listing-ct-body {
-    padding: 20px 25px;
+    padding: @listing-ct-padding * 2 @listing-ct-padding + @listing-ct-spacing;
     font-size: 13px;
-    border: 1px solid #ccc;
-    background-color: white;
+    border: 1px solid @listing-ct-border;
+    background-color: @color-pf-white;
 }
 
 .listing-ct-inline > .listing-ct-body {
     border: none;
     padding-top: 0px;
-    padding-left: 20px;
+    padding-left: @listing-ct-padding * 2;
     padding-bottom: 0px;
 }
 
 .listing-ct-inline > h3 {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid @listing-ct-border;
     padding-top: 20px;
     margin-top: 30px;
 }
@@ -329,9 +328,9 @@ tbody.active .listing-ct-head {
 }
 
 .listing-ct-error {
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+    border-top: 1px solid @listing-ct-border;
+    border-left: 1px solid @listing-ct-border;
+    border-right: 1px solid @listing-ct-border;
 }
 
 .listing-ct-error.alert {
@@ -355,7 +354,7 @@ tbody.active .listing-ct-head {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #888;
+    color: @listing-ct-metadata;
     font-weight: normal;
 }
 
@@ -388,7 +387,7 @@ tbody.active .listing-ct-head {
 }
 
 table.listing-ct tbody.open {
-    box-shadow: 1px 1px 1px 1px #f5f5f5;
+    box-shadow: 1px 1px 1px 1px @color-pf-black-150;
 }
 
 /* By default these thincgs are hidden */
@@ -405,11 +404,11 @@ tbody.open tr.listing-ct-body {
 }
 
 tbody.open tr.listing-ct-head {
-    border-color: #ccc;
+    border-color: @listing-ct-border;
     border-style: solid;
-    border-width: 1px 1px 0px 1px;
-    border-top: 3px solid #0099d3;
-    background-color: #f6f6f6;
+    border-width: 1px 1px 0 1px;
+    border-top: @listing-ct-open-width solid #0099d3;
+    background-color: @listing-ct-open;
 }
 
 tr.listing-ct-head + tr.listing-ct-head {
@@ -417,25 +416,25 @@ tr.listing-ct-head + tr.listing-ct-head {
 }
 
 tr.listing-ct-head + tr.listing-ct-head td {
-    padding: 0px 10px 0px 10px;
+    padding: 0px @listing-ct-padding 0px @listing-ct-padding;
 }
 
 tr.listing-ct-body td {
-    padding: 20px 25px;
+    padding: @listing-ct-padding * 2 @listing-ct-padding * @listing-ct-spacing;
     font-size: 13px;
 }
 
 .listing-ct-empty {
     color: #888;
     text-align: center;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid @listing-ct-border-light;
+    border-bottom: 1px solid @listing-ct-border-light;
 }
 
 /* Used at the end of a group of tbody to show an 'empty' message */
 thead.listing-ct-empty td,
 table.listing-ct > thead.listing-ct-empty td {
-    padding: 10px;
+    padding: @listing-ct-padding;
 }
 
 tbody + thead.listing-ct-empty {
@@ -448,16 +447,16 @@ tbody + thead.listing-ct-empty {
 }
 
 div.listing-ct-head {
-        overflow: visible;
+    overflow: visible;
 }
 
 .listing-ct-head .btn-group,
 .listing-ct-head button:not(.dropdown-toggle) {
-        margin-left: 0.3em;
+    margin-left: 0.3em;
 }
 
 table.listing-ct > caption a {
-        font-size: 16px;
+    font-size: 16px;
 }
 
 tbody tr.listing-ct-noexpand {
@@ -468,7 +467,7 @@ tbody tr.listing-ct-noexpand {
 
 .nav-tabs-pf > li:first-child a {
     margin-left: 0px !important;
-    padding-left: 15px !important;
+    padding-left: @listing-ct-spacing !important;
 }
 
 .nav-tabs-pf > li a:before {
@@ -479,6 +478,6 @@ tbody tr.listing-ct-noexpand {
 .nav-tabs-pf > li > a:focus:before,
 .nav-tabs-pf > li > a:hover:before,
 .nav-tabs-pf > li.active a:before {
-    height: 3px;
+    height: @listing-ct-open-width;
     left: 0px;
 }

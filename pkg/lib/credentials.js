@@ -23,7 +23,7 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    require("listing.css");
+    require("listing.less");
     require("patterns");
 
     var lister = require("raw!credentials-ssh-private-keys.sh");

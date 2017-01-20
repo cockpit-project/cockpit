@@ -31,7 +31,7 @@ var info = {
 
         "machines/machines": [
             "machines/index.js",
-            "machines/machines.css",
+            "machines/machines.less",
         ],
 
         "networkmanager/network": [
@@ -41,7 +41,7 @@ var info = {
 
         "ostree/ostree": [
             "ostree/app.js",
-            "ostree/ostree.css",
+            "ostree/ostree.less",
         ],
 
         "playground/jquery-patterns": [
@@ -386,10 +386,6 @@ module.exports = {
                 loader: 'strict' // Adds "use strict"
             },
             {
-                test: /\.css$/,
-                loader: extract.extract("style-loader", "css-loader?minimize=&root=" + libdir)
-            },
-            {
                 test: /\.jsx$/,
                 loader: "babel-loader"
             },
@@ -398,8 +394,12 @@ module.exports = {
                 loader: "babel-loader"
             },
             {
+                test: /\.css$/,
+                loader: extract.extract("css-loader?minimize=&root=" + libdir)
+            },
+            {
                 test: /\.less$/,
-                loader: extract.extract('css?sourceMap&minimize=!' + 'less?sourceMap&compress=false')
+                loader: extract.extract("css-loader?sourceMap&minimize=!less-loader?sourceMap&compress=false&root=" + libdir)
             },
             {
                 test: /views\/[^\/]+\.html$/,

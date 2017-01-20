@@ -21,7 +21,7 @@
 
 var React = require('react');
 
-require('./listing.css');
+require('./listing.less');
 
 /* entry for an alert in the listing, can be expanded (with details) or standard
  * rowId optional: an identifier for the row which will be set as "data-row-id" attribute on the <tr>

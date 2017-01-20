@@ -25,6 +25,7 @@ import os
 import unittest
 import time
 import sys
+import re
 
 from kubelib import *
 
@@ -600,6 +601,9 @@ class TestRegistry(MachineCase):
         b.wait_visible(".modal-body")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
+        b.wait_present("table.listing-ct")
+        wait(lambda: re.search(r"registry-editor\s+/registry-editor\s+testprojectuser\b",
+                               o.execute("oc get rolebinding -n testprojectuserproj")))
 
         #delete user
         b.wait_in_text(".content-filter h3", "testprojectuser")
@@ -607,6 +611,36 @@ class TestRegistry(MachineCase):
         b.wait_present("modal-dialog")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
+        wait(lambda: not re.search(r"\btestprojectuser\b", o.execute("oc get rolebinding -n testprojectuserproj")))
+
+        #add/remove members for other roles
+        b.go("#/projects/testprojectuserproj")
+        for (role, perm) in [("Push", "editor"), ("Pull", "viewer")]:
+            username = "testprojectuser" + role.lower()
+            b.click("a i.pficon-add-circle-o")
+            b.wait_present("modal-dialog")
+            b.wait_visible("#add_member_name")
+            b.set_val("#add_member_name", username)
+            b.wait_visible("#add_role")
+            b.click("#add_role button")
+            b.wait_visible("#add_role .dropdown-menu")
+            b.click("#add_role a[value='%s']" % role)
+            b.click(".btn-primary")
+            b.wait_not_present("modal-dialog")
+            b.wait_present("tbody[data-id='%s']" % username)
+
+            wait(lambda: username in o.execute("oc get rolebinding -n testprojectuserproj"))
+            output = o.execute("oc get rolebinding -n testprojectuserproj")
+            self.assertRegexpMatches(output, "registry-%s\s+/registry-%s\s.*\\b%s\\b" % (perm, perm, username))
+            self.assertNotRegexpMatches(output, "registry-admin.*%s" % username)
+
+            b.wait_present("tbody[data-id='%s']" % username)
+            b.click("tbody[data-id='%s'] a i.pficon-close" % username)
+            b.wait_present("modal-dialog")
+            b.click(".btn-primary")
+            b.wait_not_present("modal-dialog")
+            b.wait_present("table.listing-ct")
+            wait(lambda: username not in o.execute("oc get rolebinding -n testprojectuserproj"))
 
     def testProjectPolicy(self):
         o = self.openshift

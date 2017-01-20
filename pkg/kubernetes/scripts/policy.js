@@ -224,7 +224,7 @@
             }
 
             function removeMemberFromPolicyBinding(policyBinding, project, subjectRoleBindings, subject) {
-                var registryRoles = ["registry-admin", "registry-edit", "registry-view"];
+                var registryRoles = ["registry-admin", "registry-editor", "registry-viewer"];
                 var chain = $q.when();
                 var defaultPolicybinding;
                 var roleBindings = [];

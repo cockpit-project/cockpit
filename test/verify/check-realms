@@ -48,7 +48,7 @@ def prepare_resolv(machine, address):
 @skipImage("No freeipa available", "debian-8", "debian-testing")
 class TestRealms(MachineCase):
     additional_machines = {
-        'ipa': { 'machine': { 'image': 'ipa' } }
+        'ipa': { 'machine': { 'image': 'ipa' }, 'start': { 'memory_mb': 2048 } }
     }
 
     def testIpa(self):
@@ -199,7 +199,7 @@ getent passwd admin@cockpit.lan
 @skipImage("No freeipa available", "debian-8", "debian-testing")
 class TestKerberos(MachineCase):
     additional_machines = {
-        'ipa': { 'machine': { 'image': 'ipa' } }
+        'ipa': { 'machine': { 'image': 'ipa' }, 'start': { 'memory_mb': 2048 } }
     }
 
     def configure_kerberos(self):

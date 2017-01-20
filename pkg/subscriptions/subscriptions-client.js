@@ -210,7 +210,7 @@ client.registerSystem = function(subscriptionDetails) {
                 return;
             } else {
                 // unrecognized output
-                console.log("unrecognized subscription-manager failure output: ", ex);
+                console.log("unrecognized subscription-manager failure output: ", ex, message);
             }
             var error = new Error(message);
             dfd.reject(error);

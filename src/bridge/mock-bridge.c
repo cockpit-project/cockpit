@@ -69,6 +69,17 @@ mock_case_channel_recv (CockpitChannel *channel,
   g_bytes_unref (bytes);
 }
 
+static gboolean
+mock_case_channel_control (CockpitChannel *channel,
+                           const gchar *command,
+                           JsonObject *options)
+{
+  if (g_strcmp0 (command, "close-later") == 0)
+    cockpit_channel_close (channel, "closed");
+
+  return TRUE;
+}
+
 static void
 mock_case_channel_init (MockCaseChannel *self)
 {
@@ -106,6 +117,7 @@ mock_case_channel_class_init (MockCaseChannelClass *klass)
 
   object_class->constructed = mock_case_channel_constructed;
   channel_class->recv = mock_case_channel_recv;
+  channel_class->control = mock_case_channel_control;
 }
 
 static GHashTable *channels;
@@ -285,7 +297,7 @@ main (int argc,
     {
       g_printerr ("mock-bridge: %s\n", error->message);
       g_error_free (error);
-      return 1;
+      return 255;
     }
 
   outfd = dup (1);

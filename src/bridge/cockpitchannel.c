@@ -909,6 +909,8 @@ cockpit_channel_control (CockpitChannel *self,
 {
   JsonObject *object;
   GBytes *message;
+  const gchar *problem;
+  gchar *problem_copy = NULL;
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
   g_return_if_fail (command != NULL);
@@ -917,6 +919,25 @@ cockpit_channel_control (CockpitChannel *self,
     {
       g_return_if_fail (self->priv->sent_done == FALSE);
       self->priv->sent_done = TRUE;
+    }
+
+  /* If closing save the close options
+   * and let close send the message */
+  else if (g_str_equal (command, "close"))
+    {
+      if (!self->priv->close_options)
+        {
+          /* Ref for close_options, freed in parent */
+          self->priv->close_options = json_object_ref (options);
+        }
+
+      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
+        problem = NULL;
+
+      /* Use a problem copy so it out lasts the value in close_options */
+      problem_copy = g_strdup (problem);
+      cockpit_channel_close (self, problem_copy);
+      goto out;
     }
 
   if (options)
@@ -932,6 +953,9 @@ cockpit_channel_control (CockpitChannel *self,
 
   cockpit_transport_send (self->priv->transport, NULL, message);
   g_bytes_unref (message);
+
+out:
+  g_free (problem_copy);
 }
 
 static GHashTable *internal_addresses;

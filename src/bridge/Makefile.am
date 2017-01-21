@@ -34,6 +34,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitnullchannel.h \
 	src/bridge/cockpitrouter.c \
 	src/bridge/cockpitrouter.h \
+	src/bridge/cockpitshim.c \
+	src/bridge/cockpitshim.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitwebsocketstream.c \
@@ -166,6 +168,7 @@ BRIDGE_CHECKS = \
 	test-websocketstream \
 	test-process \
 	test-bridge \
+	test-router \
 	$(NULL)
 
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
@@ -206,6 +209,12 @@ test_portal_SOURCES = src/bridge/test-portal.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_portal_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_portal_LDADD = $(libcockpit_bridge_LIBS)
+
+test_router_SOURCES = src/bridge/test-router.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_router_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_router_LDADD = $(libcockpit_bridge_LIBS)
+
 
 test_rules_SOURCES = src/bridge/test-rules.c
 test_rules_CFLAGS = $(libcockpit_bridge_a_CFLAGS)

@@ -35,6 +35,7 @@
 #include "cockpitpolkitagent.h"
 #include "cockpitportal.h"
 #include "cockpitrouter.h"
+#include "cockpitshim.h"
 #include "cockpitwebsocketstream.h"
 
 #include "common/cockpitassets.h"
@@ -367,6 +368,45 @@ getpwuid_a (uid_t uid)
   return ret;
 }
 
+static CockpitChannel *
+pcp_shim (CockpitRouter *router,
+          CockpitTransport *transport,
+          const gchar *channel_id,
+          JsonObject *options,
+          gboolean frozen)
+{
+  CockpitChannel *channel = NULL;
+  CockpitTransport *shim_transport = NULL;
+  const gchar *payload;
+  const gchar *source;
+
+  static const gchar *argv[] = {
+    PACKAGE_LIBEXEC_DIR "/cockpit-pcp",
+    NULL
+  };
+
+  if (!cockpit_json_get_string (options, "payload", NULL, &payload))
+    payload = NULL;
+  if (!cockpit_json_get_string (options, "source", NULL, &source))
+    source = NULL;
+
+  if (g_strcmp0 (payload, "metrics1") == 0 &&
+      g_strcmp0 (source, "internal") != 0)
+    {
+        shim_transport = cockpit_router_ensure_external_bridge (router, channel_id,
+                                                                NULL, argv, NULL);
+        channel = COCKPIT_CHANNEL (g_object_new (COCKPIT_TYPE_SHIM,
+                                                 "transport", transport,
+                                                 "id", channel_id,
+                                                 "options", options,
+                                                 "frozen", frozen,
+                                                 "shim-transport", shim_transport,
+                                                 NULL));
+    }
+
+  return channel;
+}
+
 static int
 run_bridge (const gchar *interactive,
             gboolean privileged_slave)
@@ -378,7 +418,6 @@ run_bridge (const gchar *interactive,
   gboolean closed = FALSE;
   const gchar *init_host = NULL;
   CockpitPortal *super = NULL;
-  CockpitPortal *pcp = NULL;
   gpointer polkit_agent = NULL;
   const gchar *directory;
   struct passwd *pwd;
@@ -475,9 +514,8 @@ run_bridge (const gchar *interactive,
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
-  pcp = cockpit_portal_new_pcp (transport);
-
   router = cockpit_router_new (transport, payload_types, init_host);
+  cockpit_router_add_channel_function (router, pcp_shim);
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
   cockpit_dbus_process_startup ();
@@ -496,7 +534,6 @@ run_bridge (const gchar *interactive,
   if (super)
     g_object_unref (super);
 
-  g_object_unref (pcp);
   g_object_unref (router);
   g_object_unref (transport);
 

@@ -72,7 +72,6 @@ import os
 import subprocess
 import json
 import re
-import time
 import select
 
 ## Utils
@@ -169,7 +168,6 @@ def get_driver_info():
             return (None, None)
 
     def get_rootfs_lvol_and_vgroup():
-        root_dev = None
         for l in open("/proc/mounts", "r").readlines():
             fields = l.split()
             if fields[1] == "/" and fields[0].startswith("/dev"):
@@ -312,7 +310,6 @@ def drive_serial(d):
 
 def drive_name(d):
     vendor = drive_vendor(d)
-    model = drive_model(d)
     serial = drive_serial(d)
     wwn = drive_wwn(d)
 
@@ -337,7 +334,8 @@ def drive_class(d):
 
 can_manage = None
 
-def get_info():
+def get_info(got_uevent):
+    # XXX - skip udev/lvm stuff on pure timeouts, i. e. if got_uevent == False (currently unused)
     try:
         drives = { }
         for d in list_block_devices():
@@ -417,7 +415,7 @@ def cmd_monitor():
     except:
         pass
 
-    old_info = get_info()
+    old_info = get_info(True)
     print_info(old_info)
 
     mon = subprocess.Popen([ "stdbuf", "-o", "L", "udevadm", "monitor", "-u", "-s", "block"],
@@ -428,8 +426,9 @@ def cmd_monitor():
         if len(r) > 0:
             if mon.stdout.readline().decode().startswith("UDEV  "):
                 got_event = True
-        # XXX - skip udev/lvm stuff on pure timeouts
-        info = get_info()
+        # we want to periodically call get_info() to update the usage
+        # information even without uevents
+        info = get_info(got_event)
         if info != old_info:
             print_info(info)
             old_info = info
@@ -439,7 +438,6 @@ def cmd_monitor():
 def get_dss_vgroup():
     vgroup = sh_get_var_in_file("/etc/sysconfig/docker-storage-setup", "VG", "")
     if vgroup == "":
-        root_dev = None
         for l in open("/proc/mounts", "r").readlines():
             fields = l.split()
             if fields[1] == "/" and fields[0].startswith("/dev"):

@@ -64,6 +64,7 @@
     ]);
 
     var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+    var USER_NAME_RE = /^[a-z0-9_.]([-a-z0-9@._]*[a-z0-9._])?$/;
 
     /* Timeout for non-GET requests */
     var REQ_TIMEOUT = "120s";
@@ -1315,9 +1316,10 @@
                 if (meta) {
                     ex = null;
                     if (meta.name !== undefined) {
+                        var check_re = (resource.kind == "User") ? USER_NAME_RE : NAME_RE;
                         if (!meta.name)
                             ex = new Error("The name cannot be empty");
-                        else if (!NAME_RE.test(meta.name))
+                        else if (!check_re.test(meta.name))
                             ex = new Error("The name contains invalid characters");
                     }
                     if (ex) {

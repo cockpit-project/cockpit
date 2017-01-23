@@ -876,7 +876,7 @@
         'fields',
         function($q, $scope, projectData, projectPolicy, kselect, fields) {
             var selectMember = 'Select Member';
-            var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+            var NAME_RE = /^[a-z0-9_.]([-a-z0-9@._]*[a-z0-9._])?$/;
             var selectRole = 'Select Role';
             $scope.selected = {
                 member: selectMember,

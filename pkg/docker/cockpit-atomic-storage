@@ -102,8 +102,7 @@ def list_pvs(vgroup):
     return res
 
 def list_lvs(vgroup):
-    return map(lambda s: s.strip(),
-               check_output([ "lvs", "--noheadings", "-o", "name", vgroup ]).splitlines())
+    return [s.strip() for s in check_output([ "lvs", "--noheadings", "-o", "name", vgroup ]).splitlines()]
 
 def list_parents(dev):
     return check_output([ "lsblk", "-snlp", "-o", "NAME", dev ]).splitlines()[1:]

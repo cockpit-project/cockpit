@@ -87,7 +87,7 @@ Package: cockpit-docker
 Architecture: all
 Depends: ${misc:Depends},
          docker.io (>= 1.3.0) | docker-engine (>= 1.3.0),
-         python,
+         python3,
          cockpit-bridge (>= ${source:Version}),
          cockpit-bridge (<< ${source:Version}.1~)
 Description: Cockpit user interface for Docker containers

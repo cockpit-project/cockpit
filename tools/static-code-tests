@@ -6,6 +6,8 @@ set -e
 # pyflakes
 #
 
+pyflakes pkg/docker/cockpit-atomic-storage
+
 # TODO: there are currently a lot of pyflakes errors like
 #   'parent' imported but unused
 #   'from testlib import *' used; unable to detect undefined names

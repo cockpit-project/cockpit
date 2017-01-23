@@ -267,7 +267,8 @@ class Machine:
             self.ssh_master = None
         if self.ssh_process:
             self.ssh_process.stdin.close()
-            self.ssh_process.wait()
+            with Timeout(seconds=90, error_message="Timeout while waiting for ssh master to shut down"):
+                self.ssh_process.wait()
             self.ssh_process = None
 
     def _check_ssh_master(self):

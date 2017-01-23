@@ -26,6 +26,8 @@
     var React = require("react");
     var dialog_view = require("cockpit-components-dialog.jsx");
     var cockpit_atomic_storage = require("raw!./cockpit-atomic-storage");
+    // FIXME: eventually convert all images to python 3
+    const pyinvoke = [ "sh", "-ec", "exec $(which python3 2>/dev/null || which python) $@", "--", "-" ];
 
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -48,7 +50,7 @@
 
         function update() {
             if (!cockpit.hidden && !process) {
-                process = cockpit.spawn([ "python", "-", "monitor" ],
+                process = cockpit.spawn(pyinvoke.concat(["monitor"]),
                                         { err: "ignore",
                                           superuser: true })
                                   .input(cockpit_atomic_storage)
@@ -381,7 +383,7 @@
             var devs = drives.map(function (d) { return d.path; });
             if (docker_will_be_stopped)
                 client.close();
-            var process = cockpit.spawn([ "python", "-", storage_action ].concat(devs),
+            var process = cockpit.spawn(pyinvoke.concat([storage_action]).concat(devs),
                                          { 'err': 'out',
                                            'superuser': true })
                                   .input(cockpit_atomic_storage)
@@ -429,7 +431,7 @@
         function reset() {
             var dfd = $.Deferred();
             client.close();
-            var process = cockpit.spawn([ "python", "-", "reset-and-reduce" ],
+            var process = cockpit.spawn(pyinvoke.concat(["reset-and-reduce"]),
                                         { 'err': 'out',
                                           'superuser': true })
                                   .input(cockpit_atomic_storage)

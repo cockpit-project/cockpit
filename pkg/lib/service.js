@@ -60,6 +60,14 @@
      * Start the service.  The return value is a standard jQuery
      * promise as returned from DBusClient.call.
      *
+     * - promise =  proxy.restart()
+     *
+     * Restart the service.
+     *
+     * - promise = proxy.tryRestart()
+     * 
+     * Try to restart the service if it's running or starting
+     *
      * - promise = proxy.stop()
      *
      * Stop the service.
@@ -111,6 +119,7 @@
             start: start,
             stop: stop,
             restart: restart,
+            tryRestart: tryRestart,
 
             enable: enable,
             disable: disable
@@ -297,6 +306,10 @@
 
         function restart() {
             return call_manager_with_job("RestartUnit", [ name, "replace" ]);
+        }
+
+        function tryRestart() {
+            return call_manager_with_job("TryRestartUnit", [ name, "replace" ]);
         }
 
         function enable() {

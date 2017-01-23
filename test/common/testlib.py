@@ -1129,8 +1129,8 @@ def wait(func, msg=None, delay=1, tries=60):
       msg: A error message to use when the timeout occurs.  Defaults
         to a generic message.
       delay: How long to wait between calls to FUNC, in seconds.
-        Defaults to 0.2.
-      tries: How often to call FUNC.  Defaults to 20.
+        Defaults to 1.
+      tries: How often to call FUNC.  Defaults to 60.
 
     Raises:
       Error: When a timeout occurs.

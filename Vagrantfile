@@ -42,8 +42,22 @@ Vagrant.configure(2) do |config|
         ln -snf /cockpit/dist /home/admin/.local/share/cockpit
 
         dnf copr enable -y @cockpit/cockpit-preview
-        dnf install -y docker kubernetes atomic subscription-manager etcd pcp realmd \
-		NetworkManager storaged storaged-lvm2 git yum-utils tuned libvirt virt-install qemu
+        dnf install -y \
+            atomic \
+            docker \
+            etcd \
+            git \
+            kubernetes \
+            NetworkManager \
+            pcp \
+            qemu \
+            realmd \
+            storaged \
+            storaged-lvm2 \
+            subscription-manager \
+            tuned libvirt \
+            virt-install \
+            yum-utils
         dnf install -y cockpit
         debuginfo-install -y cockpit cockpit-pcp
 

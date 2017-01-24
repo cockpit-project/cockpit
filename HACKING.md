@@ -118,6 +118,16 @@ the browser frame:
     $ recordmydesktop -x 1 -y 200 --width 1024 --height 576 \
         --fps 24 --freq 44100 --v_bitrate 2000000
 
+You can also resize your browser window and move it to the right location with
+a script. In Firefox you can open the Scratchpad (`Shift+F4`) and enter the
+following commands:
+
+    $ window.resizeTo(1024, 576);
+    $ window.moveTo(1, 200);
+
+Then run it with `Ctrl+R` when the browser is showing an empty tab, e.g.
+`about:newtab`. You may need to adjust the positions for your environment.
+
 ## Debug logging of Cockpit processes
 
 All messages from the various cockpit processes go to the journal and can

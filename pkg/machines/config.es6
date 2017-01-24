@@ -34,7 +34,8 @@ const VMS_CONFIG = {
             }
         }
     },
-    isDev: false // TODO: make it configurable based on process.env.NODE_ENV
+    // TODO: make it configurable via config file
+    isDev: false, // Never commit with 'true'
 };
 
 export default VMS_CONFIG;

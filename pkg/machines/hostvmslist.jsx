@@ -19,8 +19,8 @@
  */
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
-import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm, setRefreshInterval } from "./actions.es6";
-import { canReset, canShutdown, canRun, rephraseUI, logDebug, toGigaBytes } from "./helpers.es6";
+import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm, hostVmsListToggleVmExpand, hostVmsListShowSubtab, setRefreshInterval } from "./actions.es6";
+import { rephraseUI, logDebug, toGigaBytes } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
@@ -37,8 +37,8 @@ const NoVm = () => {
     </div>);
 }
 
-const VmActions = ({ vmId, state, onStart, onReboot, onForceReboot, onShutdown, onForceoff }) => {
-    const reset = canReset(state) ? DropdownButtons({
+const VmActions = ({ vmId, state, config, onStart, onReboot, onForceReboot, onShutdown, onForceoff }) => {
+    const reset = config.provider.canReset(state) ? DropdownButtons({
         buttons: [{
             title: _("Restart"),
             action: onReboot,
@@ -50,7 +50,7 @@ const VmActions = ({ vmId, state, onStart, onReboot, onForceReboot, onShutdown, 
         }]
     }) : '';
 
-    const shutdown = canShutdown(state) ? DropdownButtons({
+    const shutdown = config.provider.canShutdown(state) ? DropdownButtons({
         buttons: [{
             title: _("Shut Down"),
             action: onShutdown,
@@ -62,7 +62,7 @@ const VmActions = ({ vmId, state, onStart, onReboot, onForceReboot, onShutdown, 
         }]
     }) : '';
 
-    const run = canRun(state) ? (<button className="btn btn-default btn-danger" onClick={onStart}>{_("Run")}</button>) : '';
+    const run = config.provider.canRun(state) ? (<button className="btn btn-default btn-danger" onClick={onStart}>{_("Run")}</button>) : '';
 
     return (<div>
         {reset}
@@ -73,6 +73,7 @@ const VmActions = ({ vmId, state, onStart, onReboot, onForceReboot, onShutdown, 
 VmActions.propTypes = {
     vmId: PropTypes.string.isRequired,
     state: PropTypes.string.isRequired,
+    config: PropTypes.string.isRequired,
     onStart: PropTypes.func.isRequired,
     onReboot: PropTypes.func.isRequired,
     onForceReboot: PropTypes.func.isRequired,
@@ -92,36 +93,34 @@ IconElement.propTypes = {
     state: PropTypes.string.isRequired,
 }
 
-const StateIcon = ({ state }) => {
-    switch (state) {
-        case 'running':// TODO: display VM screenshot if available or the ok-icon otherwise
-            return (<IconElement state={state} className='pficon pficon-ok icon-1x-vms' title={_("The VM is running.")}/>);
-        case 'idle':
-            return (<IconElement state={state} className='pficon pficon-running icon-1x-vms' title={_("The VM is idle.")}/>);
-        case 'paused':
-            return (<IconElement state={state} className='pficon pficon-pause icon-1x-vms' title={_("The VM is paused.")}/>);
-        case 'shutdown':
-            return (<IconElement state={state} className='glyphicon glyphicon-wrench icon-1x-vms'
-                                 title={_("The VM is going down.")}/>);
-        case 'shut off':
-            return (<IconElement state={state} className='fa fa-arrow-circle-o-down icon-1x-vms' title={_("The VM is down.")}/>);
-        case 'crashed':
-            return (<IconElement state={state} className='pficon pficon-error-circle-o icon-1x-vms'
-                                 title={_("The VM crashed.")}/>);
-        case 'dying':
-            return (<IconElement state={state} className='pficon pficon-warning-triangle-o icon-1x-vms'
-                                 title={_("The VM is in process of dying (shut down or crash is not completed).")}/>);
-        case 'pmsuspended':
-            return (<IconElement state={state} className='pficon pficon-ok icon-1x-vms'
-                                 title={_("The VM is suspended by guest power management.")}/>);
-        case undefined:
-            return (<div/>);
-        default:
-            return (<small>{state}</small>);
+const StateIcon = ({ state, config }) => {
+    if (state === undefined) {
+        return (<div/>);
     }
+
+    const stateMap = config.provider.vmStateMap || {
+        running: {className: 'pficon pficon-ok icon-1x-vms', title: _("The VM is running.")}, // TODO: display VM screenshot if available or the ok-icon otherwise
+        idle: {className: 'pficon pficon-running icon-1x-vms', title: _("The VM is idle.")},
+        paused: {className: 'pficon pficon-pause icon-1x-vms', title: _("The VM is paused.")},
+        shutdown: {className: 'glyphicon glyphicon-wrench icon-1x-vms', title: _("The VM is going down.")},
+        'shut off': {className: 'fa fa-arrow-circle-o-down icon-1x-vms', title: _("The VM is down.")},
+        crashed: {className: 'pficon pficon-error-circle-o icon-1x-vms', title: _("The VM crashed.")},
+        dying: {className: 'pficon pficon-warning-triangle-o icon-1x-vms',
+                title: _("The VM is in process of dying (shut down or crash is not completed).")},
+        pmsuspended: {className: 'pficon pficon-ok icon-1x-vms', title: _("The VM is suspended by guest power management.")},
+        };
+
+    if (stateMap[state]) {
+        return (
+            <span title={stateMap[state].title} data-toggle='tooltip' data-placement='left'>
+                {rephraseUI('vmStates', state)}&nbsp;<i className={stateMap[state].className} />
+            </span>);
+    }
+    return (<small>{state}</small>);
 }
 StateIcon.propTypes = {
-    state: PropTypes.string.isRequired
+    state: PropTypes.string.isRequired,
+    config: PropTypes.string.isRequired
 }
 
 /**
@@ -294,17 +293,18 @@ VmUsageTab.propTypes = {
 
 /** One VM in the list (a row)
  */
-const Vm = ({ vm, onStart, onShutdown, onForceoff, onReboot, onForceReboot }) => {
-    const stateIcon = (<StateIcon state={vm.state} />);
+const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceReboot }) => {
+    const stateIcon = (<StateIcon state={vm.state} config={config}/>);
     return (<ListingRow
         columns={[{name: vm.name, 'header': true}, rephraseUI('connections', vm.connectionName), stateIcon]}
         tabRenderers={[ {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
             {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' } ]}
-        listingActions={VmActions({vmId: vmId(vm.name), state: vm.state,
+        listingActions={VmActions({vmId: vmId(vm.name), config, state: vm.state,
             onStart, onReboot, onForceReboot, onShutdown, onForceoff})}/>);
 };
 Vm.propTypes = {
     vm: React.PropTypes.object.isRequired,
+    config: React.PropTypes.object.isRequired,
     onStart: React.PropTypes.func.isRequired,
     onShutdown: React.PropTypes.func.isRequired,
     onForceoff: React.PropTypes.func.isRequired,
@@ -315,7 +315,7 @@ Vm.propTypes = {
 /**
  * List of all VMs defined on this host
  */
-const HostVmsList = ({ vms, dispatch }) => {
+const HostVmsList = ({ vms, config, dispatch }) => {
     if (vms.length === 0) {
         return (<div className='container-fluid'>
             <NoVm />
@@ -326,18 +326,19 @@ const HostVmsList = ({ vms, dispatch }) => {
         <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]}>
             {vms.map(vm => {
                 return (
-                    <Vm vm={vm}
-                        onStart={() => dispatch(startVm(vm.connectionName, vm.name))}
-                        onReboot={() => dispatch(rebootVm(vm.connectionName, vm.name))}
-                        onForceReboot={() => dispatch(forceRebootVm(vm.connectionName, vm.name))}
-                        onShutdown={() => dispatch(shutdownVm(vm.connectionName, vm.name))}
-                        onForceoff={() => dispatch(forceVmOff(vm.connectionName, vm.name))}/>);
+                    <Vm vm={vm} config={config}
+                        onStart={() => dispatch(startVm(vm))}
+                        onReboot={() => dispatch(rebootVm(vm))}
+                        onForceReboot={() => dispatch(forceRebootVm(vm))}
+                        onShutdown={() => dispatch(shutdownVm(vm))}
+                        onForceoff={() => dispatch(forceVmOff(vm))}/>);
             })}
         </Listing>
     </div>);
 };
 HostVmsList.propTypes = {
     vms: PropTypes.object.isRequired,
+    config: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired
 };
 

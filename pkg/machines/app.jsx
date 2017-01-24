@@ -21,10 +21,10 @@ import React, { PropTypes } from "react";
 import HostVmsList from "./hostvmslist.jsx";
 
 const App = ({ store }) => {
-    const { vms } = store.getState();
+    const { vms, config } = store.getState();
     const dispatch = store.dispatch;
 
-    return (<HostVmsList vms={vms} dispatch={dispatch} />)
+    return (<HostVmsList vms={vms} config={config} dispatch={dispatch} />)
 }
 App.propTypes = {
     store: React.PropTypes.object.isRequired

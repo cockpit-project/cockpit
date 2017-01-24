@@ -34,8 +34,8 @@ export function thunk({ dispatch, getState }) {
     return next => action => {
         if (typeof action === 'function') {
             // cockpit style promise is also typeof 'function'
-            // so we differentiate between those two by the presence of property 'then'
-            return action.then ? action : action(dispatch, getState);
+            // so we differentiate between those two by the presence of property 'then' or 'done'
+            return (action.then || action.done) ? action : action(dispatch, getState);
         }
 
         return next(action);

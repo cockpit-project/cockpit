@@ -25,7 +25,7 @@ import cockpit from 'cockpit';
 import $ from 'jquery';
 import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed} from './actions.es6';
 import { spawnScript, spawnProcess } from './services.es6';
-import { toKiloBytes, isEmpty, logDebug, isRunning } from './helpers.es6';
+import { toKiloBytes, isEmpty, logDebug } from './helpers.es6';
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
@@ -61,11 +61,39 @@ function getValueFromLine(parsedLines, pattern) {
     return isEmpty(selectedLine) ? undefined : selectedLine.toString().trim().substring(pattern.length).trim();
 }
 
-export default {
+let LIBVIRT_PROVIDER = {};
+LIBVIRT_PROVIDER = {
     name: 'Libvirt',
 
     /**
-     * read VM properties (virsh)
+     * Initialize the provider.
+     * Arguments are used for reference only, they are actually not needed for this Libvirt provider.
+     *
+     * @param actionCreators - Map of action creators (functions)
+     * @param nextProvider - Next provider in chain, recently Libvirt. Used for chaining commands or fallbacks.
+     * @returns {boolean} - true, if initialization succeeded
+     */
+    init(actionCreators, nextProvider) {
+        // This is default provider - the Libvirt.
+        // We do not need to use actionCreators or nextProvider
+        return true;
+    },
+
+    canReset(vmState) {
+        return vmState == 'running' || vmState == 'idle' || vmState == 'paused';
+    },
+    canShutdown(vmState) {
+        return LIBVIRT_PROVIDER.canReset(vmState);
+    },
+    isRunning(vmState) {
+        return LIBVIRT_PROVIDER.canReset(vmState);
+    },
+    canRun(vmState) {
+        return vmState == 'shut off';
+    },
+
+    /**
+     * Read VM properties of a single VM (virsh)
      *
      * @param VM name
      * @returns {Function}
@@ -83,7 +111,7 @@ export default {
                     parseDumpxml(dispatch, connectionName, domXml);
                     return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
                 }).then(domInfo => {
-                    if (isRunning(parseDominfo(dispatch, connectionName, name, domInfo))) {
+                    if (LIBVIRT_PROVIDER.isRunning(parseDominfo(dispatch, connectionName, name, domInfo))) {
                         return spawnVirshReadOnly({connectionName, method: 'dommemstat', name, failHandler: canFailHandler});
                     }
                 }).then(dommemstat => {
@@ -118,7 +146,7 @@ export default {
                         // The 'root' user does not have its own qemu:///session just qemu:///system
                         // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
                         connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
-                    .map( connectionName => dispatch(getAllVms(connectionName)));
+                    .map(connectionName => dispatch(getAllVms(connectionName)));
 
                 return cockpit.all(promises)
                     .then(() => { // keep polling AFTER all VM details have been read (avoid overlap)
@@ -254,7 +282,7 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
     const state = getValueFromLine(lines, 'State:');
     const autostart = getValueFromLine(lines, 'Autostart:');
 
-    if (!isRunning(state)) { // clean usage data
+    if (!LIBVIRT_PROVIDER.isRunning(state)) { // clean usage data
         dispatch(updateOrAddVm({connectionName, name, state, autostart, actualTimeInMs: -1}));
     } else {
         dispatch(updateOrAddVm({connectionName, name, state, autostart}));
@@ -285,3 +313,5 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
         dispatch(updateOrAddVm({connectionName, name, actualTimeInMs, cpuTime}));
     }
 }
+
+export default LIBVIRT_PROVIDER;

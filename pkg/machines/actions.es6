@@ -18,10 +18,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import Libvirt from './libvirt.es6';
 import { getRefreshInterval } from './selectors.es6';
 import VMS_CONFIG from "./config.es6";
 import { logDebug } from './helpers.es6';
+import { virt } from './provider.es6';
 
 /**
  * All actions dispatchable by in the application
@@ -43,84 +43,24 @@ export function getVm(connectionName, lookupId) {
     });
 }
 
-export function shutdownVm(connectionName, name) {
-    return virt('SHUTDOWN_VM', {connectionName, name});
+export function shutdownVm(vm) {
+    return virt('SHUTDOWN_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
-export function forceVmOff(connectionName, name) {
-    return virt('FORCEOFF_VM', {connectionName, name});
+export function forceVmOff(vm) {
+    return virt('FORCEOFF_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
-export function rebootVm(connectionName, name) {
-    return virt('REBOOT_VM', {connectionName, name});
+export function rebootVm(vm) {
+    return virt('REBOOT_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
-export function forceRebootVm(connectionName, name) {
-    return virt('FORCEREBOOT_VM', {connectionName, name});
+export function forceRebootVm(vm) {
+    return virt('FORCEREBOOT_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
-export function startVm(connectionName, name) {
-    return virt('START_VM', {connectionName, name});
-}
-
-/**
- * Helper for dispatching virt provider methods.
- *
- * Lazily initializes the virt provider and dispatches given method on it.
- */
-function virt(method, action) {
-    return (dispatch, getState) => getVirtProvider({dispatch, getState}).then(provider => {
-        if (method in provider) {
-            logDebug(`Calling ${provider.name}.${method}(${JSON.stringify(action)})`);
-            return dispatch(provider[method](action));
-        } else {
-            console.warn(`method: '${method}' is not supported by provider: '${provider.name}'`);
-        }
-    }).catch(err => {
-        console.error('could not detect any virt provider');
-    });
-}
-
-function getVirtProvider(store) {
-    const state = store.getState();
-    if (state.config.provider) {
-        return cockpit.resolve(state.config.provider);
-    } else {
-        const deferred = cockpit.defer();
-        logDebug('Discovering provider');
-        /* TODO: discover host capabilities
-         systemctl is-active vdsmd
-         active
-         unknown
-         */
-        let provider = null;
-        if (false /*TODO: Detect VDSM*/) {
-            // TODO: dispatch/resolve VDSM provider
-        } else if (true /* TODO: detect libvirt */) {
-            logDebug('Selecting Libvirt as the VIRT provider.');
-            provider = Libvirt;
-        }
-
-        if (!provider) { //  no provider available
-            deferred.reject();
-        } else {
-            store.dispatch(setProvider(provider));
-
-            // Skip the initialization if provider does not define the `init` hook.
-            if (!provider.init) {
-                deferred.resolve(provider);
-            } else {
-                // Providers are expected to return promise as a part of initialization
-                // so we can resolve only after the provider had time to properly initialize.
-                store
-                    .dispatch(provider.init())
-                    .then(() => deferred.resolve(provider))
-                    .catch(deferred.reject);
-            }
-        }
-
-        return deferred.promise;
-    }
+export function startVm(vm) {
+    return virt('START_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 /**

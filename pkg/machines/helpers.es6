@@ -90,18 +90,28 @@ export function logDebug(msg) {
     }
 }
 
-export function rephraseUI(key, original) {
-    const transform = {
-        'autostart': {
-            'disable': 'disabled',
-            'enable': 'enabled'
-        },
-        'connections': {
-            'system': _("System"),
-            'session': _("Session")
-        }
-    };
+const transform = {
+    'autostart': {
+        'disable': _("disabled"),
+        'enable': _("enabled"),
+    },
+    'connections': {
+        'system': _("System"),
+        'session': _("Session"),
+    },
+    'vmStates': {
+        running: _("running"),
+        idle: _("idle"),
+        paused: _("paused"),
+        shutdown: _("shutdown"),
+        'shut off': _("shut off"),
+        crashed: _("crashed"),
+        dying: _("dying"),
+        pmsuspended: _("suspended (PM)"),
+    }
+};
 
+export function rephraseUI(key, original) {
     if (!(key in transform)) {
         logDebug(`rephraseUI(key='${key}', original='${original}'): unknown key`);
         return original;
@@ -113,21 +123,4 @@ export function rephraseUI(key, original) {
     }
 
     return transform[key][original];
-}
-
-// --- VM state functions --
-export function canReset(vmState) {
-    return vmState == 'running' || vmState == 'idle' || vmState == 'paused';
-}
-
-export function canShutdown(vmState) {
-    return canReset(vmState);
-}
-
-export function isRunning(vmState) {
-    return canReset(vmState);
-}
-
-export function canRun(vmState) {
-    return vmState == 'shut off';
 }

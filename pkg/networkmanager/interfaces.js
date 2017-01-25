@@ -395,7 +395,7 @@ function NetworkManagerModel() {
         });
 
     var subscription = client.subscribe({ }, signal_emitted);
-    var watch = client.watch({ });
+    var watch = client.watch({ path_namespace: "/org/freedesktop" });
     $(client).on("notify", function(event, data) {
         $.each(data, function(path, ifaces) {
             $.each(ifaces, function(iface, props) {

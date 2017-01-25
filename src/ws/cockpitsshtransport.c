@@ -37,9 +37,6 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 
-#include <libssh/libssh.h>
-#include <libssh/callbacks.h>
-
 #include <glib/gstdio.h>
 
 #include <errno.h>

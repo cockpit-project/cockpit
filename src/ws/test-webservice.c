@@ -36,8 +36,6 @@
 
 #include <glib.h>
 
-#include <libssh/libssh.h>
-
 #include <string.h>
 #include <errno.h>
 

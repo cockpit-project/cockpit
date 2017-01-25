@@ -86,6 +86,8 @@ struct _CockpitDBusCache {
   GQueue *batches;
   GQueue *barriers;
   guint number;
+  gboolean barrier_progressing;
+  guint barrier_progressing_rounds;
   GHashTable *update;
 
   /* Interned strings */
@@ -150,25 +152,54 @@ barrier_progress (CockpitDBusCache *self)
   BarrierData *barrier;
   BatchData *batch;
 
-  batch = g_queue_peek_head (self->batches);
-
-  for (;;)
+  if (self->barrier_progressing)
     {
-      barrier = g_queue_peek_head (self->barriers);
-      if (!barrier)
-        return;
-
-      /*
-       * If there is a batch being processed, we must block
-       * barriers that have an equal or later batch number.
+      /* It might happen that barrier_progress is called
+       * recursively, while one of the barrier callbacks is
+       * running.  We need to detect this and avoid calling the
+       * next barrier callback while there is already one
+       * running.  Allowing it might violate the ordering
+       * guarantees if the running callback is doing more work
+       * after causing the recursive call to barrier_progress.
+       *
+       * Concretely, process_interfaces below can cause
+       * recursive calls in the middle of its work when it
+       * processes multiple interfaces.
        */
-      if (batch && batch->number <= barrier->number)
-        return;
 
-      g_queue_pop_head (self->barriers);
-      (barrier->callback) (self, barrier->user_data);
-      g_slice_free (BarrierData, barrier);
+      self->barrier_progressing_rounds += 1;
+      return;
     }
+
+  self->barrier_progressing = TRUE;
+  self->barrier_progressing_rounds = 1;
+
+  while (self->barrier_progressing_rounds > 0)
+    {
+      self->barrier_progressing_rounds -= 1;
+
+      batch = g_queue_peek_head (self->batches);
+
+      for (;;)
+        {
+          barrier = g_queue_peek_head (self->barriers);
+          if (!barrier)
+            break;
+
+          /*
+           * If there is a batch being processed, we must block
+           * barriers that have an equal or later batch number.
+           */
+          if (batch && batch->number <= barrier->number)
+            break;
+
+          g_queue_pop_head (self->barriers);
+          (barrier->callback) (self, barrier->user_data);
+          g_slice_free (BarrierData, barrier);
+        }
+    }
+
+  self->barrier_progressing = FALSE;
 }
 
 static void

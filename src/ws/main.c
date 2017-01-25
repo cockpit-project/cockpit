@@ -39,9 +39,6 @@
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 
-#include <libssh/libssh.h>
-#include <libssh/callbacks.h>
-
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gint      opt_port         = 9090;

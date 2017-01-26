@@ -182,27 +182,46 @@ VmOverviewTabRecord.propTypes = {
     value: PropTypes.string.isRequired
 }
 
-const VmOverviewTab = ({ vm }) => {
-    return (<table className='machines-width-max'>
-        <tr className='machines-listing-ct-body-detail'>
-            <td>
-                <table className='form-table-ct'>
-                    <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr='State:' value={vm.state}/>
-                    <VmOverviewTabRecord descr={_("Memory:")}
-                                         value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
-                    <VmOverviewTabRecord descr={_("vCPUs:")} value={vm.vcpus}/>
-                </table>
-            </td>
+const VmLastMessage = ({ vm }) => {
+    if (!vm.lastMessage) {
+        return null;
+    }
 
-            <td>
-                <table className='form-table-ct'>
-                    <VmOverviewTabRecord descr={_("ID:")} value={vm.id}/>
-                    <VmOverviewTabRecord descr={_("OS Type:")} value={vm.osType}/>
-                    <VmOverviewTabRecord descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
-                </table>
-            </td>
-        </tr>
-    </table>);
+    const detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception: vm.lastMessage;
+    return (
+        <p title={detail} data-toggle='tooltip'>
+            <span className='pficon-warning-triangle-o' />&nbsp;{vm.lastMessage}
+        </p>
+    );
+};
+VmLastMessage.propTypes = {
+    vm: PropTypes.object.isRequired
+}
+
+const VmOverviewTab = ({ vm }) => {
+    return (<div>
+        <table className='machines-width-max'>
+            <tr className='machines-listing-ct-body-detail'>
+                <td>
+                    <table className='form-table-ct'>
+                        <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr='State:' value={vm.state}/>
+                        <VmOverviewTabRecord descr={_("Memory:")}
+                                             value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
+                        <VmOverviewTabRecord descr={_("vCPUs:")} value={vm.vcpus}/>
+                    </table>
+                </td>
+
+                <td>
+                    <table className='form-table-ct'>
+                        <VmOverviewTabRecord descr={_("ID:")} value={vm.id}/>
+                        <VmOverviewTabRecord descr={_("OS Type:")} value={vm.osType}/>
+                        <VmOverviewTabRecord descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <VmLastMessage vm={vm} />
+    </div>);
 };
 VmOverviewTab.propTypes = {
     vm: PropTypes.object.isRequired

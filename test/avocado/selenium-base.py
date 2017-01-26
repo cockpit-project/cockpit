@@ -9,7 +9,6 @@ if not machine_test_dir in sys.path:
 
 from avocado import main
 from avocado.utils import process
-import libdisc
 from seleniumlib import *
 
 class BasicTestSuite(SeleniumTest):
@@ -55,34 +54,6 @@ class BasicTestSuite(SeleniumTest):
         self.mainframe()
         self.error=False
 
-    def test40ContainerTab(self):
-        self.login()
-        self.wait_id("sidebar")
-        self.click(self.wait_link('Containers', cond=clickable))
-        self.wait_frame("docker")
-        if self.wait_xpath("//*[@data-action='docker-start']", fatal=False, overridetry=5, cond=clickable):
-            self.click(self.wait_xpath("//*[@data-action='docker-start']",cond=clickable))
-        self.wait_id('containers')
-        self.wait_id('containers-images')
-        self.click(self.wait_link('Get new image', cond=clickable))
-        self.wait_id('containers-search-image-dialog')
-        self.send_keys(self.wait_id('containers-search-image-search'), "fedora")
-        self.wait_id('containers-search-image-results')
-        self.wait_text("Official Docker", element="td")
-        self.click(self.wait_xpath(
-            "//div[@id='containers-search-image-dialog']//button[contains(text(), '%s')]" % "Cancel",cond=clickable))
-        self.wait_id('containers-search-image-dialog',cond=invisible)
-        self.click(self.wait_link('Get new image', cond=clickable))
-        self.wait_id('containers-search-image-dialog')
-        self.send_keys(self.wait_id('containers-search-image-search'), "cockpit")
-        self.wait_id('containers-search-image-results')
-        self.click(self.wait_text("Cockpit Web Ser", element="td", cond=clickable))
-        self.click(self.wait_id('containers-search-download', cond=clickable))
-        self.wait_id('containers-search-image-dialog', cond=invisible)
-        self.wait_text('cockpit/ws')
-        self.mainframe()
-        self.error=False
-
     def test50ChangeTabLogs(self):
         self.login()
         self.wait_id("sidebar")
@@ -104,25 +75,6 @@ class BasicTestSuite(SeleniumTest):
         process.run("systemd-cat -p notice echo '%s'" % checkt, shell=True)
         self.click(self.wait_text(checkt, cond=clickable))
         self.wait_id('journal-entry')
-        self.mainframe()
-        self.error=False
-
-    def test60ChangeTabStorage(self):
-        other_disc = libdisc.DiscSimple()
-        other_discname = other_disc.adddisc("d1")
-        other_shortname = os.path.basename(other_discname)
-        self.login()
-        self.wait_id("sidebar")
-        self.click(self.wait_link('Storage', cond=clickable))
-        self.wait_frame("storage")
-        self.wait_id("drives")
-        self.click(self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname, cond=clickable))
-        self.wait_id('storage-detail')
-        self.wait_text(other_discname, element="td")
-        self.wait_text("Capacity", element="td")
-        self.wait_text("1000 MiB", element="td")
-        self.click(self.wait_link('Storage', cond=clickable))
-        self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
         self.mainframe()
         self.error=False
 

@@ -246,7 +246,7 @@ def main():
         subprocess.check_call(cmd)
 
     regular_tests = [ "checklogin-basic.py", "checklogin-raw.py" ]
-    browser_tests = [ "selenium-login.py", "selenium-sosreport.py" ]
+    browser_tests = [ "selenium-base.py", "selenium-storage.py", "selenium-docker.py", "selenium-sosreport.py" ]
 
     if opts.regular_tests:
         opts.tests += regular_tests

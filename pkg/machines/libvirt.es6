@@ -23,10 +23,12 @@
  */
 import cockpit from 'cockpit';
 import $ from 'jquery';
-import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs} from './actions.es6';
+import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed} from './actions.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import { toKiloBytes, isEmpty, logDebug, isRunning } from './helpers.es6';
 import VMS_CONFIG from './config.es6';
+
+const _ = cockpit.gettext;
 
 // --- compatibility hack
 if (!String.prototype.startsWith) {
@@ -71,19 +73,23 @@ export default {
     GET_VM ({ lookupId: name, connectionName }) {
         logDebug(`${this.name}.GET_VM()`);
 
+        const canFailHandler = ({exception, data}) => {
+            console.info(`The 'virsh' command failed, as expected: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+        };
+
         return dispatch => {
             if (!isEmpty(name)) {
-                return spawnVirshReadOnly(connectionName, 'dumpxml', name).then(domXml => {
+                return spawnVirshReadOnly({connectionName, method: 'dumpxml', name}).then(domXml => {
                     parseDumpxml(dispatch, connectionName, domXml);
-                    return spawnVirshReadOnly(connectionName, 'dominfo', name);
+                    return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
                 }).then(domInfo => {
                     if (isRunning(parseDominfo(dispatch, connectionName, name, domInfo))) {
-                        return spawnVirshReadOnly(connectionName, 'dommemstat', name);
+                        return spawnVirshReadOnly({connectionName, method: 'dommemstat', name, failHandler: canFailHandler});
                     }
                 }).then(dommemstat => {
                     if (dommemstat) { // is undefined if vm is not running
                         parseDommemstat(dispatch, connectionName, name, dommemstat);
-                        return spawnVirshReadOnly(connectionName, 'domstats', name);
+                        return spawnVirshReadOnly({connectionName, method: 'domstats', name, failHandler: canFailHandler});
                     }
                 }).then(domstats => {
                     if (domstats) {
@@ -124,27 +130,52 @@ export default {
 
     SHUTDOWN_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
-        return spawnVirsh(connectionName, 'SHUTDOWN_VM', 'shutdown', name);
+        return dispatch => spawnVirsh({connectionName,
+            method: 'SHUTDOWN_VM',
+            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
+                message: _("SHUTDOWN_VM action failed"), detail: {exception, data}})),
+            args: ['shutdown', name]
+        });
     },
 
     FORCEOFF_VM ({ name, connectionName }) {
         logDebug(`${this.name}.FORCEOFF_VM(${name}):`);
-        return spawnVirsh(connectionName, 'FORCEOFF_VM', 'destroy', name);
+        return dispatch => spawnVirsh({connectionName,
+            method: 'FORCEOFF_VM',
+            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
+                message: _("FORCEOFF_VM action failed"), detail: {exception, data}})),
+            args: ['destroy', name]
+        });
     },
 
     REBOOT_VM ({ name, connectionName }) {
         logDebug(`${this.name}.REBOOT_VM(${name}):`);
-        return spawnVirsh(connectionName, 'REBOOT_VM', 'reboot', name);
+        return dispatch => spawnVirsh({connectionName,
+            method: 'REBOOT_VM',
+            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
+                message: _("REBOOT_VM action failed"), detail: {exception, data}})),
+            args: ['reboot', name]
+        });
     },
 
     FORCEREBOOT_VM ({ name, connectionName }) {
         logDebug(`${this.name}.FORCEREBOOT_VM(${name}):`);
-        return spawnVirsh(connectionName, 'FORCEREBOOT_VM', 'reset', name);
+        return dispatch => spawnVirsh({connectionName,
+            method: 'FORCEREBOOT_VM',
+            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
+                message: _("FORCEREBOOT_VM action failed"), detail: {exception, data}})),
+            args: ['reset', name]
+        });
     },
 
     START_VM ({ name, connectionName }) {
         logDebug(`${this.name}.START_VM(${name}):`);
-        return spawnVirsh(connectionName, 'START_VM', 'start', name);
+        return dispatch => spawnVirsh({connectionName,
+            method: 'START_VM',
+            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
+                message: _("START_VM action failed"), detail: {exception, data}})),
+            args: ['start', name]
+        });
     }
 };
 
@@ -173,22 +204,23 @@ function doGetAllVms (dispatch, connectionName) {
 }
 
 // TODO: add configurable custom virsh attribs - i.e. libvirt user/pwd
-function spawnVirsh(connectionName, method, ...args) {
-    args = VMS_CONFIG.Virsh.connections[connectionName].params.concat(args);
-
+function spawnVirsh({connectionName, method, failHandler, args}) {
     return spawnProcess({
         cmd: 'virsh',
-        args
+        args: VMS_CONFIG.Virsh.connections[connectionName].params.concat(args),
+        failHandler,
     }).catch((ex, data, output) => {
-        console.error(`${method}() exception: '${ex}', data: '${data}', output: '${output}'`);
+        const msg = `${method}() exception: '${ex}', data: '${data}', output: '${output}'`;
+        if (failHandler) {
+            logDebug(msg);
+            return ;
+        }
+        console.error(msg);
     });
 }
 
-function spawnVirshReadOnly(connectionName, method, name) {
-    return spawnProcess({
-        cmd: 'virsh',
-        args: VMS_CONFIG.Virsh.connections[connectionName].params.concat(['-r', method, name])
-    });
+function spawnVirshReadOnly({connectionName, method, name, failHandler}) {
+    return spawnVirsh({connectionName, method, args: ['-r', method, name], failHandler});
 }
 
 function parseDumpxml(dispatch, connectionName, domXml) {

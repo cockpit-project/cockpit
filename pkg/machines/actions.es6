@@ -193,6 +193,18 @@ export function updateOrAddVm({ id, name, connectionName, state, osType, fqdn, u
     };
 }
 
+export function vmActionFailed({ name, connectionName, message, detail}) {
+    return {
+        type: 'VM_ACTION_FAILED',
+        payload: {
+            name,
+            connectionName,
+            message,
+            detail
+        }
+    };
+}
+
 export function deleteUnlistedVMs(connectionName, vmNames) {
     return {
         type: 'DELETE_UNLISTED_VMS',

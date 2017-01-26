@@ -123,6 +123,20 @@ function vms(state, action) {
                 .concat(updatedVm)
                 .concat(state.slice(index + 1));
         }
+        case 'VM_ACTION_FAILED': {
+            const connectionName = action.payload.connectionName;
+            const index = action.payload.id ? getFirstIndexOfVm(state, 'id', action.payload.id, connectionName)
+                : getFirstIndexOfVm(state, 'name', action.payload.name, connectionName);
+            if (index < 0) {
+                logDebug(`VM_ACTION_FAILED reducer(name='${action.payload.name}', connectionName='${connectionName}') not found, skipping`);
+                return ;
+            }
+            const updatedVm = Object.assign({}, state[index],
+                {lastMessage: action.payload.message, lastMessageDetail: action.payload.detail});
+            return state.slice(0, index)
+                .concat(updatedVm)
+                .concat(state.slice(index + 1));
+        }
         case 'DELETE_UNLISTED_VMS':
         {
             return state

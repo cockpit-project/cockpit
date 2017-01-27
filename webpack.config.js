@@ -390,18 +390,23 @@ module.exports = {
         preLoaders: [
             {
                 test: /\.js$/, // include .js files
-                exclude: /bower_components\/.*\/|\/node_modules\//, // exclude external dependencies
+                exclude: /bower_components\/.*\/|\/node_modules/, // exclude external dependencies
                 loader: "jshint-loader"
             },
             {
                 test: /\.es6$/, // include .js files
                 loader: "jshint-loader?esversion=6"
+            },
+            {
+                test: /\.jsx$/,
+                exclude: /bower_components\/.*\/|\/node_modules/, // exclude external dependencies
+                loader: "eslint-loader"
             }
         ],
         loaders: [
             {
                 test: /\.js$/,
-                exclude: /bower_components\/.*\//,
+                exclude: /bower_components\/.*\/|\/node_modules/,
                 loader: 'strict' // Adds "use strict"
             },
             {

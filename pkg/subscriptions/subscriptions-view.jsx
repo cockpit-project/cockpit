@@ -199,7 +199,7 @@ var SubscriptionsPage = React.createClass({
             <Curtains
                 icon={icon}
                 description={description}
-                message={this.props.error} />
+                message={message} />
         );
     },
     renderSubscriptions: function() {
@@ -228,7 +228,6 @@ var SubscriptionsPage = React.createClass({
         );
     },
     render: function() {
-        var self = this;
         if (this.props.status === undefined ||
             this.props.status == 'not-found' ||
             this.props.status == 'access-denied') {
@@ -242,4 +241,3 @@ var SubscriptionsPage = React.createClass({
 module.exports = {
     page: SubscriptionsPage,
 };
-

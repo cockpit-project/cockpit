@@ -90,7 +90,7 @@ var ContainerHeader = React.createClass({
         this.setState({ filter: value }, this.filterChanged);
     },
 
-    handleFilterTextChange: function (event) {
+    handleFilterTextChange: function () {
         this.setState({ filterText: this.refs.filterTextInput.value }, this.filterChanged);
     },
 

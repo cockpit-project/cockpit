@@ -27,7 +27,6 @@ var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 function format_dialog(client, path, start, size, enable_dos_extended) {
     var block = client.blocks[path];

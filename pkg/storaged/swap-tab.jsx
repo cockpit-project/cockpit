@@ -21,17 +21,16 @@
 
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
+var $ = require("jquery");
 
 var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
 var FormatDialog = require("./format-dialog.jsx");
 
 var StorageButton = StorageControls.StorageButton;
-var StorageLink =   StorageControls.StorageLink;
 var FormatButton =  FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 var SwapTab =  React.createClass({
     onSamplesChanged: function () {
@@ -50,7 +49,6 @@ var SwapTab =  React.createClass({
         var used;
 
         if (is_active) {
-            var dev = utils.decode_filename(self.props.block.Device);
             var samples = self.props.client.swap_sizes.data[utils.decode_filename(self.props.block.Device)];
             if (samples)
                 used = utils.fmt_size(samples[0] - samples[1]);

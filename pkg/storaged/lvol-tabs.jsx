@@ -22,17 +22,15 @@
 var cockpit = require("cockpit");
 var dialog = require("./dialog");
 var utils = require("./utils.js");
+var $ = require("jquery");
 
 var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
-var FormatDialog = require("./format-dialog.jsx");
 
 var StorageButton = StorageControls.StorageButton;
 var StorageLink =   StorageControls.StorageLink;
-var FormatButton =  FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 function lvol_rename(lvol) {
     dialog.open({ Title: _("Rename Logical Volume"),
@@ -139,11 +137,11 @@ var BlockVolTab = React.createClass({
             });
         }
 
-        function rename(event) {
+        function rename() {
             lvol_rename(lvol);
         }
 
-        function resize(event) {
+        function resize() {
             lvol_resize(self.props.client, lvol);
         }
 
@@ -179,11 +177,11 @@ var PoolVolTab = React.createClass({
             return (ratio*100).toFixed(0) + "%";
         }
 
-        function rename(event) {
+        function rename() {
             lvol_rename(self.props.lvol);
         }
 
-        function resize(event) {
+        function resize() {
             lvol_resize(self.props.client, self.props.lvol);
         }
 

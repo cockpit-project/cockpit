@@ -20,7 +20,6 @@
 "use strict";
 
 var cockpit = require("cockpit");
-var utils = require("./utils.js");
 
 var React = require("react");
 var FormatDialog = require("./format-dialog.jsx");
@@ -28,12 +27,9 @@ var FormatDialog = require("./format-dialog.jsx");
 var FormatButton =  FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 var UnrecognizedTab =  React.createClass({
     render: function () {
-        var self = this;
-
         return (
             <div>
                 <div className="tab-actions">

@@ -22,6 +22,7 @@
 var cockpit = require("cockpit");
 var dialog = require("./dialog");
 var utils = require("./utils.js");
+var $ = require("jquery");
 
 var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
@@ -32,14 +33,11 @@ var StorageLink =   StorageControls.StorageLink;
 var FormatButton =  FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 var CryptoTab = React.createClass({
     render: function () {
         var self = this;
-        var client = self.props.client;
         var block = self.props.block;
-        var cleartext_block = client.blocks_cleartext[block.path];
 
         function edit_config(modify) {
             var old_config, new_config;
@@ -96,7 +94,7 @@ var CryptoTab = React.createClass({
                                  join(","));
         }
 
-        function edit_options(event) {
+        function edit_options() {
             edit_config(function (config, commit) {
                 dialog.open({ Title: _("Encryption Options"),
                               Fields: [

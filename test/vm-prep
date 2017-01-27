@@ -42,6 +42,8 @@ silent()
 
 prepare()
 {
+	systemctl start libvirtd
+
 	if silent $VIRSH net-info $NETWORK_NAME; then
 		$VIRSH net-destroy $NETWORK_NAME || true
 		$VIRSH net-undefine $NETWORK_NAME

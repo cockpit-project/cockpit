@@ -6,8 +6,13 @@ files for them.
 To run the tests on Fedora, you need to install the following packages:
 
     $ sudo yum install npm qemu-kvm python \
-         firewalld libvirt-client libvirt-python \
+         firewalld libvirt-daemon libvirt-client libvirt-python \
          openssl expect rsync curl xz
+
+You may need to reboot after installing the above packages. For initialization
+the following command needs to be run as root to setup the libvirt bridged network:
+
+    $ sudo ./test/vm-prep
 
 ## Introduction
 
@@ -15,11 +20,6 @@ To run the integration tests run the following. Don't run the integration tests
 as root:
 
     $ ./test/verify/run-tests
-
-For initialization, `./test/vm-prep` needs to be run as root to setup a
-cockpit1 bridged network. Then you can run `./test/verify/run-tests --install`
-(the install builds the packages) to perform all verify-tests. This may take
-some time as various test images will be downloaded.
 
 Alternatively you can run an individual test like this:
 

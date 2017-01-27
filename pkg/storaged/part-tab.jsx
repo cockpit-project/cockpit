@@ -25,7 +25,6 @@ var utils = require("./utils.js");
 var React = require("react");
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 var PartitionTab = React.createClass({
     render: function () {

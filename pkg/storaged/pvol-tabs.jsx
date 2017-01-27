@@ -28,7 +28,6 @@ var FormatDialog = require("./format-dialog.jsx");
 var FormatButton =  FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 var PVolTab = React.createClass({
     render: function () {

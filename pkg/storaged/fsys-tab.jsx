@@ -22,6 +22,7 @@
 var cockpit = require("cockpit");
 var dialog = require("./dialog");
 var utils = require("./utils.js");
+var $ = require("jquery");
 
 var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
@@ -32,7 +33,6 @@ var StorageLink =   StorageControls.StorageLink;
 var FormatButton =  FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 var FilesystemTab = React.createClass({
     onSamplesChanged: function () {

@@ -22,6 +22,7 @@
 var cockpit = require("cockpit");
 var dialog = require("./dialog");
 var utils = require("./utils.js");
+var $ = require("jquery");
 
 var React = require("react");
 var CockpitListing = require("cockpit-components-listing.jsx");
@@ -30,7 +31,6 @@ var FormatDialog = require("./format-dialog.jsx");
 
 var StorageButton = StorageControls.StorageButton;
 var StorageLink =   StorageControls.StorageLink;
-var FormatButton =  FormatDialog.FormatButton;
 
 var FilesystemTab   = require("./fsys-tab.jsx").FilesystemTab;
 var CryptoTab       = require("./crypto-tab.jsx").CryptoTab;
@@ -352,7 +352,7 @@ function append_row(rows, level, key, name, desc, tabs, job_object) {
 }
 
 function append_non_partitioned_block(client, rows, level, block, is_partition) {
-    var id, name, desc, tabs;
+    var desc, tabs;
     var cleartext_block;
 
     if (block.IdUsage == 'crypto')
@@ -431,7 +431,7 @@ function append_partitions(client, rows, level, block) {
         var n;
         var last_end = container_start;
         var total_end = container_start + container_size;
-        var block, start, size, is_container, is_contained, partition_label;
+        var block, start, size, is_container, is_contained;
 
         for (n = 0; n < partitions.length; n++) {
             block = client.blocks[partitions[n].path];
@@ -594,7 +594,7 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
             size: utils.fmt_size(block.Size),
             text: lvol.Name
         };
-        tabs = create_tabs(clienta, block, false);
+        tabs = create_tabs(client, block, false);
         append_row(rows, level, lvol.Name, utils.block_name(block), desc, tabs, block.path);
         append_partitions(client, rows, level+1, block);
     } else {
@@ -603,10 +603,9 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
 }
 
 function append_logical_volume(client, rows, level, lvol) {
-    var tabs, desc, ratio, block;
+    var tabs, desc, block;
 
     if (lvol.Type == "pool") {
-        ratio = Math.max(lvol.DataAllocatedRatio, lvol.MetadataAllocatedRatio);
         desc = {
             size: utils.fmt_size(lvol.Size),
             text: _("Pool for Thin Volumes")

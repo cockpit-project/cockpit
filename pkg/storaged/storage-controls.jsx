@@ -21,12 +21,12 @@
 
 var cockpit = require("cockpit");
 var permission = require("./permissions.js").permission;
+var $ = require("jquery");
 
 var React = require("react");
 var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 
 var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 /* StorageAction - a button or link that triggers a action.
  *

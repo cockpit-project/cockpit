@@ -146,7 +146,7 @@
         overview_page = overview.init(docker_client);
         container_details_page = container_details.init(docker_client);
         image_details_page = image_details.init(docker_client);
-        storage_page = storage.init(docker_client, docker_service);
+        storage_page = storage.init(docker_client);
 
         show_curtain(null);
         docker_client.connect().done(navigate);

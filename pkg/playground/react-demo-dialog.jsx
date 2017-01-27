@@ -20,12 +20,8 @@
 (function() {
     "use strict";
 
-    var cockpit = require("cockpit");
-
     var React = require("react");
     var Select = require("cockpit-components-select.jsx");
-
-    var _ = cockpit.gettext;
 
     /* Sample dialog body
      */

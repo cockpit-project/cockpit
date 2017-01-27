@@ -130,8 +130,6 @@ var ListingRow = React.createClass({
         var self = this;
         // only enable navigation if a function is provided and the row isn't expanded (prevnt accidental navigation)
         var allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
-        var bodyProps = { className: '', onClick: this.handleClick };
-        var countDisplay = null;
 
         var headerEntries = this.props.columns.map(function(itm) {
             if (typeof itm === 'string' || itm === null || itm === undefined || itm instanceof String || React.isValidElement(itm))
@@ -170,8 +168,6 @@ var ListingRow = React.createClass({
         );
 
         if (this.state.expanded) {
-            if (this.props.count > 1)
-                countDisplay = <span className="pull-right">{ this.props.count + " occurrences"}</span>;
             var links = this.props.tabRenderers.map(function(itm, idx) {
                 return (
                     <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >

@@ -68,7 +68,6 @@
                 return;
             if (ev.target.tagName == 'A') {
                 var liElement = ev.target.offsetParent;
-                var elementValue = liElement.attributes['data-value'].value;
                 var elementData;
                 if ('data-data' in liElement.attributes)
                     elementData = liElement.attributes['data-data'].value;

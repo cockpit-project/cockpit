@@ -9,7 +9,6 @@ if not machine_test_dir in sys.path:
 
 from avocado import main
 from avocado.utils import process
-import libdisc
 from seleniumlib import *
 
 class BasicTestSuite(SeleniumTest):

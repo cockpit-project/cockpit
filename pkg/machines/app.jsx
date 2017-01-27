@@ -27,7 +27,7 @@ const App = ({ store }) => {
     return (<HostVmsList vms={vms} dispatch={dispatch} />)
 }
 App.propTypes = {
-    store: PropTypes.object.isRequired
+    store: React.PropTypes.object.isRequired
 }
 
 export default App;

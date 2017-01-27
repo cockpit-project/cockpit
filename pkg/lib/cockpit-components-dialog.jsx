@@ -270,7 +270,7 @@ var show_modal_dialog = function(props, footerProps) {
 
     // register our own on-close callback
     var origCallback;
-    var closeCallback = function(args) {
+    var closeCallback = function() {
         if (origCallback)
             origCallback.apply(this, arguments);
         React.unmountComponentAtNode(rootElement);
@@ -289,7 +289,7 @@ var show_modal_dialog = function(props, footerProps) {
             dialogObj.props = { };
         dialogObj.props.footer = <DialogFooter {...dialogObj.footerProps} />;
         dialogObj.render();
-    };
+    }
     dialogObj.setFooterProps = function(footerProps) {
         /* Always log error messages to console for easier debugging */
         if (footerProps.static_error)

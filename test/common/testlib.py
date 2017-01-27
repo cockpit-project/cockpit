@@ -833,7 +833,7 @@ class Naughty(object):
             if fnmatch.fnmatchcase(trace, match) or fnmatch.fnmatchcase(trace, match.replace("[", "?")):
                 number = n
         if not number:
-            return False
+            return 0
 
         sys.stderr.write("Ignoring known issue #{0}\n{1}\n".format(number, trace))
         try:
@@ -841,7 +841,7 @@ class Naughty(object):
         except:
             sys.stderr.write("Failed to post known issue to GitHub\n")
             traceback.print_exc()
-        return True
+        return number
 
 class TapResult(unittest.TestResult):
     def __init__(self, stream, descriptions, verbosity):
@@ -864,9 +864,11 @@ class TapResult(unittest.TestResult):
 
     def known_issue(self, test, err):
         string = self._exc_info_to_string(err, test)
-        if self.naughty and self.naughty.check_issue(string):
-            self.addSkip(test, "Known issue")
-            return True
+        if self.naughty:
+            issue = self.naughty.check_issue(string)
+            if issue:
+                self.addSkip(test, "Known issue #{0}".format(issue))
+                return True
         return False
 
     def stop(self):

@@ -42,6 +42,7 @@ var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
  *
  * nfs and ssh are disabled for now
  */
+
 var KdumpTargetBody = React.createClass({
     getInitialState: function() {
         return {
@@ -363,10 +364,6 @@ var KdumpPage = React.createClass({
         this.setState( { dialogSettings: settings, dialogObj: dialogObj } );
     },
     render: function() {
-        var compressionEnabled = false;
-        if (this.props.kdumpStatus) {
-            compressionEnabled = this.compressionStatus(this.props.kdumpStatus.config);
-        }
         var kdumpLocation = (
             <div className="dialog-wait-ct">
                 <div className="spinner spinner-sm"></div>
@@ -431,7 +428,6 @@ var KdumpPage = React.createClass({
         var serviceRunning = this.props.kdumpStatus &&
                              this.props.kdumpStatus.installed &&
                              this.props.kdumpStatus.state == "running";
-        var serviceError = !serviceRunning && this.props.kdumpStatus && this.props.kdumpStatus.installed;
 
         var kdumpServiceDetails;
         var serviceDescription;

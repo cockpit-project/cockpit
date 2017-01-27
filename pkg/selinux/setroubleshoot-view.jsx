@@ -21,7 +21,6 @@ var cockpit = require("cockpit");
 var _ = cockpit.gettext;
 
 var React = require("react");
-var moment = require("moment");
 
 var cockpitListing = require("cockpit-components-listing.jsx");
 var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
@@ -47,7 +46,7 @@ var SELinuxEventDetails = React.createClass({
         e.stopPropagation();
         e.preventDefault();
     },
-    runFix: function(itmIdx, e) {
+    runFix: function(itmIdx) {
         // make sure the details for the solution are collapsed, or they can hide the progress and result
         var solutionExpanded = this.state.solutionExpanded;
         if (solutionExpanded[itmIdx]) {
@@ -396,7 +395,7 @@ var SETroubleshootPage = React.createClass({
                 if (itm.count > 1) {
                     title = cockpit.format(cockpit.ngettext("$0 occurrence", "$1 occurrences", itm.count),
                             itm.count);
-                    columns.push(<span className="badge" title="{title}">{itm.count}</span>);
+                    columns.push(<span className="badge" title={title}>{itm.count}</span>);
                 } else {
                     columns.push(<span></span>);
                 }

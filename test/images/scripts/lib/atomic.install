@@ -182,18 +182,19 @@ class AtomicCockpitInstaller:
             subprocess.check_call(["docker", "run", "--name", "build-cockpit",
                                    "-d", "--privileged", "-v", "/:/host",
                                    "cockpit/ws", "sleep", "1d"])
+            rpm_args = []
             if ws:
-                if self.verbose:
-                    print "updating cockpit-ws in container"
-                path = "/host" + ws;
-                subprocess.check_call(["docker", "exec", "build-cockpit",
-                                       "rpm", "-U", "--force", path])
+                rpm_args.append("/host" + ws)
             if dashboard:
+                rpm_args.append("/host" + dashboard)
+
+            if rpm_args:
+                rpm_args = ["docker", "exec", "build-cockpit",
+                            "rpm", "-U", "--force"] + rpm_args
                 if self.verbose:
-                    print "updating cockpit-dashboard in container"
-                path = "/host" + dashboard;
-                subprocess.check_call(["docker", "exec", "build-cockpit",
-                                       "rpm", "-U", "--force", path])
+                    print "updating cockpit-ws container"
+                subprocess.check_call(rpm_args)
+
             subprocess.check_call(["docker", "commit", "build-cockpit",
                                    "cockpit/ws"])
             subprocess.check_call(["docker", "kill", "build-cockpit"])

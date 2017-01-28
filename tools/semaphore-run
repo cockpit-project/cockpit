@@ -2,7 +2,7 @@
 
 set -ex
 
-./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
+./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp --enable-asan
 make V=1 all
 sudo make enable-root-tests
 make -j8 distcheck

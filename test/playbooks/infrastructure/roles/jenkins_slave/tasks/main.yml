@@ -1,0 +1,11 @@
+---
+- debug: msg="Setup of Jenkins slave with the jenkins swarm client"
+- include: install_pkgs.yml
+  when: (jenkins_master_url is defined and jslave_name is defined)
+- include: setup_jenkins_user.yml
+  when: (jenkins_master_url is defined and jslave_name is defined)
+- include: setup_swarm.yml
+  when: (jenkins_master_url is defined and jslave_name is defined)
+- debug: msg="jenkins_master_url or jslave_name was NOT defined"
+  when: (jenkins_master_url is undefined or jslave_name is undefined)
+

@@ -1,0 +1,14 @@
+---
+- stat: path=/etc/sysconfig/network-scripts/ifcfg-cockpit1
+  register: ifcfg_cockpit1
+
+- name: Install packages for cockpit framework
+  include: install_pkgs.yml
+
+- name: Setup pre-requisites for cockpit framework
+  include: setup_cockpit_tf.yml
+  when: not ifcfg_cockpit1.stat.exists
+
+- name: Run vm-prep to setup network for cockpit framework
+  include: vm-prep.yml
+  when: not ifcfg_cockpit1.stat.exists

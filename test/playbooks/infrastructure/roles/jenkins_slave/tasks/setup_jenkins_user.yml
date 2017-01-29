@@ -1,0 +1,10 @@
+- name: Add Jenkins User
+  user:
+    name: jenkins
+    state: present
+
+- name: Set password to jenkins
+  shell: echo "jenkins:jenkins" | chpasswd
+
+- name: Add jenkins user to sudoers
+  lineinfile: "dest=/etc/sudoers line='jenkins    ALL=(ALL)    NOPASSWD: ALL' state=present"

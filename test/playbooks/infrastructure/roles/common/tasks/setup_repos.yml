@@ -1,0 +1,9 @@
+---
+- name: Install necessary repo files to /etc/yum.repos.d
+  copy:
+    src: "{{ item }}.repo"
+    dest: "/etc/yum.repos.d"
+    owner: "root"
+    group: "root"
+  with_items: "{{ repos }}"
+

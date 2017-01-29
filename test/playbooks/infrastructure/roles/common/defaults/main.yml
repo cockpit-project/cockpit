@@ -1,0 +1,72 @@
+---
+# common/defaults/main.yml
+ci_infra_git_repo: https://github.com/arilivigni/ci-infrastructure.git
+
+repos:
+ - epel7
+
+yum_pkgs:
+  - ansible
+  - curl
+  - dnf
+  - expect
+  - gcc
+  - git
+  - ImageMagick-devel
+  - krb5-workstation
+  - krb5-workstation
+  - libffi-devel
+  - libguestfs-tools
+  - libvirt-client
+  - libvirt-python
+  - libxml2-devel
+  - libxslt-devel
+  - mlocate
+  - nfs-utils
+  - npm
+  - openssl
+  - openssl-devel
+  - pylint
+  - python
+  - python2-boto
+  - python2-crypto
+  - python2-mock
+  - python-click
+  - python-devel
+  - python-flake8
+  - python-futures
+  - python-glanceclient
+  - python-httplib2
+  - python-keystoneclient
+  - python-libguestfs
+  - python-netaddr
+  - python-neutronclient
+  - python-nose
+  - python-novaclient
+  - python-paramiko
+  - python-pbr
+  - python-pip
+  - python-requests
+  - python-unittest2
+  - python-virtualenv
+  - qemu
+  - qemu-kvm
+  - rpcbind
+  - rsync
+  - ruby
+  - wget
+  - xz
+
+fed_pkgs:
+  - python2-pbr
+
+centos_pkgs:
+  - python-pbr
+
+rhel_pkgs:
+  - python-pbr
+
+pip_pkgs:
+  - 'jenkins_job_builder == 1.6.1'
+  - 'python-foreman == 0.1.2'
+  - 'taskrunner == 0.2.1'

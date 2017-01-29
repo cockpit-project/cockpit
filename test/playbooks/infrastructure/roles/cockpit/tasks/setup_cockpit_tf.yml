@@ -1,0 +1,13 @@
+---
+- stat: path=/usr/lib/node_modules/phantomjs/lib/phantom/bin/phantomjs
+  register: phantomjs
+
+- name: Install phantomjs npm package
+  shell: npm -g install phantomjs
+  when: not phantomjs.stat.exists
+
+- name: Start and enable libvirtd service
+  service:
+    name: libvirtd
+    state: started
+    enabled: yes

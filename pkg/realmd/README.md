@@ -50,7 +50,7 @@ above if you do not.
 Use the following guide to configure things, with more troubleshooting advice
 below:
 
-http://files.cockpit-project.org/guide/latest/sso.html
+http://cockpit-project.org/guide/latest/sso.html
 
 **BUG:** The host name of the computer Cockpit is running on should end with
 the domain name. If it does not, then rename the computer Cockpit is running on:

@@ -99,7 +99,7 @@ function invoke_functions(functions, self, args) {
 /* -------------------------------------------------------------------------
  * Channels
  *
- * Public: https://files.cockpit-project.org/guide/api-cockpit.html
+ * Public: http://cockpit-project.org/guide/latest/api-base1.html
  */
 
 var default_transport = null;
@@ -2641,8 +2641,6 @@ function factory() {
 
     /* ---------------------------------------------------------------------
      * Spawning
-     *
-     * Public: https://files.cockpit-project.org/guide/api-cockpit.html
      */
 
     function ProcessError(options, name) {

@@ -60,6 +60,7 @@
         { kind: "ProjectRequest", type: "projectrequests", api: OPENSHIFT, global: true, create: -90 },
         { kind: "ReplicationController", type: "replicationcontrollers", api: KUBE, create: -60 },
         { kind: "Service", type: "services", api: KUBE, create: -80 },
+        { kind: "SubjectAccessReview", type: "subjectaccessreviews", api: OPENSHIFT },
         { kind: "User", type: "users", api: OPENSHIFT, global: true },
     ]);
 

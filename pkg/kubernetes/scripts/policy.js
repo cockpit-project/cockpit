@@ -64,8 +64,10 @@
                 }
 
                 var namespace;
-                for (namespace in expire)
+                for (namespace in expire) {
                     expireWhoCan(namespace);
+                    expireSAR(namespace);
+                }
             });
 
             function update_rolebindings(bindings, removed) {
@@ -172,6 +174,49 @@
                     });
 
                 return result;
+            }
+
+            var sarCache = { };
+
+            function subjectAccessReview(namespace, user, verb, resource) {
+                var key = namespace + ':' + (user ? user.metadata.name : "")+ ':' + verb + ':' + resource;
+                var defer = $q.defer();
+
+                if (key in sarCache) {
+                    defer.resolve(sarCache[key]);
+                } else {
+                    var request = {
+                        kind: "SubjectAccessReview",
+                        apiVersion: "v1",
+                        namespace: namespace,
+                        verb: verb,
+                        resource: resource
+                    };
+
+                    methods.post(loader.resolve("subjectaccessreviews"), request)
+                        .then(function(response) {
+                            sarCache[key] = response.allowed;
+                            defer.resolve(response.allowed);
+                        }, function(response) {
+                            console.warn("failed to review subject access:", response.message || JSON.stringify(response));
+                            defer.reject(response.message || JSON.stringify(response));
+                        });
+                }
+
+                return defer.promise;
+            }
+
+            function expireSAR(namespace) {
+                if (namespace) {
+                    for (var key in sarCache) {
+                        if (key.lastIndexOf(namespace + ':', 0) === 0)
+                            delete sarCache[key];
+                    }
+                } else {
+                    sarCache = { };
+                }
+
+                $rootScope.$applyAsync();
             }
 
             /*
@@ -312,6 +357,7 @@
                 },
                 removeFromRole: removeFromRole,
                 removeMemberFromPolicyBinding: removeMemberFromPolicyBinding,
+                subjectAccessReview: subjectAccessReview,
             };
         }
     ]);

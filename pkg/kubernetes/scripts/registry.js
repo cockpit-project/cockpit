@@ -94,12 +94,14 @@
         '$scope',
         'kubeLoader',
         'kubeSelect',
+        'KubeDiscoverSettings',
         'imageData',
         'imageActions',
         'projectActions',
         'projectData',
+        'projectPolicy',
         'filterService',
-        function($scope, loader, select, imageData, imageActions, projectActions, projectData, filter) {
+        function($scope, loader, select, discoverSettings, imageData, imageActions, projectActions, projectData, projectPolicy, filter) {
             loader.load("projects");
             /* Watch the policybindings for project access changes */
             loader.watch("policybindings", $scope);
@@ -150,6 +152,31 @@
 
                 return result;
             });
+
+            function setShowDockerPushCommands(visible) {
+                if (visible != $scope.showDockerPushCommands) {
+                    $scope.showDockerPushCommands = visible;
+                    $scope.$applyAsync();
+                }
+            }
+
+            function updateShowDockerPushCommands() {
+                var ns = filter.namespace();
+
+                if (ns) {
+                    discoverSettings().then(function(settings) {
+                        projectPolicy.subjectAccessReview(ns, settings.currentUser, 'update', 'imagestreamimages')
+                           .then(setShowDockerPushCommands);
+                    });
+                } else {
+                    // no current project, always show push commands; too expensive to iterate through all projects
+                    setShowDockerPushCommands(true);
+                }
+            }
+
+            // watch for project changes to update showDockerPushCommands, and initialize it
+            $scope.$on("$routeUpdate", updateShowDockerPushCommands);
+            updateShowDockerPushCommands();
 
             $scope.createProject = projectActions.createProject;
             $scope.createImageStream = imageActions.createImageStream;

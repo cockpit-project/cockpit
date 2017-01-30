@@ -136,17 +136,19 @@
             </h2>
         </div>
         <div class="card-pf-body">
-            <p>
-                <span translate>Push an image:</span>
-                <a tabindex="0" role="button" popover-trigger="focus"
-                    popover="You must login with docker
-                    to push an image.">
-                    <span class="fa fa-lg fa-info-circle"></span>
-                </a>
-            </p>
+            <div id="docker-push-commands" ng-show="showDockerPushCommands">
+                <p>
+                    <span translate>Push an image:</span>
+                    <a tabindex="0" role="button" popover-trigger="focus"
+                        popover="You must login with docker
+                        to push an image.">
+                        <span class="fa fa-lg fa-info-circle"></span>
+                    </a>
+                </p>
 <code>$ sudo docker tag <em>myimage</em> <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name:tag</em>
 $ sudo docker push <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span>/<em>project</em>/<em>name</em></code>
-            <p>
+            </div>
+            <p id="docker-pull-commands">
                 <span translate>Pull an image:</span>
                 <a tabindex="0" role="button" popover-trigger="focus"
                     popover="Depending on project access settings

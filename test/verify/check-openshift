@@ -904,5 +904,79 @@ class TestRegistry(MachineCase):
         # Make sure it showed up in the console
         wait_project(o, "llama");
 
+    def testDockerCommandInfo(self):
+        o = self.openshift
+        b = self.browser
+        m = self.machine
+
+        # create push and pull user and login as pushuser
+        o.execute("oadm policy add-role-to-user registry-viewer pulluser -n marmalade")
+        o.execute("oadm policy add-role-to-user registry-editor pushuser -n marmalade")
+        o.execute("oadm policy add-role-to-user registry-viewer pushuser -n pizzazz")
+        tmpfile = os.path.join(self.tmpdir, "kubeconfig")
+        o.execute('printf "pushuser\r\na\r\n" | oc login')
+        o.download("/root/.kube/config", tmpfile)
+        with open(tmpfile, "r") as f:
+            m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
+
+        self.login_and_go("/kubernetes/registry")
+
+        # always visible on "All projects" page
+        b.wait_in_text("body", "Pull an image")
+        b.wait_visible('#docker-push-commands')
+        b.wait_visible('#docker-pull-commands')
+
+        # push user should not see docker push command on pizzazz overview page (only a viewer there)
+        b.wait_visible(".dashboard-images .namespace-filter")
+        b.click(".dashboard-images .namespace-filter button")
+        b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
+        b.wait_present(".dashboard-images .namespace-filter a[value='pizzazz']")
+        b.click(".dashboard-images .namespace-filter a[value='pizzazz']")
+        b.wait_visible('#docker-pull-commands')
+        b.wait_not_visible('#docker-push-commands')
+
+        # push user should see docker push and pull commands on marmalade overview page
+        b.click(".dashboard-images .namespace-filter button")
+        b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
+        b.wait_present(".dashboard-images .namespace-filter a[value='marmalade']")
+        b.click(".dashboard-images .namespace-filter a[value='marmalade']")
+        b.wait_visible('#docker-push-commands')
+
+        # .. and also on the image page
+        b.go("#/images/marmalade/origin")
+        b.wait_in_text("body", "push to an image to this image stream")
+        b.wait_in_text("body", "docker tag")
+        b.wait_in_text("body", "docker push")
+        b.wait_visible('.registry-imagestream-push')
+
+        # log in as pulluser
+        b.logout()
+        o.execute('printf "pulluser\r\na\r\n" | oc login')
+        o.download("/root/.kube/config", tmpfile)
+        with open(tmpfile, "r") as f:
+            m.execute("cat > /home/admin/.kube/config", input=f.read())
+        self.login_and_go("/kubernetes/registry")
+
+        # always visible on "All projects" page
+        b.wait_in_text("body", "Pull an image")
+        b.wait_visible('#docker-push-commands')
+        b.wait_visible('#docker-pull-commands')
+
+        # pull user should only see docker pull command, but not push on project specific overview page
+        b.wait_visible(".dashboard-images .namespace-filter")
+        b.click(".dashboard-images .namespace-filter button")
+        b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
+        b.wait_present(".dashboard-images .namespace-filter a[value='marmalade']")
+        b.click(".dashboard-images .namespace-filter a[value='marmalade']")
+        b.wait_visible('#docker-pull-commands')
+        b.wait_not_visible('#docker-push-commands')
+
+        # and neither the push command on the image page
+        b.go("#/images/marmalade/origin")
+        b.wait_in_text("body", "Images")
+        # FIXME: known to fail for now, needs fixing in registry-image-widgets
+        # b.wait_not_visible('.registry-imagestream-push')
+
+
 if __name__ == '__main__':
     test_main()

@@ -19,7 +19,7 @@
  */
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
-import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm, hostVmsListToggleVmExpand, hostVmsListShowSubtab, setRefreshInterval } from "./actions.es6";
+import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm } from "./actions.es6";
 import { rephraseUI, logDebug, toGigaBytes } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";

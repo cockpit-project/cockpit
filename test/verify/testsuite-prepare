@@ -38,6 +38,8 @@ if __name__ == "__main__":
     parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
+    args.verbose = True
+
     test_os = args.image
     build_os = test_os
 

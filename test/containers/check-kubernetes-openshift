@@ -74,7 +74,7 @@ class OCMachine(VirtMachine):
                 i = i + 1
                 time.sleep(1)
 
-    def start_cockpit(self, *args, **kwargs):
+    def start_cockpit(self, host=None):
         path = os.path.join(base_dir, "files", "cockpit-openshift-template.json")
         self.upload([path], "/tmp")
         self.wait_oc()

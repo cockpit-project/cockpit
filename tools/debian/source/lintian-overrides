@@ -1,7 +1,6 @@
 # bower_components ship pre-minified *.min.js alongside *.js
 cockpit source: source-is-missing bower_components/*
 # dist/ is (pre-)built by webpack from pkg/ and bower_components, see webpack.config.js
-cockpit source: source-is-missing dist/*min.js
-cockpit source: source-is-missing dist/shell/po.*.js *
+cockpit source: source-is-missing dist/*.js*
 # false-positive heuristics, this is actual source
 cockpit source: source-is-missing pkg/kubernetes/scripts/test-images.js line length*

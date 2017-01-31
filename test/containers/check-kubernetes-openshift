@@ -88,15 +88,15 @@ class OCMachine(VirtMachine):
             self.execute(cmd)
 
         args = [
-            "COCKPIT_KUBE_INSECURE=true",
-            "COCKPIT_KUBE_URL=http://{0}:30000".format(self.address),
-            "OPENSHIFT_OAUTH_PROVIDER_URL=https://{0}:8443".format(self.address)
+            "-v", "COCKPIT_KUBE_INSECURE=true",
+            "-v", "COCKPIT_KUBE_URL=http://{0}:30000".format(self.address),
+            "-v", "OPENSHIFT_OAUTH_PROVIDER_URL=https://{0}:8443".format(self.address)
         ]
 
         if self.run_registry:
-            args.append("REGISTRY_ONLY=true")
+            args += ["-v", "REGISTRY_ONLY=true"]
 
-        self.execute("oc process -f /tmp/cockpit-openshift-template.json -v {0} > out.json".format(','.join(args)))
+        self.execute("oc process -f /tmp/cockpit-openshift-template.json {0} > out.json".format(' '.join(args)))
         self.execute("oc create -f out.json")
         self.wait_for_cockpit_running(self.address, seconds=180, port=30000)
 

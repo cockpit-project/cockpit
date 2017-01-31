@@ -81,7 +81,7 @@ $ <command>kubectl get service kubernetes-cockpit</command>
 
 <programlisting>
 $ <command>wget https://raw.githubusercontent.com/cockpit-project/cockpit/master/containers/openshift-cockpit.template</command>
-$ <command>oc process -f openshift-cockpit.template -v COCKPIT_KUBE_URL=https://XXX,OPENSHIFT_OAUTH_PROVIDER_URL=https://YYY:8443 | oc create -f -</command>
+$ <command>oc process -f openshift-cockpit.template -v COCKPIT_KUBE_URL=https://XXX -v OPENSHIFT_OAUTH_PROVIDER_URL=https://YYY:8443 | oc create -f -</command>
 </programlisting>
 
     <para>You can retrieve the address where you can access the dashboard via:</para>

@@ -96,6 +96,13 @@ $ cockpit-bridge --packages
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>dashboard</term>
+        <listitem><para>An optional JSON object containing any dashboard items that this package
+          provides. These will be added into the Cockpit user interface on the top bar.
+          Each property on this object is named for the identifier of such an item, and the
+          property value is a JSON object described below.</para></listitem>
+      </varlistentry>
+      <varlistentry>
         <term>menu</term>
         <listitem><para>An optional JSON object containing any main menu items that this package
           provides. These will be added into the Cockpit user interface on the side bar.
@@ -140,6 +147,11 @@ $ cockpit-bridge --packages
       <varlistentry>
         <term>label</term>
         <listitem><para>The label for the tool.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>order</term>
+        <listitem><para>An optional order number to place this menu item or tool. Lower numbers
+          are listed first.</para></listitem>
       </varlistentry>
       <varlistentry>
         <term>path</term>

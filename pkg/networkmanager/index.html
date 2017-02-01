@@ -158,20 +158,20 @@
     </table>
   </script>
 
-  <script id="network-ethernet-settings-template" type="x-template/mustache">
+  <script id="network-mtu-settings-template" type="x-template/mustache">
     <div>
       <label>
-        <input id="network-ethernet-settings-mtu-auto" {{^mtu}}checked="checked"{{/mtu}}
-               type="radio" name="ethernet-mtu-mode"></input>
+        <input id="network-mtu-settings-auto" {{^mtu}}checked="checked"{{/mtu}}
+               type="radio" name="mtu-mode"></input>
         <span translatable="yes">Automatic</span>
       </label>
     </div>
     <div>
       <label>
-        <input id="network-ethernet-settings-mtu-custom"  {{#mtu}}checked="checked"{{/mtu}}
-               type="radio" name="ethernet-mtu-mode"></input>
+        <input id="network-mtu-settings-custom"  {{#mtu}}checked="checked"{{/mtu}}
+               type="radio" name="mtu-mode"></input>
         <span translatable="yes">Set to</span>
-        <input id="network-ethernet-settings-mtu-input"
+        <input id="network-mtu-settings-input"
                class="form-control" type="text" value="{{mtu}}"></input>
       </label>
     </div>
@@ -726,7 +726,7 @@
     </div>
   </div>
 
-  <div class="modal" id="network-ethernet-settings-dialog"
+  <div class="modal" id="network-mtu-settings-dialog"
        tabindex="-1" role="dialog"
        data-backdrop="static">
     <div class="modal-dialog">
@@ -735,16 +735,16 @@
           <h4 class="modal-title" translatable="yes">Ethernet MTU</h4>
         </div>
         <div class="modal-body">
-          <div id="network-ethernet-settings-body">
+          <div id="network-mtu-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-ethernet-settings-error">
+          <div class="alert alert-danger dialog-error" id="network-mtu-settings-error">
             <i class="fa fa-exclamation-triangle"></i>
             <span></span>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-ethernet-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-ethernet-settings-apply">Apply</button>
+          <button class="btn btn-default" translatable="yes" id="network-mtu-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" id="network-mtu-settings-apply">Apply</button>
         </div>
       </div>
     </div>

@@ -36,11 +36,11 @@ class TestNetworking(NetworkCase):
         b.wait_visible("#network-interface")
 
         b.click("tr:contains('MTU') a")
-        b.wait_popup("network-ethernet-settings-dialog")
-        b.set_checked('#network-ethernet-settings-mtu-custom', True)
-        b.set_val('#network-ethernet-settings-mtu-input', "1400")
-        b.click("#network-ethernet-settings-apply")
-        b.wait_popdown("network-ethernet-settings-dialog")
+        b.wait_popup("network-mtu-settings-dialog")
+        b.set_checked('#network-mtu-settings-custom', True)
+        b.set_val('#network-mtu-settings-input', "1400")
+        b.click("#network-mtu-settings-apply")
+        b.wait_popdown("network-mtu-settings-dialog")
         b.wait_in_text("tr:contains('MTU')", "1400")
 
         # We're debugging failures here log status to journal for diagnosis

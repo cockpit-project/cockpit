@@ -2455,8 +2455,8 @@ PageNetworkInterface.prototype = {
                 show_dialog(PageNetworkVlanSettings, '#network-vlan-settings-dialog');
             }
 
-            function configure_ethernet_settings() {
-                show_dialog(PageNetworkEthernetSettings, '#network-ethernet-settings-dialog');
+            function configure_mtu_settings() {
+                show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
             }
 
             function render_autoconnect_row() {
@@ -2505,7 +2505,7 @@ PageNetworkInterface.prototype = {
                                            function () { configure_ip_settings(topic); });
             }
 
-            function render_ethernet_settings_row() {
+            function render_mtu_settings_row() {
                 var rows = [ ];
                 var options = settings.ethernet;
 
@@ -2521,7 +2521,7 @@ PageNetworkInterface.prototype = {
                 else
                     add_row(_("Automatic"), options);
 
-                return render_settings_row(_("MTU"), rows, configure_ethernet_settings);
+                return render_settings_row(_("MTU"), rows, configure_mtu_settings);
             }
 
             function render_master() {
@@ -2674,7 +2674,7 @@ PageNetworkInterface.prototype = {
                      render_autoconnect_row(),
                      render_ip_settings_row("ipv4", _("IPv4")),
                      render_ip_settings_row("ipv6", _("IPv6")),
-                     render_ethernet_settings_row(),
+                     render_mtu_settings_row(),
                      render_vlan_settings_row(),
                      render_bridge_settings_row(),
                      render_bridge_port_settings_row(),
@@ -4115,21 +4115,21 @@ function PageNetworkVlanSettings() {
     this._init();
 }
 
-PageNetworkEthernetSettings.prototype = {
+PageNetworkMtuSettings.prototype = {
     _init: function () {
-        this.id = "network-ethernet-settings-dialog";
-        this.ethernet_settings_template = $("#network-ethernet-settings-template").html();
+        this.id = "network-mtu-settings-dialog";
+        this.ethernet_settings_template = $("#network-mtu-settings-template").html();
         Mustache.parse(this.ethernet_settings_template);
     },
 
     setup: function () {
-        $('#network-ethernet-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-ethernet-settings-apply').click($.proxy(this, "apply"));
+        $('#network-mtu-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-mtu-settings-apply').click($.proxy(this, "apply"));
     },
 
     enter: function () {
-        $('#network-ethernet-settings-error').hide();
-        this.settings = PageNetworkEthernetSettings.ghost_settings || PageNetworkEthernetSettings.connection.copy_settings();
+        $('#network-mtu-settings-error').hide();
+        this.settings = PageNetworkMtuSettings.ghost_settings || PageNetworkMtuSettings.connection.copy_settings();
         this.update();
     },
 
@@ -4144,28 +4144,28 @@ PageNetworkEthernetSettings.prototype = {
         var options = self.settings.ethernet;
 
         var body = $(Mustache.render(self.ethernet_settings_template, options));
-        $('#network-ethernet-settings-body').html(body);
-        $('#network-ethernet-settings-mtu-input').focus(function () {
-            $('#network-ethernet-settings-mtu-custom').prop('checked', true);
+        $('#network-mtu-settings-body').html(body);
+        $('#network-mtu-settings-input').focus(function () {
+            $('#network-mtu-settings-custom').prop('checked', true);
         });
     },
 
     cancel: function() {
-        $('#network-ethernet-settings-dialog').modal('hide');
+        $('#network-mtu-settings-dialog').modal('hide');
     },
 
     apply: function() {
         var self = this;
-        var model = PageNetworkEthernetSettings.model;
+        var model = PageNetworkMtuSettings.model;
 
         function show_error(error) {
-            show_dialog_error('#network-ethernet-settings-error', error);
+            show_dialog_error('#network-mtu-settings-error', error);
         }
 
-        if ($("#network-ethernet-settings-mtu-auto").prop('checked'))
+        if ($("#network-mtu-settings-auto").prop('checked'))
             self.settings.ethernet.mtu = 0;
         else {
-            var mtu = $("#network-ethernet-settings-mtu-input").val();
+            var mtu = $("#network-mtu-settings-input").val();
             if (/^[0-9]+$/.test(mtu))
                 self.settings.ethernet.mtu = parseInt(mtu, 10);
             else {
@@ -4175,11 +4175,11 @@ PageNetworkEthernetSettings.prototype = {
         }
 
         function modify () {
-            return PageNetworkEthernetSettings.apply_settings(self.settings).
+            return PageNetworkMtuSettings.apply_settings(self.settings).
                 then(function () {
-                    $('#network-ethernet-settings-dialog').modal('hide');
-                    if (PageNetworkEthernetSettings.done)
-                        return PageNetworkEthernetSettings.done();
+                    $('#network-mtu-settings-dialog').modal('hide');
+                    if (PageNetworkMtuSettings.done)
+                        return PageNetworkMtuSettings.done();
                 }).
                 fail(show_error);
         }
@@ -4189,7 +4189,7 @@ PageNetworkEthernetSettings.prototype = {
 
 };
 
-function PageNetworkEthernetSettings() {
+function PageNetworkMtuSettings() {
     this._init();
 }
 
@@ -4267,7 +4267,7 @@ function init() {
     dialog_setup(new PageNetworkBridgeSettings());
     dialog_setup(new PageNetworkBridgePortSettings());
     dialog_setup(new PageNetworkVlanSettings());
-    dialog_setup(new PageNetworkEthernetSettings());
+    dialog_setup(new PageNetworkMtuSettings());
 
     $(cockpit).on("locationchanged", navigate);
     navigate();

@@ -13,7 +13,7 @@
         loaded = true;
     }
 
-    function transformAngular(data) {
+    function transformAngular(data, prev) {
         var key, context, parts, value, result = { };
         for (key in data) {
             if (key === "")
@@ -35,7 +35,7 @@
                 result[key] = { };
             result[key][context] = value;
         }
-        return result;
+        return angular.extend(prev, result);
     }
 
     /* Load into angular here */
@@ -47,7 +47,8 @@
             loaded = true;
             module.run(['gettextCatalog', function(gettextCatalog) {
                 var lang = data[""]["language"];
-                gettextCatalog.setStrings(lang, transformAngular(data));
+                var prev = (gettextCatalog.getCurrentLanguage() == lang) ? gettextCatalog.strings : { };
+                gettextCatalog.setStrings(lang, transformAngular(data, prev));
                 gettextCatalog.setCurrentLanguage(lang);
             }]);
         }

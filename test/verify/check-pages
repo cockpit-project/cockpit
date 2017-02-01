@@ -173,7 +173,7 @@ WantedBy=default.target
         # Angular
         self.assertEqual(b.text("#angular-translate"), "Bereit")
         self.assertEqual(b.text("#angular-context"), "Bereiten")
-        self.assertEqual(b.text("#angular-interpolate"), u"'Marmalade' löschen")
+        self.assertEqual(b.text("#angular-interpolate"), u"'Marmalade' löschen!!!")
 
     def testFrameReload(self):
         b = self.browser

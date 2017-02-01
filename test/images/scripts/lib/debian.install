@@ -63,7 +63,7 @@ if [ -n "$do_build" ]; then
     pbuilder build --buildresult "$resultdir" \
                    --logfile "$resultdir/build.log" \
                    cockpit_0-1.dsc >$stdout_dest
-    lintian $resultdir/cockpit_*_$(dpkg --print-architecture).changes
+    lintian $resultdir/cockpit_*_$(dpkg --print-architecture).changes >&2
 fi
 
 # Install

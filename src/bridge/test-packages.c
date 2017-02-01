@@ -350,6 +350,8 @@ test_listing (TestCase *tc,
                           "  \"description\": \"second dummy description\""
                           " },"
                           " \"test\": {"
+                          "   \"name\": \"test\","
+                          "   \"priority\": 15,"
                           "   \"description\" : \"dummy\""
                           " },"
                           " \"incompatible\": {"
@@ -549,7 +551,7 @@ test_resolve (TestCase *tc,
   gchar *path;
 
   path = cockpit_packages_resolve (tc->packages, "test", "/sub/file.ext", NULL);
-  g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
+  g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test-priority/sub/file.ext", ==, path);
   g_free (path);
 }
 

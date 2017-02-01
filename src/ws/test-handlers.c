@@ -462,7 +462,7 @@ test_default (Test *test,
 }
 
 static const DefaultFixture fixture_resource_checksum = {
-  .path = "/cockpit/$386257ed81a663cdd7ee12633056dee18d60ddca/test/sub/file.ext",
+  .path = "/cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/test/sub/file.ext",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
     "These are the contents of file.ext*"
@@ -522,7 +522,7 @@ static const DefaultFixture fixture_shell_path_package = {
   .org_path = "/path/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/path/cockpit/$386257ed81a663cdd7ee12633056dee18d60ddca/another/test.html\">*"
+      "<base href=\"/path/cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 
@@ -578,7 +578,7 @@ static const DefaultFixture fixture_shell_package = {
   .path = "/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/cockpit/$386257ed81a663cdd7ee12633056dee18d60ddca/another/test.html\">*"
+      "<base href=\"/cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 

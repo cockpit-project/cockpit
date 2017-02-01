@@ -369,6 +369,28 @@ read_package_name (JsonObject *manifest,
   return value;
 }
 
+static gint
+compar_package_priority (const gchar *name,
+                         JsonObject *manifest1,
+                         JsonObject *manifest2)
+{
+  gint64 priority1 = 1;
+  gint64 priority2 = 2;
+
+  if (!cockpit_json_get_int (manifest1, "priority", 1, &priority1) ||
+      !cockpit_json_get_int (manifest2, "priority", 1, &priority2))
+    {
+      g_message ("%s: invalid \"priority\" field in package manifest", name);
+    }
+
+  if (priority1 == priority2)
+    return 0;
+  else if (priority1 < priority2)
+    return -1;
+  else
+    return 1;
+}
+
 static gboolean
 strv_have_prefix (gchar **strv,
                   const gchar *prefix)
@@ -558,8 +580,15 @@ maybe_add_package (GHashTable *listing,
   package = g_hash_table_lookup (listing, name);
   if (package)
     {
-      package = NULL;
-      goto out;
+      if (compar_package_priority (name, manifest, package->manifest) <= 0)
+        {
+          package = NULL;
+          goto out;
+        }
+      else
+        {
+          package = NULL;
+        }
     }
 
   directory = calc_package_directory (manifest, name, path);

@@ -16,10 +16,22 @@ nodist_networkmanager_DATA = \
        pkg/networkmanager/override.json \
        $(NULL)
 
+# Used for testing and the 'translate' playgruond
+playgrounddir = $(pkgdatadir)/playground
+playground_DATA = \
+	dist/playground/po.de.js \
+	$(NULL)
+
+dist/playground/de.po: pkg/playground/de.po
+	$(COPY_RULE)
+
 EXTRA_DIST += \
+	dist/playground/de.po \
+	pkg/playground/de.po \
 	pkg/networkmanager/override.json.in \
 	pkg/storaged/override.json.in \
 	pkg/lib/qunit-template.html \
+	$(playground_DATA) \
 	$(pkg_TESTS)
 
 if WITH_GOLANG

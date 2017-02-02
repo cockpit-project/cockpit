@@ -98,6 +98,11 @@ dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUI
 		LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
 			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 			$(srcdir)/$(GUIDE_DOCBOOK)
+		if grep -n -r 'name=\"id' dist/guide/html >&2; then \
+			echo "Unexpected generated id in the documentation" >&2; \
+			rm dist/guide/html/index.html; \
+			exit 1; \
+		fi
 
 dist/guide/html: dist/guide/html/index.html
 

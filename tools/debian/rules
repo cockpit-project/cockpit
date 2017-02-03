@@ -33,3 +33,6 @@ override_dh_install:
 
 override_dh_fixperms:
 	dh_fixperms -Xcockpit-session -Xcockpit-polkit
+
+override_dh_gencontrol:
+	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)"

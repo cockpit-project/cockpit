@@ -37,8 +37,7 @@ Homepage: http://cockpit-project.org/
 Package: cockpit
 Architecture: all
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${source:Version}),
-         cockpit-bridge (<< ${source:Version}.1~),
+         cockpit-bridge (>= ${bridge:minversion}),
          cockpit-dashboard (>= ${source:Version}),
          cockpit-dashboard (<< ${source:Version}.1~),
          cockpit-ws (>= ${source:Version}),
@@ -89,8 +88,7 @@ Architecture: all
 Depends: ${misc:Depends},
          docker.io (>= 1.3.0) | docker-engine (>= 1.3.0),
          python3,
-         cockpit-bridge (>= ${source:Version}),
-         cockpit-bridge (<< ${source:Version}.1~)
+         cockpit-bridge (>= ${bridge:minversion}),
 Description: Cockpit user interface for Docker containers
  The Cockpit components for interacting with Docker and user interface.
 
@@ -104,8 +102,7 @@ Description: Cockpit user interface for virtual machines
 Package: cockpit-networkmanager
 Architecture: all
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${source:Version}),
-         cockpit-bridge (<< ${source:Version}.1~),
+         cockpit-bridge (>= ${bridge:minversion}),
          network-manager
 Description: Cockpit user interface for networking
  The Cockpit components for interacting with networking configuration.
@@ -114,7 +111,7 @@ Package: cockpit-pcp
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         cockpit-bridge (= ${binary:Version}),
+         cockpit-bridge (>= ${bridge:minversion}),
          pcp
 Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
@@ -123,16 +120,14 @@ Package: cockpit-storaged
 Architecture: all
 Depends: ${misc:Depends},
          udisks2 | storaged,
-         cockpit-bridge (>= ${source:Version}),
-         cockpit-bridge (<< ${source:Version}.1~)
+         cockpit-bridge (>= ${bridge:minversion}),
 Description: Cockpit user interface for storage
  The Cockpit components for interacting with storage.
 
 Package: cockpit-system
 Architecture: all
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${source:Version}),
-         cockpit-bridge (<< ${source:Version}.1~),
+         cockpit-bridge (>= ${bridge:minversion}),
          libpwquality-tools,
          openssl,
 Provides: cockpit-realmd,

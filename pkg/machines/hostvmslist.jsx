@@ -293,12 +293,31 @@ VmUsageTab.propTypes = {
 
 /** One VM in the list (a row)
  */
-const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceReboot }) => {
+const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceReboot, dispatch }) => {
     const stateIcon = (<StateIcon state={vm.state} config={config}/>);
+
+    let tabRenderers = [
+        {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
+        {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' }
+    ];
+    if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
+        tabRenderers = tabRenderers.concat(config.provider.vmTabRenderers.map(
+            tabRender => {
+                return {
+                    name: tabRender.name,
+                    renderer: tabRender.componentFactory(),
+                    data: { vm, providerState: config.providerState, dispatch }};
+            }
+        ));
+    }
+
     return (<ListingRow
-        columns={[{name: vm.name, 'header': true}, rephraseUI('connections', vm.connectionName), stateIcon]}
-        tabRenderers={[ {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
-            {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' } ]}
+        columns={[
+            {name: vm.name, 'header': true},
+            rephraseUI('connections', vm.connectionName),
+            stateIcon
+            ]}
+        tabRenderers={tabRenderers}
         listingActions={VmActions({vmId: vmId(vm.name), config, state: vm.state,
             onStart, onReboot, onForceReboot, onShutdown, onForceoff})}/>);
 };
@@ -331,7 +350,9 @@ const HostVmsList = ({ vms, config, dispatch }) => {
                         onReboot={() => dispatch(rebootVm(vm))}
                         onForceReboot={() => dispatch(forceRebootVm(vm))}
                         onShutdown={() => dispatch(shutdownVm(vm))}
-                        onForceoff={() => dispatch(forceVmOff(vm))}/>);
+                        onForceoff={() => dispatch(forceVmOff(vm))}
+                        dispatch={dispatch}
+                    />);
             })}
         </Listing>
     </div>);

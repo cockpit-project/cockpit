@@ -79,6 +79,7 @@ function getFirstIndexOfVm(state, field, value, connectionName) {
 function config(state, action) {
     state = state ? state : {
         provider: null,
+        providerState: null,
         refreshInterval: VMS_CONFIG.DefaultRefreshInterval
     };
 
@@ -92,6 +93,23 @@ function config(state, action) {
         default:
             return state;
     }
+}
+
+/**
+ * Provider might optionally extend the reducer tree (see state.provider.reducer() function)
+ */
+function lazyComposedReducer({ parentReducer, getSubreducer, getSubstate, setSubstate }) {
+    return (state, action) => {
+        let newState = parentReducer(state, action);
+        const subreducer = getSubreducer(newState);
+        if (subreducer) {
+            const newSubstate = subreducer(getSubstate(newState), action);
+            if (newSubstate !== getSubstate(newState)) {
+                newState = setSubstate(newState, newSubstate);
+            }
+        }
+        return newState;
+    };
 }
 
 function vms(state, action) {
@@ -178,6 +196,11 @@ function timeSampleUsageData(newVmRecord, previousVmRecord) {
 }
 
 export default combineReducers({
-    config,
+    config: lazyComposedReducer({
+        parentReducer: config,
+        getSubreducer: (state) => (state.provider && state.provider.reducer) ? state.provider.reducer : undefined,
+        getSubstate: (state) => state.providerState,
+        setSubstate: (state, subState) => Object.assign({}, state, {providerState: subState})
+    } ),
     vms
 });

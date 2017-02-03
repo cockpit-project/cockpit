@@ -20,6 +20,7 @@
 
 import cockpit from 'cockpit';
 import $ from 'jquery';
+import React from 'react';
 
 import { logDebug } from './helpers.es6';
 import Libvirt from './libvirt.es6';
@@ -52,6 +53,7 @@ function loadExternalProvider ({ useProvider, defaultProvider }) {
  */
 function actionCreators () {
     return {
+        virtMiddleware: virt,
         delayRefresh: () => delayPolling(getAllVms()),
         deleteUnlistedVMs: deleteUnlistedVMs,
         updateOrAddVm: updateOrAddVm,
@@ -76,7 +78,7 @@ function getVirtProvider (store) {
                     store.dispatch(setProvider(provider));
                     deferred.resolve(provider);
                 } else {
-                    const initResult = provider.init(actionCreators(), Libvirt);
+                    const initResult = provider.init(actionCreators(), Libvirt, React);
                     if (initResult && initResult.then) { // if Promise or $.jqXHR, the then() is defined
                         initResult
                             .done(() => {

@@ -35,9 +35,9 @@ The external provider script must create global window.EXTERNAL_PROVIDER object 
 
     window.EXTERNAL_PROVIDER = {
         name: 'YOUR PROVIDER NAME',
-        init: function (actionCreators, nextProvider) {return true;},
+        init: function (actionCreators, nextProvider, React) {return true;}, // return boolean or Promise
 
-        GET_VM: function ({ lookupId: name }) { return dispatch => {...}; },
+        GET_VM: function ({ lookupId: name }) { return dispatch => {...}; }, // return Promise
         GET_ALL_VMS: function () {},
         SHUTDOWN_VM: function ({ name, id }) {},
         FORCEOFF_VM: function ({ name, id }) {},
@@ -45,11 +45,16 @@ The external provider script must create global window.EXTERNAL_PROVIDER object 
         FORCEREBOOT_VM: function ({ name, id }) {},
         START_VM: function ({ name, id }) {},
         
-        canReset: function (state) {return true;},
+        canReset: function (state) {return true;}, // return boolean
         canShutdown: function (state) {return true;},
         isRunning: function (state) {return true;},
         canRun: function (state) {return true;},
-        };
+        
+        vmTabRenderers: [ // optional
+            {name: 'Provider-specific subtab', componentFactory: YOUR_COMPONENT_FACTORY}, // see externalComponent.jsx for more info on componentFactory
+          ],
+
+    };
 
 The provider methods are expected to return a Promise.
 

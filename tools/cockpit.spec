@@ -12,7 +12,8 @@
 #  * wip 1
 #
 
-# earliest base that the subpackages work on
+# earliest base that the subpackages work on; this gets computed/updated by
+# tools/min-base-version during "make dist", but keep a hardcoded fallback
 %define required_base 122
 
 %if 0%{?centos}

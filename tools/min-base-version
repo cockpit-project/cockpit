@@ -1,0 +1,41 @@
+#!/usr/bin/python
+# Compute the maximum required "cockpit" version from all pkg/*/manifest.json
+# for computing rpm/deb package dependencies. This is a bit stricter than
+# absolutely required, as only some subpackages might require a newer cockpit
+# version, but doing this precisely would be much more complicated and error
+# prone.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import os
+import json
+from glob import glob
+
+proj_dir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
+
+max_version = '0'
+for manifest in glob(os.path.join(proj_dir, 'pkg/*/manifest.json')):
+    with open(manifest) as f:
+        requires = json.load(f)['requires']
+    try:
+        v = requires['cockpit']
+        if v > max_version:
+            max_version = v
+    except KeyError:
+        sys.stderr.write('WARNING: %s lacks cockpit dependency' % manifest)
+
+print(max_version)

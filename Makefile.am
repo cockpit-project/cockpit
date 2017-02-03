@@ -345,6 +345,7 @@ COMMITTED_DIST = \
 	$(NULL)
 
 # Build up the distribution using $COMMITTED_DIST and include node_modules and bower licenses
+# also automatically update minimum base dependency in RPM spec file
 dist-hook::
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
@@ -352,6 +353,7 @@ dist-hook::
 	tar -C $(srcdir) -cf - bower_components/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
+	[ ! -e $(distdir)/tools/cockpit.spec ] || sed -ri "s/^(.*%define required_base).*$$/\1 $$($(srcdir)/tools/min-base-version)/" $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' "$(distdir)" "$(distdir)/bower.json" "$(distdir)/.bowerrc"
 DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/package.json"

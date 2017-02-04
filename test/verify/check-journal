@@ -222,13 +222,15 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_log_lines([ expected_date, [ "check-journal", "BEFORE BOOT", "" ] ])
         m.execute("systemctl stop systemd-journald.service")
 
+        b.switch_to_top()
+        b.logout()
+
         # Now reboot things
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
         m.execute("logger -p user.err --tag check-journal AFTER BOOT");
 
         m.start_cockpit()
-        b.switch_to_top()
         b.relogin('/system/logs')
         inject_extras()
 

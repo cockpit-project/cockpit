@@ -519,3 +519,18 @@
    ...
    fun:glib_worker_main
 }
+{
+   g_log__g_convert_with_iconv_1
+   Memcheck:Addr8
+   fun:__gconv_transform_internal_ascii
+   fun:__gconv_transform_utf8_internal
+   fun:__gconv
+   fun:iconv
+   fun:g_convert_with_iconv
+   fun:g_convert
+   fun:g_convert_with_fallback
+   ...
+   fun:g_print
+   ...
+   fun:g_log
+}

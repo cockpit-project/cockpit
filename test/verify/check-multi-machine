@@ -545,6 +545,7 @@ class TestMultiMachine(MachineCase):
         m2.execute('passwd -u admin')
 
         # path should reconnect at this point
+        b.reload()
         b.go(m2_path)
         b.enter_page("/playground/test", m2.address, reconnect=True)
         # image is back because it page was reloaded after disconnection

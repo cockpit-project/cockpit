@@ -85,6 +85,7 @@ OnCalendar=*:1/2
 
         # After writing files out tell systemd about them
         m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start default.target")
 
         self.login_and_go("/system/services")
 

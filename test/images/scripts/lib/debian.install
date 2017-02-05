@@ -39,13 +39,16 @@ if [ -n "$do_build" ]; then
     rm -rf build-results
     mkdir build-results
     resultdir=$PWD/build-results
+    upstream_ver=$(ls cockpit-*.tar.gz | sed 's/^.*-//; s/.tar.gz//' | head -n1)
 
-    ln -sf cockpit-*.tar.gz cockpit_0.orig.tar.gz
+    ln -sf cockpit-*.tar.gz cockpit_${upstream_ver}.orig.tar.gz
 
     rm -rf cockpit-*/
     tar -xzf cockpit-*.tar.gz
     ( cd cockpit-*/
       cp -rp tools/debian debian
+      # put proper version into changelog, as we have versioned dependencies
+      sed -i "1 s/(.*)/($upstream_ver-1)/" debian/changelog
       # Hack: Remove PCP build dependencies while pcp is not in testing
       # (https://tracker.debian.org/pcp)
       sed -i '/libpcp.*-dev/d' debian/control
@@ -62,7 +65,7 @@ if [ -n "$do_build" ]; then
 
     pbuilder build --buildresult "$resultdir" \
                    --logfile "$resultdir/build.log" \
-                   cockpit_0-1.dsc >$stdout_dest
+                   cockpit_${upstream_ver}-1.dsc >$stdout_dest
     lintian $resultdir/cockpit_*_$(dpkg --print-architecture).changes >&2
 fi
 

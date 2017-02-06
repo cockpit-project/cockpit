@@ -516,7 +516,8 @@ function NetworkManagerModel() {
         }
 
         if (settings["802-3-ethernet"]) {
-            result.ethernet = { mtu: get("802-3-ethernet", "mtu")
+            result.ethernet = { mtu: get("802-3-ethernet", "mtu"),
+                                assigned_mac_address: get("802-3-ethernet", "assigned-mac-address")
                               };
         }
 
@@ -682,6 +683,9 @@ function NetworkManagerModel() {
 
         if (settings.ethernet) {
             set("802-3-ethernet", "mtu", 'u', settings.ethernet.mtu);
+            set("802-3-ethernet", "assigned-mac-address", 's', settings.ethernet.assigned_mac_address);
+            // Delete cloned-mac-address so that assigned-mac-address gets used.
+            delete result["802-3-ethernet"]["cloned-mac-address"];
         } else
             delete result["802-3-ethernet"];
 
@@ -2057,6 +2061,7 @@ PageNetworkInterface.prototype = {
             cockpit.location.go('/');
         });
 
+        $("#network-interface-mac").click($.proxy(this, "set_mac"));
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
 
         this.device_onoff = $("#network-interface-delete-switch").onoff()
@@ -2201,6 +2206,10 @@ PageNetworkInterface.prototype = {
         $(id).modal('show');
     },
 
+    set_mac: function() {
+        this.show_dialog(PageNetworkMacSettings, "#network-mac-settings-dialog");
+    },
+
     delete_connections: function() {
         var self = this;
 
@@ -2339,7 +2348,20 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-name').text(self.dev_name);
         $('#network-interface-hw').text(desc);
-        $('#network-interface-mac').text(dev? dev.HwAddress : "");
+
+        var mac;
+        if (dev &&
+            dev.HwAddress) {
+            mac = dev.HwAddress;
+        } else if (iface &&
+                   iface.MainConnection &&
+                   iface.MainConnection.Settings &&
+                   iface.MainConnection.Settings.ethernet &&
+                   iface.MainConnection.Settings.ethernet.assigned_mac_address) {
+            mac = iface.MainConnection.Settings.ethernet.assigned_mac_address;
+        }
+
+        $('#network-interface-mac').text(mac);
 
         this.device_onoff.onoff("disabled", !iface);
         this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
@@ -3348,6 +3370,30 @@ function apply_master_slave(choices, model, apply_master, master_connection, mas
     return apply_master(master_settings).then(wait_for_master).then(set_all_slaves);
 }
 
+function fill_mac_menu(menu, input, model) {
+    menu.empty();
+
+    function menu_append(title, value) {
+        menu.append(
+            $('<li class="presentation">').append(
+                $('<a>').
+                    text(title).
+                    click(function () {
+                        input.val(value).trigger("change");
+                    })));
+    }
+
+    model.list_interfaces().forEach(function (iface) {
+        if (iface.Device && iface.Device.HwAddress && iface.Device.HwAddress !== "00:00:00:00:00:00")
+            menu_append(cockpit.format("$0 ($1)", iface.Device.HwAddress, iface.Name), iface.Device.HwAddress);
+    });
+
+    menu_append(_("Permanent"), "permanent");
+    menu_append(_("Preserve"), "preserve");
+    menu_append(_("Random"), "random");
+    menu_append(_("Stable"), "stable");
+}
+
 PageNetworkBondSettings.prototype = {
     _init: function () {
         this.id = "network-bond-settings-dialog";
@@ -3388,7 +3434,7 @@ PageNetworkBondSettings.prototype = {
         var options = self.settings.bond.options;
 
         var slaves_element;
-        var mode_btn, primary_btn;
+        var mac_input, mode_btn, primary_btn;
         var monitoring_btn, interval_input, targets_input, updelay_input, downdelay_input;
 
         function change_slaves() {
@@ -3397,6 +3443,13 @@ PageNetworkBondSettings.prototype = {
             primary_btn = btn;
             select_btn_select(primary_btn, options.primary);
             change_mode();
+        }
+
+        function change_mac() {
+            console.log("mac");
+            if (!self.settings.ethernet)
+                self.settings.ethernet = { };
+            self.settings.ethernet.assigned_mac_address = mac_input.val();
         }
 
         function change_mode() {
@@ -3431,8 +3484,10 @@ PageNetworkBondSettings.prototype = {
             }
         }
 
+        var mac = (self.settings.ethernet && self.settings.ethernet.assigned_mac_address) || "";
         var body = $(Mustache.render(self.bond_settings_template, {
                        interface_name: self.settings.bond.interface_name,
+                       assigned_mac_address: mac,
                        monitoring_interval: options.miimon || options.arp_interval || "100",
                        monitoring_targets: options.arp_ip_targets,
                        link_up_delay: options.updelay || "0",
@@ -3448,6 +3503,10 @@ PageNetworkBondSettings.prototype = {
         body.find('#network-bond-settings-members').
                       append(slaves_element = render_slave_interface_choices(model, master).
                              change(change_slaves));
+        fill_mac_menu(body.find('#network-bond-settings-mac-menu'),
+                      mac_input = body.find('#network-bond-settings-mac-input'),
+                      model);
+        mac_input.change(change_mac);
         body.find('#network-bond-settings-mode-select').
                       append(mode_btn = select_btn(change_mode, bond_mode_choices, "form-control"));
         body.find('#network-bond-settings-primary-select').
@@ -4197,6 +4256,77 @@ function PageNetworkMtuSettings() {
     this._init();
 }
 
+PageNetworkMacSettings.prototype = {
+    _init: function () {
+        this.id = "network-mac-settings-dialog";
+        this.ethernet_settings_template = $("#network-mac-settings-template").html();
+        Mustache.parse(this.ethernet_settings_template);
+    },
+
+    setup: function () {
+        $('#network-mac-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-mac-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-mac-settings-error').hide();
+        this.settings = PageNetworkMacSettings.ghost_settings || PageNetworkMacSettings.connection.copy_settings();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var options = self.settings.ethernet;
+
+        var body = $(Mustache.render(self.ethernet_settings_template, options));
+        $('#network-mac-settings-body').html(body);
+
+        fill_mac_menu($('#network-mac-settings-menu'),
+                      $('#network-mac-settings-input'),
+                      PageNetworkMacSettings.model);
+    },
+
+    cancel: function() {
+        $('#network-mac-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkMacSettings.model;
+
+        function show_error(error) {
+            show_dialog_error('#network-mac-settings-error', error);
+        }
+
+        if (!self.settings.ethernet)
+            self.settings.ethernet = { };
+        self.settings.ethernet.assigned_mac_address = $("#network-mac-settings-input").val();
+
+        function modify () {
+            return PageNetworkMacSettings.apply_settings(self.settings).
+                then(function () {
+                    $('#network-mac-settings-dialog').modal('hide');
+                    if (PageNetworkMacSettings.done)
+                        return PageNetworkMacSettings.done();
+                }).
+                fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify);
+    }
+
+};
+
+function PageNetworkMacSettings() {
+    this._init();
+}
+
 /* INITIALIZATION AND NAVIGATION
  *
  * The code above still uses the legacy 'Page' abstraction for both
@@ -4272,6 +4402,7 @@ function init() {
     dialog_setup(new PageNetworkBridgePortSettings());
     dialog_setup(new PageNetworkVlanSettings());
     dialog_setup(new PageNetworkMtuSettings());
+    dialog_setup(new PageNetworkMacSettings());
 
     $(cockpit).on("locationchanged", navigate);
     navigate();

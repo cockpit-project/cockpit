@@ -2061,7 +2061,6 @@ PageNetworkInterface.prototype = {
             cockpit.location.go('/');
         });
 
-        $("#network-interface-mac").click($.proxy(this, "set_mac"));
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
 
         this.device_onoff = $("#network-interface-delete-switch").onoff()
@@ -2361,7 +2360,23 @@ PageNetworkInterface.prototype = {
             mac = iface.MainConnection.Settings.ethernet.assigned_mac_address;
         }
 
-        $('#network-interface-mac').text(mac);
+        var can_edit_mac = (iface && iface.MainConnection &&
+                            ((connection_settings(iface.MainConnection).type == "802-3-ethernet" &&
+                              self.model.at_least_version("1.4")) ||
+                             (connection_settings(iface.MainConnection).type == "bond" &&
+                              self.model.at_least_version("1.6"))));
+
+        $('#network-interface-mac').empty();
+        if (can_edit_mac) {
+            $('#network-interface-mac').append(
+                $('<a>').
+                    text(mac).
+                    click(function () {
+                        self.set_mac();
+                    }));
+        } else {
+            $('#network-interface-mac').text(mac);
+        }
 
         this.device_onoff.onoff("disabled", !iface);
         this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
@@ -3522,6 +3537,8 @@ PageNetworkBondSettings.prototype = {
         updelay_input.change(change_monitoring);
         downdelay_input = body.find('#network-bond-settings-link-down-delay-input');
         downdelay_input.change(change_monitoring);
+
+        body.find('#network-bond-settings-mac-row').toggle(model.at_least_version("1.6"));
 
         select_btn_select(mode_btn, options.mode);
         select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");

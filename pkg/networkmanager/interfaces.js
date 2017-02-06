@@ -2175,6 +2175,32 @@ PageNetworkInterface.prototype = {
         this.dev = null;
     },
 
+    show_dialog: function(dialog, id) {
+        var self = this;
+        var con = self.main_connection;
+        var dev = self.dev;
+
+        function reactivate_connection() {
+            if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
+                if (con.Settings.connection.interface_name &&
+                    con.Settings.connection.interface_name != dev.Interface) {
+                    return dev.disconnect().then(function () { return con.activate(null, null); }).
+                        fail(show_unexpected_error);
+                } else {
+                    return con.activate(dev, null).
+                        fail(show_unexpected_error);
+                }
+            }
+        }
+
+        dialog.model = self.model;
+        dialog.connection = self.main_connection;
+        dialog.ghost_settings = self.ghost_settings;
+        dialog.apply_settings = settings_applier(self.model, self.dev, con);
+        dialog.done = reactivate_connection;
+        $(id).modal('show');
+    },
+
     delete_connections: function() {
         var self = this;
 
@@ -2372,19 +2398,6 @@ PageNetworkInterface.prototype = {
             if (con && con.Masters.length > 0)
                 master_settings = con.Masters[0].Settings;
 
-            function reactivate_connection() {
-                if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
-                    if (con.Settings.connection.interface_name &&
-                        con.Settings.connection.interface_name != dev.Interface) {
-                        return dev.disconnect().then(function () { return con.activate(null, null); }).
-                            fail(show_unexpected_error);
-                    } else {
-                        return con.activate(dev, null).
-                            fail(show_unexpected_error);
-                    }
-                }
-            }
-
             function render_ip_settings(topic) {
                 var params = settings[topic];
                 var parts = [];
@@ -2416,47 +2429,38 @@ PageNetworkInterface.prototype = {
                 return parts;
             }
 
-            function show_dialog(dialog, id) {
-                dialog.model = self.model;
-                dialog.connection = self.main_connection;
-                dialog.ghost_settings = self.ghost_settings;
-                dialog.apply_settings = settings_applier(self.model, self.dev, con);
-                dialog.done = reactivate_connection;
-                $(id).modal('show');
-            }
-
             function configure_ip_settings(topic) {
                 PageNetworkIpSettings.topic = topic;
-                show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
+                self.show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
             }
 
             function configure_bond_settings() {
-                show_dialog(PageNetworkBondSettings, '#network-bond-settings-dialog');
+                self.show_dialog(PageNetworkBondSettings, '#network-bond-settings-dialog');
             }
 
             function configure_team_settings() {
-                show_dialog(PageNetworkTeamSettings, '#network-team-settings-dialog');
+                self.show_dialog(PageNetworkTeamSettings, '#network-team-settings-dialog');
             }
 
             function configure_team_port_settings() {
                 PageNetworkTeamPortSettings.master_settings = master_settings;
-                show_dialog(PageNetworkTeamPortSettings, '#network-teamport-settings-dialog');
+                self.show_dialog(PageNetworkTeamPortSettings, '#network-teamport-settings-dialog');
             }
 
             function configure_bridge_settings() {
-                show_dialog(PageNetworkBridgeSettings, '#network-bridge-settings-dialog');
+                self.show_dialog(PageNetworkBridgeSettings, '#network-bridge-settings-dialog');
             }
 
             function configure_bridge_port_settings() {
-                show_dialog(PageNetworkBridgePortSettings, '#network-bridgeport-settings-dialog');
+                self.show_dialog(PageNetworkBridgePortSettings, '#network-bridgeport-settings-dialog');
             }
 
             function configure_vlan_settings() {
-                show_dialog(PageNetworkVlanSettings, '#network-vlan-settings-dialog');
+                self.show_dialog(PageNetworkVlanSettings, '#network-vlan-settings-dialog');
             }
 
             function configure_mtu_settings() {
-                show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
+                self.show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
             }
 
             function render_autoconnect_row() {

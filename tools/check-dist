@@ -36,3 +36,11 @@ find $1/dist -type f | while read file; do
         fi
     done
 done
+
+# Make sure all po files are valid
+find $1/po -name '*.po' -print | while read file; do
+    if ! msgfmt "$file" -o /dev/null; then
+        echo "Refusing to distribute invalid po file: $file" >&2
+        exit 1
+    fi
+done

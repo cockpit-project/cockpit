@@ -177,6 +177,29 @@
     </div>
   </script>
 
+  <script id="network-mac-settings-template" type="x-template/mustache">
+    <table class="form-table-ct">
+      <tr>
+        <td>
+          <label class="control-label" translatable="yes">MAC</label>
+        </td>
+        <td>
+          <div class="input-group">
+            <input id="network-mac-settings-input" class="form-control" type="text"
+                   value="{{assigned_mac_address}}"></input>
+            <div class="input-group-btn dropdown">
+              <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="fa fa-caret-down"></span>
+              </button>
+              <ul id="network-mac-settings-menu" class="dropdown-menu add-button" role="menu">
+              </ul>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </script>
+
   <script id="network-bridge-settings-template" type="x-template/mustache">
     <table class="form-table-ct">
       <tr>
@@ -293,6 +316,24 @@
         </td>
         <td id="network-bond-settings-members">
           {{! member interfaces will be rendered into here as a list of checkboxes }}
+        </td>
+      </tr>
+      <tr id="network-bond-settings-mac-row">
+        <td>
+          <label class="control-label" translatable="yes">MAC</label>
+        </td>
+        <td>
+          <div class="input-group">
+            <input id="network-bond-settings-mac-input" class="form-control" type="text"
+                   value="{{assigned_mac_address}}"></input>
+            <div class="input-group-btn dropdown">
+              <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="fa fa-caret-down"></span>
+              </button>
+              <ul id="network-bond-settings-mac-menu" class="dropdown-menu add-button" role="menu">
+              </ul>
+            </div>
+          </div>
         </td>
       </tr>
       <tr>
@@ -529,7 +570,7 @@
       <div class="panel-heading">
         <span id="network-interface-name"></span>
         <span id="network-interface-hw"></span>
-        <span id="network-interface-mac"></span>
+        <a id="network-interface-mac"></a>
         <div class="pull-right">
           <button class="btn btn-danger network-privileged" id="network-interface-delete" translatable="yes">Delete</button>
           <div class="btn-onoff-ct" id="network-interface-delete-switch">
@@ -745,6 +786,30 @@
           </div>
           <button class="btn btn-default" translatable="yes" id="network-mtu-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-mtu-settings-apply">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="network-mac-settings-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Ethernet MAC</h4>
+        </div>
+        <div class="modal-body">
+          <div id="network-mac-settings-body">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="alert alert-danger dialog-error" id="network-mac-settings-error">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span></span>
+          </div>
+          <button class="btn btn-default" translatable="yes" id="network-mac-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" id="network-mac-settings-apply">Apply</button>
         </div>
       </div>
     </div>

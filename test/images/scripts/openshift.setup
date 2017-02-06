@@ -115,6 +115,9 @@ wait oc get scc/restricted
 # development examples just plain fail to work
 oc patch scc restricted -p '{ "runAsUser": { "type": "RunAsAny" } }'
 
+# Tell openshift to allow logins from the openshift web console on a localhost system
+oc patch oauthclient/openshift-web-console -p '{"redirectURIs":["https://10.111.112.101:8443/console/", "https://localhost:9000/"]}'
+
 # Deploy the registry
 # --credentials deprecated
 oadm registry

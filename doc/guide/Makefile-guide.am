@@ -113,6 +113,4 @@ dist/guide/links.html:
 	$(MV) $@.tmp $@
 
 dist/guide/index.html: doc/guide/directory.html dist/guide/links.html doc/guide/footer.html
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $^ > $@.tmp && \
-	$(MV) $@.tmp $@
+	$(CAT_RULE)

@@ -63,6 +63,10 @@ COPY_RULE = \
         $(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp && $(MV) $@.tmp $@
 
+CAT_RULE = \
+        $(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	cat $^ > $@.tmp && $(MV) $@.tmp $@
+
 GZ_RULE = \
 	$(V_GZIP) $(MKDIR_P) $(dir $@) && \
 	gzip -n -c $< > $@.tmp && $(MV) $@.tmp $@

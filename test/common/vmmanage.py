@@ -116,7 +116,7 @@ def build_and_install(install_image, build_image, args):
         else:
             skips.append("cockpit-ostree")
     if args["address"]:
-        skips.append("cockpit-test-assets")
+        skips.append("cockpit-tests")
 
     try:
 

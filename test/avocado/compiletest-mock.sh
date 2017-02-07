@@ -12,6 +12,6 @@ usermod -a -G mock $USER
 chown -R $USER /home/$USER/cockpit
 su $USER -c "cd /home/$USER/cockpit; ./tools/make-rpms"
 #&& mock -r fedora-rawhide-x86_64 cockpit-wip-2.*.src.rpm"
-PACKAGES=`find /home/$USER/cockpit -type f -name "*.rpm" ! -name "*src*" ! -name "*test-assets*"`
+PACKAGES=`find /home/$USER/cockpit -type f -name "*.rpm" ! -name "*src*" ! -name "*tests*"`
 echo "PACKAGES ARE> $PACKAGES <"
 $INST -y install  $PACKAGES

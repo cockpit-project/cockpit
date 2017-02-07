@@ -74,7 +74,7 @@ client.init = function(capabilitiesChangedCallback) {
     };
 
     // returns a jquery promise
-      client.getAlerts = function(since) {
+    client.getAlerts = function(since) {
         var dfdResult = cockpit.defer();
         var call;
         if (since !== undefined)

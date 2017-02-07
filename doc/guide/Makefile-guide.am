@@ -94,15 +94,10 @@ dist/guide/html/%.woff: dist/fonts/%.woff
 
 dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
 	$(AM_V_GEN) $(MKDIR_P) dist/guide/html/ && \
-	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/ && \
-	LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
+	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/
+	$(AM_V_GEN) LANG=en_US.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
 		--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
-		$(srcdir)/$(GUIDE_DOCBOOK) && \
-	if grep -n -r 'name=\"id' dist/guide/html >&2; then \
-		echo "Unexpected generated id in the documentation" >&2; \
-		rm dist/guide/html/index.html; \
-		exit 1; \
-	fi
+		$(srcdir)/$(GUIDE_DOCBOOK)
 
 dist/guide/html: dist/guide/html/index.html
 
@@ -114,3 +109,9 @@ dist/guide/links.html:
 
 dist/guide/index.html: doc/guide/directory.html dist/guide/links.html doc/guide/footer.html
 	$(CAT_RULE)
+
+check-local::
+	if grep -n -r 'name=\"id' dist/guide/html >&2; then \
+		echo "Unexpected generated id in the documentation" >&2; \
+		exit 1; \
+	fi

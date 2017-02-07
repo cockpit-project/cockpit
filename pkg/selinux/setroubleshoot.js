@@ -272,9 +272,7 @@ var initStore = function(rootElement) {
                     dataStore.connected = false;
                     window.clearTimeout(dataStore.connecting);
                     dataStore.connecting = null;
-                    dataStore.error = _("Error while connecting.");
                     render();
-                    // TODO: should we propagate the error message here?
                 });
         }
     };

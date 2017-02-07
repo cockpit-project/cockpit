@@ -122,10 +122,10 @@ function generateDeps(makefile, stats) {
             install += ".gz";
         }
 
-        // Debug output gets installed separately
+        // Debug output and tests gets installed separately
         if (endsWith(install, ".map"))
             debugs[install] = install;
-        else
+        else if (output.indexOf("/test-") === -1)
             installs[install] = install;
     }
 

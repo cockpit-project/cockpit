@@ -1,0 +1,96 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+class TestNetworking(NetworkCase):
+    def testMac(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        iface = self.add_iface()
+        self.wait_for_iface(iface)
+
+        mac = m.execute("cat /sys/class/net/%s/address" % iface).strip()
+
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+        b.wait_text("#network-interface-mac", mac.upper())
+
+        if self.networkmanager_version >= [ 1, 4, 0 ]:
+            new_mac = m.reserve_macaddr()
+            b.click("#network-interface-mac a")
+            b.wait_popup("network-mac-settings-dialog")
+            b.set_val('#network-mac-settings-input', new_mac)
+            b.click("#network-mac-settings-apply")
+            b.wait_popdown("network-mac-settings-dialog")
+
+            b.wait_text("#network-interface-mac", new_mac.upper())
+            self.assertIn(new_mac.lower(), m.execute("ip link show '%s'" % iface))
+
+        else:
+            b.wait_not_present("#network-interface-mac a")
+
+    def testBondMac(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        iface1 = self.add_iface()
+        iface2 = self.add_iface()
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+        b.click("button:contains('Add Bond')")
+        b.wait_popup("network-bond-settings-dialog")
+        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_checked("input[data-iface='%s']" % iface1, True)
+        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
+
+        b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
+        b.wait_visible("#network-interface")
+
+        mac = m.execute("cat /sys/class/net/tbond/address").strip()
+        b.wait_text("#network-interface-mac", mac.upper())
+
+        if self.networkmanager_version >= [ 1, 6, 0 ]:
+            new_mac = m.reserve_macaddr()
+            b.click("#network-interface-mac a")
+            b.wait_popup("network-mac-settings-dialog")
+            b.set_val('#network-mac-settings-input', new_mac)
+            b.click("#network-mac-settings-apply")
+            b.wait_popdown("network-mac-settings-dialog")
+
+            b.wait_text("#network-interface-mac", new_mac.upper())
+            self.assertIn(new_mac.lower(), m.execute("ip link show tbond"))
+
+        else:
+            b.wait_not_present("#network-interface-mac a")
+
+if __name__ == '__main__':
+    test_main()

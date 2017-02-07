@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import subprocess
+import re
 from testlib import *
 
 class NetworkCase(MachineCase):
@@ -44,6 +45,13 @@ class NetworkCase(MachineCase):
 
         m.write("/etc/NetworkManager/conf.d/99-test.conf", "[main]\nno-auto-default=*\n")
         m.execute("systemctl reload-or-restart NetworkManager")
+
+        ver = self.machine.execute("busctl --system get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version || true")
+        m = re.match('s "(.*)"', ver)
+        if m:
+            self.networkmanager_version = map(int, m.group(1).split("."))
+        else:
+            self.networkmanager_version = [ 0 ]
 
     def get_iface(self, m, mac):
         def getit():

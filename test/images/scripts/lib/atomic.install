@@ -261,7 +261,7 @@ class AtomicCockpitInstaller:
 
         self.install_packages(packages_to_install)
         no_deps = [x for x in self.rpms \
-                       if os.path.split(x)[-1].startswith("cockpit-test-assets") or
+                       if os.path.split(x)[-1].startswith("cockpit-tests") or
                           os.path.split(x)[-1].startswith("cockpit-machines")]
         self.install_packages(no_deps, deps=False, replace=True)
 

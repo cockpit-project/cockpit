@@ -581,17 +581,17 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 # we only build test assets on rhel or if we're building from a specific commit
 %if %{defined wip} || 0%{?rhel}
 
-%package test-assets
-Summary: Additional stuff for testing Cockpit
+%package tests
+Summary: Tests for Cockpit
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
 Requires: openssh-clients
 
-%description test-assets
-This package contains programs and other files for testing Cockpit, and
-pulls in some necessary packages via dependencies.
+%description tests
+This package contains tests and files used while testing Cockpit.
+These files are not required for running Cockpit.
 
-%files test-assets
+%files tests
 %{_datadir}/%{name}/playground
 %{_prefix}/lib/cockpit-test-assets
 

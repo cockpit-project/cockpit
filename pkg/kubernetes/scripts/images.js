@@ -305,7 +305,8 @@
                                 handle_image(image);
                             }
                         }, function(response) {
-                            console.warn("couldn't load image: " + response.statusText);
+                            var message = response.statusText || response.message || String(response);
+                            console.warn("couldn't load image: " + message);
                             interim.metadata.resourceVersion = "invalid";
                         });
                     });

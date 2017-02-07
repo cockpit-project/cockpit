@@ -30,6 +30,7 @@ class NetworkCase(MachineCase):
         # creating the image and we prevent NM from automatically
         # creating new connections.
 
+        print m.execute("nmcli con show")
         m.execute("""nmcli -f UUID,DEVICE connection show | awk '$2 == "--" { print $1 }' | xargs -r nmcli con del""")
         m.write("/etc/NetworkManager/conf.d/99-test.conf", "[main]\nno-auto-default=*\n")
         m.execute("systemctl reload-or-restart NetworkManager")

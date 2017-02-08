@@ -59,6 +59,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitcpusamples.h \
 	src/bridge/cockpitdbussetup.c \
 	src/bridge/cockpitdbususer.c \
+	src/bridge/cockpitdbusmachines.c \
 	src/bridge/cockpitdisksamples.c \
 	src/bridge/cockpitdisksamples.h \
 	src/bridge/cockpitinternalmetrics.c \

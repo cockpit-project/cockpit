@@ -1,0 +1,13 @@
+# https://bugzilla.gnome.org/show_bug.cgi?id=778674
+{
+   json_gvariant_deserialize_leak_on_signature_mismatch
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_variant_new_from_bytes
+   ...
+   fun:json_gvariant_deserialize
+   fun:get_machines
+}

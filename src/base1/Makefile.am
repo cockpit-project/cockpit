@@ -121,6 +121,7 @@ base_QUNIT_TESTS = \
 	dist/base1/test-file.html \
 	dist/base1/test-metrics.html \
 	dist/base1/test-user.html \
+	dist/base1/test-machines.html \
 	dist/base1/test-permissions.html \
 	dist/base1/test-series.html \
 	dist/base1/test-cache.html \

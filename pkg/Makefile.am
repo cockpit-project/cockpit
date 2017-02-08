@@ -30,6 +30,7 @@ EXTRA_DIST += \
 	pkg/playground/de.po \
 	pkg/networkmanager/override.json.in \
 	pkg/storaged/override.json.in \
+	pkg/users/mock \
 	pkg/lib/qunit-template.html \
 	$(playground_DATA) \
 	$(pkg_TESTS)

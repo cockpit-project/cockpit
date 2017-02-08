@@ -8,6 +8,10 @@
   </refnamediv>
 
   <refsynopsisdiv>
+    <para>The <code>cockpit.file</code> API lets you read, write, and watch regular files in their entirety.
+    It cannot efficiently do random access in a big file or read non-regular files such as
+    <code>/dev/random</code>.
+    </para>
 <programlisting>
 file = cockpit.file(path,
                     { syntax: syntax_object,

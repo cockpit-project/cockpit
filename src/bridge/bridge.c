@@ -530,6 +530,7 @@ run_bridge (const gchar *interactive,
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
   cockpit_dbus_process_startup ();
+  cockpit_dbus_machines_startup ();
 
   g_free (pwd);
   pwd = NULL;
@@ -548,6 +549,7 @@ run_bridge (const gchar *interactive,
   g_object_unref (router);
   g_object_unref (transport);
 
+  cockpit_dbus_machines_cleanup ();
   cockpit_dbus_internal_cleanup ();
   cockpit_packages_free (packages);
   packages = NULL;

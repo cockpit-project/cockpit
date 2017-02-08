@@ -265,6 +265,7 @@ VALGRIND_SUPPRESSIONS = \
 	tools/unknown.supp \
 	tools/zlib.supp \
 	tools/libssh.supp \
+	tools/json-glib.supp \
 	$(NULL)
 
 valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)

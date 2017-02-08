@@ -339,7 +339,6 @@ dump-dist-gzip:
 
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
-	pkg/ \
 	tools/ \
 	test/ \
 	$(NULL)

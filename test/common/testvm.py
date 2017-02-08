@@ -936,9 +936,17 @@ class VirtMachine(Machine):
         else:
             return True
 
-    def _choose_macaddr(self):
-        mac = None
+    def reserve_macaddr(self):
+        pid = os.getpid()
+        for seed in range(1, 64 * 1024):
+            mac = "9E%02x%02x%02x%04x" % ((pid >> 16) & 0xff, (pid >> 8) & 0xff, pid & 0xff, seed)
+            mac = ":".join([mac[i:i+2] for i in range(0, len(mac), 2)])
+            if self._lock_resource(mac):
+                return mac
 
+        raise Failure("Couldn't find unused mac address for '%s'" % (self.image))
+
+    def _choose_macaddr(self):
         # Check if this has a forced mac address
         for h in self._network_description.find(".//dhcp"):
             image = h.get("{urn:cockpit-project.org:cockpit}image")
@@ -947,17 +955,8 @@ class VirtMachine(Machine):
                 if mac:
                     return mac
 
-        # Now try to lock that address
-        pid = os.getpid()
-        for seed in range(1, 64 * 1024):
-            if not mac:
-                mac = "9E%02x%02x%02x%04x" % ((pid >> 16) & 0xff, (pid >> 8) & 0xff, pid & 0xff, seed)
-                mac = ":".join([mac[i:i+2] for i in range(0, len(mac), 2)])
-            if self._lock_resource(mac):
-                return mac
-            mac = None
-
-        raise Failure("Couldn't find unused mac address for '%s'" % (self.image))
+        # If not, get a random one
+        return self.reserve_macaddr()
 
     def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
         memory_mb = memory_mb or VirtMachine.memory_mb or MEMORY_MB;
@@ -1351,10 +1350,9 @@ class VirtMachine(Machine):
         return macs
 
     def add_netiface(self, mac=None, vlan=0):
-        cmd = "device_add e1000"
-        if mac:
-            cmd += ",mac=%s" % mac
-        macs = self._qemu_network_macs()
+        if not mac:
+            mac = self.reserve_macaddr()
+        cmd = "device_add e1000,mac=%s" % mac
         if vlan == 0:
             # selinux can prevent the creation of the bridge
             # https://bugzilla.redhat.com/show_bug.cgi?id=1267217
@@ -1366,12 +1364,7 @@ class VirtMachine(Machine):
         else:
             cmd += ",vlan=%d" % vlan
         self._qemu_monitor(cmd)
-        if mac:
-            return mac
-        for mac in self._qemu_network_macs():
-            if mac not in macs:
-                return mac
-        raise Failure("Unable to find mac address of the new network adapter")
+        return mac
 
     def needs_writable_usr(self):
         # On atomic systems, we need a hack to change files in /usr/lib/systemd

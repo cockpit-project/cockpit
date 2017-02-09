@@ -505,6 +505,8 @@ function NetworkManagerModel() {
                 timestamp:      get("connection", "timestamp", 0),
                 id:             get("connection", "id", _("Unknown")),
                 autoconnect:    get("connection", "autoconnect", true),
+                autoconnect_slaves:
+                                get("connection", "autoconnect-slaves", -1),
                 slave_type:     get("connection", "slave-type"),
                 master:         get("connection", "master")
             }
@@ -620,6 +622,7 @@ function NetworkManagerModel() {
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
+        set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_slaves);
         set("connection", "uuid", 's', settings.connection.uuid);
         set("connection", "interface-name", 's', settings.connection.interface_name);
         set("connection", "type", 's', settings.connection.type);

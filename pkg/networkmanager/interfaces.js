@@ -3300,11 +3300,8 @@ function set_slave(model, master_connection, master_settings, slave_type,
 
     main_connection = iface.MainConnection;
 
-    var cs = connection_settings(main_connection);
     if (val) {
-        /* Turn the main_connection into a slave for master, if
-         * necessary.  If there is no main_connection, we let NM
-         * create a new one.
+        /* Turn the main_connection into a slave for master.
          */
 
         var master_iface;
@@ -3317,31 +3314,45 @@ function set_slave(model, master_connection, master_settings, slave_type,
         if (!master_iface)
             return false;
 
-        if (!main_connection) {
-            if (!iface.Device)
-                return false;
+        var slave_settings;
+        if (main_connection) {
+            slave_settings = main_connection.Settings;
 
-            return iface.Device.activate_with_settings({ connection:
-                                                         { autoconnect: true,
-                                                           interface_name: iface.Name,
-                                                           slave_type: slave_type,
-                                                           master: master_iface
-                                                         }
-                                                       });
-        } else if (cs.master != master_settings.connection.uuid &&
-                   cs.master != master_settings.connection.id &&
-                   cs.master != master_iface) {
-            cs.slave_type = slave_type;
-            cs.master = master_iface;
-            main_connection.Settings.connection.autoconnect = true;
-            delete main_connection.Settings.ipv4;
-            delete main_connection.Settings.ipv6;
-            delete main_connection.Settings.team_port;
-            delete main_connection.Settings.bridge_port;
-            return main_connection.apply_settings(main_connection.Settings).then(function () {
-                return main_connection.activate(iface.Device, null);
-            });
+            if (slave_settings.connection.master == master_settings.connection.uuid ||
+                slave_settings.connection.master == master_settings.connection.id ||
+                slave_settings.connection.master == master_iface)
+                return cockpit.resolve();
+
+            slave_settings.connection.slave_type = slave_type;
+            slave_settings.connection.master = master_iface;
+            slave_settings.connection.autoconnect = true;
+            delete slave_settings.ipv4;
+            delete slave_settings.ipv6;
+            delete slave_settings.team_port;
+            delete slave_settings.bridge_port;
+        } else {
+            slave_settings = { connection:
+                               { autoconnect: true,
+                                 interface_name: iface.Name,
+                                 slave_type: slave_type,
+                                 master: master_iface
+                               }
+                             };
         }
+
+        return settings_applier(model, iface.Device, main_connection)(slave_settings).then(function () {
+            // If the master already exists, activate or deactivate the slave immediatly so that
+            // the settings actually apply and the interface becomes a slave.  Otherwise we
+            // activate it later when the master is created.
+            if (master_connection) {
+                var master_dev = master_connection.Interfaces[0].Device;
+                if (master_dev && master_dev.ActiveConnection)
+                    return main_connection.activate(iface.Device);
+                else if (iface.Device.ActiveConnection)
+                    return iface.Device.ActiveConnection.deactivate();
+            }
+        });
+
     } else {
         /* Free the main_connection from being a slave if it is our slave.  If there is
          * no main_connection, we don't need to do anything.
@@ -3357,14 +3368,6 @@ function set_slave(model, master_connection, master_settings, slave_type,
 function apply_master_slave(choices, model, apply_master, master_connection, master_settings, slave_type) {
     var active_settings = [ ];
     var iface;
-
-    function set_all_slaves() {
-        var deferreds = choices.find('input[data-iface]').map(function (i, elt) {
-            return set_slave(model, master_connection, master_settings, slave_type,
-                             $(elt).attr("data-iface"), $(elt).prop('checked'));
-        });
-        return cockpit.all(deferreds.get());
-    }
 
     if (!master_connection) {
         if (master_settings.bond &&
@@ -3389,41 +3392,27 @@ function apply_master_slave(choices, model, apply_master, master_connection, mas
             master_settings.ipv4 = $.extend(true, { }, active_settings[0].ipv4);
             master_settings.ipv6 = $.extend(true, { }, active_settings[0].ipv6);
         }
+
+        master_settings.connection.autoconnect_slaves = 1;
     }
 
-    /* When creating a master with autoconnect = yes, it will be
-       immediately activated and it doesn't seem to be possible to
-       also activate slaves until it has settled somewhat.  We
-       explicitly activate slaves since that is the only way to give
-       them connection settings while letting NetworkManager fill in
-       the details.
+    /* For bonds, the order in which slaves are added to their master matters since the first slaves gets to
+     * set the MAC address of the bond, which matters for DHCP.  We leave it to NetworkManager to determine
+     * the order in which slaves are added so that the order is consistent with what happens when the bond is
+     * activated the next time, such as after a reboot.
+     */
 
-       Thus, we wait a bit until the master has a active connection
-       before adding any slaves.
-    */
-
-    function wait_for_master() {
-        var dfd = cockpit.defer();
-
-        function check() {
-            var iface = model.find_interface(master_settings.connection.interface_name);
-            if (!iface || !iface.Device || !iface.Device.ActiveConnection)
-                return;
-            $(model).off('changed', check);
-            dfd.resolve();
-        }
-
-        if (!master_connection && master_settings.connection.autoconnect) {
-            check();
-            $(model).on('changed', check);
-        } else {
-            dfd.resolve();
-        }
-
-        return dfd.promise();
+    function set_all_slaves() {
+        var deferreds = choices.find('input[data-iface]').map(function (i, elt) {
+            return set_slave(model, master_connection, master_settings, slave_type,
+                             $(elt).attr("data-iface"), $(elt).prop('checked'));
+        });
+        return cockpit.all(deferreds.get());
     }
 
-    return apply_master(master_settings).then(wait_for_master).then(set_all_slaves);
+    return set_all_slaves().then(function () {
+        return apply_master(master_settings);
+    });
 }
 
 function fill_mac_menu(menu, input, model) {

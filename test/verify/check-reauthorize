@@ -52,6 +52,8 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
 
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
+
+        self.allow_journal_messages('.*dropping message while waiting for child to exit.*')
         self.allow_authorize_journal_messages()
 
     def testSuper(self):

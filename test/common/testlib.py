@@ -637,8 +637,8 @@ class MachineCase(unittest.TestCase):
                                     "This incident has been reported.",
                                     ".*: a password is required",
                                     "user user was reauthorized",
-                                    ".*: sorry, you must have a tty to run sudo"
-                                    )
+                                    ".*: sorry, you must have a tty to run sudo",
+                                    ".*/pkexec: bridge exited")
 
 
     def check_journal_messages(self, machine=None):

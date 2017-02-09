@@ -325,11 +325,11 @@ AC_DEFINE_UNQUOTED([PATH_CHPASSWD],["$CHPASSWD"],[Location of chpasswd binary])
 
 # pkexec
 AC_PATH_PROG([PKEXEC], [pkexec], [/usr/bin/pkexec], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_DEFINE_UNQUOTED([PATH_PKEXEC], ["$PKEXEC"], [Location of pkexec binary])
+AC_SUBST(PKEXEC)
 
 # sudo
 AC_PATH_PROG([SUDO], [sudo], [/usr/bin/sudo], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_DEFINE_UNQUOTED([PATH_SUDO], ["$SUDO"], [Location of sudo binary])
+AC_SUBST(SUDO)
 
 # ssh-add
 AC_PATH_PROG([SSH_ADD], [ssh-add], [/usr/bin/ssh-add], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])

@@ -114,6 +114,8 @@ SUBST_RULE = \
 	-e 's,[@]prefix[@],$(prefix),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g' \
+	-e 's,[@]PKEXEC[@],$(PKEXEC),g' \
+	-e 's,[@]SUDO[@],$(SUDO),g' \
 	-e 's,[@]user[@],$(COCKPIT_USER),g' \
 	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
 	-e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \

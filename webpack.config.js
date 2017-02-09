@@ -202,7 +202,6 @@ var info = {
         "shell/images/server-large.png",
         "shell/images/server-small.png",
         "shell/index.html",
-        "shell/manifest.json",
         "shell/simple.html",
         "shell/shell.html",
         "shell/stub.html",

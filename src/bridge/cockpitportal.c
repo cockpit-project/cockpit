@@ -280,33 +280,12 @@ on_other_closed (CockpitTransport *transport,
                  gpointer user_data)
 {
   CockpitPortal *self = user_data;
-  const gchar **argv;
-  CockpitPipe *pipe;
-  gint status;
 
   if (!problem)
     problem = "disconnected";
 
   if (self->state == PORTAL_OPENING)
     {
-      pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (self->other));
-      status = cockpit_pipe_exit_status (pipe);
-
-      if (status != -1)
-        {
-          argv = current_argv (self);
-
-          /* These are the problem codes from pkexec. */
-          if (WIFEXITED (status))
-            {
-              if (g_str_equal (argv[0], PATH_PKEXEC) &&
-                  (WEXITSTATUS (status) == 127 || WEXITSTATUS (status) == 126))
-                problem = "access-denied";
-              else if (g_str_equal (argv[0], PATH_SUDO) && WEXITSTATUS (status) == 1)
-                problem = "access-denied";
-            }
-        }
-
       g_debug ("other bridge failed: %s", problem);
 
       if (self->argvs[self->argvi + 1] != NULL &&
@@ -710,97 +689,4 @@ cockpit_portal_add_channel (CockpitPortal *self,
   g_hash_table_replace (self->channels,
                         (gchar *)intern_string (self, channel),
                         GINT_TO_POINTER (flags));
-}
-
-static gboolean
-superuser_filter (CockpitPortal *self,
-                  const gchar *command,
-                  const gchar *channel,
-                  JsonObject *options,
-                  GBytes *payload)
-{
-  CockpitPortalFlags flags = COCKPIT_PORTAL_NORMAL;
-  gboolean privileged = FALSE;
-  const gchar *superuser;
-
-  if (g_str_equal (command, "logout"))
-    {
-      g_debug ("got logout at super proxy");
-      transition_none (self);
-      return FALSE;
-    }
-
-  if (g_str_equal (command, "open") && channel)
-    {
-      if (!cockpit_json_get_bool (options, "superuser", FALSE, &privileged))
-        {
-          if (!cockpit_json_get_string (options, "superuser", NULL, &superuser))
-            {
-              g_warning ("invalid value for \"superuser\" channel open option");
-              send_close_channel (self, channel, "protocol-error");
-              return TRUE;
-            }
-          else if (g_strcmp0 (superuser, "try") == 0)
-            {
-              privileged = TRUE;
-              flags = COCKPIT_PORTAL_FALLBACK;
-            }
-          else if (g_strcmp0 (superuser, "require") == 0)
-            {
-              privileged = TRUE;
-            }
-          else if (superuser)
-            {
-              g_warning ("invalid value for \"superuser\" channel open option: %s", superuser);
-              send_close_channel (self, channel, "protocol-error");
-              return TRUE;
-            }
-        }
-
-      if (!privileged)
-        return FALSE;
-
-      g_debug ("superuser channel open: %s", channel);
-      cockpit_portal_add_channel (self, channel, flags);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-/**
- * cockpit_portal_new_superuser
- * @transport: the transport to send data over
- *
- * Create a new CockpitPortal to a privileged bridge
- *
- * Returns: (transfer full): the new transport
- */
-CockpitPortal *
-cockpit_portal_new_superuser (CockpitTransport *transport)
-{
-  static const gchar *pkexec_argv[] = {
-    PATH_PKEXEC,
-    "--disable-internal-agent",
-    "cockpit-bridge",
-    "--privileged",
-    NULL
-  };
-
-  static const gchar *sudo_argv[] = {
-    PATH_SUDO,
-    "-n", /* non-interactive */
-    "cockpit-bridge",
-    "--privileged",
-    NULL
-  };
-
-
-  static const gchar **argvs[] = { pkexec_argv, sudo_argv, NULL };
-
-  return g_object_new (COCKPIT_TYPE_PORTAL,
-                       "transport", transport,
-                       "filter", superuser_filter,
-                       "argvs", argvs,
-                       NULL);
 }

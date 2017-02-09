@@ -69,10 +69,27 @@ if (typeof Object.assign != 'function') {
 }
 
 // --- helpers -------------------
-function getFirstIndexOfVm(state, field, value, connectionName) {
+function getFirstIndexOfVm(state, field, value) {
     return state.findIndex(e => {
-        return e.connectionName === connectionName && e[field] === value;
+        return e[field] === value;
     });
+}
+
+function getVmForUpdateByName(state, vmName, actionName) {
+    const index = getFirstIndexOfVm(state, 'name', vmName);
+    if (index < 0) {
+        logDebug(`${actionName}: vm.name not found: ${vmName}`);
+        return {
+            // vmForUpdate is not defined here
+            newState: state
+        };
+    }
+
+    const updatedVm = Object.assign({}, state[index]);
+    return {
+        vmForUpdate: updatedVm,
+        newState: state.slice(0, index).concat(updatedVm).concat(state.slice(index + 1))
+    };
 }
 
 // --- reducers ------------------
@@ -98,13 +115,12 @@ function vms(state, action) {
     state = state ? state : [];
 
     logDebug('reducer vms: action=' + JSON.stringify(action));
+    let index;
 
     switch (action.type) {
         case 'UPDATE_ADD_VM':
         {
-            const connectionName = action.vm.connectionName;
-            const index = action.vm.id ? getFirstIndexOfVm(state, 'id', action.vm.id, connectionName)
-                                       : getFirstIndexOfVm(state, 'name', action.vm.name, connectionName);
+            index = action.vm.id ? getFirstIndexOfVm(state, 'id', action.vm.id) : getFirstIndexOfVm(state, 'name', action.vm.name);
             if (index < 0) { // add
                 return [...state, action.vm];
             }
@@ -125,8 +141,25 @@ function vms(state, action) {
         }
         case 'DELETE_UNLISTED_VMS':
         {
-            return state
-                .filter(vm => (action.connectionName !== vm.connectionName || action.vmNames.indexOf(vm.name) >= 0) );
+            return state.filter(vm => {
+                return action.vmNames.indexOf(vm.name) >= 0;
+            });
+        }
+        case 'HOSTVMSLIST_TOGGLE_VM_EXPAND':
+        {
+            const copy = getVmForUpdateByName(state, action.name, 'HOSTVMSLIST_TOGGLE_VM_EXPAND');
+            if (copy.vmForUpdate) {
+                copy.vmForUpdate["visualExpanded"] = !copy.vmForUpdate["visualExpanded"];
+            }
+            return copy.newState;
+        }
+        case 'HOSTVMSLIST_SHOW_VM_SUBTAB':
+        {
+            const copy = getVmForUpdateByName(state, action.name, 'HOSTVMSLIST_SHOW_VM_SUBTAB');
+            if (copy.vmForUpdate) {
+                copy.vmForUpdate["visualSubtab"] = action.order;
+            }
+            return copy.newState;
         }
         default: // by default all reducers should return initial state on unknown actions
             return state;

@@ -358,17 +358,18 @@ read_package_name (JsonObject *manifest,
 }
 
 static gint
-compar_package_priority (const gchar *name,
-                         JsonObject *manifest1,
-                         JsonObject *manifest2)
+compar_manifest_priority (JsonObject *manifest1,
+                          JsonObject *manifest2,
+                          const gchar *name)
 {
   gint64 priority1 = 1;
-  gint64 priority2 = 2;
+  gint64 priority2 = 1;
 
   if (!cockpit_json_get_int (manifest1, "priority", 1, &priority1) ||
       !cockpit_json_get_int (manifest2, "priority", 1, &priority2))
     {
-      g_message ("%s: invalid \"priority\" field in package manifest", name);
+      g_message ("%s%sinvalid \"priority\" field in package manifest",
+                 name ? name : "", name ? ": " : "");
     }
 
   if (priority1 == priority2)
@@ -377,6 +378,16 @@ compar_package_priority (const gchar *name,
     return -1;
   else
     return 1;
+}
+
+static gint
+compar_package_priority (gconstpointer value1,
+                         gconstpointer value2,
+                         gpointer user_data)
+{
+  const CockpitPackage *package1 = value1;
+  const CockpitPackage *package2 = value2;
+  return compar_manifest_priority (package1->manifest, package2->manifest, user_data);
 }
 
 static gboolean
@@ -568,7 +579,7 @@ maybe_add_package (GHashTable *listing,
   package = g_hash_table_lookup (listing, name);
   if (package)
     {
-      if (compar_package_priority (name, manifest, package->manifest) <= 0)
+      if (compar_manifest_priority (manifest, package->manifest, name) <= 0)
         {
           package = NULL;
           goto out;
@@ -1130,6 +1141,88 @@ cockpit_packages_get_names (CockpitPackages *packages)
   g_ptr_array_add (array, NULL);
 
   return (gchar **)g_ptr_array_free (array, FALSE);
+}
+
+/**
+ * cockpit_packages_get_bridges:
+ * @packages: The packages object
+ *
+ * Get a list of configured "bridges" JSON config objects in
+ * the order of priority. See doc/guide/ for the actual format
+ * of the JSON objects.
+ *
+ * Returns: (transfer container): A list of JSONObject each owned
+ *          by CockpitPackages. Free with g_list_free() when done.
+ */
+GList *
+cockpit_packages_get_bridges (CockpitPackages *packages)
+{
+  CockpitPackage *package;
+  GList *l, *listing;
+  GList *result = NULL;
+  JsonArray *bridges;
+  JsonArray *bridge;
+  JsonObject *item;
+  JsonObject *match;
+  const gchar *problem;
+  JsonNode *node;
+  guint i;
+
+  g_return_val_if_fail (packages != NULL, NULL);
+
+  listing = g_hash_table_get_values (packages->listing);
+  listing = g_list_sort_with_data (listing, compar_package_priority, NULL);
+  listing = g_list_reverse (listing);
+
+  /* Convert every package to the equivalent bridge listing */
+  for (l = listing; l != NULL; l = g_list_next (l))
+    {
+      package = l->data;
+      if (!cockpit_json_get_array (package->manifest, "bridges", NULL, &bridges))
+        {
+          g_message ("%s: invalid \"bridges\" field in package manifest", package->name);
+          continue;
+        }
+
+      for (i = 0; bridges && i < json_array_get_length (bridges); i++)
+        {
+          node = json_array_get_element (bridges, i);
+          if (!node || !JSON_NODE_HOLDS_OBJECT (node))
+            {
+              g_message ("%s: invalid bridge in \"bridges\" field in package manifest", package->name);
+              continue;
+            }
+
+          item = json_node_get_object (node);
+          if (!cockpit_json_get_array (item, "spawn", NULL, &bridge))
+            {
+              g_message ("%s: invalid \"spawn\" field in package manifest", package->name);
+            }
+          else if (!cockpit_json_get_array (item, "environ", NULL, &bridge))
+            {
+              g_message ("%s: invalid \"environ\" field in package manifest", package->name);
+            }
+          else if (!cockpit_json_get_object (item, "match", NULL, &match))
+            {
+              g_message ("%s: invalid \"match\" field in package manifest", package->name);
+            }
+          else if (match == NULL)
+            {
+              g_message ("%s: missing \"match\" field in package manifest", package->name);
+            }
+          else if (!cockpit_json_get_string (item, "problem", NULL, &problem))
+            {
+              g_message ("%s: invalid \"problem\" field in package manifest", package->name);
+            }
+          else
+            {
+              result = g_list_prepend (result, item);
+            }
+        }
+    }
+
+  g_list_free (listing);
+  return g_list_reverse (result);
 }
 
 void

@@ -696,14 +696,16 @@ function NetworkManagerModel() {
     }
 
     function device_type_to_symbol(type) {
+        // This returns a string that is suitable for the connection.type field of
+        // Connection.Settings, except for "ethernet".
         switch (type) {
         case 0:  return 'unknown';
-        case 1:  return 'ethernet';
-        case 2:  return 'wifi';
+        case 1:  return 'ethernet';  // 802-3-ethernet
+        case 2:  return '802-11-wireless';
         case 3:  return 'unused1';
         case 4:  return 'unused2';
-        case 5:  return 'bt';
-        case 6:  return 'olpc_mesh';
+        case 5:  return 'bluetooth';
+        case 6:  return '802-11-olpc-mesh';
         case 7:  return 'wimax';
         case 8:  return 'modem';
         case 9:  return 'infiniband';
@@ -1464,6 +1466,25 @@ function add_usage_monitor(iface) {
                            ];
 }
 
+function complete_settings(settings, device) {
+    if (!device) {
+        console.warn("No device to complete settings", JSON.stringify(settings));
+        return;
+    }
+
+    settings.connection.id = device.Interface;
+    settings.connection.uuid = generate_uuid();
+
+    if (device.DeviceType == 'ethernet') {
+        settings.connection.type = '802-3-ethernet';
+        settings.ethernet = { };
+    } else {
+        // The remaining types are identical between Device and Settings, see
+        // device_type_to_symbol.
+        settings.connection.type = device.DeviceType;
+    }
+}
+
 function settings_applier(model, device, connection) {
     /* If we have a connection, we can just update it.
      * Otherwise if the settings has TYPE set, we can add
@@ -1473,7 +1494,8 @@ function settings_applier(model, device, connection) {
      *
      * HACK - The activation is a hack, we would rather
      * just have NM fill in the details and not activate
-     * the connection.
+     * the connection.  See complete_settings above that
+     * can do some of this completion.
      *
      * https://bugzilla.gnome.org/show_bug.cgi?id=775226
      */
@@ -2747,7 +2769,7 @@ PageNetworkInterface.prototype = {
         }
 
         function create_ghost_connection_settings() {
-            return {
+            var settings = {
                 connection: {
                     interface_name: iface.Name
                 },
@@ -2766,6 +2788,8 @@ PageNetworkInterface.prototype = {
                     routes: [ ]
                 }
             };
+            complete_settings(settings, dev);
+            return settings;
         }
 
         self.ghost_settings = null;
@@ -3338,6 +3362,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
                                  master: master_iface
                                }
                              };
+            complete_settings(slave_settings, iface.Device);
         }
 
         return settings_applier(model, iface.Device, main_connection)(slave_settings).then(function () {

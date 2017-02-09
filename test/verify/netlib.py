@@ -35,6 +35,16 @@ class NetworkCase(MachineCase):
         m.write("/etc/NetworkManager/conf.d/99-test.conf", "[main]\nno-auto-default=*\n")
         m.execute("systemctl reload-or-restart NetworkManager")
 
+        # HACK - rp_filter interacts badly with our multi-homed
+        #        interfaces.  Thus, we switch it off by setting all
+        #        instances of it to zero.  This should catch all
+        #        existing interfaces as well as 'all' and 'default'
+        #        (for interfaces added in the future).
+        #
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1211287
+        #
+        m.execute("for d in /proc/sys/net/ipv4/conf/*; do echo 0 >$d/rp_filter; done")
+
     def get_iface(self, m, mac):
         def getit():
             path = m.execute("grep -li '%s' /sys/class/net/*/address" % mac)

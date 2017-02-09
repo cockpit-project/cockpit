@@ -136,7 +136,7 @@ setup_metrics_channel_json (TestCase *tc, JsonObject *options)
                               NULL);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
-  cockpit_channel_thaw (tc->channel);
+  cockpit_channel_prepare (tc->channel);
 
   /* Switch off compression by default.  Compression is done by
    * comparing two floating point values for exact equality, and we

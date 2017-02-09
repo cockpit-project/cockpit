@@ -33,10 +33,11 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitTransport        CockpitTransport;
 typedef struct _CockpitTransportClass   CockpitTransportClass;
+typedef struct _CockpitTransportPrivate CockpitTransportPrivate;
 
-struct _CockpitTransport
-{
+struct _CockpitTransport {
   GObject parent;
+  CockpitTransportPrivate *priv;
 };
 
 struct _CockpitTransportClass
@@ -87,8 +88,20 @@ void        cockpit_transport_emit_recv      (CockpitTransport *transport,
                                               const gchar *channel,
                                               GBytes *data);
 
+void        cockpit_transport_emit_control   (CockpitTransport *transport,
+                                              const gchar *command,
+                                              const gchar *channel,
+                                              JsonObject *options,
+                                              GBytes *data);
+
 void        cockpit_transport_emit_closed    (CockpitTransport *transport,
                                               const gchar *problem);
+
+void        cockpit_transport_freeze         (CockpitTransport *transport,
+                                              const gchar *channel);
+
+void        cockpit_transport_thaw           (CockpitTransport *transport,
+                                              const gchar *channel);
 
 GBytes *    cockpit_transport_parse_frame    (GBytes *message,
                                               gchar **channel);

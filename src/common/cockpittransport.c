@@ -26,6 +26,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct {
+    gconstpointer channel;
+    JsonObject *control;
+    GBytes *data;
+} FrozenMessage;
+
+static void
+frozen_message_free (gpointer data)
+{
+  FrozenMessage *frozen = data;
+  if (frozen->data)
+    g_bytes_unref (frozen->data);
+  if (frozen->control)
+    json_object_unref (frozen->control);
+  g_slice_free (FrozenMessage, frozen);
+}
+
 enum {
   RECV,
   CONTROL,
@@ -37,10 +54,16 @@ static guint signals[NUM_SIGNALS];
 
 G_DEFINE_ABSTRACT_TYPE (CockpitTransport, cockpit_transport, G_TYPE_OBJECT);
 
+struct _CockpitTransportPrivate {
+    GHashTable *freeze;
+    GQueue *frozen;
+};
+
 static void
 cockpit_transport_init (CockpitTransport *self)
 {
-
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_TRANSPORT,
+                                            CockpitTransportPrivate);
 }
 
 static void
@@ -54,11 +77,39 @@ cockpit_transport_get_property (GObject *object,
 }
 
 static gboolean
+maybe_freeze_message (CockpitTransport *self,
+                      const gchar *channel,
+                      JsonObject *control,
+                      GBytes *data)
+{
+  FrozenMessage *frozen = NULL;
+
+  if (self->priv->freeze && channel)
+    {
+      /* Note that we dig out the real value for the channel */
+      channel = g_hash_table_lookup (self->priv->freeze, channel);
+      if (channel)
+        {
+          frozen = g_slice_new0 (FrozenMessage);
+          frozen->channel = channel; /* owned by hashtable */
+          frozen->data = g_bytes_ref (data);
+          if (control)
+            frozen->control = json_object_ref (control);
+          if (!self->priv->frozen)
+            self->priv->frozen = g_queue_new ();
+          g_queue_push_tail (self->priv->frozen, frozen);
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
+static gboolean
 cockpit_transport_default_recv (CockpitTransport *transport,
                                 const gchar *channel,
                                 GBytes *payload)
 {
-  gboolean ret = FALSE;
   const gchar *inner_channel;
   JsonObject *options;
   const gchar *command = NULL;
@@ -75,15 +126,24 @@ cockpit_transport_default_recv (CockpitTransport *transport,
       return TRUE;
     }
 
-  g_signal_emit (transport, signals[CONTROL], 0, command, inner_channel, options, payload, &ret);
-
-  if (!ret)
-    g_debug ("received unknown control command: %s", command);
+  cockpit_transport_emit_control (transport, command, inner_channel, options, payload);
   json_object_unref (options);
 
   return TRUE;
 }
 
+static void
+cockpit_transport_finalize (GObject *object)
+{
+  CockpitTransport *self = COCKPIT_TRANSPORT (object);
+
+  if (self->priv->freeze)
+    g_hash_table_destroy (self->priv->freeze);
+  if (self->priv->frozen)
+    g_queue_free_full (self->priv->frozen, frozen_message_free);
+
+  G_OBJECT_CLASS (cockpit_transport_parent_class)->finalize (object);
+}
 
 static void
 cockpit_transport_class_init (CockpitTransportClass *klass)
@@ -93,6 +153,7 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
   klass->recv = cockpit_transport_default_recv;
 
   object_class->get_property = cockpit_transport_get_property;
+  object_class->finalize = cockpit_transport_finalize;
 
   g_object_class_install_property (object_class, 1,
               g_param_spec_string ("name", "name", "name", NULL,
@@ -115,6 +176,8 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
                                   G_STRUCT_OFFSET (CockpitTransportClass, closed),
                                   NULL, NULL, g_cclosure_marshal_generic,
                                   G_TYPE_NONE, 1, G_TYPE_STRING);
+
+  g_type_class_add_private (klass, sizeof (CockpitTransportPrivate));
 }
 
 void
@@ -150,18 +213,36 @@ cockpit_transport_emit_recv (CockpitTransport *transport,
                              GBytes *data)
 {
   gboolean result = FALSE;
-  gchar *name = NULL;
 
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
+
+  if (maybe_freeze_message (transport, channel, NULL, data))
+    return;
 
   g_signal_emit (transport, signals[RECV], 0, channel, data, &result);
 
   if (!result)
-    {
-      g_object_get (transport, "name", &name, NULL);
-      g_debug ("%s: No handler for received message in channel %s", name, channel);
-      g_free (name);
-    }
+    g_debug ("no handler for received message in channel %s", channel);
+}
+
+void
+cockpit_transport_emit_control (CockpitTransport *transport,
+                                const gchar *command,
+                                const gchar *channel,
+                                JsonObject *options,
+                                GBytes *data)
+{
+  gboolean result = FALSE;
+
+  g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
+
+  if (maybe_freeze_message (transport, channel, options, data))
+    return;
+
+  g_signal_emit (transport, signals[CONTROL], 0, command, channel, options, data, &result);
+
+  if (!result)
+    g_debug ("received unknown control command: %s", command);
 }
 
 void
@@ -170,6 +251,61 @@ cockpit_transport_emit_closed (CockpitTransport *transport,
 {
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
   g_signal_emit (transport, signals[CLOSED], 0, problem);
+}
+
+void
+cockpit_transport_freeze (CockpitTransport *self,
+                          const gchar *channel)
+{
+  g_return_if_fail (COCKPIT_IS_TRANSPORT (self));
+  g_return_if_fail (channel != NULL);
+
+  if (!self->priv->freeze)
+    self->priv->freeze = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  g_hash_table_add (self->priv->freeze, g_strdup (channel));
+}
+
+void
+cockpit_transport_thaw (CockpitTransport *self,
+                        const gchar *channel)
+{
+  FrozenMessage *frozen;
+  const gchar *command;
+  gchar *stolen = NULL;
+  GList *l, *flush;
+
+  g_return_if_fail (COCKPIT_IS_TRANSPORT (self));
+  g_return_if_fail (channel != NULL);
+
+  if (self->priv->freeze)
+    stolen = g_hash_table_lookup (self->priv->freeze, channel);
+  if (stolen)
+    g_hash_table_steal (self->priv->freeze, channel);
+
+  for (l = self->priv->frozen ? self->priv->frozen->head : NULL; l != NULL; )
+    {
+      frozen = l->data;
+      flush = (stolen == frozen->channel) ? l : NULL;
+      l = g_list_next (l);
+
+      if (flush)
+        {
+          if (frozen->control)
+            {
+              command = NULL;
+              cockpit_json_get_string (frozen->control, "command", NULL, &command);
+              cockpit_transport_emit_control (self, command, stolen, frozen->control, frozen->data);
+            }
+          else
+            {
+              cockpit_transport_emit_recv (self, stolen, frozen->data);
+            }
+          g_queue_delete_link (self->priv->frozen, flush);
+          frozen_message_free (frozen);
+        }
+    }
+
+  g_free (stolen);
 }
 
 static GBytes *
@@ -358,5 +494,3 @@ cockpit_transport_build_control (const gchar *name,
   json_object_unref (object);
   return message;
 }
-
-

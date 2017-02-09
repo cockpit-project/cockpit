@@ -92,7 +92,8 @@ on_closed_set_flag (CockpitTransport *transport,
 }
 
 static void
-send_init_command (CockpitTransport *transport)
+send_init_command (CockpitTransport *transport,
+                   gboolean interactive)
 {
   const gchar *checksum;
   JsonObject *object;
@@ -106,29 +107,43 @@ send_init_command (CockpitTransport *transport)
   json_object_set_string_member (object, "command", "init");
   json_object_set_int_member (object, "version", 1);
 
-  checksum = cockpit_packages_get_checksum (packages);
-  if (checksum)
-    json_object_set_string_member (object, "checksum", checksum);
+  /*
+   * When in interactive mode pretend we received an init
+   * message, and don't print one out.
+   */
+  if (interactive)
+    {
+      json_object_set_string_member (object, "host", "localhost");
+    }
+  else
+    {
+      checksum = cockpit_packages_get_checksum (packages);
+      if (checksum)
+        json_object_set_string_member (object, "checksum", checksum);
 
-  /* This is encoded as an object to allow for future expansion */
-  block = json_object_new ();
-  names = cockpit_packages_get_names (packages);
-  for (i = 0; names && names[i] != NULL; i++)
-    json_object_set_null_member (block, names[i]);
-  json_object_set_object_member (object, "packages", block);
-  g_free (names);
+      /* This is encoded as an object to allow for future expansion */
+      block = json_object_new ();
+      names = cockpit_packages_get_names (packages);
+      for (i = 0; names && names[i] != NULL; i++)
+        json_object_set_null_member (block, names[i]);
+      json_object_set_object_member (object, "packages", block);
+      g_free (names);
 
-  os_release = cockpit_system_load_os_release ();
-  block = cockpit_json_from_hash_table (os_release,
-                                        cockpit_system_os_release_fields ());
-  if (block)
-    json_object_set_object_member (object, "os-release", block);
-  g_hash_table_unref (os_release);
+      os_release = cockpit_system_load_os_release ();
+      block = cockpit_json_from_hash_table (os_release,
+                                            cockpit_system_os_release_fields ());
+      if (block)
+        json_object_set_object_member (object, "os-release", block);
+      g_hash_table_unref (os_release);
+    }
 
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
 
-  cockpit_transport_send (transport, NULL, bytes);
+  if (interactive)
+    cockpit_transport_emit_recv (transport, NULL, bytes);
+  else
+    cockpit_transport_send (transport, NULL, bytes);
   g_bytes_unref (bytes);
 }
 
@@ -416,7 +431,6 @@ run_bridge (const gchar *interactive,
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  const gchar *init_host = NULL;
   CockpitPortal *super = NULL;
   gpointer polkit_agent = NULL;
   const gchar *directory;
@@ -496,7 +510,6 @@ run_bridge (const gchar *interactive,
   if (interactive)
     {
       /* Allow skipping the init message when interactive */
-      init_host = "localhost";
       transport = cockpit_interact_transport_new (0, outfd, interactive);
     }
   else
@@ -514,7 +527,7 @@ run_bridge (const gchar *interactive,
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
-  router = cockpit_router_new (transport, payload_types, init_host);
+  router = cockpit_router_new (transport, payload_types, NULL);
   cockpit_router_add_channel_function (router, pcp_shim);
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
@@ -524,7 +537,7 @@ run_bridge (const gchar *interactive,
   pwd = NULL;
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
-  send_init_command (transport);
+  send_init_command (transport, interactive ? TRUE : FALSE);
 
   while (!terminated && !closed && !interupted)
     g_main_context_iteration (NULL, TRUE);

@@ -81,8 +81,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitpipechannel.h \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
-	src/bridge/cockpitportal.c \
-	src/bridge/cockpitportal.h \
 	src/bridge/cockpitfsread.c \
 	src/bridge/cockpitfsread.h \
 	src/bridge/cockpitfsreplace.c \
@@ -160,7 +158,6 @@ BRIDGE_CHECKS = \
 	test-paths \
 	test-rules \
 	test-channel \
-	test-portal \
 	test-pipe-channel \
 	test-packages \
 	test-peer \
@@ -215,12 +212,6 @@ test_peer_SOURCES = src/bridge/test-peer.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_peer_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_peer_LDADD = $(libcockpit_bridge_LIBS)
-
-test_portal_SOURCES = src/bridge/test-portal.c \
-	src/bridge/mock-channel.c src/bridge/mock-channel.h \
-	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_portal_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_portal_LDADD = $(libcockpit_bridge_LIBS)
 
 test_router_SOURCES = src/bridge/test-router.c \
 	src/bridge/mock-channel.c src/bridge/mock-channel.h \

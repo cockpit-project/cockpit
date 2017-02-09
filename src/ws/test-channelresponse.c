@@ -43,6 +43,11 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 
+/*
+ * To recalculate the checksums found in this file, do something like:
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistant cockpit-bridge --packages
+ */
+
 #define PASSWORD "this is the password"
 
 typedef struct {
@@ -423,7 +428,7 @@ test_resource_checksum (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$5166d34a80c3473e020dfa6f49bc6513545a5fdd",
+                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -435,7 +440,7 @@ test_resource_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$5166d34a80c3473e020dfa6f49bc6513545a5fdd-c\"\r\n"
+                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\"\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "\r\n"
@@ -496,7 +501,7 @@ test_resource_redirect_checksum (TestResourceCase *tc,
     {
       expected = "HTTP/1.1 307 Temporary Redirect\r\n"
                  "Content-Type: text/html\r\n"
-                 "Location: /path/cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/test/sub/file.ext\r\n"
+                 "Location: /path/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext\r\n"
                  "Content-Length: 91\r\n"
                  "\r\n"
                  "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>";
@@ -505,7 +510,7 @@ test_resource_redirect_checksum (TestResourceCase *tc,
     {
       expected = "HTTP/1.1 307 Temporary Redirect\r\n"
                  "Content-Type: text/html\r\n"
-                 "Location: /cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/test/sub/file.ext\r\n"
+                 "Location: /cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext\r\n"
                  "Content-Length: 91\r\n"
                  "\r\n"
                  "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>";
@@ -527,11 +532,11 @@ test_resource_not_modified (TestResourceCase *tc,
   request_checksum (tc);
 
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$5166d34a80c3473e020dfa6f49bc6513545a5fdd-c\""));
+                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$5166d34a80c3473e020dfa6f49bc6513545a5fdd",
+                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -543,7 +548,7 @@ test_resource_not_modified (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 304 Not Modified\r\n"
-                           "ETag: \"$5166d34a80c3473e020dfa6f49bc6513545a5fdd-c\"\r\n"
+                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\"\r\n"
                            "\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
@@ -560,12 +565,12 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   request_checksum (tc);
 
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$5166d34a80c3473e020dfa6f49bc6513545a5fdd-c\""));
+                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de"));
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$5166d34a80c3473e020dfa6f49bc6513545a5fdd",
+                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -577,7 +582,7 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$5166d34a80c3473e020dfa6f49bc6513545a5fdd-de\"\r\n"
+                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-de\"\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "\r\n"
@@ -601,14 +606,14 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   request_checksum (tc);
 
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$5166d34a80c3473e020dfa6f49bc6513545a5fdd-c\""));
+                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
 
   cookie = g_strdup_printf ("%s; CockpitLang=fr", (gchar *)g_hash_table_lookup (tc->headers, "Cookie"));
   g_hash_table_insert (tc->headers, g_strdup ("Cookie"), cookie);
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$5166d34a80c3473e020dfa6f49bc6513545a5fdd",
+                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -620,7 +625,7 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$5166d34a80c3473e020dfa6f49bc6513545a5fdd-fr\"\r\n"
+                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-fr\"\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "\r\n"

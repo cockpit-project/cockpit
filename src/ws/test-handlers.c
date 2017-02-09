@@ -38,6 +38,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+/*
+ * To recalculate the checksums found in this file, do something like:
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistant cockpit-bridge --packages
+ */
+
 /* Mock override this from cockpitconf.c */
 extern const gchar *cockpit_config_file;
 
@@ -462,7 +467,7 @@ test_default (Test *test,
 }
 
 static const DefaultFixture fixture_resource_checksum = {
-  .path = "/cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/test/sub/file.ext",
+  .path = "/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
     "These are the contents of file.ext*"
@@ -522,7 +527,7 @@ static const DefaultFixture fixture_shell_path_package = {
   .org_path = "/path/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/path/cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/another/test.html\">*"
+      "<base href=\"/path/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 
@@ -578,7 +583,7 @@ static const DefaultFixture fixture_shell_package = {
   .path = "/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/cockpit/$5166d34a80c3473e020dfa6f49bc6513545a5fdd/another/test.html\">*"
+      "<base href=\"/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 

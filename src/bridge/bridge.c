@@ -33,7 +33,6 @@
 #include "cockpitpipechannel.h"
 #include "cockpitinternalmetrics.h"
 #include "cockpitpolkitagent.h"
-#include "cockpitportal.h"
 #include "cockpitrouter.h"
 #include "cockpitwebsocketstream.h"
 
@@ -391,7 +390,6 @@ run_bridge (const gchar *interactive,
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  CockpitPortal *super = NULL;
   gpointer polkit_agent = NULL;
   const gchar *directory;
   struct passwd *pwd;
@@ -482,7 +480,6 @@ run_bridge (const gchar *interactive,
     {
       if (!interactive)
         polkit_agent = cockpit_polkit_agent_register (transport, NULL);
-      super = cockpit_portal_new_superuser (transport);
     }
 
   g_resources_register (cockpitassets_get_resource ());
@@ -506,8 +503,6 @@ run_bridge (const gchar *interactive,
 
   if (polkit_agent)
     cockpit_polkit_agent_unregister (polkit_agent);
-  if (super)
-    g_object_unref (super);
 
   g_object_unref (router);
   g_object_unref (transport);

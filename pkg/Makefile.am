@@ -9,6 +9,11 @@ nodist_pcp_DATA = \
 	pkg/pcp/manifest.json \
 	$(NULL)
 
+shelldir = $(pkgdatadir)/shell
+nodist_shell_DATA = \
+	pkg/shell/manifest.json \
+	$(NULL)
+
 # HACK: https://github.com/storaged-project/storaged/pull/68
 storageddir = $(pkgdatadir)/storaged
 nodist_storaged_DATA = \
@@ -35,6 +40,7 @@ EXTRA_DIST += \
 	pkg/playground/de.po \
 	pkg/pcp/manifest.json.in \
 	pkg/networkmanager/override.json.in \
+	pkg/shell/manifest.json.in \
 	pkg/storaged/override.json.in \
 	pkg/users/mock \
 	pkg/lib/qunit-template.html \

@@ -16,5 +16,16 @@
         "tr-tr": "Türkçe",
         "uk-ua": "Українська",
         "zh-cn": "中文"
-    }
+    },
+
+    "bridges": [
+        {
+            "match": { "superuser": null },
+            "spawn": [ "@PKEXEC@", "--disable-internal-agent", "cockpit-bridge", "--privileged" ]
+        },
+        {
+            "match": { "superuser": null },
+            "spawn": [ "@SUDO@", "-n", "cockpit-bridge", "--privileged" ]
+        }
+    ]
 }

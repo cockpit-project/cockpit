@@ -1116,6 +1116,55 @@ test_problem_later (void)
   g_free (check);
 }
 
+static void
+test_get_environ (void)
+{
+  const gchar *input[] = { "ENVIRON=Marmalaaade", "ANOTHER=zerog", NULL };
+  gchar **environ;
+
+  g_setenv ("BLAH", "exists", TRUE);
+  g_setenv ("ANOTHER", "original", TRUE);
+
+  environ = cockpit_pipe_get_environ (input, "/directory");
+
+  g_assert_cmpstr (g_environ_getenv (environ, "ENVIRON"), ==, "Marmalaaade");
+  g_assert_cmpstr (g_environ_getenv (environ, "ANOTHER"), ==, "zerog");
+  g_assert_cmpstr (g_environ_getenv (environ, "BLAH"), ==, "exists");
+  g_assert_cmpstr (g_environ_getenv (environ, "PWD"), ==, "/directory");
+
+  g_strfreev (environ);
+}
+
+static void
+test_get_environ_with_pwd (void)
+{
+  const gchar *input[] = { "ENVIRON=Marmalaaade", "PWD=/mine", NULL };
+  gchar **environ;
+
+  environ = cockpit_pipe_get_environ (input, "/directory");
+
+  g_assert_cmpstr (g_environ_getenv (environ, "ENVIRON"), ==, "Marmalaaade");
+  g_assert_cmpstr (g_environ_getenv (environ, "PWD"), ==, "/mine");
+
+  g_strfreev (environ);
+}
+
+static void
+test_get_environ_null (void)
+{
+  gchar **environ;
+
+  g_setenv ("BLAH", "exists", TRUE);
+  g_setenv ("ANOTHER", "original", TRUE);
+
+  environ = cockpit_pipe_get_environ (NULL, NULL);
+
+  g_assert_cmpstr (g_environ_getenv (environ, "BLAH"), ==, "exists");
+  g_assert_cmpstr (g_environ_getenv (environ, "ANOTHER"), ==, "original");
+
+  g_strfreev (environ);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -1183,6 +1232,10 @@ main (int argc,
 
   g_test_add_func ("/pipe/connect/not-found", test_fail_not_found);
   g_test_add_func ("/pipe/connect/access-denied", test_fail_access_denied);
+
+  g_test_add_func ("/pipe/environ/simple", test_get_environ);
+  g_test_add_func ("/pipe/environ/pwd", test_get_environ_with_pwd);
+  g_test_add_func ("/pipe/environ/null", test_get_environ_null);
 
   return g_test_run ();
 }

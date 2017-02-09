@@ -1,0 +1,9 @@
+{
+    "bridges": [
+        {
+            "match": { "payload": "metrics1" },
+            "spawn": [ "/usr/libexec/cockpit-pcp" ],
+            "x-spawn": [ "@libexecdir@/cockpit-pcp" ]
+        }
+    ]
+}

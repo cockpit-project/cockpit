@@ -571,6 +571,7 @@ pkg/kubernetes/manifest.json
 pkg/machines/manifest.json
 pkg/networkmanager/manifest.json
 pkg/ostree/manifest.json
+pkg/pcp/manifest.json
 pkg/playground/manifest.json
 pkg/realmd/manifest.json
 pkg/selinux/manifest.json

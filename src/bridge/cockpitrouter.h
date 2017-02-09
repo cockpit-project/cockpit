@@ -21,7 +21,7 @@
 #define __COCKPIT_ROUTER_H__
 
 #include "common/cockpittransport.h"
-#include "cockpitchannel.h"
+#include "cockpitpeer.h"
 
 G_BEGIN_DECLS
 
@@ -29,7 +29,6 @@ typedef struct {
   const gchar *name;
   GType (* function) (void);
 } CockpitPayloadType;
-
 
 #define         COCKPIT_TYPE_ROUTER           (cockpit_router_get_type ())
 #define         COCKPIT_ROUTER(o)             (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_ROUTER, CockpitRouter))
@@ -39,23 +38,15 @@ typedef struct _CockpitRouter        CockpitRouter;
 
 GType           cockpit_router_get_type     (void) G_GNUC_CONST;
 
-typedef         CockpitChannel *   (* CockpitRouterChannelFunc)    (CockpitRouter *router,
-                                                                    CockpitTransport *transport,
-                                                                    const gchar *channel_id,
-                                                                    JsonObject *options);
-
-void                cockpit_router_add_channel_function            (CockpitRouter *self,
-                                                                    CockpitRouterChannelFunc channel_func);
-
 CockpitRouter     * cockpit_router_new                             (CockpitTransport *transport,
                                                                     CockpitPayloadType *supported_payloads,
-                                                                    const gchar *init_host);
+                                                                    GList *bridges);
 
-CockpitTransport  * cockpit_router_ensure_external_bridge          (CockpitRouter *self,
-                                                                    const gchar *channel,
-                                                                    const gchar *host,
-                                                                    const gchar **argv,
-                                                                    const gchar **env);
+void                cockpit_router_add_payloads                    (CockpitRouter *self,
+                                                                    CockpitPayloadType *types);
+
+CockpitPeer *       cockpit_router_add_bridge                      (CockpitRouter *self,
+                                                                    JsonObject *bridge);
 
 G_END_DECLS
 

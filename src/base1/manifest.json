@@ -5,6 +5,10 @@
         {
             "match": { "superuser": "require" },
             "problem": "access-denied"
+        },
+        {
+            "match": { "superuser": true },
+            "problem": "access-denied"
         }
     ]
 }

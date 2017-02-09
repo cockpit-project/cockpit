@@ -47,8 +47,6 @@ typedef gboolean     (* CockpitPortalFilter)             (CockpitPortal *portal,
 
 GType                   cockpit_portal_get_type           (void) G_GNUC_CONST;
 
-CockpitPortal *         cockpit_portal_new_superuser      (CockpitTransport *transport);
-
 void                    cockpit_portal_add_channel        (CockpitPortal *self,
                                                            const gchar *channel,
                                                            CockpitPortalFlags flags);

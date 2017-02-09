@@ -6,8 +6,6 @@
 
     var mod = { };
 
-    /* machines.json path */
-    var path = "/var/lib/cockpit/machines.json";
     var known_hosts_path = "/var/lib/cockpit/known_hosts";
     /*
      * We share the Machines state between multiple frames. Only
@@ -16,8 +14,7 @@
      *
      * The data is stored in sessionStorage in a JSON object, like this
      * {
-     *    content: parsed contents of machines.json
-     *    tag: the cockpit.file() tag
+     *    content: name → info dict from bridge's /machines Machines property
      *    overlay: extra data to augment and override on top of content
      * }
      *
@@ -44,7 +41,6 @@
         /* Data shared between Machines() instances */
         var last = {
             content: null,
-            tag: null,
             overlay: {
                 localhost: {
                     visible: true,
@@ -176,28 +172,23 @@
         }
 
         function update_saved_machine(host, values) {
-            function mutate(data) {
-                if (!data)
-                    data = { };
-                var item = data[host];
-                if (!item)
-                    item = data[host] = { };
-                merge(item, values);
-                return data;
-            }
+            // wrap values in variants for D-Bus call
+            var values_variant = {};
+            for (var prop in values)
+                if (values[prop] !== null)
+                    values_variant[prop] = cockpit.variant(prop == "visible" ? 'b' : 's', values[prop]);
 
-            /* Update the JSON file */
-            var local = cockpit.file(path, { syntax: JSON, superuser: "try" });
-            var mod = local.modify(mutate, last.content, last.tag)
-                .done(function(data, tag) {
+            // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
+            var bridge = cockpit.dbus(null, { bus: "internal", "superuser": "try" });
+            var mod = bridge.call("/machines", "cockpit.Machines", "Update", [ host, values_variant ])
+                .done(function() {
                     var prop, over = { };
                     for (prop in values)
                         over[prop] = null;
-                    self.data(data, tag); /* an optimization */
                     self.overlay(host, over);
                 })
-                .always(function() {
-                    local.close();
+                .fail(function(error) {
+                    console.error("failed to call cockpit.Machines.Update(): ", error);
                 });
 
             return mod;
@@ -295,7 +286,7 @@
             return mod;
         };
 
-        self.data = function data(content, tag) {
+        self.data = function data(content) {
             var host, changes = {};
 
             for (host in content) {
@@ -313,7 +304,7 @@
                 }
             }
 
-            refresh({ content: content, tag: tag,
+            refresh({ content: content,
                       overlay: $.extend({ }, last.overlay, changes) }, true);
         };
 
@@ -323,7 +314,6 @@
             merge(changes[host], values);
             refresh({
                 content: last.content,
-                tag: last.tag,
                 overlay: $.extend({ }, last.overlay, changes)
             }, true);
         };
@@ -662,11 +652,20 @@
         };
 
         if (!session_only) {
-            file = cockpit.file(path, { syntax: JSON });
-            file.watch(function(data, tag, ex) {
-                if (ex)
-                    console.warn("couldn't load machines data: " + ex);
-                machines.data(data, tag);
+            var proxy = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Machines", "/machines");
+            $(proxy).on("changed", function(data) {
+                // unwrap variants from D-Bus call
+                var wrapped = proxy.Machines;
+                var data_unwrap = {};
+                var host_props;
+                for (var host in wrapped) {
+                    host_props = {};
+                    for (var prop in wrapped[host])
+                        host_props[prop] = wrapped[host][prop].v;
+                    data_unwrap[host] = host_props;
+                }
+
+                machines.data(data_unwrap);
                 if (!session_loaded)
                     load_from_session_storage();
             });

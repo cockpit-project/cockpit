@@ -42,8 +42,7 @@ GType           cockpit_router_get_type     (void) G_GNUC_CONST;
 typedef         CockpitChannel *   (* CockpitRouterChannelFunc)    (CockpitRouter *router,
                                                                     CockpitTransport *transport,
                                                                     const gchar *channel_id,
-                                                                    JsonObject *options,
-                                                                    gboolean frozen);
+                                                                    JsonObject *options);
 
 void                cockpit_router_add_channel_function            (CockpitRouter *self,
                                                                     CockpitRouterChannelFunc channel_func);

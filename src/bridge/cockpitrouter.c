@@ -47,7 +47,7 @@ struct _CockpitRouter {
   GHashTable *groups;
 
   GHashTable *fences;
-  guint thawing;
+  GHashTable *fenced;
 
   GHashTable *bridges_by_id;
   GHashTable *bridges_by_transport;
@@ -132,20 +132,24 @@ on_timeout_cleanup_bridge (gpointer user_data)
   return FALSE;
 }
 
-static gboolean
-on_idle_thaw (gpointer user_data)
+static void
+thaw_fenced_channels (CockpitRouter *self)
 {
-  CockpitRouter *self = user_data;
-  GList *list, *l;
+  GHashTableIter iter;
+  GHashTable *fenced;
+  gpointer key;
 
-  self->thawing = 0;
+  fenced = self->fenced;
+  self->fenced = NULL;
 
-  list = g_hash_table_get_values (self->channels);
-  for (l = list; l != NULL; l = g_list_next (l))
-    cockpit_channel_thaw (l->data);
-  g_list_free (list);
+  if (!fenced)
+    return;
 
-  return FALSE;
+  g_hash_table_iter_init (&iter, fenced);
+  while (g_hash_table_iter_next (&iter, (gpointer *)&key, NULL))
+    cockpit_transport_thaw (self->transport, key);
+
+  g_hash_table_destroy (fenced);
 }
 
 static void
@@ -183,11 +187,8 @@ on_channel_closed (CockpitChannel *channel,
    * then resume all other channels as there's no barrier
    * preventing them from functioning.
    */
-  if (!self->thawing)
-    {
-      if (g_hash_table_remove (self->fences, id) && g_hash_table_size (self->fences) == 0)
-        self->thawing = g_idle_add_full (G_PRIORITY_HIGH, on_idle_thaw, self, NULL);
-    }
+  if (g_hash_table_remove (self->fences, id) && g_hash_table_size (self->fences) == 0)
+    thaw_fenced_channels (self);
 }
 
 static void
@@ -260,7 +261,8 @@ static void
 process_open (CockpitRouter *self,
               CockpitTransport *transport,
               const gchar *channel_id,
-              JsonObject *options)
+              JsonObject *options,
+              GBytes *data)
 {
   CockpitChannel *channel = NULL;
   GType channel_type;
@@ -271,17 +273,18 @@ process_open (CockpitRouter *self,
   const gchar *payload = NULL;
   const gchar *host = NULL;
   const gchar *group = NULL;
-  gboolean frozen;
 
   if (!channel_id)
     {
       g_warning ("Caller tried to open channel with invalid id");
       cockpit_transport_close (transport, "protocol-error");
+      return;
     }
   else if (g_hash_table_lookup (self->channels, channel_id))
     {
       g_warning ("%s: caller tried to reuse a channel that's already in use", channel_id);
       cockpit_transport_close (transport, "protocol-error");
+      return;
     }
   else
     {
@@ -296,14 +299,26 @@ process_open (CockpitRouter *self,
       else if (payload == NULL)
         g_warning ("%s: caller didn't provide a 'payload' field in open message", channel_id);
 
-      /* This will close with "not-supported", both bad payload and host get this code */
+      if (group && g_str_equal (group, "fence"))
+        g_hash_table_add (self->fences, g_strdup (channel_id));
+
+      /* Request that this channel is frozen, and its open message sent again */
+      if (g_hash_table_size (self->fences) > 0 && !g_hash_table_lookup (self->fences, channel_id))
+        {
+          if (!self->fenced)
+            self->fenced = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+          g_hash_table_add (self->fenced, g_strdup (channel_id));
+          cockpit_transport_freeze (self->transport, channel_id);
+          cockpit_transport_emit_control (self->transport, "open", channel_id, options, data);
+          return;
+        }
+
       channel_type = COCKPIT_TYPE_CHANNEL;
-      frozen = g_hash_table_size (self->fences) ? TRUE : FALSE;
 
       for (l = self->channel_functions; l != NULL; l = g_list_next (l))
         {
           channel_function = l->data;
-          channel = channel_function (self, transport, channel_id, options, frozen);
+          channel = channel_function (self, transport, channel_id, options);
           if (channel)
             break;
         }
@@ -323,17 +338,12 @@ process_open (CockpitRouter *self,
                                   "transport", transport,
                                   "id", channel_id,
                                   "options", options,
-                                  "frozen", frozen,
                                   NULL);
         }
 
       g_hash_table_insert (self->channels, g_strdup (channel_id), channel);
       if (group)
-        {
-          g_hash_table_insert (self->groups, g_strdup (channel_id), g_strdup (group));
-          if (g_str_equal (group, "fence"))
-            g_hash_table_add (self->fences, g_strdup (channel_id));
-        }
+        g_hash_table_insert (self->groups, g_strdup (channel_id), g_strdup (group));
       g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), self);
     }
 }
@@ -406,7 +416,7 @@ on_transport_control (CockpitTransport *transport,
 
   if (g_str_equal (command, "open"))
     {
-      process_open (self, transport, channel_id, options);
+      process_open (self, transport, channel_id, options, message);
       return TRUE;
     }
   else if (g_str_equal (command, "kill"))
@@ -473,8 +483,8 @@ cockpit_router_finalize (GObject *object)
   if (self->transport)
     g_object_unref (self->transport);
 
-  if (self->thawing)
-    g_source_remove (self->thawing);
+  if (self->fenced)
+    g_hash_table_destroy (self->fenced);
 
   g_free (self->init_host);
   g_hash_table_destroy (self->channels);

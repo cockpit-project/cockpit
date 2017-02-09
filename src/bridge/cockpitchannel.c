@@ -55,34 +55,6 @@ const gchar * cockpit_bridge_local_address = NULL;
  * See doc/protocol.md for information about channels.
  */
 
-typedef struct {
-    JsonObject *control;
-    GBytes *payload;
-} FrozenMessage;
-
-static FrozenMessage *
-frozen_message_new (GBytes *payload,
-                    JsonObject *control)
-{
-  FrozenMessage *frozen = g_slice_new0 (FrozenMessage);
-  if (payload)
-    frozen->payload = g_bytes_ref (payload);
-  if (control)
-    frozen->control = json_object_ref (control);
-  return frozen;
-}
-
-static void
-frozen_message_free (gpointer data)
-{
-  FrozenMessage *frozen = data;
-  if (frozen->control)
-    json_object_unref (frozen->control);
-  if (frozen->payload)
-    g_bytes_unref (frozen->payload);
-  g_slice_free (FrozenMessage, frozen);
-}
-
 struct _CockpitChannelPrivate {
     gulong recv_sig;
     gulong close_sig;
@@ -97,7 +69,6 @@ struct _CockpitChannelPrivate {
     /* Queued messages before channel is ready */
     gboolean prepared;
     guint prepare_tag;
-    GQueue *frozen;
 
     /* Whether we've sent a closed message */
     gboolean sent_close;
@@ -125,7 +96,6 @@ enum {
     PROP_ID,
     PROP_OPTIONS,
     PROP_CAPABILITIES,
-    PROP_FROZEN,
 };
 
 static guint cockpit_channel_sig_closed;
@@ -138,7 +108,7 @@ on_idle_prepare (gpointer data)
   CockpitChannel *self = COCKPIT_CHANNEL (data);
   g_object_ref (self);
   self->priv->prepare_tag = 0;
-  cockpit_channel_thaw (self);
+  cockpit_channel_prepare (self);
   g_object_unref (self);
   return FALSE;
 }
@@ -179,11 +149,7 @@ on_transport_recv (CockpitTransport *transport,
   if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
 
-  if (self->priv->frozen)
-    g_queue_push_tail (self->priv->frozen, frozen_message_new (data, NULL));
-  else
-    process_recv (self, data);
-
+  process_recv (self, data);
   return TRUE;
 }
 
@@ -230,11 +196,7 @@ on_transport_control (CockpitTransport *transport,
   if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
 
-  if (self->priv->frozen)
-    g_queue_push_tail (self->priv->frozen, frozen_message_new (payload, options));
-  else
-    process_control (self, command, options);
-
+  process_control (self, command, options);
   return TRUE;
 }
 
@@ -268,16 +230,9 @@ cockpit_channel_constructed (GObject *object)
   self->priv->close_sig = g_signal_connect (self->priv->transport, "closed",
                                             G_CALLBACK (on_transport_closed), self);
 
-  /*
-   * If the caller didn't ask us to be frozen, then we temporarily
-   * freeze things and run the prepare. Message input will be frozen until
-   * cockpit_channel_ready() is called.
-   */
-  if (!self->priv->frozen)
-    {
-      self->priv->frozen = g_queue_new ();
-      self->priv->prepare_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_prepare, self, NULL);
-    }
+  /* Freeze this channel's messages until ready */
+  cockpit_transport_freeze (self->priv->transport, self->priv->id);
+  self->priv->prepare_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_prepare, self, NULL);
 }
 
 
@@ -431,17 +386,6 @@ cockpit_channel_set_property (GObject *object,
       g_return_if_fail (self->priv->capabilities == NULL);
       self->priv->capabilities = g_value_dup_boxed (value);
       break;
-    case PROP_FROZEN:
-      if (g_value_get_boolean (value))
-        {
-          if (!self->priv->frozen)
-            self->priv->frozen = g_queue_new ();
-        }
-      else
-        {
-          g_assert (self->priv->frozen == NULL);
-        }
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -474,10 +418,6 @@ cockpit_channel_dispose (GObject *object)
   if (self->priv->close_sig)
     g_signal_handler_disconnect (self->priv->transport, self->priv->close_sig);
   self->priv->close_sig = 0;
-
-  if (self->priv->frozen)
-    g_queue_free_full (self->priv->frozen, frozen_message_free);
-  self->priv->frozen = NULL;
 
   if (!self->priv->emitted_close)
     cockpit_channel_close (self, "terminated");
@@ -599,15 +539,6 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
                                                        "Channel Capabilities",
                                                        G_TYPE_STRV,
                                                        G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
-
-  /**
-   * CockpitChannel:frozen:
-   *
-   * Whether the channel starts off frozen or not.
-   */
-  g_object_class_install_property (gobject_class, PROP_FROZEN,
-                                   g_param_spec_boolean ("frozen", "frozen", "frozen", FALSE,
-                                                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * CockpitChannel::closed:
@@ -741,36 +672,9 @@ void
 cockpit_channel_ready (CockpitChannel *self,
                        JsonObject *message)
 {
-  FrozenMessage *frozen;
-
-  g_return_if_fail (self->priv->frozen != NULL);
-
   g_object_ref (self);
 
-  while (self->priv->frozen)
-    {
-      frozen = g_queue_pop_head (self->priv->frozen);
-      if (frozen == NULL)
-        break;
-
-      /* Is it a control message */
-      if (frozen->control)
-        {
-          process_control (self, json_object_get_string_member (frozen->control, "command"),
-                           frozen->control);
-        }
-      else
-        {
-          process_recv (self, frozen->payload);
-        }
-
-      frozen_message_free (frozen);
-    }
-
-  if (self->priv->frozen)
-    g_queue_free (self->priv->frozen);
-  self->priv->frozen = NULL;
-
+  cockpit_transport_thaw (self->priv->transport, self->priv->id);
   cockpit_channel_control (self, "ready", message);
 
   g_object_unref (self);
@@ -854,7 +758,7 @@ cockpit_channel_get_id (CockpitChannel *self)
 }
 
 /**
- * cockpit_channel_thaw:
+ * cockpit_channel_prepare:
  * @self: the channel
  *
  * Usually this is automatically called after the channel is
@@ -864,7 +768,7 @@ cockpit_channel_get_id (CockpitChannel *self)
  * things in motion.
  */
 void
-cockpit_channel_thaw (CockpitChannel *self)
+cockpit_channel_prepare (CockpitChannel *self)
 {
   CockpitChannelClass *klass;
 

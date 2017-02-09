@@ -71,7 +71,7 @@ struct _CockpitChannelClass
 
 GType               cockpit_channel_get_type          (void) G_GNUC_CONST;
 
-void                cockpit_channel_thaw              (CockpitChannel *self);
+void                cockpit_channel_prepare           (CockpitChannel *self);
 
 void                cockpit_channel_close             (CockpitChannel *self,
                                                        const gchar *problem);

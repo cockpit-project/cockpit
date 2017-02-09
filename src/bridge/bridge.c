@@ -387,8 +387,7 @@ static CockpitChannel *
 pcp_shim (CockpitRouter *router,
           CockpitTransport *transport,
           const gchar *channel_id,
-          JsonObject *options,
-          gboolean frozen)
+          JsonObject *options)
 {
   CockpitChannel *channel = NULL;
   CockpitTransport *shim_transport = NULL;
@@ -414,7 +413,6 @@ pcp_shim (CockpitRouter *router,
                                                  "transport", transport,
                                                  "id", channel_id,
                                                  "options", options,
-                                                 "frozen", frozen,
                                                  "shim-transport", shim_transport,
                                                  NULL));
     }

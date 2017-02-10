@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm } from "./actions.es6";
-import { rephraseUI, logDebug, toGigaBytes } from "./helpers.es6";
+import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
@@ -239,6 +239,7 @@ const VmUsageTab = ({ vm }) => {
     // 4 CPU system can have usage 400%, let's keep % between 0..100
     let cpuUsage = vm['cpuUsage'] / (totalCpus > 0 ? totalCpus : 1);
     cpuUsage = isNaN(cpuUsage) ? 0 : cpuUsage;
+    cpuUsage = toFixedPrecision(cpuUsage, 1);
 
     logDebug(`VmUsageTab.render(): rssMem: ${rssMem} KiB, memTotal: ${memTotal} KiB, available: ${available} KiB, totalCpus: ${totalCpus}, cpuUsage: ${cpuUsage}`);
 

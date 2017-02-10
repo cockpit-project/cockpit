@@ -151,6 +151,8 @@ var info = {
         "kubernetes/scripts/test-volumes",
 
         "ostree/test-utils",
+
+        "machines/test-machines",
     ],
 
     files: [

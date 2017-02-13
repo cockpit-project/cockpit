@@ -52,8 +52,8 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
 @skipImage("DBus API of setroubleshoot too old", "centos-7")
-@skipImage("No setroubleshoot", "continuous-atomic", "debian-8", "debian-testing", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
 class TestSelinux(MachineCase):
+    @skipImage("No setroubleshoot", "continuous-atomic", "debian-8", "debian-testing", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
     def testTroubleshootAlerts(self):
         b = self.browser
 
@@ -144,6 +144,7 @@ class TestSelinux(MachineCase):
 
         #b.wait_in_text("body", "No SELinux alerts.")
 
+    @skipImage("No cockpit-selinux", "debian-8", "debian-testing", "continuous-atomic", "fedora-atomic", "ubuntu-1604")
     def testEnforcingToggle(self):
         b = self.browser
         m = self.machine
@@ -153,13 +154,7 @@ class TestSelinux(MachineCase):
         # as happens in our virt-builder and virt-install usage
         m.execute("chmod ugo+r /etc/selinux/config")
 
-        # fix audit events first
-        m.execute(script=FIX_AUDITD)
-
         self.login_and_go("/selinux/setroubleshoot")
-
-        # at the beginning, there should be no entries
-        b.wait_in_text("body", "No SELinux alerts.")
 
         #########################################################
         # wait for the page to be present

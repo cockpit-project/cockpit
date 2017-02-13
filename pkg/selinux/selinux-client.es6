@@ -48,7 +48,7 @@ var status = {
  */
 export function init(statusChangedCallback) {
     var refreshInfo = function() {
-        cockpit.spawn(statusCommand, { err: 'message', environ: [ "LC_ALL=C" ] }).then(
+        cockpit.spawn(statusCommand, { err: 'message', environ: [ "LC_ALL=C" ], superuser: "try" }).then(
             function(output) {
                 /* parse output that looks like this:
                  *   SELinux status:                 enabled

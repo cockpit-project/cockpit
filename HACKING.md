@@ -222,6 +222,15 @@ You can run unit tests of the current checkout:
 These should finish very quickly and it is good practice to do it
 often.
 
+For debugging individual tests, there are compiled binaries in the
+build directory. For QUnit tests (javascript), you can run
+
+    $ ./test-server
+
+which will output a URL to connect to with a browser, such as
+`http://localhost:8765/dist/base1/test-dbus.html`. Adjust the path
+for different tests and inspect the results there.
+
 To run the integration tests, see `test/README`.
 
 ## Running Cockpit processes under a debugger

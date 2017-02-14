@@ -49,7 +49,7 @@
   </div>
 
   <div id="accounts" class="container-fluid" hidden>
-    <button class="btn btn-default accounts-privileged" id="accounts-create" translatable="yes" data-container="body">Create New Account</button>
+    <button class="btn btn-default accounts-privileged" id="accounts-create" translatable="yes" data-container="body" data-placement="right">Create New Account</button>
     <div id="accounts-list">
     </div>
   </div>
@@ -74,7 +74,7 @@
       <div class="panel-heading">
         <div class="pull-right">
           <button translatable="yes" class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
-          <button translatable="yes" class="btn btn-danger accounts-privileged" id="account-delete">Delete</button>
+          <button translatable="yes" class="btn btn-danger accounts-privileged" data-placement="left" id="account-delete">Delete</button>
         </div>
         <span id="account-title"></span>
       </div>
@@ -123,7 +123,15 @@
     <div class="panel panel-default" id="account-authorized-keys">
       <div class="panel-heading">
         <div class="pull-right">
-          <button data-toggle="modal" data-target="#add-authorized-key-dialog" data-original-title="Add Public Key" class="btn btn-primary accounts-self-privileged fa fa-plus" id="authorized-key-add" title=""></button>
+          <button data-toggle="modal"
+                  data-target="#add-authorized-key-dialog"
+                  data-original-title="Add Public Key"
+                  data-placement="left"
+                  class="btn btn-primary accounts-self-privileged fa fa-plus"
+                  id="authorized-key-add"
+                  title=""
+                  type="button">
+          </button>
         </div>
         <span translatable="yes">Authorized Public SSH Keys</span>
       </div>

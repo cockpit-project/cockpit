@@ -22,6 +22,9 @@
 
 %define _hardened_build 1
 
+# define to build the dashboard
+%define build_dashboard 1
+
 %define libssh_version 0.7.1
 %if 0%{?fedora} > 0 && 0%{?fedora} < 22
 %define libssh_version 0.6.0
@@ -50,7 +53,9 @@ BuildRequires: pam-devel
 BuildRequires: autoconf automake
 BuildRequires: /usr/bin/python
 BuildRequires: intltool
+%if %{defined build_dashboard}
 BuildRequires: libssh-devel >= %{libssh_version}
+%endif
 BuildRequires: openssl-devel
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel
@@ -76,7 +81,9 @@ BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
+%if %{defined build_dashboard}
 Requires: %{name}-dashboard = %{version}-%{release}
+%endif
 Requires: %{name}-system = %{version}-%{release}
 
 # Optional components (for f24 we use soft deps)
@@ -132,7 +139,7 @@ fi
 
 %build
 exec 2>&1
-%configure --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=auto --with-selinux-config-type=etc_t %{?rhel:--without-storaged-iscsi-sessions}
+%configure --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=auto --with-selinux-config-type=etc_t %{?rhel:--without-storaged-iscsi-sessions} %{!?build_dashboard:--disable-ssh}
 make -j4 %{?extra_flags} all
 
 %check
@@ -160,8 +167,13 @@ echo '{ "linguas": null, "machine-limit": 5 }' > %{buildroot}%{_datadir}/%{name}
 echo '%dir %{_datadir}/%{name}/base1' > base.list
 find %{buildroot}%{_datadir}/%{name}/base1 -type f >> base.list
 
+%if %{defined build_dashboard}
 echo '%dir %{_datadir}/%{name}/dashboard' >> dashboard.list
 find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> dashboard.list
+%else
+rm -rf %{buildroot}/%{_datadir}/%{name}/dashboard
+touch dashboard.list
+%endif
 
 echo '%dir %{_datadir}/%{name}/realmd' >> system.list
 find %{buildroot}%{_datadir}/%{name}/realmd -type f >> system.list
@@ -336,6 +348,7 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 # be out of sync with reality.
 /usr/share/pcp/lib/pmlogger condrestart
 
+%if %{defined build_dashboard}
 %package dashboard
 Summary: Cockpit SSH remoting and dashboard
 Requires: libssh >= %{libssh_version}
@@ -352,6 +365,7 @@ Cockpit support for remoting to other servers, bastion hosts, and a basic dashbo
 # HACK: Until policy changes make it downstream
 # https://bugzilla.redhat.com/show_bug.cgi?id=1381331
 test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
+%endif
 
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged

@@ -107,20 +107,6 @@ validate_package (const gchar *name)
 }
 
 static gboolean
-validate_checksum (const gchar *name)
-{
-  static const gchar *allowed = "abcdef0123456789";
-  gsize len;
-
-  if (name[0] != '$')
-    return FALSE;
-
-  name++;
-  len = strspn (name, allowed);
-  return len && name[len] == '\0';
-}
-
-static gboolean
 validate_path (const gchar *name)
 {
   static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.,/";
@@ -731,7 +717,7 @@ cockpit_packages_resolve (CockpitPackages *packages,
       return NULL;
     }
 
-  if (!validate_checksum (name) && !validate_package (name))
+  if (!validate_package (name))
     {
       g_message ("invalid 'package' name: %s", name);
       return NULL;
@@ -832,21 +818,165 @@ handle_package_manifests_json (CockpitWebServer *server,
 }
 
 static gboolean
+package_content (CockpitPackages *packages,
+                 CockpitWebResponse *response,
+                 const gchar *name,
+                 const gchar *path,
+                 const gchar *language,
+                 GHashTable *headers)
+{
+  GBytes *uncompressed = NULL;
+  CockpitPackage *package;
+  gboolean result = FALSE;
+  GList *l, *names = NULL;
+  gchar *filename = NULL;
+  GError *error = NULL;
+  GBytes *bytes = NULL;
+  gchar *chosen = NULL;
+  gboolean globbing;
+  gboolean gzipped;
+  const gchar *type;
+
+  globbing = g_str_equal (name, "*");
+  if (globbing)
+    names = g_hash_table_get_keys (packages->listing);
+  else
+    names = g_list_append (names, (gchar *)name);
+
+  for (l = names; l != NULL; l = g_list_next (l))
+    {
+      name = l->data;
+      g_free (filename);
+      package = NULL;
+
+      /* Resolve the path name and check it */
+      filename = cockpit_packages_resolve (packages, name, path, &package);
+
+      if (!filename)
+        {
+          /* On the first round */
+          if (l == names)
+            cockpit_web_response_error (response, 404, NULL, NULL);
+          else
+            cockpit_web_response_abort (response);
+          goto out;
+        }
+
+      if (bytes)
+        g_bytes_unref (bytes);
+
+      g_clear_error (&error);
+      g_free (chosen);
+      chosen = NULL;
+
+      bytes = cockpit_web_response_negotiation (filename, package->paths, language, &chosen, &error);
+
+      /* When globbing most errors result in a zero length block */
+      if (globbing)
+        {
+          if (error)
+            {
+              g_message ("%s", error->message);
+              chosen = g_strdup ("");
+              bytes = g_bytes_new_static ("", 0);
+            }
+        }
+      else
+        {
+          if (error)
+            {
+              if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
+                  g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
+                {
+                  g_message ("%s", error->message);
+                  cockpit_web_response_error (response, 403, NULL, NULL);
+                }
+              else if (error)
+                {
+                  g_message ("%s", error->message);
+                  cockpit_web_response_error (response, 500, NULL, NULL);
+                }
+              goto out;
+            }
+          else if (!bytes)
+            {
+              cockpit_web_response_error (response, 404, NULL, NULL);
+              goto out;
+            }
+          else if (package->unavailable)
+            {
+              cockpit_web_response_error (response, 503, NULL, "%s", package->unavailable);
+              goto out;
+            }
+        }
+
+      gzipped = chosen && g_str_has_suffix (chosen, ".gz");
+
+      /* If globbing, we need to uncompress these */
+      if (gzipped && globbing)
+        {
+          g_clear_error (&error);
+          uncompressed = cockpit_web_response_gunzip (bytes, &error);
+          if (error)
+            {
+              g_message ("couldn't decompress: %s: %s", chosen, error->message);
+              g_clear_error (&error);
+              uncompressed = g_bytes_new_static ("", 0);
+            }
+          g_bytes_unref (bytes);
+          bytes = uncompressed;
+          gzipped = FALSE;
+        }
+
+      /* The first one */
+      if (l == names)
+        {
+          if (gzipped)
+            g_hash_table_insert (headers, g_strdup ("Content-Encoding"), g_strdup ("gzip"));
+
+          type = cockpit_web_response_content_type (path);
+          if (type)
+            {
+              g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup (type));
+              if (g_str_has_prefix (type, "text/html"))
+                {
+                  if (package && package->content_security_policy)
+                    {
+                      g_hash_table_insert (headers, g_strdup ("Content-Security-Policy"),
+                                           g_strdup (package->content_security_policy));
+                    }
+                }
+            }
+          cockpit_web_response_headers_full (response, 200, "OK", -1, headers);
+        }
+
+      if (bytes && !cockpit_web_response_queue (response, bytes))
+        goto out;
+    }
+
+  cockpit_web_response_complete (response);
+  result = TRUE;
+
+out:
+  if (bytes)
+    g_bytes_unref (bytes);
+  g_list_free (names);
+  g_free (chosen);
+  g_free (filename);
+  g_clear_error (&error);
+  return result;
+}
+
+static gboolean
 handle_packages (CockpitWebServer *server,
                  const gchar *unused,
                  GHashTable *headers,
                  CockpitWebResponse *response,
                  CockpitPackages *packages)
 {
-  CockpitPackage *package;
-  gchar *filename = NULL;
-  GError *error = NULL;
   gchar *name;
   const gchar *path;
   GHashTable *out_headers = NULL;
-  const gchar *type;
-  GBytes *bytes = NULL;
-  gchar *chosen = NULL;
   gchar **languages = NULL;
 
   name = cockpit_web_response_pop_path (response);
@@ -860,13 +990,6 @@ handle_packages (CockpitWebServer *server,
 
   out_headers = cockpit_web_server_new_table ();
 
-  filename = cockpit_packages_resolve (packages, name, path, &package);
-  if (!filename)
-    {
-      cockpit_web_response_error (response, 404, NULL, NULL);
-      goto out;
-    }
-
   languages = cockpit_web_server_parse_languages (headers, NULL);
 
   /*
@@ -876,69 +999,16 @@ handle_packages (CockpitWebServer *server,
    */
   cockpit_locale_set_language (languages[0]);
 
-  bytes = cockpit_web_response_negotiation (filename, package->paths, languages[0], &chosen, &error);
-  if (error)
-    {
-      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
-          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
-        {
-          g_message ("%s", error->message);
-          cockpit_web_response_error (response, 403, NULL, NULL);
-        }
-      else if (error)
-        {
-          g_message ("%s", error->message);
-          cockpit_web_response_error (response, 500, NULL, NULL);
-        }
-      goto out;
-    }
-  else if (!bytes)
-    {
-      cockpit_web_response_error (response, 404, NULL, NULL);
-      goto out;
-    }
-  else if (package->unavailable)
-    {
-      cockpit_web_response_error (response, 503, NULL, "%s", package->unavailable);
-      goto out;
-    }
-
-  if (g_str_has_suffix (chosen, ".gz"))
-    g_hash_table_insert (out_headers, g_strdup ("Content-Encoding"), g_strdup ("gzip"));
-
-  type = cockpit_web_response_content_type (path);
-  if (type)
-    {
-      g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup (type));
-      if (g_str_has_prefix (type, "text/html"))
-        {
-          if (package->content_security_policy)
-            {
-              g_hash_table_insert (out_headers, g_strdup ("Content-Security-Policy"),
-                                   g_strdup (package->content_security_policy));
-            }
-        }
-    }
-
   if (!packages->checksum)
     cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
 
-  cockpit_web_response_headers_full (response, 200, "OK", -1, out_headers);
-
-  cockpit_web_response_queue (response, bytes);
-
-  cockpit_web_response_complete (response);
+  package_content (packages, response, name, path, languages[0], out_headers);
 
 out:
-  if (bytes)
-    g_bytes_unref (bytes);
   if (out_headers)
     g_hash_table_unref (out_headers);
   g_strfreev (languages);
   g_free (name);
-  g_free (chosen);
-  g_clear_error (&error);
-  g_free (filename);
   return TRUE;
 }
 

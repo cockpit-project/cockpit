@@ -24,8 +24,14 @@ are valid for any application, just replace ```/cockpit/``` with ```/cockpit+app
    are cached by packages for as long as possible. The checksum changes when
    any of the packages on a system change. Only available after authentication.
 
+ * ```/cockpit/$xxxxxxxxxxxxxxx/*/path/to/file.ext``` are concatenated files from
+   packages, as seen above.
+
  * ```/cockpit/@host/package/path/to/file.ext``` are files from packages (on
    specific hosts) that are not cached. Only available after authentication.
+
+ * ```/cockpit/@host/*/path/to/file.ext``` are concatenated files from
+   packages (on specific hosts). They are served uncompressed.
 
  * ```/cockpit/@host/manifests.json``` includes a summary of all the manifest
    files from all the packages

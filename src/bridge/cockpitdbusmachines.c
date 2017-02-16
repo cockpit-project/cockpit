@@ -19,6 +19,9 @@
 
 #include "config.h"
 
+#include <glob.h>
+#include <string.h>
+#include <errno.h>
 #include <json-glib/json-glib.h>
 
 #include "cockpitdbusinternal.h"
@@ -32,59 +35,154 @@ static guint pending_updates;
 GFileMonitor *machines_monitor;
 
 static const char *
-machines_json_path (void)
+machines_json_dir (void)
 {
   static gchar *path = NULL;
   if (path == NULL)
-    path = g_strdup_printf ("%s/machines.json", g_getenv ("COCKPIT_DATA_DIR") ?: "/var/lib/cockpit");
+    path = g_strdup_printf ("%s/machines.d", g_getenv ("COCKPIT_TEST_CONFIG_DIR") ?: "/etc/cockpit");
   return path;
 }
 
-static JsonNode*
-read_machines_json (void)
+static int
+glob_err_func (const char *epath,
+               int eerrno)
 {
-  gchar *contents;
-  gboolean res;
-  GError *error = NULL;
+  /* just log the error for debugging */
+  if (eerrno != ENOENT)
+    g_warning ("%s: cannot read: %s", epath, g_strerror (eerrno));
+  return 0;
+}
+
+static JsonNode *
+new_object_node (void)
+{
+  JsonNode *n = json_node_new (JSON_NODE_OBJECT);
+  json_node_take_object (n, json_object_new ());
+  return n;
+}
+
+static JsonNode *
+parse_json_file (const char *path)
+{
   JsonParser *parser = NULL;
+  GError *error = NULL;
+  gboolean success;
   JsonNode *result = NULL;
 
-  if (!g_file_get_contents (machines_json_path (), &contents, NULL, &error))
-    {
-      if (error->code == G_FILE_ERROR_NOENT)
-        g_debug ("%s does not exist", machines_json_path ());
-      else
-        g_message ("couldn't read %s: %s", machines_json_path (), error->message);
-      g_error_free (error);
-      goto out;
-    }
-
   parser = json_parser_new ();
-  res = json_parser_load_from_data (parser, contents, -1, &error);
-  g_free (contents);
-  if (!res)
+  success = json_parser_load_from_file (parser, path, &error);
+  if (success)
     {
-      g_message("%s has invalid JSON: %s", machines_json_path (), error->message);
+      result = json_parser_get_root (parser);
+      /* root is NULL if the file is empty */
+      if (result != NULL)
+        {
+          if (JSON_NODE_HOLDS_OBJECT (result))
+            {
+              result = json_node_copy (result);
+            }
+          else
+            {
+              g_message ("%s: does not contain a JSON object, ignoring", path);
+              result = NULL;
+            }
+        }
+    }
+  else
+    {
+      if (error->code != G_FILE_ERROR_NOENT)
+        g_message ("%s: invalid JSON: %s", path, error->message);
       g_error_free (error);
-      goto out;
     }
 
-  result = json_parser_get_root (parser);
-  if (result != NULL)
-    result = json_node_copy (result);
-
-out:
-  if (parser)
-    g_object_unref (parser);
-
-  /* default to an empty object */
-  if (result == NULL)
-    {
-      result = json_node_new (JSON_NODE_OBJECT);
-      json_node_take_object (result, json_object_new ());
-    }
-
+  g_object_unref (parser);
   return result;
+}
+
+static void
+merge_config (JsonObject *machines,
+              JsonObject *delta,
+              const char *path)
+{
+  GList *hosts = json_object_get_members (delta);
+  for (GList *i = g_list_first (hosts); i; i = g_list_next (i))
+    {
+      const char *hostname = i->data;
+      JsonNode *delta_props = json_object_get_member (delta, hostname);
+
+      if (!JSON_NODE_HOLDS_OBJECT (delta_props))
+        {
+          g_message ("%s: host name definition %s does not contain a JSON object, ignoring", path, hostname);
+          continue;
+        }
+
+      /* merge delta properties info existing machines host */
+      if (!json_object_has_member (machines, hostname))
+        json_object_set_member (machines, hostname, new_object_node ());
+      JsonObject *machine_props = json_object_get_object_member (machines, hostname);
+
+      g_debug ("%s: merging updates to host name %s", path, hostname);
+      GList *proplist = json_object_get_members (json_node_get_object (delta_props));
+      for (GList *p = g_list_first (proplist); p; p = g_list_next (p))
+        {
+          const char *propname = p->data;
+          JsonNode *prop_node = json_object_get_member (json_node_get_object (delta_props), propname);
+
+          if (!JSON_NODE_HOLDS_VALUE (prop_node))
+            {
+              g_message ("%s: host name definition %s: property %s does not contain a simple value, ignoring", path, hostname, propname);
+              continue;
+            }
+
+          g_debug ("%s:  host name %s: merging property %s", path, hostname, propname);
+          json_object_set_member (machine_props, propname, json_node_copy (prop_node));
+        }
+
+      g_list_free (proplist);
+    }
+
+  g_list_free (hosts);
+}
+
+static JsonNode *
+read_machines_json (void)
+{
+  gchar *glob_str;
+  glob_t conf_glob = { .gl_offs = 1 };
+  int res;
+  JsonNode *machines = NULL;
+
+  /* find json config files */
+  glob_str = g_build_filename (machines_json_dir (), "*.json", NULL);
+  res = glob (glob_str, GLOB_DOOFFS, glob_err_func, &conf_glob);
+  if (G_UNLIKELY (res != 0 && res != GLOB_NOMATCH))
+    {
+      g_critical ("glob %s failed with return code %i", glob_str, res);
+      globfree (&conf_glob);
+      g_free (glob_str);
+      return NULL;
+    }
+
+  /* also read /var/lib/cockpit/machines.json for backwards compat */
+  conf_glob.gl_pathv[0] = "/var/lib/cockpit/machines.json";
+
+  /* start with an empty object */
+  machines = new_object_node ();
+
+  for (size_t i = 0; i < conf_glob.gl_pathc + 1; ++i)
+    {
+      JsonNode *j = parse_json_file (conf_glob.gl_pathv[i]);
+      if (j)
+        {
+          merge_config (json_node_get_object (machines), json_node_get_object (j), conf_glob.gl_pathv[i]);
+          json_node_free (j);
+        }
+    }
+
+  globfree (&conf_glob);
+  g_free (glob_str);
+
+  return machines;
 }
 
 /* returns a floating GVariant */
@@ -97,13 +195,9 @@ get_machines (void)
 
   machines = read_machines_json ();
   variant = json_gvariant_deserialize (machines, MACHINES_SIG, &error);
+  /* if the signature does not match, we screwed up in the parser already */
+  g_assert (variant != NULL);
   json_node_free (machines);
-  if (!variant)
-    {
-      g_message ("%s is misformatted: %s", machines_json_path (), error->message);
-      g_error_free (error);
-      variant = g_variant_new (MACHINES_SIG, NULL);
-    }
   return variant;
 }
 
@@ -118,41 +212,47 @@ update_machine_property (JsonObject *object,
 }
 
 static gboolean
-update_machine (const char *hostname,
+update_machine (const char *filename,
+                const char *hostname,
                 JsonNode *info,
                 GError **error)
 {
-  JsonNode *machines;
+  gchar *path;
+  JsonNode *cur_config;
   JsonGenerator *json_gen;
-  JsonObject *machines_obj;
+  JsonObject *cur_config_obj;
   JsonNode *cur_props;
   gboolean res;
 
-  machines = read_machines_json ();
   g_assert (JSON_NODE_HOLDS_OBJECT (info));
-  machines_obj = json_node_get_object (machines);
-  cur_props = json_object_get_member (machines_obj, hostname);
+
+  path = g_build_filename (machines_json_dir (), filename, NULL);
+  cur_config = parse_json_file (path);
+  if (cur_config == NULL)
+    cur_config = new_object_node ();
+  cur_config_obj = json_node_get_object (cur_config);
+  cur_props = json_object_get_member (cur_config_obj, hostname);
 
   if (cur_props)
     {
       /* update settings for hostname */
-      JsonObject *cur_props_obj = json_node_get_object (cur_props);
       g_assert (JSON_NODE_HOLDS_OBJECT (cur_props));
-      json_object_foreach_member (json_node_get_object (info), update_machine_property, cur_props_obj);
+      json_object_foreach_member (json_node_get_object (info), update_machine_property, json_node_get_object (cur_props));
     }
   else
     {
       /* create new entry for host name */
-      json_object_set_member (machines_obj, hostname, json_node_copy (info));
+      json_object_set_member (cur_config_obj, hostname, json_node_copy (info));
     }
 
-  /* update machines.json file */
+  /* write back json file */
   json_gen = json_generator_new ();
-  json_generator_set_root (json_gen, machines);
+  json_generator_set_root (json_gen, cur_config);
   json_generator_set_pretty (json_gen, TRUE); /* bikeshed zone */
-  res = json_generator_to_file (json_gen, machines_json_path (), error);
+  res = json_generator_to_file (json_gen, path, error);
+  g_free (path);
   g_object_unref (json_gen);
-  json_node_free (machines);
+  json_node_free (cur_config);
   return res;
 }
 
@@ -185,17 +285,17 @@ machines_method_call (GDBusConnection *connection,
 {
   if (g_str_equal (method_name, "Update"))
     {
-      const gchar *hostname;
+      const gchar *filename, *hostname;
       GVariant * info_v;
       JsonNode *info_json = NULL;
       GError *error = NULL;
 
-      g_variant_get (parameters, "(&s@a{sv})", &hostname, &info_v);
+      g_variant_get (parameters, "(&s&s@a{sv})", &filename, &hostname, &info_v);
       info_json = json_gvariant_serialize (info_v);
-      /* g_debug ("Updating info for machine %s: %s", hostname, g_variant_print (info_v, TRUE)); */
+      g_debug ("Updating %s for machine %s", filename, hostname);
       g_variant_unref (info_v);
 
-      if (update_machine (hostname, info_json, &error))
+      if (update_machine (filename, hostname, info_json, &error))
         g_dbus_method_invocation_return_value (invocation, NULL);
       else
         g_dbus_method_invocation_take_error (invocation, error);
@@ -252,17 +352,27 @@ on_machines_changed (GFileMonitor *monitor,
                      GFileMonitorEvent event_type,
                      gpointer user_data)
 {
-  /* ignore uninteresting events; FIXME: adjust once we move to a directory;
-   * https://developer.gnome.org/gio/stable/GFileMonitor.html#GFileMonitorEvent */
-  /* g_debug ("on_machines_changed: event type %i on %s", event_type, g_file_get_path (file)); */
-  if (event_type != G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
+  gchar *path;
+
+  /* ignore uninteresting events; note that DELETED does not get a followup CHANGES_DONE_HINT */
+  if (event_type != G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT && event_type != G_FILE_MONITOR_EVENT_DELETED)
     return;
 
-  /* change events tend to come in batches, so slightly delay the re-reading of
-   * files and sending PropertiesChanged; if we already have queued up an
-   * update, don't queue it again */
-  if (pending_updates++ == 0)
-    g_timeout_add (100, notify_properties, user_data);
+  path = g_file_get_path (file);
+  if (g_str_has_suffix (path, ".json"))
+    {
+      g_debug ("on_machines_changed: event type %i on %s", event_type, path);
+      /* change events tend to come in batches, so slightly delay the re-reading of
+       * files and sending PropertiesChanged; if we already have queued up an
+       * update, don't queue it again */
+      if (pending_updates++ == 0)
+        g_timeout_add (100, notify_properties, user_data);
+    }
+  else
+    {
+      g_debug ("on_machines_changed: ignoring event type %i on non-.json file %s", event_type, path);
+    }
+  g_free (path);
 }
 
 
@@ -280,6 +390,10 @@ static GDBusPropertyInfo *machines_properties[] = {
   NULL
 };
 
+static GDBusArgInfo machines_update_filename_arg = {
+  -1, "filename", "s", NULL
+};
+
 static GDBusArgInfo machines_update_hostname_arg = {
   -1, "hostname", "s", NULL
 };
@@ -289,6 +403,7 @@ static GDBusArgInfo machines_update_info_arg = {
 };
 
 static GDBusArgInfo *machines_update_args[] = {
+  &machines_update_filename_arg,
   &machines_update_hostname_arg,
   &machines_update_info_arg,
   NULL
@@ -328,7 +443,7 @@ cockpit_dbus_machines_startup (void)
     }
 
   /* watch for file changes and send D-Bus signal for it */
-  machines_monitor_file = g_file_new_for_path (machines_json_path ());
+  machines_monitor_file = g_file_new_for_path (machines_json_dir ());
   machines_monitor = g_file_monitor (machines_monitor_file, G_FILE_MONITOR_NONE, NULL, &error);
   g_object_unref (machines_monitor_file);
   if (machines_monitor == NULL)

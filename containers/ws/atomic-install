@@ -34,9 +34,9 @@ set -x
 sed -e '/pam_selinux/d' -e '/pam_sepermit/d' /etc/pam.d/cockpit > /host/etc/pam.d/cockpit
 
 # Make sure that we have required directories in the host
-mkdir -p /host/etc/cockpit/ws-certs.d
-chmod 755 /host/etc/cockpit/ws-certs.d
-chown root:root /host/etc/cockpit/ws-certs.d
+mkdir -p /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
+chmod 755 /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
+chown root:root /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
 
 mkdir -p /host/var/lib/cockpit
 chmod 775 /host/var/lib/cockpit

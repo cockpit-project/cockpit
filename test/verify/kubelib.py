@@ -737,7 +737,7 @@ class OpenshiftCommonTests(VolumeTests):
 
         # Nothing was saved
         self.assertFalse(m.execute("grep 10.111.112.101 /var/lib/cockpit/known_hosts || true"))
-        self.assertFalse(m.execute("grep 10.111.112.101 /var/lib/cockpit/machines.json || true"))
+        self.assertFalse(m.execute("grep 10.111.112.101 /etc/cockpit/machines.d/99-webui.json || true"))
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.* host key for server is not known: .*',

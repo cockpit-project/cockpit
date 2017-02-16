@@ -162,6 +162,7 @@ echo '{ "linguas": null, "machine-limit": 5 }' > %{buildroot}%{_datadir}/%{name}
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/%{name}/base1' > base.list
 find %{buildroot}%{_datadir}/%{name}/base1 -type f >> base.list
+echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 
 %if %{defined build_dashboard}
 echo '%dir %{_datadir}/%{name}/dashboard' >> dashboard.list
@@ -459,7 +460,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %doc %{_mandir}/man8/remotectl.8.gz
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
-%config(noreplace) %{_sysconfdir}/%{name}
+%config(noreplace) %{_sysconfdir}/%{name}/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit.socket

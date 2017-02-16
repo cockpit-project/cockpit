@@ -384,8 +384,8 @@ install-tests::
 	$(INSTALL_DATA) $(srcdir)/src/ws/fatal.conf $(DESTDIR)$(testserviceddir)
 
 install-exec-hook::
-	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
-	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
+	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
+	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
 
 update-known-hosts:
 	cat $(srcdir)/src/ws/mock_*.pub | \

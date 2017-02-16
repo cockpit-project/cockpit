@@ -4,42 +4,59 @@
 var assert = QUnit;
 
 var dbus = cockpit.dbus(null, { "bus": "internal" });
-var dataDir;
+var configDir;
+
+function cleanUp() {
+    return cockpit.spawn([ "find", configDir + "/machines.d", "-type", "f", "-delete" ]);
+}
 
 /***
  * Tests for parsing on-disk JSON configuration
  */
 
-function machinesParseTest(json, expectedProperty) {
+function machinesParseTest(machines_defs, expectedProperty) {
     assert.expect(3);
 
-    cockpit.file(dataDir + "/machines.json").replace(json).
-        done(function(tag) {
-            dbus.call("/machines", "org.freedesktop.DBus.Properties",
-                      "Get", [ "cockpit.Machines", "Machines" ],
-                      { "type": "ss" })
-                .done(function(reply) {
-                    assert.equal(reply[0].t, "a{sa{sv}}", "expected return type");
-                    assert.deepEqual(reply[0].v, expectedProperty, "expected property value");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "finished successfully");
-                    QUnit.start();
-                });
-        });
+    var setup = [];
+    var path;
+
+    for (var fname in machines_defs) {
+        path = fname;
+        if (fname.indexOf('/') < 0)
+            path = configDir + "/machines.d/" + fname;
+        setup.push(cockpit.file(path).replace(machines_defs[fname]));
+    }
+
+    cockpit.all(setup).done(function() {
+        dbus.call("/machines", "org.freedesktop.DBus.Properties",
+                  "Get", [ "cockpit.Machines", "Machines" ],
+                  { "type": "ss" })
+            .done(function(reply) {
+                assert.equal(reply[0].t, "a{sa{sv}}", "expected return type");
+                assert.deepEqual(reply[0].v, expectedProperty, "expected property value");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "finished successfully");
+                cleanUp().
+                    done(QUnit.start).
+                    fail(function(err) {
+                        console.error ("cleanup failed:", err);
+                    });
+            });
+    });
 }
 
 QUnit.asyncTest("no machine definitions", function() {
-    machinesParseTest(null, {});
+    machinesParseTest({}, {});
 });
 
 QUnit.asyncTest("empty json", function() {
-    machinesParseTest("", {});
+    machinesParseTest({ "01.json": "" }, {});
 });
 
 QUnit.asyncTest("two definitions", function() {
-    machinesParseTest('{"green": {"visible": true, "address": "1.2.3.4"}, ' +
-                      ' "9.8.7.6": {"visible": false, "address": "9.8.7.6", "user": "admin"}}',
+    machinesParseTest({ "01.json": '{"green": {"visible": true, "address": "1.2.3.4"}, ' +
+                                   ' "9.8.7.6": {"visible": false, "address": "9.8.7.6", "user": "admin"}}' },
         { "green": {
             "address": { "t": "s", "v": "1.2.3.4" },
             "visible": { "t": "b", "v": true }
@@ -53,11 +70,62 @@ QUnit.asyncTest("two definitions", function() {
 });
 
 QUnit.asyncTest("invalid json", function() {
-    machinesParseTest('{"green":', {});
+    machinesParseTest({ "01.json": '{"green":' }, {});
 });
 
 QUnit.asyncTest("invalid data types", function() {
-    machinesParseTest('{"green": []}', {});
+    machinesParseTest({ "01.json": '{"green": []}' }, {});
+});
+
+QUnit.asyncTest("merge several JSON files", function() {
+    /* 99-webui.json changes a property in green, adds a
+     * property to blue, and adds an entire new host yellow */
+    machinesParseTest(
+        { "01-green.json": '{"green": {"visible": true, "address": "1.2.3.4"}}',
+          "02-blue.json":  '{"blue": {"address": "9.8.7.6"}}',
+          "09-webui.json": '{"green": {"visible": false}, ' +
+                           ' "blue":  {"user": "joe"}, ' +
+                           ' "yellow": {"address": "fe80::1", "user": "sue"}}'
+        },
+        { "green": {
+            "address": { "t": "s", "v": "1.2.3.4" },
+            "visible": { "t": "b", "v": false }
+           },
+           "blue": {
+               "address": { "t": "s", "v": "9.8.7.6" },
+               "user": { "t": "s", "v": "joe" },
+           },
+           "yellow": {
+               "address": { "t": "s", "v": "fe80::1" },
+               "user": { "t": "s", "v": "sue" },
+           }
+        }
+    );
+});
+
+QUnit.asyncTest("merge JSON files with errors", function() {
+    machinesParseTest(
+        { "01-valid.json":    '{"green": {"visible": true, "address": "1.2.3.4"}}',
+          "02-syntax.json":   '[a',
+          "03-toptype.json":  '["green"]',
+          "04-toptype.json":  '{"green": ["visible"]}',
+          "05-valid.json":    '{"blue": {"address": "fe80::1"}}',
+          // goodprop should still be considered
+          "06-proptype.json": '{"green": {"visible": [], "address": {"bar": null}, "goodprop": "yeah"}}',
+          "07-valid.json":    '{"green": {"user": "joe"}}',
+          "08-empty.json":    ''
+        },
+        { "green": {
+            "address":  { "t": "s", "v": "1.2.3.4" },
+            "visible":  { "t": "b", "v": true },
+            "user":     { "t": "s", "v": "joe" },
+            "goodprop": { "t": "s", "v": "yeah" },
+           },
+           "blue": {
+               "address": { "t": "s", "v": "fe80::1" }
+           }
+        }
+    );
 });
 
 /***
@@ -68,22 +136,28 @@ function machinesUpdateTest(origJson, host, props, expectedJson)
 {
     assert.expect(3);
 
-    cockpit.file(dataDir + "/machines.json").replace(origJson).
+    var f = configDir + "/machines.d/99-webui.json";
+
+    cockpit.file(f).replace(origJson).
         done(function(tag) {
-            dbus.call("/machines", "cockpit.Machines", "Update", [ host, props ], { "type": "sa{sv}" })
+            dbus.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, props ], { "type": "ssa{sv}" })
                 .done(function(reply) {
                     assert.deepEqual(reply, [], "no expected return value");
-                    cockpit.file(dataDir + "/machines.json", { syntax: JSON }).read().
+                    cockpit.file(f, { syntax: JSON }).read().
                         done(function(content, tag) {
                             assert.deepEqual(content, expectedJson, "expected file content");
                         }).
                         fail(function(err) {
                             assert.equal(err, undefined, "expected no error");
-                        }).
-                        always(QUnit.start);
+                        });
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfully");
+                    cleanUp().
+                        done(QUnit.start).
+                        fail(function(err) {
+                            console.error ("cleanup failed:", err);
+                        });
                 });
         });
 }
@@ -122,12 +196,33 @@ QUnit.asyncTest("add host property", function() {
         { "green": { "address": "1.2.3.4", "visible": true, "color": "pitchblack" } });
 });
 
+QUnit.asyncTest("Update() only writes delta", function() {
+    cockpit.file(configDir + "/machines.d/01-green.json").
+        replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}').
+        done(function(tag) {
+            machinesUpdateTest(null,
+                "green",
+                { "color": cockpit.variant('s', "pitchblack")},
+                { "green": { "color": "pitchblack" } });
+        });
+});
 
-/* The test cockpit-bridge gets started with a temp COCKPIT_DATA_DIR  instead
- * of defaulting to /var/lib/cockpit/. Read it from the bridge so that we can
- * put our test files into it. */
+QUnit.asyncTest("updating and existing delta file", function() {
+    cockpit.file(configDir + "/machines.d/01-green.json").
+        replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}').
+        done(function(tag) {
+            machinesUpdateTest('{"green": {"address": "9.8.7.6", "user": "joe"}}',
+                "green",
+                { "color": cockpit.variant('s', "pitchblack")},
+                { "green": { "address": "9.8.7.6", "user": "joe", "color": "pitchblack" } });
+        });
+});
+
+
+/* The test cockpit-bridge gets started with temp $COCKPIT_TEST_CONFIG_DIR instead of defaulting to /etc/cockpit.
+ * Read it from the bridge so that we can put our test files into it. */
 var proxy = dbus.proxy("cockpit.Environment", "/environment");
 proxy.wait(function () {
-    dataDir = proxy.Variables["COCKPIT_DATA_DIR"];
+    configDir = proxy.Variables["COCKPIT_TEST_CONFIG_DIR"];
     QUnit.start();
 });

@@ -278,6 +278,18 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()
 
+    def testMachinesJsonVar(self):
+        b = self.browser
+        m = self.machine
+
+        # create obsolete machines.json in /var, which should still be respected
+        blue_conf = '{"blue": {"address": "1.2.3.4", "visible": true}}'
+        m.execute("""echo '%s' > /var/lib/cockpit/machines.json""" % blue_conf)
+        self.login_and_go("/dashboard")
+        self.inject_extras(b)
+        self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4" ])
+
+
 @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
     def testEdit(self):
@@ -325,7 +337,7 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
                 n = "bad{0}".format(i)
                 d[n] = {"visible":True,"address":n}
 
-            m.execute("echo '{0}' > /var/lib/cockpit/machines.json".format(json.dumps(d)))
+            m.execute("echo '{0}' > /etc/cockpit/machines.d/99-webui.json".format(json.dumps(d)))
             return d.keys()
 
         def check_limit(limit):

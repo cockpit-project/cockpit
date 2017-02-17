@@ -10,6 +10,7 @@
 *.pyc
 *.typelib
 *.so
+*.mo
 *~
 *.dirstamp
 .deps/
@@ -65,6 +66,7 @@ depcomp
 /test/run
 /test/kdc
 /cockpit-session
+/cockpit-ssh
 /cockpit-stub
 /cockpit-kube-auth
 /cockpit-kube-launch
@@ -140,6 +142,7 @@ po*.js.gz
 /.vagrant
 /test_rsa_key
 /tmp-dist
+/valgrind-suppressions
 
 /pkg/*/cockpit-components-*.js
 /pkg/*/cockpit-components-*.js
@@ -154,8 +157,9 @@ po*.js.gz
 
 # Test output
 Test*.log
-cockpit-wip.tar*
+cockpit-*.tar*
 Test*.png
 
+/pkg/networkmanager/override.json
 /pkg/storaged/override.json
 /pkg/docker/storage.js

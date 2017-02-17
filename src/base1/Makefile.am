@@ -23,6 +23,8 @@ basedebug_DATA = \
 	dist/base1/cockpit.min.js.map \
 	$(NULL)
 
+AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals ;
+
 dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --skip-import --source-map --source-map-inline-sources $^

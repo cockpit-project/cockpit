@@ -193,7 +193,7 @@ function generateDeps(makefile, stats) {
     lines.push("clean-local:: clean-" + prefix);
     lines.push("\t@true");
 
-    data = lines.join("\n");
+    data = lines.join("\n") + "\n";
     fs.writeFileSync(makefile, data);
 }
 

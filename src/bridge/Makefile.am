@@ -213,6 +213,7 @@ test_portal_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_portal_LDADD = $(libcockpit_bridge_LIBS)
 
 test_router_SOURCES = src/bridge/test-router.c \
+	src/bridge/mock-channel.c src/bridge/mock-channel.h \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_router_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_router_LDADD = $(libcockpit_bridge_LIBS)

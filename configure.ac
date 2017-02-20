@@ -563,9 +563,24 @@ AC_DEFINE([MAX_PACKET_SIZE], [65536], [Maximum size of packet messages])
 
 AC_OUTPUT([
 Makefile
-pkg/networkmanager/override.json
-pkg/storaged/override.json
 doc/guide/version
+pkg/dashboard/manifest.json
+pkg/docker/manifest.json
+pkg/kdump/manifest.json
+pkg/kubernetes/manifest.json
+pkg/machines/manifest.json
+pkg/networkmanager/manifest.json
+pkg/ostree/manifest.json
+pkg/playground/manifest.json
+pkg/realmd/manifest.json
+pkg/selinux/manifest.json
+pkg/shell/manifest.json
+pkg/sosreport/manifest.json
+pkg/storaged/manifest.json
+pkg/subscriptions/manifest.json
+pkg/systemd/manifest.json
+pkg/tuned/manifest.json
+pkg/users/manifest.json
 ])
 
 

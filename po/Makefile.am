@@ -8,10 +8,6 @@ LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
 PO_LINGUAS = $(addprefix po/,$(LINGUAS))
 PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
 MO_FILES = $(addprefix src/ws/,$(addsuffix .mo,$(LINGUAS)))
-PO_JAVASCRIPT = $(addprefix dist/shell/po.,$(addsuffix .js,$(LINGUAS)))
-
-podir = $(pkgdatadir)/shell
-nodist_po_DATA = dist/shell/po.js.gz $(addsuffix .gz,$(PO_JAVASCRIPT))
 
 # Used to list files in src/ws in the po file
 FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\./\)\?src/ws/[^:]\+\).*|-N \1|p' $<
@@ -21,28 +17,24 @@ src/ws/%.po: po/%.po
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(MSGGREP) `$(FILTER_PO_SRC_WS)` $< > $@.tmp && mv $@.tmp $@
 
-dist/shell/po.js: po/po.js
-	$(COPY_RULE)
-
-# A filtered po file without src/ws
-dist/shell/%.po: po/%.po
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(MSGGREP) --invert-match `$(FILTER_PO_SRC_WS)` $< > $@.tmp && mv $@.tmp $@
-
 # Build a binary mo file from po
 .po.mo:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(MSGFMT) -o $@.tmp $< && mv $@.tmp $@ && touch $@
 
+# Copy the empty translations to wherever they are needed
+%/po.js: po/po.empty.js
+	$(COPY_RULE)
+
 # Build a javascript file from a po
 po.%.js: %.po
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.js -o $@.js.tmp $< && \
+	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.empty.js -o $@.js.tmp $< && \
 	$(srcdir)/tools/missing $(UGLIFY_JS) $@.js.tmp --mangle --beautify > $@.tmp && \
 	rm -f $@.js.tmp && mv $@.tmp $@
 
 # Always build the binary gettext data
-all-local:: $(MO_FILES) $(PO_JAVASCRIPT)
+all-local:: $(MO_FILES)
 
 # Called to install the binary gettext data
 install-data-local:: $(MO_FILES)
@@ -126,19 +118,17 @@ CLEANFILES += \
 	$(MO_FILES) \
 	$(POJS_FILES) \
 	$(nodist_po_DATA) \
-	$(PO_JAVASCRIPT) \
 	po/POTFILES.*.in \
 	dist/shell/*.po \
 	src/ws/*.po \
 	po/cockpit*.pot \
-	po/po.js.gz \
+	po/po.empty.js.gz \
 	$(NULL)
 
 EXTRA_DIST += \
 	$(PO_INPUTS) \
-	$(PO_JAVASCRIPT) \
 	po/LINGUAS \
-	po/po.js \
+	po/po.empty.js \
 	po/po2json \
 	po/zanata.xml \
 	$(NULL)

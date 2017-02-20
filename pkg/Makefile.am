@@ -4,18 +4,18 @@ pkg_TESTS = \
 
 TESTS += $(pkg_TESTS)
 
-# Used for testing and the 'translate' playgruond
+# Used for testing and the 'translate' playground
 playgrounddir = $(pkgdatadir)/playground
 playground_DATA = \
-	dist/playground/po.de.js \
+	dist/playground/po.extra.de.js \
 	$(NULL)
 
-dist/playground/de.po: pkg/playground/de.po
+dist/playground/extra.de.po: pkg/playground/extra.de.po
 	$(COPY_RULE)
 
 EXTRA_DIST += \
-	dist/playground/de.po \
-	pkg/playground/de.po \
+	dist/playground/extra.de.po \
+	pkg/playground/extra.de.po \
 	pkg/users/mock \
 	pkg/lib/qunit-template.html \
 	$(playground_DATA) \

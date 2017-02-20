@@ -207,6 +207,7 @@ test_paths_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_paths_LDADD = $(libcockpit_bridge_LIBS)
 
 test_portal_SOURCES = src/bridge/test-portal.c \
+	src/bridge/mock-channel.c src/bridge/mock-channel.h \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_portal_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_portal_LDADD = $(libcockpit_bridge_LIBS)

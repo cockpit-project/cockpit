@@ -245,6 +245,7 @@ var html = require('html-webpack-plugin');
 var extract = require("extract-text-webpack-plugin");
 var extend = require("extend");
 var path = require("path");
+var fs = require("fs");
 
 /* For node 0.10.x we need this defined */
 if (typeof(global.Promise) == "undefined")
@@ -252,8 +253,8 @@ if (typeof(global.Promise) == "undefined")
 
 /* These can be overridden, typically from the Makefile.am */
 var srcdir = process.env.SRCDIR || __dirname;
-var pkgdir = srcdir + path.sep + "pkg";
-var distdir = (process.env.BUILDDIR || __dirname) + path.sep + "dist";
+var builddir = process.env.BUILDDIR || __dirname;
+var distdir = builddir + path.sep + "dist";
 var libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
 var bowerdir = path.resolve(srcdir, "bower_components");
 var section = process.env.ONLYDIR || null;
@@ -264,7 +265,24 @@ var production = process.env.NODE_ENV === 'production';
 /*
  * Note that we're avoiding the use of path.join as webpack and nodejs
  * want relative paths that start with ./ explicitly.
+ *
+ * In addition we mimic the VPATH style functionality of GNU Makefile
+ * where we first check builddir, and then srcdir. In order to avoid
+ * people having to run ./configure to hack on Cockpit we also help
+ * resolve files that have a '.in' suffix if the resulting file
+ * doesn't exist.
  */
+
+function vpath(/* ... */) {
+    var filename = Array.prototype.join.call(arguments, path.sep);
+    var expanded = builddir + path.sep + filename;
+    if (fs.existsSync(expanded))
+        return expanded;
+    expanded = srcdir + path.sep + filename;
+    if (!fs.existsSync(expanded) && fs.existsSync(expanded + ".in"))
+        return expanded + ".in";
+    return expanded;
+}
 
 /* Qualify all the paths in entries */
 Object.keys(info.entries).forEach(function(key) {
@@ -277,7 +295,7 @@ Object.keys(info.entries).forEach(function(key) {
         if (value.indexOf("/") === -1)
             return value;
         else
-            return pkgdir + path.sep + value;
+            return vpath("pkg", value);
     });
 });
 
@@ -285,7 +303,7 @@ Object.keys(info.entries).forEach(function(key) {
 var files = [];
 info.files.forEach(function(value) {
     if (!section || value.indexOf(section) === 0)
-        files.push({ from: pkgdir + path.sep + value, to: value });
+        files.push({ from: vpath("pkg", value), to: value });
 });
 info.files = files;
 
@@ -320,7 +338,7 @@ if (production) {
 info.tests.forEach(function(test) {
     var ext = production ? ".min.js" : ".js";
     if (!section || test.indexOf(section) === 0) {
-        info.entries[test] = pkgdir + path.sep + test + ".js";
+        info.entries[test] = vpath("pkg", test + ".js");
         plugins.push(new html({
             title: path.basename(test),
             filename: test + ".html",

@@ -43,7 +43,19 @@ clean-local::
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
 
-SUFFIXES = .css .css.gz .html .html.gz .js .js.gz .jsx .map .map.gz .mo .po .svg .svg.gz .woff .woff.gz .1 .8 .5
+SUFFIXES = \
+	.css .css.gz \
+	.html .html.gz \
+	.js .js.gz \
+	.json .json.in \
+	.jsx \
+	.map .map.gz \
+	.mo .po \
+	.service .service.in \
+	.svg .svg.gz \
+	.woff .woff.gz \
+	.1 .8 .5 \
+	$(NULL)
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -89,14 +101,39 @@ MIN_CSS_RULE = \
 JSHINT_RULE = \
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
 
+SUBST_RULE = \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]libexecdir[@],$(libexecdir),g' \
+	-e 's,[@]libdir[@],$(libdir),g' \
+	-e 's,[@]includedir[@],$(includedir),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
+	-e 's,[@]sbindir[@],$(sbindir),g' \
+	-e 's,[@]prefix[@],$(prefix),g' \
+	-e 's,[@]exec_prefix[@],$(exec_prefix),g' \
+	-e 's,[@]prefix[@],$(prefix),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g' \
+	-e 's,[@]user[@],$(COCKPIT_USER),g' \
+	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+	-e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
+	-e 's,[@]with_networkmanager_needs_root[@],$(with_networkmanager_needs_root),g' \
+	-e 's,[@]with_storaged_iscsi_sessions[@],$(with_storaged_iscsi_sessions),g' \
+	$< > $@.tmp && $(MV) $@.tmp $@ \
+	$(NULL)
+
 .css.css.gz:
 	$(GZ_RULE)
 .html.html.gz:
 	$(GZ_RULE)
 .js.js.gz:
 	$(GZ_RULE)
+.json.in.json:
+	$(SUBST_RULE)
 .map.map.gz:
 	$(GZ_RULE)
+.service.in.service:
+	$(SUBST_RULE)
 .svg.svg.gz:
 	$(GZ_RULE)
 .woff.woff.gz:
@@ -104,38 +141,45 @@ JSHINT_RULE = \
 
 # Webpack related
 
+WEBPACK_PACKAGES = \
+	dashboard \
+	docker \
+	kdump \
+	kubernetes \
+	machines \
+	networkmanager \
+	ostree \
+	playground \
+	realmd \
+	selinux \
+	shell \
+	sosreport \
+	storaged \
+	subscriptions \
+	systemd \
+	tuned \
+	users \
+	$(NULL)
+
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
 V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/Makefile.deps=%)";
 
+WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
+	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
+
+WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
+
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
 WEBPACK_OUTPUTS =
-WEBPACK_INSTALL =
-
-WEBPACK_DEPS = \
-	dist/dashboard/Makefile.deps \
-	dist/docker/Makefile.deps \
-	dist/kdump/Makefile.deps \
-	dist/kubernetes/Makefile.deps \
-	dist/machines/Makefile.deps \
-	dist/networkmanager/Makefile.deps \
-	dist/ostree/Makefile.deps \
-	dist/playground/Makefile.deps \
-	dist/realmd/Makefile.deps \
-	dist/selinux/Makefile.deps \
-	dist/shell/Makefile.deps \
-	dist/sosreport/Makefile.deps \
-	dist/storaged/Makefile.deps \
-	dist/subscriptions/Makefile.deps \
-	dist/systemd/Makefile.deps \
-	dist/tuned/Makefile.deps \
-	dist/users/Makefile.deps \
-	$(NULL)
+WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
+WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=dist/%/Makefile.deps)
+WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
 noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
 CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
-EXTRA_DIST += $(WEBPACK_DEPS) webpack.config.js
+EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
 
 # Run webpack if we don't have the include file or if its out of date
 # If we have distributed a copy in a tarball, copy that into place
@@ -143,35 +187,16 @@ dist/%/Makefile.deps: $(WEBPACK_CONFIG)
 	$(AM_V_GEN) if test $(srcdir)/dist/$*/Makefile.deps -nt $(WEBPACK_CONFIG); \
 	then $(MKDIR_P) $(dir $@) && cp -p $(srcdir)/dist/$*/Makefile.deps $@.tmp && $(MV) $@.tmp $@; \
 	else $(WEBPACK_MAKE) -d $@ $<; fi
+dist/%/manifest.json: pkg/%/manifest.json
+	$(COPY_RULE)
 
--include dist/dashboard/Makefile.deps
--include dist/docker/Makefile.deps
--include dist/kdump/Makefile.deps
--include dist/kubernetes/Makefile.deps
--include dist/machines/Makefile.deps
--include dist/networkmanager/Makefile.deps
--include dist/ostree/Makefile.deps
--include dist/playground/Makefile.deps
--include dist/realmd/Makefile.deps
--include dist/selinux/Makefile.deps
--include dist/shell/Makefile.deps
--include dist/sosreport/Makefile.deps
--include dist/storaged/Makefile.deps
--include dist/subscriptions/Makefile.deps
--include dist/systemd/Makefile.deps
--include dist/tuned/Makefile.deps
--include dist/users/Makefile.deps
-
-WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
-	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
-WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
+-include $(WEBPACK_DEPS)
 
 distclean-local::
 	rm -rf dist/
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
-	$(SED_SUBST) -i $(DESTDIR)$(pkgdatadir)/*/manifest.json
 install-data-local:: $(WEBPACK_DEBUG)
 	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
@@ -252,23 +277,6 @@ recheck-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
-
-SED_SUBST = sed \
-        -e 's,[@]datadir[@],$(datadir),g' \
-        -e 's,[@]libexecdir[@],$(libexecdir),g' \
-        -e 's,[@]libdir[@],$(libdir),g' \
-        -e 's,[@]includedir[@],$(includedir),g' \
-        -e 's,[@]bindir[@],$(bindir),g' \
-        -e 's,[@]sbindir[@],$(sbindir),g' \
-        -e 's,[@]prefix[@],$(prefix),g' \
-        -e 's,[@]exec_prefix[@],$(exec_prefix),g' \
-        -e 's,[@]prefix[@],$(prefix),g' \
-        -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
-        -e 's,[@]VERSION[@],$(VERSION),g' \
-        -e 's,[@]user[@],$(COCKPIT_USER),g' \
-        -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
-        -e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
-        $(NULL)
 
 testassetsdir = $(prefix)/lib/cockpit-test-assets
 testassets_programs =

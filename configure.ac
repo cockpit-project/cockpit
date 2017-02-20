@@ -563,8 +563,6 @@ AC_DEFINE([MAX_PACKET_SIZE], [65536], [Maximum size of packet messages])
 
 AC_OUTPUT([
 Makefile
-pkg/networkmanager/override.json
-pkg/storaged/override.json
 doc/guide/version
 ])
 

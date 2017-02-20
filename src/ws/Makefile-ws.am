@@ -163,10 +163,7 @@ remotectl_LDADD = \
 	$(NULL)
 
 dist_systemdunit_DATA += src/ws/cockpit.socket
-
-cockpit.service : src/ws/cockpit.service.in Makefile.am
-	$(AM_V_GEN) $(SED_SUBST) $< > $@
-nodist_systemdunit_DATA += cockpit.service
+nodist_systemdunit_DATA += src/ws/cockpit.service
 
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml
@@ -183,7 +180,7 @@ EXTRA_DIST += \
 	$(NULL)
 
 CLEANFILES += \
-	cockpit.service \
+	src/ws/cockpit.service \
 	$(NULL)
 
 appdatadir = $(datadir)/appdata

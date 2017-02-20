@@ -416,19 +416,19 @@ AC_ARG_WITH(cockpit_group,
                           )
            )
 if test -z "$with_cockpit_user"; then
-    COCKPIT_USER=root
-    COCKPIT_GROUP=
+    cockpit_user=root
+    cockpit_group=
 else
-    COCKPIT_USER=$with_cockpit_user
+    cockpit_user=$with_cockpit_user
     if test -z "$with_cockpit_group"; then
-        COCKPIT_GROUP=$with_cockpit_user
+        cockpit_group=$with_cockpit_user
     else
-	COCKPIT_GROUP=$with_cockpit_group
+	cockpit_group=$with_cockpit_group
     fi
 fi
 
-AC_SUBST(COCKPIT_USER)
-AC_SUBST(COCKPIT_GROUP)
+AC_SUBST(cockpit_user)
+AC_SUBST(cockpit_group)
 
 AC_ARG_WITH(selinux_config_type,
 	    AS_HELP_STRING([--with-selinux-config-type=<type>],
@@ -436,8 +436,8 @@ AC_ARG_WITH(selinux_config_type,
                           )
            )
 
-COCKPIT_SELINUX_CONFIG_TYPE=$with_selinux_config_type
-AC_SUBST(COCKPIT_SELINUX_CONFIG_TYPE)
+selinux_config_type=$with_selinux_config_type
+AC_SUBST(selinux_config_type)
 
 # Documentation
 
@@ -581,6 +581,7 @@ pkg/subscriptions/manifest.json
 pkg/systemd/manifest.json
 pkg/tuned/manifest.json
 pkg/users/manifest.json
+src/ws/cockpit.service
 ])
 
 
@@ -606,9 +607,9 @@ echo "
         cflags:                     ${CFLAGS}
         cppflags:                   ${CPPFLAGS}
 
-        cockpit-ws user:            ${COCKPIT_USER}
-        cockpit-ws group:           ${COCKPIT_GROUP}
-        selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
+        cockpit-ws user:            ${cockpit_user}
+        cockpit-ws group:           ${cockpit_group}
+        selinux config type:        ${selinux_config_type}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}
         Building docs:              ${enable_doc}

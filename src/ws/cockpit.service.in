@@ -4,8 +4,8 @@ Documentation=man:cockpit-ws(8)
 Requires=cockpit.socket
 
 [Service]
-ExecStartPre=@sbindir@/remotectl certificate --ensure --user=root --group=@group@ --selinux-type=@selinux_config_type@
+ExecStartPre=@sbindir@/remotectl certificate --ensure --user=@cockpit_user@ --group=@cockpit_group@ --selinux-type=@selinux_config_type@
 ExecStart=@libexecdir@/cockpit-ws
 PermissionsStartOnly=true
-User=@user@
-Group=@group@
+User=@cockpit_user@
+Group=@cockpit_group@

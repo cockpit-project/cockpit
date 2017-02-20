@@ -80,8 +80,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbususer.c \
 	src/bridge/cockpitpipechannel.c \
 	src/bridge/cockpitpipechannel.h \
-	src/bridge/cockpitpolkitagent.c \
-	src/bridge/cockpitpolkitagent.h \
 	src/bridge/cockpitfsread.c \
 	src/bridge/cockpitfsread.h \
 	src/bridge/cockpitfsreplace.c \

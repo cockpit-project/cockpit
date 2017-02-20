@@ -35,7 +35,11 @@ def readFile(name):
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestMachines(MachineCase):
-    def testBasic(self):
+    vm1_name="subVmTest1"
+    vm1_id="#vm-{0}".format(vm1_name)
+    vm1_img = "/var/lib/libvirt/images/{0}.img".format(vm1_name)
+
+    def envSetup(self):
         b = self.browser
         m = self.machine
 
@@ -48,30 +52,39 @@ class TestMachines(MachineCase):
         self.login_and_go("/machines")
         b.wait_in_text("body", "No VM is running or defined on this host")
 
-        vm1_name="subVmTest1"
-        vm1_id="#vm-{0}".format(vm1_name)
-        vm1_img = "/var/lib/libvirt/images/{0}.img".format(vm1_name)
+        print m.execute("qemu-img create -f qcow2 {0} 1G".format(self.vm1_img))
+        print m.execute("virt-install --cpu host -r 128 --pxe --force --nographics --noautoconsole --disk path={0},size=1,format=qcow2 -n {1} || true".format(self.vm1_img, self.vm1_name))
 
-        print m.execute("qemu-img create -f qcow2 {0} 1G".format(vm1_img))
-        print m.execute("virt-install --cpu host -r 128 --pxe --force --nographics --noautoconsole --disk path={0},size=1,format=qcow2 -n {1}".format(vm1_img, vm1_name))
-        state=m.execute("virsh domstate {0}".format(vm1_name)).rstrip().strip() # 'running' is expected, but can be 'paused' if the VM creation fails. Anyway, the VM shall be listed at least
+
+    def testBasic(self):
+        self.envSetup()
+
+        b = self.browser
+        m = self.machine
+
+        # state == 'running' is expected, but can be 'paused' if the VM creation fails. Anyway, the VM shall be listed at least
+        state=m.execute("virsh domstate {0}".format(self.vm1_name)).rstrip().strip() 
+        if not (state == "running" or state == "paused"):
+            print "ERROR: Test environment failed to set up - testing VM failed to start"
+            return
 
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", vm1_name) # is VM name listed?
+        b.wait_in_text("tbody tr th", self.vm1_name) # is VM name listed?
 
         b.click("tbody tr th") # click on the row header
         print "state: '{0}'".format(state)
-        b.wait_in_text("{0}-state".format(vm1_id), state) # running or paused
-        b.wait_in_text("{0}-vcpus".format(vm1_id), "1")
+        b.wait_in_text("{0}-state".format(self.vm1_id), state) # running or paused
+        b.wait_in_text("{0}-vcpus".format(self.vm1_id), "1")
 
         if state == "running":
             print "Attempt to shut down the VM"
-            b.click("{0}-off-caret".format(vm1_id))
-            b.wait_visible("{0}-forceOff".format(vm1_id))
-            b.click("{0}-forceOff".format(vm1_id))
-            b.wait_in_text("{0}-state".format(vm1_id), "shut off")
+            b.click("{0}-off-caret".format(self.vm1_id))
+            b.wait_visible("{0}-forceOff".format(self.vm1_id))
+            b.click("{0}-forceOff".format(self.vm1_id))
+            b.wait_in_text("{0}-state".format(self.vm1_id), "shut off")
         else:
             print "WARNING: Test VM creation failed, virt-install finished in 'paused' state. Skipping the 'shut down scenario'"
 
 if __name__ == '__main__':
     test_main()
+

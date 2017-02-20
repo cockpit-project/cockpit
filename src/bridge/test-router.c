@@ -22,6 +22,7 @@
 #include "cockpitchannel.h"
 #include "cockpitrouter.h"
 #include "cockpitshim.h"
+#include "mock-channel.h"
 #include "mock-transport.h"
 
 #include "common/cockpitjson.h"
@@ -109,6 +110,31 @@ on_transport_closed (CockpitTransport *transport,
   gchar **retval = user_data;
   g_assert (*retval == NULL);
   *retval = g_strdup (problem);
+}
+
+static void
+test_local_channel (TestCase *tc,
+                    gconstpointer unused)
+{
+  CockpitRouter *router;
+  GBytes *sent;
+
+  static CockpitPayloadType payload_types[] = {
+    { "echo", mock_echo_channel_get_type },
+    { NULL },
+  };
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), payload_types, NULL);
+
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"echo\"}");
+  emit_string (tc, "a", "oh marmalade");
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "oh marmalade", -1);
+
+  g_object_unref (router);
 }
 
 static void
@@ -257,6 +283,8 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
+  g_test_add ("/router/local-channel", TestCase, NULL,
+              setup, test_local_channel, teardown);
   g_test_add ("/router/external-bridge", TestCase, NULL,
               setup, test_external_bridge, teardown);
   g_test_add ("/router/external-fail", TestCase, NULL,

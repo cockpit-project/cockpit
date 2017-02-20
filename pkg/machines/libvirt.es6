@@ -23,12 +23,10 @@
  */
 import cockpit from 'cockpit';
 import $ from 'jquery';
-import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed} from './actions.es6';
+import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs} from './actions.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import { toKiloBytes, isEmpty, logDebug, isRunning } from './helpers.es6';
 import VMS_CONFIG from './config.es6';
-
-const _ = cockpit.gettext;
 
 // --- compatibility hack
 if (!String.prototype.startsWith) {
@@ -70,30 +68,26 @@ export default {
      * @param VM name
      * @returns {Function}
      */
-    GET_VM ({ lookupId: name, connectionName }) {
+    GET_VM ({ lookupId: name }) {
         logDebug(`${this.name}.GET_VM()`);
-
-        const canFailHandler = ({exception, data}) => {
-            console.info(`The 'virsh' command failed, as expected: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-        };
 
         return dispatch => {
             if (!isEmpty(name)) {
-                return spawnVirshReadOnly({connectionName, method: 'dumpxml', name}).then(domXml => {
-                    parseDumpxml(dispatch, connectionName, domXml);
-                    return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
+                return spawnVirshReadOnly('dumpxml', name).then(domXml => {
+                    parseDumpxml(dispatch, domXml);
+                    return spawnVirshReadOnly('dominfo', name);
                 }).then(domInfo => {
-                    if (isRunning(parseDominfo(dispatch, connectionName, name, domInfo))) {
-                        return spawnVirshReadOnly({connectionName, method: 'dommemstat', name, failHandler: canFailHandler});
+                    if (isRunning(parseDominfo(dispatch, name, domInfo))) {
+                        return spawnVirshReadOnly('dommemstat', name);
                     }
                 }).then(dommemstat => {
                     if (dommemstat) { // is undefined if vm is not running
-                        parseDommemstat(dispatch, connectionName, name, dommemstat);
-                        return spawnVirshReadOnly({connectionName, method: 'domstats', name, failHandler: canFailHandler});
+                        parseDommemstat(dispatch, name, dommemstat);
+                        return spawnVirshReadOnly('domstats', name);
                     }
                 }).then(domstats => {
                     if (domstats) {
-                        parseDomstats(dispatch, connectionName, name, domstats);
+                        parseDomstats(dispatch, name, domstats);
                     }
                 }); // end of GET_VM return
             }
@@ -105,125 +99,76 @@ export default {
      *
      * @returns {Function}
      */
-    GET_ALL_VMS ({ connectionName }) {
-        logDebug(`${this.name}.GET_ALL_VMS(connectionName='${connectionName}'):`);
-        if (connectionName) {
-            return dispatch => doGetAllVms(dispatch, connectionName);
-        }
+    GET_ALL_VMS () {
+        logDebug(`${this.name}.GET_ALL_VMS():`);
+        return dispatch => {
+            spawnScript({
+                script: `virsh ${VMS_CONFIG.Virsh.ConnectionParams.join(' ')} -r list --all | awk '$1 == "-" || $1+0 > 0 { print $2 }'`
+            }).then(output => {
+                const vmNames = output.trim().split(/\r?\n/);
+                vmNames.forEach((vmName, index) => {
+                    vmNames[index] = vmName.trim();
+                });
+                logDebug(`GET_ALL_VMS: vmNames: ${JSON.stringify(vmNames)}`);
 
-        return dispatch => { // for all connections
-            return cockpit.user().done( loggedUser => {
-                const promises = Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
-                    .filter(
-                        // The 'root' user does not have its own qemu:///session just qemu:///system
-                        // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
-                        connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
-                    .map( connectionName => dispatch(getAllVms(connectionName)));
+                // remove undefined domains
+                dispatch(deleteUnlistedVMs(vmNames));
 
-                return cockpit.all(promises)
-                    .then(() => { // keep polling AFTER all VM details have been read (avoid overlap)
-                        dispatch(delayPolling(getAllVms()));
-                    });
+                // read VM details
+                return cockpit.all(vmNames.map((name) => dispatch(getVm(name))));
+            }).then(() => {
+                // keep polling AFTER all VM details have been read (avoid overlap)
+                dispatch(delayPolling(getAllVms()));
             });
         };
     },
 
-    SHUTDOWN_VM ({ name, connectionName }) {
+    SHUTDOWN_VM ({ name }) {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-            method: 'SHUTDOWN_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("SHUTDOWN_VM action failed"), detail: {exception, data}})),
-            args: ['shutdown', name]
-        });
+        return spawnVirsh('SHUTDOWN_VM', 'shutdown', name);
     },
 
-    FORCEOFF_VM ({ name, connectionName }) {
+    FORCEOFF_VM ({ name }) {
         logDebug(`${this.name}.FORCEOFF_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-            method: 'FORCEOFF_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("FORCEOFF_VM action failed"), detail: {exception, data}})),
-            args: ['destroy', name]
-        });
+        return spawnVirsh('FORCEOFF_VM', 'destroy', name);
     },
 
-    REBOOT_VM ({ name, connectionName }) {
+    REBOOT_VM ({ name }) {
         logDebug(`${this.name}.REBOOT_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-            method: 'REBOOT_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("REBOOT_VM action failed"), detail: {exception, data}})),
-            args: ['reboot', name]
-        });
+        return spawnVirsh('REBOOT_VM', 'reboot', name);
     },
 
-    FORCEREBOOT_VM ({ name, connectionName }) {
+    FORCEREBOOT_VM ({ name }) {
         logDebug(`${this.name}.FORCEREBOOT_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-            method: 'FORCEREBOOT_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("FORCEREBOOT_VM action failed"), detail: {exception, data}})),
-            args: ['reset', name]
-        });
+        return spawnVirsh('FORCEREBOOT_VM', 'reset', name);
     },
 
-    START_VM ({ name, connectionName }) {
+    START_VM ({ name }) {
         logDebug(`${this.name}.START_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-            method: 'START_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("START_VM action failed"), detail: {exception, data}})),
-            args: ['start', name]
-        });
+        return spawnVirsh('START_VM', 'start', name);
     }
 };
 
-function canLoggedUserConnectSession (connectionName, loggedUser) {
-    return connectionName !== 'session' || loggedUser.name !== 'root';
-}
-
-function doGetAllVms (dispatch, connectionName) {
-    const connection = VMS_CONFIG.Virsh.connections[connectionName];
-
-    return spawnScript({
-        script: `virsh ${connection.params.join(' ')} -r list --all | awk '$1 == "-" || $1+0 > 0 { print $2 }'`
-    }).then(output => {
-        const vmNames = output.trim().split(/\r?\n/);
-        vmNames.forEach((vmName, index) => {
-            vmNames[index] = vmName.trim();
-        });
-        logDebug(`GET_ALL_VMS: vmNames: ${JSON.stringify(vmNames)}`);
-
-        // remove undefined domains
-        dispatch(deleteUnlistedVMs(connectionName, vmNames));
-
-        // read VM details
-        return cockpit.all(vmNames.map((name) => dispatch(getVm(connectionName, name))));
-    });
-}
-
 // TODO: add configurable custom virsh attribs - i.e. libvirt user/pwd
-function spawnVirsh({connectionName, method, failHandler, args}) {
+function spawnVirsh(method, ...args) {
+    args = VMS_CONFIG.Virsh.ConnectionParams.concat(args);
+
     return spawnProcess({
         cmd: 'virsh',
-        args: VMS_CONFIG.Virsh.connections[connectionName].params.concat(args),
-        failHandler,
+        args
     }).catch((ex, data, output) => {
-        const msg = `${method}() exception: '${ex}', data: '${data}', output: '${output}'`;
-        if (failHandler) {
-            logDebug(msg);
-            return ;
-        }
-        console.error(msg);
+        console.error(`${method}() exception: '${ex}', data: '${data}', output: '${output}'`);
     });
 }
 
-function spawnVirshReadOnly({connectionName, method, name, failHandler}) {
-    return spawnVirsh({connectionName, method, args: ['-r', method, name], failHandler});
+function spawnVirshReadOnly(method, name) {
+    return spawnProcess({
+        cmd: 'virsh',
+        args: VMS_CONFIG.Virsh.ConnectionParams.concat(['-r', method, name])
+    });
 }
 
-function parseDumpxml(dispatch, connectionName, domXml) {
+function parseDumpxml(dispatch, domXml) {
     const xmlDoc = $.parseXML(domXml);
 
     const domainElem = xmlDoc.getElementsByTagName("domain")[0];
@@ -240,34 +185,34 @@ function parseDumpxml(dispatch, connectionName, domXml) {
 
     const vcpus = vcpuElem.childNodes[0].nodeValue;
 
-    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus}));
+    dispatch(updateOrAddVm({name, id, osType, currentMemory, vcpus}));
 }
 
-function parseDominfo(dispatch, connectionName, name, domInfo) {
+function parseDominfo(dispatch, name, domInfo) {
     const lines = parseLines(domInfo);
     const state = getValueFromLine(lines, 'State:');
     const autostart = getValueFromLine(lines, 'Autostart:');
 
     if (!isRunning(state)) { // clean usage data
-        dispatch(updateOrAddVm({connectionName, name, state, autostart, actualTimeInMs: -1}));
+        dispatch(updateOrAddVm({name, state, autostart, actualTimeInMs: -1}));
     } else {
-        dispatch(updateOrAddVm({connectionName, name, state, autostart}));
+        dispatch(updateOrAddVm({name, state, autostart}));
     }
 
     return state;
 }
 
-function parseDommemstat(dispatch, connectionName, name, dommemstat) {
+function parseDommemstat(dispatch, name, dommemstat) {
     const lines = parseLines(dommemstat);
 
     let rssMemory = getValueFromLine(lines, 'rss'); // in KiB
 
     if (rssMemory) {
-        dispatch(updateOrAddVm({connectionName, name, rssMemory}));
+        dispatch(updateOrAddVm({name, rssMemory}));
     }
 }
 
-function parseDomstats(dispatch, connectionName, name, domstats) {
+function parseDomstats(dispatch, name, domstats) {
     const actualTimeInMs = Date.now();
 
     const lines = parseLines(domstats);
@@ -276,6 +221,6 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
     // TODO: Add disk, network usage statistics
 
     if (cpuTime) {
-        dispatch(updateOrAddVm({connectionName, name, actualTimeInMs, cpuTime}));
+        dispatch(updateOrAddVm({name, actualTimeInMs, cpuTime}));
     }
 }

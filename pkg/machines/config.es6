@@ -25,14 +25,7 @@
 const VMS_CONFIG = {
     DefaultRefreshInterval: 10000, // in ms
     Virsh: {
-        connections: {
-            'system': {
-                params: ['-c', 'qemu:///system']
-            },
-            'session': {
-                params: ['-c', 'qemu:///session']
-            }
-        }
+        ConnectionParams: ['-c', 'qemu:///system']
     },
     isDev: false // TODO: make it configurable based on process.env.NODE_ENV
 };

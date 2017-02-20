@@ -20,19 +20,14 @@
 import cockpit from 'cockpit';
 import { logDebug } from './helpers.es6';
 
-export function spawnProcess({ cmd, args = [], stdin, failHandler }) {
+export function spawnProcess({ cmd, args = [], stdin}) {
     const spawnArgs = [cmd, ...args];
     logDebug(`spawn process args: ${spawnArgs}`);
 
-    return spawn(cockpit.spawn(spawnArgs, { err: "message" })
+    return spawn(cockpit.spawn(spawnArgs, { superuser: "try", err: "message" })
         .input(stdin))
-        .fail((exception, data) => {
-            if (failHandler) {
-                failHandler({exception, data});
-                return ;
-            }
-            console.error(`spawn '${cmd}' process returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-        });
+        .fail((ex, data) =>
+            console.error(`spawn '${cmd}' process error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
 }
 
 export function spawnScript({ script }) {

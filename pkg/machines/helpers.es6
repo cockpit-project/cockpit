@@ -17,10 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import cockpit from 'cockpit';
 import VMS_CONFIG from './config.es6';
-
-const _ = cockpit.gettext;
 
 export function toGigaBytes(amount, currentUnit) {
     let result;
@@ -95,10 +92,6 @@ export function rephraseUI(key, original) {
         'autostart': {
             'disable': 'disabled',
             'enable': 'enabled'
-        },
-        'connections': {
-            'system': _("System"),
-            'session': _("Session")
         }
     };
 

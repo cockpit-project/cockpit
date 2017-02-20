@@ -172,6 +172,7 @@ WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
+WEBPACK_PO =
 WEBPACK_OUTPUTS =
 WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=dist/%/Makefile.deps)
@@ -205,7 +206,7 @@ uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -type d -empty -delete
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
+dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_PO)
 	tar -cf - $^ | tar -C $(distdir) -xf -
 
 #

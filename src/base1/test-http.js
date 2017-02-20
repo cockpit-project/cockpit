@@ -23,7 +23,7 @@ QUnit.test("public api", function() {
 QUnit.asyncTest("simple request", function() {
     assert.expect(2);
 
-    cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json")
+    cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
         .done(function(data) {
             assert.deepEqual(JSON.parse(data), {
                 version: "@VERSION@",

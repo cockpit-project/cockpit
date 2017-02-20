@@ -62,7 +62,7 @@ QUnit.asyncTest("echo", function() {
 QUnit.asyncTest("http", function() {
     assert.expect(2);
 
-    cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json")
+    cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
         .done(function(data) {
             assert.deepEqual(JSON.parse(data), {
                 version: "@VERSION@",

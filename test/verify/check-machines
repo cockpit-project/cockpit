@@ -39,7 +39,9 @@ class TestMachines(MachineCase):
         b = self.browser
         m = self.machine
 
-        # We race with running the test after boot but before the libvirt network has started
+        # We race with running the test after boot but before the libvirtd and network has started
+        m.execute("systemctl start libvirtd")
+        wait(lambda: m.execute("virsh list"))
         m.execute("virsh net-start default 2> /dev/null || true")
 
         self.login_and_go("/machines")

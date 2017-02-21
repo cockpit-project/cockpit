@@ -43,18 +43,18 @@ class TestMachines(MachineCase):
         b = self.browser
         m = self.machine
 
-        # We race with running the test after boot but before the libvirt network has started
+        # Ensure everything has started correctly
         m.execute("systemctl start libvirtd")
+        # Wait until we can get a list of domains
         wait(lambda: m.execute("virsh list"))
-        print m.execute("virsh net-start default || true")
-        print m.execute("virsh net-list --all")
+        # Wait for the network 'default' to become active
+        wait(lambda: m.execute(command="virsh net-info default | grep Active"))
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "No VM is running or defined on this host")
 
-        print m.execute("qemu-img create -f qcow2 {0} 1G".format(self.vm1_img))
-        print m.execute("virt-install --cpu host -r 128 --pxe --force --nographics --noautoconsole --disk path={0},size=1,format=qcow2 -n {1} || true".format(self.vm1_img, self.vm1_name))
-
+        m.execute("qemu-img create -f qcow2 {0} 1G".format(self.vm1_img))
+        m.execute("virt-install --cpu host -r 128 --pxe --force --nographics --noautoconsole --disk path={0},size=1,format=qcow2 -n {1} || true".format(self.vm1_img, self.vm1_name))
 
     def testBasic(self):
         self.envSetup()
@@ -63,21 +63,21 @@ class TestMachines(MachineCase):
         m = self.machine
 
         # state == 'running' is expected, but can be 'paused' if the VM creation fails. Anyway, the VM shall be listed at least
-        state=m.execute("virsh domstate {0}".format(self.vm1_name)).rstrip().strip() 
-        if not (state == "running" or state == "paused"):
-            print "ERROR: Test environment failed to set up - testing VM failed to start"
-            return
+        state = m.execute("virsh domstate {0}".format(self.vm1_name)).strip()
+        # debug info: machine state
+        m.message("state: '{0}'".format(state))
+        self.assertIn(state, ["running", "paused"], "Test environment failed to set up - testing VM failed to start")
 
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr th", self.vm1_name) # is VM name listed?
 
         b.click("tbody tr th") # click on the row header
-        print "state: '{0}'".format(state)
+        b.wait_present("{0}-state".format(self.vm1_id))
         b.wait_in_text("{0}-state".format(self.vm1_id), state) # running or paused
+        b.wait_present("{0}-vcpus".format(self.vm1_id))
         b.wait_in_text("{0}-vcpus".format(self.vm1_id), "1")
 
         if state == "running":
-            print "Attempt to shut down the VM"
             b.click("{0}-off-caret".format(self.vm1_id))
             b.wait_visible("{0}-forceOff".format(self.vm1_id))
             b.click("{0}-forceOff".format(self.vm1_id))
@@ -87,4 +87,3 @@ class TestMachines(MachineCase):
 
 if __name__ == '__main__':
     test_main()
-

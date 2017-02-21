@@ -204,10 +204,10 @@ const VmOverviewTab = ({ vm }) => {
             <tr className='machines-listing-ct-body-detail'>
                 <td>
                     <table className='form-table-ct'>
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr='State:' value={vm.state}/>
+                        <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr={_("State:")} value={vm.state}/>
                         <VmOverviewTabRecord descr={_("Memory:")}
                                              value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
-                        <VmOverviewTabRecord descr={_("vCPUs:")} value={vm.vcpus}/>
+                        <VmOverviewTabRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
                     </table>
                 </td>
 

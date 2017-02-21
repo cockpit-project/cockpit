@@ -226,10 +226,16 @@ function spawnVirshReadOnly({connectionName, method, name, failHandler}) {
 function parseDumpxml(dispatch, connectionName, domXml) {
     const xmlDoc = $.parseXML(domXml);
 
+    if (!xmlDoc) {
+        console.error(`Can't parse dumpxml, input: "${domXml}"`);
+        return ;
+    }
+
     const domainElem = xmlDoc.getElementsByTagName("domain")[0];
     const osElem = domainElem.getElementsByTagName("os")[0];
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
+    const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
 
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const id = domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
@@ -238,7 +244,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
     const currentMemory = toKiloBytes(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit);
 
-    const vcpus = vcpuElem.childNodes[0].nodeValue;
+    const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
 
     dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus}));
 }

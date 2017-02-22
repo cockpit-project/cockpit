@@ -22,6 +22,7 @@
 #include <glob.h>
 #include <string.h>
 #include <errno.h>
+#include <glib/gstdio.h>
 #include <json-glib/json-glib.h>
 
 #include "cockpitdbusinternal.h"
@@ -47,7 +48,7 @@ static int
 glob_err_func (const char *epath,
                int eerrno)
 {
-  /* just log the error for debugging */
+  /* Should Not Happen™ -- log the error for debugging */
   if (eerrno != ENOENT)
     g_warning ("%s: cannot read: %s", epath, g_strerror (eerrno));
   return 0;
@@ -97,6 +98,20 @@ parse_json_file (const char *path)
 
   g_object_unref (parser);
   return result;
+}
+
+static gboolean
+write_json_file (JsonNode *config, const char *path, GError **error)
+{
+  JsonGenerator *json_gen;
+  gboolean res;
+
+  json_gen = json_generator_new ();
+  json_generator_set_root (json_gen, config);
+  json_generator_set_pretty (json_gen, TRUE); /* bikeshed zone */
+  res = json_generator_to_file (json_gen, path, error);
+  g_object_unref (json_gen);
+  return res;
 }
 
 static void
@@ -220,7 +235,6 @@ update_machine (const char *filename,
 {
   gchar *path;
   JsonNode *cur_config;
-  JsonGenerator *json_gen;
   JsonObject *cur_config_obj;
   JsonNode *cur_props;
   gboolean res;
@@ -246,13 +260,8 @@ update_machine (const char *filename,
       json_object_set_member (cur_config_obj, hostname, json_node_copy (info));
     }
 
-  /* write back json file */
-  json_gen = json_generator_new ();
-  json_generator_set_root (json_gen, cur_config);
-  json_generator_set_pretty (json_gen, TRUE); /* bikeshed zone */
-  res = json_generator_to_file (json_gen, path, error);
+  res = write_json_file (cur_config, path, error);
   g_free (path);
-  g_object_unref (json_gen);
   json_node_free (cur_config);
   return res;
 }
@@ -376,6 +385,69 @@ on_machines_changed (GFileMonitor *monitor,
   g_free (path);
 }
 
+static void
+migrate_var_config (void)
+{
+  const gchar *var_path = "/var/lib/cockpit/machines.json";
+  GError *error = NULL;
+
+  /* TOCTOU, but if we really miss this, we'll migrate it the next time */
+  if (!g_file_test (var_path, G_FILE_TEST_IS_REGULAR))
+    {
+      g_debug ("%s does not exist, nothing to migrate", var_path);
+      return;
+    }
+
+  /* the directory should already exist (shipped by the package), but let's make sure */
+  if (g_mkdir_with_parents (machines_json_dir (), 0755) < 0)
+    {
+      g_message ("failed to create %s, Cockpit will not work properly: %m", machines_json_dir ());
+      return;
+    }
+
+  /* common case is to move it to 99-webui.json */
+  gchar *etc_path = g_build_filename (machines_json_dir (), "99-webui.json", NULL);
+  GFile *var_file = g_file_new_for_path (var_path);
+  GFile *etc_file = g_file_new_for_path (etc_path);
+  if (g_file_move (var_file, etc_file, G_FILE_COPY_NONE, NULL, NULL, NULL, &error))
+    {
+      g_info ("migrated %s to %s", var_path, etc_path);
+    }
+  else
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_EXISTS))
+        {
+          GError *error2 = NULL;
+
+          /* most likely an interrupted/failed previous transition attempt;
+           * don't clobber the existing file but move it to 98-migrated.json
+           * instead */
+          g_free (etc_path);
+          g_object_unref (etc_file);
+          etc_path = g_build_filename (machines_json_dir (), "98-migrated.json", NULL);
+          etc_file = g_file_new_for_path (etc_path);
+          if (g_file_move (var_file, etc_file, G_FILE_COPY_NONE, NULL, NULL, NULL, &error2))
+            {
+              g_info ("migrated %s to %s (99-webui.json already exists)", var_path, etc_path);
+            }
+          else
+            {
+              g_message ("moving of %s to %s failed: %s", var_path, etc_path, error2->message);
+              g_error_free (error2);
+            }
+        }
+      else /* different g_file_move() error than EXISTS */
+        {
+          g_message ("migration of %s to %s failed: %s", var_path, etc_path, error->message);
+        }
+      g_error_free (error);
+    }
+
+  g_object_unref (etc_file);
+  g_object_unref (var_file);
+  g_free (etc_path);
+}
+
 
 static GDBusInterfaceVTable machines_vtable = {
   .method_call = machines_method_call,
@@ -442,6 +514,10 @@ cockpit_dbus_machines_startup (void)
       g_error_free (error);
       return;
     }
+
+  /* only attempt this in a privileged bridge, otherwise we get confusing failure messages */
+  if (g_access ("/etc/cockpit", W_OK) >= 0)
+    migrate_var_config ();
 
   /* watch for file changes and send D-Bus signal for it */
   machines_monitor_file = g_file_new_for_path (machines_json_dir ());

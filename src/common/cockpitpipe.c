@@ -665,6 +665,9 @@ cockpit_pipe_constructed (GObject *object)
 
   G_OBJECT_CLASS (cockpit_pipe_parent_class)->constructed (object);
 
+  if (self->priv->name == NULL)
+    self->priv->name = g_strdup ("pipe");
+
   if (self->priv->in_fd >= 0)
     {
       if (!g_unix_set_fd_nonblocking (self->priv->in_fd, TRUE, &error))

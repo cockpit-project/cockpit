@@ -20,8 +20,8 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
+#include "cockpitpeer.h"
 #include "cockpitrouter.h"
-#include "cockpitshim.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpittransport.h"
@@ -30,28 +30,25 @@
 
 #include <string.h>
 
-gint cockpit_router_bridge_timeout = 30;
-
 struct _CockpitRouter {
   GObjectClass parent;
 
   gchar *init_host;
   gulong signal_id;
 
+  /* The transport we're talking to */
   CockpitTransport *transport;
 
-  GList *channel_functions;
+  /* Rules for how to open channels */
+  GList *rules;
 
-  GHashTable *payloads;
+  /* All local channels are tracked here, value may be null */
   GHashTable *channels;
-  GHashTable *groups;
 
+  /* Channel groups */
+  GHashTable *groups;
   GHashTable *fences;
   GHashTable *fenced;
-
-  GHashTable *bridges_by_id;
-  GHashTable *bridges_by_transport;
-  GHashTable *bridges_by_channel;
 };
 
 typedef struct _CockpitRouterClass {
@@ -63,133 +60,127 @@ G_DEFINE_TYPE (CockpitRouter, cockpit_router, G_TYPE_OBJECT);
 enum {
   PROP_0,
   PROP_TRANSPORT,
-  PROP_INIT_HOST,
 };
 
-typedef GType (* TypeFunction) (void);
+typedef struct {
+  gchar *name;
+  GPatternSpec *glob;
+  JsonNode *node;
+} RouterMatch;
 
 typedef struct {
-  CockpitTransport *transport;
-  GHashTable *channels;
-  gchar *id;
-
-  gulong closed_sig;
-  guint timeout;
-} ExternalBridge;
+  RouterMatch *matches;
+  gboolean (* callback) (CockpitRouter *, const gchar *, JsonObject *, GBytes *, gpointer);
+  gpointer user_data;
+  GDestroyNotify destroy;
+} RouterRule;
 
 static void
-external_bridge_free (gpointer data)
+router_rule_compile (RouterRule *rule,
+                     JsonObject *object)
 {
-  ExternalBridge *b = data;
-  if (b->timeout)
-    g_source_remove (b->timeout);
+  RouterMatch *match;
+  GList *names, *l;
+  JsonNode *node;
+  gint i;
 
-  if (b->closed_sig)
-    g_signal_handler_disconnect (b->transport, b->closed_sig);
+  g_assert (rule->matches == NULL);
 
-  g_hash_table_destroy (b->channels);
-  g_object_unref (b->transport);
-  g_free (b->id);
-  g_free (b);
-}
+  names = json_object_get_members (object);
+  rule->matches = g_new0 (RouterMatch, g_list_length (names) + 1);
+  for (l = names, i = 0; l != NULL; l = g_list_next (l), i++)
+    {
+      match = &rule->matches[i];
+      match->name = g_strdup (l->data);
+      node = json_object_get_member (object, l->data);
 
-static void
-external_bridge_destroy (CockpitRouter *router,
-                         ExternalBridge *bridge)
-{
-  GHashTableIter iter;
-  const gchar *chan;
+      /* A glob style string pattern */
+      if (JSON_NODE_HOLDS_VALUE (node) && json_node_get_value_type (node) == G_TYPE_STRING)
+        match->glob = g_pattern_spec_new (json_node_get_string (node));
 
-  g_debug ("destroy bridge: %s", bridge->id);
+      /* A null matches anything */
+      if (!JSON_NODE_HOLDS_NULL (node))
+        match->node = json_node_copy (node);
+    }
 
-  g_hash_table_iter_init (&iter, bridge->channels);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&chan, NULL))
-    g_hash_table_remove (router->bridges_by_channel, chan);
-  g_hash_table_remove_all (bridge->channels);
-
-  g_hash_table_remove (router->bridges_by_id, bridge->id);
-
-  /* This owns the bridge */
-  g_hash_table_remove (router->bridges_by_transport, bridge->transport);
+  /* The last match has a null name */
+  g_list_free (names);
 }
 
 static gboolean
-on_timeout_cleanup_bridge (gpointer user_data)
+router_rule_match (RouterRule *rule,
+                   JsonObject *object)
 {
-  ExternalBridge *b = user_data;
+  RouterMatch *match;
+  const gchar *value;
+  JsonNode *node;
+  guint i;
 
-  b->timeout = 0;
-  if (g_hash_table_size (b->channels) == 0)
+  for (i = 0; rule->matches && rule->matches[i].name != NULL; i++)
     {
-      /*
-       * This should cause the transport to immediately be closed
-       * and that will trigger removal from the main router lookup tables.
-       */
-      g_debug ("bridge: (%s) timed out without channels", b->id);
-      cockpit_transport_close (b->transport, "timeout");
-    }
-
-  return FALSE;
-}
-
-static void
-thaw_fenced_channels (CockpitRouter *self)
-{
-  GHashTableIter iter;
-  GHashTable *fenced;
-  gpointer key;
-
-  fenced = self->fenced;
-  self->fenced = NULL;
-
-  if (!fenced)
-    return;
-
-  g_hash_table_iter_init (&iter, fenced);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&key, NULL))
-    cockpit_transport_thaw (self->transport, key);
-
-  g_hash_table_destroy (fenced);
-}
-
-static void
-on_channel_closed (CockpitChannel *channel,
-                   const gchar *problem,
-                   gpointer user_data)
-{
-  CockpitRouter *self = user_data;
-  ExternalBridge *bridge = NULL;
-  const gchar *id;
-
-  id = cockpit_channel_get_id (channel);
-  g_hash_table_remove (self->channels, id);
-  g_hash_table_remove (self->groups, id);
-
-  bridge = g_hash_table_lookup (self->bridges_by_channel, id);
-  if (bridge)
-    {
-      g_hash_table_remove (self->bridges_by_channel, id);
-      g_hash_table_remove (bridge->channels, id);
-      if (g_hash_table_size (bridge->channels) == 0)
+      match = &rule->matches[i];
+      if (match->glob)
         {
-          /*
-           * Close sessions that are no longer in use after N seconds
-           * of them being that way.
-           */
-          g_debug ("removed last channel %s for bridge %s", id, bridge->id);
-          bridge->timeout = g_timeout_add_seconds (cockpit_router_bridge_timeout,
-                                                   on_timeout_cleanup_bridge, bridge);
+          if (!cockpit_json_get_string (object, match->name, NULL, &value) || !value ||
+              !g_pattern_match (match->glob, strlen (value), value, NULL))
+            return FALSE;
+        }
+      else if (match->node)
+        {
+          node = json_object_get_member (object, match->name);
+          if (!node || !cockpit_json_equal (match->node, node))
+            return FALSE;
+        }
+      else
+        {
+          if (!json_object_has_member (object, match->name))
+            return FALSE;
         }
     }
 
-  /*
-   * If this was the last channel in the fence group,
-   * then resume all other channels as there's no barrier
-   * preventing them from functioning.
-   */
-  if (g_hash_table_remove (self->fences, id) && g_hash_table_size (self->fences) == 0)
-    thaw_fenced_channels (self);
+  return TRUE;
 }
+
+static gboolean
+router_rule_invoke (RouterRule *rule,
+                    CockpitRouter *self,
+                    const gchar *channel,
+                    JsonObject *options,
+                    GBytes *data)
+{
+  g_assert (rule->callback != NULL);
+  return (rule->callback) (self, channel, options, data, rule->user_data);
+}
+
+#ifdef WITH_DEBUG
+static void
+router_rule_dump (RouterRule *rule)
+{
+  RouterMatch *match;
+  gchar *text;
+  guint i;
+
+  g_debug ("rule:");
+  for (i = 0; rule->matches && rule->matches[i].name != NULL; i++)
+    {
+      match = &rule->matches[i];
+      if (match->node)
+        {
+          text = cockpit_json_write (match->node, NULL);
+          g_debug ("  %s: %s", match->name, text);
+          g_free (text);
+        }
+      else if (match->glob)
+        {
+          g_debug ("  %s: glob", match->name);
+        }
+      else
+        {
+          g_debug ("  %s", match->name);
+        }
+    }
+}
+#endif
 
 static void
 process_init (CockpitRouter *self,
@@ -245,106 +236,174 @@ process_init (CockpitRouter *self,
 }
 
 static void
-on_external_transport_closed (CockpitTransport *transport,
-                              const gchar *problem,
-                              gpointer user_data)
+on_channel_closed (CockpitChannel *local,
+                   const gchar *problem,
+                   gpointer user_data)
 {
-  CockpitRouter *self = user_data;
-  ExternalBridge *b = NULL;
+  CockpitRouter *self = COCKPIT_ROUTER (user_data);
+  const gchar *channel;
+  GHashTableIter iter;
+  GHashTable *fenced;
+  gpointer key;
 
-  b = g_hash_table_lookup (self->bridges_by_transport, transport);
-  if (b)
-    external_bridge_destroy (self, b);
+  channel = cockpit_channel_get_id (local);
+  g_hash_table_remove (self->channels, channel);
+
+  /*
+   * If this was the last channel in the fence group then resume all other channels
+   * as there's no barrier preventing them from functioning.
+   */
+  if (!g_hash_table_remove (self->fences, channel) || g_hash_table_size (self->fences) != 0)
+    return;
+
+  fenced = self->fenced;
+  self->fenced = NULL;
+
+  if (!fenced)
+    return;
+
+  g_hash_table_iter_init (&iter, fenced);
+  while (g_hash_table_iter_next (&iter, (gpointer *)&key, NULL))
+    cockpit_transport_thaw (self->transport, key);
+
+  g_hash_table_destroy (fenced);
+}
+
+static void
+create_channel (CockpitRouter *self,
+                const gchar *channel,
+                JsonObject *options,
+                GType type)
+{
+  CockpitChannel *local;
+
+  local = g_object_new (type,
+                        "transport", self->transport,
+                        "id", channel,
+                        "options", options,
+                        NULL);
+
+  /* This owns the local channel */
+  g_hash_table_replace (self->channels, (gpointer)cockpit_channel_get_id (local), local);
+  g_signal_connect (local, "closed", G_CALLBACK (on_channel_closed), self);
+}
+
+static gboolean
+process_open_channel (CockpitRouter *self,
+                      const gchar *channel,
+                      JsonObject *options,
+                      GBytes *data,
+                      gpointer user_data)
+{
+  GType (* type_function) (void) = user_data;
+  GType channel_type = 0;
+  const gchar *group;
+
+  if (!cockpit_json_get_string (options, "group", NULL, &group))
+    g_warning ("%s: caller specified invalid 'group' field in open message", channel);
+
+  g_assert (type_function != NULL);
+  channel_type = type_function ();
+
+  if (group && g_str_equal (group, "fence"))
+    g_hash_table_add (self->fences, g_strdup (channel));
+
+  if (group)
+    g_hash_table_insert (self->groups, g_strdup (channel), g_strdup (group));
+
+  create_channel (self, channel, options, channel_type);
+  return TRUE;
+}
+
+static gboolean
+process_open_peer (CockpitRouter *self,
+                   const gchar *channel,
+                   JsonObject *options,
+                   GBytes *data,
+                   gpointer user_data)
+{
+  CockpitPeer *peer = user_data;
+  return cockpit_peer_handle (peer, channel, options, data);
+}
+
+static gboolean
+process_open_not_supported (CockpitRouter *self,
+                            const gchar *channel,
+                            JsonObject *options,
+                            GBytes *data,
+                            gpointer user_data)
+{
+  const gchar *payload;
+
+  if (!cockpit_json_get_string (options, "payload", NULL, &payload))
+    g_warning ("%s: caller specified invalid 'payload' field in open message", channel);
+  else if (payload == NULL)
+    g_warning ("%s: caller didn't provide a 'payload' field in open message", channel);
+  else
+    g_debug ("%s: bridge doesn't support channel: %s", channel, payload);
+
+  /* This creates a temporary channel that closes with not-supported */
+  create_channel (self, channel, options, COCKPIT_TYPE_CHANNEL);
+  return TRUE;
 }
 
 static void
 process_open (CockpitRouter *self,
               CockpitTransport *transport,
-              const gchar *channel_id,
+              const gchar *channel,
               JsonObject *options,
               GBytes *data)
 {
-  CockpitChannel *channel = NULL;
-  GType channel_type;
-  TypeFunction type_function = NULL;
-  CockpitRouterChannelFunc channel_function = NULL;
+  const gchar *host;
   GList *l;
 
-  const gchar *payload = NULL;
-  const gchar *host = NULL;
-  const gchar *group = NULL;
-
-  if (!channel_id)
+  if (!channel)
     {
       g_warning ("Caller tried to open channel with invalid id");
       cockpit_transport_close (transport, "protocol-error");
-      return;
     }
-  else if (g_hash_table_lookup (self->channels, channel_id))
+
+  /* Check that this isn't a local channel */
+  else if (g_hash_table_lookup (self->channels, channel))
     {
-      g_warning ("%s: caller tried to reuse a channel that's already in use", channel_id);
-      cockpit_transport_close (transport, "protocol-error");
+      g_warning ("%s: caller tried to reuse a channel that's already in use", channel);
+      cockpit_transport_close (self->transport, "protocol-error");
       return;
     }
+
+  /* Request that this channel is frozen, and requeue its open message for later */
+  else if (g_hash_table_size (self->fences) > 0 && !g_hash_table_lookup (self->fences, channel))
+    {
+      if (!self->fenced)
+        self->fenced = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+      g_hash_table_add (self->fenced, g_strdup (channel));
+      cockpit_transport_freeze (self->transport, channel);
+      cockpit_transport_emit_control (self->transport, "open", channel, options, data);
+    }
+
+  /* TODO: These will move into actual bridges sections */
+  else if (!cockpit_json_get_string (options, "host", self->init_host, &host))
+    {
+      g_warning ("%s: caller specified invalid 'host' field in open message", channel);
+      process_open_not_supported (self, channel, options, data, NULL);
+    }
+  else if (g_strcmp0 (self->init_host, host) != 0)
+    {
+      g_message ("%s: this process does not support connecting to another host", channel);
+      process_open_not_supported (self, channel, options, data, NULL);
+    }
+
+  /* Now go throgh the rules */
   else
     {
-      if (!cockpit_json_get_string (options, "host", self->init_host, &host))
-        g_warning ("%s: caller specified invalid 'host' field in open message", channel_id);
-      else if (g_strcmp0 (self->init_host, host) != 0)
-        g_message ("%s: this process does not support connecting to another host", channel_id);
-      else if (!cockpit_json_get_string (options, "group", NULL, &group))
-        g_warning ("%s: caller specified invalid 'group' field in open message", channel_id);
-      else if (!cockpit_json_get_string (options, "payload", NULL, &payload))
-        g_warning ("%s: caller specified invalid 'payload' field in open message", channel_id);
-      else if (payload == NULL)
-        g_warning ("%s: caller didn't provide a 'payload' field in open message", channel_id);
-
-      if (group && g_str_equal (group, "fence"))
-        g_hash_table_add (self->fences, g_strdup (channel_id));
-
-      /* Request that this channel is frozen, and its open message sent again */
-      if (g_hash_table_size (self->fences) > 0 && !g_hash_table_lookup (self->fences, channel_id))
+      for (l = self->rules; l != NULL; l = g_list_next (l))
         {
-          if (!self->fenced)
-            self->fenced = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-          g_hash_table_add (self->fenced, g_strdup (channel_id));
-          cockpit_transport_freeze (self->transport, channel_id);
-          cockpit_transport_emit_control (self->transport, "open", channel_id, options, data);
-          return;
+          if (router_rule_match (l->data, options) &&
+              router_rule_invoke (l->data, self, channel, options, data))
+            {
+              break;
+            }
         }
-
-      channel_type = COCKPIT_TYPE_CHANNEL;
-
-      for (l = self->channel_functions; l != NULL; l = g_list_next (l))
-        {
-          channel_function = l->data;
-          channel = channel_function (self, transport, channel_id, options);
-          if (channel)
-            break;
-        }
-
-      if (payload && !channel)
-        {
-          type_function = g_hash_table_lookup (self->payloads, payload);
-          if (type_function)
-            channel_type = type_function ();
-          if (channel_type == COCKPIT_TYPE_CHANNEL)
-            g_warning ("%s: bridge doesn't support 'payload' of type: %s", channel_id, payload);
-        }
-
-      if (!channel)
-        {
-          channel = g_object_new (channel_type,
-                                  "transport", transport,
-                                  "id", channel_id,
-                                  "options", options,
-                                  NULL);
-        }
-
-      g_hash_table_insert (self->channels, g_strdup (channel_id), channel);
-      if (group)
-        g_hash_table_insert (self->groups, g_strdup (channel_id), g_strdup (group));
-      g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), self);
     }
 }
 
@@ -371,14 +430,13 @@ process_kill (CockpitRouter *self,
     g_hash_table_iter_init (&iter, self->channels);
   while (g_hash_table_iter_next (&iter, &id, &value))
     {
-      if (!group || g_str_equal (group, value))
+      if (group && !g_str_equal (group, value))
+        continue;
+      channel = g_hash_table_lookup (self->channels, id);
+      if (channel)
         {
-          channel = g_hash_table_lookup (self->channels, id);
-          if (channel)
-            {
-              g_debug ("killing channel: %s", (gchar *)id);
-              list = g_list_prepend (list, g_object_ref (channel));
-            }
+          g_debug ("killing channel: %s", (gchar *)id);
+          list = g_list_prepend (list, g_object_ref (channel));
         }
     }
 
@@ -437,26 +495,35 @@ on_transport_control (CockpitTransport *transport,
 }
 
 static void
+object_unref_if_not_null (gpointer data)
+{
+  if (data)
+    g_object_unref (data);
+}
+
+static void
 cockpit_router_init (CockpitRouter *self)
 {
+  RouterRule *rule;
+
   /* Owns the channels */
-  self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+  self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, object_unref_if_not_null);
   self->groups = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   self->fences = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  self->payloads = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
 
-  /* Owns the ExternalBridge */
-  self->bridges_by_transport = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, external_bridge_free);
-  self->bridges_by_id = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
-  self->bridges_by_channel = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  /* The rules, including a default */
+  rule = g_new0 (RouterRule, 1);
+  rule->callback = process_open_not_supported;
+  self->rules = g_list_prepend (self->rules, rule);
 }
 
 static void
 cockpit_router_dispose (GObject *object)
 {
   CockpitRouter *self = COCKPIT_ROUTER (object);
-  GHashTableIter iter;
-  ExternalBridge *b = NULL;
+  RouterRule *rule;
+  GList *l;
+  gint i;
 
   if (self->signal_id)
     {
@@ -468,11 +535,23 @@ cockpit_router_dispose (GObject *object)
   g_hash_table_remove_all (self->groups);
   g_hash_table_remove_all (self->fences);
 
-  g_hash_table_iter_init (&iter, self->bridges_by_transport);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&b))
+  for (l = self->rules; l != NULL; l = g_list_next (l))
     {
-      cockpit_transport_close (b->transport, NULL);
+      rule = l->data;
+      if (rule->destroy)
+        (rule->destroy) (rule->user_data);
+      for (i = 0; rule->matches && rule->matches[i].name != NULL; i++)
+        {
+          g_free (rule->matches[i].name);
+          json_node_free (rule->matches[i].node);
+          if (rule->matches[i].glob)
+            g_pattern_spec_free (rule->matches[i].glob);
+        }
+      g_free (rule->matches);
+      g_free (rule);
     }
+  g_list_free (self->rules);
+  self->rules = NULL;
 }
 
 static void
@@ -488,13 +567,8 @@ cockpit_router_finalize (GObject *object)
 
   g_free (self->init_host);
   g_hash_table_destroy (self->channels);
-  g_hash_table_destroy (self->payloads);
   g_hash_table_destroy (self->groups);
   g_hash_table_destroy (self->fences);
-  g_hash_table_destroy (self->bridges_by_id);
-  g_hash_table_destroy (self->bridges_by_channel);
-  g_hash_table_destroy (self->bridges_by_transport);
-  g_list_free (self->channel_functions);
 
   G_OBJECT_CLASS (cockpit_router_parent_class)->finalize (object);
 }
@@ -509,9 +583,6 @@ cockpit_router_set_property (GObject *obj,
 
   switch (prop_id)
     {
-    case PROP_INIT_HOST:
-      self->init_host = g_value_dup_string (value);
-      break;
     case PROP_TRANSPORT:
       self->transport = g_value_dup_object (value);
       break;
@@ -552,130 +623,134 @@ cockpit_router_class_init (CockpitRouterClass *class)
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (object_class, PROP_INIT_HOST,
-                                   g_param_spec_string ("init-host", NULL, NULL, NULL,
-                                                         G_PARAM_WRITABLE |
-                                                         G_PARAM_CONSTRUCT_ONLY |
-                                                         G_PARAM_STATIC_STRINGS));
 }
 
-static gboolean
-cockpit_router_add_payload (CockpitRouter *self,
-                            const gchar *type,
-                            TypeFunction channel_function)
-{
-  return g_hash_table_insert (self->payloads, (gchar *) type,
-                              channel_function);
-}
-
-void
-cockpit_router_add_channel_function (CockpitRouter *self,
-                                     CockpitRouterChannelFunc channel_function)
-{
-  self->channel_functions = g_list_append (self->channel_functions, channel_function);
-}
-
+/**
+ * cockpit_router_new:
+ * @transport: Transport to talk to cockpit-ws with
+ * @payloads: List of payloads to handle, or NULL
+ * @bridges: List of peer bridge config, or NULL
+ *
+ * Create a new CockpitRouter. The @payloads to handle
+ * will be added via cockpit_router_add_channel().
+ *
+ * The @bridges if specified will be added via
+ * cockpit_router_add_bridge(). These will be added in
+ * reverse order so that the first bridge in the list
+ * would be the first one that matches in the router.
+ *
+ * Returns: (transfer full): A new CockpitRouter object.
+ */
 CockpitRouter *
 cockpit_router_new (CockpitTransport *transport,
-                    CockpitPayloadType *payload_types,
-                    const gchar *init_host)
+                    CockpitPayloadType *payloads,
+                    GList *bridges)
 {
-  gint i;
   CockpitRouter *router;
+  CockpitPeer *peer;
+  JsonObject *match;
+  GList *l;
+  guint i;
 
   g_return_val_if_fail (transport != NULL, NULL);
 
   router = g_object_new (COCKPIT_TYPE_ROUTER,
                          "transport", transport,
-                         "init-host", init_host,
                          NULL);
 
-  if (payload_types)
+  for (i = 0; payloads && payloads[i].name != NULL; i++)
     {
-      for (i = 0; payload_types[i].name != NULL; i++)
-        {
-          cockpit_router_add_payload (router, payload_types[i].name,
-                                      payload_types[i].function);
-        }
+      match = json_object_new ();
+      json_object_set_string_member (match, "payload", payloads[i].name);
+      cockpit_router_add_channel (router, match, payloads[i].function);
+      json_object_unref (match);
     }
+
+  /* Enumerated in reverse, since the last rule is matched first */
+  for (l = g_list_last (bridges); l != NULL; l = g_list_previous (l))
+    {
+      /* Actual descriptive warning displayed elsewhere */
+      if (!cockpit_json_get_object (l->data, "match", NULL, &match))
+        match = NULL;
+
+      peer = cockpit_peer_new (transport, l->data);
+      cockpit_router_add_bridge (router, match, peer);
+      g_object_unref (peer);
+    }
+
+#ifdef WITH_DEBUG
+  for (l = router->rules; l != NULL; l = g_list_next (l))
+    router_rule_dump (l->data);
+#endif
 
   return router;
 }
 
 /**
- * cockpit_router_ensure_external_bridge:
- * @self: a Router
- * @channel: Channel this bridge is for
- * @host: Host this bridge is for, used for init message
- * @argv: Arguments to launch a new bridge
- * @env: Custom environment variables to use when launching a new bridge.
+ * cockpit_router_add_channel:
+ * @self: The router object
+ * @match: JSON configuration on what to match
+ * @function: The function to get type from
  *
- * If no current transport has already been launched matching the
- * given environment a new transport will be created
- * and tracked by this router. Otherwise the existing transport
- * will be returned.
+ * Add a channel handler to the router. The @match is a
+ * JSON match object as described in doc/guide/ which matches
+ * against "open" messages in order to determine whether to
+ * use this channel.
  *
- * Returns: (transfer none): a CockpitTransport instance
+ * The @function returns a GType to use for the channel.
  */
-CockpitTransport *
-cockpit_router_ensure_external_bridge (CockpitRouter *self,
-                                       const gchar *channel,
-                                       const gchar *host,
-                                       const gchar **argv,
-                                       const gchar **env)
+void
+cockpit_router_add_channel (CockpitRouter *self,
+                            JsonObject *match,
+                            GType (* function) (void))
 {
-  gchar *id = NULL;
-  gchar *args = NULL;
-  gchar *envs = NULL;
-  gchar *data = NULL;
-  GBytes *bytes = NULL;
+  RouterRule *rule;
 
-  CockpitPipe *pipe = NULL;
-  ExternalBridge *bridge = NULL;
+  g_return_if_fail (COCKPIT_IS_ROUTER (self));
+  g_return_if_fail (match != NULL);
+  g_return_if_fail (function != NULL);
 
-  args = g_strjoinv ("|", (gchar **) argv);
-  if (env)
-    envs = g_strjoinv ("|", (gchar **) env);
+  rule = g_new0 (RouterRule, 1);
+  rule->callback = process_open_channel;
+  rule->user_data = function;
+  router_rule_compile (rule, match);
+  self->rules = g_list_prepend (self->rules, rule);
+}
 
-  id = g_strdup_printf ("CMD=%s|EVN=%s", args, envs);
-  bridge = g_hash_table_lookup (self->bridges_by_id, id);
-  if (!bridge)
-    {
-      pipe = cockpit_pipe_spawn ((const gchar**) argv, (const gchar**) env, NULL, 0);
+/**
+ * cockpit_router_add_bridge:
+ * @self: The router object
+ * @match: JSON configuration on what to match
+ * @config: The peer bridge config
+ *
+ * Add a peer bridge to the router for handling channels.
+ * The @match JSON object as described in doc/guide/ and
+ * matches against "open" messages in order to determine whether
+ * to send channels to this peer bridge.
+ *
+ * The @config is the peer bridge config passed to
+ * cockpit_peer_new().
+ *
+ * Returns: The new peer bridge.
+ */
+CockpitPeer *
+cockpit_router_add_bridge (CockpitRouter *self,
+                           JsonObject *match,
+                           CockpitPeer *peer)
+{
+  RouterRule *rule;
 
-      bridge = g_new0 (ExternalBridge, 1);
-      bridge->transport = cockpit_pipe_transport_new (pipe);
-      bridge->id = g_strdup (id);
-      bridge->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-      bridge->closed_sig = g_signal_connect (bridge->transport, "closed",
-                                            G_CALLBACK (on_external_transport_closed), self);
+  g_return_val_if_fail (COCKPIT_IS_ROUTER (self), NULL);
+  g_return_val_if_fail (match != NULL, NULL);
+  g_return_val_if_fail (COCKPIT_IS_PEER (peer), NULL);
 
-      g_hash_table_insert (self->bridges_by_transport, bridge->transport, bridge);
-      g_hash_table_insert (self->bridges_by_id, bridge->id, bridge);
+  rule = g_new0 (RouterRule, 1);
+  rule->callback = process_open_peer;
+  rule->user_data = g_object_ref (peer);
+  rule->destroy = g_object_unref;
+  router_rule_compile (rule, match);
 
-      data = g_strdup_printf ("{\"command\":\"init\",\"host\":\"%s\",\"version\":1}",
-                              host ? host : self->init_host);
-      bytes = g_bytes_new (data, strlen (data));
-      cockpit_transport_send (bridge->transport, NULL, bytes);
-    }
+  self->rules = g_list_prepend (self->rules, rule);
 
-  if (bridge->timeout)
-    {
-      g_source_remove (bridge->timeout);
-      bridge->timeout = 0;
-    }
-
-  g_hash_table_add (bridge->channels, g_strdup (channel));
-  g_hash_table_replace (self->bridges_by_channel, g_strdup (channel), bridge);
-
-  g_free (id);
-  g_free (args);
-  g_free (envs);
-  g_free (data);
-
-  if (bytes)
-    g_bytes_unref (bytes);
-
-  return bridge->transport;
+  return peer;
 }

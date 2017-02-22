@@ -21,7 +21,6 @@
 
 #include "cockpitchannel.h"
 #include "cockpitrouter.h"
-#include "cockpitshim.h"
 #include "mock-channel.h"
 #include "mock-transport.h"
 
@@ -39,12 +38,36 @@ extern guint cockpit_router_bridge_timeout;
 
 typedef struct {
   MockTransport *transport;
+  JsonObject *mock_match;
+  JsonObject *mock_config;
 } TestCase;
+
+typedef struct {
+  const gchar *payload;
+} TestFixture;
 
 static void
 setup (TestCase *tc,
-       gconstpointer unused)
+       gconstpointer user_data)
 {
+  const TestFixture *fixture = user_data;
+  JsonArray *argv;
+  gchar *argument;
+  const gchar *payload;
+
+  tc->mock_config = json_object_new ();
+  argv = json_array_new ();
+  json_array_add_string_element (argv, BUILDDIR "/mock-bridge");
+  payload = "upper";
+  if (fixture && fixture->payload)
+    payload = fixture->payload;
+  argument = g_strdup_printf ("--%s", payload);
+  json_array_add_string_element (argv, argument);
+  g_free (argument);
+  json_object_set_array_member (tc->mock_config, "spawn", argv);
+  tc->mock_match = json_object_new ();
+  json_object_set_string_member (tc->mock_match, "payload", payload);
+
   tc->transport = g_object_new (mock_transport_get_type (), NULL);
   while (g_main_context_iteration (NULL, FALSE));
 }
@@ -58,38 +81,9 @@ teardown (TestCase *tc,
   g_object_add_weak_pointer (G_OBJECT (tc->transport), (gpointer *)&tc->transport);
   g_object_unref (tc->transport);
   g_assert (tc->transport == NULL);
-}
 
-static CockpitChannel *
-mock_shim (CockpitRouter *router,
-           CockpitTransport *transport,
-           const gchar *channel_id,
-           JsonObject *options)
-{
-  CockpitChannel *channel = NULL;
-  CockpitTransport *shim_transport = NULL;
-  const gchar *payload;
-  gchar *payload_arg = NULL;
-
-  static char *argv[] = {
-    BUILDDIR "/mock-bridge", NULL, NULL
-  };
-
-  if (!cockpit_json_get_string (options, "payload", NULL, &payload))
-    payload = NULL;
-  payload_arg = g_strdup_printf("--%s", payload);
-  argv[1] = payload_arg;
-
-  shim_transport = cockpit_router_ensure_external_bridge (router, channel_id,
-                                                        NULL, (const gchar **) argv, NULL);
-  channel = COCKPIT_CHANNEL (g_object_new (COCKPIT_TYPE_SHIM,
-                                           "transport", transport,
-                                           "id", channel_id,
-                                           "options", options,
-                                           "shim-transport", shim_transport,
-                                           NULL));
-  g_free (payload_arg);
-  return channel;
+  json_object_unref (tc->mock_config);
+  json_object_unref (tc->mock_match);
 }
 
 static void
@@ -146,18 +140,17 @@ test_external_bridge (TestCase *tc,
   JsonObject *control;
   CockpitTransport *shim_transport = NULL;
   gchar *problem = NULL;
+  CockpitPeer *peer;
 
   /* Same argv as used by mock_shim */
-  static char *argv[] = {
-    BUILDDIR "/mock-bridge", "--upper", NULL
-  };
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), tc->mock_config);
+  cockpit_router_add_bridge (router, tc->mock_match, peer);
 
-  cockpit_router_bridge_timeout = 1;
-  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, "localhost");
-  cockpit_router_add_channel_function (router, mock_shim);
-
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"upper\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"c\", \"payload\": \"upper\"}");
 
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -171,6 +164,12 @@ test_external_bridge (TestCase *tc,
   cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"b\"}");
   control = NULL;
 
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"c\"}");
+  control = NULL;
+
   emit_string (tc, "a", "oh marmalade a");
   while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -178,8 +177,7 @@ test_external_bridge (TestCase *tc,
   sent = NULL;
 
   /* Get a ref of the shim transport */
-  shim_transport = cockpit_router_ensure_external_bridge (router, "a",
-                                                          NULL, (const gchar **) argv, NULL);
+  shim_transport = cockpit_peer_ensure (peer);
   g_object_ref (shim_transport);
   g_signal_connect (shim_transport, "closed", G_CALLBACK (on_transport_closed), &problem);
 
@@ -204,76 +202,39 @@ test_external_bridge (TestCase *tc,
   cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"b\",\"problem\":\"closed\"}");
   control = NULL;
 
-  while (problem == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert_cmpstr (problem, ==, "timeout");
-
+  g_object_unref (peer);
   g_object_unref (router);
   g_object_unref (shim_transport);
-  g_free (problem);
 }
+
+static const TestFixture fixture_fail = {
+  .payload = "bad"
+};
 
 static void
 test_external_fail (TestCase *tc,
-                    gconstpointer unused)
+                    gconstpointer user_data)
 {
   CockpitRouter *router;
   JsonObject *received;
+  CockpitPeer *peer;
 
-  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, "localhost");
-  cockpit_router_add_channel_function (router, mock_shim);
+  g_assert (user_data == &fixture_fail);
 
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), tc->mock_config);
+  cockpit_router_add_bridge (router, tc->mock_match, peer);
+  g_object_unref (peer);
+
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"bad\"}");
   emit_string (tc, "a", "oh marmalade");
 
   while ((received = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  cockpit_assert_json_eq (received, "{\"command\": \"close\", \"channel\": \"a\", \"problem\": \"terminated\"}");
+  cockpit_assert_json_eq (received, "{\"command\": \"close\", \"channel\": \"a\", \"problem\": \"not-supported\"}");
 
-  g_object_unref (router);
-}
-
-static void
-test_external_ensure_bridge (TestCase *tc,
-                             gconstpointer unused)
-{
-  CockpitRouter *router;
-
-  /* All owned by router */
-  CockpitTransport *shim_transport1;
-  CockpitTransport *shim_transport2;
-  CockpitTransport *shim_transport3;
-  CockpitTransport *shim_transport4;
-
-  static char *argv1[] = {
-    BUILDDIR "/mock-bridge", "--lower", NULL
-  };
-
-  static char *argv2[] = {
-    BUILDDIR "/mock-bridge", "--upper", NULL
-  };
-
-  static char *env[] = {
-    "VAR=1", NULL
-  };
-
-  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, "localhost");
-  shim_transport1 = cockpit_router_ensure_external_bridge (router, "1",
-                                                          NULL, (const gchar **) argv1, NULL);
-  shim_transport2 = cockpit_router_ensure_external_bridge (router, "2",
-                                                          NULL, (const gchar **) argv1, NULL);
-  shim_transport3 = cockpit_router_ensure_external_bridge (router, "3",
-                                                          NULL, (const gchar **) argv2, NULL);
-  shim_transport4 = cockpit_router_ensure_external_bridge (router, "4",
-                                                          NULL, (const gchar **) argv1,
-                                                          (const gchar **) env);
-
-  g_assert_true (shim_transport1 == shim_transport2);
-  g_assert_true (shim_transport1 != shim_transport3);
-  g_assert_true (shim_transport1 != shim_transport4);
-  g_assert_true (shim_transport3 != shim_transport4);
   g_object_unref (router);
 }
 
@@ -287,9 +248,7 @@ main (int argc,
               setup, test_local_channel, teardown);
   g_test_add ("/router/external-bridge", TestCase, NULL,
               setup, test_external_bridge, teardown);
-  g_test_add ("/router/external-fail", TestCase, NULL,
+  g_test_add ("/router/external-fail", TestCase, &fixture_fail,
               setup, test_external_fail, teardown);
-  g_test_add ("/router/external-ensure-bridge", TestCase, NULL,
-              setup, test_external_ensure_bridge, teardown);
   return g_test_run ();
 }

@@ -172,6 +172,9 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/dashboard
 touch dashboard.list
 %endif
 
+echo '%dir %{_datadir}/%{name}/pcp' >> pcp.list
+find %{buildroot}%{_datadir}/%{name}/pcp -type f >> pcp.list
+
 echo '%dir %{_datadir}/%{name}/realmd' >> system.list
 find %{buildroot}%{_datadir}/%{name}/realmd -type f >> system.list
 
@@ -335,7 +338,7 @@ Requires: pcp
 %description pcp
 Cockpit support for reading PCP metrics and loading PCP archives.
 
-%files pcp
+%files pcp -f pcp.list
 %{_libexecdir}/cockpit-pcp
 %{_localstatedir}/lib/pcp/config/pmlogconf/tools/cockpit
 

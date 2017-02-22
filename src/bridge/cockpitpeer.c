@@ -1,0 +1,629 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2017 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "config.h"
+
+#include "cockpitpeer.h"
+
+#include "common/cockpitjson.h"
+#include "common/cockpittransport.h"
+#include "common/cockpitpipe.h"
+#include "common/cockpitpipetransport.h"
+
+#include <sys/wait.h>
+#include <string.h>
+
+struct _CockpitPeer {
+  GObject parent;
+
+  /* Our bridge configuration */
+  const gchar *name;
+  JsonObject *config;
+
+  /* The channels we're dealing with */
+  GHashTable *channels;
+  GQueue *frozen;
+
+  /* The transport we're routing from */
+  CockpitTransport *transport;
+  gulong transport_recv;
+  gulong transport_control;
+  GBytes *last_init;
+
+  /* When open and ready */
+  CockpitTransport *other;
+  gulong other_recv;
+  gulong other_control;
+  gulong other_closed;
+  gboolean inited;
+  gboolean closed;
+  gboolean disposing;
+  gchar *problem;
+};
+
+enum {
+  PROP_0,
+  PROP_TRANSPORT,
+  PROP_CONFIG
+};
+
+G_DEFINE_TYPE (CockpitPeer, cockpit_peer, G_TYPE_OBJECT);
+
+static void
+reply_channel_closed (CockpitPeer *self,
+                      const gchar *channel)
+{
+  JsonObject *object;
+  GBytes *message;
+
+  object = json_object_new ();
+  json_object_set_string_member (object, "command", "close");
+  json_object_set_string_member (object, "channel", channel);
+  json_object_set_string_member (object, "problem", self->problem);
+
+  message = cockpit_json_write_bytes (object);
+  cockpit_transport_send (self->transport, NULL, message);
+
+  json_object_unref (object);
+  g_bytes_unref (message);
+}
+
+static gboolean
+on_other_recv (CockpitTransport *transport,
+              const gchar *channel,
+              GBytes *payload,
+              gpointer user_data)
+{
+  CockpitPeer *self = user_data;
+
+  if (channel)
+    {
+      cockpit_transport_send (self->transport, channel, payload);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+on_other_control (CockpitTransport *transport,
+                  const char *command,
+                  const gchar *channel,
+                  JsonObject *options,
+                  GBytes *payload,
+                  gpointer user_data)
+{
+  CockpitPeer *self = user_data;
+  const gchar *problem = NULL;
+  gint64 version;
+  GList *l;
+
+  /* Got an init message thaw all channels */
+  if (g_str_equal (command, "init"))
+    {
+      if (self->inited)
+        {
+          g_warning ("%s: peer already sent another \"init\" message", self->name);
+          problem = "protocol-error";
+        }
+      else if (!cockpit_json_get_int (options, "version", -1, &version))
+        {
+          g_warning ("%s: invalid \"version\" field in init message", self->name);
+          problem = "protocol-error";
+        }
+      else if (version == -1)
+        {
+          g_warning ("%s: missing \"version\" field in init message", self->name);
+          problem = "protocol-error";
+        }
+      else if (version != 1)
+        {
+          g_message ("%s: unsupported \"version\" of cockpit protocol: %" G_GINT64_FORMAT,
+                     self->name, version);
+          problem = "not-supported";
+        }
+
+      if (problem)
+        {
+          cockpit_transport_close (transport, problem);
+        }
+      else
+        {
+          g_debug ("%s: received init message from peer bridge", self->name);
+          self->inited = TRUE;
+          if (self->frozen)
+            {
+              for (l = self->frozen->head; l != NULL; l = g_list_next (l))
+                cockpit_transport_thaw (self->transport, l->data);
+              g_queue_free_full (self->frozen, g_free);
+              self->frozen = NULL;
+            }
+        }
+
+      return TRUE;
+    }
+
+  if (channel)
+    {
+      /* Stop keeping track of channels that are closed */
+      if (g_str_equal (command, "close"))
+        g_hash_table_remove (self->channels, channel);
+
+      /* All control messages with a channel get forwarded */
+      cockpit_transport_send (self->transport, NULL, payload);
+    }
+
+  return TRUE;
+}
+
+static void
+on_other_closed (CockpitTransport *transport,
+                 const gchar *problem,
+                 gpointer user_data)
+{
+  CockpitPeer *self = COCKPIT_PEER (user_data);
+  const gchar *channel;
+  GList *l, *channels;
+  CockpitPipe *pipe;
+  gint status = 0;
+
+  if (self->inited)
+    {
+      pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (transport));
+
+      if (cockpit_pipe_get_pid (pipe, NULL))
+        status = cockpit_pipe_exit_status (pipe);
+
+      if (WIFSIGNALED (status) && (WTERMSIG (status) == SIGTERM || WTERMSIG (status) == SIGHUP))
+        {
+          g_debug ("%s: bridge was terminated", self->name);
+          if (!problem)
+            problem = "terminated";
+        }
+      else if (WIFSIGNALED (status))
+        {
+          g_message ("%s: bridge was killed: %d", self->name, (int)WTERMSIG (status));
+          if (!problem)
+            problem = "internal-error";
+        }
+      else if (WIFEXITED (status) && WEXITSTATUS (status) != 0)
+        {
+          g_message ("%s: bridge failed: %d", self->name, (int)WEXITSTATUS (status));
+          if (!problem)
+            problem = "internal-error";
+        }
+      else
+        {
+          g_debug ("%s: bridge exited", self->name);
+          if (!problem)
+            problem = "disconnected";
+        }
+    }
+  else
+    {
+      g_debug ("%s: bridge failed to start%s%s", self->name,
+               problem ? ": " : "", problem ? problem : "");
+
+      /*
+       * If we haven't yet gotten an "init" message, then we use the
+       * problem code that is in the config. If none exists there,
+       * we don't close the channel, but let it be handled elsewhere
+       * or fail with "not-supported" elsewhere.
+       */
+      cockpit_json_get_string (self->config, "problem", NULL, &problem);
+      self->problem = g_strdup (problem);
+    }
+
+  g_signal_handler_disconnect (self->other, self->other_closed);
+  g_signal_handler_disconnect (self->other, self->other_recv);
+  g_signal_handler_disconnect (self->other, self->other_control);
+  g_object_unref (self->other);
+  self->other = NULL;
+
+  self->closed = TRUE;
+
+  /* Handle any remaining open channels */
+  channels = g_hash_table_get_values (self->channels);
+  g_hash_table_steal_all (self->channels);
+  for (l = channels; l != NULL; l = g_list_next (l))
+    {
+      channel = l->data;
+
+      /*
+       * If we have a problem code, that either means that we failed
+       * after the peer bridge came up ... or it didn't come up at
+       * all yet. See above. In these cases we close the channel.
+       */
+      if (problem)
+        reply_channel_closed (self, channel);
+
+      /*
+       * When we don't have a problem code we want this channel
+       * to be handled elsewhere. So thaw it and let that happen.
+       */
+      else
+        g_assert (!self->inited);
+
+      cockpit_transport_thaw (self->transport, channel);
+    }
+  g_list_free_full (channels, g_free);
+}
+
+static gboolean
+on_transport_recv (CockpitTransport *transport,
+                   const gchar *channel,
+                   GBytes *payload,
+                   gpointer user_data)
+{
+  CockpitPeer *self = COCKPIT_PEER (user_data);
+
+  if (self->other && channel && g_hash_table_lookup (self->channels, channel))
+    {
+      cockpit_transport_send (self->other, channel, payload);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+on_transport_control (CockpitTransport *transport,
+                      const char *command,
+                      const gchar *channel,
+                      JsonObject *options,
+                      GBytes *payload,
+                      gpointer user_data)
+{
+  CockpitPeer *self = user_data;
+  gboolean forward = FALSE;
+  gboolean handled = FALSE;
+
+  if (g_str_equal (command, "init"))
+    {
+      if (self->last_init)
+        g_bytes_unref (self->last_init);
+      self->last_init = g_bytes_ref (payload);
+    }
+  else if (channel && g_hash_table_lookup (self->channels, channel))
+    {
+      handled = forward = TRUE;
+      if (g_str_equal (command, "close"))
+        g_hash_table_remove (self->channels, channel);
+    }
+  else if (g_str_equal (command, "kill") ||
+           g_str_equal (command, "logout"))
+    {
+      forward = TRUE;
+    }
+
+  if (forward && self->other)
+    cockpit_transport_send (self->other, NULL, payload);
+
+  return handled;
+}
+
+static void
+cockpit_peer_init (CockpitPeer *self)
+{
+  self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+}
+
+static void
+cockpit_peer_get_property (GObject *object,
+                           guint prop_id,
+                           GValue *value,
+                           GParamSpec *pspec)
+{
+  CockpitPeer *self = COCKPIT_PEER (object);
+
+  switch (prop_id)
+    {
+    case PROP_TRANSPORT:
+      g_value_set_object (value, self->transport);
+      break;
+    case PROP_CONFIG:
+      g_value_set_boxed (value, self->config);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+cockpit_peer_set_property (GObject *object,
+                           guint prop_id,
+                           const GValue *value,
+                           GParamSpec *pspec)
+{
+  CockpitPeer *self = COCKPIT_PEER (object);
+
+  switch (prop_id)
+    {
+    case PROP_TRANSPORT:
+      self->transport = g_value_dup_object (value);
+      break;
+    case PROP_CONFIG:
+      self->config = g_value_dup_boxed (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+cockpit_peer_dispose (GObject *object)
+{
+  CockpitPeer *self = COCKPIT_PEER (object);
+
+  self->disposing = TRUE;
+
+  g_hash_table_remove_all (self->channels);
+
+  if (self->transport_recv)
+    {
+      g_signal_handler_disconnect (self->transport, self->transport_recv);
+      self->transport_recv = 0;
+    }
+  if (self->transport_control)
+    {
+      g_signal_handler_disconnect (self->transport, self->transport_control);
+      self->transport_control = 0;
+    }
+
+  if (self->other)
+    cockpit_transport_close (self->other, "terminated");
+  if (self->other)
+    on_other_closed (self->other, "terminated", self);
+  g_assert (self->other == NULL);
+
+  self->inited = FALSE;
+  self->closed = TRUE;
+
+  G_OBJECT_CLASS (cockpit_peer_parent_class)->dispose (object);
+}
+
+static void
+cockpit_peer_finalize (GObject *object)
+{
+  CockpitPeer *self = COCKPIT_PEER (object);
+
+  g_hash_table_destroy (self->channels);
+
+  if (self->config)
+    json_object_unref (self->config);
+  if (self->transport)
+    g_object_unref (self->transport);
+  if (self->last_init)
+    g_bytes_unref (self->last_init);
+  if (self->frozen)
+    g_queue_free_full (self->frozen, g_free);
+
+  g_free (self->problem);
+
+  G_OBJECT_CLASS (cockpit_peer_parent_class)->finalize (object);
+}
+
+static void
+cockpit_peer_constructed (GObject *object)
+{
+  CockpitPeer *self = COCKPIT_PEER (object);
+  JsonArray *array;
+  JsonNode *node;
+
+  G_OBJECT_CLASS (cockpit_peer_parent_class)->constructed (object);
+
+  g_return_if_fail (self->config != NULL);
+  g_return_if_fail (self->transport != NULL);
+
+  self->transport_recv = g_signal_connect (self->transport, "recv", G_CALLBACK (on_transport_recv), self);
+  self->transport_control = g_signal_connect (self->transport, "control", G_CALLBACK (on_transport_control), self);
+
+  /* Get a name */
+  if (!cockpit_json_get_array (self->config, "spawn", NULL, &array))
+    array = NULL;
+  if (array && json_array_get_length (array) > 0)
+    {
+      node = json_array_get_element (array, 0);
+      if (node && JSON_NODE_HOLDS_VALUE (node) && json_node_get_value_type (node) == G_TYPE_STRING)
+        self->name = json_node_get_string (node);
+    }
+}
+
+static void
+cockpit_peer_class_init (CockpitPeerClass *class)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+  object_class->get_property = cockpit_peer_get_property;
+  object_class->set_property = cockpit_peer_set_property;
+  object_class->constructed = cockpit_peer_constructed;
+  object_class->finalize = cockpit_peer_finalize;
+  object_class->dispose = cockpit_peer_dispose;
+
+  g_object_class_install_property (object_class, PROP_TRANSPORT,
+                                   g_param_spec_object ("transport", "transport", "transport",
+                                                        COCKPIT_TYPE_TRANSPORT,
+                                                        G_PARAM_WRITABLE |
+                                                        G_PARAM_CONSTRUCT_ONLY |
+                                                        G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_CONFIG,
+                                   g_param_spec_boxed ("config", "config", "config",
+                                                       JSON_TYPE_OBJECT,
+                                                       G_PARAM_WRITABLE |
+                                                       G_PARAM_CONSTRUCT_ONLY |
+                                                       G_PARAM_STATIC_STRINGS));
+}
+
+/**
+ * cockpit_peer_new:
+ * @transport: Transport to talk to cockpit-ws with
+ * @config: The peer bridge configuration
+ *
+ * Create a new peer bridge object. The configuration is in the
+ * manifest.json format as documented in doc/guide/
+ *
+ * Returns: (transfer full): The new peer object.
+ */
+CockpitPeer *
+cockpit_peer_new (CockpitTransport *transport,
+                  JsonObject *config)
+{
+  return g_object_new (COCKPIT_TYPE_PEER,
+                       "transport", transport,
+                       "config", config,
+                       NULL);
+}
+
+static CockpitPipe *
+spawn_process_for_config (CockpitPeer *self)
+{
+  const gchar *default_argv[] = { "/bin/false", NULL };
+  CockpitPipe *pipe = NULL;
+  const gchar *directory = NULL;
+  gchar **argv = NULL;
+  gchar **envset = NULL;
+  gchar **env = NULL;
+
+  if (cockpit_json_get_string (self->config, "directory", NULL, &directory) &&
+      cockpit_json_get_strv (self->config, "environ", NULL, &envset) &&
+      cockpit_json_get_strv (self->config, "spawn", default_argv, &argv))
+    {
+      g_debug ("%s: spawning peer bridge process", self->name);
+      env = cockpit_pipe_get_environ ((const gchar **)envset, NULL);
+      pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env,
+                                 directory, COCKPIT_PIPE_FLAGS_NONE);
+    }
+  else
+    {
+      g_message ("invalid bridge configuration, cannot spawn channel");
+    }
+
+  g_free (envset);
+  g_free (argv);
+  g_strfreev (env);
+
+  return pipe;
+}
+
+/**
+ * cockpit_peer_handle:
+ * @peer: The peer object
+ * @channel: The channel to handle
+ * @options: The parsed "open" message
+ * @data: The raw payload for the "open" message
+ *
+ * Tell the peer bridge to handle this channel.
+ *
+ * Returns: TRUE if handled, FALSE if the peer bridge has closed.
+ */
+gboolean
+cockpit_peer_handle (CockpitPeer *self,
+                     const gchar *channel,
+                     JsonObject *options,
+                     GBytes *data)
+{
+  g_return_val_if_fail (COCKPIT_IS_PEER (self), FALSE);
+  g_return_val_if_fail (channel != NULL, FALSE);
+  g_return_val_if_fail (options != NULL, FALSE);
+  g_return_val_if_fail (data != NULL, FALSE);
+
+  if (self->closed)
+    {
+      /* There was an actual problem, close the channel */
+      if (self->problem)
+        {
+          g_debug ("%s: closing channel \"%s\" with \"%s\" because peer closed",
+                   self->name, channel, self->problem);
+          reply_channel_closed (self, channel);
+          return TRUE;
+        }
+
+      /* We failed to handle channels, let someone else do it */
+      g_debug ("%s: refusing to handle channel \"%s\" because peer closed", self->name, channel);
+      return FALSE;
+    }
+
+  cockpit_peer_ensure (self);
+  g_hash_table_add (self->channels, g_strdup (channel));
+
+  /* If already inited send the message through */
+  if (self->inited)
+    {
+      g_debug ("%s: handling channel \"%s\" on peer", self->name, channel);
+      on_transport_control (self->transport, "open", channel, options, data, self);
+    }
+
+  /* Not yet inited, so freeze this channel and push back into the queue */
+  else
+    {
+      g_debug ("%s: trying to handle channel \"%s\" on peer", self->name, channel);
+      if (!self->frozen)
+        self->frozen = g_queue_new ();
+      g_queue_push_tail (self->frozen, g_strdup (channel));
+      cockpit_transport_freeze (self->transport, channel);
+      cockpit_transport_emit_recv (self->transport, NULL, data);
+    }
+
+  return TRUE;
+}
+
+/**
+ * cockpit_peer_ensure:
+ * @peer: The peer object
+ *
+ * Ensures that the peer is spawned and initialized, if that's not
+ * already the case. If the peer failed this will not restart it and
+ * this function will return NULL.
+ *
+ * Returns: (transfer none): The transport to talk to the peer, or NULL
+ */
+CockpitTransport *
+cockpit_peer_ensure (CockpitPeer *self)
+{
+  static const gchar *default_init = "{ \"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }";
+  CockpitPipe *pipe;
+
+  g_return_val_if_fail (COCKPIT_IS_PEER (self), NULL);
+
+  if (!self->other)
+    {
+      pipe = spawn_process_for_config (self);
+      if (!pipe)
+        {
+          self->closed = TRUE;
+          return NULL;
+        }
+
+      self->other = cockpit_pipe_transport_new (pipe);
+      g_object_unref (pipe);
+
+      self->other_recv = g_signal_connect (self->other, "recv", G_CALLBACK (on_other_recv), self);
+      self->other_closed = g_signal_connect (self->other, "closed", G_CALLBACK (on_other_closed), self);
+      self->other_control = g_signal_connect (self->other, "control", G_CALLBACK (on_other_control), self);
+
+      if (!self->last_init)
+        self->last_init = g_bytes_new_static (default_init, strlen (default_init));
+      cockpit_transport_send (self->other, NULL, self->last_init);
+    }
+
+  return self->other;
+}

@@ -460,7 +460,10 @@
             angular.extend($scope, dialogData);
 
             $scope.performDelete = function performDelete() {
-                return methods.delete($scope.item);
+                return methods.delete($scope.item).catch(function(ex) {
+                    /* HACK: While debugging delete issues */
+                    console.log(JSON.stringify(ex));
+                });
             };
         }
     ])

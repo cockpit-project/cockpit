@@ -93,12 +93,12 @@ IconElement.propTypes = {
     state: PropTypes.string.isRequired,
 }
 
-const StateIcon = ({ state, config }) => {
+export const StateIcon = ({ state, config }) => {
     if (state === undefined) {
         return (<div/>);
     }
 
-    const stateMap = config.provider.vmStateMap || {
+    let stateMap = {
         running: {className: 'pficon pficon-ok icon-1x-vms', title: _("The VM is running.")}, // TODO: display VM screenshot if available or the ok-icon otherwise
         idle: {className: 'pficon pficon-running icon-1x-vms', title: _("The VM is idle.")},
         paused: {className: 'pficon pficon-pause icon-1x-vms', title: _("The VM is paused.")},
@@ -106,9 +106,12 @@ const StateIcon = ({ state, config }) => {
         'shut off': {className: 'fa fa-arrow-circle-o-down icon-1x-vms', title: _("The VM is down.")},
         crashed: {className: 'pficon pficon-error-circle-o icon-1x-vms', title: _("The VM crashed.")},
         dying: {className: 'pficon pficon-warning-triangle-o icon-1x-vms',
-                title: _("The VM is in process of dying (shut down or crash is not completed).")},
+            title: _("The VM is in process of dying (shut down or crash is not completed).")},
         pmsuspended: {className: 'pficon pficon-ok icon-1x-vms', title: _("The VM is suspended by guest power management.")},
-        };
+    };
+    if (config.provider.vmStateMap) { // merge default and provider's stateMap to allow both reuse and extension
+        stateMap = Object.assign(stateMap, config.provider.vmStateMap);
+    }
 
     if (stateMap[state]) {
         return (
@@ -131,7 +134,7 @@ StateIcon.propTypes = {
  * @returns {*}
  * @constructor
  */
-const DropdownButtons = ({ buttons }) => {
+export const DropdownButtons = ({ buttons }) => {
     const buttonsHtml = buttons.map(
         button => {
             return (<li className='presentation'>

@@ -31,11 +31,11 @@ The provider can be replaced by deploying `provider/index.js` into the machines 
     /usr/share/cockpit/machines/provider/index.js
 
 This script will be dynamically loaded and executed.
-The external provider script must create global window.EXTERNAL_PROVIDER object with following API:
+The external provider script must create global window.EXTERNAL_PROVIDER object with the following API:
 
     window.EXTERNAL_PROVIDER = {
         name: 'YOUR PROVIDER NAME',
-        init: function (actionCreators, nextProvider, React) {return true;}, // return boolean or Promise
+        init: function ( providerContext) {return true;}, // return boolean or Promise
 
         GET_VM: function ({ lookupId: name }) { return dispatch => {...}; }, // return Promise
         GET_ALL_VMS: function () {},
@@ -45,12 +45,16 @@ The external provider script must create global window.EXTERNAL_PROVIDER object 
         FORCEREBOOT_VM: function ({ name, id }) {},
         START_VM: function ({ name, id }) {},
         
+        vmStateMap, // optional map extending VM states for provider's specifics. Will be merged using Object.assign(), see <StateIcon> component
+        
         canReset: function (state) {return true;}, // return boolean
         canShutdown: function (state) {return true;},
         isRunning: function (state) {return true;},
         canRun: function (state) {return true;},
         
-        vmTabRenderers: [ // optional
+        reducer, // optional Redux reducer. If provided, the Redux reducer tree is lazily extended for this new branch (see reducers.es6)  
+        
+        vmTabRenderers: [ // optional, provider-specific array of subtabs rendered for a VM
             {name: 'Provider-specific subtab', componentFactory: YOUR_COMPONENT_FACTORY}, // see externalComponent.jsx for more info on componentFactory
           ],
 
@@ -58,11 +62,20 @@ The external provider script must create global window.EXTERNAL_PROVIDER object 
 
 The provider methods are expected to return a Promise.
 
-Please refer libvirt.es6 for current API and more details.
+The `providerContext` passed to the `init()` function as an argument consists of:
+
+    providerContext = {
+        defaultProvider, // next provider in the chain (Libvirt)
+        React, // React library to be shared between parent code and plugged provider
+        reduxStore, // Redux Store object created by parent application, there should be only one per application
+        exportedActionCreators, // common redux action creators 
+        exportedReactComponents, // exported React components for reuse in the plugged provider
+    }
+            
+Please refer the libvirt.es6 for the most current API description and more details.
 
 Referential implementation of an external provider is the cockpit-machines-ovirt-provider [2]
 
 ## Links
 \[1\] [How to enable nested virtualization in KVM](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)
 \[2\] [Cockpit-machines oVirt External Provider](https://github.com/mareklibra/cockpit-machines-ovirt-provider)
-

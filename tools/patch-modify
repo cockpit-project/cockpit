@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import sys
+
+def loadPatch(filename):
+    """ Load the patch from file
+    """
+    text = ""
+    with open(filename, "r") as fp:
+        text = fp.read()
+
+    # make sure this looks like a patch file
+    if not text.startswith("From "):
+        return None
+
+    return text
+
+def savePatch(filename, patch):
+    """ Save the patch to file
+    """
+    with open(filename, "w") as fp:
+        fp.write(patch)
+
+def splitPatch(text):
+    """ Split the patch into header, patch parts and version
+    """
+    # cut off the version
+    versionPos = text.rfind("\n--")
+    version = text[versionPos:]
+    text = text[:versionPos]
+    parts = text.split("\ndiff ");
+
+    # first part is header, split that further into comment and filelist
+    header = parts.pop(0)
+
+    # extract the filename from each part
+    # the first line looks like '--git a/dist/dashboard/Makefile.deps b/dist/dashboard/Makefile.deps'
+    parts = map(lambda p: (p, p.split("\n", 1)[0].split(" ")[-1][1:]), parts)
+
+    return (header, parts, version)
+
+def compareParts(p, q):
+    """ Function to compare two "parts" entries
+        We want to make sure that all filenames ending with "Makefile.deps" come last
+    """
+    parts.sort(lambda p, q: 0 if p[1].endswith("Makefile.deps") else -1)
+    if (p[1].endswith("Makefile.deps")):
+        if (q[1].endswith("Makefile.deps")):
+            return 0
+        return 1
+
+def combinePatch(header, parts, version):
+    """ Put all the parts back together
+    """
+    # throw away the filename first
+    parts = map(lambda (p, filename): p, parts)
+    parts.insert(0, header)
+    patch = "\ndiff ".join(parts)
+    patch = "{0}{1}".format(patch, version)
+    return patch
+
+def processPatch(filename):
+    """ Process a patchfile by loading it, sorting the parts and combining them again
+    """
+    text = loadPatch(filename)
+    (header, parts, version) = splitPatch(text)
+    parts.sort(compareParts)
+    return combinePatch(header, parts, version)
+
+def main():
+    parser = argparse.ArgumentParser(description="Modify a .patch file to work with Cockpit's build system")
+    parser.add_argument("--stdout", dest="stdout", action="store_true", default=False,
+                        help="Print the modified file to stdout instead of overwriting it")
+    parser.add_argument('patchfile')
+    args = parser.parse_args()
+
+    processedPatch = processPatch(args.patchfile)
+
+    if args.stdout:
+        print processedPatch
+    else:
+        savePatch(args.patchfile, processedPatch)
+
+if __name__ == '__main__':
+    sys.exit(main())

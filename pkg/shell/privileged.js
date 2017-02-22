@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2017 Red Hat, Inc.
+ * Copyright (C) 2016 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,17 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_SHIM_H__
-#define COCKPIT_SHIM_H__
+var cockpit = require("cockpit");
 
-#include "common/cockpittransport.h"
+function PolkitAgent() {
+    
 
-#include "cockpitchannel.h"
+};
 
-G_BEGIN_DECLS
-
-#define COCKPIT_TYPE_SHIM         (cockpit_shim_get_type ())
-
-GType              cockpit_shim_get_type   (void) G_GNUC_CONST;
-
-#endif /* COCKPIT_SHIM_H__ */
+module.exports = {
+    xxx;
+};

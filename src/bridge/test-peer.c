@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
-#include "cockpitportal.h"
+#include "cockpitpeer.h"
 #include "mock-transport.h"
 
 #include "common/cockpitjson.h"
@@ -105,6 +105,7 @@ mock_echo_channel_open (CockpitTransport *transport,
 typedef struct {
   MockTransport *transport;
   CockpitChannel *channel;
+  CockpitPeer *peer;
 } TestCase;
 
 static gboolean
@@ -117,16 +118,38 @@ on_transport_control (CockpitTransport *transport,
 {
   TestCase *tc = user_data;
   const gchar *payload;
+  JsonObject *object;
+  GBytes *data;
 
   g_assert (tc != NULL);
 
-  if (!tc->channel && channel && g_str_equal (command, "open") &&
-      cockpit_json_get_string (options, "payload", NULL, &payload) &&
-      g_strcmp0 (payload, "upper") == 0)
+  if (channel && g_str_equal (command, "open"))
     {
+      if (tc->peer && cockpit_peer_handle (tc->peer, channel, options, message))
+        {
+          return TRUE;
+        }
+
       /* Fallback to echo implementation */
-      tc->channel = mock_echo_channel_open (transport, channel);
-      return TRUE;
+      else if (!tc->channel && cockpit_json_get_string (options, "payload", NULL, &payload) &&
+          payload && g_str_equal (payload, "upper"))
+        {
+          tc->channel = mock_echo_channel_open (transport, channel);
+          return TRUE;
+        }
+
+      else
+        {
+          object = json_object_new ();
+          json_object_set_string_member (object, "command", "close");
+          json_object_set_string_member (object, "channel", channel);
+          json_object_set_string_member (object, "problem", "not-supported");
+          data = cockpit_json_write_bytes (object);
+          cockpit_transport_send (transport, NULL, data);
+          json_object_unref (object);
+          g_bytes_unref (data);
+          return TRUE;
+        }
     }
 
   return FALSE;
@@ -138,6 +161,9 @@ setup (TestCase *tc,
 {
   tc->transport = g_object_new (mock_transport_get_type (), NULL);
   while (g_main_context_iteration (NULL, FALSE));
+
+  /* Connect to fallback implementation */
+  g_signal_connect (tc->transport, "control", G_CALLBACK (on_transport_control), tc);
 }
 
 static void
@@ -148,126 +174,72 @@ teardown (TestCase *tc,
 
   g_clear_object (&tc->channel);
 
+  if (tc->peer)
+    {
+      g_object_add_weak_pointer (G_OBJECT (tc->peer), (gpointer *)&tc->peer);
+      g_object_unref (tc->peer);
+      g_assert (tc->peer == NULL);
+    }
+
   g_object_add_weak_pointer (G_OBJECT (tc->transport), (gpointer *)&tc->transport);
   g_object_unref (tc->transport);
   g_assert (tc->transport == NULL);
 }
 
-static gboolean
-mock_filter_upper (CockpitPortal *portal,
-                   const gchar *command,
-                   const gchar *channel,
-                   JsonObject *options)
+static CockpitPeer *
+peer_new (MockTransport *transport,
+          const gchar *bridge)
 {
-  const gchar *payload = NULL;
+  CockpitPeer *peer;
+  JsonObject *object;
+  GError *error = NULL;
 
-  if (channel && g_str_equal (command, "open") &&
-      cockpit_json_get_string (options, "payload", NULL, &payload) &&
-      g_strcmp0 (payload, "upper") == 0)
+  object = cockpit_json_parse_object (bridge, -1, &error);
+  g_assert_no_error (error);
+
+  peer = cockpit_peer_new (COCKPIT_TRANSPORT (transport), object);
+  json_object_unref (object);
+
+  return peer;
+}
+
+static CockpitPeer *
+mock_peer_simple_new (MockTransport *transport,
+                      const gchar *payload)
+{
+  CockpitPeer *peer;
+  gchar *bridge;
+
+  bridge = g_strdup_printf ("{ \"match\": { \"payload\": \"%s\" }, \"spawn\": [ \"%s\", \"--%s\" ] }",
+                            payload, BUILDDIR "/mock-bridge", payload);
+
+  peer = peer_new (transport, bridge);
+  g_free (bridge);
+
+  return peer;
+}
+
+static CockpitPeer *
+mock_peer_fail_new (MockTransport *transport,
+                    const gchar *payload,
+                    const gchar *problem)
+{
+  CockpitPeer *peer;
+  gchar *bridge;
+
+  if (problem)
     {
-      cockpit_portal_add_channel (portal, channel, COCKPIT_PORTAL_NORMAL);
-      return TRUE;
+      bridge = g_strdup_printf ("{ \"match\": { \"payload\": \"%s\" }, \"spawn\": [ \"/non-existant\" ], \"problem\": \"%s\" }", payload, problem);
+    }
+  else
+    {
+      bridge = g_strdup_printf ("{ \"match\": { \"payload\": \"%s\" }, \"spawn\": [ \"/non-existant\" ] }", payload);
     }
 
-  return FALSE;
-}
+  peer = peer_new (transport, bridge);
+  g_free (bridge);
 
-static gboolean
-mock_filter_upper_fallback (CockpitPortal *portal,
-                            const gchar *command,
-                            const gchar *channel,
-                            JsonObject *options)
-{
-  const gchar *payload = NULL;
-
-  if (channel && g_str_equal (command, "open") &&
-      cockpit_json_get_string (options, "payload", NULL, &payload) &&
-      g_strcmp0 (payload, "upper") == 0)
-    {
-      cockpit_portal_add_channel (portal, channel, COCKPIT_PORTAL_FALLBACK);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-static gboolean
-mock_filter_lower (CockpitPortal *portal,
-                   const gchar *command,
-                   const gchar *channel,
-                   JsonObject *options)
-{
-  const gchar *payload = NULL;
-
-  if (channel && g_str_equal (command, "open") &&
-      cockpit_json_get_string (options, "payload", NULL, &payload) &&
-      g_strcmp0 (payload, "lower") == 0)
-    {
-      cockpit_portal_add_channel (portal, channel, COCKPIT_PORTAL_NORMAL);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-static CockpitPortal *
-mock_portal_simple_new (MockTransport *transport,
-                        CockpitPortalFilter filter,
-                        const gchar *arg)
-{
-  static const char *mock_argv[] = {
-    BUILDDIR "/mock-bridge", NULL, NULL
-  };
-
-  static const gchar **good[] = { mock_argv, NULL };
-
-  mock_argv[1] = arg;
-
-  return g_object_new (COCKPIT_TYPE_PORTAL,
-                       "transport", transport,
-                       "filter", filter,
-                       "argvs", good,
-                       NULL);
-}
-
-static CockpitPortal *
-mock_portal_failover_new (MockTransport *transport,
-                          CockpitPortalFilter filter,
-                          const gchar *arg)
-{
-  static const char *fail_argv[] = {
-    "/non-existant", NULL
-  };
-
-  static const char *mock_argv[] = {
-    BUILDDIR "/mock-bridge", NULL, NULL
-  };
-
-  static const gchar **fail[] = { fail_argv, mock_argv, NULL };
-
-  mock_argv[1] = arg;
-  return g_object_new (COCKPIT_TYPE_PORTAL,
-                       "transport", transport,
-                       "filter", filter,
-                       "argvs", fail,
-                       NULL);
-}
-
-static CockpitPortal *
-mock_portal_fail_new (MockTransport *transport,
-                      CockpitPortalFilter filter)
-{
-  static const char *fail_argv[] = {
-    "/non-existant", NULL
-  };
-
-  static const gchar **fail[] = { fail_argv, NULL };
-
-  return g_object_new (COCKPIT_TYPE_PORTAL,
-                       "transport", transport,
-                       "filter", filter,
-                       "argvs", fail,
-                       NULL);
+  return peer;
 }
 
 static void
@@ -284,13 +256,32 @@ static void
 test_simple (TestCase *tc,
              gconstpointer unused)
 {
-  CockpitPortal *portal;
   GBytes *sent;
 
-  portal = mock_portal_simple_new (tc->transport, mock_filter_upper, "--upper");
+  tc->peer = mock_peer_simple_new (tc->transport, "upper");
 
-  /* Connect to fallback implementation */
-  g_signal_connect (tc->transport, "control", G_CALLBACK (on_transport_control), tc);
+  /* The filter should ignore this */
+  emit_string (tc, NULL, "{\"command\": \"hello\"}");
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  emit_string (tc, "a", "oh marmalade");
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+
+  /* The fallback channel was not created */
+  g_assert (tc->channel == NULL);
+}
+
+static void
+test_serial (TestCase *tc,
+             gconstpointer unused)
+{
+  GBytes *sent;
+
+  tc->peer = mock_peer_simple_new (tc->transport, "upper");
 
   /* The filter should ignore this */
   emit_string (tc, NULL, "{\"command\": \"hello\"}");
@@ -306,43 +297,58 @@ test_simple (TestCase *tc,
   /* The fallback channel was not created */
   g_assert (tc->channel == NULL);
 
-  g_object_unref (portal);
+  /* Open a second channel */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"upper\"}");
+  emit_string (tc, "b", "zero g");
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "b")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_bytes_eq (sent, "ZERO G", -1);
+
+  /* The fallback channel was not created */
+  g_assert (tc->channel == NULL);
 }
 
 static void
-test_failover (TestCase *tc,
+test_parallel (TestCase *tc,
                gconstpointer unused)
 {
-  CockpitPortal *portal;
   GBytes *sent;
 
-  portal = mock_portal_failover_new (tc->transport, mock_filter_lower, "--lower");
+  tc->peer = mock_peer_simple_new (tc->transport, "upper");
 
   /* The filter should ignore this */
   emit_string (tc, NULL, "{\"command\": \"hello\"}");
 
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"lower\"}");
-  emit_string (tc, "a", "Oh Marmalade");
+  /* Open two channels at the same time both bound for the peer */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"upper\"}");
+  emit_string (tc, "b", "zero g");
+  emit_string (tc, "a", "oh marmalade");
 
   while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  cockpit_assert_bytes_eq (sent, "oh marmalade", -1);
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "b")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_bytes_eq (sent, "ZERO G", -1);
 
   /* The fallback channel was not created */
   g_assert (tc->channel == NULL);
-
-  g_object_unref (portal);
 }
 
 static void
-test_fail (TestCase *tc,
-           gconstpointer unused)
+test_not_supported (TestCase *tc,
+                    gconstpointer unused)
 {
-  CockpitPortal *portal;
   JsonObject *sent;
 
-  portal = mock_portal_fail_new (tc->transport, mock_filter_lower);
+  /* The "lower" channel has no local implementation to fall back to */
+  tc->peer = mock_peer_fail_new (tc->transport, "lower", NULL);
 
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"lower\"}");
   emit_string (tc, "a", "Oh Marmalade");
@@ -354,21 +360,36 @@ test_fail (TestCase *tc,
 
   /* The fallback channel was not created */
   g_assert (tc->channel == NULL);
+}
 
-  g_object_unref (portal);
+static void
+test_fail_problem (TestCase *tc,
+                   gconstpointer unused)
+{
+  JsonObject *sent;
+
+  tc->peer = mock_peer_fail_new (tc->transport, "lower", "access-denied");
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"lower\"}");
+  emit_string (tc, "a", "Oh Marmalade");
+
+  while ((sent = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (sent, "{\"command\":\"close\",\"channel\":\"a\",\"problem\":\"access-denied\"}");
+
+  /* The fallback channel was not created */
+  g_assert (tc->channel == NULL);
 }
 
 static void
 test_fallback (TestCase *tc,
                gconstpointer unused)
 {
-  CockpitPortal *portal;
   GBytes *sent;
 
-  portal = mock_portal_fail_new (tc->transport, mock_filter_upper_fallback);
-
-  /* Connect to fallback implementation */
-  g_signal_connect (tc->transport, "control", G_CALLBACK (on_transport_control), tc);
+  /* The "upper" channel has a local implementaiton to fallback to */
+  tc->peer = mock_peer_fail_new (tc->transport, "upper", NULL);
 
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
   emit_string (tc, "a", "Oh MarmaLade");
@@ -381,8 +402,6 @@ test_fallback (TestCase *tc,
 
   /* The fallback channel was created */
   g_assert (tc->channel != NULL);
-
-  g_object_unref (portal);
 }
 
 int
@@ -391,13 +410,17 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/portal/simple", TestCase, NULL,
+  g_test_add ("/peer/simple", TestCase, NULL,
               setup, test_simple, teardown);
-  g_test_add ("/portal/failover", TestCase, NULL,
-              setup, test_failover, teardown);
-  g_test_add ("/portal/fail", TestCase, NULL,
-              setup, test_fail, teardown);
-  g_test_add ("/portal/fallback", TestCase, NULL,
+  g_test_add ("/peer/serial", TestCase, NULL,
+              setup, test_serial, teardown);
+  g_test_add ("/peer/parallel", TestCase, NULL,
+              setup, test_parallel, teardown);
+  g_test_add ("/peer/not-supported", TestCase, NULL,
+              setup, test_not_supported, teardown);
+  g_test_add ("/peer/fail-problem", TestCase, NULL,
+              setup, test_fail_problem, teardown);
+  g_test_add ("/peer/fallback", TestCase, NULL,
               setup, test_fallback, teardown);
 
   return g_test_run ();

@@ -32,10 +32,7 @@
 #include "cockpitpackages.h"
 #include "cockpitpipechannel.h"
 #include "cockpitinternalmetrics.h"
-#include "cockpitpolkitagent.h"
-#include "cockpitportal.h"
 #include "cockpitrouter.h"
-#include "cockpitshim.h"
 #include "cockpitwebsocketstream.h"
 
 #include "common/cockpitassets.h"
@@ -383,43 +380,6 @@ getpwuid_a (uid_t uid)
   return ret;
 }
 
-static CockpitChannel *
-pcp_shim (CockpitRouter *router,
-          CockpitTransport *transport,
-          const gchar *channel_id,
-          JsonObject *options)
-{
-  CockpitChannel *channel = NULL;
-  CockpitTransport *shim_transport = NULL;
-  const gchar *payload;
-  const gchar *source;
-
-  static const gchar *argv[] = {
-    PACKAGE_LIBEXEC_DIR "/cockpit-pcp",
-    NULL
-  };
-
-  if (!cockpit_json_get_string (options, "payload", NULL, &payload))
-    payload = NULL;
-  if (!cockpit_json_get_string (options, "source", NULL, &source))
-    source = NULL;
-
-  if (g_strcmp0 (payload, "metrics1") == 0 &&
-      g_strcmp0 (source, "internal") != 0)
-    {
-        shim_transport = cockpit_router_ensure_external_bridge (router, channel_id,
-                                                                NULL, argv, NULL);
-        channel = COCKPIT_CHANNEL (g_object_new (COCKPIT_TYPE_SHIM,
-                                                 "transport", transport,
-                                                 "id", channel_id,
-                                                 "options", options,
-                                                 "shim-transport", shim_transport,
-                                                 NULL));
-    }
-
-  return channel;
-}
-
 static int
 run_bridge (const gchar *interactive,
             gboolean privileged_slave)
@@ -429,12 +389,11 @@ run_bridge (const gchar *interactive,
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  CockpitPortal *super = NULL;
-  gpointer polkit_agent = NULL;
   const gchar *directory;
   struct passwd *pwd;
   GPid daemon_pid = 0;
   GPid agent_pid = 0;
+  GList *bridges = NULL;
   guint sig_term;
   guint sig_int;
   int outfd;
@@ -515,18 +474,12 @@ run_bridge (const gchar *interactive,
       transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
     }
 
-  if (uid != 0)
-    {
-      if (!interactive)
-        polkit_agent = cockpit_polkit_agent_register (transport, NULL);
-      super = cockpit_portal_new_superuser (transport);
-    }
-
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
-  router = cockpit_router_new (transport, payload_types, NULL);
-  cockpit_router_add_channel_function (router, pcp_shim);
+  if (!privileged_slave)
+    bridges = cockpit_packages_get_bridges (packages);
+  router = cockpit_router_new (transport, payload_types, bridges);
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
   cockpit_dbus_process_startup ();
@@ -540,13 +493,9 @@ run_bridge (const gchar *interactive,
   while (!terminated && !closed && !interupted)
     g_main_context_iteration (NULL, TRUE);
 
-  if (polkit_agent)
-    cockpit_polkit_agent_unregister (polkit_agent);
-  if (super)
-    g_object_unref (super);
-
   g_object_unref (router);
   g_object_unref (transport);
+  g_list_free (bridges);
 
   cockpit_dbus_internal_cleanup ();
   cockpit_packages_free (packages);

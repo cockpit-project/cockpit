@@ -171,7 +171,6 @@ distclean-local::
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
-	$(SED_SUBST) -i $(DESTDIR)$(pkgdatadir)/*/manifest.json
 install-data-local:: $(WEBPACK_DEBUG)
 	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
@@ -234,7 +233,6 @@ VALGRIND_SUPPRESSIONS = \
 	tools/glib.supp \
 	tools/pthread.supp \
 	tools/travis.supp \
-	tools/polkit.supp \
 	tools/pcp.supp \
 	tools/unknown.supp \
 	tools/zlib.supp \
@@ -252,23 +250,6 @@ recheck-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
-
-SED_SUBST = sed \
-        -e 's,[@]datadir[@],$(datadir),g' \
-        -e 's,[@]libexecdir[@],$(libexecdir),g' \
-        -e 's,[@]libdir[@],$(libdir),g' \
-        -e 's,[@]includedir[@],$(includedir),g' \
-        -e 's,[@]bindir[@],$(bindir),g' \
-        -e 's,[@]sbindir[@],$(sbindir),g' \
-        -e 's,[@]prefix[@],$(prefix),g' \
-        -e 's,[@]exec_prefix[@],$(exec_prefix),g' \
-        -e 's,[@]prefix[@],$(prefix),g' \
-        -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
-        -e 's,[@]VERSION[@],$(VERSION),g' \
-        -e 's,[@]user[@],$(COCKPIT_USER),g' \
-        -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
-        -e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
-        $(NULL)
 
 testassetsdir = $(prefix)/lib/cockpit-test-assets
 testassets_programs =
@@ -395,7 +376,6 @@ include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 include src/ws/Makefile-ws.am
-include src/reauthorize/Makefile-reauthorize.am
 include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am
 include containers/Makefile.am

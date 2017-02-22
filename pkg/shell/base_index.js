@@ -190,6 +190,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         var origin = cockpit.transport.origin;
         var source_by_seed = { };
         var source_by_name = { };
+        var agents = { };
 
         cockpit.transport.filter(function(message, channel, control) {
             var seed, source, pos;
@@ -331,6 +332,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             var source = source_by_name[child.name];
             var control;
+            var host;
 
             /* Closing the transport */
             if (data.length === 0) {
@@ -382,6 +384,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 } else if (control.command == "open") {
                     control.group = child.name;
                     data = "\n" + JSON.stringify(control);
+
+                    /* Do we have a polkit agent for this host? */
+                    if (index.agent) {
+                        host = control.host || source.default_host;
+                        if (!agents[host] && control.session !== "private")
+                            agents[host] = index.agent(control);
+                    }
                 }
             }
 

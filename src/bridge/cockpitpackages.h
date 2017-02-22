@@ -31,6 +31,8 @@ const gchar *     cockpit_packages_get_checksum     (CockpitPackages *packages);
 
 gchar **          cockpit_packages_get_names        (CockpitPackages *packages);
 
+GList *           cockpit_packages_get_bridges      (CockpitPackages *packages);
+
 gchar *           cockpit_packages_resolve          (CockpitPackages *packages,
                                                      const gchar *name,
                                                      const gchar *path,

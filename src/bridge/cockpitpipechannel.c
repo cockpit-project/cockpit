@@ -298,39 +298,13 @@ cockpit_pipe_channel_init (CockpitPipeChannel *self)
   self->latency = 75;
 }
 
-static gint
-environ_find (gchar **env,
-              const gchar *variable)
-{
-  gint len, x;
-  gchar *pos;
-
-  pos = strchr (variable, '=');
-  if (pos == NULL)
-    len = strlen (variable);
-  else
-    len = pos - variable;
-
-  for (x = 0; env && env[x]; x++)
-    {
-      if (strncmp (env[x], variable, len) == 0 &&
-          env[x][len] == '=')
-        return x;
-    }
-
-  return -1;
-}
-
 static gchar **
 parse_environ (CockpitChannel *channel,
                JsonObject *options,
                const gchar *directory)
 {
   gchar **envset = NULL;
-  gboolean had_pwd = FALSE;
-  gsize length;
   gchar **env;
-  gint i, x;
 
   if (!cockpit_json_get_strv (options, "environ", NULL, &envset))
     {
@@ -338,36 +312,7 @@ parse_environ (CockpitChannel *channel,
       return NULL;
     }
 
-  env = g_get_environ ();
-  length = g_strv_length (env);
-
-  for (i = 0; envset && envset[i] != NULL; i++)
-    {
-      if (g_str_equal (envset[i], "PWD"))
-        had_pwd = TRUE;
-      x = environ_find (env, envset[i]);
-      if (x != -1)
-        {
-          g_free (env[x]);
-          env[x] = g_strdup (envset[i]);
-        }
-      else
-        {
-          env = g_renew (gchar *, env, length + 2);
-          env[length] = g_strdup (envset[i]);
-          env[length + 1] = NULL;
-          length++;
-        }
-    }
-
-  /*
-   * The kernel only knows about the inode of the current directory.
-   * So when we spawn a shell, it won't know the directory it's
-   * meant to display. Pass it the path we care about in $PWD
-   */
-  if (!had_pwd && directory)
-    env = g_environ_setenv (env, "PWD", directory, TRUE);
-
+  env = cockpit_pipe_get_environ ((const gchar **)envset, directory);
   g_free (envset);
   return env;
 }

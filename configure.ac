@@ -69,7 +69,6 @@ GIO_REQUIREMENT="gio-unix-2.0 >= $GIO_VERSION gio-2.0 >= $GIO_VERSION"
 LIBSYSTEMD_REQUIREMENT="libsystemd"
 LIBSYSTEMD_REQUIREMENT_OLD="libsystemd-journal >= 187 libsystemd-daemon libsystemd-login"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
-POLKIT_REQUIREMENT="polkit-agent-1 >= 0.105"
 
 PKG_CHECK_MODULES(GIO, [$GIO_REQUIREMENT])
 GLIB_VERSION_DEF="GLIB_VERSION_$(echo $GLIB_VERSION | tr '.' '_')"
@@ -80,7 +79,6 @@ PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT], [], [
 	PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT_OLD])
 ])
 PKG_CHECK_MODULES(JSON_GLIB, [$JSON_GLIB_REQUIREMENT])
-PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT])
 
 # HACK: We can't yet use the new krb5 pkg-config file
 AC_PATH_PROG(KRB5_CONFIG, krb5-config)
@@ -98,8 +96,8 @@ COCKPIT_LIBS="$GIO_LIBS $JSON_GLIB_LIBS $LIBSYSTEMD_LIBS -lutil -lm"
 AC_SUBST(COCKPIT_CFLAGS)
 AC_SUBST(COCKPIT_LIBS)
 
-COCKPIT_BRIDGE_CFLAGS="$COCKPIT_CFLAGS $POLKIT_CFLAGS"
-COCKPIT_BRIDGE_LIBS="$COCKPIT_LIBS $POLKIT_LIBS"
+COCKPIT_BRIDGE_CFLAGS="$COCKPIT_CFLAGS"
+COCKPIT_BRIDGE_LIBS="$COCKPIT_LIBS"
 AC_SUBST(COCKPIT_BRIDGE_CFLAGS)
 AC_SUBST(COCKPIT_BRIDGE_LIBS)
 
@@ -112,11 +110,6 @@ COCKPIT_SESSION_CFLAGS="$KRB5_CFLAGS"
 COCKPIT_SESSION_LIBS="$KRB5_LIBS"
 AC_SUBST(COCKPIT_SESSION_CFLAGS)
 AC_SUBST(COCKPIT_SESSION_LIBS)
-
-COCKPIT_POLKIT_CFLAGS="$GIO_CFLAGS $POLKIT_CFLAGS"
-COCKPIT_POLKIT_LIBS="$GIO_LIBS $POLKIT_LIBS"
-AC_SUBST(COCKPIT_POLKIT_CFLAGS)
-AC_SUBST(COCKPIT_POLKIT_LIBS)
 
 COCKPIT_WS_CFLAGS="$COCKPIT_CFLAGS $KRB5_CFLAGS"
 COCKPIT_WS_LIBS="$COCKPIT_LIBS $KRB5_LIBS"
@@ -164,7 +157,6 @@ AC_CHECK_LIB(pam, pam_open_session, [ true ],
 PAM_LIBS="-lpam"
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS $PAM_LIBS"
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS $PAM_LIBS"
-REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS $PAM_LIBS"
 
 # pam module directory
 AC_ARG_WITH([pamdir],
@@ -174,16 +166,6 @@ AC_ARG_WITH([pamdir],
 pamdir=$with_pamdir
 AC_SUBST(pamdir)
 
-# keyutils
-AC_CHECK_HEADER([keyutils.h], ,
-  [AC_MSG_ERROR([Couldn't find keyutils headers. Try installing keyutils-libs-devel])]
-)
-AC_CHECK_LIB(keyutils, keyctl_join_session_keyring, [ true ],
-  [AC_MSG_ERROR([Couldn't find keyutils library. Try installing keyutils-libs-devel])]
-)
-COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lkeyutils"
-REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lkeyutils"
-
 # crypt
 AC_CHECK_HEADER([crypt.h], ,
   [AC_MSG_ERROR([Couldn't find crypt headers. Try installing glibc-headers])]
@@ -192,7 +174,6 @@ AC_CHECK_LIB(crypt, crypt_r, [ true ],
   [AC_MSG_ERROR([Couldn't find crypt library. Try installing glibc-devel])]
 )
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
-REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 
 # pcp
 AC_MSG_CHECKING([whether to build with PCP])
@@ -325,11 +306,11 @@ AC_DEFINE_UNQUOTED([PATH_CHPASSWD],["$CHPASSWD"],[Location of chpasswd binary])
 
 # pkexec
 AC_PATH_PROG([PKEXEC], [pkexec], [/usr/bin/pkexec], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_DEFINE_UNQUOTED([PATH_PKEXEC], ["$PKEXEC"], [Location of pkexec binary])
+AC_SUBST(PKEXEC)
 
 # sudo
 AC_PATH_PROG([SUDO], [sudo], [/usr/bin/sudo], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_DEFINE_UNQUOTED([PATH_SUDO], ["$SUDO"], [Location of sudo binary])
+AC_SUBST(SUDO)
 
 # ssh-add
 AC_PATH_PROG([SSH_ADD], [ssh-add], [/usr/bin/ssh-add], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
@@ -416,19 +397,19 @@ AC_ARG_WITH(cockpit_group,
                           )
            )
 if test -z "$with_cockpit_user"; then
-    COCKPIT_USER=root
-    COCKPIT_GROUP=
+    cockpit_user=root
+    cockpit_group=
 else
-    COCKPIT_USER=$with_cockpit_user
+    cockpit_user=$with_cockpit_user
     if test -z "$with_cockpit_group"; then
-        COCKPIT_GROUP=$with_cockpit_user
+        cockpit_group=$with_cockpit_user
     else
-	COCKPIT_GROUP=$with_cockpit_group
+	cockpit_group=$with_cockpit_group
     fi
 fi
 
-AC_SUBST(COCKPIT_USER)
-AC_SUBST(COCKPIT_GROUP)
+AC_SUBST(cockpit_user)
+AC_SUBST(cockpit_group)
 
 AC_ARG_WITH(selinux_config_type,
 	    AS_HELP_STRING([--with-selinux-config-type=<type>],
@@ -436,8 +417,8 @@ AC_ARG_WITH(selinux_config_type,
                           )
            )
 
-COCKPIT_SELINUX_CONFIG_TYPE=$with_selinux_config_type
-AC_SUBST(COCKPIT_SELINUX_CONFIG_TYPE)
+selinux_config_type=$with_selinux_config_type
+AC_SUBST(selinux_config_type)
 
 # Documentation
 
@@ -556,16 +537,32 @@ AC_MSG_RESULT($enable_strict)
 # Generate
 #
 
-AC_SUBST(REAUTHORIZE_LIBS)
 AC_SUBST(PAM_LIBS)
 
 AC_DEFINE([MAX_PACKET_SIZE], [65536], [Maximum size of packet messages])
 
 AC_OUTPUT([
 Makefile
-pkg/networkmanager/override.json
-pkg/storaged/override.json
 doc/guide/version
+pkg/dashboard/manifest.json
+pkg/docker/manifest.json
+pkg/kdump/manifest.json
+pkg/kubernetes/manifest.json
+pkg/machines/manifest.json
+pkg/networkmanager/manifest.json
+pkg/ostree/manifest.json
+pkg/pcp/manifest.json
+pkg/playground/manifest.json
+pkg/realmd/manifest.json
+pkg/selinux/manifest.json
+pkg/shell/manifest.json
+pkg/sosreport/manifest.json
+pkg/storaged/manifest.json
+pkg/subscriptions/manifest.json
+pkg/systemd/manifest.json
+pkg/tuned/manifest.json
+pkg/users/manifest.json
+src/ws/cockpit.service
 ])
 
 
@@ -591,9 +588,9 @@ echo "
         cflags:                     ${CFLAGS}
         cppflags:                   ${CPPFLAGS}
 
-        cockpit-ws user:            ${COCKPIT_USER}
-        cockpit-ws group:           ${COCKPIT_GROUP}
-        selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
+        cockpit-ws user:            ${cockpit_user}
+        cockpit-ws group:           ${cockpit_group}
+        selinux config type:        ${selinux_config_type}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}
         Building docs:              ${enable_doc}
@@ -607,6 +604,7 @@ echo "
         Supports key auth:          ${key_auth}
 
         pkexec:                     ${PKEXEC}
+        polkit-agent-helper-1:      ${POLKIT_AGENT_HELPER}
         ssh-add:                    ${SSH_ADD}
         ssh-agent:                  ${SSH_AGENT}
         sudo:                       ${SUDO}

@@ -32,6 +32,11 @@
 
     credentials.setup();
 
+    /* Creates a new agent for a given host */
+    function agent(options) {
+        return require("./polkit").agent(options).register();
+    }
+
     var options = {
         brand_sel: "#index-brand",
         logout_sel: "#go-logout",
@@ -41,7 +46,8 @@
         account_sel: "#go-account",
         user_sel: "#content-user-name",
         credential_sel: "#credential-authorize",
-        default_title: "Cockpit"
+        default_title: "Cockpit",
+        agent: agent,
     };
 
     indexes.machines_index(options, machines, loader, dialogs);

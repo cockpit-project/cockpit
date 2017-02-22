@@ -107,6 +107,9 @@ GBytes *           cockpit_pipe_consume      (GByteArray *buffer,
                                               gsize length,
                                               gsize after);
 
+gchar **           cockpit_pipe_get_environ  (const gchar **set,
+                                              const gchar *directory);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_PIPE_H__ */

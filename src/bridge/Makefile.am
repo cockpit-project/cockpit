@@ -30,12 +30,12 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitpackages.h \
 	src/bridge/cockpitpaths.c \
 	src/bridge/cockpitpaths.h \
+	src/bridge/cockpitpeer.c \
+	src/bridge/cockpitpeer.h \
 	src/bridge/cockpitnullchannel.c \
 	src/bridge/cockpitnullchannel.h \
 	src/bridge/cockpitrouter.c \
 	src/bridge/cockpitrouter.h \
-	src/bridge/cockpitshim.c \
-	src/bridge/cockpitshim.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitwebsocketstream.c \
@@ -48,27 +48,19 @@ libcockpit_stub_a_CFLAGS = \
 	$(COCKPIT_CFLAGS) \
 	$(NULL)
 
-libcockpit_bridge_a_SOURCES = \
+libcockpit_bridge_METRICS = \
 	src/bridge/cockpitblocksamples.c \
 	src/bridge/cockpitblocksamples.h \
 	src/bridge/cockpitcgroupsamples.c \
 	src/bridge/cockpitcgroupsamples.h \
-	src/bridge/cockpitconnect.c \
-	src/bridge/cockpitconnect.h \
 	src/bridge/cockpitcpusamples.c \
 	src/bridge/cockpitcpusamples.h \
-	src/bridge/cockpitdbussetup.c \
-	src/bridge/cockpitdbususer.c \
 	src/bridge/cockpitdisksamples.c \
 	src/bridge/cockpitdisksamples.h \
 	src/bridge/cockpitinternalmetrics.c \
 	src/bridge/cockpitinternalmetrics.h \
 	src/bridge/cockpitpipechannel.c \
 	src/bridge/cockpitpipechannel.h \
-	src/bridge/cockpitpolkitagent.c \
-	src/bridge/cockpitpolkitagent.h \
-	src/bridge/cockpitportal.c \
-	src/bridge/cockpitportal.h \
 	src/bridge/cockpitmemorysamples.c \
 	src/bridge/cockpitmemorysamples.h \
 	src/bridge/cockpitmetrics.c \
@@ -79,6 +71,15 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitnetworksamples.h \
 	src/bridge/cockpitsamples.c \
 	src/bridge/cockpitsamples.h \
+	$(NULL)
+
+libcockpit_bridge_a_SOURCES = \
+	src/bridge/cockpitconnect.c \
+	src/bridge/cockpitconnect.h \
+	src/bridge/cockpitdbussetup.c \
+	src/bridge/cockpitdbususer.c \
+	src/bridge/cockpitpipechannel.c \
+	src/bridge/cockpitpipechannel.h \
 	src/bridge/cockpitfsread.c \
 	src/bridge/cockpitfsread.h \
 	src/bridge/cockpitfsreplace.c \
@@ -87,6 +88,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitfswatch.h \
 	src/bridge/cockpitfslist.c \
 	src/bridge/cockpitfslist.h \
+	$(libcockpit_bridge_METRICS) \
 	$(NULL)
 
 libcockpit_bridge_a_CFLAGS = \
@@ -113,7 +115,6 @@ libcockpit_bridge_LIBS = \
 # -----------------------------------------------------------------------------
 
 bin_PROGRAMS += cockpit-bridge
-libexec_PROGRAMS += cockpit-polkit
 
 cockpit_bridge_SOURCES = src/bridge/bridge.c
 cockpit_bridge_CFLAGS = \
@@ -122,10 +123,6 @@ cockpit_bridge_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 cockpit_bridge_LDADD = $(libcockpit_bridge_LIBS)
-
-cockpit_polkit_SOURCES = src/bridge/cockpitpolkithelper.c
-cockpit_polkit_CFLAGS = $(COCKPIT_POLKIT_CFLAGS)
-cockpit_polkit_LDADD = libreauthorize.a $(REAUTHORIZE_LIBS) $(COCKPIT_POLKIT_LIBS)
 
 libexec_PROGRAMS += cockpit-stub
 
@@ -137,15 +134,8 @@ cockpit_stub_CFLAGS = \
 	$(NULL)
 cockpit_stub_LDADD = $(libcockpit_stub_LIBS)
 
-# polkit-agent-helper-1 need to be setuid root because polkit wants
-# responses to come from a root process
-install-data-hook::
-	chown -f root:0 $(DESTDIR)$(libexecdir)/cockpit-polkit || true
-	chmod -f 4755 $(DESTDIR)$(libexecdir)/cockpit-polkit
-
 EXTRA_DIST += \
 	src/bridge/cockpit.pam.insecure \
-	src/bridge/sshd-reauthorize.pam \
 	$(NULL)
 
 # -----------------------------------------------------------------------------
@@ -155,9 +145,9 @@ BRIDGE_CHECKS = \
 	test-paths \
 	test-rules \
 	test-channel \
-	test-portal \
 	test-pipe-channel \
 	test-packages \
+	test-peer \
 	test-dbus-meta \
 	test-fs \
 	test-metrics \
@@ -205,12 +195,13 @@ test_paths_SOURCES = src/bridge/test-paths.c
 test_paths_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_paths_LDADD = $(libcockpit_bridge_LIBS)
 
-test_portal_SOURCES = src/bridge/test-portal.c \
+test_peer_SOURCES = src/bridge/test-peer.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_portal_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_portal_LDADD = $(libcockpit_bridge_LIBS)
+test_peer_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_peer_LDADD = $(libcockpit_bridge_LIBS)
 
 test_router_SOURCES = src/bridge/test-router.c \
+	src/bridge/mock-channel.c src/bridge/mock-channel.h \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_router_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_router_LDADD = $(libcockpit_bridge_LIBS)
@@ -291,12 +282,13 @@ libcockpit_pcp_a_SOURCES = \
 	src/bridge/cockpitchannel.h \
 	src/bridge/cockpitconnect.c \
 	src/bridge/cockpitconnect.h \
-	src/bridge/cockpitmetrics.c \
-	src/bridge/cockpitmetrics.h \
 	src/bridge/cockpitpcpmetrics.c \
 	src/bridge/cockpitpcpmetrics.h \
+	src/bridge/cockpitpeer.c \
+	src/bridge/cockpitpeer.h \
 	src/bridge/cockpitrouter.c \
 	src/bridge/cockpitrouter.h \
+	$(libcockpit_bridge_METRICS) \
 	$(NULL)
 
 libcockpit_pcp_a_CFLAGS = \

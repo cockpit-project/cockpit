@@ -34,6 +34,11 @@ var info = {
             "machines/machines.less",
         ],
 
+        "devices/devices": [
+            "devices/index.js",
+            "devices/devices.css",
+        ],
+
         "networkmanager/network": [
             "networkmanager/interfaces.js",
             "networkmanager/utils.js"
@@ -172,6 +177,9 @@ var info = {
 
         "machines/index.html",
         "machines/manifest.json",
+
+        "devices/index.html",
+        "devices/manifest.json",
 
         "networkmanager/index.html",
         "networkmanager/manifest.json",

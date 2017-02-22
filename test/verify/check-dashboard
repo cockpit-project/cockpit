@@ -274,15 +274,39 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()
 
-    def testMachinesJsonVar(self):
+    def testMachinesJsonVarMigration(self):
         b = self.browser
         m = self.machine
 
-        # create obsolete machines.json in /var, which should still be respected
+        # create obsolete machines.json in /var
         blue_conf = '{"blue": {"address": "1.2.3.4", "visible": true}}'
-        m.execute("""echo '%s' > /var/lib/cockpit/machines.json""" % blue_conf)
+        m.execute("echo '%s' > /var/lib/cockpit/machines.json" % blue_conf)
+        # prevent migration due to permission error; should not crash and keep/respect the old file
+        m.execute("""chattr +i /etc/cockpit/machines.d""")
         self.login_and_go("/dashboard")
         self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4" ])
+        b.logout()
+        # should not have written anything and left the original file untouched
+        m.execute('chattr -i /etc/cockpit/machines.d && [ "$(ls /etc/cockpit/machines.d)" = "" ]')
+        self.assertEqual(m.execute("cat /var/lib/cockpit/machines.json").strip(), blue_conf)
+        self.allow_journal_messages(".*migration of /var/lib/cockpit/machines.json to /etc/cockpit/machines.d/99-webui.json failed:.*")
+
+        # now machines.d/ is writable, should migrate
+        self.login_and_go("/dashboard")
+        self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4" ])
+        b.logout()
+        m.execute('test ! -e /var/lib/cockpit/machines.json')
+        self.assertEqual(m.execute('cat /etc/cockpit/machines.d/99-webui.json').strip(), blue_conf)
+
+        # old /var file should not clobber existing 99-webui.json but move to 98-migrated.json and merge its data
+        green_conf = '{"green": {"address": "9.8.7.6", "visible": true}}'
+        m.execute("echo '%s' > /var/lib/cockpit/machines.json" % green_conf)
+        self.login_and_go("/dashboard")
+        self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4", "9.8.7.6" ])
+        b.logout()
+        m.execute('test ! -e /var/lib/cockpit/machines.json')
+        self.assertEqual(m.execute('cat /etc/cockpit/machines.d/99-webui.json').strip(), blue_conf)
+        self.assertEqual(m.execute('cat /etc/cockpit/machines.d/98-migrated.json').strip(), green_conf)
 
 
 @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")

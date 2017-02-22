@@ -592,6 +592,7 @@ This package contains tests and files used while testing Cockpit.
 These files are not required for running Cockpit.
 
 %files tests
+%{_sysconfdir}/systemd/system/cockpit.service.d
 %{_datadir}/%{name}/playground
 %{_prefix}/lib/cockpit-test-assets
 

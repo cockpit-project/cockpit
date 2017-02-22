@@ -68,6 +68,12 @@ var info = {
         "playground/translate": [
             "playground/translate",
         ],
+        "playground/plugins": [
+            "playground/plugins",
+        ],
+        "playground/hellogreeterplugin": [
+            "playground/hellogreeterplugin",
+        ],
 
         "realmd/domain": [
             "realmd/operation.js",
@@ -190,6 +196,7 @@ var info = {
         "playground/speed.html",
         "playground/test.html",
         "playground/translate.html",
+        "playground/plugins.html",
 
         "realmd/manifest.json",
 

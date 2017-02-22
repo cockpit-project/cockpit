@@ -587,6 +587,7 @@ This package contains programs and other files for testing Cockpit, and
 pulls in some necessary packages via dependencies.
 
 %files tests
+%{_sysconfdir}/systemd/system/cockpit.service.d
 %{_datadir}/%{name}/playground
 %{_prefix}/lib/cockpit-test-assets
 

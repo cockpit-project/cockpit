@@ -29,9 +29,9 @@ class TestNetworking(NetworkCase):
 
         self.login_and_go("/network")
 
-        iface1 = self.add_iface()
-        iface2 = self.add_iface(activate=False)
-        self.wait_for_iface(iface1)
+        iface1 = self.add_iface(vlan=1, activate=False)
+        iface2 = self.add_iface(vlan=2, activate=False)
+        self.wait_for_iface(iface1, active=False)
         self.wait_for_iface(iface2, active=False)
 
         # Bond them
@@ -87,19 +87,19 @@ class TestNetworking(NetworkCase):
         b = self.browser
         m = self.machine
 
-        iface1 = self.add_iface()
-        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface1))
-
-        iface2 = self.add_iface()
-        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface2))
+        iface1 = self.add_iface(vlan=1, activate=False)
+        iface2 = self.add_iface(vlan=2, activate=False)
 
         m.execute("nmcli con add type ethernet ifname %s con-name TEST1" % iface1)
         m.execute("nmcli con add type ethernet ifname %s con-name TEST2" % iface2)
         m.execute("nmcli con mod TEST1 ipv4.method shared")
 
         self.login_and_go("/network")
-        self.wait_for_iface(iface1)
-        self.wait_for_iface(iface2)
+        if m.image in [ "debian-8" ]:
+            self.wait_for_iface(iface1, state="Configuring")
+        else:
+            self.wait_for_iface(iface1, state="10.42.")
+        self.wait_for_iface(iface2, state="Configuring")
 
         m.execute("nmcli con up TEST1")
         m.execute("nmcli dev dis %s" % iface2)

@@ -149,6 +149,7 @@ WEBPACK_PACKAGES = \
 	machines \
 	networkmanager \
 	ostree \
+	pcp \
 	playground \
 	realmd \
 	selinux \
@@ -185,8 +186,8 @@ EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
 # Run webpack if we don't have the include file or if its out of date
 # If we have distributed a copy in a tarball, copy that into place
 dist/%/Makefile.deps: $(WEBPACK_CONFIG)
-	$(AM_V_GEN) if test $(srcdir)/dist/$*/Makefile.deps -nt $(WEBPACK_CONFIG); \
-	then $(MKDIR_P) $(dir $@) && cp -p $(srcdir)/dist/$*/Makefile.deps $@.tmp && $(MV) $@.tmp $@; \
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && if test $(srcdir)/dist/$*/Makefile.deps -nt $(WEBPACK_CONFIG); \
+	then cp -p $(srcdir)/dist/$*/Makefile.deps $@.tmp && $(MV) $@.tmp $@; \
 	else $(WEBPACK_MAKE) -d $@ $<; fi
 dist/%/manifest.json: pkg/%/manifest.json
 	$(COPY_RULE)

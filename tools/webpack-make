@@ -176,6 +176,8 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_TESTS", tests);
 
     var filters = po_locations.map(function (l) { return "-N " + l; });
+    if (prefix === "shell")
+        filters.push("$(addprefix -N ,$(shell find pkg/ -name manifest.json))");
 
     lines.push(path.join(pkgdir, "%.po") + ": po/%.po");
     lines.push("\t$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \\");

@@ -209,6 +209,7 @@ EXTRA_DIST += \
 	$(appdata_in) \
 	$(desktop_in) \
 	$(pixmap_DATA) \
+	src/ws/fatal.conf \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------
@@ -382,6 +383,9 @@ testassets_data += \
 CLEANFILES += \
 	mock-pam-conv-mod.so \
 	$(NULL)
+
+systemdserviceddir = $(sysconfdir)/systemd/system/cockpit.service.d
+systemdserviced_DATA = src/ws/fatal.conf
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d

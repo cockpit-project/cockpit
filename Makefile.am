@@ -279,18 +279,11 @@ recheck-memory: valgrind-suppressions
 		$(AM_MAKEFLAGS) recheck
 
 testassetsdir = $(prefix)/lib/cockpit-test-assets
-testassets_programs =
 testassets_data =
-testassets_systemdunit_data =
 
-install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_systemdunit_data)
+install-test-assets: $(testassets_data)
 	$(MKDIR_P) $(DESTDIR)$(testassetsdir)
-	$(MKDIR_P) $(DESTDIR)$(systemdunitdir)
-	for p in $(testassets_programs); do \
-          $(INSTALL_PROGRAM) $$p $(DESTDIR)$(testassetsdir); \
-        done
 	cd $(srcdir); for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
-	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 
 install-data-hook::
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit

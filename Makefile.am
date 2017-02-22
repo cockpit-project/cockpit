@@ -168,7 +168,11 @@ V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/Makefile.deps=%)";
 WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 
+if MAINTAINER_MODE
 WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
+else
+WEBPACK_RULE = @echo "Skipping webpack update in non-maintainer mode: $(@:dist/%/Makefile.deps=%)"; \#
+endif
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =

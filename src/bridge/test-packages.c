@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
+
 #include "config.h"
 
 #include "cockpitchannel.h"
@@ -526,6 +528,36 @@ test_list_bad_name (TestCase *tc,
   g_bytes_unref (data);
 }
 
+static const Fixture fixture_glob = {
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/glob", NULL },
+    .path = "/*/file.txt"
+};
+
+static void
+test_glob (TestCase *tc,
+           gconstpointer fixture)
+{
+  GError *error = NULL;
+  GBytes *message;
+  JsonObject *object;
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  message = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (message, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Type\":\"text/plain\"}}");
+  json_object_unref (object);
+
+  message = mock_transport_pop_channel (tc->transport, "444");
+  cockpit_assert_bytes_eq (message, "a\n", 2);
+
+  message = mock_transport_pop_channel (tc->transport, "444");
+  cockpit_assert_bytes_eq (message, "b\n", 2);
+}
+
 static void
 setup_basic (TestCase *tc,
              gconstpointer data)
@@ -671,6 +703,8 @@ main (int argc,
   g_test_add ("/packages/listing-bad-name", TestCase, &fixture_list_bad_name,
               setup, test_list_bad_name, teardown);
 
+  g_test_add ("/packages/glob", TestCase, &fixture_glob,
+              setup, test_glob, teardown);
 
   g_test_add ("/packages/resolve/simple", TestCase, NULL,
               setup_basic, test_resolve, teardown_basic);

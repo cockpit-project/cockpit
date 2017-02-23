@@ -368,7 +368,7 @@ noinst_SCRIPTS += \
 TESTS += $(WS_CHECKS)
 
 mock_pam_conv_mod_so_SOURCES = src/ws/mock-pam-conv-mod.c
-mock-pam-conv-mod.so: $(mock_pam_conv_mod_so_SOURCES)
+mock-pam-conv-mod.so$(EXEEXT): $(mock_pam_conv_mod_so_SOURCES)
 	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) \
 		-o $@ $^ $(PAM_LIBS) $(LDFLAGS)
 

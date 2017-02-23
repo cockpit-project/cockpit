@@ -20,14 +20,20 @@
 #include "config.h"
 
 #include "cockpitpeer.h"
+#include "cockpittty.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 
+#include <sys/ioctl.h>
+#include <sys/prctl.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <pty.h>
 #include <string.h>
+#include <unistd.h>
 
 struct _CockpitPeer {
   GObject parent;
@@ -172,6 +178,24 @@ on_other_control (CockpitTransport *transport,
   return TRUE;
 }
 
+static const gchar *
+fail_start_problem (CockpitPeer *self)
+{
+  const gchar *problem;
+
+  /*
+   * If we haven't yet gotten an "init" message, then we use the
+   * problem code that is in the config. If none exists there,
+   * we don't close the channel, but let it be handled elsewhere
+   * or fail with "not-supported" elsewhere.
+   */
+  cockpit_json_get_string (self->config, "problem", NULL, &problem);
+  g_free (self->problem);
+  self->problem = g_strdup (problem);
+
+  return self->problem;
+}
+
 static void
 on_other_closed (CockpitTransport *transport,
                  const gchar *problem,
@@ -219,15 +243,7 @@ on_other_closed (CockpitTransport *transport,
     {
       g_debug ("%s: bridge failed to start%s%s", self->name,
                problem ? ": " : "", problem ? problem : "");
-
-      /*
-       * If we haven't yet gotten an "init" message, then we use the
-       * problem code that is in the config. If none exists there,
-       * we don't close the channel, but let it be handled elsewhere
-       * or fail with "not-supported" elsewhere.
-       */
-      cockpit_json_get_string (self->config, "problem", NULL, &problem);
-      self->problem = g_strdup (problem);
+      problem = fail_start_problem (self);
     }
 
   g_signal_handler_disconnect (self->other, self->other_closed);
@@ -493,33 +509,115 @@ cockpit_peer_new (CockpitTransport *transport,
                        NULL);
 }
 
+static void
+spawn_setup (gpointer data)
+{
+  int slave = GPOINTER_TO_INT (data);
+
+  /* Send this signal to all direct child processes, when bridge dies */
+  prctl (PR_SET_PDEATHSIG, SIGHUP);
+
+  /* Setup the controlling terminal */
+  if (slave >= 0)
+    {
+      setsid ();
+      setpgid (0, 0);
+      ioctl (slave, TIOCSCTTY, (char *)NULL);
+    }
+}
+
 static CockpitPipe *
 spawn_process_for_config (CockpitPeer *self)
 {
   const gchar *default_argv[] = { "/bin/false", NULL };
+  struct winsize winsz = { 24, 80, 0, 0 };
   CockpitPipe *pipe = NULL;
   const gchar *directory = NULL;
+  int session_stdin = -1;
+  int session_stdout = -1;
+  GError *error = NULL;
   gchar **argv = NULL;
   gchar **envset = NULL;
   gchar **env = NULL;
+  char *name = NULL;
+  int master = -1;
+  int slave = -1;
+  GPid pid = 0;
 
-  if (cockpit_json_get_string (self->config, "directory", NULL, &directory) &&
-      cockpit_json_get_strv (self->config, "environ", NULL, &envset) &&
-      cockpit_json_get_strv (self->config, "spawn", default_argv, &argv))
+  if (!cockpit_json_get_string (self->config, "directory", NULL, &directory) ||
+      !cockpit_json_get_strv (self->config, "environ", NULL, &envset) ||
+      !cockpit_json_get_strv (self->config, "spawn", default_argv, &argv))
     {
-      g_debug ("%s: spawning peer bridge process", self->name);
-      env = cockpit_pipe_get_environ ((const gchar **)envset, NULL);
-      pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env,
-                                 directory, COCKPIT_PIPE_FLAGS_NONE);
+      g_message ("%s: invalid bridge configuration, cannot spawn channel", self->name);
     }
   else
     {
-      g_message ("invalid bridge configuration, cannot spawn channel");
+      g_debug ("%s: spawning peer bridge process", self->name);
+
+      if (cockpit_tty_active ())
+        {
+          if (openpty (&master, &slave, NULL, NULL, &winsz) < 0)
+            {
+              g_warning ("%s: could not open pseudo-terminal for peer: %s",
+                         self->name, g_strerror (errno));
+              master = -1;
+              slave = -1;
+            }
+        }
+
+      env = cockpit_pipe_get_environ ((const gchar **)envset, NULL);
+      g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
+                                G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
+                                spawn_setup, GINT_TO_POINTER (slave),
+                                &pid, &session_stdin, &session_stdout, NULL, &error);
+
+      if (error)
+        {
+          if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT) ||
+              g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_PERM) ||
+              g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_ACCES))
+            {
+              g_debug ("%s: couldn't run %s: %s", self->name, argv[0], error->message);
+            }
+          else
+            {
+              g_message ("%s: couldn't run %s: %s", self->name, argv[0], error->message);
+            }
+          fail_start_problem (self);
+          g_error_free (error);
+        }
+      else
+        {
+          if (slave >= 0)
+            {
+              name = ttyname (slave);
+              slave = -1;
+            }
+
+          pipe = g_object_new (COCKPIT_TYPE_PIPE,
+                               "name", self->name,
+                               "in-fd", session_stdout,
+                               "out-fd", session_stdin,
+                               "pid", pid,
+                               NULL);
+
+          if (master >= 0)
+            {
+              cockpit_tty_add_job (master, name);
+              master = -1;
+            }
+        }
     }
+
+  if (slave >= 0)
+    close (slave);
+  if (master >= 0)
+    close (master);
 
   g_free (envset);
   g_free (argv);
   g_strfreev (env);
+
 
   return pipe;
 }
@@ -546,6 +644,8 @@ cockpit_peer_handle (CockpitPeer *self,
   g_return_val_if_fail (options != NULL, FALSE);
   g_return_val_if_fail (data != NULL, FALSE);
 
+  cockpit_peer_ensure (self);
+
   if (self->closed)
     {
       /* There was an actual problem, close the channel */
@@ -562,7 +662,6 @@ cockpit_peer_handle (CockpitPeer *self,
       return FALSE;
     }
 
-  cockpit_peer_ensure (self);
   g_hash_table_add (self->channels, g_strdup (channel));
 
   /* If already inited send the message through */

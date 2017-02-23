@@ -750,6 +750,21 @@ or pipe is done.
 Additionally, a "options" control message may be sent in this channel
 to change the "batch" and "latency" options.
 
+Payload: tty
+------------
+
+Raw data is sent back and forth to the terminal of the bridge process.
+All channels refer to the same tty. All channels receive the same data
+from the tty. Only one channel may write data. Initially this channel
+is chosen at random, but a "options" control message may be used to
+claim the writer.
+
+    {
+        "command": "options",
+        "claim": true,
+        "channel": "444"
+    }
+
 Payload: fswatch1
 -----------------
 

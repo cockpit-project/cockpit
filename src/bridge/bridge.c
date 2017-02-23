@@ -34,6 +34,7 @@
 #include "cockpitinternalmetrics.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitrouter.h"
+#include "cockpittty.h"
 #include "cockpitwebsocketstream.h"
 
 #include "common/cockpitassets.h"
@@ -75,6 +76,7 @@ static CockpitPayloadType payload_types[] = {
   { "fslist1", cockpit_fslist_get_type },
   { "null", cockpit_null_channel_get_type },
   { "echo", cockpit_echo_channel_get_type },
+  { "tty", cockpit_tty_channel_get_type },
   { "websocket-stream1", cockpit_web_socket_stream_get_type },
   { NULL },
 };
@@ -488,6 +490,7 @@ run_bridge (const gchar *interactive,
         daemon_pid = start_dbus_daemon ();
       if (!have_env ("SSH_AUTH_SOCK"))
         agent_pid = start_ssh_agent ();
+      cockpit_tty_startup ();
     }
 
   packages = cockpit_packages_new ();
@@ -552,6 +555,8 @@ run_bridge (const gchar *interactive,
 
   cockpit_dbus_machines_cleanup ();
   cockpit_dbus_internal_cleanup ();
+  cockpit_tty_cleanup ();
+
   cockpit_packages_free (packages);
   packages = NULL;
 

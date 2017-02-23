@@ -38,6 +38,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitrouter.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
+	src/bridge/cockpittty.c \
+	src/bridge/cockpittty.h\
 	src/bridge/cockpitwebsocketstream.c \
 	src/bridge/cockpitwebsocketstream.h \
 	$(NULL)
@@ -81,6 +83,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitpipechannel.h \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
+	src/bridge/cockpittty.c \
+	src/bridge/cockpittty.h \
 	src/bridge/cockpitfsread.c \
 	src/bridge/cockpitfsread.h \
 	src/bridge/cockpitfsreplace.c \
@@ -172,6 +176,7 @@ BRIDGE_CHECKS = \
 	test-process \
 	test-bridge \
 	test-router \
+	test-tty \
 	$(NULL)
 
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
@@ -232,6 +237,11 @@ test_stream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_stream_SOURCES = src/bridge/test-stream.c \
 	src/common/mock-io-stream.c src/common/mock-io-stream.h
 test_stream_LDADD = $(libcockpit_bridge_LIBS)
+
+test_tty_SOURCES = src/bridge/test-tty.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_tty_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_tty_LDADD = $(libcockpit_bridge_LIBS)
 
 test_process_SOURCES = src/bridge/test-process.c
 test_process_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
@@ -301,6 +311,8 @@ libcockpit_pcp_a_SOURCES = \
 	src/bridge/cockpitpeer.h \
 	src/bridge/cockpitrouter.c \
 	src/bridge/cockpitrouter.h \
+	src/bridge/cockpittty.c \
+	src/bridge/cockpittty.h \
 	$(libcockpit_bridge_METRICS) \
 	$(NULL)
 

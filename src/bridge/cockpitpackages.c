@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
+
 #include "config.h"
 
 #include "cockpitpackages.h"
@@ -842,6 +844,8 @@ package_content (CockpitPackages *packages,
     names = g_hash_table_get_keys (packages->listing);
   else
     names = g_list_append (names, (gchar *)name);
+
+  names = g_list_sort (names, (GCompareFunc)g_strcmp0);
 
   for (l = names; l != NULL; l = g_list_next (l))
     {

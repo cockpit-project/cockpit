@@ -600,6 +600,8 @@ Summary: Tests for Cockpit
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
 Requires: openssh-clients
+Provides: %{name}-test-assets
+Obsoletes: %{name}-test-assets < 132
 
 %description tests
 This package contains tests and files used while testing Cockpit.

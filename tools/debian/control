@@ -146,6 +146,9 @@ Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          openssh-client
+Conflicts: cockpit-test-assets
+Replaces: cockpit-test-assets
+Provides: cockpit-test-assets
 Description: Tests for Cockpit
  This package contains tests and files used while testing Cockpit.
  These files are not required for running Cockpit.

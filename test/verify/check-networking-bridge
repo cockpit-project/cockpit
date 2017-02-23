@@ -34,9 +34,9 @@ class TestNetworking(NetworkCase):
         # "cockpit1" bridge that all VMs are connected to, and the
         # bridge we are creating here.
 
-        iface1 = self.add_iface()
-        iface2 = self.add_iface(vlan=1, activate=False)
-        self.wait_for_iface(iface1)
+        iface1 = self.add_iface(vlan=1, activate=False)
+        iface2 = self.add_iface(vlan=2, activate=False)
+        self.wait_for_iface(iface1, active=False)
         self.wait_for_iface(iface2, active=False)
 
         # Bridge them

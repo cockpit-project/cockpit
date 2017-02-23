@@ -23,14 +23,15 @@ from testlib import *
 from netlib import *
 
 class TestNetworking(NetworkCase):
+
+    @skipImage("Main interface can't be managed", "debian-8", "debian-testing", "ubuntu-1604")
     def testMtu(self):
         b = self.browser
         m = self.machine
 
         self.login_and_go("/network")
 
-        iface = self.add_iface()
-        self.wait_for_iface(iface)
+        iface = self.get_machine_iface(m)
 
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")

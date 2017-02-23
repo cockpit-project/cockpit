@@ -37,7 +37,7 @@ class TestNetworking(NetworkCase):
             wait(lambda: m.execute("nmcli dev con %s" % iface))
 
         self.login_and_go("/network")
-        self.wait_for_iface(iface)
+        self.wait_for_iface(iface, state="10.111.")
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 
@@ -96,7 +96,7 @@ class TestNetworking(NetworkCase):
         m.execute('nmcli con mod "%s" ipv4.dhcp-timeout %s' % (con_id, dhcp_timeout))
 
         self.login_and_go("/network")
-        self.wait_for_iface(iface)
+        self.wait_for_iface(iface, state="10.111.")
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 

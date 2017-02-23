@@ -64,8 +64,8 @@ class TestNetworking(NetworkCase):
         m.execute("nmcli connection modify '%s' ipv4.method auto" % con_id)
         m.execute("nmcli connection modify '%s' ipv4.addresses ''" % con_id)
         b.wait_in_text("tr:contains('IPv4')", "Automatic (DHCP)")
-        m.execute("nmcli connection up '%s'" % con_id)
-        b.wait_in_text("tr:contains('Status')", "10.111.")
+        m.execute("nmcli --wait 0 connection up '%s'" % con_id)
+        b.wait_in_text("tr:contains('Status')", "Configuring")
 
         # Switch off automatic DNS
         #

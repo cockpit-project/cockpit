@@ -53,7 +53,18 @@ class NetworkCase(MachineCase):
         print "%s -> %s" % (mac, iface)
         return iface
 
-    def add_iface(self, mac=None, vlan=0, activate=True):
+    def get_machine_iface(self, m):
+        iface = self.get_iface(m, m.macaddr)
+        self.wait_for_iface(iface, state="10.111.")
+        return iface
+
+    # By default, additional network interfaces are not connected to any
+    # libvirt network.  They can be activated but will never receive a
+    # DHCP response.  This is good enough for our tests, and avoids
+    # disturbing the "cockpit1" test network that is used to control the
+    # test machines.
+
+    def add_iface(self, mac=None, vlan=1, activate=True):
         m = self.machine
         mac = m.add_netiface(mac=mac, vlan=vlan)
         # Wait for the interface to show up
@@ -64,7 +75,7 @@ class NetworkCase(MachineCase):
         wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
         if activate:
             m.execute("nmcli con add type ethernet ifname %s" % iface)
-            m.execute("nmcli dev con %s" % iface)
+            m.execute("nmcli --wait 0 dev con %s" % iface)
         return iface
 
     def wait_for_iface(self, iface, active=True, state=None):
@@ -73,7 +84,7 @@ class NetworkCase(MachineCase):
         if state:
             text = state
         elif active:
-            text = "10.111."
+            text = "Configuring"
         else:
             text = "Inactive"
 

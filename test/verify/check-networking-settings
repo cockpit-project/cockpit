@@ -68,7 +68,7 @@ class TestNetworking(NetworkCase):
 
         # Activate with ghost settings
         b.click(".panel-heading:contains('%s') .btn:contains('On')" % iface)
-        b.wait_in_text("tr:contains('Status')", "10.111.")
+        b.wait_in_text("tr:contains('Status')", "Configuring")
 
         # Check again that we now have connection settings
         con_id = wait(lambda: self.iface_con_id(iface))

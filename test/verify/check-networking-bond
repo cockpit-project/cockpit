@@ -160,10 +160,9 @@ class TestNetworking(NetworkCase):
         b = self.browser
         m = self.machine
 
-        iface = self.get_iface(m, m.macaddr)
 
         self.login_and_go("/network")
-        self.wait_for_iface(iface)
+        iface = self.get_machine_iface(m)
 
         # Put the main interface into a bond.  Everything should keep working.
         b.click("button:contains('Add Bond')")
@@ -192,10 +191,9 @@ class TestNetworking(NetworkCase):
         b = self.browser
         m = self.machine
 
-        iface = self.get_iface(m, m.macaddr)
 
         self.login_and_go("/network")
-        self.wait_for_iface(iface)
+        iface = self.get_machine_iface(m)
 
         # Slow down DHCP enough that it would trigger a rollback.
         self.slow_down_dhcp(20)

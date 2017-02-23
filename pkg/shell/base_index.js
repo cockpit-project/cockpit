@@ -190,6 +190,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         var origin = cockpit.transport.origin;
         var source_by_seed = { };
         var source_by_name = { };
+        var notifiers = { };
 
         cockpit.transport.filter(function(message, channel, control) {
             var seed, source, pos;
@@ -332,6 +333,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             var source = source_by_name[child.name];
             var control;
+            var host;
 
             /* Closing the transport */
             if (data.length === 0) {
@@ -386,6 +388,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 } else if (control.command == "open") {
                     control.group = child.name;
                     data = "\n" + JSON.stringify(control);
+
+                    /* Do we have a notifier for this host? */
+                    if (index.notifier) {
+                        host = control.host || source.default_host;
+                        if (!notifiers[host] && control.session !== "private")
+                            notifiers[host] = index.notifier(control);
+                    }
                 }
             }
 

@@ -190,7 +190,7 @@ function generateDeps(makefile, stats) {
     lines.push("\trm -rf $(" + prefix + "_OUTPUTS) $(" + prefix + "_INSTALL) " + makefile);
     lines.push("all-local:: " + prefix);
     lines.push("\t@true");
-    lines.push("clean-local:: clean-" + prefix);
+    lines.push("distclean-local:: clean-" + prefix);
     lines.push("\t@true");
 
     data = lines.join("\n");

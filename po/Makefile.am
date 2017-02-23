@@ -126,12 +126,15 @@ CLEANFILES += \
 	$(MO_FILES) \
 	$(POJS_FILES) \
 	$(nodist_po_DATA) \
-	$(PO_JAVASCRIPT) \
 	po/POTFILES.*.in \
 	dist/shell/*.po \
 	src/ws/*.po \
 	po/cockpit*.pot \
 	po/po.js.gz \
+	$(NULL)
+
+DISTCLEANFILES += \
+	$(PO_JAVASCRIPT) \
 	$(NULL)
 
 EXTRA_DIST += \

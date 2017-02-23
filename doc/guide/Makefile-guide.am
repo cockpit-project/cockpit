@@ -82,12 +82,13 @@ noinst_DATA += \
 	dist/guide/html/index.html \
 	dist/guide/index.html
 
-CLEANFILES += \
+DISTCLEANFILES += \
 	dist/guide/html/* \
 	dist/guide/links.html \
 	dist/guide/index.html \
-	*.tmp \
 	$(NULL)
+
+CLEANFILES += *.tmp
 
 dist/guide/html/%.woff: dist/fonts/%.woff
 	$(COPY_RULE)

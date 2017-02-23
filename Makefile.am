@@ -182,7 +182,7 @@ WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=dist/%/Makefile.deps)
 WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
 noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
-CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
+DISTCLEANFILES = $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
 EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
 
 # Run webpack if we don't have the include file or if its out of date
@@ -314,7 +314,7 @@ dist/fonts/%.woff:
 
 EXTRA_DIST += $(OPENSANS_FONTS)
 
-CLEANFILES += $(OPENSANS_FONTS)
+DISTCLEANFILES += $(OPENSANS_FONTS)
 
 if ENABLE_DOC
 

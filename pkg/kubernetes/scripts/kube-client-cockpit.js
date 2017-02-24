@@ -922,7 +922,7 @@
 
                     /* No further ports to try? */
                     if (!options) {
-                        last.statusText = "Couldn't find running API server";
+                        last.statusText = cockpit.gettext("Couldn't find running API server");
                         last.problem = "not-found";
                         defer.reject(last);
                         return;

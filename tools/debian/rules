@@ -18,7 +18,7 @@ override_dh_auto_configure:
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 
 override_dh_auto_install:
-	dh_auto_install -- install-test-assets
+	dh_auto_install
 	mkdir -p debian/tmp/etc/pam.d
 	install -p -m 644 tools/cockpit.debian.pam debian/tmp/etc/pam.d/cockpit
 
@@ -30,6 +30,7 @@ override_dh_systemd_start:
 
 override_dh_install:
 	dh_install --list-missing -Xusr/src/debug
+	make install-tests DESTDIR=debian/cockpit-tests
 
 override_dh_fixperms:
 	dh_fixperms -Xcockpit-session -Xcockpit-polkit

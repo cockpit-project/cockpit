@@ -148,7 +148,7 @@ make -j4 check
 
 %install
 make install DESTDIR=%{buildroot}
-make install-test-assets DESTDIR=%{buildroot}
+make install-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
@@ -424,6 +424,23 @@ This package contains the Cockpit shell and system configuration interfaces.
 
 %files system -f system.list
 
+%package tests
+Summary: Tests for Cockpit
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
+Requires: openssh-clients
+Provides: %{name}-test-assets
+Obsoletes: %{name}-test-assets < 132
+
+%description tests
+This package contains tests and files used while testing Cockpit.
+These files are not required for running Cockpit.
+
+%files tests
+%{_unitdir}/cockpit.service.d
+%{_datadir}/%{name}/playground
+%{_prefix}/lib/cockpit-test-assets
+
 %package ws
 Summary: Cockpit Web Service
 Requires: glib-networking
@@ -587,23 +604,6 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %{_libexecdir}/cockpit-kube-launch
 
 %endif
-
-%package tests
-Summary: Tests for Cockpit
-Requires: %{name}-bridge >= %{required_base}
-Requires: %{name}-shell >= %{required_base}
-Requires: openssh-clients
-Provides: %{name}-test-assets
-Obsoletes: %{name}-test-assets < 132
-
-%description tests
-This package contains tests and files used while testing Cockpit.
-These files are not required for running Cockpit.
-
-%files tests
-%{_sysconfdir}/systemd/system/cockpit.service.d
-%{_datadir}/%{name}/playground
-%{_prefix}/lib/cockpit-test-assets
 
 # The changelog is automatically generated and merged
 %changelog

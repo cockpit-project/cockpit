@@ -279,13 +279,6 @@ recheck-memory: valgrind-suppressions
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
 
-testassetsdir = $(prefix)/lib/cockpit-test-assets
-testassets_data =
-
-install-test-assets: $(testassets_data)
-	$(MKDIR_P) $(DESTDIR)$(testassetsdir)
-	cd $(srcdir); for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
-
 install-data-hook::
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
 	chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit || true

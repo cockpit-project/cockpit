@@ -148,11 +148,7 @@ make -j4 check
 
 %install
 make install DESTDIR=%{buildroot}
-%if %{defined wip} || 0%{?rhel}
 make install-test-assets DESTDIR=%{buildroot}
-%else
-rm -rf %{buildroot}/%{_datadir}/%{name}/playground
-%endif
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
@@ -592,9 +588,6 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %endif
 
-# we only build test assets on rhel or if we're building from a specific commit
-%if %{defined wip} || 0%{?rhel}
-
 %package tests
 Summary: Tests for Cockpit
 Requires: %{name}-bridge >= %{required_base}
@@ -611,8 +604,6 @@ These files are not required for running Cockpit.
 %{_sysconfdir}/systemd/system/cockpit.service.d
 %{_datadir}/%{name}/playground
 %{_prefix}/lib/cockpit-test-assets
-
-%endif
 
 # The changelog is automatically generated and merged
 %changelog

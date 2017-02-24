@@ -209,7 +209,6 @@ EXTRA_DIST += \
 	$(appdata_in) \
 	$(desktop_in) \
 	$(pixmap_DATA) \
-	src/ws/fatal.conf \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------
@@ -372,20 +371,17 @@ mock-pam-conv-mod.so$(EXEEXT): $(mock_pam_conv_mod_so_SOURCES)
 	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) \
 		-o $@ $^ $(PAM_LIBS) $(LDFLAGS)
 
-noinst_PROGRAMS += \
-	mock-pam-conv-mod.so \
-	$(NULL)
+noinst_PROGRAMS += mock-pam-conv-mod.so
+CLEANFILES += mock-pam-conv-mod.so
+EXTRA_DIST += src/ws/fatal.conf
 
-testassets_data += \
-	mock-pam-conv-mod.so \
-	$(NULL)
+testassetsdir = $(prefix)/lib/cockpit-test-assets
+testserviceddir = $(systemdunitdir)/cockpit.service.d
 
-CLEANFILES += \
-	mock-pam-conv-mod.so \
-	$(NULL)
-
-systemdserviceddir = $(sysconfdir)/systemd/system/cockpit.service.d
-systemdserviced_DATA = src/ws/fatal.conf
+install-tests::
+	$(MKDIR_P) $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir)
+	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(testassetsdir)
+	$(INSTALL_DATA) $(srcdir)/src/ws/fatal.conf $(DESTDIR)$(testserviceddir)
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d

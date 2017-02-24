@@ -133,7 +133,7 @@ if [ -n "%{patches}" ]; then
 	git config core.autocrlf false && git config core.safecrlf false && git config gc.auto 0
 	git add -f . && git commit -a -q -m "Base" && git tag -a initial --message="initial"
 	git am --whitespace=nowarn %{patches}
-	touch -r $(git diff --name-only initial..HEAD)
+	touch -r $(git diff --name-only initial..HEAD) .git
 	rm -rf .git
 fi
 

@@ -116,8 +116,12 @@ upload-pot:
 	zanata-cli push --includes cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
 		-s "$(builddir)/po"
 
+upload-translations:
+	zanata-cli push --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
+		--push-type trans -s "$(builddir)/po" -t "$(srcdir)/po"
+
 download-po:
-	zanata-cli -B pull --project-config "$(srcdir)/po/zanata.xml" \
+	zanata-cli -B pull --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
 		--min-doc-percent 1 -s "$(builddir)/po" -t "$(srcdir)/po"
 
 CLEANFILES += \

@@ -48,7 +48,7 @@ struct _CockpitRouter {
   /* Channel groups */
   GHashTable *groups;
   GHashTable *fences;
-  GHashTable *fenced;
+  GQueue *fenced;
 };
 
 typedef struct _CockpitRouterClass {
@@ -242,9 +242,8 @@ on_channel_closed (CockpitChannel *local,
 {
   CockpitRouter *self = COCKPIT_ROUTER (user_data);
   const gchar *channel;
-  GHashTableIter iter;
-  GHashTable *fenced;
-  gpointer key;
+  GQueue *fenced;
+  GList *l;
 
   channel = cockpit_channel_get_id (local);
   g_hash_table_remove (self->channels, channel);
@@ -262,11 +261,9 @@ on_channel_closed (CockpitChannel *local,
   if (!fenced)
     return;
 
-  g_hash_table_iter_init (&iter, fenced);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&key, NULL))
-    cockpit_transport_thaw (self->transport, key);
-
-  g_hash_table_destroy (fenced);
+  for (l = fenced->head; l != NULL; l = g_list_next (l))
+    cockpit_transport_thaw (self->transport, l->data);
+  g_queue_free_full (fenced, g_free);
 }
 
 static void
@@ -375,8 +372,8 @@ process_open (CockpitRouter *self,
   else if (g_hash_table_size (self->fences) > 0 && !g_hash_table_lookup (self->fences, channel))
     {
       if (!self->fenced)
-        self->fenced = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-      g_hash_table_add (self->fenced, g_strdup (channel));
+        self->fenced = g_queue_new ();
+      g_queue_push_tail (self->fenced, g_strdup (channel));
       cockpit_transport_freeze (self->transport, channel);
       cockpit_transport_emit_control (self->transport, "open", channel, options, data);
     }
@@ -563,7 +560,7 @@ cockpit_router_finalize (GObject *object)
     g_object_unref (self->transport);
 
   if (self->fenced)
-    g_hash_table_destroy (self->fenced);
+    g_queue_free_full (self->fenced, g_free);
 
   g_free (self->init_host);
   g_hash_table_destroy (self->channels);

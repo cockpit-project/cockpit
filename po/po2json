@@ -90,7 +90,10 @@ function parse() {
             data = data.substr(0, pos + 1) + "'plural-forms':" + String(plurals) + "," + data.substr(pos + 1);
         }
 
-        wrap(data);
+        if (data == JSON.stringify({}))
+            finish("");
+        else
+            wrap(data);
     });
 }
 

@@ -46,7 +46,7 @@
 #include <glib-unix.h>
 #include <glib/gstdio.h>
 
-/* This program is is meant to be used in place of cockpit-bridge
+/* This program is meant to be used in place of cockpit-bridge
  * in non-system setting. As such only payloads that make no changes
  * to the system or support their own forms of authentication (ei: http)
  * should be included here.

@@ -194,7 +194,7 @@
             // 1. https://bugzilla.mozilla.org/show_bug.cgi?id=1194719
             //
             // We need to set these every time since all properties are reset
-            // when the the size is changed
+            // when the size is changed
             if (this._drawCtx.mozImageSmoothingEnabled) {
                 this._drawCtx.mozImageSmoothingEnabled = false;
             } else if (this._drawCtx.webkitImageSmoothingEnabled) {

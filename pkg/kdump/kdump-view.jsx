@@ -158,7 +158,7 @@ var KdumpTargetBody = React.createClass({
         var targetDescription = {
             local: _("Local Filesystem"),
             nfs: _("Remote over NFS"),
-            ssh: _("Remove over SSH"),
+            ssh: _("Remote over SSH"),
             other: _("Use the setting in /etc/kdump.conf"),
         };
         // we don't support all known storage options currently

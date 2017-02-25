@@ -414,7 +414,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     /*
      * New instances of Index must be created by new_index_from_proto
      * and the caller must include a navigation function in the given
-     * prototype. That function will be called by by Frames and
+     * prototype. That function will be called by Frames and
      * Router to actually perform any navigation action.
      *
      * As a convenience, common menu items can be setup by adding the

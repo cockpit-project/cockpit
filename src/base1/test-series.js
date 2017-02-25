@@ -343,7 +343,7 @@ QUnit.test("cache overlap", function() {
     }]);
 
 
-    assert.deepEqual(row1, [undefined, 202, 202, 302, 302, 902], "row with with initial data");
+    assert.deepEqual(row1, [undefined, 202, 202, 302, 302, 902], "row with initial data");
 
     /* Overlaying the data currently throws overlapping stuff out of the cache */
     sink.input(7, [{
@@ -357,8 +357,8 @@ QUnit.test("cache overlap", function() {
     var row2 = grid.add(sink, "one.sub.2");
     grid.sync();
 
-    assert.deepEqual(row1, [undefined, 202, 402, 402, 302, 902], "row with with filled data");
-    assert.deepEqual(row2, [undefined, 202, 402, 402, 302, 902], "row with with overlapping data");
+    assert.deepEqual(row1, [undefined, 202, 402, 402, 302, 902], "row with filled data");
+    assert.deepEqual(row2, [undefined, 202, 402, 402, 302, 902], "row with overlapping data");
 
     grid.close();
 });

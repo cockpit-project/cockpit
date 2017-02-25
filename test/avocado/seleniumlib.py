@@ -169,12 +169,12 @@ This function is low level, tests should prefer to use the wait_* functions:
     This function stores caller function for this element to an internal dictionary, in case that
     element is lost and has to be renewed (-> self.element_wait_functions)
 parameters:
-    method - used selenim method method
+    method - used selenium method
     text - what are you searching for
     baseelement - use some element as root of tree, not self.driver
     overridetry - change value of repeats
     fatal - boolean if search is fatal or notice
-    cond - use selenim conditions (aliases are defined above class)
+    cond - use selenium conditions (aliases are defined above class)
     jscheck - use javascipt to wait for element has attribute-data loaded, it is safer, but slower
         """
         if not baseelement:

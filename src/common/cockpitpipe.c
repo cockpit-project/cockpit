@@ -1452,7 +1452,7 @@ cockpit_pipe_exit_status (CockpitPipe *self)
  * @length: length of data to consume
  * @after: amount of trailing bytes to discard
  *
- * Used to consume data from the buffer passed to the the
+ * Used to consume data from the buffer passed to the
  * read signal.
  *
  * @before + @length + @after bytes will be removed from the @buffer,

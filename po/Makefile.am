@@ -30,8 +30,7 @@ src/ws/%.po: po/%.po
 po.%.js: %.po
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.empty.js -o $@.js.tmp $< && \
-	$(srcdir)/tools/missing $(UGLIFY_JS) $@.js.tmp --mangle --beautify > $@.tmp && \
-	rm -f $@.js.tmp && mv $@.tmp $@
+	mv $@.js.tmp $@
 
 # Always build the binary gettext data
 all-local:: $(MO_FILES)

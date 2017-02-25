@@ -1032,7 +1032,7 @@ class VirtMachine(Machine):
         except libvirt.libvirtError, le:
             # remove the debug output
             self.event_handler.forbid_domain_debug_output(domain_name)
-            if not static_domain_name and 'already exists with uuid' in le.message:
+            if 'already exists with uuid' in le.message:
                 raise RepeatableFailure("libvirt domain already exists: " + le.message)
             else:
                 raise
@@ -1087,9 +1087,9 @@ class VirtMachine(Machine):
                 self._maintaining = maintain
             except RepeatableFailure:
                 self.kill()
-                if tries < 5:
+                if tries < 10:
                     tries += 1
-                    time.sleep(2)
+                    time.sleep(tries)
                     continue
                 else:
                     raise

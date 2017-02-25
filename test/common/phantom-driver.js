@@ -51,7 +51,6 @@ var waitTimeout;
 var didTimeout;
 
 /* Set by page load handlers */
-var resourceFailure = null;
 var loadStatus = null;
 
 page.viewportSize = { width: 800, height: 480 };
@@ -149,7 +148,7 @@ function inject_basics(loading) {
 
 var driver = {
     open: function(respond, url) {
-	page.open(url);
+        page.open(url);
         return this.expect_load(respond, url);
     },
 
@@ -161,10 +160,10 @@ var driver = {
     expect_load: function(respond, url) {
         return function check() {
             if (inject_basics(url || true)) {
-                if (loadStatus === "success" || (loadStatus === null && resourceFailure === null))
+                if (loadStatus === "success" || loadStatus === null)
                     respond({ result: null });
                 else
-                    respond({ error: resourceFailure || loadStatus });
+                    respond({ error: loadFailure || loadStatus });
             }
         };
     },
@@ -411,10 +410,12 @@ page.onResourceError = function(ex) {
      * Certain resource errors seem to be noise caused by
      * cancelled loads, and racy state in phantomjs
      */
-    if (ex.errorString === "Network access is disabled." ||
-        ex.errorString === "Operation cancelled" ||
+    if (ex.errorString === "Operation cancelled" ||
         ex.errorString === "Operation canceled") {
         prefix = "Ignoring Resource Error: ";
+    } else if (ex.errorString.indexOf("Network access is disabled") !== -1) {
+        sys.stderr.writeLine("ERROR: fatal problem: " + ex.errorString);
+        phantom.exit(1);
     } else {
         loadFailure = ex.errorString + " " + ex.url;
     }

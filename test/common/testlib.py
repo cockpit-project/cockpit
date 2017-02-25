@@ -400,7 +400,7 @@ class Browser:
         Arguments:
             title: Used for the filename.
         """
-        if self.phantom:
+        if self.phantom and self.phantom.valid:
             filename = "{0}-{1}.png".format(label or self.label, title)
             self.phantom.show(filename)
             attach(filename)
@@ -459,9 +459,18 @@ class MachineCase(unittest.TestCase):
             if startTestRun is not None:
                 startTestRun()
 
-        self.currentResult = result
-        super(MachineCase, self).run(result)
-        self.currentResult = None
+        # Policy actually dictates retries the number here is an upper bound
+        for retry in range(0, 5):
+            try:
+                self.currentResult = result
+                super(MachineCase, self).run(result)
+            except RetryError, ex:
+                self.doCleanups()
+                sys.stderr.write("{0}\n".format(ex))
+                continue
+            else:
+                self.currentResult = None
+                break
 
         # Standard book keeping that we have to do
         if orig_result is None:
@@ -698,6 +707,7 @@ class Phantom:
     def __init__(self, lang=None):
         self.lang = lang
         self.timeout = 60
+        self.valid = False
         self._driver = None
 
     def __getattr__(self, name):
@@ -717,6 +727,9 @@ class Phantom:
         }).replace("\n", " ") + "\n"
         self._driver.stdin.write(line)
         line = self._driver.stdout.readline()
+        if not line:
+            self.kill()
+            raise Error("PhantomJS or driver broken")
         try:
             res = json.loads(line)
         except:
@@ -743,17 +756,13 @@ class Phantom:
             "%s/sizzle.js" % path,
             "%s/phantom-lib.js" % path
         ]
+        self.valid = True
         self._driver = subprocess.Popen(command, env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE, close_fds=True)
 
-    def quit(self):
-        self._invoke("ping")
-        self._driver.stdin.close()
-        self._driver.wait()
-        self._driver = None
-
     def kill(self):
+        self.valid = False
         if self._driver:
             self._driver.terminate()
             self._driver.wait()
@@ -772,7 +781,10 @@ def skipImage(reason, *args):
         return unittest.skip("{0}: {1}".format(image, reason))
     return lambda func: func
 
-class Naughty(object):
+class Policy(object):
+    def __init__(self):
+        self.retryable = True
+
     def normalize_traceback(self, trace):
         # All file paths converted to basename
         return re.sub(r'File "[^"]*/([^/"]+)"', 'File "\\1"', trace.strip())
@@ -829,10 +841,40 @@ class Naughty(object):
             traceback.print_exc()
         return number
 
+    def check_retry(self, trace):
+        #
+        # We check for persistent but test harness or framework specific
+        # failures that otherwise cause flakiness and false positives.
+        #
+        # The things we check here must:
+        #  * have no impact on users of Cockpit in the real world
+        #  * be things we tried to resolve in other ways. This is a last resort
+        #
+        retry = False
+        if self.retryable:
+            trace = self.normalize_traceback(trace)
+
+            # HACK: An issue in phantomjs and QtWebkit
+            # http://stackoverflow.com/questions/35337304/qnetworkreply-network-access-is-disabled-in-qwebview
+            # https://github.com/owncloud/client/issues/3600
+            # https://github.com/ariya/phantomjs/issues/14789
+            if "PhantomJS or driver broken" in trace:
+                retry = True
+
+            # HACK: Interacting with sshd during boot is not always predictable
+            # We're using an implementation detail of the server as our "way in" for testing.
+            # This often has to do with sshd being restarted for some reason
+            if "SSH master process exited with code: 255" in trace:
+                retry = True
+
+        if retry:
+            self.retryable = False
+        return retry
+
 class TapResult(unittest.TestResult):
     def __init__(self, stream, descriptions, verbosity):
         self.offset = 0
-        self.naughty = None
+        self.policy = None
         super(TapResult, self).__init__(stream, descriptions, verbosity)
 
     def ok(self, test):
@@ -848,13 +890,15 @@ class TapResult(unittest.TestResult):
     def skip(self, test, reason):
         sys.stdout.write("ok {0} {1} duration: {2}s # SKIP {3}\n".format(self.offset, str(test), int(time.time() - self.start_time), reason))
 
-    def known_issue(self, test, err):
+    def maybeIgnore(self, test, err):
         string = self._exc_info_to_string(err, test)
-        if self.naughty:
-            issue = self.naughty.check_issue(string)
+        if self.policy:
+            issue = self.policy.check_issue(string)
             if issue:
                 self.addSkip(test, "Known issue #{0}".format(issue))
                 return True
+            if self.policy.check_retry(string):
+                raise RetryError("Retrying due to failure of test harness or framework")
         return False
 
     def stop(self):
@@ -868,17 +912,16 @@ class TapResult(unittest.TestResult):
         super(TapResult, self).startTest(test)
 
     def stopTest(self, test):
-        test.result = None
         sys.stdout.write("\n")
         super(TapResult, self).stopTest(test)
 
     def addError(self, test, err):
-        if not self.known_issue(test, err):
+        if not self.maybeIgnore(test, err):
             self.not_ok(test, err)
             super(TapResult, self).addError(test, err)
 
     def addFailure(self, test, err):
-        if not self.known_issue(test, err):
+        if not self.maybeIgnore(test, err):
             self.not_ok(test, err)
             super(TapResult, self).addError(test, err)
 
@@ -944,6 +987,21 @@ class TapRunner(object):
         self.thorough = thorough
         self.jobs = jobs
 
+    def runOne(self, test, offset):
+        result = TapResult(self.stream, False, self.verbosity)
+        result.offset = offset
+        if not self.thorough:
+            result.policy = Policy()
+        try:
+            test(result)
+        except:
+            sys.stderr.write("Unexpected exception while running {0}\n".format(test))
+            traceback.print_exc(file=sys.stderr)
+            return False
+        else:
+            result.printErrors()
+            return result.wasSuccessful()
+
     def run(self, testable):
         count = testable.countTestCases()
         sys.stdout.write("1..{0}\n".format(count))
@@ -987,26 +1045,14 @@ class TapRunner(object):
             sys.stderr.flush()
             pid = os.fork()
             if not pid:
-                try:
-                    if buffer:
-                        os.dup2(wfd, 1)
-                        os.dup2(wfd, 2)
-                    random.seed()
-                    result = TapResult(self.stream, False, self.verbosity)
-                    if not self.thorough:
-                        result.naughty = Naughty()
-                    result.offset = offset
-                    test(result)
-                    result.printErrors()
-                except:
-                    sys.stderr.write("Unexpected exception while running {0}\n".format(test))
-                    traceback.print_exc(file=sys.stderr)
-                    sys.exit(1)
+                if buffer:
+                    os.dup2(wfd, 1)
+                    os.dup2(wfd, 2)
+                random.seed()
+                if self.runOne(test, offset):
+                    sys.exit(0)
                 else:
-                    if result.wasSuccessful():
-                        sys.exit(0)
-                    else:
-                        sys.exit(1)
+                    sys.exit(1)
 
             # The parent process
             pids.add(pid)
@@ -1102,6 +1148,9 @@ class Error(Exception):
         self.msg = msg
     def __str__(self):
         return self.msg
+
+class RetryError(Error):
+    pass
 
 def wait(func, msg=None, delay=1, tries=60):
     """

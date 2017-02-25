@@ -3,4 +3,9 @@
 
 set -ex
 
+# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1341829
+# SELinux breaks coredumping on fedora-25
+printf '(allow init_t domain (process (rlimitinh)))\n' > domain.cil
+semodule -i domain.cil
+
 /var/lib/testvm/atomic.setup

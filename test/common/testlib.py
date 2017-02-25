@@ -994,6 +994,8 @@ class TapRunner(object):
             result.policy = Policy()
         try:
             test(result)
+        except KeyboardInterrupt:
+            return False
         except:
             sys.stderr.write("Unexpected exception while running {0}\n".format(test))
             traceback.print_exc(file=sys.stderr)
@@ -1023,7 +1025,10 @@ class TapRunner(object):
             while len(pids) > n:
                 if buffer:
                     buffer.drain()
-                (pid, code) = os.waitpid(-1, options)
+                try:
+                    (pid, code) = os.waitpid(-1, options)
+                except KeyboardInterrupt:
+                    sys.exit(255)
                 if pid:
                     if buffer:
                         sys.stdout.write(buffer.pop(pid))

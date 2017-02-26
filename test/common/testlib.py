@@ -408,28 +408,6 @@ class Browser:
     def kill(self):
         self.phantom.kill()
 
-class InterceptResult(object):
-    def __init__(self, original, func):
-        self.original = original
-        self.func = func
-
-    def __getattr__(self, name):
-        return getattr(self.original, name)
-
-    def addError(self, test, err):
-        func = self.func
-        func(test, self._exc_info_to_string(err, test))
-        self.original.addError(test, err)
-
-    def addFailure(self, test, err):
-        func = self.func
-        func(test, self._exc_info_to_string(err, test))
-        self.original.addFailure(test, err)
-
-    def addUnexpectedSuccess(self, test):
-        func = self.func
-        func(test, "Unexpected success: " + str(test))
-        self.original.addFailure(test, Exception("unexpected success"))
 
 class MachineCase(unittest.TestCase):
     runner = None
@@ -481,19 +459,9 @@ class MachineCase(unittest.TestCase):
             if startTestRun is not None:
                 startTestRun()
 
-        def intercept(test, err):
-            self.failed = True
-            self.snapshot("FAIL")
-            self.copy_journal("FAIL")
-            self.copy_cores("FAIL")
-            if opts.sit:
-                print >> sys.stderr, err
-                if self.machine:
-                    print >> sys.stderr, "ADDRESS: %s" % self.machine.address
-                sit()
-
-        intercept = InterceptResult(result, intercept)
-        super(MachineCase, self).run(intercept)
+        self.currentResult = result
+        super(MachineCase, self).run(result)
+        self.currentResult = None
 
         # Standard book keeping that we have to do
         if orig_result is None:
@@ -528,8 +496,23 @@ class MachineCase(unittest.TestCase):
         self.browser = self.new_browser()
         self.tmpdir = tempfile.mkdtemp()
 
+        def sitter():
+            if opts.sit and not self.currentResult.wasSuccessful():
+                self.currentResult.printErrors()
+                if self.machine:
+                    print >> sys.stderr, "ADDRESS: %s" % self.machine.address
+                sit()
+        self.addCleanup(sitter)
+
+        def intercept():
+            if not self.currentResult.wasSuccessful():
+                self.snapshot("FAIL")
+                self.copy_journal("FAIL")
+                self.copy_cores("FAIL")
+        self.addCleanup(intercept)
+
     def tearDown(self):
-        if not getattr(self, "failed", False) and self.machine.address:
+        if self.machine.address:
             self.check_journal_messages()
         shutil.rmtree(self.tmpdir)
 

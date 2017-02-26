@@ -24,6 +24,7 @@ Tools for writing Cockpit test cases.
 from time import sleep
 
 import argparse
+import errno
 import fnmatch
 import subprocess
 import os
@@ -693,9 +694,10 @@ class MachineCase(unittest.TestCase):
                 m.download_dir("/var/lib/systemd/coredump", dest)
                 try:
                     os.rmdir(dest)
-                except OSError:
-                    print "Core dumps downloaded to %s" % (dest)
-                    attach(dest)
+                except OSError, ex:
+                    if ex.errno == errno.ENOTEMPTY:
+                        print "Core dumps downloaded to %s" % (dest)
+                        attach(dest)
 
 some_failed = False
 

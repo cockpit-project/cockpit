@@ -627,10 +627,8 @@ main (int argc,
   signal (SIGPIPE, SIG_IGN);
 
   /* Debugging issues during testing */
-#if WITH_DEBUG
   signal (SIGABRT, cockpit_test_signal_backtrace);
   signal (SIGSEGV, cockpit_test_signal_backtrace);
-#endif
 
   /*
    * We have to tell GLib about an alternate default location for XDG_DATA_DIRS

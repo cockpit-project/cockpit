@@ -116,7 +116,6 @@ libcockpit_bridge_LIBS = \
 # -----------------------------------------------------------------------------
 
 bin_PROGRAMS += cockpit-bridge
-libexec_PROGRAMS += cockpit-polkit
 
 cockpit_bridge_SOURCES = src/bridge/bridge.c
 cockpit_bridge_CFLAGS = \
@@ -125,10 +124,6 @@ cockpit_bridge_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 cockpit_bridge_LDADD = $(libcockpit_bridge_LIBS)
-
-cockpit_polkit_SOURCES = src/bridge/cockpitpolkithelper.c
-cockpit_polkit_CFLAGS = $(COCKPIT_POLKIT_CFLAGS)
-cockpit_polkit_LDADD = libreauthorize.a $(REAUTHORIZE_LIBS) $(COCKPIT_POLKIT_LIBS)
 
 libexec_PROGRAMS += cockpit-askpass
 
@@ -150,15 +145,8 @@ cockpit_stub_CFLAGS = \
 	$(NULL)
 cockpit_stub_LDADD = $(libcockpit_stub_LIBS)
 
-# polkit-agent-helper-1 need to be setuid root because polkit wants
-# responses to come from a root process
-install-data-hook::
-	chown -f root:0 $(DESTDIR)$(libexecdir)/cockpit-polkit || true
-	chmod -f 4755 $(DESTDIR)$(libexecdir)/cockpit-polkit
-
 EXTRA_DIST += \
 	src/bridge/cockpit.pam.insecure \
-	src/bridge/sshd-reauthorize.pam \
 	$(NULL)
 
 # -----------------------------------------------------------------------------

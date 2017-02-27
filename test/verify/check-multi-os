@@ -169,6 +169,7 @@ class TestMultiOS(MachineCase):
         self.allow_journal_messages("g_hash_table_iter_next: assertion 'ri->version == ri->hash_table->version' failed")
         self.allow_journal_messages("couldn't run usermod command: Child process exited with code 6")
         self.allow_journal_messages("usermod: user 'postfix' does not exist")
+        self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
 
     @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
     def testFedora22(self):

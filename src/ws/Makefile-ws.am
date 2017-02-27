@@ -91,6 +91,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitsshagent.c \
 	src/ws/cockpitsshtransport.h \
 	src/ws/cockpitsshtransport.c \
+	src/ws/reauthorize.c \
+	src/ws/reauthorize.h \
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
@@ -104,9 +106,7 @@ libcockpit_ws_LIBS = \
 	libcockpit-ws.a \
 	libcockpit-common.a \
 	libwebsocket.a \
-	libreauthorize.a \
 	$(COCKPIT_WS_LIBS) \
-	$(REAUTHORIZE_LIBS) \
 	$(NULL)
 
 test_rsa_key: src/ws/test_rsa
@@ -252,6 +252,7 @@ WS_CHECKS = \
 	test-channelresponse \
 	test-handlers \
 	test-kerberos \
+	test-reauthorize \
 	test-remotectlcertificate \
 	$(NULL)
 
@@ -303,6 +304,10 @@ test_handlers_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
+
+test_reauthorize_CFLAGS = $(cockpit_ws_CFLAGS)
+test_reauthorize_SOURCES = src/ws/test-reauthorize.c $(NULL)
+test_reauthorize_LDADD = libretest.a $(cockpit_ws_LDADD)
 
 test_remotectlcertificate_CFLAGS = \
 	$(COCKPIT_CFLAGS) \

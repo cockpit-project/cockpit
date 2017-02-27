@@ -47,7 +47,6 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(json-glib-1.0)
-BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
@@ -61,14 +60,12 @@ BuildRequires: zlib-devel
 BuildRequires: krb5-devel
 BuildRequires: libxslt-devel
 BuildRequires: docbook-style-xsl
-BuildRequires: keyutils-libs-devel
 BuildRequires: glib-networking
 BuildRequires: sed
 BuildRequires: git
 
 BuildRequires: glib2-devel >= 2.37.4
 BuildRequires: systemd-devel
-BuildRequires: polkit
 BuildRequires: pcp-libs-devel
 BuildRequires: krb5-server
 BuildRequires: gdb
@@ -286,8 +283,6 @@ system on behalf of the web based user interface.
 %{_datadir}/%{name}/base1/bundle.min.js.gz
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
-%attr(4755, -, -) %{_libexecdir}/cockpit-polkit
-%{_libdir}/security/pam_reauthorize.so
 %{_libexecdir}/cockpit-askpass
 
 %package doc

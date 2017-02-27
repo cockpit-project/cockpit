@@ -1,6 +1,5 @@
 #%PAM-1.0
 auth        required      pam_unix.so
-auth        optional      pam_reauthorize.so prepare
 
 account     required      pam_unix.so
 
@@ -9,4 +8,3 @@ account     required      pam_unix.so
 session     required      pam_unix.so
 -session     required      pam_selinux.so open
 session     optional      pam_keyinit.so force revoke
-session     optional      pam_reauthorize.so prepare

@@ -3,32 +3,42 @@
 This directory contains automated integration tests for Cockpit, and the support
 files for them.
 
-To run the tests on Fedora, you need to install the following packages:
-
-    $ sudo yum install npm qemu-kvm python \
-         firewalld libvirt-daemon libvirt-client libvirt-python \
-         openssl expect rsync curl xz
+To run the tests on Fedora, refer to the [HACKING](../HACKING.md) guide for
+installation of all of the necessary build and test dependencies. There's
+no need to trigger a build manually - the test suite preparation step below
+will handle that.
 
 You may need to reboot after installing the above packages. For initialization
 the following command needs to be run as root to setup the libvirt bridged network:
 
     $ sudo ./test/vm-prep
 
+If test failures are encountered that look like they may be related to problems
+with nested virtualization, refer to
+[this Fedora guide](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)
+for more details and recommendations on ensuring it is enabled correctly.
+
 ## Introduction
 
-To run the integration tests run the following. Don't run the integration tests
-as root:
+Before running the tests, ensure Cockpit has been built where the test suite
+expects to find it (do NOT run the build step as root):
+
+   $ ./test/verify/testsuite-prepare
+
+To run the integration tests run the following (do NOT run the integration tests
+as root):
 
     $ ./test/verify/run-tests
+
+The tests will automatically download the VM images they need, so expect
+that the initial run may take a couple of hours (there are quite a few
+images to retrieve for different scenario tests).
 
 Alternatively you can run an individual test like this:
 
     $ cd test
     $ ./verify/testsuite-prepare
     $ ./verify/check-session
-
-The `./verify/testsuite-prepare` command builds cockpit and puts it into the test. Only
-code currently committed in the current branch will be installed and tested.
 
 To see more verbose output from the test, use the --verbose and/or --trace flags:
 
@@ -39,6 +49,12 @@ you to log into cockpit and/or the test instance and diagnose the issue. An addr
 will be printed of the test instance.
 
     $ ./verify/check-session --trace --sit
+
+In order to pick up local changes to Cockpit itself prior to running the tests,
+the `--install` option provides a convenient alternative to explicitly running
+`testsuite-prepare` as a separate step:
+
+    $ ./test/verify/run-tests --install
 
 ## Details
 

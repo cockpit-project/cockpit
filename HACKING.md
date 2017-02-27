@@ -8,6 +8,8 @@ Here's where to get the code:
 The remainder of the commands assume you're in the top level of the
 Cockpit git repository checkout.
 
+## Getting the development dependencies
+
 Cockpit uses Node.js during development. Node.js is not used at runtime.
 To make changes on Cockpit you'll want to install Node.js, NPM and
 various development dependencies like Webpack.
@@ -26,6 +28,29 @@ And lastly get Webpack and the development dependencies:
     $ npm install
     $ ./node_modules/bower/bin/bower install
 
+When relying on CI to run the test suite, this is all that is
+necessary to work on the JavaScript components of Cockpit.
+
+To actually build the Cockpit binaries themselves from source
+(including to run the integration tests locally), you will need
+additional header files and other components. Check
+`tools/cockpit.spec` for the concrete Fedora build dependencies.
+The following should work in a fresh Git clone:
+
+    $ sudo yum-builddep tools/cockpit.spec
+
+In addition, for testing, the following dependencies are required:
+
+    $ sudo yum install curl expect \
+        libvirt libvirt-client libvirt-daemon libvirt-python \
+        python python-libguestfs python-lxml qemu qemu-kvm \
+        rpm-build rsync xz
+
+## Running the integration test suite
+
+Refer to the [testing README](test/README) for details on running
+the Cockpit integration tests locally.
+
 ## Working on Cockpit using Vagrant
 
 It is recommended to use a Vagrant virtual machine to develop Cockpit.
@@ -38,8 +63,8 @@ In some cases you may need to use `sudo` with vagrant commands:
 
     $ vagrant up
 
-Next can edit files in the `pkg/` subdirectory of the Cockpit sources.
-Use the `webpack` command to build the those sources. The changes should
+Now you can edit files in the `pkg/` subdirectory of the Cockpit sources.
+Use the `webpack` command to build those sources. The changes should
 take effect after syncing them to the Vagrant VM. For example:
 
     $ webpack
@@ -165,17 +190,9 @@ build the Cockpit binaries locally and install the relevant dependencies.
 Currently, recent x86_64 architectures of Fedora are most often used for
 development.
 
-Check `tools/cockpit.spec` for the concrete Fedora build dependencies.
-The following should work in a fresh Git clone:
-
-    $ sudo yum-builddep tools/cockpit.spec
-    $ sudo yum install nodejs npm
-
-In addition for testing the following dependencies are required:
-
-    $ sudo yum install python-libguestfs qemu mock qemu-kvm rpm-build \
-         curl libvirt-client libvirt-python libvirt python-lxml \
-         krb5-workstation krb5-server selinux-policy-devel
+Before attempting to build anything, first make sure the relevant
+dependencies are installed as described in "Getting the development
+dependencies" above.
 
 Cockpit uses the autotools and thus there are the familiar `./configure`
 script and the familar Makefile targets.

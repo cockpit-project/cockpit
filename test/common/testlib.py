@@ -544,7 +544,6 @@ class MachineCase(unittest.TestCase):
         # Reauth stuff
         '.*Reauthorizing unix-user:.*',
         '.*user .* was reauthorized.*',
-        'cockpit-polkit helper exited with status: 0',
 
         # Happens when the user logs out during reauthorization
         "Error executing command as another user: Not authorized",

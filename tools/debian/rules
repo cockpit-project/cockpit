@@ -58,7 +58,7 @@ override_dh_install:
 	make install-tests DESTDIR=debian/cockpit-tests
 
 override_dh_fixperms:
-	dh_fixperms -Xcockpit-session -Xcockpit-polkit
+	dh_fixperms -Xcockpit-session
 
 override_dh_gencontrol:
 	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)"

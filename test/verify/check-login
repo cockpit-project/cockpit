@@ -247,8 +247,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
-        self.allow_journal_messages('cockpit-polkit: user admin reauthorization failed',
-                                    'Error executing command as another user: Not authorized',
+        self.allow_journal_messages('Error executing command as another user: Not authorized',
                                     'This incident has been reported.',
                                     'sudo: a password is required',
                                     'sudo: sorry, you must have a tty to run sudo')

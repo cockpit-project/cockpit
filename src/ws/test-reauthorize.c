@@ -43,7 +43,6 @@
 
 #include <err.h>
 #include <errno.h>
-#include <keyutils.h>
 #include <pwd.h>
 #include <string.h>
 #include <stdio.h>
@@ -72,13 +71,9 @@ test_logger (const char *msg)
 static void
 setup (void *arg)
 {
-  key_serial_t keyring;
   struct passwd *pw;
 
   expect_message = NULL;
-
-  keyring = keyctl_join_session_keyring (NULL);
-  assert (keyring >= 0);
 
   pw = getpwuid (getuid ());
   assert (pw != NULL);
@@ -93,101 +88,6 @@ teardown (void *arg)
     assert_fail ("message didn't get logged", expect_message);
   free (user);
   user = NULL;
-}
-
-static char *
-read_until_eof (int fd)
-{
-  size_t len = 0;
-  size_t alloc = 0;
-  char *buf = NULL;
-  int r;
-
-  for (;;)
-    {
-      if (alloc <= len)
-        {
-          alloc += 1024;
-          buf = realloc (buf, alloc);
-          assert (buf != NULL);
-        }
-
-      r = read (fd, buf + len, alloc - len);
-      if (r < 0)
-        {
-          if (errno == EAGAIN)
-            continue;
-          assert_not_reached ();
-        }
-      else if (r == 0)
-        {
-          break;
-        }
-      else
-        {
-          len += r;
-        }
-    }
-
-  buf[len] = '\0';
-  return buf;
-}
-
-static int
-mock_reauthorize (const char *mode,
-                  const char *user,
-                  const char *argument,
-                  char **output)
-{
-  int fds[2];
-  pid_t pid;
-  int status;
-
-  const char *argv[] = {
-      BUILDDIR "/mock-reauthorize",
-      mode,
-      user,
-      argument,
-      NULL
-  };
-
-  if (output)
-    {
-      if (pipe (fds) < 0)
-        assert_not_reached ();
-    }
-
-  pid = fork ();
-  if (pid == 0)
-    {
-      if (output)
-        dup2 (fds[1], 1);
-      execv (argv[0], (char **)argv);
-      fprintf (stderr, "exec failed: %s: %m\n", argv[0]);
-      _exit (127);
-    }
-
-  if (output)
-    {
-      close (fds[1]);
-      *output = read_until_eof (fds[0]);
-      close (fds[0]);
-    }
-
-  assert_num_eq (waitpid (pid, &status, 0), pid);
-
-  assert (WIFEXITED (status));
-  if (WEXITSTATUS (status) == 77)
-    {
-      if (output)
-        {
-          free (*output);
-          *output = NULL;
-        }
-      re_test_skip ("need to 'make enable-root-tests'");
-    }
-
-  return WEXITSTATUS (status);
 }
 
 typedef struct {
@@ -282,65 +182,6 @@ test_crypt1 (void *data)
     }
 }
 
-static void
-test_password_success (void)
-{
-  const char *password = "booo";
-  char *response;
-  char *challenge;
-
-  assert_num_eq (mock_reauthorize ("prepare", user, password, NULL), 0);
-  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), REAUTHORIZE_CONTINUE);
-  assert_num_eq (reauthorize_crypt1 (challenge, password, &response), 0);
-  assert_num_eq (mock_reauthorize ("perform", user, response, NULL), REAUTHORIZE_YES);
-
-  free (response);
-  free (challenge);
-}
-
-static void
-test_password_bad (void)
-{
-  char *response;
-  char *challenge;
-
-  assert_num_eq (mock_reauthorize ("prepare", user, "actual-password", NULL), 0);
-  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), REAUTHORIZE_CONTINUE);
-
-  assert_num_eq (reauthorize_crypt1 (challenge, "bad password", &response), 0);
-  assert_num_eq (mock_reauthorize ("perform", user, response, NULL), REAUTHORIZE_NO);
-
-  free (response);
-  free (challenge);
-}
-
-static void
-test_password_no_prepare (void)
-{
-  char *challenge = NULL;
-
-  assert_num_eq (mock_reauthorize ("perform", "unknown", NULL, &challenge), REAUTHORIZE_NO);
-
-  free (challenge);
-}
-
-static void
-test_password_bad_secret (void)
-{
-  char *description;
-  char *challenge = NULL;
-
-  if (asprintf (&description, "reauthorize/secret/%s", user) < 0)
-    assert_not_reached ();
-  if (add_key ("user", description, "$6$abcdef0123456789$", 20, KEY_SPEC_SESSION_KEYRING) < 0)
-    assert_not_reached (0);
-  free (description);
-
-  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), 127);
-
-  free (challenge);
-}
-
 int
 main (int argc,
       char *argv[])
@@ -362,11 +203,6 @@ main (int argc,
   for (i = 0; crypt1_fixtures[i].challenge != NULL; i++)
     re_testx (test_crypt1, crypt1_fixtures + i,
               "/reauthorize/crypt1/%s", crypt1_fixtures[i].challenge);
-
-  re_test (test_password_success, "/pamreauth/password-success");
-  re_test (test_password_bad, "/pamreauth/password-bad");
-  re_test (test_password_no_prepare, "/pamreauth/password-no-prepare");
-  re_test (test_password_bad_secret, "/pamreauth/password-bad-secret");
 
   return re_test_run (argc, argv);
 }

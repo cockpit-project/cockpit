@@ -60,8 +60,7 @@ class TestLoopback(MachineCase):
         b.wait_visible('#login-fatal')
         self.assertIn("The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.", b.text('#login-fatal'));
 
-        self.allow_journal_messages("cockpit-polkit: couldn't respond to polkit daemon: GDBus\\.Error:org\\.freedesktop\\.PolicyKit1\\.Error\\.Failed: No session for cookie",
-                                    "Cannot run program cockpit-bridge: No such file or directory",
+        self.allow_journal_messages("Cannot run program cockpit-bridge: No such file or directory",
                                     ".*server offered unsupported authentication methods: public-key.*")
 
 if __name__ == '__main__':

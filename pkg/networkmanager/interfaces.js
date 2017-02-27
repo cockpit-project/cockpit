@@ -1963,7 +1963,7 @@ var curtain_time  =  0.5;
 var settle_time   =  0.3;
 var rollback_time = 15.0;
 
-function with_checkpoint(model, modify, fail_text, anyway_text, hack_does_add_or_remove) {
+function with_checkpoint(model, modify, options) {
     var manager = model.get_manager();
     var curtain = $('#testing-connection-curtain');
     var curtain_testing = $('#testing-connection-curtain-testing');
@@ -2006,7 +2006,7 @@ function with_checkpoint(model, modify, fail_text, anyway_text, hack_does_add_or
     //
     // These bugs are expected to be fixed in NM 1.6
 
-    if (hack_does_add_or_remove && !model.at_least_version("1.6")) {
+    if (options.hack_does_add_or_remove && !model.at_least_version("1.6")) {
         modify();
         return;
     }
@@ -2025,10 +2025,10 @@ function with_checkpoint(model, modify, fail_text, anyway_text, hack_does_add_or
                         manager.checkpoint_destroy(cp).
                             always(hide_curtain).
                             fail(function (error) {
-                                dialog.find('#confirm-breaking-change-text').html(fail_text);
+                                dialog.find('#confirm-breaking-change-text').html(options.fail_text);
                                 dialog.find('.modal-footer .btn-danger').
                                     off('click').
-                                    text(anyway_text).
+                                    text(options.anyway_text).
                                     click(function () {
                                         dialog.modal('hide');
                                         modify();
@@ -2241,13 +2241,12 @@ PageNetworkInterface.prototype = {
         }
 
         if (self.iface) {
-            with_checkpoint(
-                self.model,
-                modify,
-                cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
-                               self.dev_name),
-                cockpit.format(_("Delete $0"), self.dev_name),
-                true);
+            with_checkpoint(self.model, modify,
+                            {
+                                fail_text: cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
+                                anyway_text: cockpit.format(_("Delete $0"), self.dev_name),
+                                hack_does_add_or_remove: true
+                            });
         }
     },
 
@@ -2272,12 +2271,11 @@ PageNetworkInterface.prototype = {
             }
         }
 
-        with_checkpoint(
-            self.model,
-            modify,
-            cockpit.format(_("Switching on <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."),
-                           self.dev_name),
-            cockpit.format(_("Switch on $0"), self.dev_name));
+        with_checkpoint(self.model, modify,
+                        {
+                            fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
+                            anyway_text: cockpit.format(_("Switch on $0"), self.dev_name)
+                        });
     },
 
     disconnect: function() {
@@ -2297,12 +2295,11 @@ PageNetworkInterface.prototype = {
                 });
         }
 
-        with_checkpoint(
-            self.model,
-            modify,
-            cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."),
-                           self.dev_name),
-            cockpit.format(_("Switch off $0"), self.dev_name));
+        with_checkpoint(self.model, modify,
+                        {
+                            fail_text: cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
+                            anyway_text: cockpit.format(_("Switch off $0"), self.dev_name)
+                        });
     },
 
     update: function() {
@@ -2824,9 +2821,10 @@ PageNetworkInterface.prototype = {
                                                        return slave_con.activate(iface.Device).
                                                            fail(show_unexpected_error);
                                                    },
-                                                   cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
-                                                                  iface.Name),
-                                                   cockpit.format(_("Switch on $0"), iface.Name));
+                                                   {
+                                                       fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                                       anyway_text: cockpit.format(_("Switch on $0"), iface.Name)
+                                                   });
                                            } else if (dev) {
                                                with_checkpoint(
                                                    self.model,
@@ -2834,9 +2832,10 @@ PageNetworkInterface.prototype = {
                                                        return dev.disconnect().
                                                            fail(show_unexpected_error);
                                                    },
-                                                   cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
-                                                                  iface.Name),
-                                                   cockpit.format(_("Switch off $0"), iface.Name));
+                                                   {
+                                                       fail_text: cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                                       anyway_text: cockpit.format(_("Switch off $0"), iface.Name)
+                                                   });
                                            }
                                        }, "network-privileged")),
                                    $('<td width="28px">').append(
@@ -2848,10 +2847,11 @@ PageNetworkInterface.prototype = {
                                                        return slave_con.delete_().
                                                            fail(show_unexpected_error);
                                                    },
-                                                   cockpit.format(_("Removing <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
-                                                                  iface.Name),
-                                                   cockpit.format(_("Remove $0"), iface.Name),
-                                                   true);
+                                                   {
+                                                       fail_text: cockpit.format(_("Removing <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                                       anyway_text: cockpit.format(_("Remove $0"), iface.Name),
+                                                       hack_does_add_or_remove: true
+                                                   });
                                                return false;
                                            }))).
                         click(function (event) {
@@ -2893,10 +2893,11 @@ PageNetworkInterface.prototype = {
                                                                          cs.type, iface.Name, true).
                                                             fail(show_unexpected_error);
                                                     },
-                                                    cockpit.format(_("Adding <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."),
-                                                                   iface.Name),
-                                                    cockpit.format(_("Add $0"), iface.Name),
-                                                    true);
+                                                    {
+                                                        fail_text: cockpit.format(_("Adding <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                                        anyway_text: cockpit.format(_("Add $0"), iface.Name),
+                                                        hack_does_add_or_remove: true
+                                                    });
                                             }));
                                 }
                                 return null;
@@ -2926,13 +2927,13 @@ function switchbox(val, callback) {
     return onoff;
 }
 
-function with_settings_checkpoint(model, modify, hack_does_add_or_remove) {
-    with_checkpoint(
-        model,
-        modify,
-        _("Changing the settings will break the connection to the server, and will make the administration UI unavailable."),
-        _("Change the settings"),
-        hack_does_add_or_remove);
+function with_settings_checkpoint(model, modify, options) {
+    with_checkpoint(model, modify,
+                    $.extend(
+                        {
+                            fail_text: _("Changing the settings will break the connection to the server, and will make the administration UI unavailable."),
+                            anyway_text: _("Change the settings"),
+                        }, options));
 }
 
 function show_dialog_error(error_id, error) {
@@ -3576,15 +3577,17 @@ PageNetworkBondSettings.prototype = {
         }
 
         if (PageNetworkBondSettings.connection)
-            with_settings_checkpoint(PageNetworkBondSettings.model, modify, true);
+            with_settings_checkpoint(PageNetworkBondSettings.model, modify,
+                                     { hack_does_add_or_remove: true });
         else
             with_checkpoint(
                 PageNetworkBondSettings.model,
                 modify,
-                _("Creating this bond will break the connection to the server, " +
-                  "and will make the administration UI unavailable."),
-                _("Create it"),
-                true);
+                {
+                    fail_text: _("Creating this bond will break the connection to the server, and will make the administration UI unavailable."),
+                    anyway_text: _("Create it"),
+                    hack_does_add_or_remove: true
+                });
     }
 
 };
@@ -3755,15 +3758,17 @@ PageNetworkTeamSettings.prototype = {
         }
 
         if (PageNetworkTeamSettings.connection)
-            with_settings_checkpoint(PageNetworkTeamSettings.model, modify, true);
+            with_settings_checkpoint(PageNetworkTeamSettings.model, modify,
+                                     { hack_does_add_or_remove: true });
         else
             with_checkpoint(
                 PageNetworkTeamSettings.model,
                 modify,
-                _("Creating this team will break the connection to the server, " +
-                  "and will make the administration UI unavailable."),
-                _("Create it"),
-                true);
+                {
+                    fail_text: _("Creating this team will break the connection to the server, and will make the administration UI unavailable."),
+                    anyway_text: _("Create it"),
+                    hack_does_add_or_remove: true
+                });
     }
 
 };
@@ -3978,14 +3983,17 @@ PageNetworkBridgeSettings.prototype = {
         }
 
         if (PageNetworkBridgeSettings.connection)
-            with_settings_checkpoint(PageNetworkBridgeSettings.model, modify, true);
+            with_settings_checkpoint(PageNetworkBridgeSettings.model, modify,
+                                     { hack_does_add_or_remove: true });
         else
             with_checkpoint(
                 PageNetworkBridgeSettings.model,
                 modify,
-                _("Creating this bridge will break the connection to the server, and will make the administration UI unavailable."),
-                _("Create it"),
-                true);
+                {
+                    fail_text: _("Creating this bridge will break the connection to the server, and will make the administration UI unavailable."),
+                    anyway_text: _("Create it"),
+                    hack_does_add_or_remove: true
+                });
     }
 
 };
@@ -4179,14 +4187,16 @@ PageNetworkVlanSettings.prototype = {
         }
 
         if (PageNetworkVlanSettings.connection)
-            with_settings_checkpoint(model, modify, true);
+            with_settings_checkpoint(model, modify, { hack_does_add_or_remove: true });
         else
             with_checkpoint(
                 PageNetworkVlanSettings.model,
                 modify,
-                _("Creating this VLAN will break the connection to the server, and will make the administration UI unavailable."),
-                _("Create it"),
-                true);
+                {
+                    fail_text: _("Creating this VLAN will break the connection to the server, and will make the administration UI unavailable."),
+                    anyway_text: _("Create it"),
+                    hack_does_add_or_remove: true
+                });
     }
 
 };

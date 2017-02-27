@@ -214,10 +214,14 @@ cockpit_web_response_new (GIOStream *io,
     {
       self->out = (GPollableOutputStream *)out;
     }
-  else
+  else if (out)
     {
       g_critical ("Cannot send web response over non-pollable output stream: %s",
                   G_OBJECT_TYPE_NAME (out));
+    }
+  else
+    {
+      g_critical ("Cannot send web response: no output stream available");
     }
 
   self->url_root = NULL;

@@ -16,19 +16,27 @@ the following command needs to be run as root to setup the libvirt bridged netwo
 
 ## Introduction
 
-To run the integration tests run the following. Don't run the integration tests
-as root:
+Before running any of the main integration tests in the verify/ directory the test machine
+images need to be prepared.
 
-    $ ./test/verify/run-tests
+Preparing the test machine images needs a configured tree or cockpit's build
+dependencies installed.  You can configure the tree on one machine that has all
+the build dependencies installed and then prepare the test machine images on
+another machine.  See "Building Cockpit binaries" in the HACKING file in the top
+source directory for how to configure the source tree.
 
-Alternatively you can run an individual test like this:
+Don't run the integration tests as root.
 
-    $ cd test
+To run all tests:
+
+    $ cd test/
+    $ ./verify/run-tests --install
+
+To run individual tests:
+
+    $ cd test/
     $ ./verify/testsuite-prepare
     $ ./verify/check-session
-
-The `./verify/testsuite-prepare` command builds cockpit and puts it into the test. Only
-code currently committed in the current branch will be installed and tested.
 
 To see more verbose output from the test, use the --verbose and/or --trace flags:
 

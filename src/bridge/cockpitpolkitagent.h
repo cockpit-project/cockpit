@@ -24,20 +24,12 @@
 #ifndef __COCKPIT_POLKIT_AGENT_H
 #define __COCKPIT_POLKIT_AGENT_H
 
+#include "common/cockpittransport.h"
+
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include "common/cockpittransport.h"
-
 G_BEGIN_DECLS
-
-#define COCKPIT_TYPE_POLKIT_AGENT          (cockpit_polkit_agent_get_type())
-#define COCKPIT_POLKIT_AGENT(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_POLKIT_AGENT, CockpitPolkitAgent))
-#define COCKPIT_IS_POLKIT_AGENT(o)         (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_POLKIT_AGENT))
-
-typedef struct _CockpitPolkitAgent CockpitPolkitAgent;
-
-GType                 cockpit_polkit_agent_get_type     (void) G_GNUC_CONST;
 
 gpointer              cockpit_polkit_agent_register     (CockpitTransport *transport,
                                                          GCancellable *cancellable);

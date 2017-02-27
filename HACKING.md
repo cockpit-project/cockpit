@@ -218,7 +218,6 @@ Then you can build the sources and install them, as usual:
     $ make
     $ sudo make install
     $ sudo cp ../src/bridge/cockpit.pam.insecure /etc/pam.d/cockpit
-    $ sudo sh -c "cat ../src/bridge/sshd-reauthorize.pam >> /etc/pam.d/sshd"
 
 This will install Cockpit and all support files, and will install a
 simplistic PAM configuration.

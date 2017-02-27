@@ -30,7 +30,6 @@ class TestSession(MachineCase):
         self.allow_authorize_journal_messages()
         # Might happen when killing the bridge.
         self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
-                                    "cockpit-polkit helper was terminated with signal: 15",
                                     "Error executing command as another user: Not authorized"
                                     ".*No session for cookie")
 

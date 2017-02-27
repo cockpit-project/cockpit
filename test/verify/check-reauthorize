@@ -81,21 +81,6 @@ class TestReauthorize(MachineCase):
 
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
 
-    def testShadow(self):
-        m = self.machine
-        b = self.browser
-
-        # Delete pam_reauthorize.so from everything in /etc/pam.d/*
-        # This causes the code to be forced to use the shadow logic
-        m.execute("sed -i '/pam_reauthorize/d' /etc/pam.d/*")
-
-        self.login_and_go("/playground/test")
-
-        b.click(".cockpit-internal-reauthorize .btn")
-        b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
-
-        self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
-
     def testSudo(self):
         self.allow_authorize_journal_messages()
         self.allow_journal_messages("@authorize@user:user@authorize@.*")

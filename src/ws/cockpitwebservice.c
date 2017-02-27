@@ -42,10 +42,10 @@
 
 #include "cockpitsshagent.h"
 #include "cockpitsshtransport.h"
+#include "reauthorize.h"
 
 #include "websocket/websocket.h"
 
-#include "reauthorize/reauthorize.h"
 
 #include <stdlib.h>
 

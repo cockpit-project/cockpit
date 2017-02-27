@@ -113,11 +113,6 @@ COCKPIT_SESSION_LIBS="$KRB5_LIBS"
 AC_SUBST(COCKPIT_SESSION_CFLAGS)
 AC_SUBST(COCKPIT_SESSION_LIBS)
 
-COCKPIT_POLKIT_CFLAGS="$GIO_CFLAGS $POLKIT_CFLAGS"
-COCKPIT_POLKIT_LIBS="$GIO_LIBS $POLKIT_LIBS"
-AC_SUBST(COCKPIT_POLKIT_CFLAGS)
-AC_SUBST(COCKPIT_POLKIT_LIBS)
-
 COCKPIT_WS_CFLAGS="$COCKPIT_CFLAGS $KRB5_CFLAGS"
 COCKPIT_WS_LIBS="$COCKPIT_LIBS $KRB5_LIBS"
 AC_SUBST(COCKPIT_WS_CFLAGS)
@@ -164,7 +159,6 @@ AC_CHECK_LIB(pam, pam_open_session, [ true ],
 PAM_LIBS="-lpam"
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS $PAM_LIBS"
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS $PAM_LIBS"
-REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS $PAM_LIBS"
 
 # pam module directory
 AC_ARG_WITH([pamdir],
@@ -174,16 +168,6 @@ AC_ARG_WITH([pamdir],
 pamdir=$with_pamdir
 AC_SUBST(pamdir)
 
-# keyutils
-AC_CHECK_HEADER([keyutils.h], ,
-  [AC_MSG_ERROR([Couldn't find keyutils headers. Try installing keyutils-libs-devel])]
-)
-AC_CHECK_LIB(keyutils, keyctl_join_session_keyring, [ true ],
-  [AC_MSG_ERROR([Couldn't find keyutils library. Try installing keyutils-libs-devel])]
-)
-COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lkeyutils"
-REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lkeyutils"
-
 # crypt
 AC_CHECK_HEADER([crypt.h], ,
   [AC_MSG_ERROR([Couldn't find crypt headers. Try installing glibc-headers])]
@@ -192,7 +176,6 @@ AC_CHECK_LIB(crypt, crypt_r, [ true ],
   [AC_MSG_ERROR([Couldn't find crypt library. Try installing glibc-devel])]
 )
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
-REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 
 # pcp
 AC_MSG_CHECKING([whether to build with PCP])
@@ -557,7 +540,6 @@ AC_MSG_RESULT($enable_strict)
 # Generate
 #
 
-AC_SUBST(REAUTHORIZE_LIBS)
 AC_SUBST(PAM_LIBS)
 
 AC_DEFINE([MAX_PACKET_SIZE], [65536], [Maximum size of packet messages])

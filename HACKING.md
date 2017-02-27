@@ -44,22 +44,16 @@ In addition, for testing, the following dependencies are required:
     $ sudo yum install \
         curl \
         expect \
-        firewalld \
-        krb5-workstation \
-        krb5-server \
         libvirt \
         libvirt-client \
         libvirt-daemon \
         libvirt-python \
-        mock \
-        openssl \
         python \
         python-libguestfs \
         python-lxml \
         qemu \
         qemu-kvm \
         rpm-build \
-        selinux-policy-devel \
         rsync \
         xz
 

@@ -1119,11 +1119,18 @@ cockpit_pipe_connect (const gchar *name,
   else
     {
       if (!g_unix_set_fd_nonblocking (sock, TRUE, NULL))
-        g_return_val_if_reached (NULL);
+        {
+          close (sock);
+          g_return_val_if_reached (NULL);
+        }
+
       native_len = g_socket_address_get_native_size (address);
       native = g_malloc (native_len);
       if (!g_socket_address_to_native (address, native, native_len, NULL))
-        g_return_val_if_reached (NULL);
+        {
+          close (sock);
+          g_return_val_if_reached (NULL);
+        }
       if (connect (sock, native, native_len) < 0)
         {
           if (errno == EINPROGRESS)

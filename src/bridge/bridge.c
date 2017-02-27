@@ -471,6 +471,8 @@ run_bridge (const gchar *interactive,
   if (outfd < 0 || dup2 (2, 1) < 1)
     {
       g_warning ("bridge couldn't redirect stdout to stderr");
+      if (outfd > -1)
+        close (outfd);
       outfd = 1;
     }
 

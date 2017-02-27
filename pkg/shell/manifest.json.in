@@ -25,7 +25,8 @@
         },
         {
             "match": { "superuser": null },
-            "spawn": [ "@SUDO@", "-n", "cockpit-bridge", "--privileged" ]
+            "environ": [ "SUDO_PROMPT=@authorize@%u:%p@authorize@ " ],
+            "spawn": [ "@SUDO@", "cockpit-bridge", "--privileged" ]
         }
     ]
 }

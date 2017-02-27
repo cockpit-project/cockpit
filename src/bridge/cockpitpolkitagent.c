@@ -25,45 +25,62 @@
 
 #include "cockpitpolkitagent.h"
 
-#include "common/cockpitjson.h"
-#include "common/cockpitpipe.h"
 #include "common/cockpitlog.h"
+#include "common/cockpitmemory.h"
+#include "common/cockpitunixfd.h"
 
 #define POLKIT_AGENT_I_KNOW_API_IS_SUBJECT_TO_CHANGE 1
 #include <polkitagent/polkitagent.h>
 
+#include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <string.h>
+#include <termios.h>
+
+#define COCKPIT_TYPE_POLKIT_AGENT          (cockpit_polkit_agent_get_type())
+#define COCKPIT_POLKIT_AGENT(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_POLKIT_AGENT, CockpitPolkitAgent))
+#define COCKPIT_IS_POLKIT_AGENT(o)         (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_POLKIT_AGENT))
 
 typedef struct {
-    gchar *cookie;
-
-    GSimpleAsyncResult *result;
-    CockpitPolkitAgent *self;
-
-    CockpitPipe *helper;
-    gulong read_sig;
-    gulong close_sig;
-
-    GCancellable *cancellable;
-    gulong cancel_sig;
-} ReauthorizeCaller;
-
-struct _CockpitPolkitAgent {
   PolkitAgentListener parent_instance;
-  CockpitTransport *transport;
-  gulong control_sig;
+  int tty;
+
+  /* Polkit helper sessions active */
   GHashTable *callers;
-};
+
+  /* A list of password requests */
+  GQueue requests;
+  GString *prompt;
+  GString *reply;
+  struct termios reset;
+  guint timeout;
+  guint tag;
+} CockpitPolkitAgent;
+
+typedef struct {
+  gchar *cookie;
+
+  GSimpleAsyncResult *result;
+  CockpitPolkitAgent *self;
+
+  PolkitAgentSession *session;
+  gulong completed_sig;
+  gulong request_sig;
+  gulong info_sig;
+  gulong error_sig;
+
+  GCancellable *cancellable;
+  gulong cancel_sig;
+} ReauthorizeCaller;
 
 typedef struct {
   PolkitAgentListenerClass parent_class;
 } CockpitPolkitAgentClass;
 
-enum {
-    PROP_0,
-    PROP_TRANSPORT,
-};
+static GType cockpit_polkit_agent_get_type (void) G_GNUC_CONST;
 
 G_DEFINE_TYPE (CockpitPolkitAgent, cockpit_polkit_agent, POLKIT_AGENT_TYPE_LISTENER);
 
@@ -75,9 +92,16 @@ caller_free (gpointer data)
     g_signal_handler_disconnect (caller->cancellable, caller->cancel_sig);
   if (caller->cancellable)
     g_object_unref (caller->cancellable);
-  g_signal_handler_disconnect (caller->helper, caller->read_sig);
-  g_signal_handler_disconnect (caller->helper, caller->close_sig);
-  g_object_unref (caller->helper);
+
+  if (caller->session)
+    {
+      g_signal_handler_disconnect (caller->session, caller->completed_sig);
+      g_signal_handler_disconnect (caller->session, caller->request_sig);
+      g_signal_handler_disconnect (caller->session, caller->info_sig);
+      g_signal_handler_disconnect (caller->session, caller->error_sig);
+      polkit_agent_session_cancel (caller->session);
+      g_object_unref (caller->session);
+    }
 
   if (caller->result)
     {
@@ -95,86 +119,179 @@ caller_free (gpointer data)
 static void
 cockpit_polkit_agent_init (CockpitPolkitAgent *self)
 {
+  const char *tty_name;
+
   self->callers = g_hash_table_new_full (g_str_hash, g_str_equal,
                                          NULL, caller_free);
+
+  g_queue_init (&self->requests);
+
+  tty_name = ctermid (NULL);
+  if (tty_name == NULL)
+    {
+      g_warning ("couldn't determine pathname for current controlling terminal for cockpit-bridge: %s",
+                 g_strerror (errno));
+    }
+  else
+    {
+      self->tty = open (tty_name, O_RDWR | O_NONBLOCK);
+      if (self->tty < 0)
+        {
+          g_warning ("couldn't open current controlling terminal for cockpit-bridge: %s",
+                     g_strerror (errno));
+        }
+    }
+
+  self->prompt = g_string_new ("");
+  self->reply = g_string_new ("");
 }
 
+static void
+finish_request (CockpitPolkitAgent *self);
+
 static gboolean
-on_transport_control (CockpitTransport *transport,
-                      const char *command,
-                      guint channel,
-                      JsonObject *options,
-                      GBytes *message,
-                      gpointer user_data)
+on_tty_request_read (gint fd,
+                     GIOCondition cond,
+                     gpointer user_data)
 {
-  CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (user_data);
-  ReauthorizeCaller *caller;
-  const gchar *response;
-  const gchar *cookie;
-  GBytes *bytes;
+  CockpitPolkitAgent *self = user_data;
+  ssize_t res;
+  gchar ch;
 
-  if (!g_str_equal (command, "authorize"))
-    return FALSE;
+  g_assert (fd == self->tty);
 
-  if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
-      !cockpit_json_get_string (options, "response", NULL, &response) ||
-      !cookie || !response)
+  res = read (fd, &ch, 1);
+  if (res < 0)
     {
-      g_warning ("got an invalid authorize command from cockpit-ws");
-      cockpit_transport_close (transport, "protocol-error");
-      return TRUE;
+      if (errno != EINTR && errno != EAGAIN)
+        {
+          g_warning ("could not write polkit agent prompt to tty: %s", g_strerror (errno));
+          finish_request (self);
+          return FALSE;
+        }
     }
-
-  caller = g_hash_table_lookup (self->callers, cookie);
-  if (!caller)
+  else if (res == 0)
     {
-      g_debug ("received authorize response for caller that has gone away");
-      return TRUE;
+      if (cond & (G_IO_HUP | G_IO_ERR))
+        {
+          finish_request (self);
+          return FALSE;
+        }
     }
-
-  g_debug ("got \"authorize\" response from cockpit-ws, will send to helper: %s", response);
-
-  bytes = g_bytes_new_with_free_func (response, strlen (response),
-                                      (GDestroyNotify)json_object_unref,
-                                      json_object_ref (options));
-  cockpit_pipe_write (caller->helper, bytes);
-  g_bytes_unref (bytes);
-
-  bytes = g_bytes_new_static ("\n", 1);
-  cockpit_pipe_write (caller->helper, bytes);
-  g_bytes_unref (bytes);
+  else if (ch == '\n')
+    {
+      finish_request (self);
+      return FALSE;
+    }
+  else
+    {
+      g_string_append_c (self->reply, ch);
+    }
 
   return TRUE;
 }
 
-static void
-cockpit_polkit_agent_constructed (GObject *object)
+static gboolean
+on_tty_request_write (gint fd,
+                      GIOCondition cond,
+                      gpointer user_data)
 {
-  CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (object);
+  CockpitPolkitAgent *self = user_data;
+  ssize_t res = 0;
 
-  G_OBJECT_CLASS (cockpit_polkit_agent_parent_class)->constructed (object);
+  g_assert (fd == self->tty);
 
-  self->control_sig = g_signal_connect (self->transport, "control",
-                                        G_CALLBACK (on_transport_control), self);
+  if (self->prompt->len > 0)
+    res = write (fd, self->prompt->str, self->prompt->len);
+  if (res < 0)
+    {
+      if (errno != EINTR && errno != EAGAIN)
+        {
+          g_warning ("could not write polkit agent prompt to tty: %s", g_strerror (errno));
+          finish_request (self);
+          return FALSE;
+        }
+    }
+  else
+    {
+      g_string_erase (self->prompt, 0, res);
+    }
+
+  /* Finished writing the prompt, read the response */
+  if (self->prompt->len == 0)
+    {
+      self->tag = cockpit_unix_fd_add (self->tty, G_IO_IN, on_tty_request_read, self);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+on_tty_request_timeout (gpointer user_data)
+{
+  g_message ("timed out waiting for polkit request on tty");
+  finish_request (user_data);
+  return FALSE;
 }
 
 static void
-cockpit_polkit_agent_set_property (GObject *object,
-                                   guint prop_id,
-                                   const GValue *value,
-                                   GParamSpec *pspec)
+start_request (CockpitPolkitAgent *self)
 {
-  CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (object);
+  PolkitAgentSession *session = g_queue_peek_head (&self->requests);
+  uid_t uid = getuid ();
+  struct termios ts;
 
-  switch (prop_id)
+  if (!session)
+    return;
+
+  g_string_printf (self->prompt, "@authorize@%d:%d@authorize@ ", (int)uid, (int)uid);
+  g_string_truncate (self->reply, 0);
+
+  if (self->tty >= 0)
     {
-      case PROP_TRANSPORT:
-        self->transport = g_value_dup_object (value);
-        break;
-      default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-        break;
+      tcgetattr (self->tty, &ts);
+      self->reset = ts;
+      ts.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
+      tcsetattr (self->tty, TCSAFLUSH, &ts);
+
+      self->tag = cockpit_unix_fd_add (self->tty, G_IO_OUT, on_tty_request_write, self);
+      self->timeout = g_timeout_add_seconds (120, on_tty_request_timeout, self);
     }
+  else
+    {
+      /* Immediately finish the request */
+      finish_request (self);
+    }
+}
+
+static void
+finish_request (CockpitPolkitAgent *self)
+{
+  PolkitAgentSession *session = g_queue_pop_head (&self->requests);
+  g_return_if_fail (session != NULL);
+
+  if (self->tty >= 0)
+    {
+      polkit_agent_session_response (session, self->reply->str);
+      cockpit_secclear (self->reply->str, self->reply->len);
+      tcsetattr (self->tty, TCSAFLUSH, &self->reset);
+    }
+
+  if (self->tag)
+    {
+      g_source_remove (self->tag);
+      self->tag = 0;
+    }
+  if (self->timeout)
+    {
+      g_source_remove (self->timeout);
+      self->timeout = 0;
+    }
+
+  g_object_unref (session);
+
+  start_request (self);
 }
 
 static void
@@ -182,13 +299,16 @@ cockpit_polkit_agent_dispose (GObject *object)
 {
   CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (object);
 
-  if (self->control_sig)
+  if (self->tty)
     {
-      g_signal_handler_disconnect (self->transport, self->control_sig);
-      self->control_sig = 0;
+      close (self->tty);
+      self->tty = -1;
     }
 
   g_hash_table_remove_all (self->callers);
+
+  while (!g_queue_is_empty (&self->requests))
+    finish_request (self);
 
   G_OBJECT_CLASS (cockpit_polkit_agent_parent_class)->dispose (object);
 }
@@ -199,106 +319,76 @@ cockpit_polkit_agent_finalize (GObject *object)
 {
   CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (object);
 
-  if (self->transport)
-    g_object_unref (self->transport);
   g_hash_table_destroy (self->callers);
+  g_assert (g_queue_is_empty (&self->requests));
+  g_assert (self->tty < 0);
+
+  g_string_free (self->reply, TRUE);
+  g_string_free (self->prompt, TRUE);
 
   G_OBJECT_CLASS (cockpit_polkit_agent_parent_class)->finalize (object);
 }
 
 static void
-on_helper_read (CockpitPipe *pipe,
-                GByteArray *buffer,
-                gboolean eof,
-                gpointer user_data)
+on_completed (PolkitAgentSession *session,
+              gboolean gained_authorization,
+              gpointer user_data)
 {
   ReauthorizeCaller *caller = user_data;
-  JsonObject *object;
-  GBytes *bytes;
-  guint8 *lf;
 
-  lf = memchr (buffer->data, '\n', buffer->len);
-  if (!lf)
-    return;
-
-  /* Null terminate the challenge */
-  *lf = 0;
-
-  g_debug ("got challenge from helper, will send to cockpit-ws: %s", (gchar *)buffer->data);
-
-  /* send an authorize packet here */
-  object = json_object_new ();
-  json_object_set_string_member (object, "command", "authorize");
-  json_object_set_string_member (object, "cookie", caller->cookie);
-  json_object_set_string_member (object, "challenge", (gchar *)buffer->data);
-  bytes = cockpit_json_write_bytes (object);
-  json_object_unref (object);
-
-  /* Consume from buffer, including null termination */
-  cockpit_pipe_skip (buffer, lf - buffer->data);
-
-  cockpit_transport_send (caller->self->transport, NULL, bytes);
-  g_bytes_unref (bytes);
-}
-
-static void
-on_helper_close (CockpitPipe *pipe,
-                 const gchar *problem,
-                 gpointer user_data)
-{
-  ReauthorizeCaller *caller = user_data;
-  GSimpleAsyncResult *result;
-  gint status;
-  int res;
+  g_debug ("polkit authentication completed");
 
   g_warn_if_fail (g_hash_table_steal (caller->self->callers, caller->cookie));
+  g_simple_async_result_complete_in_idle (caller->result);
 
-  if (caller->result)
-    {
-      result = caller->result;
-      caller->result = NULL;
+  g_object_unref (caller->result);
+  caller->result = NULL;
 
-      if (problem)
-        {
-          g_message ("cockpit-polkit helper had problem: %s", problem);
-          res = 1;
-        }
-      else
-        {
-          status = cockpit_pipe_exit_status (pipe);
-          if (WIFEXITED (status))
-            {
-              g_message ("cockpit-polkit helper exited with status: %d", (int)WEXITSTATUS (status));
-              res = WEXITSTATUS (status);
-            }
-          else if (WIFSIGNALED (status))
-            {
-              g_message ("cockpit-polkit helper was terminated with signal: %d", (int)WTERMSIG (status));
-              res = 1;
-            }
-          else
-            {
-              g_message ("cockpit-polkit helper terminated unexpectedly");
-              res = 1;
-            }
-        }
-
-      if (res != 0)
-        {
-          g_simple_async_result_set_error (result, POLKIT_ERROR, POLKIT_ERROR_FAILED,
-                                           "Cockpit polkit agent helper failed");
-        }
-      g_simple_async_result_complete (result);
-      g_object_unref (result);
-    }
-
-  g_debug ("closing agent authentication");
   caller_free (caller);
 }
 
 static void
+on_request (PolkitAgentSession *session,
+            const gchar *request,
+            gboolean echo_on,
+            gpointer user_data)
+{
+  CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (user_data);
+  gboolean empty;
+
+  if (echo_on)
+    {
+      g_message ("ignoring polkit helper request: %s", request);
+      polkit_agent_session_response (session, "");
+    }
+  else
+    {
+      empty = g_queue_is_empty (&self->requests);
+      g_queue_push_tail (&self->requests, g_object_ref (session));
+      if (empty)
+        start_request (self);
+    }
+}
+
+static void
+on_show_error (PolkitAgentSession *session,
+               const gchar *text,
+               gpointer user_data)
+{
+  g_message ("polkit helper error: %s", text);
+}
+
+static void
+on_show_info (PolkitAgentSession *session,
+              const gchar *text,
+              gpointer user_data)
+{
+  g_message ("polkit helper info: %s", text);
+}
+
+static void
 on_cancelled (GCancellable *cancellable,
-              gpointer      user_data)
+              gpointer user_data)
 {
   ReauthorizeCaller *caller = user_data;
   g_debug ("cancelled agent authentication");
@@ -326,16 +416,19 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
   uid_t uid;
   GList *l;
 
-  const gchar *argv[] = {
-    PACKAGE_LIBEXEC_DIR "/cockpit-polkit",
-    cookie,
-    NULL,
-  };
-
   g_debug ("polkit is requesting authentication");
 
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_polkit_agent_initiate_authentication);
+
+  if (self->tty < 0)
+    {
+      g_message ("polkit agent wanted to prompt, but no terminal available");
+      g_simple_async_result_set_error (result, POLKIT_ERROR, POLKIT_ERROR_FAILED,
+                                       "Could not open terminal in Cockpit for prompting");
+      g_simple_async_result_complete_in_idle (result);
+      goto out;
+    }
 
   uid = getuid ();
 
@@ -366,24 +459,25 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
     }
 
   string = polkit_identity_to_string (identity);
-  g_message ("Reauthorizing %s", string);
   g_free (string);
 
   caller = g_new0 (ReauthorizeCaller, 1);
   caller->cookie = g_strdup (cookie);
-  caller->helper = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
-  caller->read_sig = g_signal_connect (caller->helper, "read", G_CALLBACK (on_helper_read), caller);
-  caller->close_sig = g_signal_connect (caller->helper, "close", G_CALLBACK (on_helper_close), caller);
-
+  caller->session = polkit_agent_session_new (identity, cookie);
+  caller->completed_sig = g_signal_connect (caller->session, "completed", G_CALLBACK (on_completed), caller);
+  caller->request_sig = g_signal_connect (caller->session, "request", G_CALLBACK (on_request), self);
+  caller->info_sig = g_signal_connect (caller->session, "show-info", G_CALLBACK (on_show_info), NULL);
+  caller->error_sig = g_signal_connect (caller->session, "show-error", G_CALLBACK (on_show_error), NULL);
   caller->cancellable = g_object_ref (cancellable);
   caller->cancel_sig = g_cancellable_connect (cancellable, G_CALLBACK (on_cancelled), caller, NULL);
 
   caller->result = g_object_ref (result);
   caller->self = self;
 
+  polkit_agent_session_initiate (caller->session);
   g_hash_table_replace (self->callers, caller->cookie, caller);
 
-  g_debug ("cockpit-polkit helper starting");
+  g_debug ("polkit helper starting");
 
 out:
   if (unsupported)
@@ -413,17 +507,11 @@ cockpit_polkit_agent_class_init (CockpitPolkitAgentClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   PolkitAgentListenerClass *listener_class = POLKIT_AGENT_LISTENER_CLASS (klass);
 
-  gobject_class->constructed = cockpit_polkit_agent_constructed;
-  gobject_class->set_property = cockpit_polkit_agent_set_property;
   gobject_class->dispose = cockpit_polkit_agent_dispose;
   gobject_class->finalize = cockpit_polkit_agent_finalize;
 
   listener_class->initiate_authentication = cockpit_polkit_agent_initiate_authentication;
   listener_class->initiate_authentication_finish = cockpit_polkit_agent_initiate_authentication_finish;
-
-  g_object_class_install_property (gobject_class, PROP_TRANSPORT,
-             g_param_spec_object ("transport", "transport", "transport", COCKPIT_TYPE_TRANSPORT,
-                                  G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
 typedef struct {
@@ -432,8 +520,7 @@ typedef struct {
 } CockpitPolkitRegistered;
 
 gpointer
-cockpit_polkit_agent_register (CockpitTransport *transport,
-                               GCancellable *cancellable)
+cockpit_polkit_agent_register (GCancellable *cancellable)
 {
   CockpitPolkitRegistered *registered;
   PolkitAgentListener *listener = NULL;
@@ -464,9 +551,7 @@ cockpit_polkit_agent_register (CockpitTransport *transport,
       goto out;
     }
 
-  listener = g_object_new (COCKPIT_TYPE_POLKIT_AGENT,
-                           "transport", transport,
-                           NULL);
+  listener = g_object_new (COCKPIT_TYPE_POLKIT_AGENT, NULL);
   options = NULL;
 
   /*

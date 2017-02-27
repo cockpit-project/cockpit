@@ -509,7 +509,7 @@ run_bridge (const gchar *interactive,
   if (uid != 0)
     {
       if (!interactive)
-        polkit_agent = cockpit_polkit_agent_register (transport, NULL);
+        polkit_agent = cockpit_polkit_agent_register (NULL);
     }
 
   g_resources_register (cockpitassets_get_resource ());

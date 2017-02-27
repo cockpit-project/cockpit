@@ -45,7 +45,7 @@ cockpit_block_samples (CockpitSamples *samples)
       const gchar *line = lines[n];
       guint num_parsed;
       gint dev_major, dev_minor;
-      gchar dev_name[64]; /* TODO: big enough? */
+      gchar dev_name[128];
       guint64 num_reads,  num_reads_merged,  num_sectors_read,    num_msec_reading;
       guint64 num_writes, num_writes_merged, num_sectors_written, num_msec_writing;
       guint64 num_io_in_progress, num_msec_doing_io, weighted_num_msec_doing_io;
@@ -88,7 +88,7 @@ cockpit_block_samples (CockpitSamples *samples)
        */
 
       num_parsed = sscanf (line,
-                           "%d %d %64s"
+                           "%d %d %127s"
                            " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT
                            " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT
                            " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT,

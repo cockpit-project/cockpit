@@ -478,11 +478,18 @@ _cockpit_assert_data_eq_msg (const char *domain,
   if (!data && !expect)
     return;
   if (len < 0)
-    len = strlen (data);
+    len = strlen (data ?: "");
   if (exp_len < 0)
-    exp_len = strlen (expect);
-  if (len == exp_len && memcmp (data, expect, len) == 0)
-    return;
+    exp_len = strlen (expect ?: "");
+
+  if (len == exp_len)
+    {
+      if (len == 0)
+        return;
+      else if (data && expect && memcmp (data, expect, len) == 0)
+        return;
+    }
+
   a1 = test_escape_data (data, len);
   a2 = test_escape_data (expect, exp_len);
   s = g_strdup_printf ("data is not the same (%s != %s)", a1, a2);

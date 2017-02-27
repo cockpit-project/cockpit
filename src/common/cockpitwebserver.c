@@ -1080,7 +1080,11 @@ start_request_input (CockpitRequest *request)
 
   if (!poll_in || !g_pollable_input_stream_can_poll (poll_in))
     {
-      g_critical ("cannot use a non-pollable input stream: %s", G_OBJECT_TYPE_NAME (in));
+      if (in)
+        g_critical ("cannot use a non-pollable input stream: %s", G_OBJECT_TYPE_NAME (in));
+      else
+        g_critical ("no input stream available");
+
       cockpit_request_finish (request);
       return;
     }

@@ -24,17 +24,14 @@ for more details and recommendations on ensuring it is enabled correctly.
 
 ## Introduction
 
-Before running the tests, ensure Cockpit has been built where the test suite
-expects to find it (do NOT run the build step as root):
+To build Cockpit and run the integration tests run the following (do NOT run
+the integration tests as root):
 
-   $ ./test/verify/testsuite-prepare
+    $ ./test/verify/run-tests --install
 
-Only code currently committed in the current branch will be installed and tested.
-
-To run the integration tests run the following (do NOT run the integration tests
-as root):
-
-    $ ./test/verify/run-tests
+The `--install` option indicates to (re)build and (re)install Cockpit before
+running the tests. Only code currently committed in the current branch will
+be installed and tested.
 
 The tests will automatically download the VM images they need, so expect
 that the initial run may take a couple of hours (there are quite a few

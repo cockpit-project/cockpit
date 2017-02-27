@@ -722,7 +722,8 @@ process_session_authorize (CockpitWebService *self,
   const gchar *host;
   char *user = NULL;
   char *type = NULL;
-  char *response = NULL;
+  char *alloc = NULL;
+  const char *response = NULL;
   const gchar *challenge;
   const gchar *password;
   GBytes *data;
@@ -750,6 +751,18 @@ process_session_authorize (CockpitWebService *self,
     {
       g_message ("%s: received authorize command for wrong user: %s", host, user);
     }
+  else if (g_str_equal (type, "plain1"))
+    {
+      data = cockpit_creds_get_password (session->creds);
+      if (!data)
+        {
+          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
+        }
+      else
+        {
+          response = g_bytes_get_data (data, NULL);
+        }
+    }
   else if (g_str_equal (type, "crypt1"))
     {
       data = cockpit_creds_get_password (session->creds);
@@ -760,19 +773,15 @@ process_session_authorize (CockpitWebService *self,
       else
         {
           password = g_bytes_get_data (data, NULL);
-          rc = reauthorize_crypt1 (challenge, password, &response);
+          rc = reauthorize_crypt1 (challenge, password, &alloc);
           if (rc < 0)
             g_message ("%s: failed to reauthorize crypt1 challenge", host);
+          else
+            response = alloc;
         }
     }
 
-  /*
-   * TODO: So the missing piece is that something needs to unauthorize
-   * the user. This needs to be coordinated with the web service.
-   *
-   * For now we assume that since this is an admin tool, as long as the
-   * user has it open, he/she is authorized.
-   */
+  send_socket_hints (self, "credential", "password");
 
   if (!session->sent_done)
     {
@@ -786,7 +795,7 @@ process_session_authorize (CockpitWebService *self,
 
   free (user);
   free (type);
-  free (response);
+  free (alloc);
   return TRUE;
 }
 

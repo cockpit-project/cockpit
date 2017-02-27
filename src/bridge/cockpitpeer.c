@@ -124,12 +124,7 @@ on_other_control (CockpitTransport *transport,
   /* Got an init message thaw all channels */
   if (g_str_equal (command, "init"))
     {
-      if (self->inited)
-        {
-          g_warning ("%s: peer already sent another \"init\" message", self->name);
-          problem = "protocol-error";
-        }
-      else if (!cockpit_json_get_int (options, "version", -1, &version))
+      if (!cockpit_json_get_int (options, "version", -1, &version))
         {
           g_warning ("%s: invalid \"version\" field in init message", self->name);
           problem = "protocol-error";

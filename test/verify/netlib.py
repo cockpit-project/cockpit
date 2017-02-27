@@ -23,6 +23,9 @@ from testlib import *
 
 class NetworkCase(MachineCase):
     def setUp(self):
+
+        self.skipTest("let's see if the networking tests actually interfere with the rest")
+
         MachineCase.setUp(self)
 
         m = self.machine

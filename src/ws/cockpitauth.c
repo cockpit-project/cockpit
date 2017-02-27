@@ -649,7 +649,7 @@ parse_cockpit_spawn_results (CockpitAuth *self,
   JsonObject *auth_results = NULL;
   const gchar *pw_result = NULL;
   const gchar *user;
-  const gchar *error_str;
+  const gchar *error_str = NULL;
 
   g_assert (prompt_data != NULL);
   g_assert (gssapi_header != NULL);

@@ -288,6 +288,7 @@ system on behalf of the web based user interface.
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %{_libdir}/security/pam_reauthorize.so
+%{_libexecdir}/cockpit-askpass
 
 %package doc
 Summary: Cockpit deployment and developer guide

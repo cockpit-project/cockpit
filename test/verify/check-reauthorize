@@ -23,6 +23,8 @@ from testlib import *
 
 class TestReauthorize(MachineCase):
     def testBasic(self):
+        self.allow_authorize_journal_messages()
+        self.allow_journal_messages('.*dropping message while waiting for child to exit.*')
         b = self.browser
 
         # Log in without being authorized
@@ -53,10 +55,8 @@ class TestReauthorize(MachineCase):
 
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
-        self.allow_journal_messages('.*dropping message while waiting for child to exit.*')
-        self.allow_authorize_journal_messages()
-
     def testSuper(self):
+        self.allow_authorize_journal_messages()
         b = self.browser
 
         self.login_and_go("/playground/test")
@@ -80,7 +80,6 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".super-channel span", 'result:')
 
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
-        self.allow_authorize_journal_messages()
 
     def testShadow(self):
         m = self.machine
@@ -98,37 +97,46 @@ class TestReauthorize(MachineCase):
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
     def testSudo(self):
+        self.allow_authorize_journal_messages()
+        self.allow_journal_messages("@authorize@user:user@authorize@.*")
         m = self.machine
         b = self.browser
 
         m.execute("useradd user -s /bin/bash -c 'Barney' || true")
         m.execute("echo user:foobar | chpasswd")
 
-
         b.default_user = "user"
         self.login_and_go("/playground/test")
-
         b.click(".super-channel .btn")
         b.wait_in_text(".super-channel span", 'result: ')
-
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
-
-        m.execute("echo 'user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
+        b.logout()
 
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1196451
         # RHEL used to require this
         m.execute("sed -i /requiretty/d /etc/sudoers")
 
-        b.logout()
-
+        # So first ask the user to retype their password
+        m.execute("echo 'user ALL=(ALL) ALL' >> /etc/sudoers.d/user-override")
         self.login_and_go("/playground/test")
-
         b.click(".super-channel .btn")
         b.wait_in_text(".super-channel span", 'result: ')
-
         self.assertIn('result: uid=0', b.text(".super-channel span"))
+        b.logout()
 
-        self.allow_authorize_journal_messages()
+        # Next don't allow password to authorize the user, we should fail
+        self.login_and_go("/playground/test", authorized=False)
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.logout()
+
+        # Next allow the user to do this without a password, succeeds
+        m.execute("echo 'user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
+        self.login_and_go("/playground/test", authorized=False)
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
 
 if __name__ == '__main__':
     test_main()

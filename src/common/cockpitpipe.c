@@ -1526,6 +1526,48 @@ cockpit_pipe_skip (GByteArray *buffer,
 }
 
 /**
+ * cockpit_pipe_parse_length:
+ * @buffer: a data buffer
+ * @consumed: number of bytes consumed
+ *
+ * Parse a message framing length string from the top
+ * of the data buffer. These are used by Cockpit transport framing
+ * over a stream based protocol.
+ *
+ * Returns: The length, zero if more data is needed, or -1 if an error.
+ */
+gssize
+cockpit_pipe_parse_length (GByteArray *buffer,
+                           gsize *consumed)
+{
+  gchar *data;
+  guint32 i, size;
+
+  size = 0;
+  data = (gchar *)buffer->data;
+  for (i = 0; i < buffer->len; i++)
+    {
+      /* Check invalid characters, prevent integer overflow, limit max length */
+      if (i > 7 || data[i] < '0' || data[i] > '9')
+        break;
+      size *= 10;
+      size += data[i] - '0';
+    }
+
+  /* Want more data */
+  if (i == buffer->len)
+    return 0;
+
+  /* A failure */
+  if (size == 0 || data[i] != '\n')
+    return -1;
+
+  if (consumed)
+    *consumed = i + 1;
+  return size;
+}
+
+/**
  * cockpit_pipe_new:
  * @name: a name for debugging
  * @in_fd: the input file descriptor

@@ -141,6 +141,18 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         b.wait_not_in_text("modal-dialog", "Client Certificate")
         self.assertFalse(b.val("#kubernetes-token") == "")
 
+        b.logout()
+
+        # Test the saved kube config file
+        m.execute("rm /home/admin/.kube/config")
+        m.upload(["verify/files/openshift.kubeconfig"], "/home/admin/.kube/config")
+        m.execute("chown -R admin:admin /home/admin/.kube")
+
+        self.login_and_go("/kubernetes")
+
+        b.wait_present("#service-list")
+        b.wait_in_text("#service-list", "docker-registry")
+
     @unittest.skipIf(True, "Nulecule deploys temporarily removed.")
     def testDeployDialog(self):
         b = self.browser

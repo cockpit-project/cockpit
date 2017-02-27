@@ -648,11 +648,19 @@ class MachineCase(unittest.TestCase):
 
     def allow_authorize_journal_messages(self):
         self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:admin.*",
+                                    ".*: pam_authenticate failed: Authentication failure",
+                                    ".*is not in the sudoers file.  This incident will be reported.",
                                     ".*: a password is required",
                                     "user user was reauthorized",
                                     ".*: sorry, you must have a tty to run sudo",
-                                    ".*/pkexec: bridge exited")
-
+                                    ".*/pkexec: bridge exited",
+                                    "We trust you have received the usual lecture from the local System",
+                                    "Administrator. It usually boils down to these three things:",
+                                    "#1\) Respect the privacy of others.",
+                                    "#2\) Think before you type.",
+                                    "#3\) With great power comes great responsibility.",
+                                    ".*Sorry, try again.",
+                                    ".*incorrect password attempt.*")
 
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""

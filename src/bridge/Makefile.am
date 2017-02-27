@@ -130,6 +130,16 @@ cockpit_polkit_SOURCES = src/bridge/cockpitpolkithelper.c
 cockpit_polkit_CFLAGS = $(COCKPIT_POLKIT_CFLAGS)
 cockpit_polkit_LDADD = libreauthorize.a $(REAUTHORIZE_LIBS) $(COCKPIT_POLKIT_LIBS)
 
+libexec_PROGRAMS += cockpit-askpass
+
+cockpit_askpass_SOURCES = src/bridge/askpass.c
+cockpit_askpass_CFLAGS = \
+	-I$(srcdir)/src/bridge \
+	-DG_LOG_DOMAIN=\"cockpit-askpass\" \
+	$(COCKPIT_BRIDGE_CFLAGS) \
+	$(NULL)
+cockpit_askpass_LDADD = $(libcockpit_bridge_LIBS)
+
 libexec_PROGRAMS += cockpit-stub
 
 cockpit_stub_SOURCES = src/bridge/stub.c

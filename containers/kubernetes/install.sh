@@ -25,6 +25,7 @@ rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/systemd/ /usr/share/cockpit
 rm -rf /usr/bin/cockpit-bridge
 rm -rf /usr/lib64/security/pam_reauthorize.so
 rm -rf /usr/libexec/cockpit-polkit
+rm -rf /usr/libexec/cockpit-askpass
 
 rm -rf /container/scripts
 rm -rf /container/rpms

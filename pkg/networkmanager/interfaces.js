@@ -869,11 +869,14 @@ function NetworkManagerModel() {
             },
 
             apply_settings: function (settings) {
+                var self = this;
                 try {
-                    set_settings(this, settings);
-                    return call_object_method(this,
+                    return call_object_method(self,
                                               "org.freedesktop.NetworkManager.Settings.Connection", "Update",
-                                              settings_to_nm(settings, priv(this).orig));
+                                              settings_to_nm(settings, priv(self).orig)).
+                        done(function () {
+                            set_settings(self, settings);
+                        });
                 }
                 catch (e) {
                     return cockpit.reject(e);

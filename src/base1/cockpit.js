@@ -2874,7 +2874,7 @@ function factory() {
                     return waits.promise;
                 }
             },
-            "call": { value: function(name, args) { return client.call(path, iface, name, args); },
+            "call": { value: function(name, args, options) { return client.call(path, iface, name, args, options); },
                       enumerable: false, writable: false },
             "data": { value: { }, enumerable: false }
         });

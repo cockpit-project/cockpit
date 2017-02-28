@@ -13,10 +13,6 @@ the following command needs to be run as root to setup the libvirt bridged netwo
 
     $ sudo ./test/vm-prep
 
-Note that this step also attempts to ensure nested virtualization is enabled,
-and may emit a spurious `rmmod: ERROR: Module kvm_amd is not currently loaded`
-warning when running on an Intel CPU (or vice-versa).
-
 If test failures are encountered that look like they may be related to problems
 with nested virtualization, refer to
 [this Fedora guide](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)

@@ -3293,7 +3293,9 @@ function set_slave(model, master_connection, master_settings, slave_type,
                                                            master: master_iface
                                                          }
                                                        });
-        } else if (cs.master != master_settings.connection.uuid) {
+        } else if (cs.master != master_settings.connection.uuid &&
+                   cs.master != master_settings.connection.id &&
+                   cs.master != master_iface) {
             cs.slave_type = slave_type;
             cs.master = master_iface;
             main_connection.Settings.connection.autoconnect = true;

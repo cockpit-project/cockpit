@@ -1174,12 +1174,12 @@ function NetworkManagerModel() {
         },
 
         prototype: {
-            checkpoint_create: function (timeout) {
+            checkpoint_create: function (devices, timeout) {
                 var dfd = $.Deferred();
                 call_object_method(this,
                                    'org.freedesktop.NetworkManager',
                                    'CheckpointCreate',
-                                   [ ],
+                                   devices.map(objpath),
                                    timeout,
                                    0).
                     done(function (path) {
@@ -2014,7 +2014,7 @@ function with_checkpoint(model, modify, options) {
         return;
     }
 
-    manager.checkpoint_create(rollback_time).
+    manager.checkpoint_create(options.devices || [ ], rollback_time).
         done(function (cp) {
             if (!cp) {
                 modify();
@@ -2260,6 +2260,7 @@ PageNetworkInterface.prototype = {
         if (self.iface) {
             with_checkpoint(self.model, modify,
                             {
+                                devices: self.dev? [ self.dev ] : [ ],
                                 fail_text: cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
                                 anyway_text: cockpit.format(_("Delete $0"), self.dev_name),
                                 hack_does_add_or_remove: true,
@@ -2291,6 +2292,7 @@ PageNetworkInterface.prototype = {
 
         with_checkpoint(self.model, modify,
                         {
+                            devices: self.dev? [ self.dev ] : [ ],
                             fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
                             anyway_text: cockpit.format(_("Switch on $0"), self.dev_name)
                         });
@@ -2315,6 +2317,7 @@ PageNetworkInterface.prototype = {
 
         with_checkpoint(self.model, modify,
                         {
+                            devices: [ self.dev ],
                             fail_text: cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
                             anyway_text: cockpit.format(_("Switch off $0"), self.dev_name)
                         });
@@ -2836,10 +2839,11 @@ PageNetworkInterface.prototype = {
                                                with_checkpoint(
                                                    self.model,
                                                    function () {
-                                                       return slave_con.activate(iface.Device).
+                                                       return slave_con.activate(dev).
                                                            fail(show_unexpected_error);
                                                    },
                                                    {
+                                                       devices: dev? [ dev ] : [ ],
                                                        fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                        anyway_text: cockpit.format(_("Switch on $0"), iface.Name)
                                                    });
@@ -2851,6 +2855,7 @@ PageNetworkInterface.prototype = {
                                                            fail(show_unexpected_error);
                                                    },
                                                    {
+                                                       devices: [ dev ],
                                                        fail_text: cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                        anyway_text: cockpit.format(_("Switch off $0"), iface.Name)
                                                    });
@@ -2866,6 +2871,7 @@ PageNetworkInterface.prototype = {
                                                            fail(show_unexpected_error);
                                                    },
                                                    {
+                                                       devices: dev? [ dev ] : [ ],
                                                        fail_text: cockpit.format(_("Removing <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                        anyway_text: cockpit.format(_("Remove $0"), iface.Name),
                                                        hack_does_add_or_remove: true
@@ -2912,6 +2918,7 @@ PageNetworkInterface.prototype = {
                                                             fail(show_unexpected_error);
                                                     },
                                                     {
+                                                        devices: iface.Device? [ iface.Device ] : [ ],
                                                         fail_text: cockpit.format(_("Adding <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                         anyway_text: cockpit.format(_("Add $0"), iface.Name),
                                                         hack_does_add_or_remove: true
@@ -2958,6 +2965,15 @@ function show_dialog_error(error_id, error) {
     var msg = error.message || error.toString();
     console.warn(msg);
     $(error_id).show().find('span').text(msg);
+}
+
+function connection_devices(con) {
+    var devices = [ ];
+
+    if (con)
+        con.Interfaces.forEach(function (iface) { if (iface.Device) devices.push(iface.Device); });
+
+    return devices;
 }
 
 PageNetworkIpSettings.prototype = {
@@ -3181,7 +3197,8 @@ PageNetworkIpSettings.prototype = {
                 });
         }
 
-        with_settings_checkpoint(PageNetworkIpSettings.model, modify);
+        with_settings_checkpoint(PageNetworkIpSettings.model, modify,
+                                 { devices: connection_devices(PageNetworkIpSettings.connection) });
     }
 
 };
@@ -3886,7 +3903,8 @@ PageNetworkTeamPortSettings.prototype = {
                 });
         }
 
-        with_settings_checkpoint(model, modify);
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkTeamPortSettings.connection) });
     }
 };
 
@@ -4103,7 +4121,8 @@ PageNetworkBridgePortSettings.prototype = {
                 });
         }
 
-        with_settings_checkpoint(model, modify);
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkBridgePortSettings.connection) });
     }
 
 };
@@ -4303,7 +4322,8 @@ PageNetworkMtuSettings.prototype = {
                 fail(show_error);
         }
 
-        with_settings_checkpoint(model, modify);
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkMtuSettings.connection) });
     }
 
 };
@@ -4374,7 +4394,8 @@ PageNetworkMacSettings.prototype = {
                 fail(show_error);
         }
 
-        with_settings_checkpoint(model, modify);
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkMacSettings.connection) });
     }
 
 };

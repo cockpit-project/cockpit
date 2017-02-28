@@ -27,15 +27,19 @@ from glob import glob
 
 proj_dir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
-max_version = '0'
-for manifest in glob(os.path.join(proj_dir, 'pkg/*/manifest.json')):
+max_version = 0
+for manifest in glob(os.path.join(proj_dir, 'pkg/*/manifest.json.in')):
     with open(manifest) as f:
-        requires = json.load(f)['requires']
+        requires = json.load(f).get('requires', {})
     try:
         v = requires['cockpit']
         if v > max_version:
             max_version = v
     except KeyError:
-        sys.stderr.write('WARNING: %s lacks cockpit dependency' % manifest)
+        sys.stderr.write('WARNING: %s lacks cockpit dependency\n' % manifest)
+
+if max_version == 0:
+    sys.stderr.write('ERROR: Could not determine version\n')
+    sys.exit(1)
 
 print(max_version)

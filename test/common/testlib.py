@@ -539,6 +539,10 @@ class MachineCase(unittest.TestCase):
         '.*user .* was reauthorized.*',
         'cockpit-polkit helper exited with status: 0',
 
+        # Happens when the user logs out during reauthorization
+        "Error executing command as another user: Not authorized",
+        "This incident has been reported.",
+
         # Reboots are ok
         "-- Reboot --",
 
@@ -637,8 +641,6 @@ class MachineCase(unittest.TestCase):
 
     def allow_authorize_journal_messages(self):
         self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:admin.*",
-                                    "Error executing command as another user: Not authorized",
-                                    "This incident has been reported.",
                                     ".*: a password is required",
                                     "user user was reauthorized",
                                     ".*: sorry, you must have a tty to run sudo",

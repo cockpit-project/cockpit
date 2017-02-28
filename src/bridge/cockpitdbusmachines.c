@@ -163,8 +163,9 @@ read_machines_json (void)
       return NULL;
     }
 
-  /* also read /var/lib/cockpit/machines.json for backwards compat */
-  conf_glob.gl_pathv[0] = "/var/lib/cockpit/machines.json";
+  /* also read /var/lib/cockpit/machines.json for backwards compat; except when
+   * running unit tests, then disable this (this is covered by an integration test) */
+  conf_glob.gl_pathv[0] = g_getenv ("COCKPIT_TEST_CONFIG_DIR") ? "/dev/null" : "/var/lib/cockpit/machines.json";
 
   /* start with an empty object */
   machines = new_object_node ();

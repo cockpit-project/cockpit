@@ -11,6 +11,9 @@ endif
 %:
 	dh $@ --with=systemd
 
+clean:
+	dh $@
+
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		--with-networkmanager-needs-root=yes \

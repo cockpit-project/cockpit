@@ -844,7 +844,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 if (!section || self.items[x].section === section)
                     list.push(self.items[x]);
             }
-            list.sort(function(a, b) { return a.order - b.order; });
+            list.sort(function(a, b) {
+                var ret = a.order - b.order;
+                if (ret === 0)
+                    ret = a.label.localeCompare(b.label);
+                return ret;
+            });
             return list;
         };
 

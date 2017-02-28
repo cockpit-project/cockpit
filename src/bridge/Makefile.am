@@ -22,6 +22,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitdbusrules.h \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \
+	src/bridge/cockpitpipechannel.c \
+	src/bridge/cockpitpipechannel.h \
 	src/bridge/cockpithttpstream.c \
 	src/bridge/cockpithttpstream.h \
 	src/bridge/cockpitinteracttransport.c \
@@ -77,8 +79,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbussetup.c \
 	src/bridge/cockpitdbususer.c \
 	src/bridge/cockpitdbusmachines.c \
-	src/bridge/cockpitpipechannel.c \
-	src/bridge/cockpitpipechannel.h \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
 	src/bridge/cockpitfsread.c \

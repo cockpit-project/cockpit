@@ -23,14 +23,6 @@ import parent
 from testlib import *
 
 class DashBoardHelpers:
-    def inject_extras(self, b):
-        b.eval_js("""
-        dashboard_addresses = function () {
-          var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
-          return addresses;
-        }
-        """)
-
     def check_discovered_addresses(self, b, addresses):
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
@@ -40,15 +32,22 @@ class DashBoardHelpers:
 
     def wait_discovered_addresses(self, b, expected):
         b.wait_js_func(
-            """(function (expected) {
-                var actual = $('#dashboard_setup_server_dialog datalist option').map(function(i,e) { return $(e).val() }).get();
+            """(function(expected) {
+                var nodes = document.querySelectorAll('#dashboard_setup_server_dialog datalist option');
+                var actual = Array.prototype.map.call(nodes, function(e) {
+                    return e.getAttribute("value");
+                });
                 return expected.sort().toString() == actual.sort().toString();
                 })""", expected)
 
     def wait_dashboard_addresses(self, b, expected):
         b.wait_js_func(
-            """(function (expected) {
-            return expected.sort().toString() == dashboard_addresses().sort().toString();
+            """(function(expected) {
+                var nodes = document.querySelectorAll('#dashboard-hosts .list-group-item');
+                var addresses = Array.prototype.map.call(nodes, function(e) {
+                    return e.getAttribute("data-address");
+                });
+                return expected.sort().toString() == addresses.sort().toString();
             })""", expected)
 
     def machine_remove(self, b, address):
@@ -84,7 +83,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         m3 = self.machines['machine3']
 
         self.login_and_go("/dashboard")
-        self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])
 
@@ -92,7 +90,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b2 = self.new_browser()
         b2.default_user = "root"
         b2.login_and_go("/dashboard")
-        self.inject_extras(b2)
         self.wait_dashboard_addresses (b2, [ "localhost" ])
         b.wait_present("#dashboard-hosts a[data-address='localhost'] button.pficon-delete.disabled")
 
@@ -216,7 +213,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         # Sync them via Setup.
 
         self.login_and_go("/dashboard")
-        self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])
         b.click('#dashboard-add')
@@ -286,7 +282,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         blue_conf = '{"blue": {"address": "1.2.3.4", "visible": true}}'
         m.execute("""echo '%s' > /var/lib/cockpit/machines.json""" % blue_conf)
         self.login_and_go("/dashboard")
-        self.inject_extras(b)
         self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4" ])
 
 
@@ -297,7 +292,6 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
         m = self.machine
 
         self.login_and_go("/dashboard")
-        self.inject_extras(b)
         self.wait_dashboard_addresses (b, [ "localhost" ])
         old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
 
@@ -353,7 +347,6 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
             b.click("#dashboard_setup_server_dialog .btn-default")
 
         self.login_and_go("/dashboard")
-        self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])
         check_limit(0)

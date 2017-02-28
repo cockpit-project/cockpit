@@ -21,18 +21,14 @@
 import parent
 from testlib import *
 
-def inject_extras(browser):
-    browser.eval_js("""
-    dashboard_addresses = function () {
-       var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
-       return addresses;
-    }
-    """)
-
 def wait_dashboard_addresses(b, expected):
     b.wait_js_func(
-        """(function (expected) {
-        return expected.sort().toString() == dashboard_addresses().sort().toString();
+        """(function(expected) {
+            var nodes = document.querySelectorAll('#dashboard-hosts .list-group-item');
+            var addresses = Array.prototype.map.call(nodes, function(e) {
+                return e.getAttribute("data-address");
+            });
+            return expected.sort().toString() == addresses.sort().toString();
         })""", expected)
 
 def old_add_machine(b, address):
@@ -83,7 +79,6 @@ class TestMultiOS(MachineCase):
         self.allow_hostkey_messages()
 
         self.login_and_go("/dashboard")
-        inject_extras(dev_b)
 
         dev_dashboard_addresses = [ "localhost" ]
         wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
@@ -118,7 +113,6 @@ class TestMultiOS(MachineCase):
         stock_b = self.new_browser(stock_m.address)
 
         stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
-        inject_extras(stock_b)
         wait_dashboard_addresses (stock_b, [ "localhost" ])
 
         old_add_machine(stock_b, dev_m.address)
@@ -191,7 +185,6 @@ class TestMultiOSDirect(MachineCase):
         self.allow_hostkey_messages()
 
         self.login_and_go("/dashboard")
-        inject_extras(b)
 
         dev_dashboard_addresses = [ "localhost" ]
         wait_dashboard_addresses (b, dev_dashboard_addresses)

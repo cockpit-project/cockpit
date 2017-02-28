@@ -26,6 +26,10 @@ import time
 import unittest
 
 class TestExample(MachineCase):
+    def setUp(self):
+        # Example: Force this to use a single address
+        MachineCase.setUp(self, macaddr='52:54:00:9e:00:F4')
+
     def testFail(self):
         self.login_and_go("/system")
         self.assertFalse(True)

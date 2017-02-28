@@ -3496,6 +3496,7 @@ PageNetworkBondSettings.prototype = {
             primary_btn = btn;
             select_btn_select(primary_btn, options.primary);
             change_mode();
+            self.slaves_changed = true;
         }
 
         function change_mac() {
@@ -3584,6 +3585,8 @@ PageNetworkBondSettings.prototype = {
         change_mode();
         change_monitoring();
 
+        self.slaves_changed = false;
+
         $('#network-bond-settings-body').html(body);
     },
 
@@ -3613,12 +3616,14 @@ PageNetworkBondSettings.prototype = {
                 });
         }
 
-        if (PageNetworkBondSettings.connection)
+        if (PageNetworkBondSettings.connection) {
             with_settings_checkpoint(PageNetworkBondSettings.model, modify,
-                                     { hack_does_add_or_remove: true,
-                                       rollback_on_failure: true
+                                     { devices: (self.slaves_changed ?
+                                                 [ ] : connection_devices(PageNetworkBondSettings.connection)),
+                                       hack_does_add_or_remove: self.slaves_changed,
+                                       rollback_on_failure: self.slaves_changed
                                      });
-        else
+        } else {
             with_checkpoint(
                 PageNetworkBondSettings.model,
                 modify,
@@ -3628,6 +3633,7 @@ PageNetworkBondSettings.prototype = {
                     hack_does_add_or_remove: true,
                     rollback_on_failure: true
                 });
+        }
     }
 
 };
@@ -3695,6 +3701,10 @@ PageNetworkTeamSettings.prototype = {
         if (config.link_watch.delay_down === undefined)
             config.link_watch.delay_down = 0;
 
+        function change_slaves() {
+            self.slaves_changed = true;
+        }
+
         function change_runner() {
             config.runner.name = select_btn_selected(runner_btn);
             balancer_btn.parents("tr").toggle(config.runner.name == "loadbalance" ||
@@ -3745,7 +3755,7 @@ PageNetworkTeamSettings.prototype = {
                         self.settings.connection.interface_name = val;
                     });
         body.find('#network-team-settings-members').
-            append(render_slave_interface_choices(model, master));
+            append(render_slave_interface_choices(model, master).change(change_slaves));
         body.find('#network-team-settings-runner-select').
             append(runner_btn = select_btn(change_runner, team_runner_choices, "form-control"));
         body.find('#network-team-settings-balancer-select').
@@ -3767,6 +3777,8 @@ PageNetworkTeamSettings.prototype = {
         select_btn_select(watch_btn, config.link_watch.name);
         change_runner();
         change_watch();
+
+        self.slaves_changed = false;
 
         $('#network-team-settings-body').html(body);
     },
@@ -3797,12 +3809,14 @@ PageNetworkTeamSettings.prototype = {
                 });
         }
 
-        if (PageNetworkTeamSettings.connection)
+        if (PageNetworkTeamSettings.connection) {
             with_settings_checkpoint(PageNetworkTeamSettings.model, modify,
-                                     { hack_does_add_or_remove: true,
-                                       rollback_on_failure: true
+                                     { devices: (self.slaves_changed ?
+                                                 [ ] : connection_devices(PageNetworkTeamSettings.connection)),
+                                       hack_does_add_or_remove: self.slaves_changed,
+                                       rollback_on_failure: self.slaves_changed
                                      });
-        else
+        } else {
             with_checkpoint(
                 PageNetworkTeamSettings.model,
                 modify,
@@ -3812,6 +3826,7 @@ PageNetworkTeamSettings.prototype = {
                     hack_does_add_or_remove: true,
                     rollback_on_failure: true
                 });
+        }
     }
 
 };
@@ -3953,6 +3968,10 @@ PageNetworkBridgeSettings.prototype = {
 
         var stp_input, priority_input, forward_delay_input, hello_time_input, max_age_input;
 
+        function change_slaves() {
+            self.slaves_changed = true;
+        }
+
         function change_stp() {
             // XXX - handle parse errors
             options.stp = stp_input.prop('checked');
@@ -3983,8 +4002,8 @@ PageNetworkBridgeSettings.prototype = {
                                 self.settings.connection.interface_name = val;
                             });
         body.find('#network-bridge-settings-slave-interfaces').
-                      append(render_slave_interface_choices(model, con)).
-                      parent().toggle(!con);
+            append(render_slave_interface_choices(model, con).change(change_slaves)).
+            parent().toggle(!con);
         stp_input = body.find('#network-bridge-settings-stp-enabled-input');
         stp_input.change(change_stp);
         priority_input = body.find('#network-bridge-settings-stp-priority-input');
@@ -3997,6 +4016,9 @@ PageNetworkBridgeSettings.prototype = {
         max_age_input.change(change_stp);
 
         change_stp();
+
+        self.slaves_changed = false;
+
         $('#network-bridge-settings-body').html(body);
     },
 
@@ -4026,12 +4048,14 @@ PageNetworkBridgeSettings.prototype = {
                 });
         }
 
-        if (PageNetworkBridgeSettings.connection)
+        if (PageNetworkBridgeSettings.connection) {
             with_settings_checkpoint(PageNetworkBridgeSettings.model, modify,
-                                     { hack_does_add_or_remove: true,
-                                       rollback_on_failure: true
+                                     { devices: (self.slaves_changed ?
+                                                 [ ] : connection_devices(PageNetworkBridgeSettings.connection)),
+                                       hack_does_add_or_remove: self.slaves_changed,
+                                       rollback_on_failure: self.slaves_changed
                                      });
-        else
+        } else {
             with_checkpoint(
                 PageNetworkBridgeSettings.model,
                 modify,
@@ -4041,6 +4065,7 @@ PageNetworkBridgeSettings.prototype = {
                     hack_does_add_or_remove: true,
                     rollback_on_failure: true
                 });
+        }
     }
 
 };

@@ -234,6 +234,24 @@ PageServer.prototype = {
         var self = this;
         update_hostname_privileged();
 
+        cockpit.file("/etc/motd").watch(function (content) {
+            if (content)
+                content = $.trim(content);
+            if (content && content != window.localStorage.getItem('dismissed-motd')) {
+                $('#motd').text(content);
+                $('#motd-box').show();
+            } else {
+                $('#motd-box').hide();
+            }
+            // To help the tests known when we have loaded motd
+            $('#motd-box').attr('data-stable', 'yes');
+        });
+
+        $('#motd-box button.close').click(function () {
+            window.localStorage.setItem('dismissed-motd', $('#motd').text());
+            $('#motd-box').hide();
+        });
+
         $('#shutdown-group [data-action]').on("click", function() {
             self.shutdown($(this).attr('data-action'));
         });

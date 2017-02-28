@@ -293,5 +293,35 @@ class TestSystemInfo(MachineCase):
 
         self.assertIn("2.pool.ntp.org", m.execute("grep '^#NTP=' %s" % conf))
 
+    def testMotd(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("rm -f /etc/motd")
+
+        self.login_and_go("/system")
+        b.wait_present('#motd-box[data-stable=yes]')
+        b.wait_not_visible('#motd-box')
+
+        m.execute("echo Hello >/etc/motd")
+        b.wait_visible('#motd-box')
+        b.wait_in_text('#motd', "Hello")
+
+        b.click('#motd-box button.close')
+        b.wait_not_visible('#motd-box')
+
+        # motd should stay dismissed after a reload
+        b.reload()
+        b.enter_page("/system")
+        b.wait_present('#motd-box[data-stable=yes]')
+        b.wait_not_visible('#motd-box')
+
+        m.execute("echo Hello again >/etc/motd")
+        b.wait_visible('#motd-box')
+        b.wait_in_text('#motd', "Hello again")
+
+        # because of the reload
+        self.allow_restart_journal_messages()
+
 if __name__ == '__main__':
     test_main()

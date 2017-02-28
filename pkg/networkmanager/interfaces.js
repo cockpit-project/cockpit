@@ -2042,7 +2042,21 @@ function with_checkpoint(model, modify, options) {
                 }).
                 fail(function () {
                     hide_curtain();
-                    manager.checkpoint_rollback(cp);
+
+                    // HACK
+                    //
+                    // We want to avoid rollbacks for operations that don't actually change anything when they
+                    // fail.  Rollback are always disruptive and always seem to reconnect all the included
+                    // devices, even if nothing has actually changed.  Thus, if you give invalid input to
+                    // NetworkManager and receive an error in a settings dialog, rolling back the checkpoint
+                    // would cause a temporary disconnection on the interface.
+                    //
+                    // https://bugzilla.redhat.com/show_bug.cgi?id=1427187
+
+                    if (options.rollback_on_failure)
+                        manager.checkpoint_rollback(cp);
+                    else
+                        manager.checkpoint_destroy(cp);
                 });
         });
 }
@@ -2248,7 +2262,8 @@ PageNetworkInterface.prototype = {
                             {
                                 fail_text: cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
                                 anyway_text: cockpit.format(_("Delete $0"), self.dev_name),
-                                hack_does_add_or_remove: true
+                                hack_does_add_or_remove: true,
+                                rollback_on_failure: true
                             });
         }
     },
@@ -3583,7 +3598,9 @@ PageNetworkBondSettings.prototype = {
 
         if (PageNetworkBondSettings.connection)
             with_settings_checkpoint(PageNetworkBondSettings.model, modify,
-                                     { hack_does_add_or_remove: true });
+                                     { hack_does_add_or_remove: true,
+                                       rollback_on_failure: true
+                                     });
         else
             with_checkpoint(
                 PageNetworkBondSettings.model,
@@ -3591,7 +3608,8 @@ PageNetworkBondSettings.prototype = {
                 {
                     fail_text: _("Creating this bond will break the connection to the server, and will make the administration UI unavailable."),
                     anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true
+                    hack_does_add_or_remove: true,
+                    rollback_on_failure: true
                 });
     }
 
@@ -3764,7 +3782,9 @@ PageNetworkTeamSettings.prototype = {
 
         if (PageNetworkTeamSettings.connection)
             with_settings_checkpoint(PageNetworkTeamSettings.model, modify,
-                                     { hack_does_add_or_remove: true });
+                                     { hack_does_add_or_remove: true,
+                                       rollback_on_failure: true
+                                     });
         else
             with_checkpoint(
                 PageNetworkTeamSettings.model,
@@ -3772,7 +3792,8 @@ PageNetworkTeamSettings.prototype = {
                 {
                     fail_text: _("Creating this team will break the connection to the server, and will make the administration UI unavailable."),
                     anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true
+                    hack_does_add_or_remove: true,
+                    rollback_on_failure: true
                 });
     }
 
@@ -3989,7 +4010,9 @@ PageNetworkBridgeSettings.prototype = {
 
         if (PageNetworkBridgeSettings.connection)
             with_settings_checkpoint(PageNetworkBridgeSettings.model, modify,
-                                     { hack_does_add_or_remove: true });
+                                     { hack_does_add_or_remove: true,
+                                       rollback_on_failure: true
+                                     });
         else
             with_checkpoint(
                 PageNetworkBridgeSettings.model,
@@ -3997,7 +4020,8 @@ PageNetworkBridgeSettings.prototype = {
                 {
                     fail_text: _("Creating this bridge will break the connection to the server, and will make the administration UI unavailable."),
                     anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true
+                    hack_does_add_or_remove: true,
+                    rollback_on_failure: true
                 });
     }
 

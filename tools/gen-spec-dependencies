@@ -1,0 +1,46 @@
+#!/usr/bin/python
+# Compute dependencies of our cockpit-<module> packages to to -bridge/-shell,
+# by replacing %{required_base} with the requires["cockpit"] version from
+# pkg/<module>/manifest.json.in (this is done by tools/min-base-version).
+# The replacement is done in-place in the spec file given as argument.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import os
+import fileinput
+import subprocess
+
+min_base_version_path = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "min-base-version")
+
+if len(sys.argv) != 2:
+    sys.stderr.write("Usage: %s <specfile>\n" % sys.argv[0])
+    sys.exit(1)
+
+curpkg = None
+pkg_base_dep = None
+for line in fileinput.input(sys.argv[1], inplace=True):
+    if line.startswith("%package"):
+        curpkg = line.split()[1]
+        pkg_base_dep = None
+    elif "%{required_base}" in line:
+        assert curpkg, "spec file uses %{required_base} outside of %package stanza"
+        # lazily determine this -- some packages don't use %{required_base} and some multiple times
+        if not pkg_base_dep:
+            pkg_base_dep = subprocess.check_output([min_base_version_path, curpkg], universal_newlines=True).strip()
+            sys.stderr.write('base dependency of %s: %s\n' % (curpkg, pkg_base_dep))
+        line = line.replace("%{required_base}", pkg_base_dep)
+    sys.stdout.write(line)  # fileinput redirects that back into the file

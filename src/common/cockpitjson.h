@@ -61,6 +61,11 @@ gboolean       cockpit_json_get_int           (JsonObject *object,
                                                gint64 defawlt,
                                                gint64 *value);
 
+gboolean       cockpit_json_get_double        (JsonObject *object,
+                                               const gchar *member,
+                                               gdouble defawlt,
+                                               gdouble *value);
+
 gboolean       cockpit_json_get_bool          (JsonObject *object,
                                                const gchar *member,
                                                gboolean defawlt,

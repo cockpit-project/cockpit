@@ -53,6 +53,34 @@ cockpit_json_get_int (JsonObject *object,
 }
 
 gboolean
+cockpit_json_get_double (JsonObject *object,
+                         const gchar *name,
+                         gdouble defawlt,
+                         gdouble *value)
+{
+  JsonNode *node;
+
+  node = json_object_get_member (object, name);
+  if (!node)
+    {
+      if (value)
+        *value = defawlt;
+      return TRUE;
+    }
+  else if (json_node_get_value_type (node) == G_TYPE_INT64 ||
+           json_node_get_value_type (node) == G_TYPE_DOUBLE)
+    {
+      if (value)
+        *value = json_node_get_double (node);
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
+gboolean
 cockpit_json_get_bool (JsonObject *object,
                        const gchar *name,
                        gboolean defawlt,

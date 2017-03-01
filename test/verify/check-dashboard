@@ -241,6 +241,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
         b.wait_text('#dashboard_setup_server_dialog .dialog-error', "Login failed")
+        b.wait_present('#sync-password')
         b.set_val('#sync-password', "foobar")
 
         b.click('#dashboard_setup_server_dialog .btn-primary')

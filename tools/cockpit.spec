@@ -317,8 +317,8 @@ The Cockpit components for managing virtual machines.
 %package ostree
 Summary: Cockpit user interface for rpm-ostree
 # Requires: Uses new translations functionality
-Requires: %{name}-bridge > 124
-Requires: %{name}-system > 124
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-system >= %{required_base}
 %if 0%{?fedora} > 0 && 0%{?fedora} < 24
 Requires: rpm-ostree >= 2015.10-1
 %else
@@ -430,8 +430,8 @@ This package contains the Cockpit shell and system configuration interfaces.
 
 %package tests
 Summary: Tests for Cockpit
-Requires: %{name}-bridge >= %{required_base}
-Requires: %{name}-shell >= %{required_base}
+Requires: %{name}-bridge >= %{version}-%{release}
+Requires: %{name}-shell >= %{version}-%{release}
 Requires: openssh-clients
 Provides: %{name}-test-assets
 Obsoletes: %{name}-test-assets < 132
@@ -594,8 +594,8 @@ This package is not yet complete.
 Summary: Cockpit user interface for Kubernetes cluster
 Requires: /usr/bin/kubectl
 # Requires: Needs newer localization support
-Requires: %{name}-bridge > 124
-Requires: %{name}-shell > 124
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-shell >= %{required_base}
 BuildRequires: golang-bin
 BuildRequires: golang-src
 

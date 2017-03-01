@@ -460,18 +460,25 @@ class MachineCase(unittest.TestCase):
             if startTestRun is not None:
                 startTestRun()
 
-        # Policy actually dictates retries the number here is an upper bound
-        for retry in range(0, 5):
+        self.currentResult = result
+
+        # Here's the loop to actually retry running the test. It's an awkward
+        # place for this loop, since it only applies to MachineCase based
+        # TestCases. However for the time being there is no better place for it.
+        #
+        # Policy actually dictates retries.  The number here is an upper bound to
+        # prevent endless retries if Policy.check_retry is buggy.
+        max_retry_hard_limit = 10
+        for retry in range(0, max_retry_hard_limit):
             try:
-                self.currentResult = result
                 super(MachineCase, self).run(result)
             except RetryError, ex:
-                self.doCleanups()
+                assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
-                continue
             else:
-                self.currentResult = None
                 break
+
+        self.currentResult = None
 
         # Standard book keeping that we have to do
         if orig_result is None:
@@ -789,8 +796,8 @@ def skipImage(reason, *args):
     return lambda func: func
 
 class Policy(object):
-    def __init__(self):
-        self.retryable = True
+    def __init__(self, retryable=True):
+        self.retryable = retryable
 
     def normalize_traceback(self, trace):
         # All file paths converted to basename
@@ -848,8 +855,11 @@ class Policy(object):
             traceback.print_exc()
         return number
 
-    def check_retry(self, trace):
-        #
+    def check_retry(self, trace, tries):
+        # Never try more than five times
+        if not self.retryable or tries >= 5:
+            return False
+
         # We check for persistent but test harness or framework specific
         # failures that otherwise cause flakiness and false positives.
         #
@@ -857,26 +867,22 @@ class Policy(object):
         #  * have no impact on users of Cockpit in the real world
         #  * be things we tried to resolve in other ways. This is a last resort
         #
-        retry = False
-        if self.retryable:
-            trace = self.normalize_traceback(trace)
+        trace = self.normalize_traceback(trace)
 
-            # HACK: An issue in phantomjs and QtWebkit
-            # http://stackoverflow.com/questions/35337304/qnetworkreply-network-access-is-disabled-in-qwebview
-            # https://github.com/owncloud/client/issues/3600
-            # https://github.com/ariya/phantomjs/issues/14789
-            if "PhantomJS or driver broken" in trace:
-                retry = True
+        # HACK: An issue in phantomjs and QtWebkit
+        # http://stackoverflow.com/questions/35337304/qnetworkreply-network-access-is-disabled-in-qwebview
+        # https://github.com/owncloud/client/issues/3600
+        # https://github.com/ariya/phantomjs/issues/14789
+        if "PhantomJS or driver broken" in trace:
+            return True
 
-            # HACK: Interacting with sshd during boot is not always predictable
-            # We're using an implementation detail of the server as our "way in" for testing.
-            # This often has to do with sshd being restarted for some reason
-            if "SSH master process exited with code: 255" in trace:
-                retry = True
+        # HACK: Interacting with sshd during boot is not always predictable
+        # We're using an implementation detail of the server as our "way in" for testing.
+        # This often has to do with sshd being restarted for some reason
+        if "SSH master process exited with code: 255" in trace:
+            return True
 
-        if retry:
-            self.retryable = False
-        return retry
+        return False
 
 class TapResult(unittest.TestResult):
     def __init__(self, stream, descriptions, verbosity):
@@ -904,7 +910,11 @@ class TapResult(unittest.TestResult):
             if issue:
                 self.addSkip(test, "Known issue #{0}".format(issue))
                 return True
-            if self.policy.check_retry(string):
+            tries = getattr(test, "retryCount", 1)
+            if self.policy.check_retry(string, tries):
+                self.offset -= 1
+                setattr(test, "retryCount", tries + 1)
+                test.doCleanups()
                 raise RetryError("Retrying due to failure of test harness or framework")
         return False
 

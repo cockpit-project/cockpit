@@ -44,6 +44,7 @@
 
 var page = require('webpage').create();
 var sys = require('system');
+var process = require('process');
 var clearedStorage = false;
 var messages = "";
 var onCheckpoint;
@@ -416,6 +417,7 @@ page.onResourceError = function(ex) {
     } else if (ex.errorString.indexOf("Network access is disabled") !== -1) {
         sys.stderr.writeLine("ERROR: fatal problem: " + ex.errorString);
         phantom.exit(1);
+        process.exit(1);
     } else {
         loadFailure = ex.errorString + " " + ex.url;
     }

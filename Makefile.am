@@ -355,7 +355,7 @@ dist-hook::
 	tar -C $(srcdir) -cf - bower_components/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
-	[ ! -e $(distdir)/tools/cockpit.spec ] || sed -ri "s/^(.*%define required_base).*$$/\1 $$($(srcdir)/tools/min-base-version)/" $(distdir)/tools/cockpit.spec
+	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' "$(distdir)" "$(distdir)/bower.json" "$(distdir)/.bowerrc"
 DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/package.json"

@@ -459,13 +459,17 @@ class MachineCase(unittest.TestCase):
             startTestRun = getattr(result, 'startTestRun', None)
             if startTestRun is not None:
                 startTestRun()
+        # Policy actually dictates retries.  The number here is an upper bound to prevent endless retries if
+        # Policy.check_retry is buggy.
 
-        # Policy actually dictates retries the number here is an upper bound
-        for retry in range(0, 5):
+        max_retry_hard_limit = 10
+        for retry in range(0, max_retry_hard_limit):
             try:
                 self.currentResult = result
                 super(MachineCase, self).run(result)
             except RetryError, ex:
+                if retry >= max_retry_hard_limit:
+                    raise Error("Internal error: Policy.check_retry() requested too many retries")
                 self.doCleanups()
                 sys.stderr.write("{0}\n".format(ex))
                 continue

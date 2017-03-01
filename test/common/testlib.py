@@ -583,6 +583,9 @@ class MachineCase(unittest.TestCase):
         # SELinux fighting with systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
         "(audit: )?type=1400 audit.*systemd-journal.*path=2F6D656D66643A73642D73797374656D642D636F726564756D202864656C6574656429",
 
+        # SELinux and plymouth: https://bugzilla.redhat.com/show_bug.cgi?id=1427884
+        "(audit: )?type=1400 audit.*connectto.*plymouth.*unix_stream_socket.*",
+
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",
 

@@ -459,6 +459,9 @@ class MachineCase(unittest.TestCase):
             startTestRun = getattr(result, 'startTestRun', None)
             if startTestRun is not None:
                 startTestRun()
+        else:
+            result.startTestRetries(self)
+
         # Policy actually dictates retries.  The number here is an upper bound to prevent endless retries if
         # Policy.check_retry is buggy.
 
@@ -788,9 +791,6 @@ def skipImage(reason, *args):
     return lambda func: func
 
 class Policy(object):
-    def __init__(self):
-        self.retryable = True
-
     def normalize_traceback(self, trace):
         # All file paths converted to basename
         return re.sub(r'File "[^"]*/([^/"]+)"', 'File "\\1"', trace.strip())
@@ -847,8 +847,11 @@ class Policy(object):
             traceback.print_exc()
         return number
 
-    def check_retry(self, trace):
-        #
+    def check_retry(self, trace, tries):
+        # Never try more than five times
+        if tries >= 5:
+            return False
+
         # We check for persistent but test harness or framework specific
         # failures that otherwise cause flakiness and false positives.
         #
@@ -856,31 +859,28 @@ class Policy(object):
         #  * have no impact on users of Cockpit in the real world
         #  * be things we tried to resolve in other ways. This is a last resort
         #
-        retry = False
-        if self.retryable:
-            trace = self.normalize_traceback(trace)
+        trace = self.normalize_traceback(trace)
 
-            # HACK: An issue in phantomjs and QtWebkit
-            # http://stackoverflow.com/questions/35337304/qnetworkreply-network-access-is-disabled-in-qwebview
-            # https://github.com/owncloud/client/issues/3600
-            # https://github.com/ariya/phantomjs/issues/14789
-            if "PhantomJS or driver broken" in trace:
-                retry = True
+        # HACK: An issue in phantomjs and QtWebkit
+        # http://stackoverflow.com/questions/35337304/qnetworkreply-network-access-is-disabled-in-qwebview
+        # https://github.com/owncloud/client/issues/3600
+        # https://github.com/ariya/phantomjs/issues/14789
+        if "PhantomJS or driver broken" in trace:
+            return True
 
-            # HACK: Interacting with sshd during boot is not always predictable
-            # We're using an implementation detail of the server as our "way in" for testing.
-            # This often has to do with sshd being restarted for some reason
-            if "SSH master process exited with code: 255" in trace:
-                retry = True
+        # HACK: Interacting with sshd during boot is not always predictable
+        # We're using an implementation detail of the server as our "way in" for testing.
+        # This often has to do with sshd being restarted for some reason
+        if "SSH master process exited with code: 255" in trace:
+            return True
 
-        if retry:
-            self.retryable = False
-        return retry
+        return False
 
 class TapResult(unittest.TestResult):
     def __init__(self, stream, descriptions, verbosity):
         self.offset = 0
         self.policy = None
+        self.tries = 1
         super(TapResult, self).__init__(stream, descriptions, verbosity)
 
     def ok(self, test):
@@ -903,13 +903,17 @@ class TapResult(unittest.TestResult):
             if issue:
                 self.addSkip(test, "Known issue #{0}".format(issue))
                 return True
-            if self.policy.check_retry(string):
+            if self.policy.check_retry(string, self.tries):
+                self.tries += 1
                 raise RetryError("Retrying due to failure of test harness or framework")
         return False
 
     def stop(self):
         sys.stdout.write("Bail out!\n")
         super(TapResult, self).stop()
+
+    def startTestRetries(self, test):
+        self.tries = 1
 
     def startTest(self, test):
         self.start_time = time.time()

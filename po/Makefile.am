@@ -50,6 +50,7 @@ uninstall-local::
 TRANSLATE = \
 	pkg/ \
 	bower_components/registry-image-widgets/ \
+	src/ws/ \
 	$(NULL)
 
 # Lists of files we need to extract from

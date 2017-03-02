@@ -322,9 +322,13 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
         ));
     }
 
+    const rowName = (vm.lastMessage) ?
+        (<div><span className='pficon-warning-triangle-o' />&nbsp;{vm.name}</div>)
+        : (vm.name);
+
     return (<ListingRow
         columns={[
-            {name: vm.name, 'header': true},
+            {name: rowName, 'header': true},
             rephraseUI('connections', vm.connectionName),
             stateIcon
             ]}

@@ -61,6 +61,14 @@ function getValueFromLine(parsedLines, pattern) {
     return isEmpty(selectedLine) ? undefined : selectedLine.toString().trim().substring(pattern.length).trim();
 }
 
+/**
+ * Returns a function handling VM action failures.
+ */
+function buildFailHandler({ dispatch, name, connectionName, message }) {
+    return ({ exception, data }) =>
+        dispatch(vmActionFailed({name, connectionName, message, detail: {exception, data}}));
+}
+
 let LIBVIRT_PROVIDER = {};
 LIBVIRT_PROVIDER = {
     name: 'Libvirt',
@@ -160,8 +168,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
             method: 'SHUTDOWN_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("SHUTDOWN_VM action failed"), detail: {exception, data}})),
+            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SHUT DOWN action failed")}),
             args: ['shutdown', name]
         });
     },
@@ -170,8 +177,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.FORCEOFF_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
             method: 'FORCEOFF_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("FORCEOFF_VM action failed"), detail: {exception, data}})),
+            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE OFF action failed")}),
             args: ['destroy', name]
         });
     },
@@ -180,8 +186,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.REBOOT_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
             method: 'REBOOT_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("REBOOT_VM action failed"), detail: {exception, data}})),
+            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM REBOOT action failed")}),
             args: ['reboot', name]
         });
     },
@@ -190,8 +195,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.FORCEREBOOT_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
             method: 'FORCEREBOOT_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("FORCEREBOOT_VM action failed"), detail: {exception, data}})),
+            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE REBOOT action failed")}),
             args: ['reset', name]
         });
     },
@@ -200,8 +204,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.START_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
             method: 'START_VM',
-            failHandler: ({exception, data}) => dispatch(vmActionFailed({name, connectionName,
-                message: _("START_VM action failed"), detail: {exception, data}})),
+            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed")}),
             args: ['start', name]
         });
     }

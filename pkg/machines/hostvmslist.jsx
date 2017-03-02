@@ -191,9 +191,16 @@ const VmLastMessage = ({ vm }) => {
 
     const detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception: vm.lastMessage;
     return (
-        <p title={detail} data-toggle='tooltip'>
-            <span className='pficon-warning-triangle-o' />&nbsp;{vm.lastMessage}
-        </p>
+        <tr>
+            <td>
+                <span className='pficon-warning-triangle-o' />
+            </td>
+            <td>
+                <div title={detail} data-toggle='tooltip'>
+                    {vm.lastMessage}
+                </div>
+            </td>
+        </tr>
     );
 };
 VmLastMessage.propTypes = {
@@ -210,6 +217,7 @@ const VmOverviewTab = ({ vm }) => {
                         <VmOverviewTabRecord descr={_("Memory:")}
                                              value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
                         <VmOverviewTabRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
+                        <VmLastMessage vm={vm} />
                     </table>
                 </td>
 
@@ -222,7 +230,6 @@ const VmOverviewTab = ({ vm }) => {
                 </td>
             </tr>
         </table>
-        <VmLastMessage vm={vm} />
     </div>);
 };
 VmOverviewTab.propTypes = {

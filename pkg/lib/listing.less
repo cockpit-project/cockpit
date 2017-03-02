@@ -33,46 +33,46 @@ table.listing-ct > thead td > a {
     padding: @listing-ct-padding 0 @listing-ct-padding;
 }
 
-table.listing-ct thead th {
+table.listing-ct > thead th {
     border-top: 1px solid @gray-lighter;
     font-weight: normal;
     padding: @listing-ct-padding;
     color: @listing-ct-metadata;
 }
 
-table.listing-ct thead th:first-child {
+table.listing-ct > thead th:first-child {
     padding-left: @listing-ct-padding * 2;
 }
 
-table.listing-ct thead th:last-child {
+table.listing-ct > thead th:last-child {
     text-align: right;
 }
 
 /* A listing item is a row in the table */
-tbody tr.listing-ct-item {
+tbody > tr.listing-ct-item {
     border-top: 1px solid @gray-lighter;
     border-bottom: 1px solid @gray-lighter;
     cursor: pointer;
 }
 
-table.listing-ct tbody:last-child {
+table.listing-ct > tbody:last-child {
     border-bottom: 1px solid @gray-lighter;
 }
-table.listing-ct tbody + thead {
+table.listing-ct > tbody + thead {
     border-top: 1px solid @gray-lighter;
 }
-table.listing-ct tbody.open:last-child {
+table.listing-ct > tbody.open:last-child {
     border-bottom: none;
 }
-table.listing-ct tbody.open + thead {
+table.listing-ct > tbody.open + thead {
     border-top: none;
 }
 
-tbody tr.listing-ct-item.listing-ct-warning {
+tbody > tr.listing-ct-item.listing-ct-warning {
     background-color: @listing-ct-warning-color;
 }
 
-tbody.open tr.listing-ct-item {
+tbody.open > tr.listing-ct-item {
     background-color: @color-pf-black-200;
     border-bottom: none;
     border-top: none;
@@ -80,8 +80,8 @@ tbody.open tr.listing-ct-item {
     border-right: 1px solid @listing-ct-border;
 }
 
-tbody.open tr.listing-ct-item td,
-tbody.open tr.listing-ct-item th {
+tbody.open > tr.listing-ct-item td,
+tbody.open > tr.listing-ct-item th {
     border-top: 1px solid @listing-ct-border;
 }
 
@@ -97,33 +97,33 @@ tbody.open .listing-ct-panel .listing-ct-body {
     border: none;
 }
 
-tbody.open tr.listing-ct-panel + tr.listing-ct-body {
+tbody.open > tr.listing-ct-panel + tr.listing-ct-body {
     border-top: none;
 }
 
-tbody.open tr.listing-ct-panel td div.listing-ct-head {
+tbody.open > tr.listing-ct-panel td div.listing-ct-head {
     border: none;
     border-bottom: 1px solid @listing-ct-border;
 }
 
 /* only highlight the row if navigation is available */
-tbody:not(.open) tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
+tbody:not(.open) > tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
     background-color: @listing-ct-hover;
 }
 
 /* if we can't navigate to a row but expand is available, highlight the caret */
-tbody:not(.open) tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
+tbody:not(.open) > tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
     color: @listing-ct-active;
 }
 
 /* use gray for a row that's expanded or if navigation isn't available */
-tbody.open tr.listing-ct-item:hover,
+tbody.open > tr.listing-ct-item:hover,
 tr.listing-ct-item.listing-ct-nonavigate:hover {
     background-color: @color-pf-black-200;
 }
 
 /* always highlight caret when hovering over an expanded row */
-tbody.open tr.listing-ct-item:hover td.listing-ct-toggle {
+tbody.open > tr.listing-ct-item:hover td.listing-ct-toggle {
     color: @listing-ct-active;
 }
 

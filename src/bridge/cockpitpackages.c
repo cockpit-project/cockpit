@@ -362,11 +362,11 @@ compar_manifest_priority (JsonObject *manifest1,
                           JsonObject *manifest2,
                           const gchar *name)
 {
-  gint64 priority1 = 1;
-  gint64 priority2 = 1;
+  gdouble priority1 = 1;
+  gdouble priority2 = 1;
 
-  if (!cockpit_json_get_int (manifest1, "priority", 1, &priority1) ||
-      !cockpit_json_get_int (manifest2, "priority", 1, &priority2))
+  if (!cockpit_json_get_double (manifest1, "priority", 1, &priority1) ||
+      !cockpit_json_get_double (manifest2, "priority", 1, &priority2))
     {
       g_message ("%s%sinvalid \"priority\" field in package manifest",
                  name ? name : "", name ? ": " : "");

@@ -29,7 +29,7 @@
 static const gchar *test_data =
   "{"
   "   \"string\": \"value\","
-  "   \"number\": 55,"
+  "   \"number\": 55.4,"
   "   \"array\": [ \"one\", \"two\", \"three\" ],"
   "   \"object\": { \"test\": \"one\" },"
   "   \"bool\": true,"
@@ -113,6 +113,31 @@ test_get_int (TestCase *tc,
   g_assert (ret == FALSE);
 
   ret = cockpit_json_get_int (tc->root, "string", 66, NULL);
+  g_assert (ret == FALSE);
+}
+
+static void
+test_get_double (TestCase *tc,
+                 gconstpointer data)
+{
+  gboolean ret;
+  gdouble value;
+
+  ret = cockpit_json_get_double (tc->root, "number", 0, &value);
+  g_assert (ret == TRUE);
+  g_assert_cmpfloat (value, ==, 55.4);
+
+  ret = cockpit_json_get_double (tc->root, "number", 0, NULL);
+  g_assert (ret == TRUE);
+
+  ret = cockpit_json_get_double (tc->root, "unknown", 66.4, &value);
+  g_assert (ret == TRUE);
+  g_assert_cmpfloat (value, ==, 66.4);
+
+  ret = cockpit_json_get_double (tc->root, "string", 66.4, &value);
+  g_assert (ret == FALSE);
+
+  ret = cockpit_json_get_double (tc->root, "string", 66.4, NULL);
   g_assert (ret == FALSE);
 }
 
@@ -670,6 +695,8 @@ main (int argc,
               setup, test_get_string, teardown);
   g_test_add ("/json/get-int", TestCase, NULL,
               setup, test_get_int, teardown);
+  g_test_add ("/json/get-double", TestCase, NULL,
+              setup, test_get_double, teardown);
   g_test_add ("/json/get-bool", TestCase, NULL,
               setup, test_get_bool, teardown);
   g_test_add ("/json/get-null", TestCase, NULL,

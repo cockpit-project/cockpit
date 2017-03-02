@@ -882,6 +882,12 @@ class Policy(object):
         if "SSH master process exited with code: 255" in trace:
             return True
 
+        # HACK: Intermittently the new libvirt machine won't get an IP address
+        # or SSH will completely fail to start. We've tried various approaches
+        # to minimize this, but it happens every 100,000 tests or so
+        if "Failure: Unable to reach machine " in trace:
+            return True
+
         return False
 
 class TapResult(unittest.TestResult):

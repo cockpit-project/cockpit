@@ -416,6 +416,7 @@ page.onResourceError = function(ex) {
     } else if (ex.errorString.indexOf("Network access is disabled") !== -1) {
         sys.stderr.writeLine("ERROR: fatal problem: " + ex.errorString);
         phantom.exit(1);
+        process.exit(1);
     } else {
         loadFailure = ex.errorString + " " + ex.url;
     }

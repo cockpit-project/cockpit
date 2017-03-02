@@ -108,6 +108,7 @@ main (int argc,
   gchar *cert_path = NULL;
   GMainLoop *loop = NULL;
   gchar *login_html = NULL;
+  gchar *login_po_html = NULL;
 
   signal (SIGPIPE, SIG_IGN);
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
@@ -163,6 +164,8 @@ main (int argc,
   data.branding_roots = (const gchar **)roots;
   login_html = g_strdup (DATADIR "/cockpit/static/login.html");
   data.login_html = (const gchar *)login_html;
+  login_po_html = g_strdup (DATADIR "/cockpit/static/login.po.html");
+  data.login_po_html = (const gchar *)login_po_html;
 
   server = cockpit_web_server_new (opt_address,
                                    opt_port,
@@ -234,6 +237,7 @@ out:
   g_clear_object (&certificate);
   g_free (cert_path);
   g_strfreev (roots);
+  g_free (login_po_html);
   g_free (login_html);
   g_free (opt_address);
   cockpit_conf_cleanup ();

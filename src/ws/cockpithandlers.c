@@ -326,7 +326,8 @@ build_environment (GHashTable *os_release)
 
 static void
 send_login_html (CockpitWebResponse *response,
-                 CockpitHandlerData *ws)
+                 CockpitHandlerData *ws,
+                 GHashTable *headers)
 {
   static const gchar *marker = "<head>";
 
@@ -339,6 +340,11 @@ send_login_html (CockpitWebResponse *response,
   CockpitWebFilter *filter2 = NULL;
   const gchar *url_root = NULL;
   gchar *base;
+
+  gchar *language = NULL;
+  gchar **languages = NULL;
+  GBytes *po_bytes;
+  CockpitWebFilter *filter3 = NULL;
 
   environment = build_environment (ws->os_release);
   filter = cockpit_web_inject_new (marker, environment, 1);
@@ -359,6 +365,30 @@ send_login_html (CockpitWebResponse *response,
   g_object_unref (filter2);
 
   cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
+
+  if (ws->login_po_html)
+    {
+      language = cockpit_web_server_parse_cookie (headers, "CockpitLang");
+      if (!language)
+        {
+          languages = cockpit_web_server_parse_languages (headers, NULL);
+          language = languages[0];
+        }
+
+      po_bytes = cockpit_web_response_negotiation (ws->login_po_html, NULL, language, NULL, &error);
+      if (error)
+        {
+          g_message ("%s", error->message);
+          g_clear_error (&error);
+        }
+      else
+        {
+          filter3 = cockpit_web_inject_new (marker, po_bytes, 1);
+          g_bytes_unref (po_bytes);
+          cockpit_web_response_add_filter (response, filter3);
+          g_object_unref (filter3);
+        }
+    }
 
   bytes = cockpit_web_response_negotiation (ws->login_html, NULL, NULL, NULL, &error);
   if (error)
@@ -383,6 +413,8 @@ send_login_html (CockpitWebResponse *response,
 
       g_bytes_unref (bytes);
     }
+
+  g_strfreev (languages);
 }
 
 static void
@@ -495,7 +527,7 @@ handle_resource (CockpitHandlerData *data,
         }
       else if (g_str_has_suffix (path, ".html"))
         {
-          send_login_html (response, data);
+          send_login_html (response, data, headers);
         }
       else
         {
@@ -545,7 +577,7 @@ handle_shell (CockpitHandlerData *data,
     }
   else
     {
-      send_login_html (response, data);
+      send_login_html (response, data, headers);
     }
 }
 

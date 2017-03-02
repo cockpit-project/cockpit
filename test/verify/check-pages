@@ -175,6 +175,11 @@ WantedBy=default.target
         self.assertEqual(b.text("#angular-context"), "Bereiten")
         self.assertEqual(b.text("#angular-interpolate"), u"'Marmalade' löschen!!!")
 
+        # Log out and check that login page is translated now
+        b.logout()
+        b.wait_visible('#password-group')
+        self.assertEqual(b.text("#password-group > label"), "Passwort")
+
     def testFrameReload(self):
         b = self.browser
         frame = "cockpit1:localhost/playground/test"

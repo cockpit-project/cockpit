@@ -229,6 +229,54 @@ test_localized_unknown (TestCase *tc,
   g_bytes_unref (data);
 }
 
+static const Fixture fixture_prefer_region = {
+  .path = "/another/test.html",
+  .accept = { "pig-pen" },
+};
+
+static void
+test_localized_prefer_region (TestCase *tc,
+                              gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_prefer_region);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Security-Policy\":\"default-src 'self'; connect-src 'self' ws: wss:\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>Inway omeha irda</title>\n</head>\n<body>Inway omeha irda</body>\n</html>\n", -1);
+  g_assert_cmpuint (count, ==, 2);
+  g_bytes_unref (data);
+}
+
+static const Fixture fixture_fallback = {
+  .path = "/another/test.html",
+  .accept = { "pig-barn" },
+};
+
+static void
+test_localized_fallback (TestCase *tc,
+                         gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_fallback);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Security-Policy\":\"default-src 'self'; connect-src 'self' ws: wss:\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>Inlay omehay irday</title>\n</head>\n<body>Inlay omehay irday</body>\n</html>\n", -1);
+  g_assert_cmpuint (count, ==, 2);
+  g_bytes_unref (data);
+}
+
 static const Fixture fixture_version = {
   .path = "/incompatible/test.html",
 };
@@ -763,6 +811,10 @@ main (int argc,
               setup, test_localized_translated, teardown);
   g_test_add ("/packages/localized-unknown", TestCase, &fixture_unknown,
               setup, test_localized_unknown, teardown);
+  g_test_add ("/packages/localized-prefer-region", TestCase, &fixture_prefer_region,
+              setup, test_localized_prefer_region, teardown);
+  g_test_add ("/packages/localized-fallback", TestCase, &fixture_fallback,
+              setup, test_localized_fallback, teardown);
   g_test_add ("/packages/incompatible/version", TestCase, &fixture_version,
               setup, test_incompatible_version, teardown);
   g_test_add ("/packages/incompatible/requires", TestCase, &fixture_requires,

@@ -1554,6 +1554,9 @@ cockpit_web_response_negotiation (const gchar *path,
   GError *local_error = NULL;
   gchar *locale = NULL;
   gchar *shorter = NULL;
+  gchar *lang = NULL;
+  gchar *lang_region = NULL;
+
   gint i;
 
   if (language)
@@ -1572,28 +1575,53 @@ cockpit_web_response_negotiation (const gchar *path,
 
   while (!bytes)
     {
-      if (locale && shorter)
+      /* For a request for a file named "base.ext" and locale "lang_REGION", We try the following variants, in
+         order, and serve the first that is found:
+
+           base.lang_REGION.ext
+           base.lang_REGION.ext.gz
+           base.lang.ext
+           base.lang.ext.gz
+           base.ext
+           base.min.ext
+           base.ext.gz
+           base.ext.min.gz
+
+         If no locale is requested, or a locale without region, those variants are left out by starting
+         further down in the list.
+
+         If none of the variants are found, and the base of the file name has internal dots, these internal
+         extensions are dropped one by one from the right.  For example, for a file named "foo.bar.js", we
+         first try "foo.bar" with extension ".js", and then "foo" with extension ".js".
+      */
+
+      if (locale && shorter && g_strcmp0 (locale, shorter) != 0) {
+        lang = shorter;
+        lang_region = locale;
         i = 0;
-      else if (locale)
+      } else if (locale) {
+        lang = locale;
         i = 2;
-      else
+      } else {
         i = 4;
+      }
+
       for (; i < 8; i++)
         {
           g_free (name);
           switch (i)
             {
             case 0:
-              name = g_strconcat (base, ".", shorter, ext, NULL);
+              name = g_strconcat (base, ".", lang_region, ext, NULL);
               break;
             case 1:
-              name = g_strconcat (base, ".", shorter, ext, ".gz", NULL);
+              name = g_strconcat (base, ".", lang_region, ext, ".gz", NULL);
               break;
             case 2:
-              name = g_strconcat (base, ".", locale, ext, NULL);
+              name = g_strconcat (base, ".", lang, ext, NULL);
               break;
             case 3:
-              name = g_strconcat (base, ".", locale, ext, ".gz", NULL);
+              name = g_strconcat (base, ".", lang, ext, ".gz", NULL);
               break;
             case 4:
               name = g_strconcat (base, ext, NULL);

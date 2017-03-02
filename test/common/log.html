@@ -135,7 +135,7 @@
         <script>
 
 var tap_range = /^([0-9]+)\.\.([0-9]+)$/m;
-var tap_result = /^(ok|not ok) ([0-9]+) (.*\))(?: duration: ([0-9]+s))?(?: # SKIP .*)?$$/gm;
+var tap_result = /^(ok|not ok) ([0-9]+) (.*)\)(?: duration: ([0-9]+s))?(?: # SKIP .*)?$$/gm;
 var tap_skipped = /^ok [0-9]+ ([^#].*\))(?: duration: ([^#]*))? # SKIP (.*$)/gm;
 var image_file = /([A-Za-z0-9-]+)\.(png)$/gm;
 var journal_file = /(Journal extracted to )([A-Za-z0-9\-\.]+)\.(log)$/gm;
@@ -190,7 +190,7 @@ function extract(text) {
         }
 
         var test_links = {};
-        segments.forEach(function (segment) {
+        segments.forEach(function (segment, segmentIndex) {
             tap_range.lastIndex = 0;
             tap_result.lastIndex = 0;
             tap_skipped.lastIndex = 0;
@@ -232,10 +232,19 @@ function extract(text) {
                     failed += 1;
                 }
             } else {
-                entry.idx = 10000;
-                entry.id = "in-progress";
-                entry.title = "in progress";
-                entry.passed = true;
+                // if this isn't the last segment and we don't have a result, treat it as failed
+                if (segmentIndex+1 < segments.length) {
+                    entry.idx = 8000;
+                    entry.id = segment.split("\n")[1].slice(2);
+                    entry.title = entry.id;
+                    entry.passed = false;
+                    failed += 1;
+                } else {
+                    entry.idx = 10000;
+                    entry.id = "in-progress";
+                    entry.title = "in progress";
+                    entry.passed = true;
+                  }
             }
             while (m = image_file.exec(segment)) {
                 // we have an image link

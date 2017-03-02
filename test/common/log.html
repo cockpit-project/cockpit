@@ -105,7 +105,7 @@
         <script id="TestingOverview" type="text/template">
             <div id="testing">
                 {{total}} tests, {{passed}} passed, {{failed}} failed,
-                {{skipped}} skipped, {{left}} to go.<br>
+                {{skipped}} skipped, {{left}} to go ({{retries}} retries).<br>
 
                 <span>Failed and skipped tests:</span>
                 <ul>
@@ -157,13 +157,14 @@ var journal_template = $("#JournalLink").html();
 Mustache.parse(journal_template);
 
 function extract(text) {
-    var m;
+    var m, s;
     var first, last, total, passed, failed, skipped;
     /* default is to show the text we have, unless we find actual results */
     var altered_text = Mustache.render(text_only_template, {
                     text: text
                 });
     var entries = [];
+    var indices = {};
     if (m = tap_range.exec(text)) {
         first = parseInt(m[1], 10);
         last = parseInt(m[2], 10);
@@ -172,9 +173,21 @@ function extract(text) {
         passed = 0;
         failed = 0;
         skipped = 0;
+        retries = 0;
 
         var segments = text.split(test_header_start);
         $('#test-info').text(text.slice(0, text.indexOf('\n')));
+
+        // delete retried segments
+        for (s = 0; s < segments.length; s += 1) {
+            if (!segments[s].contains("Retrying due to failure of test harness or framework"))
+                continue;
+            segments.splice(s, 1);
+            retries += 1;
+            // don't count this against the total number of tests
+            total -= 1;
+            last -= 1;
+        }
 
         var test_links = {};
         segments.forEach(function (segment) {
@@ -260,6 +273,7 @@ function extract(text) {
                                                                 passed: passed,
                                                                 failed: failed,
                                                                 skipped: skipped,
+                                                                retries: retries,
                                                                 total: total,
                                                                 left: total - passed - failed - skipped
                                                               })

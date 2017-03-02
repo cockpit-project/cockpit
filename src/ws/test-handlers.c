@@ -107,6 +107,7 @@ base_setup (Test *test)
   test->data.auth = test->auth;
   test->data.branding_roots = (const gchar **)test->roots;
   test->data.login_html = (const gchar *)test->login_html;
+  test->data.login_po_html = NULL;
 
   test->headers = cockpit_web_server_new_table ();
 

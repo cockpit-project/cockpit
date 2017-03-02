@@ -1,8 +1,10 @@
 
 COCKPIT_BUILD_INFO = "Built on $(shell date)"
 
+LOGIN_PO_FILES = $(patsubst %,dist/static/login.po.%.html,$(LINGUAS))
+
 staticdir = $(datadir)/cockpit/static
-nodist_static_DATA = dist/static/login.min.html
+nodist_static_DATA = dist/static/login.min.html dist/static/login.po.html $(LOGIN_PO_FILES)
 
 staticdebugdir = $(debugdir)$(staticdir)
 staticdebug_DATA = dist/static/login.html
@@ -27,6 +29,14 @@ dist/static/login.min.html: src/ws/login.html dist/static/login.min.js dist/stat
 	    -e '/<style>/ r dist/static/login.min.css' $< > $@.tmp && \
 	$(MV) $@.tmp $@
 
+dist/static/login.po.html: src/ws/po.empty.html
+	$(COPY_RULE)
+
+dist/static/login.po.%.html: src/ws/%.po src/ws/po.empty.html
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/src/ws/po.empty.html -o $@.tmp src/ws/$*.po && \
+	$(MV) $@.tmp $@
+
 staticfontsdir = $(staticdir)/fonts
 staticfonts_DATA = $(OPENSANS_FONTS)
 
@@ -49,6 +59,8 @@ EXTRA_DIST += \
 	src/ws/login.html \
 	src/ws/login.js \
 	src/ws/login.css \
+	src/ws/po.empty.html \
+	$(LOGIN_PO_FILES) \
 	$(staticfonts_DATA) \
 	$(NULL)
 

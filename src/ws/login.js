@@ -14,6 +14,31 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             oauth.ErrorParam = "error_description";
     }
 
+    var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
+    function format(fmt /* ... */) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
+    }
+
+    function gettext(key) {
+        if (window.cockpit_po) {
+            var translated = window.cockpit_po[key];
+            if (translated && translated[1])
+                return translated[1];
+        }
+        return key;
+    }
+
+    function translate() {
+        if (!document.querySelectorAll)
+            return;
+        var list = document.querySelectorAll("[translate]");
+        for (var i = 0; i < list.length; i++)
+            list[i].textContent = gettext(list[i].textContent);
+    }
+
+    var _ = gettext;
+
     var login_path, application, org_login_path, org_application;
     var qs_re = /[?&]?([^=]+)=([^&]*)/g;
     var oauth_redirect_to = null;
@@ -177,6 +202,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
     function boot() {
         window.onload = null;
+
+        translate();
 
         setup_path_globals (window.location.pathname);
 

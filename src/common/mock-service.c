@@ -134,6 +134,16 @@ on_handle_test_non_primitive_types (TestFrobber *object,
 }
 
 static gboolean
+on_handle_test_variant (TestFrobber *object,
+                        GDBusMethodInvocation *invocation,
+                        GVariant *v,
+                        gpointer user_data)
+{
+        test_frobber_complete_test_variant (object, invocation);
+        return TRUE;
+}
+
+static gboolean
 on_handle_request_signal_emission (TestFrobber *object,
                                    GDBusMethodInvocation *invocation,
                                    gint which_one,
@@ -673,6 +683,9 @@ mock_service_create_and_export (GDBusConnection *connection,
   g_signal_connect (exported_frobber,
                     "handle-test-non-primitive-types",
                     G_CALLBACK (on_handle_test_non_primitive_types), NULL);
+  g_signal_connect (exported_frobber,
+                    "handle-test-variant",
+                    G_CALLBACK (on_handle_test_variant), NULL);
   g_signal_connect (exported_frobber,
                     "handle-request-signal-emission",
                     G_CALLBACK (on_handle_request_signal_emission), NULL);

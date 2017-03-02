@@ -108,6 +108,55 @@ function common_dbus_tests(channel_options, bus_name)
             });
     });
 
+    QUnit.asyncTest("integer bounds", function() {
+        assert.expect(35);
+
+        var dbus = cockpit.dbus(bus_name, channel_options);
+
+        function testNumber(type, value, valid) {
+            QUnit.stop();
+            dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                      "TestVariant", [ { t: type, v: value } ]).
+                fail(function(ex) {
+                    assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs");
+                }).
+                always(function() {
+                    if (valid)
+                        assert.equal(this.state(), "resolved", "accepted in bounds number");
+                    else
+                        assert.equal(this.state(), "rejected", "rejected out of bounds number");
+                    QUnit.start();
+                });
+        }
+
+        testNumber('y', 0, true);
+        testNumber('y', 0xff, true);
+        testNumber('y', -1, false);
+        testNumber('y', 0xff + 1, false);
+        testNumber('n', -300, true);
+        testNumber('n', 300, true);
+        testNumber('n', -0x8000 -1, false);
+        testNumber('n', 0x7fff + 1, false);
+        testNumber('q', 0, true);
+        testNumber('q', 300, true);
+        testNumber('q', -1, false);
+        testNumber('q', 0xffff + 1, false);
+        testNumber('i', -0xfffff, true);
+        testNumber('i', 0xfffff, true);
+        testNumber('i', -0x80000000 -1, false);
+        testNumber('i', 0x7fffffff + 1, false);
+        testNumber('u', 0, true);
+        testNumber('u', 0xfffff, true);
+        testNumber('u', -1, false);
+        testNumber('u', 0xffffffff + 1, false);
+        testNumber('x', -0xfffffffff, true);
+        testNumber('x', 0xfffffffff, true);
+        testNumber('t', 0xfffffffff, true);
+        testNumber('t', -1, false);
+
+        QUnit.start();
+    });
+
     QUnit.asyncTest("non-primitive types", function() {
         assert.expect(2);
 

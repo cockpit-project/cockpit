@@ -122,6 +122,31 @@ check_type (JsonNode *node,
   return TRUE;
 }
 
+static gboolean
+check_int_type (JsonNode *node,
+                const GVariantType *type,
+                gint64 min,
+                gint64 max,
+                GError **error)
+{
+  gint64 value;
+
+  if (!check_type(node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+    return FALSE;
+
+  value = json_node_get_int (node);
+  if (value < min || value > max)
+    {
+      g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+                  "Number '%li' is not in range for the expected type '%.*s'", value,
+                  (int) g_variant_type_get_string_length (type),
+                  g_variant_type_peek_string (type));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static GVariant *
 parse_json (JsonNode *node,
             const GVariantType *type,
@@ -476,37 +501,40 @@ parse_json (JsonNode *node,
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_BYTE))
         {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+          if (check_int_type (node, type, 0, G_MAXUINT8, error))
             return g_variant_new_byte (json_node_get_int (node));
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT16))
         {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+          if (check_int_type (node, type, G_MININT16, G_MAXINT16, error))
             return g_variant_new_int16 (json_node_get_int (node));
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_UINT16))
         {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+          if (check_int_type (node, type, 0, G_MAXUINT16, error))
             return g_variant_new_uint16 (json_node_get_int (node));
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT32))
         {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+          if (check_int_type (node, type, G_MININT32, G_MAXINT32, error))
             return g_variant_new_int32 (json_node_get_int (node));
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_UINT32))
         {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+          if (check_int_type (node, type, 0, G_MAXUINT32, error))
             return g_variant_new_uint32 (json_node_get_int (node));
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT64))
         {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+          if (check_int_type (node, type, G_MININT64, G_MAXINT64, error))
             return g_variant_new_int64 (json_node_get_int (node));
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_UINT64))
         {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
+          /* Can never be larger than signed int64, because json-glib
+           * only returns doubles or signed 64-bit integers when
+           * encountering a JSON number. */
+          if (check_int_type (node, type, 0, G_MAXINT64, error))
             return g_variant_new_uint64 (json_node_get_int (node));
         }
       else if (g_variant_type_equal (type, G_VARIANT_TYPE_DOUBLE))

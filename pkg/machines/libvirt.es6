@@ -23,7 +23,7 @@
  */
 import cockpit from 'cockpit';
 import $ from 'jquery';
-import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed} from './actions.es6';
+import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed, updateVmDisksStats} from './actions.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import { toKiloBytes, isEmpty, logDebug } from './helpers.es6';
 import VMS_CONFIG from './config.es6';
@@ -355,12 +355,41 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 
     const lines = parseLines(domstats);
 
-    let cpuTime = getValueFromLine(lines, 'cpu\.time=');
-    // TODO: Add disk, network usage statistics
+    const cpuTime = getValueFromLine(lines, 'cpu\.time=');
+    // TODO: Add network usage statistics
 
     if (cpuTime) {
         dispatch(updateOrAddVm({connectionName, name, actualTimeInMs, cpuTime}));
     }
+
+   dispatch(updateVmDisksStats({connectionName, name,
+       disksStats: parseDomstatsForDisks(lines)}));
+}
+
+function parseDomstatsForDisks(domstatsLines) {
+    const count = getValueFromLine(domstatsLines, 'block\.count=');
+    if (!count) {
+        return ;
+    }
+
+    const disksStats = {};
+    for (let i=0; i<count; i++) {
+        const target = getValueFromLine(domstatsLines, `block\.${i}\.name=`);
+        const physical = getValueFromLine(domstatsLines, `block\.${i}\.physical=`);
+        const capacity = getValueFromLine(domstatsLines, `block\.${i}\.capacity=`);
+        const allocation = getValueFromLine(domstatsLines, `block\.${i}\.allocation=`);
+
+        if (target) {
+            disksStats[target] = {
+                physical,
+                capacity,
+                allocation,
+            };
+        } else {
+            console.error(`parseDomstatsForDisks(): mandatory property is missing in domstats (block\.${i}\.name)`);
+        }
+    }
+    return disksStats;
 }
 
 export default LIBVIRT_PROVIDER;

@@ -134,6 +134,18 @@ export function updateOrAddVm({ id, name, connectionName, state, osType, fqdn, u
     };
 }
 
+export function updateVmDisksStats({ id, name, connectionName, disksStats }) {
+    return {
+        type: 'UPDATE_VM_DISK_STATS',
+        payload: {
+            id,
+            name,
+            connectionName,
+            disksStats,
+        }
+    };
+}
+
 export function vmActionFailed({ name, connectionName, message, detail}) {
     return {
         type: 'VM_ACTION_FAILED',

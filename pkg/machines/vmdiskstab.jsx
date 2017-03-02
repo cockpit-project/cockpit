@@ -20,6 +20,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
+import { toGigaBytes } from './helpers.es6';
 
 const _ = cockpit.gettext;
 
@@ -38,13 +39,24 @@ const DiskSource = ({ disk }) => {
         </div>
     );
 };
-
+/*
 const DiskAlias = ({ disk }) => {
     return (
         <div className='machines-disks-alias'>
             {disk.aliasName}
         </div>
     );
+};
+*/
+const StorageUnit = ({ value }) => {
+    if (!value) {
+        return null;
+    }
+      return (
+          <div>
+              {toGigaBytes(value, 'B')}&nbsp;{_("GB")}
+          </div>
+      );
 };
 
 const VmDisksTab = ({ vm }) => {
@@ -54,18 +66,22 @@ const VmDisksTab = ({ vm }) => {
     return (
         <div>
             <DiskTotal disks={vm.disks} />
-            <Listing columnTitles={[_("Device"), _("Target"), _("Bus"), _("Alias"), _("Readonly"), _("Type"), _("Serial"), _("Source")]}>
+            <Listing columnTitles={[_("Device"), _("Target"), _("Used"), _("Capacity"), _("Bus"), _("Readonly"), _("Type"), _("Source")]}>
                 {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
                     const disk = vm.disks[target];
+                    const disksStats = vm.disksStats ? vm.disksStats[target] : undefined;
+                    const used = disksStats ? disksStats.allocation : undefined;
+                    const capacity = disksStats ? disksStats.capacity : undefined;
+
                     return (
                         <ListingRow columns={[
                                             {name: disk.device, 'header': true},
                                             disk.target,
+                                            <StorageUnit value={used} />,
+                                            <StorageUnit value={capacity} />,
                                             disk.bus,
-                                            <DiskAlias disk={disk} />,
                                             disk.readonly ? _("yes") : _("no"),
                                             disk.type,
-                                            disk.serial,
                                             <DiskSource disk={disk} />,
                                             ]}/>
                     );

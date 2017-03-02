@@ -117,6 +117,24 @@ function vms(state, action) {
 
     logDebug('reducer vms: action=' + JSON.stringify(action));
 
+    function findVmToUpdate(state, { connectionName, id, name }) {
+        const index = id ? getFirstIndexOfVm(state, 'id', id, connectionName)
+            : getFirstIndexOfVm(state, 'name', name, connectionName);
+        if (index < 0) {
+            logDebug(`vms reducer: vm (name='${name}', connectionName='${connectionName}') not found, skipping`);
+            return null;
+        }
+        return { // return object of {index, copyOfVm}
+            index,
+            vmCopy: Object.assign({}, state[index]), // TODO: consider immutableJs
+        };
+    }
+    function replaceVm({ state, updatedVm, index }) {
+        return state.slice(0, index)
+            .concat(updatedVm)
+            .concat(state.slice(index + 1));
+    }
+
     switch (action.type) {
         case 'UPDATE_ADD_VM':
         {
@@ -137,23 +155,30 @@ function vms(state, action) {
                 updatedVm = Object.assign({}, state[index], action.vm);
             }
 
-            return state.slice(0, index)
-                .concat(updatedVm)
-                .concat(state.slice(index + 1));
+            return replaceVm({ state, updatedVm, index });
+        }
+        case 'UPDATE_VM_DISK_STATS':
+        {
+            const indexedVm = findVmToUpdate(state, action.payload);
+            if (!indexedVm) {
+                return state;
+            }
+
+            // replace whole object, disk statistics are read at once
+            const updatedVm = Object.assign(indexedVm.vmCopy, {disksStats: action.payload.disksStats});
+
+            return replaceVm({ state, updatedVm, index: indexedVm.index });
         }
         case 'VM_ACTION_FAILED': {
-            const connectionName = action.payload.connectionName;
-            const index = action.payload.id ? getFirstIndexOfVm(state, 'id', action.payload.id, connectionName)
-                : getFirstIndexOfVm(state, 'name', action.payload.name, connectionName);
-            if (index < 0) {
-                logDebug(`VM_ACTION_FAILED reducer(name='${action.payload.name}', connectionName='${connectionName}') not found, skipping`);
-                return ;
+            const indexedVm = findVmToUpdate(state, action.payload);
+            if (!indexedVm) { // already logged
+                return state;
             }
-            const updatedVm = Object.assign({}, state[index],
-                {lastMessage: action.payload.message, lastMessageDetail: action.payload.detail});
-            return state.slice(0, index)
-                .concat(updatedVm)
-                .concat(state.slice(index + 1));
+            const updatedVm = Object.assign(indexedVm.vmCopy, {
+                lastMessage: action.payload.message,
+                lastMessageDetail: action.payload.detail});
+
+            return replaceVm({ state, updatedVm, index: indexedVm.index });
         }
         case 'DELETE_UNLISTED_VMS':
         {

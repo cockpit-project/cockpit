@@ -266,6 +266,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
     const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
+    const devicesElem = domainElem.getElementsByTagName("devices")[0];
 
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const id = domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
@@ -276,7 +277,53 @@ function parseDumpxml(dispatch, connectionName, domXml) {
 
     const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
 
-    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus}));
+    const disks = parseDumpxmlForDisks(devicesElem);
+
+    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus, disks}));
+}
+
+function parseDumpxmlForDisks(devicesElem) {
+    const disks = {};
+    const diskElems = devicesElem.getElementsByTagName('disk');
+    if (diskElems) {
+        for (let i = 0; i < diskElems.length; i++) {
+            const diskElem = diskElems[i];
+
+            const targetElem = diskElem.getElementsByTagName('target')[0];
+
+            const sourceElems = diskElem.getElementsByTagName('source');
+            const sourceElem = sourceElems.length > 0 ? sourceElems[0] : undefined; // optional
+
+            const serialElems = diskElem.getElementsByTagName('serial');
+            const serialElem = serialElems.length > 0 ? serialElems[0] : undefined; // optional
+
+            const aliasElems = diskElem.getElementsByTagName('alias');
+            const aliasElem = aliasElems.length > 0 ? aliasElems[0] : undefined; // optional
+
+            const readonlyElems = diskElem.getElementsByTagName('readonly');
+            const readonlyElem = readonlyElems.length > 0 ? readonlyElems[0] : undefined; // optional
+
+            const disk = {
+                target: targetElem.getAttribute('dev'), // identifier of the disk, i.e. sda, hdc
+                type: diskElem.getAttribute('type'), // i.e.: file
+                device: diskElem.getAttribute('device'), // i.e. cdrom, disk
+                sourceFile: sourceElem ? sourceElem.getAttribute('file') : undefined, // optional file name of the disk
+                bus: targetElem.getAttribute('bus'), // i.e. scsi, ide
+                serial: serialElem ? serialElem.getAttribute('serial') : undefined, // optional serial number
+                aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined, // i.e. scsi0-0-0-0, ide0-1-0
+                readonly: readonlyElem ? true : false,
+            };
+
+            if (disk.target) {
+                disks[disk.target] = disk;
+                logDebug(`parseDumpxmlForDisks(): disk device found: ${JSON.stringify(disk)}`);
+            } else {
+                console.error(`parseDumpxmlForDisks(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(disk)}`);
+            }
+        }
+    }
+
+    return disks;
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

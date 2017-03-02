@@ -19,95 +19,60 @@
  */
 import React from 'react';
 import cockpit from 'cockpit';
-// import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
+import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 
 const _ = cockpit.gettext;
 
+const DiskTotal = ({ disks }) => {
+    return (
+        <div className='machines-disks-total'>
+            {_("Count:")}&nbsp;<strong>{Object.getOwnPropertyNames(disks).length}</strong>
+        </div>
+    );
+};
+
+const DiskSource = ({ disk }) => {
+    return (
+        <div className='machines-disks-source'>
+            {disk.sourceFile}
+        </div>
+    );
+};
+
+const DiskAlias = ({ disk }) => {
+    return (
+        <div className='machines-disks-alias'>
+            {disk.aliasName}
+        </div>
+    );
+};
+
 const VmDisksTab = ({ vm }) => {
-    if (!vm.disks) {
+    if (!vm.disks || Object.getOwnPropertyNames(vm.disks).length === 0) {
         return (<div>_("No disks defined for this VM")</div>);
     }
-
     return (
         <div>
-            <table className='machines-width-max'>
-                <tr className='machines-listing-ct-body-detail'>
-                    <td>
-                        <table className='form-table-ct'>
-                            <tr>
-                                <th>{_("Device")}</th>
-                                <th>{_("Target")}</th>
-                                <th>{_("Bus")}</th>
-                                <th>{_("Alias")}</th>
-                                <th>{_("Readonly")}</th>
-                                <th>{_("Type")}</th>
-                                <th>{_("Serial")}</th>
-                                <th className=''>{_("Source")}</th>
-                            </tr>
-                            {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
-                                const disk = vm.disks[target];
-                                return (
-                                    <tr>
-                                        <td>{disk.device}</td>
-                                        <td>{disk.target}</td>
-                                        <td>{disk.bus}</td>
-                                        <td>{disk.aliasName}</td>
-                                        <td>{disk.readonly ? _("yes") : _("no")}</td>
-                                        <td>{disk.type}</td>
-                                        <td>{disk.serial}</td>
-                                        <td>{disk.sourceFile}</td>
-                                    </tr>
-                                );
-                            })}
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>);
-/*
-    <Listing title='blee' columnTitles={[_("Device"), _("Target"), _("Bus"), _("Alias"), _("Readonly"), _("Type"), _("Serial"), _("Source")]}>
-        {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
-            const disk = vm.disks[target];
-            return (
-                <ListingRow columns={[
-                                        {name: disk.device, 'header': true},
-                                        disk.target,
-                                        disk.bus,
-                                        disk.aliasName,
-                                        disk.readonly ? _("yes") : _("no"),
-                                        disk.type,
-                                        disk.serial,
-                                        disk.sourceFile,
-                                        ]} />
-            );
-        })}
-    </Listing>
-*/
-    /*
-    return (<div>
-        <table className='machines-width-max'>
-            <tr className='machines-listing-ct-body-detail'>
-                <td>
-                    <table className='form-table-ct'>
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr={_("State:")} value={vm.state}/>
-                        <VmOverviewTabRecord descr={_("Memory:")}
-                                             value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
-                    </table>
-                </td>
-
-                <td>
-                    <table className='form-table-ct'>
-                        <VmOverviewTabRecord descr={_("ID:")} value={vm.id}/>
-                        <VmOverviewTabRecord descr={_("OS Type:")} value={vm.osType}/>
-                        <VmOverviewTabRecord descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        <VmLastMessage vm={vm} />
-    </div>);
-    */
+            <DiskTotal disks={vm.disks} />
+            <Listing columnTitles={[_("Device"), _("Target"), _("Bus"), _("Alias"), _("Readonly"), _("Type"), _("Serial"), _("Source")]}>
+                {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
+                    const disk = vm.disks[target];
+                    return (
+                        <ListingRow columns={[
+                                            {name: disk.device, 'header': true},
+                                            disk.target,
+                                            disk.bus,
+                                            <DiskAlias disk={disk} />,
+                                            disk.readonly ? _("yes") : _("no"),
+                                            disk.type,
+                                            disk.serial,
+                                            <DiskSource disk={disk} />,
+                                            ]}/>
+                    );
+                })}
+            </Listing>
+        </div>
+    );
 };
 VmDisksTab.propTypes = {
     vm: React.PropTypes.object.isRequired,

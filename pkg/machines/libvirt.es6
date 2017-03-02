@@ -77,14 +77,13 @@ LIBVIRT_PROVIDER = {
      * Initialize the provider.
      * Arguments are used for reference only, they are actually not needed for this Libvirt provider.
      *
-     * @param actionCreators - Map of action creators (functions)
-     * @param nextProvider - Next provider in chain, recently Libvirt. Used for chaining commands or fallbacks.
-     * @returns {boolean} - true, if initialization succeeded
+     * @param providerContext - see `getProviderContext()` in provider.es6
+     * @returns {boolean} - true, if initialization succeeded; or Promise
      */
-    init(actionCreators, nextProvider) {
-        // This is default provider - the Libvirt.
-        // We do not need to use actionCreators or nextProvider
-        return true;
+    init(providerContext) {
+        // This is default provider - the Libvirt, so we do not need to use the providerContext param.
+        // The method is here for reference only.
+        return true; // or Promise
     },
 
     canReset(vmState) {

@@ -920,6 +920,19 @@ static const _ExtendedGDBusMethodInfo _test_frobber_method_info_hello_world =
   FALSE
 };
 
+static const _ExtendedGDBusMethodInfo _test_frobber_method_info_never_return =
+{
+  {
+    -1,
+    (gchar *) "NeverReturn",
+    NULL,
+    NULL,
+    NULL
+  },
+  "handle-never-return",
+  FALSE
+};
+
 static const _ExtendedGDBusArgInfo _test_frobber_method_info_test_primitive_types_IN_ARG_val_byte =
 {
   {
@@ -1802,6 +1815,7 @@ static const _ExtendedGDBusMethodInfo _test_frobber_method_info_tell_me_your_nam
 static const _ExtendedGDBusMethodInfo * const _test_frobber_method_info_pointers[] =
 {
   &_test_frobber_method_info_hello_world,
+  &_test_frobber_method_info_never_return,
   &_test_frobber_method_info_test_primitive_types,
   &_test_frobber_method_info_test_non_primitive_types,
   &_test_frobber_method_info_test_asv,
@@ -2290,6 +2304,7 @@ test_frobber_override_properties (GObjectClass *klass, guint property_id_begin)
  * @handle_delete_object: Handler for the #TestFrobber::handle-delete-object signal.
  * @handle_emit_hidden: Handler for the #TestFrobber::handle-emit-hidden signal.
  * @handle_hello_world: Handler for the #TestFrobber::handle-hello-world signal.
+ * @handle_never_return: Handler for the #TestFrobber::handle-never-return signal.
  * @handle_property_cancellation: Handler for the #TestFrobber::handle-property-cancellation signal.
  * @handle_release_other_name: Handler for the #TestFrobber::handle-release-other-name signal.
  * @handle_remove_alpha: Handler for the #TestFrobber::handle-remove-alpha signal.
@@ -2357,6 +2372,28 @@ test_frobber_default_init (TestFrobberIface *iface)
     G_TYPE_BOOLEAN,
     2,
     G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+
+  /**
+   * TestFrobber::handle-never-return:
+   * @object: A #TestFrobber.
+   * @invocation: A #GDBusMethodInvocation.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.NeverReturn">NeverReturn()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call test_frobber_complete_never_return() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-never-return",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (TestFrobberIface, handle_never_return),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    1,
+    G_TYPE_DBUS_METHOD_INVOCATION);
 
   /**
    * TestFrobber::handle-test-primitive-types:
@@ -4005,6 +4042,98 @@ test_frobber_call_hello_world_sync (
   g_variant_get (_ret,
                  "(s)",
                  out_response);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * test_frobber_call_never_return:
+ * @proxy: A #TestFrobberProxy.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.NeverReturn">NeverReturn()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call test_frobber_call_never_return_finish() to get the result of the operation.
+ *
+ * See test_frobber_call_never_return_sync() for the synchronous, blocking version of this method.
+ */
+void
+test_frobber_call_never_return (
+    TestFrobber *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "NeverReturn",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * test_frobber_call_never_return_finish:
+ * @proxy: A #TestFrobberProxy.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to test_frobber_call_never_return().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with test_frobber_call_never_return().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+test_frobber_call_never_return_finish (
+    TestFrobber *proxy,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * test_frobber_call_never_return_sync:
+ * @proxy: A #TestFrobberProxy.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.NeverReturn">NeverReturn()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See test_frobber_call_never_return() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+test_frobber_call_never_return_sync (
+    TestFrobber *proxy,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "NeverReturn",
+    g_variant_new ("()"),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "()");
   g_variant_unref (_ret);
 _out:
   return _ret != NULL;
@@ -6053,6 +6182,24 @@ test_frobber_complete_hello_world (
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(s)",
                    response));
+}
+
+/**
+ * test_frobber_complete_never_return:
+ * @object: A #TestFrobber.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.NeverReturn">NeverReturn()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+test_frobber_complete_never_return (
+    TestFrobber *object,
+    GDBusMethodInvocation *invocation)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("()"));
 }
 
 /**

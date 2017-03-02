@@ -916,6 +916,7 @@ typedef struct {
   const gchar *path;
   const gchar *type;
   const gchar *flags;
+  gint timeout;
   JsonNode *args;
 } CallData;
 
@@ -1100,13 +1101,23 @@ on_send_message_reply (GObject *source,
 
   message = g_dbus_connection_send_message_with_reply_finish (G_DBUS_CONNECTION (source),
                                                               result, &error);
-
   if (call->dbus_json)
     {
       if (error)
-        send_dbus_error (call->dbus_json, call, error);
+        {
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT))
+            {
+              g_clear_error (&error);
+              g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_TIMEOUT,
+                           "method call %s timed out", call->method);
+            }
+
+            send_dbus_error (call->dbus_json, call, error);
+        }
       else
-        send_dbus_reply (call->dbus_json, call, message);
+        {
+          send_dbus_reply (call->dbus_json, call, message);
+        }
     }
 
   g_clear_error (&error);
@@ -1142,7 +1153,7 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
   g_dbus_connection_send_message_with_reply (self->connection,
                                              message,
                                              G_DBUS_SEND_MESSAGE_FLAGS_NONE,
-                                             G_MAXINT, /* timeout */
+                                             call->timeout,
                                              NULL, /* serial */
                                              self->cancellable,
                                              call->cookie ? on_send_message_reply : NULL,
@@ -1278,6 +1289,7 @@ handle_dbus_call (CockpitDBusJson *self,
   CallData *call;
   JsonNode *node;
   gchar *string;
+  gint64 timeout;
 
   node = json_object_get_member (object, "call");
   g_return_if_fail (node != NULL);
@@ -1322,6 +1334,12 @@ handle_dbus_call (CockpitDBusJson *self,
       cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
                             "the \"flags\" field is invalid in dbus call");
     }
+  else if (!cockpit_json_get_int(object, "timeout", G_MAXINT, &timeout) ||
+           timeout <= 0 || timeout > G_MAXINT)
+    {
+      cockpit_channel_fail (COCKPIT_CHANNEL (self), "protocol-error",
+                            "the \"timeout\" field is invalid in dbus call");
+    }
   else
     {
       if (call->type)
@@ -1342,6 +1360,7 @@ handle_dbus_call (CockpitDBusJson *self,
       call->request = json_object_ref (object);
       self->active_calls = g_list_prepend (self->active_calls, call);
       call->link = g_list_find (self->active_calls, call);
+      call->timeout = timeout;
 
       if (call->param_type)
         {

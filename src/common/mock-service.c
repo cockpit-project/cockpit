@@ -48,6 +48,15 @@ on_handle_hello_world (TestFrobber *object,
 }
 
 static gboolean
+on_handle_never_return (TestFrobber *object,
+                        GDBusMethodInvocation *invocation,
+                        const gchar *greeting,
+                        gpointer user_data)
+{
+  return TRUE;
+}
+
+static gboolean
 on_handle_test_primitive_types (TestFrobber *object,
                                 GDBusMethodInvocation *invocation,
                                 guchar val_byte,
@@ -677,6 +686,8 @@ mock_service_create_and_export (GDBusConnection *connection,
   g_assert_no_error (error);
   g_signal_connect (exported_frobber, "handle-hello-world",
                     G_CALLBACK (on_handle_hello_world), NULL);
+  g_signal_connect (exported_frobber, "handle-never-return",
+                    G_CALLBACK (on_handle_never_return), NULL);
   g_signal_connect (exported_frobber,
                     "handle-test-primitive-types",
                     G_CALLBACK (on_handle_test_primitive_types), NULL);

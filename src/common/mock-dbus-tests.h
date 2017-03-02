@@ -195,6 +195,10 @@ struct _TestFrobberIface
     GDBusMethodInvocation *invocation,
     const gchar *arg_greeting);
 
+  gboolean (*handle_never_return) (
+    TestFrobber *object,
+    GDBusMethodInvocation *invocation);
+
   gboolean (*handle_property_cancellation) (
     TestFrobber *object,
     GDBusMethodInvocation *invocation);
@@ -332,6 +336,10 @@ void test_frobber_complete_hello_world (
     GDBusMethodInvocation *invocation,
     const gchar *response);
 
+void test_frobber_complete_never_return (
+    TestFrobber *object,
+    GDBusMethodInvocation *invocation);
+
 void test_frobber_complete_test_primitive_types (
     TestFrobber *object,
     GDBusMethodInvocation *invocation,
@@ -459,6 +467,22 @@ gboolean test_frobber_call_hello_world_sync (
     TestFrobber *proxy,
     const gchar *arg_greeting,
     gchar **out_response,
+    GCancellable *cancellable,
+    GError **error);
+
+void test_frobber_call_never_return (
+    TestFrobber *proxy,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean test_frobber_call_never_return_finish (
+    TestFrobber *proxy,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean test_frobber_call_never_return_sync (
+    TestFrobber *proxy,
     GCancellable *cancellable,
     GError **error);
 

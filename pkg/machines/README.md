@@ -58,6 +58,10 @@ The external provider script must create global window.EXTERNAL_PROVIDER object 
             {name: 'Provider-specific subtab', componentFactory: YOUR_COMPONENT_FACTORY}, // see externalComponent.jsx for more info on componentFactory
           ],
 
+        vmDisksActionsFactory: ({ vm }) => [ /* Array of React components for all-disk-wide actions */ ], // optional
+        vmDisksColumns: [ // optional extension of columns in the VM's "Disks" subtab
+            {title, index, valueProvider: ({ vm, diskTarget }) => {return "String or React Component";}}
+          ],
     };
 
 The provider methods are expected to return a Promise.

@@ -23,7 +23,7 @@
  */
 import cockpit from 'cockpit';
 import $ from 'jquery';
-import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed} from './actions.es6';
+import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed, updateVmDisksStats} from './actions.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import { toKiloBytes, isEmpty, logDebug } from './helpers.es6';
 import VMS_CONFIG from './config.es6';
@@ -266,6 +266,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
     const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
+    const devicesElem = domainElem.getElementsByTagName("devices")[0];
 
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const id = domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
@@ -276,7 +277,70 @@ function parseDumpxml(dispatch, connectionName, domXml) {
 
     const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
 
-    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus}));
+    const disks = parseDumpxmlForDisks(devicesElem);
+
+    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus, disks}));
+}
+
+function getSingleOptionalElem(parent, name) {
+    const subElems = parent.getElementsByTagName(name);
+    return subElems.length > 0 ? subElems[0] : undefined; // optional
+}
+
+function parseDumpxmlForDisks(devicesElem) {
+    const disks = {};
+    const diskElems = devicesElem.getElementsByTagName('disk');
+    if (diskElems) {
+        for (let i = 0; i < diskElems.length; i++) {
+            const diskElem = diskElems[i];
+
+            const targetElem = diskElem.getElementsByTagName('target')[0];
+
+            const driverElem = getSingleOptionalElem(diskElem, 'driver');
+            const sourceElem = getSingleOptionalElem(diskElem, 'source');
+            const serialElem = getSingleOptionalElem(diskElem, 'serial');
+            const aliasElem = getSingleOptionalElem(diskElem, 'alias');
+            const readonlyElem = getSingleOptionalElem(diskElem, 'readonly');
+            const bootElem = getSingleOptionalElem(diskElem, 'boot');
+
+            const sourceHostElem = sourceElem ? getSingleOptionalElem(sourceElem, 'host') : undefined;
+
+            const disk = { // see https://libvirt.org/formatdomain.html#elementsDisks
+                target: targetElem.getAttribute('dev'), // identifier of the disk, i.e. sda, hdc
+                driver: {
+                    name: driverElem ? driverElem.getAttribute('name') : undefined, // optional
+                    type: driverElem ? driverElem.getAttribute('type') : undefined,
+                },
+                bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                type: diskElem.getAttribute('type'), // i.e.: file
+                device: diskElem.getAttribute('device'), // i.e. cdrom, disk
+                source: {
+                    file: sourceElem ? sourceElem.getAttribute('file') : undefined, // optional file name of the disk
+                    dev: sourceElem ? sourceElem.getAttribute('dev') : undefined,
+                    pool: sourceElem ? sourceElem.getAttribute('pool') : undefined,
+                    volume: sourceElem ? sourceElem.getAttribute('volumne') : undefined,
+                    protocol: sourceElem ? sourceElem.getAttribute('protocol') : undefined,
+                    host: {
+                        name: sourceHostElem ? sourceHostElem.getAttribute('name') : undefined,
+                        port: sourceHostElem ? sourceHostElem.getAttribute('port') : undefined,
+                    },
+                },
+                bus: targetElem.getAttribute('bus'), // i.e. scsi, ide
+                serial: serialElem ? serialElem.getAttribute('serial') : undefined, // optional serial number
+                aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined, // i.e. scsi0-0-0-0, ide0-1-0
+                readonly: readonlyElem ? true : false,
+            };
+
+            if (disk.target) {
+                disks[disk.target] = disk;
+                logDebug(`parseDumpxmlForDisks(): disk device found: ${JSON.stringify(disk)}`);
+            } else {
+                console.error(`parseDumpxmlForDisks(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(disk)}`);
+            }
+        }
+    }
+
+    return disks;
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {
@@ -308,12 +372,43 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 
     const lines = parseLines(domstats);
 
-    let cpuTime = getValueFromLine(lines, 'cpu\.time=');
-    // TODO: Add disk, network usage statistics
+    const cpuTime = getValueFromLine(lines, 'cpu\.time=');
+    // TODO: Add network usage statistics
 
     if (cpuTime) {
         dispatch(updateOrAddVm({connectionName, name, actualTimeInMs, cpuTime}));
     }
+
+   dispatch(updateVmDisksStats({connectionName, name,
+       disksStats: parseDomstatsForDisks(lines)}));
+}
+
+function parseDomstatsForDisks(domstatsLines) {
+    const count = getValueFromLine(domstatsLines, 'block\.count=');
+    if (!count) {
+        return ;
+    }
+
+    // Libvirt reports disk capacity since version 1.2.18 (year 2015)
+    // TODO: If disk stats is required for old systems, find a way how to get it when 'block.X.capacity' is not present, consider various options for 'sources'
+    const disksStats = {};
+    for (let i=0; i<count; i++) {
+        const target = getValueFromLine(domstatsLines, `block\.${i}\.name=`);
+        const physical = getValueFromLine(domstatsLines, `block\.${i}\.physical=`) || NaN;
+        const capacity = getValueFromLine(domstatsLines, `block\.${i}\.capacity=`) || NaN;
+        const allocation = getValueFromLine(domstatsLines, `block\.${i}\.allocation=`) || NaN;
+
+        if (target) {
+            disksStats[target] = {
+                physical,
+                capacity,
+                allocation,
+            };
+        } else {
+            console.error(`parseDomstatsForDisks(): mandatory property is missing in domstats (block\.${i}\.name)`);
+        }
+    }
+    return disksStats;
 }
 
 export default LIBVIRT_PROVIDER;

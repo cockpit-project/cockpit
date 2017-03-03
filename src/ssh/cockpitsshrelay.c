@@ -51,6 +51,9 @@
 
 #define AUTH_FD 3
 
+/* we had a private one before moving to /etc/ssh/ssh_known_hosts */
+#define LEGACY_KNOWN_HOSTS PACKAGE_LOCALSTATE_DIR "/known_hosts"
+
 typedef struct {
   const gchar *logname;
   gchar *initial_auth_data;
@@ -71,6 +74,8 @@ typedef struct {
   GHashTable *auth_results;
 
 } CockpitSshData;
+
+static gchar *tmp_knownhost_file;
 
 static const gchar*
 exit_code_problem (int exit_code)
@@ -451,13 +456,105 @@ out:
   return ret;
 }
 
-static const gchar *
-verify_knownhost (CockpitSshData *data)
+static void cleanup_knownhosts_file (void)
 {
-  FILE *fp = NULL;
-  const gchar *knownhosts_file;
-  gchar *tmp_knownhost_file = NULL;
+  if (tmp_knownhost_file)
+    {
+      g_unlink (tmp_knownhost_file);
+      g_free (tmp_knownhost_file);
+    }
+}
+
+/**
+ * set_knownhosts_file:
+ *
+ * Check the various ssh known hosts locations and set the appropriate one into
+ * SSH_OPTIONS_KNOWNHOSTS.
+ *
+ * Returns: error string or %NULL on success.
+ */
+static const gchar *
+set_knownhosts_file (CockpitSshData *data,
+                     const gchar* host,
+                     const guint port)
+{
+  gboolean host_known;
+
+  /* $COCKPIT_SSH_KNOWN_HOSTS_DATA has highest priority */
+  if (data->ssh_options->knownhosts_data)
+    {
+      FILE *fp = NULL;
+      tmp_knownhost_file = create_knownhosts_temp ();
+      if (!tmp_knownhost_file)
+          return "internal-error";
+      atexit (cleanup_knownhosts_file);
+
+      fp = fopen (tmp_knownhost_file, "a");
+      if (fp == NULL)
+        {
+          g_warning ("%s: couldn't open temporary known host file for data: %s",
+                     data->logname, tmp_knownhost_file);
+          return "internal-error";
+        }
+
+      if (fputs (data->ssh_options->knownhosts_data, fp) < 0)
+        {
+          g_warning ("%s: couldn't write to data to temporary known host file: %s",
+                     data->logname, g_strerror (errno));
+          fclose (fp);
+          return "internal-error";
+        }
+
+      fclose (fp);
+      data->ssh_options->knownhosts_file = tmp_knownhost_file;
+    }
+
+  /* now check the default global ssh file */
+  host_known = cockpit_is_host_known (data->ssh_options->knownhosts_file, host, port);
+
+  /* if we check the default system known hosts file (i. e. not during the test
+   * suite), also check the legacy file in /var/lib/cockpit; we need to do that
+   * even with allow_unknown_hosts as subsequent code relies on knownhosts_file */
+  if (!host_known && strcmp (data->ssh_options->knownhosts_file, cockpit_get_default_knownhosts ()) == 0)
+    {
+      host_known = cockpit_is_host_known (LEGACY_KNOWN_HOSTS, host, port);
+      if (host_known)
+        {
+          g_debug ("%s: not known in %s but in legacy file %s",
+                   data->logname,
+                   data->ssh_options->knownhosts_file,
+                   LEGACY_KNOWN_HOSTS);
+          data->ssh_options->knownhosts_file = LEGACY_KNOWN_HOSTS;
+        }
+    }
+
+  /* TODO: Check more sources of known hosts here if !host_known */
+
+  g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
+  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
+                       data->ssh_options->knownhosts_file) != SSH_OK)
+    {
+      g_warning ("Couldn't set knownhosts file location");
+      return "internal-error";
+    }
+
+  if (!data->ssh_options->allow_unknown_hosts && !host_known)
+    {
+      g_message ("%s: refusing to connect to unknown host: %s:%d",
+                 data->logname, host, port);
+      return "unknown-host";
+    }
+
+  return NULL;
+}
+
+static const gchar *
+verify_knownhost (CockpitSshData *data,
+                  const gchar* host,
+                  const guint port)
+{
   const gchar *ret = "invalid-hostkey";
+  const gchar *r;
   ssh_key key = NULL;
   unsigned char *hash = NULL;
   int state;
@@ -497,46 +594,10 @@ verify_knownhost (CockpitSshData *data)
       ssh_clean_pubkey_hash (&hash);
     }
 
-  if (data->ssh_options->knownhosts_data)
+  r = set_knownhosts_file (data, host, port);
+  if (r != NULL)
     {
-      tmp_knownhost_file = create_knownhosts_temp ();
-      if (!tmp_knownhost_file)
-        {
-          ret = "internal-error";
-          goto done;
-        }
-
-      fp = fopen (tmp_knownhost_file, "a");
-      if (fp == NULL)
-        {
-          g_warning ("%s: couldn't open temporary known host file for data: %s",
-                     data->logname, tmp_knownhost_file);
-          ret = "internal-error";
-          goto done;
-        }
-
-      if (fputs (data->ssh_options->knownhosts_data, fp) < 0)
-        {
-          g_warning ("%s: couldn't write to data to temporary known host file: %s",
-                     data->logname, g_strerror (errno));
-          ret = "internal-error";
-          fclose (fp);
-          goto done;
-        }
-
-      fclose (fp);
-      knownhosts_file = tmp_knownhost_file;
-    }
-  else
-    {
-      knownhosts_file = data->ssh_options->knownhosts_file;
-    }
-
-  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                       knownhosts_file) != SSH_OK)
-    {
-      g_warning ("Couldn't set knownhosts file location");
-      ret = "internal-error";
+      ret = r;
       goto done;
     }
 
@@ -587,12 +648,6 @@ verify_knownhost (CockpitSshData *data)
     }
 
 done:
-  if (tmp_knownhost_file)
-    {
-      g_unlink (tmp_knownhost_file);
-      g_free (tmp_knownhost_file);
-    }
-
   if (key)
     ssh_key_free (key);
   return ret;
@@ -1202,20 +1257,6 @@ cockpit_ssh_connect (CockpitSshData *data,
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_PORT, &port) == 0);
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);;
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                                   data->ssh_options->knownhosts_file) == 0);
-
-  if (!data->ssh_options->allow_unknown_hosts)
-    {
-      if (!cockpit_is_host_known (data->ssh_options->knownhosts_file,
-                                  host, port))
-        {
-          g_message ("%s: refusing to connect to unknown host: %s:%d",
-                     data->logname, host, port);
-          problem = "unknown-host";
-          goto out;
-        }
-    }
 
   rc = ssh_connect (data->session);
   if (rc != SSH_OK)
@@ -1230,7 +1271,7 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   if (!data->ssh_options->ignore_hostkey)
     {
-      problem = verify_knownhost (data);
+      problem = verify_knownhost (data, host, port);
       if (problem != NULL)
         goto out;
     }

@@ -736,7 +736,7 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_in_text(".curtains-ct", "Login failed")
 
         # Nothing was saved
-        self.assertFalse(m.execute("grep 10.111.112.101 /var/lib/cockpit/known_hosts || true"))
+        self.assertFalse(m.execute("grep 10.111.112.101 /etc/ssh/ssh_known_hosts || true"))
         self.assertFalse(m.execute("grep 10.111.112.101 /etc/cockpit/machines.d/99-webui.json || true"))
 
         self.allow_hostkey_messages()

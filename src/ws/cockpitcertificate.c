@@ -32,15 +32,44 @@
 #include <string.h>
 
 static gchar *
-generate_subject (void)
+get_common_name (void)
+{
+  int ret;
+  gchar *hostname;
+  gchar *cn;
+
+  hostname = g_malloc (HOST_NAME_MAX + 1);
+  if (!hostname)
+    return NULL;
+
+  ret = gethostname (hostname, HOST_NAME_MAX);
+  if (ret < 0 || g_str_equal (hostname, ""))
+    cn = g_strdup ("localhost");
+  else
+    cn = g_strdup (hostname);
+
+  return cn;
+}
+
+static gchar *
+get_machine_id (void)
 {
   static const char HEX[] = "0123456789abcdef";
-  gchar hostname[HOST_NAME_MAX + 1] = { 0, };
   gchar *content;
-  gchar *subject;
-  gchar *cn;
-  int ret;
+  gchar *machine_id = NULL;
 
+  if (g_file_get_contents ("/etc/machine-id", &content, NULL, NULL))
+    machine_id = g_strstrip (g_strcanon (content, HEX, ' '));
+
+  return machine_id;
+}
+
+static gchar *
+generate_subject (void)
+{
+  gchar *cn;
+  gchar *machine_id;
+  gchar *subject;
 
   /*
    * HACK: We have to use a unique value in DN because otherwise
@@ -54,23 +83,21 @@ generate_subject (void)
    *
    */
 
-  ret = gethostname (hostname, sizeof (hostname));
-  if (ret < 0 || g_str_equal (hostname, ""))
-    cn = "localhost";
-  else
-    cn = hostname;
+  cn = get_common_name ();
 
-  if (g_file_get_contents ("/etc/machine-id", &content, NULL, NULL))
+  machine_id = get_machine_id ();
+  if (machine_id)
     {
       subject = g_strdup_printf ("/O=%s/CN=%s",
-                                 g_strstrip (g_strcanon (content, HEX, ' ')), cn);
-      g_free (content);
+                                 machine_id, cn);
     }
   else
     {
       subject = g_strdup_printf ("/CN=%s", cn);
     }
 
+  g_free (cn);
+  g_free (machine_id);
   return subject;
 }
 
@@ -120,6 +147,61 @@ out:
   return ret;
 }
 
+static gboolean
+sscg_make_dummy_cert (const gchar *key_file,
+                      const gchar *cert_file,
+                      const gchar *ca_file,
+                      GError **error)
+{
+  gboolean ret = FALSE;
+  gint exit_status;
+  gchar *stderr_str = NULL;
+  gchar *command_line = NULL;
+  gchar *cn = get_common_name ();
+  gchar *machine_id = get_machine_id ();
+  gchar *org;
+
+  if (machine_id)
+    org = machine_id;
+  else
+    org = "";
+
+  const gchar *argv[] = {
+    "sscg", "--quiet",
+    "--lifetime", "3650",
+    "--key-strength", "2048",
+    "--cert-key-file", key_file,
+    "--cert-file", cert_file,
+    "--ca-file", ca_file,
+    "--hostname", cn,
+    "--organization", org,
+    NULL
+  };
+
+  command_line = g_strjoinv (" ", (gchar **)argv);
+  g_info ("Generating temporary certificate using: %s", command_line);
+
+  if (!g_spawn_sync (NULL, (gchar **)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL,
+                     NULL, &stderr_str, &exit_status, error) ||
+      !g_spawn_check_exit_status (exit_status, error))
+    {
+      /* Failure of SSCG is non-fatal */
+      g_info ("Error generating temporary dummy cert using sscg, "
+              "falling back to openssl");
+      g_clear_error (error);
+      goto out;
+    }
+
+  ret = TRUE;
+
+out:
+  g_free (stderr_str);
+  g_free (command_line);
+  g_free (machine_id);
+  g_free (cn);
+  return ret;
+}
+
 static gchar *
 create_temp_file (const gchar *directory,
                   const gchar *templ,
@@ -148,6 +230,7 @@ generate_temp_cert (const gchar *dir,
                     GError **error)
 {
   gchar *cert_path = NULL;
+  gchar *ca_path = NULL;
   gchar *tmp_key = NULL;
   gchar *tmp_pem = NULL;
   gchar *cert_data = NULL;
@@ -156,6 +239,9 @@ generate_temp_cert (const gchar *dir,
   gchar *ret = NULL;
 
   cert_path = g_build_filename (dir, "0-self-signed.cert", NULL);
+
+  /* Create the CA cert with a .pem suffix so it's not automatically loaded */
+  ca_path = g_build_filename (dir, "0-self-signed-ca.pem", NULL);
 
   /* Generate self-signed cert, if it does not exist */
   if (g_file_test (cert_path, G_FILE_TEST_EXISTS))
@@ -175,12 +261,25 @@ generate_temp_cert (const gchar *dir,
       goto out;
     }
 
+  /* First, try to create a private CA and certificate using SSCG */
+  if (sscg_make_dummy_cert (cert_path, cert_path, ca_path, error))
+    {
+      /* Creation with SSCG succeeded, so we are done now */
+      ret = cert_path;
+      cert_path = NULL;
+      goto out;
+    }
+  error = NULL;
+
+  /* Fall back to using the openssl CLI */
+
   tmp_key = create_temp_file (dir, "0-self-signed.XXXXXX.tmp", error);
   if (!tmp_key)
     goto out;
   tmp_pem = create_temp_file (dir, "0-self-signed.XXXXXX.tmp", error);
   if (!tmp_pem)
     goto out;
+
   if (!openssl_make_dummy_cert (tmp_key, tmp_pem, error))
     goto out;
   if (!g_file_get_contents (tmp_key, &key_data, NULL, error))
@@ -197,6 +296,7 @@ generate_temp_cert (const gchar *dir,
 
 out:
   g_free (cert_path);
+  g_free (ca_path);
   cockpit_memory_clear (key_data, -1);
   g_free (key_data);
   g_free (pem_data);

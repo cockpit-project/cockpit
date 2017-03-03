@@ -86,6 +86,7 @@ Requires: %{name}-system = %{version}-%{release}
 Recommends: %{name}-dashboard = %{version}-%{release}
 Recommends: %{name}-networkmanager = %{version}-%{release}
 Recommends: %{name}-storaged = %{version}-%{release}
+Recommends: sscg >= 2.0.4
 %ifarch x86_64 %{arm} aarch64 ppc64le
 Recommends: %{name}-docker = %{version}-%{release}
 %endif

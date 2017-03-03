@@ -6,7 +6,7 @@
 
     var mod = { };
 
-    var known_hosts_path = "/var/lib/cockpit/known_hosts";
+    var known_hosts_path = "/etc/ssh/ssh_known_hosts";
     /*
      * We share the Machines state between multiple frames. Only
      * one frame has the job of loading the state, usually index.js
@@ -726,6 +726,9 @@
         if ($.inArray("ssh", caps) > -1) {
             mod.allow_connection_string = $.inArray("connection-string", caps) != -1;
             mod.has_auth_results = $.inArray("auth-method-results", caps) != -1;
+            known_hosts_path = "/var/lib/cockpit/known_hosts";
+            mod.known_hosts_path = known_hosts_path;
+            console.debug("Running against legacy ws with ssh, using legacy file", known_hosts_path);
         } else {
             mod.allow_connection_string = true;
             mod.has_auth_results = true;

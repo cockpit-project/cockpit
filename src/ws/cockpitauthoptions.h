@@ -48,8 +48,10 @@ typedef struct {
 
 CockpitSshOptions * cockpit_ssh_options_from_env   (gchar **env);
 
-gchar **             cockpit_ssh_options_to_env     (CockpitSshOptions *options,
-                                                     gchar **env);
+gchar **            cockpit_ssh_options_to_env     (CockpitSshOptions *options,
+                                                    gchar **env);
+
+const gchar *       cockpit_get_default_knownhosts  (void);
 
 G_END_DECLS
 

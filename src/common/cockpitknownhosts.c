@@ -19,6 +19,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <stdio.h>
 
@@ -268,7 +269,10 @@ cockpit_is_host_known (const gchar *known_hosts_file,
 
   if (!file)
     {
-      g_message ("failed to open known hosts file %s", known_hosts_file);
+      if (errno == ENOENT)
+        g_debug ("known hosts file %s does not exist", known_hosts_file);
+      else
+        g_message ("failed to open known hosts file %s: %m", known_hosts_file);
       return FALSE;
     }
 

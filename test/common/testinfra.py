@@ -52,6 +52,7 @@ BASELINE_PRIORITY = 10
 
 DEFAULT_VERIFY = {
     'avocado/fedora-24': [ 'master', 'pulls' ],
+    'avocado/fedora-25': [ ],
     'container/kubernetes': [ 'master', 'pulls' ],
     'koji/fedora-24': [ ],
     'koji/fedora-25': [ ],

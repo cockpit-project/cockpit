@@ -59,6 +59,8 @@
 #define DEFAULT_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 static struct passwd *pwd;
+static struct passwd pwd_buf;
+static char pwd_string_buf[8192];
 static pid_t child;
 static int want_session = 1;
 static char *auth_delimiter = "";
@@ -500,7 +502,6 @@ pam_conv_func (int num_msg,
 static int
 open_session (pam_handle_t *pamh)
 {
-  struct passwd *buf = NULL;
   const char *name;
   int res;
   int i;
@@ -515,12 +516,7 @@ open_session (pam_handle_t *pamh)
       return res;
     }
 
-  /* Yes, buf "leaks" */
-  buf = malloc (sizeof (struct passwd) + 8192);
-  if (buf == NULL)
-    res = ENOMEM;
-  else
-    res = getpwnam_r (name, buf, (char *)(buf + 1), 8192, &pwd);
+  res = getpwnam_r (name, &pwd_buf, pwd_string_buf, sizeof (pwd_string_buf), &pwd);
   if (pwd == NULL)
     {
       warnx ("couldn't load user info for: %s: %s", name,

@@ -21,7 +21,7 @@
 
 #include "cockpitauthoptions.h"
 
-static const gchar *default_knownhosts = PACKAGE_LOCALSTATE_DIR "/known_hosts";
+static const gchar *default_knownhosts = PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts";
 static const gchar *default_command = "cockpit-bridge";
 static const gchar *ignore_hosts_data = "*";
 static const gchar *hostkey_mismatch_data = "* invalid key";
@@ -193,4 +193,10 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
 
   g_free (agent);
   return env;
+}
+
+const gchar *
+cockpit_get_default_knownhosts (void)
+{
+  return default_knownhosts;
 }

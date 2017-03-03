@@ -78,7 +78,7 @@ has the same options as the other authentication sections with the following add
 
  * ```host``` The default host to log into. Defaults to 127.0.0.1.
  * ```allowUnknown```. By default cockpit will refuse to connect to any machines that
- are not already present in it's known_hosts file (usually ```/var/lib/cockpit/known_hosts```).
+ are not already present in ssh's global known_hosts file (usually ```/etc/ssh/ssh_known_hosts```).
  Set this to ```true``` is to allow those connections to proceed.
 
 # Actions
@@ -117,7 +117,7 @@ The following environment variables are set by cockpit-ws when spawning an auth 
 The following environment variables are used to set options for the ```cockpit-ssh``` process.
 
  * **COCKPIT_SSH_ALLOW_UNKNOWN**` Set to ```1``` to  allow connecting to hosts that are not saved in the current knownhosts file. If not set cockpit will only connect to unknown hosts if either the remote_peer is local or if the ```Ssh-Login``` section in ```cockpit.conf``` has a ```allowUnknown``` option set to a truthy value (```1```, ```yes``` or ```true```).
- * **COCKPIT_SSH_KNOWN_HOSTS_FILE** Path to knownhost files. Defaults to ```PACKAGE_LOCALSTATE_DIR/known_hosts```
+ * **COCKPIT_SSH_KNOWN_HOSTS_FILE** Path to knownhost files. Defaults to ```PACKAGE_SYSCONF_DIR/ssh/ssh_known_hosts```
  * **COCKPIT_SSH_KNOWN_HOSTS_DATA** Known host data to validate against or '*' to skip validation```
  * **COCKPIT_SSH_BRIDGE_COMMAND** Command to launch after a ssh connection is established. Defaults to ```cockpit-bridge``` if not provided.
  * **COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT** Set to ```1``` if caller supports prompting users for unknown host keys.

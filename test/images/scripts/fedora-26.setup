@@ -1,0 +1,120 @@
+#!/bin/bash
+
+set -ex
+
+# HACK - virt-resize might not be able to resize our xfs rootfs,
+# depending on how it was compiled and which plugins are installed,
+# and will just silently not do it.  So we do it here.
+#
+xfs_growfs /
+df -h /
+
+echo foobar | passwd --stdin root
+
+# We install all dependencies of the cockpit packages since we want
+# them to not spontaneously change from one test run to the next when
+# the distribution repository is updated.
+#
+COCKPIT_DEPS="\
+atomic \
+device-mapper-multipath \
+etcd \
+glib-networking \
+json-glib \
+kexec-tools \
+kubernetes \
+libssh \
+libvirt \
+libvirt-client \
+NetworkManager-team \
+pcp \
+pcp-libs \
+qemu \
+realmd \
+selinux-policy-targeted \
+setroubleshoot-server \
+sos \
+storaged \
+storaged-lvm2 \
+storaged-iscsi \
+subscription-manager \
+tuned \
+virt-install \
+"
+
+# On the latest Fedora we mix things up a bit and install docker-latest
+# which Fedora and RHEL package as a more up to date version of docker
+COCKPIT_DEPS="$COCKPIT_DEPS docker-latest"
+
+# We also install the packages necessary to join a FreeIPA domain so
+# that we don't have to go to the network during a test run.
+#
+IPA_CLIENT_PACKAGES="\
+freeipa-client \
+oddjob \
+oddjob-mkhomedir \
+sssd \
+"
+
+TEST_PACKAGES="\
+systemtap-runtime-virtguest \
+valgrind \
+gdb \
+targetcli \
+"
+
+rm -rf /etc/sysconfig/iptables
+
+maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
+
+# For the D-Bus test server
+maybe firewall-cmd --permanent --add-port 8765/tcp
+
+echo 'NETWORKING=yes' > /etc/sysconfig/network
+
+useradd -c Administrator -G wheel admin
+echo foobar | passwd --stdin admin
+
+dnf $DNF_OPTS -y upgrade
+dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+
+# Prepare for building
+dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build
+useradd -c Builder -G mock builder
+
+# HACK - mock --installdeps with yum is broken, it seems that it can't
+# run any package scriptlets.  Yum is deprecated anyway so we just use
+# dnf.  I wonder why dnf isn't the default anyway...
+#
+echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
+
+# HACK - Switch off gpgcheck while the repos and mirrors settle down
+sed -i -e 's/gpgcheck=1/gpgcheck=0/' /etc/mock/default.cfg
+
+srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
+su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
+
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
+# Setup basics for building images
+docker build -t cockpit/base /var/tmp/cockpit-base
+
+# Configure kubernetes
+/var/lib/testvm/kubernetes.setup
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
+
+# reduce image size
+dnf clean all
+/var/lib/testvm/zero-disk.setup
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
+
+touch /.autorelabel
+
+# Audit events to the journal
+rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
+rm -rf /var/log/audit/

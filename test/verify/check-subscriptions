@@ -58,7 +58,7 @@ for x in $(seq 1 200); do
 done
 """
 
-@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604")
+@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-26", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604")
 class TestSubscriptions(MachineCase):
     additional_machines = {
         'candlepin': { 'machine': { 'image': 'candlepin' } }

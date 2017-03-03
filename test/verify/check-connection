@@ -135,7 +135,7 @@ class TestConnection(MachineCase):
         except subprocess.CalledProcessError, ex:
             m.message(ex.output)
             # Some operating systems fail SSL3 on the server side
-            if m.image in [ "debian-testing", "fedora-25", "fedora-i386", "fedora-testing" ]:
+            if m.image in [ "debian-testing", "fedora-25", "fedora-26", "fedora-i386", "fedora-testing" ]:
                 self.assertIn("ssl handshake failure", ex.output)
             else:
                 self.assertIn("wrong version number", ex.output)

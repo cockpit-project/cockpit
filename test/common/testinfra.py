@@ -46,7 +46,7 @@ WHITELIST = os.path.join(TEST_DIR, "github-whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 HOSTNAME = socket.gethostname().split(".")[0]
-DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-26")
 
 BASELINE_PRIORITY = 10
 
@@ -63,8 +63,8 @@ DEFAULT_VERIFY = {
     'verify/debian-8': [ 'master', 'pulls', ],
     'verify/debian-testing': [ 'master', 'pulls' ],
     'verify/fedora-24': [ ],
-    'verify/fedora-25': [ 'master', 'pulls' ],
-    'verify/fedora-26': [ ],
+    'verify/fedora-25': [ ],
+    'verify/fedora-26': [ 'master', 'pulls' ],
     'verify/fedora-atomic': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ ],
     'verify/rhel-7': [ 'master', 'pulls' ],
@@ -100,7 +100,12 @@ DEFAULT_IMAGE_REFRESH = {
     'fedora-25': {
         'triggers': [
             "verify/fedora-25",
-            "verify/fedora-atomic",  # builds in fedora-25
+            "verify/fedora-atomic", # builds in fedora-25
+        ]
+    },
+    'fedora-26': {
+        'triggers': [
+            "verify/fedora-26",
         ]
     },
     'fedora-atomic': {
@@ -114,7 +119,7 @@ DEFAULT_IMAGE_REFRESH = {
     },
     'openshift': {
         'triggers': [ "container/kubernetes",
-                      "verify/fedora-25",
+                      "verify/fedora-26",
                       "verify/rhel-7" ],
         'refresh-days': 30
     }

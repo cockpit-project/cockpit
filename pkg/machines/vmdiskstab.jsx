@@ -39,15 +39,7 @@ const DiskSource = ({ disk }) => {
         </div>
     );
 };
-/*
-const DiskAlias = ({ disk }) => {
-    return (
-        <div className='machines-disks-alias'>
-            {disk.aliasName}
-        </div>
-    );
-};
-*/
+
 const StorageUnit = ({ value }) => {
     if (!value) {
         return null;
@@ -59,32 +51,52 @@ const StorageUnit = ({ value }) => {
       );
 };
 
-const VmDisksTab = ({ vm }) => {
+const VmDisksTab = ({ vm, provider }) => {
     if (!vm.disks || Object.getOwnPropertyNames(vm.disks).length === 0) {
         return (<div>_("No disks defined for this VM")</div>);
     }
+
+    // TODO: listing-wide actions
+
+    const columnTitles = [_("Device"), _("Target"), _("Used"), _("Capacity"), _("Bus"), _("Readonly"), _("Type"), _("Source")];
+    if (provider.vmDisksColumns) { // External Provider might extend the list of columns
+        // expected: an array of [{title, index, valueProvider: ({ vm, diskTarget }) => {return "String or React Component";}}, ...]
+        provider.vmDisksColumns.forEach(column => {
+            columnTitles.splice(column.index, 0, column.title);
+        });
+    }
+
+    const actions = (provider.vmDisksActionsFactory instanceof Function) ?
+        provider.vmDisksActionsFactory({vm}) : undefined; // listing-wide actions
+
     return (
         <div>
             <DiskTotal disks={vm.disks} />
-            <Listing columnTitles={[_("Device"), _("Target"), _("Used"), _("Capacity"), _("Bus"), _("Readonly"), _("Type"), _("Source")]}>
+            <Listing columnTitles={columnTitles} actions={actions}>
                 {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
                     const disk = vm.disks[target];
                     const disksStats = vm.disksStats ? vm.disksStats[target] : undefined;
                     const used = disksStats ? disksStats.allocation : undefined;
                     const capacity = disksStats ? disksStats.capacity : undefined;
 
-                    return (
-                        <ListingRow columns={[
-                                            {name: disk.device, 'header': true},
-                                            disk.target,
-                                            <StorageUnit value={used} />,
-                                            <StorageUnit value={capacity} />,
-                                            disk.bus,
-                                            disk.readonly ? _("yes") : _("no"),
-                                            disk.type,
-                                            <DiskSource disk={disk} />,
-                                            ]}/>
-                    );
+                    const columns = [
+                        {name: disk.device, 'header': true},
+                        disk.target,
+                        <StorageUnit value={used} />,
+                        <StorageUnit value={capacity} />,
+                        disk.bus,
+                        disk.readonly ? _("yes") : _("no"),
+                        disk.type,
+                        <DiskSource disk={disk} />,
+                    ];
+
+                    if (provider.vmDisksColumns) {
+                        provider.vmDisksColumns.forEach(column => {
+                            columns.splice(column.index, 0, column.valueProvider({ vm, diskTarget: target}));
+                        });
+                    }
+
+                    return (<ListingRow columns={columns}/>);
                 })}
             </Listing>
         </div>

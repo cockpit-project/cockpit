@@ -311,7 +311,7 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
         {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' },
-        {name: _("Disks"), renderer: VmDisksTab, data: {vm: vm}, presence: 'onlyActive' }
+        {name: _("Disks"), renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' }
     ];
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
         tabRenderers = tabRenderers.concat(config.provider.vmTabRenderers.map(

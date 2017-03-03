@@ -324,6 +324,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if (event.origin !== origin)
                 return;
 
+            var forward_command = false;
             var data = event.data;
             var child = event.source;
             if (!child || typeof data !== "string")
@@ -362,6 +363,9 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     perform_jump(child, control);
                     return;
 
+                } else if (control.command == "logout" || control.command == "kill") {
+                    forward_command = true;
+
                 } else if (control.command === "hint") {
                     if (control.hint == "restart") {
                         /* watchdog handles current host for now */
@@ -375,7 +379,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     return;
 
                 /* Only control messages with a channel are forwardable */
-                } else if (control.channel === undefined) {
+                } else if (control.channel === undefined && !forward_command) {
                     return;
 
                 /* Add the child's group to all open channel messages */

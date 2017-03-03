@@ -884,7 +884,7 @@ package_content (CockpitPackages *packages,
       g_free (chosen);
       chosen = NULL;
 
-      bytes = cockpit_web_response_negotiation (filename, package->paths, language, &chosen, &error);
+      bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL, language, &chosen, &error);
 
       /* When globbing most errors result in a zero length block */
       if (globbing)
@@ -918,7 +918,7 @@ package_content (CockpitPackages *packages,
               cockpit_web_response_error (response, 404, NULL, NULL);
               goto out;
             }
-          else if (package->unavailable)
+          else if (package && package->unavailable)
             {
               cockpit_web_response_error (response, 503, NULL, "%s", package->unavailable);
               goto out;

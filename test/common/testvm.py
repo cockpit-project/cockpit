@@ -844,6 +844,44 @@ class VirtEventHandler():
         self.eventLoopThread.setDaemon(True)
         self.eventLoopThread.start()
 
+TEST_DOMAIN_XML="""
+<domain type='%(type)s'>
+  <name>%(name)s</name>
+  %(cpu)s
+  <os>
+    <type arch='%(arch)s'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <memory unit='MiB'>%(memory_in_mib)d</memory>
+  <currentMemory unit='MiB'>%(memory_in_mib)d</currentMemory>
+  <features>
+    <acpi/>
+  </features>
+  <devices>
+    <disk type='file' snapshot='external'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='%(drive)s'/>
+      <target dev='vda' bus='virtio'/>
+      <serial>ROOT</serial>
+    </disk>
+    <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
+    <interface type='bridge'>
+      <source bridge='cockpit1'/>
+      <model type='virtio'/>
+      %(mac)s
+    </interface>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    <disk type='file' device='cdrom'>
+      <source file='%(iso)s'/>
+      <target dev='hdb' bus='ide'/>
+      <readonly/>
+    </disk>
+  </devices>
+</domain>
+"""
+
 class VirtMachine(Machine):
     memory_mb = None
     cpus = None
@@ -959,10 +997,6 @@ class VirtMachine(Machine):
         return self.reserve_macaddr()
 
     def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
-        memory_mb = memory_mb or VirtMachine.memory_mb or MEMORY_MB;
-        cpus = cpus or VirtMachine.cpus or 1
-
-        # make sure we have a clean slate
         self._cleanup()
 
         if not os.path.exists(self.run_dir):
@@ -999,36 +1033,40 @@ class VirtMachine(Machine):
             lease = self._static_lease_from_mac(macaddr)
             if lease:
                 static_domain_name = self.image + "_" + lease['name']
-
-        # domain xml
-        test_domain_desc_original = ""
-        with open(os.path.join(testinfra.TEST_DIR, "common/test-domain.xml"), "r") as dom_desc:
-            test_domain_desc_original = dom_desc.read()
-
-        # add the virtual machine
-        dom = None
         mac_desc = ""
+        cpu_desc = ""
+        domain_type = "qemu"
+        if os.path.exists("/dev/kvm"):
+            domain_type = "kvm"
+            cpu_desc += "<cpu mode='host-passthrough'/>\n"
+            cpu_desc += "<vcpu>%(cpus)d</vcpu>\n" % { 'cpus': cpus or VirtMachine.cpus or 1 }
+        else:
+            print >> sys.stderr, "WARNING: Starting virtual machine with emulation due to missing KVM"
+            print >> sys.stderr, "WARNING: Machine will run about 10-20 times slower"
         if macaddr:
             mac_desc = "<mac address='%(mac)s'/>" % {'mac': macaddr}
+        if static_domain_name:
+            domain_name = static_domain_name
+        else:
+            rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
+            domain_name = self.image + rand_extension
+
+        test_domain_desc = TEST_DOMAIN_XML % {
+                                        "name": domain_name,
+                                        "type": domain_type,
+                                        "arch": self.arch,
+                                        "cpu": cpu_desc,
+                                        "memory_in_mib": memory_mb or VirtMachine.memory_mb or MEMORY_MB,
+                                        "drive": image_to_use,
+                                        "mac": mac_desc,
+                                        "iso": os.path.join(testinfra.TEST_DIR, "common/cloud-init.iso")
+                                      }
+
+        # add the virtual machine
         try:
-            if static_domain_name:
-                domain_name = static_domain_name
-            else:
-                rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
-                domain_name = self.image + rand_extension
-            test_domain_desc = test_domain_desc_original % {
-                                            "name": domain_name,
-                                            "arch": self.arch,
-                                            "cpus": cpus,
-                                            "memory_in_mib": memory_mb,
-                                            "drive": image_to_use,
-                                            "disk_serial": "ROOT",
-                                            "mac": mac_desc,
-                                            "iso": os.path.join(testinfra.TEST_DIR, "common/cloud-init.iso")
-                                          }
             # allow debug output for this domain
             self.event_handler.allow_domain_debug_output(domain_name)
-            dom = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
+            self._domain = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
         except libvirt.libvirtError, le:
             # remove the debug output
             self.event_handler.forbid_domain_debug_output(domain_name)
@@ -1036,8 +1074,6 @@ class VirtMachine(Machine):
                 raise RepeatableFailure("libvirt domain already exists: " + le.message)
             else:
                 raise
-
-        self._domain = dom
 
         macs = self._qemu_network_macs()
         if not macs:

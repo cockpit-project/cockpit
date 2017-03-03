@@ -282,6 +282,11 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus, disks}));
 }
 
+function getSingleOptionalElem(parent, name) {
+    const subElems = parent.getElementsByTagName(name);
+    return subElems.length > 0 ? subElems[0] : undefined; // optional
+}
+
 function parseDumpxmlForDisks(devicesElem) {
     const disks = {};
     const diskElems = devicesElem.getElementsByTagName('disk');
@@ -291,23 +296,35 @@ function parseDumpxmlForDisks(devicesElem) {
 
             const targetElem = diskElem.getElementsByTagName('target')[0];
 
-            const sourceElems = diskElem.getElementsByTagName('source');
-            const sourceElem = sourceElems.length > 0 ? sourceElems[0] : undefined; // optional
+            const driverElem = getSingleOptionalElem(diskElem, 'driver');
+            const sourceElem = getSingleOptionalElem(diskElem, 'source');
+            const serialElem = getSingleOptionalElem(diskElem, 'serial');
+            const aliasElem = getSingleOptionalElem(diskElem, 'alias');
+            const readonlyElem = getSingleOptionalElem(diskElem, 'readonly');
+            const bootElem = getSingleOptionalElem(diskElem, 'boot');
 
-            const serialElems = diskElem.getElementsByTagName('serial');
-            const serialElem = serialElems.length > 0 ? serialElems[0] : undefined; // optional
+            const sourceHostElem = sourceElem ? getSingleOptionalElem(sourceElem, 'host') : undefined;
 
-            const aliasElems = diskElem.getElementsByTagName('alias');
-            const aliasElem = aliasElems.length > 0 ? aliasElems[0] : undefined; // optional
-
-            const readonlyElems = diskElem.getElementsByTagName('readonly');
-            const readonlyElem = readonlyElems.length > 0 ? readonlyElems[0] : undefined; // optional
-
-            const disk = {
+            const disk = { // see https://libvirt.org/formatdomain.html#elementsDisks
                 target: targetElem.getAttribute('dev'), // identifier of the disk, i.e. sda, hdc
+                driver: {
+                    name: driverElem ? driverElem.getAttribute('name') : undefined, // optional
+                    type: driverElem ? driverElem.getAttribute('type') : undefined,
+                },
+                bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
                 type: diskElem.getAttribute('type'), // i.e.: file
                 device: diskElem.getAttribute('device'), // i.e. cdrom, disk
-                sourceFile: sourceElem ? sourceElem.getAttribute('file') : undefined, // optional file name of the disk
+                source: {
+                    file: sourceElem ? sourceElem.getAttribute('file') : undefined, // optional file name of the disk
+                    dev: sourceElem ? sourceElem.getAttribute('dev') : undefined,
+                    pool: sourceElem ? sourceElem.getAttribute('pool') : undefined,
+                    volume: sourceElem ? sourceElem.getAttribute('volumne') : undefined,
+                    protocol: sourceElem ? sourceElem.getAttribute('protocol') : undefined,
+                    host: {
+                        name: sourceHostElem ? sourceHostElem.getAttribute('name') : undefined,
+                        port: sourceHostElem ? sourceHostElem.getAttribute('port') : undefined,
+                    },
+                },
                 bus: targetElem.getAttribute('bus'), // i.e. scsi, ide
                 serial: serialElem ? serialElem.getAttribute('serial') : undefined, // optional serial number
                 aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined, // i.e. scsi0-0-0-0, ide0-1-0

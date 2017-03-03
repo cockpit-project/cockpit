@@ -167,17 +167,6 @@ function vms(state, action) {
             // replace whole object, disk statistics are read at once
             const updatedVm = Object.assign(indexedVm.vmCopy, {disksStats: action.payload.disksStats});
 
-/*            if (updatedVm.disks) {
-                Object.getOwnPropertyNames(updatedVm.disks).forEach(diskTarget => {
-                    if (action.payload.disksStats[diskTarget]) { // merge the 'diskStats' into 'disk' object
-                        Object.assign(updatedVm.disks[diskTarget], action.payload.disksStats[diskTarget]);
-                    }
-                });
-
-            } else { // disks not yet read, so skip statistics
-                return state;
-            }
-*/
             return replaceVm({ state, updatedVm, index: indexedVm.index });
         }
         case 'VM_ACTION_FAILED': {

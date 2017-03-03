@@ -66,7 +66,7 @@ DEFAULT_VERIFY = {
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],
     'verify/fedora-i386': [ 'master', 'pulls' ],
-    'verify/fedora-26': [ ],
+    'verify/fedora-26': [ 'master', 'pulls' ],
     'verify/fedora-atomic': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ ],
     'verify/rhel-7': [ 'master', 'pulls' ],
@@ -94,7 +94,12 @@ DEFAULT_IMAGE_REFRESH = {
     'fedora-25': {
         'triggers': [
             "verify/fedora-25",
-            "verify/fedora-atomic",  # builds in fedora-25
+            "verify/fedora-atomic", # builds in fedora-25
+        ]
+    },
+    'fedora-26': {
+        'triggers': [
+            "verify/fedora-26",
         ]
     },
     'fedora-atomic': {

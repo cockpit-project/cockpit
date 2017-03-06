@@ -44,11 +44,19 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <li><a data-op="last-week" translatable="yes">Last 7 days</a></li>
         </ul>
       </div>
-      <div id="journal-prio" class="btn-group">
-        <button class="btn btn-default" data-prio="3" translatable="yes">Errors</button>
-        <button class="btn btn-default" data-prio="4" translatable="yes">Warnings</button>
-        <button class="btn btn-default" data-prio="5" translatable="yes">Notices</button>
-        <button class="btn btn-default" data-prio="*" translatable="yes">All</button>
+      <span class="" translate>Severity</span>
+      <div class="btn-group" id="journal-prio-menu">
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          <span id="journal-prio"></span>
+          <span class="caret"></span>
+        </button>
+        <ul id="prio-lists" class="dropdown-menu" role="menu">
+          <li><a data-prio="*" translatable="yes">Everything</a></li>
+          <li><a data-prio="5" translatable="yes">Problems, Errors, Warnings, Notices</a></li>
+          <li><a data-prio="4" translatable="yes">Problems, Errors, Warnings</a></li>
+          <li><a data-prio="3" translatable="yes">Problems, Errors</a></li>
+          <li><a data-prio="2" translatable="yes">Only Problems</a></li>
+        </ul>
       </div>
     </div>
 

@@ -73,11 +73,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         el.appendChild(document.createTextNode(msg));
     }
 
-    var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
-    function format(fmt, args) {
-        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
-    }
-
     function brand(_id, def) {
         var style, elt = id(_id);
         if (elt)
@@ -91,7 +86,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if ((content[0] === '"' || content[0] === '\'') &&
                 len > 2 && content[len - 1] === content[0])
                 content = content.substr(1, len - 2);
-            elt.innerHTML = format(content) || def;
+            elt.innerHTML = content || def;
         }
     }
 

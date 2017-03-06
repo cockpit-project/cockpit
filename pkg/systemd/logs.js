@@ -213,14 +213,28 @@ $(function() {
 
         var query_prio = cockpit.location.options['prio'] || "3";
         var prio_level = parseInt(query_prio, 10);
-        $("#journal-prio button").each(function() {
-            var num = parseInt($(this).attr("data-prio"), 10);
-            $(this).toggleClass('active', isNaN(prio_level) || num <= prio_level);
-        });
+
+        // Set selected item into priority dropdown menu
+        var all_prios = document.getElementById('prio-lists').childNodes;
+        var item;
+        for (var j = 0; j < all_prios.length; j++) {
+            if (all_prios[j].nodeName === 'LI') {
+                item = all_prios[j].childNodes[0];
+                if (item.getAttribute('data-prio') === query_prio) {
+                    $('#journal-prio').text(item.text);
+                    break;
+                }
+            }
+        }
 
         if (prio_level) {
             for (var i = 0; i <= prio_level; i++)
                 match.push('PRIORITY=' + i.toString());
+        }
+
+        // If item 'Only Problems' was selected, match only ABRT's problems
+        if (prio_level === 2) {
+            match.push('SYSLOG_IDENTIFIER=abrt-notification');
         }
 
         var options = cockpit.location.options;
@@ -318,14 +332,8 @@ $(function() {
             cockpit.location.go([ cursor ]);
     });
 
-    $('#journal-prio button').on("click", function() {
-        var options = cockpit.location.options;
-        var prio = $(this).attr('data-prio');
-        if (prio)
-            options.prio = prio;
-        else
-            delete options.prio;
-        cockpit.location.go([], options);
+    $('#journal-prio-menu a').on('click', function() {
+        cockpit.location.go([], $.extend(cockpit.location.options, { prio: $(this).attr('data-prio') }));
     });
 
     $('#journal-navigate-home').on("click", function() {

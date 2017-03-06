@@ -48,7 +48,24 @@
                 return client.mdraids[path].Start({ "start-degraded": { t: 'b', v: true } });
             },
             mdraid_stop: function mdraid_stop(path) {
-                return client.mdraids[path].Stop({});
+                var mdraid = client.mdraids[path];
+                var block = client.mdraids_block[path];
+                var usage = block? utils.get_usage_alerts(client, block.path) : [ ];
+
+                if (usage.length === 0)
+                    return mdraid.Stop({});
+
+                dialog.open({ Title: cockpit.format(_("Please confirm stopping of $0"),
+                                                    utils.mdraid_name(mdraid)),
+                              Alerts: usage,
+                              Fields: [ ],
+                              Action: {
+                                  Title: _("Stop"),
+                                  action: function (vals) {
+                                      return mdraid.Stop({});
+                                  }
+                              }
+                            });
             },
             mdraid_start_scrub: function mdraid_start_scrub(path) {
                 return client.mdraids[path].RequestSyncAction("repair", {});

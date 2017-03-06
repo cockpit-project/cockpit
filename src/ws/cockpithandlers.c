@@ -329,7 +329,7 @@ send_login_html (CockpitWebResponse *response,
                  CockpitHandlerData *ws,
                  GHashTable *headers)
 {
-  static const gchar *marker = "<head>";
+  static const gchar *marker = "<meta insert_dynamic_content_here>";
 
   CockpitWebFilter *filter;
   GBytes *environment;

@@ -42,6 +42,9 @@ mkdir -p /host/var/lib/cockpit
 chmod 775 /host/var/lib/cockpit
 chown root:wheel /host/var/lib/cockpit
 
+# For sharing ssh's known hosts with container
+mkdir -p /etc/ssh
+
 # Ensure we have certificates
 /bin/mount --bind /host/etc/cockpit /etc/cockpit
 /usr/sbin/remotectl certificate --ensure

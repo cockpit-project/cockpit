@@ -15,6 +15,7 @@ set +x
 
 /bin/mount --bind /host/usr/share/pixmaps /usr/share/pixmaps
 /bin/mount --bind /host/var /var
+/bin/mount --bind /host/etc/ssh /etc/ssh
 
 # And run cockpit-ws
 exec /usr/bin/nsenter --net=/container/target-namespace/ns/net --uts=/container/target-namespace/ns/uts -- /usr/libexec/cockpit-ws "$@"

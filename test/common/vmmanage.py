@@ -27,8 +27,7 @@ def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
     machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
     machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "%s.install" % machine.image) ], "/var/tmp")
-    if args["containers"]:
-        machine.upload([os.path.join(testinfra.TEST_DIR,"..", "containers")], "/var/tmp")
+    machine.upload([os.path.join(testinfra.TEST_DIR,"..", "containers")], "/var/tmp")
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):
     install = do_install

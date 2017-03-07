@@ -195,6 +195,10 @@ class AtomicCockpitInstaller:
                     print "updating cockpit-ws container"
                 subprocess.check_call(rpm_args)
 
+                # if we update the RPMs, also update the scripts, to keep them in sync
+                subprocess.check_call(["docker", "exec", "build-cockpit", "sh", "-exc",
+                                       "cp /host/var/tmp/containers/ws/atomic-* /container/"])
+
             subprocess.check_call(["docker", "commit", "build-cockpit",
                                    "cockpit/ws"])
             subprocess.check_call(["docker", "kill", "build-cockpit"])

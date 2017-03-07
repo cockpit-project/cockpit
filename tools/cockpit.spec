@@ -127,6 +127,7 @@ machines.
 # Apply patches using git in order to support binary patches. Note that
 # we also reset mtimes since patches should be "complete" and include both
 # generated and source file changes
+# Keep this in sync with tools/debian/rules.
 if [ -n "%{patches}" ]; then
 	git init
 	git config user.email "unused@example.com" && git config user.name "Unused"

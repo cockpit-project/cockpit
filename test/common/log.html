@@ -184,9 +184,6 @@ function extract(text) {
                 continue;
             segments.splice(s, 1);
             retries += 1;
-            // don't count this against the total number of tests
-            total -= 1;
-            last -= 1;
         }
 
         var test_links = {};

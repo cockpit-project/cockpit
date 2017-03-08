@@ -4,7 +4,7 @@ set -eu
 
 tar=$1
 
-version=$(echo "$1" | sed -n 's|.*cockpit-\([^ -/]\+\)\.tar\..*|\1|p')
+version=$(echo "$1" | sed -n 's|.*cockpit-\([^ /-]\+\)\.tar\..*|\1|p')
 if [ -z "$version" ]; then
     echo "make-srpm: couldn't parse version from tarball: $1"
     exit 2

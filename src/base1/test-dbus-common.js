@@ -1130,4 +1130,107 @@ function dbus_track_tests(channel_options, bus_name) {
                     });
             });
     });
+
+    QUnit.asyncTest("receive readable fd", function() {
+        assert.expect(4);
+
+        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["readable"]).
+            done(function (reply) {
+                var fd = reply[0];
+                assert.equal(typeof(fd.internal), 'string');
+                assert.equal(fd.payload, 'stream');
+
+                var channel = cockpit.channel(fd);
+
+                /* QUnit.start() and .stop() are ref-counted. Stop again until the message comes back */
+                QUnit.stop();
+                channel.onmessage = function (event, data) {
+                    assert.equal(data, 'Hello, fd');
+                    channel.close();
+                    QUnit.start();
+                };
+            }).
+            always(function () {
+                assert.equal(this.state(), "resolved", "fd received");
+                QUnit.start();
+            });
+    });
+
+    QUnit.asyncTest("receive readable fd and ensure opening more than once fails", function() {
+        assert.expect(6);
+
+        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["readable"]).
+            done(function (reply) {
+                var fd = reply[0];
+                assert.equal(typeof(fd.internal), 'string');
+                assert.equal(fd.payload, 'stream');
+
+                var channel1 = cockpit.channel(fd);
+                var channel2 = cockpit.channel(fd);
+
+                /* QUnit.start() and .stop() are ref-counted. Stop again until the channel is closed */
+                QUnit.stop();
+                channel2.onclose = function (event, options) {
+                    assert.equal(options.channel, channel2.id);
+                    assert.equal(options.command, 'close');
+                    assert.equal(options.problem, 'not-found');
+                    QUnit.start();
+                };
+            }).
+            always(function () {
+                assert.equal(this.state(), "resolved", "fd received");
+                QUnit.start();
+            });
+    });
+
+    QUnit.asyncTest("receive readable fd and ensure writing fails", function() {
+        assert.expect(6);
+
+        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["readable"]).
+            done(function (reply) {
+                var fd = reply[0];
+                assert.equal(typeof(fd.internal), 'string');
+                assert.equal(fd.payload, 'stream');
+
+                var channel = cockpit.channel(fd);
+                channel.send('Hello, fd');
+
+                /* QUnit.start() and .stop() are ref-counted. Stop again until the channel is closed */
+                QUnit.stop();
+
+                channel.onclose = function (event, options) {
+                    assert.equal(options.channel, channel.id);
+                    assert.equal(options.command, 'close');
+                    assert.equal(options.problem, 'internal-error');
+                    QUnit.start();
+                };
+            }).
+            always(function () {
+                assert.equal(this.state(), "resolved", "fd received");
+                QUnit.start();
+            });
+    });
+
+    QUnit.asyncTest("receive writable fd", function() {
+        assert.expect(3);
+
+        var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["writable"]).
+            done(function (reply) {
+                var fd = reply[0];
+                assert.equal(typeof(fd.internal), 'string');
+                assert.equal(fd.payload, 'stream');
+
+                var channel = cockpit.channel(fd);
+                channel.send('Hello, fd');
+                channel.close();
+            }).
+            always(function () {
+                assert.equal(this.state(), "resolved", "fd received and not writable");
+                QUnit.start();
+            });
+    });
 }

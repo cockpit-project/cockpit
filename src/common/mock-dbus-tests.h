@@ -195,6 +195,11 @@ struct _TestFrobberIface
     GDBusMethodInvocation *invocation,
     const gchar *arg_greeting);
 
+  gboolean (*handle_make_test_fd) (
+    TestFrobber *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_type);
+
   gboolean (*handle_never_return) (
     TestFrobber *object,
     GDBusMethodInvocation *invocation);
@@ -432,6 +437,11 @@ void test_frobber_complete_tell_me_your_name (
     TestFrobber *object,
     GDBusMethodInvocation *invocation,
     const gchar *name);
+
+void test_frobber_complete_make_test_fd (
+    TestFrobber *object,
+    GDBusMethodInvocation *invocation,
+    GVariant *fd);
 
 
 
@@ -879,6 +889,26 @@ gboolean test_frobber_call_tell_me_your_name_finish (
 gboolean test_frobber_call_tell_me_your_name_sync (
     TestFrobber *proxy,
     gchar **out_name,
+    GCancellable *cancellable,
+    GError **error);
+
+void test_frobber_call_make_test_fd (
+    TestFrobber *proxy,
+    const gchar *arg_type,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean test_frobber_call_make_test_fd_finish (
+    TestFrobber *proxy,
+    GVariant **out_fd,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean test_frobber_call_make_test_fd_sync (
+    TestFrobber *proxy,
+    const gchar *arg_type,
+    GVariant **out_fd,
     GCancellable *cancellable,
     GError **error);
 

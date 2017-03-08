@@ -34,4 +34,8 @@ CockpitChannel *   cockpit_pipe_channel_open       (CockpitTransport *transport,
                                                     const gchar *channel_id,
                                                     const gchar *unix_path);
 
+const gchar *      cockpit_pipe_channel_add_internal_fd         (gint fd);
+
+gboolean           cockpit_pipe_channel_remove_internal_fd      (const gchar *id);
+
 #endif /* COCKPIT_PIPE_CHANNEL_H__ */

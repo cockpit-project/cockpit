@@ -66,6 +66,29 @@ typedef struct {
 
 G_DEFINE_TYPE (CockpitPipeChannel, cockpit_pipe_channel, COCKPIT_TYPE_CHANNEL);
 
+GHashTable *internal_fds;
+
+static gboolean
+steal_internal_fd (const gchar *name,
+                   gint *fdp)
+{
+  gpointer key;
+  gpointer value;
+
+  if (!internal_fds)
+    return FALSE;
+
+  if (!g_hash_table_lookup_extended (internal_fds, name, &key, &value))
+    return FALSE;
+
+  g_hash_table_steal (internal_fds, key);
+  g_free (key);
+
+  *fdp = GPOINTER_TO_INT (value);
+
+  return TRUE;
+}
+
 static void
 cockpit_pipe_channel_recv (CockpitChannel *channel,
                            GBytes *message)
@@ -326,9 +349,11 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
   JsonObject *options;
   gchar **argv = NULL;
   gchar **env = NULL;
+  const gchar *internal = NULL;
   gboolean pty;
   const gchar *dir;
   const gchar *error;
+  gint fd;
 
   COCKPIT_CHANNEL_CLASS (cockpit_pipe_channel_parent_class)->prepare (channel);
 
@@ -338,6 +363,12 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "invalid \"spawn\" option for stream channel");
+      goto out;
+    }
+  if (!cockpit_json_get_string (options, "internal", NULL, &internal))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "invalid \"internal\" option for stream channel");
       goto out;
     }
 
@@ -383,6 +414,10 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
         self->pipe = cockpit_pipe_pty ((const gchar **)argv, (const gchar **)env, dir);
       else
         self->pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, dir, flags);
+    }
+  else if (internal && steal_internal_fd (internal, &fd))
+    {
+      self->pipe = cockpit_pipe_new (internal, fd, fd);
     }
   else
     {
@@ -482,4 +517,44 @@ cockpit_pipe_channel_open (CockpitTransport *transport,
 
   json_object_unref (options);
   return channel;
+}
+
+static void
+internal_fd_free (gpointer data)
+{
+  gint fd = GPOINTER_TO_INT (data);
+
+  close (fd);
+}
+
+const gchar *
+cockpit_pipe_channel_add_internal_fd (gint fd)
+{
+  /* We are not multi-threaded. Also don't make this look like normal fd numbers */
+  static guint64 unique = 911111;
+  gboolean inserted;
+
+  gchar *id;
+
+  if (!internal_fds)
+    internal_fds = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, internal_fd_free);
+
+  id = g_strdup_printf ("internal-stream-%" G_GUINT64_FORMAT, unique++);
+  inserted = g_hash_table_replace (internal_fds, id, GINT_TO_POINTER (fd));
+
+  g_assert (inserted);
+
+  return id;
+}
+
+gboolean
+cockpit_pipe_channel_remove_internal_fd (const gchar *id)
+{
+  if (internal_fds == NULL)
+    return FALSE;
+
+  if (!g_hash_table_remove (internal_fds, id))
+    return FALSE;
+
+  return TRUE;
 }

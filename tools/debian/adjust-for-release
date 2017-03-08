@@ -1,0 +1,25 @@
+#!/bin/sh
+# The upstream Debian packaging in tools/debian/ applies to all supported
+# Debian/Ubuntu release targets of Cockpit. In some of them, some
+# features or build dependendencies might not be available or are deliberately
+# disabled.
+# This script can modify (in-place) the debian/* packaging for a particular
+# release (first CLI argument). It gets called by
+# https://github.com/cockpit-project/cockpituous/blob/master/release/release-dsc
+# for building Debian/Ubuntu packages for a new Cockpit release.
+
+set -eu
+if [ -z "${1:-}" ] || [ -n "${2:-}" ]; then
+    echo "Usage: $0 <release>" >&2
+    exit 1
+fi
+release="$1"
+
+debian_dir=$(dirname $(readlink -f "$0"))
+
+set -x
+# Remove PCP build dependencies while pcp is not in testing
+# (https://tracker.debian.org/pcp)
+if [ "$release" = unstable ]; then
+    sed -i '/libpcp.*-dev/d' $debian_dir/control
+fi

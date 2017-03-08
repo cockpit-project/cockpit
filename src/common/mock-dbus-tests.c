@@ -1812,6 +1812,53 @@ static const _ExtendedGDBusMethodInfo _test_frobber_method_info_tell_me_your_nam
   FALSE
 };
 
+static const _ExtendedGDBusArgInfo _test_frobber_method_info_make_test_fd_IN_ARG_type =
+{
+  {
+    -1,
+    (gchar *) "type",
+    (gchar *) "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _test_frobber_method_info_make_test_fd_IN_ARG_pointers[] =
+{
+  &_test_frobber_method_info_make_test_fd_IN_ARG_type,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _test_frobber_method_info_make_test_fd_OUT_ARG_fd =
+{
+  {
+    -1,
+    (gchar *) "fd",
+    (gchar *) "h",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _test_frobber_method_info_make_test_fd_OUT_ARG_pointers[] =
+{
+  &_test_frobber_method_info_make_test_fd_OUT_ARG_fd,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _test_frobber_method_info_make_test_fd =
+{
+  {
+    -1,
+    (gchar *) "MakeTestFd",
+    (GDBusArgInfo **) &_test_frobber_method_info_make_test_fd_IN_ARG_pointers,
+    (GDBusArgInfo **) &_test_frobber_method_info_make_test_fd_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-make-test-fd",
+  FALSE
+};
+
 static const _ExtendedGDBusMethodInfo * const _test_frobber_method_info_pointers[] =
 {
   &_test_frobber_method_info_hello_world,
@@ -1835,6 +1882,7 @@ static const _ExtendedGDBusMethodInfo * const _test_frobber_method_info_pointers
   &_test_frobber_method_info_claim_other_name,
   &_test_frobber_method_info_release_other_name,
   &_test_frobber_method_info_tell_me_your_name,
+  &_test_frobber_method_info_make_test_fd,
   NULL
 };
 
@@ -2304,6 +2352,7 @@ test_frobber_override_properties (GObjectClass *klass, guint property_id_begin)
  * @handle_delete_object: Handler for the #TestFrobber::handle-delete-object signal.
  * @handle_emit_hidden: Handler for the #TestFrobber::handle-emit-hidden signal.
  * @handle_hello_world: Handler for the #TestFrobber::handle-hello-world signal.
+ * @handle_make_test_fd: Handler for the #TestFrobber::handle-make-test-fd signal.
  * @handle_never_return: Handler for the #TestFrobber::handle-never-return signal.
  * @handle_property_cancellation: Handler for the #TestFrobber::handle-property-cancellation signal.
  * @handle_release_other_name: Handler for the #TestFrobber::handle-release-other-name signal.
@@ -2841,6 +2890,29 @@ test_frobber_default_init (TestFrobberIface *iface)
     G_TYPE_BOOLEAN,
     1,
     G_TYPE_DBUS_METHOD_INVOCATION);
+
+  /**
+   * TestFrobber::handle-make-test-fd:
+   * @object: A #TestFrobber.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_type: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.MakeTestFd">MakeTestFd()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call test_frobber_complete_make_test_fd() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-make-test-fd",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (TestFrobberIface, handle_make_test_fd),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
 
   /* GObject signals for received D-Bus signals: */
   /**
@@ -6164,6 +6236,110 @@ _out:
 }
 
 /**
+ * test_frobber_call_make_test_fd:
+ * @proxy: A #TestFrobberProxy.
+ * @arg_type: Argument to pass with the method invocation.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.MakeTestFd">MakeTestFd()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call test_frobber_call_make_test_fd_finish() to get the result of the operation.
+ *
+ * See test_frobber_call_make_test_fd_sync() for the synchronous, blocking version of this method.
+ */
+void
+test_frobber_call_make_test_fd (
+    TestFrobber *proxy,
+    const gchar *arg_type,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "MakeTestFd",
+    g_variant_new ("(s)",
+                   arg_type),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * test_frobber_call_make_test_fd_finish:
+ * @proxy: A #TestFrobberProxy.
+ * @out_fd: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to test_frobber_call_make_test_fd().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with test_frobber_call_make_test_fd().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+test_frobber_call_make_test_fd_finish (
+    TestFrobber *proxy,
+    GVariant **out_fd,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(@h)",
+                 out_fd);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * test_frobber_call_make_test_fd_sync:
+ * @proxy: A #TestFrobberProxy.
+ * @arg_type: Argument to pass with the method invocation.
+ * @out_fd: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (allow-none): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.MakeTestFd">MakeTestFd()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See test_frobber_call_make_test_fd() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+test_frobber_call_make_test_fd_sync (
+    TestFrobber *proxy,
+    const gchar *arg_type,
+    GVariant **out_fd,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "MakeTestFd",
+    g_variant_new ("(s)",
+                   arg_type),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(@h)",
+                 out_fd);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
  * test_frobber_complete_hello_world:
  * @object: A #TestFrobber.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
@@ -6593,6 +6769,27 @@ test_frobber_complete_tell_me_your_name (
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(s)",
                    name));
+}
+
+/**
+ * test_frobber_complete_make_test_fd:
+ * @object: A #TestFrobber.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @fd: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-com-redhat-Cockpit-DBusTests-Frobber.MakeTestFd">MakeTestFd()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+test_frobber_complete_make_test_fd (
+    TestFrobber *object,
+    GDBusMethodInvocation *invocation,
+    GVariant *fd)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(@h)",
+                   fd));
 }
 
 /* ------------------------------------------------------------------------ */

@@ -184,7 +184,7 @@ class TestSystemInfo(MachineCase):
             network_time_prefix = "NTP enabled"
 
         # make sure system is on expected timezone EEST
-        m.execute("LC_ALL=C timedatectl set-timezone Europe/Helsinki")
+        m.execute("timedatectl set-timezone Europe/Helsinki")
 
         # Something gets confused when systemd-timesyncd isn't
         # available.  This is harmless.
@@ -210,9 +210,9 @@ class TestSystemInfo(MachineCase):
 
         b.wait_text("#system_information_systime_button", "2020-01-24 08:03")
 
-        self.assertIn("%s: no" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
-        self.assertIn("Fri Jan 24 08:03:", m.execute("LC_ALL=C date"))
-        self.assertIn("EET 2020\n", m.execute("LC_ALL=C date"))
+        self.assertIn("%s: no" % network_time_prefix, m.execute("timedatectl"))
+        self.assertIn("Fri Jan 24 08:03:", m.execute("date"))
+        self.assertIn("EET 2020\n", m.execute("date"))
 
         # Set to NTP
         b.click("#system_information_systime_button")
@@ -223,7 +223,7 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        self.assertIn("%s: yes" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
+        self.assertIn("%s: yes" % network_time_prefix, m.execute("timedatectl"))
 
         # Change the date
         b.click("#system_information_systime_button")
@@ -237,9 +237,9 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        self.assertIn("%s: no" % network_time_prefix, m.execute("LC_ALL=C timedatectl"))
-        self.assertIn("Mon Jun  4 06:34:", m.execute("LC_ALL=C date"))
-        self.assertIn("EEST 2018\n", m.execute("LC_ALL=C date"))
+        self.assertIn("%s: no" % network_time_prefix, m.execute("timedatectl"))
+        self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
+        self.assertIn("EEST 2018\n", m.execute("date"))
 
     @skipImage("No NTP servers config", "centos-7", "continuous-atomic", "rhel-7", "rhel-atomic")
     def testTimeServers(self):

@@ -328,7 +328,9 @@ class Machine:
         if not direct:
             self._ensure_ssh_master()
 
+        # default to no translations; can be overridden in environment
         cmd = [
+            "env", "-u", "LANGUAGE", "LC_ALL=C",
             "ssh",
             "-p", str(self.ssh_port),
             "-o", "StrictHostKeyChecking=no",

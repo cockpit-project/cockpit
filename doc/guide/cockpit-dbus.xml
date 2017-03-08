@@ -86,6 +86,14 @@
         <listitem><para>A javascript plain object with the <code>"t"</code> property set to a DBus type string,
             and the <code>"v"</code> property set to a value.</para></listitem>
       </varlistentry>
+      <varlistentry>
+        <term><code>HANDLE 'h'</code></term>
+        <listitem><para>A javascript object that describes a cockpit channel which represents the
+           passed file descriptor. The <code>payload</code> is always set to <code>stream</code>.
+           Pass it to <link linkend="cockpit-channels-channel">cockpit.channel()</link> to create
+           the channel and start reading or writing on it. Handles can only be
+           received, not sent from within cockpit.</para></listitem>
+      </varlistentry>
     </variablelist>
   </refsection>
 

@@ -444,6 +444,9 @@ struct _CockpitWebService {
   guint ping_timeout;
   gint callers;
   guint next_internal_id;
+
+  GHashTable *checksum_by_host;
+  GHashTable *host_by_checksum;
 };
 
 typedef struct {
@@ -500,6 +503,9 @@ cockpit_web_service_finalize (GObject *object)
   cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
     g_source_remove (self->ping_timeout);
+
+  g_hash_table_destroy (self->host_by_checksum);
+  g_hash_table_destroy (self->checksum_by_host);
 
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->finalize (object);
 }
@@ -1756,6 +1762,8 @@ cockpit_web_service_init (CockpitWebService *self)
   cockpit_sessions_init (&self->sessions);
   cockpit_sockets_init (&self->sockets);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
+  self->host_by_checksum = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  self->checksum_by_host = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 }
 
 static void
@@ -1944,32 +1952,6 @@ cockpit_web_service_get_idling (CockpitWebService *self)
   return (self->callers == 0);
 }
 
-const gchar *
-cockpit_web_service_get_checksum (CockpitWebService *self,
-                                  CockpitTransport *transport)
-{
-  CockpitSession *session;
-
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
-  g_return_val_if_fail (COCKPIT_IS_TRANSPORT (transport), NULL);
-
-  session = cockpit_session_by_transport (&self->sessions, transport);
-  return session ? session->checksum : NULL;
-}
-
-const gchar *
-cockpit_web_service_get_host (CockpitWebService *self,
-                              CockpitTransport *transport)
-{
-  CockpitSession *session;
-
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
-  g_return_val_if_fail (COCKPIT_IS_TRANSPORT (transport), NULL);
-
-  session = cockpit_session_by_transport (&self->sessions, transport);
-  return session ? session->host : NULL;
-}
-
 CockpitTransport *
 cockpit_web_service_ensure_transport (CockpitWebService *self,
                                       JsonObject *open)
@@ -2056,27 +2038,32 @@ cockpit_web_service_get_transport_init_message_finish (CockpitWebService *self,
   return init;
 }
 
-CockpitTransport *
-cockpit_web_service_find_transport (CockpitWebService *self,
-                                    const gchar *checksum)
+const gchar *
+cockpit_web_service_get_host (CockpitWebService *self,
+                              const gchar *checksum)
 {
-  CockpitSession *session;
-  GHashTableIter iter;
+  return g_hash_table_lookup (self->host_by_checksum, checksum);
+}
 
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
-  g_return_val_if_fail (checksum != NULL, NULL);
+const gchar *
+cockpit_web_service_get_checksum (CockpitWebService *self,
+                                  const gchar *host)
+{
+  return g_hash_table_lookup (self->checksum_by_host, host);
+}
 
-  /* Always check localhost first */
-  session = g_hash_table_lookup (self->sessions.by_host, "localhost");
-  if (session && session->checksum && g_str_equal (session->checksum, checksum))
-    return session->transport;
+void
+cockpit_web_service_set_host_checksum (CockpitWebService *self,
+                                       const gchar *host,
+                                       const gchar *checksum)
+{
+  const gchar *old_checksum = g_hash_table_lookup (self->checksum_by_host, host);
+  if (g_strcmp0 (checksum, old_checksum) == 0)
+    return;
 
-  g_hash_table_iter_init (&iter, self->sessions.by_transport);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
-    {
-      if (session->checksum && g_str_equal (session->checksum, checksum))
-        return session->transport;
-    }
+  if (old_checksum)
+    g_hash_table_remove (self->host_by_checksum, old_checksum);
 
-  return NULL;
+  g_hash_table_replace (self->host_by_checksum, g_strdup (checksum), g_strdup (host));
+  g_hash_table_replace (self->checksum_by_host, g_strdup (host), g_strdup (checksum));
 }

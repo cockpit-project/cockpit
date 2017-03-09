@@ -2962,10 +2962,15 @@ cockpit_dbus_json_dispose (GObject *object)
       peer = value;
 
       g_free (peer->name);
-      g_signal_handler_disconnect (peer->cache, peer->meta_sig);
-      g_signal_handler_disconnect (peer->cache, peer->update_sig);
-      g_object_run_dispose (G_OBJECT (peer->cache));
-      g_object_unref (peer->cache);
+
+      if (peer->cache)
+        {
+          g_signal_handler_disconnect (peer->cache, peer->meta_sig);
+          g_signal_handler_disconnect (peer->cache, peer->update_sig);
+          g_object_run_dispose (G_OBJECT (peer->cache));
+          g_object_unref (peer->cache);
+        }
+
       cockpit_dbus_rules_free (peer->rules);
 
       if (self->connection)

@@ -557,8 +557,8 @@ $(function() {
             if (force !== undefined)
                 args.push(force == "true");
             systemd_manager.call(method, args).
-                done(function () {
-                    if (arguments.length == 2 && !arguments[0])
+                done(function (results) {
+                    if (results.length == 2 && !results[0])
                         $('#service-no-install-info-dialog').modal('show');
                     systemd_manager.Reload();
                 }).

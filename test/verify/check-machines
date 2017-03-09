@@ -36,11 +36,14 @@ def readFile(name):
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestMachines(MachineCase):
-    vm1_name="subVmTest1"
-    vm1_id="#vm-{0}".format(vm1_name)
+    vm1_name = "subVmTest1"
+    vm1_id = "#vm-{0}".format(vm1_name)
     vm1_img = "/var/lib/libvirt/images/{0}.img".format(vm1_name)
     vm1_img2 = "/var/lib/libvirt/images/{0}_2.img".format(vm1_name)
     vm1_img3 = "/var/lib/libvirt/images/{0}_3.img".format(vm1_name)
+
+    providerVm1_name = "vm1"
+    providerVm1_id = "#vm-{0}".format(providerVm1_name)
 
     def envSetup(self):
         b = self.browser
@@ -182,6 +185,35 @@ class TestMachines(MachineCase):
         else:
             print "WARNING: Test VM creation failed, virt-install finished in 'paused' state. Skipping the 'add/remove disk' scenario"
 
+    def testProvider(self):
+        b = self.browser
+        m = self.machine
+
+        # install the provider
+        m.execute("mkdir /usr/share/cockpit/machines/provider")
+        m.upload(["verify/files/cockpitMachinesTestExternalProvider.js"], "/usr/share/cockpit/machines/provider") # do not rename
+        m.execute("mv /usr/share/cockpit/machines/provider/cockpitMachinesTestExternalProvider.js /usr/share/cockpit/machines/provider/index.js")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("{0}-row".format(self.providerVm1_id)) # is VM listed so the provider is correctly loaded, initialized and GET_ALL_VMS() passed??
+
+        b.click("{0}-row".format(self.providerVm1_id)) # click on the row header
+        b.wait_present("{0}-state".format(self.providerVm1_id))
+        b.wait_in_text("{0}-state".format(self.providerVm1_id), "running")
+
+        b.click("{0}-off".format(self.providerVm1_id)) # click the Shut Down button
+        b.wait_in_text("{0}-state".format(self.providerVm1_id), "shut off")
+
+        b.click("a:contains('Test Subtab')") # Click on the subtab injected by the Provider
+        b.wait_visible("#test-subtab-body-vm1") # is subtab rendered?
+        b.wait_in_text("#test-subtab-body-vm1", "Content of subtab")
+
+        b.click("{0}-run".format(self.providerVm1_id)) # click the Run button which intentionally leads to an error, so check it
+        b.click("a:contains('Overview')") # where the error message is rendered
+        b.wait_visible("{0}-state".format(self.providerVm1_id))
+        b.wait_present("{0}-last-message".format(self.providerVm1_id))
+        b.wait_in_text("{0}-last-message".format(self.providerVm1_id), "VM failed to start")
 
 if __name__ == '__main__':
     test_main()

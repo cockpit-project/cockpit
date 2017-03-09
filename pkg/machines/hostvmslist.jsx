@@ -63,7 +63,11 @@ const VmActions = ({ vmId, state, config, onStart, onReboot, onForceReboot, onSh
         }]
     }) : '';
 
-    const run = config.provider.canRun(state) ? (<button className="btn btn-default btn-danger" onClick={onStart}>{_("Run")}</button>) : '';
+    const run = config.provider.canRun(state) ?
+        (<button className="btn btn-default btn-danger" onClick={onStart} id={`${vmId}-run`}>
+            {_("Run")}
+        </button>)
+        : '';
 
     return (<div>
         {reset}
@@ -148,7 +152,7 @@ export const DropdownButtons = ({ buttons }) => {
 
     const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
     return (<div className='btn-group'>
-        <button className='btn btn-default btn-danger' onClick={buttons[0].action}>
+        <button className='btn btn-default btn-danger' onClick={buttons[0].action} id={buttons[0]['id']}>
             {buttons[0].title}
         </button>
         <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
@@ -190,6 +194,7 @@ const VmLastMessage = ({ vm }) => {
         return null;
     }
 
+    const msgId = `${vmId(vm.name)}-last-message`;
     const detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception: vm.lastMessage;
     return (
         <tr>
@@ -197,7 +202,7 @@ const VmLastMessage = ({ vm }) => {
                 <span className='pficon-warning-triangle-o' />
             </td>
             <td>
-                <div title={detail} data-toggle='tooltip'>
+                <div title={detail} data-toggle='tooltip' id={msgId}>
                     {vm.lastMessage}
                 </div>
             </td>
@@ -324,9 +329,10 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
         ));
     }
 
+    const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
     const rowName = (vm.lastMessage) ?
-        (<div><span className='pficon-warning-triangle-o' />&nbsp;{vm.name}</div>)
-        : (vm.name);
+        (<div><span className='pficon-warning-triangle-o' />&nbsp;{name}</div>)
+        : name;
 
     return (<ListingRow
         columns={[

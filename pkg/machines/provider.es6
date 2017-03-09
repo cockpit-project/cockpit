@@ -39,7 +39,7 @@ import { StateIcon, DropdownButtons } from './hostvmslist.jsx';
  * @param useProvider - function taking 'provider' as 1st argument and performs provider's registration and init
  * @param defaultProvider - used by default if no external provider is installed
  */
-function loadExternalProvider ({ useProvider, defaultProvider }) {
+function loadExternalProvider({ useProvider, defaultProvider }) {
     const scriptElement = $('<script/>').prop({src: 'provider/index.js', async: true});
     scriptElement.on('load', () => {
         logDebug(`External provider loaded: ${JSON.stringify(window.EXTERNAL_PROVIDER.name)}`);

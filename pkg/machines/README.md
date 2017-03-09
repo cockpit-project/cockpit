@@ -64,7 +64,7 @@ The external provider script must create global window.EXTERNAL_PROVIDER object 
           ],
     };
 
-The provider methods are expected to return a Promise.
+The provider methods are expected to return function `(dispatch) => Promise`.
 
 The `providerContext` passed to the `init()` function as an argument consists of:
 
@@ -76,9 +76,11 @@ The `providerContext` passed to the `init()` function as an argument consists of
         exportedReactComponents, // exported React components for reuse in the plugged provider
     }
             
-Please refer the libvirt.es6 for the most current API description and more details.
+Please refer the `libvirt.es6` for the most current API description and more details.
 
-Referential implementation of an external provider is the cockpit-machines-ovirt-provider [2]
+Please refer `cockpit/test/verify/files/cockpitMachinesTestExternalProvider.js` for a "Hello World" implementation in Vanilla JS.
+
+External provider referential implementation is the `cockpit-machines-ovirt-provider` [2] written in ES6 and fully using React/Redux/Webpack.
 
 ## Links
 \[1\] [How to enable nested virtualization in KVM](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)

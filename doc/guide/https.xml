@@ -53,9 +53,10 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyOJ5garOYw0sm
 -----END PRIVATE KEY-----
 </programlisting>
 
-    <para>If no certificate is found, a self-signed certificate is created. using the
-      <code>openssl</code> command and stored in the
-      <filename>0-self-signed.cert</filename> file.</para>
+    <para>If no certificate is found, a self-signed certificate is created and
+      stored in the <filename>0-self-signed.cert</filename> file. On some
+      platforms, Cockpit will also generate a ca.crt in that directory, which
+      may be safely imported into client browsers.</para>
 
     <para>To check which certificate <code>cockpit-ws</code> will use run
       the following command.</para>

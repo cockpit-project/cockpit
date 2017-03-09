@@ -504,6 +504,7 @@ class TestMultiMachine(MachineCase):
         b.enter_page("/dashboard")
         # Check the server image
         b.wait_present("#dashboard-hosts a[data-address='%s']" % m2.address)
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
         b.switch_to_top()
 

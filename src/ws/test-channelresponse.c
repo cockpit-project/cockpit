@@ -475,7 +475,7 @@ test_resource_redirect_checksum (TestResourceCase *tc,
 
   /* Start the connection up, and poke it a bit */
   response = cockpit_web_response_new (io, "/", "/", NULL, NULL);
-  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/not-found");
+  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);

@@ -64,15 +64,6 @@ gchar *                 cockpit_web_service_unique_channel   (CockpitWebService 
 CockpitTransport *      cockpit_web_service_ensure_transport (CockpitWebService *self,
                                                               JsonObject *open);
 
-CockpitTransport *      cockpit_web_service_find_transport   (CockpitWebService *self,
-                                                              const gchar *checksum);
-
-const gchar *           cockpit_web_service_get_checksum     (CockpitWebService *self,
-                                                              CockpitTransport *transport);
-
-const gchar *           cockpit_web_service_get_host         (CockpitWebService *self,
-                                                              CockpitTransport *transport);
-
 gboolean                cockpit_web_service_parse_binary     (JsonObject *open,
                                                               WebSocketDataType *type);
 
@@ -80,6 +71,16 @@ gboolean                cockpit_web_service_parse_external   (JsonObject *open,
                                                               const gchar **content_type,
                                                               const gchar **content_disposition,
                                                               gchar ***protocols);
+
+const gchar *           cockpit_web_service_get_host         (CockpitWebService *self,
+                                                              const gchar *checksum);
+
+const gchar *           cockpit_web_service_get_checksum     (CockpitWebService *self,
+                                                              const gchar *host);
+
+void                    cockpit_web_service_set_host_checksum        (CockpitWebService *self,
+                                                                      const gchar *host,
+                                                                      const gchar *checksum);
 
 void           cockpit_web_service_get_transport_init_message_aysnc  (CockpitWebService *self,
                                                                       CockpitTransport *transport,

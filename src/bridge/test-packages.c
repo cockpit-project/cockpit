@@ -34,6 +34,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * To recalculate the checksums found in this file, do something like:
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/glob/ XDG_DATA_HOME=/nonexistant cockpit-bridge --packages
+ */
+
 extern const gchar **cockpit_bridge_data_dirs;
 extern const gchar *cockpit_bridge_local_address;
 extern gint cockpit_bridge_packages_port;
@@ -577,7 +582,7 @@ test_list_bad_name (TestCase *tc,
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":"
-                                     "{\"Content-Type\":\"application/json\"}}"
+                                     "{\"X-Cockpit-Pkg-Checksum\":\"524d07b284cda92c86a908c67014ee882a80193b\",\"Content-Type\":\"application/json\",\"ETag\":\"\\\"$524d07b284cda92c86a908c67014ee882a80193b\\\"\"}}"
                                  "{\"ok\":{}}", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
@@ -603,7 +608,7 @@ test_glob (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Type\":\"text/plain\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-Cockpit-Pkg-Checksum\":\"4f2a5a7bb5bf355776e1fc83831b1d846914182e\",\"Content-Type\":\"text/plain\"}}");
   json_object_unref (object);
 
   message = mock_transport_pop_channel (tc->transport, "444");

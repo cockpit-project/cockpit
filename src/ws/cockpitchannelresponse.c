@@ -23,12 +23,14 @@
 
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebserver.h"
+#include "common/cockpitwebresponse.h"
 
 #include <string.h>
 
 typedef struct {
   CockpitWebService *service;
   gchar *base_path;
+  gchar *host;
 } CockpitChannelInject;
 
 static void
@@ -41,19 +43,35 @@ cockpit_channel_inject_free (gpointer data)
       if (inject->service)
         g_object_remove_weak_pointer (G_OBJECT (inject->service), (gpointer *)&inject->service);
       g_free (inject->base_path);
+      g_free (inject->host);
       g_free (inject);
     }
 }
 
 static CockpitChannelInject *
 cockpit_channel_inject_new (CockpitWebService *service,
-                            const gchar *path)
+                            const gchar *path,
+                            const gchar *host)
 {
   CockpitChannelInject *inject = g_new (CockpitChannelInject, 1);
   inject->service = service;
   g_object_add_weak_pointer (G_OBJECT (inject->service), (gpointer *)&inject->service);
   inject->base_path = g_strdup (path);
+  inject->host = g_strdup (host);
   return inject;
+}
+
+static void
+cockpit_channel_inject_update_checksum (CockpitChannelInject *inject,
+                                        GHashTable *headers)
+{
+  const gchar *checksum = g_hash_table_lookup (headers, COCKPIT_CHECKSUM_HEADER);
+
+  if (checksum)
+    cockpit_web_service_set_host_checksum (inject->service, inject->host, checksum);
+
+  /* No need to send our custom header outside of cockpit */
+  g_hash_table_remove (headers, COCKPIT_CHECKSUM_HEADER);
 }
 
 static void
@@ -66,15 +84,13 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
   CockpitCreds *creds;
   gchar *prefixed_application = NULL;
   const gchar *checksum;
-  const gchar *host;
   GString *str;
   GBytes *base;
 
-  str = g_string_new ("");
-
-  if (!inject->service)
+  if (!inject->base_path)
     return;
 
+  str = g_string_new ("");
   creds = cockpit_web_service_get_creds (inject->service);
   if (cockpit_web_response_get_url_root (response))
     {
@@ -87,7 +103,7 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
       prefixed_application = g_strdup_printf ("/%s", cockpit_creds_get_application (creds));
     }
 
-  checksum = cockpit_web_service_get_checksum (inject->service, transport);
+  checksum = cockpit_web_service_get_checksum (inject->service, inject->host);
   if (checksum)
     {
       g_string_printf (str, "\n    <base href=\"%s/$%s%s\">",
@@ -96,9 +112,8 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
     }
   else
     {
-      host = cockpit_web_service_get_host (inject->service, transport);
       g_string_printf (str, "\n    <base href=\"%s/@%s%s\">",
-                       prefixed_application, host, inject->base_path);
+                       prefixed_application, inject->host, inject->base_path);
     }
 
   base = g_string_free_to_bytes (str);
@@ -182,8 +197,11 @@ ensure_headers (CockpitChannelResponse *chesp,
 {
   if (cockpit_web_response_get_state (chesp->response) == COCKPIT_WEB_RESPONSE_READY)
     {
-      if (chesp->inject)
-        cockpit_channel_inject_perform (chesp->inject, chesp->response, chesp->transport);
+      if (chesp->inject && chesp->inject->service)
+        {
+          cockpit_channel_inject_update_checksum (chesp->inject, chesp->headers);
+          cockpit_channel_inject_perform (chesp->inject, chesp->response, chesp->transport);
+        }
       cockpit_web_response_headers_full (chesp->response, status, reason, -1, chesp->headers);
       return TRUE;
     }
@@ -515,7 +533,6 @@ parse_host_and_etag (CockpitWebService *service,
                      const gchar **host,
                      gchar **etag)
 {
-  CockpitTransport *transport;
   gchar **languages = NULL;
   gboolean translatable;
   gchar *language;
@@ -541,16 +558,9 @@ parse_host_and_etag (CockpitWebService *service,
   if (!where || where[0] != '$')
     return FALSE;
 
-  transport = cockpit_web_service_find_transport (service, where + 1);
-  if (!transport)
+  *host = cockpit_web_service_get_host (service, where + 1);
+  if (!host)
     return FALSE;
-
-  *host = cockpit_web_service_get_host (service, transport);
-  if (!*host)
-    {
-      g_warn_if_reached ();
-      return FALSE;
-    }
 
   /* Top level resources (like the /manifests) are not translatable */
   translatable = is_resource_a_package_file (path);
@@ -644,7 +654,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
        */
       if (where[0] == '@' && strchr (path, '.'))
         {
-          checksum = cockpit_web_service_get_checksum (service, transport);
+          checksum = cockpit_web_service_get_checksum (service, host);
           if (checksum)
             {
               handled = redirect_to_checksum_path (service, response, checksum, path);
@@ -705,9 +715,9 @@ cockpit_channel_response_serve (CockpitWebService *service,
                                            cockpit_web_response_get_path (response),
                                            out_headers, object);
 
-  if (!where)
-    chesp->inject = cockpit_channel_inject_new (service, path);
-
+  chesp->inject = cockpit_channel_inject_new (service,
+                                              where ? NULL : path,
+                                              host);
   handled = TRUE;
 
 out:

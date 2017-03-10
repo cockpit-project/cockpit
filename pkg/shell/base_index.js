@@ -581,7 +581,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             }
 
             return null;
-        };
+        }
 
         /* Jumps to a given navigate state */
         self.jump = function (state, replace) {
@@ -770,6 +770,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             }).show();
         }
 
+        function setup_killer(id) {
+            $(id).on("click", function(ev) {
+                if (ev && ev.button === 0)
+                    require("./active-pages").showDialog(self.frames);
+            });
+        }
+
         /* User information */
         function setup_user(id, user) {
             $(id).text(user.full_name || user.name || '???');
@@ -797,6 +804,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         if (self.about_sel)
             setup_about(self.about_sel);
+        if (self.killer_sel)
+            setup_killer(self.killer_sel);
 
         if (self.user_sel || self.account_sel) {
             cockpit.user().done(function (user) {

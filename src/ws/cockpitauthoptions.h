@@ -44,7 +44,6 @@ typedef struct {
   gboolean allow_unknown_hosts;
   gboolean supports_hostkey_prompt;
   gboolean ignore_hostkey;
-  guint agent_fd;
 } CockpitSshOptions;
 
 CockpitSshOptions * cockpit_ssh_options_from_env   (gchar **env);

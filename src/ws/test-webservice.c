@@ -24,6 +24,7 @@
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
 
+#include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitjson.h"
@@ -59,11 +60,9 @@ extern const gchar *cockpit_ws_default_protocol_header;
 #define PASSWORD "this is the password"
 
 typedef struct {
-  /* setup_mock_sshd */
-  const gchar *ssh_user;
-  const gchar *ssh_password;
-  GPid mock_sshd;
-  guint16 ssh_port;
+  /* setup default transport */
+  CockpitTransport *mock_bridge;
+  GPid mock_bridge_pid;
 
   /* setup_mock_webserver */
   CockpitWebServer *web_server;
@@ -86,134 +85,42 @@ typedef struct {
   const char *bridge;
 } TestFixture;
 
-#ifdef WITH_COCKPIT_SSH
 
-static GString *
-read_all_into_string (int fd)
+static void
+setup_mock_bridge (TestCase *test,
+                   gconstpointer data)
 {
-  GString *input = g_string_new ("");
-  gsize len;
-  gssize ret;
+  const TestFixture *fix = data;
 
-  for (;;)
-    {
-      len = input->len;
-      g_string_set_size (input, len + 256);
-      ret = read (fd, input->str + len, 256);
-      if (ret < 0)
-        {
-          if (errno != EAGAIN)
-            {
-              g_critical ("couldn't read from mock input: %s", g_strerror (errno));
-              g_string_free (input, TRUE);
-              return NULL;
-            }
-        }
-      else if (ret == 0)
-        {
-          return input;
-        }
-      else
-        {
-          input->len = len + ret;
-          input->str[input->len] = '\0';
-        }
-    }
-}
+  CockpitPipe *pipe = NULL;
+  const gchar *cmd;
 
-#endif
-
-static gboolean
-start_mock_sshd (const gchar *user,
-                 const gchar *password,
-                 GPid *out_pid,
-                 gushort *out_port)
-{
-#ifdef WITH_COCKPIT_SSH
-  GError *error = NULL;
-  GString *port;
-  gchar *endptr;
-  guint64 value;
-  gint out_fd;
+  if (fix && fix->bridge)
+    cmd = fix->bridge;
+  else
+    cmd = BUILDDIR "/mock-echo";
 
   const gchar *argv[] = {
-      BUILDDIR "/mock-sshd",
-      "--user", user,
-      "--password", password,
+      cmd,
       NULL
   };
 
-
-  g_spawn_async_with_pipes (BUILDDIR, (gchar **)argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
-                            out_pid, NULL, &out_fd, NULL, &error);
-  g_assert_no_error (error);
-
-  /*
-   * mock-sshd prints its port on stdout, and then closes stdout
-   * This also lets us know when it has initialized.
-   */
-
-  port = read_all_into_string (out_fd);
-  g_assert (port != NULL);
-  close (out_fd);
-  g_assert_no_error (error);
-
-  g_strstrip (port->str);
-  value = g_ascii_strtoull (port->str, &endptr, 10);
-  if (!endptr || *endptr != '\0' || value == 0 || value > G_MAXUSHORT)
-      g_critical ("invalid port printed by mock-sshd: %s", port->str);
-
-  *out_port = (gushort)value;
-  g_string_free (port, TRUE);
-  return TRUE;
-#else
-
-  *out_pid = 0;
-  *out_port = 0;
-  return FALSE;
-#endif
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+  test->mock_bridge = cockpit_pipe_transport_new (pipe);
+  g_assert (cockpit_pipe_get_pid (pipe, &test->mock_bridge_pid));
+  g_object_unref (pipe);
 }
 
 static void
-setup_mock_sshd (TestCase *test,
-                 gconstpointer data)
+teardown_mock_bridge (TestCase *test,
+                      gconstpointer data)
 {
-  start_mock_sshd (test->ssh_user ? test->ssh_user : g_get_user_name (),
-                   test->ssh_password ? test->ssh_password : PASSWORD,
-                   &test->mock_sshd,
-                   &test->ssh_port);
-
-  cockpit_ws_specific_ssh_port = test->ssh_port;
-
-  cockpit_ws_known_hosts = SRCDIR "/src/ws/mock_known_hosts";
-}
-
-static void
-stop_mock_sshd (GPid mock_sshd) {
-  GPid pid;
-  int status;
-
-  pid = waitpid (mock_sshd, &status, WNOHANG);
-  g_assert_cmpint (pid, >=, 0);
-  if (pid == 0)
-    kill (mock_sshd, SIGTERM);
-  else if (status != 0)
+  if (test->mock_bridge)
     {
-      if (WIFSIGNALED (status))
-        g_message ("mock-sshd terminated: %d", WTERMSIG (status));
-      else
-        g_message ("mock-sshd failed: %d", WEXITSTATUS (status));
-    }
-  g_spawn_close_pid (mock_sshd);
-}
-
-static void
-teardown_mock_sshd (TestCase *test,
-                    gconstpointer data)
-{
-  if (test->mock_sshd)
-    {
-      stop_mock_sshd (test->mock_sshd);
+      cockpit_transport_close (test->mock_bridge, "terminate");
+      g_object_add_weak_pointer (G_OBJECT (test->mock_bridge), (gpointer *)&test->mock_bridge);
+      g_object_unref (test->mock_bridge);
+      g_assert (test->mock_bridge == NULL);
     }
 }
 
@@ -255,7 +162,6 @@ static void
 setup_io_streams (TestCase *test,
                   gconstpointer data)
 {
-  const TestFixture *fixture = data;
   GSocket *socket1, *socket2;
   GError *error = NULL;
   int fds[2];
@@ -274,11 +180,6 @@ setup_io_streams (TestCase *test,
 
   g_object_unref (socket1);
   g_object_unref (socket2);
-
-  if (fixture && fixture->bridge)
-    cockpit_ws_bridge_program = fixture->bridge;
-  else
-    cockpit_ws_bridge_program = BUILDDIR "/mock-echo";
 }
 
 static void
@@ -295,30 +196,18 @@ setup_for_socket (TestCase *test,
 {
   alarm (TIMEOUT);
 
-  setup_mock_sshd (test, data);
+  setup_mock_bridge (test, data);
   setup_mock_webserver (test, data);
   setup_io_streams (test, data);
-}
-
-static void
-setup_for_socket_spec (TestCase *test,
-                       gconstpointer data)
-{
-  test->ssh_user = "user";
-  test->ssh_password = "Another password";
-  setup_for_socket (test, data);
 }
 
 static void
 teardown_for_socket (TestCase *test,
                      gconstpointer data)
 {
-  teardown_mock_sshd (test, data);
+  teardown_mock_bridge (test, data);
   teardown_mock_webserver (test, data);
   teardown_io_streams (test, data);
-
-  /* Reset this if changed by a test */
-  cockpit_ws_session_timeout = 30;
 
   cockpit_assert_expected ();
   alarm (0);
@@ -519,7 +408,7 @@ start_web_service_and_create_client (TestCase *test,
   cockpit_ws_default_host_header = "127.0.0.1";
   cockpit_ws_default_protocol_header = fixture ? fixture->forward : NULL;
 
-  *service = cockpit_web_service_new (test->creds, NULL);
+  *service = cockpit_web_service_new (test->creds, test->mock_bridge);
 
   /* Note, we are forcing the websocket to parse its own headers */
   cockpit_web_service_socket (*service, "/unused", test->io_b, NULL, NULL);
@@ -578,12 +467,6 @@ test_handshake_and_auth (TestCase *test,
 {
   WebSocketConnection *ws;
   CockpitWebService *service;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
 
   start_web_service_and_connect_client (test, data, &ws, &service);
   close_client_and_stop_web_service (test, ws, service);
@@ -656,12 +539,6 @@ test_handshake_and_echo (TestCase *test,
   gulong handler;
   const gchar *token;
 
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
   /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
 
@@ -704,12 +581,6 @@ test_echo_large (TestCase *test,
   gchar *contents;
   GBytes *sent;
   gulong handler;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
 
   start_web_service_and_create_client (test, data, &ws, &service);
   while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
@@ -757,12 +628,6 @@ test_close_error (TestCase *test,
   GBytes *received = NULL;
   CockpitWebService *service;
 
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
   start_web_service_and_connect_client (test, data, &ws, &service);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
@@ -787,14 +652,11 @@ test_close_error (TestCase *test,
   received = NULL;
 
   /* Trigger a failure message */
-  kill (test->mock_sshd, SIGTERM);
-  test->mock_sshd = 0;
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+  kill (test->mock_bridge_pid, SIGTERM);
 
   /* We should now get a close command */
-  WAIT_UNTIL (received != NULL);
-  expect_control_message (received, "close", "4", "problem", "terminated", NULL);
-  g_bytes_unref (received);
-  received = NULL;
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSED);
 
   close_client_and_stop_web_service (test, ws, service);
 }
@@ -933,284 +795,6 @@ test_bad_init_version (TestCase *test,
 }
 
 static void
-test_specified_creds (TestCase *test,
-                      gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  GBytes *sent;
-  CockpitWebService *service;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  /* Open a channel with a non-standard command */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "4",
-                        "payload", "test-text",
-                        "user", "user", "password",
-                        "Another password",
-                        NULL);
-
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
-
-  sent = g_bytes_new_static ("4\nwheee", 7);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  WAIT_UNTIL (received != NULL);
-  g_assert (g_bytes_equal (received, sent));
-  g_bytes_unref (sent);
-  g_bytes_unref (received);
-  received = NULL;
-
-  close_client_and_stop_web_service (test, ws, service);
-}
-
-static void
-test_specified_creds_overide_host (TestCase *test,
-                                   gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  GBytes *sent;
-  CockpitWebService *service;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  /* Open a channel with a host that has a bad username
-     but use a good username in the json */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "4",
-                        "payload", "test-text",
-                        "user", "user", "password",
-                        "Another password",
-                        "host", "test@127.0.0.1",
-                        NULL);
-
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
-
-  sent = g_bytes_new_static ("4\nwheee", 7);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  WAIT_UNTIL (received != NULL);
-  g_assert (g_bytes_equal (received, sent));
-  g_bytes_unref (sent);
-  g_bytes_unref (received);
-  received = NULL;
-
-  close_client_and_stop_web_service (test, ws, service);
-}
-
-static void
-test_user_host_fail (TestCase *test,
-                     gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  CockpitWebService *service;
-  const gchar *expect_problem = "authentication-failed";
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-
-  /* Open a channel with a host that has a bad username */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "4",
-                        "payload", "test-text",
-                        "host", "baduser@127.0.0.1",
-                        NULL);
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "init", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "hint", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* We should now get a close command */
-  WAIT_UNTIL (received != NULL);
-
-  /* Should have gotten a failure message, about the credentials */
-  expect_control_message (received, "close", "4", "problem", expect_problem, NULL);
-  g_bytes_unref (received);
-
-  close_client_and_stop_web_service (test, ws, service);
-}
-
-static void
-test_user_host_reuse_password (TestCase *test,
-                               gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  GBytes *sent;
-  CockpitWebService *service;
-  const gchar *user = g_get_user_name ();
-  gchar *user_host = NULL;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  /* Open a channel with the same user as creds but no password */
-  user_host = g_strdup_printf ("%s@127.0.0.1", user);
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "4",
-                        "payload", "test-text",
-                        "host", user_host,
-                        NULL);
-
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
-
-  sent = g_bytes_new_static ("4\nwheee", 7);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  WAIT_UNTIL (received != NULL);
-  g_assert (g_bytes_equal (received, sent));
-  g_bytes_unref (sent);
-  g_bytes_unref (received);
-  received = NULL;
-
-  close_client_and_stop_web_service (test, ws, service);
-  g_free (user_host);
-}
-
-static void
-test_host_port (TestCase *test,
-                      gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  GBytes *sent = NULL;
-  CockpitWebService *service;
-  gchar *host = NULL;
-  GPid pid;
-  gushort port;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  /* start a new mock sshd on a different port */
-  start_mock_sshd ("auser", "apassword", &pid, &port);
-
-  host = g_strdup_printf ("127.0.0.1:%d", port);
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  /* Open a channel with a host that has a port
-   * and a user that doesn't work on the main mock ssh
-   */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "4",
-                        "payload", "test-text",
-                        "host", host,
-                        "user", "auser",
-                        "password", "apassword",
-                        NULL);
-
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
-
-  sent = g_bytes_new_static ("4\nwheee", 7);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  WAIT_UNTIL (received != NULL);
-  g_assert (g_bytes_equal (received, sent));
-  g_bytes_unref (sent);
-  g_bytes_unref (received);
-  received = NULL;
-
-  close_client_and_stop_web_service (test, ws, service);
-  stop_mock_sshd (pid);
-  g_free (host);
-}
-
-static void
-test_specified_creds_fail (TestCase *test,
-                           gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  CockpitWebService *service;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-
-  /* Open a channel with a non-standard command, but a bad password */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "4",
-                        "payload", "test-text",
-                        "user", "user",
-                        "password", "Wrong password",
-                        NULL);
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "init", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "hint", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* We should now get a close command */
-  WAIT_UNTIL (received != NULL);
-
-  /* Should have gotten a failure message, about the credentials */
-  expect_control_message (received, "close", "4", "problem", "authentication-failed", NULL);
-  g_bytes_unref (received);
-
-  close_client_and_stop_web_service (test, ws, service);
-}
-
-static void
 test_socket_null_creds (TestCase *test,
                         gconstpointer data)
 {
@@ -1238,226 +822,6 @@ test_socket_null_creds (TestCase *test,
   service = cockpit_web_service_new (NULL, session);
   g_assert (service == NULL);
   g_object_unref (session);
-}
-
-static const gchar MOCK_RSA_KEY[] = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v";
-
-static const gchar MOCK_RSA_FP[] = "0e:6a:c8:b1:07:72:e2:04:95:9f:0e:b3:56:af:48:e2";
-
-static void
-test_unknown_host_key (TestCase *test,
-                       gconstpointer data)
-{
-  WebSocketConnection *ws;
-  CockpitWebService *service;
-  GBytes *received = NULL;
-  gchar *knownhosts;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
-
-  cockpit_expect_info ("*New connection from*");
-
-  /* No known hosts */
-  cockpit_ws_known_hosts = "/dev/null";
-
-  start_web_service_and_connect_client (test, data, &ws, &service);
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-
-  /* Should get an init message */
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "init", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* Should get a hint message */
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "hint", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* Should close right after opening */
-  while (received == NULL && web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
-    g_main_context_iteration (NULL, TRUE);
-
-  /* And we should have received a close message */
-  g_assert (received != NULL);
-  expect_control_message (received, "close", "4", "problem", "unknown-hostkey",
-                          "host-key", knownhosts,
-                          "host-fingerprint", MOCK_RSA_FP,
-                          NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  close_client_and_stop_web_service (test, ws, service);
-  g_free (knownhosts);
-}
-
-static void
-test_expect_host_key (TestCase *test,
-                      gconstpointer data)
-{
-  WebSocketConnection *ws;
-  CockpitWebService *service;
-  GBytes *received = NULL;
-  GBytes *message;
-  gulong handler;
-  gchar *knownhosts;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
-
-  /* No known hosts */
-  cockpit_ws_known_hosts = "/dev/null";
-  cockpit_ws_session_timeout = 1;
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "4",
-                        "payload", "test-text",
-                        "host-key", knownhosts,
-                        NULL);
-
-  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
-  message = g_bytes_new ("4\ntest", 6);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  /* And we should have received the echo even though no known hosts */
-  g_assert (g_bytes_equal (received, message));
-  g_bytes_unref (message);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* Make sure that a new channel doesn't
-   * reuse the same connection. Open a new
-   * channel (5) while 4 is still open.
-   */
-  send_control_message (ws, "open", "5",
-                        "payload", "test-text",
-                        NULL);
-
-  /* Close the initial channel so mock-sshd dies */
-  send_control_message (ws, "close", "4", NULL);
-
-  g_signal_handler_disconnect (ws, handler);
-  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  /*
-   * Because our mock sshd only deals with one connection
-   * channel 5 should be trying to connect to it instead of
-   * reusing the same transport. When channel 4 closes and it's
-   * transport get cleaned up mock-ssh will go away and channel
-   * 5 will fail with a no-host error.
-   */
-  expect_control_message (received, "close", "5", "problem", "no-host", NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  g_signal_handler_disconnect (ws, handler);
-  close_client_and_stop_web_service (test, ws, service);
-  g_free (knownhosts);
-}
-
-static void
-test_expect_host_key_public (TestCase *test,
-                             gconstpointer data)
-{
-  WebSocketConnection *ws;
-  CockpitWebService *service;
-  GBytes *received = NULL;
-  GBytes *message;
-  GBytes *payload;
-  JsonBuilder *builder;
-  gulong handler;
-  gchar *knownhosts;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
-
-  /* No known hosts */
-  cockpit_ws_known_hosts = "/dev/null";
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-
-  builder = json_builder_new ();
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "command");
-  json_builder_add_string_value (builder, "open");
-  json_builder_set_member_name (builder, "channel");
-  json_builder_add_string_value (builder, "4");
-  json_builder_set_member_name (builder, "payload");
-  json_builder_add_string_value (builder, "test-text");
-  json_builder_set_member_name (builder, "host-key");
-  json_builder_add_string_value (builder, knownhosts);
-  json_builder_set_member_name (builder, "temp-session");
-  json_builder_add_boolean_value (builder, FALSE);
-  payload = builder_to_bytes (builder);
-  g_object_unref (builder);
-
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, payload);
-  g_bytes_unref (payload);
-
-  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
-  message = g_bytes_new ("4\ntest", 6);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  /* And we should have received the echo even though no known hosts */
-  g_assert (g_bytes_equal (received, message));
-  g_bytes_unref (received);
-  received = NULL;
-  g_bytes_unref (message);
-  message = NULL;
-
-  /* Open another channel without the host-key */
-  send_control_message (ws, "open", "a", "payload", "echo", NULL);
-  message = g_bytes_new ("a\ntest", 6);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  /* And we should have received the echo even though no known hosts */
-  g_assert (g_bytes_equal (received, message));
-  g_bytes_unref (message);
-  g_bytes_unref (received);
-  received = NULL;
-
-  g_signal_handler_disconnect (ws, handler);
-  close_client_and_stop_web_service (test, ws, service);
-  g_free (knownhosts);
 }
 
 static const TestFixture fixture_bad_origin_rfc6455 = {
@@ -1514,127 +878,6 @@ test_bad_origin (TestCase *test,
   g_clear_error (&error);
 }
 
-
-static void
-test_auth_results (TestCase *test,
-                   gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  CockpitWebService *service;
-  JsonObject *options;
-  JsonObject *auth_results;
-  GBytes *payload;
-  gchar *ochannel = NULL;
-  const gchar *channel;
-  const gchar *command;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  /* Fail to spawn this program */
-  cockpit_ws_bridge_program = "/nonexistant";
-
-  start_web_service_and_connect_client (test, data, &ws, &service);
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-  g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
-
-  /* Should get an init message */
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "init", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* A hint from the other end */
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "hint", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* Channel should close immediately */
-  WAIT_UNTIL (received != NULL);
-
-  /* Should have auth methods details */
-  payload = cockpit_transport_parse_frame (received, &ochannel);
-  g_bytes_unref (received);
-  received = NULL;
-
-  g_assert (payload != NULL);
-  g_free (ochannel);
-
-  g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
-  g_bytes_unref (payload);
-
-  g_assert_cmpstr (command, ==, "close");
-  g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "no-cockpit");
-
-  auth_results = json_object_get_object_member (options, "auth-method-results");
-  g_assert (auth_results != NULL);
-
-  if (json_object_has_member (auth_results, "public-key"))
-    g_assert_cmpstr ("denied", ==,
-                     json_object_get_string_member (auth_results, "public-key"));
-
-  g_assert_cmpstr ("succeeded", ==,
-                   json_object_get_string_member (auth_results, "password"));
-  g_assert_cmpstr ("no-server-support", ==,
-                   json_object_get_string_member (auth_results, "gssapi-mic"));
-
-  json_object_unref (options);
-  g_bytes_unref (received);
-
-  close_client_and_stop_web_service (test, ws, service);
-}
-
-static void
-test_fail_spawn (TestCase *test,
-                 gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  CockpitWebService *service;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  /* Fail to spawn this program */
-  cockpit_ws_bridge_program = "/nonexistant";
-
-  start_web_service_and_connect_client (test, data, &ws, &service);
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-  g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
-
-  /* Should get an init message */
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "init", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "hint", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* Channel should close immediately */
-  WAIT_UNTIL (received != NULL);
-
-  /* But we should have gotten failure message, about the spawn */
-  expect_control_message (received, "close", "4", "problem", "no-cockpit", NULL);
-  g_bytes_unref (received);
-
-  close_client_and_stop_web_service (test, ws, service);
-}
-
 static const TestFixture fixture_kill_group = {
     .bridge = BUILDDIR "/cockpit-bridge"
 };
@@ -1654,12 +897,6 @@ test_kill_group (TestCase *test,
   GBytes *sent;
   GBytes *payload;
   gulong handler;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
 
   /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
@@ -1747,12 +984,6 @@ test_kill_host (TestCase *test,
   GBytes *payload;
   gulong handler;
 
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
   /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
 
@@ -1807,91 +1038,6 @@ test_kill_host (TestCase *test,
   g_hash_table_destroy (seen);
 
   g_signal_handler_disconnect (ws, handler);
-
-  close_client_and_stop_web_service (test, ws, service);
-}
-
-static gboolean
-on_timeout_dummy (gpointer unused)
-{
-  return TRUE;
-}
-
-static void
-test_timeout_session (TestCase *test,
-                      gconstpointer data)
-{
-  WebSocketConnection *ws;
-  GBytes *received = NULL;
-  CockpitWebService *service;
-  GError *error = NULL;
-  JsonObject *object;
-  GBytes *payload;
-  gchar *unused;
-  pid_t pid;
-  guint sig;
-  guint tag;
-
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
-  cockpit_ws_session_timeout = 1;
-
-  /* This sends us a mesage with a pid in it on channel ' ' */
-  cockpit_ws_bridge_program = SRCDIR "/src/ws/mock-pid-cat";
-
-  /* Start the client */
-  start_web_service_and_create_client (test, data, &ws, &service);
-  while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
-    g_main_context_iteration (NULL, TRUE);
-  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
-  sig = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-
-  /* Queue channel open/close, so we can guarantee having a session */
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 1, NULL);
-  send_control_message (ws, "open", "11x", "payload", "test-text", NULL);
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "init", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "hint", NULL, NULL);
-  g_bytes_unref (received);
-  received = NULL;
-
-  /* First we should receive the pid message from mock-pid-cat */
-  while (received == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  payload = cockpit_transport_parse_frame (received, &unused);
-  g_assert (payload);
-  g_bytes_unref (received);
-  g_free (unused);
-
-  object = cockpit_json_parse_bytes (payload, &error);
-  g_assert_no_error (error);
-  pid = json_object_get_int_member (object, "pid");
-  json_object_unref (object);
-  g_bytes_unref (payload);
-
-  g_signal_handler_disconnect (ws, sig);
-
-  send_control_message (ws, "close", "11x", NULL);
-
-  /* The process should exit shortly */
-  tag = g_timeout_add_seconds (1, on_timeout_dummy, NULL);
-  while (kill (pid, 0) == 0)
-    g_main_context_iteration (NULL, TRUE);
-  g_source_remove (tag);
-
-  g_assert_cmpint (errno, ==, ESRCH);
 
   close_client_and_stop_web_service (test, ws, service);
 }
@@ -2089,12 +1235,6 @@ test_authorize_password (TestCase *test,
   gulong handler1;
   gulong handler2;
 
-  if (!test->mock_sshd)
-    {
-      cockpit_test_skip ("built without libssh and mock-sshd");
-      return;
-    }
-
   start_web_service_and_create_client (test, data, &ws, &service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
@@ -2253,7 +1393,6 @@ main (int argc,
   gint i;
 
   cockpit_test_init (&argc, &argv);
-  cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
 
   /*
    * HACK: Work around races in glib SIGCHLD handling.
@@ -2284,20 +1423,8 @@ main (int argc,
               &fixture_rfc6455, setup_for_socket,
               test_echo_large, teardown_for_socket);
 
-  g_test_add ("/web-service/close-error", TestCase,
-              NULL, setup_for_socket,
-              test_close_error, teardown_for_socket);
   g_test_add ("/web-service/null-creds", TestCase, NULL,
               setup_for_socket, test_socket_null_creds, teardown_for_socket);
-  g_test_add ("/web-service/unknown-hostkey", TestCase,
-              NULL, setup_for_socket,
-              test_unknown_host_key, teardown_for_socket);
-  g_test_add ("/web-service/expect-host-key", TestCase,
-              NULL, setup_for_socket,
-              test_expect_host_key, teardown_for_socket);
-  g_test_add ("/web-service/expect-host-key-public", TestCase,
-              NULL, setup_for_socket,
-              test_expect_host_key_public, teardown_for_socket);
   g_test_add ("/web-service/no-init", TestCase, NULL,
               setup_for_socket, test_no_init, teardown_for_socket);
   g_test_add ("/web-service/wrong-init-version", TestCase, NULL,
@@ -2325,39 +1452,15 @@ main (int argc,
               &fixture_allowed_origin_proto_header, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
 
-  g_test_add ("/web-service/auth-results", TestCase,
+  g_test_add ("/web-service/close-error", TestCase,
               NULL, setup_for_socket,
-              test_auth_results, teardown_for_socket);
-  g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
-              &fixture_rfc6455, setup_for_socket,
-              test_fail_spawn, teardown_for_socket);
+              test_close_error, teardown_for_socket);
 
   g_test_add ("/web-service/kill-group", TestCase, &fixture_kill_group,
               setup_for_socket, test_kill_group, teardown_for_socket);
   g_test_add ("/web-service/kill-host", TestCase, &fixture_kill_group,
               setup_for_socket, test_kill_host, teardown_for_socket);
 
-  g_test_add ("/web-service/specified-creds", TestCase,
-              &fixture_rfc6455, setup_for_socket_spec,
-              test_specified_creds, teardown_for_socket);
-  g_test_add ("/web-service/specified-creds-fail", TestCase,
-              &fixture_rfc6455, setup_for_socket_spec,
-              test_specified_creds_fail, teardown_for_socket);
-  g_test_add ("/web-service/specified-creds-overide-host", TestCase,
-              &fixture_rfc6455, setup_for_socket_spec,
-              test_specified_creds_overide_host, teardown_for_socket);
-  g_test_add ("/web-service/user-host-same", TestCase,
-              &fixture_rfc6455, setup_for_socket,
-              test_user_host_reuse_password, teardown_for_socket);
-  g_test_add ("/web-service/user-host-fail", TestCase,
-              &fixture_rfc6455, setup_for_socket_spec,
-              test_user_host_fail, teardown_for_socket);
-  g_test_add ("/web-service/host-port", TestCase,
-              &fixture_rfc6455, setup_for_socket_spec,
-              test_host_port, teardown_for_socket);
-
-  g_test_add ("/web-service/timeout-session", TestCase, NULL,
-              setup_for_socket, test_timeout_session, teardown_for_socket);
   g_test_add ("/web-service/idling-signal", TestCase, NULL,
               setup_for_socket, test_idling, teardown_for_socket);
   g_test_add ("/web-service/force-dispose", TestCase, NULL,

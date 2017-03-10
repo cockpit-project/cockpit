@@ -61,8 +61,7 @@ WebSocketConnection *   cockpit_web_service_create_socket    (const gchar **prot
 
 gchar *                 cockpit_web_service_unique_channel   (CockpitWebService *self);
 
-CockpitTransport *      cockpit_web_service_ensure_transport (CockpitWebService *self,
-                                                              JsonObject *open);
+CockpitTransport *      cockpit_web_service_get_transport    (CockpitWebService *self);
 
 gboolean                cockpit_web_service_parse_binary     (JsonObject *open,
                                                               WebSocketDataType *type);
@@ -78,17 +77,16 @@ const gchar *           cockpit_web_service_get_host         (CockpitWebService 
 const gchar *           cockpit_web_service_get_checksum     (CockpitWebService *self,
                                                               const gchar *host);
 
-void                    cockpit_web_service_set_host_checksum        (CockpitWebService *self,
-                                                                      const gchar *host,
-                                                                      const gchar *checksum);
+void                    cockpit_web_service_set_host_checksum       (CockpitWebService *self,
+                                                                     const gchar *host,
+                                                                     const gchar *checksum);
 
-void           cockpit_web_service_get_transport_init_message_aysnc  (CockpitWebService *self,
-                                                                      CockpitTransport *transport,
-                                                                      GAsyncReadyCallback callback,
-                                                                      gpointer user_data);
+void                    cockpit_web_service_get_init_message_aysnc  (CockpitWebService *self,
+                                                                     GAsyncReadyCallback callback,
+                                                                     gpointer user_data);
 
-JsonObject *   cockpit_web_service_get_transport_init_message_finish (CockpitWebService *self,
-                                                                      GAsyncResult *result);
+JsonObject *            cockpit_web_service_get_init_message_finish (CockpitWebService *self,
+                                                                     GAsyncResult *result);
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVICE_H__ */

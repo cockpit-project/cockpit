@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include "cockpitauthprocess.h"
-#include "cockpitsshagent.h"
 
 #include "common/cockpiterror.h"
 #include "common/cockpitjson.h"
@@ -49,7 +48,6 @@ guint default_timeout = 60;
 typedef struct {
   guint wanted_fd_number;
   gint auth_fd;
-  gint agent_fd;
   gint io_fd;
 } ChildFds;
 
@@ -176,9 +174,6 @@ static void
 spawn_child_setup (gpointer data)
 {
   ChildFds *child_fds = data;
-  gint wanted;
-  gint large;
-  gint small;
 
   if (dup2 (child_fds->io_fd, 0) < 0 || dup2 (child_fds->io_fd, 1) < 0)
     {
@@ -188,34 +183,10 @@ spawn_child_setup (gpointer data)
 
   close (child_fds->io_fd);
 
-  if (child_fds->agent_fd > 0)
+  if (cockpit_unix_fd_close_all (3, child_fds->auth_fd) < 0)
     {
-      /* Two fds to keep open, close everything bigger than the larger
-       * of the two and then everything except smaller upto the larger fd
-       */
-
-      large = child_fds->auth_fd > child_fds->agent_fd ? child_fds->auth_fd : child_fds->agent_fd;
-      small = child_fds->auth_fd < child_fds->agent_fd ? child_fds->auth_fd : child_fds->agent_fd;
-
-      if (cockpit_unix_fd_close_all (large, large) < 0)
-        {
-          g_printerr ("couldn't close larger file descriptors: %m\n");
-          _exit (127);
-        }
-
-      if (cockpit_unix_fd_close_until (3, small, large) < 0)
-        {
-          g_printerr ("couldn't close smaller file descriptors: %m\n");
-          _exit (127);
-        }
-    }
-  else
-    {
-      if (cockpit_unix_fd_close_all (3, child_fds->auth_fd) < 0)
-        {
-          g_printerr ("couldn't close file descriptors: %m\n");
-          _exit (127);
-        }
+      g_printerr ("couldn't close file descriptors: %m\n");
+      _exit (127);
     }
 
   /* Dup to the configured fd */
@@ -228,20 +199,6 @@ spawn_child_setup (gpointer data)
 
   if (child_fds->auth_fd != child_fds->wanted_fd_number)
     close (child_fds->auth_fd);
-
-  if (child_fds->agent_fd > 0)
-    {
-      /* Dup to the wanted fd + 1 */
-      wanted = child_fds->wanted_fd_number + 1;
-      if (dup2 (child_fds->agent_fd, wanted) < 0)
-        {
-          g_printerr ("couldn't dup agent file descriptor: %m\n");
-          _exit (127);
-        }
-
-      if (child_fds->agent_fd != wanted)
-        close (child_fds->agent_fd);
-    }
 }
 
 static gboolean
@@ -733,7 +690,6 @@ gboolean
 cockpit_auth_process_start (CockpitAuthProcess *self,
                             const gchar** command_args,
                             const gchar** env,
-                            gint agent_fd,
                             gboolean should_respond,
                             GError **error)
 {
@@ -750,7 +706,6 @@ cockpit_auth_process_start (CockpitAuthProcess *self,
     }
 
   self->child_data.io_fd = fds[0];
-  self->child_data.agent_fd = agent_fd;
   ret = g_spawn_async_with_pipes (NULL, (gchar **) command_args, (gchar **) env,
                                   G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
                                   spawn_child_setup, &self->child_data,
@@ -762,9 +717,6 @@ cockpit_auth_process_start (CockpitAuthProcess *self,
   /* Child process end of pipe */
   close (self->child_data.auth_fd);
   self->child_data.auth_fd = -1;
-  self->child_data.agent_fd = -1;
-  if (agent_fd > 0)
-    close (agent_fd);
 
   if (ret && should_respond)
     expect_response (self);

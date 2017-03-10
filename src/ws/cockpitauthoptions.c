@@ -76,24 +76,6 @@ set_environment_bool (gchar **env,
   return g_environ_setenv (env, name, val ? "1" : "", TRUE);
 }
 
-static guint
-get_agent_fd (gchar **env)
-{
-  const gchar *socket;
-  gchar *endptr = NULL;
-  guint agent_fd = 0;
-  socket = g_environ_getenv (env, "SSH_AUTH_SOCK");
-
-  if (socket)
-    agent_fd = g_ascii_strtoull (socket, &endptr, 10);
-
-  if (agent_fd > 3 && agent_fd < G_MAXINT &&
-      (endptr == NULL || endptr[0] == '\0'))
-    return agent_fd;
-
-  return 0;
-}
-
 static gboolean
 get_allow_unknown_hosts (gchar **env)
 {
@@ -143,7 +125,6 @@ cockpit_ssh_options_from_env (gchar **env)
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
   options->krb5_ccache_name = get_environment_val (env, "KRB5CCNAME", NULL);
   options->supports_hostkey_prompt = get_environment_bool (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", FALSE);
-  options->agent_fd = get_agent_fd (env);
 
   if (options->knownhosts_data != NULL)
     options->allow_unknown_hosts = TRUE;
@@ -157,7 +138,6 @@ gchar **
 cockpit_ssh_options_to_env (CockpitSshOptions *options,
                             gchar **env)
 {
-  gchar *agent = NULL;
   const gchar *knownhosts_data;
 
   env = set_environment_bool (env, "COCKPIT_SSH_ALLOW_UNKNOWN",
@@ -185,12 +165,5 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
                                  options->command);
     }
 
-  if (options->agent_fd)
-    {
-      agent = g_strdup_printf ("%d", options->agent_fd);
-      env = g_environ_setenv (env, "SSH_AUTH_SOCK", agent, TRUE);
-    }
-
-  g_free (agent);
   return env;
 }

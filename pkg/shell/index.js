@@ -32,6 +32,14 @@
 
     credentials.setup();
 
+    /* When Ctrl is held down we display debugging menu items */
+    document.addEventListener("click", function(ev) {
+        var i, visible = !!ev.altKey;
+        var advanced = document.querySelectorAll(".navbar-advanced");
+        for (i = 0; i < advanced.length; i++)
+            advanced[i].style.display = visible ? "block" : "none";
+    }, true);
+
     var options = {
         brand_sel: "#index-brand",
         logout_sel: "#go-logout",
@@ -41,6 +49,7 @@
         account_sel: "#go-account",
         user_sel: "#content-user-name",
         credential_sel: "#credential-authorize",
+        killer_sel: "#active-pages",
         default_title: "Cockpit"
     };
 

@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+class TestActivePages(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system")
+
+        b.wait_present("#server")
+
+        def showPagesAssertCount(count):
+            # check the pages and make sure there is only one page loaded
+            b.switch_to_top()
+            b.click("#navbar-dropdown")
+            # we won't wait for the entry to be visible, since that requires a special key combination
+            # since it's a developer feature and not immediately obvious to everyone
+            # that's also why we force this click event
+            b.click("#active-pages", force=True)
+            b.wait_present("#active-pages-dialog")
+            b.call_js_func("ph_count_check", "#active-pages-dialog tbody",  count)
+
+        showPagesAssertCount(1)
+        b.click("button.cancel")
+        b.wait_not_present("#active-pages-dialog")
+
+        b.go("/users")
+        b.enter_page("/users")
+        b.wait_present("#accounts-list")
+
+        # now we want a second page to be present in the pages menu
+        showPagesAssertCount(2)
+        b.click("button.cancel")
+        b.wait_not_present("#active-pages-dialog")
+
+        # open the terminal page and start a session we can see on the machine
+        b.go("/system/terminal")
+        b.enter_page("/system/terminal")
+
+        b.wait_present(".terminal")
+        b.focus(".terminal")
+
+        def line_sel(i):
+            return '.terminal div:nth-child(%d)' % i
+
+        def line_text(t):
+            return t + u'\xa0'*(80-len(t))
+
+        # wait for prompt in first line
+        b.wait_text_not(line_sel(1), line_text(""))
+
+        # run the sleep command
+        key_presses = list("sleep 999999") + [ "Return" ];
+        b.key_press( key_presses )
+
+        # wait for it to be present in ps
+        wait(lambda: m.execute("ps ax | grep 'sleep 99.*999'"))
+
+        # now close the page
+        showPagesAssertCount(3)
+
+        # click on the other page as well
+        b.click('tr[data-row-id="cockpit1:localhost/system"]')
+        # wait until it's highlighted
+        b.wait_present('tr.listing-ct-selected[data-row-id="cockpit1:localhost/system"]')
+        # close
+        b.click("#active-pages-dialog button.btn-primary")
+        b.wait_not_present("#active-pages-dialog")
+
+        # running shell command should disappear on the system
+        wait(lambda: m.execute("ps ax | grep 'sleep 99.*999'"))
+
+        # there should only be one page left
+        showPagesAssertCount(1)
+
+if __name__ == '__main__':
+    test_main()

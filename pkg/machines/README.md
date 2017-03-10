@@ -35,7 +35,7 @@ The external provider script must create global window.EXTERNAL_PROVIDER object 
 
     window.EXTERNAL_PROVIDER = {
         name: 'YOUR PROVIDER NAME',
-        init: function ( providerContext) {return true;}, // return boolean or Promise
+        init: function (providerContext) {return true;}, // return boolean or Promise
 
         GET_VM: function ({ lookupId: name }) { return dispatch => {...}; }, // return Promise
         GET_ALL_VMS: function () {},

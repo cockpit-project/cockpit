@@ -147,7 +147,7 @@ function vms(state, action) {
                 : getFirstIndexOfVm(state, 'name', action.payload.name, connectionName);
             if (index < 0) {
                 logDebug(`VM_ACTION_FAILED reducer(name='${action.payload.name}', connectionName='${connectionName}') not found, skipping`);
-                return ;
+                return state; // VM is (already) missing, do nothing, the failure was at least logged
             }
             const updatedVm = Object.assign({}, state[index],
                 {lastMessage: action.payload.message, lastMessageDetail: action.payload.detail});

@@ -69,7 +69,6 @@ test_ssh_options (void)
   g_assert_false (options->allow_unknown_hosts);
   g_assert_false (options->supports_hostkey_prompt);
   g_assert_false (options->ignore_hostkey);
-  g_assert_cmpuint (options->agent_fd, ==, 0);
 
   options->knownhosts_data = "";
   options->knownhosts_file = "other-known";
@@ -85,9 +84,7 @@ test_ssh_options (void)
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_BRIDGE_COMMAND"), ==, "other-command");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT"), ==, "");
   g_assert_cmpstr (g_environ_getenv (env, "KRB5CCNAME"), ==, "");
-  g_assert_null (g_environ_getenv (env, "SSH_AUTH_SOCK"));
 
-  options->agent_fd = 5;
   options->krb5_ccache_name = "cache";
   options->allow_unknown_hosts = TRUE;
   options->supports_hostkey_prompt = TRUE;
@@ -99,7 +96,6 @@ test_ssh_options (void)
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_ALLOW_UNKNOWN"), ==, "1");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT"), ==, "1");
   g_assert_cmpstr (g_environ_getenv (env, "KRB5CCNAME"), ==, "cache");
-  g_assert_cmpstr (g_environ_getenv (env, "SSH_AUTH_SOCK"), ==, "5");
 
   options->knownhosts_data = "key";
   g_strfreev (env);
@@ -109,8 +105,7 @@ test_ssh_options (void)
   g_free (options);
 
   /* Start with a clean env */
-  env = g_environ_setenv (NULL, "SSH_AUTH_SOCK", "other", TRUE);
-  env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "*", TRUE);
+  env = g_environ_setenv (NULL, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "*", TRUE);
   env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE", "other-known", TRUE);
   env = g_environ_setenv (env, "COCKPIT_SSH_BRIDGE_COMMAND", "other-command", TRUE);
   env = g_environ_setenv (env, "COCKPIT_SSH_ALLOW_UNKNOWN", "", TRUE);
@@ -118,7 +113,6 @@ test_ssh_options (void)
   env = g_environ_setenv (env, "KRB5CCNAME", "", TRUE);
 
   options = cockpit_ssh_options_from_env (env);
-  g_assert_cmpuint (options->agent_fd, ==, 0);
   g_assert_true (options->ignore_hostkey);
   g_assert_cmpstr (options->knownhosts_data, ==, "*");
   g_assert_null (options->krb5_ccache_name);
@@ -130,12 +124,10 @@ test_ssh_options (void)
   g_free (options);
   g_strfreev (env);
 
-  env = g_environ_setenv (NULL, "SSH_AUTH_SOCK", "5", TRUE);
-  env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "data", TRUE);
+  env = g_environ_setenv (NULL, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "data", TRUE);
   env = g_environ_setenv (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", "1", TRUE);
   env = g_environ_setenv (env, "KRB5CCNAME", "cache", TRUE);
   options = cockpit_ssh_options_from_env (env);
-  g_assert_cmpuint (options->agent_fd, ==, 5);
   g_assert_false (options->ignore_hostkey);
   g_assert_cmpstr (options->knownhosts_data, ==, "data");
   g_assert_cmpstr (options->krb5_ccache_name, ==, "cache");
@@ -144,11 +136,9 @@ test_ssh_options (void)
   g_free (options);
   g_strfreev (env);
 
-  env = g_environ_setenv (NULL, "SSH_AUTH_SOCK", "5other", TRUE);
-  env = g_environ_setenv (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", "key", TRUE);
+  env = g_environ_setenv (NULL, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", "key", TRUE);
   env = g_environ_setenv (env, "COCKPIT_SSH_ALLOW_UNKNOWN", "key", TRUE);
   options = cockpit_ssh_options_from_env (env);
-  g_assert_cmpuint (options->agent_fd, ==, 0);
   g_assert_false (options->ignore_hostkey);
   g_assert_null (options->knownhosts_data);
   g_assert_false (options->supports_hostkey_prompt);
@@ -157,9 +147,7 @@ test_ssh_options (void)
   g_strfreev (env);
 
   env = g_environ_setenv (NULL, "COCKPIT_SSH_ALLOW_UNKNOWN", "yes", TRUE);
-  env = g_environ_setenv (env, "SSH_AUTH_SOCK", "5other", TRUE);
   options = cockpit_ssh_options_from_env (env);
-  g_assert_cmpuint (options->agent_fd, ==, 0);
   g_assert_false (options->ignore_hostkey);
   g_assert_false (options->supports_hostkey_prompt);
   g_assert_true (options->allow_unknown_hosts);

@@ -25,7 +25,6 @@
 
 #include "cockpitauth.h"
 #include "cockpitbranding.h"
-#include "cockpitsshtransport.h"
 #include "cockpitwebservice.h"
 
 static const gchar * const*
@@ -100,7 +99,6 @@ serve_branding_css_file (CockpitWebResponse *response,
 typedef struct {
   const gchar *path;
   CockpitWebResponse *response;
-  CockpitTransport *transport;
 } CockpitBrandingData;
 
 
@@ -110,19 +108,23 @@ on_init_ready (GObject *object,
                gpointer user_data)
 {
   CockpitBrandingData *data = user_data;
-
+  CockpitTransport *transport = NULL;
   GHashTable *os_release = NULL;
   gchar **roots = NULL;
   JsonObject *os = NULL;
   gboolean responded = FALSE;
   JsonObject *init = NULL;
 
-  init = cockpit_web_service_get_transport_init_message_finish (COCKPIT_WEB_SERVICE (object),
-                                                                result);
+  init = cockpit_web_service_get_init_message_finish (COCKPIT_WEB_SERVICE (object),
+                                                      result);
   if (!init)
     goto out;
 
-  roots = g_object_get_data (G_OBJECT (data->transport), "static-roots");
+  transport = cockpit_web_service_get_transport (COCKPIT_WEB_SERVICE (object));
+  if (!transport)
+    goto out;
+
+  roots = g_object_get_data (G_OBJECT (transport), "static-roots");
   if (!roots)
     {
       if (cockpit_json_get_object (init, "os-release", NULL, &os) && os)
@@ -133,7 +135,7 @@ on_init_ready (GObject *object,
           roots = cockpit_branding_calculate_static_roots (g_hash_table_lookup (os_release, "ID"),
                                                            g_hash_table_lookup (os_release, "VARIANT_ID"),
                                                            FALSE);
-          g_object_set_data_full (G_OBJECT (data->transport), "os-release", os_release,
+          g_object_set_data_full (G_OBJECT (transport), "os-release", os_release,
                                   (GDestroyNotify) g_hash_table_unref);
         }
       else
@@ -141,12 +143,12 @@ on_init_ready (GObject *object,
           roots = cockpit_branding_calculate_static_roots (NULL, NULL, FALSE);
         }
 
-      g_object_set_data_full (G_OBJECT (data->transport), "static-roots", roots,
+      g_object_set_data_full (G_OBJECT (transport), "static-roots", roots,
                               (GDestroyNotify) g_strfreev);
     }
   else
     {
-      os_release = g_object_get_data (G_OBJECT (data->transport), "os-release");
+      os_release = g_object_get_data (G_OBJECT (transport), "os-release");
     }
 
   serve_branding_css_file (data->response, data->path,
@@ -157,7 +159,6 @@ out:
   if (!responded)
     cockpit_web_response_error (data->response, 502, NULL, NULL);
 
-  g_object_unref (data->transport);
   g_object_unref (data->response);
   g_free (data);
 }
@@ -170,17 +171,10 @@ serve_branding_css_with_init_data (CockpitWebService *service,
                                    const gchar *path)
 {
   CockpitBrandingData *cbd = NULL;
-  JsonObject *open = json_object_new ();
   cbd = g_new0 (CockpitBrandingData, 1);
   cbd->response = g_object_ref (response);
   cbd->path = path;
-
-  json_object_set_string_member (open, "host", "localhost");
-  cbd->transport = g_object_ref (cockpit_web_service_ensure_transport (service, open));
-  json_object_unref (open);
-
-  cockpit_web_service_get_transport_init_message_aysnc (service, cbd->transport,
-                                                        on_init_ready, cbd);
+  cockpit_web_service_get_init_message_aysnc (service, on_init_ready, cbd);
 }
 
 void

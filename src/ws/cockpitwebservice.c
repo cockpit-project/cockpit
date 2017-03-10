@@ -35,11 +35,7 @@
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
 
-#include "cockpitauth.h"
 #include "cockpitws.h"
-
-#include "cockpitsshagent.h"
-#include "cockpitsshtransport.h"
 #include "reauthorize.h"
 
 #include "websocket/websocket.h"
@@ -47,245 +43,12 @@
 
 #include <stdlib.h>
 
-/* Some tunables that can be set from tests */
-const gchar *cockpit_ws_session_program =
-    PACKAGE_LIBEXEC_DIR "/cockpit-session";
-
-/* Some tunables that can be set from tests */
-const gchar *cockpit_ws_ssh_program =
-    PACKAGE_LIBEXEC_DIR "/cockpit-ssh";
-
-const gchar *cockpit_ws_bridge_program = NULL;
-
 const gchar *cockpit_ws_default_host_header =
     "0.0.0.0:0"; /* Must be something invalid */
 
 const gchar *cockpit_ws_default_protocol_header = NULL;
 
-gint cockpit_ws_specific_ssh_port = 0;
-
 guint cockpit_ws_ping_interval = 5;
-
-gint cockpit_ws_session_timeout = 30;
-
-/* ----------------------------------------------------------------------------
- * CockpitSession
- */
-
-typedef struct
-{
-  gchar *host;
-  gboolean primary;
-  gboolean private;
-  GHashTable *channels;
-  CockpitTransport *transport;
-  gboolean sent_done;
-  guint timeout;
-  CockpitCreds *creds;
-  gboolean init_received;
-  gulong control_sig;
-  gulong recv_sig;
-  gulong closed_sig;
-  gchar *checksum;
-} CockpitSession;
-
-typedef struct
-{
-  GHashTable *by_host;
-  GHashTable *by_channel;
-  GHashTable *by_transport;
-} CockpitSessions;
-
-/* Should only called as a hash table GDestroyNotify */
-static void
-cockpit_session_free (gpointer data)
-{
-  CockpitSession *session = data;
-
-  g_debug ("%s: freeing session", session->host);
-
-  if (session->timeout)
-    g_source_remove (session->timeout);
-  g_hash_table_unref (session->channels);
-  if (session->control_sig)
-    g_signal_handler_disconnect (session->transport, session->control_sig);
-  if (session->recv_sig)
-    g_signal_handler_disconnect (session->transport, session->recv_sig);
-  if (session->closed_sig)
-    g_signal_handler_disconnect (session->transport, session->closed_sig);
-  g_object_unref (session->transport);
-  cockpit_creds_unref (session->creds);
-
-  g_free (session->checksum);
-  g_free (session->host);
-  g_free (session);
-}
-
-static void
-cockpit_sessions_init (CockpitSessions *sessions)
-{
-  sessions->by_channel = g_hash_table_new (g_str_hash, g_str_equal);
-  sessions->by_host = g_hash_table_new (g_str_hash, g_str_equal);
-
-  /* This owns the session */
-  sessions->by_transport = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-                                                  NULL, cockpit_session_free);
-}
-
-inline static CockpitSession *
-cockpit_session_by_channel (CockpitSessions *sessions,
-                            const gchar *channel)
-{
-  return g_hash_table_lookup (sessions->by_channel, channel);
-}
-
-inline static CockpitSession *
-cockpit_session_by_transport (CockpitSessions *sessions,
-                              CockpitTransport *transport)
-{
-  return g_hash_table_lookup (sessions->by_transport, transport);
-}
-
-inline static CockpitSession *
-cockpit_session_by_host (CockpitSessions *sessions,
-                         const gchar *host)
-{
-  return g_hash_table_lookup (sessions->by_host, host);
-}
-
-static gboolean
-on_timeout_cleanup_session (gpointer user_data)
-{
-  CockpitSession *session = user_data;
-
-  session->timeout = 0;
-  if (g_hash_table_size (session->channels) == 0)
-    {
-      /*
-       * This should cause the transport to immediately be closed
-       * and on_session_closed() will react and remove it from
-       * the main session lookup tables.
-       */
-      g_debug ("%s: session timed out without channels", session->host);
-      cockpit_transport_close (session->transport, "timeout");
-    }
-
-  return FALSE;
-}
-
-static void
-cockpit_session_remove_channel (CockpitSessions *sessions,
-                                CockpitSession *session,
-                                const gchar *channel)
-{
-  g_debug ("%s: remove channel %s for session", session->host, channel);
-
-  g_hash_table_remove (sessions->by_channel, channel);
-  g_hash_table_remove (session->channels, channel);
-
-  if (g_hash_table_size (session->channels) == 0 && !session->primary)
-    {
-      /*
-       * Close sessions that are no longer in use after N seconds
-       * of them being that way.
-       */
-      g_debug ("%s: removed last channel %s for session", session->host, channel);
-      session->timeout = g_timeout_add_seconds (cockpit_ws_session_timeout,
-                                                on_timeout_cleanup_session, session);
-    }
-  else
-    {
-      g_debug ("%s: removed channel %s for session", session->host, channel);
-    }
-}
-
-static void
-cockpit_session_add_channel (CockpitSessions *sessions,
-                             CockpitSession *session,
-                             const gchar *channel)
-{
-  gchar *chan;
-
-  chan = g_strdup (channel);
-  g_hash_table_insert (sessions->by_channel, chan, session);
-  g_hash_table_add (session->channels, chan);
-
-  g_debug ("%s: added channel %s to session", session->host, channel);
-
-  if (session->timeout)
-    {
-      g_source_remove (session->timeout);
-      session->timeout = 0;
-    }
-}
-
-static CockpitSession *
-cockpit_session_track (CockpitSessions *sessions,
-                       const gchar *host,
-                       gboolean private,
-                       CockpitCreds *creds,
-                       CockpitTransport *transport)
-{
-  CockpitSession *session;
-  JsonObject *object;
-  GBytes *command;
-
-  g_debug ("%s: new session", host);
-
-  session = g_new0 (CockpitSession, 1);
-  session->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  session->transport = g_object_ref (transport);
-  session->host = g_strdup (host);
-  session->private = private;
-  session->creds = cockpit_creds_ref (creds);
-
-  if (!private)
-    g_hash_table_insert (sessions->by_host, session->host, session);
-
-  /* This owns the session */
-  g_hash_table_insert (sessions->by_transport, transport, session);
-
-  /* Always send an init message down the new transport */
-  object = cockpit_transport_build_json ("command", "init", NULL);
-  json_object_set_int_member (object, "version", 1);
-  json_object_set_string_member (object, "host", host);
-  command = cockpit_json_write_bytes (object);
-  json_object_unref (object);
-
-  cockpit_transport_send (transport, NULL, command);
-  g_bytes_unref (command);
-
-  return session;
-}
-
-static void
-cockpit_session_destroy (CockpitSessions *sessions,
-                         CockpitSession *session)
-{
-  GHashTableIter iter;
-  const gchar *chan;
-
-  g_debug ("%s: destroy %ssession", session->host, session->primary ? "primary " : "");
-
-  g_hash_table_iter_init (&iter, session->channels);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&chan, NULL))
-    g_hash_table_remove (sessions->by_channel, chan);
-  g_hash_table_remove_all (session->channels);
-
-  if (!session->private)
-    g_hash_table_remove (sessions->by_host, session->host);
-
-  /* This owns the session */
-  g_hash_table_remove (sessions->by_transport, session->transport);
-}
-
-static void
-cockpit_sessions_cleanup (CockpitSessions *sessions)
-{
-  g_hash_table_destroy (sessions->by_channel);
-  g_hash_table_destroy (sessions->by_host);
-  g_hash_table_destroy (sessions->by_transport);
-}
 
 /* ----------------------------------------------------------------------------
  * Web Socket Info
@@ -378,7 +141,7 @@ cockpit_socket_track (CockpitSockets *sockets,
 
   g_debug ("%s new socket", socket->id);
 
-  /* This owns the session */
+  /* This owns the socket */
   g_hash_table_insert (sockets->by_connection, connection, socket);
 
   return socket;
@@ -434,9 +197,10 @@ cockpit_sockets_cleanup (CockpitSockets *sockets)
 struct _CockpitWebService {
   GObject parent;
 
+  const gchar *logname;
+
   CockpitCreds *creds;
   CockpitSockets sockets;
-  CockpitSessions sessions;
   gboolean closing;
   GBytes *control_prefix;
   guint ping_timeout;
@@ -444,6 +208,13 @@ struct _CockpitWebService {
   guint next_internal_id;
 
   gint credential_requests;
+
+  CockpitTransport *transport;
+  gboolean init_received;
+  gulong control_sig;
+  gulong recv_sig;
+  gulong closed_sig;
+  gboolean sent_done;
 
   GHashTable *checksum_by_host;
   GHashTable *host_by_checksum;
@@ -463,9 +234,25 @@ static void
 cockpit_web_service_dispose (GObject *object)
 {
   CockpitWebService *self = COCKPIT_WEB_SERVICE (object);
-  CockpitSession *session;
-  GHashTableIter iter;
   gboolean emit = FALSE;
+
+  if (self->control_sig)
+    g_signal_handler_disconnect (self->transport, self->control_sig);
+  self->control_sig = 0;
+
+  if (self->recv_sig)
+    g_signal_handler_disconnect (self->transport, self->recv_sig);
+  self->recv_sig = 0;
+
+  if (self->closed_sig)
+    g_signal_handler_disconnect (self->transport, self->closed_sig);
+  self->closed_sig = 0;
+
+  if (!self->sent_done)
+    {
+      self->sent_done = TRUE;
+      cockpit_transport_close (self->transport, NULL);
+    }
 
   if (!self->closing)
     {
@@ -475,16 +262,6 @@ cockpit_web_service_dispose (GObject *object)
   self->closing = TRUE;
 
   cockpit_sockets_close (&self->sockets, NULL);
-
-  g_hash_table_iter_init (&iter, self->sessions.by_transport);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
-    {
-      if (!session->sent_done)
-        {
-          session->sent_done = TRUE;
-          cockpit_transport_close (session->transport, NULL);
-        }
-    }
 
   if (emit)
     g_signal_emit (self, sig_destroy, 0);
@@ -497,8 +274,11 @@ cockpit_web_service_finalize (GObject *object)
 {
   CockpitWebService *self = COCKPIT_WEB_SERVICE (object);
 
-  cockpit_sessions_cleanup (&self->sessions);
   cockpit_sockets_cleanup (&self->sockets);
+
+  if (self->transport)
+    g_object_unref (self->transport);
+
   g_bytes_unref (self->control_prefix);
   cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
@@ -546,11 +326,8 @@ outbound_protocol_error (CockpitWebService *self,
 static gboolean
 process_close (CockpitWebService *self,
                CockpitSocket *socket,
-               CockpitSession *session,
                const gchar *channel)
 {
-  if (session)
-    cockpit_session_remove_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_remove_channel (&self->sockets, socket, channel);
 
@@ -563,13 +340,11 @@ process_and_relay_close (CockpitWebService *self,
                          const gchar *channel,
                          GBytes *payload)
 {
-  CockpitSession *session;
   gboolean valid;
 
-  session = cockpit_session_by_channel (&self->sessions, channel);
-  valid = process_close (self, socket, session, channel);
-  if (valid && session && !session->sent_done)
-    cockpit_transport_send (session->transport, NULL, payload);
+  valid = process_close (self, socket, channel);
+  if (valid && !self->sent_done)
+    cockpit_transport_send (self->transport, NULL, payload);
 
   return valid;
 }
@@ -580,31 +355,9 @@ process_kill (CockpitWebService *self,
               JsonObject *options,
               GBytes *payload)
 {
-  CockpitSession *session;
-  GHashTableIter iter;
-  const gchar *host;
+  if (!self->sent_done)
+    cockpit_transport_send (self->transport, NULL, payload);
 
-  if (!cockpit_json_get_string (options, "host", NULL, &host))
-    {
-      g_warning ("%s: received invalid kill command", socket->id);
-      return FALSE;
-    }
-
-  if (host)
-    {
-      session = cockpit_session_by_host (&self->sessions, host);
-      if (session && !session->sent_done)
-        cockpit_transport_send (session->transport, NULL, payload);
-    }
-  else
-    {
-      g_hash_table_iter_init (&iter, self->sessions.by_host);
-      while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
-        {
-          if (!session->sent_done)
-            cockpit_transport_send (session->transport, NULL, payload);
-        }
-    }
   return TRUE;
 }
 
@@ -696,47 +449,46 @@ process_socket_authorize (CockpitWebService *self,
 }
 
 static gboolean
-process_session_authorize (CockpitWebService *self,
-                           CockpitSession *session,
-                           JsonObject *options)
+process_transport_authorize (CockpitWebService *self,
+                             CockpitTransport *transport,
+                             JsonObject *options)
 {
   const gchar *cookie = NULL;
   GBytes *payload;
-  const gchar *host;
   char *user = NULL;
   char *type = NULL;
   char *alloc = NULL;
   const char *response = NULL;
   const gchar *challenge;
   const gchar *password;
+  const gchar *host;
   GBytes *data;
   int rc;
 
-  host = session->host;
-
   if (!cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
-      !cockpit_json_get_string (options, "cookie", NULL, &cookie))
+      !cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
+      !cockpit_json_get_string (options, "host", NULL, &host))
     {
-      g_warning ("%s: received invalid authorize command", host);
+      g_warning ("%s: received invalid authorize command", self->logname);
       return FALSE;
     }
 
   if (!challenge || !cookie)
     {
-      g_message ("%s: unsupported or unknown authorize command", host);
+      g_message ("%s: unsupported or unknown authorize command", self->logname);
     }
   else if (reauthorize_type (challenge, &type) < 0 ||
            reauthorize_user (challenge, &user) < 0)
     {
-      g_message ("%s: received invalid authorize challenge command", host);
+      g_message ("%s: received invalid authorize challenge command", self->logname);
     }
-  else if (!g_str_equal (cockpit_creds_get_user (session->creds), user))
+  else if (!g_str_equal (cockpit_creds_get_user (self->creds), user))
     {
-      g_message ("%s: received authorize command for wrong user: %s", host, user);
+      g_message ("%s: received authorize command for wrong user: %s", self->logname, user);
     }
   else if (g_str_equal (type, "plain1"))
     {
-      data = cockpit_creds_get_password (session->creds);
+      data = cockpit_creds_get_password (self->creds);
       if (!data)
         {
           g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
@@ -748,17 +500,18 @@ process_session_authorize (CockpitWebService *self,
     }
   else if (g_str_equal (type, "crypt1"))
     {
-      data = cockpit_creds_get_password (session->creds);
+      data = cockpit_creds_get_password (self->creds);
       if (!data)
         {
-          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
+          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate",
+                   self->logname);
         }
       else
         {
           password = g_bytes_get_data (data, NULL);
           rc = reauthorize_crypt1 (challenge, password, &alloc);
           if (rc < 0)
-            g_message ("%s: failed to reauthorize crypt1 challenge", host);
+            g_message ("%s: failed to reauthorize crypt1 challenge", self->logname);
           else
             response = alloc;
         }
@@ -768,13 +521,14 @@ process_session_authorize (CockpitWebService *self,
   self->credential_requests++;
   send_socket_hints (self, "credential", "request");
 
-  if (!session->sent_done)
+  if (!self->sent_done)
     {
       payload = cockpit_transport_build_control ("command", "authorize",
                                                  "cookie", cookie,
                                                  "response", response ? response : "",
+                                                 "host", host ? host : "localhost",
                                                  NULL);
-      cockpit_transport_send (session->transport, NULL, payload);
+      cockpit_transport_send (transport, NULL, payload);
       g_bytes_unref (payload);
     }
 
@@ -785,11 +539,10 @@ process_session_authorize (CockpitWebService *self,
 }
 
 static const gchar *
-process_session_init (CockpitWebService *self,
-                      CockpitSession *session,
-                      JsonObject *options)
+process_transport_init (CockpitWebService *self,
+                        CockpitTransport *transport,
+                        JsonObject *options)
 {
-  const gchar *checksum;
   gint64 version;
 
   if (!cockpit_json_get_int (options, "version", -1, &version))
@@ -800,65 +553,52 @@ process_session_init (CockpitWebService *self,
 
   if (version == 1)
     {
-      g_debug ("%s: received init message", session->host);
-      session->init_received = TRUE;
-      g_object_set_data_full (G_OBJECT (session->transport), "init",
+      g_debug ("%s: received init message", self->logname);
+      self->init_received = TRUE;
+      g_object_set_data_full (G_OBJECT (transport), "init",
                               json_object_ref (options),
                               (GDestroyNotify) json_object_unref);
     }
   else
     {
       g_message ("%s: unsupported version of cockpit protocol: %" G_GINT64_FORMAT,
-                 session->host, version);
+                 self->logname, version);
       return "not-supported";
     }
 
-  if (!cockpit_json_get_string (options, "checksum", NULL, &checksum))
-    checksum = NULL;
-
-  g_free (session->checksum);
-  session->checksum = g_strdup (checksum);
-
-  g_signal_emit (self, sig_transport_init, 0, session->transport);
+  g_signal_emit (self, sig_transport_init, 0);
   return NULL;
 }
 
 static gboolean
-on_session_control (CockpitTransport *transport,
-                    const gchar *command,
-                    const gchar *channel,
-                    JsonObject *options,
-                    GBytes *payload,
-                    gpointer user_data)
+on_transport_control (CockpitTransport *transport,
+                      const gchar *command,
+                      const gchar *channel,
+                      JsonObject *options,
+                      GBytes *payload,
+                      gpointer user_data)
 {
   const gchar *problem = "protocol-error";
   CockpitWebService *self = user_data;
-  CockpitSession *session = NULL;
   CockpitSocket *socket = NULL;
   gboolean valid = FALSE;
   gboolean forward;
 
   if (!channel)
     {
-      session = cockpit_session_by_transport (&self->sessions, transport);
-      if (!session)
+      if (g_strcmp0 (command, "init") == 0)
         {
-          g_critical ("received control command for transport that isn't present");
-          valid = FALSE;
-        }
-      else if (g_strcmp0 (command, "init") == 0)
-        {
-          problem = process_session_init (self, session, options);
+          problem = process_transport_init (self, transport, options);
           valid = (problem == NULL);
         }
-      else if (!session->init_received)
+      else if (!self->init_received)
         {
-          g_message ("%s: did not send 'init' message first", session->host);
+          g_message ("%s: bridge did not send 'init' message first", self->logname);
           valid = FALSE;
         }
       else if (g_strcmp0 (command, "authorize") == 0)
         {
-          valid = process_session_authorize (self, session, options);
+          valid = process_transport_authorize (self, transport, options);
         }
       else if (g_strcmp0 (command, "ping") == 0)
         {
@@ -877,27 +617,9 @@ on_session_control (CockpitTransport *transport,
       /* Usually all control messages with a channel are forwarded */
       forward = TRUE;
 
-      /*
-       * To prevent one host from messing with another, outbound commands
-       * must have a channel, and it must match one of the channels opened
-       * to that particular session.
-       */
-      session = cockpit_session_by_channel (&self->sessions, channel);
-      if (!session)
+      if (g_strcmp0 (command, "close") == 0)
         {
-          /* This is not an error, since closing can race between the endpoints */
-          g_debug ("channel %s does not exist", channel);
-          forward = FALSE;
-          valid = TRUE;
-        }
-      else if (session->transport != transport)
-        {
-          g_warning ("received a command with wrong channel %s from session", channel);
-          valid = FALSE;
-        }
-      else if (g_strcmp0 (command, "close") == 0)
-        {
-          valid = process_close (self, socket, session, channel);
+          valid = process_close (self, socket, channel);
         }
       else
         {
@@ -924,34 +646,19 @@ on_session_control (CockpitTransport *transport,
 }
 
 static gboolean
-on_session_recv (CockpitTransport *transport,
-                 const gchar *channel,
-                 GBytes *payload,
-                 gpointer user_data)
+on_transport_recv (CockpitTransport *transport,
+                   const gchar *channel,
+                   GBytes *payload,
+                   gpointer user_data)
 {
   CockpitWebService *self = user_data;
   WebSocketDataType data_type;
-  CockpitSession *session;
   CockpitSocket *socket;
   gchar *string;
   GBytes *prefix;
 
   if (!channel)
     return FALSE;
-
-  session = cockpit_session_by_channel (&self->sessions, channel);
-  if (session == NULL)
-    {
-      /* This is not an error since channel closing can race */
-      g_debug ("dropping message with unknown channel %s from session", channel);
-      return FALSE;
-    }
-  else if (session->transport != transport)
-    {
-      g_warning ("received message with wrong channel %s from session", channel);
-      outbound_protocol_error (self, transport, NULL);
-      return FALSE;
-    }
 
   /* Forward the message to the right socket */
   socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
@@ -969,308 +676,20 @@ on_session_recv (CockpitTransport *transport,
 }
 
 static void
-on_session_closed (CockpitTransport *transport,
-                   const gchar *problem,
-                   gpointer user_data)
+on_transport_closed (CockpitTransport *transport,
+                     const gchar *problem,
+                     gpointer user_data)
 {
   CockpitWebService *self = user_data;
-  const gchar *channel = NULL;
-  CockpitSession *session;
-  CockpitSshTransport *ssh = NULL;
-  GHashTableIter iter;
-  CockpitSocket *socket;
-  const gchar *key = NULL;
-  const gchar *fp = NULL;
-  GBytes *payload;
-  JsonObject *object = NULL;
 
-  JsonObject *auth_json = NULL; // owned by ssh transport
+  /* Close all sockets */
+  cockpit_sockets_close (&self->sockets, problem);
 
-  gboolean primary;
+  /* Emit the init changed signal */
+  g_signal_emit (self, sig_transport_init, 0);
 
-  session = cockpit_session_by_transport (&self->sessions, transport);
-  if (session != NULL)
-    {
-      /* Closing the primary session closes all web sockets */
-      primary = session->primary;
-      if (primary)
-          cockpit_sockets_close (&self->sockets, problem);
-
-      if (COCKPIT_IS_SSH_TRANSPORT (transport))
-        {
-          ssh = COCKPIT_SSH_TRANSPORT (transport);
-          auth_json = cockpit_ssh_transport_get_auth_method_results (ssh);
-        }
-
-      if ((g_strcmp0 (problem, "unknown-hostkey") == 0 ||
-           g_strcmp0 (problem, "invalid-hostkey") == 0) &&
-           ssh != NULL)
-        {
-          key = cockpit_ssh_transport_get_host_key (ssh);
-          fp = cockpit_ssh_transport_get_host_fingerprint (ssh);
-        }
-
-      g_hash_table_iter_init (&iter, session->channels);
-      while (!primary && g_hash_table_iter_next (&iter, (gpointer *)&channel, NULL))
-        {
-          socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
-          if (socket)
-            {
-              if (web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
-                {
-                  object = cockpit_transport_build_json ("command", "close",
-                                                         "channel", channel,
-                                                         "problem", problem,
-                                                         "host-key", key,
-                                                         "host-fingerprint", fp,
-                                                         NULL);
-
-                  if (auth_json != NULL)
-                    {
-                       /* take a ref so we can resue when closing multiple channels */
-                       json_object_ref (auth_json);
-                       json_object_set_object_member (object,
-                                                      "auth-method-results",
-                                                      auth_json);
-                    }
-
-                  payload = cockpit_json_write_bytes (object);
-                  json_object_unref (object);
-                  web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT,
-                                              self->control_prefix, payload);
-                  g_bytes_unref (payload);
-                }
-            }
-        }
-
-      /* Emit the init changed signal */
-      g_signal_emit (self, sig_transport_init, 0, session->transport);
-
-      cockpit_session_destroy (&self->sessions, session);
-
-      /* If this is the primary session, log the user out */
-      if (primary)
-        g_object_run_dispose (G_OBJECT (self));
-    }
-}
-
-
-static void
-parse_host (const gchar *host,
-            gchar **hostname,
-            gchar **username,
-            gint *port)
-{
-  gchar *user_arg = NULL;
-  gchar *host_arg = NULL;
-  gchar *tmp = NULL;
-  gchar *end = NULL;
-
-  guint port_num = cockpit_ws_specific_ssh_port;
-  guint64 tmp_num;
-
-  gsize host_offset = 0;
-  gsize host_length = strlen (host);
-
-  tmp = strrchr (host, '@');
-  if (tmp)
-    {
-      if (tmp[0] != host[0])
-      {
-        user_arg = g_strndup (host, tmp - host);
-        host_offset = strlen (user_arg) + 1;
-        host_length = host_length - host_offset;
-      }
-      else
-        {
-          g_message ("ignoring blank user in %s", host);
-        }
-    }
-
-  tmp = strrchr (host, ':');
-  if (tmp)
-    {
-      tmp_num = g_ascii_strtoull (tmp + 1, &end, 10);
-      if (end[0] == '\0' && tmp_num < G_MAXUSHORT)
-        {
-          port_num = (guint) tmp_num;
-          host_length = host_length - strlen (tmp);
-        }
-      else
-        {
-          g_message ("ignoring invalid port in %s", host);
-        }
-    }
-
-  host_arg = g_strndup (host + host_offset, host_length);
-  /* Overide hostname for tests */
-  if (cockpit_ws_specific_ssh_port != 0 &&
-      g_strcmp0 (host_arg, "localhost") == 0)
-    {
-      *hostname = g_strdup ("127.0.0.1");
-    }
-  else
-    {
-      *hostname = g_strdup (host_arg);
-    }
-
-  *username = g_strdup (user_arg);
-  *port = port_num;
-
-  g_free (host_arg);
-  g_free (user_arg);
-}
-
-static CockpitSession *
-lookup_or_open_session (CockpitWebService *self,
-                        JsonObject *options)
-{
-  CockpitSession *session = NULL;
-  CockpitSshAgent *agent = NULL;
-  CockpitTransport *transport;
-  CockpitCreds *creds = NULL;
-  gchar *hostname = NULL;
-  gchar *username = NULL;
-  gint port;
-
-  const gchar *host_key = NULL;
-  const gchar *host = NULL;
-  const gchar *sharable = NULL;
-  const gchar *specific_user;
-  const gchar *creds_user;
-  const gchar *password;
-  GBytes *bytes;
-  gboolean private = FALSE;
-  gboolean new_creds = FALSE;
-
-  if (!cockpit_json_get_string (options, "host", "localhost", &host))
-    host = "localhost";
-  if (host == NULL || g_strcmp0 (host, "") == 0)
-    host = "localhost";
-
-  if (!cockpit_json_get_string (options, "password", NULL, &password))
-    password = NULL;
-
-  if (cockpit_json_get_string (options, "user", NULL, &specific_user))
-    {
-      if (g_strcmp0 (specific_user, "") == 0)
-        specific_user = NULL;
-    }
-
-  if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
-    host_key = NULL;
-
-  /*
-   * Some sessions shouldn't be shared by multiple channels, such as those that
-   * explicitly specify a host-key or specific user.
-   *
-   * In the future we'd like to get away from having these sorts of channels, but
-   * for now we force them to have their own session, started with those specific
-   * arguments.
-   *
-   * This means the session doesn't show up in the by_host table.
-   */
-  if (!cockpit_json_get_string (options, "session", NULL, &sharable))
-    sharable = NULL;
-  if (!sharable)
-    {
-      /* Fallback to older ways of indicating this */
-      if (specific_user || host_key)
-        private = TRUE;
-      if (private && !cockpit_json_get_bool (options, "temp-session", TRUE, &private))
-        private = TRUE;
-    }
-  else if (g_str_equal (sharable, "private"))
-    {
-      private = TRUE;
-    }
-
-  if (!private)
-    session = cockpit_session_by_host (&self->sessions, host);
-
-  if (!session)
-    {
-      parse_host (host, &hostname, &username, &port);
-      creds_user = cockpit_creds_get_user (self->creds);
-
-      if (specific_user)
-        new_creds = TRUE;
-      else if (username && g_strcmp0(username, creds_user) != 0)
-        new_creds = TRUE;
-      else if (username && password != NULL)
-        new_creds = TRUE;
-
-      if (new_creds)
-        {
-          bytes = NULL;
-          if (password)
-            bytes = g_bytes_new_take (g_strdup (password), strlen (password));
-          creds = cockpit_creds_new (specific_user != NULL ? specific_user : username,
-                                     cockpit_creds_get_application (self->creds),
-                                     COCKPIT_CRED_PASSWORD, bytes,
-                                     COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->creds),
-                                     NULL);
-          g_bytes_unref (bytes);
-        }
-      else
-        {
-          creds = cockpit_creds_ref (self->creds);
-        }
-
-      /* lookup local session only when not connecting
-       * to localhost host and when not testing with
-       * cockpit_ws_specific_ssh_port
-       */
-      if (g_strcmp0 (hostname, "localhost") != 0 &&
-          (g_strcmp0 (hostname, "127.0.0.1") != 0 ||
-           cockpit_ws_specific_ssh_port == 0))
-        {
-          CockpitSession *local = cockpit_session_by_host (&self->sessions,
-                                                           "localhost");
-          if (local && local->transport)
-            {
-                gchar *next_id = cockpit_web_service_unique_channel (self);
-                gchar *channel_id = g_strdup_printf ("ssh-agent%s",
-                                                     next_id);
-                agent = cockpit_ssh_agent_new (local->transport,
-                                               hostname,
-                                               channel_id);
-                g_free (channel_id);
-                g_free (next_id);
-            }
-        }
-
-      transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                "host", hostname,
-                                "port", port,
-                                "command", cockpit_ws_bridge_program,
-                                "creds", creds,
-                                "known-hosts", cockpit_ws_known_hosts,
-                                "host-key", host_key,
-                                "agent", agent,
-                                NULL);
-
-      session = cockpit_session_track (&self->sessions, host, private, creds, transport);
-      session->control_sig = g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
-      session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
-      session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
-      g_object_unref (transport);
-
-      if (agent)
-        g_object_unref (agent);
-
-      cockpit_creds_unref (creds);
-      g_free (hostname);
-      g_free (username);
-    }
-
-  json_object_remove_member (options, "host");
-  json_object_remove_member (options, "user");
-  json_object_remove_member (options, "password");
-  json_object_remove_member (options, "host-key");
-  json_object_remove_member (options, "temp-session");
-
-  return session;
+  /* Dispose web service */
+  g_object_run_dispose (G_OBJECT (self));
 }
 
 gboolean
@@ -1369,7 +788,6 @@ process_and_relay_open (CockpitWebService *self,
                         JsonObject *options)
 {
   WebSocketDataType data_type = WEB_SOCKET_DATA_TEXT;
-  CockpitSession *session = NULL;
   GBytes *payload;
 
   if (self->closing)
@@ -1378,7 +796,7 @@ process_and_relay_open (CockpitWebService *self,
       return TRUE;
     }
 
-  if (cockpit_session_by_channel (&self->sessions, channel))
+  if (cockpit_socket_lookup_by_channel (&self->sockets, channel))
     {
       g_warning ("cannot open a channel %s with the same id as another channel", channel);
       return FALSE;
@@ -1387,16 +805,13 @@ process_and_relay_open (CockpitWebService *self,
   if (!cockpit_web_service_parse_binary (options, &data_type))
     return FALSE;
 
-  session = lookup_or_open_session (self, options);
-
-  cockpit_session_add_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
 
-  if (!session->sent_done)
+  if (!self->sent_done)
     {
       payload = cockpit_json_write_bytes (options);
-      cockpit_transport_send (session->transport, NULL, payload);
+      cockpit_transport_send (self->transport, NULL, payload);
       g_bytes_unref (payload);
     }
 
@@ -1492,8 +907,6 @@ dispatch_inbound_command (CockpitWebService *self,
   const gchar *channel;
   JsonObject *options = NULL;
   gboolean valid = FALSE;
-  CockpitSession *session = NULL;
-  GHashTableIter iter;
 
   valid = cockpit_transport_parse_command (payload, &command, &channel, &options);
   if (!valid)
@@ -1529,12 +942,8 @@ dispatch_inbound_command (CockpitWebService *self,
       if (valid)
         {
           /* logout is broadcast to everyone */
-          g_hash_table_iter_init (&iter, self->sessions.by_transport);
-          while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
-            {
-              if (!session->sent_done)
-                cockpit_transport_send (session->transport, NULL, payload);
-            }
+          if (!self->sent_done)
+            cockpit_transport_send (self->transport, NULL, payload);
         }
     }
   else if (g_strcmp0 (command, "close") == 0)
@@ -1556,14 +965,8 @@ dispatch_inbound_command (CockpitWebService *self,
   else if (channel)
     {
       /* Relay anything with a channel by default */
-      session = cockpit_session_by_channel (&self->sessions, channel);
-      if (session)
-        {
-          if (!session->sent_done)
-            cockpit_transport_send (session->transport, NULL, payload);
-        }
-      else
-        g_debug ("dropping control message with unknown channel %s", channel);
+      if (!self->sent_done)
+        cockpit_transport_send (self->transport, NULL, payload);
     }
 
 out:
@@ -1579,7 +982,6 @@ on_web_socket_message (WebSocketConnection *connection,
                        GBytes *message,
                        CockpitWebService *self)
 {
-  CockpitSession *session;
   CockpitSocket *socket;
   GBytes *payload;
   gchar *channel;
@@ -1600,16 +1002,8 @@ on_web_socket_message (WebSocketConnection *connection,
   /* An actual payload message */
   else if (!self->closing)
     {
-      session = cockpit_session_by_channel (&self->sessions, channel);
-      if (session)
-        {
-          if (!session->sent_done)
-            cockpit_transport_send (session->transport, channel, payload);
-        }
-      else
-        {
-          g_debug ("received message for unknown channel %s", channel);
-        }
+      if (!self->sent_done)
+        cockpit_transport_send (self->transport, channel, payload);
     }
 
   g_free (channel);
@@ -1641,9 +1035,6 @@ on_web_socket_open (WebSocketConnection *connection,
   json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (self->creds));
 
   capabilities = json_array_new ();
-  json_array_add_string_element (capabilities, "ssh");
-  json_array_add_string_element (capabilities, "connection-string");
-  json_array_add_string_element (capabilities, "auth-method-results");
   json_array_add_string_element (capabilities, "multi");
   json_array_add_string_element (capabilities, "credentials");
   json_array_add_string_element (capabilities, "binary");
@@ -1672,7 +1063,6 @@ static gboolean
 on_web_socket_closing (WebSocketConnection *connection,
                        CockpitWebService *self)
 {
-  CockpitSession *session;
   CockpitSocket *socket;
   GHashTable *snapshot;
   GHashTableIter iter;
@@ -1681,24 +1071,29 @@ on_web_socket_closing (WebSocketConnection *connection,
 
   g_debug ("web socket closing");
 
+  if (self->sent_done)
+    return TRUE;
+
   /* Close any channels that were opened by this web socket */
   snapshot = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  g_hash_table_iter_init (&iter, self->sessions.by_channel);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&channel, (gpointer *)&session))
+  socket = cockpit_socket_lookup_by_connection (&self->sockets, connection);
+  if (socket)
     {
-      socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
-      if (socket && socket->connection == connection)
-        g_hash_table_insert (snapshot, g_strdup (channel), session);
+      g_hash_table_iter_init (&iter, socket->channels);
+      while (g_hash_table_iter_next (&iter, (gpointer *)&channel, NULL))
+        {
+          g_hash_table_add (snapshot, g_strdup (channel));
+        }
     }
 
   g_hash_table_iter_init (&iter, snapshot);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&channel, (gpointer *)&session))
+  while (g_hash_table_iter_next (&iter, (gpointer *)&channel, NULL))
     {
       payload = cockpit_transport_build_control ("command", "close",
                                                  "channel", channel,
                                                  "problem", "disconnected",
                                                  NULL);
-      cockpit_transport_send (session->transport, NULL, payload);
+      cockpit_transport_send (self->transport, NULL, payload);
       g_bytes_unref (payload);
     }
   g_hash_table_destroy (snapshot);
@@ -1752,8 +1147,8 @@ on_ping_time (gpointer user_data)
 static void
 cockpit_web_service_init (CockpitWebService *self)
 {
+  self->logname = "cockpit-web-service";
   self->control_prefix = g_bytes_new_static ("\n", 1);
-  cockpit_sessions_init (&self->sessions);
   cockpit_sockets_init (&self->sockets);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
   self->host_by_checksum = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -1776,16 +1171,17 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
 
   sig_transport_init = g_signal_new ("transport-init-changed", COCKPIT_TYPE_WEB_SERVICE,
                                      G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
-                                     G_TYPE_NONE, 1, COCKPIT_TYPE_TRANSPORT);
+                                     G_TYPE_NONE, 0);
 }
 
 /**
  * cockpit_web_service_new:
  * @creds: credentials of user
- * @session: optionally an open cockpit-session master process, or NULL
+ * @transport: an new cockpit transport that has not yet
+ * sent an init message.
  *
- * Creates a new web service to serve web sockets and connect
- * to bridges for the given user.
+ * Creates a new web service to serve web sockets and pass
+ * messages to the given bridge.
  *
  * Returns: (transfer full): the new web service
  */
@@ -1794,22 +1190,29 @@ cockpit_web_service_new (CockpitCreds *creds,
                          CockpitTransport *transport)
 {
   CockpitWebService *self;
-  CockpitSession *session;
+  JsonObject *object;
+  GBytes *command;
 
   g_return_val_if_fail (creds != NULL, NULL);
+  g_return_val_if_fail (transport != NULL, NULL);
 
   self = g_object_new (COCKPIT_TYPE_WEB_SERVICE, NULL);
   self->creds = cockpit_creds_ref (creds);
+  self->transport = g_object_ref (transport);
 
-  if (transport)
-    {
-      /* Any failures happen asyncronously */
-      session = cockpit_session_track (&self->sessions, "localhost", FALSE, creds, transport);
-      session->control_sig = g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
-      session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
-      session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
-      session->primary = TRUE;
-    }
+  self->control_sig = g_signal_connect_after (self->transport, "control", G_CALLBACK (on_transport_control), self);
+  self->recv_sig = g_signal_connect_after (self->transport, "recv", G_CALLBACK (on_transport_recv), self);
+  self->closed_sig = g_signal_connect_after (self->transport, "closed", G_CALLBACK (on_transport_closed), self);
+
+  /* Always send an init message down the new transport */
+  object = cockpit_transport_build_json ("command", "init", NULL);
+  json_object_set_int_member (object, "version", 1);
+  json_object_set_string_member (object, "host", "localhost");
+  command = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
+  cockpit_transport_send (transport, NULL, command);
+  g_bytes_unref (command);
 
   return self;
 }
@@ -1930,7 +1333,7 @@ cockpit_web_service_get_creds (CockpitWebService *self)
  * cockpit_web_service_disconnect:
  * @self: the service
  *
- * Close all sessions and sockets that are running in this web
+ * Close all sockets that are running in this web
  * service.
  */
 void
@@ -1947,57 +1350,36 @@ cockpit_web_service_get_idling (CockpitWebService *self)
 }
 
 CockpitTransport *
-cockpit_web_service_ensure_transport (CockpitWebService *self,
-                                      JsonObject *open)
+cockpit_web_service_get_transport (CockpitWebService *self)
 {
-  CockpitSession *session;
-
   g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
-  g_return_val_if_fail (open != NULL, NULL);
-
-  session = lookup_or_open_session (self, open);
-  g_return_val_if_fail (session != NULL, NULL);
-
-  return session->transport;
+  return self->transport;
 }
 
 static void
 on_transport_init (CockpitWebService *service,
-                   CockpitTransport *transport,
                    gpointer user_data)
 {
   GSimpleAsyncResult *result = user_data;
-  CockpitTransport *watched_transport = g_simple_async_result_get_op_res_gpointer (result);
-
-  if (transport != watched_transport)
-    return;
-
   g_signal_handlers_disconnect_by_data (service, result);
   g_simple_async_result_complete_in_idle (result);
   g_object_unref (result);
 }
 
 void
-cockpit_web_service_get_transport_init_message_aysnc (CockpitWebService *self,
-                                                      CockpitTransport *transport,
-                                                      GAsyncReadyCallback callback,
-                                                      gpointer user_data)
+cockpit_web_service_get_init_message_aysnc (CockpitWebService *self,
+                                            GAsyncReadyCallback callback,
+                                            gpointer user_data)
 {
-  CockpitSession *session;
   GSimpleAsyncResult *result;
   gboolean waiting = FALSE;
 
   g_return_if_fail (COCKPIT_IS_WEB_SERVICE (self));
-  g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
 
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                      cockpit_web_service_get_transport_init_message_aysnc);
+                                      cockpit_web_service_get_init_message_aysnc);
 
-  g_simple_async_result_set_op_res_gpointer (result,
-                                             g_object_ref (transport),
-                                             g_object_unref);
-  session = cockpit_session_by_transport (&self->sessions, transport);
-  if (session && !g_object_get_data (G_OBJECT (transport), "init"))
+  if (!g_object_get_data (G_OBJECT (self->transport), "init"))
     {
       g_signal_connect (self, "transport-init-changed",
                         (GCallback) on_transport_init, g_object_ref (result));
@@ -2011,23 +1393,17 @@ cockpit_web_service_get_transport_init_message_aysnc (CockpitWebService *self,
 }
 
 JsonObject *
-cockpit_web_service_get_transport_init_message_finish (CockpitWebService *self,
-                                                       GAsyncResult *result)
+cockpit_web_service_get_init_message_finish (CockpitWebService *self,
+                                             GAsyncResult *result)
 {
-  CockpitSession *session = NULL;
-  CockpitTransport *transport = NULL;
   JsonObject *init = NULL;
 
   g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
   g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                        cockpit_web_service_get_transport_init_message_aysnc), NULL);
+                        cockpit_web_service_get_init_message_aysnc), NULL);
 
-  transport = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
-  if (transport)
-    session = cockpit_session_by_transport (&self->sessions, transport);
-
-  if (session && session->transport)
-    init = g_object_get_data (G_OBJECT (transport), "init");
+  if (self->transport)
+    init = g_object_get_data (G_OBJECT (self->transport), "init");
 
   return init;
 }

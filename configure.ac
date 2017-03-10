@@ -130,11 +130,6 @@ if test "$enable_ssh" != "no"; then
     AC_DEFINE_UNQUOTED(HAVE_SSH_GSSAPI_SET_CREDS, 1, Whether ssh_gssapi_set_creds is available)
   ])
 
-  AC_CHECK_LIB(ssh, ssh_set_agent_socket, [
-    AC_DEFINE_UNQUOTED(HAVE_SSH_SET_AGENT_SOCKET, 1, Whether ssh_set_agent_socket is available)
-    key_auth="yes"
-  ], [key_auth="no"])
-
   AC_DEFINE_UNQUOTED(WITH_COCKPIT_SSH, 1, [Build cockpit-ssh and include libssh dependency])
 
   COCKPIT_SSH_SESSION_CFLAGS="$COCKPIT_CFLAGS $LIBSSH_CFLAGS $KRB5_CFLAGS"

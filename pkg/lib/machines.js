@@ -721,8 +721,15 @@
 
     cockpit.transport.wait(function() {
         var caps = cockpit.transport.options.capabilities || [];
-        mod.allow_connection_string = $.inArray("connection-string", caps) != -1;
-        mod.has_auth_results = $.inArray("auth-method-results", caps) != -1;
+        /* If cockpit-ws is handling ssh, check for each capability. Otherwise
+         * the version is new enough that is has them all */
+        if ($.inArray("ssh", caps) > -1) {
+            mod.allow_connection_string = $.inArray("connection-string", caps) != -1;
+            mod.has_auth_results = $.inArray("auth-method-results", caps) != -1;
+        } else {
+            mod.allow_connection_string = true;
+            mod.has_auth_results = true;
+        }
     });
 
     module.exports = mod;

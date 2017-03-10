@@ -641,7 +641,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
                                          "binary", "raw",
                                          NULL);
 
-  transport = cockpit_web_service_ensure_transport (service, object);
+  transport = cockpit_web_service_get_transport (service);
   if (!transport)
     goto out;
 
@@ -751,7 +751,7 @@ cockpit_channel_response_open (CockpitWebService *service,
       return;
     }
 
-  transport = cockpit_web_service_ensure_transport (service, open);
+  transport = cockpit_web_service_get_transport (service);
   if (!transport)
     {
       cockpit_web_response_error (response, 502, NULL, "Failed to open channel transport");

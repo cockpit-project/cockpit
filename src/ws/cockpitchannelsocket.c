@@ -217,7 +217,7 @@ cockpit_channel_socket_open (CockpitWebService *service,
       goto out;
     }
 
-  transport = cockpit_web_service_ensure_transport (service, open);
+  transport = cockpit_web_service_get_transport (service);
   if (!transport)
     {
       respond_with_error (original_path, path, io_stream, headers, 502, "Failed to open channel transport");

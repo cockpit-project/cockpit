@@ -23,7 +23,6 @@
 
 #include "cockpitauthoptions.h"
 #include "cockpitauthprocess.h"
-#include "cockpitsshtransport.h"
 #include "cockpitws.h"
 
 #include "websocket/websocket.h"
@@ -50,6 +49,15 @@
 #define ACTION_SSH "remote-login-ssh"
 #define ACTION_NONE "none"
 #define LOGIN_REPLY_HEADER "X-Conversation"
+
+/* Some tunables that can be set from tests */
+const gchar *cockpit_ws_session_program =
+    PACKAGE_LIBEXEC_DIR "/cockpit-session";
+
+const gchar *cockpit_ws_ssh_program =
+    PACKAGE_LIBEXEC_DIR "/cockpit-ssh";
+
+const gchar *cockpit_ws_bridge_program = NULL;
 
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;
@@ -797,7 +805,7 @@ start_auth_process (CockpitAuth *self,
 
   if (cockpit_auth_process_start (ad->auth_process, argv,
                                   (const gchar **) env,
-                                  -1, FALSE, &error))
+                                  FALSE, &error))
     {
       g_signal_connect (ad->auth_process, "message",
                         G_CALLBACK (on_auth_process_message),

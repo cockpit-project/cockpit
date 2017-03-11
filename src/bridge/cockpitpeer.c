@@ -59,7 +59,6 @@ struct _CockpitPeer {
   gulong other_closed;
   gboolean inited;
   gboolean closed;
-  gboolean disposing;
   gchar *problem;
 };
 
@@ -207,7 +206,13 @@ on_other_closed (CockpitTransport *transport,
   CockpitPipe *pipe;
   gint status = 0;
 
-  if (self->inited)
+  if (!self->inited)
+    {
+      g_debug ("%s: bridge failed to start%s%s", self->name,
+               problem ? ": " : "", problem ? problem : "");
+      problem = fail_start_problem (self);
+    }
+  else if (!self->closed)
     {
       pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (transport));
 
@@ -238,12 +243,6 @@ on_other_closed (CockpitTransport *transport,
           if (!problem)
             problem = "disconnected";
         }
-    }
-  else
-    {
-      g_debug ("%s: bridge failed to start%s%s", self->name,
-               problem ? ": " : "", problem ? problem : "");
-      problem = fail_start_problem (self);
     }
 
   g_signal_handler_disconnect (self->other, self->other_closed);
@@ -389,7 +388,7 @@ cockpit_peer_dispose (GObject *object)
 {
   CockpitPeer *self = COCKPIT_PEER (object);
 
-  self->disposing = TRUE;
+  self->closed = TRUE;
 
   g_hash_table_remove_all (self->channels);
 
@@ -409,9 +408,6 @@ cockpit_peer_dispose (GObject *object)
   if (self->other)
     on_other_closed (self->other, "terminated", self);
   g_assert (self->other == NULL);
-
-  self->inited = FALSE;
-  self->closed = TRUE;
 
   G_OBJECT_CLASS (cockpit_peer_parent_class)->dispose (object);
 }

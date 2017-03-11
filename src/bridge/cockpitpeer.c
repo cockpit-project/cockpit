@@ -53,7 +53,6 @@ struct _CockpitPeer {
   gulong other_closed;
   gboolean inited;
   gboolean closed;
-  gboolean disposing;
   gchar *problem;
 };
 
@@ -172,6 +171,18 @@ on_other_control (CockpitTransport *transport,
   return TRUE;
 }
 
+static const gchar *
+fail_start_problem (CockpitPeer *self)
+{
+  const gchar *problem;
+
+  cockpit_json_get_string (self->config, "problem", NULL, &problem);
+  g_free (self->problem);
+  self->problem = g_strdup (problem);
+
+  return self->problem;
+}
+
 static void
 on_other_closed (CockpitTransport *transport,
                  const gchar *problem,
@@ -183,7 +194,25 @@ on_other_closed (CockpitTransport *transport,
   CockpitPipe *pipe;
   gint status = 0;
 
-  if (self->inited)
+  /*
+   * If we haven't yet gotten an "init" message, then we use the
+   * problem code that is in the config. If no problem is configured
+   * then we don't close the channel, but let the channel be handled
+   * elsewhere or eventually fail with "not-supported".
+   */
+  if (!self->inited)
+    {
+      g_debug ("%s: bridge failed to start%s%s", self->name,
+               problem ? ": " : "", problem ? problem : "");
+      problem = fail_start_problem (self);
+    }
+
+  /*
+   * The peer has closed after we received an init message. It was
+   * up and running and now it's gone. We're more verbose here
+   * and end up closing channels that were open.
+   */
+  else if (!self->closed)
     {
       pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (transport));
 
@@ -214,20 +243,6 @@ on_other_closed (CockpitTransport *transport,
           if (!problem)
             problem = "disconnected";
         }
-    }
-  else
-    {
-      g_debug ("%s: bridge failed to start%s%s", self->name,
-               problem ? ": " : "", problem ? problem : "");
-
-      /*
-       * If we haven't yet gotten an "init" message, then we use the
-       * problem code that is in the config. If none exists there,
-       * we don't close the channel, but let it be handled elsewhere
-       * or fail with "not-supported" elsewhere.
-       */
-      cockpit_json_get_string (self->config, "problem", NULL, &problem);
-      self->problem = g_strdup (problem);
     }
 
   g_signal_handler_disconnect (self->other, self->other_closed);
@@ -373,7 +388,7 @@ cockpit_peer_dispose (GObject *object)
 {
   CockpitPeer *self = COCKPIT_PEER (object);
 
-  self->disposing = TRUE;
+  self->closed = TRUE;
 
   g_hash_table_remove_all (self->channels);
 
@@ -393,9 +408,6 @@ cockpit_peer_dispose (GObject *object)
   if (self->other)
     on_other_closed (self->other, "terminated", self);
   g_assert (self->other == NULL);
-
-  self->inited = FALSE;
-  self->closed = TRUE;
 
   G_OBJECT_CLASS (cockpit_peer_parent_class)->dispose (object);
 }

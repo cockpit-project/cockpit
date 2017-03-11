@@ -690,8 +690,8 @@ process_socket_authorize (CockpitWebService *self,
         session = cockpit_session_by_channel (&self->sessions, channel);
       if (!session)
         {
-          g_message ("%s: channel to inject password credentials does not exist: %s",
-                     socket->id, channel ? channel : "");
+          g_debug ("%s: channel to inject password credentials does not exist: %s",
+                   socket->id, channel ? channel : "");
         }
       else if (!session->sent_done)
         {

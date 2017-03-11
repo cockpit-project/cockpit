@@ -227,14 +227,24 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 el.toggleClass("active", el.attr("data-component") === state.component);
             });
 
+            /* When no dashboard type components show a minimal navbar */
+            var minimal = Object.keys(compiled.items).every(function(key) {
+                return compiled.items[key].section != "dashboard";
+            });
+
+            /* Unless there are more than one machine */
+            if (machines.list.length > 1)
+                minimal = false;
+
             var hide;
             if (machine && machine.static_hostname) {
                 hide = $(".dashboard-link").length < 2 && machines.list.length < 2;
-                $('#content-navbar').toggleClass("hidden", hide);
+                $('#content-navbar').toggleClass("hidden", hide || minimal);
             } else {
-                $('#content-navbar').toggleClass("hidden", false);
+                $('#content-navbar').toggleClass("hidden", minimal);
             }
 
+            /* When a dashboard no machine or sidebar */
             var item = compiled.items[state.component];
             if (item && item.section == "dashboard") {
                 delete state.sidebar;

@@ -112,12 +112,17 @@ WantedBy=default.target
         b.switch_to_frame("cockpit1:localhost/playground/test")
         b.wait_text("#hidden", "hidden")
 
+        b.switch_to_top()
+
+        # The top bar should not be visible on fedora-atomic because no dashboards
+        if "fedora-atomic" in m.image:
+            b.wait_not_visible("#content-navbar")
+
         # Lets try changing the language
         # Translations are not ready for RHEL yet
         if "rhel" in m.image:
             return
 
-        b.switch_to_top()
         b.click("#content-user-name")
         b.click(".display-language-menu a")
         b.wait_popup('display-language')

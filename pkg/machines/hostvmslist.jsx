@@ -23,6 +23,7 @@ import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm } from "./acti
 import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
+import VmDisksTab from './vmdiskstab.jsx';
 
 const _ = cockpit.gettext;
 
@@ -309,7 +310,8 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
 
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
-        {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' }
+        {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' },
+        {name: (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>), renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' }
     ];
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
         tabRenderers = tabRenderers.concat(config.provider.vmTabRenderers.map(

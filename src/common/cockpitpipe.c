@@ -298,6 +298,11 @@ dispatch_input (gint fd,
             {
               return TRUE;
             }
+          else if (!self->priv->seq_packet && errn == ECONNRESET)
+            {
+              g_debug ("couldn't read: %s", g_strerror (errn));
+              ret = 0;
+            }
           else
             {
               if (self->priv->seq_packet)

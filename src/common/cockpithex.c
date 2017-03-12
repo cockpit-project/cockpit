@@ -23,11 +23,33 @@
 
 #include <string.h>
 
+static const char HEX[] = "0123456789abcdef";
+
+gchar *
+cockpit_hex_encode (gconstpointer data,
+                    gssize length)
+{
+  const guchar *in = data;
+  gchar *out;
+  gsize i;
+
+  if (length < 0)
+    length = strlen (data);
+
+  out = g_malloc (length * 2 + 1);
+  for (i = 0; i < length; i++)
+    {
+      out[i * 2] = HEX[in[i] >> 4];
+      out[i * 2 + 1] = HEX[in[i] & 0xf];
+    }
+  out[i * 2] = '\0';
+  return out;
+}
+
 gpointer
 cockpit_hex_decode (const gchar *hex,
                     gsize *length)
 {
-  static const char HEX[] = "0123456789abcdef";
   const gchar *hpos;
   const gchar *lpos;
   gsize len;

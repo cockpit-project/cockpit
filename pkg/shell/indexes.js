@@ -259,7 +259,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 color = "transparent";
             else
                 color = machine.color || "";
-            $("#machine-color").css("border-left-color", color);
+            $(".machine-color").css("border-left-color", color);
 
             $("#machine-dropdown").toggleClass("active", !!machine);
 
@@ -274,11 +274,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         function update_sidebar(machine, state, compiled) {
             function links(component) {
-                return $("<li>")
+                return $("<li class='list-group-item'>")
                     .toggleClass("active", state.component === component.path)
                     .append($("<a>")
                         .attr("href", index.href({ host: machine.address, component: component.path }))
-                        .text(component.label));
+                        .append($("<span>").text(component.label)));
             }
 
             var menu = compiled.ordered("menu").map(links);
@@ -286,7 +286,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             var tools = compiled.ordered("tools").map(links);
             $("#sidebar-tools").empty().append(tools);
-            $('#tools-panel li.active').parents('#tools-panel').collapse('show');
         }
 
         function update_title(label, machine) {

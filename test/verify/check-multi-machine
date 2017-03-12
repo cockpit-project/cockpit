@@ -443,8 +443,6 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@%s/system"' % m2.address)
 
         # Test subnav
-        b.wait_visible('a[data-target="#tools-panel"]')
-        b.click('a[data-target="#tools-panel"]')
         b.wait_present('a[href="/@{}/users"]'.format(m2.address))
         b.wait_visible('a[href="/@{}/users"]'.format(m2.address))
         b.click('a[href="/@{}/users"]'.format(m2.address))

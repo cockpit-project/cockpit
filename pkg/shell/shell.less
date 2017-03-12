@@ -19,8 +19,10 @@
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-@import "/page.css";
-@import "/table.css";
+@import (less) "/page.css";
+@import (less) "/table.css";
+@import "variables.less";
+@import "switcher.less";
 
 /* Hacks on top for now */
 
@@ -469,162 +471,10 @@ html.index-page body {
    padding: 10px;
 }
 
-#machine-color {
-    border-left: 7px solid #BABABA;
-    border-top: none;
-    border-bottom: none;
-    height: 44px;
-    padding: 0px;
-    float: left;
-}
-
-#machine-dropdown a {
-    font-size: 13px;
-}
-
-#machine-dropdown .dropdown-menu {
-    width: 100%;
-    border-left: none;
-}
-
-#machine-dropdown .dropdown-menu a {
-    padding: 10px;
-}
-
-#machine-dropdown .dropdown-menu li {
-    border-left: 7px solid #BABABA;
-}
-
-#machine-dropdown .dropdown-menu li a {
-    max-width: 201px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-#machine-link {
-    padding: 9px;
-    padding-left: 15px;
-    padding-right: 15px;
-    position: static;
-    min-width: 179px;
-}
-
-#machine-link span {
-    display: inline-block;
-    width: 100px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-.machine-avatar {
-    width: 24px;
-    height: 24px;
-    margin-right: 9px;
-    display: none;
-}
-
-#machine-spinner {
-    float: right;
-    margin: 8px;
-}
-
-#sidebar {
-    float: left;
-    width: 120px;
-    padding: 0 20px;
-    border-right: 1px solid #D0D0D0;
-    background-color: #FAFAFA;
-    overflow-y: auto;
-}
-
-#sidebar a {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-#sidebar .panel-group .panel-default {
-    margin-left: -20px;
-    margin-right: -20px;
-}
-
-.nopadding {
-   padding: 0;
-}
-
-.nomargin {
-   margin: 0;
-}
-
-.nomargin-sides {
-   margin-left: 0;
-   margin-right: 0;
-}
-
-#content {
-    position: relative;
-}
-
 iframe.container-frame {
     display: none;
     border: none;
     width: 100%;
-}
-
-/* Otherwise the datepicker is confused when in a modal */
-.datepicker-dropdown {
-    margin-top: 30px;
-}
-
-#sidebar > .nav-category {
-    padding-bottom: 5px;
-}
-
-#tools-menu > .panel {
-  border: none;
-  box-shadow: none;
-}
-
-#tools-menu > .panel > .panel-heading {
-  height: auto;
-  padding-left: 0px;
-  margin-left: 4px;
-  background: none;
-  border-bottom: none;
-}
-
-#tools-menu .panel-title a {
-  font-weight: normal;
-  font-size: 13px;
-  display: block;
-  color: #333;
-}
-
-#tools-panel {
-    height: 0px;
-}
-
-#tools-panel > .panel-body {
-  border: none;
-}
-
-#sidebar-tools > li > a {
-  padding-left: 20px;
-}
-
-/* For when displayed normally */
-@media (min-width: 768px) {
-    #sidebar {
-        width: 180px;
-    }
-    .machine-avatar {
-        display: inline;
-    }
-    #machine-color: {
-        height: 44px;
-    }
 }
 
 /* Credentials dialog */

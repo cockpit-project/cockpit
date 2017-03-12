@@ -20,9 +20,6 @@ class SosReportingTab(SeleniumTest):
     def test10SosReport(self):
         self.login()
         self.wait_id("sidebar")
-        self.wait_id("tools-panel",cond=invisible)
-        self.click(self.wait_link('Tools', cond=clickable))
-        self.wait_id("tools-panel")
         self.click(self.wait_link('Diagnostic report', cond=clickable))
         self.wait_frame("sosreport")
         self.wait_text("This tool will collect system configuration and diagnostic")

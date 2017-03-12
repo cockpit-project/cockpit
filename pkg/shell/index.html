@@ -60,7 +60,7 @@
             </div>
           </li>
           <li class="dropdown" id="machine-dropdown">
-            <a id="machine-color"></a>
+            <a class="machine-color"></a>
             <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
                 aria-haspopup="true" role="button" aria-expanded="false">
                <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar"><span translate>Machines</span>
@@ -278,26 +278,11 @@
         </div>
     </div>
 
-    <div id="sidebar" class="sidebar-pf sidebar-pf-left" hidden>
-      <div class="nav-category">
-        <ul id="sidebar-menu" class="nav nav-pills nav-stacked">
+    <div id="sidebar" class="nav-pf-vertical nav-sidebar" hidden>
+        <ul class="list-group machine-color" id="sidebar-menu">
         </ul>
-      </div>
-      <div id="tools-menu" class="panel-group">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-target="#tools-panel" class="collapsed" translatable="yes">Tools</a>
-            </h4>
-          </div>
-          <div id="tools-panel" class="panel-collapse collapse">
-            <div class="panel-body">
-              <ul id="sidebar-tools" class="nav nav-pills nav-stacked">
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+        <ul class="list-group machine-color" id="sidebar-tools">
+        </ul>
     </div>
 
     <div class="curtains-ct blank-slate-pf" hidden>

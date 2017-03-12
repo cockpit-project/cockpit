@@ -24,6 +24,9 @@
 
 G_BEGIN_DECLS
 
+gchar *          cockpit_hex_encode            (gconstpointer data,
+                                                gssize length);
+
 gpointer         cockpit_hex_decode            (const gchar *hex,
                                                 gsize *length);
 

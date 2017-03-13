@@ -1508,7 +1508,6 @@ function settings_applier(model, device, connection) {
      */
 
     return function (settings) {
-        console.log("apply", settings, connection);
         if (connection) {
             return connection.apply_settings(settings);
         } else if (settings.connection.type) {
@@ -2426,7 +2425,7 @@ PageNetworkInterface.prototype = {
             $('#network-interface-mac').text(mac);
         }
 
-        this.device_onoff.onoff("disabled", !iface);
+        this.device_onoff.onoff("disabled", !!(!iface || (dev && dev.State == 20)));
         this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
         this.device_onoff.toggle(managed);
 

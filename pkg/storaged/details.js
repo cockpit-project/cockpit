@@ -76,6 +76,7 @@
                                               map(function (b) {
                                                   return { value: b.path, Title: b.Name + " " + b.Description };
                                               })),
+                                    EmptyWarning: _("No disks are available."),
                                     validate: function (disks) {
                                         if (disks.length === 0)
                                             return _("At least one disk is needed.");
@@ -212,6 +213,7 @@
                                               map(function (b) {
                                                   return { value: b.path, Title: b.Name + " " + b.Description };
                                               })),
+                                    EmptyWarning: _("No disks are available."),
                                     validate: function (disks) {
                                         if (disks.length === 0)
                                             return _("At least one disk is needed.");

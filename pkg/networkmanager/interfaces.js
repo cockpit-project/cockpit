@@ -908,8 +908,9 @@ function NetworkManagerModel() {
 
             null,
 
-            // Needs: type_Interface.Device
-            //        type_Interface.Connections
+            null,
+
+            // Needs: type_Interface.Connections
             //
             // Sets:  type_Connection.Slaves
             //        type_Connection.Masters
@@ -942,10 +943,7 @@ function NetworkManagerModel() {
                     } else {
                         iface = peek_interface(cs.master);
                         if (iface) {
-                            if (iface.Device)
-                                iface.Device.AvailableConnections.forEach(check_con);
-                            else
-                                iface.Connections.forEach(check_con);
+                            iface.Connections.forEach(check_con);
                         }
                     }
                 }
@@ -1043,6 +1041,7 @@ function NetworkManagerModel() {
         exporters: [
             function (obj) {
                 obj.Device = null;
+                obj._NonDeviceConnections = [ ];
                 obj.Connections = [ ];
                 obj.MainConnection = null;
             },
@@ -1050,13 +1049,14 @@ function NetworkManagerModel() {
             null,
 
             // Needs: type_Interface.Device
-            //        type_Interface.Connections
+            //        type_Interface._NonDeviceConnections
             //
             // Sets:  type_Connection.Interfaces
+            //        type_Interface.Connections
             //        type_Interface.MainConnection
 
             function (obj) {
-                if (!obj.Device && obj.Connections.length === 0) {
+                if (!obj.Device && obj._NonDeviceConnections.length === 0) {
                     drop_object(priv(obj).path);
                     return;
                 }
@@ -1068,17 +1068,19 @@ function NetworkManagerModel() {
                     }
                 }
 
+                obj.Connections = obj._NonDeviceConnections;
+
                 if (obj.Device) {
                     obj.Device.AvailableConnections.forEach(function (con) {
-                        consider_for_main(con);
-                        con.Interfaces.push(obj);
-                    });
-                } else {
-                    obj.Connections.forEach(function (con) {
-                        consider_for_main(con);
-                        con.Interfaces.push(obj);
+                        if (obj.Connections.indexOf(con) == -1)
+                            obj.Connections.push(con);
                     });
                 }
+
+                obj.Connections.forEach(function (con) {
+                    consider_for_main(con);
+                    con.Interfaces.push(obj);
+                });
 
                 // Explicitly prefer the active connection.  The
                 // active connection should have the most recent
@@ -1138,14 +1140,17 @@ function NetworkManagerModel() {
         exporters: [
             null,
 
-            // Sets: type_Interface.Connections
+            // Sets: type_Interface._NonDeviceConnections
             //
             function (obj) {
                 if (obj.Connections) {
                     obj.Connections.forEach(function (con) {
                         function add_to_interface(name) {
-                            if (name)
-                                get_interface(name).Connections.push(con);
+                            if (name) {
+                                var cons = get_interface(name)._NonDeviceConnections;
+                                if (cons.indexOf(con) == -1)
+                                    cons.push(con);
+                            }
                         }
 
                         if (con.Settings) {
@@ -1501,6 +1506,7 @@ function settings_applier(model, device, connection) {
      */
 
     return function (settings) {
+        console.log("apply", settings, connection);
         if (connection) {
             return connection.apply_settings(settings);
         } else if (settings.connection.type) {
@@ -2266,10 +2272,7 @@ PageNetworkInterface.prototype = {
         }
 
         function delete_iface_connections(iface) {
-            if (iface.Device)
-                return delete_connections(iface.Device.AvailableConnections);
-            else
-                return delete_connections(iface.Connections);
+            return delete_connections(iface.Connections);
         }
 
         var location = cockpit.location;

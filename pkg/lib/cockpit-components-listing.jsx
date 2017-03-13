@@ -274,9 +274,13 @@ var Listing = React.createClass({
         } else {
            headerRow = <tr/>
         }
+        var caption;
+        if (this.props.title || (this.props.actions && this.props.actions.length > 0))
+            caption = <caption className="cockpit-caption">{this.props.title}{this.props.actions}</caption>;
+
         return (
             <table className={ bodyClasses.join(" ") }>
-                <caption className="cockpit-caption">{this.props.title}{this.props.actions}</caption>
+                {caption}
                 <thead className={headerClasses}>
                     {headerRow}
                 </thead>

@@ -1154,6 +1154,8 @@ function NetworkManagerModel() {
                         }
 
                         if (con.Settings) {
+                            if (con.Settings.connection)
+                                add_to_interface(con.Settings.connection.interface_name);
                             if (con.Settings.bond)
                                 add_to_interface(con.Settings.bond.interface_name);
                             if (con.Settings.team)

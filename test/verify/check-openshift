@@ -652,7 +652,7 @@ class TestRegistry(MachineCase):
             b.click(".btn-primary")
             b.wait_not_present("modal-dialog")
             b.wait_present("table.listing-ct")
-            wait(lambda: username not in o.execute("oc get rolebinding -n testprojectuserproj"))
+            wait(lambda: username not in o.execute("oc get rolebinding -n testprojectuserproj"), delay=5)
 
         # try to add user with invalid name from testprojectuserproj page
         b.go("#/projects/testprojectuserproj")

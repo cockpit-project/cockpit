@@ -230,8 +230,10 @@
                 };
             if (count > 1)
                 parts['count'] = count;
-            if (ident === 'abrt-notification')
+            if (ident === 'abrt-notification') {
                 parts['problem'] = true;
+                parts['service'] = entry['PROBLEM_BINARY'];
+            }
             else if (prio < 4)
                 parts['warning'] = true;
             return Mustache.render(line_template, parts);

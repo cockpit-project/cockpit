@@ -80,7 +80,7 @@ var info = {
 
         "shell/index": [
             "shell/index.js",
-            "shell/shell.css",
+            "shell/shell.less",
         ],
         "shell/index-stub": [
             "shell/index-stub.js",

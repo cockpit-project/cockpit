@@ -95,9 +95,6 @@ class BasicTestSuite(SeleniumTest):
     def test80ChangeTabTools(self):
         self.login()
         self.wait_id("sidebar")
-        self.wait_id("tools-panel",cond=invisible)
-        self.click(self.wait_link('Tools', cond=clickable))
-        self.wait_id("tools-panel")
         self.click(self.wait_link('Accounts', cond=clickable))
         self.wait_frame("users")
         self.click(self.wait_xpath(

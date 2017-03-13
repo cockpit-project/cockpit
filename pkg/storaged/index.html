@@ -810,6 +810,7 @@
                 {{#SelectMany}}
                 <td class="top">{{Title}}</td>
                 <td>
+                  {{#HasOptions}}
                   <ul class="list-group available-disks-group dialog-list-ct" data-field={{.}}>
                     {{#Options}}
                     <li class="list-group-item">
@@ -819,6 +820,10 @@
                     </li>
                     {{/Options}}
                   </ul>
+                  {{/HasOptions}}
+                  {{^HasOptions}}
+                  <span class="text-danger">{{EmptyWarning}}</span>
+                  {{/HasOptions}}
                 </td>
                 {{/SelectMany}}
                 {{#SelectRow}}

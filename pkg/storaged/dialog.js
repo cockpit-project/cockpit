@@ -50,6 +50,10 @@
             // Put in the Units for SizeSliders
             if (f.SizeSlider && !f.Units)
                 f.Units = cockpit.get_byte_units(f.Value || f.Max);
+
+            // Help SelectMany with counting
+            if (f.SelectMany)
+                f.HasOptions = (f.Options.length > 0);
         });
 
 

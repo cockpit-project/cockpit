@@ -1302,12 +1302,6 @@ array_string_element (JsonArray *array,
   return NULL;
 }
 
-/* Useful analogs for the errors below if not yet defined by glib */
-#if !GLIB_CHECK_VERSION(2,42,0)
-#define G_DBUS_ERROR_UNKNOWN_INTERFACE G_DBUS_ERROR_UNKNOWN_METHOD
-#define G_DBUS_ERROR_UNKNOWN_OBJECT G_DBUS_ERROR_UNKNOWN_METHOD
-#endif
-
 static gboolean
 parse_json_method (CockpitDBusJson *self,
                    JsonNode *node,

@@ -368,11 +368,6 @@ test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ss
 
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
-# Lock bridge dependency due to --with-storaged-iscsi-sessions
-# which uses new less stable /manifests.js request path.
-%if 0%{?rhel}
-Requires: %{name}-bridge >= %{version}-%{release}
-%endif
 Requires: %{name}-shell >= %{required_base}
 Requires: storaged >= 2.1.1
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8

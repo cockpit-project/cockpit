@@ -419,6 +419,46 @@ $(function() {
 
         var d_btn =  $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
 
+        var r_btn = $();
+        if (problem.IsReported){
+            for (var pid = 0; pid < problem.Reports.length; pid++) {
+                if (problem.Reports[pid][0] === 'ABRT Server') {
+                    var url = problem.Reports[pid][1]['URL']['v']['v'];
+                    r_btn = $('<a class="problem-btn">')
+                            .attr('href', url)
+                            .attr("target", "_blank")
+                            .text('Reported');
+                    break;
+                }
+            }
+        }
+
+        else if (problem.CanBeReported){
+            r_btn = $('<button class="btn btn-primary problem-btn">').text('Report');
+
+            r_btn.click(function() {
+                tab.children(':last-child').replaceWith($('<div class="spinner problem-btn">'));
+                var proc = cockpit.spawn(['reporter-ureport', '-d', problem.ID], { superuser: 'true' });
+                proc.done(function() {
+                    window.location.reload();
+                });
+                proc.fail(function(ex) {
+                    var message;
+                    if (ex.problem === 'access-denied') {
+                        message = _("Not authorized to upload-report");
+                    } else if (ex.problem === "not-found") {
+                        message = _("Reporter 'reporter-ureport' not found.");
+                    } else {
+                        message = _("Reporting was unsucessful. Try running `reporter-ureport -d "+ problem.ID +"`");
+                    }
+                    $('<div class="alert alert-danger">')
+                        .append('<span class="pficon pficon-error-circle-o">')
+                        .text(message).insertAfter(".breadcrumb");
+                    tab.children(':last-child').replaceWith($('<span>'));
+                });
+            });
+        }
+
         ge_t.click(function() {
             switch_tab(ge_t, ge);
         });
@@ -455,6 +495,7 @@ $(function() {
         tab.append(pi_t);
         tab.append(pd_t);
         tab.append(d_btn);
+        tab.append(r_btn);
 
         var body = $('<th>');
         body.append(tab);
@@ -465,7 +506,6 @@ $(function() {
 
         create_problem_details(problem, pi, pd);
     }
-
 
     function create_problem_details(problem, pi, pd) {
         service.GetProblemData(problem.path).done(function(args, options) {

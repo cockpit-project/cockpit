@@ -1236,7 +1236,10 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
                                             call->interface,
                                             call->method);
 
-  g_dbus_message_set_flags (message, G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION);
+  /* When no flags or interactive flags not set */
+  if (!call->flags || strchr (call->flags, 'i'))
+    g_dbus_message_set_flags (message, G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION);
+
   g_dbus_message_set_body (message, parameters);
   parameters = NULL;
 

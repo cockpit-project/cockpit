@@ -397,8 +397,10 @@ with parameters in this order: path, interface, method, in arguments.
 All the various parameters must be valid for their use. arguments may be
 null if no DBus method call body is expected. If a "type" field is specified
 then it is expected to be the DBus method type signature (no tuple). If a
-"flags" field is a string, then this includes message flags. None are
-defined yet.
+"flags" field is a string, then this includes message flags. The default flags
+option has the "i" flag set:
+
+ * "i": Allow interactive authentication.
 
 If no "name" field was specified in the "open" call, indicating which DBus
 service to talk to, then one must be specified here along with the "call".

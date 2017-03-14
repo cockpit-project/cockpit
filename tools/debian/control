@@ -144,6 +144,7 @@ Package: cockpit-tests
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
+         cockpit-system (>= ${source:Version}),
          openssh-client
 Conflicts: cockpit-test-assets
 Replaces: cockpit-test-assets

@@ -638,7 +638,6 @@ process_socket_authorize (CockpitWebService *self,
                           GBytes *payload)
 {
   const gchar *credential = NULL;
-  CockpitSession *session = NULL;
   const gchar *string = NULL;
   GBytes *password;
   gpointer data;
@@ -681,26 +680,6 @@ process_socket_authorize (CockpitWebService *self,
         {
           data = (gpointer)g_bytes_get_data (payload, &length);
           cockpit_secclear (data, length);
-          g_bytes_unref (password);
-        }
-    }
-  else if (g_str_equal (credential, "inject"))
-    {
-      if (channel)
-        session = cockpit_session_by_channel (&self->sessions, channel);
-      if (!session)
-        {
-          g_debug ("%s: channel to inject password credentials does not exist: %s",
-                   socket->id, channel ? channel : "");
-        }
-      else if (!session->sent_done)
-        {
-          password = cockpit_creds_get_password (self->creds);
-          if (password)
-            g_bytes_ref (password);
-          else
-            password = g_bytes_new_static ("", 0);
-          cockpit_transport_send (session->transport, channel, password);
           g_bytes_unref (password);
         }
     }

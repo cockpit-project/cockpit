@@ -2086,9 +2086,6 @@ test_authorize_password (TestCase *test,
   JsonObject *control = NULL;
   CockpitWebService *service;
   GBytes *payload = NULL;
-  gconstpointer content;
-  gchar *password;
-  gsize length;
   gulong handler1;
   gulong handler2;
 
@@ -2130,43 +2127,8 @@ test_authorize_password (TestCase *test,
   json_object_unref (control);
   control = NULL;
 
-  /* Ask for that password to be injected in a channel */
-  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
-
-  /* We should receive the password on the channel */
-  while (payload == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  content = g_bytes_get_data (payload, &length);
-  password = g_strndup (content, length);
-  g_assert_cmpstr (password, ==, "444\nthis is the password");
-  g_free (password);
-  g_bytes_unref (payload);
-  payload = NULL;
-
-  /* Now set a new password and then ask for that to be injected */
-  send_control_message (ws, "authorize", NULL, "credential", "password", "password", "marmalade", NULL);
-  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
-
-  /* We should now get a hint that we have no password */
-  while (control == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"hint\",\"credential\":\"password\"}");
-  json_object_unref (control);
-  control = NULL;
-
-  /* We should now receive the password on the channel */
-  while (payload == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  content = g_bytes_get_data (payload, &length);
-  password = g_strndup (content, length);
-  g_assert_cmpstr (password, ==, "444\nmarmalade");
-  g_free (password);
-  g_bytes_unref (payload);
-  payload = NULL;
-
   /* Now clear the password */
   send_control_message (ws, "authorize", NULL, "credential", "password", NULL);
-  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
 
   /* We should now get a hint that we have no password */
   while (control == NULL)
@@ -2174,19 +2136,6 @@ test_authorize_password (TestCase *test,
   cockpit_assert_json_eq (control, "{\"command\":\"hint\",\"credential\":\"clear\"}");
   json_object_unref (control);
   control = NULL;
-
-  /* Inject the password on the channel */
-  send_control_message (ws, "authorize", "444", "credential", "inject", NULL);
-
-  /* We should get a zero length message */
-  while (payload == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  content = g_bytes_get_data (payload, &length);
-  password = g_strndup (content, length);
-  g_assert_cmpstr (password, ==, "444\n");
-  g_free (password);
-  g_bytes_unref (payload);
-  payload = NULL;
 
   g_signal_handler_disconnect (ws, handler1);
   g_signal_handler_disconnect (ws, handler2);

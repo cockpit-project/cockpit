@@ -295,11 +295,7 @@ Example authorize challenge and response messages:
 
 For credential cache authorization, the following fields are defined:
 
- * "credential": One of the following words: "inject" or "password"
-
-When set to "inject" a channel must be specified a cached password
-credential will be injected as its own payload into the channel. If no
-password is cached, an empty payload will be injected.
+ * "credential": Empty or one of the following: "password"
 
 When set to "password" then a "password" field should also be present
 which represents a new password to cache, which replaces any current

@@ -295,7 +295,7 @@ Example authorize challenge and response messages:
 
 For credential cache authorization, the following fields are defined:
 
- * "credential": Empty or one of the following: "password"
+ * "credential": Empty or "password"
 
 When set to "password" then a "password" field should also be present
 which represents a new password to cache, which replaces any current

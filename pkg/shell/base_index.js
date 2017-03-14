@@ -188,8 +188,10 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     for (seed in source_by_seed)
                         source_by_seed[seed].window.postMessage(message, origin);
                 } else if (control.command == "hint") {
-                    if (control.credential)
-                        index.authorize_changed(control.credential);
+                    if (control.credential) {
+                        if (index.privileges)
+                            index.privileges.update(control);
+                    }
                 }
 
             /* Forward message to relevant frame */
@@ -674,10 +676,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             $(self).triggerHandler("expect_restart", host);
         };
 
-        self.authorize_changed = function(value) {
-            $(self.credential_sel).toggle(value != "clear");
-        };
-
         /* Menu items */
         /* The oops bar */
         function setup_oops(id) {
@@ -780,10 +778,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         /* User information */
         function setup_user(id, user) {
             $(id).text(user.full_name || user.name || '???');
-
-            var is_root = (user.name == "root");
-            var is_not_root = (user.name && !is_root);
-            $('#deauthorize-item').toggle(is_not_root);
         }
 
         if (self.oops_sel)

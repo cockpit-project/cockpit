@@ -307,12 +307,6 @@
     function setup() {
         var keys;
 
-        /* The button to deauthorize cockpit */
-        $("#credential-authorize button").on("click", function(ev) {
-            cockpit.drop_privileges(false);
-            ev.preventDefault();
-        });
-
         $("#credentials-dialog")
 
             /* Show and hide panels */

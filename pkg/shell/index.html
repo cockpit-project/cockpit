@@ -24,6 +24,18 @@
       </div>
       <div class="collapse navbar-collapse navbar-collapse-1">
         <ul class="nav navbar-nav navbar-utility">
+          <li class="credential-lock">
+            <a data-toggle="tooltip" data-placement="bottom" translate="title"
+                title="Privileged tasks not available">
+              <i class="fa fa-lock"></i>
+              <span translate>Locked</span>
+            </a>
+            <a data-toggle="tooltip" data-placement="bottom" translate="title"
+                title="Lock to prevent privileged tasks" class="credential-clear">
+              <i class="fa fa-unlock-alt"></i>
+              <span translate>Unlocked</span>
+            </a>
+          </li>
           <li id="navbar-oops" hidden>
             <a><span class="oops-status" translatable="yes">Ooops!</span></a>
           </li>
@@ -151,14 +163,20 @@
                 </div>
                 <div class="modal-body modal-scrollable">
                     <table class="listing-ct credential-listing">
-                        <thead>
-                            <tr id="credential-authorize" hidden>
-                                <td translatable="yes" colspan="2">Use my password for privileged tasks and to connect to other machines</td>
+                        <thead class="credential-lock">
+                            <tr>
+                                <td translate colspan="2">Password not usable for privileged tasks or to connect to other machines</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td translate colspan="2">Reuse my password for privileged tasks and to connect to other machines</td>
                                 <td class="listing-ct-actions">
-                                    <button class="btn btn-default pficon pficon-close" id="deauthorize-item">
+                                    <button class="btn btn-default pficon pficon-close credential-clear">
                                     </button>
                                 </td>
                             </tr>
+                        </thead>
+                        <thead>
                             <tr id="credential-keys">
                                 <td translatable="yes" colspan="2">Use the following keys to authenticate against other systems</td>
                                 <td class="listing-ct-actions">

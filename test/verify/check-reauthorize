@@ -39,13 +39,13 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
-        # Deauthorize from the menu
+        # Deauthorize from the top bar
         b.leave_page()
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
-        b.wait_visible("#credential-authorize button")
-        b.click("#credential-authorize button")
-        b.wait_not_visible("#credential-authorize button")
+        b.wait_visible("a.credential-clear")
+        b.click("a.credential-clear")
+        b.wait_not_visible("a.credential-clear")
         b.click("#credentials-dialog [data-dismiss]")
 
         b.enter_page("/playground/test")
@@ -57,6 +57,8 @@ class TestReauthorize(MachineCase):
 
     def testSuper(self):
         self.allow_authorize_journal_messages()
+        self.allow_journal_messages("Error receiving data: Connection reset by peer")
+        self.allow_journal_messages("connection unexpectedly closed by peer")
         b = self.browser
 
         self.login_and_go("/playground/test")
@@ -70,8 +72,8 @@ class TestReauthorize(MachineCase):
         b.leave_page()
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
-        b.click("#credential-authorize button")
-        b.wait_not_visible("#credential-authorize button")
+        b.click("button.credential-clear")
+        b.wait_not_visible("button.credential-clear")
         b.click("#credentials-dialog [data-dismiss]")
 
         b.enter_page("/playground/test")
@@ -81,9 +83,19 @@ class TestReauthorize(MachineCase):
 
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
 
+        # Now log in as root even without password caching
+        b.logout
+        self.login_and_go("/playground/test", authorized=False, user="root")
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+        # When root and not authorized, the 'Locked' or 'Unlocked' indicators should not be visible
+        b.leave_page()
+        b.wait_not_visible("li.credential-lock")
+
     def testSudo(self):
         self.allow_authorize_journal_messages()
-        self.allow_journal_messages("@authorize@user:user@authorize@.*")
         m = self.machine
         b = self.browser
 

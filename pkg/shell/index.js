@@ -48,9 +48,9 @@
         about_sel: "#about-version",
         account_sel: "#go-account",
         user_sel: "#content-user-name",
-        credential_sel: "#credential-authorize",
         killer_sel: "#active-pages",
-        default_title: "Cockpit"
+        default_title: "Cockpit",
+        privileges: require("./privileges").instance(),
     };
 
     indexes.machines_index(options, machines, loader, dialogs);

@@ -314,6 +314,57 @@ html.index-page body {
     display: none;
 }
 
+.credential-lock > * {
+    display: none !important;
+}
+
+.credential-lock.credential-locked > *:first-child {
+    display: block !important;
+}
+
+.credential-lock.credential-unlocked > *:last-child {
+    display: block !important;
+}
+
+@-webkit-keyframes blink {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.credential-blink {
+    -webkit-animation: blink 1.2s 1 linear;
+    animation: blink 1.2s 1 linear;
+}
+
+li.credential-lock {
+    span { padding-left: 1em; }
+}
+
+/* For now this is not clickable */
+li.credential-lock > a:first-child {
+    cursor: default;
+}
+
+
 /* The server avatar */
 #server-avatar {
     width:       128px;
@@ -503,10 +554,6 @@ table.credential-listing {
 .credential-listing thead td {
     padding-left: 15px;
     padding-bottom: 15px;
-}
-
-#credential-authorize td {
-    padding-bottom: 30px;
 }
 
 .credential-data {

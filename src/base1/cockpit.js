@@ -1106,6 +1106,17 @@ function factory() {
         });
     };
 
+    /* Not a public API ... yet? */
+    cockpit.authorize = function authorize(credential, options) {
+        options = extend({ }, options);
+        options["command"] = "authorize";
+        if (credential)
+            options["credential"] = credential;
+        ensure_transport(function(transport) {
+            transport.send_control(options);
+        });
+    };
+
     cockpit.transport = public_transport = {
         wait: ensure_transport,
         inject: function inject(message, out) {

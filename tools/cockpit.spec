@@ -423,7 +423,7 @@ This package contains the Cockpit shell and system configuration interfaces.
 %package tests
 Summary: Tests for Cockpit
 Requires: %{name}-bridge >= %{version}-%{release}
-Requires: %{name}-shell >= %{version}-%{release}
+Requires: %{name}-system >= %{version}-%{release}
 Requires: openssh-clients
 Provides: %{name}-test-assets
 Obsoletes: %{name}-test-assets < 132

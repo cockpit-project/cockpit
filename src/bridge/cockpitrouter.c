@@ -353,6 +353,7 @@ process_open (CockpitRouter *self,
 {
   const gchar *host;
   GList *l;
+  GBytes *new_payload = NULL;
 
   if (!channel)
     {
@@ -378,30 +379,30 @@ process_open (CockpitRouter *self,
       cockpit_transport_emit_control (self->transport, "open", channel, options, data);
     }
 
-  /* TODO: These will move into actual bridges sections */
   else if (!cockpit_json_get_string (options, "host", self->init_host, &host))
     {
       g_warning ("%s: caller specified invalid 'host' field in open message", channel);
-      process_open_not_supported (self, channel, options, data, NULL);
-    }
-  else if (g_strcmp0 (self->init_host, host) != 0)
-    {
-      g_message ("%s: this process does not support connecting to another host", channel);
       process_open_not_supported (self, channel, options, data, NULL);
     }
 
   /* Now go throgh the rules */
   else
     {
+      if (g_strcmp0 (self->init_host, host) == 0)
+          json_object_remove_member (options, "host");
+
+      new_payload = cockpit_json_write_bytes (options);
       for (l = self->rules; l != NULL; l = g_list_next (l))
         {
           if (router_rule_match (l->data, options) &&
-              router_rule_invoke (l->data, self, channel, options, data))
+              router_rule_invoke (l->data, self, channel, options, new_payload))
             {
               break;
             }
         }
     }
+  if (new_payload)
+    g_bytes_unref (new_payload);
 }
 
 static void

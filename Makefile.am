@@ -157,6 +157,7 @@ WEBPACK_PACKAGES = \
 	selinux \
 	shell \
 	sosreport \
+	ssh \
 	storaged \
 	subscriptions \
 	systemd \
@@ -393,6 +394,7 @@ include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
+include src/ssh/Makefile-ssh.am
 include src/ws/Makefile-ws.am
 include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am

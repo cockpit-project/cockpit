@@ -1,0 +1,14 @@
+{
+    "version": "@VERSION@",
+    "requires": {
+	"cockpit": "134.x"
+    },
+    "priority": 1,
+    "bridges": [
+        {
+            "match": { "host": null },
+            "spawn": [ "@libexecdir@/cockpit-ssh" ],
+            "problem": "not-supported"
+        }
+    ]
+}

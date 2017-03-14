@@ -1,0 +1,113 @@
+if WITH_COCKPIT_SSH
+
+noinst_LIBRARIES += libcockpit-ssh.a
+libexec_PROGRAMS += cockpit-ssh
+
+libcockpit_ssh_a_SOURCES = \
+	src/ws/cockpitauthoptions.h \
+	src/ws/cockpitauthoptions.c \
+	src/ws/cockpitauthprocess.h \
+	src/ws/cockpitauthprocess.c \
+	src/ssh/cockpitsshrelay.h \
+	src/ssh/cockpitsshrelay.c \
+	src/ssh/cockpitsshservice.h \
+	src/ssh/cockpitsshservice.c \
+	src/ssh/cockpitsshtransport.h \
+	src/ssh/cockpitsshtransport.c \
+	$(NULL)
+
+libcockpit_ssh_a_CFLAGS = \
+	-I$(top_srcdir)/src/ssh \
+	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
+	-DG_LOG_DOMAIN=\"cockpit-ssh\" \
+	$(COCKPIT_SSH_SESSION_CFLAGS) \
+	$(NULL)
+
+libcockpit_ssh_LIBS = \
+	libcockpit-ssh.a \
+	libcockpit-common.a \
+	$(COCKPIT_SSH_SESSION_LIBS) \
+	$(NULL)
+
+cockpit_ssh_SOURCES = \
+	src/ssh/ssh.c \
+	$(NULL)
+
+cockpit_ssh_LDADD = \
+	$(libcockpit_ssh_LIBS) \
+	$(COCKPIT_SSH_SESSION_LIBS) \
+	$(NULL)
+
+cockpit_ssh_CFLAGS = \
+	$(COCKPIT_SSH_SESSION_CFLAGS) \
+	$(NULL)
+
+noinst_PROGRAMS += mock-sshd
+
+mock_sshd_SOURCES = src/ssh/mock-sshd.c
+
+mock_sshd_LDADD = \
+	$(COCKPIT_SSH_SESSION_LIBS) \
+	$(NULL)
+
+mock_sshd_CFLAGS = \
+	$(COCKPIT_SSH_SESSION_CFLAGS) \
+	$(NULL)
+
+SSH_CHECKS = \
+	test-sshtransport \
+	test-sshservice \
+	$(NULL)
+
+test_sshtransport_SOURCES = \
+	src/ssh/test-sshtransport.c \
+	$(NULL)
+test_sshtransport_CFLAGS = $(cockpit_ssh_CFLAGS)
+test_sshtransport_LDADD = \
+	libcockpit-ssh.a \
+	$(cockpit_ssh_LDADD) \
+	$(NULL)
+
+test_sshservice_SOURCES = \
+	src/ssh/test-sshservice.c \
+	src/bridge/mock-transport.c \
+	src/bridge/mock-transport.h \
+	$(NULL)
+
+test_sshservice_CFLAGS = $(cockpit_ssh_CFLAGS)
+test_sshservice_LDADD = \
+	libcockpit-ssh.a \
+	$(cockpit_ssh_LDADD) \
+	$(NULL)
+	
+test_rsa_key: src/ssh/test_rsa
+	$(AM_V_GEN) cp $< $@ && chmod 600 $@
+noinst_DATA += test_rsa_key
+
+CLEANFILES += \
+	test_rsa_key \
+	$(NULL)
+
+EXTRA_DIST += \
+	src/ssh/mock_rsa_key \
+	src/ssh/mock_dsa_key \
+	src/ssh/test_rsa \
+	src/ssh/test_rsa.pub \
+	src/ssh/mock_known_hosts \
+	src/ssh/mock-pid-cat \
+	$(NULL)
+
+noinst_SCRIPTS += \
+	src/ssh/mock-pid-cat \
+	$(NULL)
+
+noinst_PROGRAMS += $(SSH_CHECKS)
+
+TESTS += $(SSH_CHECKS)
+
+update-known-hosts:
+	cat $(srcdir)/src/ssh/mock_*.pub | \
+		sed -ne 's/\(.*\) [^ ]\+$$/[localhost]:*,[127.0.0.1]:* \1/p' > \
+			$(srcdir)/src/ssh/mock_known_hosts
+
+endif

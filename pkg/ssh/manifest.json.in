@@ -8,6 +8,7 @@
         {
             "match": { "host": null },
             "spawn": [ "@libexecdir@/cockpit-ssh" ],
+            "environ": [ "SSH_ASKPASS=@libexecdir@/cockpit-askpass" ],
             "problem": "not-supported"
         }
     ]

@@ -55,6 +55,7 @@ typedef struct {
 
   MockTransport *transport;
 
+  const gchar *old_ask;
 } TestCase;
 
 typedef struct {
@@ -185,6 +186,9 @@ setup (TestCase *test,
 
   setup_mock_sshd (test, data);
 
+  test->old_ask = g_getenv ("SSH_ASKPASS");
+  g_setenv ("SSH_ASKPASS", BUILDDIR "/cockpit-askpass", TRUE);
+
   test->transport = g_object_new (mock_transport_get_type (), NULL);
   while (g_main_context_iteration (NULL, FALSE));
 }
@@ -203,6 +207,12 @@ teardown (TestCase *test,
   g_object_add_weak_pointer (G_OBJECT (test->transport), (gpointer *)&test->transport);
   g_object_unref (test->transport);
   g_assert (test->transport == NULL);
+
+  if (test->old_ask)
+    g_setenv ("SSH_ASKPASS", test->old_ask, TRUE);
+  else
+    g_unsetenv ("SSH_ASKPASS");
+
   alarm (0);
 }
 
@@ -214,6 +224,35 @@ emit_string (TestCase *test,
   GBytes *bytes = g_bytes_new (string, strlen (string));
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (test->transport), channel, bytes);
   g_bytes_unref (bytes);
+}
+
+static void
+handle_authorize_and_init (TestCase *test,
+                           gconstpointer data)
+{
+  JsonObject *control = NULL;
+  gchar *cmd = NULL;
+  const gchar *command;
+  const gchar *cookie;
+  const TestFixture *fix = data;
+
+  /* Init message */
+  while ((control = mock_transport_pop_control (test->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"init\",\"version\":1}");
+  control = NULL;
+
+  while ((control = mock_transport_pop_control (test->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (cockpit_json_get_string (control, "command", NULL, &command));
+  g_assert (cockpit_json_get_string (control, "cookie", NULL, &cookie));
+
+  g_assert_cmpstr (command, ==, "authorize");
+  cmd = g_strdup_printf ("{\"command\": \"authorize\","
+                           " \"cookie\": \"%s\","
+                           " \"response\": \"%s\"}", cookie, fix->password ? fix->password : PASSWORD);
+  emit_string (test, NULL, cmd);
+  g_free (cmd);
 }
 
 static const TestFixture fixture_default = {
@@ -276,7 +315,6 @@ test_user_host_fail (TestCase *test,
 {
   JsonObject *control = NULL;
   CockpitSshService *service = NULL;
-
   service = cockpit_ssh_service_new (COCKPIT_TRANSPORT (test->transport));
 
   emit_string (test, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
@@ -319,6 +357,8 @@ test_user_host_reuse_password (TestCase *test,
   emit_string (test, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
   emit_string (test, NULL, cmd);
   emit_string (test, "4", "wheee");
+
+  handle_authorize_and_init (test, data);
 
   while ((sent = mock_transport_pop_channel (test->transport, "4")) == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -413,6 +453,7 @@ test_timeout_session (TestCase *test,
   guint tag;
 
   cockpit_ssh_session_timeout = 1;
+  cockpit_ssh_bridge_program = SRCDIR "/src/ssh/mock-pid-cat";
 
   /* Open a channel with a host that has a port
    * and a user that doesn't work on the main mock ssh
@@ -516,11 +557,7 @@ test_expect_host_key (TestCase *test,
   emit_string (test, NULL, cmd);
   emit_string (test, "4", "wheee");
 
-  /* Init message */
-  while ((control = mock_transport_pop_control (test->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"init\",\"version\":1}");
-  control = NULL;
+  handle_authorize_and_init (test, data);
 
   while ((sent = mock_transport_pop_channel (test->transport, "4")) == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -580,11 +617,7 @@ test_expect_host_key_public (TestCase *test,
   emit_string (test, NULL, cmd);
   emit_string (test, "4", "wheee");
 
-  /* Init message */
-  while ((control = mock_transport_pop_control (test->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"init\",\"version\":1}");
-  control = NULL;
+  handle_authorize_and_init (test, data);
 
   while ((sent = mock_transport_pop_channel (test->transport, "4")) == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -636,11 +669,7 @@ test_auth_results (TestCase *test,
                            " \"host\": \"127.0.0.1\","
                            " \"channel\": \"4\", \"payload\": \"echo\"}");
 
-  /* Init message */
-  while ((control = mock_transport_pop_control (test->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"init\",\"version\":1}");
-  control = NULL;
+  handle_authorize_and_init (test, data);
 
   /* Should have gotten a failure message, about the credentials */
   while ((control = mock_transport_pop_control (test->transport)) == NULL)
@@ -660,6 +689,7 @@ test_kill_host (TestCase *test,
   GHashTable *seen;
   const gchar *command;
   const gchar *channel;
+  gboolean sent_kill = FALSE;
 
   service = cockpit_ssh_service_new (COCKPIT_TRANSPORT (test->transport));
 
@@ -670,17 +700,12 @@ test_kill_host (TestCase *test,
                            " \"channel\": \"b\", \"payload\": \"echo\"}");
   emit_string (test, NULL, "{\"command\": \"open\","
                            " \"channel\": \"c\", \"payload\": \"echo\"}");
-  emit_string (test, NULL, "{\"command\": \"kill\", \"host\": \"localhost\"}");
   seen = g_hash_table_new (g_str_hash, g_str_equal);
   g_hash_table_add (seen, "a");
   g_hash_table_add (seen, "b");
   g_hash_table_add (seen, "c");
 
-  /* Init message */
-  while ((control = mock_transport_pop_control (test->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"init\",\"version\":1}");
-  control = NULL;
+  handle_authorize_and_init (test, data);
 
   /* All the close messages */
   while (g_hash_table_size (seen) > 0)
@@ -689,6 +714,12 @@ test_kill_host (TestCase *test,
         g_main_context_iteration (NULL, TRUE);
 
       command = json_object_get_string_member (control, "command");
+      if (!sent_kill)
+        {
+          emit_string (test, NULL, "{\"command\": \"kill\", \"host\": \"localhost\"}");
+          sent_kill = TRUE;
+        }
+
       if (!g_str_equal (command, "open") && !g_str_equal (command, "ready"))
         {
           g_assert_cmpstr (command, ==, "close");
@@ -730,15 +761,15 @@ main (int argc,
   /* Try to debug crashing during tests */
   signal (SIGSEGV, cockpit_test_signal_backtrace);
 
+  g_test_add ("/ssh-service/user-host-fail", TestCase,
+              &fixture_custom_user, setup,
+              test_user_host_fail, teardown);
   g_test_add ("/ssh-service/specified-creds", TestCase,
               &fixture_custom_user, setup,
               test_specified_creds, teardown);
   g_test_add ("/ssh-service/specified-creds-overide-host", TestCase,
               &fixture_custom_user, setup,
               test_specified_creds_overide_host, teardown);
-  g_test_add ("/ssh-service/user-host-fail", TestCase,
-              &fixture_custom_user, setup,
-              test_user_host_fail, teardown);
   g_test_add ("/ssh-service/user-host-same", TestCase,
               &fixture_default, setup,
               test_user_host_reuse_password, teardown);

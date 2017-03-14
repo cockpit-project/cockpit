@@ -192,13 +192,13 @@ spawn_child_setup (gpointer data)
 
       if (cockpit_unix_fd_close_all (large, large) < 0)
         {
-          g_printerr ("couldn't close larger file descriptors: %m");
+          g_printerr ("couldn't close larger file descriptors: %m\n");
           _exit (127);
         }
 
       if (cockpit_unix_fd_close_until (3, small, large) < 0)
         {
-          g_printerr ("couldn't close smaller file descriptors: %m");
+          g_printerr ("couldn't close smaller file descriptors: %m\n");
           _exit (127);
         }
     }
@@ -206,7 +206,7 @@ spawn_child_setup (gpointer data)
     {
       if (cockpit_unix_fd_close_all (3, child_fds->auth_fd) < 0)
         {
-          g_printerr ("couldn't close file descriptors: %m");
+          g_printerr ("couldn't close file descriptors: %m\n");
           _exit (127);
         }
     }
@@ -215,7 +215,7 @@ spawn_child_setup (gpointer data)
   if (child_fds->auth_fd != child_fds->wanted_fd_number &&
       dup2 (child_fds->auth_fd, child_fds->wanted_fd_number) < 0)
     {
-      g_printerr ("couldn't dup file descriptor: %m");
+      g_printerr ("couldn't dup file descriptor: %m\n");
       _exit (127);
     }
 
@@ -228,7 +228,7 @@ spawn_child_setup (gpointer data)
       wanted = child_fds->wanted_fd_number + 1;
       if (dup2 (child_fds->agent_fd, wanted) < 0)
         {
-          g_printerr ("couldn't dup agent file descriptor: %m");
+          g_printerr ("couldn't dup agent file descriptor: %m\n");
           _exit (127);
         }
 

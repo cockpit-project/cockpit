@@ -331,7 +331,7 @@ The Cockpit components for managing software updates for ostree based systems.
 
 %package pcp
 Summary: Cockpit PCP integration
-Requires: %{name}-bridge = %{version}-%{release}
+Requires: %{name}-bridge >= %{required_base}
 Requires: pcp
 
 %description pcp
@@ -351,8 +351,7 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %package dashboard
 Summary: Cockpit SSH remoting and dashboard
 Requires: libssh >= %{libssh_version}
-Requires: cockpit-ws = %{version}-%{release}
-Provides: cockpit-ssh = %{version}-%{release}
+Provides: %{name}-ssh
 
 %description dashboard
 Cockpit support for remoting to other servers, bastion hosts, and a basic dashboard
@@ -389,7 +388,7 @@ The Cockpit component for managing storage.  This package uses Storaged.
 %package system
 Summary: Cockpit admin interface package for configuring and troubleshooting a system
 BuildArch: noarch
-Requires: %{name}-bridge = %{version}-%{release}
+Requires: %{name}-bridge >= %{version}-%{release}
 Requires: shadow-utils
 Requires: grep
 Requires: libpwquality

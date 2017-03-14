@@ -275,7 +275,6 @@ cat kdump.list subscriptions.list sosreport.list networkmanager.list selinux.lis
 
 %package bridge
 Summary: Cockpit bridge server-side component
-Obsoletes: %{name}-daemon < 0.48-2
 Requires: glib-networking
 Requires: polkit
 
@@ -401,8 +400,6 @@ Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
 Requires: /usr/bin/date
-Provides: %{name}-assets
-Obsoletes: %{name}-assets < 0.32
 Provides: %{name}-realmd = %{version}-%{release}
 Provides: %{name}-shell = %{version}-%{release}
 Obsoletes: %{name}-shell < 127
@@ -451,7 +448,6 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
-Obsoletes: cockpit-selinux-policy <= 0.83
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd

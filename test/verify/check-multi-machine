@@ -269,7 +269,20 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.logout()
-        m.execute("rm /var/lib/cockpit/known_hosts")
+        # read correct key and clean up
+        key = m.execute("cat /etc/ssh/ssh_known_hosts; rm /var/lib/cockpit/known_hosts /etc/ssh/ssh_known_hosts")
+        key = key.split(None, 1)[1]  # strip off host
+
+        # host key from machines.d json
+        m.execute(("""echo '{ "test": { "address": "%s", "hostkey": "%s", "visible": true }}'"""
+                   "> /etc/cockpit/machines.d/01-test.json") % (m2.address, key))
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "alt-password")
+        b.click('#login-button')
+        b.expect_load()
+        b.logout()
+        m.execute("rm /etc/cockpit/machines.d/01-test.json")
 
         # Bad host key
         m.execute("echo '{} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /etc/ssh/ssh_known_hosts".format(m2.address))

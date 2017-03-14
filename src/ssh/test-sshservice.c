@@ -32,6 +32,7 @@
 #include "bridge/mock-transport.h"
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include <string.h>
 #include <errno.h>
@@ -49,6 +50,9 @@
 
 #define PASSWORD "this is the password"
 
+gchar *test_config_dir;
+gchar *test_machine_json;
+
 typedef struct {
   GPid mock_sshd;
   guint16 ssh_port;
@@ -61,6 +65,8 @@ typedef struct {
 typedef struct {
   const char *user;
   const char *password;
+  const char *machines_json_fmt;
+  const char *expected_problem;
 } TestFixture;
 
 static GString *
@@ -213,6 +219,8 @@ teardown (TestCase *test,
   else
     g_unsetenv ("SSH_ASKPASS");
 
+  g_unlink (test_machine_json);
+
   alarm (0);
 }
 
@@ -255,6 +263,38 @@ handle_authorize_and_init (TestCase *test,
   g_free (cmd);
 }
 
+/**
+ * setup_mock_machines_d:
+ *
+ * Set up temporary machines.d dir; we have to do this globally instead of
+ * per-test as get_machines_json_dir() caches the value.
+ */
+static void
+setup_mock_machines_d (void)
+{
+    gchar *machines_d;
+    test_config_dir = g_dir_make_tmp ("cockpit.test.XXXXXXX", NULL);
+    g_assert (test_config_dir != NULL);
+    g_setenv ("COCKPIT_TEST_CONFIG_DIR", test_config_dir, TRUE);
+
+    machines_d = g_build_filename (test_config_dir, "machines.d", NULL);
+    g_assert_cmpint (g_mkdir (machines_d, 0755), ==, 0);
+
+    test_machine_json = g_build_filename (machines_d, "01-test.json", NULL);
+    g_free (machines_d);
+}
+
+static void
+teardown_mock_machines_d (void)
+{
+    gchar *machines_d = g_build_filename (test_config_dir, "machines.d", NULL);
+
+    g_assert_cmpint (g_rmdir (machines_d), ==, 0);
+    g_assert_cmpint (g_rmdir (test_config_dir), ==, 0);
+    g_free (machines_d);
+    g_clear_pointer (&test_config_dir, g_free);
+}
+
 static const TestFixture fixture_default = {
   .user = NULL
 };
@@ -263,6 +303,56 @@ static const TestFixture fixture_custom_user = {
   .user = "user",
   .password = "Another password"
 };
+
+static const TestFixture fixture_machines_json_key_int_port = {
+  .user = "user",
+  .password = "Another password",
+  .machines_json_fmt = "{\"test\": {\"address\": \"127.0.0.1\", \"port\": %u, \"hostkey\": \"%s\"}}"
+};
+
+static const TestFixture fixture_machines_json_key_str_port = {
+  .user = "user",
+  .password = "Another password",
+  .machines_json_fmt = "{\"test\": {\"address\": \"127.0.0.1\", \"port\": \"%u\", \"hostkey\": \"%s\"}}"
+};
+
+static const TestFixture fixture_machines_json_key_no_port = {
+  .user = "user",
+  .password = "Another password",
+  /* we need to consume the %u port argument, redirect it to something inert */
+  .machines_json_fmt = "{\"test\": {\"address\": \"127.0.0.1\", \"_ignore\": \"%u\", \"hostkey\": \"%s\"}}"
+};
+
+static const TestFixture fixture_machines_json_key_mismatching_port = {
+  .user = "user",
+  .password = "Another password",
+  .machines_json_fmt = "{\"test\": {\"address\": \"127.0.0.1\", \"port\": \"1%u\", \"hostkey\": \"%s\"}}"
+};
+
+static const TestFixture fixture_machines_json_key_list = {
+  .user = "user",
+  .password = "Another password",
+  .machines_json_fmt = "{\"test\": {\"address\": \"127.0.0.1\", \"port\": %u, "
+                       " \"hostkey\": [\"ssh-ed25519 MQo=\", \"%s\", \"ssh-rsa NDIK\"]}}"
+};
+
+static const TestFixture fixture_machines_json_key_list_mismatch = {
+  .user = "user",
+  .password = "Another password",
+  .machines_json_fmt = "{\"test\": {\"address\": \"127.0.0.1\", \"port\": %u, "
+                       " \"_ignore\": \"%s\", "  /* consume the key %s */
+                       " \"hostkey\": [\"ssh-ed25519 MQo=\", \"ssh-rsa NDIK\"]}}",
+  .expected_problem = "invalid-hostkey"
+};
+
+static const TestFixture fixture_machines_json_key_list_type_error = {
+  .user = "user",
+  .password = "Another password",
+  .machines_json_fmt = "{\"test\": {\"address\": \"127.0.0.1\", \"port\": %u, "
+                       " \"_ignore\": \"%s\", "  /* consume the key %s */
+                       " \"hostkey\": [{\"foo\": \"ssh-ed25519 MQo=\"}] }}"
+};
+
 
 static void
 test_specified_creds (TestCase *test,
@@ -734,6 +824,72 @@ test_kill_host (TestCase *test,
   g_object_unref (service);
 }
 
+static void
+test_machines_json_host_key (TestCase *test,
+                             gconstpointer data)
+{
+  const TestFixture *fix = data;
+  GBytes *sent;
+  CockpitSshService *service = NULL;
+
+  /* Disable global known_hosts, set up mock machines.d */
+  cockpit_ssh_known_hosts = "/dev/null";
+  gchar *j = g_strdup_printf (fix->machines_json_fmt, (unsigned) test->ssh_port, MOCK_RSA_KEY);
+  g_assert (g_file_set_contents (test_machine_json, j, -1, NULL));
+  g_free (j);
+
+  service = cockpit_ssh_service_new (COCKPIT_TRANSPORT (test->transport));
+
+  emit_string (test, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (test, NULL, "{\"command\": \"open\", \"user\": \"user\","
+                           " \"password\": \"Another password\","
+                           " \"channel\": \"4\", \"payload\": \"echo\"}");
+  emit_string (test, "4", "wheee");
+
+  while ((sent = mock_transport_pop_channel (test->transport, "4")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "wheee", -1);
+
+  g_object_unref (service);
+}
+
+static void
+test_machines_json_host_key_fail (TestCase *test,
+                                  gconstpointer data)
+{
+  const TestFixture *fix = data;
+  CockpitSshService *service = NULL;
+  JsonObject *control = NULL;
+  const gchar *value;
+
+  /* Disable global known_hosts, set up mock machines.d */
+  cockpit_ssh_known_hosts = "/dev/null";
+  gchar *j = g_strdup_printf (fix->machines_json_fmt, (unsigned) test->ssh_port, MOCK_RSA_KEY);
+  g_assert (g_file_set_contents (test_machine_json, j, -1, NULL));
+  g_free (j);
+
+  service = cockpit_ssh_service_new (COCKPIT_TRANSPORT (test->transport));
+
+  emit_string (test, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (test, NULL, "{\"command\": \"open\", \"user\": \"user\","
+                           " \"password\": \"Another password\","
+                           " \"channel\": \"4\", \"payload\": \"echo\"}");
+
+  while ((control = mock_transport_pop_control (test->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"init\",\"version\":1}");
+
+  /* Should have gotten a failure message about the unknown host key */
+  control = NULL;
+  while ((control = mock_transport_pop_control (test->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (cockpit_json_get_string (control, "problem", NULL, &value));
+  g_assert_cmpstr (value, ==, fix->expected_problem ?: "unknown-hostkey");
+
+  g_object_unref (service);
+}
+
+
 static gboolean
 on_hack_raise_sigchld (gpointer user_data)
 {
@@ -745,10 +901,14 @@ int
 main (int argc,
       char *argv[])
 {
+  int res;
+
   cockpit_test_init (&argc, &argv);
   cockpit_ssh_program = BUILDDIR "/cockpit-ssh";
   cockpit_ssh_known_hosts = SRCDIR "/src/ssh/mock_known_hosts";
   cockpit_ssh_bridge_program = SRCDIR "/src/ssh/mock-pid-cat";
+
+  setup_mock_machines_d ();
 
   /*
    * HACK: Work around races in glib SIGCHLD handling.
@@ -797,6 +957,30 @@ main (int argc,
   g_test_add ("/ssh-service/kill-host", TestCase,
               &fixture_default, setup,
               test_kill_host, teardown);
+  g_test_add ("/ssh-service/machines-json-host-key-int-port", TestCase,
+              &fixture_machines_json_key_int_port, setup,
+              test_machines_json_host_key, teardown);
+  g_test_add ("/ssh-service/machines-json-host-key-str-port", TestCase,
+              &fixture_machines_json_key_str_port, setup,
+              test_machines_json_host_key, teardown);
+  g_test_add ("/ssh-service/machines-json-host-key-no-port", TestCase,
+              &fixture_machines_json_key_no_port, setup,
+              test_machines_json_host_key_fail, teardown);
+  g_test_add ("/ssh-service/machines-json-host-key-mismatching-port", TestCase,
+              &fixture_machines_json_key_mismatching_port, setup,
+              test_machines_json_host_key_fail, teardown);
+  g_test_add ("/ssh-service/machines-json-host-key-list", TestCase,
+              &fixture_machines_json_key_list, setup,
+              test_machines_json_host_key, teardown);
+  g_test_add ("/ssh-service/machines-json-host-key-list-mismatch", TestCase,
+              &fixture_machines_json_key_list_mismatch, setup,
+              test_machines_json_host_key_fail, teardown);
+  g_test_add ("/ssh-service/machines-json-host-key-list-type-error", TestCase,
+              &fixture_machines_json_key_list_type_error, setup,
+              test_machines_json_host_key_fail, teardown);
 
-  return g_test_run ();
+  res = g_test_run ();
+
+  teardown_mock_machines_d ();
+  return res;
 }

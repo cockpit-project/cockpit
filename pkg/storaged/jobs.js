@@ -83,6 +83,8 @@
             }
 
             function show_spinners_for_objects(paths) {
+                if (!paths || !paths.length)
+                    return;
                 for (var i = 0; i < paths.length; i++)
                     show_spinners_for_object(paths[i]);
             }

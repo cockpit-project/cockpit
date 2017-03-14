@@ -42,6 +42,8 @@ require('./listing.less');
  *     to view expanded item details, if not set, navigation isn't available
  * listingDetail optional: text rendered next to action buttons, similar style to the tab headers
  * listingActions optional: buttons that are presented as actions for the expanded item
+ * selectChanged optional: callback will be used when the "selected" state changes
+ * selected optional: true if the item is selected, can't be true if row has navigation or expansion
  */
 var ListingRow = React.createClass({
     propTypes: {
@@ -50,7 +52,9 @@ var ListingRow = React.createClass({
         tabRenderers: React.PropTypes.array,
         navigateToItem: React.PropTypes.func,
         listingDetail: React.PropTypes.node,
-        listingActions: React.PropTypes.arrayOf(React.PropTypes.node)
+        listingActions: React.PropTypes.arrayOf(React.PropTypes.node),
+        selectChanged: React.PropTypes.func,
+        selected: React.PropTypes.bool
     },
     getDefaultProps: function () {
         return {
@@ -64,6 +68,7 @@ var ListingRow = React.createClass({
             activeTab: 0,    // currently active tab in expanded mode, defaults to first tab
             loadedTabs: {},  // which tabs were already loaded - this is important for 'loadOnDemand' setting
                              // contains tab indices
+            selected: this.props.selected, // whether the current row is selected
         };
     },
     handleNavigateClick: function(e) {
@@ -104,6 +109,20 @@ var ListingRow = React.createClass({
         e.stopPropagation();
         e.preventDefault();
     },
+    handleSelectClick: function(e) {
+        // only consider primary mouse button
+        if (!e || e.button !== 0)
+            return;
+
+        var selected = !this.state.selected;
+        this.setState( { selected: selected });
+
+        if (this.props.selectChanged)
+            this.props.selectChanged(selected);
+
+        e.stopPropagation();
+        e.preventDefault();
+    },
     handleTabClick: function(tabIdx, e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
@@ -128,7 +147,7 @@ var ListingRow = React.createClass({
     },
     render: function() {
         var self = this;
-        // only enable navigation if a function is provided and the row isn't expanded (prevnt accidental navigation)
+        // only enable navigation if a function is provided and the row isn't expanded (prevent accidental navigation)
         var allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
 
         var headerEntries = this.props.columns.map(function(itm) {
@@ -143,7 +162,7 @@ var ListingRow = React.createClass({
         });
 
         var allowExpand = (this.props.tabRenderers.length > 0);
-        var expandToggle = null;
+        var expandToggle;
         if (allowExpand) {
             expandToggle = <td className="listing-ct-toggle" onClick={ allowNavigate?this.handleExpandClick:undefined }>
                                <i className="fa fa-fw"></i>
@@ -158,10 +177,23 @@ var ListingRow = React.createClass({
         if (!allowExpand)
             listingItemClasses.push("listing-ct-noexpand");
 
+        var allowSelect = !(allowNavigate || allowExpand) && (this.state.selected !== undefined);
+        var clickHandler;
+        if (allowSelect) {
+            clickHandler = this.handleSelectClick;
+            if (this.state.selected)
+                listingItemClasses.push("listing-ct-selected");
+        } else {
+            if (allowNavigate)
+                clickHandler = this.handleNavigateClick;
+            else
+                clickHandler = this.handleExpandClick;
+        }
+
         var listingItem = (
             <tr data-row-id={ this.props.rowId }
                 className={ listingItemClasses.join(' ') }
-                onClick={ allowNavigate?this.handleNavigateClick:this.handleExpandClick }>
+                onClick={clickHandler}>
                 {expandToggle}
                 {headerEntries}
             </tr>
@@ -261,10 +293,26 @@ var Listing = React.createClass({
             bodyClasses.push("listing-ct-wide");
         var headerClasses;
         var headerRow;
+        var selectableRows;
         if (!this.props.children || this.props.children.length === 0) {
             headerClasses = "listing-ct-empty";
             headerRow = <tr><td>{this.props.emptyCaption}</td></tr>;
         } else if (this.props.columnTitles.length) {
+            // check if any of the children are selectable
+            selectableRows = false;
+            this.props.children.forEach(function(r) {
+                if (r.props.selected !== undefined)
+                    selectableRows = true;
+            });
+
+            if (selectableRows) {
+                // now make sure that if one is set, it's available on all items
+                this.props.children.forEach(function(r) {
+                    if (r.props.selected === undefined)
+                        r.props.selected = false;
+                });
+            }
+
             headerRow = (
                 <tr>
                     <th className="listing-ct-toggle"></th>

@@ -139,11 +139,16 @@ tr.listing-ct-item .listing-ct-toggle + th {
     padding-left: 0;
 }
 
-td.listing-ct-toggle:hover {
-    color: @listing-ct-active;
-    background-color: @color-pf-black-200;
-}
+tr:not(.listing-ct-selected) {
+    td.listing-ct-toggle:hover {
+        color: @listing-ct-active;
+        background-color: @color-pf-black-200;
 
+        ~ td, ~ th {
+            background-color: @color-pf-black-200;
+        }
+    }
+ }
 td.listing-ct-toggle i {
     font-size: 24px;
     visibility: hidden;
@@ -165,12 +170,6 @@ tbody.open td.listing-ct-toggle i {
 tbody.open td.listing-ct-toggle i:before {
     content: "\f107";
 }
-
-td.listing-ct-toggle:hover ~ td,
-td.listing-ct-toggle:hover ~ th {
-    background-color: @color-pf-black-200;
-}
-
 
 /* Listing items have decent padding ... */
 tr.listing-ct-item td {
@@ -195,6 +194,26 @@ td.listing-ct-actions {
     padding: @listing-ct-padding / 2 @listing-ct-padding;
     text-align: right;
     float: none;
+}
+
+/* if the entire row is selected, highlight */
+tr.listing-ct-item.listing-ct-selected {
+    background-color: @color-pf-blue-400;
+    color: @color-pf-white;
+    border-color: multiply(@color-pf-black-200, @color-pf-blue-400);
+
+    &:hover {
+        background-color: multiply(@color-pf-black-200, @color-pf-blue-400);
+        border-color: multiply(@color-pf-black-200, @color-pf-blue-400);
+    }
+}
+
+tr.listing-ct-item.listing-ct-selected .badge {
+    background-color: multiply(@badge-bg, @color-pf-blue-400);
+
+    &:hover {
+        background-color: multiply(@badge-bg, @color-pf-blue-500);
+    }
 }
 
 .listing-ct-head .listing-ct-actions {

@@ -46,7 +46,7 @@
         },
     });
 
-    var showListingDemo = function(rootElement, rootElementEmptyList) {
+    var showListingDemo = function(rootElement, rootElementSelectable, rootElementEmptyList) {
         var navigateToItem = function(msg) {
             window.alert("navigated to item: " + msg);
         };
@@ -99,7 +99,7 @@
             tight: true
         };
 
-        // create the dialog
+        // create the listings
         var listing = (
             <cockpitListing.Listing title="Demo Listing Pattern with expandable rows"
                                     actions={addLink}
@@ -119,6 +119,22 @@
              </cockpitListing.Listing>
         );
         React.render(listing, rootElement);
+
+        listing = (
+            <cockpitListing.Listing title="Demo Listing Pattern with selectable rows"
+                                    actions={addLink}
+                                    columnTitles={['Name', 'Random', 'IP', 'State']}>
+                 <cockpitListing.ListingRow
+                     columns={ [ { name: 'selected by default', 'header': true }, 'aoeuaoeu', '127.30.168.10', 'Running' ] }
+                     selected={true}/>
+                 <cockpitListing.ListingRow
+                     columns={ [ { name: "not selected by default", 'header': true }, 'aoeuaoeu', '127.30.168.11', 'Running' ] }
+                     selected={false}/>
+                 <cockpitListing.ListingRow
+                     columns={ [ { name: "no selected entry", 'header': true }, 'aoeuaoeu', '127.30.168.12', rowAction ] }/>
+             </cockpitListing.Listing>
+        );
+        React.render(listing, rootElementSelectable);
 
         var emptyListing = <cockpitListing.Listing title="Demo Empty Listing Pattern" emptyCaption="No Entries"/>;
         React.render(emptyListing, rootElementEmptyList);

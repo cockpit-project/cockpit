@@ -553,8 +553,10 @@ invocation = client.call(path, interface, method, args, [options])
     <variablelist>
       <varlistentry>
         <term><code>flags</code></term>
-        <listitem><para>A string containing DBus message flags. No flags are defined at
-          this time.</para></listitem>
+        <listitem><para>A string containing DBus message flags. The character <code>"i"</code>
+            indicates to the dbus service that interactive authentication is allowed. If the
+            entire <code>flags</code> field is missing, then <code>"i"</code> is set by
+            default.</para></listitem>
       </varlistentry>
       <varlistentry>
         <term><code>type</code></term>

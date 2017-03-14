@@ -27,6 +27,10 @@
             "match": { "superuser": null },
             "environ": [ "SUDO_ASKPASS=@libexecdir@/cockpit-askpass" ],
             "spawn": [ "@SUDO@", "-A", "cockpit-bridge", "--privileged" ]
+        },
+        {
+            "match": { "host": null },
+            "problem": "not-supported"
         }
     ]
 }

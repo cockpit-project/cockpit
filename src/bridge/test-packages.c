@@ -399,7 +399,9 @@ test_listing (TestCase *tc,
                           "{"
                           " \"another\": {"
                           "  \"name\" : \"another\","
-                          "  \"description\" : \"another\""
+                          "  \"description\" : \"another\","
+                          "  \"bridges\": [{ \"match\": {\"host\": null },"
+                          "                   \"problem\": \"not-supported\"}]"
                           " },"
                           " \"second\": {"
                           "  \"description\": \"second dummy description\","
@@ -766,12 +768,17 @@ test_get_bridges (TestCase *tc,
                                   "{ \"second\": null }");
           g_assert_cmpstr (json_object_get_string_member (bridge, "problem"), ==, "never-a-second");
           break;
+        case 3:
+          cockpit_assert_json_eq (json_object_get_object_member (bridge, "match"),
+                                  "{ \"host\": null }");
+          g_assert_cmpstr (json_object_get_string_member (bridge, "problem"), ==, "not-supported");
+          break;
         default:
           g_assert_not_reached ();
         }
     }
 
-  g_assert_cmpint (i, ==, 3);
+  g_assert_cmpint (i, ==, 4);
   g_list_free (bridges);
 }
 

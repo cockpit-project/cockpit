@@ -137,12 +137,13 @@ on_control_get_close (CockpitTransport *transport,
                       gpointer user_data)
 {
   JsonObject **result = (JsonObject **)user_data;
-  g_assert (result != NULL);
-  g_assert (*result == NULL);
   g_assert (command != NULL);
+
   if (g_str_equal (command, "close"))
     {
-      *result = json_object_ref (options);
+      g_assert (result != NULL);
+      if (*result == NULL)
+          *result = json_object_ref (options);
       return TRUE;
     }
   return FALSE;

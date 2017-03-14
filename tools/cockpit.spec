@@ -166,8 +166,10 @@ echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 %if %{defined build_dashboard}
 echo '%dir %{_datadir}/%{name}/dashboard' >> dashboard.list
 find %{buildroot}%{_datadir}/%{name}/dashboard -type f >> dashboard.list
+find %{buildroot}%{_datadir}/%{name}/ssh -type f >> dashboard.list
 %else
 rm -rf %{buildroot}/%{_datadir}/%{name}/dashboard
+rm -rf %{buildroot}/%{_datadir}/%{name}/ssh
 touch dashboard.list
 %endif
 

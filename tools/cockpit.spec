@@ -276,7 +276,6 @@ cat kdump.list subscriptions.list sosreport.list networkmanager.list selinux.lis
 %package bridge
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
-Requires: polkit
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the

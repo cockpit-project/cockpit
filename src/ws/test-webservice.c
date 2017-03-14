@@ -2072,7 +2072,7 @@ test_hint_credential (TestCase *test,
   /* We should now get a hint that we have no password */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (received, "{\"command\":\"hint\",\"credential\":\"clear\"}");
+  cockpit_assert_json_eq (received, "{\"command\":\"hint\",\"credential\":\"none\"}");
   json_object_unref (received);
 
   close_client_and_stop_web_service (test, ws, service);
@@ -2133,7 +2133,7 @@ test_authorize_password (TestCase *test,
   /* We should now get a hint that we have no password */
   while (control == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"hint\",\"credential\":\"clear\"}");
+  cockpit_assert_json_eq (control, "{\"command\":\"hint\",\"credential\":\"none\"}");
   json_object_unref (control);
   control = NULL;
 

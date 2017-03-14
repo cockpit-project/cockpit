@@ -445,6 +445,8 @@ struct _CockpitWebService {
   gint callers;
   guint next_internal_id;
 
+  gint credential_requests;
+
   GHashTable *checksum_by_host;
   GHashTable *host_by_checksum;
 };
@@ -645,12 +647,15 @@ process_socket_authorize (CockpitWebService *self,
 
   if (!cockpit_json_get_string (options, "credential", NULL, &credential))
     {
-      g_warning ("%s: received invalid authorize command", socket->id);
+      g_warning ("%s: received invalid \"credential\" field in authorize command", socket->id);
       return FALSE;
     }
   else if (!credential)
     {
-      g_warning ("%s: unknown or unsupported authorize command", socket->id);
+      password = cockpit_creds_get_password (self->creds);
+      send_socket_hints (self, "credential", password ? "password" : "none");
+      if (self->credential_requests)
+        send_socket_hints (self, "credential", "request");
     }
   else if (g_str_equal (credential, "password"))
     {
@@ -662,7 +667,8 @@ process_socket_authorize (CockpitWebService *self,
 
       if (string == NULL)
         {
-          send_socket_hints (self, "credential", "clear");
+          send_socket_hints (self, "credential", "none");
+          self->credential_requests = 0;
           password = NULL;
         }
       else
@@ -685,7 +691,7 @@ process_socket_authorize (CockpitWebService *self,
     }
   else
     {
-      g_warning ("%s: unsupported authorize command credential: %s", socket->id, credential);
+      g_message ("%s: unsupported authorize command credential: %s", socket->id, credential);
     }
 
   return TRUE;
@@ -760,7 +766,9 @@ process_session_authorize (CockpitWebService *self,
         }
     }
 
-  send_socket_hints (self, "credential", "password");
+  /* Tell the frontend that we're reauthorizing */
+  self->credential_requests++;
+  send_socket_hints (self, "credential", "request");
 
   if (!session->sent_done)
     {
@@ -1424,9 +1432,9 @@ process_logout (CockpitWebService *self,
     {
       g_info ("Deauthorizing user %s",
               cockpit_creds_get_rhost (self->creds));
-      send_socket_hints (self, "credential", "clear");
     }
 
+  send_socket_hints (self, "credential", "none");
   return TRUE;
 }
 

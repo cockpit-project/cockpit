@@ -49,6 +49,7 @@ typedef struct
 
   gboolean private;
   GHashTable *channels;
+  GHashTable *authorizes;
   CockpitTransport *transport;
   gboolean sent_done;
   guint timeout;
@@ -57,6 +58,10 @@ typedef struct
   gulong control_sig;
   gulong recv_sig;
   gulong closed_sig;
+
+  /* Until we get an "init" message we don't send stuff with channels */
+  GQueue *frozen;
+  gint thawing;
 
   gchar *checksum;
 } CockpitSession;
@@ -76,9 +81,12 @@ cockpit_session_free (gpointer data)
 
   g_debug ("%s: freeing session", session->host);
 
+  if (session->frozen)
+    g_queue_free_full (session->frozen, g_free);
   if (session->timeout)
     g_source_remove (session->timeout);
   g_hash_table_unref (session->channels);
+  g_hash_table_unref (session->authorizes);
   if (session->control_sig)
     g_signal_handler_disconnect (session->transport, session->control_sig);
   if (session->recv_sig)
@@ -175,9 +183,15 @@ cockpit_session_add_channel (CockpitSessions *sessions,
                              CockpitSession *session,
                              const gchar *channel)
 {
+  CockpitSession *cur = NULL;
   gchar *chan;
 
+  cur = cockpit_session_by_channel (sessions, channel);
+  if (cur && cur == session)
+    return;
+
   chan = g_strdup (channel);
+
   g_hash_table_insert (sessions->by_channel, chan, session);
   g_hash_table_add (session->channels, chan);
 
@@ -197,13 +211,12 @@ cockpit_session_track (CockpitSessions *sessions,
                        CockpitTransport *transport)
 {
   CockpitSession *session;
-  JsonObject *object;
-  GBytes *command;
 
   g_debug ("%s: new session", host);
 
   session = g_new0 (CockpitSession, 1);
   session->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  session->authorizes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   session->transport = g_object_ref (transport);
   session->host = g_strdup (host);
   session->private = private;
@@ -213,16 +226,6 @@ cockpit_session_track (CockpitSessions *sessions,
 
   /* This owns the session */
   g_hash_table_insert (sessions->by_transport, transport, session);
-
-  /* Always send an init message down the new transport */
-  object = cockpit_transport_build_json ("command", "init", NULL);
-  json_object_set_int_member (object, "version", 1);
-  json_object_set_string_member (object, "host", host);
-  command = cockpit_json_write_bytes (object);
-  json_object_unref (object);
-
-  cockpit_transport_send (transport, NULL, command);
-  g_bytes_unref (command);
 
   return session;
 }
@@ -344,7 +347,29 @@ outbound_protocol_error (CockpitSshService *self,
   cockpit_transport_close (transport, problem);
 }
 
+static gboolean
+relay_control_message (CockpitSshService *self,
+                       CockpitSession *session,
+                       const gchar *channel,
+                       GBytes *payload)
+{
+  if (!session->init_received)
+    {
+      if (!session->frozen)
+        session->frozen = g_queue_new ();
+      g_queue_push_tail (session->frozen, g_strdup (channel));
+      cockpit_transport_freeze (self->transport, channel);
+      cockpit_transport_emit_recv (self->transport, NULL, payload);
+      return FALSE;
+    }
+  else if (!session->sent_done)
+    {
+      cockpit_transport_send (session->transport, NULL, payload);
+    }
 
+  /* Even if we drop it on the floor */
+  return TRUE;
+}
 
 static gboolean
 process_and_relay_close (CockpitSshService *self,
@@ -355,9 +380,8 @@ process_and_relay_close (CockpitSshService *self,
   session = cockpit_session_by_channel (&self->sessions, channel);
   if (session)
     {
-      cockpit_session_remove_channel (&self->sessions, session, channel);
-      if (!session->sent_done)
-        cockpit_transport_send (session->transport, NULL, payload);
+      if (relay_control_message (self, session, channel, payload))
+        cockpit_session_remove_channel (&self->sessions, session, channel);
     }
 
   return TRUE;
@@ -395,7 +419,11 @@ process_session_init (CockpitSshService *self,
                       JsonObject *options)
 {
   const gchar *checksum;
+  JsonObject *object;
+  GBytes *command;
   gint64 version;
+  GQueue *frozen;
+  GList *l;
 
   if (!cockpit_json_get_int (options, "version", -1, &version))
     {
@@ -424,6 +452,29 @@ process_session_init (CockpitSshService *self,
   g_free (session->checksum);
   session->checksum = g_strdup (checksum);
 
+  /* Always send an init message down the new transport */
+  object = cockpit_transport_build_json ("command", "init", NULL);
+  json_object_set_int_member (object, "version", 1);
+  json_object_set_string_member (object, "host", session->host);
+  command = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+  cockpit_transport_send (session->transport, NULL, command);
+  g_bytes_unref (command);
+
+  if (session->frozen)
+    {
+      frozen = session->frozen;
+      session->frozen = NULL;
+      session->thawing++;
+      for (l = frozen->head; l != NULL; l = g_list_next (l))
+        {
+          cockpit_transport_thaw (self->transport, l->data);
+        }
+      g_queue_free_full (frozen, g_free);
+      session->frozen = NULL;
+      session->thawing--;
+    }
+
   return NULL;
 }
 
@@ -433,14 +484,17 @@ process_session_authorize (CockpitSshService *self,
                            JsonObject *options,
                            GBytes *payload)
 {
-  GBytes *new_payload = NULL;
+  const gchar *cookie;
 
-  if (self->transport)
+  /* Authorize messages get forwarded even without an "init" */
+  if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
     {
-      json_object_set_string_member (options, "host", session->host);
-      new_payload = cockpit_json_write_bytes (options);
-      cockpit_transport_send (self->transport, NULL, new_payload);
-      g_bytes_unref (new_payload);
+      g_message ("%s: received \"authorize\" request without a valid cookie", session->host);
+    }
+  else
+    {
+      /* Note that we don't wait for "init" or freeze these */
+      g_hash_table_add (session->authorizes, g_strdup (cookie));
     }
 
   return TRUE;
@@ -458,7 +512,7 @@ on_session_control (CockpitTransport *transport,
   CockpitSshService *self = user_data;
   CockpitSession *session = NULL;
   gboolean valid = FALSE;
-  gboolean forward;
+  gboolean forward = FALSE;
 
   if (!channel)
     {
@@ -467,6 +521,10 @@ on_session_control (CockpitTransport *transport,
         {
           g_critical ("received control command for transport that isn't present");
           valid = FALSE;
+        }
+      else if (g_strcmp0 (command, "authorize") == 0)
+        {
+          forward = valid = process_session_authorize (self, session, options, payload);
         }
       else if (g_strcmp0 (command, "init") == 0)
         {
@@ -477,10 +535,6 @@ on_session_control (CockpitTransport *transport,
         {
           g_message ("%s: did not send 'init' message first", session->host);
           valid = FALSE;
-        }
-      else if (g_strcmp0 (command, "authorize") == 0)
-        {
-          valid = process_session_authorize (self, session, options, payload);
         }
       else if (g_strcmp0 (command, "ping") == 0)
         {
@@ -525,12 +579,12 @@ on_session_control (CockpitTransport *transport,
           valid = TRUE;
         }
 
-      if (forward && self->transport)
-        cockpit_transport_send (self->transport, NULL, payload);
     }
 
   if (!valid)
     outbound_protocol_error (self, transport, problem);
+  else if (forward && self->transport)
+    cockpit_transport_send (self->transport, NULL, payload);
 
   return TRUE; /* handled */
 }
@@ -753,32 +807,6 @@ parse_host (const gchar *host,
   g_free (user_arg);
 }
 
-static gboolean
-on_prompt_send_authorize (CockpitSshTransport *transport,
-                          JsonObject *options,
-                          gpointer user_data)
-{
-  const gchar *prompt;
-  CockpitAuthProcess *auth_process = NULL;
-  GBytes *bytes = NULL;
-  gboolean ret = FALSE;
-
-  /* TODO: Hook this up with a real authorize prompt */
-  if (cockpit_json_get_string (options, "prompt", NULL, &prompt) &&
-      g_strcmp0 (prompt, "authorize-plain1") == 0)
-    {
-      auth_process = cockpit_ssh_transport_get_auth_process (transport);
-      g_assert (auth_process != NULL);
-      bytes = g_bytes_new_static ("this is the password", 21);
-      cockpit_auth_process_write_auth_bytes (auth_process, bytes);
-      g_bytes_unref (bytes);
-      ret = TRUE;
-    }
-
-  g_signal_handlers_disconnect_by_data (transport, user_data);
-  return ret;
-}
-
 static CockpitSession *
 lookup_or_open_session (CockpitSshService *self,
                         JsonObject *options)
@@ -862,9 +890,6 @@ lookup_or_open_session (CockpitSshService *self,
       session->control_sig = g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
       session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
       session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
-      g_signal_connect (COCKPIT_SSH_TRANSPORT (transport), "prompt",
-                        G_CALLBACK (on_prompt_send_authorize),
-                        NULL);
 
       g_object_unref (transport);
 
@@ -895,21 +920,23 @@ process_and_relay_open (CockpitSshService *self,
       return TRUE;
     }
 
-  if (cockpit_session_by_channel (&self->sessions, channel))
+  /* During unfreezing we get a replay of channel messages */
+  session = cockpit_session_by_channel (&self->sessions, channel);
+  if (session && session->thawing == 0)
     {
       g_warning ("cannot open a channel %s with the same id as another channel", channel);
       return FALSE;
     }
-
-  session = lookup_or_open_session (self, options);
-  cockpit_session_add_channel (&self->sessions, session, channel);
-
-  if (!session->sent_done)
+  else if (!session)
     {
-      payload = cockpit_json_write_bytes (options);
-      cockpit_transport_send (session->transport, NULL, payload);
-      g_bytes_unref (payload);
+      session = lookup_or_open_session (self, options);
     }
+
+  payload = cockpit_json_write_bytes (options);
+  cockpit_session_add_channel (&self->sessions, session, channel);
+  relay_control_message (self, session, channel, payload);
+  g_bytes_unref (payload);
+
   return TRUE;
 }
 
@@ -919,24 +946,32 @@ process_transport_authorize (CockpitSshService *service,
                              JsonObject *options,
                              GBytes *payload)
 {
-  const gchar *host;
-  CockpitSession *session = NULL;
+  CockpitSession *session;
+  GHashTableIter iter;
+  const gchar *cookie;
+  gpointer value;
 
-  if (!cockpit_json_get_string (options, "host", "localhost", &host))
-    host = "localhost";
-
-  session = cockpit_session_by_host (&service->sessions, host);
-  if (session)
+  if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
     {
-      if (!session->sent_done)
-        cockpit_transport_send (session->transport, NULL, payload);
+      g_message ("received \"authorize\" reply without a valid cookie");
+      return FALSE;
     }
   else
     {
-      g_message ("got authorize command for unknown host: %s", host);
+      g_hash_table_iter_init (&iter, service->sessions.by_transport);
+      while (g_hash_table_iter_next (&iter, NULL, &value))
+        {
+          session = value;
+          if (g_hash_table_remove (session->authorizes, cookie))
+            {
+              if (!session->sent_done)
+                cockpit_transport_send (session->transport, NULL, payload);
+              return TRUE;
+            }
+        }
     }
 
-  return TRUE;
+  return FALSE;
 }
 
 
@@ -995,10 +1030,7 @@ on_transport_control (CockpitTransport *transport,
       /* Relay anything with a channel by default */
       session = cockpit_session_by_channel (&self->sessions, channel);
       if (session)
-        {
-          if (!session->sent_done)
-            cockpit_transport_send (session->transport, NULL, payload);
-        }
+        relay_control_message (self, session, channel, payload);
       else
         g_debug ("dropping control message with unknown channel %s", channel);
     }

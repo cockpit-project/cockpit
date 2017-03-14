@@ -458,6 +458,10 @@ test_close_problem (TestCase *tc,
 {
   gchar *problem = NULL;
 
+  /* exactly which of the two we get depends on how fast cockpit-ssh shuts down its auth pipe underneath us */
+  cockpit_expect_possible_log ("cockpit-ssh", G_LOG_LEVEL_WARNING, "*Auth pipe closed: *");
+  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*cockpit-ssh: couldn't recv: Connection reset by peer*");
+
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, "right now");
 
@@ -954,6 +958,10 @@ test_close_while_connecting (TestCase *tc,
 {
   gchar *problem = NULL;
 
+  /* exactly which of the two we get depends on how fast cockpit-ssh shuts down its auth pipe underneath us */
+  cockpit_expect_possible_log ("cockpit-ssh", G_LOG_LEVEL_WARNING, "*Auth pipe closed: *");
+  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*cockpit-ssh: couldn't recv: Connection reset by peer*");
+
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, "special-problem");
 
@@ -979,8 +987,6 @@ main (int argc,
   g_test_add ("/ssh-transport/echo-large", TestCase, &fixture_cat,
               setup_transport, test_echo_large, teardown);
 
-  g_test_add ("/ssh-transport/close-problem", TestCase, &fixture_cat,
-              setup_transport, test_close_problem, teardown);
 #if WITH_MOCK
   g_test_add ("/ssh-transport/terminate-problem", TestCase, &fixture_terminate_problem,
               setup_transport, test_terminate_problem, teardown);
@@ -1010,6 +1016,8 @@ main (int argc,
               &fixture_kb_multi_auth_3,
               setup_transport, test_multi_auth, teardown);
 #endif
+  g_test_add ("/ssh-transport/close-problem", TestCase, &fixture_cat,
+              setup_transport, test_close_problem, teardown);
   g_test_add ("/ssh-transport/bad-command", TestCase, &fixture_bad_command,
               setup_transport, test_no_cockpit, teardown);
   g_test_add ("/ssh-transport/command-not-found", TestCase, &fixture_command_not_found,

@@ -639,11 +639,41 @@ parse_auth_password (const gchar *auth_type,
   return password;
 }
 
-static void
-prompt_authorize_plain1 (CockpitSshData *data)
+static gchar *
+ssh_askpass (CockpitSshData *data,
+             const gchar *message)
 {
-  if (prompt_on_auth_fd (data, "authorize-plain1", NULL, NULL, 0))
-    data->initial_auth_data = wait_for_auth_fd_reply (data);
+  GError *error = NULL;
+  gchar *password = NULL;
+  gint status = 0;
+
+  const gchar *argv[] = { NULL, message, NULL };
+  argv[0] = g_getenv ("SSH_ASKPASS");
+
+  if (!argv[0])
+    {
+      g_debug ("%s: no SSH_ASKPASS available to get password", data->logname);
+    }
+  else if (!g_spawn_sync (NULL, (gchar **)argv, NULL, G_SPAWN_CHILD_INHERITS_STDIN,
+                          NULL, NULL, &password, NULL, &status, &error))
+    {
+      g_message ("%s: could not launch %s command to get password: %s", data->logname, argv[0], error->message);
+      g_error_free (error);
+    }
+  else if (!g_spawn_check_exit_status (status, &error))
+    {
+      g_message ("%s: the %s command failed: %s", data->logname, argv[0], error->message);
+      g_error_free (error);
+      cockpit_secclear (password, -1);
+      g_free (password);
+      password = NULL;
+    }
+
+  if (password)
+    password[strcspn(password, "\r\n")] = '\0';
+  else
+    password = g_strdup ("");
+  return password;
 }
 
 static int
@@ -654,7 +684,7 @@ do_interactive_auth (CockpitSshData *data)
   const gchar *password;
 
   if (data->in_bridge && !data->initial_auth_data)
-    prompt_authorize_plain1 (data);
+    data->initial_auth_data = ssh_askpass (data, "ssh");
 
   password = parse_auth_password (data->auth_options->auth_type,
                                   data->initial_auth_data);
@@ -715,7 +745,7 @@ do_password_auth (CockpitSshData *data)
   const gchar *password;
 
   if (data->in_bridge && !data->initial_auth_data)
-    prompt_authorize_plain1 (data);
+    data->initial_auth_data = ssh_askpass (data, "ssh");
 
   password = parse_auth_password (data->auth_options->auth_type,
                                   data->initial_auth_data);

@@ -110,8 +110,6 @@ struct _CockpitSshTransport {
   /* Name used for logging */
   gchar *logname;
 
-  GQueue *queue;
-
   // Output from auth
   gchar *host_key;
   gchar *host_fingerprint;
@@ -221,24 +219,11 @@ on_pipe_read (CockpitPipe *pipe,
 }
 
 static void
-cockpit_ssh_transport_attach_pipe (CockpitSshTransport *self)
+cockpit_ssh_transport_flush_pipe (CockpitSshTransport *self)
 {
-  g_return_if_fail (self->pipe == NULL);
   g_return_if_fail (self->auth_process != NULL);
 
-  self->pipe = cockpit_auth_process_claim_as_pipe (self->auth_process);
-  self->read_sig = g_signal_connect (self->pipe, "read",
-                                     G_CALLBACK (on_pipe_read),
-                                     self);
-  self->close_sig = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
   cockpit_ssh_transport_remove_auth_process (self);
-
-  while (g_queue_peek_head (self->queue))
-    {
-      GBytes *block = g_queue_pop_head (self->queue);
-      cockpit_pipe_write (self->pipe, block);
-      g_bytes_unref (block);
-    }
 
   if (self->closing && !self->closed)
     cockpit_pipe_close (self->pipe, NULL);
@@ -300,7 +285,7 @@ on_auth_process_message (CockpitAuthProcess *auth_process,
       else if (user)
         {
           problem = NULL;
-          cockpit_ssh_transport_attach_pipe (self);
+          cockpit_ssh_transport_flush_pipe (self);
         }
       else
         {
@@ -394,6 +379,8 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
   gchar *host_arg = NULL;
   GSourceFunc fail_func;
 
+  g_return_if_fail (self->pipe == NULL);
+
   self->connecting = TRUE;
 
   options->remote_peer = "127.0.0.1";
@@ -455,6 +442,10 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
 
       if (input)
         cockpit_auth_process_write_auth_bytes (self->auth_process, input);
+
+      self->pipe = cockpit_auth_process_claim_as_pipe (self->auth_process);
+      self->read_sig = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
+      self->close_sig = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
     }
 
   g_strfreev (env);
@@ -467,7 +458,7 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
 static void
 cockpit_ssh_transport_init (CockpitSshTransport *self)
 {
-  self->queue = g_queue_new ();
+
 }
 
 static void
@@ -617,7 +608,6 @@ cockpit_ssh_transport_finalize (GObject *object)
       g_object_unref (self->pipe);
     }
 
-  g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
   G_OBJECT_CLASS (cockpit_ssh_transport_parent_class)->finalize (object);
 }
 
@@ -646,16 +636,8 @@ cockpit_ssh_transport_send (CockpitTransport *transport,
                                 channel ? channel : "");
   prefix_bytes = g_bytes_new_take (prefix, strlen (prefix));
 
-  if (!self->pipe)
-    {
-      g_queue_push_tail (self->queue, g_bytes_ref (prefix_bytes));
-      g_queue_push_tail (self->queue, g_bytes_ref (payload));
-    }
-  else
-    {
-      cockpit_pipe_write (self->pipe, prefix_bytes);
-      cockpit_pipe_write (self->pipe, payload);
-    }
+  cockpit_pipe_write (self->pipe, prefix_bytes);
+  cockpit_pipe_write (self->pipe, payload);
 
   g_bytes_unref (prefix_bytes);
   g_debug ("%s: queued %" G_GSIZE_FORMAT " byte payload", self->logname, payload_len);

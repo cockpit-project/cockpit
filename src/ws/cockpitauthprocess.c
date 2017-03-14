@@ -50,6 +50,7 @@ typedef struct {
   guint wanted_fd_number;
   gint auth_fd;
   gint agent_fd;
+  gint io_fd;
 } ChildFds;
 
 struct  _CockpitAuthProcess {
@@ -78,8 +79,7 @@ struct  _CockpitAuthProcess {
 
   gboolean send_signal;
 
-  gint process_in;
-  gint process_out;
+  gint process_io;
   GPid process_pid;
 };
 
@@ -147,10 +147,9 @@ cockpit_auth_process_dispose (GObject *object)
 
   g_clear_object (&self->pipe);
 
-  if (self->process_in != -1)
-    close (self->process_in);
-  if (self->process_out != -1)
-    close (self->process_out);
+  if (self->process_io != -1)
+    close (self->process_io);
+  self->process_io = -1;
 
   if (self->process_pid != 0)
     cockpit_auth_process_terminate (self);
@@ -180,6 +179,14 @@ spawn_child_setup (gpointer data)
   gint wanted;
   gint large;
   gint small;
+
+  if (dup2 (child_fds->io_fd, 0) < 0 || dup2 (child_fds->io_fd, 1) < 0)
+    {
+      g_printerr ("couldn't set child stdin/stout file descriptors\n");
+      _exit (127);
+    }
+
+  close (child_fds->io_fd);
 
   if (child_fds->agent_fd > 0)
     {
@@ -561,12 +568,11 @@ cockpit_auth_process_claim_as_pipe (CockpitAuthProcess *self)
   pipe = g_object_new (COCKPIT_TYPE_PIPE,
                        "name", self->name,
                        "pid", self->process_pid,
-                       "in-fd", self->process_out,
-                       "out-fd", self->process_in,
+                       "in-fd", self->process_io,
+                       "out-fd", self->process_io,
                        NULL);
   self->process_pid = 0;
-  self->process_out = -1;
-  self->process_in = -1;
+  self->process_io = -1;
 
   return pipe;
 }
@@ -732,15 +738,26 @@ cockpit_auth_process_start (CockpitAuthProcess *self,
                             GError **error)
 {
   gboolean ret;
+  int fds[2];
 
   g_debug ("spawning %s", command_args[0]);
 
+  /* The main stdin/stdout for the socket ... both are read/writable */
+  if (socketpair (PF_LOCAL, SOCK_STREAM, 0, fds) < 0)
+    {
+      g_warning ("couldn't create loopback socket: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  self->child_data.io_fd = fds[0];
   self->child_data.agent_fd = agent_fd;
   ret = g_spawn_async_with_pipes (NULL, (gchar **) command_args, (gchar **) env,
                                   G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
                                   spawn_child_setup, &self->child_data,
-                                  &self->process_pid, &self->process_in,
-                                  &self->process_out, NULL, error);
+                                  &self->process_pid, NULL, NULL, NULL, error);
+
+  self->process_io = fds[1];
+  close (fds[0]);
 
   /* Child process end of pipe */
   close (self->child_data.auth_fd);

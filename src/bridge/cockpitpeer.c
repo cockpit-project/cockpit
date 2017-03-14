@@ -42,6 +42,7 @@ struct _CockpitPeer {
   /* Our bridge configuration */
   const gchar *name;
   JsonObject *config;
+  guint timeout;
 
   /* The channels we're dealing with */
   GHashTable *channels;
@@ -111,6 +112,21 @@ on_other_recv (CockpitTransport *transport,
 }
 
 static gboolean
+on_timeout_reset (gpointer user_data)
+{
+  CockpitPeer *self = user_data;
+
+  self->timeout = 0;
+  if (g_hash_table_size (self->channels) == 0)
+    {
+      g_debug ("%s: peer timed out without channels", self->name);
+      cockpit_peer_reset (self);
+    }
+
+  return FALSE;
+}
+
+static gboolean
 on_other_control (CockpitTransport *transport,
                   const char *command,
                   const gchar *channel,
@@ -122,6 +138,7 @@ on_other_control (CockpitTransport *transport,
   CockpitPeer *self = user_data;
   const gchar *problem = NULL;
   const gchar *cookie = NULL;
+  gint64 timeout;
   gint64 version;
   GList *l;
 
@@ -194,7 +211,18 @@ on_other_control (CockpitTransport *transport,
     {
       /* Stop keeping track of channels that are closed */
       if (g_str_equal (command, "close"))
-        g_hash_table_remove (self->channels, channel);
+        {
+          g_hash_table_remove (self->channels, channel);
+          if (g_hash_table_size (self->channels) == 0)
+            {
+              g_debug ("%s: removed last channel for peer", self->name);
+              if (self->timeout)
+                g_source_remove (self->timeout);
+              self->timeout = 0;
+              if (cockpit_json_get_int (self->config, "timeout", -1, &timeout) && timeout >= 0)
+                self->timeout = g_timeout_add_seconds (timeout, on_timeout_reset, self);
+            }
+        }
 
       /* All control messages with a channel get forwarded */
       cockpit_transport_send (self->transport, NULL, payload);
@@ -438,9 +466,8 @@ cockpit_peer_dispose (GObject *object)
 {
   CockpitPeer *self = COCKPIT_PEER (object);
 
+  cockpit_peer_reset (self);
   self->closed = TRUE;
-
-  g_hash_table_remove_all (self->channels);
 
   if (self->transport_recv)
     {
@@ -452,12 +479,6 @@ cockpit_peer_dispose (GObject *object)
       g_signal_handler_disconnect (self->transport, self->transport_control);
       self->transport_control = 0;
     }
-
-  if (self->other)
-    cockpit_transport_close (self->other, "terminated");
-  if (self->other)
-    on_other_closed (self->other, "terminated", self);
-  g_assert (self->other == NULL);
 
   G_OBJECT_CLASS (cockpit_peer_parent_class)->dispose (object);
 }
@@ -476,8 +497,6 @@ cockpit_peer_finalize (GObject *object)
     g_object_unref (self->transport);
   if (self->last_init)
     g_bytes_unref (self->last_init);
-  if (self->frozen)
-    g_queue_free_full (self->frozen, g_free);
 
   g_free (self->problem);
 
@@ -690,6 +709,12 @@ cockpit_peer_handle (CockpitPeer *self,
 
   g_hash_table_add (self->channels, g_strdup (channel));
 
+  if (self->timeout)
+    {
+      g_source_remove (self->timeout);
+      self->timeout = 0;
+    }
+
   /* If already inited send the message through */
   if (self->inited)
     {
@@ -746,4 +771,34 @@ cockpit_peer_ensure (CockpitPeer *self)
     }
 
   return self->other;
+}
+
+void
+cockpit_peer_reset (CockpitPeer *self)
+{
+  self->inited = FALSE;
+
+  g_hash_table_remove_all (self->channels);
+  g_hash_table_remove_all (self->authorizes);
+
+  if (self->timeout)
+    {
+      g_source_remove (self->timeout);
+      self->timeout = 0;
+    }
+
+  if (self->other)
+    cockpit_transport_close (self->other, "terminated");
+  if (self->other)
+    on_other_closed (self->other, "terminated", self);
+  g_assert (self->other == NULL);
+
+  if (self->frozen)
+    g_queue_free_full (self->frozen, g_free);
+  self->frozen = NULL;
+
+  g_free (self->problem);
+  self->problem = NULL;
+  self->closed = FALSE;
+  self->inited = FALSE;
 }

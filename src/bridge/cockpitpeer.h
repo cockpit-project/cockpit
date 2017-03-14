@@ -52,6 +52,8 @@ gboolean            cockpit_peer_handle                          (CockpitPeer *p
                                                                   JsonObject *options,
                                                                   GBytes *data);
 
+void                cockpit_peer_reset                           (CockpitPeer *peer);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_PEER_H__ */

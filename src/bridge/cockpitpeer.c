@@ -47,6 +47,9 @@ struct _CockpitPeer {
   GHashTable *channels;
   GQueue *frozen;
 
+  /* Authorizations going on */
+  GHashTable *authorizes;
+
   /* The transport we're routing from */
   CockpitTransport *transport;
   gulong transport_recv;
@@ -118,6 +121,7 @@ on_other_control (CockpitTransport *transport,
   static const gchar *default_init = "{ \"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }";
   CockpitPeer *self = user_data;
   const gchar *problem = NULL;
+  const gchar *cookie = NULL;
   gint64 version;
   GList *l;
 
@@ -167,7 +171,15 @@ on_other_control (CockpitTransport *transport,
   /* Authorize messages get forwarded even without an "init" */
   else if (g_str_equal (command, "authorize"))
     {
-      cockpit_transport_send (self->transport, NULL, payload);
+      if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
+        {
+          g_message ("%s: received \"authorize\" request without a valid cookie", self->name);
+        }
+      else
+        {
+          g_hash_table_add (self->authorizes, g_strdup (cookie));
+          cockpit_transport_send (self->transport, NULL, payload);
+        }
     }
 
   /* Otherwise we need an init message first */
@@ -326,6 +338,7 @@ on_transport_control (CockpitTransport *transport,
                       gpointer user_data)
 {
   CockpitPeer *self = user_data;
+  const gchar *cookie = NULL;
   gboolean forward = FALSE;
   gboolean handled = FALSE;
 
@@ -343,7 +356,14 @@ on_transport_control (CockpitTransport *transport,
     }
   else if (g_str_equal (command, "authorize"))
     {
-      forward = TRUE;
+      if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
+        {
+          g_message ("%s: received \"authorize\" reply without a valid cookie", self->name);
+        }
+      else
+        {
+          forward = handled = g_hash_table_remove (self->authorizes, cookie);
+        }
     }
   else if (self->inited)
     {
@@ -364,6 +384,7 @@ static void
 cockpit_peer_init (CockpitPeer *self)
 {
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  self->authorizes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 }
 
 static void
@@ -445,6 +466,7 @@ cockpit_peer_finalize (GObject *object)
   CockpitPeer *self = COCKPIT_PEER (object);
 
   g_hash_table_destroy (self->channels);
+  g_hash_table_destroy (self->authorizes);
 
   if (self->config)
     json_object_unref (self->config);

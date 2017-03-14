@@ -101,6 +101,10 @@ typedef struct {
 
 G_DEFINE_TYPE (CockpitDBusJson, cockpit_dbus_json, COCKPIT_TYPE_CHANNEL);
 
+#if !GLIB_CHECK_VERSION(2,46,0)
+#define G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION (1<<2)
+#endif
+
 static const gchar *
 value_type_name (JsonNode *node)
 {
@@ -1232,6 +1236,7 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
                                             call->interface,
                                             call->method);
 
+  g_dbus_message_set_flags (message, G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION);
   g_dbus_message_set_body (message, parameters);
   parameters = NULL;
 

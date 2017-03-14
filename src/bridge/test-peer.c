@@ -404,6 +404,51 @@ test_fallback (TestCase *tc,
   g_assert (tc->channel != NULL);
 }
 
+static void
+test_reopen (TestCase *tc,
+             gconstpointer unused)
+{
+  gchar *bridge;
+  GBytes *sent;
+  JsonObject *control;
+
+  bridge = g_strdup_printf("{ \"match\": { \"payload\": \"upper\" }, \"spawn\": [ \"/%s\", \"--upper\", \"--count\" ] }", BUILDDIR "/mock-bridge");
+  tc->peer = peer_new (tc->transport, bridge);
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  emit_string (tc, "a", "Oh MarmaLade");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\",\"count\":0}");
+  control = NULL;
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* The fallback just echos */
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+
+  cockpit_peer_reset (tc->peer);
+
+  /* Sending again reopens with count at zero */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  emit_string (tc, "a", "Oh MarmaLade");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\",\"count\":0}");
+  control = NULL;
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* The fallback just echos */
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+
+  g_free (bridge);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -422,6 +467,8 @@ main (int argc,
               setup, test_fail_problem, teardown);
   g_test_add ("/peer/fallback", TestCase, NULL,
               setup, test_fallback, teardown);
+  g_test_add ("/peer/reopen", TestCase, NULL,
+              setup, test_reopen, teardown);
 
   return g_test_run ();
 }

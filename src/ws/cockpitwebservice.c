@@ -31,9 +31,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
-#include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpitwebinject.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
 

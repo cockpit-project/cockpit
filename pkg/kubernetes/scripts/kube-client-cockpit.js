@@ -51,7 +51,7 @@
      *
      * base64(PEM(data))
      *
-     * Since our http-stream1 expects PEM certificates (although they're
+     * Since our http-stream2 expects PEM certificates (although they're
      * nasty, they're better than all the alternatives) so we strip out
      * the outer base64 layer.
      */

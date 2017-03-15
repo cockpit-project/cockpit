@@ -173,7 +173,7 @@ cockpit_http_client_checkout (CockpitHttpClient *client)
  *
  * A #CockpitChannel that represents a HTTP request/response.
  *
- * The payload type for this channel is 'http-stream1'.
+ * The payload type for this channel is 'http-stream2'.
  */
 
 /*

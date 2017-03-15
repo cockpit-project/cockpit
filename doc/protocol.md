@@ -266,11 +266,11 @@ Command: authorize
 
 The "authorize" command is for communication of authentication and
 authorization challenges and responses between cockpit-bridge and
-cockpit-ws. Inspite of the name this is also used for authentication.
+cockpit-ws. Despite the name this is also used for authentication.
 
 For challenge/response authentication, the following fields are defined:
 
- * "cookie": an unique string sent with a challenge, that must be
+ * "cookie": a unique string sent with a challenge that must be
    present in the corresponding response.
  * "challenge": a challenge string present in messages from a bridge
    to cockpit-ws

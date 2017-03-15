@@ -346,8 +346,10 @@ CMD ["/bin/sh"]
         m = self.machine
 
         # Try to access docker without admin (wheel, sudo, ...) group
+        # also need to disable Ubuntu's legacy "admin" sudo group as it happens
+        # to have the same name as our admin test user
         m.execute("systemctl start docker")
-        m.execute("usermod -G '' admin")
+        m.execute("usermod -G '' admin; sed -i '/^%admin/d' /etc/sudoers")
 
         # HACK: Logging in without the admin group will try to write to
         # /var/lib/cockpit/, but this will fail.

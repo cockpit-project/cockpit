@@ -771,7 +771,7 @@ class TestMultiMachine(MachineCase):
         b.enter_page('/system', "admin@{0}:2222".format(m2.address))
 
         self.allow_hostkey_messages()
-        self.allow_journal_messages('.*: couldn\'t connect: Connection refused*',
+        self.allow_journal_messages('.* couldn\'t connect: .*',
                                     '.* failed to retrieve resource: invalid-hostkey',
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',

@@ -26,13 +26,13 @@ import re
 
 def break_hostkey(m, address):
     line = "{0} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T".format(address)
-    m.execute("echo '{0}'> /var/lib/cockpit/known_hosts".format(line))
+    m.execute("echo '{0}'> /etc/ssh/ssh_known_hosts".format(line))
 
 def fix_hostkey(m, key=None):
     if not key:
         key = '';
 
-    m.execute("echo '{0}' > /var/lib/cockpit/known_hosts".format(key))
+    m.execute("echo '{0}' > /etc/ssh/ssh_known_hosts".format(key))
 
 def break_bridge(m):
     m.execute("ln -snf /bin/false /usr/local/bin/cockpit-bridge")
@@ -250,8 +250,29 @@ class TestMultiMachine(MachineCase):
         b.wait_not_present("a[data-address='{}']".format(m2.address))
         b.logout()
 
+        # Falls back to legacy /var/lib/cockpit/known_hosts
+        m.execute("mkdir -p /var/lib/cockpit; mv /etc/ssh/ssh_known_hosts /var/lib/cockpit/known_hosts")
+        b.open("{0}={1}".format(root, m2.address))
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "alt-password")
+        b.click('#login-button')
+        b.expect_load()
+        b.logout()
+
+        # /etc/ssh/ssh_known_hosts trumps legacy /var/lib/cockpit/known_hosts; break key in the latter
+        m.execute("cp /var/lib/cockpit/known_hosts /etc/ssh/ssh_known_hosts; sed -i 's/AAA/BBB/' /var/lib/cockpit/known_hosts")
+        b.open("{0}={1}".format(root, m2.address))
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "alt-password")
+        b.click('#login-button')
+        b.expect_load()
+        b.logout()
+        m.execute("rm /var/lib/cockpit/known_hosts")
+
         # Bad host key
-        m.execute("echo '{} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /var/lib/cockpit/known_hosts".format(m2.address))
+        m.execute("echo '{} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /etc/ssh/ssh_known_hosts".format(m2.address))
         b.open("{0}={1}".format(root, m2.address))
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -267,7 +288,7 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text("#login-error-message", "Hostkey does not match")
 
         # Clear host key.
-        m.execute("echo '' > /var/lib/cockpit/known_hosts")
+        m.execute("echo '' > /etc/ssh/ssh_known_hosts")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "alt-password")
         b.click('#login-button')
@@ -335,7 +356,7 @@ class TestMultiMachine(MachineCase):
         b.logout()
 
         # Check hostkey isn't saved
-        self.assertFalse(m.execute("cat /var/lib/cockpit/known_hosts").strip())
+        self.assertFalse(m.execute("cat /etc/ssh/ssh_known_hosts").strip())
 
         # Direct to machine2, via form
         b.open("{0}other".format(root))

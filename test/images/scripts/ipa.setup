@@ -7,8 +7,8 @@ echo foobar | passwd --stdin root
 dnf -y remove firewalld
 iptables -F
 
-dnf -y --enablerepo=updates-testing update
-dnf -y --enablerepo=updates-testing install freeipa-server bind bind-dyndb-ldap
+dnf -y update
+dnf -y install freeipa-server freeipa-server-dns bind bind-dyndb-ldap
 
 hostnamectl set-hostname f0.cockpit.lan
 

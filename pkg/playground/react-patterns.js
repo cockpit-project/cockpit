@@ -122,7 +122,9 @@
           -----------------------------------------------------------------------------
          */
         // create the listing
-        demoListing.demo(document.getElementById('demo-listing'), document.getElementById('demo-listing-empty'));
+        demoListing.demo(document.getElementById('demo-listing'),
+            document.getElementById('demo-listing-selectable'),
+            document.getElementById('demo-listing-empty'));
 
         /* Tooltip */
         demoTooltip.demo(document.getElementById('demo-tooltip'), document.getElementById('demo-tooltip-top'));

@@ -471,7 +471,6 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws
-%{_libexecdir}/cockpit-stub
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_localstatedir}/lib/%{name}
 %{_datadir}/%{name}/static
@@ -598,6 +597,7 @@ Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
 BuildRequires: golang-bin
 BuildRequires: golang-src
+Provides: cockpit-stub = %{version}-%{release}
 
 %description kubernetes
 The Cockpit components for visualizing and configuring a Kubernetes
@@ -606,7 +606,7 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %files kubernetes -f kubernetes.list
 %{_libexecdir}/cockpit-kube-auth
 %{_libexecdir}/cockpit-kube-launch
-
+%{_libexecdir}/cockpit-stub
 %endif
 
 # The changelog is automatically generated and merged

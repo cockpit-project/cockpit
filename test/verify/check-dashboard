@@ -309,7 +309,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.logout()
         self.assertEqual(m.execute('cat /etc/cockpit/machines.d/99-webui.json').strip(), blue_conf)
         self.assertEqual(m.execute('cat /etc/cockpit/machines.d/98-migrated.json').strip(), green_conf)
-
+        self.allow_journal_messages('.*: couldn\'t connect: *')
 
 @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):

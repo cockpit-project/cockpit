@@ -55,10 +55,16 @@ KEY_IDS_MD5 = [
     "256 b5:80:1b:f5:98:89:2a:39:f3:78:b3:64:5c:64:33:17 /home/admin/.ssh/id_ed25519 (ED25519)"
 ]
 
+@skipImage("No cockpit-ssh on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestMultiMachineKeyAuth(MachineCase):
     additional_machines = {
         'machine2': { }
     }
+
+    def use_md5(self, m):
+        return 'rhel' in m.image or 'centos' in m.image or \
+                m.image == "continuous-atomic" or \
+                m.image == "debian-8"
 
     def load_key(self, name, password):
         self.browser.switch_to_top()
@@ -83,7 +89,7 @@ class TestMultiMachineKeyAuth(MachineCase):
 
     def check_keys(self, keys):
         def normalize(k):
-            return re.sub("/home/admin/\\.ssh/[^ ]*|test@test", "", k)
+            return re.sub("/home/admin/\\.ssh/[^ ]*|test@test|ecdsa w/o comment", "", k)
         self.assertEqual(normalize(self.browser.eval_js("cockpit.spawn([ 'ssh-add', '-l' ])")),
                          normalize("\n".join(keys) + "\n"))
 
@@ -129,13 +135,13 @@ class TestMultiMachineKeyAuth(MachineCase):
         if m1.atomic_image:
             self.load_key('id_rsa', 'foobar')
             b.wait_js_cond('loaded === true');
-            if 'rhel' in m1.image or 'centos' in m1.image or m1.image == "continuous-atomic":
+            if self.use_md5(m1):
                 self.check_keys([
                     "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"])
             else:
                 self.check_keys([
                     "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
-        elif 'rhel' in m1.image or 'centos' in m1.image or m1.image == "continuous-atomic":
+        elif self.use_md5(m1):
             self.check_keys(KEY_IDS_MD5)
         else:
             # Check our keys were loaded.

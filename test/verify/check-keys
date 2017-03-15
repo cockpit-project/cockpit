@@ -68,8 +68,12 @@ class TestKeys(MachineCase):
             b.set_val("#authorized-keys-text", key)
             b.click("#add-authorized-key")
             b.wait_popdown("add-authorized-key-dialog")
-            b.wait_in_text("#account-authorized-keys-list", comment)
 
+            # Debian-8 doesn't output comments
+            if self.machine.image != "debian-8":
+                b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
             text = b.text("#account-authorized-keys-list")
             if ("SHA256" in text):
                 self.assertIn(fp_sh256, text)
@@ -99,7 +103,7 @@ class TestKeys(MachineCase):
         b.wait_text("#account-user-name", "admin")
 
         # Not allowed, except on Ubuntu, where we can find out that ~/.ssh doesn't exist, which is shown as "no keys".
-        if not "ubuntu" in m.image:
+        if not "ubuntu" in m.image and not "debian" in m.image:
             b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "You do not have permission")
             b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
 
@@ -142,7 +146,10 @@ class TestKeys(MachineCase):
 
         # User can still see their keys
         login("user", "foobar", "User")
-        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
+        if m.image == "debian-8":
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "rsa")
+        else:
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
 
         b.click("#account-authorized-keys-list div.list-group-item:first-child button");
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")

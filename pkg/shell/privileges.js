@@ -68,7 +68,7 @@ function Privileges() {
     };
 
     /* No op authorize command to poke about state */
-    cockpit.authorize();
+    cockpit.transport.control("authorize");
 }
 
 var privileges = null;

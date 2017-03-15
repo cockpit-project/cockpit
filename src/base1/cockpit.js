@@ -1083,14 +1083,12 @@ function factory() {
     cockpit.base64_decode = base64_decode;
 
     cockpit.kill = function kill(host, group) {
-        var options = { "command": "kill" };
+        var options = { };
         if (host)
             options.host = host;
         if (group)
             options.group = group;
-        ensure_transport(function(transport) {
-            transport.send_control(options);
-        });
+        cockpit.transport.control("kill", options);
     };
 
     /* Not public API ... yet? */
@@ -1099,22 +1097,8 @@ function factory() {
             options = default_host;
         if (typeof options == "string")
             options = { "host": options };
-        options["command"] = "hint";
         options["hint"] = name;
-        ensure_transport(function(transport) {
-            transport.send_control(options);
-        });
-    };
-
-    /* Not a public API ... yet? */
-    cockpit.authorize = function authorize(credential, options) {
-        options = extend({ }, options);
-        options["command"] = "authorize";
-        if (credential)
-            options["credential"] = credential;
-        ensure_transport(function(transport) {
-            transport.send_control(options);
-        });
+        cockpit.transport.control("hint", options);
     };
 
     cockpit.transport = public_transport = {
@@ -1150,6 +1134,13 @@ function factory() {
         origin: transport_origin,
         options: { },
         uri: calculate_url,
+        control: function(command, options) {
+            options = extend({ }, options);
+            options["command"] = command;
+            ensure_transport(function(transport) {
+                transport.send_control(options);
+            });
+        },
         application: function () {
             if (!default_transport || window.mock)
                 return calculate_application();

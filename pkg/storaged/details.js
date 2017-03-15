@@ -43,6 +43,27 @@
 
         var multipathd_service = utils.get_multipathd_service();
 
+        function filter_inside_mdraid(mdraid) {
+            return function (spc) {
+                var block = spc.block;
+                if (client.blocks_part[block.path])
+                    block = client.blocks[client.blocks_part[block.path].Table];
+                return block && block.MDRaid != mdraid.path;
+            };
+        }
+
+        function filter_inside_vgroup(vgroup) {
+            return function (spc) {
+                var block = spc.block;
+                if (client.blocks_part[block.path])
+                    block = client.blocks[client.blocks_part[block.path].Table];
+                var lvol = (block &&
+                            client.blocks_lvm2[block.path] &&
+                            client.lvols[client.blocks_lvm2[block.path].LogicalVolume]);
+                return !lvol || lvol.VolumeGroup != vgroup.path;
+            };
+        }
+
         var actions = {
             mdraid_start: function mdraid_start(path) {
                 return client.mdraids[path].Start({ "start-degraded": { t: 'b', v: true } });
@@ -67,15 +88,11 @@
                               Fields: [
                                   { SelectMany: "disks",
                                     Title: _("Disks"),
-                                    Options: (utils.get_free_blockdevs(client).
-                                              filter(function (b) {
-                                                  if (client.blocks_part[b.path])
-                                                      b = client.blocks[client.blocks_part[b.path].Table];
-                                                  return b && client.blocks[b.path].MDRaid != path;
-                                              }).
-                                              map(function (b) {
-                                                  return { value: b.path, Title: b.Name + " " + b.Description };
-                                              })),
+                                    Options: (
+                                        utils.get_available_spaces(client)
+                                            .filter(filter_inside_mdraid(mdraid))
+                                            .map(utils.available_space_to_option)
+                                    ),
                                     EmptyWarning: _("No disks are available."),
                                     validate: function (disks) {
                                         if (disks.length === 0)
@@ -86,9 +103,12 @@
                               Action: {
                                   Title: _("Add"),
                                   action: function (vals) {
-                                      return cockpit.all(vals.disks.map(function (p) {
-                                          return mdraid.AddDevice(p, {});
-                                      }));
+                                      return utils.prepare_available_spaces(client, vals.disks).then(function () {
+                                          var paths = Array.prototype.slice.call(arguments);
+                                          return cockpit.all(paths.map(function(p) {
+                                              return mdraid.AddDevice(p, {});
+                                          }));
+                                      });
                                   }
                               }
                             });
@@ -201,18 +221,11 @@
                               Fields: [
                                   { SelectMany: "disks",
                                     Title: _("Disks"),
-                                    Options: (utils.get_free_blockdevs(client).
-                                              filter(function (b) {
-                                                  if (client.blocks_part[b.path])
-                                                      b = client.blocks[client.blocks_part[b.path].Table];
-                                                  var lvol = (b &&
-                                                              client.blocks_lvm2[b.path] &&
-                                                              client.lvols[client.blocks_lvm2[b.path].LogicalVolume]);
-                                                  return !lvol || lvol.VolumeGroup != path;
-                                              }).
-                                              map(function (b) {
-                                                  return { value: b.path, Title: b.Name + " " + b.Description };
-                                              })),
+                                    Options: (
+                                        utils.get_available_spaces(client)
+                                            .filter(filter_inside_vgroup(vgroup))
+                                            .map(utils.available_space_to_option)
+                                    ),
                                     EmptyWarning: _("No disks are available."),
                                     validate: function (disks) {
                                         if (disks.length === 0)
@@ -223,9 +236,12 @@
                               Action: {
                                   Title: _("Add"),
                                   action: function (vals) {
-                                      return cockpit.all(vals.disks.map(function (p) {
-                                          return vgroup.AddDevice(p, {});
-                                      }));
+                                      return utils.prepare_available_spaces(client, vals.disks).then(function () {
+                                          var paths = Array.prototype.slice.call(arguments);
+                                          return cockpit.all(paths.map(function(p) {
+                                              return vgroup.AddDevice(p, {});
+                                          }));
+                                      });
                                   }
                               }
                             });

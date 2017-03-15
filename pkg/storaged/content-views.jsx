@@ -395,19 +395,20 @@ function append_partitions(client, rows, level, block) {
         );
     }
 
-    function append_extended_partition(level, part) {
+    function append_extended_partition(level, partition) {
         var desc = {
-            size: utils.fmt_size(part.size),
+            size: partition.size,
             text: _("Extended Partition")
         };
-        var tabs = create_tabs(client, part.block, true);
-        append_row(rows, level, part.block.path, utils.block_name(part.block), desc, tabs, part.block.path);
-        process_parts(level + 1, part.partitions);
+        var tabs = create_tabs(client, partition.block, true);
+        append_row(rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
+        process_partitions(level + 1, partition.partitions);
     }
 
-    function process_parts(level, parts) {
-        for (var i = 0; i < parts.length; i++) {
-            var p = parts[i];
+    function process_partitions(level, partitions) {
+        var i, p;
+        for (i = 0; i < partitions.length; i++) {
+            p = partitions[i];
             if (p.type == 'free')
                 append_free_space(level, p.start, p.size);
             else if (p.type == 'container')
@@ -417,7 +418,7 @@ function append_partitions(client, rows, level, block) {
         }
     }
 
-    process_parts(level, utils.get_partitions(client, block));
+    process_partitions(level, utils.get_partitions(client, block));
 }
 
 function append_device(client, rows, level, block) {

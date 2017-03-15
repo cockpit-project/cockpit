@@ -371,15 +371,57 @@
             var block = client.blocks[path];
             var link = utils.get_block_link_target(client, path);
             var text = $('<div>').html(link.html).text();
-
-            return {
-                path: path,
-                Name: utils.block_name(block),
-                Description: utils.fmt_size(block.Size) + " " + text
-            };
+            var desc = cockpit.format(_("${size} ${desc}"),
+                                      { size: utils.fmt_size(block.Size),
+                                        desc: text
+                                      });
+            return { type: 'block', block: block, desc: desc };
         }
 
-        return Object.keys(client.blocks).filter(is_free).sort(utils.make_block_path_cmp(client)).map(make);
+        var spaces = Object.keys(client.blocks).filter(is_free).sort(utils.make_block_path_cmp(client)).map(make);
+
+        function add_free_spaces(block) {
+            var parts = utils.get_partitions(client, block);
+            var i, p, link, text, desc;
+            for (i in parts) {
+                p = parts[i];
+                if (p.type == 'free') {
+                    link = utils.get_block_link_target(client, block.path);
+                    text = $('<div>').html(link.html).text();
+                    desc = cockpit.format(_("${size} unpartitioned space on ${desc}"),
+                                          { size: utils.fmt_size(p.size),
+                                            desc: text
+                                          });
+                    spaces.push({ type: 'free', block: block, start: p.start, size: p.size,
+                                  desc: desc });
+                }
+            }
+        }
+
+        for (var p in client.blocks_ptable)
+            add_free_spaces(client.blocks[p]);
+
+        return spaces;
+    };
+
+    utils.available_space_to_option = function available_space_to_option(spc) {
+        return {
+            value: spc,
+            Title: spc.desc,
+            Label: utils.block_name(spc.block)
+        };
+    };
+
+    utils.prepare_available_spaces = function prepare_available_spaces(client, spcs) {
+        function prepare(spc) {
+            if (spc.type == 'block')
+                return cockpit.resolve(spc.block.path);
+            else if (spc.type == 'free') {
+                var block_ptable = client.blocks_ptable[spc.block.path];
+                return block_ptable.CreatePartition(spc.start, spc.size, "", "", { });
+            }
+        }
+        return cockpit.all(spcs.map(prepare));
     };
 
     /* Comparison function for sorting lists of block devices.

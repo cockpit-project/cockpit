@@ -230,5 +230,40 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")
 
+    def testUnpartitionedSpace(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+
+        # Put a partition table on DISK1 and DISK2
+        m.execute('parted -s /dev/sda mktable gpt')
+        m.execute('parted -s /dev/sdb mktable gpt')
+
+        # Create a volume group out of DISK1
+        b.wait_visible('#create-volume-group')
+        self.dialog_with_retry(trigger = lambda: b.click('#create-volume-group'),
+                               expect = lambda: self.dialog_is_present('disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK1)"),
+                               values = { "disks": { "DISK1": True }})
+
+        b.wait_in_text("#vgroups", "vgroup0")
+        b.click('tr:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+
+        # Check the we are really using a partition on DISK1 now
+        b.wait_in_text("#pvols", "Partition of QEMU QEMU HARDDISK (DISK1)")
+
+        # Add the unused space of DISK2
+        self.dialog_with_retry(trigger = lambda: b.click('[data-action="vgroup_add_disk"]'),
+                               expect = lambda: self.dialog_is_present('disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK2)"),
+                               values = { "disks": { "DISK2": True }})
+        b.wait_in_text("#pvols", "Partition of QEMU QEMU HARDDISK (DISK2)")
+
 if __name__ == '__main__':
     test_main()

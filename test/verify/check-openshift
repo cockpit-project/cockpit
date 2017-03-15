@@ -623,7 +623,7 @@ class TestRegistry(MachineCase):
         b.wait_present("modal-dialog")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        wait(lambda: not re.search(r"\btestprojectuser\b", o.execute("oc get rolebinding -n testprojectuserproj")))
+        wait(lambda: not re.search(r"\btestprojectuser\b", o.execute("oc get rolebinding -n testprojectuserproj")), delay=5)
 
         #add/remove members for other roles
         b.go("#/projects/testprojectuserproj")
@@ -641,7 +641,7 @@ class TestRegistry(MachineCase):
             b.wait_not_present("modal-dialog")
             b.wait_present("tbody[data-id='%s']" % username)
 
-            wait(lambda: username in o.execute("oc get rolebinding -n testprojectuserproj"))
+            wait(lambda: username in o.execute("oc get rolebinding -n testprojectuserproj"), delay=5)
             output = o.execute("oc get rolebinding -n testprojectuserproj")
             self.assertRegexpMatches(output, "registry-%s\s+/registry-%s\s.*\\b%s\\b" % (perm, perm, username))
             self.assertNotRegexpMatches(output, "registry-admin.*%s" % username)
@@ -673,7 +673,7 @@ class TestRegistry(MachineCase):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
         b.wait_present("tbody[data-id='foo@bar.com']")
-        wait(lambda: 'foo@bar.com' in o.execute("oc get rolebinding -n testprojectuserproj"))
+        wait(lambda: 'foo@bar.com' in o.execute("oc get rolebinding -n testprojectuserproj"), delay=5)
         self.assertNotIn('foo ^ bar', o.execute("oc get rolebinding -n testprojectuserproj"))
 
         # it appears on the "All projects" page too

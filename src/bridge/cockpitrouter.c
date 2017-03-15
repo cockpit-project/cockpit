@@ -389,7 +389,7 @@ process_open (CockpitRouter *self,
   else
     {
       if (g_strcmp0 (self->init_host, host) == 0)
-          json_object_remove_member (options, "host");
+        json_object_remove_member (options, "host");
 
       new_payload = cockpit_json_write_bytes (options);
       for (l = self->rules; l != NULL; l = g_list_next (l))
@@ -523,6 +523,21 @@ cockpit_router_init (CockpitRouter *self)
   rule = g_new0 (RouterRule, 1);
   rule->callback = process_open_not_supported;
   self->rules = g_list_prepend (self->rules, rule);
+}
+
+static void
+cockpit_router_ban_hosts (CockpitRouter *self)
+{
+  RouterRule *rule;
+  JsonObject *match = json_object_new ();
+
+  json_object_set_null_member (match, "host");
+  rule = g_new0 (RouterRule, 1);
+  rule->callback = process_open_not_supported;
+  router_rule_compile (rule, match);
+
+  self->rules = g_list_prepend (self->rules, rule);
+  json_object_unref (match);
 }
 
 static void
@@ -673,6 +688,9 @@ cockpit_router_new (CockpitTransport *transport,
       cockpit_router_add_channel (router, match, payloads[i].function);
       json_object_unref (match);
     }
+
+  /* No hosts are allowed by default */
+  cockpit_router_ban_hosts (router);
 
   /* Enumerated in reverse, since the last rule is matched first */
   for (l = g_list_last (bridges); l != NULL; l = g_list_previous (l))

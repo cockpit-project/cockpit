@@ -220,6 +220,9 @@ cockpit_test_init (int *argc,
   g_assert (g_snprintf (path, sizeof (path), "%s:%s", BUILDDIR, g_getenv ("PATH")) < sizeof (path));
   g_setenv ("PATH", path, TRUE);
 
+  /* For our process (children are handled through $G_DEBUG) */
+  g_log_set_always_fatal (G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
+
   g_type_init ();
 
   // System cockpit configuration file should not be loaded

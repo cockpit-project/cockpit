@@ -36,8 +36,15 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output (unsupported)')
     opts = parser.parse_args()
 
+    # Splits 23 out of fedora-23
+    system = testinfra.DEFAULT_IMAGE.split("-")[-1]
+
     # Converts fedora-23 to f23
-    system = testinfra.DEFAULT_IMAGE[0] + testinfra.DEFAULT_IMAGE.split("-")[-1]
+    try:
+        number = int(system)
+        system = testinfra.DEFAULT_IMAGE[0] + system
+    except ValueError:
+        pass
 
     make_srpm = os.path.join(testinfra.TEST_DIR, "..", "tools", "make-srpm")
     srpm = subprocess.check_output([make_srpm], shell=True).strip()

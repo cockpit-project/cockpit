@@ -1,0 +1,45 @@
+# This file is used with cockpituous release scripts
+# https://github.com/cockpit-project/cockpituous/
+
+# Initial variables which help the scripts share
+RELEASE_SPEC=tools/cockpit.spec
+RELEASE_CONTROL=tools/debian/control
+RELEASE_SRPM=$PWD/_release/srpm
+RELEASE_DSC=$PWD/_release/dsc
+RELEASE_SOURCE=$PWD/_release/source
+
+# Fedora needs this crap. It's like packages are made
+# by cobblers not automated systems.
+cat ~/.fedora-password | kinit cockpit@FEDORAPROJECT.ORG
+
+# Build the source tarball patches and srpm
+job release-source
+job release-srpm
+
+
+# Do fedora builds for the tag, using tarball
+job release-koji -k master
+job release-koji f25
+job release-koji f26
+
+# Upload release to github, using tarball
+job release-github
+
+# Push to COPR builds
+job release-copr @cockpit/cockpit-preview
+
+# Update the Github repo that Docker Hub is tracking
+job release-dockerhub cockpit-project/cockpit-container
+job release-dockerhub cockpituous/cockpit cockpit-project/cockpit
+
+# Push out a Bodhi update
+job release-bodhi F25
+job release-bodhi F26
+
+# Upload documentation
+job release-guide dist/guide cockpit-project/cockpit-project.github.io
+
+# Create and publish a Debian repository and Ubuntu PPA
+job release-dsc
+job release-ubuntu-ppa
+job release-debian fedorapeople.org:/project/cockpit/debian jessie unstable

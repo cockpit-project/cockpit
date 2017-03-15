@@ -162,15 +162,24 @@ cockpit_session_remove_channel (CockpitSessions *sessions,
   g_hash_table_remove (sessions->by_channel, channel);
   g_hash_table_remove (session->channels, channel);
 
+  /*
+   * Close sessions that are no longer in use after N seconds
+   * of them being that way. Private sessions obviously get closed
+   * right away.
+   */
   if (g_hash_table_size (session->channels) == 0)
     {
-      /*
-       * Close sessions that are no longer in use after N seconds
-       * of them being that way.
-       */
-      g_debug ("%s: removed last channel %s for session", session->host, channel);
-      session->timeout = g_timeout_add_seconds (cockpit_ssh_session_timeout,
-                                                on_timeout_cleanup_session, session);
+      if (session->private)
+        {
+          g_debug ("%s: private session had its channel %s close", session->host, channel);
+          cockpit_transport_close (session->transport, "done");
+        }
+      else
+        {
+          g_debug ("%s: removed last channel %s for session", session->host, channel);
+          session->timeout = g_timeout_add_seconds (cockpit_ssh_session_timeout,
+                                                    on_timeout_cleanup_session, session);
+        }
     }
   else
     {

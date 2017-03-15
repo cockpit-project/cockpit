@@ -125,6 +125,7 @@ run_bridge (const gchar *interactive)
 {
   CockpitTransport *transport;
   CockpitRouter *router;
+  GList *bridges = NULL;
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
@@ -174,7 +175,8 @@ run_bridge (const gchar *interactive)
   /* Set a path if nothing is set */
   g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
 
-  router = cockpit_router_new (transport, payload_types, NULL);
+  bridges = cockpit_packages_get_bridges (packages);
+  router = cockpit_router_new (transport, payload_types, bridges);
   cockpit_dbus_process_startup ();
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
@@ -185,6 +187,7 @@ run_bridge (const gchar *interactive)
 
   g_object_unref (router);
   g_object_unref (transport);
+  g_list_free (bridges);
   cockpit_packages_free (packages);
   packages = NULL;
 

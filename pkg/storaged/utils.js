@@ -254,7 +254,80 @@
         };
     };
 
-    utils.get_free_blockdevs = function get_free_blockdevs(client) {
+    utils.get_partitions = function get_partitions(client, block) {
+        var partitions = client.blocks_partitions[block.path];
+
+        function process_level(level, container_start, container_size) {
+            var n;
+            var last_end = container_start;
+            var total_end = container_start + container_size;
+            var block, start, size, is_container, is_contained;
+
+            var result = [ ];
+
+            function append_free_space(start, size) {
+                // There is a lot of rounding and aligning going on in
+                // the storage stack.  All of udisks2, libblockdev,
+                // and libparted seem to contribute their own ideas of
+                // where a partition really should start.
+                //
+                // The start of partitions are aggressively rounded
+                // up, sometimes twice, but the end is not aligned in
+                // the same way.  This means that a few megabytes of
+                // free space will show up between partitions.
+                //
+                // We hide these small free spaces because they are
+                // unexpected and can't be used for anything anyway.
+                //
+                // "Small" is anything less than 3 MiB, which seems to
+                // work okay.  (The worst case is probably creating
+                // the first logical partition inside a extended
+                // partition with udisks+libblockdev.  It leads to a 2
+                // MiB gap.)
+
+                if (size >= 3*1024*1024) {
+                    result.push({ type: 'free', start: start, size: size });
+                }
+            }
+
+            for (n = 0; n < partitions.length; n++) {
+                block = client.blocks[partitions[n].path];
+                start = partitions[n].Offset;
+                size = partitions[n].Size;
+                is_container = partitions[n].IsContainer;
+                is_contained = partitions[n].IsContained;
+
+                if (block === null)
+                    continue;
+
+                if (level === 0 && is_contained)
+                    continue;
+
+                if (level == 1 && !is_contained)
+                    continue;
+
+                if (start < container_start || start+size > container_start+container_size)
+                    continue;
+
+                append_free_space(last_end, start - last_end);
+                if (is_container) {
+                    result.push({ type: 'container', block: block, size: size,
+                                  partitions: process_level(level+1, start, size) });
+                } else {
+                    result.push({ type: 'block', block: block });
+                }
+                last_end = start + size;
+            }
+
+            append_free_space(last_end, total_end - last_end);
+
+            return result;
+        }
+
+        return process_level(0, 0, block.Size);
+    };
+
+    utils.get_available_spaces = function get_available_spaces(client) {
         function is_free(path) {
             var block = client.blocks[path];
             var block_ptable = client.blocks_ptable[path];

@@ -372,99 +372,52 @@ function append_partitions(client, rows, level, block) {
     var device_level = level;
 
     var is_dos_partitioned = (block_ptable.Type == 'dos');
-    var partitions = client.blocks_partitions[block.path];
 
     function append_free_space(level, start, size) {
-        // There is a lot of rounding and aligning going on in
-        // the storage stack.  All of udisks2, libblockdev,
-        // and libparted seem to contribute their own ideas of
-        // where a partition really should start.
-        //
-        // The start of partitions are aggressively rounded
-        // up, sometimes twice, but the end is not aligned in
-        // the same way.  This means that a few megabytes of
-        // free space will show up between partitions.
-        //
-        // We hide these small free spaces because they are
-        // unexpected and can't be used for anything anyway.
-        //
-        // "Small" is anything less than 3 MiB, which seems to
-        // work okay.  (The worst case is probably creating
-        // the first logical partition inside a extended
-        // partition with udisks+libblockdev.  It leads to a 2
-        // MiB gap.)
-
         function create_partition() {
             FormatDialog.format_dialog(client, block.path, start, size, is_dos_partitioned && level <= device_level);
         }
 
-        if (size >= 3*1024*1024) {
-            var btn = (
-                <StorageButton onClick={create_partition}>
-                    {_("Create Partition")}
-                </StorageButton>
-            );
+        var btn = (
+            <StorageButton onClick={create_partition}>
+                {_("Create Partition")}
+            </StorageButton>
+        );
 
-            var cols = [
-                <span className={"content-level-" + level}>{utils.fmt_size(size) + " " + _("Free Space")}</span>,
-                "",
-                { element: btn, tight: true }
-            ];
+        var cols = [
+            <span className={"content-level-" + level}>{utils.fmt_size(size) + " " + _("Free Space")}</span>,
+            "",
+            { element: btn, tight: true }
+        ];
 
-            rows.push(
-                <CockpitListing.ListingRow columns={cols}/>
-            );
-        }
+        rows.push(
+            <CockpitListing.ListingRow columns={cols}/>
+        );
     }
 
-    function append_extended_partition(level, block, start, size) {
+    function append_extended_partition(level, part) {
         var desc = {
-            size: utils.fmt_size(size),
+            size: utils.fmt_size(part.size),
             text: _("Extended Partition")
         };
-        var tabs = create_tabs(client, block, true);
-        append_row(rows, level, block.path, utils.block_name(block), desc, tabs, block.path);
-        process_level(level + 1, start, size);
+        var tabs = create_tabs(client, part.block, true);
+        append_row(rows, level, part.block.path, utils.block_name(part.block), desc, tabs, part.block.path);
+        process_parts(level + 1, part.partitions);
     }
 
-    function process_level(level, container_start, container_size) {
-        var n;
-        var last_end = container_start;
-        var total_end = container_start + container_size;
-        var block, start, size, is_container, is_contained;
-
-        for (n = 0; n < partitions.length; n++) {
-            block = client.blocks[partitions[n].path];
-            start = partitions[n].Offset;
-            size = partitions[n].Size;
-            is_container = partitions[n].IsContainer;
-            is_contained = partitions[n].IsContained;
-
-            if (block === null)
-                continue;
-
-            if (level === device_level && is_contained)
-                continue;
-
-            if (level == device_level+1 && !is_contained)
-                continue;
-
-            if (start < container_start || start+size > container_start+container_size)
-                continue;
-
-            append_free_space(level, last_end, start - last_end);
-            if (is_container) {
-                append_extended_partition(level, block, start, size);
-            } else {
-                append_non_partitioned_block(client, rows, level, block, true);
-            }
-            last_end = start + size;
+    function process_parts(level, parts) {
+        for (var i = 0; i < parts.length; i++) {
+            var p = parts[i];
+            if (p.type == 'free')
+                append_free_space(level, p.start, p.size);
+            else if (p.type == 'container')
+                append_extended_partition(level, p);
+            else
+                append_non_partitioned_block(client, rows, level, p.block, true);
         }
-
-        append_free_space(level, last_end, total_end - last_end);
     }
 
-    process_level(device_level, 0, block.Size);
+    process_parts(level, utils.get_partitions(client, block));
 }
 
 function append_device(client, rows, level, block) {

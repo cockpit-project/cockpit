@@ -411,7 +411,8 @@ process_kill (CockpitRouter *self,
 {
   CockpitChannel *channel;
   GHashTableIter iter;
-  const gchar *group;
+  const gchar *group = NULL;
+  const gchar *host = NULL;
   gpointer id, value;
   GList *list, *l;
 
@@ -420,6 +421,15 @@ process_kill (CockpitRouter *self,
       g_warning ("received invalid \"group\" field in kill command");
       return;
     }
+  else if (!cockpit_json_get_string (options, "host", NULL, &host))
+    {
+      g_warning ("received invalid \"host\" field in kill command");
+      return;
+    }
+
+  /* Killing on other hosts is handled elsewhere */
+  if (host && g_strcmp0 (host, self->init_host) != 0)
+    return;
 
   list = NULL;
   if (group)

@@ -583,6 +583,13 @@ function NetworkManagerModel() {
     function settings_to_nm(settings, orig) {
         var result = $.extend(true, {}, orig);
 
+        // HACK - for debugging
+        if (!settings.connection.id) {
+            console.log("No connection.id in settings", JSON.stringify(settings));
+            // HACK - phantomjs console.trace() prints nothing
+            try { throw new Error(); } catch (e) { console.log(e.stack); }
+        }
+
         function set(first, second, sig, val, def) {
             if (val === undefined)
                 val = def;

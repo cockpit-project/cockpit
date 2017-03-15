@@ -813,7 +813,12 @@
                     {{#Options}}
                     <li class="list-group-item">
                       <div class="checkbox">
-                        <label><input type="checkbox"><span>{{Title}}</span></label>
+                        <label><input type="checkbox">
+                          {{#Label}}
+                          <span class="pull-right">{{.}}</span>
+                          {{/Label}}
+                          <span>{{Title}}</span>
+                        </label>
                       </div>
                     </li>
                     {{/Options}}

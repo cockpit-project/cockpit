@@ -449,9 +449,7 @@
                               },
                               { SelectMany: "disks",
                                 Title: _("Disks"),
-                                Options: utils.get_free_blockdevs(client).map(function (b) {
-                                    return { value: b.path, Title: b.Name + " " + b.Description };
-                                }),
+                                Options: utils.get_available_spaces(client).map(utils.available_space_to_option),
                                 EmptyWarning: _("No disks are available."),
                                 validate: function (disks, vals) {
                                     var disks_needed = vals.level == "raid6"? 4 : 2;
@@ -464,9 +462,12 @@
                           Action: {
                               Title: _("Create"),
                               action: function (vals) {
-                                  return client.manager.MDRaidCreate(vals.disks, vals.level,
-                                                                     vals.name, (vals.chunk || 0) * 1024,
-                                                                     { });
+                                  return utils.prepare_available_spaces(client, vals.disks).then(function () {
+                                      var paths = Array.prototype.slice.call(arguments);
+                                      return client.manager.MDRaidCreate(paths, vals.level,
+                                                                         vals.name, (vals.chunk || 0) * 1024,
+                                                                         { });
+                                  });
                               }
                           }
                         });
@@ -497,9 +498,7 @@
                               },
                               { SelectMany: "disks",
                                 Title: _("Disks"),
-                                Options: utils.get_free_blockdevs(client).map(function (b) {
-                                    return { value: b.path, Title: b.Name + " " + b.Description };
-                                }),
+                                Options: utils.get_available_spaces(client).map(utils.available_space_to_option),
                                 EmptyWarning: _("No disks are available."),
                                 validate: function (disks) {
                                     if (disks.length === 0)
@@ -510,7 +509,10 @@
                           Action: {
                               Title: _("Create"),
                               action: function (vals, dialog) {
-                                  return client.manager_lvm2.VolumeGroupCreate(vals.name, vals.disks, { });
+                                  return utils.prepare_available_spaces(client, vals.disks).then(function () {
+                                      var paths = Array.prototype.slice.call(arguments);
+                                      return client.manager_lvm2.VolumeGroupCreate(vals.name, paths, { });
+                                  });
                               }
                           }
                         });

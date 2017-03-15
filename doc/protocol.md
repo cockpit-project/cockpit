@@ -264,17 +264,18 @@ Any protocol participant can send this message, but it is not responded to.
 Command: authorize
 ------------------
 
-The "authorize" command is for communication of reauthorization challenges
-and responses between cockpit-bridge and cockpit-ws.
+The "authorize" command is for communication of authentication and
+authorization challenges and responses between cockpit-bridge and
+cockpit-ws. Inspite of the name this is also used for authentication.
 
-For challenge/response authorization, the following fields are defined:
+For challenge/response authentication, the following fields are defined:
 
- * "cookie": an string sent with a challenge, that must be present in
-   the corresponding response.
- * "challenge": a challenge string from the reauthorize component, present
-   in messages from cockpit-bridge to cockpit-ws
- * "response": a response string from the reauthorize component, present
-   in messages from cockpit-ws to cockpit-bridge
+ * "cookie": an unique string sent with a challenge, that must be
+   present in the corresponding response.
+ * "challenge": a challenge string present in messages from a bridge
+   to cockpit-ws
+ * "response": a response string present in messages from cockpit-ws
+   to a bridge
 
 The contents of the "challenge" and "response" fields are defined and
 documented in the reauthorize component.

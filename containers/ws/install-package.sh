@@ -2,6 +2,17 @@
 
 set -ex
 
+package_name()
+{
+    package="$1"
+    if [ -n "$VERSION" ]; then
+        package="$package-$VERSION"
+    fi
+    echo "$package"
+}
+
+OSVER=$(. /etc/os-release && echo "$VERSION_ID")
+
 if [ -z "$INSTALLER" ]; then
     INSTALLER="dnf"
 fi
@@ -9,30 +20,16 @@ fi
 "$INSTALLER" -y update
 "$INSTALLER" install -y sed
 
-OS=$(rpm -q --qf "%{release}" basesystem | sed -n -e 's/^[0-9]*\.\(\S\+\).*/\1/p')
-
-rpm=$(ls /container/rpms/cockpit-ws*.rpm /container/rpms/cockpit-dashboard*.rpm || true)
-
-if [ -z "$RELEASE" ]; then
-    RELEASE=1
-fi
+arch=`uname -p`
+rpm=$(ls /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-dashboard-*$OSVER.*$arch.rpm || true)
 
 # If there are rpm files in the current directory we'll install those
 if [ -n "$rpm" ]; then
-    $INSTALLER -y install /container/rpms/cockpit-ws*.rpm /container/rpms/cockpit-dashboard*.rpm
-
-elif [ -n "$USE_REPO" ]; then
-    "$INSTALLER" -y install cockpit-ws cockpit-dashboard
-
-# If there is a url set, pull the version from there
-# requires the build arg VERSION to be set
-elif [ -n "$COCKPIT_RPM_URL" ]; then
-    "$INSTALLER" -y install "$COCKPIT_RPM_URL/$VERSION/$RELEASE.$OS/x86_64/cockpit-ws-$VERSION-$RELEASE.$OS.x86_64.rpm" "$COCKPIT_RPM_URL/$VERSION/$RELEASE.$OS/x86_64/cockpit-dashboard-$VERSION-$RELEASE.$OS.x86_64.rpm"
-
-# Otherwise just do the standard install
-# requires the build arg VERSION to be set
+    $INSTALLER -y install /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-dashboard-*$OSVER.*$arch.rpm
 else
-    "$INSTALLER" -y install cockpit-ws-$VERSION-$RELEASE.$OS cockpit-dashboard-$VERSION-$RELEASE.$OS
+    ws=$(package_name "cockpit-ws")
+    dashboard=$(package_name "cockpit-dashboard")
+    "$INSTALLER" -y install "$ws" "$dashboard"
 fi
 
 "$INSTALLER" clean all

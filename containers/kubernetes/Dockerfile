@@ -1,13 +1,14 @@
 FROM fedora:25
 
-ARG RELEASE
 ARG VERSION
-ARG COCKPIT_RPM_URL
 ARG INSTALLER
 ARG OFFLINE
-ARG USE_REPO
 
 ADD . /container
+
+RUN echo -e '[group_cockpit-cockpit-preview]\nname=Copr repo for cockpit-preview owned by @cockpit\nbaseurl=https://copr-be.cloud.fedoraproject.org/results/@cockpit/cockpit-preview/fedora-$releasever-$basearch/\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://copr-be.cloud.fedoraproject.org/results/@cockpit/cockpit-preview/pubkey.gpg\nrepo_gpgcheck=0\nenabled=1\nenabled_metadata=1' > /etc/yum.repos.d/cockpit.repo
+
+
 RUN /container/install.sh
 
 CMD ["/usr/libexec/cockpit-kube-launch"]

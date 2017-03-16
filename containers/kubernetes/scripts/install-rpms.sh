@@ -29,22 +29,20 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-if [ -z "$COCKPIT_RPM_URL" ]; then
-    COCKPIT_RPM_URL="https://kojipkgs.fedoraproject.org/packages/cockpit"
-fi
-
 if [ -z "$INSTALLER" ]; then
     INSTALLER="dnf"
 fi
 
-if [ -z "$OS" ]; then
-    OS=$(rpm -q --qf "%{release}" basesystem | sed -n -e 's/^[0-9]*\.\(\S\+\).*/\1/p')
-fi
+OSVER=$(. /etc/os-release && echo "$VERSION_ID")
 
 for package in $@
 do
-    rpm=$(ls /container/rpms/$package-*.$arch.rpm || true)
-    if [ -z "$rpm" ] && [ -n "$USE_REPO" ]; then
+    rpm=$(ls /container/rpms/$package-*$OSVER.*$arch.rpm || true)
+    if [ -z "$rpm" ]; then
+        if [ -n "$VERSION" ]; then
+            package="$package-$VERSION"
+        fi
+
         if [ -z "$nodeps" ]; then
             rpm="$package"
         else
@@ -53,15 +51,12 @@ do
                 yumdownloader --destdir=/container/rpms "$package"
             else
                 dnf install -y 'dnf-command(download)'
-                dnf download --destdir=/container/rpms "$package-"
+                dnf download --destdir=/container/rpms "$package"
             fi
-            rpm=$(ls /container/rpms/$package-*.$arch.rpm || true)
+            rpm=$(ls /container/rpms/$package-*$OSVER.*$arch.rpm || true)
         fi
-    elif [ -z "$rpm" ] && [ -z "$OFFLINE" ]; then
-        rpm="$COCKPIT_RPM_URL/$VERSION/$RELEASE.$OS/$arch/$package-$VERSION-$RELEASE.$OS.$arch.rpm"
     fi
 
-    echo "$rpm"
     if [ -z "$nodeps" ]; then
         if [ -z "$OFFLINE" ]; then
             $INSTALLER install -v -y "$rpm"

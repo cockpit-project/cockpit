@@ -87,10 +87,8 @@ QUnit.test("utf8 round trip", function() {
 
         var length = block.length;
         for (var j = 0; j < length; j++) {
-            if (block[j] != decoded[j]) {
+            if (block[j] != decoded[j])
                 assert.deepEqual(block, decoded, "round trip " + block_tag);
-                return;
-            }
         }
     }
 

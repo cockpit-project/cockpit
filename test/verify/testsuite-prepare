@@ -39,17 +39,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     test_os = args.image
-    build_os = test_os
-
-    # The Atomic variants can't build their own packages, so we build in
-    # their non-Atomic siblings.  For example, fedora-atomic is build
-    # in fedora-25
-    if test_os == "fedora-atomic":
-        build_os = "fedora-25"
-    elif test_os == "rhel-atomic":
-        build_os = "rhel-7"
-    elif test_os == "continuous-atomic":
-        build_os = "centos-7"
+    build_os = vmmanage.get_build_image(test_os)
 
     os.system(os.path.join(testinfra.TEST_DIR,"vm-reset"))
     try:

@@ -84,7 +84,7 @@ class TestDockerStorage(MachineCase):
             b.wait_present("#containers-storage-details a")
 
     def testDevmapper(self, vg=""):
-        b = self.browser
+        m = self.machine
 
         # On the Atomics, we use two machines: one for running
         # cockpit-ws, and one whose docker storage pool is managed.
@@ -92,11 +92,13 @@ class TestDockerStorage(MachineCase):
         # the pool would kill the cockpit-ws container.
 
         if self.machine.atomic_image:
-            m = self.new_machine(machine_key='additional')
-            m.start()
-            m.wait_boot()
+            login_machine = self.new_machine(machine_key='login', image='fedora-25')
+            login_machine.start()
+            login_machine.wait_boot()
+            b = self.new_browser(login_machine.address)
         else:
-            m = self.machine
+            login_machine = self.machine
+            b = self.browser
 
         if can_manage(m, vg):
             # Allow docker-storage-setup to be happy with our very small disks
@@ -114,10 +116,11 @@ class TestDockerStorage(MachineCase):
 
         check_loopback(initially_loopbacked(m))
 
-        if m == self.machine:
+        if login_machine == self.machine:
             self.login_and_go("/docker#/storage")
         else:
-            self.login_and_go(None)
+            login_machine.start_cockpit()
+            b.login_and_go(None)
 
             # XXX - This should be simpler.
             #

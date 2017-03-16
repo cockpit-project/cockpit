@@ -322,14 +322,14 @@ class KubernetesCommonTests(VolumeTests):
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
         b.wait_in_text("#service-list", "mock")
 
-        pods = m.execute('kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"')
-        podl = pods.split("|")
         b.click("a[href='#/list']")
         b.wait_present("#content .details-listing")
         b.wait_present("#content .details-listing tbody[data-id='services/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
         b.wait_present("#content .details-listing tbody[data-id='replicationcontrollers/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
+        b.wait_present(".details-listing tbody[data-id^='pods/default/'] th")
+        podl = m.execute('kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"').split("|")
         b.wait_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), podl[0])
 

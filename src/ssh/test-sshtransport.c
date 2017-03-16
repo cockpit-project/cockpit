@@ -954,8 +954,6 @@ test_close_while_connecting (TestCase *tc,
 {
   gchar *problem = NULL;
 
-  /* exactly which of the two we get depends on how fast cockpit-ssh shuts down its auth pipe underneath us */
-
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, "special-problem");
 

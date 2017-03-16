@@ -896,6 +896,11 @@ class Policy(object):
         if "Failure: Unable to reach machine " in trace:
             return True
 
+        # HACK: For when the verify machine runs out of available processes
+        # We should retry this test process
+        if "self.pid = os.fork()\nOSError: [Errno 11] Resource temporarily unavailable" in trace:
+            return True
+
         return False
 
 class TapResult(unittest.TestResult):

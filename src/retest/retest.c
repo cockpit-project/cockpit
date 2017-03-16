@@ -87,7 +87,7 @@ struct {
   int child_status;
 } gl = { NULL, NULL, 0, };
 
-static void
+GNUC_NORETURN static void
 exit_child (int code)
 {
   fflush (stderr);
@@ -152,10 +152,9 @@ re_test_fail (const char *filename,
   abort();
 #endif
 
-  if (gl.am_child)
-    exit_child (67);
-  else
+  if (!gl.am_child)
     longjmp (gl.jump, 1);
+  exit_child (67);
 }
 
 void

@@ -476,6 +476,7 @@ class MachineCase(unittest.TestCase):
             except RetryError, ex:
                 assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
+                sleep(retry * 10)
             else:
                 break
 

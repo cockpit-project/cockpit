@@ -601,7 +601,8 @@
           </td>
           {{#DynamicMembers}}
           <td class="storage-action">
-            <button class="btn btn-default btn-control-ct fa fa-minus"
+            <button class="btn btn-default btn-control-ct fa fa-minus tooltip-ct"
+                    {{#Excuse}}disabled title="{{.}}"{{/Excuse}}
                     data-action="mdraid_remove_disk" data-arg="{{path}}">
             </button>
           </td>

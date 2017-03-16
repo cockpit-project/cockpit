@@ -216,5 +216,40 @@ class TestStorage(StorageCase):
             b.wait_visible("#storage")
             b.wait_not_in_text ("#mdraids", "ARR")
 
+    def testNoRemovingLastDisk(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+
+        b.click("#create-mdraid")
+        self.dialog_wait_open()
+        self.dialog_set_val("level", "raid5")
+        self.dialog_select("disks", "DISK1", True)
+        self.dialog_select("disks", "DISK2", True)
+        self.dialog_set_val("name", "ARR")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text("#mdraids", "ARR")
+
+        b.click('#mdraids tr:contains("ARR")')
+        b.wait_visible('#storage-detail')
+
+        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
+                           "QEMU QEMU HARDDISK (DISK2)": "In Sync" })
+
+
+        self.raid_remove_disk("DISK1")
+        b.wait_not_in_text('#disks', "DISK1")
+
+        # The last disk should have the removal button disabled.
+        b.wait_present('#disks tr:contains(DISK2) button[disabled]')
+
 if __name__ == '__main__':
     test_main()

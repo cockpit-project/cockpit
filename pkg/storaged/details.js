@@ -399,6 +399,8 @@
                 };
             }
 
+            var members = client.mdraids_members[mdraid.path];
+
             function make_member(block) {
                 var active_state = utils.array_find(mdraid.ActiveDevices, function (as) {
                     return as[0] == block.path;
@@ -421,7 +423,8 @@
                     LinkTarget: utils.get_block_link_target(client, block.path),
                     Description: utils.decode_filename(block.PreferredDevice),
                     Slot: active_state && active_state[1] >= 0 && active_state[1].toString(),
-                    States: active_state && active_state[2].map(make_state)
+                    States: active_state && active_state[2].map(make_state),
+                    Excuse: (members.length <= 1)? _("The last disk of a MDRAID device cannot be removed.") : false
                 };
             }
 
@@ -450,7 +453,7 @@
                                              }),
                      sidebar: mustache.render(mdraid_members_tmpl,
                                               { MDRaid: mdraid_model,
-                                                Members: client.mdraids_members[mdraid.path].map(make_member),
+                                                Members: members.map(make_member),
                                                 DynamicMembers: (mdraid.Level != "raid0")
                                               }),
                    };

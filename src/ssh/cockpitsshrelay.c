@@ -239,7 +239,7 @@ write_to_auth_fd (CockpitSshData *data,
         {
           if (errno != EAGAIN && errno != EINTR)
             {
-              g_warning ("%s: failed to write prompt to auth pipe: %s",
+              g_message ("%s: failed to write prompt to auth pipe: %s",
                          data->logname, g_strerror (errno));
               break;
             }
@@ -247,7 +247,7 @@ write_to_auth_fd (CockpitSshData *data,
       else
         {
           if (r != len)
-            g_warning ("%s: failed to write prompt to auth pipe", data->logname);
+            g_message ("%s: failed to write prompt to auth pipe", data->logname);
           break;
         }
     }

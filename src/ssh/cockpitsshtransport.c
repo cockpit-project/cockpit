@@ -172,9 +172,8 @@ cockpit_ssh_transport_remove_auth_process (CockpitSshTransport *self)
 {
   g_return_if_fail (self->auth_process != NULL);
 
-  if (!self->pipe)
-    cockpit_auth_process_terminate (self->auth_process);
-
+  g_signal_handlers_disconnect_by_data (self->auth_process, self);
+  cockpit_auth_process_terminate (self->auth_process);
   g_clear_object (&self->auth_process);
 }
 
@@ -195,13 +194,15 @@ cockpit_ssh_transport_close (CockpitTransport *transport,
   if (self->connecting && !problem)
     return;
 
+  if (self->auth_process)
+    cockpit_ssh_transport_remove_auth_process (self);
+
   if (self->pipe)
     {
       cockpit_pipe_close (self->pipe, problem);
     }
   else if (self->auth_process)
     {
-      cockpit_ssh_transport_remove_auth_process (self);
       self->closed = TRUE;
       cockpit_transport_emit_closed (COCKPIT_TRANSPORT (self), problem);
     }
@@ -339,7 +340,6 @@ on_auth_process_close (CockpitAuthProcess *auth_process,
    * with authentication close with authentication-failed.
    */
   CockpitSshTransport *self = user_data;
-  g_signal_handlers_disconnect_by_data (self->auth_process, self);
   if (self->connecting && error)
     cockpit_ssh_transport_close (COCKPIT_TRANSPORT (self),
                                  problem ? problem : "internal-error");
@@ -605,7 +605,7 @@ cockpit_ssh_transport_finalize (GObject *object)
     {
       g_signal_handler_disconnect (self->pipe, self->read_sig);
       g_signal_handler_disconnect (self->pipe, self->close_sig);
-      g_object_unref (self->pipe);
+      g_clear_object (&self->pipe);
     }
 
   G_OBJECT_CLASS (cockpit_ssh_transport_parent_class)->finalize (object);

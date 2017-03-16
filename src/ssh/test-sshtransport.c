@@ -458,10 +458,6 @@ test_close_problem (TestCase *tc,
 {
   gchar *problem = NULL;
 
-  /* exactly which of the two we get depends on how fast cockpit-ssh shuts down its auth pipe underneath us */
-  cockpit_expect_possible_log ("cockpit-ssh", G_LOG_LEVEL_WARNING, "*Auth pipe closed: *");
-  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*cockpit-ssh: couldn't recv: Connection reset by peer*");
-
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, "right now");
 
@@ -552,13 +548,13 @@ test_multi_auth_timeout (TestCase *tc,
 {
   gchar *problem = NULL;
 
-  // Ad a prompt handler that does nothing
+  // Add a prompt handler that does nothing
   g_signal_connect (COCKPIT_SSH_TRANSPORT (tc->transport), "prompt",
                     G_CALLBACK (on_prompt_do_nothing),
                     NULL);
 
   cockpit_expect_possible_log ("cockpit-bridge", G_LOG_LEVEL_WARNING,
-                                "*Auth pipe closed: timeout*");
+                               "*Auth pipe closed: timeout*");
   cockpit_expect_possible_log ("cockpit-ssh", G_LOG_LEVEL_WARNING,
                                "*Auth pipe closed: timeout*");
 
@@ -959,8 +955,6 @@ test_close_while_connecting (TestCase *tc,
   gchar *problem = NULL;
 
   /* exactly which of the two we get depends on how fast cockpit-ssh shuts down its auth pipe underneath us */
-  cockpit_expect_possible_log ("cockpit-ssh", G_LOG_LEVEL_WARNING, "*Auth pipe closed: *");
-  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*cockpit-ssh: couldn't recv: Connection reset by peer*");
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (tc->transport, "special-problem");

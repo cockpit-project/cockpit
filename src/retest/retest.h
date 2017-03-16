@@ -43,6 +43,18 @@
 #endif
 #endif
 
+#ifndef __has_feature
+#define __has_feature(x) 0
+#endif
+
+#if __has_feature(attribute_analyzer_noreturn) && defined(__clang_analyzer__)
+#define GNUC_NORETURN __attribute__((analyzer_noreturn))
+#elif     __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
+#define GNUC_NORETURN __attribute__((__noreturn__))
+#else
+#define GNUC_NORETURN
+#endif
+
 #include <string.h>
 
 #ifdef assert_not_reached
@@ -113,7 +125,7 @@ void        re_test_fail            (const char *filename,
                                      int line,
                                      const char *function,
                                      const char *message,
-                                     ...) GNUC_PRINTF(4, 5);
+                                     ...) GNUC_PRINTF(4, 5) GNUC_NORETURN;
 
 void        re_test_skip            (const char *reason);
 

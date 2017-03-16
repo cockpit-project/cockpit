@@ -559,7 +559,7 @@ parse_host_and_etag (CockpitWebService *service,
     return FALSE;
 
   *host = cockpit_web_service_get_host (service, where + 1);
-  if (!host)
+  if (!*host)
     return FALSE;
 
   /* Top level resources (like the /manifests) are not translatable */

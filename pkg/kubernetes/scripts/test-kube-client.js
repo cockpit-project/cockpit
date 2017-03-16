@@ -322,7 +322,7 @@ var FIXTURE_LARGE = require("./fixture-large");
         }
     ]);
 
-    kubeTest("list services", 3, FIXTURE_BASIC, [
+    kubeTest("list services", 4, FIXTURE_BASIC, [
         "kubeLoader",
         "kubeSelect",
         function(loader, select) {
@@ -333,6 +333,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                     svc = services[x];
                     break;
                 }
+                assert.ok(!!svc, "got a service");
                 assert.equal(services.length, 2, "number of services");
                 assert.equal(svc.metadata.name, "kubernetes", "service id");
                 assert.equal(svc.spec.selector.component, "apiserver", "service has label");

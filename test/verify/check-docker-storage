@@ -20,6 +20,7 @@
 
 import parent
 from testlib import *
+from common.vmmanage import get_build_image
 
 # The Docker Storage Setup behaves differently depending on
 # whether the "atomic" utility is recent enough, on whether or not
@@ -92,7 +93,8 @@ class TestDockerStorage(MachineCase):
         # the pool would kill the cockpit-ws container.
 
         if self.machine.atomic_image:
-            login_machine = self.new_machine(machine_key='login', image='fedora-25')
+            login_machine = self.new_machine(machine_key='login',
+                                             image=get_build_image(self.machine.image))
             login_machine.start()
             login_machine.wait_boot()
             b = self.new_browser(login_machine.address)

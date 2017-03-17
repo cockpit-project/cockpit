@@ -123,7 +123,6 @@ cockpit_ssh_options_from_env (gchar **env)
   options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                                                   default_knownhosts);
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
-  options->krb5_ccache_name = get_environment_val (env, "KRB5CCNAME", NULL);
   options->supports_hostkey_prompt = get_environment_bool (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", FALSE);
 
   if (options->knownhosts_data != NULL)
@@ -156,7 +155,6 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
 
   env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA",
                              knownhosts_data);
-  env = set_environment_val (env, "KRB5CCNAME", options->krb5_ccache_name);
 
   /* Don't reset these vars unless we have values for them */
   if (options->command)

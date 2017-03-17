@@ -33,7 +33,6 @@ typedef struct _CockpitCreds       CockpitCreds;
 
 #define COCKPIT_CRED_PASSWORD     "password"
 #define COCKPIT_CRED_RHOST        "rhost"
-#define COCKPIT_CRED_GSSAPI       "gssapi"
 #define COCKPIT_CRED_CSRF_TOKEN   "csrf-token"
 #define COCKPIT_CRED_LOGIN_DATA   "login-data"
 
@@ -67,17 +66,12 @@ gboolean        cockpit_creds_equal          (gconstpointer v1,
 
 guint           cockpit_creds_hash           (gconstpointer v);
 
-gboolean        cockpit_creds_has_gssapi     (CockpitCreds *creds);
-
 const gchar *   cockpit_creds_get_application            (CockpitCreds *creds);
 
 JsonObject *    cockpit_creds_get_login_data             (CockpitCreds *creds);
 
 JsonObject *    cockpit_creds_to_json                    (CockpitCreds *creds);
 
-const gchar *   cockpit_creds_get_krb5_ccache_name       (CockpitCreds *creds);
-
-const gchar *   cockpit_creds_get_gssapi_creds           (CockpitCreds *creds);
 G_END_DECLS
 
 #endif

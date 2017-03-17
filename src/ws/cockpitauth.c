@@ -607,7 +607,6 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
                                       const gchar *raw_data)
 {
   GBytes *password = NULL;
-  const gchar *gssapi_creds = NULL;
   CockpitCreds *creds = NULL;
   gchar *csrf_token;
 
@@ -619,12 +618,6 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
   if (ad->authorize_password && g_str_equal (ad->auth_type, "basic"))
     password = parse_basic_auth_password (ad->authorization, NULL);
 
-  if (!cockpit_json_get_string (results, "gssapi-creds", NULL, &gssapi_creds))
-    {
-      g_warning ("received bad gssapi-creds");
-      gssapi_creds = NULL;
-    }
-
   csrf_token = cockpit_auth_nonce (self);
 
   creds = cockpit_creds_new (user,
@@ -632,7 +625,6 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
                              COCKPIT_CRED_LOGIN_DATA, raw_data,
                              COCKPIT_CRED_PASSWORD, password,
                              COCKPIT_CRED_RHOST, ad->remote_peer,
-                             COCKPIT_CRED_GSSAPI, gssapi_creds,
                              COCKPIT_CRED_CSRF_TOKEN, csrf_token,
                              NULL);
 

@@ -1,12 +1,23 @@
 #!/bin/sh
 # run static code checks like pyflakes and pep8
-set -e
+set -eu
+
+if ! which pyflakes >/dev/null 2>&1; then
+    echo "1..1"
+    echo "ok 1 # SKIP pyflakes not installed"
+    exit 0
+fi
+
+echo "1..2"
+
+cd "${srcdir:-.}"
 
 #
 # pyflakes
 #
 
 pyflakes pkg/docker/cockpit-atomic-storage
+echo "ok 1 pkg/docker/cockpit-atomic-storage"
 
 # TODO: there are currently a lot of pyflakes errors like
 #   'parent' imported but unused
@@ -18,3 +29,4 @@ if [ -n "$out" ]; then
     echo "$out"
     exit 1
 fi
+echo "ok 2 pyflakes"

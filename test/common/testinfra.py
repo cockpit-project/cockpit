@@ -90,14 +90,6 @@ DEFAULT_IMAGE_REFRESH = {
     'debian-8': {
         'triggers': [ "verify/debian-8" ]
     },
-    'fedora-24': {
-        'triggers': [
-            "avocado/fedora-24",
-            "selenium/firefox",
-            "selenium/chrome",
-            "verify/fedora-24",
-        ]
-    },
     'fedora-25': {
         'triggers': [
             "verify/fedora-25",

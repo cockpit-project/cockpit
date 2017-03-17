@@ -95,6 +95,11 @@ class MachineBuilder:
                 self.machine.execute(script="/var/tmp/SETUP", environment=env, quiet=not self.machine.verbose)
                 self.machine.execute(command="rm -f /var/tmp/SETUP")
                 self.machine.execute(command="rm -rf /root/.rhel")
+
+                if self.machine.image == 'openshift':
+                    # update our local openshift kube config file to match the new image
+                    self.machine.download("/root/.kube/config", "verify/files/openshift.kubeconfig")
+
             except subprocess.CalledProcessError, ex:
                 if args.sit:
                     sys.stderr.write("ADDRESS: {0}\n".format(self.machine.address))

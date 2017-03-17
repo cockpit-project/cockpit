@@ -180,9 +180,10 @@ if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
     journalctl -u realmd.service
 fi
 
+echo '%(password)s' | kinit -f admin@COCKPIT.LAN
+
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
-echo '%(password)s' | kinit admin@COCKPIT.LAN
-curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
+curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
 ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 
 # HACK: https://bugs.freedesktop.org/show_bug.cgi?id=98479
@@ -193,6 +194,9 @@ fi
 
 # This needs to work
 getent passwd admin@cockpit.lan
+
+# This directory should be owned by the domain user
+chown -R admin@cockpit.lan /home/admin
 """
 
 # This is here because our test framework can't run ipa VM's twice
@@ -218,7 +222,14 @@ class TestKerberos(MachineCase):
         MachineCase.tearDown(self)
 
     def testNegotiate(self):
+        self.allow_authorize_journal_messages()
+        self.allow_hostkey_messages()
         b = self.browser
+
+        # HACK: There is no operating system where the domain admins are admins by default
+        # This is something that needs to be worked on at an OS level. We use admin level
+        # features below, such as adding a machine to the dashboard
+        self.machine.execute("echo 'admin@cockpit.lan        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers")
 
         # Make sure negotiate auth is not offered first
         self.machine.start_cockpit()
@@ -232,16 +243,54 @@ class TestKerberos(MachineCase):
         self.configure_kerberos()
         self.machine.restart_cockpit()
 
-        output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
+        output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
                                        '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
                                        'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"admin@cockpit.lan"', output)
 
         cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
-        b.open("/system", cookie={ "name": "cockpit", "value": cookie, "domain": self.machine.address, "path": "/" })
+        b.open("/system/terminal", cookie={ "name": "cockpit", "value": cookie, "domain": self.machine.address, "path": "/" })
         b.wait_present('#content')
         b.wait_visible('#content')
+        b.enter_page("/system/terminal")
+        b.wait_present(".terminal")
+        b.focus(".terminal")
+
+        def line_sel(i):
+            return '.terminal > div:nth-child(%d)' % i
+
+        def line_text(t):
+            return t + u'\xa0'*(80-len(t))
+
+        # wait for prompt in first line
+        b.wait_text_not(line_sel(1), line_text(""))
+
+        # run kinit and see if got forwarded the kerberos ticket into the session
+        b.key_press(list("klist") + [ "Return" ])
+        b.wait_text_not(line_sel(2), line_text(""))
+        text = b.text(line_sel(2)).replace(u"\xa0", " ").strip()
+        self.assertIn("Ticket cache", text)
+
+        # Now connect to another machine
+        self.assertNotIn("admin@cockpit.lan", self.machine.execute("ps -xa | grep sshd"))
+        b.switch_to_top()
+        b.go("/@x0.cockpit.lan/system/terminal")
+        b.wait_visible("#machine-troubleshoot")
+        b.click("#machine-troubleshoot")
+        b.wait_popup('troubleshoot-dialog')
+        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+        b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
+        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_popdown('troubleshoot-dialog')
+        b.enter_page("/system/terminal", host="x0.cockpit.lan")
+        b.wait_present(".terminal")
+        b.wait_visible(".terminal")
+
+        # Make sure we connected via SSH
+        self.assertIn("admin@cockpit.lan", self.machine.execute("ps -xa | grep sshd"))
 
 if __name__ == '__main__':
     test_main()

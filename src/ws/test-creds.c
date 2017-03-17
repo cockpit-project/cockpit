@@ -43,31 +43,6 @@ test_password (void)
 }
 
 static void
-test_gssapi (void)
-{
-  CockpitCreds *creds;
-  GBytes *password;
-
-  password = g_bytes_new_take (g_strdup ("password"), 8);
-  creds = cockpit_creds_new ("user", "test", COCKPIT_CRED_PASSWORD, password, NULL);
-  g_bytes_unref (password);
-
-  g_assert (creds != NULL);
-
-  g_assert_false (cockpit_creds_has_gssapi (creds));
-
-  cockpit_creds_unref (creds);
-
-  creds = cockpit_creds_new ("user", "test", COCKPIT_CRED_GSSAPI, "bad-but-present", NULL);
-  g_assert (creds != NULL);
-
-  g_assert_true (cockpit_creds_has_gssapi (creds));
-
-  cockpit_creds_unref (creds);
-
-}
-
-static void
 test_set_password (void)
 {
   CockpitCreds *creds;
@@ -299,7 +274,6 @@ main (int argc,
   g_test_add_func ("/creds/multiple", test_multiple);
   g_test_add_func ("/creds/hash", test_hash);
   g_test_add_func ("/creds/equal", test_equal);
-  g_test_add_func ("/creds/has_gssapi", test_gssapi);
   g_test_add_func ("/creds/login-data", test_login_data);
 
   return g_test_run ();

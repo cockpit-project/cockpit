@@ -157,8 +157,6 @@ cockpit_creds_new (const gchar *user,
         password = va_arg (va, GBytes *);
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
         creds->rhost = g_strdup (va_arg (va, const char *));
-      else if (g_str_equal (type, COCKPIT_CRED_GSSAPI))
-        creds->gssapi_creds = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_CSRF_TOKEN))
         creds->csrf_token = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_LOGIN_DATA))
@@ -274,24 +272,6 @@ cockpit_creds_set_password (CockpitCreds *creds,
 }
 
 const gchar *
-cockpit_creds_get_gssapi_creds (CockpitCreds *creds)
-{
-  g_return_val_if_fail (creds != NULL, NULL);
-  if (g_atomic_int_get (&creds->poisoned))
-      return NULL;
-  return creds->gssapi_creds;
-}
-
-const gchar *
-cockpit_creds_get_krb5_ccache_name (CockpitCreds *creds)
-{
-  g_return_val_if_fail (creds != NULL, NULL);
-  if (g_atomic_int_get (&creds->poisoned))
-      return NULL;
-  return creds->krb5_ccache_name;
-}
-
-const gchar *
 cockpit_creds_get_csrf_token (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
@@ -328,24 +308,6 @@ cockpit_creds_get_rhost (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->rhost;
-}
-
-/**
- * cockpit_creds_has_gssapi:
- * @creds: the credentials
- *
- * Returns: true if this credentials instance has gssapi credentials
- * stored. Otherwise false.
- */
-gboolean
-cockpit_creds_has_gssapi (CockpitCreds *creds)
-{
-  g_return_val_if_fail (creds != NULL, FALSE);
-
-  if (!creds->gssapi_creds || !creds->krb5_ccache_name)
-    return FALSE;
-
-  return TRUE;
 }
 
 gboolean

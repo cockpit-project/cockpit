@@ -126,10 +126,6 @@ if test "$enable_ssh" != "no"; then
   AC_MSG_RESULT([$enable_ssh])
   PKG_CHECK_MODULES(LIBSSH, [libssh >= $LIBSSH_VERSION libssh_threads])
 
-  AC_CHECK_LIB(ssh, ssh_gssapi_set_creds, [
-    AC_DEFINE_UNQUOTED(HAVE_SSH_GSSAPI_SET_CREDS, 1, Whether ssh_gssapi_set_creds is available)
-  ])
-
   AC_DEFINE_UNQUOTED(WITH_COCKPIT_SSH, 1, [Build cockpit-ssh and include libssh dependency])
 
   COCKPIT_SSH_SESSION_CFLAGS="$COCKPIT_CFLAGS $LIBSSH_CFLAGS $KRB5_CFLAGS"
@@ -209,8 +205,9 @@ fi
 AM_CONDITIONAL([ENABLE_PCP], [test "$enable_pcp" = "yes"])
 
 # gssapi
-AC_CHECK_LIB(gssapi_krb5, gss_import_cred,
-  [AC_DEFINE_UNQUOTED(HAVE_GSS_IMPORT_CRED, 1, Whether gss_import_cred is available)])
+AC_CHECK_LIB(gssapi_krb5, gss_store_cred, [ true ],
+  [AC_MSG_ERROR([Couldn't find GSSAPI KRB5 library. Try installing krb5-devel])]
+)
 
 # systemd
 AC_ARG_WITH([systemdunitdir], [AC_HELP_STRING([--with-systemdunitdir=DIR],

@@ -55,7 +55,11 @@ $ sudo klist -k
 $ getent passwd user@example.com
 user@example.com:*:381001109:381000513:User Name:/home/user:/bin/sh
 </programlisting>
-      
+
+    <para>If you wish to delegate your kerberos credentials to Cockpit, and allow Cockpit
+      to then connect to other machines using those credentials, you should enable delegation
+      for the hosts running Cockpit, and in some cases the <code>HTTP</code> service as well.</para>
+
   </section>
 
   <section id="sso-client">
@@ -66,7 +70,7 @@ user@example.com:*:381001109:381000513:User Name:/home/user:/bin/sh
 
 <programlisting>
 $ kinit user@EXAMPLE.COM
-Password for user@EXAMPLE.COM:  
+Password for user@EXAMPLE.COM:
 </programlisting>
 
     <para>In addition your browser must be usually be configured to allow kerberos
@@ -101,7 +105,29 @@ Password for user@EXAMPLE.COM:
       Cockpit in your web browser.</para>
 
     <para>If you wish to connect from one server to another in Cockpit using kerberos SSO,
-      then you have to explicitly enable this in your web browsers.</para>
+      then you have to explicitly enable all sorts of things. For starters, make sure that
+      delegated credentials are allowed by your domain (see above). Next when requesting your
+      kerberos ticket make sure that forwardable tickets are requested:</para>
+
+<programlisting>
+$ kinit -f user@EXAMPLE.COM
+Password for user@EXAMPLE.COM:
+</programlisting>
+
+    <para>Make sure that the forwardable flag <code>F</code> is present in your ticket:</para>
+
+<programlisting>
+$ klist -f
+Ticket cache: KEYRING:persistent:1000:1000
+Default principal: user@EXAMPLE.COM
+
+Valid starting       Expires              Service principal
+18.03.2017 05:39:23  19.03.2017 05:39:20  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+	Flags: FIA
+</programlisting>
+
+    <para>Lastly configure your browser to allow delegated, forwardable kerberos
+      credentials to be sent to Cockpit:</para>
 
     <variablelist>
       <varlistentry>

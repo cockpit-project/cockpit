@@ -97,76 +97,6 @@ exit_code_problem (int exit_code)
     }
 }
 
-static gss_cred_id_t
-gssapi_push_creds (CockpitSshData *data)
-{
-  gss_cred_id_t cred = GSS_C_NO_CREDENTIAL;
-  gss_buffer_desc buf = GSS_C_EMPTY_BUFFER;
-  OM_uint32 minor;
-  OM_uint32 major;
-  const gchar *cache_name = data->ssh_options->krb5_ccache_name;
-
-  if (!cache_name || !data->initial_auth_data)
-    goto out;
-
-  buf.value = cockpit_hex_decode (data->initial_auth_data, &buf.length);
-  if (buf.value == NULL)
-    {
-      g_critical ("invalid gssapi credentials returned from session");
-      goto out;
-    }
-
-  major = gss_krb5_ccache_name (&minor, cache_name, NULL);
-  if (GSS_ERROR (major))
-    {
-      g_critical ("couldn't setup kerberos ccache (%u.%u)", major, minor);
-      goto out;
-    }
-
-#ifdef HAVE_GSS_IMPORT_CRED
-    major = gss_import_cred (&minor, &buf, &cred);
-    if (GSS_ERROR (major))
-      {
-        g_critical ("couldn't parse gssapi credentials (%u.%u)", major, minor);
-        cred = GSS_C_NO_CREDENTIAL;
-        goto out;
-      }
-
-    g_debug ("setup kerberos credentials in ccache: %s", cache_name);
-
-#else /* !HAVE_GSS_IMPORT_CRED */
-
-  g_message ("unable to forward delegated gssapi kerberos credentials because the "
-             "version of krb5 on this system does not support it.");
-  goto out;
-
-#endif
-
-out:
-  g_free (buf.value);
-  return cred;
-}
-
-static gboolean
-gssapi_pop_creds (gss_cred_id_t gss_creds)
-{
-  OM_uint32 major;
-  OM_uint32 minor;
-
-  if (gss_creds != GSS_C_NO_CREDENTIAL)
-    gss_release_cred (&minor, &gss_creds);
-
-  major = gss_krb5_ccache_name (&minor, NULL, NULL);
-  if (GSS_ERROR (major))
-    {
-      g_critical ("couldn't clear kerberos ccache (%u.%u)", major, minor);
-      return FALSE;
-    }
-
-  g_debug ("cleared kerberos credentials");
-  return TRUE;
-}
-
 static const gchar *
 auth_method_description (int method)
 {
@@ -917,47 +847,26 @@ do_gss_auth (CockpitSshData *data)
 {
   int rc;
   const gchar *msg;
-  gss_cred_id_t gsscreds = GSS_C_NO_CREDENTIAL;
 
-  gsscreds = gssapi_push_creds (data);
-  if (gsscreds != GSS_C_NO_CREDENTIAL)
+  rc = ssh_userauth_gssapi (data->session);
+
+  switch (rc)
     {
-#ifdef HAVE_SSH_GSSAPI_SET_CREDS
-      ssh_gssapi_set_creds (data->session, gsscreds);
-#else
-      g_warning ("unable to forward delegated gssapi kerberos credentials because the "
-                 "version of libssh on this system does not support it.");
-#endif
-
-      rc = ssh_userauth_gssapi (data->session);
-
-#ifdef HAVE_SSH_GSSAPI_SET_CREDS
-      ssh_gssapi_set_creds (data->session, NULL);
-#endif
-
-      switch (rc)
-        {
-        case SSH_AUTH_SUCCESS:
-          g_debug ("%s: gssapi auth succeeded", data->logname);
-          break;
-        case SSH_AUTH_DENIED:
-          g_debug ("%s: gssapi auth failed", data->logname);
-          break;
-        case SSH_AUTH_PARTIAL:
-          g_message ("%s: gssapi auth worked, but server wants more authentication",
-                     data->logname);
-          break;
-        default:
-          msg = ssh_get_error (data->session);
-          g_message ("%s: couldn't authenticate: %s", data->logname, msg);
-        }
-    }
-  else
-    {
-      rc = SSH_AUTH_DENIED;
+    case SSH_AUTH_SUCCESS:
+      g_debug ("%s: gssapi auth succeeded", data->logname);
+      break;
+    case SSH_AUTH_DENIED:
+      g_debug ("%s: gssapi auth failed", data->logname);
+      break;
+    case SSH_AUTH_PARTIAL:
+      g_message ("%s: gssapi auth worked, but server wants more authentication",
+                 data->logname);
+      break;
+    default:
+      msg = ssh_get_error (data->session);
+      g_message ("%s: couldn't authenticate: %s", data->logname, msg);
     }
 
-  gssapi_pop_creds (gsscreds);
   return rc;
 }
 
@@ -1046,9 +955,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
         {
           auth_func = do_gss_auth;
           method = SSH_AUTH_METHOD_GSSAPI_MIC;
-          has_creds = data->initial_auth_data != NULL && \
-                      g_strcmp0 (data->auth_options->auth_type,
-                                 auth_method_description (method)) == 0;
+          has_creds = TRUE;
         }
 
       methods_to_try = methods_to_try & ~method;

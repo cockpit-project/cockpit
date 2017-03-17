@@ -40,7 +40,6 @@ typedef struct {
   const gchar *knownhosts_data;
   const gchar *knownhosts_file;
   const gchar *command;
-  const gchar *krb5_ccache_name;
   gboolean allow_unknown_hosts;
   gboolean supports_hostkey_prompt;
   gboolean ignore_hostkey;

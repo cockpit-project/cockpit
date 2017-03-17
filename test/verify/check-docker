@@ -318,7 +318,7 @@ CMD ["/bin/sh"]
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
         if m.image not in [ "debian-8", "debian-testing", "ubuntu-1604" ]:
-            m.execute("chcon -Rt svirt_sandbox_file_t /mnt")
+            m.execute("chcon --dereference -HRt svirt_sandbox_file_t /mnt")
         m.execute("touch /mnt/dripping.txt")
 
         # And run it without a terminal

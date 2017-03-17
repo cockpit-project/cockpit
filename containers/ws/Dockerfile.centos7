@@ -1,9 +1,7 @@
 FROM registry.centos.org/centos/centos
 MAINTAINER "Stef Walter" <stefw@redhat.com>
 
-ARG RELEASE
 ARG VERSION
-ARG USE_REPO=1
 ARG INSTALLER="yum"
 
 ADD . /container

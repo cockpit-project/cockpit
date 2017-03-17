@@ -6,10 +6,8 @@ if [ -z "$INSTALLER" ]; then
     INSTALLER="dnf"
 fi
 
-if [ -n "$USE_REPO" ]; then
+if [ -z "$OFFLINE" ]; then
     "$INSTALLER" -y update
-elif [ -z "$VERSION" ] && [ -z "$OFFLINE" ]; then
-    eval $(/container/scripts/get-version-env.sh)
 fi
 
 # Install packages without dependencies

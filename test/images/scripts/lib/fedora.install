@@ -50,7 +50,7 @@ tar=$1
 if [ -n "$do_build" ]; then
     rm -rf build-results
     srpm=$(/var/lib/testvm/make-srpm "$tar")
-    su builder -c "/usr/bin/mock --offline --no-clean --resultdir build-results $mock_opts --rebuild $srpm"
+    LC_ALL=C.UTF-8 su builder -c "/usr/bin/mock --offline --no-clean --resultdir build-results $mock_opts --rebuild $srpm"
 fi
 
 # Install

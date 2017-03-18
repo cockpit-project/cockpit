@@ -23,6 +23,10 @@ ipa-server-install -U -p foobarfoo -a foobarfoo -n cockpit.lan -r COCKPIT.LAN --
 # Make sure any initial password change is overridden
 printf 'foobarfoo\nfoobarfoo\nfoobarfoo\n' | kinit admin@COCKPIT.LAN
 
+ipa dnsconfig-mod --forwarder=8.8.8.8
+nmcli conn modify 'System eth0' ipv4.ignore-auto-dns yes
+nmcli conn modify 'System eth0' ipv4.dns "10.111.112.100"
+
 ln -sf ../selinux/config /etc/sysconfig/selinux
 echo 'SELINUX=permissive' > /etc/selinux/config
 

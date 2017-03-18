@@ -438,7 +438,7 @@ cockpit_auth_steal_authorization (GHashTable *headers,
        * or not, then we ask our session to try to do Negotiate auth
        * but without any input data.
        */
-      if (gssapi_available == -1)
+      if (gssapi_available != 0)
         line = g_strdup ("Negotiate");
       else
         return NULL;

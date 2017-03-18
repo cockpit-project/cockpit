@@ -314,7 +314,9 @@ var driver = {
         respond({ result: "pong" });
     },
 
-    cookies: function(respond) {
+    cookies: function(respond, add) {
+        if (add)
+            phantom.addCookie(add);
         respond({ result: phantom.cookies });
     }
 };

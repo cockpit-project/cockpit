@@ -84,7 +84,7 @@ class Browser:
     def title(self):
         return self.phantom.eval('document.title')
 
-    def open(self, href):
+    def open(self, href, cookie=None):
         """
         Load a page into the browser.
 
@@ -103,6 +103,8 @@ class Browser:
         def tryopen(hard=False):
             try:
                 self.phantom.kill()
+                if cookie is not None:
+                    self.phantom.cookies(cookie)
                 self.phantom.open(href)
                 return True
             except:

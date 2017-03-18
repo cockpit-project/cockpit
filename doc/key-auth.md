@@ -16,11 +16,9 @@ to it's pam stack. Once a user is successfully logged in a new ssh-agent
 is started and ssh-add is run to load the default keys, if a password is
 requested the one the user logged in with is provided.
 
-When cockpit-ws attempts to establish an ssh connection to a new server,
-it will request a "stream" channel with the internal name "ssh-agent"
-from the bridge. That channel proxies the running ssh-agent
-allowing the new ssh connection to use it as a standard ssh agent and
-offer any loaded public keys to the remote server as authentication options.
+When cockpit attempts to establish an ssh connection to a new server,
+the running ssh-agent is used to offer any loaded public keys to the
+remote server as authentication options.
 
 When the user logs out or has their session terminated, the ssh-agent is also
 terminated.

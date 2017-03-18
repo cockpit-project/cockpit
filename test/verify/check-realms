@@ -22,6 +22,7 @@ import parent
 from testlib import *
 
 import os
+import re
 
 RESOLV_SCRIPT = """
 set -e
@@ -217,6 +218,7 @@ class TestKerberos(MachineCase):
         MachineCase.tearDown(self)
 
     def testNegotiate(self):
+        b = self.browser
 
         # Make sure negotiate auth is not offered first
         self.machine.start_cockpit()
@@ -235,6 +237,11 @@ class TestKerberos(MachineCase):
                                        'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"admin@cockpit.lan"', output)
+
+        cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
+        b.open("/system", cookie={ "name": "cockpit", "value": cookie, "domain": self.machine.address, "path": "/" })
+        b.wait_present('#content')
+        b.wait_visible('#content')
 
 if __name__ == '__main__':
     test_main()

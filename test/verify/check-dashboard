@@ -78,6 +78,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
     def testBasic(self):
         b = self.browser
+        m = self.machine
 
         m2 = self.machines['machine2']
         m3 = self.machines['machine3']
@@ -140,6 +141,17 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.wait_dashboard_addresses (b2, [ "localhost", m2.address, m3.address ])
         self.check_discovered_addresses (b, [  ])
         self.check_discovered_addresses (b2, [  ])
+
+        # Move m2 known host key to ~/.ssh, verify that it's known
+        self.machine_remove (b, m2.address)
+        self.wait_dashboard_addresses (b, [ "localhost", m3.address ])
+        key = m.execute("grep '{0}' /etc/ssh/ssh_known_hosts && sed -i '/{0}/d' /etc/ssh/ssh_known_hosts".format(m2.address))
+        m.execute("mkdir ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh""".format(key))
+        self.add_machine (b, m2.address, True)
+        self.wait_dashboard_addresses (b, [ "localhost", m2.address, m3.address ])
+        # Should be connected, no error
+        b.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
+        b.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
 
         # Test change user, not doing in edit to reuse machines
 

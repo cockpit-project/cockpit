@@ -72,6 +72,7 @@ typedef struct {
   gchar *host_fingerprint;
   const gchar *host_key_type;
   GHashTable *auth_results;
+  gchar *user_known_hosts;
 
 } CockpitSshData;
 
@@ -442,9 +443,9 @@ set_knownhosts_file (CockpitSshData *data,
   /* now check the default global ssh file */
   host_known = cockpit_is_host_known (data->ssh_options->knownhosts_file, host, port);
 
-  /* if we check the default system known hosts file (i. e. not during the test
-   * suite), also check the legacy file in /var/lib/cockpit; we need to do that
-   * even with allow_unknown_hosts as subsequent code relies on knownhosts_file */
+  /* if we check the default system known hosts file (i. e. not during the test suite), also check
+   * the legacy file in /var/lib/cockpit and the user's ssh; we need to do that even with
+   * allow_unknown_hosts as subsequent code relies on knownhosts_file */
   if (!host_known && strcmp (data->ssh_options->knownhosts_file, cockpit_get_default_knownhosts ()) == 0)
     {
       host_known = cockpit_is_host_known (LEGACY_KNOWN_HOSTS, host, port);
@@ -456,9 +457,16 @@ set_knownhosts_file (CockpitSshData *data,
                    LEGACY_KNOWN_HOSTS);
           data->ssh_options->knownhosts_file = LEGACY_KNOWN_HOSTS;
         }
-    }
 
-  /* TODO: Check more sources of known hosts here if !host_known */
+      /* check ~/.ssh/known_hosts, unless we are running as a system user ($HOME == "/"); this is not
+       * a security check (if one can write /.ssh/known_hosts then we have to trust them), just caution */
+      if (!host_known && g_strcmp0 (g_get_home_dir (), "/") != 0)
+        {
+          host_known = cockpit_is_host_known (data->user_known_hosts, host, port);
+          if (host_known)
+            data->ssh_options->knownhosts_file = data->user_known_hosts;
+        }
+    }
 
   g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
   if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
@@ -1239,6 +1247,7 @@ cockpit_ssh_data_free (CockpitSshData *data)
   g_free (data->username);
   g_free (data->ssh_options);
   g_free (data->auth_options);
+  g_free (data->user_known_hosts);
   g_strfreev (data->env);
   g_free (data);
 }
@@ -2004,6 +2013,7 @@ cockpit_ssh_relay_constructed (GObject *object)
   self->ssh_data->auth_fd = AUTH_FD;
   self->ssh_data->auth_options = cockpit_auth_options_from_env (self->ssh_data->env);
   self->ssh_data->ssh_options = cockpit_ssh_options_from_env (self->ssh_data->env);
+  self->ssh_data->user_known_hosts = g_build_filename (g_get_home_dir (), ".ssh/known_hosts", NULL);
 }
 
 static void

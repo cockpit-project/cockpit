@@ -259,8 +259,8 @@ static gchar *
 create_knownhosts_temp (void)
 {
   const gchar *directories[] = {
-      PACKAGE_LOCALSTATE_DIR,
       "/tmp",
+      PACKAGE_LOCALSTATE_DIR,
       NULL,
   };
 

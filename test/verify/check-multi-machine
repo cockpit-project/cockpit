@@ -161,6 +161,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
 
         b.click("#dashboard-hosts a[data-address='%s']" % m3.address)
@@ -171,6 +172,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m3.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m3.address, 'src', '../shell/images/server-small.png')
 
         self.allow_restart_journal_messages()
@@ -545,6 +547,7 @@ class TestMultiMachine(MachineCase):
 
         b.go(dashboard_path)
         b.enter_page("/dashboard")
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
         b.switch_to_top()
 
@@ -558,6 +561,7 @@ class TestMultiMachine(MachineCase):
         # wait for dashboard to load
         b.go(dashboard_path)
         b.enter_page("/dashboard")
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-error.png')
         b.switch_to_top()
 
@@ -575,6 +579,7 @@ class TestMultiMachine(MachineCase):
         # Dashboard shows it as up
         b.go(dashboard_path)
         b.enter_page("/dashboard")
+        b.wait_present("#dashboard-hosts a[data-address='%s'] img" % m2.address)
         b.wait_attr("#dashboard-hosts a[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
         b.switch_to_top()
 

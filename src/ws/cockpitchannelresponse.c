@@ -266,7 +266,7 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
     }
   else
     {
-      if (g_str_equal (problem, "disconnected"))
+      if (g_str_equal (problem, "disconnected") || g_str_equal (problem, "terminated"))
         g_debug ("%s: failure while serving external channel: %s", chesp->logname, problem);
       else
         g_message ("%s: failure while serving external channel: %s", chesp->logname, problem);

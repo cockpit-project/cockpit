@@ -208,7 +208,9 @@ fail_start_problem (CockpitPeer *self)
 {
   const gchar *problem;
 
-  cockpit_json_get_string (self->config, "problem", NULL, &problem);
+  if (!cockpit_json_get_string (self->config, "problem", NULL, &problem))
+    problem = NULL;
+
   g_free (self->problem);
   self->problem = g_strdup (problem);
 

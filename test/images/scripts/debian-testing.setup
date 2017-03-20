@@ -123,8 +123,6 @@ mkdir /var/log/journal
 # Allow root login with password
 sed -i 's/^[# ]*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-# Disable old SSH init script.  Something is calling "/etc/init.d/ssh
-# reload" during boot and that results in the ssh port being
-# unreachable temporarily.
-#
-chmod a-x /etc/init.d/ssh
+# HACK: https://bugzilla.mindrot.org/show_bug.cgi?id=2512
+# Disable the restarting of sshd when networking changes
+ln -snf /bin/true /etc/network/if-up.d/openssh-server

@@ -1011,7 +1011,7 @@ _cockpit_pipe_write (CockpitPipe *self,
   */
   if (self->priv->closed && self->priv->child && self->priv->pid != 0)
     {
-      g_message ("%s: dropping message while waiting for child to exit", self->priv->name);
+      g_debug ("%s: dropping message while waiting for child to exit", self->priv->name);
       return;
     }
 

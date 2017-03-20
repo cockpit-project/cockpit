@@ -74,16 +74,16 @@ read_control_message (int fd)
       /* Parse the length if necessary */
       if (length == 0)
         {
-        length = cockpit_pipe_parse_length (buffer, &skip);
-        if (length > 0)
-          cockpit_pipe_skip (buffer, skip);
+          length = cockpit_pipe_parse_length (buffer, &skip);
+          if (length > 0)
+            cockpit_pipe_skip (buffer, skip);
         }
 
       if (length < 0)
         break;
     }
 
-  if (length == buffer->len)
+  if (buffer->len > 0 && length == buffer->len)
     {
       /* This could have a password, so clear it when freeing */
       bytes = g_bytes_new_with_free_func (buffer->data, buffer->len,
@@ -94,7 +94,8 @@ read_control_message (int fd)
 
   if (payload == NULL)
     {
-      g_message ("askpass did not receive valid message");
+      if (buffer->len > 0)
+        g_message ("askpass did not receive valid message");
     }
   else if (channel != NULL)
     {

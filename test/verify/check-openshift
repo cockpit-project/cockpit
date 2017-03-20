@@ -623,7 +623,9 @@ class TestRegistry(MachineCase):
         b.wait_present("modal-dialog")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        wait(lambda: not re.search(r"\btestprojectuser\b", o.execute("oc get rolebinding -n testprojectuserproj")), delay=5)
+
+        # HACK: In order to test issue, log the output to the journal
+        wait(lambda: not re.search(r"\btestprojectuser\b", o.execute("oc get rolebinding -n testprojectuserproj | logger -s 2>&1")))
 
         #add/remove members for other roles
         b.go("#/projects/testprojectuserproj")

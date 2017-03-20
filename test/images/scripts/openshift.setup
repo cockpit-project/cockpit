@@ -62,6 +62,8 @@ cat > /openshift-prep <<EOF
 #!/bin/sh -ex
 if /usr/sbin/ip addr | /usr/bin/grep -i "52:54:00:9e:00:f1"; then
     /usr/bin/hostnamectl set-hostname f1.cockpit.lan
+    # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1401561
+    /usr/bin/systemd-tmpfiles --create /usr/lib/tmpfiles.d/rpcbind.conf
     /usr/bin/systemctl enable rpcbind
     /usr/bin/systemctl start rpcbind
     /usr/bin/systemctl start nfs-server
@@ -179,9 +181,9 @@ docker build -t registry:5000/marmalade/juggs:2.9 .
 docker push registry:5000/marmalade/juggs
 
 # Tag this image twice
-docker tag -f docker.io/busybox:latest registry:5000/marmalade/origin
+docker tag docker.io/busybox:latest registry:5000/marmalade/origin
 docker push registry:5000/marmalade/origin
-docker tag -f "openshift/origin:$VERSION" registry:5000/marmalade/origin
+docker tag "openshift/origin:$VERSION" registry:5000/marmalade/origin
 docker push registry:5000/marmalade/origin
 
 oc new-project pizzazz
@@ -189,14 +191,14 @@ oc new-project pizzazz
 # Some big image streams
 for i in $(seq 1 15); do
     for j in $(seq 1 10); do
-        docker tag -f docker.io/busybox:latest registry:5000/pizzazz/stream$i:tag$j
+        docker tag docker.io/busybox:latest registry:5000/pizzazz/stream$i:tag$j
     done
     docker push registry:5000/pizzazz/stream$i
 done
 
 # And a monster sized one
 for j in $(seq 1 100); do
-    docker tag -f docker.io/busybox:latest registry:5000/pizzazz/monster:tag$j
+    docker tag docker.io/busybox:latest registry:5000/pizzazz/monster:tag$j
 done
 docker push registry:5000/pizzazz/monster
 

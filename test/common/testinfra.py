@@ -110,6 +110,13 @@ DEFAULT_IMAGE_REFRESH = {
                       "verify/fedora-25",
                       "verify/rhel-7" ],
         'refresh-days': 30
+    },
+    'ipa': {
+        'triggers': [ "verify/fedora-25",
+                      "verify/rhel-7",
+                      "verify/ubuntu-1604",
+                      "verify/debian-8" ],
+        'refresh-days': 120
     }
 }
 

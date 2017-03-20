@@ -21,6 +21,7 @@
 
 #include "cockpitpipetransport.h"
 
+#include "cockpitframe.h"
 #include "cockpitpipe.h"
 
 #include <glib-unix.h>
@@ -344,7 +345,7 @@ cockpit_transport_read_from_pipe (CockpitTransport *self,
 
   while (!*closed)
     {
-      size = cockpit_pipe_parse_length (input, &i);
+      size = cockpit_frame_parse (input->data, input->len, &i);
 
       if (size == 0)
         {

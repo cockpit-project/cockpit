@@ -19,13 +19,15 @@
  * Author: Stef Walter <stefw@redhat.com>
  */
 
+#include "common/cockpitframe.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
-#include "common/cockpitpipe.h"
 #include "common/cockpittransport.h"
+#include "common/cockpitunixfd.h"
 
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 
 static void
@@ -42,62 +44,28 @@ read_control_message (int fd)
   JsonObject *options = NULL;
   GBytes *payload = NULL;
   GBytes *bytes = NULL;
-  GByteArray *buffer;
   gchar *channel = NULL;
+  guchar *data = NULL;
   gssize length = 0;
-  gsize skip;
-  guint8 ch;
-  ssize_t res;
 
-  buffer = g_byte_array_new ();
-
-  while (length == 0 || buffer->len < length)
+  length = cockpit_frame_read (fd, &data);
+  if (length < 0)
     {
-      res = read (fd, &ch, 1);
-      if (res < 0)
-        {
-          /* A disconnect when nothing has been read is a clean close */
-          if (errno == ECONNRESET && buffer->len == 0)
-            break;
-          if (errno != EINTR || errno != EAGAIN)
-            {
-              g_message ("couldn't read askpass authorize message: %s", g_strerror (errno));
-              break;
-            }
-        }
-      else if (res == 0)
-        {
-          break;
-        }
-      else if (res > 0)
-        {
-          g_byte_array_append (buffer, &ch, res);
-        }
-
-      /* Parse the length if necessary */
-      if (length == 0)
-        {
-          length = cockpit_pipe_parse_length (buffer, &skip);
-          if (length > 0)
-            cockpit_pipe_skip (buffer, skip);
-        }
-
-      if (length < 0)
-        break;
+      g_message ("couldn't read askpass authorize message: %s", g_strerror (errno));
+      length = 0;
     }
-
-  if (buffer->len > 0 && length == buffer->len)
+  else if (length > 0)
     {
       /* This could have a password, so clear it when freeing */
-      bytes = g_bytes_new_with_free_func (buffer->data, buffer->len,
-                                          byte_array_clear_and_free, buffer);
-      buffer = NULL;
+      bytes = g_bytes_new_with_free_func (data, length, byte_array_clear_and_free,
+                                          g_byte_array_new_take (data, length));
       payload = cockpit_transport_parse_frame (bytes, &channel);
+      data = NULL;
     }
 
   if (payload == NULL)
     {
-      if (buffer->len > 0)
+      if (length > 0)
         g_message ("askpass did not receive valid message");
     }
   else if (channel != NULL)
@@ -115,45 +83,25 @@ read_control_message (int fd)
     g_bytes_unref (bytes);
   if (payload)
     g_bytes_unref (payload);
-  if (buffer)
-    g_byte_array_free (buffer, TRUE);
+  free (data);
   return options;
 }
 
 static gboolean
 write_all (int fd,
            const char *data,
-           ssize_t len)
+           gssize len)
 {
-  ssize_t res;
-
+  gssize res;
   if (len < 0)
     len = strlen (data);
-
-  while (len > 0)
+  res = cockpit_fd_write_all (fd, (guchar *)data, len);
+  if (res < 0)
     {
-      res = write (fd, data, len);
-      if (res < 0)
-        {
-          if (errno == EPIPE)
-            {
-              g_message ("couldn't write in askpass: closed connection");
-              return FALSE;
-            }
-          else if (errno != EAGAIN && errno != EINTR)
-            {
-              g_message ("couldn't write in askpass: %d %s", (int)errno, g_strerror (errno));
-              return FALSE;
-            }
-        }
-      else
-        {
-          g_debug ("askpass wrote %d bytes", (gint)res);
-          data += res;
-          len -= res;
-        }
+      g_message ("couldn't write in askpass: %s", g_strerror (errno));
+      return FALSE;
     }
-
+  g_debug ("askpass wrote %d bytes", (gint)res);
   return TRUE;
 }
 
@@ -161,15 +109,19 @@ static gboolean
 write_control_message (int fd,
                        JsonObject *options)
 {
+  gboolean ret = TRUE;
   gchar *payload;
-  gchar *prefix;
+  gchar *prefixed;
   gsize length;
-  gboolean ret;
 
   payload = cockpit_json_write_object (options, &length);
-  prefix = g_strdup_printf ("%" G_GSIZE_FORMAT "\n\n", 1 + length);
-  ret = write_all (fd, prefix, -1) && write_all (fd, payload, length);
-  g_free (prefix);
+  prefixed = g_strdup_printf ("\n%s", payload);
+  if (cockpit_frame_write (fd, (unsigned char *)prefixed, length + 1) < 0)
+    {
+      g_message ("couldn't write authorize message: %s", g_strerror (errno));
+      ret = FALSE;
+    }
+  g_free (prefixed);
   g_free (payload);
 
   return ret;

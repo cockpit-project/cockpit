@@ -591,10 +591,13 @@
                         whirl();
                     })
                 .on("close", function(ev, options) {
-                    problem = options.problem || "disconnected";
-                    open = false;
-                    state(host, "failed", problem);
                     var m = machines.lookup(host);
+                    open = false;
+                    // reset to clean state when removing machine (orderly disconnect), otherwise mark as failed
+                    if (!options.problem && m && !m.visible)
+                        state(host, null, null);
+                    else
+                        state(host, "failed", options.problem || "disconnected");
                     if (m && m.restarting) {
                         window.setTimeout(function() {
                             self.connect(host);

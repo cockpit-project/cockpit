@@ -97,6 +97,12 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.wait_dashboard_addresses (b, [ "localhost", m2.address ])
         self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
 
+        # Should show successful state and icon
+        b.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
+        b.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
+        b2.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
+        b2.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
+
         self.add_machine (b, m3.address)
         self.wait_dashboard_addresses (b, [ "localhost", m3.address, m2.address ])
         self.wait_dashboard_addresses (b2, [ "localhost", m3.address, m2.address ])
@@ -121,6 +127,12 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
         self.check_discovered_addresses (b, [ m3.address ])
         self.check_discovered_addresses (b2, [ m3.address ])
+
+        # Should show successful state and icon again
+        b.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
+        b.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
+        b2.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
+        b2.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
 
         # And the second one, check addresses on both browsers
         self.add_machine (b, m3.address, True)

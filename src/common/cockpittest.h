@@ -113,6 +113,9 @@ void            cockpit_test_signal_backtrace          (int sig);
 
 GInetAddress *  cockpit_test_find_non_loopback_address (void);
 
+void             cockpit_test_allow_warnings           (void);
+void             cockpit_test_reset_warnings           (void);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

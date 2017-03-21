@@ -93,14 +93,6 @@ Suggests: %{name}-pcp = %{version}-%{release}
 Suggests: %{name}-kubernetes = %{version}-%{release}
 Suggests: %{name}-selinux = %{version}-%{release}
 
-# Older releases need to have strict requirements
-%else
-Requires: %{name}-networkmanager = %{version}-%{release}
-Requires: %{name}-storaged = %{version}-%{release}
-%ifarch x86_64 armv7hl
-Requires: %{name}-docker = %{version}-%{release}
-%endif
-
 %endif
 
 %description

@@ -92,6 +92,7 @@ struct _CockpitPipePrivate {
   GByteArray *err_buffer;
 
   gboolean seq_packet;
+  gboolean is_user_fd;
 };
 
 typedef struct {
@@ -440,6 +441,9 @@ set_problem_from_errno (CockpitPipe *self,
     problem = "access-denied";
   else if (errn == ENOENT || errn == ECONNREFUSED)
     problem = "not-found";
+  /* only warn about Cockpit-internal fds, not opaque user ones */
+  else if (errn == EBADF && self->priv->is_user_fd)
+    problem = "protocol-error";
 
   g_free (self->priv->problem);
 
@@ -1587,6 +1591,29 @@ cockpit_pipe_new (const gchar *name,
                        "in-fd", in_fd,
                        "out-fd", out_fd,
                        NULL);
+}
+
+/**
+ * cockpit_pipe_new_user_fd:
+ * @name: a name for debugging
+ * @fd: the file descriptor (might be input or output or both)
+ *
+ * Create a pipe for the given user-supplied opaque file descriptor. This is
+ * not being read/written by cockpit itself, but intended for passing fds.
+ *
+ * Returns: (transfer full): a new CockpitPipe
+ */
+CockpitPipe *
+cockpit_pipe_new_user_fd (const gchar *name,
+                          gint fd)
+{
+  CockpitPipe *p = g_object_new (COCKPIT_TYPE_PIPE,
+                                 "name", name,
+                                 "in-fd", fd,
+                                 "out-fd", fd,
+                                 NULL);
+  p->priv->is_user_fd = TRUE;
+  return p;
 }
 
 static gint

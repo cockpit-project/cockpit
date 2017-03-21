@@ -1153,7 +1153,7 @@ cockpit_ssh_connect (CockpitSshData *data,
       data->username = username_from_basic (data->initial_auth_data);
     }
 
-  if (!data->username)
+  if (!data->username || *data->username == '\0')
     {
       g_message ("%s: No username provided", data->logname);
       problem = "authentication-failed";

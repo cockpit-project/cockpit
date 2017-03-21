@@ -237,6 +237,8 @@ echo '%dir %{_datadir}/%{name}/kubernetes' > kubernetes.list
 find %{buildroot}%{_datadir}/%{name}/kubernetes -type f >> kubernetes.list
 %else
 rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
+rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-auth
+rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-launch
 rm %{buildroot}/%{_libexecdir}/cockpit-stub
 touch kubernetes.list
 %endif

@@ -171,6 +171,10 @@ test_bridge_init_problem (gconstpointer user_data)
     NULL
   };
 
+  /* missing version will spawn an expected warning in subprocess */
+  if (fixture->version == 0)
+    cockpit_test_allow_warnings ();
+
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
   transport = cockpit_pipe_transport_new (pipe);
   g_object_unref (pipe);
@@ -192,6 +196,8 @@ test_bridge_init_problem (gconstpointer user_data)
 
   while (!closed)
     g_main_context_iteration (NULL, TRUE);
+
+  cockpit_test_reset_warnings ();
 
   g_signal_handlers_disconnect_by_func (transport, on_closed_set_flag, &closed);
 

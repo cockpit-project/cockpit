@@ -627,13 +627,16 @@ arguments. These types are encoded as follows:
        "t": "s"
    }
 
-Payload: http-stream1
+Payload: http-stream2
 ---------------------
 
-This channel replesents a single HTTP request and response. The first payload
-message in each direction are the HTTP headers. The remaining messages make up
-the HTTP request and response bodies. When the channel is in text mode, the
-response body is automatically coerced to UTF-8.
+This channel replesents a single HTTP request and response. The request
+HTTP headers are sent in the "open" message, and response headers are
+returned in a "response" control message.
+
+The remaining messages make up the HTTP request and response bodies.
+When the channel is in text mode, the response body is automatically
+coerced to UTF-8.
 
 The following HTTP methods are not permitted:
 

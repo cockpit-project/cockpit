@@ -3979,7 +3979,7 @@ function factory() {
         var self = this;
 
         self.options = options;
-        options.payload = "http-stream1";
+        options.payload = "http-stream2";
 
         var active_requests = [ ];
 
@@ -4057,31 +4057,25 @@ function factory() {
             var streamer = null;
             var responsers = null;
 
-            var count = 0;
             var resp = null;
 
             var buffer = channel.buffer(function(data) {
-                count += 1;
+                /* Fire any streamers */
+                if (resp && resp.status >= 200 && resp.status <= 299 && streamer)
+                    return streamer.call(ret, data);
+                return 0;
+            });
 
-                if (count === 1) {
-                    if (channel.binary)
-                        data = cockpit.utf8_decoder().decode(data);
-                    resp = JSON.parse(data);
-
-                    /* Anyone looking for response details? */
+            function on_control(event, options) {
+                /* Anyone looking for response details? */
+                if (options.command == "response") {
+                    resp = options;
                     if (responsers) {
                         resp.headers = resp.headers || { };
                         invoke_functions(responsers, ret, [resp.status, resp.headers]);
                     }
-                    return true;
                 }
-
-                /* Fire any streamers */
-                if (resp.status >= 200 && resp.status <= 299 && streamer)
-                    return streamer.call(ret, data);
-
-                return 0;
-            });
+            }
 
             function on_close(event, options) {
                 var pos = active_requests.indexOf(ret);
@@ -4112,9 +4106,11 @@ function factory() {
                     }
                 }
 
+                channel.removeEventListener("control", on_control);
                 channel.removeEventListener("close", on_close);
             }
 
+            channel.addEventListener("control", on_control);
             channel.addEventListener("close", on_close);
 
             ret.stream = function(callback) {

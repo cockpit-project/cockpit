@@ -581,7 +581,8 @@
       <div class="panel-heading">
         <span translatable="yes">Disks</span>
         {{#DynamicMembers}}
-        <button class="btn btn-default btn-control-ct storage-privileged pull-right fa fa-plus"
+        <button class="btn btn-default btn-control-ct storage-privileged pull-right fa fa-plus tooltip-ct"
+                {{#AddExcuse}}disabled title="{{.}}"{{/AddExcuse}}
                 data-action="mdraid_add_disk" data-arg="{{MDRaid.dbus.path}}">
         </button>
         {{/DynamicMembers}}

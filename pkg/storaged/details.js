@@ -416,6 +416,16 @@
 
             var members = client.mdraids_members[mdraid.path];
 
+            var n_spares = 0, n_recovering = 0;
+            mdraid.ActiveDevices.forEach(function (as) {
+                if (as[2].indexOf("spare") >= 0) {
+                    if (as[1] < 0)
+                        n_spares += 1;
+                    else
+                        n_recovering += 1;
+                }
+            });
+
             function make_member(block) {
                 var active_state = utils.array_find(mdraid.ActiveDevices, function (as) {
                     return as[0] == block.path;
@@ -433,13 +443,26 @@
                     };
                 }
 
+                var is_in_sync = (active_state && active_state[2].indexOf("in_sync") >= 0);
+                var is_recovering = (active_state && active_state[2].indexOf("spare") >= 0 && active_state[1] >= 0);
+
+                var excuse = false;
+                if (!running)
+                    excuse = _("The RAID device must be running in order to remove disks.");
+                else if ((is_in_sync && n_recovering > 0) || is_recovering)
+                    excuse = _("This disk cannot be removed while the device is recovering.");
+                else if (is_in_sync && n_spares < 1)
+                    excuse = _("A spare disk needs to be added first before this disk can be removed.");
+                else if (members.length <= 1)
+                    excuse = _("The last disk of a RAID device cannot be removed.");
+
                 return {
                     path: block.path,
                     LinkTarget: utils.get_block_link_target(client, block.path),
                     Description: utils.decode_filename(block.PreferredDevice),
                     Slot: active_state && active_state[1] >= 0 && active_state[1].toString(),
                     States: active_state && active_state[2].map(make_state),
-                    Excuse: (members.length <= 1)? _("The last disk of a MDRAID device cannot be removed.") : false
+                    Excuse: excuse
                 };
             }
 
@@ -457,6 +480,10 @@
             else
                 def_action = actions[0];  // Start
 
+            var add_excuse = false;
+            if (!running)
+                add_excuse = _("The MDRAID device must be running in order to add spare disks.");
+
             return { breadcrumb: utils.mdraid_name(mdraid),
                      header: mustache.render(mdraid_detail_tmpl,
                                              { MDRaid: mdraid_model,
@@ -470,7 +497,8 @@
                      sidebar: mustache.render(mdraid_members_tmpl,
                                               { MDRaid: mdraid_model,
                                                 Members: members.map(make_member),
-                                                DynamicMembers: (mdraid.Level != "raid0")
+                                                DynamicMembers: (mdraid.Level != "raid0"),
+                                                AddExcuse: add_excuse
                                               }),
                    };
         }

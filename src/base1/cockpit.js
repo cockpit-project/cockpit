@@ -3251,7 +3251,7 @@ function factory() {
             close_perform(options);
         }
 
-        channel.addEventListener("control", on_ready);
+        channel.addEventListener("ready", on_ready);
         channel.addEventListener("message", on_message);
         channel.addEventListener("close", on_close);
 

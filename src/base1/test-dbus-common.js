@@ -1204,7 +1204,7 @@ function dbus_track_tests(channel_options, bus_name) {
                 channel.onclose = function (event, options) {
                     assert.equal(options.channel, channel.id);
                     assert.equal(options.command, 'close');
-                    assert.equal(options.problem, 'internal-error');
+                    assert.equal(options.problem, 'protocol-error');
                     QUnit.start();
                 };
             }).

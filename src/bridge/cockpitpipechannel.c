@@ -417,7 +417,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
     }
   else if (internal && steal_internal_fd (internal, &fd))
     {
-      self->pipe = cockpit_pipe_new (internal, fd, fd);
+      self->pipe = cockpit_pipe_new_user_fd (internal, fd);
     }
   else
     {

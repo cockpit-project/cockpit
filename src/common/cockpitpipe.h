@@ -65,6 +65,9 @@ CockpitPipe *      cockpit_pipe_new          (const gchar *name,
                                               gint in_fd,
                                               gint out_fd);
 
+CockpitPipe *      cockpit_pipe_new_user_fd  (const gchar *name,
+                                              gint fd);
+
 CockpitPipe *      cockpit_pipe_spawn        (const gchar **argv,
                                               const gchar **env,
                                               const gchar *directory,

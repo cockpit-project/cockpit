@@ -79,13 +79,11 @@ BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
-%if %{defined build_dashboard}
-Requires: %{name}-dashboard = %{version}-%{release}
-%endif
 Requires: %{name}-system = %{version}-%{release}
 
 # Optional components (for f24 we use soft deps)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: %{name}-dashboard = %{version}-%{release}
 Recommends: %{name}-networkmanager = %{version}-%{release}
 Recommends: %{name}-storaged = %{version}-%{release}
 %ifarch x86_64 %{arm} aarch64 ppc64le

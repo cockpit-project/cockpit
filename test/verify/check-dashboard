@@ -390,16 +390,10 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
         check_limit(0)
 
         self.wait_dashboard_addresses (b, fake_machines(3))
-        if 'rhel' in m.image:
-            check_limit(5)
-        else:
-            check_limit(0)
+        check_limit(0)
 
         self.wait_dashboard_addresses (b, fake_machines(14))
-        if 'rhel' in m.image:
-            check_limit(5)
-        else:
-            check_limit(20)
+        check_limit(20)
         self.allow_journal_messages(".*couldn't connect: Failed to resolve hostname bad.*")
 
 if __name__ == '__main__':

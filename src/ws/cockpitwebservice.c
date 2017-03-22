@@ -197,8 +197,6 @@ cockpit_sockets_cleanup (CockpitSockets *sockets)
 struct _CockpitWebService {
   GObject parent;
 
-  const gchar *logname;
-
   CockpitCreds *creds;
   CockpitSockets sockets;
   gboolean closing;
@@ -469,22 +467,22 @@ process_transport_authorize (CockpitWebService *self,
       !cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
       !cockpit_json_get_string (options, "host", NULL, &host))
     {
-      g_warning ("%s: received invalid authorize command", self->logname);
+      g_warning ("received invalid authorize command");
       return FALSE;
     }
 
   if (!challenge || !cookie)
     {
-      g_message ("%s: unsupported or unknown authorize command", self->logname);
+      g_message ("unsupported or unknown authorize command");
     }
   else if (reauthorize_type (challenge, &type) < 0 ||
            reauthorize_user (challenge, &user) < 0)
     {
-      g_message ("%s: received invalid authorize challenge command", self->logname);
+      g_message ("received invalid authorize challenge command");
     }
   else if (!g_str_equal (cockpit_creds_get_user (self->creds), user))
     {
-      g_message ("%s: received authorize command for wrong user: %s", self->logname, user);
+      g_message ("received authorize command for wrong user: %s", user);
     }
   else if (g_str_equal (type, "plain1"))
     {
@@ -503,15 +501,14 @@ process_transport_authorize (CockpitWebService *self,
       data = cockpit_creds_get_password (self->creds);
       if (!data)
         {
-          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate",
-                   self->logname);
+          g_debug ("received authorize crypt1 challenge, but no password to reauthenticate");
         }
       else
         {
           password = g_bytes_get_data (data, NULL);
           rc = reauthorize_crypt1 (challenge, password, &alloc);
           if (rc < 0)
-            g_message ("%s: failed to reauthorize crypt1 challenge", self->logname);
+            g_message ("failed to reauthorize crypt1 challenge");
           else
             response = alloc;
         }
@@ -553,7 +550,7 @@ process_transport_init (CockpitWebService *self,
 
   if (version == 1)
     {
-      g_debug ("%s: received init message", self->logname);
+      g_debug ("received init message");
       self->init_received = TRUE;
       g_object_set_data_full (G_OBJECT (transport), "init",
                               json_object_ref (options),
@@ -561,8 +558,7 @@ process_transport_init (CockpitWebService *self,
     }
   else
     {
-      g_message ("%s: unsupported version of cockpit protocol: %" G_GINT64_FORMAT,
-                 self->logname, version);
+      g_message ("unsupported version of cockpit protocol: %" G_GINT64_FORMAT, version);
       return "not-supported";
     }
 
@@ -593,7 +589,7 @@ on_transport_control (CockpitTransport *transport,
         }
       else if (!self->init_received)
         {
-          g_message ("%s: bridge did not send 'init' message first", self->logname);
+          g_message ("bridge did not send 'init' message first");
           valid = FALSE;
         }
       else if (g_strcmp0 (command, "authorize") == 0)
@@ -1147,7 +1143,6 @@ on_ping_time (gpointer user_data)
 static void
 cockpit_web_service_init (CockpitWebService *self)
 {
-  self->logname = "cockpit-web-service";
   self->control_prefix = g_bytes_new_static ("\n", 1);
   cockpit_sockets_init (&self->sockets);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);

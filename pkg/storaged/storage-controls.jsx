@@ -21,6 +21,7 @@
 
 var cockpit = require("cockpit");
 var permission = require("./permissions.js").permission;
+var utils = require("./utils.js");
 var $ = require("jquery");
 
 var React = require("react");
@@ -130,8 +131,96 @@ var StorageLink = React.createClass({
     }
 });
 
+/* StorageBlockNavLink - describe a given block device concisely and
+                         allow navigating to its details.
+
+   Properties:
+
+   - client
+   - block
+ */
+
+var StorageBlockNavLink = React.createClass({
+    render: function () {
+        var self = this;
+        var client = self.props.client;
+        var block = self.props.block;
+
+        if (!block)
+            return;
+
+        var path = block.path;
+        var is_part, is_crypt, is_lvol;
+
+        for (;;) {
+            if (client.blocks_part[path] && client.blocks_ptable[client.blocks_part[path].Table]) {
+                is_part = true;
+                path = client.blocks_part[path].Table;
+            } else if (client.blocks_crypto[path] && client.blocks[client.blocks_crypto[path].CryptoBackingDevice]) {
+                is_crypt = true;
+                path = client.blocks_crypto[path].CryptoBackingDevice;
+            } else {
+                break;
+            }
+        }
+
+        if (client.blocks_lvm2[path] && client.lvols[client.blocks_lvm2[path].LogicalVolume])
+            is_lvol = true;
+
+        var name, go;
+        if (client.mdraids[block.MDRaid]) {
+            name = cockpit.format(_("RAID Device $0"), utils.mdraid_name(client.mdraids[block.MDRaid]));
+            go = function () {
+                cockpit.location.go([ 'mdraid', client.mdraids[block.MDRaid].UUID ]);
+            };
+        } else if (client.blocks_lvm2[path] &&
+                   client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
+                   client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
+                       var vg = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
+                       name = cockpit.format(_("Volume Group $0"), vg);
+                       go = function () {
+                           console.location.go([ 'vg', vg ]);
+                       };
+        } else {
+            if (client.drives[block.Drive])
+                name = utils.drive_name(client.drives[block.Drive]);
+            else
+                name = utils.block_name(block);
+            go = function () {
+                cockpit.location.go([ utils.block_name(block).replace(/^\/dev\//, "") ]);
+            };
+        }
+
+        var link = <a onClick={go}>{name}</a>;
+
+        // TODO - generalize this to arbitrary number of arguments (when needed)
+        function fmt_to_array(fmt, arg) {
+            var index = fmt.indexOf("$0");
+            if (index >= 0)
+                return [ fmt.slice(0, index), arg, fmt.slice(index+2) ];
+            else
+                return [ fmt ];
+        }
+
+        if (is_lvol && is_crypt)
+            return <span>{fmt_to_array(_("Encrypted Logical Volume of $0"), link)}</span>;
+        else if (is_part && is_crypt)
+            return <span>{fmt_to_array(_("Encrypted Partition of $0"), link)}</span>;
+        else if (is_lvol)
+            return <span>{fmt_to_array(_("Logical Volume of $0"), link)}</span>;
+        else if (is_part)
+            return <span>{fmt_to_array(_("Partition of $0"), link)}</span>;
+        else if (is_crypt)
+            return <span>{fmt_to_array(_("Encrypted $0"), link)}</span>;
+        else
+            return link;
+    }
+});
+
 module.exports = {
     StorageAction: StorageAction,
     StorageButton: StorageButton,
-    StorageLink:   StorageLink
+    StorageLink:   StorageLink,
+
+    StorageBlockNavLink: StorageBlockNavLink
 };

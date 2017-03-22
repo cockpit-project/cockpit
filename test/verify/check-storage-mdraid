@@ -32,10 +32,10 @@ class TestStorage(StorageCase):
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {
           var found = { };
-          $('#disks tr').each(function (i, tr) {
+          $('#detail-sidebar tr').each(function (i, tr) {
             var cell = $(tr).find('td:nth-child(2)');
             var name = $(cell).find('a').text();
-            var state = $(cell).find('span:nth-child(3)').text();
+            var state = $(cell).find('span.state').text();
             found[name] = state;
           });
           for (s in states) {
@@ -46,14 +46,14 @@ class TestStorage(StorageCase):
         })""", states)
 
     def raid_add_disk(self, name):
-        self.browser.click('[data-action="mdraid_add_disk"]')
+        self.browser.click('#detail-sidebar .panel-heading button')
         self.dialog_wait_open()
         self.dialog_select("disks", name, True)
         self.dialog_apply()
         self.dialog_wait_close()
 
     def raid_remove_disk(self, name):
-        self.browser.click('#disks tr:contains("%s") button' % name)
+        self.browser.click('#detail-sidebar tr:contains("%s") button' % name)
 
     def raid_action(self, action):
         self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
@@ -130,7 +130,7 @@ class TestStorage(StorageCase):
 
         self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "FAILED" })
         self.raid_remove_disk("DISK1")
-        b.wait_not_in_text('#disks', "DISK1")
+        b.wait_not_in_text('#detail-sidebar', "DISK1")
 
         self.raid_add_disk("DISK1")
         self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
@@ -190,21 +190,21 @@ class TestStorage(StorageCase):
 
         # Remove DISK1.  The spare takes over.
         self.raid_remove_disk("DISK1")
-        b.wait_not_in_text('#disks', "DISK1")
+        b.wait_not_in_text('#detail-sidebar', "DISK1")
         self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "In Sync" })
 
         # Stop the array, destroy a disk, and start the array
         self.raid_default_action("Stop")
         b.wait_in_text(info_field("State"), "Not running")
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
-        b.wait_not_in_text('#disks', "DISK2")
+        b.wait_not_in_text('#detail-sidebar', "DISK2")
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State"), "Running")
         wait_degraded_state(True)
 
         # Add DISK1.  The array recovers.
         self.raid_add_disk("DISK1")
-        b.wait_in_text('#disks', "DISK1")
+        b.wait_in_text('#detail-sidebar', "DISK1")
         wait_degraded_state(False)
 
         # Delete the array.  We are back on the storage page.
@@ -252,40 +252,40 @@ class TestStorage(StorageCase):
         self.raid_default_action("Stop")
         b.wait_in_text(info_field("State"), "Not running")
 
-        b.wait_present('#disks button.fa-plus[disabled]')
-        b.wait_present('#disks tr:contains(DISK1) button[disabled]')
-        b.wait_present('#disks tr:contains(DISK2) button[disabled]')
+        b.wait_present('#detail-sidebar .panel-heading button.disabled')
+        b.wait_present('#detail-sidebar tr:contains(DISK1) button.disabled')
+        b.wait_present('#detail-sidebar tr:contains(DISK2) button.disabled')
 
         self.raid_default_action("Start")
         b.wait_in_text(info_field("State"), "Running")
 
         # With a running array, we can add spares, but not remove "in-sync" disks
-        b.wait_not_present('#disks button.fa-plus[disabled]')
-        b.wait_present('#disks tr:contains(DISK1) button[disabled]')
-        b.wait_present('#disks tr:contains(DISK2) button[disabled]')
+        b.wait_not_present('#detail-sidebar .panel-heading button.disabled')
+        b.wait_present('#detail-sidebar tr:contains(DISK1) button.disabled')
+        b.wait_present('#detail-sidebar tr:contains(DISK2) button.disabled')
 
         # Adding a spare will allow removal of the "in-sync" disks.
         self.raid_add_disk("DISK3")
         self.wait_states({ "QEMU QEMU HARDDISK (DISK3)": "Spare" })
-        b.wait_not_present('#disks tr:contains(DISK1) button[disabled]')
-        b.wait_not_present('#disks tr:contains(DISK2) button[disabled]')
+        b.wait_not_present('#detail-sidebar tr:contains(DISK1) button.disabled')
+        b.wait_not_present('#detail-sidebar tr:contains(DISK2) button.disabled')
 
         # Removing the spare will make them un-removable again
         self.raid_remove_disk("DISK3")
-        b.wait_not_in_text('#disks', "DISK3")
-        b.wait_present('#disks tr:contains(DISK1) button[disabled]')
-        b.wait_present('#disks tr:contains(DISK2) button[disabled]')
+        b.wait_not_in_text('#detail-sidebar', "DISK3")
+        b.wait_present('#detail-sidebar tr:contains(DISK1) button.disabled')
+        b.wait_present('#detail-sidebar tr:contains(DISK2) button.disabled')
 
         # A failed disk can be removed
         dev = b.text(info_field("Device"))
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "FAILED" })
-        b.wait_not_present('#disks tr:contains(DISK1) button[disabled]')
+        b.wait_not_present('#detail-sidebar tr:contains(DISK1) button.disabled')
         self.raid_remove_disk("DISK1")
-        b.wait_not_in_text('#disks', "DISK1")
+        b.wait_not_in_text('#detail-sidebar', "DISK1")
 
         # The last disk can not be removed
-        b.wait_present('#disks tr:contains(DISK2) button[disabled]')
+        b.wait_present('#detail-sidebar tr:contains(DISK2) button.disabled')
 
 if __name__ == '__main__':
     test_main()

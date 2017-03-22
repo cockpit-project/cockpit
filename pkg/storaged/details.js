@@ -28,6 +28,7 @@
 
     var React = require("react");
     var ContentViews = require("./content-views.jsx");
+    var SidebarViews = require("./sidebar-views.jsx");
 
     var utils = require("./utils");
     var dialog = require("./dialog");
@@ -42,27 +43,6 @@
         var type, name;
 
         var multipathd_service = utils.get_multipathd_service();
-
-        function filter_inside_mdraid(mdraid) {
-            return function (spc) {
-                var block = spc.block;
-                if (client.blocks_part[block.path])
-                    block = client.blocks[client.blocks_part[block.path].Table];
-                return block && block.MDRaid != mdraid.path;
-            };
-        }
-
-        function filter_inside_vgroup(vgroup) {
-            return function (spc) {
-                var block = spc.block;
-                if (client.blocks_part[block.path])
-                    block = client.blocks[client.blocks_part[block.path].Table];
-                var lvol = (block &&
-                            client.blocks_lvm2[block.path] &&
-                            client.lvols[client.blocks_lvm2[block.path].LogicalVolume]);
-                return !lvol || lvol.VolumeGroup != vgroup.path;
-            };
-        }
 
         var actions = {
             mdraid_start: function mdraid_start(path) {
@@ -80,43 +60,6 @@
             mdraid_toggle_bitmap: function mdraid_toggle_bitmap(path) {
                 var old = utils.decode_filename(client.mdraids[path].BitmapLocation);
                 return client.mdraids[path].SetBitmapLocation(utils.encode_filename(old == 'none'? 'internal' : 'none'), {});
-            },
-            mdraid_add_disk: function mdraid_add_disk(path) {
-                var mdraid = client.mdraids[path];
-
-                dialog.open({ Title: _("Add Disks"),
-                              Fields: [
-                                  { SelectMany: "disks",
-                                    Title: _("Disks"),
-                                    Options: (
-                                        utils.get_available_spaces(client)
-                                            .filter(filter_inside_mdraid(mdraid))
-                                            .map(utils.available_space_to_option)
-                                    ),
-                                    EmptyWarning: _("No disks are available."),
-                                    validate: function (disks) {
-                                        if (disks.length === 0)
-                                            return _("At least one disk is needed.");
-                                    }
-                                  }
-                              ],
-                              Action: {
-                                  Title: _("Add"),
-                                  action: function (vals) {
-                                      return utils.prepare_available_spaces(client, vals.disks).then(function () {
-                                          var paths = Array.prototype.slice.call(arguments);
-                                          return cockpit.all(paths.map(function(p) {
-                                              return mdraid.AddDevice(p, {});
-                                          }));
-                                      });
-                                  }
-                              }
-                            });
-            },
-            mdraid_remove_disk: function mdraid_remove_disk(path) {
-                var block = client.blocks[path];
-                var mdraid = client.mdraids[block.MDRaidMember];
-                return mdraid.RemoveDevice(path, { wipe: { t: 'b', v: true } });
             },
             mdraid_delete: function mdraid_delete(path) {
                 var location = cockpit.location;
@@ -212,59 +155,6 @@
                               }
                             });
             },
-            vgroup_add_disk: function vgroup_add_disk(path) {
-                var vgroup = client.vgroups[path];
-                if (!vgroup)
-                    return;
-
-                dialog.open({ Title: _("Add Disks"),
-                              Fields: [
-                                  { SelectMany: "disks",
-                                    Title: _("Disks"),
-                                    Options: (
-                                        utils.get_available_spaces(client)
-                                            .filter(filter_inside_vgroup(vgroup))
-                                            .map(utils.available_space_to_option)
-                                    ),
-                                    EmptyWarning: _("No disks are available."),
-                                    validate: function (disks) {
-                                        if (disks.length === 0)
-                                            return _("At least one disk is needed.");
-                                    }
-                                  }
-                              ],
-                              Action: {
-                                  Title: _("Add"),
-                                  action: function (vals) {
-                                      return utils.prepare_available_spaces(client, vals.disks).then(function () {
-                                          var paths = Array.prototype.slice.call(arguments);
-                                          return cockpit.all(paths.map(function(p) {
-                                              return vgroup.AddDevice(p, {});
-                                          }));
-                                      });
-                                  }
-                              }
-                            });
-            },
-            pvol_empty_and_remove: function vgroup_add_disk(path) {
-                var pvol = client.blocks_pvol[path];
-                var vgroup = pvol && client.vgroups[pvol.VolumeGroup];
-                if (!vgroup)
-                    return;
-
-                return (vgroup.EmptyDevice(path, {})
-                        .then(function () {
-                            vgroup.RemoveDevice(path, true, {});
-                        }));
-            },
-            pvol_remove: function vgroup_add_disk(path) {
-                var pvol = client.blocks_pvol[path];
-                var vgroup = pvol && client.vgroups[pvol.VolumeGroup];
-                if (!vgroup)
-                    return;
-
-                return vgroup.RemoveDevice(path, true, {});
-            },
 
             job_cancel: function job_cancel(path) {
                 var job = client.storaged_jobs[path] || client.udisks_jobs[path];
@@ -343,8 +233,7 @@
                      header: mustache.render(block_detail_tmpl,
                                              { Block: block_model,
                                                Drive: drive_model
-                                             }),
-                     sidebar: null,
+                                             })
                    };
         }
 
@@ -414,58 +303,6 @@
                 };
             }
 
-            var members = client.mdraids_members[mdraid.path];
-
-            var n_spares = 0, n_recovering = 0;
-            mdraid.ActiveDevices.forEach(function (as) {
-                if (as[2].indexOf("spare") >= 0) {
-                    if (as[1] < 0)
-                        n_spares += 1;
-                    else
-                        n_recovering += 1;
-                }
-            });
-
-            function make_member(block) {
-                var active_state = utils.array_find(mdraid.ActiveDevices, function (as) {
-                    return as[0] == block.path;
-                });
-
-                function make_state(state) {
-                    return {
-                        Description: { faulty:       _("FAILED"),
-                                       in_sync:      _("In Sync"),
-                                       spare:        active_state[1] < 0 ? _("Spare") : _("Recovering"),
-                                       write_mostly: _("Write-mostly"),
-                                       blocked:      _("Blocked")
-                                     }[state] || cockpit.format(_("Unknown ($0)"), state),
-                        Danger: state == "faulty"
-                    };
-                }
-
-                var is_in_sync = (active_state && active_state[2].indexOf("in_sync") >= 0);
-                var is_recovering = (active_state && active_state[2].indexOf("spare") >= 0 && active_state[1] >= 0);
-
-                var excuse = false;
-                if (!running)
-                    excuse = _("The RAID device must be running in order to remove disks.");
-                else if ((is_in_sync && n_recovering > 0) || is_recovering)
-                    excuse = _("This disk cannot be removed while the device is recovering.");
-                else if (is_in_sync && n_spares < 1)
-                    excuse = _("A spare disk needs to be added first before this disk can be removed.");
-                else if (members.length <= 1)
-                    excuse = _("The last disk of a RAID device cannot be removed.");
-
-                return {
-                    path: block.path,
-                    LinkTarget: utils.get_block_link_target(client, block.path),
-                    Description: utils.decode_filename(block.PreferredDevice),
-                    Slot: active_state && active_state[1] >= 0 && active_state[1].toString(),
-                    States: active_state && active_state[2].map(make_state),
-                    Excuse: excuse
-                };
-            }
-
             var actions = [
                 { title: _("Start"),           action: 'mdraid_start' },
                 { title: _("Stop"),            action: 'mdraid_stop' },
@@ -480,10 +317,6 @@
             else
                 def_action = actions[0];  // Start
 
-            var add_excuse = false;
-            if (!running)
-                add_excuse = _("The MDRAID device must be running in order to add spare disks.");
-
             return { breadcrumb: utils.mdraid_name(mdraid),
                      header: mustache.render(mdraid_detail_tmpl,
                                              { MDRaid: mdraid_model,
@@ -493,13 +326,7 @@
                                                                                actions: actions
                                                                              }),
                                                Block: block_model
-                                             }),
-                     sidebar: mustache.render(mdraid_members_tmpl,
-                                              { MDRaid: mdraid_model,
-                                                Members: members.map(make_member),
-                                                DynamicMembers: (mdraid.Level != "raid0"),
-                                                AddExcuse: add_excuse
-                                              }),
+                                             })
                    };
         }
 
@@ -516,8 +343,6 @@
             if (!vgroup)
                 return;
 
-            var pvols = client.vgroups_pvols[vgroup.path];
-
             if (vgroup.NeedsPolling && poll_timer === null) {
                 poll_timer = window.setInterval(function () { vgroup.Poll(); }, 2000);
             } else if (!vgroup.NeedsPolling && poll_timer !== null) {
@@ -529,34 +354,6 @@
                 dbus: vgroup,
                 Size: utils.fmt_size_long(vgroup.Size)
             };
-
-            function make_pvol(pvol) {
-                var block = client.blocks[pvol.path];
-                var action = null;
-                var excuse = null;
-                if (pvols.length == 1) {
-                    excuse = _("The last physical volume of a volume group cannot be removed.");
-                } else if (pvol.FreeSize < pvol.Size) {
-                    if (pvol.Size <= vgroup.FreeSize)
-                        action = "pvol_empty_and_remove";
-                    else
-                        excuse = cockpit.format(_("There is not enough free space elsewhere to remove this physical volume.  At least $0 more free space is needed."),
-                                                utils.fmt_size(pvol.Size - vgroup.FreeSize));
-                } else {
-                    action = "pvol_remove";
-                }
-                return {
-                    dbus: block,
-                    LinkTarget: utils.get_block_link_target(client, pvol.path),
-                    Device: utils.decode_filename(block.PreferredDevice),
-                    Sizes: cockpit.format(_("$0, $1 free"),
-                                          utils.fmt_size(pvol.Size),
-                                          utils.fmt_size(pvol.FreeSize)),
-                    action: action,
-                    args: JSON.stringify([ pvol.path ]),
-                    Excuse: excuse
-                };
-            }
 
             var actions = [
                 { action: "vgroup_rename", title: _("Rename") },
@@ -571,11 +368,7 @@
                                                                                def: actions[0], // Rename
                                                                                actions: actions
                                                                              }),
-                                             }),
-                     sidebar: mustache.render(vgroup_pvs_tmpl,
-                                              { VGroup: vgroup_model,
-                                                PVols: pvols.map(make_pvol)
-                                              }),
+                                             })
                    };
         }
 
@@ -592,18 +385,10 @@
                 $('#storage-detail .breadcrumb .active').text(html.breadcrumb || name);
                 $('button.tooltip-ct').tooltip('destroy');
                 $('#detail-header').amend(html.header);
-                $('#detail-sidebar').amend(html.sidebar);
                 $('button.tooltip-ct').tooltip();
-
-                if (html.sidebar)
-                    $('#detail-body').attr("class", "col-md-8 col-lg-9 col-md-pull-4 col-lg-pull-3");
-                else
-                    $('#detail-body').attr("class", "col-md-12");
-
             } else {
                 $('#storage-detail .breadcrumb .active').text(name);
                 $('#detail-header').text(_("Not found"));
-                $('#detail-sidebar').empty();
             }
 
             jobs.update('#storage-detail');
@@ -643,22 +428,35 @@
             render();
 
             var content = document.querySelector("#detail-content");
+            var sidebar = document.querySelector("#detail-sidebar");
             React.unmountComponentAtNode(content);
+            React.unmountComponentAtNode(sidebar);
             if (type == 'block') {
+                $('#detail-body').attr("class", "col-md-12");
                 React.render(React.createElement(ContentViews.Block,
                                                  { client: client,
                                                    name: name
                                                  }), content);
             } else if (type == 'mdraid') {
+                $('#detail-body').attr("class", "col-md-8 col-lg-9 col-md-pull-4 col-lg-pull-3");
                 React.render(React.createElement(ContentViews.MDRaid,
                                                  { client: client,
                                                    name: name
                                                  }), content);
+                React.render(React.createElement(SidebarViews.MDRaid,
+                                                 { client: client,
+                                                   name: name
+                                                 }), sidebar);
             } else if (type == 'vgroup') {
+                $('#detail-body').attr("class", "col-md-8 col-lg-9 col-md-pull-4 col-lg-pull-3");
                 React.render(React.createElement(ContentViews.VGroup,
                                                  { client: client,
                                                    name: name
                                                  }), content);
+                React.render(React.createElement(SidebarViews.VGroup,
+                                                 { client: client,
+                                                   name: name
+                                                 }), sidebar);
             }
 
             utils.show_soon("#storage-detail", !!content.firstChild);

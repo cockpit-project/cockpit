@@ -209,6 +209,8 @@ class TestMachines(MachineCase):
         b.wait_present("{0}-state".format(self.providerVm1_id))
         b.wait_in_text("{0}-state".format(self.providerVm1_id), "running")
 
+        b.wait_present("#test-vm-action-{0}".format(self.providerVm1_name)) # is provider-specific action button rendered?
+
         b.click("{0}-off".format(self.providerVm1_id)) # click the Shut Down button
         b.wait_in_text("{0}-state".format(self.providerVm1_id), "shut off")
 

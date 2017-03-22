@@ -82,7 +82,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
     let providerActions = null;
     if (config.provider.vmActionsFactory) {
         const ProviderActions = config.provider.vmActionsFactory();
-        providerActions = (<ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} />);
+        providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} />;
     }
 
     return (<div>
@@ -243,7 +243,13 @@ VmBootOrder.propTypes = {
     vm: PropTypes.object.isRequired
 };
 
-const VmOverviewTab = ({ vm }) => {
+const VmOverviewTab = ({ vm, config }) => {
+    let providerContent = null;
+    if (config.provider.vmOverviewPropsFactory) {
+        const ProviderContent = config.provider.vmOverviewPropsFactory();
+        providerContent = (<ProviderContent vm={vm} providerState={config.providerState}/>);
+    }
+
     return (<div>
         <table className='machines-width-max'>
             <tr className='machines-listing-ct-body-detail'>
@@ -259,18 +265,24 @@ const VmOverviewTab = ({ vm }) => {
 
                 <td className='machines-listing-detail-top-column'>
                     <table className='form-table-ct'>
-                        <VmOverviewTabRecord descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
-                        <VmOverviewTabRecord descr={_("CPU Type:")} value={vm.cpuModel}/>
-                        <VmOverviewTabRecord descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
+                        <VmOverviewTabRecord id={`${vmId(vm.name)}-emulatedmachine`}
+                                             descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
+                        <VmOverviewTabRecord id={`${vmId(vm.name)}-cputype`}
+                                             descr={_("CPU Type:")} value={vm.cpuModel}/>
+                        <VmOverviewTabRecord id={`${vmId(vm.name)}-autostart`}
+                                             descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
                         <VmBootOrder vm={vm} />
                     </table>
                 </td>
+
+                {providerContent}
             </tr>
         </table>
     </div>);
 };
 VmOverviewTab.propTypes = {
-    vm: PropTypes.object.isRequired
+    vm: PropTypes.object.isRequired,
+    config: PropTypes.object.isRequired,
 }
 
 const VmUsageTab = ({ vm }) => {
@@ -345,7 +357,7 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
     const stateIcon = (<StateIcon state={vm.state} config={config}/>);
 
     let tabRenderers = [
-        {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm}},
+        {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm, config: config }},
         {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' },
         {name: (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>), renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' }
     ];

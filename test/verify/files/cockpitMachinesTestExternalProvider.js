@@ -48,6 +48,7 @@
    */
   var TestSubtabReactComponent = null;
   var VmActionsComponent = null;
+  var VmOverviewPropsComponent = null;
 
   var PROVIDER = {};
   PROVIDER = {
@@ -274,11 +275,19 @@
     },
 
     /**
+     * Extend the Overview tab for provider-specific properties
+     *
+     */
+    vmOverviewPropsFactory: function () {
+      return VmOverviewPropsComponent;
+    },
+
+    /**
      * Optional array of
      * {
-   *  name: 'My Tab Title',
-   *  componentFactory: () => yourReactComponentRenderingSubtabBody
-   *  }
+     *  name: 'My Tab Title',
+     *  componentFactory: () => yourReactComponentRenderingSubtabBody
+     *  }
      *
      * Please note, the React components have to be created lazily via `providerContext.React` passed to the init() function.
      */
@@ -351,8 +360,22 @@
             return React.createElement('div', {className: 'btn-group'},
                 React.createElement('button', {id: 'test-vm-action-' + vm.name, className: 'btn btn-default'}, 'Provider Action')
             );
+          }
+        }
+    );
 
-            // return React.createElement('button', {id: 'test-vm-action-' + vm.name}, 'Provider Action');
+    VmOverviewPropsComponent = React.createClass(
+        {
+          propTypes: {
+            vm: React.PropTypes.object.isRequired,
+            providerState: React.PropTypes.object.isRequired,
+          },
+          render: function () {
+            var vm = this.props.vm;
+
+            return React.createElement('td', null,
+                React.createElement('div', {id: 'test-vm-props-' + vm.name}, 'Test Provider Property')
+            );
           }
         }
     );

@@ -542,7 +542,9 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 Summary: Cockpit SELinux package
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
-Requires: setroubleshoot-server >= 3.3.3
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: setroubleshoot-server >= 3.3.3
+%endif
 BuildArch: noarch
 
 %description selinux

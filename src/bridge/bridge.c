@@ -260,7 +260,7 @@ start_dbus_daemon (void)
 
   if (address->str[0] == '\0')
     {
-      g_warning ("dbus-daemon didn't send us a dbus address");
+      g_message ("dbus-daemon didn't send us a dbus address; not installed?");
     }
   else
     {

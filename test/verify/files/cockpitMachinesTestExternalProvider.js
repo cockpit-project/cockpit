@@ -47,6 +47,7 @@
    * For simple UI extensions, JQuery can be used as well but please do not update React-rendered DOM via JQuery.
    */
   var TestSubtabReactComponent = null;
+  var VmActionsComponent = null;
 
   var PROVIDER = {};
   PROVIDER = {
@@ -264,6 +265,15 @@
     reducer: undefined, // optional reference to reducer function extending the application Redux state tree, see cockpit-machines-ovirt-provider for more detailed example
 
     /**
+     * Extend list of VM actions (along Shut Down or Run buttons) for provider's specific ones.
+     *
+     * Factory method returning a React component.
+     */
+    vmActionsFactory: function () {
+      return VmActionsComponent; // React is lazily initialized, see the init() function
+    },
+
+    /**
      * Optional array of
      * {
    *  name: 'My Tab Title',
@@ -325,6 +335,24 @@
           render: function () {
             var vm = this.props.vm;
             return React.createElement('div', {id: 'test-subtab-body-' + vm.name}, 'Content of subtab');
+          }
+        }
+    );
+
+    VmActionsComponent = React.createClass(
+        {
+          propTypes: {
+            vm: React.PropTypes.object.isRequired,
+            providerState: React.PropTypes.object.isRequired,
+          },
+          render: function () {
+            var vm = this.props.vm;
+
+            return React.createElement('div', {className: 'btn-group'},
+                React.createElement('button', {id: 'test-vm-action-' + vm.name, className: 'btn btn-default'}, 'Provider Action')
+            );
+
+            // return React.createElement('button', {id: 'test-vm-action-' + vm.name}, 'Provider Action');
           }
         }
     );

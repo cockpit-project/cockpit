@@ -38,47 +38,64 @@ const NoVm = () => {
     </div>);
 }
 
-const VmActions = ({ vmId, state, config, onStart, onReboot, onForceReboot, onShutdown, onForceoff }) => {
-    const reset = config.provider.canReset(state) ? DropdownButtons({
-        buttons: [{
-            title: _("Restart"),
-            action: onReboot,
-            id: `${vmId}-reboot`
-        }, {
-            title: _("Force Restart"),
-            action: onForceReboot,
-            id: `${vmId}-forceReboot`
-        }]
-    }) : '';
+const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onShutdown, onForceoff }) => {
+    const id = vmId(vm.name);
+    const state = vm.state;
 
-    const shutdown = config.provider.canShutdown(state) ? DropdownButtons({
-        buttons: [{
-            title: _("Shut Down"),
-            action: onShutdown,
-            id: `${vmId}-off`
-        }, {
-            title: _("Force Shut Down"),
-            action: onForceoff,
-            id: `${vmId}-forceOff`
-        }]
-    }) : '';
+    let reset = null;
+    if (config.provider.canReset(state)) {
+        reset = DropdownButtons({
+            buttons: [{
+                title: _("Restart"),
+                action: onReboot,
+                id: `${id}-reboot`
+            }, {
+                title: _("Force Restart"),
+                action: onForceReboot,
+                id: `${id}-forceReboot`
+            }]
+        });
+    }
 
-    const run = config.provider.canRun(state) ?
-        (<button className="btn btn-default btn-danger" onClick={onStart} id={`${vmId}-run`}>
+    let shutdown = null;
+    if (config.provider.canShutdown(state)) {
+        shutdown = DropdownButtons({
+            buttons: [{
+                title: _("Shut Down"),
+                action: onShutdown,
+                id: `${id}-off`
+            }, {
+                title: _("Force Shut Down"),
+                action: onForceoff,
+                id: `${id}-forceOff`
+            }]
+        });
+    }
+
+    let run = null;
+    if (config.provider.canRun(state)) {
+        run = (<button className="btn btn-default btn-danger" onClick={onStart} id={`${id}-run`}>
             {_("Run")}
-        </button>)
-        : '';
+        </button>);
+    }
+
+    let providerActions = null;
+    if (config.provider.vmActionsFactory) {
+        const ProviderActions = config.provider.vmActionsFactory();
+        providerActions = (<ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} />);
+    }
 
     return (<div>
         {reset}
         {shutdown}
         {run}
+        {providerActions}
     </div>);
 }
 VmActions.propTypes = {
-    vmId: PropTypes.string.isRequired,
-    state: PropTypes.string.isRequired,
+    vm: PropTypes.object.isRequired,
     config: PropTypes.string.isRequired,
+    dispatch: PropTypes.func.isRequired,
     onStart: PropTypes.func.isRequired,
     onReboot: PropTypes.func.isRequired,
     onForceReboot: PropTypes.func.isRequired,
@@ -355,7 +372,7 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
             stateIcon
             ]}
         tabRenderers={tabRenderers}
-        listingActions={VmActions({vmId: vmId(vm.name), config, state: vm.state,
+        listingActions={VmActions({vm, config, dispatch,
             onStart, onReboot, onForceReboot, onShutdown, onForceoff})}/>);
 };
 Vm.propTypes = {

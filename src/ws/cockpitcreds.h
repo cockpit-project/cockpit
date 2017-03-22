@@ -61,11 +61,6 @@ const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_csrf_token (CockpitCreds *creds);
 
-gboolean        cockpit_creds_equal          (gconstpointer v1,
-                                              gconstpointer v2);
-
-guint           cockpit_creds_hash           (gconstpointer v);
-
 const gchar *   cockpit_creds_get_application            (CockpitCreds *creds);
 
 JsonObject *    cockpit_creds_get_login_data             (CockpitCreds *creds);

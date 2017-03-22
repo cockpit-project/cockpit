@@ -149,70 +149,6 @@ test_multiple (void)
 }
 
 static void
-test_hash (void)
-{
-  GBytes *pass1 = g_bytes_new_take (g_strdup ("pass1"), 5);
-  GBytes *pass2 = g_bytes_new_take (g_strdup ("pass2"), 5);
-
-  CockpitCreds *one = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
-  CockpitCreds *rhost = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1,
-                                           COCKPIT_CRED_RHOST, "meh", NULL);
-  CockpitCreds *app = cockpit_creds_new ("user", "app2", COCKPIT_CRED_PASSWORD, pass1, NULL);
-  CockpitCreds *copy = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
-
-  g_bytes_unref (pass1);
-  g_bytes_unref (pass2);
-
-  g_assert_cmpuint (cockpit_creds_hash (one), !=, cockpit_creds_hash (rhost));
-  g_assert_cmpuint (cockpit_creds_hash (one), !=, cockpit_creds_hash (app));
-  g_assert_cmpuint (cockpit_creds_hash (one), ==, cockpit_creds_hash (one));
-  g_assert_cmpuint (cockpit_creds_hash (one), ==, cockpit_creds_hash (copy));
-
-  cockpit_creds_unref (one);
-  cockpit_creds_unref (rhost);
-  cockpit_creds_unref (copy);
-  cockpit_creds_unref (app);
-}
-
-static void
-test_equal (void)
-{
-  GBytes *pass1 = g_bytes_new_take (g_strdup ("pass1"), 5);
-  GBytes *pass2 = g_bytes_new_take (g_strdup ("pass2"), 5);
-
-  CockpitCreds *one = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
-  CockpitCreds *rhost = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1,
-                                           COCKPIT_CRED_RHOST, "meh", NULL);
-  CockpitCreds *app = cockpit_creds_new ("user", "app2", COCKPIT_CRED_PASSWORD, pass1, NULL);
-  CockpitCreds *scruffy = cockpit_creds_new ("scruffy", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
-  CockpitCreds *two = cockpit_creds_new ("user2", "app", COCKPIT_CRED_PASSWORD, pass2, NULL);
-  CockpitCreds *copy = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, pass1, NULL);
-
-  g_bytes_unref (pass1);
-  g_bytes_unref (pass2);
-
-  g_assert (!cockpit_creds_equal (one, two));
-  g_assert (cockpit_creds_equal (one, one));
-  g_assert (cockpit_creds_equal (one, copy));
-  g_assert (!cockpit_creds_equal (one, rhost));
-  g_assert (!cockpit_creds_equal (one, app));
-  g_assert (!cockpit_creds_equal (one, scruffy));
-  g_assert (!cockpit_creds_equal (rhost, scruffy));
-  g_assert (!cockpit_creds_equal (two, scruffy));
-  g_assert (!cockpit_creds_equal (two, NULL));
-  g_assert (!cockpit_creds_equal (NULL, two));
-  g_assert (cockpit_creds_equal (NULL, NULL));
-
-
-  cockpit_creds_unref (one);
-  cockpit_creds_unref (two);
-  cockpit_creds_unref (scruffy);
-  cockpit_creds_unref (rhost);
-  cockpit_creds_unref (copy);
-  cockpit_creds_unref (app);
-}
-
-static void
 test_login_data (void)
 {
   JsonObject *object;
@@ -272,8 +208,6 @@ main (int argc,
   g_test_add_func ("/creds/poison", test_poison);
   g_test_add_func ("/creds/rhost", test_rhost);
   g_test_add_func ("/creds/multiple", test_multiple);
-  g_test_add_func ("/creds/hash", test_hash);
-  g_test_add_func ("/creds/equal", test_equal);
   g_test_add_func ("/creds/login-data", test_login_data);
 
   return g_test_run ();

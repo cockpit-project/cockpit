@@ -310,44 +310,6 @@ cockpit_creds_get_rhost (CockpitCreds *creds)
   return creds->rhost;
 }
 
-gboolean
-cockpit_creds_equal (gconstpointer v1,
-                     gconstpointer v2)
-{
-  const CockpitCreds *c1;
-  const CockpitCreds *c2;
-
-  if (v1 == v2)
-    return TRUE;
-  if (!v1 || !v2)
-    return FALSE;
-
-  c1 = v1;
-  c2 = v2;
-
-  return g_strcmp0 (c1->user, c2->user) == 0 &&
-         g_strcmp0 (c1->application, c2->application) == 0 &&
-         g_strcmp0 (c1->rhost, c2->rhost) == 0;
-}
-
-guint
-cockpit_creds_hash (gconstpointer v)
-{
-  const CockpitCreds *c = v;
-  guint hash = 0;
-  if (v)
-    {
-      c = v;
-      if (c->user)
-        hash ^= g_str_hash (c->user);
-      if (c->application)
-        hash ^= g_str_hash (c->application);
-      if (c->rhost)
-        hash ^= g_str_hash (c->rhost);
-    }
-  return hash;
-}
-
 JsonObject *
 cockpit_creds_to_json (CockpitCreds *creds)
 {

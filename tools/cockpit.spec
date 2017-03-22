@@ -145,7 +145,7 @@ install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 
 # On RHEL we don't yet show options for changing language
 %if 0%{?rhel}
-echo '{ "linguas": null, "machine-limit": 5 }' > %{buildroot}%{_datadir}/%{name}/shell/override.json
+echo '{ "linguas": null }' > %{buildroot}%{_datadir}/%{name}/shell/override.json
 %endif
 
 # Build the package lists for resource packages

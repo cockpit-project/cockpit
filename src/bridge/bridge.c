@@ -218,7 +218,10 @@ start_dbus_daemon (void)
 
   if (error != NULL)
     {
-      g_warning ("couldn't start %s: %s", dbus_argv[0], error->message);
+      if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
+        g_debug ("couldn't start %s: %s", dbus_argv[0], error->message);
+      else
+        g_message ("couldn't start %s: %s", dbus_argv[0], error->message);
       g_error_free (error);
       pid = 0;
       goto out;

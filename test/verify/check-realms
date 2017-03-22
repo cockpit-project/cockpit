@@ -247,7 +247,7 @@ class TestKerberos(MachineCase):
                                        '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
                                        'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
-        self.assertIn('"admin@cockpit.lan"', output)
+        self.assertIn('"csrf-token"', output)
 
         cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
         b.open("/system/terminal", cookie={ "name": "cockpit", "value": cookie, "domain": self.machine.address, "path": "/" })

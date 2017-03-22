@@ -481,10 +481,6 @@ process_transport_authorize (CockpitWebService *self,
     {
       g_message ("received invalid authorize challenge command");
     }
-  else if (!g_str_equal (cockpit_creds_get_user (self->creds), user))
-    {
-      g_message ("received authorize command for wrong user: %s", user);
-    }
   else if (g_str_equal (type, "plain1"))
     {
       data = cockpit_creds_get_password (self->creds);
@@ -504,6 +500,10 @@ process_transport_authorize (CockpitWebService *self,
         {
           g_debug ("received authorize crypt1 challenge, but no password to reauthenticate");
         }
+      else if (g_strcmp0 (cockpit_creds_get_user (self->creds), user) != 0)
+        {
+          g_message ("received authorize command for wrong user: %s", user);
+        }
       else
         {
           password = g_bytes_get_data (data, NULL);
@@ -518,6 +518,16 @@ process_transport_authorize (CockpitWebService *self,
   /* Tell the frontend that we're reauthorizing */
   self->credential_requests++;
   send_socket_hints (self, "credential", "request");
+
+  if (response)
+    {
+      if (user && cockpit_creds_get_user (self->creds) &&
+          !g_str_equal (user, cockpit_creds_get_user (self->creds)))
+        {
+          response = NULL;
+          g_message ("received authorize command for wrong user: %s", user);
+        }
+    }
 
   if (!self->sent_done)
     {
@@ -833,15 +843,12 @@ process_logout (CockpitWebService *self,
   /* Destroys our web service, disconnects everything */
   if (disconnect)
     {
-      g_info ("Logging out user %s from %s",
-              cockpit_creds_get_user (self->creds),
-              cockpit_creds_get_rhost (self->creds));
+      g_info ("Logging out session from %s", cockpit_creds_get_rhost (self->creds));
       g_object_run_dispose (G_OBJECT (self));
     }
   else
     {
-      g_info ("Deauthorizing user %s",
-              cockpit_creds_get_rhost (self->creds));
+      g_info ("Deauthorizing session from %s", cockpit_creds_get_rhost (self->creds));
     }
 
   send_socket_hints (self, "credential", "none");
@@ -1017,9 +1024,7 @@ on_web_socket_open (WebSocketConnection *connection,
   JsonObject *object;
   JsonObject *info;
 
-  g_info ("New connection from %s for %s",
-          cockpit_creds_get_rhost (self->creds),
-          cockpit_creds_get_user (self->creds));
+  g_info ("New connection to session from %s", cockpit_creds_get_rhost (self->creds));
 
   socket = cockpit_socket_lookup_by_connection (&self->sockets, connection);
   g_return_if_fail (socket != NULL);
@@ -1104,9 +1109,7 @@ on_web_socket_close (WebSocketConnection *connection,
 {
   CockpitSocket *socket;
 
-  g_info ("WebSocket from %s for %s closed",
-          cockpit_creds_get_rhost (self->creds),
-          cockpit_creds_get_user (self->creds));
+  g_info ("WebSocket from %s for session closed", cockpit_creds_get_rhost (self->creds));
 
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_open, self);
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_closing, self);

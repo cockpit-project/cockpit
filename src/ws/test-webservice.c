@@ -140,7 +140,8 @@ setup_mock_webserver (TestCase *test,
   test->auth = mock_auth_new (user, PASSWORD);
 
   password = g_bytes_new_take (g_strdup (PASSWORD), strlen (PASSWORD));
-  test->creds = cockpit_creds_new (user, "cockpit",
+  test->creds = cockpit_creds_new ("cockpit",
+                                   COCKPIT_CRED_USER, user,
                                    COCKPIT_CRED_PASSWORD, password,
                                    COCKPIT_CRED_CSRF_TOKEN, "my-csrf-token",
                                    NULL);

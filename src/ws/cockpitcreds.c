@@ -113,7 +113,6 @@ out:
 
 /**
  * cockpit_creds_new:
- * @user: the user name the creds are for
  * @application: the application the creds are for
  * @...: multiple credentials, followed by NULL
  *
@@ -127,8 +126,7 @@ out:
  * Returns: (transfer full): the new set of credentials.
  */
 CockpitCreds *
-cockpit_creds_new (const gchar *user,
-                   const gchar *application,
+cockpit_creds_new (const gchar *application,
                    ...)
 {
   GBytes *password = NULL;
@@ -137,13 +135,10 @@ cockpit_creds_new (const gchar *user,
   const char *type;
   va_list va;
 
-  g_return_val_if_fail (user != NULL, NULL);
-  g_return_val_if_fail (!g_str_equal (user, ""), NULL);
   g_return_val_if_fail (application != NULL, NULL);
   g_return_val_if_fail (!g_str_equal (application, ""), NULL);
 
   creds = g_new0 (CockpitCreds, 1);
-  creds->user = g_strdup (user);
   creds->application = g_strdup (application);
   creds->login_data = NULL;
 
@@ -153,6 +148,8 @@ cockpit_creds_new (const gchar *user,
       type = va_arg (va, const char *);
       if (type == NULL)
         break;
+      else if (g_str_equal (type, COCKPIT_CRED_USER))
+        creds->user = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
         password = va_arg (va, GBytes *);
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
@@ -317,7 +314,6 @@ cockpit_creds_to_json (CockpitCreds *creds)
   JsonObject *login_data = NULL;
 
   object = json_object_new ();
-  json_object_set_string_member (object, "user", cockpit_creds_get_user (creds));
   json_object_set_string_member (object, "csrf-token", cockpit_creds_get_csrf_token (creds));
 
   login_data = cockpit_creds_get_login_data (creds);

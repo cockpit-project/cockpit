@@ -333,7 +333,7 @@ on_handle_stream_socket (CockpitWebServer *server,
                              "pid", pid,
                              NULL);
 
-      creds = cockpit_creds_new (g_get_user_name (), "test",
+      creds = cockpit_creds_new ("test",
                                  COCKPIT_CRED_CSRF_TOKEN, "myspecialtoken",
                                  NULL);
 

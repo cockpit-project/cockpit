@@ -50,12 +50,12 @@ class TestStorage(StorageCase):
         b.wait_in_text("#vgroups", "TEST1")
         b.click('tr:contains("TEST1")')
         b.wait_visible("#storage-detail")
-        b.wait_in_text("#pvols", "DISK1")
-        b.wait_in_text("#pvols", "DISK2")
+        b.wait_in_text("#detail-sidebar", "DISK1")
+        b.wait_in_text("#detail-sidebar", "DISK2")
 
         # Both of them should be empty and removable
-        b.wait_present('#pvols tr:nth-child(1) button[data-action="pvol_remove"]')
-        b.wait_present('#pvols tr:nth-child(2) button[data-action="pvol_remove"]')
+        b.wait_not_present('#detail-sidebar tr:nth-child(1) button.disabled')
+        b.wait_not_present('#detail-sidebar tr:nth-child(2) button.disabled')
 
         # Create two logical volumes
         m.execute("lvcreate TEST1 -n one -L 20m")
@@ -75,10 +75,10 @@ class TestStorage(StorageCase):
         # remove a disk from the volume group
         m.execute("pvmove %s &>/dev/null || true" % dev_2)
         m.execute("vgreduce TEST1 %s" % dev_2)
-        b.wait_not_in_text("#pvols", "DISK2")
+        b.wait_not_in_text("#detail-sidebar", "DISK2")
 
         # The remaining lone disk is not removable
-        b.wait_present('#pvols tr:nth-child(1) button[disabled]')
+        b.wait_present('#detail-sidebar tr:nth-child(1) button.disabled')
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.
@@ -179,9 +179,9 @@ class TestStorage(StorageCase):
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
 
         # remove disk
-        b.wait_present('#pvols tr:nth-child(2) button')
-        b.click('#pvols tr:nth-child(2) button')
-        b.wait_not_in_text("#pvols", "DISK2")
+        b.wait_present('#detail-sidebar tr:nth-child(2) button')
+        b.click('#detail-sidebar tr:nth-child(2) button')
+        b.wait_not_in_text("#detail-sidebar", "DISK2")
         b.wait_in_text("#detail-header .info-table-ct", "48 MiB")
 
         # create thin pool and volume
@@ -200,20 +200,20 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(2, 2, "/dev/vgroup0/thin")
 
         # add a disk and resize the pool
-        b.click('[data-action="vgroup_add_disk"]')
+        b.click('#detail-sidebar .panel-heading button')
         self.dialog_wait_open()
         self.dialog_select('disks', "DISK2", True)
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#pvols", "DISK2")
+        b.wait_in_text("#detail-sidebar", "DISK2")
         b.wait_in_text("#detail-header .info-table-ct", "96 MiB")
 
         self.content_tab_info_action(1, 1, "Size")
         self.dialog({ "size": 70 })
 
         # There is not enough free space to remove any of the disks.
-        b.wait_present('#pvols tr:nth-child(1) button[disabled]')
-        b.wait_present('#pvols tr:nth-child(2) button[disabled]')
+        b.wait_present('#detail-sidebar tr:nth-child(1) button.disabled')
+        b.wait_present('#detail-sidebar tr:nth-child(2) button.disabled')
 
         # use almost all of the pool by erasing the thin volume
         self.content_tab_action(2, 2, "Format")
@@ -257,13 +257,13 @@ class TestStorage(StorageCase):
         b.wait_visible('#storage-detail')
 
         # Check the we are really using a partition on DISK1 now
-        b.wait_in_text("#pvols", "Partition of QEMU QEMU HARDDISK (DISK1)")
+        b.wait_in_text("#detail-sidebar", "Partition of QEMU QEMU HARDDISK (DISK1)")
 
         # Add the unused space of DISK2
-        self.dialog_with_retry(trigger = lambda: b.click('[data-action="vgroup_add_disk"]'),
+        self.dialog_with_retry(trigger = lambda: b.click('#detail-sidebar .panel-heading button'),
                                expect = lambda: self.dialog_is_present('disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK2)"),
                                values = { "disks": { "DISK2": True }})
-        b.wait_in_text("#pvols", "Partition of QEMU QEMU HARDDISK (DISK2)")
+        b.wait_in_text("#detail-sidebar", "Partition of QEMU QEMU HARDDISK (DISK2)")
 
 if __name__ == '__main__':
     test_main()

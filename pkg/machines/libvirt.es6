@@ -25,7 +25,7 @@ import cockpit from 'cockpit';
 import $ from 'jquery';
 import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed, updateVmDisksStats} from './actions.es6';
 import { spawnScript, spawnProcess } from './services.es6';
-import { toKiloBytes, isEmpty, logDebug } from './helpers.es6';
+import { toKiloBytes, isEmpty, logDebug, rephraseUI } from './helpers.es6';
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
@@ -265,12 +265,15 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const osElem = domainElem.getElementsByTagName("os")[0];
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
+    const cpuElem = domainElem.getElementsByTagName("cpu")[0];
     const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
     const devicesElem = domainElem.getElementsByTagName("devices")[0];
+    const osTypeElem = osElem.getElementsByTagName("type")[0];
 
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const id = domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
-    const osType = osElem.getElementsByTagName("type")[0].childNodes[0].nodeValue;
+    const osType = osTypeElem.nodeValue;
+    const emulatedMachine = osTypeElem.getAttribute("machine");
 
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
     const currentMemory = toKiloBytes(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit);
@@ -278,8 +281,10 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
 
     const disks = parseDumpxmlForDisks(devicesElem);
+    const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
+    const cpuModel = parseDumpxmlForCpuModel(cpuElem);
 
-    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus, disks}));
+    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus, disks, emulatedMachine, cpuModel, bootOrder}));
 }
 
 function getSingleOptionalElem(parent, name) {
@@ -341,6 +346,80 @@ function parseDumpxmlForDisks(devicesElem) {
     }
 
     return disks;
+}
+
+function getBootableDeviceType(device) {
+    const tagName = device.tagName;
+    let type = _("other");
+    switch (tagName) {
+        case 'disk':
+            type = rephraseUI('bootableDisk', device.getAttribute('device')); // Example: disk, cdrom
+            break;
+        case 'interface':
+            type = rephraseUI('bootableDisk', 'interface');
+            break;
+        default:
+            console.info(`Unrecognized type of bootable device: ${tagName}`);
+    }
+    return type;
+}
+
+function parseDumpxmlForBootOrder(osElem, devicesElem) {
+    const bootOrder = {
+        devices: [],
+    };
+
+    // Prefer boot order defined in domain/os element
+    const osBootElems = osElem.getElementsByTagName('boot');
+    if (osBootElems.length > 0) {
+        for (let bootNum = 0; bootNum < osBootElems.length; bootNum++) {
+            const bootElem = osBootElems[bootNum];
+            const dev = bootElem.getAttribute('dev');
+            if (dev) {
+                bootOrder.devices.push({
+                    order: bootNum,
+                    type: rephraseUI('bootableDisk', dev) // Example: hd, network, fd, cdrom
+                });
+            }
+        }
+        return bootOrder; // already sorted
+    }
+
+    // domain/os/boot elements not found, decide from device's boot elements
+    // VM can be theoretically booted from any device.
+    const bootableDevices = [];
+    for (let devNum = 0; devNum < devicesElem.childNodes.length; devNum++) {
+        const deviceElem = devicesElem.childNodes[devNum];
+        if (deviceElem.nodeType === 1) { // XML elements only
+            const bootElem = getSingleOptionalElem(deviceElem, 'boot');
+            if (bootElem && bootElem.getAttribute('order')) {
+                bootableDevices.push({
+                    // so far just the 'type' is rendered, skipping redundant attributes
+                    order: parseInt(bootElem.getAttribute('order')),
+                    type: getBootableDeviceType(deviceElem),
+                });
+            }
+        }
+    }
+    bootOrder.devices = bootableDevices.sort( (devA, devB) => devA.order - devB.order );
+    return bootOrder;
+}
+
+function parseDumpxmlForCpuModel(cpuElem) {
+    if (!cpuElem) {
+        return undefined;
+    }
+
+    const cpuMode = cpuElem.getAttribute('mode');
+    let cpuModel = '';
+    if (cpuMode && cpuMode === 'custom') {
+        const modelElem = getSingleOptionalElem(cpuElem, 'model');
+        if (modelElem) {
+            cpuModel = modelElem.childNodes[0].nodeValue; // content of the domain/cpu/model element
+        }
+    }
+
+    return rephraseUI('cpuMode', cpuMode) + (cpuModel ? ` (${cpuModel})` : '');
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {
@@ -410,5 +489,6 @@ function parseDomstatsForDisks(domstatsLines) {
     }
     return disksStats;
 }
+
 
 export default LIBVIRT_PROVIDER;

@@ -63,6 +63,7 @@ class TestMachines(MachineCase):
         m.execute("qemu-img create -f qcow2 {0} 2G".format(self.vm1_img2))
         m.execute("virt-install --cpu host -r 128 --pxe --force --nographics --noautoconsole "
                   "--disk path={0},size=1,format=qcow2 --disk path={1},size=2,format=qcow2 "
+                  "--boot hd,network "
                   "-n {2} || true"
                   .format(self.vm1_img, self.vm1_img2, self.vm1_name))
 
@@ -87,6 +88,12 @@ class TestMachines(MachineCase):
         b.wait_in_text("{0}-state".format(self.vm1_id), state) # running or paused
         b.wait_present("{0}-vcpus".format(self.vm1_id))
         b.wait_in_text("{0}-vcpus".format(self.vm1_id), "1")
+
+        b.wait_in_text("{0}-bootorder".format(self.vm1_id), "disk,network")
+        cpu_type = b.eval_js("$('{0}-cputype').text()".format(self.vm1_id))
+        self.assertTrue(cpu_type == 'host' or cpu_type.startswith('custom')) # should be "host" due to "--cpu host", but debian-8 keeps claiming "custom"
+        emulated_machine = b.eval_js("$('{0}-emulatedmachine').text()".format(self.vm1_id))
+        self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
         if state == "running":
             b.click("{0}-off-caret".format(self.vm1_id))

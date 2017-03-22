@@ -191,7 +191,7 @@ VmOverviewTabRecord.propTypes = {
 
 const VmLastMessage = ({ vm }) => {
     if (!vm.lastMessage) {
-        return null;
+        return (<tr />); // reserve space to keep rendered structure
     }
 
     const msgId = `${vmId(vm.name)}-last-message`;
@@ -213,11 +213,24 @@ VmLastMessage.propTypes = {
     vm: PropTypes.object.isRequired
 }
 
+const VmBootOrder = ({ vm }) => {
+    let bootOrder = _("No boot device found");
+
+    if (vm.bootOrder && vm.bootOrder.devices && vm.bootOrder.devices.length > 0) {
+        bootOrder = vm.bootOrder.devices.map(bootDevice => bootDevice.type).join(); // Example: network,disk,disk
+    }
+
+    return (<VmOverviewTabRecord id={`${vmId(vm.name)}-bootorder`} descr={_("Boot Order:")} value={bootOrder}/>);
+};
+VmBootOrder.propTypes = {
+    vm: PropTypes.object.isRequired
+};
+
 const VmOverviewTab = ({ vm }) => {
     return (<div>
         <table className='machines-width-max'>
             <tr className='machines-listing-ct-body-detail'>
-                <td>
+                <td className='machines-listing-detail-top-column'>
                     <table className='form-table-ct'>
                         <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr={_("State:")} value={vm.state}/>
                         <VmOverviewTabRecord descr={_("Memory:")}
@@ -227,11 +240,12 @@ const VmOverviewTab = ({ vm }) => {
                     </table>
                 </td>
 
-                <td>
+                <td className='machines-listing-detail-top-column'>
                     <table className='form-table-ct'>
-                        <VmOverviewTabRecord descr={_("ID:")} value={vm.id}/>
-                        <VmOverviewTabRecord descr={_("OS Type:")} value={vm.osType}/>
+                        <VmOverviewTabRecord descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
+                        <VmOverviewTabRecord descr={_("CPU Type:")} value={vm.cpuModel}/>
                         <VmOverviewTabRecord descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
+                        <VmBootOrder vm={vm} />
                     </table>
                 </td>
             </tr>

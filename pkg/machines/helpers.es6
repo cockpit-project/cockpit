@@ -100,15 +100,25 @@ const transform = {
         'session': _("Session"),
     },
     'vmStates': {
-        running: _("running"),
-        idle: _("idle"),
-        paused: _("paused"),
-        shutdown: _("shutdown"),
+        'running': _("running"),
+        'idle': _("idle"),
+        'paused': _("paused"),
+        'shutdown': _("shutdown"),
         'shut off': _("shut off"),
-        crashed: _("crashed"),
-        dying: _("dying"),
-        pmsuspended: _("suspended (PM)"),
-    }
+        'crashed': _("crashed"),
+        'dying': _("dying"),
+        'pmsuspended': _("suspended (PM)"),
+    },
+    'bootableDisk': {
+        'disk': _("disk"),
+        'cdrom': _("cdrom"),
+        'interface': _("network"),
+        'hd': _("disk"),
+    },
+    'cpuMode': {
+        'custom': _("custom"),
+        'host-model': _("host"),
+    },
 };
 
 export function rephraseUI(key, original) {

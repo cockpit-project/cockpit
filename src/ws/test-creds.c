@@ -30,7 +30,10 @@ test_password (void)
   GBytes *password;
 
   password = g_bytes_new_take (g_strdup ("password"), 8);
-  creds = cockpit_creds_new ("user", "test", COCKPIT_CRED_PASSWORD, password, NULL);
+  creds = cockpit_creds_new ("test",
+                             COCKPIT_CRED_USER, "user",
+                             COCKPIT_CRED_PASSWORD, password,
+                             NULL);
   g_bytes_unref (password);
 
   g_assert (creds != NULL);
@@ -51,7 +54,7 @@ test_set_password (void)
   GBytes *two;
 
   password = g_bytes_new_take (g_strdup ("password"), 8);
-  creds = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, password, NULL);
+  creds = cockpit_creds_new ("app", COCKPIT_CRED_PASSWORD, password, NULL);
   g_bytes_unref (password);
 
   g_assert (creds != NULL);
@@ -86,12 +89,11 @@ test_poison (void)
   GBytes *out;
 
   password = g_bytes_new_take (g_strdup ("password"), 8);
-  creds = cockpit_creds_new ("user", "app", COCKPIT_CRED_PASSWORD, password, NULL);
+  creds = cockpit_creds_new ("app", COCKPIT_CRED_PASSWORD, password, NULL);
   g_bytes_unref (password);
 
   g_assert (creds != NULL);
 
-  g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
   g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
 
@@ -116,10 +118,9 @@ test_rhost (void)
 {
   CockpitCreds *creds;
 
-  creds = cockpit_creds_new ("user", "app", COCKPIT_CRED_RHOST, "remote", NULL);
+  creds = cockpit_creds_new ("app", COCKPIT_CRED_RHOST, "remote", NULL);
   g_assert (creds != NULL);
 
-  g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("remote", ==, cockpit_creds_get_rhost (creds));
   g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
 
@@ -133,13 +134,12 @@ test_multiple (void)
   GBytes *password;
 
   password = g_bytes_new_take (g_strdup ("password"), 8);
-  creds = cockpit_creds_new ("user", "app",
+  creds = cockpit_creds_new ("app",
                              COCKPIT_CRED_PASSWORD, password,
                              COCKPIT_CRED_RHOST, "remote",
                              NULL);
   g_assert (creds != NULL);
 
-  g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("remote", ==, cockpit_creds_get_rhost (creds));
   g_assert_cmpstr ("password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
   g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
@@ -162,20 +162,20 @@ test_login_data (void)
   CockpitCreds *creds4;
   CockpitCreds *creds5;
 
-  creds = cockpit_creds_new ("user", "app", NULL);
+  creds = cockpit_creds_new ("app", NULL);
 
   cockpit_expect_warning ("*received bad json data:*");
-  creds2 = cockpit_creds_new ("user", "app",
+  creds2 = cockpit_creds_new ("app",
                               COCKPIT_CRED_LOGIN_DATA, invalid, NULL);
 
-  creds3 = cockpit_creds_new ("user", "app",
+  creds3 = cockpit_creds_new ("app",
                               COCKPIT_CRED_LOGIN_DATA, no_data, NULL);
 
   cockpit_expect_warning ("*received bad login-data:*");
-  creds4 = cockpit_creds_new ("user", "app",
+  creds4 = cockpit_creds_new ("app",
                               COCKPIT_CRED_LOGIN_DATA, invalid_login, NULL);
 
-  creds5 = cockpit_creds_new ("user", "app",
+  creds5 = cockpit_creds_new ("app",
                               COCKPIT_CRED_LOGIN_DATA, valid, NULL);
 
   g_assert (creds != NULL);

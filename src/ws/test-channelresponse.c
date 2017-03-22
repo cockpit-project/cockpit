@@ -98,7 +98,7 @@ setup_resource (TestResourceCase *tc,
 
   user = g_get_user_name ();
   password = g_bytes_new_take (g_strdup (PASSWORD), strlen (PASSWORD));
-  creds = cockpit_creds_new (user, "cockpit", COCKPIT_CRED_PASSWORD, password, NULL);
+  creds = cockpit_creds_new ("cockpit", COCKPIT_CRED_USER, user, COCKPIT_CRED_PASSWORD, password, NULL);
   g_bytes_unref (password);
 
   transport = cockpit_pipe_transport_new (tc->pipe);

@@ -133,8 +133,8 @@ mock_auth_login_finish (CockpitAuth *auth,
   nonce = cockpit_auth_nonce (auth);
 
   bytes = g_bytes_new_take (g_strdup (self->expect_password), strlen (self->expect_password));
-  creds = cockpit_creds_new (self->expect_user,
-                             g_object_get_data (G_OBJECT (result), "application"),
+  creds = cockpit_creds_new (g_object_get_data (G_OBJECT (result), "application"),
+                             COCKPIT_CRED_USER, self->expect_user,
                              COCKPIT_CRED_PASSWORD, bytes,
                              COCKPIT_CRED_RHOST, g_object_get_data (G_OBJECT (result), "remote"),
                              COCKPIT_CRED_CSRF_TOKEN, nonce,

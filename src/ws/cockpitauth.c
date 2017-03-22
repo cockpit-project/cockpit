@@ -620,8 +620,8 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
 
   csrf_token = cockpit_auth_nonce (self);
 
-  creds = cockpit_creds_new (user,
-                             ad->application,
+  creds = cockpit_creds_new (ad->application,
+                             COCKPIT_CRED_USER, user,
                              COCKPIT_CRED_LOGIN_DATA, raw_data,
                              COCKPIT_CRED_PASSWORD, password,
                              COCKPIT_CRED_RHOST, ad->remote_peer,
@@ -1119,9 +1119,8 @@ cockpit_auth_check_cookie (CockpitAuth *self,
   authenticated = authenticated_for_headers (self, path, in_headers);
   if (authenticated)
     {
-      g_debug ("received %s credential cookie for user '%s'",
-               cockpit_creds_get_application (authenticated->creds),
-               cockpit_creds_get_user (authenticated->creds));
+      g_debug ("received %s credential cookie for session",
+               cockpit_creds_get_application (authenticated->creds));
       return g_object_ref (authenticated->service);
     }
   else
@@ -1212,7 +1211,7 @@ on_authenticated_timeout (gpointer data)
 
   if (cockpit_web_service_get_idling (authenticated->service))
     {
-      g_info ("%s: timed out", cockpit_creds_get_user (authenticated->creds));
+      g_info ("session timed out");
       g_hash_table_remove (self->authenticated, authenticated->cookie);
     }
 
@@ -1228,7 +1227,7 @@ on_web_service_idling (CockpitWebService *service,
   if (authenticated->timeout_tag)
     g_source_remove (authenticated->timeout_tag);
 
-  g_debug ("%s: login is idle", cockpit_creds_get_user (authenticated->creds));
+  g_debug ("session is idle");
 
   /*
    * The minimum amount of time before a request uses this new web service,
@@ -1306,9 +1305,8 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
   g_hash_table_insert (self->authenticated, authenticated->cookie, authenticated);
 
-  g_debug ("sending %s credential id '%s' for user '%s'", id,
-           cockpit_creds_get_application (creds),
-           cockpit_creds_get_user (creds));
+  g_debug ("sending %s credential id '%s' for session", id,
+           cockpit_creds_get_application (creds));
 
   g_free (id);
 
@@ -1325,7 +1323,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);
     }
 
-  g_info ("logged in user: %s", cockpit_creds_get_user (authenticated->creds));
+  g_info ("logged in user session");
 
   return cockpit_creds_to_json (creds);
 }

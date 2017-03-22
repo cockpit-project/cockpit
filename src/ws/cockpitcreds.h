@@ -31,6 +31,7 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitCreds       CockpitCreds;
 
+#define COCKPIT_CRED_USER         "user"
 #define COCKPIT_CRED_PASSWORD     "password"
 #define COCKPIT_CRED_RHOST        "rhost"
 #define COCKPIT_CRED_CSRF_TOKEN   "csrf-token"
@@ -40,8 +41,7 @@ typedef struct _CockpitCreds       CockpitCreds;
 
 GType           cockpit_creds_get_type       (void) G_GNUC_CONST;
 
-CockpitCreds *  cockpit_creds_new            (const gchar *user,
-                                              const gchar *application,
+CockpitCreds *  cockpit_creds_new            (const gchar *application,
                                               ...) G_GNUC_NULL_TERMINATED;
 
 CockpitCreds *  cockpit_creds_ref            (CockpitCreds *creds);

@@ -344,6 +344,9 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 Summary: Cockpit SSH remoting and dashboard
 Requires: libssh >= %{libssh_version}
 Provides: %{name}-ssh
+# nothing depends on the dashboard, but we can't use it with older versions of the bridge
+Conflicts: %{name}-bridge < 135
+Conflicts: %{name}-ws < 135
 
 %description dashboard
 Cockpit support for remoting to other servers, bastion hosts, and a basic dashboard

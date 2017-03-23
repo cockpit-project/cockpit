@@ -122,6 +122,8 @@ mock_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
   return 0;
 }
 
+void mock_control (const char *cmd, ...);
+
 void
 mock_control (const char *cmd, ...)
 {
@@ -171,8 +173,10 @@ mock_control (const char *cmd, ...)
   va_end(ap);
 }
 
+void mock_init (pmdaInterface *dp);
+
 void
-mock_init(pmdaInterface *dp)
+mock_init (pmdaInterface *dp)
 {
   pmdaDSO(dp, PMDA_INTERFACE_2, "mock-pmda", NULL);
 

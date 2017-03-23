@@ -791,7 +791,6 @@ test_tls_authority_bad (TestTls *test,
   JsonObject *resp;
   gchar *expected_pem = NULL;
   gchar *expected_json = NULL;
-  const gchar *expected_fmt;
 
   g_object_get (test->certificate, "certificate-pem", &expected_pem, NULL);
   g_assert_true (expected_pem != NULL);
@@ -832,8 +831,8 @@ test_tls_authority_bad (TestTls *test,
   cockpit_assert_json_eq (resp, "{\"command\":\"ready\",\"channel\":\"444\"}");
 
   resp = mock_transport_pop_control (test->transport);
-  expected_fmt = "{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\", \"rejected-certificate\":\"%s\"}";
-  expected_json = g_strdup_printf (expected_fmt, expected_pem);
+  expected_json = g_strdup_printf ("{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\", "
+                                   " \"rejected-certificate\":\"%s\"}", expected_pem);
   cockpit_assert_json_eq (resp, expected_json);
 
   g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);

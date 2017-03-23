@@ -325,7 +325,8 @@ if test "x$GCC" = "xyes"; then
           -Werror=strict-prototypes -Werror=missing-prototypes \
           -Werror=implicit-function-declaration \
           -Werror=pointer-arith -Werror=init-self \
-          -Werror=format-security \
+          -Werror=format=2 \
+          -Werror=return-type \
           -Werror=missing-include-dirs $CFLAGS"
 fi
 changequote([,])dnl

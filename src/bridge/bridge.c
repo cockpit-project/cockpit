@@ -431,19 +431,6 @@ run_bridge (const gchar *interactive,
 
   cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
-  /*
-   * The bridge always runs from within $XDG_RUNTIME_DIR
-   * This makes it easy to create user sockets and/or files.
-   */
-  if (!privileged_slave)
-    {
-      directory = g_get_user_runtime_dir ();
-      if (g_mkdir_with_parents (directory, 0700) < 0)
-        g_warning ("couldn't create runtime dir: %s: %s", directory, g_strerror (errno));
-      else if (g_chdir (directory) < 0)
-        g_warning ("couldn't change to runtime dir: %s: %s", directory, g_strerror (errno));
-    }
-
   /* Always set environment variables early */
   uid = geteuid();
   pwd = getpwuid_a (uid);
@@ -460,6 +447,19 @@ run_bridge (const gchar *interactive,
 
   /* Set a path if nothing is set */
   g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
+
+  /*
+   * The bridge always runs from within $XDG_RUNTIME_DIR
+   * This makes it easy to create user sockets and/or files.
+   */
+  if (!privileged_slave)
+    {
+      directory = g_get_user_runtime_dir ();
+      if (g_mkdir_with_parents (directory, 0700) < 0)
+        g_warning ("couldn't create runtime dir: %s: %s", directory, g_strerror (errno));
+      else if (g_chdir (directory) < 0)
+        g_warning ("couldn't change to runtime dir: %s: %s", directory, g_strerror (errno));
+    }
 
   /* Reset the umask, typically this is done in .bashrc for a login shell */
   umask (022);

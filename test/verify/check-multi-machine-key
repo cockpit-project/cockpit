@@ -230,6 +230,7 @@ class TestMultiMachineKeyAuth(MachineCase):
                                     ".*: bridge program failed: Child process exited with code .*",
                                     # Since there is not password,
                                     # reauthorize doesn't work on m2
+                                    "received authorize command for wrong user: user",
                                     ".*: user admin reauthorization failed",
                                     "Error executing command as another user: Not authorized",
                                     "This incident has been reported.",

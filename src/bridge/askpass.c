@@ -56,6 +56,9 @@ read_control_message (int fd)
       res = read (fd, &ch, 1);
       if (res < 0)
         {
+          /* A disconnect when nothing has been read is a clean close */
+          if (errno == ECONNRESET && buffer->len == 0)
+            break;
           if (errno != EINTR || errno != EAGAIN)
             {
               g_message ("couldn't read askpass authorize message: %s", g_strerror (errno));

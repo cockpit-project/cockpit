@@ -418,6 +418,22 @@
    fun:clone
 }
 {
+   ubuntu_12_04_i386_unknown_leak_maybe_gdbus
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
+   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
+   fun:g_initable_init
+   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
+   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
+   obj:/lib/i386-linux-gnu/libglib-2.0.so.0.4002.0
+   obj:/lib/i386-linux-gnu/libglib-2.0.so.0.4002.0
+   fun:start_thread
+   fun:clone
+}
+{
    gcov_exit
    Memcheck:Leak
    match-leak-kinds: definite

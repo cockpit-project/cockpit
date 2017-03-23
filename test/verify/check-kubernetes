@@ -24,7 +24,7 @@ import unittest
 from testlib import *
 import kubelib
 
-@skipImage("No kubernetes packaged", "debian-8", "debian-testing", "ubuntu-1604")
+@skipImage("No kubernetes packaged", "debian-8", "debian-testing", "ubuntu-1604", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
 
@@ -37,7 +37,7 @@ class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
         m.upload(["verify/files/mock-k8s-tiny-app.json"], "/tmp")
         self.wait_api_server()
 
-@skipImage("No kubernetes packaged", "debian-8", "debian-testing", "ubuntu-1604")
+@skipImage("No kubernetes packaged", "debian-8", "debian-testing", "ubuntu-1604", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestConnection(kubelib.KubernetesCase):
     def testConnect(self):
@@ -224,7 +224,7 @@ class TestConnection(kubelib.KubernetesCase):
                                     "connection unexpectedly closed by peer",
                                     ".*: Error sending data: Broken pipe.*")
 
-@skipImage("No kubernetes packaged", "debian-8", "debian-testing", "ubuntu-1604")
+@skipImage("No kubernetes packaged", "debian-8", "debian-testing", "ubuntu-1604", "fedora-i386")
 @unittest.skipIf(True, "Nulecule deploys temporarily removed.")
 class TestNulecule(kubelib.KubernetesCase):
     def setUp(self):

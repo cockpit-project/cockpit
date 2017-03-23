@@ -23,6 +23,7 @@ from testlib import *
 import json
 import os
 
+@skipImage("No cockpit-docker on i386", "fedora-i386")
 class TestDocker(MachineCase):
     def confirm(self):
         b = self.browser
@@ -507,7 +508,7 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
-@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-8", "debian-testing", "ubuntu-1604", "rhel-atomic", "fedora-atomic")
+@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-8", "debian-testing", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "fedora-i386")
 class TestAtomicScan(MachineCase):
     def testBasic(self):
         b = self.browser

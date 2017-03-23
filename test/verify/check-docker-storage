@@ -67,6 +67,7 @@ def initially_loopbacked(machine):
 def initially_without_vgroup(machine):
     return machine.image in [ "fedora-24", "rhel-7", "centos-7" ]
 
+@skipImage("No cockpit-docker on i386", "fedora-i386")
 class TestDockerStorage(MachineCase):
 
     def testOverview(self):

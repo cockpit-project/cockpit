@@ -151,7 +151,7 @@ check_int_type (JsonNode *node,
   if (value < min || value > max)
     {
       g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                  "Number '%li' is not in range for the expected type '%.*s'", value,
+                  "Number '%" G_GINT64_FORMAT "' is not in range for the expected type '%.*s'", value,
                   (int) g_variant_type_get_string_length (type),
                   g_variant_type_peek_string (type));
       return FALSE;

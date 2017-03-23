@@ -64,7 +64,7 @@ const DiskSource = ({ disk, vmId }) => {
 };
 
 const StorageUnit = ({ value, id }) => {
-    if (value === undefined) {
+    if (isNaN(value)) {
         return null;
     }
 
@@ -120,22 +120,19 @@ const VmDisksTab = ({ vm, provider }) => {
         supported, but not available yet ~ will be read soon
         unsupported ~ failed attempt to read (old libvirt)
      */
-    let areDiskStatsSupported = true;
-    let showDiskStatsColumns = false;
+    let areDiskStatsSupported = false;
     if (vm.disksStats) {
-        const isNaNFound = Object.getOwnPropertyNames(vm.disksStats).some(target => { // look for NaN value
+        // stats are read/supported if there is a non-NaN stat value
+        areDiskStatsSupported = !!Object.getOwnPropertyNames(vm.disksStats).some(target => {
             if (!vm.disksStats[target]) {
                 return false; // not yet retrieved, can't decide about disk stats support
             }
-            showDiskStatsColumns = true; // at least one disk stats read attempt finished
-            return isNaN(vm.disksStats[target].capacity); // if true, disk stats read attempt executed, but failed
+            return !isNaN(vm.disksStats[target].capacity) || !isNaN(vm.disksStats[target].allocation);
         });
-        areDiskStatsSupported = !isNaNFound;
-        showDiskStatsColumns = showDiskStatsColumns && areDiskStatsSupported;
     }
 
     const columnTitles = [_("Device"), _("Target")];
-    if (showDiskStatsColumns) {
+    if (areDiskStatsSupported) {
         columnTitles.push(_("Used"));
         columnTitles.push(_("Capacity"));
     }
@@ -169,7 +166,7 @@ const VmDisksTab = ({ vm, provider }) => {
                         {name: <DiskDevice disk={disk} vmId={vmId}/>, 'header': true},
                         <DiskTarget disk={disk} vmId={vmId}/>
                     ];
-                    if (showDiskStatsColumns) {
+                    if (areDiskStatsSupported) {
                         columns.push(<StorageUnit value={used} id={`${vmId}-disks-${disk.target}-used`}/>);
                         columns.push(<StorageUnit value={capacity} id={`${vmId}-disks-${disk.target}-capacity`}/>);
                     }

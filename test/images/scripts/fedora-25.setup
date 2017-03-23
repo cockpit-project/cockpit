@@ -11,6 +11,11 @@ df -h /
 
 echo foobar | passwd --stdin root
 
+HAVE_KUBERNETES=
+if [ $(uname -m) = x86_64 ]; then
+    HAVE_KUBERNETES=1
+fi
+
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
@@ -22,7 +27,6 @@ etcd \
 glib-networking \
 json-glib \
 kexec-tools \
-kubernetes \
 libssh \
 libvirt \
 libvirt-client \
@@ -41,6 +45,8 @@ subscription-manager \
 tuned \
 virt-install \
 "
+
+[ -z "$HAVE_KUBERNETES" ] || COCKPIT_DEPS="$COCKPIT_DEPS kubernetes"
 
 # On the latest Fedora we mix things up a bit and install docker-latest
 # which Fedora and RHEL package as a more up to date version of docker
@@ -94,17 +100,20 @@ sed -i -e 's/gpgcheck=1/gpgcheck=0/' /etc/mock/default.cfg
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
-# HACK: docker falls over regularly, print its log if it does
-systemctl start docker || journalctl -u docker
+# docker and our cockpit/base container are only really a thing on x86_64, just skip it on other arches
+if [ $(uname -m) = x86_64 ]; then
+    # HACK: docker falls over regularly, print its log if it does
+    systemctl start docker || journalctl -u docker
 
-# Setup basics for building images
-docker build -t cockpit/base /var/tmp/cockpit-base
+    # Setup basics for building images
+    docker build -t cockpit/base /var/tmp/cockpit-base
+
+    # docker images that we need for integration testing
+    /var/lib/testvm/docker-images.setup
+fi
 
 # Configure kubernetes
-/var/lib/testvm/kubernetes.setup
-
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
+[ -z "$HAVE_KUBERNETES" ] || /var/lib/testvm/kubernetes.setup
 
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1341829
 # SELinux breaks coredumping on fedora-25

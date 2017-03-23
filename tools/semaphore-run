@@ -1,8 +1,33 @@
 #!/bin/bash
 
-set -ex
+set -eux
+
+ARCH=${1:-}
+
+if [ "$ARCH" = i386 ]; then
+    # help apt to figure out replacing GI dependencies (we don't need them
+    # anyway, but a lot of stuff is pre-installed in semaphore)
+    sudo apt-get purge --auto-remove -y python3-gi gir1.2-glib-2.0
+
+    # library -dev packages are not co-installable for multiple architectures,
+    # so this can't go into the setup step
+    DEVPKGS=$(grep -o '[^ ]*-dev' tools/semaphore-prepare | sed 's/$/:i386/')
+    sudo apt-get install -y --no-install-recommends gcc-multilib pkg-config:i386 glib-networking:i386 libc6-dbg:i386 $DEVPKGS
+    export CFLAGS=-m32
+    export LDFLAGS=-m32
+elif [ -n "$ARCH" ]; then
+    echo "Unknown architecture '$ARCH'" >&2
+    exit 1
+fi
 
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
 make V=1 all
-make -j8 distcheck
-make -j8 check-memory
+
+# only run distcheck on native arch
+if [ -z "$ARCH" ]; then
+    make -j8 distcheck
+    make -j8 check-memory
+elif [ "$ARCH" = i386 ]; then
+    linux32 make -j8 check
+    linux32 make -j8 check-memory
+fi

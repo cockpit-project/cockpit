@@ -38,8 +38,8 @@ def can_manage(machine, vg):
     if machine.image in [ "rhel-atomic", "fedora-atomic", "continuous-atomic" ]:
         return True
 
-    # Fedora 25, too
-    if machine.image in [ "fedora-25", "fedora-testing" ]:
+    # Fedora 25 and 26, too
+    if machine.image in [ "fedora-25", "fedora-26", "fedora-testing" ]:
         return True
 
     # Fedora 24 has new enough "atomic", but the OS is not in a volume

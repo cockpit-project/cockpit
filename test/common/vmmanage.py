@@ -98,6 +98,20 @@ def only_install(image, skips=None, args=None, address=None):
         if started:
             machine.stop()
 
+# The Atomic variants can't build their own packages, so we build in
+# their non-Atomic siblings.  For example, fedora-atomic is built
+# in fedora-25
+def get_build_image (test_os):
+    build_os = test_os
+
+    if test_os == "fedora-atomic":
+        build_os = "fedora-25"
+    elif test_os == "rhel-atomic":
+        build_os = "rhel-7"
+    elif test_os == "continuous-atomic":
+        build_os = "centos-7"
+    return build_os
+
 def build_and_install(install_image, build_image, args):
     args.setdefault("verbose", False)
     args.setdefault("sit", False)
@@ -126,6 +140,12 @@ def build_and_install(install_image, build_image, args):
                 build_and_maybe_install(build_image, do_install=False, skips=skips, args=args)
             if install_image:
                 only_install(install_image, skips, args=args)
+
+            # Atomics need a companion image for tests
+            if build_image and install_image and install_image in testinfra.ATOMIC_IMAGES:
+                skips.append("cockpit-ostree")
+                only_install(build_image, skips, args=args)
+
     except testvm.Failure, ex:
         raise ("Unable to build and install cockpit package", ex)
     return True

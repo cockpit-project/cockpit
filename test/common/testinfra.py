@@ -65,6 +65,7 @@ DEFAULT_VERIFY = {
     'verify/debian-testing': [ 'master', 'pulls' ],
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],
+    'verify/fedora-i386': [ ],
     'verify/fedora-26': [ ],
     'verify/fedora-atomic': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ ],

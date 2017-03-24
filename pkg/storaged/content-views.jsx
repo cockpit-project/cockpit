@@ -313,7 +313,7 @@ function block_description(client, block) {
     }
 
     return {
-        size: utils.fmt_size(block.Size),
+        size: block.Size,
         text: usage
     };
 }
@@ -339,7 +339,9 @@ function append_row(rows, level, key, name, desc, tabs, job_object) {
     }
 
     var cols = [
-        <span className={"content-level-" + level}>{desc.size + " " + desc.text}</span>,
+        <span className={"content-level-" + level}>
+            {utils.format_size_and_text(desc.size, desc.text)}
+        </span>,
         { name: name, 'header': true },
         { name: last_column, tight: true },
     ];
@@ -385,7 +387,9 @@ function append_partitions(client, rows, level, block) {
         );
 
         var cols = [
-            <span className={"content-level-" + level}>{utils.fmt_size(size) + " " + _("Free Space")}</span>,
+            <span className={"content-level-" + level}>
+                {utils.format_size_and_text(size, _("Free Space"))}
+            </span>,
             "",
             { element: btn, tight: true }
         ];
@@ -545,7 +549,7 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
     var tabs, desc;
     if (client.blocks_ptable[block.path]) {
         desc = {
-            size: utils.fmt_size(block.Size),
+            size: block.Size,
             text: lvol.Name
         };
         tabs = create_tabs(client, block, false);
@@ -561,7 +565,7 @@ function append_logical_volume(client, rows, level, lvol) {
 
     if (lvol.Type == "pool") {
         desc = {
-            size: utils.fmt_size(lvol.Size),
+            size: lvol.Size,
             text: _("Pool for Thin Volumes")
         };
         tabs = create_tabs (client, lvol, false);
@@ -580,7 +584,7 @@ function append_logical_volume(client, rows, level, lvol) {
             // "unsupported".
 
             desc = {
-                size: utils.fmt_size(lvol.Size),
+                size: lvol.Size,
                 text: lvol.Active? _("Unsupported volume") : _("Inactive volume")
             }
             tabs = create_tabs (client, lvol, false);

@@ -97,7 +97,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("! systemctl --quiet is-active ntp || (systemctl disable ntp && systemctl stop ntp)")
         m.execute("! systemctl --quiet is-active chronyd || (systemctl disable chronyd && systemctl stop chronyd)")
 
-        m.execute("timedatectl set-ntp off; timedatectl set-time 2050-01-01")
+        m.execute("timedatectl set-ntp off; timedatectl set-time 2038-01-01")
 
         self.login_and_go("/system/logs")
         inject_extras()
@@ -122,8 +122,8 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                 return month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
             }
         """)
-        # January 1, 2050 00:00:00Z in browser time
-        expected_date = b.eval_js("localTime(2524608000000)")
+        # January 1, 2038 00:00:00Z in browser time
+        expected_date = b.eval_js("localTime(2145916800000)")
 
         def wait_log_lines(expected):
             b.wait_js_func("""(function (expected) {

@@ -521,7 +521,7 @@ class TestAtomicScan(MachineCase):
         # This mimics what `atomic scan` would put there, without us having to install
         # a known vulnerable image and initiating a scan from this test.
 
-        infos = json.loads(m.execute("docker inspect docker.io/busybox"))
+        infos = json.loads(m.execute("docker inspect busybox"))
         image_id = infos[0]["Id"]
         short_id = image_id.replace("sha256:", "")
         result_path = os.path.join("/var/lib/atomic/atomic_scan_openscap/2016-12-11-12-09-57-674487/", short_id)

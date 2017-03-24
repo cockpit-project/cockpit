@@ -27,6 +27,7 @@
 #include "common/cockpittest.h"
 #include "common/cockpitunixfd.h"
 #include "common/cockpitknownhosts.h"
+#include "common/cockpitmachinesjson.h"
 
 #include "ws/cockpitauthoptions.h"
 
@@ -47,7 +48,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
 
 #define AUTH_FD 3
 
@@ -386,13 +386,130 @@ out:
   return ret;
 }
 
-static void cleanup_knownhosts_file (void)
+static void
+cleanup_knownhosts_file (void)
 {
   if (tmp_knownhost_file)
     {
       g_unlink (tmp_knownhost_file);
       g_free (tmp_knownhost_file);
     }
+}
+
+/**
+ * machines_d_lookup_hostkey:
+ *
+ * Check if @host/@port is known anywhere in /etc/cockpit/machines.d/
+ *
+ * Returns: (transfer full): host key(s) string, or %NULL if no key was found.
+ * The returned value should be freed with g_free().
+ */
+static gchar*
+machines_d_lookup_hostkey (const gchar* host,
+                           const guint port)
+{
+  JsonNode *machines = read_machines_json ();
+  GList *hosts = json_object_get_members (json_node_get_object (machines));
+  GString *keydata = g_string_new (NULL);
+
+  for (GList *i = g_list_first (hosts); i; i = g_list_next (i))
+    {
+      const char *hostname = i->data;
+
+      /* read_machines_json() guarantees the expected output structure */
+      JsonObject *host_props = json_object_get_object_member (json_node_get_object (machines),  hostname);
+      JsonNode *prop;
+
+      /* address matches? */
+      prop = json_object_get_member (host_props, "address");
+      if (!prop || g_strcmp0 (json_node_get_string (prop), host) != 0)
+        continue;
+      /* port matches? */
+      prop = json_object_get_member (host_props, "port");
+      if (prop)
+        {
+          /* can be int or str */
+          guint prop_port = json_node_get_int (prop);
+          if (prop_port == 0)
+            prop_port = g_ascii_strtoull (json_node_get_string (prop), NULL, 10);
+          if (prop_port != port)
+            continue;
+        }
+      else if (port != 22) /* default to 22 if port property is absent */
+        {
+          continue;
+        }
+
+      /* we have a match */
+      prop = json_object_get_member (host_props, "hostkey");
+      if (prop)
+        {
+          /* can be list of strings or string */
+          if (JSON_NODE_HOLDS_ARRAY (prop))
+            {
+              JsonArray *a = json_node_get_array (prop);
+              for (guint i = 0; i < json_array_get_length (a); ++i)
+                {
+                  JsonNode *element = json_array_get_element (a, i);
+                  if (JSON_NODE_HOLDS_VALUE (element))
+                    {
+                      g_string_append_printf (keydata, "[%s]:%u %s\n", host, port, json_node_get_string (element));
+                      g_debug ("%s:%u: found ssh host key list item: '%s'", host, port, json_node_get_string (element));
+                    }
+                  else
+                    {
+                      g_message ("machines.d json definition for %s:%u contains invalid hostkey entry, ignoring",
+                                 host, port);
+                    }
+                }
+            }
+          else
+            {
+              g_string_append_printf (keydata, "[%s]:%u %s\n", host, port, json_node_get_string (prop));
+              g_debug ("%s:%u: found ssh host key: '%s'", host, port, json_node_get_string (prop));
+            }
+
+          break;
+        }
+    }
+
+  g_list_free (hosts);
+  json_node_free (machines);
+  return g_string_free (keydata, keydata->len == 0);
+}
+
+/**
+ * write_temp_knownhosts:
+ *
+ * Create temporary file with @keydata ssh known hosts data.
+ */
+static gboolean write_temp_knownhosts (CockpitSshData *data,
+                                       const gchar *keydata)
+{
+  FILE *fp = NULL;
+  tmp_knownhost_file = create_knownhosts_temp ();
+  if (!tmp_knownhost_file)
+      return FALSE;
+  atexit (cleanup_knownhosts_file);
+
+  fp = fopen (tmp_knownhost_file, "a");
+  if (fp == NULL)
+    {
+      g_warning ("%s: couldn't open temporary known host file for data: %s",
+                 data->logname, tmp_knownhost_file);
+      return FALSE;
+    }
+
+  if (fputs (keydata, fp) < 0)
+    {
+      g_warning ("%s: couldn't write to data to temporary known host file: %s",
+                 data->logname, g_strerror (errno));
+      fclose (fp);
+      return FALSE;
+    }
+
+  fclose (fp);
+  return TRUE;
 }
 
 /**
@@ -413,29 +530,8 @@ set_knownhosts_file (CockpitSshData *data,
   /* $COCKPIT_SSH_KNOWN_HOSTS_DATA has highest priority */
   if (data->ssh_options->knownhosts_data)
     {
-      FILE *fp = NULL;
-      tmp_knownhost_file = create_knownhosts_temp ();
-      if (!tmp_knownhost_file)
-          return "internal-error";
-      atexit (cleanup_knownhosts_file);
-
-      fp = fopen (tmp_knownhost_file, "a");
-      if (fp == NULL)
-        {
-          g_warning ("%s: couldn't open temporary known host file for data: %s",
-                     data->logname, tmp_knownhost_file);
-          return "internal-error";
-        }
-
-      if (fputs (data->ssh_options->knownhosts_data, fp) < 0)
-        {
-          g_warning ("%s: couldn't write to data to temporary known host file: %s",
-                     data->logname, g_strerror (errno));
-          fclose (fp);
-          return "internal-error";
-        }
-
-      fclose (fp);
+      if (!write_temp_knownhosts (data, data->ssh_options->knownhosts_data))
+        return "internal-error";
       data->ssh_options->knownhosts_file = tmp_knownhost_file;
     }
 
@@ -458,7 +554,27 @@ set_knownhosts_file (CockpitSshData *data,
         }
     }
 
-  /* TODO: Check more sources of known hosts here if !host_known */
+  /* check if our machines.d json files have a key */
+  if (!host_known)
+    {
+      gchar *keydata = machines_d_lookup_hostkey (host, port);
+      if (keydata)
+        {
+          gboolean write_success = write_temp_knownhosts (data, keydata);
+          if (G_LIKELY (write_success))
+            {
+              host_known = cockpit_is_host_known (tmp_knownhost_file, host, port);
+              if (G_LIKELY (host_known))
+                data->ssh_options->knownhosts_file = tmp_knownhost_file;
+            }
+          g_free (keydata);
+
+          if (!write_success)
+            return "internal-error";
+        }
+    }
+
+  /* TODO: Check ~/.ssh/known_hosts here if !host_known */
 
   g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
   if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,

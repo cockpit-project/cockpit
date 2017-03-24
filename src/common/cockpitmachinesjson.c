@@ -121,7 +121,16 @@ merge_config (JsonObject *machines,
           const char *propname = p->data;
           JsonNode *prop_node = json_object_get_member (json_node_get_object (delta_props), propname);
 
-          if (!JSON_NODE_HOLDS_VALUE (prop_node))
+          /* "hostkey" can be a list, everything else is a simple value */
+          if (g_strcmp0 (propname, "hostkey") == 0)
+            {
+              if (!JSON_NODE_HOLDS_VALUE (prop_node) && !JSON_NODE_HOLDS_ARRAY (prop_node))
+                {
+                  g_message ("%s: host name definition %s: hostkey does not contain a simple value or list, ignoring", path, hostname);
+                  continue;
+                }
+            }
+          else if (!JSON_NODE_HOLDS_VALUE (prop_node))
             {
               g_message ("%s: host name definition %s: property %s does not contain a simple value, ignoring", path, hostname, propname);
               continue;

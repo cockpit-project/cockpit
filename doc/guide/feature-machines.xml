@@ -66,6 +66,18 @@
     </varlistentry>
 
     <varlistentry>
+      <term><code>"hostkey"</code></term>
+      <listitem><para><emphasis>(string or list of strings, optional)</emphasis>
+          Public host key(s) of the remote machine, in the format of
+          <code>/etc/ssh/ssh_host_*_key.pub</code>; for example,
+          <code>"ssh-rsa AAAA1234...eF=="</code>.
+          When not given, Cockpit will check the standard ssh
+          <code>/etc/ssh/ssh_known_hosts</code> file, and if the host is not
+          known in that either, ask the user for confirming the fingerprint.
+          </para></listitem>
+    </varlistentry>
+
+    <varlistentry>
       <term><code>"color"</code></term>
       <listitem><para><emphasis>(string, optional)</emphasis> Color to
           assign to the machine label in the web interface. This can be either given as

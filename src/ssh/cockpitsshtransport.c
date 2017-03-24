@@ -574,7 +574,7 @@ free_password (CockpitSshTransport *self)
   if (self->password)
     {
       data = (gpointer)g_bytes_get_data (self->password, &length);
-      cockpit_secclear (data, length);
+      cockpit_memory_clear (data, length);
       g_bytes_unref (self->password);
       self->password = NULL;
     }

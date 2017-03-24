@@ -98,7 +98,7 @@ def rhsmcertd_hack(m):
     m.execute("systemctl stop rhsmcertd || true")
 
 
-@skipImage("No OSTree available", "centos-7", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-testing", "rhel-7", "ubuntu-1604")
+@skipImage("No OSTree available", "centos-7", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-testing", "fedora-i386", "rhel-7", "ubuntu-1604")
 class OstreeRestartCase(MachineCase):
 
     def setUp(self):
@@ -400,7 +400,7 @@ class OstreeRestartCase(MachineCase):
 
         self.allow_restart_journal_messages()
 
-@skipImage("No OSTree available", "centos-7", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-testing", "rhel-7", "ubuntu-1604")
+@skipImage("No OSTree available", "centos-7", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-testing", "fedora-i386", "rhel-7", "ubuntu-1604")
 class OstreeCase(MachineCase):
 
     def testRemoteManagement(self):

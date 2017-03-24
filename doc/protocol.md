@@ -277,9 +277,6 @@ For challenge/response authentication, the following fields are defined:
  * "response": a response string present in messages from cockpit-ws
    to a bridge
 
-The contents of the "challenge" and "response" fields are defined and
-documented in the reauthorize component.
-
 Example authorize challenge and response messages:
 
     {

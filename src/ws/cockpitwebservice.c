@@ -529,12 +529,12 @@ process_transport_authorize (CockpitWebService *self,
         }
     }
 
-  if (!self->sent_done)
+  if (cookie && !self->sent_done)
     {
       payload = cockpit_transport_build_control ("command", "authorize",
                                                  "cookie", cookie,
                                                  "response", response ? response : "",
-                                                 "host", host ? host : "localhost",
+                                                 "host", host,
                                                  NULL);
       cockpit_transport_send (transport, NULL, payload);
       g_bytes_unref (payload);

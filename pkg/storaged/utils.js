@@ -124,6 +124,10 @@
         return s;
     };
 
+    utils.format_size_and_text = function format_size_and_text(size, text) {
+        return cockpit.format(_("${size} ${desc}"), { size: utils.fmt_size(size), desc: text});
+    };
+
     utils.validate_lvm2_name = function validate_lvm2_name(name) {
         if (name === "")
             return _("Name cannot be empty.");
@@ -371,29 +375,21 @@
             var block = client.blocks[path];
             var link = utils.get_block_link_target(client, path);
             var text = $('<div>').html(link.html).text();
-            var desc = cockpit.format(_("${size} ${desc}"),
-                                      { size: utils.fmt_size(block.Size),
-                                        desc: text
-                                      });
-            return { type: 'block', block: block, desc: desc };
+            return { type: 'block', block: block, size: block.Size, desc: text };
         }
 
         var spaces = Object.keys(client.blocks).filter(is_free).sort(utils.make_block_path_cmp(client)).map(make);
 
         function add_free_spaces(block) {
             var parts = utils.get_partitions(client, block);
-            var i, p, link, text, desc;
+            var i, p, link, text;
             for (i in parts) {
                 p = parts[i];
                 if (p.type == 'free') {
                     link = utils.get_block_link_target(client, block.path);
                     text = $('<div>').html(link.html).text();
-                    desc = cockpit.format(_("${size} unpartitioned space on ${desc}"),
-                                          { size: utils.fmt_size(p.size),
-                                            desc: text
-                                          });
                     spaces.push({ type: 'free', block: block, start: p.start, size: p.size,
-                                  desc: desc });
+                                  desc: cockpit.format(_("unpartitioned space on $0"), text) });
                 }
             }
         }
@@ -407,7 +403,7 @@
     utils.available_space_to_option = function available_space_to_option(spc) {
         return {
             value: spc,
-            Title: spc.desc,
+            Title: utils.format_size_and_text(spc.size, spc.desc),
             Label: utils.block_name(spc.block)
         };
     };

@@ -1554,8 +1554,8 @@ PageNetworking.prototype = {
         $("#networking-add-team").hide();
         // We need both the plugin and teamd
         cockpit.script("test -f /usr/bin/teamd && " +
-                       "( test -f /usr/lib64/NetworkManager/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/x86_64-linux-gnu/NetworkManager/libnm-device-plugin-team.so)",
+                       "( test -f /usr/lib*/NetworkManager/libnm-device-plugin-team.so || " +
+                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/libnm-device-plugin-team.so)",
                        { err: "ignore" }).
             done(function () {
                 $("#networking-add-team").show();

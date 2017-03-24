@@ -32,7 +32,7 @@ static void
 byte_array_clear_and_free (gpointer data)
 {
   GByteArray *buffer = data;
-  cockpit_secclear (buffer->data, buffer->len);
+  cockpit_memory_clear (buffer->data, buffer->len);
   g_byte_array_free (buffer, TRUE);
 }
 
@@ -271,7 +271,7 @@ main (int argc,
 
   /* Clear the password memory owned by JsonObject */
   if (response)
-    cockpit_secclear ((gchar *)response, -1);
+    cockpit_memory_clear ((gchar *)response, -1);
 
   if (request)
     json_object_unref (request);

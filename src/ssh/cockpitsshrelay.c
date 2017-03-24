@@ -649,7 +649,7 @@ ssh_askpass (CockpitSshData *data,
     {
       g_message ("%s: the %s command failed: %s", data->logname, argv[0], error->message);
       g_error_free (error);
-      cockpit_secclear (password, -1);
+      cockpit_memory_clear (password, -1);
       g_free (password);
       password = NULL;
     }

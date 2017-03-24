@@ -20,14 +20,9 @@
 #ifndef __COCKPIT_MEMORY_H__
 #define __COCKPIT_MEMORY_H__
 
-#include <glib.h>
-#include <glib-object.h>
+#include <sys/types.h>
 
-G_BEGIN_DECLS
-
-void     cockpit_secclear                (gpointer data,
-                                          gssize length);
-
-G_END_DECLS
+void     cockpit_memory_clear            (void *data,
+                                          ssize_t length);
 
 #endif /* __COCKPIT_MEMORY_H__ */

@@ -259,7 +259,7 @@ cockpit_creds_set_password (CockpitCreds *creds,
   if (creds->password)
     {
       data = (gpointer)g_bytes_get_data (creds->password, &length);
-      cockpit_secclear (data, length);
+      cockpit_memory_clear (data, length);
       creds->password = NULL;
     }
   if (password)

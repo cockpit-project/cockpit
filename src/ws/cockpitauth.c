@@ -374,7 +374,7 @@ str_skip (gchar *v,
 static void
 clear_free_authorization (gpointer data)
 {
-  cockpit_secclear (data, strlen (data));
+  cockpit_memory_clear (data, strlen (data));
   g_free (data);
 }
 

@@ -26,9 +26,9 @@
 int      cockpit_secmem_drain = 0;
 
 /**
- * cockpit_secclear:
+ * cockpit_memory_clear:
  *
- * The cockpit_secclear function overwrites LEN bytes of memory
+ * The cockpit_memory_clear function overwrites LEN bytes of memory
  * pointed to by DATA with non-sensitive values.  When LEN is -1, DATA
  * must be zero-terminated and all bytes until the zero are
  * overwritten.
@@ -40,10 +40,10 @@ int      cockpit_secmem_drain = 0;
  */
 
 void
-cockpit_secclear (gpointer data,
-                  gssize len)
+cockpit_memory_clear (void * data,
+                      ssize_t len)
 {
-  volatile gchar *vp;
+  volatile char *vp;
 
   if (!data)
     return;
@@ -56,7 +56,7 @@ cockpit_secclear (gpointer data,
   memset (data, 0xBB, len);
 
   /* Defeats others */
-  vp = (volatile gchar *)data;
+  vp = (volatile char *)data;
   while (len--)
     {
       cockpit_secmem_drain |= *vp;

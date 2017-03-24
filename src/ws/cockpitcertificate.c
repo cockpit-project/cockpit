@@ -197,10 +197,10 @@ generate_temp_cert (const gchar *dir,
 
 out:
   g_free (cert_path);
-  cockpit_secclear (key_data, -1);
+  cockpit_memory_clear (key_data, -1);
   g_free (key_data);
   g_free (pem_data);
-  cockpit_secclear (cert_data, -1);
+  cockpit_memory_clear (cert_data, -1);
   g_free (cert_data);
   if (tmp_key)
     g_unlink (tmp_key);

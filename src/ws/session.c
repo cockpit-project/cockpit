@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include "common/cockpitmemory.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <err.h>
@@ -660,7 +662,7 @@ perform_basic (const char *rhost)
 
   if (input)
     {
-      memset (input, 0, strlen (input));
+      cockpit_memory_clear (input, strlen (input));
       free (input);
     }
 

@@ -434,7 +434,7 @@ process_socket_authorize (CockpitWebService *self,
       if (password)
         {
           data = (gpointer)g_bytes_get_data (payload, &length);
-          cockpit_secclear (data, length);
+          cockpit_memory_clear (data, length);
           g_bytes_unref (password);
         }
     }

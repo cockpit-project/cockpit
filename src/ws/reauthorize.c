@@ -17,6 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
+#include "common/cockpitmemory.h"
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -141,32 +145,14 @@ hex_decode (const char *hex,
   return 0;
 }
 
-int _reauthorize_drain = 0;
-
 static void
 secfree (void *data,
          ssize_t len)
 {
-  volatile char *vp;
-
   if (!data)
     return;
 
-  if (len < 0)
-    len = strlen (data);
-
-  /* Defeats some optimizations */
-  memset (data, 0xAA, len);
-  memset (data, 0xBB, len);
-
-  /* Defeats others */
-  vp = (volatile char*)data;
-  while (len--)
-    {
-      _reauthorize_drain |= *vp;
-      *(vp++) = 0xAA;
-    }
-
+  cockpit_memory_clear (data, len);
   free (data);
 }
 

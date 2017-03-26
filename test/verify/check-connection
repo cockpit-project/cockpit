@@ -60,11 +60,11 @@ class TestConnection(MachineCase):
         b.set_val("#login-password-input", "foobar")
 
         # sever the connection on the login page
-        m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
+        m.execute("iptables -w -I INPUT 1 -p tcp --dport 9090 -j REJECT")
         b.click('#login-button')
         with b.wait_timeout(20):
             b.wait_text_not('#login-fatal-message', "")
-        m.execute("iptables -D INPUT 1")
+        m.execute("iptables -w -D INPUT 1")
         b.reload()
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -74,14 +74,14 @@ class TestConnection(MachineCase):
         b.enter_page("/system")
 
         # sever the connection on the server page
-        m.execute("iptables -I INPUT 1 -p tcp --dport 9090 -j REJECT")
+        m.execute("iptables -w -I INPUT 1 -p tcp --dport 9090 -j REJECT")
         b.switch_to_top()
         with b.wait_timeout(60):
             b.wait_visible(".curtains-ct")
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         b.wait_in_text('.curtains-ct p', "Connection has timed out.")
-        m.execute("iptables -D INPUT 1")
+        m.execute("iptables -w -D INPUT 1")
         b.click("#machine-reconnect")
         b.expect_load()
         b.enter_page("/system")

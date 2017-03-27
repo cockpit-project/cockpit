@@ -36,7 +36,7 @@
 
 #include "retest/retest.h"
 
-#include "reauthorize.h"
+#include "cockpitauthorize.h"
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -112,9 +112,9 @@ test_type (void *data)
   char *type;
 
   if (fix->ret != 0)
-    expect_message = "invalid reauthorize challenge";
+    expect_message = "invalid \"authorize\" message";
 
-  assert_num_eq (reauthorize_type (fix->challenge, &type), fix->ret);
+  assert_num_eq (cockpit_authorize_type (fix->challenge, &type), fix->ret);
   if (fix->ret == 0)
     {
       assert_str_eq (type, fix->expected);
@@ -139,9 +139,9 @@ test_user (void *data)
   char *user = NULL;
 
   if (fix->ret != 0)
-    expect_message = "invalid reauthorize challenge";
+    expect_message = "\"authorize\" message \"challenge\"";
 
-  assert_num_eq (reauthorize_user (fix->challenge, &user), fix->ret);
+  assert_num_eq (cockpit_authorize_user (fix->challenge, &user), fix->ret);
   if (fix->ret == 0)
     {
       assert_str_eq (user, fix->expected);
@@ -172,9 +172,9 @@ test_crypt1 (void *data)
   char *response;
 
   if (fix->ret != 0)
-    expect_message = "reauthorize challenge";
+    expect_message = "\"authorize\" message \"challenge\"";
 
-  assert_num_eq (reauthorize_crypt1 (fix->challenge, fix->password, &response), fix->ret);
+  assert_num_eq (cockpit_authorize_crypt1 (fix->challenge, fix->password, &response), fix->ret);
   if (fix->ret == 0)
     {
       assert_str_eq (response, fix->expected);
@@ -190,19 +190,19 @@ main (int argc,
 
   /* Some initial preparation */
   signal (SIGPIPE, SIG_IGN);
-  reauthorize_logger (test_logger, 0);
+  cockpit_authorize_logger (test_logger, 0);
 
   re_fixture (setup, teardown);
 
   for (i = 0; type_fixtures[i].challenge != NULL; i++)
     re_testx (test_type, type_fixtures + i,
-              "/reauthorize/type/%s", type_fixtures[i].challenge);
+              "/authorize/type/%s", type_fixtures[i].challenge);
   for (i = 0; user_fixtures[i].challenge != NULL; i++)
     re_testx (test_user, user_fixtures + i,
-              "/reauthorize/user/%s", user_fixtures[i].challenge);
+              "/authorize/user/%s", user_fixtures[i].challenge);
   for (i = 0; crypt1_fixtures[i].challenge != NULL; i++)
     re_testx (test_crypt1, crypt1_fixtures + i,
-              "/reauthorize/crypt1/%s", crypt1_fixtures[i].challenge);
+              "/authorize/crypt1/%s", crypt1_fixtures[i].challenge);
 
   return re_test_run (argc, argv);
 }

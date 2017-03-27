@@ -25,17 +25,10 @@
 #define _GNU_SOURCE
 #endif
 
-#include "reauthorize.h"
+#include "cockpitauthorize.h"
 
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/un.h>
-
-#include <assert.h>
 #include <crypt.h>
 #include <errno.h>
-#include <fcntl.h>
-#include <shadow.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,8 +89,8 @@ message (const char *format, ...)
 #endif
 
 void
-reauthorize_logger (void (* func) (const char *data),
-                    int verbose)
+cockpit_authorize_logger (void (* func) (const char *data),
+                          int verbose)
 {
   logger_verbose = verbose;
   logger = func;
@@ -186,8 +179,8 @@ parse_salt (const char *input)
  */
 
 int
-reauthorize_type (const char *challenge,
-                  char **type)
+cockpit_authorize_type (const char *challenge,
+                        char **type)
 {
   const char *pos;
   char *val;
@@ -195,14 +188,14 @@ reauthorize_type (const char *challenge,
   pos = strchr (challenge, ':');
   if (pos == NULL || pos == challenge)
     {
-      message ("invalid reauthorize challenge");
+      message ("invalid \"authorize\" message");
       return -EINVAL;
     }
 
   val = strndup (challenge, pos - challenge);
   if (val == NULL)
     {
-      message ("couldn't allocate memory for challenge field");
+      message ("couldn't allocate memory for \"authorize\" challenge");
       return -ENOMEM;
     }
 
@@ -211,8 +204,8 @@ reauthorize_type (const char *challenge,
 }
 
 int
-reauthorize_user (const char *challenge,
-                  char **user)
+cockpit_authorize_user (const char *challenge,
+                        char **user)
 {
   const char *beg = NULL;
   void *result;
@@ -229,20 +222,20 @@ reauthorize_user (const char *challenge,
 
   if (beg == NULL)
     {
-      message ("invalid reauthorize challenge: no type");
+      message ("invalid \"authorize\" message \"challenge\": no type");
       return -EINVAL;
     }
 
   ret = hex_decode (beg, len, &result, &user_len);
   if (ret != 0)
     {
-      message ("invalid reauthorize challenge: bad hex encoding");
+      message ("invalid \"authorize\" message \"challenge\": bad hex encoding");
       return ret;
     }
   if (memchr (result, '\0', user_len) != NULL)
     {
       free (result);
-      message ("invalid reauthorize challenge: embedded nulls in user");
+      message ("invalid \"authorize\" message \"challenge\": embedded nulls in user");
       return -EINVAL;
     }
 
@@ -251,9 +244,9 @@ reauthorize_user (const char *challenge,
 }
 
 int
-reauthorize_crypt1 (const char *challenge,
-                    const char *password,
-                    char **response)
+cockpit_authorize_crypt1 (const char *challenge,
+                          const char *password,
+                          char **response)
 {
   struct crypt_data *cd = NULL;
   char *nonce = NULL;
@@ -266,7 +259,7 @@ reauthorize_crypt1 (const char *challenge,
 
   if (strncmp (challenge, "crypt1:", 7) != 0)
     {
-      message ("reauthorize challenge is not a crypt1");
+      message ("\"authorize\" message \"challenge\" is not a crypt1");
       ret = -EINVAL;
       goto out;
     }
@@ -283,7 +276,7 @@ reauthorize_crypt1 (const char *challenge,
   if (npos == NULL || spos == NULL)
     {
       ret = -EINVAL;
-      message ("couldn't parse reauthorize challenge");
+      message ("couldn't parse \"authorize\" message \"challenge\"");
       goto out;
     }
 
@@ -299,7 +292,7 @@ reauthorize_crypt1 (const char *challenge,
   if (parse_salt (nonce) < 0 ||
       parse_salt (salt) < 0)
     {
-      message ("reauthorize challenge has bad nonce or salt");
+      message ("\"authorize\" message \"challenge\" has bad nonce or salt");
       ret = -EINVAL;
       goto out;
     }

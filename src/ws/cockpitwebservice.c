@@ -21,6 +21,8 @@
 
 #include "cockpitwebservice.h"
 
+#include "cockpitauthorize.h"
+
 #include <string.h>
 
 #include <json-glib/json-glib.h>
@@ -36,7 +38,6 @@
 #include "common/cockpitwebserver.h"
 
 #include "cockpitws.h"
-#include "reauthorize.h"
 
 #include "websocket/websocket.h"
 
@@ -475,8 +476,8 @@ process_transport_authorize (CockpitWebService *self,
     {
       g_message ("unsupported or unknown authorize command");
     }
-  else if (reauthorize_type (challenge, &type) < 0 ||
-           reauthorize_user (challenge, &user) < 0)
+  else if (cockpit_authorize_type (challenge, &type) < 0 ||
+           cockpit_authorize_user (challenge, &user) < 0)
     {
       g_message ("received invalid authorize challenge command");
     }
@@ -506,9 +507,9 @@ process_transport_authorize (CockpitWebService *self,
       else
         {
           password = g_bytes_get_data (data, NULL);
-          rc = reauthorize_crypt1 (challenge, password, &alloc);
+          rc = cockpit_authorize_crypt1 (challenge, password, &alloc);
           if (rc < 0)
-            g_message ("failed to reauthorize crypt1 challenge");
+            g_message ("failed to \"authorize\" crypt1 \"challenge\"");
           else
             response = alloc;
         }

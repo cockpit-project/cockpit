@@ -65,7 +65,7 @@ DEFAULT_VERIFY = {
     'verify/debian-testing': [ 'master', 'pulls' ],
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],
-    'verify/fedora-i386': [ ],
+    'verify/fedora-i386': [ 'master', 'pulls' ],
     'verify/fedora-26': [ ],
     'verify/fedora-atomic': [ 'master', 'pulls' ],
     'verify/fedora-testing': [ ],
@@ -102,6 +102,9 @@ DEFAULT_IMAGE_REFRESH = {
     },
     'fedora-testing': {
         'triggers': [ "verify/fedora-testing" ]
+    },
+    'fedora-i386': {
+        'triggers': [ "verify/fedora-i386" ]
     },
     'ubuntu-1604': {
         'triggers': [ "verify/ubuntu-1604", ]

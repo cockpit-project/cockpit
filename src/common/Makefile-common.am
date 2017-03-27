@@ -124,6 +124,7 @@ COCKPIT_CHECKS = \
 	test-unicode \
 	test-version \
 	test-system \
+	test-base64 \
 	test-authorize \
 	$(NULL)
 
@@ -136,6 +137,14 @@ test_authorize_SOURCES = \
 	src/common/test-authorize.c \
 	$(NULL)
 test_authorize_LDADD = libretest.a
+
+test_base64_CFLAGS = $(COCKPIT_SESSION_CFLAGS)
+test_base64_SOURCES = \
+	src/common/test-base64.c \
+	src/common/cockpitbase64.h \
+	src/common/cockpitbase64.c \
+	$(NULL)
+test_base64_LDADD = libretest.a
 
 test_hash_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_hash_SOURCES = src/common/test-hash.c

@@ -131,7 +131,7 @@ test_hash_LDADD = $(libcockpit_common_a_LIBS)
 
 test_hex_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_hex_SOURCES = src/common/test-hex.c
-test_hex_LDADD = $(libcockpit_common_a_LIBS)
+test_hex_LDADD = libretest.a $(libcockpit_common_a_LIBS)
 
 test_json_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_json_SOURCES = src/common/test-json.c

@@ -21,51 +21,62 @@
 
 #include "cockpithex.h"
 
-#include "cockpittest.h"
+#include "retest/retest.h"
 
-#include <glib.h>
+#include <stdlib.h>
 
 static void
 test_decode_success (void)
 {
-  gpointer decoded;
-  gsize length;
+  void * decoded;
+  size_t length;
 
-  decoded = cockpit_hex_decode ("6d61726d616c616465", &length);
-  g_assert_cmpstr (decoded, ==, "marmalade");
-  g_assert_cmpuint (length, ==, 9);
-  g_free (decoded);
+  decoded = cockpit_hex_decode ("6d61726d616c616465", -1, &length);
+  assert_str_cmp (decoded, ==, "marmalade");
+  assert_num_cmp (length, ==, 9);
+  free (decoded);
+}
+
+static void
+test_decode_part (void)
+{
+  void * decoded;
+  size_t length;
+
+  decoded = cockpit_hex_decode ("6d61726d616c616465", 8, &length);
+  assert_str_cmp (decoded, ==, "marm");
+  assert_num_cmp (length, ==, 4);
+  free (decoded);
 }
 
 static void
 test_decode_no_length (void)
 {
-  gpointer decoded;
+  void *decoded;
 
-  decoded = cockpit_hex_decode ("6d61726d616c616465", NULL);
-  g_assert_cmpstr (decoded, ==, "marmalade");
-  g_free (decoded);
+  decoded = cockpit_hex_decode ("6d61726d616c616465", -1, NULL);
+  assert_str_cmp (decoded, ==, "marmalade");
+  free (decoded);
 }
 
 static void
 test_decode_fail (void)
 {
-  gpointer decoded;
-  gsize length;
+  void *decoded;
+  size_t length;
 
-  decoded = cockpit_hex_decode ("abcdefghijklmn", &length);
-  g_assert (decoded == NULL);
+  decoded = cockpit_hex_decode ("abcdefghijklmn", -1, &length);
+  assert (decoded == NULL);
 }
 
 int
 main (int argc,
       char *argv[])
 {
-  cockpit_test_init (&argc, &argv);
+  re_test (test_decode_success, "/hex/decode-success");
+  re_test (test_decode_part, "/hex/decode-part");
+  re_test (test_decode_no_length, "/hex/decode-no-length");
+  re_test (test_decode_fail, "/hex/decode-fail");
 
-  g_test_add_func ("/hex/decode-success", test_decode_success);
-  g_test_add_func ("/hex/decode-no-length", test_decode_no_length);
-  g_test_add_func ("/hex/decode-fail", test_decode_fail);
-
-  return g_test_run ();
+  return re_test_run (argc, argv);
 }

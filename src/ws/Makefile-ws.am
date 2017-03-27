@@ -124,6 +124,8 @@ libexec_PROGRAMS += cockpit-ws cockpit-session
 cockpit_session_SOURCES = \
 	src/common/cockpitmemory.c \
 	src/common/cockpitmemory.h \
+	src/common/cockpithex.c \
+	src/common/cockpithex.h \
 	src/ws/session.c \
 	$(NULL)
 cockpit_session_LDADD = $(COCKPIT_SESSION_LIBS)

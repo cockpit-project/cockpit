@@ -553,7 +553,7 @@ build_gssapi_output_header (JsonObject *results)
   /* We've received indication from the bridge that GSSAPI is supported */
   gssapi_available = 1;
 
-  data = cockpit_hex_decode (output, &length);
+  data = cockpit_hex_decode (output, -1, &length);
   if (!data)
     {
       g_warning ("received invalid gssapi-output field");

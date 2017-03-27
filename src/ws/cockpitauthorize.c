@@ -19,13 +19,14 @@
 
 #include "config.h"
 
+#include "cockpitauthorize.h"
+
+#include "common/cockpithex.h"
 #include "common/cockpitmemory.h"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-
-#include "cockpitauthorize.h"
 
 #include <crypt.h>
 #include <errno.h>
@@ -94,48 +95,6 @@ cockpit_authorize_logger (void (* func) (const char *data),
 {
   logger_verbose = verbose;
   logger = func;
-}
-
-static const char HEX[] = "0123456789abcdef";
-
-static int
-hex_decode (const char *hex,
-            ssize_t len,
-            void **data,
-            size_t *data_len)
-{
-  const char *hpos;
-  const char *lpos;
-  char *out;
-  int i;
-
-  if (len < 0)
-    len = strlen (hex);
-  if (len % 2 != 0)
-    return -EINVAL;
-
-  out = malloc (len * 2 + 1);
-  if (out == NULL)
-    return -ENOMEM;
-
-  for (i = 0; i < len / 2; i++)
-    {
-      hpos = strchr (HEX, hex[i * 2]);
-      lpos = strchr (HEX, hex[i * 2 + 1]);
-      if (hpos == NULL || lpos == NULL)
-        {
-          free (out);
-          return -EINVAL;
-        }
-      out[i] = ((hpos - HEX) << 4) | ((lpos - HEX) & 0xf);
-    }
-
-  /* A convenience null termination */
-  out[i] = '\0';
-
-  *data = out;
-  *data_len = i;
-  return 0;
 }
 
 static void
@@ -211,7 +170,6 @@ cockpit_authorize_user (const char *challenge,
   void *result;
   size_t user_len;
   size_t len;
-  int ret;
 
   beg = strchr (challenge, ':');
   if (beg != NULL)
@@ -226,11 +184,11 @@ cockpit_authorize_user (const char *challenge,
       return -EINVAL;
     }
 
-  ret = hex_decode (beg, len, &result, &user_len);
-  if (ret != 0)
+  result = cockpit_hex_decode (beg, len, &user_len);
+  if (!result)
     {
       message ("invalid \"authorize\" message \"challenge\": bad hex encoding");
-      return ret;
+      return -EINVAL;
     }
   if (memchr (result, '\0', user_len) != NULL)
     {

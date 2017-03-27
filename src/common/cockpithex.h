@@ -20,16 +20,13 @@
 #ifndef __COCKPIT_HEX_H__
 #define __COCKPIT_HEX_H__
 
-#include <glib.h>
+#include <sys/types.h>
 
-G_BEGIN_DECLS
+char *          cockpit_hex_encode            (const void *data,
+                                               ssize_t length);
 
-gchar *          cockpit_hex_encode            (gconstpointer data,
-                                                gssize length);
-
-gpointer         cockpit_hex_decode            (const gchar *hex,
-                                                gsize *length);
-
-G_END_DECLS
+void *          cockpit_hex_decode            (const char *hex,
+                                               ssize_t hexlen,
+                                               size_t *length);
 
 #endif

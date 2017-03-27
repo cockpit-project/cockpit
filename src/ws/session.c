@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include "common/cockpithex.h"
 #include "common/cockpitmemory.h"
 
 #include <assert.h>
@@ -153,19 +154,16 @@ write_auth_hex (const char *field,
                 const unsigned char *src,
                 size_t len)
 {
-  static const char hex[] = "0123456789abcdef";
-  size_t i;
+  char *encoded;
 
   debug ("writing %s", field);
   fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
-  for (i = 0; i < len; i++)
-    {
-      unsigned char byte = src[i];
-      fputc_unlocked (hex[byte >> 4], authf);
-      fputc_unlocked (hex[byte & 0xf], authf);
-    }
+
+  encoded = cockpit_hex_encode (src, len);
+  fputs_unlocked (encoded, authf);
   fputc_unlocked ('\"', authf);
   auth_delimiter = ",";
+  free (encoded);
 }
 
 static void

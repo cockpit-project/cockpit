@@ -781,13 +781,6 @@ perform_gssapi (const char *rhost)
       goto out;
     }
 
-  if (input.length == 0)
-    {
-      debug ("initial gssapi negotiate output");
-      write_auth_hex ("gssapi-output", NULL, 0);
-      goto out;
-    }
-
   for (;;)
     {
       debug ("gssapi negotiation");
@@ -799,9 +792,17 @@ perform_gssapi (const char *rhost)
       if (output.value)
         gss_release_buffer (&minor, &output);
 
-      major = gss_accept_sec_context (&minor, &context, server, &input,
-                                      GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
-                                      &output, &flags, &caps, &client);
+      if (input.length > 0)
+        {
+          major = gss_accept_sec_context (&minor, &context, server, &input,
+                                          GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
+                                          &output, &flags, &caps, &client);
+        }
+      else
+        {
+          debug ("initial gssapi negotiate output");
+          major = GSS_S_CONTINUE_NEEDED;
+        }
 
       if (GSS_ERROR (major))
         {

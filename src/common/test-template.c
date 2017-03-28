@@ -36,6 +36,7 @@ setup (TestCase *tc,
   tc->variables = g_hash_table_new (g_str_hash, g_str_equal);
   g_hash_table_insert (tc->variables, "Scruffy", "janitor");
   g_hash_table_insert (tc->variables, "oh", "marmalade");
+  g_hash_table_insert (tc->variables, "oh-dash", "dash-marmalade");
   g_hash_table_insert (tc->variables, "empty", "");
 }
 
@@ -73,6 +74,7 @@ static const Fixture expand_fixtures[] = {
   { "@@", "@@", "no-ending", "Test @@oh@@ su@@ffix", { "Test ", "marmalade", " su@@ffix", NULL } },
   { "@@", "@@", "extra-at-after", "Test @@oh@@ su@@ff@ix", { "Test ", "marmalade", " su@@ff@ix", NULL } },
   { "@@", "@@", "unknown", "Test @@unknown@@ suffix", { "Test ", "@@unknown@@", " suffix", NULL } },
+  { "@@", "@@", "dash", "Test @@oh-dash@@ suffix", { "Test ", "dash-marmalade", " suffix", NULL } },
   { "@@", "@@", "lots", "Oh @@oh@@ says Scruffy @@empty@@ the @@Scruffy@@",
       { "Oh ", "marmalade", " says Scruffy ", " the ", "janitor", NULL }
   },

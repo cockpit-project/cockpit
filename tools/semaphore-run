@@ -12,7 +12,7 @@ if [ "$ARCH" = i386 ]; then
     # library -dev packages are not co-installable for multiple architectures,
     # so this can't go into the setup step
     DEVPKGS=$(grep -o '[^ ]*-dev' tools/semaphore-prepare | sed 's/$/:i386/')
-    sudo apt-get install -y --no-install-recommends gcc-multilib pkg-config:i386 glib-networking:i386 libc6-dbg:i386 $DEVPKGS
+    sudo apt-get install -y --no-install-recommends gcc-multilib pkg-config:i386 glib-networking:i386 glib-networking-dbg:i386 libc6-dbg:i386 libglib2.0-0-dbg:i386 $DEVPKGS
     export CFLAGS=-m32
     export LDFLAGS=-m32
 elif [ -n "$ARCH" ]; then

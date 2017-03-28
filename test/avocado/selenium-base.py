@@ -62,13 +62,39 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("journal")
         self.wait_id("journal-current-day")
         self.wait_id("journal-prio")
-        self.click(self.wait_text('Errors', cond=clickable, element="button"))
+        self.click(self.wait_xpath(
+            "//span[@id='journal-prio' and contains(text(), '%s')]" % "Problems, Errors"))
+        self.wait_id("prio-lists")
+        self.click(self.wait_xpath(
+            "//a[@data-prio='2' and contains(text(), '%s')]" % "Only Problems"))
         self.wait_id("journal")
         self.wait_id("journal-current-day")
-        self.click(self.wait_text('Warnings', cond=clickable, element="button"))
+        self.click(self.wait_xpath(
+            "//span[@id='journal-prio' and contains(text(), '%s')]" % "Only Problems"))
+        self.wait_id("prio-lists")
+        self.click(self.wait_xpath(
+            "//a[@data-prio='3' and contains(text(), '%s')]" % "Problems, Errors"))
         self.wait_id("journal")
         self.wait_id("journal-current-day")
-        self.click(self.wait_text('Notices', cond=clickable, element="button"))
+        self.click(self.wait_xpath(
+            "//span[@id='journal-prio' and contains(text(), '%s')]" % "Problems, Errors"))
+        self.wait_id("prio-lists")
+        self.click(self.wait_xpath(
+            "//a[@data-prio='4' and contains(text(), '%s')]" % "Problems, Errors, Warnings"))
+        self.wait_id("journal")
+        self.wait_id("journal-current-day")
+        self.click(self.wait_xpath(
+            "//span[@id='journal-prio' and contains(text(), '%s')]" % "Problems, Errors, Warnings"))
+        self.wait_id("prio-lists")
+        self.click(self.wait_xpath(
+            "//a[@data-prio='5' and contains(text(), '%s')]" % "Problems, Errors, Warnings, Notices"))
+        self.wait_id("journal")
+        self.wait_id("journal-current-day")
+        self.click(self.wait_xpath(
+            "//span[@id='journal-prio' and contains(text(), '%s')]" % "Problems, Errors, Warnings, Notices"))
+        self.wait_id("prio-lists")
+        self.click(self.wait_xpath(
+            "//a[@data-prio='*' and contains(text(), '%s')]" % "Everything"))
         self.wait_id("journal")
         self.wait_id("journal-current-day")
         checkt = "ahojnotice"

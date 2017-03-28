@@ -44,6 +44,8 @@ typedef struct {
 
 typedef struct {
   const gchar *payload;
+  gboolean with_env;
+  const gchar *problem;
 } TestFixture;
 
 static void
@@ -73,6 +75,42 @@ setup (TestCase *tc,
 }
 
 static void
+setup_dynamic (TestCase *tc,
+               gconstpointer user_data)
+{
+  const TestFixture *fixture = user_data;
+  JsonArray *argv;
+  JsonArray *env;
+  JsonObject *match;
+
+  tc->mock_config = json_object_new ();
+  argv = json_array_new ();
+  match = json_object_new ();
+
+  json_array_add_string_element (argv, BUILDDIR "/mock-bridge");
+  json_array_add_string_element (argv, "--${payload}");
+  json_array_add_string_element (argv, "--count");
+
+  json_object_set_array_member (tc->mock_config, "spawn", argv);
+
+  if (fixture && fixture->problem)
+    json_object_set_string_member (tc->mock_config, "problem", fixture->problem);
+
+  if (fixture && fixture->with_env)
+    {
+      env = json_array_new ();
+      json_array_add_string_element (env, "COCKPIT_TEST_PARAM_ENV=${payload}");
+      json_object_set_array_member (tc->mock_config, "environ", env);
+    }
+
+  json_object_set_null_member (match, "payload");
+  json_object_set_object_member (tc->mock_config, "match", match);
+
+  tc->transport = g_object_new (mock_transport_get_type (), NULL);
+  while (g_main_context_iteration (NULL, FALSE));
+}
+
+static void
 teardown (TestCase *tc,
           gconstpointer unused)
 {
@@ -83,7 +121,8 @@ teardown (TestCase *tc,
   g_assert (tc->transport == NULL);
 
   json_object_unref (tc->mock_config);
-  json_object_unref (tc->mock_match);
+  if (tc->mock_match)
+    json_object_unref (tc->mock_match);
 }
 
 static void
@@ -145,7 +184,7 @@ test_external_bridge (TestCase *tc,
   /* Same argv as used by mock_shim */
   router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
   peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), tc->mock_config);
-  cockpit_router_add_bridge (router, tc->mock_match, peer);
+  cockpit_router_add_peer (router, tc->mock_match, peer);
 
   emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
@@ -223,7 +262,7 @@ test_external_fail (TestCase *tc,
 
   router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
   peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), tc->mock_config);
-  cockpit_router_add_bridge (router, tc->mock_match, peer);
+  cockpit_router_add_peer (router, tc->mock_match, peer);
   g_object_unref (peer);
 
   emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
@@ -234,6 +273,130 @@ test_external_fail (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   cockpit_assert_json_eq (received, "{\"command\": \"close\", \"channel\": \"a\", \"problem\": \"not-supported\"}");
+
+  g_object_unref (router);
+}
+
+static const TestFixture fixture_dyn_fail = {
+  .problem = "bad"
+};
+
+static void
+test_dynamic_fail (TestCase *tc,
+                   gconstpointer user_data)
+{
+  CockpitRouter *router;
+  JsonObject *received;
+
+  g_assert (user_data == &fixture_dyn_fail);
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  cockpit_router_add_bridge (router, tc->mock_config);
+
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"bad\"}");
+  emit_string (tc, "a", "oh marmalade");
+
+  while ((received = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (received, "{\"command\": \"close\", \"channel\": \"a\", \"problem\": \"bad\"}");
+
+  g_object_unref (router);
+}
+
+
+static const TestFixture fixture_env = {
+  .with_env = TRUE
+};
+
+static void
+check_ready (JsonObject *control,
+             const gchar *channel,
+             const gchar *payload,
+             gint count,
+             gboolean with_env)
+{
+  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, channel);
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
+  g_assert_cmpint (json_object_get_int_member (control, "count"), ==, count);
+  if (with_env)
+    g_assert_cmpstr (json_object_get_string_member (control, "test-env"), ==, payload);
+}
+
+static void
+test_dynamic_bridge (TestCase *tc,
+                     gconstpointer user_data)
+{
+  const TestFixture *fixture = user_data;
+  CockpitRouter *router;
+  GBytes *sent;
+  JsonObject *control;
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  cockpit_router_add_bridge (router, tc->mock_config);
+
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"upper\"}");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  check_ready (control, "a", "upper", 0, fixture ? fixture->with_env : FALSE);
+  control = NULL;
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  check_ready (control, "b", "upper", 1, fixture ? fixture->with_env : FALSE);
+  control = NULL;
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"c\", \"payload\": \"lower\"}");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  check_ready (control, "c", "lower", 0, fixture ? fixture->with_env : FALSE);
+  control = NULL;
+
+  emit_string (tc, "a", "oh marmalade a");
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE A", -1);
+  sent = NULL;
+
+  emit_string (tc, NULL, "{\"command\": \"close\", \"channel\": \"a\" }");
+  emit_string (tc, "b", "oh marmalade b");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"a\"}");
+  control = NULL;
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "b")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE B", -1);
+  sent = NULL;
+
+  emit_string (tc, NULL, "{\"command\": \"close\", \"channel\": \"b\" }");
+  emit_string (tc, "c", "OH MARMALADE C");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"b\"}");
+  control = NULL;
+
+  while ((sent = mock_transport_pop_channel (tc->transport, "c")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "oh marmalade c", -1);
+  sent = NULL;
+
+  emit_string (tc, NULL, "{\"command\": \"close-later\", \"channel\": \"c\" }");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"c\",\"problem\":\"closed\"}");
+  control = NULL;
 
   g_object_unref (router);
 }
@@ -250,5 +413,11 @@ main (int argc,
               setup, test_external_bridge, teardown);
   g_test_add ("/router/external-fail", TestCase, &fixture_fail,
               setup, test_external_fail, teardown);
+  g_test_add ("/router/dynamic-bridge-fail", TestCase, &fixture_dyn_fail,
+              setup_dynamic, test_dynamic_fail, teardown);
+  g_test_add ("/router/dynamic-bridge", TestCase, NULL,
+              setup_dynamic, test_dynamic_bridge, teardown);
+  g_test_add ("/router/dynamic-bridge-env", TestCase, &fixture_env,
+              setup_dynamic, test_dynamic_bridge, teardown);
   return g_test_run ();
 }

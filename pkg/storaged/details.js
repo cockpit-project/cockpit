@@ -280,8 +280,6 @@
         mustache.parse(block_detail_tmpl);
 
         function render_block() {
-            $('#storage-detail .breadcrumb .active').text(name);
-
             var block = client.slashdevs_block[name];
             if (!block)
                 return;
@@ -325,7 +323,8 @@
                 };
             }
 
-            return { header: mustache.render(block_detail_tmpl,
+            return { breadcrumb: drive && utils.drive_name(drive),
+                     header: mustache.render(block_detail_tmpl,
                                              { Block: block_model,
                                                Drive: drive_model
                                              }),
@@ -442,7 +441,8 @@
             else
                 def_action = actions[0];  // Start
 
-            return { header: mustache.render(mdraid_detail_tmpl,
+            return { breadcrumb: utils.mdraid_name(mdraid),
+                     header: mustache.render(mdraid_detail_tmpl,
                                              { MDRaid: mdraid_model,
                                                MDRaidButton: mustache.render(action_btn_tmpl,
                                                                              { arg: mdraid.path,
@@ -519,7 +519,8 @@
                 { action: "vgroup_delete", title: _("Delete") }
             ];
 
-            return { header: mustache.render(vgroup_detail_tmpl,
+            return { breadcrumb: vgroup.Name,
+                     header: mustache.render(vgroup_detail_tmpl,
                                              { VGroup: vgroup_model,
                                                VGroupButton: mustache.render(action_btn_tmpl,
                                                                              { arg: vgroup.path,
@@ -535,8 +536,6 @@
         }
 
         function render() {
-            $('#storage-detail .breadcrumb .active').text(name);
-
             var html;
             if (type == 'block')
                 html = render_block();
@@ -546,6 +545,7 @@
                 html = render_vgroup();
 
             if (html) {
+                $('#storage-detail .breadcrumb .active').text(html.breadcrumb || name);
                 $('button.tooltip-ct').tooltip('destroy');
                 $('#detail-header').amend(html.header);
                 $('#detail-sidebar').amend(html.sidebar);
@@ -557,6 +557,7 @@
                     $('#detail-body').attr("class", "col-md-12");
 
             } else {
+                $('#storage-detail .breadcrumb .active').text(name);
                 $('#detail-header').text(_("Not found"));
                 $('#detail-sidebar').empty();
             }

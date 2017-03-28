@@ -40,6 +40,9 @@
 
 static gboolean opt_lower;
 static gboolean opt_upper;
+static gboolean opt_show_count;
+
+static GHashTable *channels;
 
 static GType mock_case_channel_get_type (void) G_GNUC_CONST;
 
@@ -92,6 +95,9 @@ mock_case_channel_constructed (GObject *obj)
   MockCaseChannel *self = (MockCaseChannel *)obj;
   const gchar *payload = NULL;
   JsonObject *options;
+  JsonObject *ready = json_object_new ();
+
+  const gchar *env = g_getenv ("COCKPIT_TEST_PARAM_ENV");
 
   G_OBJECT_CLASS (mock_case_channel_parent_class)->constructed (obj);
 
@@ -106,7 +112,14 @@ mock_case_channel_constructed (GObject *obj)
   else
     g_assert_not_reached ();
 
-  cockpit_channel_ready (COCKPIT_CHANNEL (self), NULL);
+  if (env)
+    json_object_set_string_member (ready, "test-env", env);
+
+  if (opt_show_count)
+    json_object_set_int_member (ready, "count", g_hash_table_size (channels));
+
+  cockpit_channel_ready (COCKPIT_CHANNEL (self), ready);
+  json_object_unref (ready);
 }
 
 static void
@@ -120,7 +133,6 @@ mock_case_channel_class_init (MockCaseChannelClass *klass)
   channel_class->control = mock_case_channel_control;
 }
 
-static GHashTable *channels;
 static gboolean init_received;
 static gboolean opt_lower;
 
@@ -276,6 +288,7 @@ main (int argc,
 
   static GOptionEntry entries[] = {
     { "lower", 0, 0, G_OPTION_ARG_NONE, &opt_lower, "Lower case channel type", NULL },
+    { "count", 0, 0, G_OPTION_ARG_NONE, &opt_show_count, "Show open channels count in ready messages", NULL },
     { "upper", 0, 0, G_OPTION_ARG_NONE, &opt_upper, "Upper case channel type", NULL },
     { NULL }
   };

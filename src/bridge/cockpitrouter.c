@@ -27,6 +27,7 @@
 #include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpittemplate.h"
 
 #include <string.h>
 
@@ -61,6 +62,46 @@ enum {
   PROP_0,
   PROP_TRANSPORT,
 };
+
+typedef struct {
+  JsonObject *config;
+
+  // Contents owned by config
+  gchar **env;
+  gchar **spawn;
+
+  GHashTable *peers;
+
+} DynamicPeer;
+
+static DynamicPeer *
+dynamic_peer_create (JsonObject *config)
+{
+  DynamicPeer *p = g_new0 (DynamicPeer, 1);
+
+  p->peers = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                    g_free, g_object_unref);
+
+  p->config = json_object_ref (config);
+  if (!cockpit_json_get_strv (config, "environ", NULL, &p->env))
+    p->env = NULL;
+
+  if (!cockpit_json_get_strv (config, "spawn", NULL, &p->spawn))
+    p->spawn = NULL;
+
+  return p;
+}
+
+static void
+dynamic_peer_free (gpointer data)
+{
+  DynamicPeer *p = data;
+  json_object_unref (p->config);
+  g_hash_table_unref (p->peers);
+  g_free (p->spawn);
+  g_free (p->env);
+  g_free (p);
+}
 
 typedef struct {
   gchar *name;
@@ -320,6 +361,146 @@ process_open_peer (CockpitRouter *self,
                    gpointer user_data)
 {
   CockpitPeer *peer = user_data;
+  return cockpit_peer_handle (peer, channel, options, data);
+}
+
+static GBytes *
+substitute_json_string (const gchar *variable,
+                        gpointer user_data)
+{
+  const gchar *value;
+  JsonObject *options = user_data;
+  if (options && cockpit_json_get_string (options, variable, "", &value))
+    return g_bytes_new (value, strlen (value));
+  else if (options)
+    g_message ("Couldn't get argument for bridge: got invalid value for '%s'", variable);
+
+  return g_bytes_new ("", 0);
+}
+
+static JsonArray *
+ptr_array_to_json_array (GPtrArray *arr,
+                         gint start,
+                         gint end)
+{
+  JsonArray *new;
+  gint i;
+
+  g_return_val_if_fail (arr != NULL, NULL);
+
+  new = json_array_new ();
+  if (end > arr->len)
+    end = arr->len;
+
+  for (i = start; i < end; i++)
+    {
+      const gchar *d = g_ptr_array_index (arr, i);
+      g_assert (d != NULL);
+      json_array_add_string_element (new, d);
+    }
+
+  return new;
+}
+
+static void
+add_dynamic_args_to_array (GPtrArray *arr,
+                           gchar **config_args,
+                           JsonObject *options)
+{
+  gint length;
+  gint i;
+
+  g_return_if_fail (config_args != NULL);
+  g_return_if_fail (arr != NULL);
+
+  length = g_strv_length (config_args);
+  for (i = 0; i < length; i++)
+    {
+      GString *s = g_string_new ("");
+      GBytes *input = g_bytes_new_static (config_args[i], strlen(config_args[i]) + 1);
+      GList *output = cockpit_template_expand (input, substitute_json_string,
+                                               "${", "}", options);
+      GList *l;
+      for (l = output; l != NULL; l = g_list_next (l))
+        {
+          gsize size;
+          gconstpointer data = g_bytes_get_data (l->data, &size);
+          g_string_append_len (s, data, size);
+        }
+
+      g_ptr_array_add (arr, g_string_free (s, FALSE));
+      g_bytes_unref (input);
+      g_list_free_full (output, (GDestroyNotify) g_bytes_unref);
+    }
+}
+
+static gboolean
+process_open_dynamic_peer (CockpitRouter *self,
+                           const gchar *channel,
+                           JsonObject *options,
+                           GBytes *data,
+                           gpointer user_data)
+{
+  CockpitPeer *peer = NULL;
+  DynamicPeer *dp = user_data;
+  JsonObject *config = NULL;
+  GPtrArray *arr = NULL;
+  gchar *key = NULL;
+  gint env_spot = 0;
+
+  arr = g_ptr_array_new_with_free_func (g_free);
+  if (dp->spawn)
+    add_dynamic_args_to_array (arr, dp->spawn, options);
+
+  env_spot = arr->len;
+  if (dp->env)
+    add_dynamic_args_to_array (arr, dp->env, options);
+
+  /* Generate a key string */
+  g_ptr_array_add (arr, NULL);
+  key = g_strjoinv ("|", (gchar **) arr->pdata);
+  g_ptr_array_remove_index (arr, arr->len - 1);
+
+  peer = g_hash_table_lookup (dp->peers, key);
+  if (!peer)
+    {
+      config = json_object_new ();
+      if (json_object_has_member (dp->config, "problem"))
+        {
+          json_object_set_member (config, "problem",
+                                  json_object_dup_member (dp->config, "problem"));
+        }
+
+      if (json_object_has_member (dp->config, "directory"))
+        {
+          json_object_set_member (config, "directory",
+                                  json_object_dup_member (dp->config, "directory"));
+        }
+
+      if (env_spot > 0)
+        {
+          json_object_set_array_member (config, "spawn",
+                                        ptr_array_to_json_array (arr, 0, env_spot));
+        }
+
+      if (env_spot < arr->len)
+        {
+          json_object_set_array_member (config, "environ",
+                                        ptr_array_to_json_array (arr, env_spot, arr->len));
+        }
+
+      peer = cockpit_peer_new (self->transport, config);
+      g_hash_table_insert (dp->peers, key, peer);
+    }
+  else
+    {
+      g_free (key);
+    }
+
+  if (config)
+    json_object_unref (config);
+  g_ptr_array_unref (arr);
+
   return cockpit_peer_handle (peer, channel, options, data);
 }
 
@@ -670,10 +851,9 @@ cockpit_router_new (CockpitTransport *transport,
                     GList *bridges)
 {
   CockpitRouter *router;
-  CockpitPeer *peer;
-  JsonObject *match;
   GList *l;
   guint i;
+  JsonObject *match;
 
   g_return_val_if_fail (transport != NULL, NULL);
 
@@ -695,13 +875,7 @@ cockpit_router_new (CockpitTransport *transport,
   /* Enumerated in reverse, since the last rule is matched first */
   for (l = g_list_last (bridges); l != NULL; l = g_list_previous (l))
     {
-      /* Actual descriptive warning displayed elsewhere */
-      if (!cockpit_json_get_object (l->data, "match", NULL, &match))
-        match = NULL;
-
-      peer = cockpit_peer_new (transport, l->data);
-      cockpit_router_add_bridge (router, match, peer);
-      g_object_unref (peer);
+      cockpit_router_add_bridge (router, l->data);
     }
 
 #ifdef WITH_DEBUG
@@ -744,31 +918,26 @@ cockpit_router_add_channel (CockpitRouter *self,
 }
 
 /**
- * cockpit_router_add_bridge:
+ * cockpit_router_add_peer:
  * @self: The router object
  * @match: JSON configuration on what to match
- * @config: The peer bridge config
+ * @peer: The CockpitPeer instance to route matches to
  *
  * Add a peer bridge to the router for handling channels.
  * The @match JSON object as described in doc/guide/ and
  * matches against "open" messages in order to determine whether
  * to send channels to this peer bridge.
- *
- * The @config is the peer bridge config passed to
- * cockpit_peer_new().
- *
- * Returns: The new peer bridge.
  */
-CockpitPeer *
-cockpit_router_add_bridge (CockpitRouter *self,
-                           JsonObject *match,
-                           CockpitPeer *peer)
+void
+cockpit_router_add_peer (CockpitRouter *self,
+                         JsonObject *match,
+                         CockpitPeer *peer)
 {
   RouterRule *rule;
 
-  g_return_val_if_fail (COCKPIT_IS_ROUTER (self), NULL);
-  g_return_val_if_fail (match != NULL, NULL);
-  g_return_val_if_fail (COCKPIT_IS_PEER (peer), NULL);
+  g_return_if_fail (COCKPIT_IS_ROUTER (self));
+  g_return_if_fail (COCKPIT_IS_PEER (peer));
+  g_return_if_fail (match != NULL);
 
   rule = g_new0 (RouterRule, 1);
   rule->callback = process_open_peer;
@@ -777,6 +946,48 @@ cockpit_router_add_bridge (CockpitRouter *self,
   router_rule_compile (rule, match);
 
   self->rules = g_list_prepend (self->rules, rule);
+}
 
-  return peer;
+void
+cockpit_router_add_bridge (CockpitRouter *self,
+                           JsonObject *config)
+{
+  RouterRule *rule;
+  JsonObject *match;
+  GList *output = NULL;
+  GBytes *bytes = NULL;
+  CockpitPeer *peer = NULL;
+
+  g_return_if_fail (COCKPIT_IS_ROUTER (self));
+  g_return_if_fail (config != NULL);
+
+  /* Actual descriptive warning displayed elsewhere */
+  if (!cockpit_json_get_object (config, "match", NULL, &match))
+    match = NULL;
+
+  /* See if we have any variables in the JSON */
+  bytes = cockpit_json_write_bytes (config);
+  output = cockpit_template_expand (bytes, substitute_json_string,
+                                    "${", "}", NULL);
+  if (!output->next)
+    {
+      peer = cockpit_peer_new (self->transport, config);
+      cockpit_router_add_peer (self, match, peer);
+      goto out;
+    }
+
+  rule = g_new0 (RouterRule, 1);
+  rule->callback = process_open_dynamic_peer;
+  rule->user_data = dynamic_peer_create (config);
+  rule->destroy = dynamic_peer_free;
+  router_rule_compile (rule, match);
+
+  self->rules = g_list_prepend (self->rules, rule);
+
+out:
+  if (peer)
+    g_object_unref (peer);
+
+  g_bytes_unref (bytes);
+  g_list_free_full (output, (GDestroyNotify) g_bytes_unref);
 }

@@ -310,6 +310,43 @@ mypackage/test.min.js.gz
       </varlistentry>
     </variablelist>
 
+    <para>The <code>spawn</code> and <code>environ</code> values can be dynamically
+    taken from a matching open command values. When a value in either the <code>spawn</code>
+    or <code>environ</code> array contains a named variable wrapped in <code>${}</code>,
+    the variable will be replaced with the value contained in the matching open command.
+    Only named variables are supported and name can only contain letters, numbers and
+    the following symbols: <code>._-</code></para>
+
+    <para>For example a bridges section like:</para>
+<programlisting>
+{
+  "bridges": [
+    {
+      "match": { "payload": "example" },
+      "environ": [ "TAG=${tag}" ],
+      "spawn: [ "/example-bridge", "--tag", "${tag}" ],
+      "problem": "access-denied"
+    }
+  ]
+}
+</programlisting>
+
+    <para>when a open command is received with a payload of <code>example</code>
+        with <code>tag</code> value of <code>tag1</code>. The following
+        command will be spawned</para>
+
+    <programlisting>TAG=tag1 /example-bridge --tag tag1</programlisting>
+
+    <para>Processes that are reused so if another open command with a "tag" of
+        <code>tag1</code> is received. The open command will be passed to
+        existing process, rather than spawning a new one. However a open command
+        with an tag of <code>tag2</code> will spawn a new command:</para>
+
+    <programlisting>TAG=tag2 /example-bridge --tag tag2</programlisting>
+
+    <para>If you need to include <code>${}</code>, as an actual value in your arguments
+    you can escape it by prefixing it with a <code>\</code></para>
+
   </section>
 
   <section id="package-replace">

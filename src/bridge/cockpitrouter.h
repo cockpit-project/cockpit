@@ -46,7 +46,10 @@ void                cockpit_router_add_channel                     (CockpitRoute
                                                                     JsonObject *match,
                                                                     GType (* function) (void));
 
-CockpitPeer *       cockpit_router_add_bridge                      (CockpitRouter *self,
+void                cockpit_router_add_bridge                      (CockpitRouter *self,
+                                                                    JsonObject *config);
+
+void                cockpit_router_add_peer                        (CockpitRouter *self,
                                                                     JsonObject *match,
                                                                     CockpitPeer *peer);
 

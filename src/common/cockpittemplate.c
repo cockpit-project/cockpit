@@ -90,6 +90,8 @@ cockpit_template_expand (GBytes *input,
   const gchar *after;
   GBytes *bytes;
   gchar *name;
+  gboolean escaped;
+  gint before_len;
 
   g_return_val_if_fail (func != NULL, NULL);
 
@@ -98,6 +100,7 @@ cockpit_template_expand (GBytes *input,
 
   for (;;)
     {
+      escaped = FALSE;
       name = find_variable (start_marker, end_marker, data, end, &before, &after);
       if (name == NULL)
         break;
@@ -105,13 +108,25 @@ cockpit_template_expand (GBytes *input,
       if (before != data)
         {
           g_assert (before > data);
-          bytes = g_bytes_new_with_free_func (data, before - data,
+
+          /* Check if the char before the match is the escape char '/' */
+          before_len = before - data;
+          if (data[before_len - 1] == '\\')
+            {
+              escaped = TRUE;
+              before_len--;
+            }
+
+          bytes = g_bytes_new_with_free_func (data, before_len,
                                               (GDestroyNotify)g_bytes_unref,
                                               g_bytes_ref (input));
           output = g_list_prepend (output, bytes);
         }
 
-      bytes = (func) (name, user_data);
+      if (!escaped)
+        bytes = (func) (name, user_data);
+      else
+        bytes = NULL; // Set bytes to null so it's treated as skipped
       g_free (name);
 
       if (!bytes)

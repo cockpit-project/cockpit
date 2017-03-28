@@ -74,6 +74,7 @@ static const Fixture expand_fixtures[] = {
   { "@@", "@@", "no-ending", "Test @@oh@@ su@@ffix", { "Test ", "marmalade", " su@@ffix", NULL } },
   { "@@", "@@", "extra-at-after", "Test @@oh@@ su@@ff@ix", { "Test ", "marmalade", " su@@ff@ix", NULL } },
   { "@@", "@@", "unknown", "Test @@unknown@@ suffix", { "Test ", "@@unknown@@", " suffix", NULL } },
+  { "@@", "@@", "escaped", "Test \\@@oh@@ @@oh@@ suffix", { "Test ", "@@oh@@", " ", "marmalade", " suffix", NULL } },
   { "@@", "@@", "dash", "Test @@oh-dash@@ suffix", { "Test ", "dash-marmalade", " suffix", NULL } },
   { "@@", "@@", "lots", "Oh @@oh@@ says Scruffy @@empty@@ the @@Scruffy@@",
       { "Oh ", "marmalade", " says Scruffy ", " the ", "janitor", NULL }
@@ -82,6 +83,7 @@ static const Fixture expand_fixtures[] = {
   { "${", "}", "brackets-not-full", "Te$st ${oh} suffix", { "Te$st ", "marmalade", " suffix", NULL } },
   { "${", "}", "brackets-no-ending", "Test ${oh} su${ffix", { "Test ", "marmalade", " su${ffix", NULL } },
   { "${", "}", "brackets-unknown", "Test ${unknown} suffix", { "Test ", "${unknown}", " suffix", NULL } },
+  { "${", "}", "brackets-escaped", "Test \\${oh} ${oh} suffix", { "Test ", "${oh}", " ", "marmalade", " suffix", NULL } },
   { "${", "}", "brackets-lots", "Oh ${oh} says Scruffy ${empty} the ${Scruffy}",
       { "Oh ", "marmalade", " says Scruffy ", " the ", "janitor", NULL }
   },

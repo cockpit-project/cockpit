@@ -2391,7 +2391,7 @@ function factory() {
      */
 
     document.addEventListener("click", function(ev) {
-        if (in_array(ev.target.classList, 'disabled'))
+        if (ev.target.classList && in_array(ev.target.classList, 'disabled'))
           ev.stopPropagation();
     }, true);
 

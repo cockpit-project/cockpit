@@ -794,7 +794,7 @@ test_socket_unauthenticated (void)
   cockpit_ws_default_host_header = "127.0.0.1";
 
   g_assert (cockpit_handler_socket (NULL, "/cockpit/socket", "/cockpit/socket",
-                                    io_b, NULL, NULL, NULL));
+                                    "GET", io_b, NULL, NULL, NULL));
 
   g_signal_connect (client, "message", G_CALLBACK (on_message_get_bytes), &received);
 

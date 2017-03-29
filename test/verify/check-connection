@@ -21,6 +21,7 @@
 import parent
 from testlib import *
 import subprocess
+import base64
 
 class TestConnection(MachineCase):
     def testBasic(self):
@@ -224,6 +225,40 @@ class TestConnection(MachineCase):
 
         output = m.execute('curl -s -S -k https://{}:9000/ 2>&1 || true'.format(m.address))
         self.assertIn('Connection refused', output)
+
+    def testHeadRequest(self):
+        m = self.machine
+        m.start_cockpit()
+
+        # static handler
+        headers = m.execute("curl -s --head http://localhost:9090/cockpit/static/login.min.html")
+        self.assertIn("HTTP/1.1 200 OK\r\n", headers)
+        self.assertIn("Content-Type: text/html\r\n", headers)
+        # login.html is not always accessible as a file (e. g. in Atomic), so just assert a reasonable content length
+        self.assertIn("Content-Length: ", headers)
+        l = int(headers.split('Content-Length: ', 1)[1].split()[0])
+        self.assertGreater(l, 10000)
+        self.assertLess(l, 100000)
+
+        # login handler: wrong password
+        headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://localhost:9090/cockpit/login".format(
+            base64.b64encode("admin:hahawrong")))
+        self.assertIn("HTTP/1.1 401 Authentication failed\r\n", headers)
+        self.assertNotIn("Set-Cookie:", headers)
+
+        # login handler: correct password
+        headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://localhost:9090/cockpit/login".format(
+            base64.b64encode("admin:foobar")))
+        self.assertIn("HTTP/1.1 200 OK\r\n", headers)
+        self.assertIn("Set-Cookie: cockpit", headers)
+
+        # socket handler; this should refuse HEAD (as it makes little sense on sockets), so 404
+        headers = m.execute("curl -s --head http://localhost:9090/cockpit/socket")
+        self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
+
+        # external channel handler; unauthenticated, thus 404
+        headers = m.execute("curl -s --head http://localhost:9090/cockpit+123/channel/foo")
+        self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
 if __name__ == '__main__':
     test_main()

@@ -86,6 +86,7 @@ static gboolean
 handle_socket (CockpitWebServer *server,
                const gchar *original_path,
                const gchar *path,
+               const gchar *method,
                GIOStream *io_stream,
                GHashTable *headers,
                GByteArray *input,
@@ -98,6 +99,8 @@ handle_socket (CockpitWebServer *server,
 
   if (!g_str_equal (path, "/socket"))
     return FALSE;
+  /* HEAD on a socket makes little sense, we don't test it */
+  g_assert (g_strcmp0 (method, "GET") == 0);
 
   origins[0] = test->origin;
   ws = web_socket_server_new_for_stream (test->url, (const gchar **)origins,

@@ -397,43 +397,6 @@
    fun:gcov_exit.part.5
 }
 {
-   ubuntu_12_04_unknown_leak_maybe_gdbus
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:calloc
-   fun:g_malloc0
-   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
-   fun:g_slice_alloc
-   fun:g_slice_alloc0
-   fun:g_type_create_instance
-   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4000.0
-   fun:g_object_new_valist
-   fun:g_object_new
-   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
-   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
-   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
-   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
-   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
-   fun:start_thread
-   fun:clone
-}
-{
-   ubuntu_12_04_i386_unknown_leak_maybe_gdbus
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:calloc
-   fun:g_malloc0
-   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
-   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
-   fun:g_initable_init
-   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
-   obj:/usr/lib/i386-linux-gnu/libgio-2.0.so.0.4002.0
-   obj:/lib/i386-linux-gnu/libglib-2.0.so.0.4002.0
-   obj:/lib/i386-linux-gnu/libglib-2.0.so.0.4002.0
-   fun:start_thread
-   fun:clone
-}
-{
    gcov_exit
    Memcheck:Leak
    match-leak-kinds: definite

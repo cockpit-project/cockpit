@@ -487,6 +487,39 @@ test_stream (TestCase *tc,
 }
 
 static void
+test_head (TestCase *tc,
+           gconstpointer data)
+{
+  const gchar *resp;
+  GBytes *content;
+
+  cockpit_web_response_set_method (tc->response, "HEAD");
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_READY);
+
+  cockpit_web_response_headers (tc->response, 200, "OK", 19, NULL);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  content = g_bytes_new_static ("I shall not be seen", 19);
+  cockpit_web_response_queue (tc->response, content);
+  g_bytes_unref (content);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  cockpit_web_response_complete (tc->response);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_COMPLETE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 19\r\n\r\n");
+}
+
+static void
 test_chunked_transfer_encoding (TestCase *tc,
                                 gconstpointer data)
 {
@@ -1322,6 +1355,8 @@ main (int argc,
               setup, test_content_encoding, teardown);
   g_test_add ("/web-response/stream", TestCase, NULL,
               setup, test_stream, teardown);
+  g_test_add ("/web-response/head", TestCase, NULL,
+              setup, test_head, teardown);
   g_test_add ("/web-response/chunked-transfer-encoding", TestCase, NULL,
               setup, test_chunked_transfer_encoding, teardown);
   g_test_add ("/web-response/chunked-zero-length", TestCase, NULL,

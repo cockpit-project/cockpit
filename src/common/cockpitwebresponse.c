@@ -64,6 +64,7 @@ struct _CockpitWebResponse {
   gchar *full_path;
   gchar *query;
   gchar *url_root;
+  gchar *method;
 
   CockpitCacheType cache_type;
 
@@ -157,6 +158,7 @@ cockpit_web_response_finalize (GObject *object)
   g_free (self->full_path);
   g_free (self->query);
   g_free (self->url_root);
+  g_free (self->method);
   g_assert (self->io == NULL);
   g_assert (self->out == NULL);
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
@@ -250,6 +252,14 @@ cockpit_web_response_new (GIOStream *io,
     }
 
   return self;
+}
+
+void
+cockpit_web_response_set_method (CockpitWebResponse *response,
+                                 const gchar *method)
+{
+  g_return_if_fail (g_strcmp0 (method, "GET") == 0 || g_strcmp0 (method, "HEAD") == 0);
+  response->method = g_strdup (method);
 }
 
 /**
@@ -546,6 +556,12 @@ cockpit_web_response_queue (CockpitWebResponse *self,
     {
       g_debug ("%s: ignoring queued block after failure", self->logname);
       return FALSE;
+    }
+
+  if (g_strcmp0 (self->method, "HEAD") == 0)
+    {
+      g_debug ("%s: ignoring queued block for method HEAD", self->logname);
+      return TRUE;
     }
 
   qn.filters = self->filters;

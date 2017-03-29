@@ -68,6 +68,7 @@ struct _CockpitWebServerClass {
   gboolean (* handle_stream)   (CockpitWebServer *server,
                                 const gchar *original_path,
                                 const gchar *path,
+                                const gchar *method,
                                 GIOStream *io_stream,
                                 GHashTable *headers,
                                 GByteArray *input);
@@ -292,6 +293,7 @@ static gboolean
 cockpit_web_server_default_handle_stream (CockpitWebServer *self,
                                           const gchar *original_path,
                                           const gchar *path,
+                                          const gchar *method,
                                           GIOStream *io_stream,
                                           GHashTable *headers,
                                           GByteArray *input)
@@ -312,6 +314,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
 
   /* TODO: Correct HTTP version for response */
   response = cockpit_web_response_new (io_stream, original_path, path, pos, headers);
+  cockpit_web_response_set_method (response, method);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (self), (GClosureNotify)g_object_unref, 0);
 
@@ -430,7 +433,8 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                     NULL, /* accu_data */
                                     g_cclosure_marshal_generic,
                                     G_TYPE_BOOLEAN,
-                                    5,
+                                    6,
+                                    G_TYPE_STRING,
                                     G_TYPE_STRING,
                                     G_TYPE_STRING,
                                     G_TYPE_IO_STREAM,
@@ -852,6 +856,7 @@ path_has_prefix (const gchar *path,
 
 static void
 process_request (CockpitRequest *request,
+                 const gchar *method,
                  const gchar *path,
                  GHashTable *headers)
 {
@@ -887,6 +892,7 @@ process_request (CockpitRequest *request,
                  sig_handle_stream, 0,
                  path,
                  actual_path,
+                 method,
                  request->io,
                  headers,
                  request->buffer,
@@ -976,7 +982,7 @@ parse_and_process_request (CockpitRequest *request)
       goto out;
     }
 
-  if (!g_str_equal (method, "GET"))
+  if (!g_str_equal (method, "GET") && !g_str_equal (method, "HEAD"))
     {
       g_message ("received unsupported HTTP method");
       request->delayed_reply = 405;
@@ -990,7 +996,7 @@ parse_and_process_request (CockpitRequest *request)
     }
 
   g_byte_array_remove_range (request->buffer, 0, off1 + off2);
-  process_request (request, path, headers);
+  process_request (request, method, path, headers);
 
 out:
   if (headers)

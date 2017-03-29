@@ -267,6 +267,7 @@ static gboolean
 on_handle_stream_socket (CockpitWebServer *server,
                          const gchar *original_path,
                          const gchar *path,
+                         const gchar *method,
                          GIOStream *io_stream,
                          GHashTable *headers,
                          GByteArray *input,
@@ -383,6 +384,7 @@ static gboolean
 on_handle_stream_external (CockpitWebServer *server,
                            const gchar *original_path,
                            const gchar *path,
+                           const gchar *method,
                            GIOStream *io_stream,
                            GHashTable *headers,
                            GByteArray *input,
@@ -466,6 +468,7 @@ on_handle_stream_external (CockpitWebServer *server,
           else
             {
               response = cockpit_web_response_new (io_stream, path, path, NULL, headers);
+              cockpit_web_response_set_method (response, method);
               cockpit_channel_response_open (service, headers, response, open);
               g_object_unref (response);
               handled = TRUE;

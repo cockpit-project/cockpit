@@ -821,6 +821,39 @@ test_resource_gzip_encoding (TestResourceCase *tc,
   g_object_unref (response);
 }
 
+static void
+test_resource_head (TestResourceCase *tc,
+                    gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+  const gchar *url = "/@localhost/another/test.html";
+
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
+  cockpit_web_response_set_method (response, "HEAD");
+
+  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Security-Policy: default-src 'self'; connect-src 'self' ws: wss:\r\n"
+                           "Content-Type: text/html\r\n"
+                           "Cache-Control: no-cache, no-store\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "Vary: Cookie\r\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
 
 static gboolean
 on_hack_raise_sigchld (gpointer user_data)
@@ -884,6 +917,8 @@ main (int argc,
 
   g_test_add ("/web-channel/resource/gzip-encoding", TestResourceCase, NULL,
               setup_resource, test_resource_gzip_encoding, teardown_resource);
+  g_test_add ("/web-channel/resource/head", TestResourceCase, NULL,
+              setup_resource, test_resource_head, teardown_resource);
 
   return g_test_run ();
 }

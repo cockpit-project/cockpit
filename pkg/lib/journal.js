@@ -202,7 +202,7 @@
     };
 
     journal.printable = function printable(value) {
-        if (value === undefined)
+        if (value === undefined || value === null)
             return _("[no data]");
         else if (typeof(value) == "string")
             return value;

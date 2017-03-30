@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "common/cockpithex.h"
+#include "common/cockpitauthorize.h"
 #include "common/cockpitmemory.h"
 
 #include <assert.h>
@@ -73,6 +73,7 @@ static size_t auth_msg_size = 0;
 static FILE *authf = NULL;
 static char *last_err_msg = NULL;
 static char *last_txt_msg = NULL;
+static char *conversation = NULL;
 static gss_cred_id_t creds = GSS_C_NO_CREDENTIAL;
 
 #if DEBUG_SESSION
@@ -83,8 +84,7 @@ static gss_cred_id_t creds = GSS_C_NO_CREDENTIAL;
 
 static char *
 read_seqpacket_message (int fd,
-                        const char *what,
-                        size_t *out_len)
+                        const char *what)
 {
   struct iovec vec = { .iov_len = MAX_PACKET_SIZE, };
   struct msghdr msg;
@@ -116,8 +116,6 @@ read_seqpacket_message (int fd,
         }
     }
   ((char *)vec.iov_base)[r] = '\0';
-  if (out_len)
-    *out_len = r;
   return vec.iov_base;
 }
 
@@ -147,23 +145,6 @@ write_auth_string (const char *field,
     }
   fputc_unlocked ('\"', authf);
   auth_delimiter = ",";
-}
-
-static void
-write_auth_hex (const char *field,
-                const unsigned char *src,
-                size_t len)
-{
-  char *encoded;
-
-  debug ("writing %s", field);
-  fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
-
-  encoded = cockpit_hex_encode (src, len);
-  fputs_unlocked (encoded, authf);
-  fputc_unlocked ('\"', authf);
-  auth_delimiter = ",";
-  free (encoded);
 }
 
 static void
@@ -378,6 +359,7 @@ pam_conv_func (int num_msg,
                void *appdata_ptr)
 {
   char **password = (char **)appdata_ptr;
+  char *authorization = NULL;
   char *prompt_resp = NULL;
 
   char *err_msg = NULL;
@@ -386,6 +368,7 @@ pam_conv_func (int num_msg,
   int ar;
 
   struct pam_response *resp;
+  char *prompt = NULL;
   int success = 1;
   int i;
 
@@ -448,14 +431,18 @@ pam_conv_func (int num_msg,
         {
           debug ("prompt for more data");
           write_auth_begin ();
+          prompt = cockpit_authorize_build_x_conversation (msg[i]->msg, &conversation);
+          if (!prompt)
+            err (EX, "couldn't generate prompt");
           if (txt_msg)
             write_auth_string ("message", txt_msg);
           if (err_msg)
             write_auth_string ("error", err_msg);
 
           write_auth_bool ("echo", msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? 0 : 1);
-          write_auth_string ("prompt", msg[i]->msg);
+          write_auth_string ("prompt", prompt);
           write_auth_end ();
+          free (prompt);
 
           if (err_msg)
             {
@@ -469,18 +456,24 @@ pam_conv_func (int num_msg,
               txt_msg = NULL;
             }
 
-          prompt_resp = read_seqpacket_message (AUTH_FD, msg[i]->msg, NULL);
+          authorization = read_seqpacket_message (AUTH_FD, msg[i]->msg);
+          if (authorization)
+            prompt_resp = cockpit_authorize_parse_x_conversation (authorization);
 
           debug ("got prompt response");
           if (prompt_resp)
             {
               resp[i].resp = prompt_resp;
               resp[i].resp_retcode = 0;
+              prompt_resp = NULL;
             }
           else
             {
               success = 0;
             }
+
+          cockpit_memory_clear (authorization, -1);
+          free (authorization);
         }
     }
 
@@ -605,20 +598,20 @@ open_session (pam_handle_t *pamh)
 }
 
 static pam_handle_t *
-perform_basic (const char *rhost)
+perform_basic (const char *rhost,
+               const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func, };
   pam_handle_t *pamh;
-  char *input = NULL;
-  char *password;
+  char *password = NULL;
+  char *user = NULL;
   int res;
 
   debug ("reading password from cockpit-ws");
 
   /* The input should be a user:password */
-  input = read_seqpacket_message (AUTH_FD, "password", NULL);
-  password = strchr (input, ':');
-  if (password == NULL || strchr (password + 1, '\n'))
+  password = cockpit_authorize_parse_basic (authorization, &user);
+  if (password == NULL)
     {
       debug ("bad basic auth input");
       write_auth_begin ();
@@ -627,16 +620,11 @@ perform_basic (const char *rhost)
       exit (5);
     }
 
-  *password = '\0';
-  password++;
-  conv.appdata_ptr = &input;
+  conv.appdata_ptr = &password;
 
-  res = pam_start ("cockpit", input, &conv, &pamh);
+  res = pam_start ("cockpit", user, &conv, &pamh);
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
-
-  /* Move the password into place for use during auth */
-  memmove (input, password, strlen (password) + 1);
 
   if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
     errx (EX, "couldn't setup pam");
@@ -655,14 +643,15 @@ perform_basic (const char *rhost)
 
   close_auth_pipe ();
 
+  free (user);
+  if (password)
+    {
+      cockpit_memory_clear (password, strlen (password));
+      free (password);
+    }
+
   if (res != PAM_SUCCESS)
     exit (5);
-
-  if (input)
-    {
-      cockpit_memory_clear (input, strlen (input));
-      free (input);
-    }
 
   return pamh;
 }
@@ -740,7 +729,8 @@ map_gssapi_to_local (gss_name_t name,
 
 
 static pam_handle_t *
-perform_gssapi (const char *rhost)
+perform_gssapi (const char *rhost,
+                const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func, };
   OM_uint32 major, minor;
@@ -757,12 +747,13 @@ perform_gssapi (const char *rhost)
   const char *msg;
   char *str = NULL;
   OM_uint32 caps = 0;
+  char *reply = NULL;
   int res;
 
   res = PAM_AUTH_ERR;
 
   debug ("reading kerberos auth from cockpit-ws");
-  input.value = read_seqpacket_message (AUTH_FD, "gssapi data", &input.length);
+  input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);
 
   write_auth_begin ();
 
@@ -808,7 +799,9 @@ perform_gssapi (const char *rhost)
           goto out;
         }
 
-      write_auth_hex ("gssapi-output", output.value, output.length);
+      reply = cockpit_authorize_build_negotiate (output.value, output.length);
+      write_auth_string ("gssapi-output", reply);
+      free (reply);
 
       if ((major & GSS_S_CONTINUE_NEEDED) == 0)
         break;
@@ -823,7 +816,10 @@ perform_gssapi (const char *rhost)
       write_auth_end ();
 
       free (input.value);
-      input.value = read_seqpacket_message (AUTH_FD, "gssapi data", &input.length);
+      input.length = 0;
+
+      authorization = read_seqpacket_message (AUTH_FD, "gssapi data");
+      input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);
 
       write_auth_begin ();
     }
@@ -1149,14 +1145,21 @@ get_environ_var (const char *name,
   return getenv (name) ? getenv (name) : defawlt;
 }
 
+static void
+authorize_logger (const char *data)
+{
+  warnx ("%s", data);
+}
+
 int
 main (int argc,
       char **argv)
 {
   pam_handle_t *pamh = NULL;
   OM_uint32 minor;
-  const char *auth;
   const char *rhost;
+  char *authorization;
+  char *type = NULL;
   char **env;
   int status;
   int flags;
@@ -1173,7 +1176,6 @@ main (int argc,
   /* Cleanup the umask */
   umask (077);
 
-  auth = get_environ_var ("COCKPIT_AUTH_MESSAGE_TYPE", "");
   rhost = get_environ_var ("COCKPIT_REMOTE_PEER", "");
 
   save_environment ();
@@ -1203,13 +1205,24 @@ main (int argc,
   signal (SIGHUP, SIG_IGN);
   signal (SIGPIPE, SIG_IGN);
 
-  if (strcmp (auth, "basic") == 0)
-    pamh = perform_basic (rhost);
-  else if (strcmp (auth, "negotiate") == 0)
-    pamh = perform_gssapi (rhost);
+  cockpit_authorize_logger (authorize_logger, DEBUG_SESSION);
+
+  authorization = read_seqpacket_message (AUTH_FD, "authorization");
+  if (!cockpit_authorize_type (authorization, &type))
+    errx (EX, "invalid authorization header received");
+
+  if (strcmp (type, "basic") == 0)
+    pamh = perform_basic (rhost, authorization);
+  else if (strcmp (type, "negotiate") == 0)
+    pamh = perform_gssapi (rhost, authorization);
+
+  cockpit_memory_clear (authorization, -1);
+  free (authorization);
 
   if (!pamh)
-    errx (2, "unrecognized authentication method: %s", auth);
+    errx (2, "unrecognized authentication method: %s", type);
+
+  free (type);
 
   for (i = 0; env_saved[i] != NULL; i++)
     pam_putenv (pamh, env_saved[i]);
@@ -1257,6 +1270,8 @@ main (int argc,
   last_err_msg = NULL;
   free (last_txt_msg);
   last_txt_msg = NULL;
+  free (conversation);
+  conversation = NULL;
 
   if (creds != GSS_C_NO_CREDENTIAL)
     gss_release_cred (&minor, &creds);

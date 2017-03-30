@@ -69,7 +69,6 @@ struct  _CockpitAuthProcess {
   gboolean closed;
   gboolean pipe_closed;
 
-  gchar *conversation;
   gchar *logname;
   gchar *name;
 
@@ -164,7 +163,6 @@ cockpit_auth_process_finalize (GObject *object)
     close (self->child_data.auth_fd);
   self->child_data.auth_fd = -1;
 
-  g_free (self->conversation);
   g_free (self->logname);
   g_free (self->name);
   G_OBJECT_CLASS (cockpit_auth_process_parent_class)->finalize (object);
@@ -341,7 +339,6 @@ cockpit_auth_process_init (CockpitAuthProcess *self)
   self->max_idle = default_timeout;
   self->max_wait_pipe = default_timeout;
   self->send_signal = FALSE;
-  self->conversation = NULL;
 }
 
 static void
@@ -409,9 +406,6 @@ cockpit_auth_process_set_property (GObject *object,
   case PROP_PROCESS_AUTH_FD:
     self->child_data.wanted_fd_number = g_value_get_uint (value);
     break;
-  case PROP_CONVERSATION:
-    self->conversation = g_value_dup_string (value);
-    break;
   case PROP_LOGNAME:
     self->logname = g_value_dup_string (value);
     break;
@@ -465,15 +459,6 @@ cockpit_auth_process_class_init (CockpitAuthProcessClass *klass)
                                                       G_PARAM_WRITABLE |
                                                       G_PARAM_CONSTRUCT_ONLY |
                                                       G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_CONVERSATION,
-                                   g_param_spec_string ("conversation",
-                                                        NULL,
-                                                        NULL,
-                                                        NULL,
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_LOGNAME,
                                    g_param_spec_string ("logname",
@@ -657,13 +642,6 @@ cockpit_auth_process_get_authenticated_user (CockpitAuthProcess *self,
     }
 
   return NULL;
-}
-
-const gchar *
-cockpit_auth_process_get_conversation (CockpitAuthProcess *self)
-{
-  g_return_val_if_fail (self != NULL, NULL);
-  return self->conversation;
 }
 
 /* ----------------------------------------------------------------------------

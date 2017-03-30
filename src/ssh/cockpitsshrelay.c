@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include "common/cockpitauthorize.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
@@ -67,6 +68,7 @@ typedef struct {
   ssh_session session;
 
   gint auth_fd;
+  gchar *conversation;
 
   gchar *host_key;
   gchar *host_fingerprint;
@@ -196,12 +198,20 @@ prompt_on_auth_fd (CockpitSshData *data,
   JsonObject *response = NULL;
   GBytes *payload = NULL;
   gboolean ret = FALSE;
+  char *request = NULL;
 
   if (data->auth_fd < 1)
     goto out;
 
+  if (!prompt || !prompt[0])
+    prompt = "Password:";
+
+  request = cockpit_authorize_build_x_conversation (prompt, &data->conversation);
+  if (!request)
+    goto out;
+
   response = json_object_new ();
-  json_object_set_string_member (response, "prompt", prompt);
+  json_object_set_string_member (response, "prompt", request);
   if (msg)
     json_object_set_string_member (response, "message", msg);
   if (default_value)
@@ -212,6 +222,7 @@ prompt_on_auth_fd (CockpitSshData *data,
   ret = write_to_auth_fd (data, payload);
 
 out:
+  free (request);
   g_bytes_unref (payload);
   json_object_unref (response);
 
@@ -355,6 +366,7 @@ prompt_for_host_key (CockpitSshData *data)
   guint port = 22;
   gchar *message = NULL;
   gchar *prompt = NULL;
+  gchar *reply = NULL;
 
   if (ssh_options_get (data->session, SSH_OPTIONS_HOST, &host) < 0)
     {
@@ -372,7 +384,10 @@ prompt_for_host_key (CockpitSshData *data)
                              host, port);
   prompt = g_strdup_printf ("MD5 Fingerprint (%s):", data->host_key_type);
   if (prompt_on_auth_fd (data, prompt, message, data->host_fingerprint, 1))
-    answer = wait_for_auth_fd_reply (data);
+    reply = wait_for_auth_fd_reply (data);
+
+  if (reply)
+    answer = cockpit_authorize_parse_x_conversation (reply);
 
 out:
   if (answer && g_strcmp0 (answer, data->host_fingerprint) == 0)
@@ -380,6 +395,7 @@ out:
   else
     ret = "unknown-hostkey";
 
+  g_free (reply);
   g_free (message);
   g_free (prompt);
   g_free (answer);
@@ -610,24 +626,20 @@ auth_result_string (int rc)
     }
 }
 
-static const gchar *
+static gchar *
 parse_auth_password (const gchar *auth_type,
                      const gchar *auth_data)
 {
-  const gchar *password;
+  gchar *password = NULL;
 
   g_assert (auth_data != NULL);
   g_assert (auth_type != NULL);
 
-  if (g_strcmp0 (auth_type, "basic") != 0)
-    return auth_data;
+  if (g_strcmp0 (auth_type, "basic") == 0)
+    password = cockpit_authorize_parse_basic (auth_data, NULL);
 
-  /* password is null terminated, see below */
-  password = strchr (auth_data, ':');
-  if (password != NULL)
-    password++;
-  else
-    password = "";
+  if (password == NULL)
+    password = g_strdup ("");
 
   return password;
 }
@@ -674,13 +686,14 @@ do_interactive_auth (CockpitSshData *data)
 {
   int rc;
   gboolean sent_pw = FALSE;
-  const gchar *password;
+  gchar *password = NULL;
+  gchar *reply;
 
   if (data->in_bridge && !data->initial_auth_data)
-    data->initial_auth_data = ssh_askpass (data, "ssh");
-
-  password = parse_auth_password (data->auth_options->auth_type,
-                                  data->initial_auth_data);
+    password = ssh_askpass (data, "ssh");
+  else
+    password = parse_auth_password (data->auth_options->auth_type,
+                                    data->initial_auth_data);
   rc = ssh_userauth_kbdint (data->session, NULL, NULL);
   while (rc == SSH_AUTH_INFO)
     {
@@ -705,14 +718,18 @@ do_interactive_auth (CockpitSshData *data)
             }
           else
             {
+              reply = NULL;
               if (prompt_on_auth_fd (data, prompt, msg, NULL, echo))
-                answer = wait_for_auth_fd_reply (data);
+                reply = wait_for_auth_fd_reply (data);
+              if (reply)
+                answer = cockpit_authorize_parse_x_conversation (reply);
 
               if (answer)
                   status = ssh_userauth_kbdint_setanswer (data->session, i, answer);
               else
                   rc = SSH_AUTH_ERROR;
 
+              g_free (reply);
               g_free (answer);
             }
 
@@ -727,21 +744,23 @@ do_interactive_auth (CockpitSshData *data)
         rc = ssh_userauth_kbdint (data->session, NULL, NULL);
     }
 
+  cockpit_memory_clear (password, strlen (password));
+  g_free (password);
   return rc;
 }
 
 static int
 do_password_auth (CockpitSshData *data)
 {
+  gchar *password = NULL;
   const gchar *msg;
   int rc;
-  const gchar *password;
 
   if (data->in_bridge && !data->initial_auth_data)
-    data->initial_auth_data = ssh_askpass (data, "ssh");
-
-  password = parse_auth_password (data->auth_options->auth_type,
-                                  data->initial_auth_data);
+    password = ssh_askpass (data, "ssh");
+  else
+    password = parse_auth_password (data->auth_options->auth_type,
+                                    data->initial_auth_data);
 
   rc = ssh_userauth_password (data->session, NULL, password);
   switch (rc)
@@ -765,6 +784,8 @@ do_password_auth (CockpitSshData *data)
       g_message ("%s: couldn't authenticate: %s", data->logname, msg);
     }
 
+  cockpit_memory_clear (password, strlen (password));
+  g_free (password);
   return rc;
 }
 
@@ -773,11 +794,19 @@ do_key_auth (CockpitSshData *data)
 {
   int rc;
   const gchar *msg;
+  const gchar *key_data;
   ssh_key key;
 
   g_assert (data->initial_auth_data != NULL);
 
-  rc = ssh_pki_import_privkey_base64 (data->initial_auth_data, NULL, NULL, NULL, &key);
+  key_data = cockpit_authorize_type (data->initial_auth_data, NULL);
+  if (!key_data)
+    {
+      g_message ("%s: Got invalid private-key data, %s", data->logname, data->initial_auth_data);
+      return SSH_AUTH_DENIED;
+    }
+
+  rc = ssh_pki_import_privkey_base64 (key_data, NULL, NULL, NULL, &key);
   if (rc != SSH_OK)
     {
       g_message ("%s: Got invalid key data, %s", data->logname, data->initial_auth_data);
@@ -1132,11 +1161,16 @@ parse_host (const gchar *host,
 static gchar *
 username_from_basic (const gchar *basic_data)
 {
-  gchar *tmp = strchr (basic_data, ':');
-  if (tmp != NULL)
-    return g_strndup (basic_data, tmp - basic_data);
-  else
-    return g_strdup (basic_data);
+  gchar *user = NULL;
+  gchar *password;
+
+  password = cockpit_authorize_parse_basic (basic_data, &user);
+  if (password)
+    {
+      cockpit_memory_clear (password, -1);
+      free (password);
+    }
+  return user;
 }
 
 static const gchar*
@@ -1244,6 +1278,7 @@ cockpit_ssh_data_free (CockpitSshData *data)
     close (data->auth_fd);
   data->auth_fd = 0;
 
+  g_free (data->conversation);
   g_free (data->username);
   g_free (data->ssh_options);
   g_free (data->auth_options);
@@ -2017,6 +2052,12 @@ cockpit_ssh_relay_constructed (GObject *object)
 }
 
 static void
+authorize_logger (const char *data)
+{
+  g_message ("%s", data);
+}
+
+static void
 cockpit_ssh_relay_class_init (CockpitSshRelayClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -2032,6 +2073,8 @@ cockpit_ssh_relay_class_init (CockpitSshRelayClass *klass)
   sig_disconnect = g_signal_new ("disconnect", COCKPIT_TYPE_SSH_RELAY,
                                  G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
                                  G_TYPE_NONE, 0);
+
+  cockpit_authorize_logger (authorize_logger, 0);
 }
 
 CockpitSshRelay *

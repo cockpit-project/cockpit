@@ -35,7 +35,7 @@ type Credentials struct {
 	bearerToken string
 
 	authHeader string
-	authType string
+	authType   string
 }
 
 func (self *Credentials) GetHeader() string {
@@ -65,24 +65,27 @@ func (self *Credentials) GetApiUserMap() map[string]interface{} {
 
 func NewCredentials(authType string, authData string) (*Credentials, error) {
 	cred := new(Credentials)
-	cred.authType = authType;
-	if authType == "basic" {
-		parts := strings.SplitN(authData, ":", 2)
+	cred.authType = strings.ToLower(authType)
+	if cred.authType == "basic" {
+		raw, err := base64.StdEncoding.DecodeString(authData)
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("Couldn't decode basic header: %s", err))
+		}
+		parts := strings.SplitN(string(raw), ":", 2)
 		cred.UserName = parts[0]
 		if len(parts) > 1 {
 			cred.password = parts[1]
 		}
-		cred.authHeader = fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString(
-			[]byte(fmt.Sprintf("%s:%s", cred.UserName, cred.password))))
-	} else if authType == "bearer" {
+		cred.authHeader = fmt.Sprintf("Basic %s", authData)
+	} else if cred.authType == "bearer" {
 		cred.bearerToken = authData
 		cred.authHeader = fmt.Sprintf("Bearer %s", cred.bearerToken)
-	} else if authType == "negotiate" {
+
+	} else if cred.authType == "negotiate" {
 		cred.UserName = "Unauthenticated"
 	} else {
 		return nil, errors.New(fmt.Sprintf("Unsuported authentication type %s", authType))
 	}
-
 	return cred, nil
 }
 

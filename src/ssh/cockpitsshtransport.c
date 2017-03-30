@@ -27,6 +27,7 @@
 
 #include "cockpitsshtransport.h"
 
+#include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
@@ -243,10 +244,12 @@ on_auth_process_message (CockpitAuthProcess *auth_process,
   gboolean prompt_claimed;
   gboolean final = TRUE;
   GBytes *blank = NULL;
+  gchar *prompt;
+  gchar *reply;
 
   const gchar *user;
   const gchar *error_str;
-  const gchar *prompt;
+  const gchar *challenge;
   const gchar *message;
   const gchar *host_key = NULL;
   const gchar *host_fp = NULL;
@@ -260,7 +263,7 @@ on_auth_process_message (CockpitAuthProcess *auth_process,
     {
       if (!cockpit_json_get_string (json, "error", NULL, &error_str) ||
           !cockpit_json_get_string (json, "message", NULL, &message) ||
-          !cockpit_json_get_string (json, "prompt", NULL, &prompt) ||
+          !cockpit_json_get_string (json, "prompt", NULL, &challenge) ||
           !cockpit_json_get_string (json, "user", NULL, &user))
         {
           g_warning ("%s: got invalid authentication json", self->logname);
@@ -270,18 +273,29 @@ on_auth_process_message (CockpitAuthProcess *auth_process,
           problem = error_str;
           g_debug ("%s: got authentication error %s: %s", self->logname, error_str, message);
         }
-      else if (prompt)
+      else if (challenge)
         {
-          final = FALSE;
-          problem = NULL;
-          // Send the signal, if nothing handles it write a blank response.
-          g_signal_emit (self, signals[PROMPT], 0, json, &prompt_claimed);
+          prompt = cockpit_authorize_parse_x_conversation (challenge);
+          if (prompt)
+            {
+              final = FALSE;
+              problem = NULL;
+              // Send the signal, if nothing handles it write a blank response.
+              g_signal_emit (self, signals[PROMPT], 0, json, &prompt_claimed);
+            }
+          else
+            {
+              g_message ("%s: got invalid prompt challenge", self->logname);
+              prompt_claimed = FALSE;
+            }
           if (!prompt_claimed)
             {
-              blank = g_bytes_new_static ("", 0);
+              reply = cockpit_authorize_build_x_conversation ("", NULL);
+              blank = g_bytes_new_take (reply, strlen (reply));
               cockpit_auth_process_write_auth_bytes (self->auth_process, blank);
               g_bytes_unref (blank);
             }
+          free (prompt);
         }
       else if (user)
         {
@@ -376,6 +390,7 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
   CockpitAuthOptions *options = g_new0 (CockpitAuthOptions, 1);
   CockpitSshOptions *ssh_options = g_new0 (CockpitSshOptions, 1);
 
+  gchar *raw = NULL;
   gchar *host_arg = NULL;
   GSourceFunc fail_func;
 
@@ -394,8 +409,9 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
 
   if (self->password)
     {
-      options->auth_type = "password";
-      input = g_bytes_ref (self->password);
+      options->auth_type = "basic";
+      raw = cockpit_authorize_build_basic (self->user, g_bytes_get_data (self->password, NULL));
+      input = g_bytes_new_take (raw, strlen (raw));
       g_debug ("%s: preparing password", self->logname);
     }
 

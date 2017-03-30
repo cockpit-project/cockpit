@@ -37,6 +37,8 @@ noinst_LIBRARIES += libcockpit-common.a
 libcockpit_common_a_SOURCES = \
 	src/common/cockpitauthorize.c \
 	src/common/cockpitauthorize.h \
+	src/common/cockpitbase64.c \
+	src/common/cockpitbase64.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
 	src/common/cockpitframe.c \
 	src/common/cockpitframe.h \
@@ -132,6 +134,8 @@ test_authorize_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_authorize_SOURCES = \
 	src/common/cockpitauthorize.c \
 	src/common/cockpitauthorize.h \
+	src/common/cockpitbase64.c \
+	src/common/cockpitbase64.h \
 	src/common/cockpitmemory.c \
 	src/common/cockpitmemory.h \
 	src/common/test-authorize.c \

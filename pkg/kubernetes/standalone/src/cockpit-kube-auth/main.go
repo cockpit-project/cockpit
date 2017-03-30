@@ -68,14 +68,13 @@ func sendAuthResponse(fd int, response []byte) {
 }
 
 func main() {
-	authType := os.Getenv("COCKPIT_AUTH_MESSAGE_TYPE")
 	authData, err := readData(AUTH_FD)
 	if err != nil {
 		log.Fatal("Error reading authentication data ", err)
 	}
 
 	client := helpers.NewClient()
-	response, loginErr := client.Login(authType, string(authData))
+	response, loginErr := client.Login(string(authData))
 	if loginErr != nil {
 		var respErr error
 		response, respErr = jsonError(loginErr)

@@ -32,6 +32,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
@@ -75,12 +76,12 @@ type Client struct {
 	host    string
 	version string
 
-	caData   string
-	insecure bool
+	caData           string
+	insecure         bool
 	requireOpenshift bool
 
 	userAPI string
-	client      *http.Client
+	client  *http.Client
 }
 
 func doRequest(client *http.Client, method string, path string, auth string, body []byte) (*http.Response, error) {
@@ -154,7 +155,7 @@ func (self *Client) guessUserData(creds *Credentials) error {
 
 	defer resp.Body.Close()
 	if resp.StatusCode != 401 && resp.StatusCode != 403 {
-		if (creds.authHeader != "") {
+		if creds.authHeader != "" {
 			return newAuthError(fmt.Sprintf("Couldn't get api version: %s", resp.Status))
 		}
 	}
@@ -228,7 +229,16 @@ func (self *Client) DoRequest(method string, api string, resource string,
 	return resp, nil
 }
 
-func (self *Client) Login(authType string, authData string) ([]byte, error) {
+func (self *Client) Login(authLine string) ([]byte, error) {
+	parts := strings.SplitN(authLine, " ", 2)
+	if len(parts) == 0 {
+		return nil, newAuthError("Invalid Authorization line")
+	}
+	authData := ""
+	authType := parts[0]
+	if len(parts) == 2 {
+		authData = parts[1]
+	}
 
 	creds, err := NewCredentials(authType, authData)
 	if err == nil {
@@ -236,7 +246,7 @@ func (self *Client) Login(authType string, authData string) ([]byte, error) {
 	}
 
 	if err != nil {
-		if (creds.authType == "negotiate") {
+		if creds != nil && creds.authType == "negotiate" {
 			return nil, newAuthError(fmt.Sprintf("Negotiate failed: %s", err))
 		}
 		return nil, err

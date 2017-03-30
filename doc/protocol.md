@@ -153,6 +153,35 @@ open in the "fence" group, any channels opened after that point will be
 blocked and wait until all channels in the "fence" group are closed before
 resuming.
 
+**Host values**
+
+Because the host parameter is how cockpit maps url requests to the correct bridge,
+cockpit may need to additional information to route the message correctly.
+For example you want to connect to a container ```my-container``` running
+on "my.host".
+
+To allow this the host parameter can encode a key/value pair that will
+be expanded in the open command json. The format is host+key+value. For example
+
+    {
+        "command": "open",
+        "channel": "a4",
+        "payload": "stream",
+        "host": "my.host+container+my-container"
+    }
+
+will be expanded to
+
+    {
+        "command": "open",
+        "channel": "a4",
+        "payload": "stream",
+        "host": "my.host",
+        "host-container": "my-container",
+        "host": "my.host"
+    }
+
+
 Command: close
 --------------
 

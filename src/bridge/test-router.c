@@ -46,6 +46,7 @@ typedef struct {
   const gchar *payload;
   gboolean with_env;
   const gchar *problem;
+  const gchar *bridge;
 } TestFixture;
 
 static void
@@ -56,10 +57,16 @@ setup (TestCase *tc,
   JsonArray *argv;
   gchar *argument;
   const gchar *payload;
+  const gchar *bridge;
 
   tc->mock_config = json_object_new ();
   argv = json_array_new ();
-  json_array_add_string_element (argv, BUILDDIR "/mock-bridge");
+
+  bridge = BUILDDIR "/mock-bridge";
+  if (fixture && fixture->bridge)
+    bridge = fixture->bridge;
+  json_array_add_string_element (argv, bridge);
+
   payload = "upper";
   if (fixture && fixture->payload)
     payload = fixture->payload;
@@ -401,6 +408,85 @@ test_dynamic_bridge (TestCase *tc,
   g_object_unref (router);
 }
 
+static const TestFixture fixture_host = {
+  .payload = "host",
+  .bridge = BUILDDIR "/mock-echo"
+};
+
+static void
+check_unchanged_host (TestCase *tc,
+                      const gchar *host)
+{
+  JsonObject *control;
+  gchar *msg = g_strdup_printf ("{\"command\": \"open\", \"channel\": \"a%s\", \"payload\": \"host\", \"host\": \"%s\"}", host, host);
+
+  emit_string (tc, NULL, msg);
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, msg);
+  control = NULL;
+  g_free (msg);
+}
+
+static void
+test_host_processing (TestCase *tc,
+                      gconstpointer user_data)
+{
+  JsonObject *control;
+  CockpitRouter *router;
+  CockpitPeer *peer;
+
+  g_assert (user_data == &fixture_host);
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), tc->mock_config);
+  cockpit_router_add_peer (router, tc->mock_match, peer);
+  g_object_unref (peer);
+
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  check_unchanged_host (tc, "host");
+  check_unchanged_host (tc, "host+");
+  check_unchanged_host (tc, "host+key");
+  check_unchanged_host (tc, "host+key+");
+
+  /* Test localhost is removed */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\"}");
+  control = NULL;
+
+  /* Test host-key is set to value */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"host+key+value\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"host\",\"host-key\":\"value\"}");
+  control = NULL;
+
+  /* Test with + in value */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"host+key+value+value\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"host\",\"host-key\":\"value+value\"}");
+  control = NULL;
+
+  /* Test localhost is removed but host-key present */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost+key+value\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host-key\":\"value\"}");
+  control = NULL;
+
+  /* Test doesn't replace host-key */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost+key+value\",\"host-key\":\"extra\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"localhost+key+value\",\"host-key\":\"extra\"}");
+  control = NULL;
+
+  g_object_unref (router);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -419,5 +505,7 @@ main (int argc,
               setup_dynamic, test_dynamic_bridge, teardown);
   g_test_add ("/router/dynamic-bridge-env", TestCase, &fixture_env,
               setup_dynamic, test_dynamic_bridge, teardown);
+  g_test_add ("/router/host-processing", TestCase, &fixture_host,
+              setup, test_host_processing, teardown);
   return g_test_run ();
 }

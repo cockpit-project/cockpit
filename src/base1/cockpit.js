@@ -2462,6 +2462,7 @@ function factory() {
             /* Undo unnecessary encoding of these */
             href = href.replace("%40", "@");
             href = href.replace("%3D", "=");
+            href = href.replace(/%2B/g, "+");
 
             var i, opt, value, query = [];
             function push_option(v) {
@@ -2584,7 +2585,7 @@ function factory() {
 
     cockpit.jump = function jump(path, host) {
         if (is_array(path))
-            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@").replace("%3D", "=");
+            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@").replace("%3D", "=").replace(/%2B/g, "+");
         else
             path = "" + path;
         var options = { command: "jump", location: path, host: host };

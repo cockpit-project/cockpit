@@ -25,6 +25,8 @@
 void          cockpit_authorize_logger                    (void (* func) (const char *data),
                                                            int verbose);
 
+void *        cockpit_authorize_nonce                     (size_t length);
+
 const char *  cockpit_authorize_type                      (const char *challenge,
                                                            char **type);
 

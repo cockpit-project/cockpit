@@ -262,7 +262,7 @@ on_process_timeout (gpointer data)
 static void
 cockpit_auth_init (CockpitAuth *self)
 {
-  self->key = cockpit_system_random_nonce (128);
+  self->key = cockpit_authorize_nonce (128);
   if (!self->key)
     g_error ("couldn't read random key, startup aborted");
 

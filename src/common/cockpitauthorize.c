@@ -30,6 +30,7 @@
 #include <ctype.h>
 #include <crypt.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,6 +96,53 @@ cockpit_authorize_logger (void (* func) (const char *data),
 {
   logger_verbose = verbose;
   logger = func;
+}
+
+void *
+cockpit_authorize_nonce (size_t length)
+{
+  unsigned char *key;
+  int errn = 0;
+  int fd;
+  ssize_t read_bytes;
+  ssize_t read_result;
+
+  fd = open ("/dev/urandom", O_RDONLY, 0);
+  if (fd < 0)
+    return NULL;
+
+  key = malloc (length);
+  if (!key)
+    {
+      errno = ENOMEM;
+      return NULL;
+    }
+
+  read_bytes = 0;
+  do
+    {
+      errno = 0;
+      read_result = read (fd, key + read_bytes, length - read_bytes);
+      if (read_result <= 0)
+        {
+          if (errno == EAGAIN || errno == EINTR)
+              continue;
+          errn = errno;
+          break;
+        }
+      read_bytes += read_result;
+    }
+  while (read_bytes < length);
+  close (fd);
+
+  if (read_bytes < length)
+    {
+      free (key);
+      key = NULL;
+      errno = errn;
+    }
+
+  return key;
 }
 
 const char *

@@ -64,6 +64,11 @@ enum {
 };
 
 typedef struct {
+  gchar **argv;
+  gchar **environ;
+} DynamicKey;
+
+typedef struct {
   JsonObject *config;
 
   // Contents owned by config
@@ -71,16 +76,71 @@ typedef struct {
   gchar **spawn;
 
   GHashTable *peers;
-
 } DynamicPeer;
+
+static guint
+strv_hash (gconstpointer v)
+{
+  const gchar * const *strv = v;
+  guint hash = 0;
+  gint i;
+  for (i = 0; strv && strv[i] != NULL; i++)
+    hash |= g_str_hash (strv[i]);
+  return hash;
+}
+
+static gboolean
+strv_equal (gconstpointer v1,
+            gconstpointer v2)
+{
+  const gchar * const *strv1 = v1;
+  const gchar * const *strv2 = v2;
+  gint i;
+
+  if (strv1 == strv2)
+    return TRUE;
+  if (!strv1 || !strv2)
+    return FALSE;
+  for (i = 0; strv1[i] != NULL || strv2[i] != NULL; i++)
+    {
+      if (strv1[i] == NULL || strv2[i] == NULL || !g_str_equal (strv1[i], strv2[i]))
+        return FALSE;
+    }
+  return TRUE;
+}
+
+static guint
+dynamic_key_hash (gconstpointer v)
+{
+  const DynamicKey *key = v;
+  return strv_hash (key->argv) | strv_hash (key->environ);
+}
+
+static gboolean
+dynamic_key_equal (gconstpointer v1,
+                   gconstpointer v2)
+{
+  const DynamicKey *key1 = v1;
+  const DynamicKey *key2 = v2;
+  return strv_equal (key1->argv, key2->argv) && strv_equal (key1->environ, key2->environ);
+}
+
+static void
+dynamic_key_free (gpointer v)
+{
+  DynamicKey *key = v;
+  g_strfreev (key->argv);
+  g_strfreev (key->environ);
+  g_free (key);
+}
 
 static DynamicPeer *
 dynamic_peer_create (JsonObject *config)
 {
   DynamicPeer *p = g_new0 (DynamicPeer, 1);
 
-  p->peers = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                    g_free, g_object_unref);
+  p->peers = g_hash_table_new_full (dynamic_key_hash, dynamic_key_equal,
+                                    dynamic_key_free, g_object_unref);
 
   p->config = json_object_ref (config);
   if (!cockpit_json_get_strv (config, "environ", NULL, &p->env))
@@ -379,40 +439,29 @@ substitute_json_string (const gchar *variable,
 }
 
 static JsonArray *
-ptr_array_to_json_array (GPtrArray *arr,
-                         gint start,
-                         gint end)
+strv_to_json_array (gchar **strv)
 {
-  JsonArray *new;
   gint i;
-
-  g_return_val_if_fail (arr != NULL, NULL);
-
-  new = json_array_new ();
-  if (end > arr->len)
-    end = arr->len;
-
-  for (i = start; i < end; i++)
-    {
-      const gchar *d = g_ptr_array_index (arr, i);
-      g_assert (d != NULL);
-      json_array_add_string_element (new, d);
-    }
-
-  return new;
+  JsonArray *array = json_array_new ();
+  g_assert (strv != NULL);
+  for (i = 0; strv[i] != NULL; i++)
+    json_array_add_string_element (array, strv[i]);
+  return array;
 }
 
 static void
-add_dynamic_args_to_array (GPtrArray *arr,
+add_dynamic_args_to_array (gchar ***key,
                            gchar **config_args,
                            JsonObject *options)
 {
+  GPtrArray *arr = NULL;
   gint length;
   gint i;
 
-  g_return_if_fail (config_args != NULL);
-  g_return_if_fail (arr != NULL);
+  g_assert (config_args != NULL);
+  g_assert (key != NULL);
 
+  arr = g_ptr_array_new ();
   length = g_strv_length (config_args);
   for (i = 0; i < length; i++)
     {
@@ -432,6 +481,9 @@ add_dynamic_args_to_array (GPtrArray *arr,
       g_bytes_unref (input);
       g_list_free_full (output, (GDestroyNotify) g_bytes_unref);
     }
+
+  g_ptr_array_add (arr, NULL);
+  *key = (gchar **)g_ptr_array_free (arr, FALSE);
 }
 
 static gboolean
@@ -442,26 +494,17 @@ process_open_dynamic_peer (CockpitRouter *self,
                            gpointer user_data)
 {
   CockpitPeer *peer = NULL;
+  DynamicKey key = { NULL, NULL };
   DynamicPeer *dp = user_data;
   JsonObject *config = NULL;
-  GPtrArray *arr = NULL;
-  gchar *key = NULL;
-  gint env_spot = 0;
 
-  arr = g_ptr_array_new_with_free_func (g_free);
   if (dp->spawn)
-    add_dynamic_args_to_array (arr, dp->spawn, options);
+    add_dynamic_args_to_array (&key.argv, dp->spawn, options);
 
-  env_spot = arr->len;
   if (dp->env)
-    add_dynamic_args_to_array (arr, dp->env, options);
+    add_dynamic_args_to_array (&key.environ, dp->env, options);
 
-  /* Generate a key string */
-  g_ptr_array_add (arr, NULL);
-  key = g_strjoinv ("|", (gchar **) arr->pdata);
-  g_ptr_array_remove_index (arr, arr->len - 1);
-
-  peer = g_hash_table_lookup (dp->peers, key);
+  peer = g_hash_table_lookup (dp->peers, &key);
   if (!peer)
     {
       config = json_object_new ();
@@ -477,29 +520,23 @@ process_open_dynamic_peer (CockpitRouter *self,
                                   json_object_dup_member (dp->config, "directory"));
         }
 
-      if (env_spot > 0)
-        {
-          json_object_set_array_member (config, "spawn",
-                                        ptr_array_to_json_array (arr, 0, env_spot));
-        }
+      if (key.argv)
+        json_object_set_array_member (config, "spawn", strv_to_json_array (key.argv));
 
-      if (env_spot < arr->len)
-        {
-          json_object_set_array_member (config, "environ",
-                                        ptr_array_to_json_array (arr, env_spot, arr->len));
-        }
+      if (key.environ)
+        json_object_set_array_member (config, "environ", strv_to_json_array (key.environ));
 
       peer = cockpit_peer_new (self->transport, config);
-      g_hash_table_insert (dp->peers, key, peer);
+      g_hash_table_insert (dp->peers, g_memdup (&key, sizeof (DynamicKey)), peer);
     }
   else
     {
-      g_free (key);
+      g_strfreev (key.argv);
+      g_strfreev (key.environ);
     }
 
   if (config)
     json_object_unref (config);
-  g_ptr_array_unref (arr);
 
   return cockpit_peer_handle (peer, channel, options, data);
 }

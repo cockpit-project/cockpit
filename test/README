@@ -25,6 +25,15 @@ expects to find it (do NOT run the build step as root):
 
    $ ./test/verify/testsuite-prepare
 
+If you want to test already existing cockpit rpm or deb packages (and
+potentially others like docker), put them into test/tmp/build-results/ and
+run
+
+   $ ./test/verify/testsuite-prepare --nobuild
+
+instead. --nobuild will avoid building cockpit from the git tree and installing
+most npm/bower modules.
+
 To run the integration tests run the following (do NOT run the integration tests
 as root):
 

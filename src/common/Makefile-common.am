@@ -35,6 +35,8 @@ EXTRA_DIST += \
 noinst_LIBRARIES += libcockpit-common.a
 
 libcockpit_common_a_SOURCES = \
+	src/common/cockpitauthorize.c \
+	src/common/cockpitauthorize.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
 	src/common/cockpitframe.c \
 	src/common/cockpitframe.h \
@@ -122,8 +124,18 @@ COCKPIT_CHECKS = \
 	test-unicode \
 	test-version \
 	test-system \
+	test-authorize \
 	$(NULL)
 
+test_authorize_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_authorize_SOURCES = \
+	src/common/cockpitauthorize.c \
+	src/common/cockpitauthorize.h \
+	src/common/cockpitmemory.c \
+	src/common/cockpitmemory.h \
+	src/common/test-authorize.c \
+	$(NULL)
+test_authorize_LDADD = libretest.a
 
 test_hash_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_hash_SOURCES = src/common/test-hash.c

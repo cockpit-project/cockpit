@@ -91,17 +91,20 @@ teardown (void *arg)
 }
 
 typedef struct {
-  const char *challenge;
+  const char *input;
   const char *expected;
-  int ret;
+  const char *ret;
+  int errn;
 } ChallengeFixture;
 
 static ChallengeFixture type_fixtures[] = {
-  { "invalid", NULL, -EINVAL },
-  { ":invalid", NULL, -EINVAL },
-  { "valid:test", "valid", 0 },
-  { "valid1:", "valid1", 0 },
-  { "valid2:test:test", "valid2", 0 },
+  { "invalid", NULL, NULL, EINVAL },
+  { ":invalid", NULL, NULL, EINVAL },
+  { "Basic more-data", "basic", "more-data", 0 },
+  { "Basic   more-data", "basic", "more-data", 0 },
+  { "valid:test", "valid", "test", 0 },
+  { "valid1:", "valid1", "", 0 },
+  { "valid2:test:test", "valid2", "test:test", 0 },
   { NULL },
 };
 
@@ -109,76 +112,60 @@ static void
 test_type (void *data)
 {
   ChallengeFixture *fix = data;
+  const char *result;
   char *type;
 
-  if (fix->ret != 0)
+  if (fix->ret == NULL)
     expect_message = "invalid \"authorize\" message";
 
-  assert_num_eq (cockpit_authorize_type (fix->challenge, &type), fix->ret);
-  if (fix->ret == 0)
+  result = cockpit_authorize_type (fix->input, &type);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
     {
+      assert_str_eq (result, fix->ret);
       assert_str_eq (type, fix->expected);
       free (type);
     }
+  else
+    {
+      assert (result == NULL);
+    }
 }
 
-static ChallengeFixture user_fixtures[] = {
-  { "valid:73637275666679", "scruffy", 0 },
-  { "valid:73637275666679:more-data", "scruffy", 0 },
-  { "invalid:7363727566667", NULL, -EINVAL },
-  { "invalid:736372756666790055", NULL, -EINVAL },
-  { "invalid:scruffy", NULL, -EINVAL },
-  { "invalid", NULL, -EINVAL },
+static ChallengeFixture subject_fixtures[] = {
+  { "valid:73637275666679:", "73637275666679", "", 0 },
+  { "valid:73637275666679:more-data", "73637275666679", "more-data", 0 },
+  { "valid:scruffy:", "scruffy", "", 0 },
+  { "X-Conversation conversationtoken more-data", "conversationtoken", "more-data", 0 },
+  { "X-Conversation  conversationtoken    more-data", "conversationtoken", "more-data", 0 },
+  { "invalid:73637275666679", "73637275666679", NULL, EINVAL },
+  { "invalid", NULL, NULL, EINVAL },
   { NULL },
 };
 
 static void
-test_user (void *data)
+test_subject (void *data)
 {
   ChallengeFixture *fix = data;
-  char *user = NULL;
+  const char *result;
+  char *subject = NULL;
 
-  if (fix->ret != 0)
-    expect_message = "\"authorize\" message \"challenge\"";
+  if (fix->ret == NULL)
+    expect_message = "\"authorize\" message";
 
-  assert_num_eq (cockpit_authorize_user (fix->challenge, &user), fix->ret);
-  if (fix->ret == 0)
+  result = cockpit_authorize_subject (fix->input, &subject);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
     {
-      assert_str_eq (user, fix->expected);
+      assert_str_eq (result, fix->ret);
+      assert_str_eq (subject, fix->expected);
+      free (subject);
     }
-  free (user);
-}
-
-typedef struct {
-  const char *challenge;
-  const char *password;
-  const char *expected;
-  int ret;
-} CryptFixture;
-
-static CryptFixture crypt1_fixtures[] = {
-  { "crypt1:75:$1$invalid:$1$invalid", "password", NULL, -EINVAL },
-  { "gssapi1:75", "password", NULL, -EINVAL },
-  { "crypt1:invalid", "password", NULL, -EINVAL },
-  { "crypt1:75:$1$0123456789abcdef$:$1$0123456789abcdef$",
-    "password", "crypt1:$1$01234567$mmR7jVZhYpBJ6s6uTlnIR0", 0 },
-  { NULL },
-};
-
-static void
-test_crypt1 (void *data)
-{
-  CryptFixture *fix = data;
-  char *response;
-
-  if (fix->ret != 0)
-    expect_message = "\"authorize\" message \"challenge\"";
-
-  assert_num_eq (cockpit_authorize_crypt1 (fix->challenge, fix->password, &response), fix->ret);
-  if (fix->ret == 0)
+  else
     {
-      assert_str_eq (response, fix->expected);
-      free (response);
+      assert (result == NULL);
     }
 }
 
@@ -194,15 +181,12 @@ main (int argc,
 
   re_fixture (setup, teardown);
 
-  for (i = 0; type_fixtures[i].challenge != NULL; i++)
+  for (i = 0; type_fixtures[i].input != NULL; i++)
     re_testx (test_type, type_fixtures + i,
-              "/authorize/type/%s", type_fixtures[i].challenge);
-  for (i = 0; user_fixtures[i].challenge != NULL; i++)
-    re_testx (test_user, user_fixtures + i,
-              "/authorize/user/%s", user_fixtures[i].challenge);
-  for (i = 0; crypt1_fixtures[i].challenge != NULL; i++)
-    re_testx (test_crypt1, crypt1_fixtures + i,
-              "/authorize/crypt1/%s", crypt1_fixtures[i].challenge);
+              "/authorize/type/%s", type_fixtures[i].input);
+  for (i = 0; subject_fixtures[i].input != NULL; i++)
+    re_testx (test_subject, subject_fixtures + i,
+              "/authorize/subject/%s", subject_fixtures[i].input);
 
   return re_test_run (argc, argv);
 }

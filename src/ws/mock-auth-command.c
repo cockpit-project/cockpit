@@ -19,9 +19,12 @@
 
 #include "config.h"
 
+#include "common/cockpitauthorize.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include <assert.h>
 #include <err.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -97,13 +100,18 @@ main (int argc,
 {
   int success = 0;
   int fd = AUTH_FD;
-  char *data = NULL;
+  char *message;
+  const char *data = NULL;
   char *type = getenv ("COCKPIT_AUTH_MESSAGE_TYPE");
 
   if (type && strcmp (type, "testscheme-fd-4") == 0)
     fd = 4;
 
-  data = read_seqpacket_message (fd);
+  message = read_seqpacket_message (fd);
+
+  data = cockpit_authorize_type (message, NULL);
+  assert (data != NULL);
+
   if (strcmp (data, "failslow") == 0)
     {
       sleep (2);
@@ -155,7 +163,7 @@ main (int argc,
            strcmp (argv[1], "127.0.0.1") == 0 &&
            strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "*") == 0)
     {
-      if (strcmp (data, "me:this is the password") == 0)
+      if (strcmp (data, "bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=") == 0)
         {
           write_resp (fd, "{\"user\": \"me\" }");
           success = 1;
@@ -169,7 +177,7 @@ main (int argc,
            strcmp (argv[1], "machine") == 0 &&
            strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
     {
-      if (strcmp (data, "remote-user:this is the machine password") == 0)
+      if (strcmp (data, "cmVtb3RlLXVzZXI6dGhpcyBpcyB0aGUgbWFjaGluZSBwYXNzd29yZA==") == 0)
         {
           write_resp (fd, "{\"user\": \"remote-user\" }");
           success = 1;
@@ -186,10 +194,11 @@ main (int argc,
     }
   else if (strcmp (data, "two-step") == 0)
     {
-      free(data);
-      write_resp (fd, "{\"prompt\": \"type two\" }");
-      data = read_seqpacket_message (fd);
-      if (!data || strcmp (data, "two") != 0)
+      write_resp (fd, "{\"prompt\": \"X-Conversation conv dHlwZSB0d28=\" }");
+      free (message);
+      message = read_seqpacket_message (fd);
+      data = cockpit_authorize_type (message, NULL);
+      if (!data || strcmp (data, "conv dHdv") != 0)
         {
           write_resp (fd, "{ \"error\": \"authentication-failed\" }");
         }
@@ -201,19 +210,21 @@ main (int argc,
     }
   else if (strcmp (data, "three-step") == 0)
     {
-      free(data);
-      write_resp (fd, "{\"prompt\": \"type two\" }");
-      data = read_seqpacket_message (fd);
-      if (!data || strcmp (data, "two") != 0)
+      write_resp (fd, "{\"prompt\": \"X-Conversation conv dHlwZSB0d28=\" }");
+      free (message);
+      message = read_seqpacket_message (fd);
+      data = cockpit_authorize_type (message, NULL);
+      if (!data || strcmp (data, "conv dHdv") != 0)
         {
           write_resp (fd, "{ \"error\": \"authentication-failed\" }");
           goto out;
         }
 
-      write_resp (fd, "{\"prompt\": \"type three\" }");
-      free(data);
-      data = read_seqpacket_message (fd);
-      if (!data || strcmp (data, "three") != 0)
+      write_resp (fd, "{\"prompt\": \"X-Conversation conv dHlwZSB0aHJlZQ==\" }");
+      free (message);
+      message = read_seqpacket_message (fd);
+      data = cockpit_authorize_type (message, NULL);
+      if (!data || strcmp (data, "conv dGhyZWU=") != 0)
         {
           write_resp (fd, "{ \"error\": \"authentication-failed\" }");
         }

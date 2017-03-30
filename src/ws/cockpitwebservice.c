@@ -539,10 +539,6 @@ process_transport_authorize (CockpitWebService *self,
         {
           g_debug ("%s: received authorize crypt1 challenge, but for wrong user", user);
         }
-      else if (g_strcmp0 (cockpit_creds_get_user (self->creds), user) != 0)
-        {
-          g_message ("received authorize command for wrong user: %s", user);
-        }
       else
         {
           password = g_bytes_get_data (data, NULL);

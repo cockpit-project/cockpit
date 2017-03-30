@@ -174,13 +174,13 @@ test_userpass_cookie_check (Test *test,
 
   headers = web_socket_util_new_headers ();
   response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
+  g_assert_no_error (error);
 
   /* Get the service */
   mock_auth_include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
 
   g_object_unref (result);
-  g_assert_no_error (error);
   g_assert (service != NULL);
   g_assert (response != NULL);
 
@@ -659,7 +659,7 @@ static const SuccessFixture fixture_ssh_data = {
 };
 
 static const ErrorFixture fixture_bad_conversation = {
-  .header = "X-Conversation conversation-id",
+  .header = "X-Conversation conversation-id xxx",
   .error_message = "Invalid conversation token"
 };
 

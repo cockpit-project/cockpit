@@ -49,7 +49,6 @@
 
 #define ACTION_SSH "remote-login-ssh"
 #define ACTION_NONE "none"
-#define LOGIN_REPLY_HEADER "X-Conversation"
 
 /* Some tunables that can be set from tests */
 const gchar *cockpit_ws_session_program =
@@ -141,6 +140,7 @@ cockpit_authenticated_free (gpointer data)
 
 typedef struct {
   CockpitAuthProcess *auth_process;
+  GHashTable *pending;
   gchar *conversation;
   gchar *response_data;
   gchar *remote_peer;
@@ -151,7 +151,7 @@ typedef struct {
   GSimpleAsyncResult *pending_result;
   GBytes *authorization;
 
-  const gchar *auth_type;
+  gchar *auth_type;
   gboolean authorize_password;
 
   gint refs;
@@ -170,9 +170,11 @@ auth_data_free (gpointer data)
     g_object_unref (ad->auth_process);
   }
 
+  g_hash_table_unref (ad->pending);
   if (ad->authorization)
     g_bytes_unref (ad->authorization);
 
+  g_free (ad->auth_type);
   g_free (ad->application);
   g_free (ad->remote_peer);
   g_free (ad->conversation);
@@ -262,9 +264,14 @@ on_process_timeout (gpointer data)
 static void
 cockpit_auth_init (CockpitAuth *self)
 {
-  self->key = cockpit_authorize_nonce (128);
-  if (!self->key)
+  static const gsize key_len = 128;
+  gpointer key;
+
+  key = cockpit_authorize_nonce (key_len);
+  if (!key)
     g_error ("couldn't read random key, startup aborted");
+
+  self->key = g_bytes_new_take (key, key_len);
 
   self->authenticated = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                NULL, cockpit_authenticated_free);
@@ -329,13 +336,13 @@ get_remote_address (GIOStream *io)
 
 static void
 purge_auth_conversation (CockpitAuthProcess *auth_process,
-               GError *error,
-               const gchar *problem,
-               gpointer user_data)
+                         GError *error,
+                         const gchar *problem,
+                         gpointer user_data)
 {
-  CockpitAuth *self = user_data;
-  const gchar *id = cockpit_auth_process_get_conversation (auth_process);
-  g_hash_table_remove (self->authentication_pending, id);
+  AuthData *ad = user_data;
+  if (ad->conversation)
+    g_hash_table_remove (ad->pending, ad->conversation);
 }
 
 static void
@@ -344,32 +351,38 @@ cockpit_auth_prepare_login_reply (CockpitAuth *self,
                                   GHashTable *headers,
                                   AuthData *ad)
 {
-  const gchar *prompt;
-  gchar *encoded_data = NULL;
+  const gchar *challenge = NULL;
 
   g_return_if_fail (ad->pending_result == NULL);
 
-  // Will fail if prompt is not present
-  prompt = json_object_get_string_member (prompt_data, "prompt");
-  encoded_data = g_base64_encode ((guint8 *)prompt, strlen (prompt));
+  auth_data_ref (ad);
 
-  g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"),
-                        g_strdup_printf ("%s %s %s", LOGIN_REPLY_HEADER,
-                                         ad->conversation, encoded_data));
+  if (ad->conversation)
+    {
+      g_hash_table_remove (ad->pending, ad->conversation);
+      g_free (ad->conversation);
+      ad->conversation = NULL;
+    }
 
-  g_hash_table_insert (self->authentication_pending, ad->conversation, auth_data_ref (ad));
+  /* Will fail if prompt is not present */
+  if (!cockpit_json_get_string (prompt_data, "prompt", NULL, &challenge))
+    challenge = NULL;
 
-  json_object_remove_member (prompt_data, "prompt");
-  g_free (encoded_data);
-}
+  /* Parse the conversation out of the prompt header for later comparison */
+  if (challenge)
+    cockpit_authorize_subject (challenge, &ad->conversation);
 
-static inline gchar *
-str_skip (gchar *v,
-          gchar c)
-{
-  while (v[0] == c)
-    v++;
-  return v;
+  if (challenge && ad->conversation)
+    {
+      g_hash_table_insert (ad->pending, ad->conversation, auth_data_ref (ad));
+      g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), g_strdup (challenge));
+    }
+  else
+    {
+      g_message ("received invalid \"prompt\" field in \"authorize\" challenge");
+    }
+
+  auth_data_unref (ad);
 }
 
 static void
@@ -380,46 +393,30 @@ clear_free_authorization (gpointer data)
 }
 
 static GBytes *
-parse_basic_auth_password (GBytes *input,
-                           gchar **user)
+parse_basic_auth_password (GBytes *authorization)
 {
-  const gchar *password;
+  char *password;
   const gchar *data;
 
-  data = g_bytes_get_data (input, NULL);
+  /* The string is null terminated, see below */
+  data = g_bytes_get_data (authorization, NULL);
 
-  /* password is null terminated, see below */
-  password = strchr (data, ':');
-  if (password != NULL)
-    {
-      if (user)
-        *user = g_strndup (data, password - data);
-      password++;
-    }
-  else
-    {
-      return NULL;
-    }
-
+  password = cockpit_authorize_parse_basic (data, NULL);
+  if (!password)
+    return NULL;
   return g_bytes_new_with_free_func (password, strlen (password),
-                                     (GDestroyNotify)g_bytes_unref,
-                                     g_bytes_ref (input));
+                                     clear_free_authorization, password);
 }
 
 GBytes *
 cockpit_auth_steal_authorization (GHashTable *headers,
                                   GIOStream *connection,
-                                  const gchar **ret_type,
-                                  const gchar **ret_conversation)
+                                  gchar **ret_type,
+                                  gchar **ret_conversation)
 {
-  gchar *conversation = NULL;
-  gchar *type = NULL;
-  GBytes *base;
-  GBytes *ret;
+  char *type = NULL;
+  GBytes *ret = NULL;
   gchar *line;
-  gsize length;
-  gchar *next;
-  gsize len;
   gpointer key;
 
   g_assert (headers != NULL);
@@ -445,29 +442,15 @@ cockpit_auth_steal_authorization (GHashTable *headers,
         return NULL;
     }
 
-  length = strlen (line);
-
-  /* Find and normalize the type */
-  type = str_skip (line, ' ');
-  for (next = type; *next != ' ' && *next != '\0'; next++)
-    *next = g_ascii_tolower (*next);
-
-  /* Split the string at the type line */
-  if (*next != '\0')
-    {
-      *(next++) = '\0';
-      next = str_skip (next, ' ');
-    }
+  /* Dig out the authorization type */
+  if (!cockpit_authorize_type (line, &type))
+    goto out;
 
   /* If this is a conversation, get that part out too */
   if (g_str_equal (type, "x-conversation"))
     {
-      conversation = next;
-      next = strchr (conversation, ' ');
-      if (next)
-        *(next++) = '\0';
-      else
-        next = conversation + strlen (conversation);
+      if (!cockpit_authorize_subject (line, ret_conversation))
+        goto out;
     }
 
   /*
@@ -478,31 +461,23 @@ cockpit_auth_steal_authorization (GHashTable *headers,
   else if (g_str_equal (type, "negotiate"))
     {
       /* Resume an already running conversation? */
-      if (connection)
-        conversation = g_object_get_data (G_OBJECT (connection), type);
+      if (ret_conversation && connection)
+        *ret_conversation = g_strdup (g_object_get_data (G_OBJECT (connection), type));
     }
 
-  if (strlen (next) > 0 && (conversation ||
-      g_str_equal (type, "basic") ||
-      g_str_equal (type, "negotiate")))
+
+  if (ret_type)
     {
-      g_base64_decode_inplace (next, &len);
-      next[len] = '\0';
-    }
-  else
-    {
-      len = strlen(next);
+      *ret_type = type;
+      type = NULL;
     }
 
-  /*
-   * We keep everything allocated in place without copying due to
-   * password data and make sure to clear it when freed.
-   */
-  base = g_bytes_new_with_free_func (line, length, clear_free_authorization, line);
-  *ret_type = type;
-  *ret_conversation = conversation;
-  ret = g_bytes_new_from_bytes (base, next - line, len);
-  g_bytes_unref (base);
+  ret = g_bytes_new_with_free_func (line, strlen (line), clear_free_authorization, line);
+  line = NULL;
+
+out:
+  g_free (line);
+  g_free (type);
   return ret;
 }
 
@@ -533,43 +508,18 @@ timeout_option (const gchar *name,
 static gchar *
 build_gssapi_output_header (JsonObject *results)
 {
-  gchar *encoded;
   const gchar *output = NULL;
-  gchar *value = NULL;
-  gpointer data;
-  gsize length;
 
   if (results)
     {
       if (!cockpit_json_get_string (results, "gssapi-output", NULL, &output))
-        {
-          g_warning ("received invalid gssapi-output field");
-          goto out;
-        }
+        g_warning ("received invalid gssapi-output field");
     }
-
-  if (!output)
-    goto out;
 
   /* We've received indication from the bridge that GSSAPI is supported */
-  gssapi_available = 1;
-
-  data = cockpit_hex_decode (output, -1, &length);
-  if (!data)
-    {
-      g_warning ("received invalid gssapi-output field");
-      goto out;
-    }
-  if (length)
-    {
-      encoded = g_base64_encode (data, length);
-      value = g_strdup_printf ("Negotiate %s", encoded);
-      g_free (encoded);
-    }
-  g_free (data);
-
-out:
-  return value;
+  if (output)
+    gssapi_available = 1;
+  return g_strdup (output);
 }
 
 static const gchar *
@@ -617,7 +567,7 @@ create_creds_for_spawn_authenticated (CockpitAuth *self,
    */
 
   if (ad->authorize_password && g_str_equal (ad->auth_type, "basic"))
-    password = parse_basic_auth_password (ad->authorization, NULL);
+    password = parse_basic_auth_password (ad->authorization);
 
   csrf_token = cockpit_auth_nonce (self);
 
@@ -790,7 +740,6 @@ start_auth_process (CockpitAuth *self,
   ad->auth_process = g_object_new (COCKPIT_TYPE_AUTH_PROCESS,
                                    "pipe-timeout", pipe_timeout,
                                    "idle-timeout", idle_timeout,
-                                   "conversation", ad->conversation,
                                    "logname", argv[0],
                                    "name", host ? host : "localhost",
                                    "wanted-auth-fd", wanted_fd,
@@ -808,7 +757,7 @@ start_auth_process (CockpitAuth *self,
                         ad);
       g_signal_connect (ad->auth_process, "close",
                         G_CALLBACK (purge_auth_conversation),
-                        self);
+                        ad);
       cockpit_auth_process_write_auth_bytes (ad->auth_process, input);
       return TRUE;
     }
@@ -834,13 +783,13 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   CockpitSshOptions *ssh_options = NULL;
   GBytes *authorization = NULL;
 
+  gchar *type = NULL;
+  gchar *conversation = NULL;
   const gchar *action;
   const gchar *section;
-  const gchar *type;
   const gchar *program_default;
   const gchar *host;
   const gchar *command;
-  const gchar *conversation;
   const gchar *authorized;
 
   gchar *application = NULL;
@@ -858,9 +807,7 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
                                       cockpit_auth_spawn_login_async);
 
   application = cockpit_auth_parse_application (path, NULL);
-  authorization = cockpit_auth_steal_authorization (headers, connection,
-                                                    &type, &conversation);
-
+  authorization = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
   if (!application || !authorization)
     {
       g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
@@ -896,13 +843,16 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
 
   ad = g_new0 (AuthData, 1);
   ad->refs = 1;
-  ad->conversation = cockpit_auth_nonce (self);
+  ad->conversation = NULL;
+  ad->pending = g_hash_table_ref (self->authentication_pending);
   ad->pending_result = NULL;
   ad->response_data = NULL;
   ad->remote_peer = g_strdup (remote_peer);
-  ad->auth_type = type;
   ad->authorization = g_bytes_ref (authorization);
   ad->application = g_strdup (application);
+
+  ad->auth_type = type;
+  type = NULL;
 
   /* Hang onto the password in credentials if requested */
   authorized = g_hash_table_lookup (headers, "X-Authorize");
@@ -957,6 +907,8 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
     }
 
 out:
+  g_free (type);
+  g_free (conversation);
   g_free (application);
   g_strfreev (env);
   g_free (options);
@@ -1006,6 +958,13 @@ cockpit_auth_spawn_login_finish (CockpitAuth *self,
       g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), g_strdup ("Negotiate"));
     }
 
+  if (ad->conversation)
+    {
+      g_hash_table_remove (ad->pending, ad->conversation);
+      g_free (ad->conversation);
+      ad->conversation = NULL;
+    }
+
   if (creds)
     {
       if (transport)
@@ -1023,7 +982,8 @@ cockpit_auth_spawn_login_finish (CockpitAuth *self,
         }
       else if (gssapi_header)
         {
-          g_hash_table_insert (self->authentication_pending, ad->conversation, auth_data_ref (ad));
+          ad->conversation = cockpit_auth_nonce (self);
+          g_hash_table_insert (ad->pending, ad->conversation, auth_data_ref (ad));
           g_object_set_data_full (G_OBJECT (connection), "negotiate",
                                   g_strdup (ad->conversation), g_free);
         }

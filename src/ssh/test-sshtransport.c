@@ -21,6 +21,7 @@
 
 #include "cockpitsshtransport.h"
 
+#include "common/cockpitauthorize.h"
 #include "common/cockpittest.h"
 #include "common/cockpiterror.h"
 #include "common/cockpitpipe.h"
@@ -577,10 +578,21 @@ on_prompt (CockpitSshTransport *transport,
   TestAuthResponse r;
   CockpitAuthProcess *auth_process;
   GBytes *input = NULL;
+  const gchar *plain;
+  char *prom;
 
   g_assert (rs->spot < rs->size);
   r = rs->responses[rs->spot];
   rs->spot++;
+
+  if (!cockpit_json_get_string (prompt, "prompt", NULL, &plain))
+    g_assert_not_reached ();
+  g_assert (plain != NULL);
+
+  prom = cockpit_authorize_parse_x_conversation (plain);
+  g_assert (prom != NULL);
+  json_object_set_string_member (prompt, "prompt", prom);
+  free (prom);
 
   cockpit_assert_json_eq (prompt, r.expected);
   input = g_bytes_new_static (r.message, strlen (r.message));
@@ -629,36 +641,36 @@ test_multi_auth (TestCase *tc,
 static const TestAuthResponse good_responses[1] = {
   {
     .expected = "{\"prompt\":\"Token\",\"message\":\"Password and Token\",\"echo\":true}",
-    .message = "5",
+    .message = "X-Conversation conv NQ==",
   }
 };
 
 static const TestAuthResponse wrong_responses[2] = {
   {
     .expected = "{\"prompt\":\"Token\",\"message\":\"Password and Token\",\"echo\":true}",
-    .message = "4",
+    .message = "X-Conversation conv NA==",
   }
 };
 
 static const TestAuthResponse two_responses[2] = {
   {
     .expected = "{\"prompt\":\"Token\",\"message\":\"Password and Token\",\"echo\":true}",
-    .message = "6",
+    .message = "X-Conversation conv Ng==",
   },
   {
     .expected = "{\"prompt\":\"So Close\",\"message\":\"Again\",\"echo\":false}",
-    .message = "5",
+    .message = "X-Conversation conv NQ==",
   }
 };
 
 static const TestAuthResponse two_wrong_responses[2] = {
   {
     .expected = "{\"prompt\":\"Token\",\"message\":\"Password and Token\",\"echo\":true}",
-    .message = "6",
+    .message = "X-Conversation conv Ng==",
   },
   {
     .expected = "{\"prompt\":\"So Close\",\"message\":\"Again\",\"echo\":false}",
-    .message = "6",
+    .message = "X-Conversation conv Ng==",
   }
 };
 

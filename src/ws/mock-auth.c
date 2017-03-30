@@ -21,13 +21,15 @@
 
 #include "mock-auth.h"
 
+#include "cockpitws.h"
+
+#include "common/cockpitauthorize.h"
 #include "common/cockpiterror.h"
 #include "common/cockpitpipetransport.h"
 
-#include "ws/cockpitws.h"
-
 #include "websocket/websocket.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 struct _MockAuth {
@@ -68,11 +70,11 @@ mock_auth_login_async (CockpitAuth *auth,
 {
   MockAuth *self = MOCK_AUTH (auth);
   GSimpleAsyncResult *result;
-  GBytes *userpass;
-  gchar **split;
   gboolean correct = FALSE;
-  const gchar *type;
-  const gchar *conversation;
+  const gchar *authorization;
+  char *password = NULL;
+  char *user = NULL;
+  char *type = NULL;
 
   result = g_simple_async_result_new (G_OBJECT (auth), callback, user_data, NULL);
 
@@ -80,14 +82,17 @@ mock_auth_login_async (CockpitAuth *auth,
                           cockpit_auth_parse_application (path, NULL),
                           g_free);
 
-  userpass = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
-  if (userpass && g_str_equal (type, "basic"))
+  authorization = g_hash_table_lookup (headers, "authorization");
+  if (authorization)
     {
-      split = g_strsplit (g_bytes_get_data (userpass, NULL), ":", 2);
-      correct = split[0] && split[1] &&
-                g_str_equal (split[0], self->expect_user) &&
-                g_str_equal (split[1], self->expect_password);
-      g_strfreev (split);
+      if (cockpit_authorize_type (authorization, &type) && g_strcmp0 (type, "basic") == 0)
+        {
+          password = cockpit_authorize_parse_basic (authorization, &user);
+          correct = g_strcmp0 (password, self->expect_password) == 0 &&
+                    g_strcmp0 (user, self->expect_user) == 0;
+          free (password);
+          free (user);
+        }
     }
 
   if (!correct)
@@ -99,7 +104,7 @@ mock_auth_login_async (CockpitAuth *auth,
 
   g_simple_async_result_complete_in_idle (result);
   g_object_unref (result);
-  g_bytes_unref (userpass);
+  free (type);
 }
 
 static CockpitCreds *

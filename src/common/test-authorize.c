@@ -98,7 +98,7 @@ typedef struct {
 } ChallengeFixture;
 
 static ChallengeFixture type_fixtures[] = {
-  { "invalid", NULL, NULL, EINVAL },
+  { "valid", "valid", "", 0 },
   { ":invalid", NULL, NULL, EINVAL },
   { "Basic more-data", "basic", "more-data", 0 },
   { "Basic   more-data", "basic", "more-data", 0 },
@@ -139,7 +139,7 @@ static ChallengeFixture subject_fixtures[] = {
   { "valid:scruffy:", "scruffy", "", 0 },
   { "X-Conversation conversationtoken more-data", "conversationtoken", "more-data", 0 },
   { "X-Conversation  conversationtoken    more-data", "conversationtoken", "more-data", 0 },
-  { "invalid:73637275666679", "73637275666679", NULL, EINVAL },
+  { "invalid:", "73637275666679", NULL, EINVAL },
   { "invalid", NULL, NULL, EINVAL },
   { NULL },
 };
@@ -169,6 +169,226 @@ test_subject (void *data)
     }
 }
 
+static ChallengeFixture basic_fixtures[] = {
+  { "Basic c2NydWZmeTp6ZXJvZw==", "scruffy", "zerog", 0 },
+  { "Basic!c2NydWZmeTp6ZXJvZw==", NULL, NULL, EINVAL },
+  { "Basic c2NydWZ!!eXplcm9n", NULL, NULL, EINVAL },
+  { "Basic c2NydWZmeXplcm9n", NULL, NULL, EINVAL },
+  { "Basic!c2NydWZmeTp6ZXJvZw==", NULL, NULL, EINVAL },
+  { "Basic", NULL, "", 0 },
+  { NULL },
+};
+
+static void
+test_parse_basic (void *data)
+{
+  ChallengeFixture *fix = data;
+  char *user = "blah";
+  char *password = NULL;
+
+  if (fix->ret == NULL)
+    expect_message = "invalid";
+
+  password = cockpit_authorize_parse_basic (fix->input, &user);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
+    {
+      assert_str_eq (password, fix->ret);
+      if (fix->expected)
+        assert_str_eq (user, fix->expected);
+      else
+        assert (user == NULL);
+      free (password);
+      free (user);
+    }
+  else
+    {
+      assert (password == NULL);
+      assert_str_eq (user, "blah"); /* not reassigned */
+    }
+
+  if (fix->ret == NULL)
+    expect_message = "invalid";
+
+  password = cockpit_authorize_parse_basic (fix->input, NULL);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
+    {
+      assert_str_eq (password, fix->ret);
+      free (password);
+    }
+  else
+    {
+      assert (password == NULL);
+    }
+}
+
+typedef struct {
+  const char *input;
+  size_t length;
+  const char *ret;
+  int errn;
+} NegotiateFixture;
+
+static NegotiateFixture parse_negotiate_fixtures[] = {
+  { "Negotiate c2NydWZmeTp6ZXJvZw==", 13, "scruffy:zerog", 0 },
+  { "Negotiate!c2NydWZmeTp6ZXJvZw==", 0, NULL, EINVAL },
+  { "Negotiate c2Nyd!!ZmeTp6ZXJvZw==", 0, NULL, EINVAL },
+  { "Negotiate!c2NydWZmeTp6ZXJvZw==", 0, NULL, EINVAL },
+  { "Negotiate", 0, "", 0 },
+  { NULL },
+};
+
+static void
+test_parse_negotiate (void *data)
+{
+  NegotiateFixture *fix = data;
+  size_t length = 0xFFFFDD;
+  void *result = NULL;
+
+  if (fix->ret == NULL)
+    expect_message = "invalid";
+
+  result = cockpit_authorize_parse_negotiate (fix->input, &length);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
+    {
+      assert_num_eq (fix->length, length);
+      assert (memcmp (result, fix->ret, length) == 0);
+      free (result);
+    }
+  else
+    {
+      assert (result == NULL);
+      assert_num_eq (length, 0xFFFFDD); /* not reassigned */
+    }
+
+  if (fix->ret == NULL)
+    expect_message = "invalid";
+
+  result = cockpit_authorize_parse_negotiate (fix->input, NULL);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
+    {
+      assert (memcmp (result, fix->ret, length) == 0);
+      free (result);
+    }
+  else
+    {
+      assert (result == NULL);
+    }
+}
+
+static NegotiateFixture build_negotiate_fixtures[] = {
+  { "scruffy:zerog", 13, "Negotiate c2NydWZmeTp6ZXJvZw==", 0 },
+  { NULL, 0, "Negotiate", 0, },
+  { NULL },
+};
+
+static void
+test_build_negotiate (void *data)
+{
+  NegotiateFixture *fix = data;
+  char *result = NULL;
+
+  if (fix->ret == NULL)
+    expect_message = "invalid";
+
+  result = cockpit_authorize_build_negotiate (fix->input, fix->length);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
+    {
+      assert_str_eq (result, fix->ret);
+      free (result);
+    }
+  else
+    {
+      assert (result == NULL);
+    }
+}
+
+typedef struct {
+  const char *input;
+  const char *conversation;
+  const char *ret;
+  int errn;
+} XConversationFixture;
+
+static XConversationFixture parse_x_conversation_fixtures[] = {
+  { "X-Conversation abcdefghi c2NydWZmeTp6ZXJvZw==", NULL, "scruffy:zerog", 0 },
+  { "X-Conversation abcdefghi", NULL, "", 0 },
+  { "X-Conversation abcdefghi c2NydW!!meTp6ZXJvZw==", NULL, NULL, EINVAL },
+  { NULL },
+};
+
+static void
+test_parse_x_conversation (void *data)
+{
+  XConversationFixture *fix = data;
+  char *result = NULL;
+
+  if (fix->ret == NULL)
+    expect_message = "invalid";
+
+  result = cockpit_authorize_parse_x_conversation (fix->input);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
+    {
+      assert_str_eq (result, fix->ret);
+      free (result);
+    }
+  else
+    {
+      assert (result == NULL);
+    }
+}
+
+static XConversationFixture build_x_conversation_fixtures[] = {
+  { "scruffy:zerog", "abcdefghi", "X-Conversation abcdefghi c2NydWZmeTp6ZXJvZw==", 0 },
+  { "scruffy:zerog", NULL, " c2NydWZmeTp6ZXJvZw==", 0 },
+  { "", "abcdefghi", "X-Conversation abcdefghi", 0 },
+  { "scruffy:zerog", "", NULL, EINVAL },
+  { NULL },
+};
+
+static void
+test_build_x_conversation (void *data)
+{
+  XConversationFixture *fix = data;
+  char *conversation = NULL;
+  char *result = NULL;
+
+  if (fix->ret == NULL)
+    expect_message = "invalid";
+
+  if (fix->conversation)
+    conversation = strdup (fix->conversation);
+
+  result = cockpit_authorize_build_x_conversation (fix->input, &conversation);
+  if (fix->errn != 0)
+    assert_num_eq (errno, fix->errn);
+  if (fix->ret)
+    {
+      if (strstr (fix->ret, "X-Conversation"))
+        assert_str_eq (result, fix->ret);
+      else
+        assert (strstr (result, fix->ret));
+      free (result);
+    }
+  else
+    {
+      assert (result == NULL);
+    }
+
+  free (conversation);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -182,11 +402,40 @@ main (int argc,
   re_fixture (setup, teardown);
 
   for (i = 0; type_fixtures[i].input != NULL; i++)
-    re_testx (test_type, type_fixtures + i,
-              "/authorize/type/%s", type_fixtures[i].input);
+    {
+      re_testx (test_type, type_fixtures + i,
+                "/authorize/type/%s", type_fixtures[i].input);
+    }
   for (i = 0; subject_fixtures[i].input != NULL; i++)
-    re_testx (test_subject, subject_fixtures + i,
-              "/authorize/subject/%s", subject_fixtures[i].input);
+    {
+      re_testx (test_subject, subject_fixtures + i,
+                "/authorize/subject/%s", subject_fixtures[i].input);
+    }
+  for (i = 0; basic_fixtures[i].input != NULL; i++)
+    {
+      re_testx (test_parse_basic, basic_fixtures + i,
+                "/authorize/basic/%s", basic_fixtures[i].input);
+    }
+  for (i = 0; parse_negotiate_fixtures[i].input != NULL; i++)
+    {
+      re_testx (test_parse_negotiate, parse_negotiate_fixtures + i,
+                "/authorize/negotiate/parse/%s", parse_negotiate_fixtures[i].input);
+    }
+  for (i = 0; build_negotiate_fixtures[i].ret != NULL; i++)
+    {
+      re_testx (test_build_negotiate, build_negotiate_fixtures + i,
+                "/authorize/negotiate/build/%s", build_negotiate_fixtures[i].ret);
+    }
+  for (i = 0; parse_x_conversation_fixtures[i].input != NULL; i++)
+    {
+      re_testx (test_parse_x_conversation, parse_x_conversation_fixtures + i,
+                "/authorize/x-conversation/parse/%s", parse_x_conversation_fixtures[i].input);
+    }
+  for (i = 0; build_x_conversation_fixtures[i].input || build_x_conversation_fixtures[i].ret; i++)
+    {
+      re_testx (test_build_x_conversation, build_x_conversation_fixtures + i,
+                "/authorize/x-conversation/build/%s", build_x_conversation_fixtures[i].input);
+    }
 
   return re_test_run (argc, argv);
 }

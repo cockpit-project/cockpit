@@ -106,8 +106,8 @@ gchar *         cockpit_auth_parse_application    (const gchar *path,
 
 GBytes *        cockpit_auth_steal_authorization      (GHashTable *headers,
                                                        GIOStream *connection,
-                                                       const gchar **ret_type,
-                                                       const gchar **ret_conversation);
+                                                       gchar **ret_type,
+                                                       gchar **ret_conversation);
 
 gchar *        cockpit_auth_parse_authorization_type  (GHashTable *headers);
 

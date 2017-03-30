@@ -189,8 +189,6 @@ cockpit_frame_read (int fd,
         }
       else if (res == 0)
         {
-          free (buf);
-
           /* No message parsed, but also no data received */
           if (size == 0 && buflen == 0)
             ret = 0;

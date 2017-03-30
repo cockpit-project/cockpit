@@ -81,46 +81,31 @@ class AtomicCockpitInstaller:
         if self.verbose:
             print "install new ostree commit"
 
-        newenv = dict(os.environ)
-        newenv['PYTHONUNBUFFERED'] = '1'
-        webserver_proc = subprocess.Popen(['python', '-m', 'SimpleHTTPServer', str(self.port)],
-                                          stdout=subprocess.PIPE,
-                                          stderr=subprocess.PIPE,
-                                          cwd=self.repo_location, env=newenv)
-        webserver_status = webserver_proc.stdout.readline()
-        pattern = r'port {}'.format(self.port)
-        m = re.search(pattern, webserver_status)
-        if m is None:
-            raise Exception("Failed to find {} in {}\n".format(pattern, webserver_status))
-
         # Not an error if this fails
         subprocess.call(["ostree", "remote", "delete", "local"])
 
-        try:
-            subprocess.check_call(["ostree", "remote", "add", "local",
-                                   "http://127.0.0.1:{0}".format(self.port),
-                                   "--no-gpg-verify"])
+        subprocess.check_call(["ostree", "remote", "add", "local",
+                               "file:///{}".format(self.repo_location),
+                               "--no-gpg-verify"])
 
-            # HACK: https://github.com/candlepin/subscription-manager/issues/1404
-            subprocess.call(["systemctl", "disable", "rhsmcertd"])
-            subprocess.call(["systemctl", "stop", "rhsmcertd"])
+        # HACK: https://github.com/candlepin/subscription-manager/issues/1404
+        subprocess.call(["systemctl", "disable", "rhsmcertd"])
+        subprocess.call(["systemctl", "stop", "rhsmcertd"])
 
-            status = subprocess.check_output(["rpm-ostree", "status"])
-            if "local:" in status:
-                subprocess.check_call(["rpm-ostree", "upgrade"])
-            else:
-                try:
-                    subprocess.check_call(["setenforce", "0"])
-                    subprocess.check_call(["rpm-ostree", "rebase",
-                                           "local:{0}".format(self.branch)])
-                except:
-                    os.system("sysctl kernel.core_pattern")
-                    os.system("coredumpctl || true")
-                    raise
-                finally:
-                    subprocess.check_call(["setenforce", "1"])
-        finally:
-            webserver_proc.terminate()
+        status = subprocess.check_output(["rpm-ostree", "status"])
+        if "local:" in status:
+            subprocess.check_call(["rpm-ostree", "upgrade"])
+        else:
+            try:
+                subprocess.check_call(["setenforce", "0"])
+                subprocess.check_call(["rpm-ostree", "rebase",
+                                       "local:{0}".format(self.branch)])
+            except:
+                os.system("sysctl kernel.core_pattern")
+                os.system("coredumpctl || true")
+                raise
+            finally:
+                subprocess.check_call(["setenforce", "1"])
 
     def commit_to_repo(self):
         if self.verbose:

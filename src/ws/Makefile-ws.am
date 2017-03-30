@@ -72,14 +72,14 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
-	src/ws/cockpitauthorize.c \
-	src/ws/cockpitauthorize.h \
 	src/ws/cockpitauthoptions.h \
 	src/ws/cockpitauthoptions.c \
 	src/ws/cockpitauthprocess.h \
 	src/ws/cockpitauthprocess.c \
 	src/ws/cockpitcertificate.c \
 	src/ws/cockpitcertificate.h \
+	src/ws/cockpitcompat.c \
+	src/ws/cockpitcompat.h \
 	src/ws/cockpitbranding.h \
 	src/ws/cockpitbranding.c \
 	src/ws/cockpitchannelresponse.h \
@@ -235,11 +235,11 @@ WS_CHECKS = \
 	test-creds \
 	test-auth \
 	test-authoptions \
+	test-compat \
 	test-webservice \
 	test-channelresponse \
 	test-handlers \
 	test-kerberos \
-	test-authorize \
 	test-remotectlcertificate \
 	$(NULL)
 
@@ -273,6 +273,10 @@ test_channelresponse_LDADD = \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
 
+test_compat_CFLAGS = $(cockpit_ws_CFLAGS)
+test_compat_SOURCES = src/ws/test-compat.c
+test_compat_LDADD = libcockpit-ws.a $(cockpit_ws_LDADD)
+
 test_creds_CFLAGS = $(cockpit_ws_CFLAGS)
 test_creds_SOURCES = src/ws/test-creds.c
 test_creds_LDADD = \
@@ -291,10 +295,6 @@ test_handlers_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
-
-test_authorize_CFLAGS = $(cockpit_ws_CFLAGS)
-test_authorize_SOURCES = src/ws/test-authorize.c $(NULL)
-test_authorize_LDADD = libretest.a $(cockpit_ws_LDADD)
 
 test_remotectlcertificate_CFLAGS = \
 	$(COCKPIT_CFLAGS) \

@@ -23,11 +23,11 @@
 
 #include "cockpitauthoptions.h"
 #include "cockpitauthprocess.h"
-#include "cockpitauthorize.h"
 #include "cockpitws.h"
 
 #include "websocket/websocket.h"
 
+#include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
 #include "common/cockpithex.h"

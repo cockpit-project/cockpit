@@ -21,7 +21,8 @@
 
 #include "cockpitwebservice.h"
 
-#include "cockpitauthorize.h"
+#include "cockpitcompat.h"
+#include "cockpitws.h"
 
 #include <string.h>
 
@@ -29,15 +30,15 @@
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
 
+#include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
+#include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
-
-#include "cockpitws.h"
 
 #include "websocket/websocket.h"
 
@@ -448,6 +449,42 @@ process_socket_authorize (CockpitWebService *self,
 }
 
 static gboolean
+authorize_check_user (CockpitCreds *creds,
+                      const char *challenge)
+{
+  char *subject = NULL;
+  gboolean ret = FALSE;
+  gchar *encoded = NULL;
+  const gchar *user;
+
+  if (!cockpit_authorize_subject (challenge, &subject))
+    goto out;
+
+  if (!subject || g_str_equal (subject, ""))
+    {
+      ret = TRUE;
+    }
+  else
+    {
+      user = cockpit_creds_get_user (creds);
+      if (user == NULL)
+        {
+          ret = TRUE;
+        }
+      else
+        {
+          encoded = cockpit_hex_encode (user, -1);
+          ret = g_str_equal (encoded, subject);
+        }
+    }
+
+out:
+  g_free (encoded);
+  free (subject);
+  return ret;
+}
+
+static gboolean
 process_transport_authorize (CockpitWebService *self,
                              CockpitTransport *transport,
                              JsonObject *options)
@@ -462,7 +499,6 @@ process_transport_authorize (CockpitWebService *self,
   const gchar *password;
   const gchar *host;
   GBytes *data;
-  int rc;
 
   if (!cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
       !cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
@@ -475,9 +511,10 @@ process_transport_authorize (CockpitWebService *self,
   if (!challenge || !cookie)
     {
       g_message ("unsupported or unknown authorize command");
+      return FALSE;
     }
-  else if (cockpit_authorize_type (challenge, &type) < 0 ||
-           cockpit_authorize_user (challenge, &user) < 0)
+
+  if (!cockpit_authorize_type (challenge, &type))
     {
       g_message ("received invalid authorize challenge command");
     }
@@ -485,20 +522,22 @@ process_transport_authorize (CockpitWebService *self,
     {
       data = cockpit_creds_get_password (self->creds);
       if (!data)
-        {
-          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
-        }
+        g_debug ("%s: received authorize plain1 challenge, but no password to reauthenticate", host);
+      else if (!authorize_check_user (self->creds, challenge))
+        g_debug ("%s: received authorize plain1 challenge, but for wrong user", user);
       else
-        {
-          response = g_bytes_get_data (data, NULL);
-        }
+        response = g_bytes_get_data (data, NULL);
     }
   else if (g_str_equal (type, "crypt1"))
     {
       data = cockpit_creds_get_password (self->creds);
       if (!data)
         {
-          g_debug ("received authorize crypt1 challenge, but no password to reauthenticate");
+          g_debug ("%s: received authorize plain1 challenge, but no password to reauthenticate", host);
+        }
+      else if (!authorize_check_user (self->creds, challenge))
+        {
+          g_debug ("%s: received authorize crypt1 challenge, but for wrong user", user);
         }
       else if (g_strcmp0 (cockpit_creds_get_user (self->creds), user) != 0)
         {
@@ -507,8 +546,8 @@ process_transport_authorize (CockpitWebService *self,
       else
         {
           password = g_bytes_get_data (data, NULL);
-          rc = cockpit_authorize_crypt1 (challenge, password, &alloc);
-          if (rc < 0)
+          alloc = cockpit_compat_reply_crypt1 (challenge, password);
+          if (!alloc)
             g_message ("failed to \"authorize\" crypt1 \"challenge\"");
           else
             response = alloc;

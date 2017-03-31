@@ -30,43 +30,6 @@ udisks2 \
 xdg-utils \
 "
 
-# storaged \
-# storaged-lvm2 \
-
-# HACK - https://github.com/cockpit-project/cockpit/issues/3298
-# We have a  explicit list of build dependencies here until we figure
-# out how to let pbuilder install them.
-#
-COCKPIT_BUILD_DEPS="\
-debhelper \
-dh-make \
-dh-autoreconf \
-dh-systemd \
-autoconf \
-automake \
-git \
-intltool \
-libssh-dev \
-zlib1g-dev \
-libkrb5-dev \
-libxslt1-dev \
-libglib2.0-dev \
-libsystemd-dev \
-libpolkit-agent-1-dev \
-libpcp3-dev \
-libjson-glib-dev \
-libpam0g-dev \
-libpcp-import1-dev \
-libpcp-pmda3-dev \
-systemd \
-xsltproc \
-xmlto \
-docbook-xsl \
-glib-networking \
-openssh-client \
-python \
-"
-
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.
 #
@@ -97,17 +60,23 @@ eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
 #
-eatmydata apt-get -y install dpkg-dev pbuilder dh-make
+
+# extract control files and adjust them for our release, so that we can parse the build deps
+mkdir -p /tmp/out
+tar -C /tmp/out --strip-components=1 --wildcards -xf "$TEST_SOURCE" '*/debian/'
+/tmp/out/tools/debian/adjust-for-release $(lsb_release -sc)
 
 # Disable build-dep installation for the real builds
 cat > ~/.pbuilderrc <<- EOF
+DISTRIBUTION=xenial
 PBUILDERSATISFYDEPENDSCMD=true
 COMPONENTS="main universe"
 EOF
 
+eatmydata apt-get -y install dpkg-dev pbuilder
 pbuilder --create
-echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >ubuntu.install-build-deps
-pbuilder --execute --save-after-exec ubuntu.install-build-deps
+/usr/lib/pbuilder/pbuilder-satisfydepends-classic --control /tmp/out/tools/debian/control --force-version --echo|grep apt-get | pbuilder --login --save-after-login
+rm -rf /tmp/out
 
 # Don't automatically update on boot or daily
 systemctl disable apt-daily.service

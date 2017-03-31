@@ -65,7 +65,7 @@
     ]);
 
     var NAME_RE = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
-    var USER_NAME_RE = /^[a-z0-9_.]([-a-z0-9@._]*[a-z0-9._])?$/;
+    var USER_NAME_RE = /^[a-zA-Z0-9_.]([-a-zA-Z0-9 ,=@._]*[a-zA-Z0-9._])?$/;
 
     /* Timeout for non-GET requests */
     var REQ_TIMEOUT = "120s";

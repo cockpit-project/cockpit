@@ -23,7 +23,7 @@ basedebug_DATA = \
 	dist/base1/cockpit.min.js.map \
 	$(NULL)
 
-AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals,fatal-warnings ;
+AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals,fatal-warnings ; export XDG_CACHE_HOME=$$(mktemp -d) ;
 
 dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \

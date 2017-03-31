@@ -173,7 +173,7 @@ export const DropdownButtons = ({ buttons }) => {
 
         const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
         return (<div className='btn-group'>
-            <button className='btn btn-default btn-danger' onClick={buttons[0].action}>
+            <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={buttons[0].action}>
                 {buttons[0].title}
             </button>
             <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>

@@ -56,12 +56,7 @@ if [ -n "$do_build" ]; then
     )
 
     # Some unit tests want a real network interface
-    echo USENETWORK=yes     >>~/.pbuilderrc
-
-    # Pbuilder doesn't seem to give enough rights to its default
-    # build user (anymore) to run the unit tests
-    echo BUILDUSERID=0      >>~/.pbuilderrc
-    echo BUILDUSERNAME=root >>~/.pbuilderrc
+    echo USENETWORK=yes >>~/.pbuilderrc
 
     # pbuilder < 0.228.6 has broken /dev/pts/ptmx permissions; affects Ubuntu < 17.04
     # see https://bugs.debian.org/841935

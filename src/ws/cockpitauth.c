@@ -23,6 +23,7 @@
 
 #include "cockpitauthoptions.h"
 #include "cockpitauthprocess.h"
+#include "cockpitauthorize.h"
 #include "cockpitws.h"
 
 #include "websocket/websocket.h"
@@ -1043,6 +1044,12 @@ cockpit_auth_spawn_login_finish (CockpitAuth *self,
 /* ---------------------------------------------------------------------- */
 
 static void
+authorize_logger (const char *data)
+{
+  g_message ("%s", data);
+}
+
+static void
 cockpit_auth_class_init (CockpitAuthClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -1054,6 +1061,8 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 
   sig__idling = g_signal_new ("idling", COCKPIT_TYPE_AUTH, G_SIGNAL_RUN_FIRST,
                               0, NULL, NULL, NULL, G_TYPE_NONE, 0);
+
+  cockpit_authorize_logger (authorize_logger, 0);
 }
 
 static char *

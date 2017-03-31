@@ -612,6 +612,25 @@ function RPMOSTreeDBusClient() {
         return promise;
     };
 
+    self.reload = function () {
+        var dp = cockpit.defer();
+        /* Not all Systems support this so just skip if not
+         * known.
+         */
+        if (sysroot && sysroot.ReloadConfig) {
+            sysroot.ReloadConfig()
+                .fail(function (ex) {
+                    console.warn ("Error reloading config:", ex);
+                })
+                .always(function () {
+                    dp.resolve();
+                });
+        } else {
+            dp.resolve();
+        }
+        return dp.promise();
+    };
+
     self.run_transaction = function(method, method_args, os) {
         local_running = method + ":" + os;
         var transaction_client = null;
@@ -661,45 +680,47 @@ function RPMOSTreeDBusClient() {
                 if (!proxy)
                     return fail(cockpit.format(_("OS $0 not found"), os));
 
-                proxy.call(method, method_args)
-                    .fail(fail)
-                    .done(function(result) {
-                        var connect_args = {
-                            "superuser" : true,
-                            "address": result[0],
-                            "bus": "none"
-                        };
+                self.reload().done(function () {
+                    proxy.call(method, method_args)
+                        .fail(fail)
+                        .done(function(result) {
+                            var connect_args = {
+                                "superuser" : true,
+                                "address": result[0],
+                                "bus": "none"
+                            };
 
-                        if (reboot)
-                            cockpit.hint('restart');
+                            if (reboot)
+                                cockpit.hint('restart');
 
-                        transaction_client = cockpit.dbus(null, connect_args);
-                        transaction_client.addEventListener("close", on_close);
+                            transaction_client = cockpit.dbus(null, connect_args);
+                            transaction_client.addEventListener("close", on_close);
 
-                        subscription = transaction_client.subscribe({ 'path' : "/", },
-                            function(path, iface, signal, args) {
-                                if (signal == "DownloadProgress") {
-                                    var line = build_progress_line(args);
-                                    if (line)
-                                        dp.notify(line);
-                                } else if (signal == "Message") {
-                                    dp.notify(args[0]);
-                                } else if (signal == "Finished") {
-                                    if (args) {
-                                        if (args[0]) {
-                                            dp.resolve(args[1]);
-                                            cleanup();
+                            subscription = transaction_client.subscribe({ 'path' : "/", },
+                                function(path, iface, signal, args) {
+                                    if (signal == "DownloadProgress") {
+                                        var line = build_progress_line(args);
+                                        if (line)
+                                            dp.notify(line);
+                                    } else if (signal == "Message") {
+                                        dp.notify(args[0]);
+                                    } else if (signal == "Finished") {
+                                        if (args) {
+                                            if (args[0]) {
+                                                dp.resolve(args[1]);
+                                                cleanup();
+                                            } else {
+                                                fail(args[1]);
+                                            }
                                         } else {
-                                            fail(args[1]);
+                                            console.warn("Unexpected transaction response", args);
+                                            fail({ "problem": "protocol-error" });
                                         }
-                                    } else {
-                                        console.warn("Unexpected transaction response", args);
-                                        fail({ "problem": "protocol-error" });
                                     }
-                                }
-                            });
-                        transaction_client.call("/", TRANSACTION, "Start");
-                    });
+                                });
+                            transaction_client.call("/", TRANSACTION, "Start");
+                        });
+                });
             });
 
         return dp.promise();

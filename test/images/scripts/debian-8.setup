@@ -31,39 +31,6 @@ xdg-utils \
 udisks2 \
 "
 
-# HACK - https://github.com/cockpit-project/cockpit/issues/3298
-# We have a  explicit list of build dependencies here until we figure
-# out how to let pbuilder install them.
-#
-COCKPIT_BUILD_DEPS="\
-debhelper \
-dh-autoreconf \
-dh-systemd \
-autoconf \
-automake \
-git \
-intltool \
-libssh-dev \
-zlib1g-dev \
-libkrb5-dev \
-libxslt1-dev \
-libglib2.0-dev \
-libsystemd-dev \
-libpolkit-agent-1-dev \
-libpcp3-dev \
-libjson-glib-dev \
-libpam0g-dev \
-libpcp-import1-dev \
-libpcp-pmda3-dev \
-systemd \
-xsltproc \
-xmlto \
-docbook-xsl \
-glib-networking \
-openssh-client \
-python \
-"
-
 TEST_PACKAGES="\
 curl \
 gdb \
@@ -86,13 +53,23 @@ apt-get -y update
 
 # Prepare for building
 #
-eatmydata apt-get -y install dpkg-dev pbuilder
-echo "DISTRIBUTION=jessie" > ~/.pbuilderrc
-pbuilder --create
-echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >debian-8.install-build-deps
-pbuilder --execute --save-after-exec debian-8.install-build-deps
+
+# extract control files and adjust them for our release, so that we can parse the build deps
+mkdir -p /tmp/out
+tar -C /tmp/out --strip-components=1 --wildcards -xf "$TEST_SOURCE" '*/debian/'
+/tmp/out/tools/debian/adjust-for-release $(lsb_release -sc)
+
 # Disable build-dep installation for the real builds
-echo PBUILDERSATISFYDEPENDSCMD=true >>~/.pbuilderrc
+cat > ~/.pbuilderrc <<- EOF
+DISTRIBUTION=jessie
+PBUILDERSATISFYDEPENDSCMD=true
+EOF
+
+eatmydata apt-get -y install dpkg-dev pbuilder
+
+pbuilder --create
+/usr/lib/pbuilder/pbuilder-satisfydepends-classic --control /tmp/out/tools/debian/control --force-version --echo|grep apt-get | pbuilder --login --save-after-login
+rm -rf /tmp/out
 
 # Debian does not automatically start the default libvirt network
 virsh net-autostart default

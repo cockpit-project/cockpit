@@ -22,6 +22,7 @@ import parent
 import testinfra
 from testlib import *
 import os
+import subprocess
 
 INSTALL_RPMS = [
     "empty-1-0.noarch",
@@ -42,11 +43,25 @@ def get_os_name(m):
     else:
         return "fedora-atomic"
 
-def start_trivial_httpd(m, remote="local", location=REPO_LOCATION):
-    remote = m.execute(["ostree", "remote", "show-url", remote])
-    parts = remote.strip().split(":")
-    port = parts[-1]
+def ensure_remote_http_port (m, remote="local"):
+    remote_spec = m.execute(["ostree", "remote", "show-url", remote])
+    if remote_spec.startswith("http"):
+        parts = remote_spec.strip().split(":")
+        port = parts[-1]
+    else:
+        m.execute(["ostree", "remote", "delete", remote])
+        m.execute(["ostree", "remote", "add", remote,
+                   "http://127.0.0.1:12345", "--no-gpg-verify"])
+        try:
+            m.execute(["rpm-ostree reload"])
+        except subprocess.CalledProcessError:
+            m.execute("systemctl restart rpm-ostreed")
+        port = 12345
 
+    return port
+
+def start_trivial_httpd(m, remote="local", location=REPO_LOCATION):
+    port = ensure_remote_http_port (m, remote)
     script = "cd {0}\nsetsid python -m SimpleHTTPServer {1} >/dev/null 2>&1 < /dev/null &\necho $!".format(location, port)
     result = m.execute(script=script,
                        environment={"PYTHONUNBUFFERED" : "1"})
@@ -133,6 +148,9 @@ class OstreeRestartCase(MachineCase):
     def testOstree(self):
         b = self.browser
         m = self.machine
+
+        # Delete local remote so we start clean, without a file based remote
+        ensure_remote_http_port (m)
 
         docker_pkg = m.execute("rpm -qa | grep cockpit-docker").strip()
 

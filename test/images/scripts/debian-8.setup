@@ -75,18 +75,18 @@ useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS
+eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS
 
 # Install docker separately from jessie-backports
 echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/backports.list
 apt-get -y update
-apt-get -y install docker.io
+eatmydata apt-get -y install docker.io
 rm /etc/apt/sources.list.d/backports.list
 apt-get -y update
 
 # Prepare for building
 #
-apt-get -y install dpkg-dev pbuilder
+eatmydata apt-get -y install dpkg-dev pbuilder
 echo "DISTRIBUTION=jessie" > ~/.pbuilderrc
 pbuilder --create
 echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >debian-8.install-build-deps

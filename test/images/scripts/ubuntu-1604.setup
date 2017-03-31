@@ -90,14 +90,14 @@ useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get -y install software-properties-common python-software-properties
+eatmydata apt-get -y install software-properties-common python-software-properties
 add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe"
 apt-get -y update
-apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
 #
-apt-get -y install dpkg-dev pbuilder dh-make
+eatmydata apt-get -y install dpkg-dev pbuilder dh-make
 
 # Disable build-dep installation for the real builds
 cat > ~/.pbuilderrc <<- EOF

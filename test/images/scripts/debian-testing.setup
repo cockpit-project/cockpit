@@ -85,11 +85,11 @@ echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.
 apt-get -y update
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Prepare for building
 #
-apt-get -y install dpkg-dev pbuilder
+eatmydata apt-get -y install dpkg-dev pbuilder
 echo "DISTRIBUTION=testing" > ~/.pbuilderrc
 pbuilder --create
 echo "apt-get -y install fakeroot $COCKPIT_BUILD_DEPS" >debian-8.install-build-deps

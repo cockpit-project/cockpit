@@ -441,12 +441,12 @@ run_bridge (const gchar *interactive,
   else
     {
       g_setenv ("USER", pwd->pw_name, TRUE);
-      g_setenv ("HOME", pwd->pw_dir, TRUE);
+      g_setenv ("HOME", pwd->pw_dir, FALSE);
       g_setenv ("SHELL", pwd->pw_shell, TRUE);
     }
 
   /* Set a path if nothing is set */
-  g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 0);
+  g_setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", FALSE);
 
   /*
    * The bridge always runs from within $XDG_RUNTIME_DIR

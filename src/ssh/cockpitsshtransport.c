@@ -72,7 +72,6 @@ enum {
   PROP_HOST_KEY,
   PROP_HOST_FINGERPRINT,
   PROP_KNOWN_HOSTS,
-  PROP_IGNORE_KEY,
   PROP_PROMPT_HOSTKEY,
 };
 
@@ -104,7 +103,6 @@ struct _CockpitSshTransport {
   gchar *knownhosts_file;
   gchar *expected_hostkey;
   guint port;
-  gboolean ignore_hostkey;
   gboolean prompt_hostkey;
 
   /* Name used for logging */
@@ -388,7 +386,6 @@ cockpit_ssh_transport_start_process (CockpitSshTransport *self,
   ssh_options->supports_hostkey_prompt = self->prompt_hostkey;
   ssh_options->command = self->command;
   ssh_options->knownhosts_file = self->knownhosts_file;
-  ssh_options->ignore_hostkey = self->ignore_hostkey;
   ssh_options->knownhosts_data = self->expected_hostkey;
   options->auth_type = "bridge";
 
@@ -527,9 +524,6 @@ cockpit_ssh_transport_set_property (GObject *obj,
       break;
     case PROP_HOST_KEY:
       self->expected_hostkey = g_value_dup_string (value);
-      break;
-    case PROP_IGNORE_KEY:
-      self->ignore_hostkey = g_value_get_boolean (value);
       break;
     case PROP_PROMPT_HOSTKEY:
       self->prompt_hostkey = g_value_get_boolean (value);
@@ -692,10 +686,6 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
   g_object_class_install_property (object_class, PROP_HOST_FINGERPRINT,
          g_param_spec_string ("host-fingerprint", NULL, NULL, NULL,
                               G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (object_class, PROP_IGNORE_KEY,
-         g_param_spec_boolean ("ignore-key", NULL, NULL, FALSE,
-                               G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class, PROP_PROMPT_HOSTKEY,
          g_param_spec_boolean ("prompt-hostkey", NULL, NULL, FALSE,

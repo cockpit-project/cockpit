@@ -508,7 +508,7 @@ test_unknown_host_key (TestCase *test,
 
   service = cockpit_ssh_service_new (COCKPIT_TRANSPORT (test->transport));
 
-  emit_string (test, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+  emit_string (test, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"127.0.0.1\" }");
   emit_string (test, NULL, "{\"command\": \"open\","
                            " \"channel\": \"4\", \"payload\": \"echo\"}");
 

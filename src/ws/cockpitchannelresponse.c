@@ -600,6 +600,9 @@ cockpit_channel_response_serve (CockpitWebService *service,
   const gchar *checksum = NULL;
   JsonObject *object = NULL;
   JsonObject *heads;
+  GIOStream *connection;
+  const gchar *protocol;
+  const gchar *http_host = "localhost";
   gchar *channel = NULL;
   gpointer key;
   gpointer value;
@@ -685,8 +688,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
     {
       val = NULL;
 
-      if (g_ascii_strcasecmp (key, "Host") == 0 ||
-          g_ascii_strcasecmp (key, "Cookie") == 0 ||
+      if (g_ascii_strcasecmp (key, "Cookie") == 0 ||
           g_ascii_strcasecmp (key, "Referer") == 0 ||
           g_ascii_strcasecmp (key, "Connection") == 0 ||
           g_ascii_strcasecmp (key, "Pragma") == 0 ||
@@ -701,14 +703,28 @@ cockpit_channel_response_serve (CockpitWebService *service,
           g_ascii_strcasecmp (key, "TE") == 0 ||
           g_ascii_strcasecmp (key, "Trailer") == 0 ||
           g_ascii_strcasecmp (key, "Upgrade") == 0 ||
-          g_ascii_strcasecmp (key, "Transfer-Encoding") == 0)
+          g_ascii_strcasecmp (key, "Transfer-Encoding") == 0 ||
+          g_ascii_strcasecmp (key, "X-Forwarded-For") == 0 ||
+          g_ascii_strcasecmp (key, "X-Forwarded-Host") == 0 ||
+          g_ascii_strcasecmp (key, "X-Forwarded-Protocol") == 0)
         continue;
 
-      json_object_set_string_member (heads, key, value);
+      if (g_ascii_strcasecmp (key, "Host") == 0)
+        http_host = (gchar *) value;
+      else
+        json_object_set_string_member (heads, key, value);
+
       g_free (val);
     }
 
+  /* Send along the HTTP scheme the package should assume is accessing things */
+  connection = cockpit_web_response_get_stream (response);
+  protocol = cockpit_web_response_get_protocol (connection, in_headers);
+
   json_object_set_string_member (heads, "Host", host);
+  json_object_set_string_member (heads, "X-Forwarded-Proto", protocol);
+  json_object_set_string_member (heads, "X-Forwarded-Host", http_host);
+
   json_object_set_object_member (object, "headers", heads);
 
   chesp = cockpit_channel_response_create (service, response, transport,

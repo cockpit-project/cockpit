@@ -56,6 +56,7 @@ typedef struct {
   const gchar *path;
   const gchar *accept[8];
   const gchar *expect;
+  const gchar *headers[8];
   gboolean cacheable;
 } Fixture;
 
@@ -88,6 +89,7 @@ setup (TestCase *tc,
   const gchar *control;
   gchar *accept;
   GBytes *bytes;
+  guint i;
 
   g_assert (fixture != NULL);
 
@@ -124,6 +126,11 @@ setup (TestCase *tc,
     }
   if (!fixture->cacheable)
     json_object_set_string_member (headers, "Pragma", "no-cache");
+  for (i = 0; i < G_N_ELEMENTS (fixture->headers); i += 2)
+    {
+      if (fixture->headers[i])
+        json_object_set_string_member (headers, fixture->headers[i], fixture->headers[i + 1]);
+    }
   json_object_set_object_member (options, "headers", headers);
 
   tc->channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
@@ -182,6 +189,30 @@ test_simple (TestCase *tc,
   data = mock_transport_combine_output (tc->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Cache-Control\":\"no-cache, no-store\"}}"
                            "These are the contents of file.ext\nOh marmalaaade\n", -1);
+  g_assert_cmpuint (count, ==, 2);
+  g_bytes_unref (data);
+}
+
+static const Fixture fixture_forwarded = {
+  .path = "/another/test.html",
+  .headers = { "X-Forwarded-Proto", "https", "X-Forwarded-Host", "blah:9090" },
+};
+
+static void
+test_forwarded (TestCase *tc,
+             gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_forwarded);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Security-Policy\":\"default-src 'self' https://blah:9090; connect-src 'self' https://blah:9090 ws: wss:\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\",\"Access-Control-Allow-Origin\":\"https://blah:9090\"}}<html>\x0A<head>\x0A<title>In home dir</title>\x0A</head>\x0A<body>In home dir</body>\x0A</html>\x0A", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }
@@ -819,6 +850,8 @@ main (int argc,
 
   g_test_add ("/packages/simple", TestCase, &fixture_simple,
               setup, test_simple, teardown);
+  g_test_add ("/packages/forwarded", TestCase, &fixture_forwarded,
+              setup, test_forwarded, teardown);
   g_test_add ("/packages/localized-translated", TestCase, &fixture_pig,
               setup, test_localized_translated, teardown);
   g_test_add ("/packages/localized-unknown", TestCase, &fixture_unknown,

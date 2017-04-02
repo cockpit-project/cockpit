@@ -41,6 +41,7 @@
 static gboolean opt_lower;
 static gboolean opt_upper;
 static gboolean opt_show_count;
+static gboolean opt_problem;
 
 static GHashTable *channels;
 
@@ -257,6 +258,12 @@ send_init_command (CockpitTransport *transport)
   json_object_set_string_member (object, "command", "init");
   json_object_set_int_member (object, "version", 1);
 
+  if (opt_problem)
+    {
+      json_object_set_string_member (object, "problem", "canna-do-it");
+      json_object_set_string_member (object, "another-field", "extra");
+    }
+
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
 
@@ -290,6 +297,7 @@ main (int argc,
     { "lower", 0, 0, G_OPTION_ARG_NONE, &opt_lower, "Lower case channel type", NULL },
     { "count", 0, 0, G_OPTION_ARG_NONE, &opt_show_count, "Show open channels count in ready messages", NULL },
     { "upper", 0, 0, G_OPTION_ARG_NONE, &opt_upper, "Upper case channel type", NULL },
+    { "problem", 0, 0, G_OPTION_ARG_NONE, &opt_problem, "Set a problem in \"init\" message", NULL },
     { NULL }
   };
 

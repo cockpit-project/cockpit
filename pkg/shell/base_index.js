@@ -336,7 +336,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 if (control.command === "init") {
                     if (source)
                         unregister(source);
-                    source = register(child);
+                    if (control.problem) {
+                        console.warn("child frame failed to init: " + control.problem);
+                        source = null;
+                    } else {
+                        source = register(child);
+                    }
                     if (source) {
                         var reply = $.extend({ }, cockpit.transport.options,
                             { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }

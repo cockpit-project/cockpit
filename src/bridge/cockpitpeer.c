@@ -65,6 +65,7 @@ struct _CockpitPeer {
   gboolean inited;
   gboolean closed;
   gchar *problem;
+  JsonObject *failure;
 };
 
 enum {
@@ -81,8 +82,19 @@ reply_channel_closed (CockpitPeer *self,
 {
   JsonObject *object;
   GBytes *message;
+  GList *l, *names;
 
   object = json_object_new ();
+
+  /* Copy over any failures from a "problem" in an "init" message */
+  if (self->failure)
+    {
+      names = json_object_get_members (self->failure);
+      for (l = names; l != NULL; l = g_list_next (l))
+        json_object_set_member (object, l->data, json_object_dup_member (self->failure, l->data));
+      g_list_free (names);
+    }
+
   json_object_set_string_member (object, "command", "close");
   json_object_set_string_member (object, "channel", channel);
   json_object_set_string_member (object, "problem", self->problem);
@@ -145,7 +157,19 @@ on_other_control (CockpitTransport *transport,
   /* Got an init message thaw all channels */
   if (g_str_equal (command, "init"))
     {
-      if (!cockpit_json_get_int (options, "version", -1, &version))
+      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
+        {
+          g_warning ("%s: invalid \"problem\" field in init message", self->name);
+          problem = "protocol-error";
+        }
+      else if (problem)
+        {
+          if (self->failure)
+            json_object_unref (self->failure);
+          self->failure = json_object_ref (options);
+          json_object_remove_member (self->failure, "version");
+        }
+      else if (!cockpit_json_get_int (options, "version", -1, &version))
         {
           g_warning ("%s: invalid \"version\" field in init message", self->name);
           problem = "protocol-error";
@@ -234,10 +258,20 @@ on_other_control (CockpitTransport *transport,
 static const gchar *
 fail_start_problem (CockpitPeer *self)
 {
-  const gchar *problem;
+  const gchar *problem = NULL;
 
-  if (!cockpit_json_get_string (self->config, "problem", NULL, &problem))
-    problem = NULL;
+  /* This might be a "problem" in an "init" message from other bridge */
+  if (self->failure)
+    {
+      if (!cockpit_json_get_string (self->failure, "problem", NULL, &problem))
+        problem = NULL;
+    }
+
+  if (!problem)
+    {
+      if (!cockpit_json_get_string (self->config, "problem", NULL, &problem))
+        problem = NULL;
+    }
 
   g_free (self->problem);
   self->problem = g_strdup (problem);
@@ -255,6 +289,7 @@ on_other_closed (CockpitTransport *transport,
   GList *l, *channels;
   CockpitPipe *pipe;
   gint status = 0;
+  gint64 timeout;
 
   /*
    * If we haven't yet gotten an "init" message, then we use the
@@ -340,6 +375,10 @@ on_other_closed (CockpitTransport *transport,
       cockpit_transport_thaw (self->transport, channel);
     }
   g_list_free_full (channels, g_free);
+
+  /* If the timeout is set, then expect that this bridge can cycle back up */
+  if (cockpit_json_get_int (self->config, "timeout", -1, &timeout) && timeout >= 0)
+    cockpit_peer_reset (self);
 }
 
 static gboolean
@@ -796,6 +835,12 @@ cockpit_peer_reset (CockpitPeer *self)
   if (self->frozen)
     g_queue_free_full (self->frozen, g_free);
   self->frozen = NULL;
+
+  if (self->failure)
+    {
+      json_object_unref (self->failure);
+      self->failure = NULL;
+    }
 
   g_free (self->problem);
   self->problem = NULL;

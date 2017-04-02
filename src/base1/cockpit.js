@@ -1577,8 +1577,13 @@ function factory() {
      * Use application to prefix data stored in browser storage
      * with helpers for compatibility.
      */
-    function StorageHelper(storage) {
+    function StorageHelper(storageName) {
         var self = this;
+        var storage;
+
+        try {
+            storage = window[storageName];
+        } catch (e) { }
 
         self.prefixedKey = function (key) {
             return cockpit.transport.application() + ":" + key;
@@ -1620,8 +1625,8 @@ function factory() {
         };
     }
 
-    cockpit.localStorage = new StorageHelper(window.localStorage);
-    cockpit.sessionStorage = new StorageHelper(window.sessionStorage);
+    cockpit.localStorage = new StorageHelper("localStorage");
+    cockpit.sessionStorage = new StorageHelper("sessionStorage");
 
     /* ---------------------------------------------------------------------
      * Shared data cache.

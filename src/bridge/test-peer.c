@@ -342,6 +342,27 @@ test_parallel (TestCase *tc,
 }
 
 static void
+test_init_problem (TestCase *tc,
+                   gconstpointer unused)
+{
+  JsonObject *sent;
+
+  /* The "lower" channel has no local implementation to fall back to */
+  tc->peer = mock_peer_simple_new (tc->transport, "problem");
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"problem\"}");
+  emit_string (tc, "a", "Oh Marmalade");
+
+  while ((sent = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_json_eq (sent, "{\"command\":\"close\",\"channel\":\"a\",\"problem\":\"canna-do-it\",\"another-field\":\"extra\"}");
+
+  /* The fallback channel was not created */
+  g_assert (tc->channel == NULL);
+}
+
+static void
 test_not_supported (TestCase *tc,
                     gconstpointer unused)
 {
@@ -465,6 +486,8 @@ main (int argc,
               setup, test_not_supported, teardown);
   g_test_add ("/peer/fail-problem", TestCase, NULL,
               setup, test_fail_problem, teardown);
+  g_test_add ("/peer/init-problem", TestCase, NULL,
+              setup, test_init_problem, teardown);
   g_test_add ("/peer/fallback", TestCase, NULL,
               setup, test_fallback, teardown);
   g_test_add ("/peer/reopen", TestCase, NULL,

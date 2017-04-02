@@ -511,8 +511,6 @@ function Transport() {
             expect_disconnect = true;
             window.location.reload(true);
         }
-        if (expect_disconnect)
-            return;
         self.close();
     };
 
@@ -564,6 +562,8 @@ function Transport() {
         ws = null;
         if (ows)
             ows.close();
+        if (expect_disconnect)
+            return;
         ready_for_channels(); /* ready to fail */
 
         /* Broadcast to everyone */

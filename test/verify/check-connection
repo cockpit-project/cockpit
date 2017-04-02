@@ -170,6 +170,12 @@ class TestConnection(MachineCase):
         self.assertIn("s:/CN=localhost", output)
         self.assertIn("1 s:/OU=Intermediate", output)
 
+        # login handler: correct password
+        m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://{}:9090/cockpit/login".format(base64.b64encode("admin:foobar"), m.address))
+        headers = m.execute("curl -k --head -b cockpit.jar -s https://{}:9090/".format(m.address))
+        self.assertIn("default-src 'self' https://{}:9090; connect-src 'self' https://{}:9090 ws: wss".format(m.address, m.address), headers)
+        self.assertIn("Access-Control-Allow-Origin: https://{}:9090".format(m.address), headers)
+
         self.allow_journal_messages(
             ".*Peer failed to perform TLS handshake",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")

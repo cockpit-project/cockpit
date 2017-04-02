@@ -391,63 +391,6 @@ compar_package_priority (gconstpointer value1,
 }
 
 static gboolean
-strv_have_prefix (gchar **strv,
-                  const gchar *prefix)
-{
-  gint i;
-
-  for (i = 0; strv && strv[i] != NULL; i++)
-    {
-      if (g_str_has_prefix (strv[i], prefix))
-        return TRUE;
-    }
-  return FALSE;
-}
-
-static gboolean
-setup_content_security_policy (CockpitPackage *package,
-                               const gchar *input)
-{
-  const gchar *default_src = "default-src 'self'";
-  const gchar *connect_src = "connect-src 'self' ws: wss:";
-  gchar **parts = NULL;
-  GString *result;
-  gint i;
-
-  result = g_string_sized_new (128);
-
-  /*
-   * Note that browsers need to be explicitly told they can connect
-   * to a WebSocket. This is non-obvious, but it stems from the fact
-   * that some browsers treat 'https' and 'wss' as different protocols.
-   *
-   * Since each component could establish a WebSocket connection back to
-   * cockpit-ws, we need to insert that into the policy.
-   */
-
-  if (input)
-    parts = g_strsplit (input, ";", -1);
-
-  if (!strv_have_prefix (parts, "default-src "))
-    g_string_append_printf (result, "%s; ", default_src);
-  if (!strv_have_prefix (parts, "connect-src "))
-    g_string_append_printf (result, "%s; ", connect_src);
-
-  for (i = 0; parts && parts[i] != NULL; i++)
-    {
-      g_strstrip (parts[i]);
-      g_string_append_printf (result, "%s; ", parts[i]);
-    }
-
-  g_strfreev (parts);
-
-  /* Remove trailing semicolon */
-  g_string_set_size (result, result->len - 2);
-  package->content_security_policy = g_string_free (result, FALSE);
-  return TRUE;
-}
-
-static gboolean
 check_package_compatible (CockpitPackage *package,
                           JsonObject *manifest)
 {
@@ -514,9 +457,7 @@ setup_package_manifest (CockpitPackage *package,
       return FALSE;
     }
 
-  if (!setup_content_security_policy (package, policy))
-    return FALSE;
-
+  package->content_security_policy = g_strdup (policy);
   json_object_remove_member (manifest, field);
 
   package->manifest = json_object_ref (manifest);
@@ -856,6 +797,7 @@ package_content (CockpitPackages *packages,
                  const gchar *name,
                  const gchar *path,
                  const gchar *language,
+                 const gchar *self_origin,
                  GHashTable *headers)
 {
   GBytes *uncompressed = NULL;
@@ -869,6 +811,7 @@ package_content (CockpitPackages *packages,
   gboolean globbing;
   gboolean gzipped;
   const gchar *type;
+  gchar *policy;
 
   globbing = g_str_equal (name, "*");
   if (globbing)
@@ -975,10 +918,11 @@ package_content (CockpitPackages *packages,
               g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup (type));
               if (g_str_has_prefix (type, "text/html"))
                 {
-                  if (package && package->content_security_policy)
+                  if (package)
                     {
-                      g_hash_table_insert (headers, g_strdup ("Content-Security-Policy"),
-                                           g_strdup (package->content_security_policy));
+                      policy = cockpit_web_response_security_policy (package->content_security_policy,
+                                                                     self_origin);
+                      g_hash_table_insert (headers, g_strdup ("Content-Security-Policy"), policy);
                     }
                 }
             }
@@ -1014,6 +958,9 @@ handle_packages (CockpitWebServer *server,
   const gchar *path;
   GHashTable *out_headers = NULL;
   gchar **languages = NULL;
+  gchar *origin = NULL;
+  const gchar *protocol;
+  const gchar *host;
 
   name = cockpit_web_response_pop_path (response);
   path = cockpit_web_response_get_path (response);
@@ -1044,7 +991,15 @@ handle_packages (CockpitWebServer *server,
     {
       cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
     }
-  package_content (packages, response, name, path, languages[0], out_headers);
+
+  protocol = g_hash_table_lookup (headers, "X-Forwarded-Proto");
+  host = g_hash_table_lookup (headers, "X-Forwarded-Host");
+  if (protocol && host)
+    origin = g_strdup_printf ("%s://%s", protocol, host);
+  if (origin)
+    g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), origin);
+
+  package_content (packages, response, name, path, languages[0], origin, out_headers);
 
 out:
   if (out_headers)

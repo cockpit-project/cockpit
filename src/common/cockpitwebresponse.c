@@ -28,6 +28,7 @@
 #include "cockpitwebresponse.h"
 #include "cockpitwebfilter.h"
 
+#include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
 #include "common/cockpitlocale.h"
 #include "common/cockpittemplate.h"
@@ -65,6 +66,7 @@ struct _CockpitWebResponse {
   gchar *query;
   gchar *url_root;
   gchar *method;
+  gchar *origin;
 
   CockpitCacheType cache_type;
 
@@ -159,6 +161,7 @@ cockpit_web_response_finalize (GObject *object)
   g_free (self->query);
   g_free (self->url_root);
   g_free (self->method);
+  g_free (self->origin);
   g_assert (self->io == NULL);
   g_assert (self->out == NULL);
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
@@ -205,6 +208,8 @@ cockpit_web_response_new (GIOStream *io,
   CockpitWebResponse *self;
   GOutputStream *out;
   const gchar *connection;
+  const gchar *protocol = NULL;
+  const gchar *host = NULL;
   gint offset;
 
   /* Trying to be a somewhat performant here, avoiding properties */
@@ -249,7 +254,15 @@ cockpit_web_response_new (GIOStream *io,
       connection = g_hash_table_lookup (in_headers, "Connection");
       if (connection)
         self->keep_alive = g_str_equal (connection, "keep-alive");
+      host = g_hash_table_lookup (in_headers, "Host");
     }
+
+  if (G_IS_SOCKET_CONNECTION (io))
+    protocol = "http";
+  else
+    protocol = "https";
+  if (protocol && host)
+    self->origin = g_strdup_printf ("%s://%s", protocol, host);
 
   return self;
 }
@@ -1224,16 +1237,20 @@ web_response_file (CockpitWebResponse *response,
                    CockpitTemplateFunc template_func,
                    gpointer user_data)
 {
-  const gchar *csp_header;
+  const gchar *default_policy = "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:";
+
+  const gchar *headers[5] = { NULL };
   GError *error = NULL;
   gchar *unescaped = NULL;
   gchar *path = NULL;
+  gchar *alloc = NULL;
   GMappedFile *file = NULL;
   const gchar *root;
   GBytes *body;
   GList *output = NULL;
   GList *l = NULL;
   gint content_length = -1;
+  gint at = 0;
 
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
 
@@ -1308,18 +1325,25 @@ again:
     }
   g_bytes_unref (body);
 
+  if (response->origin)
+    {
+      headers[at++] = "Access-Control-Allow-Origin";
+      headers[at++] = response->origin;
+    }
+
   /*
    * The default Content-Security-Policy for .html files allows
    * the site to have inline <script> and <style> tags. This code
    * is only used for static resources that do not use the session.
    */
-  csp_header = NULL;
   if (g_str_has_suffix (unescaped, ".html"))
-    csp_header = "Content-Security-Policy";
+    {
+      headers[at++] = "Content-Security-Policy";
+      headers[at++] = alloc = cockpit_web_response_security_policy (default_policy, response->origin);
+    }
 
   cockpit_web_response_headers (response, 200, "OK", content_length,
-                                csp_header, "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
-                                NULL);
+                                headers[0], headers[1], headers[2], headers[3], NULL);
 
   for (l = output; l != NULL; l = g_list_next (l))
     {
@@ -1330,6 +1354,7 @@ again:
     cockpit_web_response_complete (response);
 
 out:
+  g_free (alloc);
   g_free (unescaped);
   g_clear_error (&error);
   g_free (path);
@@ -1724,4 +1749,115 @@ cockpit_web_response_content_type (const gchar *path)
     }
 
   return NULL;
+}
+
+static gboolean
+strv_have_prefix (gchar **strv,
+                  const gchar *prefix)
+{
+  gint i;
+
+  for (i = 0; strv && strv[i] != NULL; i++)
+    {
+      if (g_str_has_prefix (strv[i], prefix))
+        return TRUE;
+    }
+  return FALSE;
+}
+
+static void
+string_inject_origin (GString *string,
+                      const gchar *origin)
+{
+  const gchar *found;
+  gsize pos = 0;
+
+  for (;;)
+    {
+      found = strstr (string->str + pos, "'self'");
+      if (!found)
+        break;
+
+      pos = (found - string->str) + 6;
+      g_string_insert (string, pos, " ");
+      g_string_insert (string, pos + 1, origin);
+      pos += strlen (origin) + 1;
+    }
+}
+
+/**
+ * cockpit_web_response_content_security_policy:
+ * @content_security_policy: the raw security policy or %NULL for a default
+ * @self_origin: our own web origin or %NULL
+ *
+ * Calculates the security policy.
+ *
+ * Returns: A calculated security policy, filled with defaults if necessary.
+ */
+gchar *
+cockpit_web_response_security_policy (const gchar *content_security_policy,
+                                      const gchar *self_origin)
+{
+  const gchar *default_src = "default-src 'self'";
+  const gchar *connect_src = "connect-src 'self' ws: wss:";
+  gchar **parts = NULL;
+  GString *result;
+  gint i;
+
+  result = g_string_sized_new (128);
+
+  /*
+   * Note that browsers need to be explicitly told they can connect
+   * to a WebSocket. This is non-obvious, but it stems from the fact
+   * that some browsers treat 'https' and 'wss' as different protocols.
+   *
+   * Since each component could establish a WebSocket connection back to
+   * cockpit-ws, we need to insert that into the policy.
+   */
+
+  if (content_security_policy)
+    parts = g_strsplit (content_security_policy, ";", -1);
+
+  if (!strv_have_prefix (parts, "default-src "))
+    g_string_append_printf (result, "%s; ", default_src);
+  if (!strv_have_prefix (parts, "connect-src "))
+    g_string_append_printf (result, "%s; ", connect_src);
+
+  for (i = 0; parts && parts[i] != NULL; i++)
+    {
+      g_strstrip (parts[i]);
+      g_string_append_printf (result, "%s; ", parts[i]);
+    }
+
+  g_strfreev (parts);
+
+  /* Remove trailing semicolon */
+  g_string_set_size (result, result->len - 2);
+
+  /* Put in our own origin */
+  if (self_origin)
+    string_inject_origin (result, self_origin);
+
+  return g_string_free (result, FALSE);
+}
+
+const gchar *
+cockpit_web_response_get_protocol (GIOStream *connection,
+                                   GHashTable *headers)
+{
+  const gchar *protocol = NULL;
+  const gchar *protocol_header;
+
+  if (connection && G_IS_TLS_CONNECTION (connection))
+    {
+      protocol = "https";
+    }
+  else
+    {
+      protocol_header = cockpit_conf_string ("WebService", "ProtocolHeader");
+      if (protocol_header && headers)
+         protocol = g_hash_table_lookup (headers, protocol_header);
+    }
+
+  return protocol ? protocol : "http";
 }

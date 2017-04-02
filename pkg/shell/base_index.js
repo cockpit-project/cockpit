@@ -34,11 +34,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         /* Lists of frames, by host */
         self.iframes = { };
 
-        function remove_frame(frame) {
-            $(frame.contentWindow).off();
-            $(frame).remove();
-        }
-
         self.remove = function remove(machine, component) {
             var address;
             if (typeof machine == "string")
@@ -52,7 +47,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 delete self.iframes[address];
             Object.keys(list).forEach(function(key) {
                 if (!component || component == key) {
-                    remove_frame(list[key]);
+                    $(list[key]).remove();
                     delete list[component];
                 }
             });
@@ -113,17 +108,15 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             var name = "cockpit1:" + host + "/" + component;
             var frame = list[component];
             if (frame && frame.getAttribute("name") != name) {
-                remove_frame(frame);
+                $(frame).remove();
                 frame = null;
             }
 
-            var wind, src;
+            var src;
 
             /* A preloaded frame */
             if (!frame) {
-                wind = window.frames[name];
-                if (wind)
-                    frame = wind.frameElement;
+                frame = document.getElementById(name);
                 if (frame) {
                     src = frame.getAttribute('src');
                     frame.url = src.split("#")[0];
@@ -136,7 +129,9 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 new_frame = true;
                 frame = document.createElement("iframe");
                 frame.setAttribute("class", "container-frame");
+                frame.setAttribute("sandbox", "allow-scripts allow-forms");
                 frame.setAttribute("name", name);
+                frame.setAttribute("id", name);
                 frame.style.display = "none";
 
                 var base, checksum;
@@ -175,9 +170,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         var self = this;
 
         var unique_id = 0;
-        var origin = cockpit.transport.origin;
         var source_by_seed = { };
-        var source_by_name = { };
 
         cockpit.transport.filter(function(message, channel, control) {
             var seed, source, pos;
@@ -186,7 +179,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if (control) {
                 if (control.channel !== undefined) {
                     for (seed in source_by_seed)
-                        source_by_seed[seed].window.postMessage(message, origin);
+                        source_by_seed[seed].window.postMessage(message, "*");
                 } else if (control.command == "hint") {
                     if (control.credential) {
                         if (index.privileges)
@@ -201,7 +194,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     seed = channel.substring(0, pos + 1);
                     source = source_by_seed[seed];
                     if (source) {
-                        source.window.postMessage(message, origin);
+                        source.window.postMessage(message, "*");
                         return false; /* Stop delivery */
                     }
                 }
@@ -211,10 +204,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             return true;
         }, false);
 
-        function perform_jump(child, control) {
+        function perform_jump(source, control) {
             var current_frame = index.current_frame();
-            if (child !== window) {
-                if (!current_frame || current_frame.contentWindow != child)
+            if (!source)
+                return;
+            if (source.window !== window) {
+                if (!current_frame || current_frame.contentWindow != source.window)
                     return;
             }
             var str = control.location || "";
@@ -225,53 +220,26 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             index.jump(str);
         }
 
-        function perform_track(child) {
-            var hash;
+        function perform_track(source, control) {
             var current_frame = index.current_frame();
-            /* Note that we ignore tracknig for old shell code */
-            if (current_frame && current_frame.contentWindow === child &&
-                child.name && child.name.indexOf("/shell/shell") === -1) {
-                hash = child.location.hash;
-                if (hash.indexOf("#") === 0)
-                    hash = hash.substring(1);
-                if (hash === "/")
-                    hash = "";
-                index.jump({ hash: hash });
-            }
-        }
-
-        function on_unload(ev) {
-            var source = source_by_name[ev.target.defaultView.name];
-            if (source)
-                unregister(source);
-        }
-
-        function on_hashchange(ev) {
-            var source = source_by_name[ev.target.name];
-            if (source)
-                perform_track(source.window);
-        }
-
-        function on_load(ev) {
-            var source = source_by_name[ev.target.contentWindow.name];
-            if (source)
-                perform_track(source.window);
+            if (source && current_frame && current_frame.contentWindow === source.window)
+                index.jump({ hash: control.hash });
         }
 
         function unregister(source) {
-            var child = source.window;
-            cockpit.kill(null, child.name);
-            var frame = child.frameElement;
-            if (frame)
-                frame.removeEventListener("load", on_load);
-            child.removeEventListener("unload", on_unload);
-            child.removeEventListener("hashchange", on_hashchange);
+            if (!source)
+                return;
+            cockpit.kill(null, source.name);
             delete source_by_seed[source.channel_seed];
-            delete source_by_name[source.name];
+            delete source.frame.source;
         }
 
         function register(child) {
-            var host, name = child.name || "";
+            var frame = lookup(child);
+            if (!frame)
+                return;
+
+            var host, name = frame.getAttribute("name");
             if (name.indexOf("cockpit1:") === 0)
                 host = name.substring(9).split("/")[0];
             if (!name || !host) {
@@ -287,14 +255,9 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 channel_seed: seed,
                 default_host: host,
                 inited: false,
+                frame: frame,
             };
             source_by_seed[seed] = source;
-            source_by_name[name] = source;
-
-            var frame = child.frameElement;
-            frame.addEventListener("load", on_load);
-            child.addEventListener("unload", on_unload);
-            child.addEventListener("hashchange", on_hashchange);
 
             /*
              * Setting the "data-loaded" attribute helps the testsuite
@@ -302,31 +265,40 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
              * own additions.
              */
             frame.setAttribute('data-loaded', '1');
+            frame.source = source;
 
-            perform_track(child);
             phantom_checkpoint();
 
             index.navigate();
             return source;
         }
 
-        function message_handler(event) {
-            if (event.origin !== origin)
-                return;
+        function lookup(child) {
+            var i, frames = document.getElementsByTagName("iframe");
+            for (i = 0; i < frames.length; i++) {
+                if (child == frames[i].contentWindow)
+                    return frames[i];
+            }
+            return null;
+        }
 
+        function message_handler(event) {
             var forward_command = false;
             var data = event.data;
             var child = event.source;
             if (!child || typeof data !== "string")
                 return;
 
-            var source = source_by_name[child.name];
+            var frame = lookup(child);
+            if (!frame)
+                return;
+
+            var source = frame.source;
             var control;
 
             /* Closing the transport */
             if (data.length === 0) {
-                if (source)
-                    unregister(source);
+                unregister(source);
                 return;
             }
 
@@ -334,8 +306,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if (data[0] == '\n') {
                 control = JSON.parse(data.substring(1));
                 if (control.command === "init") {
-                    if (source)
-                        unregister(source);
+                    unregister(source);
                     if (control.problem) {
                         console.warn("child frame failed to init: " + control.problem);
                         source = null;
@@ -346,16 +317,16 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                         var reply = $.extend({ }, cockpit.transport.options,
                             { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
                         );
-                        child.postMessage("\n" + JSON.stringify(reply), origin);
+                        child.postMessage("\n" + JSON.stringify(reply), "*");
                         source.inited = true;
 
                         /* If this new frame is not the current one, tell it */
-                        if (child.frameElement != index.current_frame())
-                            self.hint(child.frameElement.contentWindow, { "hidden": true });
+                        if (frame != index.current_frame())
+                            self.hint(frame, { "hidden": true });
                     }
 
                 } else if (control.command === "jump") {
-                    perform_jump(child, control);
+                    perform_jump(source, control);
                     return;
 
                 } else if (control.command == "logout" || control.command == "kill") {
@@ -366,8 +337,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                         /* watchdog handles current host for now */
                         if (control.host != cockpit.transport.host)
                             index.expect_restart(control.host);
-                    } else
+                    } else if (control.hint == "location") {
+                        perform_track (source, control);
+                    } else {
                         cockpit.hint(control.hint, control);
+                    }
                     return;
                 } else if (control.command == "oops") {
                     index.show_oops();
@@ -379,13 +353,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
                 /* Add the child's group to all open channel messages */
                 } else if (control.command == "open") {
-                    control.group = child.name;
+                    control.group = source.name;
                     data = "\n" + JSON.stringify(control);
                 }
             }
 
             if (!source) {
-                console.warn("child frame " + child.name + " sending data without init");
+                console.warn("child frame " + frame.getAttribute("name") + " sending data without init");
                 return;
             }
 
@@ -400,12 +374,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 message_handler(messages[i]);
         };
 
-        self.hint = function hint(child, data) {
-            var message, source = source_by_name[child.name];
+        self.hint = function hint(frame, data) {
+            var message, source = frame.source;
             if (source && source.inited) {
                 data.command = "hint";
                 message = "\n" + JSON.stringify(data);
-                source.window.postMessage(message, origin);
+                source.window.postMessage(message, "*");
             }
         };
     }
@@ -644,10 +618,10 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         self.current_frame = function (frame) {
             if (frame !== undefined) {
                 if (current_frame !== frame) {
-                    if (current_frame && current_frame.contentWindow)
-                        self.router.hint(current_frame.contentWindow, { "hidden": true });
+                    if (current_frame)
+                        self.router.hint(current_frame, { "hidden": true });
                     if (frame && frame.contentWindow)
-                        self.router.hint(frame.contentWindow, { "hidden": false });
+                        self.router.hint(frame, { "hidden": false });
                 }
                 current_frame = frame;
             }

@@ -21,7 +21,9 @@
 
 #include "cockpitpeer.h"
 
+#include "common/cockpitauthorize.h"
 #include "common/cockpitjson.h"
+#include "common/cockpitmemory.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
@@ -50,6 +52,7 @@ struct _CockpitPeer {
 
   /* Authorizations going on */
   GHashTable *authorizes;
+  gchar *basic;
 
   /* The transport we're routing from */
   CockpitTransport *transport;
@@ -106,6 +109,15 @@ reply_channel_closed (CockpitPeer *self,
   g_bytes_unref (message);
 }
 
+static void
+clear_basic_authorize (CockpitPeer *self)
+{
+  if (self->basic)
+    cockpit_memory_clear (self->basic, -1);
+  g_free (self->basic);
+  self->basic = NULL;
+}
+
 static gboolean
 on_other_recv (CockpitTransport *transport,
               const gchar *channel,
@@ -150,13 +162,18 @@ on_other_control (CockpitTransport *transport,
   CockpitPeer *self = user_data;
   const gchar *problem = NULL;
   const gchar *cookie = NULL;
+  const gchar *challenge = NULL;
+  GBytes *reply;
   gint64 timeout;
   gint64 version;
+  char *type = NULL;
   GList *l;
 
   /* Got an init message thaw all channels */
   if (g_str_equal (command, "init"))
     {
+      clear_basic_authorize (self);
+
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
         {
           g_warning ("%s: invalid \"problem\" field in init message", self->name);
@@ -216,6 +233,21 @@ on_other_control (CockpitTransport *transport,
         {
           g_message ("%s: received \"authorize\" request without a valid cookie", self->name);
         }
+
+      /* If we have info we can respond to basic authorize challenges */
+      else if (self->basic && cockpit_json_get_string (options, "challenge", NULL, &challenge) &&
+               cockpit_authorize_type (challenge, &type) && g_str_equal (type, "basic"))
+        {
+          reply = cockpit_transport_build_control ("command", "authorize",
+                                                   "cookie", cookie,
+                                                   "response", self->basic,
+                                                   NULL);
+          clear_basic_authorize (self);
+          cockpit_transport_send (transport, NULL, reply);
+          g_bytes_unref (reply);
+        }
+
+      /* Otherwise forward the authorize challenge on */
       else
         {
           g_hash_table_add (self->authorizes, g_strdup (cookie));
@@ -252,6 +284,7 @@ on_other_control (CockpitTransport *transport,
       cockpit_transport_send (self->transport, NULL, payload);
     }
 
+  g_free (type);
   return TRUE;
 }
 
@@ -722,6 +755,9 @@ cockpit_peer_handle (CockpitPeer *self,
                      JsonObject *options,
                      GBytes *data)
 {
+  const gchar *user = NULL;
+  const gchar *password = NULL;
+
   g_return_val_if_fail (COCKPIT_IS_PEER (self), FALSE);
   g_return_val_if_fail (channel != NULL, FALSE);
   g_return_val_if_fail (options != NULL, FALSE);
@@ -744,6 +780,17 @@ cockpit_peer_handle (CockpitPeer *self,
       /* We failed to handle channels, let someone else do it */
       g_debug ("%s: refusing to handle channel \"%s\" because peer closed", self->name, channel);
       return FALSE;
+    }
+
+  /* If this is the first channel, we can cache user/password from it */
+  if (!self->inited && !self->basic)
+    {
+      if (cockpit_json_get_string (options, "user", NULL, &user) &&
+          cockpit_json_get_string (options, "password", NULL, &password) && password)
+        {
+          clear_basic_authorize (self);
+          self->basic = cockpit_authorize_build_basic (user, password);
+        }
     }
 
   g_hash_table_add (self->channels, g_strdup (channel));
@@ -819,6 +866,8 @@ cockpit_peer_reset (CockpitPeer *self)
 
   g_hash_table_remove_all (self->channels);
   g_hash_table_remove_all (self->authorizes);
+
+  clear_basic_authorize (self);
 
   if (self->timeout)
     {

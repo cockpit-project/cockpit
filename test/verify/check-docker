@@ -75,7 +75,7 @@ class TestDocker(MachineCase):
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE1")
-        b.set_val("#containers-run-image-command", "/bin/echo -e '%s\n%s\n'" % (message, message))
+        b.set_val("#containers-run-image-command", """/bin/sh -c 'echo "%s"; sleep 5' """ % message)
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE1")

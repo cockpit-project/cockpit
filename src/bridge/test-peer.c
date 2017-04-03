@@ -29,8 +29,10 @@
 #include <json-glib/json-glib.h>
 
 #include <gio/gio.h>
+#include <glib/gstdio.h>
 
 #include <string.h>
+#include <unistd.h>
 
 static GType mock_echo_channel_get_type (void) G_GNUC_CONST;
 
@@ -42,6 +44,17 @@ typedef struct {
 typedef CockpitChannelClass MockEchoChannelClass;
 
 G_DEFINE_TYPE (MockEchoChannel, mock_echo_channel, COCKPIT_TYPE_CHANNEL);
+
+static gboolean
+on_other_closed (CockpitTransport *transport,
+                 const gchar *problem,
+                 gpointer data)
+{
+  gboolean *flag = data;
+  g_assert (*flag == FALSE);
+  *flag = TRUE;
+  return FALSE;
+}
 
 static void
 mock_echo_channel_recv (CockpitChannel *channel,
@@ -429,11 +442,11 @@ static void
 test_reopen (TestCase *tc,
              gconstpointer unused)
 {
-  gchar *bridge;
+  const gchar *bridge;
   GBytes *sent;
   JsonObject *control;
 
-  bridge = g_strdup_printf("{ \"match\": { \"payload\": \"upper\" }, \"spawn\": [ \"/%s\", \"--upper\", \"--count\" ] }", BUILDDIR "/mock-bridge");
+  bridge = "{ \"match\": { \"payload\": \"upper\" }, \"spawn\": [ \"/" BUILDDIR "/mock-bridge" "\", \"--upper\", \"--count\" ] }";
   tc->peer = peer_new (tc->transport, bridge);
 
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
@@ -444,10 +457,9 @@ test_reopen (TestCase *tc,
   cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\",\"count\":0}");
   control = NULL;
 
+  /* Get a good response */
   while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
     g_main_context_iteration (NULL, TRUE);
-
-  /* The fallback just echos */
   cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
 
   cockpit_peer_reset (tc->peer);
@@ -461,13 +473,113 @@ test_reopen (TestCase *tc,
   cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\",\"count\":0}");
   control = NULL;
 
+  /* Get a good response */
   while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
     g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+}
 
-  /* The fallback just echos */
+static void
+test_timeout (TestCase *tc,
+             gconstpointer unused)
+{
+  const gchar *bridge;
+  GBytes *sent;
+  JsonObject *control;
+  CockpitTransport *other = NULL;
+  gboolean closed = FALSE;
+
+  bridge = "{ \"match\": { \"payload\": \"upper\" }, \"timeout\": 1, \"spawn\": [ \"/" BUILDDIR "/mock-bridge" "\", \"--upper\", \"--count\" ] }";
+  tc->peer = peer_new (tc->transport, bridge);
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  emit_string (tc, "a", "Oh MarmaLade");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\",\"count\":0}");
+  control = NULL;
+
+  /* Get a good response */
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
   cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
 
+  /* Close the channel, timeout should close the peer transport */
+  other = g_object_ref (cockpit_peer_ensure (tc->peer));
+  g_signal_connect (other, "closed", G_CALLBACK (on_other_closed), &closed);
+  emit_string (tc, NULL, "{\"command\": \"close\", \"channel\": \"a\"}");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"a\"}");
+  control = NULL;
+
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Sending again reopens peer with count at 0 */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  emit_string (tc, "a", "Oh MarmaLade");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\",\"count\":0}");
+  control = NULL;
+
+  /* Get a good response */
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
+
+  g_object_unref (other);
+}
+
+static void
+test_reopen_fail (TestCase *tc,
+                  gconstpointer unused)
+{
+  gchar *link;
+  gchar *bridge;
+  GBytes *sent;
+  JsonObject *control;
+
+  link = g_strdup_printf ("%s/mock-bridge", g_get_tmp_dir ());
+  bridge = g_strdup_printf("{ \"match\": { \"payload\": \"lower\" }, \"spawn\": [ \"%s\", \"--lower\" ], \"problem\": \"custom-problem\" }", link);
+  tc->peer = peer_new (tc->transport, bridge);
+
+  if (g_file_test (link, G_FILE_TEST_EXISTS))
+    g_assert (g_unlink (link) == 0);
+
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"lower\"}");
+  emit_string (tc, "a", "Oh Marmalade");
+
+  /* Bridge doesn't exist, get problem */
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"close\", \"channel\": \"a\", \"problem\":\"custom-problem\"}");
+  control = NULL;
+
+  cockpit_peer_reset (tc->peer);
+  g_assert (symlink (BUILDDIR "/mock-bridge", link) == 0);
+
+  /* Bridge exists, channel works */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"lower\"}");
+  emit_string (tc, "a", "Oh MarmaLade");
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"a\"}");
+  control = NULL;
+
+  /* Get a good response */
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "oh marmalade", -1);
+
+  g_assert (g_unlink (link) == 0);
   g_free (bridge);
+  g_free (link);
 }
 
 int
@@ -492,6 +604,9 @@ main (int argc,
               setup, test_fallback, teardown);
   g_test_add ("/peer/reopen", TestCase, NULL,
               setup, test_reopen, teardown);
-
+  g_test_add ("/peer/reopen-fail", TestCase, NULL,
+              setup, test_reopen_fail, teardown);
+  g_test_add ("/peer/timeout", TestCase, NULL,
+              setup, test_timeout, teardown);
   return g_test_run ();
 }

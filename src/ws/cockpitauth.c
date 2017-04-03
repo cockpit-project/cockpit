@@ -869,10 +869,8 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
       ssh_options->knownhosts_file = cockpit_ws_known_hosts;
 
       if (!host)
-        {
-          host = type_option (SSH_SECTION, "host", "127.0.0.1");
-          ssh_options->ignore_hostkey = TRUE;
-        }
+        host = type_option (SSH_SECTION, "host", "127.0.0.1");
+
       program_default = cockpit_ws_ssh_program;
       env = cockpit_ssh_options_to_env (ssh_options, env);
     }

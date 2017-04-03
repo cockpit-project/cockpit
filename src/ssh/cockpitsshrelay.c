@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "common/cockpitauthorize.h"
+#include "common/cockpitconf.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
@@ -1178,6 +1179,7 @@ cockpit_ssh_connect (CockpitSshData *data,
                      const gchar *host_arg,
                      ssh_channel *out_channel)
 {
+  const gchar *ignore_hostkey;
   const gchar *problem;
 
   guint port = 22;
@@ -1218,7 +1220,13 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   g_debug ("%s: connected", data->logname);
 
-  if (!data->ssh_options->ignore_hostkey)
+  /* This is a single host, for which we have been told to ignore the host key */
+  ignore_hostkey = cockpit_conf_string (SSH_SECTION, "host");
+  if (!ignore_hostkey)
+    ignore_hostkey = "127.0.0.1";
+
+  if (!g_str_equal (ignore_hostkey, host) &&
+      !data->ssh_options->ignore_hostkey)
     {
       problem = verify_knownhost (data, host, port);
       if (problem != NULL)

@@ -139,29 +139,25 @@ main (int argc,
       success = 1;
     }
   else if (strcmp (data, "ssh-remote-switch") == 0 &&
-           strcmp (argv[1], "machine") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
+           strcmp (argv[1], "machine") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
   else if (strcmp (data, "ssh-alt-machine") == 0 &&
-           strcmp (argv[1], "machine") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
+           strcmp (argv[1], "machine") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
   else if (strcmp (data, "ssh-alt-default") == 0 &&
-           strcmp (argv[1], "default-host") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "*") == 0)
+           strcmp (argv[1], "default-host") == 0)
     {
       write_resp (fd, "{\"user\": \"me\" }");
       success = 1;
     }
   else if (type && strcmp (type, "basic") == 0 &&
-           strcmp (argv[1], "127.0.0.1") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "*") == 0)
+           strcmp (argv[1], "127.0.0.1") == 0)
     {
       if (strcmp (data, "bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=") == 0)
         {
@@ -174,8 +170,7 @@ main (int argc,
         }
     }
   else if (type && strcmp (type, "basic") == 0 &&
-           strcmp (argv[1], "machine") == 0 &&
-           strcmp (getenv ("COCKPIT_SSH_KNOWN_HOSTS_DATA"), "") == 0)
+           strcmp (argv[1], "machine") == 0)
     {
       if (strcmp (data, "cmVtb3RlLXVzZXI6dGhpcyBpcyB0aGUgbWFjaGluZSBwYXNzd29yZA==") == 0)
         {

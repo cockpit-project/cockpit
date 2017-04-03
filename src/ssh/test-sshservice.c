@@ -56,6 +56,7 @@ typedef struct {
   MockTransport *transport;
 
   const gchar *old_ask;
+  const gchar *old_config;
 } TestCase;
 
 typedef struct {
@@ -187,6 +188,7 @@ setup (TestCase *test,
   setup_mock_sshd (test, data);
 
   test->old_ask = g_getenv ("SSH_ASKPASS");
+  test->old_config = g_getenv ("XDG_CONFIG_DIRS");
   g_setenv ("SSH_ASKPASS", BUILDDIR "/cockpit-askpass", TRUE);
 
   test->transport = g_object_new (mock_transport_get_type (), NULL);
@@ -212,6 +214,11 @@ teardown (TestCase *test,
     g_setenv ("SSH_ASKPASS", test->old_ask, TRUE);
   else
     g_unsetenv ("SSH_ASKPASS");
+
+  if (test->old_config)
+    g_setenv ("XDG_CONFIG_DIRS", test->old_config, TRUE);
+  else
+    g_unsetenv ("XDG_CONFIG_DIRS");
 
   alarm (0);
 }
@@ -505,6 +512,7 @@ test_unknown_host_key (TestCase *test,
 
   /* No known hosts */
   cockpit_ssh_known_hosts = "/dev/null";
+  g_setenv ("XDG_CONFIG_DIRS", SRCDIR "/src/ssh/mock-config", TRUE);
 
   service = cockpit_ssh_service_new (COCKPIT_TRANSPORT (test->transport));
 
@@ -542,6 +550,7 @@ test_expect_host_key (TestCase *test,
   JsonObject *control = NULL;
   gchar *cmd;
 
+  g_setenv ("XDG_CONFIG_DIRS", SRCDIR "/src/ssh/mock-config", TRUE);
   cmd = g_strdup_printf ("{\"command\": \"open\","
                          " \"host-key\": \"[127.0.0.1]:%d %s\","
                          " \"channel\": \"4\", \"payload\": \"echo\"}",
@@ -601,6 +610,8 @@ test_expect_host_key_public (TestCase *test,
   GBytes *sent = NULL;
   JsonObject *control = NULL;
   gchar *cmd;
+
+  g_setenv ("XDG_CONFIG_DIRS", SRCDIR "/src/ssh/mock-config", TRUE);
 
   cmd = g_strdup_printf ("{\"command\": \"open\", \"temp-session\": false,"
                          " \"host-key\": \"[127.0.0.1]:%d %s\","

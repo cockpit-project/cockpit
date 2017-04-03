@@ -50,6 +50,8 @@ typedef struct {
   /* setup_mock_sshd */
   GPid mock_sshd;
   guint16 ssh_port;
+
+  const gchar *old_config;
 } TestCase;
 
 
@@ -74,10 +76,12 @@ typedef struct {
     gboolean no_password;
     gboolean ignore_key;
     gboolean prompt_hostkey;
+    gboolean global_config;
 
     const TestAuthResponse *responses;
     int responses_size;
     int timeout;
+
 } TestFixture;
 
 #if WITH_MOCK
@@ -199,6 +203,10 @@ setup_transport (TestCase *tc,
   gboolean ignore_key = FALSE;
   gboolean prompt_hostkey = FALSE;
 
+  tc->old_config = g_getenv ("XDG_CONFIG_DIRS");
+  if (!fixture->global_config)
+    g_setenv ("XDG_CONFIG_DIRS", SRCDIR "/src/ssh/mock-config", TRUE);
+
   /* First time around */
   if (old_process_timeout == 0)
     old_process_timeout = cockpit_ssh_process_timeout;
@@ -282,6 +290,10 @@ teardown (TestCase *tc,
 
   cockpit_ssh_process_timeout = old_process_timeout;
   cockpit_ssh_response_timeout = old_response_timeout;
+  if (tc->old_config)
+    g_setenv ("XDG_CONFIG_DIRS", tc->old_config, TRUE);
+  else
+    g_unsetenv ("XDG_CONFIG_DIRS");
 }
 
 static gboolean
@@ -774,6 +786,39 @@ test_ignore_hostkey (TestCase *tc,
   g_free (problem);
 }
 
+static const TestFixture fixture_hostkey_config = {
+  .ignore_key = FALSE,
+  .known_hosts = "/dev/null",
+  .global_config = TRUE
+};
+
+static void
+test_ignore_hostkey_configured (TestCase *tc,
+                                gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  const gchar *json;
+  gchar *problem = NULL;
+  GBytes *bytes;
+
+  g_assert (fixture->ignore_key == FALSE);
+
+  json = "{\"command\":\"init\",\"version\":1}";
+  bytes = g_bytes_new_static (json, strlen (json));
+  cockpit_transport_send (tc->transport, NULL, bytes);
+  g_bytes_unref (bytes);
+
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_transport_close (tc->transport, NULL);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "");
+
+  g_free (problem);
+}
+
 static const gchar MOCK_RSA_KEY[] = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v";
 
 static const gchar MOCK_RSA_FP[] = "0e:6a:c8:b1:07:72:e2:04:95:9f:0e:b3:56:af:48:e2";
@@ -1040,6 +1085,8 @@ main (int argc,
               setup_transport, test_unknown_hostkey, teardown);
   g_test_add ("/ssh-transport/ignore-hostkey", TestCase, &fixture_ignore_hostkey,
               setup_transport, test_ignore_hostkey, teardown);
+  g_test_add ("/ssh-transport/ignore-hostkey-configured", TestCase, &fixture_hostkey_config,
+              setup_transport, test_ignore_hostkey_configured, teardown);
   g_test_add ("/ssh-transport/get-host-key", TestCase, &fixture_cat,
               setup_transport, test_get_host_key, teardown);
   g_test_add ("/ssh-transport/expect-host-key", TestCase, &fixture_expect_host_key,

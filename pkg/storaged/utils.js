@@ -501,35 +501,158 @@
         return children;
     }
 
-    utils.get_usage_alerts = function get_usage_alerts(client, path) {
-        var block = client.blocks[path];
-        var fsys = client.blocks_fsys[path];
-        var pvol = client.blocks_pvol[path];
+    utils.get_active_usage = function get_active_usage(client, path) {
 
-        var usage =
-            utils.flatten(get_children(client, path).map(
-                function (p) { return utils.get_usage_alerts (client, p); }));
+        function get_usage(path) {
+            var block = client.blocks[path];
+            var fsys = client.blocks_fsys[path];
+            var mdraid = block && client.mdraids[block.MDRaidMember];
+            var pvol = client.blocks_pvol[path];
+            var vgroup = pvol && client.vgroups[pvol.VolumeGroup];
 
-        if (fsys && fsys.MountPoints.length > 0)
-            usage.push({ usage: 'mounted',
-                         Message: cockpit.format(_("Device $0 is mounted on $1"),
-                                                 utils.block_name(block),
-                                                 utils.decode_filename(fsys.MountPoints[0]))
-                       });
-        if (block && client.mdraids[block.MDRaidMember])
-            usage.push({ usage: 'mdraid-member',
-                         Message: cockpit.format(_("Device $0 is a member of RAID Array $1"),
-                                                 utils.block_name(block),
-                                                 utils.mdraid_name(client.mdraids[block.MDRaidMember]))
-                       });
-        if (pvol && client.vgroups[pvol.VolumeGroup])
-            usage.push({ usage: 'pvol',
-                         Message: cockpit.format(_("Device $0 is a physical volume of $1"),
-                                                 utils.block_name(block),
-                                                 client.vgroups[pvol.VolumeGroup].Name)
-                       });
+            var usage = utils.flatten(get_children(client, path).map(get_usage));
 
-        return usage;
+            if (fsys && fsys.MountPoints.length > 0)
+                usage.push({ usage: 'mounted',
+                             block: block,
+                             fsys: fsys
+                           });
+
+            if (mdraid)
+                usage.push({ usage: 'mdraid-member',
+                             block: block,
+                             mdraid: mdraid
+                           });
+
+            if (vgroup)
+                usage.push({ usage: 'pvol',
+                             block: block,
+                             pvol: pvol,
+                             vgroup: vgroup
+                           });
+
+            return usage;
+        }
+
+        // Prepare the result for Mustache
+
+        var usage = get_usage(path);
+
+        var res = {
+            raw: usage,
+            Teardown: {
+                Mounts: [ ],
+                MDRaidMembers: [ ],
+                PhysicalVolumes: [ ]
+            },
+            Blocking: {
+                Mounts: [ ],
+                MDRaidMembers: [ ],
+                PhysicalVolumes: [ ]
+            }
+        };
+
+        usage.forEach(function (use) {
+            var entry, active_state;
+
+            if (use.usage == 'mounted') {
+                res.Teardown.Mounts.push({
+                    Name: utils.block_name(use.block),
+                    MountPoint: utils.decode_filename(use.fsys.MountPoints[0])
+                });
+            } else if (use.usage == 'mdraid-member') {
+                entry = {
+                    Name: utils.block_name(use.block),
+                    MDRaid: utils.mdraid_name(use.mdraid)
+                };
+                active_state = utils.array_find(use.mdraid.ActiveDevices, function (as) {
+                    return as[0] == use.block.path;
+                });
+                if (active_state && active_state[1] < 0)
+                    res.Teardown.MDRaidMembers.push(entry);
+                else
+                    res.Blocking.MDRaidMembers.push(entry);
+            } else if (use.usage == 'pvol') {
+                entry = {
+                    Name: utils.block_name(use.block),
+                    VGroup: use.vgroup.Name
+                };
+                if (use.pvol.FreeSize == use.pvol.Size) {
+                    res.Teardown.PhysicalVolumes.push(entry);
+                } else {
+                    res.Blocking.PhysicalVolumes.push(entry);
+                }
+            }
+        });
+
+        res.Teardown.HasMounts = res.Teardown.Mounts.length > 0;
+        res.Teardown.HasMDRaidMembers = res.Teardown.MDRaidMembers.length > 0;
+        res.Teardown.HasPhysicalVolumes = res.Teardown.PhysicalVolumes.length > 0;
+
+        res.Blocking.HasMounts = res.Blocking.Mounts.length > 0;
+        res.Blocking.HasMDRaidMembers = res.Blocking.MDRaidMembers.length > 0;
+        res.Blocking.HasPhysicalVolumes = res.Blocking.PhysicalVolumes.length > 0;
+
+        if (!res.Blocking.HasMounts && !res.Blocking.HasMDRaidMembers && !res.Blocking.HasPhysicalVolumes)
+            res.Blocking = null;
+
+        return res;
+    };
+
+    utils.teardown_active_usage = function teardown_active_usage(client, usage) {
+
+        // The code below is complicated by the fact that the last
+        // physical volume of a volume group can not be removed
+        // directly (even if it is completely empty).  We want to
+        // remove the whole volume group instead in this case.
+        //
+        // However, we might be removing the last two (or more)
+        // physical volumes here, and it is easiest to catch this
+        // condition upfront by reshuffling the data structures.
+
+        function unmount(mounteds) {
+            return cockpit.all(mounteds.map(function (m) {
+                return m.fsys.Unmount({});
+            }));
+        }
+
+        function mdraid_remove(members) {
+            return cockpit.all(members.map(function (m) {
+                return m.mdraid.RemoveDevice(m.block.path, { wipe: { t: 'b', v: true } });
+            }));
+        }
+
+        function pvol_remove(pvols) {
+            var by_vgroup = { }, p;
+            pvols.forEach(function (p) {
+                if (!by_vgroup[p.vgroup.path])
+                    by_vgroup[p.vgroup.path] = [ ];
+                by_vgroup[p.vgroup.path].push(p.block);
+            });
+
+            function handle_vg(p) {
+                var vg = client.vgroups[p];
+                var pvs = by_vgroup[p];
+                // If we would remove all physical volumes of a volume
+                // group, remove the whole volume group instead.
+                if (pvs.length == client.vgroups_pvols[p].length) {
+                    return vg.Delete({ 'tear-down': { t: 'b', v: true }
+                                     });
+                } else {
+                    return cockpit.all(pvs.map(function (pv) {
+                        return vg.RemoveDevice(pv.path, true, {});
+                    }));
+                }
+            }
+
+            for (p in by_vgroup)
+                handle_vg(p);
+        }
+
+        return cockpit.all([ unmount(usage.raw.filter(function(use) { return use.usage == "mounted"; })),
+                             mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member"; })),
+                             pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol"; }))
+                           ]);
     };
 
     /* jQuery.amend function. This will be removed as we move towards React */

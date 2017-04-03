@@ -49,7 +49,7 @@ class TestStorage(StorageCase):
 
         self.content_tab_action(2, 1, "Format")
         self.dialog_wait_open()
-        self.dialog_wait_alert("is mounted on /mnt")
+        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_cancel()
         self.dialog_wait_close()
 
@@ -59,23 +59,18 @@ class TestStorage(StorageCase):
 
         self.content_head_action(1, "Delete")
         self.dialog_wait_open()
-        self.dialog_wait_alert("is mounted on /mnt")
+        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_cancel()
         self.dialog_wait_close()
+
+        # No go ahead and let the automatic teardown take care of the mount
 
         b.click('button:contains(Create partition table)')
         self.dialog_wait_open()
-        self.dialog_wait_alert("is mounted on /mnt")
-        self.dialog_cancel()
+        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        self.dialog_apply()
         self.dialog_wait_close()
 
-        # Unmount and format the disk.
-
-        m.execute("umount /mnt")
-        b.wait_not_present(self.content_tab_info_row(2, 1, "Mount Points"))
-
-        b.click('button:contains(Create partition table)')
-        self.dialog({})
         self.content_row_wait_in_col(1, 1, "Free Space")
 
 if __name__ == '__main__':

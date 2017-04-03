@@ -654,6 +654,24 @@
               <span class="alert-message">{{Message}}</span>
             </div>
             {{/Alerts}}
+            {{#Blocking}}
+            {{#HasPhysicalVolumes}}
+            <p translate>This device is currently used for volume groups.</p>
+            <table class="table table-bordered">
+              {{#PhysicalVolumes}}
+              <tr><td><span class="pull-right">{{Name}}</span>{{VGroup}}</td></tr>
+              {{/PhysicalVolumes}}
+            </table>
+            {{/HasPhysicalVolumes}}
+            {{#HasMDRaidMembers}}
+            <p translate>This device is currently used for RAID devices.</p>
+            <table class="table table-bordered">
+              {{#MDRaidMembers}}
+              <tr><td><span class="pull-right">{{Name}}</span>{{MDRaid}}</td></tr>
+              {{/MDRaidMembers}}
+            </table>
+            {{/HasMDRaidMembers}}
+            {{/Blocking}}
             <table class="form-table-ct">
               {{#Fields}}
               <tr>
@@ -792,6 +810,37 @@
             </table>
           </div>
           <div class="modal-footer">
+            {{#Teardown}}
+            <div class="modal-footer-teardown">
+              {{#HasMounts}}
+              <p translate>This device has filesystems that are currently in use.<br>
+                Proceeding will unmount all filesystems on it.</p>
+              <table class="table table-bordered">
+                {{#Mounts}}
+                <tr><td><span class="pull-right">{{Name}}</span>{{MountPoint}}</td></tr>
+                {{/Mounts}}
+              </table>
+              {{/HasMounts}}
+              {{#HasPhysicalVolumes}}
+              <p translate>This device is currently used for volume groups.<br>
+                Proceeding will remove it from its volume groups.</p>
+              <table class="table table-bordered">
+                {{#PhysicalVolumes}}
+                <tr><td><span class="pull-right">{{Name}}</span>{{VGroup}}</td></tr>
+                {{/PhysicalVolumes}}
+              </table>
+              {{/HasPhysicalVolumes}}
+              {{#HasMDRaidMembers}}
+              <p translate>This device is currently used for RAID devices.<br>
+                Proceeding will remove it from its RAID devices.</p>
+              <table class="table table-bordered">
+                {{#MDRaidMembers}}
+                <tr><td><span class="pull-right">{{Name}}</span>{{MDRaid}}</td></tr>
+                {{/MDRaidMembers}}
+              </table>
+              {{/HasMDRaidMembers}}
+            </div>
+            {{/Teardown}}
             {{#Action}}
             {{#Danger}}<div class="modal-footer-danger">{{.}}</div>{{/Danger}}
             <div class="spinner spinner-sm pull-left" hidden></div>

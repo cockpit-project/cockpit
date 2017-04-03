@@ -23,7 +23,6 @@
 
 static const gchar *default_knownhosts = PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts";
 static const gchar *default_command = "cockpit-bridge";
-static const gchar *ignore_hosts_data = "*";
 static const gchar *hostkey_mismatch_data = "* invalid key";
 
 static gboolean
@@ -117,9 +116,6 @@ cockpit_ssh_options_from_env (gchar **env)
   CockpitSshOptions *options = g_new0 (CockpitSshOptions, 1);
   options->knownhosts_data = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA",
                                                  NULL);
-  if (g_strcmp0 (options->knownhosts_data, ignore_hosts_data) == 0)
-    options->ignore_hostkey = TRUE;
-
   options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                                                   default_knownhosts);
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
@@ -146,9 +142,7 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
   env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                              options->knownhosts_file);
 
-  if (options->ignore_hostkey)
-    knownhosts_data = ignore_hosts_data;
-  else if (options->knownhosts_data && options->knownhosts_data[0] == '\0')
+  if (options->knownhosts_data && options->knownhosts_data[0] == '\0')
     knownhosts_data = hostkey_mismatch_data;
   else
     knownhosts_data = options->knownhosts_data;

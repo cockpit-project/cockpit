@@ -42,7 +42,6 @@ typedef struct {
   const gchar *command;
   gboolean allow_unknown_hosts;
   gboolean supports_hostkey_prompt;
-  gboolean ignore_hostkey;
 } CockpitSshOptions;
 
 CockpitSshOptions * cockpit_ssh_options_from_env   (gchar **env);

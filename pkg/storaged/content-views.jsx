@@ -248,20 +248,33 @@ function create_tabs(client, target, is_partition) {
         }
 
         if (name) {
+            var usage = utils.get_active_usage(client, target.path);
+
+            if (usage.Blocking) {
+                dialog.open({ Title: cockpit.format(_("$0 is in active use"), name),
+                              Blocking: usage.Blocking,
+                              Fields: [ ]
+                });
+                return;
+            }
+
             dialog.open({ Title: cockpit.format(_("Please confirm deletion of $0"), name),
-                          Alerts: utils.get_usage_alerts(client, target.path),
+                          Teardown: usage.Teardown,
                           Fields: [
                           ],
                           Action: {
                               Danger: danger,
                               Title: _("Delete"),
                               action: function () {
-                                  if (lvol)
-                                      return lvol.Delete({ 'tear-down': { t: 'b', v: true }
-                                      });
-                                  else if (block_part)
-                                      return block_part.Delete({ 'tear-down': { t: 'b', v: true }
-                                      });
+                                  return utils.teardown_active_usage(client, usage).
+                                               then(function () {
+                                                   if (lvol)
+                                                       return lvol.Delete({ 'tear-down': { t: 'b', v: true }
+                                                       });
+                                                   else if (block_part)
+                                                       return block_part.Delete({ 'tear-down': { t: 'b', v: true }
+                                                       });
+                                               });
                               }
                           }
             });
@@ -452,9 +465,20 @@ function block_content(client, block) {
     if (block.Size === 0)
         return null;
 
+
     function format_disk() {
+        var usage = utils.get_active_usage(client, block.path);
+
+        if (usage.Blocking) {
+            dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+                          Blocking: usage.Blocking,
+                          Fields: [ ]
+            });
+            return;
+        }
+
         dialog.open({ Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
-                      Alerts: utils.get_usage_alerts(client, block.path),
+                      Teardown: usage.Teardown,
                       Fields: [
                           { SelectOne: "erase",
                             Title: _("Erase"),
@@ -483,7 +507,10 @@ function block_content(client, block) {
                               };
                               if (vals.erase != "no")
                                   options.erase = { t: 's', v: vals.erase };
-                              return block.Format(vals.type, options);
+                              return utils.teardown_active_usage(client, usage).
+                                           then(function () {
+                                               return block.Format(vals.type, options);
+                                           });
                           }
                       }
         });

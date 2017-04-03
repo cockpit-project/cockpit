@@ -111,8 +111,18 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
     add_fsys(true, { value: "empty", Title: _("No Filesystem") });
     add_fsys(true, { value: "custom", Title: _("Custom (Enter filesystem type)") });
 
+    var usage = utils.get_active_usage(client, create_partition? null : path);
+
+    if (usage.Blocking) {
+        dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+                      Blocking: usage.Blocking,
+                      Fields: [ ]
+        });
+        return;
+    }
+
     dialog.open({ Title: title,
-                  Alerts: utils.get_usage_alerts(client, path),
+                  Teardown: usage.Teardown,
                   Fields: [
                       { SizeSlider: "size",
                         Title: _("Size"),
@@ -238,17 +248,22 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                           if (config_items.length > 0)
                               options["config-items"] = { t: 'a(sa{sv})', v: config_items };
 
-                          if (create_partition) {
-                              if (vals.type == "dos-extended")
-                                  return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
-                              else if (vals.type == "empty")
-                                  return block_ptable.CreatePartition(start, vals.size, "", "", { });
-                              else
-                                  return create_partition_and_format (block_ptable,
-                                                                      start, vals.size, "", "", { },
-                                                                      vals.type, options);
-                          } else
-                          return block.Format(vals.type, options);
+                          function format() {
+                              if (create_partition) {
+                                  if (vals.type == "dos-extended")
+                                      return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
+                                  else if (vals.type == "empty")
+                                      return block_ptable.CreatePartition(start, vals.size, "", "", { });
+                                  else
+                                      return create_partition_and_format (block_ptable,
+                                                                          start, vals.size, "", "", { },
+                                                                          vals.type, options);
+                              } else {
+                                  return block.Format(vals.type, options);
+                              }
+                          }
+
+                          return utils.teardown_active_usage(client, usage).then(format);
                       }
                   }
     });

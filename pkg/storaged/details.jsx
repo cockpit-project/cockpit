@@ -87,19 +87,29 @@
                         return wipe_members();
                 }
 
-                var block = client.mdraids_block[path];
+                var usage = utils.get_active_usage(client, path);
+
+                if (usage.Blocking) {
+                    dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
+                                  Blocking: usage.Blocking,
+                                  Fields: [ ]
+                                });
+                    return;
+                }
+
                 dialog.open({ Title: cockpit.format(_("Please confirm deletion of $0"),
                                                     utils.mdraid_name(mdraid)),
-                              Alerts: block && utils.get_usage_alerts(client, block.path),
+                              Teardown: usage.Teardown,
                               Fields: [ ],
                               Action: {
                                   Title: _("Delete"),
                                   Danger: _("Deleting a RAID device will erase all data on it."),
                                   action: function () {
-                                      return delete_().
-                                              done(function () {
-                                                  location.go('/');
-                                              });
+                                      return utils.teardown_active_usage(client, usage).
+                                          then(delete_).
+                                          then(function () {
+                                              location.go('/');
+                                          });
                                   }
                               }
                             });
@@ -137,19 +147,32 @@
                 if (!vgroup)
                     return;
 
+                var usage = utils.get_active_usage(client, path);
+
+                if (usage.Blocking) {
+                    dialog.open({ Title: cockpit.format(_("$0 is in active use"), vgroup.Name),
+                                  Blocking: usage.Blocking,
+                                  Fields: [ ]
+                                });
+                    return;
+                }
+
                 dialog.open({ Title: cockpit.format(_("Please confirm deletion of $0"), vgroup.Name),
-                              Alerts: utils.get_usage_alerts(client, path),
+                              Teardown: usage.Teardown,
                               Fields: [
                               ],
                               Action: {
                                   Danger: _("Deleting a volume group will erase all data on it."),
                                   Title: _("Delete"),
                                   action: function () {
-                                      return vgroup.Delete(true,
-                                                           { 'tear-down': { t: 'b', v: true }
-                                                           }).
-                                          done(function () {
-                                              location.go('/');
+                                      return utils.teardown_active_usage(client, usage).
+                                          then(function () {
+                                              return vgroup.Delete(true,
+                                                                   { 'tear-down': { t: 'b', v: true }
+                                                                   }).
+                                                  done(function () {
+                                                      location.go('/');
+                                                  });
                                           });
                                   }
                               }

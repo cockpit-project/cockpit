@@ -63,6 +63,13 @@ if [ -n "$do_build" ]; then
     echo BUILDUSERID=0      >>~/.pbuilderrc
     echo BUILDUSERNAME=root >>~/.pbuilderrc
 
+    # pbuilder < 0.228.6 has broken /dev/pts/ptmx permissions; affects Ubuntu < 17.04
+    # see https://bugs.debian.org/841935
+    if ! grep -q ptmxmode /usr/lib/pbuilder/pbuilder-modules; then
+        echo "Fixing /dev/pts/ptmx mode in pbuilder"
+        sed -i '/mount -t devpts none/ s/$/,ptmxmode=666,newinstance/' /usr/lib/pbuilder/pbuilder-modules
+    fi
+
     pbuilder build --buildresult "$resultdir" \
                    --logfile "$resultdir/build.log" \
                    cockpit_${upstream_ver}-1.dsc >$stdout_dest

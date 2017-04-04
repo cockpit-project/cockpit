@@ -122,7 +122,7 @@ def build_and_install(install_image, build_image, args):
     args.setdefault("containers", False)
     args.setdefault("address", None)
 
-    skips = [ ]
+    skips = ["cockpit-integration-tests"]
     if install_image:
         if "atomic" in install_image:
             skips.append("cockpit-kubernetes")

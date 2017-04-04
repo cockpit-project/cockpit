@@ -34,6 +34,19 @@ WS_DIR = $(srcdir)/containers/ws
 
 CLEANFILES += $(WS_DIR)/rpms
 
+# needed for installed integration tests
+ATOMIC_SETUP = \
+	$(WS_DIR)/atomic-install   \
+	$(WS_DIR)/atomic-run       \
+	$(WS_DIR)/atomic-uninstall \
+	$(NULL)
+
+EXTRA_DIST += $(ATOMIC_SETUP)
+
+install-integration-tests::
+	$(MKDIR_P) $(DESTDIR)/$(pkgdatadir)/containers/ws/
+	$(INSTALL_DATA) $(ATOMIC_SETUP) $(DESTDIR)/$(pkgdatadir)/containers/ws/
+
 ws-container:
 	rm -rf $(WS_DIR)/rpms && mkdir -p $(WS_DIR)/rpms
 	cd $(WS_DIR)/rpms && $(abs_srcdir)/tools/make-rpms

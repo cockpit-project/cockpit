@@ -378,6 +378,12 @@ dist-xz: distdir
 distcheck-hook::
 	$(srcdir)/tools/check-dist $(distdir)
 
+install-integration-tests::
+	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
+	( cd $(srcdir); git ls-tree HEAD --full-tree --name-only -r test || echo test ) | \
+		tar -C $(srcdir) -cf - -T - | tar -C $(DESTDIR)$(pkgdatadir) -xf -
+	rm -r $(DESTDIR)$(pkgdatadir)/test/tmp; ln -sf /var/tmp/cockpit $(DESTDIR)$(pkgdatadir)/test/tmp
+
 BOWER = $(srcdir)/bower_components
 
 include po/Makefile.am

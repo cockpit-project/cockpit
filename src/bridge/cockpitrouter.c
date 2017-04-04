@@ -380,6 +380,7 @@ on_channel_closed (CockpitChannel *local,
 
   channel = cockpit_channel_get_id (local);
   g_hash_table_remove (self->channels, channel);
+  g_hash_table_remove (self->groups, channel);
 
   /*
    * If this was the last channel in the fence group then resume all other channels

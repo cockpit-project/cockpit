@@ -1,0 +1,65 @@
+sudo: false
+dist: trusty
+notifications:
+  irc:
+    channels:
+     - "chat.freenode.net#cockpit"
+    skip_join: true
+    use_notice: true
+    template:
+     - "%{message} (%{branch} - %{commit} : %{author}): %{build_url}"
+language: c
+compiler: gcc
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #  via the "travis encrypt" command using the project repo's public key
+   - secure: "eZ6Idu0mdj8hovNPK0DL9MmUnzshblNtuXuvVMJ1zujdBJ09sZKmUDI44B2b8e64YPOTq8dTyP8GNmCBf8L3fw0knIfz0uxWBSMbqwLAJk5HkPQ3xE3vLJZK4Gs2np7IunTg91mgFcAkZo4gWNUOrB2jxv9bP0rZSummP8TV+c0="
+
+addons:
+  coverity_scan:
+    project:
+      name: "cockpit-project/cockpit"
+      description: "Build submitted via Travis CI"
+    notification_email: dperpeet@redhat.com
+    build_command_prepend: "COV_BUILD_OPTIONS='--fs-capture-search pkg --fs-capture-search src --fs-capture-search test --fs-capture-search dist' && ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp"
+    build_command: "make -j all"
+    branch_pattern: master
+  apt:
+    packages:
+    - autoconf
+    - automake
+    - dbus
+    - gdb
+    - git
+    - glib-networking
+    - gtk-doc-tools
+    - intltool
+    - libfontconfig1
+    - libglib2.0-dev
+    - libgudev-1.0-dev
+    - libjavascript-minifier-xs-perl
+    - libjson-glib-dev
+    - libjson-perl
+    - libkeyutils-dev
+    - liblvm2-dev
+    - libnm-glib-dev
+    - libpam0g-dev
+    - libpcp3-dev
+    - libpcp-import1-dev
+    - libpcp-pmda3-dev
+    - libpolkit-agent-1-dev
+    - libpolkit-gobject-1-dev
+    - libssh-dev
+    - libsystemd-daemon-dev
+    - libsystemd-login-dev
+    - libsystemd-journal-dev
+    - libkrb5-dev
+    - pcp
+    - pkg-config
+    - pyflakes
+    - ssh
+    - valgrind
+    - xmlto
+
+script: "/bin/true"

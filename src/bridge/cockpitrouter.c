@@ -520,17 +520,16 @@ process_open_channel (CockpitRouter *self,
   GType channel_type = 0;
   const gchar *group;
 
-  if (!cockpit_json_get_string (options, "group", NULL, &group))
+  if (!cockpit_json_get_string (options, "group", "default", &group))
     g_warning ("%s: caller specified invalid 'group' field in open message", channel);
 
   g_assert (type_function != NULL);
   channel_type = type_function ();
 
-  if (group && g_str_equal (group, "fence"))
+  if (g_str_equal (group, "fence"))
     g_hash_table_add (self->fences, g_strdup (channel));
 
-  if (group)
-    g_hash_table_insert (self->groups, g_strdup (channel), g_strdup (group));
+  g_hash_table_insert (self->groups, g_strdup (channel), g_strdup (group));
 
   create_channel (self, channel, options, channel_type);
   return TRUE;

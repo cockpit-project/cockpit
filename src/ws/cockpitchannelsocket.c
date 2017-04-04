@@ -210,7 +210,7 @@ cockpit_channel_socket_open (CockpitWebService *service,
   CockpitTransport *transport;
   gchar **protocols = NULL;
 
-  if (!cockpit_web_service_parse_external (open, NULL, NULL, &protocols) ||
+  if (!cockpit_web_service_parse_external (open, NULL, NULL, NULL, &protocols) ||
       !cockpit_web_service_parse_binary (open, &data_type))
     {
       respond_with_error (original_path, path, io_stream, headers, 400, "Bad channel request");

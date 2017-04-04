@@ -68,6 +68,7 @@ gboolean                cockpit_web_service_parse_binary     (JsonObject *open,
 
 gboolean                cockpit_web_service_parse_external   (JsonObject *open,
                                                               const gchar **content_type,
+                                                              const gchar **content_encoding,
                                                               const gchar **content_disposition,
                                                               gchar ***protocols);
 

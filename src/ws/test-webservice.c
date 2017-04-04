@@ -1292,6 +1292,7 @@ test_parse_external (void)
 {
   const gchar *content_disposition;
   const gchar *content_type;
+  const gchar *content_encoding;
   gchar **protocols;
   JsonObject *object;
   JsonObject *external;
@@ -1300,21 +1301,23 @@ test_parse_external (void)
 
   object = json_object_new ();
 
-  ret = cockpit_web_service_parse_external (object, NULL, NULL, NULL);
+  ret = cockpit_web_service_parse_external (object, NULL, NULL, NULL, NULL);
   g_assert (ret == TRUE);
 
-  ret = cockpit_web_service_parse_external (object, &content_type, &content_disposition, &protocols);
+  ret = cockpit_web_service_parse_external (object, &content_type, &content_encoding, &content_disposition, &protocols);
   g_assert (ret == TRUE);
   g_assert (content_type == NULL);
+  g_assert (content_encoding == NULL);
   g_assert (content_disposition == NULL);
   g_assert (protocols == NULL);
 
   external = json_object_new ();
   json_object_set_object_member (object, "external", external);
 
-  ret = cockpit_web_service_parse_external (object, &content_type, &content_disposition, &protocols);
+  ret = cockpit_web_service_parse_external (object, &content_type, &content_encoding, &content_disposition, &protocols);
   g_assert (ret == TRUE);
   g_assert (content_type == NULL);
+  g_assert (content_encoding == NULL);
   g_assert (content_disposition == NULL);
   g_assert (protocols == NULL);
 
@@ -1325,11 +1328,13 @@ test_parse_external (void)
   json_object_set_array_member (external, "protocols", array);
 
   json_object_set_string_member (external, "content-type", "text/plain");
+  json_object_set_string_member (external, "content-encoding", "gzip");
   json_object_set_string_member (external, "content-disposition", "filename; test");
 
-  ret = cockpit_web_service_parse_external (object, &content_type, &content_disposition, &protocols);
+  ret = cockpit_web_service_parse_external (object, &content_type, &content_encoding, &content_disposition, &protocols);
   g_assert (ret == TRUE);
   g_assert_cmpstr (content_type, ==, "text/plain");
+  g_assert_cmpstr (content_encoding, ==, "gzip");
   g_assert_cmpstr (content_disposition, ==, "filename; test");
   g_assert (protocols != NULL);
   g_assert_cmpstr (protocols[0], ==, "one");
@@ -1371,7 +1376,7 @@ test_parse_external_failure (gconstpointer data)
 
   cockpit_expect_message (fixture->message);
 
-  ret = cockpit_web_service_parse_external (object, NULL, NULL, NULL);
+  ret = cockpit_web_service_parse_external (object, NULL, NULL, NULL, NULL);
   g_assert (ret == FALSE);
 
   json_object_unref (object);

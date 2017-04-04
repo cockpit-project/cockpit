@@ -33,6 +33,7 @@
 #include "ws/cockpitauthoptions.h"
 
 #include "cockpitsshrelay.h"
+#include "cockpitsshoptions.h"
 
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
@@ -1221,7 +1222,7 @@ cockpit_ssh_connect (CockpitSshData *data,
   g_debug ("%s: connected", data->logname);
 
   /* This is a single host, for which we have been told to ignore the host key */
-  ignore_hostkey = cockpit_conf_string (SSH_SECTION, "host");
+  ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
   if (!ignore_hostkey)
     ignore_hostkey = "127.0.0.1";
 

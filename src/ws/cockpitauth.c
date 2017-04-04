@@ -829,11 +829,11 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
     }
 
   if (host)
-    section = SSH_SECTION;
+    section = COCKPIT_CONF_SSH_SECTION;
   else if (self->login_loopback && g_strcmp0 (type, "basic") == 0)
-    section = SSH_SECTION;
+    section = COCKPIT_CONF_SSH_SECTION;
   else if (g_strcmp0 (action, ACTION_SSH) == 0)
-    section = SSH_SECTION;
+    section = COCKPIT_CONF_SSH_SECTION;
   else
     section = type;
 
@@ -856,12 +856,12 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
     authorized = "";
   ad->authorize_password = (strstr (authorized, "password") != NULL);
 
-  if (g_strcmp0 (section, SSH_SECTION) == 0)
+  if (g_strcmp0 (section, COCKPIT_CONF_SSH_SECTION) == 0)
     {
       ad->is_ssh = TRUE;
 
       if (!host)
-        host = type_option (SSH_SECTION, "host", "127.0.0.1");
+        host = type_option (COCKPIT_CONF_SSH_SECTION, "host", "127.0.0.1");
 
       program_default = cockpit_ws_ssh_program;
     }

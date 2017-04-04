@@ -26,6 +26,7 @@
 #define G_LOG_DOMAIN "cockpit-protocol"
 
 #include "cockpitsshtransport.h"
+#include "cockpitsshoptions.h"
 
 #include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
@@ -490,13 +491,13 @@ cockpit_ssh_transport_constructed (GObject *object)
   g_return_if_fail (self->host != NULL);
 
   /* How long to wait for the auth process to send some data */
-  pipe_timeout = cockpit_conf_guint (SSH_SECTION, "timeout",
+  pipe_timeout = cockpit_conf_guint (COCKPIT_CONF_SSH_SECTION, "timeout",
                                      cockpit_ssh_process_timeout, 1, 999);
   /* How long to wait for a response from the client to a auth prompt */
-  idle_timeout = cockpit_conf_guint (SSH_SECTION, "response-timeout",
+  idle_timeout = cockpit_conf_guint (COCKPIT_CONF_SSH_SECTION, "response-timeout",
                                      cockpit_ssh_response_timeout, 1, 999);
   /* The wanted authfd for this command, default is 3 */
-  wanted_fd = cockpit_conf_guint (SSH_SECTION, "authFD", 3, 1024, 3);
+  wanted_fd = cockpit_conf_guint (COCKPIT_CONF_SSH_SECTION, "authFD", 3, 1024, 3);
 
   self->auth_process = g_object_new (COCKPIT_TYPE_AUTH_PROCESS,
                                    "pipe-timeout", pipe_timeout,

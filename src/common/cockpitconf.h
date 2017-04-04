@@ -24,6 +24,8 @@
 
 G_BEGIN_DECLS
 
+#define COCKPIT_CONF_SSH_SECTION "Ssh-Login"
+
 const gchar *   cockpit_conf_string           (const gchar *section,
                                                const gchar *field);
 

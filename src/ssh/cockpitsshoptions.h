@@ -17,22 +17,28 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_AUTH_OPTIONS_H__
-#define __COCKPIT_AUTH_OPTIONS_H__
+#ifndef __COCKPIT_SSH_OPTIONS_H__
+#define __COCKPIT_SSH_OPTIONS_H__
 
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
 
 typedef struct {
-  const gchar *remote_peer;
-  const gchar *auth_type;
-} CockpitAuthOptions;
+  const gchar *knownhosts_data;
+  const gchar *knownhosts_file;
+  const gchar *command;
+  gboolean allow_unknown_hosts;
+  gboolean supports_hostkey_prompt;
+  gboolean ignore_hostkey;
+} CockpitSshOptions;
 
-CockpitAuthOptions * cockpit_auth_options_from_env  (gchar **env);
+CockpitSshOptions * cockpit_ssh_options_from_env   (gchar **env);
 
-gchar **             cockpit_auth_options_to_env    (CockpitAuthOptions *options,
-                                                     gchar **env);
+gchar **            cockpit_ssh_options_to_env     (CockpitSshOptions *options,
+                                                    gchar **env);
+
+const gchar *       cockpit_get_default_knownhosts  (void);
 
 G_END_DECLS
 

@@ -722,6 +722,12 @@ function ensure_transport(callback) {
     }
 }
 
+/* Always close the transport explicitly: allows parent windows to track us */
+window.addEventListener("unload", function() {
+    if (default_transport)
+        default_transport.close();
+});
+
 function Channel(options) {
     var self = this;
 
@@ -2581,6 +2587,10 @@ function factory() {
 
     window.addEventListener("hashchange", function() {
         last_loc = null;
+        var hash = window.location.hash;
+        if (hash.indexOf("#") === 0)
+            hash = hash.substring(1);
+        cockpit.hint("location", { "hash": hash });
         cockpit.dispatchEvent("locationchanged");
     });
 

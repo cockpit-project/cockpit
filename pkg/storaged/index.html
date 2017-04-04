@@ -799,6 +799,9 @@
             <button class="btn {{#Danger}}btn-danger{{/Danger}}{{^Danger}}btn-primary{{/Danger}}"
                     data-action="apply">{{Title}}</button>
             {{/Action}}
+            {{^Action}}
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Close</button>
+            {{/Action}}
           </div>
         </div>
       </div>

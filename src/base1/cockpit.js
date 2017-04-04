@@ -511,8 +511,6 @@ function Transport() {
             expect_disconnect = true;
             window.location.reload(true);
         }
-        if (expect_disconnect)
-            return;
         self.close();
     };
 
@@ -564,6 +562,8 @@ function Transport() {
         ws = null;
         if (ows)
             ows.close();
+        if (expect_disconnect)
+            return;
         ready_for_channels(); /* ready to fail */
 
         /* Broadcast to everyone */
@@ -721,6 +721,12 @@ function ensure_transport(callback) {
         });
     }
 }
+
+/* Always close the transport explicitly: allows parent windows to track us */
+window.addEventListener("unload", function() {
+    if (default_transport)
+        default_transport.close();
+});
 
 function Channel(options) {
     var self = this;
@@ -1093,6 +1099,8 @@ function factory() {
 
     /* Not public API ... yet? */
     cockpit.hint = function hint(name, options) {
+        if (!default_transport)
+            return;
         if (!options)
             options = default_host;
         if (typeof options == "string")
@@ -2581,6 +2589,10 @@ function factory() {
 
     window.addEventListener("hashchange", function() {
         last_loc = null;
+        var hash = window.location.hash;
+        if (hash.indexOf("#") === 0)
+            hash = hash.substring(1);
+        cockpit.hint("location", { "hash": hash });
         cockpit.dispatchEvent("locationchanged");
     });
 

@@ -79,9 +79,6 @@ static guint sig__idling = 0;
 /* Tristate tracking whether gssapi works properly */
 static gint gssapi_available = -1;
 
-/* Used by test to overide known hosts */
-const gchar *cockpit_ws_known_hosts = NULL;
-
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
 
 typedef struct {
@@ -780,7 +777,6 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
   GSimpleAsyncResult *result;
   AuthData *ad = NULL;
   CockpitAuthOptions *options = NULL;
-  CockpitSshOptions *ssh_options = NULL;
   GBytes *authorization = NULL;
 
   gchar *type = NULL;
@@ -864,15 +860,10 @@ cockpit_auth_spawn_login_async (CockpitAuth *self,
     {
       ad->is_ssh = TRUE;
 
-      ssh_options = g_new0 (CockpitSshOptions, 1);
-      ssh_options->supports_hostkey_prompt = TRUE;
-      ssh_options->knownhosts_file = cockpit_ws_known_hosts;
-
       if (!host)
         host = type_option (SSH_SECTION, "host", "127.0.0.1");
 
       program_default = cockpit_ws_ssh_program;
-      env = cockpit_ssh_options_to_env (ssh_options, env);
     }
   else
     {
@@ -910,7 +901,6 @@ out:
   g_free (application);
   g_strfreev (env);
   g_free (options);
-  g_free (ssh_options);
 
   if (ad)
     auth_data_unref (ad);

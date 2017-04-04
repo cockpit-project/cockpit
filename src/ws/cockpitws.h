@@ -30,7 +30,6 @@ G_BEGIN_DECLS
 extern const gchar *cockpit_ws_session_program;
 extern const gchar *cockpit_ws_ssh_program;
 extern const gchar *cockpit_ws_bridge_program;
-extern const gchar *cockpit_ws_known_hosts;
 extern const gchar *cockpit_ws_default_host_header;
 extern gint cockpit_ws_specific_ssh_port;
 extern guint cockpit_ws_ping_interval;

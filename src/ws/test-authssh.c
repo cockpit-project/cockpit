@@ -410,8 +410,8 @@ main (int argc,
       char *argv[])
 {
   cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";
-  cockpit_ws_known_hosts = SRCDIR "/src/ssh/mock_known_hosts";
 
+  g_setenv ("COCKPIT_SSH_KNOWN_HOSTS_FILE", SRCDIR "/src/ssh/mock_known_hosts", TRUE);
   g_setenv ("COCKPIT_SSH_BRIDGE_COMMAND", BUILDDIR "/cockpit-bridge", TRUE);
 
   cockpit_test_init (&argc, &argv);

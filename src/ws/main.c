@@ -120,6 +120,8 @@ main (int argc,
 
   g_setenv ("G_TLS_GNUTLS_PRIORITY", "SECURE128:%LATEST_RECORD_VERSION:-VERS-SSL3.0:-VERS-TLS1.0", FALSE);
 
+  g_setenv ("COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", "1", TRUE);
+
   g_type_init ();
 
   memset (&data, 0, sizeof (data));

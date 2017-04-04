@@ -758,10 +758,11 @@ cockpit_channel_response_open (CockpitWebService *service,
   WebSocketDataType data_type;
   GHashTable *headers;
   const gchar *content_type;
+  const gchar *content_encoding;
   const gchar *content_disposition;
 
   /* Parse the external */
-  if (!cockpit_web_service_parse_external (open, &content_type, &content_disposition, NULL))
+  if (!cockpit_web_service_parse_external (open, &content_type, &content_encoding, &content_disposition, NULL))
     {
       cockpit_web_response_error (response, 400, NULL, "Bad channel request");
       return;
@@ -792,6 +793,9 @@ cockpit_channel_response_open (CockpitWebService *service,
         content_type = "application/octet-stream";
     }
   g_hash_table_insert (headers, g_strdup ("Content-Type"), g_strdup (content_type));
+
+  if (content_encoding)
+    g_hash_table_insert (headers, g_strdup ("Content-Encoding"), g_strdup (content_encoding));
 
   /* We shouldn't need to send this part further */
   json_object_remove_member (open, "external");

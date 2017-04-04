@@ -744,6 +744,7 @@ cockpit_web_service_parse_binary (JsonObject *options,
 gboolean
 cockpit_web_service_parse_external (JsonObject *options,
                                     const gchar **content_type,
+                                    const gchar **content_encoding,
                                     const gchar **content_disposition,
                                     gchar ***protocols)
 {
@@ -771,6 +772,8 @@ cockpit_web_service_parse_external (JsonObject *options,
         *content_disposition = NULL;
       if (content_type)
         *content_type = NULL;
+      if (content_encoding)
+        *content_encoding = NULL;
       if (protocols)
         *protocols = NULL;
       return TRUE;
@@ -801,6 +804,15 @@ cockpit_web_service_parse_external (JsonObject *options,
     }
   if (content_type)
     *content_type = value;
+
+  if (!cockpit_json_get_string (external, "content-encoding", NULL, &value) ||
+      (value && !cockpit_web_response_is_header_value (value)))
+    {
+      g_message ("invalid \"content-encoding\" external option");
+      return FALSE;
+    }
+  if (content_encoding)
+    *content_encoding = value;
 
   if (!cockpit_json_get_strv (external, "protocols", NULL, protocols))
     {

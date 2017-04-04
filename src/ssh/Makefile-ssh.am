@@ -8,6 +8,8 @@ libcockpit_ssh_a_SOURCES = \
 	src/ws/cockpitauthoptions.c \
 	src/ws/cockpitauthprocess.h \
 	src/ws/cockpitauthprocess.c \
+	src/ssh/cockpitsshoptions.c \
+	src/ssh/cockpitsshoptions.h \
 	src/ssh/cockpitsshrelay.h \
 	src/ssh/cockpitsshrelay.c \
 	src/ssh/cockpitsshservice.h \
@@ -57,9 +59,14 @@ mock_sshd_CFLAGS = \
 	$(NULL)
 
 SSH_CHECKS = \
+	test-sshoptions \
 	test-sshtransport \
 	test-sshservice \
 	$(NULL)
+
+test_sshoptions_CFLAGS = $(cockpit_ssh_CFLAGS)
+test_sshoptions_SOURCES = src/ssh/test-sshoptions.c
+test_sshoptions_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
 
 test_sshtransport_SOURCES = \
 	src/ssh/test-sshtransport.c \

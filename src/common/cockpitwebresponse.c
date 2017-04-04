@@ -255,14 +255,23 @@ cockpit_web_response_new (GIOStream *io,
       if (connection)
         self->keep_alive = g_str_equal (connection, "keep-alive");
       host = g_hash_table_lookup (in_headers, "Host");
+
+#if 0
+      header = g_hash_table_lookup (in_headers, "Origin");
+      if (header && g_str_equal (header, "null"))
+        self->origin = g_strdup (header);
+#endif
     }
 
-  if (G_IS_SOCKET_CONNECTION (io))
-    protocol = "http";
-  else
-    protocol = "https";
-  if (protocol && host)
-    self->origin = g_strdup_printf ("%s://%s", protocol, host);
+  if (!self->origin)
+    {
+      if (G_IS_SOCKET_CONNECTION (io))
+        protocol = "http";
+      else
+        protocol = "https";
+      if (protocol && host)
+        self->origin = g_strdup_printf ("%s://%s", protocol, host);
+    }
 
   return self;
 }
@@ -1325,7 +1334,12 @@ again:
     }
   g_bytes_unref (body);
 
-  if (response->origin)
+  if (g_str_has_suffix (path, ".woff"))
+    {
+      headers[at++] = "Access-Control-Allow-Origin";
+      headers[at++] = "*";
+    }
+  else
     {
       headers[at++] = "Access-Control-Allow-Origin";
       headers[at++] = response->origin;

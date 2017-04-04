@@ -992,12 +992,25 @@ handle_packages (CockpitWebServer *server,
       cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
     }
 
-  protocol = g_hash_table_lookup (headers, "X-Forwarded-Proto");
-  host = g_hash_table_lookup (headers, "X-Forwarded-Host");
-  if (protocol && host)
-    origin = g_strdup_printf ("%s://%s", protocol, host);
-  if (origin)
-    g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), origin);
+#if 0
+  header = g_hash_table_lookup (headers, "Origin");
+  if (header && g_str_equal (header, "null"))
+    origin = g_strdup (header);
+#endif
+
+  if (!origin)
+    {
+      protocol = g_hash_table_lookup (headers, "X-Forwarded-Proto");
+      host = g_hash_table_lookup (headers, "X-Forwarded-Host");
+      if (protocol && host)
+        origin = g_strdup_printf ("%s://%s", protocol, host);
+    }
+
+  if (g_str_has_suffix (path, ".woff"))
+    g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), g_strdup ("*"));
+  else if (origin)
+    g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), g_strdup (origin));
+g_message ("ACAO header: %s %s\n", path, (char *)g_hash_table_lookup (out_headers, "Access-Control-Allow-Origin"));
 
   package_content (packages, response, name, path, languages[0], origin, out_headers);
 
@@ -1005,6 +1018,7 @@ out:
   if (out_headers)
     g_hash_table_unref (out_headers);
   g_strfreev (languages);
+  g_free (origin);
   g_free (name);
   return TRUE;
 }

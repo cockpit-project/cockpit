@@ -743,11 +743,9 @@ static void
 process_kill (CockpitRouter *self,
               JsonObject *options)
 {
-  CockpitChannel *channel;
   GHashTableIter iter;
   const gchar *group = NULL;
   const gchar *host = NULL;
-  gpointer id, value;
   GList *list, *l;
 
   if (!cockpit_json_get_string (options, "group", NULL, &group))
@@ -767,25 +765,39 @@ process_kill (CockpitRouter *self,
 
   list = NULL;
   if (group)
-    g_hash_table_iter_init (&iter, self->groups);
-  else
-    g_hash_table_iter_init (&iter, self->channels);
-  while (g_hash_table_iter_next (&iter, &id, &value))
     {
-      if (group && !g_str_equal (group, value))
-        continue;
-      channel = g_hash_table_lookup (self->channels, id);
-      if (channel)
+      gpointer id, channel_group;
+
+      g_hash_table_iter_init (&iter, self->groups);
+      while (g_hash_table_iter_next (&iter, &id, &channel_group))
         {
-          g_debug ("killing channel: %s", (gchar *)id);
-          list = g_list_prepend (list, g_object_ref (channel));
+          CockpitChannel *channel;
+
+          if (!g_str_equal (group, channel_group))
+            continue;
+
+          channel = g_hash_table_lookup (self->channels, id);
+          if (channel)
+            list = g_list_prepend (list, g_object_ref (channel));
         }
+    }
+  else
+    {
+      gpointer id, channel;
+
+      g_hash_table_iter_init (&iter, self->channels);
+      while (g_hash_table_iter_next (&iter, &id, &channel))
+        list = g_list_prepend (list, g_object_ref (channel));
     }
 
   for (l = list; l != NULL; l = g_list_next (l))
     {
-      cockpit_channel_close (l->data, "terminated");
-      g_object_unref (l->data);
+      CockpitChannel *channel = l->data;
+
+      g_debug ("killing channel: %s", cockpit_channel_get_id (channel));
+      cockpit_channel_close (channel, "terminated");
+
+      g_object_unref (channel);
     }
 
   g_list_free (list);

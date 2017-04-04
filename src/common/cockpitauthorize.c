@@ -116,6 +116,7 @@ cockpit_authorize_nonce (size_t length)
   key = malloc (length);
   if (!key)
     {
+      close (fd);
       errno = ENOMEM;
       return NULL;
     }
@@ -344,7 +345,7 @@ cockpit_authorize_build_basic (const char *user,
       goto out;
     }
 
-  if (asprintf (&response, "Basic%s%s", encoded ? " " : "", encoded ? encoded : "") < 0)
+  if (asprintf (&response, "Basic %s", encoded) < 0)
     {
       errn = errno;
       message ("could not build basic response");

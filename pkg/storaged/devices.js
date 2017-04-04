@@ -26,7 +26,7 @@
     var client = require("./client");
     var jobs = require("./jobs");
     var overview = require("./overview");
-    var details = require("./details");
+    var details = require("./details.jsx");
     var utils = require("./utils");
 
     require("page.css");

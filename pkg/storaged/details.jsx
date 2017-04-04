@@ -95,7 +95,7 @@
                               Action: {
                                   Title: _("Delete"),
                                   Danger: _("Deleting a RAID device will erase all data on it."),
-                                  action: function (vals) {
+                                  action: function () {
                                       return delete_().
                                               done(function () {
                                                   location.go('/');
@@ -427,36 +427,37 @@
             name = n;
             render();
 
-            var content = document.querySelector("#detail-content");
-            var sidebar = document.querySelector("#detail-sidebar");
+            var content = document.getElementById("detail-content");
+            var sidebar = document.getElementById("detail-sidebar");
+
             React.unmountComponentAtNode(content);
             React.unmountComponentAtNode(sidebar);
             if (type == 'block') {
                 $('#detail-body').attr("class", "col-md-12");
-                React.render(React.createElement(ContentViews.Block,
-                                                 { client: client,
-                                                   name: name
-                                                 }), content);
+                React.render(
+                    <ContentViews.Block client={client} name={name} />,
+                    content
+                );
             } else if (type == 'mdraid') {
                 $('#detail-body').attr("class", "col-md-8 col-lg-9 col-md-pull-4 col-lg-pull-3");
-                React.render(React.createElement(ContentViews.MDRaid,
-                                                 { client: client,
-                                                   name: name
-                                                 }), content);
-                React.render(React.createElement(SidebarViews.MDRaid,
-                                                 { client: client,
-                                                   name: name
-                                                 }), sidebar);
+                React.render(
+                    <ContentViews.MDRaid client={client} name={name} />,
+                    content
+                );
+                React.render(
+                    <SidebarViews.MDRaid client={client} name={name} />,
+                    sidebar
+                );
             } else if (type == 'vgroup') {
                 $('#detail-body').attr("class", "col-md-8 col-lg-9 col-md-pull-4 col-lg-pull-3");
-                React.render(React.createElement(ContentViews.VGroup,
-                                                 { client: client,
-                                                   name: name
-                                                 }), content);
-                React.render(React.createElement(SidebarViews.VGroup,
-                                                 { client: client,
-                                                   name: name
-                                                 }), sidebar);
+                React.render(
+                    <ContentViews.VGroup client={client} name={name} />,
+                    content
+                );
+                React.render(
+                    <SidebarViews.VGroup client={client} name={name} />,
+                    sidebar
+                );
             }
 
             utils.show_soon("#storage-detail", !!content.firstChild);

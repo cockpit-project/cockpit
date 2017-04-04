@@ -33,27 +33,26 @@ var StorageBlockNavLink = StorageControls.StorageBlockNavLink;
 var _ = cockpit.gettext;
 
 var MDRaid = React.createClass({
-    getInitialState: function () {
+    getInitialState: function() {
         return { mdraid: null, block: null };
     },
-    onClientChanged: function () {
+    onClientChanged: function() {
         var mdraid = this.props.client.uuids_mdraid[this.props.name];
         var block = mdraid && this.props.client.mdraids_block[mdraid.path];
         this.setState({ mdraid: mdraid, block: block });
     },
-    componentDidMount: function () {
+    componentDidMount: function() {
         $(this.props.client).on("changed", this.onClientChanged);
         this.onClientChanged();
     },
-    componentWillUnmount: function () {
+    componentWillUnmount: function() {
         $(this.props.model).off("changed", this.onClientChanged);
     },
 
-    render: function () {
+    render: function() {
         var self = this;
         var client = self.props.client;
         var mdraid = self.state.mdraid;
-        // var block = self.state.block;
 
         if (!mdraid)
             return null;
@@ -84,8 +83,8 @@ var MDRaid = React.createClass({
                               ],
                               Action: {
                                   Title: _("Add"),
-                                  action: function (vals) {
-                                      return utils.prepare_available_spaces(client, vals.disks).then(function () {
+                                  action: function(vals) {
+                                      return utils.prepare_available_spaces(client, vals.disks).then(function() {
                                           var paths = Array.prototype.slice.call(arguments);
                                           return cockpit.all(paths.map(function(p) {
                                               return mdraid.AddDevice(p, {});
@@ -96,11 +95,11 @@ var MDRaid = React.createClass({
                 });
         }
 
-        var members = client.mdraids_members[mdraid.path] || [ ];
+        var members = client.mdraids_members[mdraid.path] || [];
         var dynamic_members = (mdraid.Level != "raid0");
 
         var n_spares = 0, n_recovering = 0;
-        mdraid.ActiveDevices.forEach(function (as) {
+        mdraid.ActiveDevices.forEach(function(as) {
             if (as[2].indexOf("spare") >= 0) {
                 if (as[1] < 0)
                     n_spares += 1;
@@ -115,7 +114,7 @@ var MDRaid = React.createClass({
             running = mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0;
 
         function render_member(block) {
-            var active_state = utils.array_find(mdraid.ActiveDevices, function (as) {
+            var active_state = utils.array_find(mdraid.ActiveDevices, function(as) {
                 return as[0] == block.path;
             });
 
@@ -158,13 +157,13 @@ var MDRaid = React.createClass({
                         <br/>
                         <span className="state">{states}</span>
                     </td>
-                    {dynamic_members ?
+                    { dynamic_members ?
                      <td className="storage-action">
                          <StorageButton onClick={remove} excuse={remove_excuse}>
                              <span className="fa fa-minus"></span>
                          </StorageButton>
                      </td>
-                     : null}
+                     : null }
                 </tr>);
         }
 
@@ -195,17 +194,17 @@ var MDRaid = React.createClass({
 });
 
 var VGroup = React.createClass({
-    getInitialState: function () {
+    getInitialState: function() {
         return { vgroup: null };
     },
-    onClientChanged: function () {
+    onClientChanged: function() {
         this.setState({ vgroup: this.props.client.vgnames_vgroup[this.props.name] });
     },
-    componentDidMount: function () {
+    componentDidMount: function() {
         $(this.props.client).on("changed", this.onClientChanged);
         this.onClientChanged();
     },
-    componentWillUnmount: function () {
+    componentWillUnmount: function() {
         $(this.props.model).off("changed", this.onClientChanged);
     },
 
@@ -217,7 +216,7 @@ var VGroup = React.createClass({
         if (!vgroup)
             return null;
 
-        var pvols = client.vgroups_pvols[vgroup.path] || [ ];
+        var pvols = client.vgroups_pvols[vgroup.path] || [];
 
         function filter_inside_vgroup(spc) {
             var block = spc.block;
@@ -240,7 +239,7 @@ var VGroup = React.createClass({
                                          .map(utils.available_space_to_option)
                                 ),
                                 EmptyWarning: _("No disks are available."),
-                                validate: function (disks) {
+                                validate: function(disks) {
                                     if (disks.length === 0)
                                         return _("At least one disk is needed.");
                                 }
@@ -248,8 +247,8 @@ var VGroup = React.createClass({
                           ],
                           Action: {
                               Title: _("Add"),
-                              action: function (vals) {
-                                  return utils.prepare_available_spaces(client, vals.disks).then(function () {
+                              action: function(vals) {
+                                  return utils.prepare_available_spaces(client, vals.disks).then(function() {
                                       var paths = Array.prototype.slice.call(arguments);
                                       return cockpit.all(paths.map(function(p) {
                                           return vgroup.AddDevice(p, {});
@@ -270,19 +269,21 @@ var VGroup = React.createClass({
 
             function pvol_empty_and_remove() {
                 return (vgroup.EmptyDevice(pvol.path, {})
-                              .then(function () {
+                              .then(function() {
                                   vgroup.RemoveDevice(pvol.path, true, {});
                               }));
             }
 
-            if (pvols.length == 1) {
+            if (pvols.length === 1) {
                 remove_excuse = _("The last physical volume of a volume group cannot be removed.");
             } else if (pvol.FreeSize < pvol.Size) {
                 if (pvol.Size <= vgroup.FreeSize)
                     remove_action = pvol_empty_and_remove;
                 else
-                    remove_excuse = cockpit.format(_("There is not enough free space elsewhere to remove this physical volume.  At least $0 more free space is needed."),
-                                                   utils.fmt_size(pvol.Size - vgroup.FreeSize));
+                    remove_excuse = cockpit.format(
+                        _("There is not enough free space elsewhere to remove this physical volume. At least $0 more free space is needed."),
+                        utils.fmt_size(pvol.Size - vgroup.FreeSize)
+                    );
             } else {
                 remove_action = pvol_remove;
             }
@@ -293,7 +294,7 @@ var VGroup = React.createClass({
                         <div><img src="images/storage-disk.png"></img></div>
                     </td>
                     <td>
-                        <StorageBlockNavLink client={client} block={client.blocks[pvol.path]}/>
+                        <StorageBlockNavLink client={client} block={ client.blocks[pvol.path] }/>
                         <br></br>
                         <span>
                             {cockpit.format(_("$0, $1 free"),
@@ -321,7 +322,7 @@ var VGroup = React.createClass({
                 </div>
                 <table className="table">
                     <tbody>
-                        {pvols.map(render_pvol)}
+                        { pvols.map(render_pvol) }
                     </tbody>
                 </table>
             </div>

@@ -1,0 +1,248 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from packagelib import *
+
+@skipImage("Not supported", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+class TestApps(PackageCase):
+
+    def setUp(self):
+        PackageCase.setUp(self)
+        self.appstream_collection = set()
+
+    def createAppStreamPackage(self, name, version, revision):
+        self.createPackage(name, version, revision, content = {
+            "/usr/share/metainfo/org.cockpit-project.{0}.metainfo.xml".format(name): """
+<component type="addon">
+  <extends>cockpit.desktop</extends>
+  <id>org.cockpit-project.{0}</id>
+  <name>{0}</name>
+  <summary>An application for testing</summary>
+            <launchable type="cockpit-manifest">{0}</launchable>
+</component>
+""".format(name) })
+        self.appstream_collection.add(name)
+
+    def enableAppStreamRepo(self):
+        body = ""
+        for p in self.appstream_collection:
+            body += """
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <id>org.cockpit-project.{0}</id>
+    <name>{0}</name>
+    <summary>An application for testing</summary>
+    <launchable type="cockpit-manifest">{0}</launchable>
+    <pkgname>{0}</pkgname>
+  </component>
+""".format(p)
+        self.machine.execute("mkdir -p /usr/share/app-info/xmls")
+        self.createPackage("appstream-data-test", "1.0", "1", content = {
+            "/usr/share/app-info/xmls/test.xml": """
+<components origin="test">
+{0}
+</components>
+            """.format(body)})
+        self.enableRepo()
+        self.machine.execute("pkcon refresh force")
+        self.machine.execute("pkcon -y install appstream-data-test")
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        # Make sure none of the appstream directories exist.  They
+        # will be created later and we need to cope with that.
+
+        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
+
+        m.start_cockpit()
+        b.login_and_go("/apps")
+        b.wait_present(".app-list-empty")
+
+        self.createAppStreamPackage("app-1", "1.0", "1")
+        self.enableAppStreamRepo()
+
+        b.wait_present(".app-list tr:contains('app-1') button:contains('Install')")
+
+        b.click(".app-list tr:contains('app-1') button:contains('Install')")
+        b.wait_present(".app-list tr:contains('app-1') button:contains('Remove')")
+        m.execute("test -f /stamp-app-1-1.0-1")
+
+        b.click(".app-list tr:contains('app-1') button:contains('Remove')")
+        b.wait_present(".app-list tr:contains('app-1') button:contains('Install')")
+        m.execute("! test -f /stamp-app-1-1.0-1")
+
+    def testL10N(self):
+        b = self.browser
+        m = self.machine
+
+        # Switching to a language might produce these messages, which seem to be harmless.
+        self.allow_journal_messages("invalid or unusable locale.*",
+                                    "Error receiving data: Connection reset by peer")
+
+        m.start_cockpit()
+        b.login_and_go("/apps")
+        b.wait_present(".app-list-empty")
+
+        m.execute("mkdir -p /usr/share/app-info/xmls")
+        m.write("/usr/share/app-info/xmls/test.xml", """
+<components origin="test">
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <id>org.cockpit-project.foo</id>
+    <name>NAME:none</name>
+    <name xml:lang="de">NAME:de</name>
+    <summary>SUMMARY:none</summary>
+    <summary xml:lang="de">SUMMARY:de</summary>
+    <description>
+        <p>DESCRIPTION:none</p>
+        <p xml:lang="de">DESCRIPTION:de</p>
+    </description>
+    <launchable type="cockpit-manifest">foo</launchable>
+    <pkgname>foo</pkgname>
+  </component>
+</components>""")
+
+        b.wait_present(".app-list tr:contains('SUMMARY:none') button:contains('Install')")
+        b.click(".app-list tr:contains('SUMMARY:none')")
+
+        b.wait_present(".app-description:contains('DESCRIPTION:none')")
+
+        def set_lang(lang):
+            b.switch_to_top()
+            b.click("#content-user-name")
+            b.click(".display-language-menu a")
+            b.wait_popup('display-language')
+            b.set_val("#display-language select", lang)
+            b.click("#display-language-select-button")
+            b.expect_load()
+            b.wait_present("#content")
+            b.enter_page("/apps")
+
+        set_lang("de-de")
+        b.wait_present(".app-description:contains('DESCRIPTION:de')")
+        b.wait_not_present(".app-description:contains('DESCRIPTION:none')")
+
+        set_lang("ja-ja")
+        b.wait_present(".app-description:contains('DESCRIPTION:none')")
+        b.wait_not_present(".app-description:contains('DESCRIPTION:de')")
+
+    def testBrokenXML(self):
+        b = self.browser
+        m = self.machine
+
+        m.start_cockpit()
+        b.login_and_go("/apps")
+        b.wait_present(".app-list-empty")
+
+        m.execute("mkdir -p /usr/share/app-info/xmls")
+
+        self.allow_journal_messages(".*/usr/share/app-info/xmls/test.xml.*",
+                                    ".*xml.etree.ElementTree.ParseError.*")
+
+        def reset():
+            m.write("/usr/share/app-info/xmls/test.xml", """
+<components origin="test">
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <id>org.cockpit-project.test</id>
+    <name>Name</name>
+    <summary>Summary</summary>
+    <description>
+        <p>Description</p>
+    </description>
+    <launchable type="cockpit-manifest">foo</launchable>
+    <pkgname>foo</pkgname>
+  </component>
+</components>""")
+            b.wait_not_present(".app-list-empty")
+            b.wait_present(".app-list tr:contains('Summary')")
+
+        # First lay down some good XML so that we can later detect the reaction to broken XML.
+        reset()
+
+        # Unparseable
+        m.write("/usr/share/app-info/xmls/test.xml", """
+This <is <not XML.
+""")
+        b.wait_present(".app-list-empty")
+        reset()
+
+        # Not really AppStream
+        m.write("/usr/share/app-info/xmls/test.xml", """
+<foo></foo>
+""")
+        b.wait_present(".app-list-empty")
+        reset()
+
+        # No origin
+        m.write("/usr/share/app-info/xmls/test.xml", """
+<components>
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <id>org.cockpit-project.test</id>
+    <name>Name</name>
+    <summary>Summary</summary>
+    <description>
+        <p>Description</p>
+    </description>
+    <launchable type="cockpit-manifest">foo</launchable>
+    <pkgname>foo</pkgname>
+  </component>
+</components>""")
+        b.wait_present(".app-list-empty")
+        reset()
+
+        # No package
+        m.write("/usr/share/app-info/xmls/test.xml", """
+<components origin="test">
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <id>org.cockpit-project.test</id>
+    <name>Name</name>
+    <summary>Summary</summary>
+    <description>
+        <p>Description</p>
+    </description>
+    <launchable type="cockpit-manifest">foo</launchable>
+  </component>
+</components>""")
+        b.wait_present(".app-list-empty")
+        reset()
+
+        # No id
+        m.write("/usr/share/app-info/xmls/test.xml", """
+<components origin="test">
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <name>Name</name>
+    <summary>No description</summary>
+    <launchable type="cockpit-manifest">foo</launchable>
+    <pkgname>foo</pkgname>
+  </component>
+</components>""")
+        b.wait_present(".app-list-empty")
+        reset()
+
+if __name__ == '__main__':
+    test_main()

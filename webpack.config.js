@@ -4,6 +4,10 @@
 
 var info = {
     entries: {
+        "apps/apps": [
+            "apps/index.jsx"
+        ],
+
         "dashboard/dashboard": [
             "dashboard/list.js",
         ],
@@ -169,6 +173,10 @@ var info = {
     ],
 
     files: [
+        "apps/index.html",
+        "apps/default.png",
+        "apps/manifest.json",
+
         "dashboard/index.html",
         "dashboard/manifest.json",
 

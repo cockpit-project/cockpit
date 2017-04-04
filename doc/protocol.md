@@ -148,10 +148,12 @@ prefix your groups with a reverse domain name so they don't conflict with
 other or Cockpit's group names. Group names without any punctuation are
 reserved.
 
-One such special group name is the "fence" group. While any channels are
-open in the "fence" group, any channels opened after that point will be
-blocked and wait until all channels in the "fence" group are closed before
-resuming.
+One such special group name is "default", which contains all channels which
+were opened without specifying a group.
+
+Another one is the "fence" group. While any channels are open in the "fence"
+group, any channels opened after that point will be blocked and wait until all
+channels in the "fence" group are closed before resuming.
 
 **Host values**
 

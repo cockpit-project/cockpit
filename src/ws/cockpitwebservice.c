@@ -491,7 +491,6 @@ process_transport_authorize (CockpitWebService *self,
 {
   const gchar *cookie = NULL;
   GBytes *payload;
-  char *user = NULL;
   char *type = NULL;
   char *alloc = NULL;
   const char *response = NULL;
@@ -524,7 +523,7 @@ process_transport_authorize (CockpitWebService *self,
       if (!data)
         g_debug ("%s: received authorize plain1 challenge, but no password to reauthenticate", host);
       else if (!authorize_check_user (self->creds, challenge))
-        g_debug ("%s: received authorize plain1 challenge, but for wrong user", user);
+        g_debug ("received authorize plain1 challenge, but for wrong user");
       else
         response = g_bytes_get_data (data, NULL);
     }
@@ -537,7 +536,7 @@ process_transport_authorize (CockpitWebService *self,
         }
       else if (!authorize_check_user (self->creds, challenge))
         {
-          g_debug ("%s: received authorize crypt1 challenge, but for wrong user", user);
+          g_debug ("received authorize crypt1 challenge, but for wrong user");
         }
       else
         {
@@ -554,16 +553,6 @@ process_transport_authorize (CockpitWebService *self,
   self->credential_requests++;
   send_socket_hints (self, "credential", "request");
 
-  if (response)
-    {
-      if (user && cockpit_creds_get_user (self->creds) &&
-          !g_str_equal (user, cockpit_creds_get_user (self->creds)))
-        {
-          response = NULL;
-          g_message ("received authorize command for wrong user: %s", user);
-        }
-    }
-
   if (cookie && !self->sent_done)
     {
       payload = cockpit_transport_build_control ("command", "authorize",
@@ -575,7 +564,6 @@ process_transport_authorize (CockpitWebService *self,
       g_bytes_unref (payload);
     }
 
-  free (user);
   free (type);
   free (alloc);
   return TRUE;

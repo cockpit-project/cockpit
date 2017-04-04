@@ -1,0 +1,171 @@
+#!/usr/bin/python
+# generate debian/copyright from debian/copyright.template and bower_components
+# Author: Martin Pitt <mpitt@debian.org>
+#
+# bower.json license: format uses https://spdx.org/licenses/ identifiers, which
+# are mostly compatible with
+# https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/#license-specification
+
+import os
+import json
+import re
+import subprocess
+import argparse
+from glob import glob
+
+debian_dir = os.path.join(os.path.dirname(__file__), 'debian')
+template_file = os.path.join(debian_dir, 'copyright.template')
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description='Generate debian/copyright file from template and bower_components')
+    p.add_argument('bower_components', help='path to bower_components directory')
+    return p.parse_args()
+
+
+def template_licenses(template):
+    '''Return set of existing License: short names'''
+
+    ids = set()
+    for l in template.splitlines():
+        if l.startswith('License:'):
+            ids.add(l.split(None, 1)[1])
+    return ids
+
+
+def module_license(moddir):
+    '''Return License: short name for given module'''
+
+    # First check if bower.json has a "license" field
+    try:
+        with open(os.path.join(moddir, 'bower.json')) as f:
+            l = json.load(f)['license']
+            if 'and MIT' in l:
+                # https://github.com/requirejs/requirejs/issues/1645
+                return 'MIT'
+            if os.path.basename(moddir) == 'qunit' and 'https://' in l:
+                # fixed in 2.1.0 (https://github.com/qunitjs/qunit/commit/6e3f6e8e40c4)
+                return 'MIT'
+            return l
+    except (IOError, KeyError):
+        pass
+
+    # *LICENSE*/COPYING/README
+    if os.path.exists(os.path.join(moddir, 'MIT-LICENSE.txt')):
+        return 'MIT'
+    try:
+        with open((glob(os.path.join(moddir, 'LICENSE*')) +
+                   glob(os.path.join(moddir, 'COPYING')) +
+                   glob(os.path.join(moddir, 'README.md')))[0]) as f:
+            text = f.read()
+        if 'Permission is hereby granted,' in text and 'THE SOFTWARE IS PROVIDED "AS IS"' in text:
+            return 'MIT'
+        if 'Redistribution and use in source and binary forms' in text and 'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT' in text:
+            if '4. Neither' in text:
+                return 'BSD-4-clause'
+            else:
+                return 'BSD-3-clause'
+        if re.search('Apache License.*2.0', text):
+            return 'Apache-2.0'
+        if 'GNU LESSER GENERAL PUBLIC LICENSE' in text and 'Version 2.1' in text:
+            return 'LGPL-2.1'
+    except IndexError:
+        pass
+
+    # missing licenses
+    mod = os.path.basename(moddir)
+    if mod == 'kubernetes-object-describer':
+        # upstream says "same as what we use for origin and origin-web-console which is Apache"
+        # https://github.com/kubernetes-ui/object-describer/issues/31
+        return 'Apache-2.0'
+    if mod == 'redux':
+        # our tarball only ships the minified version, original source is at
+        # https://github.com/reactjs/redux; as it's "MIT" we don't legally
+        # require to ship the preferred form of modification
+        return 'MIT'
+
+    raise SystemError('Could not determine license from %s' % moddir)
+
+
+def module_copyright(moddir):
+    '''Return Copyrights for given module'''
+
+    mod = os.path.basename(moddir)
+    copyrights = set()
+    try:
+        out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', 'copyright.*[1-9][0-9]\+'],
+                                      cwd=moddir, universal_newlines=True)
+        for l in out.splitlines():
+            # ignore compiled .css.map files
+            if l.startswith('{"version":') or '*//*!' in l:
+                continue
+            # weed out some noise
+            if 'grunt.template.today' in l or 'copyright-mark' in l or '@font-face' in l or 'Binary file' in l:
+                continue
+            l = l.replace('<copyright>', '').replace('</copyright>', '')
+            l = l.replace('&copy;', '(c)').replace('copyright = ', '')
+            l = re.sub('@license.*Copyright', '', l)
+            l = l.strip(' \t*/\'|,')
+            if not l.endswith('Inc.'):
+                # avoids some duplicated lines which only differ in trailing dot
+                l = l.strip('.')
+            if l.startswith("u'") or l.startswith('u"'):  # Python unicode prefix
+                l = l[2:]
+            if 'Fixes #' in l:
+                continue  # this is from a changelog
+            # some noise fine-tuning for specific packages
+            if mod == 'bootstrap' and ('https://github.com' in l or l == 'Copyright 2015'):
+                continue
+            if mod == 'patternfly':
+                l = re.sub(' and licensed.*', '', l)
+
+            copyrights.add((' ' + l).decode('UTF-8'))  # space prefix for debian/copyright RFC822 format
+    except subprocess.CalledProcessError:
+        pass
+
+    # missing copyrights
+    if mod == 'angular-bootstrap':
+        # only committer is Wesley Cho, so assume his copyright
+        # https://github.com/angular-ui/bootstrap-bower/issues/74
+        copyrights.add('(C) 2015-2017 Wesley Cho')
+    if mod == 'kubernetes-object-describer':
+        # only committer is Jessica Forrester, working for Red Hat
+        # https://github.com/kubernetes-ui/object-describer/issues/35
+        copyrights.add('(C) 2015-2017 Red Hat, Inc.')
+    if mod == 'redux':
+        # our tarball only ships the minified version, original source is at
+        # https://github.com/reactjs/redux
+        copyrights.add('(c) 2015-present Dan Abramov')
+
+    if not copyrights:
+        raise SystemError('Did not find any copyrights in %s' % moddir)
+    return copyrights
+
+#
+# main
+#
+
+args = parse_args()
+
+with open(template_file) as f:
+    template = f.read()
+
+license_ids = template_licenses(template)
+paragraphs = []
+for module in sorted(os.listdir(args.bower_components)):
+    if module == 'README':
+        continue
+    moddir = os.path.join(args.bower_components, module)
+    license = module_license(moddir)
+    if license not in license_ids:
+        raise KeyError('%s has license %s which is not in %s' % (module, license, template_file))
+    copyrights = module_copyright(moddir)
+    paragraphs.append(u'''Files: %s/*
+Copyright:%s
+License: %s''' % (moddir, '\n'.join(sorted(copyrights)), license))
+
+for l in template.splitlines():
+    if '#BOWER' in l:
+        print u'\n\n'.join(paragraphs).encode('UTF-8'),
+    else:
+        print(l)

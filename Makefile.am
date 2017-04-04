@@ -356,6 +356,7 @@ dist-hook::
 	tar -C $(srcdir) -cf - bower_components/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
+	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(BOWER) > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' "$(distdir)" "$(distdir)/bower.json" "$(distdir)/.bowerrc"

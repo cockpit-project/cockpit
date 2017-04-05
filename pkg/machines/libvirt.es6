@@ -110,6 +110,7 @@ LIBVIRT_PROVIDER = {
     isRunning: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
     canRun: (vmState) => vmState == 'shut off',
     canConsole: (vmState) => vmState == 'running',
+    canSendNMI: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
 
     /**
      * Read VM properties of a single VM (virsh)
@@ -266,6 +267,15 @@ LIBVIRT_PROVIDER = {
             });
         };
     },
+
+    SENDNMI_VM ({ name, connectionName }) {
+        logDebug(`${this.name}.SENDNMI_VM(${name}):`);
+        return dispatch => spawnVirsh({connectionName,
+            method: 'SENDNMI_VM',
+            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrrupt action failed")}),
+            args: ['inject-nmi', name]
+        });
+    }
 };
 
 function canLoggedUserConnectSession (connectionName, loggedUser) {

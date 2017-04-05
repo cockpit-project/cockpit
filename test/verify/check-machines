@@ -20,6 +20,7 @@
 
 import parent
 from testlib import *
+
 import os
 import sys
 
@@ -243,7 +244,20 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         if args["logfile"] is not None:
-            wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])))
+            wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
+        # Wait for the system to completely start
+        if args["logfile"] is not None:
+            wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
+        # Send Non-Maskable Interrupt (no change in VM state is expected)
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-sendNMI")
+        b.click("#vm-subVmTest1-sendNMI")
+        b.wait_not_visible("#vm-subVmTest1-sendNMI")
+
+        if args["logfile"] is not None:
+            b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")
@@ -251,7 +265,7 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
-        # usage should drop to zero
+        # continue shut off validation - usage should drop to zero
         b.wait_in_text("#chart-donut-0 .donut-title-big-pf", "0.00")
         b.wait_in_text("#chart-donut-1 .donut-title-big-pf", "0.0")
 

@@ -79,6 +79,10 @@ export function usageStopPolling(vm) {
     return virt('USAGE_STOP_POLLING', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
+export function sendNMI(vm) {
+    return virt('SENDNMI_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+}
+
 /**
  * Delay call of polling action.
  *

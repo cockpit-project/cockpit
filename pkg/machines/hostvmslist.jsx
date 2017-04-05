@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm,
-         usageStartPolling, usageStopPolling } from "./actions.es6";
+         usageStartPolling, usageStopPolling, sendNMI } from "./actions.es6";
 import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
@@ -50,9 +50,16 @@ const NoVm = () => {
     </div>);
 }
 
-const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onShutdown, onForceoff }) => {
+const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI}) => {
     const id = vmId(vm.name);
     const state = vm.state;
+
+    let sendNMI = null;
+    if (config.provider.canSendNMI && config.provider.canSendNMI(state)) {
+        sendNMI = (<button className="btn btn-default btn-danger" onClick={onSendNMI} id={`${id}-sendNMI`}>
+                    {_("Send Non-Maskable Interrupt")}
+                </button>);
+    }
 
     let reset = null;
     if (config.provider.canReset(state)) {
@@ -108,6 +115,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
     }
 
     return (<div>
+        {sendNMI}
         {reset}
         {shutdown}
         {run}
@@ -124,6 +132,7 @@ VmActions.propTypes = {
     onForceReboot: PropTypes.func.isRequired,
     onShutdown: PropTypes.func.isRequired,
     onForceoff: PropTypes.func.isRequired,
+    onSendNMI: PropTypes.func.isRequired,
 }
 
 const IconElement = ({ onClick, className, title, state }) => {
@@ -397,7 +406,7 @@ VmUsageTab.propTypes = {
 /** One VM in the list (a row)
  */
 const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceReboot,
-              onUsageStartPolling, onUsageStopPolling, dispatch }) => {
+              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch }) => {
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} />);
 
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
@@ -435,7 +444,7 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
             ]}
         tabRenderers={tabRenderers}
         listingActions={VmActions({vm, config, dispatch,
-            onStart, onReboot, onForceReboot, onShutdown, onForceoff})}/>);
+            onStart, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI})}/>);
 };
 Vm.propTypes = {
     vm: PropTypes.object.isRequired,
@@ -447,6 +456,7 @@ Vm.propTypes = {
     onForceReboot: PropTypes.func.isRequired,
     onUsageStartPolling: PropTypes.func.isRequired,
     onUsageStopPolling: PropTypes.func.isRequired,
+    onSendNMI: React.PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
 };
 
@@ -476,6 +486,7 @@ const HostVmsList = ({ vms, config, dispatch }) => {
                         onForceoff={() => dispatch(forceVmOff(vm))}
                         onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                         onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
+                        onSendNMI={() => dispatch(sendNMI(vm))}
                         dispatch={dispatch}
                     />);
             })}

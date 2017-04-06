@@ -24,10 +24,13 @@ network-manager \
 policykit-1 \
 realmd \
 selinux-basics \
-storaged \
-storaged-lvm2 \
 thin-provisioning-tools \
 xdg-utils \
+"
+
+# modern udisks (after re-merging storaged)
+COCKPIT_DEPS_EXPERIMENTAL="\
+udisks2 \
 "
 
 # We also install the packages necessary to join a FreeIPA domain so
@@ -41,14 +44,15 @@ packagekit \
 TEST_PACKAGES="\
 curl \
 gdb \
+mdadm \
 systemd-coredump \
 virtinst \
+xfsprogs \
 "
 
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
 
-# For storaged
 echo "deb http://deb.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
 # FIXME: we need to enable jessie-backports until docker.io gets back into testing
 echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
@@ -56,6 +60,7 @@ apt-get -y update
 
 export DEBIAN_FRONTEND=noninteractive
 eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+eatmydata apt-get -y install -t experimental $COCKPIT_DEPS_EXPERIMENTAL
 
 # Prepare for building
 #

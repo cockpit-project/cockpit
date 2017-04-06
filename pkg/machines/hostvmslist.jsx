@@ -115,7 +115,7 @@ IconElement.propTypes = {
     state: PropTypes.string.isRequired,
 }
 
-export const StateIcon = ({ state, config }) => {
+export const StateIcon = ({ state, config, valueId }) => {
     if (state === undefined) {
         return (<div/>);
     }
@@ -138,7 +138,9 @@ export const StateIcon = ({ state, config }) => {
     if (stateMap[state]) {
         return (
             <span title={stateMap[state].title} data-toggle='tooltip' data-placement='left'>
-                {rephraseUI('vmStates', state)}&nbsp;<i className={stateMap[state].className} />
+                <span id={valueId}>{rephraseUI('vmStates', state)}</span>
+                &nbsp;
+                <i className={stateMap[state].className} />
             </span>);
     }
     return (<small>{state}</small>);
@@ -213,17 +215,14 @@ const VmLastMessage = ({ vm }) => {
 
     const msgId = `${vmId(vm.name)}-last-message`;
     const detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception: vm.lastMessage;
+
     return (
-        <tr>
-            <td>
-                <span className='pficon-warning-triangle-o' />
-            </td>
-            <td>
-                <div title={detail} data-toggle='tooltip' id={msgId}>
-                    {vm.lastMessage}
-                </div>
-            </td>
-        </tr>
+        <div>
+            <span className='pficon-warning-triangle-o' />&nbsp;
+            <span title={detail} data-toggle='tooltip' id={msgId}>
+                {vm.lastMessage}
+            </span>
+        </div>
     );
 };
 VmLastMessage.propTypes = {
@@ -255,11 +254,9 @@ const VmOverviewTab = ({ vm, config }) => {
             <tr className='machines-listing-ct-body-detail'>
                 <td className='machines-listing-detail-top-column'>
                     <table className='form-table-ct'>
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-state`} descr={_("State:")} value={vm.state}/>
                         <VmOverviewTabRecord descr={_("Memory:")}
                                              value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
                         <VmOverviewTabRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
-                        <VmLastMessage vm={vm} />
                     </table>
                 </td>
 
@@ -269,15 +266,21 @@ const VmOverviewTab = ({ vm, config }) => {
                                              descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
                         <VmOverviewTabRecord id={`${vmId(vm.name)}-cputype`}
                                              descr={_("CPU Type:")} value={vm.cpuModel}/>
+                    </table>
+                </td>
+
+                <td className='machines-listing-detail-top-column'>
+                    <table className='form-table-ct'>
+                        <VmBootOrder vm={vm} />
                         <VmOverviewTabRecord id={`${vmId(vm.name)}-autostart`}
                                              descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
-                        <VmBootOrder vm={vm} />
                     </table>
                 </td>
 
                 {providerContent}
             </tr>
         </table>
+        <VmLastMessage vm={vm} />
     </div>);
 };
 VmOverviewTab.propTypes = {
@@ -354,7 +357,7 @@ VmUsageTab.propTypes = {
 /** One VM in the list (a row)
  */
 const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceReboot, dispatch }) => {
-    const stateIcon = (<StateIcon state={vm.state} config={config}/>);
+    const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} />);
 
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm, config: config }},

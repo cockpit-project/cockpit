@@ -221,7 +221,7 @@ class TestMachines(MachineCase):
 
         b.click("{0}-run".format(self.providerVm1_id)) # click the Run button which intentionally leads to an error, so check it
         b.click("a:contains('Overview')") # where the error message is rendered
-        b.wait_visible("{0}-state".format(self.providerVm1_id))
+        b.wait_visible("{0}-vcpus".format(self.providerVm1_id)) # wait till the tab is fully rendered
         b.wait_present("{0}-last-message".format(self.providerVm1_id))
         b.wait_in_text("{0}-last-message".format(self.providerVm1_id), "VM failed to start")
 

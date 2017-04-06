@@ -1,5 +1,8 @@
 #!/bin/sh
 set -eu
+# Ubuntu still creates this legacy group by default, breaks useradd
+sudo delgroup --quiet --system admin || true
+
 # test expects this user and Fedora group "wheel"
 addgroup wheel
 useradd -m -U -c Administrator -G sudo,wheel -s /bin/bash admin

@@ -9,7 +9,7 @@ ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
 endif
 
 %:
-	dh $@ --with=systemd
+	dh $@ --with=systemd,autoreconf
 
 # Apply patches using git in order to support binary patches. Note that
 # we also reset mtimes since patches should be "complete" and include both

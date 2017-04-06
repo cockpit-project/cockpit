@@ -19,10 +19,9 @@
 
 #include "config.h"
 
-#include "mock-auth.h"
-#include "cockpitws.h"
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
+#include "cockpitws.h"
 
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
@@ -67,7 +66,6 @@ typedef struct {
   /* setup_mock_webserver */
   CockpitWebServer *web_server;
   gchar *cookie;
-  CockpitAuth *auth;
   CockpitCreds *creds;
 
   /* setup_io_pair */
@@ -85,6 +83,17 @@ typedef struct {
   const char *bridge;
 } TestFixture;
 
+static void
+on_init_ready (GObject *object,
+               GAsyncResult *result,
+               gpointer data)
+{
+  gboolean *flag = data;
+  g_assert (*flag == FALSE);
+  cockpit_web_service_get_init_message_finish (COCKPIT_WEB_SERVICE (object),
+                                               result);
+  *flag = TRUE;
+}
 
 static void
 setup_mock_bridge (TestCase *test,
@@ -129,19 +138,15 @@ setup_mock_webserver (TestCase *test,
                       gconstpointer data)
 {
   GError *error = NULL;
-  const gchar *user;
   GBytes *password;
 
   /* Zero port makes server choose its own */
   test->web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
   g_assert_no_error (error);
 
-  user = g_get_user_name ();
-  test->auth = mock_auth_new (user, PASSWORD);
-
   password = g_bytes_new_take (g_strdup (PASSWORD), strlen (PASSWORD));
   test->creds = cockpit_creds_new ("cockpit",
-                                   COCKPIT_CRED_USER, user,
+                                   COCKPIT_CRED_USER, "me",
                                    COCKPIT_CRED_PASSWORD, password,
                                    COCKPIT_CRED_CSRF_TOKEN, "my-csrf-token",
                                    NULL);
@@ -155,7 +160,6 @@ teardown_mock_webserver (TestCase *test,
   g_clear_object (&test->web_server);
   if (test->creds)
     cockpit_creds_unref (test->creds);
-  g_clear_object (&test->auth);
   g_free (test->cookie);
 }
 
@@ -392,6 +396,8 @@ start_web_service_and_create_client (TestCase *test,
 {
   cockpit_config_file = fixture ? fixture->config : NULL;
   const char *origin = fixture ? fixture->origin : NULL;
+  gboolean ready = FALSE;
+
   if (!origin)
     origin = "http://127.0.0.1";
 
@@ -410,6 +416,13 @@ start_web_service_and_create_client (TestCase *test,
   cockpit_ws_default_protocol_header = fixture ? fixture->forward : NULL;
 
   *service = cockpit_web_service_new (test->creds, test->mock_bridge);
+  /* Manually created services won't be init'd yet,
+   * wait for that before sending data
+   */
+  cockpit_web_service_get_init_message_aysnc (*service, on_init_ready, &ready);
+
+  while (!ready)
+    g_main_context_iteration (NULL, TRUE);
 
   /* Note, we are forcing the websocket to parse its own headers */
   cockpit_web_service_socket (*service, "/unused", test->io_b, NULL, NULL);

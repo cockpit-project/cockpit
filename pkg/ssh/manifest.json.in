@@ -1,14 +1,42 @@
 {
     "version": "@VERSION@",
     "requires": {
-	"cockpit": "134.x"
+        "cockpit": "134.x"
     },
     "priority": 1,
     "bridges": [
         {
+            "match": { "session": "private", "user": null, "host": null },
+            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=true",
+                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize",
+                         "COCKPIT_PRIVATE_${channel}=${channel}" ],
+            "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
+            "timeout": 30,
+            "problem": "not-supported"
+        },
+        {
+            "match": { "session": "private", "host": null },
+            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=true",
+                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize",
+                         "COCKPIT_PRIVATE_${channel}=${channel}" ],
+            "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
+            "timeout": 30,
+            "problem": "not-supported"
+        },
+        {
+            "match": { "user": null, "host": null },
+            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=true",
+                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
+            "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
+            "timeout": 30,
+            "problem": "not-supported"
+        },
+        {
             "match": { "host": null },
-            "spawn": [ "@libexecdir@/cockpit-ssh" ],
-            "environ": [ "SSH_ASKPASS=@libexecdir@/cockpit-askpass" ],
+            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=true",
+                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
+            "spawn": [ "@libexecdir@/cockpit-ssh", "${host}" ],
+            "timeout": 30,
             "problem": "not-supported"
         }
     ]

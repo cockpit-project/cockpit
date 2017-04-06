@@ -108,7 +108,7 @@ base_QUNIT_TESTS = \
 	dist/base1/test-utf8.html \
 	dist/base1/test-events.html \
 	dist/base1/test-chan.html \
-        dist/base1/test-dbus.html \
+	dist/base1/test-dbus.html \
 	dist/base1/test-dbus-address.html \
 	dist/base1/test-echo.html \
 	dist/base1/test-spawn.html \

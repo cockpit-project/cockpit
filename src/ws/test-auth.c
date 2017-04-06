@@ -19,15 +19,15 @@
 
 #include "config.h"
 
+#include "cockpitauth.h"
+#include "cockpitws.h"
 #include "mock-auth.h"
 
 #include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
 #include "common/cockpittest.h"
-#include "ws/cockpitauth.h"
-#include "websocket/websocket.h"
 
-#include "cockpitws.h"
+#include "websocket/websocket.h"
 
 #include <string.h>
 
@@ -43,7 +43,7 @@ static void
 setup (Test *test,
        gconstpointer data)
 {
-  test->auth = mock_auth_new ("me", "this is the password");
+  test->auth = cockpit_auth_new (FALSE);
 }
 
 static void
@@ -166,6 +166,7 @@ test_userpass_cookie_check (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("me", "this is the password");
+  g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
   cockpit_auth_login_async (test->auth, "/cockpit/", NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 
@@ -503,7 +504,7 @@ static void
 test_custom_timeout (Test *test,
                      gconstpointer data)
 {
-  cockpit_expect_warning ("*Auth pipe closed: timeout*");
+  cockpit_expect_message ("*session timed out*");
   test_custom_fail (test, data);
 }
 
@@ -541,7 +542,6 @@ test_custom_success (Test *test,
   JsonObject *login_data;
   const SuccessFixture *fix = data;
   const gchar *path = fix->path ? fix->path : "/cockpit";
-  const gchar *user = fix->user ? fix->user : "me";
   const gchar *password = fix->password ? fix->password : "this is the password";
   const gchar *application = fix->application ? fix->application : "cockpit";
 
@@ -569,7 +569,6 @@ test_custom_success (Test *test,
                                fix->cookie_name ? fix->cookie_name : "cockpit");
   service = cockpit_auth_check_cookie (test->auth, path, headers);
   creds = cockpit_web_service_get_creds (service);
-  g_assert_cmpstr (user, ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr (application, ==, cockpit_creds_get_application (creds));
   if (fix->authorized && g_str_has_prefix (fix->header, "Basic"))
     {
@@ -646,12 +645,6 @@ static const SuccessFixture fixture_ssh_alt = {
   .cookie_name = "machine-cockpit+machine"
 };
 
-static const SuccessFixture fixture_ssh_bad_data = {
-  .warning = "*received bad login-data*",
-  .data = NULL,
-  .header = "testsshscheme success-bad-data"
-};
-
 static const SuccessFixture fixture_ssh_data = {
   .warning = NULL,
   .data = "data",
@@ -674,11 +667,6 @@ static const ErrorFixture fixture_ssh_remote_basic_failed = {
   .path = "/cockpit+=machine"
 };
 
-static const ErrorFixture fixture_ssh_auth_no_write = {
-  .error_message = "Authentication failed: no results",
-  .header = "testsshscheme no-write",
-};
-
 static const ErrorFixture fixture_ssh_not_supported = {
   .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
   .error_message = "Authentication failed: authentication-not-supported",
@@ -689,11 +677,6 @@ static const ErrorFixture fixture_ssh_auth_failed = {
   .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
   .error_message = "Authentication failed",
   .header = "testsshscheme ssh-fail",
-};
-
-static const ErrorFixture fixture_ssh_auth_no_user = {
-  .error_message = "Authentication failed: missing user",
-  .header = "testsshscheme no-user",
 };
 
 static const ErrorFixture fixture_ssh_auth_with_error = {
@@ -708,22 +691,10 @@ static const SuccessFixture fixture_no_data = {
   .header = "testscheme success"
 };
 
-static const SuccessFixture fixture_bad_data = {
-  .warning = "*received bad login-data*",
-  .data = NULL,
-  .header = "testscheme success-bad-data"
-};
-
 static const SuccessFixture fixture_data = {
   .warning = NULL,
   .data = "data",
   .header = "testscheme success-with-data"
-};
-
-static const SuccessFixture fixture_auth_fd = {
-  .warning = NULL,
-  .data = "data",
-  .header = "testscheme-fd-4 success-with-data"
 };
 
 static const ErrorFixture fixture_bad_command = {
@@ -744,11 +715,6 @@ static const ErrorFixture fixture_auth_denied = {
   .header = "testscheme denied",
 };
 
-static const ErrorFixture fixture_auth_no_user = {
-  .error_message = "Authentication failed: missing user",
-  .header = "testscheme no-user",
-};
-
 static const ErrorFixture fixture_auth_with_error = {
   .error_code = COCKPIT_ERROR_FAILED,
   .error_message = "Authentication failed: unknown: detail for error",
@@ -761,11 +727,6 @@ static const ErrorFixture fixture_auth_none = {
   .header = "none invalid",
 };
 
-static const ErrorFixture fixture_auth_no_write = {
-  .error_message = "Authentication failed: no results",
-  .header = "testscheme no-write",
-};
-
 static const ErrorFixture fixture_auth_timeout = {
   .error_message = "Authentication failed: Timeout",
   .header = "timeout-scheme too-slow",
@@ -775,7 +736,7 @@ typedef struct {
   const gchar **headers;
   const gchar **prompts;
   const gchar *error_message;
-  const gchar *warning;
+  const gchar *message;
   int error_code;
   int pause;
 } ErrorMultiFixture;
@@ -799,13 +760,13 @@ parse_login_reply_challenge (GHashTable *headers,
                              gchar **out_id,
                              gchar **out_prompt)
 {
-  gchar *original;
+  gchar *original = NULL;
   gchar *line;
   gchar *next;
   gchar *id = NULL;
   gchar *prompt = NULL;
   gboolean ret = FALSE;
-  gpointer key;
+  gpointer key = NULL;
   gsize length;
 
   if (!g_hash_table_lookup_extended (headers, "WWW-Authenticate", &key, (gpointer *)&original))
@@ -902,7 +863,6 @@ test_multi_step_success (Test *test,
       headers = web_socket_util_new_headers ();
       response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
       g_object_unref (result);
-      g_assert (response != NULL);
 
       /* Confirm we got the right prompt */
       if (expect_prompt)
@@ -926,13 +886,13 @@ test_multi_step_success (Test *test,
           g_assert_no_error (error);
         }
 
-      json_object_unref (response);
+      if (response)
+        json_object_unref (response);
     }
 
   mock_auth_include_cookie_as_if_client (headers, headers, "cockpit");
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", headers);
   creds = cockpit_web_service_get_creds (service);
-  g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
   g_assert_null (cockpit_creds_get_password (creds));
   if (headers)
@@ -950,8 +910,8 @@ test_multi_step_fail (Test *test,
   gchar *prompt = NULL;
   const ErrorMultiFixture *fix = data;
 
-  if (fix->warning)
-    cockpit_expect_warning (fix->warning);
+  if (fix->message)
+    cockpit_expect_message (fix->message);
 
   for (spot = 0; fix->headers[spot]; spot++)
     {
@@ -1087,7 +1047,7 @@ static const ErrorMultiFixture fixture_fail_step_timeout = {
   .prompts = two_prompts,
   .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
   .error_message = "Invalid conversation token",
-  .warning = "*Auth pipe closed: timeout*",
+  .message = "*session timed out during authentication*",
   .pause = 3,
 };
 
@@ -1207,7 +1167,7 @@ int
 main (int argc,
       char *argv[])
 {
-  cockpit_ws_bridge_program = "/bin/cat";
+  cockpit_ws_session_program = BUILDDIR "/mock-auth-command";
   cockpit_ws_service_idle = 1;
   cockpit_ws_process_idle = 2;
 
@@ -1224,21 +1184,13 @@ main (int argc,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-success", Test, &fixture_no_data,
               setup_normal, test_custom_success, teardown_normal);
-  g_test_add ("/auth/custom-success-auth-fd", Test, &fixture_auth_fd,
-              setup_normal, test_custom_success, teardown_normal);
-  g_test_add ("/auth/custom-success-bad-data", Test, &fixture_bad_data,
-              setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-success-with-data", Test, &fixture_data,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-fail-auth", Test, &fixture_auth_failed,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-denied-auth", Test, &fixture_auth_denied,
               setup_normal, test_custom_fail, teardown_normal);
-  g_test_add ("/auth/custom-no-user", Test, &fixture_auth_no_user,
-              setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-with-error", Test, &fixture_auth_with_error,
-              setup_normal, test_custom_fail, teardown_normal);
-  g_test_add ("/auth/custom-no-write", Test, &fixture_auth_no_write,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-timeout", Test, &fixture_auth_timeout,
               setup_normal, test_custom_timeout, teardown_normal);
@@ -1257,12 +1209,8 @@ main (int argc,
               setup_alt_config, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-success", Test, &fixture_ssh_no_data,
               setup_normal, test_custom_success, teardown_normal);
-  g_test_add ("/auth/custom-ssh-success-bad-data", Test, &fixture_ssh_bad_data,
-              setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-success-with-data", Test, &fixture_ssh_data,
               setup_normal, test_custom_success, teardown_normal);
-  g_test_add ("/auth/custom-ssh-no-user", Test, &fixture_ssh_auth_no_user,
-              setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-ssh-fail-auth", Test, &fixture_ssh_auth_failed,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-ssh-fail-basic-auth", Test, &fixture_ssh_basic_failed,
@@ -1272,8 +1220,6 @@ main (int argc,
   g_test_add ("/auth/custom-ssh-not-supported", Test, &fixture_ssh_not_supported,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-ssh-with-error", Test, &fixture_ssh_auth_with_error,
-              setup_normal, test_custom_fail, teardown_normal);
-  g_test_add ("/auth/custom-ssh-no-write", Test, &fixture_ssh_auth_no_write,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/success-ssh-multi-step-three", Test, &fixture_ssh_three_steps,
               setup_normal, test_multi_step_success, teardown_normal);

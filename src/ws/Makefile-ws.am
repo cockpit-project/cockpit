@@ -72,10 +72,6 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
-	src/ws/cockpitauthoptions.h \
-	src/ws/cockpitauthoptions.c \
-	src/ws/cockpitauthprocess.h \
-	src/ws/cockpitauthprocess.c \
 	src/ws/cockpitcertificate.c \
 	src/ws/cockpitcertificate.h \
 	src/ws/cockpitcompat.c \
@@ -126,6 +122,8 @@ cockpit_session_SOURCES = \
 	src/common/cockpitauthorize.h \
 	src/common/cockpitbase64.c \
 	src/common/cockpitbase64.h \
+	src/common/cockpitframe.c \
+	src/common/cockpitframe.h \
 	src/common/cockpitmemory.c \
 	src/common/cockpitmemory.h \
 	src/ws/session.c \
@@ -237,7 +235,6 @@ WS_CHECKS = \
 	test-base64 \
 	test-creds \
 	test-auth \
-	test-authoptions \
 	test-compat \
 	test-webservice \
 	test-channelresponse \
@@ -258,12 +255,6 @@ test_auth_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
-
-test_authoptions_CFLAGS = $(cockpit_ws_CFLAGS)
-test_authoptions_SOURCES = src/ws/test-authoptions.c
-test_authoptions_LDADD = \
-	libcockpit-ws.a \
-	$(cockpit_ws_LDADD)
 
 test_channelresponse_CFLAGS = $(cockpit_ws_CFLAGS)
 test_channelresponse_SOURCES = src/ws/test-channelresponse.c \
@@ -341,6 +332,8 @@ mock_auth_command_SOURCES = \
 	src/common/cockpitauthorize.h \
 	src/common/cockpitbase64.c \
 	src/common/cockpitbase64.h \
+	src/common/cockpitframe.c \
+	src/common/cockpitframe.h \
 	src/common/cockpitmemory.c \
 	src/common/cockpitmemory.h \
 	src/ws/mock-auth-command.c \

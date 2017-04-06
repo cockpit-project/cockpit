@@ -79,38 +79,6 @@ cockpit_creds_free (gpointer data)
   g_free (creds);
 }
 
-static JsonObject *
-parse_login_data (const gchar *json_str)
-{
-  JsonObject *results = NULL;
-  JsonObject *login_data = NULL;
-  GError *error = NULL;
-
-  results = cockpit_json_parse_object (json_str, strlen(json_str), &error);
-  if (!results)
-    {
-      g_warning ("received bad json data: %s", error->message);
-      g_error_free (error);
-      goto out;
-    }
-
-  if (!cockpit_json_get_object (results, "login-data", NULL, &login_data))
-    {
-      g_warning ("received bad login-data: %s", json_str);
-      login_data = NULL;
-      goto out;
-    }
-
-  if (login_data)
-    login_data = json_object_ref (login_data);
-
-out:
-  if (results)
-    json_object_unref (results);
-
-  return login_data;
-}
-
 /**
  * cockpit_creds_new:
  * @application: the application the creds are for
@@ -156,8 +124,6 @@ cockpit_creds_new (const gchar *application,
         creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_CSRF_TOKEN))
         creds->csrf_token = g_strdup (va_arg (va, const char *));
-      else if (g_str_equal (type, COCKPIT_CRED_LOGIN_DATA))
-        creds->login_data = parse_login_data(va_arg (va, const char *));
       else
         g_assert_not_reached ();
     }
@@ -290,6 +256,19 @@ cockpit_creds_get_login_data (CockpitCreds *creds)
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->login_data;
 }
+
+void
+cockpit_creds_set_login_data (CockpitCreds *creds,
+                              JsonObject *login_data)
+{
+  g_return_if_fail (creds != NULL);
+  if (login_data)
+    json_object_ref (login_data);
+  if (creds->login_data)
+    json_object_unref (creds->login_data);
+  creds->login_data = login_data;
+}
+
 
 /**
  * cockpit_creds_get_rhost:

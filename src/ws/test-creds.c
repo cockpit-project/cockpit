@@ -21,6 +21,7 @@
 
 #include "ws/cockpitcreds.h"
 
+#include "common/cockpitjson.h"
 #include "common/cockpittest.h"
 
 static void
@@ -152,49 +153,25 @@ static void
 test_login_data (void)
 {
   JsonObject *object;
-  const gchar *invalid = "invalid";
-  const gchar *no_data = "{ \"no-data\" : \"none\" }";
-  const gchar *invalid_login = "{ \"login-data\" : \"invalid\" }";
   const gchar *valid = "{ \"login-data\" : { \"login\": \"data\" } }";
   CockpitCreds *creds;
-  CockpitCreds *creds2;
-  CockpitCreds *creds3;
-  CockpitCreds *creds4;
-  CockpitCreds *creds5;
 
   creds = cockpit_creds_new ("app", NULL);
+  g_assert (cockpit_creds_get_login_data (creds) == NULL);
 
-  cockpit_expect_warning ("*received bad json data:*");
-  creds2 = cockpit_creds_new ("app",
-                              COCKPIT_CRED_LOGIN_DATA, invalid, NULL);
+  object = cockpit_json_parse_object (valid, -1, NULL);
+  cockpit_creds_set_login_data (creds, object);
+  json_object_unref (object);
+  cockpit_assert_json_eq (cockpit_creds_get_login_data (creds), valid);
 
-  creds3 = cockpit_creds_new ("app",
-                              COCKPIT_CRED_LOGIN_DATA, no_data, NULL);
+  object = cockpit_json_parse_object (valid, -1, NULL);
+  cockpit_creds_set_login_data (creds, object);
+  json_object_unref (object);
+  cockpit_assert_json_eq (cockpit_creds_get_login_data (creds), valid);
 
-  cockpit_expect_warning ("*received bad login-data:*");
-  creds4 = cockpit_creds_new ("app",
-                              COCKPIT_CRED_LOGIN_DATA, invalid_login, NULL);
-
-  creds5 = cockpit_creds_new ("app",
-                              COCKPIT_CRED_LOGIN_DATA, valid, NULL);
-
-  g_assert (creds != NULL);
-
-  g_assert_null (cockpit_creds_get_login_data (creds));
-  g_assert_null (cockpit_creds_get_login_data (creds2));
-  g_assert_null (cockpit_creds_get_login_data (creds3));
-  g_assert_null (cockpit_creds_get_login_data (creds4));
-
-  object = cockpit_creds_get_login_data (creds5);
-  g_assert_cmpstr ("data", ==, json_object_get_string_member (object, "login"));
-
+  cockpit_creds_set_login_data (creds, NULL);
+  g_assert (cockpit_creds_get_login_data (creds) == NULL);
   cockpit_creds_unref (creds);
-  cockpit_creds_unref (creds2);
-  cockpit_creds_unref (creds3);
-  cockpit_creds_unref (creds4);
-  cockpit_creds_unref (creds5);
-
-  cockpit_assert_expected ();
 }
 
 int

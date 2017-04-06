@@ -52,7 +52,12 @@ struct _CockpitPeer {
 
   /* Authorizations going on */
   GHashTable *authorizes;
-  gchar *basic;
+
+  /* authorize types we will reply to */
+  GHashTable *authorize_values;
+
+  /* first_host */
+  gchar *init_host;
 
   /* The transport we're routing from */
   CockpitTransport *transport;
@@ -110,12 +115,12 @@ reply_channel_closed (CockpitPeer *self,
 }
 
 static void
-clear_basic_authorize (CockpitPeer *self)
+clear_authorize_value (gpointer pointer)
 {
-  if (self->basic)
-    cockpit_memory_clear (self->basic, -1);
-  g_free (self->basic);
-  self->basic = NULL;
+  char *data = pointer;
+  if (data)
+    cockpit_memory_clear (data, -1);
+  g_free (data);
 }
 
 static gboolean
@@ -158,7 +163,7 @@ on_other_control (CockpitTransport *transport,
                   GBytes *payload,
                   gpointer user_data)
 {
-  static const gchar *default_init = "{ \"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }";
+  gchar *default_init = NULL;
   CockpitPeer *self = user_data;
   const gchar *problem = NULL;
   const gchar *cookie = NULL;
@@ -172,7 +177,7 @@ on_other_control (CockpitTransport *transport,
   /* Got an init message thaw all channels */
   if (g_str_equal (command, "init"))
     {
-      clear_basic_authorize (self);
+      g_hash_table_remove_all (self->authorize_values);
 
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
         {
@@ -213,7 +218,11 @@ on_other_control (CockpitTransport *transport,
           self->inited = TRUE;
 
           if (!self->last_init)
-            self->last_init = g_bytes_new_static (default_init, strlen (default_init));
+            {
+              default_init = g_strdup_printf ("{ \"command\": \"init\", \"version\": 1, \"host\": \"%s\" }",
+                                       self->init_host ? self->init_host : "localhost");
+              self->last_init = g_bytes_new_take (default_init, strlen (default_init));
+            }
           cockpit_transport_send (transport, NULL, self->last_init);
 
           if (self->frozen)
@@ -235,14 +244,15 @@ on_other_control (CockpitTransport *transport,
         }
 
       /* If we have info we can respond to basic authorize challenges */
-      else if (self->basic && cockpit_json_get_string (options, "challenge", NULL, &challenge) &&
-               cockpit_authorize_type (challenge, &type) && g_str_equal (type, "basic"))
+      else if (cockpit_json_get_string (options, "challenge", NULL, &challenge) &&
+               challenge && g_hash_table_contains (self->authorize_values, challenge))
         {
           reply = cockpit_transport_build_control ("command", "authorize",
                                                    "cookie", cookie,
-                                                   "response", self->basic,
+                                                   "response",
+                                                   g_hash_table_lookup (self->authorize_values, challenge),
                                                    NULL);
-          clear_basic_authorize (self);
+          g_hash_table_remove (self->authorize_values, challenge);
           cockpit_transport_send (transport, NULL, reply);
           g_bytes_unref (reply);
         }
@@ -487,6 +497,8 @@ cockpit_peer_init (CockpitPeer *self)
 {
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   self->authorizes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  self->authorize_values = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                  NULL, clear_authorize_value);
 }
 
 static void
@@ -562,6 +574,7 @@ cockpit_peer_finalize (GObject *object)
 
   g_hash_table_destroy (self->channels);
   g_hash_table_destroy (self->authorizes);
+  g_hash_table_destroy (self->authorize_values);
 
   if (self->config)
     json_object_unref (self->config);
@@ -571,6 +584,7 @@ cockpit_peer_finalize (GObject *object)
     g_bytes_unref (self->last_init);
 
   g_free (self->problem);
+  g_free (self->init_host);
 
   G_OBJECT_CLASS (cockpit_peer_parent_class)->finalize (object);
 }
@@ -757,6 +771,8 @@ cockpit_peer_handle (CockpitPeer *self,
 {
   const gchar *user = NULL;
   const gchar *password = NULL;
+  const gchar *host = NULL;
+  const gchar *host_key = NULL;
 
   g_return_val_if_fail (COCKPIT_IS_PEER (self), FALSE);
   g_return_val_if_fail (channel != NULL, FALSE);
@@ -782,14 +798,26 @@ cockpit_peer_handle (CockpitPeer *self,
       return FALSE;
     }
 
-  /* If this is the first channel, we can cache user/password from it */
-  if (!self->inited && !self->basic)
+  /* If this is the first channel, we can cache data from it */
+  if (!self->inited)
     {
+      if (!self->init_host && cockpit_json_get_string (options, "host", NULL, &host))
+        self->init_host = g_strdup (host);
+
+      /* Setup authorize_values
+       * TODO: Should this be configurable?
+       */
       if (cockpit_json_get_string (options, "user", NULL, &user) &&
           cockpit_json_get_string (options, "password", NULL, &password) && password)
         {
-          clear_basic_authorize (self);
-          self->basic = cockpit_authorize_build_basic (user, password);
+          g_hash_table_insert (self->authorize_values, "basic",
+                               cockpit_authorize_build_basic (user, password));
+        }
+
+      if (cockpit_json_get_string (options, "host-key", NULL, &host_key))
+        {
+          g_hash_table_insert (self->authorize_values, "host-key",
+                               host_key ? g_strdup_printf ("host-key:%s", host_key) : g_strdup (""));
         }
     }
 
@@ -866,8 +894,7 @@ cockpit_peer_reset (CockpitPeer *self)
 
   g_hash_table_remove_all (self->channels);
   g_hash_table_remove_all (self->authorizes);
-
-  clear_basic_authorize (self);
+  g_hash_table_remove_all (self->authorize_values);
 
   if (self->timeout)
     {

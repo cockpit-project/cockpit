@@ -91,7 +91,6 @@ base_setup (Test *test)
 {
   const gchar *static_roots[] = { SRCDIR "/src/ws", SRCDIR "/src/branding/default", NULL };
   GError *error = NULL;
-  const gchar *user;
 
   test->server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
   g_assert_no_error (error);
@@ -99,8 +98,7 @@ base_setup (Test *test)
   /* Other test->data fields are fine NULL */
   memset (&test->data, 0, sizeof (test->data));
 
-  user = g_get_user_name ();
-  test->auth = mock_auth_new (user, PASSWORD);
+  test->auth = cockpit_auth_new (FALSE);
   test->roots = cockpit_web_response_resolve_roots (static_roots);
   test->login_html = g_strdup(SRCDIR "/src/ws/login.html");
 
@@ -196,11 +194,9 @@ test_login_with_cookie (Test *test,
   GAsyncResult *result = NULL;
   JsonObject *response;
   GHashTable *headers;
-  const gchar *user;
   gboolean ret;
 
-  user = g_get_user_name ();
-  headers = mock_auth_basic_header (user, PASSWORD);
+  headers = mock_auth_basic_header ("me", PASSWORD);
 
   cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
@@ -256,30 +252,6 @@ test_login_fail (Test *test,
   cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
 }
 
-static void
-test_login_fail_with_data (Test *test,
-                           gconstpointer path)
-{
-  gboolean ret;
-  GHashTable *headers;
-  JsonObject *object = json_object_new ();
-
-  mock_auth_set_failure_data ((MockAuth *)test->auth, object);
-
-  headers = mock_auth_basic_header ("booo", "yah");
-  ret = cockpit_handler_default (test->server, path, test->headers, test->response, &test->data);
-  g_hash_table_unref (headers);
-
-  while (!test->response_done)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert (ret == TRUE);
-  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication required\r\n*");
-  cockpit_assert_strmatch (output_as_string (test), "*{}*");
-  cockpit_assert_strmatch (output_as_string (test), "*\r\nContent-Type: application/json\r\n*");
-  json_object_unref (object);
-}
-
 static GHashTable *
 split_headers (const gchar *output)
 {
@@ -307,15 +279,13 @@ test_login_accept (Test *test,
 {
   CockpitWebService *service;
   gboolean ret;
-  const gchar *user;
   const gchar *output;
   GHashTable *headers;
   CockpitCreds *creds;
   const gchar *token;
 
-  user = g_get_user_name ();
-  headers = mock_auth_basic_header (user, PASSWORD);
-
+  headers = mock_auth_basic_header ("me", PASSWORD);
+  g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
   ret = cockpit_handler_default (test->server, path, headers, test->response, &test->data);
   g_hash_table_unref (headers);
 
@@ -332,7 +302,7 @@ test_login_accept (Test *test,
   service = cockpit_auth_check_cookie (test->auth, "/cockpit", test->headers);
   g_assert (service != NULL);
   creds = cockpit_web_service_get_creds (service);
-  g_assert_cmpstr (cockpit_creds_get_user (creds), ==, user);
+  g_assert_cmpstr (cockpit_creds_get_user (creds), ==, "me");
   g_assert_cmpstr (g_bytes_get_data (cockpit_creds_get_password (creds), NULL), ==, PASSWORD);
 
   token = cockpit_creds_get_csrf_token (creds);
@@ -396,9 +366,13 @@ setup_default (Test *test,
   GError *error = NULL;
   GAsyncResult *result = NULL;
   GHashTable *headers;
-  const gchar *user;
 
   cockpit_config_file = fixture->config;
+
+  if (fixture->config)
+    g_setenv ("XDG_CONFIG_DIRS", fixture->config, TRUE);
+  else
+    g_unsetenv ("XDG_CONFIG_DIRS");
 
   g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
   if (fixture->with_home)
@@ -416,8 +390,7 @@ setup_default (Test *test,
 
   if (fixture->auth)
     {
-      user = g_get_user_name ();
-      headers = mock_auth_basic_header (user, PASSWORD);
+      headers = mock_auth_basic_header ("bridge-user", PASSWORD);
 
       cockpit_auth_login_async (test->auth, fixture->auth, NULL, headers, on_ready_get_result, &result);
       g_hash_table_unref (headers);
@@ -564,10 +537,10 @@ static const DefaultFixture fixture_shell_index = {
 static const DefaultFixture fixture_machine_shell_index = {
   .path = "/=machine",
   .auth = "/cockpit+=machine",
-  .with_home = TRUE,
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/cockpit+=machine/@localhost/another/test.html\">*"
-      "<title>In home dir</title>*"
+      "<base href=\"/cockpit+=machine/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/second/test.html\">*"
+      "<title>In system dir</title>*"
 };
 
 static const DefaultFixture fixture_shell_configured_index = {
@@ -612,7 +585,8 @@ static const DefaultFixture fixture_shell_package_short = {
 static const DefaultFixture fixture_machine_shell_package_short = {
   .path = "/=/",
   .auth = "/cockpit",
-  .expect = "HTTP/1.1 404*"
+  .expect = "HTTP/1.1 404*",
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf"
 };
 
 static const DefaultFixture fixture_shell_package_invalid = {
@@ -694,6 +668,7 @@ static const DefaultFixture fixture_static_simple = {
 static const DefaultFixture fixture_host_static = {
   .path = "/cockpit+=host/static/branding.css",
   .auth = "/cockpit+=host",
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
   .expect = "HTTP/1.1 200*"
     "Cache-Control: max-age=86400, private*"
     "#badge*"
@@ -702,7 +677,8 @@ static const DefaultFixture fixture_host_static = {
 
 static const DefaultFixture fixture_host_static_no_auth = {
   .path = "/cockpit+=host/static/branding.css",
-  .expect = "HTTP/1.1 403*"
+  .expect = "HTTP/1.1 403*",
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf"
 };
 
 static const DefaultFixture fixture_static_application = {
@@ -832,6 +808,7 @@ main (int argc,
 {
   /* See mock-resource */
   cockpit_ws_shell_component = "/another/test.html";
+  cockpit_ws_session_program = BUILDDIR "/mock-auth-command";
 
   cockpit_test_init (&argc, &argv);
 
@@ -843,8 +820,6 @@ main (int argc,
               setup, test_login_bad, teardown);
   g_test_add ("/handlers/login/post-fail", Test, "/cockpit/login",
               setup, test_login_fail, teardown);
-  g_test_add ("/handlers/login/post-fail-with-data", Test, "/cockpit/login",
-              setup, test_login_fail_with_data, teardown);
   g_test_add ("/handlers/login/post-accept", Test, "/cockpit/login",
               setup, test_login_accept, teardown);
 

@@ -163,7 +163,7 @@ cockpit_authorize_type (const char *challenge,
     len = strcspn (challenge, ": ");
   if (len == 0)
     {
-      message ("invalid \"authorize\" message");
+      debug ("invalid \"authorize\" message");
       errno = EINVAL;
       return NULL;
     }
@@ -276,7 +276,7 @@ cockpit_authorize_parse_basic (const char *challenge,
   buf[res] = 0;
 
   off = strcspn ((char *)buf, ":");
-  if (off == 0 || off == res)
+  if (off == res)
     {
       message ("invalid base64 data in Basic header");
       errn = EINVAL;

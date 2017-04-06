@@ -64,6 +64,18 @@ typedef struct {
 } TestResourceFixture;
 
 static void
+on_init_ready (GObject *object,
+               GAsyncResult *result,
+               gpointer data)
+{
+  gboolean *flag = data;
+  g_assert (*flag == FALSE);
+  cockpit_web_service_get_init_message_finish (COCKPIT_WEB_SERVICE (object),
+                                               result);
+  *flag = TRUE;
+}
+
+static void
 setup_resource (TestResourceCase *tc,
                 gconstpointer data)
 {
@@ -75,6 +87,7 @@ setup_resource (TestResourceCase *tc,
   gchar **environ;
   const gchar *user;
   const gchar *home = NULL;
+  gboolean ready = FALSE;
   GBytes *password;
 
   const gchar *argv[] = {
@@ -103,6 +116,14 @@ setup_resource (TestResourceCase *tc,
 
   transport = cockpit_pipe_transport_new (tc->pipe);
   tc->service = cockpit_web_service_new (creds, transport);
+
+  /* Manually created services won't be init'd yet,
+   * wait for that before sending data
+   */
+  cockpit_web_service_get_init_message_aysnc (tc->service, on_init_ready, &ready);
+  while (!ready)
+    g_main_context_iteration (NULL, TRUE);
+
   g_object_unref (transport);
 
   cockpit_creds_unref (creds);
@@ -386,13 +407,15 @@ test_resource_failure (TestResourceCase *tc,
 
   cockpit_expect_message ("*: external channel failed: terminated");
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
-
   /* Now kill the bridge */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert_cmpint (pid, >, 0);
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
+  /* Wait until it's gone; we can't use waitpid(), it interferes with GChildWatch */
+  while (kill (pid, 0) >= 0)
+    g_usleep (1000);
 
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)

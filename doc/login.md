@@ -15,7 +15,7 @@ name of the user that was just logged in. Additional fields may be present
 
 Other http codes are considered errors. Generally these are 401 or 403 http status codes.
 In most cases the error can detrived from the status text. Examples are
- ```authentication-failed```, ```authentication-unavailable``` or ```permission-denied```
+ ```authentication-failed```, ```authentication-unavailable``` or ```access-denied```
  In some cases additional error messages may be included.
 
 In some authentication setups addtional steps are required. When this happens cockpit will

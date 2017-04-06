@@ -182,7 +182,7 @@ main (int argc,
   env = g_getenv ("USER");
   user = cockpit_hex_encode (env ? env : "", -1);
   challenge = g_strdup_printf ("plain1:%s:", user);
-  cookie = g_strdup_printf ("askpass%u", (unsigned int)getpid ());
+  cookie = g_strdup_printf ("askpass%u%u", (unsigned int)getpid (), (unsigned int)time (NULL));
 
   request = cockpit_transport_build_json ("command", "authorize",
                                           "challenge", challenge,

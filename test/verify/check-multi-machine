@@ -182,6 +182,7 @@ class TestMultiMachineAdd(MachineCase):
                                     "Received message for unknown channel: .*",
                                     '.*: Socket error: disconnected',
                                     ".*: error reading from ssh",
+                                    ".*: bridge failed: .*",
                                     ".*: bridge program failed: Child process exited with code .*")
 
 
@@ -596,6 +597,7 @@ class TestMultiMachine(MachineCase):
                                     "Received message for unknown channel: .*",
                                     '.*: Socket error: disconnected',
                                     ".*: error reading from ssh",
+                                    ".*: bridge failed: .*",
                                     ".*: bridge program failed: Child process exited with code .*",
                                     "/playground/test.html: failed to retrieve resource: authentication-failed")
 
@@ -780,6 +782,7 @@ class TestMultiMachine(MachineCase):
                                     '.* failed to retrieve resource: invalid-hostkey',
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',
+                                    '.*: bridge failed: .*',
                                     '.*: received truncated .*',
                                     '.*: Socket error: disconnected',
                                     '.*: host key for this server changed key type: .*',

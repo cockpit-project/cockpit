@@ -20,6 +20,9 @@
 #include "config.h"
 
 #include "common/cockpitauthorize.h"
+#include "common/cockpitframe.h"
+
+#include <security/pam_appl.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -32,66 +35,74 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#define AUTH_FD 3
+#define DEBUG 0
 #define EX 127
 
+static const char *auth_prefix = "\n{\"command\":\"authorize\",\"cookie\":\"xxx\"";
+static const char *auth_suffix = "\"}";
+
 static char *
-read_seqpacket_message (int fd)
+read_authorize_response (void)
 {
-  struct iovec vec = { .iov_len = MAX_PACKET_SIZE, };
-  struct msghdr msg;
-  int r;
+  const char *auth_response = ",\"response\":\"";
+  size_t auth_response_size = 13;
+  size_t auth_prefix_size = strlen (auth_prefix);
+  size_t auth_suffix_size = strlen (auth_suffix);
+  unsigned char *message;
+  ssize_t len;
 
-  vec.iov_base = malloc (vec.iov_len + 1);
-  if (!vec.iov_base)
-    errx (EX, "couldn't allocate memory for data");
+  len = cockpit_frame_read (STDIN_FILENO, &message);
+  if (len < 0)
+    err (EX, "couldn't read authorize response");
 
-  /* Assume only one successful read needed
-   * since this is a SOCK_SEQPACKET over AF_UNIX
+#if DEBUG
+  fprintf (stderr, "mock-auth-command < %.*s\n", (int)len, message);
+#endif
+  /*
+   * The authorize messages we receive always have an exact prefix and suffix:
+   *
+   * \n{"command":"authorize","cookie":"NNN","response":"...."}
    */
-  for (;;)
+  if (len <= auth_prefix_size + auth_response_size + auth_suffix_size ||
+      memcmp (message, auth_prefix, auth_prefix_size) != 0 ||
+      memcmp (message + auth_prefix_size, auth_response, auth_response_size) != 0 ||
+      memcmp (message + (len - auth_suffix_size), auth_suffix, auth_suffix_size) != 0)
     {
-      memset (&msg, 0, sizeof (msg));
-      msg.msg_iov = &vec;
-      msg.msg_iovlen = 1;
-      r = recvmsg (fd, &msg, 0);
-      if (r < 0)
-        {
-          if (errno == EAGAIN)
-            continue;
-
-          err (EX, "couldn't recv data");
-        }
-      else
-        {
-          break;
-        }
+      errx (EX, "didn't receive expected \"authorize\" message: %.*s", (int)len, message);
     }
 
-  ((char *)vec.iov_base)[r] = '\0';
-  return vec.iov_base;
+  len -= auth_prefix_size + auth_response_size + auth_suffix_size;
+  memmove (message, message + auth_prefix_size + auth_response_size, len);
+  message[len] = '\0';
+  return (char *)message;
 }
 
 static void
-write_resp (int fd,
-            const char *data)
+write_authorize_challenge (const char *data)
 {
-  int r;
-  for (;;)
-    {
-      r = send (fd, data, strlen (data), 0);
-      if (r < 0)
-        {
-          if (errno == EAGAIN)
-            continue;
+  char *message = NULL;
+  if (asprintf (&message, "%s,\"challenge\":\"%s%s", auth_prefix, data, auth_suffix) < 0)
+    errx (EX, "out of memory writing string");
+#if DEBUG
+  fprintf (stderr, "mock-auth-command > %s\n", message);
+#endif
+  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)message, strlen (message)) < 0)
+    err (EX, "couldn't write auth request");
+  free (message);
+}
 
-          err (EX, "couldn't send auth data");
-        }
-      else
-        {
-          break;
-        }
-    }
+static void
+write_init_message (const char *data)
+{
+  char *message = NULL;
+  if (asprintf (&message, "\n{\"command\":\"init\",%s,\"version\":1}", data) < 0)
+    errx (EX, "out of memory writing string");
+#if DEBUG
+  fprintf (stderr, "mock-auth-command > %s\n", message);
+#endif
+  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)message, strlen (message)) < 0)
+    err (EX, "coludn't write init message");
+  free (message);
 }
 
 int
@@ -99,61 +110,63 @@ main (int argc,
       char **argv)
 {
   int success = 0;
-  int fd = AUTH_FD;
+  int launch_bridge = 0;
   char *message;
   const char *data = NULL;
-  char *type = getenv ("COCKPIT_AUTH_MESSAGE_TYPE");
+  char *type;
 
-  if (type && strcmp (type, "testscheme-fd-4") == 0)
-    fd = 4;
+  write_authorize_challenge ("*");
 
-  message = read_seqpacket_message (fd);
-
-  data = cockpit_authorize_type (message, NULL);
+  message = read_authorize_response ();
+  data = cockpit_authorize_type (message, &type);
   assert (data != NULL);
 
-  if (strcmp (data, "failslow") == 0)
+  if (strcmp (data, "") == 0)
+    {
+      write_init_message ("\"problem\":\"authentication-failed\"");
+    }
+  else if (strcmp (data, "failslow") == 0)
     {
       sleep (2);
-      write_resp (fd, "{ \"error\": \"authentication-failed\" }");
+      write_init_message ("\"problem\":\"authentication-failed\"");
     }
   else if (strcmp (data, "fail") == 0)
     {
-      write_resp (fd, "{ \"error\": \"authentication-failed\" }");
+      write_init_message ("\"problem\":\"authentication-failed\"");
     }
   else if (strcmp (data, "not-supported") == 0)
     {
-      write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { } }");
+      write_init_message ("\"problem\": \"authentication-not-supported\", \"auth-method-results\": {}");
     }
   else if (strcmp (data, "ssh-fail") == 0)
     {
-      write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
+      write_init_message ("\"problem\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"}");
     }
   else if (strcmp (data, "denied") == 0)
     {
-      write_resp (fd, "{ \"error\": \"permission-denied\" }");
+      write_init_message ("\"problem\": \"access-denied\"");
     }
   else if (strcmp (data, "success") == 0)
     {
-      write_resp (fd, "{\"user\": \"me\" }");
+      write_init_message ("\"user\": \"me\"");
       success = 1;
     }
   else if (strcmp (data, "ssh-remote-switch") == 0 &&
            strcmp (argv[1], "machine") == 0)
     {
-      write_resp (fd, "{\"user\": \"me\" }");
+      write_init_message ("\"user\": \"me\"");
       success = 1;
     }
   else if (strcmp (data, "ssh-alt-machine") == 0 &&
            strcmp (argv[1], "machine") == 0)
     {
-      write_resp (fd, "{\"user\": \"me\" }");
+      write_init_message ("\"user\": \"me\"");
       success = 1;
     }
   else if (strcmp (data, "ssh-alt-default") == 0 &&
            strcmp (argv[1], "default-host") == 0)
     {
-      write_resp (fd, "{\"user\": \"me\" }");
+      write_init_message ("\"user\": \"me\"");
       success = 1;
     }
   else if (type && strcmp (type, "basic") == 0 &&
@@ -161,12 +174,17 @@ main (int argc,
     {
       if (strcmp (data, "bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=") == 0)
         {
-          write_resp (fd, "{\"user\": \"me\" }");
+          write_init_message ("\"user\": \"me\"");
+          success = 1;
+        }
+      else if (strcmp (data, "YnJpZGdlLXVzZXI6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=") == 0)
+        {
+          launch_bridge = 1;
           success = 1;
         }
       else
         {
-          write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
+          write_init_message ("\"problem\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"}");
         }
     }
   else if (type && strcmp (type, "basic") == 0 &&
@@ -174,88 +192,114 @@ main (int argc,
     {
       if (strcmp (data, "cmVtb3RlLXVzZXI6dGhpcyBpcyB0aGUgbWFjaGluZSBwYXNzd29yZA==") == 0)
         {
-          write_resp (fd, "{\"user\": \"remote-user\" }");
+          write_init_message ("\"user\": \"remote-user\"");
+          success = 1;
+        }
+      else if (strcmp (data, "YnJpZGdlLXVzZXI6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=") == 0)
+        {
+          launch_bridge = 1;
           success = 1;
         }
       else
         {
-          write_resp (fd, "{ \"error\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"} }");
+          write_init_message ("\"problem\": \"authentication-failed\", \"auth-method-results\": { \"password\": \"denied\"}");
+        }
+    }
+  else if (type && strcmp (type, "basic") == 0)
+    {
+      if (strcmp (data, "bWU6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=") == 0)
+        {
+          write_init_message ("\"user\": \"me\"");
+          success = 1;
+        }
+      else if (strcmp (data, "YnJpZGdlLXVzZXI6dGhpcyBpcyB0aGUgcGFzc3dvcmQ=") == 0)
+        {
+          launch_bridge = 1;
+          success = 1;
+        }
+      else
+        {
+          write_init_message ("\"problem\": \"authentication-failed\"");
         }
     }
   else if (strcmp (data, "success-with-data") == 0)
     {
-      write_resp (fd, "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }");
+      write_init_message ("\"user\": \"me\", \"login-data\": { \"login\": \"data\"}");
       success = 1;
     }
   else if (strcmp (data, "two-step") == 0)
     {
-      write_resp (fd, "{\"prompt\": \"X-Conversation conv dHlwZSB0d28=\" }");
+      write_authorize_challenge ("X-Conversation conv dHlwZSB0d28=");
       free (message);
-      message = read_seqpacket_message (fd);
+      message = read_authorize_response ();
       data = cockpit_authorize_type (message, NULL);
       if (!data || strcmp (data, "conv dHdv") != 0)
         {
-          write_resp (fd, "{ \"error\": \"authentication-failed\" }");
+          write_init_message ("\"problem\": \"authentication-failed\"");
         }
       else
         {
-          write_resp (fd, "{\"user\": \"me\" }");
+          write_init_message ("\"user\": \"me\"");
           success = 1;
         }
     }
   else if (strcmp (data, "three-step") == 0)
     {
-      write_resp (fd, "{\"prompt\": \"X-Conversation conv dHlwZSB0d28=\" }");
+      write_authorize_challenge ("X-Conversation conv dHlwZSB0d28=");
       free (message);
-      message = read_seqpacket_message (fd);
+      message = read_authorize_response ();
       data = cockpit_authorize_type (message, NULL);
       if (!data || strcmp (data, "conv dHdv") != 0)
         {
-          write_resp (fd, "{ \"error\": \"authentication-failed\" }");
+          write_init_message ("\"problem\": \"authentication-failed\"");
           goto out;
         }
 
-      write_resp (fd, "{\"prompt\": \"X-Conversation conv dHlwZSB0aHJlZQ==\" }");
+      write_authorize_challenge ("X-Conversation conv dHlwZSB0aHJlZQ==");
       free (message);
-      message = read_seqpacket_message (fd);
+      message = read_authorize_response ();
       data = cockpit_authorize_type (message, NULL);
       if (!data || strcmp (data, "conv dGhyZWU=") != 0)
         {
-          write_resp (fd, "{ \"error\": \"authentication-failed\" }");
+          write_init_message ("\"problem\": \"authentication-failed\"");
         }
       else
         {
-          write_resp (fd, "{\"user\": \"me\" }");
+          write_init_message ("\"user\": \"me\"");
           success = 1;
         }
     }
   else if (strcmp (data, "success-bad-data") == 0)
     {
-      write_resp (fd, "{\"user\": \"me\", \"login-data\": \"bad\" }");
+      write_init_message ("\"user\": \"me\", \"login-data\": \"bad\"");
       success = 1;
     }
   else if (strcmp (data, "no-user") == 0)
     {
-      write_resp (fd, "{ }");
+      write_init_message ("\"other\":1");
     }
   else if (strcmp (data, "with-error") == 0)
     {
-      write_resp (fd, "{ \"error\": \"unknown\", \"message\": \"detail for error\" }");
+      write_init_message ("\"problem\": \"unknown\", \"message\": \"detail for error\"");
     }
   else if (strcmp (data, "with-error") == 0)
     {
-      write_resp (fd, "{ \"error\": \"unknown\", \"message\": \"detail for error\" }");
+      write_init_message ("\"problem\": \"unknown\", \"message\": \"detail for error\"");
     }
   else if (strcmp (data, "too-slow") == 0)
     {
       sleep (10);
-      write_resp (fd, "{\"user\": \"me\", \"login-data\": { \"login\": \"data\"} }");
+      write_init_message ("\"user\": \"me\", \"login-data\": { \"login\": \"data\"}");
       success = 1;
     }
 
 out:
-  close(fd);
   if (success)
-    execlp ("cat", "cat", NULL);
-
+    {
+      if (launch_bridge)
+        execlp (BUILDDIR "/cockpit-bridge", BUILDDIR "/cockpit-bridge", NULL);
+      else
+        execlp ("cat", "cat", NULL);
+    }
+  exit (PAM_AUTH_ERR);
 }

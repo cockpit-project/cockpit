@@ -17,27 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef __MOCK_AUTH_H__
+#define __MOCK_AUTH_H__
 
-#include "ws/cockpitauth.h"
+#include <glib.h>
 
-#define MOCK_TYPE_AUTH         (mock_auth_get_type ())
-#define MOCK_AUTH(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), MOCK_TYPE_AUTH, MockAuth))
-#define MOCK_IS_AUTH(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), MOCK_TYPE_AUTH))
-
-typedef struct _MockAuth MockAuth;
-
-GType            mock_auth_get_type   (void);
-
-CockpitAuth *    mock_auth_new        (const char *expect_user,
-                                       const char *expect_password);
+G_BEGIN_DECLS
 
 GHashTable *     mock_auth_basic_header  (const gchar *user,
                                           const gchar *password);
 
-void             mock_auth_set_failure_data (MockAuth *self,
-                                             JsonObject *data);
-
 void            mock_auth_include_cookie_as_if_client (GHashTable *resp_headers,
                                                        GHashTable *req_headers,
                                                        const gchar *cookie_name);
+G_END_DECLS
+
+#endif

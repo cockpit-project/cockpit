@@ -115,9 +115,6 @@ test_type (void *data)
   const char *result;
   char *type;
 
-  if (fix->ret == NULL)
-    expect_message = "invalid \"authorize\" message";
-
   result = cockpit_authorize_type (fix->input, &type);
   if (fix->errn != 0)
     assert_num_eq (errno, fix->errn);

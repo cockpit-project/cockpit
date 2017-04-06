@@ -55,7 +55,7 @@ The given value should be a number between 1 and 900.
 
 An error response should contain the following fields:
 
- * error: Values of ```authentication-failed```, ```authentication-unavailable``` or ```permission-denied``` are translated to the appropriate cockpit error codes. Any other values are treated as generic errors
+ * problem: Values of ```authentication-failed```, ```authentication-unavailable``` or ```access-denied``` are translated to the appropriate cockpit error codes. Any other values are treated as generic errors
  * message: Optional text with more details about the error.
 
 A successful response must contain a ```user``` field with the user

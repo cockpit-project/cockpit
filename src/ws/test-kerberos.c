@@ -243,34 +243,6 @@ build_authorization_header (GHashTable *headers,
 }
 
 static void
-parse_authenticate_header (GHashTable *headers,
-                           gss_buffer_desc *buffer)
-{
-  const gchar *value = NULL;
-  GHashTableIter iter;
-  gpointer k, v;
-
-  g_hash_table_iter_init (&iter, headers);
-  while (g_hash_table_iter_next (&iter, &k, &v))
-    {
-      if (g_ascii_strcasecmp (k, "WWW-Authenticate") == 0 &&
-          g_ascii_strncasecmp (v, "Negotiate", 9) == 0)
-        {
-          value = (gchar *)v + 9;
-          break;
-        }
-    }
-
-  if (value)
-    buffer->value = g_base64_decode (value, &buffer->length);
-  else
-    {
-      buffer->value = NULL;
-      buffer->length = 0;
-    }
-}
-
-static void
 include_cookie_as_if_client (GHashTable *resp_headers,
                              GHashTable *req_headers)
 {
@@ -305,6 +277,7 @@ test_authenticate (TestCase *test,
   JsonObject *response;
   GError *error = NULL;
 
+  g_setenv ("COCKPIT_TEST_KEEP_PATH", "1", TRUE);
   if (!mock_kdc_available)
     {
       cockpit_test_skip ("mock kdc not available to test against");
@@ -340,21 +313,8 @@ test_authenticate (TestCase *test,
   g_assert (response != NULL);
   json_object_unref (response);
 
-  parse_authenticate_header (out_headers, &input);
-  memset (&output, 0, sizeof (output));
-
-  status = gss_init_sec_context (&minor, GSS_C_NO_CREDENTIAL, &ctx, name, GSS_C_NO_OID,
-                                 GSS_C_MUTUAL_FLAG, GSS_C_INDEFINITE, GSS_C_NO_CHANNEL_BINDINGS,
-                                 &input, NULL, &output, &flags, NULL);
-  assert_gss_status (status, ==, GSS_S_COMPLETE, minor);
-
-  g_free (input.value);
-  gss_release_buffer (&minor, &output);
   gss_release_name (&minor, &name);
-
-  status = gss_delete_sec_context (&minor, &ctx, &output);
-  assert_gss_status (status, ==, GSS_S_COMPLETE, minor);
-  gss_release_buffer (&minor, &output);
+  gss_delete_sec_context (&minor, &ctx, &output);
 
   include_cookie_as_if_client (out_headers, out_headers);
 
@@ -362,9 +322,10 @@ test_authenticate (TestCase *test,
   g_assert (service != NULL);
 
   creds = cockpit_web_service_get_creds (service);
-  g_assert_cmpstr (g_get_user_name (), ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("cockpit+test", ==, cockpit_creds_get_application (creds));
   g_assert (NULL == cockpit_creds_get_password (creds));
+
+  g_unsetenv ("COCKPIT_TEST_KEEP_PATH");
 
   g_hash_table_unref (out_headers);
   g_object_unref (service);

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "common/cockpitauthorize.h"
+#include "common/cockpitframe.h"
 #include "common/cockpitmemory.h"
 
 #include <assert.h>
@@ -31,7 +32,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 
 #include <security/pam_appl.h>
 
@@ -39,13 +39,15 @@
 #include <sys/signal.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
+#include <sys/wait.h>
+
 #include <dirent.h>
 #include <sched.h>
 #include <utmp.h>
 #include <unistd.h>
 #include <pwd.h>
-#include <sys/wait.h>
 #include <grp.h>
+#include <time.h>
 
 #include <gssapi/gssapi.h>
 #include <gssapi/gssapi_generic.h>
@@ -58,7 +60,6 @@
  */
 
 #define DEBUG_SESSION 0
-#define AUTH_FD 3
 #define EX 127
 #define DEFAULT_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -67,7 +68,8 @@ static struct passwd pwd_buf;
 static char pwd_string_buf[8192];
 static pid_t child;
 static int want_session = 1;
-static char *auth_delimiter = "";
+static char *auth_prefix = NULL;
+static size_t auth_prefix_size = 0;
 static char *auth_msg = NULL;
 static size_t auth_msg_size = 0;
 static FILE *authf = NULL;
@@ -82,46 +84,50 @@ static gss_cred_id_t creds = GSS_C_NO_CREDENTIAL;
 #define debug(...)
 #endif
 
+#if     __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
+#define GNUC_NORETURN __attribute__((__noreturn__))
+#else
+#define GNUC_NORETURN
+#endif
+
 static char *
-read_seqpacket_message (int fd,
-                        const char *what)
+read_authorize_response (const char *what)
 {
-  struct iovec vec = { .iov_len = MAX_PACKET_SIZE, };
-  struct msghdr msg;
-  int r;
+  const char *auth_response = ",\"response\":\"";
+  size_t auth_response_size = 13;
+  const char *auth_suffix = "\"}";
+  size_t auth_suffix_size = 2;
+  unsigned char *message;
+  ssize_t len;
 
-  vec.iov_base = malloc (vec.iov_len + 1);
-  if (!vec.iov_base)
-    errx (EX, "couldn't allocate memory for %s", what);
+  debug ("reading %s authorize message", what);
 
-  /* Assume only one successful read needed
-   * since this is a SOCK_SEQPACKET over AF_UNIX
+  len = cockpit_frame_read (STDIN_FILENO, &message);
+  if (len < 0)
+    err (EX, "couldn't read %s", what);
+
+  /*
+   * The authorize messages we receive always have an exact prefix and suffix:
+   *
+   * \n{"command":"authorize","cookie":"NNN","response":"...."}
    */
-  for (;;)
+  if (len <= auth_prefix_size + auth_response_size + auth_suffix_size ||
+      memcmp (message, auth_prefix, auth_prefix_size) != 0 ||
+      memcmp (message + auth_prefix_size, auth_response, auth_response_size) != 0 ||
+      memcmp (message + (len - auth_suffix_size), auth_suffix, auth_suffix_size) != 0)
     {
-      memset (&msg, 0, sizeof (msg));
-      msg.msg_iov = &vec;
-      msg.msg_iovlen = 1;
-      r = recvmsg (fd, &msg, 0);
-      if (r < 0)
-        {
-          if (errno == EAGAIN)
-            continue;
-
-          err (EX, "couldn't recv %s", what);
-        }
-      else
-        {
-          break;
-        }
+      errx (EX, "didn't receive expected \"authorize\" message");
     }
-  ((char *)vec.iov_base)[r] = '\0';
-  return vec.iov_base;
+
+  len -= auth_prefix_size + auth_response_size + auth_suffix_size;
+  memmove (message, message + auth_prefix_size + auth_response_size, len);
+  message[len] = '\0';
+  return (char *)message;
 }
 
 static void
-write_auth_string (const char *field,
-                   const char *str)
+write_control_string (const char *field,
+                      const char *str)
 {
   const unsigned char *at;
   char buf[8];
@@ -130,7 +136,7 @@ write_auth_string (const char *field,
     return;
 
   debug ("writing %s %s", field, str);
-  fprintf (authf, "%s \"%s\": \"", auth_delimiter, field);
+  fprintf (authf, ",\"%s\":\"", field);
   for (at = (const unsigned char *)str; *at; at++)
     {
       if (*at == '\\' || *at == '\"' || *at < 0x1f)
@@ -144,72 +150,46 @@ write_auth_string (const char *field,
         }
     }
   fputc_unlocked ('\"', authf);
-  auth_delimiter = ",";
 }
 
 static void
-write_auth_bool (const char *field,
-                 int val)
+write_control_bool (const char *field,
+                      int val)
 {
   const char *str = val ? "true" : "false";
   debug ("writing %s %s", field, str);
-  fprintf (authf, "%s \"%s\": %s", auth_delimiter, field, str);
-  auth_delimiter = ",";
+  fprintf (authf, ",\"%s\":%s", field, str);
 }
 
 static void
-write_auth_code (int result_code)
-{
-  /*
-   * The use of JSON here is not coincidental. It allows the cockpit-ws
-   * to detect whether it received the entire result or not. Partial
-   * JSON objects do not parse.
-   */
-
-  if (result_code == PAM_AUTH_ERR || result_code == PAM_USER_UNKNOWN)
-    {
-      write_auth_string ("error", "authentication-failed");
-    }
-  else if (result_code == PAM_PERM_DENIED)
-    {
-      write_auth_string ("error", "permission-denied");
-    }
-  else if (result_code == PAM_AUTHINFO_UNAVAIL)
-    {
-      write_auth_string ("error", "authentication-unavailable");
-    }
-  else if (result_code != PAM_SUCCESS)
-    {
-      write_auth_string ("error", "pam-error");
-    }
-
-  if (result_code != PAM_SUCCESS)
-    {
-      if (last_err_msg)
-        write_auth_string ("message", last_err_msg);
-      else
-        write_auth_string ("message", pam_strerror (NULL, result_code));
-    }
-
-  debug ("wrote result %d to cockpit-ws", result_code);
-}
-
-static void
-write_auth_begin (void)
+write_authorize_begin (void)
 {
   assert (authf == NULL);
   assert (auth_msg_size == 0);
   assert (auth_msg == NULL);
 
+  debug ("writing auth challenge");
+
+  if (auth_prefix)
+    {
+      free (auth_prefix);
+      auth_prefix = NULL;
+    }
+
+  if (asprintf (&auth_prefix, "\n{\"command\":\"authorize\",\"cookie\":\"session%u%u\"",
+                (unsigned int)getpid(), (unsigned int)time (NULL)) < 0)
+    {
+      errx (EX, "out of memory allocating string");
+    }
+  auth_prefix_size = strlen (auth_prefix);
+
   authf = open_memstream (&auth_msg, &auth_msg_size);
-  fprintf (authf, "{ ");
+  fprintf (authf, "%s", auth_prefix);
 }
 
 static void
-write_auth_end (void)
+write_control_end (void)
 {
-  int r;
-
   assert (authf != NULL);
 
   fprintf (authf, "}\n");
@@ -219,35 +199,50 @@ write_auth_end (void)
   assert (auth_msg_size > 0);
   assert (auth_msg != NULL);
 
-  for (;;)
-    {
-      r = write (AUTH_FD, auth_msg, auth_msg_size);
-      if (r < 0)
-        {
-          if (errno == EAGAIN)
-            continue;
+  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)auth_msg, auth_msg_size) < 0)
+    err (EX, "couldn't write auth request");
 
-          err (EX, "couldn't write auth response");
-        }
-      else
-        {
-          break;
-        }
-    }
-
-  debug ("finished auth response");
+  debug ("finished auth request");
   free (auth_msg);
   auth_msg = NULL;
   authf = NULL;
   auth_msg_size = 0;
-  auth_delimiter = "";
 }
 
-static void
-close_auth_pipe (void)
+GNUC_NORETURN static void
+exit_init_problem (int result_code)
 {
-  if (close (AUTH_FD) != 0)
-    err (EX, "couldn't close auth pipe");
+  const char *problem = NULL;
+  const char *message = NULL;
+  char *payload = NULL;
+
+  assert (result_code != PAM_SUCCESS);
+
+  debug ("writing init problem %d", result_code);
+
+  if (result_code == PAM_AUTH_ERR || result_code == PAM_USER_UNKNOWN)
+    problem = "authentication-failed";
+  else if (result_code == PAM_PERM_DENIED)
+    problem = "access-denied";
+  else if (result_code == PAM_AUTHINFO_UNAVAIL)
+    problem = "authentication-unavailable";
+  else
+    problem = "internal-error";
+
+  if (last_err_msg)
+    message = last_err_msg;
+  else
+    message = pam_strerror (NULL, result_code);
+
+  if (asprintf (&payload, "\n{\"command\":\"init\",\"version\":1,\"problem\":\"%s\",\"message\":\"%s\"}",
+                problem, message) < 0)
+    errx (EX, "couldn't allocate memory for message");
+
+  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)payload, strlen (payload)) < 0)
+    err (EX, "couldn't write init message");
+
+  free (payload);
+  exit (5);
 }
 
 static void
@@ -430,19 +425,20 @@ pam_conv_func (int num_msg,
       else
         {
           debug ("prompt for more data");
-          write_auth_begin ();
+          write_authorize_begin ();
           prompt = cockpit_authorize_build_x_conversation (msg[i]->msg, &conversation);
           if (!prompt)
             err (EX, "couldn't generate prompt");
-          if (txt_msg)
-            write_auth_string ("message", txt_msg);
-          if (err_msg)
-            write_auth_string ("error", err_msg);
 
-          write_auth_bool ("echo", msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? 0 : 1);
-          write_auth_string ("prompt", prompt);
-          write_auth_end ();
+          write_control_string ("challenge", prompt);
           free (prompt);
+
+          if (txt_msg)
+            write_control_string ("message", txt_msg);
+          if (err_msg)
+            write_control_string ("error", err_msg);
+          write_control_bool ("echo", msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? 0 : 1);
+          write_control_end ();
 
           if (err_msg)
             {
@@ -456,9 +452,8 @@ pam_conv_func (int num_msg,
               txt_msg = NULL;
             }
 
-          authorization = read_seqpacket_message (AUTH_FD, msg[i]->msg);
-          if (authorization)
-            prompt_resp = cockpit_authorize_parse_x_conversation (authorization);
+          authorization = read_authorize_response (msg[i]->msg);
+          prompt_resp = cockpit_authorize_parse_x_conversation (authorization);
 
           debug ("got prompt response");
           if (prompt_resp)
@@ -472,7 +467,8 @@ pam_conv_func (int num_msg,
               success = 0;
             }
 
-          cockpit_memory_clear (authorization, -1);
+          if (authorization)
+            cockpit_memory_clear (authorization, -1);
           free (authorization);
         }
     }
@@ -607,17 +603,15 @@ perform_basic (const char *rhost,
   char *user = NULL;
   int res;
 
-  debug ("reading password from cockpit-ws");
+
+  debug ("basic authentication");
 
   /* The input should be a user:password */
   password = cockpit_authorize_parse_basic (authorization, &user);
   if (password == NULL)
     {
       debug ("bad basic auth input");
-      write_auth_begin ();
-      write_auth_code (PAM_AUTH_ERR);
-      write_auth_end ();
-      exit (5);
+      exit_init_problem (PAM_BUF_ERR);
     }
 
   conv.appdata_ptr = &password;
@@ -635,14 +629,6 @@ perform_basic (const char *rhost,
   if (res == PAM_SUCCESS)
     res = open_session (pamh);
 
-  write_auth_begin ();
-  write_auth_code (res);
-  if (res == PAM_SUCCESS && pwd)
-    write_auth_string ("user", pwd->pw_name);
-  write_auth_end ();
-
-  close_auth_pipe ();
-
   free (user);
   if (password)
     {
@@ -650,8 +636,9 @@ perform_basic (const char *rhost,
       free (password);
     }
 
+  /* Our exit code is a PAM code */
   if (res != PAM_SUCCESS)
-    exit (5);
+    exit_init_problem (res);
 
   return pamh;
 }
@@ -743,11 +730,12 @@ perform_gssapi (const char *rhost,
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
   gss_OID mech_type = GSS_C_NO_OID;
   pam_handle_t *pamh = NULL;
+  char *response = NULL;
+  char *challenge;
   OM_uint32 flags = 0;
   const char *msg;
   char *str = NULL;
   OM_uint32 caps = 0;
-  char *reply = NULL;
   int res;
 
   res = PAM_AUTH_ERR;
@@ -755,11 +743,10 @@ perform_gssapi (const char *rhost,
   debug ("reading kerberos auth from cockpit-ws");
   input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);
 
-  write_auth_begin ();
-
   debug ("acquiring server credentials");
   major = gss_acquire_cred (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
                             GSS_C_ACCEPT, &server, NULL, NULL);
+
   if (GSS_ERROR (major))
     {
       /* This is a routine error message, don't litter */
@@ -793,35 +780,39 @@ perform_gssapi (const char *rhost,
           major = GSS_S_CONTINUE_NEEDED;
         }
 
+      /* Our exit code is a PAM result code */
       if (GSS_ERROR (major))
         {
+          res = PAM_AUTH_ERR;
           warnx ("gssapi auth failed: %s", gssapi_strerror (mech_type, major, minor));
           goto out;
         }
 
-      reply = cockpit_authorize_build_negotiate (output.value, output.length);
-      write_auth_string ("gssapi-output", reply);
-      free (reply);
-
       if ((major & GSS_S_CONTINUE_NEEDED) == 0)
         break;
 
-      debug ("need to continue gssapi negotiation");
+      challenge = cockpit_authorize_build_negotiate (output.value, output.length);
+      if (!challenge)
+        errx (EX, "couldn't encode negotiate challenge");
+      write_authorize_begin ();
+      write_control_string ("challenge", challenge);
+      write_control_end ();
+      cockpit_memory_clear (challenge, -1);
+      free (challenge);
 
       /*
        * The GSSAPI mechanism can require multiple chanllenge response
        * iterations ... so do that here.
        */
-      write_auth_code (PAM_AUTH_ERR);
-      write_auth_end ();
-
       free (input.value);
       input.length = 0;
 
-      authorization = read_seqpacket_message (AUTH_FD, "gssapi data");
-      input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);
-
-      write_auth_begin ();
+      debug ("need to continue gssapi negotiation");
+      response = read_authorize_response ("negotiate");
+      input.value = cockpit_authorize_parse_negotiate (response, &input.length);
+      if (response)
+        cockpit_memory_clear (response, -1);
+      free (response);
     }
 
   str = map_gssapi_to_local (name, mech_type);
@@ -832,22 +823,17 @@ perform_gssapi (const char *rhost,
 
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
-
   if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
     errx (EX, "couldn't setup pam");
 
   res = open_session (pamh);
-
-out:
-  write_auth_code (res);
-  if (pwd)
-    write_auth_string ("user", pwd->pw_name);
+  if (res != PAM_SUCCESS)
+    goto out;
 
   /* The creds are used and cleaned up later */
   creds = client;
 
-  write_auth_end ();
-
+out:
   if (output.value)
     gss_release_buffer (&minor, &output);
   if (export.value)
@@ -862,7 +848,7 @@ out:
   free (str);
 
   if (res != PAM_SUCCESS)
-    exit (5);
+    exit_init_problem (res);
 
   return pamh;
 }
@@ -1123,7 +1109,8 @@ save_environment (void)
   int i, j;
 
   /* Force save our default path */
-  setenv ("PATH", DEFAULT_PATH, 1);
+  if (!getenv ("COCKPIT_TEST_KEEP_PATH"))
+    setenv ("PATH", DEFAULT_PATH, 1);
 
   for (i = 0, j = 0; env_names[i] != NULL; i++)
     {
@@ -1162,7 +1149,6 @@ main (int argc,
   char *type = NULL;
   char **env;
   int status;
-  int flags;
   int res;
   int i;
 
@@ -1194,11 +1180,6 @@ main (int argc,
         err (1, "couldn't switch permissions correctly");
     }
 
-  /* We should never leak our auth fd to other processes */
-  flags = fcntl (AUTH_FD, F_GETFD);
-  if (flags < 0 || fcntl (AUTH_FD, F_SETFD, flags | FD_CLOEXEC))
-    err (1, "couldn't set auth fd flags");
-
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
   signal (SIGTSTP, SIG_IGN);
@@ -1207,7 +1188,13 @@ main (int argc,
 
   cockpit_authorize_logger (authorize_logger, DEBUG_SESSION);
 
-  authorization = read_seqpacket_message (AUTH_FD, "authorization");
+  /* Request authorization header */
+  write_authorize_begin ();
+  write_control_string ("challenge", "*");
+  write_control_end ();
+
+  /* And get back the authorization header */
+  authorization = read_authorize_response ("authorization");
   if (!cockpit_authorize_type (authorization, &type))
     errx (EX, "invalid authorization header received");
 

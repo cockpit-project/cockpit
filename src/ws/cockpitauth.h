@@ -46,8 +46,9 @@ struct _CockpitAuth
   GObject parent_instance;
 
   GBytes *key;
-  GHashTable *authenticated;
-  GHashTable *authentication_pending;
+  GHashTable *sessions;
+  GHashTable *conversations;
+
   guint64 nonce_seed;
   gboolean login_loopback;
   gulong timeout_tag;
@@ -60,22 +61,6 @@ struct _CockpitAuth
 struct _CockpitAuthClass
 {
   GObjectClass parent_class;
-
-  /* vfunc */
-  void           (* login_async)         (CockpitAuth *auth,
-                                          const gchar *path,
-                                          GIOStream *connection,
-                                          GHashTable *headers,
-                                          GAsyncReadyCallback callback,
-                                          gpointer user_data);
-
-  CockpitCreds * (* login_finish)        (CockpitAuth *auth,
-                                          GAsyncResult *result,
-                                          GIOStream *connection,
-                                          GHashTable *out_headers,
-                                          JsonObject **prompt_data,
-                                          CockpitTransport **transport,
-                                          GError **error);
 };
 
 GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
@@ -104,12 +89,10 @@ CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
 gchar *         cockpit_auth_parse_application    (const gchar *path,
                                                    gboolean *is_host);
 
-GBytes *        cockpit_auth_steal_authorization      (GHashTable *headers,
+gchar *         cockpit_auth_steal_authorization      (GHashTable *headers,
                                                        GIOStream *connection,
                                                        gchar **ret_type,
                                                        gchar **ret_conversation);
-
-gchar *        cockpit_auth_parse_authorization_type  (GHashTable *headers);
 
 G_END_DECLS
 

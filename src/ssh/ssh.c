@@ -26,50 +26,7 @@
 #include "common/cockpittest.h"
 
 #include "cockpitsshrelay.h"
-#include "cockpitsshservice.h"
-#include "cockpitsshtransport.h"
 
-
-static int
-run_ssh_relay (GMainLoop *loop,
-               const gchar *connection_string,
-               int outfd)
-{
-  gint ret = 1;
-  CockpitSshRelay *relay = cockpit_ssh_relay_new (connection_string, outfd);
-  g_signal_connect_swapped (relay, "disconnect", G_CALLBACK (g_main_loop_quit), loop);
-
-  g_main_loop_run (loop);
-
-  ret = cockpit_ssh_relay_result (relay);
-  g_object_unref (relay);
-  return ret;
-}
-
-static void
-on_transport_closed (CockpitTransport *transport,
-                     const gchar *problem,
-                     gpointer user_data)
-{
-  GMainLoop *loop = user_data;
-  g_main_loop_quit (loop);
-}
-
-static int
-run_ssh_service (GMainLoop *loop,
-                 int outfd)
-{
-  CockpitTransport *transport = cockpit_pipe_transport_new_fds ("cockpit-ssh-service", 0, outfd);
-  CockpitSshService *service = cockpit_ssh_service_new (transport);
-
-  g_signal_connect_after (transport, "closed", G_CALLBACK (on_transport_closed), loop);
-
-  g_main_loop_run (loop);
-
-  g_object_unref (service);
-  g_object_unref (transport);
-  return 0;
-}
 
 int
 main (int argc,
@@ -77,6 +34,7 @@ main (int argc,
 {
   gint ret = 1;
   gint outfd;
+  CockpitSshRelay *relay;
   GOptionContext *context;
   GError *error = NULL;
   GMainLoop *loop = NULL;
@@ -132,11 +90,13 @@ main (int argc,
 
   loop = g_main_loop_new (NULL, FALSE);
 
-  cockpit_ssh_program = argv[0];
-  if (argc == 1)
-    ret = run_ssh_service (loop, outfd);
-  else
-    ret = run_ssh_relay (loop, argv[1], outfd);
+  relay = cockpit_ssh_relay_new (argv[1], outfd);
+  g_signal_connect_swapped (relay, "disconnect", G_CALLBACK (g_main_loop_quit), loop);
+
+  g_main_loop_run (loop);
+
+  ret = cockpit_ssh_relay_result (relay);
+  g_object_unref (relay);
 
 out:
   g_option_context_free (context);

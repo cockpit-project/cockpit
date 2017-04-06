@@ -456,32 +456,80 @@ test_host_processing (TestCase *tc,
   cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\"}");
   control = NULL;
 
-  /* Test host-key is set to value */
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"host+key+value\"}");
+  /* Test host-key1 is set to value */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"host+key1+value\"}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"host\",\"host-key\":\"value\"}");
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"host\",\"host-key1\":\"value\"}");
   control = NULL;
 
   /* Test with + in value */
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"host+key+value+value\"}");
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"host+key1+value+value\"}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"host\",\"host-key\":\"value+value\"}");
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"host\",\"host-key1\":\"value+value\"}");
   control = NULL;
 
-  /* Test localhost is removed but host-key present */
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost+key+value\"}");
+  /* Test localhost is removed but host-key1 present */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost+key1+value\"}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host-key\":\"value\"}");
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host-key1\":\"value\"}");
   control = NULL;
 
-  /* Test doesn't replace host-key */
-  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost+key+value\",\"host-key\":\"extra\"}");
+  /* Test doesn't replace host-key1 */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost+key1+value\",\"host-key1\":\"extra\"}");
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"localhost+key+value\",\"host-key\":\"extra\"}");
+  cockpit_assert_json_eq (control, "{\"command\":\"open\",\"channel\":\"a\",\"payload\":\"host\",\"host\":\"localhost+key1+value\",\"host-key1\":\"extra\"}");
+  control = NULL;
+
+  g_object_unref (router);
+}
+
+static void
+test_sharable_processing (TestCase *tc,
+                          gconstpointer user_data)
+{
+  JsonObject *control;
+  CockpitRouter *router;
+  CockpitPeer *peer;
+
+  g_assert (user_data == &fixture_host);
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  peer = cockpit_peer_new (COCKPIT_TRANSPORT (tc->transport), tc->mock_config);
+  cockpit_router_add_peer (router, tc->mock_match, peer);
+  g_object_unref (peer);
+
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+
+  /* Test host-key is private */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"host-key\": \"host-key\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host-key\": \"host-key\", \"session\": \"private\"}");
+  control = NULL;
+
+  /* Test user is private */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"user\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"user\", \"session\": \"private\"}");
+  control = NULL;
+
+  /* Test user with temp-session false is not private */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"user\", \"temp-session\": false}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"user\"}");
+  control = NULL;
+
+  /* Test user with sharable is not touched */
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"host\":\"localhost\", \"user\": \"user\", \"session\": \"other\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"host\", \"user\": \"user\", \"session\": \"other\"}");
   control = NULL;
 
   g_object_unref (router);
@@ -507,5 +555,7 @@ main (int argc,
               setup_dynamic, test_dynamic_bridge, teardown);
   g_test_add ("/router/host-processing", TestCase, &fixture_host,
               setup, test_host_processing, teardown);
+  g_test_add ("/router/sharable-processing", TestCase, &fixture_host,
+              setup, test_sharable_processing, teardown);
   return g_test_run ();
 }

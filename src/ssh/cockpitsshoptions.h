@@ -28,9 +28,12 @@ typedef struct {
   const gchar *knownhosts_data;
   const gchar *knownhosts_file;
   const gchar *command;
+  const gchar *remote_peer;
+  const gchar *auth_type;
   gboolean allow_unknown_hosts;
   gboolean supports_hostkey_prompt;
   gboolean ignore_hostkey;
+  gboolean knownhosts_authorize;
 } CockpitSshOptions;
 
 CockpitSshOptions * cockpit_ssh_options_from_env   (gchar **env);

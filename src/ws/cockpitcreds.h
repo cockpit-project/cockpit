@@ -35,7 +35,6 @@ typedef struct _CockpitCreds       CockpitCreds;
 #define COCKPIT_CRED_PASSWORD     "password"
 #define COCKPIT_CRED_RHOST        "rhost"
 #define COCKPIT_CRED_CSRF_TOKEN   "csrf-token"
-#define COCKPIT_CRED_LOGIN_DATA   "login-data"
 
 #define         COCKPIT_TYPE_CREDS           (cockpit_creds_get_type ())
 
@@ -62,6 +61,9 @@ const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
 const gchar *   cockpit_creds_get_csrf_token (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_application            (CockpitCreds *creds);
+
+void            cockpit_creds_set_login_data             (CockpitCreds *creds,
+                                                          JsonObject *login_data);
 
 JsonObject *    cockpit_creds_get_login_data             (CockpitCreds *creds);
 

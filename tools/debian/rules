@@ -39,6 +39,7 @@ override_dh_clean:
 override_dh_auto_configure: debian/git-patches-applied
 	dh_auto_configure -- \
 		--with-networkmanager-needs-root=yes \
+		--with-cockpit-user=cockpit-ws \
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 
@@ -56,9 +57,6 @@ override_dh_systemd_start:
 override_dh_install:
 	dh_install --list-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
-
-override_dh_fixperms:
-	dh_fixperms -Xcockpit-session
 
 override_dh_gencontrol:
 	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)"

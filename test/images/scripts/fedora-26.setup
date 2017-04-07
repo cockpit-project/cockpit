@@ -43,8 +43,11 @@ virt-install \
 "
 
 # On the latest Fedora we mix things up a bit and install docker-latest
-# which Fedora and RHEL package as a more up to date version of docker
-COCKPIT_DEPS="$COCKPIT_DEPS docker-latest"
+# which Fedora and RHEL package as a more up to date version of docker.
+#
+# HACK- expect docker-latest conflicts with docker oin fedora-26 currently.
+#
+# COCKPIT_DEPS="$COCKPIT_DEPS docker-latest"
 
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.

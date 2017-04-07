@@ -229,7 +229,7 @@ func (self *Client) DoRequest(method string, api string, resource string,
 	return resp, nil
 }
 
-func (self *Client) Login(authLine string) ([]byte, error) {
+func (self *Client) Login(authLine string) (map[string]interface{}, error) {
 	parts := strings.SplitN(authLine, " ", 2)
 	if len(parts) == 0 {
 		return nil, newAuthError("Invalid Authorization line")
@@ -278,10 +278,7 @@ func (self *Client) Login(authLine string) ([]byte, error) {
 	login_data["contexts"] = contexts
 	login_data["users"] = users
 
-	data := make(map[string]interface{})
-	data["user"] = user_data["name"]
-	data["login-data"] = login_data
-	return json.Marshal(&data)
+	return login_data, nil
 }
 
 func NewClient() *Client {

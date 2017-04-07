@@ -436,8 +436,6 @@ class OstreeCase(MachineCase):
 
         b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
         b.wait_not_present('table.listing-ct tbody:nth-child(2) div.alert-warning')
-        b.wait_present('#change-repo')
-        b.wait_text("#change-repo", "local")
         b.wait_present("#change-branch")
         b.wait_in_text("#change-branch", branch)
         b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
@@ -445,6 +443,8 @@ class OstreeCase(MachineCase):
         b.wait_not_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li div.alert")
         b.call_js_func("ph_count_check", "table.listing-ct tbody:nth-child(2) ul.dropdown-menu li",  1)
         b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu li", branch)
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "local")
         b.click("#change-repo")
 
         b.wait_present("modal-dialog")
@@ -531,6 +531,7 @@ class OstreeCase(MachineCase):
         m.execute(["ostree", "summary", "--repo={}".format(REPO_LOCATION), "-u"])
 
         # Edit
+        b.wait_present('#change-repo')
         b.click("#change-repo")
         b.wait_present("modal-dialog")
         b.wait_present("modal-dialog .modal-body .list-group")
@@ -641,8 +642,6 @@ class OstreeCase(MachineCase):
         b.reload()
         b.enter_page("/updates")
         b.wait_present('table.listing-ct tbody:nth-child(2) i.fa-caret-up')
-        b.wait_present('#change-repo')
-        b.wait_text("#change-repo", "local")
         b.wait_present("#change-branch")
         b.wait_in_text("#change-branch", branch)
         b.wait_in_text("table.listing-ct tbody:nth-child(2) div.listing-ct-actions button", "Check for Updates")
@@ -652,6 +651,8 @@ class OstreeCase(MachineCase):
         b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
 
         # Switching to branch shows pulled
+        b.wait_present('#change-repo')
+        b.wait_text("#change-repo", "local")
         b.click("#change-repo")
         b.wait_present("modal-dialog")
         b.wait_present("modal-dialog .modal-body .list-group")

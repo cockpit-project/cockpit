@@ -56,4 +56,29 @@ QUnit.test("compare_versions", function() {
     }
 });
 
-QUnit.start();
+QUnit.test("mdraid_name_nohostnamed", function() {
+    var orig_hostnamed = utils.hostnamed;
+    utils.hostnamed = { StaticHostname: undefined };
+    assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev", "remote host name is skipped when hostnamed is not available");
+    utils.hostnamed = orig_hostnamed;
+});
+
+QUnit.test("mdraid_name_remote", function() {
+    var orig_hostnamed = utils.hostnamed;
+    utils.hostnamed = { StaticHostname: "sweethome" };
+    assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev (from somehost)", "expected name for remote host");
+    utils.hostnamed = orig_hostnamed;
+});
+
+QUnit.test("mdraid_name_local", function() {
+    var orig_hostnamed = utils.hostnamed;
+    utils.hostnamed = { StaticHostname: "sweethome" };
+    assert.strictEqual(utils.mdraid_name({ "Name": "sweethome:mydev" }), "mydev", "expected name for local host");
+    utils.hostnamed = orig_hostnamed;
+});
+
+/* Wait until the hostnamed dbus proxy is actually ready; otherwise the test
+ * finishes and kills the bridge before it can respond to the dbus channel open
+ * request for the hostnamed connection, which can cause hangs in
+ * ./test-server due to timing out that queued request. */
+utils.hostnamed.wait(QUnit.start);

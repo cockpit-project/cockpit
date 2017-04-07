@@ -53,7 +53,7 @@
         return a_ints.length - b_ints.length;
     };
 
-    var hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
+    utils.hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
 
     utils.array_find = function array_find(array, pred) {
         for (var i = 0; i < array.length; i++)
@@ -155,7 +155,10 @@
         if (parts.length != 2)
             return mdraid.Name;
 
-        if (parts[0] == hostnamed.StaticHostname)
+        /* if we call hostnamed too early, before the dbus.proxy() promise is fulfilled,
+         * it will not be valid yet; it's too inconvenient to make this
+         * function asynchronous, so just don't show the host name in this case */
+        if (utils.hostnamed.StaticHostname === undefined || parts[0] == utils.hostnamed.StaticHostname)
             return parts[1];
         else
             return cockpit.format(_("$name (from $host)"),

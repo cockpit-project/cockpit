@@ -581,18 +581,32 @@ reply_authorize_challenge (CockpitSession *session)
   char *authorize_type = NULL;
   char *authorization_type = NULL;
   const gchar *cookie = NULL;
+  JsonObject *login_data = NULL;
   gboolean ret = FALSE;
 
   if (!session->authorize)
-    return FALSE;
-  if (!session->authorization)
-    return FALSE;
+    goto out;
+
   if (!cockpit_json_get_string (session->authorize, "challenge", NULL, &challenge) || !challenge ||
       !cockpit_json_get_string (session->authorize, "cookie", NULL, &cookie) || !cookie)
-    return FALSE;
+    goto out;
 
-  if (cockpit_authorize_type (challenge, &authorize_type) &&
-      cockpit_authorize_type (session->authorization, &authorization_type) &&
+  if (!cockpit_authorize_type (challenge, &authorize_type))
+    goto out;
+
+  /* Handle prompting for login data */
+  if (g_str_equal (authorize_type, "x-login-data"))
+    {
+      if (cockpit_json_get_object (session->authorize, "login-data", NULL, &login_data) && login_data)
+        cockpit_creds_set_login_data (cockpit_web_service_get_creds (session->service), login_data);
+      ret = TRUE;
+      goto out;
+    }
+
+  if (!session->authorization)
+    goto out;
+
+  if (cockpit_authorize_type (session->authorization, &authorization_type) &&
       (g_str_equal (authorize_type, "*") || g_str_equal (authorize_type, authorization_type)))
     {
       send_authorize_reply (session->transport, cookie, session->authorization);
@@ -602,6 +616,7 @@ reply_authorize_challenge (CockpitSession *session)
       ret = TRUE;
     }
 
+out:
   free (authorize_type);
   free (authorization_type);
   return ret;
@@ -719,7 +734,6 @@ on_transport_control (CockpitTransport *transport,
   CockpitSession *session = user_data;
   const gchar *problem = NULL;
   const gchar *message = NULL;
-  JsonObject *login_data = NULL;
   GSimpleAsyncResult *result;
   GError *error = NULL;
   gboolean ret = TRUE;
@@ -731,9 +745,6 @@ on_transport_control (CockpitTransport *transport,
       g_signal_handler_disconnect (session->transport, session->close_sig);
       session->control_sig = session->close_sig = 0;
       session->initialized = TRUE;
-
-      if (cockpit_json_get_object (options, "login-data", NULL, &login_data) && login_data)
-        cockpit_creds_set_login_data (cockpit_web_service_get_creds (session->service), login_data);
 
       if (cockpit_json_get_string (options, "problem", NULL, &problem) && problem)
         {
@@ -759,9 +770,6 @@ on_transport_control (CockpitTransport *transport,
       if (session->authorize)
         json_object_unref (session->authorize);
       session->authorize = json_object_ref (options);
-
-      if (cockpit_json_get_object (options, "login-data", NULL, &login_data) && login_data)
-        cockpit_creds_set_login_data (cockpit_web_service_get_creds (session->service), login_data);
 
       if (reply_authorize_challenge (session))
         return TRUE;

@@ -645,12 +645,6 @@ static const SuccessFixture fixture_ssh_alt = {
   .cookie_name = "machine-cockpit+machine"
 };
 
-static const SuccessFixture fixture_ssh_data = {
-  .warning = NULL,
-  .data = "data",
-  .header = "testsshscheme success-with-data"
-};
-
 static const ErrorFixture fixture_bad_conversation = {
   .header = "X-Conversation conversation-id xxx",
   .error_message = "Invalid conversation token"
@@ -691,10 +685,10 @@ static const SuccessFixture fixture_no_data = {
   .header = "testscheme success"
 };
 
-static const SuccessFixture fixture_data = {
+static const SuccessFixture fixture_data_then_success = {
   .warning = NULL,
   .data = "data",
-  .header = "testscheme success-with-data"
+  .header = "testscheme data-then-success"
 };
 
 static const ErrorFixture fixture_bad_command = {
@@ -1184,7 +1178,7 @@ main (int argc,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-success", Test, &fixture_no_data,
               setup_normal, test_custom_success, teardown_normal);
-  g_test_add ("/auth/custom-success-with-data", Test, &fixture_data,
+  g_test_add ("/auth/custom-data-then-success", Test, &fixture_data_then_success,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-fail-auth", Test, &fixture_auth_failed,
               setup_normal, test_custom_fail, teardown_normal);
@@ -1208,8 +1202,6 @@ main (int argc,
   g_test_add ("/auth/custom-ssh-with-conf-allow", Test, &fixture_ssh_alt,
               setup_alt_config, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-success", Test, &fixture_ssh_no_data,
-              setup_normal, test_custom_success, teardown_normal);
-  g_test_add ("/auth/custom-ssh-success-with-data", Test, &fixture_ssh_data,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-ssh-fail-auth", Test, &fixture_ssh_auth_failed,
               setup_normal, test_custom_fail, teardown_normal);

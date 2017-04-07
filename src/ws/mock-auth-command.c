@@ -92,6 +92,13 @@ write_authorize_challenge (const char *data)
 }
 
 static void
+write_message (const char *message)
+{
+  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)message, strlen (message)) < 0)
+    err (EX, "coludn't write init message");
+}
+
+static void
 write_init_message (const char *data)
 {
   char *message = NULL;
@@ -100,8 +107,7 @@ write_init_message (const char *data)
 #if DEBUG
   fprintf (stderr, "mock-auth-command > %s\n", message);
 #endif
-  if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)message, strlen (message)) < 0)
-    err (EX, "coludn't write init message");
+  write_message (message);
   free (message);
 }
 
@@ -222,9 +228,10 @@ main (int argc,
           write_init_message ("\"problem\": \"authentication-failed\"");
         }
     }
-  else if (strcmp (data, "success-with-data") == 0)
+  else if (strcmp (data, "data-then-success") == 0)
     {
-      write_init_message ("\"user\": \"me\", \"login-data\": { \"login\": \"data\"}");
+      write_message ("\n{\"command\":\"authorize\",\"challenge\":\"x-login-data\",\"cookie\":\"blah\",\"login-data\":{ \"login\": \"data\"}}");
+      write_init_message ("\"user\": \"me\"");
       success = 1;
     }
   else if (strcmp (data, "two-step") == 0)

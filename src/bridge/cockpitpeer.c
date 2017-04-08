@@ -52,9 +52,8 @@ struct _CockpitPeer {
 
   /* Authorizations going on */
   GHashTable *authorizes;
-
-  /* authorize types we will reply to */
-  GHashTable *authorize_values;
+  gchar *basic;
+  gchar *host_key;
 
   /* first_host */
   gchar *init_host;
@@ -115,12 +114,19 @@ reply_channel_closed (CockpitPeer *self,
 }
 
 static void
-clear_authorize_value (gpointer pointer)
+clear_basic_authorize (CockpitPeer *self)
 {
-  char *data = pointer;
-  if (data)
-    cockpit_memory_clear (data, -1);
-  g_free (data);
+  if (self->basic)
+    cockpit_memory_clear (self->basic, -1);
+  g_free (self->basic);
+  self->basic = NULL;
+}
+
+static void
+clear_host_key_authorize (CockpitPeer *self)
+{
+  g_free (self->host_key);
+  self->host_key = NULL;
 }
 
 static gboolean
@@ -168,6 +174,11 @@ on_other_control (CockpitTransport *transport,
   const gchar *problem = NULL;
   const gchar *cookie = NULL;
   const gchar *challenge = NULL;
+  const gchar *host_key = NULL;
+  char *conversation = NULL;
+  char *prompt = NULL;
+  char *response = NULL;
+  gboolean handled = FALSE;
   GBytes *reply;
   gint64 timeout;
   gint64 version;
@@ -177,7 +188,8 @@ on_other_control (CockpitTransport *transport,
   /* Got an init message thaw all channels */
   if (g_str_equal (command, "init"))
     {
-      g_hash_table_remove_all (self->authorize_values);
+      clear_basic_authorize (self);
+      clear_host_key_authorize (self);
 
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
         {
@@ -238,27 +250,49 @@ on_other_control (CockpitTransport *transport,
   /* Authorize messages get forwarded even without an "init" */
   else if (g_str_equal (command, "authorize"))
     {
-      if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
+      if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL ||
+          !cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
+          !cockpit_authorize_type (challenge, &type))
         {
-          g_message ("%s: received \"authorize\" request without a valid cookie", self->name);
+          g_message ("%s: received \"authorize\" challenge", self->name);
+          handled = TRUE;
         }
 
       /* If we have info we can respond to basic authorize challenges */
-      else if (cockpit_json_get_string (options, "challenge", NULL, &challenge) &&
-               challenge && g_hash_table_contains (self->authorize_values, challenge))
+      else if (self->basic && g_strcmp0 (type, "basic") == 0)
         {
           reply = cockpit_transport_build_control ("command", "authorize",
                                                    "cookie", cookie,
-                                                   "response",
-                                                   g_hash_table_lookup (self->authorize_values, challenge),
+                                                   "response", self->basic,
                                                    NULL);
-          g_hash_table_remove (self->authorize_values, challenge);
+          clear_basic_authorize (self);
           cockpit_transport_send (transport, NULL, reply);
           g_bytes_unref (reply);
+          handled = TRUE;
+        }
+
+      /* If we have host-key info we can respond t oa basic authorize challenge */
+      else if (self->host_key && g_strcmp0 (type, "x-conversation") == 0)
+        {
+          prompt = cockpit_authorize_parse_x_conversation (challenge,
+                                                           &conversation);
+          if (prompt && cockpit_json_get_string (options, "host-key", "", &host_key) &&
+              g_ascii_strcasecmp (host_key, self->host_key) == 0)
+            {
+              response = cockpit_authorize_build_x_conversation (self->host_key, &conversation);
+              reply = cockpit_transport_build_control ("command", "authorize",
+                                                       "cookie", cookie,
+                                                       "response", response,
+                                                       NULL);
+              clear_host_key_authorize (self);
+              cockpit_transport_send (transport, NULL, reply);
+              g_bytes_unref (reply);
+              handled = TRUE;
+            }
         }
 
       /* Otherwise forward the authorize challenge on */
-      else
+      if (!handled)
         {
           g_hash_table_add (self->authorizes, g_strdup (cookie));
           cockpit_transport_send (self->transport, NULL, payload);
@@ -294,6 +328,8 @@ on_other_control (CockpitTransport *transport,
       cockpit_transport_send (self->transport, NULL, payload);
     }
 
+  g_free (conversation);
+  g_free (prompt);
   g_free (type);
   return TRUE;
 }
@@ -497,8 +533,6 @@ cockpit_peer_init (CockpitPeer *self)
 {
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   self->authorizes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  self->authorize_values = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                  NULL, clear_authorize_value);
 }
 
 static void
@@ -574,7 +608,6 @@ cockpit_peer_finalize (GObject *object)
 
   g_hash_table_destroy (self->channels);
   g_hash_table_destroy (self->authorizes);
-  g_hash_table_destroy (self->authorize_values);
 
   if (self->config)
     json_object_unref (self->config);
@@ -810,14 +843,12 @@ cockpit_peer_handle (CockpitPeer *self,
       if (cockpit_json_get_string (options, "user", NULL, &user) &&
           cockpit_json_get_string (options, "password", NULL, &password) && password)
         {
-          g_hash_table_insert (self->authorize_values, "basic",
-                               cockpit_authorize_build_basic (user, password));
+          self->basic = cockpit_authorize_build_basic (user, password);
         }
 
-      if (cockpit_json_get_string (options, "host-key", NULL, &host_key))
+      if (cockpit_json_get_string (options, "host-key", NULL, &host_key) && host_key)
         {
-          g_hash_table_insert (self->authorize_values, "host-key",
-                               host_key ? g_strdup_printf ("host-key:%s", host_key) : g_strdup (""));
+          self->host_key = g_strdup (host_key);
         }
     }
 
@@ -892,9 +923,11 @@ cockpit_peer_reset (CockpitPeer *self)
 {
   self->inited = FALSE;
 
+  clear_basic_authorize (self);
+  clear_host_key_authorize (self);
+
   g_hash_table_remove_all (self->channels);
   g_hash_table_remove_all (self->authorizes);
-  g_hash_table_remove_all (self->authorize_values);
 
   if (self->timeout)
     {

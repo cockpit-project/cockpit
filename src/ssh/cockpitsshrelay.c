@@ -300,33 +300,11 @@ out:
 }
 
 static gchar *
-challenge_for_knownhosts_data (CockpitSshData *data)
-{
-  const gchar *value = NULL;
-  gchar *ret = NULL;
-  gchar *response = NULL;
-
-  response = challenge_for_auth_data ("host-key", data->outfd, NULL);
-  if (response)
-    {
-      value = cockpit_authorize_type (response, NULL);
-      /* Legacy blank string means force fail */
-      if (value && value[0] == '\0')
-        ret = g_strdup ("* invalid key");
-      else
-        ret = g_strdup (value);
-    }
-
-
-  g_free (response);
-  return ret;
-}
-
-static gchar *
 prompt_with_authorize (CockpitSshData *data,
                        const gchar *prompt,
                        const gchar *msg,
                        const gchar *default_value,
+                       const gchar *host_key,
                        gboolean echo)
 {
   JsonObject *request = NULL;
@@ -352,6 +330,8 @@ prompt_with_authorize (CockpitSshData *data,
     json_object_set_string_member (request, "message", msg);
   if (default_value)
     json_object_set_string_member (request, "default", default_value);
+  if (host_key)
+    json_object_set_string_member (request, "host-key", host_key);
 
   json_object_set_boolean_member (request, "echo", echo);
 
@@ -371,7 +351,7 @@ prompt_with_authorize (CockpitSshData *data,
       g_message ("received \"%s\" control message instead of \"authorize\"", command);
     }
   else if (!cockpit_json_get_string (reply, "response", NULL, &response) ||
-           (result = cockpit_authorize_parse_x_conversation (response)) == NULL)
+           (result = cockpit_authorize_parse_x_conversation (response, NULL)) == NULL)
     {
       g_message ("received unexpected \"authorize\" control message");
     }
@@ -502,10 +482,10 @@ prompt_for_host_key (CockpitSshData *data)
                              host, port);
   prompt = g_strdup_printf ("MD5 Fingerprint (%s):", data->host_key_type);
 
-  reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, TRUE);
+  reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, data->host_key, TRUE);
 
 out:
-  if (reply && g_strcmp0 (reply, data->host_fingerprint) == 0)
+  if (g_strcmp0 (reply, data->host_fingerprint) == 0 || g_strcmp0 (reply, data->host_key) == 0)
     ret = NULL;
   else
     ret = "unknown-hostkey";
@@ -543,17 +523,7 @@ set_knownhosts_file (CockpitSshData *data,
   const gchar *knownhosts_data;
   const gchar *problem;
 
-  gchar *authorize_knownhosts_data = NULL;
-
-  if (data->ssh_options->knownhosts_authorize)
-    {
-      authorize_knownhosts_data = challenge_for_knownhosts_data (data);
-      knownhosts_data = authorize_knownhosts_data;
-    }
-  else
-    {
-      knownhosts_data = data->ssh_options->knownhosts_data;
-    }
+  knownhosts_data = data->ssh_options->knownhosts_data;
 
   /* $COCKPIT_SSH_KNOWN_HOSTS_DATA has highest priority */
   if (knownhosts_data)
@@ -636,7 +606,6 @@ set_knownhosts_file (CockpitSshData *data,
 
   problem = NULL;
 out:
-  g_free (authorize_knownhosts_data);
   return problem;
 }
 
@@ -726,11 +695,7 @@ verify_knownhost (CockpitSshData *data,
       g_debug ("Couldn't find the known hosts file");
       /* fall through */
     case SSH_SERVER_NOT_KNOWN:
-      if (data->ssh_options->supports_hostkey_prompt)
-        ret = prompt_for_host_key (data);
-      else
-        ret = "unknown-hostkey";
-
+      ret = prompt_for_host_key (data);
       if (ret)
         {
           g_message ("%s: %s host key for server is not known: %s",
@@ -815,7 +780,7 @@ do_interactive_auth (CockpitSshData *data)
             }
           else
             {
-              answer = prompt_with_authorize (data, prompt, msg, NULL, echo != '\0');
+              answer = prompt_with_authorize (data, prompt, msg, NULL, NULL, echo != '\0');
               if (answer)
                   status = ssh_userauth_kbdint_setanswer (data->session, i, answer);
               else

@@ -51,6 +51,9 @@ void            cockpit_creds_poison         (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_user       (CockpitCreds *creds);
 
+void            cockpit_creds_set_user       (CockpitCreds *creds,
+                                              const gchar *user);
+
 GBytes *        cockpit_creds_get_password   (CockpitCreds *creds);
 
 void            cockpit_creds_set_password   (CockpitCreds *creds,

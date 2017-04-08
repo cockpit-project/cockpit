@@ -38,7 +38,6 @@ struct _CockpitCreds {
   gchar *application;
   GBytes *password;
   gchar *rhost;
-  gchar *gssapi_creds;
   gchar *csrf_token;
   krb5_context krb5_ctx;
   krb5_ccache krb5_ccache;
@@ -61,7 +60,6 @@ cockpit_creds_free (gpointer data)
   g_free (creds->user);
   g_free (creds->application);
   g_free (creds->rhost);
-  g_free (creds->gssapi_creds);
   g_free (creds->csrf_token);
 
   if (creds->krb5_ctx)
@@ -98,7 +96,6 @@ cockpit_creds_new (const gchar *application,
                    ...)
 {
   GBytes *password = NULL;
-  krb5_error_code code;
   CockpitCreds *creds;
   const char *type;
   va_list va;
@@ -117,7 +114,7 @@ cockpit_creds_new (const gchar *application,
       if (type == NULL)
         break;
       else if (g_str_equal (type, COCKPIT_CRED_USER))
-        creds->user = g_strdup (va_arg (va, const char *));
+        cockpit_creds_set_user (creds, va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
         password = va_arg (va, GBytes *);
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
@@ -131,31 +128,6 @@ cockpit_creds_new (const gchar *application,
 
   if (password)
     cockpit_creds_set_password (creds, password);
-
-  if (creds->gssapi_creds)
-    {
-      /*
-       * All use of krb5_ctx happen in one thread at a time, either
-       * while creating the CockpitCreds, or destroying it.
-       */
-      code = krb5_init_context (&creds->krb5_ctx);
-      if (code != 0)
-        {
-          g_critical ("couldn't initialize krb5: %s",
-                      krb5_get_error_message (NULL, code));
-        }
-      else
-        {
-          code = krb5_cc_new_unique (creds->krb5_ctx, "MEMORY", NULL, &creds->krb5_ccache);
-          if (code == 0)
-            code = krb5_cc_get_full_name (creds->krb5_ctx, creds->krb5_ccache, &creds->krb5_ccache_name);
-          if (code != 0)
-            {
-              g_critical ("couldn't create krb5 ticket cache: %s",
-                          krb5_get_error_message (creds->krb5_ctx, code));
-            }
-        }
-    }
 
   creds->refs = 1;
   creds->poisoned = 0;
@@ -192,6 +164,18 @@ cockpit_creds_get_user (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->user;
+}
+
+void
+cockpit_creds_set_user (CockpitCreds *creds,
+                        const gchar *user)
+{
+  g_return_if_fail (creds != NULL);
+  if (user != creds->user)
+    {
+      g_free (creds->user);
+      creds->user = g_strdup (user);
+    }
 }
 
 const gchar *

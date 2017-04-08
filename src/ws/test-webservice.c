@@ -1282,7 +1282,7 @@ test_authorize_password (TestCase *test,
   control = NULL;
 
   /* Now clear the password */
-  send_control_message (ws, "authorize", NULL, "credential", "password", NULL);
+  send_control_message (ws, "authorize", NULL, "response", "basic", NULL);
 
   /* We should now get a hint that we have no password */
   while (control == NULL)

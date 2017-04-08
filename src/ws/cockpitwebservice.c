@@ -383,6 +383,13 @@ send_socket_hints (CockpitWebService *self,
   g_bytes_unref (payload);
 }
 
+static void
+clear_and_free_string (gpointer data)
+{
+  cockpit_memory_clear (data, -1);
+  free (data);
+}
+
 static gboolean
 process_socket_authorize (CockpitWebService *self,
                           CockpitSocket *socket,
@@ -390,62 +397,76 @@ process_socket_authorize (CockpitWebService *self,
                           JsonObject *options,
                           GBytes *payload)
 {
-  const gchar *credential = NULL;
-  const gchar *string = NULL;
-  GBytes *password;
+  const gchar *response = NULL;
+  gboolean ret = FALSE;
+  GBytes *bytes = NULL;
+  char *password = NULL;
+  char *user = NULL;
+  char *type = NULL;
   gpointer data;
   gsize length;
 
-  if (!cockpit_json_get_string (options, "credential", NULL, &credential))
+  if (!cockpit_json_get_string (options, "response", NULL, &response))
     {
-      g_warning ("%s: received invalid \"credential\" field in authorize command", socket->id);
-      return FALSE;
+      g_warning ("%s: received invalid \"response\" field in authorize command", socket->id);
+      goto out;
     }
-  else if (!credential)
-    {
-      password = cockpit_creds_get_password (self->creds);
-      send_socket_hints (self, "credential", password ? "password" : "none");
-      if (self->credential_requests)
-        send_socket_hints (self, "credential", "request");
-    }
-  else if (g_str_equal (credential, "password"))
-    {
-      if (!cockpit_json_get_string (options, "password", NULL, &string))
-        {
-          g_warning ("%s: received invalid \"password\" field in \"authorize\" command", socket->id);
-          return FALSE;
-        }
 
-      if (string == NULL)
+  ret = TRUE;
+  if (response)
+    {
+      if (!cockpit_authorize_type (response, &type) || !g_str_equal (type, "basic"))
+        goto out;
+
+      password = cockpit_authorize_parse_basic (response, &user);
+      if (password && !user)
         {
-          send_socket_hints (self, "credential", "none");
-          self->credential_requests = 0;
+          cockpit_memory_clear (password, -1);
+          free (password);
           password = NULL;
-        }
-      else
-        {
-          send_socket_hints (self, "credential", "password");
-          password = g_bytes_new_with_free_func (string, strlen (string),
-                                                 (GDestroyNotify)json_object_unref,
-                                                 json_object_ref (options));
-        }
-
-      cockpit_creds_set_password (self->creds, password);
-
-      /* Clear out the payload memory */
-      if (password)
-        {
-          data = (gpointer)g_bytes_get_data (payload, &length);
-          cockpit_memory_clear (data, length);
-          g_bytes_unref (password);
         }
     }
   else
     {
-      g_message ("%s: unsupported authorize command credential: %s", socket->id, credential);
+      send_socket_hints (self, "credential",
+                         cockpit_creds_get_password (self->creds) ? "password" : "none");
+      if (self->credential_requests)
+        send_socket_hints (self, "credential", "request");
+      goto out;
     }
 
-  return TRUE;
+  if (password == NULL)
+    {
+      send_socket_hints (self, "credential", "none");
+      self->credential_requests = 0;
+      bytes = NULL;
+    }
+  else
+    {
+      send_socket_hints (self, "credential", "password");
+      bytes = g_bytes_new_with_free_func (password, strlen (password),
+                                          clear_and_free_string, password);
+      password = NULL;
+    }
+
+  cockpit_creds_set_user (self->creds, user);
+  cockpit_creds_set_password (self->creds, bytes);
+
+  /* Clear out the payload memory */
+  data = (gpointer)g_bytes_get_data (payload, &length);
+  cockpit_memory_clear (data, length);
+
+out:
+  if (password)
+    {
+      cockpit_memory_clear (password, -1);
+      free (password);
+    }
+  free (type);
+  free (user);
+  if (bytes)
+    g_bytes_unref (bytes);
+  return ret;
 }
 
 static gboolean

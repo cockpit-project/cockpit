@@ -178,7 +178,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if (control) {
                 if (control.channel !== undefined) {
                     for (seed in source_by_seed)
-                        source_by_seed[seed].window.postMessage(message, "*");
+                        post(source_by_seed[seed], message);
                 } else if (control.command == "hint") {
                     if (control.credential) {
                         if (index.privileges)
@@ -193,7 +193,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     seed = channel.substring(0, pos + 1);
                     source = source_by_seed[seed];
                     if (source) {
-                        source.window.postMessage(message, "*");
+                        post(source, message);
                         return false; /* Stop delivery */
                     }
                 }
@@ -233,6 +233,15 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             cockpit.kill(null, source.name);
             delete source_by_seed[source.channel_seed];
             delete source.frame.source;
+        }
+
+        function post(source, message) {
+            var postMessage = source.window.postMessage;
+            if (postMessage)
+                postMessage(message, "*");
+            else
+                unregister(source);
+            return !!postMessage;
         }
 
         function register(child) {
@@ -321,7 +330,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                         var reply = $.extend({ }, cockpit.transport.options,
                             { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
                         );
-                        child.postMessage("\n" + JSON.stringify(reply), "*");
+                        post(source, "\n" + JSON.stringify(reply));
                         source.inited = true;
 
                         /* If this new frame is not the current one, tell it */
@@ -379,11 +388,10 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         };
 
         self.hint = function hint(frame, data) {
-            var message, source = frame.source;
+            var source = frame.source;
             if (source && source.inited) {
                 data.command = "hint";
-                message = "\n" + JSON.stringify(data);
-                source.window.postMessage(message, "*");
+                post(source, "\n" + JSON.stringify(data));
             }
         };
     }

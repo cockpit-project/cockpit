@@ -112,7 +112,6 @@ Environment Variables
 The following environment variables are set by cockpit-ws when spawning an auth process
 
  * **COCKPIT_REMOTE_PEER** Set to the ip address of the connecting user.
- * **COCKPIT_AUTH_MESSAGE_TYPE** A string representing the type of message that will be sent on the authentication fd. When the message is passed durning login, this will be set to the value of the auth scheme that was included in the Authorization http header.
 
 The following environment variables are used to set options for the ```cockpit-ssh``` process.
 

@@ -2055,8 +2055,7 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
   };
 
   self->ssh_data->outfd = outfd;
-  self->ssh_data->initial_auth_data = challenge_for_auth_data (self->ssh_data->ssh_options->auth_type,
-                                                               outfd,
+  self->ssh_data->initial_auth_data = challenge_for_auth_data ("*", outfd,
                                                                &self->ssh_data->auth_type);
 
   problem = cockpit_ssh_connect (self->ssh_data, self->connection_string, &self->channel);

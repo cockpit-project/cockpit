@@ -35,7 +35,6 @@ test_ssh_options (void)
 
   options = cockpit_ssh_options_from_env (env);
   g_assert_null (options->knownhosts_data);
-  g_assert_null (options->auth_type);
   g_assert_cmpstr (options->remote_peer, ==, "localhost");
   g_assert_cmpstr (options->knownhosts_file, ==, PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts");
   g_assert_cmpstr (options->command, ==, "cockpit-bridge");
@@ -48,7 +47,6 @@ test_ssh_options (void)
   options->knownhosts_file = "other-known";
   options->command = "other-command";
   options->ignore_hostkey = TRUE;
-  options->auth_type = "test";
   options->remote_peer = "other";
 
   env = cockpit_ssh_options_to_env (options, NULL);
@@ -59,16 +57,13 @@ test_ssh_options (void)
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_BRIDGE_COMMAND"), ==, "other-command");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT"), ==, "");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_REMOTE_PEER"), ==, "other");
-  g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_AUTH_MESSAGE_TYPE"), ==, "test");
 
   options->allow_unknown_hosts = TRUE;
   options->supports_hostkey_prompt = TRUE;
   options->ignore_hostkey = FALSE;
-  options->auth_type = NULL;
 
   g_strfreev (env);
   env = cockpit_ssh_options_to_env (options, NULL);
-  g_assert_null (options->auth_type);
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA"), ==, "* invalid key");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_ALLOW_UNKNOWN"), ==, "1");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT"), ==, "1");

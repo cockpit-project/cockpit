@@ -457,7 +457,8 @@ out:
 }
 
 char *
-cockpit_authorize_parse_x_conversation (const char *challenge)
+cockpit_authorize_parse_x_conversation (const char *challenge,
+                                        char **conversation)
 {
   unsigned char *buf = NULL;
   int x_conversation;
@@ -478,7 +479,7 @@ cockpit_authorize_parse_x_conversation (const char *challenge)
       return NULL;
     }
 
-  challenge = cockpit_authorize_subject (challenge, NULL);
+  challenge = cockpit_authorize_subject (challenge, conversation);
   if (!challenge)
     return NULL;
 

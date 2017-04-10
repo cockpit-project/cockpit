@@ -95,7 +95,7 @@ static void
 write_message (const char *message)
 {
   if (cockpit_frame_write (STDOUT_FILENO, (unsigned char *)message, strlen (message)) < 0)
-    err (EX, "coludn't write init message");
+    err (EX, "coludn't write message");
 }
 
 static void
@@ -130,6 +130,22 @@ main (int argc,
   if (strcmp (data, "") == 0)
     {
       write_init_message ("\"problem\":\"authentication-failed\"");
+    }
+  if (strcmp (data, "no-cookie") == 0)
+    {
+      write_message ("\n{\"command\":\"authorize\",\"response\": \"user me\"}");
+      free (message);
+      write_authorize_challenge ("*");
+      message = read_authorize_response ();
+      if (!data || strcmp (message, "user me") != 0)
+        {
+          write_init_message ("\"problem\": \"authentication-failed\"");
+        }
+      else
+        {
+          write_init_message ("\"user\": \"me\"");
+          success = 1;
+        }
     }
   else if (strcmp (data, "failslow") == 0)
     {
@@ -301,6 +317,7 @@ main (int argc,
     }
 
 out:
+  free (message);
   if (success)
     {
       if (launch_bridge)

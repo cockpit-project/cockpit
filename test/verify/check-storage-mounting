@@ -45,8 +45,8 @@ class TestStorage(StorageCase):
         else:
             # We don't get to set the mountpoint with old UDisks so we
             # expect UDisks default.  (XXX - I think this is Ubuntu specific.)
-            mount_point_foo = "/media/admin/FILESYSTEM"
-            mount_point_bar = "/media/admin/FILESYSTEM"
+            mount_point_foo = self.mount_root + "/admin/FILESYSTEM"
+            mount_point_bar = self.mount_root + "/admin/FILESYSTEM"
 
         self.login_and_go("/storage")
 
@@ -88,7 +88,7 @@ class TestStorage(StorageCase):
                                    values = { "mount_point": mount_point_bar })
             self.wait_in_storaged_configuration(mount_point_bar)
         else:
-            mount_point_bar = "/media/admin/filesystem"
+            mount_point_bar = self.mount_root + "/admin/filesystem"
 
         self.content_tab_action(1, 1, "Mount");
         self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_bar)
@@ -131,7 +131,7 @@ class TestStorage(StorageCase):
             self.wait_not_in_storaged_configuration(mount_point_bar)
 
             self.content_tab_action(1, 1, "Mount");
-            self.content_tab_wait_in_info(1, 1, "Mounted At", "/run/media/admin/filesystem")
+            self.content_tab_wait_in_info(1, 1, "Mounted At", self.mount_root + "/admin/filesystem")
 
             self.content_tab_action(1, 1, "Unmount");
             b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))

@@ -42,13 +42,15 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
         self.content_tab_wait_in_info(1, 2, "Name", "FSYS")
 
+        mountpoint = self.mount_root + "/admin/FSYS"
+
         self.content_tab_action(1, 2, "Mount")
-        self.content_tab_wait_in_info(1, 2, "Mounted At", "/run/media/admin/FSYS")
+        self.content_tab_wait_in_info(1, 2, "Mounted At", mountpoint)
 
         self.content_tab_info_action(1, 1, "Size")
         self.dialog({ "size": 400 })
 
-        size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
+        size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
         assert (size > 300000)
 
         self.content_tab_info_action(1, 1, "Size")
@@ -56,9 +58,9 @@ class TestStorage(StorageCase):
 
         # Shrinking a filesystem will unmount it
         self.content_tab_action(1, 2, "Mount")
-        self.content_tab_wait_in_info(1, 2, "Mounted At", "/run/media/admin/FSYS")
+        self.content_tab_wait_in_info(1, 2, "Mounted At", mountpoint)
 
-        size = int(m.execute("df -k --output=size /run/media/admin/FSYS | tail -1").strip())
+        size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
         assert (size < 300000)
 
 if __name__ == '__main__':

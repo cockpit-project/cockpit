@@ -30,7 +30,6 @@ typedef struct {
   const gchar *command;
   const gchar *remote_peer;
   gboolean allow_unknown_hosts;
-  gboolean supports_hostkey_prompt;
   gboolean ignore_hostkey;
   gboolean knownhosts_authorize;
 } CockpitSshOptions;

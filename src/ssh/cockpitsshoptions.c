@@ -106,7 +106,6 @@ cockpit_ssh_options_from_env (gchar **env)
   options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                                                   default_knownhosts);
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
-  options->supports_hostkey_prompt = get_environment_bool (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT", FALSE);
   options->remote_peer = get_environment_val (env, "COCKPIT_REMOTE_PEER", "localhost");
 
   if (options->knownhosts_data != NULL)
@@ -125,8 +124,6 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
 
   env = set_environment_bool (env, "COCKPIT_SSH_ALLOW_UNKNOWN",
                               options->allow_unknown_hosts);
-  env = set_environment_bool (env, "COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT",
-                              options->supports_hostkey_prompt);
   env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                              options->knownhosts_file);
   env = set_environment_val (env, "COCKPIT_REMOTE_PEER",

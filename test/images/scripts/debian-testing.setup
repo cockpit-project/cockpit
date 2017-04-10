@@ -88,7 +88,7 @@ systemctl restart docker || journalctl -u docker
 /var/lib/testvm/docker-images.setup
 
 # in case there are unnecessary packages
-apt-get -y autoremove || true
+eatmydata apt-get -y autoremove || true
 
 # reduce image size
 apt-get clean

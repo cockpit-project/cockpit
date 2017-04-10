@@ -327,6 +327,7 @@ prompt_with_authorize (CockpitSshData *data,
                        const gchar *prompt,
                        const gchar *msg,
                        const gchar *default_value,
+                       const gchar *host_key,
                        gboolean echo)
 {
   JsonObject *request = NULL;
@@ -352,6 +353,8 @@ prompt_with_authorize (CockpitSshData *data,
     json_object_set_string_member (request, "message", msg);
   if (default_value)
     json_object_set_string_member (request, "default", default_value);
+  if (host_key)
+    json_object_set_string_member (request, "host-key", host_key);
 
   json_object_set_boolean_member (request, "echo", echo);
 
@@ -507,10 +510,10 @@ prompt_for_host_key (CockpitSshData *data)
                              host, port);
   prompt = g_strdup_printf ("MD5 Fingerprint (%s):", data->host_key_type);
 
-  reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, TRUE);
+  reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, data->host_key, TRUE);
 
 out:
-  if (reply && g_strcmp0 (reply, data->host_fingerprint) == 0)
+  if (g_strcmp0 (reply, data->host_fingerprint) == 0 || g_strcmp0 (reply, data->host_key) == 0)
     ret = NULL;
   else
     ret = "unknown-hostkey";
@@ -816,7 +819,7 @@ do_interactive_auth (CockpitSshData *data)
             }
           else
             {
-              answer = prompt_with_authorize (data, prompt, msg, NULL, echo != '\0');
+              answer = prompt_with_authorize (data, prompt, msg, NULL, NULL, echo != '\0');
               if (answer)
                   status = ssh_userauth_kbdint_setanswer (data->session, i, answer);
               else

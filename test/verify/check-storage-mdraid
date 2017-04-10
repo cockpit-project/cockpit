@@ -151,13 +151,14 @@ class TestStorage(StorageCase):
         b.wait_text(info_field("Device"), "/dev/md/ARR")
 
         # Partitions also get symlinks in /dev/md/, so they should
-        # have names like "/dev/md/ARR1".  Existing storaged versions
-        # don't pick them up as the preferred device, however, so we
-        # will see "/dev/md127p1", for example.
-        #
-        # (https://github.com/storaged-project/storaged/issues/98)
-        #
-        part_prefix = dev + "p"
+        # have names like "/dev/md/ARR1".
+        if self.storaged_version >= [ 2, 6, 3]:
+            part_prefix = "/dev/md/ARR"
+        else:
+            # Older storaged versions don't pick them up as the preferred
+            # device, however, so we will see "/dev/md127p1", for example.
+            # (https://github.com/storaged-project/storaged/issues/98)
+            part_prefix = dev + "p"
 
         # Create partition table
         b.click('button:contains(Create partition table)')

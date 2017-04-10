@@ -816,8 +816,8 @@ cockpit_peer_handle (CockpitPeer *self,
 
       if (cockpit_json_get_string (options, "host-key", NULL, &host_key))
         {
-          g_hash_table_insert (self->authorize_values, "host-key",
-                               host_key ? g_strdup_printf ("host-key:%s", host_key) : g_strdup (""));
+          g_hash_table_insert (self->authorize_values, "x-host-key",
+                               host_key ? g_strdup_printf ("x-host-key %s", host_key) : g_strdup (""));
         }
     }
 

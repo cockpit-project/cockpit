@@ -306,7 +306,7 @@ challenge_for_knownhosts_data (CockpitSshData *data)
   gchar *ret = NULL;
   gchar *response = NULL;
 
-  response = challenge_for_auth_data ("host-key", data->outfd, NULL);
+  response = challenge_for_auth_data ("x-host-key", data->outfd, NULL);
   if (response)
     {
       value = cockpit_authorize_type (response, NULL);

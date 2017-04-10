@@ -196,7 +196,7 @@ cockpit_session_unref (gpointer data)
     {
       if (session->control_sig)
         g_signal_handler_disconnect (session->transport, session->control_sig);
-      if (session->control_sig)
+      if (session->close_sig)
         g_signal_handler_disconnect (session->transport, session->close_sig);
       g_object_unref (session->transport);
     }

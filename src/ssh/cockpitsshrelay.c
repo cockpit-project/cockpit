@@ -376,7 +376,7 @@ prompt_with_authorize (CockpitSshData *data,
     }
   else if (!g_str_equal (response, ""))
     {
-      result = cockpit_authorize_parse_x_conversation (response);
+      result = cockpit_authorize_parse_x_conversation (response, NULL);
       if (!result)
         g_message ("received unexpected \"authorize\" control message \"response\"");
     }

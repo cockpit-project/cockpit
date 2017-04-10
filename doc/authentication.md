@@ -119,5 +119,4 @@ The following environment variables are used to set options for the ```cockpit-s
  * **COCKPIT_SSH_KNOWN_HOSTS_FILE** Path to knownhost files. Defaults to ```PACKAGE_SYSCONF_DIR/ssh/ssh_known_hosts```
  * **COCKPIT_SSH_KNOWN_HOSTS_DATA** Known host data to validate against or '*' to skip validation```
  * **COCKPIT_SSH_BRIDGE_COMMAND** Command to launch after a ssh connection is established. Defaults to ```cockpit-bridge``` if not provided.
- * **COCKPIT_SSH_SUPPORTS_HOST_KEY_PROMPT** Set to ```1``` if caller supports prompting users for unknown host keys.
  * **KRB5CCNAME** Kerberos credentials cache name. Not set when no active kerberos session is active.

@@ -726,11 +726,7 @@ verify_knownhost (CockpitSshData *data,
       g_debug ("Couldn't find the known hosts file");
       /* fall through */
     case SSH_SERVER_NOT_KNOWN:
-      if (data->ssh_options->supports_hostkey_prompt)
-        ret = prompt_for_host_key (data);
-      else
-        ret = "unknown-hostkey";
-
+      ret = prompt_for_host_key (data);
       if (ret)
         {
           g_message ("%s: %s host key for server is not known: %s",

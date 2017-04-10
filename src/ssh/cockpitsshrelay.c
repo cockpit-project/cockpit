@@ -279,7 +279,7 @@ challenge_for_auth_data (const gchar *challenge,
     }
   else if (!cockpit_json_get_string (reply, "response", NULL, &response))
     {
-      g_message ("received unexpected \"authorize\" control message");
+      g_message ("received unexpected \"authorize\" control message: %s", response);
     }
 
   if (response)
@@ -370,10 +370,15 @@ prompt_with_authorize (CockpitSshData *data,
     {
       g_message ("received \"%s\" control message instead of \"authorize\"", command);
     }
-  else if (!cockpit_json_get_string (reply, "response", NULL, &response) ||
-           (result = cockpit_authorize_parse_x_conversation (response)) == NULL)
+  else if (!cockpit_json_get_string (reply, "response", "", &response))
     {
       g_message ("received unexpected \"authorize\" control message");
+    }
+  else if (!g_str_equal (response, ""))
+    {
+      result = cockpit_authorize_parse_x_conversation (response);
+      if (!result)
+        g_message ("received unexpected \"authorize\" control message \"response\"");
     }
 
   json_object_unref (reply);

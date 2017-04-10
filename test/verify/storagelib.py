@@ -220,6 +220,7 @@ class StorageCase(MachineCase):
 
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error
+        self.browser.wait_present('#dialog .dialog-error')
         self.browser.wait_in_text('#dialog .dialog-error', val)
 
     def dialog_wait_not_visible(self, field):

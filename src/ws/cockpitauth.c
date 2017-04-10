@@ -196,7 +196,7 @@ cockpit_session_unref (gpointer data)
     {
       if (session->control_sig)
         g_signal_handler_disconnect (session->transport, session->control_sig);
-      if (session->control_sig)
+      if (session->close_sig)
         g_signal_handler_disconnect (session->transport, session->close_sig);
       g_object_unref (session->transport);
     }
@@ -581,14 +581,28 @@ reply_authorize_challenge (CockpitSession *session)
   char *authorize_type = NULL;
   char *authorization_type = NULL;
   const gchar *cookie = NULL;
+  const gchar *response = NULL;
   JsonObject *login_data = NULL;
   gboolean ret = FALSE;
 
   if (!session->authorize)
     goto out;
 
-  if (!cockpit_json_get_string (session->authorize, "challenge", NULL, &challenge) || !challenge ||
-      !cockpit_json_get_string (session->authorize, "cookie", NULL, &cookie) || !cookie)
+  if (!cockpit_json_get_string (session->authorize, "cookie", NULL, &cookie) ||
+      !cockpit_json_get_string (session->authorize, "challenge", NULL, &challenge) ||
+      !cockpit_json_get_string (session->authorize, "response", NULL, &response))
+    goto out;
+
+  if (response && !cookie)
+    {
+      cockpit_memory_clear (session->authorization, -1);
+      g_free (session->authorization);
+      session->authorization = g_strdup (response);
+      ret = TRUE;
+      goto out;
+    }
+
+  if (!challenge || !cookie)
     goto out;
 
   if (!cockpit_authorize_type (challenge, &authorize_type))

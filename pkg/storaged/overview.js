@@ -108,24 +108,22 @@
         mustache.parse(iscsi_sessions_tmpl);
 
         function render_iscsi_sessions() {
-            function cmp_session(path_a, path_b) {
-                var session_a = client.iscsi_sessions[path_a];
-                var session_b = client.iscsi_sessions[path_b];
-                return session_a.target_name.localeCompare(session_b.target_name);
+            function cmp_session(a, b) {
+                return a.Name.localeCompare(b.Name);
             }
 
             function make_session(path) {
                 var session = client.iscsi_sessions[path];
                 return {
                     path: path,
-                    Name: session.data["target_name"],
+                    Name: session.data["target_name"] || "",
                     Tpgt: session.data["tpgt"],
                     Address: session.data["persistent_address"],
                     Port: session.data["persistent_port"]
                 };
             }
 
-            var s = Object.keys(client.iscsi_sessions).sort(cmp_session).map(make_session);
+            var s = Object.keys(client.iscsi_sessions).map(make_session).sort(cmp_session);
             $('#iscsi-sessions').amend(mustache.render(iscsi_sessions_tmpl,
                                                        { Sessions: s,
                                                          HasSessions: s.length > 0

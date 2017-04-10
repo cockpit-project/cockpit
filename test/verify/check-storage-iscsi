@@ -110,11 +110,39 @@ class TestStorage(StorageCase):
         b.click('#storage-detail .breadcrumb a')
         b.wait_visible('#storage')
 
-        b.click('#iscsi-sessions .arm-button')
-        b.wait_visible('#iscsi-sessions button[data-iscsi-session-remove]')
-        b.click('#iscsi-sessions button[data-iscsi-session-remove]')
+        # Add the target a second time, just to check that the sorting function works
+        b.click('[data-action="add-iscsi-portal"]')
+        self.dialog_wait_open()
+        self.dialog_set_val("address", m.address)
+        self.dialog_set_val("username", "admin")
+        self.dialog_set_val("password", "foobar")
+        self.dialog_apply()
+        # The dialog closes and a new dialog opens but we can't get
+        # inbetween that, so we just wait for the new fields to
+        # appear.
+        b.wait_present(self.dialog_field("target"))
+        b.wait_in_text(self.dialog_field("target"), target_iqn)
+        self.dialog_apply()
+        # Login will fail and a new dialog opens
+        b.wait_present(self.dialog_field("username"))
+        self.dialog_wait_val("username", "admin")
+        self.dialog_wait_val("password", "foobar")
+        self.dialog_set_val("password", "barfoo")
+        self.dialog_apply()
+        self.dialog_wait_close()
 
-        b.wait_not_in_text('#iscsi-sessions', target_iqn)
+        b.wait_in_text('#iscsi-sessions', m.address)
+
+        b.click('#iscsi-sessions .arm-button')
+        b.wait_visible('#iscsi-sessions tr:contains(127.0.0.1) button[data-iscsi-session-remove]')
+        b.click('#iscsi-sessions tr:contains(127.0.0.1) button[data-iscsi-session-remove]')
+        b.wait_not_present('#iscsi-sessions tr:contains(127.0.0.1)')
+
+        b.click('#iscsi-sessions .arm-button')
+        b.wait_visible('#iscsi-sessions tr:contains(%s) button[data-iscsi-session-remove]' % (m.address))
+        b.click('#iscsi-sessions tr:contains(%s) button[data-iscsi-session-remove]' % (m.address))
+        b.wait_not_present('#iscsi-sessions tr:contains(%s)' % (m.address))
+
         b.wait_not_in_text('#drives', "LIO-ORG test")
 
 if __name__ == '__main__':

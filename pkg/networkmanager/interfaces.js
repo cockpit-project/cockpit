@@ -2069,10 +2069,8 @@ function with_checkpoint(model, modify, options) {
     //
     // https://bugzilla.redhat.com/show_bug.cgi?id=1378393
     // https://bugzilla.redhat.com/show_bug.cgi?id=1398316
-    //
-    // These bugs are expected to be fixed in NM 1.6
 
-    if (options.hack_does_add_or_remove && !model.at_least_version("1.6")) {
+    if (options.hack_does_add_or_remove) {
         modify();
         return;
     }

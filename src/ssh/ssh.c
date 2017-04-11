@@ -65,7 +65,7 @@ main (int argc,
       goto out;
     }
 
-  if (argc > 2)
+  if (argc != 2)
     {
       g_printerr ("cockpit-ssh: unexpected additional arguments, see --help\n");
       ret = INTERNAL_ERROR;

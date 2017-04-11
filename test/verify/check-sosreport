@@ -34,6 +34,11 @@ class TestSOS(MachineCase):
         # Disable default gateway to prevent external internet access during testing
         m.execute("ip route del default")
 
+        # HACK - start docker so that the docker plugin doesn't hang.
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1441207
+        #
+        m.execute("systemctl start docker")
+
         b.click('[data-target="#sos"]')
         b.wait_visible("#sos")
 

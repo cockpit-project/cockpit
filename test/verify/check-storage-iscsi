@@ -48,7 +48,13 @@ class TestStorage(StorageCase):
 
         # Setup a iSCSI target with authentication for discovery and join
         #
+        # HACK - some versions of targetcli crash when TERM is not set
+        #        and stdout is not a tty.
+        #
+        #        https://bugzilla.redhat.com/show_bug.cgi?id=1441121
+
         m.execute("""
+                  export TERM=dumb
                   targetcli /backstores/ramdisk create test 50M
                   targetcli /iscsi set discovery_auth enable=1 userid=admin password=foobar
                   targetcli /iscsi create %(tgt)s

@@ -32,6 +32,11 @@ openssl req -x509 -new -nodes -key ca.key -days 3072 -out ca.crt -subj '/CN=kube
 openssl genrsa -out server.key 2048
 openssl req -config openssl.conf -new -key server.key -out server.csr -subj '/CN=kubernetes'
 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 3072 -extensions v3_req -extfile openssl.conf
+# make keys readable for "kube" group and thus for kube-apiserver.service on newer OSes
+if getent group kube >/dev/null; then
+    chgrp kube ca.key server.key
+    chmod 640 ca.key server.key
+fi
 
 echo -e '{"user":"admin"}\n{"user":"scruffy","readonly": true}' > /etc/kubernetes/authorization
 echo -e 'fubar,admin,10101\nscruffy,scruffy,10102' > /etc/kubernetes/passwd

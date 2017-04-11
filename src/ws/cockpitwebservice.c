@@ -457,11 +457,6 @@ process_socket_authorize (CockpitWebService *self,
   cockpit_memory_clear (data, length);
 
 out:
-  if (password)
-    {
-      cockpit_memory_clear (password, -1);
-      free (password);
-    }
   free (type);
   free (user);
   if (bytes)

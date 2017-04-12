@@ -356,8 +356,18 @@ Cockpit support for remoting to other servers, bastion hosts, and a basic dashbo
 
 %post dashboard
 # HACK: Until policy changes make it downstream
-# https://bugzilla.redhat.com/show_bug.cgi?id=1381331
+echo "Applying workaround for broken SELinux policy: https://bugzilla.redhat.com/show_bug.cgi?id=1381331" >&2
 test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
+%if 0%{?fedora} > 0 && 0%{?fedora} >= 26
+if type semodule >/dev/null 2>&1; then
+    tmp=$(mktemp -d)
+    echo 'module local 1.0; require { type cockpit_ws_exec_t; type cockpit_ws_t; class file execute_no_trans; } allow cockpit_ws_t cockpit_ws_exec_t:file execute_no_trans;' > "$tmp/local.te"
+    checkmodule -M -m -o "$tmp/local.mod" "$tmp/local.te"
+    semodule_package -o "$tmp/local.pp" -m "$tmp/local.mod"
+    semodule -i "$tmp/local.pp"
+    rm -rf "$tmp"
+fi
+%endif
 %endif
 
 %package storaged

@@ -470,7 +470,7 @@ WantedBy=default.target
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
         b.wait_present(svc_sel('boot_timer.timer'))
-        m.execute("systemctl enable boot_timer")
+        m.execute("systemctl enable boot_timer.timer")
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
         m.start_cockpit()

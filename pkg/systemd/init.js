@@ -1269,16 +1269,18 @@ $(function() {
         var unit = "[Unit]\nDescription=";
         var service = "\n[Service]\nExecStart=";
         var timer = "\n[Timer]\n";
-        var service_file = unit + timer_unit.Description + service + timer_unit.Command + "\n[Install]\nWantedBy=default.target";
+        var install = "[Install]\nWantedBy=timers.target\n";
+        var service_file = unit + timer_unit.Description + service + timer_unit.Command + "\n";
         var timer_file = " ";
         if (timer_unit.Calendar_or_Boot == "Boot") {
-            var boottimer = timer +"OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit;
+            var boottimer = timer +"OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit + "\n";
             timer_file = unit + timer_unit.Description + boottimer;
         }
         else if (timer_unit.Calendar_or_Boot == "Calendar") {
-            var calendartimer = timer + timer_unit.OnCalendar;
+            var calendartimer = timer + timer_unit.OnCalendar + "\n";
             timer_file = unit + timer_unit.Description + calendartimer;
         }
+        timer_file += install;
         // writing to file
         var service_path = "/etc/systemd/system/" + timer_unit.name + ".service";
         var file = cockpit.file(service_path, { superuser: 'try' });

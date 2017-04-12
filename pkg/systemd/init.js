@@ -1269,7 +1269,7 @@ $(function() {
         var unit = "[Unit]\nDescription=";
         var service = "\n[Service]\nExecStart=";
         var timer = "\n[Timer]\n";
-        var install = "[Install]\nWantedBy=default.target\n";
+        var install = "[Install]\nWantedBy=timers.target\n";
         var service_file = unit + timer_unit.Description + service + timer_unit.Command + "\n";
         var timer_file = " ";
         if (timer_unit.Calendar_or_Boot == "Boot") {

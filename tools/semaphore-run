@@ -3,24 +3,54 @@
 set -eux
 
 ARCH=${1:-}
+CONFIGURE_ARGS=""
 
-if [ "$ARCH" = i386 ]; then
+# binfmt-misc magics
+ppc_magic='\x7f\x45\x4c\x46\x01\x02\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x14'
+ppc_mask='\xff\xff\xff\xff\xff\xff\xff\xfc\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff'
+
+# always run autotools and bower/node install on native arch
+[ -x ./configure ] || NOCONFIGURE=1 ./autogen.sh
+
+if [ -n "$ARCH" ]; then
     # help apt to figure out replacing GI dependencies (we don't need them
     # anyway, but a lot of stuff is pre-installed in semaphore)
     sudo apt-get purge --auto-remove -y python3-gi gir1.2-glib-2.0
 
     # library -dev packages are not co-installable for multiple architectures,
     # so this can't go into the setup step
-    DEVPKGS=$(grep -o '[^ ]*-dev' tools/semaphore-prepare | sed 's/$/:i386/')
-    sudo apt-get install -y --no-install-recommends gcc-multilib pkg-config:i386 glib-networking:i386 glib-networking-dbg:i386 libc6-dbg:i386 libglib2.0-0-dbg:i386 $DEVPKGS
-    export CFLAGS=-m32
-    export LDFLAGS=-m32
-elif [ -n "$ARCH" ]; then
-    echo "Unknown architecture '$ARCH'" >&2
-    exit 1
+    PKGS=$(grep -o '[^ ]*-dev' tools/semaphore-prepare | sed "s/$/:$ARCH/")
+    PKGS="$PKGS glib-networking:$ARCH glib-networking-dbg:$ARCH libc6-dbg:$ARCH libglib2.0-0-dbg:$ARCH"
+    if [ "$ARCH" = i386 ]; then
+        PKGS="$PKGS gcc-multilib pkg-config:i386"
+        export CFLAGS=-m32
+        export LDFLAGS=-m32
+    elif [ "$ARCH" = powerpc ]; then
+        PKGS="$PKGS pkg-config-powerpc-linux-gnu qemu-user binfmt-support gcc-powerpc-linux-gnu linux-libc-dev:powerpc"
+        export CC=powerpc-linux-gnu-gcc
+        export LD=powerpc-linux-gnu-ld
+        export CONFIGURE_ARGS="--host powerpc-linux-gnu"
+
+        cat <<EOF | sudo tee -a /etc/apt/sources.list.d/cross.list
+deb [arch=powerpc] http://ports.ubuntu.com/ubuntu-ports trusty main universe
+deb [arch=powerpc] http://ports.ubuntu.com/ubuntu-ports trusty-updates main universe
+EOF
+        sudo dpkg --add-architecture powerpc
+        sudo apt-get --no-list-cleanup -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/cross.list -o Dir::Etc::sourceparts=/dev/null update
+    else
+        echo "Unknown architecture '$ARCH'" >&2
+        exit 1
+    fi
+
+    sudo apt-get install -y --no-install-recommends $PKGS
+
+    if [ "$ARCH" = powerpc ]; then
+        # automatically invoke qemu-ppc for ppc ELF binaries
+        sudo update-binfmts --install qemu-ppc /usr/bin/qemu-ppc --magic "$ppc_magic" --mask "$ppc_mask" --offset 0 --credential yes
+    fi
 fi
 
-./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
+./configure --prefix=/usr --enable-strict --with-systemdunitdir=/tmp $CONFIGURE_ARGS
 make V=1 all
 
 # only run distcheck on native arch
@@ -30,4 +60,14 @@ if [ -z "$ARCH" ]; then
 elif [ "$ARCH" = i386 ]; then
     linux32 make -j8 check
     linux32 make -j8 check-memory
+elif [ "$ARCH" = powerpc ]; then
+    # move aside ld cache, mmapping it crashes qemu
+    sudo mv /etc/ld.so.cache /etc/ld.so.cache.old || true
+    # this is not a test, but a web server for testing
+    BLACKLIST="test-server"
+    # some tests are broken with qemu user mode (no inotify, querying network interfaces, can't run external programs)
+    BLACKLIST="$BLACKLIST test-fs test-handlers test-httpstream test-process test-webserver test-webservice test-websocketstream"
+    # no usable locale on powerpc
+    BLACKLIST="$BLACKLIST test-locale"
+    make check TESTS="$(for t in test-*; do if [ -f "$t" -a -x "$t" -a "${BLACKLIST#*$t}" = "$BLACKLIST" ]; then echo $t; fi; done|xargs)"
 fi

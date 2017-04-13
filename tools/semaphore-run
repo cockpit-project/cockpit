@@ -21,7 +21,7 @@ elif [ -n "$ARCH" ]; then
 fi
 
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
-make V=1 all
+make -j2 V=1 all
 
 # only run distcheck on native arch
 if [ -z "$ARCH" ]; then

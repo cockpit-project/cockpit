@@ -626,14 +626,6 @@ set_knownhosts_file (CockpitSshData *data,
     }
 
   g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
-  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                       data->ssh_options->knownhosts_file) != SSH_OK)
-    {
-      g_warning ("Couldn't set knownhosts file location");
-      problem =  "internal-error";
-      goto out;
-    }
-
   if (!data->ssh_options->allow_unknown_hosts && !host_known)
     {
       g_message ("%s: refusing to connect to unknown host: %s:%d",
@@ -654,7 +646,6 @@ verify_knownhost (CockpitSshData *data,
                   const guint port)
 {
   const gchar *ret = "invalid-hostkey";
-  const gchar *r;
   ssh_key key = NULL;
   unsigned char *hash = NULL;
   int state;
@@ -694,10 +685,11 @@ verify_knownhost (CockpitSshData *data,
       ssh_clean_pubkey_hash (&hash);
     }
 
-  r = set_knownhosts_file (data, host, port);
-  if (r != NULL)
+  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
+                       data->ssh_options->knownhosts_file) != SSH_OK)
     {
-      ret = r;
+      g_warning ("Couldn't set knownhosts file location");
+      ret = "internal-error";
       goto done;
     }
 
@@ -1305,6 +1297,23 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);;
 
+  if (!data->ssh_options->ignore_hostkey)
+    {
+      /* This is a single host, for which we have been told to ignore the host key */
+      ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
+      if (!ignore_hostkey)
+        ignore_hostkey = "127.0.0.1";
+
+      data->ssh_options->ignore_hostkey = g_str_equal (ignore_hostkey, host);
+    }
+
+  if (!data->ssh_options->ignore_hostkey)
+    {
+      problem = set_knownhosts_file (data, host, port);
+      if (problem != NULL)
+        goto out;
+    }
+
   rc = ssh_connect (data->session);
   if (rc != SSH_OK)
     {
@@ -1316,13 +1325,7 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   g_debug ("%s: connected", data->logname);
 
-  /* This is a single host, for which we have been told to ignore the host key */
-  ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
-  if (!ignore_hostkey)
-    ignore_hostkey = "127.0.0.1";
-
-  if (!g_str_equal (ignore_hostkey, host) &&
-      !data->ssh_options->ignore_hostkey)
+  if (!data->ssh_options->ignore_hostkey)
     {
       problem = verify_knownhost (data, host, port);
       if (problem != NULL)
@@ -1342,6 +1345,22 @@ cockpit_ssh_connect (CockpitSshData *data,
                  ssh_get_error (data->session));
       problem = "internal-error";
       goto out;
+    }
+
+  if (data->ssh_options->remote_peer)
+    {
+      /* Try to set the remote peer env var, this will
+       * often fail as ssh servers have to be configured
+       * to allow it.
+       */
+      rc = ssh_channel_request_env (channel, "COCKPIT_REMOTE_PEER",
+                                    data->ssh_options->remote_peer);
+      if (rc != SSH_OK)
+        {
+          g_debug ("%s: Couldn't set COCKPIT_REMOTE_PEER: %s",
+                   data->logname,
+                   ssh_get_error (data->session));
+        }
     }
 
   rc = ssh_channel_request_exec (channel, data->ssh_options->command);

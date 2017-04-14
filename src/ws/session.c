@@ -1096,6 +1096,7 @@ static const char *env_names[] = {
   "G_MESSAGES_DEBUG",
   "G_SLICE",
   "PATH",
+  "COCKPIT_REMOTE_PEER",
   NULL
 };
 

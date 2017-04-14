@@ -108,7 +108,7 @@ cockpit_ssh_options_from_env (gchar **env)
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
   options->remote_peer = get_environment_val (env, "COCKPIT_REMOTE_PEER", "localhost");
 
-  if (options->knownhosts_data != NULL)
+  if (options->knownhosts_data != NULL && !options->knownhosts_authorize)
     options->allow_unknown_hosts = TRUE;
   else
     options->allow_unknown_hosts = get_allow_unknown_hosts (env);

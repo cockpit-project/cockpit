@@ -3941,6 +3941,8 @@ function factory() {
             return _("The server refused to authenticate using any supported methods.");
         else if (problem == "unknown-hostkey")
             return _("Untrusted host");
+        else if (problem == "unknown-host")
+            return _("Untrusted host");
         else if (problem == "invalid-hostkey")
             return _("Host key is incorrect");
         else if (problem == "internal-error")

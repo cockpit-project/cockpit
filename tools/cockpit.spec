@@ -574,7 +574,12 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 Summary: Cockpit user interface for Docker containers
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
+# Fedora, and upstream Docker 'Provide' docker-engine
+%if 0%{?rhel}%{?centos} == 0
+Requires: docker-engine >= 1.3.0
+%else
 Requires: docker >= 1.3.0
+%endif
 Requires: python
 
 %description docker

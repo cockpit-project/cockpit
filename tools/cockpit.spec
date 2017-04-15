@@ -574,7 +574,7 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 Summary: Cockpit user interface for Docker containers
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
-Requires: docker >= 1.3.0
+Requires: /usr/bin/docker
 Requires: python
 
 %description docker

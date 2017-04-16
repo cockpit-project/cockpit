@@ -138,6 +138,13 @@ $ cockpit-bridge --packages
         <term>version</term>
         <listitem><para>An informational version number for the package.</para></listitem>
       </varlistentry>
+      <varlistentry>
+        <term>dashboard</term>
+        <listitem><para>An optional JSON object containing any dashboard items that this package
+          provides. These will be added into the Cockpit user interface dashboard.
+          Each property on this object is named for the identifier of such an item, and the
+          property value is a JSON object described below.</para></listitem>
+      </varlistentry>
     </variablelist>
 
     <para>Menu items and tools are registered using JSON objects that have the

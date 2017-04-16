@@ -311,6 +311,8 @@ EXTRA_DIST += $(OPENSANS_FONTS)
 
 CLEANFILES += $(OPENSANS_FONTS)
 
+LATEST = latest/
+
 if ENABLE_DOC
 
 include doc/Makefile-doc.am

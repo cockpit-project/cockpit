@@ -39,6 +39,10 @@
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 
+#if WITH_DEBUG
+#include "common/cockpittest.h"
+#endif
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gint      opt_port         = 9090;

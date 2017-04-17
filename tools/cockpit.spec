@@ -29,6 +29,9 @@
 %if 0%{?fedora} > 0 && 0%{?fedora} < 22
 %define libssh_version 0.6.0
 %endif
+%if 0%{?rhel}
+%define libssh_version 0.7.1
+%endif
 
 Name:           cockpit
 Summary:        A user interface for Linux servers

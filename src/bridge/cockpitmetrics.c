@@ -417,7 +417,7 @@ compute_and_maybe_push_value (CockpitMetrics *self,
 
       if (self->priv->interpolate && !isnan (last_val))
         {
-          val = last_val * (1.0 - interpol_r) + val * interpol_r;
+          val = last_val * (1.0L - interpol_r) + val * interpol_r;
           self->priv->next_data[metric][next_instance] = val;
         }
 

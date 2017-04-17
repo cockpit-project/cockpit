@@ -8,8 +8,9 @@ xfs_growfs /
 
 echo foobar | passwd --stdin root
 
-printf "\nLOGIN\n  User: root/admin  Password: foobar\n\n" >> /etc/issue
-printf "SSH ACCESS\n  $ ssh root@10.111.112.101\n  Password: foobar\n\n" >> /etc/issue
+nmcli con add con-name "static-eth1" ifname eth1 type ethernet ip4 "10.111.112.101/20" gw4 10.111.112.1 ipv4.dns "10.111.112.1"
+nmcli con up "static-eth1"
+
 printf "OPENSHIFT CONSOLE\n  https://10.111.112.101:8443\n  Login: scruffy  Password: scruffy\n\n" >> /etc/issue
 printf "OPENSHIFT LISTENING ON LOCALHOST\n  $ ssh -NL 8443:localhost:8443 root@10.111.112.101\n\n" >> /etc/issue
 
@@ -66,18 +67,13 @@ docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oad
 # Runs a master if on the right address, otherwise runs a node
 cat > /openshift-prep <<EOF
 #!/bin/sh -ex
-if /usr/sbin/ip addr | /usr/bin/grep -i "52:54:00:9e:00:f1"; then
-    /usr/bin/hostnamectl set-hostname f1.cockpit.lan
-    # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1401561
-    /usr/bin/systemd-tmpfiles --create /usr/lib/tmpfiles.d/rpcbind.conf
-    /usr/bin/systemctl enable rpcbind
-    /usr/bin/systemctl start rpcbind
-    /usr/bin/systemctl start nfs-server
-    cmd="/usr/bin/openshift start --master=10.111.112.101"
-else
-    /usr/bin/hostnamectl set-hostname node-\$(/usr/bin/cat /sys/devices/virtual/dmi/id/product_uuid)
-    cmd="/usr/bin/openshift start node --kubeconfig=/openshift.local.config/node-f1.cockpit.lan/node.kubeconfig"
-fi
+/usr/bin/hostnamectl set-hostname f1.cockpit.lan
+# HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1401561
+/usr/bin/systemd-tmpfiles --create /usr/lib/tmpfiles.d/rpcbind.conf
+/usr/bin/systemctl enable rpcbind
+/usr/bin/systemctl start rpcbind
+/usr/bin/systemctl start nfs-server
+cmd="/usr/bin/openshift start --master=10.111.112.101 --listen=https://0.0.0.0:8443"
 echo "#!/bin/sh -ex
 \$cmd" > /openshift-run
 EOF

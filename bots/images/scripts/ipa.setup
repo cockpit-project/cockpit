@@ -10,6 +10,8 @@ iptables -F
 dnf -y update
 dnf -y install freeipa-server freeipa-server-dns bind bind-dyndb-ldap
 
+nmcli con add con-name "static-eth1" ifname eth1 type ethernet ip4 "10.111.112.100/20" ipv4.dns "10.111.112.100" gw4 "10.111.112.1"
+nmcli con up "static-eth1"
 hostnamectl set-hostname f0.cockpit.lan
 
 # Let's make sure that ipa-server-install doesn't block on
@@ -24,8 +26,6 @@ ipa-server-install -U -p foobarfoo -a foobarfoo -n cockpit.lan -r COCKPIT.LAN --
 printf 'foobarfoo\nfoobarfoo\nfoobarfoo\n' | kinit admin@COCKPIT.LAN
 
 ipa dnsconfig-mod --forwarder=8.8.8.8
-nmcli conn modify 'System eth0' ipv4.ignore-auto-dns yes
-nmcli conn modify 'System eth0' ipv4.dns "10.111.112.100"
 
 ln -sf ../selinux/config /etc/sysconfig/selinux
 echo 'SELINUX=permissive' > /etc/selinux/config

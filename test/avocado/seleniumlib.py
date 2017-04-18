@@ -119,6 +119,14 @@ class SeleniumTest(Test):
                 for line in receivedlog:
                     self.log.info("      {0}".format(line))
 
+    def get_debug_logs(self, logs=['browser','driver','client','server']):
+        for log in logs:
+            receivedlog = self.driver.get_log(log)
+            if receivedlog:
+                self.log.info(">>>>> " + log)
+                for line in receivedlog:
+                    self.log.info("      {0}".format(line))
+
     def everything_loaded(self, element):
         """
 This function is only for internal purposes:

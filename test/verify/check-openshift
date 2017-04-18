@@ -974,8 +974,7 @@ class TestRegistry(MachineCase):
         # and neither the push command on the image page
         b.go("#/images/marmalade/origin")
         b.wait_in_text("body", "Images")
-        # FIXME: known to fail for now, needs fixing in registry-image-widgets
-        # b.wait_not_visible('.registry-imagestream-push')
+        b.wait_not_visible('.registry-imagestream-push')
 
 
 if __name__ == '__main__':

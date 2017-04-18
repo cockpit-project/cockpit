@@ -28,6 +28,7 @@
     require('./date');
     require('./listing');
     require('./tags');
+    require('./policy');
 
     require('registry-image-widgets/dist/image-widgets.js');
 
@@ -131,11 +132,13 @@
         '$routeParams',
         'kubeSelect',
         'kubeLoader',
+        'KubeDiscoverSettings',
         'imageData',
         'imageActions',
         'ListingState',
         'projectData',
-        function($scope, $location, $routeParams, select, loader, data, actions, ListingState, projectData) {
+        'projectPolicy',
+        function($scope, $location, $routeParams, select, loader, discoverSettings, data, actions, ListingState, projectData, projectPolicy) {
             var target = $routeParams["target"] || "";
             var pos = target.indexOf(":");
 
@@ -219,6 +222,22 @@
 
                 return promise;
             };
+
+            function updateShowDockerPushCommands() {
+                discoverSettings().then(function(settings) {
+                    projectPolicy.subjectAccessReview(namespace, settings.currentUser, 'update', 'imagestreamimages')
+                       .then(function(allowed) {
+                            if (allowed != $scope.showDockerPushCommands) {
+                                $scope.showDockerPushCommands = allowed;
+                                $scope.$applyAsync();
+                            }
+                       });
+                });
+            }
+
+            // watch for project changes to update showDockerPushCommands, and initialize it
+            $scope.$on("$routeUpdate", updateShowDockerPushCommands);
+            updateShowDockerPushCommands();
         }
     ])
 

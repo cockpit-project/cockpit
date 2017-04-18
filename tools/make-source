@@ -44,6 +44,7 @@ if test ! -f Makefile; then
     builddir=tmp-dist
 else
     builddir=.
+    make clean
 fi
 
 make -j8 -C $builddir --silent dist-gzip 1>&2

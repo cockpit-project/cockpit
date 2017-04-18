@@ -70,6 +70,9 @@
     /* Timeout for non-GET requests */
     var REQ_TIMEOUT = "120s";
 
+    /* Timeout for non-GET requests */
+    var REQ_TIMEOUT = "120s";
+
     function debug() {
         if (window.debugging == "all" || window.debugging == "kube")
             console.debug.apply(console, arguments);

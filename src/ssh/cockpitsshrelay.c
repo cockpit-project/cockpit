@@ -775,6 +775,8 @@ parse_auth_password (const gchar *auth_type,
 
   if (g_strcmp0 (auth_type, "basic") == 0)
     password = cockpit_authorize_parse_basic (auth_data, NULL);
+  else
+    password = g_strdup (cockpit_authorize_type (auth_data, NULL));
 
   if (password == NULL)
     password = g_strdup ("");

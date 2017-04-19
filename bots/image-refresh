@@ -56,11 +56,13 @@ TRIGGERS = {
     "openshift": [
         "container/kubernetes",
         "verify/fedora-25",
-        "verify/rhel-7"
+        "verify/rhel-7",
+        "verify/rhel-7-4"
     ],
     "ipa": [
         "verify/fedora-25",
         "verify/rhel-7",
+        "verify/rhel-7-4",
         "verify/ubuntu-1604",
         "verify/debian-stable"
     ],
@@ -77,6 +79,7 @@ REDHAT_STORE = "https://cockpit-11.e2e.bos.redhat.com:8493"
 
 STORES = {
     "rhel-7": REDHAT_STORE,
+    "rhel-7-4": REDHAT_STORE,
     "rhel-atomic": REDHAT_STORE
 }
 

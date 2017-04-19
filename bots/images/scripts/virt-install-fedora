@@ -24,14 +24,27 @@
 
 set -ex
 
-if [ "$#" != 3 ]; then
-    echo >&2 "Usage: virt-install-fedora IMAGE ARCH URL"
+if [ "$#" -lt 3 ]; then
+    echo >&2 "Usage: virt-install-fedora IMAGE ARCH URL [SUBSCRIPTION_PATH]"
     exit 1
 fi
 
 out=$1
 arch=$2
 url=$3
+
+subscription_args=""
+
+# If we have subscription details as an arg, upload those into the vm
+# Otherwise ensure subscription is skipped during setup
+if [ "$#" -gt 3 ]; then
+    subscription_path=$4
+    subscription_args="--mkdir /root/.rhel \
+      --upload $subscription_path/login:/root/.rhel/login \
+      --upload $subscription_path/pass:/root/.rhel/pass"
+else
+    subscription_args="--touch /root/.skip_repos:"
+fi
 
 base=$(dirname $0)
 ks=fedora.ks
@@ -54,6 +67,7 @@ autopart
 
 %packages
 @core
+yum-utils
 %end
 
 %post
@@ -122,3 +136,8 @@ supervised_virt_install $connect \
                         --noreboot
 
 cleanup_builder_vm
+
+BASE=$(dirname $0)
+
+# Either upload subscription credentials or touch file to ensure we don't want to subscribe
+virt-customize --add $out --upload $BASE/fedora-network-ifcfg:/etc/sysconfig/network-scripts/ifcfg-eth0 $subscription_args

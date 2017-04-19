@@ -52,11 +52,16 @@ mock_sshd_CFLAGS = \
 
 SSH_CHECKS = \
 	test-sshoptions \
+	test-sshbridge \
 	$(NULL)
 
 test_sshoptions_CFLAGS = $(cockpit_ssh_CFLAGS)
 test_sshoptions_SOURCES = src/ssh/test-sshoptions.c
 test_sshoptions_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
+
+test_sshbridge_CFLAGS = $(cockpit_ssh_CFLAGS)
+test_sshbridge_SOURCES = src/ssh/test-sshbridge.c
+test_sshbridge_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
 
 test_rsa_key: src/ssh/test_rsa
 	$(AM_V_GEN) cp $< $@ && chmod 600 $@

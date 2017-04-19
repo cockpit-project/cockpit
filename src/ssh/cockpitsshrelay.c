@@ -658,7 +658,11 @@ verify_knownhost (CockpitSshData *data,
       goto done;
     }
 
+#ifdef HAVE_SSH_GET_SERVER_PUBLICKEY
+  if (ssh_get_server_publickey (data->session, &key) != SSH_OK)
+#else
   if (ssh_get_publickey (data->session, &key) != SSH_OK)
+#endif
     {
       g_warning ("Couldn't look up ssh host key");
       ret = "internal-error";

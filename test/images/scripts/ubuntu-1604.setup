@@ -75,7 +75,7 @@ COMPONENTS="main universe"
 EOF
 
 eatmydata apt-get -y install dpkg-dev pbuilder
-pbuilder --create
+pbuilder --create --extrapackages fakeroot
 /usr/lib/pbuilder/pbuilder-satisfydepends-classic --control /tmp/out/tools/debian/control --force-version --echo|grep apt-get | pbuilder --login --save-after-login
 rm -rf /tmp/out
 

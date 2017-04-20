@@ -615,6 +615,7 @@ class KubernetesCommonTests(VolumeTests):
     def testTopology(self):
         m = self.machine
         b = self.browser
+        b.wait_timeout(120)
 
         # The service has loaded and containers instantiated
         self.login_and_go("/kubernetes")

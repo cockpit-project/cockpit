@@ -61,11 +61,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         'machine2': { }
     }
 
-    def use_md5(self, m):
-        return 'rhel' in m.image or 'centos' in m.image or \
-                m.image == "continuous-atomic" or \
-                m.image == "debian-8"
-
     def load_key(self, name, password):
         self.browser.switch_to_top()
         self.browser.eval_js("loaded = false")
@@ -87,11 +82,12 @@ class TestMultiMachineKeyAuth(MachineCase):
         """.format(name, password))
         self.browser.eval_js("cockpit.user().done(load)")
 
-    def check_keys(self, keys):
+    def check_keys(self, keys_md5, keys):
         def normalize(k):
             return re.sub("/home/admin/\\.ssh/[^ ]*|test@test|ecdsa w/o comment", "", k)
-        self.assertEqual(normalize(self.browser.eval_js("cockpit.spawn([ 'ssh-add', '-l' ])")),
-                         normalize("\n".join(keys) + "\n"))
+        self.assertIn(normalize(self.browser.eval_js("cockpit.spawn([ 'ssh-add', '-l' ])")),
+                      [normalize("\n".join(keys_md5) + "\n"),
+                       normalize("\n".join(keys) + "\n")])
 
     def setUp(self):
         MachineCase.setUp(self)
@@ -135,17 +131,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         if m1.atomic_image:
             self.load_key('id_rsa', 'foobar')
             b.wait_js_cond('loaded === true');
-            if self.use_md5(m1):
-                self.check_keys([
-                    "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"])
-            else:
-                self.check_keys([
-                    "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
-        elif self.use_md5(m1):
-            self.check_keys(KEY_IDS_MD5)
-        else:
-            # Check our keys were loaded.
-            self.check_keys(KEY_IDS)
+            self.check_keys(["2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"],
+                            ["2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
+        # Check our keys were loaded.
+        self.check_keys(KEY_IDS_MD5, KEY_IDS)
 
         # Add machine
         b.switch_to_top()

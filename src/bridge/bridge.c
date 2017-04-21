@@ -416,13 +416,21 @@ setup_router (CockpitTransport *transport,
 {
   CockpitRouter *router = NULL;
   GList *bridges = NULL;
+  GList *l = NULL;
 
   packages = cockpit_packages_new ();
   if (!privileged_slave)
       bridges = cockpit_packages_get_bridges (packages);
 
-  router = cockpit_router_new (transport, payload_types, bridges);
+  router = cockpit_router_new (transport, payload_types, NULL);
   add_router_channels (router);
+
+  /* Enumerated in reverse, since the last rule is matched first.
+   * This has to happen after add_router_channels as the
+   * packages based bridges should have priority.
+   */
+  for (l = g_list_last (bridges); l != NULL; l = g_list_previous (l))
+    cockpit_router_add_bridge (router, l->data);
 
   *out_bridges = bridges;
   return router;

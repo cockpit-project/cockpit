@@ -48,7 +48,17 @@ class TestNetworking(NetworkCase):
         b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.192.0")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
-        b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/18")
+        b.wait_present("#network-interface .panel:contains('%s')" % iface)
+        try:
+            b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/18")
+        except:
+            # if we are reconnecting, give one more chance to reconnect and wait for text
+            # otherwise this was a valid timeout
+            if not b.is_present("#network-interface .panel:contains('%s')" % iface):
+                b.wait_present("#network-interface .panel:contains('%s')" % iface)
+                b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/18")
+            else:
+                raise
 
         con_id = self.iface_con_id(iface)
 

@@ -42,8 +42,12 @@
  * a screenshot, and "keys" to send key events.
  */
 
-var page = require('webpage').create();
 var sys = require('system');
+
+/* HACK: Figuring out which version of phantomjs we're running */
+sys.stderr.writeLine("phantomjs version: " + JSON.stringify(phantom.version));
+
+var page = require('webpage').create();
 var clearedStorage = false;
 var messages = "";
 var onCheckpoint;

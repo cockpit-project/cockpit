@@ -43,11 +43,6 @@ override_dh_auto_configure: debian/git-patches-applied
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 
-override_dh_auto_install:
-	dh_auto_install
-	mkdir -p debian/tmp/etc/pam.d
-	install -p -m 644 tools/cockpit.debian.pam debian/tmp/etc/pam.d/cockpit
-
 override_dh_systemd_enable:
 	dh_systemd_enable -p cockpit-ws --name=cockpit cockpit.socket
 
@@ -55,6 +50,10 @@ override_dh_systemd_start:
 	dh_systemd_start -p cockpit-ws cockpit.socket
 
 override_dh_install:
+	# Debian/Ubuntu PAM config
+	mkdir -p debian/tmp/etc/pam.d
+	install -p -m 644 tools/cockpit.debian.pam debian/tmp/etc/pam.d/cockpit
+
 	# don't ship broken branding symlinks
 	for d in rhel fedora centos; do rm -r debian/tmp/usr/share/cockpit/branding/$$d; done
 	dpkg-vendor --derives-from ubuntu || rm -r debian/tmp/usr/share/cockpit/branding/ubuntu

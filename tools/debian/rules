@@ -55,6 +55,10 @@ override_dh_systemd_start:
 	dh_systemd_start -p cockpit-ws cockpit.socket
 
 override_dh_install:
+	# don't ship broken branding symlinks
+	for d in rhel fedora centos; do rm -r debian/tmp/usr/share/cockpit/branding/$$d; done
+	dpkg-vendor --derives-from ubuntu || rm -r debian/tmp/usr/share/cockpit/branding/ubuntu
+
 	dh_install --list-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
 

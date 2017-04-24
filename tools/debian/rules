@@ -58,7 +58,12 @@ override_dh_install:
 	for d in rhel fedora centos; do rm -r debian/tmp/usr/share/cockpit/branding/$$d; done
 	dpkg-vendor --derives-from ubuntu || rm -r debian/tmp/usr/share/cockpit/branding/ubuntu
 
-	dh_install --list-missing -Xusr/src/debug
+	# unpackaged modules
+	for m in kdump kubernetes ostree selinux sosreport subscriptions; do rm -r debian/tmp/usr/share/cockpit/$$m; done
+	# part of kubernetes
+	rm -f debian/tmp/usr/lib/cockpit/cockpit-stub
+
+	dh_install --fail-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
 
 override_dh_gencontrol:

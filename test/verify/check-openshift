@@ -124,7 +124,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         b.wait_present("a[href='#/volumes']")
         b.click("a[href='#/volumes']")
         b.wait_present(".pv-listing")
-        b.wait_in_text(".pv-listing", "cannot list all")
+        b.wait_in_text(".pv-listing", "cannot watch all")
         b.click("a[href='#/']")
 
         b.wait_present("#kubernetes-change-connection")

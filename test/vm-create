@@ -47,6 +47,13 @@ parser.add_argument("--store", default=None, help="Where to send images")
 parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to create')
 args = parser.parse_args()
 
+# default to --no-build for some images
+if args.image in ["candlepin", "continuous-atomic", "fedora-atomic", "ipa", "rhel-atomic", "selenium", "openshift", "openshift-node"]:
+    if not args.no_build:
+        if args.verbose:
+            print "Creating machine without build capabilities based on the image type"
+        args.no_build = True
+
 class MachineBuilder:
     def __init__(self, machine):
         self.machine = machine

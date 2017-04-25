@@ -67,6 +67,8 @@ cat > /openshift-prep <<EOF
 /usr/bin/systemctl enable rpcbind
 /usr/bin/systemctl start rpcbind
 /usr/bin/systemctl start nfs-server
+# HACK: https://github.com/openshift/origin/issues/13798
+ip route add 0.0.0.0 via 10.111.112.1
 cmd="/usr/bin/openshift start --master=10.111.112.101"
 echo "#!/bin/sh -ex
 \$cmd" > /openshift-run

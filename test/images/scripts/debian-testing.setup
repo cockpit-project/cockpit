@@ -107,6 +107,9 @@ mkdir /var/log/journal
 # Allow root login with password
 sed -i 's/^[# ]*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
+# Prevent SSH from hanging for a long time when no external network access
+echo 'UseDNS no' >> /etc/ssh/sshd_config
+
 # HACK: https://bugzilla.mindrot.org/show_bug.cgi?id=2512
 # Disable the restarting of sshd when networking changes
 ln -snf /bin/true /etc/network/if-up.d/openssh-server

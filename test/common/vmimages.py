@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+from contextlib import contextmanager
 import os
 import sys
 import subprocess
@@ -29,6 +30,9 @@ from common import testinfra
 BASE = testinfra.TEST_DIR
 IMAGES = os.path.join(BASE, "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
+# this is the path git uses within the repo, not on the filesystem (which would be IMAGES)
+GIT_IMAGE_PATH = "test/images"
+
 # threshold in G below which unreferenced qcow2 images will be pruned, even if they aren't old
 PRUNE_THRESHOLD_G = float(os.environ.get("PRUNE_THRESHOLD_G", 15))
 DEVNULL = open("/dev/null", "r+")
@@ -114,9 +118,72 @@ def enough_disk_space():
     free = st.f_bavail * st.f_frsize / (1024*1024*1024)
     return free >= PRUNE_THRESHOLD_G;
 
+def get_refs():
+    """Return dictionary for available refs of the format {'rhel-7.4': 'ad50328990e44c22501bd5e454746d4b5e561b7c'}
+
+       Expects to be called from the top level of the git checkout
+    """
+    # get all remote heads and filter empty lines
+    # output of ls-remote has the format
+    #
+    # d864d3792db442e3de3d1811fa4bc371793a8f4f	refs/heads/master
+    # ad50328990e44c22501bd5e454746d4b5e561b7c	refs/heads/rhel-7.4
+    refs = subprocess.check_output(["git", "ls-remote",  "--heads"]).splitlines()
+    # filter out the "refs/heads/" prefix
+    # and generate a dictionary
+    prefix = "refs/heads"
+    return dict(map(lambda ref: [s[s.startswith(prefix) and len(prefix):] for s in reversed(ref.split())], refs))
+
+def get_image_links(ref):
+    """Return all image links for the given git ref
+
+       Expects to be called from the top level of the git checkout
+    """
+    # get all the links we have first
+    # trailing slash on GIT_IMAGE_PATH is important
+    git_path = GIT_IMAGE_PATH if GIT_IMAGE_PATH.endswith("/") else "{0}/".format(GIT_IMAGE_PATH)
+    try:
+        entries = subprocess.check_output(["git", "ls-tree",  "--name-only", ref, git_path]).splitlines()
+    except subprocess.CalledProcessError, e:
+        if e.returncode == 128:
+            sys.stderr.write("Skipping {0} due to tree error.\n".format(ref))
+            return []
+        raise
+    links = map(lambda entry: subprocess.check_output(["git", "show", "{0}:{1}".format(ref, entry)]), entries)
+    return [link for link in links if link.endswith(".qcow2")]
+
+@contextmanager
+def remember_cwd():
+    curdir = os.getcwd()
+    try:
+        yield
+    finally:
+        os.chdir(curdir)
+
 def prune_images(force, dryrun):
     now = time.time()
-    targets = []
+    # everything we want to keep
+    targets = set()
+    def maybe_add_target(target):
+        # if the path isn't absolute, it can resolve to either the images directory or here (might be the same)
+        if not os.path.isabs(target):
+            targets.add(os.path.join(IMAGES, target))
+            targets.add(os.path.join(DATA, target))
+        else:
+            targets.add(target)
+
+    # iterate over all visible refs (mostly branches)
+    # this hinges on being in the top level directory of the the git checkout
+    with remember_cwd():
+        os.chdir(os.path.join(BASE, ".."))
+        refs = get_refs()
+        # list images present in each branch
+        for name, ref in refs.items():
+            sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
+            for link in get_image_links(ref):
+                maybe_add_target(link)
+
+    # what we have in the current checkout might already have been added by its branch, but check anyway
     for filename in os.listdir(IMAGES):
         path = os.path.join(IMAGES, filename)
 
@@ -125,13 +192,7 @@ def prune_images(force, dryrun):
             continue
 
         target = os.readlink(path)
-
-        # if the path isn't absolute, it can resolve to either the images directory or here (might be the same)
-        if not os.path.isabs(target):
-            targets.append(os.path.join(IMAGES, target))
-            targets.append(os.path.join(DATA, target))
-        else:
-            targets.append(target)
+        maybe_add_target(target)
 
     expiry_threshold = now - testinfra.IMAGE_EXPIRE * 86400
     for filename in os.listdir(DATA):

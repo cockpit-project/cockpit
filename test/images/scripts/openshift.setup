@@ -105,6 +105,27 @@ docker pull "openshift/origin-deployer:$VERSION"
 docker pull "openshift/origin-docker-registry:$VERSION"
 docker pull "openshift/origin-pod:$VERSION"
 
+# Now pull images used for integration tests
+docker pull registry:2
+
+# HACK: Make openshift registry recognize docker registrys with the OpenShift CA
+# (https://github.com/openshift/origin/issues/1753)
+mkdir /tmp/registry
+cd /tmp/registry
+cat << EOF > Dockerfile
+FROM openshift/origin-docker-registry:$VERSION
+ADD *.crt /etc/pki/ca-trust/source/anchors/
+USER 0
+RUN update-ca-trust extract
+USER 1001
+EOF
+cp /openshift.local.config/master/ca.crt openshift-ca.crt
+docker build --tag openshift/origin-docker-registry:$VERSION .
+cd /tmp/
+rm -r /tmp/registry
+cp /openshift.local.config/master/ca.crt /etc/pki/ca-trust/source/anchors/openshift-ca.crt
+update-ca-trust extract
+
 mkdir -p /root/.kube
 cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
 

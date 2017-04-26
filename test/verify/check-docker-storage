@@ -66,7 +66,7 @@ def initially_loopbacked(machine):
 # device is added.
 #
 def initially_without_vgroup(machine):
-    return machine.image in [ "fedora-24", "rhel-7", "centos-7" ]
+    return machine.image in [ "fedora-24", "rhel-7" ]
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
 class TestDockerStorage(MachineCase):
@@ -170,6 +170,7 @@ class TestDockerStorage(MachineCase):
         # Add a disk
 
         m.add_disk("100M", serial="DISK1")
+        b.wait_visible("#storage-drives")
         b.wait_in_text("#storage-drives", "DISK1")
 
         b.click("#storage-drives tr:contains(DISK1)")

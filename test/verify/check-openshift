@@ -304,6 +304,81 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_present(".details-listing tbody[data-id='pods/default/helloapache'] th")
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/helloapache'] th"), "helloapache")
 
+    def testReconnectChangeCert(self):
+        m = self.machine
+        b = self.browser
+
+        # Try to connect with an old and non-matching client cert
+        old_cert = ('LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUREVENDQWZXZ0F3SUJBZ0lCQnpBTkJna3Foa2'
+                    'lHOXcwQkFRc0ZBREFtTVNRd0lnWURWUVFEREJ0dmNHVnUKYzJocFpuUXRjMmxuYm1WeVFERTBPVEEy'
+                    'T0RFMk16RXdIaGNOTVRjd016STRNRFl4TXpVeVdoY05NVGt3TXpJNApNRFl4TXpVeldqQTNNUjR3SE'
+                    'FZRFZRUUtFeFZ6ZVhOMFpXMDZZMngxYzNSbGNpMWhaRzFwYm5NeEZUQVRCZ05WCkJBTVRESE41YzNS'
+                    'bGJUcGhaRzFwYmpDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUIKQU5Rel'
+                    'J5SzUzQUhmdlZnME5GTHRSSENhMTEyK3l5a0xXdG14bjAxb2JTMy85VmovQU1UdmZwNVRkUlhKNjF'
+                    'WcAo3L0N1L1pkQ3RDc1pyNnJpYVMxbUJGcmtTSkZJdmFjN2NNa3k2M0tVVXNaQmU5ZGFLdG1OMmhY'
+                    'TUt0VitESStvCjJFQVJNWlV5YTZIMzJXZUpzRGM0L1lscUR5TFAxYVR3NWNwRTJPY3dWQTdoQ1dCS'
+                    'ysyajIvZTl6RDhrYzM2R24KNG0wZWd3YWxlZ2UwTXFaUk1BbTFkenRpS3I1UWZ4MG9ZVUY3Z0JIYm'
+                    'RjM253cGZ6a3M2K1F4Tkl6V0hlRmN2WApxcXpsMGxnT2ZGeWc0VWptYzhFcTBiKy9ER3lYSGlHNXN'
+                    'vVmw1RGlVa1RKRjNrcURCZVVjZWNZaEx1VDd4emxzClk0bldYVFprc3lJMXVoZFJmS2NnbVZjQ0F3'
+                    'RUFBYU0xTURNd0RnWURWUjBQQVFIL0JBUURBZ1dnTUJNR0ExVWQKSlFRTU1Bb0dDQ3NHQVFVRkJ3T'
+                    'UNNQXdHQTFVZEV3RUIvd1FDTUFBd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQgpBRy9rTElnQ2YwK2'
+                    '1MZ1VXcWZjS2NLN0Nmdm9PbS9qL0FUSW1MR0YvSUtvQTRCWGhqMG5EcEszeVd3ZGt4d0hZCmxxUDh'
+                    'xZ1NyQ1FaNkVoSlpMSWtjQWovTUlTUEUvSlJPa3R5TWFTMis4OGhqeGpxdUhucnZ5ODA5ZlJ5QzhF'
+                    'R2kKeVIyRzhtNGJ5MEJrOWhENkVxbDYxb21VU0MzL2ozR3lPUGNZWDJEQjZsU2h4ZlFJVEpqUWNKQ'
+                    '0oyMnNDdlBBOApVeU9EaUgrNllZSVdtVFN5a2kzazk0Q3NOZXlRbERjNzh3a1BseUdrN0p1anFIK2p'
+                    'KaURXSDQ2TXE3TTNaVVArCmowQWxhd3dtdllsRjBVZEIwdGRCenZWR21RbTRudEwwSkhVMGFqRnUy'
+                    'QTYvTjJmT3VrZWI0TDR6elBzSkJFNHIKaUUyNWRJUlAvWHRoM0tjRFYyYkxtMUk9Ci0tLS0tRU5EI'
+                    'ENFUlRJRklDQVRFLS0tLS0K')
+        old_key = ('LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBMUROSElybmNBZC'
+                   's5V0RRMFV1MUVjSnJYWGI3TEtRdGEyYkdmVFdodExmLzFXUDhBCnhPOStubE4xRmNuclZXbnY4Szc5'
+                   'bDBLMEt4bXZxdUpwTFdZRVd1UklrVWk5cHp0d3lUTHJjcFJTeGtGNzExb3EKMlkzYUZjd3ExWDRNa'
+                   'jZqWVFCRXhsVEpyb2ZmWlo0bXdOemo5aVdvUElzL1ZwUERseWtUWTV6QlVEdUVKWUVyNwphUGI5Nz'
+                   'NNUHlSemZvYWZpYlI2REJxVjZCN1F5cGxFd0NiVjNPMklxdmxCL0hTaGhRWHVBRWR0MXplZkNsL09'
+                   'TCnpyNURFMGpOWWQ0Vnk5ZXFyT1hTV0E1OFhLRGhTT1p6d1NyUnY3OE1iSmNlSWJteWhXWGtPSlNS'
+                   'TWtYZVNvTUYKNVJ4NXhpRXU1UHZIT1d4amlkWmRObVN6SWpXNkYxRjhweUNaVndJREFRQUJBb0lCQ'
+                   'UNxbjNDYlk0YWJteVBNUQpHMnlJRVhmcFNGMnAyc0QzYlYzUlhNcDhzV1hMekJBRndxdlQwTW9XME'
+                   'xSK2tIWHRBN1NJR0tYdFhMWkZSWkMrClRwSTNyYXh2c3o2eE5wNkZUbGpEaVp6UXdBcm1ZdlNaUlg'
+                   'vU0NnTFR0ZENRdEFtMDBUT2Z3UzNTb3R3K0xFK3AKMStoaDVtVlhFby9XNDRWeWYxNjNsRHAwOXBD'
+                   'K3dpS0ZEa2JHVExBdnA1bnFaMnhtZDRyNzhyMi9TZmZ2YUplZQpJSlpwbENMYzMyQkVZaE4yeDRIa'
+                   'HpqQkhOdTJwYkFXS2twUDVjWkZNS3QwSUkrRTN0UUNWMlkrYVZvNTY0TzRGCjZxMmFUUzVxMnRuaW'
+                   'VBTS9uay8zN3hkNUVoNjRpMU8vQTU2YzdoZmxkMDVQMC9PdU9OY2dsaVVYRG44cnFvOUoKdXpFQ1F'
+                   'ORUNnWUVBN0xOeWRQQlhkdEZRZ3NrWG56UlVYM3hhYWFCYU8xYnJYZzVmUnlMVm5DY2thWlRORXlE'
+                   'dAp3eURxSGRUOGtRNXNIcXZ3WDNxNXR1elZBZ3NJUlhvcTZIUGtxRWdLeFZIclhTNzY1OFhLUnR1S'
+                   'GswbE11ZkQxCnVPVVBaTTJYNVR4NXRmTmh1Zlh3dXZqTkdyN0E3ZEw4VUFiY3ZtS2VuSnF2bDNJZX'
+                   'I0cVpkdDBDZ1lFQTVZQncKZ2pNTGJRZStEUzd1QmdsOFVmdGl5YnZCbDdTSEQ4T2RWamVOdzNEZjJ'
+                   'uckltQVdLTVhNTk5GWldwbmhhc0g3Swp1bWtMQWdMNWFEWXJhaFJHN2ZwMGd0YnN0RVE5Uit2dFVp'
+                   'azMxaFNHUS83dFBENU1LaU1jcFpnazhYUXI5UnlFCkVEN285bWFvUEZibnJKbFl5VXNQY0FCN3Y1W'
+                   'FNxaVdqeFZMODI4TUNnWUVBNUhoSk1DcVVvZkZqL3ZsUFBiSnIKQmtlbmxYRGI1NDc4WEtzT3VFRW'
+                   'RZajQ5M1ZOdHB0c1A1RnF1MytDbmNQUTAxRjR1QkZzWFMwUEtUdENMU1ZTawplZjd6WktNMUVrVUN'
+                   'JODJuRFhSU3pKWTFoS3NwemdpUmhjaERWWTlFNEZYQlBTa1EyVWhVOW9RVXBZNGQ5dkRCCjdoVFJt'
+                   'VXJqd2xGa3o0K3RvczdyVmxrQ2dZRUF4RW8vY0V5aVNDV29HblI2Sm5XMGZCWUxuMGxVUWlHb3B3W'
+                   'UQKS3Z1bTUzTkNNd1p6VFByb0FIVkw1T2kzZ2ZoTWNNcHhNRkNwbHBYZXBaQTNQNnFLSS83ajZnaF'
+                   'RPYmRueG56MgpaU0JWM21kOWt1aVdGY0dldVNlQTErMHlJOFhkMXU0RjBqTk1ZM3JZQjR1NDZQbmJ'
+                   'ZNGNzYy9vbDNXNFNXVzZLCkRUcDJoS3NDZ1lCSlpMQys3Uy9zRGVqdkl0MTZ2Q3JzbDJlWlFsb1p0'
+                   'clNoVCtTb0hmR1NPRXZkMXp1NStBL3UKaVVDYyt1SHdUa1c0RVpMTEdBYkUzTG1xSllJcXNkNVpUW'
+                   'UkxWTZ1TGoyV1NGWFZYUXVLanVlTDZJdGttc1dvZgpyMHFtQU93RHdFVDFvRXlNVUJoOTJVMmhxSHR'
+                   'aamlMdkxQdDc5aUhacDNtTnlLVjc5QXY3dVE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=')
+
+        m.upload(["verify/files/openshift.kubeconfig"], "/home/admin/.kube/config")
+        m.execute("sed -i '/client-certificate-data:/ s/:.*$/: %s/; /client-key-data:/ s/:.*$/: %s/' /home/admin/.kube/config" % (
+            old_cert, old_key))
+        m.execute("chown -R admin:admin /home/admin/.kube")
+        self.login_and_go("/kubernetes")
+
+        b.wait_present(".curtains-ct")
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct", "Couldn't connect to server")
+        b.wait_in_text(".curtains-ct", "Unauthorized")
+        b.wait_present(".curtains-ct #kubernetes-reconnect")
+
+        # now provide a good certificate, and reconnect
+        m.upload(["verify/files/openshift.kubeconfig"], "/home/admin/.kube/config")
+        m.execute("chown -R admin:admin /home/admin/.kube")
+
+        b.click("#kubernetes-reconnect")
+        b.wait_present("#service-list")
+
+
 @skipImage("Kubernetes not packaged", "debian-8", "debian-testing", "ubuntu-1604", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestRegistry(MachineCase):

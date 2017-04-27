@@ -212,7 +212,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_slow10()
 
         # Debian 8 doesn't have persistent journal logging across boots
-        if m.image in [ "debian-8" ]:
+        if m.image in [ "debian-stable" ]:
             return
 
         # insert messages as errors because we know these will be shown by default

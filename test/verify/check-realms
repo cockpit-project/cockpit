@@ -46,7 +46,7 @@ def prepare_resolv(machine, address):
     machine.execute(script=RESOLV_SCRIPT.format(address=address))
 
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No freeipa available", "debian-8", "debian-testing")
+@skipImage("No freeipa available", "debian-stable", "debian-testing")
 class TestRealms(MachineCase):
     additional_machines = {
         'ipa': { 'machine': { 'image': 'ipa' }, 'start': { 'memory_mb': 2048 } }
@@ -201,7 +201,7 @@ chown -R admin@cockpit.lan /home/admin
 
 # This is here because our test framework can't run ipa VM's twice
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No freeipa available", "debian-8", "debian-testing")
+@skipImage("No freeipa available", "debian-stable", "debian-testing")
 class TestKerberos(MachineCase):
     additional_machines = {
         'ipa': { 'machine': { 'image': 'ipa' }, 'start': { 'memory_mb': 2048 } }

@@ -61,7 +61,7 @@ tar -C /tmp/out --strip-components=1 --wildcards -xf "$TEST_SOURCE" '*/debian/'
 
 # Disable build-dep installation for the real builds
 cat > ~/.pbuilderrc <<- EOF
-DISTRIBUTION=jessie
+DISTRIBUTION=stable
 PBUILDERSATISFYDEPENDSCMD=true
 EOF
 

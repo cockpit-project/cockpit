@@ -91,7 +91,7 @@ class TestMachines(MachineCase):
 
         b.wait_in_text("{0}-bootorder".format(self.vm1_id), "disk,network")
         cpu_type = b.eval_js("$('{0}-cputype').text()".format(self.vm1_id))
-        self.assertTrue(cpu_type == 'host' or cpu_type.startswith('custom')) # should be "host" due to "--cpu host", but debian-8 keeps claiming "custom"
+        self.assertTrue(cpu_type == 'host' or cpu_type.startswith('custom')) # should be "host" due to "--cpu host", but debian-stable keeps claiming "custom"
         emulated_machine = b.eval_js("$('{0}-emulatedmachine').text()".format(self.vm1_id))
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 

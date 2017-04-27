@@ -180,7 +180,7 @@ class TestSystemInfo(MachineCase):
         b = self.browser
 
         network_time_prefix = "Network time on"
-        if m.image in {"debian-8", "rhel-7", "centos-7", "rhel-atomic", "continuous-atomic"}:
+        if m.image in {"debian-stable", "rhel-7", "centos-7", "rhel-atomic", "continuous-atomic"}:
             network_time_prefix = "NTP enabled"
 
         # make sure system is on expected timezone EEST

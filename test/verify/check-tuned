@@ -21,7 +21,7 @@
 import parent
 from testlib import *
 
-@skipImage("No tuned packaged", "debian-8", "debian-testing", "fedora-atomic", "ubuntu-1604")
+@skipImage("No tuned packaged", "debian-stable", "debian-testing", "fedora-atomic", "ubuntu-1604")
 class TestTuned(MachineCase):
     def testBasic(self):
         b = self.browser

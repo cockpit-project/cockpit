@@ -61,8 +61,7 @@ DEFAULT_VERIFY = {
     'selenium/chrome': [ 'master', 'pulls' ],
     'verify/centos-7': [ 'master', 'pulls' ],
     'verify/continuous-atomic': [ 'master' ],
-    'verify/debian-8': [ 'master', 'pulls', ],
-    'verify/debian-stable': [ ],
+    'verify/debian-stable': [ 'master', 'pulls', ],
     'verify/debian-testing': [ 'master', 'pulls' ],
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],
@@ -89,8 +88,8 @@ DEFAULT_IMAGE_REFRESH = {
     'debian-testing': {
         'triggers': [ "verify/debian-testing" ]
     },
-    'debian-8': {
-        'triggers': [ "verify/debian-8" ]
+    'debian-stable': {
+        'triggers': [ "verify/debian-stable" ]
     },
     'fedora-25': {
         'triggers': [
@@ -125,7 +124,7 @@ DEFAULT_IMAGE_REFRESH = {
         'triggers': [ "verify/fedora-25",
                       "verify/rhel-7",
                       "verify/ubuntu-1604",
-                      "verify/debian-8" ],
+                      "verify/debian-stable" ],
         'refresh-days': 120
     }
 }

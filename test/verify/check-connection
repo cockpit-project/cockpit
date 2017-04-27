@@ -92,7 +92,7 @@ class TestConnection(MachineCase):
         self.allow_restart_journal_messages()
 
         # Debian 8 doesn't have systemd with coredump support
-        if m.image in [ "debian-8" ]:
+        if m.image in [ "debian-stable" ]:
             return
 
         # Lets crash a process and see if we get a proper backtrace in the logs

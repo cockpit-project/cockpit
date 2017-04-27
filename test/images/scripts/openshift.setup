@@ -164,7 +164,8 @@ docker tag busybox registry:5000/marmalade/busybee:latest
 docker tag busybox registry:5000/marmalade/busybee:0.x
 docker push registry:5000/marmalade/busybee
 
-cd /tmp
+mkdir /tmp/juggs
+cd /tmp/juggs
 printf '#!/bin/sh\necho hello from container\nsleep 100000\n' > echo-script
 printf 'FROM busybox\nMAINTAINER cockpit@example.com\nEXPOSE 8888\nADD echo-script /\nRUN chmod +x /echo-script\nCMD \"/echo-script\"' > Dockerfile
 docker build -t registry:5000/marmalade/juggs:latest .
@@ -177,6 +178,8 @@ printf "FROM registry:5000/marmalade/juggs:2.5\nSTOPSIGNAL SIGKILL\nONBUILD ADD 
 docker build -t registry:5000/marmalade/juggs:2.8 .
 printf "FROM registry:5000/marmalade/juggs:2.8\nLABEL description=\"This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.\"\nLABEL name=\"Juggs Image\"\nLABEL build-date=2016-03-04\nLABEL url=\"http://hipsum.co/\"" > Dockerfile
 docker build -t registry:5000/marmalade/juggs:2.9 .
+cd /tmp
+rm -r /tmp/juggs
 
 docker push registry:5000/marmalade/juggs
 

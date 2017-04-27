@@ -30,7 +30,7 @@ class TestNetworking(NetworkCase):
         self.login_and_go("/network")
 
         can_add_teams = m.image not in [ "continuous-atomic", "rhel-atomic",
-                                         "debian-8", "ubuntu-1604" ]
+                                         "debian-stable", "ubuntu-1604" ]
 
         b.wait_attr("#networking-add-team", "data-test-stable", "yes")
         if not can_add_teams:

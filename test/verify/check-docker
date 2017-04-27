@@ -318,7 +318,7 @@ CMD ["/bin/sh"]
         b.wait_present("#select-mounted-volumes form:eq(0)")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
-        if m.image not in [ "debian-8", "debian-testing", "ubuntu-1604" ]:
+        if m.image not in [ "debian-stable", "debian-testing", "ubuntu-1604" ]:
             m.execute("chcon --dereference -HRt svirt_sandbox_file_t /mnt")
         m.execute("touch /mnt/dripping.txt")
 
@@ -387,7 +387,7 @@ CMD ["/bin/sh"]
         m = self.machine
 
         # HACK: https://github.com/docker/docker/issues/25246
-        if m.image in [ "debian-8", "debian-testing" ]:
+        if m.image in [ "debian-stable", "debian-testing" ]:
             m.execute("printf '\\n\\n[Service]\\nKillMode=process\\n' >> /lib/systemd/system/docker.service")
             m.execute("systemctl daemon-reload")
 
@@ -447,7 +447,7 @@ CMD ["/bin/sh"]
         m.execute("systemctl start docker")
 
         # Memory limits not supported on Debian Jessie
-        memory_supported = m.image not in [ "debian-8" ]
+        memory_supported = m.image not in [ "debian-stable" ]
 
         self.login_and_go("/docker")
         b.wait_visible("#containers-images")
@@ -508,7 +508,7 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
-@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-8", "debian-testing", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "fedora-i386")
+@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "fedora-i386")
 class TestAtomicScan(MachineCase):
     def testBasic(self):
         b = self.browser

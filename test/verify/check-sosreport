@@ -23,7 +23,7 @@ from testlib import *
 
 import subprocess
 
-@skipImage("No sosreport", "continuous-atomic", "debian-8", "debian-testing", "ubuntu-1604")
+@skipImage("No sosreport", "continuous-atomic", "debian-stable", "debian-testing", "ubuntu-1604")
 class TestSOS(MachineCase):
     def testBasic(self):
         b = self.browser

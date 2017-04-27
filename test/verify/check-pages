@@ -41,7 +41,7 @@ WantedBy=default.target
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
         # On Debian and Ubuntu we have to generate the other locales :S
-        if m.image in ["debian-8", "debian-testing" ]:
+        if m.image in ["debian-stable", "debian-testing" ]:
             m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
         elif m.image in [ "ubuntu-1604" ]:
             m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")

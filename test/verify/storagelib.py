@@ -43,7 +43,7 @@ class StorageCase(MachineCase):
 
         self.storaged_is_old_udisks = ("udisksctl" in self.storagectl_cmd and self.storaged_version < [2, 6, 0])
 
-        if self.machine.image in ["debian-8", "debian-testing", "ubuntu-1604" ]:
+        if self.machine.image in ["debian-stable", "debian-testing", "ubuntu-1604" ]:
             # Debian's udisks has a patch to use FHS /media directory
             self.mount_root = "/media"
         else:

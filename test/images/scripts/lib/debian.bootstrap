@@ -1,0 +1,31 @@
+#! /bin/bash
+
+set -ex
+
+BASE=$(dirname $(dirname $0))
+
+out=$1
+arch=$2
+virt_builder_image="$3"
+if [ -n "$4" ]; then
+    apt_source="$4"
+fi
+
+if [ "$VIRT_BUILDER_NO_CACHE" == "yes" ]; then
+    virt_builder_caching="--no-cache"
+fi
+
+virt-builder $virt_builder_image \
+             $virt_builder_caching \
+             --output "$out" \
+             --size 8G \
+             --format qcow2 \
+             --arch "$arch" \
+             --root-password password:foobar \
+             --ssh-inject root:file:$BASE/../../common/identity.pub \
+             --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
+             --chmod 0600:/etc/ssh/ssh_host_rsa_key \
+             --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             ${apt_source:+--write /etc/apt/sources.list:"$apt_source"} \
+             --write /etc/apt/apt.conf.d/90nolanguages:'Acquire::Languages "none";' \
+             --run-command "export DEBIAN_FRONTEND=noninteractive; apt-get -y update; apt-get -y install eatmydata; eatmydata apt-get -y dist-upgrade"

@@ -2,6 +2,9 @@
 
 set -ex
 
+# Disable device renaming for predictable names between different qemus
+grubby --update-kernel=ALL --args="net.ifnames=0 biosdevname=0"
+
 # HACK - virt-resize might not be able to resize our xfs rootfs,
 # depending on how it was compiled and which plugins are installed,
 # and will just silently not do it.  So we do it here.

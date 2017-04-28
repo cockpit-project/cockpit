@@ -18,6 +18,9 @@
 
 set -e
 
+# Disable device renaming for predictable names between different qemus
+grubby --update-kernel=ALL --args="net.ifnames=0 biosdevname=0"
+
 # The docker pool should grow automatically as needed, but we grow it
 # explicitly here anyway.  This is hopefully more reliable.
 # HACK: docker falls over regularly, print its log if it does

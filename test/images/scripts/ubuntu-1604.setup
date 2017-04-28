@@ -5,7 +5,7 @@ set -ex
 # Enable a console on ttyS0 so that we can log-in via vm-run
 # and make the boot up more verbose
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT/# GRUB_CMDLINE_LINUX_DEFAULT/' /etc/default/grub
-echo 'GRUB_CMDLINE_LINUX="console=ttyS0,115200"' >>/etc/default/grub
+echo 'GRUB_CMDLINE_LINUX="console=ttyS0,115200 net.ifnames=0 biosdevname=0"' >>/etc/default/grub
 update-grub
 
 # We install all dependencies of the cockpit packages since we want

@@ -1,0 +1,156 @@
+#! /bin/bash
+# Shared .setup between all Debian/Ubuntu flavors
+
+set -ex
+
+# Enable a console on ttyS0 so that we can log-in via vm-run.
+# and make the boot up more verbose
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT/# GRUB_CMDLINE_LINUX_DEFAULT/' /etc/default/grub
+echo 'GRUB_CMDLINE_LINUX="console=ttyS0,115200 net.ifnames=0 biosdevname=0"' >>/etc/default/grub
+update-grub
+
+# We install all dependencies of the cockpit packages since we want
+# them to not spontaneously change from one test run to the next when
+# the distribution repository is updated.
+# docker.io \
+#
+COCKPIT_DEPS="\
+cryptsetup \
+docker.io
+libjson-glib-1.0-0 \
+libpcp3 \
+libpolkit-agent-1-0 \
+libpolkit-gobject-1-0 \
+libpwquality-tools \
+libssh-4 \
+libteam-utils \
+libvirt-daemon-system \
+network-manager \
+pcp \
+policykit-1 \
+realmd \
+selinux-basics \
+thin-provisioning-tools \
+xdg-utils \
+udisks2 \
+"
+
+# We also install the packages necessary to join a FreeIPA domain so
+# that we don't have to go to the network during a test run.
+IPA_CLIENT_PACKAGES="\
+sssd-tools \
+packagekit \
+"
+
+TEST_PACKAGES="\
+curl \
+gdb \
+iproute \
+mdadm \
+qemu-kvm \
+virtinst \
+xfsprogs \
+"
+
+RELEASE=$(grep -m1 ^deb /etc/apt/sources.list | awk '{print $3}')
+case "$RELEASE" in
+    stable)
+        # docker.io is in backports only
+        echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
+        ;;
+
+    testing)
+        # https://tracker.debian.org/pcp got removed from testing
+        COCKPIT_DEPS="${COCKPIT_DEPS/libpcp3 /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
+
+        TEST_PACKAGES="$TEST_PACKAGES systemd-coredump"
+
+        # modern udisks (after re-merging storaged)
+        echo "deb http://deb.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
+        COCKPIT_DEPS_EXPERIMENTAL="udisks2"
+
+        # docker.io got removed from testing; use backports-version
+        echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
+        ;;
+
+    xenial)
+        TEST_PACKAGES="$TEST_PACKAGES systemd-coredump"
+
+        IPA_CLIENT_PACKAGES="$IPA_CLIENT_PACKAGES freeipa-client"
+        PBUILDER_OPTS='COMPONENTS="main universe"'
+        ;;
+
+    *)
+        echo "Error: Unknown Debian/Ubuntu release $RELEASE" >&2
+        exit 1
+esac
+
+
+useradd -m -U -c Administrator -G sudo -s /bin/bash admin
+echo admin:foobar | chpasswd
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get -y update
+eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+[ -z "$COCKPIT_DEPS_EXPERIMENTAL" ] || eatmydata apt-get -y install $COCKPIT_DEPS_EXPERIMENTAL
+
+# Prepare for building
+#
+
+# extract control files and adjust them for our release, so that we can parse the build deps
+mkdir -p /tmp/out
+tar -C /tmp/out --strip-components=1 --wildcards -xf "$TEST_SOURCE" '*/debian/'
+/tmp/out/tools/debian/adjust-for-release $(lsb_release -sc)
+
+# Disable build-dep installation for the real builds
+cat > ~/.pbuilderrc <<- EOF
+DISTRIBUTION=$RELEASE
+PBUILDERSATISFYDEPENDSCMD=true
+$PBUILDER_OPTS
+EOF
+
+eatmydata apt-get -y install dpkg-dev pbuilder
+
+pbuilder --create --extrapackages fakeroot
+/usr/lib/pbuilder/pbuilder-satisfydepends-classic --control /tmp/out/tools/debian/control --force-version --echo|grep apt-get | pbuilder --login --save-after-login
+rm -rf /tmp/out
+
+# Debian does not automatically start the default libvirt network
+virsh net-autostart default
+
+# Don't automatically update on boot or daily
+systemctl disable apt-daily.service apt-daily.timer || true
+
+# Enable coredumping via systemd
+echo "kernel.core_pattern=|/lib/systemd/systemd-coredump %P %u %g %s %t %c %e" > /etc/sysctl.d/50-coredump.conf
+printf 'DefaultLimitCORE=infinity\n' >> /etc/systemd/system.conf
+
+# HACK: we need to restart it in case aufs-dkms was installed after docker.io
+# and thus docker.io auto-switches its backend
+systemctl restart docker || journalctl -u docker
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
+
+# in case there are unnecessary packages
+eatmydata apt-get -y autoremove || true
+
+# reduce image size
+apt-get clean
+/var/lib/testvm/zero-disk.setup
+
+# Final tweaks
+
+# Enable persistent journal
+mkdir /var/log/journal
+
+# Allow root login with password
+sed -i 's/^[# ]*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# Prevent SSH from hanging for a long time when no external network access
+echo 'UseDNS no' >> /etc/ssh/sshd_config
+
+# HACK: https://bugzilla.mindrot.org/show_bug.cgi?id=2512
+# Disable the restarting of sshd when networking changes
+ln -snf /bin/true /etc/network/if-up.d/openssh-server

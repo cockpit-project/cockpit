@@ -453,7 +453,7 @@ class TestRegistry(MachineCase):
         b.click(".listing-ct-head li:last-child a")
         b.wait_present(".listing-ct-body .registry-image-layers")
         b.wait_visible(".listing-ct-body .registry-image-layers")
-        b.wait_in_text(".listing-ct-body .registry-image-layers", "ADD file:")
+        b.wait_in_text(".listing-ct-body .registry-image-layers", "KiB")
 
         # Add postgres into the stream
         output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")

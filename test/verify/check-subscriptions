@@ -46,6 +46,8 @@ import os
 # curl --insecure --request POST --user admin:admin https://$IP:8443/candlepin/activation_keys/ff80808155ca50b10155ca50cd280010/pools/ff80808155ca50b10155ca51f04607e5
 # register with: activation key "awesome_os_pool" and org "admin"
 # or: subscription-manager register --activationkey awesome_os_pool --org admin --serverurl https://$IP:8443/candlepin
+#
+# in order to get the right ids for the activation key and pool, see ACTIVATION_KEY_COMMAND and POOL_COMMAND
 
 WAIT_SCRIPT = """
 set -ex
@@ -56,6 +58,24 @@ for x in $(seq 1 200); do
         sleep 1
     fi
 done
+"""
+
+ACTIVATION_KEY_COMMAND = """curl -s --insecure --request GET --user admin:admin https://localhost:8443/candlepin/activation_keys | python -c "
+import sys
+import json
+
+data = json.loads(sys.stdin.read())
+print [e['id'] for e in data if e['name'] == 'awesome_os_pool' and e['owner']['displayName'] == 'Admin Owner'][0]
+"
+"""
+
+POOL_COMMAND = """curl -s --insecure --request GET --user admin:admin https://localhost:8443/candlepin/pools | python -c "
+import sys
+import json
+
+data = json.loads(sys.stdin.read())
+print [ e['id'] for e in data if e['owner']['key'] == 'admin' and e['contractNumber'] == '0' and [p for p in e['providedProducts'] if p['productId'] == '88888'] ][0]
+"
 """
 
 @skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-8", "debian-testing", "fedora-24", "fedora-25", "fedora-26", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604")
@@ -114,7 +134,7 @@ class TestSubscriptions(MachineCase):
         # enter server and incorrect login data
         b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
-        b.set_val("#subscription-register-url-custom", "{0}:8443/candlepin".format(self.candlepin.address))
+        b.set_val("#subscription-register-url-custom", "{address}:8443/candlepin".format(address=self.candlepin.address))
         b.set_val("#subscription-register-username", "doc")
         b.set_val("#subscription-register-password", "wrongpass")
 
@@ -138,7 +158,10 @@ class TestSubscriptions(MachineCase):
         b.set_val("#subscription-register-org", "admin")
 
         # use an activation key
-        self.candlepin.execute("curl --insecure --request POST --user admin:admin https://localhost:8443/candlepin/activation_keys/ff80808155ca50b10155ca50cd280010/pools/ff80808155ca50b10155ca51f04607e5")
+        activation_key_id = self.candlepin.execute(ACTIVATION_KEY_COMMAND).strip()
+        pool_id = self.candlepin.execute(POOL_COMMAND).strip()
+        key_url = "https://localhost:8443/candlepin/activation_keys/{key}/pools/{pool}".format(key=activation_key_id, pool=pool_id)
+        self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))
         b.set_val("#subscription-register-username", "")
         b.set_val("#subscription-register-password", "")
         b.set_val("#subscription-register-password", "")
@@ -202,10 +225,10 @@ class TestSubscriptions(MachineCase):
         # enter server data
         b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
-        b.set_val("#subscription-register-url-custom", "{0}:8443/candlepin".format(self.candlepin.address))
+        b.set_val("#subscription-register-url-custom", "{address}:8443/candlepin".format(address=self.candlepin.address))
 
         # make sure we have an activation key on the target machine
-        self.candlepin.execute("curl --insecure --request POST --user admin:admin https://localhost:8443/candlepin/activation_keys/ff80808155ca50b10155ca50cd280010/pools/ff80808155ca50b10155ca51f04607e5")
+        self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))
 
         # enter key and org
         b.set_val("#subscription-register-key", "awesome_os_pool")

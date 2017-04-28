@@ -61,6 +61,11 @@ mkdir /root/.ssh
 chmod 700 /root/.ssh
 echo "$(cat $base/../../common/identity.pub)" > /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
+mkdir -p /etc/sysconfig/network-scripts
+echo "$(cat $base/network-ifcfg-eth0)" > /etc/sysconfig/network-scripts/ifcfg-eth0
+mkdir -p /etc/udev/rules.d
+ln -s /dev/null /etc/udev/rules.d/80-net-name-slot.rules
+grubby --update-kernel=ALL --args="net.ifnames=0 biosdevname=0"
 %end
 EOF
 

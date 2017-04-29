@@ -62,6 +62,7 @@ DEFAULT_VERIFY = {
     'verify/centos-7': [ 'master', 'pulls' ],
     'verify/continuous-atomic': [ 'master' ],
     'verify/debian-8': [ 'master', 'pulls', ],
+    'verify/debian-stable': [ ],
     'verify/debian-testing': [ 'master', 'pulls' ],
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ 'master', 'pulls' ],

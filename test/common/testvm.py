@@ -153,8 +153,11 @@ class Machine:
             sock.settimeout(1)
             try:
                 sock.connect(sockaddr)
-                return True
-            except:
+                data = sock.recv(10)
+                if len(data):
+                    self.ssh_reachable = True
+                    return True
+            except IOError:
                 pass
             finally:
                 sock.close()
@@ -1035,6 +1038,7 @@ class VirtMachine(Machine):
             lease = self._static_lease_from_mac(macaddr)
             if lease:
                 static_domain_name = self.image + "_" + lease['name']
+                self.address = lease['ip']
         mac_desc = ""
         cpu_desc = ""
         domain_type = "qemu"

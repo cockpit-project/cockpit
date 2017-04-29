@@ -1035,6 +1035,7 @@ class VirtMachine(Machine):
             lease = self._static_lease_from_mac(macaddr)
             if lease:
                 static_domain_name = self.image + "_" + lease['name']
+                self.address = lease['ip']
         mac_desc = ""
         cpu_desc = ""
         domain_type = "qemu"

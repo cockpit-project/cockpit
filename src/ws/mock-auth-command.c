@@ -137,7 +137,7 @@ main (int argc,
       free (message);
       write_authorize_challenge ("*");
       message = read_authorize_response ();
-      if (!data || strcmp (message, "user me") != 0)
+      if (!message || strcmp (message, "user me") != 0)
         {
           write_init_message ("\"problem\": \"authentication-failed\"");
         }

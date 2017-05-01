@@ -541,8 +541,6 @@ $(function() {
 
             var row_envvar_value_input = row.find('input[name="envvar_value"]');
             row_envvar_value_input.val(envvar_value_internal);
-            if (!envvar_internal_editable)
-                row_envvar_value_input.attr('disabled', true);
 
             $("#select-claimed-envvars").append(row);
         }

@@ -35,8 +35,8 @@ static gchar *
 get_common_name (void)
 {
   int ret;
-  gchar *hostname;
-  gchar *cn;
+  gchar *hostname = NULL;
+  gchar *cn = NULL;
 
   hostname = g_malloc (HOST_NAME_MAX + 1);
   if (!hostname)
@@ -48,6 +48,7 @@ get_common_name (void)
   else
     cn = g_strdup (hostname);
 
+  g_free (hostname);
   return cn;
 }
 

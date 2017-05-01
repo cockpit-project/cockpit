@@ -43,6 +43,25 @@ class TestShutdownRestart(MachineCase):
         # HACK -https://bugzilla.redhat.com/show_bug.cgi?id=1278287
         m.execute("! selinuxenabled || setenforce 0")
 
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -c 'User' || true")
+        m.execute("echo user:foobar | chpasswd")
+
+        m.start_cockpit()
+
+        # login
+        b.open("/system")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "user")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/system")
+        b.wait_present("#shutdown-group button.btn-danger.disabled")
+        b.wait_present("#shutdown-group button.btn-default.disabled")
+        b.wait_not_present("#shutdown-group button:not(.disabled)")
+        b.logout()
+
         self.login_and_go("/system")
 
         # Reboot
@@ -65,6 +84,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_visible("#login")
 
         self.allow_restart_journal_messages()
+        self.allow_authorize_journal_messages()
         self.allow_journal_messages("Shutdown scheduled for .*")
         self.check_journal_messages()
 

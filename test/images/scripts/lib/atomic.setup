@@ -55,5 +55,8 @@ ostree checkout "$checkout" /var/local-tree
 # reduce image size
 /var/lib/testvm/zero-disk.setup
 
+# Prevent SSH from hanging for a long time when no external network access
+echo 'UseDNS no' >> /etc/ssh/sshd_config
+
 # Final tweaks
 rm -rf /var/log/journal/*

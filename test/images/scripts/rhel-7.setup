@@ -196,6 +196,9 @@ systemctl disable kdump.service
 rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 
+# Prevent SSH from hanging for a long time when no external network access
+echo 'UseDNS no' >> /etc/ssh/sshd_config
+
 touch /.autorelabel
 
 # Audit events to the journal

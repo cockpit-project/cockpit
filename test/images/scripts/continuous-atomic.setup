@@ -46,5 +46,8 @@ ostree checkout centos-atomic-continuous:centos-atomic-host/7/x86_64/devel/conti
 # reduce image size
 /var/lib/testvm/zero-disk.setup
 
+# Prevent SSH from hanging for a long time when no external network access
+echo 'UseDNS no' >> /etc/ssh/sshd_config
+
 # Final tweaks
 rm -rf /var/log/journal/*

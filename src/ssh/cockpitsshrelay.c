@@ -133,9 +133,6 @@ auth_methods_line (int methods)
   };
 
   string = g_string_new ("");
-  if (methods == 0)
-    g_string_append (string, auth_method_description (methods));
-
   for (i = 0; i < G_N_ELEMENTS (check); i++)
     {
       if (methods & check[i])
@@ -1145,10 +1142,17 @@ cockpit_ssh_authenticate (CockpitSshData *data)
 
   if (methods_tried == 0)
     {
-      description = auth_methods_line (methods_server);
-      g_message ("%s: server offered unsupported authentication methods: %s",
-                 data->logname, description);
-      g_free (description);
+      if (methods_server == 0)
+        {
+          g_message ("%s: server offered no authentication methods", data->logname);
+        }
+      else
+        {
+          description = auth_methods_line (methods_server);
+          g_message ("%s: server offered unsupported authentication methods: %s",
+                     data->logname, description);
+          g_free (description);
+        }
     }
 
 out:

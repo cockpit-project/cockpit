@@ -21,6 +21,7 @@ import os
 import sys
 import glob
 import shutil
+import subprocess
 
 import parent
 from common import testinfra
@@ -34,19 +35,36 @@ if __name__ == "__main__":
         )
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-n', '--noinstall', action='store_true', help='Do not install cockpit to base image')
+    parser.add_argument('--nobuild', action='store_true',
+                        help='Do not build packages, just install test/tmp/build-results/* (rpm or deb)')
     parser.add_argument('-f', '--force', action='store_true', help='Force update of images')
     parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
     test_os = args.image
-    build_os = vmmanage.get_build_image(test_os)
 
     os.system(os.path.join(testinfra.TEST_DIR,"vm-reset"))
-    try:
-        vmimages.download_images([build_os], args.force, [])
-    except Exception as e:
-        print "unable to download all necessary images", e
-        sys.exit(1)
+
+    if args.nobuild:
+        build_os = None
+
+        # Ensure that we have phantomjs for running our tests
+        root_dir = os.path.dirname(os.path.abspath(testinfra.TEST_DIR))
+        if not os.path.exists(os.path.join(root_dir, 'node_modules', 'phantomjs-prebuilt')):
+            try:
+                subprocess.check_call(['npm', 'install', 'sizzle', 'phantomjs-prebuilt'])
+            except subprocess.CalledProcessError as e:
+                sys.stderr.write(str(e) + '\n')
+                sys.exit(1)
+
+    else:
+        build_os = vmmanage.get_build_image(test_os)
+
+        try:
+            vmimages.download_images([build_os], args.force, [])
+        except Exception as e:
+            print "unable to download all necessary images", e
+            sys.exit(1)
 
     retvalue=0
     if args.noinstall:

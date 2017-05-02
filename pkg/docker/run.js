@@ -675,10 +675,23 @@ $(function() {
         }
 
         var tty = $("#containers-run-image-with-terminal").prop('checked');
+        var img_name = null;
+        if (image.ActualRepoTags && image.ActualRepoTags.length > 0) {
+            img_name = image.ActualRepoTags[0];
+
+        // Older dockers don't report the image tags in
+        // the detail response, however the summary
+        // has pretty labels so we have to the ignore
+        // the blank one.
+        } else if (image.ActualRepoTags === undefined &&
+                   image.RepoTags && image.RepoTags.length > 0 &&
+                   image.RepoTags[0] != "<none>:<none>") {
+            img_name = image.RepoTags[0];
+        }
 
         var options = {
             "Cmd": util.unquote_cmdline(cmd),
-            "Image": image.Id,
+            "Image": img_name ? img_name : image.Id,
             "CpuShares": cpu_slider.value || 0,
             "Tty": tty,
             "ExposedPorts": exposed_ports,

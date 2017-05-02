@@ -200,7 +200,11 @@
             $('#container-details-id').text(info.Id);
             $('#container-details-names').text(util.render_container_name(info.Name));
             $('#container-details-created').text(info.Created);
+
             $('#container-details-image').text(info.Image);
+            $('#container-details-image-id').text(info.ImageID);
+            $('#container-details-image-id').toggle(info.ImageID && info.ImageID != info.Image);
+
             $('#container-details-command').text(util.render_container_cmdline(info));
             $('#container-details-state').text(util.render_container_state(info.State));
             $('#container-details-restart-policy').text(util.render_container_restart_policy(info.HostConfig.RestartPolicy));

@@ -281,7 +281,12 @@
 
         var row = tr.children("td");
         $(row[0]).text(util.render_container_name(container.Name));
-        $(row[1]).text(container.Image);
+
+        var image = container.Image;
+        if (container.ImageID && image == container.ImageID)
+            image = docker.truncate_id(image);
+        $(row[1]).text(image);
+
         $(row[2]).text(util.render_container_cmdline(container));
         $(row[3]).text(cputext);
         util.update_memory_bar($(row[4]).children("div").toggle(membar), memuse, memlimit);

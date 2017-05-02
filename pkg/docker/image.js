@@ -120,6 +120,7 @@
 
             /* Does this container match? */
             if (container &&
+                container.ImageID !== this.image_id &&
                 container.Image != this.image_id &&
                 (container.Config && container.Config.Image != this.image_id)) {
                 container = null;

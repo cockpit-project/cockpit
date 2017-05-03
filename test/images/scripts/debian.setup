@@ -6,8 +6,12 @@ set -ex
 # Enable a console on ttyS0 so that we can log-in via vm-run.
 # and make the boot up more verbose
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT/# GRUB_CMDLINE_LINUX_DEFAULT/' /etc/default/grub
+
+# Disable udev network interface naming, and keep kernel ones; our tests
+# tightly control hotplug order and thus interface names
 echo 'GRUB_CMDLINE_LINUX="console=ttyS0,115200 net.ifnames=0 biosdevname=0"' >>/etc/default/grub
 update-grub
+sed -i 's/ens[^[:space:]]*/eth0/' /etc/network/interfaces
 
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when

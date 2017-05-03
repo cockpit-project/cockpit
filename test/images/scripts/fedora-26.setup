@@ -89,17 +89,18 @@ dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build
 useradd -c Builder -G mock builder
 
-# HACK - mock --installdeps with yum is broken, it seems that it can't
-# run any package scriptlets.  Yum is deprecated anyway so we just use
-# dnf.  I wonder why dnf isn't the default anyway...
-#
-echo "config_opts['package_manager'] = 'dnf'" >>/etc/mock/site-defaults.cfg
-
-# HACK - Switch off gpgcheck while the repos and mirrors settle down
-sed -i -e 's/gpgcheck=1/gpgcheck=0/' /etc/mock/default.cfg
 
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
-su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
+
+# HACK - mock --installdeps is broken, it seems that it forgets to
+# copy the source rpm to a location that dnf can actually access.  A
+# workaround is to pass "--no-bootstrap-chroot".
+#
+# When you remove this hack, also remove it in fedora-26.install.
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1447627
+
+su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose --installdeps \"$PWD/$srpm\""
 
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker

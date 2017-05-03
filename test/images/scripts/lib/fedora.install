@@ -7,7 +7,7 @@ skip="cockpit-doc-"
 do_build=
 do_install=
 mock_opts=""
-args=$(getopt -o "vqs:" -l "verbose,quick,skip:,build,install,rhel" -- "$@")
+args=$(getopt -o "vqs:" -l "verbose,quick,skip:,build,install,rhel,HACK-no-bootstrap-chroot" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -35,6 +35,9 @@ $2"
                 # to %centos, as it must.  To make it produce the RHEL
                 # packages, we explicitly undefine %centos here.
                 mock_opts="$mock_opts --define='centos 0'"
+                ;;
+            --HACK-no-bootstrap-chroot)
+                mock_opts="$mock_opts --no-bootstrap-chroot"
                 ;;
 	    --)
 		shift

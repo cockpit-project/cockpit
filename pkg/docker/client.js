@@ -119,12 +119,24 @@
             if (container.Config === undefined)
                 container.Config = { };
 
+            // Keep the "Image" field from meta for display
+            // and ensure we have an id.
+            // "ImageID" may be present on a ContainerSummary
+            // "Image" in the full result is always an id.
+            // "Image" in the ContainerSummary is translated to a name
+            // when possible
+            if (containers_meta[id]) {
+                if (!containers_meta[id]["ImageID"])
+                    containers_meta[id]["ImageID"] = container["Image"];
+                if (containers_meta[id]["Image"])
+                    container["Image"] = containers_meta[id]["Image"];
+            }
+
             // Add in the fields of the short form of the container
             // info, but never overwrite fields that are already in
             // the long form.
             //
             // TODO: Figure out and document why we do this at all.
-
             for (var m in containers_meta[id]) {
                 if (container[m] === undefined)
                     container[m] = containers_meta[id][m];
@@ -279,6 +291,13 @@
                 else
                     image.Config = { };
             }
+
+            // Save the original of these as
+            // the summary version is prettified
+            // ie: <none>:<none>
+            // and the detail is not.
+            image["ActualRepoTags"] = image.RepoTags;
+            image["ActualRepoDigests"] = image.RepoDigests;
             $.extend(image, images_meta[id]);
 
             /* HACK: TODO upstream bug */

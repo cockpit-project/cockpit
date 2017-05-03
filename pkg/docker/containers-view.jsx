@@ -216,9 +216,13 @@ var ContainerList = React.createClass({
                 state = util.render_container_status(container.State)
             }
 
+            var image = container.Image;
+            if (container.ImageID && image == container.ImageID)
+                image = docker.truncate_id(image);
+
             var columns = [
                 { name: container.Name.replace(/^\//, ''), header: true },
-                docker.truncate_id(container.Image),
+                image,
                 util.render_container_cmdline(container),
                 util.format_cpu_usage(container.CpuUsage),
                 util.format_memory_and_limit(container.MemoryUsage, container.MemoryLimit),

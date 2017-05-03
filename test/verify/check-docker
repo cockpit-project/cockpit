@@ -79,6 +79,7 @@ class TestDocker(MachineCase):
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE1")
+        b.wait_in_text("#containers-containers", "busybox:latest")
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE1")')
@@ -157,6 +158,7 @@ class TestDocker(MachineCase):
         # Check output of PROBE1
         b.click('#containers-containers tr:contains("PROBE1")')
         b.wait_visible("#container-details")
+        b.wait_in_text('#container-details', "busybox:latest")
         self.wait_for_message(message)
         b.call_js_func("ph_count_check", ".console-ct pre",  1)
         b.click("#container-details-stop")
@@ -172,6 +174,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#container-details-state", "Exited")
 
         # Delete the container from the image-details page
+        b.wait_visible("#container-details")
         b.click("#container-details .content-filter a")
         b.wait_present('#containers-images tr:contains("busybox:latest")')
         b.wait_visible('#containers-images tr:contains("busybox:latest")')

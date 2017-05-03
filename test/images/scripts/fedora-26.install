@@ -2,4 +2,9 @@
 
 set -e
 
-/var/lib/testvm/fedora.install "$@"
+# HACK - We need to build with --no-bootstrap-chroot since that is how
+# we have initialized mock during setup.
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1447627
+
+/var/lib/testvm/fedora.install --HACK-no-bootstrap-chroot "$@"

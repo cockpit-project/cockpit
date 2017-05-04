@@ -51,6 +51,12 @@ tar=$1
 # Build
 
 if [ -n "$do_build" ]; then
+    # Some tests need a non-loopback internet address, so we allow
+    # networking during build.  Note that we use "--offline" below, so
+    # we should still be protected against unexpected package
+    # installations.
+    echo "config_opts['rpmbuild_networking'] = True" >>/etc/mock/site-defaults.cfg
+
     rm -rf build-results
     srpm=$(/var/lib/testvm/make-srpm "$tar")
     LC_ALL=C.UTF-8 su builder -c "/usr/bin/mock --offline --no-clean --resultdir build-results $mock_opts --rebuild $srpm"

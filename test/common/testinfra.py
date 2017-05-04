@@ -425,6 +425,7 @@ class GitHub(object):
         elif cached and response['status'] == 304: # Not modified
             return json.loads(cached['data'])
         elif response['status'] < 200 or response['status'] >= 300:
+            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
             raise Exception("GitHub API problem: {0}".format(response['reason'] or response['status']))
         else:
             self.cache(resource, response)

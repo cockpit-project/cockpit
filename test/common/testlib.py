@@ -600,6 +600,9 @@ class MachineCase(unittest.TestCase):
         # SELinux and plymouth: https://bugzilla.redhat.com/show_bug.cgi?id=1427884
         "(audit: )?type=1400 audit.*connectto.*plymouth.*unix_stream_socket.*",
 
+        # SELinux and nfs-utils fighting: https://bugzilla.redhat.com/show_bug.cgi?id=1447854
+        ".*type=1400 .*denied  { execute } for.*sm-notify.*init_t.*",
+
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",
 

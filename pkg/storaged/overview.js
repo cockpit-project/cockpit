@@ -166,8 +166,11 @@
                     block = client.drives_multipath_blocks[path][0];
                 }
 
-                if (!block)
+                if (!block) {
+                    // HACK - this is for debugging issue #2810
+                    console.log("Drive without block", path);
                     return;
+                }
 
                 var dev = utils.decode_filename(block.Device).replace(/^\/dev\//, "");
                 var io = client.blockdev_io.data[dev];

@@ -90,16 +90,26 @@
             auth_changed($(this));
         });
 
-        var title, label;
+        var title, label, text;
         if (mode == 'join') {
             title = _("page-title", _("Join a Domain"));
             label = _("Join");
             $(".realms-op-join-only-row").show();
+            $(".realms-op-leave-only-row").hide();
             check("");
         } else {
             title = _("page-title", _("Leave Domain"));
             label = _("Leave");
+            text = _("Are you sure you want to leave this domain?");
+            if (realm && realm.Name) {
+                text = cockpit.format(_("Are you sure you want to leave the '$0' domain?"), realm.Name);
+            }
+
+            text = cockpit.format(_("$0 Only users with local credentials will be able to log into this machine. This may also effect other services as DNS resolution settings and the list of trusted CAs may change."), text);
+
+            $(".realms-op-leave-only-row").text(text);
             $(".realms-op-join-only-row").hide();
+            $(".realms-op-leave-only-row").show();
         }
 
         $(".realms-op-title").text(title);

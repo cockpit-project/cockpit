@@ -119,9 +119,10 @@ git checkout directory, run the following, and log into Cockpit again:
 ## Contributing a change
 
 Make a pull request on github.com with your change. All changes get
-reviewed, tested and iterated on before getting into Cockpit. Don't feel
-bad if there's multiple steps back and forth asking for changes or tweaks
-before your change gets in.
+reviewed, tested and iterated on before getting into Cockpit. The general
+workflow is described in the [wiki](https://github.com/cockpit-project/cockpit/wiki/Workflow).
+Don't feel bad if there's multiple steps back and forth asking for changes
+or tweaks before your change gets in.
 
 You need to be familiar with git to contribute a change. Do your changes
 on a branch. Your change should be one or more git commits that each

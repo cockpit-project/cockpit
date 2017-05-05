@@ -533,7 +533,7 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(intercept)
 
     def tearDown(self):
-        if self.currentResult.wasSuccessful() and self.machine.address:
+        if self.currentResult.wasSuccessful() and len(self.currentResult.skipped) == 0 and self.machine.address:
             self.check_journal_messages()
         shutil.rmtree(self.tmpdir)
 

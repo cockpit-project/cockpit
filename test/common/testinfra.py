@@ -354,8 +354,8 @@ class GitHub(object):
         # Try to load the whitelists
         self.whitelist = read_whitelist()
 
-        # The cache directory
-        self.cache_directory = os.path.join(TEST_DIR, "tmp", "cache")
+        # The cache directory is $TEST_DATA/github or test/tmp
+        self.cache_directory = os.path.join(os.environ.get("TEST_DATA", os.path.join(TEST_DIR, "tmp")), "github")
         if not os.path.exists(self.cache_directory):
             os.makedirs(self.cache_directory)
         now = time.time()
@@ -399,7 +399,7 @@ class GitHub(object):
         }
 
     def cache(self, resource, response=None):
-        path = os.path.join(self.cache_directory, urllib.quote(resource, safe=''))
+        path = os.path.join(self.cache_directory, urllib.quote(self.qualify(resource), safe=''))
         if response is None:
             if not os.path.exists(path):
                 return None
@@ -409,8 +409,10 @@ class GitHub(object):
                 except ValueError:
                     return None
         else:
-            with open(path, 'w') as fp:
+            (fd, temp) = tempfile.mkstemp(dir=self.cache_directory)
+            with os.fdopen(fd, 'w') as fp:
                 json.dump(response, fp)
+            os.rename(temp, path)
 
     def get(self, resource):
         headers = { }

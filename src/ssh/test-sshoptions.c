@@ -101,7 +101,7 @@ test_ssh_options (void)
   env = g_environ_setenv (env, "COCKPIT_SSH_ALLOW_UNKNOWN", "key", TRUE);
   options = cockpit_ssh_options_from_env (env);
   g_assert_false (options->ignore_hostkey);
-  g_assert_true (options->allow_unknown_hosts);
+  g_assert_false (options->allow_unknown_hosts);
   g_assert_true (options->knownhosts_authorize);
   g_free (options);
   g_strfreev (env);

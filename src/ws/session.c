@@ -453,7 +453,7 @@ pam_conv_func (int num_msg,
             }
 
           authorization = read_authorize_response (msg[i]->msg);
-          prompt_resp = cockpit_authorize_parse_x_conversation (authorization);
+          prompt_resp = cockpit_authorize_parse_x_conversation (authorization, NULL);
 
           debug ("got prompt response");
           if (prompt_resp)
@@ -1096,6 +1096,7 @@ static const char *env_names[] = {
   "G_MESSAGES_DEBUG",
   "G_SLICE",
   "PATH",
+  "COCKPIT_REMOTE_PEER",
   NULL
 };
 

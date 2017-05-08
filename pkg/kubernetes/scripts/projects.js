@@ -918,7 +918,7 @@
                     else if (memberName === selectMember)
                         ex = new Error("Please select a valid Member.");
                     else if (!NAME_RE.test(memberName))
-                        ex = new Error("The member name contains invalid characters.");
+                        ex = new Error("The member name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _");
 
                     if (ex) {
                         ex.target = "#add_member_group";

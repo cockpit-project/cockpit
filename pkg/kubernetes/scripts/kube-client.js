@@ -1321,7 +1321,11 @@
                         if (!meta.name)
                             ex = new Error("The name cannot be empty");
                         else if (!check_re.test(meta.name))
-                            ex = new Error("The name contains invalid characters");
+                            if (check_re == NAME_RE) {
+                                ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
+                            } else {
+                                ex = new Error("The name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _");
+                            }
                     }
                     if (ex) {
                         ex.target = targets["metadata.name"];
@@ -1333,7 +1337,7 @@
                         if (!meta.namespace)
                             ex = new Error("The namespace cannot be empty");
                         else if (!NAME_RE.test(meta.namespace))
-                            ex = new Error("The name contains invalid characters");
+                            ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
                     }
                     if (ex) {
                         ex.target = targets["metadata.namespace"];

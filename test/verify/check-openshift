@@ -763,7 +763,7 @@ class TestRegistry(MachineCase):
         b.wait_visible("#add_role .dropdown-menu")
         b.click("#add_role a[value='Admin']")
         b.click(".btn-primary")
-        self.assertEqual(b.text(".dialog-error"), "The member name contains invalid characters.")
+        b.wait_in_text(".dialog-error", "The member name contains invalid characters.")
 
         # but email-style user name should be accepted
         b.set_val("#add_member_name", "foo@bar.com")
@@ -785,7 +785,7 @@ class TestRegistry(MachineCase):
         b.set_val("#user_name", "bar ^ baz")
         b.set_val("#identities", "anypassword:abc123")
         b.click(".btn-primary")
-        self.assertEqual(b.text(".dialog-error"), "The name contains invalid characters")
+        b.wait_in_text(".dialog-error", "The member name contains invalid characters.")
 
         # email-style user name should be accepted
         b.set_val("#user_name", "bar@baz.com")

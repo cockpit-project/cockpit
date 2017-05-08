@@ -74,7 +74,7 @@ class TestConnection(kubelib.KubernetesCase):
 
         # Check that this failed as a double check
         output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
-        self.assertIn("Unauthorized", output)
+        self.assertRegexpMatches(output, "Unauthorized|No policy matched")
 
         m.execute("rm -r /home/admin/.kube")
         self.login_and_go("/kubernetes")
@@ -84,7 +84,7 @@ class TestConnection(kubelib.KubernetesCase):
         b.click("#kubernetes-connection-tb")
 
         b.wait_present("modal-dialog")
-        b.wait_in_text("div.modal-footer div.dialog-error", "Connection Error: Unauthorized")
+        b.wait_in_text("div.modal-footer div.dialog-error", "Connection Error:")
         b.wait_present("#kubernetes-address")
         b.wait_present("#kubernetes-cluster")
         b.wait_not_present("#kubernetes-user")
@@ -114,7 +114,7 @@ class TestConnection(kubelib.KubernetesCase):
 
         b.wait_present("#kubernetes-address")
         b.wait_present("#kubernetes-user")
-        b.wait_in_text("div.modal-footer div.dialog-error", "Connection Error: Unauthorized")
+        b.wait_in_text("div.modal-footer div.dialog-error", "Connection Error:")
 
         # Data not saved
         b.wait_in_text("#kubernetes-cluster button", "Add New Cluster")

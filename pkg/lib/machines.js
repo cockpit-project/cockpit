@@ -172,11 +172,16 @@
         }
 
         function update_saved_machine(host, values) {
-            // wrap values in variants for D-Bus call
+            // wrap values in variants for D-Bus call; at least values.port can
+            // be int or string, so stringify everything but the "visible" boolean
             var values_variant = {};
             for (var prop in values)
-                if (values[prop] !== null)
-                    values_variant[prop] = cockpit.variant(prop == "visible" ? 'b' : 's', values[prop]);
+                if (values[prop] !== null) {
+                    if (prop == "visible")
+                        values_variant[prop] = cockpit.variant('b', values[prop]);
+                    else
+                        values_variant[prop] = cockpit.variant('s', values[prop].toString());
+                }
 
             // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
             var bridge = cockpit.dbus(null, { bus: "internal", "superuser": "try" });

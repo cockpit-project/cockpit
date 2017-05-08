@@ -67,7 +67,9 @@ class KubernetesCase(testlib.MachineCase):
         scheme=%s
         for a in $(seq 0 $timeout); do
             if curl -o /dev/null -k -s $scheme://localhost:$port; then
-                break
+                if kubectl get all | grep -q svc/kubernetes; then
+                    break
+                fi
             fi
             sleep 0.5
         done

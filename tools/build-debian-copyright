@@ -47,6 +47,9 @@ def module_license(moddir):
                 if os.path.basename(moddir) == 'qunit' and 'https://' in l:
                     # fixed in 2.1.0 (https://github.com/qunitjs/qunit/commit/6e3f6e8e40c4)
                     return 'MIT'
+                if l == 'MPL 2.0':
+                    # https://github.com/novnc/noVNC/pull/819
+                    return 'MPL-2.0'
                 return l
         except (IOError, KeyError):
             pass

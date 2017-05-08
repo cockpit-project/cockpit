@@ -16,10 +16,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-set -e
+set -ex
 
 # Disable device renaming for predictable names between different qemus
 grubby --update-kernel=ALL --args="net.ifnames=0 biosdevname=0"
+
+# HACK: docker fails without /etc/resolv.conf
+# https://bugzilla.redhat.com/show_bug.cgi?id=1448331
+mkdir -p /etc/systemd/system/docker.service.d
+printf "[Service]\nExecStartPre=/bin/sh -c 'echo -n >> /etc/resolv.conf'\n" > /etc/systemd/system/docker.service.d/resolv.conf
+systemctl daemon-reload
 
 # The docker pool should grow automatically as needed, but we grow it
 # explicitly here anyway.  This is hopefully more reliable.

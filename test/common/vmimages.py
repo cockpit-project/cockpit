@@ -86,12 +86,25 @@ def download(link, force, stores):
             continue
 
     sys.stderr.write("{0}\n".format(source))
+
+    # Download the xz compressed qcow2 file and extract it on the fly.
+    # If TEST_DATA is configured we also keep around the xz form so that we
+    # could share it with other testers too.
     (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=DATA)
+    tempxz = None
+    if "TEST_DATA" in os.environ:
+        tempxz = temp + ".xz"
+
     try:
-        curl = subprocess.Popen(["curl", "-#", "-f", source], stdout=subprocess.PIPE)
-        unxz = subprocess.Popen(["unxz", "--stdout", "-"], stdin=curl.stdout, stdout=fd)
+        proc = curl = subprocess.Popen(["curl", "-#", "-f", source], stdout=subprocess.PIPE)
+        if tempxz:
+            proc = tee = subprocess.Popen(["tee", temp + ".xz"], stdin=curl.stdout, stdout=subprocess.PIPE)
+        unxz = subprocess.Popen(["unxz", "--stdout", "-"], stdin=proc.stdout, stdout=fd)
 
         curl.stdout.close()
+        if tempxz:
+            tee.stdout.close()
+            tee.wait()
         ret = curl.wait()
         if ret != 0:
             raise Exception("curl: unable to download image (returned: %s)" % ret)
@@ -102,10 +115,14 @@ def download(link, force, stores):
         os.close(fd)
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
         shutil.move(temp, dest)
+        if tempxz:
+            shutil.move(tempxz, dest + ".xz")
     finally:
         # if we had an error and the temp file is left over, delete it
         if os.path.exists(temp):
             os.unlink(temp)
+        if tempxz and os.path.exists(tempxz):
+            os.unlink(tempxz)
 
     # Handle alternate TEST_DATA
     if not os.path.exists(image_file):
@@ -182,24 +199,26 @@ def prune_images(force, dryrun):
             sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
             for link in get_image_links(ref):
                 maybe_add_target(link)
+                maybe_add_target(link + ".xz")
 
     # what we have in the current checkout might already have been added by its branch, but check anyway
     for filename in os.listdir(IMAGES):
         path = os.path.join(IMAGES, filename)
 
         # only consider original image entries as trustworthy sources and ignore non-links
-        if path.endswith(".qcow2") or path.endswith(".partial") or not os.path.islink(path):
+        if path.endswith(".xz") or path.endswith(".qcow2") or path.endswith(".partial") or not os.path.islink(path):
             continue
 
         target = os.readlink(path)
         maybe_add_target(target)
+        maybe_add_target(target + ".xz")
 
     expiry_threshold = now - testinfra.IMAGE_EXPIRE * 86400
     for filename in os.listdir(DATA):
         path = os.path.join(DATA, filename)
         if not force and (enough_disk_space() and os.lstat(path).st_mtime > expiry_threshold):
             continue
-        if os.path.isfile(path) and (path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:
+        if os.path.isfile(path) and (path.endswith(".xz") or path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:
             sys.stderr.write("Pruning {0}\n".format(filename))
             if not dryrun:
                 os.unlink(path)

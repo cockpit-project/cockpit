@@ -130,10 +130,12 @@ class TestMultiMachineAdd(MachineCase):
         b = self.browser
         m2 = self.machine2
         m3 = self.machine3
+        change_ssh_port(m3, 2222)
 
         self.login_and_go(None)
         add_machine(b, m2.address)
-        add_machine(b, m3.address)
+        m3_con = m3.address + ":2222"
+        add_machine(b, m3_con)
 
         # TODO: The concrete error message when killing the bridge and
         # session is not predictable.  So we just wait for any error
@@ -167,7 +169,7 @@ class TestMultiMachineAdd(MachineCase):
         b.click("#dashboard-hosts a[data-address='%s']" % m3.address)
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname != "/dashboard"')
-        b.enter_page("/system", host=m3.address)
+        b.enter_page("/system", host=m3_con)
         b.wait_text_not("#system_information_hostname_button", "")
         b.switch_to_top()
         b.go("/dashboard")

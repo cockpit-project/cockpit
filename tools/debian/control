@@ -85,9 +85,9 @@ Description: Cockpit deployment and developer guide
 Package: cockpit-docker
 Architecture: all
 Depends: ${misc:Depends},
-         docker.io (>= 1.3.0) | docker-engine (>= 1.3.0) | docker-ce (>= 1.3.0),
          python3,
          cockpit-bridge (>= ${bridge:minversion}),
+Recommends: docker.io (>= 1.3.0) | docker-engine (>= 1.3.0) | docker-ce (>= 1.3.0),
 Description: Cockpit user interface for Docker containers
  The Cockpit components for interacting with Docker and user interface.
 

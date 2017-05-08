@@ -659,6 +659,7 @@ class MachineCase(unittest.TestCase):
                                     ".*is not in the sudoers file.  This incident will be reported.",
                                     ".*: a password is required",
                                     "user user was reauthorized",
+                                    "sudo: unable to resolve host .*",
                                     ".*: sorry, you must have a tty to run sudo",
                                     ".*/pkexec: bridge exited",
                                     "We trust you have received the usual lecture from the local System",

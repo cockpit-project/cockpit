@@ -28,6 +28,7 @@ import random
 import re
 import shutil
 import socket
+import stat
 import subprocess
 import sys
 import tarfile
@@ -412,6 +413,7 @@ class GitHub(object):
             (fd, temp) = tempfile.mkstemp(dir=self.cache_directory)
             with os.fdopen(fd, 'w') as fp:
                 json.dump(response, fp)
+            os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
             os.rename(temp, path)
 
     def get(self, resource):

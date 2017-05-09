@@ -470,6 +470,23 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(lambda: browser.kill())
         return browser
 
+    def checkSuccess(self):
+        if not self.currentResult:
+            return False
+        for error in self.currentResult.errors:
+            if self == error[0]:
+                return False
+        for failure in self.currentResult.failures:
+            if self == failure[0]:
+                return False
+        for success in self.currentResult.unexpectedSuccesses:
+            if self == success:
+                return False
+        for success in self.currentResult.skipped:
+            if self == success:
+                return False
+        return True
+
     def run(self, result=None):
         orig_result = result
 
@@ -535,7 +552,7 @@ class MachineCase(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
 
         def sitter():
-            if opts.sit and not self.currentResult.wasSuccessful():
+            if opts.sit and not self.checkSuccess():
                 self.currentResult.printErrors()
                 if self.machine:
                     print >> sys.stderr, "ADDRESS: %s" % self.machine.address
@@ -543,7 +560,7 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(sitter)
 
         def intercept():
-            if not self.currentResult.wasSuccessful():
+            if not self.checkSuccess():
                 self.snapshot("FAIL")
                 self.copy_js_log("FAIL")
                 self.copy_journal("FAIL")
@@ -551,7 +568,7 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(intercept)
 
     def tearDown(self):
-        if self.currentResult.wasSuccessful() and len(self.currentResult.skipped) == 0 and self.machine.address:
+        if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
         shutil.rmtree(self.tmpdir)
 
@@ -740,8 +757,8 @@ class MachineCase(unittest.TestCase):
 
     def copy_journal(self, title, label=None):
         for name, m in self.machines.iteritems():
-            if m.address:
-                log = "%s-%s-%s.log" % (label or self.label(), m.address, title)
+            if m.ssh_reachable:
+                log = "%s-%s-%s.log" % (label or self.label(), m.label, title)
                 with open(log, "w") as fp:
                     m.execute("journalctl", stdout=fp)
                     print "Journal extracted to %s" % (log)
@@ -749,7 +766,7 @@ class MachineCase(unittest.TestCase):
 
     def copy_cores(self, title, label=None):
         for name, m in self.machines.iteritems():
-            if m.address:
+            if m.ssh_reachable:
                 directory = "%s-%s-%s.core" % (label or self.label(), m.address, title)
                 dest = os.path.abspath(directory)
                 m.download_dir("/var/lib/systemd/coredump", dest)

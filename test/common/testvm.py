@@ -115,8 +115,10 @@ class Machine:
         self.ssh_master = None
         self.ssh_process = None
         self.ssh_port = 22
+        self.ssh_reachable = False
 
     def disconnect(self):
+        self.ssh_reachable = False
         self._kill_ssh_master()
 
     def message(self, *args):
@@ -155,8 +157,11 @@ class Machine:
             sock.settimeout(1)
             try:
                 sock.connect(sockaddr)
-                return True
-            except:
+                data = sock.recv(10)
+                if len(data):
+                    self.ssh_reachable = True
+                    return True
+            except IOError:
                 pass
             finally:
                 sock.close()
@@ -278,12 +283,13 @@ class Machine:
             "-o", "BatchMode=yes",
             "-S", self.ssh_master,
             "-O", "check",
-            "-l", self.vm_username,
-            self.address
+            "-l", self.ssh_user,
+            self.ssh_address
         ]
         with open(os.devnull, 'w') as devnull:
             code = subprocess.call(cmd, stdin=devnull, stdout=devnull, stderr=devnull)
             if code == 0:
+                self.ssh_reachable = True
                 return True
         return False
 

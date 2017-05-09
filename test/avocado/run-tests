@@ -135,7 +135,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
     return return_state
 
 def copy_avocado_logs(machine, title):
-    if machine and machine.address:
+    if machine and machine.ssh_reachable:
         # check if the remote directory exists (if it doesn't, we want to quit silently)
         test_command = "if test -d '{0}'; then echo exists; fi".format(avocado_results_dir)
         if "exists" not in machine.execute(command=test_command,quiet=True):

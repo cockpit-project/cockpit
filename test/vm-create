@@ -177,9 +177,9 @@ class MachineBuilder:
         subprocess.check_call([ "qemu-img", "convert", "-c", "-O", "qcow2", self.machine.image_file, partial ])
 
         # Hash the image here
-        (sha, x1, x2) = subprocess.check_output([ "sha1sum", partial ]).partition(" ")
+        (sha, x1, x2) = subprocess.check_output([ "sha256sum", partial ]).partition(" ")
         if not sha:
-            raise testvm.Failure("sha1sum returned invalid output")
+            raise testvm.Failure("sha256sum returned invalid output")
 
         name = self.machine.image + "-" + sha + ".qcow2"
         data_file = os.path.join(data_dir, name)

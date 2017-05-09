@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-UPLOAD = "fedorapeople.org:/project/cockpit/images/"
+# The default settings here should match one of the default
+# download stores. These are usually cockpit/images instances
+UPLOAD = "209.132.184.69:8493"
+TOKEN = "~/.config/github-token"
 
 import argparse
 import os
@@ -14,54 +17,49 @@ IMAGES = os.path.join(BASE, "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
 
 def upload(store, source):
-    name = os.path.basename(source)
 
     # Compress the image
     compressed = source + ".xz"
-    with open(compressed, "w") as fp:
-        xz = [ "xz", "--force", "--keep", "--verbose", "--stdout", "--threads=0", source ]
-        subprocess.check_call(xz, stdout=fp)
+    if not os.path.exists(compressed):
+        partial = compressed + ".partial"
+        with open(partial, "w") as fp:
+            xz = [ "xz", "--force", "--keep", "--verbose", "--stdout", "--threads=0", source ]
+            subprocess.check_call(xz, stdout=fp)
+        os.rename(partial, compressed)
+
 
     # And upload the compressed version
-    dest = os.path.join(store, name + ".xz")
-    subprocess.check_call(["rsync", "--progress", compressed, dest])
+    ca = os.path.join(BASE, "common", "ca.pem")
+    (address, delim, port) = store.partition(":")
+    resolve = "cockpit-tests:{1}:{0}".format(address, port)
+    cmd = ["curl", "--progress-bar", "--cacert", ca, "--resolve", resolve, "--fail", "--upload-file", compressed ]
 
-    # Remove the compressed version
-    os.unlink(compressed)
+    token = ""
+    try:
+        with open(os.path.expanduser(TOKEN), "r") as gt:
+            token = gt.read().strip()
+    except IOError as exc:
+        if exc.errno == errno.ENOENT:
+           pass
+    if token:
+        cmd += [ "--user", "user:" + token ]
 
-def prune(store):
-    # Get a list of all currently in use files
-    current = []
-    for filename in os.listdir(IMAGES):
-        path = os.path.join(IMAGES, filename)
-        if os.path.islink(path):
-            current.append(os.readlink(path))
+    cmd.append("https://cockpit-tests:{0}/".format(port))
 
-    # Get remote list of files order than the given date
-    (host, unused, path) = store.partition(":")
-    cmd = ["ssh", host, "--", "find", path, "-name", "'*.xz'", "-mtime", "+{0}".format(testinfra.IMAGE_EXPIRE), "-print0"]
-    output = subprocess.check_output(cmd)
-
-    remove = []
-    for path in output.strip('\0').split('\0'):
-        for name in current:
-            if name in path:
-                break
-        else:
-            remove.append(path)
-
-    cmd = ["ssh", host, "--", "rm", "-vf" ] + remove
-    subprocess.check_call(cmd)
+    # Passing through a non terminal stdout is necessary to make progress work
+    curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    cat = subprocess.Popen(["cat"], stdin=curl.stdout)
+    curl.stdout.close()
+    ret = curl.wait()
+    cat.wait()
+    if ret != 0:
+        raise Exception("vm-upload: unable to upload image")
 
 def main():
     parser = argparse.ArgumentParser(description='Upload virtual machine images')
     parser.add_argument("--store", default=UPLOAD, help="Where to send images")
-    parser.add_argument("--prune", action='store_true', help="Remove unused images from the image store first")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
-
-    if args.prune:
-        prune(args.store)
 
     sources = []
     for image in args.image:
@@ -74,7 +72,11 @@ def main():
         sources.append(source)
 
     for source in sources:
-        upload(args.store, source)
+        try:
+            upload(args.store, source)
+        except Exception, ex:
+            sys.stderr.write(str(ex) + "\n")
+            return 1
 
 if __name__ == '__main__':
     sys.exit(main())

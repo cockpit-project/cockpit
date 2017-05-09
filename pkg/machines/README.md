@@ -4,7 +4,12 @@ The 'Virtual Management' plugin provides basic overview of host virtualization b
 The default datasource is QEMU/Libvirt.
 
 ## Nested Virtualization in Vagrant
-To play around with nested VMs in Vagrant on a host with enabled nested virtualization [1]:
+
+In order to run this inside a virtual machine, or run the tests for this component,
+you'll need nested KVM virtualization enabled [1]. See the following script for how to
+do that: ```test/verify/nested-kvm```
+
+Now you can use Vagrant to work on this component:
 
     $ sudo vagrant up
     $ sudo vagrant ssh
@@ -87,6 +92,8 @@ The `providerContext` passed to the `init()` function as an argument consists of
 Please refer the `libvirt.es6` for the most current API description and more details.
 
 External provider referential implementation is the `cockpit-machines-ovirt-provider` [2] written in ES6 and fully using React/Redux/Webpack.
+
+## Nested KVM Virtualization
 
 ## Links
 \[1\] [How to enable nested virtualization in KVM](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)

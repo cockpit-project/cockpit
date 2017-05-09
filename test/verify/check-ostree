@@ -113,10 +113,9 @@ def rhsmcertd_hack(m):
 
 @skipImage("No OSTree available", "centos-7", "debian-stable", "debian-testing", "fedora-24", "fedora-25", "fedora-26", "fedora-testing", "fedora-i386", "rhel-7", "rhel-7-4", "ubuntu-1604", "ubuntu-stable")
 class OstreeRestartCase(MachineCase):
-
-    def setUp(self):
-        # we need a static ip for this test becuase we restart
-        MachineCase.setUp(self, macaddr='52:54:00:9e:00:F5')
+    provision = {
+        "machine1": { "address": "10.111.113.2/20", "dns": "10.111.113.2" }
+    }
 
     def switch_to_packages(self, b, sel, required_classes):
         b.wait_not_visible("{0} div.packages".format(sel))
@@ -418,6 +417,9 @@ class OstreeRestartCase(MachineCase):
 
 @skipImage("No OSTree available", "centos-7", "debian-stable", "debian-testing", "fedora-24", "fedora-25", "fedora-26", "fedora-testing", "fedora-i386", "rhel-7", "rhel-7-4", "ubuntu-1604", "ubuntu-stable")
 class OstreeCase(MachineCase):
+    provision = {
+        "machine1": { "address": "10.111.113.2/20", "dns": "10.111.113.2" }
+    }
 
     def testRemoteManagement(self):
         m = self.machine

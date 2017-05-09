@@ -23,6 +23,10 @@ from testlib import *
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 @skipImage("PackageKit crashes, https://launchpad.net/bugs/1689820", "ubuntu-1604")
 class TestUpdates(MachineCase):
+    provision = {
+        "machine1": { "address": "10.111.113.2/20", "dns": "10.111.113.2" }
+    }
+
     def setUp(self):
         MachineCase.setUp(self)
 
@@ -40,7 +44,7 @@ class TestUpdates(MachineCase):
         # PackageKit refuses to operate when being offline (as on our test images); it's hard to fake
         # NetworkManager's "is online" state, so disable it and let PackageKit fall back to the "unix"
         # network stack; add a bogus default route to coerce it into being "online".
-        self.machine.execute("systemctl stop NetworkManager; ip route add default via 172.27.0.1 dev eth0")
+        self.machine.execute("systemctl stop NetworkManager; ip route add default via 10.111.113.1 dev eth1")
 
         self.updateInfo = {}
 

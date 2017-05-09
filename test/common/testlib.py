@@ -70,7 +70,7 @@ opts.attachments = None
 opts.revision = None
 opts.address = None
 opts.jobs = 1
-opts.network = True
+opts.fetch = True
 
 def attach(filename):
     if not opts.attachments:
@@ -80,12 +80,17 @@ def attach(filename):
         shutil.move(filename, dest)
 
 class Browser:
-    def __init__(self, address, label, port=9090):
+    def __init__(self, address, label, port=None):
+        if ":" in address:
+            (self.address, unused, self.port) = address.rpartition(":")
+        else:
+            self.address = address
+            self.port = 9090
+        if port is not None:
+            self.port = port
         self.default_user = "admin"
-        self.address = address
         self.label = label
         self.phantom = Phantom("en_US.utf8")
-        self.port = port
         self.password = "foobar"
 
     def title(self):
@@ -431,42 +436,48 @@ class Browser:
 
 
 class MachineCase(unittest.TestCase):
-    runner = None
     machine = None
+    machines = { }
     machine_class = None
     browser = None
-    machines = { }
+    network = None
 
-    # additional_machines is a dictionary of dictionaries, one for each additional machine to be created, e.g.:
-    # additional_machines = { 'openshift' : { machine: { 'image': 'openshift' }, 'start': { 'memory_mb': 1024 } } }
-    # These will be instantiated during setUp
-    additional_machines = { }
+    # provision is a dictionary of dictionaries, one for each additional machine to be created, e.g.:
+    # provision = { 'openshift' : { 'image': 'openshift', 'memory_mb': 1024 } }
+    # These will be instantiated during setUp, and replaced with machine objects
+    provision = None
 
     def label(self):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, machine_key, image=testvm.DEFAULT_IMAGE):
+    def new_machine(self, image=testvm.DEFAULT_IMAGE, forward={ }, **kwargs):
         import testvm
         machine_class = self.machine_class
         if opts.address:
-            if machine_class:
+            if machine_class or forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
-            if len(self.machines) != 0:
-                raise unittest.SkipTest("Cannot run multiple machines if a specific machine address is specified")
-            machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace, label=self.label())
+            machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace)
             self.addCleanup(lambda: machine.disconnect())
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine
-            machine = machine_class(verbose=opts.trace, image=image, label=self.label(), fetch=opts.network)
+            if not self.network:
+                network = testvm.VirtNetwork()
+                self.addCleanup(lambda: network.kill())
+                self.network = network
+            networking = self.network.host(restrict=True, forward=forward)
+            machine = machine_class(verbose=opts.trace, networking=networking, image=image, **kwargs)
+            if opts.fetch and not os.path.exists(machine.image_file):
+                machine.pull(machine.image_file)
             self.addCleanup(lambda: machine.kill())
-
-        self.machines[machine_key] = machine
         return machine
 
-    def new_browser(self, address=None, port=9090):
-        browser = Browser(address = address or self.machine.address, label=self.label(), port=port)
+    def new_browser(self, machine=None):
+        if machine is None:
+            machine = self.machine
+        label = self.label() + "-" + machine.label
+        browser = Browser(machine.web_address, label=label, port=machine.web_port)
         self.addCleanup(lambda: browser.kill())
         return browser
 
@@ -524,40 +535,53 @@ class MachineCase(unittest.TestCase):
             if stopTestRun is not None:
                 stopTestRun()
 
-    def setUp(self, macaddr=None, memory_mb=None, cpus=None):
+    def setUp(self):
+        if opts.address and self.provision is not None:
+            raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
+
+        self.machine = None
+        self.browser = None
         self.machines = { }
-        self.machine = self.new_machine(machine_key='0')
+        provision = self.provision or { 'machine1': { } }
 
-        self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus, wait_for_ip=False)
-
-        # first create all additional machines, wait for them later
-        for machine_name, machine_options in self.additional_machines.iteritems():
-            if not 'machine' in machine_options:
-                machine_options['machine'] = { }
-            if not 'start' in machine_options:
-                machine_options['start'] = { }
-            machine = self.new_machine(machine_key=machine_name, **machine_options['machine'])
-            options = machine_options['start']
-            options['wait_for_ip'] = False
-            machine.start(**options)
-
-        # now wait for the other machines to be up
-        for machine_name, machine in self.machines.iteritems():
-            if machine_name != '0' or not opts.address:
-                if opts.trace:
-                    print "starting machine %s (%s)" % (machine.image, machine.address)
-                machine.wait_boot()
-
-        self.browser = self.new_browser()
-        self.tmpdir = tempfile.mkdtemp()
+        # First create all machines, wait for them later
+        for key in sorted(provision.keys()):
+            options = provision[key].copy()
+            if 'address' in options:
+                del options['address']
+            if 'dns' in options:
+                del options['dns']
+            if 'dhcp' in options:
+                del options['dhcp']
+            machine = self.new_machine(**options)
+            self.machines[key] = machine
+            if not self.machine:
+                self.machine = machine
+            if opts.trace:
+                print "Starting {0} {1}".format(key, machine.label)
+            machine.start()
 
         def sitter():
             if opts.sit and not self.checkSuccess():
                 self.currentResult.printErrors()
-                if self.machine:
-                    print >> sys.stderr, "ADDRESS: %s" % self.machine.address
-                sit()
+                sit(self.machines)
         self.addCleanup(sitter)
+
+        # Now wait for the other machines to be up
+        for key in self.machines.keys():
+            machine = self.machines[key]
+            machine.wait_boot()
+            address = provision[key].get("address")
+            if address is not None:
+                machine.set_address(address)
+                machine.set_dns(provision[key].get("dns"))
+            dhcp = provision[key].get("dhcp", False)
+            if dhcp:
+                machine.dhcp_server()
+
+        if self.machine:
+            self.browser = self.new_browser()
+        self.tmpdir = tempfile.mkdtemp()
 
         def intercept():
             if not self.checkSuccess():
@@ -767,7 +791,7 @@ class MachineCase(unittest.TestCase):
     def copy_cores(self, title, label=None):
         for name, m in self.machines.iteritems():
             if m.ssh_reachable:
-                directory = "%s-%s-%s.core" % (label or self.label(), m.address, title)
+                directory = "%s-%s-%s.core" % (label or self.label(), m.label, title)
                 dest = os.path.abspath(directory)
                 m.download_dir("/var/lib/systemd/coredump", dest)
                 try:
@@ -1109,11 +1133,11 @@ def arg_parser():
                         help='Thorough mode, no skipping known issues')
     parser.add_argument('-s', "--sit", dest='sit', action='store_true',
                         help="Sit and wait after test failure")
-    parser.add_argument('--nonet', dest="network", action="store_false",
+    parser.add_argument('--nonet', dest="fetch", action="store_false",
                         help="Don't go online to download images or data")
     parser.add_argument('tests', nargs='*')
 
-    parser.set_defaults(verbosity=1, network=True)
+    parser.set_defaults(verbosity=1, fetch=True)
     return parser
 
 def test_main(options=None, suite=None, attachments=None, **kwargs):
@@ -1209,11 +1233,13 @@ def wait(func, msg=None, delay=1, tries=60):
         sleep(delay)
     raise Error(msg or "Condition did not become true.")
 
-def sit():
+def sit(machines={ }):
     """
     Wait until the user confirms to continue.
 
     The current test case is suspended so that the user can inspect
     the browser.
     """
+    for (name, machine) in machines.items():
+        sys.stderr.write(machine.diagnose())
     raw_input ("Press RET to continue... ")

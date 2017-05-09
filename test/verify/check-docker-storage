@@ -109,11 +109,12 @@ class TestDockerStorage(MachineCase):
             # We want to use a non-Atomic machine as the login machine
             # and the build machine that matches the current Atomic is suitable
             # since we can use the same set of built packages
-            login_machine = self.new_machine(machine_key='login',
-                                             image=get_build_image(self.machine.image))
+            login_machine = self.new_machine(image=get_build_image(self.machine.image))
             login_machine.start()
             login_machine.wait_boot()
-            b = self.new_browser(login_machine.address)
+            login_machine.set_address("10.111.113.2/20")
+            m.set_address("10.111.113.1/20")
+            b = self.new_browser(login_machine)
         else:
             login_machine = self.machine
             b = self.browser
@@ -161,7 +162,7 @@ class TestDockerStorage(MachineCase):
             # like bugs.
 
             b.switch_to_top()
-            b.go("/@%s/system" % m.address)
+            b.go("/@10.111.113.1/system")
             b.wait_visible("#machine-troubleshoot")
             b.click('#machine-troubleshoot')
             b.wait_popup('troubleshoot-dialog')
@@ -171,10 +172,10 @@ class TestDockerStorage(MachineCase):
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
             b.click('#troubleshoot-dialog .btn-primary')
             b.wait_popdown('troubleshoot-dialog')
-            b.enter_page("/system", host=m.address)
+            b.enter_page("/system", host="10.111.113.1")
             b.switch_to_top()
-            b.go("/@%s/docker#/storage" % m.address)
-            b.enter_page("/docker", host=m.address)
+            b.go("/@10.111.113.1/docker#/storage")
+            b.enter_page("/docker", host="10.111.113.1")
             b.wait_visible("#storage")
 
         if not can_manage(m):

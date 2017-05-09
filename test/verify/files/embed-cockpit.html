@@ -164,7 +164,9 @@
             ev.preventDefault();
 
             var address = $("#embed-address").val();
-            var url = address + ":9090" + href;
+            if (address.indexOf(":") === -1)
+                address += ":9090";
+            var url = address + href;
 
             var frame = frames[url];
             if (!frame) {

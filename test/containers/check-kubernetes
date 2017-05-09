@@ -36,23 +36,25 @@ from verify import kubelib
 class KubernetesContainerMachine(VirtMachine):
 
     def start_cockpit(self, *args, **kwargs):
-        host = "172.17.0.1"
+        host = "10.111.113.1"
         if kwargs.pop('invalid_kube_service', False):
             host = ""
 
         self.execute("""#!/bin/sh
+            # HACK: docker fails to start a container without /etc/resolv.conf
+            test -f /etc/resolv.conf || touch /etc/resolv.conf
             systemctl start docker
             # HACK: Allow container to talk to the host
             iptables -I INPUT 4 -i docker0 -j ACCEPT
             /usr/bin/docker run -d -e COCKPIT_KUBE_INSECURE=true -e KUBERNETES_INSECURE=true -e KUBERNETES_SERVICE_PORT=6443 -e KUBERNETES_SERVICE_HOST={0} -p 9090:9090 cockpit/kubernetes
             """.format(host))
-        self.wait_for_cockpit_running(self.address, seconds=180)
+        self.wait_for_cockpit_running(seconds=180)
 
 class KubernetesContainerCase(kubelib.KubernetesCase):
     machine_class = KubernetesContainerMachine
 
     def get_bad_auth_code(self, port=6443):
-        code = self.machine.execute('curl -k -u bad:bad -s -o /dev/null -w "%{{http_code}}" https://{}:{}/api/namespaces/kubernetes'.format(self.machine.address, port))
+        code = self.machine.execute('curl -k -u bad:bad -s -o /dev/null -w "%{{http_code}}" https://10.111.113.1:{}/api/namespaces/kubernetes'.format(port))
         return code.strip()
 
     def restart_api_server(self, **kwargs):

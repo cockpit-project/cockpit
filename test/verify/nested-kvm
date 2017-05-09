@@ -1,10 +1,7 @@
-#!/bin/bash
-set -ex
-# -*- coding: utf-8 -*-
-
+#!/bin/sh
 # This file is part of Cockpit.
 #
-# Copyright (C) 2016 Red Hat, Inc.
+# Copyright (C) 2013 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -19,17 +16,12 @@ set -ex
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-if [ $(uname -m) = x86_64 ]; then
-    docker pull busybox:latest
-    docker pull busybox:buildroot-2014.02
-    docker pull gcr.io/google_containers/pause:2.0
-    docker pull gcr.io/google_containers/pause:0.8.0
-    docker pull gcr.io/google_containers/pause-amd64:3.0
+# We really want nested virtualization
+if [ -d /sys/module/kvm_intel -a -d /etc/modprobe.d -a ! -f /etc/modprobe.d/kvm-intel.conf ]; then
+    echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
+    rmmod kvm-intel && modprobe kvm-intel || true
 fi
-
-# Download the i386 image and rename it
-if [ $(uname -m) = i686 ]; then
-    docker pull i386/busybox:latest
-    docker tag docker.io/i386/busybox busybox
-    docker rmi docker.io/i386/busybox
+if [ -d /sys/module/kvm_amd -a -d /etc/modprobe.d -a ! -f /etc/modprobe.d/kvm-amd.conf ]; then
+    echo "options kvm-amd nested=1" > /etc/modprobe.d/kvm-amd.conf
+    rmmod kvm-amd && modprobe kvm-amd || true
 fi

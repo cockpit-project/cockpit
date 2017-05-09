@@ -24,6 +24,20 @@ import json
 import os
 
 class TestDocker(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        m = self.machine
+
+        # HACK: https://github.com/docker/docker/issues/25246
+        if m.image in [ "debian-8", "debian-testing" ]:
+            m.execute("printf '\\n\\n[Service]\\nKillMode=process\\n' >> /lib/systemd/system/docker.service")
+            m.execute("systemctl daemon-reload")
+
+        m.execute("systemctl start docker || systemctl start docker-latest")
+
+        # HACK: docker fails to start a container without /etc/resolv.conf
+        m.execute("touch /etc/resolv.conf")
+
     def confirm(self):
         b = self.browser
         b.wait_popup("confirmation-dialog")
@@ -371,7 +385,6 @@ CMD ["/bin/sh"]
         # Try to access docker without admin (wheel, sudo, ...) group
         # also need to disable Ubuntu's legacy "admin" sudo group as it happens
         # to have the same name as our admin test user
-        m.execute("systemctl start docker")
         m.execute("usermod -G '' admin; sed -i '/^%admin/d' /etc/sudoers")
 
         # HACK: Logging in without the admin group will try to write to
@@ -520,11 +533,16 @@ CMD ["/bin/sh"]
 
 @skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "rhel-atomic", "fedora-atomic", "fedora-i386")
 class TestAtomicScan(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.machine.execute("systemctl start docker")
+
+        # HACK: docker fails to start a container without /etc/resolv.conf
+        self.machine.execute("touch /etc/resolv.conf")
+
     def testBasic(self):
         b = self.browser
         m = self.machine
-
-        m.execute("systemctl start docker")
 
         # HACK put scan results for one of the images into /var/lib/atomic
         #

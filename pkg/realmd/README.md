@@ -13,7 +13,7 @@ up being rather easy. Install the stuff in ```test/README``` near the
 top. And then do the following:
 
     $ sudo bots/image-prep
-    $ bots/image-run ipa
+    $ bots/image-run --network ipa
 
 That runs an IPA domain. Now in another terminal do the following:
 

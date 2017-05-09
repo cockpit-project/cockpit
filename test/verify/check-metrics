@@ -126,7 +126,7 @@ class TestMetrics(MachineCase):
         #
         identity = m._calc_identity()
         m.upload([ identity ], "/var/tmp")
-        net_pid = m.spawn("ssh -o StrictHostKeyChecking=no -i /var/tmp/{1} {0} cat /dev/zero >/dev/null".format(m.address, os.path.basename(identity)), "load-net.log")
+        net_pid = m.spawn("ssh -o StrictHostKeyChecking=no -i /var/tmp/{1} {0} cat /dev/zero >/dev/null".format("172.27.0.15", os.path.basename(identity)), "load-net.log")
         b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
         m.execute("kill %d" % net_pid)
 

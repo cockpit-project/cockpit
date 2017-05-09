@@ -71,17 +71,15 @@ class DashBoardHelpers:
 
 @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
-    additional_machines = {
-        'machine2': { },
-        'machine3': { }
+    provision = {
+        'machine1': { "address": "10.111.113.1/20" },
+        'machine2': { "address": "10.111.113.2/20" },
+        'machine3': { "address": "10.111.113.3/20" }
     }
 
     def testBasic(self):
         b = self.browser
         m = self.machine
-
-        m2 = self.machines['machine2']
-        m3 = self.machines['machine3']
 
         self.login_and_go("/dashboard")
 
@@ -94,81 +92,81 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.wait_dashboard_addresses (b2, [ "localhost" ])
         b.wait_present("#dashboard-hosts a[data-address='localhost'] button.pficon-delete.disabled")
 
-        self.add_machine (b, m2.address)
-        self.wait_dashboard_addresses (b, [ "localhost", m2.address ])
-        self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
+        self.add_machine (b, "10.111.113.2")
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2" ])
+        self.wait_dashboard_addresses (b2, [ "localhost", "10.111.113.2" ])
 
         # Should show successful state and icon
-        b.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
-        b.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
-        b2.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
-        b2.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
+        b.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
+        b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
+        b2.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
+        b2.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
 
-        self.add_machine (b, m3.address)
-        self.wait_dashboard_addresses (b, [ "localhost", m3.address, m2.address ])
-        self.wait_dashboard_addresses (b2, [ "localhost", m3.address, m2.address ])
+        self.add_machine (b, "10.111.113.3")
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.3", "10.111.113.2" ])
+        self.wait_dashboard_addresses (b2, [ "localhost", "10.111.113.3", "10.111.113.2" ])
 
         # Remove two
-        self.machine_remove (b, m2.address)
-        self.wait_dashboard_addresses (b, [ "localhost", m3.address ])
-        self.wait_dashboard_addresses (b2, [ "localhost", m3.address ])
+        self.machine_remove (b, "10.111.113.2")
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.3" ])
+        self.wait_dashboard_addresses (b2, [ "localhost", "10.111.113.3" ])
 
-        self.machine_remove (b, m3.address)
+        self.machine_remove (b, "10.111.113.3")
         self.wait_dashboard_addresses (b, [ "localhost" ])
         self.wait_dashboard_addresses (b2, [ "localhost" ])
 
         # Check that the two removed machines are listed in "Add Host"
         # on both browsers
-        self.check_discovered_addresses (b, [ m2.address, m3.address ])
-        self.check_discovered_addresses (b2, [ m2.address, m3.address ])
+        self.check_discovered_addresses (b, [ "10.111.113.2", "10.111.113.3" ])
+        self.check_discovered_addresses (b2, [ "10.111.113.2", "10.111.113.3" ])
 
         # Add one back, check addresses on both browsers
-        self.add_machine (b, m2.address, True)
-        self.wait_dashboard_addresses (b, [ "localhost", m2.address ])
-        self.wait_dashboard_addresses (b2, [ "localhost", m2.address ])
-        self.check_discovered_addresses (b, [ m3.address ])
-        self.check_discovered_addresses (b2, [ m3.address ])
+        self.add_machine (b, "10.111.113.2", True)
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2" ])
+        self.wait_dashboard_addresses (b2, [ "localhost", "10.111.113.2" ])
+        self.check_discovered_addresses (b, [ "10.111.113.3" ])
+        self.check_discovered_addresses (b2, [ "10.111.113.3" ])
 
         # Should show successful state and icon again
-        b.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
-        b.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
-        b2.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
-        b2.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
+        b.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
+        b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
+        b2.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
+        b2.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
 
         # And the second one, check addresses on both browsers
-        self.add_machine (b, m3.address, True)
-        self.wait_dashboard_addresses (b, [ "localhost", m2.address, m3.address ])
-        self.wait_dashboard_addresses (b2, [ "localhost", m2.address, m3.address ])
+        self.add_machine (b, "10.111.113.3", True)
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2", "10.111.113.3" ])
+        self.wait_dashboard_addresses (b2, [ "localhost", "10.111.113.2", "10.111.113.3" ])
         self.check_discovered_addresses (b, [  ])
         self.check_discovered_addresses (b2, [  ])
 
         # Move m2 known host key to ~/.ssh, verify that it's known
-        self.machine_remove (b, m2.address)
-        self.wait_dashboard_addresses (b, [ "localhost", m3.address ])
-        key = m.execute("grep '{0}' /etc/ssh/ssh_known_hosts && sed -i '/{0}/d' /etc/ssh/ssh_known_hosts".format(m2.address))
+        self.machine_remove (b, "10.111.113.2")
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.3" ])
+        key = m.execute("grep '10.111.113.2' /etc/ssh/ssh_known_hosts && sed -i '/10.111.113.2/d' /etc/ssh/ssh_known_hosts")
         m.execute("mkdir ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh""".format(key))
-        self.add_machine (b, m2.address, True)
-        self.wait_dashboard_addresses (b, [ "localhost", m2.address, m3.address ])
+        self.add_machine (b, "10.111.113.2", True)
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2", "10.111.113.3" ])
         # Should be connected, no error
-        b.wait_present("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address)
-        b.wait_attr("#dashboard-hosts a.connected[data-address='%s'] img" % m2.address, 'src', '../shell/images/server-small.png')
+        b.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
+        b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
 
         # Test change user, not doing in edit to reuse machines
 
         # Navigate to load iframe
-        b.click("#dashboard-hosts .list-group-item[data-address='{0}']".format(m3.address))
-        b.enter_page("/system", m3.address);
+        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3']")
+        b.enter_page("/system", "10.111.113.3");
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
         b.switch_to_top()
-        b.wait_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m3.address))
+        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
         b.enter_page("/dashboard")
 
         b.click('#dashboard-enable-edit')
-        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
+        b.wait_visible("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
 
-        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
+        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
 
         b.wait_popup('host-edit-dialog')
         b.wait_visible('#host-edit-user')
@@ -176,18 +174,18 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
-        b.wait_not_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m3.address))
-        b.wait_present("#dashboard-hosts .failed[data-address='{0}']".format(m3.address))
+        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
+        b.wait_present("#dashboard-hosts .failed[data-address='10.111.113.3']")
 
         b.click('#dashboard-enable-edit')
-        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
-        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m3.address))
+        b.wait_visible("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
+        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
         b.wait_popup('host-edit-dialog')
         b.wait_visible('#host-edit-user')
         b.set_val('#host-edit-user', '')
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
-        b.wait_present("#dashboard-hosts .connected[data-address='{0}']".format(m3.address))
+        b.wait_present("#dashboard-hosts .connected[data-address='10.111.113.3']")
 
         # Test switching
         b.leave_page()
@@ -196,19 +194,21 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.click("#machine-dropdown ul a[data-address='localhost']")
         b.wait_js_cond('window.location.pathname == "/system"')
         b.click("#machine-link")
-        b.click("#machine-dropdown ul a[data-address='%s']" % m2.address)
-        b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m2.address)
+        b.click("#machine-dropdown ul a[data-address='10.111.113.2']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
         b.click("#machine-link")
-        b.click("#machine-dropdown ul a[data-address='%s']" % m3.address)
-        b.wait_js_cond('window.location.pathname.indexOf("/@%s") === 0' % m3.address)
+        b.click("#machine-dropdown ul a[data-address='10.111.113.3']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
 
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
 @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardSetup(MachineCase, DashBoardHelpers):
-    additional_machines = {
-        'machine2': { }
+    provision = {
+        'machine1': { "address": "10.111.113.1/20" },
+        'machine2': { "address": "10.111.113.2/20" },
+        'machine3': { "address": "10.111.113.3/20" }
     }
 
     def testSetup(self):
@@ -241,13 +241,13 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         self.wait_dashboard_addresses (b, [ "localhost" ])
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
-        b.set_val('#add-machine-address', m2.address)
+        b.set_val('#add-machine-address', "10.111.113.2")
         b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
         b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
         b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
         b.click('#dashboard_setup_server_dialog .btn-primary')
-        b.wait_in_text('#dashboard_setup_server_dialog .modal-title', "Log in to".format(m2.address))
+        b.wait_in_text('#dashboard_setup_server_dialog .modal-title', "Log in to")
         b.wait_present("#do-sync-users")
         b.click("#do-sync-users")
 
@@ -333,7 +333,10 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.logout()
         self.assertEqual(m.execute('cat /etc/cockpit/machines.d/99-webui.json').strip(), blue_conf)
         self.assertEqual(m.execute('cat /etc/cockpit/machines.d/98-migrated.json').strip(), green_conf)
-        self.allow_journal_messages('.* couldn\'t connect: .*')
+        self.allow_journal_messages(
+            '.* couldn\'t connect: .*',
+            '.*refusing to connect to unknown host.*'
+        )
 
 @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
@@ -406,7 +409,10 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
 
         self.wait_dashboard_addresses (b, fake_machines(14))
         check_limit(20)
-        self.allow_journal_messages(".*couldn't connect: Failed to resolve hostname bad.*")
+        self.allow_journal_messages(
+            ".*couldn't connect: Failed to resolve hostname bad.*",
+            ".*refusing to connect to unknown host.*"
+        )
 
 if __name__ == '__main__':
     test_main()

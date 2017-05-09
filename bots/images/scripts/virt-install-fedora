@@ -85,7 +85,7 @@ EOF
 qemu-img create -f qcow2 "$out" 8G
 
 connect="--connect=qemu:///session"
-name=fedora-builder
+name=$(basename $1)-builder
 
 cleanup_builder_vm () {
   if virsh $connect list --state-running --name | grep -q $name; then

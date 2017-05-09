@@ -30,7 +30,7 @@ def upload(store, source):
     os.unlink(compressed)
 
 def prune(store):
-    # Get a list of all currently in use files
+    # Get a list of all currently in use images
     current = []
     for filename in os.listdir(IMAGES):
         path = os.path.join(IMAGES, filename)

@@ -118,7 +118,7 @@ def enough_disk_space():
     free = st.f_bavail * st.f_frsize / (1024*1024*1024)
     return free >= PRUNE_THRESHOLD_G;
 
-def get_refs():
+def get_refs(pull_requests=[], offline=False):
     """Return dictionary for available refs of the format {'rhel-7.4': 'ad50328990e44c22501bd5e454746d4b5e561b7c'}
 
        Expects to be called from the top level of the git checkout
@@ -128,11 +128,29 @@ def get_refs():
     #
     # d864d3792db442e3de3d1811fa4bc371793a8f4f	refs/heads/master
     # ad50328990e44c22501bd5e454746d4b5e561b7c	refs/heads/rhel-7.4
-    refs = subprocess.check_output(["git", "ls-remote",  "--heads"]).splitlines()
-    # filter out the "refs/heads/" prefix
-    # and generate a dictionary
+    git_cmd = "show-ref" if offline else "ls-remote"
+    ref_output = subprocess.check_output(["git", git_cmd]).splitlines()
+    # filter out the "refs/heads/" prefix or pull request and generate a dictionary
     prefix = "refs/heads"
-    return dict(map(lambda ref: [s[s.startswith(prefix) and len(prefix):] for s in reversed(ref.split())], refs))
+    pr_prefix = "refs/remotes/origin/pr/"
+    refs = { }
+    for ln in ref_output:
+        [ref, name] = ln.split()
+        if name.startswith(prefix):
+            refs[name[len(prefix):]] = ref
+        elif name.startswith(pr_prefix):
+            pr = name.split("/")[-1]
+            if pr in pull_requests:
+                refs[pr] = ref
+            else:
+                # also accept pull requests as actual numbers
+                try:
+                    pr = int(pr)
+                    if pr in pull_requests:
+                        refs[str(pr)] = ref
+                except ValueError as e:
+                    pass
+    return refs
 
 def get_image_links(ref):
     """Return all image links for the given git ref
@@ -159,6 +177,25 @@ def remember_cwd():
         yield
     finally:
         os.chdir(curdir)
+
+def get_image_names(pull_requests=[]):
+    """Return all image names used by all branches
+
+       Also include images used in the given pull_requests, e.g. ["6432","6434","6500"] or a list of all open pull requests
+    """
+    images = set()
+    # iterate over visible refs (mostly branches)
+    # this hinges on being in the top level directory of the the git checkout
+    with remember_cwd():
+        os.chdir(os.path.join(BASE, ".."))
+        refs = get_refs()
+        # list images present in each branch / pull request
+        for name, ref in refs.items():
+            sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
+            for link in get_image_links(ref):
+                images.add(link)
+
+    return images
 
 def prune_images(force, dryrun):
     now = time.time()

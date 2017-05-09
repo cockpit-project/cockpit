@@ -38,7 +38,11 @@ PRUNE_THRESHOLD_G = float(os.environ.get("PRUNE_THRESHOLD_G", 15))
 DEVNULL = open("/dev/null", "r+")
 
 CONFIG = "~/.config/image-stores"
-DEFAULT = "https://fedorapeople.org/groups/cockpit/images/"
+DEFAULT = [
+    "https://209.132.184.69:8493/",
+    "https://209.132.184.41:8493/",
+    "https://fedorapeople.org/groups/cockpit/images"
+]
 
 def download(link, force, stores):
     if not os.path.exists(DATA):
@@ -75,15 +79,23 @@ def download(link, force, stores):
                 stores = fp.read().strip().split("\n")
         else:
             stores = []
-        stores.append(DEFAULT)
+        stores += DEFAULT
 
+    ca = os.path.join(BASE, "common", "ca.pem")
     for store in stores:
+        source = os.path.join(store, os.path.basename(dest)) + ".xz"
         try:
-            source = os.path.join(store, os.path.basename(dest)) + ".xz"
-            subprocess.check_call(["curl", "-s", "-f", "-I", source], stdout=DEVNULL)
+            cmd = ["curl", "--head", "--silent", "--fail", "--cacert", ca, source]
+            subprocess.check_call(cmd, stdout=DEVNULL)
             break
-        except:
-            continue
+        except subprocess.CalledProcessError:
+            pass
+        try:
+            cmd = ["curl", "--head", "--silent", "--fail", source]
+            subprocess.check_call(cmd, stdout=DEVNULL)
+            break
+        except subprocess.CalledProcessError:
+            pass
 
     sys.stderr.write("{0}\n".format(source))
 
@@ -95,8 +107,12 @@ def download(link, force, stores):
     if "TEST_DATA" in os.environ:
         tempxz = temp + ".xz"
 
+    # Adjust the command above that worked to make it visible and download real stuff
+    cmd = [arg for arg in cmd if arg not in ["--head", "--silent"]]
+    cmd.insert(1, "--progress-bar")
+
     try:
-        proc = curl = subprocess.Popen(["curl", "-#", "-f", source], stdout=subprocess.PIPE)
+        proc = curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         if tempxz:
             proc = tee = subprocess.Popen(["tee", temp + ".xz"], stdin=curl.stdout, stdout=subprocess.PIPE)
         unxz = subprocess.Popen(["unxz", "--stdout", "-"], stdin=proc.stdout, stdout=fd)

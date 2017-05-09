@@ -4,6 +4,8 @@ fedorabranding_DATA = \
 	src/branding/fedora/branding.css \
 	$(NULL)
 
+EXTRA_DIST += $(fedorabranding_DATA)
+
 # Opportunistically use fedora-logos
 install-data-hook::
 	$(LN_S) -f /usr/share/pixmaps/system-logo-white.png $(DESTDIR)$(fedorabrandingdir)/logo.png

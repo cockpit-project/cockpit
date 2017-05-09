@@ -35,7 +35,6 @@ EXTRA_DIST = \
 	.bowerrc \
 	bower.json \
 	package.json \
-	src/branding \
 	README.md \
 	$(NULL)
 

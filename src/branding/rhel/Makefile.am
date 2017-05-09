@@ -5,6 +5,8 @@ rhelbranding_DATA = \
 	src/branding/rhel/bg-login.jpg \
 	$(NULL)
 
+EXTRA_DIST += $(rhelbranding_DATA)
+
 # Opportunistically use redhat-logos ... yes they're called 'fedora'
 install-data-hook::
 	$(LN_S) -f /usr/share/pixmaps/system-logo-white.png $(DESTDIR)$(rhelbrandingdir)/logo.png

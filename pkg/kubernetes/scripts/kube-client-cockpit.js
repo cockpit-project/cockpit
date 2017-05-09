@@ -484,11 +484,13 @@
                     channel.addEventListener("message", function(ev, data) {
                         if (base64)
                             data = "1" + window.btoa(data);
-                        var mev = document.createEvent('MessageEvent');
-                        if (!mev.initMessageEvent)
+                        var mev;
+                        if (window.MessageEvent) {
                             mev = new window.MessageEvent('message', { 'data': data });
-                        else
+                        } else {
+                            mev = document.createEvent('MessageEvent');
                             mev.initMessageEvent('message', false, false, data, null, null, window, null);
+                        }
                         ws.dispatchEvent(mev);
                     });
 
@@ -637,11 +639,13 @@
                     });
 
                     channel.addEventListener("message", function(ev, data) {
-                        var mev = document.createEvent('MessageEvent');
-                        if (!mev.initMessageEvent)
+                        var mev;
+                        if (window.MessageEvent) {
                             mev = new window.MessageEvent('message', { 'data': data });
-                        else
+                        } else {
+                            mev = document.createEvent('MessageEvent');
                             mev.initMessageEvent('message', false, false, data, null, null, window, null);
+                        }
                         ws.dispatchEvent(mev);
                     });
 

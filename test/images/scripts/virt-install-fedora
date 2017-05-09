@@ -63,8 +63,9 @@ echo "$(cat $base/../../common/identity.pub)" > /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 mkdir -p /etc/sysconfig/network-scripts
 echo "$(cat $base/network-ifcfg-eth0)" > /etc/sysconfig/network-scripts/ifcfg-eth0
-mkdir -p /etc/udev/rules.d
-ln -s /dev/null /etc/udev/rules.d/80-net-name-slot.rules
+echo "$(cat $base/network-ifcfg-eth1)" > /etc/sysconfig/network-scripts/ifcfg-eth1
+sed -i "s/GRUB_TIMEOUT.*/GRUB_TIMEOUT=0/" /etc/default/grub
+grub2-mkconfig -o /boot/grub2/grub.cfg
 grubby --update-kernel=ALL --args="net.ifnames=0 biosdevname=0"
 %end
 EOF

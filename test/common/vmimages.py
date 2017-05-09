@@ -25,6 +25,8 @@ import shutil
 import stat
 import tempfile
 import time
+import urlparse
+
 from common import testinfra
 
 BASE = testinfra.TEST_DIR
@@ -83,9 +85,20 @@ def download(link, force, stores):
 
     ca = os.path.join(BASE, "common", "ca.pem")
     for store in stores:
-        source = os.path.join(store, os.path.basename(dest)) + ".xz"
+        url = urlparse.urlparse(store)
+        if url.port:
+            resolve = "cockpit-tests:{0}:{1}".format(url.port, url.hostname)
+            url = url._replace(netloc="cockpit-tests:{}".format(url.port))
+        else:
+            resolve = "cockpit-tests:{1}".format(0, url.hostname)
+            url = url._replace(netloc="cockpit-tests")
+
+        name = os.path.basename(dest) + ".xz"
+        ca_source = urlparse.urljoin(url.geturl(), name)
+        source = urlparse.urljoin(store, name)
+
         try:
-            cmd = ["curl", "--head", "--silent", "--fail", "--cacert", ca, source]
+            cmd = ["curl", "--head", "--silent",  "--resolve", resolve, "--fail", "--cacert", ca, ca_source]
             subprocess.check_call(cmd, stdout=DEVNULL)
             break
         except subprocess.CalledProcessError:

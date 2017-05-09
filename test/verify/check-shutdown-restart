@@ -22,14 +22,13 @@ import parent
 from testlib import *
 
 class TestShutdownRestart(MachineCase):
-    additional_machines = {
-        'machine2': { }
+    provision = {
+        "machine1": { "address": "10.111.113.1/20" },
+        "machine2": { "address": "10.111.113.2/20" }
     }
 
     def setUp(self):
-        # we need a static ip for this test
-        MachineCase.setUp(self, macaddr='52:54:00:9e:00:F3')
-
+        MachineCase.setUp(self)
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
 
@@ -38,7 +37,7 @@ class TestShutdownRestart(MachineCase):
         b = self.browser
 
         m2 = self.machines['machine2']
-        b2 = self.new_browser(m2.address)
+        b2 = self.new_browser(m2)
 
         # HACK -https://bugzilla.redhat.com/show_bug.cgi?id=1278287
         m.execute("! selinuxenabled || setenforce 0")
@@ -94,7 +93,7 @@ class TestShutdownRestart(MachineCase):
         if not m.image in ["continuous-atomic", "fedora-atomic", "rhel-atomic"]:
             # Add machine with static IP to m2
             b2.switch_to_top()
-            b2.go("/@%s" % m.address)
+            b2.go("/@10.111.113.1")
             b2.wait_visible("#machine-troubleshoot")
             b2.click('#machine-troubleshoot')
             b2.wait_popup('troubleshoot-dialog')
@@ -104,7 +103,7 @@ class TestShutdownRestart(MachineCase):
             b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
             b2.click('#troubleshoot-dialog .btn-primary')
             b2.wait_popdown('troubleshoot-dialog')
-            b2.enter_page("/system", host=m.address)
+            b2.enter_page("/system", host="10.111.113.1")
             b2.wait_text("#system_information_hostname_button", "machine1")
 
             # Check auto reconnect on restart
@@ -124,7 +123,7 @@ class TestShutdownRestart(MachineCase):
             m.wait_reboot()
 
             b2.wait_not_visible(".curtains-ct")
-            b2.enter_page("/system", host=m.address, reconnect=False)
+            b2.enter_page("/system", host="10.111.113.1", reconnect=False)
 
         # Power off with invalid date
         self.login_and_go("/system")

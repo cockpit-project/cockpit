@@ -75,10 +75,6 @@ cloud_final_modules:
  - [scripts-user, always]
  - final-message
 
-# we may need to ping something on the network to update the arp cache
-runcmd:
-  - while ! ifconfig | grep -q 10\.111\.; do sleep .1; done; ping -W 1s -c 3 10.111.112.1 || true
-
 EOF
 
 genisoimage -input-charset utf-8 -output $iso_image -volid cidata -joliet -rock $user_data $meta_data

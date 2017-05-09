@@ -20,9 +20,3 @@ To then access that it run the following in another terminal:
 You should now be able to use the kubectl command to access the cluster:
 
     $ kubectl get pods
-
-To bring up additional nodes in the cluster, run more virtual machines
-like this. Make sure to run them after the initial openshift virtual
-machine is up.
-
-    $ test/vm-run openshift-node

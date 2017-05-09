@@ -111,9 +111,9 @@ def install_packages(machine_instance, packagelist, install_command):
 
 current_image = args.image
 if args.commandlist or args.packagelist or args.scriptlist or args.uploadlist:
-    machine = testvm.VirtMachine(
+    machine = testvm.VirtMachine(maintain=True,
         verbose=args.verbose, image=prepare_install_image(current_image), label="install")
-    machine.start(maintain=True)
+    machine.start()
     machine.wait_boot()
     try:
         if args.commandlist:

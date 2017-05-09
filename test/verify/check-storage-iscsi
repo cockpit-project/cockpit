@@ -119,7 +119,7 @@ class TestStorage(StorageCase):
         # Add the target a second time, just to check that the sorting function works
         b.click('[data-action="add-iscsi-portal"]')
         self.dialog_wait_open()
-        self.dialog_set_val("address", m.address)
+        self.dialog_set_val("address", "172.27.0.15")
         self.dialog_set_val("username", "admin")
         self.dialog_set_val("password", "foobar")
         self.dialog_apply()
@@ -137,7 +137,7 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_in_text('#iscsi-sessions', m.address)
+        b.wait_in_text('#iscsi-sessions', "172.27.0.15")
 
         b.click('#iscsi-sessions .arm-button')
         b.wait_visible('#iscsi-sessions tr:contains(127.0.0.1) button[data-iscsi-session-remove]')
@@ -145,9 +145,9 @@ class TestStorage(StorageCase):
         b.wait_not_present('#iscsi-sessions tr:contains(127.0.0.1)')
 
         b.click('#iscsi-sessions .arm-button')
-        b.wait_visible('#iscsi-sessions tr:contains(%s) button[data-iscsi-session-remove]' % (m.address))
-        b.click('#iscsi-sessions tr:contains(%s) button[data-iscsi-session-remove]' % (m.address))
-        b.wait_not_present('#iscsi-sessions tr:contains(%s)' % (m.address))
+        b.wait_visible('#iscsi-sessions tr:contains(172.27.0.15) button[data-iscsi-session-remove]')
+        b.click('#iscsi-sessions tr:contains(172.27.0.15) button[data-iscsi-session-remove]')
+        b.wait_not_present('#iscsi-sessions tr:contains(172.27.0.15)')
 
         b.wait_not_in_text('#drives', "LIO-ORG test")
 

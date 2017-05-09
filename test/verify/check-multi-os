@@ -56,8 +56,9 @@ def new_add_machine(b, address):
     b.wait_popdown('dashboard_setup_server_dialog')
 
 class TestMultiOS(MachineCase):
-    additional_machines = {
-        'fedora-stock': { 'machine': { 'image': 'fedora-stock' } }
+    provision = {
+        "0": { "address": "10.111.113.1/20" },
+        "fedora-stock": { "address": "10.111.113.5/20", "image": "fedora-stock" }
     }
 
     def check_spawn(self, b, address):
@@ -116,53 +117,59 @@ class TestMultiOS(MachineCase):
             browser.wait_visible('#' + page)
 
         stock_m = self.machines['fedora-stock']
-        stock_b = self.new_browser(stock_m.address)
+
+        # Wait for connectivity between the two
+        wait(lambda: stock_m.execute("ip addr >&2 && ping -q -w5 -c5 10.111.113.1"))
+        wait(lambda: dev_m.execute("ip addr  >&2 && ping -q -w5 -c5 10.111.113.5"))
+
+        stock_m.execute("hostnamectl set-hostname stock")
+        stock_b = self.new_browser(stock_m)
 
         stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
         wait_dashboard_addresses (stock_b, [ "localhost" ])
 
-        old_add_machine(stock_b, dev_m.address)
-        wait_dashboard_addresses (stock_b, [ "localhost", dev_m.address ])
+        old_add_machine(stock_b, "10.111.113.1")
+        wait_dashboard_addresses (stock_b, [ "localhost", "10.111.113.1" ])
 
         dev_b.switch_to_top()
         dev_b.switch_to_frame("cockpit1:localhost/dashboard")
 
-        new_add_machine(dev_b, stock_m.address)
-        dev_dashboard_addresses.append(stock_m.address)
+        new_add_machine(dev_b, "10.111.113.5")
+        dev_dashboard_addresses.append("10.111.113.5")
         wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
 
-        self.check_dbus(stock_b, dev_m.address)
-        self.check_dbus(dev_b, stock_m.address)
+        self.check_dbus(stock_b, "10.111.113.1")
+        self.check_dbus(dev_b, "10.111.113.5")
 
-        self.check_spawn(stock_b, dev_m.address)
-        self.check_spawn(dev_b, stock_m.address)
-
-        dev_b.switch_to_top()
-        dev_b.go("/@%s/network/interfaces" % stock_m.address)
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/networking']" % stock_m.address)
+        self.check_spawn(stock_b, "10.111.113.1")
+        self.check_spawn(dev_b, "10.111.113.5")
 
         dev_b.switch_to_top()
-        dev_b.go("/@%s/storage/devices" % stock_m.address)
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/storage']" % stock_m.address)
+        dev_b.go("/@10.111.113.5/network/interfaces")
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/shell/shell'][src$='#/networking']")
 
         dev_b.switch_to_top()
-        dev_b.go("/@%s/users/local" % stock_m.address)
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:%s/shell/shell'][src$='#/accounts']" % stock_m.address)
+        dev_b.go("/@10.111.113.5/storage/devices")
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/shell/shell'][src$='#/storage']")
+
+        dev_b.switch_to_top()
+        dev_b.go("/@10.111.113.5/users/local")
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/shell/shell'][src$='#/accounts']")
 
         stock_b.switch_to_top()
-        stock_b.go("#/@%s/system/index" % dev_m.address)
-        stock_b.wait_present("iframe.container-frame[name='%s/system/index']" % dev_m.address)
-        stock_b.wait_present("iframe.container-frame[name='%s/system/index'][data-loaded]" % dev_m.address)
-        stock_b.switch_to_frame('%s/system/index' % dev_m.address)
+        stock_b.go("#/@10.111.113.1/system/index")
+        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/system/index']")
+        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/system/index'][data-loaded]")
+        stock_b.switch_to_frame('10.111.113.1/system/index')
         stock_b.wait_present("#system_information_hardware_text")
         stock_b.wait_text_not("#system_information_hardware_text", "")
 
         # Shows a curtains when accessing to default page from old system
         stock_b.switch_to_top()
-        stock_b.go("#/@%s" % dev_m.address)
-        stock_b.wait_present("iframe.container-frame[name='%s/shell/shell']" % dev_m.address)
-        stock_b.wait_present("iframe.container-frame[name='%s/shell/shell'][data-loaded]" % dev_m.address)
-        stock_b.switch_to_frame('%s/shell/shell' % dev_m.address)
+        stock_b.go("#/@10.111.113.1")
+        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/shell/shell']")
+        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/shell/shell'][data-loaded]")
+        stock_b.switch_to_frame('10.111.113.1/shell/shell')
         stock_b.wait_present(".curtains-ct")
 
         # Messages from previous versions of cockpit
@@ -181,8 +188,9 @@ class TestMultiOS(MachineCase):
                 raise
 
 class TestMultiOSDirect(MachineCase):
-    additional_machines = {
-        'fedora-23-stock': { 'machine': { 'image': 'fedora-23-stock' } }
+    provision = {
+        "0": { "address": "10.111.113.1/20" },
+        "fedora-23-stock": { "address": "10.111.113.5/20", "image": "fedora-23-stock" }
     }
 
     @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
@@ -199,13 +207,13 @@ class TestMultiOSDirect(MachineCase):
         stock_m = self.machines['fedora-23-stock']
         stock_m.execute("hostnamectl set-hostname stock")
 
-        new_add_machine(b, stock_m.address)
-        dev_dashboard_addresses.append(stock_m.address)
+        new_add_machine(b, "10.111.113.5")
+        dev_dashboard_addresses.append("10.111.113.5")
         wait_dashboard_addresses (b, dev_dashboard_addresses)
         b.logout()
 
         # Access stock directly from dev
-        b.open("/={}".format(stock_m.address))
+        b.open("/=10.111.113.5")
         b.wait_visible("#login")
         b.wait_not_visible("#badge")
         b.wait_not_visible("#brand")

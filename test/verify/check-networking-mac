@@ -23,6 +23,11 @@ from testlib import *
 from netlib import *
 
 class TestNetworking(NetworkCase):
+    provision = {
+        "machine1": { },
+        "machine2": { "image": "fedora-26", "address": "10.111.113.2/20", "dhcp": True }
+    }
+
     def testMac(self):
         b = self.browser
         m = self.machine
@@ -39,7 +44,7 @@ class TestNetworking(NetworkCase):
         b.wait_text("#network-interface-mac", mac.upper())
 
         if self.networkmanager_version >= [ 1, 4, 0 ]:
-            new_mac = m.reserve_macaddr()
+            new_mac = self.network.interface()["mac"]
             b.click("#network-interface-mac a")
             b.wait_popup("network-mac-settings-dialog")
             b.set_val('#network-mac-settings-input', new_mac)
@@ -79,7 +84,7 @@ class TestNetworking(NetworkCase):
         b.wait_text("#network-interface-mac", mac.upper())
 
         if self.networkmanager_version >= [ 1, 6, 0 ]:
-            new_mac = m.reserve_macaddr()
+            new_mac = self.network.interface()["mac"]
             b.click("#network-interface-mac a")
             b.wait_popup("network-mac-settings-dialog")
             b.set_val('#network-mac-settings-input', new_mac)

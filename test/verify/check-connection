@@ -20,7 +20,6 @@
 
 import parent
 from testlib import *
-import subprocess
 import base64
 
 class TestConnection(MachineCase):
@@ -61,7 +60,7 @@ class TestConnection(MachineCase):
         b.set_val("#login-password-input", "foobar")
 
         # sever the connection on the login page
-        m.execute("iptables -w -I INPUT 1 -p tcp --dport 9090 -j REJECT")
+        m.execute("iptables -w -I INPUT 1 -p tcp --dport 9090 -j REJECT --reject-with tcp-reset")
         b.click('#login-button')
         with b.wait_timeout(20):
             b.wait_text_not('#login-fatal-message', "")
@@ -108,42 +107,34 @@ class TestConnection(MachineCase):
         # Start Cockpit with TLS
         m.start_cockpit(tls=True)
 
-        null = open("/dev/null")
-        args = ['openssl', 's_client', '-connect',  m.address + ":9090" ]
-
         # A normal TLS connection works
-        m.message(repr(args))
-        output = subprocess.check_output(args, stdin=null, stderr=subprocess.STDOUT)
+        output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
         m.message(output)
         self.assertIn("DONE", output)
 
         # SSLv3 should not work
-        try:
-            cmd = args + [ '-ssl3' ]
-            m.message(repr(cmd))
-            output = subprocess.check_output(cmd, stdin=null, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError, ex:
-            m.message(ex.output)
-            # Some operating systems fail SSL3 on the server side
-            if m.image in [ "debian-stable", "debian-testing", "fedora-25", "fedora-26", "fedora-i386", "fedora-testing", "ubuntu-stable" ]:
-                self.assertIn("ssl handshake failure", ex.output)
-            else:
-                self.assertIn("wrong version number", ex.output)
+        output = m.execute('openssl s_client -connect 172.27.0.15:9090 -ssl3 2>&1 || true')
+        self.assertNotIn("DONE", output)
+
+        # Some operating systems fail SSL3 on the server side
+        if m.image in [ "fedora-26" ]:
+            self.assertIn("no protocols available", output)
+        elif m.image in [ "fedora-25", "fedora-i386", "fedora-testing" ]:
+            self.assertIn("ssl handshake failure", output)
+        elif m.image in [ "debian-stable", "debian-testing" ]:
+            self.assertIn("Option unknown option -ssl3", output)
+        elif m.image in [ "ubuntu-1604", "ubuntu-stable" ]:
+            self.assertIn("null ssl method passed", output)
         else:
-            m.message(output)
-            self.fail("SSL3 should not have been successful")
+            self.assertIn("wrong version number", output)
 
         # RC4 should not work
-        try:
-            cmd = args + [ '-cipher', 'RC4' ]
-            m.message(repr(cmd))
-            output = subprocess.check_output(cmd, stdin=null, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError, ex:
-            m.message(ex.output)
-            self.assertIn("ssl handshake failure", ex.output)
+        output = m.execute('openssl s_client -connect 172.27.0.15:9090 -cipher RC4 2>&1 || true')
+        self.assertNotIn("DONE", output)
+        if m.image in [ "debian-stable", "debian-testing", "fedora-26" ]:
+            self.assertIn("no cipher match", output)
         else:
-            m.message(output)
-            self.fail("RC4 cipher should not have been usable")
+            self.assertIn("ssl handshake failure", output)
 
         # Install a certificate chain, and give it an arbitrary bad file context
         m.upload([ "verify/files/cert-chain.cert" ], "/etc/cockpit/ws-certs.d")
@@ -153,18 +144,16 @@ class TestConnection(MachineCase):
         m.restart_cockpit()
 
         # Should use the new certificates and entire chain should show up
-        m.message(repr(args))
-        output = subprocess.check_output(args, stdin=null, stderr=subprocess.STDOUT)
-        m.message(output)
+        output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
         self.assertIn("DONE", output)
         self.assertIn("s:/CN=localhost", output)
         self.assertIn("1 s:/OU=Intermediate", output)
 
         # login handler: correct password
-        m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://{}:9090/cockpit/login".format(base64.b64encode("admin:foobar"), m.address))
-        headers = m.execute("curl -k --head -b cockpit.jar -s https://{}:9090/".format(m.address))
-        self.assertIn("default-src 'self' https://{}:9090; connect-src 'self' https://{}:9090 ws: wss".format(m.address, m.address), headers)
-        self.assertIn("Access-Control-Allow-Origin: https://{}:9090".format(m.address), headers)
+        m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(base64.b64encode("admin:foobar"), ))
+        headers = m.execute("curl -k --head -b cockpit.jar -s https://127.0.0.1:9090/")
+        self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 ws: wss", headers)
+        self.assertIn("Access-Control-Allow-Origin: https://127.0.0.1:9090", headers)
 
         self.allow_journal_messages(
             ".*Peer failed to perform TLS handshake",
@@ -219,7 +208,7 @@ class TestConnection(MachineCase):
         # The port may not be available immediately, so wait for it
         wait(lambda: 'A Custom Title' in m.execute('curl -s -k https://localhost:9000/'))
 
-        output = m.execute('curl -s -S -k https://{}:9000/ 2>&1 || true'.format(m.address))
+        output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || true')
         self.assertIn('Connection refused', output)
 
     def testHeadRequest(self):
@@ -227,7 +216,7 @@ class TestConnection(MachineCase):
         m.start_cockpit()
 
         # static handler
-        headers = m.execute("curl -s --head http://localhost:9090/cockpit/static/login.min.html")
+        headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit/static/login.min.html")
         self.assertIn("HTTP/1.1 200 OK\r\n", headers)
         self.assertIn("Content-Type: text/html\r\n", headers)
         # login.html is not always accessible as a file (e. g. in Atomic), so just assert a reasonable content length
@@ -237,23 +226,23 @@ class TestConnection(MachineCase):
         self.assertLess(l, 100000)
 
         # login handler: wrong password
-        headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://localhost:9090/cockpit/login".format(
+        headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://172.27.0.15:9090/cockpit/login".format(
             base64.b64encode("admin:hahawrong")))
         self.assertIn("HTTP/1.1 401 Authentication failed\r\n", headers)
         self.assertNotIn("Set-Cookie:", headers)
 
         # login handler: correct password
-        headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://localhost:9090/cockpit/login".format(
+        headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://172.27.0.15:9090/cockpit/login".format(
             base64.b64encode("admin:foobar")))
         self.assertIn("HTTP/1.1 200 OK\r\n", headers)
         self.assertIn("Set-Cookie: cockpit", headers)
 
         # socket handler; this should refuse HEAD (as it makes little sense on sockets), so 404
-        headers = m.execute("curl -s --head http://localhost:9090/cockpit/socket")
+        headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit/socket")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
         # external channel handler; unauthenticated, thus 404
-        headers = m.execute("curl -s --head http://localhost:9090/cockpit+123/channel/foo")
+        headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit+123/channel/foo")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
 if __name__ == '__main__':

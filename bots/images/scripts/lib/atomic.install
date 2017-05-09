@@ -164,6 +164,10 @@ class AtomicCockpitInstaller:
                 dashboard = package
 
         if ws or dashboard:
+            # HACK: docker fails to start a container without /etc/resolv.conf
+            if not os.path.exists("/etc/resolv.conf"):
+                open("/etc/resolv.conf", 'a').close()
+
             subprocess.check_call(["docker", "run", "--name", "build-cockpit",
                                    "-d", "--privileged", "-v", "/:/host",
                                    "cockpit/ws", "sleep", "1d"])

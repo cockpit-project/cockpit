@@ -22,10 +22,6 @@ import parent
 from testlib import *
 
 class TestJournal(MachineCase):
-    def setUp(self):
-        # we need a static ip for this test
-        MachineCase.setUp(self, macaddr='52:54:00:9e:00:F4')
-
     def testBasic(self):
         b = self.browser
         b.wait_timeout(120)

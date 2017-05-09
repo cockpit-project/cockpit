@@ -17,6 +17,9 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 set -ex
 
+# HACK: docker fails to start a container without /etc/resolv.conf
+touch /etc/resolv.conf
+
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 

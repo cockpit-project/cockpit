@@ -80,8 +80,9 @@ print [ e['id'] for e in data if e['owner']['key'] == 'admin' and e['contractNum
 
 @skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-24", "fedora-25", "fedora-26", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
 class TestSubscriptions(MachineCase):
-    additional_machines = {
-        'candlepin': { 'machine': { 'image': 'candlepin' } }
+    provision = {
+        "0": { "address": "10.111.113.1/20" },
+        "candlepin": { "image": "candlepin", "address": "10.111.113.5/20" }
     }
 
     def setUp(self):
@@ -105,7 +106,7 @@ class TestSubscriptions(MachineCase):
         m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
-        args = { "addr": self.candlepin.address }
+        args = { "addr": "10.111.113.5" }
         m.execute(script=WAIT_SCRIPT % args)
 
     def testRegister(self):
@@ -134,7 +135,7 @@ class TestSubscriptions(MachineCase):
         # enter server and incorrect login data
         b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
-        b.set_val("#subscription-register-url-custom", "{address}:8443/candlepin".format(address=self.candlepin.address))
+        b.set_val("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
         b.set_val("#subscription-register-username", "doc")
         b.set_val("#subscription-register-password", "wrongpass")
 
@@ -225,7 +226,7 @@ class TestSubscriptions(MachineCase):
         # enter server data
         b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
-        b.set_val("#subscription-register-url-custom", "{address}:8443/candlepin".format(address=self.candlepin.address))
+        b.set_val("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
 
         # make sure we have an activation key on the target machine
         self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))

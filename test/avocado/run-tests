@@ -153,38 +153,43 @@ def copy_avocado_logs(machine, title):
         machine.execute("cd {0} && tar cfz {1} {2} --exclude='*.png'".format(remote_archive_dir, remote_archive, os.path.split(avocado_results_dir)[1]))
 
         # download and attach to our test
-        local_archive = os.path.join(arg_attachments_dir, "{0}-{1}.avocado.tar.gz".format(machine.address, title))
+        local_archive = os.path.join(arg_attachments_dir, "{0}-{1}.avocado.tar.gz".format(machine.label, title))
         machine.download(remote_archive, local_archive)
 
 def wait_for_selenium_running(machine, host, port=4444):
     WAIT_SELENIUM_RUNNING = """#!/bin/sh
-until curl -s --connect-timeout 1 http://%s:%d >/dev/null; do
+until curl -s --connect-timeout 3 http://%s:%d >/dev/null; do
 sleep 0.5;
 done;
 """ % (host, port)
-    with testvm.stdchannel_redirected(sys.stdout, os.devnull):
-        with testvm.Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
-            machine.execute(script=WAIT_SELENIUM_RUNNING)
+    with testvm.Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
+        machine.execute(script=WAIT_SELENIUM_RUNNING)
 
 def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
     use_selenium = (browser != 'none')
     image = os.environ.get("TEST_OS", "fedora-24")
-    machine = testvm.VirtMachine(image, verbose=verbose, label="avocado")
-    selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
+    network = testvm.VirtNetwork()
+    machine = testvm.VirtMachine(verbose=verbose, networking=network.host(), image=image)
+    selenium = None
+
+    if use_selenium:
+        selenium = testvm.VirtMachine(image="selenium", verbose=verbose, networking=network.host())
 
     try:
         # just start the machine without waiting for it to boot, get the ip address later
-        machine.start(wait_for_ip=False)
+        machine.start()
         if selenium:
             # actually wait here, because starting selenium takes a while
             selenium.start()
             selenium.wait_boot()
+            selenium.set_address("10.111.112.10/20")
 
             # start selenium on the server
             selenium.upload([ "avocado/selenium_start.sh"], "/root")
             selenium.execute(command="/root/selenium_start.sh")
 
         machine.wait_boot()
+        machine.set_address("10.111.113.1/20")
         machine.start_cockpit()
 
         machine.execute("adduser test")
@@ -195,13 +200,13 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         machine.execute("echo 'Defaults !requiretty' >> /etc/sudoers")
 
         if selenium:
-            wait_for_selenium_running(machine, selenium.address)
+            wait_for_selenium_running(machine, "10.111.112.10")
 
         prepare_avocado_tests(machine)
 
         # Now actually run the tests
-        selenium_address = selenium.address if selenium else ""
-        env = [ "HUB=" + selenium_address, "GUEST=" + machine.address, "BROWSER=" + browser ]
+        selenium_address = "10.111.112.10" if selenium else ""
+        env = [ "HUB=" + selenium_address, "GUEST=10.111.113.1", "BROWSER=" + browser ]
         success = run_avocado_tests(machine, avocado_tests, env=env)
 
         if not success:

@@ -23,8 +23,6 @@ import fcntl
 import libvirt
 import libvirt_qemu
 import os
-import random
-import re
 import select
 import signal
 import string
@@ -34,8 +32,6 @@ import tempfile
 import sys
 import threading
 import time
-
-import xml.etree.ElementTree as etree
 
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-26")
 
@@ -98,8 +94,34 @@ class Failure(Exception):
 class RepeatableFailure(Failure):
     pass
 
+LOGIN_MESSAGE = """
+TTY LOGIN
+  User: {ssh_user}/admin  Password: foobar
+  To quit use Ctrl+], Ctrl+5 (depending on locale)
+
+SSH ACCESS
+  $ ssh -p {ssh_port} {ssh_user}@{ssh_address}
+  Password: foobar
+
+COCKPIT
+  http://{web_address}:{web_port}
+"""
+
+RESOLV_SCRIPT = """
+set -e
+# HACK: Racing with operating systems reading/updating resolv.conf and
+# the fact that resolv.conf can be a symbolic link. Avoid failures like:
+# chattr: Operation not supported while reading flags on /etc/resolv.conf
+mkdir -p /etc/NetworkManager/conf.d
+printf '[main]\ndns=none\n' > /etc/NetworkManager/conf.d/dns.conf
+systemctl reload-or-restart NetworkManager
+printf 'domain {domain}\nsearch {domain}\nnameserver {nameserver}\n' >/etc/resolv2.conf
+chcon -v unconfined_u:object_r:net_conf_t:s0 /etc/resolv2.conf 2> /dev/null || true
+mv /etc/resolv2.conf /etc/resolv.conf
+"""
+
 class Machine:
-    def __init__(self, address=None, image=None, verbose=False, label=None, fetch=True):
+    def __init__(self, address="127.0.0.1", image=None, verbose=False, label=None, browser=None):
         self.verbose = verbose
 
         # Currently all images are x86_64. When that changes we will have
@@ -108,14 +130,34 @@ class Machine:
 
         self.image = image or "unknown"
         self.atomic_image = self.image in ATOMIC_IMAGES
-        self.fetch = fetch
-        self.vm_username = "root"
-        self.address = address
-        self.label = label or "UNKNOWN"
+        self.ssh_user = "root"
+        if ":" in address:
+            (self.ssh_address, unused, self.ssh_port) = address.rpartition(":")
+        else:
+            self.ssh_address = address
+            self.ssh_port = 22
+        if not browser:
+            browser = address
+        if ":" in browser:
+            (self.web_address, unused, self.web_port) = browser.rpartition(":")
+        else:
+            self.web_address = browser
+            self.web_port = 9090
+        self.label = label or self.image + "-" + self.ssh_address + "-" + self.ssh_port
         self.ssh_master = None
+
         self.ssh_process = None
-        self.ssh_port = 22
         self.ssh_reachable = False
+
+    def diagnose(self):
+        keys = {
+            "ssh_user": self.ssh_user,
+            "ssh_address": self.ssh_address,
+            "ssh_port": self.ssh_port,
+            "web_address": self.web_address,
+            "web_port": self.web_port,
+        }
+        return LOGIN_MESSAGE.format(**keys)
 
     def disconnect(self):
         self.ssh_reachable = False
@@ -127,7 +169,7 @@ class Machine:
             return
         print " ".join(args)
 
-    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
+    def start(self):
         """Overridden by machine classes to start the machine"""
         self.message("Assuming machine is already running")
 
@@ -136,9 +178,7 @@ class Machine:
         self.message("Not shutting down already running machine")
 
     # wait until we can execute something on the machine. ie: wait for ssh
-    # get_new_address is an optional function to acquire a new ip address for each try
-    #   it is expected to raise an exception on failure and return a valid address otherwise
-    def wait_execute(self, timeout_sec=120, get_new_address=None):
+    def wait_execute(self, timeout_sec=120):
         """Try to connect to self.address on ssh port"""
 
         # If connected to machine, kill master connection
@@ -146,15 +186,10 @@ class Machine:
 
         start_time = time.time()
         while (time.time() - start_time) < timeout_sec:
-            if get_new_address:
-                try:
-                    self.address = get_new_address()
-                except:
-                    continue
-            addrinfo = socket.getaddrinfo(self.address, self.ssh_port, 0, socket.SOCK_STREAM)
+            addrinfo = socket.getaddrinfo(self.ssh_address, self.ssh_port, 0, socket.SOCK_STREAM)
             (family, socktype, proto, canonname, sockaddr) = addrinfo[0]
             sock = socket.socket(family, socktype, proto)
-            sock.settimeout(1)
+            sock.settimeout(5)
             try:
                 sock.connect(sockaddr)
                 data = sock.recv(10)
@@ -217,8 +252,8 @@ class Machine:
             "-M", # ControlMaster, no stdin
             "-o", "ControlPath=" + control,
             "-o", "LogLevel=ERROR",
-            "-l", self.vm_username,
-            self.address,
+            "-l", self.ssh_user,
+            self.ssh_address,
             "/bin/bash -c 'echo READY; read a'"
         ]
 
@@ -297,19 +332,6 @@ class Machine:
         if not self._check_ssh_master():
             self._start_ssh_master()
 
-    def debug_shell(self):
-        """Run an interactive shell"""
-        cmd = [
-            "ssh",
-            "-p", str(self.ssh_port),
-            "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null",
-            "-i", self._calc_identity(),
-            "-l", self.vm_username,
-            self.address
-        ]
-        subprocess.call(cmd)
-
     def execute(self, command=None, script=None, input=None, environment={}, stdout=None, quiet=False, direct=False):
         """Execute a shell command in the test machine and return its output.
 
@@ -324,7 +346,7 @@ class Machine:
             The command/script output as a string.
         """
         assert command or script
-        assert self.address
+        assert self.ssh_address
 
         if not direct:
             self._ensure_ssh_master()
@@ -345,8 +367,8 @@ class Machine:
             cmd += [ "-o", "ControlPath=" + self.ssh_master ]
 
         cmd += [
-            "-l", self.vm_username,
-            self.address
+            "-l", self.ssh_user,
+            self.ssh_address
         ]
 
         if command:
@@ -423,13 +445,14 @@ class Machine:
             dest: the file path in the machine to upload to
         """
         assert sources and dest
-        assert self.address
+        assert self.ssh_address
 
         self._ensure_ssh_master()
 
         cmd = [
             "scp", "-B",
             "-r", "-p",
+            "-P", str(self.ssh_port),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-o", "ControlPath=" + self.ssh_master,
@@ -442,7 +465,7 @@ class Machine:
             return os.path.join(LOCAL_DIR, "..", path)
         cmd += map(relative_to_test_dir, sources)
 
-        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, dest) ]
+        cmd += [ "%s@[%s]:%s" % (self.ssh_user, self.ssh_address, dest) ]
 
         self.message("Uploading", ", ".join(sources))
         self.message(" ".join(cmd))
@@ -452,7 +475,7 @@ class Machine:
         """Download a file from the test machine.
         """
         assert source and dest
-        assert self.address
+        assert self.ssh_address
 
         self._ensure_ssh_master()
         dest = os.path.join(LOCAL_DIR, "..", dest)
@@ -467,7 +490,7 @@ class Machine:
             ]
         if not self.verbose:
             cmd += ["-q"]
-        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, source), dest ]
+        cmd += [ "%s@[%s]:%s" % (self.ssh_user, self.ssh_address, source), dest ]
 
         self.message("Downloading", source)
         self.message(" ".join(cmd))
@@ -477,7 +500,7 @@ class Machine:
         """Download a directory from the test machine, recursively.
         """
         assert source and dest
-        assert self.address
+        assert self.ssh_address
 
         self._ensure_ssh_master()
         dest = os.path.join(LOCAL_DIR, "..", dest)
@@ -493,7 +516,7 @@ class Machine:
           ]
         if not self.verbose:
             cmd += ["-q"]
-        cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, source), dest ]
+        cmd += [ "%s@[%s]:%s" % (self.ssh_user, self.ssh_address, source), dest ]
 
         self.message("Downloading", source)
         self.message(" ".join(cmd))
@@ -513,7 +536,7 @@ class Machine:
             dest: The file name in the machine to write to
         """
         assert dest
-        assert self.address
+        assert self.ssh_address
 
         cmd = "cat > '%s'" % dest
         self.execute(command=cmd, input=content)
@@ -586,6 +609,7 @@ class Machine:
             # but atomic doesn't forward the parameter, so we use the resulting command
             # also we need to wait for cockpit to be up and running
             cmd = """#!/bin/sh
+            test -f /etc/resolv.conf || touch /etc/resolv.conf
             systemctl start docker &&
             """
             if tls:
@@ -630,6 +654,24 @@ class Machine:
                 self.execute("docker kill `docker ps | grep cockpit/ws | awk '{print $1;}'`")
         else:
             self.execute("systemctl stop cockpit.socket")
+
+    def set_address(self, address, mac='52:54:01'):
+        """Set IP address for the network interface with given mac prefix"""
+        cmd = "nmcli con add type ethernet autoconnect yes con-name static-{mac} ifname \"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" ip4 {address} && ( nmcli conn up static-{mac} || true )"
+        self.execute(cmd.format(mac=mac, address=address))
+
+    def set_dns(self, nameserver=None, domain=None):
+        self.execute(RESOLV_SCRIPT.format(nameserver=nameserver or "127.0.0.1", domain=domain or "cockpit.lan"))
+
+    def dhcp_server(self, mac='52:54:01'):
+        """Sets up a DHCP server on the interface"""
+        cmd = "dnsmasq --domain=cockpit.lan --interface=\"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" --bind-dynamic --dhcp-range=10.111.112.2,10.111.127.254 && firewall-cmd --add-service=dhcp"
+        self.execute(cmd.format(mac=mac))
+
+    def dns_server(self, mac='52:54:01'):
+        """Sets up a DNS server on the interface"""
+        cmd = "dnsmasq --domain=cockpit.lan --interface=\"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" --bind-dynamic"
+        self.execute(cmd.format(mac=mac))
 
 class VirtEventHandler():
     """ VirtEventHandler registers event handlers (currently: boot, resume, reboot) for libvirt domain instances
@@ -850,40 +892,38 @@ class VirtEventHandler():
         self.eventLoopThread.start()
 
 TEST_DOMAIN_XML="""
-<domain type='%(type)s'>
-  <name>%(name)s</name>
-  %(cpu)s
+<domain type='{type}' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+  <name>{label}</name>
+  {cpu}
   <os>
-    <type arch='%(arch)s'>hvm</type>
+    <type arch='{arch}'>hvm</type>
     <boot dev='hd'/>
   </os>
-  <memory unit='MiB'>%(memory_in_mib)d</memory>
-  <currentMemory unit='MiB'>%(memory_in_mib)d</currentMemory>
+  <memory unit='MiB'>{memory_in_mib}</memory>
+  <currentMemory unit='MiB'>{memory_in_mib}</currentMemory>
   <features>
     <acpi/>
   </features>
   <devices>
     <disk type='file' snapshot='external'>
       <driver name='qemu' type='qcow2'/>
-      <source file='%(drive)s'/>
+      <source file='{drive}'/>
       <target dev='vda' bus='virtio'/>
       <serial>ROOT</serial>
     </disk>
     <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
-    <interface type='bridge'>
-      <source bridge='cockpit1'/>
-      <model type='virtio'/>
-      %(mac)s
-    </interface>
     <console type='pty'>
       <target type='serial' port='0'/>
     </console>
     <disk type='file' device='cdrom'>
-      <source file='%(iso)s'/>
+      <source file='{iso}'/>
       <target dev='hdb' bus='ide'/>
       <readonly/>
     </disk>
   </devices>
+  <qemu:commandline>
+    {qemu}
+  </qemu:commandline>
 </domain>
 """
 
@@ -897,11 +937,160 @@ TEST_DISK_XML="""
 </disk>
 """
 
+TEST_KVM_XML="""
+  <cpu mode='host-passthrough'/>
+  <vcpu>{cpus}</vcpu>
+"""
+
+# The main network interface which we use to communicate between VMs
+TEST_MCAST_XML="""
+    <qemu:arg value='-netdev'/>
+    <qemu:arg value='socket,mcast=230.0.0.1:{mcast},id=mcast0'/>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='rtl8139,netdev=mcast0,mac={mac},bus=pci.0,addr=0x06'/>
+"""
+
+TEST_BRIDGE_XML="""
+    <qemu:arg value='-netdev'/>
+    <qemu:arg value='bridge,br={bridge},id=bridge0'/>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='rtl8139,netdev=bridge0,mac={mac},bus=pci.0,addr=0x06'/>
+"""
+
+# Used to access SSH from the main host into the virtual machines
+TEST_REDIR_XML="""
+    <qemu:arg value='-netdev'/>
+    <qemu:arg value='user,id=base0,restrict={restrict},net=172.27.0.0/24,hostname={name},{forwards}'/>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='rtl8139,netdev=base0,bus=pci.0,addr=0x05'/>
+"""
+
+class VirtNetwork:
+    def __init__(self, network=None, bridge=None):
+        self.locked = [ ]
+        self.bridge = bridge
+
+        if network is None:
+            offset = 0
+            force = False
+        else:
+            offset = network * 100
+            force = True
+
+        # This is a shared port used as the identifier for the socket mcast network
+        self.network = self._lock(5500 + offset, step=100, force=force)
+
+        # An offset for other ports allocated later
+        self.offset = (self.network - 5500)
+
+        # The last machine we allocated
+        self.last = 0
+
+        # Unique hostnet identifiers
+        self.hostnet = 8
+
+    def _lock(self, start, step=1, force=False):
+        resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
+        if not os.path.exists(resources):
+            os.mkdir(resources, 0755)
+        for port in range(start, start + (100 * step), step):
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            lockpath = os.path.join(resources, "network-{0}".format(port))
+            try:
+                lockf = os.open(lockpath, os.O_WRONLY | os.O_CREAT)
+                fcntl.flock(lockf, fcntl.LOCK_NB | fcntl.LOCK_EX)
+                sock.bind(("127.0.0.1", port))
+                self.locked.append(lockf)
+            except IOError:
+                if force:
+                    return port
+                os.close(lockf)
+                continue
+            else:
+                return port
+            finally:
+                sock.close()
+        raise Failure("Couldn't find unique network port number")
+
+    # Create resources for an interface, returns address and XML
+    def interface(self, number=None):
+        if number is None:
+            number = self.last + 1
+        if number > self.last:
+            self.last = number
+        mac = self._lock(10000 + self.offset + number) - (10000 + self.offset)
+        hostnet = self.hostnet
+        self.hostnet += 1
+        result = {
+            "number": self.offset + number,
+            "mac": '52:54:01:{:02x}:{:02x}:{:02x}'.format(mac & 0xff0000 >> 24, mac & 0xff00 >> 16, mac & 0xff),
+            "name": "m{0}.cockpit.lan".format(mac),
+            "mcast": self.network,
+            "hostnet": "hostnet{0}".format(hostnet)
+        }
+        return result
+
+    # Create resources for a host, returns address and XML
+    def host(self, number=None, restrict=False, isolate=False, forward={ }):
+        result = self.interface(number)
+        result["mcast"] = self.network
+        result["restrict"] = restrict and "on" or "off"
+        result["forward"] = { "22": 2200, "9090": 9090 }
+        result["forward"].update(forward)
+        forwards = []
+        for remote, local in result["forward"].items():
+            local = self._lock(int(local) + result["number"])
+            result["forward"][remote] = "127.0.0.2:{}".format(local)
+            forwards.append("hostfwd=tcp:{}-:{}".format(result["forward"][remote], remote))
+            if remote == "22":
+                result["control"] = result["forward"][remote]
+            elif remote == "9090":
+                result["browser"] = result["forward"][remote]
+
+        if isolate:
+            result["bridge"] = ""
+            result["qemu"] = ""
+        elif self.bridge:
+            result["bridge"] = self.bridge
+            result["qemu"] = TEST_BRIDGE_XML.format(**result)
+        else:
+            result["bridge"] = ""
+            result["qemu"] = TEST_MCAST_XML.format(**result)
+        result["forwards"] = ",".join(forwards)
+        result["qemu"] += TEST_REDIR_XML.format(**result)
+        return result
+
+    def kill(self):
+        locked = self.locked
+        self.locked = [ ]
+        for x in locked:
+            os.close(x)
+
 class VirtMachine(Machine):
+    network = None
     memory_mb = None
     cpus = None
 
-    def __init__(self, image, **args):
+    def __init__(self, image, networking=None, maintain=False, memory_mb=None, cpus=None, **args):
+        self.maintain = maintain
+
+        # Currently all images are run on x86_64. When that changes we will have
+        # an override file for those images that are not
+        self.arch = "x86_64"
+
+        self.memory_mb = memory_mb or VirtMachine.memory_mb or MEMORY_MB
+        self.cpus = cpus or VirtMachine.cpus or 1
+
+        # Set up some temporary networking info if necessary
+        if networking is None:
+            networking = VirtNetwork().host()
+
+        # Allocate network information about this machine
+        self.networking = networking
+        args["address"] = networking["control"]
+        args["browser"] = networking["browser"]
+        self.forward = networking["forward"]
 
         # The path to the image file to load, and parse an image name
         if "/" in image:
@@ -917,23 +1106,12 @@ class VirtMachine(Machine):
         base_dir = os.path.join(LOCAL_DIR, "..", "..")
         self.run_dir = os.path.join(os.environ.get("TEST_DATA", base_dir), "tmp", "run")
 
-        self._network_description = etree.parse(open(os.path.join(LOCAL_DIR, "network-cockpit.xml")))
-
-        self.test_disk_desc_original = None
-
         # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
         # otherwise messages may be delayed or lost
         libvirt.virEventRegisterDefaultImpl()
         self.virt_connection = self._libvirt_connection(hypervisor = "qemu:///session")
         self.event_handler = VirtEventHandler(libvirt_connection=self.virt_connection, verbose=self.verbose)
 
-        # network names are currently hardcoded into network-cockpit.xml
-        self.network_name = "cockpit1"
-
-        # we can't see the network itself as non-root, create it using vm-prep as root
-
-        # Unique identifiers for hostnet config
-        self._hostnet = 8
         self._disks = [ ]
         self._domain = None
 
@@ -960,54 +1138,7 @@ class VirtMachine(Machine):
             connection = open_function(hypervisor)
         return connection
 
-    def _resource_lockfile_path(self, resource):
-        resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
-        resource = resource.replace("/", "_")
-        return os.path.join(resources, resource)
-
-    # The lock is open until the process calling this function exits
-    def _lock_resource(self, resource, exclusive=True):
-        resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
-        if not os.path.exists(resources):
-            os.mkdir(resources, 0755)
-        lockpath = self._resource_lockfile_path(resource)
-        fd = os.open(lockpath, os.O_WRONLY | os.O_CREAT)
-        try:
-            flags = fcntl.LOCK_NB
-            if exclusive:
-                flags |= fcntl.LOCK_EX
-            else:
-                flags |= fcntl.LOCK_SH
-            fcntl.flock(fd, flags)
-        except IOError:
-            os.close(fd)
-            return False
-        else:
-            return True
-
-    def reserve_macaddr(self):
-        pid = os.getpid()
-        for seed in range(1, 64 * 1024):
-            mac = "9E%02x%02x%02x%04x" % ((pid >> 16) & 0xff, (pid >> 8) & 0xff, pid & 0xff, seed)
-            mac = ":".join([mac[i:i+2] for i in range(0, len(mac), 2)])
-            if self._lock_resource(mac):
-                return mac
-
-        raise Failure("Couldn't find unused mac address for '%s'" % (self.image))
-
-    def _choose_macaddr(self):
-        # Check if this has a forced mac address
-        for h in self._network_description.find(".//dhcp"):
-            image = h.get("{urn:cockpit-project.org:cockpit}image")
-            if image == self.image:
-                mac = h.get("mac")
-                if mac:
-                    return mac
-
-        # If not, get a random one
-        return self.reserve_macaddr()
-
-    def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
+    def _start_qemu(self):
         self._cleanup()
 
         try:
@@ -1016,90 +1147,83 @@ class VirtMachine(Machine):
             if ex.errno != errno.EEXIST:
                 raise
 
+        def execute(*args):
+            self.message(*args)
+            return subprocess.check_call(args)
+
         image_to_use = self.image_file
-        if not maintain:
+        if not self.maintain:
             (unused, self._transient_image) = tempfile.mkstemp(suffix='.qcow2', prefix="", dir=self.run_dir)
-            subprocess.check_call([ "qemu-img", "create", "-q",
-                                    "-f", "qcow2",
-                                    "-o", "backing_file=%s" % self.image_file,
-                                    self._transient_image ])
+            execute("qemu-img", "create", "-q", "-f", "qcow2",
+                    "-o", "backing_file=%s" % self.image_file, self._transient_image)
             image_to_use = self._transient_image
 
-        if not macaddr:
-            macaddr = self._choose_macaddr()
+        keys = {
+            "label": self.label,
+            "image": self.image,
+            "type": "qemu",
+            "arch": self.arch,
+            "cpu": "",
+            "cpus": self.cpus,
+            "memory_in_mib": self.memory_mb,
+            "drive": image_to_use,
+            "iso": os.path.join(LOCAL_DIR, "cloud-init.iso"),
+        }
 
-        # if we have a static ip, this implies a singleton instance
-        # make sure we don't randomize the libvirt domain name in those cases
-        static_domain_name = None
-        if macaddr:
-            lease = self._static_lease_from_mac(macaddr)
-            if lease:
-                static_domain_name = self.image + "_" + lease['name']
-        mac_desc = ""
-        cpu_desc = ""
-        domain_type = "qemu"
         if os.path.exists("/dev/kvm"):
-            domain_type = "kvm"
-            cpu_desc += "<cpu mode='host-passthrough'/>\n"
-            cpu_desc += "<vcpu>%(cpus)d</vcpu>\n" % { 'cpus': cpus or VirtMachine.cpus or 1 }
+            keys["type"] = "kvm"
+            keys["cpu"] = TEST_KVM_XML.format(**keys)
         else:
             print >> sys.stderr, "WARNING: Starting virtual machine with emulation due to missing KVM"
             print >> sys.stderr, "WARNING: Machine will run about 10-20 times slower"
-        if macaddr:
-            mac_desc = "<mac address='%(mac)s'/>" % {'mac': macaddr}
-        if static_domain_name:
-            domain_name = static_domain_name
-        else:
-            rand_extension = '-' + ''.join(random.choice(string.digits + string.ascii_lowercase) for i in range(4))
-            domain_name = self.image + rand_extension
 
-        test_domain_desc = TEST_DOMAIN_XML % {
-                                        "name": domain_name,
-                                        "type": domain_type,
-                                        "arch": self.arch,
-                                        "cpu": cpu_desc,
-                                        "memory_in_mib": memory_mb or VirtMachine.memory_mb or MEMORY_MB,
-                                        "drive": image_to_use,
-                                        "mac": mac_desc,
-                                        "iso": os.path.join(LOCAL_DIR, "cloud-init.iso")
-                                      }
+        keys.update(self.networking)
+        keys["name"] = "{image}-{control}".format(**keys)
+        test_domain_desc = TEST_DOMAIN_XML.format(**keys)
 
         # add the virtual machine
         try:
             # allow debug output for this domain
-            self.event_handler.allow_domain_debug_output(domain_name)
+            self.event_handler.allow_domain_debug_output(keys["name"])
+            # print >> sys.stderr, test_domain_desc
             self._domain = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
         except libvirt.libvirtError, le:
             # remove the debug output
-            self.event_handler.forbid_domain_debug_output(domain_name)
+            self.event_handler.forbid_domain_debug_output(keys["name"])
             if 'already exists with uuid' in le.message:
                 raise RepeatableFailure("libvirt domain already exists: " + le.message)
             else:
                 raise
 
-        macs = self._qemu_network_macs()
-        if not macs:
-            raise Failure("no mac addresses found for created machine")
-        self.message("available mac addresses: %s" % (", ".join(macs)))
-        self.macaddr = macs[0]
-        if wait_for_ip:
-            self.address = self._ip_from_mac(self.macaddr)
-
     # start virsh console
-    def qemu_console(self, maintain=True, macaddr=None, memory_mb=None, cpus=None):
+    def qemu_console(self):
         try:
-            self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=False, memory_mb=memory_mb, cpus=cpus)
-            self.message("started machine %s with address %s" % (self._domain.name(), self.address))
-            if maintain:
-                self.message("Changes are written to the image file.")
-                self.message("WARNING: Uncontrolled shutdown can lead to a corrupted image.")
+            self._start_qemu()
+            self.message("Started machine {0}".format(self.label))
+            if self.maintain:
+                message = "\nWARNING: Uncontrolled shutdown can lead to a corrupted image\n"
             else:
-                self.message("All changes are discarded, the image file won't be changed.")
-            print "console, to quit use Ctrl+], Ctrl+5 (depending on locale)"
+                message = "\nWARNING: All changes are discarded, the image file won't be changed\n"
+            message += self.diagnose() + "\nlogin: "
+            message = message.replace("\n", "\r\n")
+
             proc = subprocess.Popen("virsh -c qemu:///session console %s" % self._domain.ID(), shell=True)
-            proc.wait()
+
+            # Fill in information into /etc/issue about login access
+            pid = 0
+            while pid == 0:
+                if message:
+                    try:
+                        self.execute("true", quiet=True)
+                        sys.stderr.write(message)
+                        self.disconnect()
+                        message = None
+                    except subprocess.CalledProcessError:
+                        pass
+                (pid, ret) = os.waitpid(proc.pid, message and os.WNOHANG or 0)
+
             try:
-                if maintain:
+                if self.maintain:
                     self.shutdown()
                 else:
                     self.kill()
@@ -1117,7 +1241,7 @@ class VirtMachine(Machine):
             image_file = os.path.abspath(image)
         else:
             image_file = os.path.join(LOCAL_DIR, "..", "..", "bots", "images", image)
-        if self.fetch and not os.path.exists(image_file):
+        if not os.path.exists(image_file):
             try:
                 subprocess.check_call([ "image-download", image_file ])
             except OSError, ex:
@@ -1125,16 +1249,13 @@ class VirtMachine(Machine):
                     raise
         return image_file
 
-    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
-        self.pull(self.image_file)
-
+    def start(self):
         tries = 0
         while True:
             try:
-                self._start_qemu(maintain=maintain, macaddr=macaddr, wait_for_ip=wait_for_ip, memory_mb=memory_mb, cpus=cpus)
+                self._start_qemu()
                 if not self._domain.isActive():
                     self._domain.start()
-                self._maintaining = maintain
             except RepeatableFailure:
                 self.kill()
                 if tries < 10:
@@ -1149,13 +1270,6 @@ class VirtMachine(Machine):
 
             # Normally only one pass
             break
-
-    def _static_lease_from_mac(self, mac):
-        for h in self._network_description.find(".//dhcp"):
-            netmac = h.get("mac") or ""
-            if netmac.lower() == mac.lower():
-                return { "ip":   h.get("ip"), "name": h.get("name") }
-        return None
 
     def _diagnose_no_address(self):
         SCRIPT = """
@@ -1175,29 +1289,6 @@ class VirtMachine(Machine):
         expect = subprocess.Popen(["expect", "--", "-", str(self._domain.ID())], stdin=subprocess.PIPE)
         expect.communicate(SCRIPT)
 
-    def _ip_from_mac(self, mac, timeout_sec=300):
-        # Get address from the arp arp output looks like this.
-        #
-        # IP address     HW type  Flags  HW address         Mask  Device
-        # 10.111.118.45  0x1      0x0    9e:00:03:72:00:04  *     cockpit1
-        # ...
-
-        output = ""
-        start_time = time.time()
-        while (time.time() - start_time) < timeout_sec:
-            with open("/proc/net/arp", "r") as fp:
-                output = fp.read()
-            for line in output.split("\n"):
-                parts = re.split(' +', line)
-                if len(parts) > 5 and parts[3].lower() == mac.lower() and parts[5] == self.network_name:
-                    return parts[0]
-            time.sleep(1)
-
-        message = "{0}: [{1}]\n{2}\n".format(mac, ", ".join(self._qemu_network_macs()), output)
-        sys.stderr.write(message)
-        self._diagnose_no_address()
-        raise RepeatableFailure("Can't resolve IP of " + mac)
-
     def reset_reboot_flag(self):
         self.event_handler.reset_domain_reboot_status(self._domain)
 
@@ -1206,17 +1297,14 @@ class VirtMachine(Machine):
         if not self.event_handler.wait_for_reboot(self._domain):
             raise Failure("system didn't notify us about a reboot")
         # we may have to check for a new dhcp lease, but the old one can be active for a bit
-        if not self.wait_execute(timeout_sec=wait_for_running_timeout, get_new_address=lambda: self._ip_from_mac(self.macaddr, timeout_sec=5)):
+        if not self.wait_execute(timeout_sec=wait_for_running_timeout):
             raise Failure("system didn't reboot properly")
         self.wait_user_login()
 
     def wait_boot(self, wait_for_running_timeout = 120, allow_one_reboot=False):
         # we should check for selinux relabeling in progress here
         if not self.event_handler.wait_for_running(self._domain, timeout_sec=wait_for_running_timeout ):
-            raise Failure("Machine %s didn't start." % (self.address))
-
-        if not self.address:
-            self.address = self._ip_from_mac(self.macaddr)
+            raise Failure("Machine {0} didn't start.".format(self.label))
 
         # if we allow a reboot, the connection to test for a finished boot may be interrupted
         # by the reboot, causing an exception
@@ -1224,7 +1312,7 @@ class VirtMachine(Machine):
             start_time = time.time()
             connected = False
             while (time.time() - start_time) < wait_for_running_timeout:
-                if self.wait_execute(timeout_sec=15, get_new_address=lambda: self._ip_from_mac(self.macaddr, timeout_sec=3)):
+                if self.wait_execute(timeout_sec=15):
                     connected = True
                     break
                 if allow_one_reboot and self.event_handler.has_rebooted(self._domain):
@@ -1232,7 +1320,7 @@ class VirtMachine(Machine):
                     self.wait_boot(wait_for_running_timeout, allow_one_reboot=False)
             if not connected:
                 self._diagnose_no_address()
-                raise Failure("Unable to reach machine %s via ssh." % (self.address))
+                raise Failure("Unable to reach machine {0} via ssh: {1}:{2}".format(self.label, self.ssh_address, self.ssh_port))
             self.wait_user_login()
         except:
             if allow_one_reboot:
@@ -1243,7 +1331,7 @@ class VirtMachine(Machine):
                 raise
 
     def stop(self, timeout_sec=120):
-        if self._maintaining:
+        if self.maintain:
             self.shutdown(timeout_sec=timeout_sec)
         else:
             self.kill()
@@ -1259,8 +1347,6 @@ class VirtMachine(Machine):
                 self.event_handler.forbid_domain_debug_output(self._domain.name())
 
             self._domain = None
-            self.address = None
-            self.macaddr = None
             if hasattr(self, '_transient_image') and self._transient_image and os.path.exists(self._transient_image):
                 os.unlink(self._transient_image)
         except:
@@ -1270,7 +1356,10 @@ class VirtMachine(Machine):
     def kill(self):
         # stop system immediately, with potential data loss
         # to shutdown gracefully, use shutdown()
-        self.disconnect()
+        try:
+            self.disconnect()
+        except Exception:
+            pass
         if self._domain:
             try:
                 # not graceful
@@ -1285,7 +1374,13 @@ class VirtMachine(Machine):
         if self._domain:
             if not self.event_handler.wait_for_stopped(self._domain, timeout_sec=timeout_sec):
                 self.message("waiting for machine poweroff timed out")
-
+        if self._domain:
+            try:
+                with stdchannel_redirected(sys.stderr, os.devnull):
+                    self._domain.destroyFlags(libvirt.VIR_DOMAIN_DESTROY_DEFAULT)
+            except libvirt.libvirtError, le:
+                if 'not found' not in str(le):
+                    raise
         self._cleanup(quick=True)
 
     def shutdown(self, timeout_sec=120):
@@ -1370,31 +1465,17 @@ class VirtMachine(Machine):
         self.message(output.strip())
         return output
 
-    def _qemu_network_macs(self):
-        macs = []
-        for line in self._qemu_monitor("info network").split("\n"):
-            x, y, mac = line.partition("macaddr=")
-            mac = mac.strip()
-            if mac:
-                macs.append(mac)
-        return macs
-
-    def add_netiface(self, mac=None, vlan=0):
-        if not mac:
-            mac = self.reserve_macaddr()
-        cmd = "device_add e1000,mac=%s" % mac
+    def add_netiface(self, networking=None, vlan=0):
+        if not networking:
+            networking = VirtNetwork().interface()
+        cmd = "device_add e1000,mac={0}".format(networking["mac"])
         if vlan == 0:
-            # selinux can prevent the creation of the bridge
-            # https://bugzilla.redhat.com/show_bug.cgi?id=1267217
-            output = self._qemu_monitor("netdev_add bridge,id=hostnet%d,br=cockpit1" % self._hostnet)
-            if "Device 'bridge' could not be initialized" in output:
-                raise Failure("Unable to add bridge for virtual machine, possibly related to an selinux-denial")
-            cmd += ",netdev=hostnet%d" % self._hostnet
-            self._hostnet += 1
+            self._qemu_monitor("netdev_add socket,mcast=230.0.0.1:{mcast},id={id}".format(mcast=networking["mcast"], id=networking["hostnet"]))
+            cmd += ",netdev={id}".format(id=networking["hostnet"])
         else:
-            cmd += ",vlan=%d" % vlan
+            cmd += ",vlan={vlan}".format(vlan=vlan)
         self._qemu_monitor(cmd)
-        return mac
+        return networking["mac"]
 
     def needs_writable_usr(self):
         # On atomic systems, we need a hack to change files in /usr/lib/systemd

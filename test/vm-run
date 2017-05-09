@@ -27,17 +27,55 @@ from common import testvm
 TEST = os.path.dirname(__file__)
 BOTS = os.path.normpath(os.path.join(TEST, "..", "bots"))
 
+NETWORK_SCRIPT="""
+    set -ex
+	/bin/virsh net-destroy cockpit1 || true
+	/bin/virsh net-undefine cockpit1 || true
+    /bin/virsh net-define /dev/stdin <<EOF
+<network ipv6='yes'>
+  <name>cockpit1</name>
+  <uuid>f3605fa4-0763-41ea-8143-49da3bf73263</uuid>
+  <bridge name='cockpit1' stp='on' delay='0' />
+  <domain name='cockpit.lan'/>
+  <ip address='10.111.112.1' netmask='255.255.240.0'>
+    <dhcp xmlns:cockpit="urn:cockpit-project.org:cockpit">
+      <range start="10.111.112.2" end="10.111.127.254" />
+    </dhcp>
+  </ip>
+  <ip family="ipv6" address="fd00:111:112::1" prefix="64"/>
+</network>
+EOF
+	/bin/virsh net-autostart cockpit1
+	/bin/virsh net-start cockpit1
+"""
+
 parser = argparse.ArgumentParser(description='Run a test machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose details')
 parser.add_argument('-m', '--maintain', action='store_true', help='Changes are permanent')
 parser.add_argument('-M', '--memory', default=None, type=int, help='Memory (in MiB) of the target machine')
 parser.add_argument('-C', '--cpus', default=None, type=int, help='Number of cpus in the target machine')
+parser.add_argument('--network', action='store_true', help='Setup a bridged network for running machines')
 
 parser.add_argument('image', help='The image to run')
 args = parser.parse_args()
 
 try:
-    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
+    if args.network:
+        proc = subprocess.Popen(["sudo", "/bin/sh"], stdin=subprocess.PIPE)
+        proc.communicate(NETWORK_SCRIPT)
+        if proc.returncode != 0:
+            sys.stderr.write("vm-run: failed to create cockpit1 network\n")
+            sys.exit(1)
+
+    bridge=None
+    with open(os.devnull, 'w') as fp:
+        if subprocess.call(["ip", "address", "show", "dev", "cockpit1"], stdout=fp, stderr=fp) == 0:
+            bridge = "cockpit1"
+
+    network = testvm.VirtNetwork(0, bridge=bridge)
+
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, maintain=args.maintain,
+                                 networking=network.host(), memory_mb=args.memory, cpus=args.cpus)
 
     # Hack to make things easier for users who don't know about kubeconfig
     if args.image == 'openshift':
@@ -50,11 +88,6 @@ try:
             sys.stderr.write("image-run: linking kubeconfig into ~/.kube/config\n")
             os.symlink(src, kubeconfig)
 
-    # Check that things are configured
-    with open(os.devnull, 'w') as fp:
-        if subprocess.call(["ip", "address", "show", "dev", "cockpit1"], stdout=fp, stderr=fp) != 0:
-            raise Exception("vm-run: please run: sudo test/vm-prep")
-
     # Check that image is downloaded
     if not os.path.exists(machine.image_file):
         try:
@@ -66,9 +99,7 @@ try:
             if ret != 0:
                 sys.exit(ret)
 
-    machine.qemu_console(maintain=args.maintain,
-                         memory_mb=args.memory,
-                         cpus=args.cpus)
+    machine.qemu_console()
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-run:", ex
     sys.exit(1)

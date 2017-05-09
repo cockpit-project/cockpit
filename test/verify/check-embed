@@ -30,7 +30,7 @@ class TestEmbed(MachineCase):
 
         b.open("file://%s/verify/files/embed-cockpit.html" % TEST_DIR)
         b.wait_present("#embed-loaded")
-        b.set_val("#embed-address", "http://" + m.address)
+        b.set_val("#embed-address", "http://{0}:{1}".format(m.web_address, m.web_port))
         b.click("#embed-full")
         b.wait_present("iframe[name='embed-full'][loaded]")
         b.switch_to_frame("embed-full")

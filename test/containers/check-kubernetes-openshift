@@ -59,8 +59,12 @@ class OCBrowser(Browser):
         if path:
             self.enter_page(path.split("#")[0], host=host)
 
+
 class OCMachine(VirtMachine):
     run_registry = False
+
+    def __init__(self, *args, **kwargs):
+        VirtMachine.__init__(self, *args, **kwargs)
 
     def wait_oc(self):
         i = 0
@@ -69,7 +73,7 @@ class OCMachine(VirtMachine):
                 self.execute("oc status 2>&1")
                 break;
             except:
-                if i > 20:
+                if i > 120:
                     raise
                 i = i + 1
                 time.sleep(1)
@@ -89,8 +93,8 @@ class OCMachine(VirtMachine):
 
         args = [
             "-v", "COCKPIT_KUBE_INSECURE=true",
-            "-v", "COCKPIT_KUBE_URL=http://{0}:30000".format(self.address),
-            "-v", "OPENSHIFT_OAUTH_PROVIDER_URL=https://{0}:8443".format(self.address)
+            "-v", "COCKPIT_KUBE_URL=http://{}".format(self.forward["30000"]),
+            "-v", "OPENSHIFT_OAUTH_PROVIDER_URL=https://{}".format(self.forward["8443"])
         ]
 
         if self.run_registry:
@@ -98,21 +102,22 @@ class OCMachine(VirtMachine):
 
         self.execute("oc process -f /tmp/cockpit-openshift-template.json {0} > out.json".format(' '.join(args)))
         self.execute("oc create -f out.json")
-        self.wait_for_cockpit_running(self.address, seconds=180, port=30000)
+        self.wait_for_cockpit_running(seconds=180, address="10.111.112.101", port=30000)
 
 class RegistryMachine(OCMachine):
     run_registry = True
 
 class OCCase(kubelib.KubernetesCase):
-    def setUp(self, macaddr=None, memory_mb=None, cpus=None):
-        self.machine = self.new_machine(machine_key='openshift', image='openshift')
-        self.machine.start(macaddr=macaddr, memory_mb=memory_mb, cpus=cpus)
+    machine_class = OCMachine
+    def setUp(self):
+        self.machine = self.new_machine(image='openshift', forward={ "30000": 30000, "8443": 8443 })
+        self.machine.start()
         self.machine.wait_boot()
 
         path = os.path.join(test_dir, "verify", "files", "mock-app-openshift.json")
         self.machine.upload([path], "/tmp")
 
-        self.browser = OCBrowser(self.machine.address, self.label(), port=30000)
+        self.browser = OCBrowser(self.machine.forward["30000"], self.label())
         self.addCleanup(lambda: self.browser.kill())
 
         self.tmpdir = tempfile.mkdtemp()
@@ -123,8 +128,6 @@ class OCCase(kubelib.KubernetesCase):
         self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
 
 class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
-    machine_class = OCMachine
-
     def testLogin(self):
         b = self.browser
         self.machine.start_cockpit()

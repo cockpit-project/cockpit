@@ -69,11 +69,11 @@ class TestConnection(kubelib.KubernetesCase):
         b.logout()
 
         # Check that this failed as a double check
-        output = m.execute("curl -sS http://localhost:8080/api 2>&1 || true")
+        output = m.execute("curl -sS http://10.111.113.1:8080/api 2>&1 || true")
         self.assertIn("Connection refused", output)
 
         # Check that this failed as a double check
-        output = m.execute("curl -k -sS https://localhost:6443/api 2>&1 || true")
+        output = m.execute("curl -k -sS https://10.111.113.1:6443/api 2>&1 || true")
         self.assertRegexpMatches(output, "Unauthorized|No policy matched")
 
         m.execute("rm -r /home/admin/.kube")
@@ -101,7 +101,7 @@ class TestConnection(kubelib.KubernetesCase):
         b.wait_present("#kubernetes-address + div.dialog-error")
         b.wait_present("#kubernetes-username + div.dialog-error")
 
-        b.set_val("#kubernetes-address", "https://127.0.0.1:6443")
+        b.set_val("#kubernetes-address", "https://10.111.113.1:6443")
         b.set_val("#kubernetes-username", "bad")
         b.set_val("#kubernetes-password", "password")
 
@@ -121,7 +121,7 @@ class TestConnection(kubelib.KubernetesCase):
         b.wait_in_text("#kubernetes-user button", "Add New User")
 
         # Form is
-        b.wait_val("#kubernetes-address", "https://127.0.0.1:6443")
+        b.wait_val("#kubernetes-address", "https://10.111.113.1:6443")
         b.wait_present("#kubernetes-requires-auth:checked")
         b.wait_val("#kubernetes-username", "bad")
 
@@ -164,15 +164,15 @@ class TestConnection(kubelib.KubernetesCase):
         b.wait_present("#kubernetes-cluster")
         b.wait_present("#kubernetes-user")
 
-        b.wait_in_text("#kubernetes-cluster button", "127-0-0-1:6443")
-        b.wait_in_text("#kubernetes-user button", "admin/127-0-0-1:6443")
+        b.wait_in_text("#kubernetes-cluster button", "10-111-113-1:6443")
+        b.wait_in_text("#kubernetes-user button", "admin/10-111-113-1:6443")
 
-        b.wait_val("#kubernetes-address", "https://127.0.0.1:6443")
+        b.wait_val("#kubernetes-address", "https://10.111.113.1:6443")
         b.wait_present("#kubernetes-requires-auth:checked")
         b.wait_val("#kubernetes-username", "admin")
         b.wait_present("#kubernetes-skip-verify:checked")
 
-        b.set_val("#kubernetes-address", "https://localhost:6443")
+        b.set_val("#kubernetes-address", "https://10.111.113.1:6443")
         b.set_val("#kubernetes-username", "scruffy")
         b.set_val("#kubernetes-password", "scruffy")
         b.click("modal-dialog div.modal-footer button.btn-primary")
@@ -185,7 +185,7 @@ class TestConnection(kubelib.KubernetesCase):
         b.wait_present("#kubernetes-cluster")
         b.wait_present("#kubernetes-user")
 
-        b.wait_in_text("#kubernetes-cluster button", "127-0-0-1:6443")
+        b.wait_in_text("#kubernetes-cluster button", "10-111-113-1:6443")
         b.click("#kubernetes-cluster button")
         b.click("#kubernetes-cluster ul li:last-child a")
         b.wait_in_text("#kubernetes-cluster button", "Add New Cluster")
@@ -194,12 +194,12 @@ class TestConnection(kubelib.KubernetesCase):
 
         b.click("#kubernetes-cluster button")
         b.click("#kubernetes-cluster ul li:first-child a")
-        b.wait_in_text("#kubernetes-cluster button", "127-0-0-1:6443")
-        b.wait_val("#kubernetes-address", "https://localhost:6443")
+        b.wait_in_text("#kubernetes-cluster button", "10-111-113-1:6443")
+        b.wait_val("#kubernetes-address", "https://10.111.113.1:6443")
         b.wait_present("#kubernetes-requires-auth:checked")
         b.wait_present("#kubernetes-skip-verify:checked")
 
-        b.wait_in_text("#kubernetes-user button", "admin/127-0-0-1:6443")
+        b.wait_in_text("#kubernetes-user button", "admin/10-111-113-1:6443")
         b.wait_val("#kubernetes-username", "scruffy")
         b.click("#kubernetes-user button")
         b.click("#kubernetes-user ul li:last-child a")
@@ -208,7 +208,7 @@ class TestConnection(kubelib.KubernetesCase):
         b.wait_val("#kubernetes-password", "")
         b.click("#kubernetes-user button")
         b.click("#kubernetes-user ul li:first-child a")
-        b.wait_in_text("#kubernetes-user button", "admin/127-0-0-1:6443")
+        b.wait_in_text("#kubernetes-user button", "admin/10-111-113-1:6443")
         b.wait_val("#kubernetes-username", "scruffy")
         b.wait_val("#kubernetes-password", "scruffy")
 

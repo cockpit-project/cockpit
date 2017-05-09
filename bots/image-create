@@ -59,7 +59,6 @@ if args.image in ["candlepin", "continuous-atomic", "fedora-atomic", "ipa", "rhe
 class MachineBuilder:
     def __init__(self, machine):
         self.machine = machine
-        self.macaddr = None
 
         try:
             os.makedirs(TEMP, 0750)
@@ -88,9 +87,8 @@ class MachineBuilder:
 
     def run_setup_script(self, script, source):
         """Prepare a test image further by running some commands in it."""
-        self.machine.start(maintain=True, macaddr=self.macaddr)
+        self.machine.start()
         try:
-            self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)
             self.machine.upload([ os.path.join(BOTS, "images", "scripts", "lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
@@ -120,7 +118,7 @@ class MachineBuilder:
 
             except subprocess.CalledProcessError, ex:
                 if args.sit:
-                    sys.stderr.write("ADDRESS: {0}\n".format(self.machine.address))
+                    sys.stderr.write(self.machine.diagnose())
                     raw_input ("Press RET to continue... ")
                 raise testvm.Failure("setup failed with code {0}\n".format(ex.returncode))
 
@@ -131,10 +129,9 @@ class MachineBuilder:
         """Start the system to make sure it can boot, then shutdown cleanly
         This also takes care of any selinux relabeling setup triggered
         Don't wait for an ip address during start, since the system might reboot"""
-        self.machine.start(maintain=True, macaddr=self.macaddr, wait_for_ip=False)
+        self.machine.start()
         self.machine.reset_reboot_flag()
         try:
-            self.macaddr = self.machine.macaddr
             # it could be that selinux relabeling needs a reboot
             self.machine.wait_boot(wait_for_running_timeout=120, allow_one_reboot=True)
         finally:
@@ -211,7 +208,7 @@ class MachineBuilder:
 
 try:
     testvm.VirtMachine.memory_mb = 2048
-    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, fetch=False)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, maintain=True)
     builder = MachineBuilder(machine)
     builder.build()
     if not args.no_save:

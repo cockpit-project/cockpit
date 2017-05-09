@@ -57,8 +57,9 @@ KEY_IDS_MD5 = [
 
 @skipImage("No cockpit-ssh on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestMultiMachineKeyAuth(MachineCase):
-    additional_machines = {
-        'machine2': { }
+    provision = {
+        "machine1": { "address": "10.111.113.1/20" },
+        "machine2": { "address": "10.111.113.2/20" },
     }
 
     def load_key(self, name, password):
@@ -100,11 +101,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.machine2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
         self.machine2.wait_execute()
 
-    def tearDown(self):
-        if self.runner and self.runner.wasSuccessful():
-            self.check_journal_messages(self.machine2)
-        MachineCase.tearDown(self)
-
     def testBasic(self):
         b = self.browser
         m1 = self.machine
@@ -138,7 +134,7 @@ class TestMultiMachineKeyAuth(MachineCase):
 
         # Add machine
         b.switch_to_top()
-        b.go("/@%s" % m2.address)
+        b.go("/@10.111.113.2")
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
@@ -171,7 +167,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Login
         b.click("#troubleshoot-dialog .btn-primary")
         b.wait_popdown('troubleshoot-dialog')
-        b.enter_page("/system", host="user@{0}".format(m2.address))
+        b.enter_page("/system", host="user@10.111.113.2")
 
         # Logout
         b.logout()
@@ -190,7 +186,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         if m1.atomic_image:
             self.load_key('id_rsa', 'foobar')
 
-        b.go("/@%s" % m2.address)
+        b.go("/@10.111.113.2")
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
@@ -204,8 +200,8 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.set_val("#login-custom-user", "")
         b.click("#troubleshoot-dialog .btn-primary")
         b.wait_popdown('troubleshoot-dialog')
-        b.enter_page("/system", host=m2.address)
-        b.wait_not_present("iframe.container-frame[name='cockpit1:user@{0}/system']".format(m2.address))
+        b.enter_page("/system", host="10.111.113.2")
+        b.wait_not_present("iframe.container-frame[name='cockpit1:user@10.111.113.2/system']")
 
         # Change user
         authorize_user(m2, "user")
@@ -232,19 +228,19 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.go("/dashboard")
         b.enter_page("/dashboard")
         b.click('#dashboard-enable-edit')
-        b.wait_present("#dashboard-hosts .list-group-item[data-address='{0}']".format(m2.address))
-        b.wait_visible("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
-        b.click("#dashboard-hosts .list-group-item[data-address='{0}'] button.pficon-edit".format(m2.address))
+        b.wait_present("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
+        b.wait_visible("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] button.pficon-edit")
+        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] button.pficon-edit")
         b.wait_popup('host-edit-dialog')
         b.wait_visible('#host-edit-user')
         self.assertEqual(b.val("#host-edit-user"), "")
         b.set_val('#host-edit-user', 'user')
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
-        b.wait_not_present("iframe.container-frame[name='cockpit1:{0}/system']".format(m2.address))
+        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
 
-        b.click("#dashboard-hosts .list-group-item[data-address='{0}']".format(m2.address))
-        b.enter_page("/system", host="user@{0}".format(m2.address))
+        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
+        b.enter_page("/system", host="user@10.111.113.2")
 
 
 if __name__ == '__main__':

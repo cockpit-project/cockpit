@@ -287,9 +287,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass)
-        return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',
-                                    '--header', header,
-                                    'http://%s:9090%s' % (self.machine.address, url) ])
+        return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-', '--header', header,
+               'http://{0}:{1}{2}'.format(self.machine.web_address, self.machine.web_port, url) ])
 
     def curl_auth_code(self, url, userpass):
         lines = self.curl_auth(url, userpass).splitlines()

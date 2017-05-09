@@ -8,11 +8,6 @@ installation of all of the necessary build and test dependencies. There's
 no need to trigger a build manually - the test suite preparation step below
 will handle that.
 
-You may need to reboot after installing the above packages. For initialization
-the following command needs to be run as root to setup the libvirt bridged network:
-
-    $ sudo ./test/vm-prep
-
 If test failures are encountered that look like they may be related to problems
 with nested virtualization, refer to
 [this Fedora guide](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)
@@ -179,8 +174,16 @@ If you pass the "-s" ("sit on failure") option to a test program, it
 will pause when a failure occurs so that you can log into the test
 machine and investigate the problem.
 
-You can log into a running test-machine using the ssh credentials in
-test/common/identity as the user root.
+A test will print out the commands to access it when it fails in this
+way. You can log into a running test-machine using ssh. If you add
+a snippet like this to your ~/.ssh/config then you'll be able to
+log in without authentication:
+
+    Host 127.0.0.2
+        User root
+        StrictHostKeyChecking no
+        UserKnownHostsFile /dev/null
+        IdentityFile ~/src/cockpit/test/common/identity
 
 You can also put calls to sit() into the tests themselves to stop them
 at strategic places.

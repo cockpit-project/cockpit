@@ -31,9 +31,6 @@ class TestSOS(MachineCase):
 
         self.login_and_go("/sosreport")
 
-        # Disable default gateway to prevent external internet access during testing
-        m.execute("ip route del default")
-
         # HACK - start docker so that the docker plugin doesn't hang.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1441207
         #
@@ -54,7 +51,7 @@ class TestSOS(MachineCase):
 
         b.click("#sos-download button")
         b.wait_present("body > iframe")
-        url = "http://" + self.machine.address + ":9090" + b.attr("body > iframe", "src")
+        url = "http://" + self.machine.web_address + ":" + self.machine.web_port + b.attr("body > iframe", "src")
         cookie = b.cookie('cockpit')
         size = subprocess.check_output('curl -s -f -b "cockpit=%s" "%s" | wc -c' % (cookie, url), shell=True)
         self.assertGreater(int(size), 1000000)

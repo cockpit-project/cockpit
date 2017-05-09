@@ -32,6 +32,8 @@ os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
 
 from machine import testvm
 
+networking = None
+
 def main():
     parser = argparse.ArgumentParser(
             description='Prepare testing environment, download images and build and install cockpit',
@@ -144,12 +146,14 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
 def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""
     build_image = prepare_install_image(build_image)
-    machine = testvm.VirtMachine(verbose=args.verbose, image=build_image, label="install")
-    machine.start(maintain=True, memory_mb=4096, cpus=4)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=build_image,
+            memory_mb=4096, cpus=4, maintain=True, networking=networking)
     completed = False
 
     # While the machine is booting, make a tarball
     source = subprocess.check_output([ os.path.join(BOTS, "make-source") ]).strip()
+    machine.start()
+    completed = False
 
     try:
         machine.wait_boot()
@@ -159,8 +163,8 @@ def build_and_install(build_image, build_results, skips, args):
         completed = True
     finally:
         if not completed and args.sit:
-            sys.stderr.write("ADDRESS: {0}\n".format(machine.address))
-            raw_input ("Press RET to continue... ")
+            sys.stderr.write(machine.diagnose())
+            raw_input("Press RET to continue... ")
         try:
             if os.path.exists(build_results):
                 subprocess.check_call([ "rm", "-rf", build_results ])
@@ -173,11 +177,11 @@ def only_install(image, build_results, skips, args, address):
     """Install Cockpit into a test image"""
     started = False
     if args.address:
-        machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image, label="install")
+        machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image)
     else:
         image = prepare_install_image(image)
-        machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
-        machine.start(maintain=True)
+        machine = testvm.VirtMachine(verbose=args.verbose, image=image, networking=networking, maintain=True)
+        machine.start()
         started = True
     completed = False
     try:
@@ -190,8 +194,8 @@ def only_install(image, build_results, skips, args, address):
         completed = True
     finally:
         if not completed and args.sit:
-            sys.stderr.write("ADDRESS: {0}\n".format(machine.address))
-            raw_input ("Press RET to continue... ")
+            sys.stderr.write(machine.diagnose())
+            raw_input("Press RET to continue... ")
         if started:
             machine.stop()
 

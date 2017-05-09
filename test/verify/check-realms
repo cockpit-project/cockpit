@@ -24,42 +24,20 @@ from testlib import *
 import os
 import re
 
-RESOLV_SCRIPT = """
-set -e
-# HACK: Racing with operating systems reading/updating resolv.conf and
-# the fact that resolv.conf can be a symbolic link. Avoid failures like:
-# chattr: Operation not supported while reading flags on /etc/resolv.conf
-for x in 1 2 3 4 5; do
-    hostnamectl set-hostname x0.cockpit.lan
-    printf 'domain cockpit.lan\nsearch cockpit.lan\nnameserver {address}\n' >/etc/resolv2.conf
-    chcon -v unconfined_u:object_r:net_conf_t:s0 /etc/resolv2.conf || true
-    mv /etc/resolv2.conf /etc/resolv.conf
-    if chattr +i /etc/resolv.conf; then
-        break
-    else
-        sleep $x
-    fi
-done
-"""
-
-def prepare_resolv(machine, address):
-    machine.execute(script=RESOLV_SCRIPT.format(address=address))
-
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 @skipImage("No freeipa available", "debian-stable", "debian-testing")
 class TestRealms(MachineCase):
-    additional_machines = {
-        'ipa': { 'machine': { 'image': 'ipa' }, 'start': { 'memory_mb': 2048 } }
+    provision = {
+        "0": { "address": "10.111.113.1/20", "dns": "10.111.112.100" },
+        "ipa": { "image": "ipa", "memory_mb": 2048 }
     }
 
     def testIpa(self):
         m = self.machine
         b = self.browser
 
+        m.execute("hostnamectl set-hostname x0.cockpit.lan")
         self.login_and_go("/system")
-
-        # Use the FreeIPA instance as the DNS server
-        prepare_resolv(m, self.machines['ipa'].address)
 
         # Wait for DNS to work as expected.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
@@ -149,10 +127,8 @@ class TestRealms(MachineCase):
 
         m.execute("echo -e '[providers]\nsssd = no\n' >>%s" % realmd_distro_conf)
 
+        m.execute("hostnamectl set-hostname x0.cockpit.lan")
         self.login_and_go("/system")
-
-        # Use the FreeIPA instance as the DNS server
-        prepare_resolv(m, self.machines['ipa'].address)
 
         # Wait for DNS to work as expected.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
@@ -222,14 +198,18 @@ done
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 @skipImage("No freeipa available", "debian-stable", "debian-testing")
 class TestKerberos(MachineCase):
-    additional_machines = {
-        'ipa': { 'machine': { 'image': 'ipa' }, 'start': { 'memory_mb': 2048 } }
+    provision = {
+        "0": { "address": "10.111.113.1/20", "dns": "10.111.112.100" },
+        "ipa": { "image": "ipa", "memory_mb": 2048 }
     }
 
     def configure_kerberos(self):
         # Setup a place for kerberos caches
-        args = { "addr": self.machines['ipa'].address, "password": "foobarfoo" }
-        prepare_resolv(self.machine, self.machines['ipa'].address)
+        args = { "addr": "10.111.112.100", "password": "foobarfoo" }
+        self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")
+        if "ubuntu" in self.machine.image:
+            # no nss-myhostname there
+            self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
         self.machine.execute(script=JOIN_SCRIPT % args)
 
     def tearDown(self):
@@ -254,7 +234,7 @@ class TestKerberos(MachineCase):
         self.machine.start_cockpit()
 
         output = self.machine.execute(['/usr/bin/curl -v -s',
-                                       '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
+                                       '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
                                        'http://x0.cockpit.lan:9090/cockpit/login', '2>&1'])
         self.assertIn("HTTP/1.1 401", output)
         self.assertNotIn("WWW-Authenticate: Negotiate", output)
@@ -263,13 +243,13 @@ class TestKerberos(MachineCase):
         self.machine.restart_cockpit()
 
         output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
-                                       '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
+                                       '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
                                        'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"csrf-token"', output)
 
         cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
-        b.open("/system/terminal", cookie={ "name": "cockpit", "value": cookie, "domain": self.machine.address, "path": "/" })
+        b.open("/system/terminal", cookie={ "name": "cockpit", "value": cookie, "domain": self.machine.web_address, "path": "/" })
         b.wait_present('#content')
         b.wait_visible('#content')
         b.enter_page("/system/terminal")

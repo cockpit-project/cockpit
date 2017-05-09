@@ -411,8 +411,7 @@ getpwuid_a (uid_t uid)
 
 static CockpitRouter *
 setup_router (CockpitTransport *transport,
-              gboolean privileged_slave,
-              GList **out_bridges)
+              gboolean privileged_slave)
 {
   CockpitRouter *router = NULL;
   GList *bridges = NULL;
@@ -432,7 +431,7 @@ setup_router (CockpitTransport *transport,
   for (l = g_list_last (bridges); l != NULL; l = g_list_previous (l))
     cockpit_router_add_bridge (router, l->data);
 
-  *out_bridges = bridges;
+  g_list_free (bridges);
   return router;
 }
 
@@ -450,7 +449,6 @@ run_bridge (const gchar *interactive,
   struct passwd *pwd;
   GPid daemon_pid = 0;
   GPid agent_pid = 0;
-  GList *bridges = NULL;
   guint sig_term;
   guint sig_int;
   int outfd;
@@ -550,7 +548,7 @@ run_bridge (const gchar *interactive,
       g_signal_connect (transport, "control", G_CALLBACK (on_logout_set_flag), &closed);
     }
 
-  router = setup_router (transport, privileged_slave, &bridges);
+  router = setup_router (transport, privileged_slave);
 
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
@@ -571,7 +569,6 @@ run_bridge (const gchar *interactive,
 
   g_object_unref (router);
   g_object_unref (transport);
-  g_list_free (bridges);
 
   cockpit_dbus_machines_cleanup ();
   cockpit_dbus_internal_cleanup ();
@@ -595,15 +592,13 @@ static void
 print_rules (gboolean opt_privileged)
 {
   CockpitRouter *router = NULL;
-  GList *bridges = NULL;
   CockpitTransport *transport = cockpit_interact_transport_new (0, 1, "--");
 
-  router = setup_router (transport, opt_privileged, &bridges);
+  router = setup_router (transport, opt_privileged);
 
   cockpit_router_dump_rules (router);
 
   g_object_unref (router);
-  g_list_free (bridges);
   g_object_unref (transport);
 }
 

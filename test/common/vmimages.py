@@ -93,7 +93,7 @@ def download(link, force, stores):
             resolve = "cockpit-tests:{1}".format(0, url.hostname)
             url = url._replace(netloc="cockpit-tests")
 
-        name = os.path.basename(dest) + ".xz"
+        name = os.path.basename(dest)
         ca_source = urlparse.urljoin(url.geturl(), name)
         source = urlparse.urljoin(store, name)
 
@@ -112,46 +112,25 @@ def download(link, force, stores):
 
     sys.stderr.write("{0}\n".format(source))
 
-    # Download the xz compressed qcow2 file and extract it on the fly.
-    # If TEST_DATA is configured we also keep around the xz form so that we
-    # could share it with other testers too.
     (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=DATA)
-    tempxz = None
-    if "TEST_DATA" in os.environ:
-        tempxz = temp + ".xz"
 
     # Adjust the command above that worked to make it visible and download real stuff
     cmd = [arg for arg in cmd if arg not in ["--head", "--silent"]]
     cmd.insert(1, "--progress-bar")
 
     try:
-        proc = curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        if tempxz:
-            proc = tee = subprocess.Popen(["tee", temp + ".xz"], stdin=curl.stdout, stdout=subprocess.PIPE)
-        unxz = subprocess.Popen(["unxz", "--stdout", "-"], stdin=proc.stdout, stdout=fd)
-
-        curl.stdout.close()
-        if tempxz:
-            tee.stdout.close()
-            tee.wait()
+        curl = subprocess.Popen(cmd, stdout=fd)
         ret = curl.wait()
         if ret != 0:
             raise Exception("curl: unable to download image (returned: %s)" % ret)
-        ret = unxz.wait()
-        if ret != 0:
-            raise Exception("unxz: unable to unpack image (returned: %s)" % ret)
 
         os.close(fd)
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
         shutil.move(temp, dest)
-        if tempxz:
-            shutil.move(tempxz, dest + ".xz")
     finally:
         # if we had an error and the temp file is left over, delete it
         if os.path.exists(temp):
             os.unlink(temp)
-        if tempxz and os.path.exists(tempxz):
-            os.unlink(tempxz)
 
     # Handle alternate TEST_DATA
     if not os.path.exists(image_file):
@@ -228,19 +207,17 @@ def prune_images(force, dryrun):
             sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
             for link in get_image_links(ref):
                 maybe_add_target(link)
-                maybe_add_target(link + ".xz")
 
     # what we have in the current checkout might already have been added by its branch, but check anyway
     for filename in os.listdir(IMAGES):
         path = os.path.join(IMAGES, filename)
 
         # only consider original image entries as trustworthy sources and ignore non-links
-        if path.endswith(".xz") or path.endswith(".qcow2") or path.endswith(".partial") or not os.path.islink(path):
+        if path.endswith(".qcow2") or path.endswith(".partial") or not os.path.islink(path):
             continue
 
         target = os.readlink(path)
         maybe_add_target(target)
-        maybe_add_target(target + ".xz")
 
     expiry_threshold = now - testinfra.IMAGE_EXPIRE * 86400
     for filename in os.listdir(DATA):

@@ -2,15 +2,15 @@
 
 # The default settings here should match one of the default
 # download stores. These are usually cockpit/images instances
-UPLOAD = "209.132.184.69:8493"
+UPLOAD = "https://209.132.184.69:8493/"
 TOKEN = "~/.config/github-token"
 
 import argparse
+import getpass
 import os
 import subprocess
 import sys
-
-from common import testinfra
+import urlparse
 
 BASE = os.path.dirname(__file__)
 IMAGES = os.path.join(BASE, "images")
@@ -18,7 +18,13 @@ DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
 
 def upload(store, source):
     ca = os.path.join(BASE, "common", "ca.pem")
-    (address, delim, port) = store.partition(":")
+    url = urlparse.urlparse(store)
+    netloc = url.netloc
+    if "@" in netloc:
+        (user, delim, netloc) = netloc.partition("@")
+    else:
+        user = getpass.getuser()
+    (address, delim, port) = netloc.partition(":")
     resolve = "cockpit-tests:{1}:{0}".format(address, port)
     cmd = ["curl", "--progress-bar", "--cacert", ca, "--resolve", resolve, "--fail", "--upload-file", source ]
 
@@ -30,9 +36,9 @@ def upload(store, source):
         if exc.errno == errno.ENOENT:
            pass
     if token:
-        cmd += [ "--user", "user:" + token ]
+        cmd += [ "--user", user + ":" + token ]
 
-    cmd.append("https://cockpit-tests:{0}/".format(port))
+    cmd.append("https://cockpit-tests:{0}{1}".format(port, url.path))
 
     # Passing through a non terminal stdout is necessary to make progress work
     curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)

@@ -235,10 +235,10 @@ def main():
     opts = parser.parse_args()
     if opts.install:
         sys.stderr.write("Building and installing Cockpit ...\n")
-        subprocess.check_call([ os.path.join(testinfra.TEST_DIR, "vm-download"), testinfra.DEFAULT_IMAGE, "selenium" ])
-        subprocess.check_call([ os.path.join(testinfra.TEST_DIR, "vm-reset") ])
+        subprocess.check_call([ "vm-download", testinfra.DEFAULT_IMAGE, "selenium" ])
+        subprocess.check_call([ "vm-reset" ])
 
-        cmd = [ os.path.join(testinfra.TEST_DIR, "vm-install") ]
+        cmd = [ "vm-install" ]
         if opts.verbosity:
             cmd.append("--verbose")
         if opts.quick:

@@ -8,6 +8,7 @@ TOKEN = "~/.config/github-token"
 import argparse
 import getpass
 import os
+import socket
 import subprocess
 import sys
 import urlparse
@@ -19,13 +20,18 @@ DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
 def upload(store, source):
     ca = os.path.join(BASE, "common", "ca.pem")
     url = urlparse.urlparse(store)
-    netloc = url.netloc
-    if "@" in netloc:
-        (user, delim, netloc) = netloc.partition("@")
-    else:
-        user = getpass.getuser()
-    (address, delim, port) = netloc.partition(":")
-    resolve = "cockpit-tests:{1}:{0}".format(address, port)
+
+    # Parse out the user name if present
+    user = url.username or getpass.getuser()
+
+    # Parse out the actual address to connect to and override certificate info
+    defport = url.scheme == 'http' and 80 or 443
+    ai = socket.getaddrinfo(url.hostname, url.port or defport, socket.AF_INET, 0, socket.IPPROTO_TCP)
+    for (family, socktype, proto, canonname, sockaddr) in ai:
+        resolve = "cockpit-tests:{1}:{0}".format(*sockaddr)
+        break
+
+    # Start building the command
     cmd = ["curl", "--progress-bar", "--cacert", ca, "--resolve", resolve, "--fail", "--upload-file", source ]
 
     token = ""
@@ -38,7 +44,7 @@ def upload(store, source):
     if token:
         cmd += [ "--user", user + ":" + token ]
 
-    cmd.append("https://cockpit-tests:{0}{1}".format(port, url.path))
+    cmd.append("https://cockpit-tests:{0}{1}".format(url.port or defport, url.path))
 
     # Passing through a non terminal stdout is necessary to make progress work
     curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -47,7 +53,8 @@ def upload(store, source):
     ret = curl.wait()
     cat.wait()
     if ret != 0:
-        raise Exception("vm-upload: unable to upload image")
+        sys.stderr.write("vm-upload: unable to upload image\n")
+    return ret
 
 def main():
     parser = argparse.ArgumentParser(description='Upload virtual machine images')
@@ -66,11 +73,9 @@ def main():
         sources.append(source)
 
     for source in sources:
-        try:
-            upload(args.store, source)
-        except Exception, ex:
-            sys.stderr.write(str(ex) + "\n")
-            return 1
+        ret = upload(args.store, source)
+        if ret != 0:
+            return ret
 
 if __name__ == '__main__':
     sys.exit(main())

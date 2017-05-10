@@ -36,7 +36,6 @@ import threading
 import time
 
 import testinfra
-import vmimages
 
 import xml.etree.ElementTree as etree
 
@@ -1114,7 +1113,7 @@ class VirtMachine(Machine):
 
     def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
         if self.fetch:
-            vmimages.download_images([self.image], False, [])
+            subprocess.check_call([ "vm-download", self.image ])
 
         tries = 0
         while True:

@@ -167,9 +167,6 @@ ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
 # Days after which a image is refreshed
 IMAGE_REFRESH = 7
 
-# Days after which images expire if not in use
-IMAGE_EXPIRE = 14
-
 # Images which are Atomic based
 ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
 
@@ -183,7 +180,6 @@ __all__ = (
     'TESTING',
     'NOT_TESTED',
     'NO_TESTING',
-    'IMAGE_EXPIRE',
     'TEST_DIR',
     'ATOMIC_IMAGES',
 )

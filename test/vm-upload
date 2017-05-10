@@ -17,22 +17,10 @@ IMAGES = os.path.join(BASE, "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
 
 def upload(store, source):
-
-    # Compress the image
-    compressed = source + ".xz"
-    if not os.path.exists(compressed):
-        partial = compressed + ".partial"
-        with open(partial, "w") as fp:
-            xz = [ "xz", "--force", "--keep", "--verbose", "--stdout", "--threads=0", source ]
-            subprocess.check_call(xz, stdout=fp)
-        os.rename(partial, compressed)
-
-
-    # And upload the compressed version
     ca = os.path.join(BASE, "common", "ca.pem")
     (address, delim, port) = store.partition(":")
     resolve = "cockpit-tests:{1}:{0}".format(address, port)
-    cmd = ["curl", "--progress-bar", "--cacert", ca, "--resolve", resolve, "--fail", "--upload-file", compressed ]
+    cmd = ["curl", "--progress-bar", "--cacert", ca, "--resolve", resolve, "--fail", "--upload-file", source ]
 
     token = ""
     try:

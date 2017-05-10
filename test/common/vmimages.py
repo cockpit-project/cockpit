@@ -43,7 +43,7 @@ CONFIG = "~/.config/image-stores"
 DEFAULT = [
     "https://209.132.184.69:8493/",
     "https://209.132.184.41:8493/",
-    "https://fedorapeople.org/groups/cockpit/images"
+    "https://fedorapeople.org/groups/cockpit/images/"
 ]
 
 def download(link, force, stores):

@@ -196,7 +196,7 @@ class GithubImageTask(object):
                 return False
             return True
 
-        cmd = [ "./vm-create", "--verbose", "--upload" ]
+        cmd = [ "./vm-create", "--verbose", "--upload", "--prune" ]
         if 'store' in self.config:
             cmd += [ "--store", self.config['store'] ]
         cmd += [ self.image ]

@@ -45,20 +45,17 @@ def check_valid(filename):
 def install(opts):
     sys.stderr.write("Building and installing Cockpit ...\n")
     cmds = [
-        [ os.path.join(testdir, "vm-download"), testinfra.DEFAULT_IMAGE ],
-        [ os.path.join(testdir, "vm-reset") ],
-        [ os.path.join(testdir, "vm-install"), "--containers" ],
+        [ "vm-download", testinfra.DEFAULT_IMAGE ],
+        [ "vm-reset" ],
+        [ "vm-install", "--containers" ],
     ]
 
     if opts.sit:
         cmds[-1].append("--sit")
 
     if opts.container == 'kubernetes':
-        cmds.append([ os.path.join(testdir, "vm-download"), 'openshift' ])
-        cmds.append([ os.path.join(testdir, "vm-install"),
-                                    "--install-only",
-                                    "--containers",
-                                    "openshift" ])
+        cmds.append([ "vm-download", 'openshift' ])
+        cmds.append([ "vm-install", "--install-only", "--containers", "openshift" ])
 
     if opts.sit:
         cmds[-1].append("--sit")

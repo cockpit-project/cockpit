@@ -21,6 +21,7 @@ import os
 import sys
 import glob
 import shutil
+import subprocess
 
 import parent
 from common import testinfra
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     test_os = args.image
     build_os = vmmanage.get_build_image(test_os)
 
-    os.system(os.path.join(testinfra.TEST_DIR,"vm-reset"))
+    os.system("vm-reset")
     try:
         vmimages.download_images([build_os], args.force, [])
     except Exception as e:

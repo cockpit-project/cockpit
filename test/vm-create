@@ -206,7 +206,7 @@ try:
         builder.save()
         if args.upload:
             print "Uploading..."
-            cmd = [ "./vm-upload" ]
+            cmd = [ "vm-upload" ]
             if args.store:
                 cmd += [ "--store", args.store ]
             cmd += [ args.image ]

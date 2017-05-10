@@ -57,7 +57,7 @@ try:
 
     # Check that image is downloaded
     if not os.path.exists(machine.image_base):
-        ret = subprocess.call(["./vm-download", args.image])
+        ret = subprocess.call(["vm-download", args.image])
         if ret != 0:
             sys.exit(ret)
 

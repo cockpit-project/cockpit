@@ -25,7 +25,6 @@ import subprocess
 
 import parent
 from common import testinfra
-from common import vmimages
 from common import vmmanage
 
 if __name__ == "__main__":
@@ -44,8 +43,8 @@ if __name__ == "__main__":
 
     os.system("vm-reset")
     try:
-        vmimages.download_images([build_os], args.force, [])
-    except Exception as e:
+        subprocess.check_call(["vm-download", build_os])
+    except subprocess.CalledProcessError as e:
         print "unable to download all necessary images", e
         sys.exit(1)
 

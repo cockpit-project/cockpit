@@ -503,7 +503,7 @@ class GitHub(object):
             self.priority = priority
             self.task = task
 
-    def prioritize(self, status, labels, priority, context):
+    def prioritize(self, status, title, labels, priority, context):
         state = status.get("state", None)
         update = { "state": "pending" }
 
@@ -530,10 +530,12 @@ class GitHub(object):
                 priority += 2
             if "needsdesign" in labels:
                 priority -= 2
-            if "needswork" in labels:
-                priority -= 3
             if "blocked" in labels:
                 priority -= 1
+
+            # Pull requests where the title starts with WIP get penalized
+            if title.startswith("WIP"):
+                priority -= 3
 
             # Is testing already in progress?
             if status.get("description", "").startswith(TESTING):
@@ -590,11 +592,12 @@ class GitHub(object):
             statuses = self.statuses(revision)
             for context in master_contexts:
                 status = statuses.get(context, { })
-                (priority, changes) = self.prioritize(status, [], 8, context)
+                (priority, changes) = self.prioritize(status, "", [], 8, context)
                 if update_status(revision, context, status, changes):
                     results.append(GitHub.TaskEntry(priority, GithubPullTask("master", revision, "master", context)))
 
         for pull in self.pulls():
+            title = pull["title"]
             number = pull["number"]
             labels = self.labels(number)
             revision = pull["head"]["sha"]
@@ -623,7 +626,7 @@ class GitHub(object):
                     if status.get("description", NO_TESTING) == NO_TESTING:
                         baseline = 0
 
-                (priority, changes) = self.prioritize(status, labels, baseline, context)
+                (priority, changes) = self.prioritize(status, title, labels, baseline, context)
                 if update_status(revision, context, status, changes):
                     pulltask = GithubPullTask("pull-%d" % number, revision, "pull/%d/head" % number, context, base)
                     results.append(GitHub.TaskEntry(priority, pulltask))

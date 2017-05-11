@@ -103,23 +103,20 @@ sed -i -e 's/gpgcheck=1/gpgcheck=0/' /etc/mock/default.cfg
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
 
-# docker and our cockpit/base container are only really a thing on x86_64, just skip it on other arches
+# HACK: docker fails without /etc/resolv.conf
+# https://bugzilla.redhat.com/show_bug.cgi?id=1448331
+mkdir -p /etc/systemd/system/docker.service.d
+printf "[Service]\nExecStartPre=/bin/sh -c 'echo -n >> /etc/resolv.conf'\n" > /etc/systemd/system/docker.service.d/resolv.conf
+systemctl daemon-reload
+systemctl start docker || systemctl start docker-latest
+
+# our cockpit/base container are only really a thing on x86_64, just skip it on other arches
 if [ $(uname -m) = x86_64 ]; then
-    # HACK: docker fails without /etc/resolv.conf
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1448331
-    mkdir -p /etc/systemd/system/docker.service.d
-    printf "[Service]\nExecStartPre=/bin/sh -c 'echo -n >> /etc/resolv.conf'\n" > /etc/systemd/system/docker.service.d/resolv.conf
-    systemctl daemon-reload
-
-    # HACK: docker falls over regularly, print its log if it does
-    systemctl start docker || journalctl -u docker
-
-    # Setup basics for building images
     docker build -t cockpit/base /var/tmp/cockpit-base
-
-    # docker images that we need for integration testing
-    /var/lib/testvm/docker-images.setup
 fi
+
+# docker images that we need for integration testing
+/var/lib/testvm/docker-images.setup
 
 # Configure kubernetes
 [ -z "$HAVE_KUBERNETES" ] || /var/lib/testvm/kubernetes.setup

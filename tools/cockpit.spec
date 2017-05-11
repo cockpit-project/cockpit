@@ -87,7 +87,7 @@ Recommends: %{name}-dashboard = %{version}-%{release}
 Recommends: %{name}-networkmanager = %{version}-%{release}
 Recommends: %{name}-storaged = %{version}-%{release}
 Recommends: sscg >= 2.0.4
-%ifarch x86_64 %{arm} aarch64 ppc64le
+%ifarch x86_64 %{arm} aarch64 ppc64le i686
 Recommends: %{name}-docker = %{version}-%{release}
 %endif
 Suggests: %{name}-pcp = %{version}-%{release}
@@ -212,7 +212,7 @@ echo '%dir %{_datadir}/%{name}/selinux' > selinux.list
 find %{buildroot}%{_datadir}/%{name}/selinux -type f >> selinux.list
 %endif
 
-%ifarch x86_64 %{arm} aarch64 ppc64le
+%ifarch x86_64 %{arm} aarch64 ppc64le i686
 echo '%dir %{_datadir}/%{name}/docker' > docker.list
 find %{buildroot}%{_datadir}/%{name}/docker -type f >> docker.list
 %else
@@ -594,7 +594,7 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %endif
 
-%ifarch x86_64 %{arm} aarch64 ppc64le
+%ifarch x86_64 %{arm} aarch64 ppc64le i686
 
 %package docker
 Summary: Cockpit user interface for Docker containers

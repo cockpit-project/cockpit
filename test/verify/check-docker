@@ -23,7 +23,6 @@ from testlib import *
 import json
 import os
 
-@skipImage("No cockpit-docker on i386", "fedora-i386")
 class TestDocker(MachineCase):
     def confirm(self):
         b = self.browser
@@ -58,7 +57,7 @@ class TestDocker(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.execute("systemctl start docker")
+        m.execute("systemctl start docker || systemctl start docker-latest")
 
         self.login_and_go("/docker")
         b.wait_in_text("#containers-images", "busybox:latest")
@@ -198,7 +197,7 @@ class TestDocker(MachineCase):
         m = self.machine
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
-        m.execute("systemctl start docker")
+        m.execute("systemctl start docker || systemctl start docker-latest")
 
         self.login_and_go("/docker")
         b.wait_in_text("#containers-images", "busybox:latest")
@@ -277,7 +276,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b = self.browser
         m = self.machine
 
-        m.execute("systemctl start docker")
+        m.execute("systemctl start docker || systemctl start docker-latest")
 
         self.login_and_go("/docker")
         b.wait_in_text("#containers-images", "busybox:latest")
@@ -355,6 +354,7 @@ CMD ["/bin/sh"]
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
     @skipImage("No Cockpit on Atomic with Docker stopped", "fedora-atomic", "rhel-atomic", "continuous-atomic")
+    @skipImage("Cannot troubleshoot docker-latest", "fedora-i386")
     def testFailure(self):
         b = self.browser
         m = self.machine
@@ -404,7 +404,7 @@ CMD ["/bin/sh"]
             m.execute("printf '\\n\\n[Service]\\nKillMode=process\\n' >> /lib/systemd/system/docker.service")
             m.execute("systemctl daemon-reload")
 
-        m.execute("systemctl start docker")
+        m.execute("systemctl start docker || systemctl start docker-latest")
 
         self.login_and_go("/docker")
         b.wait_in_text("#containers-images", "busybox:latest")
@@ -439,7 +439,7 @@ CMD ["/bin/sh"]
         b.logout()
         if m.image in [ "debian-x8" ]:
             m.execute("systemctl stop docker.socket")
-        m.execute("systemctl restart docker")
+        m.execute("systemctl restart docker || systemctl restart docker-latest")
         self.login_and_go("/docker")
 
         # show all containers to interact with stopped ones
@@ -457,7 +457,7 @@ CMD ["/bin/sh"]
         b = self.browser
         m = self.machine
 
-        m.execute("systemctl start docker")
+        m.execute("systemctl start docker || systemctl start docker-latest")
 
         # Memory limits not supported on Debian Jessie
         memory_supported = m.image not in [ "debian-stable" ]

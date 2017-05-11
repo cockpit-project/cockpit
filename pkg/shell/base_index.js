@@ -317,7 +317,19 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             var forward_command = false;
             var data = event.data;
             var child = event.source;
-            if (!child || typeof data !== "string")
+            if (!child)
+                return;
+
+            /* If it's binary data just send it.
+             * TODO: Once we start restricting what frames can
+             * talk to which hosts, we need to parse control
+             * messages here, and cross check channels */
+            if (data instanceof window.ArrayBuffer) {
+                cockpit.transport.inject(data, true);
+                return;
+            }
+
+            if (typeof data !== "string")
                 return;
 
             var source = source_by_name[child.name];

@@ -303,7 +303,7 @@ CMD ["/bin/sh"]
         b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE4")
-        b.set_val("#containers-run-image-command", "/bin/sh -c \"set; ls /blah/; sleep 100000\"")
+        b.set_val("#containers-run-image-command", "/bin/sh")
 
         # Two environment variables
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(0)", "zero")
@@ -322,8 +322,6 @@ CMD ["/bin/sh"]
             m.execute("chcon --dereference -HRt svirt_sandbox_file_t /mnt")
         m.execute("touch /mnt/dripping.txt")
 
-        # And run it without a terminal
-        b.click("#containers-run-image-with-terminal");
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE4")
@@ -334,10 +332,22 @@ CMD ["/bin/sh"]
         b.click('#containers-containers tr:contains("PROBE4")')
         b.wait_visible("#container-details")
 
-        # Make sure they've started
-        b.wait_in_text("#container-details", "zero='GGG'")
-        b.wait_in_text("#container-details", "SECOND='marmalade'")
-        b.wait_in_text("#container-details", "dripping.txt")
+        b.wait_present("#container-terminal")
+        b.wait_present("#container-terminal .console-ct")
+        b.wait_present("#container-terminal .console-ct .terminal")
+
+        b.focus('#container-terminal .console-ct .terminal')
+        b.key_press( [ 'c', 'l', 'e', 'a', 'r', 'Return' ] )
+        b.wait_in_text("#container-terminal", "#")
+
+        b.focus('#container-terminal .console-ct .terminal')
+        b.key_press( [ 'e', 'n', 'v', 'Return' ] )
+        b.wait_in_text("#container-terminal", "zero=GGG")
+        b.wait_in_text("#container-terminal", "SECOND=marmalade")
+
+        b.focus('#container-terminal .console-ct .terminal')
+        b.key_press( [ 'l', 's', ' ', '/', 'b', 'l', 'a', 'h', '/', 'Return' ] )
+        b.wait_in_text("#container-terminal", "dripping.txt")
 
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 

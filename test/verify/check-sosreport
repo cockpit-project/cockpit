@@ -37,7 +37,7 @@ class TestSOS(MachineCase):
         # HACK - start docker so that the docker plugin doesn't hang.
         # https://bugzilla.redhat.com/show_bug.cgi?id=1441207
         #
-        m.execute("systemctl start docker")
+        m.execute("systemctl start docker || systemctl start docker-latest")
 
         b.click('[data-target="#sos"]')
         b.wait_visible("#sos")

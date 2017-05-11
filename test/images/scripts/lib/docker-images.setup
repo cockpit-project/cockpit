@@ -19,12 +19,20 @@ set -ex
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-docker pull busybox:latest
-docker pull busybox:buildroot-2014.02
-# docker pull submod/helloapache:0.1.11
-docker pull gcr.io/google_containers/pause:2.0
-docker pull gcr.io/google_containers/pause:0.8.0
-docker pull gcr.io/google_containers/pause-amd64:3.0
+if [ $(uname -m) = x86_64 ]; then
+    docker pull busybox:latest
+    docker pull busybox:buildroot-2014.02
+    docker pull gcr.io/google_containers/pause:2.0
+    docker pull gcr.io/google_containers/pause:0.8.0
+    docker pull gcr.io/google_containers/pause-amd64:3.0
+fi
+
+# Download the i386 image and rename it
+if [ $(uname -m) = i686 ]; then
+    docker pull i386/busybox:latest
+    docker tag docker.io/i386/busybox busybox
+    docker rmi docker.io/i386/busybox
+fi
 
 # Disable all further pulling from online during the tests
 cat >> /etc/hosts <<EOF

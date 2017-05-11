@@ -31,6 +31,7 @@ class GithubImageTask(object):
         body_text = ("Image creation for %s in process on %s.\nLog: :link"
                      % (self.image, testinfra.HOSTNAME))
 
+        # Update the body for an existing issue
         if self.issue:
             requests += [
                 # Get issue
@@ -38,11 +39,12 @@ class GithubImageTask(object):
                   "resource": github.qualify("issues/" + str(self.issue['number'])),
                   "result": "issue"
                 },
-                # Add comment
+                # Update the issue
                 { "method": "POST",
-                  "resource": ":issue.comments_url",
+                    "resource": ":issue.url",
                   "data": {
-                      "body": body_text
+                      "body": body_text,
+                      "labels": [ "bot", "image/" + self.image ]
                   }
                 }
             ]
@@ -53,17 +55,28 @@ class GithubImageTask(object):
                   "resource": github.qualify("issues"),
                   "data": {
                       "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
-                      "labels": [ "bot" ],
+                      "labels": [ "bot", "image/" + self.image ],
                       "body": body_text
                   },
                   "result": "issue"
                 }
             ]
 
+        # Make sure the body remains the same
+        watches = [{
+            "resource": github.qualify("issues?labels=bot,image/{0}&state=open".format(self.image)),
+            "result": [
+                {
+                  "body": body_text
+                }
+            ]
+        }]
+
         status = {
             "github": {
                 "token": github.token,
-                "requests": requests
+                "requests": requests,
+                "watches": watches
             },
 
             "onaborted": {
@@ -83,50 +96,16 @@ class GithubImageTask(object):
         }
         self.sink = testinfra.Sink(host, identifier, status)
 
-    def check_publishing(self, github):
-        our_title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image)
-        in_process_prefix = "Image creation for %s in process" % (self.image)
-        our_in_process_prefix = "Image creation for %s in process on %s." % (self.image, testinfra.HOSTNAME)
-
-        # If we have started without an existing issue, find the
-        # youngest issue with the expected title.
-
-        issue = self.issue
-        if not issue:
-            issues = github.get("issues?labels=bot&filter=all&state=all")
-            for i in issues:
-                if i['title'] == our_title:
-                    issue = i
-                    break
-
-        # Follow the conversation to see who has won.  The first 'in
-        # process' comment after a request wins.
-
-        comments = github.get(issue['comments_url'])
-        in_process = False
-        we_won = True
-        for body in [ issue['body'] ] + [ c['body'] for c in comments ]:
-            if body == "bot: " + our_title:
-                in_process = False
-            if body.startswith(in_process_prefix):
-                we_won = not in_process and body.startswith(our_in_process_prefix)
-                in_process = True
-
-        return we_won
-
     def stop_publishing(self, github, ret, user, branch):
-        if ret is None:
-            message = "Image creation stopped to avoid conflict."
-        else:
-            if ret == 0:
-                if self.pull and branch:
-                    message = "Image creation done: https://github.com/{}/cockpit/commits/{}".format(user, branch)
-                else:
-                    message = "Image creation done."
+        if ret == 0:
+            if self.pull and branch:
+                message = "Image creation done: https://github.com/{}/cockpit/commits/{}".format(user, branch)
             else:
-                message = "Image creation failed."
-            if not branch:
-                message += "\nBranch creation failed."
+                message = "Image creation done."
+        else:
+            message = "Image creation failed."
+        if not branch:
+            message += "\nBranch creation failed."
 
         requests = [
             # Post comment
@@ -193,26 +172,13 @@ class GithubImageTask(object):
             subprocess.check_call([ "git", "fetch", "origin", "pull/{}/head".format(self.pull['number']) ])
             subprocess.check_call([ "git", "checkout", self.pull['head']['sha'] ])
 
-        def check():
-            if not self.check_publishing(github):
-                self.overtaken = True
-                return False
-            return True
-
         cmd = [ "vm-create", "--verbose", "--upload" ]
         if 'store' in self.config:
             cmd += [ "--store", self.config['store'] ]
         cmd += [ self.image ]
 
         os.environ['VIRT_BUILDER_NO_CACHE'] = "yes"
-        proc = subprocess.Popen(cmd)
-        self.overtaken = False
-        ret = testinfra.wait_testing(proc, check)
-
-        if self.overtaken:
-            if self.sink:
-                self.stop_publishing(github, None, None, None)
-            return
+        ret = subprocess.call(cmd)
 
         # Github wants the OAuth token as the username and git will
         # happily echo that back out.  So we censor all output.

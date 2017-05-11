@@ -808,35 +808,3 @@ Times recorded: 1
 {3}- {2}
 """.format(context, err_key, link, latest_occurrences) }
         return self.post("issues/{0}/comments".format(number), data)
-
-
-def eintr_retry_call(func, *args):
-    while True:
-        try:
-            return func(*args)
-        except (OSError, IOError) as e:
-            if e.errno == errno.EINTR:
-                continue
-            raise
-
-# The goal here is that after 60 seconds we call check
-def wait_testing(proc, check):
-    count = 0
-    flags = os.WNOHANG
-    while True:
-        pid, status = eintr_retry_call(os.waitpid, proc.pid, flags)
-        if count < 60:
-            time.sleep(1)
-            count += 1
-        elif count == 60:
-            if not check():
-                try:
-                    proc.terminate()
-                except OSError:
-                    pass
-            flags = 0
-        if pid == proc.pid:
-            if os.WIFSIGNALED(status):
-                return os.WTERMSIG(status)
-            else:
-                return os.WEXITSTATUS(status)

@@ -40,6 +40,9 @@ QUnit.asyncTest("simple request", function() {
                     },
                     'translate': {
                         label: "Translating"
+                    },
+                    'pkgs': {
+                        label: "Packages"
                     }
                 }
             }, "returned right data");

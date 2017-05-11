@@ -79,6 +79,9 @@ QUnit.asyncTest("http", function() {
                     },
                     'translate': {
                         label: "Translating"
+                    },
+                    'pkgs': {
+                        label: "Packages"
                     }
                 }
             }, "returned right data");

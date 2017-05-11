@@ -50,6 +50,9 @@ var info = {
         "playground/metrics": [
             "playground/metrics.js",
         ],
+        "playground/pkgs": [
+            "playground/pkgs.js",
+        ],
         "playground/plot": [
             "playground/plot.js",
         ],
@@ -195,6 +198,7 @@ var info = {
         "playground/manifest.json",
         "playground/jquery-patterns.html",
         "playground/metrics.html",
+        "playground/pkgs.html",
         "playground/plot.html",
         "playground/po.js",
         "playground/react-patterns.html",

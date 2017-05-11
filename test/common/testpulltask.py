@@ -56,7 +56,19 @@ class GithubPullTask(object):
                       "resource": github.qualify("statuses/" + self.revision),
                       "data": self.github_status_data
                     }
-                ]
+                ],
+                "watches": [{
+                    "resource": github.qualify("commits/" + self.revision + "/status"),
+                    "result": {
+                        "statuses": [
+                            {
+                                "context": self.context,
+                                "description": description,
+                                "target_url": ":link"
+                            }
+                        ]
+                    }
+                }]
             },
             "revision": self.revision,
             "link": "log.html",
@@ -98,25 +110,6 @@ class GithubPullTask(object):
         # For other scripts to use
         os.environ["TEST_DESCRIPTION"] = description
         self.sink = testinfra.Sink(host, identifier, status)
-
-    def check_publishing(self, github):
-        if not self.sink:
-            return True
-
-        if not self.github_status_data:
-            return True
-        expected = self.github_status_data["description"]
-        context = self.github_status_data["context"]
-        statuses = github.statuses(self.sink.status["revision"])
-        status = statuses.get(context, None)
-        current = status.get("description", None)
-        if current and current != expected:
-            self.sink.status.pop("github", None)
-            self.sink.status.pop("badge", None)
-            self.sink.status.pop("irc", None)
-            sys.stderr.write("Verify collision: {0}\n".format(current))
-            return False
-        return True
 
     def rebase(self, offline=False):
         try:
@@ -213,11 +206,7 @@ class GithubPullTask(object):
         ret = ret or self.rebase(offline)
 
         # Actually run the tests
-        if not ret:
-            proc = subprocess.Popen(cmd)
-            ret = testinfra.wait_testing(proc, lambda: self.check_publishing(github))
-            if ret == 124:
-                ret = "Test run has timed out"
+        ret = subprocess.call(cmd)
 
         # All done
         if self.sink:

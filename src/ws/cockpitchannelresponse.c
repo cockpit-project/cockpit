@@ -143,54 +143,6 @@ typedef struct {
 } CockpitChannelResponse;
 
 static gboolean
-redirect_to_checksum_path (CockpitWebService *service,
-                           CockpitWebResponse *response,
-                           const gchar *checksum,
-                           const gchar *path)
-{
-  CockpitCreds *creds;
-  gchar *location;
-  const gchar *body;
-  GBytes *bytes;
-  gboolean ret;
-  gsize length;
-
-  creds = cockpit_web_service_get_creds (service);
-  if (cockpit_web_response_get_url_root (response))
-    {
-      location = g_strdup_printf ("%s/%s/$%s%s",
-                                  cockpit_web_response_get_url_root (response),
-                                  cockpit_creds_get_application (creds),
-                                  checksum, path);
-    }
-  else
-    {
-      location = g_strdup_printf ("/%s/$%s%s",
-                                  cockpit_creds_get_application (creds),
-                                  checksum, path);
-    }
-
-
-  body = "<html><head><title>Temporary redirect</title></head>"
-         "<body>Access via checksum</body></html>";
-
-  length = strlen (body);
-  cockpit_web_response_headers (response, 307, "Temporary Redirect", length,
-                                "Content-Type", "text/html",
-                                "Location", location,
-                                NULL);
-  g_free (location);
-
-  bytes = g_bytes_new_static (body, length);
-  ret = cockpit_web_response_queue (response, bytes);
-  if (ret)
-    cockpit_web_response_complete (response);
-  g_bytes_unref (bytes);
-
-  return ret;
-}
-
-static gboolean
 ensure_headers (CockpitChannelResponse *chesp,
                 guint status,
                 const gchar *reason)
@@ -597,7 +549,6 @@ cockpit_channel_response_serve (CockpitWebService *service,
   gchar *val = NULL;
   gboolean handled = FALSE;
   GHashTableIter iter;
-  const gchar *checksum = NULL;
   JsonObject *object = NULL;
   JsonObject *heads;
   GIOStream *connection;
@@ -647,24 +598,6 @@ cockpit_channel_response_serve (CockpitWebService *service,
   transport = cockpit_web_service_get_transport (service);
   if (!transport)
     goto out;
-
-  if (where)
-    {
-      /*
-       * Maybe send back a redirect to the checksum url. We only do this if actually
-       * accessing a file, and not a some sort of data like '/checksum', or a root path
-       * like '/'
-       */
-      if (where[0] == '@' && strchr (path, '.'))
-        {
-          checksum = cockpit_web_service_get_checksum (service, host);
-          if (checksum)
-            {
-              handled = redirect_to_checksum_path (service, response, checksum, path);
-              goto out;
-            }
-        }
-    }
 
   out_headers = cockpit_web_server_new_table ();
 

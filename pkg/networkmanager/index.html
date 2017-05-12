@@ -177,6 +177,19 @@
     </div>
   </script>
 
+  <script id="network-zone-settings-template" type="x-template/mustache">
+    <table class="form-table-ct">
+      <tr>
+        <td>
+          <label class="control-label" translatable="yes">Zone</label>
+        </td>
+        <td id="network-zone-settings-zone-select">
+          {{! the rather complex dropdown-select will be created dynamically via jquery }}
+        </td>
+      </tr>
+    </table>
+  </script>
+
   <script id="network-mac-settings-template" type="x-template/mustache">
     <table class="form-table-ct">
       <tr>
@@ -786,6 +799,30 @@
           </div>
           <button class="btn btn-default" translatable="yes" id="network-mtu-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-mtu-settings-apply">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="network-zone-settings-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Firewall Zone</h4>
+        </div>
+        <div class="modal-body">
+          <div id="network-zone-settings-body">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="alert alert-danger dialog-error" id="network-zone-settings-error">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span></span>
+          </div>
+          <button class="btn btn-default" translatable="yes" id="network-zone-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" id="network-zone-settings-apply">Apply</button>
         </div>
       </div>
     </div>

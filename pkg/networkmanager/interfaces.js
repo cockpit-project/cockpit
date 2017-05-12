@@ -533,7 +533,8 @@ function NetworkManagerModel() {
                 autoconnect_slaves:
                                 get("connection", "autoconnect-slaves", -1),
                 slave_type:     get("connection", "slave-type"),
-                master:         get("connection", "master")
+                master:         get("connection", "master"),
+                zone:           get("connection", "zone")
             }
         };
 
@@ -649,6 +650,7 @@ function NetworkManagerModel() {
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
         set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_slaves);
         set("connection", "uuid", 's', settings.connection.uuid);
+        set("connection", "zone", 's', settings.connection.zone);
         set("connection", "interface-name", 's', settings.connection.interface_name);
         set("connection", "type", 's', settings.connection.type);
         set("connection", "slave-type", 's', settings.connection.slave_type);
@@ -1366,6 +1368,12 @@ function device_state_text(dev) {
     return dev.StateText;
 }
 
+function zone_text(zone) {
+    if (!zone || zone === "")
+        return _("Default");
+    return zone;
+}
+
 function render_connection_link(con) {
     var res =
         $('<span>').append(
@@ -1766,6 +1774,7 @@ PageNetworking.prototype = {
                     autoconnect: true,
                     type: "bond",
                     uuid: uuid,
+		    zone: "",
                     interface_name: iface
                 },
                 bond: {
@@ -1800,6 +1809,7 @@ PageNetworking.prototype = {
                     autoconnect: true,
                     type: "team",
                     uuid: uuid,
+		    zone: "",
                     interface_name: iface
                 },
                 team: {
@@ -1832,6 +1842,7 @@ PageNetworking.prototype = {
                     autoconnect: true,
                     type: "bridge",
                     uuid: uuid,
+		    zone: "",
                     interface_name: iface
                 },
                 bridge: {
@@ -1864,6 +1875,7 @@ PageNetworking.prototype = {
                     autoconnect: true,
                     type: "vlan",
                     uuid: uuid,
+		    zone: "",
                     interface_name: ""
                 },
                 vlan: {
@@ -2579,6 +2591,10 @@ PageNetworkInterface.prototype = {
                 self.show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
             }
 
+            function configure_zone_settings() {
+                self.show_dialog(PageNetworkZoneSettings, '#network-zone-settings-dialog');
+            }
+
             function render_autoconnect_row() {
                 if (settings.connection.autoconnect !== undefined) {
                     return (
@@ -2595,6 +2611,17 @@ PageNetworkInterface.prototype = {
                                     $('<span>').text(_("Connect automatically")))))
                     );
                 }
+            }
+
+            function render_zone_row() {
+                var rows = [ ];
+
+                function add_row(fmt, args) {
+                    rows.push(cockpit.format(fmt, args));
+                }
+
+		add_row(zone_text(settings.connection.zone), settings.connection.zone);
+                return render_settings_row(_("Zone"), rows, configure_zone_settings);
             }
 
             function render_settings_row(title, rows, configure) {
@@ -2792,6 +2819,7 @@ PageNetworkInterface.prototype = {
 
             return [ render_master(),
                      render_autoconnect_row(),
+                     render_zone_row(),
                      render_ip_settings_row("ipv4", _("IPv4")),
                      render_ip_settings_row("ipv6", _("IPv6")),
                      render_mtu_settings_row(),
@@ -3387,6 +3415,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
             slave_settings.connection.slave_type = slave_type;
             slave_settings.connection.master = master_iface;
             slave_settings.connection.autoconnect = true;
+            slave_settings.connection.zone = "";
             delete slave_settings.ipv4;
             delete slave_settings.ipv6;
             delete slave_settings.team_port;
@@ -3394,6 +3423,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
         } else {
             slave_settings = { connection:
                                { autoconnect: true,
+				 zone: "",
                                  interface_name: iface.Name,
                                  slave_type: slave_type,
                                  master: master_iface
@@ -4413,6 +4443,103 @@ function PageNetworkMtuSettings() {
     this._init();
 }
 
+PageNetworkZoneSettings.prototype = {
+    _init: function () {
+        this.id = "network-zone-settings-dialog";
+	this.zone_settings_template = $("#network-zone-settings-template").html();
+        Mustache.parse(this.zone_settings_template);
+    },
+
+    setup: function () {
+        $('#network-zone-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-zone-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-zone-settings-error').hide();
+        this.settings = PageNetworkZoneSettings.ghost_settings || PageNetworkZoneSettings.connection.copy_settings();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+	var zone = self.settings.connection.zone;
+
+	var zone_btn;
+	var zone_choices = [
+	    { title: _("Default"), choice: "" },
+	];
+
+	function change_zone() {
+            zone = select_btn_selected(zone_btn);
+	    if (self.settings.connection.zone != zone)
+		self.settings.connection.zone = zone;
+        }
+
+	var fw_client = cockpit.dbus("org.fedoraproject.FirewallD1",
+				     { "superuser": "yes" });
+	var fw_zone = fw_client.proxy("org.fedoraproject.FirewallD1.zone",
+				      "/org/fedoraproject/FirewallD1");
+	fw_zone.call("getZones")
+            .done(function(ret) {
+		var zones = ret[0];
+		for (var i = 0; i < zones.length; i++) {
+		    zone_choices.push({ title: zones[i], choice: zones[i] });
+		}
+
+		var body = $(Mustache.render(self.zone_settings_template, { }));
+		zone_btn = select_btn(change_zone, zone_choices, "form-control");
+		body.find('#network-zone-settings-zone-select').html(zone_btn);
+
+		select_btn_select(zone_btn, (zone || (zone_choices[0] ?
+						      zone_choices[0].choice : "")));
+		change_zone();
+
+		$('#network-zone-settings-body').html(body);
+            })
+            .fail(function(ex) {
+		$("#failure").text(ex);
+            });
+    },
+
+    cancel: function() {
+        $('#network-zone-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkZoneSettings.model;
+
+        function show_error(error) {
+            show_dialog_error('#network-zone-settings-error', error);
+        }
+
+        function modify () {
+            return PageNetworkZoneSettings.apply_settings(self.settings).
+                then(function () {
+                    $('#network-zone-settings-dialog').modal('hide');
+                    if (PageNetworkZoneSettings.done)
+                        return PageNetworkZoneSettings.done();
+                }).
+                fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkZoneSettings.connection) });
+    }
+
+};
+
+function PageNetworkZoneSettings() {
+    this._init();
+}
+
 PageNetworkMacSettings.prototype = {
     _init: function () {
         this.id = "network-mac-settings-dialog";
@@ -4562,6 +4689,7 @@ function init() {
     dialog_setup(new PageNetworkBridgePortSettings());
     dialog_setup(new PageNetworkVlanSettings());
     dialog_setup(new PageNetworkMtuSettings());
+    dialog_setup(new PageNetworkZoneSettings());
     dialog_setup(new PageNetworkMacSettings());
 
     $(cockpit).on("locationchanged", navigate);

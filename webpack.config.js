@@ -401,7 +401,31 @@ module.exports = {
             {
                 test: /\.jsx$/,
                 exclude: /bower_components\/.*\/|\/node_modules/, // exclude external dependencies
-                loader: "eslint-loader"
+                loader: "eslint-loader",
+                options: {
+                    "env": {
+                        "browser": true,
+                        "es6": true
+                    },
+                    "extends": "eslint:recommended",
+                    "parserOptions": {
+                        "ecmaFeatures": {
+                            "experimentalObjectRestSpread": true,
+                            "jsx": true
+                        },
+                        "sourceType": "module"
+                    },
+                    "plugins": ["react"],
+                    "rules": {
+                        "react/jsx-uses-vars": "error",
+                        "no-console": "off",
+                        "no-undef": "error"
+                    },
+                    "globals": {
+                        "require": false,
+                        "module": false
+                    }
+                }
             }
         ],
         loaders: [

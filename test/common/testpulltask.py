@@ -120,11 +120,23 @@ class GithubPullTask(object):
                 master = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ]).strip()
                 self.sink.status["master"] = master
             subprocess.check_call([ "git", "rebase", "origin/" + self.base ])
-            return None
         except:
             subprocess.call([ "git", "rebase", "--abort" ])
             traceback.print_exc()
             return "Rebase failed"
+
+        # If the bots directory doesn't exist in this branch, check it out from master
+        ret = subprocess.call([ "git", "ls-tree" "-d", "HEAD:bots/"], stdout=devnull, stderr=devnull)
+        if ret == 0:
+            return None
+
+        try:
+            subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
+        except:
+            traceback.print_exc()
+            return "Rebase checkout of bots failed"
+
+        return None
 
     def stop_publishing(self, ret):
         sink = self.sink

@@ -1,0 +1,13 @@
+# Tasks file
+
+# This file produces the possible set of bot tasks to be executed in the
+# current repository by bots. Empty lines and commented lines are ignored
+# and commented lines are removed. If this file is executable it will be
+# run, and the output will be used as the list of tasks.
+
+# The tasks are sorted descending alphabetically and a task is chosen from
+# near the top of the sorted result. The task will be run in a shell by the
+# Cockpit bots.
+
+# Initially we just list our github-tasks lister
+test/github-tasks --publish=$TEST_PUBLISH --verbose

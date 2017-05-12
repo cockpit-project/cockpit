@@ -60,12 +60,12 @@ virt-builder "$os" \
              --root-password password:foobar \
              --mkdir /root/.ssh \
              --chmod 0700:/root/.ssh \
-             --upload $BASE/../../common/identity.pub:/root/.ssh/authorized_keys \
+             --upload $BASE/../../../test/common/identity.pub:/root/.ssh/authorized_keys \
              --chmod 0600:/root/.ssh/authorized_keys \
              --run-command 'chown root:root /root/.ssh/authorized_keys' \
-             --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
+             --upload $BASE/../../../test/common/host_key:/etc/ssh/ssh_host_rsa_key \
              --chmod 0600:/etc/ssh/ssh_host_rsa_key \
-             --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --upload $BASE/../../../test/common/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
              --upload $BASE/network-ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 \
              --upload $BASE/network-ifcfg-eth1:/etc/sysconfig/network-scripts/ifcfg-eth1 \
              --delete /etc/systemd/system/multi-user.target.wants/sshd.service \

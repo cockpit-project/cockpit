@@ -67,7 +67,7 @@ def list_directories(dirs):
 
 def check_known_issue(api, trace, image):
     directories =  [ ]
-    image_naughty = os.path.join(BOTS, "..", "test", "verify", "naughty-" + image)
+    image_naughty = os.path.join(BOTS, "naughty", image)
     if os.path.exists(image_naughty):
         directories.append(image_naughty)
     trace = normalize_traceback(trace)

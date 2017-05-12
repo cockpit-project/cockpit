@@ -58,23 +58,6 @@ the `--install` option provides a convenient alternative to explicitly running
 
 ## Details
 
-For setting up the host:
-
- * vm-prep: Create the test network etc. Requires root.
-
-For managing test machines and their images:
-
- * vm-download: Download test images
- * vm-upload: Upload test images
- * vm-create: Create test machine images
- * vm-reset: Start over from a clean slate
- * vm-install: Build and install Cockpit packages into a test machine image
-
-For debugging:
-
- * vm-run: Run a test machine image
- * vm-copy: Copy files into a running test machine
-
 The verify test suite is the main test suite:
 
  * verify/testsuite-prepare: Prepare everything so that tests can run
@@ -85,7 +68,7 @@ The verify test suite is the main test suite:
 
 You can set these environment variables to configure the test suite:
 
-  TEST_OS    The OS to run the tests in.  Currently supported values: (vm-create)
+  TEST_OS    The OS to run the tests in.  Currently supported values:
                 "centos-7"
                 "debian-stable"
                 "debian-testing"
@@ -109,7 +92,7 @@ The code under test is executed in one or more dedicated virtual
 machines, called the "test machines".  Fresh test machines are started
 for each test. To pull all the needed images for a given commit, use:
 
- $ ./vm-download
+ $ bots/image-download
 
 A test machine runs a "test machine image".  Such a test machine image
 contains the root filesystem that is booted inside the virtual
@@ -119,24 +102,24 @@ image.  Thus, you can run multiple test machines from the same image,
 at the same time or one after the other, and each test machine starts
 with a clean state.
 
-A test machine image is created with vm-create, like so:
+A test machine image is created with image-create, like so:
 
-  $ ./vm-create -v fedora-24
+  $ bots/image-create -v fedora-24
 
 The image will be created in $TEST_DATA/images/. In addition a link
-reference will be created in test/images/.
+reference will be created in bots/images/.
 
 If you wish that others use this new image then you should commit the
-new reference link, and use `vm-upload` to upload the new image. You
+new reference link, and use `image-upload` to upload the new image. You
 would need to have Cockpit commit access to do this:
 
-  $ ./vm-upload fedora-24
+  $ bots/image-upload fedora-24
 
 There is more than one test machine image. For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA
 on another, and you want those two machines to use different images.
 
-This is handled by passing a specific image to vm-create
+This is handled by passing a specific image to image-create
 and other scripts that work with test machine images.
 
   "fedora-NN" -- The basic image for running the development version of Cockpit.
@@ -150,31 +133,31 @@ and other scripts that work with test machine images.
 
   "openshift" -- An Openshift Origin server.
 
-A test machine image created by vm-create doesn't contain any Cockpit
+A test machine image created by image-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
 working copy of Cockpit like this:
 
-  $ ./vm-install $(../tools/make-rpms)
+  $ bots/image-prepare fedora-25
 
 This either needs a configured/built tree (build in mock or a development VM)
 or cockpit's build dependencies installed.
 
-vm-install will modify the test machine image that is used for the next run,
+image-prepare will prepare a test machine image used for the next test run,
 but will not modify the saved version in $TEST_DATA/images.  Use
 vm-reset to revert the test machine images for the next run to the
 versions in $TEST_DATA/images.
 
 A typical sequence of steps would thus be the following:
 
-  $ ./vm-download
-  $ ./vm-reset            # Start over
-  $ ../tools/make-rpms    # Create rpms
-  $ ./vm-install ...      # Install code to test
-  $ ./verify/check-...    # Run some tests
+  $ bots/image-download
+  $ test/vm-reset            # Start over
+  $ tools/make-rpms    # Create rpms
+  $ bots/image-install ...      # Install code to test
+  $ test/verify/check-...    # Run some tests
 
-  $ ./vm-reset            # Start over
-  $ ./vm-install ...      # Install code to test
-  $ ./verify/check-...    # Run some tests
+  $ test/vm-reset            # Start over
+  $ bots/image-prepare ...      # Install code to test
+  $ bots/verify/check-...    # Run some tests
 
 You can perform all of the above easily by doing `./testsuite-prepare`
 

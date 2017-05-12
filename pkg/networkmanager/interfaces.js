@@ -1666,8 +1666,8 @@ PageNetworking.prototype = {
                 var tx = samples[1][0];
                 var row = $('#networking-interfaces tr[data-sample-id="' + encodeURIComponent(iface) + '"]');
                 if (rx !== undefined && tx !== undefined && row.length > 0) {
-                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(tx * 8));
-                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(rx * 8));
+                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(tx * 8));
+                    row.find('td:nth-child(5)').text(cockpit.format_bits_per_sec(rx * 8));
                 }
             }
         }
@@ -1726,6 +1726,7 @@ PageNetworking.prototype = {
                 return;
 
             var dev = iface.Device;
+	    var zone = iface.Device.ActiveConnection.Connection.Settings.connection.zone;
             var show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
 
             self.rx_series.add_instance(iface.Name);
@@ -1737,6 +1738,7 @@ PageNetworking.prototype = {
                                    }).
                          append($('<td>').text(iface.Name),
                                 $('<td>').html(render_active_connection(dev, false, true)),
+				$('<td>').text(zone_text(zone)),
                                 (show_traffic?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(device_state_text(dev))));

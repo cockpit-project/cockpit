@@ -12,8 +12,8 @@ To contribute to this component, run a test domain which ends
 up being rather easy. Install the stuff in ```test/README``` near the
 top. And then do the following:
 
-    $ sudo test/vm-prep
-    $ test/vm-run ipa
+    $ sudo bots/image-prep
+    $ bots/image-run ipa
 
 That runs an IPA domain. Now in another terminal do the following:
 

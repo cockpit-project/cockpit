@@ -24,7 +24,8 @@ import sys
 
 from common import testvm
 
-BASE = os.path.dirname(__file__)
+TEST = os.path.dirname(__file__)
+BOTS = os.path.normpath(os.path.join(TEST, "..", "bots"))
 
 parser = argparse.ArgumentParser(description='Run a test machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose details')
@@ -36,7 +37,6 @@ parser.add_argument('image', help='The image to run')
 args = parser.parse_args()
 
 try:
-    os.chdir(BASE)
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
 
     # Hack to make things easier for users who don't know about kubeconfig
@@ -44,21 +44,21 @@ try:
         kubeconfig = os.path.join(os.path.expanduser("~"), ".kube", "config")
         if not os.path.lexists(kubeconfig):
             d = os.path.dirname(kubeconfig)
-            src = os.path.abspath(os.path.join("verify", "files", "openshift.kubeconfig"))
+            src = os.path.abspath(os.path.join(TEST, "verify", "files", "openshift.kubeconfig"))
             if not os.path.exists(d):
                 os.makedirs(d)
-            sys.stderr.write("vm-run: linking kubeconfig into ~/.kube/config\n")
+            sys.stderr.write("image-run: linking kubeconfig into ~/.kube/config\n")
             os.symlink(src, kubeconfig)
 
     # Check that things are configured
     with open(os.devnull, 'w') as fp:
         if subprocess.call(["ip", "address", "show", "dev", "cockpit1"], stdout=fp, stderr=fp) != 0:
-            raise Exception("vm-run: please run: sudo {0}/vm-prep".format(BASE))
+            raise Exception("vm-run: please run: sudo test/vm-prep")
 
     # Check that image is downloaded
     if not os.path.exists(machine.image_base):
         try:
-            ret = subprocess.call(["vm-download", args.image])
+            ret = subprocess.call([ os.path.join(BOTS, "image-download"), args.image])
         except OSError, ex:
             if ex.errno != errno.ENOENT:
                 raise

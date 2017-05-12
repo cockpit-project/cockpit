@@ -22,10 +22,10 @@ virt-builder $virt_builder_image \
              --format qcow2 \
              --arch "$arch" \
              --root-password password:foobar \
-             --ssh-inject root:file:$BASE/../../common/identity.pub \
-             --upload $BASE/host_key:/etc/ssh/ssh_host_rsa_key \
+             --ssh-inject root:file:$BASE/../../../test/common/identity.pub \
+             --upload $BASE/../../../test/common/host_key:/etc/ssh/ssh_host_rsa_key \
              --chmod 0600:/etc/ssh/ssh_host_rsa_key \
-             --upload $BASE/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --upload $BASE/../../../test/common/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
              ${apt_source:+--write /etc/apt/sources.list:"$apt_source"} \
              --write /etc/apt/apt.conf.d/90nolanguages:'Acquire::Languages "none";' \
              --run-command "export DEBIAN_FRONTEND=noninteractive; apt-get -y update; apt-get -y install eatmydata; eatmydata apt-get -y dist-upgrade"

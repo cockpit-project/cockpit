@@ -59,7 +59,7 @@ autopart
 %post
 mkdir /root/.ssh
 chmod 700 /root/.ssh
-echo "$(cat $base/../../common/identity.pub)" > /root/.ssh/authorized_keys
+echo "$(cat $base/../../../test/common/identity.pub)" > /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 mkdir -p /etc/sysconfig/network-scripts
 echo "$(cat $base/network-ifcfg-eth0)" > /etc/sysconfig/network-scripts/ifcfg-eth0

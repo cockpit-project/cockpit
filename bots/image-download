@@ -3,7 +3,7 @@
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2015 Red Hat, Inc.
+# Copyright (C) 2013 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -42,14 +42,11 @@ import urlparse
 
 from contextlib import contextmanager
 
-from common import testinfra
+import github
 
-BASE = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
-IMAGES = os.path.join(BASE, "images")
-DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
-
-# this is the path git uses within the repo, not on the filesystem (which would be IMAGES)
-GIT_IMAGE_PATH = "test/images"
+BOTS = os.path.dirname(os.path.realpath(__file__))
+IMAGES = os.path.join(BOTS, "..", "bots", "images")
+DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 # threshold in G below which unreferenced qcow2 images will be pruned, even if they aren't old
 PRUNE_THRESHOLD_G = float(os.environ.get("PRUNE_THRESHOLD_G", 15))
@@ -93,8 +90,7 @@ def download(link, force, quiet, stores):
         stores += DEFAULT
 
     name = os.path.basename(dest)
-    ca = os.path.join(BASE, "common", "ca.pem")
-
+    ca = os.path.join(BOTS, "images", "files", "ca.pem")
     for store in stores:
         url = urlparse.urlparse(store)
 
@@ -186,7 +182,7 @@ def get_refs(open_pull_requests=True, offline=False):
     if open_pull_requests:
         if offline:
             raise Exception("Unable to consider open pull requests when in offline mode")
-        for p in testinfra.GitHub().pulls():
+        for p in github.GitHub().pulls():
             refs["pull request #{} ({})".format(p["number"], p["title"])] = p["head"]["sha"]
 
     git_cmd = "show-ref" if offline else "ls-remote"
@@ -200,14 +196,16 @@ def get_refs(open_pull_requests=True, offline=False):
 
     return refs
 
-def get_image_links(ref):
+def get_image_links(ref, git_path):
     """Return all image links for the given git ref
 
        Expects to be called from the top level of the git checkout
     """
     # get all the links we have first
-    # trailing slash on GIT_IMAGE_PATH is important
-    git_path = GIT_IMAGE_PATH if GIT_IMAGE_PATH.endswith("/") else "{0}/".format(GIT_IMAGE_PATH)
+    # trailing slash on path is important
+    if not git_path.endswith("/"):
+        git_path = "{0}/".format(git_path)
+
     try:
         entries = subprocess.check_output(["git", "ls-tree",  "--name-only", ref, git_path]).splitlines()
     except subprocess.CalledProcessError, e:
@@ -233,13 +231,16 @@ def get_image_names(quiet=False, open_pull_requests=True, offline=False):
     # iterate over visible refs (mostly branches)
     # this hinges on being in the top level directory of the the git checkout
     with remember_cwd():
-        os.chdir(os.path.join(BASE, ".."))
+        os.chdir(os.path.join(BOTS, ".."))
         refs = get_refs(open_pull_requests, offline)
         # list images present in each branch / pull request
         for name, ref in refs.items():
             if not quiet:
                 sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
-            for link in get_image_links(ref):
+            # DEPRECATED old branches may still have images in test/images
+            for link in get_image_links(ref, "test/images"):
+                images.add(link)
+            for link in get_image_links(ref, "bots/images"):
                 images.add(link)
 
     return images
@@ -251,25 +252,6 @@ def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=Fa
 
     # everything we want to keep
     targets = get_image_names(quiet, open_pull_requests, offline)
-    def maybe_add_target(target):
-        # if the path isn't absolute, it can resolve to either the images directory or here (might be the same)
-        if not os.path.isabs(target):
-            targets.add(os.path.join(IMAGES, target))
-            targets.add(os.path.join(DATA, target))
-        else:
-            targets.add(target)
-
-    # iterate over all visible refs (mostly branches)
-    # this hinges on being in the top level directory of the the git checkout
-    with remember_cwd():
-        os.chdir(os.path.join(BASE, ".."))
-        refs = get_refs()
-        # list images present in each branch
-        for name, ref in refs.items():
-            if not quiet:
-                sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
-            for link in get_image_links(ref):
-                maybe_add_target(link)
 
     # what we have in the current checkout might already have been added by its branch, but check anyway
     for filename in os.listdir(IMAGES):
@@ -280,7 +262,11 @@ def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=Fa
             continue
 
         target = os.readlink(path)
-        maybe_add_target(target)
+        if not os.path.isabs(target):
+            targets.add(os.path.join(IMAGES, target))
+            targets.add(os.path.join(DATA, target))
+        else:
+            targets.add(target)
 
     expiry_threshold = now - IMAGE_EXPIRE * 86400
     for filename in os.listdir(DATA):
@@ -320,7 +306,7 @@ def download_images(image_list, force, quiet, store):
     for image in image_list:
         link = os.path.join(IMAGES, image)
         if not os.path.islink(link):
-            raise Exception("image link does not exist: " + image)
+            raise RuntimeError("image link does not exist: " + image)
         download(link, force, quiet, store)
 
 def main():
@@ -339,9 +325,15 @@ def main():
     if not args.image and not args.prune:
         args.image = every_image()
 
-    if args.prune:
-        prune_images(force=args.force, dryrun=args.dryrun, quiet=args.quiet, open_pull_requests=(not args.branches_only), offline=args.offline)
-    download_images(args.image, args.force, args.quiet, args.store)
+    try:
+        if args.prune:
+            prune_images(args.force, args.dryrun, quiet=args.quiet, open_pull_requests=(not args.branches_only), offline=args.offline)
+        download_images(args.image, args.force, args.quiet, args.store)
+    except RuntimeError, ex:
+        sys.stderr.write("image-download: {0}\n".format(str(ex)))
+        return 1
+
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())

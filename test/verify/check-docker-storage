@@ -20,7 +20,6 @@
 
 import parent
 from testlib import *
-from common.vmmanage import get_build_image
 
 # The Docker Storage Setup behaves differently depending on
 # whether the "atomic" utility is recent enough, on whether or not
@@ -67,6 +66,19 @@ def initially_loopbacked(machine):
 #
 def initially_without_vgroup(machine):
     return machine.image in [ "fedora-24", "rhel-7" ]
+
+# The Atomic variants can't build their own packages, so we build in
+# their non-Atomic siblings.  For example, fedora-atomic is built
+# in fedora-25
+def get_build_image(test_os):
+    build_os = test_os
+    if test_os == "fedora-atomic":
+        build_os = "fedora-25"
+    elif test_os == "rhel-atomic":
+        build_os = "rhel-7"
+    elif test_os == "continuous-atomic":
+        build_os = "centos-7"
+    return build_os
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
 class TestDockerStorage(MachineCase):

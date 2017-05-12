@@ -13,12 +13,12 @@ import subprocess
 import sys
 import urlparse
 
-BASE = os.path.dirname(__file__)
-IMAGES = os.path.join(BASE, "images")
-DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
+BOTS = os.path.dirname(__file__)
+IMAGES = os.path.join(BOTS, "images")
+DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 def upload(store, source):
-    ca = os.path.join(BASE, "common", "ca.pem")
+    ca = os.path.join(BOTS, "images", "files", "ca.pem")
     url = urlparse.urlparse(store)
 
     # Parse out the user name if present
@@ -54,7 +54,7 @@ def upload(store, source):
     ret = curl.wait()
     cat.wait()
     if ret != 0:
-        sys.stderr.write("vm-upload: unable to upload image: {0}\n".format(message))
+        sys.stderr.write("image-upload: unable to upload image: {0}\n".format(message))
     return ret
 
 def main():

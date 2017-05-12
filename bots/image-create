@@ -16,24 +16,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# vm-create  -- Make a root image suitable for use with vm-run.
-#
-# Usage: vm-create
+# image-create  -- Make a root image suitable for use with vm-run.
 #
 # Installs the OS indicated by TEST_OS into the image
 # for test machine and tweaks it to be useable with
 # vm-run and testlib.py.
 
 import argparse
+import imp
 import os
 import shutil
 import subprocess
 import sys
 import time
 
-from common import testvm
+BOTS = os.path.abspath(os.path.dirname(__file__))
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
 
-BASE = os.path.dirname(__file__)
+# Borrow the VirtMachine implementation from the test/ directory
+testvm = imp.load_source("testvm", os.path.join(BASE, "test", "common", "testvm.py"))
 
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
@@ -64,7 +65,7 @@ class MachineBuilder:
         if not os.path.exists(self.machine.run_dir):
             os.makedirs(self.machine.run_dir, 0750)
 
-        bootstrap_script = os.path.join(testvm.TEST_DIR, "images", "scripts", "%s.bootstrap" % (self.machine.image, ))
+        bootstrap_script = os.path.join(BOTS, "images", "scripts", "%s.bootstrap" % (self.machine.image, ))
 
         if os.path.exists(self.machine.image_file):
             os.unlink(self.machine.image_file)
@@ -80,11 +81,11 @@ class MachineBuilder:
         try:
             self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)
-            self.machine.upload([ os.path.join(testvm.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
+            self.machine.upload([ os.path.join(BOTS, "images", "scripts", "lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             if source:
                 self.machine.upload([source], "/var/tmp")
-            self.machine.upload([ os.path.join(testvm.TEST_DIR, "images", "scripts", "lib", "base") ],
+            self.machine.upload([ os.path.join(BOTS, "images", "scripts", "lib", "base") ],
                                 "/var/tmp/cockpit-base")
 
             if "rhel" in self.machine.image:
@@ -132,7 +133,7 @@ class MachineBuilder:
         self.bootstrap_system()
 
         # gather the scripts, separated by reboots
-        script = os.path.join(testvm.TEST_DIR, "images", "scripts", "%s.setup" % (self.machine.image, ))
+        script = os.path.join(BOTS, "images", "scripts", "%s.setup" % (self.machine.image, ))
 
         if not os.path.exists(script):
             raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
@@ -141,7 +142,7 @@ class MachineBuilder:
         if args.no_build:
             source = None
         else:
-            source = subprocess.check_output([ "../tools/make-source" ]).strip()
+            source = subprocess.check_output([ os.path.join(BASE, "tools", "make-source") ]).strip()
         self.run_setup_script(script, source)
 
         tries_left = 3
@@ -161,8 +162,8 @@ class MachineBuilder:
             raise testvm.Failure("Unable to verify that machine boot works.")
 
     def save(self):
-        data_dir = os.path.join(os.environ.get("TEST_DATA", testvm.TEST_DIR), "images")
-        images_dir = os.path.join(testvm.TEST_DIR, "images")
+        data_dir = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
+        images_dir = os.path.join(BOTS, "images")
 
         if not os.path.exists(data_dir):
             os.makedirs(data_dir, 0750)
@@ -195,7 +196,6 @@ class MachineBuilder:
             os.symlink(os.path.abspath(data_file), image_file)
 
 try:
-    os.chdir(BASE)
     testvm.VirtMachine.memory_mb = 2048
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, fetch=False)
     builder = MachineBuilder(machine)
@@ -205,12 +205,12 @@ try:
         builder.save()
         if args.upload:
             print "Uploading..."
-            cmd = [ "vm-upload" ]
+            cmd = [ os.path.join(BOTS, "image-upload") ]
             if args.store:
                 cmd += [ "--store", args.store ]
             cmd += [ args.image ]
             subprocess.check_call(cmd)
 
 except testvm.Failure, ex:
-    print >> sys.stderr, "vm-create:", ex
+    print >> sys.stderr, "image-create:", ex
     sys.exit(1)

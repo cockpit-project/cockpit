@@ -245,7 +245,7 @@ class ImageTask(object):
         if os.path.exists(prep):
             subprocess.call(["sudo", "-n", prep ])
 
-        cmd = [ "vm-create", "--verbose", "--upload" ]
+        cmd = [ "image-create", "--verbose", "--upload" ]
         if self.store:
             cmd += [ "--store", self.store ]
         cmd += [ self.image ]
@@ -283,7 +283,7 @@ class ImageTask(object):
         # request anyway, for extra attention
 
         if ret != 0:
-            os.unlink(os.path.join(BASE, "test", "images", self.image))
+            os.unlink(os.path.join(BOTS, "images", self.image))
 
         have_branch = (run_censored([ "git", "checkout", "--detach" ]) and
                        run_censored([ "git", "commit", "-a",

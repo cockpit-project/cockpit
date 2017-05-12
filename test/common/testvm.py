@@ -45,6 +45,7 @@ MEMORY_MB = 1024
 ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
+BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
 
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down calls
@@ -531,7 +532,7 @@ class Machine:
         return int(self.execute("{ (%s) >/var/log/%s 2>&1 & }; echo $!" % (shell_cmd, log_id)))
 
     def _calc_identity(self):
-        identity = os.path.join(TEST_DIR, "common/identity")
+        identity = os.path.join(TEST_DIR, "common", "identity")
         os.chmod(identity, 0600)
         return identity
 
@@ -896,7 +897,7 @@ class VirtMachine(Machine):
 
         self.run_dir = os.path.join(TEST_DIR, "tmp", "run")
 
-        self.image_base = os.path.join(TEST_DIR, "images", self.image)
+        self.image_base = os.path.join(BOTS_DIR, "images", self.image)
         self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
         self._network_description = etree.parse(open(os.path.join(TEST_DIR, "common", "network-cockpit.xml")))
@@ -1064,7 +1065,7 @@ class VirtMachine(Machine):
                                         "memory_in_mib": memory_mb or VirtMachine.memory_mb or MEMORY_MB,
                                         "drive": image_to_use,
                                         "mac": mac_desc,
-                                        "iso": os.path.join(TEST_DIR, "common/cloud-init.iso")
+                                        "iso": os.path.join(TEST_DIR, "common", "cloud-init.iso")
                                       }
 
         # add the virtual machine
@@ -1118,7 +1119,7 @@ class VirtMachine(Machine):
     def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
         if self.fetch:
             try:
-                subprocess.check_call([ "vm-download", self.image ])
+                subprocess.check_call([ "image-download", self.image ])
             except OSError, ex:
                 if ex.errno != errno.ENOENT:
                     raise

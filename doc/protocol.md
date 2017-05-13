@@ -320,6 +320,19 @@ Example authorize challenge and response messages:
         "response": "crypt1:$6$r0oetn2039ntoen..."
     }
 
+Authorize messages are used during authentication by authentication
+commands (ei: cockpit-session, cockpit-ssh) to obtain the users credentials
+from cockpit-ws. An authentication command can send a authorize message
+with a response but no cookie. For example
+
+    {
+        "command": "authorize",
+        "response": "Basic ..."
+    }
+
+In that case cockpit-ws will store the response and use it in a reply
+to a subsequent challenge.
+
 For credential cache authorization, the following fields are defined:
 
  * "credential": Empty or "password"

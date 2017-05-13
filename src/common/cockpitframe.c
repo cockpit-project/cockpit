@@ -181,7 +181,7 @@ cockpit_frame_read (int fd,
       if (res < 0)
         {
           /* A read failure */
-          if (errno != EINTR || errno != EAGAIN)
+          if (errno != EINTR && errno != EAGAIN)
             {
               errn = errno;
               goto out;

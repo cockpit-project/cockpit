@@ -117,10 +117,10 @@ file_tag_from_stat (int res,
   // renames.
 
   if (res >= 0)
-    return g_strdup_printf ("1:%lu-%ld.%ld",
+    return g_strdup_printf ("1:%lu-%lld.%ld",
                             (unsigned long)buf->st_ino,
-                            buf->st_mtim.tv_sec,
-                            buf->st_mtim.tv_nsec);
+                            (long long int)buf->st_mtim.tv_sec,
+                            (long int)buf->st_mtim.tv_nsec);
   else if (err == ENOENT)
     return g_strdup ("-");
   else

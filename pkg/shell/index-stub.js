@@ -54,6 +54,7 @@
         "authentication-failed": "change-auth",
         "no-forwarding": "change-auth",
         "unknown-hostkey": "unknown-hostkey",
+        "unknown-host": "unknown-host",
         "invalid-hostkey": "invalid-hostkey",
         "no-host": "change-port",
     });

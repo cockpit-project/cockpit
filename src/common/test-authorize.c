@@ -332,7 +332,7 @@ test_parse_x_conversation (void *data)
   if (fix->ret == NULL)
     expect_message = "invalid";
 
-  result = cockpit_authorize_parse_x_conversation (fix->input);
+  result = cockpit_authorize_parse_x_conversation (fix->input, NULL);
   if (fix->errn != 0)
     assert_num_eq (errno, fix->errn);
   if (fix->ret)

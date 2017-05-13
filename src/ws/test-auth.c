@@ -679,6 +679,12 @@ static const ErrorFixture fixture_ssh_auth_with_error = {
   .header = "testsshscheme with-error",
 };
 
+static const SuccessFixture fixture_no_cookie = {
+  .warning = NULL,
+  .data = NULL,
+  .header = "testscheme no-cookie"
+};
+
 static const SuccessFixture fixture_no_data = {
   .warning = NULL,
   .data = NULL,
@@ -1177,6 +1183,8 @@ main (int argc,
   g_test_add ("/auth/bad-coversation", Test, &fixture_bad_conversation,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-success", Test, &fixture_no_data,
+              setup_normal, test_custom_success, teardown_normal);
+  g_test_add ("/auth/custom-no-cookie-success", Test, &fixture_no_cookie,
               setup_normal, test_custom_success, teardown_normal);
   g_test_add ("/auth/custom-data-then-success", Test, &fixture_data_then_success,
               setup_normal, test_custom_success, teardown_normal);

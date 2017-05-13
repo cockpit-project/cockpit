@@ -327,6 +327,7 @@ prompt_with_authorize (CockpitSshData *data,
                        const gchar *prompt,
                        const gchar *msg,
                        const gchar *default_value,
+                       const gchar *host_key,
                        gboolean echo)
 {
   JsonObject *request = NULL;
@@ -352,6 +353,8 @@ prompt_with_authorize (CockpitSshData *data,
     json_object_set_string_member (request, "message", msg);
   if (default_value)
     json_object_set_string_member (request, "default", default_value);
+  if (host_key)
+    json_object_set_string_member (request, "host-key", host_key);
 
   json_object_set_boolean_member (request, "echo", echo);
 
@@ -376,7 +379,7 @@ prompt_with_authorize (CockpitSshData *data,
     }
   else if (!g_str_equal (response, ""))
     {
-      result = cockpit_authorize_parse_x_conversation (response);
+      result = cockpit_authorize_parse_x_conversation (response, NULL);
       if (!result)
         g_message ("received unexpected \"authorize\" control message \"response\"");
     }
@@ -507,10 +510,10 @@ prompt_for_host_key (CockpitSshData *data)
                              host, port);
   prompt = g_strdup_printf ("MD5 Fingerprint (%s):", data->host_key_type);
 
-  reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, TRUE);
+  reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, data->host_key, TRUE);
 
 out:
-  if (reply && g_strcmp0 (reply, data->host_fingerprint) == 0)
+  if (g_strcmp0 (reply, data->host_fingerprint) == 0 || g_strcmp0 (reply, data->host_key) == 0)
     ret = NULL;
   else
     ret = "unknown-hostkey";
@@ -623,14 +626,6 @@ set_knownhosts_file (CockpitSshData *data,
     }
 
   g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
-  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                       data->ssh_options->knownhosts_file) != SSH_OK)
-    {
-      g_warning ("Couldn't set knownhosts file location");
-      problem =  "internal-error";
-      goto out;
-    }
-
   if (!data->ssh_options->allow_unknown_hosts && !host_known)
     {
       g_message ("%s: refusing to connect to unknown host: %s:%d",
@@ -651,7 +646,6 @@ verify_knownhost (CockpitSshData *data,
                   const guint port)
 {
   const gchar *ret = "invalid-hostkey";
-  const gchar *r;
   ssh_key key = NULL;
   unsigned char *hash = NULL;
   int state;
@@ -664,7 +658,11 @@ verify_knownhost (CockpitSshData *data,
       goto done;
     }
 
+#ifdef HAVE_SSH_GET_SERVER_PUBLICKEY
+  if (ssh_get_server_publickey (data->session, &key) != SSH_OK)
+#else
   if (ssh_get_publickey (data->session, &key) != SSH_OK)
+#endif
     {
       g_warning ("Couldn't look up ssh host key");
       ret = "internal-error";
@@ -691,10 +689,11 @@ verify_knownhost (CockpitSshData *data,
       ssh_clean_pubkey_hash (&hash);
     }
 
-  r = set_knownhosts_file (data, host, port);
-  if (r != NULL)
+  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
+                       data->ssh_options->knownhosts_file) != SSH_OK)
     {
-      ret = r;
+      g_warning ("Couldn't set knownhosts file location");
+      ret = "internal-error";
       goto done;
     }
 
@@ -816,7 +815,7 @@ do_interactive_auth (CockpitSshData *data)
             }
           else
             {
-              answer = prompt_with_authorize (data, prompt, msg, NULL, echo != '\0');
+              answer = prompt_with_authorize (data, prompt, msg, NULL, NULL, echo != '\0');
               if (answer)
                   status = ssh_userauth_kbdint_setanswer (data->session, i, answer);
               else
@@ -1302,6 +1301,23 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);;
 
+  if (!data->ssh_options->ignore_hostkey)
+    {
+      /* This is a single host, for which we have been told to ignore the host key */
+      ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
+      if (!ignore_hostkey)
+        ignore_hostkey = "127.0.0.1";
+
+      data->ssh_options->ignore_hostkey = g_str_equal (ignore_hostkey, host);
+    }
+
+  if (!data->ssh_options->ignore_hostkey)
+    {
+      problem = set_knownhosts_file (data, host, port);
+      if (problem != NULL)
+        goto out;
+    }
+
   rc = ssh_connect (data->session);
   if (rc != SSH_OK)
     {
@@ -1313,13 +1329,7 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   g_debug ("%s: connected", data->logname);
 
-  /* This is a single host, for which we have been told to ignore the host key */
-  ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
-  if (!ignore_hostkey)
-    ignore_hostkey = "127.0.0.1";
-
-  if (!g_str_equal (ignore_hostkey, host) &&
-      !data->ssh_options->ignore_hostkey)
+  if (!data->ssh_options->ignore_hostkey)
     {
       problem = verify_knownhost (data, host, port);
       if (problem != NULL)
@@ -1339,6 +1349,22 @@ cockpit_ssh_connect (CockpitSshData *data,
                  ssh_get_error (data->session));
       problem = "internal-error";
       goto out;
+    }
+
+  if (data->ssh_options->remote_peer)
+    {
+      /* Try to set the remote peer env var, this will
+       * often fail as ssh servers have to be configured
+       * to allow it.
+       */
+      rc = ssh_channel_request_env (channel, "COCKPIT_REMOTE_PEER",
+                                    data->ssh_options->remote_peer);
+      if (rc != SSH_OK)
+        {
+          g_debug ("%s: Couldn't set COCKPIT_REMOTE_PEER: %s",
+                   data->logname,
+                   ssh_get_error (data->session));
+        }
     }
 
   rc = ssh_channel_request_exec (channel, data->ssh_options->command);

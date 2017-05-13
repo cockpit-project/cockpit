@@ -53,6 +53,8 @@ void                cockpit_router_add_peer                        (CockpitRoute
                                                                     JsonObject *match,
                                                                     CockpitPeer *peer);
 
+void                cockpit_router_dump_rules                      (CockpitRouter *self);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_ROUTER_H__ */

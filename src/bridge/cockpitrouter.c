@@ -253,7 +253,6 @@ router_rule_invoke (RouterRule *rule,
   return (rule->callback) (self, channel, options, data, rule->user_data);
 }
 
-#ifdef WITH_DEBUG
 static void
 router_rule_dump (RouterRule *rule)
 {
@@ -261,27 +260,26 @@ router_rule_dump (RouterRule *rule)
   gchar *text;
   guint i;
 
-  g_debug ("rule:");
+  g_print ("rule:\n");
   for (i = 0; rule->matches && rule->matches[i].name != NULL; i++)
     {
       match = &rule->matches[i];
       if (match->node)
         {
           text = cockpit_json_write (match->node, NULL);
-          g_debug ("  %s: %s", match->name, text);
+          g_print ("  %s: %s\n", match->name, text);
           g_free (text);
         }
       else if (match->glob)
         {
-          g_debug ("  %s: glob", match->name);
+          g_print ("  %s: glob\n", match->name);
         }
       else
         {
-          g_debug ("  %s", match->name);
+          g_print ("  %s\n", match->name);
         }
     }
 }
-#endif
 
 static void
 process_init (CockpitRouter *self,
@@ -999,11 +997,6 @@ cockpit_router_new (CockpitTransport *transport,
       cockpit_router_add_bridge (router, l->data);
     }
 
-#ifdef WITH_DEBUG
-  for (l = router->rules; l != NULL; l = g_list_next (l))
-    router_rule_dump (l->data);
-#endif
-
   return router;
 }
 
@@ -1111,4 +1104,12 @@ out:
 
   g_bytes_unref (bytes);
   g_list_free_full (output, (GDestroyNotify) g_bytes_unref);
+}
+
+void
+cockpit_router_dump_rules (CockpitRouter *self)
+{
+  GList *l;
+  for (l = self->rules; l != NULL; l = g_list_next (l))
+    router_rule_dump (l->data);
 }

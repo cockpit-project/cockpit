@@ -31,4 +31,5 @@ case ${1:-} in
 	;;
 esac
 
-rm -rf $BASE/tmp/run/* $BASE/tmp/run/.*??
+rm -rf $BASE/tmp/*
+rm -f $BASE/*.log $BASE/*.png $BASE/*.avocado

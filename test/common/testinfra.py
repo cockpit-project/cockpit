@@ -55,28 +55,31 @@ DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
 
 BASELINE_PRIORITY = 10
 
+BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5' ]
+
 DEFAULT_VERIFY = {
-    'avocado/fedora-24': [ 'master', 'pulls' ],
+    'avocado/fedora-24': BRANCHES,
     'avocado/fedora-25': [ ],
-    'container/kubernetes': [ 'master', 'pulls' ],
+    'container/kubernetes': BRANCHES,
     'koji/fedora-24': [ ],
     'koji/fedora-25': [ ],
     'koji/fedora-26': [ ],
-    'selenium/firefox': [ 'master', 'pulls' ],
-    'selenium/chrome': [ 'master', 'pulls' ],
-    'verify/centos-7': [ 'master', 'pulls' ],
-    'verify/continuous-atomic': [ 'master' ],
-    'verify/debian-stable': [ 'master', 'pulls', ],
-    'verify/debian-testing': [ 'master', 'pulls' ],
+    'selenium/firefox': BRANCHES,
+    'selenium/chrome': BRANCHES,
+    'verify/centos-7': BRANCHES,
+    'verify/continuous-atomic': [ ],
+    'verify/debian-8': [ 'rhel-7.4' ],
+    'verify/debian-stable': [ 'master' ],
+    'verify/debian-testing': BRANCHES,
     'verify/fedora-24': [ ],
-    'verify/fedora-25': [ 'master', 'pulls' ],
-    'verify/fedora-i386': [ 'master', 'pulls' ],
-    'verify/fedora-26': [ 'master', 'pulls' ],
-    'verify/fedora-atomic': [ 'master', 'pulls' ],
+    'verify/fedora-25': BRANCHES,
+    'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.5' ],
+    'verify/fedora-26': [ 'master' ],
+    'verify/fedora-atomic': BRANCHES,
     'verify/fedora-testing': [ ],
-    'verify/rhel-7': [ 'master', 'pulls' ],
-    'verify/rhel-atomic': [ 'master', 'pulls' ],
-    'verify/ubuntu-1604': [ 'master', 'pulls' ],
+    'verify/rhel-7': BRANCHES,
+    'verify/rhel-atomic': BRANCHES,
+    'verify/ubuntu-1604': [ 'master', 'rhel-7.4', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
 }
 
 TESTING = "Testing in progress"
@@ -565,13 +568,12 @@ class GitHub(object):
                         contexts.pop(ctx)
 
         results = []
-        master_contexts = []
-        pull_contexts = []
-        for (context, what) in contexts.items():
-            if "master" in what:
-                master_contexts.append(context)
-            if "pulls" in what:
-                pull_contexts.append(context)
+        branch_contexts = { }
+        for (context, branches) in contexts.items():
+            for branch in branches:
+                if branch not in branch_contexts:
+                    branch_contexts[branch] = [ ]
+                branch_contexts[branch].append(context)
 
         def update_status(revision, context, last, changes):
             if update and changes and not dict_is_subset(last, changes):
@@ -586,15 +588,16 @@ class GitHub(object):
                 return False
             return True
 
-        if master_contexts:
-            master = self.get("git/refs/heads/master")
-            revision = master["object"]["sha"]
-            statuses = self.statuses(revision)
-            for context in master_contexts:
-                status = statuses.get(context, { })
-                (priority, changes) = self.prioritize(status, "", [], 8, context)
-                if update_status(revision, context, status, changes):
-                    results.append(GitHub.TaskEntry(priority, GithubPullTask("master", revision, "master", context)))
+        for branch in branch_contexts:
+            ref = self.get("git/refs/heads/{0}".format(branch))
+            if ref:
+                revision = ref["object"]["sha"]
+                statuses = self.statuses(revision)
+                for context in branch_contexts[branch]:
+                    status = statuses.get(context, { })
+                    (priority, changes) = self.prioritize(status, "", [], 8, context)
+                    if update_status(revision, context, status, changes):
+                        results.append(GitHub.TaskEntry(priority, GithubPullTask(branch, revision, branch, context, branch)))
 
         for pull in self.pulls():
             title = pull["title"]
@@ -605,7 +608,7 @@ class GitHub(object):
             login = pull["head"]["user"]["login"]
             base = pull["base"]["ref"]  # The branch this pull request targets
 
-            for context in contexts.keys():
+            for context in contexts:
                 status = statuses.get(context, None)
                 baseline = BASELINE_PRIORITY
 
@@ -615,7 +618,7 @@ class GitHub(object):
 
                 # Only create new status for those requested
                 if not status:
-                    if context not in pull_contexts:
+                    if context not in branch_contexts.get(base, []):
                         continue
                     status = { }
 

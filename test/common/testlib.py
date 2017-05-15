@@ -436,6 +436,8 @@ class Browser:
 
 
 class MachineCase(unittest.TestCase):
+    image = testvm.DEFAULT_IMAGE
+    runner = None
     machine = None
     machines = { }
     machine_class = None
@@ -451,9 +453,11 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, image=testvm.DEFAULT_IMAGE, forward={ }, **kwargs):
+    def new_machine(self, image=None, forward={ }, **kwargs):
         import testvm
         machine_class = self.machine_class
+        if image is None:
+            image = self.image
         if opts.address:
             if machine_class or forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")

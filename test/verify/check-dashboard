@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import json
+
 import parent
 from testlib import *
 
@@ -69,13 +70,29 @@ class DashBoardHelpers:
             b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
-@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+    def overlay_dashboard(self):
+        m = self.machine
+
+        # If we can do package overlays on Atomic host, then try that here
+        # This tests the case that cockpit-dashboard is installable via
+        # package overlays on Atomic Host
+        # The libssh RPM was placed by the atomic setup scripts
+
+        if m.image in [ "fedora-atomic", "rhel-atomic", "continuous-atomic" ]:
+            m.execute("rm -rf /etc/yum.repos.d/* && rpm-ostree install /root/rpms/libssh-*.rpm /var/tmp/build-results/cockpit-dashboard-*.rpm")
+            m.spawn("sleep 2 && systemctl reboot", "reboot")
+            m.wait_reboot()
+
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
     provision = {
         'machine1': { "address": "10.111.113.1/20" },
         'machine2': { "address": "10.111.113.2/20" },
         'machine3': { "address": "10.111.113.3/20" }
     }
+
+    def setUp(self):
+        super(TestBasicDashboard, self).setUp()
+        self.overlay_dashboard()
 
     def testBasic(self):
         b = self.browser
@@ -144,7 +161,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.machine_remove (b, "10.111.113.2")
         self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.3" ])
         key = m.execute("grep '10.111.113.2' /etc/ssh/ssh_known_hosts && sed -i '/10.111.113.2/d' /etc/ssh/ssh_known_hosts")
-        m.execute("mkdir ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh""".format(key))
+        m.execute("mkdir -p ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh""".format(key))
         self.add_machine (b, "10.111.113.2", True)
         self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2", "10.111.113.3" ])
         # Should be connected, no error
@@ -203,13 +220,16 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 
-@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardSetup(MachineCase, DashBoardHelpers):
     provision = {
         'machine1': { "address": "10.111.113.1/20" },
         'machine2': { "address": "10.111.113.2/20" },
         'machine3': { "address": "10.111.113.3/20" }
     }
+
+    def setUp(self):
+        super(TestDashboardSetup, self).setUp()
+        self.overlay_dashboard()
 
     def testSetup(self):
         b = self.browser
@@ -299,6 +319,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()
 
+    @skipImage("No migration on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
     def testMachinesJsonVarMigration(self):
         b = self.browser
         m = self.machine
@@ -315,6 +336,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
         # create obsolete machines.json in /var
         blue_conf = '{"blue": {"address": "10.111.113.2", "visible": true}}'
+        m.execute("mkdir -p /var/lib/cockpit")
         m.execute("echo '%s' > /var/lib/cockpit/machines.json" % blue_conf)
         # prevent migration due to permission error; should not crash and keep/respect the old file
         m.execute("""chattr +i /etc/cockpit/machines.d""")

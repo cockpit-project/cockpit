@@ -183,6 +183,9 @@ class GithubImageTask(object):
 
         user = github.get("/user")['login']
 
+        # Cleanup any extraneous disk usage elsewhere
+        subprocess.check_call([ "vm-reset" ])
+
         msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
         sys.stderr.write(msg)
 
@@ -196,7 +199,7 @@ class GithubImageTask(object):
                 return False
             return True
 
-        cmd = [ "./vm-create", "--verbose", "--upload" ]
+        cmd = [ "vm-create", "--verbose", "--upload" ]
         if 'store' in self.config:
             cmd += [ "--store", self.config['store'] ]
         cmd += [ self.image ]

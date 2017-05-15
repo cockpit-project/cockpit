@@ -1,0 +1,253 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+BASELINE_PRIORITY = 10
+
+BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5' ]
+
+DEFAULT_VERIFY = {
+    'avocado/fedora-24': BRANCHES,
+    'avocado/fedora-25': [ ],
+    'container/kubernetes': BRANCHES,
+    'koji/fedora-24': [ ],
+    'koji/fedora-25': [ ],
+    'koji/fedora-26': [ ],
+    'selenium/firefox': BRANCHES,
+    'selenium/chrome': BRANCHES,
+    'verify/centos-7': BRANCHES,
+    'verify/continuous-atomic': [ ],
+    'verify/debian-8': [ 'rhel-7.4' ],
+    'verify/debian-stable': [ 'master' ],
+    'verify/debian-testing': BRANCHES,
+    'verify/fedora-24': [ ],
+    'verify/fedora-25': BRANCHES,
+    'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.5' ],
+    'verify/fedora-26': [ 'master' ],
+    'verify/fedora-atomic': BRANCHES,
+    'verify/fedora-testing': [ ],
+    'verify/ubuntu-1604': [ 'master', 'rhel-7.4', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
+    'verify/ubuntu-stable': [ ],
+}
+
+# Non-public images used for testing
+REDHAT_VERIFY = {
+    "verify/rhel-7": [ "master", "pulls" ],
+    "verify/rhel-7.4": [ ],
+    "verify/rhel-atomic": [ "master", "pulls" ],
+}
+
+# Server to tell us if we can test Red Hat images
+REDHAT_PING = "http://cockpit-11.e2e.bos.redhat.com"
+
+import argparse
+import os
+import json
+import pipes
+import random
+import sys
+import time
+import urllib
+
+sys.dont_write_bytecode = True
+
+import github
+
+def main():
+    parser = argparse.ArgumentParser(description='Bot: scan and update status of pull requests on GitHub')
+    parser.add_argument('-d', '--dry', action="store_true", default=False,
+                        help='Don''t actually change anything on GitHub')
+    opts = parser.parse_args()
+    api = github.GitHub()
+
+    try:
+        results = scan(api, not opts.dry)
+    except RuntimeError, ex:
+        sys.stderr.write("tests-scan: " + str(ex) + "\n")
+        return 1
+
+    for result in results:
+        if result:
+            sys.stdout.write(result + "\n")
+
+    return 0
+
+# Prepare an test invocation command
+def tests_invoke(priority, name, revision, ref, context, base=None):
+    if priority <= 0:
+        return
+    cmd = "PRIORITY={priority:04d} TEST_NAME='{name}' TEST_REVISION='{revision}' bots/tests-invoke"
+    if base:
+        cmd += " --rebase='{base}'"
+    cmd += " '{context}' '{ref}'"
+    return cmd.format(
+        priority=int(priority),
+        name=pipes.quote(name),
+        revision=pipes.quote(revision),
+        base=pipes.quote(str(base)),
+        ref=pipes.quote(ref),
+        context=pipes.quote(context),
+    )
+
+def prioritize(status, title, labels, priority, context):
+    state = status.get("state", None)
+    update = { "state": "pending" }
+
+    # This commit definitively succeeded or failed
+    if state in [ "success", "failure" ]:
+        priority = 0
+        update = None
+
+    # This test errored, we try again but low priority
+    elif state in [ "error" ]:
+        priority -= 6
+
+    elif state in [ "pending" ]:
+        update = None
+
+    # Don't start working on "bot" pull requests automatically.
+    # The bot triggers them explicitly.
+    elif "bot" in labels:
+        priority = 0
+        update = None
+
+    if priority > 0:
+        if "priority" in labels:
+            priority += 2
+        if "needsdesign" in labels:
+            priority -= 2
+        if "blocked" in labels:
+            priority -= 1
+
+        # Pull requests where the title starts with WIP get penalized
+        if title.startswith("WIP"):
+            priority -= 3
+
+        # Is testing already in progress?
+        if status.get("description", "").startswith(github.TESTING):
+            priority = 0
+
+        # Prefer "local" operating system
+        if os.environ.get("TEST_OS", "?") not in context:
+            priority -= random.randint(1, 2)
+
+    if update:
+        if priority <= 0:
+            update["description"] = github.NO_TESTING
+        else:
+            update["description"] = github.NOT_TESTED
+
+    return [priority, update]
+
+def dict_is_subset(full, check):
+    for (key, value) in check.items():
+        if not key in full or full[key] != value:
+            return False
+    return True
+
+def scan_for_pull_tasks(api, update, policy):
+    contexts = policy
+
+    results = []
+    branch_contexts = { }
+    for (context, branches) in contexts.items():
+        for branch in branches:
+            if branch not in branch_contexts:
+                branch_contexts[branch] = [ ]
+            branch_contexts[branch].append(context)
+
+    def update_status(revision, context, last, changes):
+        if update and changes and not dict_is_subset(last, changes):
+            changes["context"] = context
+            response = api.post("statuses/" + revision, changes, accept=[ 422 ]) # 422 Unprocessable Entity
+            errors = response.get("errors", None)
+            if not errors:
+                return True
+            for error in response.get("errors", []):
+                sys.stderr.write("{0}: {1}\n".format(revision, error.get('message', json.dumps(error))))
+                sys.stderr.write(json.dumps(changes))
+            return False
+        return True
+
+    for branch in branch_contexts:
+        ref = api.get("git/refs/heads/{0}".format(branch))
+        if ref:
+            revision = ref["object"]["sha"]
+            statuses = api.statuses(revision)
+            for context in branch_contexts[branch]:
+                status = statuses.get(context, { })
+                (priority, changes) = prioritize(status, "", [], 8, context)
+                if update_status(revision, context, status, changes):
+                    results.append(tests_invoke(priority, branch, revision, branch, context))
+
+    for pull in api.pulls():
+        title = pull["title"]
+        number = pull["number"]
+        labels = api.labels(number)
+        revision = pull["head"]["sha"]
+        statuses = api.statuses(revision)
+        login = pull["head"]["user"]["login"]
+        base = pull["base"]["ref"]  # The branch this pull request targets
+
+        for context in contexts:
+            status = statuses.get(context, None)
+            baseline = BASELINE_PRIORITY
+
+            # modify the baseline slightly to favor older pull requests, so that we don't
+            # end up with a bunch of half tested pull requests
+            baseline += 1.0 - (min(100000, float(number)) / 100000)
+
+            # Only create new status for those requested
+            if not status:
+                if context not in branch_contexts.get(base, []):
+                    continue
+                status = { }
+
+            # For unmarked and untested status, user must be in whitelist
+            # Not this only applies to this specific commit. A new status
+            # will apply if the user pushes a new commit.
+            if login not in api.whitelist:
+                if status.get("description", github.NO_TESTING) == github.NO_TESTING:
+                    baseline = 0
+
+            (priority, changes) = prioritize(status, title, labels, baseline, context)
+            if update_status(revision, context, status, changes):
+                results.append(tests_invoke(priority, "pull-%d" % number, revision, "pull/%d/head" % number, context, base))
+
+    return results
+
+def scan(api, update):
+    kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
+    if not kvm:
+        sys.stderr.write("tests-scan: No /dev/kvm access, not running tests here\n")
+        return []
+
+    policy = DEFAULT_VERIFY
+
+    # Check if we have access to Red Hat network
+    try:
+        urllib.urlopen(REDHAT_PING).read()
+        policy.update(REDHAT_VERIFY)
+    except IOError:
+        pass
+
+    return scan_for_pull_tasks(api, update, policy)
+
+if __name__ == '__main__':
+    sys.exit(main())

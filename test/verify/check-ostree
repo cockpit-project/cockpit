@@ -19,7 +19,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
-import testinfra
 from testlib import *
 import os
 import subprocess
@@ -554,8 +553,7 @@ class OstreeCase(MachineCase):
         b.click("modal-dialog .group-buttons button.btn-primary")
         b.wait_present("modal-dialog .group-buttons div.dialog-error")
 
-        with open(os.path.join(testinfra.TEST_DIR, "verify",
-                               "files", "publickey.asc"), 'rb') as fp:
+        with open(os.path.join(TEST_DIR, "verify", "files", "publickey.asc"), 'rb') as fp:
             gpg_data = fp.read()
 
         b.set_val("modal-dialog #gpg-data", gpg_data)

@@ -5,24 +5,22 @@ import sys
 
 sys.dont_write_bytecode = True
 
-from common import testinfra
+import github
 
-def trigger_image(github, opts):
-    title = testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(opts.image)
+def trigger_image(api, opts):
+    title = github.ISSUE_TITLE_IMAGE_REFRESH.format(opts.image)
     if opts.pull:
         # Add a comment to the pull request with the right text and set the right label
-        issue = github.get("issues/" + opts.pull)
-        github.post("issues/" + opts.pull + "/comments", { "body": "bot: " + title })
-        github.patch("issues/" + opts.pull, { "labels": issue['labels'] + [ "bot" ] })
+        issue = api.get("issues/" + opts.pull)
+        api.post("issues/" + opts.pull + "/comments", { "body": "bot: " + title })
+        api.patch("issues/" + opts.pull, { "labels": issue['labels'] + [ "bot" ] })
     else:
         # Make a new issue with the right content.
-        github.post("issues", { "title": title,
-                                "labels": [ "bot" ],
-                                "body": "bot: " + title })
+        api.post("issues", { "title": title, "labels": [ "bot" ], "body": "bot: " + title })
     return 0
 
-def trigger_pull(github, opts):
-    pull = github.get("pulls/" + opts.pull)
+def trigger_pull(api, opts):
+    pull = api.get("pulls/" + opts.pull)
 
     if not pull:
         sys.stderr.write("{0} is not a pull request.\n".format(opts.pull))
@@ -31,17 +29,17 @@ def trigger_pull(github, opts):
     # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
     # but issue a warning in case of an oversight
     login = pull["head"]["user"]["login"]
-    if not opts.allow and not login in github.whitelist:
+    if not opts.allow and not login in api.whitelist:
         sys.stderr.write("Pull request author '{0}' isn't whitelisted. Override with --allow.\n".format(login))
         return 1
 
     revision = pull['head']['sha']
-    statuses = github.statuses(revision)
+    statuses = api.statuses(revision)
     if opts.context:
         contexts = [ opts.context ]
         all = False
     else:
-        contexts = list(set(statuses.keys()) & set(testinfra.DEFAULT_VERIFY.keys()))
+        contexts = list(set(statuses.keys()))
         all = True
 
     ret = 0
@@ -51,7 +49,7 @@ def trigger_pull(github, opts):
 
         if current_status not in ["empty", "error", "failure"]:
             # allow changing if manual testing required, otherwise "pending" state indicates that testing is in progress
-            manual_testing = current_status == "pending" and status.get("description", None) == testinfra.NO_TESTING
+            manual_testing = current_status == "pending" and status.get("description", None) == github.NO_TESTING
             # also allow override with --force
             if not (manual_testing or opts.force):
                 if not all:
@@ -59,14 +57,14 @@ def trigger_pull(github, opts):
                     ret = 1
                 continue
         sys.stderr.write("{0}: triggering on pull request {1}\n".format(context, opts.pull))
-        changes = { "state": "pending", "description": testinfra.NOT_TESTED, "context": context }
+        changes = { "state": "pending", "description": github.NOT_TESTED, "context": context }
 
         # Keep the old link for reference, until testing starts again
         link = status.get("target_url", None)
         if link:
             changes["target_url"] = link
 
-        github.post("statuses/" + revision, changes)
+        api.post("statuses/" + revision, changes)
 
     return ret
 
@@ -81,12 +79,12 @@ def main():
     parser.add_argument('context', nargs='?', help='The github task context to trigger')
     opts = parser.parse_args()
 
-    github = testinfra.GitHub()
+    api = github.GitHub()
 
     if opts.image:
-        return trigger_image(github, opts)
+        return trigger_image(api, opts)
     elif opts.pull and not opts.image:
-        return trigger_pull(github, opts)
+        return trigger_pull(api, opts)
     else:
         sys.stderr.write("Please specify either --image or a pull request.\n")
         return 1

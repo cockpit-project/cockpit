@@ -21,7 +21,7 @@ import os
 import sys
 import subprocess
 
-from common import testinfra
+from common import testvm
 from common import vmmanage
 
 if __name__ == "__main__":
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')
     parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
     parser.add_argument('--address', help='Address of already running machine')
-    parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to use')
+    parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
     install_image = not args.build_only and args.image

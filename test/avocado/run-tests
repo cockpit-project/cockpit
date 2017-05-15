@@ -34,7 +34,7 @@ sys.dont_write_bytecode = True
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
 
-from common import testinfra
+from common import testlib
 from common import testvm
 
 machine_test_dir = "/tmp/avocado_tests"
@@ -168,7 +168,7 @@ done;
 
 def run_avocado(avocado_tests, verbose, browser, download_logs):
     use_selenium = (browser != 'none')
-    machine = testvm.VirtMachine(verbose=verbose, label="avocado")
+    machine = testvm.VirtMachine(testvm.DEFAULT_IMAGE, verbose=verbose, label="avocado")
     selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
 
     try:
@@ -235,7 +235,7 @@ def main():
     opts = parser.parse_args()
     if opts.install:
         sys.stderr.write("Building and installing Cockpit ...\n")
-        subprocess.check_call([ "vm-download", testinfra.DEFAULT_IMAGE, "selenium" ])
+        subprocess.check_call([ "vm-download", testvm.DEFAULT_IMAGE, "selenium" ])
         subprocess.check_call([ "vm-reset" ])
 
         cmd = [ "vm-install" ]
@@ -243,6 +243,7 @@ def main():
             cmd.append("--verbose")
         if opts.quick:
             cmd.append("--quick")
+        cmd.append(testvm.DEFAULT_IMAGE)
         subprocess.check_call(cmd)
 
     regular_tests = [ "checklogin-basic.py", "checklogin-raw.py" ]

@@ -1,16 +1,76 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
 import os
 import subprocess
+import socket
 import sys
 import time
 
-import testinfra
+sys.dont_write_bytecode = True
 
-class GithubImageTask(object):
-    def __init__(self, name, image, config, issue):
+import github
+import sink
+
+HOSTNAME = socket.gethostname().split(".")[0]
+BOTS = os.path.abspath(os.path.dirname(__file__))
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
+
+def main():
+    parser = argparse.ArgumentParser(description='Run image refresh')
+    parser.add_argument('--issue', dest='issue', action='store',
+            help='Act on an already created issue')
+    parser.add_argument('-o', "--offline", action='store_true',
+            help="Work offline, don''t fetch new data from origin for rebase")
+    parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
+            action='store', help='Publish results centrally to a sink')
+    parser.add_argument('--store', dest='store', action='store',
+            help='Alternate location to upload image to')
+    parser.add_argument('--triggers', dest='triggers', nargs='+',
+            action='store', help='Test contexts to trigger after creation')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+    parser.add_argument('image', help="The image to refresh")
+    opts = parser.parse_args()
+
+    name = os.environ.get("TEST_NAME", "tests")
+
+    api = None if opts.offline else github.GitHub()
+    try:
+        task = ImageTask(name, opts.image, opts.triggers, opts.issue, opts.store)
+        ret = task.run(opts, api)
+    except RuntimeError, ex:
+        ret = str(ex)
+
+    if ret:
+        sys.stderr.write("image-refresh: {0}\n".format(ret))
+        return 1
+    return 0
+
+class ImageTask(object):
+    def __init__(self, name, image, triggers, issue, store):
         self.name = name
         self.image = image
-        self.config = config
+        self.triggers = triggers or []
         self.issue = issue
+        self.store = store or None
         self.pull = None
         self.sink = None
 
@@ -20,7 +80,7 @@ class GithubImageTask(object):
         else:
             return self.name
 
-    def start_publishing(self, host, github):
+    def start_publishing(self, host, api):
         if self.pull:
             identifier = self.name + "-" + self.pull['head']['sha']
         else:
@@ -29,14 +89,14 @@ class GithubImageTask(object):
         requests = [ ]
 
         body_text = ("Image creation for %s in process on %s.\nLog: :link"
-                     % (self.image, testinfra.HOSTNAME))
+                     % (self.image, HOSTNAME))
 
         # Update the body for an existing issue
         if self.issue:
             requests += [
                 # Get issue
                 { "method": "GET",
-                  "resource": github.qualify("issues/" + str(self.issue['number'])),
+                  "resource": api.qualify("issues/" + str(self.issue['number'])),
                   "result": "issue"
                 },
                 # Update the issue
@@ -52,9 +112,9 @@ class GithubImageTask(object):
             requests += [
                 # Create issue
                 { "method": "POST",
-                  "resource": github.qualify("issues"),
+                  "resource": api.qualify("issues"),
                   "data": {
-                      "title": testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
+                      "title": github.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
                       "labels": [ "bot", "image/" + self.image ],
                       "body": body_text
                   },
@@ -74,14 +134,14 @@ class GithubImageTask(object):
 
         status = {
             "github": {
-                "token": github.token,
+                "token": api.token,
                 "requests": requests,
                 "watches": watches
             },
 
             "onaborted": {
                 "github": {
-                    "token": github.token,
+                    "token": api.token,
                     "requests": [
                         # Post comment about failure
                         { "method": "POST",
@@ -94,16 +154,19 @@ class GithubImageTask(object):
                 },
             }
         }
-        self.sink = testinfra.Sink(host, identifier, status)
+        self.sink = sink.Sink(host, identifier, status)
 
     def stop_publishing(self, github, ret, user, branch):
-        if ret == 0:
-            if self.pull and branch:
-                message = "Image creation done: https://github.com/{}/cockpit/commits/{}".format(user, branch)
-            else:
-                message = "Image creation done."
+        if ret is None:
+            message = "Image creation stopped to avoid conflict."
         else:
-            message = "Image creation failed."
+            if ret == 0:
+                if self.pull and branch:
+                    message = "Image creation done: https://github.com/{}/cockpit/commits/{}".format(user, branch)
+                else:
+                    message = "Image creation done."
+            else:
+                message = "Image creation failed."
         if not branch:
             message += "\nBranch creation failed."
 
@@ -121,7 +184,7 @@ class GithubImageTask(object):
             requests += [
                 # Turn issue into pull request
                 { "method": "POST",
-                  "resource": github.qualify("pulls"),
+                  "resource": api.qualify("pulls"),
                   "data": {
                       "issue": ":issue.number",
                       "head": user + "::" + branch,
@@ -131,15 +194,15 @@ class GithubImageTask(object):
                 }
             ]
 
-            for t in self.config.get("triggers", [ ]):
+            for t in self.triggers:
                 requests += [
                     # Trigger testing
                     { "method": "POST",
-                      "resource": github.qualify("statuses/:pull.head.sha"),
+                      "resource": api.qualify("statuses/:pull.head.sha"),
                       "data": {
                           "state": "pending",
                           "context": t,
-                          "description": testinfra.NOT_TESTED
+                          "description": github.NOT_TESTED
                       }
                     }
                 ]
@@ -148,33 +211,39 @@ class GithubImageTask(object):
         self.sink.status['github']['requests'] = requests
         self.sink.flush()
 
-    def run(self, opts, github):
-
-        if not github.token:
-            print "Need a github token to run image creation tasks"
-            return
+    def run(self, opts, api):
+        if not api.token:
+            return "Need a github token to run image creation tasks"
 
         if self.issue and 'pull_request' in self.issue:
-            self.pull = github.get(self.issue['pull_request']['url'])
+            self.pull = api.get(self.issue['pull_request']['url'])
 
         if opts.publish:
-            self.start_publishing(opts.publish, github)
+            self.start_publishing(opts.publish, api)
 
-        user = github.get("/user")['login']
+        user = api.get("/user")['login']
+
+        test = os.path.join(BOTS, "..", "test")
+        os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS, test)
 
         # Cleanup any extraneous disk usage elsewhere
         subprocess.check_call([ "vm-reset" ])
 
-        msg = "Creating image {0} on {1}...\n".format(self.image, testinfra.HOSTNAME)
+        msg = "Creating image {0} on {1}...\n".format(self.image, HOSTNAME)
         sys.stderr.write(msg)
 
         if self.pull:
             subprocess.check_call([ "git", "fetch", "origin", "pull/{}/head".format(self.pull['number']) ])
             subprocess.check_call([ "git", "checkout", self.pull['head']['sha'] ])
 
+        # Setup network if necessary, any failures caught during testing
+        prep = os.path.join(BASE, "test", "vm-prep")
+        if os.path.exists(prep):
+            subprocess.call(["sudo", "-n", prep ])
+
         cmd = [ "vm-create", "--verbose", "--upload" ]
-        if 'store' in self.config:
-            cmd += [ "--store", self.config['store'] ]
+        if self.store:
+            cmd += [ "--store", self.store ]
         cmd += [ self.image ]
 
         os.environ['VIRT_BUILDER_NO_CACHE'] = "yes"
@@ -186,7 +255,7 @@ class GithubImageTask(object):
         def run_censored(cmd):
 
             def censored(text):
-                return text.replace(github.token, "CENSORED")
+                return text.replace(api.token, "CENSORED")
 
             try:
                 output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -204,7 +273,7 @@ class GithubImageTask(object):
         else:
             branch = "refresh-" + self.image + "-" + time.strftime("%Y-%m-%d")
 
-        url = "https://{0}@github.com/{1}/cockpit.git".format(github.token, user)
+        url = "https://{0}@github.com/{1}/cockpit.git".format(api.token, user)
 
         # When image creation fails, remove the link and make a pull
         # request anyway, for extra attention
@@ -214,8 +283,11 @@ class GithubImageTask(object):
 
         have_branch = (run_censored([ "git", "checkout", "--detach" ]) and
                        run_censored([ "git", "commit", "-a",
-                                      "-m", testinfra.ISSUE_TITLE_IMAGE_REFRESH.format(self.image) ]) and
+                                      "-m", github.ISSUE_TITLE_IMAGE_REFRESH.format(self.image) ]) and
                        run_censored([ "git", "push", url, "+HEAD:refs/heads/" + branch ]))
 
         if self.sink:
             self.stop_publishing(github, ret, user, branch if have_branch else None)
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -22,7 +22,6 @@ import subprocess
 import sys
 
 from common import testvm
-from common import testinfra
 
 BASE = os.path.dirname(__file__)
 
@@ -32,7 +31,7 @@ parser.add_argument('-m', '--maintain', action='store_true', help='Changes are p
 parser.add_argument('-M', '--memory', default=None, type=int, help='Memory (in MiB) of the target machine')
 parser.add_argument('-C', '--cpus', default=None, type=int, help='Number of cpus in the target machine')
 
-parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to run')
+parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to run')
 args = parser.parse_args()
 
 try:
@@ -57,9 +56,14 @@ try:
 
     # Check that image is downloaded
     if not os.path.exists(machine.image_base):
-        ret = subprocess.call(["vm-download", args.image])
-        if ret != 0:
-            sys.exit(ret)
+        try:
+            ret = subprocess.call(["vm-download", args.image])
+        except OSError, ex:
+            if ex.errno != errno.ENOENT:
+                raise
+        else:
+            if ret != 0:
+                sys.exit(ret)
 
     machine.qemu_console(maintain=args.maintain,
                          memory_mb=args.memory,

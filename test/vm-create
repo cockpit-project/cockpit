@@ -32,7 +32,6 @@ import sys
 import time
 
 from common import testvm
-from common import testinfra
 
 BASE = os.path.dirname(__file__)
 
@@ -44,7 +43,7 @@ parser.add_argument('-u', '--upload', action='store_true', help='Upload the imag
 parser.add_argument('--no-build', action='store_true', dest='no_build',
                     help='Don''t build packages and create the vm without build capabilities')
 parser.add_argument("--store", default=None, help="Where to send images")
-parser.add_argument('image', nargs='?', default=testinfra.DEFAULT_IMAGE, help='The image to create')
+parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to create')
 args = parser.parse_args()
 
 # default to --no-build for some images
@@ -65,7 +64,7 @@ class MachineBuilder:
         if not os.path.exists(self.machine.run_dir):
             os.makedirs(self.machine.run_dir, 0750)
 
-        bootstrap_script = os.path.join(testinfra.TEST_DIR, "images", "scripts", "%s.bootstrap" % (self.machine.image, ))
+        bootstrap_script = os.path.join(testvm.TEST_DIR, "images", "scripts", "%s.bootstrap" % (self.machine.image, ))
 
         if os.path.exists(self.machine.image_file):
             os.unlink(self.machine.image_file)
@@ -81,11 +80,11 @@ class MachineBuilder:
         try:
             self.macaddr = self.machine.macaddr
             self.machine.wait_boot(wait_for_running_timeout=120)
-            self.machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
+            self.machine.upload([ os.path.join(testvm.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             if source:
                 self.machine.upload([source], "/var/tmp")
-            self.machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "lib", "base") ],
+            self.machine.upload([ os.path.join(testvm.TEST_DIR, "images", "scripts", "lib", "base") ],
                                 "/var/tmp/cockpit-base")
 
             if "rhel" in self.machine.image:
@@ -133,7 +132,7 @@ class MachineBuilder:
         self.bootstrap_system()
 
         # gather the scripts, separated by reboots
-        script = os.path.join(testinfra.TEST_DIR, "images", "scripts", "%s.setup" % (self.machine.image, ))
+        script = os.path.join(testvm.TEST_DIR, "images", "scripts", "%s.setup" % (self.machine.image, ))
 
         if not os.path.exists(script):
             raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
@@ -162,8 +161,8 @@ class MachineBuilder:
             raise testvm.Failure("Unable to verify that machine boot works.")
 
     def save(self):
-        data_dir = os.path.join(os.environ.get("TEST_DATA", testinfra.TEST_DIR), "images")
-        images_dir = os.path.join(testinfra.TEST_DIR, "images")
+        data_dir = os.path.join(os.environ.get("TEST_DATA", testvm.TEST_DIR), "images")
+        images_dir = os.path.join(testvm.TEST_DIR, "images")
 
         if not os.path.exists(data_dir):
             os.makedirs(data_dir, 0750)

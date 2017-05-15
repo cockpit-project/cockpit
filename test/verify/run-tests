@@ -11,7 +11,7 @@ import unittest
 
 import parent
 import testlib
-import testinfra
+import testvm
 
 sys.dont_write_bytecode = True
 
@@ -31,7 +31,7 @@ def check_valid(filename):
 def install(opts):
     try:
         sys.stderr.write("Building and installing Cockpit ...\n")
-        cmd = [ os.path.join(testinfra.TEST_DIR, "verify", "testsuite-prepare") ]
+        cmd = [ os.path.join(testlib.TEST_DIR, "verify", "testsuite-prepare") ]
         if opts.clean:
             cmd.append("--clean")
         if opts.quick:
@@ -71,12 +71,7 @@ def main():
                         help='The operating system image to verify against')
     opts = parser.parse_args()
 
-    image = opts.image or testinfra.DEFAULT_IMAGE
-
-    # os.chdir(os.path.dirname(__file__))
-
-    # In case we need it
-    github = testinfra.GitHub()
+    image = opts.image or testvm.DEFAULT_IMAGE
 
     revision = os.environ.get("TEST_REVISION")
     if not revision:
@@ -84,7 +79,7 @@ def main():
 
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision
-    testinfra.DEFAULT_IMAGE = image
+    testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
 
     ret = 0

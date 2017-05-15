@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Tasks file
 
 # This file produces the possible set of bot tasks to be executed in the
@@ -9,5 +11,6 @@
 # near the top of the sorted result. The task will be run in a shell by the
 # Cockpit bots.
 
-# Initially we just list our github-tasks lister
-test/github-task --publish=$TEST_PUBLISH --verbose
+set -ex
+bots/tests-scan
+bots/image-scan

@@ -18,13 +18,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+# Shared GitHub code. When run as a script, we print out info about
+# our GitHub interacition.
+
 import argparse
 import datetime
+import os
 import sys
 
 sys.dont_write_bytecode = True
 
-from common import testinfra
+import github
 
 def httpdate(dt):
     """Return a string representation of a date according to RFC 1123
@@ -50,9 +54,9 @@ def main():
 
     future_timestamp = datetime.datetime.utcnow() + datetime.timedelta(seconds=3600)
 
-    github = testinfra.GitHub()
+    api = github.GitHub()
     headers = { 'If-Modified-Since': httpdate(future_timestamp) }
-    response = github.request("GET", "git/refs/heads/master", "", headers)
+    response = api.request("GET", "git/refs/heads/master", "", headers)
     sys.stdout.write("Rate limits:\n")
     for entry in ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]:
         entries = filter(lambda t: t[0].lower() == entry.lower(), response['headers'].items())

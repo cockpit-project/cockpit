@@ -21,13 +21,12 @@ import os
 import sys
 import subprocess
 from common import testvm
-from common import testinfra
 
 def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
-    machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
-    machine.upload([ os.path.join(testinfra.TEST_DIR, "images", "scripts", "%s.install" % machine.image) ], "/var/tmp")
-    machine.upload([os.path.join(testinfra.TEST_DIR,"..", "containers")], "/var/tmp")
+    machine.upload([ os.path.join(testvm.TEST_DIR, "images", "scripts", "lib") ], "/var/lib/testvm")
+    machine.upload([ os.path.join(testvm.TEST_DIR, "images", "scripts", "%s.install" % machine.image) ], "/var/tmp")
+    machine.upload([os.path.join(testvm.TEST_DIR,"..", "containers")], "/var/tmp")
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):
     install = do_install
@@ -48,12 +47,12 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
 def build_and_maybe_install(image, do_install=False, skips=None, args=None):
     """Build and maybe install Cockpit into a test image"""
     machine = testvm.VirtMachine(verbose=args["verbose"], image=image, label="install")
-    source = subprocess.check_output([ os.path.join(testinfra.TEST_DIR, "..", "tools", "make-source") ]).strip()
+    source = subprocess.check_output([ os.path.join(testvm.TEST_DIR, "..", "tools", "make-source") ]).strip()
     machine.start(maintain=do_install, memory_mb=4096, cpus=4)
     completed = False
 
     # Delete any old build results before starting
-    dest = os.path.join(testinfra.TEST_DIR, "tmp", "build-results")
+    dest = os.path.join(testvm.TEST_DIR, "tmp", "build-results")
     if os.path.exists(dest):
         subprocess.check_call(["rm", "-r", dest])
 
@@ -116,7 +115,7 @@ def build_and_install(install_image, build_image, args):
     args.setdefault("verbose", False)
     args.setdefault("sit", False)
     args.setdefault("quick", False)
-    args.setdefault("build_image", testinfra.DEFAULT_IMAGE)
+    args.setdefault("build_image", testvm.DEFAULT_IMAGE)
     args.setdefault("build_only", False)
     args.setdefault("install_only", False)
     args.setdefault("containers", False)
@@ -142,7 +141,7 @@ def build_and_install(install_image, build_image, args):
                 only_install(install_image, skips, args=args)
 
             # Atomics need a companion image for tests
-            if build_image and install_image and install_image in testinfra.ATOMIC_IMAGES:
+            if build_image and install_image and install_image in testvm.ATOMIC_IMAGES:
                 skips.append("cockpit-ostree")
                 only_install(build_image, skips, args=args)
 

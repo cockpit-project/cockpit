@@ -27,9 +27,8 @@ import shutil
 import tempfile
 
 sys.dont_write_bytecode = True
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from common import testinfra
+BASE = os.path.dirname(__file__)
 
 def main():
     parser = argparse.ArgumentParser(description='Run cockpit build and unit tests in Koji')
@@ -37,16 +36,17 @@ def main():
     opts = parser.parse_args()
 
     # Splits 23 out of fedora-23
-    system = testinfra.DEFAULT_IMAGE.split("-")[-1]
+    image = os.environ.get("TEST_OS", "fedora-25")
+    system = image.split("-")[-1]
 
     # Converts fedora-23 to f23
     try:
         number = int(system)
-        system = testinfra.DEFAULT_IMAGE[0] + system
+        system = image[0] + system
     except ValueError:
         pass
 
-    make_srpm = os.path.join(testinfra.TEST_DIR, "..", "tools", "make-srpm")
+    make_srpm = os.path.join(BASE, "..", "..", "tools", "make-srpm")
     srpm = subprocess.check_output([make_srpm], shell=True).strip()
 
     # Do a build

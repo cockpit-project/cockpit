@@ -32,8 +32,8 @@ base_dir = os.path.dirname(os.path.realpath(__file__))
 testdir = os.path.abspath(os.path.join(base_dir, ".."))
 sys.path.append(testdir)
 
-from common import testinfra
 from common import testlib
+from common import testvm
 
 def check_valid(filename):
     name = os.path.basename(filename)
@@ -45,9 +45,9 @@ def check_valid(filename):
 def install(opts):
     sys.stderr.write("Building and installing Cockpit ...\n")
     cmds = [
-        [ "vm-download", testinfra.DEFAULT_IMAGE ],
+        [ "vm-download", testvm.DEFAULT_IMAGE ],
         [ "vm-reset" ],
-        [ "vm-install", "--containers" ],
+        [ "vm-install", "--containers", testvm.DEFAULT_IMAGE ],
     ]
 
     if opts.sit:

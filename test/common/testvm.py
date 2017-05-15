@@ -35,13 +35,16 @@ import sys
 import threading
 import time
 
-import testinfra
-
 import xml.etree.ElementTree as etree
 
-DEFAULT_FLAVOR="cockpit"
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
 
 MEMORY_MB = 1024
+
+# Images which are Atomic based
+ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
+
+TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down calls
@@ -103,8 +106,8 @@ class Machine:
         # an override file for those images that are not
         self.arch = "x86_64"
 
-        self.image = image or testinfra.DEFAULT_IMAGE
-        self.atomic_image = self.image in testinfra.ATOMIC_IMAGES
+        self.image = image or "unknown"
+        self.atomic_image = self.image in ATOMIC_IMAGES
         self.fetch = fetch
         self.vm_username = "root"
         self.address = address
@@ -197,7 +200,7 @@ class Machine:
     def _start_ssh_master(self):
         self._kill_ssh_master()
 
-        control = os.path.join(testinfra.TEST_DIR, "tmp", "ssh-%h-%p-%r-" + str(os.getpid()))
+        control = os.path.join(TEST_DIR, "tmp", "ssh-%h-%p-%r-" + str(os.getpid()))
 
         # unix domain socket names aren't allowed to be too long
         # Since python doesn't expose the max allowed value as a constant
@@ -437,7 +440,7 @@ class Machine:
             cmd += [ "-q" ]
 
         def relative_to_test_dir(path):
-            return os.path.join(testinfra.TEST_DIR, path)
+            return os.path.join(TEST_DIR, path)
         cmd += map(relative_to_test_dir, sources)
 
         cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, dest) ]
@@ -453,7 +456,7 @@ class Machine:
         assert self.address
 
         self._ensure_ssh_master()
-        dest = os.path.join(testinfra.TEST_DIR, dest)
+        dest = os.path.join(TEST_DIR, dest)
 
         cmd = [
             "scp", "-B",
@@ -478,7 +481,7 @@ class Machine:
         assert self.address
 
         self._ensure_ssh_master()
-        dest = os.path.join(testinfra.TEST_DIR, dest)
+        dest = os.path.join(TEST_DIR, dest)
 
         cmd = [
             "scp", "-B",
@@ -528,7 +531,7 @@ class Machine:
         return int(self.execute("{ (%s) >/var/log/%s 2>&1 & }; echo $!" % (shell_cmd, log_id)))
 
     def _calc_identity(self):
-        identity = os.path.join(testinfra.TEST_DIR, "common/identity")
+        identity = os.path.join(TEST_DIR, "common/identity")
         os.chmod(identity, 0600)
         return identity
 
@@ -888,15 +891,15 @@ class VirtMachine(Machine):
     memory_mb = None
     cpus = None
 
-    def __init__(self, **args):
-        Machine.__init__(self, **args)
+    def __init__(self, image, **args):
+        Machine.__init__(self, image=image, **args)
 
-        self.run_dir = os.path.join(testinfra.TEST_DIR, "tmp", "run")
+        self.run_dir = os.path.join(TEST_DIR, "tmp", "run")
 
-        self.image_base = os.path.join(testinfra.TEST_DIR, "images", self.image)
+        self.image_base = os.path.join(TEST_DIR, "images", self.image)
         self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
-        self._network_description = etree.parse(open(os.path.join(testinfra.TEST_DIR, "common", "network-cockpit.xml")))
+        self._network_description = etree.parse(open(os.path.join(TEST_DIR, "common", "network-cockpit.xml")))
 
         self.test_disk_desc_original = None
 
@@ -947,7 +950,7 @@ class VirtMachine(Machine):
     # only read the disk template once per machine
     def _domain_disk_template(self):
         if not self.test_disk_desc_original:
-            with open(os.path.join(testinfra.TEST_DIR, "common/test-domain-disk.xml"), "r") as desc_file:
+            with open(os.path.join(TEST_DIR, "common/test-domain-disk.xml"), "r") as desc_file:
                 self.test_disk_desc_original = desc_file.read()
         return self.test_disk_desc_original
 
@@ -1061,7 +1064,7 @@ class VirtMachine(Machine):
                                         "memory_in_mib": memory_mb or VirtMachine.memory_mb or MEMORY_MB,
                                         "drive": image_to_use,
                                         "mac": mac_desc,
-                                        "iso": os.path.join(testinfra.TEST_DIR, "common/cloud-init.iso")
+                                        "iso": os.path.join(TEST_DIR, "common/cloud-init.iso")
                                       }
 
         # add the virtual machine
@@ -1114,7 +1117,11 @@ class VirtMachine(Machine):
 
     def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
         if self.fetch:
-            subprocess.check_call([ "vm-download", self.image ])
+            try:
+                subprocess.check_call([ "vm-download", self.image ])
+            except OSError, ex:
+                if ex.errno != errno.ENOENT:
+                    raise
 
         tries = 0
         while True:

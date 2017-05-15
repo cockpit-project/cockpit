@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # This file is part of Cockpit.
 #
 # Copyright (C) 2016 Red Hat, Inc.
@@ -15,20 +18,58 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import os
 import subprocess
+import socket
 import sys
 import traceback
 
-import testinfra
+sys.dont_write_bytecode = True
 
-class GithubPullTask(object):
+import github
+import sink
+
+HOSTNAME = socket.gethostname().split(".")[0]
+BOTS = os.path.abspath(os.path.dirname(__file__))
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
+
+def main():
+    parser = argparse.ArgumentParser(description='Run integration tests')
+    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
+            default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
+    parser.add_argument('--rebase', help="Rebase onto the specific branch before testing")
+    parser.add_argument('-o', "--offline", action='store_true',
+            help="Work offline, don''t fetch new data from origin for rebase")
+    parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
+            action='store', help='Publish results centrally to a sink')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+    parser.add_argument('context', help="The context or type of integration tests to run")
+    parser.add_argument('ref', nargs='?', help="The Git remote ref to pull")
+    opts = parser.parse_args()
+
+    name = os.environ.get("TEST_NAME", "tests")
+    revision = os.environ.get("TEST_REVISION")
+
+    api = None if opts.offline else github.GitHub()
+    try:
+        task = PullTask(name, revision, opts.ref, opts.context, opts.rebase)
+        ret = task.run(opts, api)
+    except RuntimeError, ex:
+        ret = str(ex)
+
+    if ret:
+        sys.stderr.write("tests-invoke: {0}\n".format(ret))
+        return 1
+    return 0
+
+class PullTask(object):
     def __init__(self, name, revision, ref, context, base=None):
         self.name = name
         self.revision = revision
         self.ref = ref
         self.context = context
-        self.base = base or "master"
+        self.base = base
 
         self.sink = None
         self.github_status_data = None
@@ -36,9 +77,9 @@ class GithubPullTask(object):
     def description(self):
         return "{0} {1} {2}".format(self.name, self.context, self.revision)
 
-    def start_publishing(self, host, github):
+    def start_publishing(self, host, api):
         identifier = self.name + "-" + self.revision[0:8] + "-" + self.context.replace("/", "-")
-        description = "{0} [{1}]".format(testinfra.TESTING, testinfra.HOSTNAME)
+        description = "{0} [{1}]".format(github.TESTING, HOSTNAME)
 
         self.github_status_data = {
             "state": "pending",
@@ -49,11 +90,11 @@ class GithubPullTask(object):
 
         status = {
             "github": {
-                "token": github.token,
+                "token": api.token,
                 "requests": [
                     # Set status to pending
                     { "method": "POST",
-                      "resource": github.qualify("statuses/" + self.revision),
+                      "resource": api.qualify("statuses/" + self.revision),
                       "data": self.github_status_data
                     }
                 ],
@@ -76,11 +117,11 @@ class GithubPullTask(object):
 
             "onaborted": {
                 "github": {
-                    "token": github.token,
+                    "token": api.token,
                     "requests": [
                         # Set status to error
                         { "method": "POST",
-                          "resource": github.qualify("statuses/" + self.revision),
+                          "resource": api.qualify("statuses/" + self.revision),
                           "data": {
                               "state": "error",
                               "context": self.context,
@@ -109,7 +150,7 @@ class GithubPullTask(object):
 
         # For other scripts to use
         os.environ["TEST_DESCRIPTION"] = description
-        self.sink = testinfra.Sink(host, identifier, status)
+        self.sink = sink.Sink(host, identifier, status)
 
     def rebase(self, offline=False):
         try:
@@ -167,17 +208,21 @@ class GithubPullTask(object):
         del sink.status["extras"]
         sink.flush()
 
-    def run(self, opts, github):
-
+    def run(self, opts, api):
         if self.ref:
             subprocess.check_call([ "git", "fetch", "origin", self.ref ])
+            if not self.revision:
+                self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
             subprocess.check_call([ "git", "checkout", "-f", self.revision ])
 
-        # Split a value like verify/fedora-24
-        (prefix, unused, value) = self.context.partition("/")
+        if not self.revision:
+            self.revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
 
         os.environ["TEST_NAME"] = self.name
         os.environ["TEST_REVISION"] = self.revision
+
+        # Split a value like verify/fedora-24
+        (prefix, unused, value) = self.context.partition("/")
 
         if prefix in [ 'selenium' ]:
             os.environ["TEST_OS"] = 'fedora-24'
@@ -187,27 +232,34 @@ class GithubPullTask(object):
             os.environ["TEST_OS"] = value
 
         if opts.publish:
-            self.start_publishing(opts.publish, github)
+            self.start_publishing(opts.publish, api)
             os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
 
         msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.revision, self.name,
-                                                                self.context, testinfra.HOSTNAME)
+                                                                self.context, HOSTNAME)
         sys.stderr.write(msg)
 
         ret = None
+        test = os.path.join(BOTS, "..", "test")
+        os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS, test)
+
         # Figure out what to do next
         if prefix == "verify":
-            cmd = [ "timeout", "120m", "./verify/run-tests", "--install", "--jobs", str(opts.jobs) ]
+            cmd = [ "timeout", "120m", os.path.join(test, "verify", "run-tests"),
+                    "--install", "--jobs", str(opts.jobs) ]
         elif prefix == "avocado":
-            cmd = [ "timeout", "60m", "./avocado/run-tests", "--install", "--quick", "--tests" ]
+            cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
+                    "--install", "--quick", "--tests" ]
         elif prefix == "koji":
-            cmd = [ "timeout", "120m", "./koji/run-build" ]
+            cmd = [ "timeout", "120m", os.path.join(test, "koji", "run-build") ]
         elif prefix == "selenium":
             if value not in ['firefox', 'chrome']:
                 ret = "Unknown browser for selenium test"
-            cmd = [ "timeout", "60m", "./avocado/run-tests", "--install", "--quick", "--selenium-tests", "--browser", value]
+            cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
+                    "--install", "--quick", "--selenium-tests", "--browser", value]
         elif prefix == "image" or prefix == "container":
-            cmd = [ "timeout", "90m", "./containers/run-tests", "--install", "--container", value]
+            cmd = [ "timeout", "90m", os.path.join(test, "containers", "run-tests"),
+                    "--install", "--container", value]
         else:
             ret = "Unknown context"
 
@@ -215,13 +267,23 @@ class GithubPullTask(object):
             cmd.append("--verbose")
 
         offline = ('offline' in opts) and opts.offline
-        ret = ret or self.rebase(offline)
+        if not ret and self.base:
+            ret = ret or self.rebase(offline)
+
+        # Setup network if necessary, any failures caught during testing
+        prep = os.path.join(BASE, "test", "vm-prep")
+        if os.path.exists(prep):
+            subprocess.call(["sudo", "-n", prep ])
 
         # Actually run the tests
-        ret = subprocess.call(cmd)
+        if not ret:
+            ret = subprocess.call(cmd)
 
         # All done
         if self.sink:
             self.stop_publishing(ret)
 
         return ret
+
+if __name__ == '__main__':
+    sys.exit(main())

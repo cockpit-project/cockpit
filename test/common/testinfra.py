@@ -78,6 +78,7 @@ DEFAULT_VERIFY = {
     'verify/fedora-atomic': BRANCHES,
     'verify/fedora-testing': [ ],
     'verify/rhel-7': BRANCHES,
+    'verify/rhel-7.4': [ ],
     'verify/rhel-atomic': BRANCHES,
     'verify/ubuntu-1604': [ 'master', 'rhel-7.4', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
 }

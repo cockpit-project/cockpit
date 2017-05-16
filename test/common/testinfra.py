@@ -41,10 +41,11 @@ from testimagetask import GithubImageTask
 
 TOKEN = "~/.config/github-token"
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
+BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
 
-# Look for executables in our test directory. We set this last to
+# Look for executables in our bots and test directories. We set this last to
 # allow these executables to be overridden by the environment invoking us
-os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), TEST_DIR)
+os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)
 
 # the user name is accepted if it's found in either list
 WHITELIST = os.path.join(TEST_DIR, "github-whitelist")

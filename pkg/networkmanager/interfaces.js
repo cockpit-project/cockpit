@@ -1726,7 +1726,13 @@ PageNetworking.prototype = {
                 return;
 
             var dev = iface.Device;
-	    var zone = iface.Device.ActiveConnection.Connection.Settings.connection.zone;
+	    var zone = null;
+	    if (dev &&
+		dev.ActiveConnection &&
+		dev.ActiveConnection.Connection &&
+		dev.ActiveConnection.Connection.Settings &&
+		dev.ActiveConnection.Connection.Settings.connection)
+		zone = dev.ActiveConnection.Connection.Settings.connection.zone;
             var show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
 
             self.rx_series.add_instance(iface.Name);
@@ -2617,12 +2623,7 @@ PageNetworkInterface.prototype = {
 
             function render_zone_row() {
                 var rows = [ ];
-
-                function add_row(fmt, args) {
-                    rows.push(cockpit.format(fmt, args));
-                }
-
-		add_row(zone_text(settings.connection.zone), settings.connection.zone);
+		rows.push(zone_text(settings.connection.zone));
                 return render_settings_row(_("Zone"), rows, configure_zone_settings);
             }
 

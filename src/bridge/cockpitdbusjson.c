@@ -105,6 +105,19 @@ G_DEFINE_TYPE (CockpitDBusJson, cockpit_dbus_json, COCKPIT_TYPE_CHANNEL);
 #define G_DBUS_MESSAGE_FLAGS_ALLOW_INTERACTIVE_AUTHORIZATION (1<<2)
 #endif
 
+/*
+ * Shared D-Bus connections.
+ *
+ * @group_connections maps "group:address" strings to GDBusConnection
+ * objects.
+ *
+ * @pending_group_connections maps "group:address" strings to GPtrArrays
+ * with CockpitDBusJson objects that are waiting for this connection to
+ * be established.
+ */
+static GHashTable *group_connections;
+static GHashTable *pending_group_connections;
+
 static const gchar *
 value_type_name (JsonNode *node)
 {
@@ -2776,6 +2789,20 @@ process_connection (CockpitDBusJson *self,
 }
 
 static void
+group_connections_weak_notify (gpointer data,
+                               GObject *where_the_object_was)
+{
+  const gchar *key = data;
+
+  if (group_connections)
+    {
+      g_hash_table_remove (group_connections, key);
+      if (g_hash_table_size (group_connections) == 0)
+          g_clear_pointer (&group_connections, g_hash_table_unref);
+    }
+}
+
+static void
 on_connection_ready (GObject *source,
                      GAsyncResult *result,
                      gpointer user_data)
@@ -2790,16 +2817,53 @@ on_connection_ready (GObject *source,
 }
 
 static void
-on_bus_ready (GObject *source,
-              GAsyncResult *result,
-              gpointer user_data)
+on_shared_connection_ready (GObject *source,
+                            GAsyncResult *result,
+                            gpointer user_data)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
+  gchar *key = user_data;
+  GDBusConnection *connection;
   GError *error = NULL;
+  GPtrArray *subscribers;
 
-  self->connection = g_bus_get_finish (result, &error);
-  process_connection (self, error);
-  g_object_unref (self);
+  connection = g_dbus_connection_new_for_address_finish (result, &error);
+
+  /*
+   * Notify all CockpitDBusJson objects from the same group that were
+   * also waiting for this connection
+   */
+  subscribers = g_hash_table_lookup (pending_group_connections, key);
+  for (guint i = 0; i < subscribers->len; i++)
+    {
+      CockpitDBusJson *channel = g_ptr_array_index (subscribers, i);
+
+      if (connection)
+        channel->connection = g_object_ref (connection);
+
+      process_connection (channel, error);
+    }
+
+  g_hash_table_remove (pending_group_connections, key);
+  if (g_hash_table_size (pending_group_connections) == 0)
+    g_clear_pointer (&pending_group_connections, g_hash_table_unref);
+
+  if (connection)
+    {
+      /*
+       * Ensure that the key is removed when the last CockpitDBusJson
+       * object in its group drops the connection. group_connections
+       * takes ownership of 'key'.
+       */
+      g_object_weak_ref (G_OBJECT (connection), group_connections_weak_notify, key);
+
+      g_hash_table_insert (group_connections, key, connection);
+
+      g_object_unref (connection);
+    }
+  else
+    {
+      g_free (key);
+    }
 }
 
 static void
@@ -2809,6 +2873,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
   JsonObject *options;
   const gchar *bus;
   const gchar *address;
+  const gchar *group;
   gboolean internal = FALSE;
 
   COCKPIT_CHANNEL_CLASS (cockpit_dbus_json_parent_class)->prepare (channel);
@@ -2822,6 +2887,11 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
   if (!cockpit_json_get_string (options, "address", NULL, &address))
     {
       cockpit_channel_fail (channel, "protocol-error", "invalid \"address\" option in dbus channel");
+      return;
+    }
+  if (!cockpit_json_get_string (options, "group", "default", &group))
+    {
+      cockpit_channel_fail (channel, "protocol-error", "invalid \"group\" option in dbus channel");
       return;
     }
 
@@ -2887,6 +2957,8 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
     }
   else
     {
+      GDBusConnectionFlags flags = G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT;
+
       if (!cockpit_json_get_string (options, "name", NULL, &self->default_name))
         {
           self->default_name = NULL;
@@ -2917,10 +2989,8 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       else
         self->logname = bus;
 
-      /* Ready when the bus connection is available */
       if (self->bus_type == G_BUS_TYPE_NONE)
         {
-          GDBusConnectionFlags flags = G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT;
           if (self->default_name)
             flags = flags | G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION;
 
@@ -2933,7 +3003,57 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
         }
       else
         {
-          g_bus_get (self->bus_type, self->cancellable, on_bus_ready, g_object_ref (self));
+          gchar *bus_address = NULL;
+          gchar *key = NULL;
+          GDBusConnection *connection = NULL;
+
+          bus_address = g_dbus_address_get_for_bus_sync (self->bus_type, self->cancellable, NULL);
+          key = g_strdup_printf ("%s:%s", group, bus_address);
+
+          if (!group_connections)
+            group_connections = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+          else
+            connection = g_hash_table_lookup (group_connections, key);
+
+          if (connection)
+            {
+              self->connection = g_object_ref (connection);
+              process_connection (self, NULL);
+            }
+          else
+            {
+              GPtrArray *subscribers = NULL;
+
+              if (!pending_group_connections)
+                {
+                  pending_group_connections = g_hash_table_new_full (g_str_hash,
+                                                                     g_str_equal,
+                                                                     g_free,
+                                                                     (GDestroyNotify) g_ptr_array_unref);
+                }
+              else
+                {
+                  subscribers = g_hash_table_lookup (pending_group_connections, key);
+                }
+
+              if (!subscribers)
+                {
+                  subscribers = g_ptr_array_new_with_free_func (g_object_unref);
+                  g_hash_table_insert (pending_group_connections, g_strdup (key), subscribers);
+
+                  g_dbus_connection_new_for_address (bus_address,
+                                                     flags | G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION,
+                                                     NULL,
+                                                     self->cancellable,
+                                                     on_shared_connection_ready,
+                                                     g_strdup (key));
+                }
+
+              g_ptr_array_add (subscribers, g_object_ref (self));
+            }
+
+          g_free (key);
+          g_free (bus_address);
         }
     }
 }

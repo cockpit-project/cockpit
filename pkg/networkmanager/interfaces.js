@@ -1727,12 +1727,10 @@ PageNetworking.prototype = {
 
             var dev = iface.Device;
 	    var zone = null;
-	    if (dev &&
-		dev.ActiveConnection &&
-		dev.ActiveConnection.Connection &&
-		dev.ActiveConnection.Connection.Settings &&
-		dev.ActiveConnection.Connection.Settings.connection)
-		zone = dev.ActiveConnection.Connection.Settings.connection.zone;
+	    if (iface.MainConnection &&
+		iface.MainConnection.Settings &&
+		iface.MainConnection.Settings.connection)
+		zone = iface.MainConnection.Settings.connection.zone;
             var show_traffic = (dev && (dev.State == 100 || dev.State == 10) && dev.Carrier === true);
 
             self.rx_series.add_instance(iface.Name);

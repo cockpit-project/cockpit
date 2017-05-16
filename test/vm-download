@@ -22,6 +22,7 @@ CONFIG = "~/.config/image-stores"
 DEFAULT = [
     "https://209.132.184.69:8493/",
     "https://209.132.184.41:8493/",
+    "http://cockpit-images.verify.svc.cluster.local",
     "https://fedorapeople.org/groups/cockpit/images/"
 ]
 
@@ -31,6 +32,7 @@ IMAGE_EXPIRE = 14
 import argparse
 import os
 import shutil
+import socket
 import stat
 import subprocess
 import sys
@@ -51,7 +53,7 @@ GIT_IMAGE_PATH = "test/images"
 PRUNE_THRESHOLD_G = float(os.environ.get("PRUNE_THRESHOLD_G", 15))
 DEVNULL = open("/dev/null", "r+")
 
-def download(link, force, stores):
+def download(link, force, quiet, stores):
     if not os.path.exists(DATA):
         os.makedirs(DATA)
 
@@ -88,40 +90,57 @@ def download(link, force, stores):
             stores = []
         stores += DEFAULT
 
+    name = os.path.basename(dest)
     ca = os.path.join(BASE, "common", "ca.pem")
+
     for store in stores:
         url = urlparse.urlparse(store)
-        if url.port:
-            resolve = "cockpit-tests:{0}:{1}".format(url.port, url.hostname)
-            url = url._replace(netloc="cockpit-tests:{}".format(url.port))
+
+        defport = url.scheme == 'http' and 80 or 443
+
+        try:
+            ai = socket.getaddrinfo(url.hostname, url.port or defport, socket.AF_INET, 0, socket.IPPROTO_TCP)
+        except socket.gaierror:
+            ai = [ ]
+            message = store
+
+        for (family, socktype, proto, canonname, sockaddr) in ai:
+            resolve = "cockpit-tests:{1}:{0}".format(*sockaddr)
+            source = urlparse.urljoin("{0}://cockpit-tests:{1}{2}".format(url.scheme, sockaddr[1], url.path), name)
+            message = "{scheme}://{0}:{1}{path}".format(*sockaddr, scheme=url.scheme, path=url.path)
+
+            try:
+                cmd = ["curl", "--head", "--silent",  "--resolve", resolve, "--fail", "--cacert", ca, source]
+                subprocess.check_call(cmd, stdout=DEVNULL)
+                break
+            except subprocess.CalledProcessError:
+                pass
+            try:
+                cmd = ["curl", "--head", "--silent", "--fail", source]
+                subprocess.check_call(cmd, stdout=DEVNULL)
+                break
+            except subprocess.CalledProcessError:
+                pass
+
+
+        # If the above block found nothing, then continue with next store
         else:
-            resolve = "cockpit-tests:{1}".format(0, url.hostname)
-            url = url._replace(netloc="cockpit-tests")
+            if not quiet:
+                sys.stderr.write(" x {0}\n".format(message))
+            continue
 
-        name = os.path.basename(dest)
-        ca_source = urlparse.urljoin(url.geturl(), name)
-        source = urlparse.urljoin(store, name)
-
-        try:
-            cmd = ["curl", "--head", "--silent",  "--resolve", resolve, "--fail", "--cacert", ca, ca_source]
-            subprocess.check_call(cmd, stdout=DEVNULL)
-            break
-        except subprocess.CalledProcessError:
-            pass
-        try:
-            cmd = ["curl", "--head", "--silent", "--fail", source]
-            subprocess.check_call(cmd, stdout=DEVNULL)
-            break
-        except subprocess.CalledProcessError:
-            pass
-
-    sys.stderr.write("{0}\n".format(source))
+        # If the above block found something then break out here too
+        if not quiet:
+            sys.stderr.write(" > {0}\n".format(urlparse.urljoin(message, name)))
+        break
 
     (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=DATA)
 
     # Adjust the command above that worked to make it visible and download real stuff
-    cmd = [arg for arg in cmd if arg not in ["--head", "--silent"]]
-    cmd.insert(1, "--progress-bar")
+    cmd.remove("--head")
+    if not quiet:
+        cmd.remove("--silent")
+        cmd.insert(1, "--progress-bar")
 
     try:
         curl = subprocess.Popen(cmd, stdout=fd)
@@ -256,18 +275,19 @@ def every_image():
             result.append(filename)
     return result
 
-def download_images(image_list, force, store):
+def download_images(image_list, force, quiet, store):
     for image in image_list:
         link = os.path.join(IMAGES, image)
         if not os.path.islink(link):
             raise Exception("image link does not exist: " + image)
-        download(link, force, store)
+        download(link, force, quiet, store)
 
 def main():
     parser = argparse.ArgumentParser(description='Download a virtual machine')
     parser.add_argument("--force", action="store_true", help="Force unnecessary downloads, delete images even if they aren't old")
     parser.add_argument("--store", action="append", help="Where to find images")
     parser.add_argument("--prune", action="store_true", help="Remove unused images and links")
+    parser.add_argument("--quiet", action="store_true", help="Make downloading quieter")
     parser.add_argument("-d", "--dry-run-prune", dest="dryrun", action="store_true", help="Don't actually delete images and links")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
@@ -278,7 +298,7 @@ def main():
 
     if args.prune:
         prune_images(args.force, args.dryrun)
-    download_images(args.image, args.force, args.store)
+    download_images(args.image, args.force, args.quiet, args.store)
 
 if __name__ == '__main__':
     sys.exit(main())

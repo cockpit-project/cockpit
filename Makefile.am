@@ -1,3 +1,4 @@
+# manual comment added to force update in the patch system
 export PATH := $(PATH):$(abs_srcdir)/node_modules/.bin
 
 NULL =

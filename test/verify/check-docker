@@ -339,6 +339,15 @@ CMD ["/bin/sh"]
         b.wait_present("#container-terminal .console-ct .terminal")
 
         b.focus('#container-terminal .console-ct .terminal')
+
+        # Wait for the container to wake up
+        try:
+            b.key_press( [ 'Return', 'Return', 'Return' ] )
+            b.wait_in_text("#container-terminal", "#")
+        except Error, ex:
+            if not ex.msg.startswith('timeout'):
+                raise
+
         b.key_press( [ 'c', 'l', 'e', 'a', 'r', 'Return' ] )
         b.wait_in_text("#container-terminal", "#")
 

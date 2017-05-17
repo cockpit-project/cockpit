@@ -77,19 +77,14 @@ case "$RELEASE" in
         # docker.io got removed from testing; use backports-version
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
-
-    xenial)
-        TEST_PACKAGES="$TEST_PACKAGES systemd-coredump"
-
-        IPA_CLIENT_PACKAGES="$IPA_CLIENT_PACKAGES freeipa-client"
-        PBUILDER_OPTS='COMPONENTS="main universe"'
-        ;;
-
-    *)
-        echo "Error: Unknown Debian/Ubuntu release $RELEASE" >&2
-        exit 1
 esac
 
+if grep -q 'ID=ubuntu' /etc/os-release; then
+    TEST_PACKAGES="$TEST_PACKAGES systemd-coredump"
+
+    IPA_CLIENT_PACKAGES="$IPA_CLIENT_PACKAGES freeipa-client"
+    PBUILDER_OPTS='COMPONENTS="main universe"'
+fi
 
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd

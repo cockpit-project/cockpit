@@ -31,7 +31,7 @@ parser.add_argument('-m', '--maintain', action='store_true', help='Changes are p
 parser.add_argument('-M', '--memory', default=None, type=int, help='Memory (in MiB) of the target machine')
 parser.add_argument('-C', '--cpus', default=None, type=int, help='Number of cpus in the target machine')
 
-parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to run')
+parser.add_argument('image', help='The image to run')
 args = parser.parse_args()
 
 try:

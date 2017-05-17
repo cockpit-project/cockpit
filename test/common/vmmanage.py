@@ -125,7 +125,7 @@ def build_and_install(install_image, build_image, args):
     args.setdefault("verbose", False)
     args.setdefault("sit", False)
     args.setdefault("quick", False)
-    args.setdefault("build_image", testvm.DEFAULT_IMAGE)
+    args.setdefault("build_image", build_image)
     args.setdefault("build_only", False)
     args.setdefault("install_only", False)
     args.setdefault("containers", False)

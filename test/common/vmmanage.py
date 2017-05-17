@@ -47,6 +47,11 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
 def build_and_maybe_install(image, do_install=False, skips=None, args=None):
     """Build and maybe install Cockpit into a test image"""
     machine = testvm.VirtMachine(verbose=args["verbose"], image=image, label="install")
+
+    # Remove any previous local override for the image
+    if os.path.exists(machine.image_file):
+        os.unlink(machine.image_file)
+
     source = subprocess.check_output([ os.path.join(testvm.TEST_DIR, "..", "tools", "make-source") ]).strip()
     machine.start(maintain=do_install, memory_mb=4096, cpus=4)
     completed = False
@@ -79,6 +84,11 @@ def only_install(image, skips=None, args=None, address=None):
         machine = testvm.Machine(address=args["address"], verbose=verbose, image=image, label="install")
     else:
         machine = testvm.VirtMachine(verbose=verbose, image=image, label="install")
+
+        # Remove any previous local override for the image
+        if os.path.exists(machine.image_file):
+            os.unlink(machine.image_file)
+
         machine.start(maintain=True)
         started = True
     completed = False

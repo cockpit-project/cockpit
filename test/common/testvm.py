@@ -1246,10 +1246,9 @@ class VirtMachine(Machine):
     def _cleanup(self, quick=False):
         self.disconnect()
         try:
-            if not quick:
-                if hasattr(self, '_disks'):
-                    for index in dict(self._disks):
-                        self.rem_disk(index)
+            if hasattr(self, '_disks'):
+                for index in dict(self._disks):
+                    self.rem_disk(index, quick)
 
             self._disks = { }
 
@@ -1360,18 +1359,20 @@ class VirtMachine(Machine):
 
         return index
 
-    def rem_disk(self, index):
+    def rem_disk(self, index, quick=False):
         assert index in self._disks
         disk = self._disks.pop(index)
 
-        disk_desc = self._domain_disk_template() % {
-                      'file': disk["filename"],
-                      'serial': disk["serial"],
-                      'unit': index,
-                      'dev': disk["dev"]
-                    }
-        if self._domain.detachDeviceFlags(disk_desc, libvirt.VIR_DOMAIN_AFFECT_LIVE ) != 0:
-            raise Failure("Unable to remove disk from vm")
+        if not quick:
+            disk_desc = self._domain_disk_template() % {
+                'file': disk["filename"],
+                'serial': disk["serial"],
+                'unit': index,
+                'dev': disk["dev"]
+            }
+
+            if self._domain.detachDeviceFlags(disk_desc, libvirt.VIR_DOMAIN_AFFECT_LIVE ) != 0:
+                raise Failure("Unable to remove disk from vm")
 
         # if this isn't just an additional path, clean up
         if "path" in disk and disk["path"] and os.path.exists(disk["path"]):

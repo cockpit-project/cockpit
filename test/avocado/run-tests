@@ -236,7 +236,6 @@ def main():
     if opts.install:
         sys.stderr.write("Building and installing Cockpit ...\n")
         subprocess.check_call([ "vm-download", testvm.DEFAULT_IMAGE, "selenium" ])
-        subprocess.check_call([ "vm-reset" ])
 
         cmd = [ "vm-install" ]
         if opts.verbosity:

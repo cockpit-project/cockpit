@@ -46,7 +46,6 @@ def install(opts):
     sys.stderr.write("Building and installing Cockpit ...\n")
     cmds = [
         [ "vm-download", testvm.DEFAULT_IMAGE ],
-        [ "vm-reset" ],
         [ "vm-install", "--containers", testvm.DEFAULT_IMAGE ],
     ]
 

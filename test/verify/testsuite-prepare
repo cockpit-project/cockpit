@@ -43,7 +43,6 @@ if __name__ == "__main__":
     test_os = args.image
     build_os = vmmanage.get_build_image(test_os)
 
-    os.system("vm-reset")
     try:
         subprocess.check_call(["vm-download", build_os, test_os])
     except OSError, ex:

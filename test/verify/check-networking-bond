@@ -105,7 +105,7 @@ class TestNetworking(NetworkCase):
         m.execute("nmcli dev dis %s" % iface2)
 
         b.wait_in_text("tr[data-interface='%s'] td:nth-child(2)" % iface1, "10.42.")
-        b.wait_text("tr[data-interface='%s'] td:nth-child(3)" % iface2, "Inactive")
+        b.wait_text("tr[data-interface='%s'] td:nth-child(4)" % iface2, "Inactive")
 
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")

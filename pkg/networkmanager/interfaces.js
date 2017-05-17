@@ -2275,7 +2275,7 @@ PageNetworkInterface.prototype = {
         this.dev = null;
     },
 
-    show_dialog: function(dialog, id) {
+    show_dialog: function(dialog, id, options) {
         var self = this;
         var con = self.main_connection;
         var dev = self.dev;
@@ -2297,7 +2297,8 @@ PageNetworkInterface.prototype = {
         dialog.connection = self.main_connection;
         dialog.ghost_settings = self.ghost_settings;
         dialog.apply_settings = settings_applier(self.model, self.dev, con);
-        dialog.done = reactivate_connection;
+        if (!options || !options.dont_reactivate_connection)
+            dialog.done = reactivate_connection;
         $(id).modal('show');
     },
 
@@ -2598,7 +2599,8 @@ PageNetworkInterface.prototype = {
             }
 
             function configure_zone_settings() {
-                self.show_dialog(PageNetworkZoneSettings, '#network-zone-settings-dialog');
+                self.show_dialog(PageNetworkZoneSettings, '#network-zone-settings-dialog',
+                                 { dont_reactivate_connection: true });
             }
 
             function render_autoconnect_row() {

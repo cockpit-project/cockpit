@@ -53,7 +53,7 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 
 @skipImage("DBus API of setroubleshoot too old", "centos-7")
 class TestSelinux(MachineCase):
-    @skipImage("No setroubleshoot", "continuous-atomic", "debian-stable", "debian-testing", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
+    @skipImage("No setroubleshoot", "continuous-atomic", "debian-stable", "debian-testing", "fedora-atomic", "rhel-atomic", "ubuntu-1604", "ubuntu-stable")
     def testTroubleshootAlerts(self):
         b = self.browser
 
@@ -144,7 +144,7 @@ class TestSelinux(MachineCase):
 
         #b.wait_in_text("body", "No SELinux alerts.")
 
-    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "continuous-atomic", "fedora-atomic", "ubuntu-1604")
+    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "continuous-atomic", "fedora-atomic", "ubuntu-1604", "ubuntu-stable")
     def testEnforcingToggle(self):
         b = self.browser
         m = self.machine

@@ -77,6 +77,11 @@ case "$RELEASE" in
         # docker.io got removed from testing; use backports-version
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
+
+    zesty)
+        # HACK: https://launchpad.net/bugs/1693154
+        mkdir /etc/krb5.conf.d/
+        ;;
 esac
 
 if grep -q 'ID=ubuntu' /etc/os-release; then
@@ -84,6 +89,10 @@ if grep -q 'ID=ubuntu' /etc/os-release; then
 
     IPA_CLIENT_PACKAGES="$IPA_CLIENT_PACKAGES freeipa-client"
     PBUILDER_OPTS='COMPONENTS="main universe"'
+
+    # We want to use/test NetworkManager instead of netplan/networkd for ethernets
+    mkdir -p /etc/NetworkManager/conf.d
+    touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 fi
 
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin

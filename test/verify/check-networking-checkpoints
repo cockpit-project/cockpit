@@ -22,7 +22,7 @@ import parent
 from testlib import *
 from netlib import *
 
-@skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-stable", "fedora-24", "fedora-atomic", "rhel-atomic", "ubuntu-1604")
+@skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "debian-stable", "fedora-24", "fedora-atomic", "rhel-atomic", "ubuntu-1604", "ubuntu-stable")
 class TestNetworking(NetworkCase):
     def testCheckpoint(self):
         b = self.browser
@@ -30,7 +30,7 @@ class TestNetworking(NetworkCase):
 
         iface = self.get_iface(m, m.macaddr)
 
-        if m.image in [ "debian-testing", "debian-stable", "ubuntu-1604" ]:
+        if m.image in [ "debian-testing", "debian-stable", "ubuntu-1604", "ubuntu-stable" ]:
             m.execute("sed -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf")
             m.execute("systemctl restart NetworkManager")
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
@@ -46,7 +46,7 @@ class TestNetworking(NetworkCase):
         b.wait_visible("#confirm-breaking-change-popup")
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
-        if m.image not in [ "debian-testing", "debian-stable", "ubuntu-1604" ]:
+        if m.image not in [ "debian-testing", "debian-stable", "ubuntu-1604", "ubuntu-stable" ]:
             # Change IP
             b.click("tr:contains('IPv4') a")
             b.wait_popup("network-ip-settings-dialog")
@@ -59,7 +59,7 @@ class TestNetworking(NetworkCase):
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
 
-    @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing", "ubuntu-1604")
+    @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
     def testCheckpointSlowRollback(self):
         b = self.browser
         m = self.machine

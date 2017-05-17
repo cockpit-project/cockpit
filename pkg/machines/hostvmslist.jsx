@@ -410,9 +410,13 @@ const HostVmsList = ({ vms, config, dispatch }) => {
         </div>);
     }
 
+    const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
+
     return (<div className='container-fluid'>
         <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]}>
-            {vms.map(vm => {
+            {vms
+                .sort(sortFunction)
+                .map(vm => {
                 return (
                     <Vm vm={vm} config={config}
                         onStart={() => dispatch(startVm(vm))}

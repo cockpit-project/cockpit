@@ -43,7 +43,7 @@ parser.add_argument('-u', '--upload', action='store_true', help='Upload the imag
 parser.add_argument('--no-build', action='store_true', dest='no_build',
                     help='Don''t build packages and create the vm without build capabilities')
 parser.add_argument("--store", default=None, help="Where to send images")
-parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to create')
+parser.add_argument('image', help='The image to create')
 args = parser.parse_args()
 
 # default to --no-build for some images

@@ -53,7 +53,7 @@ def initially_loopbacked(machine):
         return False
 
     # Debian, Ubuntu, and Fedora 26 use the overlayfs driver by default.
-    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "fedora-26" ]:
+    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-26" ]:
         return False
 
     # The rest don't have space in the root volume group, or don't

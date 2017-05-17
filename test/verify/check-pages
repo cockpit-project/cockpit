@@ -43,7 +43,7 @@ WantedBy=default.target
         # On Debian and Ubuntu we have to generate the other locales :S
         if m.image in ["debian-stable", "debian-testing" ]:
             m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
-        elif m.image in [ "ubuntu-1604" ]:
+        elif m.image in [ "ubuntu-1604", "ubuntu-stable" ]:
             m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
 
         # On Atomic no locales other than en_US are supported on the host itself

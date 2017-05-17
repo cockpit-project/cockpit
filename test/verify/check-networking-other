@@ -23,7 +23,7 @@ from testlib import *
 from netlib import *
 
 class TestNetworking(NetworkCase):
-    @skipImage("No 'tun' support", "centos-7", "debian-stable", "rhel-atomic", "ubuntu-1604")
+    @skipImage("No 'tun' support", "centos-7", "debian-stable", "rhel-atomic", "ubuntu-1604", "ubuntu-stable")
     def testOther(self):
         b = self.browser
         m = self.machine

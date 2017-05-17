@@ -51,7 +51,7 @@ def wait_project(machine, project):
             i = i + 1
             time.sleep(2)
 
-@skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "fedora-i386")
+@skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
     additional_machines = {
@@ -379,7 +379,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_present("#service-list")
 
 
-@skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "fedora-i386")
+@skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestRegistry(MachineCase):
     additional_machines = {

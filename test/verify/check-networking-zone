@@ -1,0 +1,50 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from netlib import *
+
+class TestNetworking(NetworkCase):
+    def testZone(self):
+        b = self.browser
+        m = self.machine
+
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1452017
+        self.allow_journal_messages("org\\.fedoraproject\\.FirewallD1: couldn't get all properties of org\\.fedoraproject\\.FirewallD1\\.zone at /org/fedoraproject/FirewallD1: GDBus\\.Error:org\\.freedesktop\\.DBus\\.Python\\.dbus\\.exceptions\\.DBusException: org\\.freedesktop\\.DBus\\.Error\\.UnknownInterface: FirewallD does not implement org\\.fedoraproject\\.FirewallD1\\.zone")
+
+        self.login_and_go("/network")
+
+        iface = self.add_iface()
+        self.wait_for_iface(iface)
+
+        b.click("#networking-interfaces tr[data-interface='%s']" % iface)
+        b.wait_visible("#network-interface")
+
+        b.click("tr:contains('Zone') a")
+        b.wait_popup("network-zone-settings-dialog")
+        b.wait_present("li[value=trusted] a")
+        b.click("li[value=trusted] a", True)
+        b.click("#network-zone-settings-apply")
+        b.wait_popdown("network-mtu-settings-dialog")
+        b.wait_in_text("#network-interface-settings tr:contains('Zone')", "trusted")
+
+if __name__ == '__main__':
+    test_main()

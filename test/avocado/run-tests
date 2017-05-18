@@ -26,6 +26,7 @@ import sys
 import subprocess
 import glob
 import re
+import time
 
 # we use symlinked files
 # the directory structure breaks on the second run with .pyc files
@@ -169,7 +170,13 @@ done;
 def run_avocado(avocado_tests, verbose, browser, download_logs):
     use_selenium = (browser != 'none')
     machine = testvm.VirtMachine(verbose=verbose, label="avocado")
-    selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
+    if use_selenium:
+        if "explorer" in browser:
+            windows = testvm.VirtMachine(image="selenium-win", label="selenium-win", verbose=verbose)
+        else:
+            selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose)
+    else
+        selenium = None
 
     try:
         # just start the machine without waiting for it to boot, get the ip address later
@@ -195,7 +202,12 @@ def run_avocado(avocado_tests, verbose, browser, download_logs):
 
         if selenium:
             wait_for_selenium_running(machine, selenium.address)
-
+        if windows:
+            selenium = windows
+            selenium.start()
+            selenium.wait_boot()
+            wait_for_selenium_running(machine, selenium.address)
+            time.sleep(30)
         prepare_avocado_tests(machine)
 
         # Now actually run the tests
@@ -221,7 +233,7 @@ def main():
     parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
     parser.add_argument('--install', dest='install', action='store_true',
                         help='Build and install Cockpit into test VMs')
-    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome'],
+    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome', 'internet explorer'],
                     default='none',
                     help="selenium browser choice - in case of none, selenium isn't started")
     parser.add_argument("-s", "--selenium-tests", dest='selenium_tests', action='store_true',

@@ -260,7 +260,7 @@ class TestMultiMachine(MachineCase):
         b.click("a[href='/dashboard']")
         b.enter_page("/dashboard")
         b.wait_present("a[data-address='localhost']")
-        b.wait_in_text("a[data-address='localhost']", m2.address)
+        b.wait_in_text("a[data-address='localhost']", "machine2")
         b.wait_not_present("a[data-address='{}']".format(m2.address))
         b.logout()
 
@@ -416,7 +416,7 @@ class TestMultiMachine(MachineCase):
         b.click("a[href='/dashboard']")
         b.enter_page("/dashboard")
         b.wait_present("a[data-address='localhost']")
-        b.wait_in_text("a[data-address='localhost']", m2.address)
+        b.wait_in_text("a[data-address='localhost']", "machine2")
         b.wait_not_present("a[data-address='{}']".format(m2.address))
 
         # Might happen when we switch away.

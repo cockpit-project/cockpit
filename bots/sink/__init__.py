@@ -18,13 +18,23 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+
 __all__ = (
     'Sink',
 )
 
+BOTS = os.path.join(os.path.dirname(__file__), "..")
+
 class Sink(object):
     def __init__(self, host, identifier, status=None):
-        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir=os.path.join(TEST_DIR, "tmp"))
+        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir=os.path.join(BOTS))
         self.status = status
 
         # Start a gzip and cat processes

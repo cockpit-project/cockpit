@@ -124,7 +124,7 @@ class ImageTask(object):
 
         # Make sure the body remains the same
         watches = [{
-            "resource": github.qualify("issues?labels=bot,image/{0}&state=open".format(self.image)),
+            "resource": api.qualify("issues?labels=bot,image/{0}&state=open".format(self.image)),
             "result": [
                 {
                   "body": body_text

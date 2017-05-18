@@ -103,13 +103,13 @@ def download(link, force, stores):
         source = urlparse.urljoin(store, name)
 
         try:
-            cmd = ["curl", "--head", "--silent",  "--resolve", resolve, "--fail", "--cacert", ca, ca_source]
+            cmd = ["curl", "--head", "--silent",  "--no-alpn", "--resolve", resolve, "--fail", "--cacert", ca, ca_source]
             subprocess.check_call(cmd, stdout=DEVNULL)
             break
         except subprocess.CalledProcessError:
             pass
         try:
-            cmd = ["curl", "--head", "--silent", "--fail", source]
+            cmd = ["curl", "--head", "--silent", "--no-alpn", "--fail", source]
             subprocess.check_call(cmd, stdout=DEVNULL)
             break
         except subprocess.CalledProcessError:

@@ -63,9 +63,14 @@ DEVICE=$NETWORK_NAME
 NM_CONTROLLED=no
 EOF
 
+    # HACK: In case of read-only /sys avoid libvirt writing there
+    mount -o bind /mnt /sys/devices/virtual/net/
+
     $VIRSH net-define $BASE/common/network-cockpit.xml
-	$VIRSH net-autostart $NETWORK_NAME
-	$VIRSH net-start $NETWORK_NAME
+    $VIRSH net-autostart $NETWORK_NAME
+    $VIRSH net-start $NETWORK_NAME
+
+    umount /sys/devices/virtual/net
 
 	if [ ! -u $QEMU_BRIDGE_HELPER ]; then
 		chmod -v u+s $QEMU_BRIDGE_HELPER

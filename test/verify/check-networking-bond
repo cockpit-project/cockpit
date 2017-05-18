@@ -46,8 +46,7 @@ class TestNetworking(NetworkCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        if "ubuntu" not in m.image and "debian" not in m.image:
-            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
+        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
 
         # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")

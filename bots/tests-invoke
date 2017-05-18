@@ -33,6 +33,7 @@ import sink
 HOSTNAME = socket.gethostname().split(".")[0]
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+DEVNULL = open("/dev/null", "r+")
 
 def main():
     parser = argparse.ArgumentParser(description='Run integration tests')
@@ -167,7 +168,7 @@ class PullTask(object):
             return "Rebase failed"
 
         # If the bots directory doesn't exist in this branch, check it out from master
-        ret = subprocess.call([ "git", "ls-tree" "-d", "HEAD:bots/"], stdout=devnull, stderr=devnull)
+        ret = subprocess.call([ "git", "ls-tree" "-d", "HEAD:bots/"], stdout=DEVNULL, stderr=DEVNULL)
         if ret == 0:
             return None
 

@@ -19,11 +19,14 @@ cd "${srcdir:-.}"
 pyflakes pkg/docker/cockpit-atomic-storage tools/build-debian-copyright
 echo "ok 1 pkg/docker/cockpit-atomic-storage tools/build-debian-copyright"
 
+# we don't dist bots, so only check it when running in git
+[ -d bots ] &&  BOTS="bots/" || BOTS=
+
 # TODO: there are currently a lot of pyflakes errors like
 #   'parent' imported but unused
 #   'from testlib import *' used; unable to detect undefined names
 # Filter these out until these get fixed properly.
-out=$(pyflakes test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused)") || true
+out=$(pyflakes $BOTS test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused)") || true
 if [ -n "$out" ]; then
     echo "ERROR: pyflakes"
     echo "$out"

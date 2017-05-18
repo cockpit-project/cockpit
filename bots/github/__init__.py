@@ -21,7 +21,6 @@
 # Shared GitHub code. When run as a script, we print out info about
 # our GitHub interacition.
 
-import argparse
 import errno
 import httplib
 import json

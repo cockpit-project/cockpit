@@ -34,7 +34,7 @@ BOTS = os.path.join(os.path.dirname(__file__), "..")
 
 class Sink(object):
     def __init__(self, host, identifier, status=None):
-        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir=os.path.join(BOTS))
+        self.attachments = tempfile.mkdtemp(prefix="attachments.", dir="/var/tmp")
         self.status = status
 
         # Start a gzip and cat processes

@@ -95,18 +95,10 @@ class TestConnection(MachineCase):
         if m.image in [ "debian-stable" ]:
             return
 
-        # Lets crash a process and see if we get a proper backtrace in the logs
+        # Lets crash a systemd-crontrolled process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
-        if m.image in ["debian-testing", "ubuntu-1604"]:
-            binary = "cron"
-            m.execute("systemctl start cron")
-        elif m.image in ["fedora-atomic"]:
-            binary = "agetty"
-        else:
-            binary = "crond"
-            m.execute("systemctl start crond")
-        m.execute("kill -SEGV $(pgrep {0})".format(binary))
-        wait(lambda: m.execute("journalctl -b | grep 'Process.*{0}.*of user.*dumped core.'".format(binary)))
+        m.execute("systemctl start systemd-hostnamed; pkill -e -SEGV systemd-hostnam")
+        wait(lambda: m.execute("journalctl -b | grep 'Process.*systemd-hostnam.*of user.*dumped core.'"))
 
         # Make sure the core dumps exist in the directory, so we can download them
         cores = m.execute("find /var/lib/systemd/coredump -type f")

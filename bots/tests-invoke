@@ -99,7 +99,7 @@ class PullTask(object):
                     }
                 ],
                 "watches": [{
-                    "resource": github.qualify("commits/" + self.revision + "/status"),
+                    "resource": api.qualify("commits/" + self.revision + "/status"),
                     "result": {
                         "statuses": [
                             {

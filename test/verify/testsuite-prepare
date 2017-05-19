@@ -40,6 +40,8 @@ if __name__ == "__main__":
     parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
+    args.verbose = True
+
     test_os = args.image
     build_os = vmmanage.get_build_image(test_os)
 

@@ -84,9 +84,9 @@ export function arrayEquals(arr1, arr2) {
     return diff.length === 0;
 }
 
-export function logDebug(msg) {
+export function logDebug(msg, ...params) {
     if (VMS_CONFIG.isDev) {
-        console.log(msg);
+        console.log(msg, ...params);
     }
 }
 
@@ -147,4 +147,55 @@ export function toFixedPrecision(value, precision) {
         result += '.' + padding + fraction;
     }
     return result;
+}
+
+
+function isFirefox () {
+    return window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+}
+
+/**
+ * Download given content as a file in the browser
+ *
+ * @param data Content of the file
+ * @param fileName
+ * @param mimeType
+ * @returns {*}
+ */
+export function fileDownload ({ data, fileName = 'myFile.dat', mimeType = 'application/octet-stream' }) {
+    if (!data) {
+        console.error('fileDownload(): no data to download');
+        return false;
+    }
+
+    const a = document.createElement('a');
+    a.id = 'dynamically-generated-file';
+    a.href = `data:${mimeType},${encodeURIComponent(data)}`;
+    document.body.appendChild(a); // if not used further then at least within integration tests
+
+    // Workaround since I can't get CSP working on newer Firefox versions for this
+    if (!isFirefox() && 'download' in a) { // html5 A[download]
+        logDebug('fileDownload() is using A.HREF');
+        a.setAttribute('download', fileName);
+        a.click();
+    } else { // do iframe dataURL download (old ch+FF):
+        logDebug('fileDownload() is using IFRAME');
+        const f = document.createElement('iframe');
+        f.width = '1';
+        f.height = '1';
+        document.body.appendChild(f);
+        const nicerText = '\n[...............................GraphicsConsole]\n';
+        f.src = `data:${mimeType},${encodeURIComponent(data + nicerText)}`;
+        window.setTimeout(() => document.body.removeChild(f), 333);
+    }
+
+    window.setTimeout(() => { // give phantomJS time ...
+        logDebug('removing temporary A.HREF for filedownload');
+        document.body.removeChild(a);
+    }, 500);
+    return true;
+}
+
+export function vmId(vmName) {
+    return `vm-${vmName}`;
 }

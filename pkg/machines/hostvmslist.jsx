@@ -20,10 +20,11 @@
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm } from "./actions.es6";
-import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision } from "./helpers.es6";
+import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './vmdiskstab.jsx';
+import GraphicsConsole from './components/graphicsConsole.jsx';
 
 const _ = cockpit.gettext;
 
@@ -100,7 +101,7 @@ VmActions.propTypes = {
     onReboot: PropTypes.func.isRequired,
     onForceReboot: PropTypes.func.isRequired,
     onShutdown: PropTypes.func.isRequired,
-    onForceoff: PropTypes.func.isRequired
+    onForceoff: PropTypes.func.isRequired,
 }
 
 const IconElement = ({ onClick, className, title, state }) => {
@@ -159,35 +160,39 @@ StateIcon.propTypes = {
  * @constructor
  */
 export const DropdownButtons = ({ buttons }) => {
-    const buttonsHtml = buttons
-        .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
-        .map(button => {
-            return (<li className='presentation'>
-                <a role='menuitem' onClick={button.action} id={button.id}>
-                    {button.title}
-                </a>
-            </li>)
-        });
+    if (buttons.length > 1) { // do not display caret for single option
+        const buttonsHtml = buttons
+            .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
+            .map(button => {
+                return (<li className='presentation'>
+                    <a role='menuitem' onClick={button.action} id={button.id}>
+                        {button.title}
+                    </a>
+                </li>)
+            });
 
-    const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
+        const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
+        return (<div className='btn-group'>
+            <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={buttons[0].action}>
+                {buttons[0].title}
+            </button>
+            <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
+                <span className='caret' id={caretId}/>
+            </button>
+            <ul role='menu' className='dropdown-menu'>
+                {buttonsHtml}
+            </ul>
+        </div>);
+    }
+
     return (<div className='btn-group'>
         <button className='btn btn-default btn-danger' onClick={buttons[0].action} id={buttons[0]['id']}>
             {buttons[0].title}
         </button>
-        <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
-            <span className='caret' id={caretId}/>
-        </button>
-        <ul role='menu' className='dropdown-menu'>
-            {buttonsHtml}
-        </ul>
     </div>);
 }
 DropdownButtons.propTypes = {
     buttons: PropTypes.array.isRequired
-}
-
-function vmId(vmName) {
-    return `vm-${vmName}`;
 }
 
 const VmOverviewTabRecord = ({id, descr, value}) => {
@@ -359,10 +364,14 @@ VmUsageTab.propTypes = {
 const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceReboot, dispatch }) => {
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} />);
 
+    const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
+    const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Console")}</div>);
+
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm, config: config }},
         {name: _("Usage"), renderer: VmUsageTab, data: {vm: vm}, presence: 'onlyActive' },
-        {name: (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>), renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' }
+        {name: disksTabName, renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' },
+        {name: consolesTabName, renderer: GraphicsConsole, data: { vm, config, dispatch }}
     ];
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
         tabRenderers = tabRenderers.concat(config.provider.vmTabRenderers.map(
@@ -391,13 +400,14 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
             onStart, onReboot, onForceReboot, onShutdown, onForceoff})}/>);
 };
 Vm.propTypes = {
-    vm: React.PropTypes.object.isRequired,
-    config: React.PropTypes.object.isRequired,
-    onStart: React.PropTypes.func.isRequired,
-    onShutdown: React.PropTypes.func.isRequired,
-    onForceoff: React.PropTypes.func.isRequired,
-    onReboot: React.PropTypes.func.isRequired,
-    onForceReboot: React.PropTypes.func.isRequired
+    vm: PropTypes.object.isRequired,
+    config: PropTypes.object.isRequired,
+    onStart: PropTypes.func.isRequired,
+    onShutdown: PropTypes.func.isRequired,
+    onForceoff: PropTypes.func.isRequired,
+    onReboot: PropTypes.func.isRequired,
+    onForceReboot: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
 
 /**

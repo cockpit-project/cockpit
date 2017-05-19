@@ -39,6 +39,7 @@ import tempfile
 import time
 import unittest
 
+import tap
 import testvm
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
@@ -871,24 +872,10 @@ class Policy(object):
 
         return False
 
-class TapResult(unittest.TestResult):
+class TestResult(tap.TapResult):
     def __init__(self, stream, descriptions, verbosity):
-        self.offset = 0
         self.policy = None
-        super(TapResult, self).__init__(stream, descriptions, verbosity)
-
-    def ok(self, test):
-        data = "ok {0} {1} duration: {2}s\n".format(self.offset, str(test), int(time.time() - self.start_time))
-        sys.stdout.write(data)
-
-    def not_ok(self, test, err):
-        data = "not ok {0} {1} duration: {2}s\n".format(self.offset, str(test), int(time.time() - self.start_time))
-        if err:
-            data += self._exc_info_to_string(err, test)
-        sys.stdout.write(data)
-
-    def skip(self, test, reason):
-        sys.stdout.write("ok {0} {1} duration: {2}s # SKIP {3}\n".format(self.offset, str(test), int(time.time() - self.start_time), reason))
+        super(TestResult, self).__init__(verbosity)
 
     def maybeIgnore(self, test, err):
         string = self._exc_info_to_string(err, test)
@@ -905,45 +892,23 @@ class TapResult(unittest.TestResult):
                 raise RetryError("Retrying due to failure of test harness or framework")
         return False
 
-    def stop(self):
-        sys.stdout.write("Bail out!\n")
-        super(TapResult, self).stop()
-
-    def startTest(self, test):
-        self.start_time = time.time()
-        self.offset += 1
-        sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
-        super(TapResult, self).startTest(test)
-
-    def stopTest(self, test):
-        sys.stdout.write("\n")
-        super(TapResult, self).stopTest(test)
-
     def addError(self, test, err):
         if not self.maybeIgnore(test, err):
-            self.not_ok(test, err)
-            super(TapResult, self).addError(test, err)
+            super(TestResult, self).addError(test, err)
 
     def addFailure(self, test, err):
         if not self.maybeIgnore(test, err):
-            self.not_ok(test, err)
-            super(TapResult, self).addError(test, err)
+            super(TestResult, self).addError(test, err)
 
-    def addSuccess(self, test):
-        self.ok(test)
-        super(TapResult, self).addSuccess(test)
+    def startTest(self, test):
+        sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
+        sys.stdout.flush()
+        super(TestResult, self).startTest(test)
 
-    def addSkip(self, test, reason):
-        self.skip(test, reason)
-        super(TapResult, self).addSkip(test, reason)
-
-    def addExpectedFailure(self, test, err):
-        self.ok(test)
-        super(TapResult, self).addExpectedFailure(test, err)
-
-    def addUnexpectedSuccess(self, test):
-        self.not_ok(test, None)
-        super(TapResult, self).addUnexpectedSuccess(test)
+    def stopTest(self, test):
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+        super(TestResult, self).stopTest(test)
 
 class OutputBuffer(object):
     def __init__(self):
@@ -983,7 +948,7 @@ class OutputBuffer(object):
         return buffer
 
 class TapRunner(object):
-    resultclass = TapResult
+    resultclass = TestResult
 
     def __init__(self, verbosity=1, jobs=1, thorough=False):
         self.stream = unittest.runner._WritelnDecorator(sys.stderr)
@@ -992,7 +957,7 @@ class TapRunner(object):
         self.jobs = jobs
 
     def runOne(self, test, offset):
-        result = TapResult(self.stream, False, self.verbosity)
+        result = TestResult(self.stream, False, self.verbosity)
         result.offset = offset
         if not self.thorough:
             result.policy = Policy()
@@ -1009,9 +974,8 @@ class TapRunner(object):
             return result.wasSuccessful()
 
     def run(self, testable):
+        tap.TapResult.plan(testable)
         count = testable.countTestCases()
-        sys.stdout.write("1..{0}\n".format(count))
-        sys.stdout.flush()
 
         # For statistics
         start = time.time()

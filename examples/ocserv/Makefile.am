@@ -12,7 +12,7 @@ ocservdebug_DATA = \
 	pkg/ocserv/ocserv.css \
 	$(NULL)
 
-CLEANFILES += \
+DISTCLEANFILES += \
 	pkg/ocserv/ocserv.html \
 	pkg/ocserv/ocserv.min.css \
 	$(NULL)

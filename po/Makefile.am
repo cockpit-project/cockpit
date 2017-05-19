@@ -135,6 +135,10 @@ CLEANFILES += \
 	po/po.empty.js.gz \
 	$(NULL)
 
+DISTCLEANFILES += \
+	$(PO_JAVASCRIPT) \
+	$(NULL)
+
 EXTRA_DIST += \
 	$(PO_INPUTS) \
 	po/LINGUAS \

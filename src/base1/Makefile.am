@@ -236,7 +236,7 @@ EXTRA_DIST += \
 	$(base_TESTS_JAVASCRIPT) \
 	$(NULL)
 
-CLEANFILES += \
+DISTCLEANFILES += \
 	dist/base1/cockpit.js \
 	dist/base1/cockpit.min.css \
 	dist/base1/cockpit.min.css.gz \

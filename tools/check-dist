@@ -10,10 +10,10 @@ done
 
 # Make sure files are patchable
 find $1/dist -type f | while read file; do
-
     # We don't care about these files
     case $file in
-    *.png|*.svg|*.gif|*.map|*.woff)
+    *.png|*.svg|*.gif|*.map|*.woff|*.ttf|*.gz| \
+    *machines/include/logo.js)
         continue
         ;;
     esac

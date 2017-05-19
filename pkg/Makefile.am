@@ -13,11 +13,35 @@ playground_DATA = \
 dist/playground/extra.de.po: pkg/playground/extra.de.po
 	$(COPY_RULE)
 
+machinesincludedir = $(pkgdatadir)/machines/include
+machinesinclude_DATA = \
+	$(shell ls -1 $(srcdir)/bower_components/no-vnc/include | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\//') \
+	$(NULL)
+
+machinesincludechromedir = $(pkgdatadir)/machines/include/chrome-app
+machinesincludechrome_DATA = \
+	$(shell ls -1 $(srcdir)/bower_components/no-vnc/include/chrome-app | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\/chrome-app\//') \
+	$(NULL)
+
+# preprocess no-vnc's keysymdef.js, logo.js to fix "upatchable file" error
+# preprocessed file needs to go to "dist" package since node_modules with "uglify" are missing in the .tar.gz
+dist/machines/include/keysymdef.js: bower_components/no-vnc/include/keysymdef.js
+	$(MIN_JS_RULE)
+
+# just copy the rest
+dist/machines/include/chrome-app/%: bower_components/no-vnc/include/chrome-app/%
+	$(COPY_RULE)
+
+dist/machines/include/%: bower_components/no-vnc/include/%
+	$(COPY_RULE)
+
 EXTRA_DIST += \
 	dist/playground/extra.de.po \
 	pkg/playground/extra.de.po \
 	pkg/users/mock \
 	pkg/lib/qunit-template.html \
+	$(shell ls -1 $(srcdir)/bower_components/no-vnc/include | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\//') \
+	$(shell ls -1 $(srcdir)/bower_components/no-vnc/include/chrome-app | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\/chrome-app\//') \
 	$(playground_DATA) \
 	$(pkg_TESTS)
 

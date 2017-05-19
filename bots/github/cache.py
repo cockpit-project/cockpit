@@ -24,7 +24,6 @@
 import json
 import os
 import stat
-import sys
 import tempfile
 import time
 import urllib
@@ -34,33 +33,64 @@ __all__ = (
 )
 
 class Cache(object):
-    def __init__(self, directory):
+    def __init__(self, directory, lag=None):
         self.directory = directory
-        if not os.path.exists(self.directory):
-            os.makedirs(self.directory)
         self.prune()
 
+        # Default to zero lag when command on command line
+        if lag is None:
+            if os.isatty(0):
+                lag = 0
+            else:
+                lag = 60
+
+        # The lag tells us how long to assume cached data is "current"
+        self.lag = lag
+
+        # The mark tells us that stuff before this time is not "current"
+        self.marked = 0
+
+    # Prune old expired data from the cache directory
     def prune(self):
+        if not os.path.exists(self.directory):
+            return
         now = time.time()
         for filename in os.listdir(self.directory):
             path = os.path.join(self.directory, filename)
             if os.path.isfile(path) and os.stat(path).st_mtime < now - 7 * 86400:
                 os.remove(path)
 
+    # Read a resource from the cache or return None
     def read(self, resource):
         path = os.path.join(self.directory, urllib.quote(resource, safe=''))
-        if not os.path.exists(path):
-            return None
-        with open(path, 'r') as fp:
-            try:
+        try:
+            with open(path, 'r') as fp:
                 return json.load(fp)
-            except ValueError:
-                return None
+        except (IOError, ValueError):
+            return None
 
+    # Write a resource to the cache in an atomic way
     def write(self, resource, contents):
         path = os.path.join(self.directory, urllib.quote(resource, safe=''))
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
         (fd, temp) = tempfile.mkstemp(dir=self.directory)
         with os.fdopen(fd, 'w') as fp:
             json.dump(contents, fp)
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
         os.rename(temp, path)
+
+    # Tell the cache that stuff before this time is not "current"
+    def mark(self, mtime=None):
+        if not mtime:
+            mtime = time.time()
+        self.marked = mtime
+
+    # Check if a given resource in the cache is "current" or not
+    def current(self, resource):
+        path = os.path.join(self.directory, urllib.quote(resource, safe=''))
+        try:
+            mtime = os.path.getmtime(path)
+            return mtime > self.marked and mtime > (time.time() - self.lag)
+        except OSError:
+            return False

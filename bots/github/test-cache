@@ -21,6 +21,7 @@
 import os
 import sys
 import tempfile
+import time
 import unittest
 
 import cache
@@ -53,6 +54,37 @@ class TestCache(unittest.TestCase):
         c.write("second", value)
         result = c.read("pa+t\%h")
         self.assertEqual(result, other)
+
+    def testCurrent(self):
+        c = cache.Cache(self.directory, lag=3)
+
+        c.write("resource2", { "value": 2 })
+        self.assertTrue(c.current("resource2"))
+
+        time.sleep(2)
+        self.assertTrue(c.current("resource2"))
+
+        time.sleep(2)
+        self.assertFalse(c.current("resource2"))
+
+    def testCurrentMark(self):
+        c = cache.Cache(self.directory, lag=3)
+
+        self.assertFalse(c.current("resource"))
+
+        c.write("resource", { "value": 1 })
+        self.assertTrue(c.current("resource"))
+
+        time.sleep(2)
+        self.assertTrue(c.current("resource"))
+
+        c.mark()
+        self.assertFalse(c.current("resource"))
+
+    def testCurrentZero(self):
+        c = cache.Cache(self.directory, lag=0)
+        c.write("resource", { "value": 1 })
+        self.assertFalse(c.current("resource"))
 
 if __name__ == '__main__':
     unittest.main()

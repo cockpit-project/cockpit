@@ -161,8 +161,11 @@ class GitHub(object):
 
     def get(self, resource):
         headers = { }
-        cached = self.cache.read(self.qualify(resource))
+        qualified = self.qualify(resource)
+        cached = self.cache.read(qualified)
         if cached:
+            if self.cache.current(qualified):
+                return cached
             etag = cached['headers'].get("etag", None)
             if etag:
                 headers['If-None-Match'] = etag
@@ -170,6 +173,7 @@ class GitHub(object):
         if response['status'] == 404:
             return None
         elif cached and response['status'] == 304: # Not modified
+            self.cache.write(resource, response)
             return json.loads(cached['data'])
         elif response['status'] < 200 or response['status'] >= 300:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
@@ -180,6 +184,7 @@ class GitHub(object):
 
     def post(self, resource, data, accept=[]):
         response = self.request("POST", resource, json.dumps(data), { "Content-Type": "application/json" })
+        self.cache.mark()
         status = response['status']
         if (status < 200 or status >= 300) and status not in accept:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
@@ -188,6 +193,7 @@ class GitHub(object):
 
     def patch(self, resource, data, accept=[]):
         response = self.request("PATCH", resource, json.dumps(data), { "Content-Type": "application/json" })
+        self.cache.mark()
         status = response['status']
         if (status < 200 or status >= 300) and status not in accept:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))

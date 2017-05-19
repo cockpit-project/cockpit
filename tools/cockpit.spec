@@ -359,7 +359,7 @@ Cockpit support for remoting to other servers, bastion hosts, and a basic dashbo
 %post dashboard
 # HACK: Until policy changes make it downstream
 echo "Applying workaround for broken SELinux policy: https://bugzilla.redhat.com/show_bug.cgi?id=1381331" >&2
-test -f %{_bindir}/chcon && chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh
+chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh || true
 %if 0%{?fedora} > 0 && 0%{?fedora} >= 26
 if type semodule >/dev/null 2>&1; then
     tmp=$(mktemp -d)

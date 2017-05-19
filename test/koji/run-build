@@ -36,7 +36,7 @@ def main():
     opts = parser.parse_args()
 
     # Splits 23 out of fedora-23
-    image = os.environ.get("TEST_OS", "fedora-25")
+    image = os.environ.get("TEST_OS", "fedora-26")
     system = image.split("-")[-1]
 
     # Converts fedora-23 to f23

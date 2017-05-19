@@ -37,10 +37,10 @@ class TestNetworking(NetworkCase):
             b.wait_not_visible("#networking-add-team")
             return
 
-        iface1 = self.add_iface()
-        iface2 = self.add_iface()
-        self.wait_for_iface(iface1)
-        self.wait_for_iface(iface2)
+        iface1 = self.add_iface(vlan=1, activate=False)
+        iface2 = self.add_iface(vlan=2, activate=False)
+        self.wait_for_iface(iface1, active=False)
+        self.wait_for_iface(iface2, active=False)
 
         # team them
         b.click("button:contains('Add Team')")

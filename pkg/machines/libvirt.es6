@@ -23,9 +23,25 @@
  */
 import cockpit from 'cockpit';
 import $ from 'jquery';
-import {updateOrAddVm, getVm, getAllVms, delayPolling, deleteUnlistedVMs, vmActionFailed, updateVmDisksStats} from './actions.es6';
+
+import { updateOrAddVm,
+    getVm,
+    getAllVms,
+    delayPolling,
+    deleteUnlistedVMs,
+    vmActionFailed,
+    updateVmDisksStats
+} from './actions.es6';
+
 import { spawnScript, spawnProcess } from './services.es6';
-import { toKiloBytes, isEmpty, logDebug, rephraseUI } from './helpers.es6';
+import {
+    toKiloBytes,
+    isEmpty,
+    logDebug,
+    rephraseUI,
+    fileDownload,
+} from './helpers.es6';
+
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
@@ -86,18 +102,11 @@ LIBVIRT_PROVIDER = {
         return true; // or Promise
     },
 
-    canReset(vmState) {
-        return vmState == 'running' || vmState == 'idle' || vmState == 'paused';
-    },
-    canShutdown(vmState) {
-        return LIBVIRT_PROVIDER.canReset(vmState);
-    },
-    isRunning(vmState) {
-        return LIBVIRT_PROVIDER.canReset(vmState);
-    },
-    canRun(vmState) {
-        return vmState == 'shut off';
-    },
+    canReset: (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused',
+    canShutdown: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
+    isRunning: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
+    canRun: (vmState) => vmState == 'shut off',
+    canConsole: (vmState) => vmState == 'running',
 
     /**
      * Read VM properties of a single VM (virsh)
@@ -206,7 +215,24 @@ LIBVIRT_PROVIDER = {
             failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed")}),
             args: ['start', name]
         });
-    }
+    },
+
+    /**
+     * Basic, but working.
+     * TODO: provide support for more complex scenarios, like with TLS or proxy
+     *
+     * To try with virt-install: --graphics spice,listen=[external host IP]
+     */
+    CONSOLE_VM ({ name, consoleDetail }) {
+        logDebug(`${this.name}.CONSOLE_VM(name='${name}'), detail = `, consoleDetail);
+        return dispatch => {
+            fileDownload({
+                data: buildConsoleVVFile(consoleDetail),
+                fileName: 'console.vv',
+                mimeType: 'application/x-virt-viewer'
+            });
+        };
+    },
 };
 
 function canLoggedUserConnectSession (connectionName, loggedUser) {
@@ -283,8 +309,19 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const disks = parseDumpxmlForDisks(devicesElem);
     const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
     const cpuModel = parseDumpxmlForCpuModel(cpuElem);
+    const displays = parseDumpxmlForConsoles(devicesElem);
 
-    dispatch(updateOrAddVm({connectionName, name, id, osType, currentMemory, vcpus, disks, emulatedMachine, cpuModel, bootOrder}));
+    dispatch(updateOrAddVm({
+        connectionName, name, id,
+        osType,
+        currentMemory,
+        vcpus,
+        disks,
+        emulatedMachine,
+        cpuModel,
+        bootOrder,
+        displays,
+    }));
 }
 
 function getSingleOptionalElem(parent, name) {
@@ -344,7 +381,7 @@ function parseDumpxmlForDisks(devicesElem) {
             }
         }
     }
-
+    
     return disks;
 }
 
@@ -422,6 +459,33 @@ function parseDumpxmlForCpuModel(cpuElem) {
     return rephraseUI('cpuMode', cpuMode) + (cpuModel ? ` (${cpuModel})` : '');
 }
 
+function parseDumpxmlForConsoles(devicesElem) {
+    const displays = {};
+    const graphicsElems = devicesElem.getElementsByTagName("graphics");
+    if (graphicsElems) {
+        for (let i = 0; i < graphicsElems.length; i++) {
+            const graphicsElem = graphicsElems[i];
+            const display = {
+                type: graphicsElem.getAttribute('type'),
+                port: graphicsElem.getAttribute('port'),
+                tlsPort: graphicsElem.getAttribute('tlsPort'),
+                address: graphicsElem.getAttribute('listen'),
+                autoport: graphicsElem.getAttribute('autoport'),
+            };
+            if (display.type &&
+                (display.autoport ||
+                (display.address && (display.port || display.tlsPort)) )) {
+                displays[display.type] = display;
+                logDebug(`parseDumpxmlForConsoles(): graphics device found: ${JSON.stringify(display)}`);
+            } else {
+                console.error(`parseDumpxmlForConsoles(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(display)}`);
+            }
+        }
+    }
+
+    return displays;
+}
+
 function parseDominfo(dispatch, connectionName, name, domInfo) {
     const lines = parseLines(domInfo);
     const state = getValueFromLine(lines, 'State:');
@@ -490,5 +554,13 @@ function parseDomstatsForDisks(domstatsLines) {
     return disksStats;
 }
 
+function buildConsoleVVFile(consoleDetail) {
+    return '[virt-viewer]\n' +
+        `type=${consoleDetail.type}\n` +
+        `host=${consoleDetail.address}\n` +
+        `port=${consoleDetail.port}\n` +
+        'delete-this-file=1\n' +
+        'fullscreen=0\n';
+}
 
 export default LIBVIRT_PROVIDER;

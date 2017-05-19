@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+        noVNC wrapper based on
+            - https://github.com/novnc/noVNC/blob/master/vnc_auto.html
+            - cockpit/examples/poc-vnc
+
+    Connect parameters are provided in query string:
+        http://example.com/?host=HOST&port=PORT&encrypt=1&true_color=1
+    or the fragment:
+        http://example.com/#host=HOST&port=PORT&encrypt=1&true_color=1
+    -->
+    <title>noVNC</title>
+
+    <meta charset="utf-8">
+
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+                Remove this if you use the .htaccess -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <!-- Apple iOS Safari settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- App Start Icon  -->
+    <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
+    <!-- For iOS devices set the icon to use if user bookmarks app on their homescreen -->
+    <link rel="apple-touch-icon" href="images/screen_57x57.png">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="include/base.css" title="plain">
+    <link rel="stylesheet" href="vnc.css">
+
+    <script src="include/util.js"></script>
+    <script src="../base1/jquery.js"></script>
+    <script src="../base1/cockpit.js"></script>
+
+</head>
+
+<body class="vnc-custom-body">
+    <div id="vnc-main-menu" class="vnc-main-menu">
+        Send shortcut: <a href="#" class="vnc-button" onclick="sendCtrlAltDel()">Ctrl+Alt+Del</a>
+    </div>
+
+    <div id="noVNC_container" class="vnc-custom-container">
+        <div id="noVNC_status_bar" class="noVNC_status_bar" class="vnc-custom-status-bar">
+            <table border=0 width="100%">
+                <tr>
+                    <td>
+                        <div id="noVNC_status" class="vnc-custom-status-bar">
+                            Loading
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <canvas id="noVNC_canvas" width="640px" height="20px" tabindex="0">
+           Canvas not supported.
+        </canvas>
+    </div>
+
+    <script>
+        /* global window, $, Util, RFB, */
+        "use strict";
+
+        /*
+            Unresolved issues when trying to bundle no-vnc js files:
+                - sources are not UMD modules (so no "require()")
+                - the "modules" are dynamically loading their dependencies (via "Util.load_scripts" call) but not consistently - "preload" is still required
+                - the "modules" have to be in "include" subdir as the "Util.load_scripts" expects
+        */
+        Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
+                           "keysymdef.js", "keyboard.js", "input.js", "display.js",
+                           "inflator.js", "rfb.js", "keysym.js"]);
+
+        var rfb;
+        var resizeTimeout;
+
+        function UIresize() {
+            if (WebUtil.getConfigVar('resize', false)) {
+                console.log('Resizing noVNC');
+                var innerW = window.innerWidth;
+                var innerH = window.innerHeight;
+                var controlbarH = $D('noVNC_status_bar').offsetHeight + $D('vnc-main-menu').offsetHeight;
+                var padding = 5;
+                if (innerW !== undefined && innerH !== undefined) {
+                    var h = innerH - controlbarH - padding
+                    console.log('requestDesktopSize: ', innerW, h);
+                    rfb.requestDesktopSize(innerW, h);
+                }
+            }
+        }
+        function FBUComplete(rfb, fbu) {
+            UIresize();
+            rfb.set_onFBUComplete(function() { });
+            console.log('Setting focus');
+            $D('noVNC_canvas').focus();
+        }
+        function passwordRequired(rfb) {
+            var msg;
+            msg = '<form onsubmit="return setPassword();"';
+            msg += '  style="margin-bottom: 0px">';
+            msg += 'Password Required: ';
+            msg += '<input type=password size=10 id="password_input" class="noVNC_status">';
+            msg += '<\/form>';
+            $D('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
+            $D('noVNC_status').innerHTML = msg;
+        }
+        function setPassword() {
+            rfb.sendPassword($D('password_input').value);
+            return false;
+        }
+        function sendCtrlAltDel() {
+            rfb.sendCtrlAltDel();
+            return false;
+        }
+
+        function updateState(rfb, state, oldstate, msg) {
+            var s, sb, cad, level;
+            s = $D('noVNC_status');
+            sb = $D('noVNC_status_bar');
+            switch (state) {
+                case 'failed':       level = "error";  break;
+                case 'fatal':        level = "error";  break;
+                case 'normal':       level = "normal"; break;
+                case 'disconnected': level = "normal"; break;
+                case 'loaded':       level = "normal"; break;
+                default:             level = "warn";   break;
+            }
+
+            if (typeof(msg) !== 'undefined') {
+                sb.setAttribute("class", "noVNC_status_" + level);
+                s.textContent = msg;
+            }
+        }
+
+        window.onresize = function () {
+            // When the window has been resized, wait until the size remains
+            // the same for 0.5 seconds before sending the request for changing
+            // the resolution of the session
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function(){
+                UIresize();
+            }, 500);
+        };
+
+        function parseParams() {
+            var params = {
+                host: WebUtil.getConfigVar('host', 'host not provided in params'),
+                port: WebUtil.getConfigVar('port', 'port not provided in params'),
+                password: WebUtil.getConfigVar('password', ''),
+                encrypt: WebUtil.getConfigVar('encrypt', (window.location.protocol === "https:")),
+                true_color: WebUtil.getConfigVar('true_color', true),
+                local_cursor: WebUtil.getConfigVar('cursor', true),
+                shared: WebUtil.getConfigVar('shared', true),
+                view_only: WebUtil.getConfigVar('view_only', false),
+                repeaterID: WebUtil.getConfigVar('repeaterID', ''),
+
+                logging: WebUtil.getConfigVar('logging', 'warn'),
+                title: WebUtil.getConfigVar('title', 'noVNC'),
+            };
+
+            if ((!params.host) || (!params.port)) {
+                updateState(null, 'fatal', null, 'Must specify host and port in URL');
+                return;
+            }
+
+            return params;
+        }
+
+        function connect(path, params) {
+            try {
+                rfb = new RFB({
+                    'target':       $D('noVNC_canvas'),
+                    'encrypt':      params.encrypt,
+                    'repeaterID':   params.repeaterID,
+                    'true_color':   params.true_color,
+                    'local_cursor': params.local_cursor,
+                    'shared':       params.shared,
+                    'view_only':    params.view_only,
+
+                    'onUpdateState':  updateState,
+                    'onXvpInit':    function () {},
+                    'onPasswordRequired':  passwordRequired,
+                    'onFBUComplete': FBUComplete});
+            } catch (exc) {
+                updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                return; // don't continue trying to connect
+            }
+
+            rfb.connect(window.location.hostname, window.location.port, params.password, path);
+        }
+
+        window.onscriptsload = function () {
+            var params = parseParams();
+
+            WebUtil.init_logging(params.logging);
+            document.title = unescape(params.title);
+
+            // connect
+            var query = window.btoa(JSON.stringify({
+                payload: "stream",
+                protocol: "binary",
+                address: params.host,
+                port: parseInt(params.port, 10),
+                binary: "raw",
+            }));
+
+            console.log(cockpit, cockpit.transport);
+            console.log("channel", params.port);
+            cockpit.transport.wait(function () {
+                connect("cockpit/channel/" + cockpit.transport.csrf_token + "?" + query, params);
+            });
+        };
+        </script>
+
+    </body>
+</html>

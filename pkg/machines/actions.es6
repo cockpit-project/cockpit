@@ -63,6 +63,10 @@ export function startVm(vm) {
     return virt('START_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
+export function vmDesktopConsole(vm, consoleDetail) {
+    return virt('CONSOLE_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, consoleDetail });
+}
+
 /**
  * Delay call of polling action.
  *
@@ -108,9 +112,24 @@ export function setRefreshInterval(refreshInterval) {
     };
 }
 
-export function updateOrAddVm({ id, name, connectionName, state, osType, fqdn, uptime, currentMemory, rssMemory, vcpus, autostart,
-    actualTimeInMs, cpuTime, disks, emulatedMachine, cpuModel, bootOrder }) {
-    let vm = {};
+export function updateOrAddVm({ id, name, connectionName,
+    state,
+    osType,
+    fqdn,
+    uptime,
+    currentMemory,
+    rssMemory,
+    vcpus,
+    autostart,
+    actualTimeInMs,
+    cpuTime,
+    disks,
+    emulatedMachine,
+    cpuModel,
+    bootOrder,
+    displays,
+    }) {
+    const vm = {};
 
     if (id !== undefined) vm.id = id;
     if (name !== undefined) vm.name = name;
@@ -127,6 +146,7 @@ export function updateOrAddVm({ id, name, connectionName, state, osType, fqdn, u
     if (emulatedMachine !== undefined) vm.emulatedMachine = emulatedMachine;
     if (cpuModel !== undefined) vm.cpuModel = cpuModel;
     if (bootOrder !== undefined) vm.bootOrder = bootOrder;
+    if (displays !== undefined) vm.displays = displays;
 
     if (actualTimeInMs !== undefined) vm.actualTimeInMs = actualTimeInMs;
     if (cpuTime !== undefined) vm.cpuTime = cpuTime;

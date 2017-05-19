@@ -37,7 +37,7 @@ import time
 
 import xml.etree.ElementTree as etree
 
-DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-25")
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-26")
 
 MEMORY_MB = 1024
 

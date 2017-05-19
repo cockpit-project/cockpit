@@ -1359,6 +1359,35 @@ test_parse_external (void)
   json_object_unref (object);
 }
 
+static void
+test_host_checksums (void)
+{
+  CockpitTransport *transport = cockpit_pipe_transport_new_fds ("unused", 0, 0);
+  CockpitCreds *creds = cockpit_creds_new ("cockpit", NULL);
+  CockpitWebService *service = cockpit_web_service_new (creds, transport);
+  cockpit_web_service_set_host_checksum(service, "localhost", "checksum1");
+  cockpit_web_service_set_host_checksum(service, "host1", "checksum1");
+  cockpit_web_service_set_host_checksum(service, "host2", "checksum2");
+
+  g_assert_cmpstr (cockpit_web_service_get_host (service, "checksum1"), ==, "localhost");
+  g_assert_cmpstr (cockpit_web_service_get_host (service, "checksum2"), ==, "host2");
+  g_assert_cmpstr (cockpit_web_service_get_host (service, "bad"), ==, NULL);
+
+  g_assert_cmpstr (cockpit_web_service_get_checksum (service, "host1"), ==, "checksum1");
+  g_assert_cmpstr (cockpit_web_service_get_checksum (service, "host2"), ==, "checksum2");
+  g_assert_cmpstr (cockpit_web_service_get_checksum (service, "localhost"), ==, "checksum1");
+  g_assert_cmpstr (cockpit_web_service_get_checksum (service, "bad"), ==, NULL);
+
+  cockpit_web_service_set_host_checksum(service, "host2", "checksum3");
+  g_assert_cmpstr (cockpit_web_service_get_checksum (service, "host2"), ==, "checksum3");
+  g_assert_cmpstr (cockpit_web_service_get_host (service, "checksum3"), ==, "host2");
+  g_assert_cmpstr (cockpit_web_service_get_host (service, "checksum2"), ==, NULL);
+
+  g_object_unref (service);
+  g_object_unref (transport);
+  cockpit_creds_unref (creds);
+}
+
 typedef struct {
   const gchar *name;
   const gchar *input;
@@ -1493,6 +1522,7 @@ main (int argc,
               setup_for_socket, test_authorize_password, teardown_for_socket);
 
   g_test_add_func ("/web-service/parse-external/success", test_parse_external);
+  g_test_add_func ("/web-service/host-checksums", test_host_checksums);
   for (i = 0; i < G_N_ELEMENTS (external_failure_fixtures); i++)
     {
       name = g_strdup_printf ("/web-service/parse-external/%s", external_failure_fixtures[i].name);

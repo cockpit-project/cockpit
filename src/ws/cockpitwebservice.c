@@ -1481,12 +1481,17 @@ cockpit_web_service_set_host_checksum (CockpitWebService *self,
                                        const gchar *checksum)
 {
   const gchar *old_checksum = g_hash_table_lookup (self->checksum_by_host, host);
+  const gchar *old_host = g_hash_table_lookup (self->host_by_checksum, checksum);
+
   if (g_strcmp0 (checksum, old_checksum) == 0)
     return;
 
   if (old_checksum)
     g_hash_table_remove (self->host_by_checksum, old_checksum);
 
-  g_hash_table_replace (self->host_by_checksum, g_strdup (checksum), g_strdup (host));
+  /* Only replace checksum if the old one wasn't localhost */
+  if (g_strcmp0 (old_host, "localhost") != 0)
+    g_hash_table_replace (self->host_by_checksum, g_strdup (checksum), g_strdup (host));
+
   g_hash_table_replace (self->checksum_by_host, g_strdup (host), g_strdup (checksum));
 }

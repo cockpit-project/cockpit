@@ -55,10 +55,13 @@ class Cache(object):
         if not os.path.exists(self.directory):
             return
         now = time.time()
-        for filename in os.listdir(self.directory):
-            path = os.path.join(self.directory, filename)
-            if os.path.isfile(path) and os.stat(path).st_mtime < now - 7 * 86400:
-                os.remove(path)
+        try:
+            for filename in os.listdir(self.directory):
+                path = os.path.join(self.directory, filename)
+                if os.path.isfile(path) and os.stat(path).st_mtime < now - 7 * 86400:
+                    os.remove(path)
+        except OSError:
+            pass
 
     # Read a resource from the cache or return None
     def read(self, resource):

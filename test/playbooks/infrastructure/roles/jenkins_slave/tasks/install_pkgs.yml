@@ -1,0 +1,6 @@
+---
+- name: Install required Jenkins slave packages using dnf instead of yum
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ jslave_yum_pkgs }}"

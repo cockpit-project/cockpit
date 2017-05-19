@@ -1,0 +1,28 @@
+---
+- name: Remove RHEL files from the git repo provided
+  debug:
+    msg: "Remove RHEL files from the git repo provided"
+
+- name: Remove RHEL files from the git repo provided
+  file:
+    path: "{{ playbook_dir }}/roles/common/{{ item }}"
+    state: absent
+  with_items:
+    - "files/rhel7-extras.repo"
+    - "files/rhel7-updates.repo"
+    - "files/rhel7-optional.repo"
+    - "files/rhel7-latest.repo"
+    - "files/rhos7.repo"
+    - "files/beaker-client-{{ ansible_distribution }}EnterpriseLinux.repo"
+    - "vars/{{ ansible_distribution }}.yml"
+  delegate_to: localhost
+
+- name: Remove ci-infrastructure repo files for Fedora
+  file:
+    path: "{{ playbook_dir }}/roles/common/{{ item }}"
+    state: absent
+  with_items:
+    - "files/beaker-client-{{ ansible_distribution }}.repo"
+    - "vars/{{ ansible_distribution }}.yml"
+  when: ansible_distribution == 'Fedora'
+  delegate_to: localhost

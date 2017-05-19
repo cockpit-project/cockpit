@@ -1,0 +1,43 @@
+---
+# Install dnf and python-dnf so we can use that common way to
+# install yum and pip packages
+- name: Install dnf and python-dnf using yum
+  yum: name=dnf,python-dnf state=present
+  with_items: "{{ yum_pkgs }}"
+  when: ansible_distribution != 'Fedora'
+
+- name: Install pre-requesites for dnf support for Fedora
+  raw: dnf install -y --allowerasing python-dnf
+  when: ansible_distribution == 'Fedora'
+
+- name: Install required packages using dnf instead of yum
+  dnf: name={{ item }} state=present
+  with_items: "{{ yum_pkgs }}"
+
+- name: Install required packages for Fedora
+  dnf: name={{ item }} state=present
+  with_items: "{{ fed_pkgs }}"
+  when: ansible_distribution == 'Fedora'
+
+- name: Install required packages for CentOS
+  dnf: name={{ item }} state=present
+  with_items: "{{ centos_pkgs }}"
+  when: ansible_distribution == 'CentOS'
+
+- name: Install required packages for RHEL
+  dnf: name={{ item }} state=present
+  with_items: "{{ rhel_pkgs }}"
+  when: (ansible_distribution == 'RedHat' and rhel_git_repo is defined)
+
+- name: Setup requirements.txt file for pip install
+  template:
+    src: requirements.txt.j2
+    dest: /tmp/requirements.txt
+    mode: 0777
+    owner: root
+    group: root
+
+- name: Install pip packages
+  pip:
+    requirements: /tmp/requirements.txt
+    state: present

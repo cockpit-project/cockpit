@@ -1,0 +1,40 @@
+---
+# Setup systemd swarm.service
+
+- name: Clean /etc/rc.local of any previous jenkins slave setup
+  lineinfile: "dest=/etc/rc.local regexp='^su --login jenkins.*|nohup /usr/bin/java.*' state=absent"
+
+- name: Check if slave is running and register
+  shell: pgrep -f swarm
+  register: swarm
+  ignore_errors: true
+
+- name: Setup Jenkins swarm systemd service file
+  template:
+    src: swarm.service.j2
+    dest: /etc/systemd/system/swarm.service
+    mode: 0575
+    owner: root
+    group: root
+
+- name: systemctl daemon-reload
+  shell: systemctl daemon-reload
+
+- name: Enable and start swarm service
+  service:
+    name: swarm.service
+    state: started
+    enabled: yes
+  when: (not kill_jslave and swarm.stdout == "")
+
+- name: Stop swarm service
+  service:
+    name: swarm.service
+    state: stopped
+  when: (kill_jslave and swarm.stdout != "")
+
+- name: Remove Jenkins swarm log file if kill_jslave defined and process is running
+  file:
+    path: /tmp/jslave.log
+    state: absent
+  when: (kill_jslave and swarm.stdout != "")

@@ -1,0 +1,11 @@
+[Unit]
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart={{ jswarm_full_cmd }}
+Restart=on-failure
+User={{ jenkins_username }}
+
+[Install]
+WantedBy=multi-user.target

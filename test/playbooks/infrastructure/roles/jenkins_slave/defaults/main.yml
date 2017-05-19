@@ -1,0 +1,20 @@
+---
+# file jenkins-slave/defaults/main.yml
+# Setup for Jenkins slave and Jenkins Swarm plugin
+jslave_labels: 'infrastructure-slave cockpit-slave'
+java_mem: 2048m
+jswarm_jar_loc: /home/jenkins
+jswarm_ver: 2.0
+jswarm_execs: 10
+jswarm_home: /home/jenkins
+jswarm_url: http://repo.jenkins-ci.org/releases/org/jenkins-ci/plugins/swarm-client
+jswarm_enable_uid: false
+jenkins_user: false
+jenkins_user_command_pre: 'su --login jenkins -c'
+jswarm_command: '/usr/bin/nohup /usr/bin/java -Xmx{{ java_mem }} -jar {{ jswarm_jar_loc }}/swarm-client-{{ jswarm_ver }}-jar-with-dependencies.jar -master {{ jenkins_master_url }} -name {{ jslave_name }} -executors {{ jswarm_execs }} -labels "{{ jslave_labels }}" -fsroot {{ jswarm_home }} -mode exclusive -disableSslVerification'
+jswarm_command_sfx: "1>/tmp/jslave.log 2>&1&"
+kill_jslave: false
+
+jslave_yum_pkgs:
+  - java
+  - nss

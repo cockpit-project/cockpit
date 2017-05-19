@@ -1,0 +1,9 @@
+---
+- hosts: '{{ hosts | default("all") }}'
+  become: '{{ become | default("no") }}'
+  become_user: '{{ become_user | default("root") }}'
+  remote_user: '{{ remote_user | default("root") }}'
+  roles:
+    - common
+    - { role: cockpit, when: enable_cockpit is defined }
+    - { role: jenkins_slave, when: enable_jenkins_slave is defined }

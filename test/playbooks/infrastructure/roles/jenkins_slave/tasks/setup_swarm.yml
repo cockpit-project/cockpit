@@ -1,0 +1,58 @@
+---
+- set_fact:
+    jswarm_unique: ""
+  when: jswarm_enable_uid
+
+- set_fact:
+    jswarm_unique: "-disableClientsUniqueId"
+  when: not jswarm_enable_uid
+
+- set_fact:
+    jswarm_full_cmd: "{{ jenkins_user_command_pre }} '{{ jswarm_command }} {{ jswarm_unique }}'"
+  when: jenkins_user
+
+- set_fact:
+    jswarm_full_cmd: "{{ jswarm_command }} {{ jswarm_unique }}"
+  when: not jenkins_user
+
+- set_fact:
+    jenkins_username: jenkins
+  when: jenkins_user
+
+- set_fact:
+    jenkins_username: root
+  when: not jenkins_user
+
+- debug:
+    msg: "Jenkins Slave Props: {{ item.prop }} [ {{ item.value }} ]"
+  with_items:
+    - { prop: 'Jenkins Username', value: "{{ jenkins_username }}" }
+    - { prop: 'Jenkins Full Command', value: "{{ jswarm_full_cmd }}" }
+    - { prop: 'Jswarm unique id', value: "{{ jswarm_unique }}" }
+
+- name: Remove requiretty in /etc/sudoers
+  lineinfile: "dest=/etc/sudoers regexp='Defaults.*requiretty' line='Defaults   !requiretty'"
+
+- name: Get swarm client
+  get_url: "url={{ jswarm_url }}/{{ jswarm_ver }}/swarm-client-{{ jswarm_ver }}-jar-with-dependencies.jar dest={{ jswarm_jar_loc }} mode=777"
+
+- name: Check if systemd is used
+  stat:
+    path: /usr/bin/systemctl
+  register: systemdcmd
+
+- debug:
+    msg: "systemd is present"
+  when: systemdcmd.stat.exists
+
+- debug:
+    msg: "systemd is NOT present"
+  when: not systemdcmd.stat.exists
+
+- include: setup_swarm_systemd.yml
+  when: systemdcmd.stat.exists
+
+- include: setup_swarm_rclocal.yml
+  when: not systemdcmd.stat.exists
+
+

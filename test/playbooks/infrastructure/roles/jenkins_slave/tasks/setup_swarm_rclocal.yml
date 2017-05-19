@@ -1,0 +1,44 @@
+---
+# Setup swarm in rc.local if systemd does not exist
+
+- set_fact:
+    jswarm_rclocal_cmd: '{{ jenkins_user_command_pre }} \"{{ jswarm_command }} {{ jswarm_unique }} {{ jswarm_command_sfx }}\"'
+  when: jenkins_user
+
+- set_fact:
+    jswarm_rclocal_cmd: '{{ jswarm_command }} {{ jswarm_unique }} {{ jswarm_command_sfx }}'
+  when: not jenkins_user
+
+- name: Clean /etc/rc.local of any previous jenkins slave setup
+  lineinfile: "dest=/etc/rc.local regexp='^su --login jenkins.*|nohup /usr/bin/java.*' state=absent"
+
+- name: Add swarm to /etc/rc.local for startup
+  lineinfile: "dest=/etc/rc.local line='{{ jenkins_full_cmd }}' state=present"
+
+- name: Check if slave is running and register
+  shell: pgrep -f swarm
+  register: swarm
+  ignore_errors: true
+
+- name: Kill jenkins swarm process if kill_jslave defined and process is running
+  shell: kill -9 {{ swarm.stdout }}
+  when: (kill_jslave and swarm.stdout != "")
+
+- name: Remove Jenkins swarm log file if kill_jslave defined and process is running
+  file:
+    path: /tmp/jslave.log
+    state: absent
+  when: (kill_jslave and swarm.stdout != "")
+
+- name: Check if slave is running and register
+  shell: pgrep -f swarm
+  register: swarm
+  ignore_errors: true
+
+- name: Start swarm to connect to master as jenkins user
+  shell: "{{ jenkins_user_command_pre }} '{{ jswarm_command }} {{ jswarm_unique }} {{ jswarm_command_sfx }}'"
+  when: (jenkins_user and swarm.stdout == "")
+
+- name: Start swarm to connect to master as root user
+  shell: '{{ jswarm_command }} {{ jswarm_unique }} {{ jswarm_command_sfx }}'
+  when: (not jenkins_user and swarm.stdout == "")

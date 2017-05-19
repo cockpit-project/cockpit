@@ -23,6 +23,7 @@ import os
 import subprocess
 import socket
 import sys
+import time
 import traceback
 
 sys.dont_write_bytecode = True
@@ -79,7 +80,13 @@ class PullTask(object):
         return "{0} {1} {2}".format(self.name, self.context, self.revision)
 
     def start_publishing(self, host, api):
-        identifier = self.name + "-" + self.revision[0:8] + "-" + self.context.replace("/", "-")
+        identifier = "-".join([
+            self.name,
+            self.revision[0:8],
+            self.context.replace("/", "-"),
+            time.strftime('%Y%m%d-%H%M%M')
+        ])
+
         description = "{0} [{1}]".format(github.TESTING, HOSTNAME)
 
         self.github_status_data = {

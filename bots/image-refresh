@@ -279,7 +279,7 @@ class ImageTask(object):
         # request anyway, for extra attention
 
         if ret != 0:
-            os.unlink("images/" + self.image)
+            os.unlink(os.path.join(BASE, "test", "images", self.image))
 
         have_branch = (run_censored([ "git", "checkout", "--detach" ]) and
                        run_censored([ "git", "commit", "-a",

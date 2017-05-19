@@ -27,12 +27,10 @@ import json
 import os
 import re
 import subprocess
-import stat
 import sys
-import time
 import urlparse
-import urllib
-import tempfile
+
+import cache
 
 __all__ = (
     'GitHub',
@@ -124,14 +122,8 @@ class GitHub(object):
         self.whitelist = read_whitelist()
 
         # The cache directory is $TEST_DATA/github bots/github
-        self.cache_directory = os.path.join(os.environ.get("TEST_DATA", BOTS), "github")
-        if not os.path.exists(self.cache_directory):
-            os.makedirs(self.cache_directory)
-        now = time.time()
-        for filename in os.listdir(self.cache_directory):
-            path = os.path.join(self.cache_directory, filename)
-            if os.path.isfile(path) and os.stat(path).st_mtime < now - 7 * 86400:
-                os.remove(path)
+        directory = os.path.join(os.environ.get("TEST_DATA", BOTS), "github")
+        self.cache = cache.Cache(directory)
 
     def qualify(self, resource):
         return urlparse.urljoin(self.base, resource)
@@ -167,26 +159,9 @@ class GitHub(object):
             "data": response.read()
         }
 
-    def cache(self, resource, response=None):
-        path = os.path.join(self.cache_directory, urllib.quote(self.qualify(resource), safe=''))
-        if response is None:
-            if not os.path.exists(path):
-                return None
-            with open(path, 'r') as fp:
-                try:
-                    return json.load(fp)
-                except ValueError:
-                    return None
-        else:
-            (fd, temp) = tempfile.mkstemp(dir=self.cache_directory)
-            with os.fdopen(fd, 'w') as fp:
-                json.dump(response, fp)
-            os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-            os.rename(temp, path)
-
     def get(self, resource):
         headers = { }
-        cached = self.cache(resource)
+        cached = self.cache.read(self.qualify(resource))
         if cached:
             etag = cached['headers'].get("etag", None)
             if etag:
@@ -200,7 +175,7 @@ class GitHub(object):
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
             raise Exception("GitHub API problem: {0}".format(response['reason'] or response['status']))
         else:
-            self.cache(resource, response)
+            self.cache.write(resource, response)
             return json.loads(response['data'])
 
     def post(self, resource, data, accept=[]):

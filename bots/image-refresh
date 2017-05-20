@@ -156,7 +156,7 @@ class ImageTask(object):
         }
         self.sink = sink.Sink(host, identifier, status)
 
-    def stop_publishing(self, github, ret, user, branch):
+    def stop_publishing(self, api, ret, user, branch):
         if ret is None:
             message = "Image creation stopped to avoid conflict."
         else:
@@ -287,7 +287,7 @@ class ImageTask(object):
                        run_censored([ "git", "push", url, "+HEAD:refs/heads/" + branch ]))
 
         if self.sink:
-            self.stop_publishing(github, ret, user, branch if have_branch else None)
+            self.stop_publishing(api, ret, user, branch if have_branch else None)
 
 if __name__ == '__main__':
     sys.exit(main())

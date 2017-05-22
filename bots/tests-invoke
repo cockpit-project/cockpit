@@ -138,6 +138,11 @@ class PullTask(object):
             }
         }
 
+        # Include information about which base we're testing against
+        if self.base:
+            commit = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ]).strip()
+            status["base"] = commit
+
         (prefix, unused, image) = self.context.partition("/")
         if not self.base:
             status['irc'] = { }    # Only send to IRC when master
@@ -147,15 +152,18 @@ class PullTask(object):
         self.sink = sink.Sink(host, identifier, status)
 
     def rebase(self, offline=False):
+        origin_base = "origin/" + self.base
+
+        # Retrieve information about our base branch
+        if not offline:
+            subprocess.check_call([ "git", "fetch", "origin", self.base ])
+
+        # Rebase this branch onto the base, but only if it's not already an ancestor
         try:
-            sys.stderr.write("Rebasing onto origin/" + self.base + " ...\n")
-            if not offline:
-                subprocess.check_call([ "git", "fetch", "origin", self.base ])
-            if self.sink:
-                master = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ]).strip()
-                self.sink.status["master"] = master
-            subprocess.check_call([ "git", "rebase", "origin/" + self.base ])
-        except:
+            if subprocess.call([ "git", "merge-base", "--is-ancestor", origin_base, "HEAD" ]) != 0:
+                sys.stderr.write("Rebasing onto " + origin_base + " ...\n")
+                subprocess.check_call([ "git", "rebase", origin_base ])
+        except subprocess.CalledProcessError:
             subprocess.call([ "git", "rebase", "--abort" ])
             traceback.print_exc()
             return "Rebase failed"
@@ -164,7 +172,6 @@ class PullTask(object):
         ret = subprocess.call([ "git", "ls-tree" "-d", "HEAD:bots/"], stdout=DEVNULL, stderr=DEVNULL)
         if ret == 0:
             return None
-
         try:
             subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
         except:

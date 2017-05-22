@@ -28,17 +28,13 @@ def check_valid(filename):
         return None
     return name.replace("-", "_")
 
-def install(opts):
+def install(opts, image):
     try:
         sys.stderr.write("Building and installing Cockpit ...\n")
-        cmd = [ os.path.join(testlib.TEST_DIR, "verify", "testsuite-prepare") ]
-        if opts.clean:
-            cmd.append("--clean")
-        if opts.quick:
-            cmd.append("--quick")
+        cmd = [ "image-prepare", image ]
         subprocess.check_call(cmd)
         return 0
-    except:
+    except subprocess.CalledProcessError:
         traceback.print_exc()
         sys.stderr.write("Install failed\n")
         return 1
@@ -63,10 +59,6 @@ def main():
     parser.add_argument('--publish', action='store', help="Unused")
     parser.add_argument('--install', dest='install', action='store_true',
                         help='Build and install Cockpit into test VMs')
-    parser.add_argument('--quick', dest='quick', action='store_true',
-                        help="Build test VMs quicker")
-    parser.add_argument('--clean', dest='clean', action='store_true',
-                        help="Build test VMs from clean state")
     parser.add_argument('image', action='store', nargs='?',
                         help='The operating system image to verify against')
     opts = parser.parse_args()
@@ -84,7 +76,7 @@ def main():
 
     ret = 0
     if opts.install:
-        ret = install(opts)
+        ret = install(opts, image)
     if not ret:
         ret = run(opts)
 

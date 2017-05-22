@@ -7,6 +7,23 @@ releasing Cockpit and more.
 Bots are being migrated into this directory and this documentation
 will be updated as they are.
 
+## Images
+
+In order to test Cockpit it is staged into an operating system
+image. These images are tracked in the ```bots/images``` directory.
+
+For managing these images:
+
+ * image-download: Download test images
+ * image-upload: Upload test images
+ * image-create: Create test machine images
+ * image-prepare: Build and install Cockpit packages into a test machine image
+
+For debugging the images:
+
+ * image-run: Run a test machine image
+
+
 ## Integration with GitHub
 
 A number of machines are watching our GitHub repository and are

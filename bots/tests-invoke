@@ -71,6 +71,7 @@ class PullTask(object):
         self.ref = ref
         self.context = context
         self.base = base
+        self.respawn = False
 
         self.sink = None
         self.github_status_data = None
@@ -154,15 +155,12 @@ class PullTask(object):
     def rebase(self, offline=False):
         origin_base = "origin/" + self.base
 
-        # Retrieve information about our base branch
-        if not offline:
-            subprocess.check_call([ "git", "fetch", "origin", self.base ])
-
         # Rebase this branch onto the base, but only if it's not already an ancestor
         try:
             if subprocess.call([ "git", "merge-base", "--is-ancestor", origin_base, "HEAD" ]) != 0:
                 sys.stderr.write("Rebasing onto " + origin_base + " ...\n")
                 subprocess.check_call([ "git", "rebase", origin_base ])
+                self.respawn = True
         except subprocess.CalledProcessError:
             subprocess.call([ "git", "rebase", "--abort" ])
             traceback.print_exc()
@@ -174,6 +172,7 @@ class PullTask(object):
             return None
         try:
             subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
+            self.respawn = True
         except:
             traceback.print_exc()
             return "Rebase checkout of bots failed"
@@ -190,9 +189,15 @@ class PullTask(object):
         def mark_passed():
             if "github" in sink.status:
                 self.github_status_data["state"] = "success"
+        def mark_respawn():
+            if "github" in sink.status:
+                self.github_status_data["state"] = "pending"
         if isinstance(ret, basestring):
             message = ret
             mark_failed()
+        elif ret is None:
+            message = "Rebased"
+            mark_respawn()
         elif ret == 0:
             message = "Tests passed"
             mark_passed()
@@ -214,6 +219,10 @@ class PullTask(object):
 
         if not self.revision:
             self.revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+
+        # Retrieve information about our base branch
+        if self.base:
+            subprocess.check_call([ "git", "fetch", "origin", self.base ])
 
         os.environ["TEST_NAME"] = self.name
         os.environ["TEST_REVISION"] = self.revision
@@ -237,6 +246,21 @@ class PullTask(object):
         sys.stderr.write(msg)
 
         ret = None
+
+        offline = ('offline' in opts) and opts.offline
+        if self.base and "TEST_INVOKE_RESPAWN" not in os.environ:
+            ret = self.rebase(offline)
+
+        # Did we rebase, if so rexec
+        if not ret and self.respawn:
+            assert "TEST_INVOKE_RESPAWN" not in os.environ
+            os.environ["TEST_INVOKE_RESPAWN"] = "1"
+            sys.stderr.write("Rebase complete ... respawning\n")
+            if self.sink:
+                self.stop_publishing(None)
+            os.execv(__file__, sys.argv)
+            assert False, "not reached"
+
         test = os.path.join(BOTS, "..", "test")
         os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS, test)
 
@@ -262,10 +286,6 @@ class PullTask(object):
 
         if cmd and opts.verbose:
             cmd.append("--verbose")
-
-        offline = ('offline' in opts) and opts.offline
-        if not ret and self.base:
-            ret = ret or self.rebase(offline)
 
         # Setup network if necessary, any failures caught during testing
         prep = os.path.join(BASE, "test", "vm-prep")

@@ -29,6 +29,7 @@ def upload(store, source):
     ai = socket.getaddrinfo(url.hostname, url.port or defport, socket.AF_INET, 0, socket.IPPROTO_TCP)
     for (family, socktype, proto, canonname, sockaddr) in ai:
         resolve = "cockpit-tests:{1}:{0}".format(*sockaddr)
+        message = "{scheme}://{0}:{1}{path}".format(*sockaddr, scheme=url.scheme, path=url.path)
         break
 
     # Start building the command
@@ -53,7 +54,7 @@ def upload(store, source):
     ret = curl.wait()
     cat.wait()
     if ret != 0:
-        sys.stderr.write("vm-upload: unable to upload image\n")
+        sys.stderr.write("vm-upload: unable to upload image: {0}\n".format(message))
     return ret
 
 def main():

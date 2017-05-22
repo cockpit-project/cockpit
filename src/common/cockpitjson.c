@@ -283,7 +283,7 @@ cockpit_json_get_null (JsonObject *object,
     }
 }
 
-static gboolean
+gboolean
 cockpit_json_equal_object (JsonObject *previous,
                            JsonObject *current)
 {

@@ -45,6 +45,10 @@ JsonObject *      cockpit_packages_peek_json        (CockpitPackages *packages);
 
 void              cockpit_packages_dbus_startup     (CockpitPackages *packages);
 
+void              cockpit_packages_on_change        (CockpitPackages *packages,
+                                                     void (*callback) (gconstpointer user_data),
+                                                     gconstpointer user_data);
+
 void              cockpit_packages_free             (CockpitPackages *packages);
 
 void              cockpit_packages_dump             (void);

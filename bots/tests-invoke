@@ -53,10 +53,9 @@ def main():
     name = os.environ.get("TEST_NAME", "tests")
     revision = os.environ.get("TEST_REVISION")
 
-    api = None if opts.offline else github.GitHub()
     try:
         task = PullTask(name, revision, opts.ref, opts.context, opts.rebase)
-        ret = task.run(opts, api)
+        ret = task.run(opts)
     except RuntimeError, ex:
         ret = str(ex)
 
@@ -79,7 +78,8 @@ class PullTask(object):
     def description(self):
         return "{0} {1} {2}".format(self.name, self.context, self.revision)
 
-    def start_publishing(self, host, api):
+    def start_publishing(self, host):
+        api = github.GitHub()
         identifier = "-".join([
             self.name,
             self.revision[0:8],
@@ -215,7 +215,7 @@ class PullTask(object):
         del sink.status["extras"]
         sink.flush()
 
-    def run(self, opts, api):
+    def run(self, opts):
         if self.ref:
             subprocess.check_call([ "git", "fetch", "origin", self.ref ])
             if not self.revision:
@@ -239,7 +239,7 @@ class PullTask(object):
             os.environ["TEST_OS"] = value
 
         if opts.publish:
-            self.start_publishing(opts.publish, api)
+            self.start_publishing(opts.publish)
             os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
 
         msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.revision, self.name,

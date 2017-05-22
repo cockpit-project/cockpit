@@ -56,6 +56,12 @@ prepare()
 		$VIRSH net-undefine $NETWORK_NAME
 	fi
 
+	# In case a network has leaked in from elsewhere
+	if ip address show dev $NETWORK_NAME >/dev/null 2>/dev/null; then
+		ip link set $NETWORK_NAME down || true
+		brctl delbr $NETWORK_NAME || true
+	fi
+
 	# HACK: NetworkManager races with dnsmasq-dhcp on bridge
 	# https://bugzilla.redhat.com/show_bug.cgi?id=1205081
 	cat > /etc/sysconfig/network-scripts/ifcfg-$NETWORK_NAME << EOF

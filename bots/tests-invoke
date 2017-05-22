@@ -83,8 +83,7 @@ class PullTask(object):
         identifier = "-".join([
             self.name,
             self.revision[0:8],
-            self.context.replace("/", "-"),
-            time.strftime('%Y%m%d-%H%M%M')
+            self.context.replace("/", "-")
         ])
 
         description = "{0} [{1}]".format(github.TESTING, HOSTNAME)
@@ -143,7 +142,7 @@ class PullTask(object):
         }
 
         (prefix, unused, image) = self.context.partition("/")
-        if self.name == "master" and prefix == "verify":
+        if not self.base:
             status['irc'] = { }    # Only send to IRC when master
             status['badge'] = {
                 'name': image,

@@ -184,7 +184,8 @@ def scan_for_image_tasks(api, policy):
                 requested.add(image)
                 store = policy.get(image, { }).get("store", None)
                 triggers = policy.get(image, { }).get("triggers", [ ])
-                results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image, issue, triggers, store))
+                results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image,
+                    issue['number'], triggers, store))
 
     # Trigger based on how old the youngest issue is
     for image, wait_time in scan_image_wait_times(api, policy).items():

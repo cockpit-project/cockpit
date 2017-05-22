@@ -52,9 +52,13 @@ def main():
 
     name = os.environ.get("TEST_NAME", "tests")
 
+    issue = None
     api = None if opts.offline else github.GitHub()
+    if opts.issue and api:
+        issue = api.get("/issues/" + str(opts.issue))
+
     try:
-        task = ImageTask(name, opts.image, opts.triggers, opts.issue, opts.store)
+        task = ImageTask(name, opts.image, opts.triggers, issue, opts.store)
         ret = task.run(opts, api)
     except RuntimeError, ex:
         ret = str(ex)

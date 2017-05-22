@@ -42,6 +42,8 @@ import urlparse
 
 from contextlib import contextmanager
 
+from common import testinfra
+
 BASE = os.path.normpath(os.path.dirname(os.path.realpath(__file__)))
 IMAGES = os.path.join(BASE, "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BASE), "images")
@@ -167,21 +169,36 @@ def enough_disk_space():
     free = st.f_bavail * st.f_frsize / (1024*1024*1024)
     return free >= PRUNE_THRESHOLD_G;
 
-def get_refs():
+def get_refs(open_pull_requests=True, offline=False):
     """Return dictionary for available refs of the format {'rhel-7.4': 'ad50328990e44c22501bd5e454746d4b5e561b7c'}
 
        Expects to be called from the top level of the git checkout
+       If offline is true, git show-ref is used instead of listing the remote
     """
     # get all remote heads and filter empty lines
     # output of ls-remote has the format
     #
     # d864d3792db442e3de3d1811fa4bc371793a8f4f	refs/heads/master
     # ad50328990e44c22501bd5e454746d4b5e561b7c	refs/heads/rhel-7.4
-    refs = subprocess.check_output(["git", "ls-remote",  "--heads"]).splitlines()
-    # filter out the "refs/heads/" prefix
-    # and generate a dictionary
+
+    refs = { }
+
+    if open_pull_requests:
+        if offline:
+            raise Exception("Unable to consider open pull requests when in offline mode")
+        for p in testinfra.GitHub().pulls():
+            refs["pull request #{} ({})".format(p["number"], p["title"])] = p["head"]["sha"]
+
+    git_cmd = "show-ref" if offline else "ls-remote"
+    ref_output = subprocess.check_output(["git", git_cmd]).splitlines()
+    # filter out the "refs/heads/" prefix and generate a dictionary
     prefix = "refs/heads"
-    return dict(map(lambda ref: [s[s.startswith(prefix) and len(prefix):] for s in reversed(ref.split())], refs))
+    for ln in ref_output:
+        [ref, name] = ln.split()
+        if name.startswith(prefix):
+            refs[name[len(prefix):]] = ref
+
+    return refs
 
 def get_image_links(ref):
     """Return all image links for the given git ref
@@ -209,10 +226,31 @@ def remember_cwd():
     finally:
         os.chdir(curdir)
 
-def prune_images(force, dryrun):
+def get_image_names(quiet=False, open_pull_requests=True, offline=False):
+    """Return all image names used by all branches and optionally in open pull requests
+    """
+    images = set()
+    # iterate over visible refs (mostly branches)
+    # this hinges on being in the top level directory of the the git checkout
+    with remember_cwd():
+        os.chdir(os.path.join(BASE, ".."))
+        refs = get_refs(open_pull_requests, offline)
+        # list images present in each branch / pull request
+        for name, ref in refs.items():
+            if not quiet:
+                sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
+            for link in get_image_links(ref):
+                images.add(link)
+
+    return images
+
+def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=False):
+    """Prune images
+    """
     now = time.time()
+
     # everything we want to keep
-    targets = set()
+    targets = get_image_names(quiet, open_pull_requests, offline)
     def maybe_add_target(target):
         # if the path isn't absolute, it can resolve to either the images directory or here (might be the same)
         if not os.path.isabs(target):
@@ -228,7 +266,8 @@ def prune_images(force, dryrun):
         refs = get_refs()
         # list images present in each branch
         for name, ref in refs.items():
-            sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
+            if not quiet:
+                sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
             for link in get_image_links(ref):
                 maybe_add_target(link)
 
@@ -249,7 +288,8 @@ def prune_images(force, dryrun):
         if not force and (enough_disk_space() and os.lstat(path).st_mtime > expiry_threshold):
             continue
         if os.path.isfile(path) and (path.endswith(".xz") or path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:
-            sys.stderr.write("Pruning {0}\n".format(filename))
+            if not quiet or dryrun:
+                sys.stderr.write("Pruning {0}\n".format(filename))
             if not dryrun:
                 os.unlink(path)
 
@@ -263,7 +303,8 @@ def prune_images(force, dryrun):
 
         # if the link isn't valid, prune
         if not os.path.isfile(path):
-            sys.stderr.write("Pruning link {0}\n".format(path))
+            if not quiet or dryrun:
+                sys.stderr.write("Pruning link {0}\n".format(path))
             if not dryrun:
                 os.unlink(path)
 
@@ -289,6 +330,8 @@ def main():
     parser.add_argument("--prune", action="store_true", help="Remove unused images and links")
     parser.add_argument("--quiet", action="store_true", help="Make downloading quieter")
     parser.add_argument("-d", "--dry-run-prune", dest="dryrun", action="store_true", help="Don't actually delete images and links")
+    parser.add_argument("-b", "--branches-only", dest="branches_only", action="store_true", help="Don't consider pull requests on GitHub, only look at branches")
+    parser.add_argument("-o", "--offline", dest="offline", action="store_true", help="Don't access external sources such as GitHub")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
 
@@ -297,7 +340,7 @@ def main():
         args.image = every_image()
 
     if args.prune:
-        prune_images(args.force, args.dryrun)
+        prune_images(force=args.force, dryrun=args.dryrun, quiet=args.quiet, open_pull_requests=(not args.branches_only), offline=args.offline)
     download_images(args.image, args.force, args.quiet, args.store)
 
 if __name__ == '__main__':

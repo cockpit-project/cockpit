@@ -170,6 +170,7 @@ typedef struct {
 } RouterMatch;
 
 typedef struct {
+  JsonObject *config;
   RouterMatch *matches;
   gboolean (* callback) (CockpitRouter *, const gchar *, JsonObject *, GBytes *, gpointer);
   gpointer user_data;
@@ -251,6 +252,39 @@ router_rule_invoke (RouterRule *rule,
 {
   g_assert (rule->callback != NULL);
   return (rule->callback) (self, channel, options, data, rule->user_data);
+}
+
+static RouterRule *
+router_rule_find (GList *rules,
+                  JsonObject *config)
+{
+  for (GList *l = rules; l; l = g_list_next (l))
+    {
+      RouterRule *rule = l->data;
+      if (rule->config && cockpit_json_equal_object (rule->config, config))
+        return rule;
+    }
+  return NULL;
+}
+
+static void
+router_rule_destroy (RouterRule *rule)
+{
+  gint i;
+
+  if (rule->destroy)
+    (rule->destroy) (rule->user_data);
+  for (i = 0; rule->matches && rule->matches[i].name != NULL; i++)
+    {
+      g_free (rule->matches[i].name);
+      json_node_free (rule->matches[i].node);
+      if (rule->matches[i].glob)
+        g_pattern_spec_free (rule->matches[i].glob);
+    }
+  g_free (rule->matches);
+  if (rule->config)
+    json_object_unref (rule->config);
+  g_free (rule);
 }
 
 static void
@@ -844,9 +878,6 @@ static void
 cockpit_router_dispose (GObject *object)
 {
   CockpitRouter *self = COCKPIT_ROUTER (object);
-  RouterRule *rule;
-  GList *l;
-  gint i;
 
   if (self->signal_id)
     {
@@ -858,22 +889,7 @@ cockpit_router_dispose (GObject *object)
   g_hash_table_remove_all (self->groups);
   g_hash_table_remove_all (self->fences);
 
-  for (l = self->rules; l != NULL; l = g_list_next (l))
-    {
-      rule = l->data;
-      if (rule->destroy)
-        (rule->destroy) (rule->user_data);
-      for (i = 0; rule->matches && rule->matches[i].name != NULL; i++)
-        {
-          g_free (rule->matches[i].name);
-          json_node_free (rule->matches[i].node);
-          if (rule->matches[i].glob)
-            g_pattern_spec_free (rule->matches[i].glob);
-        }
-      g_free (rule->matches);
-      g_free (rule);
-    }
-  g_list_free (self->rules);
+  g_list_free_full (self->rules, (GDestroyNotify)router_rule_destroy);
   self->rules = NULL;
 }
 
@@ -970,7 +986,6 @@ cockpit_router_new (CockpitTransport *transport,
                     GList *bridges)
 {
   CockpitRouter *router;
-  GList *l;
   guint i;
   JsonObject *match;
 
@@ -991,11 +1006,9 @@ cockpit_router_new (CockpitTransport *transport,
   /* No hosts are allowed by default */
   cockpit_router_ban_hosts (router);
 
-  /* Enumerated in reverse, since the last rule is matched first */
-  for (l = g_list_last (bridges); l != NULL; l = g_list_previous (l))
-    {
-      cockpit_router_add_bridge (router, l->data);
-    }
+  cockpit_router_set_bridges (router, bridges);
+
+  // cockpit_router_dump_rules (router);
 
   return router;
 }
@@ -1070,7 +1083,6 @@ cockpit_router_add_bridge (CockpitRouter *self,
   JsonObject *match;
   GList *output = NULL;
   GBytes *bytes = NULL;
-  CockpitPeer *peer = NULL;
 
   g_return_if_fail (COCKPIT_IS_ROUTER (self));
   g_return_if_fail (config != NULL);
@@ -1083,27 +1095,83 @@ cockpit_router_add_bridge (CockpitRouter *self,
   bytes = cockpit_json_write_bytes (config);
   output = cockpit_template_expand (bytes, substitute_json_string,
                                     "${", "}", NULL);
+  rule = g_new0 (RouterRule, 1);
+  rule->config = json_object_ref (config);
+
   if (!output->next)
     {
-      peer = cockpit_peer_new (self->transport, config);
-      cockpit_router_add_peer (self, match, peer);
-      goto out;
+      rule->callback = process_open_peer;
+      rule->user_data = cockpit_peer_new (self->transport, config);
+      rule->destroy = g_object_unref;
+    }
+  else
+    {
+      rule->callback = process_open_dynamic_peer;
+      rule->user_data = dynamic_peer_create (config);
+      rule->destroy = dynamic_peer_free;
     }
 
-  rule = g_new0 (RouterRule, 1);
-  rule->callback = process_open_dynamic_peer;
-  rule->user_data = dynamic_peer_create (config);
-  rule->destroy = dynamic_peer_free;
   router_rule_compile (rule, match);
-
   self->rules = g_list_prepend (self->rules, rule);
-
-out:
-  if (peer)
-    g_object_unref (peer);
 
   g_bytes_unref (bytes);
   g_list_free_full (output, (GDestroyNotify) g_bytes_unref);
+}
+
+/**
+ * cockpit_router_set_bridges:
+ * @self: The router object
+ * @configs: JSON configurations for the bridges
+ *
+ * Updates the rules for bridges to match @configs.  All rules that
+ * have been previously added via @cockpit_router_add_bridge and
+ * @cockpit_router_set_bridges conceptually removed, and all rules
+ * specified by @configs are added as with @cockpit_add_bridge.
+ *
+ * External peers for rules that have not changed will be left
+ * running.  Peers for rules that have disappeared will be terminated.
+ */
+void cockpit_router_set_bridges (CockpitRouter *self,
+                                 GList *bridges)
+{
+  GList *l;
+  JsonObject *config;
+  RouterRule *rule;
+  GList *old_rules;
+
+  /* Enumerated in reverse, since the last rule is matched first */
+
+  old_rules = self->rules;
+  self->rules = NULL;
+  for (l = g_list_last (bridges); l != NULL; l = g_list_previous (l))
+    {
+      config = l->data;
+
+      rule = router_rule_find (old_rules, config);
+      if (rule)
+        {
+          old_rules = g_list_remove (old_rules, rule);
+          self->rules = g_list_prepend (self->rules, rule);
+        }
+      else
+        {
+          cockpit_router_add_bridge (self, config);
+        }
+    }
+
+  for (l = old_rules; l; l = g_list_next (l))
+    {
+      rule = l->data;
+      if (rule->config)
+        {
+          router_rule_destroy (rule);
+        }
+      else
+        {
+          self->rules = g_list_append (self->rules, rule);
+        }
+    }
+  g_list_free (old_rules);
 }
 
 void

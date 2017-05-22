@@ -535,6 +535,168 @@ test_sharable_processing (TestCase *tc,
   g_object_unref (router);
 }
 
+static GList *
+make_bridge_configs (const gchar *payload, ...)
+{
+  GList *configs = NULL;
+  va_list ap;
+  va_start (ap, payload);
+
+  while (payload)
+    {
+      const gchar *arg = va_arg (ap, const gchar *);
+
+      JsonObject *match = json_object_new ();
+      json_object_set_string_member (match, "payload", payload);
+      JsonArray *spawn = json_array_new ();
+      json_array_add_string_element (spawn, BUILDDIR "/mock-bridge");
+      while (arg)
+        {
+          json_array_add_string_element (spawn, arg);
+          arg = va_arg (ap, const gchar *);
+        }
+
+      JsonObject *config = json_object_new ();
+      json_object_set_object_member (config, "match", match);
+      json_object_set_array_member (config, "spawn", spawn);
+
+      configs = g_list_prepend (configs, config);
+
+      payload = va_arg (ap, const gchar *);
+    }
+
+  return g_list_reverse (configs);
+}
+
+static void
+free_bridge_configs (GList *configs)
+{
+  g_list_free_full (configs, (GDestroyNotify)json_object_unref);
+}
+
+static void
+test_reload_add (TestCase *tc,
+                 gconstpointer user_data)
+{
+  CockpitRouter *router;
+  GList *configs;
+  JsonObject *control;
+  GBytes *sent;
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+
+  // Configure only the "upper" payload
+  configs = make_bridge_configs ("upper", "--upper", NULL,
+                                 NULL);
+  cockpit_router_set_bridges (router, configs);
+  free_bridge_configs (configs);
+
+  // Open a "upper" channel
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "a");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
+  control = NULL;
+
+  // And check that it works
+  emit_string (tc, "a", "before reload");
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "BEFORE RELOAD", -1);
+  sent = NULL;
+
+  // Try to open a "lower" channel and check that this is rejected
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"b\", \"payload\": \"lower\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "b");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "close");
+  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "not-supported");
+  control = NULL;
+
+  // Reconfigure and add the "lower" payload
+  configs = make_bridge_configs ("upper", "--upper", NULL,
+                                 "lower", "--lower", NULL,
+                                 NULL);
+  cockpit_router_set_bridges (router, configs);
+  free_bridge_configs (configs);
+
+  // Check that the "upper" channel still works
+  emit_string (tc, "a", "after reload");
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "AFTER RELOAD", -1);
+  sent = NULL;
+
+  // Open a "lower" channel
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"c\", \"payload\": \"lower\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "c");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
+  control = NULL;
+
+  // And check that it now works
+  emit_string (tc, "c", "NEW PAYLOAD");
+  while ((sent = mock_transport_pop_channel (tc->transport, "c")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "new payload", -1);
+  sent = NULL;
+
+  g_object_unref (router);
+}
+
+static void
+test_reload_remove (TestCase *tc,
+                    gconstpointer user_data)
+{
+  CockpitRouter *router;
+  GList *configs;
+  JsonObject *control;
+  GBytes *sent;
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  emit_string (tc, NULL, "{\"command\": \"init\", \"version\": 1, \"host\": \"localhost\" }");
+
+  // Configure the "upper" payload
+  configs = make_bridge_configs ("upper", "--upper", NULL,
+                                 NULL);
+  cockpit_router_set_bridges (router, configs);
+  free_bridge_configs (configs);
+
+  // Open a "upper" channel
+  emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "a");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
+  control = NULL;
+
+  // And check that it works
+  emit_string (tc, "a", "before reload");
+  while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_bytes_eq (sent, "BEFORE RELOAD", -1);
+  sent = NULL;
+
+  // Reconfigure and remove the "upper" payload
+  configs = make_bridge_configs (NULL);
+  cockpit_router_set_bridges (router, configs);
+  free_bridge_configs (configs);
+
+  // Check that the "upper" channel has been closed
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "a");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "close");
+  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "terminated");
+  control = NULL;
+
+  g_object_unref (router);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -557,5 +719,11 @@ main (int argc,
               setup, test_host_processing, teardown);
   g_test_add ("/router/sharable-processing", TestCase, &fixture_host,
               setup, test_sharable_processing, teardown);
+
+  g_test_add ("/router/reload/add", TestCase, NULL,
+              setup, test_reload_add, teardown);
+  g_test_add ("/router/reload/remove", TestCase, NULL,
+              setup, test_reload_remove, teardown);
+
   return g_test_run ();
 }

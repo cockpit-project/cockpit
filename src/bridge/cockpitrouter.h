@@ -52,6 +52,8 @@ void                cockpit_router_add_bridge                      (CockpitRoute
 void                cockpit_router_add_peer                        (CockpitRouter *self,
                                                                     JsonObject *match,
                                                                     CockpitPeer *peer);
+void                cockpit_router_set_bridges                      (CockpitRouter *self,
+                                                                     GList *bridge_configs);
 
 void                cockpit_router_dump_rules                      (CockpitRouter *self);
 

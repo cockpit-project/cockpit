@@ -108,6 +108,8 @@ struct _CockpitPackages {
   gchar *locale;
 
   gboolean dbus_inited;
+  void (*on_change_callback) (gconstpointer data);
+  gconstpointer on_change_callback_data;
 };
 
 struct _CockpitPackage {
@@ -1327,12 +1329,24 @@ cockpit_packages_peek_json (CockpitPackages *packages)
   return packages->json;
 }
 
+void
+cockpit_packages_on_change (CockpitPackages *packages,
+                            void (*callback) (gconstpointer user_data),
+                            gconstpointer user_data)
+{
+  g_assert (callback == NULL || packages->on_change_callback == NULL);
+  packages->on_change_callback = callback;
+  packages->on_change_callback_data = user_data;
+}
+
 static void packages_emit_changed (CockpitPackages *packages);
 
 void
 cockpit_packages_reload (CockpitPackages *packages)
 {
   build_packages (packages);
+  if (packages->on_change_callback)
+    packages->on_change_callback (packages->on_change_callback_data);
   packages_emit_changed (packages);
 }
 

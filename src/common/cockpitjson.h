@@ -53,6 +53,9 @@ GBytes *       cockpit_json_write_bytes       (JsonObject *object);
 gboolean       cockpit_json_equal             (JsonNode *previous,
                                                JsonNode *current);
 
+gboolean       cockpit_json_equal_object      (JsonObject *previous,
+                                               JsonObject *current);
+
 void           cockpit_json_patch             (JsonObject *target,
                                                JsonObject *patch);
 

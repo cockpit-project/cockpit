@@ -104,6 +104,8 @@ class TestConnection(MachineCase):
         cores = m.execute("find /var/lib/systemd/coredump -type f")
         self.assertNotEqual(cores, "")
 
+        self.allow_journal_messages(".*org.freedesktop.hostname1.*DBus.Error.NoReply.*")
+
     def testTls(self):
         m = self.machine
 

@@ -86,7 +86,8 @@ G_DEFINE_TYPE (CockpitPeer, cockpit_peer, G_TYPE_OBJECT);
 
 static void
 reply_channel_closed (CockpitPeer *self,
-                      const gchar *channel)
+                      const gchar *channel,
+                      const gchar *problem)
 {
   JsonObject *object;
   GBytes *message;
@@ -105,7 +106,7 @@ reply_channel_closed (CockpitPeer *self,
 
   json_object_set_string_member (object, "command", "close");
   json_object_set_string_member (object, "channel", channel);
-  json_object_set_string_member (object, "problem", self->problem);
+  json_object_set_string_member (object, "problem", problem);
 
   message = cockpit_json_write_bytes (object);
   cockpit_transport_send (self->transport, NULL, message);
@@ -406,7 +407,7 @@ on_other_closed (CockpitTransport *transport,
        * all yet. See above. In these cases we close the channel.
        */
       if (problem)
-        reply_channel_closed (self, channel);
+        reply_channel_closed (self, channel, problem);
 
       /*
        * When we don't have a problem code we want this channel
@@ -789,7 +790,7 @@ cockpit_peer_handle (CockpitPeer *self,
         {
           g_debug ("%s: closing channel \"%s\" with \"%s\" because peer closed",
                    self->name, channel, self->problem);
-          reply_channel_closed (self, channel);
+          reply_channel_closed (self, channel, self->problem);
           return TRUE;
         }
 
@@ -890,12 +891,6 @@ cockpit_peer_ensure (CockpitPeer *self)
 void
 cockpit_peer_reset (CockpitPeer *self)
 {
-  self->inited = FALSE;
-
-  g_hash_table_remove_all (self->channels);
-  g_hash_table_remove_all (self->authorizes);
-  g_hash_table_remove_all (self->authorize_values);
-
   if (self->timeout)
     {
       g_source_remove (self->timeout);
@@ -911,6 +906,10 @@ cockpit_peer_reset (CockpitPeer *self)
   if (self->frozen)
     g_queue_free_full (self->frozen, g_free);
   self->frozen = NULL;
+
+  g_hash_table_remove_all (self->channels);
+  g_hash_table_remove_all (self->authorizes);
+  g_hash_table_remove_all (self->authorize_values);
 
   if (self->failure)
     {

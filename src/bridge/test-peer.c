@@ -462,7 +462,13 @@ test_reopen (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   cockpit_assert_bytes_eq (sent, "OH MARMALADE", -1);
 
+  /* Reset the peer.  This closes the channel. */
   cockpit_peer_reset (tc->peer);
+
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"a\",\"problem\":\"terminated\"}");
+  control = NULL;
 
   /* Sending again reopens with count at zero */
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"a\", \"payload\": \"upper\"}");

@@ -92,7 +92,8 @@ def main():
 def tests_invoke(priority, name, revision, ref, context, base=None):
     if priority <= 0:
         return
-    cmd = "PRIORITY={priority:04d} TEST_NAME='{name}' TEST_REVISION='{revision}' bots/tests-invoke"
+    current = time.strftime('%Y%m%d-%H%M%M')
+    cmd = "PRIORITY={priority:04d} TEST_NAME='{name}-{current}' TEST_REVISION='{revision}' bots/tests-invoke"
     if base:
         cmd += " --rebase='{base}'"
     cmd += " '{context}' '{ref}'"
@@ -103,6 +104,7 @@ def tests_invoke(priority, name, revision, ref, context, base=None):
         base=pipes.quote(str(base)),
         ref=pipes.quote(ref),
         context=pipes.quote(context),
+        current=current,
     )
 
 def prioritize(status, title, labels, priority, context):

@@ -75,9 +75,6 @@ class PullTask(object):
         self.sink = None
         self.github_status_data = None
 
-    def description(self):
-        return "{0} {1} {2}".format(self.name, self.context, self.revision)
-
     def start_publishing(self, host):
         api = github.GitHub()
         identifier = "-".join([

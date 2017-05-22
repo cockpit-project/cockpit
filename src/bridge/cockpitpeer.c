@@ -316,10 +316,7 @@ fail_start_problem (CockpitPeer *self)
         problem = NULL;
     }
 
-  g_free (self->problem);
-  self->problem = g_strdup (problem);
-
-  return self->problem;
+  return problem;
 }
 
 static void
@@ -406,7 +403,11 @@ on_other_closed (CockpitTransport *transport,
        * all yet. See above. In these cases we close the channel.
        */
       if (problem)
-        reply_channel_closed (self, channel);
+        {
+          g_free (self->problem);
+          self->problem = g_strdup (problem);
+          reply_channel_closed (self, channel);
+        }
 
       /*
        * When we don't have a problem code we want this channel
@@ -738,7 +739,10 @@ spawn_process_for_config (CockpitPeer *self)
     }
 
   if (!pipe)
-    fail_start_problem (self);
+    {
+      g_free (self->problem);
+      self->problem = g_strdup (fail_start_problem (self));
+    }
 
   if (fds[0] >= 0)
     close (fds[0]);
@@ -890,12 +894,6 @@ cockpit_peer_ensure (CockpitPeer *self)
 void
 cockpit_peer_reset (CockpitPeer *self)
 {
-  self->inited = FALSE;
-
-  g_hash_table_remove_all (self->channels);
-  g_hash_table_remove_all (self->authorizes);
-  g_hash_table_remove_all (self->authorize_values);
-
   if (self->timeout)
     {
       g_source_remove (self->timeout);
@@ -911,6 +909,10 @@ cockpit_peer_reset (CockpitPeer *self)
   if (self->frozen)
     g_queue_free_full (self->frozen, g_free);
   self->frozen = NULL;
+
+  g_hash_table_remove_all (self->channels);
+  g_hash_table_remove_all (self->authorizes);
+  g_hash_table_remove_all (self->authorize_values);
 
   if (self->failure)
     {

@@ -648,6 +648,7 @@ class MachineCase(unittest.TestCase):
                                     "localhost: bridge program failed: Child process killed by signal 9",
                                     "request timed out, closing",
                                     "PolicyKit daemon disconnected from the bus.",
+                                    ".*couldn't create polkit session subject: No session for pid.*",
                                     "We are no longer a registered authentication agent.",
                                     ".*: failed to retrieve resource: terminated",
                                     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1253319

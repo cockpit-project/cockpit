@@ -27,10 +27,10 @@ def trigger_image(api, opts):
         # Add a comment to the pull request with the right text and set the right label
         issue = api.get("issues/" + opts.pull)
         api.post("issues/" + opts.pull + "/comments", { "body": "bot: " + title })
-        api.patch("issues/" + opts.pull, { "labels": issue['labels'] + [ "bot" ] })
+        api.patch("issues/" + opts.pull, { "labels": issue['labels'] + [ "bot", "image/" + opts.image ] })
     else:
         # Make a new issue with the right content.
-        api.post("issues", { "title": title, "labels": [ "bot" ], "body": "bot: " + title })
+        api.post("issues", { "title": title, "labels": [ "bot", "image/" + opts.image ], "body": "bot: " + title })
     return 0
 
 def trigger_pull(api, opts):

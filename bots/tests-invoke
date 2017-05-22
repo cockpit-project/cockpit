@@ -144,16 +144,6 @@ class PullTask(object):
         (prefix, unused, image) = self.context.partition("/")
         if not self.base:
             status['irc'] = { }    # Only send to IRC when master
-            status['badge'] = {
-                'name': image,
-                'description': image,
-                'status': 'running'
-            }
-            status['onaborted']['badge'] = {
-                'name': image,
-                'description': image,
-                'status': 'error'
-            }
 
         # For other scripts to use
         os.environ["TEST_DESCRIPTION"] = description
@@ -191,15 +181,11 @@ class PullTask(object):
         def mark_failed():
             if "github" in sink.status:
                 self.github_status_data["state"] = "failure"
-            if 'badge' in sink.status:
-                sink.status['badge']['status'] = "failed"
             if "irc" in sink.status: # Never send success messages to IRC
                 sink.status["irc"]["channel"] = "#cockpit"
         def mark_passed():
             if "github" in sink.status:
                 self.github_status_data["state"] = "success"
-            if 'badge' in sink.status:
-                sink.status['badge']['status'] = "passed"
         if isinstance(ret, basestring):
             message = ret
             mark_failed()

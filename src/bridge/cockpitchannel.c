@@ -1403,8 +1403,8 @@ cockpit_channel_parse_stream (CockpitChannel *self)
 {
   CockpitConnectable *connectable;
   GSocketConnectable *address;
-  gboolean local;
-  gchar *name;
+  gboolean local = FALSE;
+  gchar *name = NULL;
 
   address = parse_address (self, &name, &local);
   if (!address)

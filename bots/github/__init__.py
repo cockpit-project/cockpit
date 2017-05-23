@@ -176,7 +176,7 @@ class GitHub(object):
         if response['status'] == 404:
             return None
         elif cached and response['status'] == 304: # Not modified
-            self.cache.write(qualified, response)
+            self.cache.write(qualified, cached)
             return json.loads(cached['data'] or "null")
         elif response['status'] < 200 or response['status'] >= 300:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))

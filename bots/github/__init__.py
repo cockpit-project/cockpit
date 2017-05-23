@@ -167,8 +167,11 @@ class GitHub(object):
             if self.cache.current(qualified):
                 return json.loads(cached['data'] or "null")
             etag = cached['headers'].get("etag", None)
+            modified = cached['headers'].get("last-modified", None)
             if etag:
                 headers['If-None-Match'] = etag
+            elif modified:
+                headers['If-Modified-Since'] = modified
         response = self.request("GET", resource, "", headers)
         if response['status'] == 404:
             return None

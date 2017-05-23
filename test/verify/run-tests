@@ -28,17 +28,6 @@ def check_valid(filename):
         return None
     return name.replace("-", "_")
 
-def install(opts, image):
-    try:
-        sys.stderr.write("Building and installing Cockpit ...\n")
-        cmd = [ "image-prepare", image ]
-        subprocess.check_call(cmd)
-        return 0
-    except subprocess.CalledProcessError:
-        traceback.print_exc()
-        sys.stderr.write("Install failed\n")
-        return 1
-
 def run(opts):
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
@@ -57,8 +46,6 @@ def run(opts):
 def main():
     parser = testlib.arg_parser()
     parser.add_argument('--publish', action='store', help="Unused")
-    parser.add_argument('--install', dest='install', action='store_true',
-                        help='Build and install Cockpit into test VMs')
     parser.add_argument('image', action='store', nargs='?',
                         help='The operating system image to verify against')
     opts = parser.parse_args()
@@ -74,13 +61,7 @@ def main():
     testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
 
-    ret = 0
-    if opts.install:
-        ret = install(opts, image)
-    if not ret:
-        ret = run(opts)
-
-    return ret
+    return run(opts)
 
 if __name__ == '__main__':
     sys.exit(main())

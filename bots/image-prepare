@@ -28,6 +28,7 @@ import tempfile
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+TEST = os.path.join(BASE, "test")
 os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
 
 # Borrow the VirtMachine implementation from the test/ directory
@@ -46,20 +47,27 @@ def main():
     parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
     parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')
     parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
-    parser.add_argument('--address', help='Address of already running machine')
+    parser.add_argument('--address', help='Address of already running machine, implies --install-only')
     parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
-    if args.build_only:
-        install_image = None
-    else:
-        install_image = args.image
+    # The basic operating system we're preparing on top of. Never written to
+    base_image = args.image
 
-    build_image = args.build_image
-    if args.install_only:
-        build_image = None
-    elif not build_image:
-        build_image = get_build_image(install_image or args.image)
+    # The image we're going to build in. This image is never written to
+    build_image = None
+    if not args.install_only:
+        build_image = get_build_image(args.build_image or base_image)
+
+    # Depending on the operating system ignore some things
+    skips = [ "cockpit-integration-tests" ]
+    if args.address:
+        skips.append("cockpit-tests")
+        args.install_only = True
+
+    if args.install_only and args.build_only:
+        sys.stderr.write("image-prepare: use of --install-only with --build-only is incompatible\n")
+        return 2
 
     # Default to putting build output in bots directory
     if "TEST_ATTACHMENTS" in os.environ:
@@ -67,35 +75,52 @@ def main():
     else:
         results = os.path.join(BOTS, "build-results")
 
+    # Make sure any images are downloaded
     try:
-        if build_image:
+        if not args.address and not os.path.exists(base_image):
+            subprocess.check_call([ "image-download", base_image])
+        if build_image and not os.path.exists(build_image):
             subprocess.check_call([ "image-download", build_image])
-        if install_image:
-            subprocess.check_call([ "image-download", install_image])
     except OSError, ex:
         if ex.errno != errno.ENOENT:
             raise
         sys.stderr.write("image-prepare: missing tools to download images\n")
     except subprocess.CalledProcessError as e:
-        print "unable to download all necessary images", e
+        sys.stderr.write("image-prepare: unable to download all necessary images\n")
         return 1
 
     try:
-        build_and_install(install_image, build_image, results, args={
-            "verbose": args.verbose,
-            "sit": args.sit,
-            "quick": args.quick,
-            "build_image": build_image,
-            "build_only": args.build_only,
-            "install_only": args.install_only,
-            "containers": args.containers,
-            "address": args.address,
-        })
-    except RuntimeError as ex:
+        if not args.install_only:
+            build_and_install(build_image, results, skips, args)
+        if not args.build_only and build_image != base_image:
+            only_install(base_image, results, skips, args, args.address)
+    except (RuntimeError, testvm.Failure) as ex:
         sys.stderr.write("image-prepare: {0}\n".format(str(ex)))
         return 2
 
+    # The remaining images not yet prepared are symlinked from the bots/images
+    # directory into the test/images directory. This allows for other branches to
+    # run without modification, and allows tests to load images that they didn't
+    # install or need to install cockpit on (above).
+    link_remaining_images()
+
     return 0
+
+def link_remaining_images():
+    bots_images = os.path.join(BOTS, "images")
+    test_images = os.path.join(TEST, "images")
+    if not os.path.exists(test_images):
+        os.makedirs(test_images)
+    for image in os.listdir(bots_images):
+        if "." in image:
+            continue
+        if os.path.isdir(os.path.join(bots_images, image)):
+            continue
+        dest = os.path.join(test_images, image)
+        if not os.path.isfile(dest):
+            if os.path.lexists(dest):
+                os.unlink(dest)
+            os.symlink(os.path.join("..", "..", "bots", "images", image), dest)
 
 def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
@@ -103,43 +128,61 @@ def upload_scripts(machine, args):
     machine.upload([ os.path.join(BOTS, "images", "scripts", "%s.install" % machine.image) ], "/var/tmp")
     machine.upload([ os.path.join(BASE, "containers") ], "/var/tmp")
 
+# Create the necessary layered image for the build/install
+def prepare_backing_file(machine, image):
+    if "/" in image:
+        image = os.path.abspath(image)
+    else:
+        image = os.path.join(BOTS, "images", image)
+    if os.path.lexists(machine.image_file):
+        os.unlink(machine.image_file)
+    images = os.path.dirname(machine.image_file)
+    if not os.path.exists(images):
+        os.makedirs(images)
+    subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
+        "-o", "backing_file={0},backing_fmt=qcow2".format(image), machine.image_file ])
+
 def run_install_script(machine, do_build, do_install, skips, arg, args):
     install = do_install
-    if args["containers"]:
+    if args.containers:
         do_install = False
 
-    skip_args = map(lambda skip: " --skip '%s'" % skip, skips or [])
+    skips = list(skips or [])
+    if "atomic" in machine.image:
+        skips.append("cockpit-kubernetes")
+    else:
+        skips.append("cockpit-ostree")
+
+    skip_args = map(lambda skip: " --skip '%s'" % skip, skips)
     cmd = "cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
-                                                         " --verbose" if args["verbose"] else "",
-                                                         " --quick" if args["quick"] else "",
+                                                         " --verbose" if args.verbose else "",
+                                                         " --quick" if args.quick else "",
                                                          " --build" if do_build else "",
                                                          " --install" if do_install else "",
                                                          " ".join(skip_args),
                                                          " '%s'" % arg if arg else "")
     machine.execute(cmd)
-    if install and args["containers"]:
+    if install and args.containers:
         machine.execute("/var/lib/testvm/containers.install")
 
-def build_and_maybe_install(image, build_results, do_install=False, skips=None, args=None):
+def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""
-    machine = testvm.VirtMachine(verbose=args["verbose"], image=image, label="install")
-
-    # Remove any previous local override for the image
-    if os.path.exists(machine.image_file):
-        os.unlink(machine.image_file)
-
-    source = subprocess.check_output([ os.path.join(BASE, "tools", "make-source") ]).strip()
-    machine.start(maintain=do_install, memory_mb=4096, cpus=4)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=build_image, label="install")
+    prepare_backing_file(machine, build_image)
+    machine.start(maintain=True, memory_mb=4096, cpus=4)
     completed = False
+
+    # While the machine is booting, make a tarball
+    source = subprocess.check_output([ os.path.join(BASE, "tools", "make-source") ]).strip()
 
     try:
         machine.wait_boot()
         upload_scripts(machine, args=args)
         machine.upload([ source ], "/var/tmp")
-        run_install_script(machine, True, do_install, skips, os.path.basename(source), args)
+        run_install_script(machine, True, True, skips, os.path.basename(source), args)
         completed = True
     finally:
-        if not completed and args["sit"]:
+        if not completed and args.sit:
             sys.stderr.write("ADDRESS: {0}\n".format(machine.address))
             raw_input ("Press RET to continue... ")
         try:
@@ -150,19 +193,14 @@ def build_and_maybe_install(image, build_results, do_install=False, skips=None, 
         finally:
             machine.stop()
 
-def only_install(image, build_results, skips=None, args=None, address=None):
+def only_install(image, build_results, skips, args, address):
     """Install Cockpit into a test image"""
-    verbose = args["verbose"]
     started = False
-    if args["address"]:
-        machine = testvm.Machine(address=args["address"], verbose=verbose, image=image, label="install")
+    if args.address:
+        machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image, label="install")
     else:
-        machine = testvm.VirtMachine(verbose=verbose, image=image, label="install")
-
-        # Remove any previous local override for the image
-        if os.path.exists(machine.image_file):
-            os.unlink(machine.image_file)
-
+        machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
+        prepare_backing_file(machine, image)
         machine.start(maintain=True)
         started = True
     completed = False
@@ -175,7 +213,7 @@ def only_install(image, build_results, skips=None, args=None, address=None):
         run_install_script(machine, False, True, skips, None, args)
         completed = True
     finally:
-        if not completed and args["sit"]:
+        if not completed and args.sit:
             sys.stderr.write("ADDRESS: {0}\n".format(machine.address))
             raw_input ("Press RET to continue... ")
         if started:
@@ -184,55 +222,15 @@ def only_install(image, build_results, skips=None, args=None, address=None):
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is built
 # in fedora-25
-def get_build_image (test_os):
-    build_os = test_os
-
+def get_build_image(image):
+    (test_os, unused) = os.path.splitext(os.path.basename(image))
     if test_os == "fedora-atomic":
-        build_os = "fedora-25"
+        image = "fedora-25"
     elif test_os == "rhel-atomic":
-        build_os = "rhel-7"
+        image = "rhel-7"
     elif test_os == "continuous-atomic":
-        build_os = "centos-7"
-    return build_os
-
-def build_and_install(install_image, build_image, build_results, args):
-    args.setdefault("verbose", False)
-    args.setdefault("sit", False)
-    args.setdefault("quick", False)
-    args.setdefault("build_image", build_image)
-    args.setdefault("build_only", False)
-    args.setdefault("install_only", False)
-    args.setdefault("containers", False)
-    args.setdefault("address", None)
-
-    skips = ["cockpit-integration-tests"]
-    if install_image:
-        if "atomic" in install_image:
-            skips.append("cockpit-kubernetes")
-        else:
-            skips.append("cockpit-ostree")
-    if args["address"]:
-        skips.append("cockpit-tests")
-
-    try:
-
-        if not args["address"] and build_image and build_image == install_image:
-            build_and_maybe_install(build_image, build_results, do_install=True, skips=skips, args=args)
-        else:
-            if build_image:
-                build_and_maybe_install(build_image, build_results, do_install=False, skips=skips, args=args)
-            if install_image:
-                only_install(install_image, build_results, skips, args=args)
-
-            # Atomics need a companion image for tests
-            if build_image and install_image and install_image in testvm.ATOMIC_IMAGES:
-                skips.append("cockpit-ostree")
-                only_install(build_image, build_results, skips, args=args)
-
-    except testvm.Failure, ex:
-        raise ("Unable to build and install cockpit package", ex)
-    return True
-
+        image = "centos-7"
+    return image
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -45,7 +45,6 @@ MEMORY_MB = 1024
 ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
-BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
 
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down calls
@@ -893,12 +892,16 @@ class VirtMachine(Machine):
     cpus = None
 
     def __init__(self, image, **args):
+
+        # The path to the image file to load, and parse an image name
+        if "/" in image:
+            image = os.path.abspath(image)
+        self.image_file = os.path.join(TEST_DIR, "images", image)
+        (image, extension) = os.path.splitext(os.path.basename(image))
+
         Machine.__init__(self, image=image, **args)
 
         self.run_dir = os.path.join(TEST_DIR, "tmp", "run")
-
-        self.image_base = os.path.join(BOTS_DIR, "images", self.image)
-        self.image_file = os.path.join(self.run_dir, "%s.qcow2" % (self.image))
 
         self._network_description = etree.parse(open(os.path.join(TEST_DIR, "common", "network-cockpit.xml")))
 
@@ -1009,26 +1012,14 @@ class VirtMachine(Machine):
             os.makedirs(self.run_dir, 0750)
 
         image_to_use = self.image_file
-        if not os.path.exists(self.image_file):
-            if maintain:
-                # never write back to the original image
-                self.message("create image from backing file")
-                subprocess.check_call([ "qemu-img", "create", "-q",
-                                        "-f", "qcow2",
-                                        "-o", "backing_file=%s,backing_fmt=qcow2" % self.image_base,
-                                        self.image_file ])
-            else:
-                # we don't have a "local" override image and we're throwing away the changes anyway
-                image_to_use = self.image_base
-
         if not maintain:
-            # create an additional qcow2 image with the original as a backing file
             (unused, self._transient_image) = tempfile.mkstemp(suffix='.qcow2', prefix="", dir=self.run_dir)
             subprocess.check_call([ "qemu-img", "create", "-q",
                                     "-f", "qcow2",
-                                    "-o", "backing_file=%s" % image_to_use,
+                                    "-o", "backing_file=%s" % self.image_file,
                                     self._transient_image ])
             image_to_use = self._transient_image
+
         if not macaddr:
             macaddr = self._choose_macaddr()
 
@@ -1306,6 +1297,8 @@ class VirtMachine(Machine):
         if not serial:
             serial = "DISK%d" % index
 
+        if not os.path.exists(self.run_dir):
+            os.makedirs(self.run_dir, 0750)
         path = os.path.join(self.run_dir, "disk-%s-%d" % (self._domain.name(), index))
         if os.path.exists(path):
             os.unlink(path)

@@ -219,8 +219,6 @@ def main():
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
                         help='Verbose output')
     parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
-    parser.add_argument('--install', dest='install', action='store_true',
-                        help='Build and install Cockpit into test VMs')
     parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome'],
                     default='none',
                     help="selenium browser choice - in case of none, selenium isn't started")
@@ -233,17 +231,6 @@ def main():
     parser.add_argument('tests', nargs='*')
 
     opts = parser.parse_args()
-    if opts.install:
-        sys.stderr.write("Building and installing Cockpit ...\n")
-        subprocess.check_call([ "image-download", testvm.DEFAULT_IMAGE, "selenium" ])
-
-        cmd = [ "image-prepare" ]
-        if opts.verbosity:
-            cmd.append("--verbose")
-        if opts.quick:
-            cmd.append("--quick")
-        cmd.append(testvm.DEFAULT_IMAGE)
-        subprocess.check_call(cmd)
 
     regular_tests = [ "checklogin-basic.py", "checklogin-raw.py" ]
     browser_tests = [ "selenium-base.py", "selenium-storage.py", "selenium-docker.py", "selenium-sosreport.py" ]

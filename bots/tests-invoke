@@ -188,6 +188,33 @@ class PullTask(object):
 
         return None
 
+    def prepare(self, prefix, value, image, verbose=False):
+        sys.stderr.write("Preparing image: building and installing Cockpit ...\n")
+        cmd = [ os.path.join(BOTS, "image-prepare") ]
+        if prefix == "image" or prefix == "container":
+            cmd += [ "--containers" ]
+        if verbose:
+            cmd += [ "--verbose" ]
+
+        try:
+            # Do the basic prepare
+            subprocess.check_call(cmd + [ image ])
+
+            # For containers tests we install to openshift too
+            if value == "kubernetes":
+                subprocess.check_call(cmd + [ "--install-only", "openshift" ])
+
+        except subprocess.CalledProcessError:
+            return "Preparation of testable image failed"
+
+        try:
+            # Download all the additional images so that even branches find them
+            subprocess.check_call([ os.path.join(BOTS, "image-download"),
+                "candlepin", "fedora-stock", "ipa", "openshift", "selenium" ])
+
+        except subprocess.CalledProcessError:
+            return "Downloading of additional images failed"
+
     def stop_publishing(self, ret):
         sink = self.sink
         def mark_failed():
@@ -234,6 +261,9 @@ class PullTask(object):
         if self.base and not opts.offline:
             subprocess.check_call([ "git", "fetch", "origin", self.base ])
 
+        # Clean out the test directory
+        subprocess.check_call([ "git", "clean", "-d", "--force", "--quiet", "-x", "--", "test/" ])
+
         os.environ["TEST_NAME"] = self.name
         os.environ["TEST_REVISION"] = self.revision
 
@@ -241,11 +271,12 @@ class PullTask(object):
         (prefix, unused, value) = self.context.partition("/")
 
         if prefix in [ 'selenium' ]:
-            os.environ["TEST_OS"] = 'fedora-24'
+            image = 'fedora-24'
         elif prefix in [ 'container' ]:
-            os.environ["TEST_OS"] = 'fedora-25'
+            image = 'fedora-25'
         else:
-            os.environ["TEST_OS"] = value
+            image = value
+        os.environ["TEST_OS"] = image
 
         if opts.publish:
             self.start_publishing(opts.publish)
@@ -261,39 +292,48 @@ class PullTask(object):
             ret = self.rebase()
 
         test = os.path.join(BOTS, "..", "test")
-        os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS, test)
 
         # Figure out what to do next
         if prefix == "verify":
             cmd = [ "timeout", "120m", os.path.join(test, "verify", "run-tests"),
-                    "--install", "--jobs", str(opts.jobs) ]
+                    "--jobs", str(opts.jobs) ]
         elif prefix == "avocado":
             cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
-                    "--install", "--quick", "--tests" ]
+                    "--quick", "--tests" ]
         elif prefix == "koji":
             cmd = [ "timeout", "120m", os.path.join(test, "koji", "run-build") ]
         elif prefix == "selenium":
             if value not in ['firefox', 'chrome']:
                 ret = "Unknown browser for selenium test"
             cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
-                    "--install", "--quick", "--selenium-tests", "--browser", value]
+                    "--quick", "--selenium-tests", "--browser", value]
         elif prefix == "image" or prefix == "container":
             cmd = [ "timeout", "90m", os.path.join(test, "containers", "run-tests"),
-                    "--install", "--container", value]
+                    "--container", value]
         else:
             ret = "Unknown context"
 
         if cmd and opts.verbose:
             cmd.append("--verbose")
 
+        env = os.environ.copy()
+        env["TEST_DATA"] = BOTS
+        env["PATH"] = "{0}:{1}:{2}".format(env.get("PATH", "/bin:/sbin"), BOTS, test)
+
         # Setup network if necessary, any failures caught during testing
         prep = os.path.join(BASE, "test", "vm-prep")
         if os.path.exists(prep):
-            subprocess.call(["sudo", "-n", prep ])
+            subprocess.call(["sudo", "-n", prep ], env=env)
 
-        # Actually run the tests
+        # Prepare the image to run
         if not ret:
-            ret = subprocess.call(cmd)
+            ret = self.prepare(prefix, value, image, opts.verbose)
+
+        # Actually run the tests. We modify the TEST_DATA environment
+        # variable when invoking them to make them look for images and
+        # such in the bots directory. In addition we have a nice path
+        if not ret:
+            ret = subprocess.call(cmd, env=env)
 
         # All done
         if self.sink:

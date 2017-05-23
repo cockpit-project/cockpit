@@ -23,7 +23,7 @@ for more details and recommendations on ensuring it is enabled correctly.
 Before running the tests, ensure Cockpit has been built where the test suite
 expects to find it (do NOT run the build step as root):
 
-   $ ./test/verify/testsuite-prepare
+   $ ./bots/image-prepare
 
 To run the integration tests run the following (do NOT run the integration tests
 as root):
@@ -36,33 +36,25 @@ images to retrieve for different scenario tests).
 
 Alternatively you can run an individual test like this:
 
-    $ cd test
-    $ ./verify/testsuite-prepare
-    $ ./verify/check-session
+    $ ./bots/image-prepare
+    $ ./test/verify/check-session
 
 To see more verbose output from the test, use the --verbose and/or --trace flags:
 
-    $ ./verify/check-session --verbose --trace
+    $ ./test/verify/check-session --verbose --trace
 
 In addition if you specify `--sit`, then the test wail wait on failure and allow
 you to log into cockpit and/or the test instance and diagnose the issue. An address
 will be printed of the test instance.
 
-    $ ./verify/check-session --trace --sit
-
-In order to pick up local changes to Cockpit itself prior to running the tests,
-the `--install` option provides a convenient alternative to explicitly running
-`testsuite-prepare` as a separate step:
-
-    $ ./test/verify/run-tests --install
+    $ ./test/verify/check-session --trace --sit
 
 ## Details
 
 The verify test suite is the main test suite:
 
- * verify/testsuite-prepare: Prepare everything so that tests can run
- * verify/run-tests: Run all tests
- * verify/check-*: Run the selected tests
+ * test/verify/run-tests: Run all tests
+ * test/verify/check-*: Run the selected tests
 
 ## Test Configuration
 
@@ -151,12 +143,12 @@ A typical sequence of steps would thus be the following:
 
   $ bots/image-download
   $ test/vm-reset            # Start over
-  $ tools/make-rpms    # Create rpms
-  $ bots/image-install ...      # Install code to test
+  $ tools/make-rpms          # Create rpms
+  $ bots/image-install ...   # Install code to test
   $ test/verify/check-...    # Run some tests
 
   $ test/vm-reset            # Start over
-  $ bots/image-prepare ...      # Install code to test
+  $ bots/image-prepare ...   # Install code to test
   $ bots/verify/check-...    # Run some tests
 
 You can perform all of the above easily by doing `./testsuite-prepare`
@@ -167,13 +159,13 @@ Once you have a test machine image that contains the version of
 Cockpit that you want to test, you can run tests by picking a program
 and just executing it:
 
-  $ ./verify/check-connection
+  $ test/verify/check-connection
 
 Many of the verify tests can also be run against an already running
 machine. Although be aware that lots of the tests change state on
 the target machine.
 
-  $ ./verify/check-connection --machine=10.1.1.2
+  $ test/verify/check-connection --machine=10.1.1.2
 
 The test/containers/ tests use the same VMs as the above test/verify/ ones.
 But they don't have a separate "prepare" step/script; instead, the first time
@@ -188,7 +180,7 @@ will pause when a failure occurs so that you can log into the test
 machine and investigate the problem.
 
 You can log into a running test-machine using the ssh credentials in
-./test/common/identity as the user root.
+test/common/identity as the user root.
 
 You can also put calls to sit() into the tests themselves to stop them
 at strategic places.

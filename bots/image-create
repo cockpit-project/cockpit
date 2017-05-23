@@ -186,9 +186,9 @@ class MachineBuilder:
         shutil.move(partial, data_file)
 
         # Update the images symlink
-        if os.path.islink(self.machine.image_base):
-            os.unlink(self.machine.image_base)
-        os.symlink(name, self.machine.image_base)
+        if os.path.islink(self.machine.image_file):
+            os.unlink(self.machine.image_file)
+        os.symlink(name, self.machine.image_file)
 
         # Handle alternate TEST_DATA
         image_file = os.path.join(images_dir, name)

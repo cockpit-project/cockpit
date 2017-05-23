@@ -165,7 +165,7 @@ class GitHub(object):
         cached = self.cache.read(qualified)
         if cached:
             if self.cache.current(qualified):
-                return cached
+                return json.loads(cached['data'] or "null")
             etag = cached['headers'].get("etag", None)
             if etag:
                 headers['If-None-Match'] = etag
@@ -174,13 +174,13 @@ class GitHub(object):
             return None
         elif cached and response['status'] == 304: # Not modified
             self.cache.write(qualified, response)
-            return json.loads(cached['data'])
+            return json.loads(cached['data'] or "null")
         elif response['status'] < 200 or response['status'] >= 300:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
             raise Exception("GitHub API problem: {0}".format(response['reason'] or response['status']))
         else:
             self.cache.write(qualified, response)
-            return json.loads(response['data'])
+            return json.loads(response['data'] or "null")
 
     def post(self, resource, data, accept=[]):
         response = self.request("POST", resource, json.dumps(data), { "Content-Type": "application/json" })

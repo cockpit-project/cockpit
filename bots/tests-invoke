@@ -71,7 +71,6 @@ class PullTask(object):
         self.ref = ref
         self.context = context
         self.base = base
-        self.respawn = False
 
         self.sink = None
         self.github_status_data = None
@@ -152,7 +151,10 @@ class PullTask(object):
         os.environ["TEST_DESCRIPTION"] = description
         self.sink = sink.Sink(host, identifier, status)
 
-    def rebase(self, offline=False):
+    def rebase(self):
+        if "TEST_INVOKE_RESPAWN" in os.environ:
+            return None
+
         origin_base = "origin/" + self.base
 
         # Rebase this branch onto the base, but only if it's not already an ancestor
@@ -160,23 +162,29 @@ class PullTask(object):
             if subprocess.call([ "git", "merge-base", "--is-ancestor", origin_base, "HEAD" ]) != 0:
                 sys.stderr.write("Rebasing onto " + origin_base + " ...\n")
                 subprocess.check_call([ "git", "rebase", origin_base ])
-                self.respawn = True
         except subprocess.CalledProcessError:
             subprocess.call([ "git", "rebase", "--abort" ])
             traceback.print_exc()
             return "Rebase failed"
 
         # If the bots directory doesn't exist in this branch, check it out from master
-        ret = subprocess.call([ "git", "ls-tree", "-d", "HEAD:bots/"], stdout=DEVNULL)
-        if ret == 0:
-            return None
         try:
-            sys.stderr.write("Checking out bots directory from master ...\n")
-            subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
-            self.respawn = True
+            if subprocess.call([ "git", "ls-tree", "-d", "HEAD:bots/"], stdout=DEVNULL) != 0:
+                sys.stderr.write("Checking out bots directory from master ...\n")
+                subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
         except:
             traceback.print_exc()
             return "Rebase checkout of bots failed"
+
+        # If the bots directory changed during all of this, then respawn
+        if subprocess.call(["git", "diff", "--quiet", "--exit-code", "--staged", origin_base, "--", "bots/"]) == 1:
+            assert "TEST_INVOKE_RESPAWN" not in os.environ
+            os.environ["TEST_INVOKE_RESPAWN"] = "1"
+            sys.stderr.write("Rebase complete ... respawning\n")
+            if self.sink:
+                self.stop_publishing(None)
+            os.execv(__file__, sys.argv)
+            assert False, "not reached"
 
         return None
 
@@ -213,7 +221,8 @@ class PullTask(object):
 
     def run(self, opts):
         if self.ref:
-            subprocess.check_call([ "git", "fetch", "origin", self.ref ])
+            if not opts.offline:
+                subprocess.check_call([ "git", "fetch", "origin", self.ref ])
             if not self.revision:
                 self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
             subprocess.check_call([ "git", "checkout", "-f", self.revision ])
@@ -222,7 +231,7 @@ class PullTask(object):
             self.revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
 
         # Retrieve information about our base branch
-        if self.base:
+        if self.base and not opts.offline:
             subprocess.check_call([ "git", "fetch", "origin", self.base ])
 
         os.environ["TEST_NAME"] = self.name
@@ -248,19 +257,8 @@ class PullTask(object):
 
         ret = None
 
-        offline = ('offline' in opts) and opts.offline
-        if self.base and "TEST_INVOKE_RESPAWN" not in os.environ:
-            ret = self.rebase(offline)
-
-        # Did we rebase, if so rexec
-        if not ret and self.respawn:
-            assert "TEST_INVOKE_RESPAWN" not in os.environ
-            os.environ["TEST_INVOKE_RESPAWN"] = "1"
-            sys.stderr.write("Rebase complete ... respawning\n")
-            if self.sink:
-                self.stop_publishing(None)
-            os.execv(__file__, sys.argv)
-            assert False, "not reached"
+        if self.base:
+            ret = self.rebase()
 
         test = os.path.join(BOTS, "..", "test")
         os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS, test)

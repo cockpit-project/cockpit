@@ -167,10 +167,11 @@ class PullTask(object):
             return "Rebase failed"
 
         # If the bots directory doesn't exist in this branch, check it out from master
-        ret = subprocess.call([ "git", "ls-tree" "-d", "HEAD:bots/"], stdout=DEVNULL, stderr=DEVNULL)
+        ret = subprocess.call([ "git", "ls-tree", "-d", "HEAD:bots/"], stdout=DEVNULL)
         if ret == 0:
             return None
         try:
+            sys.stderr.write("Checking out bots directory from master ...\n")
             subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
             self.respawn = True
         except:

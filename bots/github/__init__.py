@@ -79,7 +79,7 @@ def determine_github_base():
     return "cockpit-project/cockpit"
 
 # github base to use
-GITHUB_BASE = "/repos/{0}/".format(os.environ.get("GITHUB_BASE", determine_github_base()))
+GITHUB_BASE = "https://api.github.com/repos/{0}/".format(os.environ.get("GITHUB_BASE", determine_github_base()))
 
 def read_whitelist():
     # Try to load the whitelists
@@ -102,8 +102,8 @@ def read_whitelist():
     return set(whitelist)
 
 class GitHub(object):
-    def __init__(self, base=GITHUB_BASE):
-        self.base = base
+    def __init__(self, base=GITHUB_BASE, cacher=None):
+        self.url = urlparse.urlparse(base)
         self.conn = None
         self.token = None
         self.debug = False
@@ -122,11 +122,13 @@ class GitHub(object):
         self.whitelist = read_whitelist()
 
         # The cache directory is $TEST_DATA/github bots/github
-        directory = os.path.join(os.environ.get("TEST_DATA", BOTS), "github")
-        self.cache = cache.Cache(directory)
+        if not cacher:
+            directory = os.path.join(os.environ.get("TEST_DATA", BOTS), "github")
+            cacher = cache.Cache(directory)
+        self.cache = cacher
 
     def qualify(self, resource):
-        return urlparse.urljoin(self.base, resource)
+        return urlparse.urljoin(self.url.path, resource)
 
     def request(self, method, resource, data="", headers=None):
         if headers is None:
@@ -137,7 +139,10 @@ class GitHub(object):
         connected = False
         while not connected:
             if not self.conn:
-                self.conn = httplib.HTTPSConnection("api.github.com", strict=True)
+                if self.url.scheme == 'http':
+                    self.conn = httplib.HTTPConnection(self.url.netloc)
+                else:
+                    self.conn = httplib.HTTPSConnection(self.url.netloc, strict=True)
                 connected = True
             self.conn.set_debuglevel(self.debug and 1 or 0)
             try:

@@ -247,15 +247,18 @@ class PullTask(object):
         sink.flush()
 
     def run(self, opts):
+        head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
         if self.ref:
             if not opts.offline:
                 subprocess.check_call([ "git", "fetch", "origin", self.ref ])
             if not self.revision:
                 self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
-            subprocess.check_call([ "git", "checkout", "-f", self.revision ])
+            # Force a checkout of the ref if not already checked out
+            if not head.lower().startswith(self.revision.lower()):
+                subprocess.check_call([ "git", "checkout", "-f", self.revision ])
 
         if not self.revision:
-            self.revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+            self.revision = head
 
         # Retrieve information about our base branch
         if self.base and not opts.offline:

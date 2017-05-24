@@ -129,18 +129,20 @@ def upload_scripts(machine, args):
     machine.upload([ os.path.join(BASE, "containers") ], "/var/tmp")
 
 # Create the necessary layered image for the build/install
-def prepare_backing_file(machine, image):
-    if "/" in image:
-        image = os.path.abspath(image)
+def prepare_install_image(base_image):
+    if "/" in base_image:
+        image = os.path.abspath(base_image)
     else:
-        image = os.path.join(BOTS, "images", image)
-    if os.path.lexists(machine.image_file):
-        os.unlink(machine.image_file)
-    images = os.path.dirname(machine.image_file)
-    if not os.path.exists(images):
-        os.makedirs(images)
+        base_image = os.path.join(BOTS, "images", base_image)
+    test_images = os.path.join(TEST, "images")
+    install_image = os.path.join(test_images, os.path.basename(base_image))
+    if not os.path.exists(test_images):
+        os.makedirs(test_images)
+    if os.path.lexists(install_image):
+        os.unlink(install_image)
     subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
-        "-o", "backing_file={0},backing_fmt=qcow2".format(image), machine.image_file ])
+        "-o", "backing_file={0},backing_fmt=qcow2".format(base_image), install_image ])
+    return install_image
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):
     install = do_install
@@ -167,8 +169,8 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
 
 def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""
+    build_image = prepare_install_image(build_image)
     machine = testvm.VirtMachine(verbose=args.verbose, image=build_image, label="install")
-    prepare_backing_file(machine, build_image)
     machine.start(maintain=True, memory_mb=4096, cpus=4)
     completed = False
 
@@ -199,8 +201,8 @@ def only_install(image, build_results, skips, args, address):
     if args.address:
         machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image, label="install")
     else:
+        image = prepare_install_image(image)
         machine = testvm.VirtMachine(verbose=args.verbose, image=image, label="install")
-        prepare_backing_file(machine, image)
         machine.start(maintain=True)
         started = True
     completed = False

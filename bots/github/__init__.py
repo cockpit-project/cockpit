@@ -121,10 +121,10 @@ class GitHub(object):
                 raise
         self.available = self.token and True or False
 
-        # The cache directory is $TEST_DATA/github bots/github
+        # The cache directory is $TEST_DATA/github ~/.cache/github
         if not cacher:
-            directory = os.path.join(os.environ.get("TEST_DATA", BOTS), "github")
-            cacher = cache.Cache(directory)
+            data = os.environ.get("TEST_DATA",  os.path.expanduser("~/.cache"))
+            cacher = cache.Cache(os.path.join(data, "github"))
         self.cache = cacher
 
     def qualify(self, resource):

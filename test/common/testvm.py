@@ -1000,8 +1000,11 @@ class VirtMachine(Machine):
     def _start_qemu(self, maintain=False, macaddr=None, wait_for_ip=True, memory_mb=None, cpus=None):
         self._cleanup()
 
-        if not os.path.exists(self.run_dir):
+        try:
             os.makedirs(self.run_dir, 0750)
+        except OSError, ex:
+            if ex.errno != errno.EEXIST:
+                raise
 
         image_to_use = self.image_file
         if not maintain:
@@ -1289,8 +1292,12 @@ class VirtMachine(Machine):
         if not serial:
             serial = "DISK%d" % index
 
-        if not os.path.exists(self.run_dir):
+        try:
             os.makedirs(self.run_dir, 0750)
+        except OSError, ex:
+            if ex.errno != errno.EEXIST:
+                raise
+
         path = os.path.join(self.run_dir, "disk-%s-%d" % (self._domain.name(), index))
         if os.path.exists(path):
             os.unlink(path)

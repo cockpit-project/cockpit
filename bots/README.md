@@ -12,6 +12,9 @@ will be updated as they are.
 In order to test Cockpit it is staged into an operating system
 image. These images are tracked in the ```bots/images``` directory.
 
+These well known image names are expected to contain no ```.```
+characters and have no file name extension.
+
 For managing these images:
 
  * image-download: Download test images

@@ -112,13 +112,13 @@ def main():
     parser = argparse.ArgumentParser(description='Bot: scan for images that need updating')
     parser.add_argument('-d', '--dry', action="store_true", default=False,
                         help='Don''t actually change anything on GitHub')
-    parser.add_argument('-v', '--verbose', action="store_true", default=False,
+    parser.add_argument('-v', '--human-readable', '--verbose', action="store_true", default=False,
                         help="Print verbose information")
     opts = parser.parse_args()
     api = github.GitHub()
 
     try:
-        results = scan(api, not opts.dry, opts.verbose)
+        results = scan(api, not opts.dry, opts.human_readable)
     except RuntimeError, ex:
         sys.stderr.write("image-scan: " + str(ex) + "\n")
         return 1
@@ -230,15 +230,18 @@ def scan(api, update, verbose):
     except IOError:
         pass
 
-    task_entries = scan_for_image_tasks(api, policy)
-    task_entries += scan_for_prune()
+    task_entries = []
 
     if verbose:
         for image, wait_time in scan_image_wait_times(api, policy).items():
             # Images with wait_time <= 0 are already included in the list
             # of tasks above, so we don't need to list them here.
             if wait_time > 0:
-                sys.stdout.write("# {0} will be refreshed in {1:.1f} days.\n".format(image, wait_time))
+                task_entries.append("{0:20}  {1:.1f} days".format(image, wait_time))
+    else:
+        task_entries += scan_for_image_tasks(api, policy)
+        task_entries += scan_for_prune()
+
 
     return task_entries
 

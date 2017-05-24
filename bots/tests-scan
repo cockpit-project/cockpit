@@ -71,13 +71,15 @@ import github
 
 def main():
     parser = argparse.ArgumentParser(description='Bot: scan and update status of pull requests on GitHub')
+    parser.add_argument('-v', '--human-readable', action="store_true", default=False,
+                        help='Display human readable output rather than tasks')
     parser.add_argument('-d', '--dry', action="store_true", default=False,
                         help='Don''t actually change anything on GitHub')
     opts = parser.parse_args()
     api = github.GitHub()
 
     try:
-        results = scan(api, not opts.dry)
+        results = scan(api, not opts.dry, opts.human_readable)
     except RuntimeError, ex:
         sys.stderr.write("tests-scan: " + str(ex) + "\n")
         return 1
@@ -88,8 +90,27 @@ def main():
 
     return 0
 
+# Prepare a human readable output
+def tests_human(priority, name, revision, ref, context, base=None):
+    if priority is None:
+        return
+    try:
+        priority = int(priority)
+    except (ValueError, TypeError):
+        pass
+    return "{name:11} {context:25} {revision:10} {priority}".format(
+        priority=priority,
+        revision=revision[0:7],
+        context=context,
+        name=name
+    )
+
 # Prepare an test invocation command
 def tests_invoke(priority, name, revision, ref, context, base=None):
+    try:
+        priority = int(priority)
+    except (ValueError, TypeError):
+        priority = 0
     if priority <= 0:
         return
     current = time.strftime('%Y%m%d-%H%M%M')
@@ -98,7 +119,7 @@ def tests_invoke(priority, name, revision, ref, context, base=None):
         cmd += " --rebase='{base}'"
     cmd += " '{context}' '{ref}'"
     return cmd.format(
-        priority=int(priority),
+        priority=priority,
         name=pipes.quote(name),
         revision=pipes.quote(revision),
         base=pipes.quote(str(base)),
@@ -113,7 +134,7 @@ def prioritize(status, title, labels, priority, context):
 
     # This commit definitively succeeded or failed
     if state in [ "success", "failure" ]:
-        priority = 0
+        priority = None
         update = None
 
     # This test errored, we try again but low priority
@@ -126,7 +147,7 @@ def prioritize(status, title, labels, priority, context):
     # Don't start working on "bot" pull requests automatically.
     # The bot triggers them explicitly.
     elif "bot" in labels:
-        priority = 0
+        priority = None
         update = None
 
     if priority > 0:
@@ -142,11 +163,13 @@ def prioritize(status, title, labels, priority, context):
             priority -= 3
 
         # Is testing already in progress?
-        if status.get("description", "").startswith(github.TESTING):
-            priority = 0
+        description = status.get("description", "")
+        if description.startswith(github.TESTING):
+            priority = description
+            update = None
 
         # Prefer "local" operating system
-        if os.environ.get("TEST_OS", "?") not in context:
+        elif os.environ.get("TEST_OS", "?") not in context:
             priority -= random.randint(1, 2)
 
     if update:
@@ -163,7 +186,7 @@ def dict_is_subset(full, check):
             return False
     return True
 
-def scan_for_pull_tasks(api, update, policy):
+def scan_for_pull_tasks(api, update, human, policy):
     contexts = policy
 
     results = []
@@ -196,7 +219,7 @@ def scan_for_pull_tasks(api, update, policy):
                 status = statuses.get(context, { })
                 (priority, changes) = prioritize(status, "", [], 8, context)
                 if update_status(revision, context, status, changes):
-                    results.append(tests_invoke(priority, branch, revision, branch, context))
+                    results.append((priority, branch, revision, branch, context, None))
 
     whitelist = github.whitelist()
     for pull in api.pulls():
@@ -225,17 +248,22 @@ def scan_for_pull_tasks(api, update, policy):
             # For unmarked and untested status, user must be in whitelist
             # Not this only applies to this specific commit. A new status
             # will apply if the user pushes a new commit.
-            if login not in whitelist:
-                if status.get("description", github.NO_TESTING) == github.NO_TESTING:
-                    baseline = 0
-
-            (priority, changes) = prioritize(status, title, labels, baseline, context)
+            if login not in whitelist and status.get("description", github.NO_TESTING) == github.NO_TESTING:
+                priority = github.NO_TESTING
+                changes = None
+            else:
+                (priority, changes) = prioritize(status, title, labels, baseline, context)
             if update_status(revision, context, status, changes):
-                results.append(tests_invoke(priority, "pull-%d" % number, revision, "pull/%d/head" % number, context, base))
+                results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context, base))
 
-    return results
+    if human:
+        func = lambda x: tests_human(*x)
+        results.sort(reverse=True)
+    else:
+        func = lambda x: tests_invoke(*x)
+    return map(func, results)
 
-def scan(api, update):
+def scan(api, update, human):
     kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
     if not kvm:
         sys.stderr.write("tests-scan: No /dev/kvm access, not running tests here\n")
@@ -250,7 +278,7 @@ def scan(api, update):
     except IOError:
         pass
 
-    return scan_for_pull_tasks(api, update, policy)
+    return scan_for_pull_tasks(api, update, human, policy)
 
 if __name__ == '__main__':
     sys.exit(main())

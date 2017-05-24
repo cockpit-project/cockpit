@@ -24,8 +24,20 @@ For managing these images:
 
 For debugging the images:
 
- * image-run: Run a test machine image
+ * test/vm-run: Run a test machine image
 
+To check when images will automatically be refreshed by the bots
+use the image-scan tool:
+
+    $ bots/image-scan -vd
+
+## Tests
+
+The bots automatically run the tests as needed on pull requests
+and branches. To check when and where tests will be run, use the
+tests-scan tool:
+
+    $ bots/tests-scan -vd
 
 ## Integration with GitHub
 

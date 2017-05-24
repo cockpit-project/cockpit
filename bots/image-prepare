@@ -22,7 +22,6 @@ import errno
 import os
 import sys
 import glob
-import shutil
 import subprocess
 import tempfile
 
@@ -97,29 +96,7 @@ def main():
         sys.stderr.write("image-prepare: {0}\n".format(str(ex)))
         return 2
 
-    # The remaining images not yet prepared are symlinked from the bots/images
-    # directory into the test/images directory. This allows for other branches to
-    # run without modification, and allows tests to load images that they didn't
-    # install or need to install cockpit on (above).
-    link_remaining_images()
-
     return 0
-
-def link_remaining_images():
-    bots_images = os.path.join(BOTS, "images")
-    test_images = os.path.join(TEST, "images")
-    if not os.path.exists(test_images):
-        os.makedirs(test_images)
-    for image in os.listdir(bots_images):
-        if "." in image:
-            continue
-        if os.path.isdir(os.path.join(bots_images, image)):
-            continue
-        dest = os.path.join(test_images, image)
-        if not os.path.isfile(dest):
-            if os.path.lexists(dest):
-                os.unlink(dest)
-            os.symlink(os.path.join("..", "..", "bots", "images", image), dest)
 
 def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
@@ -129,18 +106,19 @@ def upload_scripts(machine, args):
 
 # Create the necessary layered image for the build/install
 def prepare_install_image(base_image):
-    if "/" in base_image:
-        image = os.path.abspath(base_image)
-    else:
+    if "/" not in base_image:
         base_image = os.path.join(BOTS, "images", base_image)
     test_images = os.path.join(TEST, "images")
-    install_image = os.path.join(test_images, os.path.basename(base_image))
     if not os.path.exists(test_images):
         os.makedirs(test_images)
+    install_image = os.path.join(test_images, os.path.basename(base_image))
+    base_image = os.path.realpath(base_image)
+    qcow2_image = "{0}.qcow2".format(install_image)
+    subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
+        "-o", "backing_file={0},backing_fmt=qcow2".format(base_image), qcow2_image ])
     if os.path.lexists(install_image):
         os.unlink(install_image)
-    subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
-        "-o", "backing_file={0},backing_fmt=qcow2".format(base_image), install_image ])
+    os.symlink(os.path.basename(qcow2_image), install_image)
     return install_image
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):

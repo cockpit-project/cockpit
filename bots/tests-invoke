@@ -20,8 +20,9 @@
 
 import argparse
 import os
-import subprocess
+import shutil
 import socket
+import subprocess
 import sys
 import time
 import traceback
@@ -201,6 +202,47 @@ class PullTask(object):
 
     def prepare(self, prefix, value, image, verbose=False):
         sys.stderr.write("Preparing image: building and installing Cockpit ...\n")
+
+        try:
+            # Download all the additional images so that even older branches find them
+            subprocess.check_call([ os.path.join(BOTS, "image-download"),
+                "candlepin", "fedora-stock", "fedora-23-stock", "ipa", "openshift", "selenium" ])
+
+        except subprocess.CalledProcessError:
+            return "Downloading of additional images failed"
+
+        # The images not yet prepared are symlinked from the bots/images
+        # directory into the test/images directory. This allows for other branches to
+        # run without modification, and allows tests to load images that they didn't
+        # install or need to install cockpit on (above).
+        bots_images = os.path.join(BOTS, "images")
+        test_images = os.path.join(BASE, "test", "images")
+        if not os.path.exists(test_images):
+            os.makedirs(test_images)
+        for name in os.listdir(bots_images):
+            if "." in name:
+                continue
+            target = os.path.join(bots_images, name)
+            if os.path.isdir(target):
+                continue
+            dest = os.path.join(test_images, name)
+            if not os.path.isfile(dest):
+                if os.path.lexists(dest):
+                    os.unlink(dest)
+                os.symlink(os.path.realpath(target), dest)
+
+        # Older branches require naughty files linked into specific places
+        # and do not use the image-pepare tooling
+        naughty_files = os.path.join(BOTS, "naughty")
+        for name in os.listdir(naughty_files):
+            dest = os.path.join(BASE, "test", "verify", "naughty-{0}".format(name))
+            if not os.path.islink(dest) and os.path.isdir(dest):
+                shutil.rmtree(dest)
+            elif os.path.lexists(dest):
+                os.unlink(dest)
+            os.symlink(os.path.join("..", "..", "bots", "naughty", name), dest)
+
+        # Now actually run the prepare tooling
         cmd = [ os.path.join(BOTS, "image-prepare") ]
         if prefix == "image" or prefix == "container":
             cmd += [ "--containers" ]
@@ -217,14 +259,6 @@ class PullTask(object):
 
         except subprocess.CalledProcessError:
             return "Preparation of testable image failed"
-
-        try:
-            # Download all the additional images so that even branches find them
-            subprocess.check_call([ os.path.join(BOTS, "image-download"),
-                "candlepin", "fedora-stock", "ipa", "openshift", "selenium" ])
-
-        except subprocess.CalledProcessError:
-            return "Downloading of additional images failed"
 
     def stop_publishing(self, ret):
         sink = self.sink
@@ -331,7 +365,8 @@ class PullTask(object):
             cmd.append("--verbose")
 
         env = os.environ.copy()
-        env["TEST_DATA"] = BOTS
+        if "TEST_DATA" in env:
+            del env["TEST_DATA"]
         env["PATH"] = "{0}:{1}:{2}".format(env.get("PATH", "/bin:/sbin"), BOTS, test)
 
         # Setup network if necessary, any failures caught during testing
@@ -343,9 +378,7 @@ class PullTask(object):
         if not ret:
             ret = self.prepare(prefix, value, image, opts.verbose)
 
-        # Actually run the tests. We modify the TEST_DATA environment
-        # variable when invoking them to make them look for images and
-        # such in the bots directory. In addition we have a nice path
+        # Actually run the tests
         if not ret:
             ret = subprocess.call(cmd, env=env)
 

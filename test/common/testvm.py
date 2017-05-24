@@ -1105,9 +1105,9 @@ class VirtMachine(Machine):
             self._cleanup()
 
     def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
-        if self.fetch:
+        if self.fetch and not os.path.exists(self.image_file):
             try:
-                subprocess.check_call([ "image-download", self.image ])
+                subprocess.check_call([ "image-download", self.image_file ])
             except OSError, ex:
                 if ex.errno != errno.ENOENT:
                     raise

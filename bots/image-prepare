@@ -31,8 +31,7 @@ BASE = os.path.normpath(os.path.join(BOTS, ".."))
 TEST = os.path.join(BASE, "test")
 os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
 
-# Borrow the VirtMachine implementation from the test/ directory
-testvm = imp.load_source("testvm", os.path.join(BASE, "test", "common", "testvm.py"))
+from machine import testvm
 
 def main():
     parser = argparse.ArgumentParser(

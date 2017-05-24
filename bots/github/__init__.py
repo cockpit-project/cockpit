@@ -34,6 +34,7 @@ import cache
 
 __all__ = (
     'GitHub',
+    'whitelist',
     'TESTING',
     'NO_TESTING',
     'NOT_TESTED',
@@ -81,24 +82,25 @@ def determine_github_base():
 # github base to use
 GITHUB_BASE = "https://api.github.com/repos/{0}/".format(os.environ.get("GITHUB_BASE", determine_github_base()))
 
-def read_whitelist():
+def whitelist(filename=WHITELIST):
     # Try to load the whitelists
-    # Always expect the in-tree version to be present
-    whitelist = None
-    with open(WHITELIST, "r") as wh:
-        whitelist = [x.strip() for x in wh.read().split("\n") if x.strip()]
+    whitelist = []
+    try:
+        with open(filename, "r") as wh:
+            whitelist += [x.strip() for x in wh.read().split("\n") if x.strip()]
+    except IOError as exc:
+        if exc.errno != errno.ENOENT:
+            raise
 
     # The local file may or may not exist
     try:
         wh = open(WHITELIST_LOCAL, "r")
         whitelist += [x.strip() for x in wh.read().split("\n") if x.strip()]
     except IOError as exc:
-        if exc.errno == errno.ENOENT:
-            pass
-        else:
+        if exc.errno != errno.ENOENT:
             raise
 
-    # remove duplicate entries
+    # Remove duplicate entries
     return set(whitelist)
 
 class GitHub(object):
@@ -117,9 +119,6 @@ class GitHub(object):
             else:
                 raise
         self.available = self.token and True or False
-
-        # Try to load the whitelists
-        self.whitelist = read_whitelist()
 
         # The cache directory is $TEST_DATA/github bots/github
         if not cacher:

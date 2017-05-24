@@ -117,5 +117,30 @@ class TestGitHub(unittest.TestCase):
         count = api.get("/count")
         self.assertEqual(count, 1)
 
+class TestWhitelist(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.temp)
+
+    def testLoad(self):
+        filename = os.path.join(self.temp, "whitelist")
+        with open(filename, "w") as f:
+            f.write("   one   \n   two\nthree\n\n")
+        whitelist = github.whitelist(filename)
+        self.assertEqual(set(github.whitelist(filename)), set(["one", "two", "three"]))
+        self.assertNotIn("four", whitelist)
+        self.assertNotIn("", whitelist)
+
+    def testDefault(self):
+        whitelist = github.whitelist()
+        self.assertTrue(len(whitelist) > 0)
+
+    def testNotPresent(self):
+        filename = os.path.join(self.temp, "whitelist")
+        whitelist = github.whitelist(filename)
+        self.assertEqual(len(whitelist), 0)
+
 if __name__ == '__main__':
     unittest.main()

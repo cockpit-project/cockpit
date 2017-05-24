@@ -33,8 +33,7 @@ import time
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
 
-# Borrow the VirtMachine implementation from the test/ directory
-testvm = imp.load_source("testvm", os.path.join(BASE, "test", "common", "testvm.py"))
+from machine import testvm
 
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')

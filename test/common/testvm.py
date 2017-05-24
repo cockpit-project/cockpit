@@ -44,7 +44,7 @@ MEMORY_MB = 1024
 # Images which are Atomic based
 ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
 
-TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
+LOCAL_DIR = os.path.dirname(__file__)
 
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down calls
@@ -200,14 +200,7 @@ class Machine:
     def _start_ssh_master(self):
         self._kill_ssh_master()
 
-        control = os.path.join(TEST_DIR, "tmp", "ssh-%h-%p-%r-" + str(os.getpid()))
-
-        # unix domain socket names aren't allowed to be too long
-        # Since python doesn't expose the max allowed value as a constant
-        # we hard code 108 as a magic number, based on the default
-        # MAX_UNIX_FILE value on most linux systems.
-        if len(control) > 108:
-            control = os.path.join(tempfile.tempdir, "ssh-%h-%p-%r-" + str(os.getpid()))
+        control = os.path.join(tempfile.gettempdir(), "ssh-%h-%p-%r-" + str(os.getpid()))
 
         cmd = [
             "ssh",
@@ -440,7 +433,7 @@ class Machine:
             cmd += [ "-q" ]
 
         def relative_to_test_dir(path):
-            return os.path.join(TEST_DIR, path)
+            return os.path.join(LOCAL_DIR, "..", path)
         cmd += map(relative_to_test_dir, sources)
 
         cmd += [ "%s@[%s]:%s" % (self.vm_username, self.address, dest) ]
@@ -456,7 +449,7 @@ class Machine:
         assert self.address
 
         self._ensure_ssh_master()
-        dest = os.path.join(TEST_DIR, dest)
+        dest = os.path.join(LOCAL_DIR, "..", dest)
 
         cmd = [
             "scp", "-B",
@@ -481,7 +474,7 @@ class Machine:
         assert self.address
 
         self._ensure_ssh_master()
-        dest = os.path.join(TEST_DIR, dest)
+        dest = os.path.join(LOCAL_DIR, "..", dest)
 
         cmd = [
             "scp", "-B",
@@ -531,7 +524,7 @@ class Machine:
         return int(self.execute("{ (%s) >/var/log/%s 2>&1 & }; echo $!" % (shell_cmd, log_id)))
 
     def _calc_identity(self):
-        identity = os.path.join(TEST_DIR, "common", "identity")
+        identity = os.path.join(LOCAL_DIR, "identity")
         os.chmod(identity, 0600)
         return identity
 
@@ -887,6 +880,16 @@ TEST_DOMAIN_XML="""
 </domain>
 """
 
+TEST_DISK_XML="""
+<disk type='file'>
+  <driver name='qemu' type='raw'/>
+  <source file='%(file)s'/>
+  <serial>%(serial)s</serial>
+  <address type='drive' controller='0' bus='0' target='2' unit='%(unit)d'/>
+  <target dev='%(dev)s' bus='scsi'/>
+</disk>
+"""
+
 class VirtMachine(Machine):
     memory_mb = None
     cpus = None
@@ -895,15 +898,16 @@ class VirtMachine(Machine):
 
         # The path to the image file to load, and parse an image name
         if "/" in image:
-            image = os.path.abspath(image)
-        self.image_file = os.path.join(TEST_DIR, "images", image)
+            self.image_file = image = os.path.abspath(image)
+        else:
+            self.image_file = os.path.join(LOCAL_DIR, "..", "images", image)
         (image, extension) = os.path.splitext(os.path.basename(image))
 
         Machine.__init__(self, image=image, **args)
 
-        self.run_dir = os.path.join(TEST_DIR, "tmp", "run")
+        self.run_dir = os.path.join(LOCAL_DIR, "..", "tmp", "run")
 
-        self._network_description = etree.parse(open(os.path.join(TEST_DIR, "common", "network-cockpit.xml")))
+        self._network_description = etree.parse(open(os.path.join(LOCAL_DIR, "network-cockpit.xml")))
 
         self.test_disk_desc_original = None
 
@@ -914,7 +918,7 @@ class VirtMachine(Machine):
         self.event_handler = VirtEventHandler(libvirt_connection=self.virt_connection, verbose=self.verbose)
 
         # network names are currently hardcoded into network-cockpit.xml
-        self.network_name = self._read_network_name()
+        self.network_name = "cockpit1"
 
         # we can't see the network itself as non-root, create it using vm-prep as root
 
@@ -945,18 +949,6 @@ class VirtMachine(Machine):
             # try again, but if an error occurs, don't catch it
             connection = open_function(hypervisor)
         return connection
-
-    def _read_network_name(self):
-        for h in self._network_description.iter("bridge"):
-            return h.get("name")
-        raise Failure("Couldn't find network name")
-
-    # only read the disk template once per machine
-    def _domain_disk_template(self):
-        if not self.test_disk_desc_original:
-            with open(os.path.join(TEST_DIR, "common/test-domain-disk.xml"), "r") as desc_file:
-                self.test_disk_desc_original = desc_file.read()
-        return self.test_disk_desc_original
 
     def _resource_lockfile_path(self, resource):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
@@ -1056,7 +1048,7 @@ class VirtMachine(Machine):
                                         "memory_in_mib": memory_mb or VirtMachine.memory_mb or MEMORY_MB,
                                         "drive": image_to_use,
                                         "mac": mac_desc,
-                                        "iso": os.path.join(TEST_DIR, "common", "cloud-init.iso")
+                                        "iso": os.path.join(LOCAL_DIR, "cloud-init.iso")
                                       }
 
         # add the virtual machine
@@ -1306,7 +1298,7 @@ class VirtMachine(Machine):
         subprocess.check_call(["qemu-img", "create", "-q", "-f", "raw", path, str(size)])
 
         dev = 'sd' + string.ascii_lowercase[index]
-        disk_desc = self._domain_disk_template() % {
+        disk_desc = TEST_DISK_XML % {
                           'file': path,
                           'serial': serial,
                           'unit': index,
@@ -1340,7 +1332,7 @@ class VirtMachine(Machine):
         serial = self._disks[main_index]["serial"]
 
         dev = 'sd' + string.ascii_lowercase[index]
-        disk_desc = self._domain_disk_template() % {'file': filename, 'serial': serial, 'unit': index, 'dev': dev}
+        disk_desc = TEST_DISK_XML % {'file': filename, 'serial': serial, 'unit': index, 'dev': dev}
 
         if self._domain.attachDeviceFlags(disk_desc, libvirt.VIR_DOMAIN_AFFECT_LIVE ) != 0:
             raise Failure("Unable to add disk to vm")
@@ -1358,7 +1350,7 @@ class VirtMachine(Machine):
         disk = self._disks.pop(index)
 
         if not quick:
-            disk_desc = self._domain_disk_template() % {
+            disk_desc = TEST_DISK_XML % {
                 'file': disk["filename"],
                 'serial': disk["serial"],
                 'unit': index,

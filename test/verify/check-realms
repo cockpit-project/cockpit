@@ -182,6 +182,7 @@ done
 
 if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
     journalctl -u realmd.service
+    exit 1
 fi
 
 echo '%(password)s' | kinit -f admin@COCKPIT.LAN

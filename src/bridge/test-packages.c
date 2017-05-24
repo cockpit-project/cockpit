@@ -974,6 +974,41 @@ test_reload_updated (TestCase *tc,
   teardown_reload_packages (datadir);
 }
 
+static const Fixture fixture_generator = {
+  .no_packages_init = TRUE,
+  .datadirs = { SRCDIR "/src/bridge/mock-resource/generator", NULL },
+};
+
+static void
+test_generator (TestCase *tc,
+                gconstpointer data)
+{
+  JsonObject *json;
+
+  g_setenv ("NAME", "Fred", TRUE);
+  tc->packages = cockpit_packages_new ();
+
+  assert_manifest_checksum (tc, NULL,        "4eb35025590e872c0df9e89dbe9c8a7ac1062bf7");
+  assert_manifest_checksum (tc, "generated", "4eb35025590e872c0df9e89dbe9c8a7ac1062bf7");
+
+  json = cockpit_packages_peek_json (tc->packages);
+  json = json_object_get_object_member (json, "generated");
+  json = json_object_get_object_member (json, "from-generator");
+  cockpit_assert_json_eq (json, "{ \"Hello\": \"Fred\" }");
+
+  g_setenv ("NAME", "Barney", TRUE);
+  cockpit_packages_reload (tc->packages);
+
+  // checksums should still be the same, although the manifest has changed
+  assert_manifest_checksum (tc, NULL,        "4eb35025590e872c0df9e89dbe9c8a7ac1062bf7");
+  assert_manifest_checksum (tc, "generated", "4eb35025590e872c0df9e89dbe9c8a7ac1062bf7");
+
+  json = cockpit_packages_peek_json (tc->packages);
+  json = json_object_get_object_member (json, "generated");
+  json = json_object_get_object_member (json, "from-generator");
+  cockpit_assert_json_eq (json, "{ \"Hello\": \"Barney\" }");
+}
+
 int
 main (int argc,
       char *argv[])
@@ -1051,6 +1086,9 @@ main (int argc,
               setup_basic, test_reload_removed, teardown_basic);
   g_test_add ("/packages/reload/updated", TestCase, &fixture_reload,
               setup_basic, test_reload_updated, teardown_basic);
+
+  g_test_add ("/packages/generator", TestCase, &fixture_generator,
+              setup_basic, test_generator, teardown_basic);
 
   return g_test_run ();
 }

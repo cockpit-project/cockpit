@@ -364,6 +364,51 @@ read_json_file (const gchar *directory,
 }
 
 static JsonObject *
+run_json_generator (const gchar *directory,
+                    const gchar *name,
+                    GError **error)
+{
+  JsonObject *json = NULL;
+
+  gchar *filename = g_build_filename (directory, name, NULL);
+  gchar *argv[] = { filename, NULL };
+  gchar *generator_output = NULL, *generator_error = NULL;
+  gint status;
+
+  /* The common case is that the generator does not exist.  The
+   * g_spawn_sync function will do its slightly expensive
+   * pipe-fork-waitpid dance before figuring this out, so we
+   * explicitly check upfront.
+   */
+
+  if (!g_file_test (filename, G_FILE_TEST_IS_EXECUTABLE))
+    goto out;
+
+  if (!g_spawn_sync (NULL, argv, NULL,
+                     G_SPAWN_DEFAULT,
+                     NULL, NULL,
+                     &generator_output, &generator_error,
+                     &status, error))
+    goto out;
+
+  if (!g_spawn_check_exit_status (status, error))
+    {
+      if (generator_error && generator_error[0])
+        g_info ("stderr: %s", generator_error);
+      goto out;
+    }
+
+  json = cockpit_json_parse_object (generator_output, -1, error);
+
+ out:
+  g_free (filename);
+  g_free (generator_error);
+  g_free (generator_output);
+
+  return json;
+}
+
+static JsonObject *
 read_package_manifest (const gchar *directory,
                        const gchar *package)
 {
@@ -399,6 +444,18 @@ read_package_manifest (const gchar *directory,
           g_clear_error (&error);
         }
       if (override)
+        {
+          cockpit_json_patch (manifest, override);
+          json_object_unref (override);
+        }
+
+      override = run_json_generator (directory, "override.exec", &error);
+      if (error)
+        {
+          g_message ("%s: Running override.exec failed: %s", package, error->message);
+          g_clear_error (&error);
+        }
+      else if (override)
         {
           cockpit_json_patch (manifest, override);
           json_object_unref (override);

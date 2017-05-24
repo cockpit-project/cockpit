@@ -43,7 +43,7 @@ def trigger_pull(api, opts):
     # triggering is manual, so don't prevent triggering a user that isn't on the whitelist
     # but issue a warning in case of an oversight
     login = pull["head"]["user"]["login"]
-    if not opts.allow and not login in api.whitelist:
+    if not opts.allow and not login in github.whitelist():
         sys.stderr.write("Pull request author '{0}' isn't whitelisted. Override with --allow.\n".format(login))
         return 1
 

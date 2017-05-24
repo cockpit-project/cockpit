@@ -198,6 +198,7 @@ def scan_for_pull_tasks(api, update, policy):
                 if update_status(revision, context, status, changes):
                     results.append(tests_invoke(priority, branch, revision, branch, context))
 
+    whitelist = github.whitelist()
     for pull in api.pulls():
         title = pull["title"]
         number = pull["number"]
@@ -224,7 +225,7 @@ def scan_for_pull_tasks(api, update, policy):
             # For unmarked and untested status, user must be in whitelist
             # Not this only applies to this specific commit. A new status
             # will apply if the user pushes a new commit.
-            if login not in api.whitelist:
+            if login not in whitelist:
                 if status.get("description", github.NO_TESTING) == github.NO_TESTING:
                     baseline = 0
 

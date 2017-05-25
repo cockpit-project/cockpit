@@ -907,7 +907,8 @@ class VirtMachine(Machine):
 
         Machine.__init__(self, image=image, **args)
 
-        self.run_dir = os.path.join(LOCAL_DIR, "..", "tmp", "run")
+        base_dir = os.path.join(LOCAL_DIR, "..", "..")
+        self.run_dir = os.path.join(os.environ.get("TEST_DATA", base_dir), "tmp", "run")
 
         self._network_description = etree.parse(open(os.path.join(LOCAL_DIR, "network-cockpit.xml")))
 

@@ -234,9 +234,3 @@ class GitHub(object):
                 result += pulls
                 count = len(pulls)
         return result
-
-    def labels(self, issue):
-        result = [ ]
-        for label in self.get("issues/{0}/labels".format(issue)):
-            result.append(label["name"])
-        return result

@@ -26,8 +26,10 @@ import httplib
 import json
 import os
 import re
+import socket
 import subprocess
 import sys
+import time
 import urlparse
 
 import cache
@@ -104,6 +106,17 @@ def whitelist(filename=WHITELIST):
     # Remove duplicate entries
     return set(whitelist)
 
+class Logger(object):
+    def __init__(self, directory):
+        hostname = socket.gethostname().split(".")[0]
+        month = time.strftime("%Y%m")
+        self.path = os.path.join(directory, "{0}-{1}.log".format(hostname, month))
+
+    # Yes, we open the file each time
+    def write(self, value):
+        with open(self.path, 'a') as f:
+            f.write(value)
+
 class GitHub(object):
     def __init__(self, base=GITHUB_BASE, cacher=None):
         self.url = urlparse.urlparse(base)
@@ -126,6 +139,10 @@ class GitHub(object):
             data = os.environ.get("TEST_DATA",  os.path.expanduser("~/.cache"))
             cacher = cache.Cache(os.path.join(data, "github"))
         self.cache = cacher
+
+        # Create a log for debugging our GitHub access
+        self.log = Logger(self.cache.directory)
+        self.log.write("")
 
     def qualify(self, resource):
         return urlparse.urljoin(self.url.path, resource)
@@ -157,6 +174,13 @@ class GitHub(object):
         heads = { }
         for (header, value) in response.getheaders():
             heads[header.lower()] = value
+        self.log.write('{0} - - [{1}] "{2} {3} HTTP/1.1" {4} -\n'.format(
+            self.url.netloc,
+            time.asctime(),
+            method,
+            resource,
+            response.status
+        ))
         return {
             "status": response.status,
             "reason": response.reason,

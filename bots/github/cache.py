@@ -35,7 +35,7 @@ __all__ = (
 class Cache(object):
     def __init__(self, directory, lag=None):
         self.directory = directory
-        self.prune()
+        self.pruned = False
 
         # Default to zero lag when command on command line
         if lag is None:
@@ -82,6 +82,9 @@ class Cache(object):
             json.dump(contents, fp)
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
         os.rename(temp, path)
+        if not self.pruned:
+            self.pruned = True
+            self.prune()
 
     # Tell the cache that stuff before this time is not "current"
     def mark(self, mtime=None):

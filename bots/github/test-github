@@ -21,12 +21,14 @@
 ADDRESS = ("127.0.0.8", 9898)
 
 import ctypes
+import fnmatch
 import httplib
 import imp
 import json
 import os
 import signal
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -116,6 +118,22 @@ class TestGitHub(unittest.TestCase):
 
         count = api.get("/count")
         self.assertEqual(count, 1)
+
+    def testLog(self):
+        api = github.GitHub("http://127.0.0.8:9898", cacher=cache.Cache(self.temp))
+
+        api.get("/test/user")
+        api.get("/test/user")
+
+        expect = '127.0.0.8:9898 - - * "GET /test/user HTTP/1.1" 200 -\n' + \
+                 '127.0.0.8:9898 - - * "GET /test/user HTTP/1.1" 304 -\n'
+        hostname = socket.gethostname().split(".")[0]
+        month = time.strftime("%Y%m")
+        with open(os.path.join(self.temp, "{0}-{1}.log".format(hostname, month))) as f:
+            log = f.read()
+            match = fnmatch.fnmatch(log, expect)
+        if not match:
+            self.fail("'{0}' did not match '{1}'".format(log, expect))
 
 class TestWhitelist(unittest.TestCase):
     def setUp(self):

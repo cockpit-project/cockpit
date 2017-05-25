@@ -146,16 +146,14 @@ def prioritize(status, title, labels, priority, context):
 
     # Don't start working on "bot" pull requests automatically.
     # The bot triggers them explicitly.
-    elif "bot" in labels:
+    elif "bot" in labels():
         priority = None
         update = None
 
     if priority > 0:
-        if "priority" in labels:
+        if "priority" in labels():
             priority += 2
-        if "needsdesign" in labels:
-            priority -= 2
-        if "blocked" in labels:
+        if "blocked" in labels():
             priority -= 1
 
         # Pull requests where the title starts with WIP get penalized
@@ -217,7 +215,7 @@ def scan_for_pull_tasks(api, update, human, policy):
             statuses = api.statuses(revision)
             for context in branch_contexts[branch]:
                 status = statuses.get(context, { })
-                (priority, changes) = prioritize(status, "", [], 8, context)
+                (priority, changes) = prioritize(status, "", lambda: [], 8, context)
                 if update_status(revision, context, status, changes):
                     results.append((priority, branch, revision, branch, context, None))
 
@@ -225,11 +223,18 @@ def scan_for_pull_tasks(api, update, human, policy):
     for pull in api.pulls():
         title = pull["title"]
         number = pull["number"]
-        labels = api.labels(number)
         revision = pull["head"]["sha"]
         statuses = api.statuses(revision)
         login = pull["head"]["user"]["login"]
         base = pull["base"]["ref"]  # The branch this pull request targets
+
+        def labels():
+            if "labels" not in pull:
+                result = [ ]
+                for label in api.get("issues/{0}/labels".format(number)):
+                    result.append(label["name"])
+                pull["labels"] = result
+            return pull["labels"]
 
         for context in contexts:
             status = statuses.get(context, None)

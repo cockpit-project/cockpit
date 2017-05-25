@@ -901,6 +901,8 @@ class VirtMachine(Machine):
             self.image_file = image = os.path.abspath(image)
         else:
             self.image_file = os.path.join(LOCAL_DIR, "..", "images", image)
+            if not os.path.lexists(self.image_file):
+                self.image_file = os.path.join(LOCAL_DIR, "..", "..", "bots", "images", image)
         (image, extension) = os.path.splitext(os.path.basename(image))
 
         Machine.__init__(self, image=image, **args)

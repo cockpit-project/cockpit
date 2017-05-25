@@ -37,16 +37,7 @@ parser.add_argument('image', help='The image to run')
 args = parser.parse_args()
 
 try:
-    image = args.image
-    if "/" in image:
-        image = os.path.abspath(image)
-    else:
-        image = os.path.join(TEST, "images", image)
-
-    # Be helpful and find image in bots/ if image-prepare hasn't been run
-    if not os.path.lexists(image):
-        image = os.path.join(BOTS, "images", image)
-    machine = testvm.VirtMachine(verbose=args.verbose, image=image)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=args.image)
 
     # Hack to make things easier for users who don't know about kubeconfig
     if args.image == 'openshift':

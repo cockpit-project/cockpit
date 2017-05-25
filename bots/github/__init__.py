@@ -212,14 +212,14 @@ class GitHub(object):
         page = 1
         count = 100
         while count == 100:
-            statuses = self.get("commits/{0}/statuses?page={1}&per_page={2}".format(revision, page, count))
+            data = self.get("commits/{0}/status?page={1}&per_page={2}".format(revision, page, count))
             count = 0
             page += 1
-            if statuses:
-                for status in statuses:
+            if "statuses" in data:
+                for status in data["statuses"]:
                     if status["context"] not in result:
                         result[status["context"]] = status
-                count = len(statuses)
+                count = len(data["statuses"])
         return result
 
     def pulls(self):

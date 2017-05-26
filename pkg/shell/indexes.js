@@ -284,10 +284,15 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         function update_sidebar(machine, state, compiled) {
             function links(component) {
+                var active = (state.component === component.path &&
+                              (!component.hash ||
+                               component.hash === state.hash));
                 return $("<li class='list-group-item'>")
-                    .toggleClass("active", state.component === component.path)
+                    .toggleClass("active", active)
                     .append($("<a>")
-                        .attr("href", index.href({ host: machine.address, component: component.path }))
+                        .attr("href", index.href({ host: machine.address,
+                                                   component: component.path,
+                                                   hash: component.hash }))
                         .append($("<span>").text(component.label)));
             }
 

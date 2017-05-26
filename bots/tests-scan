@@ -172,7 +172,7 @@ def prioritize(status, title, labels, priority, context):
 
     if update:
         if priority <= 0:
-            update["description"] = github.NO_TESTING
+            update = None
         else:
             update["description"] = github.NOT_TESTED
 
@@ -196,8 +196,9 @@ def scan_for_pull_tasks(api, update, human, policy):
             branch_contexts[branch].append(context)
 
     def update_status(revision, context, last, changes):
-        if update and changes and not dict_is_subset(last, changes):
+        if changes:
             changes["context"] = context
+        if update and changes and not dict_is_subset(last, changes):
             response = api.post("statuses/" + revision, changes, accept=[ 422 ]) # 422 Unprocessable Entity
             errors = response.get("errors", None)
             if not errors:

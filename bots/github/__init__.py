@@ -94,7 +94,8 @@ def whitelist(filename=WHITELIST):
 
     # The local file may or may not exist
     try:
-        wh = open(WHITELIST_LOCAL, "r")
+        path = os.path.expanduser(WHITELIST_LOCAL)
+        wh = open(path, "r")
         whitelist += [x.strip() for x in wh.read().split("\n") if x.strip()]
     except IOError as exc:
         if exc.errno != errno.ENOENT:

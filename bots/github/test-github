@@ -119,10 +119,13 @@ class TestGitHub(unittest.TestCase):
 
 class TestWhitelist(unittest.TestCase):
     def setUp(self):
+        self.old_home = os.environ.get("HOME")
         self.temp = tempfile.mkdtemp()
+        os.environ["HOME"] = self.temp
 
     def tearDown(self):
         shutil.rmtree(self.temp)
+        os.environ["HOME"] = self.old_home
 
     def testLoad(self):
         filename = os.path.join(self.temp, "whitelist")

@@ -24,15 +24,24 @@ import subprocess
 import time
 import re
 
-def break_hostkey(m, address):
-    line = "{0} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T".format(address)
-    m.execute("echo '{0}'> /etc/ssh/ssh_known_hosts".format(line))
+def break_hostkey(m, address, filename=None):
+    if not filename:
+        filename = "/etc/ssh/ssh_known_hosts"
 
-def fix_hostkey(m, key=None):
+    m.execute('touch {}'.format(filename))
+
+    line = "{0} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T".format(address)
+    m.execute("echo '{0}'> {1}".format(line, filename))
+
+def fix_hostkey(m, key=None, filename=None):
+    if not filename:
+        filename = "/etc/ssh/ssh_known_hosts"
+
     if not key:
         key = '';
 
-    m.execute("echo '{0}' > /etc/ssh/ssh_known_hosts".format(key))
+    m.execute('touch {}'.format(filename))
+    m.execute("echo '{0}' > {1}".format(key, filename))
 
 def break_bridge(m):
     m.execute("ln -snf /bin/false /usr/local/bin/cockpit-bridge")
@@ -670,9 +679,26 @@ class TestMultiMachine(MachineCase):
         b.wait_present("#troubleshoot-dialog pre")
         b.wait_in_text("#troubleshoot-dialog pre", m2.address)
         b.wait_in_text("#troubleshoot-dialog pre", "ssh-keygen")
+        b.wait_in_text("#troubleshoot-dialog pre", "/etc/ssh/ssh_known_hosts")
         b.click("#troubleshoot-dialog .btn-default")
         b.wait_popdown('troubleshoot-dialog')
         fix_hostkey(m1)
+
+        # Host key path is correct
+        m1.execute("mkdir -p /home/admin/.ssh/")
+        break_hostkey(m1, m2.address, filename="/home/admin/.ssh/known_hosts")
+
+        start_machine_troubleshoot(b, True, True)
+        b.wait_present("#troubleshoot-dialog .btn-default:not([disabled])")
+        b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
+        b.wait_in_text('#troubleshoot-dialog h4', "Incorrect Host Key")
+        b.wait_present("#troubleshoot-dialog pre")
+        b.wait_in_text("#troubleshoot-dialog pre", m2.address)
+        b.wait_in_text("#troubleshoot-dialog pre", "ssh-keygen")
+        b.wait_in_text("#troubleshoot-dialog pre", "/home/admin/.ssh/known_hosts")
+        b.click("#troubleshoot-dialog .btn-default")
+        b.wait_popdown('troubleshoot-dialog')
+        fix_hostkey(m1, filename="/home/admin/.ssh/known_hosts")
 
         # Bad cockpit
         break_bridge(m2)

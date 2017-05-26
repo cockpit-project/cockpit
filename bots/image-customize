@@ -22,7 +22,12 @@ import re
 import sys
 import subprocess
 
-from common import testvm
+BOTS = os.path.abspath(os.path.dirname(__file__))
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
+TEST = os.path.join(BASE, "test")
+os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
+
+from machine import testvm
 
 parser = argparse.ArgumentParser(
         description='Run command inside or install packages into a Cockpit virtual machine',
@@ -40,6 +45,23 @@ parser.add_argument('-u', '--upload', action='append', dest="uploadlist",
                     default=[], help='Upload file/dir to destination file/dir separated by ":" example: -u file.txt:/var/lib')
 parser.add_argument('image', help='The image to use')
 args = parser.parse_args()
+
+# Create the necessary layered image for the build/install
+def prepare_install_image(base_image):
+    if "/" not in base_image:
+        base_image = os.path.join(BOTS, "images", base_image)
+    test_images = os.path.join(TEST, "images")
+    if not os.path.exists(test_images):
+        os.makedirs(test_images)
+    install_image = os.path.join(test_images, os.path.basename(base_image))
+    base_image = os.path.realpath(base_image)
+    qcow2_image = "{0}.qcow2".format(install_image)
+    subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
+        "-o", "backing_file={0},backing_fmt=qcow2".format(base_image), qcow2_image ])
+    if os.path.lexists(install_image):
+        os.unlink(install_image)
+    os.symlink(os.path.basename(qcow2_image), install_image)
+    return install_image
 
 def run_command(machine_instance, commandlist):
     """Run command inside image"""
@@ -86,7 +108,7 @@ def install_packages(machine_instance, packagelist, install_command):
 current_image = args.image
 if args.commandlist or args.packagelist or args.scriptlist or args.uploadlist:
     machine = testvm.VirtMachine(
-        verbose=args.verbose, image=current_image, label="install")
+        verbose=args.verbose, image=prepare_install_image(current_image), label="install")
     machine.start(maintain=True)
     machine.wait_boot()
     try:

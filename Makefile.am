@@ -353,10 +353,9 @@ dist-hook::
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	tar -C $(srcdir) -cf - --exclude='phantomjs*' node_modules/ | tar -C $(distdir) -xf -
-	tar -C $(srcdir) -cf - bower_components/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
-	$(srcdir)/tools/build-copying $(BOWER) > $(distdir)/COPYING.bower
-	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(BOWER) > $(distdir)/tools/debian/copyright
+	$(srcdir)/tools/build-copying $(distdir)/bower_components > $(distdir)/COPYING.bower
+	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir)/bower_components > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' "$(distdir)" "$(distdir)/bower.json" "$(distdir)/.bowerrc"

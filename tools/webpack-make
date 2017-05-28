@@ -33,10 +33,12 @@ if (!ops.args || ops.args.length < 1 || ops.args.length > 2) {
 var srcdir = process.env.SRCDIR;
 var makefile = ops.deps;
 var prefix = "packages";
+var npm = { "dependencies": { } };
 
 if (makefile) {
     prefix = makefile.split("/").slice(-2, -1)[0];
     process.env["ONLYDIR"] = prefix + "/";
+    npm = JSON.parse(fs.readFileSync(path.join(srcdir, "package.json"), "utf8"));
 }
 
 var cwd = process.cwd();
@@ -92,6 +94,11 @@ function generateDeps(makefile, stats) {
         parts.concat(module.fileDependencies || []).forEach(function(part) {
             var input = part.split("?")[0];
             maybePushInput(inputs, po_locations, input);
+
+            /* We distribute licenses, so treat them as inputs */
+            moduleLicenses(input).forEach(function(input) {
+                maybePushInput(inputs, { }, input);
+            });
         });
     });
 
@@ -219,33 +226,59 @@ function generateDeps(makefile, stats) {
     fs.writeFileSync(makefile, data);
 }
 
+function moduleLicenses(input) {
+    var parts = input.split(path.sep);
+    var pos = parts.indexOf("node_modules");
+    if (pos === -1)
+        pos = parts.indexOf("bower_components");
+    var directory, results = [];
+    if (pos !== -1) {
+        directory = parts.slice(0, pos + 2).join(path.sep);
+        fs.readdirSync(directory).forEach(function(name) {
+            if (name.indexOf("COPYING") !== -1 || name.indexOf("LICENSE") !== -1 ||
+                name.indexOf("README.md") !== -1 || name.indexOf("bower.json") !== -1)
+                results.push(path.join(directory, name));
+        });
+    }
+
+    return results;
+}
+
 function maybePushInput(inputs, po_locations, input) {
     var po_location;
 
-    // Don't include node_modules files or external refs
-    if (input.split(path.sep).indexOf("node_modules") === -1 &&
-        input.split(path.sep).indexOf("bower_components") === -1 &&
-        !endsWith(input, '/') &&
-        !endsWith(input, 'manifest.json.in') &&
-        input.indexOf("external ") !== 0 &&
-        input.indexOf("multi ") !== 0) {
-
-        // The latest modified date
-        var stats = fs.statSync(input);
-        if (stats.mtime > latest)
-            latest = stats.mtime;
-
-        // Qualify the input file and add it
-        input = path.relative(cwd, input);
-	if (srcdir && input.indexOf(srcdir) === 0) {
-            po_location = input.substr(srcdir.length+1);
-	    input = "$(srcdir)" + input.substr(srcdir.length);
-        } else
-            po_location = input;
-
-        po_locations[po_location] = true;
-        inputs[input] = true;
+    // Don't include or external refs
+    if (endsWith(input, '/') || endsWith(input, 'manifest.json.in') ||
+        input.indexOf("external ") === 0 || input.indexOf("multi ") === 0) {
+        return;
     }
+
+    // Don't include node devDependencies
+    var parts = input.split(path.sep);
+    var pos = parts.indexOf("node_modules");
+    if (pos !== -1) {
+        deps = npm["dependencies"] || { };
+        have = parts[pos + 1] in deps;
+        if (!have)
+            return;
+    }
+
+    // The latest modified date
+    var stats = fs.statSync(input);
+    if (stats.mtime > latest)
+        latest = stats.mtime;
+
+    // Qualify the input file and add it
+    input = path.relative(cwd, input);
+    if (srcdir && input.indexOf(srcdir) === 0) {
+        po_location = input.substr(srcdir.length+1);
+        input = "$(srcdir)" + input.substr(srcdir.length);
+    } else {
+        po_location = input;
+    }
+
+    po_locations[po_location] = true;
+    inputs[input] = true;
 }
 
 function endsWith(string, suffix) {

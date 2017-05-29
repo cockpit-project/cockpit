@@ -121,6 +121,11 @@ var info = {
             "tuned/dialog.js",
         ],
 
+        "packagekit/updates": [
+            "packagekit/updates.jsx",
+            "packagekit/updates.css",
+        ],
+
         "users/users": [
             "users/local.js",
             "users/users.css",
@@ -182,6 +187,9 @@ var info = {
 
         "ostree/manifest.json",
         "ostree/index.html",
+
+        "packagekit/index.html",
+        "packagekit/manifest.json",
 
         "playground/hammer.gif",
         "playground/manifest.json",

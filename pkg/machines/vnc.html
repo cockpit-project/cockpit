@@ -66,7 +66,7 @@
         "use strict";
 
         /*
-            Unresolved issues when trying to bundle no-vnc js files:
+            Unresolved issues when trying to bundle noVNC js files:
                 - sources are not UMD modules (so no "require()")
                 - the "modules" are dynamically loading their dependencies (via "Util.load_scripts" call) but not consistently - "preload" is still required
                 - the "modules" have to be in "include" subdir as the "Util.load_scripts" expects
@@ -81,7 +81,7 @@
         function UIresize() {
             var containerId = decodeURIComponent(WebUtil.getConfigVar('containerId', ''));
             if (!containerId) {
-                console.error("containerId not found in no-vnc frame params!");
+                console.error("containerId not found in noVNC frame params!");
                 return ;
             }
 

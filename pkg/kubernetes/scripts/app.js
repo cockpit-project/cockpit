@@ -21,8 +21,7 @@
     "use strict";
 
     var angular = require('angular');
-    require('angular-bootstrap/ui-bootstrap.js');
-    require('angular-bootstrap/ui-bootstrap-tpls.js');
+    require('angular-bootstrap-npm/dist/angular-bootstrap.js');
 
     require('./kube-client');
     require('./kube-client-cockpit');

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import { combineReducers } from 'redux';
+import { combineReducers } from 'redux/dist/redux';
 import VMS_CONFIG from "./config.es6";
 import { logDebug } from './helpers.es6';
 

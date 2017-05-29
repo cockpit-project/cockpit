@@ -29,6 +29,7 @@ import shutil
 import subprocess
 import sys
 import time
+import tempfile
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
@@ -58,6 +59,12 @@ class MachineBuilder:
         self.machine = machine
         self.macaddr = None
 
+        # Use a tmp filename
+        self.target_file = self.machine.image_file
+        fp, self.machine.image_file = tempfile.mkstemp(dir=os.path.join(BOTS, "images"),
+                                                       prefix=self.machine.image)
+        os.close(fp)
+
     def bootstrap_system(self):
         assert not self.machine._domain
 
@@ -66,8 +73,6 @@ class MachineBuilder:
 
         bootstrap_script = os.path.join(BOTS, "images", "scripts", "%s.bootstrap" % (self.machine.image, ))
 
-        if os.path.exists(self.machine.image_file):
-            os.unlink(self.machine.image_file)
 
         if os.path.isfile(bootstrap_script):
             subprocess.check_call([ bootstrap_script, self.machine.image_file ])
@@ -184,10 +189,13 @@ class MachineBuilder:
         data_file = os.path.join(data_dir, name)
         shutil.move(partial, data_file)
 
+        # Remove temp image file
+        os.unlink(self.machine.image_file)
+
         # Update the images symlink
-        if os.path.islink(self.machine.image_file):
-            os.unlink(self.machine.image_file)
-        os.symlink(name, self.machine.image_file)
+        if os.path.islink(self.target_file):
+            os.unlink(self.target_file)
+        os.symlink(name, self.target_file)
 
         # Handle alternate TEST_DATA
         image_file = os.path.join(images_dir, name)

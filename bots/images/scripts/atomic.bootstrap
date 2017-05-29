@@ -39,7 +39,7 @@ done
 
 if [ -n "$TEST_DATA" -a -f "$TEST_DATA/$newest" ]; then
     echo Using "$TEST_DATA/$newest"
-    cp "$TEST_DATA/$newest" "$out"
+    cp --remove-destination "$TEST_DATA/$newest" "$out"
 else
 
     # we link to the file so wget can properly detect if we have already downloaded it
@@ -49,7 +49,7 @@ else
 
     if [ "$intermediate" != "$out" ]; then
         wget --no-clobber --directory-prefix=$out_base $base/$newest
-        cp $intermediate $out
+        cp --remove-destination $intermediate $out
     else
         rm -f $out
         wget --directory-prefix=$out_base $base/$newest

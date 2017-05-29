@@ -1185,7 +1185,7 @@ function factory() {
     /* ------------------------------------------------------------------------------------
      * Promises.
      * Based on Q and angular promises, with some jQuery compatibility. See the angular
-     * license in COPYING.bower for license lineage. There are some key differences with
+     * license in COPYING.node for license lineage. There are some key differences with
      * both Q and jQuery.
      *
      *  * Exceptions thrown in handlers are not treated as rejections or failures.

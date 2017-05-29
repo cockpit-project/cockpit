@@ -49,7 +49,7 @@ uninstall-local::
 # General code packages to translate
 TRANSLATE = \
 	pkg/ \
-	bower_components/registry-image-widgets/ \
+	node_modules/registry-image-widgets/ \
 	src/ws/ \
 	$(NULL)
 

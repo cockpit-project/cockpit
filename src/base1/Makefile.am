@@ -32,12 +32,12 @@ dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/pattern
 	$(MIN_CSS_RULE)
 dist/base1/require.js: src/base1/deprecated.js src/base1/require-config.js src/base1/require-loaders.js
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/src/base1/require-config.js $(BOWER)/requirejs/require.js $(srcdir)/src/base1/require-loaders.js > $@.tmp && $(MV) $@.tmp $@
+	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/src/base1/require-config.js $(srcdir)/node_modules/requirejs/require.js $(srcdir)/src/base1/require-loaders.js > $@.tmp && $(MV) $@.tmp $@
 dist/base1/require.min.js: dist/base1/require.js
 	$(MIN_JS_RULE)
 dist/base1/jquery.js:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $(BOWER)/jquery/dist/jquery.js $(BOWER)/bootstrap/dist/js/bootstrap.js $(BOWER)/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
+	cat $(srcdir)/node_modules/jquery/dist/jquery.js $(srcdir)/node_modules/bootstrap/dist/js/bootstrap.js $(srcdir)/node_modules/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
 dist/base1/jquery.min.js: dist/base1/jquery.js
 	$(MIN_JS_RULE)
 dist/base1/cockpit.js: src/base1/cockpit.js
@@ -47,7 +47,7 @@ dist/base1/cockpit.min.js: dist/base1/cockpit.js
 	$(MIN_JS_RULE)
 dist/base1/mustache.js: src/base1/deprecated.js
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/src/base1/deprecated.js $(BOWER)/mustache/mustache.js > $@.tmp && $(MV) $@.tmp $@
+	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/node_modules/mustache/mustache.js > $@.tmp && $(MV) $@.tmp $@
 dist/base1/mustache.min.js: dist/base1/mustache.js
 	$(MIN_JS_RULE)
 dist/base1/manifest.json: src/base1/manifest.json
@@ -70,26 +70,26 @@ dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
 # Modify the patternfly files appropriately
 dist/base1/patternfly-base.css: dist/base1/patternfly.css.map
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	sed -f $(srcdir)/tools/patternfly.sed $(BOWER)/patternfly/dist/css/patternfly.css > $@.tmp && $(MV) $@.tmp $@
+	sed -f $(srcdir)/tools/patternfly.sed $(srcdir)/node_modules/patternfly/dist/css/patternfly.css > $@.tmp && $(MV) $@.tmp $@
 dist/base1/patternfly.css.map:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp $(BOWER)/patternfly/dist/css/patternfly.css.map $@.tmp && $(MV) $@.tmp $@
+	cp $(srcdir)/node_modules/patternfly/dist/css/patternfly.css.map $@.tmp && $(MV) $@.tmp $@
 dist/base1/patternfly-additions.css: dist/base1/patternfly-additions.css.map
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	sed -f $(srcdir)/tools/patternfly.sed $(BOWER)/patternfly/dist/css/patternfly-additions.css > $@.tmp && $(MV) $@.tmp $@
+	sed -f $(srcdir)/tools/patternfly.sed $(srcdir)/node_modules/patternfly/dist/css/patternfly-additions.css > $@.tmp && $(MV) $@.tmp $@
 dist/base1/patternfly-additions.css.map:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp $(BOWER)/patternfly/dist/css/patternfly-additions.css.map $@.tmp && $(MV) $@.tmp $@
+	cp $(srcdir)/node_modules/patternfly/dist/css/patternfly-additions.css.map $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/fonts/fontawesome.woff:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp $(BOWER)/patternfly/dist/fonts/fontawesome-webfont.woff $@.tmp && $(MV) $@.tmp $@
+	cp $(srcdir)/node_modules/patternfly/dist/fonts/fontawesome-webfont.woff $@.tmp && $(MV) $@.tmp $@
 dist/base1/fonts/glyphicons.woff:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp $(BOWER)/patternfly/dist/fonts/glyphicons-halflings-regular.woff $@.tmp && $(MV) $@.tmp $@
+	cp $(srcdir)/node_modules/patternfly/dist/fonts/glyphicons-halflings-regular.woff $@.tmp && $(MV) $@.tmp $@
 dist/base1/fonts/patternfly.woff:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp $(BOWER)/patternfly/dist/fonts/PatternFlyIcons-webfont.woff $@.tmp && $(MV) $@.tmp $@
+	cp $(srcdir)/node_modules/patternfly/dist/fonts/PatternFlyIcons-webfont.woff $@.tmp && $(MV) $@.tmp $@
 
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
@@ -140,13 +140,13 @@ base_QUNIT_DEPS = \
 
 dist/base1/qunit.js:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cat $(BOWER)/qunit/qunit/qunit.js \
-	    $(BOWER)/qunit-tap/lib/qunit-tap.js \
+	cat $(srcdir)/node_modules/qunitjs/qunit/qunit.js \
+	    $(srcdir)/node_modules/qunit-tap/lib/qunit-tap.js \
             $(srcdir)/pkg/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/qunit.css:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp $(BOWER)/qunit/qunit/qunit.css $@.tmp && $(MV) $@.tmp $@
+	cp $(srcdir)/node_modules/qunitjs/qunit/qunit.css $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/test-dbus-common.js: src/base1/test-dbus-common.js
 	$(JSHINT_RULE)

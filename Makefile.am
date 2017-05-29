@@ -33,8 +33,6 @@ DISTCLEANFILES = \
 	$(NULL)
 
 EXTRA_DIST = \
-	.bowerrc \
-	bower.json \
 	package.json \
 	README.md \
 	$(NULL)
@@ -305,7 +303,7 @@ OPENSANS_FONTS = \
 
 dist/fonts/%.woff:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp -L $(subst dist/fonts,$(BOWER)/patternfly/dist/fonts,$@) $@.tmp && $(MV) $@.tmp $@
+	cp -L $(subst dist/fonts,$(srcdir)/node_modules/patternfly/dist/fonts,$@) $@.tmp && $(MV) $@.tmp $@
 
 EXTRA_DIST += $(OPENSANS_FONTS)
 
@@ -347,19 +345,19 @@ COMMITTED_DIST = \
 	test/ \
 	$(NULL)
 
-# Build up the distribution using $COMMITTED_DIST and include node_modules and bower licenses
+# Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file
 dist-hook::
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
-	tar -C $(srcdir) -cf - --exclude='phantomjs*' node_modules/ | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
-	$(srcdir)/tools/build-copying $(distdir)/bower_components > $(distdir)/COPYING.bower
-	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir)/bower_components > $(distdir)/tools/debian/copyright
+	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
+	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir)/node_modules > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
-DIST_TAR_MAIN = tar --format=posix -cf - --exclude='node_modules' "$(distdir)" "$(distdir)/bower.json" "$(distdir)/.bowerrc"
-DIST_TAR_CACHE = tar --format=posix -cf - "$(distdir)/node_modules" "$(distdir)/package.json"
+DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"
+DIST_TAR_CACHE = tar --format=posix -cf - --exclude='phantomjs*' --transform="s/^/$(distdir)/" \
+	"$(srcdir)/node_modules" "$(srcdir)/package.json"
 
 DIST_ARCHIVES = \
 	cockpit-$(VERSION).tar.xz \
@@ -382,8 +380,6 @@ install-integration-tests::
 	( cd $(srcdir); git ls-tree HEAD --full-tree --name-only -r test || echo test ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(DESTDIR)$(pkgdatadir) -xf -
 	rm -r $(DESTDIR)$(pkgdatadir)/test/tmp; ln -sf /var/tmp/cockpit $(DESTDIR)$(pkgdatadir)/test/tmp
-
-BOWER = $(srcdir)/bower_components
 
 include po/Makefile.am
 include pkg/Makefile.am

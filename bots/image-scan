@@ -223,10 +223,11 @@ def scan(api, update, verbose):
 
     policy = DEFAULT_REFRESH
 
-    # Check if we have access to Red Hat network
+    # Check if we have access to Red Hat network and some subscription creds
     try:
         urllib.urlopen(REDHAT_PING).read()
-        policy.update(REDHAT_REFRESH)
+        if os.path.exists(os.path.expanduser("~/.rhel/login")):
+            policy.update(REDHAT_REFRESH)
     except IOError:
         pass
 

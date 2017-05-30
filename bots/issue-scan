@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+PRIORITY = 10
+
+NAMES = [
+    "po-refresh",
+]
+
+import argparse
+import pipes
+import os
+import sys
+
+sys.dont_write_bytecode = True
+
+import github
+import sink
+
+BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__)))
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
+
+def main():
+    parser = argparse.ArgumentParser(description="Scan issues for tasks")
+    parser.add_argument("-v", "--human-readable", "--verbose", action="store_true", default=False,
+         dest="verbose", help="Print verbose information")
+    opts = parser.parse_args()
+
+    for result in scan(opts.verbose):
+        sys.stdout.write(result + "\n")
+    return 0
+
+# Map all checkable work items to fixtures
+def tasks_for_issues():
+    results = [ ]
+    for issue in github.GitHub().issues(state="open"):
+        if not issue["title"].strip().startswith("WIP"):
+            checklist = github.Checklist(issue["body"])
+            for item, checked in checklist.items.items():
+                if not checked:
+                    results.append((item, issue))
+    return results
+
+def output_task(command, issue, verbose):
+    name, unused, context = command.partition(" ")
+    if name not in NAMES:
+        return None
+    number = issue.get("number", None)
+    if number is None:
+        return None
+
+    context = context.strip()
+
+    if verbose:
+        return "issue-{issue} {name} {context}    {priority}".format(
+            issue=int(number),
+            priority=PRIORITY,
+            name=name,
+            context=context
+        )
+    else:
+        if context:
+            context = pipes.quote(context)
+        return "PRIORITY={priority:04d} bots/{name} --issue='{issue}' {context}".format(
+            issue=int(number),
+            priority=PRIORITY,
+            name=name,
+            context=context
+        )
+
+# Default scan behavior run for each task
+def scan(verbose):
+    global issues
+
+    results = [ ]
+
+    # Now go through each fixture
+    for (command, issue) in tasks_for_issues():
+        result = output_task(command, issue, verbose)
+        if result is not None:
+            results.append(result)
+
+    return results
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -36,6 +36,7 @@ import cache
 
 __all__ = (
     'GitHub',
+    'Checklist',
     'whitelist',
     'TESTING',
     'NO_TESTING',
@@ -276,3 +277,58 @@ class GitHub(object):
                 result += pulls
                 count = len(pulls)
         return result
+
+    def issues(self, labels=[ "bot" ], state="open"):
+        result = [ ]
+        page = 1
+        count = 100
+        opened = True
+        label = ",".join(labels)
+        while count == 100 and opened:
+            req = "issues?labels={0}&state={1}&page={2}&per_page={3}".format(label, state, page, count)
+            issues = self.get(req)
+            count = 0
+            page += 1
+            opened = False
+            for issue in issues:
+                if issue["state"] == "open":
+                    opened = True
+                count += 1
+                result.append(issue)
+        return result
+
+class Checklist(object):
+    def __init__(self, body):
+        self.process(body)
+
+    def process(self, body, items={ }):
+        self.items = { }
+        lines = [ ]
+        items = items.copy()
+        for line in body.splitlines():
+            item = None
+            checked = False
+            stripped = line.strip()
+            if stripped.startswith("* [ ] "):
+                item = stripped[6:].strip()
+                checked = False
+            elif stripped.startswith("* [x] "):
+                item = stripped[6:].strip()
+                checked = True
+            if item:
+                if item in items:
+                    checked = items[item]
+                    del items[item]
+                line = " * [{0}] {1}".format(checked and "x" or " ", item)
+                self.items[item] = checked
+            lines.append(line)
+        for item, checked in items.items():
+            line = " * [{0}] {1}".format(checked and "x" or " ", item)
+            lines.append(line)
+        self.body = "\n".join(lines)
+
+    def check(self, item, checked=True):
+        self.process(self.body, { item: checked })
+
+    def add(self, item):
+        self.process(self.body, { item: False })

@@ -651,6 +651,9 @@ check_host_key_values (TestCase *tc,
                    ==, knownhosts);
   g_assert_cmpstr (json_object_get_string_member (init, "host-fingerprint"),
                    ==, MOCK_RSA_FP);
+
+  g_assert (json_object_has_member (init, "invalid-hostkey-file") == FALSE);
+
   g_free (knownhosts);
 }
 
@@ -725,11 +728,35 @@ static const TestFixture fixture_authorize_host_key = {
   .ssh_command = BUILDDIR "/mock-echo"
 };
 
+static const TestFixture fixture_host_key_invalid = {
+  .knownhosts_data = NULL,
+  .knownhosts_file = SRCDIR "/src/ssh/invalid_known_hosts",
+};
+
 static const TestFixture fixture_prompt_host_key = {
   .knownhosts_file = "/dev/null",
   .allow_unknown = TRUE,
   .ssh_command = BUILDDIR "/mock-echo"
 };
+
+static void
+test_invalid_knownhost (TestCase *tc,
+                        gconstpointer data)
+{
+  const TestFixture *fix = data;
+  JsonObject *init = NULL;
+
+  g_assert_cmpstr (fix->knownhosts_data, ==, NULL);
+  g_assert_cmpstr (fix->knownhosts_file, ==, SRCDIR "/src/ssh/invalid_known_hosts");
+  do_auth_response (tc->transport, "*", "");
+
+  init = wait_until_transport_init (tc->transport, "invalid-hostkey");
+
+  g_assert_cmpstr (json_object_get_string_member (init, "invalid-hostkey-file"),
+                   ==, fix->knownhosts_file);
+
+  json_object_unref (init);
+}
 
 static void
 test_knownhost_data_prompt_blank (TestCase *tc,
@@ -1341,6 +1368,8 @@ main (int argc,
               setup, test_knownhost_data_prompt, teardown);
   g_test_add ("/ssh-bridge/knownhost-authorize-blank", TestCase, &fixture_authorize_host_key,
               setup, test_knownhost_data_prompt_blank, teardown);
+  g_test_add ("/ssh-bridge/knownhost-invalid", TestCase, &fixture_host_key_invalid,
+              setup, test_invalid_knownhost, teardown);
   g_test_add ("/ssh-bridge/knownhost-authorize-bad", TestCase, &fixture_authorize_host_key,
               setup, test_knownhost_data_prompt_bad, teardown);
   g_test_add ("/ssh-bridge/hostkey-unknown", TestCase, &fixture_prompt_host_key,

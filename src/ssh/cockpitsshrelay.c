@@ -1180,6 +1180,13 @@ send_auth_reply (CockpitSshData *data,
   if (data->host_fingerprint)
     json_object_set_string_member (object, "host-fingerprint", data->host_fingerprint);
 
+  if (g_strcmp0 (problem, "invalid-hostkey") == 0 &&
+      tmp_knownhost_file == NULL)
+    {
+      json_object_set_string_member (object, "invalid-hostkey-file",
+                                     data->ssh_options->knownhosts_file);
+    }
+
   json_object_set_string_member (object, "problem", problem);
   json_object_set_string_member (object, "error", problem);
 

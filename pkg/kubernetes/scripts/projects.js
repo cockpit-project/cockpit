@@ -425,7 +425,10 @@
                     name: sharedGroup,
                 };
                 if (accessPolicy === "anonymous") {
-                    return policy.addToRole(project, sharedRole, anonSubject);
+                    return policy.addToRole(project, sharedRole, anonSubject)
+                        .then(function() {
+                            return policy.addToRole(project, sharedRole, sharedSubject);
+                        });
                 } else if (accessPolicy === "shared") {
                     return policy.removeFromRole(project, sharedRole, anonSubject)
                         .then(function() {

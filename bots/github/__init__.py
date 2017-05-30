@@ -262,3 +262,22 @@ class GitHub(object):
                 result += pulls
                 count = len(pulls)
         return result
+
+    def issues(self, labels=[ "bot" ], state="all"):
+        result = [ ]
+        page = 1
+        count = 100
+        opened = True
+        label = ",".join(labels)
+        while count == 100 and opened:
+            req = "issues?labels={0}&state={1}&page={2}&per_page={3}".format(label, state, page, count)
+            issues = self.get(req)
+            count = 0
+            page += 1
+            opened = False
+            for issue in issues:
+                if issue["state"] == "open":
+                    opened = True
+                count += 1
+                result.append(issue)
+        return result

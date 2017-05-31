@@ -412,6 +412,8 @@ send_login_html (CockpitWebResponse *response,
     {
       /* The login Content-Security-Policy allows the page to have inline <script> and <style> tags. */
       cockpit_web_response_headers (response, 200, "OK", -1,
+                                    "Content-Type",
+                                    "text/html",
                                     "Content-Security-Policy",
                                     "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
                                     NULL);

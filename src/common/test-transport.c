@@ -33,6 +33,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/uio.h>
 
 #define WAIT_UNTIL(cond) \
   G_STMT_START \

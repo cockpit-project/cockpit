@@ -24,6 +24,8 @@
 import argparse
 import os
 import random
+import re
+import shlex
 import socket
 import subprocess
 import sys
@@ -46,7 +48,8 @@ api = github.GitHub()
 issues = None
 verbose = False
 
-BASE = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
+BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
 
 #
 # The main function takes a list of tasks, each of wihch has the following
@@ -71,37 +74,39 @@ BASE = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 # Call the task.main() as the entry point of your script in one of these ways:
 #
 #   # As a single task
-#   task.main(title="My title", days=5, options=[ "image" ], function=run)
+#   task.main(title="My title", days=5, function=run, fixtures=[ "image/one", "image/two" ])
 #
 #   # As a single task in a dict
-#   task.main({ "title": "My title", "days": 5, "function": run, "options": [ "image" ] })
+#   task.main({ "title": "My title", "days": 5, "function": run })
 #
 #   # With a list of tasks
-#   task.main([ { "title": "My title", "days": 5 }, { "title": "Second task", "days": 3 } ])
+#   task.main({ "title": "My title", "days": 5 }, [ "image/one", "image/two" ])
 #
 
-def main(*args, **kwargs):
+def main(name=None, fixtures=[ () ], **kwargs):
     global verbose
 
     # Called with a task as named arguments
-    if len(args) == 0 and len(kwargs) > 0:
-        tasks = [ kwargs ]
-    elif len(args) == 1 and len(kwargs) == 0:
-        # A single task was passed in
-        if not hasattr(tasks, "__iter__"):
-            tasks = [ args[0] ]
-        # A list of tasks was passed in
-        else:
-            tasks = args[0]
+    if len(kwargs) > 0:
+        if name:
+            kwargs["name"] = name
+        task = kwargs
+    elif name is not None and len(kwargs) == 0:
+        task = name
     else:
         assert False, "Invalid parameters to task.main()"
 
-    # Figure out a descriptoin for the --help
-    description = os.path.basename(sys.argv[0])
-    if len(tasks):
-        description = tasks[0].get("description", description)
+    # Turn each fixture into a tuple if not already
+    for index in range(0, len(fixtures)):
+        fixture = fixtures[index]
+        if not isinstance(fixture, (list, tuple)):
+            fixtures[index] = ( fixture, )
 
-    parser = argparse.ArgumentParser(description=description)
+    # Figure out a descriptoin for the --help
+    if "name" not in task:
+        task["name"] = os.path.basename(os.path.realpath(sys.argv[0]))
+
+    parser = argparse.ArgumentParser(description=task.get("title", task["name"]))
 
     # Scan argumenst
     subparsers = parser.add_subparsers(help="sub-command help")
@@ -117,7 +122,7 @@ def main(*args, **kwargs):
         help="Act on an already created task issue")
     runner.add_argument("--publish", dest="publish", default=os.environ.get("TEST_PUBLISH", ""),
         action="store", help="Publish results centrally to a sink")
-    runner.add_argument("options", nargs="*")
+    runner.add_argument("fixture", nargs="*")
     runner.set_defaults(mode="run")
 
     # Choose either scan or run as a default
@@ -132,90 +137,128 @@ def main(*args, **kwargs):
     results = [ ]
     ret = 0
 
-    for task in tasks:
-        task["verbose"] = opts.verbose or task.get("verbose", False)
-        task["name"] = task.get("name", os.path.basename(sys.argv[0]))
-        if opts.mode == "scan":
-            result = scan(**task)
-            if result is not None:
-                results.append(result)
-        else:
-            if opts.options == task.get("options", [ ]):
-                task["publish"] = opts.publish
-                task["issue"] = opts.issue
-                ret = run(**task)
-                if ret:
-                    break
+    if "priority" not in task:
+        task["priority"] = 5
+    if "verbose" not in task:
+        task["verbose"] = opts.verbose
+
+    if opts.mode == "scan":
+        results = scan(task, fixtures)
+    else:
+        task["issue"] = opts.issue
+        task["publish"] = opts.publish
+        if opts.fixture:
+            fixtures = [ opts.fixture ]
+        ret = run(task, fixtures)
 
     for result in results:
         if result:
             sys.stdout.write(result + "\n")
     if ret:
-        name = os.path.basename(sys.argv[0])
-        sys.stderr.write("{0}: {1}\n".format(name, ret))
+        sys.stderr.write("{0}: {1}\n".format(task["name"], ret))
 
     sys.exit(ret and 1 or 0)
 
-# Default scan behavior run for each task
-def scan(tasks):
+# Find all checkable work items on bot issues
+def issues_with_tasks():
     global issues
 
     # A GitHub bullet point in the body
-    line = "\n \* \[([ x])\] (.+) (:[^:]+)?"
+    line = "\n \* \[([ x])\] (.+)"
 
-    matches = [ ]
+    # Go through all GitHub issues and track down items
+    items = [ ]
     if issues is None:
         issues = api.issues()
     for issue in issues:
         for match in re.findall(line, issue["body"]):
-            matches.push((issue, match[0], match[1]))
+            items.append((issue, match[0].strip(), shlex.split(match[1])))
 
-    for (issue, match) in matches:
-        for task in tasks:
-            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    return items
+
+# Map all checkable work items to fixtures
+def issues_for_fixtures(task, fixtures):
+    # Map them to issues
+    mapped = [ ]
+    for (issue, checked, command) in issues_with_tasks():
+        if command[0] == task["name"]:
+            for index in range(0, len(fixtures)):
+                if tuple(fixtures[index]) == tuple(command[1:]):
+                    mapped.append((issue, done, fixtures[index]))
+                    del fixtures[index]
+                    break
+            else:
+                mapped.append((issue, done, command[1:]))
+    for fixture in fixtures:
+        mapped.append(({ }, False, fixture))
+    return mapped
+
+def output_task_fixture(task, issue, checked, fixture):
     state = issue.get("state", "invalid")
 
-    # If we we have the "In progress" message in the last line
+    # If the issue is in progress, then don't do anything
     if state == "open":
-        if poending in issue["body"]:
-            issue = None
+        xxxx place negotiation xxxx
+        WIP: xxxxyyyy
+        if issue["title"].startswith("WIP:"):
+            issue = { }
 
     # See if we should create a new message
     else:
+        assert False
         when = 0
-        if "created_at" in issue:
-            when = time.mktime(time.strptime(issue["created_at"], "%Y-%m-%dT%H:%M:%SZ"))
+        if "updated_at" in issue:
+            when = time.mktime(time.strptime(issue["updated_at"], "%Y-%m-%dT%H:%M:%SZ"))
         # We randomize when we think this should happen over a day
         now = time.time() + random.randint(-43200, 43200)
         # Create issue for this task
         if when < now:
-            body = kwargs.get("body", title)
+            title = task["title"]
+            command = " ".join([ task["name"] ] + list(fixture))
+            body = "{0}\n * [ ] {1}".format(task.get("body", title), command)
             issue = api.post(resource="issues", data={
                 "title": title,
                 "labels": [ "bot" ],
                 "body": body
-            })
+        })
 
     number = issue.get("number", None)
     if number is None:
         return None
 
-    cmd = os.path.realpath(sys.argv[0])
+    bot = os.path.abspath(os.path.join(BOTS, task["name"]))
+    base = os.path.abspath(BASE)
+    args = " ".join([ pipes.quote(arg) for arg in fixture ])
+    command = os.path.relpath(bot, base)
 
-    if kwargs.get("verbose", False):
-        return "issue-{issue} {cmd}     {priority}".format(
+    if verbose:
+        return "issue-{issue} {command} {args}    {priority}".format(
             issue=int(number),
-            priority=int(priority),
-            cmd=os.path.basename(cmd)
+            priority=int(task["priority"]),
+            cmd=command,
+            args=args
         )
     else:
-        base = os.path.abspath(BASE)
-        relpath = os.path.relpath(cmd, base)
-        return "PRIORITY={priority:04d} {cmd} --issue='{issue}'".format(
+        return "PRIORITY={priority:04d} {command} --issue='{issue}' {args}".format(
             issue=int(number),
-            priority=int(priority),
-            cmd=relpath
+            priority=int(task["priority"]),
+            command=command,
+            args=args
         )
+
+# Default scan behavior run for each task
+def scan(task, fixtures):
+    global issues
+
+    results = [ ]
+
+    # Now go through each fixture
+    for (issue, checked, fixture) in issues_for_fixtures(task, fixtures):
+        result = output_task_fixture(task, issue, checked, fixture)
+        if result is not None:
+            results.append(result)
+
+    return results
 
 def begin(name, title, publish, issue):
     if not publish:
@@ -296,18 +339,21 @@ def finish(publishing, ret, issue):
     publishing.status['github']['requests'] = requests
     publishing.flush()
 
-def run(function, options=[], publish="", issue=None, **kwargs):
-    publishing = begin(kwargs["name"], kwargs["title"], publish, issue=issue)
-    ret = "Task threw an exception"
-    try:
-        ret = function(*options, **kwargs)
-    except (RuntimeError, subprocess.CalledProcessError), ex:
-        ret = str(ex)
-    except:
-        traceback.print_exc(file=sys.stderr)
-    finally:
-        finish(publishing, ret, issue)
-    return ret
+def run(task, fixtures):
+    for fixture in fixtures:
+        publishing = begin(kwargs["name"], kwargs["title"], publish, issue=issue)
+        ret = "Task threw an exception"
+        try:
+            ret = function(*fixture, **kwargs)
+        except (RuntimeError, subprocess.CalledProcessError), ex:
+            ret = str(ex)
+        except:
+            traceback.print_exc(file=sys.stderr)
+        finally:
+            finish(publishing, ret, issue)
+        if ret:
+            return ret
+    return 0
 
 def pull(branch, message, issue=None, pathspec="."):
     global verbose

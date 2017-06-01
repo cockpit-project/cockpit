@@ -46,7 +46,6 @@ api = github.GitHub()
 issues = None
 verbose = False
 
-PROGRESS = " * [x] Processing"
 BASE = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 #
@@ -158,21 +157,27 @@ def main(*args, **kwargs):
     sys.exit(ret and 1 or 0)
 
 # Default scan behavior run for each task
-def scan(name, title, days=7, priority=5, **kwargs):
+def scan(tasks):
     global issues
+
+    # A GitHub bullet point in the body
+    line = "\n \* \[([ x])\] (.+) (:[^:]+)?"
+
+    matches = [ ]
     if issues is None:
         issues = api.issues()
     for issue in issues:
-        if issue.get("title", None) == title:
-            break
-    else:
-        issue = { }
+        for match in re.findall(line, issue["body"]):
+            matches.push((issue, match[0], match[1]))
 
+    for (issue, match) in matches:
+        for task in tasks:
+            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     state = issue.get("state", "invalid")
 
     # If we we have the "In progress" message in the last line
     if state == "open":
-        if PROGRESS in issue["body"]:
+        if poending in issue["body"]:
             issue = None
 
     # See if we should create a new message

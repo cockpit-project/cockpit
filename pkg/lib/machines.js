@@ -412,6 +412,9 @@
         /* hostnamed proxies to each machine, if hostnamed available */
         var proxies = { };
 
+        /* clients for the bridge D-Bus API */
+        var bridge_dbus = { };
+
         function process_session_key(key, value) {
             var host, values, machine;
             var parts = key.split("/");
@@ -570,6 +573,30 @@
                     });
             }
 
+            /* Try to get change notifications via the internal
+               /packages D-Bus interface of the bridge.  Not all
+               bridges support this API, so we still get the first
+               version of the manifests via HTTP in request_manifest.
+            */
+
+            function watch_manifests() {
+                var dbus = cockpit.dbus(null, { bus: "internal",
+                                                host: machine.connection_string
+                                              });
+                bridge_dbus[host] = dbus;
+                dbus.subscribe({ path: "/packages",
+                                 interface: "org.freedesktop.DBus.Properties",
+                                 member: "PropertiesChanged" },
+                               function (path, iface, mamber, args) {
+                                   if (args[0] == "cockpit.Packages") {
+                                       if (args[1]["Manifests"]) {
+                                           var manifests = JSON.parse(args[1]["Manifests"].v);
+                                           machines.overlay(host, { manifests: manifests });
+                                       }
+                                   }
+                               });
+            }
+
             function request_hostname() {
                 if (!machine.static_hostname) {
                     var proxy = cockpit.dbus("org.freedesktop.hostname1",
@@ -593,6 +620,7 @@
                         open = true;
                         if (url)
                             request_manifest();
+                        watch_manifests();
                         request_hostname();
                         whirl();
                     })
@@ -611,8 +639,10 @@
                     }
                     self.disconnect(host);
                 });
-            } else if (url) {
-                request_manifest();
+            } else {
+                if (url)
+                    request_manifest();
+                watch_manifests();
                 request_hostname();
             }
 
@@ -636,6 +666,12 @@
             if (proxy) {
                 proxy.client.close();
                 $(proxy).off();
+            }
+
+            var dbus = bridge_dbus[host];
+            delete bridge_dbus[host];
+            if (dbus) {
+                dbus.close();
             }
         };
 

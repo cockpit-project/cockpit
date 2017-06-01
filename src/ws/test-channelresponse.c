@@ -443,11 +443,6 @@ static const TestResourceFixture checksum_fixture = {
   .xdg_data_home = "/nonexistant"
 };
 
-static const TestResourceFixture checksum_path_fixture = {
-  .xdg_data_home = "/nonexistant",
-  .org_path = TRUE
-};
-
 
 static void
 request_checksum (TestResourceCase *tc)
@@ -518,75 +513,6 @@ test_resource_checksum (TestResourceCase *tc,
                            "These are the contents of file.ext\nOh marmalaaade\n"
                            "\r\n"
                            "0\r\n\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
-test_resource_redirect_checksum (TestResourceCase *tc,
-                                 gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GInputStream *input;
-  GOutputStream *output;
-  GIOStream *io;
-  GError *error = NULL;
-  GBytes *bytes;
-  const TestResourceFixture *fix = data;
-  const gchar *expected;
-  /* We require that no user packages are loaded, so we have a checksum */
-  g_assert (fix->xdg_data_home != NULL);
-
-
-  input = g_memory_input_stream_new_from_data ("", 0, NULL);
-  output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-  io = mock_io_stream_new (input, output);
-  g_object_unref (input);
-
-  /* Start the connection up, and poke it a bit */
-  response = cockpit_web_response_new (io, "/", "/", NULL, NULL);
-  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/test/sub/file.ext");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_object_unref (io);
-  g_object_unref (output);
-  g_object_unref (response);
-
-  /* Now do the real request ... we should be redirected */
-  response = cockpit_web_response_new (tc->io,
-                                       fix->org_path ? "/path/unused" : "/unused",
-                                       "/unused", NULL, NULL);
-  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/test/sub/file.ext");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  if (fix->org_path)
-    {
-      expected = "HTTP/1.1 307 Temporary Redirect\r\n"
-                 "Content-Type: text/html\r\n"
-                 "Location: /path/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext\r\n"
-                 "Content-Length: 91\r\n"
-                 "\r\n"
-                 "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>";
-    }
-  else
-    {
-      expected = "HTTP/1.1 307 Temporary Redirect\r\n"
-                 "Content-Type: text/html\r\n"
-                 "Location: /cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext\r\n"
-                 "Content-Length: 91\r\n"
-                 "\r\n"
-                 "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>";
-    }
-
-  cockpit_assert_bytes_eq (bytes, expected, -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -975,10 +901,6 @@ main (int argc,
               setup_resource, test_resource_failure, teardown_resource);
   g_test_add ("/web-channel/resource/checksum", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_checksum, teardown_resource);
-  g_test_add ("/web-channel/resource/redirect-checksum", TestResourceCase, &checksum_fixture,
-              setup_resource, test_resource_redirect_checksum, teardown_resource);
-  g_test_add ("/web-channel/resource/redirect-path-checksum", TestResourceCase, &checksum_path_fixture,
-              setup_resource, test_resource_redirect_checksum, teardown_resource);
   g_test_add ("/web-channel/resource/not-modified", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_not_modified, teardown_resource);
   g_test_add ("/web-channel/resource/not-modified-new-language", TestResourceCase, &checksum_fixture,

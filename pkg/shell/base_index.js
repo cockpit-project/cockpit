@@ -28,6 +28,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
     var _ = cockpit.gettext;
 
+    function component_checksum(machine, component) {
+        var parts = component.split("/");
+        var pkg = parts[0];
+        if (machine.manifests && machine.manifests[pkg] && machine.manifests[pkg][".checksum"])
+            return "$" + machine.manifests[pkg][".checksum"];
+    }
+
     function Frames(index) {
         var self = this;
 
@@ -140,14 +147,31 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 frame.style.display = "none";
 
                 var base, checksum;
-                if (machine)
-                    checksum = machine.checksum;
-                if (host === "localhost")
-                    base = "..";
-                else if (checksum)
-                    base = "../../" + checksum;
-                else
+                if (machine) {
+                    if (machine.manifests && machine.manifests[".checksum"])
+                        checksum = "$" + machine.manifests[".checksum"];
+                    else
+                        checksum = machine.checksum;
+                }
+
+                if (checksum && checksum == component_checksum(machine, component)) {
+                     if (host === "localhost")
+                         base = "..";
+                    else
+                        base = "../../" + checksum;
+                } else {
+                    /* If we don't have any checksums, or if the component specifies a different
+                       checksum than the machine, load it via a non-caching @<host> path.  This
+                       makes sure that we get the right files, and also that we don't poisen the
+                       cache with wrong files.
+
+                       We can't use a $<component-checksum> path since cockpit-ws only knows how to
+                       route the machine checksum.
+
+                       TODO - make it possible to use $<component-checksum>.
+                    */
                     base = "../../@" + host;
+                }
 
                 frame.url = base + "/" + component;
                 if (component.indexOf("/") === -1)

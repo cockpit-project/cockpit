@@ -263,7 +263,7 @@ class GitHub(object):
                 count = len(pulls)
         return result
 
-    def issues(self, labels=[ "bot" ], state="all"):
+    def issues(self, labels=[ "bot" ], state="open"):
         result = [ ]
         page = 1
         count = 100
@@ -281,3 +281,38 @@ class GitHub(object):
                 count += 1
                 result.append(issue)
         return result
+
+class Checklist(object):
+    def __init__(self, body):
+        self.process(body)
+
+    def process(self, body, items={ }):
+        self.items = { }
+        lines = [ ]
+        items = items.copy()
+        for line in body.splitlines():
+            item = None
+            checked = False
+            if line.startswith(" * [ ] "):
+                item = line[7:].strip()
+                checked = False
+            elif line.startswith(" * [x] "):
+                item = line[7:].strip()
+                checked = True
+            if item:
+                if item in items:
+                    checked = items[item]
+                    del items[item]
+                line = " * [{0}] {1}".format(checked and "x" or " ", item)
+                self.items[item] = checked
+            lines.append(line)
+        for item, checked in items.items():
+            line = " * [{0}] {1}".format(checked and "x" or " ", item)
+            lines.append(line)
+        self.body = "\n".join(lines)
+
+    def check(self, item, checked):
+        self.process(self, self.body, { item: checked })
+
+    def add(self, item):
+        self.process(self, self.body, { item: False })

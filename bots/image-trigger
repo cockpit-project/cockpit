@@ -18,9 +18,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-IMAGE_REFRESH = 7
+DAYS = 7
 
-DEFAULT_REFRESH = {
+REFRESH = {
     "centos-7": { },
     "continuous-atomic": { },
     "debian-testing": { },
@@ -33,17 +33,10 @@ DEFAULT_REFRESH = {
     "ubuntu-1604": { },
     "ubuntu-stable": { },
     "openshift": { "refresh-days": 30 },
-    "ipa": { "refresh-days": 120 }
-}
-
-
-REDHAT_REFRESH = {
+    "ipa": { "refresh-days": 120 },
     'rhel-7': { },
     'rhel-atomic': { }
 }
-
-# Server to tell us if we can create Red Hat images
-REDHAT_PING = "http://file.rdu.redhat.com"
 
 import argparse
 import os
@@ -57,20 +50,20 @@ import urllib
 sys.dont_write_bytecode = True
 
 import github
+import task
 
 def main():
-    parser = argparse.ArgumentParser(description='Bot: scan for images that need updating')
-    parser.add_argument('-d', '--dry', action="store_true", default=False,
-                        help='Don''t actually change anything on GitHub')
-    parser.add_argument('-v', '--human-readable', '--verbose', action="store_true", default=False,
+    parser = argparse.ArgumentParser(description='Ensure necessary issue exists for image refresh')
+    parser.add_argument('-v', '--verbose', action="store_true", default=False,
                         help="Print verbose information")
+    parser.add_argument("image", nargs="?")
     opts = parser.parse_args()
     api = github.GitHub()
 
     try:
-        results = scan(api, not opts.dry, opts.human_readable)
+        results = scan(api, opts.image, opts.verbose)
     except RuntimeError, ex:
-        sys.stderr.write("image-scan: " + str(ex) + "\n")
+        sys.stderr.write("image-trigger: " + str(ex) + "\n")
         return 1
 
     for result in results:
@@ -78,67 +71,6 @@ def main():
             sys.stdout.write(result + "\n")
 
     return 0
-
-# Prepare an image refresh command
-def image_refresh(priority, name, image, issue=None):
-    if priority <= 0:
-        return
-    cmd = "PRIORITY={priority:04d} TEST_NAME='{name}' bots/image-refresh"
-    if issue:
-        cmd += " --issue='{issue}'"
-    cmd += " '{image}'"
-    return cmd.format(**{
-        "priority": int(priority),
-        "name": pipes.quote(name),
-        "image": pipes.quote(image),
-        "issue": pipes.quote(str(issue)),
-    })
-
-def scan_image_wait_times(api, policy):
-    issues = api.get("issues?labels=bot&filter=all&state=all")
-
-    wait_times = { }
-    for image, config in policy.items():
-        wait_times[image] = 0
-        for issue in issues:
-            if issue['title'] == github.ISSUE_TITLE_IMAGE_REFRESH.format(image):
-                age = time.time() - time.mktime(time.strptime(issue['created_at'], "%Y-%m-%dT%H:%M:%SZ"))
-                refresh_days = config.get("refresh-days", IMAGE_REFRESH)
-                wait_time = refresh_days - (age / (24 * 60 * 60))
-                if wait_time > wait_times[image]:
-                    wait_times[image] = wait_time
-    return wait_times
-
-def scan_for_image_tasks(api, policy):
-    results = [ ]
-    requested = set()
-
-    # Trigger on explicit requests
-    def issue_requests_image_refresh(issue, comments, image):
-        request = "bot: " + github.ISSUE_TITLE_IMAGE_REFRESH.format(image)
-        in_process_prefix = "Image creation for {} in process".format(image)
-
-        needed = False
-        for body in [ issue['body'] ] + [ c['body'] for c in comments ]:
-            if body == request:
-                needed = True
-            if body.startswith(in_process_prefix):
-                needed = False
-        return needed
-
-    for issue in api.get("issues?labels=bot&state=open"):
-        comments = api.get(issue['comments_url'])
-        for image in policy:
-            if issue_requests_image_refresh(issue, comments, image):
-                requested.add(image)
-                results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image, issue['number']))
-
-    # Trigger based on how old the youngest issue is
-    for image, wait_time in scan_image_wait_times(api, policy).items():
-        if wait_time <= 0 and image not in requested:
-            results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image, None))
-
-    return results
 
 # Prepare an image prune command
 def scan_for_prune():
@@ -155,36 +87,22 @@ def scan_for_prune():
 
     return tasks
 
-def scan(api, update, verbose):
-    kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
-    if not kvm:
-        sys.stderr.write("tests-scan: No /dev/kvm access, not creating images here\n")
-        return []
+def scan(api, force, verbose):
+    for (image, options) in REFRESH.items():
+        perform = False
 
-    policy = DEFAULT_REFRESH
+        if force:
+            perform = image == force
+        else:
+            days = options.get("refresh-days", DAYS)
+            perform = task.stale(days, os.path.join("bots", "images", image))
 
-    # Check if we have access to Red Hat network and some subscription creds
-    try:
-        urllib.urlopen(REDHAT_PING).read()
-        if os.path.exists(os.path.expanduser("~/.rhel/login")):
-            policy.update(REDHAT_REFRESH)
-    except IOError:
-        pass
+        if perform:
+            text = "Image refresh for {0}".format(image)
+            issue = task.issue(text, text, "image-refresh", image)
+            sys.stderr.write("#{0}: image-refresh {1}\n".format(issue["number"], image))
 
-    task_entries = []
-
-    if verbose:
-        for image, wait_time in scan_image_wait_times(api, policy).items():
-            # Images with wait_time <= 0 are already included in the list
-            # of tasks above, so we don't need to list them here.
-            if wait_time > 0:
-                task_entries.append("{0:20}  {1:.1f} days".format(image, wait_time))
-    else:
-        task_entries += scan_for_image_tasks(api, policy)
-        task_entries += scan_for_prune()
-
-
-    return task_entries
+    return scan_for_prune()
 
 if __name__ == '__main__':
     sys.exit(main())

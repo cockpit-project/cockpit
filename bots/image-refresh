@@ -18,6 +18,68 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+TRIGGERS = {
+    "centos-7": [
+        "verify/centos-7"
+    ],
+    "continuous-atomic": [
+        "verify/continuous-atomic"
+    ],
+    "debian-testing": [
+        "verify/debian-testing"
+    ],
+    "debian-stable": [
+        "verify/debian-stable"
+    ],
+    "fedora-25": [
+        "verify/fedora-25",
+        "verify/fedora-atomic"
+    ],
+    "fedora-26": [
+        "verify/fedora-26"
+    ],
+    "fedora-atomic": [
+        "verify/fedora-atomic"
+    ],
+    "fedora-testing": [
+        "verify/fedora-testing"
+    ],
+    "fedora-i386": [
+        "verify/fedora-i386"
+    ],
+    "ubuntu-1604": [
+        "verify/ubuntu-1604"
+    ],
+    "ubuntu-stable": [
+        "verify/ubuntu-stable"
+    ],
+    "openshift": [
+        "container/kubernetes",
+        "verify/fedora-25",
+        "verify/rhel-7"
+    ],
+    "ipa": [
+        "verify/fedora-25",
+        "verify/rhel-7",
+        "verify/ubuntu-1604",
+        "verify/debian-stable"
+    ]
+    "rhel-7": [
+        "verify/rhel-7",
+        "verify/rhel-atomic"  # builds in rhel-7
+    ],
+    "rhel-atomic": [
+        "verify/rhel-atomic"
+    ]
+}
+
+REDHAT_STORE = "https://cockpit-11.e2e.bos.redhat.com:8493"
+
+STORES = {
+    "rhel-7": REDHAT_STORE,
+    "rhel-atomic": REDHAT_STORE
+}
+
 import argparse
 import os
 import subprocess
@@ -42,10 +104,6 @@ def main():
             help="Work offline, don''t fetch new data from origin for rebase")
     parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
             action='store', help='Publish results centrally to a sink')
-    parser.add_argument('--store', dest='store', action='store',
-            help='Alternate location to upload image to')
-    parser.add_argument('--triggers', dest='triggers', nargs='+',
-            action='store', help='Test contexts to trigger after creation')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('image', help="The image to refresh")
     opts = parser.parse_args()
@@ -57,8 +115,11 @@ def main():
     if opts.issue and api:
         issue = api.get("/issues/" + str(opts.issue))
 
+    triggers = TRIGGERS.get(opts.image, [ ])
+    store = STORES.get(opts.image, None)
+
     try:
-        task = ImageTask(name, opts.image, opts.triggers, issue, opts.store)
+        task = ImageTask(name, opts.image, triggers, issue, store)
         ret = task.run(opts, api)
     except RuntimeError, ex:
         ret = str(ex)

@@ -18,18 +18,14 @@
 
 set -eu
 
-if [ $# != 0 ]; then
-	echo "usage: make-source" >&2
+if [ $# -gt 1 ]; then
+	echo "usage: make-source [target]" >&2
     exit 2
 fi
 
-base=$(cd $(dirname $0); pwd -P)
-
-cd $base/..
-
-dump_dist_gzip() {
-    make -C "$1" -s dump-dist-gzip
-}
+TARGET=${1:-dist-gzip}
+BASE=$(cd $(dirname $(dirname $0)); pwd -P)
+cd $BASE
 
 # Configure the source for making a tarball in a temporary directory, unless
 # the source has already been configured
@@ -46,5 +42,11 @@ else
     builddir=.
 fi
 
-make -j8 -C $builddir --silent dist-gzip 1>&2
-make -C "$builddir" --silent dump-dist-gzip
+make -j8 -C "$builddir" --silent $TARGET 1>&2
+
+# Output the gzip name if requested
+if [ "$TARGET" = "dist-gzip" ]; then
+    make -C "$builddir" --silent dump-dist-gzip
+else
+    echo "$builddir"
+fi

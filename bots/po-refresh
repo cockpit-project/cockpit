@@ -29,7 +29,7 @@ import task
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
 
-def run(verbose=False, issue=None, **kwargs):
+def run(context, verbose=False, **kwargs):
     cwd = BASE
 
     def output(*args):
@@ -56,7 +56,7 @@ def run(verbose=False, issue=None, **kwargs):
 
     # Create a pull request from these changes
     os.chdir(BASE)
-    task.pull(branch, "po: Update from Fedora Zanata", issue, pathspec="po/")
+    task.pull(context, "po: Update from Fedora Zanata", pathspec="po/", **kwargs)
 
 if __name__ == '__main__':
-    task.main(function=run, days=7, title="Update translations from Fedora Zanata")
+    task.main(function=run, title="Update translations from Fedora Zanata")

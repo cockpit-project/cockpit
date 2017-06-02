@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+PRIORITY = 10
+
 import argparse
 import pipes
 import os
@@ -44,11 +46,12 @@ def main():
 # Map all checkable work items to fixtures
 def tasks_for_issues():
     results = [ ]
-    for issue in github.GitHub().issues():
-        checklist = github.Checklist(issue["body"])
-        for item, checked in checklist.items.items():
-            if not checked:
-                results.append((item, issue))
+    for issue in github.GitHub().issues(state="open"):
+        if not issue["title"].strip().startswith("WIP"):
+            checklist = github.Checklist(issue["body"])
+            for item, checked in checklist.items.items():
+                if not checked:
+                    results.append((item, issue))
     return results
 
 def output_task(command, issue, verbose):
@@ -56,31 +59,29 @@ def output_task(command, issue, verbose):
     if "/" in name:
         return None
     path = os.path.join("bots", name)
-    print path, command, issue["number"]
-    print os.path.join(BASE, path), os.X_OK
     if not os.access(os.path.join(BASE, path), os.X_OK):
         return None
     number = issue.get("number", None)
     if number is None:
         return None
 
+    context = context.strip()
+
     if verbose:
-        if wip:
-            xxxx priority
-        return "issue-{issue} {command} {args}    {priority}".format(
+        return "issue-{issue} {command} {context}    {priority}".format(
             issue=int(number),
-            priority=int(task["priority"]),
-            cmd=path,
-            context=context.strip()
+            priority=PRIORITY,
+            command=path,
+            context=context
         )
     else:
-        if wip:
-            return None
-        return "PRIORITY=0005 {command} --issue='{issue}' {context}".format(
+        if context:
+            context = pipes.quote(context)
+        return "PRIORITY={priority:04d} {command} --issue='{issue}' {context}".format(
             issue=int(number),
-            priority=int(task["priority"]),
+            priority=PRIORITY,
             command=path,
-            context=pipes.quote(context.strip())
+            context=context
         )
 
 # Default scan behavior run for each task

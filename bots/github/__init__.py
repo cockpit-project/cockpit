@@ -293,11 +293,12 @@ class Checklist(object):
         for line in body.splitlines():
             item = None
             checked = False
-            if line.startswith(" * [ ] "):
-                item = line[7:].strip()
+            stripped = line.strip()
+            if stripped.startswith("* [ ] "):
+                item = stripped[6:].strip()
                 checked = False
-            elif line.startswith(" * [x] "):
-                item = line[7:].strip()
+            elif stripped.startswith("* [x] "):
+                item = stripped[6:].strip()
                 checked = True
             if item:
                 if item in items:
@@ -311,8 +312,8 @@ class Checklist(object):
             lines.append(line)
         self.body = "\n".join(lines)
 
-    def check(self, item, checked):
-        self.process(self, self.body, { item: checked })
+    def check(self, item, checked=True):
+        self.process(self.body, { item: checked })
 
     def add(self, item):
-        self.process(self, self.body, { item: False })
+        self.process(self.body, { item: False })

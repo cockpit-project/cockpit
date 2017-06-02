@@ -51,16 +51,20 @@ def prepare_install_image(base_image):
     if "/" not in base_image:
         base_image = os.path.join(BOTS, "images", base_image)
     test_images = os.path.join(TEST, "images")
-    if not os.path.exists(test_images):
-        os.makedirs(test_images)
     install_image = os.path.join(test_images, os.path.basename(base_image))
-    base_image = os.path.realpath(base_image)
-    qcow2_image = "{0}.qcow2".format(install_image)
-    subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
-        "-o", "backing_file={0},backing_fmt=qcow2".format(base_image), qcow2_image ])
-    if os.path.lexists(install_image):
-        os.unlink(install_image)
-    os.symlink(os.path.basename(qcow2_image), install_image)
+
+    # In vm-customize we don't force recreate immages
+    if not os.path.exists(install_image):
+        if not os.path.exists(test_images):
+            os.makedirs(test_images)
+        base_image = os.path.realpath(base_image)
+        qcow2_image = "{0}.qcow2".format(install_image)
+        subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
+            "-o", "backing_file={0},backing_fmt=qcow2".format(base_image), qcow2_image ])
+        if os.path.lexists(install_image):
+            os.unlink(install_image)
+        os.symlink(os.path.basename(qcow2_image), install_image)
+
     return install_image
 
 def run_command(machine_instance, commandlist):

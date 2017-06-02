@@ -1,18 +1,20 @@
 #!/bin/sh
-set -eu
+set -eux
 # Ubuntu still creates this legacy group by default, breaks useradd
-sudo delgroup --quiet --system admin || true
+delgroup --quiet --system admin || true
 
 # test expects this user and Fedora group "wheel"
 addgroup wheel
 useradd -m -U -c Administrator -G sudo,wheel -s /bin/bash admin
 echo admin:foobar | chpasswd
 
+# packaged phantomjs crashes with "QXcbConnection: Could not connect to display" otherwise
+export QT_QPA_PLATFORM=offscreen
+
 # avocado is not packaged, thus install through pip
 pip install avocado-framework
 
-# packaged phantomjs crashes with "QXcbConnection: Could not connect to display"
-npm install sizzle phantomjs-prebuilt
+npm install sizzle
 
 test/avocado/checklogin-raw.py
 test/avocado/checklogin-basic.py

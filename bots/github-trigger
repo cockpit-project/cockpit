@@ -7,20 +7,6 @@ sys.dont_write_bytecode = True
 
 import github
 
-OUR_CONTEXTS = [
-    "verify/",
-    "avocado/",
-    "container/",
-    "selenium/",
-    "koji/",
-]
-
-def known_context(context):
-    for prefix in OUR_CONTEXTS:
-        if context.startswith(prefix):
-            return True
-    return False
-
 def trigger_image(api, opts):
     title = github.ISSUE_TITLE_IMAGE_REFRESH.format(opts.image)
     if opts.pull:
@@ -53,7 +39,7 @@ def trigger_pull(api, opts):
         contexts = [ opts.context ]
         all = False
     else:
-        contexts = [ x for x in set(statuses.keys()) if known_context(x) ]
+        contexts = set(statuses.keys())
         all = True
 
     ret = 0

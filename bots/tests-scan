@@ -144,12 +144,6 @@ def prioritize(status, title, labels, priority, context):
     elif state in [ "pending" ]:
         update = None
 
-    # Don't start working on "bot" pull requests automatically.
-    # The bot triggers them explicitly.
-    elif "bot" in labels():
-        priority = None
-        update = None
-
     if priority > 0:
         if "priority" in labels():
             priority += 2
@@ -214,8 +208,9 @@ def scan_for_pull_tasks(api, update, human, policy):
         if ref:
             revision = ref["object"]["sha"]
             statuses = api.statuses(revision)
-            for context in branch_contexts[branch]:
-                status = statuses.get(context, { })
+            which = statuses.keys() or branch_contexts[branch]
+            for context in which:
+                status = statuses.get(context, None)
                 (priority, changes) = prioritize(status, "", lambda: [], 8, context)
                 if update_status(revision, context, status, changes):
                     results.append((priority, branch, revision, branch, context, None))
@@ -237,6 +232,9 @@ def scan_for_pull_tasks(api, update, human, policy):
                 pull["labels"] = result
             return pull["labels"]
 
+        # Do we have any statuses for this commit?
+        have = len(statuses.keys()) > 0
+
         for context in contexts:
             status = statuses.get(context, None)
             baseline = BASELINE_PRIORITY
@@ -245,9 +243,9 @@ def scan_for_pull_tasks(api, update, human, policy):
             # end up with a bunch of half tested pull requests
             baseline += 1.0 - (min(100000, float(number)) / 100000)
 
-            # Only create new status for those requested
+            # Only create new status for requests that have none
             if not status:
-                if context not in branch_contexts.get(base, []):
+                if have or context not in branch_contexts.get(base, []):
                     continue
                 status = { }
 

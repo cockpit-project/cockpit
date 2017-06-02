@@ -210,7 +210,7 @@ def scan_for_pull_tasks(api, update, human, policy):
             statuses = api.statuses(revision)
             which = statuses.keys() or branch_contexts[branch]
             for context in which:
-                status = statuses.get(context, None)
+                status = statuses.get(context, { })
                 (priority, changes) = prioritize(status, "", lambda: [], 8, context)
                 if update_status(revision, context, status, changes):
                     results.append((priority, branch, revision, branch, context, None))

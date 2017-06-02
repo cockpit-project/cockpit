@@ -390,6 +390,12 @@ install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
 	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
 
-prepare-po::
-	$(INTLTOOL_EXTRACT) -l --type=gettext/xml $(srcdir)/$(appdata_in)
-	$(INTLTOOL_EXTRACT) -l --type=gettext/ini $(srcdir)/$(desktop_in)
+prepare-po-appdata: $(appdata_in)
+	cp $< .
+	$(INTLTOOL_EXTRACT) -l --type=gettext/xml $(notdir $(appdata_in))
+
+prepare-po-desktop: $(desktop_in)
+	cp $< .
+	$(INTLTOOL_EXTRACT) -l --type=gettext/ini $(notdir $(desktop_in))
+
+prepare-po:: prepare-po-appdata prepare-po-desktop

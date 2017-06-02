@@ -47,6 +47,14 @@ TESTING = "Testing in progress"
 NOT_TESTED = "Not yet tested"
 NO_TESTING = "Manual testing required"
 
+OUR_CONTEXTS = [
+    "verify/",
+    "avocado/",
+    "container/",
+    "selenium/",
+    "koji/",
+]
+
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
 
 BOTS = os.path.join(os.path.dirname(__file__), "..")
@@ -83,6 +91,12 @@ def determine_github_base():
 
 # github base to use
 GITHUB_BASE = "https://api.github.com/repos/{0}/".format(os.environ.get("GITHUB_BASE", determine_github_base()))
+
+def known_context(context):
+    for prefix in OUR_CONTEXTS:
+        if context.startswith(prefix):
+            return True
+    return False
 
 def whitelist(filename=WHITELIST):
     # Try to load the whitelists
@@ -245,7 +259,7 @@ class GitHub(object):
             page += 1
             if "statuses" in data:
                 for status in data["statuses"]:
-                    if status["context"] not in result:
+                    if known_context(status["context"]) and status["context"] not in result:
                         result[status["context"]] = status
                 count = len(data["statuses"])
         return result

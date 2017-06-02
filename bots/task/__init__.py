@@ -39,14 +39,12 @@ import sink
 
 __all__ = (
     "main",
-    "scan",
     "run",
     "pull",
+    "issue",
 )
 
 api = github.GitHub()
-issues = None
-verbose = False
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
@@ -58,15 +56,13 @@ BASE = os.path.normpath(os.path.join(BOTS, ".."))
 #   title: The title for the task
 #   function: The function to call for the task
 #   options=[]: A list of string options to pass to the function argument
-#   days=7: Number of days after which to perform the task
-#   priority=5: Numeric priority of the task
 #
-# The function for the task will be called with all the options in the task.
+# The function for the task will be called with all the context for the task.
 # In addition it will be called with named arguments for all other task fields
 # and additional fields such as |verbose|. It should return a zero or None value
 # if successful, and a string or non-zero value if unsuccessful.
 #
-#   def run(image, verbose=False, **kwargs):
+#   def run(context, verbose=False, **kwargs):
 #       if verbose:
 #           sys.stderr.write(image + "\n")
 #       return 0
@@ -74,191 +70,42 @@ BASE = os.path.normpath(os.path.join(BOTS, ".."))
 # Call the task.main() as the entry point of your script in one of these ways:
 #
 #   # As a single task
-#   task.main(title="My title", days=5, function=run, fixtures=[ "image/one", "image/two" ])
-#
-#   # As a single task in a dict
-#   task.main({ "title": "My title", "days": 5, "function": run })
-#
-#   # With a list of tasks
-#   task.main({ "title": "My title", "days": 5 }, [ "image/one", "image/two" ])
+#   task.main(title="My title", function=run)
 #
 
-def main(name=None, fixtures=[ () ], **kwargs):
+def main(**kwargs):
     global verbose
 
-    # Called with a task as named arguments
-    if len(kwargs) > 0:
-        if name:
-            kwargs["name"] = name
-        task = kwargs
-    elif name is not None and len(kwargs) == 0:
-        task = name
-    else:
-        assert False, "Invalid parameters to task.main()"
-
-    # Turn each fixture into a tuple if not already
-    for index in range(0, len(fixtures)):
-        fixture = fixtures[index]
-        if not isinstance(fixture, (list, tuple)):
-            fixtures[index] = ( fixture, )
+    task = kwargs.copy()
 
     # Figure out a descriptoin for the --help
     if "name" not in task:
         task["name"] = os.path.basename(os.path.realpath(sys.argv[0]))
 
     parser = argparse.ArgumentParser(description=task.get("title", task["name"]))
-
-    # Scan argumenst
-    subparsers = parser.add_subparsers(help="sub-command help")
-    scanner = subparsers.add_parser("scan", help="scan help")
-    scanner.add_argument("-v", "--human-readable", "--verbose", action="store_true", default=False,
-         dest="verbose", help="Print verbose information")
-    scanner.set_defaults(mode="scan")
-
-    # Run arguments
-    runner = subparsers.add_parser("run", help="run help")
-    runner.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-    runner.add_argument("--issue", dest="issue", action="store",
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("--issue", dest="issue", action="store",
         help="Act on an already created task issue")
-    runner.add_argument("--publish", dest="publish", default=os.environ.get("TEST_PUBLISH", ""),
+    parser.add_argument("--publish", dest="publish", default=os.environ.get("TEST_PUBLISH", ""),
         action="store", help="Publish results centrally to a sink")
-    runner.add_argument("fixture", nargs="*")
-    runner.set_defaults(mode="run")
-
-    # Choose either scan or run as a default
-    if sys.argv[0].endswith("-scan"):
-        parser.set_default_subparser("scan")
-    else:
-        parser.set_default_subparser("run")
+    parser.add_argument("context", nargs="?")
 
     opts = parser.parse_args()
     verbose = opts.verbose
 
-    results = [ ]
     ret = 0
 
-    if "priority" not in task:
-        task["priority"] = 5
     if "verbose" not in task:
         task["verbose"] = opts.verbose
+    task["issue"] = opts.issue
+    task["publish"] = opts.publish
 
-    if opts.mode == "scan":
-        results = scan(task, fixtures)
-    else:
-        task["issue"] = opts.issue
-        task["publish"] = opts.publish
-        if opts.fixture:
-            fixtures = [ opts.fixture ]
-        ret = run(task, fixtures)
+    ret = run(opts.context, task)
 
-    for result in results:
-        if result:
-            sys.stdout.write(result + "\n")
     if ret:
         sys.stderr.write("{0}: {1}\n".format(task["name"], ret))
 
     sys.exit(ret and 1 or 0)
-
-# Find all checkable work items on bot issues
-def issues_with_tasks():
-    global issues
-
-    # A GitHub bullet point in the body
-    line = "\n \* \[([ x])\] (.+)"
-
-    # Go through all GitHub issues and track down items
-    items = [ ]
-    if issues is None:
-        issues = api.issues()
-    for issue in issues:
-        for match in re.findall(line, issue["body"]):
-            items.append((issue, match[0].strip(), shlex.split(match[1])))
-
-    return items
-
-# Map all checkable work items to fixtures
-def issues_for_fixtures(task, fixtures):
-    # Map them to issues
-    mapped = [ ]
-    for (issue, checked, command) in issues_with_tasks():
-        if command[0] == task["name"]:
-            for index in range(0, len(fixtures)):
-                if tuple(fixtures[index]) == tuple(command[1:]):
-                    mapped.append((issue, done, fixtures[index]))
-                    del fixtures[index]
-                    break
-            else:
-                mapped.append((issue, done, command[1:]))
-    for fixture in fixtures:
-        mapped.append(({ }, False, fixture))
-    return mapped
-
-def output_task_fixture(task, issue, checked, fixture):
-    state = issue.get("state", "invalid")
-
-    # If the issue is in progress, then don't do anything
-    if state == "open":
-        xxxx place negotiation xxxx
-        WIP: xxxxyyyy
-        if issue["title"].startswith("WIP:"):
-            issue = { }
-
-    # See if we should create a new message
-    else:
-        assert False
-        when = 0
-        if "updated_at" in issue:
-            when = time.mktime(time.strptime(issue["updated_at"], "%Y-%m-%dT%H:%M:%SZ"))
-        # We randomize when we think this should happen over a day
-        now = time.time() + random.randint(-43200, 43200)
-        # Create issue for this task
-        if when < now:
-            title = task["title"]
-            command = " ".join([ task["name"] ] + list(fixture))
-            body = "{0}\n * [ ] {1}".format(task.get("body", title), command)
-            issue = api.post(resource="issues", data={
-                "title": title,
-                "labels": [ "bot" ],
-                "body": body
-        })
-
-    number = issue.get("number", None)
-    if number is None:
-        return None
-
-    bot = os.path.abspath(os.path.join(BOTS, task["name"]))
-    base = os.path.abspath(BASE)
-    args = " ".join([ pipes.quote(arg) for arg in fixture ])
-    command = os.path.relpath(bot, base)
-
-    if verbose:
-        return "issue-{issue} {command} {args}    {priority}".format(
-            issue=int(number),
-            priority=int(task["priority"]),
-            cmd=command,
-            args=args
-        )
-    else:
-        return "PRIORITY={priority:04d} {command} --issue='{issue}' {args}".format(
-            issue=int(number),
-            priority=int(task["priority"]),
-            command=command,
-            args=args
-        )
-
-# Default scan behavior run for each task
-def scan(task, fixtures):
-    global issues
-
-    results = [ ]
-
-    # Now go through each fixture
-    for (issue, checked, fixture) in issues_for_fixtures(task, fixtures):
-        result = output_task_fixture(task, issue, checked, fixture)
-        if result is not None:
-            results.append(result)
-
-    return results
 
 def begin(name, title, publish, issue):
     if not publish:
@@ -339,21 +186,53 @@ def finish(publishing, ret, issue):
     publishing.status['github']['requests'] = requests
     publishing.flush()
 
-def run(task, fixtures):
-    for fixture in fixtures:
-        publishing = begin(kwargs["name"], kwargs["title"], publish, issue=issue)
-        ret = "Task threw an exception"
-        try:
-            ret = function(*fixture, **kwargs)
-        except (RuntimeError, subprocess.CalledProcessError), ex:
-            ret = str(ex)
-        except:
-            traceback.print_exc(file=sys.stderr)
-        finally:
-            finish(publishing, ret, issue)
-        if ret:
-            return ret
-    return 0
+def run(context, **kwargs):
+    issue = kwargs.get("issue", None)
+    publishing = begin(kwargs["name"], kwargs["title"], publish, issue=issue)
+    ret = "Task threw an exception"
+    try:
+        ret = function(context, **kwargs)
+    except (RuntimeError, subprocess.CalledProcessError), ex:
+        ret = str(ex)
+    except:
+        traceback.print_exc(file=sys.stderr)
+    finally:
+        finish(publishing, ret, issue)
+    return ret or 0
+
+def stale(days, pathspec):
+    global verbose
+
+    def execute(*args):
+        if verbose:
+            sys.stderr.write("+ " + " ".join(args) + "\n")
+        return subprocess.check_output(args, cwd=BASE)
+
+    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", pathspec)
+    if not timestamp:
+        timestamp = 0
+
+    # We randomize when we think this should happen over a day
+    now = time.time() + random.randint(-43200, 43200)
+
+    return timestamp < now
+
+def issue(title, body, name, context):
+    for issue in api.issues(state="open"):
+        if issue["title"].endswith(title):
+            return issue
+
+    item = "{0} {1}".format(name, context or "")
+    checklist = github.Checklist(body)
+    checklist.add(item)
+
+    data = {
+        "title": title,
+        "body": checklist.body,
+        "labels": [ "bot" ]
+    }
+
+    return api.post(resource="issues", data)
 
 def pull(branch, message, issue=None, pathspec="."):
     global verbose
@@ -366,7 +245,7 @@ def pull(branch, message, issue=None, pathspec="."):
     def execute(*args):
         if verbose:
             sys.stderr.write("+ " + " ".join(args) + "\n")
-        subprocess.check_output(args)
+        subprocess.check_call(args, cwd=BASE)
 
     url = "https://{0}@github.com/{1}/cockpit.git".format(api.token, user)
 
@@ -380,8 +259,12 @@ def pull(branch, message, issue=None, pathspec="."):
     }
 
     if issue:
-        data["issue"] = issue
-    api.post("pulls", data)
+        if isinstance(issue, dict):
+            data["issue"] = issue["number"]
+        else
+            data["issue"] = issue
+
+    return api.post("pulls", data)
 
 # Polyfill for missing arparse functionality in python 2.x
 # https://stackoverflow.com/questions/6365601/default-sub-command-or-handling-no-sub-command-with-argparse

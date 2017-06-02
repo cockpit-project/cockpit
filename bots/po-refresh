@@ -59,4 +59,4 @@ def run(verbose=False, issue=None, **kwargs):
     task.pull(branch, "po: Update from Fedora Zanata", issue, pathspec="po/")
 
 if __name__ == '__main__':
-    task.main(function=run, days=7, title="Update translations from Fedora Zanata")
+    task.main(function=run, title="Update translations from Fedora Zanata")

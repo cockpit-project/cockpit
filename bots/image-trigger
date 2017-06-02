@@ -18,78 +18,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-BASELINE_PRIORITY = 10
-
 IMAGE_REFRESH = 7
 
 DEFAULT_REFRESH = {
-    "centos-7": {
-        "triggers": [ "verify/centos-7" ]
-    },
-    "continuous-atomic": {
-        "triggers": [ "verify/continuous-atomic" ]
-    },
-    "debian-testing": {
-        "triggers": [ "verify/debian-testing" ]
-    },
-    "debian-stable": {
-        "triggers": [ "verify/debian-stable" ]
-    },
-    "fedora-25": {
-        "triggers": [
-            "verify/fedora-25",
-            "verify/fedora-atomic"
-        ]
-    },
-    "fedora-26": {
-        "triggers": [
-            "verify/fedora-26"
-        ]
-    },
-    "fedora-atomic": {
-        "triggers": [ "verify/fedora-atomic" ]
-    },
-    "fedora-testing": {
-        "triggers": [ "verify/fedora-testing" ]
-    },
-    "fedora-i386": {
-        "triggers": [ "verify/fedora-i386" ]
-    },
-    "ubuntu-1604": {
-        "triggers": [ "verify/ubuntu-1604" ]
-    },
-    "ubuntu-stable": {
-        "triggers": [ "verify/ubuntu-stable" ]
-    },
-    "openshift": {
-        "triggers": [ "container/kubernetes",
-                      "verify/fedora-25",
-                      "verify/rhel-7" ],
-        "refresh-days": 30
-    },
-    "ipa": {
-        "triggers": [ "verify/fedora-25",
-                      "verify/rhel-7",
-                      "verify/ubuntu-1604",
-                      "verify/debian-stable" ],
-        "refresh-days": 120
-    }
+    "centos-7": { },
+    "continuous-atomic": { },
+    "debian-testing": { },
+    "debian-stable": { },
+    "fedora-25": { },
+    "fedora-26": { },
+    "fedora-atomic": { },
+    "fedora-testing": { },
+    "fedora-i386": { },
+    "ubuntu-1604": { },
+    "ubuntu-stable": { },
+    "openshift": { "refresh-days": 30 },
+    "ipa": { "refresh-days": 120 }
 }
 
-REDHAT_STORE = "https://cockpit-11.e2e.bos.redhat.com:8493"
 
 REDHAT_REFRESH = {
-    'rhel-7': {
-        'triggers': [
-            "verify/rhel-7",
-            "verify/rhel-atomic"  # builds in rhel-7
-        ],
-        'store': REDHAT_STORE
-    },
-    'rhel-atomic': {
-        'triggers': [ "verify/rhel-atomic" ],
-        'store': REDHAT_STORE
-    }
+    'rhel-7': { },
+    'rhel-atomic': { }
 }
 
 # Server to tell us if we can create Red Hat images
@@ -130,23 +80,18 @@ def main():
     return 0
 
 # Prepare an image refresh command
-def image_refresh(priority, name, image, issue=None, triggers=[], store=None):
+def image_refresh(priority, name, image, issue=None):
     if priority <= 0:
         return
     cmd = "PRIORITY={priority:04d} TEST_NAME='{name}' bots/image-refresh"
     if issue:
         cmd += " --issue='{issue}'"
-    if store:
-        cmd += " --store='{store}'"
-    for trigger in triggers:
-        cmd += " --triggers='{0}'".format(pipes.quote(trigger))
     cmd += " '{image}'"
     return cmd.format(**{
         "priority": int(priority),
         "name": pipes.quote(name),
         "image": pipes.quote(image),
         "issue": pipes.quote(str(issue)),
-        "store": pipes.quote(str(store)),
     })
 
 def scan_image_wait_times(api, policy):
@@ -186,17 +131,12 @@ def scan_for_image_tasks(api, policy):
         for image in policy:
             if issue_requests_image_refresh(issue, comments, image):
                 requested.add(image)
-                store = policy.get(image, { }).get("store", None)
-                triggers = policy.get(image, { }).get("triggers", [ ])
-                results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image,
-                    issue['number'], triggers, store))
+                results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image, issue['number']))
 
     # Trigger based on how old the youngest issue is
     for image, wait_time in scan_image_wait_times(api, policy).items():
         if wait_time <= 0 and image not in requested:
-            store = policy.get(image, { }).get("store", None)
-            triggers = policy.get(image, { }).get("triggers", [ ])
-            results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image, None, triggers, store))
+            results.append(image_refresh(BASELINE_PRIORITY, "refresh-" + image, image, None))
 
     return results
 

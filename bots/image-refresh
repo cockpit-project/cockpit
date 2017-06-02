@@ -63,7 +63,7 @@ TRIGGERS = {
         "verify/rhel-7",
         "verify/ubuntu-1604",
         "verify/debian-stable"
-    ]
+    ],
     "rhel-7": [
         "verify/rhel-7",
         "verify/rhel-atomic"  # builds in rhel-7
@@ -90,269 +90,50 @@ import time
 sys.dont_write_bytecode = True
 
 import github
-import sink
+import task
 
-HOSTNAME = socket.gethostname().split(".")[0]
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
 
-def main():
-    parser = argparse.ArgumentParser(description='Run image refresh')
-    parser.add_argument('--issue', dest='issue', action='store',
-            help='Act on an already created issue')
-    parser.add_argument('-o', "--offline", action='store_true',
-            help="Work offline, don''t fetch new data from origin for rebase")
-    parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
-            action='store', help='Publish results centrally to a sink')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
-    parser.add_argument('image', help="The image to refresh")
-    opts = parser.parse_args()
+def run(image, verbose=False, **kwargs):
+    if not image:
+        raise RuntimeError("no image specified")
 
-    name = os.environ.get("TEST_NAME", "tests")
+    triggers = TRIGGERS.get(image, [ ])
+    store = STORES.get(image, None)
 
-    issue = None
-    api = None if opts.offline else github.GitHub()
-    if opts.issue and api:
-        issue = api.get("/issues/" + str(opts.issue))
+    # Cleanup any extraneous disk usage elsewhere
+    subprocess.check_call([ os.path.join(BASE, "test", "vm-reset") ])
 
-    triggers = TRIGGERS.get(opts.image, [ ])
-    store = STORES.get(opts.image, None)
+    # Setup network if necessary, any failures caught during testing
+    prep = os.path.join(BASE, "test", "vm-prep")
+    if os.path.exists(prep):
+        subprocess.call(["sudo", "-n", prep ])
 
-    try:
-        task = ImageTask(name, opts.image, triggers, issue, store)
-        ret = task.run(opts, api)
-    except RuntimeError, ex:
-        ret = str(ex)
+    cmd = [ os.path.join(BOTS, "image-create"), "--verbose", "--upload" ]
+    if store:
+        cmd += [ "--store", store ]
+    cmd += [ image ]
 
-    if ret:
-        sys.stderr.write("image-refresh: {0}\n".format(ret))
-        return 1
-    return 0
+    os.environ['VIRT_BUILDER_NO_CACHE'] = "yes"
+    ret = subprocess.call(cmd)
 
-class ImageTask(object):
-    def __init__(self, name, image, triggers, issue, store):
-        self.name = name
-        self.image = image
-        self.triggers = triggers or []
-        self.issue = issue
-        self.store = store or None
-        self.pull = None
-        self.sink = None
+    # When image creation fails, remove the link and make a pull
+    # request anyway, for extra attention
 
-    def description(self):
-        if self.issue:
-            return "{} (#{})".format(self.name, self.issue['number'])
-        else:
-            return self.name
+    if ret != 0:
+        os.unlink(os.path.join(BOTS, "images", image))
 
-    def start_publishing(self, host, api):
-        if self.pull:
-            identifier = self.name + "-" + self.pull['head']['sha']
-        else:
-            identifier = self.name + "-" + time.strftime("%Y-%m-%d")
+    branch = task.branch(image, "images: Update {0} image".format(image), **kwargs)
+    if branch:
+        pull = task.pull(branch, **kwargs)
 
-        requests = [ ]
-
-        body_text = ("Image creation for %s in process on %s.\nLog: :link"
-                     % (self.image, HOSTNAME))
-
-        # Update the body for an existing issue
-        if self.issue:
-            requests += [
-                # Get issue
-                { "method": "GET",
-                  "resource": api.qualify("issues/" + str(self.issue['number'])),
-                  "result": "issue"
-                },
-                # Update the issue
-                { "method": "POST",
-                    "resource": ":issue.url",
-                  "data": {
-                      "body": body_text,
-                      "labels": [ "bot", "image/" + self.image ]
-                  }
-                }
-            ]
-        else:
-            requests += [
-                # Create issue
-                { "method": "POST",
-                  "resource": api.qualify("issues"),
-                  "data": {
-                      "title": github.ISSUE_TITLE_IMAGE_REFRESH.format(self.image),
-                      "labels": [ "bot", "image/" + self.image ],
-                      "body": body_text
-                  },
-                  "result": "issue"
-                }
-            ]
-
-        # Make sure the body remains the same
-        watches = [{
-            "resource": api.qualify("issues?labels=bot,image/{0}&state=open".format(self.image)),
-            "result": [
-                {
-                  "body": body_text
-                }
-            ]
-        }]
-
-        status = {
-            "github": {
-                "token": api.token,
-                "requests": requests,
-                "watches": watches
-            },
-
-            "onaborted": {
-                "github": {
-                    "token": api.token,
-                    "requests": [
-                        # Post comment about failure
-                        { "method": "POST",
-                          "resource": ":issue.comments_url",
-                          "data": {
-                              "body": "Image creation aborted",
-                          }
-                        }
-                    ]
-                },
-            }
-        }
-        self.sink = sink.Sink(host, identifier, status)
-
-    def stop_publishing(self, api, ret, user, branch):
-        if ret is None:
-            message = "Image creation stopped to avoid conflict."
-        else:
-            if ret == 0:
-                if self.pull and branch:
-                    message = "Image creation done: https://github.com/{}/cockpit/commits/{}".format(user, branch)
-                else:
-                    message = "Image creation done."
-            else:
-                message = "Image creation failed."
-        if not branch:
-            message += "\nBranch creation failed."
-
-        requests = [
-            # Post comment
-            { "method": "POST",
-              "resource": ":issue.comments_url",
-              "data": {
-                  "body": message
-              }
-            }
-        ]
-
-        if not self.pull and branch:
-            requests += [
-                # Turn issue into pull request
-                { "method": "POST",
-                  "resource": api.qualify("pulls"),
-                  "data": {
-                      "issue": ":issue.number",
-                      "head": user + "::" + branch,
-                      "base": "master"
-                  },
-                  "result": "pull"
-                }
-            ]
-
-            for t in self.triggers:
-                requests += [
-                    # Trigger testing
-                    { "method": "POST",
-                      "resource": api.qualify("statuses/:pull.head.sha"),
-                      "data": {
-                          "state": "pending",
-                          "context": t,
-                          "description": github.NOT_TESTED
-                      }
-                    }
-                ]
-
-
-        self.sink.status['github']['requests'] = requests
-        self.sink.flush()
-
-    def run(self, opts, api):
-        if not api.token:
-            return "Need a github token to run image creation tasks"
-
-        if self.issue and 'pull_request' in self.issue:
-            self.pull = api.get(self.issue['pull_request']['url'])
-
-        if opts.publish:
-            self.start_publishing(opts.publish, api)
-
-        user = api.get("/user")['login']
-
-        test = os.path.join(BOTS, "..", "test")
-        os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS, test)
-
-        # Cleanup any extraneous disk usage elsewhere
-        subprocess.check_call([ "vm-reset" ])
-
-        msg = "Creating image {0} on {1}...\n".format(self.image, HOSTNAME)
-        sys.stderr.write(msg)
-
-        if self.pull:
-            subprocess.check_call([ "git", "fetch", "origin", "pull/{}/head".format(self.pull['number']) ])
-            subprocess.check_call([ "git", "checkout", self.pull['head']['sha'] ])
-
-        # Setup network if necessary, any failures caught during testing
-        prep = os.path.join(BASE, "test", "vm-prep")
-        if os.path.exists(prep):
-            subprocess.call(["sudo", "-n", prep ])
-
-        cmd = [ "image-create", "--verbose", "--upload" ]
-        if self.store:
-            cmd += [ "--store", self.store ]
-        cmd += [ self.image ]
-
-        os.environ['VIRT_BUILDER_NO_CACHE'] = "yes"
-        ret = subprocess.call(cmd)
-
-        # Github wants the OAuth token as the username and git will
-        # happily echo that back out.  So we censor all output.
-
-        def run_censored(cmd):
-
-            def censored(text):
-                return text.replace(api.token, "CENSORED")
-
-            try:
-                output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-                print censored(output)
-                return True
-            except subprocess.CalledProcessError as e:
-                print censored(e.output)
-                print "Failed:", censored(' '.join(e.cmd))
-                return False
-
-        # Push the new image link to origin, but don't change any local refs
-
-        if self.pull:
-            branch = "refresh-" + self.image + "-" + self.pull['head']['sha']
-        else:
-            branch = "refresh-" + self.image + "-" + time.strftime("%Y-%m-%d")
-
-        url = "https://{0}@github.com/{1}/cockpit.git".format(api.token, user)
-
-        # When image creation fails, remove the link and make a pull
-        # request anyway, for extra attention
-
-        if ret != 0:
-            os.unlink(os.path.join(BOTS, "images", self.image))
-
-        have_branch = (run_censored([ "git", "checkout", "--detach" ]) and
-                       run_censored([ "git", "commit", "-a",
-                                      "-m", github.ISSUE_TITLE_IMAGE_REFRESH.format(self.image) ]) and
-                       run_censored([ "git", "push", url, "+HEAD:refs/heads/" + branch ]))
-
-        if self.sink:
-            self.stop_publishing(api, ret, user, branch if have_branch else None)
+        # Trigger this pull request
+        head = pull["head"]["sha"]
+        api = github.GitHub()
+        for trigger in triggers:
+            api.post("statuses/{0}".format(head), { "state": "pending", "context": trigger,
+                "description": github.NOT_TESTED })
 
 if __name__ == '__main__':
-    sys.exit(main())
+    task.main(function=run, title="Refresh image")

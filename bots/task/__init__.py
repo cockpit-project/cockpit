@@ -169,7 +169,9 @@ def begin(publish, name, context, issue):
         }
     }
 
-    return sink.Sink(publish, identifier, status)
+    publishing = sink.Sink(publish, identifier, status)
+    sys.stderr.write("Running {0} {1} on {2}".format(name, context or "", hostname))
+    return publishing
 
 def finish(publishing, ret, name, context, issue):
     if not publishing:
@@ -240,6 +242,8 @@ def run(context, function, **kwargs):
         ret = function(context, **kwargs)
     except (RuntimeError, subprocess.CalledProcessError), ex:
         ret = str(ex)
+    except KeyboardInterrupt:
+        raise
     except:
         traceback.print_exc(file=sys.stderr)
     finally:

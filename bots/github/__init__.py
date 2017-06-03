@@ -297,8 +297,8 @@ class GitHub(object):
         return result
 
 class Checklist(object):
-    def __init__(self, body):
-        self.process(body)
+    def __init__(self, body=None):
+        self.process(body or "")
 
     def process(self, body, items={ }):
         self.items = { }

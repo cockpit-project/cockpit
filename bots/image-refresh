@@ -124,7 +124,7 @@ def run(image, verbose=False, **kwargs):
     if ret != 0:
         os.unlink(os.path.join(BOTS, "images", image))
 
-    branch = task.branch(image, "images: Update {0} image".format(image), **kwargs)
+    branch = task.branch(image, "images: Update {0} image".format(image), pathspec="bots/images", **kwargs)
     if branch:
         pull = task.pull(branch, **kwargs)
 

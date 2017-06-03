@@ -185,19 +185,18 @@ def finish(publishing, ret, name, context, issue):
         comment = "Task failed: :link"
 
     if issue:
-        body = None
-        if not ret:
-            item = "{0} {1}".format(name, context or "").strip()
-            checklist = github.Checklist(issue["body"])
-            checklist.check(item)
-            body = checklist.body
+        # Note that we check whether pass or fail ... this is because
+        # the task is considered "done" until a human comes through and
+        # triggers it again by unchecking the box.
+        item = "{0} {1}".format(name, context or "").strip()
+        checklist = github.Checklist(issue["body"])
+        checklist.check(item)
 
         number = issue["number"]
-        title = issue["title"]
         requests = [ {
             "method": "POST",
             "resource": api.qualify("issues/{0}".format(number)),
-            "data": { "title": title, "body": body }
+            "data": { "title": issue["title"], "body": checklist.body }
         } ]
         if comment:
             requests.append({

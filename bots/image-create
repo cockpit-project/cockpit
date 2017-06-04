@@ -23,6 +23,7 @@
 # vm-run and testlib.py.
 
 import argparse
+import errno
 import imp
 import os
 import shutil
@@ -33,6 +34,7 @@ import tempfile
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+TEMP = os.path.join(os.environ.get("TEST_DATA", BASE), "tmp")
 
 from machine import testvm
 
@@ -59,10 +61,15 @@ class MachineBuilder:
         self.machine = machine
         self.macaddr = None
 
+        try:
+            os.makedirs(TEMP, 0750)
+        except OSError, ex:
+            if ex.errno != errno.EEXIST:
+                raise
+
         # Use a tmp filename
         self.target_file = self.machine.image_file
-        fp, self.machine.image_file = tempfile.mkstemp(dir=os.path.join(BOTS, "images"),
-                                                       prefix=self.machine.image)
+        fp, self.machine.image_file = tempfile.mkstemp(dir=TEMP, prefix=self.machine.image, suffix=".qcow2")
         os.close(fp)
 
     def bootstrap_system(self):

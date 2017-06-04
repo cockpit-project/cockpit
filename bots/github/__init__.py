@@ -40,8 +40,7 @@ __all__ = (
     'whitelist',
     'TESTING',
     'NO_TESTING',
-    'NOT_TESTED',
-    'ISSUE_TITLE_IMAGE_REFRESH'
+    'NOT_TESTED'
 )
 
 TESTING = "Testing in progress"

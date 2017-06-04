@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import errno
 import os
 import shutil
 import socket
@@ -168,7 +169,7 @@ class PullTask(object):
             traceback.print_exc()
             return "Rebase failed"
 
-        # If the bots directory doesn't exist in this branch, check it out from master
+        # COMPAT: If the bots directory doesn't exist in this branch, check it out from master
         try:
             if subprocess.call([ "git", "ls-tree", "-d", "HEAD:bots/"], stdout=DEVNULL) != 0:
                 sys.stderr.write("Checking out bots directory from master ...\n")
@@ -183,6 +184,13 @@ class PullTask(object):
                         code = subprocess.check_output([ "git", "show", "origin/master:test/common/{0}".format(name) ])
                         with open(path, "w") as f:
                             f.write(code)
+
+                # COMPAT: Create a legacy tmp/run directory to prevent races during testing
+                try:
+                    os.makedirs(os.path.join(BASE, "test", "tmp", "run"))
+                except OSError, ex:
+                    if ex.errno == errno.EEXIST:
+                        raise
 
         except subprocess.CalledProcessError:
             traceback.print_exc()

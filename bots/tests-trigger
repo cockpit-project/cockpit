@@ -7,18 +7,6 @@ sys.dont_write_bytecode = True
 
 import github
 
-def trigger_image(api, opts):
-    title = github.ISSUE_TITLE_IMAGE_REFRESH.format(opts.image)
-    if opts.pull:
-        # Add a comment to the pull request with the right text and set the right label
-        issue = api.get("issues/" + opts.pull)
-        api.post("issues/" + opts.pull + "/comments", { "body": "bot: " + title })
-        api.patch("issues/" + opts.pull, { "labels": issue['labels'] + [ "bot", "image/" + opts.image ] })
-    else:
-        # Make a new issue with the right content.
-        api.post("issues", { "title": title, "labels": [ "bot", "image/" + opts.image ], "body": "bot: " + title })
-    return 0
-
 def trigger_pull(api, opts):
     pull = api.get("pulls/" + opts.pull)
 
@@ -74,20 +62,12 @@ def main():
                         help='Force setting the status even if the program logic thinks it shouldn''t be done')
     parser.add_argument('-a', '--allow', action='store_true', dest='allow',
                         help="Allow triggering for users that aren't whitelisted")
-    parser.add_argument('--image', help='Trigger a image refresh instead of a testsuite run')
-    parser.add_argument('pull', nargs='?', help='The pull request to trigger')
+    parser.add_argument('pull', help='The pull request to trigger')
     parser.add_argument('context', nargs='?', help='The github task context to trigger')
     opts = parser.parse_args()
 
     api = github.GitHub()
-
-    if opts.image:
-        return trigger_image(api, opts)
-    elif opts.pull and not opts.image:
-        return trigger_pull(api, opts)
-    else:
-        sys.stderr.write("Please specify either --image or a pull request.\n")
-        return 1
+    return trigger_pull(api, opts)
 
 if __name__ == '__main__':
     sys.exit(main())

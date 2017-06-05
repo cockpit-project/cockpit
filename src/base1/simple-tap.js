@@ -13,7 +13,7 @@ var test = { };
     timeout = window.setTimeout(function() {
         console.log("test timed out, failed");
         console.log("phantom-tap-error");
-    }, 20000);
+    }, 60000);
 
     test.log = function log(message) {
         var output = document.getElementById("output");

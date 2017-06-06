@@ -286,6 +286,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             function links(component) {
                 return $("<li class='list-group-item'>")
                     .toggleClass("active", state.component === component.path)
+                    .toggleClass("hide", !!component.hide)
                     .append($("<a>")
                         .attr("href", index.href({ host: machine.address, component: component.path }))
                         .append($("<span>").text(component.label)));

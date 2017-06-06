@@ -170,7 +170,7 @@ def begin(publish, name, context, issue):
     }
 
     publishing = sink.Sink(publish, identifier, status)
-    sys.stderr.write("Running {0} {1} on {2}".format(name, context or "", hostname))
+    sys.stderr.write("Running {0} {1} on {2}\n".format(name, context or "", hostname))
     return publishing
 
 def finish(publishing, ret, name, context, issue):

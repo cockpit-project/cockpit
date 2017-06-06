@@ -40,8 +40,7 @@ __all__ = (
     'whitelist',
     'TESTING',
     'NO_TESTING',
-    'NOT_TESTED',
-    'ISSUE_TITLE_IMAGE_REFRESH'
+    'NOT_TESTED'
 )
 
 TESTING = "Testing in progress"
@@ -298,8 +297,8 @@ class GitHub(object):
         return result
 
 class Checklist(object):
-    def __init__(self, body):
-        self.process(body)
+    def __init__(self, body=None):
+        self.process(body or "")
 
     def process(self, body, items={ }):
         self.items = { }

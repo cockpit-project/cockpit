@@ -169,7 +169,9 @@ def begin(publish, name, context, issue):
         }
     }
 
-    return sink.Sink(publish, identifier, status)
+    publishing = sink.Sink(publish, identifier, status)
+    sys.stderr.write("Running {0} {1} on {2}".format(name, context or "", hostname))
+    return publishing
 
 def finish(publishing, ret, name, context, issue):
     if not publishing:
@@ -183,19 +185,18 @@ def finish(publishing, ret, name, context, issue):
         comment = "Task failed: :link"
 
     if issue:
-        body = None
+        data = { "title": issue["title"] }
         if not ret:
             item = "{0} {1}".format(name, context or "").strip()
             checklist = github.Checklist(issue["body"])
             checklist.check(item)
-            body = checklist.body
+            data["body"] = checklist.body
 
         number = issue["number"]
-        title = issue["title"]
         requests = [ {
             "method": "POST",
             "resource": api.qualify("issues/{0}".format(number)),
-            "data": { "title": title, "body": body }
+            "data": data
         } ]
         if comment:
             requests.append({
@@ -240,6 +241,8 @@ def run(context, function, **kwargs):
         ret = function(context, **kwargs)
     except (RuntimeError, subprocess.CalledProcessError), ex:
         ret = str(ex)
+    except KeyboardInterrupt:
+        raise
     except:
         traceback.print_exc(file=sys.stderr)
     finally:

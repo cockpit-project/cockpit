@@ -124,6 +124,7 @@ if [ -n "%{patches}" ]; then
 	git add -f . && git commit -a -q -m "Base" && git tag -a initial --message="initial"
 	git am --whitespace=nowarn %{patches}
 	touch -r $(git diff --name-only initial..HEAD) .git
+	touch configure.ac aclocal.m4 configure Makefile.am Makefile.in
 	rm -rf .git
 fi
 

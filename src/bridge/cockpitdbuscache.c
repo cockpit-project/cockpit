@@ -1629,10 +1629,13 @@ retrieve_properties (CockpitDBusCache *self,
 {
   GetAllData *gad;
 
-  /* Don't bother getting properties for this well known interface
-   * that doesn't have any.  Also, NetworkManager returns an error.
+  /* Don't bother getting properties for interfaces that don't have
+     any.  Also, NetworkManager and the Python bindings return an
+     error.
+
+     https://bugzilla.redhat.com/show_bug.cgi?id=1452017
    */
-  if (g_strcmp0 (iface->name, "org.freedesktop.DBus.Properties") == 0)
+  if (!iface->properties || !iface->properties[0])
     return;
 
   g_debug ("%s: calling GetAll() for %s at %s", self->logname, iface->name, path);

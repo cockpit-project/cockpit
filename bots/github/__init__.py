@@ -300,30 +300,39 @@ class Checklist(object):
     def __init__(self, body=None):
         self.process(body or "")
 
+    @staticmethod
+    def format_line(item, check):
+        status = ""
+        if isinstance(check, basestring):
+            status = check + ": "
+            check = False
+        return " * [{0}] {1}{2}".format(check and "x" or " ", status, item)
+
+    @staticmethod
+    def parse_line(line):
+        check = item = None
+        stripped = line.strip()
+        if stripped[:6] in ["* [ ] ", "- [ ] ", "* [x] ", "- [x] "]:
+            item = stripped[6:].strip()
+            check = stripped[3] == "x"
+        return (item, check)
+
     def process(self, body, items={ }):
         self.items = { }
         lines = [ ]
         items = items.copy()
         for line in body.splitlines():
-            item = None
-            checked = False
-            stripped = line.strip()
-            if stripped.startswith("* [ ] "):
-                item = stripped[6:].strip()
-                checked = False
-            elif stripped.startswith("* [x] "):
-                item = stripped[6:].strip()
-                checked = True
+            (item, check) = self.parse_line(line)
             if item:
                 if item in items:
-                    checked = items[item]
+                    check = items[item]
                     del items[item]
-                line = " * [{0}] {1}".format(checked and "x" or " ", item)
-                self.items[item] = checked
+                    line = self.format_line(item, check)
+                self.items[item] = check
             lines.append(line)
-        for item, checked in items.items():
-            line = " * [{0}] {1}".format(checked and "x" or " ", item)
-            lines.append(line)
+        for item, check in items.items():
+            lines.append(self.format_line(item, check))
+            self.items[item] = check
         self.body = "\n".join(lines)
 
     def check(self, item, checked=True):

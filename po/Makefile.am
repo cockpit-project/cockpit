@@ -112,16 +112,18 @@ update-po: po/cockpit.pot
 		$(MSGMERGE) --output-file=$(srcdir)/po/$$lang.po $(srcdir)/po/$$lang.po $<; \
 	done
 
+ZANATA_CLI = LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 zanata-cli -B
+
 upload-pot: po/cockpit.pot
-	zanata-cli -B push --includes cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
+	$(ZANATA_CLI) push --includes cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
 		-s "$(builddir)/po"
 
 upload-translations:
-	zanata-cli push --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
+	$(ZANATA_CLI) push --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
 		--push-type trans -s "$(builddir)/po" -t "$(srcdir)/po"
 
 download-po:
-	zanata-cli -B pull --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
+	$(ZANATA_CLI) pull --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
 		--min-doc-percent 1 -s "$(builddir)/po" -t "$(srcdir)/po"
 	sh -c 'cd $(srcdir)/po; ls *.po' | sed 's/\.po//g' | sort > $(srcdir)/po/LINGUAS
 

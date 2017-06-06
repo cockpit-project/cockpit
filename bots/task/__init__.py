@@ -200,7 +200,7 @@ def finish(publishing, ret, name, context, issue):
         # triggers it again by unchecking the box.
         item = "{0} {1}".format(name, context or "").strip()
         checklist = github.Checklist(issue["body"])
-        checklist.check(item)
+        checklist.check(item, ret and "FAIL" or True)
 
         number = issue["number"]
         requests = [ {

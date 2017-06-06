@@ -170,7 +170,11 @@ def begin(publish, name, context, issue):
     }
 
     publishing = sink.Sink(publish, identifier, status)
-    sys.stderr.write("Running {0} {1} on {2}\n".format(name, context or "", hostname))
+    sys.stdout.write("# Task: {0} {1}\n# Host: {2}\n\n".format(name, context or "", hostname))
+
+    # For statistics
+    publishing.start = time.time()
+
     return publishing
 
 def finish(publishing, ret, name, context, issue):
@@ -179,10 +183,16 @@ def finish(publishing, ret, name, context, issue):
 
     if not ret:
         comment = None
+        result = "Completed"
     elif isinstance(ret, basestring):
         comment = "{0}: :link".format(ret)
+        result = ret
     else:
         comment = "Task failed: :link"
+        result = "Failed"
+
+    duration = int(time.time() - publishing.start)
+    sys.stdout.write("\n# Result: {0}\n# Duration: {1}s\n".format(result, duration))
 
     if issue:
         # Note that we check whether pass or fail ... this is because

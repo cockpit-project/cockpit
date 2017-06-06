@@ -89,12 +89,17 @@ def contains_any(string, matches):
 # Map all checkable work items to fixtures
 def tasks_for_issues():
     results = [ ]
+    whitelist = github.whitelist()
     for issue in github.GitHub().issues(state="open"):
-        if not issue["title"].strip().startswith("WIP"):
-            checklist = github.Checklist(issue["body"])
-            for item, checked in checklist.items.items():
-                if not checked:
-                    results.append((item, issue))
+        if issue["title"].strip().startswith("WIP"):
+            continue
+        login = issue.get("user", { }).get("login", { })
+        if login not in whitelist:
+            continue
+        checklist = github.Checklist(issue["body"])
+        for item, checked in checklist.items.items():
+            if not checked:
+                results.append((item, issue))
     return results
 
 def output_task(command, issue, verbose):

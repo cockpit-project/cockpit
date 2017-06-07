@@ -24,7 +24,7 @@ export function spawnProcess({ cmd, args = [], stdin, failHandler }) {
     const spawnArgs = [cmd, ...args];
     logDebug(`spawn process args: ${spawnArgs}`);
 
-    return spawn(cockpit.spawn(spawnArgs, { err: "message" })
+    return spawn(cockpit.spawn(spawnArgs, { err: "message", environ: ['LC_ALL=C'] })
         .input(stdin))
         .fail((exception, data) => {
             if (failHandler) {
@@ -39,7 +39,7 @@ export function spawnScript({ script }) {
     const spawnArgs = [script];
     logDebug(`spawn script args: ${spawnArgs}`);
 
-    return spawn(cockpit.script(spawnArgs, [], { err: "message" }))
+    return spawn(cockpit.script(spawnArgs, [], { err: "message", environ: ['LC_ALL=C'] }))
         .fail((ex, data) =>
             console.error(`spawn '${script}' script error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
 }

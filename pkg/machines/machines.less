@@ -56,12 +56,13 @@
 }
 
 .machines-console-frame {
-    min-height: 555px;
+    height: 1px; /* keep at minimum, down-sizing does not work */
 }
 
 .machines-console-frame-vnc {
-    min-height: 555px;
     width: 100%;
+    height: 100%;
+    margin-top: -2em;
 }
 
 .left-delimiter {

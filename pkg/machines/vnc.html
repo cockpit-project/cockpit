@@ -79,17 +79,20 @@
         var resizeTimeout;
 
         function UIresize() {
+            var containerId = decodeURIComponent(WebUtil.getConfigVar('containerId', ''));
+            if (!containerId) {
+                console.error("containerId not found in no-vnc frame params!");
+                return ;
+            }
+
+            // Normally, the frame/container size shall resize the VM.
+            // Since this is not working, let's do it vice-versa: adapt browser's component height according to inner display's size.
+            // Another workaround is in canvas resizing which effectively leads to scaling. But this seems not look good.
             if (WebUtil.getConfigVar('resize', false)) {
-                console.log('Resizing noVNC');
-                var innerW = window.innerWidth;
-                var innerH = window.innerHeight;
-                var controlbarH = $D('noVNC_status_bar').offsetHeight + $D('vnc-main-menu').offsetHeight;
-                var padding = 5;
-                if (innerW !== undefined && innerH !== undefined) {
-                    var h = innerH - controlbarH - padding
-                    console.log('requestDesktopSize: ', innerW, h);
-                    rfb.requestDesktopSize(innerW, h);
-                }
+                var height = ($D('noVNC_canvas').height + 60)+ "px";
+                console.log('Resizing noVNC, height = ', height);
+                $("#" + containerId, window.parent.document)[0].style.height = height;
+                // no need to resize width - already 100%, potential scrollbar
             }
         }
         function FBUComplete(rfb, fbu) {

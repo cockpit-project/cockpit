@@ -182,9 +182,9 @@ var driver = {
 
     show: function(respond, file) {
         if (!file)
-            file = "page.png"
+            file = "page.png";
         page.render(file);
-        sys.stderr.writeLine("Wrote " + file)
+        sys.stderr.writeLine("Wrote " + file);
         respond({ result: null });
     },
 

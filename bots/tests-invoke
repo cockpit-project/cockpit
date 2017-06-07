@@ -287,17 +287,21 @@ class PullTask(object):
         elif ret is None:
             message = "Rebased"
             mark_respawn()
+            ret = 0 # A failure, but not for this script
         elif ret == 0:
             message = "Tests passed"
             mark_passed()
         else:
             message = "{0} tests failed".format(ret)
             mark_failed()
+            ret = 0 # A failure, but not for this script
         sink.status["message"] = message
         if "github" in sink.status:
             self.github_status_data["description"] = message
         del sink.status["extras"]
         sink.flush()
+
+        return ret
 
     def run(self, opts):
         head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
@@ -392,7 +396,7 @@ class PullTask(object):
 
         # All done
         if self.sink:
-            self.stop_publishing(ret)
+            ret = self.stop_publishing(ret)
 
         return ret
 

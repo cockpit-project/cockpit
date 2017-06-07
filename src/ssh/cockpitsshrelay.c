@@ -1389,16 +1389,6 @@ cockpit_ssh_connect (CockpitSshData *data,
         }
     }
 
-  rc = ssh_channel_request_exec (channel, data->ssh_options->command);
-  if (rc != SSH_OK)
-    {
-      g_message ("%s: couldn't execute command: %s: %s", data->logname,
-                 data->ssh_options->command,
-                 ssh_get_error (data->session));
-      problem = "internal-error";
-      goto out;
-    }
-
   g_debug ("%s: opened channel", data->logname);
 
   *out_channel = channel;
@@ -2093,6 +2083,7 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
                          gint outfd)
 {
   const gchar *problem;
+  int rc;
 
   static struct ssh_channel_callbacks_struct channel_cbs = {
     .channel_data_function = on_channel_data,
@@ -2109,12 +2100,15 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
 
   problem = cockpit_ssh_connect (self->ssh_data, self->connection_string, &self->channel);
   if (problem)
-    {
-      self->exit_code = AUTHENTICATION_FAILED;
-      cockpit_relay_disconnect (self, problem);
-      close (outfd);
-      return;
-    }
+    goto out;
+
+  self->event = ssh_event_new ();
+  memcpy (&self->channel_cbs, &channel_cbs, sizeof (channel_cbs));
+  self->channel_cbs.userdata = self;
+  ssh_callbacks_init (&self->channel_cbs);
+  ssh_set_channel_callbacks (self->channel, &self->channel_cbs);
+  ssh_set_blocking (self->session, 0);
+  ssh_event_add_session (self->event, self->session);
 
   self->pipe = g_object_new (COCKPIT_TYPE_PIPE,
                              "in-fd", 0,
@@ -2130,15 +2124,27 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
                                       G_CALLBACK (on_pipe_close),
                                       self);
 
-  self->event = ssh_event_new ();
-  memcpy (&self->channel_cbs, &channel_cbs, sizeof (channel_cbs));
-  self->channel_cbs.userdata = self;
-  ssh_callbacks_init (&self->channel_cbs);
-  ssh_set_channel_callbacks (self->channel, &self->channel_cbs);
-  ssh_set_blocking (self->session, 0);
-  ssh_event_add_session (self->event, self->session);
+  for (rc = SSH_AGAIN; rc == SSH_AGAIN; )
+    rc = ssh_channel_request_exec (self->channel, self->ssh_data->ssh_options->command);
+
+  if (rc != SSH_OK)
+    {
+      g_message ("%s: couldn't execute command: %s: %s", self->logname,
+                 self->ssh_data->ssh_options->command,
+                 ssh_get_error (self->session));
+      problem = "internal-error";
+      goto out;
+    }
 
   self->io = cockpit_ssh_relay_start_source (self);
+
+out:
+  if (problem)
+    {
+      self->exit_code = AUTHENTICATION_FAILED;
+      cockpit_relay_disconnect (self, problem);
+      close (outfd);
+    }
 }
 
 static void

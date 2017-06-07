@@ -44,6 +44,7 @@
 
 var page = require('webpage').create();
 var sys = require('system');
+var fs = require('fs');
 var clearedStorage = false;
 var messages = "";
 var onCheckpoint;
@@ -184,6 +185,17 @@ var driver = {
         if (!file)
             file = "page.png";
         page.render(file);
+        sys.stderr.writeLine("Wrote " + file);
+        respond({ result: null });
+    },
+
+    dump: function(respond, file) {
+        if (!file)
+            file = "page.html";
+        var data = page.evaluate(function() {
+            return document.documentElement.outerHTML;
+	});
+        fs.write(file, data, 'w');
         sys.stderr.writeLine("Wrote " + file);
         respond({ result: null });
     },

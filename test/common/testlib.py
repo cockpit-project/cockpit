@@ -406,7 +406,7 @@ class Browser:
             self.enter_page(path.split("#")[0], host=host)
 
     def snapshot(self, title, label=None):
-        """Take a snapshot of the current screen and save it as a PNG.
+        """Take a snapshot of the current screen and save it as a PNG and HTML.
 
         Arguments:
             title: Used for the filename.
@@ -414,6 +414,9 @@ class Browser:
         if self.phantom and self.phantom.valid:
             filename = "{0}-{1}.png".format(label or self.label, title)
             self.phantom.show(filename)
+            attach(filename)
+            filename = "{0}-{1}.html".format(label or self.label, title)
+            self.phantom.dump(filename)
             attach(filename)
 
     def kill(self):

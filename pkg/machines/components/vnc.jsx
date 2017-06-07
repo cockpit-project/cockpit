@@ -20,34 +20,38 @@
 import React from "react";
 import cockpit from 'cockpit';
 
+import { vmId } from '../helpers.es6';
+
 const _ = cockpit.gettext;
 
-const Frame = ({ url }) => {
+const Frame = ({ url, containerId }) => {
     return (
-        <iframe src={url} className='machines-console-frame-vnc' frameBorder='0'>
+        <iframe src={url} className='machines-console-frame-vnc' frameBorder='0' data-container-id={containerId}>
             {_("Your browser does not support iframes.")}
         </iframe>
     );
 };
 Frame.propTypes = {
     url: React.PropTypes.string.isRequired,
+    containerId: React.PropTypes.string.isRequired,
 };
 
-const Vnc = ({ consoleDetail }) => {
+const Vnc = ({ vm, consoleDetail }) => {
     if (!consoleDetail) {
         return null;
     }
+    const uniqueFrameContainerId = `${vmId(vm.name)}-novnc-frame-container`;
 
     const encrypt = window.location.protocol === "https:";
     const port = consoleDetail.tlsPort || consoleDetail.port;
 
-    let params = `?host=${consoleDetail.address}&port=${port}&encrypt=${encrypt}&true_color=1&resize=true`;
+    let params = `?host=${consoleDetail.address}&port=${port}&encrypt=${encrypt}&true_color=1&resize=true&containerId=${encodeURIComponent(uniqueFrameContainerId)}`;
     params = consoleDetail.password ? params += `&password=${consoleDetail.password}` : params;
 
     return (
-        <div className='machines-console-frame'>
+        <div id={uniqueFrameContainerId} className='machines-console-frame' style={{ height: '100px;' }}>
             <br />
-            <Frame url={`vnc.html${params}`} />
+            <Frame url={`vnc.html${params}`} containerId={uniqueFrameContainerId} />
         </div>
     );
 };

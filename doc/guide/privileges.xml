@@ -39,4 +39,38 @@ $ pkexec cockpit-bridge
     user to be able to escalate privileges in this way. However both Policy Kit and
     sudo may be configured to use other criteria.</para>
 
+  <section id="privileges-polkit">
+    <title>Customizing Polkit Privileges</title>
+
+    <para>Services like <ulink url="http://www.freedesktop.org/wiki/Software/systemd/">systemd</ulink>
+      and <ulink url="https://wiki.gnome.org/Projects/NetworkManager">NetworkManager</ulink> use
+      <ulink url="http://www.freedesktop.org/wiki/Software/polkit/">Polkit</ulink> to
+      validate and escalate privileges. It is possible to customize these rules with files
+      in <filename>/etc/polkit-1/rules.d</filename>.</para>
+
+    <para>Polkit rules files are
+      <ulink url="https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html">javascript with specific methods and objects</ulink>. For example, placing the following polkit rule to
+      <filename>/etc/polkit-1.rules.d/10-operators.rule</filename> allows all users in the
+      <code>operators</code> group to start, stop, restart and otherwise manage systemd services:</para>
+
+<programlisting>
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units") {
+        if (subject.isInGroup("operators")) {
+            return polkit.Result.YES;
+        }
+    }
+});
+</programlisting>
+
+    <para>In order to allow a certain group to perform any administrative action you could add
+      a rule like this:</para>
+
+<programlisting>
+polkit.addAdminRule(function(action, subject) {
+    return ["unix-group:operators"];
+});
+</programlisting>
+
+  </section>
 </chapter>

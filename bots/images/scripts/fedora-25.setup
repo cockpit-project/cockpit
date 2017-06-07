@@ -123,7 +123,7 @@ fi
 [ -z "$HAVE_KUBERNETES" ] || /var/lib/testvm/kubernetes.setup
 
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1341829
-# SELinux breaks coredumping on fedora-25
+# SELinux breaks coredumping on fedora-26
 printf '(allow init_t domain (process (rlimitinh)))\n' > domain.cil
 semodule -i domain.cil
 

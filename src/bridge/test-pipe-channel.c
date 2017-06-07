@@ -598,6 +598,104 @@ test_spawn_pty (void)
   g_object_unref (transport);
 }
 
+/* Create GBytes with the contents of @s, without terminating \0 */
+static GBytes *
+bytes_from_string (const gchar *s)
+{
+  gsize len;
+
+  len = strlen (s);
+  return g_bytes_new (s, len);
+}
+
+static void
+test_spawn_pty_resize (void)
+{
+  MockTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+  JsonObject *options;
+  JsonArray *array;
+  JsonObject *window;
+  GBytes *sent;
+  GString *received;
+  gconstpointer data;
+  gsize len;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  options = json_object_new ();
+  array = json_array_new ();
+  json_array_add_string_element (array, "/bin/bash");
+  json_array_add_string_element (array, "-i");
+  json_object_set_array_member (options, "spawn", array);
+  json_object_set_string_member (options, "payload", "stream");
+  json_object_set_boolean_member (options, "pty", TRUE);
+  window = json_object_new ();
+  json_object_set_int_member (window, "rows", 1234);
+  json_object_set_int_member (window, "cols", 4567);
+  json_object_set_object_member (options, "window", window);
+
+  channel = g_object_new (COCKPIT_TYPE_PIPE_CHANNEL,
+                          "options", options,
+                          "id", "548",
+                          "transport", transport,
+                          NULL);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  json_object_unref (options);
+
+  sent = bytes_from_string ("echo -e \"\\x7b$COLUMNS $LINES\\x7d\"\n");
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
+  g_bytes_unref (sent);
+
+  received = g_string_new ("");
+  while (!problem)
+    {
+      g_main_context_iteration (NULL, TRUE);
+      sent = mock_transport_pop_channel (transport, "548");
+      if (sent)
+        {
+          data = g_bytes_get_data (sent, &len);
+          g_string_append_len (received, data, len);
+
+          if (memchr (data, '}', len))
+            break;
+        }
+    }
+
+  options = json_object_new ();
+  window = json_object_new ();
+  json_object_set_int_member (window, "rows", 24);
+  json_object_set_int_member (window, "cols", 42);
+  json_object_set_object_member (options, "window", window);
+  cockpit_transport_emit_control (COCKPIT_TRANSPORT (transport), "options", "548", options, NULL);
+  json_object_unref (options);
+
+  sent = bytes_from_string ("echo -e \"\\x7b$COLUMNS $LINES\\x7d\"\nexit\n");
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
+  g_bytes_unref (sent);
+
+  while (!problem)
+    {
+      g_main_context_iteration (NULL, TRUE);
+      sent = mock_transport_pop_channel (transport, "548");
+      if (sent)
+        {
+          data = g_bytes_get_data (sent, &len);
+          g_string_append_len (received, data, len);
+        }
+    }
+
+  cockpit_assert_strmatch (received->str, "*{4567 1234}*{42 24}*");
+  g_string_free (received, TRUE);
+
+  g_assert_cmpstr (problem, ==, "");
+  g_object_unref (channel);
+
+  g_free (problem);
+  g_object_unref (transport);
+}
+
 static void
 test_send_invalid (TestCase *tc,
                    gconstpointer unused)
@@ -734,6 +832,7 @@ main (int argc,
   g_test_add_func ("/pipe-channel/spawn/status", test_spawn_status);
   g_test_add_func ("/pipe-channel/spawn/environ", test_spawn_environ);
   g_test_add_func ("/pipe-channel/spawn/pty", test_spawn_pty);
+  g_test_add_func ("/pipe-channel/spawn/pty-resize", test_spawn_pty_resize);
 
   g_test_add_func ("/pipe-channel/fail/not-found", test_fail_not_found);
   g_test_add_func ("/pipe-channel/fail/access-denied", test_fail_access_denied);

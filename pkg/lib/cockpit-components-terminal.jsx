@@ -31,8 +31,9 @@
      * The only required property is 'channel', which must point to a cockpit
      * stream channel.
      *
-     * The size of the terminal defaults to 80 by 25. It can be changed with the
-     * 'rows' and 'cols' properties.
+     * The size of the terminal can be set with the 'rows' and 'cols'
+     * properties. If those properties are not given, the terminal will fill
+     * its container.
      *
      * If the 'onTitleChanged' callback property is set, it will be called whenever
      * the title of the terminal changes.
@@ -47,17 +48,10 @@
             onTitleChanged: React.PropTypes.func
         },
 
-        getDefaultProps: function () {
-            return {
-                cols: 80,
-                rows: 25
-            };
-        },
-
         componentWillMount: function () {
             var term = new Term({
-                cols: this.props.cols,
-                rows: this.props.rows,
+                cols: this.state.cols || 80,
+                rows: this.state.rows || 25,
                 screenKeys: true,
                 useStyle: true
             });
@@ -76,11 +70,23 @@
         componentDidMount: function () {
             this.state.terminal.open(this.refs.terminal);
             this.connectChannel();
+
+            if (!this.props.rows) {
+                window.addEventListener('resize', this.onWindowResize);
+                this.onWindowResize();
+            }
         },
 
-        componentWillUpdate: function (nextProps) {
-            if (nextProps.cols !== this.props.cols || nextProps.rows !== this.props.rows)
-                this.state.terminal.resize(nextProps.cols, nextProps.rows);
+        componentWillUpdate: function (nextProps, nextState) {
+            if (nextState.cols !== this.state.cols || nextState.rows !== this.state.rows) {
+                this.state.terminal.resize(nextState.cols, nextState.rows);
+                this.props.channel.control({
+                    window: {
+                        rows: nextState.rows,
+                        cols: nextState.cols
+                    }
+                });
+            }
 
             if (nextProps.channel !== this.props.channel) {
                 this.state.terminal.reset();
@@ -132,6 +138,25 @@
         focus: function () {
             if (this.state.terminal)
                 this.state.terminal.focus();
+        },
+
+        onWindowResize: function () {
+            var padding = 2 * 11;
+            var node = this.getDOMNode();
+            var terminal = this.refs.terminal.querySelector('.terminal');
+
+            var ch = document.createElement('div');
+            ch.textContent = 'M';
+            terminal.appendChild(ch);
+            var height = ch.offsetHeight; // offsetHeight is only correct for block elements
+            ch.style.display = 'inline';
+            var width = ch.offsetWidth;
+            terminal.removeChild(ch);
+
+            this.setState({
+                rows: Math.floor((node.parentElement.clientHeight - padding) / height),
+                cols: Math.floor((node.parentElement.clientWidth - padding) / width)
+            });
         }
     });
 

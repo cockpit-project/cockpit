@@ -320,13 +320,16 @@ a {
 }
 
 /* Our terminal or logs */
+.console-ct-container {
+    border: none;
+}
+
 .console-ct {
     font-family: Menlo, Monaco, Consolas, monospace;
-    margin-top: 0;
-    margin-bottom: 0;
+    margin: 0;
     font-size: 10px;
-    text-align: center;
     line-height: 1;
+    display: inline-block; /* size DIV to contents */
 }
 
 @media (min-width: 568px) {
@@ -352,20 +355,11 @@ a {
     color: #F0F0F0;
     text-align: left;
     outline: medium none;
-    background-color: black;
-    border: 1px solid black;
-    padding: 10px;
-    display: inline-block; /* size DIV to contents */
 }
 
 .console-ct .terminal-cursor {
     color: #000;
     background: #f0f0f0;
-}
-
-.console-ct-container {
-    display: table;
-    margin: 1em auto;
 }
 
 /* On/off switch */

@@ -118,6 +118,7 @@ var info = {
         ],
         "systemd/terminal": [
             "systemd/terminal.jsx",
+            "systemd/terminal.css",
         ],
 
         "tuned/performance": [

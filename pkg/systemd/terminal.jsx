@@ -66,20 +66,23 @@
             var terminal;
             if (this.state.channel)
                 terminal = (<componentsTerminal.Terminal ref="terminal"
+                                                         fullscreen="true"
                                                          channel={this.state.channel}
                                                          onTitleChanged={this.onTitleChanged} />);
             else
                 terminal = <span>Loading...</span>;
 
             return (
-                <div className="panel panel-default console-ct-container">
+                <div className="console-ct-container">
                     <div className="panel-heading">
                         <tt className="terminal-title">{this.state.title}</tt>
                         <button ref="resetButton"
                                 className="btn btn-default pull-right"
                                 onClick={this.onResetClick}>{_("Reset")}</button>
                     </div>
-                    {terminal}
+                    <div className="panel-body">
+                        {terminal}
+                    </div>
                 </div>
             );
         }

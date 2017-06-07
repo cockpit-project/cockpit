@@ -39,25 +39,21 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         def line_sel(i):
             return '.terminal div:nth-child(%d)' % i
 
-        def line_text(t):
-            return t + u'\xa0'*(80-len(t))
-
         def wait_line(i,t):
-            b.wait_text(line_sel(i), line_text(t))
+            b.wait_in_text(line_sel(i), t)
 
         b.wait_present('.terminal')
         b.focus('.terminal')
 
-        # wait for prompt in first line and remember it
+        # wait until first line is not empty
         n = 1
-        b.wait_text_not(line_sel(n), line_text(""))
-        prompt = b.text(line_sel(n))
+        b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ''})", line_sel(n))
 
-        # If there's a helpful instructions about sudo as a prefix ignore them
-        if "sudo" in prompt:
-            n = 4
-            b.wait_text_not(line_sel(n), line_text(""))
-            prompt = b.text(line_sel(n))
+        # clear any messages (for example, instructions about sudo) and wait for prompt
+        b.key_press( [ 'c', 'l', 'e', 'a', 'r', 'Return' ] )
+        wait_line(n, "$")
+
+        prompt = b.text(line_sel(n))
 
         # Make sure we are started in home directory
         # Account for non-standard prompting
@@ -80,12 +76,8 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         # now reset terminal
         b.click('.btn:contains("Reset")')
 
-        b.focus('.terminal')
-
-        # terminal should be empty, so we look at lines 1 and 2 again
-        wait_line(n, prompt)
-        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ß', 'm', 'i', 'Return' ])
-        wait_line(n + 1, u'ßmi')
+        # assert that the output from earlier is gone
+        self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
 if __name__ == '__main__':
     test_main()

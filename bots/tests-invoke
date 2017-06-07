@@ -185,13 +185,6 @@ class PullTask(object):
                         with open(path, "w") as f:
                             f.write(code)
 
-                # COMPAT: Create a legacy tmp/run directory to prevent races during testing
-                try:
-                    os.makedirs(os.path.join(BASE, "test", "tmp", "run"))
-                except OSError, ex:
-                    if ex.errno == errno.EEXIST:
-                        raise
-
         except subprocess.CalledProcessError:
             traceback.print_exc()
             return "Rebase checkout of bots failed"
@@ -239,7 +232,7 @@ class PullTask(object):
                     os.unlink(dest)
                 os.symlink(os.path.realpath(target), dest)
 
-        # Older branches require naughty files linked into specific places
+        # COMPAT: Older branches require naughty files linked into specific places
         # and do not use the image-pepare tooling
         naughty_files = os.path.join(BOTS, "naughty")
         for name in os.listdir(naughty_files):
@@ -249,6 +242,13 @@ class PullTask(object):
             elif os.path.lexists(dest):
                 os.unlink(dest)
             os.symlink(os.path.join("..", "..", "bots", "naughty", name), dest)
+
+        # COMPAT: Create a legacy tmp/run directory to prevent races during testing
+        try:
+            os.makedirs(os.path.join(BASE, "test", "tmp", "run"))
+        except OSError, ex:
+            if ex.errno != errno.EEXIST:
+                raise
 
         # Now actually run the prepare tooling
         cmd = [ os.path.join(BOTS, "image-prepare") ]

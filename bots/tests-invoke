@@ -369,8 +369,6 @@ class PullTask(object):
         else:
             ret = "Unknown context"
 
-        if cmd and opts.verbose:
-            cmd.append("--verbose")
 
         env = os.environ.copy()
         if "TEST_DATA" in env:
@@ -388,6 +386,8 @@ class PullTask(object):
 
         # Actually run the tests
         if not ret:
+            if opts.verbose:
+                cmd.append("--verbose")
             ret = subprocess.call(cmd, env=env)
 
         # All done

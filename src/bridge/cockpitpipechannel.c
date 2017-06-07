@@ -29,7 +29,9 @@
 #include <gio/gunixsocketaddress.h>
 
 #include <sys/wait.h>
+#include <sys/ioctl.h>
 #include <string.h>
+#include <errno.h>
 
 /**
  * CockpitPipeChannel:
@@ -58,6 +60,7 @@ typedef struct {
   gint64 batch;
   gint64 latency;
   guint timeout;
+  gboolean pty;
 } CockpitPipeChannel;
 
 typedef struct {
@@ -128,6 +131,37 @@ process_pipe_buffer (CockpitPipeChannel *self,
 }
 
 static gboolean
+cockpit_pipe_channel_read_window_size_options (JsonObject *options,
+                                               gushort default_rows,
+                                               gushort default_cols,
+                                               gushort *rowsp,
+                                               gushort *colsp)
+{
+  gint64 rows, cols;
+  JsonObject *window;
+
+  if (!cockpit_json_get_object (options, "window", NULL, &window))
+    return FALSE;
+
+  if (window == NULL)
+    {
+      *rowsp = default_rows;
+      *colsp = default_cols;
+      return TRUE;
+    }
+
+  if (cockpit_json_get_int (window, "rows", default_rows, &rows) &&
+      cockpit_json_get_int (window, "cols", default_cols, &cols))
+    {
+      *rowsp = (gushort) CLAMP (rows, 0, G_MAXUINT16);
+      *colsp = (gushort) CLAMP (cols, 0, G_MAXUINT16);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 cockpit_pipe_channel_control (CockpitChannel *channel,
                               const gchar *command,
                               JsonObject *message)
@@ -151,6 +185,32 @@ cockpit_pipe_channel_control (CockpitChannel *channel,
           cockpit_channel_fail (channel, "protocol-error",
                                 "invalid \"latency\" option for stream channel");
           goto out;
+        }
+
+      /* ignore size options if this channel is not a pty or we are in prepare() */
+      if (self->pty && self->pipe)
+        {
+          gushort rows, cols;
+
+          if (!cockpit_pipe_channel_read_window_size_options (message, 0, 0, &rows, &cols))
+            {
+              g_warning ("%s: invalid \"window.rows\" or \"window.cols\" option for stream channel", self->name);
+              goto out;
+            }
+
+          if (rows > 0 && cols > 0)
+            {
+              gint fd;
+
+              g_object_get (self->pipe, "in-fd", &fd, NULL);
+              if (fd >= 0)
+                {
+                  struct winsize size = { rows, cols, 0, 0 };
+
+                  if (ioctl (fd, TIOCSWINSZ, &size) < 0)
+                    g_warning ("cannot set terminal size for stream channel: %s", g_strerror (errno));
+                }
+            }
         }
 
       process_pipe_buffer (self, NULL);
@@ -350,7 +410,6 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
   gchar **argv = NULL;
   gchar **env = NULL;
   const gchar *internal = NULL;
-  gboolean pty;
   const gchar *dir;
   const gchar *error;
   gint fd;
@@ -401,7 +460,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
                                 "invalid \"directory\" option for stream channel");
           goto out;
         }
-      if (!cockpit_json_get_bool (options, "pty", FALSE, &pty))
+      if (!cockpit_json_get_bool (options, "pty", FALSE, &self->pty))
         {
           cockpit_channel_fail (channel, "protocol-error",
                                 "invalid \"pty\" option for stream channel");
@@ -410,10 +469,22 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
       env = parse_environ (channel, options, dir);
       if (!env)
         goto out;
-      if (pty)
-        self->pipe = cockpit_pipe_pty ((const gchar **)argv, (const gchar **)env, dir);
+      if (self->pty)
+        {
+          gushort rows, cols;
+
+          if (!cockpit_pipe_channel_read_window_size_options (options, 24, 80, &rows, &cols))
+            {
+              g_warning ("%s: invalid \"window.rows\" or \"window.cols\" option for stream channel", self->name);
+              goto out;
+            }
+
+          self->pipe = cockpit_pipe_pty ((const gchar **)argv, (const gchar **)env, dir, rows, cols);
+        }
       else
-        self->pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, dir, flags);
+        {
+          self->pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, dir, flags);
+        }
     }
   else if (internal && steal_internal_fd (internal, &fd))
     {

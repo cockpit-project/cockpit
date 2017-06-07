@@ -833,7 +833,7 @@ test_pty_shell (void)
 
   const gchar *argv[] = { "/bin/bash", "-i", NULL };
 
-  pipe = cockpit_pipe_pty (argv, NULL, NULL);
+  pipe = cockpit_pipe_pty (argv, NULL, NULL, 24, 80);
   g_assert (pipe != NULL);
 
   sent = g_bytes_new_static ("echo booyah\nexit\n", 17);

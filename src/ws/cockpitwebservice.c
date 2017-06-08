@@ -1317,11 +1317,26 @@ cockpit_web_service_create_socket (const gchar **protocols,
                          path);
 
   origins = cockpit_conf_strv ("WebService", "Origins", ' ');
+  
   if (origins == NULL)
     {
       origin = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
+      
+      GError *error = NULL;
+      gsize len;
+      gchar *alt_origin = NULL;
+      g_file_get_contents ("/etc/cockpit/alt_origin", &alt_origin, &len, &error);
+      
+      size_t ln = strlen(alt_origin) - 1;
+      if(alt_origin[ln] == '\n')
+          alt_origin[ln] = '\0';
+
+      g_message("AltOrigin: %s", alt_origin);
+    
+
       defaults[0] = origin;
-      defaults[1] = NULL;
+      defaults[1] = alt_origin;
+      defaults[2] = NULL;
       origins = (const gchar **)defaults;
     }
 

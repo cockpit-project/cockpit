@@ -118,10 +118,14 @@ OnCalendar=*:1/2
         b.wait_in_text(svc_sel('test.timer'), "Today")
         b.wait_in_text(svc_sel('test.timer'), "unknown")
         m.execute("systemctl stop test.timer")
+
         # Selects Services tab
         b.click('#services-filter :nth-child(2)')
         b.wait_present(svc_sel('test.service'))
         b.click(svc_sel("test.service"))
+        # systemd is often reloaded and above 'enable' takes effect
+        # Log line like: systemd[1]: Reloading.
+        m.execute("systemctl stop test.service")
         b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
         b.wait_action_btn(unit_action_btn, "Start")

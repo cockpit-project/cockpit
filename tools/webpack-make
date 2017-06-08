@@ -138,6 +138,8 @@ function generateDeps(makefile, stats) {
             !endsWith(output, "shell/simple.html") &&
             !endsWith(output, ".png") &&
             !endsWith(output, ".map") &&
+            !endsWith(output, ".ttf") &&
+            !endsWith(output, ".woff") &&
             !endsWith(output, ".gif")) {
             install += ".gz";
         }

@@ -113,7 +113,7 @@ function getVirtProvider (store) {
 export function virt(method, action) {
     return (dispatch, getState) => getVirtProvider({dispatch, getState}).then(provider => {
         if (method in provider) {
-            logDebug(`Calling ${provider.name}.${method}(${JSON.stringify(action)})`);
+            logDebug(`Calling ${provider.name}.${method}`, action);
             return dispatch(provider[method](action));
         } else {
             console.warn(`method: '${method}' is not supported by provider: '${provider.name}'`);

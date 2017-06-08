@@ -174,6 +174,9 @@ var info = {
 
         "machines/index.html",
         "machines/manifest.json",
+        "machines/vnc.html",
+        "machines/vnc.css",
+	// no-vnc files from machines/include are added dynamically later
 
         "networkmanager/index.html",
         "networkmanager/manifest.json",
@@ -262,6 +265,16 @@ var section = process.env.ONLYDIR || null;
 
 /* A standard nodejs and webpack pattern */
 var production = process.env.NODE_ENV === 'production';
+
+/* Dynamically add no-vnc dependencies to the info.files */
+var noVncIncludes = fs.readdirSync(bowerdir + "/no-vnc/include")
+    .filter(function (fileName) {
+	return fileName.match(/.*(js|css|ttf|woff)$/);
+    })
+    .map(function (fileName) {
+        return "machines/include/" + fileName;
+    });
+Array.prototype.push.apply(info.files, noVncIncludes);
 
 /*
  * Note that we're avoiding the use of path.join as webpack and nodejs

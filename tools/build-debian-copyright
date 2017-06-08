@@ -36,19 +36,23 @@ def template_licenses(template):
 def module_license(moddir):
     '''Return License: short name for given module'''
 
-    # First check if bower.json has a "license" field
-    try:
-        with open(os.path.join(moddir, 'bower.json')) as f:
-            l = json.load(f)['license']
-            if 'and MIT' in l:
-                # https://github.com/requirejs/requirejs/issues/1645
-                return 'MIT'
-            if os.path.basename(moddir) == 'qunit' and 'https://' in l:
-                # fixed in 2.1.0 (https://github.com/qunitjs/qunit/commit/6e3f6e8e40c4)
-                return 'MIT'
-            return l
-    except (IOError, KeyError):
-        pass
+    # First check if bower.json or package.json has a "license" field
+    for f in ['bower.json', 'package.json']:
+        try:
+            with open(os.path.join(moddir, f)) as f:
+                l = json.load(f)['license']
+                if 'and MIT' in l:
+                    # https://github.com/requirejs/requirejs/issues/1645
+                    return 'MIT'
+                if os.path.basename(moddir) == 'qunit' and 'https://' in l:
+                    # fixed in 2.1.0 (https://github.com/qunitjs/qunit/commit/6e3f6e8e40c4)
+                    return 'MIT'
+                if l == 'MPL 2.0':
+                    # https://github.com/novnc/noVNC/pull/819
+                    return 'MPL-2.0'
+                return l
+        except (IOError, KeyError):
+            pass
 
     # *LICENSE*/COPYING/README
     if os.path.exists(os.path.join(moddir, 'MIT-LICENSE.txt')):

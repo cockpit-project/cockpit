@@ -61,7 +61,7 @@ class TestMachines(MachineCase):
 
         m.execute("qemu-img create -f qcow2 {0} 1G".format(self.vm1_img))
         m.execute("qemu-img create -f qcow2 {0} 2G".format(self.vm1_img2))
-        m.execute("virt-install --cpu host -r 128 --pxe --force --nographics --noautoconsole "
+        m.execute("virt-install --cpu host -r 128 --pxe --force --graphics spice,listen=127.0.0.1 --noautoconsole "
                   "--disk path={0},size=1,format=qcow2 --disk path={1},size=2,format=qcow2 "
                   "--boot hd,network "
                   "-n {2} || true"
@@ -212,6 +212,9 @@ class TestMachines(MachineCase):
         b.wait_present("#test-vm-action-{0}".format(self.providerVm1_name)) # is provider-specific action button rendered?
         b.wait_in_text("#test-vm-props-{0}".format(self.providerVm1_name), "Test Provider Property") # are provider-specific VM props rendered?
 
+        b.click("{0}-off-caret".format(self.providerVm1_id))
+        b.wait_visible("{0}-off".format(self.providerVm1_id))
+
         b.click("{0}-off".format(self.providerVm1_id)) # click the Shut Down button
         b.wait_in_text("{0}-state".format(self.providerVm1_id), "shut off")
 
@@ -224,6 +227,32 @@ class TestMachines(MachineCase):
         b.wait_visible("{0}-vcpus".format(self.providerVm1_id)) # wait till the tab is fully rendered
         b.wait_present("{0}-last-message".format(self.providerVm1_id))
         b.wait_in_text("{0}-last-message".format(self.providerVm1_id), "VM failed to start")
+
+    def testConsoles(self):
+        state = self.envSetup()
+
+        b = self.browser
+
+        if state == "running":
+            b.click("tbody tr th") # click on the row header
+            b.wait_present("{0}-state".format(self.vm1_id))
+            b.wait_in_text("{0}-state".format(self.vm1_id), state) # running or paused
+
+            b.wait_present("{0}-consoles".format(self.vm1_id)) # wait for the tab
+            b.click("{0}-consoles".format(self.vm1_id)) # open the "Console" subtab
+
+            # since VNC is not defined for this VM, the view for "Desktop Viewer" is rendered by default
+            b.wait_present("{0}-consoles-manual-address".format(self.vm1_id)) # wait for the tab
+            b.wait_in_text("{0}-consoles-manual-address".format(self.vm1_id), "127.0.0.1")
+            b.wait_in_text("{0}-consoles-manual-port-spice".format(self.vm1_id), "5900")
+
+            b.wait_present("{0}-consoles-launch".format(self.vm1_id)) # "Launch Remote Viewer" button
+            b.click("{0}-consoles-launch".format(self.vm1_id))
+            b.wait_present("#dynamically-generated-file") # is .vv file generated for download?
+            self.assertEqual(b.attr("#dynamically-generated-file", "href"), u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
+        else:
+            print "WARNING: Test VM creation failed, virt-install finished in 'paused' state. Skipping the 'testConsoles' scenario"
+
 
 if __name__ == '__main__':
     test_main()

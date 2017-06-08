@@ -2,47 +2,56 @@
 # Jérôme Fenal <jfenal@gmail.com>, 2015. #zanata
 # Jérôme Bivia <jerome.bivia@gmail.com>, 2016. #zanata
 # Jérôme Fenal <jfenal@gmail.com>, 2016. #zanata
+# Peter Perron <peter.perron@videotron.ca>, 2017. #zanata
+# cockpit <cockpituous@gmail.com>, 2017. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-02 13:53+0200\n"
-"PO-Revision-Date: 2016-06-04 02:47-0400\n"
-"Last-Translator: Jérôme Fenal <jfenal@gmail.com>\n"
-"Language-Team: French\n"
-"Language: fr\n"
+"POT-Creation-Date: 2017-06-07 07:42+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2017-04-13 11:28-0400\n"
+"Last-Translator: Peter Perron <peter.perron@videotron.ca>\n"
+"Language-Team: French\n"
+"Language: fr\n"
 "X-Generator: Zanata 3.9.6\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: pkg/docker/storage.jsx:244
+#: pkg/docker/storage.jsx:245
 msgid " (shared with the OS)"
-msgstr ""
+msgstr " (partagé avec le système d'exploitation)"
 
 #: pkg/kubernetes/views/node-delete.html:8
 msgid " 1\"Do you want to delete the following Nodes?"
-msgstr ""
+msgstr " 1\"Désirez-vous supprimer les noeuds suivants?"
 
-#: pkg/storaged/overview.js:256
+#: pkg/storaged/overview.js:254
 msgid "$0 Block Device"
-msgstr ""
+msgstr "Périphérique de bloc de $0"
 
-#: pkg/storaged/details.js:361
+#: pkg/storaged/details.jsx:290
 msgid "$0 Chunk Size"
 msgstr "taille de bloc $0"
 
-#: pkg/storaged/details.js:359
+#: pkg/storaged/details.jsx:288
 msgid "$0 Disks"
 msgstr "$0 disques"
 
-#: pkg/storaged/content-views.jsx:290
+#: pkg/storaged/content-views.jsx:303
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "Système de fichier $0"
 
-#: pkg/systemd/init.js:376 pkg/systemd/init.js:659
+#: pkg/realmd/operation.js:108
+msgid ""
+"$0 Only users with local credentials will be able to log into this machine. "
+"This may also effect other services as DNS resolution settings and the list "
+"of trusted CAs may change."
+msgstr ""
+
+#: pkg/systemd/init.js:376 pkg/systemd/init.js:655
 msgid "$0 Template"
 msgstr "Modèle de $0"
 
@@ -50,36 +59,36 @@ msgstr "Modèle de $0"
 #: src/base1/test-locale.js:84 src/base1/test-locale.js:85
 msgid "$0 bit"
 msgid_plural "$0 bits"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 bit"
+msgstr[1] "$0 bits"
 
 #: src/base1/test-locale.js:73 src/base1/test-locale.js:74
 #: src/base1/test-locale.js:86 src/base1/test-locale.js:87
 msgid "$0 byte"
 msgid_plural "$0 bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 octet"
+msgstr[1] "$0 octets"
 
 #: src/base1/test-locale.js:75 src/base1/test-locale.js:76
 msgctxt "memory"
 msgid "$0 byte"
 msgid_plural "$0 bytes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 octet"
+msgstr[1] "$0 octets"
 
 #: pkg/lib/plot.js:890
 msgid "$0 day"
 msgid_plural "$0 days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 jour"
+msgstr[1] "$0 jours"
 
 #: src/base1/test-locale.js:64 src/base1/test-locale.js:65
 #: src/base1/test-locale.js:66 pkg/playground/translate.js:28
-#: pkg/playground/translate.js:31 pkg/storaged/details.js:372
+#: pkg/playground/translate.js:31 pkg/storaged/details.jsx:301
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 disque est manquant"
+msgstr[1] "$0 disques sont manquants"
 
 #: src/base1/test-locale.js:67 src/base1/test-locale.js:69
 #: src/base1/test-locale.js:71 pkg/playground/translate.js:34
@@ -87,65 +96,70 @@ msgstr[1] ""
 msgctxt "disk-non-rotational"
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 disque est manquant"
+msgstr[1] "$0 disques sont manquants"
 
 #: src/ws/login.js:279 src/ws/login.js:601
-#, fuzzy
 msgid "$0 error"
-msgstr "Erreur"
+msgstr ""
 
-#: src/base1/cockpit.js:2662
+#: src/base1/cockpit.js:2682
 msgid "$0 exited with code $1"
-msgstr ""
+msgstr "$0 s'est terminé avec le code $1"
 
-#: src/base1/cockpit.js:2664
+#: src/base1/cockpit.js:2684
 msgid "$0 failed"
-msgstr ""
+msgstr "$0 a échoué"
 
 #: pkg/lib/plot.js:893
 msgid "$0 hour"
 msgid_plural "$0 hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 heure"
+msgstr[1] "$0 heures"
+
+#: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
+#: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
+#: pkg/storaged/format-dialog.jsx:117
+msgid "$0 is in active use"
+msgstr ""
 
 #: pkg/ostree/client.js:484
 msgid "$0 key ID"
 msgstr ""
 
-#: src/base1/cockpit.js:2660
+#: src/base1/cockpit.js:2680
 msgid "$0 killed with signal $1"
-msgstr ""
+msgstr "$0 a été arrêté avec le signal $1"
 
 #: pkg/lib/plot.js:896
 msgid "$0 minute"
 msgid_plural "$0 minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 minute"
+msgstr[1] "$0 minutes"
 
 #: pkg/lib/plot.js:884
 msgid "$0 month"
 msgid_plural "$0 months"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 mois"
+msgstr[1] "$0 mois"
 
 #: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "$0 occurrence"
 msgid_plural "$1 occurrences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 occurrence"
+msgstr[1] "$0 occurrences"
 
 #: pkg/storaged/fsys-tab.jsx:58
 msgid "$0 of $1"
-msgstr ""
+msgstr "$0 de $1"
 
 #: pkg/ostree/app.js:471
 msgid "$0 package"
-msgstr ""
+msgstr "$0 paquet"
 
 #: pkg/ostree/app.js:471
 msgid "$0 packages"
-msgstr ""
+msgstr "$0 paquets"
 
 #: pkg/docker/util.js:123
 msgid "$0 shares"
@@ -154,43 +168,47 @@ msgstr "$0 partages"
 #: pkg/lib/plot.js:887
 msgid "$0 week"
 msgid_plural "$0 weeks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 semaine"
+msgstr[1] "$0 semaines"
 
 #: pkg/lib/plot.js:881
 msgid "$0 year"
 msgid_plural "$0 years"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0 an"
+msgstr[1] "$0 ans"
 
 #: pkg/kubernetes/scripts/nodes.js:870
 #, c-format
 msgid "$0% Free"
 msgid_plural "$0% Free"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0% disponible"
+msgstr[1] "$0% disponible"
 
 #: pkg/kubernetes/scripts/nodes.js:872
 msgid "$0% Used"
 msgid_plural "$0% Used"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "$0% utilisé"
+msgstr[1] "$0% utilisé"
 
-#: pkg/storaged/details.js:503
+#: pkg/storaged/sidebar-views.jsx:300
 msgid "$0, $1 free"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2579
+#: pkg/networkmanager/interfaces.js:2640
 msgid "$mtu"
 msgstr ""
 
-#: pkg/storaged/utils.js:157
+#: pkg/storaged/utils.js:164
 msgid "$name (from $host)"
 msgstr "$name (de $host)"
 
 #: pkg/docker/details.js:143
 msgid "${hip}:${hport} -> $cport"
 msgstr "${hip}:${hport} -> $cport"
+
+#: pkg/storaged/utils.js:128
+msgid "${size} ${desc}"
+msgstr ""
 
 #: pkg/subscriptions/subscriptions-client.js:198
 msgid "'Organization' required to register."
@@ -202,272 +220,273 @@ msgstr ""
 
 #: pkg/storaged/fsys-tab.jsx:185
 msgid "(default)"
-msgstr ""
+msgstr "(défaut)"
 
 #: pkg/storaged/crypto-tab.jsx:138
 msgid "(none)"
-msgstr ""
+msgstr "(aucun)"
 
 #: pkg/ostree/index.html:92
 #, fuzzy
 msgid "- Add New Repository"
 msgstr "Dépôt"
 
-#: pkg/storaged/overview.js:443
+#: pkg/storaged/overview.js:441
 msgid "1 MiB"
-msgstr ""
+msgstr "1 Mio"
 
-#: pkg/systemd/index.html:443 pkg/systemd/index.html:447
+#: pkg/systemd/index.html:453 pkg/systemd/index.html:457
 msgid "1 Minute"
-msgstr ""
+msgstr "1 minute"
 
-#: pkg/networkmanager/index.html:56 pkg/networkmanager/index.html:543
-#: pkg/storaged/index.html:310 pkg/systemd/index.html:181
-#: pkg/dashboard/index.html:55
+#: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:56
+#: pkg/networkmanager/index.html:543 pkg/storaged/index.html:310
+#: pkg/systemd/index.html:191
 msgid "1 day"
 msgstr "1 jour"
 
-#: pkg/networkmanager/index.html:54 pkg/networkmanager/index.html:541
-#: pkg/storaged/index.html:308 pkg/systemd/index.html:177
-#: pkg/dashboard/index.html:51
+#: pkg/dashboard/index.html:51 pkg/networkmanager/index.html:54
+#: pkg/networkmanager/index.html:541 pkg/storaged/index.html:308
+#: pkg/systemd/index.html:187
 msgid "1 hour"
 msgstr "1 heure"
 
-#: pkg/systemd/host.js:1424
+#: pkg/systemd/host.js:1451
 msgid "1 min"
-msgstr ""
+msgstr "1 min"
 
-#: pkg/networkmanager/index.html:57 pkg/networkmanager/index.html:544
-#: pkg/storaged/index.html:311 pkg/systemd/index.html:183
-#: pkg/dashboard/index.html:57
+#: pkg/dashboard/index.html:57 pkg/networkmanager/index.html:57
+#: pkg/networkmanager/index.html:544 pkg/storaged/index.html:311
+#: pkg/systemd/index.html:193
 msgid "1 week"
 msgstr "1 semaine"
 
 #: pkg/systemd/services.html:215
 msgid "10th"
-msgstr ""
+msgstr "10e"
 
 #: pkg/systemd/services.html:216
 msgid "11th"
-msgstr ""
+msgstr "11e"
 
-#: pkg/storaged/overview.js:441
+#: pkg/storaged/overview.js:439
 msgid "128 KiB"
-msgstr ""
+msgstr "128 Kio"
 
 #: pkg/systemd/services.html:217
 msgid "12th"
-msgstr ""
+msgstr "12e"
 
 #: pkg/systemd/services.html:218
 msgid "13th"
-msgstr ""
+msgstr "13e"
 
 #: pkg/systemd/services.html:219
 msgid "14th"
-msgstr ""
+msgstr "14e"
 
 #: pkg/systemd/services.html:220
 msgid "15th"
-msgstr ""
+msgstr "15e"
 
-#: pkg/storaged/overview.js:438
+#: pkg/storaged/overview.js:436
 msgid "16 KiB"
-msgstr ""
+msgstr "16 Kio"
 
 #: pkg/systemd/services.html:221
 msgid "16th"
-msgstr ""
+msgstr "16e"
 
 #: pkg/systemd/services.html:222
 msgid "17th"
-msgstr ""
+msgstr "17e"
 
 #: pkg/systemd/services.html:223
 msgid "18th"
-msgstr ""
+msgstr "18e"
 
 #: pkg/systemd/services.html:224
 msgid "19th"
-msgstr ""
+msgstr "19e"
 
 #: pkg/systemd/services.html:206
 msgid "1st"
-msgstr ""
+msgstr "1er"
 
-#: pkg/storaged/overview.js:444
+#: pkg/storaged/overview.js:442
 msgid "2 MiB"
-msgstr ""
+msgstr "2 Mio"
 
-#: pkg/systemd/host.js:1423
+#: pkg/systemd/host.js:1450
 msgid "2 min"
-msgstr ""
+msgstr "2 min"
 
-#: pkg/systemd/index.html:449
+#: pkg/systemd/index.html:459
 msgid "20 Minutes"
-msgstr ""
+msgstr "20 minutes"
 
 #: pkg/systemd/services.html:225
 msgid "20th"
-msgstr ""
+msgstr "20e"
 
 #: pkg/systemd/services.html:226
 msgid "21st"
-msgstr ""
+msgstr "21e"
 
 #: pkg/systemd/services.html:227
 msgid "22nd"
-msgstr ""
+msgstr "22e"
 
 #: pkg/systemd/services.html:228
 msgid "23rd"
-msgstr ""
+msgstr "23e"
 
 #: pkg/systemd/services.html:229
 msgid "24th"
-msgstr ""
+msgstr "24e"
 
 #: pkg/systemd/services.html:230
 msgid "25th"
-msgstr ""
+msgstr "25e"
 
 #: pkg/systemd/services.html:231
 msgid "26th"
-msgstr ""
+msgstr "26e"
 
 #: pkg/systemd/services.html:232
 msgid "27th"
-msgstr ""
+msgstr "27e"
 
 #: pkg/systemd/services.html:233
 msgid "28th"
-msgstr ""
+msgstr "28e"
 
 #: pkg/systemd/services.html:234
 msgid "29th"
-msgstr ""
+msgstr "29e"
 
 #: pkg/systemd/services.html:207
 msgid "2nd"
-msgstr ""
+msgstr "2e"
 
-#: pkg/systemd/host.js:1422
+#: pkg/systemd/host.js:1449
 msgid "3 min"
-msgstr ""
+msgstr "3 min"
 
 #: pkg/systemd/services.html:235
 msgid "30th"
-msgstr ""
+msgstr "30e"
 
 #: pkg/systemd/services.html:236
 msgid "31st"
-msgstr ""
+msgstr "31e"
 
-#: pkg/storaged/overview.js:439
+#: pkg/storaged/overview.js:437
 msgid "32 KiB"
-msgstr ""
+msgstr "32 Kio"
 
 #: pkg/systemd/services.html:208
 msgid "3rd"
-msgstr ""
+msgstr "3e"
 
-#: pkg/storaged/overview.js:436
+#: pkg/storaged/overview.js:434
 msgid "4 KiB"
-msgstr ""
+msgstr "4 Kio"
 
-#: pkg/systemd/host.js:1421
+#: pkg/systemd/host.js:1448
 msgid "4 min"
-msgstr ""
+msgstr "4 min"
 
-#: pkg/systemd/index.html:450
+#: pkg/systemd/index.html:460
 msgid "40 Minutes"
-msgstr ""
+msgstr "40 minutes"
 
 #: pkg/systemd/services.html:209
 msgid "4th"
-msgstr ""
+msgstr "4e"
 
-#: pkg/systemd/index.html:448
+#: pkg/systemd/index.html:458
 msgid "5 Minutes"
-msgstr ""
+msgstr "5 minutes"
 
-#: pkg/systemd/host.js:1420
+#: pkg/systemd/host.js:1447
 msgid "5 min"
-msgstr ""
+msgstr "5 min"
 
-#: pkg/networkmanager/index.html:53 pkg/networkmanager/index.html:540
-#: pkg/storaged/index.html:307 pkg/systemd/index.html:175
-#: pkg/dashboard/index.html:49
+#: pkg/dashboard/index.html:49 pkg/networkmanager/index.html:53
+#: pkg/networkmanager/index.html:540 pkg/storaged/index.html:307
+#: pkg/systemd/index.html:185
 msgid "5 minutes"
 msgstr "5 minutes"
 
-#: pkg/storaged/overview.js:442
+#: pkg/storaged/overview.js:440
 msgid "512 KiB"
-msgstr ""
+msgstr "512 Kio"
 
 #: pkg/systemd/services.html:210
 msgid "5th"
-msgstr ""
+msgstr "5e"
 
-#: pkg/networkmanager/index.html:55 pkg/networkmanager/index.html:542
-#: pkg/storaged/index.html:309 pkg/systemd/index.html:179
-#: pkg/dashboard/index.html:53
+#: pkg/dashboard/index.html:53 pkg/networkmanager/index.html:55
+#: pkg/networkmanager/index.html:542 pkg/storaged/index.html:309
+#: pkg/systemd/index.html:189
 msgid "6 hours"
 msgstr "6 heures"
 
-#: pkg/systemd/index.html:451
+#: pkg/systemd/index.html:461
 msgid "60 Minutes"
-msgstr ""
+msgstr "60 minutes"
 
-#: pkg/storaged/overview.js:440
+#: pkg/storaged/overview.js:438
 msgid "64 KiB"
-msgstr ""
+msgstr "64 Kio"
 
 #: pkg/systemd/services.html:211
 msgid "6th"
-msgstr ""
+msgstr "6e"
 
 #: pkg/systemd/services.html:212
 msgid "7th"
-msgstr ""
+msgstr "7e"
 
-#: pkg/storaged/overview.js:437
+#: pkg/storaged/overview.js:435
 msgid "8 KiB"
-msgstr ""
+msgstr "8 Kio"
 
-#: pkg/networkmanager/interfaces.js:1845
+#: pkg/networkmanager/interfaces.js:1908
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1862
+#: pkg/networkmanager/interfaces.js:1925
+#, fuzzy
 msgid "802.3ad LACP"
-msgstr ""
+msgstr "802.3ad LACP"
 
 #: pkg/systemd/services.html:213
 msgid "8th"
-msgstr ""
+msgstr "8e"
 
 #: pkg/systemd/services.html:214
 msgid "9th"
-msgstr ""
+msgstr "9e"
 
-#: pkg/storaged/utils.js:220
+#: pkg/storaged/utils.js:227
 msgid "<span>Encrypted $0</span>"
 msgstr "<span>$0 chiffré(e)</span>"
 
-#: pkg/storaged/utils.js:212
+#: pkg/storaged/utils.js:219
 msgid "<span>Encrypted Logical Volume of $0</span>"
 msgstr ""
 
-#: pkg/storaged/utils.js:214
+#: pkg/storaged/utils.js:221
 msgid "<span>Encrypted Partition of $0</span>"
 msgstr "<span>Partition chiffrée de $0</span>"
 
-#: pkg/storaged/utils.js:216
+#: pkg/storaged/utils.js:223
 msgid "<span>Logical Volume of $0</span>"
 msgstr "<span>Volume logique de $0</span>"
 
-#: pkg/storaged/utils.js:218
+#: pkg/storaged/utils.js:225
 msgid "<span>Partition of $0</span>"
 msgstr "<span>Partition de $0</span>"
 
@@ -476,61 +495,68 @@ msgid ""
 "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
 "strong}}."
 msgstr ""
+"Une version compatible de Cockpit n''est pas installée sur "
+"{{#strong}}{{host}}{{/strong}}."
+
+#: pkg/storaged/sidebar-views.jsx:142
+msgid "A spare disk needs to be added first before this disk can be removed."
+msgstr ""
 
 #: cockpit.desktop.in.h:2
 msgid "A user interface for GNU/Linux servers"
 msgstr "Une interface utilisateur pour serveurs GNU/Linux"
 
-#: pkg/networkmanager/interfaces.js:1853
+#: pkg/networkmanager/interfaces.js:1916
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/interfaces.js:2608
+#: pkg/networkmanager/interfaces.js:2669
 msgid "ARP Monitoring"
 msgstr "Supervision ARP"
 
-#: pkg/networkmanager/interfaces.js:1874
+#: pkg/networkmanager/interfaces.js:1937
+#, fuzzy
 msgid "ARP Ping"
-msgstr ""
+msgstr "Ping ARP"
 
 #: pkg/kubernetes/scripts/volumes.js:193
 msgid "AWS Elastic Block Store"
-msgstr ""
+msgstr "Elastic Block Store AWS"
 
-#: pkg/shell/simple.html:41 pkg/shell/simple.html:68 pkg/shell/index.html:41
-#: pkg/shell/index.html:80 pkg/shell/stub.html:41 pkg/shell/stub.html:73
+#: pkg/shell/index.html:53 pkg/shell/index.html:95 pkg/shell/simple.html:41
+#: pkg/shell/simple.html:68 pkg/shell/stub.html:41 pkg/shell/stub.html:73
 msgid "About Cockpit"
 msgstr "À propos de Cockpit"
 
 #: pkg/users/index.html:103 pkg/users/index.html:197
 msgid "Access"
-msgstr ""
+msgstr "Accès"
 
-#: pkg/kubernetes/views/pv-claim.html:9 pkg/kubernetes/views/pvc-body.html:18
-#: pkg/kubernetes/views/pv-body.html:9 pkg/kubernetes/views/pv-modify.html:69
+#: pkg/kubernetes/views/pv-body.html:9 pkg/kubernetes/views/pv-claim.html:9
+#: pkg/kubernetes/views/pv-modify.html:69 pkg/kubernetes/views/pvc-body.html:18
 msgid "Access Modes"
-msgstr ""
+msgstr "Modes d'accès"
 
 #: pkg/kubernetes/views/project-modify.html:49
 #: bower_components/registry-image-widgets/views/imagestream-body.html:12
 msgid "Access Policy"
-msgstr ""
+msgstr "Politique d'accès"
 
 #: pkg/subscriptions/subscriptions-view.jsx:191
 msgid "Access denied"
-msgstr ""
+msgstr "Accès interdit"
 
-#: pkg/shell/index.html:45
+#: pkg/shell/index.html:60
 msgid "Account Settings"
 msgstr "Paramètres de compte"
 
 #: pkg/users/index.html:61
 msgid "Account not available or cannot be edited."
-msgstr ""
+msgstr "Compte non disponible ou ne peut être édité."
 
 #: pkg/users/index.html:69
 msgid "Accounts"
-msgstr ""
+msgstr "Comptes"
 
 #: pkg/users/local.js:308 pkg/users/local.js:610
 msgctxt "page-title"
@@ -541,56 +567,61 @@ msgstr "Comptes"
 msgid "Activate"
 msgstr "Activer"
 
-#: pkg/storaged/jobs.js:145
+#: pkg/storaged/jobs.js:147
 msgid "Activating $target"
-msgstr ""
+msgstr "Activation de $target"
 
 #: pkg/subscriptions/subscriptions-register.jsx:164
 msgid "Activation Key"
-msgstr ""
+msgstr "Clé d'activation"
 
-#: pkg/networkmanager/interfaces.js:745 pkg/networkmanager/interfaces.js:1868
+#: pkg/networkmanager/interfaces.js:775 pkg/networkmanager/interfaces.js:1931
 msgid "Active"
 msgstr "Actif"
 
-#: pkg/networkmanager/interfaces.js:1842 pkg/networkmanager/interfaces.js:1859
+#: pkg/networkmanager/interfaces.js:1905 pkg/networkmanager/interfaces.js:1922
 msgid "Active Backup"
 msgstr "Active Backup"
+
+#: pkg/shell/index.html:56 pkg/shell/active-pages.js:94
+msgid "Active Pages"
+msgstr ""
 
 #: pkg/kubernetes/views/pvc-body.html:25 pkg/kubernetes/views/pvc-body.html:45
 msgid "Actual"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1847
+#: pkg/networkmanager/interfaces.js:1910
 msgid "Adaptive load balancing"
 msgstr "Adaptive load balancing"
 
-#: pkg/networkmanager/interfaces.js:1846
+#: pkg/networkmanager/interfaces.js:1909
 msgid "Adaptive transmit load balancing"
 msgstr "Adaptive transmit load balancing"
 
-#: pkg/ostree/index.html:90 pkg/kubernetes/views/node-add.html:50
-#: pkg/kubernetes/views/user-add-membership.html:49
+#: pkg/kubernetes/views/add-member-role-dialog.html:61
 #: pkg/kubernetes/views/add-role-dialog.html:8
 #: pkg/kubernetes/views/add-user-dialog.html:27
-#: pkg/kubernetes/views/add-member-role-dialog.html:61
+#: pkg/kubernetes/views/node-add.html:50
+#: pkg/kubernetes/views/user-add-membership.html:49
 #: pkg/kubernetes/views/user-group-add.html:30 pkg/lib/machine-add.html:43
-#: pkg/storaged/details.js:86 pkg/storaged/details.js:222
-#: pkg/storaged/overview.js:632 pkg/storaged/overview.js:660
+#: pkg/ostree/index.html:90 pkg/storaged/overview.js:634
+#: pkg/storaged/overview.js:662 pkg/storaged/sidebar-views.jsx:85
+#: pkg/storaged/sidebar-views.jsx:249
 msgid "Add"
 msgstr "Ajouter"
 
-#: pkg/networkmanager/interfaces.js:2923
+#: pkg/networkmanager/interfaces.js:2986
 msgid "Add $0"
-msgstr ""
+msgstr "Ajouter $0"
 
-#: pkg/docker/storage.jsx:365
+#: pkg/docker/storage.jsx:377
 msgid "Add Additional Storage"
-msgstr ""
+msgstr "Ajouter du stockage supplémentaire"
 
 #: pkg/ostree/index.html:75
 msgid "Add Another Key"
-msgstr ""
+msgstr "Ajouter une autre clé"
 
 #: pkg/networkmanager/index.html:87
 msgid "Add Bond"
@@ -602,34 +633,34 @@ msgstr "Ajouter un pont"
 
 #: pkg/kubernetes/views/node-add.html:3
 msgid "Add Cluster Node"
-msgstr ""
+msgstr "Ajouter une noeud de cluster"
 
-#: pkg/storaged/details.js:66 pkg/storaged/details.js:199
+#: pkg/storaged/sidebar-views.jsx:68 pkg/storaged/sidebar-views.jsx:232
 msgid "Add Disks"
 msgstr "Ajouter des disques"
 
 #: pkg/kubernetes/views/add-group-dialog.html:3
 msgid "Add Group"
-msgstr ""
+msgstr "Ajouter un group"
 
 #: pkg/kubernetes/views/nodes-page.html:34
 msgid "Add Kubernetes Node"
-msgstr ""
+msgstr "Ajouter un noeud Kubernetes"
 
 #: pkg/lib/machine-add.html:4
 msgid "Add Machine to Dashboard"
-msgstr ""
+msgstr "Ajouter une machine au tableau de bord"
 
-#: pkg/kubernetes/views/group-page.html:38
-#: pkg/kubernetes/views/project-body.html:108
 #: pkg/kubernetes/views/add-member-role-dialog.html:4
+#: pkg/kubernetes/views/group-page.html:38
 #: pkg/kubernetes/views/group-panel.html:29
+#: pkg/kubernetes/views/project-body.html:108
 #: pkg/kubernetes/views/user-group-add.html:3
 msgid "Add Member"
 msgstr ""
 
-#: pkg/kubernetes/views/user-panel.html:76
 #: pkg/kubernetes/views/user-body.html:67
+#: pkg/kubernetes/views/user-panel.html:76
 msgid "Add Membership"
 msgstr ""
 
@@ -647,7 +678,7 @@ msgstr ""
 msgid "Add Role"
 msgstr ""
 
-#: pkg/docker/storage.jsx:207
+#: pkg/docker/storage.jsx:208
 msgid "Add Storage"
 msgstr ""
 
@@ -655,8 +686,8 @@ msgstr ""
 msgid "Add Team"
 msgstr ""
 
-#: pkg/kubernetes/views/project-listing.html:83
 #: pkg/kubernetes/views/add-user-dialog.html:3
+#: pkg/kubernetes/views/project-listing.html:83
 msgid "Add User"
 msgstr ""
 
@@ -664,7 +695,7 @@ msgstr ""
 msgid "Add VLAN"
 msgstr "Ajouter un VLAN"
 
-#: pkg/storaged/overview.js:518
+#: pkg/storaged/overview.js:520
 msgid "Add iSCSI Portal"
 msgstr ""
 
@@ -680,7 +711,7 @@ msgstr ""
 msgid "Add public key"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2922
+#: pkg/networkmanager/interfaces.js:2985
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -690,23 +721,23 @@ msgstr ""
 msgid "Adding key"
 msgstr "Ajout de la clé"
 
-#: pkg/storaged/jobs.js:150
+#: pkg/storaged/jobs.js:152
 msgid "Adding physical volume to $target"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2478
+#: pkg/networkmanager/interfaces.js:2539
 msgid "Additional DNS $val"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2481
+#: pkg/networkmanager/interfaces.js:2542
 msgid "Additional DNS Search Domains $val"
 msgstr ""
 
-#: pkg/docker/index.html:297
+#: pkg/docker/index.html:300
 msgid "Additional Storage"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2473
+#: pkg/networkmanager/interfaces.js:2534
 msgid "Additional address $val"
 msgstr ""
 
@@ -714,21 +745,21 @@ msgstr ""
 msgid "Additions"
 msgstr ""
 
-#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/nodes-page.html:43
 #: pkg/kubernetes/views/auth-form.html:29
+#: pkg/kubernetes/views/dashboard-page.html:157
 #: pkg/kubernetes/views/details-page.html:174
-#: pkg/kubernetes/views/node-body.html:5
-#: pkg/kubernetes/views/dashboard-page.html:157 pkg/lib/machine-add.html:11
-#: pkg/storaged/overview.js:627
+#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
+#: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
+#: pkg/storaged/overview.js:629
 msgid "Address"
 msgstr "Adresse"
 
-#: pkg/networkmanager/interfaces.js:2473
+#: pkg/networkmanager/interfaces.js:2534
 msgid "Address $val"
 msgstr ""
 
 #: pkg/kubernetes/views/details-page.html:37
-#: pkg/networkmanager/interfaces.js:3114
+#: pkg/networkmanager/interfaces.js:3178
 msgid "Addresses"
 msgstr "Adresses"
 
@@ -756,7 +787,7 @@ msgstr "Ajuster le service"
 msgid "Admin"
 msgstr ""
 
-#: pkg/realmd/operation.js:272
+#: pkg/realmd/operation.js:282
 msgid "Administrator Password"
 msgstr "Mot de passe de l'administrateur"
 
@@ -780,11 +811,13 @@ msgstr ""
 msgid "All Types"
 msgstr ""
 
-#: pkg/docker/storage.jsx:368
+#: pkg/docker/storage.jsx:380
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
 msgstr ""
+"Toutes les données sur les disques sélectionnés seront effacées et les "
+"disques seront ajoutés au pool de stockage."
 
 #: pkg/kubernetes/views/dashboard-page.html:112
 msgid "All healthy"
@@ -802,18 +835,18 @@ msgstr ""
 msgid "All running"
 msgstr ""
 
-#: pkg/docker/index.html:537 pkg/docker/util.js:106
+#: pkg/docker/index.html:540 pkg/docker/util.js:106
 msgid "Always"
 msgstr ""
 
-#: pkg/kubernetes/views/route-body.html:27
 #: pkg/kubernetes/views/node-body.html:57
-#: bower_components/registry-image-widgets/views/imagestream-meta.html:2
+#: pkg/kubernetes/views/route-body.html:27
 #: bower_components/registry-image-widgets/views/image-meta.html:9
+#: bower_components/registry-image-widgets/views/imagestream-meta.html:2
 msgid "Annotations"
 msgstr ""
 
-#: pkg/kubernetes/scripts/projects.js:1020
+#: pkg/kubernetes/scripts/projects.js:1023
 msgid "Anonymous: Allow all unauthenticated users to pull images"
 msgstr ""
 
@@ -822,9 +855,9 @@ msgstr ""
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
-#: pkg/storaged/fsys-tab.jsx:76 pkg/storaged/fsys-tab.jsx:145
-#: pkg/storaged/crypto-tab.jsx:73 pkg/storaged/crypto-tab.jsx:107
-#: pkg/kdump/kdump-view.jsx:356
+#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:73
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:76
+#: pkg/storaged/fsys-tab.jsx:145
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -841,8 +874,16 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:453
+#: pkg/docker/containers-view.jsx:457
 msgid "Are you sure you want to delete this image?"
+msgstr ""
+
+#: pkg/realmd/operation.js:105
+msgid "Are you sure you want to leave the '$0' domain?"
+msgstr ""
+
+#: pkg/realmd/operation.js:103
+msgid "Are you sure you want to leave this domain?"
 msgstr ""
 
 #: pkg/storaged/index.html:449
@@ -850,16 +891,16 @@ msgctxt "storage"
 msgid "Assessment"
 msgstr ""
 
-#: pkg/systemd/index.html:81
+#: pkg/systemd/index.html:91
 msgid "Asset Tag"
 msgstr ""
 
-#: pkg/storaged/overview.js:458
+#: pkg/storaged/overview.js:455
 msgid "At least $0 disks are needed."
 msgstr ""
 
-#: pkg/storaged/details.js:81 pkg/storaged/details.js:217
-#: pkg/storaged/overview.js:504
+#: pkg/storaged/overview.js:503 pkg/storaged/sidebar-views.jsx:80
+#: pkg/storaged/sidebar-views.jsx:244
 msgid "At least one disk is needed."
 msgstr "Au moins un disque est nécessaire."
 
@@ -871,13 +912,13 @@ msgstr ""
 msgid "Audit log"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:737
+#: pkg/networkmanager/interfaces.js:767
 msgid "Authenticating"
 msgstr "Authentification"
 
-#: pkg/realmd/operation.html:34 pkg/shell/index.html:48
-#: pkg/shell/index.html:147 pkg/kubernetes/views/auth-form.html:85
-#: pkg/lib/machine-change-auth.html:32
+#: pkg/kubernetes/views/auth-form.html:85 pkg/lib/machine-change-auth.html:32
+#: pkg/realmd/operation.html:35 pkg/shell/index.html:63
+#: pkg/shell/index.html:162
 msgid "Authentication"
 msgstr "Authentification"
 
@@ -890,17 +931,16 @@ msgid "Authentication Failed: Server closed connection"
 msgstr ""
 
 #: src/ws/login.js:591
-#, fuzzy
 msgid "Authentication failed"
-msgstr "Authentification"
+msgstr ""
 
-#: pkg/storaged/overview.js:648
+#: pkg/storaged/overview.js:650
 msgid "Authentication required"
 msgstr ""
 
-#: pkg/docker/index.html:686 pkg/kubernetes/views/image-listing.html:15
+#: pkg/docker/index.html:689 pkg/kubernetes/views/image-listing.html:15
 #: bower_components/registry-image-widgets/views/image-body.html:12
-#: pkg/docker/containers-view.jsx:312
+#: pkg/docker/containers-view.jsx:316
 msgid "Author"
 msgstr "Auteur"
 
@@ -908,39 +948,39 @@ msgstr "Auteur"
 msgid "Authorized Public SSH Keys"
 msgstr ""
 
-#: pkg/networkmanager/index.html:166 pkg/networkmanager/interfaces.js:1832
-#: pkg/networkmanager/interfaces.js:2581 pkg/networkmanager/interfaces.js:3122
-#: pkg/networkmanager/interfaces.js:3126 pkg/networkmanager/interfaces.js:3132
-#: pkg/realmd/operation.js:275
+#: pkg/networkmanager/index.html:166 pkg/networkmanager/interfaces.js:1895
+#: pkg/networkmanager/interfaces.js:2642 pkg/networkmanager/interfaces.js:3186
+#: pkg/networkmanager/interfaces.js:3190 pkg/networkmanager/interfaces.js:3196
+#: pkg/realmd/operation.js:285
 msgid "Automatic"
 msgstr "Automatique"
 
-#: pkg/networkmanager/interfaces.js:1833
+#: pkg/networkmanager/interfaces.js:1896
 msgid "Automatic (DHCP only)"
 msgstr "Automatique (DHCP uniquement)"
 
-#: pkg/networkmanager/interfaces.js:1823
+#: pkg/networkmanager/interfaces.js:1886
 msgid "Automatic (DHCP)"
 msgstr "Automatique (DHCP)"
 
-#: pkg/systemd/index.html:388
+#: pkg/systemd/index.html:398
 msgid "Automatically using NTP"
 msgstr ""
 
-#: pkg/systemd/index.html:389
+#: pkg/systemd/index.html:399
 msgid "Automatically using specific NTP servers"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:220
+#: pkg/machines/hostvmslist.jsx:276
 msgid "Autostart:"
 msgstr ""
 
-#: pkg/ostree/index.html:255 pkg/lib/machine-change-auth.html:66
-#: pkg/machines/hostvmslist.jsx:252 pkg/machines/hostvmslist.jsx:263
+#: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
+#: pkg/machines/hostvmslist.jsx:311 pkg/machines/hostvmslist.jsx:322
 msgid "Available"
 msgstr ""
 
-#: pkg/storaged/overview.js:622
+#: pkg/storaged/overview.js:624
 msgid "Available targets on $0"
 msgstr ""
 
@@ -977,16 +1017,16 @@ msgstr ""
 msgid "Block Device"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:683
+#: pkg/storaged/content-views.jsx:668
 msgid "Block device for filesystems"
 msgstr ""
 
-#: pkg/storaged/details.js:411
+#: pkg/storaged/sidebar-views.jsx:126
 msgid "Blocked"
 msgstr "Bloqué"
 
-#: pkg/networkmanager/interfaces.js:2340 pkg/networkmanager/interfaces.js:2352
-#: pkg/networkmanager/interfaces.js:2613
+#: pkg/networkmanager/interfaces.js:2398 pkg/networkmanager/interfaces.js:2410
+#: pkg/networkmanager/interfaces.js:2674
 msgid "Bond"
 msgstr "Bond"
 
@@ -998,8 +1038,12 @@ msgstr "Réglages de la liaison d'interfaces"
 msgid "Boot ID"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2346 pkg/networkmanager/interfaces.js:2358
-#: pkg/networkmanager/interfaces.js:2690
+#: pkg/machines/hostvmslist.jsx:239
+msgid "Boot Order:"
+msgstr ""
+
+#: pkg/networkmanager/interfaces.js:2404 pkg/networkmanager/interfaces.js:2416
+#: pkg/networkmanager/interfaces.js:2751
 msgid "Bridge"
 msgstr "Pont"
 
@@ -1011,15 +1055,15 @@ msgstr "Réglages de port du pont"
 msgid "Bridge Settings"
 msgstr "Réglages du pont"
 
-#: pkg/networkmanager/interfaces.js:2711
+#: pkg/networkmanager/interfaces.js:2772
 msgid "Bridge port"
 msgstr "Port de pont"
 
-#: pkg/networkmanager/interfaces.js:1844 pkg/networkmanager/interfaces.js:1861
+#: pkg/networkmanager/interfaces.js:1907 pkg/networkmanager/interfaces.js:1924
 msgid "Broadcast"
 msgstr "Broadcast"
 
-#: pkg/networkmanager/interfaces.js:2626 pkg/networkmanager/interfaces.js:2660
+#: pkg/networkmanager/interfaces.js:2687 pkg/networkmanager/interfaces.js:2721
 msgid "Broken configuration"
 msgstr ""
 
@@ -1027,31 +1071,39 @@ msgstr ""
 msgid "Built"
 msgstr ""
 
-#: pkg/docker/index.html:260 pkg/systemd/index.html:196
-#: pkg/dashboard/index.html:70 pkg/docker/containers-view.jsx:267
-#: pkg/kubernetes/scripts/nodes.js:711 pkg/kubernetes/scripts/nodes.js:817
-#: pkg/kubernetes/scripts/graphs.js:599
+#: pkg/machines/vmdiskstab.jsx:139
+msgid "Bus"
+msgstr ""
+
+#: pkg/dashboard/index.html:70 pkg/docker/index.html:263
+#: pkg/systemd/index.html:206 pkg/docker/containers-view.jsx:271
+#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:711
+#: pkg/kubernetes/scripts/nodes.js:817
 msgid "CPU"
 msgstr "CPU"
 
-#: pkg/systemd/host.js:1318
+#: pkg/systemd/host.js:1345
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr "État du CPU"
+
+#: pkg/machines/hostvmslist.jsx:268
+msgid "CPU Type:"
+msgstr ""
 
 #: pkg/kubernetes/scripts/nodes.js:712
 msgid "CPU Utilization: $0%"
 msgstr ""
 
-#: pkg/docker/index.html:458 pkg/docker/index.html:629
+#: pkg/docker/index.html:461 pkg/docker/index.html:632
 msgid "CPU priority"
 msgstr "Priorité en CPU"
 
-#: pkg/docker/index.html:208
+#: pkg/docker/index.html:211
 msgid "CPU usage:"
 msgstr ""
 
-#: pkg/systemd/index.html:247 pkg/systemd/host.js:1437
+#: pkg/systemd/index.html:257 pkg/systemd/host.js:1464
 msgid "Cached"
 msgstr "En cache"
 
@@ -1059,71 +1111,73 @@ msgstr "En cache"
 msgid "Can&rsquo;t connect to Docker"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:274
+#: pkg/storaged/content-views.jsx:287
 msgid "Can't delete while unlocked"
 msgstr ""
 
-#: pkg/playground/translate.html:39 pkg/networkmanager/index.html:619
+#: pkg/dashboard/index.html:173 pkg/docker/index.html:555
+#: pkg/docker/index.html:589 pkg/docker/index.html:651
+#: pkg/docker/index.html:703 pkg/docker/index.html:743
+#: pkg/kubernetes/views/add-member-role-dialog.html:60
+#: pkg/kubernetes/views/add-role-dialog.html:7
+#: pkg/kubernetes/views/add-user-dialog.html:26
+#: pkg/kubernetes/views/auth-form.html:128
+#: pkg/kubernetes/views/auth-rejected-cert.html:31
+#: pkg/kubernetes/views/deploy.html:61
+#: pkg/kubernetes/views/group-delete.html:20
+#: pkg/kubernetes/views/image-delete.html:7
+#: pkg/kubernetes/views/imagestream-delete.html:7
+#: pkg/kubernetes/views/imagestream-modify.html:96
+#: pkg/kubernetes/views/item-delete.html:10
+#: pkg/kubernetes/views/node-add.html:49
+#: pkg/kubernetes/views/node-delete.html:14
+#: pkg/kubernetes/views/project-delete.html:8
+#: pkg/kubernetes/views/project-modify.html:71
+#: pkg/kubernetes/views/pv-delete.html:10
+#: pkg/kubernetes/views/pv-modify.html:202
+#: pkg/kubernetes/views/pvc-delete.html:14
+#: pkg/kubernetes/views/remove-role-dialog.html:7
+#: pkg/kubernetes/views/replicationcontroller-modify.html:16
+#: pkg/kubernetes/views/route-modify.html:16
+#: pkg/kubernetes/views/service-modify.html:24
+#: pkg/kubernetes/views/user-add-membership.html:48
+#: pkg/kubernetes/views/user-delete.html:24
+#: pkg/kubernetes/views/user-group-add.html:29
+#: pkg/kubernetes/views/user-group-remove.html:9
+#: pkg/kubernetes/views/user-modify.html:26
+#: pkg/kubernetes/views/user-remove-membership.html:9
+#: pkg/kubernetes/views/add-group-dialog.html:18 pkg/lib/machine-add.html:42
+#: pkg/lib/machine-change-auth.html:79 pkg/lib/machine-change-port.html:40
+#: pkg/lib/machine-sync-users.html:74 pkg/networkmanager/index.html:619
 #: pkg/networkmanager/index.html:643 pkg/networkmanager/index.html:667
 #: pkg/networkmanager/index.html:691 pkg/networkmanager/index.html:715
 #: pkg/networkmanager/index.html:739 pkg/networkmanager/index.html:763
 #: pkg/networkmanager/index.html:787 pkg/networkmanager/index.html:811
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:858
-#: pkg/users/index.html:210 pkg/users/index.html:271 pkg/users/index.html:295
-#: pkg/users/index.html:352 pkg/docker/index.html:552 pkg/docker/index.html:586
-#: pkg/docker/index.html:648 pkg/docker/index.html:700
-#: pkg/docker/index.html:740 pkg/systemd/services.html:464
-#: pkg/systemd/index.html:331 pkg/systemd/index.html:418
-#: pkg/systemd/index.html:470 pkg/systemd/index.html:486
-#: pkg/realmd/operation.html:90 pkg/ostree/index.html:164
-#: pkg/shell/simple.html:100 pkg/shell/index.html:120 pkg/shell/stub.html:113
-#: pkg/dashboard/index.html:173 pkg/kubernetes/views/node-add.html:49
-#: pkg/kubernetes/views/remove-role-dialog.html:7
-#: pkg/kubernetes/views/user-group-remove.html:9
-#: pkg/kubernetes/views/add-group-dialog.html:18
-#: pkg/kubernetes/views/auth-form.html:128
-#: pkg/kubernetes/views/item-delete.html:10
-#: pkg/kubernetes/views/imagestream-modify.html:96
-#: pkg/kubernetes/views/service-modify.html:24
-#: pkg/kubernetes/views/project-modify.html:71
-#: pkg/kubernetes/views/user-add-membership.html:48
-#: pkg/kubernetes/views/project-delete.html:8
-#: pkg/kubernetes/views/image-delete.html:7 pkg/kubernetes/views/deploy.html:61
-#: pkg/kubernetes/views/imagestream-delete.html:7
-#: pkg/kubernetes/views/user-modify.html:26
-#: pkg/kubernetes/views/replicationcontroller-modify.html:16
-#: pkg/kubernetes/views/add-role-dialog.html:7
-#: pkg/kubernetes/views/user-delete.html:24
-#: pkg/kubernetes/views/auth-rejected-cert.html:31
-#: pkg/kubernetes/views/add-user-dialog.html:26
-#: pkg/kubernetes/views/route-modify.html:16
-#: pkg/kubernetes/views/pvc-delete.html:14
-#: pkg/kubernetes/views/user-remove-membership.html:9
-#: pkg/kubernetes/views/add-member-role-dialog.html:60
-#: pkg/kubernetes/views/node-delete.html:14
-#: pkg/kubernetes/views/pv-delete.html:10
-#: pkg/kubernetes/views/pv-modify.html:202
-#: pkg/kubernetes/views/group-delete.html:20
-#: pkg/kubernetes/views/user-group-add.html:29 pkg/lib/machine-add.html:42
-#: pkg/lib/machine-sync-users.html:74 pkg/lib/machine-change-port.html:40
-#: pkg/lib/machine-change-auth.html:79 pkg/sosreport/index.js:54
-#: pkg/lib/cockpit-components-dialog.jsx:136
+#: pkg/ostree/index.html:164 pkg/playground/translate.html:39
+#: pkg/realmd/operation.html:91 pkg/shell/index.html:135
+#: pkg/shell/simple.html:100 pkg/shell/stub.html:113
+#: pkg/storaged/index.html:287 pkg/storaged/index.html:847
+#: pkg/systemd/index.html:341 pkg/systemd/index.html:428
+#: pkg/systemd/index.html:480 pkg/systemd/index.html:496
+#: pkg/systemd/services.html:464 pkg/users/index.html:210
+#: pkg/users/index.html:271 pkg/users/index.html:295 pkg/users/index.html:352
+#: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "Annuler"
 
-#: pkg/shell/indexes.js:322
+#: pkg/shell/indexes.js:331
 msgid "Cannot connect to an unknown machine"
 msgstr "Impossible de se connecter à une machine inconnue"
 
-#: src/ws/cockpitcertificate.c:359
+#: src/ws/cockpitcertificate.c:460
 msgid "Cannot decrypt PEM-encoded private key"
 msgstr "Impossible de déchiffrer la clé privée encodée en PEM"
 
-#: src/base1/cockpit.js:3933
+#: src/base1/cockpit.js:3955
 msgid "Cannot forward login credentials"
 msgstr ""
 
-#: pkg/realmd/operation.js:418
+#: pkg/realmd/operation.js:428
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 "Impossible de rejoindre un domaine car reamld n'est pas disponible sur ce "
@@ -1133,18 +1187,19 @@ msgstr ""
 msgid "Cannot schedule event in the past"
 msgstr ""
 
-#: pkg/kubernetes/views/node-page.html:17 pkg/kubernetes/views/pvc-body.html:32
-#: pkg/kubernetes/views/pv-body.html:13 pkg/kubernetes/views/pv-modify.html:44
+#: pkg/kubernetes/views/node-page.html:17 pkg/kubernetes/views/pv-body.html:13
+#: pkg/kubernetes/views/pv-modify.html:44 pkg/kubernetes/views/pvc-body.html:32
+#: pkg/machines/vmdiskstab.jsx:137
 msgid "Capacity"
 msgstr ""
 
 #: pkg/storaged/index.html:441 pkg/storaged/index.html:517
-#: pkg/storaged/index.html:549 pkg/storaged/index.html:628
+#: pkg/storaged/index.html:549 pkg/storaged/index.html:592
 msgctxt "storage"
 msgid "Capacity"
 msgstr "Capacité"
 
-#: pkg/networkmanager/interfaces.js:2412
+#: pkg/networkmanager/interfaces.js:2473
 msgid "Carrier"
 msgstr "Porteuse"
 
@@ -1156,19 +1211,19 @@ msgstr ""
 msgid "Ceph Monitors"
 msgstr ""
 
-#: pkg/docker/index.html:649 pkg/systemd/index.html:332
-#: pkg/systemd/index.html:419 pkg/kubernetes/views/project-modify.html:74
+#: pkg/docker/index.html:652 pkg/kubernetes/views/project-modify.html:74
+#: pkg/kubernetes/views/pv-modify.html:204
 #: pkg/kubernetes/views/replicationcontroller-modify.html:17
-#: pkg/kubernetes/views/route-modify.html:17
-#: pkg/kubernetes/views/pv-modify.html:204 pkg/storaged/overview.js:710
+#: pkg/kubernetes/views/route-modify.html:17 pkg/systemd/index.html:342
+#: pkg/systemd/index.html:429 pkg/storaged/overview.js:712
 msgid "Change"
 msgstr ""
 
-#: pkg/systemd/index.html:288
+#: pkg/systemd/index.html:298
 msgid "Change Host Name"
 msgstr ""
 
-#: pkg/shell/index.html:264
+#: pkg/shell/index.html:285
 msgid "Change Password"
 msgstr ""
 
@@ -1185,7 +1240,7 @@ msgstr "Modifier le profil"
 msgid "Change Repository"
 msgstr "Dépôt"
 
-#: pkg/systemd/index.html:357
+#: pkg/systemd/index.html:367
 msgid "Change System Time"
 msgstr ""
 
@@ -1193,7 +1248,7 @@ msgstr ""
 msgid "Change User"
 msgstr ""
 
-#: pkg/storaged/overview.js:702
+#: pkg/storaged/overview.js:704
 msgid "Change iSCSI Initiator Name"
 msgstr ""
 
@@ -1205,19 +1260,19 @@ msgstr ""
 msgid "Change project"
 msgstr ""
 
-#: pkg/docker/index.html:219
+#: pkg/docker/index.html:222
 msgid "Change resource limits"
 msgstr ""
 
-#: pkg/docker/index.html:601
+#: pkg/docker/index.html:604
 msgid "Change resources limits"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2960
+#: pkg/networkmanager/interfaces.js:3024
 msgid "Change the settings"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2959
+#: pkg/networkmanager/interfaces.js:3023
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1227,15 +1282,15 @@ msgstr ""
 msgid "Check for Updates"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:741
+#: pkg/networkmanager/interfaces.js:771
 msgid "Checking IP"
 msgstr "Vérification IP"
 
-#: pkg/storaged/jobs.js:140
+#: pkg/storaged/jobs.js:142
 msgid "Checking RAID Device $target"
 msgstr ""
 
-#: pkg/storaged/jobs.js:141
+#: pkg/storaged/jobs.js:143
 msgid "Checking and Repairing RAID Device $target"
 msgstr ""
 
@@ -1247,11 +1302,11 @@ msgstr ""
 msgid "Checking for updates"
 msgstr ""
 
-#: pkg/shell/simple.html:95 pkg/shell/index.html:115 pkg/shell/stub.html:108
+#: pkg/shell/index.html:130 pkg/shell/simple.html:95 pkg/shell/stub.html:108
 msgid "Choose the language to be used in the application"
 msgstr "Choisir la langue à utiliser dans l'application"
 
-#: pkg/storaged/overview.js:434
+#: pkg/storaged/overview.js:432
 msgid "Chunk Size"
 msgstr "Taille de bloc"
 
@@ -1267,7 +1322,7 @@ msgstr ""
 msgid "Claim Name"
 msgstr ""
 
-#: pkg/storaged/jobs.js:132
+#: pkg/storaged/jobs.js:134
 msgid "Cleaning up for $target"
 msgstr ""
 
@@ -1275,17 +1330,21 @@ msgstr ""
 msgid "Client Certificate"
 msgstr ""
 
-#: pkg/networkmanager/index.html:830 pkg/storaged/index.html:704
-#: pkg/users/index.html:45 pkg/docker/index.html:721
+#: pkg/docker/index.html:724 pkg/lib/machine-unknown-hostkey.html:19
+#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:45
+#: pkg/lib/machine-invalid-hostkey.html:19 pkg/lib/machine-not-supported.html:8
+#: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
+#: pkg/shell/index.html:152 pkg/shell/index.html:296 pkg/shell/simple.html:82
+#: pkg/shell/stub.html:130 pkg/storaged/index.html:637
+#: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:305 pkg/systemd/services.html:323
-#: pkg/systemd/index.html:277 pkg/shell/simple.html:82 pkg/shell/index.html:94
-#: pkg/shell/index.html:137 pkg/shell/index.html:275 pkg/shell/stub.html:130
-#: pkg/lib/machine-unknown-hostkey.html:19 pkg/lib/machine-auth-failed.html:20
-#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-change-port.html:45
-#: pkg/lib/machine-invalid-hostkey.html:19 pkg/sosreport/index.js:48
-#: pkg/sosreport/index.js:112
+#: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "Fermer"
+
+#: pkg/shell/active-pages.js:102
+msgid "Close Selected Pages"
+msgstr ""
 
 #: pkg/kubernetes/views/auth-form.html:5
 msgid "Cluster"
@@ -1299,7 +1358,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:431
+#: pkg/lib/machine-dialogs.js:434
 msgid ""
 "Cockpit could not contact the given host $0. Make sure it has ssh running on "
 "port $1, or specify another port in the address."
@@ -1307,11 +1366,11 @@ msgstr ""
 "Cockpit ne peut contacter l'hôte indiqué $0. Assurez-vous que ssh est bien "
 "en écoute sur le port $1, ou indiquez un autre port dans l'adresse."
 
-#: src/base1/cockpit.js:3939
+#: src/base1/cockpit.js:3961
 msgid "Cockpit could not contact the given host."
 msgstr ""
 
-#: pkg/shell/base_index.js:680
+#: pkg/shell/base_index.js:704
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1327,7 +1386,7 @@ msgid ""
 "journal interface."
 msgstr ""
 
-#: pkg/shell/index.html:83
+#: pkg/shell/index.html:98
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr ""
 
@@ -1335,7 +1394,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface. "
 msgstr ""
 
-#: src/base1/cockpit.js:3937
+#: src/base1/cockpit.js:3959
 msgid "Cockpit is not compatible with the software on the system."
 msgstr ""
 
@@ -1343,7 +1402,7 @@ msgstr ""
 msgid "Cockpit is not installed"
 msgstr ""
 
-#: src/base1/cockpit.js:3931
+#: src/base1/cockpit.js:3953
 msgid "Cockpit is not installed on the system."
 msgstr ""
 
@@ -1362,10 +1421,10 @@ msgstr ""
 
 #: pkg/lib/machine-auth-failed.html:15
 msgid ""
-"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. {{#can_sync}}"
-"You may want to try to {{#sync_link}}synchronize users{{/sync_link}}.{{/"
-"can_sync}} For more authentication options and troubleshooting support "
-"please upgrade cockpit-ws to a newer version."
+"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. "
+"{{#can_sync}}You may want to try to {{#sync_link}}synchronize users{{/"
+"sync_link}}.{{/can_sync}} For more authentication options and "
+"troubleshooting support please upgrade cockpit-ws to a newer version."
 msgstr ""
 
 #: pkg/lib/machine-change-auth.html:9
@@ -1398,10 +1457,10 @@ msgstr ""
 msgid "Combined memory usage"
 msgstr ""
 
-#: pkg/docker/index.html:259 pkg/docker/index.html:434
-#: pkg/docker/index.html:692 pkg/systemd/services.html:369
-#: pkg/docker/containers-view.jsx:124 pkg/docker/containers-view.jsx:267
-#: pkg/docker/containers-view.jsx:310
+#: pkg/docker/index.html:262 pkg/docker/index.html:437
+#: pkg/docker/index.html:695 pkg/systemd/services.html:369
+#: pkg/docker/containers-view.jsx:124 pkg/docker/containers-view.jsx:271
+#: pkg/docker/containers-view.jsx:314
 msgid "Command"
 msgstr "Commande"
 
@@ -1409,21 +1468,21 @@ msgstr "Commande"
 msgid "Command can't be empty"
 msgstr ""
 
-#: pkg/docker/index.html:158
+#: pkg/docker/index.html:161
 #: bower_components/registry-image-widgets/views/image-config.html:2
 msgid "Command:"
 msgstr ""
 
-#: pkg/shell/index.html:216
+#: pkg/shell/index.html:237
 msgid "Comment"
 msgstr ""
 
-#: pkg/docker/index.html:136 pkg/docker/index.html:701
-#: pkg/docker/containers-view.jsx:247
+#: pkg/docker/index.html:136 pkg/docker/index.html:704
+#: pkg/docker/containers-view.jsx:251
 msgid "Commit"
 msgstr ""
 
-#: pkg/docker/index.html:663
+#: pkg/docker/index.html:666
 msgid "Commit Image"
 msgstr ""
 
@@ -1431,14 +1490,15 @@ msgstr ""
 msgid "Communication with tuned has failed"
 msgstr "La communication avec tuned a échoué"
 
-#: pkg/storaged/content-views.jsx:511
+#: pkg/storaged/content-views.jsx:493
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "Compatible avec tous les systèmes et périphériques (MBR)"
 
-#: pkg/storaged/content-views.jsx:512
+#: pkg/storaged/content-views.jsx:494
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr ""
-"Compatible avec les systèmes modernes et disques durs de taille > 2 Tio (GPT)"
+"Compatible avec les systèmes modernes et disques durs de taille > 2 Tio "
+"(GPT)"
 
 #: pkg/kdump/kdump-view.jsx:198
 msgid "Compress crash dumps to save space"
@@ -1448,7 +1508,7 @@ msgstr ""
 msgid "Compression"
 msgstr ""
 
-#: pkg/realmd/operation.html:28
+#: pkg/realmd/operation.html:29
 msgid "Computer OU"
 msgstr "OU Computer"
 
@@ -1456,7 +1516,7 @@ msgstr "OU Computer"
 msgid "Configuration"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2547
+#: pkg/networkmanager/interfaces.js:2608
 msgid "Configure"
 msgstr "Configurer"
 
@@ -1468,19 +1528,19 @@ msgstr "Configurer le réseau Flannel"
 msgid "Configure Kubelet and Proxy"
 msgstr "Configurer le Kubelet et le mandataire"
 
-#: pkg/docker/storage.jsx:307
+#: pkg/docker/storage.jsx:308
 msgid "Configure storage..."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:735
+#: pkg/networkmanager/interfaces.js:765
 msgid "Configuring"
 msgstr "Configuration"
 
-#: pkg/networkmanager/interfaces.js:739
+#: pkg/networkmanager/interfaces.js:769
 msgid "Configuring IP"
 msgstr "Configuration IP"
 
-#: pkg/users/index.html:177 pkg/shell/index.html:250
+#: pkg/shell/index.html:271 pkg/users/index.html:177
 msgid "Confirm"
 msgstr ""
 
@@ -1488,7 +1548,7 @@ msgstr ""
 msgid "Confirm New Password"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:155
+#: pkg/storaged/format-dialog.jsx:165
 msgid "Confirm passphrase"
 msgstr "Confirmer la phrase de passe"
 
@@ -1498,14 +1558,13 @@ msgstr "Confirmer la phrase de passe"
 msgid "Connect"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2534
+#: pkg/networkmanager/interfaces.js:2595
 msgid "Connect automatically"
 msgstr "Connexion automatique"
 
-#: src/ws/login.html:75
-#, fuzzy
+#: src/ws/login.html:73
 msgid "Connect to"
-msgstr "Reconnecter"
+msgstr ""
 
 #: pkg/lib/machine-add.html:39
 msgid ""
@@ -1524,7 +1583,7 @@ msgstr ""
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr ""
 
-#: pkg/shell/indexes.js:317
+#: pkg/shell/indexes.js:326
 msgid "Connecting to the machine"
 msgstr "Connexion à la machine"
 
@@ -1532,7 +1591,7 @@ msgstr "Connexion à la machine"
 msgid "Connecting..."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:349
+#: pkg/machines/hostvmslist.jsx:416
 #, fuzzy
 msgid "Connection"
 msgstr "Reconnecter"
@@ -1549,7 +1608,7 @@ msgstr ""
 msgid "Connection Settings"
 msgstr ""
 
-#: src/base1/cockpit.js:3929
+#: src/base1/cockpit.js:3951
 msgid "Connection has timed out."
 msgstr ""
 
@@ -1557,11 +1616,11 @@ msgstr ""
 msgid "Connection will be lost"
 msgstr ""
 
-#: pkg/docker/console.html:4 pkg/kubernetes/views/image-panel.html:12
-#: pkg/kubernetes/views/image-page.html:24
+#: pkg/docker/console.html:4 pkg/kubernetes/views/container-body.html:4
 #: pkg/kubernetes/views/container-page-inline.html:2
 #: pkg/kubernetes/views/container-panel.html:4
-#: pkg/kubernetes/views/container-body.html:4
+#: pkg/kubernetes/views/image-page.html:24
+#: pkg/kubernetes/views/image-panel.html:12
 msgid "Container"
 msgstr "Conteneur"
 
@@ -1573,8 +1632,8 @@ msgstr "Administrateur de conteneurs"
 msgid "Container ID"
 msgstr ""
 
-#: pkg/docker/index.html:427 pkg/docker/index.html:606
-#: pkg/docker/index.html:668
+#: pkg/docker/index.html:430 pkg/docker/index.html:609
+#: pkg/docker/index.html:671
 msgid "Container Name"
 msgstr "Nom du conteneur"
 
@@ -1582,12 +1641,12 @@ msgstr "Nom du conteneur"
 msgid "Container Runtime Version"
 msgstr ""
 
-#: pkg/docker/util.js:488
+#: pkg/docker/util.js:493
 msgid ""
 "Container is currently marked as not running, but regular stopping failed."
 msgstr "Le conteneur est marqué comme arrêté, mais l'arrêt normal a échoué."
 
-#: pkg/docker/util.js:486
+#: pkg/docker/util.js:491
 msgid "Container is currently running."
 msgstr "Le conteneur est en cours d'exécution"
 
@@ -1595,12 +1654,12 @@ msgstr "Le conteneur est en cours d'exécution"
 msgid "Container:"
 msgstr ""
 
-#: pkg/docker/index.html:23 pkg/docker/index.html:277
-#: pkg/kubernetes/views/pod-page.html:36
+#: pkg/docker/index.html:23 pkg/docker/index.html:280
 #: pkg/kubernetes/views/containers-listing.html:5
 #: pkg/kubernetes/views/dashboard-page.html:158
-#: pkg/kubernetes/views/dashboard-page.html:199 pkg/kubernetes/index.html:52
-#: pkg/docker/containers-view.jsx:283
+#: pkg/kubernetes/views/dashboard-page.html:199
+#: pkg/kubernetes/views/pod-page.html:36 pkg/kubernetes/index.html:52
+#: pkg/docker/containers-view.jsx:287
 msgid "Containers"
 msgstr "Conteneurs"
 
@@ -1609,7 +1668,7 @@ msgctxt "page-title"
 msgid "Containers"
 msgstr "Conteneurs"
 
-#: pkg/storaged/content-views.jsx:542
+#: pkg/storaged/content-views.jsx:527
 msgid "Content"
 msgstr "Contenu"
 
@@ -1624,7 +1683,7 @@ msgctxt "key"
 msgid "Control"
 msgstr ""
 
-#: pkg/docker/storage.jsx:407
+#: pkg/docker/storage.jsx:419
 msgid "Could not add all disks"
 msgstr ""
 
@@ -1636,15 +1695,15 @@ msgstr ""
 msgid "Could not list services"
 msgstr ""
 
-#: src/ws/cockpitcertificate.c:407
+#: src/ws/cockpitcertificate.c:508
 msgid "Could not parse PEM-encoded certificate"
 msgstr "Échec de l'analyse du certificat encodé en PEM"
 
-#: src/ws/cockpitcertificate.c:374
+#: src/ws/cockpitcertificate.c:475
 msgid "Could not parse PEM-encoded private key"
 msgstr "Échec de l'analyse de la clé privée encodée en PEM"
 
-#: pkg/docker/storage.jsx:448
+#: pkg/docker/storage.jsx:460
 msgid "Could not reset the storage pool"
 msgstr ""
 
@@ -1660,7 +1719,7 @@ msgstr "Impossible de modifier le mot de passe de l'utilisateur"
 msgid "Couldn't connect to server"
 msgstr ""
 
-#: pkg/shell/indexes.js:320
+#: pkg/shell/indexes.js:329
 msgid "Couldn't connect to the machine"
 msgstr "Impossible de se connecter à la machine"
 
@@ -1669,7 +1728,7 @@ msgid "Couldn't create new users"
 msgstr "Impossible de créer de nouveaux utilisateurs"
 
 #: pkg/kubernetes/scripts/connection.js:512
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:925
+#: pkg/kubernetes/scripts/kube-client-cockpit.js:929
 msgid "Couldn't find running API server"
 msgstr ""
 
@@ -1687,7 +1746,7 @@ msgstr "Impossible d'énumérer les utilisateurs locaux"
 msgid "Couldn't list users"
 msgstr "Impossible d'énumérer les utilisateurs"
 
-#: pkg/ostree/remotes.js:175
+#: pkg/ostree/remotes.js:181
 #, fuzzy
 msgid "Couldn't load settings for '$0': $1"
 msgstr "Impossible de charger les données utilisateur"
@@ -1695,6 +1754,10 @@ msgstr "Impossible de charger les données utilisateur"
 #: src/bridge/cockpitdbussetup.c:382
 msgid "Couldn't load user data"
 msgstr "Impossible de charger les données utilisateur"
+
+#: pkg/machines/vmdiskstab.jsx:30
+msgid "Count:"
+msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:340 pkg/kdump/kdump-view.jsx:508
 msgid "Crash dump location"
@@ -1704,15 +1767,15 @@ msgstr ""
 msgid "Crash system"
 msgstr ""
 
-#: pkg/users/index.html:211 pkg/kubernetes/views/add-group-dialog.html:19
-#: pkg/kubernetes/views/project-modify.html:72 pkg/storaged/details.js:159
-#: pkg/storaged/lvol-tabs.jsx:132 pkg/storaged/overview.js:464
-#: pkg/storaged/overview.js:509 pkg/storaged/content-views.jsx:120
-#: pkg/storaged/content-views.jsx:727
+#: pkg/kubernetes/views/project-modify.html:72
+#: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:211
+#: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
+#: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
+#: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
 msgid "Create"
 msgstr "Créer"
 
-#: pkg/storaged/content-views.jsx:673
+#: pkg/storaged/content-views.jsx:658
 msgid "Create Logical Volume"
 msgstr ""
 
@@ -1720,11 +1783,11 @@ msgstr ""
 msgid "Create New Account"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:404
+#: pkg/storaged/content-views.jsx:398
 msgid "Create Partition"
 msgstr "Créer la partition"
 
-#: pkg/storaged/overview.js:417
+#: pkg/storaged/overview.js:415
 msgid "Create RAID Device"
 msgstr "Créer un périphérique RAID"
 
@@ -1752,7 +1815,7 @@ msgstr "Créer un groupe de volumes"
 msgid "Create diagnostic report"
 msgstr ""
 
-#: pkg/kubernetes/scripts/images.js:634
+#: pkg/kubernetes/scripts/images.js:653
 msgid "Create empty image stream"
 msgstr ""
 
@@ -1760,16 +1823,16 @@ msgstr ""
 msgid "Create image stream"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3632 pkg/networkmanager/interfaces.js:3825
-#: pkg/networkmanager/interfaces.js:4064 pkg/networkmanager/interfaces.js:4270
+#: pkg/networkmanager/interfaces.js:3688 pkg/networkmanager/interfaces.js:3881
+#: pkg/networkmanager/interfaces.js:4120 pkg/networkmanager/interfaces.js:4326
 msgid "Create it"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:746
+#: pkg/storaged/content-views.jsx:731
 msgid "Create new Logical Volume"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:192
+#: pkg/storaged/format-dialog.jsx:202
 msgid "Create partition"
 msgstr "Créer la partition"
 
@@ -1777,7 +1840,7 @@ msgstr "Créer la partition"
 msgid "Create partition on $0"
 msgstr "Créer une partition sur $0"
 
-#: pkg/storaged/index.html:379 pkg/storaged/content-views.jsx:537
+#: pkg/storaged/index.html:379 pkg/storaged/content-views.jsx:522
 msgid "Create partition table"
 msgstr ""
 
@@ -1785,13 +1848,12 @@ msgstr ""
 msgid "Create report"
 msgstr ""
 
-#: pkg/kubernetes/views/replicationcontroller-body.html:7
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
-#: pkg/kubernetes/views/route-body.html:7
-#: pkg/kubernetes/views/service-body.html:7
 #: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
-#: pkg/docker/containers-view.jsx:122 pkg/docker/containers-view.jsx:311
-#: pkg/docker/containers-view.jsx:583
+#: pkg/kubernetes/views/replicationcontroller-body.html:7
+#: pkg/kubernetes/views/route-body.html:7
+#: pkg/kubernetes/views/service-body.html:7 pkg/docker/containers-view.jsx:122
+#: pkg/docker/containers-view.jsx:315 pkg/docker/containers-view.jsx:587
 msgid "Created"
 msgstr ""
 
@@ -1799,51 +1861,51 @@ msgstr ""
 msgid "Created:"
 msgstr ""
 
-#: pkg/storaged/jobs.js:139
+#: pkg/storaged/jobs.js:141
 msgid "Creating RAID Device $target"
 msgstr ""
 
-#: pkg/storaged/jobs.js:127
+#: pkg/storaged/jobs.js:129
 msgid "Creating filesystem on $target"
 msgstr "Création du système de fichier sur $target"
 
-#: pkg/storaged/jobs.js:153
+#: pkg/storaged/jobs.js:155
 msgid "Creating logical volume $target"
 msgstr ""
 
-#: pkg/storaged/jobs.js:131
+#: pkg/storaged/jobs.js:133
 msgid "Creating partition $target"
 msgstr "Création de la partition sur $target"
 
-#: pkg/storaged/jobs.js:147
+#: pkg/storaged/jobs.js:149
 msgid "Creating snapshot of $target"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:4269
+#: pkg/networkmanager/interfaces.js:4325
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3631
+#: pkg/networkmanager/interfaces.js:3687
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:4063
+#: pkg/networkmanager/interfaces.js:4119
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3824
+#: pkg/networkmanager/interfaces.js:3880
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/storaged/jobs.js:148
+#: pkg/storaged/jobs.js:150
 msgid "Creating volume group $target"
 msgstr ""
 
@@ -1855,7 +1917,7 @@ msgstr ""
 msgid "Currently using:"
 msgstr ""
 
-#: pkg/storaged/fsys-tab.jsx:126 pkg/storaged/format-dialog.jsx:174
+#: pkg/storaged/format-dialog.jsx:184 pkg/storaged/fsys-tab.jsx:126
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -1871,11 +1933,11 @@ msgstr ""
 msgid "DISK IS FAILING"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3121
+#: pkg/networkmanager/interfaces.js:3185
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/interfaces.js:2478
+#: pkg/networkmanager/interfaces.js:2539
 msgid "DNS $val"
 msgstr ""
 
@@ -1883,17 +1945,17 @@ msgstr ""
 msgid "DNS Policy"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3125
+#: pkg/networkmanager/interfaces.js:3189
 msgid "DNS Search Domains"
 msgstr "Domaines de recherche DNS"
 
-#: pkg/networkmanager/interfaces.js:2481
+#: pkg/networkmanager/interfaces.js:2542
 msgid "DNS Search Domains $val"
 msgstr ""
 
 #: pkg/dashboard/index.html:22
 msgid "Dashboard"
-msgstr ""
+msgstr "Tableau de bord"
 
 #: pkg/storaged/lvol-tabs.jsx:204
 msgid "Data Used"
@@ -1903,46 +1965,48 @@ msgstr ""
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: pkg/networkmanager/interfaces.js:747
+#: pkg/networkmanager/interfaces.js:777
 msgid "Deactivating"
 msgstr "Désactivation"
 
-#: pkg/storaged/jobs.js:146
+#: pkg/storaged/jobs.js:148
 msgid "Deactivating $target"
 msgstr ""
 
-#: pkg/docker/index.html:347 pkg/docker/index.html:351
+#: pkg/docker/index.html:350 pkg/docker/index.html:354
 #: pkg/ostree/index.html:253
 #: bower_components/registry-image-widgets/views/image-config.html:10
-#: pkg/storaged/fsys-tab.jsx:125 pkg/storaged/format-dialog.jsx:173
+#: pkg/storaged/format-dialog.jsx:183 pkg/storaged/fsys-tab.jsx:125
 #: pkg/subscriptions/subscriptions-register.jsx:101
 msgid "Default"
 msgstr "Par défaut"
 
-#: pkg/systemd/index.html:437
+#: pkg/systemd/index.html:447
 msgid "Delay"
 msgstr ""
 
-#: pkg/networkmanager/index.html:575 pkg/users/index.html:77
-#: pkg/users/index.html:296 pkg/docker/index.html:135 pkg/docker/index.html:236
-#: pkg/ostree/index.html:38 pkg/kubernetes/views/item-delete.html:11
-#: pkg/kubernetes/views/project-delete.html:9
+#: pkg/docker/index.html:135 pkg/docker/index.html:239
 #: pkg/kubernetes/views/image-delete.html:8
 #: pkg/kubernetes/views/imagestream-delete.html:8
+#: pkg/kubernetes/views/item-delete.html:11
+#: pkg/kubernetes/views/node-delete.html:15
+#: pkg/kubernetes/views/project-delete.html:9
+#: pkg/kubernetes/views/pv-delete.html:11
 #: pkg/kubernetes/views/pvc-delete.html:15
 #: pkg/kubernetes/views/user-remove-membership.html:10
-#: pkg/kubernetes/views/node-delete.html:15
-#: pkg/kubernetes/views/pv-delete.html:11 pkg/storaged/details.js:132
-#: pkg/storaged/details.js:182 pkg/storaged/details.js:431
-#: pkg/storaged/details.js:514 pkg/storaged/content-views.jsx:257
-#: pkg/storaged/content-views.jsx:275 pkg/docker/details.js:272
-#: pkg/docker/containers-view.jsx:169 pkg/docker/containers-view.jsx:453
-#: pkg/docker/image.js:140 pkg/kubernetes/scripts/volumes.js:218
+#: pkg/networkmanager/index.html:575 pkg/ostree/index.html:38
+#: pkg/users/index.html:77 pkg/users/index.html:296
+#: pkg/docker/containers-view.jsx:169 pkg/docker/containers-view.jsx:457
+#: pkg/docker/details.js:276 pkg/docker/image.js:141
+#: pkg/kubernetes/scripts/volumes.js:218 pkg/storaged/content-views.jsx:267
+#: pkg/storaged/content-views.jsx:288 pkg/storaged/details.jsx:105
+#: pkg/storaged/details.jsx:166 pkg/storaged/details.jsx:334
+#: pkg/storaged/details.jsx:383
 msgid "Delete"
 msgstr "Supprimer"
 
-#: pkg/networkmanager/interfaces.js:2265 pkg/users/local.js:1033
-#: pkg/docker/containers-view.jsx:452
+#: pkg/docker/containers-view.jsx:456 pkg/networkmanager/interfaces.js:2323
+#: pkg/users/local.js:1033
 msgid "Delete $0"
 msgstr "Supprimer $0"
 
@@ -1982,11 +2046,11 @@ msgstr ""
 msgid "Delete {{ item.kind }}"
 msgstr ""
 
-#: pkg/storaged/jobs.js:130 pkg/storaged/jobs.js:144
+#: pkg/storaged/jobs.js:132 pkg/storaged/jobs.js:146
 msgid "Deleting $target"
 msgstr "Suppression de $target"
 
-#: pkg/networkmanager/interfaces.js:2264
+#: pkg/networkmanager/interfaces.js:2322
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1998,12 +2062,13 @@ msgid ""
 "automatically created again in some cases."
 msgstr ""
 
-#: pkg/storaged/details.js:133
+#: pkg/storaged/details.jsx:106
 msgid "Deleting a RAID device will erase all data on it."
 msgstr ""
 "Supprimer un périphérique RAID en effacera toutes les données qu'il contient."
+""
 
-#: pkg/docker/details.js:271 pkg/docker/containers-view.jsx:168
+#: pkg/docker/containers-view.jsx:168 pkg/docker/details.js:275
 msgid "Deleting a container will erase all data in it."
 msgstr "Supprimer un conteneur en supprimera toutes les données"
 
@@ -2017,12 +2082,13 @@ msgid "Deleting a partition will delete all data in it."
 msgstr ""
 "Supprimer une partition en effacera toutes les données qu'elle contient."
 
-#: pkg/storaged/details.js:181
+#: pkg/storaged/details.jsx:165
 msgid "Deleting a volume group will erase all data on it."
 msgstr ""
 "Supprimer un groupe de volumes en effacera toutes les données qu'il contient."
+""
 
-#: pkg/docker/image.js:139
+#: pkg/docker/image.js:140
 msgid ""
 "Deleting an image will delete it, but you can probably download it again if "
 "you need it later.  Unless this image has never been pushed to a repository, "
@@ -2032,12 +2098,12 @@ msgstr ""
 "récupérer à nouveau plus tard. Si cette image n'a jamais été poussée sur un "
 "dépôt, il ne sera probablement pas possible de la récupérer."
 
-#: pkg/storaged/jobs.js:149
+#: pkg/storaged/jobs.js:151
 msgid "Deleting volume group $target"
 msgstr ""
 
-#: pkg/kubernetes/views/deploy.html:62
 #: pkg/kubernetes/views/dashboard-page.html:131
+#: pkg/kubernetes/views/deploy.html:62
 msgid "Deploy"
 msgstr ""
 
@@ -2059,19 +2125,23 @@ msgstr ""
 msgid "Deployment Configs"
 msgstr ""
 
-#: pkg/systemd/services.html:355 pkg/kubernetes/views/project-modify.html:40
 #: pkg/kubernetes/views/project-listing.html:15
 #: pkg/kubernetes/views/project-listing.html:54
+#: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:355
 #: bower_components/registry-image-widgets/views/image-body.html:6
 #: pkg/systemd/init.js:270
 msgid "Description"
 msgstr ""
 
-#: pkg/shell/index.html:185 pkg/kubernetes/index.html:64
+#: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
+#: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
+#: pkg/docker/containers-view.jsx:416
 #: pkg/subscriptions/subscriptions-view.jsx:209
-#: pkg/docker/containers-view.jsx:254 pkg/docker/containers-view.jsx:402
-#: pkg/docker/containers-view.jsx:412
 msgid "Details"
+msgstr ""
+
+#: pkg/machines/vmdiskstab.jsx:52 pkg/machines/vmdiskstab.jsx:134
+msgid "Device"
 msgstr ""
 
 #: pkg/storaged/index.html:541
@@ -2079,25 +2149,13 @@ msgctxt "storage"
 msgid "Device"
 msgstr "Périphérique"
 
-#: pkg/storaged/utils.js:407
-msgid "Device $0 is a member of RAID Array $1"
-msgstr "Le périphérique $0 est membre de la grappe RAID $1"
-
-#: pkg/storaged/utils.js:413
-msgid "Device $0 is a physical volume of $1"
-msgstr "Le périphérique $0 est un volume physique de $1"
-
-#: pkg/storaged/utils.js:401
-msgid "Device $0 is mounted on $1"
-msgstr "Le périphérique $0 est monté sur $1"
-
 #: pkg/storaged/index.html:465 pkg/storaged/index.html:471
 #: pkg/storaged/index.html:513
 msgctxt "storage"
 msgid "Device File"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:536 pkg/storaged/format-dialog.jsx:264
+#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:279
 msgid "Device is read-only"
 msgstr ""
 
@@ -2119,7 +2177,7 @@ msgstr ""
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr ""
 
-#: pkg/systemd/init.js:541
+#: pkg/systemd/init.js:537
 msgid "Disable"
 msgstr "Désactiver"
 
@@ -2127,11 +2185,11 @@ msgstr "Désactiver"
 msgid "Disable tuned"
 msgstr "Désactiver tuned"
 
-#: pkg/networkmanager/interfaces.js:1827 pkg/systemd/init.js:303
+#: pkg/networkmanager/interfaces.js:1890 pkg/systemd/init.js:303
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: pkg/shell/simple.html:111 pkg/shell/indexes.js:126 pkg/shell/indexes.js:497
+#: pkg/shell/simple.html:111 pkg/shell/indexes.js:126 pkg/shell/indexes.js:506
 msgid "Disconnected"
 msgstr "Déconnecté"
 
@@ -2139,7 +2197,7 @@ msgstr "Déconnecté"
 msgid "Disk"
 msgstr ""
 
-#: pkg/systemd/index.html:206 pkg/dashboard/index.html:73
+#: pkg/dashboard/index.html:73 pkg/systemd/index.html:216
 msgid "Disk I/O"
 msgstr ""
 
@@ -2151,14 +2209,14 @@ msgstr ""
 msgid "Disk is OK"
 msgstr "Le disque est OK"
 
-#: pkg/storaged/index.html:582 pkg/storaged/details.js:69
-#: pkg/storaged/details.js:202 pkg/storaged/overview.js:451
-#: pkg/storaged/overview.js:498
+#: pkg/machines/hostvmslist.jsx:365 pkg/storaged/overview.js:449
+#: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
+#: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
 msgid "Disks"
 msgstr "Disques"
 
-#: pkg/shell/simple.html:37 pkg/shell/simple.html:92 pkg/shell/index.html:37
-#: pkg/shell/index.html:112 pkg/shell/stub.html:37 pkg/shell/stub.html:105
+#: pkg/shell/index.html:49 pkg/shell/index.html:127 pkg/shell/simple.html:37
+#: pkg/shell/simple.html:92 pkg/shell/stub.html:37 pkg/shell/stub.html:105
 msgid "Display Language"
 msgstr "Langue d'affichage"
 
@@ -2201,8 +2259,8 @@ msgstr ""
 
 #: pkg/kubernetes/views/remove-role-dialog.html:5
 msgid ""
-"Do you want to remove the role '{{ fields.displayRole }}' from member "
-"{{ fields.member.metadata.name }}?"
+"Do you want to remove the role '{{ fields.displayRole }}' from member {{ "
+"fields.member.metadata.name }}?"
 msgstr ""
 
 #: bower_components/registry-image-widgets/views/image-meta.html:11
@@ -2214,27 +2272,27 @@ msgstr "Version"
 msgid "Docker is not installed or activated on the system"
 msgstr "Docker n'est pas installé ou activé sur le système"
 
-#: pkg/systemd/index.html:107
+#: pkg/systemd/index.html:117
 msgid "Domain"
 msgstr ""
 
-#: pkg/realmd/operation.js:148
+#: pkg/realmd/operation.js:158
 msgid "Domain $0 could not be contacted"
 msgstr "Le domaine $0 ne peut être contacté"
 
-#: pkg/realmd/operation.js:219
+#: pkg/realmd/operation.js:229
 msgid "Domain $0 is not supported"
 msgstr ""
 
-#: pkg/realmd/operation.html:11
+#: pkg/realmd/operation.html:12
 msgid "Domain Address"
 msgstr "Adresse de domaine"
 
-#: pkg/realmd/operation.html:59
+#: pkg/realmd/operation.html:60
 msgid "Domain Administrator Name"
 msgstr "Nom de l'administrateur du domaine"
 
-#: pkg/realmd/operation.html:65
+#: pkg/realmd/operation.html:66
 msgid "Domain Administrator Password"
 msgstr "Mot de passe de l'administrateur du domaine"
 
@@ -2242,11 +2300,11 @@ msgstr "Mot de passe de l'administrateur du domaine"
 msgid "Don't Repeat"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:504 pkg/storaged/format-dialog.jsx:128
+#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:138
 msgid "Don't overwrite existing data"
 msgstr "Ne pas écraser les données existantes"
 
-#: pkg/kubernetes/scripts/images.js:624
+#: pkg/kubernetes/scripts/images.js:643
 msgid "Don't pull images automatically"
 msgstr ""
 
@@ -2258,7 +2316,7 @@ msgstr ""
 msgid "Downgrades"
 msgstr ""
 
-#: pkg/docker/index.html:587
+#: pkg/docker/index.html:590
 msgid "Download"
 msgstr ""
 
@@ -2266,11 +2324,11 @@ msgstr ""
 msgid "Download report"
 msgstr ""
 
-#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:160
+#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:161
 msgid "Drive"
 msgstr "Disque"
 
-#: pkg/storaged/overview.js:194 pkg/storaged/overview.js:196
+#: pkg/storaged/overview.js:192 pkg/storaged/overview.js:194
 msgctxt "storage"
 msgid "Drive"
 msgstr ""
@@ -2303,7 +2361,7 @@ msgstr ""
 msgid "Edit image stream"
 msgstr ""
 
-#: pkg/storaged/jobs.js:117
+#: pkg/storaged/jobs.js:119
 msgid "Ejecting $target"
 msgstr ""
 
@@ -2322,15 +2380,19 @@ msgstr ""
 msgid "Empty Directory"
 msgstr ""
 
-#: pkg/storaged/jobs.js:152
+#: pkg/storaged/jobs.js:154
 msgid "Emptying $target"
 msgstr ""
 
-#: pkg/systemd/init.js:539
+#: pkg/machines/hostvmslist.jsx:266
+msgid "Emulated Machine:"
+msgstr ""
+
+#: pkg/systemd/init.js:535
 msgid "Enable"
 msgstr "Activer"
 
-#: pkg/systemd/init.js:540
+#: pkg/systemd/init.js:536
 msgid "Enable Forcefully"
 msgstr "Forcer l'activation"
 
@@ -2338,15 +2400,27 @@ msgstr "Forcer l'activation"
 msgid "Enabled"
 msgstr "Activé(e)"
 
+#: pkg/storaged/storage-controls.jsx:214
+msgid "Encrypted $0"
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:106
 msgid "Encrypted EXT4 (LUKS)"
 msgstr "EXT4 chiffré (LUKS)"
+
+#: pkg/storaged/storage-controls.jsx:206
+msgid "Encrypted Logical Volume of $0"
+msgstr ""
+
+#: pkg/storaged/storage-controls.jsx:208
+msgid "Encrypted Partition of $0"
+msgstr ""
 
 #: pkg/storaged/format-dialog.jsx:105
 msgid "Encrypted XFS (LUKS)"
 msgstr "XFS chiffré (LUKS)"
 
-#: pkg/storaged/content-views.jsx:304
+#: pkg/storaged/content-views.jsx:317
 msgctxt "storage-id-desc"
 msgid "Encrypted data"
 msgstr ""
@@ -2355,7 +2429,7 @@ msgstr ""
 msgid "Encryption"
 msgstr ""
 
-#: pkg/storaged/crypto-tab.jsx:99 pkg/storaged/format-dialog.jsx:167
+#: pkg/storaged/crypto-tab.jsx:99 pkg/storaged/format-dialog.jsx:177
 msgid "Encryption Options"
 msgstr "Options de chiffrement"
 
@@ -2367,8 +2441,8 @@ msgstr ""
 msgid "Endpoint Name"
 msgstr ""
 
-#: pkg/kubernetes/views/service-panel.html:9
 #: pkg/kubernetes/views/service-page.html:14
+#: pkg/kubernetes/views/service-panel.html:9
 msgid "Endpoints"
 msgstr ""
 
@@ -2380,7 +2454,7 @@ msgstr ""
 msgid "Enforce policy:"
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:449
+#: pkg/lib/machine-dialogs.js:452
 msgid "Enter IP address or host name"
 msgstr "Entrez l'adresse IP ou le nom d'hôte"
 
@@ -2394,35 +2468,35 @@ msgstr ""
 msgid "Entry"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:309
+#: pkg/docker/containers-view.jsx:313
 msgid "Entrypoint"
 msgstr ""
 
-#: pkg/docker/index.html:515 pkg/kubernetes/views/container-body.html:26
+#: pkg/docker/index.html:518 pkg/kubernetes/views/container-body.html:26
 #: bower_components/registry-image-widgets/views/image-config.html:21
 msgid "Environment"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:126
+#: pkg/storaged/content-views.jsx:484 pkg/storaged/format-dialog.jsx:136
 msgid "Erase"
 msgstr "Effacer"
 
-#: pkg/docker/storage.jsx:426
+#: pkg/docker/storage.jsx:438
 msgid "Erase containers and reset storage pool"
 msgstr ""
 
-#: pkg/docker/storage.jsx:362
+#: pkg/docker/storage.jsx:363 pkg/docker/storage.jsx:374
 msgid "Erase containers, reformat disks, and add them"
 msgstr ""
 
-#: pkg/storaged/jobs.js:126
+#: pkg/storaged/jobs.js:128
 msgid "Erasing $target"
 msgstr "Effacement de $target"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services.html:317 pkg/storaged/devices.js:118
-#: pkg/storaged/storage-controls.jsx:68 pkg/storaged/details.js:268
-#: pkg/storaged/overview.js:692 pkg/users/local.js:1169
+#: pkg/systemd/services.html:317 pkg/storaged/details.jsx:199
+#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
+#: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1169
 msgid "Error"
 msgstr "Erreur"
 
@@ -2430,7 +2504,7 @@ msgstr "Erreur"
 msgid "Error getting certificate details: $0"
 msgstr ""
 
-#: pkg/ostree/remotes.js:321
+#: pkg/ostree/remotes.js:327
 #, fuzzy
 msgid "Error loading remotes: $0"
 msgstr "Erreur pendant l'enregistrement du fichier authorized_keys :"
@@ -2439,7 +2513,7 @@ msgstr "Erreur pendant l'enregistrement du fichier authorized_keys :"
 msgid "Error loading users: {{perm_failed}}"
 msgstr ""
 
-#: pkg/docker/util.js:489
+#: pkg/docker/util.js:494
 msgid "Error message from Docker:"
 msgstr "Message d'erreur de Docker :"
 
@@ -2471,7 +2545,7 @@ msgstr ""
 msgid "Ethernet MTU"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1873
+#: pkg/networkmanager/interfaces.js:1936
 msgid "Ethtool"
 msgstr ""
 
@@ -2491,35 +2565,27 @@ msgstr "Code de sortie $ExitCode"
 msgid "Expired Signature"
 msgstr ""
 
-#: pkg/docker/index.html:497
+#: pkg/docker/index.html:500
 msgid "Expose container ports"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:423 pkg/storaged/format-dialog.jsx:109
+#: pkg/storaged/content-views.jsx:418 pkg/storaged/format-dialog.jsx:109
 msgid "Extended Partition"
 msgstr "Partition étendue"
 
-#: pkg/storaged/details.js:407
+#: pkg/storaged/sidebar-views.jsx:122
 msgid "FAILED"
 msgstr "EN ÉCHEC"
 
-#: pkg/machines/libvirt.es6:174
-msgid "FORCEOFF_VM action failed"
-msgstr ""
-
-#: pkg/machines/libvirt.es6:194
-msgid "FORCEREBOOT_VM action failed"
-msgstr ""
-
-#: pkg/ostree/index.html:258 pkg/networkmanager/interfaces.js:749
+#: pkg/ostree/index.html:258 pkg/networkmanager/interfaces.js:779
 msgid "Failed"
 msgstr "Échec"
 
-#: pkg/lib/machine-dialogs.js:414
+#: pkg/lib/machine-dialogs.js:417
 msgid "Failed to add machine: $0"
 msgstr "Échec lors de l'ajout de la machine : $0"
 
-#: pkg/users/local.js:112 pkg/users/local.js:143 pkg/lib/credentials.js:224
+#: pkg/lib/credentials.js:224 pkg/users/local.js:112 pkg/users/local.js:143
 msgid "Failed to change password"
 msgstr "Échec du changement de mot de passe"
 
@@ -2535,7 +2601,7 @@ msgstr ""
 msgid "Failed to disable tuned profile"
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:496
+#: pkg/lib/machine-dialogs.js:499
 msgid "Failed to edit machine: $0"
 msgstr "Impossible de modifier la machine : $0"
 
@@ -2551,7 +2617,7 @@ msgstr ""
 msgid "Failed to start Docker: $0"
 msgstr "Échec du démarrage de Docker : $0"
 
-#: pkg/docker/util.js:542
+#: pkg/docker/util.js:547
 msgid "Failed to stop Docker scope: $0"
 msgstr "Échec de l'arrêt de la portée Docker : $0"
 
@@ -2561,6 +2627,10 @@ msgstr "Échec lors du changement de profil"
 
 #: pkg/kubernetes/scripts/volumes.js:204
 msgid "Fibre Channel"
+msgstr ""
+
+#: pkg/machines/vmdiskstab.jsx:51
+msgid "File"
 msgstr ""
 
 #: pkg/storaged/content-views.jsx:142
@@ -2575,6 +2645,7 @@ msgstr ""
 msgid "Filesystem Name"
 msgstr ""
 
+#: pkg/kubernetes/views/pv-modify.html:180
 #: pkg/kubernetes/views/volume-body.html:6
 #: pkg/kubernetes/views/volume-body.html:16
 #: pkg/kubernetes/views/volume-body.html:62
@@ -2582,11 +2653,10 @@ msgstr ""
 #: pkg/kubernetes/views/volume-body.html:91
 #: pkg/kubernetes/views/volume-body.html:120
 #: pkg/kubernetes/views/volume-body.html:132
-#: pkg/kubernetes/views/pv-modify.html:180
 msgid "Filesystem Type"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:141
+#: pkg/storaged/format-dialog.jsx:151
 msgid "Filesystem type"
 msgstr "Type de système de fichiers"
 
@@ -2594,7 +2664,7 @@ msgstr "Type de système de fichiers"
 msgid "Filesystems"
 msgstr "Systèmes de fichiers"
 
-#: pkg/shell/index.html:224 pkg/lib/machine-unknown-hostkey.html:10
+#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:245
 msgid "Fingerprint"
 msgstr ""
 
@@ -2615,20 +2685,20 @@ msgstr ""
 msgid "Flocker Dataset Name"
 msgstr ""
 
-#: pkg/docker/util.js:501
+#: pkg/docker/util.js:506
 msgid "Force Delete"
 msgstr "Forcer la suppression"
 
-#: pkg/machines/hostvmslist.jsx:47
+#: pkg/machines/hostvmslist.jsx:53
 msgid "Force Restart"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:59
+#: pkg/machines/hostvmslist.jsx:68
 msgid "Force Shut Down"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:520 pkg/storaged/format-dialog.jsx:192
-#: pkg/storaged/format-dialog.jsx:265
+#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:202
+#: pkg/storaged/format-dialog.jsx:280
 msgid "Format"
 msgstr "Formater"
 
@@ -2636,32 +2706,32 @@ msgstr "Formater"
 msgid "Format $0"
 msgstr "Formater $0"
 
-#: pkg/storaged/content-views.jsx:498
+#: pkg/storaged/content-views.jsx:480
 msgid "Format Disk $0"
 msgstr "Formater le disque $0"
 
-#: pkg/storaged/content-views.jsx:521
+#: pkg/storaged/content-views.jsx:503
 msgid "Formatting a disk will erase all data on it."
 msgstr "Formater un disque en effacera toutes les données qu'il contient."
 
-#: pkg/storaged/format-dialog.jsx:194
+#: pkg/storaged/format-dialog.jsx:204
 msgid "Formatting a storage device will erase all data on it."
 msgstr ""
 "Formater un périphérique de stockage en effacera toutes les données qu'il "
 "contient."
 
-#: pkg/networkmanager/interfaces.js:2683
+#: pkg/networkmanager/interfaces.js:2744
 #, fuzzy
 msgid "Forward delay $forward_delay"
 msgstr "Forward delay $forward_delay"
 
-#: pkg/systemd/index.html:255 pkg/storaged/pvol-tabs.jsx:48
-#: pkg/docker/storage.jsx:300 pkg/docker/storage.jsx:322
-#: pkg/systemd/host.js:1439
+#: pkg/systemd/index.html:265 pkg/docker/storage.jsx:301
+#: pkg/docker/storage.jsx:323 pkg/storaged/pvol-tabs.jsx:48
+#: pkg/systemd/host.js:1466
 msgid "Free"
 msgstr "Disponible"
 
-#: pkg/storaged/content-views.jsx:409
+#: pkg/storaged/content-views.jsx:404
 msgid "Free Space"
 msgstr ""
 
@@ -2673,15 +2743,19 @@ msgstr ""
 msgid "Full Name"
 msgstr ""
 
+#: pkg/machines/vmdiskstab.jsx:73
+msgid "GB"
+msgstr ""
+
 #: pkg/kubernetes/scripts/volumes.js:192
 msgid "GCE Persistent Disk"
 msgstr ""
 
-#: pkg/docker/index.html:178
+#: pkg/docker/index.html:181
 msgid "Gateway:"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2525
+#: pkg/networkmanager/interfaces.js:2586
 msgid "General"
 msgstr "Général"
 
@@ -2689,7 +2763,7 @@ msgstr "Général"
 msgid "Generating report"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:580
+#: pkg/docker/containers-view.jsx:584
 msgid "Get new image"
 msgstr ""
 
@@ -2709,9 +2783,9 @@ msgstr ""
 msgid "Go to"
 msgstr "Aller à"
 
-#: pkg/networkmanager/index.html:51 pkg/networkmanager/index.html:538
-#: pkg/storaged/index.html:305 pkg/systemd/index.html:172
-#: pkg/dashboard/index.html:46
+#: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
+#: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
+#: pkg/systemd/index.html:182
 msgid "Go to now"
 msgstr "Aller à maintenant"
 
@@ -2742,34 +2816,34 @@ msgstr ""
 msgid "Hair Pin mode"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2709
+#: pkg/networkmanager/interfaces.js:2770
 msgid "Hairpin mode"
 msgstr ""
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:160
 msgid "Hard Disk"
 msgstr ""
 
-#: pkg/storaged/overview.js:182
+#: pkg/storaged/overview.js:180
 msgctxt "storage"
 msgid "Hard Disk"
 msgstr "Disque dur"
 
-#: pkg/systemd/index.html:77
+#: pkg/systemd/index.html:87
 msgid "Hardware"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2685
+#: pkg/networkmanager/interfaces.js:2746
 msgid "Hello time $hello_time"
 msgstr "Hello time $hello_time"
 
-#: pkg/kubernetes/views/route-body.html:9
-#: pkg/kubernetes/views/route-modify.html:8
 #: pkg/kubernetes/views/details-page.html:73
+#: pkg/kubernetes/views/route-body.html:9
+#: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
 msgid "Host"
 msgstr "Hôte"
 
-#: pkg/systemd/index.html:102 pkg/dashboard/index.html:135
+#: pkg/dashboard/index.html:135 pkg/systemd/index.html:112
 msgid "Host Name"
 msgstr ""
 
@@ -2777,7 +2851,7 @@ msgstr ""
 msgid "Host Path"
 msgstr ""
 
-#: src/base1/cockpit.js:3925
+#: src/base1/cockpit.js:3947
 msgid "Host key is incorrect"
 msgstr ""
 
@@ -2785,7 +2859,7 @@ msgstr ""
 msgid "Hour : Minute"
 msgstr ""
 
-#: pkg/systemd/init.js:1180 pkg/systemd/init.js:1209
+#: pkg/systemd/init.js:1176 pkg/systemd/init.js:1205
 msgid "Hour needs to be a number between 0-23"
 msgstr ""
 
@@ -2793,16 +2867,12 @@ msgstr ""
 msgid "Hours"
 msgstr ""
 
-#: pkg/systemd/index.html:221 pkg/systemd/host.js:1350
+#: pkg/systemd/index.html:231 pkg/systemd/host.js:1377
 msgid "I/O Wait"
 msgstr "Attente sur E/S"
 
-#: pkg/machines/hostvmslist.jsx:218
-msgid "ID:"
-msgstr ""
-
-#: pkg/kubernetes/views/service-body.html:9
 #: pkg/kubernetes/views/node-body.html:10
+#: pkg/kubernetes/views/service-body.html:9
 msgid "IP"
 msgstr ""
 
@@ -2810,11 +2880,11 @@ msgstr ""
 msgid "IP Address"
 msgstr "Adresse IP"
 
-#: pkg/docker/index.html:170
+#: pkg/docker/index.html:173
 msgid "IP Address:"
 msgstr ""
 
-#: pkg/docker/index.html:174
+#: pkg/docker/index.html:177
 msgid "IP Prefix Length:"
 msgstr ""
 
@@ -2822,19 +2892,19 @@ msgstr ""
 msgid "IP Settings"
 msgstr "Paramétrage IP"
 
-#: pkg/networkmanager/interfaces.js:2734
+#: pkg/networkmanager/interfaces.js:2795
 msgid "IPv4"
 msgstr "IPv4"
 
-#: pkg/networkmanager/interfaces.js:3164
+#: pkg/networkmanager/interfaces.js:3228
 msgid "IPv4 Settings"
 msgstr "Réglages IPv4"
 
-#: pkg/networkmanager/interfaces.js:2735
+#: pkg/networkmanager/interfaces.js:2796
 msgid "IPv6"
 msgstr "IPv6"
 
-#: pkg/networkmanager/interfaces.js:3164
+#: pkg/networkmanager/interfaces.js:3228
 msgid "IPv6 Settings"
 msgstr "Réglages IPv6"
 
@@ -2842,12 +2912,12 @@ msgstr "Réglages IPv6"
 msgid "ISCSI"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:121 pkg/docker/containers-view.jsx:307
+#: pkg/docker/containers-view.jsx:121 pkg/docker/containers-view.jsx:311
 #: pkg/systemd/init.js:271
 msgid "Id"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2726
+#: pkg/networkmanager/interfaces.js:2787
 msgid "Id $id"
 msgstr "Id $id"
 
@@ -2859,26 +2929,26 @@ msgstr ""
 msgid "Identifier"
 msgstr ""
 
-#: pkg/kubernetes/views/user-panel.html:18
 #: pkg/kubernetes/views/user-page.html:23
+#: pkg/kubernetes/views/user-panel.html:18
 msgid "Identities"
 msgstr ""
 
+#: pkg/kubernetes/views/add-user-dialog.html:17
 #: pkg/kubernetes/views/project-listing.html:91
 #: pkg/kubernetes/views/user-modify.html:17
-#: pkg/kubernetes/views/add-user-dialog.html:17
 msgid "Identity"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1836
+#: pkg/networkmanager/interfaces.js:1899
 msgid "Ignore"
 msgstr "Ignorer"
 
-#: pkg/docker/index.html:258 pkg/docker/index.html:420
-#: pkg/kubernetes/views/image-panel.html:9
-#: pkg/kubernetes/views/image-page.html:16
+#: pkg/docker/index.html:261 pkg/docker/index.html:423
 #: pkg/kubernetes/views/container-body.html:6
-#: pkg/docker/containers-view.jsx:123 pkg/docker/containers-view.jsx:267
+#: pkg/kubernetes/views/image-page.html:16
+#: pkg/kubernetes/views/image-panel.html:9 pkg/docker/containers-view.jsx:123
+#: pkg/docker/containers-view.jsx:271
 msgid "Image"
 msgstr "Image"
 
@@ -2898,7 +2968,7 @@ msgstr ""
 msgid "Image Registry"
 msgstr ""
 
-#: pkg/docker/index.html:567
+#: pkg/docker/index.html:570
 msgid "Image Search"
 msgstr ""
 
@@ -2919,10 +2989,11 @@ msgstr "Image $0"
 msgid "Image:"
 msgstr ""
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:19
 #: pkg/kubernetes/views/image-listing.html:9
-#: pkg/kubernetes/views/imagestream-page.html:24 pkg/kubernetes/index.html:78
-#: pkg/kubernetes/registry.html:49 pkg/docker/containers-view.jsx:611
+#: pkg/kubernetes/views/imagestream-page.html:24
+#: pkg/kubernetes/views/registry-dashboard-page.html:19
+#: pkg/kubernetes/index.html:78 pkg/kubernetes/registry.html:49
+#: pkg/docker/containers-view.jsx:615
 msgid "Images"
 msgstr ""
 
@@ -2956,7 +3027,7 @@ msgstr ""
 msgid "Images pushed recently"
 msgstr ""
 
-#: pkg/storaged/details.js:408
+#: pkg/storaged/sidebar-views.jsx:123
 msgid "In Sync"
 msgstr "En cours de synchronisation"
 
@@ -2977,12 +3048,12 @@ msgid ""
 "strong}}."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:731 pkg/networkmanager/interfaces.js:1314
-#: pkg/networkmanager/interfaces.js:1321 pkg/networkmanager/interfaces.js:2428
+#: pkg/networkmanager/interfaces.js:761 pkg/networkmanager/interfaces.js:1357
+#: pkg/networkmanager/interfaces.js:1364 pkg/networkmanager/interfaces.js:2489
 msgid "Inactive"
 msgstr "Inactif"
 
-#: pkg/storaged/content-views.jsx:630
+#: pkg/storaged/content-views.jsx:615
 msgid "Inactive volume"
 msgstr ""
 
@@ -2990,7 +3061,7 @@ msgstr ""
 msgid "Incorrect Host Key"
 msgstr ""
 
-#: pkg/docker/storage.jsx:284
+#: pkg/docker/storage.jsx:285
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
@@ -3006,8 +3077,8 @@ msgstr ""
 msgid "Instantiate"
 msgstr ""
 
-#: pkg/kubernetes/views/volume-body.html:81
 #: pkg/kubernetes/views/pv-modify.html:169
+#: pkg/kubernetes/views/volume-body.html:81
 msgid "Interface"
 msgstr ""
 
@@ -3019,7 +3090,7 @@ msgstr "Interfaces"
 msgid "Internal Error: Invalid challenge header"
 msgstr ""
 
-#: src/base1/cockpit.js:3927
+#: src/base1/cockpit.js:3949
 msgid "Internal error"
 msgstr ""
 
@@ -3036,15 +3107,15 @@ msgstr "Port invalide"
 msgid "Invalid credentials"
 msgstr ""
 
-#: pkg/systemd/shutdown.js:142 pkg/systemd/host.js:1228
+#: pkg/systemd/host.js:1255 pkg/systemd/shutdown.js:142
 msgid "Invalid date format"
 msgstr "Format de date invalide"
 
-#: pkg/systemd/shutdown.js:138 pkg/systemd/host.js:1224
+#: pkg/systemd/host.js:1251 pkg/systemd/shutdown.js:138
 msgid "Invalid date format and invalid time format"
 msgstr "Formats de date et d'heure invalides"
 
-#: pkg/systemd/init.js:1215
+#: pkg/systemd/init.js:1211
 msgid "Invalid date format."
 msgstr ""
 
@@ -3061,7 +3132,7 @@ msgstr ""
 msgid "Invalid metric $0"
 msgstr "Port invalide"
 
-#: pkg/systemd/init.js:1166
+#: pkg/systemd/init.js:1162
 msgid "Invalid number."
 msgstr ""
 
@@ -3079,15 +3150,15 @@ msgstr "Port invalide"
 msgid "Invalid prefix or netmask $0"
 msgstr "Port invalide"
 
-#: pkg/systemd/shutdown.js:140 pkg/systemd/host.js:1226
+#: pkg/systemd/host.js:1253 pkg/systemd/shutdown.js:140
 msgid "Invalid time format"
 msgstr "Format d'heure invalide"
 
-#: pkg/systemd/index.html:373
+#: pkg/systemd/index.html:383
 msgid "Invalid time zone"
 msgstr ""
 
-#: pkg/storaged/overview.js:580 pkg/storaged/overview.js:671
+#: pkg/storaged/overview.js:582 pkg/storaged/overview.js:673
 #: pkg/subscriptions/subscriptions-client.js:194
 msgid "Invalid username or password"
 msgstr ""
@@ -3095,10 +3166,6 @@ msgstr ""
 #: pkg/lib/machine-change-port.html:15
 msgid "Is sshd running on a different port?"
 msgstr ""
-
-#: pkg/systemd/init.js:520
-msgid "Isolate"
-msgstr "Isoler"
 
 #: pkg/storaged/index.html:278
 msgid "Jobs"
@@ -3108,7 +3175,7 @@ msgstr "Tâches"
 msgid "Join"
 msgstr "Rejoindre"
 
-#: pkg/realmd/operation.js:454
+#: pkg/realmd/operation.js:464
 msgid "Join Domain"
 msgstr "Rejoindre le domaine"
 
@@ -3117,7 +3184,7 @@ msgstr "Rejoindre le domaine"
 msgid "Join a Domain"
 msgstr "Rejoindre le domaine"
 
-#: pkg/realmd/operation.js:346
+#: pkg/realmd/operation.js:356
 msgid "Joining this domain is not supported"
 msgstr ""
 
@@ -3150,7 +3217,7 @@ msgstr ""
 msgid "Kerberos Ticket"
 msgstr ""
 
-#: pkg/systemd/index.html:225 pkg/systemd/host.js:1351
+#: pkg/systemd/index.html:235 pkg/systemd/host.js:1378
 msgid "Kernel"
 msgstr "Noyau"
 
@@ -3179,11 +3246,11 @@ msgstr "Grappe Kubernetes"
 msgid "LACP Key"
 msgstr ""
 
-#: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/deploymentconfig-body.html:41
+#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
+#: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/route-body.html:22
 #: pkg/kubernetes/views/service-body.html:26
-#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
 #: bower_components/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr ""
@@ -3221,11 +3288,11 @@ msgstr ""
 msgid "Latest Version"
 msgstr ""
 
-#: pkg/realmd/operation.js:101
+#: pkg/realmd/operation.js:102
 msgid "Leave"
 msgstr "Quitter"
 
-#: pkg/realmd/operation.js:100
+#: pkg/realmd/operation.js:101
 #, fuzzy
 msgid "Leave Domain"
 msgstr "Rejoindre le domaine"
@@ -3244,7 +3311,7 @@ msgid ""
 "user will always be used connecting to this machine."
 msgstr ""
 
-#: pkg/shell/simple.html:76 pkg/shell/index.html:88 pkg/shell/stub.html:81
+#: pkg/shell/index.html:103 pkg/shell/simple.html:76 pkg/shell/stub.html:81
 msgid "Licensed under:"
 msgstr ""
 
@@ -3260,11 +3327,11 @@ msgstr ""
 msgid "Link down delay"
 msgstr "Délai de chute de lien"
 
-#: pkg/networkmanager/interfaces.js:1824 pkg/networkmanager/interfaces.js:1834
+#: pkg/networkmanager/interfaces.js:1887 pkg/networkmanager/interfaces.js:1897
 msgid "Link local"
 msgstr "Lien local"
 
-#: pkg/docker/index.html:486
+#: pkg/docker/index.html:489
 msgid "Link to another container"
 msgstr ""
 
@@ -3272,15 +3339,15 @@ msgstr ""
 msgid "Link up delay"
 msgstr "Délai de montée de lien"
 
-#: pkg/docker/index.html:482
+#: pkg/docker/index.html:485
 msgid "Links"
 msgstr "Liens"
 
-#: pkg/docker/index.html:190
+#: pkg/docker/index.html:193
 msgid "Links:"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1860
+#: pkg/networkmanager/interfaces.js:1923
 msgid "Load Balancing"
 msgstr ""
 
@@ -3288,8 +3355,8 @@ msgstr ""
 msgid "Load earlier entries"
 msgstr "Charger des entrées antérieures"
 
-#: pkg/systemd/logs.js:75 pkg/systemd/logs.js:90 pkg/systemd/logs.js:134
-#: pkg/systemd/logs.js:175 pkg/kdump/kdump-view.jsx:370
+#: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:75 pkg/systemd/logs.js:90
+#: pkg/systemd/logs.js:134 pkg/systemd/logs.js:175
 msgid "Loading..."
 msgstr "Chargement..."
 
@@ -3297,7 +3364,7 @@ msgstr "Chargement..."
 msgid "Local Accounts"
 msgstr ""
 
-#: pkg/docker/storage.jsx:190
+#: pkg/docker/storage.jsx:191
 msgid "Local Disks"
 msgstr ""
 
@@ -3318,11 +3385,19 @@ msgstr "Verrouiller"
 msgid "Lock Account"
 msgstr ""
 
-#: pkg/storaged/jobs.js:119
+#: pkg/shell/index.html:33
+msgid "Lock to prevent privileged tasks"
+msgstr ""
+
+#: pkg/shell/index.html:31
+msgid "Locked"
+msgstr ""
+
+#: pkg/storaged/jobs.js:121
 msgid "Locking $target"
 msgstr ""
 
-#: pkg/lib/machine-change-auth.html:80 src/ws/login.html:86
+#: pkg/lib/machine-change-auth.html:80 src/ws/login.html:84
 msgid "Log In"
 msgstr ""
 
@@ -3346,7 +3421,7 @@ msgstr ""
 msgid "Log messages"
 msgstr ""
 
-#: pkg/shell/simple.html:45 pkg/shell/index.html:52 pkg/shell/stub.html:45
+#: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
 msgid "Log out"
 msgstr "Déconnexion"
 
@@ -3354,19 +3429,23 @@ msgstr "Déconnexion"
 msgid "Logged In"
 msgstr "Connecté"
 
+#: pkg/kubernetes/views/pv-modify.html:158
 #: pkg/kubernetes/views/volume-body.html:79
 #: pkg/kubernetes/views/volume-body.html:118
-#: pkg/kubernetes/views/pv-modify.html:158
 msgid "Logical Unit Number"
 msgstr ""
 
-#: pkg/storaged/utils.js:172
+#: pkg/storaged/utils.js:179
 msgid "Logical Volume"
 msgstr "Volume logique"
 
-#: pkg/storaged/utils.js:170
+#: pkg/storaged/utils.js:177
 msgid "Logical Volume (Snapshot)"
 msgstr "Volume logique (instantané)"
+
+#: pkg/storaged/storage-controls.jsx:210
+msgid "Logical Volume of $0"
+msgstr ""
 
 #: pkg/subscriptions/subscriptions-register.jsx:140
 msgid "Login"
@@ -3384,7 +3463,7 @@ msgstr ""
 msgid "Login commands"
 msgstr ""
 
-#: src/base1/cockpit.js:3919
+#: src/base1/cockpit.js:3939
 msgid "Login failed"
 msgstr ""
 
@@ -3396,8 +3475,8 @@ msgstr ""
 msgid "Logout Successful"
 msgstr ""
 
-#: pkg/systemd/logs.html:60 pkg/kubernetes/views/container-page-inline.html:8
-#: pkg/kubernetes/views/container-panel.html:6
+#: pkg/kubernetes/views/container-page-inline.html:8
+#: pkg/kubernetes/views/container-panel.html:6 pkg/systemd/logs.html:60
 msgid "Logs"
 msgstr ""
 
@@ -3409,32 +3488,32 @@ msgstr "Connexion perdue. Tentative de reconnexion."
 msgid "MAC"
 msgstr ""
 
-#: pkg/docker/index.html:182
+#: pkg/docker/index.html:185
 msgid "MAC Address:"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1852
+#: pkg/networkmanager/interfaces.js:1915
 msgid "MII (Recommended)"
 msgstr "MII (Recommandé)"
 
-#: pkg/networkmanager/interfaces.js:2583
+#: pkg/networkmanager/interfaces.js:2644
 msgid "MTU"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:4335
+#: pkg/networkmanager/interfaces.js:4391
 msgid "MTU must be a positive number"
 msgstr ""
 
-#: pkg/systemd/index.html:85 pkg/kubernetes/views/node-body.html:15
+#: pkg/kubernetes/views/node-body.html:15 pkg/systemd/index.html:95
 msgid "Machine ID"
 msgstr ""
 
-#: pkg/systemd/index.html:266
+#: pkg/systemd/index.html:276
 msgid "Machine SSH Key Fingerprints"
 msgstr ""
 
-#: pkg/shell/simple.html:56 pkg/shell/index.html:66 pkg/shell/stub.html:59
-#: pkg/shell/indexes.js:253
+#: pkg/shell/index.html:81 pkg/shell/simple.html:56 pkg/shell/stub.html:59
+#: pkg/shell/indexes.js:263
 msgid "Machines"
 msgstr "Machines"
 
@@ -3442,31 +3521,31 @@ msgstr "Machines"
 msgid "Manifest"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1825 pkg/networkmanager/interfaces.js:1835
+#: pkg/networkmanager/interfaces.js:1888 pkg/networkmanager/interfaces.js:1898
 msgid "Manual"
 msgstr "Manuel"
 
-#: pkg/systemd/index.html:383 pkg/systemd/index.html:387
+#: pkg/systemd/index.html:393 pkg/systemd/index.html:397
 msgid "Manually"
 msgstr ""
 
-#: pkg/storaged/jobs.js:137
+#: pkg/storaged/jobs.js:139
 msgid "Marking $target as faulty"
 msgstr ""
 
-#: pkg/systemd/init.js:544
+#: pkg/systemd/init.js:540
 msgid "Mask"
 msgstr "Masquer"
 
-#: pkg/systemd/init.js:545
+#: pkg/systemd/init.js:541
 msgid "Mask Forcefully"
 msgstr "Forcer le masquage"
 
-#: pkg/networkmanager/interfaces.js:2589
+#: pkg/networkmanager/interfaces.js:2650
 msgid "Master"
 msgstr "Maître"
 
-#: pkg/networkmanager/interfaces.js:2687
+#: pkg/networkmanager/interfaces.js:2748
 msgid "Maximum message age $max_age"
 msgstr "Âge maximal de message $max_age"
 
@@ -3478,36 +3557,35 @@ msgstr ""
 msgid "Member of"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:301
+#: pkg/storaged/content-views.jsx:314
 msgid "Member of RAID Device"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:297
+#: pkg/storaged/content-views.jsx:310
 msgid "Member of RAID Device $0"
 msgstr ""
 
-#: pkg/networkmanager/index.html:315
 #: pkg/kubernetes/views/project-listing.html:16
 #: pkg/kubernetes/views/project-listing.html:55
-#: pkg/networkmanager/interfaces.js:2807
+#: pkg/networkmanager/index.html:315 pkg/networkmanager/interfaces.js:2870
 msgid "Members"
 msgstr "Membres"
 
-#: pkg/kubernetes/views/user-panel.html:11
-#: pkg/kubernetes/views/user-panel.html:27
 #: pkg/kubernetes/views/project-page.html:29
 #: pkg/kubernetes/views/user-body.html:4
+#: pkg/kubernetes/views/user-panel.html:11
+#: pkg/kubernetes/views/user-panel.html:27
 msgid "Membership"
 msgstr ""
 
-#: pkg/playground/translate.html:90 pkg/docker/index.html:261
-#: pkg/systemd/index.html:201 pkg/dashboard/index.html:71
-#: pkg/docker/containers-view.jsx:267 pkg/kubernetes/scripts/nodes.js:715
-#: pkg/kubernetes/scripts/nodes.js:826 pkg/kubernetes/scripts/graphs.js:604
+#: pkg/dashboard/index.html:71 pkg/docker/index.html:264
+#: pkg/playground/translate.html:90 pkg/systemd/index.html:211
+#: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
+#: pkg/kubernetes/scripts/nodes.js:715 pkg/kubernetes/scripts/nodes.js:826
 msgid "Memory"
 msgstr "Mémoire"
 
-#: pkg/systemd/host.js:1403
+#: pkg/systemd/host.js:1430
 msgctxt "page-title"
 msgid "Memory"
 msgstr "Mémoire"
@@ -3516,20 +3594,20 @@ msgstr "Mémoire"
 msgid "Memory Utilization: $0%"
 msgstr ""
 
-#: pkg/docker/index.html:441 pkg/docker/index.html:612
+#: pkg/docker/index.html:444 pkg/docker/index.html:615
 msgid "Memory limit"
 msgstr "Limite en mémoire"
 
-#: pkg/docker/index.html:201
+#: pkg/docker/index.html:204
 msgid "Memory usage:"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:210
+#: pkg/machines/hostvmslist.jsx:257
 msgid "Memory:"
 msgstr ""
 
+#: pkg/kubernetes/views/node-body.html:47 pkg/kubernetes/views/pv-body.html:27
 #: pkg/kubernetes/views/pv-claim.html:32 pkg/kubernetes/views/pvc-body.html:15
-#: pkg/kubernetes/views/pv-body.html:27 pkg/kubernetes/views/node-body.html:47
 msgid "Message"
 msgstr ""
 
@@ -3537,8 +3615,8 @@ msgstr ""
 msgid "Message to logged in users"
 msgstr "Message aux utilisateurs connectés"
 
-#: pkg/kubernetes/views/image-panel.html:15
 #: pkg/kubernetes/views/image-page.html:30
+#: pkg/kubernetes/views/image-panel.html:15
 #: pkg/kubernetes/views/imagestream-page.html:27
 msgid "Metadata"
 msgstr ""
@@ -3547,11 +3625,11 @@ msgstr ""
 msgid "Metadata Used"
 msgstr ""
 
-#: pkg/docker/index.html:455 pkg/docker/index.html:626
+#: pkg/docker/index.html:458 pkg/docker/index.html:629
 msgid "MiB"
 msgstr ""
 
-#: pkg/systemd/init.js:1186 pkg/systemd/init.js:1195 pkg/systemd/init.js:1204
+#: pkg/systemd/init.js:1182 pkg/systemd/init.js:1191 pkg/systemd/init.js:1200
 msgid "Minute needs to be a number between 0-59"
 msgstr ""
 
@@ -3572,7 +3650,7 @@ msgstr ""
 msgid "Modify"
 msgstr ""
 
-#: pkg/storaged/jobs.js:120 pkg/storaged/jobs.js:125 pkg/storaged/jobs.js:129
+#: pkg/storaged/jobs.js:122 pkg/storaged/jobs.js:127 pkg/storaged/jobs.js:131
 msgid "Modifying $target"
 msgstr ""
 
@@ -3592,7 +3670,7 @@ msgstr "Cibles à surveiller"
 msgid "Monitors"
 msgstr ""
 
-#: pkg/realmd/operation.js:367
+#: pkg/realmd/operation.js:377
 msgid "More"
 msgstr "Plus"
 
@@ -3600,8 +3678,8 @@ msgstr "Plus"
 msgid "More details"
 msgstr ""
 
-#: pkg/storaged/fsys-tab.jsx:188 pkg/storaged/fsys-tab.jsx:217
-#: pkg/kdump/kdump-view.jsx:104
+#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:188
+#: pkg/storaged/fsys-tab.jsx:217
 msgid "Mount"
 msgstr "Monter"
 
@@ -3609,17 +3687,17 @@ msgstr "Monter"
 msgid "Mount Location"
 msgstr ""
 
-#: pkg/storaged/fsys-tab.jsx:137 pkg/storaged/fsys-tab.jsx:199
-#: pkg/storaged/format-dialog.jsx:185
+#: pkg/storaged/format-dialog.jsx:195 pkg/storaged/fsys-tab.jsx:137
+#: pkg/storaged/fsys-tab.jsx:199
 msgid "Mount Options"
 msgstr "Options de montage"
 
-#: pkg/storaged/index.html:229 pkg/storaged/fsys-tab.jsx:130
-#: pkg/storaged/fsys-tab.jsx:182 pkg/storaged/format-dialog.jsx:179
+#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:189
+#: pkg/storaged/fsys-tab.jsx:130 pkg/storaged/fsys-tab.jsx:182
 msgid "Mount Point"
 msgstr "Point de montage"
 
-#: pkg/docker/index.html:508
+#: pkg/docker/index.html:511
 msgid "Mount container volumes"
 msgstr ""
 
@@ -3627,11 +3705,11 @@ msgstr ""
 msgid "Mounted At"
 msgstr ""
 
-#: pkg/storaged/fsys-tab.jsx:123 pkg/storaged/format-dialog.jsx:171
+#: pkg/storaged/format-dialog.jsx:181 pkg/storaged/fsys-tab.jsx:123
 msgid "Mounting"
 msgstr "Montage"
 
-#: pkg/storaged/jobs.js:123
+#: pkg/storaged/jobs.js:125
 msgid "Mounting $target"
 msgstr "Montage de $target"
 
@@ -3648,7 +3726,7 @@ msgstr ""
 msgid "NFS Mount"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1875
+#: pkg/networkmanager/interfaces.js:1938
 msgid "NSNA Ping"
 msgstr ""
 
@@ -3656,80 +3734,79 @@ msgstr ""
 msgid "NTFS - Compatible with most systems"
 msgstr "NTFS - Compatible avec la plupart des systèmes"
 
-#: pkg/systemd/host.js:1284
+#: pkg/systemd/host.js:1311
 msgid "NTP Server"
 msgstr "Serveur NTP"
 
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:114
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
-#: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
-#: pkg/storaged/index.html:228 pkg/docker/index.html:257
-#: pkg/ostree/index.html:99 pkg/kubernetes/views/node-add.html:16
-#: pkg/kubernetes/views/nodes-page.html:41 pkg/kubernetes/views/pv-claim.html:4
-#: pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/kubernetes/views/imagestream-modify.html:10
-#: pkg/kubernetes/views/service-modify.html:9
-#: pkg/kubernetes/views/project-modify.html:16
-#: pkg/kubernetes/views/volume-body.html:31
-#: pkg/kubernetes/views/project-listing.html:14
-#: pkg/kubernetes/views/project-listing.html:53
-#: pkg/kubernetes/views/project-listing.html:90
-#: pkg/kubernetes/views/user-modify.html:9
-#: pkg/kubernetes/views/add-user-dialog.html:9
-#: pkg/kubernetes/views/volumes-page.html:19
-#: pkg/kubernetes/views/volumes-page.html:57
+#: pkg/docker/index.html:260 pkg/kubernetes/views/add-user-dialog.html:9
+#: pkg/kubernetes/views/containers-listing.html:11
+#: pkg/kubernetes/views/dashboard-page.html:156
+#: pkg/kubernetes/views/dashboard-page.html:198
 #: pkg/kubernetes/views/details-page.html:34
 #: pkg/kubernetes/views/details-page.html:70
 #: pkg/kubernetes/views/details-page.html:103
 #: pkg/kubernetes/views/details-page.html:137
 #: pkg/kubernetes/views/details-page.html:171
-#: pkg/kubernetes/views/containers-listing.html:11
-#: pkg/kubernetes/views/pv-modify.html:32
-#: pkg/kubernetes/views/dashboard-page.html:156
-#: pkg/kubernetes/views/dashboard-page.html:198
+#: pkg/kubernetes/views/imagestream-modify.html:10
+#: pkg/kubernetes/views/node-add.html:16
+#: pkg/kubernetes/views/nodes-page.html:41
+#: pkg/kubernetes/views/project-listing.html:14
+#: pkg/kubernetes/views/project-listing.html:53
+#: pkg/kubernetes/views/project-listing.html:90
+#: pkg/kubernetes/views/project-modify.html:16
+#: pkg/kubernetes/views/pv-claim.html:4 pkg/kubernetes/views/pv-modify.html:32
+#: pkg/kubernetes/views/service-modify.html:9
+#: pkg/kubernetes/views/user-modify.html:9
+#: pkg/kubernetes/views/volume-body.html:31
+#: pkg/kubernetes/views/volumes-page.html:19
+#: pkg/kubernetes/views/volumes-page.html:57
+#: pkg/kubernetes/views/add-group-dialog.html:9
+#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:114
+#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
+#: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
+#: pkg/ostree/index.html:99 pkg/storaged/index.html:228
 #: bower_components/registry-image-widgets/views/image-body.html:2
-#: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
-#: pkg/storaged/details.js:153 pkg/storaged/lvol-tabs.jsx:39
+#: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
+#: pkg/machines/hostvmslist.jsx:416 pkg/storaged/content-views.jsx:107
+#: pkg/storaged/content-views.jsx:661 pkg/storaged/details.jsx:127
+#: pkg/storaged/format-dialog.jsx:147 pkg/storaged/fsys-tab.jsx:71
+#: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
-#: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
-#: pkg/storaged/overview.js:420 pkg/storaged/overview.js:493
-#: pkg/storaged/overview.js:627 pkg/storaged/overview.js:705
-#: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:676
-#: pkg/storaged/format-dialog.jsx:137 pkg/docker/containers-view.jsx:267
-#: pkg/docker/containers-view.jsx:583 pkg/machines/hostvmslist.jsx:349
+#: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/overview.js:418
+#: pkg/storaged/overview.js:493 pkg/storaged/overview.js:629
+#: pkg/storaged/overview.js:707 pkg/storaged/part-tab.jsx:37
 msgid "Name"
 msgstr "Nom"
 
-#: pkg/storaged/utils.js:129
+#: pkg/storaged/utils.js:133
 msgid "Name cannot be empty."
 msgstr ""
 
-#: pkg/storaged/utils.js:131
+#: pkg/storaged/utils.js:135
 msgid "Name cannot be longer than 127 characters."
 msgstr ""
 
-#: pkg/storaged/utils.js:135
+#: pkg/storaged/utils.js:139
 msgid "Name cannot contain the character '$0'."
 msgstr ""
 
-#: pkg/storaged/utils.js:137
+#: pkg/storaged/utils.js:141
 msgid "Name cannot contain whitespace."
 msgstr ""
 
-#: pkg/kubernetes/views/pv-claim.html:6
-#: pkg/kubernetes/views/replicationcontroller-body.html:5
+#: pkg/kubernetes/views/containers-listing.html:14
+#: pkg/kubernetes/views/dashboard-page.html:160
 #: pkg/kubernetes/views/deploymentconfig-body.html:5
-#: pkg/kubernetes/views/route-body.html:5
-#: pkg/kubernetes/views/service-body.html:5
-#: pkg/kubernetes/views/volumes-page.html:59
 #: pkg/kubernetes/views/details-page.html:36
 #: pkg/kubernetes/views/details-page.html:72
 #: pkg/kubernetes/views/details-page.html:105
 #: pkg/kubernetes/views/details-page.html:139
 #: pkg/kubernetes/views/details-page.html:173
-#: pkg/kubernetes/views/containers-listing.html:14
-#: pkg/kubernetes/views/dashboard-page.html:160
-#: pkg/kubernetes/views/pod-body.html:5
+#: pkg/kubernetes/views/pod-body.html:5 pkg/kubernetes/views/pv-claim.html:6
+#: pkg/kubernetes/views/replicationcontroller-body.html:5
+#: pkg/kubernetes/views/route-body.html:5
+#: pkg/kubernetes/views/service-body.html:5
+#: pkg/kubernetes/views/volumes-page.html:59
 msgid "Namespace"
 msgstr "Espace de nommage"
 
@@ -3737,16 +3814,16 @@ msgstr "Espace de nommage"
 msgid "Namespace cannot be empty."
 msgstr "L'espace de nommage ne peut être vide."
 
-#: pkg/systemd/host.js:1147
+#: pkg/systemd/host.js:1174
 msgid "Need at least one NTP server"
 msgstr "Au moins un serveur NTP est nécessaire"
 
-#: pkg/playground/translate.html:95 pkg/dashboard/index.html:72
+#: pkg/dashboard/index.html:72 pkg/playground/translate.html:95
 #: pkg/kubernetes/scripts/graphs.js:609
 msgid "Network"
 msgstr "Réseau"
 
-#: pkg/systemd/index.html:211
+#: pkg/systemd/index.html:221
 msgid "Network Traffic"
 msgstr ""
 
@@ -3754,7 +3831,7 @@ msgstr ""
 msgid "Networking"
 msgstr "Réseau"
 
-#: pkg/networkmanager/interfaces.js:1499 pkg/networkmanager/interfaces.js:2071
+#: pkg/networkmanager/interfaces.js:1562 pkg/networkmanager/interfaces.js:2132
 msgctxt "page-title"
 msgid "Networking"
 msgstr "Réseau"
@@ -3771,7 +3848,7 @@ msgstr "Jamais"
 msgid "New Group"
 msgstr ""
 
-#: pkg/users/index.html:238 pkg/shell/index.html:243
+#: pkg/shell/index.html:264 pkg/users/index.html:238
 msgid "New Password"
 msgstr ""
 
@@ -3779,12 +3856,12 @@ msgstr ""
 msgid "New Project"
 msgstr ""
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:86
 #: pkg/kubernetes/views/image-listing.html:7
+#: pkg/kubernetes/views/registry-dashboard-page.html:86
 msgid "New image stream"
 msgstr ""
 
-#: pkg/users/local.js:120 pkg/lib/credentials.js:232
+#: pkg/lib/credentials.js:232 pkg/users/local.js:120
 msgid "New password was not accepted"
 msgstr "Refus du nouveau mot de passe"
 
@@ -3794,7 +3871,7 @@ msgstr "Refus du nouveau mot de passe"
 msgid "New project"
 msgstr ""
 
-#: pkg/realmd/operation.html:91 pkg/storaged/overview.js:536
+#: pkg/realmd/operation.html:92 pkg/storaged/overview.js:538
 msgid "Next"
 msgstr "Suivant"
 
@@ -3802,17 +3879,17 @@ msgstr "Suivant"
 msgid "Next Run"
 msgstr ""
 
-#: pkg/systemd/index.html:233 pkg/systemd/host.js:1353
+#: pkg/systemd/index.html:243 pkg/systemd/host.js:1380
 msgid "Nice"
 msgstr ""
 
-#: pkg/docker/index.html:531 pkg/docker/index.html:535
-#: pkg/networkmanager/interfaces.js:2416 pkg/docker/util.js:101
-#: pkg/docker/run.js:241 pkg/kubernetes/scripts/volumes.js:990
+#: pkg/docker/index.html:534 pkg/docker/index.html:538 pkg/docker/run.js:241
+#: pkg/docker/util.js:101 pkg/kubernetes/scripts/volumes.js:990
+#: pkg/networkmanager/interfaces.js:2477
 msgid "No"
 msgstr "Non"
 
-#: pkg/systemd/index.html:453
+#: pkg/systemd/index.html:463
 msgid "No Delay"
 msgstr ""
 
@@ -3824,7 +3901,7 @@ msgstr ""
 msgid "No Filesystem"
 msgstr "Aucun système de fichiers"
 
-#: pkg/storaged/content-views.jsx:753
+#: pkg/storaged/content-views.jsx:738
 msgid "No Logical Volumes"
 msgstr ""
 
@@ -3832,11 +3909,11 @@ msgstr ""
 msgid "No OSTree deployments found"
 msgstr ""
 
-#: src/ws/cockpitcertificate.c:398
+#: src/ws/cockpitcertificate.c:499
 msgid "No PEM-encoded certificate found"
 msgstr "Certificat encodé en PEM introuvable"
 
-#: src/ws/cockpitcertificate.c:364
+#: src/ws/cockpitcertificate.c:465
 msgid "No PEM-encoded private key found"
 msgstr "Clé privée encodée en PEM introuvable"
 
@@ -3848,7 +3925,7 @@ msgstr ""
 msgid "No SELinux alerts."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:34
+#: pkg/machines/hostvmslist.jsx:35
 msgid "No VM is running or defined on this host"
 msgstr ""
 
@@ -3856,7 +3933,7 @@ msgstr ""
 msgid "No Volume Bound"
 msgstr ""
 
-#: pkg/docker/storage.jsx:196
+#: pkg/docker/storage.jsx:197
 msgid "No additional local storage found."
 msgstr ""
 
@@ -3864,15 +3941,19 @@ msgstr ""
 msgid "No alias specified"
 msgstr "Aucun alias indiqué"
 
-#: pkg/sosreport/index.js:114
+#: pkg/sosreport/index.js:111
 msgid "No archive has been created."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1316
+#: pkg/machines/hostvmslist.jsx:233
+msgid "No boot device found"
+msgstr ""
+
+#: pkg/networkmanager/interfaces.js:1359
 msgid "No carrier"
 msgstr "Pas de porteuse"
 
-#: pkg/ostree/remotes.js:106
+#: pkg/ostree/remotes.js:112
 #, fuzzy
 msgid "No configuration data found"
 msgstr "Configuration inconnue"
@@ -3886,19 +3967,28 @@ msgstr "Configuration inconnue"
 msgid "No container specified"
 msgstr "Aucun conteneur indiqué"
 
-#: pkg/docker/containers-view.jsx:277
+#: pkg/docker/containers-view.jsx:281
 msgid "No containers"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:279
+#: pkg/docker/containers-view.jsx:283
 msgid "No containers that match the current filter"
+msgstr ""
+
+#: pkg/storaged/overview.js:451 pkg/storaged/overview.js:500
+#: pkg/storaged/sidebar-views.jsx:77 pkg/storaged/sidebar-views.jsx:241
+msgid "No disks are available."
+msgstr ""
+
+#: pkg/machines/vmdiskstab.jsx:115
+msgid "No disks defined for this VM"
 msgstr ""
 
 #: pkg/storaged/index.html:191
 msgid "No drives attached"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:738
+#: pkg/storaged/content-views.jsx:723
 msgid "No free space"
 msgstr ""
 
@@ -3918,7 +4008,7 @@ msgstr ""
 msgid "No image streams are present."
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:605
+#: pkg/docker/containers-view.jsx:609
 msgid "No images"
 msgstr ""
 
@@ -3926,7 +4016,7 @@ msgstr ""
 msgid "No images pushed"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:607
+#: pkg/docker/containers-view.jsx:611
 msgid "No images that match the current filter"
 msgstr ""
 
@@ -3956,7 +4046,7 @@ msgstr ""
 msgid "No nodes in cluster"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:515
+#: pkg/storaged/content-views.jsx:497
 msgid "No partitioning"
 msgstr "Aucun partitionnement"
 
@@ -3988,11 +4078,11 @@ msgstr "Aucun nom réel indiqué."
 msgid "No results for $0"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:272
+#: pkg/docker/containers-view.jsx:276
 msgid "No running containers"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:274
+#: pkg/docker/containers-view.jsx:278
 msgid "No running containers that match the current filter"
 msgstr ""
 
@@ -4028,17 +4118,16 @@ msgstr ""
 msgid "No volumes in use"
 msgstr ""
 
-#: pkg/kubernetes/views/node-page.html:14
-#: pkg/kubernetes/views/node-panel.html:7
-#: pkg/kubernetes/views/topology-page.html:38
 #: pkg/kubernetes/views/containers-listing.html:15
-#: pkg/kubernetes/views/pod-body.html:18
+#: pkg/kubernetes/views/node-page.html:14
+#: pkg/kubernetes/views/node-panel.html:7 pkg/kubernetes/views/pod-body.html:18
+#: pkg/kubernetes/views/topology-page.html:38
 msgid "Node"
 msgstr ""
 
-#: pkg/kubernetes/views/nodes-page.html:36
 #: pkg/kubernetes/views/dashboard-page.html:90
-#: pkg/kubernetes/views/dashboard-page.html:192 pkg/kubernetes/index.html:46
+#: pkg/kubernetes/views/dashboard-page.html:192
+#: pkg/kubernetes/views/nodes-page.html:36 pkg/kubernetes/index.html:46
 msgid "Nodes"
 msgstr ""
 
@@ -4048,14 +4137,15 @@ msgstr ""
 
 #: pkg/kubernetes/views/pod-page.html:27 pkg/kubernetes/views/pod-panel.html:53
 #: pkg/kubernetes/views/service-body.html:15
-#: bower_components/registry-image-widgets/views/imagestream-body.html:33
 #: bower_components/registry-image-widgets/views/image-config.html:29
-#: pkg/tuned/dialog.js:231 pkg/kdump/kdump-view.jsx:418
+#: bower_components/registry-image-widgets/views/imagestream-body.html:33
+#: pkg/kdump/kdump-view.jsx:418 pkg/tuned/dialog.js:231
 msgid "None"
 msgstr "Aucun(e)"
 
-#: pkg/playground/translate.html:29 pkg/kubernetes/views/details-page.html:53
-#: pkg/kubernetes/views/node-body.html:42 pkg/kubernetes/scripts/nodes.js:319
+#: pkg/kubernetes/views/details-page.html:53
+#: pkg/kubernetes/views/node-body.html:42 pkg/playground/translate.html:29
+#: pkg/kubernetes/scripts/nodes.js:319
 msgid "Not Ready"
 msgstr "Pas prêt"
 
@@ -4079,7 +4169,7 @@ msgstr "Vous n'êtes pas autorisé à accéder à Docker sur ce système"
 msgid "Not authorized to update software on this system"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:729
+#: pkg/networkmanager/interfaces.js:759
 msgid "Not available"
 msgstr "Indisponible"
 
@@ -4092,15 +4182,15 @@ msgstr "Non connecté"
 msgid "Not deployed"
 msgstr ""
 
-#: pkg/storaged/details.js:555 pkg/docker/details.js:176
+#: pkg/docker/details.js:176 pkg/storaged/details.jsx:414
 msgid "Not found"
 msgstr "Non trouvé"
 
-#: src/base1/cockpit.js:3917
+#: src/base1/cockpit.js:3937
 msgid "Not permitted to perform this action."
 msgstr ""
 
-#: pkg/storaged/details.js:389
+#: pkg/storaged/details.jsx:318
 msgid "Not running"
 msgstr ""
 
@@ -4120,12 +4210,8 @@ msgstr ""
 msgid "OS"
 msgstr ""
 
-#: pkg/ostree/client.js:585 pkg/ostree/client.js:662
+#: pkg/ostree/client.js:585 pkg/ostree/client.js:681
 msgid "OS $0 not found"
-msgstr ""
-
-#: pkg/machines/hostvmslist.jsx:219
-msgid "OS Type:"
 msgstr ""
 
 #: pkg/kubernetes/views/nodes-page.html:19
@@ -4145,9 +4231,9 @@ msgid "Occurred between $0 and $1"
 msgstr ""
 
 #: pkg/playground/jquery-patterns.html:95
-#: pkg/playground/jquery-patterns.html:108 pkg/storaged/index.html:563
-#: pkg/systemd/index.html:157 pkg/shell/index.html:177
-#: pkg/lib/cockpit-components-onoff.jsx:38 pkg/lib/patterns.js:244
+#: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:198
+#: pkg/storaged/index.html:563 pkg/systemd/index.html:167
+#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:38
 msgid "Off"
 msgstr "Éteint"
 
@@ -4155,18 +4241,18 @@ msgstr "Éteint"
 msgid "Ok"
 msgstr ""
 
-#: pkg/users/index.html:228 pkg/shell/index.html:236
+#: pkg/shell/index.html:257 pkg/users/index.html:228
 msgid "Old Password"
 msgstr ""
 
-#: pkg/users/local.js:77 pkg/lib/credentials.js:214
+#: pkg/lib/credentials.js:214 pkg/users/local.js:77
 msgid "Old password not accepted"
 msgstr "Refus de l'ancien mot de passe "
 
 #: pkg/playground/jquery-patterns.html:91
-#: pkg/playground/jquery-patterns.html:104 pkg/storaged/index.html:562
-#: pkg/systemd/index.html:153 pkg/shell/index.html:173
-#: pkg/lib/cockpit-components-onoff.jsx:39 pkg/lib/patterns.js:244
+#: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:194
+#: pkg/storaged/index.html:562 pkg/systemd/index.html:163
+#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:39
 msgid "On"
 msgstr "Allumé"
 
@@ -4174,7 +4260,7 @@ msgstr "Allumé"
 msgid "On Build"
 msgstr ""
 
-#: pkg/docker/index.html:536
+#: pkg/docker/index.html:539
 msgid "On Failure"
 msgstr ""
 
@@ -4188,20 +4274,20 @@ msgid_plural "On failure, retry $0 times"
 msgstr[0] ""
 msgstr[1] ""
 
-#: pkg/realmd/operation.html:71 pkg/realmd/operation.js:274
+#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:284
 msgid "One Time Password"
 msgstr "Mot de passe à usage unique"
 
-#: pkg/systemd/init.js:1144
+#: pkg/systemd/init.js:1140
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr ""
 
-#: pkg/shell/simple.html:28 pkg/shell/index.html:28 pkg/shell/stub.html:28
+#: pkg/shell/index.html:40 pkg/shell/simple.html:28 pkg/shell/stub.html:28
 msgid "Ooops!"
 msgstr "Oups !"
 
-#: pkg/systemd/index.html:89 pkg/ostree/index.html:301
-#: pkg/kubernetes/views/nodes-page.html:42
+#: pkg/kubernetes/views/nodes-page.html:42 pkg/ostree/index.html:301
+#: pkg/systemd/index.html:99
 msgid "Operating System"
 msgstr ""
 
@@ -4209,11 +4295,11 @@ msgstr ""
 msgid "Operating System Updates"
 msgstr ""
 
-#: pkg/storaged/jobs.js:163
+#: pkg/storaged/jobs.js:165
 msgid "Operation '$operation' on $target"
 msgstr ""
 
-#: pkg/storaged/overview.js:191
+#: pkg/storaged/overview.js:189
 msgctxt "storage"
 msgid "Optical Drive"
 msgstr "Lecteur optique"
@@ -4231,7 +4317,7 @@ msgstr ""
 msgid "Origin"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:309
+#: pkg/storaged/content-views.jsx:322
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "Autres données"
@@ -4240,17 +4326,16 @@ msgstr "Autres données"
 msgid "Other Devices"
 msgstr "Autres Périphériques"
 
-#: src/ws/login.html:70
-#, fuzzy
+#: src/ws/login.html:68
 msgid "Other Options"
-msgstr "Options"
+msgstr ""
 
-#: pkg/docker/index.html:287 pkg/kubernetes/index.html:40
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:304
+#: pkg/docker/index.html:290 pkg/kubernetes/index.html:40
+#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:363
 msgid "Overview"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:505 pkg/storaged/format-dialog.jsx:129
+#: pkg/storaged/content-views.jsx:487 pkg/storaged/format-dialog.jsx:139
 msgid "Overwrite existing data with zeros"
 msgstr "Écraser les données existantes avec des zéros"
 
@@ -4266,11 +4351,11 @@ msgstr ""
 msgid "Parent"
 msgstr "Parent"
 
-#: pkg/networkmanager/interfaces.js:2725
+#: pkg/networkmanager/interfaces.js:2786
 msgid "Parent $parent"
 msgstr "Parent $parent"
 
-#: pkg/networkmanager/interfaces.js:1362
+#: pkg/networkmanager/interfaces.js:1405
 msgid "Part of "
 msgstr "Fait partie de "
 
@@ -4279,32 +4364,35 @@ msgstr "Fait partie de "
 msgid "Partition"
 msgstr "Partition"
 
-#: pkg/storaged/content-views.jsx:509
+#: pkg/storaged/storage-controls.jsx:212
+msgid "Partition of $0"
+msgstr ""
+
+#: pkg/storaged/content-views.jsx:491
 msgid "Partitioning"
 msgstr "Partitionnement"
 
-#: pkg/networkmanager/interfaces.js:1867
+#: pkg/networkmanager/interfaces.js:1930
 msgid "Passive"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:147
+#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:157
 msgid "Passphrase"
 msgstr "Phrase de passe"
 
-#: pkg/storaged/format-dialog.jsx:150
+#: pkg/storaged/format-dialog.jsx:160
 msgid "Passphrase cannot be empty"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:158
+#: pkg/storaged/format-dialog.jsx:168
 msgid "Passphrases do not match"
 msgstr "Les phrases de passe ne correspondent pas."
 
-#: pkg/users/index.html:113 pkg/users/index.html:166 pkg/shell/index.html:187
-#: pkg/shell/index.html:200 pkg/kubernetes/views/auth-form.html:105
-#: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-sync-users.html:61
-#: pkg/lib/machine-change-auth.html:52 src/ws/login.html:51
-#: pkg/storaged/overview.js:532 pkg/storaged/overview.js:655
-#: pkg/subscriptions/subscriptions-register.jsx:88
+#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-auth-failed.html:8
+#: pkg/lib/machine-change-auth.html:52 pkg/lib/machine-sync-users.html:61
+#: pkg/shell/index.html:208 pkg/shell/index.html:221 pkg/users/index.html:113
+#: pkg/users/index.html:166 src/ws/login.html:49 pkg/storaged/overview.js:534
+#: pkg/storaged/overview.js:657 pkg/subscriptions/subscriptions-register.jsx:88
 #: pkg/subscriptions/subscriptions-register.jsx:152
 msgid "Password"
 msgstr "Mot de passe"
@@ -4321,14 +4409,19 @@ msgstr "Le mot de passe est trop faible"
 msgid "Password not accepted"
 msgstr "Mot de passe refusé"
 
+#: pkg/shell/index.html:168
+msgid ""
+"Password not usable for privileged tasks or to connect to other machines"
+msgstr ""
+
 #: pkg/users/index.html:348
 msgid "Paste the contents of your public SSH key file here"
 msgstr ""
 
+#: pkg/kubernetes/views/pv-modify.html:126
 #: pkg/kubernetes/views/volume-body.html:37
 #: pkg/kubernetes/views/volume-body.html:49
 #: pkg/kubernetes/views/volume-body.html:101
-#: pkg/kubernetes/views/pv-modify.html:126
 msgid "Path"
 msgstr ""
 
@@ -4336,7 +4429,7 @@ msgstr ""
 msgid "Path cost"
 msgstr "Coût du chemin"
 
-#: pkg/networkmanager/interfaces.js:2707
+#: pkg/networkmanager/interfaces.js:2768
 msgid "Path cost $path_cost"
 msgstr "Coût du chemin $path_cost"
 
@@ -4348,11 +4441,11 @@ msgstr ""
 msgid "Pending Volume Claims"
 msgstr ""
 
-#: pkg/systemd/index.html:143
+#: pkg/systemd/index.html:153
 msgid "Performance Profile"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3444
+#: pkg/networkmanager/interfaces.js:3500
 msgid "Permanent"
 msgstr ""
 
@@ -4368,15 +4461,15 @@ msgstr ""
 msgid "Phase"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:147 pkg/storaged/content-views.jsx:299
+#: pkg/storaged/content-views.jsx:147 pkg/storaged/content-views.jsx:312
 msgid "Physical Volume"
 msgstr ""
 
-#: pkg/storaged/index.html:639
+#: pkg/storaged/sidebar-views.jsx:316
 msgid "Physical Volumes"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:294
+#: pkg/storaged/content-views.jsx:307
 msgid "Physical volume of $0"
 msgstr ""
 
@@ -4388,13 +4481,13 @@ msgstr ""
 msgid "Ping Target"
 msgstr ""
 
-#: pkg/storaged/details.js:127 pkg/storaged/details.js:176
-#: pkg/storaged/content-views.jsx:251 pkg/docker/details.js:270
-#: pkg/docker/containers-view.jsx:167 pkg/docker/image.js:138
+#: pkg/docker/containers-view.jsx:167 pkg/docker/details.js:274
+#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:261
+#: pkg/storaged/details.jsx:100 pkg/storaged/details.jsx:160
 msgid "Please confirm deletion of $0"
 msgstr "Confirmer la suppression de $0"
 
-#: pkg/docker/util.js:499
+#: pkg/docker/util.js:504
 msgid "Please confirm forced deletion of $0"
 msgstr "Merci de confirmer la suppression de $0"
 
@@ -4414,7 +4507,7 @@ msgstr ""
 msgid "Please provide a valid NFS server"
 msgstr ""
 
-#: pkg/ostree/remotes.js:255
+#: pkg/ostree/remotes.js:261
 #, fuzzy
 msgid "Please provide a valid URL"
 msgstr "Merci d'indiquer un espace de nommage valide."
@@ -4435,7 +4528,7 @@ msgstr ""
 msgid "Please provide a valid logical unit number"
 msgstr ""
 
-#: pkg/ostree/remotes.js:248 pkg/kubernetes/scripts/volumes.js:477
+#: pkg/kubernetes/scripts/volumes.js:477 pkg/ostree/remotes.js:254
 msgid "Please provide a valid name"
 msgstr ""
 
@@ -4479,9 +4572,9 @@ msgstr ""
 msgid "Please type an address"
 msgstr "Merci de saisir une adresse"
 
+#: pkg/kubernetes/views/containers-listing.html:12
 #: pkg/kubernetes/views/pod-page.html:12
 #: pkg/kubernetes/views/topology-page.html:14
-#: pkg/kubernetes/views/containers-listing.html:12
 msgid "Pod"
 msgstr ""
 
@@ -4503,10 +4596,10 @@ msgstr ""
 msgid "Pod Selector"
 msgstr ""
 
+#: pkg/kubernetes/views/dashboard-page.html:18
+#: pkg/kubernetes/views/details-page.html:166
 #: pkg/kubernetes/views/pv-claim.html:37
 #: pkg/kubernetes/views/replicationcontroller-page.html:17
-#: pkg/kubernetes/views/details-page.html:166
-#: pkg/kubernetes/views/dashboard-page.html:18
 #: pkg/kubernetes/views/replicationcontroller-panel.html:12
 #: pkg/kubernetes/scripts/details.js:228
 msgid "Pods"
@@ -4518,7 +4611,7 @@ msgid ""
 "your application code."
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:130
+#: pkg/machines/vmdiskstab.jsx:54 pkg/storaged/content-views.jsx:130
 msgid "Pool"
 msgstr ""
 
@@ -4526,15 +4619,15 @@ msgstr ""
 msgid "Pool Name"
 msgstr ""
 
-#: pkg/storaged/utils.js:166
+#: pkg/storaged/utils.js:173
 msgid "Pool for Thin Logical Volumes"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:611
+#: pkg/storaged/content-views.jsx:596
 msgid "Pool for Thin Volumes"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:686
+#: pkg/storaged/content-views.jsx:671
 msgid "Pool for thinly provisioned volumes"
 msgstr ""
 
@@ -4542,52 +4635,53 @@ msgstr ""
 msgid "Populate"
 msgstr ""
 
-#: pkg/lib/machine-change-port.html:23 pkg/storaged/overview.js:627
+#: pkg/lib/machine-change-port.html:23 pkg/machines/vmdiskstab.jsx:57
+#: pkg/storaged/overview.js:629
 msgid "Port"
 msgstr ""
 
-#: pkg/networkmanager/index.html:216 pkg/networkmanager/index.html:415
-#: pkg/docker/index.html:493 pkg/kubernetes/views/service-body.html:13
-#: pkg/kubernetes/views/container-body.html:12
+#: pkg/docker/index.html:496 pkg/kubernetes/views/container-body.html:12
+#: pkg/kubernetes/views/service-body.html:13 pkg/networkmanager/index.html:216
+#: pkg/networkmanager/index.html:415
 #: bower_components/registry-image-widgets/views/image-config.html:27
-#: pkg/networkmanager/interfaces.js:2807 pkg/docker/containers-view.jsx:313
+#: pkg/docker/containers-view.jsx:317 pkg/networkmanager/interfaces.js:2870
 msgid "Ports"
 msgstr "Ports"
 
-#: pkg/docker/index.html:186
+#: pkg/docker/index.html:189
 msgid "Ports:"
 msgstr ""
 
-#: pkg/systemd/index.html:123
+#: pkg/systemd/index.html:133
 msgid "Power Options"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3111
+#: pkg/networkmanager/interfaces.js:3175
 msgid "Prefix length"
 msgstr "Longueur de préfixe"
 
-#: pkg/networkmanager/interfaces.js:3111
+#: pkg/networkmanager/interfaces.js:3175
 msgid "Prefix length or Netmask"
 msgstr "Longueur de préfixe ou masque de réseau"
 
-#: pkg/networkmanager/interfaces.js:733
+#: pkg/networkmanager/interfaces.js:763
 msgid "Preparing"
 msgstr "Préparation"
 
-#: pkg/networkmanager/interfaces.js:3445
+#: pkg/networkmanager/interfaces.js:3501
 #, fuzzy
 msgid "Preserve"
 msgstr "Préconfigurer"
 
-#: pkg/systemd/init.js:542
+#: pkg/systemd/init.js:538
 msgid "Preset"
 msgstr "Préconfigurer"
 
-#: pkg/systemd/init.js:543
+#: pkg/systemd/init.js:539
 msgid "Preset Forcefully"
 msgstr "Forcer la préconfiguration"
 
-#: pkg/systemd/index.html:294
+#: pkg/systemd/index.html:304
 msgid "Pretty Host Name"
 msgstr ""
 
@@ -4600,12 +4694,16 @@ msgstr "Primaire"
 msgid "Priority"
 msgstr "Priorité"
 
-#: pkg/networkmanager/interfaces.js:2681 pkg/networkmanager/interfaces.js:2705
+#: pkg/networkmanager/interfaces.js:2742 pkg/networkmanager/interfaces.js:2766
 msgid "Priority $priority"
 msgstr "Priorité $priority"
 
-#: pkg/kubernetes/scripts/projects.js:1018
+#: pkg/kubernetes/scripts/projects.js:1021
 msgid "Private: Allow only specific users or groups to pull images"
+msgstr ""
+
+#: pkg/shell/index.html:28
+msgid "Privileged tasks not available"
 msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:33
@@ -4616,20 +4714,20 @@ msgstr ""
 msgid "Product name"
 msgstr ""
 
-#: pkg/kubernetes/views/replicationcontroller-body.html:4
+#: pkg/kubernetes/views/containers-listing.html:13
+#: pkg/kubernetes/views/dashboard-page.html:159
 #: pkg/kubernetes/views/deploymentconfig-body.html:4
-#: pkg/kubernetes/views/imagestream-modify.html:21
-#: pkg/kubernetes/views/route-body.html:4
-#: pkg/kubernetes/views/service-body.html:4
-#: pkg/kubernetes/views/volumes-page.html:58
 #: pkg/kubernetes/views/details-page.html:35
 #: pkg/kubernetes/views/details-page.html:71
 #: pkg/kubernetes/views/details-page.html:104
 #: pkg/kubernetes/views/details-page.html:138
 #: pkg/kubernetes/views/details-page.html:172
-#: pkg/kubernetes/views/containers-listing.html:13
-#: pkg/kubernetes/views/dashboard-page.html:159
+#: pkg/kubernetes/views/imagestream-modify.html:21
 #: pkg/kubernetes/views/pod-body.html:4
+#: pkg/kubernetes/views/replicationcontroller-body.html:4
+#: pkg/kubernetes/views/route-body.html:4
+#: pkg/kubernetes/views/service-body.html:4
+#: pkg/kubernetes/views/volumes-page.html:58
 msgid "Project"
 msgstr "Projet"
 
@@ -4649,7 +4747,7 @@ msgstr ""
 msgid "Project access policy only allows specific members to access images."
 msgstr ""
 
-#: pkg/shell/simple.html:72 pkg/shell/index.html:84 pkg/shell/stub.html:77
+#: pkg/shell/index.html:99 pkg/shell/simple.html:72 pkg/shell/stub.html:77
 msgid "Project website"
 msgstr ""
 
@@ -4657,9 +4755,9 @@ msgstr ""
 msgid "Project:"
 msgstr ""
 
+#: pkg/kubernetes/views/group-delete.html:10
 #: pkg/kubernetes/views/project-listing.html:9
-#: pkg/kubernetes/views/user-delete.html:10
-#: pkg/kubernetes/views/group-delete.html:10 pkg/kubernetes/index.html:85
+#: pkg/kubernetes/views/user-delete.html:10 pkg/kubernetes/index.html:85
 #: pkg/kubernetes/registry.html:55
 msgid "Projects"
 msgstr ""
@@ -4676,6 +4774,10 @@ msgstr "Temps d'attente dépassé sur saisie avec ssh-add"
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Temps d'attente dépassé sur saisie via ssh-keygen"
 
+#: pkg/machines/vmdiskstab.jsx:53
+msgid "Protocol"
+msgstr ""
+
 #: pkg/subscriptions/subscriptions-register.jsx:125
 msgid "Proxy"
 msgstr ""
@@ -4684,11 +4786,11 @@ msgstr ""
 msgid "Proxy Version"
 msgstr ""
 
-#: pkg/shell/index.html:186 pkg/lib/machine-auth-failed.html:9
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:207
 msgid "Public Key"
 msgstr ""
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:150
+#: pkg/kubernetes/views/registry-dashboard-page.html:152
 msgid "Pull an image:"
 msgstr ""
 
@@ -4701,72 +4803,72 @@ msgstr ""
 msgid "Pull repository"
 msgstr "Dépôt"
 
-#: pkg/kubernetes/scripts/images.js:626
+#: pkg/kubernetes/scripts/images.js:645
 msgid "Pull specific tags from another image repository"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:681
+#: pkg/storaged/content-views.jsx:666
 msgid "Purpose"
 msgstr ""
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:140
+#: pkg/kubernetes/views/registry-dashboard-page.html:141
 msgid "Push an image:"
 msgstr ""
 
-#: pkg/kubernetes/views/volume-body.html:77
 #: pkg/kubernetes/views/pv-modify.html:147
+#: pkg/kubernetes/views/volume-body.html:77
 msgid "Qualified Name"
 msgstr ""
 
-#: pkg/storaged/details.js:354
+#: pkg/storaged/details.jsx:283
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/details.js:348
+#: pkg/storaged/details.jsx:277
 msgid "RAID 0"
 msgstr "RAID 0"
 
-#: pkg/storaged/overview.js:425
+#: pkg/storaged/overview.js:423
 msgid "RAID 0 (Stripe)"
 msgstr "RAID 0 (Réparti par bande)"
 
-#: pkg/storaged/details.js:349
+#: pkg/storaged/details.jsx:278
 msgid "RAID 1"
 msgstr "RAID 1"
 
-#: pkg/storaged/overview.js:426
+#: pkg/storaged/overview.js:424
 msgid "RAID 1 (Mirror)"
 msgstr "RAID 1 (Miroir)"
 
-#: pkg/storaged/details.js:353
+#: pkg/storaged/details.jsx:282
 msgid "RAID 10"
 msgstr "RAID 10"
 
-#: pkg/storaged/overview.js:430
+#: pkg/storaged/overview.js:428
 msgid "RAID 10 (Stripe of Mirrors)"
 msgstr ""
 
-#: pkg/storaged/details.js:350
+#: pkg/storaged/details.jsx:279
 msgid "RAID 4"
 msgstr "RAID 4"
 
-#: pkg/storaged/overview.js:427
+#: pkg/storaged/overview.js:425
 msgid "RAID 4 (Dedicated Parity)"
 msgstr "RAID 4 (Parité Dédié)"
 
-#: pkg/storaged/details.js:351
+#: pkg/storaged/details.jsx:280
 msgid "RAID 5"
 msgstr "RAID 5"
 
-#: pkg/storaged/overview.js:428
+#: pkg/storaged/overview.js:426
 msgid "RAID 5 (Distributed Parity)"
 msgstr "RAID 5 (Parité Distribué)"
 
-#: pkg/storaged/details.js:352
+#: pkg/storaged/details.jsx:281
 msgid "RAID 6"
 msgstr "RAID 6"
 
-#: pkg/storaged/overview.js:429
+#: pkg/storaged/overview.js:427
 msgid "RAID 6 (Double Distributed Parity)"
 msgstr "RAID 6 (Parité Doublement Distribué)"
 
@@ -4774,7 +4876,7 @@ msgstr "RAID 6 (Parité Doublement Distribué)"
 msgid "RAID Device"
 msgstr "Périphérique RAID"
 
-#: pkg/storaged/utils.js:233
+#: pkg/storaged/storage-controls.jsx:172 pkg/storaged/utils.js:240
 msgid "RAID Device $0"
 msgstr "Périphérique RAID $0"
 
@@ -4782,7 +4884,7 @@ msgstr "Périphérique RAID $0"
 msgid "RAID Devices"
 msgstr "Périphériques RAID"
 
-#: pkg/storaged/overview.js:423
+#: pkg/storaged/overview.js:421
 msgid "RAID Level"
 msgstr "Niveau RAID"
 
@@ -4795,15 +4897,11 @@ msgstr ""
 msgid "RAID Member"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:184
-msgid "REBOOT_VM action failed"
-msgstr ""
-
 #: pkg/kubernetes/scripts/volumes.js:200
 msgid "Rados Block Device"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3446
+#: pkg/networkmanager/interfaces.js:3502
 msgid "Random"
 msgstr ""
 
@@ -4811,6 +4909,7 @@ msgstr ""
 msgid "Raw to a device"
 msgstr ""
 
+#: pkg/kubernetes/views/pv-modify.html:194
 #: pkg/kubernetes/views/volume-body.html:10
 #: pkg/kubernetes/views/volume-body.html:20
 #: pkg/kubernetes/views/volume-body.html:44
@@ -4822,7 +4921,6 @@ msgstr ""
 #: pkg/kubernetes/views/volume-body.html:122
 #: pkg/kubernetes/views/volume-body.html:136
 #: pkg/kubernetes/views/volume-body.html:143
-#: pkg/kubernetes/views/pv-modify.html:194
 msgid "Read Only"
 msgstr ""
 
@@ -4838,11 +4936,11 @@ msgstr ""
 msgid "Read only from multiple nodes"
 msgstr ""
 
-#: pkg/docker/index.html:353
+#: pkg/docker/index.html:356
 msgid "ReadOnly"
 msgstr ""
 
-#: pkg/docker/index.html:352
+#: pkg/docker/index.html:355
 msgid "ReadWrite"
 msgstr ""
 
@@ -4855,9 +4953,13 @@ msgstr "Lecture"
 msgid "Reading..."
 msgstr "Lecture"
 
-#: pkg/playground/translate.html:19 pkg/playground/translate.html:179
+#: pkg/machines/vmdiskstab.jsx:140
+msgid "Readonly"
+msgstr ""
+
 #: pkg/kubernetes/views/details-page.html:52
-#: pkg/kubernetes/views/node-body.html:41 pkg/kubernetes/scripts/nodes.js:324
+#: pkg/kubernetes/views/node-body.html:41 pkg/playground/translate.html:19
+#: pkg/playground/translate.html:179 pkg/kubernetes/scripts/nodes.js:324
 msgid "Ready"
 msgstr "Prêt"
 
@@ -4866,17 +4968,17 @@ msgctxt "verb"
 msgid "Ready"
 msgstr ""
 
-#: pkg/systemd/index.html:303
+#: pkg/systemd/index.html:313
 msgid "Real Host Name"
 msgstr ""
 
-#: pkg/systemd/host.js:820
+#: pkg/systemd/host.js:847
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
 msgstr ""
 
-#: pkg/systemd/host.js:821
+#: pkg/systemd/host.js:848
 msgid "Real host name must be 64 characters or less"
 msgstr ""
 
@@ -4918,17 +5020,17 @@ msgstr ""
 msgid "Reclaim Policy"
 msgstr ""
 
-#: pkg/ostree/index.html:423 pkg/shell/simple.html:131 pkg/shell/index.html:311
-#: pkg/shell/stub.html:166 pkg/kubernetes/index.html:105
-#: pkg/kubernetes/registry.html:75
+#: pkg/kubernetes/index.html:105 pkg/kubernetes/registry.html:75
+#: pkg/ostree/index.html:423 pkg/shell/index.html:317 pkg/shell/simple.html:131
+#: pkg/shell/stub.html:151
 msgid "Reconnect"
 msgstr "Reconnecter"
 
-#: pkg/storaged/details.js:409
+#: pkg/storaged/sidebar-views.jsx:124
 msgid "Recovering"
 msgstr "Récupération en cours"
 
-#: pkg/storaged/jobs.js:142
+#: pkg/storaged/jobs.js:144
 msgid "Recovering RAID Device $target"
 msgstr ""
 
@@ -4936,14 +5038,13 @@ msgstr ""
 msgid "Recycle"
 msgstr ""
 
-#: pkg/docker/storage.jsx:350
+#: pkg/docker/storage.jsx:351
 msgid "Reformat and add disks"
 msgstr ""
 
 #: src/ws/login.js:587
-#, fuzzy
 msgid "Refusing to connect. Host is unknown"
-msgstr "Reconnecter"
+msgstr ""
 
 #: src/ws/login.js:589
 msgid "Refusing to connect. Hostkey does not match"
@@ -4978,14 +5079,6 @@ msgstr ""
 msgid "Reload"
 msgstr "Recharger"
 
-#: pkg/systemd/init.js:517
-msgid "Reload or Restart"
-msgstr "Recharger ou redémarrer"
-
-#: pkg/systemd/init.js:519
-msgid "Reload or Try Restart"
-msgstr "Recharger ou essayer de redémarrer"
-
 #: pkg/kdump/kdump-view.jsx:160 pkg/kdump/kdump-view.jsx:389
 msgid "Remote over NFS"
 msgstr ""
@@ -5002,7 +5095,7 @@ msgstr ""
 msgid "Remote;Administration;"
 msgstr "À distance;Administration;"
 
-#: pkg/storaged/overview.js:187 pkg/storaged/overview.js:189
+#: pkg/storaged/overview.js:185 pkg/storaged/overview.js:187
 msgctxt "storage"
 msgid "Removable Drive"
 msgstr "Périphérique amovible"
@@ -5011,14 +5104,14 @@ msgstr "Périphérique amovible"
 msgid "Removals"
 msgstr ""
 
-#: pkg/kubernetes/views/remove-role-dialog.html:8
-#: pkg/kubernetes/views/user-group-remove.html:10
-#: pkg/kubernetes/views/user-delete.html:25
 #: pkg/kubernetes/views/group-delete.html:21
+#: pkg/kubernetes/views/remove-role-dialog.html:8
+#: pkg/kubernetes/views/user-delete.html:25
+#: pkg/kubernetes/views/user-group-remove.html:10
 msgid "Remove"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2876
+#: pkg/networkmanager/interfaces.js:2939
 msgid "Remove $0"
 msgstr ""
 
@@ -5046,21 +5139,21 @@ msgstr ""
 msgid "Remove membership"
 msgstr ""
 
-#: pkg/storaged/jobs.js:138
+#: pkg/storaged/jobs.js:140
 msgid "Removing $target from RAID Device"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2875
+#: pkg/networkmanager/interfaces.js:2938
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/storaged/jobs.js:151
+#: pkg/storaged/jobs.js:153
 msgid "Removing physical volume from $target"
 msgstr ""
 
-#: pkg/storaged/details.js:513 pkg/storaged/lvol-tabs.jsx:44
+#: pkg/storaged/details.jsx:382 pkg/storaged/lvol-tabs.jsx:44
 msgid "Rename"
 msgstr "Renommer"
 
@@ -5068,11 +5161,11 @@ msgstr "Renommer"
 msgid "Rename Logical Volume"
 msgstr ""
 
-#: pkg/storaged/details.js:150
+#: pkg/storaged/details.jsx:124
 msgid "Rename Volume Group"
 msgstr "Renommer un groupe de volumes"
 
-#: pkg/storaged/jobs.js:154
+#: pkg/storaged/jobs.js:156
 msgid "Renaming $target"
 msgstr ""
 
@@ -5096,16 +5189,16 @@ msgstr ""
 msgid "Repeat Yearly"
 msgstr ""
 
-#: pkg/kubernetes/views/replicationcontroller-body.html:9
 #: pkg/kubernetes/views/deploymentconfig-body.html:9
-#: pkg/kubernetes/views/replicationcontroller-modify.html:8
 #: pkg/kubernetes/views/details-page.html:141
+#: pkg/kubernetes/views/replicationcontroller-body.html:9
+#: pkg/kubernetes/views/replicationcontroller-modify.html:8
 msgid "Replicas"
 msgstr "Répliques"
 
 #: pkg/kubernetes/views/replicationcontroller-page.html:14
-#: pkg/kubernetes/views/topology-page.html:22
 #: pkg/kubernetes/views/replicationcontroller-panel.html:10
+#: pkg/kubernetes/views/topology-page.html:22
 msgid "Replication Controller"
 msgstr ""
 
@@ -5120,7 +5213,7 @@ msgid ""
 "and remove pods when necessary."
 msgstr ""
 
-#: pkg/docker/index.html:674
+#: pkg/docker/index.html:677
 msgid "Repository"
 msgstr "Dépôt"
 
@@ -5144,15 +5237,15 @@ msgstr ""
 msgid "Reserved memory"
 msgstr ""
 
-#: pkg/docker/index.html:291 pkg/systemd/terminal.jsx:80
+#: pkg/docker/index.html:294 pkg/systemd/terminal.jsx:80
 msgid "Reset"
 msgstr ""
 
-#: pkg/docker/storage.jsx:420
+#: pkg/docker/storage.jsx:432
 msgid "Reset Storage Pool"
 msgstr ""
 
-#: pkg/docker/storage.jsx:423
+#: pkg/docker/storage.jsx:435
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -5170,14 +5263,14 @@ msgstr "Redimensionner un système de fichiers"
 msgid "Resize Logical Volume"
 msgstr "Redimensionner un volume logique"
 
-#: pkg/storaged/jobs.js:155
+#: pkg/storaged/jobs.js:157
 msgid "Resizing $target"
 msgstr ""
 
-#: pkg/docker/index.html:134 pkg/systemd/index.html:126
-#: pkg/systemd/index.html:133 pkg/docker/containers-view.jsx:235
+#: pkg/docker/index.html:134 pkg/systemd/index.html:136
+#: pkg/systemd/index.html:143 pkg/docker/containers-view.jsx:239
+#: pkg/machines/hostvmslist.jsx:49 pkg/systemd/init.js:515
 #: pkg/systemd/shutdown.js:96 pkg/systemd/shutdown.js:97
-#: pkg/systemd/init.js:515 pkg/machines/hostvmslist.jsx:43
 msgid "Restart"
 msgstr "Redémarrer"
 
@@ -5185,11 +5278,11 @@ msgstr "Redémarrer"
 msgid "Restart Count"
 msgstr ""
 
-#: pkg/docker/index.html:526 pkg/kubernetes/views/pod-body.html:10
+#: pkg/docker/index.html:529 pkg/kubernetes/views/pod-body.html:10
 msgid "Restart Policy"
 msgstr ""
 
-#: pkg/docker/index.html:166
+#: pkg/docker/index.html:169
 msgid "Restart Policy:"
 msgstr ""
 
@@ -5202,12 +5295,17 @@ msgstr "Reconnecter"
 msgid "Retain"
 msgstr ""
 
-#: pkg/docker/index.html:542
+#: pkg/docker/index.html:545
 msgid "Retries:"
 msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:188
 msgid "Retrieving subscription status..."
+msgstr ""
+
+#: pkg/shell/index.html:172
+msgid ""
+"Reuse my password for privileged tasks and to connect to other machines"
 msgstr ""
 
 #: pkg/kubernetes/views/volume-body.html:26
@@ -5218,8 +5316,8 @@ msgstr ""
 msgid "Role"
 msgstr ""
 
-#: pkg/users/index.html:92 pkg/kubernetes/views/project-body.html:21
 #: pkg/kubernetes/views/add-member-role-dialog.html:39
+#: pkg/kubernetes/views/project-body.html:21 pkg/users/index.html:92
 msgid "Roles"
 msgstr ""
 
@@ -5227,26 +5325,26 @@ msgstr ""
 msgid "Roll Back and Reboot"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1841 pkg/networkmanager/interfaces.js:1858
+#: pkg/networkmanager/interfaces.js:1904 pkg/networkmanager/interfaces.js:1921
 msgid "Round Robin"
 msgstr "Round Robin"
 
-#: pkg/kubernetes/views/route-panel.html:9
 #: pkg/kubernetes/views/route-page.html:14
+#: pkg/kubernetes/views/route-panel.html:9
 msgid "Route"
 msgstr ""
 
 #: pkg/kubernetes/views/details-page.html:65
-#: pkg/networkmanager/interfaces.js:3130 pkg/kubernetes/scripts/details.js:217
+#: pkg/kubernetes/scripts/details.js:217 pkg/networkmanager/interfaces.js:3194
 msgid "Routes"
 msgstr "Routes"
 
-#: pkg/docker/index.html:234 pkg/docker/index.html:553
-#: pkg/systemd/services.html:383 pkg/machines/hostvmslist.jsx:65
+#: pkg/docker/index.html:237 pkg/docker/index.html:556
+#: pkg/systemd/services.html:383 pkg/machines/hostvmslist.jsx:78
 msgid "Run"
 msgstr ""
 
-#: pkg/docker/index.html:415
+#: pkg/docker/index.html:418
 msgid "Run Image"
 msgstr ""
 
@@ -5258,7 +5356,7 @@ msgstr ""
 msgid "Runner"
 msgstr ""
 
-#: pkg/ostree/index.html:251 pkg/storaged/details.js:389
+#: pkg/ostree/index.html:251 pkg/storaged/details.jsx:318
 msgid "Running"
 msgstr "En fonctionnement"
 
@@ -5286,16 +5384,8 @@ msgstr ""
 msgid "SELinux system status is unknown."
 msgstr ""
 
-#: pkg/machines/libvirt.es6:164
-msgid "SHUTDOWN_VM action failed"
-msgstr ""
-
-#: pkg/storaged/jobs.js:116
+#: pkg/storaged/jobs.js:118
 msgid "SMART self-test of $target"
-msgstr ""
-
-#: pkg/machines/libvirt.es6:204
-msgid "START_VM action failed"
 msgstr ""
 
 #: pkg/networkmanager/index.html:242
@@ -5356,19 +5446,19 @@ msgstr ""
 msgid "Secret Volume"
 msgstr ""
 
-#: pkg/systemd/index.html:93
+#: pkg/systemd/index.html:103
 msgid "Secure Shell Keys"
 msgstr ""
 
-#: pkg/storaged/jobs.js:133
+#: pkg/storaged/jobs.js:135
 msgid "Securely erasing $target"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:404
+#: pkg/docker/containers-view.jsx:408
 msgid "Security"
 msgstr ""
 
-#: pkg/shell/simple.html:101 pkg/shell/index.html:121 pkg/shell/stub.html:114
+#: pkg/shell/index.html:136 pkg/shell/simple.html:101 pkg/shell/stub.html:114
 msgid "Select"
 msgstr ""
 
@@ -5382,8 +5472,8 @@ msgstr ""
 
 #: pkg/lib/machine-sync-users.html:8
 msgid ""
-"Select the users that you would like to be synchronized with {{#strong}}"
-"{{host}}{{/strong}}"
+"Select the users that you would like to be synchronized with "
+"{{#strong}}{{host}}{{/strong}}"
 msgstr ""
 
 #: pkg/networkmanager/index.html:70 pkg/networkmanager/index.html:98
@@ -5397,13 +5487,13 @@ msgctxt "storage"
 msgid "Serial Number"
 msgstr "Numéro de série"
 
-#: pkg/kubernetes/views/volume-body.html:47
-#: pkg/kubernetes/views/pv-modify.html:82 src/ws/login.html:95
-#: pkg/subscriptions/subscriptions-register.jsx:64 pkg/kdump/kdump-view.jsx:127
+#: pkg/kubernetes/views/pv-modify.html:82
+#: pkg/kubernetes/views/volume-body.html:47 src/ws/login.html:93
+#: pkg/kdump/kdump-view.jsx:127 pkg/subscriptions/subscriptions-register.jsx:64
 msgid "Server"
 msgstr ""
 
-#: pkg/storaged/overview.js:521
+#: pkg/storaged/overview.js:523
 msgid "Server Address"
 msgstr ""
 
@@ -5411,11 +5501,11 @@ msgstr ""
 msgid "Server Administrator"
 msgstr "Administrateur de serveurs"
 
-#: pkg/storaged/overview.js:524
+#: pkg/storaged/overview.js:526
 msgid "Server address cannot be empty."
 msgstr ""
 
-#: src/base1/cockpit.js:3935
+#: src/base1/cockpit.js:3957
 msgid "Server has closed the connection."
 msgstr ""
 
@@ -5423,8 +5513,8 @@ msgstr ""
 msgid "Servers"
 msgstr ""
 
-#: pkg/kubernetes/views/service-panel.html:8
 #: pkg/kubernetes/views/service-page.html:12
+#: pkg/kubernetes/views/service-panel.html:8
 #: pkg/kubernetes/views/topology-page.html:30
 msgid "Service"
 msgstr ""
@@ -5463,10 +5553,9 @@ msgstr ""
 msgid "Service name"
 msgstr ""
 
-#: pkg/systemd/services.html:4 pkg/systemd/services.html:272
-#: pkg/kubernetes/views/details-page.html:29
 #: pkg/kubernetes/views/dashboard-page.html:134
-#: pkg/kubernetes/scripts/details.js:214
+#: pkg/kubernetes/views/details-page.html:29 pkg/systemd/services.html:4
+#: pkg/systemd/services.html:272 pkg/kubernetes/scripts/details.js:214
 msgid "Services"
 msgstr ""
 
@@ -5485,11 +5574,11 @@ msgstr "Version"
 msgid "Session Affinity"
 msgstr ""
 
-#: pkg/users/index.html:272 pkg/dashboard/index.html:174
+#: pkg/dashboard/index.html:174 pkg/users/index.html:272
 msgid "Set"
 msgstr ""
 
-#: pkg/systemd/host.js:579
+#: pkg/systemd/host.js:606
 msgid "Set Host name"
 msgstr "Définir le nom d'hôte"
 
@@ -5497,11 +5586,11 @@ msgstr "Définir le nom d'hôte"
 msgid "Set Password"
 msgstr ""
 
-#: pkg/systemd/index.html:377
+#: pkg/systemd/index.html:387
 msgid "Set Time"
 msgstr ""
 
-#: pkg/docker/index.html:519
+#: pkg/docker/index.html:522
 msgid "Set container environment variables"
 msgstr ""
 
@@ -5514,7 +5603,7 @@ msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
 
-#: pkg/storaged/jobs.js:128
+#: pkg/storaged/jobs.js:130
 msgid "Setting up loop device $target"
 msgstr ""
 
@@ -5522,11 +5611,11 @@ msgstr ""
 msgid "Share Name"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1826
+#: pkg/networkmanager/interfaces.js:1889
 msgid "Shared"
 msgstr "Partagé"
 
-#: pkg/kubernetes/scripts/projects.js:1019
+#: pkg/kubernetes/scripts/projects.js:1022
 msgid "Shared: Allow any authenticated user to pull images"
 msgstr ""
 
@@ -5585,16 +5674,16 @@ msgstr ""
 msgid "Show all image streams"
 msgstr ""
 
-#: pkg/docker/index.html:244 pkg/kubernetes/views/image-page.html:11
+#: pkg/docker/index.html:247 pkg/kubernetes/views/image-page.html:11
 msgid "Show all images"
 msgstr ""
 
-#: pkg/systemd/index.html:94
+#: pkg/systemd/index.html:104
 msgid "Show fingerprints"
 msgstr ""
 
-#: pkg/systemd/index.html:136 pkg/systemd/shutdown.js:93
-#: pkg/systemd/shutdown.js:94 pkg/machines/hostvmslist.jsx:55
+#: pkg/systemd/index.html:146 pkg/machines/hostvmslist.jsx:64
+#: pkg/systemd/shutdown.js:93 pkg/systemd/shutdown.js:94
 msgid "Shut Down"
 msgstr ""
 
@@ -5610,32 +5699,32 @@ msgstr ""
 msgid "Since"
 msgstr ""
 
-#: pkg/systemd/init.js:619
+#: pkg/systemd/init.js:615
 msgid "Since $0"
 msgstr "Depuis $0"
 
-#: pkg/storaged/index.html:230 pkg/kubernetes/views/volumes-page.html:60
+#: pkg/kubernetes/views/volumes-page.html:60 pkg/storaged/index.html:230
+#: pkg/docker/containers-view.jsx:587 pkg/storaged/content-views.jsx:112
+#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:128
 #: pkg/storaged/lvol-tabs.jsx:70 pkg/storaged/lvol-tabs.jsx:122
 #: pkg/storaged/lvol-tabs.jsx:161 pkg/storaged/lvol-tabs.jsx:198
-#: pkg/storaged/part-tab.jsx:41 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:721 pkg/storaged/format-dialog.jsx:118
-#: pkg/docker/containers-view.jsx:583
+#: pkg/storaged/part-tab.jsx:41
 msgid "Size"
 msgstr "Taille"
 
-#: pkg/storaged/dialog.js:270
+#: pkg/storaged/dialog.js:274
 msgid "Size cannot be negative"
 msgstr ""
 
-#: pkg/storaged/dialog.js:268
+#: pkg/storaged/dialog.js:272
 msgid "Size cannot be zero"
 msgstr ""
 
-#: pkg/storaged/dialog.js:272
+#: pkg/storaged/dialog.js:276
 msgid "Size is too large"
 msgstr ""
 
-#: pkg/storaged/dialog.js:266
+#: pkg/storaged/dialog.js:270
 msgid "Size must be a number"
 msgstr ""
 
@@ -5652,11 +5741,11 @@ msgstr ""
 msgid "Software Updates"
 msgstr ""
 
-#: pkg/docker/storage.jsx:158
+#: pkg/docker/storage.jsx:159
 msgid "Solid-State Disk"
 msgstr ""
 
-#: pkg/storaged/overview.js:184
+#: pkg/storaged/overview.js:182
 msgctxt "storage"
 msgid "Solid-State Disk"
 msgstr "Disque SSD"
@@ -5677,11 +5766,15 @@ msgstr ""
 msgid "Sorry, I don't know how to modify this volume"
 msgstr ""
 
+#: pkg/machines/vmdiskstab.jsx:141
+msgid "Source"
+msgstr ""
+
 #: bower_components/registry-image-widgets/views/image-body.html:8
 msgid "Source URL"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2679
+#: pkg/networkmanager/interfaces.js:2740
 msgid "Spanning Tree Protocol"
 msgstr "Spanning Tree Protocol"
 
@@ -5689,21 +5782,21 @@ msgstr "Spanning Tree Protocol"
 msgid "Spanning Tree Protocol (STP)"
 msgstr "Spanning Tree Protocol (STP)"
 
-#: pkg/storaged/details.js:409
+#: pkg/storaged/sidebar-views.jsx:124
 msgid "Spare"
 msgstr "Rechange"
 
-#: pkg/systemd/index.html:454
+#: pkg/systemd/index.html:464
 msgid "Specific Time"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3447
+#: pkg/networkmanager/interfaces.js:3503
 #, fuzzy
 msgid "Stable"
 msgstr "Activer"
 
-#: pkg/docker/index.html:132 pkg/storaged/details.js:427
-#: pkg/storaged/swap-tab.jsx:76 pkg/docker/containers-view.jsx:232
+#: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:236
+#: pkg/storaged/details.jsx:330 pkg/storaged/swap-tab.jsx:76
 #: pkg/systemd/init.js:513
 msgid "Start"
 msgstr "Démarrer"
@@ -5716,15 +5809,15 @@ msgstr "Démarrer docker"
 msgid "Start Multipath"
 msgstr ""
 
-#: pkg/storaged/details.js:429
+#: pkg/storaged/details.jsx:332
 msgid "Start Scrubbing"
 msgstr "Démarrer la scrutation"
 
-#: pkg/storaged/jobs.js:136
+#: pkg/storaged/jobs.js:138
 msgid "Starting RAID Device $target"
 msgstr ""
 
-#: pkg/storaged/jobs.js:121
+#: pkg/storaged/jobs.js:123
 msgid "Starting swapspace $target"
 msgstr ""
 
@@ -5735,8 +5828,8 @@ msgstr ""
 #: pkg/kubernetes/views/container-body.html:16
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
-#: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:267
-#: pkg/systemd/init.js:275 pkg/machines/hostvmslist.jsx:349
+#: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
+#: pkg/machines/hostvmslist.jsx:416 pkg/systemd/init.js:275
 msgid "State"
 msgstr ""
 
@@ -5745,7 +5838,7 @@ msgctxt "storage"
 msgid "State"
 msgstr ""
 
-#: pkg/docker/index.html:162 pkg/machines/hostvmslist.jsx:209
+#: pkg/docker/index.html:165
 msgid "State:"
 msgstr ""
 
@@ -5753,13 +5846,12 @@ msgstr ""
 msgid "Static"
 msgstr "Statique"
 
-#: pkg/ostree/index.html:288 pkg/kubernetes/views/nodes-page.html:44
-#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/pv-body.html:24
-#: pkg/kubernetes/views/volumes-page.html:21
-#: pkg/kubernetes/views/node-body.html:39
 #: pkg/kubernetes/views/containers-listing.html:16
-#: pkg/networkmanager/interfaces.js:2435
+#: pkg/kubernetes/views/node-body.html:39
+#: pkg/kubernetes/views/nodes-page.html:44 pkg/kubernetes/views/pv-body.html:24
+#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
+#: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
+#: pkg/networkmanager/interfaces.js:2496
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
 msgstr "État"
@@ -5776,13 +5868,13 @@ msgstr ""
 msgid "Sticky"
 msgstr ""
 
-#: pkg/docker/index.html:133 pkg/storaged/details.js:428
-#: pkg/storaged/swap-tab.jsx:75 pkg/docker/containers-view.jsx:230
+#: pkg/docker/index.html:133 pkg/docker/containers-view.jsx:234
+#: pkg/storaged/details.jsx:331 pkg/storaged/swap-tab.jsx:75
 #: pkg/systemd/init.js:514
 msgid "Stop"
 msgstr "Arrêter"
 
-#: pkg/storaged/details.js:430
+#: pkg/storaged/details.jsx:333
 msgid "Stop Scrubbing"
 msgstr "Arrêter la scrutation"
 
@@ -5795,20 +5887,20 @@ msgstr "Arrêter"
 msgid "Stopped"
 msgstr "Arrêté"
 
-#: pkg/storaged/jobs.js:135
+#: pkg/storaged/jobs.js:137
 msgid "Stopping RAID Device $target"
 msgstr ""
 
-#: pkg/storaged/jobs.js:122
+#: pkg/storaged/jobs.js:124
 msgid "Stopping swapspace $target"
 msgstr ""
 
-#: pkg/storaged/index.html:23 pkg/storaged/index.html:670
-#: pkg/docker/index.html:278
+#: pkg/docker/index.html:281 pkg/storaged/index.html:23
+#: pkg/storaged/index.html:603
 msgid "Storage"
 msgstr ""
 
-#: pkg/storaged/index.html:684
+#: pkg/storaged/index.html:617
 msgid "Storage Log"
 msgstr ""
 
@@ -5816,15 +5908,15 @@ msgstr ""
 msgid "Storage Logs"
 msgstr "Logs de stockage"
 
-#: pkg/docker/index.html:292
+#: pkg/docker/index.html:295
 msgid "Storage pool"
 msgstr ""
 
-#: pkg/systemd/index.html:148
+#: pkg/systemd/index.html:158
 msgid "Store Performance Data"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:163
+#: pkg/storaged/format-dialog.jsx:173
 msgid "Store passphrase"
 msgstr "Enregistrer la phrase de passe"
 
@@ -5856,42 +5948,42 @@ msgstr ""
 msgid "Swap"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:307
+#: pkg/storaged/content-views.jsx:320
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Espace d'échange"
 
-#: pkg/systemd/index.html:243 pkg/systemd/host.js:1436
+#: pkg/systemd/index.html:253 pkg/systemd/host.js:1463
 msgid "Swap Used"
 msgstr "Échange utilisé"
 
-#: pkg/networkmanager/interfaces.js:2322 pkg/networkmanager/interfaces.js:2860
+#: pkg/networkmanager/interfaces.js:2380 pkg/networkmanager/interfaces.js:2923
 msgid "Switch off $0"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2297 pkg/networkmanager/interfaces.js:2848
+#: pkg/networkmanager/interfaces.js:2355 pkg/networkmanager/interfaces.js:2911
 msgid "Switch on $0"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2321
+#: pkg/networkmanager/interfaces.js:2379
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2859
+#: pkg/networkmanager/interfaces.js:2922
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2296 pkg/networkmanager/interfaces.js:2847
+#: pkg/networkmanager/interfaces.js:2354 pkg/networkmanager/interfaces.js:2910
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 
-#: pkg/kubernetes/scripts/images.js:625
+#: pkg/kubernetes/scripts/images.js:644
 msgid "Sync all tags from a remote image repository"
 msgstr ""
 
@@ -5911,7 +6003,7 @@ msgstr ""
 msgid "Synchronized with {{Server}}"
 msgstr ""
 
-#: pkg/storaged/jobs.js:143
+#: pkg/storaged/jobs.js:145
 msgid "Synchronizing RAID Device $target"
 msgstr ""
 
@@ -5923,11 +6015,11 @@ msgstr ""
 msgid "System Services"
 msgstr ""
 
-#: pkg/systemd/index.html:112
+#: pkg/systemd/index.html:122
 msgid "System Time"
 msgstr ""
 
-#: pkg/docker/index.html:317 pkg/docker/index.html:321
+#: pkg/docker/index.html:320 pkg/docker/index.html:324
 msgid "TCP"
 msgstr "TCP"
 
@@ -5935,18 +6027,18 @@ msgstr "TCP"
 msgid "TLS Termination"
 msgstr ""
 
-#: pkg/docker/index.html:680
+#: pkg/docker/index.html:683
 msgid "Tag"
 msgstr "Balise"
 
-#: pkg/kubernetes/views/imagestream-modify.html:76
 #: pkg/kubernetes/views/image-listing.html:14
+#: pkg/kubernetes/views/imagestream-modify.html:76
 #: bower_components/registry-image-widgets/views/image-body.html:27
-#: pkg/docker/containers-view.jsx:308
+#: pkg/docker/containers-view.jsx:312
 msgid "Tags"
 msgstr ""
 
-#: pkg/kubernetes/views/pv-modify.html:136
+#: pkg/kubernetes/views/pv-modify.html:136 pkg/machines/vmdiskstab.jsx:134
 msgid "Target"
 msgstr ""
 
@@ -5958,16 +6050,16 @@ msgstr ""
 msgid "Target World Wide Names"
 msgstr ""
 
-#: pkg/systemd/services.html:52 pkg/storaged/overview.js:626
+#: pkg/systemd/services.html:52 pkg/storaged/overview.js:628
 msgid "Targets"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2342 pkg/networkmanager/interfaces.js:2354
-#: pkg/networkmanager/interfaces.js:2636
+#: pkg/networkmanager/interfaces.js:2400 pkg/networkmanager/interfaces.js:2412
+#: pkg/networkmanager/interfaces.js:2697
 msgid "Team"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2664
+#: pkg/networkmanager/interfaces.js:2725
 msgid "Team Port"
 msgstr ""
 
@@ -5980,8 +6072,8 @@ msgid "Team Settings"
 msgstr ""
 
 #: pkg/kubernetes/views/deploymentconfig-page.html:15
-#: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
+#: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
 msgid "Template"
 msgstr ""
@@ -6015,11 +6107,11 @@ msgstr ""
 msgid "The \"storaged\" API is not available on this system."
 msgstr ""
 
-#: pkg/docker/storage.jsx:487
+#: pkg/docker/storage.jsx:499
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:388
+#: pkg/lib/machine-dialogs.js:391
 msgid "The IP address or host name cannot contain whitespace."
 msgstr "L'adresse IP ou nom d'hôte ne peut pas contenir d'espace."
 
@@ -6027,35 +6119,43 @@ msgstr "L'adresse IP ou nom d'hôte ne peut pas contenir d'espace."
 msgid "The RAID Array is in a degraded state"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:107
+#: pkg/storaged/sidebar-views.jsx:172
+msgid "The RAID device must be running in order to add spare disks."
+msgstr ""
+
+#: pkg/storaged/sidebar-views.jsx:138
+msgid "The RAID device must be running in order to remove disks."
+msgstr ""
+
+#: pkg/machines/hostvmslist.jsx:129
 msgid "The VM crashed."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:106
+#: pkg/machines/hostvmslist.jsx:128
 msgid "The VM is down."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:105
+#: pkg/machines/hostvmslist.jsx:127
 msgid "The VM is going down."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:103
+#: pkg/machines/hostvmslist.jsx:125
 msgid "The VM is idle."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:109
+#: pkg/machines/hostvmslist.jsx:131
 msgid "The VM is in process of dying (shut down or crash is not completed)."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:104
+#: pkg/machines/hostvmslist.jsx:126
 msgid "The VM is paused."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:102
+#: pkg/machines/hostvmslist.jsx:124
 msgid "The VM is running."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:110
+#: pkg/machines/hostvmslist.jsx:132
 msgid "The VM is suspended by guest power management."
 msgstr ""
 
@@ -6065,8 +6165,8 @@ msgstr "L'adresse contient des caractères invalides"
 
 #: pkg/lib/machine-unknown-hostkey.html:6
 msgid ""
-"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
-"established. Are you sure you want to continue connecting?"
+"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established."
+" Are you sure you want to continue connecting?"
 msgstr ""
 
 #: pkg/sosreport/index.html:35
@@ -6111,11 +6211,15 @@ msgstr ""
 msgid "The key you provided was not valid."
 msgstr "La clé fournie est invalide."
 
-#: pkg/storaged/details.js:489
+#: pkg/storaged/sidebar-views.jsx:144
+msgid "The last disk of a RAID device cannot be removed."
+msgstr ""
+
+#: pkg/storaged/sidebar-views.jsx:278
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr ""
 
-#: pkg/shell/indexes.js:314
+#: pkg/shell/indexes.js:323
 msgid "The machine is restarting"
 msgstr "Cette machine redémarre"
 
@@ -6179,7 +6283,7 @@ msgid ""
 "no other supported authentication methods are available."
 msgstr ""
 
-#: src/base1/cockpit.js:3921
+#: src/base1/cockpit.js:3941
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 
@@ -6191,7 +6295,7 @@ msgstr ""
 msgid "The service '{{ target }}' does not exist."
 msgstr ""
 
-#: pkg/docker/storage.jsx:357
+#: pkg/docker/storage.jsx:358 pkg/docker/storage.jsx:369
 msgid ""
 "The storage pool will be reset to optimize its layout.  All containers will "
 "be erased."
@@ -6201,7 +6305,7 @@ msgstr ""
 msgid "The user '{{ userName }}' does not exist."
 msgstr ""
 
-#: pkg/systemd/init.js:832
+#: pkg/systemd/init.js:828
 msgid "The user <b>$0</b> does not have permissions for creating timers"
 msgstr ""
 
@@ -6209,7 +6313,7 @@ msgstr ""
 msgid "The user <b>$0</b> is not permitted to manage servers"
 msgstr "L'utilisateur <b>$0</b> n'a pas le droit de gérer des serveurs"
 
-#: pkg/storaged/permissions.js:60 pkg/storaged/storage-controls.jsx:78
+#: pkg/storaged/permissions.js:60 pkg/storaged/storage-controls.jsx:79
 msgid "The user <b>$0</b> is not permitted to manage storage"
 msgstr ""
 
@@ -6217,18 +6321,22 @@ msgstr ""
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "L'utilisateur <b>$0</b> n'a pas le droit de modifier les comptes"
 
-#: pkg/systemd/host.js:45
+#: pkg/systemd/host.js:46
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
 msgstr "L'utilisateur <b>$0</b> n'a pas le droit de modifier les noms d'hôtes"
 
-#: pkg/networkmanager/interfaces.js:1410
+#: pkg/networkmanager/interfaces.js:1453
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr ""
 "L'utilisateur <b>$0</b> n'a pas le droit de modifier les réglages réseau"
 
-#: pkg/realmd/operation.js:437
+#: pkg/realmd/operation.js:447
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "L'utilisateur <b>$0</b> n'a pas le droit de modifier les domaines"
+
+#: pkg/systemd/host.js:54
+msgid "The user <b>$0</b> is not permitted to shutdown or restart this server"
+msgstr ""
 
 #: pkg/users/local.js:517
 msgid ""
@@ -6238,7 +6346,12 @@ msgstr ""
 
 #: src/ws/login.js:124
 msgid ""
-"The web browser configuration prevents Cockpit from running (inaccessible $0)"
+"The web browser configuration prevents Cockpit from running (inaccessible "
+"$0)"
+msgstr ""
+
+#: pkg/shell/active-pages-dialog.jsx:59
+msgid "There are currently no active pages"
 msgstr ""
 
 #: pkg/storaged/index.html:51
@@ -6251,13 +6364,13 @@ msgstr ""
 msgid "There are no authorized public keys for this account."
 msgstr ""
 
-#: pkg/storaged/details.js:494
+#: pkg/storaged/sidebar-views.jsx:284
 msgid ""
-"There is not enough free space elsewhere to remove this physical volume.  At "
+"There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
 msgstr ""
 
-#: pkg/storaged/utils.js:168
+#: pkg/storaged/utils.js:175
 msgid "Thin Logical Volume"
 msgstr ""
 
@@ -6266,7 +6379,7 @@ msgid ""
 "This claim is in use. Deleting it may cause issues with the following pod:"
 msgstr ""
 
-#: pkg/systemd/init.js:1219
+#: pkg/systemd/init.js:1215
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
 "months that have 31st."
@@ -6277,15 +6390,45 @@ msgid ""
 "This deployment contains the same packages as your currently booted system"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2446
+#: pkg/networkmanager/interfaces.js:2507
 msgid "This device cannot be managed here."
 msgstr ""
 
-#: pkg/systemd/init.js:1139 pkg/systemd/init.js:1151 pkg/systemd/init.js:1158
+#: pkg/storaged/index.html:816
+msgid ""
+"This device has filesystems that are currently in use.                "
+"Proceeding will unmount all filesystems on it."
+msgstr ""
+
+#: pkg/storaged/index.html:667
+msgid "This device is currently used for RAID devices."
+msgstr ""
+
+#: pkg/storaged/index.html:834
+msgid ""
+"This device is currently used for RAID devices.                Proceeding "
+"will remove it from its RAID devices."
+msgstr ""
+
+#: pkg/storaged/index.html:659
+msgid "This device is currently used for volume groups."
+msgstr ""
+
+#: pkg/storaged/index.html:825
+msgid ""
+"This device is currently used for volume groups.                Proceeding "
+"will remove it from its volume groups."
+msgstr ""
+
+#: pkg/storaged/sidebar-views.jsx:140
+msgid "This disk cannot be removed while the device is recovering."
+msgstr ""
+
+#: pkg/systemd/init.js:1135 pkg/systemd/init.js:1147 pkg/systemd/init.js:1154
 msgid "This field cannot be empty."
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:392
+#: pkg/docker/containers-view.jsx:396
 msgid "This image does not exist."
 msgstr ""
 
@@ -6293,11 +6436,11 @@ msgstr ""
 msgid "This logical volume cannot be made smaller."
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:366
+#: pkg/lib/machine-dialogs.js:369
 msgid "This machine has already been added."
 msgstr "Cette machine a été déjà été ajoutée."
 
-#: pkg/realmd/operation.html:89
+#: pkg/realmd/operation.html:90
 msgid "This may take a while"
 msgstr "Cela peut prendre un certain temps"
 
@@ -6307,11 +6450,11 @@ msgid ""
 "a multi-node cluster"
 msgstr ""
 
-#: src/bridge/cockpitpackages.c:492
+#: src/bridge/cockpitpackages.c:435
 msgid "This package is not compatible with this version of Cockpit"
 msgstr ""
 
-#: src/bridge/cockpitpackages.c:481
+#: src/bridge/cockpitpackages.c:424
 #, c-format
 msgid "This package requires Cockpit version %s or later"
 msgstr ""
@@ -6330,7 +6473,7 @@ msgid ""
 "this system for use with diagnosing problems with the system."
 msgstr ""
 
-#: pkg/systemd/init.js:637
+#: pkg/systemd/init.js:633
 msgid "This unit is an instance of the $0 template."
 msgstr "Cette unité est une instance du modèle $0."
 
@@ -6342,7 +6485,7 @@ msgstr ""
 msgid "This user name already exists"
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:382
+#: pkg/lib/machine-dialogs.js:385
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
@@ -6352,9 +6495,9 @@ msgstr ""
 
 #: pkg/kubernetes/views/pv-delete.html:7
 msgid ""
-"This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / "
-"{{ item.item.spec.claimRef.name }}. Deleting it will break that claim and "
-"may cause issues with any pods depending on it."
+"This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / {{ "
+"item.item.spec.claimRef.name }}. Deleting it will break that claim and may "
+"cause issues with any pods depending on it."
 msgstr ""
 
 #: pkg/kubernetes/views/pv-claim.html:23
@@ -6380,7 +6523,7 @@ msgstr ""
 msgid "Thursday"
 msgstr ""
 
-#: pkg/systemd/index.html:363
+#: pkg/systemd/index.html:373
 msgid "Time Zone"
 msgstr ""
 
@@ -6388,7 +6531,7 @@ msgstr ""
 msgid "Timers"
 msgstr ""
 
-#: pkg/shell/index.html:257
+#: pkg/shell/index.html:278
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -6412,19 +6555,15 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
-#: src/base1/cockpit.js:3941
+#: src/base1/cockpit.js:3963
 msgid "Too much data"
-msgstr ""
-
-#: pkg/shell/index.html:290 pkg/shell/stub.html:145
-msgid "Tools"
 msgstr ""
 
 #: pkg/kubernetes/index.html:58
 msgid "Topology"
 msgstr ""
 
-#: pkg/docker/storage.jsx:316
+#: pkg/docker/storage.jsx:317
 msgid "Total"
 msgstr ""
 
@@ -6436,8 +6575,8 @@ msgstr ""
 msgid "Triggers"
 msgstr ""
 
-#: pkg/shell/index.html:312 pkg/shell/stub.html:167
-#: pkg/kubernetes/index.html:106
+#: pkg/kubernetes/index.html:106 pkg/shell/index.html:318
+#: pkg/shell/stub.html:152
 msgid "Troubleshoot"
 msgstr ""
 
@@ -6445,14 +6584,9 @@ msgstr ""
 msgid "Trust this certificate for this connection"
 msgstr ""
 
-#: src/ws/login.html:112
-#, fuzzy
+#: src/ws/login.html:110
 msgid "Try Again"
-msgstr "Réessayer"
-
-#: pkg/systemd/init.js:518
-msgid "Try Restart"
-msgstr "Essayer de redémarrer"
+msgstr ""
 
 #: pkg/docker/index.html:71 pkg/docker/index.html:74
 msgid "Try again"
@@ -6486,11 +6620,11 @@ msgstr "Tuned n'est pas en cours d'exécution"
 msgid "Tuned is off"
 msgstr "Tuned est désactivé"
 
-#: pkg/shell/index.html:220 pkg/kubernetes/views/deploy.html:9
+#: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
 #: pkg/kubernetes/views/service-body.html:11
-#: pkg/kubernetes/views/volumes-page.html:20
-#: pkg/kubernetes/views/pv-modify.html:10 pkg/storaged/unrecognized-tab.jsx:44
-#: pkg/storaged/part-tab.jsx:49 pkg/storaged/format-dialog.jsx:133
+#: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:241
+#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/part-tab.jsx:49
+#: pkg/storaged/unrecognized-tab.jsx:44
 msgid "Type"
 msgstr "Type"
 
@@ -6506,7 +6640,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: pkg/docker/index.html:322
+#: pkg/docker/index.html:325
 msgid "UDP"
 msgstr "UDP"
 
@@ -6519,7 +6653,7 @@ msgstr ""
 msgid "UUID"
 msgstr ""
 
-#: pkg/storaged/index.html:545 pkg/storaged/index.html:624
+#: pkg/storaged/index.html:545 pkg/storaged/index.html:588
 msgctxt "storage"
 msgid "UUID"
 msgstr ""
@@ -6561,7 +6695,7 @@ msgstr ""
 msgid "Unable to get alert: $0"
 msgstr ""
 
-#: pkg/storaged/overview.js:589
+#: pkg/storaged/overview.js:591
 msgid "Unable to reach server"
 msgstr ""
 
@@ -6586,30 +6720,30 @@ msgstr "Impossible de démarrer setroubleshootd"
 msgid "Unavailable"
 msgstr ""
 
-#: pkg/networkmanager/index.html:824 pkg/docker/index.html:715
-#: pkg/users/local.js:1178 pkg/shell/base_index.js:679
+#: pkg/docker/index.html:718 pkg/networkmanager/index.html:824
+#: pkg/shell/base_index.js:703 pkg/users/local.js:1178
 msgid "Unexpected error"
 msgstr "Erreur inattendue"
 
-#: pkg/kubernetes/views/pv-claim.html:31 pkg/kubernetes/views/pv-body.html:26
-#: pkg/kubernetes/views/volumes-page.html:35
 #: pkg/kubernetes/views/node-body.html:12
-#: pkg/kubernetes/views/node-body.html:43
-#: bower_components/registry-image-widgets/views/imagestream-body.html:27
+#: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
+#: pkg/kubernetes/views/pv-claim.html:31
+#: pkg/kubernetes/views/volumes-page.html:35
 #: bower_components/registry-image-widgets/views/image-body.html:15
-#: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:986
-#: pkg/networkmanager/interfaces.js:2362 pkg/networkmanager/interfaces.js:2364
-#: pkg/storaged/fsys-tab.jsx:62 pkg/storaged/swap-tab.jsx:56
+#: bower_components/registry-image-widgets/views/imagestream-body.html:27
 #: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:660
 #: pkg/kubernetes/scripts/nodes.js:753 pkg/kubernetes/scripts/volumes.js:266
+#: pkg/networkmanager/interfaces.js:531 pkg/networkmanager/interfaces.js:1005
+#: pkg/networkmanager/interfaces.js:2420 pkg/networkmanager/interfaces.js:2422
+#: pkg/storaged/fsys-tab.jsx:62 pkg/storaged/swap-tab.jsx:56
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: pkg/networkmanager/interfaces.js:2348 pkg/networkmanager/interfaces.js:2360
+#: pkg/networkmanager/interfaces.js:2406 pkg/networkmanager/interfaces.js:2418
 msgid "Unknown \"$0\""
 msgstr ""
 
-#: pkg/storaged/details.js:412
+#: pkg/storaged/sidebar-views.jsx:127
 msgid "Unknown ($0)"
 msgstr "Inconnu ($0)"
 
@@ -6617,15 +6751,15 @@ msgstr "Inconnu ($0)"
 msgid "Unknown Host Key"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2462
+#: pkg/networkmanager/interfaces.js:2523
 msgid "Unknown configuration"
 msgstr "Configuration inconnue"
 
-#: pkg/storaged/overview.js:585
+#: pkg/storaged/overview.js:587
 msgid "Unknown host name"
 msgstr ""
 
-#: pkg/docker/index.html:538 pkg/docker/util.js:108
+#: pkg/docker/index.html:541 pkg/docker/util.js:108
 msgid "Unless Stopped"
 msgstr ""
 
@@ -6634,11 +6768,15 @@ msgstr ""
 msgid "Unlock"
 msgstr "Déverrouiller"
 
-#: pkg/shell/index.html:208
+#: pkg/shell/index.html:229
 msgid "Unlock Key"
 msgstr ""
 
-#: pkg/storaged/jobs.js:118
+#: pkg/shell/index.html:36
+msgid "Unlocked"
+msgstr ""
+
+#: pkg/storaged/jobs.js:120
 msgid "Unlocking $target"
 msgstr ""
 
@@ -6646,7 +6784,7 @@ msgstr ""
 msgid "Unmanaged Interfaces"
 msgstr ""
 
-#: pkg/systemd/init.js:546
+#: pkg/systemd/init.js:542
 msgid "Unmask"
 msgstr "Démasquer"
 
@@ -6654,7 +6792,7 @@ msgstr "Démasquer"
 msgid "Unmount"
 msgstr "Démonter"
 
-#: pkg/storaged/jobs.js:124
+#: pkg/storaged/jobs.js:126
 msgid "Unmounting $target"
 msgstr "Démontage de $target"
 
@@ -6666,7 +6804,7 @@ msgstr ""
 msgid "Unrecognized Data"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:312
+#: pkg/storaged/content-views.jsx:325
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "Données non reconnues"
@@ -6684,11 +6822,11 @@ msgstr ""
 msgid "Unsupported setup mechanism"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:630
+#: pkg/storaged/content-views.jsx:615
 msgid "Unsupported volume"
 msgstr ""
 
-#: src/base1/cockpit.js:3923
+#: src/base1/cockpit.js:3943 src/base1/cockpit.js:3945
 msgid "Untrusted host"
 msgstr ""
 
@@ -6716,19 +6854,19 @@ msgstr ""
 msgid "Updating $0..."
 msgstr "Mise à jour de $0..."
 
-#: pkg/storaged/unrecognized-tab.jsx:40 pkg/machines/hostvmslist.jsx:305
-msgid "Usage"
+#: pkg/machines/vmdiskstab.jsx:107
+msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr ""
 
-#: pkg/shell/index.html:153
-msgid "Use my password for privileged tasks and to connect to other machines"
+#: pkg/machines/hostvmslist.jsx:364 pkg/storaged/unrecognized-tab.jsx:40
+msgid "Usage"
 msgstr ""
 
 #: pkg/subscriptions/subscriptions-register.jsx:132
 msgid "Use proxy server"
 msgstr ""
 
-#: pkg/shell/index.html:160
+#: pkg/shell/index.html:181
 msgid "Use the following keys to authenticate against other systems"
 msgstr ""
 
@@ -6740,55 +6878,53 @@ msgstr ""
 msgid "Use trusted GPG key"
 msgstr ""
 
-#: pkg/systemd/index.html:251 pkg/storaged/fsys-tab.jsx:225
-#: pkg/storaged/swap-tab.jsx:82 pkg/docker/storage.jsx:315
-#: pkg/systemd/host.js:1438 pkg/machines/hostvmslist.jsx:251
-#: pkg/machines/hostvmslist.jsx:262 pkg/kubernetes/scripts/nodes.js:828
-#: pkg/kubernetes/scripts/nodes.js:837
+#: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
+#: pkg/kubernetes/scripts/nodes.js:828 pkg/kubernetes/scripts/nodes.js:837
+#: pkg/machines/hostvmslist.jsx:310 pkg/machines/hostvmslist.jsx:321
+#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
+#: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1465
 msgid "Used"
 msgstr "Utilisé(e)"
 
-#: pkg/docker/index.html:252
+#: pkg/docker/index.html:255
 #, fuzzy
 msgid "Used by Containers"
 msgstr "Conteneurs"
 
-#: pkg/playground/translate.html:85 pkg/playground/translate.html:105
-#: pkg/systemd/index.html:229 pkg/dashboard/index.html:142
-#: pkg/kubernetes/views/user-panel.html:9
-#: pkg/kubernetes/views/auth-form.html:61
-#: pkg/kubernetes/views/volume-body.html:64
-#: pkg/kubernetes/views/volume-body.html:103
+#: pkg/dashboard/index.html:142 pkg/kubernetes/views/auth-form.html:61
 #: pkg/kubernetes/views/user-group-add.html:9
-#: pkg/subscriptions/subscriptions-register.jsx:76 pkg/systemd/host.js:1352
+#: pkg/kubernetes/views/user-panel.html:9
+#: pkg/kubernetes/views/volume-body.html:64
+#: pkg/kubernetes/views/volume-body.html:103 pkg/playground/translate.html:85
+#: pkg/playground/translate.html:105 pkg/systemd/index.html:239
+#: pkg/subscriptions/subscriptions-register.jsx:76 pkg/systemd/host.js:1379
 msgid "User"
 msgstr "Utilisateur"
 
-#: pkg/users/index.html:88 pkg/users/index.html:160
-#: pkg/realmd/operation.html:47
+#: pkg/realmd/operation.html:48 pkg/users/index.html:88
+#: pkg/users/index.html:160
 msgid "User Name"
 msgstr "Nom d'utilisateur"
 
-#: pkg/realmd/operation.html:53 pkg/realmd/operation.js:273
+#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
 msgid "User Password"
 msgstr "Mot de passe utilisateur"
 
-#: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
-#: src/ws/login.html:44
+#: pkg/lib/machine-change-auth.html:18 pkg/lib/machine-sync-users.html:54
+#: src/ws/login.html:42
 msgid "User name"
 msgstr ""
 
 #: src/ws/login.js:393
-#, fuzzy
 msgid "User name cannot be empty"
-msgstr "L'espace de nommage ne peut être vide."
+msgstr ""
 
 #: pkg/kubernetes/views/add-member-role-dialog.html:15
 msgid "User or Group"
 msgstr ""
 
-#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/overview.js:528
-#: pkg/storaged/overview.js:651
+#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/overview.js:530
+#: pkg/storaged/overview.js:653
 msgid "Username"
 msgstr ""
 
@@ -6804,8 +6940,8 @@ msgstr ""
 msgid "VFAT - Compatible with all systems and devices"
 msgstr "VFAT - Compatible avec tous les systèmes et appareils"
 
-#: pkg/networkmanager/interfaces.js:2344 pkg/networkmanager/interfaces.js:2356
-#: pkg/networkmanager/interfaces.js:2728
+#: pkg/networkmanager/interfaces.js:2402 pkg/networkmanager/interfaces.js:2414
+#: pkg/networkmanager/interfaces.js:2789
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -6817,7 +6953,27 @@ msgstr "Identifiant de VLAN"
 msgid "VLAN Settings"
 msgstr "Réglages VLAN"
 
-#: src/ws/login.html:102
+#: pkg/machines/libvirt.es6:179
+msgid "VM FORCE OFF action failed"
+msgstr ""
+
+#: pkg/machines/libvirt.es6:197
+msgid "VM FORCE REBOOT action failed"
+msgstr ""
+
+#: pkg/machines/libvirt.es6:188
+msgid "VM REBOOT action failed"
+msgstr ""
+
+#: pkg/machines/libvirt.es6:170
+msgid "VM SHUT DOWN action failed"
+msgstr ""
+
+#: pkg/machines/libvirt.es6:206
+msgid "VM START action failed"
+msgstr ""
+
+#: src/ws/login.html:100
 msgid "Validating authentication token"
 msgstr ""
 
@@ -6825,30 +6981,31 @@ msgstr ""
 msgid "Validating key"
 msgstr "Validation de la clé"
 
-#: pkg/systemd/index.html:98 pkg/ostree/index.html:303 pkg/shell/simple.html:74
-#: pkg/shell/index.html:86 pkg/shell/stub.html:79
+#: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
+#: pkg/shell/stub.html:79 pkg/systemd/index.html:108
 #: pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "Version"
 
-#: pkg/storaged/jobs.js:134
+#: pkg/storaged/jobs.js:136
 msgid "Very securely erasing $target"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:349
+#: pkg/machines/hostvmslist.jsx:416
 msgid "Virtual Machines"
 msgstr ""
 
-#: pkg/kubernetes/views/pv-page.html:13 pkg/kubernetes/views/pvc-body.html:6
-#: pkg/kubernetes/views/pv-panel.html:10 pkg/storaged/content-views.jsx:133
+#: pkg/kubernetes/views/pv-page.html:13 pkg/kubernetes/views/pv-panel.html:10
+#: pkg/kubernetes/views/pvc-body.html:6 pkg/machines/vmdiskstab.jsx:55
+#: pkg/storaged/content-views.jsx:133
 msgid "Volume"
 msgstr ""
 
-#: pkg/storaged/index.html:618 pkg/storaged/pvol-tabs.jsx:44
+#: pkg/storaged/index.html:582 pkg/storaged/pvol-tabs.jsx:44
 msgid "Volume Group"
 msgstr ""
 
-#: pkg/storaged/utils.js:239
+#: pkg/storaged/storage-controls.jsx:180 pkg/storaged/utils.js:246
 msgid "Volume Group $0"
 msgstr "Groupe de volumes $0"
 
@@ -6861,22 +7018,22 @@ msgstr "Groupes de volumes"
 msgid "Volume ID"
 msgstr ""
 
-#: pkg/kubernetes/views/volume-body.html:42
 #: pkg/kubernetes/views/pv-modify.html:115
+#: pkg/kubernetes/views/volume-body.html:42
 msgid "Volume Name"
 msgstr ""
 
-#: pkg/kubernetes/views/volume-body.html:1 pkg/kubernetes/views/pvc-body.html:2
+#: pkg/kubernetes/views/pvc-body.html:2 pkg/kubernetes/views/volume-body.html:1
 msgid "Volume Type"
 msgstr ""
 
-#: pkg/docker/index.html:504 pkg/kubernetes/views/pod-page.html:18
-#: pkg/kubernetes/views/dashboard-page.html:47 pkg/kubernetes/index.html:71
+#: pkg/docker/index.html:507 pkg/kubernetes/views/dashboard-page.html:47
+#: pkg/kubernetes/views/pod-page.html:18 pkg/kubernetes/index.html:71
 #: bower_components/registry-image-widgets/views/image-config.html:32
 msgid "Volumes"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:743
+#: pkg/networkmanager/interfaces.js:773
 msgid "Waiting"
 msgstr "Attente"
 
@@ -6905,11 +7062,11 @@ msgstr ""
 msgid "Welcome to the Image Registry"
 msgstr ""
 
-#: pkg/ostree/index.html:282 pkg/kubernetes/views/volumes-page.html:61
+#: pkg/kubernetes/views/volumes-page.html:61 pkg/ostree/index.html:282
 msgid "When"
 msgstr ""
 
-#: pkg/docker/index.html:475
+#: pkg/docker/index.html:478
 msgid "With terminal"
 msgstr "Avec le terminal"
 
@@ -6918,7 +7075,7 @@ msgctxt "storage"
 msgid "World Wide Name"
 msgstr ""
 
-#: pkg/storaged/details.js:410
+#: pkg/storaged/sidebar-views.jsx:125
 msgid "Write-mostly"
 msgstr "Écriture favorisée"
 
@@ -6931,19 +7088,18 @@ msgid "Writing objects"
 msgstr ""
 
 #: src/ws/login.js:593
-#, fuzzy
 msgid "Wrong user name or password"
-msgstr "Impossible de modifier le mot de passe de l'utilisateur"
+msgstr ""
 
 #: pkg/storaged/format-dialog.jsx:103
 msgid "XFS - Red Hat Enterprise Linux 7 default"
 msgstr "XFS - Système de fichier par défaut de Red Hat Enterprise Linux 7"
 
-#: pkg/networkmanager/interfaces.js:1843
+#: pkg/networkmanager/interfaces.js:1906
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/networkmanager/interfaces.js:2415 pkg/kubernetes/scripts/volumes.js:988
+#: pkg/kubernetes/scripts/volumes.js:988 pkg/networkmanager/interfaces.js:2476
 msgid "Yes"
 msgstr "Oui"
 
@@ -6981,7 +7137,7 @@ msgid ""
 "account."
 msgstr ""
 
-#: pkg/docker/storage.jsx:484
+#: pkg/docker/storage.jsx:496
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 
@@ -6991,11 +7147,11 @@ msgid ""
 "from the command line."
 msgstr ""
 
-#: src/base1/cockpit.js:3913
+#: src/base1/cockpit.js:3933
 msgid "Your session has been terminated."
 msgstr ""
 
-#: src/base1/cockpit.js:3915
+#: src/base1/cockpit.js:3935
 msgid "Your session has expired. Please log in again."
 msgstr ""
 
@@ -7011,7 +7167,11 @@ msgstr "[données binaires]"
 msgid "[no data]"
 msgstr "[aucune donnée]"
 
-#: pkg/docker/run.js:574
+#: pkg/shell/active-pages-dialog.jsx:40
+msgid "active"
+msgstr ""
+
+#: pkg/docker/run.js:572
 msgid "alias"
 msgstr "alias"
 
@@ -7024,8 +7184,16 @@ msgctxt "format-bytes"
 msgid "bytes"
 msgstr "octets"
 
+#: pkg/machines/helpers.es6:114
+msgid "cdrom"
+msgstr ""
+
 #: pkg/machines/helpers.es6:108
 msgid "crashed"
+msgstr ""
+
+#: pkg/machines/helpers.es6:119
+msgid "custom"
 msgstr ""
 
 #: pkg/docker/util.js:122
@@ -7037,15 +7205,19 @@ msgstr "par défaut"
 msgid "disabled"
 msgstr "Désactivé"
 
+#: pkg/machines/helpers.es6:113 pkg/machines/helpers.es6:116
+msgid "disk"
+msgstr ""
+
 #: pkg/machines/helpers.es6:109
 msgid "dying"
 msgstr ""
 
-#: pkg/realmd/operation.js:237 pkg/realmd/operation.js:243
+#: pkg/realmd/operation.js:247 pkg/realmd/operation.js:253
 msgid "e.g. \"$0\""
 msgstr "ie. « $0 »"
 
-#: pkg/kubernetes/scripts/images.js:630
+#: pkg/kubernetes/scripts/images.js:649
 msgid "eg: my-image-stream"
 msgstr ""
 
@@ -7058,8 +7230,12 @@ msgstr "Activé(e)"
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
 msgstr "ext4 - Système de fichier par défaut de Red Hat Enterprise Linux 6"
 
-#: pkg/systemd/host.js:694
+#: pkg/systemd/host.js:721
 msgid "failed to list ssh host keys: $0"
+msgstr ""
+
+#: pkg/machines/helpers.es6:120
+msgid "host"
 msgstr ""
 
 #: pkg/storaged/index.html:133
@@ -7086,18 +7262,26 @@ msgstr ""
 msgid "locally in $0"
 msgstr ""
 
-#: pkg/kubernetes/views/route-body.html:14
+#: pkg/machines/helpers.es6:115
+msgid "network"
+msgstr ""
+
+#: pkg/kubernetes/views/route-body.html:14 pkg/machines/vmdiskstab.jsx:174
 msgid "no"
 msgstr ""
 
-#: pkg/kubernetes/views/route-body.html:24
-#: pkg/kubernetes/views/route-body.html:29
 #: pkg/kubernetes/views/node-body.html:33
-#: pkg/kubernetes/views/node-body.html:59 pkg/tuned/dialog.js:104
-#: pkg/docker/run.js:418 pkg/docker/run.js:474 pkg/docker/run.js:528
-#: pkg/docker/run.js:575
+#: pkg/kubernetes/views/node-body.html:59
+#: pkg/kubernetes/views/route-body.html:24
+#: pkg/kubernetes/views/route-body.html:29 pkg/docker/run.js:418
+#: pkg/docker/run.js:474 pkg/docker/run.js:528 pkg/docker/run.js:573
+#: pkg/tuned/dialog.js:104
 msgid "none"
 msgstr "aucun"
+
+#: pkg/machines/libvirt.es6:353
+msgid "other"
+msgstr ""
 
 #: pkg/machines/helpers.es6:105
 msgid "paused"
@@ -7120,11 +7304,11 @@ msgstr "En fonctionnement"
 msgid "search by name, namespace or description"
 msgstr ""
 
-#: pkg/docker/index.html:394
+#: pkg/docker/index.html:397
 msgid "select container"
 msgstr ""
 
-#: pkg/docker/index.html:472 pkg/docker/index.html:643
+#: pkg/docker/index.html:475 pkg/docker/index.html:646
 msgid "shares"
 msgstr ""
 
@@ -7164,11 +7348,15 @@ msgstr ""
 msgid "unknown"
 msgstr ""
 
-#: pkg/storaged/jobs.js:177
+#: pkg/storaged/jobs.js:179
 msgid "unknown target"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:212
+#: pkg/storaged/utils.js:395
+msgid "unpartitioned space on $0"
+msgstr ""
+
+#: pkg/machines/hostvmslist.jsx:259
 msgid "vCPUs:"
 msgstr ""
 
@@ -7176,7 +7364,7 @@ msgstr ""
 msgid "value"
 msgstr ""
 
-#: pkg/kubernetes/views/route-body.html:13
+#: pkg/kubernetes/views/route-body.html:13 pkg/machines/vmdiskstab.jsx:174
 msgid "yes"
 msgstr ""
 
@@ -7185,6 +7373,3 @@ msgid ""
 "{{ condition.message }}. Timestamp: {{ condition.lastTransitionTime }} Error "
 "count: {{ condition.generation }}"
 msgstr ""
-
-#~ msgid "Error while connecting."
-#~ msgstr "Erreur lors de la connexion."

@@ -26,6 +26,8 @@
     require('./kube-client');
     require('./listing');
 
+    require('kubernetes-container-terminal/dist/container-terminal.js');
+
     var phantom_checkpoint = phantom_checkpoint || function () { };
 
     angular.module('kubernetes.containers', [

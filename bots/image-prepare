@@ -67,11 +67,8 @@ def main():
         sys.stderr.write("image-prepare: use of --install-only with --build-only is incompatible\n")
         return 2
 
-    # Default to putting build output in bots directory
-    if "TEST_ATTACHMENTS" in os.environ:
-        results = os.path.join(os.environ["TEST_ATTACHMENTS"], "build-results")
-    else:
-        results = os.path.join(BOTS, "build-results")
+    # Default to putting build output in the TEST_DATA directory
+    results = os.path.join(os.environ.get("TEST_DATA", BASE), "tmp", "build-results")
 
     # Make sure any images are downloaded
     try:

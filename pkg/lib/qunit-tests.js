@@ -21,12 +21,12 @@
     "use strict";
 
     /* QUnit needs to have 'window' as 'this' in order to load */
-    window.QUnit = require("qunit/qunit/qunit.js");
+    window.QUnit = require("qunitjs/qunit/qunit.js");
     window.qunitTap = require("qunit-tap/lib/qunit-tap.js");
 
     require("./qunit-config.js");
 
-    require("qunit/qunit/qunit.css");
+    require("qunitjs/qunit/qunit.css");
 
     module.exports = window.QUnit;
 

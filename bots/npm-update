@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+# To use this example add a line to an issue with the "bot" label
+#
+#  * [ ] npm-update angular
+#
+
+import collections
+import json
+import os
+import random
+import sys
+import subprocess
+
+sys.dont_write_bytecode = True
+
+import task
+
+BOTS = os.path.abspath(os.path.dirname(__file__))
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
+
+def package_json(data=None):
+    package_path = os.path.join(BASE, "package.json")
+    if data is None:
+        with open(package_path, "r") as f:
+            return json.load(f, object_pairs_hook=collections.OrderedDict)
+    else:
+        with open(package_path, "w") as f:
+            json.dump(data, f, indent=2, separators=(',', ': '))
+            f.write("\n")
+
+def map_dict(dependencies, function):
+    items = [ ]
+    for (name, value) in dependencies.items():
+        items.append((name, function(value)))
+    return collections.OrderedDict(items)
+
+def execute(*args):
+    if task.verbose:
+        sys.stderr.write("+ " + " ".join(args) + "\n")
+    subprocess.check_call(args, cwd=BASE)
+
+def run(package, verbose=False, **kwargs):
+    # Force all current dependencies in place
+    execute("npm", "install")
+
+    data = package_json()
+
+    if package:
+        packages = [ package ]
+    else:
+        packages = data["dependencies"].keys()
+        random.shuffle(packages)
+
+    # Add a tilde to all package.json dependencies
+    before = data["dependencies"].copy()
+    data["dependencies"] = map_dict(before, lambda v: v[0].isalpha() and v or "~" + v)
+    package_json(data)
+
+    for package in packages:
+
+        # Run npm upgrade for our package
+        execute("npm", "upgrade", "--save", package)
+
+        # Check if that did an upgrade
+        update = package_json()
+        after = map_dict(update["dependencies"], lambda v: v.strip(" ^~=<>"))
+        if after != before:
+
+            # Write out the cleaned up dependency versions
+            update["dependencies"] = after
+            package_json(update)
+
+            # Create a pull request from these changes
+            title = "package.json: Update {0} package dependency".format(package)
+            branch = task.branch(package, title, pathspec="package.json", **kwargs)
+
+            if branch:
+                kwargs["title"] = title
+                task.pull(branch, **kwargs)
+                break
+
+if __name__ == '__main__':
+    task.main(function=run, title="Upgrade a node dependency")

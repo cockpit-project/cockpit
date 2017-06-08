@@ -21,7 +21,7 @@
     "use strict";
 
     var angular = require('angular');
-    require('angular-bootstrap/ui-bootstrap.js');
+    require('angular-bootstrap-npm/dist/angular-bootstrap.js');
 
     var d3 = require('d3');
 

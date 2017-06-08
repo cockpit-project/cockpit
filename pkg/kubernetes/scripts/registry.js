@@ -23,8 +23,7 @@
     var angular = require('angular');
     require('angular-route');
     require('angular-gettext/dist/angular-gettext.js');
-    require('angular-bootstrap/ui-bootstrap.js');
-    require('angular-bootstrap/ui-bootstrap-tpls.js');
+    require('angular-bootstrap-npm/dist/angular-bootstrap.js');
 
     require('./app');
     require('./date');

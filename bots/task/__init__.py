@@ -198,12 +198,19 @@ def finish(publishing, ret, name, context, issue):
             "resource": api.qualify("issues/{0}".format(number)),
             "data": { "title": issue["title"], "body": checklist.body }
         } ]
+
+        # Close the issue if it's not a pull request, and only one task to do
+        if "pull_request" not in issue and len(checklist.items) == 1:
+            requests[0]["data"]["state"] = "closed"
+
+        # Comment if there was a failure
         if comment:
-            requests.append({
+            requests.insert(0, {
                 "method": "POST",
                 "resource": api.qualify("issues/{0}/comments".format(number)),
                 "data": { "body": comment }
             })
+
     else:
         requests = [ ]
 
@@ -272,8 +279,8 @@ def stale(days, pathspec):
 
     return timestamp < due
 
-def issue(title, body, name, context=None):
-    for issue in api.issues(state="open"):
+def issue(title, body, name, context=None, state="open", after=None):
+    for issue in api.issues(state=state, after=after):
         if issue["title"].endswith(title):
             return issue
 
@@ -352,4 +359,15 @@ def pull(branch, issue=None, **kwargs):
             data["issue"] = int(issue)
     else:
         data["title"] = kwargs["title"]
-    return api.post("pulls", data)
+
+    pull = api.post("pulls", data)
+
+    # Update the issue if it is a dict
+    if issue:
+        try:
+            issue["title"] = kwargs["title"]
+            issue["pull_request"] = { "url": pull["url"] }
+        except TypeError:
+            pass
+
+    return pull

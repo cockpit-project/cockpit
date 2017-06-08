@@ -1,8 +1,8 @@
 #!/usr/bin/python
-# generate debian/copyright from debian/copyright.template and bower_components
+# generate debian/copyright from debian/copyright.template and node_modules
 # Author: Martin Pitt <mpitt@debian.org>
 #
-# bower.json license: format uses https://spdx.org/licenses/ identifiers, which
+# bower.json/package.json license: format uses https://spdx.org/licenses/ identifiers, which
 # are mostly compatible with
 # https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/#license-specification
 
@@ -18,8 +18,8 @@ template_file = os.path.join(debian_dir, 'copyright.template')
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description='Generate debian/copyright file from template and bower_components')
-    p.add_argument('bower_components', help='path to bower_components directory')
+    p = argparse.ArgumentParser(description='Generate debian/copyright file from template and node_modules')
+    p.add_argument('node_modules', help='path to node_modules directory')
     return p.parse_args()
 
 
@@ -156,10 +156,10 @@ with open(template_file) as f:
 
 license_ids = template_licenses(template)
 paragraphs = []
-for module in sorted(os.listdir(args.bower_components)):
+for module in sorted(os.listdir(args.node_modules)):
     if module == 'README':
         continue
-    moddir = os.path.join(args.bower_components, module)
+    moddir = os.path.join(args.node_modules, module)
     license = module_license(moddir)
     if license not in license_ids:
         raise KeyError('%s has license %s which is not in %s' % (module, license, template_file))
@@ -169,7 +169,7 @@ Copyright:%s
 License: %s''' % (moddir, '\n'.join(sorted(copyrights)), license))
 
 for l in template.splitlines():
-    if '#BOWER' in l:
+    if '#NPM' in l:
         print u'\n\n'.join(paragraphs).encode('UTF-8'),
     else:
         print(l)

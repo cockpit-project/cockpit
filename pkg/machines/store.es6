@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import { applyMiddleware, createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux/dist/redux';
 import reducer from './reducers.es6';
 import { thunk } from './middlewares.es6';
 

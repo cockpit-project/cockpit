@@ -26,7 +26,6 @@ And lastly get Webpack and the development dependencies:
 
     $ sudo npm install -g webpack
     $ npm install
-    $ ./node_modules/bower/bin/bower install
 
 When relying on CI to run the test suite, this is all that is
 necessary to work on the JavaScript components of Cockpit.

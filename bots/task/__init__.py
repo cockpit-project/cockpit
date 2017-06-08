@@ -272,8 +272,8 @@ def stale(days, pathspec):
 
     return timestamp < due
 
-def issue(title, body, name, context=None):
-    for issue in api.issues(state="open"):
+def issue(title, body, name, context=None, state="open", after=None):
+    for issue in api.issues(state=state, after=after):
         if issue["title"].endswith(title):
             return issue
 
@@ -350,6 +350,10 @@ def pull(branch, issue=None, **kwargs):
             data["issue"] = issue["number"]
         except TypeError:
             data["issue"] = int(issue)
+
+        # For finish() and other methods
+        issue["title"] = kwargs["title"]
     else:
         data["title"] = kwargs["title"]
+
     return api.post("pulls", data)

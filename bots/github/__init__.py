@@ -277,22 +277,38 @@ class GitHub(object):
                 count = len(pulls)
         return result
 
-    def issues(self, labels=[ "bot" ], state="open"):
+    def issues(self, labels=[ "bot" ], state="open", after=None):
         result = [ ]
         page = 1
         count = 100
         opened = True
         label = ",".join(labels)
         while count == 100 and opened:
-            req = "issues?labels={0}&state={1}&page={2}&per_page={3}".format(label, state, page, count)
+            req = "issues?labels={0}&state=all&page={1}&per_page={2}".format(label, page, count)
             issues = self.get(req)
             count = 0
             page += 1
             opened = False
             for issue in issues:
+                count += 1
+
+                # On each loop of 100 issues we must encounter at least 1 open issue
                 if issue["state"] == "open":
                     opened = True
-                count += 1
+
+                # Make sure the state matches
+                if state != "all" and issue["state"] != state:
+                    continue
+
+                # Check that the issues are past the expected date
+                if after:
+                    closed = issue.get("closed_at", None)
+                    if closed and after > time.strptime(closed, "%Y-%m-%dT%H:%M:%SZ"):
+                        continue
+                    created = issue.get("created_at", None)
+                    if created and after > time.strptime(created, "%Y-%m-%dT%H:%M:%SZ"):
+                        continue
+
                 result.append(issue)
         return result
 

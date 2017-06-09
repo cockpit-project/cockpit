@@ -332,10 +332,10 @@ var ImageSecurity = React.createClass({
         };
 
         if (info.successful === false) {
-            text = _('The scan from $time ($type) was not successful.');
+            text = _("The scan from $time ($type) was not successful.");
 
         } else if (info.vulnerabilities.length === 0) {
-            text = _('The scan from $time ($type) found no vulnerabilities.');
+            text = _("The scan from $time ($type) found no vulnerabilities.");
 
         } else {
             text = cockpit.ngettext('The scan from $time ($type) found one vulnerability:',
@@ -543,14 +543,14 @@ var ImageList = React.createClass({
         var tabs = [];
 
         tabs.push({
-            name: _('Details'),
+            name: _("Details"),
             renderer: ImageDetails,
             data: { image: image }
         });
 
         if (vulnerableInfo !== undefined) {
             tabs.push({
-                name: _('Security'),
+                name: _("Security"),
                 renderer: ImageSecurity,
                 data: {
                     image: image,

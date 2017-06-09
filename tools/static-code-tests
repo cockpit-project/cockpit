@@ -8,7 +8,7 @@ if ! which pyflakes >/dev/null 2>&1; then
     exit 0
 fi
 
-echo "1..2"
+echo "1..3"
 
 cd "${srcdir:-.}"
 
@@ -33,3 +33,14 @@ if [ -n "$out" ]; then
     exit 1
 fi
 echo "ok 2 pyflakes"
+
+#
+# wrongly marked translatable strings
+#
+
+if out=$(find src/ pkg/ -name '*.js' -o -name '*.jsx' -o -name '*.es6' | xargs grep "_('"); then
+    echo 'ERROR: translatable strings must be marked with _("")'
+    echo "$out"
+    exit 1
+fi
+echo "ok 3 js-translatable-strings"

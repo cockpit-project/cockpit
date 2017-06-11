@@ -133,35 +133,72 @@ func (self *Client) fetchVersion(authHeader string) error {
 	return nil
 }
 
+func (self *Client) apiStatus(resource string, auth string) (int, error) {
+	path := fmt.Sprintf("%s/api/%s/%s", self.host, self.version, resource)
+	resp, rErr := doRequest(self.client, "GET", path, auth, nil)
+	if rErr != nil {
+		return 0, errors.New(fmt.Sprintf("Couldn't connect to api: %s", rErr))
+	}
+
+	defer resp.Body.Close()
+	return resp.StatusCode, nil
+}
+
 func (self *Client) guessUserData(creds *Credentials) error {
 	// Do this explictly so that we know we have a valid response
 	// Kubernetes doesn't provide any way for a caller
 	// to find out who it is, so fill in the
 	// user as best we can.
+	creds.DisplayName = creds.UserName
+
 	err := self.fetchVersion(creds.GetHeader())
 	if err != nil {
 		return err
 	}
 
-	// If the API is open make sure we don't have any credentials
-	// so we aren't just saying yes to everything
-	resp, e := self.DoRequest("GET", "api", "", nil, nil)
+	// If we are here we got a version for the api from the /api endpoint,
+	// using the credentials the user gave us.
+	// This happens when either
+	// a) /api is protected and the credentials are correct
+	// or
+	// b) /api is open in which case we have no idea if our creds were correct
+	// So no we issue a request to the the /api API endpoint without any
+	// auth data.
+	// If we get 401 in response then we know our creds were good and we can log the user in.
+	// If we get a 200 or a 403 then we don't know if are creds were correct and we need to
+	// make more calls to figure it out.
+	// Any other code is treated as an error.
+	var e error
+	var status int
+	status, e = self.apiStatus("", "")
+	success := status == 401
 
-	// Treat connection errors as internal errors and invalid
-	// responses as auth errors
-	if e != nil {
-		return errors.New(fmt.Sprintf("Couldn't connect to api: %s", e))
-	}
+	if status == 200 || status == 403 {
+		// Either /api is open or the current user, possibly (system:anonymous)
+		// doesn't have permissions on it
+		// Send a request to the /api/$version/namespaces endpoint with a
+		// Authorization header that is guarenteed to be invalid.
+		// This should return a 200 if the whole api is open or a 401 if the
+		// api is protected.
+		status, e = self.apiStatus("namespaces", "Basic")
 
-	defer resp.Body.Close()
-	if resp.StatusCode != 401 && resp.StatusCode != 403 {
-		if creds.authHeader != "" {
-			return newAuthError(fmt.Sprintf("Couldn't get api version: %s", resp.Status))
+		// Some versions of kubernetes return 403 instead of 401
+		// when presented with bad basic auth data. In those cases
+		// we need to refuse authentication, as we have no way
+		// know if the credentials we have are in fact valid.
+		// https://github.com/kubernetes/kubernetes/pull/41775
+		if status == 403 {
+			e = errors.New("This version of kubernetes is not supported. Turn off anonymous auth or upgrade.")
+		} else if status == 200 || status == 401 {
+			success = true
 		}
 	}
 
-	creds.DisplayName = creds.UserName
-	return nil
+	if !success && e == nil {
+		e = newAuthError(fmt.Sprintf("Couldn't verify authentication with api: %s", status))
+	}
+
+	return e
 }
 
 func (self *Client) fetchUserData(creds *Credentials) error {
@@ -172,14 +209,16 @@ func (self *Client) fetchUserData(creds *Credentials) error {
 
 	defer resp.Body.Close()
 
-	/*
-	 * If we got a 404 and this isn't token auth
-	 * we don't have any way to get a user object
-	 * so just make sure the api isn't open
-	 */
-	if resp.StatusCode == 404 && self.requireOpenshift {
+	// 404 or 403 are both responses we can
+	// get when the oapi/users endpoint doesn't exists
+	notFound := resp.StatusCode == 404 || resp.StatusCode == 403
+	if notFound && self.requireOpenshift {
 		return errors.New("Couldn't connect: Incompatible API")
-	} else if resp.StatusCode == 404 && creds.UserName != "" {
+
+		// This might be kubernetes, it doesn't have a way to
+		// get user data, if we have a username try to
+		// see if we can connect to it anyways
+	} else if notFound && creds.UserName != "" {
 		return self.guessUserData(creds)
 	} else if resp.StatusCode != 200 {
 		return newAuthError(fmt.Sprintf("Couldn't get user data: %s", resp.Status))

@@ -117,12 +117,8 @@ def run(image, verbose=False, **kwargs):
 
     os.environ['VIRT_BUILDER_NO_CACHE'] = "yes"
     ret = subprocess.call(cmd)
-
-    # When image creation fails, remove the link and make a pull
-    # request anyway, for extra attention
-
-    if ret != 0:
-        os.unlink(os.path.join(BOTS, "images", image))
+    if ret:
+        return ret
 
     branch = task.branch(image, "images: Update {0} image".format(image), pathspec="bots/images", **kwargs)
     if branch:

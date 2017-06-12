@@ -26,7 +26,7 @@ const _ = cockpit.gettext;
 
 const Frame = ({ url, containerId }) => {
     return (
-        <iframe src={url} className='machines-console-frame-vnc' frameBorder='0' data-container-id={containerId}>
+        <iframe src={url} className='machines-console-frame-vnc' frameBorder='0' name={containerId} data-container-id={containerId}>
             {_("Your browser does not support iframes.")}
         </iframe>
     );

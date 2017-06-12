@@ -13,7 +13,7 @@ find $1/dist -type f | while read file; do
     # We don't care about these files
     case $file in
     *.png|*.svg|*.gif|*.map|*.woff|*.ttf|*.gz| \
-    *machines/include/logo.js)
+    *machines/include/logo.js|*machines/include/keysymdef.js)
         continue
         ;;
     esac

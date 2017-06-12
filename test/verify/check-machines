@@ -45,7 +45,7 @@ class TestMachines(MachineCase):
     providerVm1_name = "vm1"
     providerVm1_id = "#vm-{0}".format(providerVm1_name)
 
-    def envSetup(self):
+    def envSetup(self, graphics='spice'):
         b = self.browser
         m = self.machine
 
@@ -61,11 +61,11 @@ class TestMachines(MachineCase):
 
         m.execute("qemu-img create -f qcow2 {0} 1G".format(self.vm1_img))
         m.execute("qemu-img create -f qcow2 {0} 2G".format(self.vm1_img2))
-        m.execute("virt-install --cpu host -r 128 --pxe --force --graphics spice,listen=127.0.0.1 --noautoconsole "
+        m.execute("virt-install --cpu host -r 128 --pxe --force --graphics {3},listen=127.0.0.1 --noautoconsole "
                   "--disk path={0},size=1,format=qcow2 --disk path={1},size=2,format=qcow2 "
                   "--boot hd,network "
                   "-n {2} || true"
-                  .format(self.vm1_img, self.vm1_img2, self.vm1_name))
+                  .format(self.vm1_img, self.vm1_img2, self.vm1_name, graphics))
 
         # state == 'running' is expected, but can be 'paused' if the VM creation fails. Anyway, the VM shall be listed at least
         state = m.execute("virsh domstate {0}".format(self.vm1_name)).strip()
@@ -228,9 +228,8 @@ class TestMachines(MachineCase):
         b.wait_present("{0}-last-message".format(self.providerVm1_id))
         b.wait_in_text("{0}-last-message".format(self.providerVm1_id), "VM failed to start")
 
-    def testConsoles(self):
+    def testExternalConsole(self):
         state = self.envSetup()
-
         b = self.browser
 
         if state == "running":
@@ -251,8 +250,28 @@ class TestMachines(MachineCase):
             b.wait_present("#dynamically-generated-file") # is .vv file generated for download?
             self.assertEqual(b.attr("#dynamically-generated-file", "href"), u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
         else:
-            print "WARNING: Test VM creation failed, virt-install finished in 'paused' state. Skipping the 'testConsoles' scenario"
+            print "WARNING: Test VM creation failed, virt-install finished in 'paused' state. Skipping the 'testExternalConsole' scenario"
 
+    def testInlineConsole(self):
+        state = self.envSetup('vnc')
+        b = self.browser
+
+        if state == "running":
+            b.click("tbody tr th") # click on the row header
+            b.wait_present("{0}-state".format(self.vm1_id))
+            b.wait_in_text("{0}-state".format(self.vm1_id), state) # running or paused
+
+            b.wait_present("{0}-consoles".format(self.vm1_id)) # wait for the tab
+            b.click("{0}-consoles".format(self.vm1_id)) # open the "Console" subtab
+
+            # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
+            b.wait_present("iframe.machines-console-frame-vnc")
+            b.switch_to_frame("vm-subVmTest1-novnc-frame-container")
+            # FIXME: the usual b.wait_present() does not  work here
+            b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('noVNC_status_normal') >= 0"))
+            b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('Connected (unencrypted) to: QEMU (subVmTest1)') >= 0"))
+        else:
+            print "WARNING: Test VM creation failed, virt-install finished in 'paused' state. Skipping the 'testInlineConsole' scenario"
 
 if __name__ == '__main__':
     test_main()

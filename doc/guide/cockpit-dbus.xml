@@ -174,7 +174,7 @@ client.close([problem])
   <refsection id="cockpit-dbus-onclose">
     <title>client.onclose</title>
 <programlisting>
-$(client).on("close", function(options) { ... })
+client.addEventListener("close", function(options) { ... })
 </programlisting>
     <para>An event triggered when the DBus client closes. This can happen either because
       <link linkend="cockpit-dbus-close">client.close()</link> function was called,
@@ -187,7 +187,7 @@ $(client).on("close", function(options) { ... })
   <refsection id="cockpit-dbus-onowned">
     <title>client.onowner</title>
 <programlisting>
-$(client).on("owner", function(event, owner) { ... })
+client.addEventListener("owner", function(event, owner) { ... })
 </programlisting>
     <para>An event triggered when the owner of the DBus name changes. The owner
       value will be the id of the name owner on the bus or null if the name
@@ -282,7 +282,7 @@ proxy.Method(arg1, arg2)
       the usual <link linkend="cockpit-dbus-proxy-call"><code>proxy.call()</code></link> directly.</para>
 
 <programlisting>
-$(proxy).on("Signal", function(event, arg1, arg2) {
+proxy.addEventListener("Signal", function(event, arg1, arg2) {
     ...
 });
 </programlisting>
@@ -385,7 +385,7 @@ proxy.wait(function() {
   <refsection id="cockpit-dbus-proxy-onchanged">
     <title>proxy.onchanged</title>
 <programlisting>
-$(proxy).on("changed", function(data) {
+proxy.addEventListener("changed", function(data) {
     ...
 });
 </programlisting>
@@ -405,7 +405,7 @@ $(proxy).on("changed", function(data) {
   <refsection id="cockpit-dbus-proxy-signal">
     <title>proxy.onsignal</title>
 <programlisting>
-$(proxy).on("signal", function(event, name, args) {
+proxy.addEventListener("signal", function(event, name, args) {
     ...
 });
 </programlisting>
@@ -499,7 +499,7 @@ proxies.wait(function() {
   <refsection id="cockpit-dbus-proxies-onadded">
     <title>proxies.onadded</title>
 <programlisting>
-$(proxies).on("added", function(event, proxy) {
+proxies.addEventListener("added", function(event, proxy) {
     ...
 })
 </programlisting>
@@ -510,7 +510,7 @@ $(proxies).on("added", function(event, proxy) {
   <refsection id="cockpit-dbus-proxies-onchanged">
     <title>proxies.onchanged</title>
 <programlisting>
-$(proxies).on("changed", function(event, proxy) {
+proxies.addEventListener("changed", function(event, proxy) {
     ...
 })
 </programlisting>
@@ -521,7 +521,7 @@ $(proxies).on("changed", function(event, proxy) {
   <refsection id="cockpit-dbus-proxies-onremoved">
     <title>proxies.onremoved</title>
 <programlisting>
-$(proxies).on("removed", function(event, proxy) {
+proxies.addEventListener("removed", function(event, proxy) {
     ...
 })
 </programlisting>
@@ -816,7 +816,7 @@ watch.remove()
   <refsection id="cockpit-dbus-onnotify">
     <title>client.onnotify</title>
 <programlisting>
-$(client).on("notify", function(data) { ... })
+client.addEventListener("notify", function(data) { ... })
 </programlisting>
     <para>An event triggered when
       <link linkend="cockpit-dbus-watch">watched</link> properties or interfaces change.</para>

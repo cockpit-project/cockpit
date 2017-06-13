@@ -156,7 +156,7 @@ grid.notify(index, count)
   <refsection id="cockpit-grid-onnotify">
     <title>grid.onnotify</title>
 <programlisting>
-$(grid).on("notify", function(index, count) { ... });
+grid.addEventListener("notify", function(index, count) { ... });
 </programlisting>
 
     <para>An event that is triggered when some part of the series data in grid changes. The

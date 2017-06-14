@@ -326,6 +326,14 @@ html.index-page body {
     display: block !important;
 }
 
+thead.credential-lock.credential-locked > *:first-child {
+    display: table-row !important;
+}
+
+thead.credential-lock.credential-unlocked > *:last-child {
+    display: table-row !important;
+}
+
 @-webkit-keyframes blink {
     0% {
         opacity: 0;
@@ -544,6 +552,7 @@ iframe.container-frame {
     padding-bottom: 1px;
     height: 24px;
     line-height: 24px;
+    display: inline;
 }
 
 table.credential-listing {

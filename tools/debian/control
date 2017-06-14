@@ -48,6 +48,7 @@ Recommends: cockpit-storaged (= ${binary:Version}),
 Suggests: cockpit-doc (= ${binary:Version}),
           cockpit-pcp (>= ${source:Version}),
           cockpit-docker (= ${binary:Version}),
+          cockpit-packagekit (>= ${source:Version}),
           xdg-utils,
 Description: User interface for Linux servers
  Cockpit runs in a browser and can manage your network of GNU/Linux
@@ -114,6 +115,14 @@ Depends: ${misc:Depends},
          pcp
 Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
+
+Package: cockpit-packagekit
+Architecture: all
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${bridge:minversion}),
+         packagekit
+Description: Cockpit user interface for package updates
+ The Cockpit component for installing package updates, via PackageKit.
 
 Package: cockpit-storaged
 Architecture: all

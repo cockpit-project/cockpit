@@ -93,6 +93,7 @@ Recommends: %{name}-docker = %{version}-%{release}
 Suggests: %{name}-pcp = %{version}-%{release}
 Suggests: %{name}-kubernetes = %{version}-%{release}
 Suggests: %{name}-selinux = %{version}-%{release}
+Suggests: %{name}-packagekit = %{version}-%{release}
 
 %endif
 
@@ -200,6 +201,9 @@ find %{buildroot}%{_datadir}/%{name}/networkmanager -type f >> networkmanager.li
 
 echo '%dir %{_datadir}/%{name}/ostree' > ostree.list
 find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
+
+echo '%dir %{_datadir}/%{name}/packagekit' >> packagekit.list
+find %{buildroot}%{_datadir}/%{name}/packagekit -type f >> packagekit.list
 
 echo '%dir %{_datadir}/%{name}/machines' > machines.list
 find %{buildroot}%{_datadir}/%{name}/machines -type f >> machines.list
@@ -632,6 +636,16 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %{_libexecdir}/cockpit-kube-launch
 %{_libexecdir}/cockpit-stub
 %endif
+
+%package packagekit
+Summary: Cockpit user interface for package updates
+Requires: %{name}-bridge >= %{required_base}
+Requires: PackageKit
+
+%description packagekit
+The Cockpit component for installing package updates, via PackageKit.
+
+%files packagekit -f packagekit.list
 
 # The changelog is automatically generated and merged
 %changelog

@@ -1,0 +1,84 @@
+/* override default cockpit CSS, as this doesn't fit our table */
+table.listing-ct thead th:last-child {
+    text-align: left;
+}
+
+tr.listing-ct-item td:last-child {
+    text-align: left;
+}
+
+tr.listing-ct-item th {
+    vertical-align: top;
+}
+
+tr.listing-ct-item td {
+    vertical-align: top;
+}
+
+tr.listing-ct-item td.narrow {
+    max-width: 18ex;
+    word-wrap: break-word;
+}
+
+tr.listing-ct-item td.changelog {
+    white-space: pre-wrap;
+}
+
+tr.security {
+    background-color: #fbf0f0;
+}
+
+.security-label {
+    color: darkred;
+}
+
+.security-label-text {
+    color: darkred;
+    font-weight: 600;
+}
+
+/* don't let the install progress bar get too wide */
+.progress {
+    max-width: 60rem;
+}
+
+/* stolen from pkg/systemd/host.css */
+.content-header-extra {
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 20px;
+    width: 100%;
+    position: fixed;
+    z-index: 900;
+    top: 0;
+}
+
+.container-fluid {
+    margin-top: 5em;
+}
+
+/* http://www.patternfly.org/pattern-library/communication/empty-state/ has a
+ * gray background which we don't want here */
+
+.blank-slate-pf {
+    background: inherit;
+    border: none;
+}
+
+/* Layout fix for tooltip arrows.
+ *
+ * Sometimes when there are non-integer coordinates involved
+ * somewhere, rounding seems to make it so that there is a visible one
+ * pixel gap between tooltip-inner and tooltip-arrow.  We avoid that
+ * gap by letting the arrow and inner parts overlap by one pixel.
+ *
+ * This happens within the caption of the content listing.
+ */
+
+.tooltip.top .tooltip-arrow {
+    bottom: 1px;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    top: 1px;
+}

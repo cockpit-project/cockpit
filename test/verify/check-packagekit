@@ -37,11 +37,10 @@ class TestUpdates(MachineCase):
         # have PackageKit start from a clean slate
         self.machine.execute("systemctl stop packagekit; rm -rf /var/cache/PackageKit")
 
-        if self.machine.image == "ubuntu-1604":
-            # old PackageKit+NM on Ubuntu 16.04 misdetects online status with ifupdown; work around
-            # https://launchpad.net/bugs/1694438; this doesn't affect pure ifupdown systems (servers) and
-            # pure NM systems (desktops)
-            self.machine.execute("sed -i '/managed=/ s/false/true/' /etc/NetworkManager/NetworkManager.conf; systemctl restart NetworkManager")
+        # PackageKit refuses to operate when being offline (as on our test images); it's hard to fake
+        # NetworkManager's "is online" state, so disable it and let PackageKit fall back to the "unix"
+        # network stack; add a bogus default route to coerce it into being "online".
+        self.machine.execute("systemctl stop NetworkManager; ip route add default via 172.27.0.1 dev eth0")
 
         self.updateInfo = {}
 

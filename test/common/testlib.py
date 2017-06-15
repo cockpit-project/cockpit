@@ -626,6 +626,10 @@ class MachineCase(unittest.TestCase):
         'Error was encountered while opening journal files:.*',
         'Failed to get data: Cannot assign requested address',
 
+        # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1461893
+        # selinux errors while logging in via ssh
+        'type=1401 audit(.*): op=security_compute_av reason=bounds .* tclass=process perms=transition.*',
+
         # Various operating systems see this from time to time
         "Journal file.*truncated, ignoring file.",
     ]

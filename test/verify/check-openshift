@@ -1039,7 +1039,7 @@ class TestRegistry(MachineCase):
 
         # .. and also on the image page
         b.go("#/images/marmalade/origin")
-        b.wait_in_text("body", "push an image to this image stream")
+        b.wait_in_text("body", "push to an image to this image stream")
         b.wait_in_text("body", "docker tag")
         b.wait_in_text("body", "docker push")
         b.wait_visible('.registry-imagestream-push')

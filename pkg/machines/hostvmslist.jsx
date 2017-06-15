@@ -427,6 +427,7 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
         : name;
 
     return (<ListingRow
+        rowId={`${vmId(vm.name)}`}
         columns={[
             {name: rowName, 'header': true},
             rephraseUI('connections', vm.connectionName),

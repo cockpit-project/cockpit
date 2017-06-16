@@ -85,6 +85,16 @@
 <programlisting>
 $ sudo remotectl certificate
 </programlisting>
+
+    <para>If using <literal>certmonger</literal> to manage certificates, following command can
+      be used to automatically prepare concatenated <literal>.cert</literal> file:</para>
+<programlisting>
+CERT_FILE=/etc/pki/tls/certs/$(hostname).pem
+KEY_FILE=/etc/pki/tls/private/$(hostname).key
+
+getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n w/etc/cockpit/ws-certs.d/50-from-certmonger.cert ${CERT_FILE} ${KEY_FILE}"
+</programlisting>
+
   </refsect1>
 
   <refsect1 id="cockpit-ws-timeout">

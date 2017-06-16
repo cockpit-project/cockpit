@@ -565,6 +565,7 @@ make_bridge_configs (const gchar *payload, ...)
       payload = va_arg (ap, const gchar *);
     }
 
+  va_end (ap);
   return g_list_reverse (configs);
 }
 

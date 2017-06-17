@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-07 07:42+0000\n"
+"POT-Creation-Date: 2017-06-17 19:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -117,6 +117,12 @@ msgid_plural "$0 hours"
 msgstr[0] "$0 heure"
 msgstr[1] "$0 heures"
 
+#: pkg/machines/components/desktopConsole.jsx:43
+msgid ""
+"$0 is available for most operating systems. To install it, search for it in "
+"GNOME Software or run the following:"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
 #: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
 #: pkg/storaged/format-dialog.jsx:117
@@ -153,17 +159,23 @@ msgstr[1] "$0 occurrences"
 msgid "$0 of $1"
 msgstr "$0 de $1"
 
-#: pkg/ostree/app.js:471
+#: pkg/ostree/app.js:470
 msgid "$0 package"
 msgstr "$0 paquet"
 
-#: pkg/ostree/app.js:471
+#: pkg/ostree/app.js:470
 msgid "$0 packages"
 msgstr "$0 paquets"
 
 #: pkg/docker/util.js:123
 msgid "$0 shares"
 msgstr "$0 partages"
+
+#: pkg/packagekit/updates.jsx:100
+msgid "$0 update"
+msgid_plural "$0 updates"
+msgstr[0] ""
+msgstr[1] ""
 
 #: pkg/lib/plot.js:887
 msgid "$0 week"
@@ -225,6 +237,12 @@ msgstr "(défaut)"
 #: pkg/storaged/crypto-tab.jsx:138
 msgid "(none)"
 msgstr "(aucun)"
+
+#: pkg/packagekit/updates.jsx:105
+msgid ", including $1 security fix"
+msgid_plural ", including $1 security fixes"
+msgstr[0] ""
+msgstr[1] ""
 
 #: pkg/ostree/index.html:92
 #, fuzzy
@@ -538,7 +556,7 @@ msgid "Access Modes"
 msgstr "Modes d'accès"
 
 #: pkg/kubernetes/views/project-modify.html:49
-#: bower_components/registry-image-widgets/views/imagestream-body.html:12
+#: node_modules/registry-image-widgets/views/imagestream-body.html:12
 msgid "Access Policy"
 msgstr "Politique d'accès"
 
@@ -758,6 +776,10 @@ msgstr "Adresse"
 msgid "Address $val"
 msgstr ""
 
+#: pkg/machines/components/desktopConsole.jsx:156
+msgid "Address:"
+msgstr ""
+
 #: pkg/kubernetes/views/details-page.html:37
 #: pkg/networkmanager/interfaces.js:3178
 msgid "Addresses"
@@ -841,8 +863,8 @@ msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:57
 #: pkg/kubernetes/views/route-body.html:27
-#: bower_components/registry-image-widgets/views/image-meta.html:9
-#: bower_components/registry-image-widgets/views/imagestream-meta.html:2
+#: node_modules/registry-image-widgets/views/image-meta.html:9
+#: node_modules/registry-image-widgets/views/imagestream-meta.html:2
 msgid "Annotations"
 msgstr ""
 
@@ -869,7 +891,15 @@ msgstr ""
 msgid "Applying solution..."
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-config.html:16
+#: pkg/packagekit/updates.jsx:33
+msgid "Applying updates"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:34
+msgid "Applying updates failed"
+msgstr ""
+
+#: node_modules/registry-image-widgets/views/image-config.html:16
 #: pkg/subscriptions/subscriptions-view.jsx:35
 msgid "Architecture"
 msgstr ""
@@ -939,7 +969,7 @@ msgid "Authentication required"
 msgstr ""
 
 #: pkg/docker/index.html:689 pkg/kubernetes/views/image-listing.html:15
-#: bower_components/registry-image-widgets/views/image-body.html:12
+#: node_modules/registry-image-widgets/views/image-body.html:12
 #: pkg/docker/containers-view.jsx:316
 msgid "Author"
 msgstr "Auteur"
@@ -971,13 +1001,17 @@ msgstr ""
 msgid "Automatically using specific NTP servers"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:276
+#: pkg/machines/hostvmslist.jsx:281
 msgid "Autostart:"
 msgstr ""
 
 #: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
-#: pkg/machines/hostvmslist.jsx:311 pkg/machines/hostvmslist.jsx:322
+#: pkg/machines/hostvmslist.jsx:316 pkg/machines/hostvmslist.jsx:327
 msgid "Available"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:505
+msgid "Available Packages"
 msgstr ""
 
 #: pkg/storaged/overview.js:624
@@ -1038,7 +1072,7 @@ msgstr "Réglages de la liaison d'interfaces"
 msgid "Boot ID"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:239
+#: pkg/machines/hostvmslist.jsx:244
 msgid "Boot Order:"
 msgstr ""
 
@@ -1067,7 +1101,11 @@ msgstr "Broadcast"
 msgid "Broken configuration"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-body.html:16
+#: pkg/packagekit/updates.jsx:204
+msgid "Bugs"
+msgstr ""
+
+#: node_modules/registry-image-widgets/views/image-body.html:16
 msgid "Built"
 msgstr ""
 
@@ -1087,7 +1125,7 @@ msgctxt "page-title"
 msgid "CPU Status"
 msgstr "État du CPU"
 
-#: pkg/machines/hostvmslist.jsx:268
+#: pkg/machines/hostvmslist.jsx:273
 msgid "CPU Type:"
 msgstr ""
 
@@ -1157,10 +1195,10 @@ msgstr ""
 #: pkg/realmd/operation.html:91 pkg/shell/index.html:135
 #: pkg/shell/simple.html:100 pkg/shell/stub.html:113
 #: pkg/storaged/index.html:287 pkg/storaged/index.html:847
-#: pkg/systemd/index.html:341 pkg/systemd/index.html:428
-#: pkg/systemd/index.html:480 pkg/systemd/index.html:496
-#: pkg/systemd/services.html:464 pkg/users/index.html:210
-#: pkg/users/index.html:271 pkg/users/index.html:295 pkg/users/index.html:352
+#: pkg/systemd/services.html:464 pkg/systemd/index.html:341
+#: pkg/systemd/index.html:428 pkg/systemd/index.html:480
+#: pkg/systemd/index.html:496 pkg/users/index.html:210 pkg/users/index.html:271
+#: pkg/users/index.html:295 pkg/users/index.html:352
 #: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "Annuler"
@@ -1298,7 +1336,7 @@ msgstr ""
 msgid "Checking for public keys"
 msgstr ""
 
-#: pkg/ostree/app.js:315
+#: pkg/ostree/app.js:314
 msgid "Checking for updates"
 msgstr ""
 
@@ -1322,8 +1360,17 @@ msgstr ""
 msgid "Claim Name"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:52
+msgid "Cleaning up"
+msgstr ""
+
 #: pkg/storaged/jobs.js:134
 msgid "Cleaning up for $target"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:40
+msgid ""
+"Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr ""
 
 #: pkg/kubernetes/views/auth-form.html:88
@@ -1336,8 +1383,8 @@ msgstr ""
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:296 pkg/shell/simple.html:82
 #: pkg/shell/stub.html:130 pkg/storaged/index.html:637
-#: pkg/storaged/index.html:852 pkg/systemd/index.html:287
-#: pkg/systemd/services.html:305 pkg/systemd/services.html:323
+#: pkg/storaged/index.html:852 pkg/systemd/services.html:305
+#: pkg/systemd/services.html:323 pkg/systemd/index.html:287
 #: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "Fermer"
@@ -1370,7 +1417,7 @@ msgstr ""
 msgid "Cockpit could not contact the given host."
 msgstr ""
 
-#: pkg/shell/base_index.js:704
+#: pkg/shell/base_index.js:728
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1413,6 +1460,10 @@ msgid ""
 "stopping services. You can monitor and administer several servers at the "
 "same time. Just add them with a single click and your machines will look "
 "after its buddies."
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:526
+msgid "Cockpit itself will be updated."
 msgstr ""
 
 #: pkg/lib/machine-change-port.html:9
@@ -1469,7 +1520,7 @@ msgid "Command can't be empty"
 msgstr ""
 
 #: pkg/docker/index.html:161
-#: bower_components/registry-image-widgets/views/image-config.html:2
+#: node_modules/registry-image-widgets/views/image-config.html:2
 msgid "Command:"
 msgstr ""
 
@@ -1566,6 +1617,18 @@ msgstr "Connexion automatique"
 msgid "Connect to"
 msgstr ""
 
+#: pkg/machines/components/desktopConsole.jsx:128
+msgid "Connect with Remote Viewer"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:191
+msgid "Connect with any $0 viewer application."
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:188
+msgid "Connect with any SPICE or VNC viewer application."
+msgstr ""
+
 #: pkg/lib/machine-add.html:39
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
@@ -1591,7 +1654,7 @@ msgstr "Connexion à la machine"
 msgid "Connecting..."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:416
+#: pkg/machines/hostvmslist.jsx:426
 #, fuzzy
 msgid "Connection"
 msgstr "Reconnecter"
@@ -1614,6 +1677,10 @@ msgstr ""
 
 #: pkg/networkmanager/index.html:842
 msgid "Connection will be lost"
+msgstr ""
+
+#: pkg/machines/hostvmslist.jsx:368
+msgid "Console"
 msgstr ""
 
 #: pkg/docker/console.html:4 pkg/kubernetes/views/container-body.html:4
@@ -1769,8 +1836,8 @@ msgstr ""
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:211
-#: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
-#: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
+#: pkg/storaged/lvol-tabs.jsx:132 pkg/storaged/content-views.jsx:120
+#: pkg/storaged/content-views.jsx:712 pkg/storaged/details.jsx:133
 #: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
 msgid "Create"
 msgstr "Créer"
@@ -1917,7 +1984,7 @@ msgstr ""
 msgid "Currently using:"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:184 pkg/storaged/fsys-tab.jsx:126
+#: pkg/storaged/fsys-tab.jsx:126 pkg/storaged/format-dialog.jsx:184
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -1975,8 +2042,8 @@ msgstr ""
 
 #: pkg/docker/index.html:350 pkg/docker/index.html:354
 #: pkg/ostree/index.html:253
-#: bower_components/registry-image-widgets/views/image-config.html:10
-#: pkg/storaged/format-dialog.jsx:183 pkg/storaged/fsys-tab.jsx:125
+#: node_modules/registry-image-widgets/views/image-config.html:10
+#: pkg/storaged/fsys-tab.jsx:125 pkg/storaged/format-dialog.jsx:183
 #: pkg/subscriptions/subscriptions-register.jsx:101
 msgid "Default"
 msgstr "Par défaut"
@@ -2128,15 +2195,15 @@ msgstr ""
 #: pkg/kubernetes/views/project-listing.html:15
 #: pkg/kubernetes/views/project-listing.html:54
 #: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:355
-#: bower_components/registry-image-widgets/views/image-body.html:6
+#: node_modules/registry-image-widgets/views/image-body.html:6
 #: pkg/systemd/init.js:270
 msgid "Description"
 msgstr ""
 
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
-#: pkg/docker/containers-view.jsx:416
-#: pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:205
 msgid "Details"
 msgstr ""
 
@@ -2163,12 +2230,12 @@ msgstr ""
 msgid "Diagnostic reports"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-body.html:20
+#: node_modules/registry-image-widgets/views/image-body.html:20
 msgid "Digest"
 msgstr ""
 
 #: pkg/kubernetes/views/volume-body.html:28
-#: bower_components/registry-image-widgets/views/image-config.html:11
+#: node_modules/registry-image-widgets/views/image-config.html:11
 #: pkg/kdump/kdump-view.jsx:85
 msgid "Directory"
 msgstr ""
@@ -2209,7 +2276,7 @@ msgstr ""
 msgid "Disk is OK"
 msgstr "Le disque est OK"
 
-#: pkg/machines/hostvmslist.jsx:365 pkg/storaged/overview.js:449
+#: pkg/machines/hostvmslist.jsx:367 pkg/storaged/overview.js:449
 #: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
 #: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
 msgid "Disks"
@@ -2263,7 +2330,7 @@ msgid ""
 "fields.member.metadata.name }}?"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-meta.html:11
+#: node_modules/registry-image-widgets/views/image-meta.html:11
 #, fuzzy
 msgid "Docker Version"
 msgstr "Version"
@@ -2324,6 +2391,14 @@ msgstr ""
 msgid "Download report"
 msgstr ""
 
+#: pkg/machines/components/desktopConsole.jsx:46
+msgid "Download the MSI from $0"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:49
+msgid "Downloading"
+msgstr ""
+
 #: pkg/storaged/index.html:409 pkg/docker/storage.jsx:161
 msgid "Drive"
 msgstr "Disque"
@@ -2357,7 +2432,7 @@ msgstr ""
 msgid "Edit Server"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-body.html:7
+#: node_modules/registry-image-widgets/views/imagestream-body.html:7
 msgid "Edit image stream"
 msgstr ""
 
@@ -2384,7 +2459,7 @@ msgstr ""
 msgid "Emptying $target"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:266
+#: pkg/machines/hostvmslist.jsx:271
 msgid "Emulated Machine:"
 msgstr ""
 
@@ -2473,7 +2548,7 @@ msgid "Entrypoint"
 msgstr ""
 
 #: pkg/docker/index.html:518 pkg/kubernetes/views/container-body.html:26
-#: bower_components/registry-image-widgets/views/image-config.html:21
+#: node_modules/registry-image-widgets/views/image-config.html:21
 msgid "Environment"
 msgstr ""
 
@@ -2689,11 +2764,11 @@ msgstr ""
 msgid "Force Delete"
 msgstr "Forcer la suppression"
 
-#: pkg/machines/hostvmslist.jsx:53
+#: pkg/machines/hostvmslist.jsx:54
 msgid "Force Restart"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:68
+#: pkg/machines/hostvmslist.jsx:69
 msgid "Force Shut Down"
 msgstr ""
 
@@ -2925,7 +3000,7 @@ msgstr "Id $id"
 msgid "Id:"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-body.html:22
+#: node_modules/registry-image-widgets/views/image-body.html:22
 msgid "Identifier"
 msgstr ""
 
@@ -2980,7 +3055,7 @@ msgstr ""
 msgid "Image commands"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-body.html:34
+#: node_modules/registry-image-widgets/views/imagestream-body.html:34
 #, fuzzy
 msgid "Image count"
 msgstr "Image $0"
@@ -2990,10 +3065,9 @@ msgid "Image:"
 msgstr ""
 
 #: pkg/kubernetes/views/image-listing.html:9
-#: pkg/kubernetes/views/imagestream-page.html:24
 #: pkg/kubernetes/views/registry-dashboard-page.html:19
-#: pkg/kubernetes/index.html:78 pkg/kubernetes/registry.html:49
-#: pkg/docker/containers-view.jsx:615
+#: pkg/kubernetes/views/imagestream-page.html:24 pkg/kubernetes/index.html:78
+#: pkg/kubernetes/registry.html:49 pkg/docker/containers-view.jsx:615
 msgid "Images"
 msgstr ""
 
@@ -3011,15 +3085,15 @@ msgstr ""
 msgid "Images by project"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-body.html:15
+#: node_modules/registry-image-widgets/views/imagestream-body.html:15
 msgid "Images may be pulled by anonymous users"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-body.html:19
+#: node_modules/registry-image-widgets/views/imagestream-body.html:19
 msgid "Images may be pulled by any authenticated user or group"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-body.html:23
+#: node_modules/registry-image-widgets/views/imagestream-body.html:23
 msgid "Images may only be pulled by specific users or groups"
 msgstr ""
 
@@ -3065,12 +3139,28 @@ msgstr ""
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:243
+msgid "Initializing..."
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:517
+msgid "Install all updates"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:510
+msgid "Install security updates"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:222
 msgid "Installed products"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:50
+msgid "Installing"
 msgstr ""
 
 #: pkg/systemd/services.html:135
@@ -3107,11 +3197,11 @@ msgstr "Port invalide"
 msgid "Invalid credentials"
 msgstr ""
 
-#: pkg/systemd/host.js:1255 pkg/systemd/shutdown.js:142
+#: pkg/systemd/shutdown.js:142 pkg/systemd/host.js:1255
 msgid "Invalid date format"
 msgstr "Format de date invalide"
 
-#: pkg/systemd/host.js:1251 pkg/systemd/shutdown.js:138
+#: pkg/systemd/shutdown.js:138 pkg/systemd/host.js:1251
 msgid "Invalid date format and invalid time format"
 msgstr "Formats de date et d'heure invalides"
 
@@ -3150,7 +3240,7 @@ msgstr "Port invalide"
 msgid "Invalid prefix or netmask $0"
 msgstr "Port invalide"
 
-#: pkg/systemd/host.js:1253 pkg/systemd/shutdown.js:140
+#: pkg/systemd/shutdown.js:140 pkg/systemd/host.js:1253
 msgid "Invalid time format"
 msgstr "Format d'heure invalide"
 
@@ -3251,7 +3341,7 @@ msgstr ""
 #: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/route-body.html:22
 #: pkg/kubernetes/views/service-body.html:26
-#: bower_components/registry-image-widgets/views/image-meta.html:3
+#: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr ""
 
@@ -3283,9 +3373,17 @@ msgstr ""
 msgid "Last Updated"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:115
+msgid "Last checked: $0 ago"
+msgstr ""
+
 #: pkg/kubernetes/views/deploymentconfig-body.html:15
 #: pkg/kubernetes/views/details-page.html:107
 msgid "Latest Version"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:131
+msgid "Launch Remote Viewer"
 msgstr ""
 
 #: pkg/realmd/operation.js:102
@@ -3354,6 +3452,14 @@ msgstr ""
 #: pkg/systemd/logs.js:69
 msgid "Load earlier entries"
 msgstr "Charger des entrées antérieures"
+
+#: pkg/packagekit/updates.jsx:35
+msgid "Loading available updates failed"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:30
+msgid "Loading available updates, please wait..."
+msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:75 pkg/systemd/logs.js:90
 #: pkg/systemd/logs.js:134 pkg/systemd/logs.js:175
@@ -3525,6 +3631,10 @@ msgstr ""
 msgid "Manual"
 msgstr "Manuel"
 
+#: pkg/machines/components/desktopConsole.jsx:196
+msgid "Manual Connection"
+msgstr ""
+
 #: pkg/systemd/index.html:393 pkg/systemd/index.html:397
 msgid "Manually"
 msgstr ""
@@ -3602,7 +3712,7 @@ msgstr "Limite en mémoire"
 msgid "Memory usage:"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:257
+#: pkg/machines/hostvmslist.jsx:262
 msgid "Memory:"
 msgstr ""
 
@@ -3674,6 +3784,11 @@ msgstr ""
 msgid "More"
 msgstr "Plus"
 
+#: pkg/machines/components/desktopConsole.jsx:104
+#: pkg/machines/components/desktopConsole.jsx:112
+msgid "More Information"
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:447
 msgid "More details"
 msgstr ""
@@ -3687,13 +3802,13 @@ msgstr "Monter"
 msgid "Mount Location"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:195 pkg/storaged/fsys-tab.jsx:137
-#: pkg/storaged/fsys-tab.jsx:199
+#: pkg/storaged/fsys-tab.jsx:137 pkg/storaged/fsys-tab.jsx:199
+#: pkg/storaged/format-dialog.jsx:195
 msgid "Mount Options"
 msgstr "Options de montage"
 
-#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:189
-#: pkg/storaged/fsys-tab.jsx:130 pkg/storaged/fsys-tab.jsx:182
+#: pkg/storaged/index.html:229 pkg/storaged/fsys-tab.jsx:130
+#: pkg/storaged/fsys-tab.jsx:182 pkg/storaged/format-dialog.jsx:189
 msgid "Mount Point"
 msgstr "Point de montage"
 
@@ -3705,7 +3820,7 @@ msgstr ""
 msgid "Mounted At"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:181 pkg/storaged/fsys-tab.jsx:123
+#: pkg/storaged/fsys-tab.jsx:123 pkg/storaged/format-dialog.jsx:181
 msgid "Mounting"
 msgstr "Montage"
 
@@ -3765,16 +3880,17 @@ msgstr "Serveur NTP"
 #: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
 #: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
 #: pkg/ostree/index.html:99 pkg/storaged/index.html:228
-#: bower_components/registry-image-widgets/views/image-body.html:2
+#: node_modules/registry-image-widgets/views/image-body.html:2
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:416 pkg/storaged/content-views.jsx:107
-#: pkg/storaged/content-views.jsx:661 pkg/storaged/details.jsx:127
-#: pkg/storaged/format-dialog.jsx:147 pkg/storaged/fsys-tab.jsx:71
+#: pkg/machines/hostvmslist.jsx:426 pkg/storaged/fsys-tab.jsx:71
 #: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
-#: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/overview.js:418
-#: pkg/storaged/overview.js:493 pkg/storaged/overview.js:629
-#: pkg/storaged/overview.js:707 pkg/storaged/part-tab.jsx:37
+#: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
+#: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
+#: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
+#: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
+#: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
+#: pkg/packagekit/updates.jsx:202
 msgid "Name"
 msgstr "Nom"
 
@@ -3905,7 +4021,7 @@ msgstr "Aucun système de fichiers"
 msgid "No Logical Volumes"
 msgstr ""
 
-#: pkg/ostree/app.js:108
+#: pkg/ostree/app.js:107
 msgid "No OSTree deployments found"
 msgstr ""
 
@@ -3925,7 +4041,7 @@ msgstr ""
 msgid "No SELinux alerts."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:35
+#: pkg/machines/hostvmslist.jsx:36
 msgid "No VM is running or defined on this host"
 msgstr ""
 
@@ -3945,7 +4061,7 @@ msgstr "Aucun alias indiqué"
 msgid "No archive has been created."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:233
+#: pkg/machines/hostvmslist.jsx:238
 msgid "No boot device found"
 msgstr ""
 
@@ -3990,6 +4106,10 @@ msgstr ""
 
 #: pkg/storaged/content-views.jsx:723
 msgid "No free space"
+msgstr ""
+
+#: pkg/machines/components/graphicsConsole.jsx:32
+msgid "No graphics console is defined for this virtual machine."
 msgstr ""
 
 #: pkg/kubernetes/views/project-listing.html:74
@@ -4098,6 +4218,10 @@ msgstr ""
 msgid "No such file or directory"
 msgstr "Fichier ou répertoire introuvable"
 
+#: pkg/packagekit/updates.jsx:32
+msgid "No updates pending"
+msgstr ""
+
 #: pkg/users/local.js:416
 msgid "No user name specified"
 msgstr "Aucun nom d'utilisateur indiqué."
@@ -4137,8 +4261,8 @@ msgstr ""
 
 #: pkg/kubernetes/views/pod-page.html:27 pkg/kubernetes/views/pod-panel.html:53
 #: pkg/kubernetes/views/service-body.html:15
-#: bower_components/registry-image-widgets/views/image-config.html:29
-#: bower_components/registry-image-widgets/views/imagestream-body.html:33
+#: node_modules/registry-image-widgets/views/image-config.html:29
+#: node_modules/registry-image-widgets/views/imagestream-body.html:33
 #: pkg/kdump/kdump-view.jsx:418 pkg/tuned/dialog.js:231
 msgid "None"
 msgstr "Aucun(e)"
@@ -4165,7 +4289,7 @@ msgstr ""
 msgid "Not authorized to access Docker on this system"
 msgstr "Vous n'êtes pas autorisé à accéder à Docker sur ce système"
 
-#: pkg/ostree/app.js:87
+#: pkg/ostree/app.js:86
 msgid "Not authorized to update software on this system"
 msgstr ""
 
@@ -4218,7 +4342,7 @@ msgstr ""
 msgid "OS Versions"
 msgstr ""
 
-#: pkg/ostree/app.js:89
+#: pkg/ostree/app.js:88
 msgid "OSTree is not available on this system"
 msgstr ""
 
@@ -4256,7 +4380,7 @@ msgstr "Refus de l'ancien mot de passe "
 msgid "On"
 msgstr "Allumé"
 
-#: bower_components/registry-image-widgets/views/image-meta.html:7
+#: node_modules/registry-image-widgets/views/image-meta.html:7
 msgid "On Build"
 msgstr ""
 
@@ -4331,7 +4455,7 @@ msgid "Other Options"
 msgstr ""
 
 #: pkg/docker/index.html:290 pkg/kubernetes/index.html:40
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:363
+#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:371
 msgid "Overview"
 msgstr ""
 
@@ -4341,6 +4465,18 @@ msgstr "Écraser les données existantes avec des zéros"
 
 #: pkg/kubernetes/views/volume-body.html:4
 msgid "PD Name"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:313
+msgid "PackageKit crashed"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:311 pkg/packagekit/updates.jsx:422
+msgid "PackageKit is not installed"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:455
+msgid "PackageKit reported error code {0}"
 msgstr ""
 
 #: pkg/ostree/index.html:266
@@ -4564,6 +4700,10 @@ msgstr ""
 msgid "Please select a valid policy option."
 msgstr ""
 
+#: pkg/machines/components/graphicsConsole.jsx:41
+msgid "Please start the virtual machine to access its graphics console."
+msgstr ""
+
 #: pkg/docker/search.js:150
 msgid "Please try another term"
 msgstr ""
@@ -4643,7 +4783,7 @@ msgstr ""
 #: pkg/docker/index.html:496 pkg/kubernetes/views/container-body.html:12
 #: pkg/kubernetes/views/service-body.html:13 pkg/networkmanager/index.html:216
 #: pkg/networkmanager/index.html:415
-#: bower_components/registry-image-widgets/views/image-config.html:27
+#: node_modules/registry-image-widgets/views/image-config.html:27
 #: pkg/docker/containers-view.jsx:317 pkg/networkmanager/interfaces.js:2870
 msgid "Ports"
 msgstr "Ports"
@@ -4798,7 +4938,7 @@ msgstr ""
 msgid "Pull from"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-body.html:31
+#: node_modules/registry-image-widgets/views/imagestream-body.html:31
 #, fuzzy
 msgid "Pull repository"
 msgstr "Dépôt"
@@ -5153,7 +5293,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr ""
 
-#: pkg/storaged/details.jsx:382 pkg/storaged/lvol-tabs.jsx:44
+#: pkg/storaged/lvol-tabs.jsx:44 pkg/storaged/details.jsx:382
 msgid "Rename"
 msgstr "Renommer"
 
@@ -5269,8 +5409,8 @@ msgstr ""
 
 #: pkg/docker/index.html:134 pkg/systemd/index.html:136
 #: pkg/systemd/index.html:143 pkg/docker/containers-view.jsx:239
-#: pkg/machines/hostvmslist.jsx:49 pkg/systemd/init.js:515
-#: pkg/systemd/shutdown.js:96 pkg/systemd/shutdown.js:97
+#: pkg/machines/hostvmslist.jsx:50 pkg/systemd/shutdown.js:96
+#: pkg/systemd/shutdown.js:97 pkg/systemd/init.js:515
 msgid "Restart"
 msgstr "Redémarrer"
 
@@ -5340,7 +5480,7 @@ msgid "Routes"
 msgstr "Routes"
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
-#: pkg/systemd/services.html:383 pkg/machines/hostvmslist.jsx:78
+#: pkg/systemd/services.html:383 pkg/machines/hostvmslist.jsx:79
 msgid "Run"
 msgstr ""
 
@@ -5348,7 +5488,7 @@ msgstr ""
 msgid "Run Image"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-config.html:8
+#: node_modules/registry-image-widgets/views/image-config.html:8
 msgid "Run as"
 msgstr ""
 
@@ -5386,6 +5526,22 @@ msgstr ""
 
 #: pkg/storaged/jobs.js:118
 msgid "SMART self-test of $target"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:190
+msgid "SPICE"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:159
+msgid "SPICE Address:"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:165
+msgid "SPICE Port:"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:168
+msgid "SPICE TLS Port:"
 msgstr ""
 
 #: pkg/networkmanager/index.html:242
@@ -5454,8 +5610,12 @@ msgstr ""
 msgid "Securely erasing $target"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:408
+#: pkg/docker/containers-view.jsx:408 pkg/docker/containers-view.jsx:553
 msgid "Security"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:149
+msgid "Security Update"
 msgstr ""
 
 #: pkg/shell/index.html:136 pkg/shell/simple.html:101 pkg/shell/stub.html:114
@@ -5682,7 +5842,7 @@ msgstr ""
 msgid "Show fingerprints"
 msgstr ""
 
-#: pkg/systemd/index.html:146 pkg/machines/hostvmslist.jsx:64
+#: pkg/systemd/index.html:146 pkg/machines/hostvmslist.jsx:65
 #: pkg/systemd/shutdown.js:93 pkg/systemd/shutdown.js:94
 msgid "Shut Down"
 msgstr ""
@@ -5704,11 +5864,11 @@ msgid "Since $0"
 msgstr "Depuis $0"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/storaged/index.html:230
-#: pkg/docker/containers-view.jsx:587 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:128
-#: pkg/storaged/lvol-tabs.jsx:70 pkg/storaged/lvol-tabs.jsx:122
-#: pkg/storaged/lvol-tabs.jsx:161 pkg/storaged/lvol-tabs.jsx:198
-#: pkg/storaged/part-tab.jsx:41
+#: pkg/docker/containers-view.jsx:587 pkg/storaged/lvol-tabs.jsx:70
+#: pkg/storaged/lvol-tabs.jsx:122 pkg/storaged/lvol-tabs.jsx:161
+#: pkg/storaged/lvol-tabs.jsx:198 pkg/storaged/part-tab.jsx:41
+#: pkg/storaged/content-views.jsx:112 pkg/storaged/content-views.jsx:706
+#: pkg/storaged/format-dialog.jsx:128
 msgid "Size"
 msgstr "Taille"
 
@@ -5737,7 +5897,7 @@ msgstr ""
 msgid "Sockets"
 msgstr ""
 
-#: pkg/ostree/index.html:23
+#: pkg/ostree/index.html:23 pkg/packagekit/index.html:23
 msgid "Software Updates"
 msgstr ""
 
@@ -5762,6 +5922,11 @@ msgstr ""
 msgid "Solutions"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:31
+msgid ""
+"Some other program is currently using the package manager, please wait..."
+msgstr ""
+
 #: pkg/kubernetes/scripts/volumes.js:906
 msgid "Sorry, I don't know how to modify this volume"
 msgstr ""
@@ -5770,7 +5935,7 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-body.html:8
+#: node_modules/registry-image-widgets/views/image-body.html:8
 msgid "Source URL"
 msgstr ""
 
@@ -5796,7 +5961,7 @@ msgid "Stable"
 msgstr "Activer"
 
 #: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:236
-#: pkg/storaged/details.jsx:330 pkg/storaged/swap-tab.jsx:76
+#: pkg/storaged/swap-tab.jsx:76 pkg/storaged/details.jsx:330
 #: pkg/systemd/init.js:513
 msgid "Start"
 msgstr "Démarrer"
@@ -5829,7 +5994,7 @@ msgstr ""
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:416 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:426 pkg/systemd/init.js:275
 msgid "State"
 msgstr ""
 
@@ -5869,7 +6034,7 @@ msgid "Sticky"
 msgstr ""
 
 #: pkg/docker/index.html:133 pkg/docker/containers-view.jsx:234
-#: pkg/storaged/details.jsx:331 pkg/storaged/swap-tab.jsx:75
+#: pkg/storaged/swap-tab.jsx:75 pkg/storaged/details.jsx:331
 #: pkg/systemd/init.js:514
 msgid "Stop"
 msgstr "Arrêter"
@@ -5878,7 +6043,7 @@ msgstr "Arrêter"
 msgid "Stop Scrubbing"
 msgstr "Arrêter la scrutation"
 
-#: bower_components/registry-image-widgets/views/image-config.html:14
+#: node_modules/registry-image-widgets/views/image-config.html:14
 #, fuzzy
 msgid "Stop with"
 msgstr "Arrêter"
@@ -5936,7 +6101,7 @@ msgstr ""
 msgid "Subscriptions"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-body.html:4
+#: node_modules/registry-image-widgets/views/image-body.html:4
 msgid "Summary"
 msgstr ""
 
@@ -5963,6 +6128,14 @@ msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2355 pkg/networkmanager/interfaces.js:2911
 msgid "Switch on $0"
+msgstr ""
+
+#: pkg/machines/components/graphicsConsole.jsx:60
+msgid "Switch to Desktop Viewer"
+msgstr ""
+
+#: pkg/machines/components/graphicsConsole.jsx:70
+msgid "Switch to In-Browser Viewer"
 msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2379
@@ -6019,6 +6192,10 @@ msgstr ""
 msgid "System Time"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:550
+msgid "System is up to date"
+msgstr ""
+
 #: pkg/docker/index.html:320 pkg/docker/index.html:324
 msgid "TCP"
 msgstr "TCP"
@@ -6033,7 +6210,7 @@ msgstr "Balise"
 
 #: pkg/kubernetes/views/image-listing.html:14
 #: pkg/kubernetes/views/imagestream-modify.html:76
-#: bower_components/registry-image-widgets/views/image-body.html:27
+#: node_modules/registry-image-widgets/views/image-body.html:27
 #: pkg/docker/containers-view.jsx:312
 msgid "Tags"
 msgstr ""
@@ -6127,35 +6304,35 @@ msgstr ""
 msgid "The RAID device must be running in order to remove disks."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:129
+#: pkg/machines/hostvmslist.jsx:130
 msgid "The VM crashed."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:128
+#: pkg/machines/hostvmslist.jsx:129
 msgid "The VM is down."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:127
+#: pkg/machines/hostvmslist.jsx:128
 msgid "The VM is going down."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:125
+#: pkg/machines/hostvmslist.jsx:126
 msgid "The VM is idle."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:131
+#: pkg/machines/hostvmslist.jsx:132
 msgid "The VM is in process of dying (shut down or crash is not completed)."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:126
+#: pkg/machines/hostvmslist.jsx:127
 msgid "The VM is paused."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:124
+#: pkg/machines/hostvmslist.jsx:125
 msgid "The VM is running."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:132
+#: pkg/machines/hostvmslist.jsx:133
 msgid "The VM is suspended by guest power management."
 msgstr ""
 
@@ -6269,6 +6446,14 @@ msgstr ""
 
 #: pkg/kubernetes/views/route-page.html:19
 msgid "The route '{{ target }}' does not exist."
+msgstr ""
+
+#: pkg/docker/containers-view.jsx:338
+msgid "The scan from $time ($type) found no vulnerabilities."
+msgstr ""
+
+#: pkg/docker/containers-view.jsx:335
+msgid "The scan from $time ($type) was not successful."
 msgstr ""
 
 #: pkg/kubernetes/scripts/dashboard.js:386
@@ -6450,11 +6635,11 @@ msgid ""
 "a multi-node cluster"
 msgstr ""
 
-#: src/bridge/cockpitpackages.c:435
+#: src/bridge/cockpitpackages.c:506
 msgid "This package is not compatible with this version of Cockpit"
 msgstr ""
 
-#: src/bridge/cockpitpackages.c:424
+#: src/bridge/cockpitpackages.c:495
 #, c-format
 msgid "This package requires Cockpit version %s or later"
 msgstr ""
@@ -6537,11 +6722,11 @@ msgid ""
 "authenticate against other systems."
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/image-pull.html:4
+#: node_modules/registry-image-widgets/views/image-pull.html:4
 msgid "To pull this image:"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-push.html:4
+#: node_modules/registry-image-widgets/views/imagestream-push.html:4
 msgid "To push to an image to this image stream:"
 msgstr ""
 
@@ -6623,8 +6808,8 @@ msgstr "Tuned est désactivé"
 #: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
 #: pkg/kubernetes/views/service-body.html:11
 #: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:241
-#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/part-tab.jsx:49
-#: pkg/storaged/unrecognized-tab.jsx:44
+#: pkg/storaged/part-tab.jsx:49 pkg/storaged/unrecognized-tab.jsx:44
+#: pkg/storaged/format-dialog.jsx:143
 msgid "Type"
 msgstr "Type"
 
@@ -6721,7 +6906,7 @@ msgid "Unavailable"
 msgstr ""
 
 #: pkg/docker/index.html:718 pkg/networkmanager/index.html:824
-#: pkg/shell/base_index.js:703 pkg/users/local.js:1178
+#: pkg/shell/base_index.js:727 pkg/users/local.js:1178
 msgid "Unexpected error"
 msgstr "Erreur inattendue"
 
@@ -6729,8 +6914,8 @@ msgstr "Erreur inattendue"
 #: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
 #: pkg/kubernetes/views/pv-claim.html:31
 #: pkg/kubernetes/views/volumes-page.html:35
-#: bower_components/registry-image-widgets/views/image-body.html:15
-#: bower_components/registry-image-widgets/views/imagestream-body.html:27
+#: node_modules/registry-image-widgets/views/image-body.html:15
+#: node_modules/registry-image-widgets/views/imagestream-body.html:27
 #: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:660
 #: pkg/kubernetes/scripts/nodes.js:753 pkg/kubernetes/scripts/volumes.js:266
 #: pkg/networkmanager/interfaces.js:531 pkg/networkmanager/interfaces.js:1005
@@ -6847,6 +7032,7 @@ msgid "Updates"
 msgstr ""
 
 #: pkg/ostree/index.html:262 pkg/subscriptions/subscriptions-view.jsx:187
+#: pkg/packagekit/updates.jsx:51
 msgid "Updating"
 msgstr ""
 
@@ -6858,7 +7044,7 @@ msgstr "Mise à jour de $0..."
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:364 pkg/storaged/unrecognized-tab.jsx:40
+#: pkg/machines/hostvmslist.jsx:372 pkg/storaged/unrecognized-tab.jsx:40
 msgid "Usage"
 msgstr ""
 
@@ -6880,7 +7066,7 @@ msgstr ""
 
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
 #: pkg/kubernetes/scripts/nodes.js:828 pkg/kubernetes/scripts/nodes.js:837
-#: pkg/machines/hostvmslist.jsx:310 pkg/machines/hostvmslist.jsx:321
+#: pkg/machines/hostvmslist.jsx:315 pkg/machines/hostvmslist.jsx:326
 #: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1465
 msgid "Used"
@@ -6953,24 +7139,40 @@ msgstr "Identifiant de VLAN"
 msgid "VLAN Settings"
 msgstr "Réglages VLAN"
 
-#: pkg/machines/libvirt.es6:179
+#: pkg/machines/libvirt.es6:188
 msgid "VM FORCE OFF action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:197
+#: pkg/machines/libvirt.es6:206
 msgid "VM FORCE REBOOT action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:188
+#: pkg/machines/libvirt.es6:197
 msgid "VM REBOOT action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:170
+#: pkg/machines/libvirt.es6:179
 msgid "VM SHUT DOWN action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:206
+#: pkg/machines/libvirt.es6:215
 msgid "VM START action failed"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:190
+msgid "VNC"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:162
+msgid "VNC Address:"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:171
+msgid "VNC Port:"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:174
+msgid "VNC TLS Port:"
 msgstr ""
 
 #: src/ws/login.html:100
@@ -6981,9 +7183,13 @@ msgstr ""
 msgid "Validating key"
 msgstr "Validation de la clé"
 
+#: pkg/packagekit/updates.jsx:53
+msgid "Verifying"
+msgstr ""
+
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:203
 msgid "Version"
 msgstr "Version"
 
@@ -6991,7 +7197,7 @@ msgstr "Version"
 msgid "Very securely erasing $target"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:416
+#: pkg/machines/hostvmslist.jsx:426
 msgid "Virtual Machines"
 msgstr ""
 
@@ -7029,7 +7235,7 @@ msgstr ""
 
 #: pkg/docker/index.html:507 pkg/kubernetes/views/dashboard-page.html:47
 #: pkg/kubernetes/views/pod-page.html:18 pkg/kubernetes/index.html:71
-#: bower_components/registry-image-widgets/views/image-config.html:32
+#: node_modules/registry-image-widgets/views/image-config.html:32
 msgid "Volumes"
 msgstr ""
 
@@ -7064,6 +7270,12 @@ msgstr ""
 
 #: pkg/kubernetes/views/volumes-page.html:61 pkg/ostree/index.html:282
 msgid "When"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:528
+msgid ""
+"When you get disconnected, the updates will continue in the background. You "
+"can reconnect and resume watching the update progress."
 msgstr ""
 
 #: pkg/docker/index.html:478
@@ -7139,6 +7351,10 @@ msgstr ""
 
 #: pkg/docker/storage.jsx:496
 msgid "You don't have permission to manage the Docker storage pool."
+msgstr ""
+
+#: pkg/machines/components/vnc.jsx:30
+msgid "Your browser does not support iframes."
 msgstr ""
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:112
@@ -7279,7 +7495,7 @@ msgstr ""
 msgid "none"
 msgstr "aucun"
 
-#: pkg/machines/libvirt.es6:353
+#: pkg/machines/libvirt.es6:390
 msgid "other"
 msgstr ""
 
@@ -7356,7 +7572,7 @@ msgstr ""
 msgid "unpartitioned space on $0"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:259
+#: pkg/machines/hostvmslist.jsx:264
 msgid "vCPUs:"
 msgstr ""
 
@@ -7368,7 +7584,7 @@ msgstr ""
 msgid "yes"
 msgstr ""
 
-#: bower_components/registry-image-widgets/views/imagestream-body.html:6
+#: node_modules/registry-image-widgets/views/imagestream-body.html:6
 msgid ""
 "{{ condition.message }}. Timestamp: {{ condition.lastTransitionTime }} Error "
 "count: {{ condition.generation }}"

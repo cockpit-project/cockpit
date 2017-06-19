@@ -136,10 +136,6 @@ def module_copyright(moddir):
         # only committer is Jessica Forrester, working for Red Hat
         # https://github.com/kubernetes-ui/object-describer/issues/35
         copyrights.add('(C) 2015-2017 Red Hat, Inc.')
-    if mod == 'redux':
-        # our tarball only ships the minified version, original source is at
-        # https://github.com/reactjs/redux
-        copyrights.add('(c) 2015-present Dan Abramov')
 
     if not copyrights:
         raise SystemError('Did not find any copyrights in %s' % moddir)

@@ -153,7 +153,7 @@ class MachineBuilder:
         if args.no_build:
             source = None
         else:
-            source = subprocess.check_output([ os.path.join(BASE, "tools", "make-source") ]).strip()
+            source = subprocess.check_output([ os.path.join(BOTS, "make-source") ]).strip()
         self.run_setup_script(script, source)
 
         tries_left = 3

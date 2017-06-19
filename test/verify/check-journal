@@ -303,5 +303,109 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_text("#journal-entry-message", "[no data]")
 
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-4")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic")
+    def testAbrtSegv(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system/logs")
+
+        m.execute("setenforce 0; ulimit -c unlimited; python -c 'import os; os.kill(os.getpid(), 11)' || true")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in posix_kill')"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        def wait_field(name, value):
+            row_sel = "#journal-entry-fields tr:contains('" + name + "')"
+            b.wait_present(row_sel + " td:nth-child(2):contains('" + value + "')")
+
+        wait_field("SYSLOG_IDENTIFIER", "abrt-notification")
+
+        b.click("li:contains(Problem info)")
+        wait_field("crash_function", "posix_kill")
+
+        b.click("li:contains(Problem details)")
+        sel = "#journal-entry-fields #accordion-markup .panel .panel-heading"
+        sel += " .panel-title .accordion-toggle:contains('core_backtrace')"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        sel = "#journal-entry #accordion-markup .panel .panel-collapse"
+        sel += " .panel-body:contains('signal: 11  executable: ')"
+        b.wait_present(sel)
+
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-4")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic")
+    def testAbrtDelete(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system/logs")
+
+        m.execute("setenforce 0; ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
+        m.execute("./slp; killall -s SIGSEGV sleep")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        sel = "#journal-entry-fields .nav .btn-danger"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        b.wait_visible("#journal-box")
+        b.wait_in_text('#journal-box', "__nanosleep")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        b.click(sel)
+
+        b.wait_present('.cockpit-log-panel')
+        b.wait_visible('.cockpit-log-panel')
+
+        sel = "#journal-entry .panel #journal-entry-message:contains('crashed in __nanosleep()')"
+        b.wait_present(sel)
+
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-4")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic")
+    def testAbrtReport(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/system/logs")
+
+        m.execute("setenforce 0; ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
+        m.execute("./slp; killall -s SIGSEGV sleep")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        # Wait until loaded (when delete button is loaded, all is loaded)
+        sel = "#journal-entry-fields .nav .btn-danger"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+
+        # If 'Reported' then skip test
+        sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
+        if b.is_present(sel):
+            return
+
+        sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        self.assertTrue("/reports/bthash/" in b.attr(sel, 'href'))
+
 if __name__ == '__main__':
     test_main()

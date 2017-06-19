@@ -209,8 +209,8 @@ def finish(publishing, ret, name, context, issue):
             "data": { "title": issue["title"], "body": checklist.body }
         } ]
 
-        # Close the issue if it's not a pull request, and only one task to do
-        if "pull_request" not in issue and len(checklist.items) == 1:
+        # Close the issue if it's not a pull request, successful, and only one task to do
+        if "pull_request" not in issue and not ret and len(checklist.items) == 1:
             requests[0]["data"]["state"] = "closed"
 
         # Comment if there was a failure

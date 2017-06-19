@@ -288,7 +288,7 @@ def checkout(ref):
                 with open(path, "w") as f:
                     f.write(code)
 
-def stale(days, pathspec):
+def stale(days, pathspec, ref="HEAD"):
     global verbose
 
     def execute(*args):
@@ -299,7 +299,7 @@ def stale(days, pathspec):
             sys.stderr.write("> " + output + "\n")
         return output
 
-    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", pathspec)
+    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", ref, "--", pathspec)
     try:
         timestamp = int(timestamp)
     except ValueError:
@@ -376,13 +376,13 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, issue=None, **kwargs):
+def pull(branch, issue=None, base="master", **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
     data = {
         "head": branch,
-        "base": "master",
+        "base": base,
         "maintainer_can_modify": True
     }
     if issue:

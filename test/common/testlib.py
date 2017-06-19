@@ -419,6 +419,13 @@ class Browser:
             self.phantom.dump(filename)
             attach(filename)
 
+    def copy_js_log(self, title, label=None):
+        """Copy the current javascript log"""
+        if self.phantom and self.phantom.valid:
+            filename = "{0}-{1}.js.log".format(label or self.label, title)
+            self.phantom.dump_log(filename)
+            attach(filename)
+
     def kill(self):
         self.phantom.kill()
 
@@ -538,6 +545,7 @@ class MachineCase(unittest.TestCase):
         def intercept():
             if not self.currentResult.wasSuccessful():
                 self.snapshot("FAIL")
+                self.copy_js_log("FAIL")
                 self.copy_journal("FAIL")
                 self.copy_cores("FAIL")
         self.addCleanup(intercept)
@@ -709,6 +717,7 @@ class MachineCase(unittest.TestCase):
                 if not first:
                     first = m
         if not all_found:
+            self.copy_js_log("FAIL")
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
             raise Error(first)
@@ -721,6 +730,10 @@ class MachineCase(unittest.TestCase):
         """
         if self.browser is not None:
             self.browser.snapshot(title, label)
+
+    def copy_js_log(self, title, label=None):
+        if self.browser is not None:
+            self.browser.copy_js_log(title, label)
 
     def copy_journal(self, title, label=None):
         for name, m in self.machines.iteritems():

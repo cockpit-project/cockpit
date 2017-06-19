@@ -164,9 +164,9 @@ for module in sorted(os.listdir(args.node_modules)):
     if license not in license_ids:
         raise KeyError('%s has license %s which is not in %s' % (module, license, template_file))
     copyrights = module_copyright(moddir)
-    paragraphs.append(u'''Files: %s/*
+    paragraphs.append(u'''Files: node_modules/%s/*
 Copyright:%s
-License: %s''' % (moddir, '\n'.join(sorted(copyrights)), license))
+License: %s''' % (module, '\n'.join(sorted(copyrights)), license))
 
 for l in template.splitlines():
     if '#NPM' in l:

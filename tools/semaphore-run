@@ -20,14 +20,13 @@ elif [ -n "$ARCH" ]; then
     exit 1
 fi
 
+gcc ./tools/careful-cat.c -o careful-cat
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
 make -j2 V=1 all
 
 # only run distcheck on native arch
 if [ -z "$ARCH" ]; then
-    make -j8 distcheck
-    make -j8 check-memory
+    make -j8 distcheck check-memory 2>&1 | ./careful-cat
 elif [ "$ARCH" = i386 ]; then
-    linux32 make -j8 check
-    linux32 make -j8 check-memory
+    linux32 make -j8 check check-memory 2>&1 | ./careful-cat
 fi

@@ -128,10 +128,6 @@ def module_copyright(moddir):
         pass
 
     # missing copyrights
-    if mod == 'angular-bootstrap':
-        # only committer is Wesley Cho, so assume his copyright
-        # https://github.com/angular-ui/bootstrap-bower/issues/74
-        copyrights.add('(C) 2015-2017 Wesley Cho')
     if mod == 'kubernetes-object-describer':
         # only committer is Jessica Forrester, working for Red Hat
         # https://github.com/kubernetes-ui/object-describer/issues/35

@@ -103,9 +103,13 @@ class TestUpdates(MachineCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
-        # no refresh button or "last checked"
-        b.wait_present(".content-header-extra td.text-right")
-        self.assertEqual(b.text(".content-header-extra td.text-right").strip(), "")
+        # no refresh button or "last checked", but Cancel button
+        b.wait_present(".content-header-extra td.text-right button")
+        self.assertFalse(b.is_present(".content-header-extra td.text-right span"))
+        b.wait_in_text(".content-header-extra td button", "Cancel")
+
+        # Cancel button should eventually get disabled
+        b.wait_present(".content-header-extra td button:disabled")
 
         # should have succeeded
         b.wait_in_text("#state", "No updates pending")

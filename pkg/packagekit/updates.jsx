@@ -39,6 +39,7 @@ const STATE_HEADINGS = {
 // see https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
 const PK_EXIT_ENUM_SUCCESS = 1;
 const PK_EXIT_ENUM_FAILED = 2;
+const PK_EXIT_ENUM_CANCELLED = 3;
 const PK_ROLE_ENUM_REFRESH_CACHE = 13;
 const PK_ROLE_ENUM_UPDATE_PACKAGES = 22;
 const PK_INFO_ENUM_SECURITY = 8;
@@ -110,9 +111,9 @@ function HeaderBar(props) {
     }
 
     var lastChecked;
-    var refreshButton;
+    var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
-        refreshButton = <button className="btn btn-default" onClick={() => props.onRefresh()} >{_("Check for updates")}</button>;
+        actionButton = <button className="btn btn-default" onClick={() => props.onRefresh()} >{_("Check for updates")}</button>;
         if (props.timeSinceRefresh) {
             lastChecked = (
                 <span style={ {paddingRight: "3ex"} }>
@@ -120,6 +121,8 @@ function HeaderBar(props) {
                 </span>
             );
         }
+    } else if (props.state == "applying") {
+        actionButton = <button className="btn btn-default" onClick={() => props.onCancel()} disabled={!props.allowCancel} >{_("Cancel")}</button>;
     }
 
     return (
@@ -127,7 +130,7 @@ function HeaderBar(props) {
             <table width="100%">
                 <tr>
                     <td id="state">{state}</td>
-                    <td className="text-right">{lastChecked} {refreshButton}</td>
+                    <td className="text-right">{lastChecked} {actionButton}</td>
                 </tr>
             </table>
         </div>
@@ -270,7 +273,7 @@ class OsUpdates extends React.Component {
     constructor() {
         super();
         this.state = {state: "loading", errorMessages: [], updates: {}, haveSecurity: false, timeSinceRefresh: null,
-                      loadPercent: null, waiting: false, cockpitUpdate: false};
+                      loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null};
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
     }
@@ -444,19 +447,27 @@ class OsUpdates extends React.Component {
     }
 
     watchUpdates(transProxy) {
-        this.setState({state: "applying", applyTransaction: transProxy});
+        this.setState({state: "applying", applyTransaction: transProxy, allowCancel: transProxy.AllowCancel});
 
         transProxy.addEventListener("ErrorCode", (event, code, details) => this.state.errorMessages.push(details));
+
         transProxy.addEventListener("Finished", (event, exit) => {
-            if (exit == PK_EXIT_ENUM_SUCCESS) {
+            this.setState({applyTransaction: null, allowCancel: null});
+
+            if (exit == PK_EXIT_ENUM_SUCCESS || exit == PK_EXIT_ENUM_CANCELLED) {
                 this.setState({state: "loading", haveSecurity: false, loadPercent: null});
                 this.loadUpdates();
             } else {
                 // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
                 if (exit != PK_EXIT_ENUM_FAILED)
-                    this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code {0}"), exit));
+                    this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
                 this.setState({state: "updateError"});
             }
+        });
+
+        transProxy.addEventListener("changed", (event, data) => {
+            if ("AllowCancel" in data)
+                this.setState({allowCancel: data.AllowCancel});
         });
 
         // not working/being used in at least Fedora
@@ -585,7 +596,9 @@ class OsUpdates extends React.Component {
     render() {
         return (
             <div>
-                <HeaderBar state={this.state.state} updates={this.state.updates} timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}/>
+                <HeaderBar state={this.state.state} updates={this.state.updates}
+                           timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
+                           allowCancel={this.state.allowCancel} onCancel={() => this.state.applyTransaction.Cancel()} />
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>

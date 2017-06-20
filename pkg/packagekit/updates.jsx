@@ -112,7 +112,7 @@ function HeaderBar(props) {
     var lastChecked;
     var refreshButton;
     if (props.state == "uptodate" || props.state == "available") {
-        refreshButton = <button className="btn btn-default" onClick={() => props.onRefresh()} >Check for updates</button>;
+        refreshButton = <button className="btn btn-default" onClick={() => props.onRefresh()} >{_("Check for updates")}</button>;
         if (props.timeSinceRefresh) {
             lastChecked = (
                 <span style={ {paddingRight: "3ex"} }>

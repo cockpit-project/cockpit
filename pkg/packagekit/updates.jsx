@@ -29,6 +29,7 @@ const _ = cockpit.gettext;
 const STATE_HEADINGS = {
     "loading": _("Loading available updates, please wait..."),
     "locked": _("Some other program is currently using the package manager, please wait..."),
+    "refreshing": _("Refreshing package information"),
     "uptodate": _("No updates pending"),
     "applying": _("Applying updates"),
     "updateError": _("Applying updates failed"),
@@ -311,7 +312,7 @@ class OsUpdates extends React.Component {
                 err = _("PackageKit is not installed")
             else
                 err = _("PackageKit crashed");
-            if (this.state.state == "loading") {
+            if (this.state.state == "loading" || this.state.state == "refreshing") {
                 this.handleLoadError(err);
             } else if (this.state.state == "applying") {
                 this.state.errorMessages.push(err);
@@ -486,6 +487,7 @@ class OsUpdates extends React.Component {
     renderContent() {
         switch (this.state.state) {
             case "loading":
+            case "refreshing":
             case "locked":
                 if (this.state.loadPercent)
                     return (
@@ -556,7 +558,7 @@ class OsUpdates extends React.Component {
     }
 
     handleRefresh() {
-        this.setState({state: "loading", loadPercent: null});
+        this.setState({state: "refreshing", loadPercent: null});
         pkTransaction()
             .done(transProxy =>  {
                 transProxy.addEventListener("ErrorCode", (event, code, details) => this.handleLoadError(details));

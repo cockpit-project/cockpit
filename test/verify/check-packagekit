@@ -71,6 +71,9 @@ class TestUpdates(MachineCase):
         b.wait_in_text(".content-header-extra td button", "Check for updates")
         b.click(".content-header-extra td button")
 
+        b.wait_present(".content-header-extra td.text-right span")
+        self.assertEqual(b.text(".content-header-extra td.text-right span"), "Last checked: a few seconds ago")
+
         b.wait_present(".container-fluid h2")
         b.wait_in_text(".container-fluid h2", "Available Packages")
         self.assertEqual(b.text("#state"), "2 updates")
@@ -100,8 +103,15 @@ class TestUpdates(MachineCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
+        # no refresh button or "last checked"
+        b.wait_present(".content-header-extra td.text-right")
+        self.assertEqual(b.text(".content-header-extra td.text-right").strip(), "")
+
         # should have succeeded
         b.wait_in_text("#state", "No updates pending")
+        b.wait_present(".content-header-extra td.text-right span")
+        b.wait_in_text(".content-header-extra td.text-right span", "Last checked:")
+
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
 

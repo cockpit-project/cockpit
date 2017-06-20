@@ -330,8 +330,14 @@ class Checklist(object):
         check = item = None
         stripped = line.strip()
         if stripped[:6] in ["* [ ] ", "- [ ] ", "* [x] ", "- [x] "]:
-            item = stripped[6:].strip()
-            check = stripped[3] == "x"
+            status, unused, item = stripped[6:].strip().partition(": ")
+            if not item:
+                item = status
+                status = None
+            if status:
+                check = status
+            else:
+                check = stripped[3] == "x"
         return (item, check)
 
     def process(self, body, items={ }):

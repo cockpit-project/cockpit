@@ -115,7 +115,7 @@ function HeaderBar(props) {
         refreshButton = <button className="btn btn-default" onClick={() => props.onRefresh()} >Check for updates</button>;
         if (props.timeSinceRefresh) {
             lastChecked = (
-                <span style={{paddingRight: "3ex"}}>
+                <span style={ {paddingRight: "3ex"} }>
                     {cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize())}
                 </span>
             );
@@ -248,14 +248,14 @@ class ApplyUpdates extends React.Component {
         if (this.state.percentage !== null)
             progressBar = (
                 <div className="progress progress-label-top-right">
-                    <div className="progress-bar" role="progressbar" style={{width: this.state.percentage + "%"}}>
+                    <div className="progress-bar" role="progressbar" style={ {width: this.state.percentage + "%"} }>
                         {this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null}
                     </div>
                 </div>
             );
 
         return (
-            <div>
+            <div className="progress-main-view">
                 <div className="progress-description">
                     <div className="spinner spinner-xs spinner-inline"></div>
                     {action}
@@ -492,13 +492,14 @@ class OsUpdates extends React.Component {
             case "locked":
                 if (this.state.loadPercent)
                     return (
-                        <div className="progress">
-                          <div className="progress-bar" role="progressbar"
-                               style={{width: this.state.loadPercent + "%"}}>
-                          </div>
-                      </div>)
+                        <div className="progress-main-view">
+                            <div className="progress">
+                                <div className="progress-bar" role="progressbar" style={ {width: this.state.loadPercent + "%"} }></div>
+                            </div>
+                        </div>
+                    );
                 else
-                    return <div className="spinner spinner-lg" />;
+                    return <div className="spinner spinner-lg progress-main-view" />;
 
             case "available":
                 return (

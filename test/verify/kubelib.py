@@ -47,6 +47,11 @@ class KubernetesCase(testlib.MachineCase):
 
     def start_kubernetes(self):
         self.machine.execute("systemctl start docker || journalctl -u docker")
+
+        # HACK: work around https://github.com/kubernetes/kubernetes/issues/43805 until
+        # the fix lands in Fedora 26
+        if self.machine.image == "fedora-26":
+            self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s/"$/ --cgroup-driver=systemd"/ }' /etc/kubernetes/kubelet""")
         try:
             self.machine.execute('/etc/kubernetes/start-kubernetes')
         except subprocess.CalledProcessError:
@@ -62,7 +67,9 @@ class KubernetesCase(testlib.MachineCase):
         scheme=%s
         for a in $(seq 0 $timeout); do
             if curl -o /dev/null -k -s $scheme://localhost:$port; then
-                break
+                if kubectl get all | grep -q svc/kubernetes; then
+                    break
+                fi
             fi
             sleep 0.5
         done

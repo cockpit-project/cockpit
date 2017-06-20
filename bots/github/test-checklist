@@ -38,6 +38,8 @@ class TestChecklist(unittest.TestCase):
         self.assertEqual(parse_line(" - [ ]  test two "), ("test two", False))
         self.assertEqual(parse_line(" - [x] test two "), ("test two", True))
         self.assertEqual(parse_line(" * [x] test two"), ("test two", True))
+        self.assertEqual(parse_line(" * [x] FAIL: test two"), ("test two", "FAIL"))
+        self.assertEqual(parse_line(" * [x] FAIL: test FAIL: two"), ("test FAIL: two", "FAIL"))
         self.assertEqual(parse_line(" * [x]test three"), (None, None))
 
     def testFormat(self):

@@ -63,12 +63,13 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         self.openshift = self.machines['openshift']
         self.openshift.upload(["verify/files/mock-app-openshift.json"], "/tmp")
-        tmpfile = os.path.join(self.tmpdir, "config")
-        self.openshift.download("/root/.kube/config", tmpfile)
+        self.kubeconfig = os.path.join(self.tmpdir, "config")
+        self.openshift.download("/root/.kube/config", self.kubeconfig)
 
         m = self.machine
-        with open(tmpfile, "r") as f:
-            m.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
+        m.execute("mkdir -p /home/admin/.kube")
+        m.upload([self.kubeconfig], "/home/admin/.kube/config")
+        m.execute("chown -R admin:admin /home/admin/.kube")
 
         wait_project(self.openshift, "marmalade")
 
@@ -359,7 +360,6 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
                    'UkxWTZ1TGoyV1NGWFZYUXVLanVlTDZJdGttc1dvZgpyMHFtQU93RHdFVDFvRXlNVUJoOTJVMmhxSHR'
                    'aamlMdkxQdDc5aUhacDNtTnlLVjc5QXY3dVE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=')
 
-        m.upload(["verify/files/openshift.kubeconfig"], "/home/admin/.kube/config")
         m.execute("sed -i '/client-certificate-data:/ s/:.*$/: %s/; /client-key-data:/ s/:.*$/: %s/' /home/admin/.kube/config" % (
             old_cert, old_key))
         m.execute("chown -R admin:admin /home/admin/.kube")
@@ -372,7 +372,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_present(".curtains-ct #kubernetes-reconnect")
 
         # now provide a good certificate, and reconnect
-        m.upload(["verify/files/openshift.kubeconfig"], "/home/admin/.kube/config")
+        m.upload([self.kubeconfig], "/home/admin/.kube/config")
         m.execute("chown -R admin:admin /home/admin/.kube")
 
         b.click("#kubernetes-reconnect")

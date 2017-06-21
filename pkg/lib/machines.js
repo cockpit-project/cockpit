@@ -415,6 +415,9 @@
         /* clients for the bridge D-Bus API */
         var bridge_dbus = { };
 
+        /* list of manifest plugins for each machine */
+        var manifest_plugins = { };
+
         function process_session_key(key, value) {
             var host, values, machine;
             var parts = key.split("/");
@@ -540,12 +543,10 @@
             var problem = null;
 
             var url;
-            if (!machine.manifests) {
-                if (machine.checksum)
-                    url = "../../" + machine.checksum + "/manifests.json";
-                else
-                    url = "../../@" + encodeURI(machine.connection_string) + "/manifests.json";
-            }
+            if (machine.checksum)
+                url = "../../" + machine.checksum;
+            else
+                url = "../../@" + encodeURI(machine.connection_string);
 
             function whirl() {
                 if (!request && open)
@@ -554,15 +555,74 @@
                     state(host, "connecting", null);
             }
 
+            function load_manifest_plugins(packaged_manifests) {
+                if (manifest_plugins[host])
+                    manifest_plugins[host].close();
+
+                var iframe;
+                var plugins = [ ];
+
+                function close() {
+                    plugins[host].forEach(function (pl) {
+                        pl.close();
+                    });
+                    iframe.remove();
+                }
+
+                function update_manifests() {
+                    console.log("update");
+                    var all_manifests = { };
+                    $.extend(true, all_manifests, packaged_manifests);
+                    plugins.forEach(function (pl) {
+                        if (pl.manifests)
+                            $.extend(true, all_manifests, pl.manifests);
+                    });
+                    machines.overlay(host, { manifests: all_manifests });
+                }
+
+                function register_plugin(plugin) {
+                    plugin.init(machine.connection_string, update_manifests);
+                    plugins.push(plugin);
+                }
+
+                // Load the plugin code in its own iframe.  We do this
+                // so that we can give the code its own global object,
+                // with its own version of cockpit_register_manifest_plugin.
+                //
+                // The alternative would be to use 'eval', but that
+                // would force us to weaken our content security
+                // policy.
+
+                // XXX - This loads all plugins in one go.  Instead,
+                // we might want to load them one by one so that a
+                // crash in one plugin does not disable all subsequent
+                // plugins.
+
+                iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                document.body.append(iframe);
+                iframe.onload = function () {
+                    iframe.contentWindow.cockpit_register_manifest_plugin = register_plugin;
+                    var script = iframe.contentWindow.document.createElement("script");
+                    script.type = "text/javascript";
+                    script.src = url + "/*/manifestplugin.js";
+                    script.onload = update_manifests;
+                    iframe.contentWindow.document.body.append(script);
+                };
+
+                manifest_plugins[host] = { close: close };
+            }
+
             /* Here we load the machine manifests, and expect them before going to "connected" */
             function request_manifest() {
-                request = $.ajax({ url: url, dataType: "json", cache: true})
+                request = $.ajax({ url: url + "/manifests.json", dataType: "json", cache: true})
                     .done(function(manifests) {
-                        var overlay = { manifests: manifests };
                         var etag = request.getResponseHeader("ETag");
-                        if (etag) /* and remove quotes */
-                            overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
-                        machines.overlay(host, overlay);
+                        if (etag) {
+                            /* remove quotes */
+                            machines.overlay(host, { checksum: etag.replace(/^"(.+)"$/, '$1') });
+                        }
+                        load_manifest_plugins(manifests);
                     })
                     .fail(function(ex) {
                         console.warn("failed to load manifests from " + machine.connection_string + ": " + ex);
@@ -591,7 +651,7 @@
                                    if (args[0] == "cockpit.Packages") {
                                        if (args[1]["Manifests"]) {
                                            var manifests = JSON.parse(args[1]["Manifests"].v);
-                                           machines.overlay(host, { manifests: manifests });
+                                           load_manifest_plugins(manifests);
                                        }
                                    }
                                });
@@ -618,8 +678,7 @@
                 $(channel)
                     .on("message", function() {
                         open = true;
-                        if (url)
-                            request_manifest();
+                        request_manifest();
                         watch_manifests();
                         request_hostname();
                         whirl();
@@ -640,8 +699,7 @@
                     self.disconnect(host);
                 });
             } else {
-                if (url)
-                    request_manifest();
+                request_manifest();
                 watch_manifests();
                 request_hostname();
             }
@@ -673,6 +731,11 @@
             if (dbus) {
                 dbus.close();
             }
+
+            var plugins = manifest_plugins[host];
+            delete manifest_plugins[host];
+            if (plugins)
+                plugins.close();
         };
 
         self.expect_restart = function expect_restart(host) {

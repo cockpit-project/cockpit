@@ -494,7 +494,8 @@ class Machine:
         try:
             subprocess.check_call(cmd)
             target = os.path.join(dest, os.path.basename(source))
-            subprocess.check_call([ "find", target, "-type", "f", "-exec", "chmod", "0644", "{}", ";" ])
+            if os.path.exists(target):
+                subprocess.check_call([ "find", target, "-type", "f", "-exec", "chmod", "0644", "{}", ";" ])
         except:
             self.message("Error while downloading directory '{0}'".format(source))
 

@@ -5,7 +5,7 @@ import sys
 
 sys.dont_write_bytecode = True
 
-import github
+from task import github
 
 def trigger_pull(api, opts):
     pull = api.get("pulls/" + opts.pull)

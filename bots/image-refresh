@@ -92,8 +92,8 @@ import time
 
 sys.dont_write_bytecode = True
 
-import github
 import task
+from task import github
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))

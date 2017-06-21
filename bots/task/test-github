@@ -23,7 +23,6 @@ ADDRESS = ("127.0.0.8", 9898)
 import ctypes
 import fnmatch
 import httplib
-import imp
 import json
 import os
 import signal
@@ -38,8 +37,8 @@ import unittest
 BASE = os.path.dirname(__file__)
 DEVNULL = open("/dev/null", "r+")
 
-github = imp.load_source("github", os.path.join(BASE, "__init__.py"))
 import cache
+import github
 
 def mockServer():
     # Data used by the above handler

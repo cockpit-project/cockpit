@@ -20,7 +20,7 @@
 
 BASELINE_PRIORITY = 10
 
-BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5' ]
+BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5', 'rhel-7.3.6' ]
 
 DEFAULT_VERIFY = {
     'avocado/fedora-24': BRANCHES,
@@ -34,17 +34,17 @@ DEFAULT_VERIFY = {
     'verify/debian-testing': BRANCHES,
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ ],
-    'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.5' ],
+    'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.6', 'rhel-7.3.5' ],
     'verify/fedora-26': [ 'master' ],
     'verify/fedora-atomic': BRANCHES,
     'verify/fedora-testing': [ ],
-    'verify/ubuntu-1604': [ 'master', 'rhel-7.4', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
+    'verify/ubuntu-1604': [ 'master', 'rhel-7.4', 'rhel-7.3.6', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
     'verify/ubuntu-stable': [ 'master' ],
 }
 
 # Non-public images used for testing
 REDHAT_VERIFY = {
-    "verify/rhel-7": [ 'master', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
+    "verify/rhel-7": [ 'master', 'rhel-7.3.6', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
     "verify/rhel-7-4": [ 'master', 'rhel-7.4' ],
     "verify/rhel-atomic": [ 'master' ],
 }

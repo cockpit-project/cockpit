@@ -63,7 +63,7 @@ import urllib
 
 sys.dont_write_bytecode = True
 
-import github
+from task import github
 
 def main():
     parser = argparse.ArgumentParser(description='Bot: scan and update status of pull requests on GitHub')

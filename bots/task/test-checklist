@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import imp
 import os
 import sys
 import unittest
 
+import github
+
 BASE = os.path.dirname(__file__)
-github = imp.load_source("github", os.path.join(BASE, "__init__.py"))
 
 class TestChecklist(unittest.TestCase):
     def testParse(self):

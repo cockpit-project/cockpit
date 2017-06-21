@@ -30,8 +30,8 @@ import traceback
 
 sys.dont_write_bytecode = True
 
-import github
-import sink
+from task import github
+from task import sink
 
 HOSTNAME = socket.gethostname().split(".")[0]
 BOTS = os.path.abspath(os.path.dirname(__file__))
@@ -119,7 +119,7 @@ class PullTask(object):
             },
             "revision": self.revision,
             "link": "log.html",
-            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/bots/github/log.html" ],
+            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/bots/task/log.html" ],
 
             "onaborted": {
                 "github": {

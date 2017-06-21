@@ -27,8 +27,8 @@ import time
 
 sys.dont_write_bytecode = True
 
-import github
 import task
+from task import github
 
 def main():
     parser = argparse.ArgumentParser(description='Ensure necessary issue exists for npm upgrades')

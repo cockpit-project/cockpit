@@ -60,7 +60,7 @@ BOTS = os.path.join(os.path.dirname(__file__), "..")
 TOKEN = "~/.config/github-token"
 
 # the user name is accepted if it's found in either list
-WHITELIST = os.path.join(BOTS, "github", "whitelist")
+WHITELIST = os.path.join(BOTS, "whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 def determine_github_base():

@@ -1,7 +1,7 @@
 [![semaphore ci build status](https://semaphoreci.com/api/v1/cockpit/cockpit/branches/master/badge.svg)](https://semaphoreci.com/cockpit/cockpit) <br />
 
 # Cockpit
-**A remote manager for GNU/Linux servers**
+**A sysadmin login session in a web browser**
 
 [cockpit-project.org](http://cockpit-project.org/)
 

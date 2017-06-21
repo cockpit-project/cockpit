@@ -242,6 +242,7 @@ def run(context, function, **kwargs):
         elif issue["title"].startswith("WIP:"):
             return "Issue is work in progress: {0}: {1}\n".format(number, issue["title"])
         kwargs["issue"] = issue
+        kwargs["title"] = issue["title"]
 
     publishing = begin(publish, name, context, issue=issue)
 

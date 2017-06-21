@@ -1,0 +1,119 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+ADDRESS = ("127.0.0.9", 9898)
+
+import ctypes
+import fnmatch
+import httplib
+import imp
+import json
+import os
+import signal
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+
+BASE = os.path.dirname(__file__)
+DEVNULL = open("/dev/null", "r+")
+os.environ["GITHUB_API"] = "http://127.0.0.9:9898"
+os.environ["GITHUB_BASE"] = "project/repo"
+
+task = imp.load_source("task", os.path.join(BASE, "__init__.py"))
+
+DATA = {
+    "/repos/project/repo/issues/3333": {
+        "title": "The issue title"
+    }
+}
+
+def mockServer():
+    # Data used by below handler
+    data = { }
+
+    import BaseHTTPServer
+    class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+
+        def replyData(self, value, headers={ }, status=200):
+            self.send_response(status)
+            for name, content in headers.items():
+                self.send_header(name, content)
+            self.end_headers()
+            self.wfile.write(value)
+            self.wfile.close()
+
+        def replyJson(self, value, headers={ }, status=200):
+            headers["Content-type"] = "application/json"
+            self.replyData(json.dumps(value), headers=headers, status=status)
+
+        def do_GET(self):
+            if self.path in DATA:
+                self.replyJson(DATA[self.path])
+            else:
+                self.send_error(404, 'Mock Not Found: ' + self.path)
+
+    httpd = BaseHTTPServer.HTTPServer(ADDRESS, Handler)
+    httpd.data = data
+
+    child = os.fork()
+    if child != 0:
+        return child
+
+    # prctl(PR_SET_PDEATHSIG, SIGTERM)
+    try:
+        libc = ctypes.CDLL('libc.so.6')
+        libc.prctl(1, 15)
+    except OSError:
+        pass
+
+    httpd.serve_forever()
+    os._exit(1)
+
+def mockKill(child):
+    os.kill(child, signal.SIGTERM)
+    os.waitpid(child, 0)
+
+class TestTask(unittest.TestCase):
+    def setUp(self):
+        self.child = mockServer()
+        self.temp = tempfile.mkdtemp()
+
+    def tearDown(self):
+        mockKill(self.child)
+        shutil.rmtree(self.temp)
+
+    def testRunArguments(self):
+        status = { "ran": False }
+
+        def function(context, **kwargs):
+            self.assertEqual(context, "my-context")
+            self.assertEqual(kwargs["title"], "The issue title")
+            status["ran"] = True
+
+        ret = task.run("my-context", function, name="blah", title="Task title", issue=3333)
+        self.assertEqual(ret, 0)
+        self.assertTrue(status["ran"])
+
+if __name__ == '__main__':
+    unittest.main()

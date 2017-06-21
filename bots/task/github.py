@@ -89,7 +89,8 @@ def determine_github_base():
     return "cockpit-project/cockpit"
 
 # github base to use
-GITHUB_BASE = "https://api.github.com/repos/{0}/".format(os.environ.get("GITHUB_BASE", determine_github_base()))
+GITHUB_API = os.environ.get("GITHUB_API", "https://api.github.com")
+GITHUB_BASE = "{0}/repos/{1}/".format(GITHUB_API, os.environ.get("GITHUB_BASE", determine_github_base()))
 
 def known_context(context):
     for prefix in OUR_CONTEXTS:

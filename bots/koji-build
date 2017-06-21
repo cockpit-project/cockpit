@@ -28,25 +28,14 @@ import tempfile
 
 sys.dont_write_bytecode = True
 
-BASE = os.path.dirname(__file__)
+import task
 
-def main():
-    parser = argparse.ArgumentParser(description='Run cockpit build and unit tests in Koji')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output (unsupported)')
-    opts = parser.parse_args()
+BOTS = os.path.dirname(__file__)
 
-    # Splits 23 out of fedora-23
-    image = os.environ.get("TEST_OS", "fedora-26")
-    system = image.split("-")[-1]
+def run(context, verbose=False, **kwargs):
+    system = context or "f26"
 
-    # Converts fedora-23 to f23
-    try:
-        number = int(system)
-        system = image[0] + system
-    except ValueError:
-        pass
-
-    make_srpm = os.path.join(BASE, "..", "..", "tools", "make-srpm")
+    make_srpm = os.path.join(BOTS, "..", "tools", "make-srpm")
     srpm = subprocess.check_output([make_srpm], shell=True).strip()
 
     # Do a build
@@ -54,4 +43,4 @@ def main():
     subprocess.check_call(cmd)
 
 if __name__ == '__main__':
-    sys.exit(main())
+    task.main(function=run, title="Build source code in Koji")

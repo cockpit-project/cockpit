@@ -52,7 +52,6 @@ OUR_CONTEXTS = [
     "avocado/",
     "container/",
     "selenium/",
-    "koji/",
 ]
 
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"

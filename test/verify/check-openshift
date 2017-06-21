@@ -146,7 +146,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         # Test the saved kube config file
         m.execute("rm /home/admin/.kube/config")
-        m.upload(["verify/files/openshift.kubeconfig"], "/home/admin/.kube/config")
+        m.upload([self.kubeconfig], "/home/admin/.kube/config")
         m.execute("chown -R admin:admin /home/admin/.kube")
 
         self.login_and_go("/kubernetes")

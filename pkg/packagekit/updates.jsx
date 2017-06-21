@@ -114,7 +114,7 @@ function HeaderBar(props) {
     var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
         actionButton = <button className="btn btn-default" onClick={() => props.onRefresh()} >{_("Check for updates")}</button>;
-        if (props.timeSinceRefresh) {
+        if (props.timeSinceRefresh !== null) {
             lastChecked = (
                 <span style={ {paddingRight: "3ex"} }>
                     {cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize())}
@@ -299,12 +299,12 @@ class OsUpdates extends React.Component {
                         }
 
                         // no running updates found, proceed to showing available updates
-                        this.loadUpdates();
+                        this.initialLoadOrRefresh();
                     })
                     .fail(ex => {
                         console.warn("GetTransactionList: failed to read PackageKit transaction roles:", ex.message);
                         // be robust, try to continue with loading updates anyway
-                        this.loadUpdates();
+                        this.initialLoadOrRefresh();
                     });
 
             });
@@ -425,25 +425,22 @@ class OsUpdates extends React.Component {
                     .fail(this.handleLoadError);
             })
             .fail(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
+    }
 
+    initialLoadOrRefresh() {
         dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                      [PK_ROLE_ENUM_REFRESH_CACHE], {timeout: 5000})
             .done(seconds => {
-                const ONE_DAY = 86400;
-                const TEN_YEARS = 10 * 365 * ONE_DAY;
-
-                // return type is "u", but returns -1 if not supported; so ignore implausibly high values (> 10 years)
-                if (seconds > TEN_YEARS)
-                    return;
-
                 this.setState({timeSinceRefresh: seconds});
 
-                // automatically trigger refresh for ≥ 1 day
-                if (seconds >= ONE_DAY)
+                // automatically trigger refresh for ≥ 1 day or if never refreshed
+                if (seconds >= 24 * 3600 || seconds < 0)
                     this.handleRefresh();
+                else
+                    this.loadUpdates();
 
             })
-            .fail(ex => console.warn("failed to get time of last refresh: " + ex.message));
+            .fail(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
     }
 
     watchUpdates(transProxy) {
@@ -576,10 +573,12 @@ class OsUpdates extends React.Component {
             .done(transProxy =>  {
                 transProxy.addEventListener("ErrorCode", (event, code, details) => this.handleLoadError(details));
                 transProxy.addEventListener("Finished", (event, exit) => {
-                    if (exit == PK_EXIT_ENUM_SUCCESS)
+                    if (exit == PK_EXIT_ENUM_SUCCESS) {
+                        this.setState({timeSinceRefresh: 0});
                         this.loadUpdates();
-                    else
+                    } else {
                         this.setState({state: "loadError"});
+                    }
                 });
 
                 transProxy.addEventListener("changed", (event, data) => {

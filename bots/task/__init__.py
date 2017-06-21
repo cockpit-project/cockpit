@@ -260,7 +260,7 @@ def run(context, function, **kwargs):
         ret = function(context, **kwargs)
     except (RuntimeError, subprocess.CalledProcessError), ex:
         ret = str(ex)
-    except KeyboardInterrupt:
+    except (AssertionError, KeyboardInterrupt):
         raise
     except:
         traceback.print_exc(file=sys.stderr)

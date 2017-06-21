@@ -412,6 +412,7 @@ Provides: %{name}-tuned = %{version}-%{release}
 Provides: %{name}-users = %{version}-%{release}
 %if 0%{?rhel}
 Provides: %{name}-networkmanager = %{version}-%{release}
+Obsoletes: %{name}-networkmanager < 135
 Requires: NetworkManager
 Provides: %{name}-kdump = %{version}-%{release}
 Requires: kexec-tools

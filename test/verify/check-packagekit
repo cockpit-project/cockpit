@@ -75,7 +75,7 @@ class TestUpdates(MachineCase):
         self.assertEqual(b.text(".content-header-extra td.text-right span"), "Last checked: a few seconds ago")
 
         b.wait_present(".container-fluid h2")
-        b.wait_in_text(".container-fluid h2", "Available Packages")
+        b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
         b.wait_present("table.listing-ct")
@@ -150,7 +150,7 @@ class TestUpdates(MachineCase):
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_present(".container-fluid h2")
-        b.wait_in_text(".container-fluid h2", "Available Packages")
+        b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "5 updates, including 2 security fixes")
 
         b.wait_present("table.listing-ct")
@@ -197,7 +197,7 @@ class TestUpdates(MachineCase):
 
         # should have succeeded; 3 non-security updates left
         b.wait_in_text("#state", "3 updates")
-        b.wait_in_text(".container-fluid h2", "Available Packages")
+        b.wait_in_text(".container-fluid h2", "Available Updates")
         b.wait_in_text("table.listing-ct", "norefs-doc")
         self.assertIn("buggy", b.text("table.listing-ct"))
         self.assertNotIn("secdeclare", b.text("table.listing-ct"))
@@ -239,7 +239,7 @@ class TestUpdates(MachineCase):
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_present(".container-fluid h2")
-        b.wait_in_text(".container-fluid h2", "Available Packages")
+        b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "1 update")
 
         b.wait_present("#app .container-fluid button")
@@ -295,7 +295,7 @@ class TestUpdates(MachineCase):
         b.click(".content-header-extra td button")
 
         b.wait_present(".container-fluid h2")
-        b.wait_in_text(".container-fluid h2", "Available Packages")
+        b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
         b.wait_present("table.listing-ct")

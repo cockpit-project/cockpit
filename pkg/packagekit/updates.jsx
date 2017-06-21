@@ -51,7 +51,7 @@ const PK_STATUS_STRINGS = {
     8: _("Downloading"),
     9: _("Installing"),
     10: _("Updating"),
-    11: _("Cleaning up"),
+    11: _("Setting up"),
     14: _("Verifying"),
 }
 
@@ -517,7 +517,7 @@ class OsUpdates extends React.Component {
                     <div>
                         <table width="100%">
                             <tr>
-                                <td><h2>{_("Available Packages")}</h2></td>
+                                <td><h2>{_("Available Updates")}</h2></td>
                                 <td className="text-right">
                                     { this.state.haveSecurity
                                       ? <button className="btn btn-default"

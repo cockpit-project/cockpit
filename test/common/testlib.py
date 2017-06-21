@@ -861,6 +861,11 @@ class Policy(object):
         if "PhantomJS or driver broken" in trace:
             return True
 
+        # HACK: A race issue in phantomjs that happens randomly
+        # https://github.com/ariya/phantomjs/issues/12750
+        if "Resource Error: Operation canceled" in trace:
+            return True
+
         # HACK: Interacting with sshd during boot is not always predictable
         # We're using an implementation detail of the server as our "way in" for testing.
         # This often has to do with sshd being restarted for some reason

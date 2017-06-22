@@ -38,6 +38,7 @@ def can_manage(machine):
                               "fedora-testing",
                               "fedora-24",
                               "rhel-7",
+                              "rhel-7-4",
                               "centos-7",
                               "rhel-atomic",
                               "fedora-atomic",
@@ -52,7 +53,7 @@ def initially_loopbacked(machine):
     if machine.atomic_image:
         return False
 
-    # Debian, Ubuntu, and Fedora 26 use the overlayfs driver by default.
+    # use the overlayfs driver by default on some distros
     if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-26" ]:
         return False
 

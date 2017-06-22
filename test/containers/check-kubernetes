@@ -51,49 +51,73 @@ class KubernetesContainerMachine(VirtMachine):
 class KubernetesContainerCase(kubelib.KubernetesCase):
     machine_class = KubernetesContainerMachine
 
+    def get_bad_auth_code(self, port=6443):
+        code = self.machine.execute('curl -k -u bad:bad -s -o /dev/null -w "%{{http_code}}" https://{}:{}/api/namespaces/kubernetes'.format(self.machine.address, port))
+        return code.strip()
+
+    def restart_api_server(self, **kwargs):
+        # Delete the kubernetes service so that it will need to be recreated
+        # Do this because RBAC takes a while to finish setup
+        # and there is no good way to track progress
+        # but once the service is recreated we know it's good to go
+        self.machine.execute("kubectl delete svc/kubernetes")
+        self.stop_kubernetes()
+        self.start_kubernetes()
+        super(KubernetesContainerCase, self).wait_api_server(**kwargs)
+
+    def forbid_anon(self, **kwargs):
+        self.machine.execute("sed -i 's/--basic_auth_file=/--anonymous-auth=false --basic_auth_file=/g' /etc/kubernetes/apiserver")
+        self.restart_api_server(**kwargs)
+
+    def wait_api_server(self, port=8080, timeout=60, scheme='http', forbid_anon=True):
+        super(KubernetesContainerCase, self).wait_api_server(port=port, timeout=timeout, scheme=scheme)
+
+        if forbid_anon and self.get_bad_auth_code(port=port) == "403":
+            self.forbid_anon(timeout=timeout, port=port, scheme=scheme)
+
+
 class TestKubernetesLogin(KubernetesContainerCase):
 
-    def testKubernetesLogin(self):
-        self.invalid_kube_service = True
+    def login(self, user, password):
+        self.browser.set_val('#login-user-input', user)
+        self.browser.set_val('#login-password-input', password)
+        self.browser.click('#login-button')
+
+    def login_basic_broken(self, user, password):
+        self.login(user, password)
+        self.browser.wait_not_visible('#login-button')
+        self.browser.wait_in_text("#login-fatal-message", "Turn off anonymous auth or upgrade")
+        self.browser.reload()
+        self.browser.wait_visible("#login")
+        self.browser.wait_visible('#login-button')
+
+    def check_login(self, mode):
         m = self.machine
         b = self.browser
 
-        def login(user, password):
-            b.set_val('#login-user-input', user)
-            b.set_val('#login-password-input', password)
-            b.click('#login-button')
+        if self.get_bad_auth_code(port=6443) == "403":
+            b.reload()
+            b.wait_visible("#login")
+            b.wait_visible('#login-button')
 
-        m.start_cockpit(invalid_kube_service=True)
-
-        # Try to login, no api var
-        b.open("/")
-        b.wait_visible("#login")
-        b.wait_text("#server-name", "Kubernetes Cockpit")
-        login("admin", "fubar")
-        b.wait_in_text("#login-fatal-message", "No kubernetes")
-        b.wait_not_visible('#login-button')
-
-        m.execute('docker stop $(docker ps -q --filter ancestor="cockpit/kubernetes")')
-        m.start_cockpit()
-
-        b.open("/")
-        b.wait_visible("#login")
-        b.wait_text("#server-name", "Kubernetes Cockpit")
-        login("admin", "fubar")
-        b.wait_in_text("#login-fatal-message", "Couldn't connect to the api")
-        b.wait_not_visible('#login-button')
-
-        # Start kubernetes
-        self.start_kubernetes()
-        self.wait_api_server(port=6443, scheme='https')
+            if (mode == "RBAC"):
+                self.login_basic_broken("admin", "rbac")
+            else:
+                b.reload()
+                b.wait_visible("#login")
+                self.login("admin", "abac")
+                b.wait_text_not("#login-error-message", "")
+                b.wait_visible('#login-button')
+            self.login_basic_broken("admin", "fubar")
+            self.forbid_anon(port=6443, scheme='https')
 
         b.reload()
         b.wait_visible("#login")
-        login("admin", "bad")
+        self.login("admin", "bad")
         b.wait_text_not("#login-error-message", "")
         b.wait_visible('#login-button')
 
-        login("admin", "fubar")
+        self.login("admin", "fubar")
         with b.wait_timeout(10) as r:
             b.expect_load()
         b.wait_present("#content")
@@ -108,10 +132,55 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.wait_present("#node-list")
         b.logout()
 
-        # Remove authentication stuff
-        self.stop_kubernetes()
-        m.execute("sed -i '/KUBE_API_ARGS=/d' /etc/kubernetes/apiserver")
+    def testKubernetesLogin(self):
+        self.invalid_kube_service = True
+        m = self.machine
+        b = self.browser
+
+        m.start_cockpit(invalid_kube_service=True)
+
+        # Try to login, no api var
+        b.open("/")
+        b.wait_visible("#login")
+        b.wait_text("#server-name", "Kubernetes Cockpit")
+        self.login("admin", "fubar")
+        b.wait_in_text("#login-fatal-message", "No kubernetes")
+        b.wait_not_visible('#login-button')
+
+        m.execute('docker stop $(docker ps -q --filter ancestor="cockpit/kubernetes")')
+        m.start_cockpit()
+
+        b.open("/")
+        b.wait_visible("#login")
+        b.wait_text("#server-name", "Kubernetes Cockpit")
+        self.login("admin", "fubar")
+        b.wait_in_text("#login-fatal-message", "Couldn't connect to the api")
+        b.wait_not_visible('#login-button')
+
+        # Start kubernetes
         self.start_kubernetes()
+        self.wait_api_server(port=6443, scheme='https', forbid_anon=False)
+
+        self.check_login("ABAC")
+        m.execute("sed -i 's/--anonymous-auth=false//g' /etc/kubernetes/apiserver")
+        m.execute("sed -i 's#--authorization_policy_file=/etc/kubernetes/authorization##g' /etc/kubernetes/apiserver")
+        m.execute("sed -i 's/--authorization_mode=ABAC/--authorization_mode=RBAC/g' /etc/kubernetes/apiserver")
+        self.restart_api_server(port=6443, scheme='https')
+
+        self.check_login("RBAC")
+
+        # Remove authentication stuff
+        m.execute("sed -i '/KUBE_API_ARGS=/d' /etc/kubernetes/apiserver")
+        self.restart_api_server(port=6443, scheme='https')
+
+        # https://github.com/kubernetes/kubernetes/pull/38706
+        # broke having an open API. So if api is closed
+        # make use RBAC and make cluster bindings
+        if self.get_bad_auth_code(port=6443) == "401":
+            m.execute("echo 'KUBE_API_ARGS=\"--authorization_mode=RBAC\"' >> /etc/kubernetes/apiserver")
+            m.execute("kubectl create clusterrolebinding anon-cluster-admin-binding --clusterrole=cluster-admin --user=system:anonymous")
+            self.restart_api_server(port=6443, scheme='https')
+
         b.reload()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Unauthenticated')
@@ -121,7 +190,6 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.switch_to_top()
         b.logout()
 
-        # Try to login as user with a wrong password
 
 class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
     machine_class = KubernetesContainerMachine

@@ -424,10 +424,7 @@ page.onResourceError = function(ex) {
      * Certain resource errors seem to be noise caused by
      * cancelled loads, and racy state in phantomjs
      */
-    if (ex.errorString === "Operation cancelled" ||
-        ex.errorString === "Operation canceled") {
-        prefix = "Ignoring Resource Error: ";
-    } else if (ex.errorString.indexOf("Network access is disabled") !== -1) {
+    if (ex.errorString.indexOf("Network access is disabled") !== -1) {
         sys.stderr.writeLine("ERROR: fatal problem: " + ex.errorString);
         phantom.exit(1);
         process.exit(1);

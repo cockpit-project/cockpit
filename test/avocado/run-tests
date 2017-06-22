@@ -166,9 +166,10 @@ done;
         with testvm.Timeout(seconds=30, error_message="Timeout while waiting for selenium to start"):
             machine.execute(script=WAIT_SELENIUM_RUNNING)
 
-def run_avocado(avocado_tests, verbose, browser, download_logs):
+def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
     use_selenium = (browser != 'none')
-    machine = testvm.VirtMachine(testvm.DEFAULT_IMAGE, verbose=verbose, label="avocado")
+    image = os.environ.get("TEST_OS", "fedora-24")
+    machine = testvm.VirtMachine(image, verbose=verbose, label="avocado")
     selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
 
     try:
@@ -208,6 +209,10 @@ def run_avocado(avocado_tests, verbose, browser, download_logs):
         elif download_logs:
             copy_avocado_logs(machine, "PASSED")
 
+        if not success and sit:
+            print >> sys.stderr, "ADDRESS: %s" % machine.address
+            raw_input ("Press RET to continue... ")
+
         return success
     finally:
         machine.kill()
@@ -228,6 +233,8 @@ def main():
                         help="Run known regular (non-selenium) tests")
     parser.add_argument("-l", "--logs", dest='download_logs', action='store_true',
                         help="Always download avocado logs, even on success")
+    parser.add_argument("--sit", dest='sit', action='store_true',
+                        help="Sit and wait after test failure")
     parser.add_argument('tests', nargs='*')
 
     opts = parser.parse_args()
@@ -251,7 +258,7 @@ def main():
         sys.stderr.write("No tests specified.\n")
         return 0
 
-    if run_avocado(opts.tests, opts.verbosity, opts.browser, opts.download_logs):
+    if run_avocado(opts.tests, opts.verbosity, opts.browser, opts.download_logs, opts.sit):
         return 0
     else:
         return 1

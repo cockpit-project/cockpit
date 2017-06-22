@@ -629,6 +629,11 @@ class MachineCase(unittest.TestCase):
         'Error was encountered while opening journal files:.*',
         'Failed to get data: Cannot assign requested address',
 
+        # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1461893
+        # selinux errors while logging in via ssh
+        'type=1401 audit(.*): op=security_compute_av reason=bounds scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tcontext=unconfined_u:system_r:svirt_lxc_net_t:s0-s0:c0.c1023 tclass=process perms=transition,sigchld,sigstop,signull,signal,getattr',
+        'type=1401 audit(.*): op=security_compute_av reason=bounds scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:svirt_lxc_net_t:s0-s0:c0.c1023 tclass=process perms=transition,sigchld,sigstop,signull,signal,getattr',
+
         # Various operating systems see this from time to time
         "Journal file.*truncated, ignoring file.",
     ]
@@ -854,6 +859,11 @@ class Policy(object):
         # https://github.com/owncloud/client/issues/3600
         # https://github.com/ariya/phantomjs/issues/14789
         if "PhantomJS or driver broken" in trace:
+            return True
+
+        # HACK: A race issue in phantomjs that happens randomly
+        # https://github.com/ariya/phantomjs/issues/12750
+        if "Resource Error: Operation canceled" in trace:
             return True
 
         # HACK: Interacting with sshd during boot is not always predictable

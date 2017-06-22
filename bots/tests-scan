@@ -20,36 +20,33 @@
 
 BASELINE_PRIORITY = 10
 
-BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5' ]
+BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5', 'rhel-7.3.6' ]
 
 DEFAULT_VERIFY = {
     'avocado/fedora-24': BRANCHES,
     'avocado/fedora-25': [ ],
     'container/kubernetes': BRANCHES,
-    'koji/fedora-24': [ ],
-    'koji/fedora-25': [ ],
-    'koji/fedora-26': [ ],
     'selenium/firefox': BRANCHES,
     'selenium/chrome': BRANCHES,
     'verify/centos-7': BRANCHES,
     'verify/continuous-atomic': [ ],
     'verify/debian-stable': [ 'master' ],
-    'verify/debian-testing': BRANCHES,
+    'verify/debian-testing': [ 'master' ],
     'verify/fedora-24': [ ],
     'verify/fedora-25': [ ],
-    'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.5' ],
+    'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.6', 'rhel-7.3.5' ],
     'verify/fedora-26': [ 'master' ],
     'verify/fedora-atomic': BRANCHES,
     'verify/fedora-testing': [ ],
-    'verify/ubuntu-1604': [ 'master', 'rhel-7.4', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
+    'verify/ubuntu-1604': [ 'master' ],
     'verify/ubuntu-stable': [ 'master' ],
 }
 
 # Non-public images used for testing
 REDHAT_VERIFY = {
-    "verify/rhel-7": [ "master", "pulls" ],
-    "verify/rhel-7-4": [ ],
-    "verify/rhel-atomic": [ "master", "pulls" ],
+    "verify/rhel-7": [ 'master', 'rhel-7.3.6', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
+    "verify/rhel-7-4": [ 'master', 'rhel-7.4' ],
+    "verify/rhel-atomic": [ 'master' ],
 }
 
 # Server to tell us if we can test Red Hat images

@@ -183,7 +183,7 @@ WantedBy=default.target
         # Log out and check that login page is translated now
         b.logout()
         b.wait_visible('#password-group')
-        self.assertEqual(b.text("#password-group > label"), "Passwort")
+        b.wait_text("#password-group > label", "Passwort")
 
     def testFrameReload(self):
         b = self.browser

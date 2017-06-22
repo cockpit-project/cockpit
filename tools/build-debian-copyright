@@ -128,18 +128,10 @@ def module_copyright(moddir):
         pass
 
     # missing copyrights
-    if mod == 'angular-bootstrap':
-        # only committer is Wesley Cho, so assume his copyright
-        # https://github.com/angular-ui/bootstrap-bower/issues/74
-        copyrights.add('(C) 2015-2017 Wesley Cho')
     if mod == 'kubernetes-object-describer':
         # only committer is Jessica Forrester, working for Red Hat
         # https://github.com/kubernetes-ui/object-describer/issues/35
-        copyrights.add('(C) 2015-2017 Red Hat, Inc.')
-    if mod == 'redux':
-        # our tarball only ships the minified version, original source is at
-        # https://github.com/reactjs/redux
-        copyrights.add('(c) 2015-present Dan Abramov')
+        copyrights.add(' (C) 2015-2017 Red Hat, Inc.')
 
     if not copyrights:
         raise SystemError('Did not find any copyrights in %s' % moddir)
@@ -164,9 +156,9 @@ for module in sorted(os.listdir(args.node_modules)):
     if license not in license_ids:
         raise KeyError('%s has license %s which is not in %s' % (module, license, template_file))
     copyrights = module_copyright(moddir)
-    paragraphs.append(u'''Files: %s/*
+    paragraphs.append(u'''Files: node_modules/%s/*
 Copyright:%s
-License: %s''' % (moddir, '\n'.join(sorted(copyrights)), license))
+License: %s''' % (module, '\n'.join(sorted(copyrights)), license))
 
 for l in template.splitlines():
     if '#NPM' in l:

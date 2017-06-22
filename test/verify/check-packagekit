@@ -57,6 +57,9 @@ class TestUpdates(MachineCase):
         # no repositories at all, thus no updates
         b.wait_present(".content-header-extra td button")
         b.wait_in_text("#state", "No updates pending")
+        b.wait_present(".content-header-extra td.text-right span")
+        # PK starts from a blank state, thus should force refresh and set the "time since" to 0
+        self.assertEqual(b.text(".content-header-extra td.text-right span"), "Last checked: a few seconds ago")
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
 

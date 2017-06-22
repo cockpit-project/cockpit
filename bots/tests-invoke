@@ -154,9 +154,6 @@ class PullTask(object):
         self.sink = sink.Sink(host, identifier, status)
 
     def rebase(self):
-        if "TEST_INVOKE_RESPAWN" in os.environ:
-            return None
-
         origin_base = "origin/" + self.base
 
         # Rebase this branch onto the base, but only if it's not already an ancestor
@@ -304,28 +301,29 @@ class PullTask(object):
         return ret
 
     def run(self, opts):
-        head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
-        if self.ref:
-            if not opts.offline:
-                subprocess.check_call([ "git", "fetch", "origin", self.ref ])
+        if "TEST_INVOKE_RESPAWN" not in os.environ:
+            head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+            if self.ref:
+                if not opts.offline:
+                    subprocess.check_call([ "git", "fetch", "origin", self.ref ])
+                if not self.revision:
+                    self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
+                # Force a checkout of the ref if not already checked out
+                if not head.lower().startswith(self.revision.lower()):
+                    subprocess.check_call([ "git", "checkout", "-f", self.revision ])
+
             if not self.revision:
-                self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
-            # Force a checkout of the ref if not already checked out
-            if not head.lower().startswith(self.revision.lower()):
-                subprocess.check_call([ "git", "checkout", "-f", self.revision ])
+                self.revision = head
 
-        if not self.revision:
-            self.revision = head
+            # Retrieve information about our base branch
+            if self.base and not opts.offline:
+                subprocess.check_call([ "git", "fetch", "origin", self.base ])
 
-        # Retrieve information about our base branch
-        if self.base and not opts.offline:
-            subprocess.check_call([ "git", "fetch", "origin", self.base ])
+            # Clean out the test directory
+            subprocess.check_call([ "git", "clean", "-d", "--force", "--quiet", "-x", "--", "test/" ])
 
-        # Clean out the test directory
-        subprocess.check_call([ "git", "clean", "-d", "--force", "--quiet", "-x", "--", "test/" ])
-
-        os.environ["TEST_NAME"] = self.name
-        os.environ["TEST_REVISION"] = self.revision
+            os.environ["TEST_NAME"] = self.name
+            os.environ["TEST_REVISION"] = self.revision
 
         # Split a value like verify/fedora-24
         (prefix, unused, value) = self.context.partition("/")
@@ -348,8 +346,10 @@ class PullTask(object):
 
         ret = None
 
-        if self.base:
-            ret = self.rebase()
+        # If a respawn then this is aleady done
+        if "TEST_INVOKE_RESPAWN" not in os.environ:
+            if self.base:
+                ret = self.rebase()
 
         test = os.path.join(BOTS, "..", "test")
 

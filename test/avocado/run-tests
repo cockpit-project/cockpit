@@ -168,7 +168,8 @@ done;
 
 def run_avocado(avocado_tests, verbose, browser, download_logs):
     use_selenium = (browser != 'none')
-    machine = testvm.VirtMachine(testvm.DEFAULT_IMAGE, verbose=verbose, label="avocado")
+    image = os.environ.get("TEST_OS", "fedora-24")
+    machine = testvm.VirtMachine(image, verbose=verbose, label="avocado")
     selenium = testvm.VirtMachine(image="selenium", label="selenium", verbose=verbose) if use_selenium else None
 
     try:

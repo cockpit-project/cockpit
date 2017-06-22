@@ -114,7 +114,17 @@ class TestUpdates(MachineCase):
         # Cancel button should eventually get disabled
         b.wait_present(".content-header-extra td button:disabled")
 
-        # should have succeeded
+        # should have succeeded and show restart page; cancel
+        b.wait_present("#app .container-fluid h1")
+        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
+        b.wait_present("#app .container-fluid button.btn-primary")
+        self.assertEqual(b.text("#app .container-fluid button.btn-primary"), "Restart Now")
+        b.wait_present("#app .container-fluid button.btn-default")
+        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Ignore")
+        b.click("#app .container-fluid button.btn-default")
+
+        # should go back to updates overview, nothing pending any more
+        b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
         b.wait_present(".content-header-extra td.text-right span")
         b.wait_in_text(".content-header-extra td.text-right span", "Last checked:")
@@ -198,7 +208,14 @@ class TestUpdates(MachineCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
+        # should have succeeded and show restart page; cancel
+        b.wait_present("#app .container-fluid h1")
+        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
+        b.wait_present("#app .container-fluid button.btn-default")
+        b.click("#app .container-fluid button.btn-default")
+
         # should have succeeded; 3 non-security updates left
+        b.wait_present("#state")
         b.wait_in_text("#state", "3 updates")
         b.wait_in_text(".container-fluid h2", "Available Updates")
         b.wait_in_text("table.listing-ct", "norefs-doc")
@@ -218,13 +235,33 @@ class TestUpdates(MachineCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
-        # should have succeeded
-        b.wait_in_text("#state", "No updates pending")
-        # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        # should have succeeded and show restart
+        b.wait_present("#app .container-fluid h1")
+        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
+        b.wait_present("#app .container-fluid button.btn-default")
 
         # new versions are now installed
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
+
+        # do the reboot; this will disconnect the web UI
+        m.reset_reboot_flag()
+        b.click("#app .container-fluid button.btn-primary")
+        b.switch_to_top()
+        b.wait_present(".curtains-ct")
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        # ensure that rebooting actually worked
+        m.wait_reboot()
+        m.start_cockpit()
+        b.reload()
+        b.login_and_go("/updates")
+
+        # no further updates
+        b.wait_present("#state")
+        b.wait_in_text("#state", "No updates pending")
+        # empty state visible in main area
+        b.wait_present(".container-fluid div.blank-slate-pf")
 
     def testUpdateError(self):
         b = self.browser
@@ -287,7 +324,12 @@ class TestUpdates(MachineCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
-        # should have succeeded
+        # should have succeeded and show restart page; cancel
+        b.wait_present("#app .container-fluid h1")
+        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
+        b.wait_present("#app .container-fluid button.btn-default")
+        b.click("#app .container-fluid button.btn-default")
+        b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect

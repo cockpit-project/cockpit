@@ -32,6 +32,7 @@ const STATE_HEADINGS = {
     "refreshing": _("Refreshing package information"),
     "uptodate": _("No updates pending"),
     "applying": _("Applying updates"),
+    "updateSuccess": null,
     "updateError": _("Applying updates failed"),
     "loadError": _("Loading available updates failed"),
 }
@@ -109,6 +110,9 @@ function HeaderBar(props) {
     } else {
         state = STATE_HEADINGS[props.state];
     }
+
+    if (!state)
+        return null;
 
     var lastChecked;
     var actionButton;
@@ -269,6 +273,20 @@ class ApplyUpdates extends React.Component {
     }
 }
 
+function AskRestart(props) {
+    return (
+        <div className="blank-slate-pf">
+            <h1>{_("Restart Recommended")}</h1>
+            <p>{_("Updated packages may require a restart to take effect.")}</p>
+            <div className="blank-slate-pf-secondary-action">
+                <button className="btn btn-default" onClick={() => props.onIgnore()}>{_("Ignore")}</button>
+                &nbsp;
+                <button className="btn btn-primary" onClick={() => props.onRestart()}>{_("Restart Now")}</button>
+            </div>
+        </div>
+    );
+}
+
 class OsUpdates extends React.Component {
     constructor() {
         super();
@@ -276,6 +294,8 @@ class OsUpdates extends React.Component {
                       loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null};
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
+        this.handleRestart = this.handleRestart.bind(this);
+        this.loadUpdates = this.loadUpdates.bind(this);
     }
 
     componentDidMount() {
@@ -451,7 +471,9 @@ class OsUpdates extends React.Component {
         transProxy.addEventListener("Finished", (event, exit) => {
             this.setState({applyTransaction: null, allowCancel: null});
 
-            if (exit == PK_EXIT_ENUM_SUCCESS || exit == PK_EXIT_ENUM_CANCELLED) {
+            if (exit == PK_EXIT_ENUM_SUCCESS)
+                this.setState({state: "updateSuccess", haveSecurity: false, loadPercent: null});
+            else if (exit == PK_EXIT_ENUM_CANCELLED) {
                 this.setState({state: "loading", haveSecurity: false, loadPercent: null});
                 this.loadUpdates();
             } else {
@@ -553,6 +575,19 @@ class OsUpdates extends React.Component {
             case "applying":
                 return <ApplyUpdates transaction={this.state.applyTransaction}/>
 
+            case "updateSuccess":
+                return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} />
+
+            case "restart":
+                return (
+                    <div className="blank-slate-pf">
+                        <div class="blank-slate-pf-icon">
+                            <div className="spinner spinner-lg"></div>
+                        </div>
+                        <h1>{_("Restarting")}</h1>
+                        <p>{_("Your server will close the connection soon. You can reconnect after it has restarted.")}</p>
+                    </div>);
+
             case "uptodate":
                 return (
                     <div className="blank-slate-pf">
@@ -590,6 +625,18 @@ class OsUpdates extends React.Component {
                     .fail(this.handleLoadError);
             })
             .fail(this.handleLoadError);
+    }
+
+    handleRestart() {
+        this.setState({state: "restart"})
+        // give the user a chance to actually read the message
+        window.setTimeout(() => {
+            cockpit.spawn(["shutdown", "--reboot", "now"], {superuser: true, err: "message"})
+                .fail(ex => {
+                    this.state.errorMessages.push(ex);
+                    this.setState({state: "updateError"});
+                });
+        }, 5000);
     }
 
     render() {

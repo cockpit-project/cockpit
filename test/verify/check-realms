@@ -197,11 +197,25 @@ if ! grep -q 'services.*nss' /etc/sssd/sssd.conf; then
     systemctl restart sssd
 fi
 
-# This needs to work
-getent passwd admin@cockpit.lan
+# HACK: This needs to work, but may take a minute
+for x in $(seq 1 60); do
+    if getent passwd admin@cockpit.lan; then
+        break
+    fi
+    sleep $x
+done
 
 # This directory should be owned by the domain user
+getent passwd admin@cockpit.lan
 chown -R admin@cockpit.lan /home/admin
+
+# HACK: This needs to work but may take a minute
+for x in $(seq 1 60); do
+    if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l admin@cockpit.lan x0.cockpit.lan true; then
+        break
+    fi
+    sleep $x
+done
 """
 
 # This is here because our test framework can't run ipa VM's twice

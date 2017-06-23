@@ -268,7 +268,8 @@ class TestMachines(MachineCase):
             b.wait_present("iframe.machines-console-frame-vnc")
             b.switch_to_frame("vm-subVmTest1-novnc-frame-container")
             # FIXME: the usual b.wait_present() does not  work here
-            b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('noVNC_status_normal') >= 0"))
+            with b.wait_timeout(360):
+                b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('noVNC_status_normal') >= 0"))
             b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('Connected (unencrypted) to: QEMU (subVmTest1)') >= 0"))
         else:
             print "WARNING: Test VM creation failed, virt-install finished in 'paused' state. Skipping the 'testInlineConsole' scenario"

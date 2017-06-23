@@ -41,6 +41,11 @@ class TestChecklist(unittest.TestCase):
         self.assertEqual(parse_line(" * [x] FAIL: test two"), ("test two", "FAIL"))
         self.assertEqual(parse_line(" * [x] FAIL: test FAIL: two"), ("test FAIL: two", "FAIL"))
         self.assertEqual(parse_line(" * [x]test three"), (None, None))
+        self.assertEqual(parse_line(" - [X] test two "), ("test two", True))
+        self.assertEqual(parse_line(" * [X] test four"), ("test four", True))
+        self.assertEqual(parse_line(" * [X] FAIL: test four"), ("test four", "FAIL"))
+        self.assertEqual(parse_line(" * [X] FAIL: test FAIL: four"), ("test FAIL: four", "FAIL"))
+        self.assertEqual(parse_line(" * [X]test five"), (None, None))
 
     def testFormat(self):
         format_line = github.Checklist.format_line
@@ -49,17 +54,18 @@ class TestChecklist(unittest.TestCase):
         self.assertEqual(format_line("blah", "FAIL"), " * [ ] FAIL: blah")
 
     def testProcess(self):
-        body = "This is a description\n- [ ] item1\n * [x] Item two\n\nMore lines"
+        body = "This is a description\n- [ ] item1\n * [x] Item two\n * [X] Item three\n\nMore lines"
         checklist = github.Checklist(body)
         self.assertEqual(checklist.body, body)
-        self.assertEqual(checklist.items, { "item1": False, "Item two": True })
+        self.assertEqual(checklist.items, { "item1": False, "Item two": True, "Item three": True })
 
     def testCheck(self):
-        body = "This is a description\n- [ ] item1\n * [x] Item two\n\nMore lines"
+        body = "This is a description\n- [ ] item1\n * [x] Item two\n * [X] Item three\n\nMore lines"
         checklist = github.Checklist(body)
         checklist.check("item1", True)
-        self.assertEqual(checklist.body, "This is a description\n * [x] item1\n * [x] Item two\n\nMore lines")
-        self.assertEqual(checklist.items, { "item1": True, "Item two": True })
+        checklist.check("Item three", False)
+        self.assertEqual(checklist.body, "This is a description\n * [x] item1\n * [x] Item two\n * [ ] Item three\n\nMore lines")
+        self.assertEqual(checklist.items, { "item1": True, "Item two": True, "Item three": False })
 
     def testDisable(self):
         body = "This is a description\n- [ ] item1\n * [x] Item two\n\nMore lines"

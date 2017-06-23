@@ -330,7 +330,7 @@ class Checklist(object):
     def parse_line(line):
         check = item = None
         stripped = line.strip()
-        if stripped[:6] in ["* [ ] ", "- [ ] ", "* [x] ", "- [x] "]:
+        if stripped[:6] in ["* [ ] ", "- [ ] ", "* [x] ", "- [x] ", "* [X] ", "- [X] "]:
             status, unused, item = stripped[6:].strip().partition(": ")
             if not item:
                 item = status
@@ -338,7 +338,7 @@ class Checklist(object):
             if status:
                 check = status
             else:
-                check = stripped[3] == "x"
+                check = stripped[3] in ["x", "X"]
         return (item, check)
 
     def process(self, body, items={ }):

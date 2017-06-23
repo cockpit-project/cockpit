@@ -80,14 +80,17 @@ function inject_basics(loading) {
      */
     var injected = page.evaluate(function(canary, loading) {
         if (loading) {
+            /* A load is not complete until all resources are done */
+	    if (document.readyState !== "complete") {
+                document.addEventListener("readystatechange", function() {
+                    console.log("-*-CHECKPOINT-*-");
+                });
+		return null;
+            }
             if (typeof loading !== "string")
                 loading = window.location.href;
-            if (window.location.href !== loading || document.readyState === "loading") {
-                document.onreadystatechange = function() {
-                    console.log("-*-CHECKPOINT-*-");
-                };
+            if (window.location.href !== loading)
                 return null;
-            }
         }
         return canary in window;
     }, canary, loading || false);

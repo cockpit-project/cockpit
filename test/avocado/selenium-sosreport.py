@@ -20,7 +20,7 @@ class SosReportingTab(SeleniumTest):
     def test10SosReport(self):
         self.login()
         self.wait_id("sidebar")
-        self.click(self.wait_link('Diagnostic report', cond=clickable))
+        self.click(self.wait_link('Diagnostic Report', cond=clickable))
         self.wait_frame("sosreport")
         self.wait_text("This tool will collect system configuration and diagnostic")
         self.click(self.wait_xpath('//button[@data-target="#sos"]', cond=clickable))

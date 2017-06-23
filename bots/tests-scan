@@ -201,7 +201,10 @@ def scan_for_pull_tasks(api, update, human, policy):
 
     for branch in branch_contexts:
         ref = api.get("git/refs/heads/{0}".format(branch))
-        if ref:
+        # if the branch doesn't exist but other branches begin with this name, GitHub returns a list
+        # we don't want to use such a list
+        # https://developer.github.com/v3/git/refs/
+        if ref and not isinstance(ref, list):
             revision = ref["object"]["sha"]
             statuses = api.statuses(revision)
             which = statuses.keys() or branch_contexts[branch]

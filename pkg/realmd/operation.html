@@ -76,16 +76,17 @@
             </tr>
             <tr>
               <td colspan="3">
-                <div class="realms-op-error" hidden></div>
-                  <pre class="realms-op-diagnostics" hidden>
-                  </pre>
-                </div>
+                <pre class="realms-op-diagnostics" hidden></pre>
               </td>
             </tr>
           </table>
         </div>
       </div>
       <div class="modal-footer">
+        <div class="realms-op-error alert alert-danger" hidden>
+          <span class="fa fa-exclamation-triangle"></span>
+          <span class="realms-op-message"></span>
+        </div>
         <div class="realms-op-spinner spinner pull-left"></div>
         <span class="realms-op-wait-message" translatable="yes" hidden>This may take a while</span>
         <button class="btn btn-default realms-op-cancel" translatable="yes">Cancel</button>

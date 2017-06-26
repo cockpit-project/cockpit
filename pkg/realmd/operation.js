@@ -142,7 +142,7 @@
                     var error, result = [], path;
                     if (this.state() == "rejected") {
                         error = arguments[0];
-                        $(".realms-op-error")
+                        $(".realms-op-message")
                             .empty()
                             .text(error.message);
                         dfd.reject(error);
@@ -326,6 +326,7 @@
             var id = "cockpit-" + unique;
             unique += 1;
             busy(id);
+            $(".realms-op-error").hide();
 
             ensure()
                 .fail(function() {
@@ -334,7 +335,7 @@
                 .done(function(realm) {
                     var options = { operation: cockpit.variant('s', id) };
 
-                    $(".realms-op-error").empty().show();
+                    $(".realms-op-message").empty();
                     $(".realms-op-diagnostics").empty().hide();
 
                     var diagnostics = "";
@@ -353,7 +354,8 @@
                             call = kerberos.call("Join", [ credentials(), options ]);
                         } else {
                             busy(null);
-                            $(".realms-op-error").empty().text(_("Joining this domain is not supported")).show();
+                            $(".realms-op-message").empty().text(_("Joining this domain is not supported"));
+                            $(".realms-op-error").show();
                         }
                     } else if (mode == 'leave') {
                         call = realm.Deconfigure(options);
@@ -371,9 +373,10 @@
                                 $(dialog).modal("hide");
                             } else {
                                 console.log("Failed to join domain: " + realm.Name + ": " + ex);
-                                $(".realms-op-error").empty().text(ex + " ").show();
+                                $(".realms-op-message").empty().text(ex + " ");
+                                $(".realms-op-error").show();
                                 if (diagnostics) {
-                                    $(".realms-op-error")
+                                    $(".realms-op-message")
                                         .append('<a class="realms-op-more-diagnostics">' + _("More") + '</a>');
                                     $(".realms-op-diagnostics").text(diagnostics);
                                 }

@@ -28,6 +28,15 @@ import GraphicsConsole from './components/graphicsConsole.jsx';
 
 const _ = cockpit.gettext;
 
+function mouseClick(fun) {
+    return function (event) {
+        if (!event || event.button !== 0)
+            return;
+        event.stopPropagation();
+        return fun(event);
+    };
+}
+
 const NoVm = () => {
     return (<div className="cockpit-log-warning">
         <div className="blank-slate-pf">
@@ -75,7 +84,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
 
     let run = null;
     if (config.provider.canRun(state)) {
-        run = (<button className="btn btn-default btn-danger" onClick={onStart} id={`${id}-run`}>
+        run = (<button className="btn btn-default btn-danger" onClick={mouseClick(onStart)} id={`${id}-run`}>
             {_("Run")}
         </button>);
     }
@@ -106,7 +115,7 @@ VmActions.propTypes = {
 
 const IconElement = ({ onClick, className, title, state }) => {
     return (<span title={title} data-toggle='tooltip' data-placement='left'>
-        {state}&nbsp;<i onClick={onClick} className={className}/>
+        {state}&nbsp;<i onClick={mouseClick(onClick)} className={className}/>
     </span>);
 }
 IconElement.propTypes = {
@@ -165,7 +174,7 @@ export const DropdownButtons = ({ buttons }) => {
             .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
             .map(button => {
                 return (<li className='presentation'>
-                    <a role='menuitem' onClick={button.action} id={button.id}>
+                    <a role='menuitem' onClick={mouseClick(button.action)} id={button.id}>
                         {button.title}
                     </a>
                 </li>)
@@ -173,7 +182,7 @@ export const DropdownButtons = ({ buttons }) => {
 
         const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
         return (<div className='btn-group'>
-            <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={buttons[0].action}>
+            <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={mouseClick(buttons[0].action)}>
                 {buttons[0].title}
             </button>
             <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
@@ -186,7 +195,7 @@ export const DropdownButtons = ({ buttons }) => {
     }
 
     return (<div className='btn-group'>
-        <button className='btn btn-default btn-danger' onClick={buttons[0].action} id={buttons[0]['id']}>
+        <button className='btn btn-default btn-danger' onClick={mouseClick(buttons[0].action)} id={buttons[0]['id']}>
             {buttons[0].title}
         </button>
     </div>);

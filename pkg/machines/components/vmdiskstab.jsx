@@ -20,7 +20,7 @@
 import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
-import { toGigaBytes } from '../helpers.es6';
+import { convertToUnit, units, toReadableNumber } from '../helpers.es6';
 import InfoRecord from './infoRecord.jsx';
 import { Info } from './inlineNotification.jsx';
 
@@ -68,7 +68,7 @@ const StorageUnit = ({ value, id }) => {
 
     return (
         <div id={id}>
-            {toGigaBytes(value, 'B')}&nbsp;{_("GB")}
+            {toReadableNumber(convertToUnit(value, units.B, units.GiB))}&nbsp;{_("GiB")}
         </div>
     );
 };

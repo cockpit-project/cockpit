@@ -21,13 +21,14 @@ import React from "react";
 import HostVmsList from "./hostvmslist.jsx";
 
 const App = ({ store }) => {
-    const { vms, config } = store.getState();
+    const { vms, config, osInfoList, ui } = store.getState();
     const dispatch = store.dispatch;
 
-    return (<HostVmsList vms={vms} config={config} dispatch={dispatch} />)
-}
+    // pass ui object
+    return (<HostVmsList vms={vms} config={config} osInfoList={osInfoList} ui={ui} dispatch={dispatch}/>);
+};
 App.propTypes = {
-    store: React.PropTypes.object.isRequired
-}
+    store: React.PropTypes.object.isRequired,
+};
 
 export default App;

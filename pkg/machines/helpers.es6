@@ -22,49 +22,105 @@ import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
 
-export function toGigaBytes(amount, currentUnit) {
-    let result;
-    switch (currentUnit) {
-        case 'B':
-            result = amount / 1024 / 1024 / 1024;
-            break;
-        case 'KiB':
-            result = amount / 1024 / 1024;
-            break;
-        default:
-            console.error(`toGigaBytes(): unknown unit: ${currentUnit}`);
-            result = amount / 1;
-    }
-
-    if (result < 1) {
-        result = result.toFixed(2);
+export function toReadableNumber(number) {
+    if (number < 1) {
+        return number.toFixed(2);
     } else {
-        const fixed1 = result.toFixed(1);
-        result = (result - fixed1 === 0) ? result.toFixed(0) : fixed1;
+        const fixed1 = number.toFixed(1);
+        return (number - fixed1 === 0) ? number.toFixed(0) : fixed1;
     }
-
-    return result;
 }
 
-export function toKiloBytes(amount, currentUnit) {
-    let result;
-    switch (currentUnit) {
-        case 'B':
-            result = amount / 1024;
-            break;
-        case 'KiB':
-            result = amount;
-            break;
-        case 'MiB':
-            result = amount * 1024;
-            break;
-        case 'GiB':
-            result = amount * 1024;
-            break;
-        default:
-            console.error(`toKiloBytes(): unknown unit: ${currentUnit}`);
-            result = amount / 1;
+export const units = {
+    B: {
+        name: "B",
+        base1024Exponent: 0,
+    },
+    KiB: {
+        name: "KiB",
+        base1024Exponent: 1,
+    },
+    MiB: {
+        name: "MiB",
+        base1024Exponent: 2,
+    },
+    GiB: {
+        name: "GiB",
+        base1024Exponent: 3,
+    },
+    TiB: {
+        name: "TiB",
+        base1024Exponent: 4,
+    },
+    PiB: {
+        name: "PiB",
+        base1024Exponent: 5,
+    },
+    EiB: {
+        name: "EiB",
+        base1024Exponent: 6,
+    },
+};
+
+const logUnitMap = {
+    '0': units.B,
+    '1': units.KiB,
+    '2': units.MiB,
+    '3': units.GiB,
+    '4': units.TiB,
+    '5': units.PiB,
+    '6': units.EiB,
+};
+
+function getPowerOf1024(exponent) {
+    return exponent === 0 ? 1 : Math.pow(1024, exponent);
+}
+
+function getLogarithmOfBase1024(value) {
+    return value > 0 ? (Math.floor(Math.log(value) / Math.log(1024))) : 0;
+}
+
+export function convertToBestUnit(input, inputUnit) {
+    return convertToUnitVerbose(input, inputUnit,
+        logUnitMap[getLogarithmOfBase1024(convertToUnitVerbose(input, inputUnit, units.B).value)]);
+}
+
+export function convertToUnit(input, inputUnit, outputUnit) {
+    return convertToUnitVerbose(input, inputUnit, outputUnit).value;
+}
+
+export function convertToUnitVerbose(input, inputUnit, outputUnit) {
+    let result = {
+        value: 0,
+        unit: units.B.name,
+    };
+
+    input = Number(input);
+    if (isNaN(input)) {
+        console.error('input is not a number');
+        return result;
     }
+
+    if (input < 0) {
+        console.error(`input == ${input} cannot be less than zero`);
+        return result;
+    }
+
+    let inUnit = units[(typeof inputUnit === 'string' ? inputUnit : inputUnit.name)];
+    let outUnit = units[(typeof outputUnit === 'string' ? outputUnit : outputUnit.name)];
+
+    if (!inUnit || !outUnit) {
+        console.error(`unknown unit ${!inUnit ? inputUnit : outputUnit}`);
+        return result;
+    }
+
+    let exponentDiff = inUnit.base1024Exponent - outUnit.base1024Exponent;
+    if (exponentDiff < 0) {
+        result.value = input / getPowerOf1024(-1 * exponentDiff);
+    } else {
+        result.value = input * getPowerOf1024(exponentDiff);
+    }
+    result.unit = outUnit.name;
 
     return result;
 }
@@ -92,6 +148,22 @@ export function logDebug(msg, ...params) {
 
 export function logError(msg, ...params) {
     console.error(msg, ...params);
+}
+
+export function digitFilter(event, allowDots = false) {
+    let doNotFilter = (allowDots && event.charCode === 46) || event.charCode >= 48 && event.charCode <= 57;
+
+    if (!doNotFilter) {
+        event.preventDefault();
+    }
+
+    return doNotFilter;
+}
+
+export function getTodayYearShifted(yearDifference) {
+    const result = new Date();
+    result.setFullYear(result.getFullYear() + yearDifference);
+    return result;
 }
 
 const transform = {
@@ -174,7 +246,7 @@ export function toFixedPrecision(value, precision) {
 }
 
 
-function isFirefox () {
+function isFirefox() {
     return window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 }
 
@@ -186,7 +258,7 @@ function isFirefox () {
  * @param mimeType
  * @returns {*}
  */
-export function fileDownload ({ data, fileName = 'myFile.dat', mimeType = 'application/octet-stream' }) {
+export function fileDownload({ data, fileName = 'myFile.dat', mimeType = 'application/octet-stream' }) {
     if (!data) {
         console.error('fileDownload(): no data to download');
         return false;
@@ -231,4 +303,41 @@ export function mouseClick(fun) {
         event.preventDefault();
         return fun(event);
     };
+}
+
+/**
+ * Let promise resolve itself in specified delay or force resolve it with 0 arguments
+ *
+ * @param promise
+ * @param delay of timeout in ms
+ * @returns new promise
+ */
+export function timeoutedPromise(promise, delay) {
+    const deferred = cockpit.defer();
+    let done = false;
+
+    let timer = window.setTimeout(() => {
+        if (!done) {
+            deferred.resolve();
+            done = true;
+        }
+    }, delay);
+
+    promise.then(function(/* ... */) {
+        if (!done) {
+            deferred.resolve.apply(deferred, arguments);
+            done = true;
+            window.clearTimeout(timer);
+        }
+    });
+
+    promise.catch(function(/* ... */) {
+        if (!done) {
+            deferred.reject.apply(deferred, arguments);
+            done = true;
+            window.clearTimeout(timer);
+        }
+    });
+
+    return deferred.promise;
 }

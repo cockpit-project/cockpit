@@ -22,6 +22,7 @@ import parent
 from testlib import *
 
 import os
+import functools
 
 def readFile(name):
     content = ''
@@ -140,24 +141,30 @@ class TestMachines(MachineCase):
 
     def setUp(self):
         MachineCase.setUp(self)
+        self.startLibvirt()
 
         # enforce use of cockpit-machines instead of cockpit-machines-ovirt
         m = self.machine
         m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
         m.execute("[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
 
+        self.allow_journal_messages('.*type=1400.*')
+
+    def startLibvirt(self):
+        m = self.machine
+        # Ensure everything has started correctly
+        m.execute("systemctl start libvirtd")
+        print(m.execute("date"))
+        # Wait until we can get a list of domains
+        wait(lambda: m.execute("virsh list"))
+        # Wait for the network 'default' to become active
+        wait(lambda: m.execute(command="virsh net-info default | grep Active"))
+
     def startVm(self, name, graphics='spice', ptyconsole=False):
         m = self.machine
 
         image_file = m.pull("cirros")
         m.add_disk(serial="NESTED", path=image_file, type="qcow2")
-
-        # Ensure everything has started correctly
-        m.execute("systemctl start libvirtd")
-        # Wait until we can get a list of domains
-        wait(lambda: m.execute("virsh list"))
-        # Wait for the network 'default' to become active
-        wait(lambda: m.execute(command="virsh net-info default | grep Active"))
         # Wait for the disk to be added
         wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_NESTED"))
 
@@ -218,6 +225,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
@@ -237,6 +245,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
@@ -308,9 +317,8 @@ class TestMachines(MachineCase):
 
         # restart libvirtd
         m.execute("systemctl stop libvirtd")
-        b.wait_present("#app .blank-slate-pf")
-        b.wait_visible("#app .blank-slate-pf")
-        b.wait_in_text("#app .blank-slate-pf", "No VM is running")
+        b.wait_present("thead tr td")
+        b.wait_in_text("thead tr td", "No VM is running")
         m.execute("systemctl start libvirtd")
         b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
         b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", "subVmTest1")
@@ -372,6 +380,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
@@ -445,6 +454,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
@@ -463,7 +473,7 @@ class TestMachines(MachineCase):
 
         # Test add network
         m.execute("virsh attach-interface --domain subVmTest1 --type network --source default --model virtio --mac 52:54:00:4b:73:5f --config --live")
-        
+
         b.wait_present("#vm-subVmTest1-network-2-type")
         b.wait_in_text("#vm-subVmTest1-network-2-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-2-source", "default")
@@ -480,6 +490,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
@@ -506,6 +517,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
@@ -534,6 +546,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", name)
 
         m.execute("test -f {0}".format(img2))
@@ -562,6 +575,7 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", name)
 
         b.click("tbody tr th") # click on the row header
@@ -600,6 +614,551 @@ class TestMachines(MachineCase):
             b.wait_present("div.terminal > div:contains(Connected)")
 
         # sit(self.machines)
+
+    def testCreate(self):
+        """
+        this test will print many expected error messages
+        """
+
+        runner = TestMachines.CreateVmRunner(self)
+        config = TestMachines.TestCreateConfig
+
+        self.login_and_go("/machines")
+        self.browser.wait_in_text("body", "Virtual Machines")
+
+        def checkVendorsLoadedInUi(dialog):
+            dialog.open()
+            has_vendor = dialog.hasVendor()
+            dialog.cancel()
+            return has_vendor
+
+        def cancelDialogTest(dialog):
+            dialog.open() \
+                .fill() \
+                .cancel(True)
+            runner.assertScriptFinished() \
+                .checkEnvIsEmpty()
+
+        def checkFilteredOsTest(dialog):
+            dialog.open() \
+                .checkOsOrVendorFiltered() \
+                .cancel(True)
+            runner.assertScriptFinished() \
+                .checkEnvIsEmpty()
+
+        def checkDialogErrorTest(dialog, error, ui_validation=True):
+            dialog.open() \
+                .fill() \
+                .createAndExpectError(error, ui_validation) \
+                .cancel(ui_validation)
+            runner.assertScriptFinished() \
+                .checkEnvIsEmpty()
+
+        def createTest(dialog):
+            runner.tryCreate(dialog) \
+                .assertScriptFinished() \
+                .deleteVm(dialog) \
+                .checkEnvIsEmpty()
+
+        def installWithErrorTest(dialog):
+            runner.tryInstallWithError(dialog) \
+                .assertScriptFinished() \
+                .deleteVm(dialog) \
+                .checkEnvIsEmpty()
+
+        # wait for os and vendors to load.
+        runner.assertOsInfoQueryFinished()
+        rhDialog = TestMachines.VmDialog(self, "loadVendors", os_vendor=config.REDHAT_VENDOR)
+        with self.browser.wait_timeout(10):
+            self.browser.wait(functools.partial(checkVendorsLoadedInUi, rhDialog))
+
+        runner.checkEnvIsEmpty()
+
+        # test just the DIALOG CREATION and cancel
+        print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
+        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate1", is_filesystem_location=True,
+                                               location=config.NOVELL_MOCKUP_ISO_PATH,
+                                               memory_size=1, memory_size_unit='MiB',
+                                               storage_size=12500, storage_size_unit='GiB',
+                                               os_vendor=config.UNSPECIFIED_VENDOR,
+                                               os_name=config.OTHER_OS,
+                                               start_vm=True))
+        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate2", is_filesystem_location=False,
+                                               location=config.VALID_URL,
+                                               memory_size=12654, memory_size_unit='GiB',
+                                               storage_size=0, storage_size_unit='MiB',
+                                               os_vendor=config.NOVELL_VENDOR,
+                                               os_name=config.NOVELL_NETWARE_4,
+                                               start_vm=False))
+
+        # check if older os are filtered
+        checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate3", os_vendor=config.REDHAT_VENDOR,
+                                                  os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
+
+        checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate4", os_vendor=config.MANDRIVA_FILTERED_VENDOR,
+                                                  os_name=config.MANDRIVA_2011_FILTERED_OS))
+
+        checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate5", os_vendor=config.MAGEIA_VENDOR,
+                                                  os_name=config.MAGEIA_3_FILTERED_OS))
+
+        # try to CREATE WITH DIALOG ERROR
+
+        # name
+        checkDialogErrorTest(TestMachines.VmDialog(self, ""), "Name")
+
+        # location
+        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate7", is_filesystem_location=False,
+                                                   location="invalid/url",
+                                                   os_vendor=config.NOVELL_VENDOR,
+                                                   os_name=config.NOVELL_NETWARE_4), "Source")
+
+        # memory
+        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate8", location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                   memory_size=100, memory_size_unit='GiB',
+                                                   storage_size=100, storage_size_unit='MiB',
+                                                   os_vendor=config.NOVELL_VENDOR,
+                                                   os_name=config.NOVELL_NETWARE_6,
+                                                   start_vm=True), "memory", ui_validation=False)
+
+        # disk
+        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate9", location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                   storage_size=10000, storage_size_unit='GiB',
+                                                   os_vendor=config.NOVELL_VENDOR,
+                                                   os_name=config.NOVELL_NETWARE_6,
+                                                   start_vm=True), "space", ui_validation=False)
+
+        # start vm
+        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate10",
+                                                   os_vendor=config.NOVELL_VENDOR,
+                                                   os_name=config.NOVELL_NETWARE_6, start_vm=True),
+                             "Installation Source should not be empty", ui_validation=True)
+
+        # try to CREATE few machines
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate11", is_filesystem_location=False,
+                                         location=config.VALID_URL,
+                                         storage_size=1,
+                                         os_vendor=config.MICROSOFT_VENDOR,
+                                         os_name=config.MICROSOFT_VISTA))
+
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate12", is_filesystem_location=False,
+                                         location=config.VALID_URL,
+                                         memory_size=256, memory_size_unit='MiB',
+                                         storage_size=100, storage_size_unit='MiB',
+                                         os_vendor=config.MICROSOFT_VENDOR,
+                                         os_name=config.MICROSOFT_XP_OS,
+                                         start_vm=False))
+
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate13", is_filesystem_location=False,
+                                         location=config.VALID_URL,
+                                         memory_size=900, memory_size_unit='GiB',
+                                         storage_size=100, storage_size_unit='MiB',
+                                         os_vendor=config.APPLE_VENDOR,
+                                         os_name=config.MACOS_X_TIGER,
+                                         start_vm=False))
+
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate14", is_filesystem_location=True,
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         memory_size=256, memory_size_unit='MiB',
+                                         storage_size=0, storage_size_unit='MiB',
+                                         os_vendor=config.APPLE_VENDOR,
+                                         os_name=config.MACOS_X_TIGER,
+                                         start_vm=False))
+        # try to INSTALL WITH ERROR
+        installWithErrorTest(TestMachines.VmDialog(self, "subVmTestCreate15", is_filesystem_location=True,
+                                                   location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                   memory_size=900, memory_size_unit='GiB',
+                                                   storage_size=10, storage_size_unit='MiB',
+                                                   os_vendor=config.APPLE_VENDOR,
+                                                   os_name=config.MACOS_X_LEOPARD))
+
+        # TODO: add use cases with start_vm=True and check that vm started
+        # - for install when creating vm
+        # - for create vm and then install
+        # see https://github.com/cockpit-project/cockpit/issues/8385
+
+        # console for try INSTALL
+        self.allow_journal_messages('.*connection.*')
+        self.allow_journal_messages('.*Connection.*')
+        self.allow_journal_messages('.*session closed.*')
+
+        runner.destroy()
+
+    class TestCreateConfig:
+        VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
+        NOVELL_MOCKUP_ISO_PATH = '/tmp/novell.iso'
+        NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
+
+        UNSPECIFIED_VENDOR = 'Unspecified'
+        OTHER_OS = 'Other OS'
+
+        NOVELL_VENDOR = 'Novell'
+        NOVELL_NETWARE_4 = 'Novell Netware 4'
+        NOVELL_NETWARE_5 = 'Novell Netware 5'
+        NOVELL_NETWARE_6 = 'Novell Netware 6'
+
+        OPENBSD_VENDOR = 'OpenBSD Project'
+        OPENBSD_5_4 = 'OpenBSD 5.4'
+
+        MICROSOFT_VENDOR = 'Microsoft Corporation'
+        MICROSOFT_MILLENNIUM_OS = 'Microsoft Windows Millennium Edition'
+        MICROSOFT_XP_OS = 'Microsoft Windows XP'
+        MICROSOFT_VISTA = 'Microsoft Windows Vista'
+        MICROSOFT_10_OS = 'Microsoft Windows 10'
+
+        APPLE_VENDOR = 'Apple Inc.'
+        MACOS_X_TIGER = 'MacOS X Tiger'
+        MACOS_X_LEOPARD = 'MacOS X Leopard'
+
+        # LINUX can be filtered if 3 years old
+        REDHAT_VENDOR = 'Red Hat, Inc'
+        REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'
+
+        MANDRIVA_FILTERED_VENDOR = 'Mandriva'
+        MANDRIVA_2011_FILTERED_OS = 'Mandriva Linux 2011'
+
+        MAGEIA_VENDOR = 'Mageia'
+        MAGEIA_3_FILTERED_OS = 'Mageia 3'
+
+    class VmDialog:
+        def __init__(self, env, name, is_filesystem_location=True, location='',
+                     memory_size=1, memory_size_unit='GiB',
+                     storage_size=1, storage_size_unit='GiB',
+                     os_vendor=None,
+                     os_name=None,
+                     start_vm=False):
+
+            if not is_filesystem_location and start_vm:
+                raise Exception("cannot start vm because url specified (no connection available in this test)")
+
+            self.browser = env.browser
+            self.machine = env.machine
+
+            self.name = name
+            self.is_filesystem_location = is_filesystem_location
+            self.location = location
+            self.memory_size = memory_size
+            self.memory_size_unit = memory_size_unit
+            self.storage_size = storage_size
+            self.storage_size_unit = storage_size_unit
+            self.os_vendor = os_vendor if os_vendor else TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR
+            self.os_name = os_name if os_name else TestMachines.TestCreateConfig.OTHER_OS
+            self.start_vm = start_vm
+
+        def getMemoryText(self):
+            return "{0} {1}".format(self.memory_size, self.memory_size_unit)
+
+        def open(self):
+            b = self.browser
+
+            b.wait_present("#create-new-vm")
+            b.click("#create-new-vm")
+            b.wait_present("#cockpit_modal_dialog")
+            b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
+
+            if self.os_name != TestMachines.TestCreateConfig.OTHER_OS and self.os_vendor != TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR:
+                # check if there is os and vendor present in osinfo-query because it can be filtered out in the UI
+                query_result = '{0}|{1}'.format(self.os_name, self.os_vendor)
+                # throws exception if grep fails
+                self.machine.execute(
+                    "osinfo-query os --fields=name,vendor | tail -n +3 | sed -e 's/\s*|\s*/|/g; s/^\s*//g; s/\s*$//g' | grep '{0}'".format(
+                        query_result))
+
+            return self
+
+        def hasVendor(self):
+            b = self.browser
+
+            vendor_selector = "#vendor-select button span:nth-of-type(1)"
+            vendor_item_selector = "#vendor-select ul li[data-value*='{0}'] a".format(self.os_vendor)
+
+            b.wait_visible(vendor_selector)
+            b.click(vendor_selector)
+
+            has_vendor = True
+            try:
+                with b.wait_timeout(1):
+                    b.wait_present(vendor_item_selector)
+            except Exception:
+                has_vendor = False
+
+            b.click(vendor_selector)  # close
+            return has_vendor
+
+        def checkOsOrVendorFiltered(self):
+            b = self.browser
+
+            vendor_selector = "#vendor-select button span:nth-of-type(1)"
+            vendor_item_selector = "#vendor-select ul li[data-value*='{0}'] a".format(self.os_vendor)
+
+            b.wait_visible(vendor_selector)
+            if not b.text(vendor_selector) == self.os_vendor:
+                b.click(vendor_selector)
+                try:
+                    with b.wait_timeout(1):
+                        b.wait_present(vendor_item_selector)
+                        b.wait_visible(vendor_item_selector)
+                        b.click(vendor_item_selector)
+                except Exception:
+                    # vendor not found which is ok
+                    b.click(vendor_selector)  # close
+                    return self
+            b.wait_in_text(vendor_selector, self.os_vendor)
+            # vendor successfully found
+
+            system_selector = "#system-select button span:nth-of-type(1)"
+            system_item_selector = "#system-select ul li[data-value*='{0}'] a".format(self.os_name)
+
+            b.wait_visible(system_selector)
+            b.click(system_selector)
+            try:
+                with b.wait_timeout(1):
+                    b.wait_present(system_item_selector)
+                    b.wait_visible(system_item_selector)
+                # os found which is not ok
+                raise AssertionError("{0} was not filtered".format(self.os_name))
+            except AssertionError as e:
+                raise
+            except Exception:
+                # os not found which is ok
+                b.click(system_selector)  # close
+                return self
+
+        def fill(self):
+            b = self.browser
+            self._setVal("#vm-name", self.name)
+
+            expected_source_type = 'Filesystem' if self.is_filesystem_location else 'URL'
+            self._selectFromDropdown("#source-type", expected_source_type)
+            if self.is_filesystem_location:
+                self._setFileAutocompleteVal("#source-file", self.location)
+            else:
+                self._setVal("#source-url", self.location)
+
+            self._selectFromDropdown("#vendor-select", self.os_vendor)
+            self._selectFromDropdown("#system-select", self.os_name)
+
+            self._setVal("#memory-size", self.memory_size)
+            self._selectFromDropdown("#memory-size-unit-select", self.memory_size_unit)
+
+            self._setVal("#storage-size", self.storage_size)
+            self._selectFromDropdown("#storage-size-unit-select", self.storage_size_unit)
+
+            b.wait_visible("#start-vm")
+            b.set_checked("#start-vm", self.start_vm)
+
+            return self
+
+        def cancel(self, force=False):
+            b = self.browser
+            if b.is_present("#cockpit_modal_dialog"):
+                b.click(".modal-footer button:contains(Cancel)")
+                b.wait_not_present("#cockpit_modal_dialog")
+            elif force:
+                raise Exception("There is no dialog to cancel")
+            return self
+
+        def create(self):
+            b = self.browser
+            b.click(".modal-footer button:contains(Create)")
+            b.wait_not_present("#cockpit_modal_dialog")
+            return self
+
+        def createAndExpectError(self, error, ui_validation):
+            b = self.browser
+            b.click(".modal-footer button:contains(Create)")
+            if ui_validation:
+                b.wait_present(".modal-footer div.alert")
+                b.wait_in_text(".modal-footer div.alert", error)
+            else:
+                b.wait_present(".modal-footer .spinner")
+                b.wait_not_present(".modal-footer .spinner")
+                try:
+                    # dialog can complete within next 3 seconds if error not found
+                    with b.wait_timeout(5):
+                        b.wait_present(".modal-footer div.alert")
+                        b.wait_in_text(".modal-footer div.alert", error)
+                except Exception as x:
+                    # raise dialog did not complete and there was no error
+                    # also CPU must be supported to detect errors
+                    # FIXME: "CPU is incompatible with host CPU" check should not be needed; happens only on fedora i386
+                    # see https://github.com/cockpit-project/cockpit/issues/8385
+                    if b.is_present("#cockpit_modal_dialog") and \
+                                    "CPU is incompatible with host CPU" not in b.text(".modal-footer div.alert") and \
+                                    "unsupported configuration: CPU mode" not in b.text(".modal-footer div.alert"):
+                        raise x
+            return self
+
+        def _selectFromDropdown(self, selector, value):
+            b = self.browser
+            button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
+
+            b.wait_visible(selector)
+            if not b.text(button_text_selector) == value:
+                item_selector = "{0} ul li[data-value*='{1}'] a".format(selector, value)
+                b.click(selector)
+                b.wait_visible(item_selector)
+                b.click(item_selector)
+            b.wait_in_text(button_text_selector, value)
+
+        def _setFileAutocompleteVal(self, selector, location):
+            b = self.browser
+            caret_selector = "{0} span.caret".format(selector)
+            spinner_selector = "{0} .spinner".format(selector)
+            file_item_selector_template = "{0} ul li a:contains({1})"
+
+            b.wait_present(selector)
+            b.wait_visible(selector)
+
+            for path_part in location.split('/')[1:]:
+                b.wait_not_present(spinner_selector)
+                file_item_selector = file_item_selector_template.format(selector, path_part)
+                if not b.is_present(file_item_selector) or not b.is_visible(file_item_selector):
+                    b.click(caret_selector)
+                b.wait_visible(file_item_selector)
+                b.click(file_item_selector)
+
+            b.wait_not_present(spinner_selector)
+            b.wait_val(selector + " input", location)
+
+        def _setVal(self, selector, value):
+            b = self.browser
+            value = str(value)
+
+            b.wait_present(selector)
+            b.wait_visible(selector)
+            b.click(selector)
+            b.focus(selector)
+            b.set_val(selector, '')  # clear value
+            b.key_press(value)
+            b.wait_val(selector, value)
+
+    class CreateVmRunner:
+        def __init__(self, env):
+            self.browser = env.browser
+            self.machine = env.machine
+
+            self.machine.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
+
+        def destroy(self):
+            self.machine.execute("rm -f {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
+
+        def tryCreate(self, dialog):
+            b = self.browser
+            name = dialog.name
+
+            dialog.open() \
+                .fill() \
+                .create()
+
+            # successfully created
+            b.wait_present("#vm-{0}-row".format(name))
+            b.wait_in_text("#vm-{0}-row".format(name), name)
+            b.wait_present("#vm-{0}-state".format(name))
+            b.wait_in_text("#vm-{0}-state".format(name), "running" if dialog.start_vm else "shut off")
+
+            # wait for vm with console tab to open
+            if dialog.start_vm:
+                b.expect_load_frame("vm-{0}-novnc-frame-container".format(name))
+            else:
+                b.wait_present(
+                    ".listing-ct-body div:contains(Please start the virtual machine to access its console.)")
+
+            # check memory
+            b.wait_present("#vm-{0}-usage".format(name))
+            b.click("#vm-{0}-usage".format(name))
+            b.wait_present("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption")
+            b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", dialog.getMemoryText())
+
+            # check disks
+            b.wait_present("#vm-{0}-disks".format(name))  # wait for the tab
+            b.click("#vm-{0}-disks".format(name))  # open the "Disks" subtab
+
+            # Test number of disks and disk creation
+            if dialog.storage_size > 0:
+                b.wait_present("#vm-{0}-disks-total-value".format(name))
+                b.wait_in_text("#vm-{0}-disks-total-value".format(name), 2 if dialog.start_vm else 1)  # CD-ROM
+
+                if b.is_present("#vm-{0}-disks-vda-target".format(name)):
+                    b.wait_in_text("#vm-{0}-disks-vda-target".format(name), "vda")
+                else:
+                    b.wait_in_text("#vm-{0}-disks-hda-target".format(name), "hda")
+
+            else:
+                b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
+
+            return self
+
+        def tryInstallWithError(self, dialog):
+            b = self.browser
+            dialog.start_vm = False
+            name = dialog.name
+
+            dialog.open() \
+                .fill() \
+                .create()
+
+            b.wait_present("#vm-{0}-install".format(name))
+            # should fail because of memory error
+            b.click("#vm-{0}-install".format(name))
+            # install script redefines vm
+            b.wait_not_present("#app .listing-ct tbody:nth-of-type(1) th")
+            # install
+            b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
+            b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", name)
+            b.wait_present("#app .listing-ct tbody:nth-of-type(1) tr td span span.pficon-warning-triangle-o")
+            # depends on timeout
+            if not b.is_present(".listing-ct-panel .listing-ct-head"):
+                # automatic selection of console timed out and listing is closed
+                b.click("#app .listing-ct tbody:nth-of-type(1) th")
+
+            b.wait_present("#vm-{0}-install".format(name))
+            b.click("#app .listing-ct tbody:nth-of-type(1) .listing-ct-panel .listing-ct-head a:contains(Overview)")
+            b.wait_present("#vm-{0}-last-message".format(name))
+            b.wait_in_text("#vm-{0}-last-message".format(name), "INSTALL VM action failed")
+            b.click("#app .listing-ct tbody:nth-of-type(1) a:contains(show more)")
+
+            return self
+
+        def deleteVm(self, dialog):
+            b = self.browser
+            vm_delete_button = "#vm-{0}-delete".format(dialog.name)
+
+            b.wait_present(vm_delete_button)
+            b.click(vm_delete_button)
+            b.wait_present("#cockpit_modal_dialog")
+            b.click("#cockpit_modal_dialog button:contains(Delete)")
+            b.wait_not_present("#cockpit_modal_dialog")
+            b.wait_not_present("vm-{0}-row".format(dialog.name))
+
+            return self
+
+        def _commandNotRunning(self, command):
+            try:
+                self.machine.execute("pgrep -fc {0}".format(command))
+                return False
+            except Exception as e:
+                return hasattr(e, 'returncode') and e.returncode == 1
+
+        def assertScriptFinished(self):
+            with self.browser.wait_timeout(20):
+                self.browser.wait(functools.partial(self._commandNotRunning, "virt-install"))
+
+            return self
+
+        def assertOsInfoQueryFinished(self):
+            with self.browser.wait_timeout(10):
+                self.browser.wait(functools.partial(self._commandNotRunning, "osinfo-query"))
+            return self
+
+        def checkEnvIsEmpty(self):
+            b = self.browser
+            b.wait_present("thead tr td")
+            b.wait_in_text("thead tr td", "No VM is running")
+            # wait for the vm and disks to be deleted
+            b.wait(lambda: self.machine.execute("virsh list --all | wc -l") == '3\n')
+            b.wait(lambda: self.machine.execute("ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
+
+            return self
 
 if __name__ == '__main__':
     test_main()

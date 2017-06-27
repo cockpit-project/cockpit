@@ -23,8 +23,12 @@
  */
 import cockpit from 'cockpit';
 import $ from 'jquery';
+import createVmScript from 'raw!./scripts/create_machine.sh';
+import installVmScript from 'raw!./scripts/install_machine.sh';
+import getOSListScript from 'raw!./scripts/get_os_list.sh';
 
-import { updateOrAddVm,
+import {
+    updateOrAddVm,
     updateVm,
     getVm,
     getAllVms,
@@ -32,21 +36,39 @@ import { updateOrAddVm,
     undefineVm,
     deleteUnlistedVMs,
     vmActionFailed,
+    getOsInfoList,
+    updateOsInfoList,
+    vmCreateInProgress,
+    vmCreateCompleted,
+    vmInstallInProgress,
+    vmInstallCompleted,
 } from './actions.es6';
 
 import { usagePollingEnabled } from './selectors.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import {
-    toKiloBytes,
+    convertToUnit,
+    units,
     isEmpty,
     logDebug,
     rephraseUI,
     fileDownload,
 } from './helpers.es6';
 
+import {
+    prepareDisksParam,
+    prepareDisplaysParam,
+} from './libvirtUtils.es6';
+
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
+
+const METADATA_NAMESPACE="https://github.com/cockpit-project/cockpit/tree/master/pkg/machines";
+
+const CREATE_IN_PROGRESS_UI_TIMEOUT = 10000;
+const INSTALL_IN_PROGRESS_UI_TIMEOUT = 4000;
+const VM_RECOVER_IN_UI_TIMEOUT = 3000;
 
 /**
  * Parse non-XML stdout of virsh.
@@ -88,6 +110,17 @@ export function buildFailHandler({ dispatch, name, connectionName, message, extr
         }));
 }
 
+export function buildScriptTimeoutFailHandler(args, delay) {
+    let handler = buildFailHandler(args);
+    return ({ message, exception }) => {
+        window.setTimeout(() => {
+            handler({
+                exception: exception ? exception : message,
+            });
+        }, delay);
+    };
+}
+
 let LIBVIRT_PROVIDER = {};
 LIBVIRT_PROVIDER = {
     name: 'Libvirt',
@@ -109,7 +142,8 @@ LIBVIRT_PROVIDER = {
     canShutdown: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
     canDelete: (vmState, vmId, providerState) => true,
     isRunning: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
-    canRun: (vmState) => vmState == 'shut off',
+    canRun: (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off',
+    canInstall: (vmState, hasInstallPhase, installInProgress) => vmState != 'running' && hasInstallPhase && !installInProgress,
     canConsole: (vmState) => vmState == 'running',
     canSendNMI: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
 
@@ -147,6 +181,7 @@ LIBVIRT_PROVIDER = {
             return dispatch => {
                 startEventMonitor(dispatch, connectionName);
                 doGetAllVms(dispatch, connectionName);
+                dispatch(getOsInfoList());
             };
         }
 
@@ -163,6 +198,18 @@ LIBVIRT_PROVIDER = {
             });
         };
     },
+
+    GET_OS_INFO_LIST () {
+        logDebug(`${this.name}.GET_OS_INFO_LIST():`);
+        return dispatch => cockpit.script(getOSListScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
+            .then(osList => {
+                parseOsInfoList(dispatch, osList);
+            })
+            .fail((exception, data) => {
+                console.error(`get os list returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+            });
+    },
+
 
     SHUTDOWN_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
@@ -207,6 +254,82 @@ LIBVIRT_PROVIDER = {
             failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed")}),
             args: ['start', name]
         });
+    },
+
+    CREATE_VM({ vmName, source, os, memorySize, storageSize, startVm}) {
+        logDebug(`${this.name}.CREATE_VM(${vmName}):`);
+        return dispatch => {
+            // presume that vm gets created, because we can get response from virsh before createVmScript finishes
+            dispatch(vmCreateInProgress({
+                name: vmName,
+                openConsoleTab: true,
+            }));
+
+            if (startVm) {
+                dispatch(vmInstallInProgress({
+                    name: vmName,
+                }));
+            }
+
+            // wait few secs for ui to get the new vm and to see that this ui created the vm
+            window.setTimeout(() => {
+                dispatch(vmCreateCompleted({
+                    name: vmName,
+                }));
+            }, CREATE_IN_PROGRESS_UI_TIMEOUT);
+
+            if (startVm) {
+                window.setTimeout(() => {
+                    dispatch(vmInstallCompleted({
+                        name: vmName,
+                    }));
+                }, INSTALL_IN_PROGRESS_UI_TIMEOUT);
+            }
+
+            return cockpit.script(createVmScript, [
+                vmName,
+                source,
+                os,
+                memorySize,
+                storageSize,
+                startVm,
+            ], { err: "message", environ: ['LC_ALL=C'] })
+                .fail((exception, data) => {
+                    console.info(`spawn 'vm creation' returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+                });
+        };
+    },
+
+    INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displays, connectionName }) {
+        logDebug(`${this.name}.INSTALL_VM(${name}):`);
+        return dispatch => {
+            dispatch(vmInstallInProgress({
+                name,
+            }));
+
+            window.setTimeout(() => {
+                dispatch(vmInstallCompleted({
+                    name,
+                }));
+            }, INSTALL_IN_PROGRESS_UI_TIMEOUT);
+
+            return cockpit.script(installVmScript, [
+                name,
+                metadata.installSource,
+                metadata.osVariant,
+                convertToUnit(currentMemory, units.KiB, units.MiB),
+                vcpus,
+                prepareDisksParam(disks),
+                prepareDisplaysParam(displays),
+            ], { err: "message", environ: ['LC_ALL=C'] })
+                .fail(buildScriptTimeoutFailHandler({
+                        dispatch,
+                        name,
+                        connectionName,
+                        message: _("INSTALL VM action failed"),
+                    },
+                    VM_RECOVER_IN_UI_TIMEOUT));
+        };
     },
 
     DELETE_VM ({ name, connectionName, options }) {
@@ -354,6 +477,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
     const devicesElem = domainElem.getElementsByTagName("devices")[0];
     const osTypeElem = osElem.getElementsByTagName("type")[0];
+    const metadataElem = getSingleOptionalElem(domainElem, "metadata");
 
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const id = domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
@@ -361,15 +485,26 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const emulatedMachine = osTypeElem.getAttribute("machine");
 
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
-    const currentMemory = toKiloBytes(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit);
+    const currentMemory = convertToUnit(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit, units.KiB);
 
     const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
+
 
     const disks = parseDumpxmlForDisks(devicesElem);
     const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
     const cpuModel = parseDumpxmlForCpuModel(cpuElem);
     const displays = parseDumpxmlForConsoles(devicesElem);
     const interfaces = parseDumpxmlForInterfaces(devicesElem);
+
+    const hasInstallPhase = parseDumpxmlMachinesMetadataElement(metadataElem, 'has_install_phase') === 'true';
+    const installSource = parseDumpxmlMachinesMetadataElement(metadataElem, 'install_source');
+    const osVariant = parseDumpxmlMachinesMetadataElement(metadataElem, 'os_variant');
+
+    const metadata = {
+        hasInstallPhase,
+        installSource,
+        osVariant,
+    };
 
     dispatch(updateOrAddVm({
         connectionName, name, id,
@@ -382,6 +517,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
         bootOrder,
         displays,
         interfaces,
+        metadata,
     }));
 }
 
@@ -404,6 +540,7 @@ function parseDumpxmlForDisks(devicesElem) {
             const serialElem = getSingleOptionalElem(diskElem, 'serial');
             const aliasElem = getSingleOptionalElem(diskElem, 'alias');
             const readonlyElem = getSingleOptionalElem(diskElem, 'readonly');
+            const shareableElem = getSingleOptionalElem(diskElem, 'shareable');
             const bootElem = getSingleOptionalElem(diskElem, 'boot');
 
             const sourceHostElem = sourceElem ? getSingleOptionalElem(sourceElem, 'host') : undefined;
@@ -413,6 +550,10 @@ function parseDumpxmlForDisks(devicesElem) {
                 driver: {
                     name: driverElem ? driverElem.getAttribute('name') : undefined, // optional
                     type: driverElem ? driverElem.getAttribute('type') : undefined,
+                    cache: driverElem ? driverElem.getAttribute('cache') : undefined, // optional
+                    discard: driverElem ? driverElem.getAttribute('discard') : undefined, // optional
+                    io: driverElem ? driverElem.getAttribute('io') : undefined, // optional
+                    errorPolicy: driverElem ? driverElem.getAttribute('error_policy') : undefined, // optional
                 },
                 bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
                 type: diskElem.getAttribute('type'), // i.e.: file
@@ -427,11 +568,15 @@ function parseDumpxmlForDisks(devicesElem) {
                         name: sourceHostElem ? sourceHostElem.getAttribute('name') : undefined,
                         port: sourceHostElem ? sourceHostElem.getAttribute('port') : undefined,
                     },
+                    startupPolicy: sourceElem ? sourceElem.getAttribute('startupPolicy') : undefined, // optional startupPolicy of the disk
+
                 },
                 bus: targetElem.getAttribute('bus'), // i.e. scsi, ide
                 serial: serialElem ? serialElem.getAttribute('serial') : undefined, // optional serial number
                 aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined, // i.e. scsi0-0-0-0, ide0-1-0
                 readonly: readonlyElem ? true : false,
+                shareable: shareableElem ? true : false,
+                removable: targetElem.getAttribute('removable'),
             };
 
             if (disk.target) {
@@ -631,6 +776,36 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
     return state;
 }
 
+function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
+    if (!metadataElem) {
+        return null;
+    }
+    const subElems = metadataElem.getElementsByTagNameNS(METADATA_NAMESPACE, name);
+
+    return subElems.length > 0 ? subElems[0].textContent : null;
+}
+
+function parseOsInfoList(dispatch, osList) {
+    const osColumnsNames = ['shortId', 'name', 'version', 'family', 'vendor', 'releaseDate', 'eolDate', 'codename'];
+    let parsedList = [];
+
+    osList.split('\n').forEach(line => {
+        const osColumns = line.split('|');
+
+        const result = {};
+
+        for (let i = 0; i < osColumnsNames.length; i++) {
+            result[osColumnsNames[i]] = osColumns.length > i ? osColumns[i] : null;
+        }
+
+        if (result.shortId) {
+            parsedList.push(result);
+        }
+    });
+
+    dispatch(updateOsInfoList(parsedList));
+}
+
 function parseDommemstat(dispatch, connectionName, name, dommemstat) {
     const lines = parseLines(dommemstat);
 
@@ -741,7 +916,7 @@ function handleEvent(dispatch, connectionName, line) {
 
     // types and details: https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainEventID
     switch (event_) {
-        case 'lifecycle':
+        case 'lifecycle': {
             let type = info.split(' ')[0];
             switch (type) {
                 case 'Undefined':
@@ -771,7 +946,7 @@ function handleEvent(dispatch, connectionName, line) {
                     logDebug(`Unhandled lifecycle event type ${type} in event: ${line}`);
             }
             break;
-
+        }
         case 'metadata-change':
         case 'device-added':
         case 'device-removed':

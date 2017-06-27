@@ -33,14 +33,18 @@ import { virt } from './provider.es6';
  * @param connectionName optional - if `undefined` then for all connections
  */
 export function getAllVms(connectionName) {
-    return virt('GET_ALL_VMS', {connectionName});
+    return virt('GET_ALL_VMS', { connectionName });
 }
 
 export function getVm(connectionName, lookupId) {
     return virt('GET_VM', {
         lookupId, // provider-specific (i.e. libvirt uses vm_name)
-        connectionName
+        connectionName,
     });
+}
+
+export function getOsInfoList() {
+    return virt('GET_OS_INFO_LIST');
 }
 
 export function shutdownVm(vm) {
@@ -65,6 +69,14 @@ export function startVm(vm) {
 
 export function deleteVm(vm, options) {
     return virt('DELETE_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, options: options });
+}
+
+export function installVm(vm) {
+    return virt('INSTALL_VM', vm);
+}
+
+export function createVm(vmParams) {
+    return virt('CREATE_VM', vmParams);
 }
 
 export function vmDesktopConsole(vm, consoleDetail) {
@@ -122,30 +134,69 @@ export function delayPolling(action, timeout) {
 export function setProvider(provider) {
     return {
         type: 'SET_PROVIDER',
-        provider
+        provider,
     };
 }
 
 export function setRefreshInterval(refreshInterval) {
     return {
         type: 'SET_REFRESH_INTERVAL',
-        refreshInterval
+        refreshInterval,
     };
 }
 
 export function updateOrAddVm(props) {
     return {
         type: 'UPDATE_ADD_VM',
-        vm: props
+        vm: props,
     };
 }
 
 export function updateVm(props) {
     return {
         type: 'UPDATE_VM',
-        vm: props
+        vm: props,
     };
 }
+
+export function updateOsInfoList(osInfoList) {
+    return {
+        type: 'UPDATE_OS_INFO_LIST',
+        osInfoList,
+    };
+}
+
+export function vmCreateInProgress(vm) {
+    return {
+        type: 'VM_CREATE_IN_PROGRESS',
+        vm,
+    };
+}
+
+export function vmCreateCompleted(vm) {
+    return {
+        type: 'VM_CREATE_COMPLETED',
+        vm,
+    };
+}
+
+
+
+export function vmInstallInProgress(vm) {
+    return {
+        type: 'VM_INSTALL_IN_PROGRESS',
+        vm,
+    };
+}
+
+export function vmInstallCompleted(vm) {
+    return {
+        type: 'VM_INSTALL_COMPLETED',
+        vm,
+    };
+}
+
+
 
 export function vmActionFailed({ name, connectionName, message, detail, extraPayload }) {
     return {
@@ -156,7 +207,7 @@ export function vmActionFailed({ name, connectionName, message, detail, extraPay
             message,
             detail,
             extraPayload,
-        }
+        },
     };
 }
 
@@ -170,7 +221,7 @@ export function undefineVm(connectionName, name, transientOnly) {
         type: 'UNDEFINE_VM',
         name,
         connectionName,
-        transientOnly
+        transientOnly,
     };
 }
 
@@ -178,6 +229,6 @@ export function deleteUnlistedVMs(connectionName, vmNames) {
     return {
         type: 'DELETE_UNLISTED_VMS',
         vmNames,
-        connectionName
+        connectionName,
     };
 }

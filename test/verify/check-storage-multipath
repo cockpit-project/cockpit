@@ -70,7 +70,7 @@ class TestStorage(StorageCase):
 
         # Add another path to the same disk.  The primary device file
         # should disappear and multipathed devices should be listed.
-        m.add_disk_path(disk)
+        m.add_disk(path=disk["path"], serial=disk["serial"])
         b.wait_text_not(detail_row_value(5), "/dev/sda")
         wait_detail_row(6, "Multipathed Devices")
         b.wait_in_text(detail_row_value(6), "/dev/sda")

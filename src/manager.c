@@ -23,6 +23,13 @@ domain_bus_path(virDomainPtr domain)
 }
 
 static void
+virDomainFreep(virDomainPtr *domainp)
+{
+    if (*domainp)
+        virDomainFree(*domainp);
+}
+
+static void
 virDomainsFreep(virDomainPtr **domainsp)
 {
     virDomainPtr *domains = *domainsp;
@@ -65,9 +72,9 @@ enumerate_domains(sd_bus *bus,
 }
 
 static int
-method_list_domains(sd_bus_message *message,
-                    void *userdata,
-                    sd_bus_error *ret_error)
+virt_manager_list_domains(sd_bus_message *message,
+                          void *userdata,
+                          sd_bus_error *ret_error)
 {
     VirtManager *manager = userdata;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
@@ -112,6 +119,59 @@ method_list_domains(sd_bus_message *message,
 }
 
 static int
+virt_manager_create_xml(sd_bus_message *message,
+                        void *userdata,
+                        sd_bus_error *ret_error)
+{
+    VirtManager *manager = userdata;
+    const char *xml;
+    uint32_t flags;
+    _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
+    _cleanup_(freep) char *path = NULL;
+    int r;
+
+    r = sd_bus_message_read(message, "su", &xml, &flags);
+    if (r < 0) {
+        sd_bus_error_set_const(ret_error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
+        return -EINVAL;
+    }
+
+    domain = virDomainCreateXML(manager->connection, xml, flags);
+    if (!domain)
+        return -EINVAL;
+
+    path = domain_bus_path(domain);
+
+    return sd_bus_reply_method_return(message, "o", path);
+}
+
+static int
+virt_manager_define_xml(sd_bus_message *message,
+                        void *userdata,
+                        sd_bus_error *ret_error)
+{
+    VirtManager *manager = userdata;
+    const char *xml;
+    _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
+    _cleanup_(freep) char *path = NULL;
+    int r;
+
+    r = sd_bus_message_read(message, "s", &xml);
+    if (r < 0) {
+        sd_bus_error_set_const(ret_error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
+        return -EINVAL;
+    }
+
+    domain = virDomainDefineXML(manager->connection, xml);
+    if (!domain)
+        return -EINVAL;
+
+    path = domain_bus_path(domain);
+
+    return sd_bus_reply_method_return(message, "o", path);
+}
+
+static int
 domain_find(sd_bus *bus,
             const char *path,
             const char *interface,
@@ -145,7 +205,9 @@ virt_manager_new(VirtManager **managerp, sd_bus *bus)
 {
     static const sd_bus_vtable virt_manager_vtable[] = {
         SD_BUS_VTABLE_START(0),
-        SD_BUS_METHOD("ListDomains", "u", "ao", method_list_domains, SD_BUS_VTABLE_UNPRIVILEGED),
+        SD_BUS_METHOD("ListDomains", "u", "ao", virt_manager_list_domains, SD_BUS_VTABLE_UNPRIVILEGED),
+        SD_BUS_METHOD("CreateXML", "su", "o", virt_manager_create_xml, SD_BUS_VTABLE_UNPRIVILEGED),
+        SD_BUS_METHOD("DefineXML", "s", "o", virt_manager_define_xml, SD_BUS_VTABLE_UNPRIVILEGED),
         SD_BUS_VTABLE_END
     };
 

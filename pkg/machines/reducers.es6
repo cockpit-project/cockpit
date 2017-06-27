@@ -179,6 +179,12 @@ function vms(state, action) {
 
             return replaceVm({ state, updatedVm, index: indexedVm.index });
         }
+        case 'UNDEFINE_VM':
+        {
+            return state
+                .filter(vm => (action.connectionName !== vm.connectionName || action.name != vm.name ||
+                               (action.transientOnly && vm.persistent)));
+        }
         case 'DELETE_UNLISTED_VMS':
         {
             return state

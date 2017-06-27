@@ -151,6 +151,15 @@ export function vmActionFailed({ name, connectionName, message, detail}) {
     };
 }
 
+export function undefineVm(connectionName, name, transientOnly) {
+    return {
+        type: 'UNDEFINE_VM',
+        name,
+        connectionName,
+        transientOnly
+    };
+}
+
 export function deleteUnlistedVMs(connectionName, vmNames) {
     return {
         type: 'DELETE_UNLISTED_VMS',

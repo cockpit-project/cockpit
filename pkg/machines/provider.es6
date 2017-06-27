@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 import React from 'react';
 
 import { logDebug } from './helpers.es6';
-import { setProvider, delayPolling, getAllVms, deleteUnlistedVMs, updateVm, updateOrAddVm } from './actions.es6';
+import { setProvider, delayPolling, getAllVms, undefineVm, deleteUnlistedVMs, updateVm, updateOrAddVm } from './actions.es6';
 
 import Store from './store.es6';
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
@@ -123,6 +123,7 @@ function exportedActionCreators () {
     return {
         virtMiddleware: virt,
         delayRefresh: () => delayPolling(getAllVms()),
+        undefineVm: undefineVm,
         deleteUnlistedVMs: deleteUnlistedVMs,
         updateVm: updateVm,
         updateOrAddVm: updateOrAddVm,

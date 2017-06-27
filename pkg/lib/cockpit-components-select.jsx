@@ -208,7 +208,6 @@
         );
     };
 
-
     SelectEntry.propTypes = {
         data: React.PropTypes.string.isRequired,
     };

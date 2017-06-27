@@ -1,4 +1,4 @@
-/*jshint esversion: 6 */
+    /*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -33,16 +33,17 @@ function config(state, action) {
     state = state ? state : {
         provider: null,
         providerState: null,
-        refreshInterval: VMS_CONFIG.DefaultRefreshInterval
+        refreshInterval: VMS_CONFIG.DefaultRefreshInterval,
     };
 
     switch (action.type) {
         case 'SET_PROVIDER':
-            return Object.assign({}, state, {provider: action.provider});
-        case 'SET_REFRESH_INTERVAL':
+            return Object.assign({}, state, { provider: action.provider });
+        case 'SET_REFRESH_INTERVAL': {
             const newState = Object.assign({}, state);
             newState.refreshInterval = action.refreshInterval;
             return newState;
+        }
         default:
             return state;
     }
@@ -82,6 +83,7 @@ function vms(state, action) {
             vmCopy: Object.assign({}, state[index]), // TODO: consider immutableJs
         };
     }
+
     function replaceVm({ state, updatedVm, index }) {
         return state.slice(0, index)
             .concat(updatedVm)
@@ -89,8 +91,7 @@ function vms(state, action) {
     }
 
     switch (action.type) {
-        case 'UPDATE_ADD_VM':
-        {
+        case 'UPDATE_ADD_VM': {
             const connectionName = action.vm.connectionName;
             const index = action.vm.id ? getFirstIndexOfVm(state, 'id', action.vm.id, connectionName)
                                        : getFirstIndexOfVm(state, 'name', action.vm.name, connectionName);
@@ -101,8 +102,7 @@ function vms(state, action) {
             const updatedVm = Object.assign({}, state[index], action.vm);
             return replaceVm({ state, updatedVm, index });
         }
-        case 'UPDATE_VM':
-        {
+        case 'UPDATE_VM': {
             const indexedVm = findVmToUpdate(state, action.vm);
             if (!indexedVm) {
                 return state;
@@ -133,17 +133,58 @@ function vms(state, action) {
 
             return replaceVm({ state, updatedVm, index: indexedVm.index });
         }
-        case 'UNDEFINE_VM':
-        {
+        case 'UNDEFINE_VM': {
             return state
                 .filter(vm => (action.connectionName !== vm.connectionName || action.name != vm.name ||
-                               (action.transientOnly && vm.persistent)));
+                    (action.transientOnly && vm.persistent)));
         }
-        case 'DELETE_UNLISTED_VMS':
-        {
+        case 'DELETE_UNLISTED_VMS': {
             return state
-                .filter(vm => (action.connectionName !== vm.connectionName || action.vmNames.indexOf(vm.name) >= 0) );
+                .filter(vm => (action.connectionName !== vm.connectionName || action.vmNames.indexOf(vm.name) >= 0));
         }
+        default: // by default all reducers should return initial state on unknown actions
+            return state;
+    }
+}
+
+function osInfoList(state, action) {
+    state = state ? state : [];
+
+    switch (action.type) {
+        case 'UPDATE_OS_INFO_LIST': {
+            return action.osInfoList instanceof Array ? [...action.osInfoList] : state;
+        }
+        default: // by default all reducers should return initial state on unknown actions
+            return state;
+    }
+}
+
+function ui(state, action) {
+    state = state ? state : {
+        vmsCreated: {}, // transient property
+        vmsInstallInitiated: {}, // transient property
+    };
+
+    switch (action.type) {
+        case 'VM_CREATE_IN_PROGRESS': {
+            state.vmsCreated = Object.assign({}, state.vmsCreated,  {
+                [action.vm.name]: action.vm,
+            });
+            return state;
+        }
+        case 'VM_CREATE_COMPLETED':
+            delete state.vmsCreated[action.vm.name];
+            return state;
+        case 'VM_INSTALL_IN_PROGRESS': {
+            state.vmsInstallInitiated = Object.assign({}, state.vmsInstallInitiated, {
+                [action.vm.name]: action.vm,
+            });
+            return state;
+        }
+        case 'VM_INSTALL_COMPLETED':
+            delete state.vmsInstallInitiated[action.vm.name];
+            return state;
+
         default: // by default all reducers should return initial state on unknown actions
             return state;
     }
@@ -183,7 +224,9 @@ export default combineReducers({
         parentReducer: config,
         getSubreducer: (state) => (state.provider && state.provider.reducer) ? state.provider.reducer : undefined,
         getSubstate: (state) => state.providerState,
-        setSubstate: (state, subState) => Object.assign({}, state, {providerState: subState})
-    } ),
-    vms
+        setSubstate: (state, subState) => Object.assign({}, state, { providerState: subState }),
+    }),
+    vms,
+    osInfoList,
+    ui,
 });

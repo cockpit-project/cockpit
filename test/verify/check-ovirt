@@ -83,6 +83,8 @@ class TestOVirtMachines(MachineCase):
         self.hack_for_missing_vdsm()
         self.pass_install_dialog()
 
+        self.allow_journal_messages('.*type=1400.*')
+
     def wait_for_dc(self):
         # wait for DC to get up
         m = self.machine
@@ -143,6 +145,7 @@ class TestOVirtMachines(MachineCase):
         b.wait_present(".main-app-div")
         b.wait_in_text("body", "Virtual Machines")
 
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "VM")
         b.click("tbody tr th") # click on the row header
         b.wait_present("#vm-VM-state")
@@ -174,7 +177,8 @@ class TestOVirtMachines(MachineCase):
         b.click("#vm-VM-off-caret")
         b.wait_visible("#vm-VM-forceOff")
         b.click("#vm-VM-forceOff")
-        b.wait_in_text("body", "No VM is running or defined on this host")
+        b.wait_present("thead tr td")
+        b.wait_in_text("thead tr td", "No VM is running")
 
         # switch to cluster view and check expected cluster content
         b.click("#ovirt-topnav-clustervms")
@@ -273,6 +277,7 @@ class TestOVirtMachines(MachineCase):
         b.wait_present(".main-app-div")
         b.wait_in_text("body", "Virtual Machines")
 
+        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "VM") # row with a vitual machine
         b.wait_present("#ovirt-host-to-maintenance")
         b.click("#ovirt-host-to-maintenance")

@@ -883,7 +883,7 @@ TEST_DOMAIN_XML="""
 
 TEST_DISK_XML="""
 <disk type='file'>
-  <driver name='qemu' type='raw'/>
+  <driver name='qemu' type='%(type)s'/>
   <source file='%(file)s'/>
   <serial>%(serial)s</serial>
   <address type='drive' controller='0' bus='0' target='2' unit='%(unit)d'/>

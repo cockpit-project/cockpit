@@ -522,11 +522,12 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
     const lines = parseLines(domInfo);
     const state = getValueFromLine(lines, 'State:');
     const autostart = getValueFromLine(lines, 'Autostart:');
+    const persistent = getValueFromLine(lines, 'Persistent:') == 'yes';
 
     if (!LIBVIRT_PROVIDER.isRunning(state)) { // clean usage data
-        dispatch(updateVm({connectionName, name, state, autostart, actualTimeInMs: -1}));
+        dispatch(updateVm({connectionName, name, state, autostart, persistent, actualTimeInMs: -1}));
     } else {
-        dispatch(updateVm({connectionName, name, state, autostart}));
+        dispatch(updateVm({connectionName, name, state, persistent, autostart}));
     }
 
     return state;

@@ -1,0 +1,46 @@
+# -*- rpm-spec -*-
+
+%define libvirt_version @LIBVIRT_REQUIRED@
+%define systemd_version @SYSTEMD_REQUIRED@
+
+Name: @PACKAGE@
+Version: @VERSION@
+Release: 1%{?dist}%{?extra_release}
+Summary: libvirt dbus API binding
+Group: Development/Libraries
+License: LGPLv2+
+URL: http://libvirt.org/
+Source0: ftp://libvirt.org/libvirt/dbus/%{name}-%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+BuildRequires: libvirt-devel >= %{libvirt_version}
+BuildRequires: systemd-devel >= %{systemd_version}
+
+Requires: libvirt-libs >= %{libvirt_version}
+Requires: systemd >= %{systemd_version}
+
+
+%description
+This package provides integration between libvirt and the DBus
+
+%prep
+%setup -q
+
+%build
+%configure
+%__make %{?_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+%__make install  DESTDIR=$RPM_BUILD_ROOT
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+%doc README COPYING AUTHORS NEWS
+%{_bindir}/libvirt-dbus
+%{_datadir}/dbus-1/services/org.libvirt.service
+
+%changelog

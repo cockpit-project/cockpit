@@ -1,0 +1,48 @@
+AC_INIT([libvirt-dbus], [0.0.1], [libvir-list@redhat.com], [], [http://libvirt.org])
+
+AC_CONFIG_SRCDIR(src/main.c)
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_HEADERS([config.h])
+dnl Make automake keep quiet about wildcards & other GNUmake-isms
+AM_INIT_AUTOMAKE([-Wno-portability])
+AC_CANONICAL_HOST
+
+AM_SILENT_RULES([yes])
+
+LIBVIRT_REQUIRED=1.2.8
+SYSTEMD_REQUIRED=211
+AC_SUBST([LIBVIRT_REQUIRED]) dnl used in the .spec file
+AC_SUBST([SYSTEMD_REQUIRED]) dnl used in the .spec file
+
+LIBVIRT_DBUS_MAJOR_VERSION=`echo $VERSION | awk -F. '{print $1}'`
+LIBVIRT_DBUS_MINOR_VERSION=`echo $VERSION | awk -F. '{print $2}'`
+LIBVIRT_DBUS_MICRO_VERSION=`echo $VERSION | awk -F. '{print $3}'`
+LIBVIRT_DBUS_VERSION=$LIBVIRT_DBUS_MAJOR_VERSION.$LIBVIRT_DBUS_MINOR_VERSION.$LIBVIRT_DBUS_MICRO_VERSION$LIBVIRT_DBUS_MICRO_VERSION_SUFFIX
+LIBVIRT_DBUS_VERSION_NUMBER=`expr $LIBVIRT_DBUS_MAJOR_VERSION \* 1000000 + $LIBVIRT_dbus_MINOR_VERSION \* 1000 + $LIBVIRT_DBUS_MICRO_VERSION`
+
+AC_SUBST([LIBVIRT_DBUS_MAJOR_VERSION])
+AC_SUBST([LIBVIRT_DBUS_MINOR_VERSION])
+AC_SUBST([LIBVIRT_DBUS_MICRO_VERSION])
+AC_SUBST([LIBVIRT_DBUS_VERSION])
+AC_SUBST([LIBVIRT_DBUS_VERSION_INFO])
+AC_SUBST([LIBVIRT_DBUS_VERSION_NUMBER])
+
+AC_PROG_CC
+AM_PROG_CC_C_O
+
+PKG_CHECK_MODULES(LIBVIRT, libvirt >= $LIBVIRT_REQUIRED)
+PKG_CHECK_MODULES(SYSTEMD, libsystemd >= $SYSTEMD_REQUIRED)
+
+AC_ARG_WITH(dbus-services,
+		  [AC_HELP_STRING([--with-dbus-services=<dir>],
+		  [where D-BUS session services directory is])])
+if ! test -z "$with_dbus_services" ; then
+	DBUS_SERVICES_DIR="$with_dbus_services"
+else
+	DBUS_SERVICES_DIR="$datadir/dbus-1/services"
+fi
+AC_SUBST(DBUS_SERVICES_DIR)
+
+AC_OUTPUT(Makefile
+          src/Makefile
+          libvirt-dbus.spec)

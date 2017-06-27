@@ -19,14 +19,29 @@
  */
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
-import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm,
-         usageStartPolling, usageStopPolling, sendNMI } from "./actions.es6";
-import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId } from "./helpers.es6";
+import {
+    shutdownVm,
+    forceVmOff,
+    forceRebootVm,
+    rebootVm,
+    sendNMI,
+    startVm,
+    usageStartPolling,
+    usageStopPolling,
+} from "./actions.es6";
+import {
+    rephraseUI,
+    logDebug,
+    toGigaBytes,
+    toFixedPrecision,
+    vmId,
+} from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './vmdiskstab.jsx';
 import GraphicsConsole from './components/graphicsConsole.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
+import createDialog from './components/createDialog.jsx';
 
 const _ = cockpit.gettext;
 
@@ -468,8 +483,13 @@ const HostVmsList = ({ vms, config, dispatch }) => {
 
     const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
+    const createVmAction = (
+        <a className="card-pf-link-with-icon pull-right" onClick={ mouseClick(() => createDialog(dispatch)) }>
+            <span className="pficon pficon-add-circle-o" />{_("Create VM")}
+        </a>
+    );
     return (<div className='container-fluid'>
-        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]}>
+        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]} actions={[createVmAction]}>
             {vms
                 .sort(sortFunction)
                 .map(vm => {

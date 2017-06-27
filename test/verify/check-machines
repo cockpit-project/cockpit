@@ -30,14 +30,106 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
+SPICE_XML="""
+    <video>
+      <model type='vga' heads='1' primary='yes'/>
+      <alias name='video0'/>
+    </video>
+    <graphics type='spice' port='5900' autoport='yes' listen='127.0.0.1'>
+      <listen type='address' address='127.0.0.1'/>
+      <image compression='off'/>
+    </graphics>
+"""
+
+VNC_XML="""
+    <video>
+      <model type='vga' heads='1' primary='yes'/>
+      <alias name='video0'/>
+    </video>
+    <graphics type='vnc' port='5900' autoport='yes' listen='127.0.0.1'>
+      <listen type='address' address='127.0.0.1'/>
+    </graphics>
+"""
+
+CONSOLE_XML="""
+    <console type='file'>
+      <target type='serial' port='0'/>
+      <source path='{log}'/>
+    </console>
+"""
+
+DOMAIN_XML="""
+<domain type='kvm'>
+  <name>{name}</name>
+  <vcpu>1</vcpu>
+  <os>
+    <type arch='x86_64'>hvm</type>
+    <boot dev='hd'/>
+    <boot dev='network'/>
+  </os>
+  <memory unit='MiB'>256</memory>
+  <currentMemory unit='MiB'>256</currentMemory>
+  <features>
+    <acpi/>
+  </features>
+  <devices>
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source dev='/dev/{disk}'/>
+      <target dev='hda' bus='ide'/>
+      <serial>ROOT</serial>
+    </disk>
+    <disk type='file' snapshot='external'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='{image}'/>
+      <target dev='hdb' bus='ide'/>
+      <serial>SECOND</serial>
+    </disk>
+    <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
+    <interface type='network'>
+      <source network='default' bridge='virbr0'/>
+      <target dev='vnet0'/>
+    </interface>
+    {console}
+    {graphics}
+  </devices>
+</domain>
+"""
+
+POOL_XML="""
+<pool type='dir'>
+  <name>images</name>
+  <target>
+    <path>{path}</path>
+  </target>
+</pool>
+"""
+
+VOLUME_XML="""
+<volume type='file'>
+  <name>{name}</name>
+  <key>{image}</key>
+  <capacity unit='bytes'>1073741824</capacity>
+  <target>
+    <path>{image}</path>
+    <format type='qcow2'/>
+  </target>
+</volume>
+"""
+
 # If this test fails to run, the host machine needs:
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestMachines(MachineCase):
-    def startVm(self, name, console='spice'):
+    created_pool = False
+
+    def startVm(self, name, graphics='spice'):
         m = self.machine
+
+        image_file = m.pull("cirros")
+        m.add_disk(serial="NESTED", path=image_file, type="qcow2")
 
         # Ensure everything has started correctly
         m.execute("systemctl start libvirtd")
@@ -46,24 +138,76 @@ class TestMachines(MachineCase):
         # Wait for the network 'default' to become active
         wait(lambda: m.execute(command="virsh net-info default | grep Active"))
 
-        img1 = "/var/lib/libvirt/images/{0}.img".format(name)
-        img2 = "/var/lib/libvirt/images/{0}-2.img".format(name)
-        m.execute("qemu-img create -f qcow2 {0} 1G".format(img1))
-        m.execute("qemu-img create -f qcow2 {0} 2G".format(img2))
-        m.execute("virt-install --cpu host -r 128 --pxe --force --graphics {3},listen=127.0.0.1 --noautoconsole "
-                  "--disk path={0},size=1,format=qcow2 --disk path={1},size=2,format=qcow2 "
-                  "--boot hd,network "
-                  "-n {2}"
-                  .format(img1, img2, name, console))
+        img = "/var/lib/libvirt/images/{0}-2.img".format(name)
+        output = m.execute("readlink /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_NESTED").strip().split("\n")[-1]
+
+        args = {
+            "name": name,
+            "disk": os.path.basename(output),
+            "image": img,
+            "logfile": None,
+            "console": "",
+        }
+
+        # These operating systems do not log from qemu properly
+        if m.image not in [ "centos-7", "rhel-7", "rhel-7-4" ]:
+            m.execute("chmod 777 /var/log/libvirt")
+            args["logfile"] = "/var/log/libvirt/console-{0}.log".format(name)
+            args["console"] = CONSOLE_XML.format(log=args["logfile"])
+
+        if graphics == 'spice':
+            cxml = SPICE_XML
+        elif graphics == 'vnc':
+            cxml = VNC_XML
+        elif graphics == 'none':
+            cxml = ""
+        else:
+            assert False, "invalid value for graphics"
+        args["graphics"] = cxml.format(**args)
+
+        if not self.created_pool:
+            xml = POOL_XML.format(path="/var/lib/libvirt/images")
+            m.execute("echo \"{0}\" > /tmp/xml && virsh pool-create /tmp/xml".format(xml))
+            self.created_pool = True
+
+        xml = VOLUME_XML.format(name=os.path.basename(img), image=img)
+        m.execute("echo \"{0}\" > /tmp/xml && virsh vol-create images /tmp/xml".format(xml))
+
+        xml = DOMAIN_XML.format(**args)
+        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
+
+        return args
 
     def testBasic(self):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        args = self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_present("#vm-subVmTest1-state")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        xml = DOMAIN_XML.format(**args)
+        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
+
+        m.execute('[ "$(virsh domstate {0})" = running ] || '
+                  '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
+
+        return args
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        args = self.startVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -76,8 +220,6 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-vcpus", "1")
 
         b.wait_in_text("#vm-subVmTest1-bootorder", "disk,network")
-        cpu_type = b.eval_js("$('#vm-subVmTest1-cputype').text()")
-        self.assertTrue(cpu_type == 'host' or cpu_type.startswith('custom')) # should be "host" due to "--cpu host", but debian-stable keeps claiming "custom"
         emulated_machine = b.eval_js("$('#vm-subVmTest1-emulatedmachine').text()")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
@@ -85,7 +227,7 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-usage")
         b.click("#vm-subVmTest1-usage")
         b.wait_present("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption")
-        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "128 MiB")
+        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "256 MiB")
         b.wait_present("#chart-donut-0 .donut-title-big-pf")
         b.wait(lambda: float(b.text("#chart-donut-0 .donut-title-big-pf")) > 0.0)
         b.wait_present("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption")
@@ -100,6 +242,9 @@ class TestMachines(MachineCase):
         # resume sometimes fails with "unable to execute QEMU command 'cont': Resetting the Virtual Machine is required"
         m.execute('virsh resume subVmTest1 || { virsh destroy subVmTest1 && virsh start subVmTest1; }')
         b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        if args["logfile"] is not None:
+            wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")
@@ -183,7 +328,7 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-disks-total-value") # wait for the "Count" value
         b.wait_in_text("#vm-subVmTest1-disks-total-value", "2")
 
-        b.wait_in_text("#vm-subVmTest1-disks-hda-target".format("hda"), "hda")
+        b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
 
         b.wait_in_text("#vm-subVmTest1-disks-hda-bus", "ide")
@@ -201,8 +346,7 @@ class TestMachines(MachineCase):
             b.wait_present("#vm-subVmTest1-disks-hdb-used")
             b.wait_in_text("#vm-subVmTest1-disks-hdb-used", "0.00")
 
-            b.wait_in_text("#vm-subVmTest1-disks-hda-capacity", "1")
-            b.wait_in_text("#vm-subVmTest1-disks-hdb-capacity", "2")
+            b.wait_in_text("#vm-subVmTest1-disks-hdb-capacity", "1")
 
         # Test add disk
         m.execute("qemu-img create -f raw /var/lib/libvirt/images/image3.img 128M")
@@ -265,7 +409,7 @@ class TestMachines(MachineCase):
     def testInlineConsole(self):
         b = self.browser
 
-        self.startVm("subVmTest1", console='vnc')
+        self.startVm("subVmTest1", graphics='vnc')
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -291,16 +435,14 @@ class TestMachines(MachineCase):
         m = self.machine
 
         name = "subVmTest1"
-        img1 = "/var/lib/libvirt/images/{0}.img".format(name)
         img2 = "/var/lib/libvirt/images/{0}-2.img".format(name)
 
-        self.startVm(name, console='vnc')
+        self.startVm(name, graphics='vnc')
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr th", name)
 
-        m.execute("test -f {0}".format(img1))
         m.execute("test -f {0}".format(img2))
 
         b.click("tbody tr th") # click on the row header
@@ -309,14 +451,12 @@ class TestMachines(MachineCase):
 
         b.wait_present("#cockpit_modal_dialog")
         b.wait_present("#cockpit_modal_dialog div:contains(The VM is running)")
-        b.wait_present("#cockpit_modal_dialog tr:contains({0})".format(img1))
         b.wait_present("#cockpit_modal_dialog tr:contains({0})".format(img2))
         b.click("#cockpit_modal_dialog button:contains(Delete)")
         b.wait_not_present("#cockpit_modal_dialog")
 
         b.wait_not_present("#vm-{0}-row".format(name))
 
-        m.execute("! test -f {0}".format(img1))
         m.execute("! test -f {0}".format(img2))
 
         self.assertNotIn(name, m.execute("virsh list --all"))

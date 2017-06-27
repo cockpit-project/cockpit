@@ -56,7 +56,6 @@ Vagrant.configure(2) do |config|
             storaged-lvm2 \
             subscription-manager \
             tuned libvirt \
-            virt-install \
             yum-utils
         dnf install -y cockpit
         debuginfo-install -y cockpit cockpit-pcp

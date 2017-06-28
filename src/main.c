@@ -4,12 +4,27 @@
 #include <stdio.h>
 #include <systemd/sd-bus.h>
 
+static int loop_status;
+
+static void
+handle_bus_event(int watch,
+                 int fd,
+                 int events,
+                 void *opaque)
+{
+    sd_bus *bus = opaque;
+
+    loop_status = sd_bus_process(bus, NULL);
+}
+
 int
 main(int argc, char *argv[])
 {
     _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
     int r;
+
+    virEventRegisterDefaultImpl();
 
     r = sd_bus_open_user(&bus);
     if (r < 0) {
@@ -29,19 +44,13 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    for (;;) {
-        r = sd_bus_process(bus, NULL);
-        if (r < 0) {
-            fprintf(stderr, "Failed to process bus: %s\n", strerror(-r));
-            return EXIT_FAILURE;
-        }
-        if (r > 0)
-            continue;
+    virEventAddHandle(sd_bus_get_fd(bus), VIR_EVENT_HANDLE_READABLE, handle_bus_event, bus, NULL);
 
-        r = sd_bus_wait(bus, (uint64_t) -1);
-        if (r < 0) {
-            fprintf(stderr, "Failed to wait on bus: %s\n", strerror(-r));
-            return EXIT_FAILURE;
-        }
+    while (loop_status >= 0)
+        virEventRunDefaultImpl();
+
+    if (loop_status < 0) {
+        fprintf(stderr, "Error: %s\n", strerror(-loop_status));
+        return EXIT_FAILURE;
     }
 }

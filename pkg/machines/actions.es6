@@ -71,6 +71,14 @@ export function vmDesktopConsole(vm, consoleDetail) {
     return virt('CONSOLE_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, consoleDetail });
 }
 
+export function usageStartPolling(vm) {
+    return virt('USAGE_START_POLLING', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+}
+
+export function usageStopPolling(vm) {
+    return virt('USAGE_STOP_POLLING', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+}
+
 /**
  * Delay call of polling action.
  *
@@ -83,6 +91,7 @@ export function vmDesktopConsole(vm, consoleDetail) {
  * and scheduled on later.
  *
  * @param action I.e. getAllVms()
+ * @param timeout Non-default timeout
  */
 export function delayPolling(action, timeout) {
     return (dispatch, getState) => {

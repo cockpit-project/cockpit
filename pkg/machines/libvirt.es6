@@ -33,6 +33,7 @@ import { updateOrAddVm,
     vmActionFailed,
 } from './actions.es6';
 
+import { usagePollingEnabled } from './selectors.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import {
     toKiloBytes,
@@ -118,28 +119,13 @@ LIBVIRT_PROVIDER = {
     GET_VM ({ lookupId: name, connectionName }) {
         logDebug(`${this.name}.GET_VM()`);
 
-        const canFailHandler = ({exception, data}) => {
-            console.info(`The 'virsh' command failed, as expected: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-        };
-
         return dispatch => {
             if (!isEmpty(name)) {
                 return spawnVirshReadOnly({connectionName, method: 'dumpxml', name}).then(domXml => {
                     parseDumpxml(dispatch, connectionName, domXml);
                     return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
                 }).then(domInfo => {
-                    if (LIBVIRT_PROVIDER.isRunning(parseDominfo(dispatch, connectionName, name, domInfo))) {
-                        return spawnVirshReadOnly({connectionName, method: 'dommemstat', name, failHandler: canFailHandler});
-                    }
-                }).then(dommemstat => {
-                    if (dommemstat) { // is undefined if vm is not running
-                        parseDommemstat(dispatch, connectionName, name, dommemstat);
-                        return spawnVirshReadOnly({connectionName, method: 'domstats', name, failHandler: canFailHandler});
-                    }
-                }).then(domstats => {
-                    if (domstats) {
-                        parseDomstats(dispatch, connectionName, name, domstats);
-                    }
+                    parseDominfo(dispatch, connectionName, name, domInfo);
                 }); // end of GET_VM return
             }
         };
@@ -248,6 +234,20 @@ LIBVIRT_PROVIDER = {
             }
         };
     },
+
+    USAGE_START_POLLING ({ name, connectionName }) {
+        logDebug(`${this.name}.USAGE_START_POLLING(${name}):`);
+        return (dispatch => {
+            dispatch(updateVm({ connectionName, name, usagePolling: true}));
+            dispatch(doUsagePolling(name, connectionName));
+        });
+    },
+
+    USAGE_STOP_POLLING ({ name, connectionName }) {
+        logDebug(`${this.name}.USAGE_STOP_POLLING(${name}):`);
+        return dispatch => dispatch(updateVm({ connectionName, name, usagePolling: false}));
+    },
+
 
     /**
      * Basic, but working.
@@ -592,6 +592,32 @@ function buildConsoleVVFile(consoleDetail) {
         `port=${consoleDetail.port}\n` +
         'delete-this-file=1\n' +
         'fullscreen=0\n';
+}
+
+function doUsagePolling (name, connectionName) {
+    logDebug(`doUsagePolling(${name}, ${connectionName})`);
+
+    const canFailHandler = ({exception, data}) => {
+        console.info(`The 'virsh' command failed, as expected: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+    };
+
+    return (dispatch, getState) => {
+        if (!usagePollingEnabled(getState(), name, connectionName)) {
+            logDebug(`doUsagePolling(${name}, ${connectionName}): usage polling disabled, stopping loop`);
+            return;
+        }
+
+        return spawnVirshReadOnly({connectionName, method: 'dommemstat', name, failHandler: canFailHandler})
+            .then(dommemstat => {
+                if (dommemstat) { // is undefined if vm is not running
+                    parseDommemstat(dispatch, connectionName, name, dommemstat);
+                    return spawnVirshReadOnly({connectionName, method: 'domstats', name, failHandler: canFailHandler});
+                }
+            }).then(domstats => {
+                if (domstats)
+                    parseDomstats(dispatch, connectionName, name, domstats);
+            }).then(() => dispatch(delayPolling(doUsagePolling(name, connectionName), null, name, connectionName)));
+    };
 }
 
 export default LIBVIRT_PROVIDER;

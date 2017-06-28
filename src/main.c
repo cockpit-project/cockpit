@@ -1,10 +1,21 @@
 #include "manager.h"
 #include "util.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <systemd/sd-bus.h>
+#include <sys/signalfd.h>
 
 static int loop_status;
+
+static void
+handle_signal(int watch,
+              int fd,
+              int events,
+              void *opaque)
+{
+    loop_status = -ECANCELED;
+}
 
 static void
 handle_bus_event(int watch,
@@ -22,7 +33,14 @@ main(int argc, char *argv[])
 {
     _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
+    _cleanup_(closep) int signal_fd = -1;
+    sigset_t mask;
     int r;
+
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGTERM);
+    sigaddset(&mask, SIGINT);
+    sigprocmask(SIG_BLOCK, &mask, NULL);
 
     virEventRegisterDefaultImpl();
 
@@ -46,10 +64,13 @@ main(int argc, char *argv[])
 
     virEventAddHandle(sd_bus_get_fd(bus), VIR_EVENT_HANDLE_READABLE, handle_bus_event, bus, NULL);
 
+    signal_fd = signalfd(-1, &mask, SFD_NONBLOCK | SFD_CLOEXEC);
+    virEventAddHandle(signal_fd, VIR_EVENT_HANDLE_READABLE, handle_signal, NULL, NULL);
+
     while (loop_status >= 0)
         virEventRunDefaultImpl();
 
-    if (loop_status < 0) {
+    if (loop_status < 0 && loop_status != -ECANCELED) {
         fprintf(stderr, "Error: %s\n", strerror(-loop_status));
         return EXIT_FAILURE;
     }

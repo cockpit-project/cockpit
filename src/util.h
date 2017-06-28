@@ -3,6 +3,7 @@
 #include <libvirt/libvirt.h>
 #include <stdlib.h>
 #include <systemd/sd-bus.h>
+#include <unistd.h>
 
 #define _cleanup_(_x) __attribute__((__cleanup__(_x)))
 
@@ -16,6 +17,13 @@ static inline void
 freep(void *p)
 {
         free(*(void **)p);
+}
+
+static inline void
+closep(int *fdp)
+{
+    if (*fdp >= 0)
+        close(*fdp);
 }
 
 static inline void

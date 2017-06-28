@@ -214,10 +214,9 @@ function timeSampleUsageData(newVmRecord, previousVmRecord) {
             return;
         } else {
             logDebug(`timeSampleUsageData(): can't compute diff - missing previous record`);
+            newVmRecord.cpuUsage = 0;
         }
     }
-
-    newVmRecord.cpuUsage = 0;
 }
 
 export default combineReducers({

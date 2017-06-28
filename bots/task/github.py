@@ -88,9 +88,6 @@ def determine_github_base():
     # if we still don't have something, default to cockpit-project/cockpit
     return "cockpit-project/cockpit"
 
-# github base to use
-GITHUB_API = os.environ.get("GITHUB_API", "https://api.github.com")
-GITHUB_BASE = "{0}/repos/{1}/".format(GITHUB_API, os.environ.get("GITHUB_BASE", determine_github_base()))
 
 def known_context(context):
     for prefix in OUR_CONTEXTS:
@@ -135,7 +132,10 @@ class Logger(object):
             f.write(value)
 
 class GitHub(object):
-    def __init__(self, base=GITHUB_BASE, cacher=None):
+    def __init__(self, base=None, cacher=None):
+        if base is None:
+            netloc = os.environ.get("GITHUB_API", "https://api.github.com")
+            base = "{0}/repos/{1}/".format(netloc, os.environ.get("GITHUB_BASE", determine_github_base()))
         self.url = urlparse.urlparse(base)
         self.conn = None
         self.token = None

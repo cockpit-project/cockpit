@@ -14,8 +14,13 @@ domain_get_name(sd_bus *bus,
                 sd_bus_error *error)
 {
     virDomainPtr domain = userdata;
+    const char *name;
 
-    return sd_bus_message_append(reply, "s", virDomainGetName(domain));
+    name = virDomainGetName(domain);
+    if (name == NULL)
+        name = "";
+
+    return sd_bus_message_append(reply, "s", name);
 }
 
 static int
@@ -91,8 +96,7 @@ domain_get_active(sd_bus *bus,
 
     active = virDomainIsActive(domain);
     if (active < 0)
-        /* TODO libvirt error */
-        return -EINVAL;
+        active = 0;
 
     return sd_bus_message_append(reply, "b", active);
 }
@@ -111,8 +115,7 @@ domain_get_persistent(sd_bus *bus,
 
     persistent = virDomainIsPersistent(domain);
     if (persistent < 0)
-        /* TODO libvirt error */
-        return -EINVAL;
+        persistent = 0;
 
     return sd_bus_message_append(reply, "b", persistent);
 }
@@ -174,14 +177,12 @@ domain_get_xml_desc(sd_bus_message *message,
     int r;
 
     r = sd_bus_message_read(message, "u", &flags);
-    if (r < 0) {
-        sd_bus_error_set_const(error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
-        return -EINVAL;
-    }
+    if (r < 0)
+        return r;
 
     description = virDomainGetXMLDesc(domain, flags);
     if (!description)
-        return -EINVAL;
+        return bus_error_set_last_virt_error(error);
 
     return sd_bus_reply_method_return(message, "s", description);
 }
@@ -206,13 +207,11 @@ domain_get_stats(sd_bus_message *message,
     int r;
 
     r = sd_bus_message_read(message, "uu", &stats, &flags);
-    if (r < 0) {
-        sd_bus_error_set_const(error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
-        return -EINVAL;
-    }
+    if (r < 0)
+        return r;
 
     if (virDomainListGetStats(domains, stats, &records, flags) != 1)
-        return -EINVAL;
+        return bus_error_set_last_virt_error(error);
 
     r = sd_bus_message_new_method_return(message, &reply);
     if (r < 0)
@@ -261,10 +260,8 @@ domain_reboot(sd_bus_message *message,
     int r;
 
     r = sd_bus_message_read(message, "u", &flags);
-    if (r < 0) {
-        sd_bus_error_set_const(error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
-        return -EINVAL;
-    }
+    if (r < 0)
+        return r;
 
     r = virDomainReboot(domain, flags);
 
@@ -281,10 +278,8 @@ domain_reset(sd_bus_message *message,
     int r;
 
     r = sd_bus_message_read(message, "u", &flags);
-    if (r < 0) {
-        sd_bus_error_set_const(error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
-        return -EINVAL;
-    }
+    if (r < 0)
+        return r;
 
     r = virDomainReset(domain, flags);
 

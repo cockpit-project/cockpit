@@ -2,7 +2,6 @@
 #include "util.h"
 
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 struct VirtManager {
@@ -57,8 +56,7 @@ enumerate_domains(sd_bus *bus,
 
     n_domains = virConnectListAllDomains(manager->connection, &domains, 0);
     if (n_domains < 0)
-        /* TODO error */
-        return -EINVAL;
+        return bus_error_set_last_virt_error(error);
 
     paths = calloc(n_domains, sizeof(char *));
 
@@ -74,7 +72,7 @@ enumerate_domains(sd_bus *bus,
 static int
 virt_manager_list_domains(sd_bus_message *message,
                           void *userdata,
-                          sd_bus_error *ret_error)
+                          sd_bus_error *error)
 {
     VirtManager *manager = userdata;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
@@ -83,15 +81,12 @@ virt_manager_list_domains(sd_bus_message *message,
     int r;
 
     r = sd_bus_message_read(message, "u", &flags);
-    if (r < 0) {
-        sd_bus_error_set_const(ret_error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
-        return -EINVAL;
-    }
+    if (r < 0)
+        return r;
 
     r = virConnectListAllDomains(manager->connection, &domains, flags);
     if (r < 0)
-        /* TODO error */
-        return -EINVAL;
+        return bus_error_set_last_virt_error(error);
 
     r = sd_bus_message_new_method_return(message, &reply);
     if (r < 0)
@@ -121,7 +116,7 @@ virt_manager_list_domains(sd_bus_message *message,
 static int
 virt_manager_create_xml(sd_bus_message *message,
                         void *userdata,
-                        sd_bus_error *ret_error)
+                        sd_bus_error *error)
 {
     VirtManager *manager = userdata;
     const char *xml;
@@ -131,14 +126,12 @@ virt_manager_create_xml(sd_bus_message *message,
     int r;
 
     r = sd_bus_message_read(message, "su", &xml, &flags);
-    if (r < 0) {
-        sd_bus_error_set_const(ret_error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
-        return -EINVAL;
-    }
+    if (r < 0)
+        return r;
 
     domain = virDomainCreateXML(manager->connection, xml, flags);
     if (!domain)
-        return -EINVAL;
+        return bus_error_set_last_virt_error(error);
 
     path = domain_bus_path(domain);
 
@@ -148,7 +141,7 @@ virt_manager_create_xml(sd_bus_message *message,
 static int
 virt_manager_define_xml(sd_bus_message *message,
                         void *userdata,
-                        sd_bus_error *ret_error)
+                        sd_bus_error *error)
 {
     VirtManager *manager = userdata;
     const char *xml;
@@ -157,14 +150,12 @@ virt_manager_define_xml(sd_bus_message *message,
     int r;
 
     r = sd_bus_message_read(message, "s", &xml);
-    if (r < 0) {
-        sd_bus_error_set_const(ret_error, "org.freedesktop.DBus.Error.InvalidArgs", "Invalid Arguments");
-        return -EINVAL;
-    }
+    if (r < 0)
+        return r;
 
     domain = virDomainDefineXML(manager->connection, xml);
     if (!domain)
-        return -EINVAL;
+        return bus_error_set_last_virt_error(error);
 
     path = domain_bus_path(domain);
 
@@ -219,7 +210,6 @@ virt_manager_new(VirtManager **managerp, sd_bus *bus)
 
     manager->connection = virConnectOpenAuth("qemu:///session", virConnectAuthPtrDefault, 0);
     if (!manager->connection)
-        /* TODO get libvirt error */
         return -EINVAL;
 
     r = sd_bus_add_object_vtable(manager->bus,

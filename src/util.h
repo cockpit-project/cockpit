@@ -10,6 +10,8 @@ int bus_message_append_typed_parameters(sd_bus_message *message,
                                         virTypedParameterPtr parameters,
                                         int n_parameters);
 
+int bus_error_set_last_virt_error(sd_bus_error *error);
+
 static inline void
 freep(void *p)
 {

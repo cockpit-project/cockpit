@@ -1,5 +1,7 @@
 #include "util.h"
 
+#include <libvirt/virterror.h>
+
 int
 bus_message_append_typed_parameters(sd_bus_message *message,
                                     virTypedParameterPtr parameters,
@@ -53,4 +55,15 @@ bus_message_append_typed_parameters(sd_bus_message *message,
     }
 
     return sd_bus_message_close_container(message);
+}
+
+int bus_error_set_last_virt_error(sd_bus_error *error)
+{
+    virErrorPtr vir_error;
+
+    vir_error = virGetLastError();
+    if (!vir_error)
+        return 0;
+
+    return sd_bus_error_set(error, "org.libvirt.Error", vir_error->message);
 }

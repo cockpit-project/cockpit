@@ -222,6 +222,11 @@ a.disabled {
     word-break: break-all;
 }
 
+#journal-entry .info-table-ct td:first-child {
+    white-space: normal;
+    word-break: keep-all;
+}
+
 .service-unit-description {
     font-weight: bold;
 }
@@ -274,12 +279,65 @@ a.disabled {
     margin-top: 5em;
 }
 
-#journal-entry-message {
+#journal-entry-message:not(:empty) {
     margin: 10px;
 }
 
 #journal-entry-fields {
     margin-bottom: 10px;
+    width: 100%;
+}
+
+#journal-entry-fields th {
+    font-weight: normal;
+}
+
+#accordion-markup {
+    margin-bottom: 0px;
+}
+
+.problem-btn {
+    float: right;
+    padding: 0px 5px 0px 5px;
+    margin-right: 10px;
+    margin-top: 4px;
+}
+
+.nav-tabs-pf > li:first-child > a {
+    padding-left: 20px;
+}
+
+.nav li a {
+    font-size: 13px;
+}
+
+.panel-heading {
+    cursor: pointer;
+}
+
+.detail_table > tbody > tr > td, .detail_table > thead > tr > th {
+    padding-right: 10px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.problem-panel {
+    background: none !important;
+    height: auto;
+}
+
+.problem-panel:hover {
+    background: #EDEDED !important;
+    height: auto;
+}
+
+.other-threads-btn {
+    margin-top: 20px;
+}
+
+.other_threads {
+    clear: both;
 }
 
 /* Extra content header */
@@ -294,8 +352,9 @@ a.disabled {
     top: 0;
 }
 
-.content-header-extra .btn-group:not(:first-child) {
-    padding-left: 20px;
+.content-header-extra .btn-group {
+    padding-left: 5px;
+    padding-right: 30px;
 }
 
 #motd {

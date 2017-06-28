@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-17 19:00+0000\n"
+"POT-Creation-Date: 2017-06-28 08:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-06-01 02:40-0400\n"
+"PO-Revision-Date: 2017-06-18 02:34-0400\n"
 "Last-Translator: Copied by Zanata <copied-by-zanata@zanata.org>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -132,6 +132,9 @@ msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
 msgstr ""
+"$0 можна користуватися у більшості операційних систем. Щоб встановити "
+"пакунок із програмою, знайдіть відповідний запис у Програмних засобах GNOME "
+"або віддайте таку команду:"
 
 #: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
 #: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
@@ -184,12 +187,12 @@ msgstr "$0 пакунків"
 msgid "$0 shares"
 msgstr "$0 спільних ресурсів"
 
-#: pkg/packagekit/updates.jsx:100
+#: pkg/packagekit/updates.jsx:102
 msgid "$0 update"
 msgid_plural "$0 updates"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "$0 оновлення"
+msgstr[1] "$0 оновлення"
+msgstr[2] "$0 оновлень"
 
 #: pkg/lib/plot.js:887
 msgid "$0 week"
@@ -257,12 +260,12 @@ msgstr "(типовий)"
 msgid "(none)"
 msgstr "(немає)"
 
-#: pkg/packagekit/updates.jsx:105
+#: pkg/packagekit/updates.jsx:107
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] ", включно із $1 виправленням захисту"
+msgstr[1] ", включно із $1 виправленнями захисту"
+msgstr[2] ", включно із $1 виправленнями захисту"
 
 #: pkg/ostree/index.html:92
 msgid "- Add New Repository"
@@ -796,7 +799,7 @@ msgstr "Адреса $val"
 
 #: pkg/machines/components/desktopConsole.jsx:156
 msgid "Address:"
-msgstr ""
+msgstr "Адреса:"
 
 #: pkg/kubernetes/views/details-page.html:37
 #: pkg/networkmanager/interfaces.js:3178
@@ -910,13 +913,13 @@ msgstr "Застосувати це рішення"
 msgid "Applying solution..."
 msgstr "Застосовуємо рішення…"
 
-#: pkg/packagekit/updates.jsx:33
-msgid "Applying updates"
-msgstr ""
-
 #: pkg/packagekit/updates.jsx:34
+msgid "Applying updates"
+msgstr "Застосовуємо оновлення"
+
+#: pkg/packagekit/updates.jsx:35
 msgid "Applying updates failed"
-msgstr ""
+msgstr "Не вдалося застосувати оновлення"
 
 #: node_modules/registry-image-widgets/views/image-config.html:16
 #: pkg/subscriptions/subscriptions-view.jsx:35
@@ -1029,8 +1032,8 @@ msgstr "Автозапуск:"
 msgid "Available"
 msgstr "Доступні"
 
-#: pkg/packagekit/updates.jsx:505
-msgid "Available Packages"
+#: pkg/packagekit/updates.jsx:517
+msgid "Available Updates"
 msgstr ""
 
 #: pkg/storaged/overview.js:624
@@ -1120,9 +1123,9 @@ msgstr "Трансляція"
 msgid "Broken configuration"
 msgstr "Помилки у налаштуваннях"
 
-#: pkg/packagekit/updates.jsx:204
+#: pkg/packagekit/updates.jsx:209
 msgid "Bugs"
-msgstr ""
+msgstr "Вади"
 
 #: node_modules/registry-image-widgets/views/image-body.html:16
 msgid "Built"
@@ -1219,6 +1222,7 @@ msgstr "Не можна вилучати, доки розблоковано"
 #: pkg/systemd/index.html:496 pkg/users/index.html:210 pkg/users/index.html:271
 #: pkg/users/index.html:295 pkg/users/index.html:352
 #: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
+#: pkg/packagekit/updates.jsx:125
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -1340,6 +1344,10 @@ msgstr ""
 msgid "Check for Updates"
 msgstr "Перевірити наявність оновлень"
 
+#: pkg/packagekit/updates.jsx:116
+msgid "Check for updates"
+msgstr "Перевірити оновлення"
+
 #: pkg/networkmanager/interfaces.js:771
 msgid "Checking IP"
 msgstr "Перевіряємо IP"
@@ -1380,10 +1388,6 @@ msgstr "Заявити"
 msgid "Claim Name"
 msgstr "Назва заявки"
 
-#: pkg/packagekit/updates.jsx:52
-msgid "Cleaning up"
-msgstr ""
-
 #: pkg/storaged/jobs.js:134
 msgid "Cleaning up for $target"
 msgstr "Спорожнюємо для $target"
@@ -1392,6 +1396,8 @@ msgstr "Спорожнюємо для $target"
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr ""
+"У результаті натискання «Запустити віддалений переглядач» буде отримано файл "
+".vv і запущено $0."
 
 #: pkg/kubernetes/views/auth-form.html:88
 msgid "Client Certificate"
@@ -1499,9 +1505,9 @@ msgstr ""
 "і адмініструвати ці сервери. Просто додайте їх одним клацанням кнопкою миші "
 "і ваш комп’ютер сам нагляне за своїми приятелями."
 
-#: pkg/packagekit/updates.jsx:526
+#: pkg/packagekit/updates.jsx:538
 msgid "Cockpit itself will be updated."
-msgstr ""
+msgstr "Сам Cockpit буде оновлено."
 
 #: pkg/lib/machine-change-port.html:9
 msgid "Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}."
@@ -1668,15 +1674,15 @@ msgstr "З’єднатися з"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Connect with Remote Viewer"
-msgstr ""
+msgstr "З’єднатися із Віддаленим переглядачем"
 
 #: pkg/machines/components/desktopConsole.jsx:191
 msgid "Connect with any $0 viewer application."
-msgstr ""
+msgstr "З’єднатися із будь-якою програмою перегляду $0."
 
 #: pkg/machines/components/desktopConsole.jsx:188
 msgid "Connect with any SPICE or VNC viewer application."
-msgstr ""
+msgstr "З’єднатися із будь-якою програмою перегляду SPICE або VNC."
 
 #: pkg/lib/machine-add.html:39
 msgid ""
@@ -1731,7 +1737,7 @@ msgstr "З’єднання буде розірвано"
 
 #: pkg/machines/hostvmslist.jsx:368
 msgid "Console"
-msgstr ""
+msgstr "Консоль"
 
 #: pkg/docker/console.html:4 pkg/kubernetes/views/container-body.html:4
 #: pkg/kubernetes/views/container-page-inline.html:2
@@ -1911,6 +1917,10 @@ msgstr "Створити розділ"
 msgid "Create RAID Device"
 msgstr "Створити пристрій RAID"
 
+#: pkg/sosreport/index.html:36
+msgid "Create Report"
+msgstr ""
+
 #: pkg/storaged/lvol-tabs.jsx:115 pkg/storaged/lvol-tabs.jsx:151
 msgid "Create Snapshot"
 msgstr "Створення знімка"
@@ -1963,10 +1973,6 @@ msgstr "Створити розділ на $0"
 #: pkg/storaged/index.html:379 pkg/storaged/content-views.jsx:522
 msgid "Create partition table"
 msgstr "Створити таблицю розділів"
-
-#: pkg/sosreport/index.html:36
-msgid "Create report"
-msgstr "Створити звіт"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
 #: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
@@ -2123,13 +2129,12 @@ msgstr "Затримка"
 #: pkg/kubernetes/views/pvc-delete.html:15
 #: pkg/kubernetes/views/user-remove-membership.html:10
 #: pkg/networkmanager/index.html:575 pkg/ostree/index.html:38
-#: pkg/users/index.html:77 pkg/users/index.html:296
-#: pkg/docker/containers-view.jsx:169 pkg/docker/containers-view.jsx:457
-#: pkg/docker/details.js:276 pkg/docker/image.js:141
-#: pkg/kubernetes/scripts/volumes.js:218 pkg/storaged/content-views.jsx:267
-#: pkg/storaged/content-views.jsx:288 pkg/storaged/details.jsx:105
-#: pkg/storaged/details.jsx:166 pkg/storaged/details.jsx:334
-#: pkg/storaged/details.jsx:383
+#: pkg/users/index.html:77 pkg/users/index.html:296 pkg/docker/details.js:276
+#: pkg/docker/image.js:141 pkg/docker/containers-view.jsx:169
+#: pkg/docker/containers-view.jsx:457 pkg/kubernetes/scripts/volumes.js:218
+#: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:288
+#: pkg/storaged/details.jsx:105 pkg/storaged/details.jsx:166
+#: pkg/storaged/details.jsx:334 pkg/storaged/details.jsx:383
 msgid "Delete"
 msgstr "Вилучити"
 
@@ -2200,7 +2205,7 @@ msgstr ""
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "Вилучення пристрою RAID призведе до витирання з нього усіх даних."
 
-#: pkg/docker/containers-view.jsx:168 pkg/docker/details.js:275
+#: pkg/docker/details.js:275 pkg/docker/containers-view.jsx:168
 msgid "Deleting a container will erase all data in it."
 msgstr ""
 "Вилучення контейнера призведе до витирання усіх даних, що на ньому "
@@ -2273,7 +2278,7 @@ msgstr "Опис"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:205
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:210
 msgid "Details"
 msgstr "Подробиці"
 
@@ -2468,11 +2473,11 @@ msgstr "Звіт щодо отримання"
 
 #: pkg/machines/components/desktopConsole.jsx:46
 msgid "Download the MSI from $0"
-msgstr ""
+msgstr "Отримати MSI з $0"
 
-#: pkg/packagekit/updates.jsx:49
+#: pkg/packagekit/updates.jsx:51
 msgid "Downloading"
-msgstr ""
+msgstr "Отримуємо"
 
 #: pkg/storaged/index.html:409 pkg/docker/storage.jsx:161
 msgid "Drive"
@@ -3224,17 +3229,17 @@ msgstr "Неправильний ключ вузла"
 msgid "Information about the Docker storage pool is not available."
 msgstr "Немає доступу до даних щодо резервного сховища даних Docker."
 
-#: pkg/packagekit/updates.jsx:243
+#: pkg/packagekit/updates.jsx:248
 msgid "Initializing..."
-msgstr ""
+msgstr "Ініціалізація…"
 
-#: pkg/packagekit/updates.jsx:517
+#: pkg/packagekit/updates.jsx:529
 msgid "Install all updates"
-msgstr ""
+msgstr "Встановити усі оновлення"
 
-#: pkg/packagekit/updates.jsx:510
+#: pkg/packagekit/updates.jsx:522
 msgid "Install security updates"
-msgstr ""
+msgstr "Встановити оновлення захисту"
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
@@ -3246,9 +3251,9 @@ msgstr ""
 msgid "Installed products"
 msgstr "Встановлені продукти"
 
-#: pkg/packagekit/updates.jsx:50
+#: pkg/packagekit/updates.jsx:52
 msgid "Installing"
-msgstr ""
+msgstr "Встановлення"
 
 #: pkg/systemd/services.html:135
 msgid "Instantiate"
@@ -3456,9 +3461,9 @@ msgstr "Останній перемикач"
 msgid "Last Updated"
 msgstr "Останнє оновлення"
 
-#: pkg/packagekit/updates.jsx:115
+#: pkg/packagekit/updates.jsx:120
 msgid "Last checked: $0 ago"
-msgstr ""
+msgstr "Востаннє перевірено: $0 тому"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:15
 #: pkg/kubernetes/views/details-page.html:107
@@ -3467,7 +3472,7 @@ msgstr "Найсвіжіша версія"
 
 #: pkg/machines/components/desktopConsole.jsx:131
 msgid "Launch Remote Viewer"
-msgstr ""
+msgstr "Запустити віддалений переглядач"
 
 #: pkg/realmd/operation.js:102
 msgid "Leave"
@@ -3542,13 +3547,13 @@ msgstr "Збалансовування навантаження"
 msgid "Load earlier entries"
 msgstr "Завантажити попередні записи"
 
-#: pkg/packagekit/updates.jsx:35
+#: pkg/packagekit/updates.jsx:36
 msgid "Loading available updates failed"
-msgstr ""
+msgstr "Не вдалося завантажити список доступних оновлень"
 
 #: pkg/packagekit/updates.jsx:30
 msgid "Loading available updates, please wait..."
-msgstr ""
+msgstr "Завантажуємо доступні оновлення, зачекайте…"
 
 #: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:75 pkg/systemd/logs.js:90
 #: pkg/systemd/logs.js:134 pkg/systemd/logs.js:175
@@ -3595,6 +3600,10 @@ msgstr "Блокуємо $target"
 msgid "Log In"
 msgstr "Увійти"
 
+#: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
+msgid "Log Out"
+msgstr ""
+
 #: pkg/shell/simple.html:118
 msgid "Log in again"
 msgstr "Знову увійти"
@@ -3614,10 +3623,6 @@ msgstr "Вхід до реєстру:"
 #: pkg/systemd/index.html:64
 msgid "Log messages"
 msgstr "Повідомлення журналу"
-
-#: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
-msgid "Log out"
-msgstr "Вийти"
 
 #: pkg/users/local.js:855
 msgid "Logged In"
@@ -3722,7 +3727,7 @@ msgstr "Вручну"
 
 #: pkg/machines/components/desktopConsole.jsx:196
 msgid "Manual Connection"
-msgstr ""
+msgstr "З’єднання вручну"
 
 #: pkg/systemd/index.html:393 pkg/systemd/index.html:397
 msgid "Manually"
@@ -3876,7 +3881,7 @@ msgstr "Більше"
 #: pkg/machines/components/desktopConsole.jsx:104
 #: pkg/machines/components/desktopConsole.jsx:112
 msgid "More Information"
-msgstr ""
+msgstr "Докладніше"
 
 #: pkg/kdump/kdump-view.jsx:447
 msgid "More details"
@@ -3979,7 +3984,7 @@ msgstr "Сервер NTP"
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
 #: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/packagekit/updates.jsx:202
+#: pkg/packagekit/updates.jsx:207
 msgid "Name"
 msgstr "Назва"
 
@@ -4197,7 +4202,7 @@ msgstr "Недостатньо вільного простору"
 
 #: pkg/machines/components/graphicsConsole.jsx:32
 msgid "No graphics console is defined for this virtual machine."
-msgstr ""
+msgstr "Для цієї віртуальної машини не визначено графічної консолі."
 
 #: pkg/kubernetes/views/project-listing.html:74
 msgid "No groups are present."
@@ -4307,9 +4312,9 @@ msgstr "Жодне зі сховищ даних не налаштовано як
 msgid "No such file or directory"
 msgstr "Немає такого файла або каталогу"
 
-#: pkg/packagekit/updates.jsx:32
+#: pkg/packagekit/updates.jsx:33
 msgid "No updates pending"
-msgstr ""
+msgstr "У черзі немає оновлень"
 
 #: pkg/users/local.js:416
 msgid "No user name specified"
@@ -4557,16 +4562,17 @@ msgstr "Перезаписати наявні дані нулями"
 msgid "PD Name"
 msgstr "Назва PD"
 
-#: pkg/packagekit/updates.jsx:313
+#: pkg/packagekit/updates.jsx:318
 msgid "PackageKit crashed"
-msgstr ""
+msgstr "Аварійне завершення роботи PackageKit"
 
-#: pkg/packagekit/updates.jsx:311 pkg/packagekit/updates.jsx:422
+#: pkg/packagekit/updates.jsx:316 pkg/packagekit/updates.jsx:427
+#: pkg/packagekit/updates.jsx:443
 msgid "PackageKit is not installed"
-msgstr ""
+msgstr "PackageKit не встановлено"
 
-#: pkg/packagekit/updates.jsx:455
-msgid "PackageKit reported error code {0}"
+#: pkg/packagekit/updates.jsx:460
+msgid "PackageKit reported error code $0"
 msgstr ""
 
 #: pkg/ostree/index.html:266
@@ -4709,8 +4715,8 @@ msgstr "Проміжок між імпульсами"
 msgid "Ping Target"
 msgstr "Ціль тестування луною"
 
-#: pkg/docker/containers-view.jsx:167 pkg/docker/details.js:274
-#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:261
+#: pkg/docker/details.js:274 pkg/docker/image.js:139
+#: pkg/docker/containers-view.jsx:167 pkg/storaged/content-views.jsx:261
 #: pkg/storaged/details.jsx:100 pkg/storaged/details.jsx:160
 msgid "Please confirm deletion of $0"
 msgstr "Будь ласка, підтвердьте вилучення $0"
@@ -4794,6 +4800,8 @@ msgstr "Будь ласка, виберіть коректний варіант 
 #: pkg/machines/components/graphicsConsole.jsx:41
 msgid "Please start the virtual machine to access its graphics console."
 msgstr ""
+"Будь ласка, запустіть віртуальну машину, щоб отримати доступ до її графічної "
+"консолі."
 
 #: pkg/docker/search.js:150
 msgid "Please try another term"
@@ -5281,6 +5289,10 @@ msgstr "Повторний цикл"
 msgid "Reformat and add disks"
 msgstr "Повторно форматувати і додати диски"
 
+#: pkg/packagekit/updates.jsx:32
+msgid "Refreshing package information"
+msgstr ""
+
 #: src/ws/login.js:587
 msgid "Refusing to connect. Host is unknown"
 msgstr "Відмовляємо у з’єднанні. Невідомий вузол."
@@ -5636,19 +5648,19 @@ msgstr "Самоперевірка SMART $target"
 
 #: pkg/machines/components/desktopConsole.jsx:190
 msgid "SPICE"
-msgstr ""
+msgstr "SPICE"
 
 #: pkg/machines/components/desktopConsole.jsx:159
 msgid "SPICE Address:"
-msgstr ""
+msgstr "Адреса SPICE:"
 
 #: pkg/machines/components/desktopConsole.jsx:165
 msgid "SPICE Port:"
-msgstr ""
+msgstr "Порт SPICE:"
 
 #: pkg/machines/components/desktopConsole.jsx:168
 msgid "SPICE TLS Port:"
-msgstr ""
+msgstr "Порт TLS SPICE:"
 
 #: pkg/networkmanager/index.html:242
 msgid "STP Forward delay"
@@ -5720,9 +5732,9 @@ msgstr "Безпечно витираємо $target"
 msgid "Security"
 msgstr "Безпека"
 
-#: pkg/packagekit/updates.jsx:149
+#: pkg/packagekit/updates.jsx:154
 msgid "Security Update"
-msgstr ""
+msgstr "Оновлення захисту"
 
 #: pkg/shell/index.html:136 pkg/shell/simple.html:101 pkg/shell/stub.html:114
 msgid "Select"
@@ -5871,6 +5883,10 @@ msgid ""
 msgstr ""
 "Параметр не відповідає налаштованому стану, його буде скинуто під час "
 "наступного завантаження."
+
+#: pkg/packagekit/updates.jsx:54
+msgid "Setting up"
+msgstr ""
 
 #: pkg/storaged/jobs.js:130
 msgid "Setting up loop device $target"
@@ -6035,6 +6051,8 @@ msgstr "Рішення"
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
+"Програмою для керування пакунків користується якась інша програма, будь "
+"ласка, зачекайте…"
 
 #: pkg/kubernetes/scripts/volumes.js:906
 msgid "Sorry, I don't know how to modify this volume"
@@ -6239,11 +6257,11 @@ msgstr "Увімкнути $0"
 
 #: pkg/machines/components/graphicsConsole.jsx:60
 msgid "Switch to Desktop Viewer"
-msgstr ""
+msgstr "Перемкнутися на перегляд стільниці"
 
 #: pkg/machines/components/graphicsConsole.jsx:70
 msgid "Switch to In-Browser Viewer"
-msgstr ""
+msgstr "Перемкнутися на перегляд у браузері"
 
 #: pkg/networkmanager/interfaces.js:2379
 msgid ""
@@ -6305,9 +6323,9 @@ msgstr "Служби системи"
 msgid "System Time"
 msgstr "Системний час"
 
-#: pkg/packagekit/updates.jsx:550
+#: pkg/packagekit/updates.jsx:562
 msgid "System is up to date"
-msgstr ""
+msgstr "Система не потребує оновлення"
 
 #: pkg/docker/index.html:320 pkg/docker/index.html:324
 msgid "TCP"
@@ -6578,11 +6596,11 @@ msgstr "Маршруту «{{ target }}» не існує."
 
 #: pkg/docker/containers-view.jsx:338
 msgid "The scan from $time ($type) found no vulnerabilities."
-msgstr ""
+msgstr "Скануванням від $time ($type) вразливостей не знайдено."
 
 #: pkg/docker/containers-view.jsx:335
 msgid "The scan from $time ($type) was not successful."
-msgstr ""
+msgstr "Сканування $time ($type) виконати не вдалося."
 
 #: pkg/kubernetes/scripts/dashboard.js:386
 msgid "The selected file is not a valid Kubernetes application manifest."
@@ -7201,7 +7219,7 @@ msgid "Updates"
 msgstr "Оновлення"
 
 #: pkg/ostree/index.html:262 pkg/subscriptions/subscriptions-view.jsx:187
-#: pkg/packagekit/updates.jsx:51
+#: pkg/packagekit/updates.jsx:53
 msgid "Updating"
 msgstr "Оновлення"
 
@@ -7331,19 +7349,19 @@ msgstr "Не вдалося виконати дію START для ВМ"
 
 #: pkg/machines/components/desktopConsole.jsx:190
 msgid "VNC"
-msgstr ""
+msgstr "VNC"
 
 #: pkg/machines/components/desktopConsole.jsx:162
 msgid "VNC Address:"
-msgstr ""
+msgstr "Адреса VNC:"
 
 #: pkg/machines/components/desktopConsole.jsx:171
 msgid "VNC Port:"
-msgstr ""
+msgstr "Порт VNC:"
 
 #: pkg/machines/components/desktopConsole.jsx:174
 msgid "VNC TLS Port:"
-msgstr ""
+msgstr "Порт TLS VNC:"
 
 #: src/ws/login.html:100
 msgid "Validating authentication token"
@@ -7353,13 +7371,13 @@ msgstr "Перевіряємо ключ розпізнавання"
 msgid "Validating key"
 msgstr "Перевірка ключа"
 
-#: pkg/packagekit/updates.jsx:53
+#: pkg/packagekit/updates.jsx:55
 msgid "Verifying"
-msgstr ""
+msgstr "Перевіряємо"
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:203
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:208
 msgid "Version"
 msgstr "Версія"
 
@@ -7442,11 +7460,14 @@ msgstr "Вітаємо у реєстрі образів"
 msgid "When"
 msgstr "Умова"
 
-#: pkg/packagekit/updates.jsx:528
+#: pkg/packagekit/updates.jsx:540
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
 msgstr ""
+"Коли з’єднання буде розірвано, оновлення продовжуватиметься у фоновому "
+"режимі. Ви можете повторно встановити з’єднання і відновити спостереження за "
+"поступом оновлення."
 
 #: pkg/docker/index.html:478
 msgid "With terminal"
@@ -7534,7 +7555,7 @@ msgstr ""
 
 #: pkg/machines/components/vnc.jsx:30
 msgid "Your browser does not support iframes."
-msgstr ""
+msgstr "У браузері не передбачено підтримки iframe."
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:112
 msgid ""

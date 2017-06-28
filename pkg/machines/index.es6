@@ -23,6 +23,9 @@ import App from './app.jsx';
 import { getAllVms } from './actions.es6';
 import { logDebug } from './helpers.es6';
 
+import Libvirt from './libvirt.es6';
+import { setVirtProvider } from './provider.es6';
+
 function render() {
     React.render(
         React.createElement(App, {store: store}),
@@ -35,6 +38,8 @@ function render() {
  */
 export function appMain() {
     logDebug('index.es6: initial state: ' + JSON.stringify(store.getState()));
+
+    setVirtProvider(Libvirt);
 
     // re-render app every time the state changes
     store.subscribe(render);

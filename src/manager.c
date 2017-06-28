@@ -58,7 +58,7 @@ enumerate_domains(sd_bus *bus,
     if (n_domains < 0)
         return bus_error_set_last_virt_error(error);
 
-    paths = calloc(n_domains, sizeof(char *));
+    paths = calloc(n_domains + 1, sizeof(char *));
 
     for (int i = 0; i < n_domains; i += 1)
         paths[i] = domain_bus_path(domains[i]);

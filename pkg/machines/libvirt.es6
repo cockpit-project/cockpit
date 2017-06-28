@@ -265,7 +265,7 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
         cmd: 'virsh',
         args: VMS_CONFIG.Virsh.connections[connectionName].params.concat(args),
         failHandler,
-    }).catch((ex, data, output) => {
+    }).fail((ex, data, output) => {
         const msg = `${method}() exception: '${ex}', data: '${data}', output: '${output}'`;
         if (failHandler) {
             logDebug(msg);

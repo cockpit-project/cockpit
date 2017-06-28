@@ -1106,13 +1106,21 @@ class VirtMachine(Machine):
         finally:
             self._cleanup()
 
-    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
-        if self.fetch and not os.path.exists(self.image_file):
+    def pull(self, image):
+        if "/" in image:
+            image_file = os.path.abspath(image)
+        else:
+            image_file = os.path.join(LOCAL_DIR, "..", "..", "bots", "images", image)
+        if self.fetch and not os.path.exists(image_file):
             try:
-                subprocess.check_call([ "image-download", self.image_file ])
+                subprocess.check_call([ "image-download", image_file ])
             except OSError, ex:
                 if ex.errno != errno.ENOENT:
                     raise
+        return image_file
+
+    def start(self, maintain=False, macaddr=None, memory_mb=None, cpus=None, wait_for_ip=True):
+        self.pull(self.image_file)
 
         tries = 0
         while True:

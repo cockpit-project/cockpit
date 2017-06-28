@@ -44,6 +44,11 @@ var info = {
             "ostree/ostree.less",
         ],
 
+        "ovirt/ovirt": [
+            "ovirt/index.js",
+            "ovirt/ovirt.less",
+        ],
+
         "playground/jquery-patterns": [
             "playground/jquery-patterns.js",
         ],
@@ -190,6 +195,11 @@ var info = {
 
         "ostree/manifest.json",
         "ostree/index.html",
+
+        "ovirt/index.html",
+        "ovirt/manifest.json",
+        "ovirt/vnc.html",
+        "ovirt/vnc.css",
 
         "packagekit/index.html",
         "packagekit/manifest.json",

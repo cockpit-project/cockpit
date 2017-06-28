@@ -18,13 +18,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import store from './store.es6';
-import App from './app.jsx';
-import { getAllVms } from './actions.es6';
-import { logDebug } from './helpers.es6';
+import store from '../machines/store.es6';
+import App from '../machines/app.jsx';
+import { getAllVms } from '../machines/actions.es6';
+import { logDebug } from '../machines/helpers.es6';
 
-import Libvirt from './libvirt.es6';
-import { setVirtProvider } from './provider.es6';
+import { setVirtProvider } from '../machines/provider.es6';
 
 function render() {
     React.render(
@@ -37,9 +36,10 @@ function render() {
  * Start the application.
  */
 export function appMain() {
+    console.log("loading ovirt package");
     logDebug('index.es6: initial state: ' + JSON.stringify(store.getState()));
 
-    setVirtProvider(Libvirt);
+    setVirtProvider(null);
 
     // re-render app every time the state changes
     store.subscribe(render);

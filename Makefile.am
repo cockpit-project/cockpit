@@ -149,6 +149,7 @@ WEBPACK_PACKAGES = \
 	machines \
 	networkmanager \
 	ostree \
+	ovirt \
 	pcp \
 	packagekit \
 	playground \

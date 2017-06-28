@@ -175,50 +175,6 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
 
-    def testProvider(self):
-        b = self.browser
-        m = self.machine
-
-        self.startVm("subVmTest1")
-
-        self.login_and_go("/machines")
-        b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
-
-        # install the provider
-        m.execute("mkdir /usr/share/cockpit/machines/provider")
-        m.upload(["verify/files/cockpitMachinesTestExternalProvider.js"], "/usr/share/cockpit/machines/provider") # do not rename
-        m.execute("mv /usr/share/cockpit/machines/provider/cockpitMachinesTestExternalProvider.js /usr/share/cockpit/machines/provider/index.js")
-
-        self.login_and_go("/machines")
-        b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("#vm-vm1-row") # is VM listed so the provider is correctly loaded, initialized and GET_ALL_VMS() passed??
-
-        b.click("#vm-vm1-row") # click on the row header
-        b.wait_present("#vm-vm1-state")
-        b.wait_in_text("#vm-vm1-state", "running")
-
-        b.wait_present("#test-vm-action-vm1") # is provider-specific action button rendered?
-        b.wait_in_text("#test-vm-props-vm1", "Test Provider Property") # are provider-specific VM props rendered?
-
-        b.click("#vm-vm1-off-caret")
-        b.wait_visible("#vm-vm1-off")
-
-        b.click("#vm-vm1-off") # click the Shut Down button
-        b.wait_in_text("#vm-vm1-state", "shut off")
-
-        b.click("a:contains('Test Subtab')") # Click on the subtab injected by the Provider
-        b.wait_visible("#test-subtab-body-vm1") # is subtab rendered?
-        b.wait_in_text("#test-subtab-body-vm1", "Content of subtab")
-
-        b.click("#vm-vm1-run") # click the Run button which intentionally leads to an error, so check it
-        b.click("a:contains('Overview')") # where the error message is rendered
-        b.wait_visible("#vm-vm1-vcpus") # wait till the tab is fully rendered
-        b.wait_present("#vm-vm1-last-message")
-        b.wait_in_text("#vm-vm1-last-message", "VM failed to start")
-
-        self.allow_journal_messages(".*Error receiving data: Connection reset by peer.*")
-
     def testExternalConsole(self):
         b = self.browser
 

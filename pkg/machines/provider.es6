@@ -19,37 +19,19 @@
  */
 
 import cockpit from 'cockpit';
-import $ from 'jquery';
 import React from 'react';
 
 import { logDebug } from './helpers.es6';
-import Libvirt from './libvirt.es6';
 import { setProvider, delayPolling, getAllVms, deleteUnlistedVMs, updateOrAddVm } from './actions.es6';
 
 import Store from './store.es6';
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { StateIcon, DropdownButtons } from './hostvmslist.jsx';
 
-/**
- * External provider can be optionally installed on: .../cockpit/machines/provider/index.js
- * The default is Libvirt.
- *
- * The external provider needs to meet API stated in libvirt.es6 or the README.md.
- *
- * @param useProvider - function taking 'provider' as 1st argument and performs provider's registration and init
- * @param defaultProvider - used by default if no external provider is installed
- */
-function loadExternalProvider({ useProvider, defaultProvider }) {
-    const scriptElement = $('<script/>').prop({src: 'provider/index.js', async: true});
-    scriptElement.on('load', () => {
-        logDebug(`External provider loaded: ${JSON.stringify(window.EXTERNAL_PROVIDER.name)}`);
-        useProvider(window.EXTERNAL_PROVIDER);
-    });
-    scriptElement.on('error', (err) => {
-        logDebug(`No external provider found, using ${defaultProvider.name}.`);
-        useProvider(defaultProvider);
-    });
-    document.head.appendChild(scriptElement[0]);
+var provider = null;
+
+export function setVirtProvider (prov) {
+    provider = prov;
 }
 
 function getVirtProvider (store) {
@@ -60,46 +42,40 @@ function getVirtProvider (store) {
         const deferred = cockpit.defer();
         logDebug('Discovering provider');
 
-        const useProvider = provider => {
-            if (!provider) { //  no provider available
-                deferred.reject();
+        if (!provider) { //  no provider available
+            deferred.reject();
+        } else {
+            if (!provider.init) {
+                // Skip the initialization if provider does not define the `init` hook.
+                logDebug('No init() method in the provider');
+                store.dispatch(setProvider(provider));
+                deferred.resolve(provider);
             } else {
-                if (!provider.init) {
-                    // Skip the initialization if provider does not define the `init` hook.
-                    logDebug('No init() method in the provider');
-                    store.dispatch(setProvider(provider));
-                    deferred.resolve(provider);
-                } else {
-                    // The external provider plugin lives in the same context as the parent code, so it should be shared.
-                    // The provider is meant to support lazy initialization, especially of the React which is
-                    // provided by the parent application.
-                    const initResult = provider.init( getProviderContext() );
+                // The external provider plugin lives in the same context as the parent code, so it should be shared.
+                // The provider is meant to support lazy initialization, especially of the React which is
+                // provided by the parent application.
+                const initResult = provider.init( getProviderContext() );
 
-                    if (initResult && initResult.then) { // if Promise or $.jqXHR, the then() is defined
-                        initResult
-                            .done(() => { // Success, the external provider is in charge
-                                logDebug(`Provider's Init() is returning resolved Promise`);
-                                store.dispatch(setProvider(provider));
-                                deferred.resolve(provider);
-                                })
-                            .fail(() => { // Use Libvirt as fallback
-                                logDebug(`Provider's Init() is returning rejected Promise`);
-                                useProvider(Libvirt);
-                                } );
-                    } else { // Promise is not returned, so at least 'true' is expected
-                        if (initResult) {
-                            logDebug(`No Promise returned, but successful init: ${JSON.stringify(initResult)}`);
-                            store.dispatch(setProvider(provider));
-                            deferred.resolve(provider);
-                        } else {
-                            useProvider(Libvirt);
-                        }
+                if (initResult && initResult.then) { // if Promise or $.jqXHR, the then() is defined
+                    initResult.then(() => {
+                        logDebug(`Provider's Init() is returning resolved Promise`);
+                        store.dispatch(setProvider(provider));
+                        deferred.resolve(provider);
+                    }, (ex) => {
+                        logDebug(`Provider's Init() is returning rejected Promise`);
+                        deferred.reject(ex);
+                    });
+                } else { // Promise is not returned, so at least 'true' is expected
+                    if (initResult) {
+                        logDebug(`No Promise returned, but successful init: ${JSON.stringify(initResult)}`);
+                        store.dispatch(setProvider(provider));
+                        deferred.resolve(provider);
+                    } else {
+                        deferred.reject();
                     }
                 }
             }
-        };
-
-        loadExternalProvider({ useProvider, defaultProvider: Libvirt });
+        }
 
         return deferred.promise;
     }
@@ -133,7 +109,6 @@ export function virt(method, action) {
  */
 function getProviderContext() {
     return {
-        defaultProvider: Libvirt,
         React: React,
         reduxStore: Store,
         exportedActionCreators: exportedActionCreators(),

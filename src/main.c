@@ -2,11 +2,46 @@
 #include "util.h"
 
 #include <errno.h>
+#include <poll.h>
 #include <stdio.h>
-#include <systemd/sd-bus.h>
 #include <sys/signalfd.h>
+#include <systemd/sd-bus.h>
 
 static int loop_status;
+
+static int
+bus_get_libvirt_events(sd_bus *bus)
+{
+    int events;
+    int virt_events = 0;
+
+    events = sd_bus_get_events(bus);
+
+    if (events & POLLIN)
+        virt_events |= VIR_EVENT_HANDLE_READABLE;
+
+    if (events & POLLOUT)
+        virt_events |= VIR_EVENT_HANDLE_WRITABLE;
+
+    return virt_events;
+}
+
+static int
+bus_process_events(sd_bus *bus)
+{
+    for (;;) {
+            int r;
+
+            r = sd_bus_process(bus, NULL);
+            if (r < 0)
+                    return r;
+
+            if (r == 0)
+                    break;
+    }
+
+    return 0;
+}
 
 static void
 virEventRemoveHandlep(int *watchp)
@@ -32,7 +67,12 @@ handle_bus_event(int watch,
 {
     sd_bus *bus = opaque;
 
-    loop_status = sd_bus_process(bus, NULL);
+    loop_status = bus_process_events(bus);
+
+    if (loop_status < 0)
+        return;
+
+    virEventUpdateHandle(watch, bus_get_libvirt_events(bus));
 }
 
 int
@@ -71,8 +111,12 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    r = bus_process_events(bus);
+    if (r < 0)
+        return EXIT_FAILURE;
+
     bus_watch = virEventAddHandle(sd_bus_get_fd(bus),
-                                  VIR_EVENT_HANDLE_READABLE,
+                                  bus_get_libvirt_events(bus),
                                   handle_bus_event,
                                   bus,
                                   NULL);

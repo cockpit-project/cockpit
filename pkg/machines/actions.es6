@@ -116,60 +116,17 @@ export function setRefreshInterval(refreshInterval) {
     };
 }
 
-export function updateOrAddVm({ id, name, connectionName,
-    state,
-    osType,
-    fqdn,
-    uptime,
-    currentMemory,
-    rssMemory,
-    vcpus,
-    autostart,
-    actualTimeInMs,
-    cpuTime,
-    disks,
-    emulatedMachine,
-    cpuModel,
-    bootOrder,
-    displays,
-    }) {
-    const vm = {};
-
-    if (id !== undefined) vm.id = id;
-    if (name !== undefined) vm.name = name;
-    if (connectionName !== undefined) vm.connectionName = connectionName;
-    if (state !== undefined) vm.state = state;
-    if (osType !== undefined) vm.osType = osType;
-    if (currentMemory !== undefined) vm.currentMemory = currentMemory;
-    if (rssMemory !== undefined) vm.rssMemory = rssMemory;
-    if (vcpus !== undefined) vm.vcpus = vcpus;
-    if (fqdn !== undefined) vm.fqdn = fqdn;
-    if (uptime !== undefined) vm.uptime = uptime;
-    if (autostart !== undefined) vm.autostart = autostart;
-    if (disks !== undefined) vm.disks = disks;
-    if (emulatedMachine !== undefined) vm.emulatedMachine = emulatedMachine;
-    if (cpuModel !== undefined) vm.cpuModel = cpuModel;
-    if (bootOrder !== undefined) vm.bootOrder = bootOrder;
-    if (displays !== undefined) vm.displays = displays;
-
-    if (actualTimeInMs !== undefined) vm.actualTimeInMs = actualTimeInMs;
-    if (cpuTime !== undefined) vm.cpuTime = cpuTime;
-
+export function updateOrAddVm(props) {
     return {
         type: 'UPDATE_ADD_VM',
-        vm
+        vm: props
     };
 }
 
-export function updateVmDisksStats({ id, name, connectionName, disksStats }) {
+export function updateVm(props) {
     return {
-        type: 'UPDATE_VM_DISK_STATS',
-        payload: {
-            id,
-            name,
-            connectionName,
-            disksStats,
-        }
+        type: 'UPDATE_VM',
+        vm: props
     };
 }
 

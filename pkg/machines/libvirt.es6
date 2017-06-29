@@ -25,12 +25,12 @@ import cockpit from 'cockpit';
 import $ from 'jquery';
 
 import { updateOrAddVm,
+    updateVm,
     getVm,
     getAllVms,
     delayPolling,
     deleteUnlistedVMs,
     vmActionFailed,
-    updateVmDisksStats
 } from './actions.es6';
 
 import { spawnScript, spawnProcess } from './services.es6';
@@ -524,9 +524,9 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
     const autostart = getValueFromLine(lines, 'Autostart:');
 
     if (!LIBVIRT_PROVIDER.isRunning(state)) { // clean usage data
-        dispatch(updateOrAddVm({connectionName, name, state, autostart, actualTimeInMs: -1}));
+        dispatch(updateVm({connectionName, name, state, autostart, actualTimeInMs: -1}));
     } else {
-        dispatch(updateOrAddVm({connectionName, name, state, autostart}));
+        dispatch(updateVm({connectionName, name, state, autostart}));
     }
 
     return state;
@@ -538,7 +538,7 @@ function parseDommemstat(dispatch, connectionName, name, dommemstat) {
     let rssMemory = getValueFromLine(lines, 'rss'); // in KiB
 
     if (rssMemory) {
-        dispatch(updateOrAddVm({connectionName, name, rssMemory}));
+        dispatch(updateVm({connectionName, name, rssMemory}));
     }
 }
 
@@ -551,11 +551,10 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
     // TODO: Add network usage statistics
 
     if (cpuTime) {
-        dispatch(updateOrAddVm({connectionName, name, actualTimeInMs, cpuTime}));
+        dispatch(updateVm({connectionName, name, actualTimeInMs, cpuTime}));
     }
 
-   dispatch(updateVmDisksStats({connectionName, name,
-       disksStats: parseDomstatsForDisks(lines)}));
+   dispatch(updateVm({connectionName, name, disksStats: parseDomstatsForDisks(lines)}));
 }
 
 function parseDomstatsForDisks(domstatsLines) {

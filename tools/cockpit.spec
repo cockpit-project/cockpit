@@ -211,6 +211,9 @@ find %{buildroot}%{_datadir}/%{name}/apps -type f >> packagekit.list
 echo '%dir %{_datadir}/%{name}/machines' > machines.list
 find %{buildroot}%{_datadir}/%{name}/machines -type f >> machines.list
 
+echo '%dir %{_datadir}/%{name}/ovirt' > ovirt.list
+find %{buildroot}%{_datadir}/%{name}/ovirt -type f >> ovirt.list
+
 # on CentOS systems we don't have the required setroubleshoot-server packages
 %if 0%{?centos}
 rm -rf %{buildroot}%{_datadir}/%{name}/selinux
@@ -319,6 +322,18 @@ Requires: libvirt-client
 The Cockpit components for managing virtual machines.
 
 %files machines -f machines.list
+
+%package ovirt
+Summary: Cockpit user interface for oVirt virtual machines
+Requires: %{name}-bridge >= %{required_base}
+Requires: %{name}-system >= %{required_base}
+Requires: libvirt
+Requires: libvirt-client
+
+%description ovirt
+The Cockpit components for managing oVirt virtual machines.
+
+%files ovirt -f ovirt.list
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree

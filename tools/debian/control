@@ -99,6 +99,13 @@ Depends: ${misc:Depends},
 Description: Cockpit user interface for virtual machines
  The Cockpit components for managing virtual machines.
 
+Package: cockpit-ovirt
+Architecture: all
+Depends: ${misc:Depends},
+         libvirt-daemon-system
+Description: Cockpit user interface for oVirt virtual machines
+ The Cockpit components for managing virtual machines running on an oVirt host..
+
 Package: cockpit-networkmanager
 Architecture: all
 Depends: ${misc:Depends},

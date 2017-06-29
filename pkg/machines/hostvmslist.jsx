@@ -98,8 +98,8 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
     }
 
     let providerActions = null;
-    if (config.provider.vmActionsFactory) {
-        const ProviderActions = config.provider.vmActionsFactory();
+    if (config.provider.VmActions) {
+        const ProviderActions = config.provider.VmActions;
         providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} />;
     }
 
@@ -199,7 +199,7 @@ export const DropdownButtons = ({ buttons }) => {
             });
 
         const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
-        return (<div className='btn-group'>
+        return (<div className='btn-group dropdown-buttons-container'>
             <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={mouseClick(buttons[0].action)}>
                 {buttons[0].title}
             </button>
@@ -222,7 +222,7 @@ DropdownButtons.propTypes = {
     buttons: PropTypes.array.isRequired
 }
 
-const VmOverviewTabRecord = ({id, descr, value}) => {
+export const VmOverviewTabRecord = ({ id, descr, value }) => {
     return (<tr>
         <td className='top'>
             <label className='control-label'>
@@ -276,8 +276,8 @@ VmBootOrder.propTypes = {
 
 const VmOverviewTab = ({ vm, config }) => {
     let providerContent = null;
-    if (config.provider.vmOverviewPropsFactory) {
-        const ProviderContent = config.provider.vmOverviewPropsFactory();
+    if (config.provider.VmOverviewColumn) {
+        const ProviderContent = config.provider.VmOverviewColumn;
         providerContent = (<ProviderContent vm={vm} providerState={config.providerState}/>);
     }
 
@@ -418,10 +418,14 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
         tabRenderers = tabRenderers.concat(config.provider.vmTabRenderers.map(
             tabRender => {
+                let tabName = tabRender.name;
+                if (tabRender.idPostfix) {
+                    tabName = (<div id={`${vmId(vm.name)}-${tabRender.idPostfix}`}>{tabRender.name}</div>)
+                }
                 return {
-                    name: tabRender.name,
-                    renderer: tabRender.componentFactory(),
-                    data: { vm, providerState: config.providerState, dispatch }};
+                    name: tabName,
+                    renderer: tabRender.component,
+                    data: { vm, providerState: config.providerState, dispatch } };
             }
         ));
     }

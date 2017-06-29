@@ -90,6 +90,10 @@ export function logDebug(msg, ...params) {
     }
 }
 
+export function logError(msg, ...params) {
+    console.error(msg, ...params);
+}
+
 const transform = {
     'autostart': {
         'disable': _("disabled"),

@@ -85,12 +85,10 @@ class MoreInformation extends React.Component {
         const { provider, providerState } = this.props.config;
 
         let content = <MoreInformationContent />;
-        if (provider.consoleClientResourcesFactory) {
+        if (provider.ConsoleClientResources) {
             // external provider can have specific instructions for console setup
-            const ProviderConsoleClientResources = provider.consoleClientResourcesFactory(vm, providerState);
-            if (ProviderConsoleClientResources) {
-                content = <ProviderConsoleClientResources displays={vm.displays} />;
-            }
+            const ProviderConsoleClientResources = provider.ConsoleClientResources; // (vm, providerState);
+            content = <ProviderConsoleClientResources displays={vm.displays} vm={vm} providerState={providerState} />
         }
 
         return content;

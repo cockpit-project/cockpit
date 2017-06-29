@@ -28,8 +28,7 @@ export function spawnProcess({ cmd, args = [], stdin, failHandler }) {
         .input(stdin))
         .fail((exception, data) => {
             if (failHandler) {
-                failHandler({exception, data});
-                return ;
+                return failHandler({exception, data, spawnArgs});
             }
             console.warn(`spawn '${cmd}' process returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
         });

@@ -17,8 +17,10 @@ static char *
 domain_bus_path(virDomainPtr domain)
 {
     char *path = NULL;
+    char uuid[VIR_UUID_STRING_BUFLEN] = "";
 
-    sd_bus_path_encode("/org/libvirt/domain", virDomainGetName(domain), &path);
+    virDomainGetUUIDString(domain, uuid);
+    sd_bus_path_encode("/org/libvirt/domain", uuid, &path);
 
     return path;
 }
@@ -184,7 +186,7 @@ domain_find(sd_bus *bus,
     if (*name == '\0')
         return 0;
 
-    domain = virDomainLookupByName(manager->connection, name);
+    domain = virDomainLookupByUUIDString(manager->connection, name);
     if (!domain)
         return 0;
 

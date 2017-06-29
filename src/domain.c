@@ -78,8 +78,11 @@ domain_get_os_type(sd_bus *bus,
                    sd_bus_error *error)
 {
     virDomainPtr domain = userdata;
+    _cleanup_(freep) char *os_type = NULL;
 
-    return sd_bus_message_append(reply, "s", virDomainGetOSType(domain));
+    os_type = virDomainGetOSType(domain);
+
+    return sd_bus_message_append(reply, "s", os_type);
 }
 
 static int

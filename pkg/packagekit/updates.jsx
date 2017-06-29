@@ -222,7 +222,7 @@ function UpdatesList(props) {
 class ApplyUpdates extends React.Component {
     constructor() {
         super();
-        this.state = {percentage: null, timeRemaining: null, curStatus: null, curPackage: null};
+        this.state = {percentage: 0, timeRemaining: null, curStatus: null, curPackage: null};
     }
 
     componentDidMount() {
@@ -233,7 +233,7 @@ class ApplyUpdates extends React.Component {
             // info: see PK_STATUS_* at https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
             this.setState({curPackage: pfields[0] + " " + pfields[1],
                            curStatus: info,
-                           percentage: transProxy.Percentage <= 100 ? transProxy.Percentage : null,
+                           percentage: transProxy.Percentage <= 100 ? transProxy.Percentage : 0,
                            timeRemaining: transProxy.RemainingTime > 0 ? transProxy.RemainingTime : null});
         });
     }
@@ -251,23 +251,17 @@ class ApplyUpdates extends React.Component {
         else
             action = _("Initializing...");
 
-        var progressBar;
-        if (this.state.percentage !== null)
-            progressBar = (
-                <div className="progress progress-label-top-right">
-                    <div className="progress-bar" role="progressbar" style={ {width: this.state.percentage + "%"} }>
-                        {this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null}
-                    </div>
-                </div>
-            );
-
         return (
             <div className="progress-main-view">
                 <div className="progress-description">
                     <div className="spinner spinner-xs spinner-inline"></div>
                     {action}
                 </div>
-                {progressBar}
+                <div className="progress progress-label-top-right">
+                    <div className="progress-bar" role="progressbar" style={ {width: this.state.percentage + "%"} }>
+                        {this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null}
+                    </div>
+                </div>
             </div>
         );
     }

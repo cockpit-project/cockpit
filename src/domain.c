@@ -236,8 +236,10 @@ domain_shutdown(sd_bus_message *message,
     int r;
 
     r = virDomainShutdown(domain);
+    if (r < 0)
+        return bus_error_set_last_virt_error(error);
 
-    return sd_bus_reply_method_return(message, "b", r == 0 ? 1 : 0);
+    return sd_bus_reply_method_return(message, "");
 }
 
 static int
@@ -249,8 +251,10 @@ domain_destroy(sd_bus_message *message,
     int r;
 
     r = virDomainDestroy(domain);
+    if (r < 0)
+        return bus_error_set_last_virt_error(error);
 
-    return sd_bus_reply_method_return(message, "b", r == 0 ? 1 : 0);
+    return sd_bus_reply_method_return(message, "");
 }
 
 static int
@@ -267,8 +271,10 @@ domain_reboot(sd_bus_message *message,
         return r;
 
     r = virDomainReboot(domain, flags);
+    if (r < 0)
+        return bus_error_set_last_virt_error(error);
 
-    return sd_bus_reply_method_return(message, "b", r == 0 ? 1 : 0);
+    return sd_bus_reply_method_return(message, "");
 }
 
 static int
@@ -285,8 +291,10 @@ domain_reset(sd_bus_message *message,
         return r;
 
     r = virDomainReset(domain, flags);
+    if (r < 0)
+        return bus_error_set_last_virt_error(error);
 
-    return sd_bus_reply_method_return(message, "b", r == 0 ? 1 : 0);
+    return sd_bus_reply_method_return(message, "");
 }
 
 static int
@@ -298,8 +306,10 @@ domain_create(sd_bus_message *message,
     int r;
 
     r = virDomainCreate(domain);
+    if (r < 0)
+        return bus_error_set_last_virt_error(error);
 
-    return sd_bus_reply_method_return(message, "b", r == 0 ? 1 : 0);
+    return sd_bus_reply_method_return(message, "");
 }
 
 const sd_bus_vtable virt_domain_vtable[] = {
@@ -316,11 +326,11 @@ const sd_bus_vtable virt_domain_vtable[] = {
 
     SD_BUS_METHOD("GetXMLDesc", "u", "s", domain_get_xml_desc, SD_BUS_VTABLE_UNPRIVILEGED),
     SD_BUS_METHOD("GetStats", "uu", "a{sv}", domain_get_stats, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Shutdown", "", "b", domain_shutdown, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Destroy", "", "b", domain_destroy, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Reboot", "u", "b", domain_reboot, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Reset", "u", "b", domain_reset, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Create", "", "b", domain_create, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("Shutdown", "", "", domain_shutdown, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("Destroy", "", "", domain_destroy, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("Reboot", "u", "", domain_reboot, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("Reset", "u", "", domain_reset, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("Create", "", "", domain_create, SD_BUS_VTABLE_UNPRIVILEGED),
 
     SD_BUS_VTABLE_END
 };

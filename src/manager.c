@@ -205,7 +205,8 @@ handle_domain_lifecycle_event(virConnectPtr connection,
     VirtManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     const char *signal = NULL;
-    char uuid[VIR_UUID_STRING_BUFLEN] = "";
+    const char *name;
+    _cleanup_(freep) char *path = NULL;
     int r;
 
     switch (event) {
@@ -240,13 +241,18 @@ handle_domain_lifecycle_event(virConnectPtr connection,
             return 0;
     }
 
-    r = sd_bus_message_new_signal(manager->bus, &message, "/org/libvirt/Manager", "org.libvirt.Manager", signal);
+    r = sd_bus_message_new_signal(manager->bus,
+                                  &message,
+                                  "/org/libvirt/Manager",
+                                  "org.libvirt.Manager",
+                                  signal);
     if (r < 0)
         return r;
 
-    virDomainGetUUIDString(domain, uuid);
+    name = virDomainGetName(domain);
+    path = domain_bus_path(domain);
 
-    r = sd_bus_message_append(message, "s", uuid);
+    r = sd_bus_message_append(message, "so", name ? : "", path);
     if (r < 0)
         return r;
 
@@ -263,15 +269,15 @@ virt_manager_new(VirtManager **managerp, sd_bus *bus)
         SD_BUS_METHOD("CreateXML", "su", "o", virt_manager_create_xml, SD_BUS_VTABLE_UNPRIVILEGED),
         SD_BUS_METHOD("DefineXML", "s", "o", virt_manager_define_xml, SD_BUS_VTABLE_UNPRIVILEGED),
 
-        SD_BUS_SIGNAL("DomainDefined", "s", 0),
-        SD_BUS_SIGNAL("DomainUndefined", "s", 0),
-        SD_BUS_SIGNAL("DomainStarted", "s", 0),
-        SD_BUS_SIGNAL("DomainSuspended", "s", 0),
-        SD_BUS_SIGNAL("DomainResumed", "s", 0),
-        SD_BUS_SIGNAL("DomainStopped", "s", 0),
-        SD_BUS_SIGNAL("DomainShutdown", "s", 0),
-        SD_BUS_SIGNAL("DomainPMSuspended", "s", 0),
-        SD_BUS_SIGNAL("DomainCrashed", "s", 0),
+        SD_BUS_SIGNAL("DomainDefined", "so", 0),
+        SD_BUS_SIGNAL("DomainUndefined", "so", 0),
+        SD_BUS_SIGNAL("DomainStarted", "so", 0),
+        SD_BUS_SIGNAL("DomainSuspended", "so", 0),
+        SD_BUS_SIGNAL("DomainResumed", "so", 0),
+        SD_BUS_SIGNAL("DomainStopped", "so", 0),
+        SD_BUS_SIGNAL("DomainShutdown", "so", 0),
+        SD_BUS_SIGNAL("DomainPMSuspended", "so", 0),
+        SD_BUS_SIGNAL("DomainCrashed", "so", 0),
 
         SD_BUS_VTABLE_END
     };

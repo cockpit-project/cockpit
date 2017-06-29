@@ -19,14 +19,9 @@
  */
 
 import cockpit from 'cockpit';
-import React from 'react';
 
 import { logDebug } from './helpers.es6';
-import { setProvider, delayPolling, getAllVms, undefineVm, deleteUnlistedVMs, updateVm, updateOrAddVm } from './actions.es6';
-
-import Store from './store.es6';
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { StateIcon, DropdownButtons } from './hostvmslist.jsx';
+import { setProvider } from './actions.es6';
 
 var provider = null;
 
@@ -54,7 +49,7 @@ function getVirtProvider (store) {
                 // The external provider plugin lives in the same context as the parent code, so it should be shared.
                 // The provider is meant to support lazy initialization, especially of the React which is
                 // provided by the parent application.
-                const initResult = provider.init( getProviderContext() );
+                const initResult = provider.init({ dispatch: store.dispatch });
 
                 if (initResult && initResult.then) { // if Promise or $.jqXHR, the then() is defined
                     initResult.then(() => {
@@ -101,44 +96,3 @@ export function virt(method, action) {
     });
 }
 
-/**
- * Returns cockpit:machines provider's context, so
- * - potential provider's React components can share same React context with parent application
- * - a provider can "subscribe" as a listener to _single_ redux store events
- * - share common components to keep same look & feel
- */
-function getProviderContext() {
-    return {
-        React: React,
-        reduxStore: Store,
-        exportedActionCreators: exportedActionCreators(),
-        exportedReactComponents: exportedReactComponents(),
-    };
-}
-
-/**
- * Selected action creators to be exported to the provider to share the code.
- */
-function exportedActionCreators () {
-    return {
-        virtMiddleware: virt,
-        delayRefresh: () => delayPolling(getAllVms()),
-        undefineVm: undefineVm,
-        deleteUnlistedVMs: deleteUnlistedVMs,
-        updateVm: updateVm,
-        updateOrAddVm: updateOrAddVm,
-    };
-}
-
-/**
- * Selected React components to be exported to the provider to share common look&feel.
- */
-function exportedReactComponents () {
-    return {
-        Listing, // by Cockpit
-        ListingRow,
-
-        StateIcon, // by cockpit:machines
-        DropdownButtons,
-    };
-}

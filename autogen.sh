@@ -29,11 +29,6 @@ if test -z "$*"; then
         echo "the $0 command line."
 fi
 
-# Real AUTHORS is auto-generated from GIT logs at
-# make dist time, but automake requires that it
-# exists at all times :-(
-touch AUTHORS
-
 mkdir -p build-aux
 autoreconf -if
 

@@ -24,16 +24,19 @@ Please note, the created VM is for the plugin testing only, it provides no real 
 It's purpose is 'just to be listed by libvirt'.
 
 ## External Providers
-By default, the plugin is based on Libvirt, accessed via `virsh`.
 
-The provider can be replaced by deploying `provider/index.js` into the machines installation directory, like
+The code here can be reused to interact with VMs from other non-libvirt sources.
+This code is registered as an NPM module called ```cockpit-machines-base```. In
+your out of tree code, include ```cockpit-machines-base``` as a dependency,
+and use webpack or browserify to build a complete component.
 
-    /usr/share/cockpit/machines/provider/index.js
+Call provider.es6 setVirtProvider with your provider as an argument:
 
-This script will be dynamically loaded and executed.
-The external provider script must create global window.EXTERNAL_PROVIDER object with the following API:
+    provider.setVirtProvider(MyProvider);
 
-    window.EXTERNAL_PROVIDER = {
+Your provider should have the following properties and methods:
+
+    MyProvider = {
         name: 'YOUR PROVIDER NAME',
         init: function (providerContext) {return true;}, // return boolean or Promise
 
@@ -69,7 +72,6 @@ The provider methods are expected to return function `(dispatch) => Promise`.
 The `providerContext` passed to the `init()` function as an argument consists of:
 
     providerContext = {
-        defaultProvider, // next provider in the chain (Libvirt)
         React, // React library to be shared between parent code and plugged provider
         reduxStore, // Redux Store object created by parent application, there should be only one per application
         exportedActionCreators, // common redux action creators 
@@ -77,8 +79,6 @@ The `providerContext` passed to the `init()` function as an argument consists of
     }
             
 Please refer the `libvirt.es6` for the most current API description and more details.
-
-Please refer `cockpit/test/verify/files/cockpitMachinesTestExternalProvider.js` for a "Hello World" implementation in Vanilla JS.
 
 External provider referential implementation is the `cockpit-machines-ovirt-provider` [2] written in ES6 and fully using React/Redux/Webpack.
 

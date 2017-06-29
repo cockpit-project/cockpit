@@ -39,3 +39,10 @@ strv_freep(void *p)
 
     free(strv);
 }
+
+static inline void
+virDomainFreep(virDomainPtr *domainp)
+{
+    if (*domainp)
+        virDomainFree(*domainp);
+}

@@ -3,7 +3,6 @@ AM_CPPFLAGS = \
 
 DAEMON_SOURCES = \
 	main.c \
-	domain.c domain.h \
 	manager.c manager.h \
 	util.c util.h
 

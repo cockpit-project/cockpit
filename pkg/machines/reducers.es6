@@ -145,28 +145,27 @@ function vms(state, action) {
                 return [...state, action.vm];
             }
 
-            let updatedVm;
-            if (action.vm['actualTimeInMs'] < 0) { // clear the usage data (i.e. VM went down)
-                logDebug(`Clearing usage data for vm '${action.vm.name}'`);
-                updatedVm = Object.assign({}, state[index], action.vm);
-                clearUsageData(updatedVm);
-            } else {
-                timeSampleUsageData(action.vm, state[index]);
-                updatedVm = Object.assign({}, state[index], action.vm);
-            }
-
+            const updatedVm = Object.assign({}, state[index], action.vm);
             return replaceVm({ state, updatedVm, index });
         }
-        case 'UPDATE_VM_DISK_STATS':
+        case 'UPDATE_VM':
         {
-            const indexedVm = findVmToUpdate(state, action.payload);
+            const indexedVm = findVmToUpdate(state, action.vm);
             if (!indexedVm) {
                 return state;
             }
 
-            // replace whole object, disk statistics are read at once
-            const updatedVm = Object.assign(indexedVm.vmCopy, {disksStats: action.payload.disksStats});
+            let updatedVm;
+            if (action.vm['actualTimeInMs'] < 0) { // clear the usage data (i.e. VM went down)
+                logDebug(`Clearing usage data for vm '${action.vm.name}'`);
+                updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
+                clearUsageData(updatedVm);
+            } else {
+                timeSampleUsageData(action.vm, indexedVm.vmCopy);
+                updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
+            }
 
+            // replace whole object
             return replaceVm({ state, updatedVm, index: indexedVm.index });
         }
         case 'VM_ACTION_FAILED': {

@@ -7,6 +7,8 @@
 struct VirtManager {
     sd_bus *bus;
     virConnectPtr connection;
+
+    int lifecycle_event_id;
 };
 
 extern const sd_bus_vtable virt_domain_vtable[];
@@ -191,14 +193,84 @@ domain_find(sd_bus *bus,
     return 1;
 }
 
+static int
+handle_domain_lifecycle_event(virConnectPtr connection,
+                              virDomainPtr domain,
+                              int event,
+                              int detail,
+                              void *opaque)
+{
+    VirtManager *manager = opaque;
+    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
+    const char *signal = NULL;
+    char uuid[VIR_UUID_STRING_BUFLEN] = "";
+    int r;
+
+    switch (event) {
+        case VIR_DOMAIN_EVENT_DEFINED:
+            signal = "DomainDefined";
+            break;
+        case VIR_DOMAIN_EVENT_UNDEFINED:
+            signal = "DomainUndefined";
+            break;
+        case VIR_DOMAIN_EVENT_STARTED:
+            signal = "DomainStarted";
+            break;
+        case VIR_DOMAIN_EVENT_SUSPENDED:
+            signal = "DomainSuspended";
+            break;
+        case VIR_DOMAIN_EVENT_RESUMED:
+            signal = "DomainResumed";
+            break;
+        case VIR_DOMAIN_EVENT_STOPPED:
+            signal = "DomainStopped";
+            break;
+        case VIR_DOMAIN_EVENT_SHUTDOWN:
+            signal = "DomainShutdown";
+            break;
+        case VIR_DOMAIN_EVENT_PMSUSPENDED:
+            signal = "DomainPMSuspended";
+            break;
+        case VIR_DOMAIN_EVENT_CRASHED:
+            signal = "DomainCrashed";
+            break;
+        default:
+            return 0;
+    }
+
+    r = sd_bus_message_new_signal(manager->bus, &message, "/org/libvirt/Manager", "org.libvirt.Manager", signal);
+    if (r < 0)
+        return r;
+
+    virDomainGetUUIDString(domain, uuid);
+
+    r = sd_bus_message_append(message, "s", uuid);
+    if (r < 0)
+        return r;
+
+    return sd_bus_send(manager->bus, message, NULL);
+}
+
 int
 virt_manager_new(VirtManager **managerp, sd_bus *bus)
 {
     static const sd_bus_vtable virt_manager_vtable[] = {
         SD_BUS_VTABLE_START(0),
+
         SD_BUS_METHOD("ListDomains", "u", "ao", virt_manager_list_domains, SD_BUS_VTABLE_UNPRIVILEGED),
         SD_BUS_METHOD("CreateXML", "su", "o", virt_manager_create_xml, SD_BUS_VTABLE_UNPRIVILEGED),
         SD_BUS_METHOD("DefineXML", "s", "o", virt_manager_define_xml, SD_BUS_VTABLE_UNPRIVILEGED),
+
+        SD_BUS_SIGNAL("DomainDefined", "s", 0),
+        SD_BUS_SIGNAL("DomainUndefined", "s", 0),
+        SD_BUS_SIGNAL("DomainStarted", "s", 0),
+        SD_BUS_SIGNAL("DomainSuspended", "s", 0),
+        SD_BUS_SIGNAL("DomainResumed", "s", 0),
+        SD_BUS_SIGNAL("DomainStopped", "s", 0),
+        SD_BUS_SIGNAL("DomainShutdown", "s", 0),
+        SD_BUS_SIGNAL("DomainPMSuspended", "s", 0),
+        SD_BUS_SIGNAL("DomainCrashed", "s", 0),
+
         SD_BUS_VTABLE_END
     };
 
@@ -211,6 +283,13 @@ virt_manager_new(VirtManager **managerp, sd_bus *bus)
     manager->connection = virConnectOpenAuth("qemu:///session", virConnectAuthPtrDefault, 0);
     if (!manager->connection)
         return -EINVAL;
+
+    manager->lifecycle_event_id = virConnectDomainEventRegisterAny(manager->connection,
+                                                                   NULL,
+                                                                   VIR_DOMAIN_EVENT_ID_LIFECYCLE,
+                                                                   VIR_DOMAIN_EVENT_CALLBACK(handle_domain_lifecycle_event),
+                                                                   manager,
+                                                                   NULL);
 
     r = sd_bus_add_object_vtable(manager->bus,
                                  NULL,
@@ -247,8 +326,11 @@ virt_manager_free(VirtManager *manager)
     if (manager->bus)
         sd_bus_unref(manager->bus);
 
-    if (manager->connection)
+    if (manager->connection) {
+        virConnectDomainEventDeregisterAny(manager->connection, manager->lifecycle_event_id);
+
         virConnectClose(manager->connection);
+    }
 
     free(manager);
 

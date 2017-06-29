@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-17 19:00+0000\n"
+"POT-Creation-Date: 2017-06-28 08:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -171,7 +171,7 @@ msgstr "$0 paquets"
 msgid "$0 shares"
 msgstr "$0 partages"
 
-#: pkg/packagekit/updates.jsx:100
+#: pkg/packagekit/updates.jsx:102
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] ""
@@ -238,7 +238,7 @@ msgstr "(défaut)"
 msgid "(none)"
 msgstr "(aucun)"
 
-#: pkg/packagekit/updates.jsx:105
+#: pkg/packagekit/updates.jsx:107
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ""
@@ -891,11 +891,11 @@ msgstr ""
 msgid "Applying solution..."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:33
+#: pkg/packagekit/updates.jsx:34
 msgid "Applying updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:34
+#: pkg/packagekit/updates.jsx:35
 msgid "Applying updates failed"
 msgstr ""
 
@@ -1010,8 +1010,8 @@ msgstr ""
 msgid "Available"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:505
-msgid "Available Packages"
+#: pkg/packagekit/updates.jsx:517
+msgid "Available Updates"
 msgstr ""
 
 #: pkg/storaged/overview.js:624
@@ -1101,7 +1101,7 @@ msgstr "Broadcast"
 msgid "Broken configuration"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:204
+#: pkg/packagekit/updates.jsx:209
 msgid "Bugs"
 msgstr ""
 
@@ -1200,6 +1200,7 @@ msgstr ""
 #: pkg/systemd/index.html:496 pkg/users/index.html:210 pkg/users/index.html:271
 #: pkg/users/index.html:295 pkg/users/index.html:352
 #: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
+#: pkg/packagekit/updates.jsx:125
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -1320,6 +1321,10 @@ msgstr ""
 msgid "Check for Updates"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:116
+msgid "Check for updates"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:771
 msgid "Checking IP"
 msgstr "Vérification IP"
@@ -1358,10 +1363,6 @@ msgstr ""
 
 #: pkg/kubernetes/views/pvc-body.html:4
 msgid "Claim Name"
-msgstr ""
-
-#: pkg/packagekit/updates.jsx:52
-msgid "Cleaning up"
 msgstr ""
 
 #: pkg/storaged/jobs.js:134
@@ -1462,7 +1463,7 @@ msgid ""
 "after its buddies."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:526
+#: pkg/packagekit/updates.jsx:538
 msgid "Cockpit itself will be updated."
 msgstr ""
 
@@ -1858,6 +1859,10 @@ msgstr "Créer la partition"
 msgid "Create RAID Device"
 msgstr "Créer un périphérique RAID"
 
+#: pkg/sosreport/index.html:36
+msgid "Create Report"
+msgstr ""
+
 #: pkg/storaged/lvol-tabs.jsx:115 pkg/storaged/lvol-tabs.jsx:151
 msgid "Create Snapshot"
 msgstr "Créer un instantané"
@@ -1909,10 +1914,6 @@ msgstr "Créer une partition sur $0"
 
 #: pkg/storaged/index.html:379 pkg/storaged/content-views.jsx:522
 msgid "Create partition table"
-msgstr ""
-
-#: pkg/sosreport/index.html:36
-msgid "Create report"
 msgstr ""
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
@@ -2062,13 +2063,12 @@ msgstr ""
 #: pkg/kubernetes/views/pvc-delete.html:15
 #: pkg/kubernetes/views/user-remove-membership.html:10
 #: pkg/networkmanager/index.html:575 pkg/ostree/index.html:38
-#: pkg/users/index.html:77 pkg/users/index.html:296
-#: pkg/docker/containers-view.jsx:169 pkg/docker/containers-view.jsx:457
-#: pkg/docker/details.js:276 pkg/docker/image.js:141
-#: pkg/kubernetes/scripts/volumes.js:218 pkg/storaged/content-views.jsx:267
-#: pkg/storaged/content-views.jsx:288 pkg/storaged/details.jsx:105
-#: pkg/storaged/details.jsx:166 pkg/storaged/details.jsx:334
-#: pkg/storaged/details.jsx:383
+#: pkg/users/index.html:77 pkg/users/index.html:296 pkg/docker/details.js:276
+#: pkg/docker/image.js:141 pkg/docker/containers-view.jsx:169
+#: pkg/docker/containers-view.jsx:457 pkg/kubernetes/scripts/volumes.js:218
+#: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:288
+#: pkg/storaged/details.jsx:105 pkg/storaged/details.jsx:166
+#: pkg/storaged/details.jsx:334 pkg/storaged/details.jsx:383
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -2135,7 +2135,7 @@ msgstr ""
 "Supprimer un périphérique RAID en effacera toutes les données qu'il contient."
 ""
 
-#: pkg/docker/containers-view.jsx:168 pkg/docker/details.js:275
+#: pkg/docker/details.js:275 pkg/docker/containers-view.jsx:168
 msgid "Deleting a container will erase all data in it."
 msgstr "Supprimer un conteneur en supprimera toutes les données"
 
@@ -2203,7 +2203,7 @@ msgstr ""
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:205
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:210
 msgid "Details"
 msgstr ""
 
@@ -2395,7 +2395,7 @@ msgstr ""
 msgid "Download the MSI from $0"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:49
+#: pkg/packagekit/updates.jsx:51
 msgid "Downloading"
 msgstr ""
 
@@ -3139,15 +3139,15 @@ msgstr ""
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:243
+#: pkg/packagekit/updates.jsx:248
 msgid "Initializing..."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:517
+#: pkg/packagekit/updates.jsx:529
 msgid "Install all updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:510
+#: pkg/packagekit/updates.jsx:522
 msgid "Install security updates"
 msgstr ""
 
@@ -3159,7 +3159,7 @@ msgstr ""
 msgid "Installed products"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:50
+#: pkg/packagekit/updates.jsx:52
 msgid "Installing"
 msgstr ""
 
@@ -3373,7 +3373,7 @@ msgstr ""
 msgid "Last Updated"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:115
+#: pkg/packagekit/updates.jsx:120
 msgid "Last checked: $0 ago"
 msgstr ""
 
@@ -3453,7 +3453,7 @@ msgstr ""
 msgid "Load earlier entries"
 msgstr "Charger des entrées antérieures"
 
-#: pkg/packagekit/updates.jsx:35
+#: pkg/packagekit/updates.jsx:36
 msgid "Loading available updates failed"
 msgstr ""
 
@@ -3507,6 +3507,10 @@ msgstr ""
 msgid "Log In"
 msgstr ""
 
+#: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
+msgid "Log Out"
+msgstr ""
+
 #: pkg/shell/simple.html:118
 msgid "Log in again"
 msgstr ""
@@ -3526,10 +3530,6 @@ msgstr ""
 #: pkg/systemd/index.html:64
 msgid "Log messages"
 msgstr ""
-
-#: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
-msgid "Log out"
-msgstr "Déconnexion"
 
 #: pkg/users/local.js:855
 msgid "Logged In"
@@ -3890,7 +3890,7 @@ msgstr "Serveur NTP"
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
 #: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/packagekit/updates.jsx:202
+#: pkg/packagekit/updates.jsx:207
 msgid "Name"
 msgstr "Nom"
 
@@ -4218,7 +4218,7 @@ msgstr ""
 msgid "No such file or directory"
 msgstr "Fichier ou répertoire introuvable"
 
-#: pkg/packagekit/updates.jsx:32
+#: pkg/packagekit/updates.jsx:33
 msgid "No updates pending"
 msgstr ""
 
@@ -4467,16 +4467,17 @@ msgstr "Écraser les données existantes avec des zéros"
 msgid "PD Name"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:313
+#: pkg/packagekit/updates.jsx:318
 msgid "PackageKit crashed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:311 pkg/packagekit/updates.jsx:422
+#: pkg/packagekit/updates.jsx:316 pkg/packagekit/updates.jsx:427
+#: pkg/packagekit/updates.jsx:443
 msgid "PackageKit is not installed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:455
-msgid "PackageKit reported error code {0}"
+#: pkg/packagekit/updates.jsx:460
+msgid "PackageKit reported error code $0"
 msgstr ""
 
 #: pkg/ostree/index.html:266
@@ -4617,8 +4618,8 @@ msgstr ""
 msgid "Ping Target"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:167 pkg/docker/details.js:274
-#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:261
+#: pkg/docker/details.js:274 pkg/docker/image.js:139
+#: pkg/docker/containers-view.jsx:167 pkg/storaged/content-views.jsx:261
 #: pkg/storaged/details.jsx:100 pkg/storaged/details.jsx:160
 msgid "Please confirm deletion of $0"
 msgstr "Confirmer la suppression de $0"
@@ -5182,6 +5183,10 @@ msgstr ""
 msgid "Reformat and add disks"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:32
+msgid "Refreshing package information"
+msgstr ""
+
 #: src/ws/login.js:587
 msgid "Refusing to connect. Host is unknown"
 msgstr ""
@@ -5614,7 +5619,7 @@ msgstr ""
 msgid "Security"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:149
+#: pkg/packagekit/updates.jsx:154
 msgid "Security Update"
 msgstr ""
 
@@ -5761,6 +5766,10 @@ msgstr ""
 #: pkg/selinux/setroubleshoot-view.jsx:282
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:54
+msgid "Setting up"
 msgstr ""
 
 #: pkg/storaged/jobs.js:130
@@ -6192,7 +6201,7 @@ msgstr ""
 msgid "System Time"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:550
+#: pkg/packagekit/updates.jsx:562
 msgid "System is up to date"
 msgstr ""
 
@@ -7032,7 +7041,7 @@ msgid "Updates"
 msgstr ""
 
 #: pkg/ostree/index.html:262 pkg/subscriptions/subscriptions-view.jsx:187
-#: pkg/packagekit/updates.jsx:51
+#: pkg/packagekit/updates.jsx:53
 msgid "Updating"
 msgstr ""
 
@@ -7183,13 +7192,13 @@ msgstr ""
 msgid "Validating key"
 msgstr "Validation de la clé"
 
-#: pkg/packagekit/updates.jsx:53
+#: pkg/packagekit/updates.jsx:55
 msgid "Verifying"
 msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:203
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:208
 msgid "Version"
 msgstr "Version"
 
@@ -7272,7 +7281,7 @@ msgstr ""
 msgid "When"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:528
+#: pkg/packagekit/updates.jsx:540
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."

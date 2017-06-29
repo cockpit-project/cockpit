@@ -10,11 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-17 19:00+0000\n"
+"POT-Creation-Date: 2017-06-28 08:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-06-10 08:28-0400\n"
+"PO-Revision-Date: 2017-06-18 02:42-0400\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pl\n"
@@ -136,6 +136,8 @@ msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
 msgstr ""
+"$0 jest dostępne dla większości systemów operacyjnych. Aby zainstalować, "
+"wyszukaj w Menedżerze oprogramowania GNOME lub wykonaj polecenie:"
 
 #: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
 #: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
@@ -188,12 +190,12 @@ msgstr "$0 pakiety"
 msgid "$0 shares"
 msgstr "Udziały: $0"
 
-#: pkg/packagekit/updates.jsx:100
+#: pkg/packagekit/updates.jsx:102
 msgid "$0 update"
 msgid_plural "$0 updates"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "$0 aktualizacja"
+msgstr[1] "$0 aktualizacje"
+msgstr[2] "$0 aktualizacji"
 
 #: pkg/lib/plot.js:887
 msgid "$0 week"
@@ -260,12 +262,12 @@ msgstr "(domyślnie)"
 msgid "(none)"
 msgstr "(brak)"
 
-#: pkg/packagekit/updates.jsx:105
+#: pkg/packagekit/updates.jsx:107
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] ", w tym $1 poprawka zabezpieczeń"
+msgstr[1] ", w tym $1 poprawki zabezpieczeń"
+msgstr[2] ", w tym $1 poprawek zabezpieczeń"
 
 #: pkg/ostree/index.html:92
 msgid "- Add New Repository"
@@ -799,7 +801,7 @@ msgstr "Adres $val"
 
 #: pkg/machines/components/desktopConsole.jsx:156
 msgid "Address:"
-msgstr ""
+msgstr "Adres:"
 
 #: pkg/kubernetes/views/details-page.html:37
 #: pkg/networkmanager/interfaces.js:3178
@@ -914,13 +916,13 @@ msgstr "Zastosuj to rozwiązanie"
 msgid "Applying solution..."
 msgstr "Zastosowywanie rozwiązania…"
 
-#: pkg/packagekit/updates.jsx:33
-msgid "Applying updates"
-msgstr ""
-
 #: pkg/packagekit/updates.jsx:34
+msgid "Applying updates"
+msgstr "Zastosowywanie aktualizacji"
+
+#: pkg/packagekit/updates.jsx:35
 msgid "Applying updates failed"
-msgstr ""
+msgstr "Zastosowanie aktualizacji się nie powiodło"
 
 #: node_modules/registry-image-widgets/views/image-config.html:16
 #: pkg/subscriptions/subscriptions-view.jsx:35
@@ -1033,8 +1035,8 @@ msgstr "Automatyczne uruchamianie:"
 msgid "Available"
 msgstr "Dostępne"
 
-#: pkg/packagekit/updates.jsx:505
-msgid "Available Packages"
+#: pkg/packagekit/updates.jsx:517
+msgid "Available Updates"
 msgstr ""
 
 #: pkg/storaged/overview.js:624
@@ -1124,9 +1126,9 @@ msgstr "Broadcast"
 msgid "Broken configuration"
 msgstr "Uszkodzona konfiguracja"
 
-#: pkg/packagekit/updates.jsx:204
+#: pkg/packagekit/updates.jsx:209
 msgid "Bugs"
-msgstr ""
+msgstr "Błędy"
 
 #: node_modules/registry-image-widgets/views/image-body.html:16
 msgid "Built"
@@ -1223,6 +1225,7 @@ msgstr "Nie można usunąć, kiedy jest odblokowane"
 #: pkg/systemd/index.html:496 pkg/users/index.html:210 pkg/users/index.html:271
 #: pkg/users/index.html:295 pkg/users/index.html:352
 #: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
+#: pkg/packagekit/updates.jsx:125
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1344,6 +1347,10 @@ msgstr ""
 msgid "Check for Updates"
 msgstr "Wyszukaj aktualizacje"
 
+#: pkg/packagekit/updates.jsx:116
+msgid "Check for updates"
+msgstr "Wyszukaj aktualizacje"
+
 #: pkg/networkmanager/interfaces.js:771
 msgid "Checking IP"
 msgstr "Sprawdzanie IP"
@@ -1384,10 +1391,6 @@ msgstr "Zadeklaruj"
 msgid "Claim Name"
 msgstr "Nazwa deklaracji"
 
-#: pkg/packagekit/updates.jsx:52
-msgid "Cleaning up"
-msgstr ""
-
 #: pkg/storaged/jobs.js:134
 msgid "Cleaning up for $target"
 msgstr "Czyszczenie dla $target"
@@ -1396,6 +1399,7 @@ msgstr "Czyszczenie dla $target"
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr ""
+"Kliknięcie „Uruchom zdalną przeglądarkę” pobierze plik .vv i uruchomi $0."
 
 #: pkg/kubernetes/views/auth-form.html:88
 msgid "Client Certificate"
@@ -1502,9 +1506,9 @@ msgstr ""
 "usług. Można monitorować i administrować wiele serwerów w tym samym czasie. "
 "Wystarczy dodać je pojedynczym kliknięciem."
 
-#: pkg/packagekit/updates.jsx:526
+#: pkg/packagekit/updates.jsx:538
 msgid "Cockpit itself will be updated."
-msgstr ""
+msgstr "Cockpit zostanie zaktualizowany."
 
 #: pkg/lib/machine-change-port.html:9
 msgid "Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}."
@@ -1668,15 +1672,15 @@ msgstr "Połącz z"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Connect with Remote Viewer"
-msgstr ""
+msgstr "Połącz ze zdalną przeglądarką"
 
 #: pkg/machines/components/desktopConsole.jsx:191
 msgid "Connect with any $0 viewer application."
-msgstr ""
+msgstr "Połącz z dowolną przeglądarką $0."
 
 #: pkg/machines/components/desktopConsole.jsx:188
 msgid "Connect with any SPICE or VNC viewer application."
-msgstr ""
+msgstr "Połącz z dowolną przeglądarką Spice lub VNC."
 
 #: pkg/lib/machine-add.html:39
 msgid ""
@@ -1731,7 +1735,7 @@ msgstr "Połączenie zostanie utracone"
 
 #: pkg/machines/hostvmslist.jsx:368
 msgid "Console"
-msgstr ""
+msgstr "Konsola"
 
 #: pkg/docker/console.html:4 pkg/kubernetes/views/container-body.html:4
 #: pkg/kubernetes/views/container-page-inline.html:2
@@ -1911,6 +1915,10 @@ msgstr "Utwórz partycję"
 msgid "Create RAID Device"
 msgstr "Utwórz urządzenie RAID"
 
+#: pkg/sosreport/index.html:36
+msgid "Create Report"
+msgstr ""
+
 #: pkg/storaged/lvol-tabs.jsx:115 pkg/storaged/lvol-tabs.jsx:151
 msgid "Create Snapshot"
 msgstr "Utwórz migawkę"
@@ -1963,10 +1971,6 @@ msgstr "Utwórz partycję w $0"
 #: pkg/storaged/index.html:379 pkg/storaged/content-views.jsx:522
 msgid "Create partition table"
 msgstr "Utwórz tablicę partycji"
-
-#: pkg/sosreport/index.html:36
-msgid "Create report"
-msgstr "Utwórz raport"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
 #: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
@@ -2123,13 +2127,12 @@ msgstr "Opóźnienie"
 #: pkg/kubernetes/views/pvc-delete.html:15
 #: pkg/kubernetes/views/user-remove-membership.html:10
 #: pkg/networkmanager/index.html:575 pkg/ostree/index.html:38
-#: pkg/users/index.html:77 pkg/users/index.html:296
-#: pkg/docker/containers-view.jsx:169 pkg/docker/containers-view.jsx:457
-#: pkg/docker/details.js:276 pkg/docker/image.js:141
-#: pkg/kubernetes/scripts/volumes.js:218 pkg/storaged/content-views.jsx:267
-#: pkg/storaged/content-views.jsx:288 pkg/storaged/details.jsx:105
-#: pkg/storaged/details.jsx:166 pkg/storaged/details.jsx:334
-#: pkg/storaged/details.jsx:383
+#: pkg/users/index.html:77 pkg/users/index.html:296 pkg/docker/details.js:276
+#: pkg/docker/image.js:141 pkg/docker/containers-view.jsx:169
+#: pkg/docker/containers-view.jsx:457 pkg/kubernetes/scripts/volumes.js:218
+#: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:288
+#: pkg/storaged/details.jsx:105 pkg/storaged/details.jsx:166
+#: pkg/storaged/details.jsx:334 pkg/storaged/details.jsx:383
 msgid "Delete"
 msgstr "Usuń"
 
@@ -2199,7 +2202,7 @@ msgid "Deleting a RAID device will erase all data on it."
 msgstr ""
 "Usunięcie urządzenia RAID usunie wszystkie znajdujące się na nim dane."
 
-#: pkg/docker/containers-view.jsx:168 pkg/docker/details.js:275
+#: pkg/docker/details.js:275 pkg/docker/containers-view.jsx:168
 msgid "Deleting a container will erase all data in it."
 msgstr "Usunięcie kontenera usunie wszystkie znajdujące się w nim dane."
 
@@ -2265,7 +2268,7 @@ msgstr "Opis"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:205
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:210
 msgid "Details"
 msgstr "Szczegóły"
 
@@ -2460,11 +2463,11 @@ msgstr "Pobierz raport"
 
 #: pkg/machines/components/desktopConsole.jsx:46
 msgid "Download the MSI from $0"
-msgstr ""
+msgstr "Pobierz plik MSI z $0"
 
-#: pkg/packagekit/updates.jsx:49
+#: pkg/packagekit/updates.jsx:51
 msgid "Downloading"
-msgstr ""
+msgstr "Pobieranie"
 
 #: pkg/storaged/index.html:409 pkg/docker/storage.jsx:161
 msgid "Drive"
@@ -3212,17 +3215,17 @@ msgid "Information about the Docker storage pool is not available."
 msgstr ""
 "Informacje o puli urządzeń do przechowywania danych Docker są niedostępne."
 
-#: pkg/packagekit/updates.jsx:243
+#: pkg/packagekit/updates.jsx:248
 msgid "Initializing..."
-msgstr ""
+msgstr "Inicjowanie…"
 
-#: pkg/packagekit/updates.jsx:517
+#: pkg/packagekit/updates.jsx:529
 msgid "Install all updates"
-msgstr ""
+msgstr "Zainstaluj wszystkie aktualizacje"
 
-#: pkg/packagekit/updates.jsx:510
+#: pkg/packagekit/updates.jsx:522
 msgid "Install security updates"
-msgstr ""
+msgstr "Zainstaluj aktualizacje zabezpieczeń"
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
@@ -3234,9 +3237,9 @@ msgstr ""
 msgid "Installed products"
 msgstr "Zainstalowane produkty"
 
-#: pkg/packagekit/updates.jsx:50
+#: pkg/packagekit/updates.jsx:52
 msgid "Installing"
-msgstr ""
+msgstr "Instalowanie"
 
 #: pkg/systemd/services.html:135
 msgid "Instantiate"
@@ -3444,9 +3447,9 @@ msgstr "Ostatnio wyzwolono"
 msgid "Last Updated"
 msgstr "Ostatnio zaktualizowano"
 
-#: pkg/packagekit/updates.jsx:115
+#: pkg/packagekit/updates.jsx:120
 msgid "Last checked: $0 ago"
-msgstr ""
+msgstr "Ostatnio wyszukano: $0 temu"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:15
 #: pkg/kubernetes/views/details-page.html:107
@@ -3455,7 +3458,7 @@ msgstr "Najnowsza wersja"
 
 #: pkg/machines/components/desktopConsole.jsx:131
 msgid "Launch Remote Viewer"
-msgstr ""
+msgstr "Uruchom zdalną przeglądarkę"
 
 #: pkg/realmd/operation.js:102
 msgid "Leave"
@@ -3530,13 +3533,13 @@ msgstr "Równoważenie obciążenia"
 msgid "Load earlier entries"
 msgstr "Wczytaj wcześniejsze wpisy"
 
-#: pkg/packagekit/updates.jsx:35
+#: pkg/packagekit/updates.jsx:36
 msgid "Loading available updates failed"
-msgstr ""
+msgstr "Wczytanie dostępnych aktualizacji się nie powiodło"
 
 #: pkg/packagekit/updates.jsx:30
 msgid "Loading available updates, please wait..."
-msgstr ""
+msgstr "Wczytywanie dostępnych aktualizacji, proszę czekać…"
 
 #: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:75 pkg/systemd/logs.js:90
 #: pkg/systemd/logs.js:134 pkg/systemd/logs.js:175
@@ -3583,6 +3586,10 @@ msgstr "Blokowanie $target"
 msgid "Log In"
 msgstr "Zaloguj"
 
+#: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
+msgid "Log Out"
+msgstr ""
+
 #: pkg/shell/simple.html:118
 msgid "Log in again"
 msgstr "Zaloguj ponownie"
@@ -3602,10 +3609,6 @@ msgstr "Logowanie do rejestru:"
 #: pkg/systemd/index.html:64
 msgid "Log messages"
 msgstr "Komunikaty dziennika"
-
-#: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
-msgid "Log out"
-msgstr "Wyloguj"
 
 #: pkg/users/local.js:855
 msgid "Logged In"
@@ -3709,7 +3712,7 @@ msgstr "Ręczne"
 
 #: pkg/machines/components/desktopConsole.jsx:196
 msgid "Manual Connection"
-msgstr ""
+msgstr "Ręczne połączenie"
 
 #: pkg/systemd/index.html:393 pkg/systemd/index.html:397
 msgid "Manually"
@@ -3863,7 +3866,7 @@ msgstr "Więcej"
 #: pkg/machines/components/desktopConsole.jsx:104
 #: pkg/machines/components/desktopConsole.jsx:112
 msgid "More Information"
-msgstr ""
+msgstr "Więcej informacji"
 
 #: pkg/kdump/kdump-view.jsx:447
 msgid "More details"
@@ -3966,7 +3969,7 @@ msgstr "Serwer NTP"
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
 #: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/packagekit/updates.jsx:202
+#: pkg/packagekit/updates.jsx:207
 msgid "Name"
 msgstr "Nazwa"
 
@@ -4186,7 +4189,7 @@ msgstr "Brak wolnego miejsca"
 
 #: pkg/machines/components/graphicsConsole.jsx:32
 msgid "No graphics console is defined for this virtual machine."
-msgstr ""
+msgstr "Dla tej maszyny wirtualnej nie określono żadnej konsoli graficznej."
 
 #: pkg/kubernetes/views/project-listing.html:74
 msgid "No groups are present."
@@ -4297,9 +4300,9 @@ msgstr "Nie ustawiono żadnego urządzenia do przechowywania danych jako RAID"
 msgid "No such file or directory"
 msgstr "Nie ma takiego pliku lub katalogu"
 
-#: pkg/packagekit/updates.jsx:32
+#: pkg/packagekit/updates.jsx:33
 msgid "No updates pending"
-msgstr ""
+msgstr "Brak oczekujących aktualizacji"
 
 #: pkg/users/local.js:416
 msgid "No user name specified"
@@ -4547,16 +4550,17 @@ msgstr "Zastąp istniejące dane zerami"
 msgid "PD Name"
 msgstr "Nazwa PD"
 
-#: pkg/packagekit/updates.jsx:313
+#: pkg/packagekit/updates.jsx:318
 msgid "PackageKit crashed"
-msgstr ""
+msgstr "Usługa PackageKit uległa awarii"
 
-#: pkg/packagekit/updates.jsx:311 pkg/packagekit/updates.jsx:422
+#: pkg/packagekit/updates.jsx:316 pkg/packagekit/updates.jsx:427
+#: pkg/packagekit/updates.jsx:443
 msgid "PackageKit is not installed"
-msgstr ""
+msgstr "Usługa PackageKit nie jest zainstalowana"
 
-#: pkg/packagekit/updates.jsx:455
-msgid "PackageKit reported error code {0}"
+#: pkg/packagekit/updates.jsx:460
+msgid "PackageKit reported error code $0"
 msgstr ""
 
 #: pkg/ostree/index.html:266
@@ -4699,8 +4703,8 @@ msgstr "Odstęp między pingami"
 msgid "Ping Target"
 msgstr "Cel pingu"
 
-#: pkg/docker/containers-view.jsx:167 pkg/docker/details.js:274
-#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:261
+#: pkg/docker/details.js:274 pkg/docker/image.js:139
+#: pkg/docker/containers-view.jsx:167 pkg/storaged/content-views.jsx:261
 #: pkg/storaged/details.jsx:100 pkg/storaged/details.jsx:160
 msgid "Please confirm deletion of $0"
 msgstr "Proszę potwierdzić usunięcie $0"
@@ -4785,6 +4789,8 @@ msgstr "Proszę wybrać prawidłową opcję polityki."
 #: pkg/machines/components/graphicsConsole.jsx:41
 msgid "Please start the virtual machine to access its graphics console."
 msgstr ""
+"Proszę uruchomić maszynę wirtualną, aby uzyskać dostęp do jej konsoli "
+"graficznej."
 
 #: pkg/docker/search.js:150
 msgid "Please try another term"
@@ -5271,6 +5277,10 @@ msgstr "Użyj ponownie"
 msgid "Reformat and add disks"
 msgstr "Sformatuj ponownie i dodaj dyski"
 
+#: pkg/packagekit/updates.jsx:32
+msgid "Refreshing package information"
+msgstr ""
+
 #: src/ws/login.js:587
 msgid "Refusing to connect. Host is unknown"
 msgstr "Odmowa połączenia. Komputer jest nieznany"
@@ -5626,19 +5636,19 @@ msgstr "Test SMART $target"
 
 #: pkg/machines/components/desktopConsole.jsx:190
 msgid "SPICE"
-msgstr ""
+msgstr "Spice"
 
 #: pkg/machines/components/desktopConsole.jsx:159
 msgid "SPICE Address:"
-msgstr ""
+msgstr "Adres Spice:"
 
 #: pkg/machines/components/desktopConsole.jsx:165
 msgid "SPICE Port:"
-msgstr ""
+msgstr "Port Spice:"
 
 #: pkg/machines/components/desktopConsole.jsx:168
 msgid "SPICE TLS Port:"
-msgstr ""
+msgstr "Port TLS Spice:"
 
 #: pkg/networkmanager/index.html:242
 msgid "STP Forward delay"
@@ -5710,9 +5720,9 @@ msgstr "Bezpieczne usuwanie zawartości $target"
 msgid "Security"
 msgstr "Zabezpieczenia"
 
-#: pkg/packagekit/updates.jsx:149
+#: pkg/packagekit/updates.jsx:154
 msgid "Security Update"
-msgstr ""
+msgstr "Aktualizacja zabezpieczeń"
 
 #: pkg/shell/index.html:136 pkg/shell/simple.html:101 pkg/shell/stub.html:114
 msgid "Select"
@@ -5861,6 +5871,10 @@ msgid ""
 msgstr ""
 "Ustawienie odbiega od skonfigurowanego stanu i zostanie przywrócone po "
 "następnym uruchomieniu."
+
+#: pkg/packagekit/updates.jsx:54
+msgid "Setting up"
+msgstr ""
 
 #: pkg/storaged/jobs.js:130
 msgid "Setting up loop device $target"
@@ -6026,7 +6040,7 @@ msgstr "Rozwiązania"
 #: pkg/packagekit/updates.jsx:31
 msgid ""
 "Some other program is currently using the package manager, please wait..."
-msgstr ""
+msgstr "Inny program obecnie używa menedżera pakietów, proszę czekać…"
 
 #: pkg/kubernetes/scripts/volumes.js:906
 msgid "Sorry, I don't know how to modify this volume"
@@ -6231,11 +6245,11 @@ msgstr "Włącz $0"
 
 #: pkg/machines/components/graphicsConsole.jsx:60
 msgid "Switch to Desktop Viewer"
-msgstr ""
+msgstr "Przełącz na przeglądarkę pulpitu"
 
 #: pkg/machines/components/graphicsConsole.jsx:70
 msgid "Switch to In-Browser Viewer"
-msgstr ""
+msgstr "Przełącz na przeglądarkę w przeglądarce internetowej"
 
 #: pkg/networkmanager/interfaces.js:2379
 msgid ""
@@ -6297,9 +6311,9 @@ msgstr "Usługi systemowe"
 msgid "System Time"
 msgstr "Czas systemowy"
 
-#: pkg/packagekit/updates.jsx:550
+#: pkg/packagekit/updates.jsx:562
 msgid "System is up to date"
-msgstr ""
+msgstr "System jest aktualny"
 
 #: pkg/docker/index.html:320 pkg/docker/index.html:324
 msgid "TCP"
@@ -6568,11 +6582,11 @@ msgstr "Trasa „{{ target }}” nie istnieje."
 
 #: pkg/docker/containers-view.jsx:338
 msgid "The scan from $time ($type) found no vulnerabilities."
-msgstr ""
+msgstr "Wyszukiwanie z $time ($type) nie zwróciło żadnych zagrożeń."
 
 #: pkg/docker/containers-view.jsx:335
 msgid "The scan from $time ($type) was not successful."
-msgstr ""
+msgstr "Wyszukiwanie z $time ($type) się nie powiodło."
 
 #: pkg/kubernetes/scripts/dashboard.js:386
 msgid "The selected file is not a valid Kubernetes application manifest."
@@ -7190,7 +7204,7 @@ msgid "Updates"
 msgstr "Zaktualizowane"
 
 #: pkg/ostree/index.html:262 pkg/subscriptions/subscriptions-view.jsx:187
-#: pkg/packagekit/updates.jsx:51
+#: pkg/packagekit/updates.jsx:53
 msgid "Updating"
 msgstr "Aktualizowanie"
 
@@ -7320,19 +7334,19 @@ msgstr "Działanie VM START się nie powiodło"
 
 #: pkg/machines/components/desktopConsole.jsx:190
 msgid "VNC"
-msgstr ""
+msgstr "VNC"
 
 #: pkg/machines/components/desktopConsole.jsx:162
 msgid "VNC Address:"
-msgstr ""
+msgstr "Adres VNC:"
 
 #: pkg/machines/components/desktopConsole.jsx:171
 msgid "VNC Port:"
-msgstr ""
+msgstr "Port VNC:"
 
 #: pkg/machines/components/desktopConsole.jsx:174
 msgid "VNC TLS Port:"
-msgstr ""
+msgstr "Port TLS VNC:"
 
 #: src/ws/login.html:100
 msgid "Validating authentication token"
@@ -7342,13 +7356,13 @@ msgstr "Sprawdzanie poprawności tokenu uwierzytelniania"
 msgid "Validating key"
 msgstr "Sprawdzanie poprawności klucza"
 
-#: pkg/packagekit/updates.jsx:53
+#: pkg/packagekit/updates.jsx:55
 msgid "Verifying"
-msgstr ""
+msgstr "Sprawdzanie poprawności"
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:203
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:208
 msgid "Version"
 msgstr "Wersja"
 
@@ -7431,11 +7445,13 @@ msgstr "Witamy w rejestrze obrazów"
 msgid "When"
 msgstr "Kiedy"
 
-#: pkg/packagekit/updates.jsx:528
+#: pkg/packagekit/updates.jsx:540
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
 msgstr ""
+"Po rozłączeniu aktualizacje będą kontynuowane w tle. Można połączyć ponownie "
+"i wznowić obserwowanie postępu aktualizacji."
 
 #: pkg/docker/index.html:478
 msgid "With terminal"
@@ -7520,7 +7536,7 @@ msgstr ""
 
 #: pkg/machines/components/vnc.jsx:30
 msgid "Your browser does not support iframes."
-msgstr ""
+msgstr "Przeglądarka nie obsługuje „iframe”."
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:112
 msgid ""

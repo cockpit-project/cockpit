@@ -1,8 +1,12 @@
+#include "config.h"
+
 #include "manager.h"
 #include "util.h"
 
 #include <errno.h>
+#include <getopt.h>
 #include <poll.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <sys/signalfd.h>
 #include <systemd/sd-bus.h>
@@ -78,13 +82,68 @@ handle_bus_event(int watch,
 int
 main(int argc, char *argv[])
 {
+    enum {
+        ARG_SYSTEM = 255,
+        ARG_SESSION
+    };
+
+    static const struct option options[] = {
+        { "help",    no_argument,       NULL, 'h' },
+        { "connect", required_argument, NULL, 'c' },
+        { "system",  no_argument,       NULL, ARG_SYSTEM },
+        { "session", no_argument,       NULL, ARG_SESSION },
+        {}
+    };
+
+    bool system_bus;
+    const char *uri;
+
     _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
     _cleanup_(closep) int signal_fd = -1;
     _cleanup_(virEventRemoveHandlep) int bus_watch = -1;
     _cleanup_(virEventRemoveHandlep) int signal_watch = -1;
     sigset_t mask;
+    int c;
     int r;
+
+    if (geteuid() == 0) {
+        system_bus = true;
+        uri = "qemu:///system";
+    } else {
+        system_bus = false;
+        uri = "qemu:///session";
+    }
+
+    while ((c = getopt_long(argc, argv, "hc:", options, NULL)) >= 0) {
+        switch (c) {
+            case 'h':
+                printf("Usage: %s [OPTIONS]\n", program_invocation_short_name);
+                printf("\n");
+                printf("Provide a D-Bus interface to a libvirtd.\n");
+                printf("\n");
+                printf("  -h, --help        Display this help text and exit\n");
+                printf("  -c, --connect URI Connect to the specified libvirt URI\n");
+                printf("  --session         Connect to the session bus\n");
+                printf("  --system          Connect to the system bus\n");
+                return 0;
+
+            case 'c':
+                uri = optarg;
+                break;
+
+            case ARG_SYSTEM:
+                system_bus = true;
+                break;
+
+            case ARG_SESSION:
+                system_bus = false;
+                break;
+
+            default:
+                return EXIT_FAILURE;
+        }
+    }
 
     sigemptyset(&mask);
     sigaddset(&mask, SIGTERM);
@@ -93,7 +152,7 @@ main(int argc, char *argv[])
 
     virEventRegisterDefaultImpl();
 
-    r = sd_bus_open_user(&bus);
+    r = system_bus ? sd_bus_open_system(&bus) : sd_bus_open_user(&bus);
     if (r < 0) {
         fprintf(stderr, "Failed to connect to session bus: %s\n", strerror(-r));
         return EXIT_FAILURE;
@@ -105,7 +164,7 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    r = virt_manager_new(&manager, bus);
+    r = virt_manager_new(&manager, bus, uri);
     if (r < 0) {
         fprintf(stderr, "Failed to connect to libvirt");
         return EXIT_FAILURE;

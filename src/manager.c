@@ -732,7 +732,9 @@ static const sd_bus_vtable virt_domain_vtable[] = {
 };
 
 int
-virt_manager_new(VirtManager **managerp, sd_bus *bus)
+virt_manager_new(VirtManager **managerp,
+                 sd_bus *bus,
+                 const char *uri)
 {
     _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
     int r;
@@ -740,7 +742,7 @@ virt_manager_new(VirtManager **managerp, sd_bus *bus)
     manager = calloc(1, sizeof(VirtManager));
     manager->bus = sd_bus_ref(bus);
 
-    manager->connection = virConnectOpenAuth("qemu:///session", virConnectAuthPtrDefault, 0);
+    manager->connection = virConnectOpenAuth(uri, virConnectAuthPtrDefault, 0);
     if (!manager->connection)
         return -EINVAL;
 

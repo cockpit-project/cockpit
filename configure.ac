@@ -6,6 +6,7 @@ AC_CONFIG_HEADERS([config.h])
 dnl Make automake keep quiet about wildcards & other GNUmake-isms
 AM_INIT_AUTOMAKE([foreign -Wno-portability])
 AC_CANONICAL_HOST
+AC_USE_SYSTEM_EXTENSIONS
 
 AM_SILENT_RULES([yes])
 

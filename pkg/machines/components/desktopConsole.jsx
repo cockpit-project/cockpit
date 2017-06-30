@@ -106,7 +106,7 @@ class MoreInformation extends React.Component {
         }
 
         return (
-            <div>
+            <div className='machines-desktop-more-info-container'>
                 <a href='#' onClick={this.onClick}>
                     <span className='fa fa-angle-down'/>&nbsp;
                     {_("More Information")}

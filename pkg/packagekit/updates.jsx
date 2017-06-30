@@ -121,6 +121,29 @@ function commaJoin(list) {
     return list.reduce((prev, cur) => [prev, ", ", cur])
 }
 
+class Expander extends React.Component {
+    constructor() {
+        super();
+        this.state = {expanded: false};
+    }
+
+    render() {
+        let title = <a href="#">{this.props.title}</a>;
+        let cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
+        return (
+            <div>
+                <div className="expander-title">
+                    <hr />
+                    <span onClick={() => this.setState({expanded: !this.state.expanded})} >
+                        <i className={cls} />{title}
+                    </span>
+                    <hr />
+                </div>
+                {this.state.expanded ? this.props.children : null}
+            </div>);
+    }
+}
+
 function HeaderBar(props) {
     var num_updates = Object.keys(props.updates).length;
     var num_security = 0;
@@ -245,6 +268,36 @@ function UpdatesList(props) {
     );
 }
 
+function UpdateHistory(props) {
+    if (!props.history)
+        return null;
+
+    function formatHeading(time) {
+        if (time)
+            return cockpit.format(_("The following packages were updated $0:"), moment(time).fromNow());
+        return _("The following packages were recently updated:");
+    }
+
+    function formatPkgs(pkgs) {
+        let names = Object.keys(pkgs).filter(i => i != "_time");
+        names.sort();
+        return names.map(n => <Tooltip tip={ n + " " + pkgs[n] }><li>{n}</li></Tooltip>);
+    }
+
+    let history = props.history;
+    if (props.limit)
+        history = history.slice(0, props.limit);
+
+    var paragraphs = history.map(pkgs => (
+        <div>
+            <p>{formatHeading(pkgs["_time"])}</p>
+            <ul className='flow-list'>{formatPkgs(pkgs)}</ul>
+        </div>
+    ));
+
+    return <div>{paragraphs}</div>;
+}
+
 class ApplyUpdates extends React.Component {
     constructor() {
         super();
@@ -315,6 +368,11 @@ function AskRestart(props) {
                 &nbsp;
                 <button className="btn btn-primary" onClick={props.onRestart}>{_("Restart Now")}</button>
             </div>
+            <div className="flow-list-blank-slate">
+                <Expander title={_("Package information")}>
+                    <UpdateHistory history={props.history} limit="1" />
+                </Expander>
+            </div>
         </div>
     );
 }
@@ -323,7 +381,8 @@ class OsUpdates extends React.Component {
     constructor() {
         super();
         this.state = { state: "loading", errorMessages: [], updates: {}, haveSecurity: false, timeSinceRefresh: null,
-                       loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null };
+                       loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null,
+                       history: null };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
@@ -448,6 +507,7 @@ class OsUpdates extends React.Component {
                     } else {
                         this.setState({state: "uptodate"});
                     }
+                    this.loadHistory();
                 },
 
             },  // end pkTransaction signalHandlers
@@ -469,6 +529,42 @@ class OsUpdates extends React.Component {
             },
 
             ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
+    }
+
+    loadHistory() {
+        let history = [];
+
+        // would be nice to filter only for "update-packages" role, but can't here
+        pkTransaction("GetOldTransactions", [0], {
+                Transaction: (objPath, timeSpec, succeeded, role, duration, data) => {
+                    if (role !== PK_ROLE_ENUM_UPDATE_PACKAGES)
+                        return;
+                    // data looks like:
+                    // downloading	bash-completion;1:2.6-1.fc26;noarch;updates-testing
+                    // updating	bash-completion;1:2.6-1.fc26;noarch;updates-testing
+                    let pkgs = {"_time": Date.parse(timeSpec)};
+                    let empty = true;
+                    data.split("\n").forEach(line => {
+                        let fields = line.trim().split("\t");
+                        if (fields.length >= 2) {
+                            let pkgId = fields[1].split(";");
+                            pkgs[pkgId[0]] = pkgId[1];
+                            empty = false;
+                        }
+                    });
+                    if (!empty)
+                        history.unshift(pkgs); // PK reports in time-ascending order, but we want the latest first
+                },
+
+                // only update the state once to avoid flicker
+                Finished: () => {
+                    if (history.length > 0)
+                        this.setState({history: history})
+                }
+            },
+            null,
+            ex => console.warn("Failed to load old transactions:", ex)
+        );
     }
 
     initialLoadOrRefresh() {
@@ -557,7 +653,7 @@ class OsUpdates extends React.Component {
             case "available":
                 return (
                     <div>
-                        <table width="100%">
+                        <table id="available" width="100%">
                             <tr>
                                 <td><h2>{_("Available Updates")}</h2></td>
                                 <td className="text-right">
@@ -588,6 +684,14 @@ class OsUpdates extends React.Component {
                           : null
                         }
                         <UpdatesList updates={this.state.updates} />
+
+                        { this.state.history
+                          ? <div id="history">
+                              <h2>{_("Update History")}</h2>
+                              <UpdateHistory history={this.state.history} limit="1" />
+                            </div>
+                          : null
+                        }
                     </div>
                 );
 
@@ -599,7 +703,8 @@ class OsUpdates extends React.Component {
                 return <ApplyUpdates transaction={this.state.applyTransaction}/>
 
             case "updateSuccess":
-                return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} />
+                this.loadHistory();
+                return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;
 
             case "restart":
                 return (
@@ -618,6 +723,8 @@ class OsUpdates extends React.Component {
                             <span className="fa fa-check"></span>
                         </div>
                         <p>{_("System is up to date")}</p>
+
+                        { this.state.history ? <div className="flow-list-blank-slate"><UpdateHistory history={this.state.history} limit="1" /></div> : null }
                     </div>);
 
             default:

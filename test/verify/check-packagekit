@@ -77,6 +77,7 @@ class TestUpdates(MachineCase):
         b.wait_present(".content-header-extra td.text-right span")
         self.assertEqual(b.text(".content-header-extra td.text-right span"), "Last checked: a few seconds ago")
 
+        # no Update History yet, should be unique
         b.wait_present(".container-fluid h2")
         b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
@@ -161,6 +162,7 @@ class TestUpdates(MachineCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
+        # no Update History yet, should be unique
         b.wait_present(".container-fluid h2")
         b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "5 updates, including 2 security fixes")
@@ -207,20 +209,42 @@ class TestUpdates(MachineCase):
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
-        # should have succeeded and show restart page; cancel
+        # should have succeeded and show restart page
         b.wait_present("#app .container-fluid h1")
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
+
+        def assertHistory(parent, updates):
+            selector = parent + " .tooltip-ct-outer:nth-child({0}) li"
+            b.wait_present(parent)
+            b.wait_present(selector.format(len(updates)))
+            for index, pkg in enumerate(updates, start=1):
+                self.assertEqual(b.text(selector.format(index)), pkg)
+            # make sure we don't have any extra ones
+            self.assertFalse(b.is_present(selector.format(len(updates) + 1)))
+
+        # history on restart page should show the two security updates
+        b.wait_present(".expander-title span")
+        b.click(".expander-title span")
+        b.wait_present("ul")
+        assertHistory("ul", ["secdeclare", "secparse"])
+
+        # ignore restarting
         b.wait_present("#app .container-fluid button.btn-default")
         b.click("#app .container-fluid button.btn-default")
 
         # should have succeeded; 3 non-security updates left
         b.wait_present("#state")
         b.wait_in_text("#state", "3 updates")
-        b.wait_in_text(".container-fluid h2", "Available Updates")
+        b.wait_present(".container-fluid #available h2")
+        b.wait_in_text(".container-fluid #available h2", "Available Updates")
         b.wait_in_text("table.listing-ct", "norefs-doc")
         self.assertIn("buggy", b.text("table.listing-ct"))
         self.assertNotIn("secdeclare", b.text("table.listing-ct"))
         self.assertNotIn("secparse", b.text("table.listing-ct"))
+
+        # history should show the security updates
+        b.wait_present(".container-fluid #history h2")
+        assertHistory("#history ul", ["secdeclare", "secparse"])
 
         # new security versions are now installed
         m.execute("test -f /stamp-secdeclare-3-4.b1 && test -f /stamp-secparse-4-2")
@@ -242,6 +266,11 @@ class TestUpdates(MachineCase):
         # new versions are now installed
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
 
+        # history on restart page should show the three non-security updates
+        b.wait_present(".expander-title span")
+        b.click(".expander-title span")
+        assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
+
         # do the reboot; this will disconnect the web UI
         m.reset_reboot_flag()
         b.click("#app .container-fluid button.btn-primary")
@@ -261,6 +290,9 @@ class TestUpdates(MachineCase):
         b.wait_in_text("#state", "No updates pending")
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
+
+        # history on "up to date" page should show the recent update
+        assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         self.allow_restart_journal_messages()
 
@@ -342,8 +374,8 @@ class TestUpdates(MachineCase):
         b.wait_in_text(".content-header-extra td button", "Check for updates")
         b.click(".content-header-extra td button")
 
-        b.wait_present(".container-fluid h2")
-        b.wait_in_text(".container-fluid h2", "Available Updates")
+        b.wait_present(".container-fluid #available h2")
+        b.wait_in_text(".container-fluid #available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
         b.wait_present("table.listing-ct")

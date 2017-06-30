@@ -58,12 +58,59 @@ tr.security {
     margin-top: 5em;
 }
 
+/* fixed width to avoid jumpy text between expanded/collapsed */
+.expander-caret {
+    width: 2ex;
+}
+
+.expander-title {
+    margin-bottom: 2em;
+    display: flex;
+    align-items: center;
+}
+
+.expander-title hr {
+    flex: auto;
+}
+
+.expander-title span {
+    padding: 1ex;
+    flex: none;
+}
+
 /* http://www.patternfly.org/pattern-library/communication/empty-state/ has a
  * gray background which we don't want here */
 
 .blank-slate-pf {
     background: inherit;
     border: none;
+}
+
+.flow-list-blank-slate {
+    padding-top: 8em;
+    margin: 0 auto;
+    max-width: 69rem;
+    text-align: center;
+}
+
+.flow-list {
+    margin: 1em 1em 3em;
+    padding: 0;
+    max-width: 66rem;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.flow-list li {
+    text-align: left;
+    box-sizing: border-box;
+    width: 22rem;
+    padding: 0 1ex;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: 600;
 }
 
 /* Layout fix for tooltip arrows.

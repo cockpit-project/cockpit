@@ -654,6 +654,40 @@ handle_domain_lifecycle_event(virConnectPtr connection,
     return sd_bus_send(manager->bus, message, NULL);
 }
 
+static int
+lookup_domain(sd_bus *bus,
+              const char *path,
+              const char *interface,
+              void *userdata,
+              void **found,
+              sd_bus_error *error)
+{
+    VirtManager *manager = userdata;
+    _cleanup_(freep) char *name = NULL;
+    _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
+    int r;
+
+    r = sd_bus_path_decode(path, "/org/libvirt/domain", &name);
+    if (r < 0)
+        return r;
+
+    if (*name == '\0')
+        return 0;
+
+    domain = virDomainLookupByUUIDString(manager->connection, name);
+    if (!domain)
+        return 0;
+
+    /*
+     * There's no way to unref the pointer we're returning here. So,
+     * return the manager object and look up the domain again in the
+     * domain_* callbacks.
+     */
+    *found = manager;
+
+    return 1;
+}
+
 static const sd_bus_vtable virt_manager_vtable[] = {
     SD_BUS_VTABLE_START(0),
 
@@ -735,7 +769,7 @@ virt_manager_new(VirtManager **managerp, sd_bus *bus)
                                    "/org/libvirt/domain",
                                    "org.libvirt.Domain",
                                    virt_domain_vtable,
-                                   NULL,
+                                   lookup_domain,
                                    manager);
     if (r < 0)
         return r;

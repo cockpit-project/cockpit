@@ -263,6 +263,8 @@ class TestUpdates(MachineCase):
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
 
+        self.allow_restart_journal_messages()
+
     def testUpdateError(self):
         b = self.browser
         m = self.machine

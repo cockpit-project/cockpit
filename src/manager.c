@@ -29,7 +29,6 @@ domain_from_bus_path(VirtManager *manager,
                      const char *path)
 {
     _cleanup_(freep) char *name = NULL;
-    virDomainPtr domain;
     int r;
 
     r = sd_bus_path_decode(path, "/org/libvirt/domain", &name);

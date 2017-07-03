@@ -92,7 +92,7 @@ struct signv {
   { "LOST",     SIGLOST },      /* 29 (arm,i386,m68k,ppc,sparc*) */
 #endif
   { "PWR",      SIGPWR },       /* 30 (arm,i386,m68k,ppc), 29 (alpha,sparc*), 19 (mips) */
-#ifndef _MIPS_ARCH
+#ifdef SIGUNUSED
   { "UNUSED",   SIGUNUSED },    /* 31 (arm,i386,m68k,ppc) */
 #endif
   { "SYS",      SIGSYS },       /* 31 (mips,alpha,sparc*) */

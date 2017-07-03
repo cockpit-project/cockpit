@@ -1,5 +1,7 @@
 #pragma once
 
+#define VIR_ENUM_SENTINELS
+
 #include <libvirt/libvirt.h>
 #include <systemd/sd-bus.h>
 

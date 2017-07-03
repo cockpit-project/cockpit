@@ -1,16 +1,15 @@
 #include "manager.h"
 #include "util.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
-
-#include <stdio.h>
 
 struct VirtManager {
     sd_bus *bus;
     virConnectPtr connection;
 
-    int lifecycle_event_id;
+    int callback_ids[VIR_DOMAIN_EVENT_ID_LAST];
 };
 
 static char *
@@ -710,6 +709,21 @@ lookup_domain(sd_bus *bus,
     return 1;
 }
 
+static void
+virt_manager_register_event(VirtManager *manager,
+                            int id,
+                            virConnectDomainEventGenericCallback callback)
+{
+    assert(manager->callback_ids[id] == -1);
+
+    manager->callback_ids[id] = virConnectDomainEventRegisterAny(manager->connection,
+                                                                 NULL,
+                                                                 id,
+                                                                 VIR_DOMAIN_EVENT_CALLBACK(callback),
+                                                                 manager,
+                                                                 NULL);
+}
+
 static const sd_bus_vtable virt_manager_vtable[] = {
     SD_BUS_VTABLE_START(0),
 
@@ -763,18 +777,18 @@ virt_manager_new(VirtManager **managerp,
     int r;
 
     manager = calloc(1, sizeof(VirtManager));
+    for (int i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1)
+        manager->callback_ids[i] = -1;
+
     manager->bus = sd_bus_ref(bus);
 
     manager->connection = virConnectOpenAuth(uri, virConnectAuthPtrDefault, 0);
     if (!manager->connection)
         return -EINVAL;
 
-    manager->lifecycle_event_id = virConnectDomainEventRegisterAny(manager->connection,
-                                                                   NULL,
-                                                                   VIR_DOMAIN_EVENT_ID_LIFECYCLE,
-                                                                   VIR_DOMAIN_EVENT_CALLBACK(handle_domain_lifecycle_event),
-                                                                   manager,
-                                                                   NULL);
+    virt_manager_register_event(manager,
+                                VIR_DOMAIN_EVENT_ID_LIFECYCLE,
+                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_lifecycle_event));
 
     r = sd_bus_add_object_vtable(manager->bus,
                                  NULL,
@@ -812,7 +826,10 @@ virt_manager_free(VirtManager *manager)
         sd_bus_unref(manager->bus);
 
     if (manager->connection) {
-        virConnectDomainEventDeregisterAny(manager->connection, manager->lifecycle_event_id);
+        for (int i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1) {
+            if (manager->callback_ids[i] >= 0)
+                virConnectDomainEventDeregisterAny(manager->connection, manager->callback_ids[i]);
+        }
 
         virConnectClose(manager->connection);
     }

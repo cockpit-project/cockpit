@@ -262,6 +262,28 @@ domain_get_state(sd_bus *bus,
 }
 
 static int
+domain_get_autostart(sd_bus *bus,
+                     const char *path,
+                     const char *interface,
+                     const char *property,
+                     sd_bus_message *reply,
+                     void *userdata,
+                     sd_bus_error *error)
+{
+    VirtManager *manager = userdata;
+    _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
+    int autostart = 0;
+
+    domain = domain_from_bus_path(manager, path);
+    if (domain == NULL)
+        return sd_bus_message_append(reply, "b", 0);
+
+    virDomainGetAutostart(domain, &autostart);
+
+    return sd_bus_message_append(reply, "b", autostart);
+}
+
+static int
 domain_get_xml_desc(sd_bus_message *message,
                     void *userdata,
                     sd_bus_error *error)
@@ -719,6 +741,7 @@ static const sd_bus_vtable virt_domain_vtable[] = {
     SD_BUS_PROPERTY("Active", "b", domain_get_active, 0, 0),
     SD_BUS_PROPERTY("Persistent", "b", domain_get_persistent, 0, 0),
     SD_BUS_PROPERTY("State", "s", domain_get_state, 0, 0),
+    SD_BUS_PROPERTY("Autostart", "b", domain_get_autostart, 0, 0),
 
     SD_BUS_METHOD("GetXMLDesc", "u", "s", domain_get_xml_desc, SD_BUS_VTABLE_UNPRIVILEGED),
     SD_BUS_METHOD("GetStats", "uu", "a{sv}", domain_get_stats, SD_BUS_VTABLE_UNPRIVILEGED),

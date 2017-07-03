@@ -96,7 +96,7 @@ main(int argc, char *argv[])
     };
 
     bool system_bus;
-    const char *uri;
+    const char *uri = NULL;
 
     _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
@@ -109,10 +109,8 @@ main(int argc, char *argv[])
 
     if (geteuid() == 0) {
         system_bus = true;
-        uri = "qemu:///system";
     } else {
         system_bus = false;
-        uri = "qemu:///session";
     }
 
     while ((c = getopt_long(argc, argv, "hc:", options, NULL)) >= 0) {

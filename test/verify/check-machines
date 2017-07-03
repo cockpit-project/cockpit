@@ -225,5 +225,40 @@ class TestMachines(MachineCase):
             b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('noVNC_status_normal') >= 0"))
         b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('Connected (unencrypted) to: QEMU (subVmTest1)') >= 0"))
 
+    def testDelete(self):
+        b = self.browser
+        m = self.machine
+
+        name = "subVmTest1"
+        img1 = "/var/lib/libvirt/images/{0}.img".format(name)
+        img2 = "/var/lib/libvirt/images/{0}-2.img".format(name)
+
+        self.startVm(name, console='vnc')
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr th", name)
+
+        m.execute("test -f {0}".format(img1))
+        m.execute("test -f {0}".format(img2))
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_present("#vm-{0}-delete".format(name))
+        b.click("#vm-{0}-delete".format(name))
+
+        b.wait_present("#cockpit_modal_dialog")
+        b.wait_present("#cockpit_modal_dialog div:contains(The VM is running)")
+        b.wait_present("#cockpit_modal_dialog tr:contains({0})".format(img1))
+        b.wait_present("#cockpit_modal_dialog tr:contains({0})".format(img2))
+        b.click("#cockpit_modal_dialog button:contains(Delete)")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        b.wait_not_present("#vm-{0}-row".format(name))
+
+        m.execute("! test -f {0}".format(img1))
+        m.execute("! test -f {0}".format(img2))
+
+        self.assertNotIn(name, m.execute("virsh list --all"))
+
 if __name__ == '__main__':
     test_main()

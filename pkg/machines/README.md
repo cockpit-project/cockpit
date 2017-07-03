@@ -47,16 +47,22 @@ Your provider should have the following properties and methods:
         REBOOT_VM: function ({ name, id }) {},
         FORCEREBOOT_VM: function ({ name, id }) {},
         START_VM: function ({ name, id }) {},
-        
+        DELETE_VM: function ({ name, id, options }) {},
+
+        // options to DELETE_VM:
+        // - 'destroy' (bool) force-off the machine before deletion when true
+        // - 'storage' (array of string) also delete listed volumes (string is target)
+
         vmStateMap, // optional map extending VM states for provider's specifics. Will be merged using Object.assign(), see <StateIcon> component
-        
+
         canReset: function (state) {return true;}, // return boolean
         canShutdown: function (state) {return true;},
+        canDelete: function (state) {return true;},
         isRunning: function (state) {return true;},
         canRun: function (state) {return true;},
-        
-        reducer, // optional Redux reducer. If provided, the Redux reducer tree is lazily extended for this new branch (see reducers.es6)  
-        
+
+        reducer, // optional Redux reducer. If provided, the Redux reducer tree is lazily extended for this new branch (see reducers.es6)
+
         vmTabRenderers: [ // optional, provider-specific array of subtabs rendered for a VM
             {name: 'Provider-specific subtab', componentFactory: YOUR_COMPONENT_FACTORY}, // see externalComponent.jsx for more info on componentFactory
           ],
@@ -74,10 +80,10 @@ The `providerContext` passed to the `init()` function as an argument consists of
     providerContext = {
         React, // React library to be shared between parent code and plugged provider
         reduxStore, // Redux Store object created by parent application, there should be only one per application
-        exportedActionCreators, // common redux action creators 
+        exportedActionCreators, // common redux action creators
         exportedReactComponents, // exported React components for reuse in the plugged provider
     }
-            
+
 Please refer the `libvirt.es6` for the most current API description and more details.
 
 External provider referential implementation is the `cockpit-machines-ovirt-provider` [2] written in ES6 and fully using React/Redux/Webpack.
@@ -85,4 +91,3 @@ External provider referential implementation is the `cockpit-machines-ovirt-prov
 ## Links
 \[1\] [How to enable nested virtualization in KVM](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)
 \[2\] [Cockpit-machines oVirt External Provider](https://github.com/oVirt/cockpit-machines-ovirt-provider)
-

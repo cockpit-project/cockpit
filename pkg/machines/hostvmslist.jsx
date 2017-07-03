@@ -25,6 +25,7 @@ import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './vmdiskstab.jsx';
 import GraphicsConsole from './components/graphicsConsole.jsx';
+import { deleteDialog } from "./components/deleteDialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -95,11 +96,22 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
         providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} />;
     }
 
+    let deleteAction = null;
+    if (state !== undefined && config.provider.canDelete && config.provider.canDelete(state)) {
+        deleteAction = (
+            <button className="btn btn-danger" id={`${id}-delete`}
+                    onClick={ mouseClick(() => deleteDialog(vm, dispatch)) }>
+                {_("Delete")}
+            </button>
+        );
+    }
+
     return (<div>
         {reset}
         {shutdown}
         {run}
         {providerActions}
+        {deleteAction}
     </div>);
 }
 VmActions.propTypes = {

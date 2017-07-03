@@ -104,6 +104,7 @@ LIBVIRT_PROVIDER = {
 
     canReset: (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused',
     canShutdown: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
+    canDelete: (vmState) => true,
     isRunning: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
     canRun: (vmState) => vmState == 'shut off',
     canConsole: (vmState) => vmState == 'running',
@@ -215,6 +216,37 @@ LIBVIRT_PROVIDER = {
             failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed")}),
             args: ['start', name]
         });
+    },
+
+    DELETE_VM ({ name, connectionName, options }) {
+        logDebug(`${this.name}.DELETE_VM(${name}, ${JSON.stringify(options)}):`);
+
+        function destroy() {
+            return spawnVirsh({ connectionName,
+                                method: 'DELETE_VM',
+                                args: [ 'destroy', name ]
+                              });
+        }
+
+        function undefine() {
+            let args = ['undefine', name, '--managed-save' ];
+            if (options.storage) {
+                args.push('--storage');
+                args.push(options.storage.join(','));
+            }
+            return spawnVirsh({ connectionName,
+                                method: 'DELETE_VM',
+                                args: args
+                              });
+        }
+
+        return dispatch => {
+            if (options.destroy) {
+                return destroy().then(undefine);
+            } else {
+                return undefine();
+            }
+        };
     },
 
     /**
@@ -381,7 +413,7 @@ function parseDumpxmlForDisks(devicesElem) {
             }
         }
     }
-    
+
     return disks;
 }
 

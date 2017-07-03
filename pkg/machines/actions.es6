@@ -63,6 +63,10 @@ export function startVm(vm) {
     return virt('START_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
+export function deleteVm(vm, options) {
+    return virt('DELETE_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, options: options });
+}
+
 export function vmDesktopConsole(vm, consoleDetail) {
     return virt('CONSOLE_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, consoleDetail });
 }

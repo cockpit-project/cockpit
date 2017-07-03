@@ -854,7 +854,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
     function CompiledComponents() {
         var self = this;
-        self.items = {};
+        self.items = [ ];
 
         self.load = function(manifests, section) {
             $.each(manifests || { }, function(name, manifest) {
@@ -866,14 +866,20 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                         wants: info.wants
                     };
                     if (info.path)
-                        item.path = info.path.replace(/\.html$/, "");
+                        item.path = info.path;
                     else
                         item.path = name + "/" + prop;
+                    var pos = item.path.indexOf("#");
+                    if (pos !== -1) {
+                        item.hash = item.path.substring(pos + 1);
+                        item.path = item.path.substring(0, pos);
+                    }
+                    item.path = item.path.replace(/\.html$/, "");
                     if (item.path.indexOf("/") === -1)
                         item.path = name + "/" + item.path;
                     if (item.path.slice(-6) == "/index")
                         item.path = item.path.slice(0, -6);
-                    self.items[item.path] = item;
+                    self.items.push(item);
                 });
             });
         };

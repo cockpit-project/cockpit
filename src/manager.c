@@ -732,6 +732,92 @@ handle_domain_device_removed_event(virConnectPtr connection,
 }
 
 static int
+handle_domain_disk_change_event(virConnectPtr connection,
+                                virDomainPtr domain,
+                                const char *device,
+                                int reason,
+                                void *opaque)
+{
+    VirtManager *manager = opaque;
+    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
+    _cleanup_(freep) char *path = NULL;
+    const char *reasonstr;
+    int r;
+
+    path = bus_path_for_domain(domain);
+
+    r = sd_bus_message_new_signal(manager->bus,
+                                  &message,
+                                  path,
+                                  "org.libvirt.Manager.Domain",
+                                  "TrayChange");
+    if (r < 0)
+        return r;
+
+    switch (reason) {
+        case VIR_DOMAIN_EVENT_TRAY_CHANGE_OPEN:
+            reasonstr = "open";
+            break;
+        case VIR_DOMAIN_EVENT_TRAY_CHANGE_CLOSE:
+            reasonstr = "close";
+            break;
+        default:
+            reasonstr = "";
+            break;
+    }
+
+    r = sd_bus_message_append(message, "ssss", device, reasonstr);
+    if (r < 0)
+        return r;
+
+    return sd_bus_send(manager->bus, message, NULL);
+}
+
+static int
+handle_domain_tray_change_event(virConnectPtr connection,
+                                virDomainPtr domain,
+                                const char *old_src_path,
+                                const char *new_src_path,
+                                const char *device,
+                                int reason,
+                                void *opaque)
+{
+    VirtManager *manager = opaque;
+    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
+    _cleanup_(freep) char *path = NULL;
+    const char *reasonstr;
+    int r;
+
+    path = bus_path_for_domain(domain);
+
+    r = sd_bus_message_new_signal(manager->bus,
+                                  &message,
+                                  path,
+                                  "org.libvirt.Manager.Domain",
+                                  "DiskChange");
+    if (r < 0)
+        return r;
+
+    switch (reason) {
+        case VIR_DOMAIN_EVENT_DISK_CHANGE_MISSING_ON_START:
+            reasonstr = "missing-on-start";
+            break;
+        case VIR_DOMAIN_EVENT_DISK_DROP_MISSING_ON_START:
+            reasonstr = "missing-on-start";
+            break;
+        default:
+            reasonstr = "";
+            break;
+    }
+
+    r = sd_bus_message_append(message, "ssss", old_src_path, new_src_path, device, reasonstr);
+    if (r < 0)
+        return r;
+
+    return sd_bus_send(manager->bus, message, NULL);
+}
+
+static int
 lookup_domain(sd_bus *bus,
               const char *path,
               const char *interface,
@@ -823,6 +909,8 @@ static const sd_bus_vtable virt_domain_vtable[] = {
 
     SD_BUS_SIGNAL("DeviceAdded", "s", 0),
     SD_BUS_SIGNAL("DeviceRemoved", "s", 0),
+    SD_BUS_SIGNAL("DiskChange", "ssss", 0),
+    SD_BUS_SIGNAL("TrayChange", "ss", 0),
 
     SD_BUS_VTABLE_END
 };
@@ -856,6 +944,14 @@ virt_manager_new(VirtManager **managerp,
     virt_manager_register_event(manager,
                                 VIR_DOMAIN_EVENT_ID_DEVICE_REMOVED,
                                 VIR_DOMAIN_EVENT_CALLBACK(handle_domain_device_removed_event));
+
+    virt_manager_register_event(manager,
+                                VIR_DOMAIN_EVENT_ID_DISK_CHANGE,
+                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_tray_change_event));
+
+    virt_manager_register_event(manager,
+                                VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
+                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_disk_change_event));
 
     r = sd_bus_add_object_vtable(manager->bus,
                                  NULL,

@@ -676,6 +676,62 @@ handle_domain_lifecycle_event(virConnectPtr connection,
 }
 
 static int
+handle_domain_device_added_event(virConnectPtr connection,
+                                 virDomainPtr domain,
+                                 const char *device,
+                                 void *opaque)
+{
+    VirtManager *manager = opaque;
+    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
+    _cleanup_(freep) char *path = NULL;
+    int r;
+
+    path = bus_path_for_domain(domain);
+
+    r = sd_bus_message_new_signal(manager->bus,
+                                  &message,
+                                  path,
+                                  "org.libvirt.Manager.Domain",
+                                  "DeviceAdded");
+    if (r < 0)
+        return r;
+
+    r = sd_bus_message_append(message, "s", device);
+    if (r < 0)
+        return r;
+
+    return sd_bus_send(manager->bus, message, NULL);
+}
+
+static int
+handle_domain_device_removed_event(virConnectPtr connection,
+                                   virDomainPtr domain,
+                                   const char *device,
+                                   void *opaque)
+{
+    VirtManager *manager = opaque;
+    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
+    _cleanup_(freep) char *path = NULL;
+    int r;
+
+    path = bus_path_for_domain(domain);
+
+    r = sd_bus_message_new_signal(manager->bus,
+                                  &message,
+                                  path,
+                                  "org.libvirt.Manager.Domain",
+                                  "DeviceRemoved");
+    if (r < 0)
+        return r;
+
+    r = sd_bus_message_append(message, "s", device);
+    if (r < 0)
+        return r;
+
+    return sd_bus_send(manager->bus, message, NULL);
+}
+
+static int
 lookup_domain(sd_bus *bus,
               const char *path,
               const char *interface,
@@ -765,6 +821,9 @@ static const sd_bus_vtable virt_domain_vtable[] = {
     SD_BUS_METHOD("Reset", "u", "", domain_reset, SD_BUS_VTABLE_UNPRIVILEGED),
     SD_BUS_METHOD("Create", "", "", domain_create, SD_BUS_VTABLE_UNPRIVILEGED),
 
+    SD_BUS_SIGNAL("DeviceAdded", "s", 0),
+    SD_BUS_SIGNAL("DeviceRemoved", "s", 0),
+
     SD_BUS_VTABLE_END
 };
 
@@ -789,6 +848,14 @@ virt_manager_new(VirtManager **managerp,
     virt_manager_register_event(manager,
                                 VIR_DOMAIN_EVENT_ID_LIFECYCLE,
                                 VIR_DOMAIN_EVENT_CALLBACK(handle_domain_lifecycle_event));
+
+    virt_manager_register_event(manager,
+                                VIR_DOMAIN_EVENT_ID_DEVICE_ADDED,
+                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_device_added_event));
+
+    virt_manager_register_event(manager,
+                                VIR_DOMAIN_EVENT_ID_DEVICE_REMOVED,
+                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_device_removed_event));
 
     r = sd_bus_add_object_vtable(manager->bus,
                                  NULL,

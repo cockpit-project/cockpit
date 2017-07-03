@@ -1203,6 +1203,8 @@ cockpit_pipe_spawn (const gchar **argv,
  * @argv: null terminated string array of command arguments
  * @env: optional null terminated string array of child environment
  * @directory: optional working directory of child process
+ * @window_rows: initial number of rows in the window
+ * @window_cols: initial number of columns in the window
  *
  * Launch a child pty and create a CockpitPipe for it.
  *
@@ -1214,13 +1216,15 @@ cockpit_pipe_spawn (const gchar **argv,
 CockpitPipe *
 cockpit_pipe_pty (const gchar **argv,
                   const gchar **env,
-                  const gchar *directory)
+                  const gchar *directory,
+                  guint16 window_rows,
+                  guint16 window_cols)
 {
   CockpitPipe *pipe = NULL;
   const gchar *path = NULL;
   GPid pid = 0;
   int fd;
-  struct winsize winsz = { 24, 80, 0, 0 };
+  struct winsize winsz = { window_rows, window_cols, 0, 0 };
 
   if (env)
     path = g_environ_getenv ((gchar **)env, "PATH");

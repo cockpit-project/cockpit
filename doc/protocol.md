@@ -783,13 +783,16 @@ following options can be specified:
    spawned process. The variables are in the form of "NAME=VALUE". The default
    environment is inherited from cockpit-bridge.
  * "pty": Execute the command as a terminal pty.
+ * "window": An object containing "rows" and "cols" properties, which set the
+   size of the terminal window. Values must be integers between 0 and 0xffff.
+   This option is only valid if "pty" is true.
 
 If an "done" is sent to the bridge on this channel, then the socket and/or pipe
 input is shutdown. The channel will send an "done" when the output of the socket
 or pipe is done.
 
 Additionally, a "options" control message may be sent in this channel
-to change the "batch" and "latency" options.
+to change the "batch", "latency", and "window" options.
 
 Payload: fswatch1
 -----------------

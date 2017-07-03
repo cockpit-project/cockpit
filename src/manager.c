@@ -491,6 +491,30 @@ domain_create(sd_bus_message *message,
 }
 
 static int
+domain_undefine(sd_bus_message *message,
+                void *userdata,
+                sd_bus_error *error)
+{
+    VirtManager *manager = userdata;
+    _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
+    int r;
+
+    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    if (domain == NULL) {
+        return sd_bus_reply_method_errorf(message,
+                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
+                                          "Unknown object '%s'.",
+                                          sd_bus_message_get_path(message));
+    }
+
+    r = virDomainUndefine(domain);
+    if (r < 0)
+        return bus_error_set_last_virt_error(error);
+
+    return sd_bus_reply_method_return(message, "");
+}
+
+static int
 enumerate_domains(sd_bus *bus,
                   const char *path,
                   void *userdata,
@@ -905,6 +929,7 @@ static const sd_bus_vtable virt_domain_vtable[] = {
     SD_BUS_METHOD("Reboot", "u", "", domain_reboot, SD_BUS_VTABLE_UNPRIVILEGED),
     SD_BUS_METHOD("Reset", "u", "", domain_reset, SD_BUS_VTABLE_UNPRIVILEGED),
     SD_BUS_METHOD("Create", "", "", domain_create, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("Undefine", "", "", domain_undefine, SD_BUS_VTABLE_UNPRIVILEGED),
 
     SD_BUS_SIGNAL("DeviceAdded", "s", 0),
     SD_BUS_SIGNAL("DeviceRemoved", "s", 0),

@@ -32,6 +32,8 @@
     var demoTooltip = require("./react-demo-tooltip.jsx");
     var demoOnOff = require("./react-demo-onoff.jsx");
 
+    var demoFileAC = require("./react-demo-file-autocomplete.jsx");
+
 
     /*-----------------------------------------------------------------------------
       Modal Dialog
@@ -131,6 +133,9 @@
 
         // OnOff
         demoOnOff.demo(document.getElementById('demo-onoff'));
+
+        // File autocomplete
+        demoFileAC.demo(document.getElementById('demo-file-ac'));
     });
 
 }());

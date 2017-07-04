@@ -46,7 +46,8 @@ var page = require('webpage').create();
 var sys = require('system');
 var fs = require('fs');
 var clearedStorage = false;
-var messages = "";
+var messages = [];
+var currentCallMessageIndex = 0;
 var onCheckpoint;
 var waitTimeout;
 var didTimeout;
@@ -200,6 +201,16 @@ var driver = {
 	});
         fs.write(file, data, 'w');
         sys.stderr.writeLine("Wrote " + file);
+        respond({ result: null });
+    },
+
+    dump_log: function(respond, file) {
+        if (messages.length > 0) {
+            if (!file)
+                file = "page.js.log";
+            fs.write(file, messages.join('\n'), 'w');
+            sys.stderr.writeLine("Wrote " + file);
+        }
         respond({ result: null });
     },
 
@@ -362,7 +373,7 @@ function step() {
         if (responded)
             sys.stderr.writeLine("WARNING: " + line + " was true after timeout, add more checkpoints");
         else
-            respond({ error: "timeout" + messages });
+            respond({ error: "timeout" + messages.slice(currentCallMessageIndex).join('\n') });
     }, cmd.timeout || 60 * 1000);
 
     /* This function is called when functions want to respond */
@@ -376,7 +387,7 @@ function step() {
         window.clearTimeout(timeout);
         page.onError = null;
         timeout = null;
-        messages = "";
+        currentCallMessageIndex = messages.length;
         responded = true;
         onCheckpoint = null;
         loadFailure = null;
@@ -436,7 +447,7 @@ page.onResourceError = function(ex) {
     }
 
     sys.stderr.writeLine(prefix + ex.errorString + " " + ex.url);
-    messages += "\n" + ex.errorString + " " + ex.url;
+    messages.push(ex.errorString + " " + ex.url);
     checkpoint();
 };
 
@@ -450,7 +461,7 @@ page.onConsoleMessage = function(msg, lineNum, sourceId) {
         // sys.stderr.writeLine("CHECKPOINT");
         checkpoint();
     } else {
-        messages += "\n" + msg;
+        messages.push(msg);
         sys.stderr.writeLine('> ' + msg);
     }
 };

@@ -73,7 +73,7 @@ class TestMachines(MachineCase):
 
         b.click("tbody tr th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
-        b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
+        b.wait_in_text("#vm-subVmTest1-state", "running")
         b.wait_present("#vm-subVmTest1-vcpus")
         b.wait_in_text("#vm-subVmTest1-vcpus", "1")
 
@@ -83,10 +83,46 @@ class TestMachines(MachineCase):
         emulated_machine = b.eval_js("$('#vm-subVmTest1-emulatedmachine').text()")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
+        # switch to and check Usage
+        b.wait_present("#vm-subVmTest1-usage")
+        b.click("#vm-subVmTest1-usage")
+        b.wait_present("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption")
+        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "128 MiB")
+        b.wait_present("#chart-donut-0 .donut-title-big-pf")
+        b.wait(lambda: float(b.text("#chart-donut-0 .donut-title-big-pf")) > 0.0)
+        b.wait_present("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption")
+        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption", "1 vCPU")
+        # CPU usage cannot be nonzero with blank image, so just ensure it's a percentage
+        b.wait_present("#chart-donut-1 .donut-title-big-pf")
+        self.assertLessEqual(float(b.text("#chart-donut-1 .donut-title-big-pf")), 100.0)
+
+        # suspend/resume
+        m.execute("virsh suspend subVmTest1")
+        b.wait_in_text("#vm-subVmTest1-state", "paused")
+        # resume sometimes fails with "unable to execute QEMU command 'cont': Resetting the Virtual Machine is required"
+        m.execute('virsh resume subVmTest1 || { virsh destroy subVmTest1 && virsh start subVmTest1; }')
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        # shut off
         b.click("#vm-subVmTest1-off-caret")
         b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # usage should drop to zero
+        b.wait_in_text("#chart-donut-0 .donut-title-big-pf", "0.00")
+        b.wait_in_text("#chart-donut-1 .donut-title-big-pf", "0.0")
+
+        # start another one, should appear automatically
+        self.startVm("subVmTest2")
+        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
+        b.click("#app .listing-ct tbody:nth-of-type(2) th") # click on the row header
+        b.wait_present("#vm-subVmTest2-state")
+        b.wait_in_text("#vm-subVmTest2-state", "running")
+        b.wait_present("#vm-subVmTest2-vcpus")
+        b.wait_in_text("#vm-subVmTest2-vcpus", "1")
+        b.wait_in_text("#vm-subVmTest2-bootorder", "disk,network")
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser

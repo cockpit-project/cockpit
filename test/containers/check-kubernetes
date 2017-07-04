@@ -142,6 +142,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         # Try to login, no api var
         b.open("/")
         b.wait_visible("#login")
+        b.wait_not_visible("#option-group")
         b.wait_text("#server-name", "Kubernetes Cockpit")
         self.login("admin", "fubar")
         b.wait_in_text("#login-fatal-message", "No kubernetes")

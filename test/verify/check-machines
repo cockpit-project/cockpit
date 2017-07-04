@@ -54,7 +54,7 @@ class TestMachines(MachineCase):
         m.execute("virt-install --cpu host -r 128 --pxe --force --graphics {3},listen=127.0.0.1 --noautoconsole "
                   "--disk path={0},size=1,format=qcow2 --disk path={1},size=2,format=qcow2 "
                   "--boot hd,network "
-                  "-n {2} || true"
+                  "-n {2}"
                   .format(img1, img2, name, console))
 
         state = m.execute("virsh domstate {0}".format(name)).strip()

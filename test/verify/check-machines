@@ -64,6 +64,7 @@ class TestMachines(MachineCase):
 
     def testBasic(self):
         b = self.browser
+        m = self.machine
 
         self.startVm("subVmTest1")
 
@@ -123,6 +124,33 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest2-vcpus")
         b.wait_in_text("#vm-subVmTest2-vcpus", "1")
         b.wait_in_text("#vm-subVmTest2-bootorder", "disk,network")
+
+        # restart libvirtd
+        m.execute("systemctl stop libvirtd")
+        b.wait_present("#app .blank-slate-pf")
+        b.wait_visible("#app .blank-slate-pf")
+        b.wait_in_text("#app .blank-slate-pf", "No VM is running")
+        m.execute("systemctl start libvirtd")
+        b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", "subVmTest1")
+        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
+        b.wait_present("#vm-subVmTest1-state")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_present("#vm-subVmTest2-state")
+        b.wait_in_text("#vm-subVmTest2-state", "running")
+
+        # stop second VM, event handling should still work
+        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
+        b.click("#app .listing-ct tbody:nth-of-type(2) th") # click on the row header
+        b.click("#vm-subVmTest2-off-caret")
+        b.wait_visible("#vm-subVmTest2-forceOff")
+        b.click("#vm-subVmTest2-forceOff")
+        b.wait_in_text("#vm-subVmTest2-state", "shut off")
+
+        # HACK: restarting libvirtd causes this completely unrelated SELinux issue
+        self.allow_journal_messages('.*denied.*search.*"systemd-machine".*dev="proc".*')
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser

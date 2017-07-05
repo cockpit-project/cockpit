@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+RELEASE=${1:-zesty}
+ARCH=${2:-amd64}
+
+# get LP chroot
+CHROOT_URL=$(curl --silent https://api.launchpad.net/1.0/ubuntu/$RELEASE/$ARCH | grep -o 'http://[^ "]*chroot-ubuntu-[^ "]*')
+CHROOT_TAR="/tmp/$(basename $CHROOT_URL)"
+[ -e "$CHROOT_TAR" ] || curl -o "$CHROOT_TAR" "$CHROOT_URL"
+
+# prepare chroot
+BUILDDIR=$(mktemp -d)
+trap "echo sudo rm -rf $BUILDDIR" EXIT INT QUIT PIPE
+sudo tar -C "$BUILDDIR" -xf "$CHROOT_TAR"
+CHROOT="$BUILDDIR/chroot-autobuild"
+sudo cp /etc/resolv.conf "$CHROOT/etc/resolv.conf"
+
+# copy code checkout into chroot
+sudo cp -a . "$CHROOT/build/src"
+
+sudo chroot "$CHROOT" << EOF
+set -ex
+# install build deps
+apt-get update
+apt-get install -y dh-autoreconf pkg-config libvirt-dev libsystemd-dev libtool python3-gi python3-dbus dbus
+
+# run build and tests as user
+chown -R buildd:buildd /build
+su - buildd <<EOU
+cd /build/src
+./autogen.sh
+make -j4
+make check || { cat test-suite.log; exit 1; }
+EOU
+EOF
+

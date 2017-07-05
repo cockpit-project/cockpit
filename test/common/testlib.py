@@ -642,8 +642,7 @@ class MachineCase(unittest.TestCase):
 
         # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1461893
         # selinux errors while logging in via ssh
-        'type=1401 audit(.*): op=security_compute_av reason=bounds scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tcontext=unconfined_u:system_r:svirt_lxc_net_t:s0-s0:c0.c1023 tclass=process perms=transition,sigchld,sigstop,signull,signal,getattr',
-        'type=1401 audit(.*): op=security_compute_av reason=bounds scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:svirt_lxc_net_t:s0-s0:c0.c1023 tclass=process perms=transition,sigchld,sigstop,signull,signal,getattr',
+        'type=1401 audit(.*): op=security_compute_av reason=bounds .* tclass=process perms=transition.*',
 
         # Various operating systems see this from time to time
         "Journal file.*truncated, ignoring file.",

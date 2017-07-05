@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
-RELEASE=${1:-zesty}
-ARCH=${2:-amd64}
+echo ${RELEASE:=zesty}
+echo ${ARCH:=amd64}
 
 # get LP chroot
 CHROOT_URL=$(curl --silent https://api.launchpad.net/1.0/ubuntu/$RELEASE/$ARCH | grep -o 'http://[^ "]*chroot-ubuntu-[^ "]*')

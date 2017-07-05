@@ -621,6 +621,9 @@ class MachineCase(unittest.TestCase):
         # SELinux and nfs-utils fighting: https://bugzilla.redhat.com/show_bug.cgi?id=1447854
         ".*type=1400 .*denied  { execute } for.*sm-notify.*init_t.*",
 
+        # SELinux prevents agetty from being executed by systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1449569
+        ".*type=1400 .*denied  { execute } for.*agetty.*init_t.*",
+
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",
 

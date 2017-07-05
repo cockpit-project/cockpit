@@ -373,7 +373,7 @@ function step() {
         if (responded)
             sys.stderr.writeLine("WARNING: " + line + " was true after timeout, add more checkpoints");
         else
-            respond({ error: "timeout" + messages.slice(currentCallMessageIndex).join('\n') });
+            respond({ error: "timeout\n" + messages.slice(currentCallMessageIndex).join('\n') });
     }, cmd.timeout || 60 * 1000);
 
     /* This function is called when functions want to respond */

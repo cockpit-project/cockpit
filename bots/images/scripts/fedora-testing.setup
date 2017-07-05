@@ -64,6 +64,11 @@ gdb \
 targetcli \
 "
 
+ABRT_PACKAGES="\
+abrt-desktop \
+libreport-plugin-systemd-journal \
+"
+
 rm -rf /etc/sysconfig/iptables
 
 maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
@@ -78,7 +83,7 @@ echo foobar | passwd --stdin admin
 
 dnf config-manager --set-enabled updates-testing
 dnf $DNF_OPTS -y upgrade
-dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $ABRT_PACKAGES
 
 # Prepare for building
 dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build

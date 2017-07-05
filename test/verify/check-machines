@@ -56,10 +56,8 @@ class TestMachines(MachineCase):
                   "-n {2}"
                   .format(img1, img2, name, console))
 
-        state = m.execute("virsh domstate {0}".format(name)).strip()
-        # debug info: machine state
-        m.message("state: '{0}'".format(state))
-        self.assertIn(state, ["running"])
+        m.execute('[ "$(virsh domstate {0})" = running ] || '
+                  '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
 
     def testBasic(self):
         b = self.browser

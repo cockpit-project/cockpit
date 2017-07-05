@@ -27,10 +27,10 @@ apt-get install -y dh-autoreconf pkg-config libvirt-dev libsystemd-dev libtool p
 # run build and tests as user
 chown -R buildd:buildd /build
 su - buildd <<EOU
+set -ex
 cd /build/src
 ./autogen.sh
 make -j4
 make check || { cat test-suite.log; exit 1; }
 EOU
 EOF
-

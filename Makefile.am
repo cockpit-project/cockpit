@@ -24,3 +24,7 @@ gen-AUTHORS:
 	    < $(srcdir)/AUTHORS.in > $(distdir)/AUTHORS-tmp &&        \
 	  mv -f $(distdir)/AUTHORS-tmp $(distdir)/AUTHORS ;           \
 	fi
+
+TESTS = \
+	test/test_manager.py \
+	test/test_domain.py

@@ -35,7 +35,6 @@ def readFile(name):
 # rmmod kvm-intel && modprobe kvm-intel || true
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
-@skipImage("Debian Stable creates paused machines", "debian-stable")
 class TestMachines(MachineCase):
     def startVm(self, name, console='spice'):
         m = self.machine

@@ -714,7 +714,7 @@ handle_domain_device_added_event(virConnectPtr connection,
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Manager.Domain",
+                                  "org.libvirt.Domain",
                                   "DeviceAdded");
     if (r < 0)
         return r;
@@ -742,7 +742,7 @@ handle_domain_device_removed_event(virConnectPtr connection,
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Manager.Domain",
+                                  "org.libvirt.Domain",
                                   "DeviceRemoved");
     if (r < 0)
         return r;
@@ -772,7 +772,7 @@ handle_domain_disk_change_event(virConnectPtr connection,
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Manager.Domain",
+                                  "org.libvirt.Domain",
                                   "TrayChange");
     if (r < 0)
         return r;
@@ -816,7 +816,7 @@ handle_domain_tray_change_event(virConnectPtr connection,
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Manager.Domain",
+                                  "org.libvirt.Domain",
                                   "DiskChange");
     if (r < 0)
         return r;

@@ -377,6 +377,8 @@ class TestUpdates(MachineCase):
         b.wait_present("#app .container-fluid pre")
         self.assertEqual(b.text("#app .container-fluid pre"), "PackageKit crashed")
 
+        self.allow_journal_messages(".*org.freedesktop.PackageKit.Transaction .*Error.NoReply.*")
+
     def testNoPackageKit(self):
         b = self.browser
         m = self.machine

@@ -56,18 +56,44 @@ const PK_STATUS_STRINGS = {
     14: _("Verifying"),
 }
 
+const transactionInterface = "org.freedesktop.PackageKit.Transaction";
+
 var dbus_pk = cockpit.dbus("org.freedesktop.PackageKit", {superuser: "try", "track": true});
 var packageSummaries = {};
 
-function pkTransaction() {
+function pkWatchTransaction(transactionPath, signalHandlers, notifyHandler) {
+    var subscriptions = [];
+
+    for (let handler in signalHandlers) {
+        subscriptions.push(dbus_pk.subscribe({ interface: transactionInterface, path: transactionPath, member: handler },
+                           (path, iface, signal, args) => signalHandlers[handler](...args)));
+    }
+
+    if (notifyHandler) {
+        subscriptions.push(dbus_pk.watch(transactionPath));
+        dbus_pk.addEventListener("notify", reply => {
+            if (transactionPath in reply.detail && transactionInterface in reply.detail[transactionPath])
+                notifyHandler(reply.detail[transactionPath][transactionInterface]);
+        });
+    }
+
+    // unsubscribe when transaction finished
+    subscriptions.push(dbus_pk.subscribe({ interface: transactionInterface, path: transactionPath, member: "Finished" },
+        () => subscriptions.map(s => s.remove())));
+}
+
+function pkTransaction(method, arglist, signalHandlers, notifyHandler, failHandler) {
     var dfd = cockpit.defer();
 
     dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [], {timeout: 5000})
         .done(result => {
-            var transProxy = dbus_pk.proxy("org.freedesktop.PackageKit.Transaction", result[0]);
-            transProxy.wait(() => dfd.resolve(transProxy));
+            let transactionPath = result[0];
+            dfd.resolve(transactionPath);
+            pkWatchTransaction(transactionPath, signalHandlers, notifyHandler);
+            dbus_pk.call(transactionPath, transactionInterface, method, arglist)
+                .fail(ex => failHandler(ex));
         })
-        .fail(ex => dfd.reject(ex));
+        .fail(ex => failHandler(ex));
 
     return dfd.promise();
 }
@@ -101,7 +127,7 @@ function HeaderBar(props) {
     var state;
     if (props.state == "available") {
         state = cockpit.ngettext("$0 update", "$0 updates", num_updates);
-        for (var u in props.updates)
+        for (let u in props.updates)
             if (props.updates[u].security)
                 ++num_security;
         if (num_security > 0)
@@ -226,15 +252,26 @@ class ApplyUpdates extends React.Component {
     }
 
     componentDidMount() {
-        var transProxy = this.props.transaction;
+        var transactionPath = this.props.transaction;
 
-        transProxy.addEventListener("Package", (event, info, packageId) => {
-            var pfields = packageId.split(";");
-            // info: see PK_STATUS_* at https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
-            this.setState({curPackage: pfields[0] + " " + pfields[1],
-                           curStatus: info,
-                           percentage: transProxy.Percentage <= 100 ? transProxy.Percentage : 0,
-                           timeRemaining: transProxy.RemainingTime > 0 ? transProxy.RemainingTime : null});
+        pkWatchTransaction(transactionPath, {
+            Package: (info, packageId) => {
+                let pfields = packageId.split(";");
+
+                // small timeout to avoid excessive overlaps from the next PackageKit progress signal
+                dbus_pk.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [transactionInterface], {timeout: 500})
+                    .done(reply => {
+                        let percent = reply[0].Percentage.v;
+                        let remain = -1;
+                        if ("RemainingTime" in reply[0])
+                            remain = reply[0].RemainingTime.v;
+                        // info: see PK_STATUS_* at https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
+                        this.setState({curPackage: pfields[0] + " " + pfields[1],
+                                       curStatus: info,
+                                       percentage: percent <= 100 ? percent : 0,
+                                       timeRemaining: remain > 0 ? remain : null});
+                    });
+            },
         });
     }
 
@@ -297,17 +334,15 @@ class OsUpdates extends React.Component {
         dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [], {timeout: 5000})
             .done(result => {
                 let transactions = result[0];
-                let promises = transactions.map(transObj => dbus_pk.call(
-                    transObj, "org.freedesktop.DBus.Properties", "Get",
-                    ["org.freedesktop.PackageKit.Transaction", "Role"], {timeout: 5000}));
+                let promises = transactions.map(transactionPath => dbus_pk.call(
+                    transactionPath, "org.freedesktop.DBus.Properties", "Get", [transactionInterface, "Role"], {timeout: 5000}));
 
                 cockpit.all(promises)
                     .done(roles => {
                         // any transaction with UPDATE_PACKAGES role?
                         for (let idx = 0; idx < roles.length; ++idx) {
                             if (roles[idx].v == PK_ROLE_ENUM_UPDATE_PACKAGES) {
-                                var transProxy = dbus_pk.proxy("org.freedesktop.PackageKit.Transaction", transactions[idx]);
-                                transProxy.wait(() => this.watchUpdates(transProxy));
+                                this.watchUpdates(transactions[idx]);
                                 return;
                             }
                         }
@@ -353,11 +388,9 @@ class OsUpdates extends React.Component {
     }
 
     loadUpdateDetails(pkg_ids) {
-        pkTransaction()
-            .done(transProxy => {
-                transProxy.addEventListener("UpdateDetail", (event, packageId, updates, obsoletes, vendor_urls,
-                                                             bug_urls, cve_urls, restart, update_text, changelog
-                                                             /* state, issued, updated */) => {
+        pkTransaction("GetUpdateDetail", [pkg_ids], {
+                UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
+                               update_text, changelog /* state, issued, updated */) => {
                     let u = this.state.updates[packageId];
                     u.vendor_urls = vendor_urls;
                     u.bug_urls = deduplicate(bug_urls);
@@ -369,22 +402,21 @@ class OsUpdates extends React.Component {
                     // u.restart = restart; // broken (always "1") at least in Fedora
 
                     this.setState({updates: this.state.updates, haveSecurity: this.state.haveSecurity || u.security});
-                });
+                },
 
-                transProxy.addEventListener("Finished", () => this.setState({state: "available"}));
+                Finished: () => this.setState({state: "available"}),
 
-                transProxy.addEventListener("ErrorCode", (event, code, details) => {
+                ErrorCode: (code, details) => {
                     console.warn("UpdateDetail error:", code, details);
                     // still show available updates, with reduced detail
                     this.setState({state: "available"});
-                });
-
-                transProxy.GetUpdateDetail(pkg_ids)
-                    .fail(ex => {
-                        console.warn("GetUpdateDetail failed:", ex);
-                        // still show available updates, with reduced detail
-                        this.setState({state: "available"});
-                    });
+                }
+            },
+            null,
+            ex => {
+                console.warn("GetUpdateDetail failed:", ex);
+                // still show available updates, with reduced detail
+                this.setState({state: "available"});
             });
     }
 
@@ -392,53 +424,50 @@ class OsUpdates extends React.Component {
         var updates = {};
         var cockpitUpdate = false;
 
-        pkTransaction()
-            .done(transProxy => {
-                transProxy.addEventListener("Package", (event, info, packageId, _summary) => {
+        pkTransaction("GetUpdates", [0], {
+                Package: (info, packageId, _summary) => {
                     let id_fields = packageId.split(";");
                     packageSummaries[id_fields[0]] = _summary;
                     updates[packageId] = {name: id_fields[0], version: id_fields[1], security: info == PK_INFO_ENUM_SECURITY};
                     if (id_fields[0] == "cockpit-ws")
                         cockpitUpdate = true;
-                });
+                },
 
-                transProxy.addEventListener("ErrorCode", (event, code, details) => {
+                ErrorCode: (code, details) => {
                     this.state.errorMessages.push(details);
                     this.setState({state: "loadError"});
-                });
-
-                transProxy.addEventListener("changed", (event, data) => {
-                    if ("Status" in data) {
-                        let waiting = (data.Status == PK_STATUS_ENUM_WAIT || data.Status == PK_STATUS_ENUM_WAITING_FOR_LOCK);
-                        if (waiting != this.state.waiting) {
-                            // to avoid flicker, we only switch to "locked" after 1s, as we will get a WAIT state
-                            // even if the package db is unlocked
-                            if (waiting) {
-                                this.setState({waiting: true});
-                                window.setTimeout(() => {!this.state.waiting || this.setState({state: "locked"})}, 1000);
-                            } else {
-                                this.setState({state: "loading", waiting: false});
-                            }
-                        }
-                    }
-                });
+                },
 
                 // when GetUpdates() finished, get the details for all packages
-                transProxy.addEventListener("Finished", () => {
-                    var pkg_ids = Object.keys(updates);
+                Finished: () => {
+                    let pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
                         this.setState({updates: updates, cockpitUpdate: cockpitUpdate});
                         this.loadUpdateDetails(pkg_ids);
                     } else {
                         this.setState({state: "uptodate"});
                     }
-                });
+                },
 
-                // read available updates; causes emission of Package and Error, doesn"t return anything by itself
-                transProxy.GetUpdates(0)
-                    .fail(this.handleLoadError);
-            })
-            .fail(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
+            },  // end pkTransaction signalHandlers
+
+            notify => {
+                if ("Status" in notify) {
+                    let waiting = (notify.Status == PK_STATUS_ENUM_WAIT || notify.Status == PK_STATUS_ENUM_WAITING_FOR_LOCK);
+                    if (waiting != this.state.waiting) {
+                        // to avoid flicker, we only switch to "locked" after 1s, as we will get a WAIT state
+                        // even if the package db is unlocked
+                        if (waiting) {
+                            this.setState({waiting: true});
+                            window.setTimeout(() => {!this.state.waiting || this.setState({state: "locked"})}, 1000);
+                        } else {
+                            this.setState({state: "loading", waiting: false});
+                        }
+                    }
+                }
+            },
+
+            ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
     }
 
     initialLoadOrRefresh() {
@@ -457,56 +486,55 @@ class OsUpdates extends React.Component {
             .fail(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
     }
 
-    watchUpdates(transProxy) {
-        this.setState({state: "applying", applyTransaction: transProxy, allowCancel: transProxy.AllowCancel});
+    watchUpdates(transactionPath) {
+        this.setState({state: "applying", applyTransaction: transactionPath, allowCancel: false});
 
-        transProxy.addEventListener("ErrorCode", (event, code, details) => this.state.errorMessages.push(details));
+        dbus_pk.call(transactionPath, "DBus.Properties", "Get", [transactionInterface, "AllowCancel"])
+            .done(reply => this.setState({allowCancel: reply[0].v}));
 
-        transProxy.addEventListener("Finished", (event, exit) => {
-            this.setState({applyTransaction: null, allowCancel: null});
+        pkWatchTransaction(transactionPath,
+            {
+                ErrorCode: (code, details) => this.state.errorMessages.push(details),
 
-            if (exit == PK_EXIT_ENUM_SUCCESS)
-                this.setState({state: "updateSuccess", haveSecurity: false, loadPercent: null});
-            else if (exit == PK_EXIT_ENUM_CANCELLED) {
-                this.setState({state: "loading", haveSecurity: false, loadPercent: null});
-                this.loadUpdates();
-            } else {
-                // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
-                if (exit != PK_EXIT_ENUM_FAILED)
-                    this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
-                this.setState({state: "updateError"});
-            }
-        });
+                Finished: exit => {
+                    this.setState({applyTransaction: null, allowCancel: null});
 
-        transProxy.addEventListener("changed", (event, data) => {
-            if ("AllowCancel" in data)
-                this.setState({allowCancel: data.AllowCancel});
-        });
+                    if (exit == PK_EXIT_ENUM_SUCCESS) {
+                        this.setState({state: "updateSuccess", haveSecurity: false, loadPercent: null});
+                    } else if (exit === PK_EXIT_ENUM_CANCELLED) {
+                        this.setState({state: "loading", loadPercent: null});
+                        this.loadUpdates();
+                    } else {
+                        // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
+                        if (exit != PK_EXIT_ENUM_FAILED)
+                            this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
+                        this.setState({state: "updateError"});
+                    }
+                },
 
-        // not working/being used in at least Fedora
-        transProxy.addEventListener("RequireRestart", (event, type, packageId) => {
-            console.log("update RequireRestart", type, packageId);
-        });
+                // not working/being used in at least Fedora
+                RequireRestart: (type, packageId) => console.log("update RequireRestart", type, packageId),
+            },
+
+            notify => {
+                if ("AllowCancel" in notify)
+                    this.setState({allowCancel: notify.AllowCancel});
+            });
     }
 
     applyUpdates(securityOnly) {
-        pkTransaction()
-            .done(transProxy =>  {
-                this.watchUpdates(transProxy);
+        var ids = Object.keys(this.state.updates);
+        if (securityOnly)
+            ids = ids.filter(id => this.state.updates[id].security);
 
-                var ids = Object.keys(this.state.updates);
-                if (securityOnly)
-                    ids = ids.filter(id => this.state.updates[id].security);
-
-                // returns immediately without value
-                transProxy.UpdatePackages(0, ids)
-                          .fail(ex => {
-                              this.state.errorMessages.push(ex.message);
-                              this.setState({state: "updateError"});
-                          });
+        pkTransaction("UpdatePackages", [0, ids], {}, null, ex => {
+                // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
+                // show this if we don't have anything else
+                if (this.state.errorMessages.length == 0)
+                    this.state.errorMessages.push(ex.message);
+                this.setState({state: "updateError"});
             })
-            // this Should Not Fail™, so don"t bother about the slightly mislabeled state here
-            .fail(this.handleLoadError);
+            .done(transactionPath => this.watchUpdates(transactionPath));
     }
 
     renderContent() {
@@ -598,27 +626,25 @@ class OsUpdates extends React.Component {
 
     handleRefresh() {
         this.setState({state: "refreshing", loadPercent: null});
-        pkTransaction()
-            .done(transProxy =>  {
-                transProxy.addEventListener("ErrorCode", (event, code, details) => this.handleLoadError(details));
-                transProxy.addEventListener("Finished", (event, exit) => {
+        pkTransaction("RefreshCache", [true], {
+                ErrorCode: (code, details) => this.handleLoadError(details),
+
+                Finished: exit => {
                     if (exit == PK_EXIT_ENUM_SUCCESS) {
                         this.setState({timeSinceRefresh: 0});
                         this.loadUpdates();
                     } else {
                         this.setState({state: "loadError"});
                     }
-                });
+                },
+            },
 
-                transProxy.addEventListener("changed", (event, data) => {
-                    if ("Percentage" in data && data.Percentage <= 100)
-                        this.setState({loadPercent: data.Percentage});
-                });
+            notify => {
+                if ("Percentage" in notify && notify.Percentage <= 100)
+                    this.setState({loadPercent: notify.Percentage});
+            },
 
-                transProxy.RefreshCache(true)
-                    .fail(this.handleLoadError);
-            })
-            .fail(this.handleLoadError);
+            this.handleLoadError);
     }
 
     handleRestart() {
@@ -638,7 +664,8 @@ class OsUpdates extends React.Component {
             <div>
                 <HeaderBar state={this.state.state} updates={this.state.updates}
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
-                           allowCancel={this.state.allowCancel} onCancel={() => this.state.applyTransaction.Cancel()} />
+                           allowCancel={this.state.allowCancel}
+                           onCancel={() => dbus_pk.call(this.state.applyTransaction, transactionInterface, "Cancel", [])} />
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>

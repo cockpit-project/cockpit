@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-28 08:11+0000\n"
+"POT-Creation-Date: 2017-07-08 18:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -159,7 +159,7 @@ msgstr ""
 msgid "$0 shares"
 msgstr "$0 공유"
 
-#: pkg/packagekit/updates.jsx:102
+#: pkg/packagekit/updates.jsx:103
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] ""
@@ -221,7 +221,7 @@ msgstr ""
 msgid "(none)"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:107
+#: pkg/packagekit/updates.jsx:108
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ""
@@ -802,10 +802,6 @@ msgstr ""
 msgid "After system boot"
 msgstr ""
 
-#: pkg/systemd/logs.html:51
-msgid "All"
-msgstr "모두"
-
 #: pkg/kubernetes/views/filter-project.html:4
 msgid "All Projects"
 msgstr ""
@@ -875,7 +871,7 @@ msgstr ""
 msgid "Applying updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:35
+#: pkg/packagekit/updates.jsx:36
 msgid "Applying updates failed"
 msgstr ""
 
@@ -981,16 +977,16 @@ msgstr ""
 msgid "Automatically using specific NTP servers"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:281
+#: pkg/machines/hostvmslist.jsx:303
 msgid "Autostart:"
 msgstr ""
 
 #: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
-#: pkg/machines/hostvmslist.jsx:316 pkg/machines/hostvmslist.jsx:327
+#: pkg/machines/hostvmslist.jsx:348 pkg/machines/hostvmslist.jsx:359
 msgid "Available"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:517
+#: pkg/packagekit/updates.jsx:533
 msgid "Available Updates"
 msgstr ""
 
@@ -1052,7 +1048,7 @@ msgstr "본드 설정"
 msgid "Boot ID"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:244
+#: pkg/machines/hostvmslist.jsx:266
 msgid "Boot Order:"
 msgstr ""
 
@@ -1081,7 +1077,7 @@ msgstr "브로트캐스트"
 msgid "Broken configuration"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:209
+#: pkg/packagekit/updates.jsx:213
 msgid "Bugs"
 msgstr ""
 
@@ -1105,7 +1101,7 @@ msgctxt "page-title"
 msgid "CPU Status"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:273
+#: pkg/machines/hostvmslist.jsx:295
 msgid "CPU Type:"
 msgstr ""
 
@@ -1181,7 +1177,7 @@ msgstr ""
 #: pkg/systemd/index.html:496 pkg/users/index.html:210 pkg/users/index.html:271
 #: pkg/users/index.html:295 pkg/users/index.html:352
 #: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
-#: pkg/packagekit/updates.jsx:125
+#: pkg/packagekit/updates.jsx:129
 msgid "Cancel"
 msgstr "취소"
 
@@ -1302,7 +1298,7 @@ msgstr ""
 msgid "Check for Updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:116
+#: pkg/packagekit/updates.jsx:120
 msgid "Check for updates"
 msgstr ""
 
@@ -1444,7 +1440,7 @@ msgid ""
 "after its buddies."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:538
+#: pkg/packagekit/updates.jsx:554
 msgid "Cockpit itself will be updated."
 msgstr ""
 
@@ -1579,6 +1575,10 @@ msgstr ""
 msgid "Confirm New Password"
 msgstr ""
 
+#: pkg/machines/components/deleteDialog.jsx:92
+msgid "Confirm deletion of $0"
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:165
 msgid "Confirm passphrase"
 msgstr ""
@@ -1634,7 +1634,7 @@ msgstr "장치에 연결 중입니다"
 msgid "Connecting..."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:426
+#: pkg/machines/hostvmslist.jsx:465
 #, fuzzy
 msgid "Connection"
 msgstr "Docker에 연결중입니다."
@@ -1662,7 +1662,7 @@ msgstr ""
 msgid "Connection will be lost"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:368
+#: pkg/machines/hostvmslist.jsx:405
 msgid "Console"
 msgstr ""
 
@@ -2045,9 +2045,11 @@ msgstr ""
 #: pkg/kubernetes/views/pvc-delete.html:15
 #: pkg/kubernetes/views/user-remove-membership.html:10
 #: pkg/networkmanager/index.html:575 pkg/ostree/index.html:38
-#: pkg/users/index.html:77 pkg/users/index.html:296 pkg/docker/details.js:276
-#: pkg/docker/image.js:141 pkg/docker/containers-view.jsx:169
-#: pkg/docker/containers-view.jsx:457 pkg/kubernetes/scripts/volumes.js:218
+#: pkg/users/index.html:77 pkg/users/index.html:296
+#: pkg/docker/containers-view.jsx:169 pkg/docker/containers-view.jsx:457
+#: pkg/docker/details.js:276 pkg/docker/image.js:141
+#: pkg/kubernetes/scripts/volumes.js:218
+#: pkg/machines/components/deleteDialog.jsx:96 pkg/machines/hostvmslist.jsx:105
 #: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:288
 #: pkg/storaged/details.jsx:105 pkg/storaged/details.jsx:166
 #: pkg/storaged/details.jsx:334 pkg/storaged/details.jsx:383
@@ -2089,6 +2091,10 @@ msgstr "프로젝트"
 msgid "Delete Selected"
 msgstr ""
 
+#: pkg/machines/components/deleteDialog.jsx:59
+msgid "Delete associated storage files:"
+msgstr ""
+
 #: pkg/kubernetes/views/imagestream-delete.html:3
 msgid "Delete image stream"
 msgstr ""
@@ -2117,7 +2123,7 @@ msgstr ""
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "RAID 장치를 제거하면 내부의 모든 데이터를 지우게 됩니다."
 
-#: pkg/docker/details.js:275 pkg/docker/containers-view.jsx:168
+#: pkg/docker/containers-view.jsx:168 pkg/docker/details.js:275
 msgid "Deleting a container will erase all data in it."
 msgstr "컨테이너를 삭제하시면, 내부의 모든 데이터도 함께 삭제됩니다. "
 
@@ -2180,7 +2186,7 @@ msgstr ""
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:210
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:214
 msgid "Details"
 msgstr ""
 
@@ -2254,7 +2260,7 @@ msgstr ""
 msgid "Disk is OK"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:367 pkg/storaged/overview.js:449
+#: pkg/machines/hostvmslist.jsx:404 pkg/storaged/overview.js:449
 #: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
 #: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
 msgid "Disks"
@@ -2373,7 +2379,7 @@ msgstr ""
 msgid "Download the MSI from $0"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:51
+#: pkg/packagekit/updates.jsx:52
 msgid "Downloading"
 msgstr ""
 
@@ -2437,7 +2443,7 @@ msgstr ""
 msgid "Emptying $target"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:271
+#: pkg/machines/hostvmslist.jsx:293
 msgid "Emulated Machine:"
 msgstr ""
 
@@ -2517,7 +2523,7 @@ msgid ""
 "time you reconnect to this machine"
 msgstr ""
 
-#: pkg/systemd/logs.html:61
+#: pkg/systemd/logs.html:69
 msgid "Entry"
 msgstr ""
 
@@ -2585,10 +2591,6 @@ msgstr ""
 msgid "Error writing kubectl config"
 msgstr ""
 
-#: pkg/systemd/logs.html:48
-msgid "Errors"
-msgstr ""
-
 #: pkg/networkmanager/index.html:800
 msgid "Ethernet MAC"
 msgstr ""
@@ -2601,7 +2603,7 @@ msgstr ""
 msgid "Ethtool"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:101
+#: pkg/systemd/logs.html:54 pkg/docker/containers-view.jsx:101
 msgid "Everything"
 msgstr ""
 
@@ -2746,11 +2748,11 @@ msgstr ""
 msgid "Force Delete"
 msgstr "강제 삭제"
 
-#: pkg/machines/hostvmslist.jsx:54
+#: pkg/machines/hostvmslist.jsx:65
 msgid "Force Restart"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:69
+#: pkg/machines/hostvmslist.jsx:80
 msgid "Force Shut Down"
 msgstr ""
 
@@ -2834,7 +2836,7 @@ msgstr ""
 msgid "GlusterFS"
 msgstr ""
 
-#: pkg/systemd/logs.js:130
+#: pkg/systemd/logs.js:195
 msgid "Go to"
 msgstr ""
 
@@ -2999,7 +3001,7 @@ msgstr ""
 msgid "Identity"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1899
+#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:276
 msgid "Ignore"
 msgstr "무시"
 
@@ -3124,15 +3126,15 @@ msgstr ""
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:248
+#: pkg/packagekit/updates.jsx:252
 msgid "Initializing..."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:529
+#: pkg/packagekit/updates.jsx:545
 msgid "Install all updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:522
+#: pkg/packagekit/updates.jsx:538
 msgid "Install security updates"
 msgstr ""
 
@@ -3144,7 +3146,7 @@ msgstr ""
 msgid "Installed products"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:52
+#: pkg/packagekit/updates.jsx:53
 msgid "Installing"
 msgstr ""
 
@@ -3267,11 +3269,11 @@ msgstr ""
 msgid "Journal"
 msgstr ""
 
-#: pkg/systemd/logs.js:257
+#: pkg/systemd/logs.js:334
 msgid "Journal entry"
 msgstr ""
 
-#: pkg/systemd/logs.js:284
+#: pkg/systemd/logs.js:365
 msgid "Journal entry not found"
 msgstr ""
 
@@ -3296,15 +3298,14 @@ msgstr ""
 msgid "Kernel"
 msgstr ""
 
+#: pkg/kdump/index.html:23
+msgid "Kernel Dump"
+msgstr ""
+
 #: pkg/kubernetes/views/node-body.html:19
 #, fuzzy
 msgid "Kernel Version"
 msgstr "버전"
-
-#: pkg/kdump/index.html:23
-#, fuzzy
-msgid "Kernel dump configuration"
-msgstr "알 수 없는 설정"
 
 #: pkg/kubernetes/views/volume-body.html:67
 msgid "Key Ring Path"
@@ -3359,7 +3360,7 @@ msgstr ""
 msgid "Last Updated"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:120
+#: pkg/packagekit/updates.jsx:124
 msgid "Last checked: $0 ago"
 msgstr ""
 
@@ -3434,11 +3435,11 @@ msgstr ""
 msgid "Load Balancing"
 msgstr ""
 
-#: pkg/systemd/logs.js:69
+#: pkg/systemd/logs.js:134
 msgid "Load earlier entries"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:36
+#: pkg/packagekit/updates.jsx:37
 msgid "Loading available updates failed"
 msgstr ""
 
@@ -3446,8 +3447,8 @@ msgstr ""
 msgid "Loading available updates, please wait..."
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:75 pkg/systemd/logs.js:90
-#: pkg/systemd/logs.js:134 pkg/systemd/logs.js:175
+#: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:140 pkg/systemd/logs.js:155
+#: pkg/systemd/logs.js:199 pkg/systemd/logs.js:240
 msgid "Loading..."
 msgstr ""
 
@@ -3569,7 +3570,7 @@ msgid "Logout Successful"
 msgstr ""
 
 #: pkg/kubernetes/views/container-page-inline.html:8
-#: pkg/kubernetes/views/container-panel.html:6 pkg/systemd/logs.html:60
+#: pkg/kubernetes/views/container-panel.html:6 pkg/systemd/logs.html:68
 msgid "Logs"
 msgstr ""
 
@@ -3701,7 +3702,7 @@ msgstr "메모리 제한"
 msgid "Memory usage:"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:262
+#: pkg/machines/hostvmslist.jsx:284
 msgid "Memory:"
 msgstr ""
 
@@ -3873,7 +3874,7 @@ msgstr ""
 #: pkg/ostree/index.html:99 pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:426 pkg/storaged/fsys-tab.jsx:71
+#: pkg/machines/hostvmslist.jsx:465 pkg/storaged/fsys-tab.jsx:71
 #: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
 #: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
@@ -3881,7 +3882,7 @@ msgstr ""
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
 #: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/packagekit/updates.jsx:207
+#: pkg/packagekit/updates.jsx:211
 msgid "Name"
 msgstr "이름"
 
@@ -4033,7 +4034,7 @@ msgstr ""
 msgid "No SELinux alerts."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:36
+#: pkg/machines/hostvmslist.jsx:47
 msgid "No VM is running or defined on this host"
 msgstr ""
 
@@ -4054,7 +4055,7 @@ msgstr "alias가 지정되지 않았습니다"
 msgid "No archive has been created."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:238
+#: pkg/machines/hostvmslist.jsx:260
 msgid "No boot device found"
 msgstr ""
 
@@ -4285,6 +4286,10 @@ msgstr "본 시스템 상의 Docker에 대한 접근 권한이 없습니다."
 msgid "Not authorized to update software on this system"
 msgstr ""
 
+#: pkg/systemd/logs.js:448
+msgid "Not authorized to upload-report"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:759
 msgid "Not available"
 msgstr "사용할 수 없습니다"
@@ -4317,10 +4322,6 @@ msgstr ""
 
 #: pkg/systemd/services.html:299
 msgid "Note"
-msgstr ""
-
-#: pkg/systemd/logs.html:50
-msgid "Notices"
 msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:13
@@ -4396,6 +4397,10 @@ msgstr[0] ""
 msgid "One Time Password"
 msgstr ""
 
+#: pkg/systemd/logs.html:58
+msgid "Only Problems"
+msgstr ""
+
 #: pkg/systemd/init.js:1140
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr ""
@@ -4449,7 +4454,7 @@ msgid "Other Options"
 msgstr ""
 
 #: pkg/docker/index.html:290 pkg/kubernetes/index.html:40
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:371
+#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:408
 msgid "Overview"
 msgstr ""
 
@@ -4462,16 +4467,16 @@ msgstr ""
 msgid "PD Name"
 msgstr "이름"
 
-#: pkg/packagekit/updates.jsx:318
+#: pkg/packagekit/updates.jsx:332
 msgid "PackageKit crashed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:316 pkg/packagekit/updates.jsx:427
-#: pkg/packagekit/updates.jsx:443
+#: pkg/packagekit/updates.jsx:330 pkg/packagekit/updates.jsx:441
+#: pkg/packagekit/updates.jsx:457
 msgid "PackageKit is not installed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:460
+#: pkg/packagekit/updates.jsx:476
 msgid "PackageKit reported error code $0"
 msgstr ""
 
@@ -4614,8 +4619,8 @@ msgstr ""
 msgid "Ping Target"
 msgstr ""
 
-#: pkg/docker/details.js:274 pkg/docker/image.js:139
-#: pkg/docker/containers-view.jsx:167 pkg/storaged/content-views.jsx:261
+#: pkg/docker/containers-view.jsx:167 pkg/docker/details.js:274
+#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:261
 #: pkg/storaged/details.jsx:100 pkg/storaged/details.jsx:160
 msgid "Please confirm deletion of $0"
 msgstr "$0 삭제를 확인해주세요"
@@ -4856,6 +4861,18 @@ msgstr ""
 
 #: pkg/shell/index.html:28
 msgid "Privileged tasks not available"
+msgstr ""
+
+#: pkg/systemd/logs.html:57
+msgid "Problems, Errors"
+msgstr ""
+
+#: pkg/systemd/logs.html:56
+msgid "Problems, Errors, Warnings"
+msgstr ""
+
+#: pkg/systemd/logs.html:55
+msgid "Problems, Errors, Warnings, Notices"
 msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:33
@@ -5143,7 +5160,7 @@ msgstr ""
 msgid "Rebase and Reboot"
 msgstr ""
 
-#: pkg/lib/journal.js:238
+#: pkg/lib/journal.js:242
 msgid "Reboot"
 msgstr ""
 
@@ -5372,6 +5389,14 @@ msgid ""
 "and remove pods when necessary."
 msgstr ""
 
+#: pkg/systemd/logs.js:450
+msgid "Reporter 'reporter-ureport' not found."
+msgstr ""
+
+#: pkg/systemd/logs.js:452
+msgid "Reporting was unsucessful. Try running `reporter-ureport -d "
+msgstr ""
+
 #: pkg/docker/index.html:677
 msgid "Repository"
 msgstr "리포지터리 "
@@ -5398,7 +5423,7 @@ msgstr "인증 중입니다"
 msgid "Reserved memory"
 msgstr ""
 
-#: pkg/docker/index.html:294 pkg/systemd/terminal.jsx:80
+#: pkg/docker/index.html:294 pkg/systemd/terminal.jsx:81
 msgid "Reset"
 msgstr ""
 
@@ -5430,7 +5455,7 @@ msgstr ""
 
 #: pkg/docker/index.html:134 pkg/systemd/index.html:136
 #: pkg/systemd/index.html:143 pkg/docker/containers-view.jsx:239
-#: pkg/machines/hostvmslist.jsx:50 pkg/systemd/shutdown.js:96
+#: pkg/machines/hostvmslist.jsx:61 pkg/systemd/shutdown.js:96
 #: pkg/systemd/shutdown.js:97 pkg/systemd/init.js:515
 msgid "Restart"
 msgstr ""
@@ -5439,12 +5464,24 @@ msgstr ""
 msgid "Restart Count"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:278
+msgid "Restart Now"
+msgstr ""
+
 #: pkg/docker/index.html:529 pkg/kubernetes/views/pod-body.html:10
 msgid "Restart Policy"
 msgstr ""
 
 #: pkg/docker/index.html:169
 msgid "Restart Policy:"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:273
+msgid "Restart Recommended"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:581
+msgid "Restarting"
 msgstr ""
 
 #: pkg/networkmanager/index.html:39
@@ -5502,7 +5539,7 @@ msgid "Routes"
 msgstr ""
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
-#: pkg/systemd/services.html:383 pkg/machines/hostvmslist.jsx:79
+#: pkg/systemd/services.html:383 pkg/machines/hostvmslist.jsx:90
 msgid "Run"
 msgstr ""
 
@@ -5638,7 +5675,7 @@ msgstr ""
 msgid "Security"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:154
+#: pkg/packagekit/updates.jsx:158
 msgid "Security Update"
 msgstr ""
 
@@ -5786,12 +5823,16 @@ msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:54
+#: pkg/packagekit/updates.jsx:55
 msgid "Setting up"
 msgstr ""
 
 #: pkg/storaged/jobs.js:130
 msgid "Setting up loop device $target"
+msgstr ""
+
+#: pkg/systemd/logs.html:47
+msgid "Severity"
 msgstr ""
 
 #: pkg/kubernetes/views/volume-body.html:139
@@ -5872,7 +5913,7 @@ msgstr ""
 msgid "Show fingerprints"
 msgstr ""
 
-#: pkg/systemd/index.html:146 pkg/machines/hostvmslist.jsx:65
+#: pkg/systemd/index.html:146 pkg/machines/hostvmslist.jsx:76
 #: pkg/systemd/shutdown.js:93 pkg/systemd/shutdown.js:94
 msgid "Shut Down"
 msgstr ""
@@ -6023,7 +6064,7 @@ msgstr ""
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:426 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:465 pkg/systemd/init.js:275
 msgid "State"
 msgstr ""
 
@@ -6220,7 +6261,7 @@ msgstr ""
 msgid "System Time"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:562
+#: pkg/packagekit/updates.jsx:591
 msgid "System is up to date"
 msgstr ""
 
@@ -6332,35 +6373,39 @@ msgstr ""
 msgid "The RAID device must be running in order to remove disks."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:130
+#: pkg/machines/hostvmslist.jsx:152
 msgid "The VM crashed."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:129
+#: pkg/machines/hostvmslist.jsx:151
 msgid "The VM is down."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:128
+#: pkg/machines/hostvmslist.jsx:150
 msgid "The VM is going down."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:126
+#: pkg/machines/hostvmslist.jsx:148
 msgid "The VM is idle."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:132
+#: pkg/machines/hostvmslist.jsx:154
 msgid "The VM is in process of dying (shut down or crash is not completed)."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:127
+#: pkg/machines/hostvmslist.jsx:149
 msgid "The VM is paused."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:125
+#: pkg/machines/components/deleteDialog.jsx:53
+msgid "The VM is running and will be forced off before deletion."
+msgstr ""
+
+#: pkg/machines/hostvmslist.jsx:147
 msgid "The VM is running."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:133
+#: pkg/machines/hostvmslist.jsx:155
 msgid "The VM is suspended by guest power management."
 msgstr ""
 
@@ -7052,12 +7097,16 @@ msgstr ""
 msgid "Update and Reboot"
 msgstr ""
 
+#: pkg/packagekit/updates.jsx:274
+msgid "Updated packages may require a restart to take effect."
+msgstr ""
+
 #: pkg/ostree/index.html:317 pkg/ostree/index.html:343
 msgid "Updates"
 msgstr ""
 
 #: pkg/ostree/index.html:262 pkg/subscriptions/subscriptions-view.jsx:187
-#: pkg/packagekit/updates.jsx:53
+#: pkg/packagekit/updates.jsx:54
 msgid "Updating"
 msgstr ""
 
@@ -7069,7 +7118,7 @@ msgstr "$0 업데이트 중..."
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:372 pkg/storaged/unrecognized-tab.jsx:40
+#: pkg/machines/hostvmslist.jsx:403 pkg/storaged/unrecognized-tab.jsx:40
 msgid "Usage"
 msgstr ""
 
@@ -7091,8 +7140,8 @@ msgstr ""
 
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
 #: pkg/kubernetes/scripts/nodes.js:828 pkg/kubernetes/scripts/nodes.js:837
-#: pkg/machines/hostvmslist.jsx:315 pkg/machines/hostvmslist.jsx:326
-#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
+#: pkg/machines/vmdiskstab.jsx:136 pkg/machines/hostvmslist.jsx:347
+#: pkg/machines/hostvmslist.jsx:358 pkg/storaged/fsys-tab.jsx:225
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1465
 msgid "Used"
 msgstr ""
@@ -7165,23 +7214,23 @@ msgstr "VLAN ID"
 msgid "VLAN Settings"
 msgstr "VLAN 설정"
 
-#: pkg/machines/libvirt.es6:188
+#: pkg/machines/libvirt.es6:176
 msgid "VM FORCE OFF action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:206
+#: pkg/machines/libvirt.es6:194
 msgid "VM FORCE REBOOT action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:197
+#: pkg/machines/libvirt.es6:185
 msgid "VM REBOOT action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:179
+#: pkg/machines/libvirt.es6:167
 msgid "VM SHUT DOWN action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:215
+#: pkg/machines/libvirt.es6:203
 msgid "VM START action failed"
 msgstr ""
 
@@ -7209,13 +7258,13 @@ msgstr ""
 msgid "Validating key"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:56
 msgid "Verifying"
 msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:208
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:212
 msgid "Version"
 msgstr "버전"
 
@@ -7223,7 +7272,7 @@ msgstr "버전"
 msgid "Very securely erasing $target"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:426
+#: pkg/machines/hostvmslist.jsx:465
 msgid "Virtual Machines"
 msgstr ""
 
@@ -7282,10 +7331,6 @@ msgstr ""
 msgid "Warning:"
 msgstr "파티션"
 
-#: pkg/systemd/logs.html:49
-msgid "Warnings"
-msgstr ""
-
 #: pkg/systemd/services.html:179
 msgid "Wednesday"
 msgstr ""
@@ -7302,7 +7347,7 @@ msgstr ""
 msgid "When"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:540
+#: pkg/packagekit/updates.jsx:556
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -7389,6 +7434,12 @@ msgstr ""
 msgid ""
 "Your login credentials do not give you access to use the docker registry "
 "from the command line."
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:582
+msgid ""
+"Your server will close the connection soon. You can reconnect after it has "
+"restarted."
 msgstr ""
 
 #: src/base1/cockpit.js:3933
@@ -7525,7 +7576,7 @@ msgstr ""
 msgid "none"
 msgstr "없음"
 
-#: pkg/machines/libvirt.es6:390
+#: pkg/machines/libvirt.es6:423
 msgid "other"
 msgstr ""
 
@@ -7605,7 +7656,7 @@ msgstr ""
 msgid "unpartitioned space on $0"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:264
+#: pkg/machines/hostvmslist.jsx:286
 msgid "vCPUs:"
 msgstr ""
 

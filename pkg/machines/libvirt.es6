@@ -304,7 +304,7 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
             logDebug(msg);
             return ;
         }
-        console.error(msg);
+        console.warn(msg);
     });
 }
 
@@ -316,7 +316,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const xmlDoc = $.parseXML(domXml);
 
     if (!xmlDoc) {
-        console.error(`Can't parse dumpxml, input: "${domXml}"`);
+        console.warn(`Can't parse dumpxml, input: "${domXml}"`);
         return ;
     }
 
@@ -410,7 +410,7 @@ function parseDumpxmlForDisks(devicesElem) {
                 disks[disk.target] = disk;
                 logDebug(`parseDumpxmlForDisks(): disk device found: ${JSON.stringify(disk)}`);
             } else {
-                console.error(`parseDumpxmlForDisks(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(disk)}`);
+                console.warn(`parseDumpxmlForDisks(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(disk)}`);
             }
         }
     }
@@ -511,7 +511,7 @@ function parseDumpxmlForConsoles(devicesElem) {
                 displays[display.type] = display;
                 logDebug(`parseDumpxmlForConsoles(): graphics device found: ${JSON.stringify(display)}`);
             } else {
-                console.error(`parseDumpxmlForConsoles(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(display)}`);
+                console.warn(`parseDumpxmlForConsoles(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(display)}`);
             }
         }
     }
@@ -581,7 +581,7 @@ function parseDomstatsForDisks(domstatsLines) {
                 allocation,
             };
         } else {
-            console.error(`parseDomstatsForDisks(): mandatory property is missing in domstats (block\.${i}\.name)`);
+            console.warn(`parseDomstatsForDisks(): mandatory property is missing in domstats (block\.${i}\.name)`);
         }
     }
     return disksStats;

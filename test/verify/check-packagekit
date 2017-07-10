@@ -318,6 +318,8 @@ class TestUpdates(MachineCase):
         b.wait_present("#app .container-fluid button")
         b.click("#app .container-fluid button")
         b.wait_in_text("#state", "Applying updates")
+        b.wait_present("#app div.progress-description")
+        b.wait_in_text("#app div.progress-description", "slow")
 
         # restarting should pick up that install progress
         m.restart_cockpit()

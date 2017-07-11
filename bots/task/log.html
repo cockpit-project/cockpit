@@ -137,7 +137,7 @@
 var tap_range = /^([0-9]+)\.\.([0-9]+)$/m;
 var tap_result = /^(ok|not ok) ([0-9]+) (.*)\)(?: duration: ([0-9]+s))?(?: # SKIP .*)?$$/gm;
 var tap_skipped = /^ok [0-9]+ ([^#].*\))(?: duration: ([^#]*))? # SKIP (.*$)/gm;
-var image_file = /([A-Za-z0-9-]+)\.(png)$/gm;
+var image_file = /([A-Za-z0-9\-\.]+)\.(png)$/gm;
 var journal_file = /(Journal extracted to )([A-Za-z0-9\-\.]+)\.(log)$/gm;
 var test_header_start = "# ----------------------------------------------------------------------"
 

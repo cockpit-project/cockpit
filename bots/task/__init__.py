@@ -42,6 +42,7 @@ __all__ = (
     "issue",
     "verbose",
     "stale",
+    "checkout",
 )
 
 api = github.GitHub()
@@ -49,6 +50,7 @@ verbose = False
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+DEVNULL = open("/dev/null", "r+")
 
 #
 # The main function takes a list of tasks, each of wihch has the following
@@ -255,7 +257,7 @@ def run(context, function, **kwargs):
         # If this is a pull request then check it out
         if pull:
             execute("git", "fetch", "origin", "pull/{0}/head".format(pull["number"]))
-            execute("git", "checkout", "--detach", pull['head']['sha'])
+            checkout(pull['head']['sha'])
 
         ret = function(context, **kwargs)
     except (RuntimeError, subprocess.CalledProcessError), ex:
@@ -268,7 +270,26 @@ def run(context, function, **kwargs):
         finish(publishing, ret, name, context, issue)
     return ret or 0
 
-def stale(days, pathspec):
+def checkout(ref):
+    if ref:
+        execute("git", "checkout", "--detach", ref)
+
+    # COMPAT: If the bots directory doesn't exist in this branch, check it out from master
+    if subprocess.call([ "git", "ls-tree", "-d", "HEAD:bots/"], stdout=DEVNULL) != 0:
+        sys.stderr.write("Checking out bots directory from master ...\n")
+        subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
+
+        # The machine code is special copy it from master too
+        machine = os.path.join(BOTS, "machine")
+        for name in os.listdir(machine):
+            path = os.path.join(machine, name)
+            if os.path.islink(path):
+                os.unlink(path)
+                code = subprocess.check_output([ "git", "show", "origin/master:test/common/{0}".format(name) ])
+                with open(path, "w") as f:
+                    f.write(code)
+
+def stale(days, pathspec, ref="HEAD"):
     global verbose
 
     def execute(*args):
@@ -279,7 +300,7 @@ def stale(days, pathspec):
             sys.stderr.write("> " + output + "\n")
         return output
 
-    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", pathspec)
+    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", ref, "--", pathspec)
     try:
         timestamp = int(timestamp)
     except ValueError:
@@ -356,13 +377,13 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, issue=None, **kwargs):
+def pull(branch, issue=None, base="master", **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
     data = {
         "head": branch,
-        "base": "master",
+        "base": base,
         "maintainer_can_modify": True
     }
     if issue:

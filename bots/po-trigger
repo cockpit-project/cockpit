@@ -20,6 +20,11 @@
 
 DAYS = 10
 
+BRANCHES = [
+    "master",
+    "rhel-7.4",
+]
+
 import argparse
 import os
 import subprocess
@@ -32,15 +37,20 @@ import task
 def main():
     parser = argparse.ArgumentParser(description="Ensure necessary issue exists for translations")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-    parser.add_argument("context", nargs="?")
+    parser.add_argument("branch", nargs="?")
     opts = parser.parse_args()
 
     task.verbose = opts.verbose
     text = "Update translations from Fedora Zanata"
 
-    if opts.context or task.stale(DAYS, "po/*.po"):
-        issue = task.issue(text, text, "po-refresh")
-        sys.stderr.write("#{0}: po-refresh\n".format(issue["number"]))
+    if opts.branch:
+        branches = [ opts.branch ]
+    else:
+        branches = BRANCHES
+    for branch in branches:
+        if task.stale(DAYS, "po/*.po", ref=branch):
+            issue = task.issue(text, text, "po-refresh", branch)
+            sys.stderr.write("#{0}: po-refresh {1}\n".format(issue["number"], branch))
 
 if __name__ == '__main__':
     sys.exit(main())

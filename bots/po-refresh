@@ -41,8 +41,16 @@ def run(context, verbose=False, **kwargs):
             sys.stderr.write("+ " + " ".join(args) + "\n")
         subprocess.check_call(args, cwd=cwd)
 
+    base = context
+    if base:
+        task.checkout("origin/{0}".format(base))
+
+    # Make sure zanata-cli and other tools use a UTF-8 encoding
+    os.environ["LANG"] = "en_US.UTF-8"
+    os.environ["LC_ALL"] = "en_US.UTF-8"
+
     # Make a tree with source ... outputs working directory
-    cmd = [ "tools/make-source", "po/cockpit.pot" ]
+    cmd = [ "bots/make-source", "po/cockpit.pot" ]
     if verbose:
         sys.stderr.write("+ " + " ".join(cmd) + "\n")
     line = subprocess.check_output(cmd, cwd=BASE)
@@ -57,7 +65,7 @@ def run(context, verbose=False, **kwargs):
     # Create a pull request from these changes
     branch = task.branch(context, "po: Update from Fedora Zanata", pathspec="po/", **kwargs)
     if branch:
-        task.pull(branch, **kwargs)
+        task.pull(branch, base=base, **kwargs)
 
 if __name__ == '__main__':
     task.main(function=run, title="Update translations from Fedora Zanata")

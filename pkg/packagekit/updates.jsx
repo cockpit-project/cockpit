@@ -341,7 +341,7 @@ class OsUpdates extends React.Component {
                     .done(roles => {
                         // any transaction with UPDATE_PACKAGES role?
                         for (let idx = 0; idx < roles.length; ++idx) {
-                            if (roles[idx].v == PK_ROLE_ENUM_UPDATE_PACKAGES) {
+                            if (roles[idx].v === PK_ROLE_ENUM_UPDATE_PACKAGES) {
                                 this.watchUpdates(transactions[idx]);
                                 return;
                             }
@@ -428,7 +428,7 @@ class OsUpdates extends React.Component {
                 Package: (info, packageId, _summary) => {
                     let id_fields = packageId.split(";");
                     packageSummaries[id_fields[0]] = _summary;
-                    updates[packageId] = {name: id_fields[0], version: id_fields[1], security: info == PK_INFO_ENUM_SECURITY};
+                    updates[packageId] = {name: id_fields[0], version: id_fields[1], security: info === PK_INFO_ENUM_SECURITY};
                     if (id_fields[0] == "cockpit-ws")
                         cockpitUpdate = true;
                 },
@@ -453,7 +453,7 @@ class OsUpdates extends React.Component {
 
             notify => {
                 if ("Status" in notify) {
-                    let waiting = (notify.Status == PK_STATUS_ENUM_WAIT || notify.Status == PK_STATUS_ENUM_WAITING_FOR_LOCK);
+                    let waiting = (notify.Status === PK_STATUS_ENUM_WAIT || notify.Status === PK_STATUS_ENUM_WAITING_FOR_LOCK);
                     if (waiting != this.state.waiting) {
                         // to avoid flicker, we only switch to "locked" after 1s, as we will get a WAIT state
                         // even if the package db is unlocked
@@ -499,7 +499,7 @@ class OsUpdates extends React.Component {
                 Finished: exit => {
                     this.setState({applyTransaction: null, allowCancel: null});
 
-                    if (exit == PK_EXIT_ENUM_SUCCESS) {
+                    if (exit === PK_EXIT_ENUM_SUCCESS) {
                         this.setState({state: "updateSuccess", haveSecurity: false, loadPercent: null});
                     } else if (exit === PK_EXIT_ENUM_CANCELLED) {
                         this.setState({state: "loading", loadPercent: null});
@@ -530,7 +530,7 @@ class OsUpdates extends React.Component {
         pkTransaction("UpdatePackages", [0, ids], {}, null, ex => {
                 // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
                 // show this if we don't have anything else
-                if (this.state.errorMessages.length == 0)
+                if (this.state.errorMessages.length === 0)
                     this.state.errorMessages.push(ex.message);
                 this.setState({state: "updateError"});
             })
@@ -630,7 +630,7 @@ class OsUpdates extends React.Component {
                 ErrorCode: (code, details) => this.handleLoadError(details),
 
                 Finished: exit => {
-                    if (exit == PK_EXIT_ENUM_SUCCESS) {
+                    if (exit === PK_EXIT_ENUM_SUCCESS) {
                         this.setState({timeSinceRefresh: 0});
                         this.loadUpdates();
                     } else {

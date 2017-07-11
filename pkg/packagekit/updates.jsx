@@ -58,7 +58,7 @@ const PK_STATUS_STRINGS = {
 
 const transactionInterface = "org.freedesktop.PackageKit.Transaction";
 
-var dbus_pk = cockpit.dbus("org.freedesktop.PackageKit", {superuser: "try", "track": true});
+var dbus_pk = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
 var packageSummaries = {};
 
 function pkWatchTransaction(transactionPath, signalHandlers, notifyHandler) {
@@ -143,16 +143,16 @@ function HeaderBar(props) {
     var lastChecked;
     var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
-        actionButton = <button className="btn btn-default" onClick={() => props.onRefresh()} >{_("Check for updates")}</button>;
+        actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for updates")}</button>;
         if (props.timeSinceRefresh !== null) {
             lastChecked = (
                 <span style={ {paddingRight: "3ex"} }>
-                    {cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize())}
+                    { cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize()) }
                 </span>
             );
         }
     } else if (props.state == "applying") {
-        actionButton = <button className="btn btn-default" onClick={() => props.onCancel()} disabled={!props.allowCancel} >{_("Cancel")}</button>;
+        actionButton = <button className="btn btn-default" onClick={props.onCancel} disabled={!props.allowCancel} >{_("Cancel")}</button>;
     }
 
     return (
@@ -174,23 +174,23 @@ function UpdateItem(props) {
 
     if (info.bug_urls && info.bug_urls.length) {
         // we assume a bug URL ends with a number; if not, show the complete URL
-        bugs = commaJoin(info.bug_urls.map(u => <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={u}>{u.match(/[0-9]+$/) || u}</a>));
+        bugs = commaJoin(info.bug_urls.map(u => <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={u} >{u.match(/[0-9]+$/) || u}</a>));
     }
 
     if (info.security) {
         security_info = (
             <p>
                 <span className="fa fa-bug security-label"> </span>
-                <span className="security-label-text">{_("Security Update") + (info.cve_urls.length ? ": " : "")}</span>
-                {commaJoin(info.cve_urls.map(u => <a href={u} rel="noopener" referrerpolicy="no-referrer" target="_blank">{u.match(/[^/=]+$/)}</a>))}
+                <span className="security-label-text">{ _("Security Update") + (info.cve_urls.length ? ": " : "") }</span>
+                { commaJoin(info.cve_urls.map(u => <a href={u} rel="noopener" referrerpolicy="no-referrer" target="_blank">{u.match(/[^/=]+$/)}</a>)) }
             </p>
         );
     }
 
     return (
         <tbody>
-            <tr className={"listing-ct-item" + (info.security ? " security" : "")}>
-                <th>{commaJoin(props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>)))}</th>
+            <tr className={ "listing-ct-item" + (info.security ? " security" : "") }>
+                <th>{ commaJoin(props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>))) }</th>
                 <td className="narrow">{info.version}</td>
                 <td className="narrow">{bugs}</td>
                 <td className="changelog">{security_info}{info.description}</td>
@@ -240,7 +240,7 @@ function UpdatesList(props) {
                     <th>{_("Details")}</th>
                 </tr>
             </thead>
-            {updates.map(id => <UpdateItem pkgNames={packageNames[id].sort()} info={props.updates[id]} />)}
+            { updates.map(id => <UpdateItem pkgNames={packageNames[id].sort()} info={props.updates[id]} />) }
         </table>
     );
 }
@@ -248,7 +248,7 @@ function UpdatesList(props) {
 class ApplyUpdates extends React.Component {
     constructor() {
         super();
-        this.state = {percentage: 0, timeRemaining: null, curStatus: null, curPackage: null};
+        this.state = { percentage: 0, timeRemaining: null, curStatus: null, curPackage: null };
     }
 
     componentDidMount() {
@@ -266,10 +266,11 @@ class ApplyUpdates extends React.Component {
                         if ("RemainingTime" in reply[0])
                             remain = reply[0].RemainingTime.v;
                         // info: see PK_STATUS_* at https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
-                        this.setState({curPackage: pfields[0] + " " + pfields[1],
-                                       curStatus: info,
-                                       percentage: percent <= 100 ? percent : 0,
-                                       timeRemaining: remain > 0 ? remain : null});
+                        this.setState({ curPackage: pfields[0] + " " + pfields[1],
+                                        curStatus: info,
+                                        percentage: percent <= 100 ? percent : 0,
+                                        timeRemaining: remain > 0 ? remain : null
+                        });
                     });
             },
         });
@@ -281,7 +282,7 @@ class ApplyUpdates extends React.Component {
         if (this.state.curPackage)
             action = (
                 <span>
-                    <strong>{PK_STATUS_STRINGS[this.state.curStatus || PK_STATUS_ENUM_UPDATE] || PK_STATUS_STRINGS[PK_STATUS_ENUM_UPDATE]}</strong>
+                    <strong>{ PK_STATUS_STRINGS[this.state.curStatus || PK_STATUS_ENUM_UPDATE] || PK_STATUS_STRINGS[PK_STATUS_ENUM_UPDATE] }</strong>
                     &nbsp;{this.state.curPackage}
                 </span>
             );
@@ -296,7 +297,7 @@ class ApplyUpdates extends React.Component {
                 </div>
                 <div className="progress progress-label-top-right">
                     <div className="progress-bar" role="progressbar" style={ {width: this.state.percentage + "%"} }>
-                        {this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null}
+                        { this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null }
                     </div>
                 </div>
             </div>
@@ -310,9 +311,9 @@ function AskRestart(props) {
             <h1>{_("Restart Recommended")}</h1>
             <p>{_("Updated packages may require a restart to take effect.")}</p>
             <div className="blank-slate-pf-secondary-action">
-                <button className="btn btn-default" onClick={() => props.onIgnore()}>{_("Ignore")}</button>
+                <button className="btn btn-default" onClick={props.onIgnore}>{_("Ignore")}</button>
                 &nbsp;
-                <button className="btn btn-primary" onClick={() => props.onRestart()}>{_("Restart Now")}</button>
+                <button className="btn btn-primary" onClick={props.onRestart}>{_("Restart Now")}</button>
             </div>
         </div>
     );
@@ -321,8 +322,8 @@ function AskRestart(props) {
 class OsUpdates extends React.Component {
     constructor() {
         super();
-        this.state = {state: "loading", errorMessages: [], updates: {}, haveSecurity: false, timeSinceRefresh: null,
-                      loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null};
+        this.state = { state: "loading", errorMessages: [], updates: {}, haveSecurity: false, timeSinceRefresh: null,
+                       loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
@@ -401,7 +402,7 @@ class OsUpdates extends React.Component {
                         u.security = true;
                     // u.restart = restart; // broken (always "1") at least in Fedora
 
-                    this.setState({updates: this.state.updates, haveSecurity: this.state.haveSecurity || u.security});
+                    this.setState({ updates: this.state.updates, haveSecurity: this.state.haveSecurity || u.security });
                 },
 
                 Finished: () => this.setState({state: "available"}),
@@ -428,7 +429,7 @@ class OsUpdates extends React.Component {
                 Package: (info, packageId, _summary) => {
                     let id_fields = packageId.split(";");
                     packageSummaries[id_fields[0]] = _summary;
-                    updates[packageId] = {name: id_fields[0], version: id_fields[1], security: info === PK_INFO_ENUM_SECURITY};
+                    updates[packageId] = { name: id_fields[0], version: id_fields[1], security: info === PK_INFO_ENUM_SECURITY };
                     if (id_fields[0] == "cockpit-ws")
                         cockpitUpdate = true;
                 },
@@ -442,7 +443,7 @@ class OsUpdates extends React.Component {
                 Finished: () => {
                     let pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
-                        this.setState({updates: updates, cockpitUpdate: cockpitUpdate});
+                        this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });
                         this.loadUpdateDetails(pkg_ids);
                     } else {
                         this.setState({state: "uptodate"});
@@ -459,9 +460,9 @@ class OsUpdates extends React.Component {
                         // even if the package db is unlocked
                         if (waiting) {
                             this.setState({waiting: true});
-                            window.setTimeout(() => {!this.state.waiting || this.setState({state: "locked"})}, 1000);
+                            window.setTimeout(() => { !this.state.waiting || this.setState({state: "locked"}) }, 1000);
                         } else {
-                            this.setState({state: "loading", waiting: false});
+                            this.setState({ state: "loading", waiting: false });
                         }
                     }
                 }
@@ -487,22 +488,22 @@ class OsUpdates extends React.Component {
     }
 
     watchUpdates(transactionPath) {
-        this.setState({state: "applying", applyTransaction: transactionPath, allowCancel: false});
+        this.setState({ state: "applying", applyTransaction: transactionPath, allowCancel: false });
 
         dbus_pk.call(transactionPath, "DBus.Properties", "Get", [transactionInterface, "AllowCancel"])
-            .done(reply => this.setState({allowCancel: reply[0].v}));
+            .done(reply => this.setState({ allowCancel: reply[0].v }));
 
         pkWatchTransaction(transactionPath,
             {
                 ErrorCode: (code, details) => this.state.errorMessages.push(details),
 
                 Finished: exit => {
-                    this.setState({applyTransaction: null, allowCancel: null});
+                    this.setState({ applyTransaction: null, allowCancel: null });
 
                     if (exit === PK_EXIT_ENUM_SUCCESS) {
-                        this.setState({state: "updateSuccess", haveSecurity: false, loadPercent: null});
+                        this.setState({ state: "updateSuccess", haveSecurity: false, loadPercent: null });
                     } else if (exit === PK_EXIT_ENUM_CANCELLED) {
-                        this.setState({state: "loading", loadPercent: null});
+                        this.setState({ state: "loading", loadPercent: null });
                         this.loadUpdates();
                     } else {
                         // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
@@ -562,14 +563,14 @@ class OsUpdates extends React.Component {
                                 <td className="text-right">
                                     { this.state.haveSecurity
                                       ? <button className="btn btn-default"
-                                                 onClick={() => this.applyUpdates(true)}>
+                                                 onClick={ () => this.applyUpdates(true) }>
                                             {_("Install security updates")}
                                          </button>
                                       : null
                                     }
                                     &nbsp; &nbsp;
                                     <button className="btn btn-primary"
-                                            onClick={() => this.applyUpdates(false)}>
+                                            onClick={ () => this.applyUpdates(false) }>
                                         {_("Install all updates")}
                                     </button>
                                 </td>
@@ -625,7 +626,7 @@ class OsUpdates extends React.Component {
     }
 
     handleRefresh() {
-        this.setState({state: "refreshing", loadPercent: null});
+        this.setState({ state: "refreshing", loadPercent: null });
         pkTransaction("RefreshCache", [true], {
                 ErrorCode: (code, details) => this.handleLoadError(details),
 
@@ -651,7 +652,7 @@ class OsUpdates extends React.Component {
         this.setState({state: "restart"})
         // give the user a chance to actually read the message
         window.setTimeout(() => {
-            cockpit.spawn(["shutdown", "--reboot", "now"], {superuser: true, err: "message"})
+            cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: true, err: "message" })
                 .fail(ex => {
                     this.state.errorMessages.push(ex);
                     this.setState({state: "updateError"});
@@ -665,7 +666,7 @@ class OsUpdates extends React.Component {
                 <HeaderBar state={this.state.state} updates={this.state.updates}
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
                            allowCancel={this.state.allowCancel}
-                           onCancel={() => dbus_pk.call(this.state.applyTransaction, transactionInterface, "Cancel", [])} />
+                           onCancel={ () => dbus_pk.call(this.state.applyTransaction, transactionInterface, "Cancel", []) } />
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>

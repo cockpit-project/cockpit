@@ -507,7 +507,7 @@ class OsUpdates extends React.Component {
                         this.loadUpdates();
                     } else {
                         // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
-                        if (exit != PK_EXIT_ENUM_FAILED)
+                        if (exit !== PK_EXIT_ENUM_FAILED)
                             this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
                         this.setState({state: "updateError"});
                     }

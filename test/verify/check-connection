@@ -91,10 +91,6 @@ class TestConnection(MachineCase):
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
-        # Debian 8 doesn't have systemd with coredump support
-        if m.image in [ "debian-stable" ]:
-            return
-
         # Lets crash a systemd-crontrolled process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
         m.execute("systemctl start systemd-hostnamed; pkill -e -SEGV systemd-hostnam")
@@ -129,7 +125,7 @@ class TestConnection(MachineCase):
         except subprocess.CalledProcessError, ex:
             m.message(ex.output)
             # Some operating systems fail SSL3 on the server side
-            if m.image in [ "debian-testing", "fedora-25", "fedora-26", "fedora-i386", "fedora-testing", "ubuntu-stable" ]:
+            if m.image in [ "debian-stable", "debian-testing", "fedora-25", "fedora-26", "fedora-i386", "fedora-testing", "ubuntu-stable" ]:
                 self.assertIn("ssl handshake failure", ex.output)
             else:
                 self.assertIn("wrong version number", ex.output)

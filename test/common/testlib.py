@@ -749,7 +749,8 @@ class MachineCase(unittest.TestCase):
     def copy_cores(self, title, label=None):
         for name, m in self.machines.iteritems():
             if m.address:
-                dest = "%s-%s-%s.core" % (label or self.label(), m.address, title)
+                directory = "%s-%s-%s.core" % (label or self.label(), m.address, title)
+                dest = os.path.abspath(directory)
                 m.download_dir("/var/lib/systemd/coredump", dest)
                 try:
                     os.rmdir(dest)

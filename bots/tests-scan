@@ -199,6 +199,7 @@ def scan_for_pull_tasks(api, update, human, policy):
             return False
         return True
 
+    branch_priority = BASELINE_PRIORITY - 3
     for branch in branch_contexts:
         ref = api.get("git/refs/heads/{0}".format(branch))
         # if the branch doesn't exist but other branches begin with this name, GitHub returns a list
@@ -210,7 +211,7 @@ def scan_for_pull_tasks(api, update, human, policy):
             which = statuses.keys() or branch_contexts[branch]
             for context in which:
                 status = statuses.get(context, { })
-                (priority, changes) = prioritize(status, "", lambda: [], 8, context)
+                (priority, changes) = prioritize(status, "", lambda: [], branch_priority, context)
                 if update_status(revision, context, status, changes):
                     results.append((priority, branch, revision, branch, context, None))
 

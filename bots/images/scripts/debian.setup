@@ -47,11 +47,13 @@ packagekit \
 "
 
 TEST_PACKAGES="\
+acl \
 curl \
 gdb \
 iproute \
 mdadm \
 qemu-kvm \
+systemd-coredump \
 virtinst \
 xfsprogs \
 "
@@ -59,16 +61,18 @@ xfsprogs \
 RELEASE=$(grep -m1 ^deb /etc/apt/sources.list | awk '{print $3}')
 case "$RELEASE" in
     stable)
+        # https://tracker.debian.org/pcp is not in Debian 9
+        COCKPIT_DEPS="${COCKPIT_DEPS/libpcp3 /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
+
         # docker.io is in backports only
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
 
     testing)
-        # https://tracker.debian.org/pcp got removed from testing
+        # https://tracker.debian.org/pcp not currently in testing
         COCKPIT_DEPS="${COCKPIT_DEPS/libpcp3 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
-
-        TEST_PACKAGES="$TEST_PACKAGES systemd-coredump"
 
         # modern udisks (after re-merging storaged)
         echo "deb http://deb.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
@@ -85,8 +89,6 @@ case "$RELEASE" in
 esac
 
 if grep -q 'ID=ubuntu' /etc/os-release; then
-    TEST_PACKAGES="$TEST_PACKAGES systemd-coredump"
-
     IPA_CLIENT_PACKAGES="$IPA_CLIENT_PACKAGES freeipa-client"
     PBUILDER_OPTS='COMPONENTS="main universe"'
 
@@ -161,6 +163,10 @@ mkdir /var/log/journal
 
 # Allow root login with password
 sed -i 's/^[# ]*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# At least debian-9 virt-install image only has RSA key
+[ -e /etc/ssh/ssh_host_ed25519_key ] || ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
+[ -e /etc/ssh/ssh_host_ecdsa_key ] || ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa
 
 # Prevent SSH from hanging for a long time when no external network access
 echo 'UseDNS no' >> /etc/ssh/sshd_config

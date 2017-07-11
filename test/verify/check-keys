@@ -69,9 +69,7 @@ class TestKeys(MachineCase):
             b.click("#add-authorized-key")
             b.wait_popdown("add-authorized-key-dialog")
 
-            # Debian-8 doesn't output comments
-            if self.machine.image != "debian-stable":
-                b.wait_in_text("#account-authorized-keys-list", comment)
+            b.wait_in_text("#account-authorized-keys-list", comment)
 
             b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
             text = b.text("#account-authorized-keys-list")
@@ -146,10 +144,7 @@ class TestKeys(MachineCase):
 
         # User can still see their keys
         login("user", "foobar", "User")
-        if m.image == "debian-stable":
-            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "rsa")
-        else:
-            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
+        b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
 
         b.click("#account-authorized-keys-list div.list-group-item:first-child button");
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")

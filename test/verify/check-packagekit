@@ -38,8 +38,8 @@ class TestUpdates(MachineCase):
         # have PackageKit start from a clean slate
         self.machine.execute("systemctl stop packagekit; rm -rf /var/cache/PackageKit")
 
-        if self.machine.image in ["ubuntu-1604", "debian-stable"]:
-            # old PackageKit+NM on Debian/Ubuntu misdetect online status with ifupdown; work around
+        if self.machine.image == "ubuntu-1604":
+            # old PackageKit+NM on Ubuntu 16.04 misdetects online status with ifupdown; work around
             # https://launchpad.net/bugs/1694438; this doesn't affect pure ifupdown systems (servers) and
             # pure NM systems (desktops)
             self.machine.execute("sed -i '/managed=/ s/false/true/' /etc/NetworkManager/NetworkManager.conf; systemctl restart NetworkManager")
@@ -135,7 +135,6 @@ class TestUpdates(MachineCase):
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
-    @skipImage("apt on Debian 8 does not yet support custom changelog servers", "debian-stable")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine

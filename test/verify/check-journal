@@ -377,6 +377,11 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b = self.browser
         m = self.machine
 
+        # start mock FAF server
+        m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
+        m.execute("setsid python /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
+        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+
         self.login_and_go("/system/logs")
 
         m.execute("setenforce 0; ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
@@ -392,11 +397,6 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present(sel)
         b.wait_visible(sel)
 
-        # If 'Reported' then skip test
-        sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
-        if b.is_present(sel):
-            return
-
         sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
         b.wait_present(sel)
         b.wait_visible(sel)
@@ -405,7 +405,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
         b.wait_present(sel)
         b.wait_visible(sel)
-        self.assertTrue("/reports/bthash/" in b.attr(sel, 'href'))
+        self.assertIn("/reports/bthash/123deadbeef", b.attr(sel, 'href'))
 
 if __name__ == '__main__':
     test_main()

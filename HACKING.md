@@ -36,6 +36,7 @@ additional header files and other components. Check
 `tools/cockpit.spec` for the concrete Fedora build dependencies.
 The following should work in a fresh Git clone:
 
+    $ sudo yum install yum-utils
     $ sudo yum-builddep tools/cockpit.spec
 
 In addition, for testing, the following dependencies are required:

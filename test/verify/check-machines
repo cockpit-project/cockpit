@@ -124,6 +124,7 @@ class TestMachines(MachineCase):
 
         # restart libvirtd
         m.execute("systemctl stop libvirtd")
+        # FIXME for debian-stable: stopping of libvirtd does not interrupt the 'virsh event --loop'
         b.wait_present("#app .blank-slate-pf")
         b.wait_visible("#app .blank-slate-pf")
         b.wait_in_text("#app .blank-slate-pf", "No VM is running")

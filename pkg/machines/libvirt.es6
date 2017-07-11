@@ -289,7 +289,10 @@ function doGetAllVms (dispatch, connectionName) {
 
         // read VM details
         return cockpit.all(vmNames.map((name) => dispatch(getVm(connectionName, name))));
-    });
+    }).fail( (ex, data) => {
+        console.warn('"virsh list" command failed, is libvirtd down? ', ex, data);
+        // event monitoring will handle pruning of VMs list - see startEventMonitor()
+        } );
 }
 
 // TODO: add configurable custom virsh attribs - i.e. libvirt user/pwd
@@ -299,12 +302,10 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
         args: VMS_CONFIG.Virsh.connections[connectionName].params.concat(args),
         failHandler,
     }).fail((ex, data, output) => {
-        const msg = `${method}() exception: '${ex}', data: '${data}', output: '${output}'`;
-        if (failHandler) {
-            logDebug(msg);
-            return ;
+        if (!failHandler) {
+            const msg = `${method}() exception: '${ex}', data: '${data}', output: '${output}'`;
+            console.warn(msg);
         }
-        console.error(msg);
     });
 }
 
@@ -702,10 +703,12 @@ function startEventMonitor(dispatch, connectionName) {
         })
         .fail(ex => {
             // this usually happens if libvirtd gets stopped or isn't running; retry connecting every 10s
+            // FIXME: on debian-stable: the process is not exited when libvirtd is stopped
             console.log("virsh event failed:", ex);
             dispatch(deleteUnlistedVMs(connectionName, []));
             dispatch(delayPolling(getAllVms(connectionName)));
-        });
+        })
+        .then(() => console.warn('virsh event monitor finished'));
 }
 
 export default LIBVIRT_PROVIDER;

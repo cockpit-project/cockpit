@@ -336,7 +336,7 @@ install-data-local:: dist/guide/html/index.html
 uninstall-local::
 	rm -rf $(DESTDIR)$(htmldir)
 
-# See tools/make-source
+# See bots/make-source
 dump-dist-gzip:
 	@echo "$(abs_builddir)/$(distdir).tar.gz"
 

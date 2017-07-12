@@ -42,7 +42,7 @@ def run(context, verbose=False, **kwargs):
         subprocess.check_call(args, cwd=cwd)
 
     # Make a tree with source ... outputs working directory
-    cmd = [ "tools/make-source", "po/cockpit.pot" ]
+    cmd = [ "bots/make-source", "po/cockpit.pot" ]
     if verbose:
         sys.stderr.write("+ " + " ".join(cmd) + "\n")
     line = subprocess.check_output(cmd, cwd=BASE)

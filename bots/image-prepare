@@ -149,7 +149,7 @@ def build_and_install(build_image, build_results, skips, args):
     completed = False
 
     # While the machine is booting, make a tarball
-    source = subprocess.check_output([ os.path.join(BASE, "tools", "make-source") ]).strip()
+    source = subprocess.check_output([ os.path.join(BOTS, "make-source") ]).strip()
 
     try:
         machine.wait_boot()

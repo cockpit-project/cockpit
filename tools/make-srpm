@@ -30,12 +30,12 @@ export MAKEFLAGS=
 export MAKELEVEL=
 export MFLAGS=
 
-base=$(cd $(dirname $0); pwd -P)
+base=$(cd $(dirname $0)/..; pwd -P)
 
 if [ -z ${1-} ]; then
-    source=$("$base/make-source")
+    source=$("$base/bots/make-source")
 else
     source="$1"
 fi
 
-exec "$base/../bots/images/scripts/lib/make-srpm" "$source"
+exec "$base/bots/images/scripts/lib/make-srpm" "$source"

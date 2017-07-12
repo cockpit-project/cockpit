@@ -139,14 +139,16 @@ def download(link, force, quiet, stores):
     if not quiet:
         cmd.remove("--silent")
         cmd.insert(1, "--progress-bar")
+    cmd.append("--output")
+    cmd.append(temp)
+    os.close(fd)
 
     try:
-        curl = subprocess.Popen(cmd, stdout=fd)
+        curl = subprocess.Popen(cmd)
         ret = curl.wait()
         if ret != 0:
             raise Exception("curl: unable to download image (returned: %s)" % ret)
 
-        os.close(fd)
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
         shutil.move(temp, dest)
     finally:

@@ -305,10 +305,10 @@ class GitHub(object):
                 # Check that the issues are past the expected date
                 if since:
                     closed = issue.get("closed_at", None)
-                    if closed and since > time.strptime(closed, "%Y-%m-%dT%H:%M:%SZ"):
+                    if closed and since > time.mktime(time.strptime(closed, "%Y-%m-%dT%H:%M:%SZ")):
                         continue
                     created = issue.get("created_at", None)
-                    if created and since > time.strptime(created, "%Y-%m-%dT%H:%M:%SZ"):
+                    if created and since > time.mktime(time.strptime(created, "%Y-%m-%dT%H:%M:%SZ")):
                         continue
 
                 result.append(issue)

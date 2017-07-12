@@ -358,7 +358,7 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, issue=None, **kwargs):
+def pull(branch, body=None, issue=None, **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
@@ -374,6 +374,8 @@ def pull(branch, issue=None, **kwargs):
             data["issue"] = int(issue)
     else:
         data["title"] = kwargs["title"]
+        if body:
+            data["body"] = body
 
     pull = api.post("pulls", data, accept=[ 422 ])
 

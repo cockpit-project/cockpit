@@ -70,15 +70,16 @@ def run(unused, verbose=False, **kwargs):
 
         # Try to close this issue
         execute("git", "checkout", "--detach", head)
-        execute("find", "bots/images/", "-name", "{0}-*".format(number), "-delete")
+        execute("find", "bots/naughty/", "-name", "{0}-*".format(number), "-delete")
 
         # Create a pull request from these changes
         title = "naughty: Close {0}".format(issue["title"])
         body = "Close and remove known issue\n\n{0}\n\nCloses #{1}".format(issue["title"], number)
-        branch = task.branch(number, title, pathspec="bots/images/", **kwargs)
+        branch = task.branch(number, title, pathspec="bots/naughty/", **kwargs)
 
         if branch:
             task.pull(branch, body=body, **kwargs)
+            break
 
 if __name__ == '__main__':
     task.main(function=run, title="Close known issues")

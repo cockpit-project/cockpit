@@ -23,6 +23,7 @@
 #  * [ ] naughty-prune
 #
 
+import math
 import os
 import sys
 import subprocess
@@ -63,22 +64,29 @@ def run(unused, verbose=False, **kwargs):
         updated = issue.get("updated_at", None)
         if not updated:
             updated = issue.get("created_at", None)
+        if not updated:
+            continue
 
         # Don't touch recently updated issues
-        if updated and since > time.mktime(time.strptime(updated, "%Y-%m-%dT%H:%M:%SZ")):
+        updated = time.mktime(time.strptime(updated, "%Y-%m-%dT%H:%M:%SZ"))
+        if since > updated:
             continue
 
         # Try to close this issue
         execute("git", "checkout", "--detach", head)
-        execute("find", "bots/images/", "-name", "{0}-*".format(number), "-delete")
+        execute("find", "bots/naughty/", "-name", "{0}-*".format(number), "-delete")
 
         # Create a pull request from these changes
         title = "naughty: Close {0}".format(issue["title"])
-        body = "Close and remove known issue\n\n{0}\n\nCloses #{1}".format(issue["title"], number)
-        branch = task.branch(number, title, pathspec="bots/images/", **kwargs)
+        days = abs(int(math.floor((since - updated) / 86400)))
+        body = "Known issue which has not occurred in {0} days\n\n{1}\n\nCloses #{2}".format(days, issue["title"], number)
+        branch = task.branch(number, "{0}\n\n{1}".format(title, body), pathspec="bots/naughty/", **kwargs)
 
         if branch:
-            task.pull(branch, body=body, **kwargs)
+            kwargs["title"] = title
+            pull = task.pull(branch, body=body, **kwargs)
+            task.comment(pull, "If you wish to keep this known issue open, then update it")
+            break
 
 if __name__ == '__main__':
     task.main(function=run, title="Close known issues")

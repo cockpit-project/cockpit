@@ -64,7 +64,6 @@
     <script>
         /* global window, $, Util, RFB, */
         "use strict";
-
         /*
             Unresolved issues when trying to bundle noVNC js files:
                 - sources are not UMD modules (so no "require()")
@@ -77,6 +76,23 @@
 
         var rfb;
         var resizeTimeout;
+
+        function ensureVisibility() {
+            setTimeout(function () {
+                var containerId = decodeURIComponent(WebUtil.getConfigVar("containerId", ""));
+                console.log("Scrolling VNC frame into view, containerId = ", containerId);
+
+                var toBeVisible = $("tr[data-row-id='" + containerId + "']", window.parent.document)[0];
+                var toBeVisibleRow = $("#" + containerId + "-row", window.parent.document)[0];
+
+                if (toBeVisible && toBeVisible.scrollIntoView) {
+                    toBeVisible.scrollIntoView(); // ensure maximal visibility of the VNC iframe + VM-controls
+                    toBeVisibleRow.scrollIntoView(); // ensure the VM's name is visible
+                } else {
+                    console.log('scrollIntoView() is not supported');
+                }
+            }, 50);
+        }
 
         function UIresize() {
             var containerId = decodeURIComponent(WebUtil.getConfigVar('containerId', ''));
@@ -91,10 +107,17 @@
             if (WebUtil.getConfigVar('resize', false)) {
                 var height = ($D('noVNC_canvas').height + 60)+ "px";
                 console.log('Resizing noVNC, height = ', height);
-                $("#" + containerId, window.parent.document)[0].style.height = height;
+
+                var novncContainerId = "#" + containerId + "-novnc-frame-container";
+                var novncContainer = $(novncContainerId, window.parent.document)[0];
+                novncContainer.style.height = height;
+
                 // no need to resize width - already 100%, potential scrollbar
+
+                ensureVisibility();
             }
         }
+
         function FBUComplete(rfb, fbu) {
             UIresize();
             rfb.set_onFBUComplete(function() { });

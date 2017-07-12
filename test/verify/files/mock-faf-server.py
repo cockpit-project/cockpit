@@ -4,6 +4,7 @@
 import cgi
 import json
 import BaseHTTPServer
+import sys
 
 class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_POST(self):

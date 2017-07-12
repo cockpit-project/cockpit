@@ -36,6 +36,7 @@ import github
 import sink
 
 __all__ = (
+    "api",
     "main",
     "run",
     "pull",
@@ -335,14 +336,15 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     url = "https://{0}@github.com/{1}/cockpit".format(api.token, user)
     clean = "https://github.com/{0}/cockpit".format(user)
 
+    execute("git", "add", "--", pathspec)
+    execute("git", "checkout", "--detach")
+
     # If there's nothing to add at that pathspec return None
     try:
-        execute("git", "add", "--", pathspec)
+        execute("git", "commit", "-m", message)
     except subprocess.CalledProcessError:
         return None
 
-    execute("git", "checkout", "--detach")
-    execute("git", "commit", "-m", message)
     execute("git", "push", url, "+HEAD:refs/heads/{0}".format(branch))
 
     # Comment on the issue if present
@@ -356,7 +358,7 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, issue=None, **kwargs):
+def pull(branch, body=None, issue=None, **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
@@ -372,6 +374,8 @@ def pull(branch, issue=None, **kwargs):
             data["issue"] = int(issue)
     else:
         data["title"] = kwargs["title"]
+        if body:
+            data["body"] = body
 
     pull = api.post("pulls", data)
 

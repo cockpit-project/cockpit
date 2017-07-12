@@ -82,6 +82,11 @@ def run(package, verbose=False, **kwargs):
 
     for package in packages:
 
+        # Don't try and upgrade http path specific dependencies
+        version = data["dependencies"][package]
+        if version[0].isalpha():
+            continue
+
         # Run npm upgrade for our package
         execute("npm", "upgrade", "--save", package)
 

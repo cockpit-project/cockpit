@@ -337,14 +337,15 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     url = "https://{0}@github.com/{1}/cockpit".format(api.token, user)
     clean = "https://github.com/{0}/cockpit".format(user)
 
+    execute("git", "add", "--", pathspec)
+    execute("git", "checkout", "--detach")
+
     # If there's nothing to add at that pathspec return None
     try:
-        execute("git", "add", "--", pathspec)
+        execute("git", "commit", "-m", message)
     except subprocess.CalledProcessError:
         return None
 
-    execute("git", "checkout", "--detach")
-    execute("git", "commit", "-m", message)
     execute("git", "push", url, "+HEAD:refs/heads/{0}".format(branch))
 
     # Comment on the issue if present

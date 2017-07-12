@@ -23,7 +23,9 @@ import datetime
 import fnmatch
 import re
 import os
+import socket
 import sys
+import traceback
 
 sys.dont_write_bytecode = True
 
@@ -46,11 +48,15 @@ def main():
         if trace:
             number = check_known_issue(api, trace, opts.image)
     except RuntimeError, ex:
-        sys.stderr.write("image-naughty: {0}\n".format(ret))
+        sys.stderr.write("image-naughty: {0}\n".format(ex))
         return 1
 
     if number:
-        post_github(api, number, trace, opts.image)
+        try:
+            post_github(api, number, trace, opts.image)
+        except socket.error:
+            traceback.print_exc()
+            sys.stderr.write("image-naughty: posting update to GitHub failed\n")
         sys.stdout.write("{0}\n".format(number))
     return 0;
 

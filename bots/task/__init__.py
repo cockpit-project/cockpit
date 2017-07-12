@@ -373,7 +373,13 @@ def pull(branch, issue=None, **kwargs):
     else:
         data["title"] = kwargs["title"]
 
-    pull = api.post("pulls", data)
+    pull = api.post("pulls", data, accept=[ 422 ])
+
+    # If we were refused to grant maintainer_can_modify, then try without
+    if "errors" in pull:
+        if pull["errors"][0]["field"] == "fork_collab":
+            data["maintainer_can_modify"] = False
+        pull = api.post("pulls", data)
 
     # Update the issue if it is a dict
     if issue:

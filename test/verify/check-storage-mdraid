@@ -22,6 +22,11 @@ import parent
 from testlib import *
 from storagelib import *
 
+
+def info_field(name):
+    return '#detail-header tr:contains("%s") td:nth-child(2)' % name
+
+
 class TestStorage(StorageCase):
     def tearDown(self):
         # HACK - for debugging https://github.com/cockpit-project/cockpit/issues/2924
@@ -59,8 +64,30 @@ class TestStorage(StorageCase):
         self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
 
     def raid_default_action(self, action):
-        self.browser.wait_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
-        self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group')
+        def do_click():
+            self.browser.wait_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
+            self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group')
+
+        do_click()
+
+        if action == "Stop":
+            # right after assembling an array the device might be busy from
+            # udev rules probing or the mdadm monitor; retry a few times
+            for retry in range(3):
+                try:
+                    self.browser.wait_in_text(info_field("State"), "Not running")
+                    break
+                except Error, ex:
+                    if not ex.msg.startswith('timeout'):
+                        raise
+                    self.browser.wait_present(".modal-dialog")
+                    self.browser.wait_visible(".modal-dialog")
+                    self.browser.wait_in_text(".modal-dialog", "Error stopping RAID array /dev/md127")
+                    self.browser.click(".modal-dialog div.modal-footer button.btn-default")
+                    self.browser.wait_not_visible(".modal-dialog")
+                    do_click()
+            else:
+                self.fail("Timed out waiting for array to get stopped")
 
     def testRaid(self):
         m = self.machine
@@ -104,9 +131,6 @@ class TestStorage(StorageCase):
         self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
                            "QEMU QEMU HARDDISK (DISK2)": "In Sync",
                            "QEMU QEMU HARDDISK (DISK3)": "In Sync" })
-
-        def info_field(name):
-            return '#detail-header tr:contains("%s") td:nth-child(2)' % name
 
         def wait_degraded_state(is_degraded):
             degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"

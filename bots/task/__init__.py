@@ -36,6 +36,7 @@ import github
 import sink
 
 __all__ = (
+    "api",
     "main",
     "run",
     "pull",

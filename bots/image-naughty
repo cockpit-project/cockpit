@@ -46,7 +46,7 @@ def main():
         if trace:
             number = check_known_issue(api, trace, opts.image)
     except RuntimeError, ex:
-        sys.stderr.write("image-naughty: {0}\n".format(ret))
+        sys.stderr.write("image-naughty: {0}\n".format(ex))
         return 1
 
     if number:

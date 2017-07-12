@@ -78,6 +78,10 @@ def mockServer():
                 content_len = int(self.headers.getheader('content-length'))
                 data = json.loads(self.rfile.read(content_len))
                 self.replyJson(data)
+            elif self.path == "/repos/project/repo/issues/1234/comments":
+                content_len = int(self.headers.getheader('content-length'))
+                data = json.loads(self.rfile.read(content_len))
+                self.replyJson(data)
             else:
                 self.send_error(405, 'Method not allowed: ' + self.path)
 
@@ -128,6 +132,10 @@ class TestTask(unittest.TestCase):
         pull = task.pull("user:branch", body="This is the body", **args)
         self.assertEqual(pull["title"], "Task title")
         self.assertEqual(pull["body"], "This is the body")
+
+    def testComment(self):
+        comment = task.comment(1234, "This is the comment")
+        self.assertEqual(comment["body"], "This is the comment")
 
 if __name__ == '__main__':
     unittest.main()

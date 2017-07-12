@@ -58,6 +58,11 @@ def execute(*args):
         sys.stderr.write("+ " + " ".join(args) + "\n")
     subprocess.check_call(args, cwd=BASE)
 
+def output(*args):
+    if task.verbose:
+        sys.stderr.write("+ " + " ".join(args) + "\n")
+    return subprocess.check_output(args, cwd=BASE)
+
 def run(package, verbose=False, **kwargs):
     # Force all current dependencies in place
     execute("npm", "install")
@@ -93,9 +98,15 @@ def run(package, verbose=False, **kwargs):
             title = "package.json: Update {0} package dependency".format(package)
             branch = task.branch(package, title, pathspec="package.json", **kwargs)
 
+            # List of files that probably touch this package
+            lines = output("git", "grep", "{0}/".format(package))
+            comment = "Please manually check features related to these files:\n\n```{0}```".format(lines)
+
             if branch:
                 kwargs["title"] = title
-                task.pull(branch, **kwargs)
+                pull = task.pull(branch, **kwargs)
+
+                task.comment(pull, comment)
                 break
 
 if __name__ == '__main__':

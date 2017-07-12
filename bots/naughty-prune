@@ -69,7 +69,7 @@ def run(unused, verbose=False, **kwargs):
 
         # Don't touch recently updated issues
         updated = time.mktime(time.strptime(updated, "%Y-%m-%dT%H:%M:%SZ"))
-        if since > updated:
+        if updated > since:
             continue
 
         # Try to close this issue
@@ -78,7 +78,7 @@ def run(unused, verbose=False, **kwargs):
 
         # Create a pull request from these changes
         title = "naughty: Close {0}".format(issue["title"])
-        days = abs(int(math.floor((since - updated) / 86400)))
+        days = int(math.floor((since - updated) / 86400))
         body = "Known issue which has not occurred in {0} days\n\n{1}\n\nCloses #{2}".format(days, issue["title"], number)
         branch = task.branch(number, "{0}\n\n{1}".format(title, body), pathspec="bots/naughty/", **kwargs)
 

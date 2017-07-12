@@ -40,6 +40,7 @@ __all__ = (
     "main",
     "run",
     "pull",
+    "comment",
     "issue",
     "verbose",
     "stale",
@@ -388,3 +389,10 @@ def pull(branch, body=None, issue=None, **kwargs):
             pass
 
     return pull
+
+def comment(issue, comment):
+    if "number" in issue:
+        number = issue["number"]
+    else:
+        number = issue
+    pull = api.post("issues/{0}/comments".format(number), { "body": comment })

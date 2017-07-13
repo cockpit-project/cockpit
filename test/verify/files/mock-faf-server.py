@@ -45,10 +45,11 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
                     'reporter': 'Bugzilla'
                 }
             ],
-            'result': False
+            'result': Handler.known.next()
         }
         json.dump(response, self.wfile, indent=2)
 
 PORT = 12345
+Handler.known = [True, False].__iter__()
 httpd = BaseHTTPServer.HTTPServer(("", PORT), Handler)
 httpd.serve_forever()

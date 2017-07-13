@@ -132,7 +132,7 @@ def download(link, force, quiet, stores):
             sys.stderr.write(" > {0}\n".format(urlparse.urljoin(message, name)))
         break
 
-    (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=DATA)
+    (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=os.path.dirname(dest))
 
     # Adjust the command above that worked to make it visible and download real stuff
     cmd.remove("--head")

@@ -124,10 +124,11 @@ class TestDockerStorage(MachineCase):
                     'MIN_DATA_SIZE=80M\n')
 
         def check_loopback(val):
+            # We pass the output through logger to diagnose flakey issues
             if val:
-                m.execute("losetup -l -O BACK-FILE | grep -q /var/lib/docker")
+                m.execute("losetup -l -O BACK-FILE | logger -s 2>&1 | grep -q /var/lib/docker")
             else:
-                m.execute("! (losetup -l -O BACK-FILE | grep -q /var/lib/docker)")
+                m.execute("! (losetup -l -O BACK-FILE | logger -s 2>&1 | grep -q /var/lib/docker)")
 
         def check_atomic_vgroup(val):
             if val:

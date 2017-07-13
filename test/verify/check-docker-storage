@@ -54,7 +54,7 @@ def initially_loopbacked(machine):
         return False
 
     # use the overlayfs driver by default on some distros
-    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-26" ]:
+    if machine.image in [ "debian-stable", "ubuntu-1604", "ubuntu-stable", "fedora-26" ]:
         return False
 
     # The rest don't have space in the root volume group, or don't

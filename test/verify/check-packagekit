@@ -227,7 +227,6 @@ class TestUpdates(MachineCase):
         # history on restart page should show the two security updates
         b.wait_present(".expander-title span")
         b.click(".expander-title span")
-        b.wait_present("ul")
         assertHistory("ul", ["secdeclare", "secparse"])
 
         # ignore restarting

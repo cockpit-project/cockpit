@@ -59,7 +59,7 @@ CONSOLE_XML="""
 """
 
 DOMAIN_XML="""
-<domain type='kvm'>
+<domain type='qemu'>
   <name>{name}</name>
   <vcpu>1</vcpu>
   <os>
@@ -178,6 +178,8 @@ class TestMachines(MachineCase):
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
+
+        self.allow_journal_messages('.*denied.*search.*"qemu-system-x86".*dev="proc".*')
 
         return args
 

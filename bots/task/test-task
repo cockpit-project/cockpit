@@ -73,6 +73,14 @@ def mockServer():
             else:
                 self.send_error(404, 'Mock Not Found: ' + self.path)
 
+        def do_POST(self):
+            if self.path == "/repos/project/repo/issues/1234/comments":
+                content_len = int(self.headers.getheader('content-length'))
+                data = json.loads(self.rfile.read(content_len))
+                self.replyJson(data)
+            else:
+                self.send_error(405, 'Method not allowed: ' + self.path)
+
     httpd = BaseHTTPServer.HTTPServer(ADDRESS, Handler)
     httpd.data = data
 
@@ -114,6 +122,10 @@ class TestTask(unittest.TestCase):
         ret = task.run("my-context", function, name="blah", title="Task title", issue=3333)
         self.assertEqual(ret, 0)
         self.assertTrue(status["ran"])
+
+    def testComment(self):
+        comment = task.comment(1234, "This is the comment")
+        self.assertEqual(comment["body"], "This is the comment")
 
 if __name__ == '__main__':
     unittest.main()

@@ -65,6 +65,8 @@ case "$RELEASE" in
         COCKPIT_DEPS="${COCKPIT_DEPS/libpcp3 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
 
+        echo 'deb http://security.debian.org/debian-security stable updates/main' >> /etc/apt/sources.list
+
         # docker.io is in backports only
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
@@ -102,6 +104,7 @@ echo admin:foobar | chpasswd
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get -y update
+DEBIAN_FRONTEND=noninteractive eatmydata apt-get -y dist-upgrade
 eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 [ -z "$COCKPIT_DEPS_EXPERIMENTAL" ] || eatmydata apt-get -y install $COCKPIT_DEPS_EXPERIMENTAL
 

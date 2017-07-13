@@ -147,7 +147,8 @@ def download(link, force, quiet, stores):
         curl = subprocess.Popen(cmd)
         ret = curl.wait()
         if ret != 0:
-            raise Exception("curl: unable to download image (returned: %s)" % ret)
+            real_url = urlparse.urljoin("{0}://{1}:{2}{3}".format(url.scheme, sockaddr[0], sockaddr[1], url.path), name)
+            raise Exception("curl: unable to download %s (returned: %s)" % (real_url, ret))
 
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
         shutil.move(temp, dest)

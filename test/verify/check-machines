@@ -181,11 +181,11 @@ class TestMachines(MachineCase):
 
         return args
 
-    def testBasic(self):
+    def testState(self):
         b = self.browser
         m = self.machine
-
-        args = self.startVm("subVmTest1")
+        name = "subVmTest1"
+        args = self.startVm(name)
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -194,9 +194,6 @@ class TestMachines(MachineCase):
         b.click("tbody tr th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
-
-        xml = DOMAIN_XML.format(**args)
-        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))

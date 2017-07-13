@@ -107,6 +107,14 @@ def mockKill(child):
     os.kill(child, signal.SIGTERM)
     os.waitpid(child, 0)
 
+class TestLogger(object):
+    def __init__(self):
+        self.data = ""
+
+    # Yes, we open the file each time
+    def write(self, value):
+        self.data = self.data + value
+
 class TestGitHub(unittest.TestCase):
     def setUp(self):
         self.child = mockServer()
@@ -128,19 +136,18 @@ class TestGitHub(unittest.TestCase):
 
     def testLog(self):
         api = github.GitHub("http://127.0.0.8:9898", cacher=cache.Cache(self.temp))
+        api.log = TestLogger()
 
         api.get("/test/user")
+        api.cache.mark(time.time() + 1)
         api.get("/test/user")
 
         expect = '127.0.0.8:9898 - - * "GET /test/user HTTP/1.1" 200 -\n' + \
                  '127.0.0.8:9898 - - * "GET /test/user HTTP/1.1" 304 -\n'
-        hostname = socket.gethostname().split(".")[0]
-        month = time.strftime("%Y%m")
-        with open(os.path.join(self.temp, "{0}-{1}.log".format(hostname, month))) as f:
-            log = f.read()
-            match = fnmatch.fnmatch(log, expect)
+
+        match = fnmatch.fnmatch(api.log.data, expect)
         if not match:
-            self.fail("'{0}' did not match '{1}'".format(log, expect))
+            self.fail("'{0}' did not match '{1}'".format(api.log.data, expect))
 
     def testIssuesSince(self):
         api = github.GitHub("http://127.0.0.8:9898/")

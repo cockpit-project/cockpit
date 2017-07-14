@@ -30,6 +30,77 @@ tr.security.listing-ct-item {
     border-bottom: 1px solid #e0e0e0;
 }
 
+
+/* Reformat table for narrow widths */
+@media screen and (max-width: 640px) {
+    .listing-ct {
+        /* counteract .container-fluid */
+        margin: 0 0 0 -20px;
+        width: 100vw;
+        overflow: hidden;
+    }
+    .listing-ct thead {
+        display: none;
+    }
+    .listing-ct-item {
+        display: block;
+        width: 100vw;
+    }
+    .listing-ct-item th,
+    .listing-ct-item td {
+        display: block;
+        width: 100%;
+        max-width: 100% !important;
+        padding: 10px 15px !important;
+    }
+    .listing-ct-item th + td,
+    .listing-ct-item td + td {
+        padding-top: 0 !important;
+    }
+}
+
+@media screen and (min-width: 641px) {
+    tr.listing-ct-item td.changelog {
+        width: 80ex;
+        white-space: pre-line;
+     }
+
+     .listing-ct-item td.narrow:nth-child(2) {
+         max-width: 25ex;
+    }
+}
+
+@media screen and (min-width: 641px) and (max-width: 1150px) {
+    .listing-ct-item th {
+        min-width: 30%;
+    }
+
+    /* This really should be .update-bugs or similar */
+    .listing-ct-item td.narrow:nth-child(3) {
+        min-width: 19ex;
+        width: 20ex;
+    }
+    /* Basically children of the above, but break before the odd bug links */
+    .listing-ct-item td.narrow:nth-child(3) a:nth-child(odd):before {
+        display: block;
+        content: '';
+    }
+}
+
+@media screen and (min-width: 1151px) {
+    /* This really should be .update-bugs or similar */
+    .listing-ct-item td.narrow:nth-child(3) {
+        min-width: 36ex;
+        width: 38ex;
+    }
+    /* Basically children of the above, but break before the odd bug links */
+    .listing-ct-item td.narrow:nth-child(3) a:nth-child(4n+5):before {
+        display: block;
+        content: '';
+    }
+}
+
+
 .security-label {
     color: darkred;
 }

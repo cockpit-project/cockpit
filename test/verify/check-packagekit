@@ -155,7 +155,7 @@ class TestUpdates(MachineCase):
         # security fix with proper CVE list and severity
         self.createPackage("secdeclare", "3", "4.a1", install=True)
         self.createPackage("secdeclare", "3", "4.b1", severity="security",
-                           changes="stop kittens from dying", cves=['CVE-2016-0001'])
+                           changes="Will crash your data center", cves=['CVE-2016-0001'])
         # security fix with parsing from changes
         self.createPackage("secparse", "4", "1", install=True)
         self.createPackage("secparse", "4", "2", changes="Fix CVE-2017-0001 and CVE-2017-0002.")
@@ -180,7 +180,7 @@ class TestUpdates(MachineCase):
         self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(3) span.security-label-text"),
                          "Security Update: ")
         desc = b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(3)")
-        self.assertIn("stop kittens from dying", desc)
+        self.assertIn("Will crash your data center", desc)
         self.assertIn("CVE-2016-0001", desc)
 
         # secparse should also be considered a security update as the changelog mentions CVEs
@@ -296,6 +296,88 @@ class TestUpdates(MachineCase):
         assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         self.allow_restart_journal_messages()
+
+    def testInfoTruncation(self):
+        b = self.browser
+        m = self.machine
+
+        # update with not too many binary packages
+        for i in range(8):
+            self.createPackage("coarse{:02}".format(i), "1", "1", install=True)
+            self.createPackage("coarse{:02}".format(i), "1", "2", changes="make it greener")
+
+        # update with lots of binary packages
+        for i in range(25):
+            self.createPackage("fine{:02}".format(i), "1", "1", install=True)
+            self.createPackage("fine{:02}".format(i), "1", "2", changes="make it better")
+
+        # update with long changelog
+        long_changelog = ""
+        for i in range(30):
+            long_changelog += " - Things change #{:02}\n".format(i)
+        self.createPackage("verbose", "1", "1", install=True)
+        self.createPackage("verbose", "1", "2", changes=long_changelog)
+
+        # update with lots of packages and long changelog
+        for i in range(20):
+            self.createPackage("wide-n-tall{:02}".format(i), "3", "1", install=True)
+            self.createPackage("wide-n-tall{:02}".format(i), "3", "2", changes=long_changelog)
+
+        self.enableRepo()
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+
+        b.wait_present("table.listing-ct")
+        b.wait_in_text("table.listing-ct", "Things change #05")
+
+        # "coarse" package list should be complete
+        t = b.text("#app .listing-ct tbody:nth-of-type(1) th")
+        self.assertIn("coarse00", t)
+        self.assertIn("coarse07", t)
+        self.assertNotIn("more", t)
+
+        # "fine" package list should be truncated
+        t = b.text("#app .listing-ct tbody:nth-of-type(2) th")
+        self.assertIn("fine00", t)
+        self.assertIn("fine10", t)
+        self.assertNotIn("fine20", t)
+        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th a")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th a", "10 more")
+
+        # verbose changelog should be truncated
+        t = b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3)")
+        self.assertIn("Things change #00", t)
+        self.assertIn("Things change #04", t)
+        self.assertNotIn("Things change #07", t)
+        self.assertNotIn("Things change #20", t)
+        b.wait_present("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) a")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) a", "More information")
+
+        # wide-n-tall package list and changelog should both be truncated
+        t = b.text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3)")
+        self.assertIn("Things change #04", t)
+        self.assertNotIn("Things change #07", t)
+        b.wait_present("#app .listing-ct tbody:nth-of-type(4) th a")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) th a", "5 more")
+        b.wait_present("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3) a")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3) a", "More information")
+
+        # expand fine package list by clicking on the "more" link
+        b.click("#app .listing-ct tbody:nth-of-type(2) th a")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "fine24")
+        b.wait_not_present("#app .listing-ct tbody:nth-of-type(2) th a")
+
+        # expand verbose changelog by clicking on he truncated text
+        b.click("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) div")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3)", "Things change #29")
+        b.wait_not_present("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) a")
+
+        # clicking on package list should also expand changelog
+        b.click("#app .listing-ct tbody:nth-of-type(4) th a")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) th", "wide-n-tall19")
+        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3)", "Things change #29")
+        b.wait_not_present("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3) a")
 
     def testUpdateError(self):
         b = self.browser

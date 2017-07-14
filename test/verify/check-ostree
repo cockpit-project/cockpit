@@ -61,17 +61,16 @@ def ensure_remote_http_port (m, remote="local"):
 
 def start_trivial_httpd(m, remote="local", location=REPO_LOCATION):
     port = ensure_remote_http_port (m, remote)
-    script = "cd {0}\nsetsid python -m SimpleHTTPServer {1} >/dev/null 2>&1 < /dev/null &\necho $!".format(location, port)
-    result = m.execute(script=script,
-                       environment={"PYTHONUNBUFFERED" : "1"})
+    script = "PYTHONUNBUFFERED=1\ncd {0}\npython -m SimpleHTTPServer {1}".format(location, port)
+    pid = m.spawn(script, "trivial-httpd")
 
     m.execute(["ostree", "summary", "--repo={}".format(location), "-u"])
     m.wait_for_cockpit_running(port=port)
-    return result.strip()
+    return pid
 
 def stop_trivial_httpd(m, pid):
     if pid:
-        m.execute(["kill", pid])
+        m.execute(["kill", str(pid)])
 
 def generate_new_commit(m, pkg_to_remove):
     # Make one change of each type to a new rpm tree

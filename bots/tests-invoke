@@ -166,9 +166,9 @@ class PullTask(object):
             traceback.print_exc()
             return "Rebase failed"
 
-        # COMPAT: If the bots directory doesn't exist in this branch, check it out from master
+        # Always use bots/ and test images from master
         try:
-            if subprocess.call([ "git", "ls-tree", "-d", "HEAD:bots/"], stdout=DEVNULL) != 0:
+            if self.base and self.base != "master":
                 sys.stderr.write("Checking out bots directory from master ...\n")
                 subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
 

@@ -192,36 +192,77 @@ function HeaderBar(props) {
     );
 }
 
-function UpdateItem(props) {
-    const info = props.info;
-    var bugs = null;
-    var security_info = null;
-
-    if (info.bug_urls && info.bug_urls.length) {
-        // we assume a bug URL ends with a number; if not, show the complete URL
-        bugs = insertCommas(info.bug_urls.map(u => <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={u} >{u.match(/[0-9]+$/) || u}</a>));
+class UpdateItem extends React.Component {
+    constructor() {
+        super();
+        this.state = {expanded: false};
     }
 
-    if (info.security) {
-        security_info = (
-            <p>
-                <span className="fa fa-bug security-label"> </span>
-                <span className="security-label-text">{ _("Security Update") + (info.cve_urls.length ? ": " : "") }</span>
-                { insertCommas(info.cve_urls.map(u => <a href={u} rel="noopener" referrerpolicy="no-referrer" target="_blank">{u.match(/[^/=]+$/)}</a>)) }
-            </p>
+    render() {
+        const info = this.props.info;
+        var bugs = null;
+        var security_info = null;
+
+        if (info.bug_urls && info.bug_urls.length) {
+            // we assume a bug URL ends with a number; if not, show the complete URL
+            bugs = insertCommas(info.bug_urls.map(url => (
+                <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={url}>
+                    {url.match(/[0-9]+$/) || url}
+                </a>)
+            ));
+        }
+
+        if (info.security) {
+            security_info = (
+                <p>
+                    <span className="fa fa-bug security-label"> </span>
+                    <span className="security-label-text">{ _("Security Update") + (info.cve_urls.length ? ": " : "") }</span>
+                    { insertCommas(info.cve_urls.map(url => (
+                        <a href={url} rel="noopener" referrerpolicy="no-referrer" target="_blank">
+                            {url.match(/[^/=]+$/)}
+                        </a>)
+                      )) }
+                </p>
+            );
+        }
+
+        /* truncate long package list by default */
+        var pkgList = this.props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>));
+        var pkgs;
+        if (!this.state.expanded && pkgList.length > 15) {
+            pkgs = (
+                <div onClick={ () => this.setState({expanded: true}) }>
+                    {insertCommas(pkgList.slice(0, 15))}
+                    <a className="info-expander">{ cockpit.format(_("$0 more…"), pkgList.length - 15) }</a>
+                </div>);
+        } else {
+            pkgs = insertCommas(pkgList);
+        }
+
+        /* truncate long description by default */
+        var descLines = (info.description || "").trim().split("\n");
+        var desc;
+        if (!this.state.expanded && descLines.length > 7) {
+            desc = (
+                <div onClick={ () => this.setState({expanded: true}) }>
+                    {descLines.slice(0, 6).join("\n")}
+                    <a>{_("More information…")}</a>
+                </div>);
+        } else {
+            desc = info.description;
+        }
+
+        return (
+            <tbody>
+                <tr className={ "listing-ct-item" + (info.security ? " security" : "") }>
+                    <th>{pkgs}</th>
+                    <td className="narrow">{info.version}</td>
+                    <td className="narrow">{bugs}</td>
+                    <td className="changelog">{security_info}{desc}</td>
+                </tr>
+            </tbody>
         );
     }
-
-    return (
-        <tbody>
-            <tr className={ "listing-ct-item" + (info.security ? " security" : "") }>
-                <th>{ insertCommas(props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>))) }</th>
-                <td className="narrow">{info.version}</td>
-                <td className="narrow">{bugs}</td>
-                <td className="changelog">{security_info}{info.description}</td>
-            </tr>
-        </tbody>
-    );
 }
 
 function UpdatesList(props) {

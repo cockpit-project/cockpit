@@ -245,13 +245,17 @@ class TestMachines(MachineCase):
         if args["logfile"] is not None:
             wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])))
 
+        # Wait for the system to completely start
+        if args["logfile"] is not None:
+            wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])))
+
         # click the Send Non-Maskable Interrupt button (no change in VM state is expected)
-        b.wait_visible("{0}-sendNMI".format(self.vm1_id))
-        b.click("{0}-sendNMI".format(self.vm1_id)) # click the Send Non-Maskable Interrupt button
-        b.wait_in_text("{0}-state".format(self.vm1_id), "running")
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-sendNMI")
+        b.click("#vm-subVmTest1-sendNMI")
 
         if args["logfile"] is not None:
-            wait(lambda: "NMI" in self.machine.execute("cat {0}".format(args["logfile"])))
+            wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")

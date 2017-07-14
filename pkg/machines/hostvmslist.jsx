@@ -54,13 +54,6 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
     const id = vmId(vm.name);
     const state = vm.state;
 
-    let sendNMI = null;
-    if (config.provider.canSendNMI && config.provider.canSendNMI(state)) {
-        sendNMI = (<button className="btn btn-default btn-danger" onClick={onSendNMI} id={`${id}-sendNMI`}>
-                    {_("Send Non-Maskable Interrupt")}
-                </button>);
-    }
-
     let reset = null;
     if (config.provider.canReset(state)) {
         reset = DropdownButtons({
@@ -78,17 +71,23 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
 
     let shutdown = null;
     if (config.provider.canShutdown(state)) {
-        shutdown = DropdownButtons({
-            buttons: [{
-                title: _("Shut Down"),
-                action: onShutdown,
-                id: `${id}-off`
-            }, {
-                title: _("Force Shut Down"),
-                action: onForceoff,
-                id: `${id}-forceOff`
-            }]
-        });
+	let buttons = [{
+            title: _("Shut Down"),
+            action: onShutdown,
+            id: `${id}-off`
+        }, {
+            title: _("Force Shut Down"),
+            action: onForceoff,
+            id: `${id}-forceOff`
+        }];
+        if (config.provider.canSendNMI && config.provider.canSendNMI(state)) {
+            buttons.push({
+                title: _("Send Non-Maskable Interrupt"),
+                action: onSendNMI,
+                id: `${id}-sendNMI`
+            })
+        }
+        shutdown = DropdownButtons({ buttons: buttons });
     }
 
     let run = null;
@@ -115,7 +114,6 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
     }
 
     return (<div>
-        {sendNMI}
         {reset}
         {shutdown}
         {run}

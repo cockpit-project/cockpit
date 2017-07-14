@@ -444,7 +444,11 @@ $(function() {
                 });
                 proc.fail(function(ex) {
                     var message;
-                    if (ex.problem === 'access-denied') {
+                    // 70 is 'This problem has already been reported'
+                    if (ex.exit_status === 70) {
+                        window.location.reload();
+                        return;
+                    } else if (ex.problem === 'access-denied') {
                         message = _("Not authorized to upload-report");
                     } else if (ex.problem === "not-found") {
                         message = _("Reporter 'reporter-ureport' not found.");

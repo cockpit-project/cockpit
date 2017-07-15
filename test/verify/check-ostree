@@ -61,8 +61,10 @@ def ensure_remote_http_port (m, remote="local"):
 
 def start_trivial_httpd(m, remote="local", location=REPO_LOCATION):
     port = ensure_remote_http_port (m, remote)
-    script = "PYTHONUNBUFFERED=1\ncd {0}\npython -m SimpleHTTPServer {1}".format(location, port)
-    pid = m.spawn(script, "trivial-httpd")
+    script = "export PYTHONUNBUFFERED=1\ncd {0}\nexec python -m SimpleHTTPServer {1}".format(location, port)
+    m.execute("echo '{}' > /tmp/trivial-httpd".format(script))
+    m.execute("chmod +x /tmp/trivial-httpd")
+    pid = m.spawn("/tmp/trivial-httpd", "trivial-httpd")
 
     m.execute(["ostree", "summary", "--repo={}".format(location), "-u"])
     m.wait_for_cockpit_running(port=port)

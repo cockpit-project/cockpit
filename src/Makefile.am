@@ -5,7 +5,8 @@ DAEMON_SOURCES = \
 	main.c \
 	manager.c manager.h \
 	util.c util.h \
-	domain.c domain.h
+	domain.c domain.h \
+	events.c events.h
 
 EXTRA_DIST = \
 	$(DAEMON_SOURCES)

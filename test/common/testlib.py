@@ -493,8 +493,8 @@ class MachineCase(unittest.TestCase):
         for success in self.currentResult.unexpectedSuccesses:
             if self == success:
                 return False
-        for success in self.currentResult.skipped:
-            if self == success:
+        for skipped in self.currentResult.skipped:
+            if self == skipped[0]:
                 return False
         return True
 

@@ -50,7 +50,8 @@ def execute(*args):
 def run(unused, verbose=False, **kwargs):
 
     # Since a month ago
-    since = time.time() - (DAYS * SECONDS_PER_DAY)
+    now = time.time()
+    since = now - (DAYS * SECONDS_PER_DAY)
 
     # The head
     head = execute("git", "rev-parse", "HEAD").strip()
@@ -81,7 +82,7 @@ def run(unused, verbose=False, **kwargs):
 
         # Create a pull request from these changes
         title = "naughty: Close {0}: {1}".format(number, issue["title"])
-        days = math.floor((since - updated) / SECONDS_PER_DAY)
+        days = int((now - updated) / SECONDS_PER_DAY)
         body = "Known issue which has not occurred in {0} days\n\n{1}\n\nFixes #{2}".format(days, issue["title"], number)
         branch = task.branch(number, "{0}\n\n{1}".format(title, body), pathspec="bots/naughty/", **kwargs)
 

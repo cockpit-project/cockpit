@@ -74,7 +74,11 @@ def mockServer():
                 self.send_error(404, 'Mock Not Found: ' + self.path)
 
         def do_POST(self):
-            if self.path == "/repos/project/repo/issues/1234/comments":
+            if self.path == "/repos/project/repo/pulls":
+                content_len = int(self.headers.getheader('content-length'))
+                data = json.loads(self.rfile.read(content_len))
+                self.replyJson(data)
+            elif self.path == "/repos/project/repo/issues/1234/comments":
                 content_len = int(self.headers.getheader('content-length'))
                 data = json.loads(self.rfile.read(content_len))
                 self.replyJson(data)
@@ -126,6 +130,12 @@ class TestTask(unittest.TestCase):
     def testComment(self):
         comment = task.comment(1234, "This is the comment")
         self.assertEqual(comment["body"], "This is the comment")
+
+    def testPullBody(self):
+        args = { "title": "Task title" }
+        pull = task.pull("user:branch", body="This is the body", **args)
+        self.assertEqual(pull["title"], "Task title")
+        self.assertEqual(pull["body"], "This is the body")
 
 if __name__ == '__main__':
     unittest.main()

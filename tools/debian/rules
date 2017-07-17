@@ -11,7 +11,7 @@ endif
 # PackageKit crashes on update information on Ubuntu 16.04, which makes
 # "Software Updates" useless (LP: #1689820)
 ifneq ($(shell grep xenial /etc/os-release),)
-	export DH_OPTIONS = -Ncockpit-packagekit
+	export DH_OPTIONS += -Ncockpit-packagekit
 endif
 
 %:

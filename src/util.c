@@ -67,3 +67,29 @@ int bus_error_set_last_virt_error(sd_bus_error *error)
 
     return sd_bus_error_set(error, "org.libvirt.Error", vir_error->message);
 }
+
+char *
+bus_path_for_domain(virDomainPtr domain)
+{
+    char *path = NULL;
+    char uuid[VIR_UUID_STRING_BUFLEN] = "";
+
+    virDomainGetUUIDString(domain, uuid);
+    sd_bus_path_encode("/org/libvirt/domain", uuid, &path);
+
+    return path;
+}
+
+virDomainPtr
+domain_from_bus_path(virConnectPtr connection,
+                     const char *path)
+{
+    _cleanup_(freep) char *name = NULL;
+    int r;
+
+    r = sd_bus_path_decode(path, "/org/libvirt/domain", &name);
+    if (r < 0)
+        return NULL;
+
+    return virDomainLookupByUUIDString(connection, name);
+}

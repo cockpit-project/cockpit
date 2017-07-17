@@ -13,6 +13,13 @@ int bus_message_append_typed_parameters(sd_bus_message *message,
 
 int bus_error_set_last_virt_error(sd_bus_error *error);
 
+char *
+bus_path_for_domain(virDomainPtr domain);
+
+virDomainPtr
+domain_from_bus_path(virConnectPtr connection,
+                     const char *path);
+
 static inline void
 freep(void *p)
 {

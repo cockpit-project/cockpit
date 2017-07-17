@@ -12,32 +12,6 @@ struct VirtManager {
     int callback_ids[VIR_DOMAIN_EVENT_ID_LAST];
 };
 
-static char *
-bus_path_for_domain(virDomainPtr domain)
-{
-    char *path = NULL;
-    char uuid[VIR_UUID_STRING_BUFLEN] = "";
-
-    virDomainGetUUIDString(domain, uuid);
-    sd_bus_path_encode("/org/libvirt/domain", uuid, &path);
-
-    return path;
-}
-
-static virDomainPtr
-domain_from_bus_path(VirtManager *manager,
-                     const char *path)
-{
-    _cleanup_(freep) char *name = NULL;
-    int r;
-
-    r = sd_bus_path_decode(path, "/org/libvirt/domain", &name);
-    if (r < 0)
-        return NULL;
-
-    return virDomainLookupByUUIDString(manager->connection, name);
-}
-
 static void
 virDomainsFreep(virDomainPtr **domainsp)
 {
@@ -65,7 +39,7 @@ domain_get_name(sd_bus *bus,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     const char *name = "";
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -89,7 +63,7 @@ domain_get_uuid(sd_bus *bus,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     char uuid[VIR_UUID_STRING_BUFLEN] = "";
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -110,7 +84,7 @@ domain_get_id(sd_bus *bus,
     VirtManager *manager = userdata;
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "u", 0);
 
@@ -129,7 +103,7 @@ domain_get_vcpus(sd_bus *bus,
     VirtManager *manager = userdata;
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "u", 0);
 
@@ -149,7 +123,7 @@ domain_get_os_type(sd_bus *bus,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(freep) char *os_type = NULL;
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -173,7 +147,7 @@ domain_get_active(sd_bus *bus,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     int active;
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "b", 0);
 
@@ -197,7 +171,7 @@ domain_get_persistent(sd_bus *bus,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     int persistent;
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "b", 0);
 
@@ -222,7 +196,7 @@ domain_get_state(sd_bus *bus,
     int state = 0;
     const char *string;
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -272,7 +246,7 @@ domain_get_autostart(sd_bus *bus,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     int autostart = 0;
 
-    domain = domain_from_bus_path(manager, path);
+    domain = domain_from_bus_path(manager->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "b", 0);
 
@@ -292,7 +266,8 @@ domain_get_xml_desc(sd_bus_message *message,
     uint32_t flags;
     int r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,
@@ -335,7 +310,8 @@ domain_get_stats(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,
@@ -369,7 +345,8 @@ domain_shutdown(sd_bus_message *message,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,
@@ -393,7 +370,8 @@ domain_destroy(sd_bus_message *message,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,
@@ -422,7 +400,8 @@ domain_reboot(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,
@@ -451,7 +430,8 @@ domain_reset(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,
@@ -475,7 +455,8 @@ domain_create(sd_bus_message *message,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,
@@ -499,7 +480,8 @@ domain_undefine(sd_bus_message *message,
     _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = domain_from_bus_path(manager, sd_bus_message_get_path(message));
+    domain = domain_from_bus_path(manager->connection,
+                                  sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
                                           SD_BUS_ERROR_UNKNOWN_OBJECT,

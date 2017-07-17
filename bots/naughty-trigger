@@ -28,14 +28,12 @@ import time
 sys.dont_write_bytecode = True
 
 import task
-from task import github
 
 def main():
     parser = argparse.ArgumentParser(description='Update known issues')
     parser.add_argument('-v', '--verbose', action="store_true", default=False,
                         help="Print verbose information")
     opts = parser.parse_args()
-    api = github.GitHub()
 
     title = "Update stale known issues"
     body = "Check for any stale known issues and open a pull request to close them"

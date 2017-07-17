@@ -77,8 +77,13 @@ def mockServer():
             if self.path == "/repos/project/repo/pulls":
                 content_len = int(self.headers.getheader('content-length'))
                 data = json.loads(self.rfile.read(content_len))
+                data["number"] = 1234
                 self.replyJson(data)
             elif self.path == "/repos/project/repo/issues/1234/comments":
+                content_len = int(self.headers.getheader('content-length'))
+                data = json.loads(self.rfile.read(content_len))
+                self.replyJson(data)
+            elif self.path == "/repos/project/repo/issues/1234/labels":
                 content_len = int(self.headers.getheader('content-length'))
                 data = json.loads(self.rfile.read(content_len))
                 self.replyJson(data)
@@ -130,6 +135,10 @@ class TestTask(unittest.TestCase):
     def testComment(self):
         comment = task.comment(1234, "This is the comment")
         self.assertEqual(comment["body"], "This is the comment")
+
+    def testLabel(self):
+        label = task.label(1234, ['xxx'])
+        self.assertEqual(label, ['xxx'])
 
     def testPullBody(self):
         args = { "title": "Task title" }

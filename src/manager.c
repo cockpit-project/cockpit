@@ -164,7 +164,7 @@ virtDBusManagerNew(virtDBusManager **managerp,
     if (!manager->connection)
         return -EINVAL;
 
-    virt_manager_register_events(manager);
+    virtDBusEventsRegister(manager);
 
     r = sd_bus_add_object_vtable(manager->bus,
                                  NULL,

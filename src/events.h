@@ -6,4 +6,4 @@
 
 
 void
-virt_manager_register_events(virtDBusManager *manager);
+virtDBusEventsRegister(virtDBusManager *manager);

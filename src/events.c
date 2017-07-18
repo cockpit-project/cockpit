@@ -6,7 +6,7 @@
 #include <systemd/sd-bus.h>
 
 static int
-handle_domain_lifecycle_event(virConnectPtr connection,
+virtDBusEventsDomainLifecycle(virConnectPtr connection,
                               virDomainPtr domain,
                               int event,
                               int detail,
@@ -70,10 +70,10 @@ handle_domain_lifecycle_event(virConnectPtr connection,
 }
 
 static int
-handle_domain_device_added_event(virConnectPtr connection,
-                                 virDomainPtr domain,
-                                 const char *device,
-                                 void *opaque)
+virtDBusEventsDomainDeviceAdded(virConnectPtr connection,
+                                virDomainPtr domain,
+                                const char *device,
+                                void *opaque)
 {
     virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
@@ -98,10 +98,10 @@ handle_domain_device_added_event(virConnectPtr connection,
 }
 
 static int
-handle_domain_device_removed_event(virConnectPtr connection,
-                                   virDomainPtr domain,
-                                   const char *device,
-                                   void *opaque)
+virtDBusEventsDomainDeviceRemoved(virConnectPtr connection,
+                                  virDomainPtr domain,
+                                  const char *device,
+                                  void *opaque)
 {
     virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
@@ -126,11 +126,11 @@ handle_domain_device_removed_event(virConnectPtr connection,
 }
 
 static int
-handle_domain_disk_change_event(virConnectPtr connection,
-                                virDomainPtr domain,
-                                const char *device,
-                                int reason,
-                                void *opaque)
+virtDBusEventsDomainDiskChange(virConnectPtr connection,
+                               virDomainPtr domain,
+                               const char *device,
+                               int reason,
+                               void *opaque)
 {
     virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
@@ -168,13 +168,13 @@ handle_domain_disk_change_event(virConnectPtr connection,
 }
 
 static int
-handle_domain_tray_change_event(virConnectPtr connection,
-                                virDomainPtr domain,
-                                const char *old_src_path,
-                                const char *new_src_path,
-                                const char *device,
-                                int reason,
-                                void *opaque)
+virtDBusEventsDomainTrayChange(virConnectPtr connection,
+                               virDomainPtr domain,
+                               const char *old_src_path,
+                               const char *new_src_path,
+                               const char *device,
+                               int reason,
+                               void *opaque)
 {
     virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
@@ -212,7 +212,7 @@ handle_domain_tray_change_event(virConnectPtr connection,
 }
 
 static void
-virt_manager_register_event(virtDBusManager *manager,
+virtDBusEventsRegisterEvent(virtDBusManager *manager,
                             int id,
                             virConnectDomainEventGenericCallback callback)
 {
@@ -227,26 +227,26 @@ virt_manager_register_event(virtDBusManager *manager,
 }
 
 void
-virt_manager_register_events(virtDBusManager *manager)
+virtDBusEventsRegister(virtDBusManager *manager)
 {
-    virt_manager_register_event(manager,
+    virtDBusEventsRegisterEvent(manager,
                                 VIR_DOMAIN_EVENT_ID_LIFECYCLE,
-                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_lifecycle_event));
+                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainLifecycle));
 
-    virt_manager_register_event(manager,
+    virtDBusEventsRegisterEvent(manager,
                                 VIR_DOMAIN_EVENT_ID_DEVICE_ADDED,
-                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_device_added_event));
+                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceAdded));
 
-    virt_manager_register_event(manager,
+    virtDBusEventsRegisterEvent(manager,
                                 VIR_DOMAIN_EVENT_ID_DEVICE_REMOVED,
-                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_device_removed_event));
+                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceRemoved));
 
-    virt_manager_register_event(manager,
+    virtDBusEventsRegisterEvent(manager,
                                 VIR_DOMAIN_EVENT_ID_DISK_CHANGE,
-                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_tray_change_event));
+                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
 
-    virt_manager_register_event(manager,
+    virtDBusEventsRegisterEvent(manager,
                                 VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
-                                VIR_DOMAIN_EVENT_CALLBACK(handle_domain_disk_change_event));
+                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDiskChange));
 
 }

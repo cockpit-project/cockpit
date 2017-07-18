@@ -382,9 +382,9 @@ testassetsdir = $(prefix)/lib/cockpit-test-assets
 testserviceddir = $(systemdunitdir)/cockpit.service.d
 
 install-tests::
-	$(MKDIR_P) $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir)
+	$(MKDIR_P) $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
 	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(testassetsdir)
-	$(INSTALL_DATA) $(srcdir)/src/ws/fatal.conf $(DESTDIR)$(testserviceddir)
+	$(INSTALL_DATA) $(srcdir)/src/ws/fatal.conf $(DESTDIR)/etc/cockpit/cockpit.conf
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d

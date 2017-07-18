@@ -100,7 +100,7 @@ main(int argc, char *argv[])
 
     _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
-    _cleanup_(closep) int signal_fd = -1;
+    _cleanup_(virtDBusUtilClosep) int signal_fd = -1;
     _cleanup_(virEventRemoveHandlep) int bus_watch = -1;
     _cleanup_(virEventRemoveHandlep) int signal_watch = -1;
     sigset_t mask;

@@ -14,18 +14,18 @@ enumerate_domains(sd_bus *bus,
                   sd_bus_error *error)
 {
     VirtManager *manager = userdata;
-    _cleanup_(virDomainListFreep) virDomainPtr *domains = NULL;
-    _cleanup_(strv_freep) char **paths = NULL;
+    _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
+    _cleanup_(virtDBusUtilStrvFreep) char **paths = NULL;
     int n_domains;
 
     n_domains = virConnectListAllDomains(manager->connection, &domains, 0);
     if (n_domains < 0)
-        return bus_error_set_last_virt_error(error);
+        return virtDBusUtilSetLastVirtError(error);
 
     paths = calloc(n_domains + 1, sizeof(char *));
 
     for (int i = 0; i < n_domains; i += 1)
-        paths[i] = bus_path_for_domain(domains[i]);
+        paths[i] = virtDBusUtilBusPathForVirDomain(domains[i]);
 
     *nodes = paths;
     paths = NULL;
@@ -40,7 +40,7 @@ virt_manager_list_domains(sd_bus_message *message,
 {
     VirtManager *manager = userdata;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
-    _cleanup_(virDomainListFreep) virDomainPtr *domains = NULL;
+    _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
     uint32_t flags;
     int r;
 
@@ -50,7 +50,7 @@ virt_manager_list_domains(sd_bus_message *message,
 
     r = virConnectListAllDomains(manager->connection, &domains, flags);
     if (r < 0)
-        return bus_error_set_last_virt_error(error);
+        return virtDBusUtilSetLastVirtError(error);
 
     r = sd_bus_message_new_method_return(message, &reply);
     if (r < 0)
@@ -61,9 +61,9 @@ virt_manager_list_domains(sd_bus_message *message,
         return r;
 
     for (int i = 0; domains[i] != NULL; i += 1) {
-        _cleanup_(freep) char *path = NULL;
+        _cleanup_(virtDBusUtilFreep) char *path = NULL;
 
-        path = bus_path_for_domain(domains[i]);
+        path = virtDBusUtilBusPathForVirDomain(domains[i]);
 
         r = sd_bus_message_append(reply, "o", path);
         if (r < 0)
@@ -85,8 +85,8 @@ virt_manager_create_xml(sd_bus_message *message,
     VirtManager *manager = userdata;
     const char *xml;
     uint32_t flags;
-    _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
-    _cleanup_(freep) char *path = NULL;
+    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
+    _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
     r = sd_bus_message_read(message, "su", &xml, &flags);
@@ -95,9 +95,9 @@ virt_manager_create_xml(sd_bus_message *message,
 
     domain = virDomainCreateXML(manager->connection, xml, flags);
     if (!domain)
-        return bus_error_set_last_virt_error(error);
+        return virtDBusUtilSetLastVirtError(error);
 
-    path = bus_path_for_domain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain);
 
     return sd_bus_reply_method_return(message, "o", path);
 }
@@ -109,8 +109,8 @@ virt_manager_define_xml(sd_bus_message *message,
 {
     VirtManager *manager = userdata;
     const char *xml;
-    _cleanup_(virDomainFreep) virDomainPtr domain = NULL;
-    _cleanup_(freep) char *path = NULL;
+    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
+    _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
     r = sd_bus_message_read(message, "s", &xml);
@@ -119,9 +119,9 @@ virt_manager_define_xml(sd_bus_message *message,
 
     domain = virDomainDefineXML(manager->connection, xml);
     if (!domain)
-        return bus_error_set_last_virt_error(error);
+        return virtDBusUtilSetLastVirtError(error);
 
-    path = bus_path_for_domain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain);
 
     return sd_bus_reply_method_return(message, "o", path);
 }

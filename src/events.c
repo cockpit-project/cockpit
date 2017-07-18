@@ -16,7 +16,7 @@ handle_domain_lifecycle_event(virConnectPtr connection,
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     const char *signal = NULL;
     const char *name;
-    _cleanup_(freep) char *path = NULL;
+    _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
     switch (event) {
@@ -60,7 +60,7 @@ handle_domain_lifecycle_event(virConnectPtr connection,
         return r;
 
     name = virDomainGetName(domain);
-    path = bus_path_for_domain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain);
 
     r = sd_bus_message_append(message, "so", name ? : "", path);
     if (r < 0)
@@ -77,10 +77,10 @@ handle_domain_device_added_event(virConnectPtr connection,
 {
     VirtManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(freep) char *path = NULL;
+    _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
-    path = bus_path_for_domain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain);
 
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,
@@ -105,10 +105,10 @@ handle_domain_device_removed_event(virConnectPtr connection,
 {
     VirtManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(freep) char *path = NULL;
+    _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
-    path = bus_path_for_domain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain);
 
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,
@@ -134,11 +134,11 @@ handle_domain_disk_change_event(virConnectPtr connection,
 {
     VirtManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(freep) char *path = NULL;
+    _cleanup_(virtDBusUtilFreep) char *path = NULL;
     const char *reasonstr;
     int r;
 
-    path = bus_path_for_domain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain);
 
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,
@@ -178,11 +178,11 @@ handle_domain_tray_change_event(virConnectPtr connection,
 {
     VirtManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(freep) char *path = NULL;
+    _cleanup_(virtDBusUtilFreep) char *path = NULL;
     const char *reasonstr;
     int r;
 
-    path = bus_path_for_domain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain);
 
     r = sd_bus_message_new_signal(manager->bus,
                                   &message,

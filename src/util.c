@@ -3,9 +3,9 @@
 #include <libvirt/virterror.h>
 
 int
-bus_message_append_typed_parameters(sd_bus_message *message,
-                                    virTypedParameterPtr parameters,
-                                    int n_parameters)
+virtDBusUtilMessageAppendTypedParameters(sd_bus_message *message,
+                                         virTypedParameterPtr parameters,
+                                         int n_parameters)
 {
     int r;
 
@@ -57,7 +57,8 @@ bus_message_append_typed_parameters(sd_bus_message *message,
     return sd_bus_message_close_container(message);
 }
 
-int bus_error_set_last_virt_error(sd_bus_error *error)
+int
+virtDBusUtilSetLastVirtError(sd_bus_error *error)
 {
     virErrorPtr vir_error;
 
@@ -69,7 +70,7 @@ int bus_error_set_last_virt_error(sd_bus_error *error)
 }
 
 char *
-bus_path_for_domain(virDomainPtr domain)
+virtDBusUtilBusPathForVirDomain(virDomainPtr domain)
 {
     char *path = NULL;
     char uuid[VIR_UUID_STRING_BUFLEN] = "";
@@ -81,10 +82,10 @@ bus_path_for_domain(virDomainPtr domain)
 }
 
 virDomainPtr
-domain_from_bus_path(virConnectPtr connection,
-                     const char *path)
+virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
+                                 const char *path)
 {
-    _cleanup_(freep) char *name = NULL;
+    _cleanup_(virtDBusUtilFreep) char *name = NULL;
     int r;
 
     r = sd_bus_path_decode(path, "/org/libvirt/domain", &name);

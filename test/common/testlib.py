@@ -574,7 +574,9 @@ class MachineCase(unittest.TestCase):
             address = provision[key].get("address")
             if address is not None:
                 machine.set_address(address)
-                machine.set_dns(provision[key].get("dns"))
+            dns = provision[key].get("dns")
+            if address or dns:
+                machine.set_dns(dns)
             dhcp = provision[key].get("dhcp", False)
             if dhcp:
                 machine.dhcp_server()

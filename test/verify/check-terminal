@@ -22,6 +22,8 @@ import parent
 from testlib import *
 
 class TestTerminal(MachineCase):
+    provision = { "machine1": { "dns": "127.0.0.1" } }
+
     def testBasic(self):
         b = self.browser
         m = self.machine

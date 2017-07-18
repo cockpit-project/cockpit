@@ -53,3 +53,17 @@ virDomainFreep(virDomainPtr *domainp)
     if (*domainp)
         virDomainFree(*domainp);
 }
+
+static inline void
+virDomainListFreep(virDomainPtr **domainsp)
+{
+    virDomainPtr *domains = *domainsp;
+
+    if (!domains)
+        return;
+
+    for (int i = 0; domains[i] != NULL; i += 1)
+        virDomainFree(domains[i]);
+
+    free(domains);
+}

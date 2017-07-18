@@ -12,20 +12,6 @@ struct VirtManager {
     int callback_ids[VIR_DOMAIN_EVENT_ID_LAST];
 };
 
-static void
-virDomainsFreep(virDomainPtr **domainsp)
-{
-    virDomainPtr *domains = *domainsp;
-
-    if (!domains)
-        return;
-
-    for (int i = 0; domains[i] != NULL; i += 1)
-        virDomainFree(domains[i]);
-
-    free(domains);
-}
-
 static int
 domain_get_name(sd_bus *bus,
                 const char *path,
@@ -504,7 +490,7 @@ enumerate_domains(sd_bus *bus,
                   sd_bus_error *error)
 {
     VirtManager *manager = userdata;
-    _cleanup_(virDomainsFreep) virDomainPtr *domains = NULL;
+    _cleanup_(virDomainListFreep) virDomainPtr *domains = NULL;
     _cleanup_(strv_freep) char **paths = NULL;
     int n_domains;
 
@@ -530,7 +516,7 @@ virt_manager_list_domains(sd_bus_message *message,
 {
     VirtManager *manager = userdata;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
-    _cleanup_(virDomainsFreep) virDomainPtr *domains = NULL;
+    _cleanup_(virDomainListFreep) virDomainPtr *domains = NULL;
     uint32_t flags;
     int r;
 

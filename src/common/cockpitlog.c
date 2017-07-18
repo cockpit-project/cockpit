@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include "cockpitlog.h"
+#include "cockpitconf.h"
 
 #include <systemd/sd-journal.h>
 #include <syslog.h>
@@ -151,7 +152,23 @@ void
 cockpit_set_journal_logging (const gchar *stderr_domain,
                              gboolean only)
 {
+  GLogLevelFlags fatal;
+  const gchar **fatals;
   int fd;
+
+  fatals = cockpit_conf_strv ("Log", "Fatal", ' ');
+  if (fatals)
+    {
+      fatal = G_LOG_LEVEL_ERROR;
+      for (; fatals[0] != NULL; fatals++)
+        {
+          if (g_ascii_strcasecmp ("criticals", fatals[0]) == 0)
+            fatal |= G_LOG_LEVEL_CRITICAL;
+          else if (g_ascii_strcasecmp ("warnings", fatals[0]) == 0)
+            fatal |= G_LOG_LEVEL_WARNING;
+        }
+      g_log_set_always_fatal (fatal);
+    }
 
   /* Don't log to journal while being tested by test-server */
   if (g_getenv ("COCKPIT_TEST_SERVER_PORT") != NULL)

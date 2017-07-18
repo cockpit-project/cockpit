@@ -130,6 +130,19 @@ ProtocolHeader = X-Forwarded-Proto
     </variablelist>
   </refsect1>
 
+  <refsect1 id="cockpit-conf-log">
+    <title>Log</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>Fatal</option></term>
+        <listitem>
+          <para>The kind of log messages in the bridge to treat as fatal. Separate multiple values
+            with spaces. Relevant values are: <code>criticals</code> and <code>warnings</code>.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
   <refsect1 id="cockpit-conf-oauth">
     <title>OAuth</title>
     <para>Cockpit can be configured to support the <ulink url="https://tools.ietf.org/html/rfc6749#section-4.2">

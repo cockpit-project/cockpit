@@ -450,7 +450,7 @@ This package contains tests and files used while testing Cockpit.
 These files are not required for running Cockpit.
 
 %files tests
-%{_unitdir}/cockpit.service.d
+%config(noreplace) %{_sysconfdir}/cockpit/cockpit.conf
 %{_datadir}/%{name}/playground
 %{_prefix}/lib/cockpit-test-assets
 

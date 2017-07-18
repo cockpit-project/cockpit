@@ -21,6 +21,7 @@
 import os
 
 import parent
+import time
 from testlib import *
 
 def read_mem_info(machine):
@@ -126,8 +127,19 @@ class TestMetrics(MachineCase):
         #
         identity = m._calc_identity()
         m.upload([ identity ], "/var/tmp")
+        (eth_before, lo_before) = m.execute(r"grep -E 'eth0|ens5' /proc/net/dev | awk '{print $2 + $10}'; "
+                                            r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
+        time_before = time.time()
         net_pid = m.spawn("ssh -o StrictHostKeyChecking=no -i /var/tmp/{1} {0} cat /dev/zero >/dev/null".format("172.27.0.15", os.path.basename(identity)), "load-net.log")
-        b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
+        try:
+            b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
+        finally:
+            time_after = time.time()
+            (eth_after, lo_after) = m.execute(r"grep -E 'eth0|ens5' /proc/net/dev | awk '{print $2 + $10}'; "
+                                              r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
+            print("Measured {0:.1f}s of network traffic; eth0/ens5: {1} bytes, lo: {2} bytes".format(
+                time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before)))
+
         m.execute("kill %d" % net_pid)
 
     @skipImage("No PCP available on Atomic", "fedora-atomic", "rhel-atomic", "continuous-atomic")

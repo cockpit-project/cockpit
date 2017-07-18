@@ -161,6 +161,7 @@ def update_known_issue(api, number, err, details, context, timestamp=None):
             parts = comment['body'].split("<hr>")
             updated = False
             for part_idx, part in enumerate(parts):
+                part = part.strip()
                 if redact_audit_variables(part).startswith(redacted_err_key):
                     latest = part.split(latest_occurrences)
                     if len(latest) < 2:
@@ -192,7 +193,7 @@ Times recorded: 1
                 updated = True
 
             # This comment is already too long
-            body = "<hr>".join(parts)
+            body = "<hr>\n".join(parts)
             if len(body) >= 65536:
                 break
 

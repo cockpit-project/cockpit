@@ -359,7 +359,7 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, body=None, issue=None, **kwargs):
+def pull(branch, body=None, issue=None, labels=['bot'], **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
@@ -386,6 +386,9 @@ def pull(branch, body=None, issue=None, **kwargs):
             data["maintainer_can_modify"] = False
         pull = api.post("pulls", data)
 
+    # Update the pull request
+    label(pull, labels)
+
     # Update the issue if it is a dict
     if issue:
         try:
@@ -395,6 +398,13 @@ def pull(branch, body=None, issue=None, **kwargs):
             pass
 
     return pull
+
+def label(issue, labels=['bot']):
+    try:
+        resource = "issues/{0}/labels".format(issue["number"])
+    except TypeError:
+        resource = "issues/{0}/labels".format(issue)
+    return api.post(resource, labels)
 
 def comment(issue, comment):
     try:

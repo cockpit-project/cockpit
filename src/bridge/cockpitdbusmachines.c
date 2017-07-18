@@ -176,7 +176,7 @@ migrate_var_config (void)
   /* TOCTOU, but if we really miss this, we'll migrate it the next time */
   if (!g_file_test (var_path, G_FILE_TEST_IS_REGULAR))
     {
-      g_debug ("%s does not exist, nothing to migrate", var_path);
+      g_info ("XXXXX %s does not exist, nothing to migrate", var_path);
       return;
     }
 
@@ -186,6 +186,8 @@ migrate_var_config (void)
       g_message ("failed to create %s, Cockpit will not work properly: %m", get_machines_json_dir ());
       return;
     }
+
+  g_message("XXXXX %s exists and created %s, attempting migration", var_path, get_machines_json_dir ());
 
   /* common case is to move it to 99-webui.json */
   gchar *etc_path = g_build_filename (get_machines_json_dir (), "99-webui.json", NULL);
@@ -300,6 +302,9 @@ cockpit_dbus_machines_startup (void)
   /* only attempt this in a privileged bridge, otherwise we get confusing failure messages */
   if (g_access ("/etc/cockpit", W_OK) >= 0)
     migrate_var_config ();
+  else
+    g_info("XXXXX /etc/cockpit is not writable, skipping migration; running as uid %u; file exists: %i",
+           getuid(), g_file_test("/etc/cockpit", G_FILE_TEST_EXISTS));
 
   /* watch for file changes and send D-Bus signal for it */
   machines_monitor_file = g_file_new_for_path (get_machines_json_dir ());

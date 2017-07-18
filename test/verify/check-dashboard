@@ -303,14 +303,24 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b = self.browser
         m = self.machine
 
+        def goDashboardWithSuperuser():
+            # force spawning of privileged bridge, so that migration runs
+            self.login_and_go("/playground/test", authorized=True)
+            b.wait_present(".super-channel .btn")
+            b.click(".super-channel .btn")
+            b.wait_in_text(".super-channel span", 'result:')
+            b.switch_to_top()
+            b.go("/dashboard")
+            b.enter_page("/dashboard")
+
         # create obsolete machines.json in /var
-        blue_conf = '{"blue": {"address": "1.2.3.4", "visible": true}}'
+        blue_conf = '{"blue": {"address": "10.111.113.2", "visible": true}}'
         m.execute("echo '%s' > /var/lib/cockpit/machines.json" % blue_conf)
         # prevent migration due to permission error; should not crash and keep/respect the old file
         m.execute("""chattr +i /etc/cockpit/machines.d""")
-        self.login_and_go("/dashboard")
+        goDashboardWithSuperuser()
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2" ])
         wait(lambda: m.execute("journalctl -b | grep 'migration.*machines.json.*failed'"))
-        self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4" ])
         b.logout()
         # should not have written anything and left the original file untouched
         m.execute('chattr -i /etc/cockpit/machines.d && [ "$(ls /etc/cockpit/machines.d)" = "" ]')
@@ -318,21 +328,22 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         self.allow_journal_messages(".*migration of /var/lib/cockpit/machines.json to /etc/cockpit/machines.d/99-webui.json failed:.*")
 
         # now machines.d/ is writable, should migrate
-        self.login_and_go("/dashboard")
+        goDashboardWithSuperuser()
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2" ])
         wait(lambda: m.execute("test ! -e /var/lib/cockpit/machines.json && ls /etc/cockpit/machines.d/99-webui.json"))
-        self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4" ])
         b.logout()
         self.assertEqual(m.execute('cat /etc/cockpit/machines.d/99-webui.json').strip(), blue_conf)
 
         # old /var file should not clobber existing 99-webui.json but move to 98-migrated.json and merge its data
-        green_conf = '{"green": {"address": "9.8.7.6", "visible": true}}'
+        green_conf = '{"green": {"address": "10.111.113.3", "visible": true}}'
         m.execute("echo '%s' > /var/lib/cockpit/machines.json" % green_conf)
-        self.login_and_go("/dashboard")
+        goDashboardWithSuperuser()
+        self.wait_dashboard_addresses (b, [ "localhost", "10.111.113.2", "10.111.113.3" ])
         wait(lambda: m.execute("test ! -e /var/lib/cockpit/machines.json && ls /etc/cockpit/machines.d/98-migrated.json"))
-        self.wait_dashboard_addresses (b, [ "localhost", "1.2.3.4", "9.8.7.6" ])
         b.logout()
         self.assertEqual(m.execute('cat /etc/cockpit/machines.d/99-webui.json').strip(), blue_conf)
         self.assertEqual(m.execute('cat /etc/cockpit/machines.d/98-migrated.json').strip(), green_conf)
+
         self.allow_journal_messages(
             '.* couldn\'t connect: .*',
             '.*refusing to connect to unknown host.*'

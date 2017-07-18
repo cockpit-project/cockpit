@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from testlib import *
 
 class PackageCase(MachineCase):
@@ -49,20 +50,20 @@ class PackageCase(MachineCase):
     # Helper functions for creating packages/repository
     #
 
-    def createPackage(self, name, version, release, install=False, postinst=None, depends="", **updateinfo):
+    def createPackage(self, name, version, release, install=False, postinst=None, depends="", content=None, **updateinfo):
         '''Create a dummy package in /tmp/repo on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in /tmp/repo.
         '''
         if self.isApt:
-            self.createDeb(name, version + '-' + release, depends, postinst, install)
+            self.createDeb(name, version + '-' + release, depends, postinst, install, content)
         else:
-            self.createRpm(name, version, release, depends, postinst, install)
+            self.createRpm(name, version, release, depends, postinst, install, content)
         if updateinfo:
             self.updateInfo[(name, version, release)] = updateinfo
 
-    def createDeb(self, name, version, depends, postinst, install):
+    def createDeb(self, name, version, depends, postinst, install, content):
         '''Create a dummy deb in /tmp/repo on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -73,6 +74,11 @@ class PackageCase(MachineCase):
             postinstcode = "printf '#!/bin/sh\n{0}' > /tmp/b/DEBIAN/postinst; chmod 755 /tmp/b/DEBIAN/postinst".format(postinst)
         else:
             postinstcode = ''
+        if content is not None:
+            for path, data in content.items():
+                dest = "/tmp/b/" + path
+                self.machine.execute("mkdir -p '{0}'".format(os.path.dirname(dest)))
+                self.machine.write(dest, data)
         cmd = '''mkdir -p /tmp/b/DEBIAN /tmp/repo
                  printf "Package: {0}\nVersion: {1}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {2}\nArchitecture: all\nDescription: dummy {0}\n" > /tmp/b/DEBIAN/control
                  {4}
@@ -84,7 +90,7 @@ class PackageCase(MachineCase):
             cmd += "dpkg -i " + deb
         self.machine.execute(cmd)
 
-    def createRpm(self, name, version, release, requires, post, install):
+    def createRpm(self, name, version, release, requires, post, install, content):
         '''Create a dummy rpm in /tmp/repo on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -96,16 +102,40 @@ class PackageCase(MachineCase):
             postcode = ''
         if requires:
             requires = "Requires: %s\n" % requires
-        cmd = '''printf 'Summary: dummy {0}\nName: {0}\nVersion: {1}\nRelease: {2}\nLicense: BSD\nBuildArch: noarch\n{3}
-%%install\ntouch $RPM_BUILD_ROOT/stamp-{0}-{1}-{2}\n
-%%description\nTest package.\n
-%%files\n/stamp-*\n
-{4}' > /tmp/spec
-                 rpmbuild -bb  /tmp/spec
-                 mkdir -p /tmp/repo
-                 cp ~/rpmbuild/RPMS/noarch/*.rpm /tmp/repo
-                 rm -rf ~/rpmbuild
-                 '''.format(name, version, release, requires, postcode)
+        installcmds = "touch $RPM_BUILD_ROOT/stamp-{0}-{1}-{2}\n".format(name, version, release)
+        installedfiles = "/stamp-{0}-{1}-{2}\n".format(name, version, release)
+        if content is not None:
+            for path, data in content.items():
+                installcmds += 'mkdir -p $(dirname "$RPM_BUILD_ROOT/{0}")\n'.format(path)
+                installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
+                installedfiles += "{0}\n".format(path)
+        spec = """
+Summary: dummy {0}
+Name: {0}
+Version: {1}
+Release: {2}
+License: BSD
+BuildArch: noarch
+{4}
+
+%%install
+{5}
+
+%%description
+Test package.
+
+%%files
+{6}
+
+{3}
+""".format(name, version, release, postcode, requires, installcmds, installedfiles)
+        self.machine.write("/tmp/spec", spec)
+        cmd = """
+rpmbuild --quiet -bb /tmp/spec
+mkdir -p /tmp/repo
+cp ~/rpmbuild/RPMS/noarch/*.rpm /tmp/repo
+rm -rf ~/rpmbuild
+"""
         if install:
             cmd += "rpm -i /tmp/repo/{0}-{1}-{2}.*.rpm".format(name, version, release)
         self.machine.execute(cmd)

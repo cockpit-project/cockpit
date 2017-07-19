@@ -19,6 +19,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import testvm
+
 from testlib import *
 
 # The Docker Storage Setup behaves differently depending on
@@ -97,27 +99,36 @@ class TestDockerStorage(MachineCase):
         if can_manage(m):
             b.wait_present("#containers-storage-details a")
 
-    def testDevmapper(self):
-        m = self.machine
+@skipImage("No cockpit-docker on i386", "fedora-i386")
+class TestDockerStorageMapper(MachineCase):
+    provision = { "machine1" : { "address": "10.111.113.1/20" } }
 
+    def setUp(self):
         # On the Atomics, we use two machines: one for running
         # cockpit-ws, and one whose docker storage pool is managed.
         # We can't do that both on a single machine since resetting
         # the pool would kill the cockpit-ws container.
 
-        if self.machine.atomic_image:
+        if "atomic" in testvm.DEFAULT_IMAGE:
             # We want to use a non-Atomic machine as the login machine
             # and the build machine that matches the current Atomic is suitable
             # since we can use the same set of built packages
-            login_machine = self.new_machine(image=get_build_image(self.machine.image))
-            login_machine.start()
-            login_machine.wait_boot()
-            login_machine.set_address("10.111.113.2/20")
-            m.set_address("10.111.113.1/20")
-            b = self.new_browser(login_machine)
+            self.provision["login"] = {
+                "address": "10.111.113.2/20",
+                "image": get_build_image(testvm.DEFAULT_IMAGE)
+            }
+
+        self.allow_journal_messages('.*refusing to connect to unknown host.*')
+        self.allow_journal_messages('.*host key for server is not known.*')
+        MachineCase.setUp(self)
+
+    def testDevmapper(self):
+        m = self.machines["machine1"]
+        if "login" in self.machines:
+            login_machine = self.machines["login"]
         else:
-            login_machine = self.machine
-            b = self.browser
+            login_machine = m
+        b = self.browser
 
         if can_manage(m):
             # Allow docker-storage-setup to be happy with our very small disks
@@ -142,7 +153,7 @@ class TestDockerStorage(MachineCase):
         check_loopback(initially_loopbacked(m))
         check_atomic_vgroup(False)
 
-        if login_machine == self.machine:
+        if login_machine == m:
             self.login_and_go("/docker#/storage")
         else:
             login_machine.start_cockpit()

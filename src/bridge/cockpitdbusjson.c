@@ -2849,6 +2849,9 @@ on_shared_connection_ready (GObject *source,
 
   if (connection)
     {
+      if (!group_connections)
+        group_connections = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
       /*
        * Ensure that the key is removed when the last CockpitDBusJson
        * object in its group drops the connection. group_connections
@@ -3010,9 +3013,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
           bus_address = g_dbus_address_get_for_bus_sync (self->bus_type, self->cancellable, NULL);
           key = g_strdup_printf ("%s:%s", group, bus_address);
 
-          if (!group_connections)
-            group_connections = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-          else
+          if (group_connections)
             connection = g_hash_table_lookup (group_connections, key);
 
           if (connection)

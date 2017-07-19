@@ -141,4 +141,4 @@ cleanup_builder_vm
 BASE=$(dirname $0)
 
 # Either upload subscription credentials or touch file to ensure we don't want to subscribe
-virt-customize --add $out --upload $BASE/fedora-network-ifcfg:/etc/sysconfig/network-scripts/ifcfg-eth0 $subscription_args
+virt-customize --add $out --upload $BASE/network-ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 --upload $BASE/network-ifcfg-eth1:/etc/sysconfig/network-scripts/ifcfg-eth1 $subscription_args

@@ -341,7 +341,7 @@ class TestUpdates(MachineCase):
 
         # updating this package takes longer than a cockpit start and building the page
         self.createPackage("slow", "1", "1", install=True)
-        self.createPackage("slow", "1", "2",  postinst='sleep 10')
+        self.createPackage("slow", "1", "2",  postinst='sleep 20')
         self.enableRepo()
         m.execute("pkcon refresh")
 

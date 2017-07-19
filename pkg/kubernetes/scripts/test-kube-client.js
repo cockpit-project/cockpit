@@ -100,6 +100,56 @@ var FIXTURE_LARGE = require("./fixture-large");
         }
     ]);
 
+
+    kubeTest("loader load encoding", 2, FIXTURE_BASIC, [
+        "kubeLoader",
+        "kubeSelect",
+        "$q",
+        function(loader, select, $q) {
+            assert.equal(select().kind("Encoded").length, 0);
+
+            var defer = $q.defer();
+            var x = loader.listen(function() {
+                assert.equal(select().kind("Image").length, 1);
+                x.cancel();
+                defer.resolve();
+            });
+
+            loader.handle([{
+                "apiVersion": "v1",
+                "kind": "Image",
+                "metadata": {
+                    "name": "encoded:one",
+                    "resourceVersion": 10000,
+                    "uid": "11768037-ab8a-11e4-9a7c-100001001",
+                    "namespace": "default",
+                    "selfLink": "/oapi/v1/images/encoded%3Aone",
+                },
+            }, {
+                "apiVersion": "v1",
+                "kind": "Image",
+                "metadata": {
+                    "name": "encoded:one",
+                    "resourceVersion": 10000,
+                    "uid": "11768037-ab8a-11e4-9a7c-100001001",
+                    "namespace": "default",
+                },
+            }, {
+                "apiVersion": "v1",
+                "kind": "Image",
+                "metadata": {
+                    "name": "encoded:one",
+                    "resourceVersion": 10000,
+                    "uid": "11768037-ab8a-11e4-9a7c-100001001",
+                    "namespace": "default",
+                    "selfLink": "/oapi/v1/images/encoded:one",
+                },
+            }]);
+
+            return defer.promise;
+        }
+    ]);
+
     kubeTest("loader load fail", 3, FIXTURE_BASIC, [
         "kubeLoader",
         function(loader) {

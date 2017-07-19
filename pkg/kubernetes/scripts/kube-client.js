@@ -273,9 +273,6 @@
 
         /*
          * Combine into a path.
-         *
-         * Kubernetes names and namespaces are quite limited in their contents
-         * and do not need escaping to be used in a URI path.
          */
         var schema = SCHEMA[args[0]] || SCHEMA[""];
         var path = schema.api;
@@ -283,7 +280,8 @@
             path += "/namespaces/" + args[2];
         path += "/" + schema.type;
         if (args[1])
-            path += "/" + args[1];
+            path += "/" + encodeURIComponent(args[1]);
+
         return path;
     }
 
@@ -486,7 +484,7 @@
                 for (i = 0, len = drain.length; i < len; i++) {
                     resource = drain[i].object;
                     if (resource) {
-                        link = resourcePath([resource]);
+                        link = decodeURIComponent(resourcePath([resource]));
                         if (drain[i].type == "DELETED") {
                             delete objects[link];
                             removed[link] = resource;

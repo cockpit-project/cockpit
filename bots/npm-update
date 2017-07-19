@@ -104,7 +104,7 @@ def run(package, verbose=False, **kwargs):
             branch = task.branch(package, title, pathspec="package.json", **kwargs)
 
             # List of files that probably touch this package
-            lines = output("git", "grep", "{0}/".format(package))
+            lines = output("git", "grep", "-w", package)
             comment = "Please manually check features related to these files:\n\n```{0}```".format(lines)
 
             if branch:

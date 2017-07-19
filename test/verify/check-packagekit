@@ -339,9 +339,10 @@ class TestUpdates(MachineCase):
         b = self.browser
         m = self.machine
 
+        install_lockfile = "/tmp/finish-pk"
         # updating this package takes longer than a cockpit start and building the page
         self.createPackage("slow", "1", "1", install=True)
-        self.createPackage("slow", "1", "2",  postinst='sleep 10')
+        self.createPackage("slow", "1", "2",  postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
         self.enableRepo()
         m.execute("pkcon refresh")
 
@@ -360,6 +361,9 @@ class TestUpdates(MachineCase):
         b.wait_present("#state")
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
+
+        # finish the package installation
+        m.execute("touch {0}".format(install_lockfile))
 
         # should have succeeded and show restart page; cancel
         b.wait_present("#app .container-fluid h1")
@@ -392,7 +396,8 @@ class TestUpdates(MachineCase):
 
         # make sure we have enough time to crash PK
         self.createPackage("slow", "1", "1", install=True)
-        self.createPackage("slow", "1", "2",  postinst='sleep 10')
+        # we don't want this installation to finish
+        self.createPackage("slow", "1", "2", postinst="sleep infinity")
         self.enableRepo()
         m.execute("pkcon refresh")
 

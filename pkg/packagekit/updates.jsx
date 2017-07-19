@@ -117,7 +117,9 @@ function deduplicate(list) {
     return result;
 }
 
-function commaJoin(list) {
+// Insert comma strings in between elements of the list. Unlike list.join(",")
+// this does not stringify the elements, which we need to keep as JSX objects.
+function insertCommas(list) {
     return list.reduce((prev, cur) => [prev, ", ", cur])
 }
 
@@ -197,7 +199,7 @@ function UpdateItem(props) {
 
     if (info.bug_urls && info.bug_urls.length) {
         // we assume a bug URL ends with a number; if not, show the complete URL
-        bugs = commaJoin(info.bug_urls.map(u => <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={u} >{u.match(/[0-9]+$/) || u}</a>));
+        bugs = insertCommas(info.bug_urls.map(u => <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={u} >{u.match(/[0-9]+$/) || u}</a>));
     }
 
     if (info.security) {
@@ -205,7 +207,7 @@ function UpdateItem(props) {
             <p>
                 <span className="fa fa-bug security-label"> </span>
                 <span className="security-label-text">{ _("Security Update") + (info.cve_urls.length ? ": " : "") }</span>
-                { commaJoin(info.cve_urls.map(u => <a href={u} rel="noopener" referrerpolicy="no-referrer" target="_blank">{u.match(/[^/=]+$/)}</a>)) }
+                { insertCommas(info.cve_urls.map(u => <a href={u} rel="noopener" referrerpolicy="no-referrer" target="_blank">{u.match(/[^/=]+$/)}</a>)) }
             </p>
         );
     }
@@ -213,7 +215,7 @@ function UpdateItem(props) {
     return (
         <tbody>
             <tr className={ "listing-ct-item" + (info.security ? " security" : "") }>
-                <th>{ commaJoin(props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>))) }</th>
+                <th>{ insertCommas(props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>))) }</th>
                 <td className="narrow">{info.version}</td>
                 <td className="narrow">{bugs}</td>
                 <td className="changelog">{security_info}{info.description}</td>

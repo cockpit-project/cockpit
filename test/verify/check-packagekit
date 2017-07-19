@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import parent
 from testlib import *
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
@@ -215,9 +216,9 @@ class TestUpdates(MachineCase):
         b.wait_present("#app .container-fluid h1")
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
 
-        def assertHistory(parent, updates):
-            selector = parent + " .tooltip-ct-outer:nth-child({0}) li"
-            b.wait_present(parent)
+        def assertHistory(path, updates):
+            selector = path + " .tooltip-ct-outer:nth-child({0}) li"
+            b.wait_present(path)
             b.wait_present(selector.format(len(updates)))
             for index, pkg in enumerate(updates, start=1):
                 self.assertEqual(b.text(selector.format(index)), pkg)

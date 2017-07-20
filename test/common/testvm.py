@@ -30,7 +30,6 @@ import socket
 import subprocess
 import tempfile
 import sys
-import threading
 import time
 
 DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-26")
@@ -149,6 +148,9 @@ class Machine:
         self.ssh_process = None
         self.ssh_reachable = False
 
+        # The Linux kernel boot_id
+        self.boot_id = None
+
     def diagnose(self):
         keys = {
             "ssh_user": self.ssh_user,
@@ -209,21 +211,46 @@ class Machine:
            Most tests run as the "admin" user, so we make sure that
            user sessions are allowed (and cockit-ws will let "admin"
            in) before declaring a test machine as "booted".
+
+           Returns the boot id of the system.
         """
         tries_left = 60
         while (tries_left > 0):
             try:
-                self.execute("! test -f /run/nologin")
-                return
+                return self.execute("! test -f /run/nologin && cat /proc/sys/kernel/random/boot_id")
             except subprocess.CalledProcessError:
                 pass
             tries_left = tries_left - 1
             time.sleep(1)
         raise Failure("Timed out waiting for /run/nologin to disappear")
 
-    def wait_boot(self):
+    def wait_boot(self, timeout_sec=120):
         """Wait for a machine to boot"""
-        assert False, "Cannot wait for a machine we didn't start"
+        start_time = time.time()
+        connected = False
+        while (time.time() - start_time) < timeout_sec:
+            if self.wait_execute(timeout_sec=15):
+                connected = True
+                break
+        if connected:
+            self.boot_id = self.wait_user_login()
+        else:
+            raise Failure("Unable to reach machine {0} via ssh: {1}:{2}".format(self.label, self.ssh_address, self.ssh_port))
+
+    def wait_reboot(self, timeout_sec=120):
+        self.disconnect()
+        assert self.boot_id, "Before using wait_reboot() use wait_boot() successfully"
+        boot_id = self.boot_id
+        start_time = time.time()
+        while (time.time() - start_time) < timeout_sec:
+            try:
+                self.wait_boot(timeout_sec=timeout_sec)
+                if self.boot_id != boot_id:
+                    break
+            except Failure:
+                pass
+        else:
+            raise Failure("Timeout waiting for system to reboot properly")
 
     def wait_poweroff(self):
         """Overridden by machine classes to wait for a machine to stop"""
@@ -673,224 +700,6 @@ class Machine:
         cmd = "dnsmasq --domain=cockpit.lan --interface=\"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" --bind-dynamic"
         self.execute(cmd.format(mac=mac))
 
-class VirtEventHandler():
-    """ VirtEventHandler registers event handlers (currently: boot, resume, reboot) for libvirt domain instances
-        It requires an existing libvirt connection handle, because libvirt requires the domain
-        references to be from the same connection instance!
-        A thread in the background will run the libvirt event loop. Convenience functions wait_for_reboot,
-        wait_for_running and wait_for_stopped exist (with timeouts).
-        Access to the datastructures is mutex-protected, with an additional threading.Condition object
-        for signaling new events (to avoid polling in the wait* convenience functions).
-        It is expected for the caller to register new domains and if possible deregister them for the callbacks.
-    """
-    def __init__(self, libvirt_connection, verbose = False):
-        self.eventLoopThread = None
-        self.domain_status = { }
-        self.domain_has_rebooted = { }
-        self.verbose = verbose
-        self.connection = libvirt_connection
-
-        # register event handlers
-        self.registered_callbacks = { }
-
-        self.data_lock = threading.RLock()
-        self.signal_condition = threading.Condition(self.data_lock)
-
-        # only show debug messages for specific domains, since
-        # we might have multiple event handlers at any given time
-        self.debug_domains = []
-
-        self.virEventLoopNativeStart()
-
-    def allow_domain_debug_output(self, dom_name):
-        with self.data_lock:
-            if not dom_name in self.debug_domains:
-                self.debug_domains.append(dom_name)
-
-    def forbid_domain_debug_output(self, dom_name):
-        with self.data_lock:
-            if dom_name in self.debug_domains:
-                self.debug_domains.remove(dom_name)
-
-    # 'reboot' and domain lifecycle events are treated differently by libvirt
-    # a regular reboot doesn't affect the started/stopped state of the domain
-    @staticmethod
-    def domain_event_reboot_callback(conn, dom, event_handler):
-        key = (dom.name(), dom.ID())
-        with event_handler.data_lock:
-            if not key in event_handler.domain_has_rebooted or event_handler.domain_has_rebooted[key] != True:
-                if event_handler.verbose and dom.name() in event_handler.debug_domains:
-                    sys.stderr.write("[%s] REBOOT: Domain '%s' (ID %s)\n" % (str(time.time()), dom.name(), dom.ID()))
-                event_handler.domain_has_rebooted[key] = True
-                event_handler.signal_condition.notifyAll()
-
-    @staticmethod
-    def domain_event_callback(conn, dom, event, detail, event_handler):
-        key = (dom.name(), dom.ID())
-        value = { 'status': event_handler.dom_event_to_string(event),
-                  'detail': event_handler.dom_detail_to_string(event, detail)
-                }
-        with event_handler.data_lock:
-            if not key in event_handler.domain_status or event_handler.domain_status[key] != value:
-                event_handler.domain_status[key] = value
-                event_handler.signal_condition.notifyAll()
-                if event_handler.verbose and dom.name() in event_handler.debug_domains:
-                    sys.stderr.write("[%s] EVENT: Domain '%s' (ID %s) %s %s\n" % (
-                            str(time.time()),
-                            dom.name(),
-                            dom.ID(),
-                            event_handler.dom_event_to_string(event),
-                            event_handler.dom_detail_to_string(event, detail))
-                        )
-
-    def register_handlers_for_domain(self):
-        self.deregister_handlers_for_domain()
-        self.registered_callbacks = [
-                self.connection.domainEventRegisterAny(None,
-                                                       libvirt.VIR_DOMAIN_EVENT_ID_LIFECYCLE,
-                                                       VirtEventHandler.domain_event_callback,
-                                                       self),
-                self.connection.domainEventRegisterAny(None,
-                                                       libvirt.VIR_DOMAIN_EVENT_ID_REBOOT,
-                                                       VirtEventHandler.domain_event_reboot_callback,
-                                                       self)
-            ]
-
-    def deregister_handlers_for_domain(self):
-        for cb in self.registered_callbacks:
-            self.connection.domainEventDeregisterAny(cb)
-        self.registered_callbacks = [ ]
-
-    # mapping of event and detail ids to strings from
-    # http://libvirt.org/git/?p=libvirt-python.git;a=blob_plain;f=examples/event-test.py;hb=HEAD
-    def dom_event_to_string(self, event):
-        domEventStrings = ( "Defined",
-                            "Undefined",
-                            "Started",
-                            "Suspended",
-                            "Resumed",
-                            "Stopped",
-                            "Shutdown",
-                            "PMSuspended",
-                            "Crashed"
-                          )
-        return domEventStrings[event]
-
-    def dom_detail_to_string(self, event, detail):
-        domEventStrings = (
-            ( "Added", "Updated" ),
-            ( "Removed", ),
-            ( "Booted", "Migrated", "Restored", "Snapshot", "Wakeup" ),
-            ( "Paused", "Migrated", "IOError", "Watchdog", "Restored", "Snapshot", "API error" ),
-            ( "Unpaused", "Migrated", "Snapshot" ),
-            ( "Shutdown", "Destroyed", "Crashed", "Migrated", "Saved", "Failed", "Snapshot"),
-            ( "Finished", ),
-            ( "Memory", "Disk" ),
-            ( "Panicked", ),
-            )
-        return domEventStrings[event][detail]
-
-    def reset_domain_status(self, domain):
-        with self.data_lock:
-            key = (domain.name(), domain.ID())
-            if key in self.domain_status:
-                del self.domain_status[key]
-
-    def reset_domain_reboot_status(self, domain):
-        with self.data_lock:
-            key = (domain.name(), domain.ID())
-            if key in self.domain_has_rebooted:
-                del self.domain_has_rebooted[key]
-
-    # reboot flag should have probably been reset before this
-    # returns whether domain has rebooted
-    def wait_for_reboot(self, domain, timeout_sec=120):
-        start_time = time.time()
-        end_time = start_time + timeout_sec
-        key = (domain.name(), domain.ID())
-        with self.data_lock:
-            if key in self.domain_has_rebooted:
-                return True
-        remaining_time = end_time - time.time()
-        with self.signal_condition:
-            while remaining_time > 0:
-                # wait for a domain event or our timeout
-                self.signal_condition.wait(remaining_time)
-                if key in self.domain_has_rebooted:
-                    return True
-                remaining_time = end_time - time.time()
-        return False
-
-    def has_rebooted(self, domain):
-        key = (domain.name(), domain.ID())
-        with self.data_lock:
-            return key in self.domain_has_rebooted
-
-    def domain_is_running(self, domain):
-        key = (domain.name(), domain.ID())
-        with self.data_lock:
-            return key in self.domain_status and self.domain_status[key]['status'] in ["Started", "Resumed"]
-
-    def domain_is_stopped(self, domain):
-        key = (domain.name(), domain.ID())
-        with self.data_lock:
-            return key in self.domain_status and self.domain_status[key] in [{'status': 'Shutdown', 'detail': 'Finished'},
-                                                                             {'status': 'Stopped', 'detail': 'Shutdown'}
-                                                                            ]
-
-    def wait_for_running(self, domain, timeout_sec=120):
-        start_time = time.time()
-        end_time = start_time + timeout_sec
-        if self.domain_is_running(domain):
-            return True
-        remaining_time = end_time - time.time()
-        with self.signal_condition:
-            while remaining_time > 0:
-                # wait for a domain event or our timeout
-                self.signal_condition.wait(remaining_time)
-                if self.domain_is_running(domain):
-                    return True
-                remaining_time = end_time - time.time()
-        return False
-
-    def _domain_is_valid(self, uuid):
-        try:
-            with stdchannel_redirected(sys.stderr, os.devnull):
-                return self.connection.lookupByUUID(uuid)
-        except:
-            return False
-
-    def wait_for_stopped(self, domain, timeout_sec=120):
-        start_time = time.time()
-        end_time = start_time + timeout_sec
-        uuid = domain.UUID()
-        if self.domain_is_stopped(domain) or not self._domain_is_valid(uuid):
-            return True
-        remaining_time = end_time - time.time()
-        with self.signal_condition:
-            while remaining_time > 0:
-                # wait for a domain event or our timeout
-                self.signal_condition.wait(remaining_time)
-                if self.domain_is_stopped(domain) or not self._domain_is_valid(uuid):
-                    return True
-                remaining_time = end_time - time.time()
-        return False
-
-    def virEventLoopNativeStart(self):
-        def virEventLoopNativeRun():
-            self.register_handlers_for_domain()
-            try:
-                while libvirt:
-                    if libvirt.virEventRunDefaultImpl() < 0:
-                        raise Failure("Error in libvirt event handler")
-            except:
-                raise Failure("error in libvirt event loop")
-
-        self.eventLoopThread = threading.Thread(target=virEventLoopNativeRun,
-                                           name="libvirtEventLoop")
-        self.eventLoopThread.setDaemon(True)
-        self.eventLoopThread.start()
-
 TEST_DOMAIN_XML="""
 <domain type='{type}' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>{label}</name>
@@ -1106,11 +915,7 @@ class VirtMachine(Machine):
         base_dir = os.path.join(LOCAL_DIR, "..", "..")
         self.run_dir = os.path.join(os.environ.get("TEST_DATA", base_dir), "tmp", "run")
 
-        # it is ESSENTIAL to register the default implementation of the event loop before opening a connection
-        # otherwise messages may be delayed or lost
-        libvirt.virEventRegisterDefaultImpl()
         self.virt_connection = self._libvirt_connection(hypervisor = "qemu:///session")
-        self.event_handler = VirtEventHandler(libvirt_connection=self.virt_connection, verbose=self.verbose)
 
         self._disks = [ ]
         self._domain = None
@@ -1183,13 +988,9 @@ class VirtMachine(Machine):
 
         # add the virtual machine
         try:
-            # allow debug output for this domain
-            self.event_handler.allow_domain_debug_output(keys["name"])
             # print >> sys.stderr, test_domain_desc
             self._domain = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
         except libvirt.libvirtError, le:
-            # remove the debug output
-            self.event_handler.forbid_domain_debug_output(keys["name"])
             if 'already exists with uuid' in le.message:
                 raise RepeatableFailure("libvirt domain already exists: " + le.message)
             else:
@@ -1289,33 +1090,13 @@ class VirtMachine(Machine):
         expect = subprocess.Popen(["expect", "--", "-", str(self._domain.ID())], stdin=subprocess.PIPE)
         expect.communicate(SCRIPT)
 
-    def reset_reboot_flag(self):
-        self.event_handler.reset_domain_reboot_status(self._domain)
-
-    def wait_reboot(self, wait_for_running_timeout=120):
-        self.disconnect()
-        if not self.event_handler.wait_for_reboot(self._domain):
-            raise Failure("system didn't notify us about a reboot")
-        # we may have to check for a new dhcp lease, but the old one can be active for a bit
-        if not self.wait_execute(timeout_sec=wait_for_running_timeout):
-            raise Failure("system didn't reboot properly")
-        self.wait_user_login()
-
-    def wait_boot(self, wait_for_running_timeout = 120):
-        # we should check for selinux relabeling in progress here
-        if not self.event_handler.wait_for_running(self._domain, timeout_sec=wait_for_running_timeout ):
-            raise Failure("Machine {0} didn't start.".format(self.label))
-
-        start_time = time.time()
-        connected = False
-        while (time.time() - start_time) < wait_for_running_timeout:
-            if self.wait_execute(timeout_sec=15):
-                connected = True
-                break
-        if not connected:
+    def wait_boot(self, timeout_sec=120):
+        """Wait for a machine to boot"""
+        try:
+            Machine.wait_boot(self, timeout_sec)
+        except Failure:
             self._diagnose_no_address()
-            raise Failure("Unable to reach machine {0} via ssh: {1}:{2}".format(self.label, self.ssh_address, self.ssh_port))
-        self.wait_user_login()
+            raise
 
     def stop(self, timeout_sec=120):
         if self.maintain:
@@ -1328,10 +1109,6 @@ class VirtMachine(Machine):
         try:
             for disk in self._disks:
                 self.rem_disk(disk, quick)
-
-            if self._domain:
-                # remove the debug output
-                self.event_handler.forbid_domain_debug_output(self._domain.name())
 
             self._domain = None
             if hasattr(self, '_transient_image') and self._transient_image and os.path.exists(self._transient_image):
@@ -1359,9 +1136,19 @@ class VirtMachine(Machine):
     def wait_poweroff(self, timeout_sec=120):
         # shutdown must have already been triggered
         if self._domain:
-            if not self.event_handler.wait_for_stopped(self._domain, timeout_sec=timeout_sec):
-                self.message("waiting for machine poweroff timed out")
-        if self._domain:
+            start_time = time.time()
+            while (time.time() - start_time) < timeout_sec:
+                try:
+                    with stdchannel_redirected(sys.stderr, os.devnull):
+                        if not self._domain.isActive():
+                            break
+                except libvirt.libvirtError, le:
+                    if 'no domain' in le.message or 'not found' in le.message:
+                        break
+                    raise
+                time.sleep(1)
+            else:
+                raise Failure("Waiting for machine poweroff timed out")
             try:
                 with stdchannel_redirected(sys.stderr, os.devnull):
                     self._domain.destroyFlags(libvirt.VIR_DOMAIN_DESTROY_DEFAULT)

@@ -89,7 +89,7 @@ class MachineBuilder:
         """Prepare a test image further by running some commands in it."""
         self.machine.start()
         try:
-            self.machine.wait_boot(wait_for_running_timeout=120)
+            self.machine.wait_boot(timeout_sec=120)
             self.machine.upload([ os.path.join(BOTS, "images", "scripts", "lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             if source:
@@ -130,9 +130,8 @@ class MachineBuilder:
         This also takes care of any selinux relabeling setup triggered
         Don't wait for an ip address during start, since the system might reboot"""
         self.machine.start()
-        self.machine.reset_reboot_flag()
         try:
-            self.machine.wait_boot(wait_for_running_timeout=120)
+            self.machine.wait_boot(timeout_sec=120)
         finally:
             self.machine.stop(timeout_sec=120)
 

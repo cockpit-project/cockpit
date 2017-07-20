@@ -15,7 +15,7 @@ To then access that it run the following in another terminal:
 
     $ sudo yum install kubernetes-client
     $ mkdir -p ~/.kube
-    $ cp test/verify/files/openshift.kubeconfig ~/.kube/config
+    $ cp bots/images/files/openshift.kubeconfig ~/.kube/config
 
 You should now be able to use the kubectl command to access the cluster:
 

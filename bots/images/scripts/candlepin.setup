@@ -40,8 +40,6 @@ yum clean all
 rm -rf /var/log/journal/*
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 
-touch /.autorelabel
-
 # Audit events to the journal
 rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
 rm -rf /var/log/audit/

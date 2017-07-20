@@ -132,8 +132,7 @@ class MachineBuilder:
         self.machine.start()
         self.machine.reset_reboot_flag()
         try:
-            # it could be that selinux relabeling needs a reboot
-            self.machine.wait_boot(wait_for_running_timeout=120, allow_one_reboot=True)
+            self.machine.wait_boot(wait_for_running_timeout=120)
         finally:
             self.machine.stop(timeout_sec=120)
 

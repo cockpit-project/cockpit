@@ -137,8 +137,6 @@ printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config
 # Prevent SSH from hanging for a long time when no external network access
 echo 'UseDNS no' >> /etc/ssh/sshd_config
 
-touch /.autorelabel
-
 # Audit events to the journal
 rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
 rm -rf /var/log/audit/

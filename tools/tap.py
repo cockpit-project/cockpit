@@ -43,7 +43,7 @@ class TapResult(unittest.TestResult):
         data = "not ok {0} {1} duration: {2}s\n".format(self.offset,
                 str(test), int(time.time() - self.start_time))
         if err:
-            data += self._exc_info_to_string(err, test)
+            data = self._exc_info_to_string(err, test) + "\n" + data
         sys.stdout.write(data)
         sys.stdout.flush()
 

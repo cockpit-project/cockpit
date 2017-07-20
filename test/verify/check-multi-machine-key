@@ -225,6 +225,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         if m1.image in [ "continuous-atomic", "fedora-atomic", "rhel-atomic" ]:
             return
 
+        # We expect this iframe to be active
+        b.switch_to_top()
+        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
+
         b.go("/dashboard")
         b.enter_page("/dashboard")
         b.click('#dashboard-enable-edit')
@@ -237,8 +241,13 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.set_val('#host-edit-user', 'user')
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
+
+        # We now expect this iframe to disappear
+        b.switch_to_top()
         b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
 
+        # And then we expect it to be reloaded after clicking through
+        b.enter_page("/dashboard")
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
         b.enter_page("/system", host="user@10.111.113.2")
 

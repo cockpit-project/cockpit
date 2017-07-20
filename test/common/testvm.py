@@ -1301,34 +1301,21 @@ class VirtMachine(Machine):
             raise Failure("system didn't reboot properly")
         self.wait_user_login()
 
-    def wait_boot(self, wait_for_running_timeout = 120, allow_one_reboot=False):
+    def wait_boot(self, wait_for_running_timeout = 120):
         # we should check for selinux relabeling in progress here
         if not self.event_handler.wait_for_running(self._domain, timeout_sec=wait_for_running_timeout ):
             raise Failure("Machine {0} didn't start.".format(self.label))
 
-        # if we allow a reboot, the connection to test for a finished boot may be interrupted
-        # by the reboot, causing an exception
-        try:
-            start_time = time.time()
-            connected = False
-            while (time.time() - start_time) < wait_for_running_timeout:
-                if self.wait_execute(timeout_sec=15):
-                    connected = True
-                    break
-                if allow_one_reboot and self.event_handler.has_rebooted(self._domain):
-                    self.reset_reboot_flag()
-                    self.wait_boot(wait_for_running_timeout, allow_one_reboot=False)
-            if not connected:
-                self._diagnose_no_address()
-                raise Failure("Unable to reach machine {0} via ssh: {1}:{2}".format(self.label, self.ssh_address, self.ssh_port))
-            self.wait_user_login()
-        except:
-            if allow_one_reboot:
-                self.wait_reboot()
-                self.reset_reboot_flag()
-                self.wait_boot(wait_for_running_timeout, allow_one_reboot=False)
-            else:
-                raise
+        start_time = time.time()
+        connected = False
+        while (time.time() - start_time) < wait_for_running_timeout:
+            if self.wait_execute(timeout_sec=15):
+                connected = True
+                break
+        if not connected:
+            self._diagnose_no_address()
+            raise Failure("Unable to reach machine {0} via ssh: {1}:{2}".format(self.label, self.ssh_address, self.ssh_port))
+        self.wait_user_login()
 
     def stop(self, timeout_sec=120):
         if self.maintain:

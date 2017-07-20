@@ -56,17 +56,12 @@ the Cockpit integration tests locally.
 It is recommended to use a Vagrant virtual machine to develop Cockpit.
 
 Most of Cockpit is written in javascript. Almost all of this code is found
-in the packages in the `pkg/` subdirectory of the Cockpit git checkout.
+in the packages in the pkg/ subdirectory of the Cockpit git checkout.
 
 To use Vagrant to develop Cockpit, run in its top level git checkout.
 In some cases you may need to use `sudo` with vagrant commands:
 
     $ vagrant up
-
-It might complain for a missing `/dist` directory in the Cockpit sources.
-Run it to automatically prepare the sources for compilation.
-
-    $ ./autogen.sh
 
 Now you can edit files in the `pkg/` subdirectory of the Cockpit sources.
 Use the `webpack` command to build those sources. The changes should

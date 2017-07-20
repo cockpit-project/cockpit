@@ -277,7 +277,6 @@ class OstreeRestartCase(MachineCase):
         m.start_cockpit()
         b.reload()
         b.login_and_go("/updates")
-        m.reset_reboot_flag()
 
         # After reboot, check commit
         b.wait_present('table.listing-ct')
@@ -326,7 +325,6 @@ class OstreeRestartCase(MachineCase):
         m.start_cockpit()
         b.reload()
         b.login_and_go("/updates")
-        m.reset_reboot_flag()
 
         # After reboot upgrade but no rollback target
         b.wait_present('table.listing-ct')
@@ -405,7 +403,6 @@ class OstreeRestartCase(MachineCase):
         m.start_cockpit()
         b.reload()
         b.login_and_go("/updates")
-        m.reset_reboot_flag()
 
         # After reboot, check commit
         b.wait_present('table.listing-ct')

@@ -64,7 +64,6 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("/system")
 
         # Reboot
-        m.reset_reboot_flag()
         b.click("#shutdown-group button.btn-danger")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
@@ -107,7 +106,6 @@ class TestShutdownRestart(MachineCase):
             b2.wait_text("#system_information_hostname_button", "machine1")
 
             # Check auto reconnect on restart
-            m.reset_reboot_flag()
             b2.click("#shutdown-group button.btn-danger")
             b2.wait_popup("shutdown-dialog")
             b2.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')

@@ -274,7 +274,6 @@ class TestUpdates(MachineCase):
         assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         # do the reboot; this will disconnect the web UI
-        m.reset_reboot_flag()
         b.click("#app .container-fluid button.btn-primary")
         b.switch_to_top()
         b.wait_present(".curtains-ct")

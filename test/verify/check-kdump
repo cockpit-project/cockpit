@@ -42,7 +42,6 @@ class TestKdump(MachineCase):
 
     def rebootMachine(self):
         # Now reboot things
-        self.machine.reset_reboot_flag()
         self.machine.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         self.machine.wait_reboot()
         self.machine.start_cockpit()
@@ -127,7 +126,7 @@ class TestKdump(MachineCase):
         self.browser.wait_visible("div.curtains-ct")
         self.browser.wait_in_text("div.curtains-ct h1", "Disconnected")
         self.machine.disconnect()
-        self.machine.wait_boot(wait_for_running_timeout=300)
+        self.machine.wait_boot(timeout_sec=300)
         #self.browser.click("#machine-reconnect")
         #self.browser.expect_load()
         #self.browser.wait_visible("#login")

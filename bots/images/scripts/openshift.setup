@@ -56,7 +56,13 @@ systemctl daemon-reload
 systemctl start docker || journalctl -u docker
 
 # Can't use latest because release on older versions are done out of order
-VERSION=$(curl -s https://api.github.com/repos/openshift/origin/releases | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True)[0])")
+RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases)
+VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
+    echo "Failed to parse latest release:" >&2
+    echo "$RELEASES_JSON" >&2
+    echo "------------------------------------" >&2
+    exit 1
+}
 
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages

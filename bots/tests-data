@@ -1,0 +1,291 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import json
+import os
+import sys
+import subprocess
+import time
+import urlparse
+import urllib2
+
+import HTMLParser
+
+sys.dont_write_bytecode = True
+
+import task
+
+BOTS = os.path.abspath(os.path.dirname(__file__))
+FETCHED = { }
+SINKS = { }
+
+def main():
+    parser = argparse.ArgumentParser(description="Pull out test data for pull requests")
+    parser.add_argument("--open", action="store_true", help="Pull data on open pull requests")
+    parser.add_argument("--since", help="Since a given ISO-8601 date")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show verbose progress")
+    opts = parser.parse_args()
+
+    since = opts.since
+    try:
+        if since is not None:
+            since = time.mktime(time.strptime(opts.since, "%Y-%m-%d"))
+    except ValueError:
+        sys.stderr.write("tests-data: invalid since date: {0}\n".format(since))
+        sys.exit(2)
+
+    for pull in task.api.pulls(state=opts.open and "open" or "closed", since=since):
+        if opts.verbose:
+            sys.stderr.write("pull-{0}\n".format(pull["number"]))
+        merged = included(pull, since)
+        for revision in revisions(pull):
+            if opts.verbose:
+                sys.stderr.write("- {0}\n".format(revision))
+            for (context, created, url, log) in logs(revision):
+                if opts.verbose:
+                    sys.stderr.write("  - {0} {1}\n".format(created, context))
+                for (status, name, body) in tap(log):
+                    sys.stdout.write(json.dumps({
+                        "pull": pull["number"],
+                        "revision": revision,
+                        "status": status,
+                        "context": context,
+                        "date": created,
+                        "merged": merged,
+                        "test": name,
+                        "url": url,
+                        "log": body
+                    }))
+                    sys.stdout.write("\n")
+            # The next revisions for the pull request are not the ones
+            # that got merged. Only the first one produced by revisions
+            if merged:
+                merged = False
+
+
+# An HTML parser that just pulls out all the <a href="...">
+# link hrefs in a given page of content. We also qualify these
+# hrefs with a base url, in case they're relative
+class HrefParser(HTMLParser.HTMLParser):
+    def __init__(self, base, hrefs):
+        HTMLParser.HTMLParser.__init__(self)
+        self.hrefs = hrefs
+        self.base = base
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() == "a":
+            for (name, value) in attrs:
+                if name.lower() == "href":
+                    url = urlparse.urljoin(self.base, value)
+                    # print 'HREF', url
+                    self.hrefs.append(url)
+
+# Retrieves the content of the given URL
+def retrieve(url):
+    return urllib2.urlopen(url).read()
+
+# Returns a list of all results at the given URL
+def links(url):
+    result = [ ]
+    parser = HrefParser(url, result)
+    try:
+        parser.feed(retrieve(url))
+    except urllib2.HTTPError, ex:
+        if ex.code != 404:
+            raise
+    except urllib2.URLError:
+        sys.stderr.write("{0}: {1}\n".format(url, ex))
+    return result
+
+# Generates revisions for a given pull request. Each revision
+# is a simple string sha. The first one is the one that is at
+# the head of the pull request, and any other follow on revisions
+# are those which were previously tested (eg: force push, or with
+# later fixups).
+def revisions(pull):
+    head = pull.get("head", { }).get("sha")
+    if not head:
+        return
+
+    # First give back the main pull request
+    yield head
+
+    # All the revisions we've seen
+    seen = set([ head ])
+
+    # Ignore these sink urls. See below. This is an optimization.
+    # We don't need to retrieve the sink /status page for the head revision
+    ignore = set()
+
+    # Seed the set of sinks. We use these sinks to figure out additional
+    # revisions for the pull request. Unfortunately GitHub doesn't help us
+    # with a list of revisions that this pull request used to reflect. So
+    # we have to look to our sink for that info.
+    data = task.api.get("commits/{0}/status?page=1&per_page=100".format(head))
+    for status in data.get("statuses", [ ]):
+        url = status["target_url"]
+        if url:
+            ignore.add(urlparse.urljoin(url, "./"))
+            sink = urlparse.urljoin(url, "../")
+            if sink not in SINKS:
+                SINKS[sink] = links(sink)
+
+    # Now ask each sink for its set of urls
+    name = "pull-{0}".format(pull["number"])
+    for sink in SINKS:
+        for link in SINKS[sink]:
+
+            # Ignore links back to an already parsed and seen sink output
+            if link in ignore:
+                continue
+
+            # We only care about stuff at the sink where pull-XXXX is in
+            # the URL. This is how we figure out whether things are related
+            if name not in link:
+                continue
+
+            # Build a URL for the cockpituous sink /status file and read it
+            target = urlparse.urljoin(link, "status")
+            try:
+                data = json.loads(retrieve(target))
+            except ValueError, ex:
+                sys.stderr.write("{0}: {1}\n".format(target, ex))
+            except urllib2.HTTPError, ex:
+                if ex.code != 404:
+                    raise
+            except urllib2.URLError, ex:
+                sys.stderr.write("{0}: {1}\n".format(target, ex))
+                pass
+            else:
+                # The status file contains a "revision" field which is the git revision
+                # of what was tested during that test run. This is what we're after
+                if "revision" in data:
+                    if data["revision"] not in seen:
+                        seen.add(data["revision"])
+                        yield data["revision"]
+
+# Pull out all status (context, created, log) for a given revision. This includes multiple
+# test runs for a given revision, and all the various status contexts
+def logs(revision):
+    page = 1
+    count = 100
+    while count == 100:
+        data = task.api.get("commits/{0}/status?page={1}&per_page={2}".format(revision, page, count))
+        count = 0
+        for status in data.get("statuses", [ ]):
+            count += 1
+            if status["state"] not in [ "success", "failure" ]:
+                continue
+            target = status["target_url"]
+            if target.endswith(".html"):
+                target = target[:-5]
+            try:
+                yield (status["context"], status["created_at"], target, retrieve(target))
+            except urllib2.HTTPError, ex:
+                if ex.code != 404:
+                    raise
+            except urllib2.URLError:
+                sys.stderr.write("{0}: {1}\n".format(target, ex))
+
+# Generate (status, body) for each Test Anything Protocol test
+# in the content. The possible statuses are "success", "failure", "skip"
+def tap(content):
+    prefix = None
+    body = [ ]
+    blocks = False
+    status = None
+    for line in content.split('\n'):
+        # The test intro, everything before here is fluff
+        if not prefix and line.startswith("1.."):
+            prefix = line
+            body = [ ]
+            name = None
+
+        # A TAP test status line
+        elif line.startswith("ok ") or line.startswith("not ok "):
+            body.append(line)
+            # Parse out the status
+            if line.startswith("not ok "):
+                status = "failure"
+                line = line[7:]
+            else:
+                line = line[3:]
+                if "# SKIP" in line.upper():
+                    status = "skip"
+                else:
+                    status = "success"
+            # Parse out the name
+            while line[0].isspace() or line[0].isdigit():
+                line = line[1:]
+            (name, delim, directive) = line.partition("#")
+            (name, delim, directive) = name.partition("duration")
+            name = name.strip()
+            # Old Cockpit tests had strange blocks
+            if not blocks:
+                yield (status, name, "\n".join(body))
+                body = [ ]
+                status = None
+                name = None
+        else:
+            # Old Cockpit tests didn't separate bound their stuff properly
+            if line.startswith("# --------------------"):
+                blocks = True
+                if status:
+                    yield (status, name, "\n".join(body))
+                status = None
+                body = [ ]
+                name = None
+            body.append(line)
+
+# Check if a given pull request was included in its base
+# branch via merging or otherwise
+def included(pull, since):
+    if pull.get("state") != "closed":
+        return None
+
+    # GitHub is telling us this was merged
+    if pull.get("merged"):
+        return True
+
+    # Fetch git data about this branch
+    cwd = os.path.dirname(__file__)
+    base = pull["base"]["ref"]
+    if base not in FETCHED:
+        subprocess.check_call([ "git", "fetch", "-q", "--", "origin", base ], cwd=cwd)
+        FETCHED[base] = base
+
+    # Look for git commits up until a year before the pull request
+    when = time.mktime(time.strptime(pull["created_at"], "%Y-%m-%dT%H:%M:%SZ"))
+    when -= 60 * 60 * 24 * 365
+    since = time.strftime("%Y-%m-%d", time.gmtime(when))
+
+    # Check if it's referred to in this branch
+    match = "(Closes|Fixes|closes|fixes).*{0}".format(pull["number"])
+    cmd = [
+        "git", "log", "--extended-regexp", "--grep", match,
+        "--since=" + since, "origin/" + base
+    ]
+    output = subprocess.check_output(cmd, cwd=cwd)
+
+    return output and True or False
+
+if __name__ == '__main__':
+    sys.exit(main())

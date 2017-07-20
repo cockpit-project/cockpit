@@ -82,7 +82,7 @@ try:
         kubeconfig = os.path.join(os.path.expanduser("~"), ".kube", "config")
         if not os.path.lexists(kubeconfig):
             d = os.path.dirname(kubeconfig)
-            src = os.path.abspath(os.path.join(TEST, "verify", "files", "openshift.kubeconfig"))
+            src = os.path.abspath(os.path.join(BOTS, "images", "files", "openshift.kubeconfig"))
             if not os.path.exists(d):
                 os.makedirs(d)
             sys.stderr.write("image-run: linking kubeconfig into ~/.kube/config\n")

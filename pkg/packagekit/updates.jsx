@@ -56,6 +56,14 @@ const PK_STATUS_STRINGS = {
     14: _("Verifying"),
 }
 
+const PK_STATUS_LOG_STRINGS = {
+    8: _("Downloaded"),
+    9: _("Installed"),
+    10: _("Updated"),
+    11: _("Set up"),
+    14: _("Verified"),
+}
+
 const transactionInterface = "org.freedesktop.PackageKit.Transaction";
 
 var dbus_pk = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
@@ -127,6 +135,11 @@ class Expander extends React.Component {
     constructor() {
         super();
         this.state = {expanded: false};
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.onExpand && !prevState.expanded && this.state.expanded)
+            this.props.onExpand();
     }
 
     render() {
@@ -344,7 +357,9 @@ function UpdateHistory(props) {
 class ApplyUpdates extends React.Component {
     constructor() {
         super();
-        this.state = { percentage: 0, timeRemaining: null, curStatus: null, curPackage: null };
+        // actions is a chronological list of { status: PK_STATUS_*, package: "name version" } events
+        // that happen during applying updates
+        this.state = { percentage: 0, timeRemaining: null, actions: [] };
     }
 
     componentDidMount() {
@@ -362,39 +377,74 @@ class ApplyUpdates extends React.Component {
                         if ("RemainingTime" in reply[0])
                             remain = reply[0].RemainingTime.v;
                         // info: see PK_STATUS_* at https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
-                        this.setState({ curPackage: pfields[0] + " " + pfields[1],
-                                        curStatus: info,
+                        let newActions = this.state.actions.slice();
+                        newActions.push({ status: info, package: pfields[0] + " " + pfields[1] });
+
+                        let log = document.getElementById("update-log");
+                        let atBottom = false;
+                        if (log) {
+                            if (log.scrollHeight - log.clientHeight <= log.scrollTop + 2)
+                                atBottom = true;
+                        }
+
+                        this.setState({ actions: newActions,
                                         percentage: percent <= 100 ? percent : 0,
                                         timeRemaining: remain > 0 ? remain : null
                         });
+
+                        // scroll update log to the bottom, if it already is (almost) at the bottom
+                        if (log && atBottom)
+                            log.scrollTop = log.scrollHeight;
                     });
             },
         });
     }
 
     render() {
-        var action;
+        var actionHTML, logRows;
 
-        if (this.state.curPackage)
-            action = (
+        if (this.state.actions.length > 0) {
+            let lastAction = this.state.actions[this.state.actions.length - 1];
+            actionHTML = (
                 <span>
-                    <strong>{ PK_STATUS_STRINGS[this.state.curStatus || PK_STATUS_ENUM_UPDATE] || PK_STATUS_STRINGS[PK_STATUS_ENUM_UPDATE] }</strong>
-                    &nbsp;{this.state.curPackage}
-                </span>
-            );
-        else
-            action = _("Initializing...");
+                    <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK_STATUS_ENUM_UPDATE] }</strong>
+                    &nbsp;{lastAction.package}
+                </span>);
+            logRows = this.state.actions.slice(0, -1).map(action => (
+                <tr>
+                    <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK_STATUS_ENUM_UPDATE]}</th>
+                    <td>{action.package}</td>
+                </tr>));
+        } else {
+            actionHTML = _("Initializing...");
+        }
 
         return (
-            <div className="progress-main-view">
-                <div className="progress-description">
-                    <div className="spinner spinner-xs spinner-inline"></div>
-                    {action}
-                </div>
-                <div className="progress progress-label-top-right">
-                    <div className="progress-bar" role="progressbar" style={ {width: this.state.percentage + "%"} }>
-                        { this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null }
+            <div>
+                <div className="progress-main-view">
+                    <div className="progress-description">
+                        <div className="spinner spinner-xs spinner-inline"></div>
+                        {actionHTML}
                     </div>
+                    <div className="progress progress-label-top-right">
+                        <div className="progress-bar" role="progressbar" style={ {width: this.state.percentage + "%"} }>
+                            { this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null }
+                        </div>
+                    </div>
+                </div>
+
+                <div className="update-log">
+                    <Expander title={_("Update Log")} onExpand={() => {
+                        // always scroll down on expansion
+                        let log = document.getElementById("update-log");
+                        log.scrollTop = log.scrollHeight;
+                    }}>
+                        <div id="update-log" className="update-log-content">
+                            <table>
+                                {logRows}
+                            </table>
+                        </div>
+                    </Expander>
                 </div>
             </div>
         );

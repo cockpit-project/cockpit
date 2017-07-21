@@ -51,6 +51,7 @@ verbose = False
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+DEVNULL = open("/dev/null", "r+")
 
 #
 # The main function takes a list of tasks, each of wihch has the following
@@ -270,7 +271,30 @@ def run(context, function, **kwargs):
         finish(publishing, ret, name, context, issue)
     return ret or 0
 
-def stale(days, pathspec):
+# Check out the given ref and if necessary overlay the bots
+# directory on top of it as expected on non-master branches
+def checkout(ref="HEAD", base=None):
+    if ref:
+        execute("git", "checkout", "--detach", ref)
+
+    # COMPAT: If the bots directory doesn't exist in this branch, check it out from master
+    if base and base != "master":
+        sys.stderr.write("Checking out bots directory from master ...\n")
+        subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
+
+        # The machine code is special, copy it from master too
+        machine = os.path.join(BOTS, "machine")
+        for name in os.listdir(machine):
+            path = os.path.join(machine, name)
+            if os.path.islink(path):
+                os.unlink(path)
+                code = subprocess.check_output([ "git", "show", "origin/master:test/common/{0}".format(name) ])
+                with open(path, "w") as f:
+                    f.write(code)
+
+# Check if the given files that match @pathspec are stale
+# and haven't been updated in @days.
+def stale(days, pathspec, ref="HEAD"):
     global verbose
 
     def execute(*args):
@@ -281,7 +305,7 @@ def stale(days, pathspec):
             sys.stderr.write("> " + output + "\n")
         return output
 
-    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", pathspec)
+    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", ref, "--", pathspec)
     try:
         timestamp = int(timestamp)
     except ValueError:
@@ -359,13 +383,13 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, body=None, issue=None, labels=['bot'], **kwargs):
+def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
     data = {
         "head": branch,
-        "base": "master",
+        "base": base,
         "maintainer_can_modify": True
     }
     if issue:

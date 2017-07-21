@@ -30,6 +30,7 @@ import traceback
 
 sys.dont_write_bytecode = True
 
+import task
 from task import github
 from task import sink
 
@@ -166,22 +167,8 @@ class PullTask(object):
             traceback.print_exc()
             return "Rebase failed"
 
-        # Always use bots/ and test images from master
         try:
-            if self.base and self.base != "master":
-                sys.stderr.write("Checking out bots directory from master ...\n")
-                subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
-
-                # The machine code is special copy it from master too
-                machine = os.path.join(BOTS, "machine")
-                for name in os.listdir(machine):
-                    path = os.path.join(machine, name)
-                    if os.path.islink(path):
-                        os.unlink(path)
-                        code = subprocess.check_output([ "git", "show", "origin/master:test/common/{0}".format(name) ])
-                        with open(path, "w") as f:
-                            f.write(code)
-
+            task.checkout(base=self.base)
         except subprocess.CalledProcessError:
             traceback.print_exc()
             return "Rebase checkout of bots failed"

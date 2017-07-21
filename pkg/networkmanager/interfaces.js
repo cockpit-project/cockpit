@@ -2862,7 +2862,6 @@ PageNetworkInterface.prototype = {
             if (!con || (cs.type != "bond" && cs.type != "team" && cs.type != "bridge")) {
                 self.rx_series.add_instance(self.dev_name);
                 self.tx_series.add_instance(self.dev_name);
-                $('#network-interface-slaves').hide();
                 return;
             }
 
@@ -2997,6 +2996,7 @@ PageNetworkInterface.prototype = {
             update_network_privileged();
         }
 
+        $('#network-interface-slaves').hide();
         if (self.main_connection)
             update_connection_slaves(self.main_connection);
     }

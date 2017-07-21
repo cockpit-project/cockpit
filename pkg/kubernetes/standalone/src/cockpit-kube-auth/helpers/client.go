@@ -144,25 +144,21 @@ func (self *Client) apiStatus(resource string, auth string) (int, error) {
 	return resp.StatusCode, nil
 }
 
-func (self *Client) guessUserData(creds *Credentials) error {
-	// Do this explictly so that we know we have a valid response
-	// Kubernetes doesn't provide any way for a caller
-	// to find out who it is, so fill in the
-	// user as best we can.
-	creds.DisplayName = creds.UserName
+func (self *Client) confirmBearerAuth(creds *Credentials) error {
+	// There are no bugs we have to work around here
+	// so just make sure we get a 200 or 401 to
+	// a namespace call
 
-	err := self.fetchVersion(creds.GetHeader())
-	if err != nil {
-		return err
+	status, e := self.apiStatus("namespaces", creds.GetHeader())
+	if e == nil && status != 403 && status != 200 {
+		newAuthError(fmt.Sprintf("Couldn't verify bearer token with api: %s", status))
 	}
 
-	// If we are here we got a version for the api from the /api endpoint,
-	// using the credentials the user gave us.
-	// This happens when either
-	// a) /api is protected and the credentials are correct
-	// or
-	// b) /api is open in which case we have no idea if our creds were correct
-	// So no we issue a request to the the /api API endpoint without any
+	return e
+}
+
+func (self *Client) confirmBasicAuth(creds *Credentials) error {
+	// Issue a request to the the /api API endpoint without any
 	// auth data.
 	// If we get 401 in response then we know our creds were good and we can log the user in.
 	// If we get a 200 or a 403 then we don't know if are creds were correct and we need to
@@ -201,6 +197,35 @@ func (self *Client) guessUserData(creds *Credentials) error {
 	return e
 }
 
+func (self *Client) confirmCreds(creds *Credentials) error {
+	// Do this explictly so that we know we have a valid response
+	// Kubernetes doesn't provide any way for a caller
+	// to find out who it is, so we need to confirm the creds
+	// we got some other way.
+	err := self.fetchVersion(creds.GetHeader())
+	if err != nil {
+		return err
+	}
+
+	// If we are here we got a version for the api from the /api endpoint,
+	// using the credentials the user gave us.
+	// This happens when either
+	// a) /api is protected and the credentials are correct
+	// or
+	// b) /api is open in which case we have no idea if our creds were correct
+	// Confirming them is different for Basic or Bearer auth
+	var e error
+	if creds.UserName != "" {
+		e = self.confirmBasicAuth(creds)
+	} else {
+		creds.UserName = "Unknown"
+		e = self.confirmBearerAuth(creds)
+	}
+
+	creds.DisplayName = creds.UserName
+	return e
+}
+
 func (self *Client) fetchUserData(creds *Credentials) error {
 	resp, err := self.DoRequest("GET", self.userAPI, "users/~", creds, nil)
 	if err != nil {
@@ -218,8 +243,8 @@ func (self *Client) fetchUserData(creds *Credentials) error {
 		// This might be kubernetes, it doesn't have a way to
 		// get user data, if we have a username try to
 		// see if we can connect to it anyways
-	} else if notFound && creds.UserName != "" {
-		return self.guessUserData(creds)
+	} else if notFound {
+		return self.confirmCreds(creds)
 	} else if resp.StatusCode != 200 {
 		return newAuthError(fmt.Sprintf("Couldn't get user data: %s", resp.Status))
 	}

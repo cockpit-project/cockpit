@@ -4,7 +4,8 @@ AM_CPPFLAGS = \
 DAEMON_SOURCES = \
 	main.c \
 	manager.c manager.h \
-	util.c util.h
+	util.c util.h \
+	domain.c domain.h
 
 EXTRA_DIST = \
 	$(DAEMON_SOURCES)

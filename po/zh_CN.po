@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 14:19+0000\n"
+"POT-Creation-Date: 2017-07-22 00:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -139,6 +139,10 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 月"
 
+#: pkg/packagekit/updates.jsx:249
+msgid "$0 more…"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "$0 occurrence"
 msgid_plural "$1 occurrences"
@@ -160,7 +164,7 @@ msgstr "$0 软件包"
 msgid "$0 shares"
 msgstr "$0 共享"
 
-#: pkg/packagekit/updates.jsx:103
+#: pkg/packagekit/updates.jsx:167
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] ""
@@ -222,7 +226,7 @@ msgstr "（默认）"
 msgid "(none)"
 msgstr "（无）"
 
-#: pkg/packagekit/updates.jsx:108
+#: pkg/packagekit/updates.jsx:172
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ""
@@ -984,7 +988,7 @@ msgstr "自动启动："
 msgid "Available"
 msgstr "可用的"
 
-#: pkg/packagekit/updates.jsx:533
+#: pkg/packagekit/updates.jsx:751
 msgid "Available Updates"
 msgstr ""
 
@@ -1075,7 +1079,7 @@ msgstr "广播"
 msgid "Broken configuration"
 msgstr "错误的配置"
 
-#: pkg/packagekit/updates.jsx:213
+#: pkg/packagekit/updates.jsx:318
 msgid "Bugs"
 msgstr ""
 
@@ -1158,23 +1162,23 @@ msgstr "解锁时无法删除"
 #: pkg/kubernetes/views/user-group-remove.html:9
 #: pkg/kubernetes/views/user-modify.html:26
 #: pkg/kubernetes/views/user-remove-membership.html:9
-#: pkg/kubernetes/views/add-group-dialog.html:18 pkg/lib/machine-add.html:42
+#: pkg/kubernetes/views/add-group-dialog.html:18
+#: pkg/lib/machine-sync-users.html:74 pkg/lib/machine-add.html:42
 #: pkg/lib/machine-change-auth.html:79 pkg/lib/machine-change-port.html:40
-#: pkg/lib/machine-sync-users.html:74 pkg/networkmanager/index.html:619
-#: pkg/networkmanager/index.html:643 pkg/networkmanager/index.html:667
-#: pkg/networkmanager/index.html:691 pkg/networkmanager/index.html:715
-#: pkg/networkmanager/index.html:739 pkg/networkmanager/index.html:763
-#: pkg/networkmanager/index.html:787 pkg/networkmanager/index.html:811
-#: pkg/ostree/index.html:164 pkg/playground/translate.html:39
-#: pkg/realmd/operation.html:91 pkg/shell/index.html:135
-#: pkg/shell/simple.html:100 pkg/shell/stub.html:113
+#: pkg/networkmanager/index.html:619 pkg/networkmanager/index.html:643
+#: pkg/networkmanager/index.html:667 pkg/networkmanager/index.html:691
+#: pkg/networkmanager/index.html:715 pkg/networkmanager/index.html:739
+#: pkg/networkmanager/index.html:763 pkg/networkmanager/index.html:787
+#: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
+#: pkg/playground/translate.html:39 pkg/realmd/operation.html:91
+#: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
 #: pkg/storaged/index.html:287 pkg/storaged/index.html:847
-#: pkg/systemd/services.html:464 pkg/systemd/index.html:341
-#: pkg/systemd/index.html:428 pkg/systemd/index.html:480
-#: pkg/systemd/index.html:496 pkg/users/index.html:210 pkg/users/index.html:271
-#: pkg/users/index.html:295 pkg/users/index.html:352
+#: pkg/systemd/index.html:341 pkg/systemd/index.html:428
+#: pkg/systemd/index.html:480 pkg/systemd/index.html:496
+#: pkg/systemd/services.html:464 pkg/users/index.html:210
+#: pkg/users/index.html:271 pkg/users/index.html:295 pkg/users/index.html:352
 #: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
-#: pkg/packagekit/updates.jsx:129
+#: pkg/packagekit/updates.jsx:193
 msgid "Cancel"
 msgstr "取消"
 
@@ -1293,7 +1297,7 @@ msgstr "修改设置将会中断与服务器的连接，并将导致管理界面
 msgid "Check for Updates"
 msgstr "检查更新"
 
-#: pkg/packagekit/updates.jsx:120
+#: pkg/packagekit/updates.jsx:184
 msgid "Check for updates"
 msgstr "检查更新"
 
@@ -1350,14 +1354,14 @@ msgstr ""
 msgid "Client Certificate"
 msgstr "客户端证书"
 
-#: pkg/docker/index.html:724 pkg/lib/machine-unknown-hostkey.html:19
+#: pkg/docker/index.html:724 pkg/lib/machine-invalid-hostkey.html:19
+#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
 #: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:45
-#: pkg/lib/machine-invalid-hostkey.html:19 pkg/lib/machine-not-supported.html:8
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:296 pkg/shell/simple.html:82
 #: pkg/shell/stub.html:130 pkg/storaged/index.html:637
-#: pkg/storaged/index.html:852 pkg/systemd/services.html:305
-#: pkg/systemd/services.html:323 pkg/systemd/index.html:287
+#: pkg/storaged/index.html:852 pkg/systemd/index.html:287
+#: pkg/systemd/services.html:305 pkg/systemd/services.html:323
 #: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "关闭"
@@ -1439,7 +1443,7 @@ msgstr ""
 "Cockpit 是完美的系统管理员工具, 它可以轻松完成简单的任务, 如存储管理, 检查 journals 和启动/停止服务. "
 "您可以同时监控和管理几个服务器. 只需要逐一添加, 您的机器就可以看到它们了."
 
-#: pkg/packagekit/updates.jsx:554
+#: pkg/packagekit/updates.jsx:772
 msgid "Cockpit itself will be updated."
 msgstr ""
 
@@ -1642,7 +1646,7 @@ msgstr "正在连接至主机"
 msgid "Connecting..."
 msgstr "连接中..."
 
-#: pkg/machines/hostvmslist.jsx:465
+#: pkg/machines/hostvmslist.jsx:466
 #, fuzzy
 msgid "Connection"
 msgstr "连接"
@@ -2188,7 +2192,7 @@ msgstr "描述"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:214
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:319
 msgid "Details"
 msgstr "详情"
 
@@ -2380,6 +2384,10 @@ msgstr "下载报表"
 
 #: pkg/machines/components/desktopConsole.jsx:46
 msgid "Download the MSI from $0"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:60
+msgid "Downloaded"
 msgstr ""
 
 #: pkg/packagekit/updates.jsx:52
@@ -2998,7 +3006,7 @@ msgstr "身份"
 msgid "Identity"
 msgstr "身份"
 
-#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:276
+#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:460
 msgid "Ignore"
 msgstr "忽略"
 
@@ -3122,20 +3130,24 @@ msgstr "不正确的主机密钥"
 msgid "Information about the Docker storage pool is not available."
 msgstr "关于容器存储池的信息不可用。"
 
-#: pkg/packagekit/updates.jsx:252
+#: pkg/packagekit/updates.jsx:419
 msgid "Initializing..."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:545
+#: pkg/packagekit/updates.jsx:763
 msgid "Install all updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:538
+#: pkg/packagekit/updates.jsx:756
 msgid "Install security updates"
 msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:61
+msgid "Installed"
 msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:222
@@ -3180,11 +3192,11 @@ msgstr "额外的地址 $val"
 msgid "Invalid credentials"
 msgstr "无效的凭证"
 
-#: pkg/systemd/shutdown.js:142 pkg/systemd/host.js:1255
+#: pkg/systemd/host.js:1255 pkg/systemd/shutdown.js:142
 msgid "Invalid date format"
 msgstr "无效的日期格式"
 
-#: pkg/systemd/shutdown.js:138 pkg/systemd/host.js:1251
+#: pkg/systemd/host.js:1251 pkg/systemd/shutdown.js:138
 msgid "Invalid date format and invalid time format"
 msgstr "无效的日期格式和时间格式"
 
@@ -3223,7 +3235,7 @@ msgstr "无效端口"
 msgid "Invalid prefix or netmask $0"
 msgstr "无效端口"
 
-#: pkg/systemd/shutdown.js:140 pkg/systemd/host.js:1253
+#: pkg/systemd/host.js:1253 pkg/systemd/shutdown.js:140
 msgid "Invalid time format"
 msgstr "无效的时间格式"
 
@@ -3355,7 +3367,7 @@ msgstr "最近的触发器"
 msgid "Last Updated"
 msgstr "最近更新时间"
 
-#: pkg/packagekit/updates.jsx:124
+#: pkg/packagekit/updates.jsx:188
 msgid "Last checked: $0 ago"
 msgstr ""
 
@@ -3778,6 +3790,10 @@ msgstr ""
 msgid "More details"
 msgstr "方案详情"
 
+#: pkg/packagekit/updates.jsx:262
+msgid "More information…"
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:188
 #: pkg/storaged/fsys-tab.jsx:217
 msgid "Mount"
@@ -3867,7 +3883,7 @@ msgstr "NTP 服务器"
 #: pkg/ostree/index.html:99 pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:465 pkg/storaged/fsys-tab.jsx:71
+#: pkg/machines/hostvmslist.jsx:466 pkg/storaged/fsys-tab.jsx:71
 #: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
 #: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
@@ -3875,7 +3891,7 @@ msgstr "NTP 服务器"
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
 #: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/packagekit/updates.jsx:211
+#: pkg/packagekit/updates.jsx:316
 msgid "Name"
 msgstr "名称"
 
@@ -4129,6 +4145,10 @@ msgstr "没有匹配当前过滤器的镜像"
 msgid "No installed products on the system."
 msgstr "该系统上没有安装的产品。"
 
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:220
+msgid "No matching files found"
+msgstr ""
+
 #: pkg/storaged/index.html:444
 msgid "No media inserted"
 msgstr "没有插入媒体"
@@ -4276,7 +4296,7 @@ msgstr "未授权访问该系统的 Docker"
 msgid "Not authorized to update software on this system"
 msgstr "未授权更新该系统上的软件"
 
-#: pkg/systemd/logs.js:448
+#: pkg/systemd/logs.js:452
 msgid "Not authorized to upload-report"
 msgstr ""
 
@@ -4453,16 +4473,20 @@ msgstr "使用 0 覆盖已存在数据"
 msgid "PD Name"
 msgstr "持久盘名称"
 
-#: pkg/packagekit/updates.jsx:332
+#: pkg/packagekit/updates.jsx:465
+msgid "Package information"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:520
 msgid "PackageKit crashed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:330 pkg/packagekit/updates.jsx:441
-#: pkg/packagekit/updates.jsx:457
+#: pkg/packagekit/updates.jsx:518 pkg/packagekit/updates.jsx:624
+#: pkg/packagekit/updates.jsx:676
 msgid "PackageKit is not installed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:476
+#: pkg/packagekit/updates.jsx:700
 msgid "PackageKit reported error code $0"
 msgstr ""
 
@@ -4511,8 +4535,8 @@ msgstr "密码不能为空"
 msgid "Passphrases do not match"
 msgstr "口令不匹配"
 
-#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-auth-failed.html:8
-#: pkg/lib/machine-change-auth.html:52 pkg/lib/machine-sync-users.html:61
+#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-sync-users.html:61
+#: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
 #: pkg/shell/index.html:208 pkg/shell/index.html:221 pkg/users/index.html:113
 #: pkg/users/index.html:166 src/ws/login.html:49 pkg/storaged/overview.js:534
 #: pkg/storaged/overview.js:657 pkg/subscriptions/subscriptions-register.jsx:88
@@ -4555,6 +4579,10 @@ msgstr "路径开销"
 #: pkg/networkmanager/interfaces.js:2768
 msgid "Path cost $path_cost"
 msgstr "路径开销 $path_cost"
+
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:205
+msgid "Path to file"
+msgstr ""
 
 #: pkg/systemd/services.html:56
 msgid "Paths"
@@ -5359,11 +5387,11 @@ msgid ""
 "and remove pods when necessary."
 msgstr "复制控制器动态地从模板创建容器舱实例，并且在必要的时候移除容器舱。"
 
-#: pkg/systemd/logs.js:450
+#: pkg/systemd/logs.js:454
 msgid "Reporter 'reporter-ureport' not found."
 msgstr ""
 
-#: pkg/systemd/logs.js:452
+#: pkg/systemd/logs.js:456
 msgid "Reporting was unsucessful. Try running `reporter-ureport -d "
 msgstr ""
 
@@ -5423,8 +5451,8 @@ msgstr "调整大小 $target"
 
 #: pkg/docker/index.html:134 pkg/systemd/index.html:136
 #: pkg/systemd/index.html:143 pkg/docker/containers-view.jsx:239
-#: pkg/machines/hostvmslist.jsx:61 pkg/systemd/shutdown.js:96
-#: pkg/systemd/shutdown.js:97 pkg/systemd/init.js:515
+#: pkg/machines/hostvmslist.jsx:61 pkg/systemd/init.js:515
+#: pkg/systemd/shutdown.js:96 pkg/systemd/shutdown.js:97
 msgid "Restart"
 msgstr "重启"
 
@@ -5432,7 +5460,7 @@ msgstr "重启"
 msgid "Restart Count"
 msgstr "重启次数"
 
-#: pkg/packagekit/updates.jsx:278
+#: pkg/packagekit/updates.jsx:462
 msgid "Restart Now"
 msgstr ""
 
@@ -5444,11 +5472,11 @@ msgstr "重启策略"
 msgid "Restart Policy:"
 msgstr "重启策略："
 
-#: pkg/packagekit/updates.jsx:273
+#: pkg/packagekit/updates.jsx:457
 msgid "Restart Recommended"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:581
+#: pkg/packagekit/updates.jsx:808
 msgid "Restarting"
 msgstr ""
 
@@ -5642,7 +5670,7 @@ msgstr "安全擦除 $target"
 msgid "Security"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:158
+#: pkg/packagekit/updates.jsx:232
 msgid "Security Update"
 msgstr ""
 
@@ -5788,6 +5816,10 @@ msgstr "设置容器环境变量"
 #: pkg/networkmanager/index.html:173
 msgid "Set to"
 msgstr "设置为"
+
+#: pkg/packagekit/updates.jsx:63
+msgid "Set up"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:282
 msgid ""
@@ -6034,7 +6066,7 @@ msgstr "开头"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:465 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:466 pkg/systemd/init.js:275
 msgid "State"
 msgstr "状态"
 
@@ -6232,7 +6264,7 @@ msgstr "系统服务"
 msgid "System Time"
 msgstr "系统时间"
 
-#: pkg/packagekit/updates.jsx:591
+#: pkg/packagekit/updates.jsx:818
 msgid "System is up to date"
 msgstr ""
 
@@ -6410,6 +6442,14 @@ msgstr "当前用户不允许访问系统订阅状态。"
 #: pkg/kubernetes/views/deploymentconfig-page.html:25
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "部署配置 '{{ target }}' 不存在。"
+
+#: pkg/packagekit/updates.jsx:334
+msgid "The following packages were recently updated:"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:333
+msgid "The following packages were updated $0:"
+msgstr ""
 
 #: pkg/sosreport/index.html:51
 msgid ""
@@ -6787,6 +6827,10 @@ msgstr "需要更新 cockpit-ws 到一个新版本来尝试一个不同的端口
 msgid "Token"
 msgstr "令牌"
 
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:109
+msgid "Too many files found"
+msgstr ""
+
 #: src/base1/cockpit.js:3963
 msgid "Too much data"
 msgstr ""
@@ -7071,11 +7115,23 @@ msgstr "运行自 $StartedAt"
 msgid "Update"
 msgstr "更新"
 
+#: pkg/packagekit/updates.jsx:783
+msgid "Update History"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:437
+msgid "Update Log"
+msgstr ""
+
 #: pkg/ostree/index.html:233
 msgid "Update and Reboot"
 msgstr "更新并重启"
 
-#: pkg/packagekit/updates.jsx:274
+#: pkg/packagekit/updates.jsx:62
+msgid "Updated"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:458
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 
@@ -7148,7 +7204,7 @@ msgstr "用户名"
 msgid "User Password"
 msgstr "用户密码"
 
-#: pkg/lib/machine-change-auth.html:18 pkg/lib/machine-sync-users.html:54
+#: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
 #: src/ws/login.html:42
 msgid "User name"
 msgstr "用户名"
@@ -7235,13 +7291,17 @@ msgstr ""
 msgid "Validating key"
 msgstr "验证 key"
 
+#: pkg/packagekit/updates.jsx:64
+msgid "Verified"
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:56
 msgid "Verifying"
 msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:212
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:317
 msgid "Version"
 msgstr "版本"
 
@@ -7249,7 +7309,7 @@ msgstr "版本"
 msgid "Very securely erasing $target"
 msgstr "多重安全擦除 $target"
 
-#: pkg/machines/hostvmslist.jsx:465
+#: pkg/machines/hostvmslist.jsx:466
 msgid "Virtual Machines"
 msgstr "虚拟机"
 
@@ -7320,7 +7380,7 @@ msgstr "欢迎使用镜像注册表"
 msgid "When"
 msgstr "当"
 
-#: pkg/packagekit/updates.jsx:556
+#: pkg/packagekit/updates.jsx:774
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -7409,7 +7469,7 @@ msgid ""
 "from the command line."
 msgstr "登录凭证没有从命令行使用 Docker 注册表的权限"
 
-#: pkg/packagekit/updates.jsx:582
+#: pkg/packagekit/updates.jsx:809
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."

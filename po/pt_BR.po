@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 14:19+0000\n"
+"POT-Creation-Date: 2017-07-22 00:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -153,6 +153,10 @@ msgid_plural "$0 months"
 msgstr[0] "$0 mês"
 msgstr[1] "$0 meses"
 
+#: pkg/packagekit/updates.jsx:249
+msgid "$0 more…"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "$0 occurrence"
 msgid_plural "$1 occurrences"
@@ -175,7 +179,7 @@ msgstr "$0 pacotes"
 msgid "$0 shares"
 msgstr "$0 compartilhamentos"
 
-#: pkg/packagekit/updates.jsx:103
+#: pkg/packagekit/updates.jsx:167
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] ""
@@ -242,7 +246,7 @@ msgstr "(padrão)"
 msgid "(none)"
 msgstr "(nenhum)"
 
-#: pkg/packagekit/updates.jsx:108
+#: pkg/packagekit/updates.jsx:172
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ""
@@ -1012,7 +1016,7 @@ msgstr "Início automático:"
 msgid "Available"
 msgstr "Disponível"
 
-#: pkg/packagekit/updates.jsx:533
+#: pkg/packagekit/updates.jsx:751
 msgid "Available Updates"
 msgstr ""
 
@@ -1103,7 +1107,7 @@ msgstr "Broadcast"
 msgid "Broken configuration"
 msgstr "Configuração quebrada"
 
-#: pkg/packagekit/updates.jsx:213
+#: pkg/packagekit/updates.jsx:318
 msgid "Bugs"
 msgstr ""
 
@@ -1186,23 +1190,23 @@ msgstr "Não é possível excluir enquanto desbloqueado"
 #: pkg/kubernetes/views/user-group-remove.html:9
 #: pkg/kubernetes/views/user-modify.html:26
 #: pkg/kubernetes/views/user-remove-membership.html:9
-#: pkg/kubernetes/views/add-group-dialog.html:18 pkg/lib/machine-add.html:42
+#: pkg/kubernetes/views/add-group-dialog.html:18
+#: pkg/lib/machine-sync-users.html:74 pkg/lib/machine-add.html:42
 #: pkg/lib/machine-change-auth.html:79 pkg/lib/machine-change-port.html:40
-#: pkg/lib/machine-sync-users.html:74 pkg/networkmanager/index.html:619
-#: pkg/networkmanager/index.html:643 pkg/networkmanager/index.html:667
-#: pkg/networkmanager/index.html:691 pkg/networkmanager/index.html:715
-#: pkg/networkmanager/index.html:739 pkg/networkmanager/index.html:763
-#: pkg/networkmanager/index.html:787 pkg/networkmanager/index.html:811
-#: pkg/ostree/index.html:164 pkg/playground/translate.html:39
-#: pkg/realmd/operation.html:91 pkg/shell/index.html:135
-#: pkg/shell/simple.html:100 pkg/shell/stub.html:113
+#: pkg/networkmanager/index.html:619 pkg/networkmanager/index.html:643
+#: pkg/networkmanager/index.html:667 pkg/networkmanager/index.html:691
+#: pkg/networkmanager/index.html:715 pkg/networkmanager/index.html:739
+#: pkg/networkmanager/index.html:763 pkg/networkmanager/index.html:787
+#: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
+#: pkg/playground/translate.html:39 pkg/realmd/operation.html:91
+#: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
 #: pkg/storaged/index.html:287 pkg/storaged/index.html:847
-#: pkg/systemd/services.html:464 pkg/systemd/index.html:341
-#: pkg/systemd/index.html:428 pkg/systemd/index.html:480
-#: pkg/systemd/index.html:496 pkg/users/index.html:210 pkg/users/index.html:271
-#: pkg/users/index.html:295 pkg/users/index.html:352
+#: pkg/systemd/index.html:341 pkg/systemd/index.html:428
+#: pkg/systemd/index.html:480 pkg/systemd/index.html:496
+#: pkg/systemd/services.html:464 pkg/users/index.html:210
+#: pkg/users/index.html:271 pkg/users/index.html:295 pkg/users/index.html:352
 #: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
-#: pkg/packagekit/updates.jsx:129
+#: pkg/packagekit/updates.jsx:193
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1324,7 +1328,7 @@ msgstr ""
 msgid "Check for Updates"
 msgstr "Verificar Atualizações"
 
-#: pkg/packagekit/updates.jsx:120
+#: pkg/packagekit/updates.jsx:184
 msgid "Check for updates"
 msgstr ""
 
@@ -1381,14 +1385,14 @@ msgstr ""
 msgid "Client Certificate"
 msgstr "Certificado de Cliente"
 
-#: pkg/docker/index.html:724 pkg/lib/machine-unknown-hostkey.html:19
+#: pkg/docker/index.html:724 pkg/lib/machine-invalid-hostkey.html:19
+#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
 #: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:45
-#: pkg/lib/machine-invalid-hostkey.html:19 pkg/lib/machine-not-supported.html:8
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:296 pkg/shell/simple.html:82
 #: pkg/shell/stub.html:130 pkg/storaged/index.html:637
-#: pkg/storaged/index.html:852 pkg/systemd/services.html:305
-#: pkg/systemd/services.html:323 pkg/systemd/index.html:287
+#: pkg/storaged/index.html:852 pkg/systemd/index.html:287
+#: pkg/systemd/services.html:305 pkg/systemd/services.html:323
 #: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "Fechar"
@@ -1482,7 +1486,7 @@ msgstr ""
 "administrar vários servidores ao mesmo tempo. Basta adicioná-los com um "
 "único clique e suas máquinas vão cuidar de seus companheiros."
 
-#: pkg/packagekit/updates.jsx:554
+#: pkg/packagekit/updates.jsx:772
 msgid "Cockpit itself will be updated."
 msgstr ""
 
@@ -1691,7 +1695,7 @@ msgstr "Conectando a máquina"
 msgid "Connecting..."
 msgstr "Conectando..."
 
-#: pkg/machines/hostvmslist.jsx:465
+#: pkg/machines/hostvmslist.jsx:466
 msgid "Connection"
 msgstr "Conexão"
 
@@ -2253,7 +2257,7 @@ msgstr "Descrição"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:206
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:214
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:319
 msgid "Details"
 msgstr "Detalhes"
 
@@ -2449,6 +2453,10 @@ msgstr "Relatório de download"
 
 #: pkg/machines/components/desktopConsole.jsx:46
 msgid "Download the MSI from $0"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:60
+msgid "Downloaded"
 msgstr ""
 
 #: pkg/packagekit/updates.jsx:52
@@ -3066,7 +3074,7 @@ msgstr "Identidades"
 msgid "Identity"
 msgstr "Ìdentidade"
 
-#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:276
+#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:460
 msgid "Ignore"
 msgstr "Ignorar"
 
@@ -3196,15 +3204,15 @@ msgstr ""
 "As informações sobre o pool de armazenamento do Docker não estão disponíveis."
 ""
 
-#: pkg/packagekit/updates.jsx:252
+#: pkg/packagekit/updates.jsx:419
 msgid "Initializing..."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:545
+#: pkg/packagekit/updates.jsx:763
 msgid "Install all updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:538
+#: pkg/packagekit/updates.jsx:756
 msgid "Install security updates"
 msgstr ""
 
@@ -3213,6 +3221,10 @@ msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
 "Instale o setroubleshoot-server para solucionar problemas de eventos SELinux."
 ""
+
+#: pkg/packagekit/updates.jsx:61
+msgid "Installed"
+msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:222
 msgid "Installed products"
@@ -3255,11 +3267,11 @@ msgstr "Endereço inválido $0"
 msgid "Invalid credentials"
 msgstr "Credenciais Inválidas"
 
-#: pkg/systemd/shutdown.js:142 pkg/systemd/host.js:1255
+#: pkg/systemd/host.js:1255 pkg/systemd/shutdown.js:142
 msgid "Invalid date format"
 msgstr "Formato de data inválido"
 
-#: pkg/systemd/shutdown.js:138 pkg/systemd/host.js:1251
+#: pkg/systemd/host.js:1251 pkg/systemd/shutdown.js:138
 msgid "Invalid date format and invalid time format"
 msgstr "Formato de data inválido e formato de tempo inválido"
 
@@ -3295,7 +3307,7 @@ msgstr "Prefixo inválido $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Prefixo ou máscara de rede inválidos $0"
 
-#: pkg/systemd/shutdown.js:140 pkg/systemd/host.js:1253
+#: pkg/systemd/host.js:1253 pkg/systemd/shutdown.js:140
 msgid "Invalid time format"
 msgstr "Formato de tempo inválido"
 
@@ -3428,7 +3440,7 @@ msgstr "Último Trigger"
 msgid "Last Updated"
 msgstr "Ultima Atualização"
 
-#: pkg/packagekit/updates.jsx:124
+#: pkg/packagekit/updates.jsx:188
 msgid "Last checked: $0 ago"
 msgstr ""
 
@@ -3852,6 +3864,10 @@ msgstr ""
 msgid "More details"
 msgstr "Mais detalhes"
 
+#: pkg/packagekit/updates.jsx:262
+msgid "More information…"
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:188
 #: pkg/storaged/fsys-tab.jsx:217
 msgid "Mount"
@@ -3941,7 +3957,7 @@ msgstr "Servidor NTP"
 #: pkg/ostree/index.html:99 pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:465 pkg/storaged/fsys-tab.jsx:71
+#: pkg/machines/hostvmslist.jsx:466 pkg/storaged/fsys-tab.jsx:71
 #: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
 #: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
@@ -3949,7 +3965,7 @@ msgstr "Servidor NTP"
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
 #: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/packagekit/updates.jsx:211
+#: pkg/packagekit/updates.jsx:316
 msgid "Name"
 msgstr "Nome"
 
@@ -4201,6 +4217,10 @@ msgstr "Sem imagens que correspondam ao filtro atual"
 msgid "No installed products on the system."
 msgstr "Não há produtos instalados no sistema."
 
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:220
+msgid "No matching files found"
+msgstr ""
+
 #: pkg/storaged/index.html:444
 msgid "No media inserted"
 msgstr "Nenhuma mídia inserida"
@@ -4353,7 +4373,7 @@ msgstr "Não autorizado para acessar Docker neste sistema"
 msgid "Not authorized to update software on this system"
 msgstr "Não autorizado a atualizar o software neste sistema"
 
-#: pkg/systemd/logs.js:448
+#: pkg/systemd/logs.js:452
 msgid "Not authorized to upload-report"
 msgstr ""
 
@@ -4531,16 +4551,20 @@ msgstr "Sobrescrever dados existentes com zeros"
 msgid "PD Name"
 msgstr "Nome de PD"
 
-#: pkg/packagekit/updates.jsx:332
+#: pkg/packagekit/updates.jsx:465
+msgid "Package information"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:520
 msgid "PackageKit crashed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:330 pkg/packagekit/updates.jsx:441
-#: pkg/packagekit/updates.jsx:457
+#: pkg/packagekit/updates.jsx:518 pkg/packagekit/updates.jsx:624
+#: pkg/packagekit/updates.jsx:676
 msgid "PackageKit is not installed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:476
+#: pkg/packagekit/updates.jsx:700
 msgid "PackageKit reported error code $0"
 msgstr ""
 
@@ -4589,8 +4613,8 @@ msgstr "A senha não pode estar vazia"
 msgid "Passphrases do not match"
 msgstr "As senhas não correspondem"
 
-#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-auth-failed.html:8
-#: pkg/lib/machine-change-auth.html:52 pkg/lib/machine-sync-users.html:61
+#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-sync-users.html:61
+#: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
 #: pkg/shell/index.html:208 pkg/shell/index.html:221 pkg/users/index.html:113
 #: pkg/users/index.html:166 src/ws/login.html:49 pkg/storaged/overview.js:534
 #: pkg/storaged/overview.js:657 pkg/subscriptions/subscriptions-register.jsx:88
@@ -4635,6 +4659,10 @@ msgstr "Custo do Caminho"
 #: pkg/networkmanager/interfaces.js:2768
 msgid "Path cost $path_cost"
 msgstr "Path cost $path_cost"
+
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:205
+msgid "Path to file"
+msgstr ""
 
 #: pkg/systemd/services.html:56
 msgid "Paths"
@@ -5447,11 +5475,11 @@ msgstr ""
 "Os controladores de replicação criam dinamicamente instâncias modelos de "
 "pods e removem esses pods quando necessário."
 
-#: pkg/systemd/logs.js:450
+#: pkg/systemd/logs.js:454
 msgid "Reporter 'reporter-ureport' not found."
 msgstr ""
 
-#: pkg/systemd/logs.js:452
+#: pkg/systemd/logs.js:456
 msgid "Reporting was unsucessful. Try running `reporter-ureport -d "
 msgstr ""
 
@@ -5513,8 +5541,8 @@ msgstr "Redimensionando $target"
 
 #: pkg/docker/index.html:134 pkg/systemd/index.html:136
 #: pkg/systemd/index.html:143 pkg/docker/containers-view.jsx:239
-#: pkg/machines/hostvmslist.jsx:61 pkg/systemd/shutdown.js:96
-#: pkg/systemd/shutdown.js:97 pkg/systemd/init.js:515
+#: pkg/machines/hostvmslist.jsx:61 pkg/systemd/init.js:515
+#: pkg/systemd/shutdown.js:96 pkg/systemd/shutdown.js:97
 msgid "Restart"
 msgstr "Reiniciar"
 
@@ -5522,7 +5550,7 @@ msgstr "Reiniciar"
 msgid "Restart Count"
 msgstr "Reiniciar Contagem"
 
-#: pkg/packagekit/updates.jsx:278
+#: pkg/packagekit/updates.jsx:462
 msgid "Restart Now"
 msgstr ""
 
@@ -5534,11 +5562,11 @@ msgstr "Reinicie a Política"
 msgid "Restart Policy:"
 msgstr "Reinicie a Política:"
 
-#: pkg/packagekit/updates.jsx:273
+#: pkg/packagekit/updates.jsx:457
 msgid "Restart Recommended"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:581
+#: pkg/packagekit/updates.jsx:808
 msgid "Restarting"
 msgstr ""
 
@@ -5731,7 +5759,7 @@ msgstr "Apagando com segurança $target"
 msgid "Security"
 msgstr "Segurança"
 
-#: pkg/packagekit/updates.jsx:158
+#: pkg/packagekit/updates.jsx:232
 msgid "Security Update"
 msgstr ""
 
@@ -5875,6 +5903,10 @@ msgstr "Definir variáveis de ambiente de contêiner"
 #: pkg/networkmanager/index.html:173
 msgid "Set to"
 msgstr "Configurado para"
+
+#: pkg/packagekit/updates.jsx:63
+msgid "Set up"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:282
 msgid ""
@@ -6122,7 +6154,7 @@ msgstr "Começa"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:465 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:466 pkg/systemd/init.js:275
 msgid "State"
 msgstr "Estado"
 
@@ -6325,7 +6357,7 @@ msgstr "Serviços do Sistema"
 msgid "System Time"
 msgstr "Tempo do Sistema"
 
-#: pkg/packagekit/updates.jsx:591
+#: pkg/packagekit/updates.jsx:818
 msgid "System is up to date"
 msgstr ""
 
@@ -6510,6 +6542,14 @@ msgstr ""
 #: pkg/kubernetes/views/deploymentconfig-page.html:25
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "O Deployment config '{{target}}' não existe."
+
+#: pkg/packagekit/updates.jsx:334
+msgid "The following packages were recently updated:"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:333
+msgid "The following packages were updated $0:"
+msgstr ""
 
 #: pkg/sosreport/index.html:51
 msgid ""
@@ -6932,6 +6972,10 @@ msgstr ""
 msgid "Token"
 msgstr "Token"
 
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:109
+msgid "Too many files found"
+msgstr ""
+
 #: src/base1/cockpit.js:3963
 msgid "Too much data"
 msgstr "Muitos dados"
@@ -7215,11 +7259,23 @@ msgstr "Ativo desde $StartedAt"
 msgid "Update"
 msgstr "Atualizar"
 
+#: pkg/packagekit/updates.jsx:783
+msgid "Update History"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:437
+msgid "Update Log"
+msgstr ""
+
 #: pkg/ostree/index.html:233
 msgid "Update and Reboot"
 msgstr "Atualizar e Reiniciar"
 
-#: pkg/packagekit/updates.jsx:274
+#: pkg/packagekit/updates.jsx:62
+msgid "Updated"
+msgstr ""
+
+#: pkg/packagekit/updates.jsx:458
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 
@@ -7293,7 +7349,7 @@ msgstr "Nome de Usuário"
 msgid "User Password"
 msgstr "Senha de Usuário"
 
-#: pkg/lib/machine-change-auth.html:18 pkg/lib/machine-sync-users.html:54
+#: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
 #: src/ws/login.html:42
 msgid "User name"
 msgstr "Nome de usuário"
@@ -7380,13 +7436,17 @@ msgstr "Validando token de autenticação"
 msgid "Validating key"
 msgstr "Validando chave"
 
+#: pkg/packagekit/updates.jsx:64
+msgid "Verified"
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:56
 msgid "Verifying"
 msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:212
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:317
 msgid "Version"
 msgstr "Versão"
 
@@ -7394,7 +7454,7 @@ msgstr "Versão"
 msgid "Very securely erasing $target"
 msgstr "Apagando com muita segurança $target"
 
-#: pkg/machines/hostvmslist.jsx:465
+#: pkg/machines/hostvmslist.jsx:466
 msgid "Virtual Machines"
 msgstr "Máquinas Virtuais"
 
@@ -7465,7 +7525,7 @@ msgstr "Bem vindo ao Registro de Imagem"
 msgid "When"
 msgstr "Quando"
 
-#: pkg/packagekit/updates.jsx:556
+#: pkg/packagekit/updates.jsx:774
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -7567,7 +7627,7 @@ msgstr ""
 "As credenciais de login não lhe dão acesso para usar o registro de docker na "
 "linha de comando."
 
-#: pkg/packagekit/updates.jsx:582
+#: pkg/packagekit/updates.jsx:809
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."

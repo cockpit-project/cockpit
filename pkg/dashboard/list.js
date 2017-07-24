@@ -96,8 +96,8 @@ var resource_monitors = [
               "network.interface.total.bytes"
           ],
           internal: [
-              "network.all.rx",
-              "network.all.tx"
+              "network.interface.rx",
+              "network.interface.tx"
           ],
           units: "bytes",
           'omit-instances': [ "lo" ],

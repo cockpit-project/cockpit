@@ -480,7 +480,8 @@ PageServer.prototype = {
 
         var network_data = {
             direct: [ "network.interface.total.bytes" ],
-            internal: [ "network.all.tx", "network.all.rx" ],
+            internal: [ "network.interface.tx", "network.interface.rx" ],
+            "omit-instances": [ "lo" ],
             units: "bytes",
             derive: "rate"
         };

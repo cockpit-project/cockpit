@@ -1109,6 +1109,7 @@ class TestRegistry(MachineCase):
         b.click("a.pull-right")
         b.wait_present("modal-dialog")
         b.wait_val("#imagestream-modify-project-text", "marmalade")
+        b.wait_js_cond("document.activeElement == document.getElementById('imagestream-modify-name')")
         b.set_val("#imagestream-modify-name", "sometags")
         b.wait_present("#imagestream-modify-populate")
         b.click("#imagestream-modify-populate button")
@@ -1119,6 +1120,7 @@ class TestRegistry(MachineCase):
         b.set_val("#imagestream-modify-pull", "localhost:5555/juggs")
         # fields.tags is not an <input> element, type manually
         b.click("#imagestream-modify-tags")
+        b.focus("#imagestream-modify-tags")
         b.key_press(['2', '.', '1', '1'])
         b.click("modal-dialog div.modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")

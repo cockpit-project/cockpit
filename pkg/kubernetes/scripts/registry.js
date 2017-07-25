@@ -186,7 +186,7 @@
             };
 
             $scope.projects = function projects() {
-                return select().kind("Project");
+                return select().kind("Project").statusPhase("Active");
             };
 
             $scope.filter = filter;

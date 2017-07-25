@@ -239,7 +239,7 @@
                 if (globals)
                     all = select().kind("Namespace");
                 if (!all || all.length === 0)
-                    all = select().kind("Project");
+                    all = select().kind("Project").statusPhase("Active");
 
                 var link, meta, ret = [];
                 for (link in all) {

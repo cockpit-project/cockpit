@@ -487,6 +487,7 @@
                         link = decodeURIComponent(resourcePath([resource]));
                         if (drain[i].type == "DELETED") {
                             delete objects[link];
+                            delete present[link];
                             removed[link] = resource;
                         } else if (drain[i].checkResourceVersion) {
                             /* There is a race between items loaded from

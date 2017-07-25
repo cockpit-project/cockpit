@@ -242,6 +242,15 @@ cockpit_internal_metrics_sample (CockpitSamples *samples,
 {
   CockpitInternalMetrics *self = COCKPIT_INTERNAL_METRICS (samples);
 
+  if (self->omit_instances)
+    {
+      for (int i = 0; self->omit_instances[i]; i++)
+        {
+          if (g_strcmp0 (instance, self->omit_instances[i]) == 0)
+            return;
+        }
+    }
+
   for (int i = 0; i < self->n_metrics; i++)
     {
       MetricInfo *info = &self->metrics[i];

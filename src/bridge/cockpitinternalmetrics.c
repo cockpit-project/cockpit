@@ -520,6 +520,14 @@ cockpit_internal_metrics_finalize (GObject *object)
 
   g_free (self->instances);
   g_free (self->omit_instances);
+
+  for (int i = 0; i < self->n_metrics; i++)
+    {
+      MetricInfo *info = &self->metrics[i];
+      if (info->instances)
+        g_hash_table_unref (info->instances);
+    }
+
   g_free (self->metrics);
 
   G_OBJECT_CLASS (cockpit_internal_metrics_parent_class)->finalize (object);

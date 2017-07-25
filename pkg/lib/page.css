@@ -19,6 +19,17 @@ a {
   z-index: auto;
 }
 
+a.disabled {
+    cursor: not-allowed !important;
+    text-decoration: none;
+    pointer-events: none;
+    color: #8b8d8f;
+}
+
+a.disabled:hover {
+    text-decoration: none;
+}
+
 .dropdown-menu > li > a.disabled,
 .dropdown-menu > li > a.disabled:hover,
 .dropdown-menu > li > a.disabled:focus {

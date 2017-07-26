@@ -72,7 +72,7 @@ var KdumpTargetBody = React.createClass({
         var compressionPossible = (
             !this.props.settings ||
             !("core_collector" in this.props.settings) ||
-            (this.props.settings["core_collector"].value.trimLeft().indexOf("makedumpfile") === 0)
+            (this.props.settings["core_collector"].value.trim().indexOf("makedumpfile") === 0)
         );
         if (this.state.storeDest == "local") {
             var directory;

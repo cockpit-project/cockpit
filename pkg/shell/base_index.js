@@ -209,8 +209,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             /* Only control messages with a channel are forwardable */
             if (control) {
                 if (control.channel !== undefined) {
-                    for (seed in source_by_seed)
-                        source_by_seed[seed].window.postMessage(message, origin);
+                    for (seed in source_by_seed) {
+                        source = source_by_seed[seed];
+                        if (!source.window.closed)
+                            source.window.postMessage(message, origin);
+                    }
                 } else if (control.command == "hint") {
                     if (control.credential) {
                         if (index.privileges)
@@ -225,7 +228,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     seed = channel.substring(0, pos + 1);
                     source = source_by_seed[seed];
                     if (source) {
-                        source.window.postMessage(message, origin);
+                        if (!source.window.closed)
+                            source.window.postMessage(message, origin);
                         return false; /* Stop delivery */
                     }
                 }
@@ -265,7 +269,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         }
 
         function on_unload(ev) {
-            var source = source_by_name[ev.target.defaultView.name];
+            var source;
+            if (ev.target.defaultView)
+                source = source_by_name[ev.target.defaultView.name];
+            else if (ev.view)
+                source = source_by_name[ev.view.name];
             if (source)
                 unregister(source);
         }
@@ -288,8 +296,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             var frame = child.frameElement;
             if (frame)
                 frame.removeEventListener("load", on_load);
-            child.removeEventListener("unload", on_unload);
-            child.removeEventListener("hashchange", on_hashchange);
+            /* This is often invalid when the window is closed */
+            if (child.removeEventListener) {
+                child.removeEventListener("unload", on_unload);
+                child.removeEventListener("hashchange", on_hashchange);
+            }
             delete source_by_seed[source.channel_seed];
             delete source_by_name[source.name];
         }
@@ -356,8 +367,20 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if (typeof data !== "string")
                 return;
 
-            var source = source_by_name[child.name];
-            var control;
+            var source, control;
+
+            /*
+             * On Internet Explorer we see Access Denied when non Cockpit
+             * frames send messages (such as Javascript console). This also
+             * happens when the window is closed.
+             */
+            try {
+                source = source_by_name[child.name];
+            } catch(ex) {
+                console.log("received message from child with in accessible name: ", ex);
+                return;
+            }
+
 
             /* Closing the transport */
             if (data.length === 0) {
@@ -438,7 +461,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         self.hint = function hint(child, data) {
             var message, source = source_by_name[child.name];
-            if (source && source.inited) {
+            /* This is often invalid when the window is closed */
+            if (source && source.inited && !source.window.closed) {
                 data.command = "hint";
                 message = "\n" + JSON.stringify(data);
                 source.window.postMessage(message, origin);

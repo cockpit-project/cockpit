@@ -51,7 +51,7 @@
 
         function storage(ev) {
             if (ev.key === key && ev.storageArea === window.sessionStorage)
-                refresh(JSON.parse(ev.newValue));
+                refresh(JSON.parse(ev.newValue || "null"));
         }
 
         window.addEventListener("storage", storage);

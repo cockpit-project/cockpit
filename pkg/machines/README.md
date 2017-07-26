@@ -99,4 +99,3 @@ External provider referential implementation is the `cockpit-machines-ovirt-prov
 
 ## Links
 \[1\] [How to enable nested virtualization in KVM](https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM)
-\[2\] [Cockpit-machines oVirt External Provider](https://github.com/oVirt/cockpit-machines-ovirt-provider)

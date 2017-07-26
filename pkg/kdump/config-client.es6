@@ -84,7 +84,7 @@ export class ConfigFile {
 
         this.settings = { };
         this._lines.forEach((line, index) => {
-            let trimmed = line.trimLeft();
+            let trimmed = line.trim();
             // if the line is empty or only a comment, skip
             if (trimmed.indexOf("#") === 0 || trimmed.length === 0)
                 return;

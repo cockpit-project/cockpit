@@ -276,3 +276,25 @@ And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
 Note that cockpit-session and cockpit-bridge will run from the installed
 prefix, rather than your build tree.
+
+# Running Internet Explorer to test Cockpit
+
+While running Firefox or Chrome on your Linux or Mac development machine
+may be easy, some people find it harder to test Internet Explorer. To
+use the following method you need access to the ```windows-8``` testing
+image. This image cannot be freely distributed for licensing reasons.
+
+Make sure you have the ```virt-viewer``` package installed on your Linux
+machine. And then run the following from the Cockpit checkout directory:
+
+    $ test/vm-run --network windows-8
+
+If the image is not yet downloaded, it'll take a while to download and
+you'll see progress on the command line. A screen will pop up and
+Windows will boot. Various command lines will show up once Windows has
+started. Ignore or minimize them, before starting Internet Explorer.
+
+Type the following into Internet Explorer's address bar to access Cockpit
+running on your development machine:
+
+     https://10.111.112.1:9090

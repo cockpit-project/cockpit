@@ -72,10 +72,15 @@ try:
         if subprocess.call(["ip", "address", "show", "dev", "cockpit1"], stdout=fp, stderr=fp) == 0:
             bridge = "cockpit1"
 
+    # Lets make sure Windows has enough memory to be productive
+    memory = args.memory
+    if "windows" in args.image and memory is None:
+        memory = 4096
+
     network = testvm.VirtNetwork(0, bridge=bridge)
 
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, maintain=args.maintain,
-                                 networking=network.host(), memory_mb=args.memory, cpus=args.cpus)
+                                 networking=network.host(), memory_mb=memory, cpus=args.cpus)
 
     # Hack to make things easier for users who don't know about kubeconfig
     if args.image == 'openshift':
@@ -99,7 +104,16 @@ try:
             if ret != 0:
                 sys.exit(ret)
 
-    machine.qemu_console()
+    machine.start()
+
+    # Graphics console necessary
+    if "windows" in args.image:
+        machine.graphics_console()
+
+    # No graphics console necessary
+    else:
+        machine.qemu_console()
+
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-run:", ex
     sys.exit(1)

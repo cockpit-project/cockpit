@@ -1027,17 +1027,16 @@ class VirtMachine(Machine):
 
     # start virsh console
     def qemu_console(self):
-        try:
-            self._start_qemu()
-            self.message("Started machine {0}".format(self.label))
-            if self.maintain:
-                message = "\nWARNING: Uncontrolled shutdown can lead to a corrupted image\n"
-            else:
-                message = "\nWARNING: All changes are discarded, the image file won't be changed\n"
-            message += self.diagnose() + "\nlogin: "
-            message = message.replace("\n", "\r\n")
+        self.message("Started machine {0}".format(self.label))
+        if self.maintain:
+            message = "\nWARNING: Uncontrolled shutdown can lead to a corrupted image\n"
+        else:
+            message = "\nWARNING: All changes are discarded, the image file won't be changed\n"
+        message += self.diagnose() + "\nlogin: "
+        message = message.replace("\n", "\r\n")
 
-            proc = subprocess.Popen("virsh -c qemu:///session console %s" % self._domain.ID(), shell=True)
+        try:
+            proc = subprocess.Popen("virsh -c qemu:///session console %s" % str(self._domain.ID()), shell=True)
 
             # Fill in information into /etc/issue about login access
             pid = 0
@@ -1061,8 +1060,28 @@ class VirtMachine(Machine):
                 # the domain may have already been freed (shutdown) while the console was running
                 self.message("libvirt error during shutdown: %s" % (le.get_error_message()))
 
-        except:
-            raise
+        except OSError, ex:
+            raise Failure("Failed to launch virsh command: {0}".format(ex.strerror))
+        finally:
+            self._cleanup()
+
+    def graphics_console(self):
+        self.message("Started machine {0}".format(self.label))
+        if self.maintain:
+            message = "\nWARNING: Uncontrolled shutdown can lead to a corrupted image\n"
+        else:
+            message = "\nWARNING: All changes are discarded, the image file won't be changed\n"
+        if "bridge" in self.networking:
+            message += "\nIn the machine a web browser can access Cockpit on parent host:\n\n"
+            message += "    https://10.111.112.1:9090\n"
+        message = message.replace("\n", "\r\n")
+
+        try:
+            proc = subprocess.Popen(["virt-viewer", str(self._domain.ID())])
+            sys.stderr.write(message)
+            proc.wait()
+        except OSError, ex:
+            raise Failure("Failed to launch virt-viewer command: {0}".format(ex.strerror))
         finally:
             self._cleanup()
 

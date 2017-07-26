@@ -118,7 +118,7 @@ class TestConnection(MachineCase):
 
         # Some operating systems fail SSL3 on the server side
         if m.image in [ "fedora-26" ]:
-            self.assertIn("no protocols available", output)
+            self.assertIn("Secure Renegotiation IS NOT supported", output)
         elif m.image in [ "fedora-25", "fedora-i386", "fedora-testing" ]:
             self.assertIn("ssl handshake failure", output)
         elif m.image in [ "debian-stable", "debian-testing" ]:

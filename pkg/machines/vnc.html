@@ -82,10 +82,10 @@
                 var containerId = decodeURIComponent(WebUtil.getConfigVar("containerId", ""));
                 console.log("Scrolling VNC frame into view, containerId = ", containerId);
 
-                var toBeVisible = $("tr[data-row-id='" + containerId + "']", window.parent.document)[0];
-                var toBeVisibleRow = $("#" + containerId + "-row", window.parent.document)[0];
+                var toBeVisible = window.parent.document.querySelector("tr[data-row-id='" + containerId + "']");
+                var toBeVisibleRow = window.parent.document.getElementById(containerId + "-row");
 
-                if (toBeVisible && toBeVisible.scrollIntoView) {
+                if (toBeVisible && toBeVisibleRow && toBeVisible.scrollIntoView) {
                     toBeVisible.scrollIntoView(); // ensure maximal visibility of the VNC iframe + VM-controls
                     toBeVisibleRow.scrollIntoView(); // ensure the VM's name is visible
                 } else {
@@ -108,9 +108,10 @@
                 var height = ($D('noVNC_canvas').height + 60)+ "px";
                 console.log('Resizing noVNC, height = ', height);
 
-                var novncContainerId = "#" + containerId + "-novnc-frame-container";
-                var novncContainer = $(novncContainerId, window.parent.document)[0];
-                novncContainer.style.height = height;
+                var novncContainerId = containerId + "-novnc-frame-container";
+                var novncContainer = window.parent.document.getElementById(novncContainerId);
+                if (novncContainer)
+                    novncContainer.style.height = height;
 
                 // no need to resize width - already 100%, potential scrollbar
 
@@ -161,16 +162,6 @@
                 s.textContent = msg;
             }
         }
-
-        window.onresize = function () {
-            // When the window has been resized, wait until the size remains
-            // the same for 0.5 seconds before sending the request for changing
-            // the resolution of the session
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function(){
-                UIresize();
-            }, 500);
-        };
 
         function parseParams() {
             var params = {
@@ -234,11 +225,20 @@
                 binary: "raw",
             }));
 
-            console.log(cockpit, cockpit.transport);
-            console.log("channel", params.port);
             cockpit.transport.wait(function () {
                 connect("cockpit/channel/" + cockpit.transport.csrf_token + "?" + query, params);
             });
+
+            window.onresize = function () {
+                // When the window has been resized, wait until the size remains
+                // the same for 0.5 seconds before sending the request for changing
+                // the resolution of the session
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function(){
+                    UIresize();
+                }, 500);
+            };
+
         };
         </script>
 

@@ -214,7 +214,7 @@
                         }
 
                         var meta = object.metadata;
-                        if (!meta || !meta.uid || !object.kind) {
+                        if (!meta || (!meta.uid && object.kind !== "Project") || !object.kind) {
                             console.warn("invalid kube object: ", object);
                             continue;
                         }

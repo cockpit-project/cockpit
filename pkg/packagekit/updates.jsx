@@ -258,7 +258,7 @@ class UpdateItem extends React.Component {
         if (!this.state.expanded && descLines.length > 7) {
             desc = (
                 <div onClick={ () => this.setState({expanded: true}) }>
-                    {descLines.slice(0, 6).join("\n")}
+                    {descLines.slice(0, 6).join("\n") + "\n"}
                     <a>{_("More information…")}</a>
                 </div>);
         } else {

@@ -13,32 +13,12 @@ playground_DATA = \
 dist/playground/extra.de.po: pkg/playground/extra.de.po
 	$(COPY_RULE)
 
-machinesincludedir = $(pkgdatadir)/machines/include
-machinesinclude_DATA = \
-	$(shell ls -1 $(srcdir)/node_modules/noVNC/include | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\//') \
-	$(NULL)
-
-machinesincludechromedir = $(pkgdatadir)/machines/include/chrome-app
-machinesincludechrome_DATA = \
-	$(shell ls -1 $(srcdir)/node_modules/noVNC/include/chrome-app | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\/chrome-app\//') \
-	$(NULL)
-
-dist/machines/include/chrome-app/%: node_modules/noVNC/include/chrome-app/%
-	$(COPY_RULE)
-
-dist/machines/include/%: node_modules/noVNC/include/%
-	$(COPY_RULE)
-
 EXTRA_DIST += \
 	dist/playground/extra.de.po \
 	pkg/playground/extra.de.po \
 	pkg/users/mock \
 	pkg/lib/qunit-template.html \
-        $(shell ls -1 $(srcdir)/node_modules/noVNC/include | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/node_modules\/noVNC\/include\//') \
-        $(shell ls -1 $(srcdir)/node_modules/noVNC/include/chrome-app | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/node_modules\/noVNC\/include\/chrome-app\//') \
-        node_modules/noVNC/package.json \
-	$(shell ls -1 $(srcdir)/node_modules/noVNC/include | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\//') \
-	$(shell ls -1 $(srcdir)/node_modules/noVNC/include/chrome-app | grep ".*\.\(js\|css\|ttf\|woff\)" | sed -e 's/^/dist\/machines\/include\/chrome-app\//') \
+	node_modules/noVNC/package.json \
 	$(playground_DATA) \
 	$(pkg_TESTS)
 

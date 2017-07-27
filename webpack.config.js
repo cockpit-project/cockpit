@@ -34,6 +34,10 @@ var info = {
             "machines/machines.less",
         ],
 
+        "machines/vnc": [
+            "machines/vnc.js",
+        ],
+
         "networkmanager/network": [
             "networkmanager/interfaces.js",
             "networkmanager/utils.js"
@@ -457,6 +461,11 @@ module.exports = {
                 test: /[\/]angular\.js$/,
                 loader: "exports?angular"
             }
+        ],
+
+        /* The stuff in noVNC are plain ol javascript */
+        noParse: [
+            /\/node_modules\/noVNC\//
         ]
     },
 

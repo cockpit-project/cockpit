@@ -787,7 +787,7 @@ class TestRegistry(MachineCase):
         b.set_val("#user_name", "bar ^ baz")
         b.set_val("#identities", "anypassword:abc123")
         b.click(".btn-primary")
-        b.wait_in_text(".dialog-error", "The member name contains invalid characters.")
+        b.wait_in_text(".dialog-error", "The name contains invalid characters.")
 
         # email-style user name should be accepted
         b.set_val("#user_name", "bar@baz.com")

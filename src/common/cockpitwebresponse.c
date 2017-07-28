@@ -1818,16 +1818,16 @@ cockpit_web_response_security_policy (const gchar *content_security_policy,
   if (content_security_policy)
     parts = g_strsplit (content_security_policy, ";", -1);
 
+  for (i = 0; parts && parts[i] != NULL; i++)
+    g_strstrip (parts[i]);
+
   if (!strv_have_prefix (parts, "default-src "))
     g_string_append_printf (result, "%s; ", default_src);
   if (!strv_have_prefix (parts, "connect-src "))
     g_string_append_printf (result, "%s; ", connect_src);
 
   for (i = 0; parts && parts[i] != NULL; i++)
-    {
-      g_strstrip (parts[i]);
-      g_string_append_printf (result, "%s; ", parts[i]);
-    }
+    g_string_append_printf (result, "%s; ", parts[i]);
 
   g_strfreev (parts);
 

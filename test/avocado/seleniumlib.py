@@ -63,6 +63,8 @@ class SeleniumTest(Test):
         else:
             selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
             browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
+            if browser == "explorer":
+                browser = "internet explorer"
             guest_machine = os.environ["GUEST"]
             @Retry(attempts = 3, timeout = 30, error = Exception('Timeout: Unable to attach remote Browser on hub'))
             def connectbrowser():

@@ -142,7 +142,7 @@ class MachineBuilder:
         script = os.path.join(BOTS, "images", "scripts", "%s.setup" % (self.machine.image, ))
 
         if not os.path.exists(script):
-            raise testvm.Failure("Unsupported image %s: %s not found." % (self.machine.image, script))
+            return
 
         self.machine.message("Running setup script %s" % (script))
         if args.no_build:

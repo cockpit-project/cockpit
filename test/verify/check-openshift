@@ -54,8 +54,9 @@ def wait_project(machine, project):
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
-    additional_machines = {
-        'openshift': { 'machine': { 'image': 'openshift' } }
+    provision = {
+        "machine1": { "address": "10.111.113.1/20" },
+        "openshift": { "image": "openshift", "forward": { 30000: 30000, 8443: 8443 } }
     }
 
     def setUp(self):
@@ -382,8 +383,9 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestRegistry(MachineCase):
-    additional_machines = {
-        'openshift': { 'machine': { 'image': 'openshift' } }
+    provision = {
+        "machine1": { "address": "10.111.113.1/20" },
+        "openshift": { "image": "openshift" }
     }
 
     def setUp(self):

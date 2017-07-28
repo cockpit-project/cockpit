@@ -63,7 +63,7 @@ class NetworkCase(MachineCase):
 
     def add_iface(self, mac=None, vlan=0, activate=True):
         m = self.machine
-        mac = m.add_netiface(mac=mac, vlan=vlan)
+        mac = m.add_netiface(networking=self.network.interface(), vlan=vlan)
         # Wait for the interface to show up
         self.get_iface(m, mac)
         # Trigger udev to make sure that it has been renamed to its final name
@@ -75,13 +75,13 @@ class NetworkCase(MachineCase):
             m.execute("nmcli dev con %s" % iface)
         return iface
 
-    def wait_for_iface(self, iface, active=True, state=None):
+    def wait_for_iface(self, iface, active=True, state=None, prefix="10.111."):
         sel = "#networking-interfaces tr[data-interface='%s']" % iface
 
         if state:
             text = state
         elif active:
-            text = "10.111."
+            text = prefix
         else:
             text = "Inactive"
 

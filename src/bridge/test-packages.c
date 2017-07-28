@@ -974,6 +974,30 @@ test_reload_updated (TestCase *tc,
   teardown_reload_packages (datadir);
 }
 
+static const Fixture fixture_csp_strip = {
+  .path = "/strip/test.html",
+  .datadirs = { SRCDIR "/src/bridge/mock-resource/csp", NULL },
+};
+
+static void
+test_csp_strip (TestCase *tc,
+                gconstpointer fixture)
+{
+  GBytes *data;
+  guint count;
+
+  g_assert (fixture == &fixture_csp_strip);
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = mock_transport_combine_output (tc->transport, "444", &count);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-Cockpit-Pkg-Checksum\":\"0c58347ff749c5918f7f311c109369c377dc2ba1\",\"Content-Type\":\"text/html\",\"Content-Security-Policy\":\"connect-src 'self' ws: wss:; img-src: 'self' data:; default-src 'self'\"}}<html>\x0A<head>\x0A<title>Test</title>\x0A</head>\x0A<body>Test</body>\x0A</html>\x0A", -1);
+  g_assert_cmpuint (count, ==, 2);
+  g_bytes_unref (data);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -1051,6 +1075,9 @@ main (int argc,
               setup_basic, test_reload_removed, teardown_basic);
   g_test_add ("/packages/reload/updated", TestCase, &fixture_reload,
               setup_basic, test_reload_updated, teardown_basic);
+
+  g_test_add ("/packages/csp/strip", TestCase, &fixture_csp_strip,
+              setup, test_csp_strip, teardown);
 
   return g_test_run ();
 }

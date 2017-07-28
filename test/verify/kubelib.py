@@ -35,6 +35,10 @@ __all__ = (
 )
 
 class KubernetesCase(testlib.MachineCase):
+    provision = {
+        "machine1": { "address": "10.111.113.1/20" }
+    }
+
     def setUp(self):
         testlib.MachineCase.setUp(self)
         self.browser.wait_timeout(120)
@@ -46,12 +50,15 @@ class KubernetesCase(testlib.MachineCase):
             self.machine.execute("systemctl stop kube-apiserver")
 
     def start_kubernetes(self):
+        self.machine.execute("test -f /etc/resolv.conf || touch /etc/resolv.conf")
         self.machine.execute("systemctl start docker || journalctl -u docker")
 
         # HACK: work around https://github.com/kubernetes/kubernetes/issues/43805 until
         # the fix lands in Fedora 26
         if self.machine.image == "fedora-26":
             self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s/"$/ --cgroup-driver=systemd"/ }' /etc/kubernetes/kubelet""")
+
+        self.machine.execute("echo 'KUBE_API_ADDRESS=\"$KUBE_API_ADDRESS --bind-address=10.111.113.1\"' >> /etc/kubernetes/apiserver")
         try:
             self.machine.execute('/etc/kubernetes/start-kubernetes')
         except subprocess.CalledProcessError:
@@ -60,20 +67,17 @@ class KubernetesCase(testlib.MachineCase):
     # HACK: https://github.com/GoogleCloudPlatform/kubernetes/issues/8311
     # Work around for the fact that kube-apiserver doesn't notify about startup
     # We wait until available or timeout.
-    def wait_api_server(self, port=8080, timeout=60, scheme='http'):
+    def wait_api_server(self, address="127.0.0.1", port=8080, timeout=120, scheme='http'):
         waiter = """
-        port=%d
-        timeout=%d
-        scheme=%s
-        for a in $(seq 0 $timeout); do
-            if curl -o /dev/null -k -s $scheme://localhost:$port; then
+        for a in $(seq 0 {timeout}); do
+            if curl -o /dev/null -k -s {scheme}://{address}:{port}; then
                 if kubectl get all | grep -q svc/kubernetes; then
                     break
                 fi
             fi
             sleep 0.5
         done
-        """ % (port, timeout * 2, scheme)
+        """.format(**locals())
         self.machine.execute(script=waiter)
 
 class VolumeTests(object):
@@ -710,17 +714,19 @@ class OpenshiftCommonTests(VolumeTests):
         b = self.browser
 
         # Make sure we can find openshift
-        m.execute("echo '{}  f1.cockpit.lan' >> /etc/hosts".format(self.openshift.address))
+        m.execute("echo '10.111.112.101  f1.cockpit.lan' >> /etc/hosts")
 
         self.login_and_go("/kubernetes")
         b.wait_present("a[href='#/nodes']")
         b.click("a[href='#/nodes']")
 
         b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan']")
+        b.wait_in_text(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-item", "Ready")
 
         b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-item td.listing-ct-toggle")
         b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel")
         self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel"))
+        b.wait_in_text(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel", "10.111.112.101")
         b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
         b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
 

@@ -172,6 +172,7 @@ oc create -f /tmp/imagestream.json
 # Get registry address and configure docker for it
 address="$(oc get services docker-registry | tail -n1 | awk -v N=2 '{print $N}')"
 echo "$address     registry registry.cockpit.lan" >> /etc/hosts
+echo "INSECURE_REGISTRY='--insecure-registry registry:5000 --insecure-registry $address'" >> /etc/sysconfig/docker
 
 # Log in as another user
 printf "scruffy\r\nscruffy\r\n" | oc login

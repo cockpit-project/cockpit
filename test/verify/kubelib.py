@@ -665,7 +665,8 @@ class OpenshiftCommonTests(VolumeTests):
 
         # Switch to images view
         b.click("a[href='#/images']")
-        b.wait_present("tbody[data-id='marmalade/busybee:0.x']")
+        b.wait_present("tbody[data-id='marmalade/busybee']")
+        b.wait_in_text("tbody[data-id='marmalade/busybee'] tr", "0.x")
 
         # Switch to topology view
         b.click("a[href='#/topology']")

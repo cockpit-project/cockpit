@@ -1,5 +1,23 @@
 <filter-bar class="content-filter">
 </filter-bar>
 
-<div image-listing>
+<div>
+<table listing-table class="listing-ct images-listing">
+    <thead>
+        <tr ng-if="!listing.inline">
+            <td colspan="4">
+                <a class="pull-right" ng-click="createImageStream()">
+                    <i translate class="pficon pficon-add-circle-o"></i>
+                    <span translate>New image stream</span>
+                </a>
+                <h3 translate>Images</h3>
+            </td>
+    </thead>
+</table>
+
+<registry-imagestream-listing imagestreams="imagestreams" tags-for-image="tagsForImage"
+                              settings="settings" shared-images="sharedImages"
+                              actions="actions" image-tag-names="imageTagNames">
+</registry-imagestream-listing>
+
 </div>

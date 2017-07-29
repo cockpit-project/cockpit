@@ -48,6 +48,7 @@
         'registry.images',
         'registry.projects',
         'registry.policy',
+        'registryUI.date',
         'kubeClient',
         'kubeClient.cockpit'
     ])
@@ -57,9 +58,10 @@
         'KubeWatchProvider',
         'KubeRequestProvider',
         'KubeDiscoverSettingsProvider',
+        'MomentLibProvider',
         '$provide',
         function($routeProvider, KubeWatchProvider, KubeRequestProvider,
-                 KubeDiscoverSettingsProvider, $provide) {
+                 KubeDiscoverSettingsProvider, MomentLibProvider, $provide) {
 
             $routeProvider
                 .when('/', {
@@ -73,6 +75,7 @@
             KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
             KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
             KubeDiscoverSettingsProvider.KubeDiscoverSettingsFactory = "cockpitKubeDiscoverSettings";
+            MomentLibProvider.MomentLibFactory = "momentLib";
 
             $provide.decorator("$exceptionHandler",
                 ['$delegate',

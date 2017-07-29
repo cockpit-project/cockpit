@@ -29,6 +29,12 @@
         "kubeClient"
     ])
 
+    .factory('momentLib', [
+        function() {
+            return moment;
+        }
+    ])
+
     .factory('refreshEveryMin', [
         "$rootScope",
         "$window",

@@ -561,6 +561,41 @@ class TestRegistry(MachineCase):
         b.wait_present("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta", "build-date=2016-03-04")
 
+        # Check panel navigations
+        b.go("#/images")
+        b.wait_present("tbody[data-id='marmalade/juggs']")
+        b.wait_in_text("tbody[data-id='marmalade/juggs'] tr", "and 1 other")
+        b.wait_present("tbody[data-id='marmalade/juggs'] tr td a.registry-image-tag:contains('latest')")
+        b.click("tbody[data-id='marmalade/juggs'] tr td.listing-ct-toggle")
+        b.wait_visible("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel")
+        b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel ul li:contains('Tags')")
+        b.click("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel ul li:contains('Tags') a")
+        b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct")
+        b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest']")
+        b.wait_in_text("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest'] tr th", "latest")
+        b.click("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest'] tr")
+        b.wait_js_cond('window.location.hash == "#/images/marmalade/juggs:latest"')
+        b.wait_present("#content div.listing-ct-inline")
+        b.wait_text(".content-filter h3 span", "marmalade/juggs:latest")
+
+        b.go("#/images")
+        b.wait_present("tbody[data-id='marmalade/juggs']")
+        b.wait_in_text("tbody[data-id='marmalade/juggs'] tr", "and 1 other")
+        b.wait_present("tbody[data-id='marmalade/juggs'] tr td a.registry-image-tag:contains('latest')")
+        b.click("tbody[data-id='marmalade/juggs'] tr td a.registry-image-tag:contains('latest')")
+        b.wait_js_cond('window.location.hash == "#/images/marmalade/juggs:latest"')
+        b.wait_present("#content div.listing-ct-inline")
+        b.wait_in_text(".content-filter h3", "marmalade/juggs:latest")
+
+        b.go("#/images")
+        b.wait_present("tbody[data-id='marmalade/juggs'] tr")
+        b.wait_in_text("tbody[data-id='marmalade/juggs'] tr", "and 1 other")
+        b.click("tbody[data-id='marmalade/juggs'] tr")
+        b.wait_js_cond('window.location.hash == "#/images/marmalade/juggs"')
+        b.wait_present("#content div.listing-ct-inline")
+        b.wait_in_text(".content-filter h3", "marmalade/juggs")
+
+
     def testProjectGroups(self):
         b = self.browser
 
@@ -1041,7 +1076,7 @@ class TestRegistry(MachineCase):
 
         # .. and also on the image page
         b.go("#/images/marmalade/origin")
-        b.wait_in_text("body", "push to an image to this image stream")
+        b.wait_in_text("body", "push an image to this image stream")
         b.wait_in_text("body", "docker tag")
         b.wait_in_text("body", "docker push")
         b.wait_visible('.registry-imagestream-push')
@@ -1096,8 +1131,9 @@ class TestRegistry(MachineCase):
 
         # new stream with both "latest" and "2.11" tags should now appear
         b.wait_present("tr.imagestream-item th:contains('marmalade/alltags')")
-        b.wait_present('tbody[data-id="marmalade/alltags:latest"]')
-        b.wait_present('tbody[data-id="marmalade/alltags:2.11"]')
+        b.wait_present('tbody[data-id="marmalade/alltags"]')
+        b.wait_in_text('tbody[data-id="marmalade/alltags"] tr', "latest")
+        b.wait_in_text('tbody[data-id="marmalade/alltags"] tr', "2.11")
 
         # also check with CLI
         output = self.openshift.execute("oc get imagestream --namespace=marmalade alltags")
@@ -1126,11 +1162,10 @@ class TestRegistry(MachineCase):
         b.wait_not_present("modal-dialog")
 
         # new stream with only "2.11" tags should now appear
+        b.wait_present('tbody[data-id="marmalade/sometags"]')
         b.wait_present("tr.imagestream-item th:contains('marmalade/sometags')")
-        b.go("/kubernetes/registry#/images/marmalade/sometags")
-        # EXFAIL: https://bugzilla.redhat.com/show_bug.cgi?id=1373332
-        # b.wait_present('tbody[data-id="marmalade/sometags:2.11"]')
-        self.assertFalse(b.is_present('tbody[data-id="marmalade/sometags:latest"]'))
+        b.wait_in_text('tbody[data-id="marmalade/sometags"] tr', '2.11')
+        b.wait_not_in_text('tbody[data-id="marmalade/sometags"] tr', 'latest')
 
         # also check with CLI
         output = self.openshift.execute("oc get imagestream --namespace=marmalade sometags")

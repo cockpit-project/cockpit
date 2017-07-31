@@ -23,7 +23,7 @@ else
 fi
 
 # we don't dist bots, so only check it when running in git
-[ -d bots ] &&  BOTS="bots/" || BOTS=
+[ -d bots ] &&  BOTS=$(grep -l '#!.*python' bots/* 2>/dev/null || true) || BOTS=
 
 # TODO: there are currently a lot of pyflakes errors like
 #   'parent' imported but unused
@@ -35,7 +35,7 @@ if ! which pyflakes >/dev/null 2>&1; then
 else
     out=$(pyflakes $BOTS test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused)") || true
     if [ -n "$out" ]; then
-        echo $out >&2
+        echo "$out" >&2
         echo "not ok 2 pyflakes bots test"
         fail=1
     else

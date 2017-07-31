@@ -23,7 +23,6 @@ from testlib import *
 
 import os
 import sys
-import time
 
 def readFile(name):
     content = ''
@@ -251,20 +250,11 @@ class TestMachines(MachineCase):
         if args["logfile"] is not None:
             wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
-        # Click the Send Non-Maskable Interrupt button (no change in VM state is expected)
-        # It sometimes takes the VM settling down before it prints anything about an NMI
-        for x in range(0, 60):
-            b.click("#vm-subVmTest1-off-caret")
-            b.wait_visible("#vm-subVmTest1-sendNMI")
-            b.click("#vm-subVmTest1-sendNMI")
-            b.wait_not_visible("#vm-subVmTest1-sendNMI")
-            if args["logfile"] is None:
-                break
-            if "NMI received" in m.execute("cat {0}".format(args["logfile"])):
-                break
-            time.sleep(3)
-        else:
-            self.fail("No NMI received by VM")
+        # Send Non-Maskable Interrupt (no change in VM state is expected)
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-sendNMI")
+        b.click("#vm-subVmTest1-sendNMI")
+        b.wait_not_visible("#vm-subVmTest1-sendNMI")
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")
@@ -272,7 +262,12 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
-        # usage should drop to zero
+        # It requires another sequential virt call before it prints anything about an NMI,
+        # so receiving NMI call validation is done here, after shutting off the VM
+        if args["logfile"] is not None:
+            wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
+
+        # continue shut off validation - usage should drop to zero
         b.wait_in_text("#chart-donut-0 .donut-title-big-pf", "0.00")
         b.wait_in_text("#chart-donut-1 .donut-title-big-pf", "0.0")
 

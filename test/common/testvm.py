@@ -77,7 +77,7 @@ class Timeout:
                 self.machine.ssh_process.terminate()
             self.machine.disconnect()
 
-        raise Exception(self.error_message)
+        raise RuntimeError(self.error_message)
     def __enter__(self):
         signal.signal(signal.SIGALRM, self.handle_timeout)
         signal.alarm(self.seconds)
@@ -212,14 +212,18 @@ class Machine:
            user sessions are allowed (and cockit-ws will let "admin"
            in) before declaring a test machine as "booted".
 
-           Returns the boot id of the system.
+           Returns the boot id of the system, or None if ssh timed out.
         """
         tries_left = 60
         while (tries_left > 0):
             try:
-                return self.execute("! test -f /run/nologin && cat /proc/sys/kernel/random/boot_id")
+                with Timeout(seconds=30):
+                    return self.execute("! test -f /run/nologin && cat /proc/sys/kernel/random/boot_id", direct=True)
             except subprocess.CalledProcessError:
                 pass
+            except RuntimeError:
+                # timeout; assume that ssh just went down during reboot, go back to wait_boot()
+                return None
             tries_left = tries_left - 1
             time.sleep(1)
         raise Failure("Timed out waiting for /run/nologin to disappear")
@@ -227,15 +231,15 @@ class Machine:
     def wait_boot(self, timeout_sec=120):
         """Wait for a machine to boot"""
         start_time = time.time()
-        connected = False
+        boot_id = None
         while (time.time() - start_time) < timeout_sec:
             if self.wait_execute(timeout_sec=15):
-                connected = True
-                break
-        if connected:
-            self.boot_id = self.wait_user_login()
-        else:
+                boot_id = self.wait_user_login()
+                if boot_id:
+                    break
+        if not boot_id:
             raise Failure("Unable to reach machine {0} via ssh: {1}:{2}".format(self.label, self.ssh_address, self.ssh_port))
+        self.boot_id = boot_id
 
     def wait_reboot(self, timeout_sec=120):
         self.disconnect()

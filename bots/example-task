@@ -23,7 +23,6 @@
 #  * [ ] example-bot 20
 #
 
-import argparse
 import os
 import sys
 import time
@@ -37,7 +36,7 @@ BASE = os.path.normpath(os.path.join(BOTS, ".."))
 
 def run(argument, verbose=False, **kwargs):
     try:
-        seconds = int(argument)
+        int(argument)
     except ValueError:
         return "Failed to parse argument"
 

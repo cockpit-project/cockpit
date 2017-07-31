@@ -23,7 +23,6 @@
 
 import argparse
 import datetime
-import os
 import sys
 
 sys.dont_write_bytecode = True
@@ -47,7 +46,7 @@ def httpdate(dt):
 
 def main():
     parser = argparse.ArgumentParser(description='Test GitHub rate limits')
-    opts = parser.parse_args()
+    parser.parse_args()
 
     # in order for the limit not to be affected by the call itself,
     # use a conditional request with a timestamp in the future

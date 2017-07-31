@@ -36,7 +36,7 @@ def main():
     parser = argparse.ArgumentParser(description='Update known issues')
     parser.add_argument('-v', '--verbose', action="store_true", default=False,
                         help="Print verbose information")
-    opts = parser.parse_args()
+    parser.parse_args()
 
     title = "Update stale known issues"
     body = "Check for any stale known issues and open a pull request to close them"

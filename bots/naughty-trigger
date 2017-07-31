@@ -34,8 +34,8 @@ import task
 
 def main():
     parser = argparse.ArgumentParser(description='Update known issues')
-    parser.add_argument('-v', '--verbose', action="store_true", default=False,
-                        help="Print verbose information")
+    # parser.add_argument('-v', '--verbose', action="store_true", default=False,
+    #                     help="Print verbose information")
     parser.parse_args()
 
     title = "Update stale known issues"

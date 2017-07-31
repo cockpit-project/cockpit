@@ -85,7 +85,7 @@ def scan_for_prune():
     except OSError:
         mtime = 0
     if mtime < time.time() - 3600:
-        tasks.append("PRIORITY=0000 touch {0} && bots/image-download --prune".format(stamp))
+        tasks.append("PRIORITY=0000 touch {0} && bots/image-prune".format(stamp))
 
     return tasks
 

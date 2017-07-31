@@ -37,7 +37,7 @@ BASE = os.path.normpath(os.path.join(BOTS, ".."))
 def run(argument, verbose=False, **kwargs):
     try:
         int(argument)
-    except ValueError:
+    except (TypeError, ValueError):
         return "Failed to parse argument"
 
     sys.stdout.write("Example message to log\n")

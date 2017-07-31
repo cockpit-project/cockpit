@@ -51,7 +51,7 @@ def run(context, verbose=False, **kwargs):
     # Do the various updates
     cmd = [ "make", "upload-pot", "download-po" ]
     if verbose:
-        sys.stderr.write("+ " + " ".join(args) + "\n")
+        sys.stderr.write("+ " + " ".join(cmd) + "\n")
     subprocess.check_call(cmd, cwd=cwd)
 
     # Create a pull request from these changes

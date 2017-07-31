@@ -39,8 +39,6 @@ import sys
 import tempfile
 import urlparse
 
-from task import github
-
 BOTS = os.path.dirname(os.path.realpath(__file__))
 IMAGES = os.path.join(BOTS, "..", "bots", "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")

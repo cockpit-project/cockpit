@@ -182,13 +182,6 @@ def every_image():
             result.append(filename)
     return result
 
-def download_images(image_list, force, quiet, store):
-    for image in image_list:
-        link = os.path.join(IMAGES, image)
-        if not os.path.islink(link):
-            raise RuntimeError("image link does not exist: " + image)
-        download(link, force, quiet, store)
-
 def main():
     parser = argparse.ArgumentParser(description='Prune downloaded images')
     parser.add_argument("--force", action="store_true", help="Delete images even if they aren't old")

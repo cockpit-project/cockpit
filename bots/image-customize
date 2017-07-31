@@ -74,7 +74,6 @@ def run_command(machine_instance, commandlist):
 
 def run_script(machine_instance, scriptlist):
     """Run script inside image"""
-    allscripts = []
     for foo in scriptlist:
         if os.path.isfile(foo):
             pname = os.path.basename(foo)

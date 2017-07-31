@@ -28,7 +28,6 @@ import time
 sys.dont_write_bytecode = True
 
 import task
-from task import github
 
 def main():
     parser = argparse.ArgumentParser(description='Ensure necessary issue exists for npm upgrades')
@@ -36,7 +35,6 @@ def main():
                         help="Print verbose information")
     parser.add_argument("package", nargs="?")
     opts = parser.parse_args()
-    api = github.GitHub()
 
     if opts.package:
         title = "Update {0} package dependency".format(opts.package)

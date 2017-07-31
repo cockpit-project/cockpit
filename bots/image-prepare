@@ -17,13 +17,10 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import imp
 import errno
 import os
 import sys
-import glob
 import subprocess
-import tempfile
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
@@ -82,7 +79,7 @@ def main():
         if ex.errno != errno.ENOENT:
             raise
         sys.stderr.write("image-prepare: missing tools to download images\n")
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         sys.stderr.write("image-prepare: unable to download all necessary images\n")
         return 1
 

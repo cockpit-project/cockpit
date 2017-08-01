@@ -5,5 +5,5 @@
 #include <libvirt/libvirt.h>
 #include <systemd/sd-bus.h>
 
-int domain_register(VirtManager *manager,
+int domain_register(virtDBusManager *manager,
                     sd_bus *bus);

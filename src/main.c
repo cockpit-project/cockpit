@@ -98,7 +98,7 @@ main(int argc, char *argv[])
     bool system_bus;
     const char *uri = NULL;
 
-    _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
+    _cleanup_(virtDBusManagerFreep) virtDBusManager *manager = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
     _cleanup_(virtDBusUtilClosep) int signal_fd = -1;
     _cleanup_(virtDBusVirEventRemoveHandlep) int bus_watch = -1;
@@ -162,7 +162,7 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    r = virt_manager_new(&manager, bus, uri);
+    r = virtDBusManagerNew(&manager, bus, uri);
     if (r < 0) {
         fprintf(stderr, "Failed to connect to libvirt");
         return EXIT_FAILURE;

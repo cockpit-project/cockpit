@@ -12,7 +12,7 @@ handle_domain_lifecycle_event(virConnectPtr connection,
                               int detail,
                               void *opaque)
 {
-    VirtManager *manager = opaque;
+    virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     const char *signal = NULL;
     const char *name;
@@ -75,7 +75,7 @@ handle_domain_device_added_event(virConnectPtr connection,
                                  const char *device,
                                  void *opaque)
 {
-    VirtManager *manager = opaque;
+    virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
@@ -103,7 +103,7 @@ handle_domain_device_removed_event(virConnectPtr connection,
                                    const char *device,
                                    void *opaque)
 {
-    VirtManager *manager = opaque;
+    virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
@@ -132,7 +132,7 @@ handle_domain_disk_change_event(virConnectPtr connection,
                                 int reason,
                                 void *opaque)
 {
-    VirtManager *manager = opaque;
+    virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     const char *reasonstr;
@@ -176,7 +176,7 @@ handle_domain_tray_change_event(virConnectPtr connection,
                                 int reason,
                                 void *opaque)
 {
-    VirtManager *manager = opaque;
+    virtDBusManager *manager = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     const char *reasonstr;
@@ -212,7 +212,7 @@ handle_domain_tray_change_event(virConnectPtr connection,
 }
 
 static void
-virt_manager_register_event(VirtManager *manager,
+virt_manager_register_event(virtDBusManager *manager,
                             int id,
                             virConnectDomainEventGenericCallback callback)
 {
@@ -227,7 +227,7 @@ virt_manager_register_event(VirtManager *manager,
 }
 
 void
-virt_manager_register_events(VirtManager *manager)
+virt_manager_register_events(virtDBusManager *manager)
 {
     virt_manager_register_event(manager,
                                 VIR_DOMAIN_EVENT_ID_LIFECYCLE,

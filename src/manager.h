@@ -5,16 +5,16 @@
 #include <libvirt/libvirt.h>
 #include <systemd/sd-bus.h>
 
-struct VirtManager {
+struct virtDBusManager {
     sd_bus *bus;
     virConnectPtr connection;
 
     int callback_ids[VIR_DOMAIN_EVENT_ID_LAST];
 };
-typedef struct VirtManager VirtManager;
+typedef struct virtDBusManager virtDBusManager;
 
-int virt_manager_new(VirtManager **managerp,
-                     sd_bus *bus,
-                     const char *uri);
-VirtManager *virt_manager_free(VirtManager *manager);
-void virt_manager_freep(VirtManager **managerp);
+int virtDBusManagerNew(virtDBusManager **managerp,
+                       sd_bus *bus,
+                       const char *uri);
+virtDBusManager *virtDBusManagerFree(virtDBusManager *manager);
+void virtDBusManagerFreep(virtDBusManager **managerp);

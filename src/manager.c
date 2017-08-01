@@ -7,13 +7,13 @@
 #include <stdlib.h>
 
 static int
-enumerate_domains(sd_bus *bus,
-                  const char *path,
-                  void *userdata,
-                  char ***nodes,
-                  sd_bus_error *error)
+virtDBusManagerEnumarateDomains(sd_bus *bus,
+                                const char *path,
+                                void *userdata,
+                                char ***nodes,
+                                sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
     _cleanup_(virtDBusUtilStrvFreep) char **paths = NULL;
     int n_domains;
@@ -34,11 +34,11 @@ enumerate_domains(sd_bus *bus,
 }
 
 static int
-virt_manager_list_domains(sd_bus_message *message,
-                          void *userdata,
-                          sd_bus_error *error)
+virtDBusManagerListDomains(sd_bus_message *message,
+                           void *userdata,
+                           sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
     _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
     uint32_t flags;
@@ -78,11 +78,11 @@ virt_manager_list_domains(sd_bus_message *message,
 }
 
 static int
-virt_manager_create_xml(sd_bus_message *message,
-                        void *userdata,
-                        sd_bus_error *error)
+virtDBusManagerCreateXML(sd_bus_message *message,
+                         void *userdata,
+                         sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     const char *xml;
     uint32_t flags;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -103,11 +103,11 @@ virt_manager_create_xml(sd_bus_message *message,
 }
 
 static int
-virt_manager_define_xml(sd_bus_message *message,
-                        void *userdata,
-                        sd_bus_error *error)
+virtDBusManagerDefineXML(sd_bus_message *message,
+                         void *userdata,
+                         sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     const char *xml;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
@@ -129,9 +129,9 @@ virt_manager_define_xml(sd_bus_message *message,
 static const sd_bus_vtable virt_manager_vtable[] = {
     SD_BUS_VTABLE_START(0),
 
-    SD_BUS_METHOD("ListDomains", "u", "ao", virt_manager_list_domains, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("CreateXML", "su", "o", virt_manager_create_xml, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("DefineXML", "s", "o", virt_manager_define_xml, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("ListDomains", "u", "ao", virtDBusManagerListDomains, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("CreateXML", "su", "o", virtDBusManagerCreateXML, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("DefineXML", "s", "o", virtDBusManagerDefineXML, SD_BUS_VTABLE_UNPRIVILEGED),
 
     SD_BUS_SIGNAL("DomainDefined", "so", 0),
     SD_BUS_SIGNAL("DomainUndefined", "so", 0),
@@ -147,14 +147,14 @@ static const sd_bus_vtable virt_manager_vtable[] = {
 };
 
 int
-virt_manager_new(VirtManager **managerp,
-                 sd_bus *bus,
-                 const char *uri)
+virtDBusManagerNew(virtDBusManager **managerp,
+                   sd_bus *bus,
+                   const char *uri)
 {
-    _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
+    _cleanup_(virtDBusManagerFreep) virtDBusManager *manager = NULL;
     int r;
 
-    manager = calloc(1, sizeof(VirtManager));
+    manager = calloc(1, sizeof(virtDBusManager));
     for (int i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1)
         manager->callback_ids[i] = -1;
 
@@ -175,7 +175,7 @@ virt_manager_new(VirtManager **managerp,
     if (r < 0)
         return r;
 
-    r = sd_bus_add_node_enumerator(bus, NULL, "/org/libvirt/domain", enumerate_domains, manager);
+    r = sd_bus_add_node_enumerator(bus, NULL, "/org/libvirt/domain", virtDBusManagerEnumarateDomains, manager);
     if (r < 0)
         return r;
 
@@ -188,8 +188,8 @@ virt_manager_new(VirtManager **managerp,
     return 0;
 }
 
-VirtManager *
-virt_manager_free(VirtManager *manager)
+virtDBusManager *
+virtDBusManagerFree(virtDBusManager *manager)
 {
     if (manager->bus)
         sd_bus_unref(manager->bus);
@@ -209,8 +209,8 @@ virt_manager_free(VirtManager *manager)
 }
 
 void
-virt_manager_freep(VirtManager **managerp)
+virtDBusManagerFreep(virtDBusManager **managerp)
 {
     if (*managerp)
-        virt_manager_free(*managerp);
+        virtDBusManagerFree(*managerp);
 }

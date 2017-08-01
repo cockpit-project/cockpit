@@ -10,7 +10,7 @@ domain_get_name(sd_bus *bus,
                 void *userdata,
                 sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     const char *name = "";
 
@@ -34,7 +34,7 @@ domain_get_uuid(sd_bus *bus,
                 void *userdata,
                 sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     char uuid[VIR_UUID_STRING_BUFLEN] = "";
 
@@ -56,7 +56,7 @@ domain_get_id(sd_bus *bus,
               void *userdata,
               sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
 
     domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
@@ -75,7 +75,7 @@ domain_get_vcpus(sd_bus *bus,
                  void *userdata,
                  sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
 
     domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
@@ -94,7 +94,7 @@ domain_get_os_type(sd_bus *bus,
                    void *userdata,
                    sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *os_type = NULL;
 
@@ -118,7 +118,7 @@ domain_get_active(sd_bus *bus,
                   void *userdata,
                   sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int active;
 
@@ -142,7 +142,7 @@ domain_get_persistent(sd_bus *bus,
                       void *userdata,
                       sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int persistent;
 
@@ -166,7 +166,7 @@ domain_get_state(sd_bus *bus,
                  void *userdata,
                  sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int state = 0;
     const char *string;
@@ -217,7 +217,7 @@ domain_get_autostart(sd_bus *bus,
                      void *userdata,
                      sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int autostart = 0;
 
@@ -235,7 +235,7 @@ domain_get_xml_desc(sd_bus_message *message,
                     void *userdata,
                     sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *description = NULL;
     uint32_t flags;
@@ -273,7 +273,7 @@ domain_get_stats(sd_bus_message *message,
                  void *userdata,
                  sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     virDomainPtr domains[2];
     _cleanup_(virDomainStatsRecordListFreep) virDomainStatsRecordPtr *records = NULL;
@@ -316,7 +316,7 @@ domain_shutdown(sd_bus_message *message,
                 void *userdata,
                 sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
@@ -341,7 +341,7 @@ domain_destroy(sd_bus_message *message,
                void *userdata,
                sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
@@ -366,7 +366,7 @@ domain_reboot(sd_bus_message *message,
               void *userdata,
               sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     uint32_t flags;
     int r;
@@ -396,7 +396,7 @@ domain_reset(sd_bus_message *message,
              void *userdata,
              sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     uint32_t flags;
     int r;
@@ -426,7 +426,7 @@ domain_create(sd_bus_message *message,
               void *userdata,
               sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
@@ -451,7 +451,7 @@ domain_undefine(sd_bus_message *message,
                 void *userdata,
                 sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
@@ -509,7 +509,7 @@ lookup_domain(sd_bus *bus,
               void **found,
               sd_bus_error *error)
 {
-    VirtManager *manager = userdata;
+    virtDBusManager *manager = userdata;
     _cleanup_(virtDBusUtilFreep) char *name = NULL;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
@@ -536,7 +536,7 @@ lookup_domain(sd_bus *bus,
 }
 
 int
-domain_register(VirtManager *manager,
+domain_register(virtDBusManager *manager,
                 sd_bus *bus)
 {
     return sd_bus_add_fallback_vtable(bus,

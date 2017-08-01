@@ -143,7 +143,7 @@
         </td>
         <td>
           <input id="network-vlan-settings-vlan-id-input" class="form-control" type="text"
-                 value="{{vlan_id}}"></input>
+                 value="{{vlan_id}}"/>
         </td>
       </tr>
       <tr>
@@ -152,7 +152,7 @@
         </td>
         <td>
           <input id="network-vlan-settings-interface-name-input" class="form-control" type="text"
-                 value="{{interface_name}}"></input>
+                 value="{{interface_name}}"/>
         </td>
       </tr>
     </table>
@@ -162,17 +162,17 @@
     <div>
       <label>
         <input id="network-mtu-settings-auto" {{^mtu}}checked="checked"{{/mtu}}
-               type="radio" name="mtu-mode"></input>
+               type="radio" name="mtu-mode"/>
         <span translatable="yes">Automatic</span>
       </label>
     </div>
     <div>
       <label>
         <input id="network-mtu-settings-custom"  {{#mtu}}checked="checked"{{/mtu}}
-               type="radio" name="mtu-mode"></input>
+               type="radio" name="mtu-mode"/>
         <span translatable="yes">Set to</span>
         <input id="network-mtu-settings-input"
-               class="form-control" type="text" value="{{mtu}}"></input>
+               class="form-control" type="text" value="{{mtu}}"/>
       </label>
     </div>
   </script>
@@ -186,7 +186,7 @@
         <td>
           <div class="input-group">
             <input id="network-mac-settings-input" class="form-control" type="text"
-                   value="{{assigned_mac_address}}"></input>
+                   value="{{assigned_mac_address}}"/>
             <div class="input-group-btn dropdown">
               <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 <span class="fa fa-caret-down"></span>
@@ -208,7 +208,7 @@
         </td>
         <td>
           <input id="network-bridge-settings-name-input" class="form-control" type="text"
-                 value="{{bridge_name}}"></input>
+                 value="{{bridge_name}}"/>
         </td>
       </tr>
       <tr>
@@ -225,7 +225,7 @@
         </td>
         <td>
           <input id="network-bridge-settings-stp-enabled-input" type="checkbox"
-                 {{#stp_checked}}checked{{/stp_checked}}></input>
+                 {{#stp_checked}}checked{{/stp_checked}}/>
         </td>
       </tr>
       <tr>
@@ -234,7 +234,7 @@
         </td>
         <td>
           <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
-                 value="{{stp_priority}}"></input>
+                 value="{{stp_priority}}"/>
         </td>
       </tr>
       <tr>
@@ -243,7 +243,7 @@
         </td>
         <td>
           <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
-                 value="{{stp_forward_delay}}"></input>
+                 value="{{stp_forward_delay}}"/>
         </td>
       </tr>
       <tr>
@@ -252,7 +252,7 @@
         </td>
         <td>
           <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
-                 value="{{stp_hello_time}}"></input>
+                 value="{{stp_hello_time}}"/>
         </td>
       </tr>
       <tr>
@@ -261,7 +261,7 @@
         </td>
         <td>
           <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
-                 value="{{stp_max_age}}"></input>
+                 value="{{stp_max_age}}"/>
         </td>
       </tr>
     </table>
@@ -275,7 +275,7 @@
         </td>
         <td>
           <input id="network-bridge-port-settings-priority-input" class="form-control network-number-field" type="text"
-                 value="{{priority}}"></input>
+                 value="{{priority}}"/>
         </td>
       </tr>
       <tr>
@@ -284,7 +284,7 @@
         </td>
         <td>
           <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field" type="text"
-                 value="{{path_cost}}"></input>
+                 value="{{path_cost}}"/>
         </td>
       </tr>
       <tr>
@@ -293,7 +293,7 @@
         </td>
         <td>
           <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
-                 {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}></input>
+                 {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}/>
         </td>
       </tr>
     </table>
@@ -307,7 +307,7 @@
         </td>
         <td>
           <input id="network-bond-settings-interface-name-input" class="form-control"
-                 value="{{interface_name}}"></input>
+                 value="{{interface_name}}"/>
         </td>
       </tr>
       <tr>
@@ -325,7 +325,7 @@
         <td>
           <div class="input-group">
             <input id="network-bond-settings-mac-input" class="form-control" type="text"
-                   value="{{assigned_mac_address}}"></input>
+                   value="{{assigned_mac_address}}"/>
             <div class="input-group-btn dropdown">
               <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 <span class="fa fa-caret-down"></span>
@@ -366,7 +366,7 @@
         </td>
         <td>
           <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{monitoring_interval}}"></input>
+                 type="text" maxlength="4" value="{{monitoring_interval}}"/>
         </td>
       </tr>
       <tr>
@@ -375,7 +375,7 @@
         </td>
         <td>
           <input id="network-bond-settings-monitoring-targets-input" class="form-control"
-                 type="text" value="{{monitoring_targets}}"></input>
+                 type="text" value="{{monitoring_targets}}"/>
         </td>
       </tr>
       <tr>
@@ -384,7 +384,7 @@
         </td>
         <td>
           <input id="network-bond-settings-link-up-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{link_up_delay}}"></input>
+                 type="text" maxlength="4" value="{{link_up_delay}}"/>
         </td>
       </tr>
       <tr>
@@ -393,7 +393,7 @@
         </td>
         <td>
           <input id="network-bond-settings-link-down-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{link_down_delay}}"></input>
+                 type="text" maxlength="4" value="{{link_down_delay}}"/>
         </td>
       </tr>
     </table>
@@ -407,7 +407,7 @@
         </td>
         <td>
           <input id="network-team-settings-interface-name-input" class="form-control"
-                 value="{{interface_name}}"></input>
+                 value="{{interface_name}}"/>
         </td>
       </tr>
       <tr>
@@ -448,7 +448,7 @@
         </td>
         <td>
           <input id="network-team-settings-ping-interval-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{config.link_watch.interval}}"></input>
+                 type="text" maxlength="4" value="{{config.link_watch.interval}}"/>
         </td>
       </tr>
       <tr>
@@ -457,7 +457,7 @@
         </td>
         <td>
           <input id="network-team-settings-ping-target-input" class="form-control"
-                 type="text" value="{{config.link_watch.target_host}}"></input>
+                 type="text" value="{{config.link_watch.target_host}}"/>
         </td>
       </tr>
       <tr>
@@ -466,7 +466,7 @@
         </td>
         <td>
           <input id="network-team-settings-link-up-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{config.link_watch.delay_up}}"></input>
+                 type="text" maxlength="4" value="{{config.link_watch.delay_up}}"/>
         </td>
       </tr>
       <tr>
@@ -475,7 +475,7 @@
         </td>
         <td>
           <input id="network-team-settings-link-down-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{config.link_watch.delay_down}}"></input>
+                 type="text" maxlength="4" value="{{config.link_watch.delay_down}}"/>
         </td>
       </tr>
     </table>
@@ -489,7 +489,7 @@
         </td>
         <td>
           <input id="network-team-port-settings-ab-prio-input" class="form-control network-number-field" type="text"
-                 value="{{prio}}"></input>
+                 value="{{prio}}"/>
         </td>
       </tr>
       <tr>
@@ -498,7 +498,7 @@
         </td>
         <td>
           <input id="network-team-port-settings-ab-sticky-input" type="checkbox"
-                 {{#sticky}}checked{{/sticky}}></input>
+                 {{#sticky}}checked{{/sticky}}/>
         </td>
       </tr>
       <tr>
@@ -507,7 +507,7 @@
         </td>
         <td>
           <input id="network-team-port-settings-lacp-prio-input" class="form-control network-number-field" type="text"
-                 value="{{lacp_prio}}"></input>
+                 value="{{lacp_prio}}"/>
         </td>
       </tr>
       <tr>
@@ -516,7 +516,7 @@
         </td>
         <td>
           <input id="network-team-port-settings-lacp-key-input" class="form-control network-number-field" type="text"
-                 value="{{lacp_key}}"></input>
+                 value="{{lacp_key}}"/>
         </td>
       </tr>
     </table>

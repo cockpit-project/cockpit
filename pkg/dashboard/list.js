@@ -35,6 +35,7 @@ var _ = cockpit.gettext;
 $(document).on("click", "a[data-address]", function(ev) {
     cockpit.jump("/", $(this).attr("data-address"));
     ev.preventDefault();
+    return false;
 });
 
 var common_plot_options = {

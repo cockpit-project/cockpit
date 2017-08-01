@@ -66,6 +66,11 @@ const PK_STATUS_LOG_STRINGS = {
 
 const transactionInterface = "org.freedesktop.PackageKit.Transaction";
 
+// possible Red Hat subscription manager status values:
+// https://github.com/candlepin/subscription-manager/blob/30c3b52320c3e73ebd7435b4fc8b0b6319985d19/src/rhsm_icon/rhsm_icon.c#L98
+// we accept RHSM_VALID(0), RHN_CLASSIC(3), and RHSM_PARTIALLY_VALID(4)
+const validSubscriptionStates = [0, 3, 4];
+
 var dbus_pk = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
 var packageSummaries = {};
 
@@ -163,6 +168,11 @@ function HeaderBar(props) {
     var num_updates = Object.keys(props.updates).length;
     var num_security = 0;
     var state;
+
+    // unregistered & no available updates → blank slate, no header bar
+    if (props.unregistered && props.state == "uptodate")
+        return null;
+
     if (props.state == "available") {
         state = cockpit.ngettext("$0 update", "$0 updates", num_updates);
         for (let u in props.updates)
@@ -181,7 +191,8 @@ function HeaderBar(props) {
     var lastChecked;
     var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
-        actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for updates")}</button>;
+        if (!props.unregistered)
+            actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for updates")}</button>;
         if (props.timeSinceRefresh !== null) {
             lastChecked = (
                 <span style={ {paddingRight: "3ex"} }>
@@ -475,7 +486,7 @@ class OsUpdates extends React.Component {
         super();
         this.state = { state: "loading", errorMessages: [], updates: {}, haveSecurity: false, timeSinceRefresh: null,
                        loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null,
-                       history: null };
+                       history: null, unregistered: false };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
@@ -660,7 +671,29 @@ class OsUpdates extends React.Component {
         );
     }
 
+    watchRedHatSubscription() {
+        // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
+        var sm = cockpit.dbus("com.redhat.SubscriptionManager");
+        sm.subscribe(
+            { path: "/EntitlementStatus",
+              interface: "com.redhat.SubscriptionManager.EntitlementStatus",
+              member: "entitlement_status_changed"
+            },
+            (path, iface, signal, args) => this.setState({ unregistered: validSubscriptionStates.indexOf(args[0]) < 0 })
+        );
+        sm.call(
+            "/EntitlementStatus", "com.redhat.SubscriptionManager.EntitlementStatus", "check_status")
+            .done(result => this.setState({ unregistered: validSubscriptionStates.indexOf(result[0]) < 0 }) )
+            .fail(ex => {
+                if (ex.problem != "not-found")
+                    console.warn("Failed to query RHEL subscription status:", ex);
+            }
+        );
+    }
+
     initialLoadOrRefresh() {
+        this.watchRedHatSubscription();
+
         dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                      [PK_ROLE_ENUM_REFRESH_CACHE], {timeout: 5000})
             .done(seconds => {
@@ -728,6 +761,8 @@ class OsUpdates extends React.Component {
     }
 
     renderContent() {
+        var applySecurity, applyAll, unregisteredWarning;
+
         switch (this.state.state) {
             case "loading":
             case "refreshing":
@@ -744,24 +779,48 @@ class OsUpdates extends React.Component {
                     return <div className="spinner spinner-lg progress-main-view" />;
 
             case "available":
+                // when unregistered, hide the Apply buttons and show a warning
+                if (this.state.unregistered) {
+                    unregisteredWarning = (
+                        <div>
+                            <h2>{ _("Unregistered System") }</h2>
+                            <div className="alert alert-warning">
+                                <span className="pficon pficon-warning-triangle-o"></span>
+                                <span>
+                                    <strong>{ _("Updates are disabled.") }</strong>
+                                    &nbsp;
+                                    { _("You need to re-subscribe this system.") }
+                                </span>
+                                <button className="btn btn-primary pull-right"
+                                        onClick={ () => cockpit.jump("/subscriptions") }>
+                                    { _("View Registration Details") }
+                                </button>
+                            </div>
+                        </div>);
+                } else {
+                    applyAll = (
+                        <button className="btn btn-primary" onClick={ () => this.applyUpdates(false) }>
+                            {_("Install all updates")}
+                        </button>);
+
+                    if (this.state.haveSecurity) {
+                        applySecurity = (
+                            <button className="btn btn-default" onClick={ () => this.applyUpdates(true) }>
+                                {_("Install security updates")}
+                            </button>);
+                    }
+                }
+
                 return (
                     <div>
+                        {unregisteredWarning}
                         <table id="available" width="100%">
                             <tr>
                                 <td><h2>{_("Available Updates")}</h2></td>
                                 <td className="text-right">
-                                    { this.state.haveSecurity
-                                      ? <button className="btn btn-default"
-                                                 onClick={ () => this.applyUpdates(true) }>
-                                            {_("Install security updates")}
-                                         </button>
-                                      : null
-                                    }
+                                    {applySecurity}
                                     &nbsp; &nbsp;
-                                    <button className="btn btn-primary"
-                                            onClick={ () => this.applyUpdates(false) }>
-                                        {_("Install all updates")}
-                                    </button>
+                                    {applyAll}
                                 </td>
                             </tr>
                         </table>
@@ -810,6 +869,23 @@ class OsUpdates extends React.Component {
                     </div>);
 
             case "uptodate":
+                if (this.state.unregistered) {
+                    return (
+                        <div className="blank-slate-pf">
+                            <div className="blank-slate-pf-icon">
+                                <span className="fa fa-exclamation-circle"></span>
+                            </div>
+                            <h1>{_("This system is not registered")}</h1>
+                            <p>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</p>
+                            <div className="blank-slate-pf-main-action">
+                                <button className="btn btn-lg btn-primary"
+                                        onClick={ () => cockpit.jump("/subscriptions") }>
+                                    {_("Register…")}
+                                </button>
+                            </div>
+                        </div>);
+                }
+
                 return (
                     <div className="blank-slate-pf">
                         <div className="blank-slate-pf-icon">
@@ -865,6 +941,7 @@ class OsUpdates extends React.Component {
             <div>
                 <HeaderBar state={this.state.state} updates={this.state.updates}
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
+                           unregistered={this.state.unregistered}
                            allowCancel={this.state.allowCancel}
                            onCancel={ () => dbus_pk.call(this.state.applyTransaction, transactionInterface, "Cancel", []) } />
                 <div className="container-fluid">

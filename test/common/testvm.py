@@ -853,7 +853,7 @@ class VirtNetwork:
         self.hostnet += 1
         result = {
             "number": self.offset + number,
-            "mac": '52:54:01:{:02x}:{:02x}:{:02x}'.format(mac & 0xff0000 >> 24, mac & 0xff00 >> 16, mac & 0xff),
+            "mac": '52:54:01:{:02x}:{:02x}:{:02x}'.format((mac >> 16) & 0xff, (mac >> 8) & 0xff, mac & 0xff),
             "name": "m{0}.cockpit.lan".format(mac),
             "mcast": self.network,
             "hostnet": "hostnet{0}".format(hostnet)

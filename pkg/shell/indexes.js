@@ -109,6 +109,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         $("#machine-link").on("click", function(ev) {
             if (machines.list.length == 1) {
                 index.jump({ host: machines.list[0].address, sidebar: true, component: "" });
+                ev.preventDefault();
                 return false;
             }
         });

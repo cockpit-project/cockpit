@@ -5,7 +5,7 @@
 
 Vagrant.configure(2) do |config|
 
-    config.vm.box = "fedora/25-cloud-base"
+    config.vm.box = "fedora/26-cloud-base"
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder "./dist", "/cockpit/dist", type: "rsync", create: true
     config.vm.network "private_network", ip: "192.168.50.10"
@@ -30,7 +30,7 @@ Vagrant.configure(2) do |config|
         dnf install -y util-linux-user   # for chfn
 
         echo foobar | passwd --stdin root
-        getent passwd admin >/dev/null || useradd -u 1000 -c Administrator -G wheel admin
+        getent passwd admin >/dev/null || useradd -c Administrator -G wheel admin
         echo foobar | passwd --stdin admin
 
         usermod -a -G wheel vagrant

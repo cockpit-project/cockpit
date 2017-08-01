@@ -44,7 +44,7 @@ In addition, for testing, the following dependencies are required:
     $ sudo yum install curl expect \
         libvirt libvirt-client libvirt-daemon libvirt-python \
         python python-libguestfs python-lxml libguestfs-xfs \
-        qemu qemu-kvm rpm-build rsync xz
+        libguestfs-tools qemu qemu-kvm rpm-build rsync xz
 
 ## Running the integration test suite
 

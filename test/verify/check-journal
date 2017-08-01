@@ -339,7 +339,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         self.login_and_go("/system/logs")
 
         m.execute("setenforce 0; ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
-        m.execute("./slp; killall -s SIGSEGV sleep")
+        m.execute("./slp; pkill -SEGV sleep")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
         b.wait_present(sel)
@@ -379,7 +379,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         self.login_and_go("/system/logs")
 
         m.execute("setenforce 0; ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
-        m.execute("./slp; killall -s SIGSEGV sleep")
+        m.execute("./slp; pkill -SEGV sleep")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
         b.wait_present(sel)

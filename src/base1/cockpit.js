@@ -694,7 +694,7 @@ function Transport() {
             ignore_health_check = data.data;
             return;
         }
-        self.send_message(JSON.stringify(data), "", data);
+        return self.send_message(JSON.stringify(data), "", data);
     };
 
     self.register = function register(channel, control_cb, message_cb) {
@@ -2341,7 +2341,8 @@ function factory() {
         if (reload !== false)
             reload_after_disconnect = true;
         ensure_transport(function(transport) {
-            transport.send_control({ "command": "logout", "disconnect": true });
+            if (!transport.send_control({ "command": "logout", "disconnect": true }))
+                window.location.reload(reload_after_disconnect);
         });
         window.sessionStorage.setItem("logout-intent", "explicit");
     };

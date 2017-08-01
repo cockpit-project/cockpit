@@ -69,8 +69,7 @@ def tap_output(machine):
     counter = 1
     for t in json_info['tests']:
         test_status = t['status']
-        name_search = re.search("([^/]+):(.*)$", t['test'])
-        test_name = "%s (%s)" % (name_search.group(1), name_search.group(2))
+        test_name = os.path.basename(t['test'])
         test_log = t['logfile']
         test_time_string = "duration: %ds" % t['time']
         print "# ----------------------------------------------------------------------"

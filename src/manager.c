@@ -179,7 +179,7 @@ virtDBusManagerNew(virtDBusManager **managerp,
     if (r < 0)
         return r;
 
-    if ((r = domain_register(manager, bus) < 0))
+    if ((r = virtDBusDomainRegister(manager, bus) < 0))
         return r;
 
     *managerp = manager;

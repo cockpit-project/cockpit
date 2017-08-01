@@ -14,7 +14,7 @@
 static int loop_status;
 
 static int
-bus_get_libvirt_events(sd_bus *bus)
+virtDBusGetLibvirtEvents(sd_bus *bus)
 {
     int events;
     int virt_events = 0;
@@ -31,7 +31,7 @@ bus_get_libvirt_events(sd_bus *bus)
 }
 
 static int
-bus_process_events(sd_bus *bus)
+virtDBusProcessEvents(sd_bus *bus)
 {
     for (;;) {
             int r;
@@ -48,35 +48,35 @@ bus_process_events(sd_bus *bus)
 }
 
 static void
-virEventRemoveHandlep(int *watchp)
+virtDBusVirEventRemoveHandlep(int *watchp)
 {
     if (*watchp >= 0)
         virEventRemoveHandle(*watchp);
 }
 
 static void
-handle_signal(int watch,
-              int fd,
-              int events,
-              void *opaque)
+virtDBusHandleSignal(int watch,
+                     int fd,
+                     int events,
+                     void *opaque)
 {
     loop_status = -ECANCELED;
 }
 
 static void
-handle_bus_event(int watch,
-                 int fd,
-                 int events,
-                 void *opaque)
+virtDBusHandleBusEvent(int watch,
+                       int fd,
+                       int events,
+                       void *opaque)
 {
     sd_bus *bus = opaque;
 
-    loop_status = bus_process_events(bus);
+    loop_status = virtDBusProcessEvents(bus);
 
     if (loop_status < 0)
         return;
 
-    virEventUpdateHandle(watch, bus_get_libvirt_events(bus));
+    virEventUpdateHandle(watch, virtDBusGetLibvirtEvents(bus));
 }
 
 int
@@ -101,8 +101,8 @@ main(int argc, char *argv[])
     _cleanup_(virt_manager_freep) VirtManager *manager = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
     _cleanup_(virtDBusUtilClosep) int signal_fd = -1;
-    _cleanup_(virEventRemoveHandlep) int bus_watch = -1;
-    _cleanup_(virEventRemoveHandlep) int signal_watch = -1;
+    _cleanup_(virtDBusVirEventRemoveHandlep) int bus_watch = -1;
+    _cleanup_(virtDBusVirEventRemoveHandlep) int signal_watch = -1;
     sigset_t mask;
     int c;
     int r;
@@ -168,20 +168,20 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    r = bus_process_events(bus);
+    r = virtDBusProcessEvents(bus);
     if (r < 0)
         return EXIT_FAILURE;
 
     bus_watch = virEventAddHandle(sd_bus_get_fd(bus),
-                                  bus_get_libvirt_events(bus),
-                                  handle_bus_event,
+                                  virtDBusGetLibvirtEvents(bus),
+                                  virtDBusHandleBusEvent,
                                   bus,
                                   NULL);
 
     signal_fd = signalfd(-1, &mask, SFD_NONBLOCK | SFD_CLOEXEC);
     signal_watch = virEventAddHandle(signal_fd,
                                      VIR_EVENT_HANDLE_READABLE,
-                                     handle_signal,
+                                     virtDBusHandleSignal,
                                      NULL,
                                      NULL);
 

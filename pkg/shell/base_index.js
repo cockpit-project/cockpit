@@ -482,7 +482,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         /* Handles an href link as seen below */
         $(document).on("click", "a[href]", function(ev) {
             var a = this;
-            if (window.location.host === a.host) {
+            if (!a.host || window.location.host === a.host) {
                 self.jump(a.getAttribute('href'));
                 ev.preventDefault();
                 phantom_checkpoint();

@@ -213,6 +213,15 @@ class TestRegistry(OCCase):
 
         b.expect_load()
         b.wait_present("#content")
+        b.enter_page("/registry")
+        b.wait_present(".dashboard-commands")
+
+        tokens = self.machine.execute('oc get oauthaccesstokens --output=template --template="{{ range .items }}|{{.userName}}|{{ end }}"')
+        self.assertIn("|kuser|", tokens.strip())
+
+        b.logout()
+        tokens = self.machine.execute('oc get oauthaccesstokens --output=template --template="{{ range .items }}|{{.userName}}|{{ end }}"')
+        self.assertNotIn("|kuser|", tokens.strip())
 
 if __name__ == '__main__':
     test_main()

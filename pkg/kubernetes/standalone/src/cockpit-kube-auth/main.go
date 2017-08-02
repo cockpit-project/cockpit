@@ -170,6 +170,34 @@ func challengeForAuthData() ([]byte, error) {
 	return []byte(r.Response), nil
 }
 
+func runStub() int {
+	var wstatus syscall.WaitStatus
+	sysProcAttr := &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
+
+	procAttr := &syscall.ProcAttr{
+		Env:   os.Environ(),
+		Files: []uintptr{os.Stdin.Fd(), os.Stdout.Fd(), os.Stderr.Fd()},
+		Sys:   sysProcAttr,
+	}
+
+	pid, fork_err := syscall.ForkExec("/usr/libexec/cockpit-stub", nil, procAttr)
+	if fork_err != nil {
+		log.Fatal("Error forking process:", fork_err)
+	}
+
+	_, wait_err := syscall.Wait4(pid, &wstatus, 0, nil)
+	for wait_err == syscall.EINTR {
+		_, wait_err = syscall.Wait4(pid, &wstatus, 0, nil)
+	}
+	if wait_err != nil {
+		log.Fatal("Error waiting on bridge pid:", wait_err)
+	}
+
+	return wstatus.ExitStatus()
+}
+
 func main() {
 	authData, err := challengeForAuthData()
 	if err != nil {
@@ -192,6 +220,13 @@ func main() {
 		if os.Getenv("XDG_RUNTIME_DIR") == "" {
 			os.Setenv("XDG_RUNTIME_DIR", "/tmp")
 		}
-		syscall.Exec("/usr/libexec/cockpit-stub", nil, os.Environ())
+
+		status := runStub()
+		err = client.CleanUp()
+		if err != nil {
+			log.Fatal("Error deleting token", err)
+		}
+
+		os.Exit(status)
 	}
 }

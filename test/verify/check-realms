@@ -161,7 +161,7 @@ if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
     exit 1
 fi
 
-echo '%(password)s' | kinit -f admin@COCKPIT.LAN
+echo '%(password)s' | KRB5_TRACE=/dev/stderr kinit -f admin@COCKPIT.LAN
 
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
 curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'

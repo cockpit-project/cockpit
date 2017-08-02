@@ -144,7 +144,7 @@ class TestMetrics(MachineCase):
         #
         m.execute("if type firewall-cmd >/dev/null 2>&1; then firewall-cmd --permanent --zone=public --add-port=2000/tcp && firewall-cmd --reload; fi")
 
-        (eth_before, lo_before) = m.execute(r"grep -E 'eth0|ens5' /proc/net/dev | awk '{print $2 + $10}'; "
+        (eth_before, lo_before) = m.execute(r"grep -E '\beth0:|\bens5:' /proc/net/dev | awk '{print $2 + $10}'; "
                                             r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
         time_before = time.time()
 

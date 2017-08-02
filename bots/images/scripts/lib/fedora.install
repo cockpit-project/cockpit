@@ -2,7 +2,13 @@
 
 set -ex
 
-skip="cockpit-doc-"
+# don't update already installed cockpit packages
+installed=$(rpm --query --all --queryformat "%{NAME}-\[0-9\]\n" "cockpit*")
+skip="cockpit-doc-[0-9]"
+if [ -n "$installed" ]; then
+    skip="$skip
+$installed"
+fi
 
 do_build=
 do_install=
@@ -65,7 +71,7 @@ fi
 # Install
 
 if [ -n "$do_install" ]; then
-    packages=$(find build-results -name "*.rpm" -not -name "*.src.rpm" | grep -vF "$skip")
+    packages=$(find build-results -name "*.rpm" -not -name "*.src.rpm" | grep -vG "$skip")
     rpm -U --force $packages
 
     if type firewall-cmd > /dev/null 2> /dev/null; then

@@ -48,6 +48,7 @@ test_html = """
 </html>
 """
 
+@skipImage("Not available with Cockpit 138", "rhel-7-4")
 class TestPackages(MachineCase):
     def testBasic(self):
         m = self.machine

@@ -21,7 +21,6 @@
 import parent
 from testlib import *
 
-
 FIX_AUDITD = """
 set -e
 mkdir -p /var/log/audit
@@ -114,6 +113,9 @@ class TestSelinux(MachineCase):
         self.machine.execute(script=SELINUX_FIXABLE_ALERT_SCRIPT)
 
         row_selector = "tbody:contains('sshd from open access on the file')"
+
+        if self.machine.image in ["rhel-7-4"]:
+            self.skipTest("Unable to fix automatically, setroubleshoot too old")
         # wait for the alert to appear
         b.wait_present(row_selector)
 

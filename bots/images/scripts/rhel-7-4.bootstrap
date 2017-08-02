@@ -1,4 +1,20 @@
 #!/bin/bash
 
+set -ex
+
+# Write out a custom virt-builder conf
+TEMP=$(mktemp -d)
+trap "rm -rf $TEMP" EXIT
+mkdir -p $TEMP/virt-builder/repos.d
+cat > $TEMP/virt-builder/repos.d/rjones.conf <<EOF
+[rjones]
+uri=http://file.rdu.redhat.com/~rjones/builder/index.asc
+gpgkey=file:///etc/xdg/virt-builder/repos.d/libguestfs.gpg
+enabled=1
+EOF
+
+# Tell virt-builder about the above config
+export XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS:-/etc/xdg}:$TEMP
+
 BASE=$(dirname $0)
 $BASE/virt-builder-fedora "$1" rhel-7.4 x86_64 ${SUBSCRIPTION_PATH:-~/.rhel}

@@ -79,9 +79,11 @@ type Client struct {
 	caData           string
 	insecure         bool
 	requireOpenshift bool
+	isOpenshift      bool
 
 	userAPI string
 	client  *http.Client
+	creds   *Credentials
 }
 
 func doRequest(client *http.Client, method string, path string, auth string, body []byte) (*http.Response, error) {
@@ -249,6 +251,7 @@ func (self *Client) fetchUserData(creds *Credentials) error {
 		return newAuthError(fmt.Sprintf("Couldn't get user data: %s", resp.Status))
 	}
 
+	self.isOpenshift = true
 	data := userInfo{}
 	deErr := json.NewDecoder(resp.Body).Decode(&data)
 	if deErr != nil {
@@ -316,6 +319,8 @@ func (self *Client) Login(authLine string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	// Login successfull, save creds
+	self.creds = creds
 	user_data := creds.GetApiUserMap()
 	cluster := make(map[string]interface{})
 	cluster["server"] = self.host
@@ -343,6 +348,26 @@ func (self *Client) Login(authLine string) (map[string]interface{}, error) {
 	login_data["users"] = users
 
 	return login_data, nil
+}
+
+func (self *Client) CleanUp() error {
+	if self.creds != nil && self.isOpenshift {
+		token := self.creds.GetToken()
+		if token != "" {
+			path := fmt.Sprintf("oauthaccesstokens/%s", token)
+			resp, err := self.DoRequest("DELETE", self.userAPI, path, self.creds, nil)
+			if err != nil {
+				return err
+			}
+
+			if resp.StatusCode != 200 {
+				log.Println(fmt.Sprintf("Invalid token cleanup response: %d", resp.StatusCode))
+			}
+
+			defer resp.Body.Close()
+		}
+	}
+	return nil
 }
 
 func NewClient() *Client {

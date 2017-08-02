@@ -42,6 +42,10 @@ func (self *Credentials) GetHeader() string {
 	return self.authHeader
 }
 
+func (self *Credentials) GetToken() string {
+	return self.bearerToken
+}
+
 func (self *Credentials) GetApiUserMap() map[string]interface{} {
 	m := make(map[string]interface{})
 	name := self.UserName

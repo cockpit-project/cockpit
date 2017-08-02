@@ -68,7 +68,7 @@ def initially_loopbacked(machine):
 # device is added.
 #
 def initially_without_vgroup(machine):
-    return machine.image in [ "fedora-24", "rhel-7" ]
+    return machine.image in [ "fedora-24", "rhel-7", "rhel-7-4" ]
 
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is built

@@ -626,7 +626,7 @@ class Machine:
         else:
             return "wheel"
 
-    def start_cockpit(self, atomic_wait_for_host="localhost", tls=False):
+    def start_cockpit(self, atomic_wait_for_host=None, tls=False):
         """Start Cockpit.
 
         Cockpit is not running when the test virtual machine starts up, to
@@ -649,8 +649,7 @@ class Machine:
                 cmd += "/usr/bin/docker run -d --privileged --pid=host -v /:/host cockpit/ws /container/atomic-run --local-ssh --no-tls\n"
             with Timeout(seconds=90, error_message="Timeout while waiting for cockpit/ws to start"):
                 self.execute(script=cmd)
-            if atomic_wait_for_host:
-                self.wait_for_cockpit_running(atomic_wait_for_host)
+            self.wait_for_cockpit_running(atomic_wait_for_host or "localhost")
         elif tls:
             self.execute(script="""#!/bin/sh
             rm -f /etc/systemd/system/cockpit.service.d/notls.conf &&

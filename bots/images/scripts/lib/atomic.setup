@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-set -e
+set -ex
 
 # HACK: docker fails without /etc/resolv.conf
 # https://bugzilla.redhat.com/show_bug.cgi?id=1448331
@@ -52,6 +52,17 @@ if rpm-ostree upgrade --check; then
 else
     checkout=$(atomic host status --json | python -c 'import json; import sys; j = json.loads(sys.stdin.readline()); print [x for x in j["deployments"] if x["booted"]][0]["checksum"]')
 fi
+
+# Download the libssh RPM which we'll use for package overlay
+# The only way to do this is via a container
+. /etc/os-release
+REPO="updates"
+if [ "$ID" = "rhel" ]; then
+    subscription-manager repos --enable rhel-7-server-extras-rpms
+    REPO="rhel-7-server-extras-rpms"
+    ID="rhel7"
+fi
+docker run --rm --volume=/etc/yum.repos.d:/etc/yum.repos.d:z --volume=/root/rpms:/tmp/rpms:rw,z "$ID:$VERSION_ID" /bin/sh -cex "yum install -y findutils && yum install -y --downloadonly --enablerepo=$REPO libssh && find /var -name '*.rpm' | while read rpm; do mv -v \$rpm /tmp/rpms; done"
 
 # Checkout the just upgraded os branch since we'll use it every time
 # we build a new tree.

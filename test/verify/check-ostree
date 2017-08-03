@@ -51,6 +51,7 @@ def ensure_remote_http_port (m, remote="local"):
         m.execute(["ostree", "remote", "delete", remote])
         m.execute(["ostree", "remote", "add", remote,
                    "http://127.0.0.1:12345", "--no-gpg-verify"])
+        m.execute("printf '\nmin-free-space-percent=0\n' >> /var/local-repo/config")
         try:
             m.execute(["rpm-ostree reload"])
         except subprocess.CalledProcessError:

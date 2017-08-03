@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-set -e
+set -ex
 
 out=$1
 base=$2
@@ -56,12 +56,12 @@ else
     fi
 fi
 
-# Make the image be at least 8 Gig.  During boot, docker-storage-setup
+# Make the image be at least 12 Gig.  During boot, docker-storage-setup
 # will grow the partitions etc as appropriate, and atomic.setup will
 # explicitly grow the docker pool.
 
 vsize=$(qemu-img info "$out" --output=json | python -c 'import json, sys; print json.load(sys.stdin)["virtual-size"]')
 
-if [ "$vsize" -lt 8589934592 ]; then
-    qemu-img resize "$out" 8589934592
+if [ "$vsize" -lt 12884901888 ]; then
+    qemu-img resize "$out" 12884901888
 fi

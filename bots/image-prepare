@@ -198,11 +198,11 @@ def only_install(image, build_results, skips, args, address):
 
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is built
-# in fedora-25
+# in fedora-26
 def get_build_image(image):
     (test_os, unused) = os.path.splitext(os.path.basename(image))
     if test_os == "fedora-atomic":
-        image = "fedora-25"
+        image = "fedora-26"
     elif test_os == "rhel-atomic":
         image = "rhel-7"
     elif test_os == "continuous-atomic":

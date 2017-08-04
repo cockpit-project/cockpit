@@ -483,5 +483,64 @@ WantedBy=default.target
         m.execute("timedatectl set-ntp on")
         self.allow_restart_journal_messages()
 
+    @skipImage("Not available with Cockpit 138", "rhel-7-4")
+    def testConditions(self):
+        m = self.machine
+        b = self.browser
+        m.write("/etc/systemd/system/condtest.service",
+"""
+[Unit]
+Description=Test Service
+ConditionDirectoryNotEmpty=/var/tmp/empty
+
+[Service]
+ExecStart=/bin/sh -c "while true; do sleep 5; done"
+
+[Install]
+WantedBy=multi-user.target
+""")
+
+        m.execute("mkdir -p /var/tmp/empty")
+        m.execute("rm -rf /var/tmp/empty/*")
+
+        # After writing files out tell systemd about them
+        m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start multi-user.target")
+
+        # This does not work for not enabled services. See:
+        # https://github.com/systemd/systemd/issues/2234
+        self.machine.execute("systemctl enable condtest")
+
+        self.login_and_go("/system/services")
+
+        def svc_sel(service):
+            return 'tr[data-goto-unit="%s"]' % service
+
+        unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group'
+
+        # Selects Services tab
+        b.click('#services-filter :nth-child(2)')
+        b.wait_present(svc_sel('condtest.service'))
+        b.click(svc_sel("condtest.service"))
+        b.wait_visible('#service-valid')
+        b.wait_in_text('#service-valid', "inactive")
+        b.wait_action_btn(unit_action_btn, "Start")
+        b.click_action_btn(unit_action_btn)
+
+        b.wait_present("#service-unit div.cond-fail")
+        b.wait_in_text("#service-unit div.cond-fail", "ConditionDirectoryNotEmpty")
+
+        # If the condition succeeds the message disappears
+        m.execute("touch /var/tmp/empty/non-empty")
+
+        b.wait_visible('#service-valid')
+        b.wait_in_text('#service-valid', "inactive")
+        b.wait_action_btn(unit_action_btn, "Start")
+        b.click_action_btn(unit_action_btn)
+        b.wait_in_text('#service-valid', "active")
+
+        b.wait_not_present("#service-unit div.cond-fail")
+
+
 if __name__ == '__main__':
     test_main()

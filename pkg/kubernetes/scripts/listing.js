@@ -22,13 +22,11 @@
 
     var angular = require('angular');
 
-    require('../views/image-panel.html');
     require('../views/user-panel.html');
     require('../views/service-panel.html');
     require('../views/pod-panel.html');
     require('../views/route-panel.html');
     require('../views/pv-panel.html');
-    require('../views/imagestream-panel.html');
     require('../views/default-panel.html');
     require('../views/node-panel.html');
     require('../views/project-panel.html');

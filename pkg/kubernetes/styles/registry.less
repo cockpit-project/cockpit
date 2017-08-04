@@ -236,3 +236,13 @@
         }
     }
 }
+
+/* overide since registry-image-widget sets
+   the last column to be aligned right
+   but we don't want that when we are
+   using colspan
+ */
+table.listing-ct > thead td[colspan]:last-child,
+table.listing-ct > thead th[colspan]:last-child {
+    text-align: left;
+}

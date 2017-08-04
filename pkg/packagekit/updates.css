@@ -162,6 +162,13 @@ tr.security.listing-ct-item {
     border: none;
 }
 
+/* standard blank-slate-pf does not limit width of paragraph, which looks ugly */
+.blank-slate-pf p {
+    max-width: 50rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .flow-list-blank-slate {
     padding-top: 8em;
     margin: 0 auto;

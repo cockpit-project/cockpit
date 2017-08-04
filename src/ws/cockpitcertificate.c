@@ -87,7 +87,7 @@ generate_subject (void)
   cn = get_common_name ();
 
   machine_id = get_machine_id ();
-  if (machine_id)
+  if (machine_id && !g_str_equal (machine_id, ""))
     {
       subject = g_strdup_printf ("/O=%s/CN=%s",
                                  machine_id, cn);

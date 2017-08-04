@@ -633,6 +633,14 @@ $(function() {
                 template_description = cockpit.format(_("This unit is an instance of the $0 template."), link);
             }
 
+            var conditions = cur_unit.Conditions;
+            var not_met_conditions = [];
+            for (var i = 0; i < conditions.length; i++) {
+                if (conditions[i][4] < 0) {
+                    not_met_conditions.push(cockpit.format(_("Condition $0=$1 was not met"), conditions[i][0], conditions[i][3]));
+                }
+            }
+
             var text = mustache.render(unit_template,
                                        {
                                            Unit: cur_unit,
@@ -643,6 +651,7 @@ $(function() {
                                            TemplateDescription: template_description,
                                            UnitButton: unit_action_btn,
                                            FileButton: file_action_btn,
+                                           NotMetConditions: not_met_conditions,
                                        });
             $('#service-unit').html(text);
             $('#service-unit-action').on('click', "[data-action]", unit_action);

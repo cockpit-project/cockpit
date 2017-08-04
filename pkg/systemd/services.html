@@ -122,6 +122,23 @@
             {{/TemplateDescription}}
           </table>
         </div>
+        {{#NotMetConditions.length}}
+        <div class="list-group-item cond-fail">
+          <table>
+            <tr>
+              <td>
+                <span translate>Condition failed</span>
+                <ul>
+                {{#NotMetConditions}}
+                  <li>{{.}}</li>
+                {{/NotMetConditions}}
+               </ul>
+             </td>
+             <td></td>
+            </tr>
+          </table>
+        </div>
+        {{/NotMetConditions.length}}
       </div>
     </div>
   </script>

@@ -606,6 +606,7 @@ PageServer.prototype = {
             if (!str)
                 str = _("Set Host name");
             $("#system_information_hostname_button").text(str);
+            $("#system_information_hostname_button").attr("title", str);
             $("#system_information_os_text").text(self.hostname_proxy.OperatingSystemPrettyName || "");
         }
 

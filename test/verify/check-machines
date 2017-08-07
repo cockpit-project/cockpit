@@ -126,6 +126,14 @@ VOLUME_XML="""
 class TestMachines(MachineCase):
     created_pool = False
 
+    def setUp(self):
+        MachineCase.setUp(self)
+
+        # enforce use of cockpit-machines instead of cockpit-ovirt
+        m = self.machine
+        m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
+        m.execute("sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
+
     def startVm(self, name, graphics='spice'):
         m = self.machine
 

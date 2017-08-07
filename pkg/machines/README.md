@@ -51,6 +51,7 @@ Your provider should have the following properties and methods:
         FORCEOFF_VM: function ({ name, id }) {},
         REBOOT_VM: function ({ name, id }) {},
         FORCEREBOOT_VM: function ({ name, id }) {},
+        SENDNMI_VM: function ({ name, id }) {},
         START_VM: function ({ name, id }) {},
         DELETE_VM: function ({ name, id, options }) {},
 
@@ -63,6 +64,7 @@ Your provider should have the following properties and methods:
         canReset: function (state) {return true;}, // return boolean
         canShutdown: function (state) {return true;},
         canDelete: function (state) {return true;},
+        canSendNMI: function (state) {return true;},
         isRunning: function (state) {return true;},
         canRun: function (state) {return true;},
 

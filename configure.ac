@@ -55,6 +55,16 @@ else
 fi
 AC_SUBST(DBUS_SYSTEM_SERVICES_DIR)
 
+AC_ARG_WITH(dbus-system-policies,
+            [AC_HELP_STRING([--with-dbus-system-policies=<dir>],
+                            [where D-BUS system policies directory is])])
+if ! test -z "$with_dbus_system_policies" ; then
+    DBUS_SYSTEM_POLICIES_DIR="$with_dbus_system_policies"
+else
+    DBUS_SYSTEM_POLICIES_DIR="$datadir/dbus-1/system.d"
+fi
+AC_SUBST(DBUS_SYSTEM_POLICIES_DIR)
+
 AC_OUTPUT(Makefile
           data/Makefile
           src/Makefile

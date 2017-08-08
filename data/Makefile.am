@@ -8,9 +8,15 @@ system_service_in_files = \
 system_servicedir = $(DBUS_SYSTEM_SERVICES_DIR)
 system_service_DATA = $(system_service_in_files:.service.in=.service)
 
+system_policy_files = \
+	system/org.libvirt.conf
+system_policydir = $(DBUS_SYSTEM_POLICIES_DIR)
+system_policy_DATA = $(system_policy_files)
+
 EXTRA_DIST = \
 	$(service_in_files) \
-	$(system_service_in_files)
+	$(system_service_in_files) \
+	$(system_policy_files)
 
 CLEANFILES = \
 	$(service_DATA) \

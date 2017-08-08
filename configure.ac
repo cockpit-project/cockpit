@@ -45,6 +45,16 @@ else
 fi
 AC_SUBST(DBUS_SERVICES_DIR)
 
+AC_ARG_WITH(dbus-system-services,
+            [AC_HELP_STRING([--with-dbus-system-services=<dir>],
+                            [where D-BUS system services directory is])])
+if ! test -z "$with_dbus_system_services" ; then
+    DBUS_SYSTEM_SERVICES_DIR="$with_dbus_system_services"
+else
+    DBUS_SYSTEM_SERVICES_DIR="$datadir/dbus-1/system-services"
+fi
+AC_SUBST(DBUS_SYSTEM_SERVICES_DIR)
+
 AC_OUTPUT(Makefile
           data/Makefile
           src/Makefile

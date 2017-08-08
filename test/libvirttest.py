@@ -8,7 +8,7 @@ import subprocess
 import time
 import unittest
 
-root = os.path.dirname(os.path.dirname(__file__))
+root = os.environ.get('abs_top_builddir', os.path.dirname(os.path.dirname(__file__)))
 exe = os.path.join(root, 'src', 'libvirt-dbus')
 
 DBusGMainLoop(set_as_default=True)

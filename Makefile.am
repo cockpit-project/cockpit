@@ -25,6 +25,19 @@ gen-AUTHORS:
 	  mv -f $(distdir)/AUTHORS-tmp $(distdir)/AUTHORS ;           \
 	fi
 
-TESTS = \
+test_helpers = \
+	test/libvirttest.py
+
+test_programs = \
 	test/test_manager.py \
 	test/test_domain.py
+
+TESTS = $(test_programs)
+
+EXTRA_DIST += \
+	$(test_helpers) \
+	$(test_programs) \
+	test/travis-run
+
+TESTS_ENVIRONMENT = \
+	abs_top_builddir=$(abs_top_builddir)

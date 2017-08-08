@@ -76,8 +76,6 @@ NetworkManager-team \
 PackageKit \
 pcp-libs \
 pcp \
-python-pip \
-qemu \
 realmd \
 selinux-policy-targeted \
 setroubleshoot-server \
@@ -105,11 +103,24 @@ valgrind \
 gdb \
 yum-utils \
 virt-install \
-qemu-system-x86 \
 qemu-kvm \
 "
 
-yum install --nogpgcheck -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+pkgs="$TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES"
+yum install -y $pkgs
+
+# the above silently skips over unknown packages, so make sure we got everything
+set +x
+installed=$(rpm -qa --queryformat '%{NAME}\n')
+error=
+for pkg in $pkgs; do
+    if ! echo $pkg | grep -qF "$installed"; then
+        echo "ERROR: package $pkg is not installed" >&2
+        error=1
+    fi
+done
+[ -z "$error" ] || exit 1
+set -x
 
 # For debugging storaged crashes
 debuginfo-install -y storaged storaged-lvm2 storaged-iscsi

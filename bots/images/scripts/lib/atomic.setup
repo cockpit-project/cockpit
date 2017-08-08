@@ -37,9 +37,6 @@ else
     lvresize atomicos/docker-root-lv -l+100%FREE
 fi
 
-# we need cockpit/ws as well
-docker pull cockpit/ws
-
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 

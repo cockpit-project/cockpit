@@ -34,8 +34,9 @@ systemctl start docker || journalctl -u docker
 lvresize atomicos/root        -l+50%FREE -r
 lvresize atomicos/docker-pool -l+100%FREE
 
-# we need cockpit/ws as well
-docker pull cockpit/ws
+# Get the centos cockpit/ws image
+docker pull registry.centos.org/cockpit/ws:latest
+docker tag registry.centos.org/cockpit/ws cockpit/ws
 
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup

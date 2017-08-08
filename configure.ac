@@ -46,4 +46,5 @@ AC_SUBST(DBUS_SERVICES_DIR)
 
 AC_OUTPUT(Makefile
           src/Makefile
+          test/Makefile
           libvirt-dbus.spec)

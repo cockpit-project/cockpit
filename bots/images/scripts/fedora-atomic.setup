@@ -8,4 +8,12 @@ set -ex
 printf '(allow init_t domain (process (rlimitinh)))\n' > domain.cil
 semodule -i domain.cil
 
+# HACK: docker falls over regularly, print its log if it does
+systemctl start docker || journalctl -u docker
+
+os=$(ls /ostree/repo/refs/remotes/fedora-atomic/*/)
+docker pull "registry.fedoraproject.org/f$os/cockpit"
+docker tag "registry.fedoraproject.org/f$os/cockpit" cockpit/ws
+
+
 /var/lib/testvm/atomic.setup

@@ -27,20 +27,3 @@ libvirt_dbus_LDFLAGS = \
 libvirt_dbus_LDADD = \
 	$(SYSTEMD_LIBS) \
 	$(LIBVIRT_LIBS)
-
-service_in_files = \
-	org.libvirt.service.in
-servicedir = $(DBUS_SERVICES_DIR)
-service_DATA = $(service_in_files:.service.in=.service)
-
-EXTRA_DIST += \
-	$(service_in_files)
-
-CLEANFILES += \
-	$(service_DATA)
-
-org.libvirt.service: org.libvirt.service.in
-	$(AM_V_GEN)sed \
-		-e 's|[@]bindir[@]|$(bindir)|g' \
-		< $< > $@-t && \
-		mv $@-t $@

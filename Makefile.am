@@ -1,5 +1,5 @@
 
-SUBDIRS = src test
+SUBDIRS = data src test
 
 EXTRA_DIST = \
 	$(PACKAGE).spec \

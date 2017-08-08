@@ -29,6 +29,7 @@ AC_SUBST([LIBVIRT_DBUS_VERSION_INFO])
 AC_SUBST([LIBVIRT_DBUS_VERSION_NUMBER])
 
 AC_PROG_CC
+AC_PROG_MKDIR_P
 AM_PROG_CC_C_O
 
 PKG_CHECK_MODULES(LIBVIRT, libvirt >= $LIBVIRT_REQUIRED)
@@ -45,6 +46,7 @@ fi
 AC_SUBST(DBUS_SERVICES_DIR)
 
 AC_OUTPUT(Makefile
+          data/Makefile
           src/Makefile
           test/Makefile
           libvirt-dbus.spec)

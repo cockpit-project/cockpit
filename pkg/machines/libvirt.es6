@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -118,17 +119,18 @@ LIBVIRT_PROVIDER = {
      * @param VM name
      * @returns {Function}
      */
-    GET_VM ({ lookupId: name, connectionName }) {
-        logDebug(`${this.name}.GET_VM()`);
+    GET_VM ({ lookupId, connectionName }) {
+        logDebug(`${this.name}.GET_VM(): lookupId = '${lookupId}', connectionname = '${connectionName}'`);
 
         return dispatch => {
-            if (!isEmpty(name)) {
-                return spawnVirshReadOnly({connectionName, method: 'dumpxml', name}).then(domXml => {
+            if (!isEmpty(lookupId)) {
+                return spawnVirshReadOnly({connectionName, method: 'dumpxml', name: lookupId}).then(domXml => {
                     parseDumpxml(dispatch, connectionName, domXml);
-                    return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
-                }).then(domInfo => {
-                    parseDominfo(dispatch, connectionName, name, domInfo);
-                }); // end of GET_VM return
+                    return spawnVirshReadOnly({connectionName, method: 'dominfo', name: lookupId})
+                        .then(domInfo => {
+                            parseDominfo(dispatch, connectionName, lookupId, domInfo);
+                        });
+                });
             }
         };
     },
@@ -149,14 +151,14 @@ LIBVIRT_PROVIDER = {
 
         return dispatch => { // for all connections
             return cockpit.user().done( loggedUser => {
-                const promises = Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
+                Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
                     .filter(
                         // The 'root' user does not have its own qemu:///session just qemu:///system
                         // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
                         connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
-                    .map(connectionName => dispatch(getAllVms(connectionName)));
-
-                return cockpit.all(promises);
+                    .forEach(connectionName =>
+                        dispatch(getAllVms(connectionName))
+                    );
             });
         };
     },
@@ -239,10 +241,10 @@ LIBVIRT_PROVIDER = {
 
     USAGE_START_POLLING ({ name, connectionName }) {
         logDebug(`${this.name}.USAGE_START_POLLING(${name}):`);
-        return (dispatch => {
+        return dispatch => {
             dispatch(updateVm({ connectionName, name, usagePolling: true}));
             dispatch(doUsagePolling(name, connectionName));
-        });
+        };
     },
 
     USAGE_STOP_POLLING ({ name, connectionName }) {
@@ -269,12 +271,61 @@ LIBVIRT_PROVIDER = {
     },
 
     SENDNMI_VM ({ name, connectionName }) {
-        logDebug(`${this.name}.SENDNMI_VM(${name}):`);
+        logDebug(`${this.name}.SENDNMI_VM(${name}) called`);
+        return dispatch => {
+            console.log('-- SENDNMI_VM before cockpit.spawn');
+
+            // Just for debuging
+            // TODO: Following 'touch' is never executed. Why??
+            cockpit.spawn(['touch', '/tmp/touch_succeeded'], {
+                    'err': 'message',
+                    'pty': true,
+                    environ: ['LC_ALL=C', 'VIRSH_DEBUG=0']
+                })
+                .always(() => { // This is never called
+                    console.log('-- touch always');
+                })
+                .stream(data => {
+                    console.log('-- touch stream(): ', data);
+                })
+                .fail(ex => {
+                    console.log('-- touch fail: ', ex);
+                });
+/*
+            // TODO: for debugging only - simplify `virsh` call to bare minimum. It's not executed
+            cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['inject-nmi', name, '--echo']), {
+                    'err': 'message',
+                    'pty': true,
+                    environ: ['LC_ALL=C', 'VIRSH_DEBUG=0']
+                })
+                .always(() => {
+                    console.log('-- nmi always');
+                })
+                .stream(data => {
+                    console.log('-- nmi stream(): ', data);
+                })
+                .fail(ex => {
+                    console.log('-- nmi fail: ', ex);
+                });
+*/
+            console.log('-- after cockpit.spawn()');
+        };
+/*
+                return dispatch => cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['inject-nmi', name]), {'err': 'message', 'pty': true})
+                    .stream(data => {
+                        console.log('-- nmi stream(): ', data);
+                    })
+                    .fail(ex => {
+                        console.log('-- nmi fail: ', ex);
+                    });
+*/
+/*
         return dispatch => spawnVirsh({connectionName,
             method: 'SENDNMI_VM',
-            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrrupt action failed")}),
-            args: ['inject-nmi', name]
+            failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrupt action failed")}),
+            args: ['Xinject-nmi', name]
         });
+*/
     }
 };
 
@@ -285,20 +336,22 @@ function canLoggedUserConnectSession (connectionName, loggedUser) {
 function doGetAllVms (dispatch, connectionName) {
     const connection = VMS_CONFIG.Virsh.connections[connectionName];
 
-    return spawnScript({
+    spawnScript({
         script: `virsh ${connection.params.join(' ')} -r list --all | awk '$1 == "-" || $1+0 > 0 { print $2 }'`
     }).then(output => {
-        const vmNames = output.trim().split(/\r?\n/);
-        vmNames.forEach((vmName, index) => {
-            vmNames[index] = vmName.trim();
-        });
-        logDebug(`GET_ALL_VMS: vmNames: ${JSON.stringify(vmNames)}`);
+        let vmNames = output.trim().split(/\r?\n/);
+        vmNames = vmNames
+            .map(vmName => vmName.trim())
+            .filter(vmName => !!vmName); // non-empty
+
+        logDebug(`GET_ALL_VMS(connectionName='${connectionName}'): vmNames: ${JSON.stringify(vmNames)}`);
 
         // remove undefined domains
         dispatch(deleteUnlistedVMs(connectionName, vmNames));
 
         // read VM details
-        return cockpit.all(vmNames.map((name) => dispatch(getVm(connectionName, name))));
+        // return cockpit.all(vmNames.map((name) => dispatch(getVm(connectionName, name))));
+        vmNames.forEach(name => dispatch(getVm(connectionName, name)));
     });
 }
 

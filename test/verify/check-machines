@@ -223,6 +223,23 @@ class TestMachines(MachineCase):
         emulated_machine = b.eval_js("$('#vm-subVmTest1-emulatedmachine').text()")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
+        # DEBUG ONLY: Following NMI-related code must go before the 'shut off' scenario bellow.
+        # It's moved here just for debugging purpose to simplify test scenario
+        print("------------ About to test NMI")
+        # Send Non-Maskable Interrupt (no change in VM state is expected)
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-sendNMI")
+        b.click("#vm-subVmTest1-sendNMI")
+        b.wait_not_visible("#vm-subVmTest1-sendNMI")
+
+        # but this works fine: print self.machine.execute("virsh -c qemu:///system inject-nmi subVmTest1")
+        print("----------- About to wait for logs")
+        # It requires another sequential virt call before it prints anything about an NMI,
+        # so receiving NMI call validation is done here, after shutting off the VM
+        if args["logfile"] is not None:
+            wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
+        print("----------- NMI found in logs")
+
         # switch to and check Usage
         b.wait_present("#vm-subVmTest1-usage")
         b.click("#vm-subVmTest1-usage")
@@ -250,22 +267,11 @@ class TestMachines(MachineCase):
         if args["logfile"] is not None:
             wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
-        # Send Non-Maskable Interrupt (no change in VM state is expected)
-        b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-sendNMI")
-        b.click("#vm-subVmTest1-sendNMI")
-        b.wait_not_visible("#vm-subVmTest1-sendNMI")
-
         # shut off
         b.click("#vm-subVmTest1-off-caret")
         b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
-
-        # It requires another sequential virt call before it prints anything about an NMI,
-        # so receiving NMI call validation is done here, after shutting off the VM
-        if args["logfile"] is not None:
-            wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # continue shut off validation - usage should drop to zero
         b.wait_in_text("#chart-donut-0 .donut-title-big-pf", "0.00")

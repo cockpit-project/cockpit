@@ -28,6 +28,7 @@ import VmDisksTab from './vmdiskstab.jsx';
 import GraphicsConsole from './components/graphicsConsole.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 
+import LIBVIRT_PROVIDER from './libvirt.es6'; // JUST FOR DEBUGGING!
 const _ = cockpit.gettext;
 
 function mouseClick(fun) {
@@ -71,7 +72,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
 
     let shutdown = null;
     if (config.provider.canShutdown(state)) {
-	let buttons = [{
+        let buttons = [{
             title: _("Shut Down"),
             action: onShutdown,
             id: `${id}-off`
@@ -87,7 +88,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onReboot, onForceReboot, onS
                 id: `${id}-sendNMI`
             })
         }
-        shutdown = DropdownButtons({ buttons: buttons });
+        shutdown = DropdownButtons({buttons: buttons});
     }
 
     let run = null;
@@ -482,9 +483,14 @@ const HostVmsList = ({ vms, config, dispatch }) => {
                         onForceReboot={() => dispatch(forceRebootVm(vm))}
                         onShutdown={() => dispatch(shutdownVm(vm))}
                         onForceoff={() => dispatch(forceVmOff(vm))}
+                        onSendNMI_original={() => {dispatch(sendNMI(vm))}}
+                        onSendNMI={() => { // TODO: this is for debuging only - to simplify the call to bare minimum. Still not working
+                            console.log('---- hardcoded NMI call');
+                            LIBVIRT_PROVIDER.SENDNMI_VM({ name: vm.name, connectionName: vm.connectionName})(dispatch);
+                            // dispatch(sendNMI(vm))
+                        }}
                         onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                         onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
-                        onSendNMI={() => dispatch(sendNMI(vm))}
                         dispatch={dispatch}
                     />);
             })}

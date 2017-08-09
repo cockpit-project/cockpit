@@ -54,9 +54,11 @@ def main():
 
     name = os.environ.get("TEST_NAME", "tests")
     revision = os.environ.get("TEST_REVISION")
+    github_revision = os.environ.get("GITHUB_REVISION")
 
     try:
-        task = PullTask(name, revision, opts.ref, opts.context, opts.rebase)
+        task = PullTask(name, revision, opts.ref, opts.context, opts.rebase,
+                        github_revision=github_revision)
         ret = task.run(opts)
     except RuntimeError, ex:
         ret = str(ex)
@@ -67,21 +69,25 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, ref, context, base=None):
+    def __init__(self, name, revision, ref, context, base=None, github_revision=None):
         self.name = name
         self.revision = revision
         self.ref = ref
         self.context = context
         self.base = base
+        self.github_revision = github_revision
 
         self.sink = None
         self.github_status_data = None
 
     def start_publishing(self, host):
         api = github.GitHub()
+        if not self.github_revision:
+            self.github_revision = self.revision
+
         identifier = "-".join([
-            self.name,
-            self.revision[0:8],
+            self.name.replace("/", "-"),
+            self.github_revision[0:8],
             self.context.replace("/", "-")
         ])
 
@@ -100,12 +106,12 @@ class PullTask(object):
                 "requests": [
                     # Set status to pending
                     { "method": "POST",
-                      "resource": api.qualify("statuses/" + self.revision),
+                      "resource": api.qualify("statuses/" + self.github_revision),
                       "data": self.github_status_data
                     }
                 ],
                 "watches": [{
-                    "resource": api.qualify("commits/" + self.revision + "/status"),
+                    "resource": api.qualify("commits/" + self.github_revision + "/status"),
                     "result": {
                         "statuses": [
                             {
@@ -117,7 +123,7 @@ class PullTask(object):
                     }
                 }]
             },
-            "revision": self.revision,
+            "revision": self.github_revision,
             "link": "log.html",
             "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/bots/task/log.html" ],
 
@@ -127,7 +133,7 @@ class PullTask(object):
                     "requests": [
                         # Set status to error
                         { "method": "POST",
-                          "resource": api.qualify("statuses/" + self.revision),
+                          "resource": api.qualify("statuses/" + self.github_revision),
                           "data": {
                               "state": "error",
                               "context": self.context,
@@ -328,7 +334,7 @@ class PullTask(object):
             self.start_publishing(opts.publish)
             os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
 
-        msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.revision, self.name,
+        msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.github_revision, self.name,
                                                                 self.context, HOSTNAME)
         sys.stderr.write(msg)
 

@@ -40,7 +40,12 @@ def main():
     parser.add_argument('image', help="The image to check against")
     opts = parser.parse_args()
 
-    api = None if opts.offline else github.GitHub()
+    base = None
+    if os.environ.get("GITHUB_KNOWN_ISSUE_BASE"):
+        netloc = os.environ.get("GITHUB_API", "https://api.github.com")
+        base = "{0}/repos/{1}/".format(netloc, os.environ.get("GITHUB_KNOWN_ISSUE_BASE"))
+
+    api = None if opts.offline else github.GitHub(base=base)
     trace = sys.stdin.read()
     number = 0
 

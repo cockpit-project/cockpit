@@ -27,6 +27,7 @@ export function spawnProcess({ cmd, args = [], stdin, failHandler }) {
     return spawn(cockpit.spawn(spawnArgs, { err: "message", environ: ['LC_ALL=C'] })
         .input(stdin))
         .fail((exception, data) => {
+            logDebug('spawnProcess() fail: ', cmd, ', ', exception, ',', data);
             if (failHandler) {
                 return failHandler({exception, data, spawnArgs});
             }
@@ -51,9 +52,11 @@ function spawn(command) {
             stdout += chunk;
         })
         .done(() => {
+            logDebug('spawn done');
             deferred.resolve(stdout);
         })
         .fail((ex, data) => {
+            logDebug('spawn failed');
             deferred.reject(ex, data, stdout);
         });
 

@@ -28,27 +28,29 @@ import Store from './store.es6';
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { StateIcon, DropdownButtons } from './hostvmslist.jsx';
 
-var provider = null;
-
+let provider = null;
 export function setVirtProvider (prov) {
     provider = prov;
 }
 
-function getVirtProvider (store) {
-    const state = store.getState();
-    if (state.config.provider) {
-        return cockpit.resolve(state.config.provider);
+function getVirtProvider ({ dispatch, getState }) {
+    const initializedProvider = getState().config.provider;
+    if (initializedProvider) {
+        logDebug('Resolving getVirtProvider with known provider: ', JSON.stringify(initializedProvider));
+        return initializedProvider;
+        // return cockpit.resolve(initializedProvider);
     } else {
-        const deferred = cockpit.defer();
         logDebug('Discovering provider');
 
+        const deferred = cockpit.defer();
         if (!provider) { //  no provider available
+            console.error('getVirtProvider() no provider detected!');
             deferred.reject();
         } else {
             if (!provider.init) {
                 // Skip the initialization if provider does not define the `init` hook.
                 logDebug('No init() method in the provider');
-                store.dispatch(setProvider(provider));
+                dispatch(setProvider(provider));
                 deferred.resolve(provider);
             } else {
                 // The external provider plugin lives in the same context as the parent code, so it should be shared.
@@ -59,16 +61,16 @@ function getVirtProvider (store) {
                 if (initResult && initResult.then) { // if Promise or $.jqXHR, the then() is defined
                     initResult.then(() => {
                         logDebug(`Provider's Init() is returning resolved Promise`);
-                        store.dispatch(setProvider(provider));
+                        dispatch(setProvider(provider));
                         deferred.resolve(provider);
                     }, (ex) => {
-                        logDebug(`Provider's Init() is returning rejected Promise`);
+                        console.info(`Provider's Init() is returning rejected Promise`);
                         deferred.reject(ex);
                     });
                 } else { // Promise is not returned, so at least 'true' is expected
                     if (initResult) {
                         logDebug(`No Promise returned, but successful init: ${JSON.stringify(initResult)}`);
-                        store.dispatch(setProvider(provider));
+                        dispatch(setProvider(provider));
                         deferred.resolve(provider);
                     } else {
                         deferred.reject();
@@ -87,18 +89,35 @@ function getVirtProvider (store) {
  * Lazily initializes the virt provider and dispatches given method on it.
  */
 export function virt(method, action) {
-    return (dispatch, getState) => getVirtProvider({dispatch, getState}).fail(err => {
-        console.error('could not detect any virt provider');
-    }).then(provider => {
+    logDebug(`virt() method called: "${method}", action: ${JSON.stringify(action)}`);
+
+    function callVirtFunction(dispatch, provider, method, action) {
+        console.log(`callVirtFunction() called for method: ${method}`);
         if (method in provider) {
             logDebug(`Calling ${provider.name}.${method}`, action);
             return dispatch(provider[method](action));
         } else {
-            var msg = `method: '${method}' is not supported by provider: '${provider.name}'`;
+            const msg = `method: '${method}' is not supported by provider: '${provider.name}'`;
             console.warn(msg);
             return cockpit.reject(msg);
         }
-    });
+    }
+
+    return (dispatch, getState) => {
+        const virtProvider = getVirtProvider({ dispatch, getState });
+
+        if (virtProvider.name) { // already initialized provider
+            return callVirtFunction(dispatch, provider, method, action);
+        } else { // Promise
+            return virtProvider
+                .fail(err => {
+                    console.error('Could not detect any virt provider');
+                })
+                .then(provider => {
+                    return callVirtFunction(dispatch, provider, method, action);
+                });
+        }
+    };
 }
 
 /**

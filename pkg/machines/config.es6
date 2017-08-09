@@ -35,7 +35,17 @@ const VMS_CONFIG = {
         }
     },
     // TODO: make it configurable via config file
-    isDev: false, // Never commit with 'true'
+    isDev: true, // Never commit with 'true'
 };
+
+if (VMS_CONFIG.isDev) {
+    console.log('Turning on debug logging');
+
+    window.debugging = 'all';
+    window.addEventListener("error", function (e) {
+        console.log("---------- Error event received: " + JSON.stringify(e));
+        return false;
+    });
+}
 
 export default VMS_CONFIG;

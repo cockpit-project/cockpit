@@ -47,9 +47,7 @@ if rpm-ostree upgrade --check; then
     # HACK - Find a better way to compute the ref.
     # https://lists.projectatomic.io/projectatomic-archives/atomic-devel/2016-July/msg00015.html
 
-    remote=$(ostree remote list)
-    ref=$(python -c 'import json; print json.load(open("/usr/share/rpm-ostree/treefile.json"))["ref"]')
-    checkout="$remote:$ref"
+    checkout=$(atomic host status --json | python -c 'import json; import sys; j = json.loads(sys.stdin.readline()); print j["deployments"][0]["origin"]')
 else
     checkout=$(atomic host status --json | python -c 'import json; import sys; j = json.loads(sys.stdin.readline()); print [x for x in j["deployments"] if x["booted"]][0]["checksum"]')
 fi

@@ -117,24 +117,16 @@ class TestConnection(MachineCase):
         self.assertNotIn("DONE", output)
 
         # Some operating systems fail SSL3 on the server side
-        if m.image in [ "fedora-26" ]:
-            self.assertIn("Secure Renegotiation IS NOT supported", output)
-        elif m.image in [ "fedora-25", "fedora-i386", "fedora-testing" ]:
-            self.assertIn("ssl handshake failure", output)
-        elif m.image in [ "debian-stable", "debian-testing" ]:
-            self.assertIn("Option unknown option -ssl3", output)
-        elif m.image in [ "ubuntu-1604", "ubuntu-stable" ]:
-            self.assertIn("null ssl method passed", output)
-        else:
-            self.assertIn("wrong version number", output)
+        self.assertRegexpMatches(output, "Secure Renegotiation IS NOT supported|"
+                                 "ssl handshake failure|"
+                                 "Option unknown option -ssl3|"
+                                 "null ssl method passed|"
+                                 "wrong version number")
 
         # RC4 should not work
         output = m.execute('openssl s_client -connect 172.27.0.15:9090 -cipher RC4 2>&1 || true')
         self.assertNotIn("DONE", output)
-        if m.image in [ "debian-stable", "debian-testing", "fedora-26" ]:
-            self.assertIn("no cipher match", output)
-        else:
-            self.assertIn("ssl handshake failure", output)
+        self.assertRegexpMatches(output, "no cipher match|ssl handshake failure")
 
         # Install a certificate chain, and give it an arbitrary bad file context
         m.upload([ "verify/files/cert-chain.cert" ], "/etc/cockpit/ws-certs.d")

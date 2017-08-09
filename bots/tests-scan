@@ -43,6 +43,10 @@ DEFAULT_VERIFY = {
     'verify/ubuntu-stable': [ 'master' ],
 }
 
+NPM_REPOS = {
+    'cockpit-project/registry-image-widgets': ['container/kubernetes', 'verify/fedora-26']
+}
+
 # Non-public images used for testing
 REDHAT_VERIFY = {
     "verify/rhel-7": [ 'master', 'rhel-7.3.6', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
@@ -88,7 +92,7 @@ def main():
     return 0
 
 # Prepare a human readable output
-def tests_human(priority, name, revision, ref, context, base=None):
+def tests_human(priority, name, revision, ref, context, base=None, repo=None, command=None):
     if priority is None:
         return
     try:
@@ -103,7 +107,7 @@ def tests_human(priority, name, revision, ref, context, base=None):
     )
 
 # Prepare an test invocation command
-def tests_invoke(priority, name, revision, ref, context, base=None):
+def tests_invoke(priority, name, revision, ref, context, base=None, repo=None, command=None):
     try:
         priority = int(priority)
     except (ValueError, TypeError):
@@ -111,9 +115,16 @@ def tests_invoke(priority, name, revision, ref, context, base=None):
     if priority <= 0:
         return
     current = time.strftime('%Y%m%d-%H%M%M')
-    cmd = "PRIORITY={priority:04d} TEST_NAME='{name}-{current}' TEST_REVISION='{revision}' bots/tests-invoke"
+    if not command:
+        command = "bots/tests-invoke"
+
+    cmd = "PRIORITY={priority:04d} TEST_NAME='{name}-{current}' TEST_REVISION='{revision}' {command}"
     if base:
         cmd += " --rebase='{base}'"
+
+    if repo:
+        cmd = "GITHUB_BASE='{repo}' " + cmd
+
     cmd += " '{context}' '{ref}'"
     return cmd.format(
         priority=priority,
@@ -123,6 +134,8 @@ def tests_invoke(priority, name, revision, ref, context, base=None):
         ref=pipes.quote(ref),
         context=pipes.quote(context),
         current=current,
+        repo=repo,
+        command=command
     )
 
 def prioritize(status, title, labels, priority, context):
@@ -175,7 +188,60 @@ def dict_is_subset(full, check):
             return False
     return True
 
-def scan_for_pull_tasks(api, update, human, policy):
+def update_status(api, revision, context, last, changes):
+    if changes:
+        changes["context"] = context
+    if changes and not dict_is_subset(last, changes):
+        response = api.post("statuses/" + revision, changes, accept=[ 422 ]) # 422 Unprocessable Entity
+        errors = response.get("errors", None)
+        if not errors:
+            return True
+        for error in response.get("errors", []):
+            sys.stderr.write("{0}: {1}\n".format(revision, error.get('message', json.dumps(error))))
+            sys.stderr.write(json.dumps(changes))
+        return False
+    return True
+
+def external_tasks (update, policy):
+    results = []
+    whitelist = github.whitelist()
+
+    for repo, contexts in NPM_REPOS.items():
+        api = github.GitHub(base="https://api.github.com/repos/{}/".format(repo))
+
+        for pull in api.pulls():
+            title = pull["title"]
+            number = pull["number"]
+            revision = pull["head"]["sha"]
+            statuses = api.statuses(revision)
+            login = pull["head"]["user"]["login"]
+
+            have = len(statuses.keys()) > 0
+            for context in contexts:
+                status = statuses.get(context, None)
+
+                if not context in policy or (have and not status):
+                    continue
+
+                if not status:
+                    status = { }
+
+                baseline = BASELINE_PRIORITY
+
+                # For unmarked and untested status, user must be in whitelist
+                # Not this only applies to this specific commit. A new status
+                # will apply if the user pushes a new commit.
+                if login not in whitelist and status.get("description", github.NO_TESTING) == github.NO_TESTING:
+                    priority = github.NO_TESTING
+                    changes = { "description": github.NO_TESTING, "context": context, "state": "pending" }
+                else:
+                    (priority, changes) = prioritize(status, title, lambda: [], baseline, context)
+                if not update or update_status(api, revision, context, status, changes):
+                    results.append((priority, "%s-pull-%d" % (repo, number), revision, "master", context, None, repo, "bots/npm-repo-test-invoke"))
+
+    return results
+
+def cockpit_tasks (api, update, policy):
     contexts = policy
 
     results = []
@@ -185,20 +251,6 @@ def scan_for_pull_tasks(api, update, human, policy):
             if branch not in branch_contexts:
                 branch_contexts[branch] = [ ]
             branch_contexts[branch].append(context)
-
-    def update_status(revision, context, last, changes):
-        if changes:
-            changes["context"] = context
-        if update and changes and not dict_is_subset(last, changes):
-            response = api.post("statuses/" + revision, changes, accept=[ 422 ]) # 422 Unprocessable Entity
-            errors = response.get("errors", None)
-            if not errors:
-                return True
-            for error in response.get("errors", []):
-                sys.stderr.write("{0}: {1}\n".format(revision, error.get('message', json.dumps(error))))
-                sys.stderr.write(json.dumps(changes))
-            return False
-        return True
 
     branch_priority = BASELINE_PRIORITY - 3
     for branch in branch_contexts:
@@ -213,7 +265,7 @@ def scan_for_pull_tasks(api, update, human, policy):
             for context in which:
                 status = statuses.get(context, { })
                 (priority, changes) = prioritize(status, "", lambda: [], branch_priority, context)
-                if update_status(revision, context, status, changes):
+                if not update or update_status(api, revision, context, status, changes):
                     results.append((priority, branch, revision, branch, context, None))
 
     whitelist = github.whitelist()
@@ -258,8 +310,14 @@ def scan_for_pull_tasks(api, update, human, policy):
                 changes = { "description": github.NO_TESTING, "context": context, "state": "pending" }
             else:
                 (priority, changes) = prioritize(status, title, labels, baseline, context)
-            if update_status(revision, context, status, changes):
+            if not update or update_status(api, revision, context, status, changes):
                 results.append((priority, "pull-%d" % number, revision, "pull/%d/head" % number, context, base))
+
+    return results
+
+def scan_for_pull_tasks(api, update, human, policy):
+    results = cockpit_tasks(api, update, policy)
+    results.extend(external_tasks(update, policy))
 
     if human:
         func = lambda x: tests_human(*x)

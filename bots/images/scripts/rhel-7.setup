@@ -26,7 +26,7 @@ SKIP_REPO_FLAG="/root/.skip_repos"
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Remove any internal files
-    rm /etc/yum.repos.d/download.devel.redhat.com.repo
+    rm -f /etc/yum.repos.d/download.devel.redhat.com.repo
 
     # register system
     subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --password=`cat ~/.rhel/pass`
@@ -51,6 +51,7 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # the following don't necessarily need to work
     yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true
     yum-config-manager --disable rhel-7-server-htb-rpms || true
+    yum-config-manager --disable rhel-7-server-rt-beta-rpms || true
 fi
 
 yum --nogpgcheck -y update

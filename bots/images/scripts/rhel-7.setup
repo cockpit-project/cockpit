@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+IMAGE="$1"
 
 # HACK - virt-resize might not be able to resize our xfs rootfs,
 # depending on how it was compiled and which plugins are installed,
@@ -107,7 +108,17 @@ virt-install \
 qemu-kvm \
 "
 
-pkgs="$TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES"
+# The rhel-7.4 image has the cockpit packages from base preinstalled, to check for API breakages
+if [ "$IMAGE" = "rhel-7-4" ]; then
+    DISTRO_COCKPIT_PACKAGES="\
+cockpit
+cockpit-bridge \
+cockpit-system \
+cockpit-ws \
+"
+fi
+
+pkgs="$TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $DISTRO_COCKPIT_PACKAGES"
 yum install -y $pkgs
 
 # the above silently skips over unknown packages, so make sure we got everything

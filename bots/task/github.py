@@ -56,11 +56,11 @@ OUR_CONTEXTS = [
 
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
 
-BOTS = os.path.join(os.path.dirname(__file__), "..")
+BASE = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TOKEN = "~/.config/github-token"
 
 # the user name is accepted if it's found in either list
-WHITELIST = os.path.join(BOTS, "whitelist")
+WHITELIST = os.path.join(BASE, "bots", "whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
 def determine_github_base():
@@ -68,7 +68,7 @@ def determine_github_base():
     try:
         # see where we get master from, e.g. origin
         get_remote_command = ["git", "config", "--local", "--get", "branch.master.remote"]
-        remote = subprocess.Popen(get_remote_command, stdout=subprocess.PIPE, cwd=BOTS).communicate()[0].strip()
+        remote = subprocess.Popen(get_remote_command, stdout=subprocess.PIPE, cwd=BASE).communicate()[0].strip()
         # see if we have a git checkout - it can be in https or ssh format
         formats = [
             re.compile("""https:\/\/github\.com\/(.*)\.git"""),
@@ -76,7 +76,7 @@ def determine_github_base():
             ]
         remote_output = subprocess.Popen(
                 ["git", "ls-remote", "--get-url", remote],
-                stdout=subprocess.PIPE, cwd=BOTS
+                stdout=subprocess.PIPE, cwd=BASE
             ).communicate()[0].strip()
         for f in formats:
             m = f.match(remote_output)

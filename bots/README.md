@@ -25,6 +25,9 @@ For managing these images:
 For debugging the images:
 
  * test/vm-run: Run a test machine image
+ 
+In case of `qemu-system-x86_64: -netdev bridge,br=cockpit1,id=bridge0: bridge helper failed`
+error, please [allow][1] `qemu-bridge-helper` to access the bridge settings.
 
 To check when images will automatically be refreshed by the bots
 use the image-trigger tool:
@@ -106,3 +109,5 @@ good idea to make a dedicated pull request just for the images.  That
 pull request can then hopefully be merged to master faster.  If
 instead the images are created on the main feature pull request and
 sit there for a long time, they might cause annoying merge conflicts.
+
+[1]: https://blog.christophersmart.com/2016/08/31/configuring-qemu-bridge-helper-after-access-denied-by-acl-file-error/

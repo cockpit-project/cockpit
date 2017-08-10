@@ -747,6 +747,9 @@ TEST_DOMAIN_XML="""
       <target dev='hdb' bus='ide'/>
       <readonly/>
     </disk>
+    <rng model='virtio'>
+      <backend model='random'>/dev/urandom</backend>
+    </rng>
   </devices>
   <qemu:commandline>
     {ethernet}
@@ -775,14 +778,14 @@ TEST_MCAST_XML="""
     <qemu:arg value='-netdev'/>
     <qemu:arg value='socket,mcast=230.0.0.1:{mcast},id=mcast0'/>
     <qemu:arg value='-device'/>
-    <qemu:arg value='rtl8139,netdev=mcast0,mac={mac},bus=pci.0,addr=0x06'/>
+    <qemu:arg value='rtl8139,netdev=mcast0,mac={mac},bus=pci.0,addr=0x0f'/>
 """
 
 TEST_BRIDGE_XML="""
     <qemu:arg value='-netdev'/>
     <qemu:arg value='bridge,br={bridge},id=bridge0'/>
     <qemu:arg value='-device'/>
-    <qemu:arg value='rtl8139,netdev=bridge0,mac={mac},bus=pci.0,addr=0x06'/>
+    <qemu:arg value='rtl8139,netdev=bridge0,mac={mac},bus=pci.0,addr=0x0f'/>
 """
 
 # Used to access SSH from the main host into the virtual machines
@@ -790,7 +793,7 @@ TEST_REDIR_XML="""
     <qemu:arg value='-netdev'/>
     <qemu:arg value='user,id=base0,restrict={restrict},net=172.27.0.0/24,hostname={name},{forwards}'/>
     <qemu:arg value='-device'/>
-    <qemu:arg value='rtl8139,netdev=base0,bus=pci.0,addr=0x05'/>
+    <qemu:arg value='rtl8139,netdev=base0,bus=pci.0,addr=0x0e'/>
 """
 
 class VirtNetwork:

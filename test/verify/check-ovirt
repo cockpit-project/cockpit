@@ -1,0 +1,70 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+# The oVirt image has following content
+# DC: "Default"
+# Cluster: "Default"
+# Host: "host" running in the image with plaintext communication to engine
+# VM: "VM" Blank-based VM with network boot
+#
+
+WAIT_SCRIPT = """
+set -ex
+for x in $(seq 1 60); do
+    if [ "$(%(api)s https://%(addr)s/ovirt-engine/api | xmllint --xpath "string(/api/product_info/name)" -)" = "oVirt Engine" ]; then
+        break
+    else
+        sleep 10
+    fi
+done
+"""
+
+
+@skipImage("No oVirt release", "continuous-atomic", "debian-stable", "debian-testing", "fedora-24", "fedora-25", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
+class TestOVirtMachines(MachineCase):
+    provision = {
+        "0": { "address": "10.111.113.1/20" },
+        "ovirt": { "image": "ovirt", "memory_mb": 4096}
+    }
+
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.ovirt = self.machines['ovirt']
+        m = self.machine
+
+        # Wait for the web service to be accessible
+        args = { "api": "curl -s -k -u admin@internal:engine -H Content-type:application/xml", "addr": "10.111.113.5" }
+        m.execute(script=WAIT_SCRIPT % args)
+
+        # Run the prepared VM
+        vmid = m.execute("%(api)s https://%(addr)s/ovirt-engine/api/vms/ | xmllint --xpath \"string(/vms/vm[name=\'VM\']/@id)\" -" % args)
+        self.assertNotEqual(vmid, "")
+        m.execute("%(api)s -X POST -d \"<action/>\"  https://%(addr)s/ovirt-engine/api/vms/" % args + vmid + "/start")
+
+    def testBasic(self):
+        # TODO some actual tests :)
+        pass
+
+
+if __name__ == '__main__':
+    test_main()

@@ -132,8 +132,7 @@ class TestDockerStorageMapper(MachineCase):
 
         if can_manage(m):
             # Allow docker-storage-setup to be happy with our very small disks
-            m.write("/etc/sysconfig/docker-storage-setup",
-                    'MIN_DATA_SIZE=80M\n')
+            m.execute("echo 'MIN_DATA_SIZE=80M\n' >> /etc/sysconfig/docker-storage-setup")
 
         def check_loopback(val):
             # We pass the output through logger to diagnose flakey issues

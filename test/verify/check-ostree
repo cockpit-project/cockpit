@@ -51,6 +51,7 @@ def ensure_remote_http_port (m, remote="local"):
         m.execute(["ostree", "remote", "delete", remote])
         m.execute(["ostree", "remote", "add", remote,
                    "http://127.0.0.1:12345", "--no-gpg-verify"])
+        m.execute("printf '\nmin-free-space-percent=0\n' >> /var/local-repo/config")
         try:
             m.execute(["rpm-ostree reload"])
         except subprocess.CalledProcessError:
@@ -487,9 +488,11 @@ class OstreeCase(MachineCase):
         b.wait_present("#change-branch")
         b.wait_in_text("#change-branch", branch)
         # But can't list
+        b.click("#change-branch")
         b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu")
         b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu div.alert")
-        b.wait_in_text("table.listing-ct tbody:nth-child(2) ul.dropdown-menu div.alert", "Connection refused")
+        # Actual error message changes between versions
+        b.wait_present("table.listing-ct tbody:nth-child(2) ul.dropdown-menu div.alert span.pficon-warning-triangle-o")
 
         # Config created
         self.assertEqual(m.execute("cat /etc/ostree/remotes.d/zremote-test1.conf").strip(),

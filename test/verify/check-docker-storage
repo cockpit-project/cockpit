@@ -56,7 +56,7 @@ def initially_loopbacked(machine):
         return False
 
     # use the overlayfs driver by default on some distros
-    if machine.image in [ "debian-stable", "ubuntu-1604", "ubuntu-stable", "fedora-26" ]:
+    if machine.image in [ "debian-stable", "ubuntu-1604", "ubuntu-stable", "fedora-26", "fedora-atomic" ]:
         return False
 
     # The rest don't have space in the root volume group, or don't
@@ -72,11 +72,11 @@ def initially_without_vgroup(machine):
 
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is built
-# in fedora-25
+# in fedora-26
 def get_build_image(test_os):
     build_os = test_os
     if test_os == "fedora-atomic":
-        build_os = "fedora-25"
+        build_os = "fedora-26"
     elif test_os == "rhel-atomic":
         build_os = "rhel-7"
     elif test_os == "continuous-atomic":
@@ -132,8 +132,7 @@ class TestDockerStorageMapper(MachineCase):
 
         if can_manage(m):
             # Allow docker-storage-setup to be happy with our very small disks
-            m.write("/etc/sysconfig/docker-storage-setup",
-                    'MIN_DATA_SIZE=80M\n')
+            m.execute("echo 'MIN_DATA_SIZE=80M\n' >> /etc/sysconfig/docker-storage-setup")
 
         def check_loopback(val):
             # We pass the output through logger to diagnose flakey issues

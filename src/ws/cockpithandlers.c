@@ -589,6 +589,7 @@ handle_shell (CockpitHandlerData *data,
       shell_path = cockpit_conf_string ("WebService", "Shell");
       cockpit_channel_response_serve (service, headers, response, NULL,
                                       shell_path ? shell_path : cockpit_ws_shell_component);
+      cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
     }
   else
     {

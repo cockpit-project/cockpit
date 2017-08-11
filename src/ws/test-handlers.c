@@ -531,6 +531,7 @@ static const DefaultFixture fixture_shell_index = {
   .auth = "/cockpit",
   .with_home = TRUE,
   .expect = "HTTP/1.1 200*"
+      "Cache-Control: no-cache, no-store*"
       "<base href=\"/cockpit/@localhost/another/test.html\">*"
       "<title>In home dir</title>*"
 };

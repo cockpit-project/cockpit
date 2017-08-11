@@ -13,5 +13,6 @@ systemctl start docker || journalctl -u docker
 
 docker pull rhel7/rhel-tools
 docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
-
+docker pull registry.access.redhat.com/rhel7/cockpit-ws
+docker tag registry.access.redhat.com/rhel7/cockpit-ws cockpit/ws
 /var/lib/testvm/atomic.setup

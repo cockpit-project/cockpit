@@ -23,6 +23,11 @@ set -ex
 out=$1
 base=$2
 
+redirect_base=$(curl -s -w "%{redirect_url}" "$base" -o /dev/null)
+if [ -n "$redirect_base" ]; then
+    base="$redirect_base"
+fi
+
 # Lookup the newest base image recursively
 url=$base
 while [ $# -gt 2 ]; do

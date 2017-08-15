@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # run static code checks like pyflakes and pep8
 set -eu
 
@@ -62,11 +62,20 @@ fi
 # It's dangerous to have 'unsafe-inline' or 'unsafe-eval' in our
 # content-security-policy entries. This is the browser equivalent
 # of setenforce 0
-#
 
-if grep -E 'content-security-policy.*(\*|unsafe)' pkg/*/*.json*; then
-    echo "not ok 4 unsafe-security-policy"
-    fail=1
+shopt -s nullglob
+safe=yes
+for d in pkg/*; do
+    if ! test -f "$d"/content-security-policy.override; then
+        if grep -HE 'content-security-policy.*(\*|unsafe)' "$d"/*.json* /dev/null; then
+            safe="no"
+        fi
+    fi
+done
+
+if [ $safe == "no" ]; then
+   echo "not ok 4 unsafe-security-policy"
+   fail=1
 else
     echo "ok 4 unsafe-security-policy"
 fi

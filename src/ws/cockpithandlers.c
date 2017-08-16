@@ -334,6 +334,7 @@ build_environment (GHashTable *os_release)
 static void
 send_login_html (CockpitWebResponse *response,
                  CockpitHandlerData *ws,
+                 const gchar *path,
                  GHashTable *headers)
 {
   static const gchar *marker = "<meta insert_dynamic_content_here>";
@@ -346,6 +347,7 @@ send_login_html (CockpitWebResponse *response,
   GBytes *url_bytes = NULL;
   CockpitWebFilter *filter2 = NULL;
   const gchar *url_root = NULL;
+  gchar *cookie_line = NULL;
   gchar *base;
 
   gchar *language = NULL;
@@ -411,11 +413,14 @@ send_login_html (CockpitWebResponse *response,
   else
     {
       /* The login Content-Security-Policy allows the page to have inline <script> and <style> tags. */
+      cookie_line = cockpit_auth_empty_cookie_value (path);
       cockpit_web_response_headers (response, 200, "OK", -1,
                                     "Content-Type",
                                     "text/html",
                                     "Content-Security-Policy",
                                     "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
+                                    "Set-Cookie",
+                                    cookie_line,
                                     NULL);
       if (cockpit_web_response_queue (response, bytes))
         cockpit_web_response_complete (response);
@@ -423,6 +428,7 @@ send_login_html (CockpitWebResponse *response,
       g_bytes_unref (bytes);
     }
 
+  g_free (cookie_line);
   g_strfreev (languages);
 }
 
@@ -536,7 +542,7 @@ handle_resource (CockpitHandlerData *data,
         }
       else if (g_str_has_suffix (path, ".html"))
         {
-          send_login_html (response, data, headers);
+          send_login_html (response, data, path, headers);
         }
       else
         {
@@ -586,7 +592,7 @@ handle_shell (CockpitHandlerData *data,
     }
   else
     {
-      send_login_html (response, data, headers);
+      send_login_html (response, data, path, headers);
     }
 }
 

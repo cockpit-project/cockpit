@@ -520,6 +520,7 @@ static const DefaultFixture fixture_shell_path_login = {
   .org_path = "/path/system/host",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
+      "Set-Cookie: cockpit=deleted*"
       "<html>*"
       "<base href=\"/path/\">*"
       "login-button*"
@@ -599,6 +600,7 @@ static const DefaultFixture fixture_shell_login = {
   .path = "/system/host",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
+      "Set-Cookie: cockpit=deleted*"
       "<html>*"
       "<base href=\"/\">*"
       "login-button*"
@@ -652,6 +654,7 @@ static const DefaultFixture fixture_resource_login = {
   .path = "/cockpit/@localhost/yyy/zzz.html",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
+    "Set-Cookie: cockpit=deleted*"
     "<html>*"
     "login-button*"
 };
@@ -673,6 +676,17 @@ static const DefaultFixture fixture_host_static = {
     "Cache-Control: max-age=86400, private*"
     "#badge*"
     "url(\"logo.png\");*"
+};
+
+static const DefaultFixture fixture_host_login = {
+  .path = "/=host/system",
+  .auth = NULL,
+  .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
+  .expect = "HTTP/1.1 200*"
+      "Set-Cookie: machine-cockpit+host=deleted*"
+      "<html>*"
+      "<base href=\"/\">*"
+      "login-button*"
 };
 
 static const DefaultFixture fixture_host_static_no_auth = {
@@ -878,6 +892,8 @@ main (int argc,
   g_test_add ("/handlers/static/simple", Test, &fixture_static_simple,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/static/host-static", Test, &fixture_host_static,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/static/host-login", Test, &fixture_host_login,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/static/host-static-no-auth", Test, &fixture_host_static_no_auth,
               setup_default, test_default, teardown_default);

@@ -92,7 +92,7 @@ http://cockpit-project.org/running.html
 Next run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.
 
-    $ mkdir -p ~/.local/share/
+    $ mkdir -p ~/.local/share/cockpit
     $ ln -s $(pwd)/dist ~/.local/share/cockpit
 
 This will cause cockpit to read javascript and HTML files directly from the built

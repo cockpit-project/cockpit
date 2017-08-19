@@ -26,6 +26,7 @@
     require('angular-gettext/dist/angular-gettext.js');
     require('angular-bootstrap-npm/dist/angular-bootstrap.js');
     require('kubernetes-container-terminal/dist/container-terminal.js');
+    require('object-describer/dist/object-describer.js');
     require('kubernetes-object-describer/dist/object-describer.js');
 
     /* The kubernetes client */

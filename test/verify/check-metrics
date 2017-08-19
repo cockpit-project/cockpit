@@ -142,9 +142,19 @@ class TestMetrics(MachineCase):
 
         # Network traffic through Ethernet.  Anything above 300 kb/s is good for now.
         #
+        ifaces = m.execute(r"ip -o a | awk '{print $2}'")
+        iface = None
+        for i in ifaces.split('\n'):
+            if i.startswith("eth") or i.startswith("ens"):
+                iface = i
+                break
+
+        if not iface:
+            raise Exception("Couldn't find interface to sample")
+
         m.execute("if type firewall-cmd >/dev/null 2>&1; then firewall-cmd --permanent --zone=public --add-port=2000/tcp && firewall-cmd --reload; fi")
 
-        (eth_before, lo_before) = m.execute(r"grep -E '\beth0:|\bens5:' /proc/net/dev | awk '{print $2 + $10}'; "
+        (eth_before, lo_before) = m.execute(r"grep -E '\b" + iface + r":' /proc/net/dev | awk '{print $2 + $10}'; "
                                             r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
         time_before = time.time()
 
@@ -159,10 +169,10 @@ class TestMetrics(MachineCase):
             b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
         finally:
             time_after = time.time()
-            (eth_after, lo_after) = m.execute(r"grep -E 'eth0|ens5' /proc/net/dev | awk '{print $2 + $10}'; "
+            (eth_after, lo_after) = m.execute(r"grep -E '" + iface + r"' /proc/net/dev | awk '{print $2 + $10}'; "
                                               r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
-            print("Measured {0:.1f}s of network traffic; eth0/ens5: {1} bytes, lo: {2} bytes".format(
-                time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before)))
+            print("Measured {0:.1f}s of network traffic; {3}: {1} bytes, lo: {2} bytes".format(
+                time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before), iface))
 
             client.terminate()
             client.wait()

@@ -317,6 +317,271 @@
         $(client).on('changed', render_mounts);
         $(client.fsys_sizes).on('changed', render_mounts);
 
+        var nfs_mounts_tmpl = $("#nfs-mounts-tmpl").html();
+        mustache.parse(nfs_mounts_tmpl);
+
+        var nfs_users_tmpl = $("#nfs-users-tmpl").html();
+        mustache.parse(nfs_users_tmpl);
+
+        function render_nfs_mounts() {
+
+            function make_nfs_mount(entry, index) {
+                var fsys_size;
+                if (entry.mounted)
+                    fsys_size = client.nfs.get_fsys_size(entry);
+
+                return {
+                    Server: entry.fields[0].split(":")[0],
+                    RemoteDir: entry.fields[0].split(":")[1],
+                    UsageText: fsys_size? utils.format_fsys_usage(fsys_size[0], fsys_size[1]) : null,
+                    UsagePercent: fsys_size? fsys_size[0] / fsys_size[1] * 100 : null,
+                    UsageCritical: fsys_size && fsys_size[0] > 0.95 * fsys_size[1],
+                    MountPoint: entry.fields[1],
+                    IsMounted: entry.mounted,
+                    CanEdit: entry.fstab,
+                    action_arg: index
+                };
+            }
+
+            var m = client.nfs.entries.map(make_nfs_mount);
+
+            var is_armed = $('#nfs-mounts .nfs-arm-button').hasClass('active');
+            $('#nfs-mounts').amend(mustache.render(nfs_mounts_tmpl,
+                                                   { armed: is_armed,
+                                                     Mounts: m,
+                                                     HasMounts: m.length > 0
+                                                   }));
+
+            /* Apply these styles */
+            $('#nfs-mounts [data-width]').each(function() {
+                $(this).css("width", $(this).attr("data-width"));
+            });
+        }
+
+        $('#storage').on('click', '#nfs-mounts .nfs-arm-button', function (event) {
+            $(this).toggleClass('active');
+            render_nfs_mounts();
+        });
+
+        function nfs_disarm() {
+            $('#nfs-mounts .nfs-arm-button').removeClass('active');
+            render_nfs_mounts();
+        }
+
+        function checked(error_title, promise) {
+            promise.fail(function (error, output) {
+                $('#error-popup-title').text(error_title);
+                $('#error-popup-message').text(error.toString());
+                $('#error-popup').modal('show');
+            });
+        }
+
+        $('#storage').on('click', '[data-action="mount-mount"]', function () {
+            var arg = $(this).attr('data-arg');
+            var entry = client.nfs.entries[arg];
+            checked("Could not mount the filesystem",
+                    client.nfs.mount_entry(entry));
+            nfs_disarm();
+            return false;
+        });
+
+        function nfs_busy_dialog(dialog_title,
+                                 entry, error,
+                                 action_title, action) {
+
+            function show(users) {
+                if (users.length === 0) {
+                    $('#error-popup-title').text(dialog_title);
+                    $('#error-popup-message').text(error.toString());
+                    $('#error-popup').modal('show');
+                } else {
+                    dialog.open({ Title: dialog_title,
+                                  Teardown: {
+                                      HasUnits: true,
+                                      Units: users.map(function (u) { return { Unit: u.unit, Name: u.desc }; })
+                                  },
+                                  Fields: [ ],
+                                  Action: users? {
+                                      DangerButton: true,
+                                      Title: action_title,
+                                      action: function () {
+                                          return action(users);
+                                      }
+                                  } : null
+                                });
+                }
+            }
+
+            client.nfs.entry_users(entry)
+                .done(function (users) {
+                    show(users);
+                })
+                .fail(function (error) {
+                    show([ ]);
+                });
+        }
+
+        $('#storage').on('click', '[data-action="mount-unmount"]', function () {
+            var arg = $(this).attr('data-arg');
+            var entry = client.nfs.entries[arg];
+            client.nfs.unmount_entry(entry)
+                .fail(function (error) {
+                    nfs_busy_dialog(_("Unable to unmount filesystem"),
+                                    entry, error,
+                                    _("Stop and unmount"),
+                                    function (users) {
+                                        return client.nfs.stop_and_unmount_entry(users, entry);
+                                    });
+                });
+            nfs_disarm();
+            return false;
+        });
+
+        function nfs_fstab_dialog(entry) {
+
+            var server_to_check;
+            var server_check_deferred;
+
+            function remote_choices(vals) {
+                if (vals.server == server_to_check)
+                    return false;
+
+                server_to_check = vals.server;
+                if (server_check_deferred)
+                    server_check_deferred.resolve(false);
+
+                var this_deferred = cockpit.defer();
+                server_check_deferred = this_deferred;
+
+                cockpit.spawn([ "showmount", "-e", "--no-headers", server_to_check ], { err: "message" })
+                        .done(function (output) {
+                            if (this_deferred == server_check_deferred) {
+                                var dirs = [ ];
+                                output.split("\n").forEach(function (line) {
+                                    var d = line.split(" ")[0];
+                                    if (d)
+                                        dirs.push(d);
+                                });
+                                this_deferred.resolve(dirs);
+                                server_check_deferred = null;
+                            } else {
+                                this_deferred.resolve(false);
+                            }
+                        }).
+                        fail(function (error) {
+                            console.warn(error);
+                            this_deferred.resolve([ ]);
+                        });
+
+                return this_deferred.promise();
+            }
+
+            function show(busy) {
+                dialog.open({ Title: entry? _("NFS Mount") : _("New NFS Mount"),
+                              Alerts: busy? [ { Message: _("This NFS mount is in use and only its options can be changed.") } ] : null,
+                              Fields: [
+                                  { TextInput: "server",
+                                    Title: _("Server Address"),
+                                    Value: entry? entry.fields[0].split(":")[0] : "",
+                                    validate: function (val) {
+                                        if (val === "")
+                                            return _("Server cannot be empty.");
+                                    },
+                                    disabled: busy
+                                  },
+                                  { ComboBox: "remote",
+                                    Title: _("Path on Server"),
+                                    Value: entry? entry.fields[0].split(":")[1] : "",
+                                    Choices: remote_choices,
+                                    validate: function (val) {
+                                        if (val === "")
+                                            return _("Path on server cannot be empty.");
+                                        if (val[0] !== "/")
+                                            return _("Path on server must start with \"/\".");
+                                    },
+                                    disabled: busy
+                                  },
+                                  { TextInput: "dir",
+                                    Title: _("Local Mount Point"),
+                                    Value: entry? entry.fields[1] : "",
+                                    validate: function (val) {
+                                        if (val === "")
+                                            return _("Mount point cannot be empty.");
+                                        if (val[0] !== "/")
+                                            return _("Mount point must start with \"/\".");
+                                    },
+                                    disabled: busy
+                                  },
+                                  { TextInput: "opts",
+                                    Title: _("Mount Options"),
+                                    Value: entry? entry.fields[3] : "defaults",
+                                    validate: function (val) {
+                                        if (val === "")
+                                            return _("Options cannot be empty.");
+                                    }
+                                  }
+                              ],
+                              Action: {
+                                  Title: entry? _("Apply") : _("Add"),
+                                  action: function (vals) {
+                                      var fields = [ vals.server + ":" + vals.remote,
+                                                     vals.dir,
+                                                     entry? entry.fields[2]: "nfs",
+                                                     vals.opts ];
+
+                                      if (entry)
+                                          return client.nfs.update_entry(entry, fields);
+                                      else
+                                          return client.nfs.add_entry(fields);
+                                  }
+                              }
+                            });
+            }
+
+            if (entry) {
+                client.nfs.entry_users(entry)
+                    .done(function (users) {
+                        show(users.length > 0);
+                    })
+                    .fail(function () {
+                        show(false);
+                    });
+            } else
+                show(false);
+        }
+
+        $('#storage').on('click', '[data-action="mount-edit"]', function () {
+            var arg = $(this).attr('data-arg');
+            var entry = client.nfs.entries[arg];
+            if (entry)
+                nfs_fstab_dialog(entry);
+            nfs_disarm();
+            return false;
+        });
+
+        $('#storage').on('click', '[data-action="mount-add"]', function () {
+            nfs_fstab_dialog(null);
+            return false;
+        });
+
+        $('#storage').on('click', '[data-action="mount-remove"]', function () {
+            var arg = $(this).attr('data-arg');
+            var entry = client.nfs.entries[arg];
+            client.nfs.remove_entry(entry)
+                .fail(function (error) {
+                    nfs_busy_dialog(_("Unable to remove mount"),
+                                    entry, error,
+                                    _("Stop and remove"),
+                                    function (users) {
+                                        return client.nfs.stop_and_remove_entry(users, entry);
+                                    });
+                });
+            nfs_disarm();
+            return false;
+        });
+
+        $(client.nfs).on('changed', render_nfs_mounts);
+
         function render_jobs() {
             $('#jobs').amend(jobs.render());
             permissions.update();
@@ -400,6 +665,7 @@
         render_drives();
         render_others();
         render_mounts();
+        render_nfs_mounts();
         render_jobs();
 
         $('#storage-log').append(

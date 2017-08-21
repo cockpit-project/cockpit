@@ -39,7 +39,7 @@
     text-overflow: ellipsis;
 }
 
-@media (min-width: 992px) {
+@media (max-width: 1200px) {
     .storage-mounts .mount-name {
         width: 25%;
     }
@@ -51,6 +51,9 @@
     }
     .storage-mounts .mount-size-number {
         width: 25%;
+    }
+    .storage-mounts .mount-actions {
+        width: 50%;
     }
 }
 
@@ -67,6 +70,13 @@
     .storage-mounts .mount-size-number {
         width: 15%;
     }
+    .storage-mounts .mount-actions {
+        width: 60%;
+    }
+}
+
+#nfs-mounts tr {
+    height: 42px;
 }
 
 @media (max-width: 1814px) {
@@ -563,6 +573,20 @@ a.disabled {
 
 td.storage-action {
     overflow: visible !important;
+}
+
+.nfs-users-table {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.nfs-users-table table {
+    width: 100%;
+}
+
+.nfs-users-table td:nth-child(2) {
+    padding-left: 0.75em;
+    width: 80%;
 }
 
 /* Layout fix for tooltip arrows.

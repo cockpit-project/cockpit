@@ -218,6 +218,10 @@ class StorageCase(MachineCase):
     def dialog_set_combobox(self, field, val):
         self.browser.set_val(self.dialog_field(field) + " input[type=text]", val)
 
+    def dialog_combobox_choices(self, field):
+        return self.browser.call_js_func("(function (sel) { return $(sel).find('li').get().map(function (elt) { return $(elt).text(); }) })",
+                                         self.dialog_field(field))
+
     def dialog_is_present(self, field, label):
         return self.browser.is_present('%s .checkbox:contains("%s") input' % (self.dialog_field(field), label))
 

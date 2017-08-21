@@ -271,6 +271,109 @@
     </div>
   </script>
 
+  <script id="nfs-mounts-tmpl" type="x-template/mustache">
+    <div class="panel panel-default storage-mounts">
+      <div class="panel-heading">
+        <span class="pull-right">
+          {{#HasMounts}}
+          <button class="btn btn-default fa fa-check nfs-arm-button {{#armed}}active{{/armed}}"></button>
+          {{/HasMounts}}
+          <button class="btn btn-primary fa fa-plus" data-action="mount-add" ></button>
+        </span>
+        <span translatable="yes">NFS Mounts</span>
+      </div>
+      {{#HasMounts}}
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="mount-name" translatable="yes">Server</th>
+            <th class="mount-point" translatable="yes">Mount Point</th>
+            {{#armed}}
+            <th class="mount-actions">&nbsp;</th>
+            {{/armed}}
+            {{^armed}}
+            <th class="mount-size-graph" translatable="yes">Size</th>
+            <th class="mount-size-number">&nbsp;</th>
+            {{/armed}}
+          </tr>
+        </thead>
+        <tbody>
+          {{#Mounts}}
+          <tr>
+            <td>
+              {{Server}} {{RemoteDir}}
+            </td>
+            <td>
+              {{MountPoint}}
+            </td>
+            {{#armed}}
+            <td class="text-right">
+              {{#IsMounted}}
+              <button translatable="yes" class="btn btn-default"
+                      data-action="mount-unmount" data-arg="{{action_arg}}">Unmount</button>
+              {{/IsMounted}}
+              {{^IsMounted}}
+              <button translatable="yes" class="btn btn-default"
+                      data-action="mount-mount" data-arg="{{action_arg}}">Mount</button>
+              {{/IsMounted}}
+              {{#CanEdit}}
+              <button class="btn btn-default pficon pficon-edit"
+                      data-action="mount-edit" data-arg="{{action_arg}}"></button>
+              <button class="btn btn-danger pficon pficon-delete"
+                      data-action="mount-remove" data-arg="{{action_arg}}"></button>
+              {{/CanEdit}}
+            </td>
+            {{/armed}}
+            {{^armed}}
+            {{#IsMounted}}
+            <td>
+              <div class="progress">
+                <div class="progress-bar {{#UsageCritical}}progress-bar-danger{{/UsageCritical}}"
+                     data-width="{{UsagePercent}}%">
+                </div>
+              </div>
+            </td>
+            <td class="usage-text">
+              {{UsageText}}
+            </td>
+            {{/IsMounted}}
+            {{^IsMounted}}
+            <td>
+              Not mounted
+            </td>
+            <td>
+            </td>
+            {{/IsMounted}}
+            {{/armed}}
+          </tr>
+          {{/Mounts}}
+        </tbody>
+      </table>
+      {{/HasMounts}}
+      {{^HasMounts}}
+      <div translatable="yes" class="empty-panel-text">No NFS mounts set up</div>
+      {{/HasMounts}}
+    </div>
+  </script>
+
+  <script id="nfs-users-tmpl" type="x-template/mustache">
+    <div>
+      <p>{{Description}}</p>
+      <div class="nfs-users-table">
+        <table>
+          <tbody>
+            {{#Users}}
+            <tr>
+              <td>{{unit}}</td>
+              <td>{{desc}}</td>
+            </tr>
+            {{/Users}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </script>
+
   <script id="jobs-tmpl" type="x-template/mustache">
     {{#HasJobs}}
     <div class="panel panel-default">
@@ -335,6 +438,7 @@
       </div>
       <br/>
       <div id="mounts"></div>
+      <div id="nfs-mounts"></div>
       <div id="jobs"></div>
       <div class="panel panel-default cockpit-log-panel">
         <div class="panel-heading" translatable="yes">Storage Logs</div>
@@ -410,13 +514,14 @@
             </table>
             {{/HasMDRaidMembers}}
             {{/Blocking}}
+            {{{Body}}}
             <table class="form-table-ct">
               {{#Fields}}
               <tr>
                 {{#TextInput}}
                 <td class="top">{{Title}}</td>
                 <td>
-                  <input class="form-control" type="text" {{#Value}}value="{{.}}"{{/Value}} data-field={{.}}>
+                  <input class="form-control" {{#disabled}}disabled{{/disabled}} type="text" {{#Value}}value="{{.}}"{{/Value}} data-field={{.}}>
                 </td>
                 {{/TextInput}}
                 {{#PassInput}}
@@ -555,7 +660,7 @@
                 <td>
                   <div data-field={{.}} class="combobox-container">
                     <div class="input-group">
-                      <input autocomplete="false" class="combobox form-control" type="text" value={{Value}} />
+                      <input autocomplete="false" class="combobox form-control" type="text" {{#disabled}}disabled{{/disabled}} value={{Value}} />
                       <span class="form-control-feedback caret"></span>
                       <ul class="typeahead typeahead-long dropdown-menu">
                       </ul>
@@ -606,13 +711,22 @@
                 {{/MDRaidMembers}}
               </table>
               {{/HasMDRaidMembers}}
+              {{#HasUnits}}
+              <p translate>The filesystem is in use by system services or login sessions.<br>
+                Proceeding will stop these services and sessions.</p>
+              <table class="table table-bordered">
+                {{#Units}}
+                <tr><td><span class="pull-right">{{Name}}</span>{{Unit}}</td></tr>
+                {{/Units}}
+              </table>
+              {{/HasUnits}}
             </div>
             {{/Teardown}}
             {{#Action}}
             {{#Danger}}<div class="modal-footer-danger">{{.}}</div>{{/Danger}}
             <div class="spinner spinner-sm pull-left" hidden></div>
             <button class="btn btn-default" translatable="yes" data-action="cancel">Cancel</button>
-            <button class="btn {{#Danger}}btn-danger{{/Danger}}{{^Danger}}btn-primary{{/Danger}}"
+            <button class="btn {{#DangerButton}}btn-danger{{/DangerButton}}{{^DangerButton}}btn-primary{{/DangerButton}}"
                     data-action="apply">{{Title}}</button>
             {{/Action}}
             {{^Action}}

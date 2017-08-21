@@ -61,6 +61,9 @@
                 f.Checked = (f.Value !== false);
         });
 
+        if (def.Action && def.Action.Danger)
+            def.Action.DangerButton = true;
+
         function empty(obj) { return !obj || obj.length === 0; }
 
         def.HasBody = !empty(def.Fields) || !empty(def.Alerts) || !empty(def.Blocking);

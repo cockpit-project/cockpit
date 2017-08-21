@@ -639,6 +639,38 @@ class KubernetesCommonTests(VolumeTests):
         # Assert that at least one link between Service and Pod has loaded
         b.wait_present("svg line.ServicePod")
 
+        # Make sure that details display works
+        b.wait_present("svg g.Node")
+        b.wait_js_func(
+            """(function() {
+                var el = window.Sizzle("svg g.Node");
+                var i;
+                for (i = 0; i < el.length; i++) {
+                    var x = el[i].getAttribute("cx");
+                    var y = el[i].getAttribute("cy");
+                    if (x && y) {
+                        var ev = document.createEvent("MouseEvent");
+                        ev.initMouseEvent(
+                            "mousedown",
+                            true /* bubble */, true /* cancelable */,
+                            window, null,
+                            0, 0, 0, 0, /* coordinates */
+                            false, false, false, false, /* modifier keys */
+                            0 /*left*/, null);
+
+                        /* Now dispatch the event */
+                        el[i].dispatchEvent(ev);
+                        return true;
+                    }
+                }
+
+            })""", "true")
+
+        b.wait_present("div.sidebar-pf-right")
+        b.wait_present("div.sidebar-pf-right kubernetes-object-describer")
+        b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer", "127.0.0.1")
+        b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer h3:first", "Node")
+
 class OpenshiftCommonTests(VolumeTests):
 
     def testBasic(self):

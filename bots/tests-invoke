@@ -197,7 +197,7 @@ class PullTask(object):
             # Download all the additional images so that even older branches find them
             subprocess.check_call([ os.path.join(BOTS, "image-download"),
                 "candlepin", "fedora-stock", "fedora-23-stock", "fedora-26",
-                "ipa", "openshift", "selenium", "windows-8"
+                "ipa", "openshift", "selenium"
             ])
 
         except subprocess.CalledProcessError:

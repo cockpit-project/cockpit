@@ -78,7 +78,7 @@ def module_license(moddir):
 
     # missing licenses
     mod = os.path.basename(moddir)
-    if mod == 'kubernetes-object-describer':
+    if mod == 'kubernetes-object-describer' or mod == 'object-describer':
         # upstream says "same as what we use for origin and origin-web-console which is Apache"
         # https://github.com/kubernetes-ui/object-describer/issues/31
         return 'Apache-2.0'
@@ -128,7 +128,7 @@ def module_copyright(moddir):
         pass
 
     # missing copyrights
-    if mod == 'kubernetes-object-describer':
+    if mod == 'kubernetes-object-describer' or mod == 'object-describer':
         # only committer is Jessica Forrester, working for Red Hat
         # https://github.com/kubernetes-ui/object-describer/issues/35
         copyrights.add(' (C) 2015-2017 Red Hat, Inc.')

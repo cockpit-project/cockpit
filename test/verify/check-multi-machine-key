@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import atomiclib
 from testlib import *
 
 import subprocess
@@ -55,7 +56,6 @@ KEY_IDS_MD5 = [
     "256 b5:80:1b:f5:98:89:2a:39:f3:78:b3:64:5c:64:33:17 /home/admin/.ssh/id_ed25519 (ED25519)"
 ]
 
-@skipImage("No cockpit-ssh on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestMultiMachineKeyAuth(MachineCase):
     provision = {
         "machine1": { "address": "10.111.113.1/20" },
@@ -92,6 +92,7 @@ class TestMultiMachineKeyAuth(MachineCase):
 
     def setUp(self):
         MachineCase.setUp(self)
+        atomiclib.overlay_dashboard(self.machine)
         self.machine2 = self.machines['machine2']
 
         # Add user
@@ -129,8 +130,9 @@ class TestMultiMachineKeyAuth(MachineCase):
             b.wait_js_cond('loaded === true');
             self.check_keys(["2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"],
                             ["2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
-        # Check our keys were loaded.
-        self.check_keys(KEY_IDS_MD5, KEY_IDS)
+        else:
+            # Check our keys were loaded.
+            self.check_keys(KEY_IDS_MD5, KEY_IDS)
 
         # Add machine
         b.switch_to_top()
@@ -220,10 +222,6 @@ class TestMultiMachineKeyAuth(MachineCase):
                                     "Error executing command as another user: Not authorized",
                                     "This incident has been reported.",
                                     "sudo: a password is required")
-
-        # No dashboard on Atomic Host
-        if m1.image in [ "continuous-atomic", "fedora-atomic", "rhel-atomic" ]:
-            return
 
         # We expect this iframe to be active
         b.switch_to_top()

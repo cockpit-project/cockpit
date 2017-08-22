@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import atomiclib
 from testlib import *
 
 def wait_dashboard_addresses(b, expected):
@@ -60,6 +61,10 @@ class TestMultiOS(MachineCase):
         "0": { "address": "10.111.113.1/20" },
         "fedora-stock": { "address": "10.111.113.5/20", "image": "fedora-stock" }
     }
+
+    def setUp(self):
+        super(TestMultiOS, self).setUp()
+        atomiclib.overlay_dashboard(self.machine)
 
     def check_spawn(self, b, address):
         result = b.call_js_func("""(function(address) {
@@ -178,7 +183,6 @@ class TestMultiOS(MachineCase):
         self.allow_journal_messages("usermod: user 'postfix' does not exist")
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
 
-    @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
     def testFedora22(self):
         try:
             self.checkStock()
@@ -193,7 +197,10 @@ class TestMultiOSDirect(MachineCase):
         "fedora-23-stock": { "address": "10.111.113.5/20", "image": "fedora-23-stock" }
     }
 
-    @skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+    def setUp(self):
+        super(TestMultiOSDirect, self).setUp()
+        atomiclib.overlay_dashboard(self.machine)
+
     def testFedora23Direct(self):
         b = self.browser
 

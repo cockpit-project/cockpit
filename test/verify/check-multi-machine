@@ -22,6 +22,7 @@ import subprocess
 import re
 import time
 
+import atomiclib
 import parent
 from testlib import *
 
@@ -115,7 +116,6 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
         time.sleep(0.5)
     raise error
 
-@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestMultiMachineAdd(MachineCase):
     provision = {
         "machine1": { "address": "10.111.113.1/20" },
@@ -129,6 +129,7 @@ class TestMultiMachineAdd(MachineCase):
         self.machine2.execute("hostnamectl set-hostname machine2")
         self.machine3 = self.machines['machine3']
         self.machine3.execute("hostnamectl set-hostname machine3")
+        atomiclib.overlay_dashboard(self.machine)
 
     def testBasic(self):
         b = self.browser
@@ -196,7 +197,6 @@ class TestMultiMachineAdd(MachineCase):
                                     ".*: bridge program failed: Child process exited with code .*")
 
 
-@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestMultiMachine(MachineCase):
     provision = {
         "machine1": { "address": "10.111.113.1/20" },
@@ -208,6 +208,7 @@ class TestMultiMachine(MachineCase):
         MachineCase.setUp(self)
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
+        atomiclib.overlay_dashboard(self.machine)
 
     def checkDirectLogin(self, root='/'):
         b = self.browser
@@ -256,11 +257,15 @@ class TestMultiMachine(MachineCase):
         else:
             m2_dashboard_name = "machine2"
 
-        b.click("a[href='/dashboard']")
-        b.enter_page("/dashboard")
-        b.wait_present("a[data-address='localhost']")
-        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-        b.wait_not_present("a[data-address='10.111.113.2']")
+        # Dashboard is not installed on secondary atomic machines
+        if not m2.atomic_image:
+            b.click("a[href='/dashboard']")
+            b.enter_page("/dashboard")
+            b.wait_present("a[data-address='localhost']")
+            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+            b.wait_not_present("a[data-address='10.111.113.2']")
+        else:
+            b.wait_not_present("a[href='/dashboard']")
         b.logout()
 
         # Falls back to legacy /var/lib/cockpit/known_hosts
@@ -417,11 +422,15 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#system_information_hostname_button', "machine2")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
-        b.click("a[href='/dashboard']")
-        b.enter_page("/dashboard")
-        b.wait_present("a[data-address='localhost']")
-        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-        b.wait_not_present("a[data-address='10.111.113.2']")
+
+        if not m2.atomic_image:
+            b.click("a[href='/dashboard']")
+            b.enter_page("/dashboard")
+            b.wait_present("a[data-address='localhost']")
+            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+            b.wait_not_present("a[data-address='10.111.113.2']")
+        else:
+            b.wait_not_present("a[href='/dashboard']")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()

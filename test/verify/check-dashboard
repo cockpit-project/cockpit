@@ -21,7 +21,9 @@
 import json
 
 import parent
+import atomiclib
 from testlib import *
+
 
 class DashBoardHelpers:
     def check_discovered_addresses(self, b, addresses):
@@ -70,19 +72,6 @@ class DashBoardHelpers:
             b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
-    def overlay_dashboard(self):
-        m = self.machine
-
-        # If we can do package overlays on Atomic host, then try that here
-        # This tests the case that cockpit-dashboard is installable via
-        # package overlays on Atomic Host
-        # The libssh RPM was placed by the atomic setup scripts
-
-        if m.image in [ "fedora-atomic", "rhel-atomic", "continuous-atomic" ]:
-            m.execute("rm -rf /etc/yum.repos.d/* && rpm-ostree install /root/rpms/libssh-*.rpm /var/tmp/build-results/cockpit-dashboard-*.rpm")
-            m.spawn("sleep 2 && systemctl reboot", "reboot")
-            m.wait_reboot()
-
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
     provision = {
         'machine1': { "address": "10.111.113.1/20" },
@@ -92,7 +81,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
     def setUp(self):
         super(TestBasicDashboard, self).setUp()
-        self.overlay_dashboard()
+        atomiclib.overlay_dashboard(self.machine)
 
     def testBasic(self):
         b = self.browser
@@ -229,7 +218,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
     def setUp(self):
         super(TestDashboardSetup, self).setUp()
-        self.overlay_dashboard()
+        atomiclib.overlay_dashboard(self.machine)
 
     def testSetup(self):
         b = self.browser
@@ -371,8 +360,11 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
             '.*refusing to connect to unknown host.*'
         )
 
-@skipImage("No dashboard on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
+    def setUp(self):
+        super(TestDashboardEditLimits, self).setUp()
+        atomiclib.overlay_dashboard(self.machine)
+
     def testEdit(self):
         b = self.browser
         m = self.machine

@@ -183,6 +183,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         machine.start()
         if selenium:
             # actually wait here, because starting selenium takes a while
+            selenium.pull(selenium.image_file)
             selenium.start()
             selenium.wait_boot()
             selenium.set_address("10.111.112.10/20")
@@ -192,6 +193,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             selenium.execute(command="/root/selenium_start.sh")
         elif windows:
             selenium = windows
+            selenium.pull(selenium.image_file)
             selenium.start()
 
         machine.wait_boot()

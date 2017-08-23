@@ -18,9 +18,6 @@
 
 set -ex
 
-# Disable device renaming for predictable names between different qemus
-grubby --update-kernel=ALL --args="net.ifnames=0 biosdevname=0"
-
 # HACK: docker fails without /etc/resolv.conf
 # https://bugzilla.redhat.com/show_bug.cgi?id=1448331
 mkdir -p /etc/systemd/system/docker.service.d
@@ -35,7 +32,10 @@ lvresize atomicos/root        -l+50%FREE -r
 lvresize atomicos/docker-pool -l+100%FREE
 
 # Get the centos cockpit/ws image
-docker pull registry.centos.org/cockpit/ws:latest
+# TODO: centos image is out of date, go back to using it
+# when fixed.
+# docker pull registry.centos.org/cockpit/ws:latest
+docker pull cockpit/ws
 docker tag registry.centos.org/cockpit/ws cockpit/ws
 
 # docker images that we need for integration testing

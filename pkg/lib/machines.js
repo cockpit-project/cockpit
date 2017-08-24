@@ -526,7 +526,6 @@
                 options['temp-session'] = false; /* Compatibility option */
                 options['session'] = 'shared';
                 options['host-key'] = machine.host_key;
-                options['unknown-host'] = "1";
             }
 
             channel = cockpit.channel(options);

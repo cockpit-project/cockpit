@@ -780,12 +780,37 @@ class OpenshiftCommonTests(VolumeTests):
         b.reload()
         b.wait_visible("#machine-troubleshoot")
         b.wait_in_text(".curtains-ct", "Login failed")
+        b.click('#machine-troubleshoot')
+        b.wait_popup('troubleshoot-dialog')
+        b.wait_in_text("#troubleshoot-dialog", 'Log in to')
+        b.wait_present("#login-type button")
+        b.click("#login-type button");
+        b.click("#login-type li[value=password] a");
+        b.wait_in_text("#login-type button span", "Type a password");
+        b.wait_visible("#login-diff-password")
+        b.wait_not_visible("#login-available")
+        self.assertEqual(b.val("#login-custom-password"), "")
+        self.assertEqual(b.val("#login-custom-user"), "")
+        b.set_val("#login-custom-user", "root")
+        b.set_val("#login-custom-password", "foobar")
+        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_popdown('troubleshoot-dialog')
+
+        b.wait_not_visible(".curtains-ct")
+        b.enter_page('/system', "root@10.111.112.101")
+        b.wait_present('#system_information_os_text')
+        b.wait_visible('#system_information_os_text')
+        b.wait_text_not("#system_information_os_text", "")
+        b.logout()
 
         # Nothing was saved
         self.assertFalse(m.execute("grep 10.111.112.101 /etc/ssh/ssh_known_hosts || true"))
         self.assertFalse(m.execute("grep 10.111.112.101 /etc/cockpit/machines.d/99-webui.json || true"))
 
         self.allow_hostkey_messages()
-        self.allow_journal_messages('.* host key for server is not known: .*',
+        self.allow_journal_messages('/usr/libexec/cockpit-pcp: bridge was killed: .*',
+                                    '.* host key for server is not known: .*',
+                                    'invalid or unusable locale: .*',
+                                    '.* warning: setlocale: .*',
                                     'connection unexpectedly closed by peer',
                                     'Error receiving data: Connection reset by peer')

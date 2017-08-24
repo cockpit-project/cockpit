@@ -149,7 +149,6 @@
                 conn_options['temp-session'] = false; /* Compatiblity option */
                 conn_options['session'] = 'shared';
                 conn_options['host-key'] = machine.host_key;
-                conn_options['unknown-host'] = "1";
             }
             var client = cockpit.channel(conn_options);
             client.send("x");

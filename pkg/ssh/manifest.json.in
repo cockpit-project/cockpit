@@ -25,16 +25,14 @@
         },
         {
             "match": { "user": null, "host": null },
-            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=${unknown-host}",
-                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
+            "environ": [ "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
             "timeout": 30,
             "problem": "not-supported"
         },
         {
             "match": { "host": null },
-            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=${unknown-host}",
-                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
+            "environ": [ "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${host}" ],
             "timeout": 30,
             "problem": "not-supported"

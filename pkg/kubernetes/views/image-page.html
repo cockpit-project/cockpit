@@ -5,8 +5,7 @@
     </div>
     <h3>
         <i class="pficon pficon-image"></i>
-        <span ng-if="labels.name">{{ stream.metadata.namespace }}/{{ stream.metadata.name}}:{{ labels.name }}</span>
-        <span ng-if="!labels.name">{{ stream.metadata.namespace }}/{{ stream.metadata.name}}:{{ tag.tag }}</span>
+        <span>{{ stream.metadata.namespace }}/{{ stream.metadata.name}}:{{ tag.tag }}</span>
     </h3>
     <a ng-href="#/images/{{ stream.metadata.namespace }}/{{ stream.metadata.name }}"
         translate class="hidden-xs">Show all images</a>

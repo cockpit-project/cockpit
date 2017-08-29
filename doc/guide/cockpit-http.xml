@@ -29,7 +29,15 @@ http = cockpit.http(options)
         <listitem><para>Connect to an address other than localhost. Must be a valid host name or IP address.
           To use this option you also must provide a port number.</para></listitem>
       </varlistentry>
-
+      <varlistentry>
+        <term><code>"port"</code></term>
+        <listitem><para>Port number to use with "address" option, when not given in <code>endpoint</code>.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"tls"</code></term>
+        <listitem><para>Object properties for an https connection. See
+        <code><ulink url="https://github.com/cockpit-project/cockpit/blob/master/doc/protocol.md#payload-http-stream2">http-stream2 TLS options</ulink></code>.</para></listitem>
+      </varlistentry>
       <varlistentry>
         <term><code>"connection"</code></term>
         <listitem><para>A connection identifier. Subsequent channel requests with the same

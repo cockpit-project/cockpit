@@ -644,7 +644,11 @@ test_spawn_pty_resize (void)
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   json_object_unref (options);
 
-  sent = bytes_from_string ("echo -e \"\\x7b$COLUMNS $LINES\\x7d\"\n");
+  /*
+   * Set shell option `checkwinsize`, which tells bash to update $LINES
+   * and $COLUMNS after each command.
+   */
+  sent = bytes_from_string ("shopt -s checkwinsize\necho -e \"\\x7b$COLUMNS $LINES\\x7d\"\n");
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
   g_bytes_unref (sent);
 

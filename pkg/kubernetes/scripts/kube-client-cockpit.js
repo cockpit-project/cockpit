@@ -808,7 +808,7 @@
         function($q, runCommand) {
 
             function generateKubeOptions(cluster, user) {
-                var parser;
+                var parser, token, provider;
                 var options = { port: 8080, headers: { } };
 
                 if (cluster && cluster.server) {
@@ -829,8 +829,17 @@
                 }
 
                 if (user) {
-                    if (user.token)
-                        options.headers["Authorization"] = "Bearer " + user.token;
+                    token = user.token;
+                    provider = user["auth-provider"] || {};
+                    if (provider.config) {
+                        if (provider.config['access-token'])
+                            token = provider.config['access-token'];
+                        else if (provider.config['token'])
+                            token = provider.config['token'];
+                    }
+
+                    if (token)
+                        options.headers["Authorization"] = "Bearer " + token;
                     if (user.username)
                         options.headers["Authorization"] = "Basic " + basicToken(user.username, user.password || "");
                     if (options.tls) {
@@ -886,7 +895,16 @@
             }
 
             function read() {
-                return runCommand(["kubectl", "config", "view", "--output=json", "--raw"]);
+                var cmd = ["kubectl", "config", "view", "--output=json", "--raw"];
+
+                /* Call kubectl version first incase we have a auth-provider
+                 * that needs to be populated */
+                return runCommand(["kubectl", "version"])
+                        .then(function() {
+                            return runCommand(cmd);
+                        }, function () {
+                            return runCommand(cmd);
+                        });
             }
 
             return {

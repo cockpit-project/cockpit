@@ -32,10 +32,7 @@ lvresize atomicos/root        -l+50%FREE -r
 lvresize atomicos/docker-pool -l+100%FREE
 
 # Get the centos cockpit/ws image
-# TODO: centos image is out of date, go back to using it
-# when fixed.
-# docker pull registry.centos.org/cockpit/ws:latest
-docker pull cockpit/ws
+docker pull registry.centos.org/cockpit/ws:latest
 docker tag registry.centos.org/cockpit/ws cockpit/ws
 
 # docker images that we need for integration testing

@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <grp.h>
 
 const gchar *config_dir = BUILDDIR "/test-configdir";
 
@@ -81,6 +82,7 @@ setup (TestCase *tc,
   const TestFixture *fix = data;
   const gchar *old_val = g_getenv ("XDG_CONFIG_DIRS");
   gint i;
+  struct group *gr = NULL;
 
   g_setenv ("XDG_CONFIG_DIRS", config_dir, TRUE);
   tc->cert_dir = g_build_filename (config_dir, "cockpit", "ws-certs.d", NULL);
@@ -91,8 +93,13 @@ setup (TestCase *tc,
   g_ptr_array_add (ptr, "certificate");
   g_ptr_array_add (ptr, "--user");
   g_ptr_array_add (ptr, (gchar *) g_get_user_name ());
-  g_ptr_array_add (ptr, "--group");
-  g_ptr_array_add (ptr, (gchar *) g_get_user_name ());
+
+  gr = getgrnam (g_get_user_name ());
+  if (gr != NULL)
+    {
+      g_ptr_array_add (ptr, "--group");
+      g_ptr_array_add (ptr, (gchar *) g_get_user_name ());
+    }
 
   for (i = 0; fix->files[i] != NULL; i++)
     g_ptr_array_add (ptr, (gchar *) fix->files[i]);

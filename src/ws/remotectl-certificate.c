@@ -115,7 +115,7 @@ set_cert_attributes (const gchar *path,
       g_message ("couldn't set certificate permissions: %s: %s", path, g_strerror (errno));
       goto out;
     }
-  if (chown (path, pwd->pw_uid, gr ? gr->gr_gid : 0) < 0)
+  if (chown (path, pwd->pw_uid, gr ? gr->gr_gid : -1) < 0)
     {
       g_message ("couldn't set certificate ownership: %s: %s", path, g_strerror (errno));
       goto out;

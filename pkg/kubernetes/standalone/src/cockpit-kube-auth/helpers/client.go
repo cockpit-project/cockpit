@@ -178,7 +178,7 @@ func (self *Client) confirmBasicAuth(creds *Credentials) error {
 		// Authorization header that is guarenteed to be invalid.
 		// This should return a 200 if the whole api is open or a 401 if the
 		// api is protected.
-		status, e = self.apiStatus("namespaces", "Basic")
+		status, e = self.apiStatus("namespaces", "Basic Og==")
 
 		// Some versions of kubernetes return 403 instead of 401
 		// when presented with bad basic auth data. In those cases

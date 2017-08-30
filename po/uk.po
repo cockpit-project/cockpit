@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-20 22:04+0000\n"
+"POT-Creation-Date: 2017-08-30 10:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -795,8 +795,8 @@ msgstr "Додавання"
 #: pkg/kubernetes/views/auth-form.html:29
 #: pkg/kubernetes/views/dashboard-page.html:157
 #: pkg/kubernetes/views/details-page.html:174
-#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
-#: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
+#: pkg/kubernetes/views/nodes-page.html:43 pkg/kubernetes/views/node-add.html:8
+#: pkg/kubernetes/views/node-body.html:5 pkg/lib/machine-add.html:11
 #: pkg/storaged/overview.js:629
 msgid "Address"
 msgstr "Адреса"
@@ -1413,7 +1413,7 @@ msgstr "Сертифікат клієнта"
 #: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:45
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:296 pkg/shell/simple.html:82
-#: pkg/shell/stub.html:130 pkg/storaged/index.html:637
+#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
 #: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
@@ -1436,7 +1436,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Розпізнавання у Cockpit налаштовано з помилками."
 
-#: pkg/lib/machine-dialogs.js:434
+#: pkg/lib/machine-dialogs.js:433
 msgid ""
 "Cockpit could not contact the given host $0. Make sure it has ssh running on "
 "port $1, or specify another port in the address."
@@ -1475,7 +1475,7 @@ msgstr ""
 "зупинити за допомогою термінала. І навпаки, якщо трапиться помилка у "
 "терміналі, ви побачите її у інтерфейсі журналу Cockpit."
 
-#: pkg/shell/index.html:98
+#: pkg/shell/index.html:98 pkg/shell/stub.html:76
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit — інтерактивний інтерфейс адміністратора сервера Linux."
 
@@ -1759,7 +1759,7 @@ msgstr "Консоль"
 #: pkg/docker/console.html:4 pkg/kubernetes/views/container-body.html:4
 #: pkg/kubernetes/views/container-page-inline.html:2
 #: pkg/kubernetes/views/container-panel.html:4
-#: pkg/kubernetes/views/image-page.html:24
+#: pkg/kubernetes/views/image-page.html:23
 #: node_modules/registry-image-widgets/views/image-panel.html:12
 msgid "Container"
 msgstr "Контейнер"
@@ -1869,8 +1869,8 @@ msgstr "Не вдалося встановити з’єднання із ком
 msgid "Couldn't create new users"
 msgstr "Не вдалося створити записи користувачів"
 
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:929
 #: pkg/kubernetes/scripts/connection.js:512
+#: pkg/kubernetes/scripts/kube-client-cockpit.js:929
 msgid "Couldn't find running API server"
 msgstr "Не вдалося знайти запущений сервер API"
 
@@ -2286,7 +2286,7 @@ msgid "Deployment Config"
 msgstr "Налаштування розгортання"
 
 #: pkg/kubernetes/views/details-page.html:98
-#: pkg/kubernetes/scripts/details.js:221
+#: pkg/kubernetes/scripts/details.js:222
 msgid "Deployment Configs"
 msgstr "Налаштування розгортання"
 
@@ -2636,7 +2636,7 @@ msgstr "Завершується"
 msgid "Enforce policy:"
 msgstr "Правила примушення:"
 
-#: pkg/lib/machine-dialogs.js:452
+#: pkg/lib/machine-dialogs.js:451
 msgid "Enter IP address or host name"
 msgstr "Введіть IP-адресу або назву вузла"
 
@@ -2761,7 +2761,7 @@ msgstr "ПОМИЛКА"
 msgid "Failed"
 msgstr "Помилка"
 
-#: pkg/lib/machine-dialogs.js:417
+#: pkg/lib/machine-dialogs.js:416
 msgid "Failed to add machine: $0"
 msgstr "Не вдалося додати комп’ютер: $0"
 
@@ -2781,7 +2781,7 @@ msgstr "Не вдалося вимкнути tuned"
 msgid "Failed to disable tuned profile"
 msgstr "Невдалося вимкнути профіль tuned"
 
-#: pkg/lib/machine-dialogs.js:499
+#: pkg/lib/machine-dialogs.js:498
 msgid "Failed to edit machine: $0"
 msgstr "Не вдалося змінити запис комп’ютера: $0"
 
@@ -3145,7 +3145,7 @@ msgstr "Ігнорувати"
 
 #: pkg/docker/index.html:261 pkg/docker/index.html:423
 #: pkg/kubernetes/views/container-body.html:6
-#: pkg/kubernetes/views/image-page.html:16
+#: pkg/kubernetes/views/image-page.html:15
 #: node_modules/registry-image-widgets/views/image-panel.html:9
 #: pkg/docker/containers-view.jsx:123 pkg/docker/containers-view.jsx:271
 msgid "Image"
@@ -3191,10 +3191,11 @@ msgstr "Потік образу"
 msgid "Image:"
 msgstr "Зображення:"
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:19
 #: pkg/kubernetes/views/images-page.html:13
-#: pkg/kubernetes/views/imagestream-page.html:24 pkg/kubernetes/index.html:78
-#: pkg/kubernetes/registry.html:49 pkg/docker/containers-view.jsx:615
+#: pkg/kubernetes/views/imagestream-page.html:24
+#: pkg/kubernetes/views/registry-dashboard-page.html:19
+#: pkg/kubernetes/index.html:78 pkg/kubernetes/registry.html:49
+#: pkg/docker/containers-view.jsx:615
 msgid "Images"
 msgstr "Зображення"
 
@@ -3882,7 +3883,7 @@ msgstr "Повідомлення"
 msgid "Message to logged in users"
 msgstr "Повідомлення користувачам, які увійшли"
 
-#: pkg/kubernetes/views/image-page.html:30
+#: pkg/kubernetes/views/image-page.html:29
 #: pkg/kubernetes/views/imagestream-page.html:30
 #: node_modules/registry-image-widgets/views/image-panel.html:15
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:14
@@ -4024,6 +4025,7 @@ msgstr "Сервер NTP"
 #: pkg/kubernetes/views/details-page.html:103
 #: pkg/kubernetes/views/details-page.html:137
 #: pkg/kubernetes/views/details-page.html:171
+#: pkg/kubernetes/views/nodes-page.html:41
 #: pkg/kubernetes/views/imagestream-modify.html:10
 #: pkg/kubernetes/views/node-add.html:16
 #: pkg/kubernetes/views/project-listing.html:14
@@ -4037,11 +4039,10 @@ msgstr "Сервер NTP"
 #: pkg/kubernetes/views/volumes-page.html:19
 #: pkg/kubernetes/views/volumes-page.html:57
 #: pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/kubernetes/views/nodes-page.html:41 pkg/networkmanager/index.html:96
-#: pkg/networkmanager/index.html:114 pkg/networkmanager/index.html:151
-#: pkg/networkmanager/index.html:207 pkg/networkmanager/index.html:306
-#: pkg/networkmanager/index.html:406 pkg/ostree/index.html:99
-#: pkg/storaged/index.html:228
+#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:114
+#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
+#: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
+#: pkg/ostree/index.html:99 pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
@@ -4143,8 +4144,8 @@ msgstr "Новий пароль"
 msgid "New Project"
 msgstr "Новий проект"
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:86
 #: pkg/kubernetes/views/images-page.html:11
+#: pkg/kubernetes/views/registry-dashboard-page.html:86
 msgid "New image stream"
 msgstr "Новий потік образу"
 
@@ -4451,7 +4452,7 @@ msgstr "Немає"
 msgid "Not Ready"
 msgstr "Не готовий"
 
-#: pkg/kubernetes/scripts/details.js:498 pkg/kubernetes/scripts/details.js:621
+#: pkg/kubernetes/scripts/details.js:499 pkg/kubernetes/scripts/details.js:622
 msgid "Not a valid number of replicas"
 msgstr "Некоректна кількість реплік"
 
@@ -4459,7 +4460,7 @@ msgstr "Некоректна кількість реплік"
 msgid "Not a valid private key"
 msgstr "Некоректний закритий ключ"
 
-#: pkg/kubernetes/scripts/details.js:549
+#: pkg/kubernetes/scripts/details.js:550
 msgid "Not a valid value for Host"
 msgstr "Некоректне значення вузла"
 
@@ -4952,7 +4953,7 @@ msgstr "Вибір коконів"
 #: pkg/kubernetes/views/pv-claim.html:37
 #: pkg/kubernetes/views/replicationcontroller-page.html:17
 #: pkg/kubernetes/views/replicationcontroller-panel.html:12
-#: pkg/kubernetes/scripts/details.js:228
+#: pkg/kubernetes/scripts/details.js:229
 msgid "Pods"
 msgstr "Кокони"
 
@@ -5580,7 +5581,7 @@ msgid "Replication Controller"
 msgstr "Контролер реплікації"
 
 #: pkg/kubernetes/views/details-page.html:132
-#: pkg/kubernetes/scripts/details.js:225
+#: pkg/kubernetes/scripts/details.js:226
 msgid "Replication Controllers"
 msgstr "Керування реплікацією"
 
@@ -5748,7 +5749,7 @@ msgid "Route"
 msgstr "Маршрут"
 
 #: pkg/kubernetes/views/details-page.html:65
-#: pkg/kubernetes/scripts/details.js:217 pkg/networkmanager/interfaces.js:3194
+#: pkg/kubernetes/scripts/details.js:218 pkg/networkmanager/interfaces.js:3194
 msgid "Routes"
 msgstr "Маршрути"
 
@@ -5992,7 +5993,7 @@ msgstr "Назва служби"
 
 #: pkg/kubernetes/views/dashboard-page.html:134
 #: pkg/kubernetes/views/details-page.html:29 pkg/systemd/services.html:4
-#: pkg/systemd/services.html:289 pkg/kubernetes/scripts/details.js:214
+#: pkg/systemd/services.html:289 pkg/kubernetes/scripts/details.js:215
 msgid "Services"
 msgstr "Служби"
 
@@ -6126,7 +6127,7 @@ msgstr "Показати усі контейнери"
 msgid "Show all image streams"
 msgstr "Показати усіх потоки образів"
 
-#: pkg/docker/index.html:247 pkg/kubernetes/views/image-page.html:11
+#: pkg/docker/index.html:247 pkg/kubernetes/views/image-page.html:10
 msgid "Show all images"
 msgstr "Показати усі образи"
 
@@ -6305,10 +6306,10 @@ msgid "Static"
 msgstr "Статичний"
 
 #: pkg/kubernetes/views/containers-listing.html:16
+#: pkg/kubernetes/views/nodes-page.html:44
 #: pkg/kubernetes/views/node-body.html:39 pkg/kubernetes/views/pv-body.html:24
 #: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/volumes-page.html:21
-#: pkg/kubernetes/views/nodes-page.html:44 pkg/ostree/index.html:288
+#: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
 #: pkg/networkmanager/interfaces.js:2496
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
@@ -6587,7 +6588,7 @@ msgstr "У цій системі програмний інтерфейс «stora
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr "У цій системі не можна керувати резервним сховищем даних Docker."
 
-#: pkg/lib/machine-dialogs.js:391
+#: pkg/lib/machine-dialogs.js:390
 msgid "The IP address or host name cannot contain whitespace."
 msgstr "У IP-адресі або назві вузла не повинно бути пробілів."
 
@@ -6733,7 +6734,7 @@ msgstr "Не можна вилучати останній фізичний то�
 msgid "The machine is restarting"
 msgstr "Комп’ютер перезавантажується"
 
-#: pkg/kubernetes/scripts/details.js:500 pkg/kubernetes/scripts/details.js:623
+#: pkg/kubernetes/scripts/details.js:501 pkg/kubernetes/scripts/details.js:624
 msgid "The maximum number of replicas is 128"
 msgstr "Максимальною є кількість реплік 128"
 
@@ -6981,7 +6982,7 @@ msgstr "Цього образу не існує."
 msgid "This logical volume cannot be made smaller."
 msgstr "Логічний том не можна зменшувати."
 
-#: pkg/lib/machine-dialogs.js:369
+#: pkg/lib/machine-dialogs.js:368
 msgid "This machine has already been added."
 msgstr "Цей комп’ютер вже було додано."
 
@@ -7038,7 +7039,7 @@ msgstr "Цей модуль не створено для вмикання явн
 msgid "This user name already exists"
 msgstr "Запис користувача із таким іменем уже існує"
 
-#: pkg/lib/machine-dialogs.js:385
+#: pkg/lib/machine-dialogs.js:384
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
@@ -7460,7 +7461,7 @@ msgstr "Оновлення вимкнено."
 msgid "Updating"
 msgstr "Оновлення"
 
-#: pkg/kubernetes/scripts/details.js:657
+#: pkg/kubernetes/scripts/details.js:658
 msgid "Updating $0..."
 msgstr "Оновлення $0…"
 
@@ -7492,8 +7493,8 @@ msgstr "Використовувати надійний ключ GPG"
 
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
 #: pkg/kubernetes/scripts/nodes.js:828 pkg/kubernetes/scripts/nodes.js:837
-#: pkg/machines/vmdiskstab.jsx:136 pkg/machines/hostvmslist.jsx:354
-#: pkg/machines/hostvmslist.jsx:365 pkg/storaged/fsys-tab.jsx:225
+#: pkg/machines/hostvmslist.jsx:354 pkg/machines/hostvmslist.jsx:365
+#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1467
 msgid "Used"
 msgstr "Використано"

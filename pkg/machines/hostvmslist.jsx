@@ -169,8 +169,6 @@ export const StateIcon = ({ state, config, valueId }) => {
         return (
             <span title={stateMap[state].title} data-toggle='tooltip' data-placement='left'>
                 <span id={valueId}>{rephraseUI('vmStates', state)}</span>
-                &nbsp;
-                <i className={stateMap[state].className} />
             </span>);
     }
     return (<small>{state}</small>);

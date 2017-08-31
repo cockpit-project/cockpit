@@ -215,6 +215,9 @@ class StorageCase(MachineCase):
                  }
             })""", self.dialog_field(field), val)
 
+    def dialog_set_combobox(self, field, val):
+        self.browser.set_val(self.dialog_field(field) + " input[type=text]", val)
+
     def dialog_is_present(self, field, label):
         return self.browser.is_present('%s .checkbox:contains("%s") input' % (self.dialog_field(field), label))
 
@@ -241,7 +244,7 @@ class StorageCase(MachineCase):
         self.browser.click('#dialog [data-action="apply"]')
 
     def dialog_cancel(self):
-        self.browser.click('#dialog [data-dismiss="modal"]')
+        self.browser.click('#dialog [data-action="cancel"]')
 
     def dialog_wait_close(self):
         self.browser.wait_not_present('#dialog')

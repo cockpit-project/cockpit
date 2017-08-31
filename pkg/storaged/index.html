@@ -550,6 +550,19 @@
                   </table>
                 </td>
                 {{/SelectRow}}
+                {{#ComboBox}}
+                <td class="top">{{Title}}</td>
+                <td>
+                  <div data-field={{.}} class="combobox-container">
+                    <div class="input-group">
+                      <input autocomplete="false" class="combobox form-control" type="text" value={{Value}} />
+                      <span class="form-control-feedback caret"></span>
+                      <ul class="typeahead typeahead-long dropdown-menu">
+                      </ul>
+                    </div>
+                  </div>
+                </td>
+                {{/ComboBox}}
                 {{#Arrow}}
                 <td colspan="2">
                   <div data-field={{.}} class="dialog-arrow {{^Value}}collapsed{{/Value}}">
@@ -598,12 +611,12 @@
             {{#Action}}
             {{#Danger}}<div class="modal-footer-danger">{{.}}</div>{{/Danger}}
             <div class="spinner spinner-sm pull-left" hidden></div>
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-default" translatable="yes" data-action="cancel">Cancel</button>
             <button class="btn {{#Danger}}btn-danger{{/Danger}}{{^Danger}}btn-primary{{/Danger}}"
                     data-action="apply">{{Title}}</button>
             {{/Action}}
             {{^Action}}
-            <button class="btn btn-default" translatable="yes" data-dismiss="modal">Close</button>
+            <button class="btn btn-default" translatable="yes" data-action="cancel">Close</button>
             {{/Action}}
           </div>
         </div>

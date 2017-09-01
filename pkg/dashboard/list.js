@@ -244,6 +244,7 @@ PageDashboard.prototype = {
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
         });
+        $('#dashboard-enable-edit').tooltip({ trigger : 'hover' });
 
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
         $(self.machines).on("added.dashboard", renderer);

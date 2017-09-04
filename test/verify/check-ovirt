@@ -40,7 +40,7 @@ done
 """
 
 
-@skipImage("No oVirt release", "continuous-atomic", "debian-stable", "debian-testing", "fedora-24", "fedora-25", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No oVirt release", "continuous-atomic", "debian-stable", "debian-testing", "fedora-25", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
 class TestOVirtMachines(MachineCase):
     provision = {
         "0": { "address": "10.111.113.1/20" },

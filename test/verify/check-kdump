@@ -21,7 +21,7 @@
 import parent
 from testlib import *
 
-@skipImage("kexec-tools not installed", "fedora-24", "fedora-atomic", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("kexec-tools not installed", "fedora-atomic", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
 class TestKdump(MachineCase):
     def rreplace(self, s, old, new, count):
         li = s.rsplit(old, count)

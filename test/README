@@ -59,7 +59,6 @@ You can set these environment variables to configure the test suite:
                 "centos-7"
                 "debian-stable"
                 "debian-testing"
-                "fedora-24"
                 "fedora-25"
                 "fedora-26"
                 "fedora-atomic"
@@ -91,7 +90,7 @@ with a clean state.
 
 A test machine image is created with image-create, like so:
 
-  $ bots/image-create -v fedora-24
+  $ bots/image-create -v fedora-atomic
 
 The image will be created in $TEST_DATA/images/. In addition a link
 reference will be created in bots/images/.
@@ -100,7 +99,7 @@ If you wish that others use this new image then you should commit the
 new reference link, and use `image-upload` to upload the new image. You
 would need to have Cockpit commit access to do this:
 
-  $ bots/image-upload fedora-24
+  $ bots/image-upload fedora-atomic
 
 There is more than one test machine image. For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA

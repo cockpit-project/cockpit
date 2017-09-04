@@ -1,3 +1,5 @@
-FROM fedora:25
+FROM fedora:26
 
-RUN dnf -v -y update && dnf install -y sed findutils glib-networking json-glib libssh openssl && dnf clean all
+ADD setup.sh /setup.sh
+
+RUN /setup.sh

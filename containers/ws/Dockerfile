@@ -1,4 +1,4 @@
-FROM fedora:25
+FROM fedora:26
 MAINTAINER "Stef Walter" <stefw@redhat.com>
 
 ARG VERSION

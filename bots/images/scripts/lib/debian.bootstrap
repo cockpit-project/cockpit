@@ -28,4 +28,7 @@ virt-builder $virt_builder_image \
              --upload $BASE/../../../test/common/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
              ${apt_source:+--write /etc/apt/sources.list:"$apt_source"} \
              --write /etc/apt/apt.conf.d/90nolanguages:'Acquire::Languages "none";' \
+             --run-command "sed -i 's/GRUB_TIMEOUT.*/GRUB_TIMEOUT=0/; /GRUB_CMDLINE_LINUX=/ s/"'"'"$/ console=ttyS0,115200 net.ifnames=0 biosdevname=0"'"'"/' /etc/default/grub" \
+             --run-command "update-grub" \
+             --run-command "sed -i 's/ens[^[:space:]]*/eth0/' /etc/network/interfaces" \
              --run-command "export DEBIAN_FRONTEND=noninteractive; apt-get -y update; apt-get -y install eatmydata; eatmydata apt-get -y dist-upgrade"

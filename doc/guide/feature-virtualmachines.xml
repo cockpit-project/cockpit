@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+        "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-virtualmachines">
+    <title>Virtual Machines</title>
+
+    <para>Cockpit can manage virtual machines running on the host.
+        These can be accessed from menu via <emphasis>Virtual Machines</emphasis></para>
+
+    <para>Primary datasource is <ulink url="https://www.qemu.org/">QEMU</ulink> / <ulink url="https://libvirt.org/">Libvirt</ulink>,
+        access to Libvirtd is wrapped by the <ulink url="http://libvirt.org/virshcmdref.html">virsh</ulink> tool.</para>
+
+    <section id="feature-virtualmachines-nestedvirtualization">
+    <title>Nested Virtualization</title>
+    <para>
+        In order to run <emphasis>cockpit-machines</emphasis> plugin inside a virtual machine
+        or run the tests for this component, you'll need nested KVM virtualization enabled
+        (refer <code>test/verify/nested-kvm</code> or
+        <ulink url="https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM">
+            How to enable nested virtualization in KVM</ulink> to get more information).
+    </para>
+    </section>
+
+    <section id="feature-virtualmachines-extending">
+        <title>Extensions</title>
+        <para>
+            Base package <emphasis>cockpit-machines</emphasis> for management of virtual machines is based on Libvirt and
+            can be farther extended for features of higher level management applications (like oVirt) via concept
+            of providers (i.e. <link linkend="feature-ovirtvirtualmachines">oVirt Virtual Machines</link>).
+        </para>
+        <para>
+            Both <emphasis>cockpit-ovirt</emphasis> and <emphasis>cockpit-machines</emphasis> RPM packages can be
+            installed together but only one of them can be loaded at a time depending on the <emphasis>priority</emphasis>
+            attribute set in <emphasis>manifest.json</emphasis> files.
+        </para>
+        <para>
+            By default, <emphasis>cockpit-ovirt</emphasis> takes precedence over <emphasis>cockpit-machines</emphasis>.
+        </para>
+
+    </section>
+</chapter>

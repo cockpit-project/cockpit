@@ -319,11 +319,11 @@ class PullTask(object):
             os.environ["TEST_NAME"] = self.name
             os.environ["TEST_REVISION"] = self.revision
 
-        # Split a value like verify/fedora-24
+        # Split a value like verify/fedora-atomic
         (prefix, unused, value) = self.context.partition("/")
 
         if prefix in [ 'selenium' ]:
-            image = 'fedora-24'
+            image = 'fedora-25'
         elif prefix in [ 'container' ]:
             image = 'fedora-26'
         else:

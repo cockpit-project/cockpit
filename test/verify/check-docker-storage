@@ -38,7 +38,6 @@ def can_manage(machine):
     return machine.image in [ "fedora-25",
                               "fedora-26",
                               "fedora-testing",
-                              "fedora-24",
                               "rhel-7",
                               "rhel-7-4",
                               "centos-7",
@@ -56,7 +55,7 @@ def initially_loopbacked(machine):
         return False
 
     # use the overlayfs or aufs driver by default on some distros
-    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-26", "fedora-atomic" ]:
+    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-26", "fedora-testing", "fedora-atomic" ]:
         return False
 
     # The rest don't have space in the root volume group, or don't
@@ -68,7 +67,7 @@ def initially_loopbacked(machine):
 # device is added.
 #
 def initially_without_vgroup(machine):
-    return machine.image in [ "fedora-24", "rhel-7", "rhel-7-4" ]
+    return machine.image in [ "rhel-7", "rhel-7-4" ]
 
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is built

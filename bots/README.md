@@ -25,7 +25,7 @@ For managing these images:
 For debugging the images:
 
  * test/vm-run: Run a test machine image
- 
+
 In case of `qemu-system-x86_64: -netdev bridge,br=cockpit1,id=bridge0: bridge helper failed`
 error, please [allow][1] `qemu-bridge-helper` to access the bridge settings.
 
@@ -62,10 +62,10 @@ encompass public_repo (or repo if you're accessing a private repo).
 
 ### Retrying a failed test
 
-If you want to run the "verify/fedora-24" testsuite again for pull
+If you want to run the "verify/fedora-atomic" testsuite again for pull
 request #1234, run tests-trigger like so:
 
-    $ bots/tests-trigger 1234 verify/fedora-24
+    $ bots/tests-trigger 1234 verify/fedora-atomic
 
 ### Testing a pull request by a non-whitelisted user
 
@@ -83,21 +83,21 @@ doesn't execute evil code during tests.
 Test images are refreshed automatically once per week, and even if the
 last refresh has failed, the machines wait one week before trying again.
 
-If you want the machines to refresh the fedora-24 image immediately,
+If you want the machines to refresh the fedora-atomic image immediately,
 run image-trigger like so:
 
-    $ bots/image-trigger fedora-24
+    $ bots/image-trigger fedora-atomic
 
 ### Creating new images for a pull request
 
 If as part of some new feature you need to change the content of some
 or all images, you can ask the machines to create those images.
 
-If you want to have a new fedora-24 image for pull request #1234, add
+If you want to have a new fedora-atomic image for pull request #1234, add
 a bullet point to that pull request's description like so, and add the
 "bot" label to the pull request.
 
-    * [ ] image-refresh fedora-24
+    * [ ] image-refresh fedora-atomic
 
 The machines will post comments to the pull request about their
 progress and at the end there will be links to commits with the new

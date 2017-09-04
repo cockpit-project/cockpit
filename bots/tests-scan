@@ -23,8 +23,7 @@ BASELINE_PRIORITY = 10
 BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5', 'rhel-7.3.6' ]
 
 DEFAULT_VERIFY = {
-    'avocado/fedora-24': BRANCHES,
-    'avocado/fedora-25': [ ],
+    'avocado/fedora-25': BRANCHES,
     'container/kubernetes': BRANCHES,
     'selenium/firefox': BRANCHES,
     'selenium/chrome': BRANCHES,
@@ -32,7 +31,6 @@ DEFAULT_VERIFY = {
     'verify/continuous-atomic': [ ],
     'verify/debian-stable': [ 'master' ],
     'verify/debian-testing': [ 'master' ],
-    'verify/fedora-24': [ ],
     'verify/fedora-25': [ ],
     'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.6', 'rhel-7.3.5' ],
     'verify/fedora-26': [ 'master' ],

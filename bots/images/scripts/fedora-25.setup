@@ -47,6 +47,14 @@ tuned \
 virt-install \
 "
 
+AVOCADO_TEST_DEPS="\
+python-avocado \
+python2-avocado-plugins-output-html \
+fontconfig \
+npm \
+python-selenium \
+"
+
 [ -z "$HAVE_KUBERNETES" ] || COCKPIT_DEPS="$COCKPIT_DEPS kubernetes"
 
 # On the latest Fedora we mix things up a bit and install docker-latest
@@ -83,7 +91,13 @@ useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
 dnf $DNF_OPTS -y upgrade
-dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+# We need avocado for some integration tests
+dnf -y -q copr enable lmr/Autotest
+
+dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $AVOCADO_TEST_DEPS
+
+# integration tests need phantomjs to run locally
+npm -g install phantomjs-prebuilt
 
 # Prepare for building
 dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build

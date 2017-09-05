@@ -148,6 +148,11 @@ systemctl daemon-reload
 # HACK: we need to restart it in case aufs-dkms was installed after docker.io
 # and thus docker.io auto-switches its backend
 systemctl restart docker || journalctl -u docker
+I=$(docker info)
+if ! echo "$I" | grep -qw aufs; then
+    echo "ERROR! docker does not use aufs"
+    exit 1
+fi
 
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup

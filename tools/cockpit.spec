@@ -106,7 +106,7 @@ machines.
 %{_docdir}/%{name}/COPYING
 %{_docdir}/%{name}/README.md
 %dir %{_datadir}/%{name}
-%{_datadir}/appdata/cockpit.appdata.xml
+%{_datadir}/metainfo/cockpit.appdata.xml
 %{_datadir}/applications/cockpit.desktop
 %{_datadir}/pixmaps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz

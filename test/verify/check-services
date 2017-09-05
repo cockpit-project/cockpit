@@ -265,8 +265,13 @@ WantedBy=default.target
         b.wait_popdown("timer-dialog")
         b.wait_present(svc_sel('yearly_timer.timer'))
 
+        # cockpit-system 138 on RHEL 7.4 doesn't enable/start timers automatically
+        def rhel74_execute(cmd):
+            if m.image == 'rhel-7-4':
+                m.execute(cmd)
+
         m.execute("timedatectl set-time '2020-01-01 15:30:00'")
-        m.execute("systemctl start yearly_timer.timer")
+        rhel74_execute("systemctl start yearly_timer.timer")
         b.wait_present(svc_sel('yearly_timer.timer'))
         b.wait_in_text(svc_sel('yearly_timer.timer'), "Yearly timer")
         wait_systemctl_timer("Wed 2020-01-01 16:00")
@@ -275,7 +280,6 @@ WantedBy=default.target
         # checks if yearly timer repeats yearly on 2021-01-01 01:22
         wait_systemctl_timer("Fri 2021-01-01 01:22")
         self.assertIn("Fri 2021-01-01 01:22", m.execute("systemctl list-timers"))
-        m.execute("systemctl stop yearly_timer.timer")
         # creates a new monthly timer that runs on 6th at 14:12 and 8th at 21:12 of every month
         b.wait_visible("#create-timer")
         b.click('#create-timer')
@@ -303,7 +307,7 @@ WantedBy=default.target
         b.wait_present(svc_sel('monthly_timer.timer'))
 
         m.execute("timedatectl set-time '2020-01-01 16:15:00'")
-        m.execute("systemctl start monthly_timer.timer")
+        rhel74_execute("systemctl start monthly_timer.timer")
         b.wait_present(svc_sel('monthly_timer.timer'))
         b.wait_in_text(svc_sel('monthly_timer.timer'), "Monthly timer")
         wait_systemctl_timer("Mon 2020-01-06 14:12")
@@ -319,7 +323,6 @@ WantedBy=default.target
         m.execute("timedatectl set-time '2020-03-07 00:00:00'")
         wait_systemctl_timer("Sun 2020-03-08 21:12")
         self.assertIn("Sun 2020-03-08 21:12", m.execute("systemctl list-timers"))
-        m.execute("systemctl stop monthly_timer.timer")
         # creates a new weekly timer that runs on Fri at 12:45 and Sun at 20:12 every week
         b.wait_visible("#create-timer")
         b.click('#create-timer')
@@ -347,7 +350,7 @@ WantedBy=default.target
         b.wait_present(svc_sel('weekly_timer.timer'))
 
         m.execute("timedatectl set-time '2020-03-07 00:00:00'")
-        m.execute("systemctl start weekly_timer.timer")
+        rhel74_execute("systemctl start weekly_timer.timer")
         b.wait_present(svc_sel('weekly_timer.timer'))
         b.wait_in_text(svc_sel('weekly_timer.timer'), "Weekly timer")
         wait_systemctl_timer("Sun 2020-03-08 20:12")
@@ -362,7 +365,6 @@ WantedBy=default.target
         m.execute("timedatectl set-time '2020-03-17 00:00:00'")
         wait_systemctl_timer("Fri 2020-03-20 12:45")
         self.assertIn("Fri 2020-03-20 12:45", m.execute("systemctl list-timers"))
-        m.execute("systemctl stop weekly_timer.timer")
         # creates a new daily timer that runs at 2:40 and at 21:15 every day
         b.wait_visible("#create-timer")
         b.click('#create-timer')
@@ -384,7 +386,7 @@ WantedBy=default.target
         b.wait_present(svc_sel('daily_timer.timer'))
 
         m.execute("timedatectl set-time '2020-03-17 00:00:00'")
-        m.execute("systemctl start daily_timer.timer")
+        rhel74_execute("systemctl start daily_timer.timer")
         b.wait_present(svc_sel('daily_timer.timer'))
         b.wait_in_text(svc_sel('daily_timer.timer'), "Daily timer")
         wait_systemctl_timer("Tue 2020-03-17 02:40")
@@ -399,7 +401,6 @@ WantedBy=default.target
         m.execute("timedatectl set-time '2020-04-10 03:00:00'")
         wait_systemctl_timer("Fri 2020-04-10 21:15")
         self.assertIn("Fri 2020-04-10 21:15", m.execute("systemctl list-timers"))
-        m.execute("systemctl stop daily_timer.timer")
         # creates a new houry timer that runs at *:05 and at *:26
         b.wait_visible("#create-timer")
         b.click('#create-timer')
@@ -419,7 +420,7 @@ WantedBy=default.target
         b.wait_present(svc_sel('hourly_timer.timer'))
 
         m.execute("timedatectl set-time '2020-04-10 03:00:00'")
-        m.execute("systemctl start hourly_timer.timer")
+        rhel74_execute("systemctl start hourly_timer.timer")
         b.wait_present(svc_sel('hourly_timer.timer'))
         b.wait_in_text(svc_sel('hourly_timer.timer'), "Hourly timer")
         wait_systemctl_timer("Fri 2020-04-10 03:05")
@@ -434,7 +435,6 @@ WantedBy=default.target
         m.execute("timedatectl set-time '2020-04-10 04:10:00'")
         wait_systemctl_timer("Fri 2020-04-10 04:26")
         self.assertIn("Fri 2020-04-10 04:26", m.execute("systemctl list-timers"))
-        m.execute("systemctl stop hourly_timer.timer")
         # creates a new timer that runs at today at 23:59
         b.wait_visible("#create-timer")
         b.click('#create-timer')
@@ -452,11 +452,10 @@ WantedBy=default.target
         b.wait_in_text(svc_sel('no_repeat_timer.timer'), "No repeat timer")
 
         m.execute("timedatectl set-time '2020-04-10 04:10:00'")
-        m.execute("systemctl start no_repeat_timer.timer")
+        rhel74_execute("systemctl start no_repeat_timer.timer")
         b.wait_present(svc_sel('no_repeat_timer.timer'))
         wait_systemctl_timer("Fri 2020-04-10 23:59")
         self.assertIn("Fri 2020-04-10 23:59", m.execute("systemctl list-timers"))
-        m.execute("systemctl stop no_repeat_timer.timer")
 
         # creates a boot timer that runs after 10 sec from boot (fixed in 139)
         if m.image not in ["rhel-7-4"]:
@@ -472,7 +471,7 @@ WantedBy=default.target
             b.click("#timer-save-button")
             b.wait_popdown("timer-dialog")
             b.wait_present(svc_sel('boot_timer.timer'))
-            m.execute("systemctl enable boot_timer.timer")
+            rhel74_execute("systemctl enable boot_timer.timer")
             m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
             m.wait_reboot()
             m.start_cockpit()

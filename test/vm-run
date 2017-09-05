@@ -35,6 +35,11 @@ NETWORK_SCRIPT="""
 <network ipv6='yes'>
   <name>cockpit1</name>
   <uuid>f3605fa4-0763-41ea-8143-49da3bf73263</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
   <bridge name='cockpit1' stp='on' delay='0' />
   <domain name='cockpit.lan'/>
   <ip address='10.111.112.1' netmask='255.255.240.0'>

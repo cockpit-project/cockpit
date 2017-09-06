@@ -1300,6 +1300,26 @@ $(function() {
         var timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
         file = cockpit.file(timer_path, { superuser: 'try' });
         file.replace(timer_file).
+            done(function(tag) {
+                // enable timer; LoadUnit() is unfortunately not sufficient
+                systemd_manager.Reload().
+                    done(function(unit) {
+                        systemd_manager.EnableUnitFiles([timer_unit.name + ".timer"], false, false).
+                            fail(function(error) {
+                                console.warn("Failed to enable timer unit:", error);
+                            });
+                        // start calendar timers
+                        if (timer_unit.Calendar_or_Boot == "Calendar") {
+                            systemd_manager.StartUnit(timer_unit.name + ".timer", "replace").
+                                fail(function(error) {
+                                    console.warn("Failed to start timer unit:", error);
+                                });
+                        }
+                    }).
+                    fail(function(error) {
+                        console.warn("Failed to reload systemd:", error);
+                    });
+            }).
             fail(function(error) {
                 console.log(error);
             });

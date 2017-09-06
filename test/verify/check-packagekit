@@ -36,7 +36,6 @@ done
 """
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("PackageKit crashes, https://launchpad.net/bugs/1689820", "ubuntu-1604")
 class TestUpdates(PackageCase):
     def setUp(self):
         PackageCase.setUp(self)
@@ -149,6 +148,7 @@ class TestUpdates(PackageCase):
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
+    @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine
@@ -307,6 +307,7 @@ class TestUpdates(PackageCase):
 
         self.allow_restart_journal_messages()
 
+    @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     def testInfoTruncation(self):
         b = self.browser
         m = self.machine

@@ -8,12 +8,6 @@ ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
 	CONFIG_OPTIONS = --disable-pcp
 endif
 
-# PackageKit crashes on update information on Ubuntu 16.04, which makes
-# "Software Updates" useless (LP: #1689820)
-ifneq ($(shell grep xenial /etc/os-release),)
-	export DH_OPTIONS += -Ncockpit-packagekit
-endif
-
 %:
 	dh $@ --with=systemd,autoreconf
 

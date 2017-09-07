@@ -175,23 +175,18 @@
             // wrap values in variants for D-Bus call; at least values.port can
             // be int or string, so stringify everything but the "visible" boolean
             var values_variant = {};
-            for (var prop in values)
+            for (var prop in values) {
                 if (values[prop] !== null) {
                     if (prop == "visible")
                         values_variant[prop] = cockpit.variant('b', values[prop]);
                     else
                         values_variant[prop] = cockpit.variant('s', values[prop].toString());
                 }
+            }
 
             // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
             var bridge = cockpit.dbus(null, { bus: "internal", "superuser": "try" });
             var mod = bridge.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, values_variant ])
-                .done(function() {
-                    var prop, over = { };
-                    for (prop in values)
-                        over[prop] = null;
-                    self.overlay(host, over);
-                })
                 .fail(function(error) {
                     console.error("failed to call cockpit.Machines.Update(): ", error);
                 });
@@ -402,9 +397,6 @@
 
         /* Have we loaded from cockpit session */
         var session_loaded = false;
-
-        /* File we are watching */
-        var file;
 
         /* echo channels to each machine */
         var channels = { };
@@ -685,10 +677,6 @@
             $(machines).off("changed", updated);
             $(machines).off("removed", removed);
             machines = null;
-
-            if (file)
-                file.close();
-            file = null;
 
             window.removeEventListener("storage", process_session_machines);
             var hosts = Object.keys(channels);

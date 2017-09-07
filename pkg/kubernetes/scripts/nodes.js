@@ -167,7 +167,7 @@
                     return;
 
                 host = node.spec.externalID;
-                ip = nodeData.nodeExternalIP(node);
+                ip = nodeData.nodeIPAddress(node);
 
                 if (ip == "127.0.0.1" || ip == "::1") {
                     ip = "localhost";
@@ -340,22 +340,26 @@
                 return state;
             }
 
-            function nodeExternalIP(node) {
+            function nodeIPAddress(node) {
                 if (!node || !node.status)
                     return;
 
                 var addresses = node.status.addresses;
                 var address;
+                var internal;
                 /* If no addresses then it hasn't even started */
                 if (addresses) {
                     addresses.forEach(function(a) {
-                        if (a.type == "LegacyHostIP" || address.type == "ExternalIP") {
+                        if (a.type == "LegacyHostIP" || a.type == "ExternalIP") {
                             address = a.address;
                             return false;
+                        } else if (a.type == "InternalIP") {
+                            internal = a.address;
                         }
                     });
                 }
-                return address;
+
+                return address || internal;
             }
 
             return {
@@ -363,7 +367,7 @@
                 nodeCondition: nodeCondition,
                 nodeConditions: nodeConditions,
                 nodeStatus: nodeStatus,
-                nodeExternalIP: nodeExternalIP
+                nodeIPAddress: nodeIPAddress
             };
         }
     ])

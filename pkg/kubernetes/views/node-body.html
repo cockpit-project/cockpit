@@ -8,7 +8,7 @@
             <span ng-if="!item.status.addresses">{{item.spec.externalID}}</span>
         </dd>
         <dt translate>IP</dt>
-        <dd ng-if="item.status.addresses">{{ nodeExternalIP(item) }}</dd>
+        <dd ng-if="item.status.addresses">{{ nodeIPAddress(item) }}</dd>
         <dd ng-if="!item.status.addresses" translate>Unknown</dd>
         <dt ng-if="item.status.nodeInfo.osImage" translate>OS</dt>
         <dd ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</dd>

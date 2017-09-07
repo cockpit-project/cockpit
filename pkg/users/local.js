@@ -975,7 +975,7 @@ PageAccount.prototype = {
             $('#account-user-name').text("");
             $('#account-last-login').text("");
             $('#account-locked').prop('checked', false);
-            $('#account-roles').text("");
+            $('#account-change-roles-roles').html("");
             $('#account .breadcrumb .active').text("?");
         }
         update_accounts_privileged();

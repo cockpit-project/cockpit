@@ -316,10 +316,10 @@ class KubernetesCommonTests(VolumeTests):
         b.click("tbody.open .listing-ct-panel .listing-ct-head li a.shell")
         b.wait_present("tbody.open .listing-ct-panel div.terminal")
         b.wait_visible("tbody.open .listing-ct-panel div.terminal")
-        b.wait_in_text("tbody.open .listing-ct-panel .terminal div:nth-child(1)", "#")
+        b.wait_in_text("tbody.open .listing-ct-panel div.terminal", "#")
         b.focus('tbody.open .listing-ct-panel .terminal')
         b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
-        b.wait_in_text("tbody.open .listing-ct-panel .terminal div:nth-child(2)", "root")
+        b.wait_in_text("tbody.open .listing-ct-panel div.terminal", "root")
 
     def testDelete(self):
         b = self.browser

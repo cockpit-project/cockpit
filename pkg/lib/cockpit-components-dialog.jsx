@@ -30,6 +30,8 @@ require("page.css");
  * Expected props:
  *  - cancel_clicked optional
  *     Callback called when the dialog is canceled
+ *  - cancel_style
+ *     css class used for the cancel button, defaults to 'cancel'
  *  - cancel_caption optional, defaults to 'Cancel'
  *  - list of actions, each an object with:
  *      - clicked
@@ -129,11 +131,17 @@ var DialogFooter = React.createClass({
             e.stopPropagation();
     },
     render: function() {
-        var cancel_caption;
+        var cancel_caption, cancel_style;
         if ('cancel_caption' in this.props)
             cancel_caption = this.props.cancel_caption;
         else
             cancel_caption = _("Cancel");
+
+        if ('cancel_style' in this.props)
+            cancel_style = this.props.cancel_style;
+        else
+            cancel_style = "cancel";
+        cancel_style = "btn btn-default " + cancel_style;
 
         // If an action is in progress, show the spinner with its message and disable all actions except cancel
         var wait_element;
@@ -187,7 +195,7 @@ var DialogFooter = React.createClass({
                 { error_element }
                 { wait_element }
                 <button
-                    className="btn btn-default cancel"
+                    className={ cancel_style }
                     onClick={ this.cancel_click.bind(this) }
                     >{ cancel_caption }</button>
                 { action_buttons }

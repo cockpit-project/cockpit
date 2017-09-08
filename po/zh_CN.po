@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-30 10:35+0000\n"
+"POT-Creation-Date: 2017-09-08 23:06+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -179,13 +179,13 @@ msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] "$0 年"
 
-#: pkg/kubernetes/scripts/nodes.js:870
+#: pkg/kubernetes/scripts/nodes.js:874
 #, c-format
 msgid "$0% Free"
 msgid_plural "$0% Free"
 msgstr[0] "$0% 空闲的"
 
-#: pkg/kubernetes/scripts/nodes.js:872
+#: pkg/kubernetes/scripts/nodes.js:876
 msgid "$0% Used"
 msgid_plural "$0% Used"
 msgstr[0] "$0% 已使用的"
@@ -753,8 +753,8 @@ msgstr "添加"
 #: pkg/kubernetes/views/auth-form.html:29
 #: pkg/kubernetes/views/dashboard-page.html:157
 #: pkg/kubernetes/views/details-page.html:174
-#: pkg/kubernetes/views/nodes-page.html:43 pkg/kubernetes/views/node-add.html:8
-#: pkg/kubernetes/views/node-body.html:5 pkg/lib/machine-add.html:11
+#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
+#: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
 #: pkg/storaged/overview.js:629
 msgid "Address"
 msgstr "地址"
@@ -843,8 +843,8 @@ msgstr "所有运行的"
 msgid "Always"
 msgstr "通常"
 
-#: pkg/kubernetes/views/node-body.html:57
 #: pkg/kubernetes/views/route-body.html:27
+#: pkg/kubernetes/views/node-body.html:57
 #: node_modules/registry-image-widgets/views/annotations.html:1
 msgid "Annotations"
 msgstr "注释"
@@ -982,12 +982,12 @@ msgstr "自动的（使用 NTP）"
 msgid "Automatically using specific NTP servers"
 msgstr "自动的（使用指定 NTP 服务器）"
 
-#: pkg/machines/hostvmslist.jsx:310
+#: pkg/machines/hostvmslist.jsx:308
 msgid "Autostart:"
 msgstr "自动启动："
 
 #: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
-#: pkg/machines/hostvmslist.jsx:355 pkg/machines/hostvmslist.jsx:366
+#: pkg/machines/hostvmslist.jsx:353 pkg/machines/hostvmslist.jsx:364
 msgid "Available"
 msgstr "可用的"
 
@@ -1053,7 +1053,7 @@ msgstr "绑定设置"
 msgid "Boot ID"
 msgstr "启动编号"
 
-#: pkg/machines/hostvmslist.jsx:273
+#: pkg/machines/hostvmslist.jsx:271
 msgid "Boot Order:"
 msgstr ""
 
@@ -1086,7 +1086,7 @@ msgstr "错误的配置"
 msgid "Bugs"
 msgstr ""
 
-#: node_modules/registry-image-widgets/views/image-body.html:16
+#: node_modules/registry-image-widgets/views/image-body.html:18
 msgid "Built"
 msgstr "构建于"
 
@@ -1096,8 +1096,8 @@ msgstr ""
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:263
 #: pkg/systemd/index.html:206 pkg/docker/containers-view.jsx:271
-#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:711
-#: pkg/kubernetes/scripts/nodes.js:817
+#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:715
+#: pkg/kubernetes/scripts/nodes.js:821
 msgid "CPU"
 msgstr "CPU"
 
@@ -1106,11 +1106,11 @@ msgctxt "page-title"
 msgid "CPU Status"
 msgstr "CPU 状态"
 
-#: pkg/machines/hostvmslist.jsx:302
+#: pkg/machines/hostvmslist.jsx:300
 msgid "CPU Type:"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:712
+#: pkg/kubernetes/scripts/nodes.js:716
 msgid "CPU Utilization: $0%"
 msgstr "CPU 使用率: $0%"
 
@@ -1181,7 +1181,7 @@ msgstr "解锁时无法删除"
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
+#: pkg/lib/cockpit-components-dialog.jsx:138 pkg/sosreport/index.js:51
 #: pkg/packagekit/updates.jsx:204
 msgid "Cancel"
 msgstr "取消"
@@ -1406,7 +1406,7 @@ msgstr ""
 "Cockpit 遇到意外的内部错误。 <br/><br/>可以尝试通过刷新浏览器重启 Cockpit。Javascript 控制台包含关于该错误的详情 "
 "（大多数浏览器中按<b>Ctrl-Shift-J</b> ）。"
 
-#: cockpit.appdata.xml.in.h:1
+#: cockpit.appdata.xml.in.h:2
 msgid ""
 "Cockpit is a server manager that makes it easy to administer your Linux "
 "servers via a web browser. Jumping between the terminal and the web tool is "
@@ -1437,7 +1437,7 @@ msgstr "Cockpit 未安装"
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit 未安装在该系统上。"
 
-#: cockpit.appdata.xml.in.h:2
+#: cockpit.appdata.xml.in.h:3
 msgid ""
 "Cockpit is perfect for new sysadmins, allowing them to easily perform simple "
 "tasks such as storage administration, inspecting journals and starting and "
@@ -1659,7 +1659,7 @@ msgstr "正在连接至主机"
 msgid "Connecting..."
 msgstr "连接中..."
 
-#: pkg/machines/hostvmslist.jsx:474
+#: pkg/machines/hostvmslist.jsx:472
 #, fuzzy
 msgid "Connection"
 msgstr "连接"
@@ -1684,7 +1684,7 @@ msgstr "连接超时。"
 msgid "Connection will be lost"
 msgstr "连接将丢失"
 
-#: pkg/machines/hostvmslist.jsx:412
+#: pkg/machines/hostvmslist.jsx:410
 msgid "Console"
 msgstr ""
 
@@ -1800,7 +1800,7 @@ msgid "Couldn't create new users"
 msgstr "不能创建新用户"
 
 #: pkg/kubernetes/scripts/connection.js:512
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:929
+#: pkg/kubernetes/scripts/kube-client-cockpit.js:947
 msgid "Couldn't find running API server"
 msgstr "无法找到运行的 API 服务器"
 
@@ -1922,10 +1922,11 @@ msgid "Create partition table"
 msgstr "创建分区表"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
-#: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
+#: pkg/kubernetes/views/pod-body.html:7
 #: pkg/kubernetes/views/replicationcontroller-body.html:7
 #: pkg/kubernetes/views/route-body.html:7
-#: pkg/kubernetes/views/service-body.html:7 pkg/docker/containers-view.jsx:122
+#: pkg/kubernetes/views/service-body.html:7
+#: pkg/kubernetes/views/node-body.html:3 pkg/docker/containers-view.jsx:122
 #: pkg/docker/containers-view.jsx:315 pkg/docker/containers-view.jsx:587
 msgid "Created"
 msgstr "创建于"
@@ -2232,7 +2233,7 @@ msgstr "设备只读"
 msgid "Diagnostic reports"
 msgstr "诊断报告"
 
-#: node_modules/registry-image-widgets/views/image-body.html:20
+#: node_modules/registry-image-widgets/views/image-body.html:22
 msgid "Digest"
 msgstr "摘要"
 
@@ -2262,7 +2263,7 @@ msgstr "禁用"
 msgid "Disconnected"
 msgstr "已断开连接"
 
-#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:835
+#: pkg/kubernetes/scripts/nodes.js:723 pkg/kubernetes/scripts/nodes.js:839
 msgid "Disk"
 msgstr "磁盘"
 
@@ -2270,7 +2271,7 @@ msgstr "磁盘"
 msgid "Disk I/O"
 msgstr "磁盘 读/写"
 
-#: pkg/kubernetes/scripts/nodes.js:720
+#: pkg/kubernetes/scripts/nodes.js:724
 msgid "Disk Utilization: $0%"
 msgstr "磁盘使用率: $0%"
 
@@ -2278,7 +2279,7 @@ msgstr "磁盘使用率: $0%"
 msgid "Disk is OK"
 msgstr "磁盘良好"
 
-#: pkg/machines/hostvmslist.jsx:411 pkg/storaged/overview.js:449
+#: pkg/machines/hostvmslist.jsx:409 pkg/storaged/overview.js:449
 #: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
 #: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
 msgid "Disks"
@@ -2468,7 +2469,7 @@ msgstr "空目录"
 msgid "Emptying $target"
 msgstr "清空 $target"
 
-#: pkg/machines/hostvmslist.jsx:300
+#: pkg/machines/hostvmslist.jsx:298
 msgid "Emulated Machine:"
 msgstr ""
 
@@ -2966,8 +2967,8 @@ msgstr "小时"
 msgid "I/O Wait"
 msgstr "I/O 等待"
 
-#: pkg/kubernetes/views/node-body.html:10
 #: pkg/kubernetes/views/service-body.html:9
+#: pkg/kubernetes/views/node-body.html:10
 msgid "IP"
 msgstr "IP"
 
@@ -3021,7 +3022,7 @@ msgid "Id:"
 msgstr "编号："
 
 #: node_modules/registry-image-widgets/views/image-listing.html:7
-#: node_modules/registry-image-widgets/views/image-body.html:22
+#: node_modules/registry-image-widgets/views/image-body.html:24
 msgid "Identifier"
 msgstr "身份标识"
 
@@ -3088,11 +3089,10 @@ msgstr ""
 msgid "Image:"
 msgstr "镜像："
 
-#: pkg/kubernetes/views/images-page.html:13
-#: pkg/kubernetes/views/imagestream-page.html:24
 #: pkg/kubernetes/views/registry-dashboard-page.html:19
-#: pkg/kubernetes/index.html:78 pkg/kubernetes/registry.html:49
-#: pkg/docker/containers-view.jsx:615
+#: pkg/kubernetes/views/images-page.html:13
+#: pkg/kubernetes/views/imagestream-page.html:24 pkg/kubernetes/index.html:78
+#: pkg/kubernetes/registry.html:49 pkg/docker/containers-view.jsx:615
 msgid "Images"
 msgstr "镜像"
 
@@ -3377,10 +3377,11 @@ msgid "LACP Key"
 msgstr "LACP 密钥"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:41
-#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
+#: pkg/kubernetes/views/pod-body.html:26
 #: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/route-body.html:22
 #: pkg/kubernetes/views/service-body.html:26
+#: pkg/kubernetes/views/node-body.html:31
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr "标签"
@@ -3737,7 +3738,7 @@ msgstr "成员关系"
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:264
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
-#: pkg/kubernetes/scripts/nodes.js:715 pkg/kubernetes/scripts/nodes.js:826
+#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
 msgid "Memory"
 msgstr "内存"
 
@@ -3746,7 +3747,7 @@ msgctxt "page-title"
 msgid "Memory"
 msgstr "内存"
 
-#: pkg/kubernetes/scripts/nodes.js:716
+#: pkg/kubernetes/scripts/nodes.js:720
 msgid "Memory Utilization: $0%"
 msgstr "Memory 使用率: $0%"
 
@@ -3758,12 +3759,12 @@ msgstr "内存限制"
 msgid "Memory usage:"
 msgstr "内存占用率："
 
-#: pkg/machines/hostvmslist.jsx:291
+#: pkg/machines/hostvmslist.jsx:289
 msgid "Memory:"
 msgstr "内存："
 
-#: pkg/kubernetes/views/node-body.html:47 pkg/kubernetes/views/pv-body.html:27
-#: pkg/kubernetes/views/pv-claim.html:32 pkg/kubernetes/views/pvc-body.html:15
+#: pkg/kubernetes/views/pv-body.html:27 pkg/kubernetes/views/pv-claim.html:32
+#: pkg/kubernetes/views/pvc-body.html:15 pkg/kubernetes/views/node-body.html:47
 msgid "Message"
 msgstr "消息"
 
@@ -3914,7 +3915,6 @@ msgstr "NTP 服务器"
 #: pkg/kubernetes/views/details-page.html:103
 #: pkg/kubernetes/views/details-page.html:137
 #: pkg/kubernetes/views/details-page.html:171
-#: pkg/kubernetes/views/nodes-page.html:41
 #: pkg/kubernetes/views/imagestream-modify.html:10
 #: pkg/kubernetes/views/node-add.html:16
 #: pkg/kubernetes/views/project-listing.html:14
@@ -3928,14 +3928,15 @@ msgstr "NTP 服务器"
 #: pkg/kubernetes/views/volumes-page.html:19
 #: pkg/kubernetes/views/volumes-page.html:57
 #: pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:114
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
-#: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
-#: pkg/ostree/index.html:99 pkg/storaged/index.html:228
+#: pkg/kubernetes/views/nodes-page.html:41 pkg/networkmanager/index.html:96
+#: pkg/networkmanager/index.html:114 pkg/networkmanager/index.html:151
+#: pkg/networkmanager/index.html:207 pkg/networkmanager/index.html:306
+#: pkg/networkmanager/index.html:406 pkg/ostree/index.html:99
+#: pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:474 pkg/storaged/fsys-tab.jsx:71
+#: pkg/machines/hostvmslist.jsx:472 pkg/storaged/fsys-tab.jsx:71
 #: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
 #: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
@@ -4033,8 +4034,8 @@ msgstr "新密码"
 msgid "New Project"
 msgstr "新建项目"
 
-#: pkg/kubernetes/views/images-page.html:11
 #: pkg/kubernetes/views/registry-dashboard-page.html:86
+#: pkg/kubernetes/views/images-page.html:11
 msgid "New image stream"
 msgstr "新建镜像流"
 
@@ -4122,7 +4123,7 @@ msgstr "未指定别名"
 msgid "No archive has been created."
 msgstr "没有档案被创建"
 
-#: pkg/machines/hostvmslist.jsx:267
+#: pkg/machines/hostvmslist.jsx:265
 msgid "No boot device found"
 msgstr ""
 
@@ -4431,7 +4432,7 @@ msgstr "在 $0 和 $1 间发生"
 msgid "Off"
 msgstr "关"
 
-#: pkg/lib/cockpit-components-dialog.jsx:155
+#: pkg/lib/cockpit-components-dialog.jsx:163
 msgid "Ok"
 msgstr "确认"
 
@@ -4528,7 +4529,7 @@ msgid "Other Options"
 msgstr ""
 
 #: pkg/docker/index.html:290 pkg/kubernetes/index.html:40
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:415
+#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:413
 msgid "Overview"
 msgstr "概览"
 
@@ -4802,7 +4803,7 @@ msgstr ""
 msgid "Please try another term"
 msgstr "请尝试另一个终端"
 
-#: pkg/kubernetes/scripts/nodes.js:397
+#: pkg/kubernetes/scripts/nodes.js:401
 msgid "Please type an address"
 msgstr "请输入一个地址"
 
@@ -5117,7 +5118,7 @@ msgstr "RAID 6 (双倍奇偶校验)"
 msgid "RAID Device"
 msgstr "RAID 设备"
 
-#: pkg/storaged/storage-controls.jsx:172 pkg/storaged/utils.js:240
+#: pkg/storaged/utils.js:240 pkg/storaged/storage-controls.jsx:172
 msgid "RAID Device $0"
 msgstr "RAID 设备 $0"
 
@@ -6159,7 +6160,7 @@ msgstr "开头"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:474 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:472 pkg/systemd/init.js:275
 msgid "State"
 msgstr "状态"
 
@@ -6177,10 +6178,11 @@ msgid "Static"
 msgstr "静态"
 
 #: pkg/kubernetes/views/containers-listing.html:16
-#: pkg/kubernetes/views/nodes-page.html:44
-#: pkg/kubernetes/views/node-body.html:39 pkg/kubernetes/views/pv-body.html:24
-#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
+#: pkg/kubernetes/views/pv-body.html:24 pkg/kubernetes/views/pv-claim.html:29
+#: pkg/kubernetes/views/pvc-body.html:13
+#: pkg/kubernetes/views/volumes-page.html:21
+#: pkg/kubernetes/views/node-body.html:39
+#: pkg/kubernetes/views/nodes-page.html:44 pkg/ostree/index.html:288
 #: pkg/networkmanager/interfaces.js:2496
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
@@ -6375,7 +6377,7 @@ msgid "Tag"
 msgstr "标签"
 
 #: pkg/kubernetes/views/imagestream-modify.html:76
-#: node_modules/registry-image-widgets/views/image-body.html:27
+#: node_modules/registry-image-widgets/views/image-body.html:29
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:6
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:16
 #: pkg/docker/containers-view.jsx:312
@@ -6512,7 +6514,7 @@ msgstr "虚拟机已被客户机电源管理暂停。"
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:399
+#: pkg/kubernetes/scripts/nodes.js:403
 msgid "The address contains invalid characters"
 msgstr "地址包含无效字符"
 
@@ -6589,7 +6591,7 @@ msgstr "正在重启主机"
 msgid "The maximum number of replicas is 128"
 msgstr "副本最大数量为 128"
 
-#: pkg/kubernetes/scripts/nodes.js:407
+#: pkg/kubernetes/scripts/nodes.js:411
 msgid "The name contains invalid characters"
 msgstr "名称包含无效的字符"
 
@@ -7115,15 +7117,15 @@ msgstr "不可用"
 msgid "Unexpected error"
 msgstr "意外的错误"
 
-#: pkg/kubernetes/views/node-body.html:12
-#: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
-#: pkg/kubernetes/views/pv-claim.html:31
+#: pkg/kubernetes/views/pv-body.html:26 pkg/kubernetes/views/pv-claim.html:31
 #: pkg/kubernetes/views/volumes-page.html:35
-#: node_modules/registry-image-widgets/views/image-body.html:15
+#: pkg/kubernetes/views/node-body.html:12
+#: pkg/kubernetes/views/node-body.html:43
+#: node_modules/registry-image-widgets/views/image-body.html:16
 #: node_modules/registry-image-widgets/views/imagestream-body.html:30
 #: node_modules/registry-image-widgets/views/imagestream-body.html:31
-#: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:660
-#: pkg/kubernetes/scripts/nodes.js:753 pkg/kubernetes/scripts/volumes.js:266
+#: pkg/kubernetes/scripts/volumes.js:266 pkg/kubernetes/scripts/nodes.js:316
+#: pkg/kubernetes/scripts/nodes.js:664 pkg/kubernetes/scripts/nodes.js:757
 #: pkg/networkmanager/interfaces.js:531 pkg/networkmanager/interfaces.js:1005
 #: pkg/networkmanager/interfaces.js:2420 pkg/networkmanager/interfaces.js:2422
 #: pkg/storaged/fsys-tab.jsx:62 pkg/storaged/swap-tab.jsx:56
@@ -7278,7 +7280,7 @@ msgstr "更新 $0..."
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:410 pkg/storaged/unrecognized-tab.jsx:40
+#: pkg/machines/hostvmslist.jsx:408 pkg/storaged/unrecognized-tab.jsx:40
 msgid "Usage"
 msgstr "使用情况"
 
@@ -7299,9 +7301,9 @@ msgid "Use trusted GPG key"
 msgstr ""
 
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
-#: pkg/kubernetes/scripts/nodes.js:828 pkg/kubernetes/scripts/nodes.js:837
-#: pkg/machines/hostvmslist.jsx:354 pkg/machines/hostvmslist.jsx:365
-#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
+#: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
+#: pkg/machines/vmdiskstab.jsx:136 pkg/machines/hostvmslist.jsx:352
+#: pkg/machines/hostvmslist.jsx:363 pkg/storaged/fsys-tab.jsx:225
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1467
 msgid "Used"
 msgstr "已使用"
@@ -7329,6 +7331,10 @@ msgstr "用户名"
 #: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
 msgid "User Password"
 msgstr "用户密码"
+
+#: cockpit.appdata.xml.in.h:1
+msgid "User interface for Linux servers"
+msgstr ""
 
 #: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
 #: src/ws/login.html:43
@@ -7443,7 +7449,7 @@ msgstr "多重安全擦除 $target"
 msgid "View Registration Details"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:474
+#: pkg/machines/hostvmslist.jsx:472
 msgid "Virtual Machines"
 msgstr "虚拟机"
 
@@ -7457,7 +7463,7 @@ msgstr "卷"
 msgid "Volume Group"
 msgstr "卷组"
 
-#: pkg/storaged/storage-controls.jsx:180 pkg/storaged/utils.js:246
+#: pkg/storaged/utils.js:246 pkg/storaged/storage-controls.jsx:180
 msgid "Volume Group $0"
 msgstr "卷组 $0"
 
@@ -7563,7 +7569,7 @@ msgid ""
 "synchronize users, a user with superuser privileges is required."
 msgstr "已经连接到 {{#strong}}{{host}}{{/strong}}，然而为了同步用户，需要一个特权用户。"
 
-#: pkg/dashboard/list.js:394
+#: pkg/dashboard/list.js:395
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "您当前已直接连接到该服务器。您不能删除它。"
@@ -7738,10 +7744,10 @@ msgstr ""
 msgid "no"
 msgstr "否"
 
-#: pkg/kubernetes/views/node-body.html:33
-#: pkg/kubernetes/views/node-body.html:59
 #: pkg/kubernetes/views/route-body.html:24
 #: pkg/kubernetes/views/route-body.html:29
+#: pkg/kubernetes/views/node-body.html:33
+#: pkg/kubernetes/views/node-body.html:59
 #: node_modules/registry-image-widgets/views/image-listing.html:53
 #: pkg/docker/run.js:418 pkg/docker/run.js:474 pkg/docker/run.js:528
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
@@ -7826,7 +7832,7 @@ msgstr "未知目标"
 msgid "unpartitioned space on $0"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:293
+#: pkg/machines/hostvmslist.jsx:291
 msgid "vCPUs:"
 msgstr "虚拟 CPU："
 

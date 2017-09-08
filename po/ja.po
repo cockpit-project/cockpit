@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-30 10:35+0000\n"
+"POT-Creation-Date: 2017-09-08 23:06+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -176,13 +176,13 @@ msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] "$0 年"
 
-#: pkg/kubernetes/scripts/nodes.js:870
+#: pkg/kubernetes/scripts/nodes.js:874
 #, c-format
 msgid "$0% Free"
 msgid_plural "$0% Free"
 msgstr[0] "$0% 空き"
 
-#: pkg/kubernetes/scripts/nodes.js:872
+#: pkg/kubernetes/scripts/nodes.js:876
 msgid "$0% Used"
 msgid_plural "$0% Used"
 msgstr[0] "$0% 使用済み"
@@ -749,8 +749,8 @@ msgstr "追加"
 #: pkg/kubernetes/views/auth-form.html:29
 #: pkg/kubernetes/views/dashboard-page.html:157
 #: pkg/kubernetes/views/details-page.html:174
-#: pkg/kubernetes/views/nodes-page.html:43 pkg/kubernetes/views/node-add.html:8
-#: pkg/kubernetes/views/node-body.html:5 pkg/lib/machine-add.html:11
+#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
+#: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
 #: pkg/storaged/overview.js:629
 msgid "Address"
 msgstr "アドレス:"
@@ -839,8 +839,8 @@ msgstr "実行中のすべてのもの"
 msgid "Always"
 msgstr "常時"
 
-#: pkg/kubernetes/views/node-body.html:57
 #: pkg/kubernetes/views/route-body.html:27
+#: pkg/kubernetes/views/node-body.html:57
 #: node_modules/registry-image-widgets/views/annotations.html:1
 msgid "Annotations"
 msgstr "アノテーション"
@@ -981,12 +981,12 @@ msgstr "NTP を自動的に使用"
 msgid "Automatically using specific NTP servers"
 msgstr "特定の NTP サーバーを自動的に使用"
 
-#: pkg/machines/hostvmslist.jsx:310
+#: pkg/machines/hostvmslist.jsx:308
 msgid "Autostart:"
 msgstr "自動起動:"
 
 #: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
-#: pkg/machines/hostvmslist.jsx:355 pkg/machines/hostvmslist.jsx:366
+#: pkg/machines/hostvmslist.jsx:353 pkg/machines/hostvmslist.jsx:364
 msgid "Available"
 msgstr "利用可能"
 
@@ -1053,7 +1053,7 @@ msgstr "ボンド設定"
 msgid "Boot ID"
 msgstr "ブート ID"
 
-#: pkg/machines/hostvmslist.jsx:273
+#: pkg/machines/hostvmslist.jsx:271
 msgid "Boot Order:"
 msgstr ""
 
@@ -1086,7 +1086,7 @@ msgstr "破損した設定"
 msgid "Bugs"
 msgstr ""
 
-#: node_modules/registry-image-widgets/views/image-body.html:16
+#: node_modules/registry-image-widgets/views/image-body.html:18
 msgid "Built"
 msgstr "ビルド"
 
@@ -1096,8 +1096,8 @@ msgstr "バス"
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:263
 #: pkg/systemd/index.html:206 pkg/docker/containers-view.jsx:271
-#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:711
-#: pkg/kubernetes/scripts/nodes.js:817
+#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:715
+#: pkg/kubernetes/scripts/nodes.js:821
 msgid "CPU"
 msgstr "CPU"
 
@@ -1106,12 +1106,12 @@ msgctxt "page-title"
 msgid "CPU Status"
 msgstr "CPU ステータス"
 
-#: pkg/machines/hostvmslist.jsx:302
+#: pkg/machines/hostvmslist.jsx:300
 #, fuzzy
 msgid "CPU Type:"
 msgstr "種類:"
 
-#: pkg/kubernetes/scripts/nodes.js:712
+#: pkg/kubernetes/scripts/nodes.js:716
 msgid "CPU Utilization: $0%"
 msgstr "CPU 使用率: $0%"
 
@@ -1182,7 +1182,7 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
+#: pkg/lib/cockpit-components-dialog.jsx:138 pkg/sosreport/index.js:51
 #: pkg/packagekit/updates.jsx:204
 msgid "Cancel"
 msgstr "取り消し"
@@ -1410,7 +1410,7 @@ msgstr ""
 "の再起動を試行できます。javascript コンソールにはこのエラーに関する詳細が含まれます (ほとんどのブラウザーでは <b>Ctrl-Shift-"
 "J</b>)。"
 
-#: cockpit.appdata.xml.in.h:1
+#: cockpit.appdata.xml.in.h:2
 msgid ""
 "Cockpit is a server manager that makes it easy to administer your Linux "
 "servers via a web browser. Jumping between the terminal and the web tool is "
@@ -1442,7 +1442,7 @@ msgstr "Cockpit はインストールされていません"
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit はシステムにインストールされていません。"
 
-#: cockpit.appdata.xml.in.h:2
+#: cockpit.appdata.xml.in.h:3
 msgid ""
 "Cockpit is perfect for new sysadmins, allowing them to easily perform simple "
 "tasks such as storage administration, inspecting journals and starting and "
@@ -1665,7 +1665,7 @@ msgstr "マシンへの接続"
 msgid "Connecting..."
 msgstr "接続中..."
 
-#: pkg/machines/hostvmslist.jsx:474
+#: pkg/machines/hostvmslist.jsx:472
 msgid "Connection"
 msgstr "接続"
 
@@ -1689,7 +1689,7 @@ msgstr "接続がタイムアウトしました。"
 msgid "Connection will be lost"
 msgstr "接続が失われます"
 
-#: pkg/machines/hostvmslist.jsx:412
+#: pkg/machines/hostvmslist.jsx:410
 msgid "Console"
 msgstr ""
 
@@ -1805,7 +1805,7 @@ msgid "Couldn't create new users"
 msgstr "新規ユーザーを作成できませんでした"
 
 #: pkg/kubernetes/scripts/connection.js:512
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:929
+#: pkg/kubernetes/scripts/kube-client-cockpit.js:947
 msgid "Couldn't find running API server"
 msgstr "実行中の API サーバーを見つけることができませんでした"
 
@@ -1927,10 +1927,11 @@ msgid "Create partition table"
 msgstr "パーティションテーブルの作成"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
-#: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
+#: pkg/kubernetes/views/pod-body.html:7
 #: pkg/kubernetes/views/replicationcontroller-body.html:7
 #: pkg/kubernetes/views/route-body.html:7
-#: pkg/kubernetes/views/service-body.html:7 pkg/docker/containers-view.jsx:122
+#: pkg/kubernetes/views/service-body.html:7
+#: pkg/kubernetes/views/node-body.html:3 pkg/docker/containers-view.jsx:122
 #: pkg/docker/containers-view.jsx:315 pkg/docker/containers-view.jsx:587
 msgid "Created"
 msgstr "作成済み"
@@ -2238,7 +2239,7 @@ msgstr "デバイスは読み取り専用です"
 msgid "Diagnostic reports"
 msgstr "診断レポート"
 
-#: node_modules/registry-image-widgets/views/image-body.html:20
+#: node_modules/registry-image-widgets/views/image-body.html:22
 msgid "Digest"
 msgstr "ダイジェスト"
 
@@ -2268,7 +2269,7 @@ msgstr "無効"
 msgid "Disconnected"
 msgstr "切断されています"
 
-#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:835
+#: pkg/kubernetes/scripts/nodes.js:723 pkg/kubernetes/scripts/nodes.js:839
 msgid "Disk"
 msgstr "ディスク"
 
@@ -2276,7 +2277,7 @@ msgstr "ディスク"
 msgid "Disk I/O"
 msgstr "ディスク I/O"
 
-#: pkg/kubernetes/scripts/nodes.js:720
+#: pkg/kubernetes/scripts/nodes.js:724
 msgid "Disk Utilization: $0%"
 msgstr "ディスク使用率: $0%˙"
 
@@ -2284,7 +2285,7 @@ msgstr "ディスク使用率: $0%˙"
 msgid "Disk is OK"
 msgstr "ディスクは OK です"
 
-#: pkg/machines/hostvmslist.jsx:411 pkg/storaged/overview.js:449
+#: pkg/machines/hostvmslist.jsx:409 pkg/storaged/overview.js:449
 #: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
 #: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
 msgid "Disks"
@@ -2477,7 +2478,7 @@ msgstr "空のディレクトリー"
 msgid "Emptying $target"
 msgstr "$target を空にしています"
 
-#: pkg/machines/hostvmslist.jsx:300
+#: pkg/machines/hostvmslist.jsx:298
 #, fuzzy
 msgid "Emulated Machine:"
 msgstr "仮想マシン"
@@ -2976,8 +2977,8 @@ msgstr "時"
 msgid "I/O Wait"
 msgstr "I/O 待機"
 
-#: pkg/kubernetes/views/node-body.html:10
 #: pkg/kubernetes/views/service-body.html:9
+#: pkg/kubernetes/views/node-body.html:10
 msgid "IP"
 msgstr "IP"
 
@@ -3031,7 +3032,7 @@ msgid "Id:"
 msgstr "Id:"
 
 #: node_modules/registry-image-widgets/views/image-listing.html:7
-#: node_modules/registry-image-widgets/views/image-body.html:22
+#: node_modules/registry-image-widgets/views/image-body.html:24
 msgid "Identifier"
 msgstr "識別子"
 
@@ -3098,11 +3099,10 @@ msgstr ""
 msgid "Image:"
 msgstr "イメージ:"
 
-#: pkg/kubernetes/views/images-page.html:13
-#: pkg/kubernetes/views/imagestream-page.html:24
 #: pkg/kubernetes/views/registry-dashboard-page.html:19
-#: pkg/kubernetes/index.html:78 pkg/kubernetes/registry.html:49
-#: pkg/docker/containers-view.jsx:615
+#: pkg/kubernetes/views/images-page.html:13
+#: pkg/kubernetes/views/imagestream-page.html:24 pkg/kubernetes/index.html:78
+#: pkg/kubernetes/registry.html:49 pkg/docker/containers-view.jsx:615
 msgid "Images"
 msgstr "イメージ"
 
@@ -3384,10 +3384,11 @@ msgid "LACP Key"
 msgstr "LACP キー"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:41
-#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
+#: pkg/kubernetes/views/pod-body.html:26
 #: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/route-body.html:22
 #: pkg/kubernetes/views/service-body.html:26
+#: pkg/kubernetes/views/node-body.html:31
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr "ラベル"
@@ -3747,7 +3748,7 @@ msgstr "メンバーシップ"
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:264
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
-#: pkg/kubernetes/scripts/nodes.js:715 pkg/kubernetes/scripts/nodes.js:826
+#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
 msgid "Memory"
 msgstr "メモリ"
 
@@ -3756,7 +3757,7 @@ msgctxt "page-title"
 msgid "Memory"
 msgstr "メモリー"
 
-#: pkg/kubernetes/scripts/nodes.js:716
+#: pkg/kubernetes/scripts/nodes.js:720
 msgid "Memory Utilization: $0%"
 msgstr "メモリー使用率: $0%"
 
@@ -3768,12 +3769,12 @@ msgstr "メモリー制限"
 msgid "Memory usage:"
 msgstr "メモリー使用状況:"
 
-#: pkg/machines/hostvmslist.jsx:291
+#: pkg/machines/hostvmslist.jsx:289
 msgid "Memory:"
 msgstr "メモリー:"
 
-#: pkg/kubernetes/views/node-body.html:47 pkg/kubernetes/views/pv-body.html:27
-#: pkg/kubernetes/views/pv-claim.html:32 pkg/kubernetes/views/pvc-body.html:15
+#: pkg/kubernetes/views/pv-body.html:27 pkg/kubernetes/views/pv-claim.html:32
+#: pkg/kubernetes/views/pvc-body.html:15 pkg/kubernetes/views/node-body.html:47
 msgid "Message"
 msgstr "メッセージ"
 
@@ -3924,7 +3925,6 @@ msgstr "NTP サーバー"
 #: pkg/kubernetes/views/details-page.html:103
 #: pkg/kubernetes/views/details-page.html:137
 #: pkg/kubernetes/views/details-page.html:171
-#: pkg/kubernetes/views/nodes-page.html:41
 #: pkg/kubernetes/views/imagestream-modify.html:10
 #: pkg/kubernetes/views/node-add.html:16
 #: pkg/kubernetes/views/project-listing.html:14
@@ -3938,14 +3938,15 @@ msgstr "NTP サーバー"
 #: pkg/kubernetes/views/volumes-page.html:19
 #: pkg/kubernetes/views/volumes-page.html:57
 #: pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:114
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
-#: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
-#: pkg/ostree/index.html:99 pkg/storaged/index.html:228
+#: pkg/kubernetes/views/nodes-page.html:41 pkg/networkmanager/index.html:96
+#: pkg/networkmanager/index.html:114 pkg/networkmanager/index.html:151
+#: pkg/networkmanager/index.html:207 pkg/networkmanager/index.html:306
+#: pkg/networkmanager/index.html:406 pkg/ostree/index.html:99
+#: pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:474 pkg/storaged/fsys-tab.jsx:71
+#: pkg/machines/hostvmslist.jsx:472 pkg/storaged/fsys-tab.jsx:71
 #: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
 #: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
@@ -4043,8 +4044,8 @@ msgstr "新規パスワード"
 msgid "New Project"
 msgstr "新規プロジェクト"
 
-#: pkg/kubernetes/views/images-page.html:11
 #: pkg/kubernetes/views/registry-dashboard-page.html:86
+#: pkg/kubernetes/views/images-page.html:11
 msgid "New image stream"
 msgstr "新規イメージストリーム"
 
@@ -4132,7 +4133,7 @@ msgstr "エイリアスが指定されていません"
 msgid "No archive has been created."
 msgstr "アーカイブが作成されていません"
 
-#: pkg/machines/hostvmslist.jsx:267
+#: pkg/machines/hostvmslist.jsx:265
 #, fuzzy
 msgid "No boot device found"
 msgstr "ホストキーが見つかりません。"
@@ -4444,7 +4445,7 @@ msgstr "$0〜$1 の発生件数"
 msgid "Off"
 msgstr "オフ"
 
-#: pkg/lib/cockpit-components-dialog.jsx:155
+#: pkg/lib/cockpit-components-dialog.jsx:163
 msgid "Ok"
 msgstr "OK"
 
@@ -4541,7 +4542,7 @@ msgid "Other Options"
 msgstr "他のオプション"
 
 #: pkg/docker/index.html:290 pkg/kubernetes/index.html:40
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:415
+#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:413
 msgid "Overview"
 msgstr "概要"
 
@@ -4817,7 +4818,7 @@ msgstr ""
 msgid "Please try another term"
 msgstr "別の用語を試してください"
 
-#: pkg/kubernetes/scripts/nodes.js:397
+#: pkg/kubernetes/scripts/nodes.js:401
 msgid "Please type an address"
 msgstr "アドレスを入力してください"
 
@@ -5131,7 +5132,7 @@ msgstr "RAID 6 (ダブル分散パリティー)"
 msgid "RAID Device"
 msgstr "RAID デバイス"
 
-#: pkg/storaged/storage-controls.jsx:172 pkg/storaged/utils.js:240
+#: pkg/storaged/utils.js:240 pkg/storaged/storage-controls.jsx:172
 msgid "RAID Device $0"
 msgstr "RAID デバイス $0"
 
@@ -6165,7 +6166,7 @@ msgstr "開始"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:474 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:472 pkg/systemd/init.js:275
 msgid "State"
 msgstr "状態"
 
@@ -6183,10 +6184,11 @@ msgid "Static"
 msgstr "静的"
 
 #: pkg/kubernetes/views/containers-listing.html:16
-#: pkg/kubernetes/views/nodes-page.html:44
-#: pkg/kubernetes/views/node-body.html:39 pkg/kubernetes/views/pv-body.html:24
-#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
+#: pkg/kubernetes/views/pv-body.html:24 pkg/kubernetes/views/pv-claim.html:29
+#: pkg/kubernetes/views/pvc-body.html:13
+#: pkg/kubernetes/views/volumes-page.html:21
+#: pkg/kubernetes/views/node-body.html:39
+#: pkg/kubernetes/views/nodes-page.html:44 pkg/ostree/index.html:288
 #: pkg/networkmanager/interfaces.js:2496
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
@@ -6380,7 +6382,7 @@ msgid "Tag"
 msgstr "タグ"
 
 #: pkg/kubernetes/views/imagestream-modify.html:76
-#: node_modules/registry-image-widgets/views/image-body.html:27
+#: node_modules/registry-image-widgets/views/image-body.html:29
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:6
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:16
 #: pkg/docker/containers-view.jsx:312
@@ -6516,7 +6518,7 @@ msgstr "VM はゲストの電源管理によって一時停止されています
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:399
+#: pkg/kubernetes/scripts/nodes.js:403
 msgid "The address contains invalid characters"
 msgstr "アドレスに無効な文字が含まれています。"
 
@@ -6594,7 +6596,7 @@ msgstr "マシンが再起動中です"
 msgid "The maximum number of replicas is 128"
 msgstr "レプリカの最大数は 128 です"
 
-#: pkg/kubernetes/scripts/nodes.js:407
+#: pkg/kubernetes/scripts/nodes.js:411
 msgid "The name contains invalid characters"
 msgstr "名前に無効な文字が含まれています"
 
@@ -7120,15 +7122,15 @@ msgstr "利用できません"
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
-#: pkg/kubernetes/views/node-body.html:12
-#: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
-#: pkg/kubernetes/views/pv-claim.html:31
+#: pkg/kubernetes/views/pv-body.html:26 pkg/kubernetes/views/pv-claim.html:31
 #: pkg/kubernetes/views/volumes-page.html:35
-#: node_modules/registry-image-widgets/views/image-body.html:15
+#: pkg/kubernetes/views/node-body.html:12
+#: pkg/kubernetes/views/node-body.html:43
+#: node_modules/registry-image-widgets/views/image-body.html:16
 #: node_modules/registry-image-widgets/views/imagestream-body.html:30
 #: node_modules/registry-image-widgets/views/imagestream-body.html:31
-#: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:660
-#: pkg/kubernetes/scripts/nodes.js:753 pkg/kubernetes/scripts/volumes.js:266
+#: pkg/kubernetes/scripts/volumes.js:266 pkg/kubernetes/scripts/nodes.js:316
+#: pkg/kubernetes/scripts/nodes.js:664 pkg/kubernetes/scripts/nodes.js:757
 #: pkg/networkmanager/interfaces.js:531 pkg/networkmanager/interfaces.js:1005
 #: pkg/networkmanager/interfaces.js:2420 pkg/networkmanager/interfaces.js:2422
 #: pkg/storaged/fsys-tab.jsx:62 pkg/storaged/swap-tab.jsx:56
@@ -7286,7 +7288,7 @@ msgstr "$0 の更新中 ..."
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr "ディスクの統計情報を表示するには libvirt の新しいバージョンにアップグレードしてください"
 
-#: pkg/machines/hostvmslist.jsx:410 pkg/storaged/unrecognized-tab.jsx:40
+#: pkg/machines/hostvmslist.jsx:408 pkg/storaged/unrecognized-tab.jsx:40
 msgid "Usage"
 msgstr "使用法"
 
@@ -7307,9 +7309,9 @@ msgid "Use trusted GPG key"
 msgstr "信頼済み GPG 鍵の使用"
 
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
-#: pkg/kubernetes/scripts/nodes.js:828 pkg/kubernetes/scripts/nodes.js:837
-#: pkg/machines/hostvmslist.jsx:354 pkg/machines/hostvmslist.jsx:365
-#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
+#: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
+#: pkg/machines/vmdiskstab.jsx:136 pkg/machines/hostvmslist.jsx:352
+#: pkg/machines/hostvmslist.jsx:363 pkg/storaged/fsys-tab.jsx:225
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1467
 msgid "Used"
 msgstr "Used"
@@ -7336,6 +7338,10 @@ msgstr "ユーザー名"
 #: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
 msgid "User Password"
 msgstr "ユーザーパスワード"
+
+#: cockpit.appdata.xml.in.h:1
+msgid "User interface for Linux servers"
+msgstr ""
 
 #: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
 #: src/ws/login.html:43
@@ -7452,7 +7458,7 @@ msgstr "$target を非常に安全に削除"
 msgid "View Registration Details"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:474
+#: pkg/machines/hostvmslist.jsx:472
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
@@ -7466,7 +7472,7 @@ msgstr "音量"
 msgid "Volume Group"
 msgstr "ボリュームグループ"
 
-#: pkg/storaged/storage-controls.jsx:180 pkg/storaged/utils.js:246
+#: pkg/storaged/utils.js:246 pkg/storaged/storage-controls.jsx:180
 msgid "Volume Group $0"
 msgstr "ボリュームグループ $0"
 
@@ -7574,7 +7580,7 @@ msgstr ""
 "{{#strong}}{{host}}{{/strong}} "
 "に接続されていますが、ユーザーを同期するには、スーパーユーザー権限を持つユーザーが必要です。"
 
-#: pkg/dashboard/list.js:394
+#: pkg/dashboard/list.js:395
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "現在このサーバーに直接接続されています。削除できません。"
@@ -7747,10 +7753,10 @@ msgstr "ネットワーク"
 msgid "no"
 msgstr "いいえ"
 
-#: pkg/kubernetes/views/node-body.html:33
-#: pkg/kubernetes/views/node-body.html:59
 #: pkg/kubernetes/views/route-body.html:24
 #: pkg/kubernetes/views/route-body.html:29
+#: pkg/kubernetes/views/node-body.html:33
+#: pkg/kubernetes/views/node-body.html:59
 #: node_modules/registry-image-widgets/views/image-listing.html:53
 #: pkg/docker/run.js:418 pkg/docker/run.js:474 pkg/docker/run.js:528
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
@@ -7834,7 +7840,7 @@ msgstr "不明なターゲット"
 msgid "unpartitioned space on $0"
 msgstr "$0 の未パーティション領域"
 
-#: pkg/machines/hostvmslist.jsx:293
+#: pkg/machines/hostvmslist.jsx:291
 msgid "vCPUs:"
 msgstr "vCPU:"
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-30 10:35+0000\n"
+"POT-Creation-Date: 2017-09-08 23:06+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -178,13 +178,13 @@ msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] ""
 
-#: pkg/kubernetes/scripts/nodes.js:870
+#: pkg/kubernetes/scripts/nodes.js:874
 #, c-format
 msgid "$0% Free"
 msgid_plural "$0% Free"
 msgstr[0] ""
 
-#: pkg/kubernetes/scripts/nodes.js:872
+#: pkg/kubernetes/scripts/nodes.js:876
 msgid "$0% Used"
 msgid_plural "$0% Used"
 msgstr[0] ""
@@ -755,8 +755,8 @@ msgstr ""
 #: pkg/kubernetes/views/auth-form.html:29
 #: pkg/kubernetes/views/dashboard-page.html:157
 #: pkg/kubernetes/views/details-page.html:174
-#: pkg/kubernetes/views/nodes-page.html:43 pkg/kubernetes/views/node-add.html:8
-#: pkg/kubernetes/views/node-body.html:5 pkg/lib/machine-add.html:11
+#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
+#: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
 #: pkg/storaged/overview.js:629
 msgid "Address"
 msgstr "주소"
@@ -845,8 +845,8 @@ msgstr "작동중"
 msgid "Always"
 msgstr ""
 
-#: pkg/kubernetes/views/node-body.html:57
 #: pkg/kubernetes/views/route-body.html:27
+#: pkg/kubernetes/views/node-body.html:57
 #: node_modules/registry-image-widgets/views/annotations.html:1
 msgid "Annotations"
 msgstr ""
@@ -984,12 +984,12 @@ msgstr ""
 msgid "Automatically using specific NTP servers"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:310
+#: pkg/machines/hostvmslist.jsx:308
 msgid "Autostart:"
 msgstr ""
 
 #: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
-#: pkg/machines/hostvmslist.jsx:355 pkg/machines/hostvmslist.jsx:366
+#: pkg/machines/hostvmslist.jsx:353 pkg/machines/hostvmslist.jsx:364
 msgid "Available"
 msgstr ""
 
@@ -1055,7 +1055,7 @@ msgstr "본드 설정"
 msgid "Boot ID"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:273
+#: pkg/machines/hostvmslist.jsx:271
 msgid "Boot Order:"
 msgstr ""
 
@@ -1088,7 +1088,7 @@ msgstr ""
 msgid "Bugs"
 msgstr ""
 
-#: node_modules/registry-image-widgets/views/image-body.html:16
+#: node_modules/registry-image-widgets/views/image-body.html:18
 msgid "Built"
 msgstr ""
 
@@ -1098,8 +1098,8 @@ msgstr ""
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:263
 #: pkg/systemd/index.html:206 pkg/docker/containers-view.jsx:271
-#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:711
-#: pkg/kubernetes/scripts/nodes.js:817
+#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:715
+#: pkg/kubernetes/scripts/nodes.js:821
 msgid "CPU"
 msgstr "CPU"
 
@@ -1108,11 +1108,11 @@ msgctxt "page-title"
 msgid "CPU Status"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:302
+#: pkg/machines/hostvmslist.jsx:300
 msgid "CPU Type:"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:712
+#: pkg/kubernetes/scripts/nodes.js:716
 msgid "CPU Utilization: $0%"
 msgstr ""
 
@@ -1184,7 +1184,7 @@ msgstr ""
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/lib/cockpit-components-dialog.jsx:136 pkg/sosreport/index.js:51
+#: pkg/lib/cockpit-components-dialog.jsx:138 pkg/sosreport/index.js:51
 #: pkg/packagekit/updates.jsx:204
 msgid "Cancel"
 msgstr "취소"
@@ -1411,7 +1411,7 @@ msgid ""
 "details about this error (<b>Ctrl-Shift-J</b> in most browsers)."
 msgstr ""
 
-#: cockpit.appdata.xml.in.h:1
+#: cockpit.appdata.xml.in.h:2
 msgid ""
 "Cockpit is a server manager that makes it easy to administer your Linux "
 "servers via a web browser. Jumping between the terminal and the web tool is "
@@ -1440,7 +1440,7 @@ msgstr ""
 msgid "Cockpit is not installed on the system."
 msgstr ""
 
-#: cockpit.appdata.xml.in.h:2
+#: cockpit.appdata.xml.in.h:3
 msgid ""
 "Cockpit is perfect for new sysadmins, allowing them to easily perform simple "
 "tasks such as storage administration, inspecting journals and starting and "
@@ -1651,7 +1651,7 @@ msgstr "장치에 연결 중입니다"
 msgid "Connecting..."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:474
+#: pkg/machines/hostvmslist.jsx:472
 #, fuzzy
 msgid "Connection"
 msgstr "Docker에 연결중입니다."
@@ -1679,7 +1679,7 @@ msgstr ""
 msgid "Connection will be lost"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:412
+#: pkg/machines/hostvmslist.jsx:410
 msgid "Console"
 msgstr ""
 
@@ -1795,7 +1795,7 @@ msgid "Couldn't create new users"
 msgstr ""
 
 #: pkg/kubernetes/scripts/connection.js:512
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:929
+#: pkg/kubernetes/scripts/kube-client-cockpit.js:947
 msgid "Couldn't find running API server"
 msgstr ""
 
@@ -1916,10 +1916,11 @@ msgid "Create partition table"
 msgstr ""
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
-#: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
+#: pkg/kubernetes/views/pod-body.html:7
 #: pkg/kubernetes/views/replicationcontroller-body.html:7
 #: pkg/kubernetes/views/route-body.html:7
-#: pkg/kubernetes/views/service-body.html:7 pkg/docker/containers-view.jsx:122
+#: pkg/kubernetes/views/service-body.html:7
+#: pkg/kubernetes/views/node-body.html:3 pkg/docker/containers-view.jsx:122
 #: pkg/docker/containers-view.jsx:315 pkg/docker/containers-view.jsx:587
 msgid "Created"
 msgstr ""
@@ -2230,7 +2231,7 @@ msgstr ""
 msgid "Diagnostic reports"
 msgstr ""
 
-#: node_modules/registry-image-widgets/views/image-body.html:20
+#: node_modules/registry-image-widgets/views/image-body.html:22
 msgid "Digest"
 msgstr ""
 
@@ -2260,7 +2261,7 @@ msgstr "사용 안함"
 msgid "Disconnected"
 msgstr "연결 해제됨"
 
-#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:835
+#: pkg/kubernetes/scripts/nodes.js:723 pkg/kubernetes/scripts/nodes.js:839
 #, fuzzy
 msgid "Disk"
 msgstr "디스크 추가"
@@ -2269,7 +2270,7 @@ msgstr "디스크 추가"
 msgid "Disk I/O"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:720
+#: pkg/kubernetes/scripts/nodes.js:724
 msgid "Disk Utilization: $0%"
 msgstr ""
 
@@ -2277,7 +2278,7 @@ msgstr ""
 msgid "Disk is OK"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:411 pkg/storaged/overview.js:449
+#: pkg/machines/hostvmslist.jsx:409 pkg/storaged/overview.js:449
 #: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
 #: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
 msgid "Disks"
@@ -2464,7 +2465,7 @@ msgstr ""
 msgid "Emptying $target"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:300
+#: pkg/machines/hostvmslist.jsx:298
 msgid "Emulated Machine:"
 msgstr ""
 
@@ -2967,8 +2968,8 @@ msgstr ""
 msgid "I/O Wait"
 msgstr ""
 
-#: pkg/kubernetes/views/node-body.html:10
 #: pkg/kubernetes/views/service-body.html:9
+#: pkg/kubernetes/views/node-body.html:10
 msgid "IP"
 msgstr ""
 
@@ -3024,7 +3025,7 @@ msgid "Id:"
 msgstr ""
 
 #: node_modules/registry-image-widgets/views/image-listing.html:7
-#: node_modules/registry-image-widgets/views/image-body.html:22
+#: node_modules/registry-image-widgets/views/image-body.html:24
 msgid "Identifier"
 msgstr ""
 
@@ -3093,11 +3094,10 @@ msgstr ""
 msgid "Image:"
 msgstr ""
 
-#: pkg/kubernetes/views/images-page.html:13
-#: pkg/kubernetes/views/imagestream-page.html:24
 #: pkg/kubernetes/views/registry-dashboard-page.html:19
-#: pkg/kubernetes/index.html:78 pkg/kubernetes/registry.html:49
-#: pkg/docker/containers-view.jsx:615
+#: pkg/kubernetes/views/images-page.html:13
+#: pkg/kubernetes/views/imagestream-page.html:24 pkg/kubernetes/index.html:78
+#: pkg/kubernetes/registry.html:49 pkg/docker/containers-view.jsx:615
 msgid "Images"
 msgstr ""
 
@@ -3382,10 +3382,11 @@ msgid "LACP Key"
 msgstr ""
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:41
-#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
+#: pkg/kubernetes/views/pod-body.html:26
 #: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/route-body.html:22
 #: pkg/kubernetes/views/service-body.html:26
+#: pkg/kubernetes/views/node-body.html:31
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr ""
@@ -3743,7 +3744,7 @@ msgstr ""
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:264
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
-#: pkg/kubernetes/scripts/nodes.js:715 pkg/kubernetes/scripts/nodes.js:826
+#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
 msgid "Memory"
 msgstr "메모리"
 
@@ -3752,7 +3753,7 @@ msgctxt "page-title"
 msgid "Memory"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:716
+#: pkg/kubernetes/scripts/nodes.js:720
 msgid "Memory Utilization: $0%"
 msgstr ""
 
@@ -3764,12 +3765,12 @@ msgstr "메모리 제한"
 msgid "Memory usage:"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:291
+#: pkg/machines/hostvmslist.jsx:289
 msgid "Memory:"
 msgstr ""
 
-#: pkg/kubernetes/views/node-body.html:47 pkg/kubernetes/views/pv-body.html:27
-#: pkg/kubernetes/views/pv-claim.html:32 pkg/kubernetes/views/pvc-body.html:15
+#: pkg/kubernetes/views/pv-body.html:27 pkg/kubernetes/views/pv-claim.html:32
+#: pkg/kubernetes/views/pvc-body.html:15 pkg/kubernetes/views/node-body.html:47
 msgid "Message"
 msgstr ""
 
@@ -3921,7 +3922,6 @@ msgstr ""
 #: pkg/kubernetes/views/details-page.html:103
 #: pkg/kubernetes/views/details-page.html:137
 #: pkg/kubernetes/views/details-page.html:171
-#: pkg/kubernetes/views/nodes-page.html:41
 #: pkg/kubernetes/views/imagestream-modify.html:10
 #: pkg/kubernetes/views/node-add.html:16
 #: pkg/kubernetes/views/project-listing.html:14
@@ -3935,14 +3935,15 @@ msgstr ""
 #: pkg/kubernetes/views/volumes-page.html:19
 #: pkg/kubernetes/views/volumes-page.html:57
 #: pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:114
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
-#: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
-#: pkg/ostree/index.html:99 pkg/storaged/index.html:228
+#: pkg/kubernetes/views/nodes-page.html:41 pkg/networkmanager/index.html:96
+#: pkg/networkmanager/index.html:114 pkg/networkmanager/index.html:151
+#: pkg/networkmanager/index.html:207 pkg/networkmanager/index.html:306
+#: pkg/networkmanager/index.html:406 pkg/ostree/index.html:99
+#: pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:474 pkg/storaged/fsys-tab.jsx:71
+#: pkg/machines/hostvmslist.jsx:472 pkg/storaged/fsys-tab.jsx:71
 #: pkg/storaged/fsys-tab.jsx:172 pkg/storaged/lvol-tabs.jsx:39
 #: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
 #: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
@@ -4040,8 +4041,8 @@ msgstr ""
 msgid "New Project"
 msgstr ""
 
-#: pkg/kubernetes/views/images-page.html:11
 #: pkg/kubernetes/views/registry-dashboard-page.html:86
+#: pkg/kubernetes/views/images-page.html:11
 msgid "New image stream"
 msgstr ""
 
@@ -4131,7 +4132,7 @@ msgstr "alias가 지정되지 않았습니다"
 msgid "No archive has been created."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:267
+#: pkg/machines/hostvmslist.jsx:265
 msgid "No boot device found"
 msgstr ""
 
@@ -4443,7 +4444,7 @@ msgstr ""
 msgid "Off"
 msgstr "비활성"
 
-#: pkg/lib/cockpit-components-dialog.jsx:155
+#: pkg/lib/cockpit-components-dialog.jsx:163
 msgid "Ok"
 msgstr ""
 
@@ -4541,7 +4542,7 @@ msgid "Other Options"
 msgstr ""
 
 #: pkg/docker/index.html:290 pkg/kubernetes/index.html:40
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:415
+#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:413
 msgid "Overview"
 msgstr ""
 
@@ -4831,7 +4832,7 @@ msgstr ""
 msgid "Please try another term"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:397
+#: pkg/kubernetes/scripts/nodes.js:401
 msgid "Please type an address"
 msgstr "주소를 입력해주세요"
 
@@ -5147,7 +5148,7 @@ msgstr ""
 msgid "RAID Device"
 msgstr ""
 
-#: pkg/storaged/storage-controls.jsx:172 pkg/storaged/utils.js:240
+#: pkg/storaged/utils.js:240 pkg/storaged/storage-controls.jsx:172
 msgid "RAID Device $0"
 msgstr "RAID 장치 $0"
 
@@ -6188,7 +6189,7 @@ msgstr ""
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:474 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:472 pkg/systemd/init.js:275
 msgid "State"
 msgstr ""
 
@@ -6206,10 +6207,11 @@ msgid "Static"
 msgstr ""
 
 #: pkg/kubernetes/views/containers-listing.html:16
-#: pkg/kubernetes/views/nodes-page.html:44
-#: pkg/kubernetes/views/node-body.html:39 pkg/kubernetes/views/pv-body.html:24
-#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
+#: pkg/kubernetes/views/pv-body.html:24 pkg/kubernetes/views/pv-claim.html:29
+#: pkg/kubernetes/views/pvc-body.html:13
+#: pkg/kubernetes/views/volumes-page.html:21
+#: pkg/kubernetes/views/node-body.html:39
+#: pkg/kubernetes/views/nodes-page.html:44 pkg/ostree/index.html:288
 #: pkg/networkmanager/interfaces.js:2496
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
@@ -6403,7 +6405,7 @@ msgid "Tag"
 msgstr "태그"
 
 #: pkg/kubernetes/views/imagestream-modify.html:76
-#: node_modules/registry-image-widgets/views/image-body.html:27
+#: node_modules/registry-image-widgets/views/image-body.html:29
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:6
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:16
 #: pkg/docker/containers-view.jsx:312
@@ -6539,7 +6541,7 @@ msgstr ""
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 
-#: pkg/kubernetes/scripts/nodes.js:399
+#: pkg/kubernetes/scripts/nodes.js:403
 msgid "The address contains invalid characters"
 msgstr "주소에 잘못된 문자가 있습니다 "
 
@@ -6615,7 +6617,7 @@ msgstr "장치가 재시동되고 있습니다"
 msgid "The maximum number of replicas is 128"
 msgstr "replica의 최대 수는 128개입니다."
 
-#: pkg/kubernetes/scripts/nodes.js:407
+#: pkg/kubernetes/scripts/nodes.js:411
 msgid "The name contains invalid characters"
 msgstr ""
 
@@ -7135,15 +7137,15 @@ msgstr "사용할 수 없습니다"
 msgid "Unexpected error"
 msgstr "예상치 못한 오류"
 
-#: pkg/kubernetes/views/node-body.html:12
-#: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
-#: pkg/kubernetes/views/pv-claim.html:31
+#: pkg/kubernetes/views/pv-body.html:26 pkg/kubernetes/views/pv-claim.html:31
 #: pkg/kubernetes/views/volumes-page.html:35
-#: node_modules/registry-image-widgets/views/image-body.html:15
+#: pkg/kubernetes/views/node-body.html:12
+#: pkg/kubernetes/views/node-body.html:43
+#: node_modules/registry-image-widgets/views/image-body.html:16
 #: node_modules/registry-image-widgets/views/imagestream-body.html:30
 #: node_modules/registry-image-widgets/views/imagestream-body.html:31
-#: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:660
-#: pkg/kubernetes/scripts/nodes.js:753 pkg/kubernetes/scripts/volumes.js:266
+#: pkg/kubernetes/scripts/volumes.js:266 pkg/kubernetes/scripts/nodes.js:316
+#: pkg/kubernetes/scripts/nodes.js:664 pkg/kubernetes/scripts/nodes.js:757
 #: pkg/networkmanager/interfaces.js:531 pkg/networkmanager/interfaces.js:1005
 #: pkg/networkmanager/interfaces.js:2420 pkg/networkmanager/interfaces.js:2422
 #: pkg/storaged/fsys-tab.jsx:62 pkg/storaged/swap-tab.jsx:56
@@ -7299,7 +7301,7 @@ msgstr "$0 업데이트 중..."
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:410 pkg/storaged/unrecognized-tab.jsx:40
+#: pkg/machines/hostvmslist.jsx:408 pkg/storaged/unrecognized-tab.jsx:40
 msgid "Usage"
 msgstr ""
 
@@ -7320,9 +7322,9 @@ msgid "Use trusted GPG key"
 msgstr ""
 
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
-#: pkg/kubernetes/scripts/nodes.js:828 pkg/kubernetes/scripts/nodes.js:837
-#: pkg/machines/hostvmslist.jsx:354 pkg/machines/hostvmslist.jsx:365
-#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
+#: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
+#: pkg/machines/vmdiskstab.jsx:136 pkg/machines/hostvmslist.jsx:352
+#: pkg/machines/hostvmslist.jsx:363 pkg/storaged/fsys-tab.jsx:225
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1467
 msgid "Used"
 msgstr ""
@@ -7349,6 +7351,10 @@ msgstr "사용자 이름"
 
 #: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
 msgid "User Password"
+msgstr ""
+
+#: cockpit.appdata.xml.in.h:1
+msgid "User interface for Linux servers"
 msgstr ""
 
 #: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
@@ -7465,7 +7471,7 @@ msgstr ""
 msgid "View Registration Details"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:474
+#: pkg/machines/hostvmslist.jsx:472
 msgid "Virtual Machines"
 msgstr ""
 
@@ -7480,7 +7486,7 @@ msgstr "논리 볼륨"
 msgid "Volume Group"
 msgstr ""
 
-#: pkg/storaged/storage-controls.jsx:180 pkg/storaged/utils.js:246
+#: pkg/storaged/utils.js:246 pkg/storaged/storage-controls.jsx:180
 msgid "Volume Group $0"
 msgstr "볼륨 그룹 $0"
 
@@ -7589,7 +7595,7 @@ msgid ""
 "synchronize users, a user with superuser privileges is required."
 msgstr ""
 
-#: pkg/dashboard/list.js:394
+#: pkg/dashboard/list.js:395
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "현재 직접적으로 이 서버에 연결되어 있습니다. 삭제하실 수 없습니다."
@@ -7764,10 +7770,10 @@ msgstr ""
 msgid "no"
 msgstr ""
 
-#: pkg/kubernetes/views/node-body.html:33
-#: pkg/kubernetes/views/node-body.html:59
 #: pkg/kubernetes/views/route-body.html:24
 #: pkg/kubernetes/views/route-body.html:29
+#: pkg/kubernetes/views/node-body.html:33
+#: pkg/kubernetes/views/node-body.html:59
 #: node_modules/registry-image-widgets/views/image-listing.html:53
 #: pkg/docker/run.js:418 pkg/docker/run.js:474 pkg/docker/run.js:528
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
@@ -7855,7 +7861,7 @@ msgstr ""
 msgid "unpartitioned space on $0"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:293
+#: pkg/machines/hostvmslist.jsx:291
 msgid "vCPUs:"
 msgstr ""
 

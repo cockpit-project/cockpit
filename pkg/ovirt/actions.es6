@@ -47,6 +47,10 @@ export function createVmFromTemplate ({ templateName, clusterName, vm }) {
     return virt('CREATE_VM_FROM_TEMPLATE', { templateName, clusterName, vm });
 }
 
+export function switchHostToMaintenance ({ hostId }) {
+    return virt('HOST_TO_MAINTENANCE', { hostId });
+}
+
 export function updateHost(host) {
     return {
         type: 'OVIRT_UPDATE_HOST',
@@ -132,6 +136,16 @@ export function goToSubpage (target) {
         type: 'OVIRT_GOTO_SUBPAGE',
         payload: {
             target,
+        },
+    };
+}
+
+export function setHostname(hostname) {
+    return {
+        type: 'OVIRT_SET_HOSTNAME',
+        payload: {
+            hostname,
         }
     };
 }
+

@@ -96,6 +96,10 @@ function configReducer (state, action) {
         {
             return Object.assign({}, state, { loginInProgress: action.payload.loginInProgress });
         }
+        case 'OVIRT_SET_HOSTNAME':
+        {
+            return Object.assign({}, state, { hostname: action.payload.hostname });
+        }
         default:
             return state;
     }

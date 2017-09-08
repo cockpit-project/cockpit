@@ -17,37 +17,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
-import store from './store.es6';
-import { getAllVms } from '../machines/actions.es6';
+import store from '../machines/store.es6';
 import { logDebug } from '../machines/helpers.es6';
 
-import Provider from './provider.es6';
-import App from './components/App.jsx';
-import { setVirtProvider } from '../machines/provider.es6';
-
-function render() {
-    React.render(
-        React.createElement(App, {store: store}),
-        document.getElementById('app')
-    );
+export function waitForReducerSubtreeInit(delayedFunc) {
+    const state = store.getState();
+    if (state && state.config && state.config.providerState && state.config.providerState.ovirtConfig) {
+        delayedFunc();
+    } else {
+        logDebug('waitForReducerSubtreeInit(): subtree not yet initialized, waiting ...');
+        window.setTimeout(() => waitForReducerSubtreeInit(delayedFunc), 500);
+    }
 }
 
-/**
- * Start the application.
- */
-export function appMain() {
-    console.log("loading ovirt package");
-    logDebug('index.es6: initial state: ' + JSON.stringify(store.getState()));
-
-    setVirtProvider(Provider);
-
-    // re-render app every time the state changes
-    store.subscribe(render);
-
-    // do initial render
-    render();
-
-    // initiate data retrieval
-    store.dispatch(getAllVms());
-}
+// Let pkg/machines build the Redux store and extend it at runtime.
+export default store;

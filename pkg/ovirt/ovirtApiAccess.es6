@@ -85,7 +85,7 @@ export function ovirtApiPost (resource, body, failHandler) {
         headers,
         body,
     }).fail(function (exception, error) {
-        logError(`HTTP POST failed: ${JSON.stringify(error)}`);
+        console.info(`HTTP POST failed: ${JSON.stringify(error)}`);
         handleOvirtError({error, exception, failHandler});
     });
 }

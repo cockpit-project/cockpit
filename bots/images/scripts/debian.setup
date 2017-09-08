@@ -156,6 +156,9 @@ eatmydata apt-get -y autoremove || true
 
 # reduce image size
 apt-get clean
+pbuilder clean
+rm -rf /var/lib/docker/devicemapper
+rm -f /var/cache/apt/*cache.bin
 /var/lib/testvm/zero-disk.setup
 
 # Final tweaks

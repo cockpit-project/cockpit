@@ -129,6 +129,29 @@ var ContainerDetails = React.createClass({
     }
 });
 
+var ContainerProblems = React.createClass({
+    onItemClick: function (event) {
+        cockpit.jump(event.currentTarget.dataset.url, cockpit.transport.host);
+    },
+
+    render: function () {
+        var problem = this.props.problem;
+        var problem_cursors = [];
+        for (var i = 0; i < problem.length; i++) {
+            problem_cursors.push(<a data-url={problem[i][0]} className='list-group-item' onClick={this.onItemClick}>
+                                   <span className="pficon pficon-warning-triangle-o fa-lg"></span>
+                                   {problem[i][1]}
+                                 </a>)
+        }
+
+        return (
+            <div className='list-group dialog-list-ct'>
+              {problem_cursors}
+            </div>
+        );
+    }
+});
+
 var ContainerList = React.createClass({
     getDefaultProps: function () {
         return {
@@ -140,7 +163,8 @@ var ContainerList = React.createClass({
 
     getInitialState: function () {
         return {
-            containers: []
+            containers: [],
+            problems: {}
         };
     },
 
@@ -185,14 +209,50 @@ var ContainerList = React.createClass({
         this.setState({ containers: containers });
     },
 
+    setNewProblem: function (c_id, url, message) {
+        /* New problem is always displayed, no matter if the same problem is
+         * already shown. It is because user may be interested into dynamic
+         * watching of the problems occurring. After refreshing the site, only
+         * the latest occurrence is displayed.
+         */
+        var known_problems = this.state.problems;
+        if (c_id in known_problems)
+            known_problems[c_id].push([url, message]);
+        else
+            known_problems[c_id] = [[url, message]];
+        this.setState({ problems: known_problems });
+    },
+
+    newProblemOccurred: function (event, problem_path) {
+        util.find_container_log(this.problems_client, problem_path, this.setNewProblem);
+    },
+
     componentDidMount: function () {
+        var self = this;
+        this.problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
+        this.service = this.problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
+        this.problems = this.problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
+        this.problems.wait(function() {
+            if (typeof self.service.GetSession !== "undefined"){
+                self.service.GetSession().
+                    done(function(session_path) {
+                        self.problems_client.call(session_path, "org.freedesktop.Problems2.Session", "Authorize", [{}]);
+                    });
+            }
+        });
+
         $(this.props.client).on('container.containers', this.containersChanged);
         $(this.props.client).on('container.container-details', this.containersChanged);
+        this.service.addEventListener("Crash", this.newProblemOccurred);
+
+        util.find_all_problems(this.problems, this.problems_client, this.service, self.setNewProblem);
     },
 
     componentWillUnmount: function () {
         $(this.props.client).off('container.containers', this.containersChanged);
         $(this.props.client).off('container.container-details', this.containersChanged);
+        this.service.removeEventListener("Crash", this.newProblemOccurred);
+        this.problems_client.close()
     },
 
     render: function () {
@@ -208,6 +268,8 @@ var ContainerList = React.createClass({
 
         var rows = filtered.map(function (container) {
             var isRunning = !!container.State.Running;
+            var hasProblem = false;
+            var shortContID = container.Id.slice(0, 12);
 
             var state;
             if (this.props.client.waiting[container.Id]) {
@@ -219,6 +281,11 @@ var ContainerList = React.createClass({
             var image = container.Image;
             if (container.ImageID && image == container.ImageID)
                 image = docker.truncate_id(image);
+
+            if (shortContID in this.state.problems) {
+                hasProblem = true;
+                state = <div><span className="pficon pficon-warning-triangle-o"></span>{state}</div>
+            }
 
             var columns = [
                 { name: container.Name.replace(/^\//, ''), header: true },
@@ -260,6 +327,16 @@ var ContainerList = React.createClass({
                     data: { container: container }
                 }
             ];
+            if (hasProblem) {
+                var c_problems = this.state.problems[shortContID] || [];
+                tabs.push(
+                    {
+                        name: _("Problems"),
+                        renderer: ContainerProblems,
+                        data: { problem: c_problems}
+                    }
+                );
+            }
 
             return <Listing.ListingRow key={container.Id}
                                        columns={columns}

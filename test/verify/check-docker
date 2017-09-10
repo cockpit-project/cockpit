@@ -531,6 +531,53 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-25", "fedora-i386", "fedora-testing", "rhel-7-4", "rhel-7-5")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic")
+    def testContainerProblems(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl start docker || systemctl start docker-latest")
+
+        # start abrt-ccpp service until abrt-journal-core patch is released
+        # https://github.com/abrt/abrt/commit/da2ae52f307f05f2eac0ad6e647561633544722a
+        m.execute("systemctl start abrt-ccpp")
+
+        # start container
+        m.execute('docker run -dit --name crashing_container busybox /bin/sh')
+
+        # crash in container
+        m.execute('docker exec crashing_container timeout -s ABRT -t 1 sleep 5 || true')
+
+        # login and go to docker page (Containers)
+        self.login_and_go("/docker")
+
+        sel = "#containers-containers .listing-ct-item .listing-ct-toggle"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        # wait for the Problems tab then click it
+        sel = '#containers-containers .listing-ct-panel .listing-ct-head ul li a:contains("Problems")'
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.click(sel)
+
+        # open link to logs
+        sel = "#containers-containers .listing-ct-panel .listing-ct-body a.list-group-item"
+        b.wait_present(sel)
+        b.wait_visible(sel)
+        b.wait_in_text(sel, "sleep" )
+        b.click(sel + ':contains("sleep")')
+
+        # wait for the page to load
+        b.enter_page("/system/logs")
+
+        # check for abrtd service in text
+        b.wait_present("#journal-entry-id")
+        b.wait_in_text("#journal-entry-id", "sleep")
+        b.wait_in_text("#journal-entry-fields","abrtd.service")
+
 @skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "rhel-atomic", "fedora-atomic", "fedora-i386")
 class TestAtomicScan(MachineCase):
     def setUp(self):

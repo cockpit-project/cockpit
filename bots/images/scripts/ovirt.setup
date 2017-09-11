@@ -51,6 +51,8 @@ engine-setup --config=/answers.conf --offline --accept-defaults
 runuser -u postgres -- psql engine -c "UPDATE vdc_options set option_value = 'false' where option_name = 'InstallVds';"
 runuser -u postgres -- psql engine -c "UPDATE vdc_options set option_value = 'false' where option_name = 'EncryptHostCommunication';"
 runuser -u postgres -- psql engine -c "UPDATE vdc_options set option_value = 'true' where option_name = 'UseHostNameIdentifier';"
+runuser -u postgres -- psql engine -c "UPDATE vdc_options set option_value = 'true' where option_name = 'CORSSupport';"
+runuser -u postgres -- psql engine -c "UPDATE vdc_options set option_value = '*' where option_name = 'CORSAllowedOrigins=*';"
 systemctl restart ovirt-engine
 
 # Install VDSM

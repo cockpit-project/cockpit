@@ -393,6 +393,7 @@ var aliases = {
     "moment": "moment/moment.js",
     "react": "react-lite/dist/react-lite.js",
     "term": "term.js-cockpit/src/term.js",
+    "xterm": "xterm/dist/xterm.js"
 };
 
 /* HACK: To get around redux warning about reminimizing code */
@@ -463,9 +464,10 @@ module.exports = {
             }
         ],
 
-        /* The stuff in noVNC are plain ol javascript */
+        /* The stuff in noVNC are plain ol javascript, silence webpack's warning */
         noParse: [
-            /\/node_modules\/noVNC\//
+            /\/node_modules\/noVNC\//,
+            /xterm.js/
         ]
     },
 

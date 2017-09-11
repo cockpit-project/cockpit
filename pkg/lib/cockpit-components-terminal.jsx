@@ -21,7 +21,7 @@
     "use strict";
 
     var React = require("react");
-    var Term = require("term");
+    var Term = require("xterm");
 
     require("console.css");
 
@@ -51,9 +51,7 @@
         componentWillMount: function () {
             var term = new Term({
                 cols: this.state.cols || 80,
-                rows: this.state.rows || 25,
-                screenKeys: true,
-                useStyle: true
+                rows: this.state.rows || 25
             });
 
             term.on('data', function(data) {
@@ -68,7 +66,7 @@
         },
 
         componentDidMount: function () {
-            this.state.terminal.open(this.refs.terminal);
+            this.state.terminal.open(this.refs.terminal, false);
             this.connectChannel();
 
             if (!this.props.rows) {

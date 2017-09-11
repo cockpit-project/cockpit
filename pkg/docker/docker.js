@@ -23,7 +23,7 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    var Terminal = require("term");
+    var Terminal = require("xterm");
 
     var docker = { };
 
@@ -131,11 +131,7 @@
 
         var term = new Terminal({
             cols: 80,
-            rows: 24,
-            screenKeys: true,
-            useStyle: true,
-            inlineStyle: false,
-            useFocus: false,
+            rows: 24
         });
 
         var enable_input = true;
@@ -144,7 +140,7 @@
 
         /* term.js wants the parent element to build its terminal inside of */
         parent.empty();
-        term.open(parent[0]);
+        term.open(parent[0], false);
 
         /* Shows and hides the cursor */
         self.typeable = function typeable(yes) {

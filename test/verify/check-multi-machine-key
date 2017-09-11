@@ -203,29 +203,15 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.click("#troubleshoot-dialog .btn-primary")
         b.wait_popdown('troubleshoot-dialog')
         b.enter_page("/system", host="10.111.113.2")
+        b.switch_to_top()
+
+        # We expect this iframe without the custom user to be active
         b.wait_not_present("iframe.container-frame[name='cockpit1:user@10.111.113.2/system']")
+        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
 
         # Change user
         authorize_user(m2, "user")
-
-        self.allow_restart_journal_messages()
-        self.allow_hostkey_messages()
-        # Might happen when killing the bridge.
-        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
-                                    "Received message for unknown channel: .*",
-                                    ".*: error reading from ssh",
-                                    ".*: bridge program failed: Child process exited with code .*",
-                                    # Since there is not password,
-                                    # reauthorize doesn't work on m2
-                                    "received authorize command for wrong user: user",
-                                    ".*: user admin reauthorization failed",
-                                    "Error executing command as another user: Not authorized",
-                                    "This incident has been reported.",
-                                    "sudo: a password is required")
-
-        # We expect this iframe to be active
-        b.switch_to_top()
-        b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
+        m2.execute("rm /home/admin/.ssh/authorized_keys")
 
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -249,6 +235,20 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
         b.enter_page("/system", host="user@10.111.113.2")
 
+        self.allow_restart_journal_messages()
+        self.allow_hostkey_messages()
+        # Might happen when killing the bridge.
+        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
+                                    "Received message for unknown channel: .*",
+                                    ".*: error reading from ssh",
+                                    ".*: bridge program failed: Child process exited with code .*",
+                                    # Since there is not password,
+                                    # reauthorize doesn't work on m2
+                                    "received authorize command for wrong user: user",
+                                    ".*: user admin reauthorization failed",
+                                    "Error executing command as another user: Not authorized",
+                                    "This incident has been reported.",
+                                    "sudo: a password is required")
 
 if __name__ == '__main__':
     test_main()

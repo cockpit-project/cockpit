@@ -793,6 +793,9 @@ If an "done" is sent to the bridge on this channel, then the socket and/or pipe
 input is shutdown. The channel will send an "done" when the output of the socket
 or pipe is done.
 
+If "spawn" is set and the channel is closed with a "problem" code, then the
+process will be sent a SIGTERM signal.
+
 Additionally, a "options" control message may be sent in this channel
 to change the "batch", "latency", and "window" options.
 

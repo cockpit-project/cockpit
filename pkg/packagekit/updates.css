@@ -1,3 +1,5 @@
+@import "/page.css";
+
 /* override default cockpit CSS, as this doesn't fit our table */
 table.listing-ct thead th:last-child {
     text-align: left;
@@ -234,4 +236,44 @@ tr.security.listing-ct-item {
 
 .tooltip.bottom .tooltip-arrow {
     top: 1px;
+}
+
+
+table.header-buttons td {
+    vertical-align: middle;
+}
+
+table.header-buttons h2 {
+    margin: 0 4rem 0 0; /* vertical default ones break vertical alignment */
+}
+
+table.header-buttons {
+    margin-bottom: 20px; /* replacement for h2's margin-bottom */
+}
+
+table.auto-conf {
+    margin-bottom: 2em;
+}
+
+table.auto-conf td {
+    padding-right: 1ex !important;
+}
+
+/* bootstrap sets widths to 100%, way too wide for Select widgets */
+table.auto-conf .dropdown-toggle {
+    width: auto;
+}
+table.auto-conf .dropdown {
+    width: auto !important;
+}
+
+/* three columns for auto update hour picker */
+#auto-update-time ul {
+    width: 25ex;
+}
+
+#auto-update-time li {
+    width: 8ex;
+    display: inline-block;
+    text-align: right;
 }

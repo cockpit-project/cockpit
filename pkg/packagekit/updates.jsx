@@ -23,6 +23,8 @@ var moment = require("moment");
 var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 require("listing.less");
 
+import AutoUpdates from "./autoupdates.jsx";
+
 const _ = cockpit.gettext;
 
 // "available" heading is built dynamically
@@ -486,7 +488,7 @@ class OsUpdates extends React.Component {
         super();
         this.state = { state: "loading", errorMessages: [], updates: {}, haveSecurity: false, timeSinceRefresh: null,
                        loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null,
-                       history: null, unregistered: false };
+                       history: null, unregistered: false, autoUpdatesEnabled: null };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
@@ -814,6 +816,7 @@ class OsUpdates extends React.Component {
                 return (
                     <div>
                         {unregisteredWarning}
+                        <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
                         <table id="available" width="100%">
                             <tr>
                                 <td><h2>{_("Available Updates")}</h2></td>
@@ -837,7 +840,8 @@ class OsUpdates extends React.Component {
                         }
                         <UpdatesList updates={this.state.updates} />
 
-                        { this.state.history
+                        { /* Hide history with automatic updates, as they don't feed their history into PackageKit */
+                          this.state.history && !this.state.autoUpdatesEnabled
                           ? <div id="history">
                               <h2>{_("Update History")}</h2>
                               <UpdateHistory history={this.state.history} limit="1" />
@@ -887,13 +891,18 @@ class OsUpdates extends React.Component {
                 }
 
                 return (
-                    <div className="blank-slate-pf">
-                        <div className="blank-slate-pf-icon">
-                            <span className="fa fa-check"></span>
-                        </div>
-                        <p>{_("System is up to date")}</p>
+                    <div>
+                        <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
+                        <div className="blank-slate-pf">
+                            <div className="blank-slate-pf-icon">
+                                <span className="fa fa-check"></span>
+                            </div>
+                            <p>{_("System is up to date")}</p>
 
-                        { this.state.history ? <div className="flow-list-blank-slate"><UpdateHistory history={this.state.history} limit="1" /></div> : null }
+                            { this.state.history && !this.state.autoUpdatesEnabled
+                                ? <div className="flow-list-blank-slate"><UpdateHistory history={this.state.history} limit="1" /></div>
+                                : null }
+                        </div>
                     </div>);
 
             default:

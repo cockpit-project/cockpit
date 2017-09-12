@@ -78,7 +78,7 @@ print [ e['id'] for e in data if e['owner']['key'] == 'admin' and e['contractNum
 "
 """
 
-@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-25", "fedora-26", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-25", "fedora-26", "fedora-27", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
 class TestSubscriptions(MachineCase):
     provision = {
         "0": { "address": "10.111.113.1/20" },

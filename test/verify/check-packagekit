@@ -528,7 +528,7 @@ class TestUpdates(PackageCase):
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-25", "fedora-26", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-25", "fedora-26", "fedora-27", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": { "address": "10.111.113.2/20", "dns": "10.111.113.2" },

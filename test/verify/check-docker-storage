@@ -37,6 +37,7 @@ from testlib import *
 def can_manage(machine):
     return machine.image in [ "fedora-25",
                               "fedora-26",
+                              "fedora-27",
                               "fedora-testing",
                               "rhel-7",
                               "rhel-7-4",
@@ -55,7 +56,7 @@ def initially_loopbacked(machine):
         return False
 
     # use the overlayfs or aufs driver by default on some distros
-    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-26", "fedora-testing", "fedora-atomic" ]:
+    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-26", "fedora-testing", "fedora-27", "fedora-atomic" ]:
         return False
 
     # The rest don't have space in the root volume group, or don't

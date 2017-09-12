@@ -45,7 +45,9 @@ mkdir -p ~/.ssh
 ssh-keygen -t rsa -f ~/.ssh/test-avc-rsa -N ""
 mv -f ~/.ssh/authorized_keys ~/.ssh/authorized_keys.test-avc
 cat .ssh/test-avc-rsa.pub >> ~/.ssh/authorized_keys
-chcon -t tmp_t ~/.ssh/authorized_keys
+chcon -t httpd_exec_t ~/.ssh/authorized_keys
+auditctl -D
+auditctl -w ~/.ssh/authorized_keys -p a
 ssh -o StrictHostKeyChecking=no -o 'BatchMode=yes' -i ~/.ssh/test-avc-rsa localhost || true
 mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
@@ -112,10 +114,8 @@ class TestSelinux(MachineCase):
         # trigger a fixable alert
         self.machine.execute(script=SELINUX_FIXABLE_ALERT_SCRIPT)
 
-        row_selector = "tbody:contains('sshd from open access on the file')"
+        row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
 
-        if self.machine.image in ["rhel-7", "rhel-7-4"]:
-            self.skipTest("Unable to fix automatically, setroubleshoot too old")
         # wait for the alert to appear
         b.wait_present(row_selector)
 
@@ -134,17 +134,11 @@ class TestSelinux(MachineCase):
         btn_sel = "div.list-group-item:contains('you can run restorecon') button"
         b.click(btn_sel)
 
-        # HACK there's a known issue where setroubleshoot is unable to run the fix
         # the fix should be applied
         b.wait_in_text(row_selector, "Solution applied successfully:")
-        # b.wait_in_text(row_selector, "Successfully ran /sbin/restorecon")
 
-        # HACK: we need updated test images for delete to work
-        # dismiss the alert
-        #b.click(row_selector + " button.pficon-delete")
-        #b.wait_not_present(row_selector)
-
-        #b.wait_in_text("body", "No SELinux alerts.")
+        b.click(row_selector + " button.pficon-delete")
+        b.wait_not_present(row_selector)
 
     @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "continuous-atomic", "fedora-atomic", "ubuntu-1604", "ubuntu-stable")
     def testEnforcingToggle(self):

@@ -178,12 +178,68 @@
                         </thead>
                         <thead>
                             <tr id="credential-keys">
-                                <td translatable="yes" colspan="2">Use the following keys to authenticate against other systems</td>
+                                <td colspan="2" translate>Use the following keys to authenticate against other systems</td>
                                 <td class="listing-ct-actions">
+                                    <a>
+                                        <i translate class="pficon pficon-add-circle-o"></i>
+                                        <span translate>Add key</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="load-custom-key hidden">
+                                <td colspan="3">
+                                    <div class="input-group">
+                                        <div id="ssh-file-container"></div>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" translate>Add</button>
+                                        </span>
+                                    </div>
+                                    <div class="dialog-error help-block"></div>
                                 </td>
                             </tr>
                         </thead>
-                        <tbody hidden>
+                        <tbody class="ssh-add-key-body open">
+                            <tr class="listing-ct-item listing-ct-head">
+                                <th class="credential-label"></th>
+                                <td></td>
+                                <td class="listing-ct-actions">
+                                    <div class="btn-group btn-onoff-ct">
+                                        <label class="btn active disabled">
+                                            <span>&#8230;</span>
+                                        </label>
+                                        <label class="btn disabled">
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="listing-ct-body">
+                                <td colspan="3">
+                                    <div class="alert alert-danger">
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                        <span class="credential-alert"></span>
+                                    </div>
+                                    <div class="credential-unlock">
+                                        <dl>
+                                            <dt>
+                                                <label translate>Password</label>
+                                            </dt>
+                                            <dd>
+                                                <input class="form-control credential-password"
+                                                        autocomplete="off"
+                                                        value="" type="password"/>
+                                            </dd>
+                                            <dt></dt>
+                                            <dd>
+                                                <button class="btn btn-primary"
+                                                        translate>Unlock Key</button>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody class="ssh-key-body" hidden>
                             <tr class="listing-ct-item listing-ct-head">
                                 <th class="credential-label"></th>
                                 <td></td>
@@ -213,7 +269,7 @@
                                 <td colspan="3">
                                     <div class="alert alert-danger">
                                         <i class="fa fa-exclamation-triangle"></i>
-                                        <span></span>
+                                        <span class="credential-alert"></span>
                                     </div>
                                     <div class="credential-unlock">
                                         <dl>
@@ -222,6 +278,7 @@
                                             </dt>
                                             <dd>
                                                 <input class="form-control credential-password"
+                                                        autocomplete="off"
                                                         value="" type="password"/>
                                             </dd>
                                             <dt></dt>
@@ -258,6 +315,7 @@
                                             </dt>
                                             <dd>
                                                 <input class="form-control credential-old"
+                                                    autocomplete="off"
                                                     value="" type="password"/>
                                             </dd>
                                             <dt>
@@ -265,6 +323,7 @@
                                             </dt>
                                             <dd>
                                                 <input class="form-control credential-new"
+                                                    autocomplete="off"
                                                     value="" type="password"/>
                                             </dd>
                                             <dt>
@@ -272,6 +331,7 @@
                                             </dt>
                                             <dd>
                                                 <input class="form-control credential-two"
+                                                    autocomplete="off"
                                                     value="" type="password"/>
                                             </dd>
                                             <dt>

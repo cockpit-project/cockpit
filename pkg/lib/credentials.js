@@ -23,10 +23,8 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    require("listing.less");
-    require("patterns");
-
     var lister = require("raw!credentials-ssh-private-keys.sh");
+    var remove_key = require("raw!credentials-ssh-remove-key.sh");
 
     var _ = cockpit.gettext;
 
@@ -114,8 +112,10 @@
                         block = block.trim();
                         if (block.slice(-4) === ".pub")
                             key.name = block.slice(0, -4);
-                        else
+                        else if (block)
                             key.name = block;
+                        else
+                            key.agent_only = true;
                     }
                     break;
                 case 2:
@@ -163,12 +163,18 @@
 
         function parse_info(line, key) {
             var parts = line.trim().split(" ");
+            parts = parts.filter(function(n) {
+                return !!n;
+            });
 
             key.size = parseInt(parts[0], 10);
             if (isNaN(key.size))
                 key.size = null;
 
             key.fingerprint = parts[1];
+
+             if (parts[2] && !key.name && parts[2].indexOf("/") !== -1)
+                key.name = parts[2];
         }
 
         self.change = function change(name, old_pass, new_pass, two_pass) {
@@ -202,7 +208,7 @@
                     dfd.resolve();
                 })
                 .fail(function(ex) {
-                    if (ex.constructor.name == "ProcessError")
+                    if (ex.exit_status)
                         ex = new Error(failure);
                     dfd.reject(ex);
                 })
@@ -247,6 +253,7 @@
             var buffer = "";
             var output = "";
             var failure = _("Not a valid private key");
+            var sent_password = false;
 
             var proc;
             var timeout = window.setTimeout(function() {
@@ -265,8 +272,10 @@
                 })
                 .fail(function(ex) {
                     console.log(output);
-                    if (ex.constructor.name == "ProcessError")
+                    if (ex.exit_status)
                         ex = new Error(failure);
+
+                    ex.sent_password = sent_password;
                     dfd.reject(ex);
                 })
                 .stream(function(data) {
@@ -279,6 +288,7 @@
                         buffer = "";
                         failure = _("Password not accepted");
                         this.input(password + "\n", true);
+                        sent_password = true;
                     } else if (bad_exp.test(buffer)) {
                         buffer = "";
                         this.input("\n", true);
@@ -288,10 +298,16 @@
             return dfd.promise();
         };
 
-        self.unload = function unload(name) {
-            return cockpit.spawn(["ssh-add", "-d", name],
-                    { pty: true, err: "message", directory: self.path })
-                .done(refresh);
+        self.unload = function unload(key) {
+            var proc;
+            var options = { pty: true, err: "message", directory: self.path };
+
+            if (key.name && !key.agent_only)
+                proc = cockpit.spawn(["ssh-add", "-d", key.name], options);
+            else
+                proc = cockpit.script(remove_key, [key.data], options);
+
+            return proc.done(refresh);
         };
 
         self.close = function close() {
@@ -304,206 +320,9 @@
         };
     }
 
-    function setup() {
-        var keys;
-
-        $("#credentials-dialog")
-
-            /* Show and hide panels */
-            .on("click", "tr.listing-ct-item", function(ev) {
-                var body;
-                if ($(ev.target).parents(".listing-ct-actions, ul").length === 0) {
-                    body = $(ev.target).parents("tbody");
-                    body.toggleClass("open").removeClass("unlock");
-                    body.find(".alert").hide();
-                }
-            })
-
-            /* Highlighting */
-            .on("mouseenter", ".listing-ct-item", function(ev) {
-                $(ev.target).parents("tbody").find(".listing-ct-item").addClass("highlight-ct");
-            })
-            .on("mouseleave", ".listing-ct-item", function(ev) {
-                $(ev.target).parents("tbody").find(".listing-ct-item").removeClass("highlight-ct");
-            })
-
-            /* Load and unload keys */
-            .on("change", ".btn-group", function(ev) {
-                var body = $(this).parents("tbody");
-                var id = body.attr("data-id");
-                var key = keys.items[id];
-                if (!key || !key.name)
-                    return;
-
-                var value = $(this).onoff("value");
-
-                /* Key needs to be loaded, show load UI */
-                if (value && !key.loaded) {
-                    body.addClass("open").addClass("unlock");
-
-                /* Key needs to be unloaded, do that directly */
-                } else if (!value && key.loaded) {
-                    keys.unload(key.name)
-                        .done(function(ex) {
-                            body.removeClass("open");
-                        })
-                        .fail(function(ex) {
-                            body.addClass("open").removeClass("unlock");
-                            body.find(".alert").show().find(".credential-alert").text(ex.message);
-                        });
-                }
-            })
-
-            /* Load key */
-            .on("click", ".credential-unlock button", function(ev) {
-                var body = $(this).parents("tbody");
-                var id = body.attr("data-id");
-                var key = keys.items[id];
-                if (!key || !key.name)
-                    return;
-
-                body.find("input button").prop("disabled", true);
-
-                var password = body.find(".credential-password").val();
-                keys.load(key.name, password)
-                    .always(function(ex) {
-                        body.find("input button").prop("disabled", false);
-                    })
-                    .done(function(ex) {
-                        body.find(".credential-password").val("");
-                        body.removeClass("unlock");
-                        body.find(".alert").hide();
-                    })
-                    .fail(function(ex) {
-                        body.find(".alert").show().find("span").text(ex.message);
-                        console.warn("loading key failed: ", ex.message);
-                    });
-            })
-
-            /* Change key */
-            .on("click", ".credential-change", function(ev) {
-                var body = $(this).parents("tbody");
-                var id = body.attr("data-id");
-                var key = keys.items[id];
-                if (!key || !key.name)
-                    return;
-
-                body.find("input button").prop("disabled", true);
-
-                var old_pass = body.find(".credential-old").val();
-                var new_pass = body.find(".credential-new").val();
-                var two_pass = body.find(".credential-two").val();
-                if (old_pass === undefined || new_pass === undefined || two_pass === undefined)
-                    throw "invalid password fields";
-
-                keys.change(key.name, old_pass, new_pass, two_pass)
-                    .always(function(ex) {
-                        body.find("input button").prop("disabled", false);
-                    })
-                    .done(function() {
-                        body.find(".credential-old").val("");
-                        body.find(".credential-new").val("");
-                        body.find(".credential-two").val("");
-                        body.find("li a").first().click();
-                    })
-                    .fail(function(ex) {
-                        body.find(".alert").show().find("span").text(ex.message);
-                    });
-            })
-
-            .on("change keypress", "input", function(ev) {
-                var body = $(this).parents("tbody");
-                if (ev.type == "keypress" && ev.keyCode == 13)
-                    $(this).parents("dl").find(".btn-primary").click();
-                body.find(".alert").hide();
-            })
-
-            /* Change tabs */
-            .on("click", "tr.credential-panel ul > li > a", function() {
-                var li = $(this).parent();
-                var index = li.index();
-                li.parent().children().removeClass("active");
-                li.addClass("active");
-                var body = $(this).parents("tbody");
-                body.find(".credential-tab").hide().eq(index).show();
-                body.find(".alert").hide();
-            })
-
-            /* Popover help */
-            .on("click", "[data-toggle='popover']", function() {
-                $(this).popover('toggle');
-            })
-
-            /* Dialog is hidden */
-            .on("hide.bs.modal", function() {
-                if (keys) {
-                    $(keys).off();
-                    keys.close();
-                    keys = null;
-                }
-            })
-
-            /* Dialog is shown */
-            .on("show.bs.modal", function() {
-                keys = new Keys();
-                $("#credential-keys").toggleClass("hidden",
-                                                  $.isEmptyObject(keys.items));
-
-                $(keys).on("changed", function() {
-                    var key, id, row, rows = { };
-                    var table = $("#credentials-dialog table.credential-listing");
-
-                    table.find("tbody[data-id]").each(function(i, el) {
-                        row = $(el);
-                        rows[row.attr("data-id")] = row;
-                    });
-
-                    var body = table.find("tbody").first();
-                    for (id in keys.items) {
-                        if (!(id in rows)) {
-                            row = rows[id] = body.clone();
-                            row.attr("data-id", id)
-                                .show()
-                                .onoff();
-                            table.append(row);
-                        }
-                    }
-
-                    function text(row, field, string) {
-                        var sel = row.find(field);
-                        string = string || "";
-                        if (sel.text() !== string)
-                            sel.text(string);
-                    }
-
-                    for (id in rows) {
-                        row = rows[id];
-                        key = keys.items[id];
-                        if (key) {
-                            text(row, ".credential-label", key.name || key.comment);
-                            text(row, ".credential-type", key.type);
-                            text(row, ".credential-fingerprint", key.fingerprint);
-                            text(row, ".credential-comment", key.comment);
-                            text(row, ".credential-data", key.data);
-                            row.attr("data-name", key.name)
-                                .attr("data-loaded", key.loaded ? "1" : "0")
-                                .find(".btn-onoff-ct")
-                                    .onoff("value", key.loaded || row.hasClass("unlock"))
-                                    .onoff("disabled", !key.name);
-                        } else {
-                            row.remove();
-                        }
-                        $("#credential-keys").toggleClass("hidden",
-                                                          $.isEmptyObject(keys.items));
-                    }
-                });
-            });
-        }
-
     module.exports = {
         keys_instance: function () {
             return new Keys();
-        },
-        setup: setup
+        }
     };
 }());

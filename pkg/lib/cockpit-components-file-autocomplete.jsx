@@ -67,6 +67,30 @@ var FileAutoComplete = React.createClass({
         });
     },
 
+    onMouseDown: function (ev) {
+        // only consider clicks with the primary button
+        if (ev && ev.button !== 0)
+            return;
+
+        if (ev.target.tagName == 'A') {
+            this.setState({
+                selecting: true,
+            });
+        }
+    },
+
+    onBlur: function() {
+        if (this.state.selecting)
+            return;
+
+        if (this.timer)
+            window.clearTimeout(this.timer);
+
+        this.setState({
+            open: false,
+        });
+    },
+
     delayedOnChange: function(ev) {
         var self = this;
         var value = ev.currentTarget.value;
@@ -187,8 +211,11 @@ var FileAutoComplete = React.createClass({
             value = directory + value;
             this.setState({
                 open: false,
-                value: value
+                value: value,
+                selecting: false,
             });
+
+            this.refs.input.focus();
             this.updateIfDirectoryChanged(value);
         }
     },
@@ -231,9 +258,9 @@ var FileAutoComplete = React.createClass({
         return (
             <div className="combobox-container" id={this.props.id}>
                 <div className={classes}>
-                    <input autocomplete="false" placeholder={placeholder} className="combobox form-control" type="text" onChange={this.delayedOnChange} value={this.state.value} />
+                    <input ref="input" autocomplete="false" placeholder={placeholder} className="combobox form-control" type="text" onChange={this.delayedOnChange} value={this.state.value} onBlur={this.onBlur} />
                     <span onClick={this.showAllOptions} className={controlClasses}></span>
-                    <ul onClick={this.selectItem} className="typeahead typeahead-long dropdown-menu">
+                    <ul onMouseDown={this.onMouseDown} onClick={this.selectItem} className="typeahead typeahead-long dropdown-menu">
                         {listItems}
                     </ul>
                 </div>

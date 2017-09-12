@@ -280,5 +280,91 @@ class TestKeys(MachineCase):
                 self.assertIn(old_rsa, keys)
                 self.assertIn(old_dsa, keys)
 
+            b.click("#navbar-dropdown")
+            b.click("#credentials-item")
+            b.wait_popup("credentials-dialog")
+
+        # Rhel 7.4 has an old shell
+        if m.image == 'rhel-7-4':
+            b.wait_present("#credential-keys")
+            b.wait_not_present("#credential-keys a")
+            b.wait_not_present("tr.load-custom-key")
+            return
+
+        # Add bad keys
+        # generate a new key
+        m.execute("ssh-keygen -t rsa -N '' -f /tmp/new.rsa")
+        m.execute("chown admin:admin /tmp/new.rsa")
+        new_pk = m.execute("cat /tmp/new.rsa.pub").strip().split()[0]
+        m.execute("rm /tmp/new.rsa.pub")
+
+        b.wait_present("tbody[data-name=id_rsa]")
+
+        b.wait_visible("#credential-keys")
+        b.wait_present("#credential-keys a")
+        b.wait_not_visible("tr.load-custom-key")
+        b.click("#credential-keys a")
+        b.wait_visible("tr.load-custom-key")
+        b.wait_visible("tr.load-custom-key button")
+        b.wait_visible("#ssh-file-container")
+        b.wait_visible("#ssh-file-container input")
+        b.set_val("#ssh-file-container input", "/bad")
+        b.click("tr.load-custom-key button")
+        b.wait_text("tr.load-custom-key div.dialog-error", "Not a valid private key")
+
+        b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+        b.click("tr.load-custom-key button")
+        b.wait_not_visible("tr.load-custom-key")
+        b.wait_present("tbody[data-name='/tmp/new.rsa']")
+        b.click("tbody[data-name='/tmp/new.rsa']")
+        b.click("tbody[data-name='/tmp/new.rsa'] tr.listing-ct-head")
+
+        assert b.is_visible("tbody[data-name='/tmp/new.rsa'] .listing-ct-body")
+        assert b.is_visible("tbody[data-name='/tmp/new.rsa'] ul")
+        assert b.is_present("tbody[data-name='/tmp/new.rsa'] li.active:contains('Details')")
+        self.assertEqual(b.text("tbody[data-name='/tmp/new.rsa'] .credential-type"), "RSA")
+        b.wait_text_not("tbody[data-name='/tmp/new.rsa'] .credential-fingerprint", "")
+        b.click("tbody[data-name='/tmp/new.rsa'] li:contains('Public Key') a")
+        assert b.is_visible("tbody[data-name='/tmp/new.rsa'] textarea")
+        self.assertTrue(b.text("tbody[data-name='/tmp/new.rsa'] textarea").startswith(new_pk))
+
+        # Change password of key
+        b.click("tbody[data-name='/tmp/new.rsa'] li:contains('Password') a")
+        b.set_val("tbody[data-name='/tmp/new.rsa'] .credential-old", "")
+        b.set_val("tbody[data-name='/tmp/new.rsa'] .credential-new", "foobar")
+        b.set_val("tbody[data-name='/tmp/new.rsa'] .credential-two", "foobar")
+        b.click("tbody[data-name='/tmp/new.rsa'] .credential-change")
+        b.wait_present("tbody[data-name='/tmp/new.rsa'] li.active:contains('Details')")
+
+        # Turn key off, it goes away
+        b.click("tbody[data-name='/tmp/new.rsa'] .btn:contains('Off')")
+        b.wait_not_present("tbody[data-name='/tmp/new.rsa']")
+
+        # Key now has password that needs to be entered to add
+        b.wait_not_visible("tr.load-custom-key")
+        b.click("#credential-keys a")
+        b.wait_visible("tr.load-custom-key")
+        b.wait_visible("tr.load-custom-key button")
+        b.wait_visible("#ssh-file-container input")
+        b.set_val("#ssh-file-container input", "/bad")
+        b.click("tr.load-custom-key button")
+
+        b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+        b.click("tr.load-custom-key button")
+        b.wait_not_visible("tr.load-custom-key")
+        b.wait_present("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
+
+        assert b.is_present("tbody[data-name='/tmp/new.rsa'] .credential-unlock")
+        b.set_val("tbody[data-name='/tmp/new.rsa'] .credential-password", "badbad")
+        b.click("tbody[data-name='/tmp/new.rsa'] .credential-unlock .btn")
+
+        b.wait_visible("tbody[data-name='/tmp/new.rsa'] .alert")
+        b.wait_in_text("tbody[data-name='/tmp/new.rsa'] .alert", "Password")
+        b.set_val("tbody[data-name='/tmp/new.rsa'] .credential-password", "foobar")
+        b.click("tbody[data-name='/tmp/new.rsa'] .credential-unlock .btn")
+
+        b.wait_present("tbody[data-name='/tmp/new.rsa'][data-loaded=1]")
+        b.wait_not_present("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
+
 if __name__ == '__main__':
     test_main()

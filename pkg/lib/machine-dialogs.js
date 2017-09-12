@@ -27,6 +27,7 @@
 
     var machines = require("machines");
     var credentials = require("credentials");
+    require("patterns");
 
     var add_tmpl = require("raw!machine-add.html");
     var auth_failed_tmpl = require("raw!machine-auth-failed.html");

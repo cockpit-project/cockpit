@@ -1,9 +1,26 @@
 #!/bin/sh
-
-set -eu
+set -u
 
 # The first thing we do is list loaded keys
-ssh-add -L || true
+loaded=$(ssh-add -L)
+result="$?"
+
+set -e
+
+printf "$loaded"
+
+# Get info for each loaded key
+# ssh-keygen -l -f - is not
+# supported everywhere so use tempfile
+if [ $result -eq 0 ]; then
+    tempfile=$(mktemp)
+    echo "$loaded" | while read line; do
+       echo "$line" > "$tempfile"
+       printf "\v%s\v\v" "$line"
+       ssh-keygen -l -f "$tempfile" || true
+    done
+    rm $tempfile
+fi
 
 # Try to list keys in this directory
 cd "$1" || exit 0

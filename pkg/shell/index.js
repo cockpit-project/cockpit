@@ -21,7 +21,7 @@
     "use strict";
 
     var machis = require("machines");
-    var credentials = require("credentials");
+    var credentials = require("./credentials");
     var mdialogs = require("machine-dialogs");
 
     var indexes = require("./indexes");

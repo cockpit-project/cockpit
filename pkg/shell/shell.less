@@ -543,67 +543,109 @@ iframe.container-frame {
 
 /* Credentials dialog */
 
-#credentials-dialog .modal-body {
-    max-height: 500px;
-}
+#credentials-dialog {
+    .modal-body {
+        max-height: 500px;
+    }
 
-#credentials-dialog .btn-onoff-ct .btn {
-    padding-top: 1px;
-    padding-bottom: 1px;
-    height: 24px;
-    line-height: 24px;
-    display: inline;
-}
+    .btn-onoff-ct .btn {
+        padding-top: 1px;
+        padding-bottom: 1px;
+        height: 24px;
+        line-height: 24px;
+        display: inline;
+    }
 
-table.credential-listing {
-    margin-top: 0px;
-    width: 100%;
-}
+    table.credential-listing {
+        margin-top: 0px;
+        width: 100%;
 
-.credential-listing thead td {
-    padding-left: 15px;
-    padding-bottom: 15px;
+        thead tr.load-custom-key {
+            td.has-error div.dialog-error {
+                display: block;
+            }
+
+            td {
+                padding-left: 15px;
+                padding-bottom: 15px;
+                padding-top: 0;
+
+                .dropdown-menu {
+                    max-height: 100px;
+                }
+
+                input {
+                    width: 500px;
+                }
+
+                button {
+                    padding-right: 10px;
+                    padding-left: 10px;
+                }
+
+                span.input-group-btn {
+                    border-left: 2px solid transparent;
+                }
+
+                div.dialog-error {
+                    display: none;
+                }
+            }
+        }
+
+        tbody.ssh-add-key-body {
+            display: none;
+        }
+
+        tbody.ssh-add-key-body.unlock {
+            display: table-row-group;
+        }
+
+        dd, dt {
+            padding-top: 3px;
+            min-height: 26px;
+        }
+
+        dt {
+            min-width: 80px;
+            max-width: 100px;
+        }
+
+        input[type='password'] {
+            width: 300px;
+        }
+
+
+        textarea {
+            color: #222 !important;
+        }
+
+        dt label {
+            margin-bottom: 0px;
+        }
+    }
+
+    thead td {
+        padding-left: 15px;
+        padding-bottom: 15px;
+    }
+
+    tbody .credential-unlock {
+        display: none;
+    }
+
+    tbody.unlock .credential-panel {
+        display: none !important;
+    }
+
+    tbody.unlock .credential-unlock {
+        display: block;
+    }
 }
 
 .credential-data {
     word-wrap: break-word;
     word-break: break-all;
-}
-
-.credential-listing dd,
-.credential-listing dt {
-    padding-top: 3px;
-    min-height: 26px;
-}
-
-.credential-listing dt {
-    min-width: 80px;
-    max-width: 100px;
-}
-
-.credential-listing input[type='password'] {
-    width: 300px;
-}
-
-
-.credential-listing textarea {
-    color: #222 !important;
-}
-
-.credential-listing dt label {
-    margin-bottom: 0px;
-}
-
-tbody .credential-unlock {
-    display: none;
-}
-
-tbody.unlock .credential-panel {
-    display: none !important;
-}
-
-tbody.unlock .credential-unlock {
-    display: block;
 }
 
 .banned {

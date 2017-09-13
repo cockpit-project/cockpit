@@ -658,7 +658,7 @@
                                                               parts.port,
                                                               parts.address);
 
-            if ($("#login-type").val() != 'stored') {
+            if ($("#login-type button").val() != 'stored') {
                 options['password'] = $("#login-custom-password").val();
                 options["session"] = 'shared';
                 if (!user) {
@@ -691,6 +691,7 @@
         function change_login_type(value) {
             var stored = value != 'password';
             var text = $("#login-type li[value=" + value + "]").text();
+            $("#login-type button").val(value);
             $("#login-type button span").text(text);
             $("#login-available").toggle(stored);
             $("#login-diff-password").toggle(!stored);

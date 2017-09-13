@@ -783,6 +783,7 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#login-available")
         self.assertEqual(b.val("#login-custom-password"), "")
         self.assertEqual(b.val("#login-custom-user"), "")
+        self.assertEqual(b.attr("#login-custom-user", "placeholder"), "admin")
         b.set_val("#login-custom-user", "admin")
         b.set_val("#login-custom-password", "bad")
         fail_login(b)

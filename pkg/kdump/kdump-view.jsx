@@ -321,7 +321,7 @@ var KdumpPage = React.createClass({
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
-        cockpit.jump("/system/services#/kdump.service")
+        cockpit.jump("/system/services#/kdump.service", cockpit.transport.host);
     },
     dialogClosed: function() {
         this.setState( { dialogSettings: undefined, dialogObj: undefined } );

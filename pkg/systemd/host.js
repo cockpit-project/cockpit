@@ -360,7 +360,8 @@ PageServer.prototype = {
 
         $('#server').on('click', "[data-goto-service]", function () {
             var service = $(this).attr("data-goto-service");
-            cockpit.jump("/system/services/#/" + window.encodeURIComponent(service));
+            cockpit.jump("/system/services/#/" + window.encodeURIComponent(service),
+                         cockpit.transport.host);
         });
 
         self.plot_controls = plot.setup_plot_controls($('#server'), $('#server-graph-toolbar'));
@@ -1515,12 +1516,12 @@ $("#link-memory").on("click", function() {
 });
 
 $("#link-network").on("click", function() {
-    cockpit.jump("/network");
+    cockpit.jump("/network", cockpit.transport.host);
     return false;
 });
 
 $("#link-disk").on("click", function() {
-    cockpit.jump("/storage");
+    cockpit.jump("/storage", cockpit.transport.host);
     return false;
 });
 

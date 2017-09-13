@@ -161,7 +161,8 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         # Navigate to load iframe
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3']")
-        b.enter_page("/system", "10.111.113.3");
+        b.enter_page("/system", "10.111.113.3")
+
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -205,6 +206,12 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.click("#machine-link")
         b.click("#machine-dropdown ul a[data-address='10.111.113.3']")
         b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
+
+        b.enter_page("/system", "10.111.113.3")
+        b.wait_text_not("#system_information_systime_button", "")
+        b.wait_present("#link-network")
+        b.click("#link-network")
+        b.enter_page("/network", "10.111.113.3")
 
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")

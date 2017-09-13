@@ -65,6 +65,11 @@ class TestOVirtMachines(MachineCase):
         self.ovirt = self.machines['ovirt']
         m = self.machine
 
+        m.execute("hostname ovirt.cockpit.lan") # used as fallback when resolving based on browser's URL is not matching, see ovirt/helpers.es6:getHost()
+
+        self.engine_url = "https://{0}/ovirt-engine/".format(self.ovirt.forward['443']) # from phantomJS
+        print("Engine URL: {0}".format(self.engine_url))
+
         # Wait for the web service to be accessible
         args = { "api": "curl -s -k -u admin@internal:engine -H Content-type:application/xml", "addr": OVIRT_ADDR }
         m.execute(script=WAIT_SCRIPT % args)
@@ -241,6 +246,36 @@ class TestOVirtMachines(MachineCase):
         b.wait_present("button:contains('OK')")
         b.click("button:contains('OK')")  # Limitation of this test env: In fact self.machine is updated and not the VDSM, see hack_for_missing_vdsm().
         b.wait(lambda: TEST_VDSM_CONF_CONTENT in self.machine.execute("cat {0}".format(VDSM_CONF_FILE)))
+
+        # sit(self.machines)
+
+    def testHostToMaintenance(self):
+        b = self.browser
+
+        # By-passing the ovirt-authentication cycle of redirects by retrieving oVirt SSO token independently
+        # and navigating directly to the last step of auth procedure by passing the '#token=' URL param
+        self.login_and_go("/machines#token={0}".format(self.access_token))
+        b.wait_present(".main-app-div")
+        b.wait_in_text("body", "Virtual Machines")
+
+        b.wait_in_text("tbody tr th", "VM") # row with a vitual machine
+        b.wait_present("#ovirt-host-to-maintenance")
+        b.click("#ovirt-host-to-maintenance")
+
+        b.wait_present("#cockpit_modal_dialog")
+        b.wait_present("#cockpit_modal_dialog div:contains(Switch Host to Maintenance)")
+        b.click("#cockpit_modal_dialog button:contains(OK)")
+
+        # Since the test environment has just a single host, the action can not succeed on oVirt side - there is no
+        # remaining host to migrate the VM to or reassign SPM. In addition, the test environment is based on faqemu (fake qemu).
+        # Building of full-featured test environment seems to be not worth of the effort recently since we are not
+        # testing the oVirt itself but pkg/ovirt and it's connection to oVirt API.
+        #
+        # For this reason the test checks just for rendered error which is produced by oVirt API to verify proper action
+        # calling and processing on pkg/ovirt side.
+        b.wait_in_text(".modal-footer", "The following Hosts have running VMs and cannot be switched to maintenance mode: host.Please ensure that the following Clusters have at least one Host in UP state: Default.")
+        b.click("#cockpit_modal_dialog button:contains(Cancel)")
+        b.wait_not_present("#cockpit_modal_dialog")
 
         # sit(self.machines)
 

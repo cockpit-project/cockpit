@@ -198,6 +198,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_visible("#login-available")
         b.wait_visible("#login-custom-user")
+        self.assertEqual(b.attr("#login-custom-user", "placeholder"), "admin")
         self.assertEqual(b.val("#login-custom-user"), "user")
         b.set_val("#login-custom-user", "")
         b.click("#troubleshoot-dialog .btn-primary")

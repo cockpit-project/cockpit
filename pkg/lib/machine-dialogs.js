@@ -733,7 +733,7 @@
                 'supported' : methods,
                 'available' : available,
                 'machine_user' : machine_user,
-                'user' : self.user ? self.user.name : "",
+                'default_user' : self.user ? self.user.name : "",
                 'allows_password' : allows_password,
                 'can_sync': !!dialog.codes['sync-users'],
                 'machines.allow_connection_string' : machines.allow_connection_string,

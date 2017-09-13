@@ -824,12 +824,16 @@ class TestMultiMachine(MachineCase):
         b.click('#troubleshoot-dialog .btn-primary')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_visible("#login-diff-password")
-        b.set_val("#login-custom-password", "alt-password")
+        b.click("#login-type button")
+        b.wait_visible("#login-type ul li[value='stored'] a")
+        b.click("#login-type ul li[value='stored'] a")
+        b.wait_not_visible("#login-diff-password")
+        b.set_val("#login-custom-user", "root")
         b.click('#troubleshoot-dialog .btn-primary')
         b.wait_popdown('troubleshoot-dialog')
 
         b.wait_not_visible(".curtains-ct")
-        b.enter_page('/system', "admin@10.111.113.2:2222")
+        b.enter_page('/system', "root@10.111.113.2:2222")
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.* couldn\'t connect: .*',

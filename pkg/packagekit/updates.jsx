@@ -792,7 +792,7 @@ class OsUpdates extends React.Component {
                                     { _("You need to re-subscribe this system.") }
                                 </span>
                                 <button className="btn btn-primary pull-right"
-                                        onClick={ () => cockpit.jump("/subscriptions") }>
+                                        onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
                                     { _("View Registration Details") }
                                 </button>
                             </div>
@@ -879,7 +879,7 @@ class OsUpdates extends React.Component {
                             <p>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</p>
                             <div className="blank-slate-pf-main-action">
                                 <button className="btn btn-lg btn-primary"
-                                        onClick={ () => cockpit.jump("/subscriptions") }>
+                                        onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
                                     {_("Register…")}
                                 </button>
                             </div>

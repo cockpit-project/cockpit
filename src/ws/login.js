@@ -614,13 +614,23 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     }
 
     function login_reload (wanted) {
+        // Force a reload if not triggered below
+        // because only the hash part of the url
+        // changed
+        var timer = window.setTimeout(function() {
+            timer = null;
+            window.location.reload(true);
+        }, 100);
+
         if (wanted && wanted != window.location.href)
             window.location = wanted;
 
-        // Force a reload if the above didn't trigger it
-        window.setTimeout(function() {
-            window.location.reload(true);
-        }, 100);
+        // cancel forced reload if we are reloading
+        window.onbeforeunload = function() {
+            if (timer)
+                window.clearTimeout(timer);
+            timer = null;
+        };
     }
 
     function machine_application_login_reload (wanted) {

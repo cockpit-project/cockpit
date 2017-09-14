@@ -51,6 +51,14 @@ class TestStorage(StorageCase):
                     return False
             return True
 
+        # At least on Fedora 27, multipath only looks at SCSI_IDENT_
+        # and ID_WWN properties, so we install a custom udev rule to
+        # set ID_WWN to something that can identify multipathed devices.
+        #
+        m.write("/etc/udev/rules.d/99-fake-wwn.rules", 'SUBSYSTEM=="block", ENV{ID_WWN}="$env{ID_SCSI_SERIAL}"\n')
+        m.execute("udevadm control --reload")
+        m.execute("udevadm trigger")
+
         self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
@@ -90,6 +98,7 @@ class TestStorage(StorageCase):
 
         # Switch on multipathd.  A primary device should appear.
         b.wait_visible('#multipath-broken')
+
         b.click('#activate-multipath')
         b.wait_in_text(detail_row_value(5), "/dev/mapper/mpatha")
         b.wait_not_visible('#multipath-broken')

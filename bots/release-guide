@@ -104,6 +104,13 @@ prepare()
     rm -rf repo/guide/latest
     cp -rp repo/guide/$version repo/guide/latest
 
+    # Add frontmatter for Jekyll
+    find repo/guide/latest -name '*.html' | xargs sed -i '
+1i\
+---\
+layout: guide\
+---'
+
     git -C repo add guide/
 
     if git -C repo diff --staged --exit-code > /dev/null; then

@@ -25,6 +25,7 @@ import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId } from "./hel
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './vmdiskstab.jsx';
+import VmNetworkTab from './vmnetworktab.jsx';
 import GraphicsConsole from './components/graphicsConsole.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 
@@ -407,12 +408,14 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
 
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
+    const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Networks")}</div>);
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Console")}</div>);
 
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm, config: config }},
         {name: usageTabName, renderer: VmUsageTab, data: {vm, onUsageStartPolling, onUsageStopPolling}, presence: 'onlyActive' },
         {name: disksTabName, renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' },
+        {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch }},
         {name: consolesTabName, renderer: GraphicsConsole, data: { vm, config, dispatch }}
     ];
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list

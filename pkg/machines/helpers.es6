@@ -123,6 +123,26 @@ const transform = {
         'custom': _("custom"),
         'host-model': _("host"),
     },
+    'networkType': {
+        'direct': _("direct"),
+        'network': _("network"),
+        'bridge': _("bridge"),
+        'user': _("user"),
+        'ethernet': _("ethernet"),
+        'hostdev': _("hostdev"),
+        'mcast': _("mcast"),
+        'server': _("server"),
+        'udp': _("udp"),
+        'vhostuser': _("vhostuser"),
+    },
+    'networkManaged': {
+        'yes': _("yes"),
+        'no': _("no"),
+    },
+    'networkState': {
+        'up': _("up"),
+        'down': _("down"),
+    },
 };
 
 export function rephraseUI(key, original) {

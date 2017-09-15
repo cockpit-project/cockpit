@@ -3,21 +3,21 @@
         <li ng-class="{active: tab('main')}">
             <a ng-click="tab('main', $event)" translate>Container</a></li>
         <li ng-class="{active: tab('logs')}">
-            <a class="logs" ng-click="tab('logs', $event); tabbed = true" translate>Logs</a></li>
+            <a class="logs" ng-click="tab('logs', $event)" translate>Logs</a></li>
         <li ng-class="{active: tab('shell')}"
             ng-if="item.status.phase == 'Running' && container.status.state.running">
-                <a class="shell" ng-click="tab('shell', $event); tabbed = true" translate>Shell</a></li>
+                <a class="shell" ng-click="tab('shell', $event)" translate>Shell</a></li>
     </ul>
 </div>
 <div class="listing-ct-body" ng-show="tab('main')">
     <kube-container-body></kube-container-body>
 </div>
 <div class="listing-ct-body" ng-show="tab('logs')">
-    <kube-console pod="item" container="container.spec.name" prevent="!tabbed">
+    <kube-console pod="item" container="container.spec.name" prevent="!tab('logs')">
     </kube-console>
 </div>
 <div class="listing-ct-body" ng-show="tab('shell')"
     ng-if="item.status.phase == 'Running' && container.status.state.running">
-    <kubernetes-container-terminal pod="item" container="container.spec.name" prevent="!tabbed">
+    <kubernetes-container-terminal pod="item" container="container.spec.name" prevent="!tab('shell')">
     </kubernetes-container-terminal>
 </div>

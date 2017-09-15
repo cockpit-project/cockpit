@@ -31,6 +31,7 @@ typedef struct {
   CockpitWebService *service;
   gchar *base_path;
   gchar *host;
+  gchar *lang;
 } CockpitChannelInject;
 
 static void
@@ -44,6 +45,7 @@ cockpit_channel_inject_free (gpointer data)
         g_object_remove_weak_pointer (G_OBJECT (inject->service), (gpointer *)&inject->service);
       g_free (inject->base_path);
       g_free (inject->host);
+      g_free (inject->lang);
       g_free (inject);
     }
 }
@@ -51,6 +53,7 @@ cockpit_channel_inject_free (gpointer data)
 static CockpitChannelInject *
 cockpit_channel_inject_new (CockpitWebService *service,
                             const gchar *path,
+                            const gchar *lang,
                             const gchar *host)
 {
   CockpitChannelInject *inject = g_new (CockpitChannelInject, 1);
@@ -58,6 +61,7 @@ cockpit_channel_inject_new (CockpitWebService *service,
   g_object_add_weak_pointer (G_OBJECT (inject->service), (gpointer *)&inject->service);
   inject->base_path = g_strdup (path);
   inject->host = g_strdup (host);
+  inject->lang = g_strdup (lang);
   return inject;
 }
 
@@ -83,6 +87,7 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
   CockpitWebFilter *filter;
   CockpitCreds *creds;
   gchar *prefixed_application = NULL;
+  gchar *lang_application = NULL;
   const gchar *checksum;
   GString *str;
   GBytes *base;
@@ -103,17 +108,21 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
       prefixed_application = g_strdup_printf ("/%s", cockpit_creds_get_application (creds));
     }
 
+  if (inject->lang)
+    lang_application = g_strdup_printf ("%s/%s", prefixed_application, inject->lang);
+
   checksum = cockpit_web_service_get_checksum (inject->service, inject->host);
   if (checksum)
     {
       g_string_printf (str, "\n    <base href=\"%s/$%s%s\">",
-                       prefixed_application,
+                       lang_application ? lang_application : prefixed_application,
                        checksum, inject->base_path);
     }
   else
     {
       g_string_printf (str, "\n    <base href=\"%s/@%s%s\">",
-                       prefixed_application, inject->host, inject->base_path);
+                       lang_application ? lang_application : prefixed_application,
+                       inject->host, inject->base_path);
     }
 
   base = g_string_free_to_bytes (str);
@@ -123,6 +132,7 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
   cockpit_web_response_add_filter (response, filter);
   g_object_unref (filter);
   g_free (prefixed_application);
+  g_free (lang_application);
 }
 
 typedef struct {
@@ -482,17 +492,12 @@ parse_host_and_etag (CockpitWebService *service,
                      GHashTable *headers,
                      const gchar *where,
                      const gchar *path,
+                     const gchar *lang,
                      const gchar **host,
                      gchar **etag)
 {
-  gchar **languages = NULL;
   gboolean translatable;
-  gchar *language;
-
-  /* Parse the language out of the CockpitLang cookie and set Accept-Language */
-  language = cockpit_web_server_parse_cookie (headers, "CockpitLang");
-  if (language)
-    g_hash_table_replace (headers, g_strdup ("Accept-Language"), language);
+  gchar **languages = NULL;
 
   if (!where)
     {
@@ -545,6 +550,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
   const gchar *host = NULL;
   const gchar *pragma;
   gchar *quoted_etag = NULL;
+  gchar *lang = NULL;
   GHashTable *out_headers = NULL;
   gchar *val = NULL;
   gboolean handled = FALSE;
@@ -563,8 +569,13 @@ cockpit_channel_response_serve (CockpitWebService *service,
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
   g_return_if_fail (path != NULL);
 
+  /* Parse the language out of the CockpitLang cookie and set Accept-Language */
+  lang = cockpit_web_server_parse_cookie (in_headers, "CockpitLang");
+  if (lang)
+    g_hash_table_replace (in_headers, g_strdup ("Accept-Language"), lang);
+
   /* Where might be NULL, but that's still valid */
-  if (!parse_host_and_etag (service, in_headers, where, path, &host, &quoted_etag))
+  if (!parse_host_and_etag (service, in_headers, where, path, lang, &host, &quoted_etag))
     {
       /* Did not recognize the where */
       goto out;
@@ -666,6 +677,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
 
   chesp->inject = cockpit_channel_inject_new (service,
                                               where ? NULL : path,
+                                              lang,
                                               host);
   handled = TRUE;
 

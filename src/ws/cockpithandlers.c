@@ -606,6 +606,8 @@ cockpit_handler_default (CockpitWebServer *server,
 {
   CockpitWebService *service;
   const gchar *remainder = NULL;
+  gchar *lang = NULL;
+  gchar *lang_path = NULL;
   gboolean resource;
 
   path = cockpit_web_response_get_path (response);
@@ -622,8 +624,21 @@ cockpit_handler_default (CockpitWebServer *server,
   if (resource)
     {
       cockpit_web_response_skip_path (response);
-      remainder = cockpit_web_response_get_path (response);
 
+      lang = cockpit_web_server_parse_cookie (headers, "CockpitLang");
+      if (lang)
+        {
+          lang_path = g_strdup_printf ("/%s/", lang);
+          if (g_str_has_prefix (cockpit_web_response_get_path (response),
+                                lang_path))
+            {
+              cockpit_web_response_skip_path (response);
+            }
+          g_free (lang);
+          g_free (lang_path);
+        }
+
+      remainder = cockpit_web_response_get_path (response);
       if (!remainder)
         {
           cockpit_web_response_error (response, 404, NULL, NULL);

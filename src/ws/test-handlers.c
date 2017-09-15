@@ -187,6 +187,22 @@ include_cookie_as_if_client (GHashTable *resp_headers,
 }
 
 static void
+include_lang_cookie (GHashTable *resp_headers,
+                     const gchar *lang)
+{
+  const gchar *org_cookie;
+  gchar *cookie;
+
+  org_cookie = g_hash_table_lookup (resp_headers, "Cookie");
+  if (g_hash_table_contains (resp_headers, "Cookie"))
+    cookie = g_strdup_printf ("%s; CockpitLang=%s", org_cookie, lang);
+  else
+    cookie = g_strdup_printf ("CockpitLang=%s", lang);
+
+  g_hash_table_insert (resp_headers, g_strdup ("Cookie"), cookie);
+}
+
+static void
 test_login_with_cookie (Test *test,
                         gconstpointer path)
 {
@@ -354,6 +370,7 @@ typedef struct {
   const gchar *auth;
   const gchar *expect;
   const gchar *config;
+  const gchar *lang;
   gboolean with_home;
 } DefaultFixture;
 
@@ -405,6 +422,9 @@ setup_default (Test *test,
 
       include_cookie_as_if_client (test->headers, test->headers);
     }
+
+  if (fixture->lang)
+    include_lang_cookie(test->headers, fixture->lang);
 }
 
 static void
@@ -443,6 +463,14 @@ test_default (Test *test,
 static const DefaultFixture fixture_resource_checksum = {
   .path = "/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext",
   .auth = "/cockpit",
+  .expect = "HTTP/1.1 200*"
+    "These are the contents of file.ext*"
+};
+
+static const DefaultFixture fixture_resource_lang_checksum = {
+  .path = "/cockpit/fr-fr/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext",
+  .auth = "/cockpit",
+  .lang = "fr-fr",
   .expect = "HTTP/1.1 200*"
     "These are the contents of file.ext*"
 };
@@ -496,6 +524,16 @@ static const DefaultFixture fixture_shell_path_index = {
       "<title>In home dir</title>*"
 };
 
+static const DefaultFixture fixture_shell_path_lang_package = {
+  .path = "/system/host",
+  .org_path = "/path/system/host",
+  .auth = "/cockpit",
+  .lang = "fr-fr",
+  .expect = "HTTP/1.1 200*"
+      "<base href=\"/path/cockpit/fr-fr/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/another/test.html\">*"
+      "<title>In system dir</title>*"
+};
+
 static const DefaultFixture fixture_shell_path_package = {
   .path = "/system/host",
   .org_path = "/path/system/host",
@@ -527,6 +565,16 @@ static const DefaultFixture fixture_shell_path_login = {
 };
 
 static const DefaultFixture fixture_shell_index = {
+  .path = "/",
+  .auth = "/cockpit",
+  .with_home = TRUE,
+  .expect = "HTTP/1.1 200*"
+      "Cache-Control: no-cache, no-store*"
+      "<base href=\"/cockpit/@localhost/another/test.html\">*"
+      "<title>In home dir</title>*"
+};
+
+static const DefaultFixture fixture_shell_lang_index = {
   .path = "/",
   .auth = "/cockpit",
   .with_home = TRUE,
@@ -613,9 +661,33 @@ static const DefaultFixture fixture_resource_short = {
   .expect = "HTTP/1.1 404*"
 };
 
+static const DefaultFixture fixture_resource_lang_short = {
+  .path = "/cockpit/en-us/",
+  .lang = "en-us",
+  .auth = "/cockpit",
+  .expect = "HTTP/1.1 404*"
+};
+
+
+static const DefaultFixture fixture_resource_lang = {
+  .path = "/cockpit/en-us/@localhost/test/sub/file.ext",
+  .auth = "/cockpit",
+  .lang = "en-us",
+  .expect = "HTTP/1.1 200*"
+    "These are the contents of file.ext*"
+};
+
 static const DefaultFixture fixture_resource_host = {
   .path = "/cockpit/@localhost/test/sub/file.ext",
   .auth = "/cockpit",
+  .expect = "HTTP/1.1 200*"
+    "These are the contents of file.ext*"
+};
+
+static const DefaultFixture fixture_resource_host_lang = {
+  .path = "/cockpit/fr-fr/@localhost/test/sub/file.ext",
+  .auth = "/cockpit",
+  .lang = "fr-fr",
   .expect = "HTTP/1.1 200*"
     "These are the contents of file.ext*"
 };
@@ -628,6 +700,14 @@ static const DefaultFixture fixture_resource_host_short = {
 
 static const DefaultFixture fixture_resource_application = {
   .path = "/cockpit+application/@localhost/test/sub/file.ext",
+  .auth = "/cockpit+application",
+  .expect = "HTTP/1.1 200*"
+    "These are the contents of file.ext*"
+};
+
+static const DefaultFixture fixture_resource_application_lang = {
+  .path = "/cockpit+application/fr-fr/@localhost/test/sub/file.ext",
+  .lang = "fr-fr",
   .auth = "/cockpit+application",
   .expect = "HTTP/1.1 200*"
     "These are the contents of file.ext*"
@@ -658,6 +738,16 @@ static const DefaultFixture fixture_resource_login = {
     "Set-Cookie: cockpit=deleted*"
     "<html>*"
     "login-button*"
+};
+
+static const DefaultFixture fixture_static_lang = {
+  .path = "/cockpit/fr-fr/static/branding.css",
+  .lang = "fr-fr",
+  .auth = "/cockpit",
+  .expect = "HTTP/1.1 200*"
+    "Cache-Control: max-age=31556926, public*"
+    "#badge*"
+    "url(\"logo.png\");*"
 };
 
 static const DefaultFixture fixture_static_simple = {
@@ -843,6 +933,8 @@ main (int argc,
 
   g_test_add ("/handlers/shell/index", Test, &fixture_shell_index,
               setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/shell/index-lang", Test, &fixture_shell_lang_index,
+              setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/machine-index", Test, &fixture_machine_shell_index,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/configured_index", Test, &fixture_shell_configured_index,
@@ -865,21 +957,32 @@ main (int argc,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/path-package", Test, &fixture_shell_path_package,
               setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/shell/lang-path-package", Test, &fixture_shell_path_lang_package,
+              setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/path-host", Test, &fixture_shell_path_host,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/shell/path-login", Test, &fixture_shell_path_login,
               setup_default, test_default, teardown_default);
-
   g_test_add ("/handlers/resource/checksum", Test, &fixture_resource_checksum,
+              setup_default, test_resource_checksum, teardown_default);
+  g_test_add ("/handlers/resource/checksum-lang", Test, &fixture_resource_lang_checksum,
               setup_default, test_resource_checksum, teardown_default);
 
   g_test_add ("/handlers/resource/short", Test, &fixture_resource_short,
               setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/resource/short-lang", Test, &fixture_resource_lang_short,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/resource/lang", Test, &fixture_resource_lang,
+              setup_default, test_default, teardown_default);
   g_test_add ("/handlers/resource/host", Test, &fixture_resource_host,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/resource/host-lang", Test, &fixture_resource_host_lang,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/resource/host-short", Test, &fixture_resource_host_short,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/resource/application", Test, &fixture_resource_application,
+              setup_default, test_default, teardown_default);
+  g_test_add ("/handlers/resource/application-lang", Test, &fixture_resource_application_lang,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/resource/application-short", Test, &fixture_resource_application_short,
               setup_default, test_default, teardown_default);
@@ -890,6 +993,8 @@ main (int argc,
   g_test_add ("/handlers/resource/login", Test, &fixture_resource_login,
               setup_default, test_default, teardown_default);
 
+  g_test_add ("/handlers/static/lang", Test, &fixture_static_lang,
+              setup_default, test_default, teardown_default);
   g_test_add ("/handlers/static/simple", Test, &fixture_static_simple,
               setup_default, test_default, teardown_default);
   g_test_add ("/handlers/static/host-static", Test, &fixture_host_static,

@@ -177,6 +177,32 @@ WantedBy=default.target
         self.assertEqual(b.text("#angular-context"), "Bereiten")
         self.assertEqual(b.text("#angular-interpolate"), u"'Marmalade' löschen!!!")
 
+        # Back to english
+        b.switch_to_top()
+        b.wait_visible("#navbar-dropdown")
+        b.click("#navbar-dropdown")
+        b.click(".display-language-menu a")
+        b.wait_popup('display-language')
+        b.set_val("#display-language select", "en-us")
+        b.click("#display-language-select-button")
+        b.expect_load()
+        b.wait_present("#content")
+        b.enter_page("/playground/translate")
+        self.assertEqual(b.text("#translate-html"), "Ready")
+
+        # Back to german
+        b.switch_to_top()
+        b.wait_visible("#navbar-dropdown")
+        b.click("#navbar-dropdown")
+        b.click(".display-language-menu a")
+        b.wait_popup('display-language')
+        b.set_val("#display-language select", "de-de")
+        b.click("#display-language-select-button")
+        b.expect_load()
+        b.wait_present("#content")
+        b.enter_page("/playground/translate")
+        self.assertEqual(b.text("#translate-html"), "Bereit")
+
         # Log out and check that login page is translated now
         b.logout()
         b.wait_visible('#password-group')

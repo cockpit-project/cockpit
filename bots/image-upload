@@ -1,5 +1,23 @@
 #!/usr/bin/python2
 
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+
 # The default settings here should match one of the default
 # download stores. These are usually cockpit/images instances
 UPLOAD = "https://209.132.184.69:8493/"
@@ -59,17 +77,21 @@ def upload(store, source):
     return ret
 
 def main():
-    parser = argparse.ArgumentParser(description='Upload virtual machine images')
-    parser.add_argument("--store", default=UPLOAD, help="Where to send images")
+    parser = argparse.ArgumentParser(description='Upload bot state or images')
+    parser.add_argument("--store", default=UPLOAD, help="Where to send state or images")
+    parser.add_argument("--state", action="store_true", help="Images or state not recorded in git")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
 
     sources = []
     for image in args.image:
-        link = os.path.join(IMAGES, image)
-        if not os.path.islink(link):
-            parser.error("image link does not exist: " + image)
-        source = os.path.join(DATA, os.readlink(link))
+        if args.state:
+            source = os.path.join(DATA, image)
+        else:
+            link = os.path.join(IMAGES, image)
+            if not os.path.islink(link):
+                parser.error("image link does not exist: " + image)
+            source = os.path.join(DATA, os.readlink(link))
         if not os.path.isfile(source):
             parser.error("image does not exist: " + image)
         sources.append(source)

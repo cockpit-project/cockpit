@@ -18,6 +18,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+#
+# Download images or other state
+#
+# Images usually have a name specific link committed to git. These
+# are referred to as 'committed'
+#
+# Other state is simply referenced by name without a link in git
+# This is referred to as 'state'
+#
+# The stores are places to look for images or other state
+#
+
 CONFIG = "~/.config/image-stores"
 DEFAULT = [
     "https://209.132.184.69:8493/",
@@ -25,9 +37,6 @@ DEFAULT = [
     "http://cockpit-images.verify.svc.cluster.local",
     "https://fedorapeople.org/groups/cockpit/images/"
 ]
-
-# Days after which images expire if not in use
-IMAGE_EXPIRE = 14
 
 import argparse
 import os
@@ -44,35 +53,9 @@ IMAGES = os.path.join(BOTS, "..", "bots", "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 DEVNULL = open("/dev/null", "r+")
+EPOCH = "Thu, 1 Jan 1970 00:00:00 GMT"
 
-def download(link, force, quiet, stores):
-    if not os.path.exists(DATA):
-        os.makedirs(DATA)
-
-    dest = os.readlink(link)
-    relative_dir = os.path.dirname(os.path.abspath(link))
-    full_dest = os.path.join(relative_dir, dest)
-    while not ".qcow2" in dest and os.path.islink(full_dest):
-        link = full_dest
-        dest = os.readlink(link)
-        relative_dir = os.path.dirname(os.path.abspath(link))
-        full_dest = os.path.join(relative_dir, dest)
-
-    dest = os.path.join(DATA, dest)
-
-    # we have the file but there is not valid link
-    if os.path.exists(dest) and not os.path.exists(link):
-        os.symlink(dest, os.path.join(IMAGES, os.readlink(link)))
-
-    # The image file in the images directory, may be same as dest
-    image_file = os.path.join(IMAGES, os.readlink(link))
-
-    # file already exists, double check that symlink in place
-    if not force and os.path.exists(dest):
-        if not os.path.exists(image_file):
-            os.symlink(os.path.abspath(dest), image_file)
-        return
-
+def download(dest, force, quiet, stores):
     if not stores:
         config = os.path.expanduser(CONFIG)
         if os.path.exists(config):
@@ -81,6 +64,13 @@ def download(link, force, quiet, stores):
         else:
             stores = []
         stores += DEFAULT
+
+    # The time condition for If-Modified-Since
+    exists = not force and os.path.exists(dest)
+    if exists:
+        since = dest
+    else:
+        since = EPOCH
 
     name = os.path.basename(dest)
     ca = os.path.join(BOTS, "images", "files", "ca.pem")
@@ -101,7 +91,7 @@ def download(link, force, quiet, stores):
             message = "{scheme}://{0}:{1}{path}".format(*sockaddr, scheme=url.scheme, path=url.path)
 
             try:
-                cmd = ["curl", "--head", "--silent",  "--resolve", resolve, "--fail", "--cacert", ca, source]
+                cmd = ["curl", "--head", "--silent", "--resolve", resolve, "--fail", "--cacert", ca, source ]
                 subprocess.check_call(cmd, stdout=DEVNULL)
                 break
             except subprocess.CalledProcessError:
@@ -125,6 +115,11 @@ def download(link, force, quiet, stores):
             sys.stderr.write(" > {0}\n".format(urlparse.urljoin(message, name)))
         break
 
+    # If we couldn't find the file, but it exists, we're good
+    else:
+        if exists:
+            return
+
     (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=os.path.dirname(dest))
 
     # Adjust the command above that worked to make it visible and download real stuff
@@ -132,6 +127,9 @@ def download(link, force, quiet, stores):
     if not quiet:
         cmd.remove("--silent")
         cmd.insert(1, "--progress-bar")
+    cmd.append("--remote-time")
+    cmd.append("--time-cond")
+    cmd.append(since)
     cmd.append("--output")
     cmd.append(temp)
     os.close(fd)
@@ -141,48 +139,87 @@ def download(link, force, quiet, stores):
         ret = curl.wait()
         if ret != 0:
             real_url = urlparse.urljoin("{0}://{1}:{2}{3}".format(url.scheme, sockaddr[0], sockaddr[1], url.path), name)
-            raise Exception("curl: unable to download %s (returned: %s)" % (real_url, ret))
+            raise RuntimeError("curl: unable to download %s (returned: %s)" % (real_url, ret))
 
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-        shutil.move(temp, dest)
+
+        # Due to time-cond the file size may be zero
+        # A new file downloaded, put it in place
+        if not exists or os.path.getsize(temp) > 0:
+            shutil.move(temp, dest)
+
     finally:
         # if we had an error and the temp file is left over, delete it
         if os.path.exists(temp):
             os.unlink(temp)
 
-    # Handle alternate TEST_DATA
+# Calculate a place to put images where links are not committed in git
+def state_target(path):
+    return os.path.join(DATA, path)
+
+# Calculate a place to put images where links are committed in git
+def committed_target(image):
+    link = os.path.join(IMAGES, image)
+    if not os.path.islink(link):
+        raise RuntimeError("image link does not exist: " + image)
+
+    dest = os.readlink(link)
+    relative_dir = os.path.dirname(os.path.abspath(link))
+    full_dest = os.path.join(relative_dir, dest)
+    while os.path.islink(full_dest):
+        link = full_dest
+        dest = os.readlink(link)
+        relative_dir = os.path.dirname(os.path.abspath(link))
+        full_dest = os.path.join(relative_dir, dest)
+
+    dest = os.path.join(DATA, dest)
+
+    # We have the file but there is not valid link
+    if os.path.exists(dest) and not os.path.exists(link):
+        os.symlink(dest, os.path.join(IMAGES, os.readlink(link)))
+
+    # The image file in the images directory, may be same as dest
+    image_file = os.path.join(IMAGES, os.readlink(link))
+
+    # Double check that symlink in place
     if not os.path.exists(image_file):
         os.symlink(os.path.abspath(dest), image_file)
 
-def every_image():
-    result = []
-    for filename in os.listdir(IMAGES):
-        link = os.path.join(IMAGES, filename)
-        if os.path.islink(link):
-            result.append(filename)
-    return result
+    return dest
 
-def download_images(image_list, force, quiet, store):
+def download_images(image_list, force, quiet, state, store):
+    if not os.path.exists(DATA):
+        os.makedirs(DATA)
+
+    # A default set of images are all links in git
+    if not image_list:
+        image_list = []
+        if not state:
+            for filename in os.listdir(IMAGES):
+                link = os.path.join(IMAGES, filename)
+                if os.path.islink(link):
+                    image_list.append(filename)
+
     for image in image_list:
-        link = os.path.join(IMAGES, image)
-        if not os.path.islink(link):
-            raise RuntimeError("image link does not exist: " + image)
-        download(link, force, quiet, store)
+        if state:
+            target = state_target(image)
+        else:
+            target = committed_target(image)
+        if force or state or not os.path.exists(target):
+            download(target, force, quiet, store)
+
 
 def main():
-    parser = argparse.ArgumentParser(description='Download a virtual machine')
+    parser = argparse.ArgumentParser(description='Download a bot state or images')
     parser.add_argument("--force", action="store_true", help="Force unnecessary downloads")
-    parser.add_argument("--store", action="append", help="Where to find images")
+    parser.add_argument("--store", action="append", help="Where to find state or images")
     parser.add_argument("--quiet", action="store_true", help="Make downloading quieter")
+    parser.add_argument("--state", action="store_true", help="Images or state not recorded in git")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
 
-    # By default download all links
-    if not args.image:
-        args.image = every_image()
-
     try:
-        download_images(args.image, args.force, args.quiet, args.store)
+        download_images(args.image, args.force, args.quiet, args.state, args.store)
     except RuntimeError, ex:
         sys.stderr.write("image-download: {0}\n".format(str(ex)))
         return 1

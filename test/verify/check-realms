@@ -286,11 +286,36 @@ class TestKerberos(MachineCase):
         b.wait_visible("#machine-troubleshoot")
         b.click("#machine-troubleshoot")
         b.wait_popup('troubleshoot-dialog')
-        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
-        b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
-        b.click('#troubleshoot-dialog .btn-primary')
-        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_present("#add-machine-address")
+
+        if self.machine.image != "rhel-7-4":
+            b.set_val("#add-machine-address", "bad-user@x0.cockpit.lan")
+            b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+            b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
+            b.click('#troubleshoot-dialog .btn-primary')
+            b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+            b.click('#troubleshoot-dialog .btn-primary')
+            b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
+            b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+            b.wait_present("#login-type button")
+            b.click("#login-type button")
+            b.click("#login-type li[value=stored] a");
+            b.wait_in_text("#login-type button span", "Using available credentials");
+            b.wait_not_visible("#login-diff-password")
+            b.wait_visible("#login-available")
+            b.wait_not_in_text("#login-available", "Login Password")
+            b.wait_in_text("#login-available", "Kerberos Ticket")
+            b.wait_not_present("#login-available .empty")
+            b.set_val("#login-custom-user", "")
+            b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+            b.click('#troubleshoot-dialog .btn-primary')
+        else:
+            b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
+            b.click('#troubleshoot-dialog .btn-primary')
+            b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+            b.click('#troubleshoot-dialog .btn-primary')
+
+
         b.wait_popdown('troubleshoot-dialog')
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
         b.wait_present(".terminal")

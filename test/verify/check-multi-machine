@@ -774,6 +774,10 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#login-diff-password")
         b.wait_visible("#login-available")
         b.wait_in_text("#login-available", "Login Password")
+        if m1.image != "rhel-7-4":
+            b.wait_not_in_text("#login-available", "Kerberos Ticket")
+            b.wait_not_present("#login-available .empty")
+
         fail_login(b)
 
         b.click("#login-type button");
@@ -834,6 +838,37 @@ class TestMultiMachine(MachineCase):
 
         b.wait_not_visible(".curtains-ct")
         b.enter_page('/system', "root@10.111.113.2:2222")
+        b.logout()
+
+        # Login with no saved password
+        b.go(machine_path)
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.set_checked("#authorized-input", False)
+        b.click('#login-button')
+        b.expect_load()
+
+        with b.wait_timeout(120):
+            b.wait_visible("#machine-reconnect")
+        b.click('#machine-troubleshoot')
+        b.wait_popup('troubleshoot-dialog')
+        b.wait_present('#troubleshoot-dialog h4')
+        b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
+        b.wait_present("#login-diff-password")
+        b.wait_not_visible("#login-available")
+        self.assertEqual(b.text("#login-type button span"), "Type a password")
+        b.click("#login-type button");
+        b.click("#login-type li[value=stored] a");
+        b.wait_in_text("#login-type button span", "Using available credentials");
+        b.wait_not_visible("#login-diff-password")
+        b.wait_visible("#login-available")
+
+        if m1.image != "rhel-7-4":
+            b.wait_not_in_text("#login-available", "Login Password")
+            b.wait_not_in_text("#login-available", "Kerberos Ticket")
+            b.wait_present("#login-available .empty")
+            b.wait_visible("#login-available .empty")
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.* couldn\'t connect: .*',

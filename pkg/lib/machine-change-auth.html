@@ -38,16 +38,16 @@
                             <div class="caret"></div>
                         </button>
                         <ul class="dropdown-menu">
-                            {{#allows_password}}
+                            {{#password}}
                             <li value="password"><a translate>Type a password</a></li>
-                            {{/allows_password}}
+                            {{/password}}
                             <li value="stored"><a translate>Using available credentials</a></li>
                         </ul>
                     </div>
                 </td>
             </tr>
 
-            {{#allows_password}}
+            {{#password}}
             <tr id="login-diff-password">
                 <td translatable="yes" class="top">Password</td>
                 <td>
@@ -61,12 +61,13 @@
                     </a>
                 </td>
             </tr>
-            {{/allows_password}}
+            {{/password}}
             <tr id="login-available">
                 <td translatable="yes" class="top">Available</td>
                 <td class="top">
-                        {{#password}}<div translatable="yes">Login Password</div>{{/password}}
-                        {{#gssapi-mic}}<div translatable="yes">Kerberos Ticket</div>{{/gssapi-mic}}
+                        {{#show_password}}<div translate>Login Password</div>{{/show_password}}
+                        {{#show_ticket}}<div translate>Kerberos Ticket</div>{{/show_ticket}}
+                        {{^show_password}}{{^show_ticket}}<div class="empty hidden">No available credentials</div>{{/show_ticket}}{{/show_password}}
                         {{#public-key}}<div class="keys"><div class='dialog-wait-ct pull-left'><div class='spinner spinner-sm'></div><span translatable="yes">Checking for public keys</span></div></div>{{/public-key}}
                 </td>
             </tr>

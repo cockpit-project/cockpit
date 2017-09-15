@@ -273,12 +273,6 @@
         return result ? result != "no-server-support" : false;
     }
 
-    function can_try_method(methods, method) {
-        if (is_method_supported(methods, method))
-            return method == 'password' || methods[method] != "not-provided";
-        return false;
-    }
-
     function MachineColorPicker(machines_ins) {
         var self = this;
 
@@ -627,23 +621,30 @@
     function ChangeAuth(dialog) {
         var self = this;
         var error_options = null;
-        var allows_password = false;
         var keys = null;
+        var have_ticket = null;
         var machine = dialog.machines_ins.lookup(dialog.address);
 
         self.user = { };
 
-        function update_keys() {
+        function update_available() {
             var key_div = dialog.get_sel('.keys');
+            var have_keys = false;
 
             if (key_div) {
                 key_div.empty();
                 for (var id in keys.items) {
                     var key = keys.items[id];
-                    if (key.loaded)
-                        key_div.append($("<div>").text(key.name));
+                    if (key.loaded) {
+                        have_keys = true;
+                        key_div.append($("<div>").text(key.name || key.comment));
+                    }
                 }
             }
+
+            var empty_div = dialog.get_sel('.empty');
+            if (empty_div)
+                empty_div.toggleClass("hidden", have_keys);
         }
 
         function login() {
@@ -704,6 +705,7 @@
             if (!machines.allow_connection_string || !machines.has_auth_results)
                 template = "auth-failed";
 
+            var no_password = false;
             var methods = null;
             var available = null;
             var supported = null;
@@ -718,9 +720,9 @@
 
                 methods = error_options["auth-method-results"];
                 if (methods) {
-                    allows_password = is_method_supported(methods, 'password');
+                    no_password = methods['password'] === "not-provided";
                     for (var method in methods) {
-                        if (can_try_method(methods, method)) {
+                        if (is_method_supported(methods, method)) {
                             available[method] = true;
                         }
                     }
@@ -735,7 +737,8 @@
                 'available' : available,
                 'machine_user' : machine_user,
                 'default_user' : self.user ? self.user.name : "",
-                'allows_password' : allows_password,
+                'show_password' : available && available.password && !no_password,
+                'show_ticket': available && available['gssapi-mic'] && have_ticket,
                 'can_sync': !!dialog.codes['sync-users'],
                 'machines.allow_connection_string' : machines.allow_connection_string,
                 'sync_link' : function() {
@@ -766,7 +769,7 @@
                 dialog.get_sel(".btn-primary").on("click", login);
                 dialog.get_sel("a[data-content]").popover();
 
-                update_keys();
+                update_available();
             }
 
             dialog.get_sel("#do-sync-users").on("click", function () {
@@ -778,14 +781,24 @@
             error_options = ex;
             if (credentials) {
                 keys = credentials.keys_instance();
-                $(keys).on("changed", update_keys);
+                $(keys).on("changed", update_available);
             }
-            cockpit.user()
-                .done(function (user) {
-                    self.user = user;
+
+            cockpit.spawn(["klist", "-s"])
+                .fail(function (ex) {
+                    have_ticket = false;
                 })
-                .always(function (user) {
-                    render();
+                .done(function (done) {
+                    have_ticket = true;
+                })
+                .always(function () {
+                    cockpit.user()
+                        .done(function (user) {
+                            self.user = user;
+                        })
+                        .always(function (user) {
+                            render();
+                        });
                 });
         };
 

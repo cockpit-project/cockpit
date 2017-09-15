@@ -83,6 +83,10 @@ export function sendNMI(vm) {
     return virt('SENDNMI_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
+export function changeNetworkState(vm, networkMac, state) {
+    return virt('CHANGE_NETWORK_STATE', { name: vm.name, networkMac, state, connectionName: vm.connectionName });
+}
+
 /**
  * Delay call of polling action.
  *

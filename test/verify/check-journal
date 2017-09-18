@@ -341,7 +341,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         m.execute("setenforce 0; ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
         m.execute("./slp; pkill -SEGV sleep")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in __nanosleep()')"
         b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
@@ -354,13 +354,13 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b.wait_visible("#journal-box")
         b.wait_in_text('#journal-box', "__nanosleep")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in __nanosleep()')"
         b.click(sel)
 
         b.wait_present('.cockpit-log-panel')
         b.wait_visible('.cockpit-log-panel')
 
-        sel = "#journal-entry .panel #journal-entry-message:contains('crashed in __nanosleep()')"
+        sel = "#journal-entry .panel #journal-entry-message:contains('(sleep) crashed in __nanosleep()')"
         b.wait_present(sel)
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-25", "fedora-i386", "fedora-testing", "rhel-7-4")

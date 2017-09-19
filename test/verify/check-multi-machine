@@ -135,12 +135,8 @@ class TestMultiMachineAdd(MachineCase):
         b = self.browser
         m2 = self.machine2
         m3 = self.machine3
-        if self.machine.image in ["rhel-7-4"]:
-            # non-standard ports were fixed in version 140 only
-            m3_host = "10.111.113.3"
-        else:
-            m3_host = "10.111.113.3:2222"
-            change_ssh_port(m3, "10.111.113.3", 2222)
+        m3_host = "10.111.113.3:2222"
+        change_ssh_port(m3, "10.111.113.3", 2222)
 
         self.login_and_go(None)
         add_machine(b, "10.111.113.2")

@@ -35,12 +35,14 @@
      *  - initial (optional) initial value to display, default: first entry
      *  - onChange (optional) callback (parameter data) when the selection has changed
      *  - id (optional) html id of the top level node
+     *  - enabled (optional) whether the component is enabled or not; defaults to true
      */
     var Select = React.createClass({
         propTypes: {
             initial: React.PropTypes.string,
             onChange: React.PropTypes.func,
             id: React.PropTypes.string,
+            enabled: React.PropTypes.bool,
         },
         handleDocumentClick: function(node, ev) {
             // clicking outside the select control should ensure it's closed
@@ -101,10 +103,13 @@
             var classes = "btn-group bootstrap-select dropdown";
             if (this.state.open)
                 classes += " open";
+            var buttonClasses = "btn btn-default dropdown-toggle";
+            if (this.props.enabled === false)
+                buttonClasses += " disabled";
 
             return (
                 <div className={classes} onClick={this.clickHandler} id={this.props.id}>
-                    <button className="btn btn-default dropdown-toggle" type="button">
+                    <button className={buttonClasses} type="button">
                         <span className="pull-left">{currentValue}</span>
                         <span className="caret"></span>
                     </button>

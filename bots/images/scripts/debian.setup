@@ -26,6 +26,7 @@ libvirt-daemon-system \
 network-manager \
 pcp \
 policykit-1 \
+python3-dbus \
 realmd \
 selinux-basics \
 thin-provisioning-tools \
@@ -46,6 +47,7 @@ curl \
 gdb \
 iproute \
 mdadm \
+nfs-server \
 qemu-kvm \
 systemd-coredump \
 virtinst \
@@ -82,6 +84,12 @@ case "$RELEASE" in
         # HACK: https://launchpad.net/bugs/1693154
         mkdir /etc/krb5.conf.d/
         ;;
+
+    xenial)
+        # NFS and NetworkManager don't work together
+        TEST_PACKAGES="${TEST_PACKAGES/nfs-server /}"
+        ;;
+
 esac
 
 if grep -q 'ID=ubuntu' /etc/os-release; then

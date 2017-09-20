@@ -56,11 +56,20 @@ REDHAT_VERIFY = {
 # Server to tell us if we can test Red Hat images
 REDHAT_PING = "http://cockpit-11.e2e.bos.redhat.com"
 
+# Host interfaces that tell us we're not in a namespaced network
+HOST_INTERFACES = [ "cockpit1", "docker0", "virbr0" ]
+
+# Branches that need the bridged network to work
+LEGACY_BRANCHES = [
+    'rhel-7.4',
+]
+
 import argparse
 import os
 import json
 import pipes
 import random
+import subprocess
 import sys
 import time
 import urllib
@@ -339,6 +348,17 @@ def scan(api, update, human):
         policy.update(REDHAT_VERIFY)
     except IOError:
         pass
+
+    # Check if we're in a namespaced network
+    null = open("/dev/null", "r+")
+    for interface in HOST_INTERFACES:
+        if subprocess.call([ "ip", "link", "show", interface ], stdout=null, stderr=null) == 0:
+            break
+
+    # In a namespaced network, remove legacy branches
+    else:
+        for context, branches in policy.items():
+            policy[context] = filter(lambda branch: branch not in LEGACY_BRANCHES, branches)
 
     return scan_for_pull_tasks(api, update, human, policy)
 

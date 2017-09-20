@@ -897,14 +897,39 @@
             function read() {
                 var cmd = ["kubectl", "config", "view", "--output=json", "--raw"];
 
-                /* Call kubectl version first incase we have a auth-provider
-                 * that needs to be populated */
-                return runCommand(["kubectl", "version"])
-                        .then(function() {
-                            return runCommand(cmd);
-                        }, function () {
-                            return runCommand(cmd);
-                        });
+                /* Call kubectl minified config view. That only outputs
+                 * the objects that would be used by a connection */
+                return runCommand(["kubectl", "config", "view", "--minify", "--output=json"])
+                    .then(function (data) {
+                        var p;
+                        var auth_provider;
+                        var user;
+
+                        /* If the default data has a 'auth-provider'
+                         * section then call kubectl version to try to
+                         * get it to fill in any token data.
+                         */
+                        try {
+                            user = JSON.parse(data)["users"][0];
+                            if (user && user['user'])
+                                auth_provider = user['user']['auth-provider'];
+                        } catch(ex) {
+                            console.warn("received invalid kubectl config", ex);
+                        }
+
+                        if (auth_provider) {
+                            p = runCommand(["kubectl", "version"])
+                                    .then(function () {
+                                        return runCommand(cmd);
+                                    }, function () {
+                                        return runCommand(cmd);
+                                    });
+                        } else {
+                            p = runCommand(cmd);
+                        }
+
+                        return p;
+                    });
             }
 
             return {

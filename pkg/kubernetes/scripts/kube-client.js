@@ -1230,9 +1230,12 @@
                             step();
                         }, function(response) {
                             var resp = response.data;
+                            var code = response.status;
+                            if (resp && resp.code)
+                                code = resp.code;
 
                             /* Ignore failures creating the namespace if it already exists */
-                            if (resource.kind == "Namespace" && resp && (resp.code === 409 || resp.code === 403)) {
+                            if (resource.kind == "Namespace" && (code === 409 || code === 403)) {
                                 debug("skipping namespace creation");
                                 step();
                             } else {

@@ -20,7 +20,7 @@
 
 BASELINE_PRIORITY = 10
 
-BRANCHES = [ 'master', 'rhel-7.4', 'rhel-7.3.1', 'rhel-7.3.2', 'rhel-7.3.3', 'rhel-7.3.4', 'rhel-7.3.5', 'rhel-7.3.6' ]
+BRANCHES = [ 'master', 'rhel-7.4' ]
 
 DEFAULT_VERIFY = {
     'avocado/fedora-25': BRANCHES,
@@ -32,7 +32,7 @@ DEFAULT_VERIFY = {
     'verify/debian-stable': [ 'master' ],
     'verify/debian-testing': [ 'master' ],
     'verify/fedora-25': [ ],
-    'verify/fedora-i386': [ 'master', 'rhel-7.4', 'rhel-7.3.6', 'rhel-7.3.5' ],
+    'verify/fedora-i386': BRANCHES,
     'verify/fedora-26': [ 'master' ],
     'verify/fedora-27': [ ],
     'verify/fedora-atomic': BRANCHES,
@@ -47,7 +47,7 @@ NPM_REPOS = {
 
 # Non-public images used for testing
 REDHAT_VERIFY = {
-    "verify/rhel-7": [ 'master', 'rhel-7.3.6', 'rhel-7.3.5', 'rhel-7.3.4', 'rhel-7.3.3', 'rhel-7.3.2' ],
+    "verify/rhel-7": [ 'master' ],
     "verify/rhel-7-4": [ 'master', 'rhel-7.4' ],
     "verify/rhel-atomic": [ 'master' ],
     'selenium/explorer': [ 'master' ],

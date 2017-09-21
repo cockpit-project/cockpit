@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # export uReport_URL="http://localhost:12345"
 
 import cgi

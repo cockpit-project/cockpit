@@ -237,11 +237,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         if (authorized.indexOf("password") !== -1)
             id("authorized-input").checked = true;
 
-        var os_release = JSON.stringify(environment["os-release"]);
+        var os_release = environment["os-release"];
+        if (os_release)
+            window.localStorage.setItem('os-release', JSON.stringify(os_release));
+
         var logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
             window.sessionStorage.removeItem("logout-intent");
-        window.localStorage.setItem('os-release', os_release);
 
         /* Try automatic/kerberos authentication? */
         if (oauth) {

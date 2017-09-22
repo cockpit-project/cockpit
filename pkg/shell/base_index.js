@@ -757,7 +757,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         /* Branding */
         function setup_brand(id, default_title) {
-            var os_release = JSON.parse(window.localStorage['os-release'] || "{}");
+            var os_release = {};
+            try {
+                os_release = JSON.parse(window.localStorage['os-release'] || "{}");
+            } catch (ex) {
+                console.warn("Couldn't parse os-release", ex);
+            }
 
             var style, elt = $(id)[0];
             if (elt)

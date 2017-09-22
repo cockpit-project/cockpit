@@ -647,6 +647,7 @@
           <div class="modal-header">
             <h4 class="modal-title">{{Title}}</h4>
           </div>
+          {{#HasBody}}
           <div class="modal-body">
             {{#Alerts}}
             <div class="alert alert-danger">
@@ -809,6 +810,7 @@
               {{/Fields}}
             </table>
           </div>
+          {{/HasBody}}
           <div class="modal-footer">
             {{#Teardown}}
             <div class="modal-footer-teardown">

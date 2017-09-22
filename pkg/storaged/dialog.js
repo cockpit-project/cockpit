@@ -57,6 +57,10 @@
         });
 
 
+        function empty(obj) { return !obj || obj.length === 0; }
+
+        def.HasBody = !empty(def.Fields) || !empty(def.Alerts) || !empty(def.Blocking);
+
         function toggle_arrow(event) {
             /* jshint validthis:true */
             var collapsed = $(this).hasClass('collapsed');

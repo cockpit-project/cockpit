@@ -165,10 +165,10 @@ class TestUpdates(PackageCase):
         # security fix with proper CVE list and severity
         self.createPackage("secdeclare", "3", "4.a1", install=True)
         self.createPackage("secdeclare", "3", "4.b1", severity="security",
-                           changes="Will crash your data center", cves=['CVE-2016-0001'])
+                           changes="Will crash your data center", cves=['CVE-2014-123456'])
         # security fix with parsing from changes
         self.createPackage("secparse", "4", "1", install=True)
-        self.createPackage("secparse", "4", "2", changes="Fix CVE-2017-0001 and CVE-2017-0002.")
+        self.createPackage("secparse", "4", "2", changes="Fix CVE-2014-54321 and CVE-2017-9999.")
 
         self.enableRepo()
         m.execute("pkcon refresh")
@@ -191,7 +191,7 @@ class TestUpdates(PackageCase):
                          "Security Update: ")
         desc = b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(3)")
         self.assertIn("Will crash your data center", desc)
-        self.assertIn("CVE-2016-0001", desc)
+        self.assertIn("CVE-2014-123456", desc)
 
         # secparse should also be considered a security update as the changelog mentions CVEs
         self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) th span"), "secparse")
@@ -200,7 +200,7 @@ class TestUpdates(PackageCase):
         self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3) span.security-label-text"),
                          "Security Update: ")
         desc = b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3)")
-        self.assertIn("Fix CVE-2017-0001 and CVE-2017-0002.", desc)
+        self.assertIn("Fix CVE-2014-54321 and CVE-2017-9999.", desc)
 
         # buggy: bug refs, no security
         self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(3) th span"), "buggy")

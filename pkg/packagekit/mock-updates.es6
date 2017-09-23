@@ -19,7 +19,7 @@ export function injectMockUpdates(updates) {
         name: "security-one",
         version: "2.3-4",
         bug_urls: [],
-        cve_urls: ["https://cve.example.com?name=CVE-2017-0815"],
+        cve_urls: ["https://cve.example.com?name=CVE-2014-123456"],
         security: true,
         description: "This will wreck your data center!",
     };
@@ -27,7 +27,7 @@ export function injectMockUpdates(updates) {
         name: "security-two",
         version: "1-2+sec1",
         bug_urls: [],
-        cve_urls: ["https://cve.example.com?name=CVE-2017-0042"],
+        cve_urls: ["https://cve.example.com?name=CVE-2014-54321"],
         security: true,
         description: "Mostly Harmless",
     };

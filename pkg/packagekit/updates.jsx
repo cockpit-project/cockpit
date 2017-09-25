@@ -192,7 +192,7 @@ function HeaderBar(props) {
     var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
         if (!props.unregistered)
-            actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for updates")}</button>;
+            actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for Updates")}</button>;
         if (props.timeSinceRefresh !== null) {
             lastChecked = (
                 <span style={ {paddingRight: "3ex"} }>
@@ -800,13 +800,13 @@ class OsUpdates extends React.Component {
                 } else {
                     applyAll = (
                         <button className="btn btn-primary" onClick={ () => this.applyUpdates(false) }>
-                            {_("Install all updates")}
+                            {_("Install All Updates")}
                         </button>);
 
                     if (this.state.haveSecurity) {
                         applySecurity = (
                             <button className="btn btn-default" onClick={ () => this.applyUpdates(true) }>
-                                {_("Install security updates")}
+                                {_("Install Security Updates")}
                             </button>);
                     }
                 }

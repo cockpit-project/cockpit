@@ -70,7 +70,7 @@ class TestUpdates(PackageCase):
         self.enableRepo()
 
         # check again
-        b.wait_in_text(".content-header-extra td button", "Check for updates")
+        b.wait_in_text(".content-header-extra td button", "Check for Updates")
         b.click(".content-header-extra td button")
 
         b.wait_present(".content-header-extra td.text-right span")
@@ -100,7 +100,7 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
 
         # should only have one button (no security updates)
-        self.assertEqual(b.text("#app .container-fluid button"), "Install all updates")
+        self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
         b.click("#app .container-fluid button")
 
         b.wait_in_text("#state", "Applying updates")
@@ -216,7 +216,7 @@ class TestUpdates(PackageCase):
         self.assertIn("Now 10% more unicorns", b.text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3)"))
 
         # install only security updates
-        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install security updates")
+        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
         b.click("#app .container-fluid button.btn-default")
 
         b.wait_in_text("#state", "Applying updates")
@@ -264,7 +264,7 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-buggy-2-1 && test -f /stamp-norefs-bin-1-1 && test -f /stamp-norefs-doc-1-1")
 
         # should now only have one button (no security updates left)
-        self.assertEqual(b.text("#app .container-fluid button"), "Install all updates")
+        self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
         b.click("#app .container-fluid button")
 
         b.wait_in_text("#state", "Applying updates")
@@ -469,7 +469,7 @@ class TestUpdates(PackageCase):
         self.createPackage("cockpit-ws", "999", "1")
         self.createPackage("cockpit", "999", "1")  # as that depends on same version of ws
         self.enableRepo()
-        b.wait_in_text(".content-header-extra td button", "Check for updates")
+        b.wait_in_text(".content-header-extra td button", "Check for Updates")
         b.click(".content-header-extra td button")
 
         b.wait_present(".container-fluid #available h2")
@@ -636,7 +636,7 @@ class TestUpdatesSubscriptions(PackageCase):
         # has action buttons
         b.wait_present(".content-header-extra td button")
         b.wait_present("#app .container-fluid button")
-        self.assertEqual(b.text("#app .container-fluid button"), "Install all updates")
+        self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
 
 
 if __name__ == '__main__':

@@ -259,7 +259,7 @@ cat kdump.list subscriptions.list sosreport.list networkmanager.list selinux.lis
 # dwz has trouble with the go binaries
 # https://fedoraproject.org/wiki/PackagingDrafts/Go
 %global _dwz_low_mem_die_limit 0
-%if 0%{?fedora} >= 27
+%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
 %endif

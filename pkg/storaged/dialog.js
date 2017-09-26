@@ -130,6 +130,8 @@
         function setup_size_slider(field) {
             var value = field.Value || field.Max;
             var parent = $dialog.find('[data-field="' + field.SizeSlider + '"]');
+            var input = parent.find('.size-text');
+            var unit = parent.find('.size-unit');
             var slider = $("<div class='slider'>").
                 append($("<div class='slider-bar'>").
                     append($("<div class='slider-thumb'>")));
@@ -144,7 +146,8 @@
             parent.find('.size-unit').on('change', size_unit_changed);
 
             slider.prop("value", value / field.Max);
-            slider.trigger("change", [value / field.Max]);
+            parent.val(value);
+            input.val(cockpit.format_number(value / +unit.val()));
         }
 
         function size_slider_changed(event, value) {
@@ -164,8 +167,9 @@
             if (value > max)
                 value = max;
 
-            parent.val(value);
             input.val(cockpit.format_number(value / +unit.val()));
+            parent.val(value);
+            $(parent).trigger("change");
         }
 
         function size_text_changed(event) {
@@ -193,6 +197,7 @@
 
             slider.prop("value", value / max);
             parent.val(value);
+            $(parent).trigger("change");
         }
 
         function size_unit_changed(event) {
@@ -202,6 +207,32 @@
             var input = parent.find('.size-text');
 
             input.val(cockpit.format_number(+parent.val() / +unit.val()));
+        }
+
+        function size_update(field, value) {
+            var parent = $dialog.find('[data-field="' + field.SizeSlider + '"]');
+            var input = parent.find('.size-text');
+            var unit = parent.find('.size-unit');
+            var slider = parent.find('.slider');
+
+            if (typeof value == "number")
+                value = { Value: value };
+
+            if (value.Max !== undefined) {
+                field.Max = value.Max;
+                parent.data('max', field.Max);
+            }
+
+            if (value.Round !== undefined) {
+                field.Round = value.Round;
+                parent.data('round', field.Round);
+            }
+
+            if (value.Value !== undefined) {
+                slider.prop("value", value.Value / field.Max);
+                input.val(cockpit.format_number(value.Value / +unit.val()));
+                parent.val(value.Value);
+            }
         }
 
         def.Fields.forEach(function (f) {
@@ -266,6 +297,19 @@
             });
         }
 
+        function update_fields(trigger) {
+            def.Fields.forEach(function (f) {
+                if (f.TextInput && f.update) {
+                    $dialog.find('[data-field="' + f.TextInput + '"]').val(f.update(get_field_values(), trigger));
+                } else if (f.CheckBox && f.update) {
+                    $dialog.find('[data-field="' + f.CheckBox + '"]').prop('checked',
+                                                                           f.update(get_field_values(), trigger));
+                } else if (f.SizeSlider && f.update) {
+                    size_update(f, f.update(get_field_values(), trigger));
+                }
+            });
+        }
+
         function validate_field(field, val, vals) {
             var msg = null;
 
@@ -308,8 +352,11 @@
             return (errors.length === 0)? vals : null;
         }
 
-        $dialog.on('change input', function () {
+        $dialog.on('change input', function (event) {
             update_visibility();
+            var trigger = $(event.target).attr("data-field");
+            if (trigger)
+                update_fields(trigger);
         });
 
         function error_field_to_target(err) {

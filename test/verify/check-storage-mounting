@@ -140,5 +140,63 @@ class TestStorage(StorageCase):
         self.dialog({ "type": "empty" })
         self.content_row_wait_in_col(1, 1, "Unrecognized Data")
 
+    def testMountOptions(self):
+        m = self.machine
+        b = self.browser
+
+        if self.storaged_is_old_udisks:
+            self.skipTest("No mount/crypto options with old UDisks")
+
+        self.login_and_go("/storage")
+
+        # Add a disk
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('#drives tr:contains("MYDISK")')
+        b.wait_visible('#storage-detail')
+
+        # Open format dialog and play with the checkboxes
+
+        self.content_tab_action(1, 1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "luks+ext4")
+        self.dialog_set_val("mounting", "custom")
+
+        def wait_checked(field):
+            b.wait_present(self.dialog_field(field) + ":checked")
+
+        def wait_not_checked(field):
+            b.wait_present(self.dialog_field(field) + ":not(:checked)")
+
+        wait_checked("crypto_options_auto")
+        wait_checked("mount_auto")
+        wait_not_checked("crypto_options_ro")
+        wait_not_checked("mount_ro")
+
+        # Uncheck crypto auto.  This gets propagated to mount auto.
+        self.dialog_set_val("crypto_options_auto", False)
+        wait_not_checked("mount_auto")
+
+        # Check crypto ro.  This gets propagated to mount ro.
+        self.dialog_set_val("crypto_options_ro", True)
+        wait_checked("mount_ro")
+
+        # Set extra options.
+        self.dialog_set_val("crypto_extra_options", CheckBoxText("foo"))
+        self.dialog_set_val("mount_extra_options", CheckBoxText("foo"))
+
+        # Fill in the erst and do the format
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("mount_point", "/data")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.content_row_wait_in_col(1, 1, "Encrypted data")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.wait_in_storaged_configuration("/data")
+        m.execute("grep 'noauto,readonly,foo' /etc/crypttab")
+        m.execute("grep 'noauto,ro,foo' /etc/fstab")
+
 if __name__ == '__main__':
     test_main()

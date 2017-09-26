@@ -831,6 +831,7 @@ handle_package_checksum (CockpitWebServer *server,
 
   cockpit_web_response_content (response, out_headers, content, NULL);
   g_bytes_unref (content);
+  g_hash_table_unref (out_headers);
   return TRUE;
 }
 

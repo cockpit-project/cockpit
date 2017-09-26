@@ -153,11 +153,14 @@ send_init_command (CockpitTransport *transport,
       g_free (names);
 
       os_release = cockpit_system_load_os_release ();
-      block = cockpit_json_from_hash_table (os_release,
-                                            cockpit_system_os_release_fields ());
-      if (block)
-        json_object_set_object_member (object, "os-release", block);
-      g_hash_table_unref (os_release);
+      if (os_release)
+        {
+          block = cockpit_json_from_hash_table (os_release,
+                                                cockpit_system_os_release_fields ());
+          if (block)
+            json_object_set_object_member (object, "os-release", block);
+          g_hash_table_unref (os_release);
+        }
     }
 
   bytes = cockpit_json_write_bytes (object);

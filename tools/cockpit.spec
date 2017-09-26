@@ -51,7 +51,7 @@ BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
-BuildRequires: /usr/bin/python
+BuildRequires: /usr/bin/python2
 BuildRequires: intltool
 %if %{defined build_dashboard}
 BuildRequires: libssh-devel >= %{libssh_version}
@@ -468,7 +468,7 @@ Requires: libvirt-daemon
 Requires: libvirt-python
 Requires: qemu-kvm
 Requires: npm
-Requires: python
+Requires: python2
 Requires: rsync
 Requires: xz
 Requires: openssh-clients
@@ -615,7 +615,7 @@ Summary: Cockpit user interface for Docker containers
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
 Requires: /usr/bin/docker
-Requires: python
+Requires: python2
 
 %description docker
 The Cockpit components for interacting with Docker and user interface.

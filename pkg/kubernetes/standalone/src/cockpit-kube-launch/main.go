@@ -158,7 +158,7 @@ func main() {
 	override := path.Join(*confDir, fmt.Sprintf("%s-override.json", name))
 	brand := path.Join(*confDir, fmt.Sprintf("%s-brand", name))
 	linkFiles(override, "/usr/share/cockpit/shell/override.json")
-	linkFiles(brand, "/etc/os-release")
+	linkFiles(brand, "/container/os-release")
 
 	if isRegistry {
 		registry_override := path.Join(*confDir, "registry-dashboard-override.json")

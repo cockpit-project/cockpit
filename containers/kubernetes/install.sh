@@ -29,11 +29,20 @@ rm -rf /container/rpms
 # Openshift will change the user
 # but it will be part of gid 0
 # so make the files we need group writable
+
+# We replace os-release with
+# kubernetes or openshift specific text
+chmod 775 /container
+ln -sf /container/os-release /etc/os-release
+
+# We link in a customized config file
+# We may also need to generate certificates
 rm -rf /etc/cockpit/
 mkdir -p /etc/cockpit/
-chmod 775 /etc
 chmod 775 /etc/cockpit
-chmod 775 /etc/os-release
+
+# The index html is changed for the registry
+# We also add override.json files to both these locations
 chmod 775 /usr/share/cockpit/shell
 chmod 775 /usr/share/cockpit/kubernetes
 

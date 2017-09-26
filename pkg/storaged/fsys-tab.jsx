@@ -118,34 +118,13 @@ var FilesystemTab = React.createClass({
 
         function mounting_dialog() {
             dialog.open({ Title: _("Filesystem Mounting"),
-                          Fields: [
-                              { SelectOne: "mounting",
-                                Title: _("Mounting"),
-                                Options: [
-                                    { value: "default", Title: _("Default"), selected: !old_config },
-                                    { value: "custom", Title: _("Custom"), selected: !!old_config }
-                                ],
-                              },
-                              { TextInput: "mount_point",
-                                Title: _("Mount Point"),
-                                Value: old_dir,
-                                visible: function (vals) {
-                                    return vals.mounting == "custom";
-                                }
-                              },
-                              { TextInput: "mount_options",
-                                Title: _("Mount Options"),
-                                Value: old_opts,
-                                visible: function (vals) {
-                                    return vals.mounting == "custom";
-                                }
-                              }
-                          ],
+                          Fields: FormatDialog.mounting_dialog_fields(!!old_config, old_dir, old_opts),
                           Action: {
                               Title: _("Apply"),
                               action: function (vals) {
                                   return maybe_update_config(vals.mounting == "custom",
-                                                             vals.mount_point, vals.mount_options);
+                                                             vals.mount_point,
+                                                             FormatDialog.mounting_dialog_options(vals));
                               }
                           }
             });

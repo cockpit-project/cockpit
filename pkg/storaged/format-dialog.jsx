@@ -28,6 +28,144 @@ var StorageControls = require("./storage-controls.jsx");
 
 var _ = cockpit.gettext;
 
+function parse_options(options) {
+    if (options)
+        return (options.split(",")
+                       .map(function (s) { return s.trim() })
+                       .filter(function (s) { return s != "" }));
+    else
+        return [ ];
+}
+
+function unparse_options(split) {
+    return split.join(",");
+}
+
+function extract_option(split, opt) {
+    var index = split.indexOf(opt);
+    if (index >= 0) {
+        split.splice(index, 1);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
+
+    if (!visible)
+        visible = function () { return true; };
+
+    var split_options = parse_options(mount_options == "defaults" ? "" : mount_options);
+    var opt_auto = !extract_option(split_options, "noauto");
+    var opt_ro = extract_option(split_options, "ro");
+    var extra_options = unparse_options(split_options);
+
+    return [
+        { SelectOne: "mounting",
+          Title: _("Mounting"),
+          Options: [
+              { value: "default", Title: _("Default"), selected: !is_custom },
+              { value: "custom", Title: _("Custom"), selected: is_custom }
+          ],
+          visible: visible
+        },
+        { TextInput: "mount_point",
+          Title: _("Mount Point"),
+          Value: mount_dir,
+          visible: function (vals) {
+              return visible(vals) && vals.mounting == "custom";
+          },
+          validate: function (val) {
+              if (val.trim() == "")
+                  return _("Mount point can not be empty");
+          }
+        },
+        { RowTitle: _("Mount options"),
+          CheckBox: "mount_auto",
+          Title: _("Mount at boot"),
+          Value: opt_auto,
+          visible: function (vals) {
+              return visible(vals) && vals.mounting == "custom";
+          },
+          update: function (vals, trigger) {
+              if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
+                  return false;
+              else
+                  return vals.mount_auto;
+          }
+        },
+        { CheckBox: "mount_ro",
+          Title: _("Mount read only"),
+          Value: opt_ro,
+          visible: function (vals) {
+              return visible(vals) && vals.mounting == "custom";
+          },
+          update: function (vals, trigger) {
+              if (trigger == "crypto_options_ro" && vals.crypto_options_ro == true)
+                  return true;
+              else
+                  return vals.mount_ro;
+          }
+        },
+        { CheckBoxText: "mount_extra_options",
+          Title: _("Custom mount options"),
+          Value: extra_options == "" ? false : extra_options,
+          visible: function (vals) {
+              return visible(vals) && vals.mounting == "custom";
+          }
+        }
+    ];
+}
+
+function mounting_dialog_options(vals) {
+    var opts = [ ];
+    if (!vals.mount_auto)
+        opts.push("noauto");
+    if (vals.mount_ro)
+        opts.push("ro");
+    if (vals.mount_extra_options !== false)
+        opts = opts.concat(parse_options(vals.mount_extra_options));
+    return unparse_options(opts);
+}
+
+function crypto_options_dialog_fields(options, visible) {
+    var split_options = parse_options(options);
+    var opt_auto = !extract_option(split_options, "noauto");
+    var opt_ro = extract_option(split_options, "readonly");
+    var extra_options = unparse_options(split_options);
+
+    return [
+        { RowTitle: _("Encryption Options"),
+          CheckBox: "crypto_options_auto",
+          Title: _("Unlock at boot"),
+          Value: opt_auto,
+          visible: visible
+        },
+        { CheckBox: "crypto_options_ro",
+          Title: _("Unlock read only"),
+          Value: opt_ro,
+          visible: visible
+        },
+        { CheckBoxText: "crypto_extra_options",
+          Title: _("Custom encryption options"),
+          Value: extra_options == "" ? false : extra_options,
+          visible: visible
+        }
+    ];
+}
+
+function crypto_options_dialog_options(vals) {
+    var opts = [ ];
+    if (!vals.crypto_options_auto)
+        opts.push("noauto");
+    if (vals.crypto_options_ro)
+        opts.push("readonly");
+    if (vals.crypto_extra_options !== false)
+        opts = opts.concat(parse_options(vals.crypto_extra_options));
+    return unparse_options(opts);
+}
+
 function format_dialog(client, path, start, size, enable_dos_extended) {
     var block = client.blocks[path];
     var block_ptable = client.blocks_ptable[path];
@@ -172,32 +310,9 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                       { CheckBox: "store_passphrase",
                         Title: _("Store passphrase"),
                         visible: is_encrypted_and_not_old_udisks2
-                      },
-                      { TextInput: "crypto_options",
-                        Title: _("Encryption Options"),
-                        visible: is_encrypted_and_not_old_udisks2
-                      },
-                      { SelectOne: "mounting",
-                        Title: _("Mounting"),
-                        Options: [
-                            { value: "default", Title: _("Default") },
-                            { value: "custom", Title: _("Custom") }
-                        ],
-                        visible: is_filesystem_and_not_old_udisks2
-                      },
-                      { TextInput: "mount_point",
-                        Title: _("Mount Point"),
-                        visible: function (vals) {
-                            return is_filesystem_and_not_old_udisks2(vals) && vals.mounting == "custom";
-                        }
-                      },
-                      { TextInput: "mount_options",
-                        Title: _("Mount Options"),
-                        visible: function (vals) {
-                            return is_filesystem_and_not_old_udisks2(vals) && vals.mounting == "custom";
-                        }
                       }
-                  ],
+                  ].concat(crypto_options_dialog_fields("", is_encrypted_and_not_old_udisks2))
+                   .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
                   Action: {
                       Title: create_partition? _("Create partition") : _("Format"),
                       Danger: (create_partition?
@@ -216,23 +331,25 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                               options.label = { t: 's', v: vals.name };
 
                           var config_items = [ ];
+                          var mount_options = mounting_dialog_options(vals);
                           if (vals.mounting == "custom")
                               config_items.push([
                                   "fstab", {
                                       dir: { t: 'ay', v: utils.encode_filename(vals.mount_point) },
                                       type: { t: 'ay', v: utils.encode_filename("auto") },
-                                      opts: { t: 'ay', v: utils.encode_filename(vals.mount_options || "defaults") },
+                                      opts: { t: 'ay', v: utils.encode_filename(mount_options || "defaults") },
                                       freq: { t: 'i', v: 0 },
                                       passno: { t: 'i', v: 0 },
                                       "track-parents": { t: 'b', v: true }
                                   }]);
 
+                          var crypto_options = crypto_options_dialog_options(vals);
                           if (is_encrypted(vals)) {
                               vals.type = vals.type.replace("luks+", "");
                               options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
 
                               var item = {
-                                  options: { t: 'ay', v: utils.encode_filename(vals.crypto_options) },
+                                  options: { t: 'ay', v: utils.encode_filename(crypto_options) },
                                   "track-parents": { t: 'b', v: true }
                               };
                               if (vals.store_passphrase) {
@@ -284,6 +401,10 @@ var FormatButton = React.createClass({
 });
 
 module.exports = {
+    mounting_dialog_fields: mounting_dialog_fields,
+    mounting_dialog_options: mounting_dialog_options,
+    crypto_options_dialog_fields: crypto_options_dialog_fields,
+    crypto_options_dialog_options: crypto_options_dialog_options,
     format_dialog: format_dialog,
     FormatButton: FormatButton
 };

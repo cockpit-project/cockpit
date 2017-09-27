@@ -269,6 +269,8 @@ var info = {
 
         "users/index.html",
         "users/manifest.json",
+
+        "welder/index.html",
     ]
 };
 

@@ -142,6 +142,7 @@ SUBST_RULE = \
 # Webpack related
 
 WEBPACK_PACKAGES = \
+	apps \
 	dashboard \
 	docker \
 	kdump \

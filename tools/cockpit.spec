@@ -205,6 +205,9 @@ find %{buildroot}%{_datadir}/%{name}/ostree -type f >> ostree.list
 echo '%dir %{_datadir}/%{name}/packagekit' >> packagekit.list
 find %{buildroot}%{_datadir}/%{name}/packagekit -type f >> packagekit.list
 
+echo '%dir %{_datadir}/%{name}/apps' >> packagekit.list
+find %{buildroot}%{_datadir}/%{name}/apps -type f >> packagekit.list
+
 echo '%dir %{_datadir}/%{name}/machines' > machines.list
 find %{buildroot}%{_datadir}/%{name}/machines -type f >> machines.list
 
@@ -648,12 +651,13 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 %endif
 
 %package packagekit
-Summary: Cockpit user interface for package updates
+Summary: Cockpit user interface for packages
 Requires: %{name}-bridge >= %{required_base}
 Requires: PackageKit
 
 %description packagekit
-The Cockpit component for installing package updates, via PackageKit.
+The Cockpit components for installing OS updates and Cockpit add-ons,
+via PackageKit.
 
 %files packagekit -f packagekit.list
 

@@ -239,7 +239,7 @@ class UpdateItem extends React.Component {
         if (info.security) {
             security_info = (
                 <p>
-                    <span className="fa fa-bug security-label"> </span>
+                    <span className="fa fa-shield security-label">&nbsp;</span>
                     <span className="security-label-text">{ _("Security Update") + (info.cve_urls.length ? ": " : "") }</span>
                     { insertCommas(info.cve_urls.map(url => (
                         <a href={url} rel="noopener" referrerpolicy="no-referrer" target="_blank">

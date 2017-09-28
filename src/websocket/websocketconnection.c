@@ -605,7 +605,7 @@ web_socket_connection_default_error (WebSocketConnection *connection,
   if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
     g_debug ("web socket error: %s", error->message);
   else
-    g_message ("%s", error->message);
+    g_message ("web socket error: %s", error->message);
   return TRUE;
 }
 

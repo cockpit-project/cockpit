@@ -1143,7 +1143,7 @@ build_authorize_challenge (CockpitAuth *self,
 static void
 authorize_logger (const char *data)
 {
-  g_message ("%s", data);
+  g_message ("cockpit-ws authorize: %s", data);
 }
 
 static void

@@ -971,7 +971,7 @@ package_content (CockpitPackages *packages,
         {
           if (error)
             {
-              g_message ("%s", error->message);
+              g_message ("package globbing error: %s", error->message);
               chosen = g_strdup ("");
               bytes = g_bytes_new_static ("", 0);
             }
@@ -983,12 +983,12 @@ package_content (CockpitPackages *packages,
               if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
                   g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
                 {
-                  g_message ("%s", error->message);
+                  g_message ("package file access error: %s", error->message);
                   cockpit_web_response_error (response, 403, NULL, NULL);
                 }
               else if (error)
                 {
-                  g_message ("%s", error->message);
+                  g_message ("package file error: %s", error->message);
                   cockpit_web_response_error (response, 500, NULL, NULL);
                 }
               goto out;

@@ -220,6 +220,9 @@ find %{buildroot}%{_datadir}/%{name}/machines -type f >> machines.list
 echo '%dir %{_datadir}/%{name}/ovirt' > ovirt.list
 find %{buildroot}%{_datadir}/%{name}/ovirt -type f >> ovirt.list
 
+echo '%dir %{_datadir}/%{name}/welder' > welder.list
+find %{buildroot}%{_datadir}/%{name}/welder -type f >> welder.list
+
 # on CentOS systems we don't have the required setroubleshoot-server packages
 %if 0%{?centos}
 rm -rf %{buildroot}%{_datadir}/%{name}/selinux
@@ -700,6 +703,17 @@ The Cockpit components for installing OS updates and Cockpit add-ons,
 via PackageKit.
 
 %files packagekit -f packagekit.list
+
+%package welder
+Summary: Cockpit user interface for Welder
+Requires: %{name}-bridge >= %{required_base}
+# FIXME: backend dependencies once it exists
+
+%description welder
+The Cockpit components for creating and maintaining recipes and builds of
+operating system images through Welder.
+
+%files welder -f welder.list
 
 # The changelog is automatically generated and merged
 %changelog

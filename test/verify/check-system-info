@@ -175,6 +175,17 @@ class TestSystemInfo(MachineCase):
 
         self.assertEqual(current_hostname, "host1.cockpit.lan\n")
 
+        b.logout()
+        m.execute("chattr -i /etc/os-release && rm /etc/os-release")
+        m.execute("rm /usr/lib/os-release || true")
+
+        self.login_and_go("/system")
+        b.wait_present('#system_machine_id')
+        b.wait_text('#system_machine_id', mid)
+
+        self.allow_journal_messages("error loading contents of os-release: .*")
+        self.check_journal_messages()
+
     def testTime(self):
         m = self.machine
         b = self.browser

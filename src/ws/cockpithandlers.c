@@ -387,7 +387,7 @@ send_login_html (CockpitWebResponse *response,
       po_bytes = cockpit_web_response_negotiation (ws->login_po_html, NULL, language, NULL, &error);
       if (error)
         {
-          g_message ("%s", error->message);
+          g_message ("error generating login translations: %s", error->message);
           g_clear_error (&error);
         }
       else
@@ -402,7 +402,7 @@ send_login_html (CockpitWebResponse *response,
   bytes = cockpit_web_response_negotiation (ws->login_html, NULL, NULL, NULL, &error);
   if (error)
     {
-      g_message ("%s", error->message);
+      g_message ("error generating login response: %s", error->message);
       cockpit_web_response_error (response, 500, NULL, NULL);
       g_error_free (error);
     }

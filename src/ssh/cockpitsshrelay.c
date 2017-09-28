@@ -2201,7 +2201,7 @@ cockpit_ssh_relay_constructed (GObject *object)
 static void
 authorize_logger (const char *data)
 {
-  g_message ("%s", data);
+  g_message ("cockpit-ssh authorize: %s", data);
 }
 
 static void

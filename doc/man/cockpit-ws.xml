@@ -78,6 +78,10 @@
       blocks for the server certificate and intermediate certificate authorities
       and a last one containing a <literal>BEGIN PRIVATE KEY</literal> or similar.
       The key may not be encrypted.</para>
+    <para>Alternatively the files <literal>tls.crt</literal> and <literal>tls.key</literal>
+      in <filename>/var/run/secrets/ws-certs.d</filename> with PEM encoded
+      certificate and key can be supplied. This is particularly useful with
+      Kubernetes' and Openshift's <literal>tls</literal> secrets.</para>
     <para>If there is no TLS certificate, a self-signed certificate is
       automatically generated using <command>openssl</command> and stored in
       the <filename>0-self-signed.cert</filename> file. To check which certificate

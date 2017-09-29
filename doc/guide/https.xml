@@ -53,6 +53,11 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyOJ5garOYw0sm
 -----END PRIVATE KEY-----
 </programlisting>
 
+    <para>Alternatively the files <literal>tls.crt</literal> and <literal>tls.key</literal>
+      in <filename>/var/run/secrets/ws-certs.d</filename> with PEM encoded
+      certificate and key can be supplied. This is particularly useful with
+      Kubernetes' and Openshift's <literal>tls</literal> secrets.</para>
+
     <para>If no certificate is found, a self-signed certificate is created and
       stored in the <filename>0-self-signed.cert</filename> file. On some
       platforms, Cockpit will also generate a ca.crt in that directory, which

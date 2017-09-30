@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 19:02+0000\n"
+"POT-Creation-Date: 2017-09-30 07:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -110,7 +110,7 @@ msgid_plural "$0 disks are missing"
 msgstr[0] "Falta $0 disco"
 msgstr[1] "Faltan $0 discos"
 
-#: src/ws/login.js:279 src/ws/login.js:601
+#: src/ws/login.js:281 src/ws/login.js:603
 msgid "$0 error"
 msgstr ""
 
@@ -887,6 +887,11 @@ msgstr ""
 "Anónimo: Permite a todos los usuarios no autentificados tirar de las "
 "imágenes"
 
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:148
+#: pkg/apps/application.jsx:127
+msgid "Applications"
+msgstr ""
+
 #: pkg/networkmanager/index.html:620 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:692
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
@@ -971,11 +976,11 @@ msgstr "Autenticación"
 msgid "Authentication Failed"
 msgstr "Autenticación fallida"
 
-#: src/ws/login.js:581
+#: src/ws/login.js:583
 msgid "Authentication Failed: Server closed connection"
 msgstr ""
 
-#: src/ws/login.js:591
+#: src/ws/login.js:593
 msgid "Authentication failed"
 msgstr ""
 
@@ -1216,7 +1221,7 @@ msgstr "No se puede eliminar mientras está desbloqueado"
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
 #: pkg/lib/cockpit-components-dialog.jsx:138 pkg/packagekit/updates.jsx:204
-#: pkg/sosreport/index.js:51
+#: pkg/sosreport/index.js:51 pkg/apps/utils.jsx:87
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1335,13 +1340,9 @@ msgstr ""
 "Cambiando los ajustes romperá la conexión al servidor y ha la administración "
 "de UI no disponible."
 
-#: pkg/ostree/index.html:210
+#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:195
 msgid "Check for Updates"
 msgstr "Comprobacióin de Actualizaciones"
-
-#: pkg/packagekit/updates.jsx:195
-msgid "Check for updates"
-msgstr "Buscar actualizaciones"
 
 #: pkg/networkmanager/interfaces.js:771
 msgid "Checking IP"
@@ -1354,6 +1355,10 @@ msgstr "Comprobando el dispositivo RAID $target"
 #: pkg/storaged/jobs.js:143
 msgid "Checking and Repairing RAID Device $target"
 msgstr "Comprobando y Reparando el Dispositivo RAID $target"
+
+#: pkg/apps/application-list.jsx:124
+msgid "Checking for new applications"
+msgstr ""
 
 #: pkg/lib/machine-change-auth.html:71
 msgid "Checking for public keys"
@@ -1405,6 +1410,7 @@ msgstr "Certificado de Cliente"
 #: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
+#: pkg/apps/utils.jsx:109
 msgid "Close"
 msgstr "Cerrar"
 
@@ -1420,7 +1426,7 @@ msgstr "Cluster"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:298
+#: src/ws/login.js:300
 msgid "Cockpit authentication is configured incorrectly."
 msgstr ""
 
@@ -2650,6 +2656,7 @@ msgstr "Borrando $target"
 #: pkg/systemd/services.html:334 pkg/storaged/details.jsx:199
 #: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
 #: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1381
+#: pkg/apps/utils.jsx:101
 msgid "Error"
 msgstr "Error"
 
@@ -2944,6 +2951,10 @@ msgstr "GlusterFS"
 #: pkg/systemd/logs.js:195
 msgid "Go to"
 msgstr "Ir a"
+
+#: pkg/apps/application.jsx:93
+msgid "Go to Application"
+msgstr ""
 
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
 #: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
@@ -3249,12 +3260,16 @@ msgstr ""
 msgid "Initializing..."
 msgstr ""
 
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:97
+msgid "Install"
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:803
-msgid "Install all updates"
+msgid "Install All Updates"
 msgstr ""
 
 #: pkg/packagekit/updates.jsx:809
-msgid "Install security updates"
+msgid "Install Security Updates"
 msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
@@ -3271,7 +3286,8 @@ msgstr ""
 msgid "Installed products"
 msgstr "Productos instalados"
 
-#: pkg/packagekit/updates.jsx:53
+#: pkg/packagekit/updates.jsx:53 pkg/apps/application-list.jsx:47
+#: pkg/apps/application.jsx:55
 msgid "Installing"
 msgstr ""
 
@@ -3288,7 +3304,7 @@ msgstr "Interfaz"
 msgid "Interfaces"
 msgstr "Interfaces"
 
-#: src/ws/login.js:573
+#: src/ws/login.js:575
 msgid "Internal Error: Invalid challenge header"
 msgstr ""
 
@@ -3679,7 +3695,7 @@ msgstr ""
 msgid "Login"
 msgstr "Ingresar"
 
-#: src/ws/login.js:252
+#: src/ws/login.js:254
 msgid "Login Again"
 msgstr ""
 
@@ -3701,7 +3717,7 @@ msgstr ""
 "Para registrarse es necesario un usuario y contraseña o una clave de "
 "activación."
 
-#: src/ws/login.js:253
+#: src/ws/login.js:255
 msgid "Logout Successful"
 msgstr ""
 
@@ -4195,6 +4211,10 @@ msgstr "No se encontró ningún almacenamiento local adicional."
 msgid "No alias specified"
 msgstr "No se ha especificado un alias"
 
+#: pkg/apps/application-list.jsx:134
+msgid "No applications installed or available"
+msgstr ""
+
 #: pkg/sosreport/index.js:111
 msgid "No archive has been created."
 msgstr "No archive has been created."
@@ -4275,6 +4295,10 @@ msgstr ""
 #: pkg/docker/containers-view.jsx:611
 msgid "No images that match the current filter"
 msgstr "No hay imágenes que correspondan al filtro actual"
+
+#: pkg/apps/utils.jsx:97
+msgid "No installation package found for this application."
+msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:223
 msgid "No installed products on the system."
@@ -4757,7 +4781,7 @@ msgstr "Perfil de rendimiento"
 msgid "Permanent"
 msgstr "Permanente"
 
-#: src/ws/login.js:597
+#: src/ws/login.js:599
 msgid "Permission denied"
 msgstr ""
 
@@ -5368,15 +5392,15 @@ msgstr "Reformatear y añadir discos"
 msgid "Refreshing package information"
 msgstr ""
 
-#: src/ws/login.js:587
+#: src/ws/login.js:589
 msgid "Refusing to connect. Host is unknown"
 msgstr ""
 
-#: src/ws/login.js:589
+#: src/ws/login.js:591
 msgid "Refusing to connect. Hostkey does not match"
 msgstr ""
 
-#: src/ws/login.js:585
+#: src/ws/login.js:587
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr ""
 
@@ -5438,6 +5462,7 @@ msgstr "Removidos"
 #: pkg/kubernetes/views/remove-role-dialog.html:8
 #: pkg/kubernetes/views/user-delete.html:25
 #: pkg/kubernetes/views/user-group-remove.html:10
+#: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:94
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -5468,6 +5493,10 @@ msgstr "Remover etiqueta de imagen"
 #: pkg/kubernetes/views/user-remove-membership.html:3
 msgid "Remove membership"
 msgstr "Quitar afiliación"
+
+#: pkg/apps/application-list.jsx:51 pkg/apps/application.jsx:59
+msgid "Removing"
+msgstr ""
 
 #: pkg/storaged/jobs.js:140
 msgid "Removing $target from RAID Device"
@@ -6722,7 +6751,7 @@ msgstr ""
 "El archivo seleccionado no es un archivo de manifiesto de aplicación "
 "kubernetes valido"
 
-#: src/ws/login.js:579
+#: src/ws/login.js:581
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7145,7 +7174,7 @@ msgstr ""
 msgid "Unable to connect"
 msgstr ""
 
-#: src/ws/login.js:583
+#: src/ws/login.js:585
 msgid "Unable to connect to that address"
 msgstr ""
 
@@ -7223,6 +7252,10 @@ msgstr ""
 #: pkg/storaged/sidebar-views.jsx:127
 msgid "Unknown ($0)"
 msgstr "Desconocido ($0)"
+
+#: pkg/apps/application.jsx:83
+msgid "Unknown Application"
+msgstr ""
 
 #: pkg/lib/machine-unknown-hostkey.html:2
 msgid "Unknown Host Key"
@@ -7424,7 +7457,7 @@ msgstr ""
 msgid "User name"
 msgstr "Nombre de usuario"
 
-#: src/ws/login.js:393
+#: src/ws/login.js:395
 msgid "User name cannot be empty"
 msgstr ""
 
@@ -7583,6 +7616,10 @@ msgstr "Esperando"
 msgid "Waiting for details..."
 msgstr ""
 
+#: pkg/apps/utils.jsx:63
+msgid "Waiting for other programs to finish using the package manager..."
+msgstr ""
+
 #: pkg/kubernetes/views/pv-modify.html:24
 msgid "Warning:"
 msgstr ""
@@ -7630,7 +7667,7 @@ msgstr "Escribiendo"
 msgid "Writing objects"
 msgstr "Escribiendo objetos"
 
-#: src/ws/login.js:593
+#: src/ws/login.js:595
 msgid "Wrong user name or password"
 msgstr ""
 

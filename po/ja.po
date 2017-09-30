@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 19:02+0000\n"
+"POT-Creation-Date: 2017-09-30 07:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,7 +88,7 @@ msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 ディスクがありません"
 
-#: src/ws/login.js:279 src/ws/login.js:601
+#: src/ws/login.js:281 src/ws/login.js:603
 msgid "$0 error"
 msgstr "$0 エラー"
 
@@ -849,6 +849,11 @@ msgstr "アノテーション"
 msgid "Anonymous: Allow all unauthenticated users to pull images"
 msgstr "匿名: 認証されていないすべてのユーザーがイメージをプルできます"
 
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:148
+#: pkg/apps/application.jsx:127
+msgid "Applications"
+msgstr ""
+
 #: pkg/networkmanager/index.html:620 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:692
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
@@ -936,11 +941,11 @@ msgstr "認証"
 msgid "Authentication Failed"
 msgstr "認証に失敗しました"
 
-#: src/ws/login.js:581
+#: src/ws/login.js:583
 msgid "Authentication Failed: Server closed connection"
 msgstr "認証に失敗しました: サーバーの接続が切断されました"
 
-#: src/ws/login.js:591
+#: src/ws/login.js:593
 msgid "Authentication failed"
 msgstr "認証に失敗しました"
 
@@ -1183,7 +1188,7 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
 #: pkg/lib/cockpit-components-dialog.jsx:138 pkg/packagekit/updates.jsx:204
-#: pkg/sosreport/index.js:51
+#: pkg/sosreport/index.js:51 pkg/apps/utils.jsx:87
 msgid "Cancel"
 msgstr "取り消し"
 
@@ -1298,13 +1303,8 @@ msgid ""
 "the administration UI unavailable."
 msgstr "設定を変更すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
 
-#: pkg/ostree/index.html:210
+#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:195
 msgid "Check for Updates"
-msgstr "更新の確認"
-
-#: pkg/packagekit/updates.jsx:195
-#, fuzzy
-msgid "Check for updates"
 msgstr "更新の確認"
 
 #: pkg/networkmanager/interfaces.js:771
@@ -1318,6 +1318,10 @@ msgstr "RAID デバイス $target の確認"
 #: pkg/storaged/jobs.js:143
 msgid "Checking and Repairing RAID Device $target"
 msgstr "RAID デバイス $target の確認および修復"
+
+#: pkg/apps/application-list.jsx:124
+msgid "Checking for new applications"
+msgstr ""
 
 #: pkg/lib/machine-change-auth.html:71
 msgid "Checking for public keys"
@@ -1369,6 +1373,7 @@ msgstr "クライアント証明書"
 #: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
+#: pkg/apps/utils.jsx:109
 msgid "Close"
 msgstr "閉じる"
 
@@ -1384,7 +1389,7 @@ msgstr "クラスター"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:298
+#: src/ws/login.js:300
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit の認証が間違って設定されています。"
 
@@ -2594,6 +2599,7 @@ msgstr "$target の削除中"
 #: pkg/systemd/services.html:334 pkg/storaged/details.jsx:199
 #: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
 #: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1381
+#: pkg/apps/utils.jsx:101
 msgid "Error"
 msgstr "エラー"
 
@@ -2888,6 +2894,10 @@ msgstr "GlusterFS"
 msgid "Go to"
 msgstr "移動"
 
+#: pkg/apps/application.jsx:93
+msgid "Go to Application"
+msgstr ""
+
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
 #: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
 #: pkg/systemd/index.html:182
@@ -3180,15 +3190,17 @@ msgstr "Docker ストレージプールに関する情報は利用できませ�
 msgid "Initializing..."
 msgstr ""
 
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:97
+msgid "Install"
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:803
-#, fuzzy
-msgid "Install all updates"
-msgstr "インストールされた製品"
+msgid "Install All Updates"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:809
-#, fuzzy
-msgid "Install security updates"
-msgstr "インストールされた製品"
+msgid "Install Security Updates"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
@@ -3203,7 +3215,8 @@ msgstr "インストールされた製品"
 msgid "Installed products"
 msgstr "インストールされた製品"
 
-#: pkg/packagekit/updates.jsx:53
+#: pkg/packagekit/updates.jsx:53 pkg/apps/application-list.jsx:47
+#: pkg/apps/application.jsx:55
 msgid "Installing"
 msgstr ""
 
@@ -3220,7 +3233,7 @@ msgstr "インターフェース"
 msgid "Interfaces"
 msgstr "インターフェース"
 
-#: src/ws/login.js:573
+#: src/ws/login.js:575
 msgid "Internal Error: Invalid challenge header"
 msgstr "内部エラー: 無効なチャレンジヘッダー"
 
@@ -3611,7 +3624,7 @@ msgstr "論理ボリューム"
 msgid "Login"
 msgstr "ログイン"
 
-#: src/ws/login.js:252
+#: src/ws/login.js:254
 msgid "Login Again"
 msgstr "再ログイン"
 
@@ -3631,7 +3644,7 @@ msgstr "ログインが失敗しました"
 msgid "Login/password or activation key required to register."
 msgstr "ログイン/パスワードまたはアクティベーションキーを登録する必要があります。"
 
-#: src/ws/login.js:253
+#: src/ws/login.js:255
 msgid "Logout Successful"
 msgstr "ログアウトが正常に行われました"
 
@@ -4127,6 +4140,10 @@ msgstr "追加ローカルストレージがありません。"
 msgid "No alias specified"
 msgstr "エイリアスが指定されていません"
 
+#: pkg/apps/application-list.jsx:134
+msgid "No applications installed or available"
+msgstr ""
+
 #: pkg/sosreport/index.js:111
 msgid "No archive has been created."
 msgstr "アーカイブが作成されていません"
@@ -4208,6 +4225,10 @@ msgstr "イメージがプッシュされていません"
 #: pkg/docker/containers-view.jsx:611
 msgid "No images that match the current filter"
 msgstr "現在のフィルターに一致するイメージがありません"
+
+#: pkg/apps/utils.jsx:97
+msgid "No installation package found for this application."
+msgstr ""
 
 #: pkg/subscriptions/subscriptions-view.jsx:223
 msgid "No installed products on the system."
@@ -4691,7 +4712,7 @@ msgstr "パフォーマンスプロファイル"
 msgid "Permanent"
 msgstr "永続"
 
-#: src/ws/login.js:597
+#: src/ws/login.js:599
 msgid "Permission denied"
 msgstr "パーミッションが拒否されました。"
 
@@ -5300,15 +5321,15 @@ msgstr "ディスクの再フォーマットおよび追加"
 msgid "Refreshing package information"
 msgstr ""
 
-#: src/ws/login.js:587
+#: src/ws/login.js:589
 msgid "Refusing to connect. Host is unknown"
 msgstr "接続を拒否しています。ホストが不明です"
 
-#: src/ws/login.js:589
+#: src/ws/login.js:591
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "接続を拒否しています。ホストキーが一致しません"
 
-#: src/ws/login.js:585
+#: src/ws/login.js:587
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "接続を拒否しています。ホストキーが不明です"
 
@@ -5370,6 +5391,7 @@ msgstr "削除"
 #: pkg/kubernetes/views/remove-role-dialog.html:8
 #: pkg/kubernetes/views/user-delete.html:25
 #: pkg/kubernetes/views/user-group-remove.html:10
+#: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:94
 msgid "Remove"
 msgstr "削除"
 
@@ -5400,6 +5422,10 @@ msgstr "イメージタグの削除"
 #: pkg/kubernetes/views/user-remove-membership.html:3
 msgid "Remove membership"
 msgstr "メンバーシップの削除"
+
+#: pkg/apps/application-list.jsx:51 pkg/apps/application.jsx:59
+msgid "Removing"
+msgstr ""
 
 #: pkg/storaged/jobs.js:140
 msgid "Removing $target from RAID Device"
@@ -6650,7 +6676,7 @@ msgstr ""
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "選択されたファイルは有効な Kubernetes アプリケーションマニフェストではありません。"
 
-#: src/ws/login.js:579
+#: src/ws/login.js:581
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7065,7 +7091,7 @@ msgstr "OSTree と通信できません"
 msgid "Unable to connect"
 msgstr "接続できません"
 
-#: src/ws/login.js:583
+#: src/ws/login.js:585
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
@@ -7142,6 +7168,10 @@ msgstr "不明な \"$0\""
 #: pkg/storaged/sidebar-views.jsx:127
 msgid "Unknown ($0)"
 msgstr "不明な ($0)"
+
+#: pkg/apps/application.jsx:83
+msgid "Unknown Application"
+msgstr ""
 
 #: pkg/lib/machine-unknown-hostkey.html:2
 msgid "Unknown Host Key"
@@ -7346,7 +7376,7 @@ msgstr ""
 msgid "User name"
 msgstr "ユーザー名"
 
-#: src/ws/login.js:393
+#: src/ws/login.js:395
 msgid "User name cannot be empty"
 msgstr "ユーザー名は空にできません"
 
@@ -7507,6 +7537,10 @@ msgstr "待機中"
 msgid "Waiting for details..."
 msgstr "詳細を待機中 ..."
 
+#: pkg/apps/utils.jsx:63
+msgid "Waiting for other programs to finish using the package manager..."
+msgstr ""
+
 #: pkg/kubernetes/views/pv-modify.html:24
 msgid "Warning:"
 msgstr "警告:"
@@ -7554,7 +7588,7 @@ msgstr "書き込み"
 msgid "Writing objects"
 msgstr "オブジェクトの書き込み"
 
-#: src/ws/login.js:593
+#: src/ws/login.js:595
 msgid "Wrong user name or password"
 msgstr "ユーザー名またはパスワードが間違っています"
 

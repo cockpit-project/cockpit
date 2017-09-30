@@ -223,7 +223,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             copy_avocado_logs(machine, "PASSED")
 
         if not success and sit:
-            print >> sys.stderr, "ADDRESS: %s" % machine.address
+            print >> sys.stderr, machine.diagnose()
             raw_input ("Press RET to continue... ")
 
         return success

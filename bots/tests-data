@@ -55,7 +55,7 @@ def main():
     for pull in task.api.pulls(state=opts.open and "open" or "closed", since=since):
         if opts.verbose:
             sys.stderr.write("pull-{0}\n".format(pull["number"]))
-        merged = included(pull, since)
+        merged = included(pull)
         for revision in revisions(pull):
             if opts.verbose:
                 sys.stderr.write("- {0}\n".format(revision))
@@ -257,7 +257,7 @@ def tap(content):
 
 # Check if a given pull request was included in its base
 # branch via merging or otherwise
-def included(pull, since):
+def included(pull):
     if pull.get("state") != "closed":
         return None
 

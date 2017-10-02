@@ -536,42 +536,44 @@
         <span class="pull-right">{{{MDRaidButton}}}</span>
       </div>
       {{#MDRaid}}
-      <table class="info-table-ct">
-        <tr>
-          <td translatable="yes" context="storage">Device</td>
-          <td>{{Block.Device}}</td>
-        </tr>
-        <tr>
-          <td translatable="yes" context="storage">UUID</td>
-          <td>{{dbus.UUID}}</td>
-        </tr>
-        <tr>
-          <td translatable="yes" context="storage">Capacity</td>
-          <td>{{Size}}</td>
-        </tr>
-        <tr>
-          <td translatable="yes" context="storage">RAID Level</td>
-          <td>{{Level}}</td>
-        </tr>
-        {{#Bitmap}}
-        <tr>
-          <td translatable="yes" context="storage">Bitmap</td>
-          <td>
-            <div class="btn-group btn-toggle"
-                 data-action="mdraid_toggle_bitmap" data-arg="{{dbus.path}}">
-              <button translatable="yes" class="btn {{#Value}}btn-primary active{{/Value}} btn-default">On</button>
-              <button translatable="yes" class="btn {{^Value}}btn-primary active{{/Value}} btn-default">Off</button>
-            </div>
-          </td>
-        </tr>
-        {{/Bitmap}}
-        <tr>
-          <td translatable="yes" context="storage">State</td>
-          <td>
-            {{State}}
-          </td>
-        </tr>
-      </table>
+      <div class="panel-body">
+        <table class="info-table-ct">
+          <tr>
+            <td translatable="yes" context="storage">Device</td>
+            <td>{{Block.Device}}</td>
+          </tr>
+          <tr>
+            <td translatable="yes" context="storage">UUID</td>
+            <td>{{dbus.UUID}}</td>
+          </tr>
+          <tr>
+            <td translatable="yes" context="storage">Capacity</td>
+            <td>{{Size}}</td>
+          </tr>
+          <tr>
+            <td translatable="yes" context="storage">RAID Level</td>
+            <td>{{Level}}</td>
+          </tr>
+          {{#Bitmap}}
+          <tr>
+            <td translatable="yes" context="storage">Bitmap</td>
+            <td>
+              <div class="btn-group btn-toggle"
+                   data-action="mdraid_toggle_bitmap" data-arg="{{dbus.path}}">
+                <button translatable="yes" class="btn {{#Value}}btn-primary active{{/Value}} btn-default">On</button>
+                <button translatable="yes" class="btn {{^Value}}btn-primary active{{/Value}} btn-default">Off</button>
+              </div>
+            </td>
+          </tr>
+          {{/Bitmap}}
+          <tr>
+            <td translatable="yes" context="storage">State</td>
+            <td>
+              {{State}}
+            </td>
+          </tr>
+        </table>
+      </div>
       {{/MDRaid}}
     </div>
   </script>
@@ -583,16 +585,18 @@
         <span class="pull-right">{{{VGroupButton}}}</span>
       </div>
       {{#VGroup}}
-      <table class="info-table-ct">
-        <tr>
-          <td translatable="yes" context="storage">UUID</td>
-          <td>{{dbus.UUID}}</td>
-        </tr>
-        <tr>
-          <td translatable="yes" context="storage">Capacity</td>
-          <td>{{Size}}</td>
-        </tr>
-      </table>
+      <div class="panel-body">
+        <table class="info-table-ct">
+          <tr>
+            <td translatable="yes" context="storage">UUID</td>
+            <td>{{dbus.UUID}}</td>
+          </tr>
+          <tr>
+            <td translatable="yes" context="storage">Capacity</td>
+            <td>{{Size}}</td>
+          </tr>
+        </table>
+      </div>
       {{/VGroup}}
     </div>
   </script>

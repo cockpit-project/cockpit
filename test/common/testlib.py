@@ -883,99 +883,10 @@ def skipImage(reason, *args):
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda func: func
 
-class Policy(object):
-    def __init__(self, retryable=True):
-        self.retryable = retryable
-
-    def normalize_traceback(self, trace):
-        # All file paths converted to basename
-        return re.sub(r'File "[^"]*/([^/"]+)"', 'File "\\1"', trace.strip())
-
-    def check_issue(self, trace):
-        cmd = [ "image-naughty", testvm.DEFAULT_IMAGE ]
-
-        try:
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            (output, error) = proc.communicate(str(trace))
-        except OSError, ex:
-            if getattr(ex, 'errno', 0) != errno.ENOENT:
-                sys.stderr.write("Couldn't check known issue: {0}\n".format(str(ex)))
-            output = ""
-
-        return output
-
-    def check_retry(self, trace, tries):
-        # Never try more than five times
-        if not self.retryable or tries >= 5:
-            return False
-
-        # We check for persistent but test harness or framework specific
-        # failures that otherwise cause flakiness and false positives.
-        #
-        # The things we check here must:
-        #  * have no impact on users of Cockpit in the real world
-        #  * be things we tried to resolve in other ways. This is a last resort
-        #
-        trace = self.normalize_traceback(trace)
-
-        # HACK: An issue in phantomjs and QtWebkit
-        # http://stackoverflow.com/questions/35337304/qnetworkreply-network-access-is-disabled-in-qwebview
-        # https://github.com/owncloud/client/issues/3600
-        # https://github.com/ariya/phantomjs/issues/14789
-        if "PhantomJS or driver broken" in trace:
-            return True
-
-        # HACK: A race issue in phantomjs that happens randomly
-        # https://github.com/ariya/phantomjs/issues/12750
-        if "Resource Error: Operation canceled" in trace:
-            return True
-
-        # HACK: Interacting with sshd during boot is not always predictable
-        # We're using an implementation detail of the server as our "way in" for testing.
-        # This often has to do with sshd being restarted for some reason
-        if "SSH master process exited with code: 255" in trace:
-            return True
-
-        # HACK: Intermittently the new libvirt machine won't get an IP address
-        # or SSH will completely fail to start. We've tried various approaches
-        # to minimize this, but it happens every 100,000 tests or so
-        if "Failure: Unable to reach machine " in trace:
-            return True
-
-        # HACK: For when the verify machine runs out of available processes
-        # We should retry this test process
-        if "self.pid = os.fork()\nOSError: [Errno 11] Resource temporarily unavailable" in trace:
-            return True
-
-        return False
-
 class TestResult(tap.TapResult):
     def __init__(self, stream, descriptions, verbosity):
         self.policy = None
         super(TestResult, self).__init__(verbosity)
-
-    def maybeIgnore(self, test, err):
-        string = self._exc_info_to_string(err, test)
-        if self.policy:
-            issue = self.policy.check_issue(string)
-            if issue:
-                self.addSkip(test, "Known issue #{0}".format(issue))
-                return True
-            tries = getattr(test, "retryCount", 1)
-            if self.policy.check_retry(string, tries):
-                self.offset -= 1
-                setattr(test, "retryCount", tries + 1)
-                test.doCleanups()
-                raise RetryError("Retrying due to failure of test harness or framework")
-        return False
-
-    def addError(self, test, err):
-        if not self.maybeIgnore(test, err):
-            super(TestResult, self).addError(test, err)
-
-    def addFailure(self, test, err):
-        if not self.maybeIgnore(test, err):
-            super(TestResult, self).addError(test, err)
 
     def startTest(self, test):
         sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
@@ -1036,8 +947,6 @@ class TapRunner(object):
     def runOne(self, test, offset):
         result = TestResult(self.stream, False, self.verbosity)
         result.offset = offset
-        if not self.thorough:
-            result.policy = Policy()
         try:
             test(result)
         except KeyboardInterrupt:
@@ -1052,18 +961,32 @@ class TapRunner(object):
 
     def run(self, testable):
         tap.TapResult.plan(testable)
-        count = testable.countTestCases()
+
+        tests = [ ]
+
+        # The things to test
+        def collapse(test, tests):
+            if test.countTestCases() == 1:
+                tests.append(test)
+            else:
+                for t in test:
+                    collapse(t, tests)
+        collapse(testable, tests)
+
+        # Now setup the count we have
+        count = len(tests)
+        for i, test in enumerate(tests):
+            setattr(test, "tapOffset", i)
 
         # For statistics
         start = time.time()
 
-        pids = set()
+        pids = { }
         options = 0
         buffer = None
-        if self.jobs > 1:
+        if not self.thorough and self.verbosity <= 1:
             buffer = OutputBuffer()
             options = os.WNOHANG
-        offset = 0
         failures = { "count": 0 }
 
         def join_some(n):
@@ -1074,18 +997,32 @@ class TapRunner(object):
                     (pid, code) = os.waitpid(-1, options)
                 except KeyboardInterrupt:
                     sys.exit(255)
-                if pid:
-                    if buffer:
-                        sys.stdout.write(buffer.pop(pid))
-                    pids.remove(pid)
                 if code & 0xff:
                     failed = 1
                 else:
                     failed = (code >> 8) & 0xff
+                if pid:
+                    if buffer:
+                        output = buffer.pop(pid)
+                        test = pids[pid]
+                        failed, retry = self.filterOutput(test, failed, output)
+                        if retry:
+                            tests.append(test)
+                    del pids[pid]
                 failures["count"] += failed
 
-        for test in testable:
+        while True:
             join_some(self.jobs - 1)
+
+            if not tests:
+                join_some(0)
+
+                # See if we inserted more tests
+                if not tests:
+                    break
+
+            # The next test to test
+            test = tests.pop()
 
             # Fork off a child process for each test
             if buffer:
@@ -1099,20 +1036,17 @@ class TapRunner(object):
                     os.dup2(wfd, 1)
                     os.dup2(wfd, 2)
                 random.seed()
+                offset = getattr(test, "tapOffset", 0)
                 if self.runOne(test, offset):
                     sys.exit(0)
                 else:
                     sys.exit(1)
 
             # The parent process
-            pids.add(pid)
+            pids[pid] = test
             if buffer:
                 os.close(wfd)
                 buffer.push(pid, rfd)
-            offset += test.countTestCases()
-
-        # Wait for the remaining subprocesses
-        join_some(0)
 
         # Report on the results
         duration = int(time.time() - start)
@@ -1124,6 +1058,35 @@ class TapRunner(object):
         else:
             sys.stdout.write("# TESTS PASSED {0}\n".format(details))
         return count
+
+    def filterOutput(self, test, failed, output):
+        # Check how many retries we can do of this test
+        tries = getattr(test, "retryCount", 0)
+        tries += 1
+        setattr(test, "retryCount", tries)
+
+        # Didn't fail, just print output and continue
+        if tries >= 3 or not failed:
+            sys.stdout.write(output)
+            return failed, False
+
+        # Otherwise pass through this command if it exists
+        cmd = [ "tests-policy", testvm.DEFAULT_IMAGE ]
+        try:
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            (output, error) = proc.communicate(output)
+        except OSError, ex:
+            if ex.errno != errno.ENOENT:
+                sys.stderr.write("Couldn't check known issue: {0}\n".format(str(ex)))
+
+        # Write the output
+        sys.stdout.write(output)
+
+        if "# SKIP " in output:
+            failed = 0
+
+        # Whether we should retry the test or not
+        return failed, "# RETRY " in output
 
 def arg_parser():
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')

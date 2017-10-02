@@ -457,11 +457,15 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 id("login-password-input").focus();
         }, false);
 
-        id("login-password-input").addEventListener("keydown", function(e) {
+        var do_login = function(e) {
             login_failure(null);
             if (e.which == 13)
                 call_login();
-        });
+        };
+
+        id("login-password-input").addEventListener("keydown", do_login);
+        id("authorized-input").addEventListener("keydown", do_login);
+
         show_form();
         id("login-user-input").focus();
         phantom_checkpoint();

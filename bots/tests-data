@@ -269,7 +269,10 @@ def included(pull):
     cwd = os.path.dirname(__file__)
     base = pull["base"]["ref"]
     if base not in FETCHED:
-        subprocess.check_call([ "git", "fetch", "-q", "--", "origin", base ], cwd=cwd)
+        try:
+            subprocess.check_call([ "git", "fetch", "-q", "--", "origin", base ], cwd=cwd)
+        except subprocess.CalledProcessError:
+            return None # error already printed by process
         FETCHED[base] = base
 
     # Look for git commits up until a year before the pull request

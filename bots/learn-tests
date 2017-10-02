@@ -1,0 +1,211 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Slavek Kabrda
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+# The number of days of previous closed pull requests to learn from
+SINCE_DAYS = 120
+
+# The name and version of the training data
+TRAINING_DATA = "tests-train-1.jsonl.gz"
+
+import gzip
+import json
+import os
+import random
+import subprocess
+import sys
+import time
+
+sys.dont_write_bytecode = True
+
+import task
+import task.learn1
+
+BOTS = os.path.dirname(os.path.realpath(__file__))
+DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
+
+def run(training_data, verbose=False, dry=False, **kwargs):
+    upload = [ os.path.join(BOTS, "image-upload"), "--state" ]
+
+    # Default set of training data, retrieve it and use from DATA directory
+    if not training_data:
+        training_data = TRAINING_DATA
+        upload.append(TRAINING_DATA)
+    if "/" not in training_data and not os.path.exists(training_data):
+        if not dry:
+            subprocess.check_call([ os.path.join(BOTS, "image-download"), "--state", training_data ])
+        training_data = os.path.join(DATA, training_data)
+    items = loader(training_data, verbose, dry)
+
+    # If we're validating, only use some of the items
+    # for training and the rest for validation
+    if dry:
+        items, check = split(items, 0.6)
+
+    network = train(items, verbose)
+
+    # Write out the trained data
+    path = os.path.join(DATA, task.learn1.LEARN_DATA)
+    task.learn1.save(path + ".tmp", network)
+    os.rename(path + ".tmp", path)
+    upload.append(task.learn1.LEARN_DATA)
+
+    # Just print out the validation
+    if dry:
+        validate(check, network, verbose)
+
+    # Or do the upload if a real run
+    else:
+        subprocess.check_call(upload)
+
+# Load jsonl style data into items, or if no file specified
+# then just run tests-data to retrieve live data
+def loader(training_data, verbose, dry):
+    items = [ ]
+
+    # The input file exists
+    exists = training_data and os.path.exists(training_data)
+
+    # Dry mode just read a file
+    if dry:
+        proc = None
+        if not exists:
+            raise RuntimeError("tests-learn: the input file doesn't exist: {0}".format(training_data))
+        inp = gzip.open(training_data, 'rb')
+        if verbose:
+            sys.stderr.write("Loading tests data\n")
+
+    # Launch the test-data command directly, and save the output
+    else:
+        cmd = [ os.path.join(BOTS, "tests-data"), "--since" ]
+        when = time.time() - 60 * 60 * 24 * SINCE_DAYS
+        cmd.append(time.strftime("%Y-%m-%d", time.gmtime(when)))
+        if exists:
+            cmd += [ "--seed", training_data ]
+        if verbose:
+            if exists:
+                sys.stderr.write("Loading initial tests data\n")
+            cmd.append("--verbose")
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        inp = proc.stdout
+
+    try:
+        while True:
+            line = inp.readline()
+            if not line:
+                break
+            if "failure" in line:
+                item = json.loads(line)
+                if item['status'] == 'failure':
+                    items.append(item)
+    finally:
+        if proc:
+            proc.wait()
+            if proc.returncode != 0:
+                raise RuntimeError("tests-data command failed")
+        inp.close()
+
+    return items
+
+# Split items into two sets with probability factor
+# This is useful for validating the training where we
+# want to split the input data
+def split(items, factor):
+    a, b = [ ], [ ]
+    for item in items:
+        if random.random() < factor:
+            a.append(item)
+        else:
+            b.append(item)
+    return a, b
+
+def train(items, verbose):
+    tokenizer = task.learn1.Tokenizer1()
+    tokenizer.parse(items, verbose)
+
+    if verbose:
+        sys.stderr.write("Found {0} tokens, {1} contexts and {2} tests names\n".format(
+            len(tokenizer.tokens), len(tokenizer.contexts), len(tokenizer.tests)))
+
+    if verbose:
+        sys.stderr.write("Training neural network with dataset of {0} samples\n".format(len(items)))
+
+    network = task.learn1.NNWithScaler1(tokenizer)
+    network.train(items)
+
+    return network
+
+def validate(items, network, verbose):
+    # Statistics that get triggered when we have result data
+    successes = 0
+    false_negatives = 0
+    false_positives = 0
+    unsure = 0
+    total_count = 0
+
+    for i, item in enumerate(items):
+        pred_proba = network.predict_proba(item)
+        # we only assign 0 or 1 to pred if one of the probabilities is bigger than threshhold
+        pred = None
+        pred_text = "UNSURE "
+        if max(pred_proba) >= task.learn1.PREDICT_THRESHHOLD:
+            if int(pred_proba[1] >= pred_proba[0]) == 1:
+                pred_text = "FLAKE  "
+                pred = True
+            else:
+                pred_text = "NOT    "
+                pred = False
+
+        sys.stdout.write("{pred_text} {flake_proba:.6f} {p} {pull} {test} {context} {url}\n".format(
+            pred_text=pred_text,
+            flake_proba=pred_proba[1],
+            p=pred,
+            pull=item["pull"],
+            test=item["test"],
+            context=item["context"],
+            url=item.get("url", "")
+        ))
+
+        if "merged" in item:
+            if verbose:
+                sys.stderr.write('Predicted item {0} to be {1} => {2}\n'.format(
+                    i + 1,
+                    pred_text.strip(),
+                    'correct' if pred == item['merged'] else 'wrong'
+                ))
+            total_count += 1
+            if pred == item['merged']:
+                successes += 1
+            elif pred == True:
+                false_positives += 1
+            elif pred == False:
+                false_negatives += 1
+            else:
+                unsure += 1
+
+    # Statistics
+    if total_count:
+        sys.stderr.write('Successes: {0}:{1} ({2:.1%})\n'.format(successes,
+            total_count, float(successes) / float(total_count)))
+        sys.stderr.write('False positives: {0}\n'.format(false_positives))
+        sys.stderr.write('False negatives: {0}\n'.format(false_negatives))
+        sys.stderr.write('Unsure: {0}\n'.format(unsure))
+
+if __name__ == '__main__':
+    task.main(function=run, title="Learn from testing data", verbose=True)

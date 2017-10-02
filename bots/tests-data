@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import gzip
 import json
 import os
 import sys
@@ -41,17 +42,28 @@ def main():
     parser = argparse.ArgumentParser(description="Pull out test data for pull requests")
     parser.add_argument("--open", action="store_true", help="Pull data on open pull requests")
     parser.add_argument("--since", help="Since a given ISO-8601 date")
+    parser.add_argument("-z", "--gzip", action="store_true", help="Compress input and output")
     parser.add_argument("-v", "--verbose", action="store_true", help="Show verbose progress")
     opts = parser.parse_args()
 
+    # Parse the input date
     since = opts.since
     try:
         if since is not None:
             since = time.mktime(time.strptime(opts.since, "%Y-%m-%d"))
     except ValueError:
         sys.stderr.write("tests-data: invalid since date: {0}\n".format(since))
-        sys.exit(2)
+        return 2
 
+    # Compress the output if so
+    if opts.gzip:
+        if os.isatty(1):
+            sys.stderr.write("tests-data: refusing to compress to stdout")
+            return 2
+        sys.stdout.flush()
+        sys.stdout = gzip.GzipFile(fileobj=sys.stdout, mode='wb')
+
+    # Now start the process
     for pull in task.api.pulls(state=opts.open and "open" or "closed", since=since):
         if opts.verbose:
             sys.stderr.write("pull-{0}\n".format(pull["number"]))
@@ -75,11 +87,13 @@ def main():
                         "log": body
                     }))
                     sys.stdout.write("\n")
+                    sys.stdout.flush()
             # The next revisions for the pull request are not the ones
             # that got merged. Only the first one produced by revisions
             if merged:
                 merged = False
 
+    sys.stdout.flush()
 
 # An HTML parser that just pulls out all the <a href="...">
 # link hrefs in a given page of content. We also qualify these

@@ -200,6 +200,11 @@ class PullTask(object):
                 "ipa", "openshift", "selenium"
             ])
 
+            # Download some additional necessary state
+            subprocess.check_call([ os.path.join(BOTS, "image-download"),
+                "--state", "tests-learn-1.nn"
+            ])
+
         except subprocess.CalledProcessError:
             return "Downloading of additional images failed"
 

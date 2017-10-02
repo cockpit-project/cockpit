@@ -25,13 +25,21 @@ import re
 import os
 import socket
 import sys
+import time
 import traceback
 
 sys.dont_write_bytecode = True
 
 from task import github
 
-BOTS = os.path.join(os.path.dirname(__file__))
+try:
+    import task.learn1
+    WITH_LEARNING = True
+except ImportError:
+    WITH_LEARNING = False
+
+BOTS = os.path.dirname(os.path.realpath(__file__))
+DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 def main():
     script = os.path.basename(__file__)
@@ -82,6 +90,8 @@ def main():
             output = filterSkip(output, "Known issue #{0}".format(number))
         elif checkRetry(output):
             output = filterRetry(output, "# RETRY due to failure of test harness or framework")
+        else:
+            output = guessFlake(output, context)
 
         sys.stdout.write(output)
         return 0
@@ -110,6 +120,55 @@ def filterRetry(output, prefix):
         if line.startswith("not ok ") or line.startswith("ok "):
             lines[i] = prefix
     return "\n".join(lines)
+
+# Figure out the name from a failed test
+def parseName(output):
+    for line in output.split("\n"):
+        if line.startswith("not ok "):
+            line = line[7:]
+            while line[0].isspace() or line[0].isdigit():
+                line = line[1:]
+            (name, delim, directive) = line.partition("#")
+            (name, delim, directive) = name.partition("duration")
+            name = name.strip()
+            return name
+    return ""
+
+# -----------------------------------------------------------------------------
+# Flakiness Checks
+
+def guessFlake(output, context):
+    if not WITH_LEARNING:
+        return output
+
+    path = os.path.join(DATA, task.learn1.LEARN_DATA)
+    if not os.path.exists(path):
+        return output
+
+    # The pickled neural network
+    network = task.learn1.load(path)
+
+    # Build up an item just like in tests-data
+    item = {
+        "pull": None,
+        "revision": os.environ.get("TEST_REVISION"),
+        "status": "failure",
+        "context": context,
+        "date": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "merged": None,
+        "test": parseName(output),
+        "url": None,
+        "log": output
+    }
+
+    pred_proba = network.predict_proba(item)
+    if max(pred_proba) >= 0.5:
+        if int(pred_proba[1] >= pred_proba[0]) == 1:
+            output += "\n# Flake probability: {0:.1f}%\n".format(pred_proba[1] * 100)
+    # TODO: Remove this line
+    output += "\n# Flake debug: " + repr(pred_proba)
+
+    return output
 
 # -----------------------------------------------------------------------------
 # Retry policy

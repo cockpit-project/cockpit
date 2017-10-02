@@ -91,6 +91,8 @@ def main(**kwargs):
         help="Act on an already created task issue")
     parser.add_argument("--publish", dest="publish", default=os.environ.get("TEST_PUBLISH", ""),
         action="store", help="Publish results centrally to a sink")
+    parser.add_argument("--dry", dest="dry", action="store_true",
+        help="Dry run to validate this task if supported")
     parser.add_argument("context", nargs="?")
 
     opts = parser.parse_args()
@@ -102,6 +104,7 @@ def main(**kwargs):
         task["verbose"] = opts.verbose
     task["issue"] = opts.issue
     task["publish"] = opts.publish
+    task["dry"] = opts.dry
 
     ret = run(opts.context, **task)
 

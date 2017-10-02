@@ -35,11 +35,13 @@ sys.dont_write_bytecode = True
 import task
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
+SEEDED = { }
 FETCHED = { }
 SINKS = { }
 
 def main():
     parser = argparse.ArgumentParser(description="Pull out test data for pull requests")
+    parser.add_argument("--seed", action="store", help="Seed with existing data")
     parser.add_argument("--open", action="store_true", help="Pull data on open pull requests")
     parser.add_argument("--since", help="Since a given ISO-8601 date")
     parser.add_argument("-z", "--gzip", action="store_true", help="Compress input and output")
@@ -63,8 +65,14 @@ def main():
         sys.stdout.flush()
         sys.stdout = gzip.GzipFile(fileobj=sys.stdout, mode='wb')
 
+    # Seed with our input data
+    if opts.seed:
+        seed(opts.seed, opts.gzip, since)
+
     # Now start the process
     for pull in task.api.pulls(state=opts.open and "open" or "closed", since=since):
+        if pull["number"] in SEEDED:
+            continue
         if opts.verbose:
             sys.stderr.write("pull-{0}\n".format(pull["number"]))
         merged = included(pull)
@@ -128,6 +136,35 @@ def links(url):
     except urllib2.URLError:
         sys.stderr.write("{0}: {1}\n".format(url, ex))
     return result
+
+# Parses seed input data and passes it through to output
+# all the while preparing the fact that certain URLs have
+# already been seen
+def seed(filename, compress=False, since=None):
+    seeded = None
+    with (compress and gzip.open or open)(filename, 'rb') as fp:
+        while True:
+            line = fp.readline()
+            if not line:
+                break
+            try:
+                item = json.loads(line)
+            except ValueError, ex:
+                sys.stderr.write("{0}: {1}\n".format(filename, ex))
+                continue
+
+            # Once we see a new pull treat the old one as complete and seeded
+            # As a failsafe, just to make sure we didn't miss something
+            # wo don't treat the last pull request as completely seeded
+            pull = item.get("pull")
+            if pull != seeded:
+                SEEDED[pull] = True
+                seeded = pull
+
+            date = item.get("date")
+            if date and since < time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ")):
+                sys.stdout.write(line)
+                sys.stdout.flush()
 
 # Generates revisions for a given pull request. Each revision
 # is a simple string sha. The first one is the one that is at

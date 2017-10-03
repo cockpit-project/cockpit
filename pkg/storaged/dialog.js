@@ -52,8 +52,8 @@
             if (f.SizeSlider && !f.Units)
                 f.Units = cockpit.get_byte_units(f.Value || f.Max);
 
-            // Help SelectMany with counting
-            if (f.SelectMany)
+            // Help SelectMany etc with counting
+            if (f.SelectMany || f.SelectOneOfMany)
                 f.HasOptions = (f.Options.length > 0);
 
             // Help CheckBoxText with detecting "false"
@@ -313,6 +313,14 @@
             }, 500);
         }
 
+        /* Radio buttons
+         */
+
+        $dialog.on("change", ".available-disks-group .radio input", function(ev) {
+            var parent = $(this).parents('.available-disks-group');
+            parent.trigger("change");
+        });
+
         /* Main
          */
 
@@ -320,7 +328,8 @@
 
         function get_name(f) {
             return (f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput ||
-                    f.SizeSlider || f.CheckBox || f.Arrow || f.SelectRow || f.CheckBoxText || f.ComboBox);
+                    f.SizeSlider || f.CheckBox || f.Arrow || f.SelectRow || f.CheckBoxText ||
+                    f.ComboBox || f.SelectOneOfMany);
         }
 
         function get_field_values() {
@@ -346,6 +355,12 @@
                     $f.find('input').each(function (i, e) {
                         if (e.checked)
                             vals[n].push(f.Options[i].value);
+                    });
+                } else if (f.SelectOneOfMany) {
+                    vals[n] = undefined;
+                    $f.find('input').each(function (i, e) {
+                        if (e.checked)
+                            vals[n] = f.Options[i].value;
                     });
                 } else if (f.SelectRow) {
                     $f.find('tbody tr').each(function (i, e) {

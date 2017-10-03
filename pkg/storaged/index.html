@@ -238,6 +238,31 @@
                   {{/HasOptions}}
                 </td>
                 {{/SelectMany}}
+                {{#SelectOneOfMany}}
+                <td class="top">{{Title}}</td>
+                <td>
+                  {{#HasOptions}}
+                  <ul class="list-group available-disks-group dialog-list-ct" data-field={{.}}>
+                    {{#Options}}
+                    <li class="list-group-item">
+                      <div class="radio">
+                        <label><input type="radio" name={{SelectOneOfMany}}
+                                      {{#checked}}checked{{/checked}} value="{{value}}">
+                          {{#Label}}
+                          <span class="pull-right">{{.}}</span>
+                          {{/Label}}
+                          <span>{{Title}}</span>
+                        </label>
+                      </div>
+                    </li>
+                    {{/Options}}
+                  </ul>
+                  {{/HasOptions}}
+                  {{^HasOptions}}
+                  <span class="text-danger">{{EmptyWarning}}</span>
+                  {{/HasOptions}}
+                </td>
+                {{/SelectOneOfMany}}
                 {{#SelectRow}}
                 <td colspan="2">
                   <table data-field="{{.}}" class="dialog-select-row-table">

@@ -408,7 +408,7 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
 
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
-    const networkTabName = (<div id={`${vmId(vm.name)}-network`}>{_("Networks")}</div>);
+    const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Networks")}</div>);
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Console")}</div>);
 
     let tabRenderers = [

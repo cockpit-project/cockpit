@@ -348,8 +348,11 @@
             },
             set: function(v) {
                 var s = String(v);
-                if (s != this.getAttribute("value"))
+                if (s != this.getAttribute("value")) {
                     this.setAttribute("value", v);
+                    update_value(slider);
+                    check_overflow(slider);
+                }
             }
         });
 

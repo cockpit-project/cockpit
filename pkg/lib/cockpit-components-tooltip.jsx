@@ -87,7 +87,7 @@ var Tooltip = React.createClass({
                 return;
 
             // Stop resizing
-            if (!tip.style.width || !tip.style.height) {
+            if ((!tip.style.width || !tip.style.height) && tip.offsetWidth > 0) {
                 tip.style.width = tip.offsetWidth + "px";
                 tip.style.height = tip.offsetHeight + "px";
             }

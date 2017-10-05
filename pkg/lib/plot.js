@@ -1013,6 +1013,7 @@ function setup_plot(graph_id, grid, data, user_options) {
 
     var outer_div = $(graph_id);
     var inner_div = $('<div/>');
+    var starting = null;
     outer_div.empty();
     outer_div.append(inner_div);
 
@@ -1043,13 +1044,19 @@ function setup_plot(graph_id, grid, data, user_options) {
     }
 
     function maybe_start() {
-        if (running && outer_div.width() !== 0 && outer_div.height() !== 0) {
+        if (running && outer_div.width() > 0 && outer_div.height() > 0) {
             if (!plot) {
                 sync_divs ();
                 plot = $.plot(inner_div, data, options);
             } else
                 resize();
+
+            if (starting)
+                window.clearInterval(starting);
+        } else if (!starting) {
+            starting = window.setInterval(maybe_start, 500);
         }
+
     }
 
     function stop ()

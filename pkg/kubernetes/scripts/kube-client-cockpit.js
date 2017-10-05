@@ -1110,8 +1110,9 @@
         "CockpitEnvironment",
         'kubeLoader',
         'cockpitConnectionInfo',
+        'KubevirtPrefix',
         function($q, CockpitKubeRequest, cockpitKubeDiscover,
-                 CockpitEnvironment, loader, info) {
+                 CockpitEnvironment, loader, info, kubevirtPrefix) {
             var promise = null;
             return function kubeDiscoverSettings(force) {
                 if (!force && promise)
@@ -1126,6 +1127,7 @@
                     isAdmin: false,
                     currentUser: null,
                     canChangeConnection: false,
+                    kubevirtEnabled: false,
                 };
 
                 var env_p = CockpitEnvironment()
@@ -1171,7 +1173,18 @@
                         return $q.all([watch, req]);
                     });
 
-                promise = $q.all([discover_p, env_p])
+                var kubevirt_p = new CockpitKubeRequest('GET', kubevirtPrefix)
+                    .then(function(response) {
+                        settings.kubevirtEnabled = true;
+                    }, function(errorResponse) {
+                        if (errorResponse.status === 404) {
+                            settings.kubevirtEnabled = false;
+                            return;
+                        }
+                        debug('Kubevirt check request failed:', errorResponse);
+                    });
+
+                promise = $q.all([discover_p, env_p, kubevirt_p])
                     .then(function() {
                         settings.canChangeConnection = info.type == "kubectl";
                         return settings;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react';  // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 
 const ListView = props => (

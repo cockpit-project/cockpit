@@ -861,7 +861,7 @@ class TestAutoUpdates(PackageCase):
         b = self.browser
         m = self.machine
 
-        m.execute("if type dnf; then dnf remove -y dnf-automatic; elif type apt; then apt-get purge -y unattended-upgrades; fi")
+        m.execute("if type dnf; then dnf remove -y dnf-automatic; elif type apt; then dpkg -P unattended-upgrades; fi")
 
         # first test with available upgrades
         self.createPackage("vanilla", "1.0", "1", install=True)

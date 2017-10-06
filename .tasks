@@ -12,13 +12,24 @@
 # Cockpit bots.
 
 set -ex
+
+# Scan for all tests
 bots/tests-scan
 
+# When run automated, randomize to minimize stampeding herd
+if [ -t 0 ]; then
+    chance=10
+else
+    chance=$(shuf -i 0-10 -n 1)
+fi
+
 # File issues for these tasks
-bots/po-trigger
-bots/image-trigger
-bots/npm-trigger
-bots/naughty-trigger
+if [ $chance -gt 9 ]; then
+    bots/po-trigger
+    bots/image-trigger
+    bots/npm-trigger
+    bots/naughty-trigger
+fi
 
 # Any tasks related to issues
 bots/issue-scan

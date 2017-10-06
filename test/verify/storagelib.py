@@ -21,6 +21,11 @@ import os
 import re
 from testlib import *
 
+# A helper for dialog_set_val and dialog_expect
+class CheckBoxText:
+    def __init__(self, val):
+        self.val = val
+
 class StorageCase(MachineCase):
     def setUp(self):
 
@@ -192,6 +197,13 @@ class StorageCase(MachineCase):
             # size slider
             self.browser.set_val(self.dialog_field(field) + " .size-unit", "1048576")
             self.browser.set_val(self.dialog_field(field) + " .size-text", str(val))
+        elif isinstance(val, CheckBoxText):
+            sel = self.dialog_field(field);
+            if val.val == False:
+                self.browser.set_checked(sel + " input[type=checkbox]", False)
+            else:
+                self.browser.set_checked(sel + " input[type=checkbox]", True)
+                self.browser.set_val(sel + " input[type=text]", val.val)
         else:
             self.browser.set_val(self.dialog_field(field), val)
 
@@ -236,7 +248,14 @@ class StorageCase(MachineCase):
 
     def dialog_check(self, expect):
         for f in expect:
-            if not self.dialog_val(f) == expect[f]:
+            if isinstance(expect[f], CheckBoxText):
+                sel = self.dialog_field(f);
+                if expect[f].val == False:
+                    return self.brower.is_present(sel + " input[type=checkbox]:not(:checked)")
+                else:
+                    return (self.browser.is_present(sel + " input[type=checkbox]:checked") and
+                            self.browser.val(sel + " input[type=text]") == expect[f].val)
+            elif not self.dialog_val(f) == expect[f]:
                 return False
         return True
 

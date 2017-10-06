@@ -741,6 +741,21 @@
                   </div>
                 </td>
                 {{/CheckBox}}
+                {{#CheckBoxText}}
+                <td class="top">{{RowTitle}}</td>
+                <td>
+                  <div class="dialog-checkbox-text" data-field={{.}}>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" {{#Checked}}checked{{/Checked}}>
+                        {{Title}}
+                      </label>
+                    </div>
+                    <input class="form-control" type="text" {{^Checked}}hidden{{/Checked}}
+                           {{#Value}}value="{{.}}"{{/Value}}>
+                  </div>
+                </td>
+                {{/CheckBoxText}}
                 {{#SelectOne}}
                 <td class="top">{{Title}}</td>
                 <td>

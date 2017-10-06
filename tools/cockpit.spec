@@ -468,7 +468,11 @@ Requires: expect
 Requires: libvirt
 Requires: libvirt-client
 Requires: libvirt-daemon
+%if 0%{?rhel}%{?centos} == 0 || 0%{?rhel} >= 8 || 0%{?centos} >= 8
+Requires: python2-libvirt
+%else
 Requires: libvirt-python
+%endif
 Requires: qemu-kvm
 Requires: npm
 Requires: python2

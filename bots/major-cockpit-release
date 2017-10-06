@@ -41,7 +41,7 @@ job release-dockerhub cockpituous/cockpit cockpit-project/cockpit
 job release-bodhi F27
 
 # Upload documentation
-job release-guide dist/guide cockpit-project/cockpit-project.github.io
+job bots/release-guide dist/guide cockpit-project/cockpit-project.github.io
 
 # Create and publish a Debian repository and Ubuntu PPA
 job release-dsc

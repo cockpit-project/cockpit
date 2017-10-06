@@ -746,6 +746,9 @@ class OpenshiftCommonTests(VolumeTests):
         m = self.machine
         b = self.browser
 
+        # Delete lang.sh to avoid weirdly truncated setlocale journal messages
+        self.openshift.execute("rm /etc/profile.d/lang.sh")
+
         # Make sure we can find openshift
         m.execute("echo '10.111.112.101  f1.cockpit.lan' >> /etc/hosts")
 
@@ -811,6 +814,5 @@ class OpenshiftCommonTests(VolumeTests):
         self.allow_journal_messages('/usr/libexec/cockpit-pcp: bridge was killed: .*',
                                     '.* host key for server is not known: .*',
                                     'invalid or unusable locale: .*',
-                                    '.* warning: setlocale: .*',
                                     'connection unexpectedly closed by peer',
                                     'Error receiving data: Connection reset by peer')

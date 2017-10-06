@@ -54,8 +54,11 @@
             // Help SelectMany with counting
             if (f.SelectMany)
                 f.HasOptions = (f.Options.length > 0);
-        });
 
+            // Help CheckBoxText with detecting "false"
+            if (f.CheckBoxText)
+                f.Checked = (f.Value !== false);
+        });
 
         function empty(obj) { return !obj || obj.length === 0; }
 
@@ -241,11 +244,19 @@
             }
         });
 
+        // CheckBoxText
+
+        $dialog.on("change", ".dialog-checkbox-text input[type=checkbox]", function (event) {
+            var parent = $(event.target).parents("[data-field]");
+            var input = parent.find("input[type=text]");
+            input.toggle(event.target.checked);
+        });
+
         var invisible = { };
 
         function get_name(f) {
             return (f.TextInput || f.PassInput || f.SelectOne || f.SelectMany || f.SizeInput ||
-                    f.SizeSlider || f.CheckBox || f.Arrow || f.SelectRow);
+                    f.SizeSlider || f.CheckBox || f.Arrow || f.SelectRow || f.CheckBoxText);
         }
 
         function get_field_values() {
@@ -279,6 +290,13 @@
                     });
                 } else if (f.Arrow) {
                     vals[n] = !$f.hasClass('collapsed');
+                } else if (f.CheckBoxText) {
+                    var box = $f.find("input[type=checkbox]");
+                    var input = $f.find("input[type=text]");
+                    if (!box.prop('checked'))
+                        vals[n] = false;
+                    else
+                        vals[n] = input.val();
                 }
             });
 

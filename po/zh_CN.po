@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-30 07:11+0000\n"
+"POT-Creation-Date: 2017-10-09 20:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -92,7 +92,7 @@ msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 磁盘缺失"
 
-#: src/ws/login.js:281 src/ws/login.js:603
+#: src/ws/login.js:281 src/ws/login.js:607
 msgid "$0 error"
 msgstr ""
 
@@ -139,7 +139,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 月"
 
-#: pkg/packagekit/updates.jsx:260
+#: pkg/packagekit/updates.jsx:262
 msgid "$0 more…"
 msgstr ""
 
@@ -164,7 +164,7 @@ msgstr "$0 软件包"
 msgid "$0 shares"
 msgstr "$0 共享"
 
-#: pkg/packagekit/updates.jsx:177
+#: pkg/packagekit/updates.jsx:179
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] ""
@@ -222,11 +222,11 @@ msgstr "当使用激活密钥时需要“组织”。"
 msgid "(default)"
 msgstr "（默认）"
 
-#: pkg/storaged/crypto-tab.jsx:138
+#: pkg/storaged/crypto-tab.jsx:146
 msgid "(none)"
 msgstr "（无）"
 
-#: pkg/packagekit/updates.jsx:182
+#: pkg/packagekit/updates.jsx:184
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ""
@@ -863,11 +863,19 @@ msgstr ""
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
-#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:73
-#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:76
+#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
+#: pkg/storaged/crypto-tab.jsx:115 pkg/storaged/fsys-tab.jsx:76
 #: pkg/storaged/fsys-tab.jsx:145
 msgid "Apply"
 msgstr "应用"
+
+#: pkg/packagekit/autoupdates.jsx:293
+msgid "Apply all updates"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:294
+msgid "Apply security updates"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Apply this solution"
@@ -877,11 +885,11 @@ msgstr "应用该方案"
 msgid "Applying solution..."
 msgstr "正在应用方案..."
 
-#: pkg/packagekit/updates.jsx:34
+#: pkg/packagekit/updates.jsx:36
 msgid "Applying updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:36
+#: pkg/packagekit/updates.jsx:38
 msgid "Applying updates failed"
 msgstr ""
 
@@ -942,11 +950,11 @@ msgstr "认证"
 msgid "Authentication Failed"
 msgstr "认证失败"
 
-#: src/ws/login.js:583
+#: src/ws/login.js:587
 msgid "Authentication Failed: Server closed connection"
 msgstr ""
 
-#: src/ws/login.js:593
+#: src/ws/login.js:597
 msgid "Authentication failed"
 msgstr ""
 
@@ -979,6 +987,10 @@ msgstr "自动 (仅 DHCP)"
 msgid "Automatic (DHCP)"
 msgstr "自动 (DHCP)"
 
+#: pkg/packagekit/autoupdates.jsx:334
+msgid "Automatic Updates"
+msgstr ""
+
 #: pkg/systemd/index.html:398
 msgid "Automatically using NTP"
 msgstr "自动的（使用 NTP）"
@@ -996,7 +1008,7 @@ msgstr "自动启动："
 msgid "Available"
 msgstr "可用的"
 
-#: pkg/packagekit/updates.jsx:819
+#: pkg/packagekit/updates.jsx:822
 msgid "Available Updates"
 msgstr ""
 
@@ -1087,7 +1099,7 @@ msgstr "广播"
 msgid "Broken configuration"
 msgstr "错误的配置"
 
-#: pkg/packagekit/updates.jsx:329
+#: pkg/packagekit/updates.jsx:331
 msgid "Bugs"
 msgstr ""
 
@@ -1186,8 +1198,8 @@ msgstr "解锁时无法删除"
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/lib/cockpit-components-dialog.jsx:138 pkg/packagekit/updates.jsx:204
-#: pkg/sosreport/index.js:51 pkg/apps/utils.jsx:87
+#: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
+#: pkg/packagekit/updates.jsx:206 pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "取消"
 
@@ -1303,7 +1315,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "修改设置将会中断与服务器的连接，并将导致管理界面不可用。"
 
-#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:195
+#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:197
 msgid "Check for Updates"
 msgstr "检查更新"
 
@@ -1372,8 +1384,8 @@ msgstr "客户端证书"
 #: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
 #: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
-#: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
-#: pkg/apps/utils.jsx:109
+#: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
+#: pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "关闭"
 
@@ -1454,7 +1466,7 @@ msgstr ""
 "Cockpit 是完美的系统管理员工具, 它可以轻松完成简单的任务, 如存储管理, 检查 journals 和启动/停止服务. "
 "您可以同时监控和管理几个服务器. 只需要逐一添加, 您的机器就可以看到它们了."
 
-#: pkg/packagekit/updates.jsx:831
+#: pkg/packagekit/updates.jsx:834
 msgid "Cockpit itself will be updated."
 msgstr ""
 
@@ -2211,7 +2223,7 @@ msgstr "描述"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:262
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/packagekit/updates.jsx:332 pkg/subscriptions/subscriptions-view.jsx:209
 msgid "Details"
 msgstr "详情"
 
@@ -2405,11 +2417,11 @@ msgstr "下载报表"
 msgid "Download the MSI from $0"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:60
+#: pkg/packagekit/updates.jsx:62
 msgid "Downloaded"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:52
+#: pkg/packagekit/updates.jsx:54
 msgid "Downloading"
 msgstr ""
 
@@ -2438,7 +2450,7 @@ msgstr "重复别名"
 msgid "Duplicate port"
 msgstr "重复端口"
 
-#: pkg/storaged/crypto-tab.jsx:132
+#: pkg/storaged/crypto-tab.jsx:140
 msgid "Edit"
 msgstr "编辑"
 
@@ -2519,7 +2531,7 @@ msgstr "加密的数据"
 msgid "Encryption"
 msgstr "加密"
 
-#: pkg/storaged/crypto-tab.jsx:99 pkg/storaged/format-dialog.jsx:177
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:177
 msgid "Encryption Options"
 msgstr "加密选项"
 
@@ -2585,10 +2597,10 @@ msgid "Erasing $target"
 msgstr "擦除 $target"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services.html:334 pkg/storaged/details.jsx:199
-#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
-#: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1381
-#: pkg/apps/utils.jsx:101
+#: pkg/systemd/services.html:334 pkg/apps/utils.jsx:101
+#: pkg/storaged/details.jsx:199 pkg/storaged/devices.js:118
+#: pkg/storaged/overview.js:694 pkg/storaged/storage-controls.jsx:69
+#: pkg/users/local.js:1381
 msgid "Error"
 msgstr "错误"
 
@@ -3047,7 +3059,7 @@ msgstr "身份"
 msgid "Identity"
 msgstr "身份"
 
-#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:471
+#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:473
 msgid "Ignore"
 msgstr "忽略"
 
@@ -3179,7 +3191,7 @@ msgstr "不正确的主机密钥"
 msgid "Information about the Docker storage pool is not available."
 msgstr "关于容器存储池的信息不可用。"
 
-#: pkg/packagekit/updates.jsx:430
+#: pkg/packagekit/updates.jsx:432
 msgid "Initializing..."
 msgstr ""
 
@@ -3187,11 +3199,11 @@ msgstr ""
 msgid "Install"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:805
 msgid "Install All Updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:809
+#: pkg/packagekit/updates.jsx:811
 msgid "Install Security Updates"
 msgstr ""
 
@@ -3199,7 +3211,7 @@ msgstr ""
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:61
+#: pkg/packagekit/updates.jsx:63
 msgid "Installed"
 msgstr ""
 
@@ -3207,8 +3219,8 @@ msgstr ""
 msgid "Installed products"
 msgstr "已安装的产品"
 
-#: pkg/packagekit/updates.jsx:53 pkg/apps/application-list.jsx:47
-#: pkg/apps/application.jsx:55
+#: pkg/apps/application-list.jsx:47 pkg/apps/application.jsx:55
+#: pkg/packagekit/updates.jsx:55
 msgid "Installing"
 msgstr ""
 
@@ -3225,7 +3237,7 @@ msgstr "接口"
 msgid "Interfaces"
 msgstr "接口"
 
-#: src/ws/login.js:575
+#: src/ws/login.js:579
 msgid "Internal Error: Invalid challenge header"
 msgstr ""
 
@@ -3429,7 +3441,7 @@ msgstr "最近的触发器"
 msgid "Last Updated"
 msgstr "最近更新时间"
 
-#: pkg/packagekit/updates.jsx:199
+#: pkg/packagekit/updates.jsx:201
 msgid "Last checked: $0 ago"
 msgstr ""
 
@@ -3510,11 +3522,11 @@ msgstr "负载均衡"
 msgid "Load earlier entries"
 msgstr "载入更早条目"
 
-#: pkg/packagekit/updates.jsx:37
+#: pkg/packagekit/updates.jsx:39
 msgid "Loading available updates failed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:30
+#: pkg/packagekit/updates.jsx:32
 msgid "Loading available updates, please wait..."
 msgstr ""
 
@@ -3857,7 +3869,7 @@ msgstr ""
 msgid "More details"
 msgstr "方案详情"
 
-#: pkg/packagekit/updates.jsx:273
+#: pkg/packagekit/updates.jsx:275
 msgid "More information…"
 msgstr ""
 
@@ -3951,7 +3963,7 @@ msgstr "NTP 服务器"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:327
+#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
@@ -4309,7 +4321,7 @@ msgstr "没有该文件或目录"
 msgid "No tags are present."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:33
+#: pkg/packagekit/updates.jsx:35
 msgid "No updates pending"
 msgstr ""
 
@@ -4525,8 +4537,8 @@ msgctxt "storage"
 msgid "Optical Drive"
 msgstr "光盘驱动器"
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:102
-#: pkg/storaged/crypto-tab.jsx:137
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
+#: pkg/storaged/crypto-tab.jsx:145
 msgid "Options"
 msgstr "选项"
 
@@ -4564,20 +4576,20 @@ msgstr "使用 0 覆盖已存在数据"
 msgid "PD Name"
 msgstr "持久盘名称"
 
-#: pkg/packagekit/updates.jsx:476
+#: pkg/packagekit/updates.jsx:478
 msgid "Package information"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:531
+#: pkg/packagekit/updates.jsx:533
 msgid "PackageKit crashed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:635
-#: pkg/packagekit/updates.jsx:709
+#: pkg/packagekit/updates.jsx:531 pkg/packagekit/updates.jsx:637
+#: pkg/packagekit/updates.jsx:711
 msgid "PackageKit is not installed"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:733
+#: pkg/packagekit/updates.jsx:735
 msgid "PackageKit reported error code $0"
 msgstr ""
 
@@ -4700,7 +4712,7 @@ msgstr "性能配置集"
 msgid "Permanent"
 msgstr ""
 
-#: src/ws/login.js:599
+#: src/ws/login.js:603
 msgid "Permission denied"
 msgstr ""
 
@@ -5310,19 +5322,19 @@ msgstr "回收"
 msgid "Reformat and add disks"
 msgstr "格式化并添加磁盘"
 
-#: pkg/packagekit/updates.jsx:32
+#: pkg/packagekit/updates.jsx:34
 msgid "Refreshing package information"
 msgstr ""
 
-#: src/ws/login.js:589
+#: src/ws/login.js:593
 msgid "Refusing to connect. Host is unknown"
 msgstr ""
 
-#: src/ws/login.js:591
+#: src/ws/login.js:595
 msgid "Refusing to connect. Hostkey does not match"
 msgstr ""
 
-#: src/ws/login.js:587
+#: src/ws/login.js:591
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr ""
 
@@ -5343,7 +5355,7 @@ msgstr "注册持久卷"
 msgid "Register system"
 msgstr "注册系统"
 
-#: pkg/packagekit/updates.jsx:883
+#: pkg/packagekit/updates.jsx:887
 msgid "Register…"
 msgstr ""
 
@@ -5579,7 +5591,7 @@ msgstr "重启"
 msgid "Restart Count"
 msgstr "重启次数"
 
-#: pkg/packagekit/updates.jsx:473
+#: pkg/packagekit/updates.jsx:475
 msgid "Restart Now"
 msgstr ""
 
@@ -5591,11 +5603,11 @@ msgstr "重启策略"
 msgid "Restart Policy:"
 msgstr "重启策略："
 
-#: pkg/packagekit/updates.jsx:468
+#: pkg/packagekit/updates.jsx:470
 msgid "Restart Recommended"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:867
+#: pkg/packagekit/updates.jsx:871
 msgid "Restarting"
 msgstr ""
 
@@ -5789,7 +5801,7 @@ msgstr "安全擦除 $target"
 msgid "Security"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:243
+#: pkg/packagekit/updates.jsx:245
 msgid "Security Update"
 msgstr ""
 
@@ -5940,7 +5952,7 @@ msgstr "设置容器环境变量"
 msgid "Set to"
 msgstr "设置为"
 
-#: pkg/packagekit/updates.jsx:63
+#: pkg/packagekit/updates.jsx:65
 msgid "Set up"
 msgstr ""
 
@@ -5949,7 +5961,7 @@ msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr "设置从配置的状态偏离并将在下一次重启恢复。"
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:57
 msgid "Setting up"
 msgstr ""
 
@@ -6117,7 +6129,7 @@ msgstr "方案失败"
 msgid "Solutions"
 msgstr "方案"
 
-#: pkg/packagekit/updates.jsx:31
+#: pkg/packagekit/updates.jsx:33
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
@@ -6280,11 +6292,11 @@ msgstr "保存性能数据"
 msgid "Store passphrase"
 msgstr "存储口令"
 
-#: pkg/storaged/crypto-tab.jsx:63 pkg/storaged/crypto-tab.jsx:66
+#: pkg/storaged/crypto-tab.jsx:71 pkg/storaged/crypto-tab.jsx:74
 msgid "Stored Passphrase"
 msgstr "已存储口令"
 
-#: pkg/storaged/crypto-tab.jsx:131
+#: pkg/storaged/crypto-tab.jsx:139
 msgid "Stored passphrase"
 msgstr "保存的密码"
 
@@ -6387,7 +6399,7 @@ msgstr "系统服务"
 msgid "System Time"
 msgstr "系统时间"
 
-#: pkg/packagekit/updates.jsx:894
+#: pkg/packagekit/updates.jsx:900
 msgid "System is up to date"
 msgstr ""
 
@@ -6572,11 +6584,11 @@ msgstr "当前用户不允许访问系统订阅状态。"
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "部署配置 '{{ target }}' 不存在。"
 
-#: pkg/packagekit/updates.jsx:345
+#: pkg/packagekit/updates.jsx:347
 msgid "The following packages were recently updated:"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:344
+#: pkg/packagekit/updates.jsx:346
 msgid "The following packages were updated $0:"
 msgstr ""
 
@@ -6675,7 +6687,7 @@ msgstr ""
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "所选的文件不是有效的 Kubernetes 应用程序清单."
 
-#: src/ws/login.js:581
+#: src/ws/login.js:585
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6857,7 +6869,7 @@ msgstr "该软件包与该版本的 Cockpit 不兼容"
 msgid "This package requires Cockpit version %s or later"
 msgstr "该软件包需要  %s 版本或以后的 Cockpit "
 
-#: pkg/packagekit/updates.jsx:878
+#: pkg/packagekit/updates.jsx:882
 msgid "This system is not registered"
 msgstr ""
 
@@ -6942,7 +6954,7 @@ msgstr ""
 "提示：使关键密码匹配                                                    登录密码来自动认证      "
 "                                              其他系统。"
 
-#: pkg/packagekit/updates.jsx:879
+#: pkg/packagekit/updates.jsx:883
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7090,7 +7102,7 @@ msgstr "无法与 OSTree 通信"
 msgid "Unable to connect"
 msgstr "无法连接"
 
-#: src/ws/login.js:585
+#: src/ws/login.js:589
 msgid "Unable to connect to that address"
 msgstr ""
 
@@ -7238,7 +7250,7 @@ msgstr "无法识别的数据"
 msgid "Unregister"
 msgstr "注销"
 
-#: pkg/packagekit/updates.jsx:786
+#: pkg/packagekit/updates.jsx:788
 msgid "Unregistered System"
 msgstr ""
 
@@ -7271,11 +7283,11 @@ msgstr "运行自 $StartedAt"
 msgid "Update"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:846
 msgid "Update History"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:448
+#: pkg/packagekit/updates.jsx:450
 msgid "Update Log"
 msgstr ""
 
@@ -7283,11 +7295,11 @@ msgstr ""
 msgid "Update and Reboot"
 msgstr "更新并重启"
 
-#: pkg/packagekit/updates.jsx:62
+#: pkg/packagekit/updates.jsx:64
 msgid "Updated"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:469
+#: pkg/packagekit/updates.jsx:471
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 
@@ -7295,11 +7307,11 @@ msgstr ""
 msgid "Updates"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:790
+#: pkg/packagekit/updates.jsx:792
 msgid "Updates are disabled."
 msgstr ""
 
-#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:54
+#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:56
 #: pkg/subscriptions/subscriptions-view.jsx:187
 msgid "Updating"
 msgstr "更新"
@@ -7459,17 +7471,17 @@ msgstr ""
 msgid "Validating key"
 msgstr "验证 key"
 
-#: pkg/packagekit/updates.jsx:64
+#: pkg/packagekit/updates.jsx:66
 msgid "Verified"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:56
+#: pkg/packagekit/updates.jsx:58
 msgid "Verifying"
 msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/packagekit/updates.jsx:328 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "版本"
 
@@ -7477,7 +7489,7 @@ msgstr "版本"
 msgid "Very securely erasing $target"
 msgstr "多重安全擦除 $target"
 
-#: pkg/packagekit/updates.jsx:796
+#: pkg/packagekit/updates.jsx:798
 msgid "View Registration Details"
 msgstr ""
 
@@ -7556,7 +7568,7 @@ msgstr "欢迎使用镜像注册表"
 msgid "When"
 msgstr "当"
 
-#: pkg/packagekit/updates.jsx:833
+#: pkg/packagekit/updates.jsx:836
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -7583,7 +7595,7 @@ msgstr "写入中"
 msgid "Writing objects"
 msgstr "正在写对象"
 
-#: src/ws/login.js:595
+#: src/ws/login.js:599
 msgid "Wrong user name or password"
 msgstr ""
 
@@ -7635,7 +7647,7 @@ msgstr "您没有权限查看此帐户的授权公钥."
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr "没有权限来管理容器存储池"
 
-#: pkg/packagekit/updates.jsx:792
+#: pkg/packagekit/updates.jsx:794
 msgid "You need to re-subscribe this system."
 msgstr ""
 
@@ -7649,7 +7661,7 @@ msgid ""
 "from the command line."
 msgstr "登录凭证没有从命令行使用 Docker 注册表的权限"
 
-#: pkg/packagekit/updates.jsx:868
+#: pkg/packagekit/updates.jsx:872
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -7683,7 +7695,11 @@ msgstr ""
 msgid "alias"
 msgstr "别名"
 
-#: pkg/ostree/index.html:186
+#: pkg/packagekit/autoupdates.jsx:321
+msgid "and restart the machine automatically."
+msgstr ""
+
+#: pkg/ostree/index.html:186 pkg/packagekit/autoupdates.jsx:312
 #, fuzzy
 msgid "at"
 msgstr "路径"
@@ -7735,6 +7751,10 @@ msgstr "例如：my-image-stream"
 #, fuzzy
 msgid "enabled"
 msgstr "启用"
+
+#: pkg/packagekit/autoupdates.jsx:301
+msgid "every day"
+msgstr ""
 
 #: pkg/storaged/format-dialog.jsx:104
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
@@ -7789,6 +7809,34 @@ msgstr "否"
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
 msgid "none"
 msgstr "空"
+
+#: pkg/packagekit/autoupdates.jsx:306
+msgid "on Fridays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:302
+msgid "on Mondays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:307
+msgid "on Saturdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:308
+msgid "on Sundays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:305
+msgid "on Thursdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:303
+msgid "on Tuesdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:304
+msgid "on Wednesdays"
+msgstr ""
 
 #: pkg/machines/libvirt.es6:433
 msgid "other"

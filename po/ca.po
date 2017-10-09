@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-30 07:11+0000\n"
+"POT-Creation-Date: 2017-10-09 20:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-09-19 09:18-0400\n"
+"PO-Revision-Date: 2017-10-09 05:59-0400\n"
 "Last-Translator: Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>\n"
 "Language-Team: Catalan\n"
 "Language: ca\n"
@@ -97,7 +97,7 @@ msgid_plural "$0 disks are missing"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ws/login.js:281 src/ws/login.js:603
+#: src/ws/login.js:281 src/ws/login.js:607
 msgid "$0 error"
 msgstr ""
 
@@ -149,7 +149,7 @@ msgid_plural "$0 months"
 msgstr[0] "$0 mes"
 msgstr[1] "$0 mesos"
 
-#: pkg/packagekit/updates.jsx:260
+#: pkg/packagekit/updates.jsx:262
 msgid "$0 more…"
 msgstr "$0 més…"
 
@@ -175,7 +175,7 @@ msgstr "$0 paquets"
 msgid "$0 shares"
 msgstr "$0 comparticions"
 
-#: pkg/packagekit/updates.jsx:177
+#: pkg/packagekit/updates.jsx:179
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] "$0 actualització"
@@ -238,11 +238,11 @@ msgstr ""
 msgid "(default)"
 msgstr "(predeterminat)"
 
-#: pkg/storaged/crypto-tab.jsx:138
+#: pkg/storaged/crypto-tab.jsx:146
 msgid "(none)"
 msgstr "(sense)"
 
-#: pkg/packagekit/updates.jsx:182
+#: pkg/packagekit/updates.jsx:184
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", incloent-hi $1 correcció de seguretat"
@@ -873,18 +873,26 @@ msgstr "Anònim: permet que tots els usuaris no autenticats recuperin imatges"
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:148
 #: pkg/apps/application.jsx:127
 msgid "Applications"
-msgstr ""
+msgstr "Aplicacions"
 
 #: pkg/networkmanager/index.html:620 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:692
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
-#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:73
-#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:76
+#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
+#: pkg/storaged/crypto-tab.jsx:115 pkg/storaged/fsys-tab.jsx:76
 #: pkg/storaged/fsys-tab.jsx:145
 msgid "Apply"
 msgstr "Aplica"
+
+#: pkg/packagekit/autoupdates.jsx:293
+msgid "Apply all updates"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:294
+msgid "Apply security updates"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Apply this solution"
@@ -894,11 +902,11 @@ msgstr "Aplica aquesta solució"
 msgid "Applying solution..."
 msgstr "S'està aplicant la solució..."
 
-#: pkg/packagekit/updates.jsx:34
+#: pkg/packagekit/updates.jsx:36
 msgid "Applying updates"
 msgstr "Aplicació de les actualitzacions"
 
-#: pkg/packagekit/updates.jsx:36
+#: pkg/packagekit/updates.jsx:38
 msgid "Applying updates failed"
 msgstr "Ha fallat l'aplicació de les actualitzacions"
 
@@ -959,11 +967,11 @@ msgstr "Autenticació"
 msgid "Authentication Failed"
 msgstr "L'autenticació ha fallat"
 
-#: src/ws/login.js:583
+#: src/ws/login.js:587
 msgid "Authentication Failed: Server closed connection"
 msgstr "Ha fallat l'autenticació: el servidor ha tancat la connexió"
 
-#: src/ws/login.js:593
+#: src/ws/login.js:597
 msgid "Authentication failed"
 msgstr "Ha fallat l'autenticació"
 
@@ -996,6 +1004,10 @@ msgstr "Automàtica, tan sols DHCP"
 msgid "Automatic (DHCP)"
 msgstr "Automàtica (DHCP)"
 
+#: pkg/packagekit/autoupdates.jsx:334
+msgid "Automatic Updates"
+msgstr ""
+
 #: pkg/systemd/index.html:398
 msgid "Automatically using NTP"
 msgstr "Automàticament mitjançant NTP"
@@ -1013,7 +1025,7 @@ msgstr ""
 msgid "Available"
 msgstr "Disponible"
 
-#: pkg/packagekit/updates.jsx:819
+#: pkg/packagekit/updates.jsx:822
 msgid "Available Updates"
 msgstr "Actualitzacions disponibles"
 
@@ -1104,7 +1116,7 @@ msgstr "Difusió"
 msgid "Broken configuration"
 msgstr "Configuració trencada"
 
-#: pkg/packagekit/updates.jsx:329
+#: pkg/packagekit/updates.jsx:331
 msgid "Bugs"
 msgstr "Errors de programari"
 
@@ -1203,8 +1215,8 @@ msgstr "No es pot suprimir mentre estigui desbloquejat"
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/lib/cockpit-components-dialog.jsx:138 pkg/packagekit/updates.jsx:204
-#: pkg/sosreport/index.js:51 pkg/apps/utils.jsx:87
+#: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
+#: pkg/packagekit/updates.jsx:206 pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -1321,7 +1333,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:195
+#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:197
 msgid "Check for Updates"
 msgstr "Comprova si hi ha actualitzacions"
 
@@ -1339,7 +1351,7 @@ msgstr ""
 
 #: pkg/apps/application-list.jsx:124
 msgid "Checking for new applications"
-msgstr ""
+msgstr "Comprovació per si hi ha noves aplicacions"
 
 #: pkg/lib/machine-change-auth.html:71
 msgid "Checking for public keys"
@@ -1390,8 +1402,8 @@ msgstr "Certificat de client"
 #: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
 #: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
-#: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
-#: pkg/apps/utils.jsx:109
+#: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
+#: pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "Tanca"
 
@@ -1480,7 +1492,7 @@ msgstr ""
 "heu d'afegir-los amb tan sols un clic i les vostres màquines es veuran al "
 "cantó de les altres."
 
-#: pkg/packagekit/updates.jsx:831
+#: pkg/packagekit/updates.jsx:834
 msgid "Cockpit itself will be updated."
 msgstr "S'actualitzarà el mateix Cockpit."
 
@@ -1834,6 +1846,8 @@ msgid ""
 "Couldn't get system subscription status. Please ensure subscription-manager "
 "is installed."
 msgstr ""
+"No s'ha pogut obtenir l'estat de subscripció del sistema. Assegureu-vos que "
+"subscription-manager estigui instal·lat."
 
 #: src/bridge/cockpitdbussetup.c:642
 msgid "Couldn't list local users"
@@ -2232,7 +2246,7 @@ msgstr "Descripció"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:262
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/packagekit/updates.jsx:332 pkg/subscriptions/subscriptions-view.jsx:209
 msgid "Details"
 msgstr "Detalls"
 
@@ -2429,11 +2443,11 @@ msgstr "Baixa l'informe"
 msgid "Download the MSI from $0"
 msgstr "Baixa el MSI de $0"
 
-#: pkg/packagekit/updates.jsx:60
+#: pkg/packagekit/updates.jsx:62
 msgid "Downloaded"
 msgstr "Baixat"
 
-#: pkg/packagekit/updates.jsx:52
+#: pkg/packagekit/updates.jsx:54
 msgid "Downloading"
 msgstr "S'està baixant"
 
@@ -2462,7 +2476,7 @@ msgstr "Àlies duplicat"
 msgid "Duplicate port"
 msgstr "Port duplicat"
 
-#: pkg/storaged/crypto-tab.jsx:132
+#: pkg/storaged/crypto-tab.jsx:140
 msgid "Edit"
 msgstr "Edita"
 
@@ -2542,7 +2556,7 @@ msgstr "Dades xifrades"
 msgid "Encryption"
 msgstr "Xifratge"
 
-#: pkg/storaged/crypto-tab.jsx:99 pkg/storaged/format-dialog.jsx:177
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:177
 msgid "Encryption Options"
 msgstr "Opcions de xifrat"
 
@@ -2608,10 +2622,10 @@ msgid "Erasing $target"
 msgstr "S'està esborrant $target"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services.html:334 pkg/storaged/details.jsx:199
-#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
-#: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1381
-#: pkg/apps/utils.jsx:101
+#: pkg/systemd/services.html:334 pkg/apps/utils.jsx:101
+#: pkg/storaged/details.jsx:199 pkg/storaged/devices.js:118
+#: pkg/storaged/overview.js:694 pkg/storaged/storage-controls.jsx:69
+#: pkg/users/local.js:1381
 msgid "Error"
 msgstr "Error"
 
@@ -2911,7 +2925,7 @@ msgstr "Vés a"
 
 #: pkg/apps/application.jsx:93
 msgid "Go to Application"
-msgstr ""
+msgstr "Vés a l'aplicació"
 
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
 #: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
@@ -3071,7 +3085,7 @@ msgstr "Identitats"
 msgid "Identity"
 msgstr "Identitat"
 
-#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:471
+#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:473
 msgid "Ignore"
 msgstr "Ignora"
 
@@ -3204,27 +3218,28 @@ msgstr "Clau d'amfitrió incorrecta"
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:430
+#: pkg/packagekit/updates.jsx:432
 msgid "Initializing..."
 msgstr "S'està inicialitzant..."
 
 #: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:97
 msgid "Install"
-msgstr ""
+msgstr "Instal·la"
 
-#: pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:805
 msgid "Install All Updates"
-msgstr ""
+msgstr "Instal·la totes les actualitzacions"
 
-#: pkg/packagekit/updates.jsx:809
+#: pkg/packagekit/updates.jsx:811
 msgid "Install Security Updates"
-msgstr ""
+msgstr "Instal·la les actualitzacions de seguretat"
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
+"Instal·leu setroubleshoot-server per resoldre els esdeveniments de SELinux."
 
-#: pkg/packagekit/updates.jsx:61
+#: pkg/packagekit/updates.jsx:63
 msgid "Installed"
 msgstr "Instal·lat"
 
@@ -3232,8 +3247,8 @@ msgstr "Instal·lat"
 msgid "Installed products"
 msgstr "Productes instal·lats"
 
-#: pkg/packagekit/updates.jsx:53 pkg/apps/application-list.jsx:47
-#: pkg/apps/application.jsx:55
+#: pkg/apps/application-list.jsx:47 pkg/apps/application.jsx:55
+#: pkg/packagekit/updates.jsx:55
 msgid "Installing"
 msgstr "S'està instal·lant"
 
@@ -3250,7 +3265,7 @@ msgstr "Interfície"
 msgid "Interfaces"
 msgstr "Interfícies"
 
-#: src/ws/login.js:575
+#: src/ws/login.js:579
 msgid "Internal Error: Invalid challenge header"
 msgstr ""
 
@@ -3371,6 +3386,8 @@ msgstr "Entrada no trobada de les publicacions"
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
+"El servei de Kdump no està instal·lat. Assegureu-vos que el paquet kexec-"
+"tools estigui instal·lat."
 
 #: pkg/networkmanager/index.html:850
 msgid "Keep connection"
@@ -3449,7 +3466,7 @@ msgstr "Últim disparador"
 msgid "Last Updated"
 msgstr "Últim cop actualitzat"
 
-#: pkg/packagekit/updates.jsx:199
+#: pkg/packagekit/updates.jsx:201
 msgid "Last checked: $0 ago"
 msgstr "Última comprovació: fa $0"
 
@@ -3532,11 +3549,11 @@ msgstr "Balanceig de càrrega"
 msgid "Load earlier entries"
 msgstr "Carrega les entrades anteriors"
 
-#: pkg/packagekit/updates.jsx:37
+#: pkg/packagekit/updates.jsx:39
 msgid "Loading available updates failed"
 msgstr "Ha fallat la càrrega de les actualitzacions disponibles"
 
-#: pkg/packagekit/updates.jsx:30
+#: pkg/packagekit/updates.jsx:32
 msgid "Loading available updates, please wait..."
 msgstr "S'estan carregant les actualitzacions disponibles, espereu..."
 
@@ -3637,11 +3654,11 @@ msgstr "Volum lògic de $0"
 
 #: pkg/subscriptions/subscriptions-register.jsx:140
 msgid "Login"
-msgstr ""
+msgstr "Usuari"
 
 #: src/ws/login.js:254
 msgid "Login Again"
-msgstr ""
+msgstr "Torna a iniciar la sessió"
 
 #: pkg/lib/machine-change-auth.html:68
 msgid "Login Password"
@@ -3649,7 +3666,7 @@ msgstr "Contrasenya d'inici de sessió"
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:96
 msgid "Login commands"
-msgstr ""
+msgstr "Ordres d'inici de sessió"
 
 #: src/base1/cockpit.js:3940
 msgid "Login failed"
@@ -3877,7 +3894,7 @@ msgstr "Més informació"
 msgid "More details"
 msgstr "Més detalls"
 
-#: pkg/packagekit/updates.jsx:273
+#: pkg/packagekit/updates.jsx:275
 msgid "More information…"
 msgstr "Més informació..."
 
@@ -3971,7 +3988,7 @@ msgstr "Servidor NTP"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:327
+#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
@@ -4156,7 +4173,7 @@ msgstr "Sense especificar l'àlies"
 
 #: pkg/apps/application-list.jsx:134
 msgid "No applications installed or available"
-msgstr ""
+msgstr "No hi ha cap aplicació instal·lada o disponible"
 
 #: pkg/sosreport/index.js:111
 msgid "No archive has been created."
@@ -4241,7 +4258,7 @@ msgstr ""
 
 #: pkg/apps/utils.jsx:97
 msgid "No installation package found for this application."
-msgstr ""
+msgstr "No s'ha trobat cap paquet d'instal·lació per a aquesta aplicació."
 
 #: pkg/subscriptions/subscriptions-view.jsx:223
 msgid "No installed products on the system."
@@ -4332,7 +4349,7 @@ msgstr "No existeix el fitxer o el directori"
 msgid "No tags are present."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:33
+#: pkg/packagekit/updates.jsx:35
 msgid "No updates pending"
 msgstr "No hi ha actualitzacions pendents"
 
@@ -4549,8 +4566,8 @@ msgctxt "storage"
 msgid "Optical Drive"
 msgstr "Unitat òptica"
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:102
-#: pkg/storaged/crypto-tab.jsx:137
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
+#: pkg/storaged/crypto-tab.jsx:145
 msgid "Options"
 msgstr "Opcions"
 
@@ -4588,20 +4605,20 @@ msgstr "Sobreescriu les dades existents amb zeros"
 msgid "PD Name"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:476
+#: pkg/packagekit/updates.jsx:478
 msgid "Package information"
 msgstr "Informació dels paquets"
 
-#: pkg/packagekit/updates.jsx:531
+#: pkg/packagekit/updates.jsx:533
 msgid "PackageKit crashed"
 msgstr "PackageKit s'ha estavellat."
 
-#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:635
-#: pkg/packagekit/updates.jsx:709
+#: pkg/packagekit/updates.jsx:531 pkg/packagekit/updates.jsx:637
+#: pkg/packagekit/updates.jsx:711
 msgid "PackageKit is not installed"
 msgstr "PackageKit no està instal·lat"
 
-#: pkg/packagekit/updates.jsx:733
+#: pkg/packagekit/updates.jsx:735
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit ha informat un codi d'error $0"
 
@@ -4724,7 +4741,7 @@ msgstr "Perfil de rendiment"
 msgid "Permanent"
 msgstr "Permanent"
 
-#: src/ws/login.js:599
+#: src/ws/login.js:603
 msgid "Permission denied"
 msgstr "Permís denegat"
 
@@ -5337,19 +5354,19 @@ msgstr "Recicla"
 msgid "Reformat and add disks"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:32
+#: pkg/packagekit/updates.jsx:34
 msgid "Refreshing package information"
 msgstr "Refrescament de la informació dels paquets"
 
-#: src/ws/login.js:589
+#: src/ws/login.js:593
 msgid "Refusing to connect. Host is unknown"
 msgstr ""
 
-#: src/ws/login.js:591
+#: src/ws/login.js:595
 msgid "Refusing to connect. Hostkey does not match"
 msgstr ""
 
-#: src/ws/login.js:587
+#: src/ws/login.js:591
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr ""
 
@@ -5370,7 +5387,7 @@ msgstr "Registra un volum persistent"
 msgid "Register system"
 msgstr "Registra el sistema"
 
-#: pkg/packagekit/updates.jsx:883
+#: pkg/packagekit/updates.jsx:887
 msgid "Register…"
 msgstr "Registra..."
 
@@ -5604,7 +5621,7 @@ msgstr "Reinicia"
 msgid "Restart Count"
 msgstr "Reinicia el compte"
 
-#: pkg/packagekit/updates.jsx:473
+#: pkg/packagekit/updates.jsx:475
 msgid "Restart Now"
 msgstr "Reinicia ara"
 
@@ -5616,11 +5633,11 @@ msgstr "Reinicia la política"
 msgid "Restart Policy:"
 msgstr "Reinicia la política:"
 
-#: pkg/packagekit/updates.jsx:468
+#: pkg/packagekit/updates.jsx:470
 msgid "Restart Recommended"
 msgstr "Reinici recomanat"
 
-#: pkg/packagekit/updates.jsx:867
+#: pkg/packagekit/updates.jsx:871
 msgid "Restarting"
 msgstr "S'està reiniciant"
 
@@ -5813,7 +5830,7 @@ msgstr "S'està eliminant de forma segura $target"
 msgid "Security"
 msgstr "Seguretat"
 
-#: pkg/packagekit/updates.jsx:243
+#: pkg/packagekit/updates.jsx:245
 msgid "Security Update"
 msgstr "Actualització de seguretat"
 
@@ -5960,7 +5977,7 @@ msgstr "Estableix les variables d'entorn del contenidor"
 msgid "Set to"
 msgstr "Estableix a"
 
-#: pkg/packagekit/updates.jsx:63
+#: pkg/packagekit/updates.jsx:65
 msgid "Set up"
 msgstr "Configurat"
 
@@ -5969,7 +5986,7 @@ msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:57
 msgid "Setting up"
 msgstr "S'està configurant"
 
@@ -6136,7 +6153,7 @@ msgstr "Ha fallat la solució"
 msgid "Solutions"
 msgstr "Solucions"
 
-#: pkg/packagekit/updates.jsx:31
+#: pkg/packagekit/updates.jsx:33
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
@@ -6297,11 +6314,11 @@ msgstr "Desa dades de rendiment"
 msgid "Store passphrase"
 msgstr "Emmagatzema la contrasenya"
 
-#: pkg/storaged/crypto-tab.jsx:63 pkg/storaged/crypto-tab.jsx:66
+#: pkg/storaged/crypto-tab.jsx:71 pkg/storaged/crypto-tab.jsx:74
 msgid "Stored Passphrase"
 msgstr "Contrasenya emmagatzemada"
 
-#: pkg/storaged/crypto-tab.jsx:131
+#: pkg/storaged/crypto-tab.jsx:139
 msgid "Stored passphrase"
 msgstr "Contrasenya emmagatzemada"
 
@@ -6404,7 +6421,7 @@ msgstr "Serveis del sistema"
 msgid "System Time"
 msgstr "Hora del sistema"
 
-#: pkg/packagekit/updates.jsx:894
+#: pkg/packagekit/updates.jsx:900
 msgid "System is up to date"
 msgstr "El sistema està al dia"
 
@@ -6589,11 +6606,11 @@ msgstr ""
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "La configuració del desplegament '{{ target }}' no existeix."
 
-#: pkg/packagekit/updates.jsx:345
+#: pkg/packagekit/updates.jsx:347
 msgid "The following packages were recently updated:"
 msgstr "Els paquets següents s'han actualitzat recentment:"
 
-#: pkg/packagekit/updates.jsx:344
+#: pkg/packagekit/updates.jsx:346
 msgid "The following packages were updated $0:"
 msgstr "Els paquets següents s'han actualitzat $0:"
 
@@ -6693,7 +6710,7 @@ msgstr ""
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "El fitxer seleccionat no és un manifest d'aplicació Kubernetes vàlid."
 
-#: src/ws/login.js:581
+#: src/ws/login.js:585
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6899,7 +6916,7 @@ msgstr "Aquest paquet no és compatible amb aquesta versió de Cockpit"
 msgid "This package requires Cockpit version %s or later"
 msgstr "Aquest paquet requereix la versió %s, o posterior, de Cockpit"
 
-#: pkg/packagekit/updates.jsx:878
+#: pkg/packagekit/updates.jsx:882
 msgid "This system is not registered"
 msgstr "Aquest sistema no està registrat"
 
@@ -6989,14 +7006,14 @@ msgstr ""
 "contrasenya d'inici de sessió per autenticar automàticament contra altres "
 "sistemes."
 
-#: pkg/packagekit/updates.jsx:879
+#: pkg/packagekit/updates.jsx:883
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
 msgstr ""
 "Per obtenir actualitzacions de programari, aquest sistema ha d'estar "
-"registrat a Red Hat, ja sigui utilitzant el Portal de clients de Red Hat o "
-"un servidor de subscripció local."
+"registrat a Red Hat, ja sigui utilitzant Red Hat Customer Portal o un "
+"servidor de subscripció local."
 
 #: node_modules/registry-image-widgets/views/image-pull.html:4
 msgid "To pull this image:"
@@ -7141,7 +7158,7 @@ msgstr "No es pot comunicar amb OSTree"
 msgid "Unable to connect"
 msgstr "No es pot connectar"
 
-#: src/ws/login.js:585
+#: src/ws/login.js:589
 msgid "Unable to connect to that address"
 msgstr "No es pot connectar a aquesta adreça"
 
@@ -7221,7 +7238,7 @@ msgstr "Desconegut ($0)"
 
 #: pkg/apps/application.jsx:83
 msgid "Unknown Application"
-msgstr ""
+msgstr "Aplicació desconeguda"
 
 #: pkg/lib/machine-unknown-hostkey.html:2
 msgid "Unknown Host Key"
@@ -7289,7 +7306,7 @@ msgstr "Dades no reconegudes"
 msgid "Unregister"
 msgstr "Desregistra"
 
-#: pkg/packagekit/updates.jsx:786
+#: pkg/packagekit/updates.jsx:788
 msgid "Unregistered System"
 msgstr "Sistema sense registrar"
 
@@ -7322,11 +7339,11 @@ msgstr "Aixecat des de $StartedAt"
 msgid "Update"
 msgstr "Actualitza"
 
-#: pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:846
 msgid "Update History"
 msgstr "Historial d'actualitzacions"
 
-#: pkg/packagekit/updates.jsx:448
+#: pkg/packagekit/updates.jsx:450
 msgid "Update Log"
 msgstr "Registre d'actualitzacions"
 
@@ -7334,11 +7351,11 @@ msgstr "Registre d'actualitzacions"
 msgid "Update and Reboot"
 msgstr "Actualitza i reinicia"
 
-#: pkg/packagekit/updates.jsx:62
+#: pkg/packagekit/updates.jsx:64
 msgid "Updated"
 msgstr "Actualitzat"
 
-#: pkg/packagekit/updates.jsx:469
+#: pkg/packagekit/updates.jsx:471
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 "Els paquets actualitzats poden requerir un reinici perquè tinguin efecte."
@@ -7347,11 +7364,11 @@ msgstr ""
 msgid "Updates"
 msgstr "Actualitzacions"
 
-#: pkg/packagekit/updates.jsx:790
+#: pkg/packagekit/updates.jsx:792
 msgid "Updates are disabled."
 msgstr "Les actualitzacions estan inhabilitades."
 
-#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:54
+#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:56
 #: pkg/subscriptions/subscriptions-view.jsx:187
 msgid "Updating"
 msgstr "S'està actualitzant"
@@ -7512,17 +7529,17 @@ msgstr "Validació del testimoni d'autenticació"
 msgid "Validating key"
 msgstr "S'està validant la clau"
 
-#: pkg/packagekit/updates.jsx:64
+#: pkg/packagekit/updates.jsx:66
 msgid "Verified"
 msgstr "Verificat"
 
-#: pkg/packagekit/updates.jsx:56
+#: pkg/packagekit/updates.jsx:58
 msgid "Verifying"
 msgstr "S'està verificant"
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/packagekit/updates.jsx:328 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "Versió"
 
@@ -7530,7 +7547,7 @@ msgstr "Versió"
 msgid "Very securely erasing $target"
 msgstr "S'està eliminant de forma molt segura $target"
 
-#: pkg/packagekit/updates.jsx:796
+#: pkg/packagekit/updates.jsx:798
 msgid "View Registration Details"
 msgstr "Mostra els detalls del registrament"
 
@@ -7609,7 +7626,7 @@ msgstr "Benvingut al registre d'imatges"
 msgid "When"
 msgstr "Quan"
 
-#: pkg/packagekit/updates.jsx:833
+#: pkg/packagekit/updates.jsx:836
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -7638,7 +7655,7 @@ msgstr "Escriptura"
 msgid "Writing objects"
 msgstr "S'estan escrivint els objectes"
 
-#: src/ws/login.js:595
+#: src/ws/login.js:599
 msgid "Wrong user name or password"
 msgstr "Nom d'usuari o contrasenya incorrectes"
 
@@ -7697,7 +7714,7 @@ msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "No teniu els permisos per gestionar l'agrupació d'emmagatzematge de Docker."
 
-#: pkg/packagekit/updates.jsx:792
+#: pkg/packagekit/updates.jsx:794
 msgid "You need to re-subscribe this system."
 msgstr "Heu de tornar a subscriure aquest sistema."
 
@@ -7713,7 +7730,7 @@ msgstr ""
 "Les vostres credencials d'inici de sessió no us donen accés a utilitzar el "
 "registre de docker des de la línia d'ordres."
 
-#: pkg/packagekit/updates.jsx:868
+#: pkg/packagekit/updates.jsx:872
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -7749,7 +7766,11 @@ msgstr "actiu"
 msgid "alias"
 msgstr "àlies"
 
-#: pkg/ostree/index.html:186
+#: pkg/packagekit/autoupdates.jsx:321
+msgid "and restart the machine automatically."
+msgstr ""
+
+#: pkg/ostree/index.html:186 pkg/packagekit/autoupdates.jsx:312
 #, fuzzy
 msgid "at"
 msgstr "Camí"
@@ -7798,6 +7819,10 @@ msgstr ""
 #: pkg/machines/helpers.es6:96
 msgid "enabled"
 msgstr "habilitat"
+
+#: pkg/packagekit/autoupdates.jsx:301
+msgid "every day"
+msgstr ""
 
 #: pkg/storaged/format-dialog.jsx:104
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
@@ -7852,6 +7877,34 @@ msgstr "no"
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
 msgid "none"
 msgstr "cap"
+
+#: pkg/packagekit/autoupdates.jsx:306
+msgid "on Fridays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:302
+msgid "on Mondays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:307
+msgid "on Saturdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:308
+msgid "on Sundays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:305
+msgid "on Thursdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:303
+msgid "on Tuesdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:304
+msgid "on Wednesdays"
+msgstr ""
 
 #: pkg/machines/libvirt.es6:433
 msgid "other"

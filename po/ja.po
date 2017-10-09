@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-30 07:11+0000\n"
+"POT-Creation-Date: 2017-10-09 20:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,7 +88,7 @@ msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 ディスクがありません"
 
-#: src/ws/login.js:281 src/ws/login.js:603
+#: src/ws/login.js:281 src/ws/login.js:607
 msgid "$0 error"
 msgstr "$0 エラー"
 
@@ -135,7 +135,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 ヶ月"
 
-#: pkg/packagekit/updates.jsx:260
+#: pkg/packagekit/updates.jsx:262
 msgid "$0 more…"
 msgstr ""
 
@@ -160,7 +160,7 @@ msgstr "$0 パッケージ"
 msgid "$0 shares"
 msgstr "$0 シェア"
 
-#: pkg/packagekit/updates.jsx:177
+#: pkg/packagekit/updates.jsx:179
 #, fuzzy
 msgid "$0 update"
 msgid_plural "$0 updates"
@@ -219,11 +219,11 @@ msgstr "アクティベーションキーを使用する場合は '組織' が�
 msgid "(default)"
 msgstr "(デフォルト)"
 
-#: pkg/storaged/crypto-tab.jsx:138
+#: pkg/storaged/crypto-tab.jsx:146
 msgid "(none)"
 msgstr "（なし）"
 
-#: pkg/packagekit/updates.jsx:182
+#: pkg/packagekit/updates.jsx:184
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ""
@@ -859,11 +859,19 @@ msgstr ""
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
-#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:73
-#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:76
+#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
+#: pkg/storaged/crypto-tab.jsx:115 pkg/storaged/fsys-tab.jsx:76
 #: pkg/storaged/fsys-tab.jsx:145
 msgid "Apply"
 msgstr "適用"
+
+#: pkg/packagekit/autoupdates.jsx:293
+msgid "Apply all updates"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:294
+msgid "Apply security updates"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Apply this solution"
@@ -873,12 +881,12 @@ msgstr "このソリューションの適用"
 msgid "Applying solution..."
 msgstr "ソリューションの適用中 ..."
 
-#: pkg/packagekit/updates.jsx:34
+#: pkg/packagekit/updates.jsx:36
 #, fuzzy
 msgid "Applying updates"
 msgstr "ソリューションの適用中 ..."
 
-#: pkg/packagekit/updates.jsx:36
+#: pkg/packagekit/updates.jsx:38
 msgid "Applying updates failed"
 msgstr ""
 
@@ -941,11 +949,11 @@ msgstr "認証"
 msgid "Authentication Failed"
 msgstr "認証に失敗しました"
 
-#: src/ws/login.js:583
+#: src/ws/login.js:587
 msgid "Authentication Failed: Server closed connection"
 msgstr "認証に失敗しました: サーバーの接続が切断されました"
 
-#: src/ws/login.js:593
+#: src/ws/login.js:597
 msgid "Authentication failed"
 msgstr "認証に失敗しました"
 
@@ -978,6 +986,10 @@ msgstr "自動 (DHCP のみ)"
 msgid "Automatic (DHCP)"
 msgstr "自動 (DHCP)"
 
+#: pkg/packagekit/autoupdates.jsx:334
+msgid "Automatic Updates"
+msgstr ""
+
 #: pkg/systemd/index.html:398
 msgid "Automatically using NTP"
 msgstr "NTP を自動的に使用"
@@ -995,7 +1007,7 @@ msgstr "自動起動:"
 msgid "Available"
 msgstr "利用可能"
 
-#: pkg/packagekit/updates.jsx:819
+#: pkg/packagekit/updates.jsx:822
 #, fuzzy
 msgid "Available Updates"
 msgstr "利用可能"
@@ -1087,7 +1099,7 @@ msgstr "ブロードキャスト"
 msgid "Broken configuration"
 msgstr "破損した設定"
 
-#: pkg/packagekit/updates.jsx:329
+#: pkg/packagekit/updates.jsx:331
 msgid "Bugs"
 msgstr ""
 
@@ -1187,8 +1199,8 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/lib/cockpit-components-dialog.jsx:138 pkg/packagekit/updates.jsx:204
-#: pkg/sosreport/index.js:51 pkg/apps/utils.jsx:87
+#: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
+#: pkg/packagekit/updates.jsx:206 pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "取り消し"
 
@@ -1303,7 +1315,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "設定を変更すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
 
-#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:195
+#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:197
 msgid "Check for Updates"
 msgstr "更新の確認"
 
@@ -1372,8 +1384,8 @@ msgstr "クライアント証明書"
 #: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
 #: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
-#: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
-#: pkg/apps/utils.jsx:109
+#: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
+#: pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "閉じる"
 
@@ -1458,7 +1470,7 @@ msgstr ""
 "Cockpit "
 "は経験が少ないシステム管理者に最適です。これらのシステム管理者はストレージの管理、ジャーナルの検査、サービスの起動および停止などの単純なタスクを簡単に実行できるようになります。また、複数のサーバーを同時に監視および管理できます。これらのサーバーはクリックするだけで追加できます。追加後に、ご使用のマシンは他のマシンを管理するようになります。"
 
-#: pkg/packagekit/updates.jsx:831
+#: pkg/packagekit/updates.jsx:834
 msgid "Cockpit itself will be updated."
 msgstr ""
 
@@ -2216,7 +2228,7 @@ msgstr "説明"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:262
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/packagekit/updates.jsx:332 pkg/subscriptions/subscriptions-view.jsx:209
 msgid "Details"
 msgstr "詳細"
 
@@ -2412,12 +2424,12 @@ msgstr "レポートのダウンロード"
 msgid "Download the MSI from $0"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:60
+#: pkg/packagekit/updates.jsx:62
 #, fuzzy
 msgid "Downloaded"
 msgstr "ダウンロード"
 
-#: pkg/packagekit/updates.jsx:52
+#: pkg/packagekit/updates.jsx:54
 #, fuzzy
 msgid "Downloading"
 msgstr "ダウンロード"
@@ -2447,7 +2459,7 @@ msgstr "重複するエイリアス"
 msgid "Duplicate port"
 msgstr "重複するポート"
 
-#: pkg/storaged/crypto-tab.jsx:132
+#: pkg/storaged/crypto-tab.jsx:140
 msgid "Edit"
 msgstr "編集"
 
@@ -2531,7 +2543,7 @@ msgstr "暗号化されたデータ"
 msgid "Encryption"
 msgstr "暗号化"
 
-#: pkg/storaged/crypto-tab.jsx:99 pkg/storaged/format-dialog.jsx:177
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:177
 msgid "Encryption Options"
 msgstr "暗号化オプション"
 
@@ -2596,10 +2608,10 @@ msgid "Erasing $target"
 msgstr "$target の削除中"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services.html:334 pkg/storaged/details.jsx:199
-#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
-#: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1381
-#: pkg/apps/utils.jsx:101
+#: pkg/systemd/services.html:334 pkg/apps/utils.jsx:101
+#: pkg/storaged/details.jsx:199 pkg/storaged/devices.js:118
+#: pkg/storaged/overview.js:694 pkg/storaged/storage-controls.jsx:69
+#: pkg/users/local.js:1381
 msgid "Error"
 msgstr "エラー"
 
@@ -3056,7 +3068,7 @@ msgstr "ID"
 msgid "Identity"
 msgstr "ID"
 
-#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:471
+#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:473
 msgid "Ignore"
 msgstr "無視"
 
@@ -3186,7 +3198,7 @@ msgstr "正しくないホストキー"
 msgid "Information about the Docker storage pool is not available."
 msgstr "Docker ストレージプールに関する情報は利用できません。"
 
-#: pkg/packagekit/updates.jsx:430
+#: pkg/packagekit/updates.jsx:432
 msgid "Initializing..."
 msgstr ""
 
@@ -3194,11 +3206,11 @@ msgstr ""
 msgid "Install"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:805
 msgid "Install All Updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:809
+#: pkg/packagekit/updates.jsx:811
 msgid "Install Security Updates"
 msgstr ""
 
@@ -3206,7 +3218,7 @@ msgstr ""
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "setroubleshoot-server をインストールして SELinux イベントをトラブルシュートします。"
 
-#: pkg/packagekit/updates.jsx:61
+#: pkg/packagekit/updates.jsx:63
 #, fuzzy
 msgid "Installed"
 msgstr "インストールされた製品"
@@ -3215,8 +3227,8 @@ msgstr "インストールされた製品"
 msgid "Installed products"
 msgstr "インストールされた製品"
 
-#: pkg/packagekit/updates.jsx:53 pkg/apps/application-list.jsx:47
-#: pkg/apps/application.jsx:55
+#: pkg/apps/application-list.jsx:47 pkg/apps/application.jsx:55
+#: pkg/packagekit/updates.jsx:55
 msgid "Installing"
 msgstr ""
 
@@ -3233,7 +3245,7 @@ msgstr "インターフェース"
 msgid "Interfaces"
 msgstr "インターフェース"
 
-#: src/ws/login.js:575
+#: src/ws/login.js:579
 msgid "Internal Error: Invalid challenge header"
 msgstr "内部エラー: 無効なチャレンジヘッダー"
 
@@ -3433,7 +3445,7 @@ msgstr "最後のトリガー"
 msgid "Last Updated"
 msgstr "最終更新日"
 
-#: pkg/packagekit/updates.jsx:199
+#: pkg/packagekit/updates.jsx:201
 msgid "Last checked: $0 ago"
 msgstr ""
 
@@ -3514,12 +3526,12 @@ msgstr "ロードバランシング"
 msgid "Load earlier entries"
 msgstr "以前のエントリーのロード"
 
-#: pkg/packagekit/updates.jsx:37
+#: pkg/packagekit/updates.jsx:39
 #, fuzzy
 msgid "Loading available updates failed"
 msgstr "利用可能な認証情報の使用"
 
-#: pkg/packagekit/updates.jsx:30
+#: pkg/packagekit/updates.jsx:32
 msgid "Loading available updates, please wait..."
 msgstr ""
 
@@ -3863,7 +3875,7 @@ msgstr "設定"
 msgid "More details"
 msgstr "詳細"
 
-#: pkg/packagekit/updates.jsx:273
+#: pkg/packagekit/updates.jsx:275
 msgid "More information…"
 msgstr ""
 
@@ -3957,7 +3969,7 @@ msgstr "NTP サーバー"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:327
+#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
@@ -4317,7 +4329,7 @@ msgstr "このようなファイルまたはディレクトリーがありませ
 msgid "No tags are present."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:33
+#: pkg/packagekit/updates.jsx:35
 msgid "No updates pending"
 msgstr ""
 
@@ -4534,8 +4546,8 @@ msgctxt "storage"
 msgid "Optical Drive"
 msgstr "光学ドライブ"
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:102
-#: pkg/storaged/crypto-tab.jsx:137
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
+#: pkg/storaged/crypto-tab.jsx:145
 msgid "Options"
 msgstr "オプション"
 
@@ -4573,22 +4585,22 @@ msgstr "既存のデータをゼロで上書きする"
 msgid "PD Name"
 msgstr "PD 名"
 
-#: pkg/packagekit/updates.jsx:476
+#: pkg/packagekit/updates.jsx:478
 msgid "Package information"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:531
+#: pkg/packagekit/updates.jsx:533
 #, fuzzy
 msgid "PackageKit crashed"
 msgstr "パッケージ"
 
-#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:635
-#: pkg/packagekit/updates.jsx:709
+#: pkg/packagekit/updates.jsx:531 pkg/packagekit/updates.jsx:637
+#: pkg/packagekit/updates.jsx:711
 #, fuzzy
 msgid "PackageKit is not installed"
 msgstr "Cockpit はインストールされていません"
 
-#: pkg/packagekit/updates.jsx:733
+#: pkg/packagekit/updates.jsx:735
 msgid "PackageKit reported error code $0"
 msgstr ""
 
@@ -4712,7 +4724,7 @@ msgstr "パフォーマンスプロファイル"
 msgid "Permanent"
 msgstr "永続"
 
-#: src/ws/login.js:599
+#: src/ws/login.js:603
 msgid "Permission denied"
 msgstr "パーミッションが拒否されました。"
 
@@ -5317,19 +5329,19 @@ msgstr "リサイクル"
 msgid "Reformat and add disks"
 msgstr "ディスクの再フォーマットおよび追加"
 
-#: pkg/packagekit/updates.jsx:32
+#: pkg/packagekit/updates.jsx:34
 msgid "Refreshing package information"
 msgstr ""
 
-#: src/ws/login.js:589
+#: src/ws/login.js:593
 msgid "Refusing to connect. Host is unknown"
 msgstr "接続を拒否しています。ホストが不明です"
 
-#: src/ws/login.js:591
+#: src/ws/login.js:595
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "接続を拒否しています。ホストキーが一致しません"
 
-#: src/ws/login.js:587
+#: src/ws/login.js:591
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "接続を拒否しています。ホストキーが不明です"
 
@@ -5350,7 +5362,7 @@ msgstr "永続ボリュームの登録"
 msgid "Register system"
 msgstr "システムの登録"
 
-#: pkg/packagekit/updates.jsx:883
+#: pkg/packagekit/updates.jsx:887
 msgid "Register…"
 msgstr ""
 
@@ -5584,7 +5596,7 @@ msgstr "再起動"
 msgid "Restart Count"
 msgstr "再起動回数"
 
-#: pkg/packagekit/updates.jsx:473
+#: pkg/packagekit/updates.jsx:475
 #, fuzzy
 msgid "Restart Now"
 msgstr "再起動"
@@ -5597,12 +5609,12 @@ msgstr "再起動ポリシー"
 msgid "Restart Policy:"
 msgstr "再起動ポリシー:"
 
-#: pkg/packagekit/updates.jsx:468
+#: pkg/packagekit/updates.jsx:470
 #, fuzzy
 msgid "Restart Recommended"
 msgstr "推奨"
 
-#: pkg/packagekit/updates.jsx:867
+#: pkg/packagekit/updates.jsx:871
 #, fuzzy
 msgid "Restarting"
 msgstr "再起動"
@@ -5795,7 +5807,7 @@ msgstr "$target を安全に削除"
 msgid "Security"
 msgstr "Security"
 
-#: pkg/packagekit/updates.jsx:243
+#: pkg/packagekit/updates.jsx:245
 #, fuzzy
 msgid "Security Update"
 msgstr "Security"
@@ -5941,7 +5953,7 @@ msgstr "コンテナー環境変数の設定"
 msgid "Set to"
 msgstr "設定値"
 
-#: pkg/packagekit/updates.jsx:63
+#: pkg/packagekit/updates.jsx:65
 #, fuzzy
 msgid "Set up"
 msgstr "設定値"
@@ -5951,7 +5963,7 @@ msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr "設定が設定された状態と異なるため、次回起動時に元の状態に戻ります。"
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:57
 #, fuzzy
 msgid "Setting up"
 msgstr "IP 設定"
@@ -6120,7 +6132,7 @@ msgstr "ソリューションが失敗しました"
 msgid "Solutions"
 msgstr "ソリューション"
 
-#: pkg/packagekit/updates.jsx:31
+#: pkg/packagekit/updates.jsx:33
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
@@ -6281,11 +6293,11 @@ msgstr "パフォーマンスデータの保存"
 msgid "Store passphrase"
 msgstr "パスフレーズの保存"
 
-#: pkg/storaged/crypto-tab.jsx:63 pkg/storaged/crypto-tab.jsx:66
+#: pkg/storaged/crypto-tab.jsx:71 pkg/storaged/crypto-tab.jsx:74
 msgid "Stored Passphrase"
 msgstr "保存されたパスフレーズ"
 
-#: pkg/storaged/crypto-tab.jsx:131
+#: pkg/storaged/crypto-tab.jsx:139
 msgid "Stored passphrase"
 msgstr "保存されたパスフレーズ"
 
@@ -6388,7 +6400,7 @@ msgstr "システムサービス"
 msgid "System Time"
 msgstr "システム時間"
 
-#: pkg/packagekit/updates.jsx:894
+#: pkg/packagekit/updates.jsx:900
 msgid "System is up to date"
 msgstr ""
 
@@ -6572,11 +6584,11 @@ msgstr "現在のユーザーにはシステムサブスクリプションステ
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "デプロイメント設定 '{{ target }}' が存在しません。"
 
-#: pkg/packagekit/updates.jsx:345
+#: pkg/packagekit/updates.jsx:347
 msgid "The following packages were recently updated:"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:344
+#: pkg/packagekit/updates.jsx:346
 msgid "The following packages were updated $0:"
 msgstr ""
 
@@ -6676,7 +6688,7 @@ msgstr ""
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "選択されたファイルは有効な Kubernetes アプリケーションマニフェストではありません。"
 
-#: src/ws/login.js:581
+#: src/ws/login.js:585
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6859,7 +6871,7 @@ msgstr "このパッケージには Cockpit のこのバージョンとの互換
 msgid "This package requires Cockpit version %s or later"
 msgstr "このパッケージには Cockpit バージョン %s 以降が必要です"
 
-#: pkg/packagekit/updates.jsx:878
+#: pkg/packagekit/updates.jsx:882
 msgid "This system is not registered"
 msgstr ""
 
@@ -6944,7 +6956,7 @@ msgid ""
 "authenticate against other systems."
 msgstr "ヒント: 他のシステムに対して自動的に認証する場合は、鍵のパスワードをログインパスワードに一致させます。"
 
-#: pkg/packagekit/updates.jsx:879
+#: pkg/packagekit/updates.jsx:883
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7091,7 +7103,7 @@ msgstr "OSTree と通信できません"
 msgid "Unable to connect"
 msgstr "接続できません"
 
-#: src/ws/login.js:585
+#: src/ws/login.js:589
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
@@ -7239,7 +7251,7 @@ msgstr "認識されないデータ"
 msgid "Unregister"
 msgstr "登録解除"
 
-#: pkg/packagekit/updates.jsx:786
+#: pkg/packagekit/updates.jsx:788
 msgid "Unregistered System"
 msgstr ""
 
@@ -7272,12 +7284,12 @@ msgstr "$StartedAt から稼働中"
 msgid "Update"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:846
 #, fuzzy
 msgid "Update History"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:448
+#: pkg/packagekit/updates.jsx:450
 #, fuzzy
 msgid "Update Log"
 msgstr "更新"
@@ -7286,12 +7298,12 @@ msgstr "更新"
 msgid "Update and Reboot"
 msgstr "更新および再起動"
 
-#: pkg/packagekit/updates.jsx:62
+#: pkg/packagekit/updates.jsx:64
 #, fuzzy
 msgid "Updated"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:469
+#: pkg/packagekit/updates.jsx:471
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 
@@ -7299,11 +7311,11 @@ msgstr ""
 msgid "Updates"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:790
+#: pkg/packagekit/updates.jsx:792
 msgid "Updates are disabled."
 msgstr ""
 
-#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:54
+#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:56
 #: pkg/subscriptions/subscriptions-view.jsx:187
 msgid "Updating"
 msgstr "更新中"
@@ -7464,17 +7476,17 @@ msgstr "認証トークンの検証"
 msgid "Validating key"
 msgstr "鍵の検証"
 
-#: pkg/packagekit/updates.jsx:64
+#: pkg/packagekit/updates.jsx:66
 msgid "Verified"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:56
+#: pkg/packagekit/updates.jsx:58
 msgid "Verifying"
 msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/packagekit/updates.jsx:328 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "バージョン"
 
@@ -7482,7 +7494,7 @@ msgstr "バージョン"
 msgid "Very securely erasing $target"
 msgstr "$target を非常に安全に削除"
 
-#: pkg/packagekit/updates.jsx:796
+#: pkg/packagekit/updates.jsx:798
 msgid "View Registration Details"
 msgstr ""
 
@@ -7561,7 +7573,7 @@ msgstr "イメージレジストリーへようこそ"
 msgid "When"
 msgstr "日付"
 
-#: pkg/packagekit/updates.jsx:833
+#: pkg/packagekit/updates.jsx:836
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -7588,7 +7600,7 @@ msgstr "書き込み"
 msgid "Writing objects"
 msgstr "オブジェクトの書き込み"
 
-#: src/ws/login.js:595
+#: src/ws/login.js:599
 msgid "Wrong user name or password"
 msgstr "ユーザー名またはパスワードが間違っています"
 
@@ -7642,7 +7654,7 @@ msgstr "このアカウントに承認された公開鍵を表示するパーミ
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr "Docker ストレージプールを管理するパーミッションがありません。"
 
-#: pkg/packagekit/updates.jsx:792
+#: pkg/packagekit/updates.jsx:794
 msgid "You need to re-subscribe this system."
 msgstr ""
 
@@ -7656,7 +7668,7 @@ msgid ""
 "from the command line."
 msgstr "ログイン資格情報は、コマンドラインから docker レジストリーを使用するアクセスを提供しません。"
 
-#: pkg/packagekit/updates.jsx:868
+#: pkg/packagekit/updates.jsx:872
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -7690,7 +7702,11 @@ msgstr "アクティブ"
 msgid "alias"
 msgstr "alias"
 
-#: pkg/ostree/index.html:186
+#: pkg/packagekit/autoupdates.jsx:321
+msgid "and restart the machine automatically."
+msgstr ""
+
+#: pkg/ostree/index.html:186 pkg/packagekit/autoupdates.jsx:312
 msgid "at"
 msgstr "時間: "
 
@@ -7739,6 +7755,10 @@ msgstr "例: my-image-stream"
 #: pkg/machines/helpers.es6:96
 msgid "enabled"
 msgstr "有効"
+
+#: pkg/packagekit/autoupdates.jsx:301
+msgid "every day"
+msgstr ""
 
 #: pkg/storaged/format-dialog.jsx:104
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
@@ -7794,6 +7814,34 @@ msgstr "いいえ"
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
 msgid "none"
 msgstr "なし"
+
+#: pkg/packagekit/autoupdates.jsx:306
+msgid "on Fridays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:302
+msgid "on Mondays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:307
+msgid "on Saturdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:308
+msgid "on Sundays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:305
+msgid "on Thursdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:303
+msgid "on Tuesdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:304
+msgid "on Wednesdays"
+msgstr ""
 
 #: pkg/machines/libvirt.es6:433
 msgid "other"

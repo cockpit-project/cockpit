@@ -339,17 +339,16 @@ def execute(*args):
     if verbose:
         sys.stderr.write("+ " + " ".join(args) + "\n")
 
-    # Github wants the OAuth token as the username and git will
-    # happily echo that back out.  So we censor all output.
+    # Make double sure that the token does not appear anywhere in the output
     def censored(text):
         return text.replace(api.token, "CENSORED")
 
-    try:
-        output = subprocess.check_output(args, cwd=BASE, stderr=subprocess.STDOUT)
-        sys.stderr.write(censored(output))
-    except subprocess.CalledProcessError, ex:
-        sys.stderr.write(censored(ex.output))
-        raise
+    env = os.environ.copy()
+    # No prompting for passwords
+    if "GIT_ASKPASS" not in env:
+        env["GIT_ASKPASS"] = "/bin/true"
+    output = subprocess.check_output(args, cwd=BASE, stderr=subprocess.STDOUT, env=env)
+    sys.stderr.write(censored(output))
 
 def branch(context, message, pathspec=".", issue=None, **kwargs):
     current = time.strftime('%Y%m%d-%H%M%M')
@@ -357,8 +356,14 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     branch = "{0} {1} {2}".format(name, context or "", current).strip()
     branch = branch.replace(" ", "-").replace("--", "-")
 
+    # Tell git about our github token as a user name
+    try:
+        subprocess.check_output(["git", "config", "credential.https://github.com.username", api.token])
+    except subprocess.CalledProcessError:
+        raise RuntimeError("Couldn't configure git config with our API token")
+
     user = api.get("/user")['login']
-    url = "https://{0}@github.com/{1}/cockpit".format(api.token, user)
+    url = "https://github.com/{0}/cockpit".format(user)
     clean = "https://github.com/{0}/cockpit".format(user)
 
     execute("git", "add", "--", pathspec)

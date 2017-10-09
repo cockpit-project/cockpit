@@ -45,9 +45,7 @@ module.exports = function routesLoader(source) {
       module => `Promise.resolve(require('${escape(module)}').default)` :
       module => `new Promise(function (resolve, reject) {
         try {
-          require.ensure(['${escape(module)}'], function (require) {
-            resolve(require('${escape(module)}').default);
-          }${typeof route.chunk === 'string' ? `, '${escape(route.chunk)}'` : ''});
+          resolve(require('${escape(module)}').default);
         } catch (err) {
           reject(err);
         }

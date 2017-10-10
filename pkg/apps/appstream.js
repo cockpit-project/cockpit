@@ -18,8 +18,8 @@
  */
 
 var cockpit = require("cockpit");
+var python = require("python.jsx");
 var watch_appstream_py = require("raw!./watch-appstream.py");
-var pyinvoke = [ "sh", "-ec", "exec $(which python3 2>/dev/null || which python) $@", "--", "-" ];
 
 var metainfo_db = null;
 
@@ -32,10 +32,9 @@ function get_metainfo_db() {
         });
 
         var buf = "";
-        cockpit.spawn(pyinvoke,
-                      { environ: [ "LANGUAGE=" + (cockpit.language || "en") ]
-                      })
-            .input(watch_appstream_py)
+        python.spawn(watch_appstream_py, [ ],
+                     { environ: [ "LANGUAGE=" + (cockpit.language || "en") ]
+                     })
             .stream(function (data) {
                 var lines, metadata;
 

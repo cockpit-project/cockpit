@@ -164,24 +164,17 @@ def normalize_traceback(trace):
     # All file paths converted to basename
     return re.sub(r'File "[^"]*/([^/"]+)"', 'File "\\1"', trace.strip())
 
-def list_directories(dirs):
-    result = [ ];
-    for d in dirs:
-        for f in os.listdir(d):
-            result.append(os.path.join(d, f))
-    return result
-
 def check_known_issue(api, trace, image):
-    directories =  [ ]
     image_naughty = os.path.join(BOTS, "naughty", image)
-    if os.path.exists(image_naughty):
-        directories.append(image_naughty)
+    if not os.path.exists(image_naughty):
+        return None
+
     trace = normalize_traceback(trace)
-    number = 0
-    for naughty in list_directories(directories):
-        (prefix, unused, name) = os.path.basename(naughty).partition("-")
+    number = None
+    for naughty in os.listdir(image_naughty):
+        (prefix, unused, name) = naughty.partition("-")
         n = int(prefix)
-        with open(naughty, "r") as fp:
+        with open(os.path.join(image_naughty, naughty), "r") as fp:
             match = "*" + normalize_traceback(fp.read()) + "*"
         # Match as in a file name glob, albeit multi line, and account for literal pastes with '[]'
         if fnmatch.fnmatchcase(trace, match) or fnmatch.fnmatchcase(trace, match.replace("[", "?")):

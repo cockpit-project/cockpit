@@ -71,6 +71,7 @@ case "$RELEASE" in
         # https://tracker.debian.org/pcp not currently in testing
         COCKPIT_DEPS="${COCKPIT_DEPS/libpcp3 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS} libblockdev-mdraid2"
 
         # modern udisks (after re-merging storaged)
         echo "deb http://deb.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list

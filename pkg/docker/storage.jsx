@@ -25,9 +25,9 @@
 
     var React = require("react");
     var dialog_view = require("cockpit-components-dialog.jsx");
+
+    var python = require("python.jsx");
     var cockpit_atomic_storage = require("raw!./cockpit-atomic-storage");
-    // FIXME: eventually convert all images to python 3
-    const pyinvoke = [ "sh", "-ec", "exec $(which python3 2>/dev/null || which python) $@", "--", "-" ];
 
     var _ = cockpit.gettext;
 
@@ -49,31 +49,30 @@
 
         function update() {
             if (!cockpit.hidden && !process) {
-                process = cockpit.spawn(pyinvoke.concat(["monitor"]),
-                                        { err: "ignore",
-                                          superuser: true })
-                                  .input(cockpit_atomic_storage)
-                                  .stream(function (data) {
-                                      // XXX - find the newlines here
-                                      var info = JSON.parse(data);
-                                      self.loopback = info.loopback;
-                                      self.vgroup = info.vgroup;
-                                      self.pool_devices = info.pool_devices.sort(cmp_drive);
-                                      self.extra_devices = info.extra_devices.sort(cmp_drive);
-                                      self.total = info.total;
-                                      self.used = info.used;
-                                      self.error = null;
-                                      if (!info.can_manage)
-                                          self.error = "unsupported";
-                                      $(self).triggerHandler("changed");
-                                  }).
-                                  fail(function (error) {
-                                      if (error != "closed") {
-                                          console.warn(error);
-                                          self.error = error.problem || "broken";
-                                          $(self).triggerHandler("changed");
-                                      }
-                                  });
+                process = python.spawn([ cockpit_atomic_storage ], ["monitor"],
+                                       { err: "ignore",
+                                         superuser: true })
+                                .stream(function (data) {
+                                    // XXX - find the newlines here
+                                    var info = JSON.parse(data);
+                                    self.loopback = info.loopback;
+                                    self.vgroup = info.vgroup;
+                                    self.pool_devices = info.pool_devices.sort(cmp_drive);
+                                    self.extra_devices = info.extra_devices.sort(cmp_drive);
+                                    self.total = info.total;
+                                    self.used = info.used;
+                                    self.error = null;
+                                    if (!info.can_manage)
+                                        self.error = "unsupported";
+                                    $(self).triggerHandler("changed");
+                                })
+                                .fail(function (error) {
+                                    if (error != "closed") {
+                                        console.warn(error);
+                                        self.error = error.problem || "broken";
+                                        $(self).triggerHandler("changed");
+                                    }
+                                });
             } else if (cockpit.hidden && process) {
                 process.close("closed");
                 process = null;
@@ -394,32 +393,31 @@
             var devs = drives.map(function (d) { return d.path; });
             if (docker_will_be_stopped)
                 client.close();
-            var process = cockpit.spawn(pyinvoke.concat([storage_action]).concat(devs),
-                                         { 'err': 'out',
-                                           'superuser': true })
-                                  .input(cockpit_atomic_storage)
-                                  .done(function () {
-                                      if (docker_will_be_stopped) {
-                                          client.connect().done(function () {
-                                              dfd.resolve();
-                                          });
-                                      } else {
-                                          dfd.resolve();
-                                      }
-                                  }).
-                                  fail(function (error, data) {
-                                      if (docker_will_be_stopped)
-                                          client.connect();
-                                      if (error.problem == "cancelled") {
-                                          dfd.resolve();
-                                          return;
-                                      }
-                                      dfd.reject(
-                                          <div>
-                                              <span>{_("Could not add all disks")}</span>
-                                              <pre>{data}</pre>
-                                          </div>);
-                                  });
+            var process = python.spawn(cockpit_atomic_storage, [storage_action].concat(devs),
+                                       { 'err': 'out',
+                                         'superuser': true })
+                                .done(function () {
+                                    if (docker_will_be_stopped) {
+                                        client.connect().done(function () {
+                                            dfd.resolve();
+                                        });
+                                    } else {
+                                        dfd.resolve();
+                                    }
+                                })
+                                .fail(function (error, data) {
+                                    if (docker_will_be_stopped)
+                                        client.connect();
+                                    if (error.problem == "cancelled") {
+                                        dfd.resolve();
+                                        return;
+                                    }
+                                    dfd.reject(
+                                        <div>
+                                            <span>{_("Could not add all disks")}</span>
+                                            <pre>{data}</pre>
+                                        </div>);
+                                });
             var promise = dfd.promise();
             promise.cancel = function () {
                 process.close("cancelled");
@@ -442,25 +440,24 @@
         function reset() {
             var dfd = $.Deferred();
             client.close();
-            var process = cockpit.spawn(pyinvoke.concat(["reset-and-reduce"]),
-                                        { 'err': 'out',
-                                          'superuser': true })
-                                  .input(cockpit_atomic_storage)
-                                  .done(function () {
-                                      client.connect().done(dfd.resolve);
-                                  }).
-                                  fail(function (error, data) {
-                                      client.connect();
-                                      if (error.problem == "cancelled") {
-                                          dfd.resolve();
-                                          return;
-                                      }
-                                      dfd.reject(
-                                          <div>
-                                              <span>{_("Could not reset the storage pool")}</span>
-                                              <pre>{data}</pre>
-                                          </div>);
-                                  });
+            var process = python.spawn(cockpit_atomic_storage, ["reset-and-reduce"],
+                                       { 'err': 'out',
+                                         'superuser': true })
+                                .done(function () {
+                                    client.connect().done(dfd.resolve);
+                                })
+                                .fail(function (error, data) {
+                                    client.connect();
+                                    if (error.problem == "cancelled") {
+                                        dfd.resolve();
+                                        return;
+                                    }
+                                    dfd.reject(
+                                        <div>
+                                            <span>{_("Could not reset the storage pool")}</span>
+                                            <pre>{data}</pre>
+                                        </div>);
+                                });
             var promise = dfd.promise();
             promise.cancel = function () {
                 process.close("cancelled");

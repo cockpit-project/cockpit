@@ -73,10 +73,6 @@ case "$RELEASE" in
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
         COCKPIT_DEPS="${COCKPIT_DEPS} libblockdev-mdraid2"
 
-        # modern udisks (after re-merging storaged)
-        echo "deb http://deb.debian.org/debian experimental main" >/etc/apt/sources.list.d/experimental.list
-        COCKPIT_DEPS_EXPERIMENTAL="udisks2"
-
         # docker.io got removed from testing; use backports-version
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;

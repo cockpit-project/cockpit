@@ -10,11 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-30 07:11+0000\n"
+"POT-Creation-Date: 2017-10-09 20:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-09-21 02:34-0400\n"
+"PO-Revision-Date: 2017-09-30 08:49-0400\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pl\n"
@@ -112,7 +112,7 @@ msgstr[0] "Brak $0 dysku"
 msgstr[1] "Brak $0 dysków"
 msgstr[2] "Brak $0 dysków"
 
-#: src/ws/login.js:281 src/ws/login.js:603
+#: src/ws/login.js:281 src/ws/login.js:607
 msgid "$0 error"
 msgstr "błąd $0"
 
@@ -167,7 +167,7 @@ msgstr[0] "$0 miesiąc"
 msgstr[1] "$0 miesiące"
 msgstr[2] "$0 miesięcy"
 
-#: pkg/packagekit/updates.jsx:260
+#: pkg/packagekit/updates.jsx:262
 msgid "$0 more…"
 msgstr "$0 więcej…"
 
@@ -194,7 +194,7 @@ msgstr "$0 pakiety"
 msgid "$0 shares"
 msgstr "Udziały: $0"
 
-#: pkg/packagekit/updates.jsx:177
+#: pkg/packagekit/updates.jsx:179
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] "$0 aktualizacja"
@@ -262,11 +262,11 @@ msgstr "„Organization” jest wymagane podczas używania kluczy aktywacji."
 msgid "(default)"
 msgstr "(domyślnie)"
 
-#: pkg/storaged/crypto-tab.jsx:138
+#: pkg/storaged/crypto-tab.jsx:146
 msgid "(none)"
 msgstr "(brak)"
 
-#: pkg/packagekit/updates.jsx:182
+#: pkg/packagekit/updates.jsx:184
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", w tym $1 poprawka zabezpieczeń"
@@ -903,18 +903,26 @@ msgstr ""
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:148
 #: pkg/apps/application.jsx:127
 msgid "Applications"
-msgstr ""
+msgstr "Aplikacje"
 
 #: pkg/networkmanager/index.html:620 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:692
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
-#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:73
-#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:76
+#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
+#: pkg/storaged/crypto-tab.jsx:115 pkg/storaged/fsys-tab.jsx:76
 #: pkg/storaged/fsys-tab.jsx:145
 msgid "Apply"
 msgstr "Zastosuj"
+
+#: pkg/packagekit/autoupdates.jsx:293
+msgid "Apply all updates"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:294
+msgid "Apply security updates"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Apply this solution"
@@ -924,11 +932,11 @@ msgstr "Zastosuj to rozwiązanie"
 msgid "Applying solution..."
 msgstr "Zastosowywanie rozwiązania…"
 
-#: pkg/packagekit/updates.jsx:34
+#: pkg/packagekit/updates.jsx:36
 msgid "Applying updates"
 msgstr "Zastosowywanie aktualizacji"
 
-#: pkg/packagekit/updates.jsx:36
+#: pkg/packagekit/updates.jsx:38
 msgid "Applying updates failed"
 msgstr "Zastosowanie aktualizacji się nie powiodło"
 
@@ -989,11 +997,11 @@ msgstr "Uwierzytelnienie"
 msgid "Authentication Failed"
 msgstr "Uwierzytelnienie się nie powiodło"
 
-#: src/ws/login.js:583
+#: src/ws/login.js:587
 msgid "Authentication Failed: Server closed connection"
 msgstr "Uwierzytelnienie się nie powiodło: serwer zamknął połączenie"
 
-#: src/ws/login.js:593
+#: src/ws/login.js:597
 msgid "Authentication failed"
 msgstr "Uwierzytelnienie się nie powiodło"
 
@@ -1026,6 +1034,10 @@ msgstr "Automatyczne (tylko DHCP)"
 msgid "Automatic (DHCP)"
 msgstr "Automatyczne (DHCP)"
 
+#: pkg/packagekit/autoupdates.jsx:334
+msgid "Automatic Updates"
+msgstr ""
+
 #: pkg/systemd/index.html:398
 msgid "Automatically using NTP"
 msgstr "Automatycznie za pomocą NTP"
@@ -1043,7 +1055,7 @@ msgstr "Automatyczne uruchamianie:"
 msgid "Available"
 msgstr "Dostępne"
 
-#: pkg/packagekit/updates.jsx:819
+#: pkg/packagekit/updates.jsx:822
 msgid "Available Updates"
 msgstr "Dostępne aktualizacje"
 
@@ -1134,7 +1146,7 @@ msgstr "Broadcast"
 msgid "Broken configuration"
 msgstr "Uszkodzona konfiguracja"
 
-#: pkg/packagekit/updates.jsx:329
+#: pkg/packagekit/updates.jsx:331
 msgid "Bugs"
 msgstr "Błędy"
 
@@ -1233,8 +1245,8 @@ msgstr "Nie można usunąć, kiedy jest odblokowane"
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/lib/cockpit-components-dialog.jsx:138 pkg/packagekit/updates.jsx:204
-#: pkg/sosreport/index.js:51 pkg/apps/utils.jsx:87
+#: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
+#: pkg/packagekit/updates.jsx:206 pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1353,7 +1365,7 @@ msgstr ""
 "Zmiana ustawień zerwie połączenie z serwerem i uniemożliwi korzystanie "
 "z interfejsu administracji."
 
-#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:195
+#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:197
 msgid "Check for Updates"
 msgstr "Wyszukaj aktualizacje"
 
@@ -1371,7 +1383,7 @@ msgstr "Sprawdzanie i naprawianie urządzenia RAID $target"
 
 #: pkg/apps/application-list.jsx:124
 msgid "Checking for new applications"
-msgstr ""
+msgstr "Wyszukiwanie nowych aplikacji"
 
 #: pkg/lib/machine-change-auth.html:71
 msgid "Checking for public keys"
@@ -1423,8 +1435,8 @@ msgstr "Certyfikat klienta"
 #: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
 #: pkg/storaged/index.html:852 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
-#: pkg/users/index.html:45 pkg/sosreport/index.js:45 pkg/sosreport/index.js:109
-#: pkg/apps/utils.jsx:109
+#: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
+#: pkg/sosreport/index.js:109
 msgid "Close"
 msgstr "Zamknij"
 
@@ -1517,7 +1529,7 @@ msgstr ""
 "usług. Można monitorować i administrować wiele serwerów w tym samym czasie. "
 "Wystarczy dodać je pojedynczym kliknięciem."
 
-#: pkg/packagekit/updates.jsx:831
+#: pkg/packagekit/updates.jsx:834
 msgid "Cockpit itself will be updated."
 msgstr "Cockpit zostanie zaktualizowany."
 
@@ -2297,7 +2309,7 @@ msgstr "Opis"
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:262
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/packagekit/updates.jsx:332 pkg/subscriptions/subscriptions-view.jsx:209
 msgid "Details"
 msgstr "Szczegóły"
 
@@ -2494,11 +2506,11 @@ msgstr "Pobierz raport"
 msgid "Download the MSI from $0"
 msgstr "Pobierz plik MSI z $0"
 
-#: pkg/packagekit/updates.jsx:60
+#: pkg/packagekit/updates.jsx:62
 msgid "Downloaded"
 msgstr "Pobrano"
 
-#: pkg/packagekit/updates.jsx:52
+#: pkg/packagekit/updates.jsx:54
 msgid "Downloading"
 msgstr "Pobieranie"
 
@@ -2527,7 +2539,7 @@ msgstr "Podwójny alias"
 msgid "Duplicate port"
 msgstr "Podwójny port"
 
-#: pkg/storaged/crypto-tab.jsx:132
+#: pkg/storaged/crypto-tab.jsx:140
 msgid "Edit"
 msgstr "Modyfikuj"
 
@@ -2607,7 +2619,7 @@ msgstr "Zaszyfrowane dane"
 msgid "Encryption"
 msgstr "Szyfrowanie"
 
-#: pkg/storaged/crypto-tab.jsx:99 pkg/storaged/format-dialog.jsx:177
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:177
 msgid "Encryption Options"
 msgstr "Opcje szyfrowania"
 
@@ -2674,10 +2686,10 @@ msgid "Erasing $target"
 msgstr "Czyszczenie $target"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services.html:334 pkg/storaged/details.jsx:199
-#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
-#: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1381
-#: pkg/apps/utils.jsx:101
+#: pkg/systemd/services.html:334 pkg/apps/utils.jsx:101
+#: pkg/storaged/details.jsx:199 pkg/storaged/devices.js:118
+#: pkg/storaged/overview.js:694 pkg/storaged/storage-controls.jsx:69
+#: pkg/users/local.js:1381
 msgid "Error"
 msgstr "Błąd"
 
@@ -2976,7 +2988,7 @@ msgstr "Przejdź do"
 
 #: pkg/apps/application.jsx:93
 msgid "Go to Application"
-msgstr ""
+msgstr "Przejdź do aplikacji"
 
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
 #: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
@@ -3138,7 +3150,7 @@ msgstr "Tożsamości"
 msgid "Identity"
 msgstr "Tożsamość"
 
-#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:471
+#: pkg/networkmanager/interfaces.js:1899 pkg/packagekit/updates.jsx:473
 msgid "Ignore"
 msgstr "Ignorowanie"
 
@@ -3274,21 +3286,21 @@ msgid "Information about the Docker storage pool is not available."
 msgstr ""
 "Informacje o puli urządzeń do przechowywania danych Docker są niedostępne."
 
-#: pkg/packagekit/updates.jsx:430
+#: pkg/packagekit/updates.jsx:432
 msgid "Initializing..."
 msgstr "Inicjowanie…"
 
 #: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:97
 msgid "Install"
-msgstr ""
+msgstr "Zainstaluj"
 
-#: pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:805
 msgid "Install All Updates"
-msgstr ""
+msgstr "Zainstaluj wszystkie aktualizacje"
 
-#: pkg/packagekit/updates.jsx:809
+#: pkg/packagekit/updates.jsx:811
 msgid "Install Security Updates"
-msgstr ""
+msgstr "Zainstaluj aktualizacje zabezpieczeń"
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
@@ -3296,7 +3308,7 @@ msgstr ""
 "Należy zainstalować setroubleshoot-server, aby rozwiązywać problemy ze "
 "zdarzeniami SELinuksa."
 
-#: pkg/packagekit/updates.jsx:61
+#: pkg/packagekit/updates.jsx:63
 msgid "Installed"
 msgstr "Zainstalowano"
 
@@ -3304,8 +3316,8 @@ msgstr "Zainstalowano"
 msgid "Installed products"
 msgstr "Zainstalowane produkty"
 
-#: pkg/packagekit/updates.jsx:53 pkg/apps/application-list.jsx:47
-#: pkg/apps/application.jsx:55
+#: pkg/apps/application-list.jsx:47 pkg/apps/application.jsx:55
+#: pkg/packagekit/updates.jsx:55
 msgid "Installing"
 msgstr "Instalowanie"
 
@@ -3322,7 +3334,7 @@ msgstr "Interfejs"
 msgid "Interfaces"
 msgstr "Interfejsy"
 
-#: src/ws/login.js:575
+#: src/ws/login.js:579
 msgid "Internal Error: Invalid challenge header"
 msgstr "Wewnętrzny błąd: nieprawidłowy nagłówek wyzwania"
 
@@ -3523,7 +3535,7 @@ msgstr "Ostatnio wyzwolono"
 msgid "Last Updated"
 msgstr "Ostatnio zaktualizowano"
 
-#: pkg/packagekit/updates.jsx:199
+#: pkg/packagekit/updates.jsx:201
 msgid "Last checked: $0 ago"
 msgstr "Ostatnio wyszukano: $0 temu"
 
@@ -3610,11 +3622,11 @@ msgstr "Równoważenie obciążenia"
 msgid "Load earlier entries"
 msgstr "Wczytaj wcześniejsze wpisy"
 
-#: pkg/packagekit/updates.jsx:37
+#: pkg/packagekit/updates.jsx:39
 msgid "Loading available updates failed"
 msgstr "Wczytanie dostępnych aktualizacji się nie powiodło"
 
-#: pkg/packagekit/updates.jsx:30
+#: pkg/packagekit/updates.jsx:32
 msgid "Loading available updates, please wait..."
 msgstr "Wczytywanie dostępnych aktualizacji, proszę czekać…"
 
@@ -3954,7 +3966,7 @@ msgstr "Więcej informacji"
 msgid "More details"
 msgstr "Więcej informacji"
 
-#: pkg/packagekit/updates.jsx:273
+#: pkg/packagekit/updates.jsx:275
 msgid "More information…"
 msgstr "Więcej informacji…"
 
@@ -4048,7 +4060,7 @@ msgstr "Serwer NTP"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:327
+#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
@@ -4235,7 +4247,7 @@ msgstr "Nie podano aliasu"
 
 #: pkg/apps/application-list.jsx:134
 msgid "No applications installed or available"
-msgstr ""
+msgstr "Brak zainstalowanych lub dostępnych aplikacji"
 
 #: pkg/sosreport/index.js:111
 msgid "No archive has been created."
@@ -4320,7 +4332,7 @@ msgstr "Brak obrazów pasujących do obecnego filtru"
 
 #: pkg/apps/utils.jsx:97
 msgid "No installation package found for this application."
-msgstr ""
+msgstr "Nie odnaleziono pakietu instalacji dla tego programu."
 
 #: pkg/subscriptions/subscriptions-view.jsx:223
 msgid "No installed products on the system."
@@ -4411,7 +4423,7 @@ msgstr "Nie ma takiego pliku lub katalogu"
 msgid "No tags are present."
 msgstr "Brak etykiet."
 
-#: pkg/packagekit/updates.jsx:33
+#: pkg/packagekit/updates.jsx:35
 msgid "No updates pending"
 msgstr "Brak oczekujących aktualizacji"
 
@@ -4629,8 +4641,8 @@ msgctxt "storage"
 msgid "Optical Drive"
 msgstr "Napęd optyczny"
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:102
-#: pkg/storaged/crypto-tab.jsx:137
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
+#: pkg/storaged/crypto-tab.jsx:145
 msgid "Options"
 msgstr "Opcje"
 
@@ -4668,20 +4680,20 @@ msgstr "Zastąp istniejące dane zerami"
 msgid "PD Name"
 msgstr "Nazwa PD"
 
-#: pkg/packagekit/updates.jsx:476
+#: pkg/packagekit/updates.jsx:478
 msgid "Package information"
 msgstr "Informacje o pakiecie"
 
-#: pkg/packagekit/updates.jsx:531
+#: pkg/packagekit/updates.jsx:533
 msgid "PackageKit crashed"
 msgstr "Usługa PackageKit uległa awarii"
 
-#: pkg/packagekit/updates.jsx:529 pkg/packagekit/updates.jsx:635
-#: pkg/packagekit/updates.jsx:709
+#: pkg/packagekit/updates.jsx:531 pkg/packagekit/updates.jsx:637
+#: pkg/packagekit/updates.jsx:711
 msgid "PackageKit is not installed"
 msgstr "Usługa PackageKit nie jest zainstalowana"
 
-#: pkg/packagekit/updates.jsx:733
+#: pkg/packagekit/updates.jsx:735
 msgid "PackageKit reported error code $0"
 msgstr "Usługa PackageKit zgłosiła kod błędu $0"
 
@@ -4806,7 +4818,7 @@ msgstr "Profil wydajności"
 msgid "Permanent"
 msgstr "Trwałe"
 
-#: src/ws/login.js:599
+#: src/ws/login.js:603
 msgid "Permission denied"
 msgstr "Odmowa dostępu"
 
@@ -5424,19 +5436,19 @@ msgstr "Użyj ponownie"
 msgid "Reformat and add disks"
 msgstr "Sformatuj ponownie i dodaj dyski"
 
-#: pkg/packagekit/updates.jsx:32
+#: pkg/packagekit/updates.jsx:34
 msgid "Refreshing package information"
 msgstr "Odświeżanie informacji o pakietach"
 
-#: src/ws/login.js:589
+#: src/ws/login.js:593
 msgid "Refusing to connect. Host is unknown"
 msgstr "Odmowa połączenia. Komputer jest nieznany"
 
-#: src/ws/login.js:591
+#: src/ws/login.js:595
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Odmowa połączenia. Klucze komputera się nie zgadzają"
 
-#: src/ws/login.js:587
+#: src/ws/login.js:591
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Odmowa połączenia. Klucz komputera jest nieznany"
 
@@ -5457,7 +5469,7 @@ msgstr "Zarejestruj trwały wolumin"
 msgid "Register system"
 msgstr "Zarejestruj system"
 
-#: pkg/packagekit/updates.jsx:883
+#: pkg/packagekit/updates.jsx:887
 msgid "Register…"
 msgstr "Zarejestruj…"
 
@@ -5532,7 +5544,7 @@ msgstr "Usuń członkostwo"
 
 #: pkg/apps/application-list.jsx:51 pkg/apps/application.jsx:59
 msgid "Removing"
-msgstr ""
+msgstr "Usuwanie"
 
 #: pkg/storaged/jobs.js:140
 msgid "Removing $target from RAID Device"
@@ -5697,7 +5709,7 @@ msgstr "Uruchom ponownie"
 msgid "Restart Count"
 msgstr "Liczba ponownych uruchomień"
 
-#: pkg/packagekit/updates.jsx:473
+#: pkg/packagekit/updates.jsx:475
 msgid "Restart Now"
 msgstr "Uruchom ponownie teraz"
 
@@ -5709,11 +5721,11 @@ msgstr "Polityka ponownego uruchamiania"
 msgid "Restart Policy:"
 msgstr "Polityka ponownego uruchamiania:"
 
-#: pkg/packagekit/updates.jsx:468
+#: pkg/packagekit/updates.jsx:470
 msgid "Restart Recommended"
 msgstr "Ponowne uruchomienie jest zalecane"
 
-#: pkg/packagekit/updates.jsx:867
+#: pkg/packagekit/updates.jsx:871
 msgid "Restarting"
 msgstr "Ponowne uruchamianie"
 
@@ -5906,7 +5918,7 @@ msgstr "Bezpieczne usuwanie zawartości $target"
 msgid "Security"
 msgstr "Zabezpieczenia"
 
-#: pkg/packagekit/updates.jsx:243
+#: pkg/packagekit/updates.jsx:245
 msgid "Security Update"
 msgstr "Aktualizacja zabezpieczeń"
 
@@ -6055,7 +6067,7 @@ msgstr "Ustaw zmienne środowiskowe kontenera"
 msgid "Set to"
 msgstr "Ustaw na"
 
-#: pkg/packagekit/updates.jsx:63
+#: pkg/packagekit/updates.jsx:65
 msgid "Set up"
 msgstr "Ustaw"
 
@@ -6066,7 +6078,7 @@ msgstr ""
 "Ustawienie odbiega od skonfigurowanego stanu i zostanie przywrócone po "
 "następnym uruchomieniu."
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:57
 msgid "Setting up"
 msgstr "Ustawianie"
 
@@ -6235,7 +6247,7 @@ msgstr "Rozwiązanie się nie powiodło"
 msgid "Solutions"
 msgstr "Rozwiązania"
 
-#: pkg/packagekit/updates.jsx:31
+#: pkg/packagekit/updates.jsx:33
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "Inny program obecnie używa menedżera pakietów, proszę czekać…"
@@ -6396,11 +6408,11 @@ msgstr "Przechowywanie danych wydajności"
 msgid "Store passphrase"
 msgstr "Przechowaj hasło"
 
-#: pkg/storaged/crypto-tab.jsx:63 pkg/storaged/crypto-tab.jsx:66
+#: pkg/storaged/crypto-tab.jsx:71 pkg/storaged/crypto-tab.jsx:74
 msgid "Stored Passphrase"
 msgstr "Zachowane hasło"
 
-#: pkg/storaged/crypto-tab.jsx:131
+#: pkg/storaged/crypto-tab.jsx:139
 msgid "Stored passphrase"
 msgstr "Zachowane hasło"
 
@@ -6509,7 +6521,7 @@ msgstr "Usługi systemowe"
 msgid "System Time"
 msgstr "Czas systemowy"
 
-#: pkg/packagekit/updates.jsx:894
+#: pkg/packagekit/updates.jsx:900
 msgid "System is up to date"
 msgstr "System jest aktualny"
 
@@ -6703,11 +6715,11 @@ msgstr "Obecny użytkownik nie ma dostępu do stanu subskrypcji komputera."
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "Konfiguracja wdrożenia „{{ target }}” nie istnieje."
 
-#: pkg/packagekit/updates.jsx:345
+#: pkg/packagekit/updates.jsx:347
 msgid "The following packages were recently updated:"
 msgstr "Poniższe pakiety zostały niedawno zaktualizowane:"
 
-#: pkg/packagekit/updates.jsx:344
+#: pkg/packagekit/updates.jsx:346
 msgid "The following packages were updated $0:"
 msgstr "Poniższe pakiety zostały zaktualizowane $0:"
 
@@ -6811,7 +6823,7 @@ msgstr "Wyszukiwanie z $time ($type) się nie powiodło."
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "Wybrany plik nie jest prawidłowym manifestem aplikacji Kubernetes."
 
-#: src/ws/login.js:581
+#: src/ws/login.js:585
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7023,7 +7035,7 @@ msgstr "Ten pakiet nie jest zgodny z tą wersją Cockpit"
 msgid "This package requires Cockpit version %s or later"
 msgstr "Ten pakiet wymaga Cockpit w wersji %s lub nowszej"
 
-#: pkg/packagekit/updates.jsx:878
+#: pkg/packagekit/updates.jsx:882
 msgid "This system is not registered"
 msgstr "Ten system nie jest zarejestrowany"
 
@@ -7115,7 +7127,7 @@ msgstr ""
 "Wskazówka: ustawienie hasła klucza na takie samo, jak hasło logowania "
 "automatycznie uwierzytelni w innych systemach."
 
-#: pkg/packagekit/updates.jsx:879
+#: pkg/packagekit/updates.jsx:883
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7267,7 +7279,7 @@ msgstr "Nie można komunikować się OSTree"
 msgid "Unable to connect"
 msgstr "Nie można połączyć"
 
-#: src/ws/login.js:585
+#: src/ws/login.js:589
 msgid "Unable to connect to that address"
 msgstr "Nie można połączyć z tym adresem"
 
@@ -7347,7 +7359,7 @@ msgstr "Nieznane ($0)"
 
 #: pkg/apps/application.jsx:83
 msgid "Unknown Application"
-msgstr ""
+msgstr "Nieznana aplikacja"
 
 #: pkg/lib/machine-unknown-hostkey.html:2
 msgid "Unknown Host Key"
@@ -7415,7 +7427,7 @@ msgstr "Nierozpoznane dane"
 msgid "Unregister"
 msgstr "Wyrejestruj"
 
-#: pkg/packagekit/updates.jsx:786
+#: pkg/packagekit/updates.jsx:788
 msgid "Unregistered System"
 msgstr "Niezarejestrowany system"
 
@@ -7448,11 +7460,11 @@ msgstr "Działa od $StartedAt"
 msgid "Update"
 msgstr "Zaktualizuj"
 
-#: pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:846
 msgid "Update History"
 msgstr "Historia aktualizacji"
 
-#: pkg/packagekit/updates.jsx:448
+#: pkg/packagekit/updates.jsx:450
 msgid "Update Log"
 msgstr "Dziennik aktualizacji"
 
@@ -7460,11 +7472,11 @@ msgstr "Dziennik aktualizacji"
 msgid "Update and Reboot"
 msgstr "Zaktualizuj i uruchom ponownie"
 
-#: pkg/packagekit/updates.jsx:62
+#: pkg/packagekit/updates.jsx:64
 msgid "Updated"
 msgstr "Zaktualizowano"
 
-#: pkg/packagekit/updates.jsx:469
+#: pkg/packagekit/updates.jsx:471
 msgid "Updated packages may require a restart to take effect."
 msgstr "Zaktualizowane pakiety mogą wymagać ponownego uruchomienia."
 
@@ -7472,11 +7484,11 @@ msgstr "Zaktualizowane pakiety mogą wymagać ponownego uruchomienia."
 msgid "Updates"
 msgstr "Zaktualizowane"
 
-#: pkg/packagekit/updates.jsx:790
+#: pkg/packagekit/updates.jsx:792
 msgid "Updates are disabled."
 msgstr "Aktualizacje są wyłączone."
 
-#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:54
+#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:56
 #: pkg/subscriptions/subscriptions-view.jsx:187
 msgid "Updating"
 msgstr "Aktualizowanie"
@@ -7637,17 +7649,17 @@ msgstr "Sprawdzanie poprawności tokenu uwierzytelniania"
 msgid "Validating key"
 msgstr "Sprawdzanie poprawności klucza"
 
-#: pkg/packagekit/updates.jsx:64
+#: pkg/packagekit/updates.jsx:66
 msgid "Verified"
 msgstr "Sprawdzono poprawność"
 
-#: pkg/packagekit/updates.jsx:56
+#: pkg/packagekit/updates.jsx:58
 msgid "Verifying"
 msgstr "Sprawdzanie poprawności"
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/packagekit/updates.jsx:328 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "Wersja"
 
@@ -7655,7 +7667,7 @@ msgstr "Wersja"
 msgid "Very securely erasing $target"
 msgstr "Bardzo bezpieczne usuwanie zawartości $target"
 
-#: pkg/packagekit/updates.jsx:796
+#: pkg/packagekit/updates.jsx:798
 msgid "View Registration Details"
 msgstr "Wyświetl informacje o rejestracji"
 
@@ -7712,7 +7724,7 @@ msgstr "Oczekiwanie na informacje…"
 
 #: pkg/apps/utils.jsx:63
 msgid "Waiting for other programs to finish using the package manager..."
-msgstr ""
+msgstr "Oczekiwanie, aż inne programy skończą korzystać z menedżera pakietów…"
 
 #: pkg/kubernetes/views/pv-modify.html:24
 msgid "Warning:"
@@ -7734,7 +7746,7 @@ msgstr "Witamy w rejestrze obrazów"
 msgid "When"
 msgstr "Kiedy"
 
-#: pkg/packagekit/updates.jsx:833
+#: pkg/packagekit/updates.jsx:836
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -7763,7 +7775,7 @@ msgstr "Zapisywanie"
 msgid "Writing objects"
 msgstr "Zapisywanie obiektów"
 
-#: src/ws/login.js:595
+#: src/ws/login.js:599
 msgid "Wrong user name or password"
 msgstr "Błędna nazwa użytkownika lub hasło"
 
@@ -7823,7 +7835,7 @@ msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "Brak uprawnień do zrządzania pulą urządzeń do przechowywania danych Docker."
 
-#: pkg/packagekit/updates.jsx:792
+#: pkg/packagekit/updates.jsx:794
 msgid "You need to re-subscribe this system."
 msgstr "Należy ponownie subskrybować ten system."
 
@@ -7839,7 +7851,7 @@ msgstr ""
 "Dane uwierzytelniające logowania nie daję dostępu do używania rejestru "
 "Dockera z wiersza poleceń."
 
-#: pkg/packagekit/updates.jsx:868
+#: pkg/packagekit/updates.jsx:872
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -7875,7 +7887,11 @@ msgstr "aktywne"
 msgid "alias"
 msgstr "alias"
 
-#: pkg/ostree/index.html:186
+#: pkg/packagekit/autoupdates.jsx:321
+msgid "and restart the machine automatically."
+msgstr ""
+
+#: pkg/ostree/index.html:186 pkg/packagekit/autoupdates.jsx:312
 msgid "at"
 msgstr "w"
 
@@ -7923,6 +7939,10 @@ msgstr "np. strumień-obrazu"
 #: pkg/machines/helpers.es6:96
 msgid "enabled"
 msgstr "włączone"
+
+#: pkg/packagekit/autoupdates.jsx:301
+msgid "every day"
+msgstr ""
 
 #: pkg/storaged/format-dialog.jsx:104
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
@@ -7977,6 +7997,34 @@ msgstr "nie"
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
 msgid "none"
 msgstr "brak"
+
+#: pkg/packagekit/autoupdates.jsx:306
+msgid "on Fridays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:302
+msgid "on Mondays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:307
+msgid "on Saturdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:308
+msgid "on Sundays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:305
+msgid "on Thursdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:303
+msgid "on Tuesdays"
+msgstr ""
+
+#: pkg/packagekit/autoupdates.jsx:304
+msgid "on Wednesdays"
+msgstr ""
 
 #: pkg/machines/libvirt.es6:433
 msgid "other"

@@ -180,10 +180,7 @@ def check_known_issue(api, trace, image):
     number = 0
     for naughty in list_directories(directories):
         (prefix, unused, name) = os.path.basename(naughty).partition("-")
-        try:
-            n = int(prefix)
-        except:
-            continue
+        n = int(prefix)
         with open(naughty, "r") as fp:
             match = "*" + normalize_traceback(fp.read()) + "*"
         # Match as in a file name glob, albeit multi line, and account for literal pastes with '[]'

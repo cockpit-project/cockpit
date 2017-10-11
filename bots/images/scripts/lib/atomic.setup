@@ -40,6 +40,23 @@ fi
 # docker images that we need for integration testing
 /var/lib/testvm/docker-images.setup
 
+# Download the libssh RPM plus dependencies which we'll use for
+# package overlay.  The only way to do this is via a container
+. /etc/os-release
+REPO="updates"
+if [ "$ID" = "rhel" ]; then
+    subscription-manager repos --enable rhel-7-server-extras-rpms
+    REPO="rhel-7-server-extras-rpms"
+    ID="rhel7"
+fi
+docker run --rm --volume=/etc/yum.repos.d:/etc/yum.repos.d:z --volume=/root/rpms:/tmp/rpms:rw,z "$ID:$VERSION_ID" /bin/sh -cex "yum install -y findutils createrepo && yum install -y --downloadonly --enablerepo=$REPO libssh && find /var -name '*.rpm' | while read rpm; do mv -v \$rpm /tmp/rpms; done; createrepo /tmp/rpms"
+rm -f /etc/yum.repos.d/*
+cat >/etc/yum.repos.d/deps.repo <<EOF
+[deps]
+baseurl=file:///root/rpms
+enabled=1
+EOF
+
 # fully upgrade host. Anything past this point can't touch /etc
 # Upgrade host if there is a valid upgrade available (we might be on a RC)
 if rpm-ostree upgrade --check; then
@@ -51,17 +68,6 @@ if rpm-ostree upgrade --check; then
 else
     checkout=$(atomic host status --json | python -c 'import json; import sys; j = json.loads(sys.stdin.readline()); print [x for x in j["deployments"] if x["booted"]][0]["checksum"]')
 fi
-
-# Download the libssh RPM which we'll use for package overlay
-# The only way to do this is via a container
-. /etc/os-release
-REPO="updates"
-if [ "$ID" = "rhel" ]; then
-    subscription-manager repos --enable rhel-7-server-extras-rpms
-    REPO="rhel-7-server-extras-rpms"
-    ID="rhel7"
-fi
-docker run --rm --volume=/etc/yum.repos.d:/etc/yum.repos.d:z --volume=/root/rpms:/tmp/rpms:rw,z "$ID:$VERSION_ID" /bin/sh -cex "yum install -y findutils && yum install -y --downloadonly --enablerepo=$REPO libssh && find /var -name '*.rpm' | while read rpm; do mv -v \$rpm /tmp/rpms; done"
 
 # Checkout the just upgraded os branch since we'll use it every time
 # we build a new tree.

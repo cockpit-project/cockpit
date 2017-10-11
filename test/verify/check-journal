@@ -376,7 +376,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
-        m.execute("setsid python /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
+        m.execute("setsid /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
         m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
 
         self.login_and_go("/system/logs")

@@ -356,7 +356,7 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 
 %if %{defined build_dashboard}
 %package dashboard
-Summary: Cockpit SSH remoting and dashboard
+Summary: Cockpit remote servers and dashboard
 Requires: libssh >= %{libssh_version}
 Provides: %{name}-ssh = %{version}-%{release}
 # nothing depends on the dashboard, but we can't use it with older versions of the bridge
@@ -364,7 +364,8 @@ Conflicts: %{name}-bridge < 135
 Conflicts: %{name}-ws < 135
 
 %description dashboard
-Cockpit support for remoting to other servers, bastion hosts, and a basic dashboard
+Cockpit support for connecting to remote servers (through ssh),
+bastion hosts, and a basic dashboard.
 
 %files dashboard -f dashboard.list
 %{_libexecdir}/cockpit-ssh

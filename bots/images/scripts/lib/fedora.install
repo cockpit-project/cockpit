@@ -62,10 +62,30 @@ if [ -n "$do_build" ]; then
     # we should still be protected against unexpected package
     # installations.
     echo "config_opts['rpmbuild_networking'] = True" >>/etc/mock/site-defaults.cfg
+    # don't destroy the mock after building, we want to run rpmlint
+    echo "config_opts['cleanup_on_success'] = False" >>/etc/mock/site-defaults.cfg
 
     rm -rf build-results
     srpm=$(/var/lib/testvm/make-srpm "$tar")
     LC_ALL=C.UTF-8 su builder -c "/usr/bin/mock --offline --no-clean --resultdir build-results $mock_opts --rebuild $srpm"
+
+    su builder -c "/usr/bin/mock --offline --shell" <<EOF
+if type rpmlint >/dev/null 2>&1; then
+    # blacklist "E: no-changelogname-tag" rpmlint error, expected due to our template cockpit.spec
+    mkdir -p ~/.config
+    echo 'addFilter("E: no-changelogname-tag")' > ~/.config/rpmlint
+    # we expect the srpm to be clean
+    echo
+    echo '====== rpmlint on srpm ====='
+    rpmlint /builddir/build/SRPMS/*.src.rpm
+    # this still has lots of errors, run it for information only
+    echo
+    echo '====== rpmlint binary rpms (advisory) ====='
+    rpmlint /builddir/build/RPMS/ || true
+else
+    echo '====== skipping rpmlint check, not installed ====='
+fi
+EOF
 fi
 
 # Install

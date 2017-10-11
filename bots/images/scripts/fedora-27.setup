@@ -110,6 +110,7 @@ srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 # https://bugzilla.redhat.com/show_bug.cgi?id=1447627
 
 su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose --installdeps \"$PWD/$srpm\""
+su builder -c "/usr/bin/mock --install --verbose rpmlint"
 
 # HACK: docker fails without /etc/resolv.conf
 # https://bugzilla.redhat.com/show_bug.cgi?id=1448331

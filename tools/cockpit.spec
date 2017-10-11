@@ -278,6 +278,8 @@ cat kdump.list subscriptions.list sosreport.list networkmanager.list selinux.lis
 # -------------------------------------------------------------------------------
 # Sub-packages
 
+%define __lib lib
+
 %package bridge
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
@@ -459,7 +461,7 @@ These files are not required for running Cockpit.
 %files tests
 %config(noreplace) %{_sysconfdir}/cockpit/cockpit.conf
 %{_datadir}/%{name}/playground
-%{_prefix}/lib/cockpit-test-assets
+%{_prefix}/%{__lib}/cockpit-test-assets
 
 %package integration-tests
 Summary: Integration tests for Cockpit
@@ -510,7 +512,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit.socket
-%{_prefix}/lib/firewalld/services/cockpit.xml
+%{_prefix}/%{__lib}/firewalld/services/cockpit.xml
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws

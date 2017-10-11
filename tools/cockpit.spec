@@ -119,13 +119,13 @@ machines.
 # generated and source file changes
 # Keep this in sync with tools/debian/rules.
 if [ -n "%{patches}" ]; then
-	git init
-	git config user.email "unused@example.com" && git config user.name "Unused"
-	git config core.autocrlf false && git config core.safecrlf false && git config gc.auto 0
-	git add -f . && git commit -a -q -m "Base" && git tag -a initial --message="initial"
-	git am --whitespace=nowarn %{patches}
-	touch -r $(git diff --name-only initial..HEAD) .git
-	rm -rf .git
+    git init
+    git config user.email "unused@example.com" && git config user.name "Unused"
+    git config core.autocrlf false && git config core.safecrlf false && git config gc.auto 0
+    git add -f . && git commit -a -q -m "Base" && git tag -a initial --message="initial"
+    git am --whitespace=nowarn %{patches}
+    touch -r $(git diff --name-only initial..HEAD) .git
+    rm -rf .git
 fi
 
 %build

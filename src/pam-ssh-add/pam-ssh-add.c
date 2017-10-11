@@ -41,6 +41,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <grp.h>
 
 #include <security/pam_modules.h>
 
@@ -455,8 +456,9 @@ setup_child (const char **args,
   if (setegid (getgid ()) < 0 || seteuid (getuid ()) < 0)
       error ("failed to restore credentials");
 
-  /* Setup process credentials */
-  if (setgid (pwd->pw_gid) < 0 || setuid (pwd->pw_uid) < 0 ||
+  /* Setup process credentials; if we actually change the group, drop any auxiliary groups too */
+  if ((getegid() != pwd->pw_gid ? initgroups(pwd->pw_name, pwd->pw_gid) < 0 : 0) ||
+      setgid (pwd->pw_gid) < 0 || setuid (pwd->pw_uid) < 0 ||
       setegid (pwd->pw_gid) < 0 || seteuid (pwd->pw_uid) < 0)
     {
       error ("couldn't setup credentials: %m");

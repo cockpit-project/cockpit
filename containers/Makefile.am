@@ -45,7 +45,7 @@ EXTRA_DIST += $(ATOMIC_SETUP)
 
 install-integration-tests::
 	$(MKDIR_P) $(DESTDIR)/$(pkgdatadir)/containers/ws/
-	$(INSTALL_DATA) $(ATOMIC_SETUP) $(DESTDIR)/$(pkgdatadir)/containers/ws/
+	$(INSTALL_PROGRAM) $(ATOMIC_SETUP) $(DESTDIR)/$(pkgdatadir)/containers/ws/
 
 ws-container:
 	rm -rf $(WS_DIR)/rpms && mkdir -p $(WS_DIR)/rpms

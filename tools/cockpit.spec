@@ -356,7 +356,7 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %package dashboard
 Summary: Cockpit SSH remoting and dashboard
 Requires: libssh >= %{libssh_version}
-Provides: %{name}-ssh
+Provides: %{name}-ssh = %{version}-%{release}
 # nothing depends on the dashboard, but we can't use it with older versions of the bridge
 Conflicts: %{name}-bridge < 135
 Conflicts: %{name}-ws < 135
@@ -449,7 +449,7 @@ Summary: Tests for Cockpit
 Requires: %{name}-bridge >= 138
 Requires: %{name}-system >= 138
 Requires: openssh-clients
-Provides: %{name}-test-assets
+Provides: %{name}-test-assets = %{version}-%{release}
 Obsoletes: %{name}-test-assets < 132
 
 %description tests

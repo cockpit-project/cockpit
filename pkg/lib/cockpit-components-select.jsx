@@ -186,6 +186,22 @@
         }
     }
 
+    /* Divider
+     * Example: <SelectDivider/>
+     */
+    const SelectDivider = () => <li role="separator" className="divider"/>;
+
+    /* Header
+     * Example: <SelectHeader>Some header</SelectHeader>
+     */
+    const SelectHeader = ({ children }) => {
+        const value = (children !== undefined) ? children : textForUndefined;
+        return (
+            <li className="dropdown-header">{value}</li>
+        );
+    };
+
+
     SelectEntry.propTypes = {
         data: React.PropTypes.string.isRequired,
     };
@@ -194,5 +210,7 @@
         Select,
         StatelessSelect,
         SelectEntry,
+        SelectDivider,
+        SelectHeader,
     };
 }());

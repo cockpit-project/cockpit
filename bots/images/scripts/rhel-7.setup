@@ -162,6 +162,7 @@ if [ -n "$TEST_SOURCE" ]; then
     useradd -c Builder -G mock builder
     srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
     su builder -c "/usr/bin/mock --verbose --installdeps $srpm"
+    su builder -c "/usr/bin/mock --install --verbose rpmlint"
 fi
 
 yum clean all || true

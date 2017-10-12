@@ -3,7 +3,6 @@ import 'whatwg-fetch';
 
 import React from 'react';  // eslint-disable-line no-unused-vars
 import ReactDOM from 'react-dom';
-import FastClick from 'fastclick';
 import { Provider } from 'react-redux';
 import 'bootstrap-select';
 
@@ -30,16 +29,3 @@ function render(location) {
 // For more information visit https://github.com/ReactJSTraining/history/tree/master/docs#readme
 history.listen(render);
 render(history.getCurrentLocation());
-
-// Eliminates the 300ms delay between a physical tap
-// and the firing of a click event on mobile browsers
-// https://github.com/ftlabs/fastclick
-FastClick.attach(document.body);
-
-// Enable Hot Module Replacement (HMR)
-if (module.hot) {
-  module.hot.accept('./routes.json', () => {
-    routes = require('./routes.json'); // eslint-disable-line global-require
-    render(history.getCurrentLocation());
-  });
-}

@@ -85,7 +85,7 @@ fi
 # Bad paths or modifications in patternfly for fonts
 #
 
-if grep "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" dist/*/*.css $builddir/dist/*/*.css >&2; then
+if grep "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" `ls dist/*/*.css $builddir/dist/*/*.css | grep -v ovirt/base.css | grep -v machines/base.css` >&2; then
     echo "ERROR: invalid patternfly fonts paths found" >&2
     echo "not ok 5 patternfly-font-paths"
     fail=1

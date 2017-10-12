@@ -236,7 +236,7 @@ function moduleLicenses(input) {
         directory = parts.slice(0, pos + 2).join(path.sep);
         fs.readdirSync(directory).forEach(function(name) {
             if (name.indexOf("COPYING") !== -1 || name.indexOf("LICENSE") !== -1 ||
-                name.indexOf("README.md") !== -1)
+                name.indexOf("README.md") !== -1 || name.indexOf("package.json") !== -1)
                 results.push(path.join(directory, name));
         });
     }

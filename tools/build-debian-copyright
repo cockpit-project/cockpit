@@ -29,64 +29,51 @@ def template_licenses(template):
     ids = set()
     for l in template.splitlines():
         if l.startswith('License:'):
-            ids.add(l.split(None, 1)[1])
+            ids.add(l.split(None, 1)[1].lower())
     return ids
 
 
 def module_license(moddir):
     '''Return License: short name for given module'''
 
-    # First check if bower.json or package.json has a "license" field
-    for f in ['bower.json', 'package.json']:
-        try:
-            with open(os.path.join(moddir, f)) as f:
-                l = json.load(f)['license']
-                if 'and MIT' in l:
-                    # https://github.com/requirejs/requirejs/issues/1645
-                    return 'MIT'
-                if os.path.basename(moddir) == 'qunit' and 'https://' in l:
-                    # fixed in 2.1.0 (https://github.com/qunitjs/qunit/commit/6e3f6e8e40c4)
-                    return 'MIT'
-                if l == 'MPL 2.0':
-                    # https://github.com/novnc/noVNC/pull/819
-                    return 'MPL-2.0'
-                return l
-        except (IOError, KeyError):
-            pass
+    mod = os.path.basename(moddir)
+
+    # First check if package.json has a "license" field
+    try:
+        with open(os.path.join(moddir, 'package.json')) as f:
+            l = json.load(f)['license']
+            if l.startswith('(MIT OR'):
+                return 'MIT'
+            if l == 'MPL 2.0':
+                # https://github.com/novnc/noVNC/pull/819
+                return 'MPL-2.0'
+            if l == 'LGPL 2+':
+                # https://github.com/kubernetes-ui/container-terminal/pull/32
+                return 'LGPL-2.1'
+            return l
+    except (IOError, KeyError):
+        if mod == 'requirejs':
+            # https://github.com/requirejs/requirejs/issues/1645
+            return 'MIT'
+        pass
 
     # *LICENSE*/COPYING/README
     if os.path.exists(os.path.join(moddir, 'MIT-LICENSE.txt')):
         return 'MIT'
     try:
         with open((glob(os.path.join(moddir, 'LICENSE*')) +
-                   glob(os.path.join(moddir, 'COPYING')) +
-                   glob(os.path.join(moddir, 'README.md')))[0]) as f:
+                   glob(os.path.join(moddir, 'COPYING')))[0]) as f:
             text = f.read()
         if 'Permission is hereby granted,' in text and 'THE SOFTWARE IS PROVIDED "AS IS"' in text:
             return 'MIT'
-        if 'Redistribution and use in source and binary forms' in text and 'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT' in text:
-            if '4. Neither' in text:
-                return 'BSD-4-clause'
-            else:
-                return 'BSD-3-clause'
-        if re.search('Apache License.*2.0', text):
-            return 'Apache-2.0'
-        if 'GNU LESSER GENERAL PUBLIC LICENSE' in text and 'Version 2.1' in text:
-            return 'LGPL-2.1'
     except IndexError:
         pass
 
     # missing licenses
-    mod = os.path.basename(moddir)
     if mod == 'kubernetes-object-describer' or mod == 'object-describer':
         # upstream says "same as what we use for origin and origin-web-console which is Apache"
         # https://github.com/kubernetes-ui/object-describer/issues/31
         return 'Apache-2.0'
-    if mod == 'redux':
-        # our tarball only ships the minified version, original source is at
-        # https://github.com/reactjs/redux; as it's "MIT" we don't legally
-        # require to ship the preferred form of modification
-        return 'MIT'
 
     raise SystemError('Could not determine license from %s' % moddir)
 
@@ -153,7 +140,7 @@ for module in sorted(os.listdir(args.node_modules)):
         continue
     moddir = os.path.join(args.node_modules, module)
     license = module_license(moddir)
-    if license not in license_ids:
+    if license.lower() not in license_ids:
         raise KeyError('%s has license %s which is not in %s' % (module, license, template_file))
     copyrights = module_copyright(moddir)
     paragraphs.append(u'''Files: node_modules/%s/*

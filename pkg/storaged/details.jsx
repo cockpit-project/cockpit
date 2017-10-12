@@ -438,6 +438,9 @@
         function hide() {
             name = null;
             utils.hide("#storage-detail");
+
+            React.unmountComponentAtNode(document.getElementById("detail-content"));
+            React.unmountComponentAtNode(document.getElementById("detail-sidebar"));
         }
 
         function show(t, n) {
@@ -453,8 +456,6 @@
             var content = document.getElementById("detail-content");
             var sidebar = document.getElementById("detail-sidebar");
 
-            React.unmountComponentAtNode(content);
-            React.unmountComponentAtNode(sidebar);
             if (type == 'block') {
                 $('#detail-body').attr("class", "col-md-12");
                 React.render(

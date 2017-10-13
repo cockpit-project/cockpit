@@ -37,6 +37,8 @@ class TestShutdownRestart(MachineCase):
         m = self.machine
         b = self.browser
 
+        self.allow_authorize_journal_messages()
+
         # Create a user without any role
         m.execute("useradd user -s /bin/bash -c 'User' || true")
         m.execute("echo user:foobar | chpasswd")

@@ -79,6 +79,7 @@ echo "$(cat $base/network-ifcfg-eth0)" > /etc/sysconfig/network-scripts/ifcfg-et
 echo "$(cat $base/network-ifcfg-eth1)" > /etc/sysconfig/network-scripts/ifcfg-eth1
 sed -i 's/GRUB_TIMEOUT.*/GRUB_TIMEOUT=0/; /GRUB_CMDLINE_LINUX=/ s/"$/ net.ifnames=0 biosdevname=0"/' /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg
+systemctl is-enabled sshd.socket || systemctl is-enabled sshd.service || systemctl enable sshd.socket
 %end
 EOF
 

@@ -23,6 +23,7 @@
  */
 import cockpit from 'cockpit';
 import $ from 'jquery';
+import createVmScript from 'raw!./create_machine.sh';
 
 import { updateOrAddVm,
     updateVm,
@@ -204,6 +205,16 @@ LIBVIRT_PROVIDER = {
             failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed")}),
             args: ['start', name]
         });
+    },
+    CREATE_VM ( vmParams ) {
+        logDebug(`${this.name}.CREATE_VM(${vmParams['vmName']}):`);
+        return dispatch => cockpit.script(createVmScript, [
+                vmParams["vmName"],
+                vmParams["osVariant"]
+            ], { err: "message", environ: ['LC_ALL=C'] })
+            .fail((exception, data) => {
+                console.error(`spawn 'vm creation' returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+            });
     },
 
     DELETE_VM ({ name, connectionName, options }) {

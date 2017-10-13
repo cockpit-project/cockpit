@@ -41,14 +41,26 @@ docker tag registry.centos.org/cockpit/ws cockpit/ws
 # Configure core dumps
 echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 
+# Download the libssh RPM plus dependencies which we'll use for
+# package overlay.  The only way to do this is via a container
+. /etc/os-release
+REPO="updates"
+if [ "$ID" = "rhel" ]; then
+    subscription-manager repos --enable rhel-7-server-extras-rpms
+    REPO="rhel-7-server-extras-rpms"
+    ID="rhel7"
+fi
+docker run --rm --volume=/etc/yum.repos.d:/etc/yum.repos.d:z --volume=/root/rpms:/tmp/rpms:rw,z "$ID:$VERSION_ID" /bin/sh -cex "yum install -y findutils createrepo_c && yum install -y --downloadonly --enablerepo=$REPO libssh && find /var -name '*.rpm' | while read rpm; do mv -v \$rpm /tmp/rpms; done; createrepo_c /tmp/rpms"
+rm -f /etc/yum.repos.d/*
+cat >/etc/yum.repos.d/deps.repo <<EOF
+[deps]
+baseurl=file:///root/rpms
+enabled=1
+EOF
+
 # Switch to continuous stream
 ostree remote add --set=gpg-verify=false centos-atomic-continuous https://ci.centos.org/artifacts/sig-atomic/rdgo/centos-continuous/ostree/repo/
 rpm-ostree rebase centos-atomic-continuous:centos-atomic-host/7/x86_64/devel/continuous
-
-# Download the libssh RPM which we'll use for package overlay
-# The only way to do this is via a container
-. /etc/os-release
-docker run --rm --volume=/etc/yum.repos.d:/etc/yum.repos.d:z --volume=/root/rpms:/tmp/rpms:rw,z "$ID:$VERSION_ID" /bin/sh -cex "yum install -y findutils && yum install -y --downloadonly libssh && find /var -name '*.rpm' | while read rpm; do mv -v \$rpm /tmp/rpms; done"
 
 ostree checkout centos-atomic-continuous:centos-atomic-host/7/x86_64/devel/continuous /var/local-tree
 

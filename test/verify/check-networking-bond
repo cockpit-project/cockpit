@@ -99,7 +99,7 @@ class TestNetworking(NetworkCase):
 
         m.execute("nmcli con add type ethernet ifname %s con-name TEST1" % iface1)
         m.execute("nmcli con add type ethernet ifname %s con-name TEST2" % iface2)
-        m.execute("nmcli con mod TEST1 ipv4.method shared")
+        m.execute("nmcli con mod TEST1 ipv4.method link-local")
 
         self.login_and_go("/network")
         self.wait_for_iface(iface1)
@@ -108,7 +108,7 @@ class TestNetworking(NetworkCase):
         m.execute("nmcli con up TEST1")
         m.execute("nmcli dev dis %s" % iface2)
 
-        b.wait_in_text("tr[data-interface='%s'] td:nth-child(2)" % iface1, "10.42.")
+        b.wait_in_text("tr[data-interface='%s'] td:nth-child(2)" % iface1, "169.254.")
         b.wait_text("tr[data-interface='%s'] td:nth-child(3)" % iface2, "Inactive")
 
         b.click("button:contains('Add Bond')")
@@ -122,7 +122,7 @@ class TestNetworking(NetworkCase):
 
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.wait_in_text("tr:contains('IPv4')", "Shared")
+        b.wait_in_text("tr:contains('IPv4')", "Link local")
 
     def testBondRename(self):
         b = self.browser

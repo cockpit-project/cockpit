@@ -43,11 +43,30 @@ set -x
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.
-    #
-    # if disabling the repos doesn't work, do without
-    yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
-    yum-config-manager --enable rhel-7-server-optional-rpms
-    yum-config-manager --enable rhel-7-server-extras-rpms
+
+    if [ "$IMAGE" = "rhel-7-5" ]; then
+cat <<EOF > /etc/yum.repos.d/nightly.repo
+[EXTRAS-7.5-LATEST]
+name=rhel-extras-compose
+baseurl=http://download.eng.bos.redhat.com/devel/candidate-trees/latest-EXTRAS-7-RHEL-7/compose/Server/x86_64/os
+enabled=1
+gpgcheck=0
+
+[RHEL-7.5-NIGHTLY]
+name=base-rhel
+baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
+enabled=1
+gpgcheck=0
+EOF
+        # disable all default repos as they don't exist yet
+        sed -i 's/enabled = 1/enabled = 0/' /etc/yum.repos.d/redhat.repo
+        yum -y install yum-utils
+    else
+        # if disabling the repos doesn't work, do without
+        yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
+        yum-config-manager --enable rhel-7-server-optional-rpms
+        yum-config-manager --enable rhel-7-server-extras-rpms
+    fi
 
     # the following don't necessarily need to work
     yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true
@@ -82,9 +101,6 @@ realmd \
 selinux-policy-targeted \
 setroubleshoot-server \
 subscription-manager \
-storaged \
-storaged-lvm2 \
-storaged-iscsi \
 sos \
 tuned \
 "
@@ -108,6 +124,16 @@ virt-install \
 cryptsetup \
 qemu-kvm \
 "
+
+# RHEL 7.5 renamed/dropped some packages
+if [ "$IMAGE" = "rhel-7-5" ]; then
+    UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
+    TEST_PACKAGES="${TEST_PACKAGES/systemtap-runtime-virtguest /}"
+else
+    UDISKS="storaged storaged-lvm2 storaged-iscsi"
+fi
+
+COCKPIT_DEPS="$COCKPIT_DEPS $UDISKS"
 
 # The rhel-7.4 image has the cockpit packages from base preinstalled, to check for API breakages
 if [ "$IMAGE" = "rhel-7-4" ]; then
@@ -135,8 +161,8 @@ done
 [ -z "$error" ] || exit 1
 set -x
 
-# For debugging storaged crashes
-debuginfo-install -y storaged storaged-lvm2 storaged-iscsi
+# For debugging udisks/storaged crashes
+debuginfo-install -y $UDISKS
 
 # Prepare for building
 

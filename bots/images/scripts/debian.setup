@@ -85,6 +85,9 @@ case "$RELEASE" in
     xenial)
         # NFS and NetworkManager don't work together
         TEST_PACKAGES="${TEST_PACKAGES/nfs-server /}"
+        # 16.04's pbuilder-satisfydepends-classic does not correctly resolve
+        # our alternative debhelper build dependency
+        PBUILDER_EXTRA="dh-systemd"
         ;;
 
 esac
@@ -124,7 +127,7 @@ EOF
 
 eatmydata apt-get -y install dpkg-dev pbuilder
 
-pbuilder --create --extrapackages fakeroot
+pbuilder --create --extrapackages fakeroot $PBUILDER_EXTRA
 /usr/lib/pbuilder/pbuilder-satisfydepends-classic --control /tmp/out/tools/debian/control --force-version --echo|grep apt-get | pbuilder --login --save-after-login
 rm -rf /tmp/out
 

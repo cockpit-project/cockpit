@@ -20,6 +20,12 @@
 %define rhel 0
 %endif
 
+# for testing this already gets set in fedora.install, as we want the target
+# VERSION_ID, not the mock chroot's one
+%if "%{!?os_version_id:1}"
+%define os_version_id %(. /etc/os-release; echo $VERSION_ID)
+%endif
+
 %define _hardened_build 1
 
 # define to build the dashboard
@@ -406,18 +412,39 @@ fi
 %endif
 %endif
 
+# storaged on RHEL 7.4 and Fedora < 27, udisks on newer ones
+# Recommends: not supported in RHEL < 8
 %package storaged
 Summary: Cockpit user interface for storage, using Storaged
 Requires: %{name}-shell >= %{required_base}
+%if (0%{?rhel} == 7 && "%{os_version_id}" == "7.4") || 0%{?centos} == 7
 Requires: storaged >= 2.1.1
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
-Recommends: storaged-lvm2 >= 2.1.1
-Recommends: storaged-iscsi >= 2.1.1
-Recommends: device-mapper-multipath
-%else
 Requires: storaged-lvm2 >= 2.1.1
 Requires: storaged-iscsi >= 2.1.1
 Requires: device-mapper-multipath
+%else
+%if 0%{?rhel} == 7
+Requires: udisks2 >= 2.6
+# FIXME: udisks2 modules not yet available on 7.5
+%if "%{os_version_id}" != "7.5"
+Requires: udisks2-lvm2 >= 2.6
+Requires: udisks2-iscsi >= 2.6
+%endif
+Requires: device-mapper-multipath
+%else
+%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
+Requires: udisks2 >= 2.6
+Recommends: udisks2-lvm2 >= 2.6
+Recommends: udisks2-iscsi >= 2.6
+Recommends: device-mapper-multipath
+%else
+# Fedora < 27
+Requires: storaged >= 2.1.1
+Recommends: storaged-lvm2 >= 2.1.1
+Recommends: storaged-iscsi >= 2.1.1
+Recommends: device-mapper-multipath
+%endif
+%endif
 %endif
 BuildArch: noarch
 

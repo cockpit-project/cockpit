@@ -12,7 +12,8 @@ fi
 
 do_build=
 do_install=
-mock_opts=""
+# we build RHEL 7.x in a CentOS mock, thus we can't parse os-release in the .spec
+mock_opts="--define='os_version_id $(. /etc/os-release; echo $VERSION_ID)'"
 args=$(getopt -o "vqs:" -l "verbose,quick,skip:,build,install,rhel,HACK-no-bootstrap-chroot" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do

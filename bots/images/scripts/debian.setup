@@ -127,7 +127,7 @@ EOF
 
 eatmydata apt-get -y install dpkg-dev pbuilder
 
-pbuilder --create --extrapackages fakeroot $PBUILDER_EXTRA
+pbuilder --create --extrapackages "fakeroot $PBUILDER_EXTRA"
 /usr/lib/pbuilder/pbuilder-satisfydepends-classic --control /tmp/out/tools/debian/control --force-version --echo|grep apt-get | pbuilder --login --save-after-login
 rm -rf /tmp/out
 

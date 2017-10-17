@@ -203,14 +203,21 @@ def download_images(image_list, force, quiet, state, store):
                 if os.path.islink(link) and os.path.dirname(os.readlink(link)) == "":
                     image_list.append(filename)
 
-    for image in image_list:
-        if state:
-            target = state_target(image)
-        else:
-            target = committed_target(image)
-        if force or state or not os.path.exists(target):
-            download(target, force, quiet, store)
+    success = True
 
+    for image in image_list:
+        try:
+            if state:
+                target = state_target(image)
+            else:
+                target = committed_target(image)
+            if force or state or not os.path.exists(target):
+                download(target, force, quiet, store)
+        except Exception as ex:
+            success = False
+            sys.stderr.write("image-download: {0}\n".format(str(ex)))
+
+    return success
 
 def main():
     parser = argparse.ArgumentParser(description='Download a bot state or images')
@@ -221,10 +228,7 @@ def main():
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
 
-    try:
-        download_images(args.image, args.force, args.quiet, args.state, args.store)
-    except RuntimeError, ex:
-        sys.stderr.write("image-download: {0}\n".format(str(ex)))
+    if not download_images(args.image, args.force, args.quiet, args.state, args.store):
         return 1
 
     return 0

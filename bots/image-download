@@ -191,13 +191,16 @@ def download_images(image_list, force, quiet, state, store):
     if not os.path.exists(DATA):
         os.makedirs(DATA)
 
-    # A default set of images are all links in git
+    # A default set of images are all links in git.  These links have
+    # no directory part.  Other links might exist, such as the
+    # auxiliary links created by committed_target above, and we ignore
+    # them.
     if not image_list:
         image_list = []
         if not state:
             for filename in os.listdir(IMAGES):
                 link = os.path.join(IMAGES, filename)
-                if os.path.islink(link):
+                if os.path.islink(link) and os.path.dirname(os.readlink(link)) == "":
                     image_list.append(filename)
 
     for image in image_list:

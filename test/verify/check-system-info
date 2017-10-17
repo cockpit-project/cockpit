@@ -44,6 +44,7 @@ def ssh_reconnect(machine, timeout_sec=120):
 
     raise error
 
+
 class TestSystemInfo(MachineCase):
 
     def testBasic(self):
@@ -190,9 +191,8 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
-        network_time_prefix = "Network time on"
-        if m.image in {"rhel-7", "rhel-7-4", "centos-7", "rhel-atomic", "continuous-atomic"}:
-            network_time_prefix = "NTP enabled"
+        def ntp_enabled():
+            return 'true' in m.execute('busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP')
 
         # make sure system is on expected timezone EEST
         m.execute("timedatectl set-timezone Europe/Helsinki")
@@ -221,7 +221,7 @@ class TestSystemInfo(MachineCase):
 
         b.wait_text("#system_information_systime_button", "2020-01-24 08:03")
 
-        self.assertIn("%s: no" % network_time_prefix, m.execute("timedatectl"))
+        self.assertFalse(ntp_enabled())
         self.assertIn("Fri Jan 24 08:03:", m.execute("date"))
         self.assertIn("EET 2020\n", m.execute("date"))
 
@@ -234,7 +234,7 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        self.assertIn("%s: yes" % network_time_prefix, m.execute("timedatectl"))
+        self.assertTrue(ntp_enabled())
 
         # Change the date
         b.click("#system_information_systime_button")
@@ -248,7 +248,7 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        self.assertIn("%s: no" % network_time_prefix, m.execute("timedatectl"))
+        self.assertFalse(ntp_enabled())
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
 

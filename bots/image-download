@@ -181,8 +181,8 @@ def committed_target(image):
     # The image file in the images directory, may be same as dest
     image_file = os.path.join(IMAGES, os.readlink(link))
 
-    # Double check that symlink in place
-    if not os.path.exists(image_file):
+    # Double check that symlink in place but never make a cycle.
+    if not os.path.exists(image_file) and os.path.abspath(dest) != os.path.abspath(image_file):
         os.symlink(os.path.abspath(dest), image_file)
 
     return dest

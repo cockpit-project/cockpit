@@ -64,6 +64,11 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
   if (is_local)
     add_system_dirs (dirs);
 
+#ifdef PACKAGE_BRAND
+  os_id = PACKAGE_BRAND;
+  os_variant_id = NULL;
+#endif
+
   if (os_id)
     {
       if (os_variant_id)

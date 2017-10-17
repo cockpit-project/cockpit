@@ -171,7 +171,7 @@
             angular.extend($scope, actions);
 
             function resized() {
-                $scope.height = { height: (window.innerHeight - 55) + "px" };
+                $scope.height = { height: (window.innerHeight - 60) + "px" };
                 if (ready)
                     $scope.$digest();
             }

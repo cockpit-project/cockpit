@@ -79,6 +79,28 @@ class TestStorage(StorageCase):
         b.wait_present("#nfs-mounts td:contains(/mounts/barbar)")
         m.execute("! test -e /mounts/bar")
         m.execute("test -d /mounts/barbar")
+        self.assertEqual (m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "defaults")
+
+        # Set options for /home/bar
+        b.click("#nfs-mounts .fa-check")
+        b.click("#nfs-mounts tr:contains(/home/bar) .pficon-edit")
+
+        def wait_checked(field):
+            b.wait_present(self.dialog_field(field) + ":checked")
+
+        def wait_not_checked(field):
+            b.wait_present(self.dialog_field(field) + ":not(:checked)")
+
+        self.dialog_wait_open()
+        wait_checked("mount_auto")
+        wait_not_checked("mount_ro")
+        self.dialog_set_val("mount_auto", False)
+        self.dialog_set_val("mount_ro", True)
+        self.dialog_set_val("mount_extra_options", CheckBoxText("ac"))
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.assertEqual (m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "noauto,ro,ac")
 
         # Unmount and remount /home/foo
         b.click("#nfs-mounts .fa-check")

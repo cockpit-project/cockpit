@@ -401,6 +401,10 @@ var FormatButton = React.createClass({
 });
 
 module.exports = {
+    parse_options: parse_options,
+    unparse_options: unparse_options,
+    extract_option: extract_option,
+
     mounting_dialog_fields: mounting_dialog_fields,
     mounting_dialog_options: mounting_dialog_options,
     crypto_options_dialog_fields: crypto_options_dialog_fields,

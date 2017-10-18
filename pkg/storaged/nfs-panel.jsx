@@ -24,6 +24,7 @@ import $ from "jquery";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
 import { format_fsys_usage } from "./utils.js";
 import dialog from "./dialog.js";
+import format from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -103,6 +104,23 @@ function nfs_fstab_dialog(client, entry) {
         return this_deferred.promise();
     }
 
+    var mount_options = entry? entry.fields[3] : "defaults";
+    var split_options = format.parse_options(mount_options == "defaults" ? "" : mount_options);
+    var opt_auto = !format.extract_option(split_options, "noauto");
+    var opt_ro = format.extract_option(split_options, "ro");
+    var extra_options = format.unparse_options(split_options);
+
+    function mounting_options(vals) {
+        var opts = [ ];
+        if (!vals.mount_auto)
+            opts.push("noauto");
+        if (vals.mount_ro)
+            opts.push("ro");
+        if (vals.mount_extra_options !== false)
+            opts = opts.concat(format.parse_options(vals.mount_extra_options));
+        return format.unparse_options(opts);
+    }
+
     function show(busy) {
         dialog.open({ Title: entry? _("NFS Mount") : _("New NFS Mount"),
                       Alerts: busy? [ { Message: _("This NFS mount is in use and only its options can be changed.") } ] : null,
@@ -139,13 +157,18 @@ function nfs_fstab_dialog(client, entry) {
                             },
                             disabled: busy
                           },
-                          { TextInput: "opts",
-                            Title: _("Mount Options"),
-                            Value: entry? entry.fields[3] : "defaults",
-                            validate: function (val) {
-                                if (val === "")
-                                    return _("Options cannot be empty.");
-                            }
+                          { RowTitle: _("Mount Options"),
+                            CheckBox: "mount_auto",
+                            Title: _("Mount at boot"),
+                            Value: opt_auto
+                          },
+                          { CheckBox: "mount_ro",
+                            Title: _("Mount read only"),
+                            Value: opt_ro
+                          },
+                          { CheckBoxText: "mount_extra_options",
+                            Title: _("Custom mount option"),
+                            Value: extra_options === "" ? false : extra_options,
                           }
                       ],
                       Action: {
@@ -154,8 +177,7 @@ function nfs_fstab_dialog(client, entry) {
                               var fields = [ vals.server + ":" + vals.remote,
                                              vals.dir,
                                              entry? entry.fields[2]: "nfs",
-                                             vals.opts ];
-
+                                             mounting_options(vals) || "defaults" ];
                               if (entry)
                                   return client.nfs.update_entry(entry, fields);
                               else

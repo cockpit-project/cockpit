@@ -3,6 +3,12 @@
 set -o pipefail
 set -eux
 
+# on semaphore the old npm in ~/.nvm is preferred over /usr/local, where "g stable" ends up
+# also, it has pre-installed a lot of random modules which interfere with our own packages.json
+if hostname | grep -q ^semaphore && [ -d ~/.nvm ] ; then
+    mv ~/.nvm ~/.nvm.disabled
+fi
+
 ARCH=${1:-}
 
 if [ "$ARCH" = i386 ]; then

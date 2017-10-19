@@ -1,150 +1,652 @@
-.nav-sidebar {
-    float: left;
-    width: unit(@sidebar-width-md, px);
-    background-color: #1d1d1d;
-    z-index: 1;
+@mobile-button-size: 56px;
+
+/* Navigation base, used for both desktop & mobile navigation */
+
+.nav-sidebar .dashboard-link:not(.active) a:hover {
+    background: rgba(57, 63, 68, 0.5) !important;
+}
+
+.nav-item-pf-header {
+    color: #fff;
+    font-size: 16px;
+    margin: 18px 20px 10px 20px;
+}
+
+.area-ct-subnav {
+    background: #393f44;
+    border-right: 1px solid #292e34;
+    -webkit-flex: none;
+    flex: none;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
     position: relative;
-    top: 0px;
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    a {
-        padding: 4px 8px !important;
-        height: 30px !important;
-        width: unit(@sidebar-width-md, px) !important;
-    }
-
-    span {
-        display: block;
-        font-size: 12px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-left: 7px;
-    }
+    z-index: 2;
+    opacity: 1;
 
     .list-group {
-        background-color: #292e34;
+        border: none;
+    }
 
-        .list-group-item {
-            border-color: transparent;
+    .list-group-item {
+        padding: 0;
+        background: inherit;
+        border: none;
+        transition: all 150ms ease-out;
+
+        &:hover,
+        &.active {
+            /* Move hover & selected above overflow fade */
+            z-index: 2;
         }
 
-        .list-group-item.active {
-            a::before {
-                display: none;
-            }
+        &:hover {
+            background: rgba(77, 82, 88, 0.5);
+        }
+
+        &.active {
+            background: #4d5258;
+        }
+
+        a {
+            padding: 10px 15px;
+            display: block;
+            color: #d1d1d1;
+            text-decoration: none;
         }
     }
 
-    .list-group + .list-group {
-        padding-top: 15px !important;
+    /* Fade start and end of the host menu to indicate more content is available */
+
+    .dropdown-toggle {
+        position: relative;
+        overflow: visible !important;
+        margin: 0; // Override patternfly
     }
 
-    .list-group-item-value {
-        max-width: unit(@sidebar-width-xl - 80, px) !important;
+    .dropdown-toggle:after,
+    &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2rem;
+        pointer-events: none;
+        z-index: 1;
+        /* Accomodate scrollbars with margin (IE11 needs 18px; rest are less) */
+        margin-right: 18px;
+    }
+
+    .dropdown-toggle:after {
+        background: linear-gradient(to bottom, #393f44, rgba(57, 63, 68, 0));
+        top: 100%;
+        margin-top: 1px;
+    }
+
+    &:after {
+        background: linear-gradient(to top, #393f44, rgba(57, 63, 68, 0));
+        bottom: 0;
+        height: 4rem;
     }
 }
 
-.navbar-default .navbar-form {
-    border-color: transparent;
+.nav-sidebar > .list-group {
+    .dashboard-link {
+        display: block;
+
+        &:not(.active) .fa {
+            color: #72767b !important;
+        }
+    }
 }
 
-#content {
+
+.machine-dropdown {
+    -webkit-flex: none;
+    flex: none;
+    border-bottom: 1px solid #4d5258;
+
+    .dropdown-toggle span {
+        font-size: 14px;
+    }
+}
+
+.machine-dropdown > .dropdown-toggle span,
+.host-apps a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.host-apps {
+    -webkit-flex: 1 1 0;
+    flex: 1 1 0;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: relative;
 }
 
-.machine-color {
-    /* Width overridden elsewhere */
-    border-left: 0px solid #BABABA;
-    border-top: none !important;
-    border-bottom: none !important;
-    padding: 0px !important;
+.area-ct-content {
+    > iframe {
+        height: 100%;
+    }
+
+    > .curtains-ct {
+        position: static !important;
+    }
 }
 
-#machine-dropdown {
-    .machine-color {
-        float: left;
+/* Desktop navigation */
+@media screen and (min-width: 768px) {
+    .area-ct-navbar {
+        -webkit-flex: none;
+        flex: none;
+        min-width: 100%;
     }
 
-    a {
-        font-size: 13px;
-    }
+    .area-ct-content {
+        -webkit-flex: auto;
+        flex: auto;
+        position: relative;
+        width: 100%; // Hack for PhantomJS
 
-    .dropdown-menu {
-        width: 100%;
-        border-left: none;
-
-        a {
-            padding: 10px;
+        /* Position as absolute to make things work on old Chrome versions,
+           mainly to make tests pass */
+        > iframe {
+            position: absolute;
         }
 
-        li {
-            border-left: 7px solid #BABABA;
+        > .curtains-ct {
+            position: absolute !important;
+        }
 
-            a {
-                max-width: 201px;
-                text-overflow: ellipsis;
-                overflow: hidden;
+        > iframe,
+        > .curtains-ct {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .area-ct-body {
+        position: relative;
+        -webkit-flex: auto;
+        flex: auto;
+        z-index: 3;
+        display: -webkit-flex;
+        display: flex;
+        /* IE11 needs to have the flex-basis set to page max,
+           else it stretches too tall */
+        -webkit-flex-basis: 100%;
+        flex-basis: 100%;
+    }
+
+    .nav-pf-vertical {
+        position: static !important;
+        height: 100%;
+        border-right-width: 0;
+        top: 0;
+    }
+
+    .nav-sidebar-wrap {
+        -webkit-flex: none;
+        flex: none;
+        z-index: 3;
+
+        &:not(.expanded) {
+            width: unit(@sidebar-width-sm, px);
+
+            .nav-sidebar {
+                width: unit(@sidebar-width-sm, px);
             }
-        }
-    }
-}
 
-#machine-link {
-    padding: 9px;
-    padding-left: 12px;
-    padding-right: 15px;
-    position: static;
-    min-width: 179px;
-
-    span {
-        display: inline-block;
-        width: 100px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
-}
-
-.machine-avatar {
-    width: 24px;
-    height: 24px;
-    margin-right: 5px;
-    display: none;
-}
-
-#machine-spinner {
-    float: right;
-    margin: 8px;
-}
-
-@media (min-width: @screen-sm-min) {
-    #machine-dropdown {
-        .machine-color {
-            height: 44px !important;
+            .list-group-item-value {
+                opacity: 0;
+                transition: opacity 150ms ease-out;
+            }
         }
     }
 
     .nav-sidebar {
-        width: unit(@sidebar-width-xl, px);
+        /* Use absolute position to make old Chrome (2015 Dec) tests pass */
+        position: absolute !important;
+        height: 100%;
+        transition: all 150ms ease-out;
+        box-shadow: 0 0;
+        background: linear-gradient(to left, #030303, #292e34 1px);
+
+        span.first-letter {
+            font-size: 0px !important;
+            color: #d1d1d1;
+
+            &:first-letter {
+                font-size: 22px !important;
+            }
+        }
+
+        .fa {
+            margin-left: -4px;
+            margin-top: -1px;
+
+            &:not(.first-letter) {
+                font-size: 22px !important;
+            }
+        }
+
+        .list-group-item {
+            border-right-width: 0;
+            overflow: hidden;
+
+            > a {
+                // Patternfly now sets & unsets padding-right;
+                // ...so we'll set it once again
+                padding-right: 20px;
+            }
+
+            &:focus {
+                background: active;
+            }
+        }
+    }
+
+    .nav-sidebar-wrap:not(.expanded) .nav-sidebar:not(.clicked):hover {
+        width: unit(@sidebar-width-full, px);
+        box-shadow: 0 0 3px rgba(0,0,0,0.5), 0 0 32px rgba(0,0,0,0.75);
+        transition-duration: 500ms;
+        transition-timing-function: cubic-bezier(0,1.2,0.8,1);
+
+        .list-group-item-value {
+            transition-duration: 300ms;
+            opacity: 1;
+        }
+
+        .first-letter {
+            opacity: 0;
+        }
+    }
+
+    .single-nav {
+        .nav-sidebar {
+            display: none;
+        }
+
+        .nav-sidebar-wrap {
+            width: 0px;
+        }
+
+        .area-ct-subnav {
+            left: 0px;
+        }
+    }
+
+    .area-ct-layout {
+        display: -webkit-flex;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        -webkit-flex-flow: column;
+        flex-flow: column;
+        align-content: stretch;
+    }
+
+    .area-ct-subnav {
+        visibility: visible !important;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 15em;
+    }
+}
+
+/* Mobile navigation */
+@media screen and (max-width: 767px) {
+    /* Use native mobile fonts (when available) for nav & menu text */
+    .area-ct-navbar, .area-ct-body {
+        font-family: roboto, san francisco, helvetica light, noto, helvetica, sans-serif;
+        font-size: 14px;
+        align-content: stretch;
+        align-items: stretch;
 
         a {
-            padding: 4px 8px !important;
-            height: 30px !important;
-            width: unit(@sidebar-width-xl, px) !important;
-        }
-
-        span {
-            margin-left: 26px;
+            font-size: 14px !important;
+            padding: 12px 15px;
         }
     }
 
-    .machine-color {
-        border-left-width: 7px;
+    /* Layout UI in CSS grids
+    (all mobile browsers support this new layout type)
+
+    How this works:
+
+    CSS grids version 1 is now implemented in all mobile browsers; we can use it.
+    However, display: container and subgrids are not implemented in Chrome yet.
+    To work around this, we do a little more complex gridding by overlapping
+    child grids on top of the parent grid. We basically set up the main grid
+    as with a gutter of @mobile-button-size ("56px") on the top, right side,
+    and bottom. We then stretch the child grids to this.
+
+    The elements are then assigned grid names with 'grid-area' and placed in the
+    grid using 'grid-template-areas', based on their immediate parent (which is
+    set as a grid display type).
+
+    Some grid-areas override their template placement with grid-columns and
+    grid-rows. The most notible being the navmenu, so that it can overlap
+    content. The value for grid-colums is either a single number or first/last+1
+    (which basically means go from first and stop when it hits the grid
+    column/row _after_ the one you want to last fill).
+
+    Note: Due to less, we have to wrap some of the values in ~"" so that they
+    will be passed directly to the resulting CSS... else less will want to try
+    to do math, which isn't want we want.
+
+    Tip: Firefox dev tools let you visualize grids in the "layout" subtab of the
+    "inspector" tab.
+    */
+
+    .area-ct-layout, .area-ct-body, .area-ct-navbar {
+        display: grid;
+        grid-template-columns: auto @mobile-button-size;
+        grid-template-rows: @mobile-button-size 1fr @mobile-button-size;
+        align-content: end;
     }
 
-    .machine-avatar {
-        display: inline;
+    .area-ct-layout {
+        grid-template-areas:
+            "content content"
+            "content content"
+            "nav topbar";
+
+        height: 100%;
+        width: 100%;
     }
+
+    .area-ct-body {
+        /* Stretch the nav wrapper to the same area on the parent grid */
+        grid-column: ~"1/3";
+        grid-row: ~"1/4";
+        // As Chrome on Mobile is wonky,
+        // here's an alternate way to set the size that works everywhere
+        grid-template-rows: ~"@{mobile-button-size} calc(100% - @{mobile-button-size} * 2) @{mobile-button-size}";
+        z-index: 2;
+
+        /* Pass through mouse events */
+        pointer-events: none;
+
+        grid-template-areas:
+            "content content"
+            "content content"
+            "nav empty";
+
+        > * {
+            /* Allow mouse events for children */
+            pointer-events: auto;
+        }
+    }
+
+    .area-ct-navbar {
+        /* Create another child grid and stretch it to the parent grid */
+        pointer-events: none;
+        display: grid;
+        background: transparent;
+        border: none;
+
+        grid-template:
+            "notmenu menu menu"
+            "notheader notheader header";
+
+        grid-area: topbar;
+        grid-column: ~"1/3"; /* Expand to the whole column */
+        grid-row: ~"2/4";
+        grid-template-rows: auto @mobile-button-size;
+        grid-template-columns: minmax(@mobile-button-size, auto) auto @mobile-button-size;
+
+        z-index: 3;
+
+        > * {
+            pointer-events: auto;
+        }
+
+        &:before,
+        &:after {
+            display: none;
+        }
+    }
+
+    .navbar-header {
+        grid-area: header;
+        background: #292e34;
+    }
+
+    .navbar-collapse {
+        grid-area: menu;
+        align-self: end;
+        background: #292e34;
+    }
+
+    .navbar-brand {
+        display: none;
+    }
+
+    .navbar-toggle {
+        float: right !important;
+        margin: 0 !important;
+        width: 100%;
+        height: 100%;
+    }
+
+    .area-ct-content {
+        display: block;
+        grid-area: content;
+        z-index: 1;
+
+        > iframe {
+            animation: navFadeIn 300ms;
+        }
+    }
+
+    .nav-sidebar-wrap {
+        grid-area: nav;
+        z-index: 3;
+        max-width: ~"calc(100vw - @{mobile-button-size})";
+        overflow: auto;
+        overflow-y: hidden;
+        position: relative;
+    }
+
+    .nav-sidebar {
+        position: static !important;
+        width: auto;
+        max-width: 100%;
+        overflow: hidden;
+        overflow-x: auto;
+
+        ul, li {
+            padding: 0;
+            margin: 0;
+        }
+
+        > .list-group {
+            position: relative;
+            display: -webkit-flex;
+            display: flex;
+
+            li {
+                -webkit-flex: auto;
+                flex: auto;
+            }
+        }
+
+        .list-group-item {
+            width: auto !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            position: static;
+
+            a {
+                display: inline-block !important;
+                padding: 6px 12px !important;
+                padding: 0;
+                text-align: center;
+                width: auto !important;
+                min-width: 80px;
+                width: 100% !important;
+                height: @mobile-button-size !important;
+                margin-bottom: 12px; // Hack to hide the scrollbar
+                transition: all 300ms;
+            }
+
+            &.active {
+                z-index: 2;
+
+                a {
+                    background: #393f44 !important;
+
+                    &:before {
+                        bottom: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        top: auto !important;
+                        height: 3px !important;
+                        width: auto !important;
+                        z-index: 3;
+                    }
+
+                    &:after {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        bottom: 0;
+                        left: 0;
+                        border: 1px solid black;
+                        border-width: 0 1px;
+                        pointer-events: none;
+                        opacity: 0.5;
+                        z-index: 4;
+                    }
+                }
+
+                &:first-child a:after {
+                    border-left: none;
+                }
+            }
+
+        }
+
+        .fa,
+        .pficon-container-node,
+        .list-group-item-value {
+            display: inline-block;
+            line-height: 1 !important;
+            font-weight: 400;
+        }
+
+        .fa,
+        .pficon-container-node {
+            margin: 0 auto !important;
+            float: none !important;
+            font-size: 24px !important;
+        }
+
+        .list-group-item-value {
+            font-size: 12px !important; // Set to small native mobile font size
+            line-height: 2 !important; // Breathing room for ascenders/descenders
+            margin: -6px auto 0; // Half font size, to offset double line-height
+            padding: 0 !important; // Override Patternfly
+        }
+    }
+
+    /* Restrict width of hostname nav label in mobile */
+    #host-nav-item .list-group-item-value {
+        max-width: ~"calc(20vw - 24px)";
+    }
+
+    .area-ct-subnav {
+        display: -webkit-flex !important;
+        display: flex !important;
+        align-self: end;
+        grid-area: navmenu;
+        max-height: 100%;
+        min-height: 50%;
+        grid-column: 1;
+        grid-row: 2;
+        z-index: 2;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translate(0,100%) scaleY(0);
+        transition: opacity 200ms ease-in 100ms, transform 100ms ease-in 300ms;
+
+        &.interact {
+            transform: none;
+            opacity: 1;
+            overflow: visible;
+            transition: bottom 300ms ease-out, box-shadow 300ms ease-out, transform 300ms ease-out;
+        }
+
+        .dropdown-menu {
+            width: auto !important;
+            left: @mobile-button-size / 2 !important;
+            right: @mobile-button-size / -2 !important;
+            animation: navFadeInSlideDown 600ms;
+        }
+    }
+
+    .host-apps {
+        -webkit-flex: auto;
+        flex: auto;
+        max-height: 100%;
+    }
+
+    .navbar-collapse > ul,
+    .area-ct-subnav {
+        box-shadow: 0 0 9px ~"rgba(0, 0, 0, 0.4)" !important;
+    }
+
+    /* Add an indicator for the host menu in mobile nav */
+    .has-menu {
+        .pficon-container-node {
+            position: relative;
+
+            &:after {
+                font-family: FontAwesome;
+                content: "\f106";
+                position: absolute;
+                font-size: 1.75rem;
+                position: absolute;
+                bottom: 0.25rem;
+                right: -1.5rem;
+                color: #fff;
+                opacity: 0.5;
+                transition: all 300ms;
+            }
+        }
+
+        &.menu-visible .pficon-container-node {
+            &:after {
+                transform: scale(1, -1);
+                bottom: 0.25ex;
+                opacity: 0.75;
+            }
+        }
+
+        &:not(.active) .pficon-container-node:after {
+            opacity: 0;
+        }
+    }
+}
+
+/* Navigation animation */
+
+@keyframes navFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes navFadeInSlideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: auto; }
 }

@@ -197,6 +197,10 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         # Test switching
         b.leave_page()
         b.wait_js_cond('$("#machine-dropdown ul li").length == 3')
+
+        if m.image != "rhel-7-4":
+            b.click("#host-nav-link")
+
         b.click("#machine-link")
         b.click("#machine-dropdown ul a[data-address='localhost']")
         b.wait_js_cond('window.location.pathname == "/system"')

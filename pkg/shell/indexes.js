@@ -32,7 +32,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 
     function MachinesIndex(index_options, machines, loader, mdialogs) {
-
         if (!index_options)
             index_options = {};
 
@@ -55,6 +54,34 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         /* Is troubleshooting dialog open */
         var troubleshooting = false;
+        var machines_timer = null;
+
+        $("#machine-dropdown").on("hide.bs.dropdown", function () {
+            $("#find-machine").val("");
+            $("#machine-dropdown ul li").toggleClass("hidden", false);
+        });
+
+        $("#find-machine").on("keyup", function (ev) {
+            if (machines_timer)
+                window.clearTimeout(machines_timer);
+
+            machines_timer = window.setTimeout(function () {
+                filter_machines();
+                machines_timer = null;
+            }, 250);
+        });
+
+        $("#host-nav-item").on("click", function (ev) {
+            if ($(this).hasClass("active")) {
+                $(this).toggleClass("menu-visible");
+                $("#host-nav").toggleClass("interact");
+                ev.preventDefault();
+                return false;
+            } else {
+                $(this).toggleClass("menu-visible", true);
+                $("#host-nav").toggleClass("interact", true);
+            }
+        });
 
         /* Reconnect button */
         $("#machine-reconnect").on("click", function(ev) {
@@ -134,6 +161,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         /* Handles navigation */
         function navigate(state, reconnect) {
             var machine;
+            $('#host-nav-item').toggleClass("menu-visible", false);
+            $("#host-nav").toggleClass("interact", false);
 
             /* If this is a watchdog problem or we are troubleshooting
              * let the dialog handle it */
@@ -168,10 +197,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 state.component = choose_component(state, compiled);
 
             update_navbar(machine, state, compiled);
-            update_sidebar(machine, state, compiled);
             update_frame(machine, state, compiled);
-
-            index.recalculate_layout();
 
             /* Just replace the state, and URL */
             index.jump(state, true);
@@ -222,65 +248,20 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             return "system";
         }
 
-        function update_navbar(machine, state, compiled) {
-            $(".dashboard-link").each(function() {
-                var el = $(this);
-                el.toggleClass("active", el.attr("data-component") === state.component);
-            });
+        function default_machine() {
+            /* Default to localhost if it has anything.
+             * Otherwise find the first non local machine.
+             */
+            var i;
+            var machine = machines.lookup("localhost");
+            var compiled = compile(machine);
+            if (compiled.ordered("menu").length || compiled.ordered("tools").length)
+                return machine;
 
-            /* When no dashboard type components show a minimal navbar */
-            var minimal = Object.keys(compiled.items).every(function(key) {
-                return compiled.items[key].section != "dashboard";
-            });
-
-            /* Unless there are more than one machine */
-            if (machines.list.length > 1)
-                minimal = false;
-
-            var hide;
-            if (machine && machine.static_hostname) {
-                hide = $(".dashboard-link").length < 2 && machines.list.length < 2;
-                $('#content-navbar').toggleClass("hidden", hide || minimal);
-            } else {
-                $('#content-navbar').toggleClass("hidden", minimal);
+            for (i = 0; i < machines.list.length; i++) {
+                if (machines.list[i].address != "localhost")
+                    return machines.list[i];
             }
-
-            /* When a dashboard no machine or sidebar */
-            var item = compiled.items[state.component];
-            if (item && item.section == "dashboard") {
-                delete state.sidebar;
-                machine = null;
-            }
-
-            $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar) :
-                                                "../shell/images/server-small.png");
-
-            var label;
-            if (machine) {
-                label = machine.label;
-            } else if (machines.list.length == 1) {
-                label = machines.list[0].label;
-            } else {
-                label = _("Machines");
-            }
-            $("#machine-link span").text(label);
-
-            var color;
-            if (machines.list.length == 1 || !machine)
-                color = "transparent";
-            else
-                color = machine.color || "";
-            $(".machine-color").css("border-left-color", color);
-
-            $("#machine-dropdown").toggleClass("active", !!machine);
-
-            /* Decide when to show the sidebar */
-            var sidebar = $("#sidebar");
-
-            if (machine && machine.state == "connected")
-                sidebar.show();
-            else
-                sidebar.hide();
         }
 
         function update_sidebar(machine, state, compiled) {
@@ -289,6 +270,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     .toggleClass("active", state.component === component.path)
                     .append($("<a>")
                         .attr("href", index.href({ host: machine.address, component: component.path }))
+                        .attr("title", component.label)
                         .append($("<span>").text(component.label)));
             }
 
@@ -297,16 +279,106 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             var tools = compiled.ordered("tools").map(links);
             $("#sidebar-tools").empty().append(tools);
+
+            $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar) :
+                                                "../shell/images/server-small.png");
+
+            var color = machine && machine.color || "";
+            $("#host-nav-item span.pficon-container-node").css("color", color);
+
+            if (machine) {
+                $("#machine-link span").text(machine.label);
+                $("#machine-link").attr("title", machine.label);
+            } else {
+                $("#machine-link span").text(_("Machines"));
+                $("#machine-link").attr("title", "");
+            }
+        }
+
+        function update_active_machine (address) {
+            var active_sel;
+            $("#machine-dropdown ul li").toggleClass("active", false);
+            if (address) {
+                active_sel = "#machine-dropdown ul li[data-address='" + address + "']";
+                $(active_sel).toggleClass("active", true);
+            }
+        }
+
+        function update_machine_links(machine, showing_sidebar, state) {
+            var data = $("#host-nav-link").attr("data-machine");
+
+            // If we are already setup we will bail early
+            if (data && (!machine || machine.address === data)) {
+                // If showing the sidebar, save our place
+                if (showing_sidebar) {
+                    $("#host-nav-link").attr("href", index.href(state));
+                    update_active_machine(data);
+                }
+                return;
+            }
+
+            if (!machine && data)
+                machine = machines.lookup(data);
+            if (!machine)
+                machine = default_machine();
+
+            $("#host-nav-link span.list-group-item-value").text(machine ? machine.label : "");
+            $("#host-nav-link")
+                .attr("data-machine", machine ? machine.address : "")
+                .attr("href", index.href({ host: machine ? machine.address : undefined }, true));
+
+            // Only show the hosts icon in the main nav if we have a machine
+            $("#host-nav-item").toggleClass("dashboard-link", !!machine);
+
+            update_active_machine(machine ? machine.address : null);
+        }
+
+        function update_navbar(machine, state, compiled) {
+            /* When a dashboard no machine or sidebar */
+            var item = compiled.items[state.component];
+            if (item && item.section == "dashboard") {
+                delete state.sidebar;
+                machine = null;
+            }
+
+            $(".dashboard-link").each(function() {
+                var el = $(this);
+                var data = el.attr("data-component");
+                // Mark active component and save our place
+                if (data && data === state.component) {
+                    el.attr("href", index.href(state));
+                    el.toggleClass("active", true);
+                } else {
+                    el.toggleClass("active", false);
+                }
+            });
+
+            $("#host-nav-item").toggleClass("active", !!machine);
+            if (machine)
+                update_sidebar(machine, state, compiled);
+
+            $("#host-nav").toggleClass("hidden", !machine);
+            update_machine_links(machine, !!machine, state);
+            $('.area-ct-body').toggleClass("single-nav", $(".dashboard-link").length < 2);
         }
 
         function update_title(label, machine) {
+            var compiled;
             if (label)
                 label += " - ";
             else
                 label = "";
             var suffix = index.default_title;
-            if (machine && machine.label)
-                suffix = machine.label;
+
+            if (machine) {
+                if (machine.address === "localhost") {
+                    compiled = compile(machine);
+                    if (compiled.ordered("menu").length || compiled.ordered("tools").length)
+                        suffix = machine.label;
+                } else {
+                    suffix = machine.label;
+                }
+            }
             document.title = label + suffix;
         }
 
@@ -404,7 +476,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             $("#machine-dropdown .caret")
                 .toggle(machines.list.length > 1);
 
-            var machine_link = $("machine-link");
+            var machine_link = $("#machine-link");
             if (machines.list.length > 1)
                 machine_link.attr("data-toggle", "dropdown");
             else
@@ -412,19 +484,33 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             var list = $("#machine-dropdown ul");
             var links = machines.list.map(function(machine) {
-                var avatar = $("<img>").addClass("machine-avatar")
-                            .attr("src", encodeURI(machine.avatar));
-                var text = $("<span>").text(machine.label);
+                var text = $("<span>")
+                    .text(machine.label)
+                    .prepend($("<i>")
+                        .attr("class", "fa-li fa fa-circle")
+                        .css("color", machine.color || ""));
                 return $("<li role='presentation'>")
-                    .css("border-left-color", machine.color || "")
+                    .attr("data-address", machine.address)
                     .append($("<a>")
                         .attr("role", "menuitem")
                         .attr("tabindex", "-1")
                         .attr("data-address", machine.address)
                         .attr("href", index.href({ host: machine.address }, true))
-                        .append(avatar, text));
+                        .append(text));
                 });
             list.empty().append(links);
+        }
+
+        function filter_machines () {
+            var val = $("#find-machine").val().toLowerCase();
+            $("#machine-dropdown ul li").each(function() {
+                var el = $(this);
+                var a = el.find('a').first();
+                var txt = a.text().toLowerCase();
+                var addr = a.attr("data-address") ? a.attr("data-address").toLowerCase() : "";
+                var hide = !!val && txt.indexOf(val) !== 0 && addr.indexOf(val) !== 0;
+                el.toggleClass("hidden", hide);
+            });
         }
 
         function compatibility(machine) {
@@ -532,13 +618,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             update_navbar(state);
             update_frame(state);
 
-            index.recalculate_layout();
-
             /* Just replace the state, and URL */
             index.jump(state, true);
         }
 
         function update_navbar(state) {
+            $("#host-nav-item").toggleClass("dashboard-link", false);
             $(".dashboard-link").each(function() {
                 var el = $(this);
                 el.toggleClass("active", el.attr("data-component") === state.component);
@@ -548,9 +633,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if (item && item.section == "dashboard")
                 delete state.sidebar;
 
-            $("#machine-link span").text(default_title);
-            if ($(".dashboard-link").length < 2)
-                $('#content-navbar').toggleClass("hidden", true);
+            $('.area-ct-body').toggleClass("single-nav", $(".dashboard-link").length < 2);
+
         }
 
         function update_title(label) {

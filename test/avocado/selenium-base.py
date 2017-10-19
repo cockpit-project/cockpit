@@ -23,7 +23,7 @@ class BasicTestSuite(SeleniumTest):
 
     def test20Login(self):
         self.login()
-        self.wait_id("sidebar")
+        self.wait_id("host-apps")
         user_element = self.wait_id("content-user-name")
         self.assertEqual(user_element.text, user)
         self.logout()
@@ -38,7 +38,7 @@ class BasicTestSuite(SeleniumTest):
 
     def test30ChangeTabServices(self):
         self.login()
-        self.wait_id("sidebar")
+        self.wait_id("host-apps")
         self.click(self.wait_link('Services', cond=clickable))
         self.wait_frame("services")
         self.wait_id("services-list-enabled")
@@ -56,7 +56,7 @@ class BasicTestSuite(SeleniumTest):
 
     def test50ChangeTabLogs(self):
         self.login()
-        self.wait_id("sidebar")
+        self.wait_id("host-apps")
         self.click(self.wait_link('Logs', cond=clickable))
         self.wait_frame("logs")
         self.wait_id("journal")
@@ -106,7 +106,7 @@ class BasicTestSuite(SeleniumTest):
 
     def test70ChangeTabNetworking(self):
         self.login()
-        self.wait_id("sidebar")
+        self.wait_id("host-apps")
         out = process.run("ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
         self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
@@ -120,7 +120,7 @@ class BasicTestSuite(SeleniumTest):
 
     def test80ChangeTabTools(self):
         self.login()
-        self.wait_id("sidebar")
+        self.wait_id("host-apps")
         self.click(self.wait_link('Accounts', cond=clickable))
         self.wait_frame("users")
         self.click(self.wait_xpath(

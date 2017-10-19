@@ -20,7 +20,7 @@ class StorageTestSuite(SeleniumTest):
         other_discname = other_disc.adddisc("d1")
         other_shortname = os.path.basename(other_discname)
         self.login()
-        self.wait_id("sidebar")
+        self.wait_id("host-apps")
         self.click(self.wait_link('Storage', cond=clickable))
         self.wait_frame("storage")
         self.wait_id("drives")

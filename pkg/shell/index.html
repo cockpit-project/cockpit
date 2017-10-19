@@ -13,376 +13,404 @@
     <script src="../*/po.js"></script>
   </head>
   <body hidden>
-    <nav id="topnav" class="navbar navbar-default navbar-pf" role="navigation">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
-          <i class="fa fa-bars" alt="Toggle navigation"></i>
-        </button>
-        <div class="navbar-brand">
-          <div id="index-brand"></div>
-        </div>
-      </div>
-      <div class="collapse navbar-collapse navbar-collapse-1">
-        <ul class="nav navbar-nav navbar-utility">
-          <li class="credential-lock">
-            <a data-toggle="tooltip" data-placement="bottom" translate="title"
-                title="Privileged tasks not available">
-              <i class="fa fa-lock"></i>
-              <span translate>Locked</span>
-            </a>
-            <a data-toggle="tooltip" data-placement="bottom" translate="title"
-                title="Lock to prevent privileged tasks" class="credential-clear">
-              <i class="fa fa-unlock-alt"></i>
-              <span translate>Unlocked</span>
-            </a>
-          </li>
-          <li id="navbar-oops" hidden>
-            <a><span class="oops-status" translatable="yes">Ooops!</span></a>
-          </li>
-          <li class="dropdown">
-            <a id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
-              <span class="pficon pficon-user"></span>
-              <span id="content-user-name"></span><b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="display-language-menu">
-                <a data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
+    <div class="area-ct-layout">
+        <nav id="topnav" class="navbar navbar-default navbar-pf navbar-pf-vertical area-ct-navbar" role="navigation">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+              <i class="fa fa-bars" alt="Toggle navigation"></i>
+            </button>
+            <div class="navbar-brand">
+              <div id="index-brand"></div>
+            </div>
+          </div>
+          <div class="collapse navbar-collapse navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-utility">
+              <li id="machine-spinner">
+                <div class="spinner spinner-md spinner-white">
+                </div>
               </li>
-              <li class="divider display-language-menu"></li>
-              <li>
-                <a data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
+              <li class="credential-lock">
+                <a data-toggle="tooltip" data-placement="bottom" translate="title"
+                    title="Privileged tasks not available">
+                  <i class="fa fa-lock"></i>
+                  <span translate>Locked</span>
+                </a>
+                <a data-toggle="tooltip" data-placement="bottom" translate="title"
+                    title="Lock to prevent privileged tasks" class="credential-clear">
+                  <i class="fa fa-unlock-alt"></i>
+                  <span translate>Unlocked</span>
+                </a>
               </li>
-              <li>
-                <a id="active-pages" translatable="yes" class="navbar-advanced">Active Pages</a>
+              <li id="navbar-oops" hidden>
+                <a><span class="oops-status" translatable="yes">Ooops!</span></a>
               </li>
-              <li class="divider"></li>
-              <li id="go-account" hidden>
-                <a translatable="yes">Account Settings</a>
-              </li>
-              <li>
-                  <a data-toggle="modal" data-target="#credentials-dialog"
-                      id="credentials-item" translatable="yes">Authentication</a>
-              </li>
-              <li>
-                <a id="go-logout" translatable="yes">Log Out</a>
+              <li class="dropdown">
+                <a id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
+                  <span class="pficon pficon-user"></span>
+                  <span id="content-user-name"></span><b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                  <li class="display-language-menu">
+                    <a data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
+                  </li>
+                  <li class="divider display-language-menu"></li>
+                  <li>
+                    <a data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
+                  </li>
+                  <li>
+                    <a id="active-pages" translatable="yes" class="navbar-advanced">Active Pages</a>
+                  </li>
+                  <li class="divider"></li>
+                  <li id="go-account" hidden>
+                    <a translatable="yes">Account Settings</a>
+                  </li>
+                  <li>
+                      <a data-toggle="modal" data-target="#credentials-dialog"
+                          id="credentials-item" translatable="yes">Authentication</a>
+                  </li>
+                  <li>
+                    <a id="go-logout" translatable="yes">Log Out</a>
+                  </li>
+                </ul>
               </li>
             </ul>
-          </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-primary" id="content-navbar">
-          <li id="machine-spinner" hidden>
-            <div class="spinner spinner-md spinner-white">
-            </div>
-          </li>
-          <li class="dropdown" id="machine-dropdown">
-            <a class="machine-color"></a>
-            <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
-                aria-haspopup="true" role="button" aria-expanded="false">
-               <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar"><span translate>Machines</span>
-               <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="machine-link">
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
+          </div>
+        </nav>
 
-    <div class="modal" id="about" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">About Cockpit</h4>
-          </div>
-          <div class="modal-body">
-            <div translatable="yes">Cockpit is an interactive Linux server admin interface.</div>
-            <div><a target="_blank" href="http://cockpit-project.org/" translate>Project website</a></div>
-            <div>
-              <span translatable="yes">Version</span> <span id="about-version"></span>.
-            </div>
-            <div><span translate>Licensed under:</span>
-                <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
-                  target="_blank">GNU LGPL version 2.1</a>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="troubleshoot-dialog" tabindex="-1" role="dialog"
-        data-backdrop="static">
-        <div class="modal-dialog">
+        <div class="modal" id="about" tabindex="-1" role="dialog" data-backdrop="static">
+          <div class="modal-dialog">
             <div class="modal-content">
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="display-language" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Display Language</h4>
-          </div>
-          <div class="modal-body">
-	    <p translatable="yes">Choose the language to be used in the application</p>
-            <select id="display-language-list" size="5" data-role="none">
-            </select>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-            <button class="btn btn-primary" id="display-language-select-button" translatable="yes">Select</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" id="error-popup-title"></h4>
-          </div>
-          <div class="modal-body">
-            <p id="error-popup-message"></p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="credentials-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" translatable="yes">Authentication</h4>
+              <div class="modal-header">
+                <h4 class="modal-title" translatable="yes">About Cockpit</h4>
+              </div>
+              <div class="modal-body">
+                <div translatable="yes">Cockpit is an interactive Linux server admin interface.</div>
+                <div><a target="_blank" href="http://cockpit-project.org/" translate>Project website</a></div>
+                <div>
+                  <span translatable="yes">Version</span> <span id="about-version"></span>.
                 </div>
-                <div class="modal-body modal-scrollable">
-                    <table class="listing-ct credential-listing">
-                        <thead class="credential-lock">
-                            <tr>
-                                <td translate colspan="2">Password not usable for privileged tasks or to connect to other machines</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td translate colspan="2">Reuse my password for privileged tasks and to connect to other machines</td>
-                                <td class="listing-ct-actions">
-                                    <button class="btn btn-default pficon pficon-close credential-clear">
-                                    </button>
-                                </td>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr id="credential-keys">
-                                <td colspan="2" translate>Use the following keys to authenticate against other systems</td>
-                                <td class="listing-ct-actions">
-                                    <a>
-                                        <i translate class="pficon pficon-add-circle-o"></i>
-                                        <span translate>Add key</span>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr class="load-custom-key hidden">
-                                <td colspan="3">
-                                    <div class="input-group">
-                                        <div id="ssh-file-container"></div>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" translate>Add</button>
-                                        </span>
-                                    </div>
-                                    <div class="dialog-error help-block"></div>
-                                </td>
-                            </tr>
-                        </thead>
-                        <tbody class="ssh-add-key-body open">
-                            <tr class="listing-ct-item listing-ct-head">
-                                <th class="credential-label"></th>
-                                <td></td>
-                                <td class="listing-ct-actions">
-                                    <div class="btn-group btn-onoff-ct">
-                                        <label class="btn active disabled">
-                                            <span>&#8230;</span>
-                                        </label>
-                                        <label class="btn disabled">
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="listing-ct-body">
-                                <td colspan="3">
-                                    <div class="alert alert-danger">
-                                        <i class="fa fa-exclamation-triangle"></i>
-                                        <span class="credential-alert"></span>
-                                    </div>
-                                    <div class="credential-unlock">
-                                        <dl>
-                                            <dt>
-                                                <label translate>Password</label>
-                                            </dt>
-                                            <dd>
-                                                <input class="form-control credential-password"
+                <div><span translate>Licensed under:</span>
+                    <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
+                      target="_blank">GNU LGPL version 2.1</a>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal" id="troubleshoot-dialog" tabindex="-1" role="dialog"
+            data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="display-language" tabindex="-1" role="dialog" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title" translatable="yes">Display Language</h4>
+              </div>
+              <div class="modal-body">
+	        <p translatable="yes">Choose the language to be used in the application</p>
+                <select id="display-language-list" size="5" data-role="none">
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
+                <button class="btn btn-primary" id="display-language-select-button" translatable="yes">Select</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title" id="error-popup-title"></h4>
+              </div>
+              <div class="modal-body">
+                <p id="error-popup-message"></p>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal" id="credentials-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" translatable="yes">Authentication</h4>
+                    </div>
+                    <div class="modal-body modal-scrollable">
+                        <table class="listing-ct credential-listing">
+                            <thead class="credential-lock">
+                                <tr>
+                                    <td translate colspan="2">Password not usable for privileged tasks or to connect to other machines</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td translate colspan="2">Reuse my password for privileged tasks and to connect to other machines</td>
+                                    <td class="listing-ct-actions">
+                                        <button class="btn btn-default pficon pficon-close credential-clear">
+                                        </button>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <thead>
+                                <tr id="credential-keys">
+                                    <td colspan="2" translate>Use the following keys to authenticate against other systems</td>
+                                    <td class="listing-ct-actions">
+                                        <a>
+                                            <i translate class="pficon pficon-add-circle-o"></i>
+                                            <span translate>Add key</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="load-custom-key hidden">
+                                    <td colspan="3">
+                                        <div class="input-group">
+                                            <div id="ssh-file-container"></div>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" translate>Add</button>
+                                            </span>
+                                        </div>
+                                        <div class="dialog-error help-block"></div>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody class="ssh-add-key-body open">
+                                <tr class="listing-ct-item listing-ct-head">
+                                    <th class="credential-label"></th>
+                                    <td></td>
+                                    <td class="listing-ct-actions">
+                                        <div class="btn-group btn-onoff-ct">
+                                            <label class="btn active disabled">
+                                                <span>&#8230;</span>
+                                            </label>
+                                            <label class="btn disabled">
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="listing-ct-body">
+                                    <td colspan="3">
+                                        <div class="alert alert-danger">
+                                            <i class="fa fa-exclamation-triangle"></i>
+                                            <span class="credential-alert"></span>
+                                        </div>
+                                        <div class="credential-unlock">
+                                            <dl>
+                                                <dt>
+                                                    <label translate>Password</label>
+                                                </dt>
+                                                <dd>
+                                                    <input class="form-control credential-password"
+                                                            autocomplete="off"
+                                                            value="" type="password"/>
+                                                </dd>
+                                                <dt></dt>
+                                                <dd>
+                                                    <button class="btn btn-primary"
+                                                            translate>Unlock Key</button>
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody class="ssh-key-body" hidden>
+                                <tr class="listing-ct-item listing-ct-head">
+                                    <th class="credential-label"></th>
+                                    <td></td>
+                                    <td class="listing-ct-actions">
+                                        <div class="btn-group btn-onoff-ct" data-toggle="buttons">
+                                            <label class="btn">
+                                                <input type="radio" autocomplete="off">
+                                                <span translatable="yes">On</span>
+                                            </label>
+                                            <label class="btn active">
+                                                <input type="radio" autocomplete="off" checked>
+                                                <span translatable="yes">Off</span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="listing-ct-panel credential-panel">
+                                    <td colspan="3">
+                                        <ul class="nav nav-tabs nav-tabs-pf">
+                                            <li class="active"><a href="#" translatable="yes">Details</a></li>
+                                            <li><a href="#" translatable="yes">Public Key</a></li>
+                                            <li><a href="#" translatable="yes">Password</a></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr class="listing-ct-body">
+                                    <td colspan="3">
+                                        <div class="alert alert-danger">
+                                            <i class="fa fa-exclamation-triangle"></i>
+                                            <span class="credential-alert"></span>
+                                        </div>
+                                        <div class="credential-unlock">
+                                            <dl>
+                                                <dt>
+                                                    <label translatable="yes">Password</label>
+                                                </dt>
+                                                <dd>
+                                                    <input class="form-control credential-password"
+                                                            autocomplete="off"
+                                                            value="" type="password"/>
+                                                </dd>
+                                                <dt></dt>
+                                                <dd>
+                                                    <button class="btn btn-primary"
+                                                            translate>Unlock Key</button>
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                        <div class="credential-tab credential-panel">
+                                            <dl>
+                                                <dt>
+                                                    <label translate>Comment</label>
+                                                </dt>
+                                                <dd class="credential-comment"></dd>
+                                                <dt>
+                                                    <label translate>Type</label>
+                                                </dt>
+                                                <dd class="credential-type"></dd>
+                                                <dt>
+                                                    <label translate>Fingerprint</label>
+                                                </dt>
+                                                <dd class="credential-fingerprint"></dd>
+                                            </dl>
+                                        </div>
+                                        <div class="credential-tab credential-panel" hidden>
+                                            <textarea class="credential-data form-control" rows="4" readonly>
+                                            </textarea>
+                                        </div>
+                                        <div class="credential-tab credential-panel" hidden>
+                                            <dl>
+                                                <dt>
+                                                    <label translatable="yes">Old Password</label>
+                                                </dt>
+                                                <dd>
+                                                    <input class="form-control credential-old"
                                                         autocomplete="off"
                                                         value="" type="password"/>
-                                            </dd>
-                                            <dt></dt>
-                                            <dd>
-                                                <button class="btn btn-primary"
-                                                        translate>Unlock Key</button>
-                                            </dd>
-                                        </dl>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tbody class="ssh-key-body" hidden>
-                            <tr class="listing-ct-item listing-ct-head">
-                                <th class="credential-label"></th>
-                                <td></td>
-                                <td class="listing-ct-actions">
-                                    <div class="btn-group btn-onoff-ct" data-toggle="buttons">
-                                        <label class="btn">
-                                            <input type="radio" autocomplete="off">
-                                            <span translatable="yes">On</span>
-                                        </label>
-                                        <label class="btn active">
-                                            <input type="radio" autocomplete="off" checked>
-                                            <span translatable="yes">Off</span>
-                                        </label>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="listing-ct-panel credential-panel">
-                                <td colspan="3">
-                                    <ul class="nav nav-tabs nav-tabs-pf">
-                                        <li class="active"><a href="#" translatable="yes">Details</a></li>
-                                        <li><a href="#" translatable="yes">Public Key</a></li>
-                                        <li><a href="#" translatable="yes">Password</a></li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr class="listing-ct-body">
-                                <td colspan="3">
-                                    <div class="alert alert-danger">
-                                        <i class="fa fa-exclamation-triangle"></i>
-                                        <span class="credential-alert"></span>
-                                    </div>
-                                    <div class="credential-unlock">
-                                        <dl>
-                                            <dt>
-                                                <label translatable="yes">Password</label>
-                                            </dt>
-                                            <dd>
-                                                <input class="form-control credential-password"
+                                                </dd>
+                                                <dt>
+                                                    <label translatable="yes">New Password</label>
+                                                </dt>
+                                                <dd>
+                                                    <input class="form-control credential-new"
                                                         autocomplete="off"
                                                         value="" type="password"/>
-                                            </dd>
-                                            <dt></dt>
-                                            <dd>
-                                                <button class="btn btn-primary"
-                                                        translate>Unlock Key</button>
-                                            </dd>
-                                        </dl>
-                                    </div>
-                                    <div class="credential-tab credential-panel">
-                                        <dl>
-                                            <dt>
-                                                <label translate>Comment</label>
-                                            </dt>
-                                            <dd class="credential-comment"></dd>
-                                            <dt>
-                                                <label translate>Type</label>
-                                            </dt>
-                                            <dd class="credential-type"></dd>
-                                            <dt>
-                                                <label translate>Fingerprint</label>
-                                            </dt>
-                                            <dd class="credential-fingerprint"></dd>
-                                        </dl>
-                                    </div>
-                                    <div class="credential-tab credential-panel" hidden>
-                                        <textarea class="credential-data form-control" rows="4" readonly>
-                                        </textarea>
-                                    </div>
-                                    <div class="credential-tab credential-panel" hidden>
-                                        <dl>
-                                            <dt>
-                                                <label translatable="yes">Old Password</label>
-                                            </dt>
-                                            <dd>
-                                                <input class="form-control credential-old"
-                                                    autocomplete="off"
-                                                    value="" type="password"/>
-                                            </dd>
-                                            <dt>
-                                                <label translatable="yes">New Password</label>
-                                            </dt>
-                                            <dd>
-                                                <input class="form-control credential-new"
-                                                    autocomplete="off"
-                                                    value="" type="password"/>
-                                            </dd>
-                                            <dt>
-                                                <label translatable="yes">Confirm</label>
-                                            </dt>
-                                            <dd>
-                                                <input class="form-control credential-two"
-                                                    autocomplete="off"
-                                                    value="" type="password"/>
-                                            </dd>
-                                            <dt>
-                                                <a tabindex="0" role="button" data-toggle="popover"
-                                                    data-trigger="focus" data-placement="top"
-                                                    data-content="Tip: Make your key password match your login password to automatically authenticate against other systems." translate="data-content">
-                                                    <span class="fa fa-lg fa-info-circle"></span>
-                                                </a>
-                                            </dt>
-                                            <dd>
-                                                <button class="credential-change btn btn-primary"
-                                                    translatable="yes">Change Password</button>
-                                            </dd>
-                                        </dl>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+                                                </dd>
+                                                <dt>
+                                                    <label translatable="yes">Confirm</label>
+                                                </dt>
+                                                <dd>
+                                                    <input class="form-control credential-two"
+                                                        autocomplete="off"
+                                                        value="" type="password"/>
+                                                </dd>
+                                                <dt>
+                                                    <a tabindex="0" role="button" data-toggle="popover"
+                                                        data-trigger="focus" data-placement="top"
+                                                        data-content="Tip: Make your key password match your login password to automatically authenticate against other systems." translate="data-content">
+                                                        <span class="fa fa-lg fa-info-circle"></span>
+                                                    </a>
+                                                </dt>
+                                                <dd>
+                                                    <button class="credential-change btn btn-primary"
+                                                        translatable="yes">Change Password</button>
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="sidebar" class="nav-pf-vertical nav-sidebar" hidden>
-        <ul class="list-group machine-color" id="sidebar-menu">
-        </ul>
-        <ul class="list-group machine-color" id="sidebar-tools">
-        </ul>
-    </div>
+        <div class="area-ct-body">
+            <div class="nav-sidebar-wrap" id="multi-dashboard">
+                <div class="nav-sidebar nav-pf-vertical">
+                    <ul id="main-navbar" class="list-group">
+                        <li id="host-nav-item" class="list-group-item dashboard-link has-menu">
+                            <a id="host-nav-link">
+                                <span class="fa pficon-container-node"></span>
+                                <span class="list-group-item-value"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-    <div class="curtains-ct blank-slate-pf" hidden>
-      <div class="blank-slate-pf-icon">
-        <div class="spinner spinner-lg" hidden></div>
-        <i class="fa fa-exclamation-circle"></i>
-      </div>
-      <h1></h1>
-      <p></p>
-      <div class="blank-slate-pf-main-action">
-        <button id="machine-reconnect" class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>
-        <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translatable="yes">Troubleshoot</button>
-      </div>
-    </div>
+            <div id="host-nav" class="area-ct-subnav">
+                <div id="machine-dropdown" class="nav-item-pf-header machine-dropdown">
+                    <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" role="button" aria-expanded="false">
+                      <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar single-dashboard">
+                      <span></span>
+                       <b class="caret"></b>
+                    </a>
 
-    <div id="content">
-      <!-- Initially populate these frames -->
-      <iframe class="container-frame"
-          name="cockpit1:localhost/system" src="../system/index.html#/"></iframe>
+                    <div class="dropdown-menu">
+                        <div class="form-group has-feedback">
+                            <input id="find-machine" class="form-control" type="search">
+                            <span class="fa fa-search form-control-feedback"></span>
+                        </div>
+                        <ul role="menu" aria-labelledby="machine-link">
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="host-apps" class="host-apps">
+                    <ul class="list-group" id="sidebar-menu">
+                    </ul>
+
+                    <ul class="list-group" id="sidebar-tools">
+                    </ul>
+                </div>
+            </div>
+
+          <div id="content" class="area-ct-content">
+            <!-- Initially populate these frames -->
+            <iframe class="container-frame"
+                name="cockpit1:localhost/system" src="../system/index.html#/"></iframe>
+
+            <div class="curtains-ct blank-slate-pf" hidden>
+              <div class="blank-slate-pf-icon">
+                <div class="spinner spinner-lg" hidden></div>
+                <i class="fa fa-exclamation-circle"></i>
+              </div>
+              <h1></h1>
+              <p></p>
+              <div class="blank-slate-pf-main-action">
+                <button id="machine-reconnect" class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>
+                <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translatable="yes">Troubleshoot</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
     </div>
 
     <script src="index.js"></script>

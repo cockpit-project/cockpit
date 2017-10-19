@@ -195,7 +195,8 @@ class TestRegistry(OCCase):
         b.wait_present(".dashboard-commands")
 
         b.switch_to_top()
-        b.wait_not_visible("#content-navbar")
+        b.wait_present(".area-ct-body")
+        b.wait_present(".area-ct-body.single-nav")
 
         b.logout()
         b.wait_in_text("#login-fatal-message", "Logout Successful")

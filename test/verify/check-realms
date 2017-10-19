@@ -161,6 +161,10 @@ for x in $(seq 1 20); do
     if nslookup -type=SRV _ldap._tcp.cockpit.lan; then
         break
     else
+        if systemctl --quiet is-failed sssd.service; then
+            systemctl status --lines=100 sssd.service >&2
+            exit 1
+        fi
         sleep $x
     fi
 done
@@ -186,6 +190,10 @@ fi
 for x in $(seq 1 60); do
     if getent passwd admin@cockpit.lan; then
         break
+    fi
+    if systemctl --quiet is-failed sssd.service; then
+        systemctl status --lines=100 sssd.service >&2
+        exit 1
     fi
     sleep $x
 done

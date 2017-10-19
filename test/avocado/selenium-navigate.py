@@ -17,7 +17,7 @@ class NavigateTestSuite(SeleniumTest):
     """
     def testNavigateNoReload(self):
         self.login()
-        self.wait_id("sidebar")
+        self.wait_id("host-apps")
 
         # Bring up a dialog on system page
         self.click(self.wait_link('System', cond=clickable))

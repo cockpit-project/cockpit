@@ -584,41 +584,44 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         }
 
         function build_navbar() {
-            var navbar = $("#content-navbar");
+            var navbar = $("#main-navbar");
+            navbar.on("click", function () {
+                navbar.parent().toggleClass("clicked", true);
+            });
+
+            navbar.on("mouseout", function () {
+                navbar.parent().toggleClass("clicked", false);
+            });
 
             function links(component) {
+                var sm = $("<span class='fa'>")
+                    .attr("data-toggle", "tooltip")
+                    .attr("title", "")
+                    .attr("data-original-title", component.label);
+
+                if (component.icon)
+                    sm.addClass(component.icon);
+                else
+                    sm.addClass("first-letter").text(component.label);
+
+                var value = $("<span class='list-group-item-value'>")
+                    .text(component.label);
+
                 var a = $("<a>")
                     .attr("href", self.href({ host: "localhost", component: component.path }))
-                    .text(component.label);
-                return $("<li class='dashboard-link'>")
+                    .attr("title", component.label)
+                    .append(sm)
+                    .append(value);
+
+                return $("<li class='dashboard-link list-group-item'>")
                     .attr("data-component", component.path)
                     .append(a);
             }
 
-            if (shell_embedded) {
-                navbar.hide();
-            } else {
-                var local_compiled = new CompiledComponents();
-                local_compiled.load(cockpit.manifests, "dashboard");
-                navbar.append(local_compiled.ordered("dashboard").map(links));
-            }
+            var local_compiled = new CompiledComponents();
+            local_compiled.load(cockpit.manifests, "dashboard");
+            navbar.append(local_compiled.ordered("dashboard").map(links));
         }
-
-        self.recalculate_layout = function() {
-            var topnav = $('#topnav');
-            var sidebar = $('#sidebar');
-            var content = $('#content');
-
-            var window_height = $(window).height();
-            var topnav_height = topnav.height();
-
-            var y = window_height - topnav_height;
-            $(current_frame).height(Math.floor(y));
-            sidebar.height(y);
-
-            var sidebar_width = sidebar.is(':visible') ? sidebar.outerWidth() : 0;
-            content.css("margin-left", sidebar_width + "px");
-        };
 
         self.retrieve_state = function() {
             var state = window.history.state;
@@ -725,10 +728,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         self.ready = function () {
             $(window).on("popstate", function(ev) {
                 self.navigate(ev.state, true);
-            });
-
-            $(window).on('resize', function () {
-                self.recalculate_layout();
             });
 
             build_navbar();
@@ -862,7 +861,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         var cal_title;
         if (self.brand_sel) {
             cal_title = setup_brand(self.brand_sel, self.default_title);
-            if (cal_title)
+            if (cal_title && !self.skip_brand_title)
                 self.default_title = cal_title;
         }
 
@@ -892,6 +891,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                         section: section,
                         label: cockpit.gettext(info.label) || prop,
                         order: info.order === undefined ? 1000 : info.order,
+                        icon: info.icon,
                         wants: info.wants
                     };
                     if (info.path)

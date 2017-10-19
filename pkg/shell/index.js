@@ -32,7 +32,7 @@
 
     credentials.setup();
 
-    /* When Ctrl is held down we display debugging menu items */
+    /* When alt is held down we display debugging menu items */
     document.addEventListener("click", function(ev) {
         var i, visible = !!ev.altKey;
         var advanced = document.querySelectorAll(".navbar-advanced");

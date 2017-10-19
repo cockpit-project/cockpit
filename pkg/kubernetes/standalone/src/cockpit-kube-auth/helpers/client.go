@@ -148,7 +148,7 @@ func (self *Client) apiStatus(resource string, auth string) (int, error) {
 
 func (self *Client) confirmBearerAuth(creds *Credentials) error {
 	// There are no bugs we have to work around here
-	// so just make sure we get a 200 or 401 to
+	// so just make sure we get a 200 or 403 to
 	// a namespace call
 
 	status, e := self.apiStatus("namespaces", creds.GetHeader())
@@ -179,6 +179,9 @@ func (self *Client) confirmBasicAuth(creds *Credentials) error {
 		// This should return a 200 if the whole api is open or a 401 if the
 		// api is protected.
 		status, e = self.apiStatus("namespaces", "Basic Og==")
+		if e != nil {
+			return e
+		}
 
 		// Some versions of kubernetes return 403 instead of 401
 		// when presented with bad basic auth data. In those cases
@@ -187,8 +190,14 @@ func (self *Client) confirmBasicAuth(creds *Credentials) error {
 		// https://github.com/kubernetes/kubernetes/pull/41775
 		if status == 403 {
 			e = errors.New("This version of kubernetes is not supported. Turn off anonymous auth or upgrade.")
-		} else if status == 200 || status == 401 {
+		} else if status == 200 {
 			success = true
+		} else if status == 401 {
+			if creds.GetHeader() != "" {
+				success = true
+			} else {
+				status = 403
+			}
 		}
 	}
 

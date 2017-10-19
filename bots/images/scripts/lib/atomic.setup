@@ -30,7 +30,7 @@ systemctl daemon-reload
 # explicitly here anyway.  This is hopefully more reliable.
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
-lvresize atomicos/root        -l+50%FREE -r
+lvresize atomicos/root        -l+60%FREE -r
 if lvs atomicos/docker-pool 2>/dev/null; then
     lvresize atomicos/docker-pool -l+100%FREE
 else

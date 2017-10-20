@@ -52,8 +52,7 @@
             var term = new Term({
                 cols: this.state.cols || 80,
                 rows: this.state.rows || 25,
-                screenKeys: true,
-                useStyle: true
+                screenKeys: true
             });
 
             term.on('data', function(data) {

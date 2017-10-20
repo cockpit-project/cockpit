@@ -145,17 +145,16 @@
             var node = this.getDOMNode();
             var terminal = this.refs.terminal.querySelector('.terminal');
 
-            var ch = document.createElement('div');
+            var ch = document.createElement('span');
             ch.textContent = 'M';
+            ch.style.position = 'absolute';
             terminal.appendChild(ch);
-            var height = ch.offsetHeight; // offsetHeight is only correct for block elements
-            ch.style.display = 'inline';
-            var width = ch.offsetWidth;
+            var rect = ch.getBoundingClientRect();
             terminal.removeChild(ch);
 
             this.setState({
-                rows: Math.floor((node.parentElement.clientHeight - padding) / height),
-                cols: Math.floor((node.parentElement.clientWidth - padding) / width)
+                rows: Math.floor((node.parentElement.clientHeight - padding) / rect.height),
+                cols: Math.floor((node.parentElement.clientWidth - padding) / rect.width)
             });
         }
     });

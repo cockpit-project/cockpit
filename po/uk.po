@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-09 20:45+0000\n"
+"POT-Creation-Date: 2017-10-20 11:25+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-09-30 07:15-0400\n"
+"PO-Revision-Date: 2017-10-10 03:44-0400\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
-#: pkg/docker/storage.jsx:245
+#: pkg/docker/storage.jsx:244
 msgid " (shared with the OS)"
 msgstr " (спільний із операційною системою)"
 
@@ -608,6 +608,11 @@ msgctxt "page-title"
 msgid "Accounts"
 msgstr "Облікові записи"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:176
+msgid "Action"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:227
 msgid "Activate"
 msgstr "Задіяти"
@@ -660,7 +665,7 @@ msgstr "Додати"
 msgid "Add $0"
 msgstr "Додати $0"
 
-#: pkg/docker/storage.jsx:377
+#: pkg/docker/storage.jsx:376
 msgid "Add Additional Storage"
 msgstr "Додати додаткове сховище"
 
@@ -723,7 +728,7 @@ msgstr "Додати нового користувача"
 msgid "Add Role"
 msgstr "Додати роль"
 
-#: pkg/docker/storage.jsx:208
+#: pkg/docker/storage.jsx:207
 msgid "Add Storage"
 msgstr "Додати сховище даних"
 
@@ -805,7 +810,7 @@ msgstr "Адреса"
 msgid "Address $val"
 msgstr "Адреса $val"
 
-#: pkg/machines/components/desktopConsole.jsx:156
+#: pkg/machines/components/desktopConsole.jsx:154
 msgid "Address:"
 msgstr "Адреса:"
 
@@ -858,7 +863,7 @@ msgstr "Всі проекти"
 msgid "All Types"
 msgstr "Всі типи"
 
-#: pkg/docker/storage.jsx:380
+#: pkg/docker/storage.jsx:379
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
@@ -915,11 +920,11 @@ msgstr "Застосувати"
 
 #: pkg/packagekit/autoupdates.jsx:293
 msgid "Apply all updates"
-msgstr ""
+msgstr "Застосувати усі оновлення"
 
 #: pkg/packagekit/autoupdates.jsx:294
 msgid "Apply security updates"
-msgstr ""
+msgstr "Застосувати оновлення захисту"
 
 #: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Apply this solution"
@@ -1033,6 +1038,10 @@ msgstr "Автоматично (DHCP)"
 
 #: pkg/packagekit/autoupdates.jsx:334
 msgid "Automatic Updates"
+msgstr "Автоматичні оновлення"
+
+#: pkg/ovirt/components/OVirtTab.jsx:79
+msgid "Automatically selected host"
 msgstr ""
 
 #: pkg/systemd/index.html:398
@@ -1080,11 +1089,23 @@ msgstr "Механізму passwd1 передано помилкові дані"
 msgid "Balancer"
 msgstr "Балансир"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+msgid "Base Template"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterVms.jsx:74
+msgid "Base template"
+msgstr ""
+
+#: pkg/ovirt/components/OVirtTab.jsx:105 pkg/ovirt/components/OVirtTab.jsx:112
+msgid "Base template:"
+msgstr ""
+
 #: pkg/ostree/index.html:68
 msgid "Begins with '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
 msgstr "Починається з '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
 
-#: pkg/storaged/index.html:558
+#: pkg/storaged/index.html:559
 msgctxt "storage"
 msgid "Bitmap"
 msgstr "Растр"
@@ -1183,6 +1204,10 @@ msgstr "Пріоритетність процесора"
 msgid "CPU usage:"
 msgstr "Використання процесора:"
 
+#: pkg/ovirt/provider.es6:202
+msgid "CREATE VM action failed"
+msgstr ""
+
 #: pkg/systemd/index.html:257 pkg/systemd/host.js:1467
 msgid "Cached"
 msgstr "Кеш"
@@ -1236,14 +1261,17 @@ msgstr "Не можна вилучати, доки розблоковано"
 #: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
 #: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:847
+#: pkg/storaged/index.html:287 pkg/storaged/index.html:853
 #: pkg/systemd/index.html:341 pkg/systemd/index.html:428
 #: pkg/systemd/index.html:480 pkg/systemd/index.html:496
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
 #: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
-#: pkg/packagekit/updates.jsx:206 pkg/sosreport/index.js:51
+#: pkg/ovirt/components/ClusterTemplates.jsx:76
+#: pkg/ovirt/components/OVirtTab.jsx:68 pkg/ovirt/components/VdsmView.jsx:97
+#: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:206
+#: pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -1276,7 +1304,7 @@ msgid "Capacity"
 msgstr "Місткість"
 
 #: pkg/storaged/index.html:441 pkg/storaged/index.html:517
-#: pkg/storaged/index.html:549 pkg/storaged/index.html:592
+#: pkg/storaged/index.html:550 pkg/storaged/index.html:595
 msgctxt "storage"
 msgid "Capacity"
 msgstr "Місткість"
@@ -1430,8 +1458,8 @@ msgstr "Сертифікат клієнта"
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/lib/machine-auth-failed.html:20
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:356 pkg/shell/simple.html:82
-#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
-#: pkg/storaged/index.html:852 pkg/systemd/index.html:287
+#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:641
+#: pkg/storaged/index.html:858 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:109
@@ -1442,9 +1470,18 @@ msgstr "Закрити"
 msgid "Close Selected Pages"
 msgstr "Закрити позначені сторінки"
 
-#: pkg/kubernetes/views/auth-form.html:5
+#: pkg/kubernetes/views/auth-form.html:5 pkg/ovirt/components/App.jsx:75
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Cluster"
 msgstr "Кластер"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:127
+msgid "Cluster Templates"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterVms.jsx:173
+msgid "Cluster Virtual Machines"
+msgstr ""
 
 #: cockpit.desktop.in.h:1
 msgid "Cockpit"
@@ -1665,7 +1702,7 @@ msgstr "Налаштувати роботу у мережі Flannel"
 msgid "Configure Kubelet and Proxy"
 msgstr "Налаштувати Kubelet і проксі"
 
-#: pkg/docker/storage.jsx:308
+#: pkg/docker/storage.jsx:307
 msgid "Configure storage..."
 msgstr "Налаштувати сховище даних…"
 
@@ -1689,9 +1726,21 @@ msgstr "Підтвердження нового пароля"
 msgid "Confirm deletion of $0"
 msgstr "Підтвердження вилучення $0"
 
+#: pkg/ovirt/components/OVirtTab.jsx:67
+msgid "Confirm migration"
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:165
 msgid "Confirm passphrase"
 msgstr "Підтвердить пароль"
+
+#: pkg/ovirt/components/VdsmView.jsx:95
+msgid "Confirm reload:"
+msgstr ""
+
+#: pkg/ovirt/components/VdsmView.jsx:108
+msgid "Confirm save:"
+msgstr ""
 
 #: pkg/kubernetes/views/auth-form.html:130
 #: pkg/kubernetes/views/auth-rejected-cert.html:33
@@ -1707,15 +1756,19 @@ msgstr "З’єднуватися автоматично"
 msgid "Connect to"
 msgstr "З’єднатися з"
 
-#: pkg/machines/components/desktopConsole.jsx:128
+#: pkg/ovirt/components/InstallationDialog.jsx:103
+msgid "Connect to oVirt Engine"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:126
 msgid "Connect with Remote Viewer"
 msgstr "З’єднатися із Віддаленим переглядачем"
 
-#: pkg/machines/components/desktopConsole.jsx:191
+#: pkg/machines/components/desktopConsole.jsx:189
 msgid "Connect with any $0 viewer application."
 msgstr "З’єднатися із будь-якою програмою перегляду $0."
 
-#: pkg/machines/components/desktopConsole.jsx:188
+#: pkg/machines/components/desktopConsole.jsx:186
 msgid "Connect with any SPICE or VNC viewer application."
 msgstr "З’єднатися із будь-якою програмою перегляду SPICE або VNC."
 
@@ -1746,7 +1799,7 @@ msgstr "Встановлюємо з’єднання із комп’ютеро�
 msgid "Connecting..."
 msgstr "Встановлення з’єднання…"
 
-#: pkg/machines/hostvmslist.jsx:472
+#: pkg/machines/hostvmslist.jsx:476
 msgid "Connection"
 msgstr "З’єднання"
 
@@ -1843,7 +1896,7 @@ msgctxt "key"
 msgid "Control"
 msgstr "Ctrl"
 
-#: pkg/docker/storage.jsx:419
+#: pkg/docker/storage.jsx:417
 msgid "Could not add all disks"
 msgstr "Не вдалося додати усі диски"
 
@@ -1863,7 +1916,7 @@ msgstr "Не вдалося обробити зашифрований PEM сер
 msgid "Could not parse PEM-encoded private key"
 msgstr "Не вдалося обробити зашифрований PEM закритий ключ"
 
-#: pkg/docker/storage.jsx:460
+#: pkg/docker/storage.jsx:457
 msgid "Could not reset the storage pool"
 msgstr "Не вдалося скинути резервне сховище даних"
 
@@ -1930,6 +1983,7 @@ msgstr "Аварійно завершити роботу системи"
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:222
+#: pkg/ovirt/components/ClusterTemplates.jsx:77
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
 #: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
 #: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
@@ -1971,6 +2025,10 @@ msgstr "Створити таймер"
 #: pkg/systemd/services.html:352
 msgid "Create Timers"
 msgstr "Створити таймери"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:82
+msgid "Create VM"
+msgstr ""
 
 #: pkg/storaged/overview.js:490
 msgid "Create Volume Group"
@@ -2312,9 +2370,16 @@ msgstr "Налаштування розгортання"
 #: pkg/kubernetes/views/project-listing.html:54
 #: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:372
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/systemd/init.js:270
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:74
+#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/systemd/init.js:270
 msgid "Description"
 msgstr "Опис"
+
+#: pkg/ovirt/components/OVirtTab.jsx:143
+#: pkg/ovirt/components/VmOverviewColumn.jsx:71
+msgid "Description:"
+msgstr ""
 
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:262
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
@@ -2327,7 +2392,7 @@ msgstr "Подробиці"
 msgid "Device"
 msgstr "Пристрій"
 
-#: pkg/storaged/index.html:541
+#: pkg/storaged/index.html:542
 msgctxt "storage"
 msgid "Device"
 msgstr "Пристрій"
@@ -2524,7 +2589,7 @@ msgstr "Отримано"
 msgid "Downloading"
 msgstr "Отримуємо"
 
-#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:161
+#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:160
 msgid "Drive"
 msgstr "Диск"
 
@@ -2560,6 +2625,10 @@ msgstr "Змінити сервер"
 #: node_modules/registry-image-widgets/views/imagestream-body.html:7
 msgid "Edit image stream"
 msgstr "Редагувати потік образу"
+
+#: pkg/ovirt/components/VdsmView.jsx:125
+msgid "Edit the vdsm.conf"
+msgstr ""
 
 #: pkg/storaged/jobs.js:119
 msgid "Ejecting $target"
@@ -2658,6 +2727,10 @@ msgstr "Правила примушення:"
 msgid "Enter IP address or host name"
 msgstr "Введіть IP-адресу або назву вузла"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:75
+msgid "Enter New VM name"
+msgstr ""
+
 #: pkg/lib/machine-change-auth.html:57
 msgid ""
 "Entering a different password here means you will need to retype it every "
@@ -2684,11 +2757,11 @@ msgstr "Середовище"
 msgid "Erase"
 msgstr "Витерти"
 
-#: pkg/docker/storage.jsx:438
+#: pkg/docker/storage.jsx:436
 msgid "Erase containers and reset storage pool"
 msgstr "Витерти контейнери і відновити початковий стан резервного сховища"
 
-#: pkg/docker/storage.jsx:363 pkg/docker/storage.jsx:374
+#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
 msgid "Erase containers, reformat disks, and add them"
 msgstr "Витерти контейнери, переформатувати диски і додати їх"
 
@@ -2775,6 +2848,10 @@ msgstr "Розширений розділ"
 #: pkg/storaged/sidebar-views.jsx:122
 msgid "FAILED"
 msgstr "ПОМИЛКА"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:49
+msgid "FQDN"
+msgstr ""
 
 #: pkg/ostree/index.html:258 pkg/networkmanager/interfaces.js:779
 msgid "Failed"
@@ -2936,8 +3013,8 @@ msgstr ""
 msgid "Forward delay $forward_delay"
 msgstr "Затримка переспрямування $forward_delay"
 
-#: pkg/systemd/index.html:265 pkg/docker/storage.jsx:301
-#: pkg/docker/storage.jsx:323 pkg/storaged/pvol-tabs.jsx:48
+#: pkg/systemd/index.html:265 pkg/docker/storage.jsx:300
+#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:48
 #: pkg/systemd/host.js:1469
 msgid "Free"
 msgstr "Вільно"
@@ -3033,6 +3110,15 @@ msgstr "Група або проект"
 msgid "Groups"
 msgstr "Групи"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:175
+msgid "HA"
+msgstr ""
+
+#: pkg/ovirt/components/OVirtTab.jsx:127
+msgid "HA:"
+msgstr ""
+
 #: pkg/networkmanager/index.html:292
 msgid "Hair Pin mode"
 msgstr "Режим початкової зони"
@@ -3041,7 +3127,7 @@ msgstr "Режим початкової зони"
 msgid "Hairpin mode"
 msgstr "Режим початкової зони (hairpin)"
 
-#: pkg/docker/storage.jsx:160
+#: pkg/docker/storage.jsx:159
 msgid "Hard Disk"
 msgstr "Твердий диск"
 
@@ -3061,6 +3147,8 @@ msgstr "Час вітання $hello_time"
 #: pkg/kubernetes/views/details-page.html:73
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
+#: pkg/ovirt/components/App.jsx:72 pkg/ovirt/components/ClusterVms.jsx:56
+#: pkg/ovirt/components/ClusterVms.jsx:175
 msgid "Host"
 msgstr "Вузол"
 
@@ -3296,7 +3384,7 @@ msgstr "Неактивний том"
 msgid "Incorrect Host Key"
 msgstr "Неправильний ключ вузла"
 
-#: pkg/docker/storage.jsx:285
+#: pkg/docker/storage.jsx:284
 msgid "Information about the Docker storage pool is not available."
 msgstr "Немає доступу до даних щодо резервного сховища даних Docker."
 
@@ -3558,7 +3646,7 @@ msgstr "Востаннє перевірено: $0 тому"
 msgid "Latest Version"
 msgstr "Найсвіжіша версія"
 
-#: pkg/machines/components/desktopConsole.jsx:131
+#: pkg/machines/components/desktopConsole.jsx:129
 msgid "Launch Remote Viewer"
 msgstr "Запустити віддалений переглядач"
 
@@ -3644,6 +3732,10 @@ msgstr "Не вдалося завантажити список доступни
 msgid "Loading available updates, please wait..."
 msgstr "Завантажуємо доступні оновлення, зачекайте…"
 
+#: pkg/ovirt/components/VdsmView.jsx:36
+msgid "Loading data ..."
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:140 pkg/systemd/logs.js:155
 #: pkg/systemd/logs.js:199 pkg/systemd/logs.js:240
 msgid "Loading..."
@@ -3653,7 +3745,7 @@ msgstr "Завантаження…"
 msgid "Local Accounts"
 msgstr "Локальні облікові записи"
 
-#: pkg/docker/storage.jsx:191
+#: pkg/docker/storage.jsx:190
 msgid "Local Disks"
 msgstr "Локальні диски"
 
@@ -3785,6 +3877,10 @@ msgstr "MAC"
 msgid "MAC Address:"
 msgstr "MAC-адреса:"
 
+#: pkg/ovirt/provider.es6:228
+msgid "MIGRATE action failed"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:1915
 msgid "MII (Recommended)"
 msgstr "MII (рекомендоване)"
@@ -3818,7 +3914,7 @@ msgstr "Маніфест"
 msgid "Manual"
 msgstr "Вручну"
 
-#: pkg/machines/components/desktopConsole.jsx:196
+#: pkg/machines/components/desktopConsole.jsx:194
 msgid "Manual Connection"
 msgstr "З’єднання вручну"
 
@@ -3879,6 +3975,8 @@ msgstr "Участь"
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
 #: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Memory"
 msgstr "Пам'ять"
 
@@ -3927,6 +4025,10 @@ msgstr "Використано метаданих"
 msgid "MiB"
 msgstr "МіБ"
 
+#: pkg/ovirt/components/OVirtTab.jsx:72
+msgid "Migrate To:"
+msgstr ""
+
 #: pkg/systemd/init.js:1191 pkg/systemd/init.js:1200 pkg/systemd/init.js:1209
 msgid "Minute needs to be a number between 0-59"
 msgstr "Хвилини слід вказувати у форматі числа від 0 до 59"
@@ -3972,8 +4074,8 @@ msgstr "Монітори"
 msgid "More"
 msgstr "Більше"
 
-#: pkg/machines/components/desktopConsole.jsx:104
-#: pkg/machines/components/desktopConsole.jsx:112
+#: pkg/machines/components/desktopConsole.jsx:102
+#: pkg/machines/components/desktopConsole.jsx:110
 msgid "More Information"
 msgstr "Докладніше"
 
@@ -4075,7 +4177,9 @@ msgstr "Сервер NTP"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:329
+#: pkg/machines/hostvmslist.jsx:476
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
@@ -4153,11 +4257,11 @@ msgstr "Журнали роботи у мережі"
 msgid "Never"
 msgstr "Ніколи"
 
-#: pkg/users/local.js:832
+#: pkg/users/index.html:345 pkg/users/local.js:832
 msgid "Never expire password"
 msgstr "Необмежений строк дії пароля"
 
-#: pkg/users/index.html:306 pkg/users/index.html:345 pkg/users/local.js:840
+#: pkg/users/index.html:306 pkg/users/local.js:840
 msgid "Never lock account"
 msgstr "Ніколи не блокувати обліковий запис"
 
@@ -4242,6 +4346,11 @@ msgstr "Цю вимогу не використовує жоден кокон"
 msgid "No SELinux alerts."
 msgstr "Немає сповіщень SELinux."
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:29
+#: pkg/ovirt/components/ClusterVms.jsx:35
+msgid "No VM found in oVirt."
+msgstr ""
+
 #: pkg/machines/hostvmslist.jsx:47
 msgid "No VM is running or defined on this host"
 msgstr "У цій основній системі не запущено або не визначено віртуальних машин"
@@ -4250,7 +4359,7 @@ msgstr "У цій основній системі не запущено або �
 msgid "No Volume Bound"
 msgstr "Не пов’язано тому"
 
-#: pkg/docker/storage.jsx:197
+#: pkg/docker/storage.jsx:196
 msgid "No additional local storage found."
 msgstr "Додаткових локальний сховищ даних не знайдено."
 
@@ -4550,13 +4659,23 @@ msgstr "Ще не синхронізовано"
 msgid "Note"
 msgstr "Примітка"
 
+#: pkg/ovirt/components/VdsmView.jsx:96 pkg/ovirt/components/VdsmView.jsx:109
+msgid "OK"
+msgstr "Гаразд"
+
 #: pkg/kubernetes/views/node-body.html:13
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "OS"
 msgstr "ОС"
 
 #: pkg/ostree/client.js:585 pkg/ostree/client.js:681
 msgid "OS $0 not found"
 msgstr "ОС $0 не знайдено"
+
+#: pkg/ovirt/components/OVirtTab.jsx:145
+msgid "OS Type:"
+msgstr "Тип ОС:"
 
 #: pkg/kubernetes/views/nodes-page.html:19
 msgid "OS Versions"
@@ -4576,7 +4695,7 @@ msgstr "Сталося між $0 і $1"
 
 #: pkg/playground/jquery-patterns.html:95
 #: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:254
-#: pkg/storaged/index.html:563 pkg/systemd/index.html:167
+#: pkg/storaged/index.html:564 pkg/systemd/index.html:167
 #: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:38
 msgid "Off"
 msgstr "Вимкнено"
@@ -4595,7 +4714,7 @@ msgstr "Старий пароль не прийнято"
 
 #: pkg/playground/jquery-patterns.html:91
 #: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:250
-#: pkg/storaged/index.html:562 pkg/systemd/index.html:163
+#: pkg/storaged/index.html:563 pkg/systemd/index.html:163
 #: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:39
 msgid "On"
 msgstr "Увімкнено"
@@ -4652,6 +4771,10 @@ msgstr "Дія «$operation» над $target"
 msgctxt "storage"
 msgid "Optical Drive"
 msgstr "Пристрій читання оптичних дисків"
+
+#: pkg/ovirt/components/OVirtTab.jsx:152
+msgid "Optimized for:"
+msgstr ""
 
 #: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
 #: pkg/storaged/crypto-tab.jsx:145
@@ -4932,6 +5055,22 @@ msgstr "Будь ласка, вкажіть коректну місткість 
 msgid "Please provide a valid target"
 msgstr "Будь ласка, вкажіть коректне призначення"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:85
+msgid ""
+"Please provide fully qualified domain name and port of the oVirt engine."
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:136
+msgid ""
+"Please provide valid oVirt engine fully qualified domain name (FQDN) and "
+"port (443 by default)"
+msgstr ""
+
+#: pkg/ovirt/components/ConsoleClientResources.jsx:34
+msgid ""
+"Please refer to oVirt's $0 for more information about Remote Viewer setup."
+msgstr ""
+
 #: pkg/kubernetes/scripts/volumes.js:469
 msgid "Please select a valid access mode"
 msgstr "Будь ласка, виберіть коректний режим доступу"
@@ -4961,6 +5100,14 @@ msgstr "Будь ласка, спробуйте інший ключ"
 #: pkg/kubernetes/scripts/nodes.js:401
 msgid "Please type an address"
 msgstr "Будь ласка, введіть адресу"
+
+#: pkg/ovirt/components/ClusterVms.jsx:36
+msgid "Please wait till VMs list is loaded from the server."
+msgstr ""
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:30
+msgid "Please wait till list of templates is loaded from the server."
+msgstr ""
 
 #: pkg/kubernetes/views/containers-listing.html:12
 #: pkg/kubernetes/views/pod-page.html:12
@@ -5028,7 +5175,7 @@ msgid "Populate"
 msgstr "Заповнити"
 
 #: pkg/lib/machine-change-port.html:23 pkg/machines/vmdiskstab.jsx:57
-#: pkg/storaged/overview.js:629
+#: pkg/ovirt/components/InstallationDialog.jsx:67 pkg/storaged/overview.js:629
 msgid "Port"
 msgstr "Порт"
 
@@ -5059,6 +5206,10 @@ msgstr "Довжина префікса або маска мережі"
 #: pkg/networkmanager/interfaces.js:763
 msgid "Preparing"
 msgstr "Приготування"
+
+#: pkg/ovirt/rephraseUI.es6:26
+msgid "Preparing for Maintenance"
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:3501
 msgid "Preserve"
@@ -5293,7 +5444,7 @@ msgstr "Пристрої RAID"
 msgid "RAID Level"
 msgstr "Рівень RAID"
 
-#: pkg/storaged/index.html:553
+#: pkg/storaged/index.html:554
 msgctxt "storage"
 msgid "RAID Level"
 msgstr "Рівень RAID:"
@@ -5301,6 +5452,10 @@ msgstr "Рівень RAID:"
 #: pkg/storaged/content-views.jsx:150
 msgid "RAID Member"
 msgstr "Елемент RAID"
+
+#: pkg/ovirt/provider.es6:137
+msgid "REBOOT action failed"
+msgstr ""
 
 #: pkg/kubernetes/scripts/volumes.js:200
 msgid "Rados Block Device"
@@ -5444,7 +5599,7 @@ msgstr "Відновлюємо пристрій RAID $target"
 msgid "Recycle"
 msgstr "Повторний цикл"
 
-#: pkg/docker/storage.jsx:351
+#: pkg/docker/storage.jsx:350
 msgid "Reformat and add disks"
 msgstr "Повторно форматувати і додати диски"
 
@@ -5477,9 +5632,17 @@ msgstr "Зареєструвати новий том"
 msgid "Register Persistent Volume"
 msgstr "Зареєструвати сталий том"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:107
+msgid "Register oVirt"
+msgstr ""
+
 #: pkg/subscriptions/main.js:74
 msgid "Register system"
 msgstr "Зареєструвати систему"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:127
+msgid "Registering oVirt to Cockpit"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:887
 msgid "Register…"
@@ -5489,7 +5652,7 @@ msgstr "Зареєструвати…"
 msgid "Released"
 msgstr "Випущено"
 
-#: pkg/systemd/init.js:516
+#: pkg/ovirt/components/VdsmView.jsx:100 pkg/systemd/init.js:516
 msgid "Reload"
 msgstr "Перезавантажити"
 
@@ -5683,11 +5846,11 @@ msgstr "Зарезервована пам’ять"
 msgid "Reset"
 msgstr "Скинути"
 
-#: pkg/docker/storage.jsx:432
+#: pkg/docker/storage.jsx:430
 msgid "Reset Storage Pool"
 msgstr "Скинути резервне сховище"
 
-#: pkg/docker/storage.jsx:435
+#: pkg/docker/storage.jsx:433
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -5798,8 +5961,13 @@ msgstr "Маршрути"
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
 #: pkg/systemd/services.html:400 pkg/machines/hostvmslist.jsx:96
+#: pkg/ovirt/components/ClusterVms.jsx:83
 msgid "Run"
 msgstr "Запустити"
+
+#: pkg/ovirt/components/ClusterVms.jsx:88
+msgid "Run Here"
+msgstr ""
 
 #: pkg/docker/index.html:418
 msgid "Run Image"
@@ -5841,25 +6009,33 @@ msgstr "SELinux вимкнено у системі."
 msgid "SELinux system status is unknown."
 msgstr "Стан системи SELinux є невідомим."
 
+#: pkg/ovirt/provider.es6:89 pkg/ovirt/provider.es6:113
+msgid "SHUTDOWN action failed"
+msgstr ""
+
 #: pkg/storaged/jobs.js:118
 msgid "SMART self-test of $target"
 msgstr "Самоперевірка SMART $target"
 
-#: pkg/machines/components/desktopConsole.jsx:190
+#: pkg/machines/components/desktopConsole.jsx:188
 msgid "SPICE"
 msgstr "SPICE"
 
-#: pkg/machines/components/desktopConsole.jsx:159
+#: pkg/machines/components/desktopConsole.jsx:157
 msgid "SPICE Address:"
 msgstr "Адреса SPICE:"
 
-#: pkg/machines/components/desktopConsole.jsx:165
+#: pkg/machines/components/desktopConsole.jsx:163
 msgid "SPICE Port:"
 msgstr "Порт SPICE:"
 
-#: pkg/machines/components/desktopConsole.jsx:168
+#: pkg/machines/components/desktopConsole.jsx:166
 msgid "SPICE TLS Port:"
 msgstr "Порт TLS SPICE:"
+
+#: pkg/ovirt/provider.es6:173
+msgid "START action failed"
+msgstr ""
 
 #: pkg/networkmanager/index.html:242
 msgid "STP Forward delay"
@@ -5877,11 +6053,15 @@ msgstr "Максимальний вік повідомлення STP"
 msgid "STP Priority"
 msgstr "Пріоритет STP"
 
+#: pkg/ovirt/provider.es6:248
+msgid "SUSPEND action failed"
+msgstr ""
+
 #: pkg/systemd/services.html:199
 msgid "Saturday"
 msgstr "субота"
 
-#: pkg/systemd/services.html:482
+#: pkg/systemd/services.html:482 pkg/ovirt/components/VdsmView.jsx:114
 msgid "Save"
 msgstr "Зберегти"
 
@@ -6048,7 +6228,7 @@ msgstr ""
 "Служби збирають у групи кокони і надають загальну назву DNS та додаткову, "
 "збалансовану за навантаженням IP-адресу для доступу до них."
 
-#: pkg/machines/helpers.es6:100
+#: pkg/machines/helpers.es6:104
 msgid "Session"
 msgstr "Сеанс"
 
@@ -6208,19 +6388,19 @@ msgstr "З $0"
 msgid "Size"
 msgstr "Розмір"
 
-#: pkg/storaged/dialog.js:274
+#: pkg/storaged/dialog.js:322
 msgid "Size cannot be negative"
 msgstr "Розмір не може бути від’ємним"
 
-#: pkg/storaged/dialog.js:272
+#: pkg/storaged/dialog.js:320
 msgid "Size cannot be zero"
 msgstr "Розмір не може бути нульовим"
 
-#: pkg/storaged/dialog.js:276
+#: pkg/storaged/dialog.js:324
 msgid "Size is too large"
 msgstr "Розмір є надто великим"
 
-#: pkg/storaged/dialog.js:270
+#: pkg/storaged/dialog.js:318
 msgid "Size must be a number"
 msgstr "Розмір має бути числом"
 
@@ -6237,7 +6417,7 @@ msgstr "Сокети"
 msgid "Software Updates"
 msgstr "Оновлення програм"
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 msgid "Solid-State Disk"
 msgstr "Твердотільний диск"
 
@@ -6331,11 +6511,12 @@ msgstr "Починається"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:472 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:476 pkg/ovirt/components/ClusterVms.jsx:177
+#: pkg/systemd/init.js:275
 msgid "State"
 msgstr "Стан"
 
-#: pkg/storaged/index.html:569
+#: pkg/storaged/index.html:570
 msgctxt "storage"
 msgid "State"
 msgstr "Стан"
@@ -6343,6 +6524,15 @@ msgstr "Стан"
 #: pkg/docker/index.html:165
 msgid "State:"
 msgstr "Стан:"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:175
+msgid "Stateless"
+msgstr ""
+
+#: pkg/ovirt/components/OVirtTab.jsx:151
+msgid "Stateless:"
+msgstr ""
 
 #: pkg/systemd/init.js:304
 msgid "Static"
@@ -6397,11 +6587,11 @@ msgid "Stopping swapspace $target"
 msgstr "Зупиняємо резервну область пам’яті $target"
 
 #: pkg/docker/index.html:281 pkg/storaged/index.html:23
-#: pkg/storaged/index.html:603
+#: pkg/storaged/index.html:607
 msgid "Storage"
 msgstr "Сховище даних"
 
-#: pkg/storaged/index.html:617
+#: pkg/storaged/index.html:621
 msgid "Storage Log"
 msgstr "Журнал сховища даних"
 
@@ -6444,6 +6634,10 @@ msgstr "Резюме"
 #: pkg/systemd/services.html:200
 msgid "Sunday"
 msgstr "неділя"
+
+#: pkg/ovirt/components/VmActions.jsx:42
+msgid "Suspend"
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:152
 msgid "Swap"
@@ -6522,7 +6716,7 @@ msgstr "Синхронізовано із {{Server}}"
 msgid "Synchronizing RAID Device $target"
 msgstr "Синхронізуємо пристрій RAID $target"
 
-#: pkg/systemd/index.html:4 pkg/machines/helpers.es6:99
+#: pkg/systemd/index.html:4 pkg/machines/helpers.es6:103
 msgid "System"
 msgstr "Система"
 
@@ -6596,8 +6790,13 @@ msgstr "Параметри команди"
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
 #: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Template"
 msgstr "Шаблон"
+
+#: pkg/ovirt/components/App.jsx:78
+msgid "Templates"
+msgstr ""
 
 #: pkg/systemd/terminal.html:4
 msgid "Terminal"
@@ -6627,7 +6826,7 @@ msgstr "Перевіряємо з’єднання"
 msgid "The \"storaged\" API is not available on this system."
 msgstr "У цій системі програмний інтерфейс «storaged» є недоступним."
 
-#: pkg/docker/storage.jsx:499
+#: pkg/docker/storage.jsx:496
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr "У цій системі не можна керувати резервним сховищем даних Docker."
 
@@ -6861,7 +7060,7 @@ msgstr ""
 msgid "The service '{{ target }}' does not exist."
 msgstr "Служби «{{ target }}» не існує."
 
-#: pkg/docker/storage.jsx:358 pkg/docker/storage.jsx:369
+#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
 msgid ""
 "The storage pool will be reset to optimize its layout.  All containers will "
 "be erased."
@@ -6976,7 +7175,7 @@ msgstr ""
 msgid "This device cannot be managed here."
 msgstr "Тут не можна керувати цим пристроєм."
 
-#: pkg/storaged/index.html:816
+#: pkg/storaged/index.html:822
 msgid ""
 "This device has filesystems that are currently in use.                "
 "Proceeding will unmount all filesystems on it."
@@ -6984,11 +7183,11 @@ msgstr ""
 "На цьому пристрої міститься файлова система, яка зараз використовується. "
 "Виконання дії призведе до демонтування усіх файлових систем на пристрої."
 
-#: pkg/storaged/index.html:667
+#: pkg/storaged/index.html:672
 msgid "This device is currently used for RAID devices."
 msgstr "Цей пристрій зараз використовується для пристроїв RAID."
 
-#: pkg/storaged/index.html:834
+#: pkg/storaged/index.html:840
 msgid ""
 "This device is currently used for RAID devices.                Proceeding "
 "will remove it from its RAID devices."
@@ -6996,11 +7195,11 @@ msgstr ""
 "Цей пристрій зараз використовується для формування пристроїв RAID. Якщо дію "
 "буде виконано, пристрій буде вилучено із його пристроїв RAID."
 
-#: pkg/storaged/index.html:659
+#: pkg/storaged/index.html:664
 msgid "This device is currently used for volume groups."
 msgstr "Цей пристрій зараза використовується для груп томів."
 
-#: pkg/storaged/index.html:825
+#: pkg/storaged/index.html:831
 msgid ""
 "This device is currently used for volume groups.                Proceeding "
 "will remove it from its volume groups."
@@ -7089,6 +7288,10 @@ msgid ""
 msgstr ""
 "У цій версії cockpit-ws не передбачено підтримки встановлення з’єднання із "
 "вузлом від альтернативного користувача або на альтернативному порті."
+
+#: pkg/ovirt/components/OVirtTab.jsx:133
+msgid "This virtual machine is not managed by oVirt"
+msgstr ""
 
 #: pkg/kubernetes/views/pv-delete.html:7
 msgid ""
@@ -7183,7 +7386,7 @@ msgstr "Забагато даних"
 msgid "Topology"
 msgstr "Топологія"
 
-#: pkg/docker/storage.jsx:317
+#: pkg/docker/storage.jsx:316
 msgid "Total"
 msgstr "Загалом"
 
@@ -7273,7 +7476,7 @@ msgstr "Адреса"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/index.html:545 pkg/storaged/index.html:588
+#: pkg/storaged/index.html:546 pkg/storaged/index.html:591
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -7538,7 +7741,7 @@ msgstr "Використовувати параметр у /etc/kdump.conf"
 msgid "Use trusted GPG key"
 msgstr "Використовувати надійний ключ GPG"
 
-#: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
+#: pkg/systemd/index.html:261 pkg/docker/storage.jsx:315
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/hostvmslist.jsx:352 pkg/machines/hostvmslist.jsx:363
 #: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
@@ -7599,6 +7802,14 @@ msgstr "Користувачі"
 msgid "Using available credentials"
 msgstr "З використанням доступних реєстраційних даних"
 
+#: pkg/ovirt/components/App.jsx:81
+msgid "VDSM"
+msgstr ""
+
+#: pkg/ovirt/components/VdsmView.jsx:128
+msgid "VDSM Service Management"
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:107
 msgid "VFAT - Compatible with all systems and devices"
 msgstr "VFAT - Сумісна із усіма системами та пристроями"
@@ -7641,19 +7852,23 @@ msgstr "Не вдалося виконати дію SHUT DOWN для ВМ"
 msgid "VM START action failed"
 msgstr "Не вдалося виконати дію START для ВМ"
 
-#: pkg/machines/components/desktopConsole.jsx:190
+#: pkg/ovirt/components/VmOverviewColumn.jsx:54
+msgid "VM icon"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:188
 msgid "VNC"
 msgstr "VNC"
 
-#: pkg/machines/components/desktopConsole.jsx:162
+#: pkg/machines/components/desktopConsole.jsx:160
 msgid "VNC Address:"
 msgstr "Адреса VNC:"
 
-#: pkg/machines/components/desktopConsole.jsx:171
+#: pkg/machines/components/desktopConsole.jsx:169
 msgid "VNC Port:"
 msgstr "Порт VNC:"
 
-#: pkg/machines/components/desktopConsole.jsx:174
+#: pkg/machines/components/desktopConsole.jsx:172
 msgid "VNC TLS Port:"
 msgstr "Порт TLS VNC:"
 
@@ -7675,9 +7890,15 @@ msgstr "Перевіряємо"
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:74 pkg/packagekit/updates.jsx:330
+#: pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "Версія"
+
+#: pkg/ovirt/components/ClusterVms.jsx:74
+msgid "Version num"
+msgstr ""
 
 #: pkg/storaged/jobs.js:136
 msgid "Very securely erasing $target"
@@ -7687,7 +7908,7 @@ msgstr "Дуже безпечно витираємо $target"
 msgid "View Registration Details"
 msgstr "Переглянути параметри реєстрації"
 
-#: pkg/machines/hostvmslist.jsx:472
+#: pkg/machines/hostvmslist.jsx:476
 msgid "Virtual Machines"
 msgstr "Віртуальні машини"
 
@@ -7697,7 +7918,7 @@ msgstr "Віртуальні машини"
 msgid "Volume"
 msgstr "Том"
 
-#: pkg/storaged/index.html:582 pkg/storaged/pvol-tabs.jsx:44
+#: pkg/storaged/index.html:584 pkg/storaged/pvol-tabs.jsx:44
 msgid "Volume Group"
 msgstr "Група томів"
 
@@ -7852,7 +8073,7 @@ msgstr ""
 "У вас немає прав доступу для перегляду уповноважених відкритих ключів для "
 "цього облікового запису."
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:493
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "У вас немає прав доступу до керування резервним сховищем даних Docker."
@@ -7913,7 +8134,7 @@ msgstr "псевдонім"
 
 #: pkg/packagekit/autoupdates.jsx:321
 msgid "and restart the machine automatically."
-msgstr ""
+msgstr "і перезапуск системи автоматично."
 
 #: pkg/ostree/index.html:186 pkg/packagekit/autoupdates.jsx:312
 msgid "at"
@@ -7924,15 +8145,23 @@ msgctxt "format-bytes"
 msgid "bytes"
 msgstr "байтів"
 
-#: pkg/machines/helpers.es6:114
+#: pkg/machines/helpers.es6:118
 msgid "cdrom"
 msgstr "cdrom"
 
-#: pkg/machines/helpers.es6:108
+#: pkg/ovirt/rephraseUI.es6:36
+msgid "connecting"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "cores"
+msgstr ""
+
+#: pkg/machines/helpers.es6:112
 msgid "crashed"
 msgstr "аварійне завершення"
 
-#: pkg/machines/helpers.es6:119
+#: pkg/machines/helpers.es6:123
 msgid "custom"
 msgstr "нетиповий"
 
@@ -7940,15 +8169,19 @@ msgstr "нетиповий"
 msgid "default"
 msgstr "типовий"
 
-#: pkg/machines/helpers.es6:95
+#: pkg/machines/helpers.es6:99 pkg/ovirt/components/OVirtTab.jsx:122
 msgid "disabled"
 msgstr "вимкнено"
 
-#: pkg/machines/helpers.es6:113 pkg/machines/helpers.es6:116
+#: pkg/machines/helpers.es6:117 pkg/machines/helpers.es6:120
 msgid "disk"
 msgstr "диск"
 
-#: pkg/machines/helpers.es6:109
+#: pkg/ovirt/rephraseUI.es6:28
+msgid "down"
+msgstr ""
+
+#: pkg/machines/helpers.es6:113
 msgid "dying"
 msgstr "вмирає"
 
@@ -7960,13 +8193,17 @@ msgstr "наприклад «$0»"
 msgid "eg: my-image-stream"
 msgstr "приклад: my-image-stream"
 
-#: pkg/machines/helpers.es6:96
+#: pkg/machines/helpers.es6:100 pkg/ovirt/components/OVirtTab.jsx:124
 msgid "enabled"
 msgstr "увімкнено"
 
+#: pkg/ovirt/rephraseUI.es6:29
+msgid "error"
+msgstr "помилка"
+
 #: pkg/packagekit/autoupdates.jsx:301
 msgid "every day"
-msgstr ""
+msgstr "кожного дня"
 
 #: pkg/storaged/format-dialog.jsx:104
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
@@ -7976,7 +8213,7 @@ msgstr "ext4 - Типова для Red Hat Enterprise Linux 6"
 msgid "failed to list ssh host keys: $0"
 msgstr "не вдалося побудувати список ключів SSH вузла: $0"
 
-#: pkg/machines/helpers.es6:120
+#: pkg/machines/helpers.es6:124
 msgid "host"
 msgstr "вузол"
 
@@ -7984,9 +8221,21 @@ msgstr "вузол"
 msgid "iSCSI Targets"
 msgstr "Призначення iSCSI"
 
-#: pkg/machines/helpers.es6:104
+#: pkg/machines/helpers.es6:108
 msgid "idle"
 msgstr "бездіяльний"
+
+#: pkg/ovirt/rephraseUI.es6:30
+msgid "initializing"
+msgstr ""
+
+#: pkg/ovirt/rephraseUI.es6:31
+msgid "installation failed"
+msgstr ""
+
+#: pkg/ovirt/rephraseUI.es6:39
+msgid "installing OS"
+msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:379
 msgid "invalid: multiple targets defined"
@@ -7996,6 +8245,10 @@ msgstr "помилка: визначено декілька цілей"
 msgid "kdump status"
 msgstr "стан kdump"
 
+#: pkg/ovirt/rephraseUI.es6:40
+msgid "kdumping"
+msgstr ""
+
 #: pkg/docker/run.js:526
 msgid "key"
 msgstr "ключ"
@@ -8004,13 +8257,26 @@ msgstr "ключ"
 msgid "locally in $0"
 msgstr "локально у $0"
 
-#: pkg/machines/helpers.es6:115
+#: pkg/ovirt/rephraseUI.es6:32
+msgid "maintenance"
+msgstr ""
+
+#: pkg/machines/helpers.es6:119
 msgid "network"
 msgstr "мережа"
 
 #: pkg/kubernetes/views/route-body.html:14 pkg/machines/vmdiskstab.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:44
 msgid "no"
 msgstr "ні"
+
+#: pkg/ovirt/rephraseUI.es6:33
+msgid "non operational"
+msgstr ""
+
+#: pkg/ovirt/rephraseUI.es6:34
+msgid "non responsive"
+msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:33
 #: pkg/kubernetes/views/node-body.html:59
@@ -8022,51 +8288,81 @@ msgstr "ні"
 msgid "none"
 msgstr "немає"
 
+#: pkg/ovirt/provider.es6:55
+msgid "oVirt"
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:38
+msgid "oVirt Provider installation script failed due to missing arguments."
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:39
+msgid ""
+"oVirt Provider installation script failed: Can't write to /etc/cockpit/"
+"machines-ovirt.config, try as root."
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:161
+msgid "oVirt installation script failed with following output: "
+msgstr ""
+
+#: pkg/ovirt/components/App.jsx:36
+msgid "oVirt login in progress"
+msgstr ""
+
 #: pkg/packagekit/autoupdates.jsx:306
 msgid "on Fridays"
-msgstr ""
+msgstr "по п'ятницях"
 
 #: pkg/packagekit/autoupdates.jsx:302
 msgid "on Mondays"
-msgstr ""
+msgstr "по понеділках"
 
 #: pkg/packagekit/autoupdates.jsx:307
 msgid "on Saturdays"
-msgstr ""
+msgstr "по суботах"
 
 #: pkg/packagekit/autoupdates.jsx:308
 msgid "on Sundays"
-msgstr ""
+msgstr "по неділях"
 
 #: pkg/packagekit/autoupdates.jsx:305
 msgid "on Thursdays"
-msgstr ""
+msgstr "по четвергах"
 
 #: pkg/packagekit/autoupdates.jsx:303
 msgid "on Tuesdays"
-msgstr ""
+msgstr "по вівторках"
 
 #: pkg/packagekit/autoupdates.jsx:304
 msgid "on Wednesdays"
-msgstr ""
+msgstr "по середах"
 
 #: pkg/machines/libvirt.es6:433
 msgid "other"
 msgstr "інше"
 
-#: pkg/machines/helpers.es6:105
+#: pkg/machines/helpers.es6:109
 msgid "paused"
 msgstr "призупинено"
+
+#: pkg/ovirt/rephraseUI.es6:35
+msgid "pending approval"
+msgstr ""
 
 #: pkg/kubernetes/views/dashboard-page.html:83
 msgid "pending volume claims"
 msgstr "запити тому у черзі"
 
+#: pkg/ovirt/rephraseUI.es6:37
+msgid "reboot"
+msgstr ""
+
 #: pkg/tuned/change-profile.jsx:52
 msgid "recommended"
 msgstr "найліпший"
 
-#: pkg/machines/helpers.es6:103
+#: pkg/machines/helpers.es6:107
 msgid "running"
 msgstr "працює"
 
@@ -8082,13 +8378,17 @@ msgstr "вибрати контейнер"
 msgid "shares"
 msgstr "спільний"
 
-#: pkg/machines/helpers.es6:107
+#: pkg/machines/helpers.es6:111
 msgid "shut off"
 msgstr "вимкнути"
 
-#: pkg/machines/helpers.es6:106
+#: pkg/machines/helpers.es6:110
 msgid "shutdown"
 msgstr "завершити роботу"
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "sockets"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:118
 msgid "solution details"
@@ -8098,9 +8398,13 @@ msgstr "параметри рішення"
 msgid "ssh key"
 msgstr "ключ ssh"
 
-#: pkg/machines/helpers.es6:110
+#: pkg/machines/helpers.es6:114
 msgid "suspended (PM)"
 msgstr "призупинено (PM)"
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "threads"
+msgstr ""
 
 #: pkg/docker/run.js:473
 msgid "to host path"
@@ -8109,6 +8413,10 @@ msgstr "до шляху на вузлі"
 #: pkg/docker/run.js:417
 msgid "to host port"
 msgstr "до порту основної системи"
+
+#: pkg/ovirt/rephraseUI.es6:38
+msgid "unassigned"
+msgstr ""
 
 #: pkg/lib/cockpit-components-select.jsx:30
 msgid "undefined"
@@ -8127,6 +8435,15 @@ msgstr "невідоме призначення"
 msgid "unpartitioned space on $0"
 msgstr "нерозподілене місце на $0"
 
+#: pkg/ovirt/rephraseUI.es6:27
+msgid "up"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
+msgid "vCPUs"
+msgstr ""
+
 #: pkg/machines/hostvmslist.jsx:291
 msgid "vCPUs:"
 msgstr "vCPU:"
@@ -8136,6 +8453,7 @@ msgid "value"
 msgstr "значення"
 
 #: pkg/kubernetes/views/route-body.html:13 pkg/machines/vmdiskstab.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:43
 msgid "yes"
 msgstr "так"
 

@@ -6,18 +6,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-09 20:45+0000\n"
+"POT-Creation-Date: 2017-10-20 11:25+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-10-09 05:59-0400\n"
+"PO-Revision-Date: 2017-10-15 11:56-0400\n"
 "Last-Translator: Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>\n"
 "Language-Team: Catalan\n"
 "Language: ca\n"
 "X-Generator: Zanata 3.9.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: pkg/docker/storage.jsx:245
+#: pkg/docker/storage.jsx:244
 msgid " (shared with the OS)"
 msgstr " (compartit amb el SO)"
 
@@ -586,6 +586,11 @@ msgctxt "page-title"
 msgid "Accounts"
 msgstr "Comptes"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:176
+msgid "Action"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:227
 msgid "Activate"
 msgstr "Activa"
@@ -638,7 +643,7 @@ msgstr "Afegeix"
 msgid "Add $0"
 msgstr "Afegeix $0"
 
-#: pkg/docker/storage.jsx:377
+#: pkg/docker/storage.jsx:376
 msgid "Add Additional Storage"
 msgstr "Afegeix emmagatzematge addicional"
 
@@ -701,7 +706,7 @@ msgstr "Afegeix un usuari nou"
 msgid "Add Role"
 msgstr "Afegeix un rol"
 
-#: pkg/docker/storage.jsx:208
+#: pkg/docker/storage.jsx:207
 msgid "Add Storage"
 msgstr "Afegeix emmagatzematge"
 
@@ -781,7 +786,7 @@ msgstr "Adreça"
 msgid "Address $val"
 msgstr "Adreça $val"
 
-#: pkg/machines/components/desktopConsole.jsx:156
+#: pkg/machines/components/desktopConsole.jsx:154
 msgid "Address:"
 msgstr "Adreça:"
 
@@ -834,7 +839,7 @@ msgstr "Tots els projectes"
 msgid "All Types"
 msgstr "Tots els tipus"
 
-#: pkg/docker/storage.jsx:380
+#: pkg/docker/storage.jsx:379
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
@@ -888,11 +893,11 @@ msgstr "Aplica"
 
 #: pkg/packagekit/autoupdates.jsx:293
 msgid "Apply all updates"
-msgstr ""
+msgstr "Aplica totes les actualitzacions"
 
 #: pkg/packagekit/autoupdates.jsx:294
 msgid "Apply security updates"
-msgstr ""
+msgstr "Aplica les actualitzacions de seguretat"
 
 #: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Apply this solution"
@@ -1006,6 +1011,10 @@ msgstr "Automàtica (DHCP)"
 
 #: pkg/packagekit/autoupdates.jsx:334
 msgid "Automatic Updates"
+msgstr "Actualitzacions automàtiques"
+
+#: pkg/ovirt/components/OVirtTab.jsx:79
+msgid "Automatically selected host"
 msgstr ""
 
 #: pkg/systemd/index.html:398
@@ -1018,7 +1027,7 @@ msgstr "Automàticament mitjançant servidors NTP específics"
 
 #: pkg/machines/hostvmslist.jsx:308
 msgid "Autostart:"
-msgstr ""
+msgstr "Inici automàtic:"
 
 #: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
 #: pkg/machines/hostvmslist.jsx:353 pkg/machines/hostvmslist.jsx:364
@@ -1051,13 +1060,25 @@ msgstr "S'han passat dades dolentes al mecanisme del passwd1"
 
 #: pkg/networkmanager/index.html:431
 msgid "Balancer"
+msgstr "Eina de balanceig"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+msgid "Base Template"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterVms.jsx:74
+msgid "Base template"
+msgstr ""
+
+#: pkg/ovirt/components/OVirtTab.jsx:105 pkg/ovirt/components/OVirtTab.jsx:112
+msgid "Base template:"
 msgstr ""
 
 #: pkg/ostree/index.html:68
 msgid "Begins with '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
 msgstr "Comença amb '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
 
-#: pkg/storaged/index.html:558
+#: pkg/storaged/index.html:559
 msgctxt "storage"
 msgid "Bitmap"
 msgstr "Mapa de bits"
@@ -1156,6 +1177,10 @@ msgstr "Prioritat de CPU"
 msgid "CPU usage:"
 msgstr "Ús de la CPU:"
 
+#: pkg/ovirt/provider.es6:202
+msgid "CREATE VM action failed"
+msgstr ""
+
 #: pkg/systemd/index.html:257 pkg/systemd/host.js:1467
 msgid "Cached"
 msgstr "Emmagatzemat temporalment"
@@ -1209,14 +1234,17 @@ msgstr "No es pot suprimir mentre estigui desbloquejat"
 #: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
 #: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:847
+#: pkg/storaged/index.html:287 pkg/storaged/index.html:853
 #: pkg/systemd/index.html:341 pkg/systemd/index.html:428
 #: pkg/systemd/index.html:480 pkg/systemd/index.html:496
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
 #: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
-#: pkg/packagekit/updates.jsx:206 pkg/sosreport/index.js:51
+#: pkg/ovirt/components/ClusterTemplates.jsx:76
+#: pkg/ovirt/components/OVirtTab.jsx:68 pkg/ovirt/components/VdsmView.jsx:97
+#: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:206
+#: pkg/sosreport/index.js:51
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -1249,7 +1277,7 @@ msgid "Capacity"
 msgstr "Capacitat"
 
 #: pkg/storaged/index.html:441 pkg/storaged/index.html:517
-#: pkg/storaged/index.html:549 pkg/storaged/index.html:592
+#: pkg/storaged/index.html:550 pkg/storaged/index.html:595
 msgctxt "storage"
 msgid "Capacity"
 msgstr "Capacitat"
@@ -1313,7 +1341,7 @@ msgstr "Canvia el flux d'imatges"
 
 #: pkg/kubernetes/views/project-modify.html:10
 msgid "Change project"
-msgstr ""
+msgstr "Canvia el projecte"
 
 #: pkg/docker/index.html:222
 msgid "Change resource limits"
@@ -1399,8 +1427,8 @@ msgstr "Certificat de client"
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/lib/machine-auth-failed.html:20
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:356 pkg/shell/simple.html:82
-#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
-#: pkg/storaged/index.html:852 pkg/systemd/index.html:287
+#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:641
+#: pkg/storaged/index.html:858 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:109
@@ -1411,9 +1439,18 @@ msgstr "Tanca"
 msgid "Close Selected Pages"
 msgstr "Tanca les pàgines seleccionades"
 
-#: pkg/kubernetes/views/auth-form.html:5
+#: pkg/kubernetes/views/auth-form.html:5 pkg/ovirt/components/App.jsx:75
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Cluster"
 msgstr "Clúster"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:127
+msgid "Cluster Templates"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterVms.jsx:173
+msgid "Cluster Virtual Machines"
+msgstr ""
 
 #: cockpit.desktop.in.h:1
 msgid "Cockpit"
@@ -1421,7 +1458,7 @@ msgstr "Cockpit"
 
 #: src/ws/login.js:300
 msgid "Cockpit authentication is configured incorrectly."
-msgstr ""
+msgstr "L'autenticació de Cockpit està configurada incorrectament."
 
 #: pkg/lib/machine-dialogs.js:428
 msgid ""
@@ -1616,7 +1653,7 @@ msgstr "Configura la xarxa Flannel"
 msgid "Configure Kubelet and Proxy"
 msgstr "Configura Kubelet i el servidor intermediari"
 
-#: pkg/docker/storage.jsx:308
+#: pkg/docker/storage.jsx:307
 msgid "Configure storage..."
 msgstr "Configura l'emmagatzematge..."
 
@@ -1640,9 +1677,21 @@ msgstr "Confirmació de la nova contrasenya"
 msgid "Confirm deletion of $0"
 msgstr "Confirma la supressió de $0"
 
+#: pkg/ovirt/components/OVirtTab.jsx:67
+msgid "Confirm migration"
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:165
 msgid "Confirm passphrase"
 msgstr "Confirmació de la contrasenya"
+
+#: pkg/ovirt/components/VdsmView.jsx:95
+msgid "Confirm reload:"
+msgstr ""
+
+#: pkg/ovirt/components/VdsmView.jsx:108
+msgid "Confirm save:"
+msgstr ""
 
 #: pkg/kubernetes/views/auth-form.html:130
 #: pkg/kubernetes/views/auth-rejected-cert.html:33
@@ -1658,15 +1707,19 @@ msgstr "Connecta automàticament"
 msgid "Connect to"
 msgstr "Connecta't a"
 
-#: pkg/machines/components/desktopConsole.jsx:128
+#: pkg/ovirt/components/InstallationDialog.jsx:103
+msgid "Connect to oVirt Engine"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:126
 msgid "Connect with Remote Viewer"
 msgstr "Connecta amb el visualitzador remot"
 
-#: pkg/machines/components/desktopConsole.jsx:191
+#: pkg/machines/components/desktopConsole.jsx:189
 msgid "Connect with any $0 viewer application."
 msgstr "Connecta amb qualsevol aplicació de visualització $0."
 
-#: pkg/machines/components/desktopConsole.jsx:188
+#: pkg/machines/components/desktopConsole.jsx:186
 msgid "Connect with any SPICE or VNC viewer application."
 msgstr "Connecta amb qualsevol aplicació de visualització SPICE o VNC."
 
@@ -1695,7 +1748,7 @@ msgstr "S'està connectant a la màquina"
 msgid "Connecting..."
 msgstr "S'està connectant..."
 
-#: pkg/machines/hostvmslist.jsx:472
+#: pkg/machines/hostvmslist.jsx:476
 msgid "Connection"
 msgstr "Connexió"
 
@@ -1792,7 +1845,7 @@ msgctxt "key"
 msgid "Control"
 msgstr ""
 
-#: pkg/docker/storage.jsx:419
+#: pkg/docker/storage.jsx:417
 msgid "Could not add all disks"
 msgstr "No s'han pogut afegir tots els discs"
 
@@ -1812,7 +1865,7 @@ msgstr ""
 msgid "Could not parse PEM-encoded private key"
 msgstr ""
 
-#: pkg/docker/storage.jsx:460
+#: pkg/docker/storage.jsx:457
 msgid "Could not reset the storage pool"
 msgstr "No s'ha pogut restablir l'agrupació d'emmagatzematge"
 
@@ -1879,6 +1932,7 @@ msgstr ""
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:222
+#: pkg/ovirt/components/ClusterTemplates.jsx:77
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
 #: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
 #: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
@@ -1920,6 +1974,10 @@ msgstr "Crea un temporitzador"
 #: pkg/systemd/services.html:352
 msgid "Create Timers"
 msgstr "Crea temporitzadors"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:82
+msgid "Create VM"
+msgstr ""
 
 #: pkg/storaged/overview.js:490
 msgid "Create Volume Group"
@@ -2239,9 +2297,16 @@ msgstr "Configuracions de desplegaments"
 #: pkg/kubernetes/views/project-listing.html:54
 #: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:372
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/systemd/init.js:270
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:74
+#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/systemd/init.js:270
 msgid "Description"
 msgstr "Descripció"
+
+#: pkg/ovirt/components/OVirtTab.jsx:143
+#: pkg/ovirt/components/VmOverviewColumn.jsx:71
+msgid "Description:"
+msgstr ""
 
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:262
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
@@ -2254,7 +2319,7 @@ msgstr "Detalls"
 msgid "Device"
 msgstr "Dispositiu"
 
-#: pkg/storaged/index.html:541
+#: pkg/storaged/index.html:542
 msgctxt "storage"
 msgid "Device"
 msgstr "Dispositiu"
@@ -2285,7 +2350,7 @@ msgstr "Directori"
 
 #: pkg/kdump/kdump-client.es6:114
 msgid "Directory $0 isn't writable or doesn't exist."
-msgstr ""
+msgstr "No es pot escriure al directori $0 o bé no existeix."
 
 #: pkg/systemd/init.js:537
 msgid "Disable"
@@ -2451,7 +2516,7 @@ msgstr "Baixat"
 msgid "Downloading"
 msgstr "S'està baixant"
 
-#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:161
+#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:160
 msgid "Drive"
 msgstr "Unitat"
 
@@ -2487,6 +2552,10 @@ msgstr "Edit el servidor"
 #: node_modules/registry-image-widgets/views/imagestream-body.html:7
 msgid "Edit image stream"
 msgstr "Edita el flux d'imatges"
+
+#: pkg/ovirt/components/VdsmView.jsx:125
+msgid "Edit the vdsm.conf"
+msgstr ""
 
 #: pkg/storaged/jobs.js:119
 msgid "Ejecting $target"
@@ -2585,6 +2654,10 @@ msgstr "Aplica la política:"
 msgid "Enter IP address or host name"
 msgstr "Introduïu l'adreça IP o el nom d'amfitrió"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:75
+msgid "Enter New VM name"
+msgstr ""
+
 #: pkg/lib/machine-change-auth.html:57
 msgid ""
 "Entering a different password here means you will need to retype it every "
@@ -2609,11 +2682,11 @@ msgstr "Entorn"
 msgid "Erase"
 msgstr "Esborra"
 
-#: pkg/docker/storage.jsx:438
+#: pkg/docker/storage.jsx:436
 msgid "Erase containers and reset storage pool"
 msgstr "Esborra els contenidors i restableix l'agrupació d'emmagatzematge"
 
-#: pkg/docker/storage.jsx:363 pkg/docker/storage.jsx:374
+#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
 msgid "Erase containers, reformat disks, and add them"
 msgstr "Esborra els contenidors, torna formatar els discs i afegeix-los"
 
@@ -2688,7 +2761,7 @@ msgstr "Sortida $ExitCode"
 
 #: pkg/ostree/index.html:290
 msgid "Expired Signature"
-msgstr ""
+msgstr "Signatura vençuda"
 
 #: pkg/docker/index.html:500
 msgid "Expose container ports"
@@ -2701,6 +2774,10 @@ msgstr "Partició estesa"
 #: pkg/storaged/sidebar-views.jsx:122
 msgid "FAILED"
 msgstr "FALLAT"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:49
+msgid "FQDN"
+msgstr ""
 
 #: pkg/ostree/index.html:258 pkg/networkmanager/interfaces.js:779
 msgid "Failed"
@@ -2861,8 +2938,8 @@ msgstr ""
 msgid "Forward delay $forward_delay"
 msgstr "Retard del reenviament $forward_delay"
 
-#: pkg/systemd/index.html:265 pkg/docker/storage.jsx:301
-#: pkg/docker/storage.jsx:323 pkg/storaged/pvol-tabs.jsx:48
+#: pkg/systemd/index.html:265 pkg/docker/storage.jsx:300
+#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:48
 #: pkg/systemd/host.js:1469
 msgid "Free"
 msgstr "Lliure"
@@ -2956,6 +3033,15 @@ msgstr "Grup o projecte"
 msgid "Groups"
 msgstr "Grups"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:175
+msgid "HA"
+msgstr ""
+
+#: pkg/ovirt/components/OVirtTab.jsx:127
+msgid "HA:"
+msgstr ""
+
 #: pkg/networkmanager/index.html:292
 msgid "Hair Pin mode"
 msgstr "Mode hairpin"
@@ -2964,7 +3050,7 @@ msgstr "Mode hairpin"
 msgid "Hairpin mode"
 msgstr "Mode hairpin"
 
-#: pkg/docker/storage.jsx:160
+#: pkg/docker/storage.jsx:159
 msgid "Hard Disk"
 msgstr "Disc dur"
 
@@ -2984,6 +3070,8 @@ msgstr "Hello time $hello_time"
 #: pkg/kubernetes/views/details-page.html:73
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
+#: pkg/ovirt/components/App.jsx:72 pkg/ovirt/components/ClusterVms.jsx:56
+#: pkg/ovirt/components/ClusterVms.jsx:175
 msgid "Host"
 msgstr "Amfitrió"
 
@@ -3214,7 +3302,7 @@ msgstr "Volum inactiu"
 msgid "Incorrect Host Key"
 msgstr "Clau d'amfitrió incorrecta"
 
-#: pkg/docker/storage.jsx:285
+#: pkg/docker/storage.jsx:284
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
@@ -3475,7 +3563,7 @@ msgstr "Última comprovació: fa $0"
 msgid "Latest Version"
 msgstr "Última versió"
 
-#: pkg/machines/components/desktopConsole.jsx:131
+#: pkg/machines/components/desktopConsole.jsx:129
 msgid "Launch Remote Viewer"
 msgstr "Llança el visualitzador remot"
 
@@ -3557,6 +3645,10 @@ msgstr "Ha fallat la càrrega de les actualitzacions disponibles"
 msgid "Loading available updates, please wait..."
 msgstr "S'estan carregant les actualitzacions disponibles, espereu..."
 
+#: pkg/ovirt/components/VdsmView.jsx:36
+msgid "Loading data ..."
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:140 pkg/systemd/logs.js:155
 #: pkg/systemd/logs.js:199 pkg/systemd/logs.js:240
 msgid "Loading..."
@@ -3566,7 +3658,7 @@ msgstr "S'està carregant..."
 msgid "Local Accounts"
 msgstr "Comptes locals"
 
-#: pkg/docker/storage.jsx:191
+#: pkg/docker/storage.jsx:190
 msgid "Local Disks"
 msgstr "Discs locals"
 
@@ -3698,6 +3790,10 @@ msgstr "MAC"
 msgid "MAC Address:"
 msgstr "Adreça MAC:"
 
+#: pkg/ovirt/provider.es6:228
+msgid "MIGRATE action failed"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:1915
 msgid "MII (Recommended)"
 msgstr "MII (recomanat)"
@@ -3708,7 +3804,7 @@ msgstr "MTU"
 
 #: pkg/networkmanager/interfaces.js:4391
 msgid "MTU must be a positive number"
-msgstr ""
+msgstr "El valor de la MTU ha de ser un nombre positiu"
 
 #: pkg/kubernetes/views/node-body.html:15 pkg/systemd/index.html:95
 msgid "Machine ID"
@@ -3731,7 +3827,7 @@ msgstr "Manifest"
 msgid "Manual"
 msgstr "Manual"
 
-#: pkg/machines/components/desktopConsole.jsx:196
+#: pkg/machines/components/desktopConsole.jsx:194
 msgid "Manual Connection"
 msgstr "Connexió manual"
 
@@ -3792,6 +3888,8 @@ msgstr "Pertinença"
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
 #: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Memory"
 msgstr "Memòria"
 
@@ -3840,6 +3938,10 @@ msgstr "Metadades utilitzades"
 msgid "MiB"
 msgstr "MiB"
 
+#: pkg/ovirt/components/OVirtTab.jsx:72
+msgid "Migrate To:"
+msgstr ""
+
 #: pkg/systemd/init.js:1191 pkg/systemd/init.js:1200 pkg/systemd/init.js:1209
 msgid "Minute needs to be a number between 0-59"
 msgstr "El minut ha de ser un nombre entre 0-59"
@@ -3885,8 +3987,8 @@ msgstr "Monitors"
 msgid "More"
 msgstr "Més"
 
-#: pkg/machines/components/desktopConsole.jsx:104
-#: pkg/machines/components/desktopConsole.jsx:112
+#: pkg/machines/components/desktopConsole.jsx:102
+#: pkg/machines/components/desktopConsole.jsx:110
 msgid "More Information"
 msgstr "Més informació"
 
@@ -3988,7 +4090,9 @@ msgstr "Servidor NTP"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:329
+#: pkg/machines/hostvmslist.jsx:476
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
@@ -4002,15 +4106,15 @@ msgstr "Nom"
 
 #: pkg/storaged/utils.js:133
 msgid "Name cannot be empty."
-msgstr ""
+msgstr "El nom no pot estar en blanc."
 
 #: pkg/storaged/utils.js:135
 msgid "Name cannot be longer than 127 characters."
-msgstr ""
+msgstr "El nom no pot ser superior als 127 caràcters."
 
 #: pkg/storaged/utils.js:139
 msgid "Name cannot contain the character '$0'."
-msgstr ""
+msgstr "El nom no pot contenir el caràcter «$0»."
 
 #: pkg/storaged/utils.js:141
 msgid "Name cannot contain whitespace."
@@ -4066,11 +4170,11 @@ msgstr "Registres de la xarxa"
 msgid "Never"
 msgstr "Mai"
 
-#: pkg/users/local.js:832
+#: pkg/users/index.html:345 pkg/users/local.js:832
 msgid "Never expire password"
 msgstr "Mai venç la contrasenya"
 
-#: pkg/users/index.html:306 pkg/users/index.html:345 pkg/users/local.js:840
+#: pkg/users/index.html:306 pkg/users/local.js:840
 msgid "Never lock account"
 msgstr "No es bloqueja mai el compte"
 
@@ -4155,6 +4259,11 @@ msgstr ""
 msgid "No SELinux alerts."
 msgstr "Sense alertes de SELinux."
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:29
+#: pkg/ovirt/components/ClusterVms.jsx:35
+msgid "No VM found in oVirt."
+msgstr ""
+
 #: pkg/machines/hostvmslist.jsx:47
 msgid "No VM is running or defined on this host"
 msgstr "No hi ha cap MV en execució o definida en aquest amfitrió"
@@ -4163,7 +4272,7 @@ msgstr "No hi ha cap MV en execució o definida en aquest amfitrió"
 msgid "No Volume Bound"
 msgstr ""
 
-#: pkg/docker/storage.jsx:197
+#: pkg/docker/storage.jsx:196
 msgid "No additional local storage found."
 msgstr ""
 
@@ -4464,13 +4573,23 @@ msgstr "Encara no sincronitzat"
 msgid "Note"
 msgstr "Nota"
 
+#: pkg/ovirt/components/VdsmView.jsx:96 pkg/ovirt/components/VdsmView.jsx:109
+msgid "OK"
+msgstr ""
+
 #: pkg/kubernetes/views/node-body.html:13
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "OS"
 msgstr "SO"
 
 #: pkg/ostree/client.js:585 pkg/ostree/client.js:681
 msgid "OS $0 not found"
 msgstr "SO $0 no trobat"
+
+#: pkg/ovirt/components/OVirtTab.jsx:145
+msgid "OS Type:"
+msgstr ""
 
 #: pkg/kubernetes/views/nodes-page.html:19
 msgid "OS Versions"
@@ -4490,7 +4609,7 @@ msgstr "S'ha produït entre $0 i $1"
 
 #: pkg/playground/jquery-patterns.html:95
 #: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:254
-#: pkg/storaged/index.html:563 pkg/systemd/index.html:167
+#: pkg/storaged/index.html:564 pkg/systemd/index.html:167
 #: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:38
 msgid "Off"
 msgstr "Off"
@@ -4509,7 +4628,7 @@ msgstr "Contrasenya antiga no acceptada"
 
 #: pkg/playground/jquery-patterns.html:91
 #: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:250
-#: pkg/storaged/index.html:562 pkg/systemd/index.html:163
+#: pkg/storaged/index.html:563 pkg/systemd/index.html:163
 #: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:39
 msgid "On"
 msgstr "On"
@@ -4565,6 +4684,10 @@ msgstr "L'operació '$operation' en $target"
 msgctxt "storage"
 msgid "Optical Drive"
 msgstr "Unitat òptica"
+
+#: pkg/ovirt/components/OVirtTab.jsx:152
+msgid "Optimized for:"
+msgstr ""
 
 #: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
 #: pkg/storaged/crypto-tab.jsx:145
@@ -4843,6 +4966,22 @@ msgstr "Si us plau, proporcioneu una capacitat d'emmagatzematge vàlida."
 msgid "Please provide a valid target"
 msgstr "Si us plau, proporcioneu un objectiu vàlid"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:85
+msgid ""
+"Please provide fully qualified domain name and port of the oVirt engine."
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:136
+msgid ""
+"Please provide valid oVirt engine fully qualified domain name (FQDN) and "
+"port (443 by default)"
+msgstr ""
+
+#: pkg/ovirt/components/ConsoleClientResources.jsx:34
+msgid ""
+"Please refer to oVirt's $0 for more information about Remote Viewer setup."
+msgstr ""
+
 #: pkg/kubernetes/scripts/volumes.js:469
 msgid "Please select a valid access mode"
 msgstr "Si us plau, seleccioneu un mode d'accés vàlid"
@@ -4871,6 +5010,14 @@ msgstr "Si us plau, proveu un altre terme"
 #: pkg/kubernetes/scripts/nodes.js:401
 msgid "Please type an address"
 msgstr "Si us plau, teclegeu una adreça"
+
+#: pkg/ovirt/components/ClusterVms.jsx:36
+msgid "Please wait till VMs list is loaded from the server."
+msgstr ""
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:30
+msgid "Please wait till list of templates is loaded from the server."
+msgstr ""
 
 #: pkg/kubernetes/views/containers-listing.html:12
 #: pkg/kubernetes/views/pod-page.html:12
@@ -4936,7 +5083,7 @@ msgid "Populate"
 msgstr "Pobla"
 
 #: pkg/lib/machine-change-port.html:23 pkg/machines/vmdiskstab.jsx:57
-#: pkg/storaged/overview.js:629
+#: pkg/ovirt/components/InstallationDialog.jsx:67 pkg/storaged/overview.js:629
 msgid "Port"
 msgstr "Port"
 
@@ -4967,6 +5114,10 @@ msgstr "Longitud del prefix o Màscara de xarxa"
 #: pkg/networkmanager/interfaces.js:763
 msgid "Preparing"
 msgstr "S'està preparant"
+
+#: pkg/ovirt/rephraseUI.es6:26
+msgid "Preparing for Maintenance"
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:3501
 msgid "Preserve"
@@ -5199,7 +5350,7 @@ msgstr "Dispositius RAID"
 msgid "RAID Level"
 msgstr "Nivell RAID"
 
-#: pkg/storaged/index.html:553
+#: pkg/storaged/index.html:554
 msgctxt "storage"
 msgid "RAID Level"
 msgstr "Nivell RAID"
@@ -5207,6 +5358,10 @@ msgstr "Nivell RAID"
 #: pkg/storaged/content-views.jsx:150
 msgid "RAID Member"
 msgstr "Membre RAID"
+
+#: pkg/ovirt/provider.es6:137
+msgid "REBOOT action failed"
+msgstr ""
 
 #: pkg/kubernetes/scripts/volumes.js:200
 msgid "Rados Block Device"
@@ -5253,7 +5408,7 @@ msgstr "NomésLectura"
 
 #: pkg/docker/index.html:355
 msgid "ReadWrite"
-msgstr "LexturaEscriptura"
+msgstr "LecturaEscriptura"
 
 #: pkg/storaged/index.html:325
 msgid "Reading"
@@ -5350,7 +5505,7 @@ msgstr ""
 msgid "Recycle"
 msgstr "Recicla"
 
-#: pkg/docker/storage.jsx:351
+#: pkg/docker/storage.jsx:350
 msgid "Reformat and add disks"
 msgstr ""
 
@@ -5383,9 +5538,17 @@ msgstr "Registra un volum nou"
 msgid "Register Persistent Volume"
 msgstr "Registra un volum persistent"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:107
+msgid "Register oVirt"
+msgstr ""
+
 #: pkg/subscriptions/main.js:74
 msgid "Register system"
 msgstr "Registra el sistema"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:127
+msgid "Registering oVirt to Cockpit"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:887
 msgid "Register…"
@@ -5395,7 +5558,7 @@ msgstr "Registra..."
 msgid "Released"
 msgstr "Llançat"
 
-#: pkg/systemd/init.js:516
+#: pkg/ovirt/components/VdsmView.jsx:100 pkg/systemd/init.js:516
 msgid "Reload"
 msgstr "Recarrega"
 
@@ -5584,11 +5747,11 @@ msgstr "Memòria reservada"
 msgid "Reset"
 msgstr "Restableix"
 
-#: pkg/docker/storage.jsx:432
+#: pkg/docker/storage.jsx:430
 msgid "Reset Storage Pool"
 msgstr "Restableix l'agrupació d'emmagatzematge"
 
-#: pkg/docker/storage.jsx:435
+#: pkg/docker/storage.jsx:433
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -5697,8 +5860,13 @@ msgstr "Encaminaments"
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
 #: pkg/systemd/services.html:400 pkg/machines/hostvmslist.jsx:96
+#: pkg/ovirt/components/ClusterVms.jsx:83
 msgid "Run"
 msgstr "Executa"
+
+#: pkg/ovirt/components/ClusterVms.jsx:88
+msgid "Run Here"
+msgstr ""
 
 #: pkg/docker/index.html:418
 msgid "Run Image"
@@ -5740,25 +5908,33 @@ msgstr "SELinux no està inhabilitat al sistema."
 msgid "SELinux system status is unknown."
 msgstr "Es desconeix l'estat del sistema SELinux."
 
+#: pkg/ovirt/provider.es6:89 pkg/ovirt/provider.es6:113
+msgid "SHUTDOWN action failed"
+msgstr ""
+
 #: pkg/storaged/jobs.js:118
 msgid "SMART self-test of $target"
 msgstr "Autotest SMART de $target."
 
-#: pkg/machines/components/desktopConsole.jsx:190
+#: pkg/machines/components/desktopConsole.jsx:188
 msgid "SPICE"
 msgstr "SPICE"
 
-#: pkg/machines/components/desktopConsole.jsx:159
+#: pkg/machines/components/desktopConsole.jsx:157
 msgid "SPICE Address:"
 msgstr "Adreça SPICE:"
 
-#: pkg/machines/components/desktopConsole.jsx:165
+#: pkg/machines/components/desktopConsole.jsx:163
 msgid "SPICE Port:"
 msgstr "Port SPICE:"
 
-#: pkg/machines/components/desktopConsole.jsx:168
+#: pkg/machines/components/desktopConsole.jsx:166
 msgid "SPICE TLS Port:"
 msgstr "Port TLS SPICE:"
+
+#: pkg/ovirt/provider.es6:173
+msgid "START action failed"
+msgstr ""
 
 #: pkg/networkmanager/index.html:242
 msgid "STP Forward delay"
@@ -5776,11 +5952,15 @@ msgstr "Envelliment màxim del missatge STP"
 msgid "STP Priority"
 msgstr "Prioritat STP"
 
+#: pkg/ovirt/provider.es6:248
+msgid "SUSPEND action failed"
+msgstr ""
+
 #: pkg/systemd/services.html:199
 msgid "Saturday"
 msgstr "Dissabte"
 
-#: pkg/systemd/services.html:482
+#: pkg/systemd/services.html:482 pkg/ovirt/components/VdsmView.jsx:114
 msgid "Save"
 msgstr "Desa"
 
@@ -5945,7 +6125,7 @@ msgid ""
 "balanced IP address to access them."
 msgstr ""
 
-#: pkg/machines/helpers.es6:100
+#: pkg/machines/helpers.es6:104
 msgid "Session"
 msgstr "Sessió"
 
@@ -6051,7 +6231,7 @@ msgstr "Mostra tots els controladors de replicació"
 
 #: pkg/kubernetes/views/route-page.html:10
 msgid "Show all Routes"
-msgstr ""
+msgstr "Mostra tots els encaminaments"
 
 #: pkg/kubernetes/views/service-page.html:8
 msgid "Show all Services"
@@ -6103,19 +6283,19 @@ msgstr "Des de $0"
 msgid "Size"
 msgstr "Mida"
 
-#: pkg/storaged/dialog.js:274
+#: pkg/storaged/dialog.js:322
 msgid "Size cannot be negative"
 msgstr "La mida no pot ser negativa"
 
-#: pkg/storaged/dialog.js:272
+#: pkg/storaged/dialog.js:320
 msgid "Size cannot be zero"
 msgstr "La mida no pot ser zero"
 
-#: pkg/storaged/dialog.js:276
+#: pkg/storaged/dialog.js:324
 msgid "Size is too large"
 msgstr "La mida és massa gran"
 
-#: pkg/storaged/dialog.js:270
+#: pkg/storaged/dialog.js:318
 msgid "Size must be a number"
 msgstr "La mida ha de ser un número"
 
@@ -6132,7 +6312,7 @@ msgstr "Sockets"
 msgid "Software Updates"
 msgstr "Actualitzacions"
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 msgid "Solid-State Disk"
 msgstr "Disc d'estat sòlid"
 
@@ -6224,11 +6404,12 @@ msgstr "Comença"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:472 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:476 pkg/ovirt/components/ClusterVms.jsx:177
+#: pkg/systemd/init.js:275
 msgid "State"
 msgstr "Estat"
 
-#: pkg/storaged/index.html:569
+#: pkg/storaged/index.html:570
 msgctxt "storage"
 msgid "State"
 msgstr "Estat"
@@ -6236,6 +6417,15 @@ msgstr "Estat"
 #: pkg/docker/index.html:165
 msgid "State:"
 msgstr "Estat:"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:175
+msgid "Stateless"
+msgstr ""
+
+#: pkg/ovirt/components/OVirtTab.jsx:151
+msgid "Stateless:"
+msgstr ""
 
 #: pkg/systemd/init.js:304
 msgid "Static"
@@ -6290,11 +6480,11 @@ msgid "Stopping swapspace $target"
 msgstr "S'està aturant l'espai d'intercanvi $target"
 
 #: pkg/docker/index.html:281 pkg/storaged/index.html:23
-#: pkg/storaged/index.html:603
+#: pkg/storaged/index.html:607
 msgid "Storage"
 msgstr "Emmagatzematge"
 
-#: pkg/storaged/index.html:617
+#: pkg/storaged/index.html:621
 msgid "Storage Log"
 msgstr "Registre de l'emmagatzematge"
 
@@ -6338,6 +6528,10 @@ msgstr "Resum"
 msgid "Sunday"
 msgstr "Diumenge"
 
+#: pkg/ovirt/components/VmActions.jsx:42
+msgid "Suspend"
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:152
 msgid "Swap"
 msgstr "Intercanvi"
@@ -6357,15 +6551,15 @@ msgstr "Apaga $0"
 
 #: pkg/networkmanager/interfaces.js:2355 pkg/networkmanager/interfaces.js:2910
 msgid "Switch on $0"
-msgstr ""
+msgstr "Engega $0"
 
 #: pkg/machines/components/graphicsConsole.jsx:60
 msgid "Switch to Desktop Viewer"
-msgstr ""
+msgstr "Commuta al visualitzador d'escriptoris"
 
 #: pkg/machines/components/graphicsConsole.jsx:70
 msgid "Switch to In-Browser Viewer"
-msgstr ""
+msgstr "Commuta al visualitzador integrat del navegador"
 
 #: pkg/networkmanager/interfaces.js:2379
 msgid ""
@@ -6409,7 +6603,7 @@ msgstr "Sincronitzat amb {{Server}}"
 msgid "Synchronizing RAID Device $target"
 msgstr ""
 
-#: pkg/systemd/index.html:4 pkg/machines/helpers.es6:99
+#: pkg/systemd/index.html:4 pkg/machines/helpers.es6:103
 msgid "System"
 msgstr "Sistema"
 
@@ -6483,8 +6677,13 @@ msgstr "Ajusts de l'equip"
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
 #: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Template"
 msgstr "Plantilla"
+
+#: pkg/ovirt/components/App.jsx:78
+msgid "Templates"
+msgstr ""
 
 #: pkg/systemd/terminal.html:4
 msgid "Terminal"
@@ -6514,7 +6713,7 @@ msgstr ""
 msgid "The \"storaged\" API is not available on this system."
 msgstr "L'API «storaged» no està disponible en aquest sistema."
 
-#: pkg/docker/storage.jsx:499
+#: pkg/docker/storage.jsx:496
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr ""
 
@@ -6731,7 +6930,7 @@ msgstr ""
 msgid "The service '{{ target }}' does not exist."
 msgstr "El servei '{{ target }}' no existeix."
 
-#: pkg/docker/storage.jsx:358 pkg/docker/storage.jsx:369
+#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
 msgid ""
 "The storage pool will be reset to optimize its layout.  All containers will "
 "be erased."
@@ -6842,7 +7041,7 @@ msgstr ""
 msgid "This device cannot be managed here."
 msgstr "Aquest dispositiu no es pot gestionar aquí."
 
-#: pkg/storaged/index.html:816
+#: pkg/storaged/index.html:822
 msgid ""
 "This device has filesystems that are currently in use.                "
 "Proceeding will unmount all filesystems on it."
@@ -6850,11 +7049,11 @@ msgstr ""
 "Aquest dispositiu té sistemes de fitxers actualment en ús. El procediment "
 "desmuntarà tots els sistemes de fitxers que conté."
 
-#: pkg/storaged/index.html:667
+#: pkg/storaged/index.html:672
 msgid "This device is currently used for RAID devices."
 msgstr "Aquest dispositiu s'utilitza actualment amb dispositius RAID."
 
-#: pkg/storaged/index.html:834
+#: pkg/storaged/index.html:840
 msgid ""
 "This device is currently used for RAID devices.                Proceeding "
 "will remove it from its RAID devices."
@@ -6863,11 +7062,11 @@ msgstr ""
 "Si continueu, s'eliminarà dels dispositius\n"
 " RAID."
 
-#: pkg/storaged/index.html:659
+#: pkg/storaged/index.html:664
 msgid "This device is currently used for volume groups."
 msgstr "Aquest dispositiu s'utilitza actualment amb grups de volums."
 
-#: pkg/storaged/index.html:825
+#: pkg/storaged/index.html:831
 msgid ""
 "This device is currently used for volume groups.                Proceeding "
 "will remove it from its volume groups."
@@ -6953,8 +7152,12 @@ msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
 msgstr ""
-"Aquesta versió decockpit-ws no és compatible amb la connexió a un amfitrió "
+"Aquesta versió de cockpit-ws no és compatible amb la connexió a un amfitrió "
 "amb un usuari o port alternatius"
+
+#: pkg/ovirt/components/OVirtTab.jsx:133
+msgid "This virtual machine is not managed by oVirt"
+msgstr ""
 
 #: pkg/kubernetes/views/pv-delete.html:7
 msgid ""
@@ -7047,7 +7250,7 @@ msgstr "Hi ha massa dades"
 msgid "Topology"
 msgstr "Topologia"
 
-#: pkg/docker/storage.jsx:317
+#: pkg/docker/storage.jsx:316
 msgid "Total"
 msgstr "Total"
 
@@ -7137,7 +7340,7 @@ msgstr "URL"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/index.html:545 pkg/storaged/index.html:588
+#: pkg/storaged/index.html:546 pkg/storaged/index.html:591
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -7403,7 +7606,7 @@ msgstr "Utilitza l'ajust de /etc/kdump.conf"
 msgid "Use trusted GPG key"
 msgstr "Utilitza una clau GPG de confiança"
 
-#: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
+#: pkg/systemd/index.html:261 pkg/docker/storage.jsx:315
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/hostvmslist.jsx:352 pkg/machines/hostvmslist.jsx:363
 #: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
@@ -7464,6 +7667,14 @@ msgstr "Usuaris"
 msgid "Using available credentials"
 msgstr "S'estan utilitzant les credencials disponibles"
 
+#: pkg/ovirt/components/App.jsx:81
+msgid "VDSM"
+msgstr ""
+
+#: pkg/ovirt/components/VdsmView.jsx:128
+msgid "VDSM Service Management"
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:107
 msgid "VFAT - Compatible with all systems and devices"
 msgstr "VFAT - Compatible amb tots els sistemes i dispositius"
@@ -7505,19 +7716,23 @@ msgstr "Ha fallat l'acció VM SHUT DOWN"
 msgid "VM START action failed"
 msgstr "Ha fallat l'acció VM START"
 
-#: pkg/machines/components/desktopConsole.jsx:190
+#: pkg/ovirt/components/VmOverviewColumn.jsx:54
+msgid "VM icon"
+msgstr ""
+
+#: pkg/machines/components/desktopConsole.jsx:188
 msgid "VNC"
 msgstr "VNC"
 
-#: pkg/machines/components/desktopConsole.jsx:162
+#: pkg/machines/components/desktopConsole.jsx:160
 msgid "VNC Address:"
 msgstr "Adreça VNC:"
 
-#: pkg/machines/components/desktopConsole.jsx:171
+#: pkg/machines/components/desktopConsole.jsx:169
 msgid "VNC Port:"
 msgstr "Port VNC:"
 
-#: pkg/machines/components/desktopConsole.jsx:174
+#: pkg/machines/components/desktopConsole.jsx:172
 msgid "VNC TLS Port:"
 msgstr "Port TLS VNC:"
 
@@ -7539,9 +7754,15 @@ msgstr "S'està verificant"
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:74 pkg/packagekit/updates.jsx:330
+#: pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "Versió"
+
+#: pkg/ovirt/components/ClusterVms.jsx:74
+msgid "Version num"
+msgstr ""
 
 #: pkg/storaged/jobs.js:136
 msgid "Very securely erasing $target"
@@ -7551,7 +7772,7 @@ msgstr "S'està eliminant de forma molt segura $target"
 msgid "View Registration Details"
 msgstr "Mostra els detalls del registrament"
 
-#: pkg/machines/hostvmslist.jsx:472
+#: pkg/machines/hostvmslist.jsx:476
 msgid "Virtual Machines"
 msgstr "Màquines virtuals"
 
@@ -7561,7 +7782,7 @@ msgstr "Màquines virtuals"
 msgid "Volume"
 msgstr "Volum"
 
-#: pkg/storaged/index.html:582 pkg/storaged/pvol-tabs.jsx:44
+#: pkg/storaged/index.html:584 pkg/storaged/pvol-tabs.jsx:44
 msgid "Volume Group"
 msgstr "Grup de volums"
 
@@ -7681,8 +7902,8 @@ msgstr ""
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr ""
-"Actualment esteu connectat directament a aquest servidor. No podeu suprimir-"
-"ho."
+"Actualment esteu connectat directament a aquest servidor. No el podeu "
+"suprimir."
 
 #: pkg/kubernetes/views/auth-rejected-cert.html:3
 msgid ""
@@ -7709,7 +7930,7 @@ msgstr ""
 "No teniu el permís per visualitzar les claus públiques autoritzades per "
 "aquest compte."
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:493
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "No teniu els permisos per gestionar l'agrupació d'emmagatzematge de Docker."
@@ -7780,15 +8001,23 @@ msgctxt "format-bytes"
 msgid "bytes"
 msgstr "bytes"
 
-#: pkg/machines/helpers.es6:114
+#: pkg/machines/helpers.es6:118
 msgid "cdrom"
 msgstr "cdrom"
 
-#: pkg/machines/helpers.es6:108
+#: pkg/ovirt/rephraseUI.es6:36
+msgid "connecting"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "cores"
+msgstr ""
+
+#: pkg/machines/helpers.es6:112
 msgid "crashed"
 msgstr "estavellat"
 
-#: pkg/machines/helpers.es6:119
+#: pkg/machines/helpers.es6:123
 msgid "custom"
 msgstr "personalitzat"
 
@@ -7796,15 +8025,19 @@ msgstr "personalitzat"
 msgid "default"
 msgstr "per defecte"
 
-#: pkg/machines/helpers.es6:95
+#: pkg/machines/helpers.es6:99 pkg/ovirt/components/OVirtTab.jsx:122
 msgid "disabled"
 msgstr "inhabilitat"
 
-#: pkg/machines/helpers.es6:113 pkg/machines/helpers.es6:116
+#: pkg/machines/helpers.es6:117 pkg/machines/helpers.es6:120
 msgid "disk"
 msgstr "disc"
 
-#: pkg/machines/helpers.es6:109
+#: pkg/ovirt/rephraseUI.es6:28
+msgid "down"
+msgstr ""
+
+#: pkg/machines/helpers.es6:113
 msgid "dying"
 msgstr "morint"
 
@@ -7816,13 +8049,17 @@ msgstr "p. ex. \"$0\""
 msgid "eg: my-image-stream"
 msgstr ""
 
-#: pkg/machines/helpers.es6:96
+#: pkg/machines/helpers.es6:100 pkg/ovirt/components/OVirtTab.jsx:124
 msgid "enabled"
 msgstr "habilitat"
 
+#: pkg/ovirt/rephraseUI.es6:29
+msgid "error"
+msgstr "error"
+
 #: pkg/packagekit/autoupdates.jsx:301
 msgid "every day"
-msgstr ""
+msgstr "cada dia"
 
 #: pkg/storaged/format-dialog.jsx:104
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
@@ -7832,7 +8069,7 @@ msgstr "ext4 - per defecte a Red Hat Enterprise Linux 6"
 msgid "failed to list ssh host keys: $0"
 msgstr "no s'han pogut llistar les claus d'amfitrions ssh: $0"
 
-#: pkg/machines/helpers.es6:120
+#: pkg/machines/helpers.es6:124
 msgid "host"
 msgstr "amfitrió"
 
@@ -7840,9 +8077,21 @@ msgstr "amfitrió"
 msgid "iSCSI Targets"
 msgstr "Destinacions iSCSI"
 
-#: pkg/machines/helpers.es6:104
+#: pkg/machines/helpers.es6:108
 msgid "idle"
 msgstr "ociós"
+
+#: pkg/ovirt/rephraseUI.es6:30
+msgid "initializing"
+msgstr ""
+
+#: pkg/ovirt/rephraseUI.es6:31
+msgid "installation failed"
+msgstr ""
+
+#: pkg/ovirt/rephraseUI.es6:39
+msgid "installing OS"
+msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:379
 msgid "invalid: multiple targets defined"
@@ -7852,6 +8101,10 @@ msgstr "no és vàlid: s'han definit diversos objectius"
 msgid "kdump status"
 msgstr "Estat de kdump"
 
+#: pkg/ovirt/rephraseUI.es6:40
+msgid "kdumping"
+msgstr ""
+
 #: pkg/docker/run.js:526
 msgid "key"
 msgstr "clau"
@@ -7860,13 +8113,26 @@ msgstr "clau"
 msgid "locally in $0"
 msgstr "localment a $0"
 
-#: pkg/machines/helpers.es6:115
+#: pkg/ovirt/rephraseUI.es6:32
+msgid "maintenance"
+msgstr ""
+
+#: pkg/machines/helpers.es6:119
 msgid "network"
 msgstr "xarxa"
 
 #: pkg/kubernetes/views/route-body.html:14 pkg/machines/vmdiskstab.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:44
 msgid "no"
 msgstr "no"
+
+#: pkg/ovirt/rephraseUI.es6:33
+msgid "non operational"
+msgstr ""
+
+#: pkg/ovirt/rephraseUI.es6:34
+msgid "non responsive"
+msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:33
 #: pkg/kubernetes/views/node-body.html:59
@@ -7878,51 +8144,81 @@ msgstr "no"
 msgid "none"
 msgstr "cap"
 
+#: pkg/ovirt/provider.es6:55
+msgid "oVirt"
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:38
+msgid "oVirt Provider installation script failed due to missing arguments."
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:39
+msgid ""
+"oVirt Provider installation script failed: Can't write to /etc/cockpit/"
+"machines-ovirt.config, try as root."
+msgstr ""
+
+#: pkg/ovirt/components/InstallationDialog.jsx:161
+msgid "oVirt installation script failed with following output: "
+msgstr ""
+
+#: pkg/ovirt/components/App.jsx:36
+msgid "oVirt login in progress"
+msgstr ""
+
 #: pkg/packagekit/autoupdates.jsx:306
 msgid "on Fridays"
-msgstr ""
+msgstr "els divendres"
 
 #: pkg/packagekit/autoupdates.jsx:302
 msgid "on Mondays"
-msgstr ""
+msgstr "els dilluns"
 
 #: pkg/packagekit/autoupdates.jsx:307
 msgid "on Saturdays"
-msgstr ""
+msgstr "els dissabtes"
 
 #: pkg/packagekit/autoupdates.jsx:308
 msgid "on Sundays"
-msgstr ""
+msgstr "els diumenges"
 
 #: pkg/packagekit/autoupdates.jsx:305
 msgid "on Thursdays"
-msgstr ""
+msgstr "els dijous"
 
 #: pkg/packagekit/autoupdates.jsx:303
 msgid "on Tuesdays"
-msgstr ""
+msgstr "els dimarts"
 
 #: pkg/packagekit/autoupdates.jsx:304
 msgid "on Wednesdays"
-msgstr ""
+msgstr "els dimecres"
 
 #: pkg/machines/libvirt.es6:433
 msgid "other"
 msgstr "altres"
 
-#: pkg/machines/helpers.es6:105
+#: pkg/machines/helpers.es6:109
 msgid "paused"
+msgstr ""
+
+#: pkg/ovirt/rephraseUI.es6:35
+msgid "pending approval"
 msgstr ""
 
 #: pkg/kubernetes/views/dashboard-page.html:83
 msgid "pending volume claims"
 msgstr "reclamacions de volums pendents"
 
+#: pkg/ovirt/rephraseUI.es6:37
+msgid "reboot"
+msgstr ""
+
 #: pkg/tuned/change-profile.jsx:52
 msgid "recommended"
 msgstr "recomanat"
 
-#: pkg/machines/helpers.es6:103
+#: pkg/machines/helpers.es6:107
 msgid "running"
 msgstr "en execució"
 
@@ -7938,13 +8234,17 @@ msgstr "seleccioneu el contenidor"
 msgid "shares"
 msgstr "comparticions"
 
-#: pkg/machines/helpers.es6:107
+#: pkg/machines/helpers.es6:111
 msgid "shut off"
 msgstr "apagat"
 
-#: pkg/machines/helpers.es6:106
+#: pkg/machines/helpers.es6:110
 msgid "shutdown"
 msgstr "apaga"
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "sockets"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:118
 msgid "solution details"
@@ -7954,9 +8254,13 @@ msgstr "detalls de la solució"
 msgid "ssh key"
 msgstr "clau ssh"
 
-#: pkg/machines/helpers.es6:110
+#: pkg/machines/helpers.es6:114
 msgid "suspended (PM)"
 msgstr "suspès (PM)"
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "threads"
+msgstr ""
 
 #: pkg/docker/run.js:473
 msgid "to host path"
@@ -7965,6 +8269,10 @@ msgstr "al camí de l'amfitrió"
 #: pkg/docker/run.js:417
 msgid "to host port"
 msgstr "al port de l'amfitrió"
+
+#: pkg/ovirt/rephraseUI.es6:38
+msgid "unassigned"
+msgstr ""
 
 #: pkg/lib/cockpit-components-select.jsx:30
 msgid "undefined"
@@ -7983,6 +8291,15 @@ msgstr "objectiu desconegut"
 msgid "unpartitioned space on $0"
 msgstr "espai sense particionar a $0"
 
+#: pkg/ovirt/rephraseUI.es6:27
+msgid "up"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
+msgid "vCPUs"
+msgstr ""
+
 #: pkg/machines/hostvmslist.jsx:291
 msgid "vCPUs:"
 msgstr "vCPUs:"
@@ -7992,6 +8309,7 @@ msgid "value"
 msgstr "valor"
 
 #: pkg/kubernetes/views/route-body.html:13 pkg/machines/vmdiskstab.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:43
 msgid "yes"
 msgstr "sí"
 

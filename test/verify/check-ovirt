@@ -36,7 +36,6 @@ VIRSH_CONNECTION_URI = "qemu+tcp://10.111.113.5/system"
 OVIRT_USER = "admin@internal"
 OVIRT_PWD = "engine"
 CA_PEM_FILE = '/etc/pki/vdsm/certs/cacert.pem'
-COCKPIT_DIR = '/usr/share/cockpit'
 VDSM_CONF_FILE = '/etc/vdsm/vdsm.conf'
 
 WAIT_SCRIPT = """
@@ -103,8 +102,10 @@ class TestOVirtMachines(MachineCase):
         # In case of passing this initialization step via UI, a series of redirects (oVirt verification and authentication) would follow.
         # The installation dialog calls 'ovirt/install.sh' script, so this simplification is acceptable for the test.
         m = self.machine
-        m.execute("bash /usr/share/cockpit/ovirt/install.sh {0} {1} {2} {3}".format(ENGINE_FQDN, ENGINE_PORT, COCKPIT_DIR, VIRSH_CONNECTION_URI))
-        m.execute("sed -i 's/false/true/' /etc/cockpit/machines-ovirt.config") # turn on debug messages
+
+        m.execute("bash /usr/share/cockpit/ovirt/install.sh {0} {1} {2}".format(ENGINE_FQDN, ENGINE_PORT, VIRSH_CONNECTION_URI))
+        # m.execute("sed -i 's/false/true/' /etc/cockpit/machines-ovirt.config") # turn on debug messages
+
         self.access_token = self.get_ovirt_token()
 
     def get_ovirt_token(self):

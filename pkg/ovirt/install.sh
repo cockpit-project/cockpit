@@ -21,19 +21,20 @@
 
 ENGINE_FQDN=$1
 ENGINE_PORT=$2
-COCKPIT_DIR=${3:-/usr/share/cockpit}  # TODO: get it dynamically via 'rpm -q cockpit-shell --fileprovide' or 'dpkg -L'
+
 ETC_COCKPIT_DIR='/etc/cockpit'
-VIRSH_CONNECTION_URI=$4 # optional
+
+VIRSH_CONNECTION_URI=$3 # optional
 VIRSH_CONNECTION_NAME='remote' # used if VIRSH_CONNECTION_URI is set
 
 EXIT_PARAMS=1 # wrong command parameters
 EXIT_NO_ACCESS_MACHINES_OVIRT_CONFIG=3 # can't write to /etc/cockpit/machines-ovirt.config, try as root
 
 function usage() {
-  echo Usage: $0 '[ENGINE_FQDN] [ENGINE_PORT] [[COCKPIT_INSTLLATION_DIR]] [[VIRSH_CONNECTION_URI]]'
+  echo Usage: $0 '[ENGINE_FQDN] [ENGINE_PORT] [[VIRSH_CONNECTION_URI]]'
   echo Example: $0 engine.mydomain.com 443
-  echo Example: $0 engine.mydomain.com 443 /usr/share/cockpit
-  echo Example: $0 engine.mydomain.com 443 /usr/share/cockpit qemu:///system
+  echo Example: $0 engine.mydomain.com 443
+  echo Example: $0 engine.mydomain.com 443 qemu:///system
 }
 
 function checkParams() {

@@ -36,9 +36,11 @@ import ConsoleClientResources from './components/ConsoleClientResources.jsx';
 import OVirtTab from './components/OVirtTab.jsx';
 
 const _ = cockpit.gettext;
+
+const OVIRT_PROVIDER = Object.create(LIBVIRT_PROVIDER); // inherit whatever is not implemented here
+
 const QEMU_SYSTEM = 'system'; // conforms connection name defined in parent's cockpit:machines/config.es6
 
-const OVIRT_PROVIDER = Object.create(LIBVIRT_PROVIDER);
 OVIRT_PROVIDER.name = 'oVirt';
 OVIRT_PROVIDER.ovirtApiMetadata = {
     passed: undefined, // check for oVirt API version
@@ -57,6 +59,10 @@ OVIRT_PROVIDER.vmTabRenderers = [
         component: OVirtTab,
     },
 ];
+
+// --- enable/disable actions in UI
+OVIRT_PROVIDER.canDelete = (vmState, vmId, providerState) =>
+    isVmManagedByOvirt(providerState, vmId) ? false : LIBVIRT_PROVIDER.canDelete(vmState, vmId);
 
 // --- verbs
 OVIRT_PROVIDER.init = function ({ dispatch }) {

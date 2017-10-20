@@ -30,5 +30,5 @@ export function getCurrentHost (hosts) {
 }
 
 export function isVmManagedByOvirt (providerState, vmId) {
-    return providerState && !!providerState.vms[vmId];
+    return vmId && providerState && !!providerState.vms[vmId];
 }

@@ -145,6 +145,8 @@ class TestOVirtMachines(MachineCase):
         b.wait_present("#vm-VM-vcpus")
         b.wait_in_text("#vm-VM-vcpus", "1")
 
+        b.wait_not_present("#vm-VM-delete") # oVirt-managed VM can not be deleted from Cockpit
+
         b.wait_present("#vm-VM-ovirt-description") # oVirt specific extension
         b.wait_present("#vm-VM-ovirt-suspendbutton") # oVirt specific extension
 

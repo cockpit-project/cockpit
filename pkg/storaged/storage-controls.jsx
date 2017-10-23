@@ -27,9 +27,12 @@ var $ = require("jquery");
 var React = require("react");
 var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+
 var _ = cockpit.gettext;
 
-/* StorageAction - a button or link that triggers a action.
+/* StorageControl - a button or similar that triggers
+ *                  a privileged action.
  *
  * It can be disabled and will show a tooltip then.  It will
  * automatically disable itself when the logged in user doesn't
@@ -37,16 +40,11 @@ var _ = cockpit.gettext;
  *
  * Properties:
  *
- * - onClick: function to execute the action.  It can return a promise and
- *            a error dialog will be shown when the promise fails.
- *
- * - link:    If true renders as a link, otherwise as a button.
- *
  * - excuse:  If set, the button/link is disabled and will show the
  *            excuse in a tooltip.
  */
 
-var StorageAction = React.createClass({
+var StorageControl = React.createClass({
     getInitialState: function () {
         return { allowed: permission.allowed !== false };
     },
@@ -59,19 +57,6 @@ var StorageAction = React.createClass({
     componentWillUnmount: function () {
         $(permission).off("changed", this.onPermissionChanged);
     },
-    onClick: function (event) {
-        // only consider primary mouse button
-        if (!event || event.button !== 0)
-            return;
-        var promise = this.props.onClick();
-        if (promise)
-            promise.fail(function (error) {
-                $('#error-popup-title').text(_("Error"));
-                $('#error-popup-message').text(error.toString());
-                $('#error-popup').modal('show');
-            });
-        event.stopPropagation();
-    },
     render: function () {
         var excuse = this.props.excuse;
         if (!this.state.allowed) {
@@ -82,39 +67,41 @@ var StorageAction = React.createClass({
             excuse = <span dangerouslySetInnerHTML={markup}></span>;
         }
 
-        var thing;
-        if (this.props.link) {
-            thing = (
-                <a onClick={this.onClick}
-                   className={excuse? " disabled" : ""}>
-                    {this.props.children}
-                </a>
-            );
-        } else {
-            thing = (
-                <button onClick={this.onClick}
-                        className={"btn btn-default" + (excuse? " disabled" : "")}>
-                    {this.props.children}
-                </button>
-            );
-        }
-
         return (
             <Tooltip tip={excuse}>
-                {thing}
+                { this.props.content(excuse) }
             </Tooltip>
         );
     }
 
 });
 
+function checked(callback) {
+    return function (event) {
+        // only consider primary mouse button
+        if (!event || event.button !== 0)
+            return;
+        var promise = callback();
+        if (promise)
+            promise.fail(function (error) {
+                $('#error-popup-title').text(_("Error"));
+                $('#error-popup-message').text(error.toString());
+                $('#error-popup').modal('show');
+            });
+        event.stopPropagation();
+    };
+}
+
 var StorageButton = React.createClass({
     render: function () {
         return (
-            <StorageAction onClick={this.props.onClick}
-                           excuse={this.props.excuse}>
-                {this.props.children}
-            </StorageAction>
+            <StorageControl excuse={this.props.excuse}
+                            content={(excuse) => (
+                                    <button onClick={checked(this.props.onClick)}
+                                            className={"btn btn-default" + (excuse? " disabled" : "")}>
+                                                      {this.props.children}
+                                    </button>
+                                )}/>
         );
     }
 });
@@ -122,11 +109,13 @@ var StorageButton = React.createClass({
 var StorageLink = React.createClass({
     render: function () {
         return (
-            <StorageAction onClick={this.props.onClick}
-                           excuse={this.props.excuse}
-                           link={true}>
-                {this.props.children}
-            </StorageAction>
+            <StorageControl excuse={this.props.excuse}
+                            content={(excuse) => (
+                                    <a onClick={checked(this.props.onClick)}
+                                       className={excuse? " disabled" : ""}>
+                                                 {this.props.children}
+                                    </a>
+                            )}/>
         );
     }
 });
@@ -217,10 +206,86 @@ var StorageBlockNavLink = React.createClass({
     }
 });
 
+// StorageOnOff - OnOff switch for asynchronous actions.
+//
+
+class StorageOnOff extends React.Component {
+    constructor() {
+        super();
+        this.state = { promise: null };
+    }
+
+    render() {
+        var self = this;
+
+        function onChange(val) {
+            var promise = self.props.onChange(val);
+            if (promise) {
+                promise.always(function() {
+                    self.setState({ promise: null })
+                });
+                promise.fail(function(error) {
+                    $('#error-popup-title').text(_("Error"));
+                    $('#error-popup-message').text(error.toString());
+                    $('#error-popup').modal('show');
+                });
+            }
+
+            self.setState({ promise: promise, promise_goal_state: val });
+        }
+
+        return (
+            <StorageControl excuse={this.props.excuse}
+                            content={(excuse) => (
+                                    <OnOffSwitch state={this.state.promise
+                                                        ? this.state.promise_goal_state
+                                                        : this.props.state}
+                                                 enabled={!excuse && !this.state.promise}
+                                                 onChange={onChange}/>
+                                )}/>
+        );
+    }
+}
+
+class StorageMultiAction extends React.Component {
+    render() {
+        var dflt = this.props.actions[this.props.default];
+
+        return (
+            <StorageControl excuse={this.props.excuse}
+                            content={(excuse) => {
+                                    var btn_classes = "btn btn-default";
+                                    if (excuse)
+                                        btn_classes += " disabled";
+                                    return (
+                                        <div className="btn-group">
+                                            <button className={btn_classes} onClick={checked(dflt.action)}>
+                                                                                                 {dflt.title}
+                                            </button>
+                                            <button className={btn_classes + " dropdown-toggle"}
+                                                    data-toggle="dropdown">
+                                                <span className="caret"></span>
+                                            </button>
+                                            <ul className="dropdown-menu action-dropdown-menu" role="menu">
+                                                { this.props.actions.map((act) => (
+                                                      <li className="presentation">
+                                                          <a role="menuitem" onClick={checked(act.action)}>
+                                                                                     {act.title}
+                                                          </a>
+                                                      </li>))
+                                                }
+                                            </ul>
+                                        </div>
+                                    );
+                            }}/>
+        );
+    }
+}
+
 module.exports = {
-    StorageAction: StorageAction,
     StorageButton: StorageButton,
     StorageLink:   StorageLink,
-
-    StorageBlockNavLink: StorageBlockNavLink
+    StorageBlockNavLink: StorageBlockNavLink,
+    StorageOnOff: StorageOnOff,
+    StorageMultiAction: StorageMultiAction
 };

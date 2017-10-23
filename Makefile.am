@@ -170,7 +170,7 @@ V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
 V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/Makefile.deps=%)";
 
-WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(srcdir) BUILDDIR=$(builddir) \
+WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 
 WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)

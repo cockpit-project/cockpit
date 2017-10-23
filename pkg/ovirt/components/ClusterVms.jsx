@@ -25,9 +25,10 @@ import CONFIG from '../config.es6';
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { StateIcon, DropdownButtons } from "../../machines/hostvmslist.jsx";
 
-import { toGigaBytes, valueOrDefault, isSameHostAddress, getHost } from '../helpers.es6';
+import { toGigaBytes, valueOrDefault, isSameHostAddress } from '../helpers.es6';
 import { startVm, goToSubpage } from '../actions.es6';
 import rephraseUI from '../rephraseUI.es6';
+import { getCurrentCluster, getHost } from '../selectors.es6';
 
 React;
 const _ = cockpit.gettext;
@@ -110,17 +111,6 @@ const VmActions = ({ vm, hostName, dispatch }) => {
     return null;
 };
 
-const VmCluster = ({ id, clusters }) => {
-    if (!id || !clusters || !clusters[id]) {
-        return null;
-    }
-    return (
-        <div>
-            {clusters[id].name}
-        </div>
-    );
-};
-
 const VmLastMessage = ({ vm }) => {
     if (!vm.lastMessage) {
         return null;
@@ -133,7 +123,7 @@ const VmLastMessage = ({ vm }) => {
     );
 };
 
-const Vm = ({ vm, hosts, templates, clusters, config, dispatch }) => {
+const Vm = ({ vm, hosts, templates, config, dispatch }) => {
     const stateIcon = (<StateIcon state={vm.state} config={config}/>);
     const ovirtConfig = config.providerState && config.providerState.ovirtConfig;
     const currentHost = getHost(hosts, ovirtConfig);
@@ -143,7 +133,6 @@ const Vm = ({ vm, hosts, templates, clusters, config, dispatch }) => {
         columns={[
             {name: vm.name, 'header': true},
             <VmDescription descr={vm.description} />,
-            <VmCluster id={vm.clusterId} clusters={clusters} />,
             <VmTemplate id={vm.templateId} templates={templates} />,
             <VmMemory mem={vm.memory} />,
             <VmCpu cpu={vm.cpu} />,
@@ -158,7 +147,7 @@ const Vm = ({ vm, hosts, templates, clusters, config, dispatch }) => {
 };
 
 const ClusterVms = ({ dispatch, config }) => {
-    const { vms, hosts, templates, clusters } = config.providerState;
+    const { vms, hosts, templates, clusters, ovirtConfig } = config.providerState;
 
     if (!vms) { // before cluster vms are loaded
         return (<NoVmUnitialized />);
@@ -168,9 +157,15 @@ const ClusterVms = ({ dispatch, config }) => {
         return (<NoVm />);
     }
 
+    const currentCluster = getCurrentCluster(hosts, clusters, ovirtConfig);
+    let title = cockpit.format(_("Cluster Virtual Machines"));
+    if (currentCluster) {
+        title = cockpit.format(_("Virtual Machines of $0 cluster"), currentCluster.name);
+    }
+
     return (<div className='container-fluid'>
-        <Listing title={_("Cluster Virtual Machines")} columnTitles={[
-        _("Name"), _("Description"), _("Cluster"), _("Template"), _("Memory"), _("vCPUs"), _("OS"),
+        <Listing title={title} columnTitles={[
+        _("Name"), _("Description"), _("Template"), _("Memory"), _("vCPUs"), _("OS"),
         _("HA"), _("Stateless"), _("Host"),
         (<div className='ovirt-provider-cluster-vms-actions'>{_("Action")}</div>),
         (<div className='ovirt-provider-cluster-vms-state'>{_("State")}</div>)]}>
@@ -179,7 +174,6 @@ const ClusterVms = ({ dispatch, config }) => {
                     <Vm vm={vms[vmId]}
                         hosts={hosts}
                         templates={templates}
-                        clusters={clusters}
                         config={config}
                         dispatch={dispatch}
                     />);

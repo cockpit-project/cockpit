@@ -65,7 +65,7 @@ export function ovirtApiGet (resource, custHeaders, failHandler) {
 
     return getHttpClient().get(url, null, headers)
         .fail(function (exception, error) {
-            console.info(`HTTP GET failed: ${JSON.stringify(error)}, ${JSON.stringify(exception)}`);
+            console.info(`HTTP GET failed: ${JSON.stringify(error)}, ${JSON.stringify(exception)}, url: `, url);
             handleOvirtError({ error, exception, failHandler });
         });
 }
@@ -79,13 +79,14 @@ export function ovirtApiPost (resource, body, failHandler) {
         'Authorization': 'Bearer ' + CONFIG.token,
     };
 
+    const url = `/ovirt-engine/api/${resource}`;
     return getHttpClient().request({
         method: 'POST',
-        path: `/ovirt-engine/api/${resource}`,
+        path: url,
         headers,
         body,
     }).fail(function (exception, error) {
-        console.info(`HTTP POST failed: ${JSON.stringify(error)}`);
+        console.info(`HTTP POST failed: ${JSON.stringify(error)}`, url);
         handleOvirtError({error, exception, failHandler});
     });
 }

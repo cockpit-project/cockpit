@@ -81,6 +81,11 @@ if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then
     if [ ! -e $srcdir/dist ]; then
         ln -s $olddir/dist $srcdir/dist
     fi
+    # support out-of-tree builds, where "make dist" needs the source files with sane paths
+    if [ ! -e $olddir/pkg ] && [ ! -e $olddir/node_modules ]; then
+        ln -s "$srcdir/pkg" "$olddir/pkg"
+        ln -s "$srcdir/node_modules" "$olddir/node_modules"
+    fi
 fi
 
 echo

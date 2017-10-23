@@ -268,11 +268,12 @@ function maybePushInput(inputs, po_locations, input) {
     if (stats.mtime > latest)
         latest = stats.mtime;
 
-    // Qualify the input file and add it
-    input = path.relative(cwd, input);
+    // Strip builddir and srcdir absolute paths from input file and add it
+    if (input.indexOf(cwd) === 0)
+        input = input.substr(cwd.length+1);
     if (srcdir && input.indexOf(srcdir) === 0) {
         po_location = input.substr(srcdir.length+1);
-        input = "$(srcdir)" + input.substr(srcdir.length);
+        input = input.substr(srcdir.length+1);
     } else {
         po_location = input;
     }

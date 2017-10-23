@@ -105,7 +105,7 @@
             update_job_spinners('body');
         });
 
-        function render_jobs_panel() {
+        function query_jobs_data() {
 
             /* Human readable descriptions of the symbolic "Operation"
              * property of job objects.  These are from the storaged
@@ -215,6 +215,7 @@
 
                 return {
                     path: path,
+                    dbus: j,
                     Description: make_description(j),
                     Progress: j.ProgressValid && (j.Progress*100).toFixed() + "%",
                     RemainingTime: remaining,
@@ -222,11 +223,14 @@
                 };
             }
 
-            var js = (Object.keys(client.storaged_jobs).concat(Object.keys(client.udisks_jobs)).
-                      filter(job_is_stable).
-                      sort(cmp_job).
-                      map(make_job));
+            return (Object.keys(client.storaged_jobs).concat(Object.keys(client.udisks_jobs)).
+                    filter(job_is_stable).
+                    sort(cmp_job).
+                    map(make_job));
+        }
 
+        function render_jobs_panel() {
+            var js = query_jobs_data();
             return mustache.render(jobs_tmpl,
                                    { Jobs: js,
                                      HasJobs: js.length > 0
@@ -235,6 +239,7 @@
 
         return {
             update:  update_job_spinners,
+            query:   query_jobs_data,
             render:  render_jobs_panel
         };
 

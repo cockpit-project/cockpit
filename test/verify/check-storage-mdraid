@@ -51,11 +51,9 @@ class TestStorage(StorageCase):
         })""", states)
 
     def raid_add_disk(self, name):
-        self.browser.click('#detail-sidebar .panel-heading button')
-        self.dialog_wait_open()
-        self.dialog_select("disks", name, True)
-        self.dialog_apply()
-        self.dialog_wait_close()
+        self.dialog_with_retry(trigger = lambda: self.browser.click('#detail-sidebar .panel-heading button'),
+                               expect = lambda: self.dialog_is_present('disks', name),
+                               values = { "disks": { name: True }})
 
     def raid_remove_disk(self, name):
         self.browser.click('#detail-sidebar tr:contains("%s") button' % name)
@@ -149,7 +147,7 @@ class TestStorage(StorageCase):
 
         # Degrade and repair it
 
-        m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
+        m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 && udevadm trigger" % dev)
         wait_degraded_state(True)
 
         self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "FAILED" })

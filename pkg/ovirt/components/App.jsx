@@ -28,7 +28,7 @@ import VdsmView from './VdsmView.jsx';
 import { goToSubpage } from '../actions.es6';
 import hostToMaintenance from './HostToMaintenance.jsx';
 import HostStatus from './HostStatus.jsx';
-import { getHost } from "../helpers.es6";
+import { getHost } from "../selectors.es6";
 
 const _ = cockpit.gettext;
 

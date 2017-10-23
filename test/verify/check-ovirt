@@ -178,21 +178,20 @@ class TestOVirtMachines(MachineCase):
 
         # switch to cluster view and check expected cluster content
         b.click("#ovirt-topnav-clustervms")
-        b.wait_in_text("body", "Cluster Virtual Machines")
+        b.wait_in_text("body", "Virtual Machines of Default cluster")
         b.wait_in_text("tr.listing-ct-item > th", "VM") # name
-        b.wait_in_text("tr.listing-ct-item > td:nth-child(4)", "Default") # cluster
-        b.wait_in_text("tr.listing-ct-item > td:nth-child(5)", "Blank") # template
-        b.wait_in_text("tr.listing-ct-item > td:nth-child(6)", "1 GiB") # memory
-        b.wait_in_text("tr.listing-ct-item > td:nth-child(8)", "other") # OS
-        b.wait_in_text("tr.listing-ct-item > td:nth-child(9)", "no") # HA
+        b.wait_in_text("tr.listing-ct-item > td:nth-child(4)", "Blank") # template
+        b.wait_in_text("tr.listing-ct-item > td:nth-child(5)", "1 GiB") # memory
+        b.wait_in_text("tr.listing-ct-item > td:nth-child(7)", "other") # OS
+        b.wait_in_text("tr.listing-ct-item > td:nth-child(8)", "no") # HA
         with b.wait_timeout(180):
-            b.wait_in_text("tr.listing-ct-item > td:nth-child(13)", "shut off") # state
+            b.wait_in_text("tr.listing-ct-item > td:nth-child(12)", "shut off") # state
 
         b.click("button.dropdown-toggle") # caret for 'Run|Run Here'
         b.wait_visible("a:contains('Run Here')")
         b.click("a:contains('Run Here')") # start the VM on this host
         with b.wait_timeout(180):
-            b.wait_in_text("tr.listing-ct-item > td:nth-child(11)", "host") # Host of name 'host'
+            b.wait_in_text("tr.listing-ct-item > td:nth-child(10)", "host") # Host of name 'host'
 
         # switch back to VM list and check
         b.click("#ovirt-topnav-hostvms")
@@ -206,7 +205,7 @@ class TestOVirtMachines(MachineCase):
 
         # switch to Templates
         b.click("#ovirt-topnav-clustertemplates")
-        b.wait_in_text("body", "Cluster Templates")
+        b.wait_in_text("body", "Templates of Default cluster")
         b.wait_in_text("tr.listing-ct-item > th", "Blank") # name
         b.wait_in_text("tr.listing-ct-item > td:nth-child(4)", "Blank") # Base Template
         b.wait_in_text("tr.listing-ct-item > td:nth-child(5)", "Blank template") # Description
@@ -232,7 +231,7 @@ class TestOVirtMachines(MachineCase):
 
         # check the just created VM
         b.click("#ovirt-topnav-clustervms")
-        b.wait_in_text("body", "Cluster Virtual Machines")
+        b.wait_in_text("body", "Virtual Machines of Default cluster")
         with b.wait_timeout(180):
             b.wait_present("table > tbody:nth-child(4) > tr.listing-ct-item > th") # at least two VMs are listed
         b.wait_in_text("table > tbody:nth-child(4) > tr.listing-ct-item > th", "myVMFromBlankTemplate") # check 'name' of the second one

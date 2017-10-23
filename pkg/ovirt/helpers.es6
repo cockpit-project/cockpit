@@ -24,23 +24,6 @@ export function getHostAddress() {
     return localAddress;
 }
 
-export function getHost(hosts, ovirtConfig) {
-    if (!hosts) {
-        return undefined;
-    }
-
-    // match by browser URL first
-    const hostAddress = getHostAddress();
-    let hostId = Object.getOwnPropertyNames(hosts).find(hostId => hosts[hostId].address === hostAddress);
-
-    // match by system's hostname as fallback
-    if (!hostId && ovirtConfig && ovirtConfig.hostname) {
-         hostId = Object.getOwnPropertyNames(hosts).find(hostId => hosts[hostId].address === ovirtConfig.hostname);
-    }
-
-    return hostId && hosts[hostId];
-}
-
 export function isSameHostAddress(hostAddress) {
     return getHostAddress() === hostAddress;
 }

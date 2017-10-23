@@ -22,7 +22,6 @@
 var cockpit = require("cockpit");
 var dialog = require("./dialog");
 var utils = require("./utils.js");
-var $ = require("jquery");
 
 var React = require("react");
 var CockpitListing = require("cockpit-components-listing.jsx");
@@ -455,16 +454,8 @@ function block_content(client, block) {
     if (!block)
         return null;
 
-    var drive = client.drives[block.Drive];
-    if (drive)
-        block = client.drives_block[drive.path];
-
-    if (!block)
-        return null;
-
     if (block.Size === 0)
         return null;
-
 
     function format_disk() {
         var usage = utils.get_active_usage(client, block.path);
@@ -532,43 +523,8 @@ function block_content(client, block) {
 }
 
 var Block = React.createClass({
-    getInitialState: function () {
-        return { block: null };
-    },
-    onClientChanged: function () {
-        this.setState({ block: this.props.client.slashdevs_block[this.props.name] });
-    },
-    componentDidMount: function () {
-        $(this.props.client).on("changed", this.onClientChanged);
-        this.onClientChanged();
-    },
-    componentWillUnmount: function () {
-        $(this.props.model).off("changed", this.onClientChanged);
-    },
     render: function () {
-        return block_content(this.props.client, this.state.block);
-    }
-});
-
-var MDRaid = React.createClass({
-    getInitialState: function () {
-        return { mdraid: null, block: null };
-    },
-    onClientChanged: function () {
-        var mdraid = this.props.client.uuids_mdraid[this.props.name];
-        var block = mdraid && this.props.client.mdraids_block[mdraid.path];
-        this.setState({ mdraid: mdraid, block: block });
-    },
-    componentDidMount: function () {
-        $(this.props.client).on("changed", this.onClientChanged);
-        this.onClientChanged();
-    },
-    componentWillUnmount: function () {
-        $(this.props.model).off("changed", this.onClientChanged);
-    },
-
-    render: function () {
-        return block_content(this.props.client, this.state.block);
+        return block_content(this.props.client, this.props.block);
     }
 });
 
@@ -630,26 +586,9 @@ function vgroup_rows(client, vgroup) {
 }
 
 var VGroup = React.createClass({
-    getInitialState: function () {
-        return { vgroup: null };
-    },
-    onClientChanged: function () {
-        this.setState({ vgroup: this.props.client.vgnames_vgroup[this.props.name] });
-    },
-    componentDidMount: function () {
-        $(this.props.client).on("changed", this.onClientChanged);
-        this.onClientChanged();
-    },
-    componentWillUnmount: function () {
-        $(this.props.model).off("changed", this.onClientChanged);
-    },
-
     render: function () {
         var self = this;
-        var vgroup = self.state.vgroup;
-
-        if (!vgroup)
-            return null;
+        var vgroup = this.props.vgroup;
 
         function create_logical_volume() {
             if (vgroup.FreeSize == 0)
@@ -744,6 +683,5 @@ var VGroup = React.createClass({
 
 module.exports = {
     Block: Block,
-    MDRaid: MDRaid,
     VGroup: VGroup
 };

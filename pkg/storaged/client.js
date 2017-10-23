@@ -35,6 +35,8 @@
 
     var client = { };
 
+    cockpit.event_target(client);
+
     /* Metrics
      */
 
@@ -390,10 +392,10 @@
 
                 $(client.storaged_client).on('notify', function () {
                     update_indices();
-                    $(client).triggerHandler('changed');
+                    client.dispatchEvent("changed");
                 });
                 $(client.udisks_jobs).on('added removed changed', function () {
-                    $(client).triggerHandler('changed');
+                    client.dispatchEvent("changed");
                 });
                 update_indices();
             });

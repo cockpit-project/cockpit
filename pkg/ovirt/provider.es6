@@ -87,7 +87,7 @@ OVIRT_PROVIDER.SHUTDOWN_VM = function (payload) {
         forceNextOvirtPoll();
         return ovirtApiPost(
             `vms/${id}/shutdown`,
-            '<action />',
+            '<action><async>false</async></action>',
             buildFailHandler({
                 dispatch,
                 name: vmName,
@@ -111,7 +111,7 @@ OVIRT_PROVIDER.FORCEOFF_VM = function (payload) {
         forceNextOvirtPoll();
         return ovirtApiPost(
             `vms/${id}/stop`,
-            '<action />',
+            '<action><async>false</async></action>',
             buildFailHandler({
                 dispatch,
                 name: vmName,
@@ -135,7 +135,7 @@ OVIRT_PROVIDER.REBOOT_VM = function (payload) {
         forceNextOvirtPoll();
         return ovirtApiPost(
             `vms/${id}/reboot`,
-            '<action />',
+            '<action><async>false</async></action>',
             buildFailHandler({
                 dispatch,
                 name: vmName,
@@ -163,8 +163,8 @@ OVIRT_PROVIDER.START_VM = function (payload) {
     const hostName = payload.hostName; // optional
 
     const actionXml = hostName ?
-        `<action><vm><placement_policy><hosts><host><name>${hostName}</name></host></hosts></placement_policy></vm></action>`
-        : '<action />';
+        `<action><async>false</async><vm><placement_policy><hosts><host><name>${hostName}</name></host></hosts></placement_policy></vm></action>`
+        : '<action><async>false</async></action>';
 
     return (dispatch) => {
         forceNextOvirtPoll();
@@ -198,17 +198,20 @@ OVIRT_PROVIDER.CREATE_VM_FROM_TEMPLATE = function (payload) {
     const cluster =  `<cluster><name>${clusterName}</name></cluster>`;
     const action = `<vm>${name}${cluster}${template}</vm>`;
 
-    return (dispatch) => ovirtApiPost(
-        `vms`,
-        action,
-        buildFailHandler({
-            dispatch,
-            name: vm.name,
-            connectionName: QEMU_SYSTEM,
-            msg: _("CREATE VM action failed"),
-            extraPayload: { templateName },
-        })
-    );
+    return (dispatch) => {
+        forceNextOvirtPoll();
+        return ovirtApiPost(
+            `vms`,
+            action,
+            buildFailHandler({
+                dispatch,
+                name: vm.name,
+                connectionName: QEMU_SYSTEM,
+                msg: _("CREATE VM action failed"),
+                extraPayload: {templateName},
+            })
+        );
+    };
 };
 
 OVIRT_PROVIDER.MIGRATE_VM = function ({ vmId, vmName, hostId }) {
@@ -219,7 +222,7 @@ OVIRT_PROVIDER.MIGRATE_VM = function ({ vmId, vmName, hostId }) {
     }
 
     const action = hostId ?
-        `<action><host id="${hostId}"/></action>` :
+        `<action><async>false</async><host id="${hostId}"/></action>` :
         '<action/>';
 
     return (dispatch) => {

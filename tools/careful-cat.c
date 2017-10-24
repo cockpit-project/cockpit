@@ -13,7 +13,7 @@
  *    https://github.com/travis-ci/travis-ci/issues/4704
  */
 
-void
+int
 main (void)
 {
   char buffer[1024], *ptr;
@@ -28,7 +28,7 @@ main (void)
       if (n < 0)
         {
           perror("read");
-          exit (1);
+          return 1;
         }
 
       ptr = buffer;
@@ -38,7 +38,7 @@ main (void)
           if (m == 0)
             {
               fprintf(stderr, "write: closed\n");
-              exit (1);
+              return 1;
             }
 
           if (m < 0)
@@ -46,7 +46,7 @@ main (void)
               int err = errno;
               perror("write");
               if (err != EAGAIN)
-                exit (1);
+                return 1;
               sleep(1);
             }
           else
@@ -57,5 +57,5 @@ main (void)
         }
     }
 
-  exit (0);
+  return 0;
 }

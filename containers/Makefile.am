@@ -55,3 +55,17 @@ ws-container:
 ws-container-shell:
 	sudo docker run -ti --rm --publish=9001:9090 \
 		cockpit/ws /bin/bash
+
+UNIT_TESTS_DIR = $(srcdir)/containers/unit-tests
+
+unit-tests-container:
+	sudo docker build -t cockpit/unit-tests $(UNIT_TESTS_DIR)
+	sudo docker tag  cockpit/unit-tests:latest docker.io/cockpit/unit-tests:latest
+	sudo docker build --build-arg arch=i386 -t cockpit/unit-tests:i386 containers/unit-tests/
+	sudo docker tag  cockpit/unit-tests:i386 docker.io/cockpit/unit-tests:i386
+
+unit-tests-container-run:
+	sudo docker run -ti --rm -v $(abs_srcdir):/source:ro cockpit/unit-tests
+
+unit-tests-container-shell:
+	sudo docker run -ti --rm -v $(abs_srcdir):/source:ro cockpit/unit-tests /bin/bash

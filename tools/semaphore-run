@@ -1,33 +1,14 @@
-#!/bin/bash
+#!/bin/sh -ex
 
-set -o pipefail
-set -eux
+# semaphore has a hacked phantomjs-prebuilt cached which points to /usr/local/bin/phantomjs
+[ -x node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs ] || rm -rf node_modules/phantomjs-prebuilt
 
-ARCH=${1:-}
-
-if [ "$ARCH" = i386 ]; then
-    # help apt to figure out replacing GI dependencies (we don't need them
-    # anyway, but a lot of stuff is pre-installed in semaphore)
-    sudo apt-get purge --auto-remove -y python3-gi gir1.2-glib-2.0
-
-    # library -dev packages are not co-installable for multiple architectures,
-    # so this can't go into the setup step
-    DEVPKGS=$(grep -o '[^ ]*-dev' tools/semaphore-prepare | sed 's/$/:i386/')
-    sudo apt-get install -y --no-install-recommends gcc-multilib pkg-config:i386 glib-networking:i386 glib-networking-dbg:i386 libc6-dbg:i386 libglib2.0-0-dbg:i386 $DEVPKGS
-    export CFLAGS=-m32
-    export LDFLAGS=-m32
-elif [ -n "$ARCH" ]; then
-    echo "Unknown architecture '$ARCH'" >&2
-    exit 1
-fi
-
-gcc ./tools/careful-cat.c -o careful-cat
-./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
-make -j2 V=1 all
-
-# only run distcheck on native arch
-if [ -z "$ARCH" ]; then
-    make -j8 distcheck check-memory 2>&1 | ./careful-cat
-elif [ "$ARCH" = i386 ]; then
-    linux32 make -j8 check check-memory 2>&1 | ./careful-cat
+# temporary shim, remove once landed on master and semaphore config got updated
+if [ "$1" = i386 ]; then
+    sudo docker run --volume `pwd`:/source:ro cockpit/unit-tests:i386
+elif [ "${CC#clang}" != "$CC" ]; then
+    sudo docker run --env=CC=clang --volume `pwd`:/source:ro cockpit/unit-tests
+else
+    # standard arch/compiler
+    sudo docker run --volume `pwd`:/source:ro cockpit/unit-tests
 fi

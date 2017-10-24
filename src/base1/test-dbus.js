@@ -705,10 +705,10 @@ QUnit.asyncTest("internal dbus bus none with address", function() {
 QUnit.asyncTest("separate dbus connections for channel groups", function() {
     assert.expect(4);
 
-    var channel1 = cockpit.channel({ payload: 'dbus-json3', group: 'foo' });
-    var channel2 = cockpit.channel({ payload: 'dbus-json3', group: 'bar' });
-    var channel3 = cockpit.channel({ payload: 'dbus-json3', group: 'foo' });
-    var channel4 = cockpit.channel({ payload: 'dbus-json3', group: 'baz' });
+    var channel1 = cockpit.channel({ payload: 'dbus-json3', group: 'foo', bus: 'session' });
+    var channel2 = cockpit.channel({ payload: 'dbus-json3', group: 'bar', bus: 'session' });
+    var channel3 = cockpit.channel({ payload: 'dbus-json3', group: 'foo', bus: 'session' });
+    var channel4 = cockpit.channel({ payload: 'dbus-json3', group: 'baz', bus: 'session' });
 
     cockpit.all([
         channel1.wait(), channel2.wait(), channel3.wait(), channel4.wait()

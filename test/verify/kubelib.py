@@ -49,6 +49,9 @@ class KubernetesCase(testlib.MachineCase):
             self.machine.execute("systemctl stop kube-apiserver")
 
     def start_kubernetes(self):
+        # HACK: These are the default container secrets that which conflict
+        # with kubernetes secrets and cause the pod to not start
+        self.machine.execute("rm -rf /usr/share/rhel/secrets/* || true")
         self.machine.execute("test -f /etc/resolv.conf || touch /etc/resolv.conf")
         self.machine.execute("systemctl start docker || journalctl -u docker")
 

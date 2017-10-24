@@ -52,7 +52,7 @@ class TestStorage(StorageCase):
                       "store_passphrase": True,
                       "mounting": "custom",
                       "mount_point": mount_point_secret,
-                      "crypto_options": "crypto,options" })
+                      "crypto_extra_options": CheckBoxText("crypto,options") })
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 File System")
 
@@ -76,8 +76,8 @@ class TestStorage(StorageCase):
             # Change options.  We keep trying until the stack has synched
             # up with crypttab and we see the old options.
             self.dialog_with_retry(trigger = lambda: self.content_tab_info_action(1, 2, "Options"),
-                                   expect = { "options": "crypto,options" },
-                                   values = { "options": "weird,options" })
+                                   expect = { "crypto_extra_options": CheckBoxText("crypto,options") },
+                                   values = { "crypto_extra_options": CheckBoxText("weird,options") })
 
             assert m.execute("grep 'weird,options' /etc/crypttab") != ""
             self.wait_in_storaged_configuration("weird,options")

@@ -133,7 +133,6 @@
             cols: 80,
             rows: 24,
             screenKeys: true,
-            useStyle: true,
             inlineStyle: false,
             useFocus: false,
         });

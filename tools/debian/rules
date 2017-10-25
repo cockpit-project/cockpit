@@ -59,7 +59,7 @@ override_dh_install:
 	dpkg-vendor --derives-from ubuntu || rm -r debian/tmp/usr/share/cockpit/branding/ubuntu
 
 	# unpackaged modules
-	for m in kdump kubernetes ostree selinux sosreport subscriptions; do rm -r debian/tmp/usr/share/cockpit/$$m; done
+	for m in kdump kubernetes ostree selinux sosreport subscriptions ovirt; do rm -r debian/tmp/usr/share/cockpit/$$m; done
 	# part of kubernetes
 	rm -f debian/tmp/usr/lib/cockpit/cockpit-stub
 

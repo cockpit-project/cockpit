@@ -62,6 +62,7 @@
 #define DEBUG_SESSION 0
 #define EX 127
 #define DEFAULT_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+#define COCKPIT_KTAB PACKAGE_SYSCONF_DIR "/cockpit/krb5.keytab"
 
 static struct passwd *pwd;
 static struct passwd pwd_buf;
@@ -739,6 +740,12 @@ perform_gssapi (const char *rhost,
   int res;
 
   res = PAM_AUTH_ERR;
+
+  if (!getenv ("COCKPIT_TEST_KEEP_KTAB") &&
+      access (COCKPIT_KTAB, F_OK) == 0)
+    {
+      setenv ("KRB5_KTNAME", COCKPIT_KTAB, 1);
+    }
 
   debug ("reading kerberos auth from cockpit-ws");
   input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);

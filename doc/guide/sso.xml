@@ -28,8 +28,10 @@ _kerberos._udp.example.com has SRV record 0 100 88 dc.example.com
       the domain name.</para>
   
     <para>There must be a valid Kerberos host key for the server in the <code>/etc/krb5.keytab</code>
-      file. It may be necessary to create a kerberos service principal and update the keytab if it
-      is not present. Depending on your domain type different service names are required:</para>
+      file. Alternatively, if you would like to use a different keytab, you can do so
+      by placing it in <code>/etc/cockpit/krb5.keytab</code>. It may be necessary to
+      create a kerberos service principal and update the keytab if it is not present.
+      Depending on your domain type different service names are required:</para>
 
     <variablelist>
       <varlistentry>

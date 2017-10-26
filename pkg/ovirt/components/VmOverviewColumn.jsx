@@ -21,6 +21,7 @@ import cockpit from 'cockpit';
 import React from "react";
 
 import { vmId } from '../../machines/helpers.es6';
+import { formatDateTime } from '../helpers.es6';
 
 React;
 const _ = cockpit.gettext;
@@ -70,6 +71,7 @@ const VmOverviewColumn = ({ vm, providerState }) => { // For reference, extend i
                     <table className='form-table-ct'>
                         <VmProperty title={_("Description:")} value={clusterVm.description} id={`${idPrefix}-description`} />
                         <VmProperty title={_("Address:")} value={clusterVm.fqdn} id={`${idPrefix}-fqdn`} />
+                        <VmProperty title={_("Running Since:")} value={formatDateTime(clusterVm.startTime)} id={`${idPrefix}-starttime`} />
                     </table>
                 </div>
                 <div className='ovirt-provider-columns-two'>

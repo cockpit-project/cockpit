@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import cockpit from 'cockpit';
 
 export function getHostAddress() {
     const localHost = window.location.host;
@@ -58,4 +59,27 @@ export function valueOrDefault(value, def) {
 
 export function isNumeric(value) {
     return /^\d+$/.test(value);
+}
+
+/**
+ * "Month Number Hour:Minute" (ie. September 17 18:15)
+ * or "August 12, 2016 20:15" if the year is different from actual
+ */
+export function formatDateTime (milliseconds) {
+    const now = new Date(); // Should be server time (not browser), but do we care for decision about the year difference?
+    const date = new Date(milliseconds);
+    const isYearDifferent = (now.getUTCFullYear() - date.getUTCFullYear()) !== 0;
+
+    const options = {
+        month: 'long',
+        year: isYearDifferent ? 'numeric' : undefined,
+        day: 'numeric',
+        hour: 'numeric',
+        hour12: false,
+        minute: 'numeric',
+    };
+
+    let localeString = date.toLocaleString(cockpit.language || 'en', options);
+    localeString = localeString.replace(/,([^,]*)$/,'$1'); // remove ',' before time
+    return localeString;
 }

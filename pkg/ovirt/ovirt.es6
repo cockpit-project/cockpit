@@ -189,6 +189,7 @@ function parseVms(deferred, data, dispatch) {
                 clusterId: vm.cluster.id,
                 templateId: vm.template.id,
                 hostId: vm.host ? vm.host.id : undefined,
+                fqdn: vm.fqdn,
             }));
         });
         dispatch(removeUnlistedVms({allVmsIds}));

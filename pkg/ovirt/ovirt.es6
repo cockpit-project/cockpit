@@ -190,6 +190,7 @@ function parseVms(deferred, data, dispatch) {
                 templateId: vm.template.id,
                 hostId: vm.host ? vm.host.id : undefined,
                 fqdn: vm.fqdn,
+                startTime: vm.start_time, // in milliseconds since 1970/01/01
             }));
         });
         dispatch(removeUnlistedVms({allVmsIds}));

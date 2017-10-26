@@ -84,7 +84,16 @@ function getValueFromLine(parsedLines, pattern) {
  */
 export function buildFailHandler({ dispatch, name, connectionName, message, extraPayload }) {
     return ({ exception, data }) =>
-        dispatch(vmActionFailed({name, connectionName, message, detail: {exception, data}}, extraPayload));
+        dispatch(vmActionFailed({
+            name,
+            connectionName,
+            message,
+            detail: {
+                exception,
+                data,
+            },
+            extraPayload,
+        }));
 }
 
 let LIBVIRT_PROVIDER = {};

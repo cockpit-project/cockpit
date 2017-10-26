@@ -92,7 +92,7 @@ OVIRT_PROVIDER.SHUTDOWN_VM = function (payload) {
                 dispatch,
                 name: vmName,
                 connectionName: payload.connectionName,
-                msg: _("SHUTDOWN action failed")
+                message: _("SHUTDOWN action failed")
             })
         );
     };
@@ -116,7 +116,7 @@ OVIRT_PROVIDER.FORCEOFF_VM = function (payload) {
                 dispatch,
                 name: vmName,
                 connectionName: payload.connectionName,
-                msg: _("SHUTDOWN action failed")
+                message: _("SHUTDOWN action failed")
             })
         );
     };
@@ -140,7 +140,7 @@ OVIRT_PROVIDER.REBOOT_VM = function (payload) {
                 dispatch,
                 name: vmName,
                 connectionName: payload.connectionName,
-                msg: _("REBOOT action failed")
+                message: _("REBOOT action failed")
             })
         );
     };
@@ -176,7 +176,7 @@ OVIRT_PROVIDER.START_VM = function (payload) {
                 dispatch,
                 name: vmName,
                 connectionName: payload.connectionName,
-                msg: _("START action failed")
+                message: _("START action failed")
             })
         );
     };
@@ -207,8 +207,8 @@ OVIRT_PROVIDER.CREATE_VM_FROM_TEMPLATE = function (payload) {
                 dispatch,
                 name: vm.name,
                 connectionName: QEMU_SYSTEM,
-                msg: _("CREATE VM action failed"),
-                extraPayload: {templateName},
+                message: _("CREATE VM action failed"),
+                extraPayload: { templateName },
             })
         );
     };
@@ -234,7 +234,7 @@ OVIRT_PROVIDER.MIGRATE_VM = function ({ vmId, vmName, hostId }) {
                 dispatch,
                 name: vmName,
                 connectionName: undefined, // TODO: oVirt-only, not implemented for Libvirt
-                msg: _("MIGRATE action failed")
+                message: _("MIGRATE action failed")
             })
         );
     };
@@ -254,7 +254,7 @@ OVIRT_PROVIDER.SUSPEND_VM = function ({ id, name }) {
             dispatch,
             name,
             connectionName: undefined, // TODO: oVirt-only, not implemented for Libvirt
-            msg: _("SUSPEND action failed")
+            message: _("SUSPEND action failed")
         })).then( data => {
             logDebug('SUSPEND_VM finished', data);
             window.setTimeout(forceNextOvirtPoll, 5000); // hack for better user experience
@@ -364,16 +364,8 @@ OVIRT_PROVIDER.HOST_TO_MAINTENANCE = function ({ hostId }) {
         ovirtApiPost(
             `hosts/${hostId}/deactivate`,
             '<action/>',
-            (error) => {
-                let detail;
-                try {
-                    const jsonResponse = JSON.parse(error);
-                    detail = jsonResponse && jsonResponse.fault && jsonResponse.fault.detail;
-                } catch (ex) {
-                    detail = error.responseText || error;
-                }
-                const errorMsg = detail || error.statusText || error || "";
-                dfd.reject(_("Switching host to maintenance mode failed. Received error: ") + errorMsg);
+            ({ data, exception }) => {
+                dfd.reject(_("Switching host to maintenance mode failed. Received error: ") + data);
             }
         ).then(() => {
             dfd.resolve();

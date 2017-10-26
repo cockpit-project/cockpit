@@ -83,12 +83,12 @@ const VmActions = ({ vm, hostName, dispatch }) => {
     const runButton = {
         title: _("Run"),
         action: () => dispatch(startVm(vm)),
-        id: `cluster-${vm.id}-run`
+        id: `cluster-${vm.name}-run`
     };
     const runHereButton = {
         title: _("Run Here"),
         action: () => dispatch(startVm(vm, hostName)),
-        id: `cluster-${vm.id}-run-here`
+        id: `cluster-${vm.name}-run-here`
     };
 
     if (['suspended'].indexOf(vm.state) >= 0) {
@@ -115,9 +115,14 @@ const VmLastMessage = ({ vm }) => {
     if (!vm.lastMessage) {
         return null;
     }
-    const detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception: vm.lastMessage;
+
+    let detail = vm.lastMessage;
+    if (vm.lastMessageDetail && vm.lastMessageDetail.data) {
+        detail = vm.lastMessageDetail.data;
+    }
+
     return (
-        <p title={detail} data-toggle='tooltip'>
+        <p title={detail} data-toggle='tooltip' id={`clustervm-${vm.name}-actionerror`}>
             <span className='pficon-warning-triangle-o' />&nbsp;{vm.lastMessage}
         </p>
     );

@@ -20,6 +20,7 @@
 
 import parent
 from testlib import *
+from functools import reduce
 
 import os
 
@@ -80,11 +81,17 @@ DOMAIN_XML="""
     <boot dev='hd'/>
     <boot dev='network'/>
   </os>
+  <maxMemory slots='2' unit='MiB'>312</maxMemory>
   <memory unit='MiB'>256</memory>
-  <currentMemory unit='MiB'>256</currentMemory>
+  <currentMemory unit='MiB'>128</currentMemory>
   <features>
     <acpi/>
   </features>
+  <cpu>
+    <numa>
+      <cell id='0' cpus='0' memory='128' unit='MiB'/>
+    </numa>
+  </cpu>
   <devices>
     <disk type='block' device='disk'>
       <driver name='qemu' type='raw'/>
@@ -253,7 +260,7 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-usage")
         b.click("#vm-subVmTest1-usage")
         b.wait_present("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption")
-        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "256 MiB")
+        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "128 MiB")
         b.wait_present("#chart-donut-0 .donut-title-big-pf")
         b.wait(lambda: float(b.text("#chart-donut-0 .donut-title-big-pf")) > 0.0)
         b.wait_present("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption")
@@ -436,6 +443,58 @@ class TestMachines(MachineCase):
 
         b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
+
+
+    def testMemory(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1", graphics='vnc', ptyconsole=True)
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.click("tbody tr th") # click on the row header
+
+        b.wait_present("#vm-subVmTest1-state")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        b.wait_present("#vm-subVmTest1-memory-size") # wait for the tab
+        b.click("#vm-subVmTest1-memory-size") # open Memory modal detail window
+
+        b.wait_present(".memory-detail-modal-table")
+
+        # Test basic memory properties
+        b.wait_in_text("#machines-memory-max-value", "312 MiB")
+        b.wait_in_text("#machines-memory-value", "128 MiB")
+        b.wait_val("#machines-memory-current-value", "128")
+
+        # Attach new memory device
+        b.set_val("#machines-add-memory-device-value", "128")
+        b.wait_in_text("#machines-add-memory-device-measure button", "MiB")
+        b.click("#machines-memory-add-memory-device-button")
+        b.wait_present(".memory-devices-list > .memory-device-item:nth-child(1) .memory-device-item-target-size")
+        b.wait_in_text(".memory-devices-list > .memory-device-item:nth-child(1) .memory-device-item-target-size", "128 MiB")
+
+        # shut off
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-forceOff")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # Remove memory device
+        b.click(".memory-devices-list > .memory-device-item:nth-child(1) button")
+        b.wait_not_present(".memory-devices-list > .memory-device-item:nth-child(1) .memory-device-item-target-size")
+
+        # Set new current memory value
+        b.set_val("#machines-memory-current-value", "130")
+
+        # Save
+        b.click(".apply")
+
+        # Check changes
+        b.wait_in_text("#vm-subVmTest1-memory-size", "130 MiB")
+
 
     def testNetworks(self):
         b = self.browser

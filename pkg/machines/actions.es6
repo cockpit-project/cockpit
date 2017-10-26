@@ -87,6 +87,18 @@ export function changeNetworkState(vm, networkMac, state) {
     return virt('CHANGE_NETWORK_STATE', { name: vm.name, networkMac, state, connectionName: vm.connectionName });
 }
 
+export function addMemoryDevice(vm, size) {
+    return virt('ADD_MEMORY_DEVICE', { name: vm.name, connectionName: vm.connectionName, state: vm.state, size: size });
+}
+
+export function removeMemoryDevice(vm, xml) {
+    return virt('REMOVE_MEMORY_DEVICE', { name: vm.name, connectionName: vm.connectionName, state: vm.state, xml: xml });
+}
+
+export function changeMemory(vm, memory) {
+    return virt('CHANGE_MEMORY', { name: vm.name, connectionName: vm.connectionName, memory });
+}
+
 /**
  * Delay call of polling action.
  *

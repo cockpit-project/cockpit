@@ -59,7 +59,7 @@ export function toKiloBytes(amount, currentUnit) {
             result = amount * 1024;
             break;
         case 'GiB':
-            result = amount * 1024;
+            result = amount * 1024 * 1024;
             break;
         default:
             console.error(`toKiloBytes(): unknown unit: ${currentUnit}`);

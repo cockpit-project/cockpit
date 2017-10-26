@@ -149,6 +149,10 @@
             };
         }
 
+        componentWillReceiveProps(nextProps) {
+            this.setState({ currentData: nextProps.initial });
+        }
+
         onChange(data) {
             this.setState({ currentData: data });
             if (typeof this.props.onChange === 'function')

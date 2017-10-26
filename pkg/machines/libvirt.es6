@@ -217,6 +217,69 @@ LIBVIRT_PROVIDER = {
         });
     },
 
+    ADD_MEMORY_DEVICE ({ name, connectionName, state, size }) {
+        logDebug(`${this.name}.ADD_MEMORY_DEVICE:`);
+        return dispatch => spawnCommand({
+            command: 'mktemp',
+            connectionName,
+            method: 'ADD_MEMORY_DEVICE',
+            failHandler: buildFailHandler({ dispatch, connectionName, message: _("ADD MEMORY DEVICE action failed")}),
+            args: ['/tmp/abc-script.XXXXXX']
+        }).then(result => {
+            result = result.replace('\n', '');
+            return spawnCommand({
+                command: 'sh',
+                connectionName,
+                method: 'ADD_MEMORY_DEVICE',
+                failHandler: buildFailHandler({ dispatch, connectionName, message: _("ADD MEMORY DEVICE action failed")}),
+                args: ['-c', `echo '<memory model="dimm"><target><size unit="KiB">${size}</size><node>0</node></target></memory>' > ${result}`]
+            }).then((res) => {
+                const args = ['attach-device', name, result, '--config'];
+                if (state === 'running') {
+                    args.push('--live');
+                }
+                return spawnVirsh({
+                    connectionName,
+                    method: 'ADD_MEMORY_DEVICE',
+                    failHandler: buildFailHandler({ dispatch, connectionName, message: _("ADD MEMORY DEVICE action failed")}),
+                    args: args
+                });
+            }).then((res) => {
+                dispatch(getVm(connectionName, name));
+            });
+        });
+    },
+    REMOVE_MEMORY_DEVICE ({ name, connectionName, state, xml }) {
+        logDebug(`${this.name}.REMOVE_MEMORY_DEVICE:`);
+        return dispatch => spawnCommand({
+            command: 'mktemp',
+            connectionName,
+            method: 'REMOVE_MEMORY_DEVICE',
+            failHandler: buildFailHandler({ dispatch, connectionName, message: _("REMOVE MEMORY DEVICE action failed")}),
+            args: ['/tmp/abc-script.XXXXXX']
+        }).then(result => {
+            result = result.replace('\n', '');
+
+            return spawnCommand({
+                command: 'sh',
+                connectionName,
+                method: 'REMOVE_MEMORY_DEVICE',
+                failHandler: buildFailHandler({ dispatch, connectionName, message: _("REMOVE MEMORY DEVICE action failed")}),
+                args: ['-c', `echo '${xml}' > ${result}`]
+            }).then((res) => {
+                const args = ['detach-device', name, result, '--current'];
+                return spawnVirsh({
+                    connectionName,
+                    method: 'REMOVE_MEMORY_DEVICE',
+                    failHandler: buildFailHandler({ dispatch, connectionName, message: _("REMOVE MEMORY DEVICE action failed")}),
+                    args: args
+                });
+            }).then((res) => {
+                dispatch(getVm(connectionName, name));
+            });
+        });
+    },
+
     DELETE_VM ({ name, connectionName, options }) {
         logDebug(`${this.name}.DELETE_VM(${name}, ${JSON.stringify(options)}):`);
 
@@ -261,6 +324,58 @@ LIBVIRT_PROVIDER = {
         };
     },
 
+    CHANGE_MEMORY ({ name, connectionName, memory }) {
+        logDebug(`${this.name}.CHANGE_MEMORY(${name} ${memory}):`);
+        return dispatch => spawnVirshReadOnly({
+            connectionName,
+            method: 'dumpxml',
+            name
+        }).then((domXml) => {
+            const domainElem = getDomainElem(domXml);
+
+            let numaElem = domainElem.getElementsByTagName("numa")[0];
+            let currentElem = domainElem.getElementsByTagName("currentMemory")[0];
+            if (numaElem) {
+                const sourceMemory = parseInt(currentElem.textContent);
+                const memoryDiff = sourceMemory - memory;
+                const cells = numaElem.getElementsByTagName("cell");
+                const cellCount = cells.length;
+
+                let guestMemory = 0;
+
+                for (let i = 0; i < cells.length; i++) {
+                    guestMemory += parseInt(cells[i].getAttribute('memory'));
+                }
+
+                const resMemory = guestMemory - memoryDiff;
+
+                const freeMemory = resMemory % cellCount;
+                const memoryPerCell = Math.floor(resMemory / cellCount);
+                for (let i = 0; i < cells.length; i++) {
+                    cells[i].setAttribute('memory', `${memoryPerCell}`);
+                }
+
+                cells[0].setAttribute('memory', `${memoryPerCell + freeMemory}`);
+
+            }
+
+            if (currentElem) {
+                currentElem.textContent = `${memory}`;
+            }
+
+            const tmp = document.createElement("div");
+            tmp.appendChild(domainElem);
+
+            return createTempFile(tmp.innerHTML);
+        }).then((tempFilename) => {
+            return spawnVirsh({connectionName,
+                method: 'CHANGE_MEMORY',
+                failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("CHANGE MEMORY action failed")}),
+                args: ['define', tempFilename.trim()]
+            });
+        });
+    },
+
     USAGE_START_POLLING ({ name, connectionName }) {
         logDebug(`${this.name}.USAGE_START_POLLING(${name}):`);
         return (dispatch => {
@@ -302,6 +417,24 @@ LIBVIRT_PROVIDER = {
     }
 };
 
+function createTempFile (content) {
+    const dfd = cockpit.defer();
+    spawnScript({
+        script: "mktemp /tmp/abc-script.XXXXXX"
+    }).then(tempFilename => {
+        spawnScript({
+            script: `echo '${content}' > ${tempFilename}`
+        }).then(() => {
+            dfd.resolve(tempFilename);
+        }).fail((ex, data) => {
+            dfd.reject(ex, data, 'Can\'t write to temporary file');
+        });
+    }).fail((ex, data) => {
+        dfd.reject(ex, data, 'Can\'t create temporary file');
+    });
+    return dfd.promise;
+}
+
 function canLoggedUserConnectSession (connectionName, loggedUser) {
     return connectionName !== 'session' || loggedUser.name !== 'root';
 }
@@ -342,8 +475,34 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
     });
 }
 
+function spawnCommand({command, connectionName, method, failHandler, args}) {
+    return spawnProcess({
+        cmd: command,
+        args: args,
+        failHandler,
+    }).fail((ex, data, output) => {
+        const msg = `${method}() exception: '${ex}', data: '${data}', output: '${output}'`;
+        if (failHandler) {
+            logDebug(msg);
+            return ;
+        }
+        console.warn(msg);
+    });
+}
+
 function spawnVirshReadOnly({connectionName, method, name, failHandler}) {
     return spawnVirsh({connectionName, method, args: ['-r', method, name], failHandler});
+}
+
+function getDomainElem(domXml) {
+    const xmlDoc = $.parseXML(domXml);
+
+    if (!xmlDoc) {
+        console.warn(`Can't parse dumpxml, input: "${domXml}"`);
+        return ;
+    }
+
+    return xmlDoc.getElementsByTagName("domain")[0];
 }
 
 function parseDumpxml(dispatch, connectionName, domXml) {
@@ -356,7 +515,6 @@ function parseDumpxml(dispatch, connectionName, domXml) {
 
     const domainElem = xmlDoc.getElementsByTagName("domain")[0];
     const osElem = domainElem.getElementsByTagName("os")[0];
-    const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
     const cpuElem = domainElem.getElementsByTagName("cpu")[0];
     const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
@@ -368,11 +526,9 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const osType = osTypeElem.nodeValue;
     const emulatedMachine = osTypeElem.getAttribute("machine");
 
-    const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
-    const currentMemory = toKiloBytes(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit);
-
     const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
 
+    const memory = parseDumpxmlForMemory(domainElem);
     const disks = parseDumpxmlForDisks(devicesElem);
     const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
     const cpuModel = parseDumpxmlForCpuModel(cpuElem);
@@ -382,7 +538,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     dispatch(updateOrAddVm({
         connectionName, name, id,
         osType,
-        currentMemory,
+        memory,
         vcpus,
         disks,
         emulatedMachine,
@@ -396,6 +552,59 @@ function parseDumpxml(dispatch, connectionName, domXml) {
 function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);
     return subElems.length > 0 ? subElems[0] : undefined; // optional
+}
+
+function parseDumpxmlForMemory(domainElem) {
+    const memory = {};
+    const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
+    const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
+    memory.currentMemory = toKiloBytes(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit);
+
+    const memoryElem = domainElem.getElementsByTagName("memory")[0];
+    const memoryUnit = memoryElem.getAttribute("unit");
+    memory.memory = toKiloBytes(memoryElem.childNodes[0].nodeValue, memoryUnit);
+
+    const maxMemoryElem = domainElem.getElementsByTagName("maxMemory")[0];
+    if (maxMemoryElem) {
+        const maxMemoryUnit = maxMemoryElem.getAttribute("unit");
+        memory.maxMemory = toKiloBytes(maxMemoryElem.childNodes[0].nodeValue, maxMemoryUnit);
+    } else {
+        memory.maxMemory = memory.memory;
+    }
+
+    const devicesElem = domainElem.getElementsByTagName("devices")[0];
+
+    memory.memoryDevices = [];
+    const memoryElems = devicesElem.getElementsByTagName('memory');
+    if (memoryElems) {
+        for (let i = 0; i < memoryElems.length; i++) {
+            const deviceMemory = { target: {} };
+            const deviceMemoryElem = memoryElems[i];
+            if (deviceMemoryElem.getElementsByTagName('alias').length) {
+                deviceMemoryElem.getElementsByTagName('alias')[0].outerHTML = '';
+            }
+            deviceMemoryElem.getElementsByTagName('address')[0].removeAttribute('base');
+            deviceMemory.xml = deviceMemoryElem.outerHTML;
+            const sourceElem = getSingleOptionalElem(deviceMemoryElem, 'source');
+            const targetElem = deviceMemoryElem.getElementsByTagName('target')[0];
+
+            deviceMemory.source = {};
+            if (sourceElem) {
+                const pagesizeMemoryElem = getSingleOptionalElem(sourceElem, 'pagesize');
+                if (pagesizeMemoryElem) {
+                    const pagesizeMemoryElemUnit = pagesizeMemoryElem.getAttribute('unit');
+                    deviceMemory.source.pagesize = toKiloBytes(pagesizeMemoryElem.childNodes[0].nodeValue, pagesizeMemoryElemUnit);
+                }
+            }
+
+            const sizeTargetMemoryElem = getSingleOptionalElem(targetElem, 'size');
+            const sizeTargetMemoryElemUnit = sizeTargetMemoryElem.getAttribute('unit');
+            deviceMemory.target.size = toKiloBytes(sizeTargetMemoryElem.childNodes[0].nodeValue, sizeTargetMemoryElemUnit);
+            memory.memoryDevices.push(deviceMemory);
+        }
+    }
+
+    return memory;
 }
 
 function parseDumpxmlForDisks(devicesElem) {

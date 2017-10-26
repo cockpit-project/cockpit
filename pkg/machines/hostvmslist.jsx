@@ -20,13 +20,14 @@
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm,
-         usageStartPolling, usageStopPolling, sendNMI } from "./actions.es6";
+         usageStartPolling, usageStopPolling, sendNMI, addMemoryDevice, removeMemoryDevice } from "./actions.es6";
 import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId, mouseClick } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './components/vmdiskstab.jsx';
 import VmNetworkTab from './vmnetworktab.jsx';
 import Consoles from './components/consoles.jsx';
+import MemoryModal from './components/memoryModal.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 import InfoRecord from './components/infoRecord.jsx';
 import VmLastMessage from './components/vmLastMessage.jsx';
@@ -189,50 +190,81 @@ VmBootOrder.propTypes = {
     vm: PropTypes.object.isRequired
 };
 
-const VmOverviewTab = ({ vm, config, dispatch }) => {
-    let providerContent = null;
-    if (config.provider.VmOverviewColumn) {
-        const ProviderContent = config.provider.VmOverviewColumn;
-        providerContent = (<ProviderContent vm={vm} providerState={config.providerState}/>);
+class VmOverviewTab extends React.Component {
+    constructor(props) {
+        super(props);
+        this.memoryModal = null;
     }
+    componentWillReceiveProps(nextProps) {
+        if (this.memoryModal) {
+            this.memoryModal.reload({
+                vmName: nextProps.vm.name,
+                memory: nextProps.vm.memory,
+                vmState: nextProps.vm.state,
+                onMemoryAdd: (size) => {nextProps.dispatch(addMemoryDevice(nextProps.vm, size))},
+                onMemoryRemove: (size) => {nextProps.dispatch(removeMemoryDevice(nextProps.vm, size))}
+            });
+        }
+    }
+    render () {
+        let { vm, config, dispatch } = this.props;
+        let providerContent = null;
+        if (config.provider.VmOverviewColumn) {
+            const ProviderContent = config.provider.VmOverviewColumn;
+            providerContent = (<ProviderContent vm={vm} providerState={config.providerState}/>);
+        }
 
-    return (<div>
-        <VmLastMessage vm={vm} dispatch={dispatch} />
-        <table className='machines-width-max'>
-            <tr className='machines-listing-ct-body-detail'>
-                <td className='machines-listing-detail-top-column'>
-                    <table className='form-table-ct'>
-                        <InfoRecord descr={_("Memory:")}
-                                             value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
-                        <InfoRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
-                    </table>
-                </td>
+        const handleOpenModal = () => {
+            this.memoryModal = MemoryModal({
+                vm,
+                onMemoryAdd: (size) => {dispatch(addMemoryDevice(vm, size))},
+                onMemoryRemove: (size) => {dispatch(removeMemoryDevice(vm, size))},
+                dispatch
+            });
+        };
 
-                <td className='machines-listing-detail-top-column'>
-                    <table className='form-table-ct'>
-                        <InfoRecord id={`${vmId(vm.name)}-emulatedmachine`}
-                                             descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
-                        <InfoRecord id={`${vmId(vm.name)}-cputype`}
-                                             descr={_("CPU Type:")} value={vm.cpuModel}/>
-                    </table>
-                </td>
 
-                <td className='machines-listing-detail-top-column'>
-                    <table className='form-table-ct'>
-                        <VmBootOrder vm={vm} />
-                        <InfoRecord id={`${vmId(vm.name)}-autostart`}
-                                             descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
-                    </table>
-                </td>
+        return (<div>
+            <VmLastMessage vm={vm} dispatch={dispatch} />
+            <table className='machines-width-max'>
+                <tr className='machines-listing-ct-body-detail'>
+                    <td className='machines-listing-detail-top-column'>
+                        <table className='form-table-ct'>
+                            <InfoRecord descr={_("Memory:")}
+                                                 value={<a id={`${vmId(vm.name)}-memory-size`} data-toggle="modal" data-target={`${vmId(vm.name)}-memory-modal`} onClick={handleOpenModal}>{cockpit.format_bytes((vm.memory.currentMemory ? vm.memory.currentMemory : 0) * 1024)}</a>}/>
+                            <InfoRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
+                        </table>
+                    </td>
 
-                {providerContent}
-            </tr>
-        </table>
-    </div>);
-};
+                    <td className='machines-listing-detail-top-column'>
+                        <table className='form-table-ct'>
+                            <InfoRecord id={`${vmId(vm.name)}-emulatedmachine`}
+                                                 descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
+                            <InfoRecord id={`${vmId(vm.name)}-cputype`}
+                                                 descr={_("CPU Type:")} value={vm.cpuModel}/>
+                        </table>
+                    </td>
+
+                    <td className='machines-listing-detail-top-column'>
+                        <table className='form-table-ct'>
+                            <VmBootOrder vm={vm} />
+                            <InfoRecord id={`${vmId(vm.name)}-autostart`}
+                                                 descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
+                        </table>
+                    </td>
+
+                    {providerContent}
+                </tr>
+            </table>
+            <VmLastMessage vm={vm} />
+        </div>);
+    }
+}
+
 VmOverviewTab.propTypes = {
     vm: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
 }
 
 class VmUsageTab extends React.Component {
@@ -250,7 +282,7 @@ class VmUsageTab extends React.Component {
         const height = 170;
 
         const rssMem = vm["rssMemory"] ? vm["rssMemory"] : 0; // in KiB
-        const memTotal = vm["currentMemory"] ? vm["currentMemory"] : 0; // in KiB
+        const memTotal = vm.memory.currentMemory ? vm.memory.currentMemory : 0; // in KiB
         let available = memTotal - rssMem; // in KiB
         available = available < 0 ? 0 : available;
 

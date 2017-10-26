@@ -104,7 +104,7 @@ const Template = ({ template, templates, cluster, dispatch }) => {
             template.version.baseTemplateId ? (templates[template.version.baseTemplateId].name) : null,
             <VmDescription descr={template.description} />,
             <VmMemory mem={template.memory} />,
-            <VmCpu cpu={template.cpu} />,
+            <VmCpu vm={template} />,
             <VmOS os={template.os} />,
             <VmHA highAvailability={template.highAvailability} />,
             <VmStateless stateless={template.stateless} />,

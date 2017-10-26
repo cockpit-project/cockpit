@@ -42,6 +42,8 @@ import {
     updateOsInfoList,
     checkLibvirtStatus,
     updateLibvirtState,
+    setHypervisorMaxVCPU,
+    getHypervisorMaxVCPU,
 } from './actions.es6';
 
 import { usagePollingEnabled } from './selectors.es6';
@@ -68,6 +70,8 @@ import {
     removeVmCreateInProgress,
     clearVmUiState,
 } from './components/create-vm-dialog/uiState.es6';
+
+import VCPUModal from './components/vcpuModal.jsx';
 
 import VMS_CONFIG from './config.es6';
 
@@ -139,7 +143,7 @@ LIBVIRT_PROVIDER = {
      * @param providerContext - contains context details, like the dispatch function, see provider.es6
      * @returns {boolean} - true, if initialization succeeded; or Promise
      */
-    init(providerContext) {
+    init({ dispatch }) {
         // This is default provider - the Libvirt, so we do not need to use the providerContext param.
         // The method is here for reference only.
         return true; // or Promise
@@ -153,6 +157,7 @@ LIBVIRT_PROVIDER = {
     canInstall: (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase,
     canConsole: (vmState) => vmState == 'running',
     canSendNMI: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
+    openVCPUModal: (params) => VCPUModal(params),
 
     serialConsoleCommand: ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false,
 
@@ -192,6 +197,7 @@ LIBVIRT_PROVIDER = {
                         } else {
                             console.error("initialize failed: getting libvirt service name failed");
                         }
+                        dispatch(getHypervisorMaxVCPU());
                     })
                     .fail((exception, data) => {
                         dispatch(updateLibvirtState({ name: null }));
@@ -215,19 +221,7 @@ LIBVIRT_PROVIDER = {
             };
         }
 
-        return dispatch => { // for all connections
-            dispatch(checkLibvirtStatus(libvirtServiceName));
-            return cockpit.user().done(loggedUser => {
-                const promises = Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
-                        .filter(
-                        // The 'root' user does not have its own qemu:///session just qemu:///system
-                        // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
-                            connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
-                        .map(connectionName => dispatch(getAllVms(connectionName, libvirtServiceName)));
-
-                return cockpit.all(promises);
-            });
-        };
+        return unknownConnectionName(getAllVms, libvirtServiceName);
     },
 
     GET_OS_INFO_LIST () {
@@ -256,6 +250,8 @@ LIBVIRT_PROVIDER = {
                                        method: 'FORCEOFF_VM',
                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE OFF action failed") }),
                                        args: ['destroy', name]
+        }).then(() => {
+            dispatch(getVm(connectionName, name));
         });
     },
 
@@ -345,6 +341,53 @@ LIBVIRT_PROVIDER = {
                         handler({ message, exception });
                     });
         };
+    },
+
+    SET_VCPU_SETTINGS ({ name, connectionName, count, max, sockets, cores, threads, isRunning }) {
+        logDebug(`${this.name}.SET_VCPU_SETTINGS(${name}):`);
+        return dispatch => spawnVirshReadOnly({
+            connectionName,
+            method: 'dumpxml',
+            name
+        }).then((domXml) => {
+            const domainElem = getDomainElem(domXml);
+
+            let cpuElem = domainElem.getElementsByTagName("cpu")[0];
+            if (!cpuElem) {
+                cpuElem = document.createElement("cpu");
+                domainElem.appendChild(cpuElem);
+            }
+            let topologyElem = cpuElem.getElementsByTagName("topology")[0];
+            if (!topologyElem) {
+                topologyElem = document.createElement("topology");
+                cpuElem.appendChild(topologyElem);
+            }
+            topologyElem.setAttribute("sockets", sockets);
+            topologyElem.setAttribute("threads", threads);
+            topologyElem.setAttribute("cores", cores);
+
+            let vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
+            if (!vcpuElem) {
+                vcpuElem = document.createElement("vcpu");
+                domainElem.appendChild(vcpuElem);
+                vcpuElem.setAttribute("placement", "static");
+            }
+
+            vcpuElem.setAttribute("current", count);
+            vcpuElem.textContent = max;
+
+            const tmp = document.createElement("div");
+            tmp.appendChild(domainElem);
+
+            return createTempFile(tmp.innerHTML);
+        })
+                .then((tempFilename) => {
+                    return spawnVirsh({connectionName,
+                                       method: 'SET_VCPU_SETTINGS',
+                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("SET VCPU SETTINGS action failed") }),
+                                       args: ['define', tempFilename.trim()]
+                    });
+                });
     },
 
     DELETE_VM ({ name, connectionName, options }) {
@@ -475,7 +518,52 @@ LIBVIRT_PROVIDER = {
             });
         };
     },
+    GET_HYPERVISOR_MAX_VCPU ({ connectionName }) {
+        logDebug(`${this.name}.GET_HYPERVISOR_MAX_VCPU:`);
+        if (connectionName) {
+            return dispatch => spawnVirsh({connectionName,
+                                           method: 'GET_HYPERVISOR_MAX_VCPU',
+                                           failHandler: buildFailHandler({ dispatch, connectionName, message: _("GET HYPERVISOR MAX VCPU action failed") }),
+                                           args: ['-r', 'maxvcpus']
+            }).then((count) => dispatch(setHypervisorMaxVCPU({ count, connectionName })));
+        }
+
+        return unknownConnectionName(getHypervisorMaxVCPU);
+    }
 };
+
+function unknownConnectionName (action, libvirtServiceName) {
+    return dispatch => {
+        return cockpit.user().done(loggedUser => {
+            const promises = Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
+                    .filter(
+                        // The 'root' user does not have its own qemu:///session just qemu:///system
+                        // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
+                        connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
+                    .map(connectionName => dispatch(action(connectionName, libvirtServiceName)));
+
+            return cockpit.all(promises);
+        });
+    };
+}
+
+function createTempFile (content) {
+    const dfd = cockpit.defer();
+    cockpit.spawn(["mktemp", "/tmp/abc-script.XXXXXX"]).then(tempFilename => {
+        cockpit.file(tempFilename.trim())
+                .replace(content)
+                .done(() => {
+                    dfd.resolve(tempFilename);
+                })
+                .fail((ex, data) => {
+                    dfd.reject(ex, data, "Can't write to temporary file");
+                });
+    })
+            .fail((ex, data) => {
+                dfd.reject(ex, data, "Can't create temporary file");
+            });
+    return dfd.promise;
+}
 
 function canLoggedUserConnectSession (connectionName, loggedUser) {
     return connectionName !== 'session' || loggedUser.name !== 'root';
@@ -521,7 +609,7 @@ function spawnVirshReadOnly({connectionName, method, name, failHandler}) {
     return spawnVirsh({connectionName, method, args: ['-r', method, name], failHandler});
 }
 
-function parseDumpxml(dispatch, connectionName, domXml) {
+function getDomainElem(domXml) {
     const xmlDoc = $.parseXML(domXml);
 
     if (!xmlDoc) {
@@ -529,7 +617,15 @@ function parseDumpxml(dispatch, connectionName, domXml) {
         return;
     }
 
-    const domainElem = xmlDoc.getElementsByTagName("domain")[0];
+    return xmlDoc.getElementsByTagName("domain")[0];
+}
+
+function parseDumpxml(dispatch, connectionName, domXml) {
+    const domainElem = getDomainElem(domXml);
+    if (!domainElem) {
+        return;
+    }
+
     const osElem = domainElem.getElementsByTagName("os")[0];
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
@@ -547,11 +643,11 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
     const currentMemory = convertToUnit(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit, units.KiB);
 
-    const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
+    const vcpus = parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr);
 
     const disks = parseDumpxmlForDisks(devicesElem);
     const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
-    const cpuModel = parseDumpxmlForCpuModel(cpuElem);
+    const cpu = parseDumpxmlForCpu(cpuElem);
     const displays = parseDumpxmlForConsoles(devicesElem);
     const interfaces = parseDumpxmlForInterfaces(devicesElem);
 
@@ -576,7 +672,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
         vcpus,
         disks,
         emulatedMachine,
-        cpuModel,
+        cpu,
         bootOrder,
         displays,
         interfaces,
@@ -749,6 +845,14 @@ function getBootableDeviceType(device) {
     return type;
 }
 
+function parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr) {
+    const vcpus = {};
+    vcpus.count = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
+    vcpus.placement = vcpuElem.getAttribute("placement");
+    vcpus.max = vcpuElem.childNodes[0].nodeValue;
+    return vcpus;
+}
+
 function parseDumpxmlForBootOrder(osElem, devicesElem) {
     const bootOrder = {
         devices: [],
@@ -790,10 +894,12 @@ function parseDumpxmlForBootOrder(osElem, devicesElem) {
     return bootOrder;
 }
 
-function parseDumpxmlForCpuModel(cpuElem) {
+function parseDumpxmlForCpu(cpuElem) {
     if (!cpuElem) {
-        return undefined;
+        return { topology: {} };
     }
+
+    const cpu = {};
 
     const cpuMode = cpuElem.getAttribute('mode');
     let cpuModel = '';
@@ -804,7 +910,18 @@ function parseDumpxmlForCpuModel(cpuElem) {
         }
     }
 
-    return rephraseUI('cpuMode', cpuMode) + (cpuModel ? ` (${cpuModel})` : '');
+    cpu.model = rephraseUI('cpuMode', cpuMode) + (cpuModel ? ` (${cpuModel})` : '');
+    cpu.topology = {};
+
+    const topologyElem = getSingleOptionalElem(cpuElem, 'topology');
+
+    if (topologyElem) {
+        cpu.topology.sockets = topologyElem.getAttribute('sockets');
+        cpu.topology.threads = topologyElem.getAttribute('threads');
+        cpu.topology.cores = topologyElem.getAttribute('cores');
+    }
+
+    return cpu;
 }
 
 function parseDumpxmlForConsoles(devicesElem) {

@@ -39,10 +39,23 @@ const VmOverviewTabLibvirt = ({ vm, config, dispatch }) => {
     const idPrefix = vmId(vm.name);
     const message = (<VmLastMessage vm={vm} dispatch={dispatch} />);
 
+    const handleOpenModal = function () {
+        config.provider.openVCPUModal(
+            {
+                vm,
+                dispatch,
+                config,
+            },
+            config.providerState
+        );
+    };
+
+    const memoryLink = (<a id={`${vmId(vm.name)}-vcpus-count`} data-toggle="modal" data-target={`${vmId(vm.name)}-vcpu-modal`} onClick={handleOpenModal}>{vm.vcpus.count}</a>);
+
     let items = [
         { title: commonTitles.MEMORY, value: cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024), idPostfix: 'memory' },
         { title: _("Emulated Machine:"), value: vm.emulatedMachine, idPostfix: 'emulatedmachine' },
-        { title: commonTitles.CPUS, value: vm.vcpus, idPostfix: 'vcpus' },
+        { title: commonTitles.CPUS, value: memoryLink, idPostfix: 'vcpus' },
         { title: _("Boot Order:"), value: getBootOrder(vm), idPostfix: 'bootorder' },
         { title: _("CPU Type:"), value: vm.cpuModel, idPostfix: 'cputype' },
         { title: _("Autostart:"), value: rephraseUI('autostart', vm.autostart), idPostfix: 'autostart' },

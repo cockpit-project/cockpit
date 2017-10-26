@@ -229,12 +229,28 @@ class TestOVirtMachines(MachineCase):
         self.wait_for_dc() # make sure the ovirt's DC is up before new VM is created
         b.click("button:contains('Create')") # create a VM from Blank template
 
-        # check the just created VM
+        # check error message by attempt to create a VM with existing name
+        b.wait_present("button:contains('Create VM')")
+        b.click("button:contains('Create VM')")
+        b.wait_present("input.form-control")
+        b.set_val("input.form-control", "VM") # the 'VM' machine exists already
+        # assuming the DC is still up - otherwise its environment issue
+        b.click("button:contains('Create')") # expected to fail here
+        b.wait_present("#clustervm-Blank-actionerror")
+        b.wait_in_text("#clustervm-Blank-actionerror", "CREATE VM action failed")
+
+        # check the VM created in previous step
         b.click("#ovirt-topnav-clustervms")
         b.wait_in_text("body", "Virtual Machines of Default cluster")
         with b.wait_timeout(180):
             b.wait_present("table > tbody:nth-child(4) > tr.listing-ct-item > th") # at least two VMs are listed
         b.wait_in_text("table > tbody:nth-child(4) > tr.listing-ct-item > th", "myVMFromBlankTemplate") # check 'name' of the second one
+
+        # check error message by attempt to run an unexecutable VM
+        b.wait_present("#cluster-myVMFromBlankTemplate-run") # run button
+        b.click("#cluster-myVMFromBlankTemplate-run") # expected to fail
+        b.wait_present("#clustervm-myVMFromBlankTemplate-actionerror")
+        b.wait_in_text("#clustervm-myVMFromBlankTemplate-actionerror", "START action failed")
 
         # switch to VDSM view
         b.click("#ovirt-topnav-vdsm")

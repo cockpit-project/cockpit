@@ -143,7 +143,7 @@ export function updateVm(props) {
     };
 }
 
-export function vmActionFailed({ name, connectionName, message, detail, extraPayload}) {
+export function vmActionFailed({ name, connectionName, message, detail, extraPayload }) {
     return {
         type: 'VM_ACTION_FAILED',
         payload: {

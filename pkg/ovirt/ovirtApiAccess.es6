@@ -87,7 +87,7 @@ export function ovirtApiPost (resource, body, failHandler) {
         body,
     }).fail(function (exception, error) {
         console.info(`HTTP POST failed: ${JSON.stringify(error)}`, url);
-        handleOvirtError({error, exception, failHandler});
+        handleOvirtError({ error, exception, failHandler });
     });
 }
 
@@ -114,7 +114,20 @@ export function handleOvirtError ({ error, exception, failHandler }) {
         case 404: /* falls through */
         default:
             if (failHandler) {
-                failHandler(error, exception);
+                try { // returned error might be JSON-formatted
+                    error = JSON.parse(error);
+                } catch (ex) {
+                    logDebug('handleOvirtError(): error is not a JSON string');
+                }
+
+                let data = error;
+                if (error.detail) {
+                    data = error.detail;
+                } else if (error.fault) {
+                    data = error.fault.detail || error.fault;
+                }
+
+                failHandler({ data, exception });
             } else {
                 logError(`oVirt operation failed but no failHandler defined. Error: ${JSON.stringify(error)}`);
             }

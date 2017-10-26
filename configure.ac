@@ -269,11 +269,11 @@ else
   AC_MSG_ERROR(no. Please install intltool package)
 fi
 
-# phantomjs
+# electron
 
-AC_PATH_PROG([PHANTOMJS], [phantomjs], [], [$srcdir/node_modules/.bin$PATH_SEPARATOR$PATH])
-AM_CONDITIONAL([WITH_PHANTOMJS], [test -n "$PHANTOMJS"])
-AC_SUBST([PHANTOMJS])
+AC_PATH_PROG([ELECTRON], [electron], [], [$srcdir/node_modules/.bin$PATH_SEPARATOR$PATH])
+AM_CONDITIONAL([WITH_ELECTRON], [test -n "$ELECTRON"])
+AC_SUBST([ELECTRON])
 
 # go
 

@@ -47,6 +47,7 @@ import os
 import sys
 import tempfile
 import time
+import subprocess
 
 sys.dont_write_bytecode = True
 
@@ -89,6 +90,7 @@ def scan_for_prune():
     return tasks
 
 def scan(api, force, verbose):
+    subprocess.check_call([ "git", "fetch", "origin", "master" ])
     for (image, options) in REFRESH.items():
         perform = False
 
@@ -96,7 +98,7 @@ def scan(api, force, verbose):
             perform = image == force
         else:
             days = options.get("refresh-days", DAYS)
-            perform = task.stale(days, os.path.join("bots", "images", image))
+            perform = task.stale(days, os.path.join("bots", "images", image), "origin/master")
 
         if perform:
             text = "Image refresh for {0}".format(image)

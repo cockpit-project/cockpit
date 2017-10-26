@@ -308,7 +308,7 @@ def stale(days, pathspec, ref="HEAD"):
             sys.stderr.write("> " + output + "\n")
         return output
 
-    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%at", ref, "--", pathspec)
+    timestamp = execute("git", "log", "--max-count=1", "--pretty=format:%ct", ref, "--", pathspec)
     try:
         timestamp = int(timestamp)
     except ValueError:

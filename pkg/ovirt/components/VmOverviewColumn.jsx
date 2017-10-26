@@ -69,6 +69,7 @@ const VmOverviewColumn = ({ vm, providerState }) => { // For reference, extend i
                 <div className='ovirt-provider-columns-one'>
                     <table className='form-table-ct'>
                         <VmProperty title={_("Description:")} value={clusterVm.description} id={`${idPrefix}-description`} />
+                        <VmProperty title={_("Address:")} value={clusterVm.fqdn} id={`${idPrefix}-fqdn`} />
                     </table>
                 </div>
                 <div className='ovirt-provider-columns-two'>

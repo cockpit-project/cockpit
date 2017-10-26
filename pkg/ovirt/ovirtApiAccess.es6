@@ -91,6 +91,28 @@ export function ovirtApiPost (resource, body, failHandler) {
             });
 }
 
+export function ovirtApiPut (resource, body, failHandler) {
+    logDebug(`ovirtApiPut(): resource: ${resource}, body: ${body}`);
+
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/xml',
+        'Authorization': 'Bearer ' + CONFIG.token,
+    };
+
+    const url = `/ovirt-engine/api/${resource}`;
+    return getHttpClient().request({
+        method: 'PUT',
+        path: url,
+        headers,
+        body,
+    })
+            .fail(function (exception, error) {
+                console.info(`HTTP PUT failed: ${JSON.stringify(error)}`, url);
+                handleOvirtError({ error, exception, failHandler });
+            });
+}
+
 export function handleOvirtError ({ error, exception, failHandler }) {
     if (!error) {
         logError(`oVirt operation failed but no error received`);

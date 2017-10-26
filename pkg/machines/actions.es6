@@ -115,6 +115,24 @@ export function enableLibvirt(enable, serviceName) {
     return virt('ENABLE_LIBVIRT', { enable, serviceName });
 }
 
+export function setVCPUSettings(vm, max, count, sockets, threads, cores) {
+    return virt('SET_VCPU_SETTINGS', {
+        id: vm.id,
+        name: vm.name,
+        connectionName: vm.connectionName,
+        max,
+        count,
+        sockets,
+        threads,
+        cores,
+        isRunning: vm.state == 'running'
+    });
+}
+
+export function getHypervisorMaxVCPU(connectionName) {
+    return virt('GET_HYPERVISOR_MAX_VCPU', { connectionName });
+}
+
 /**
  * Delay call of polling action.
  *
@@ -240,6 +258,16 @@ export function updateLibvirtState(state) {
     return {
         type: 'UPDATE_LIBVIRT_STATE',
         state,
+    };
+}
+
+export function setHypervisorMaxVCPU({ count, connectionName }) {
+    return {
+        type: 'SET_HYPERVISOR_MAX_VCPU',
+        payload: {
+            count,
+            connectionName,
+        }
     };
 }
 

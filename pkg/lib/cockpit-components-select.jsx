@@ -155,6 +155,10 @@
                 this.props.onChange(data);
         }
 
+        componentWillReceiveProps(nextProps) {
+            this.setState({ currentData: nextProps.initial });
+        }
+
         render() {
             return (
                 <StatelessSelect onChange={this.onChange}

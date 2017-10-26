@@ -24,6 +24,7 @@ import CONFIG from '../config.es6';
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import StateIcon from "../../machines/components/vm/stateIcon.jsx";
 import DropdownButtons from "../../machines/components/dropdownButtons.jsx";
+import VCPUModal from './vcpuModal.jsx';
 
 import { toGigaBytes, valueOrDefault, isSameHostAddress } from '../helpers.es6';
 import { startVm, goToSubpage } from '../actions.es6';
@@ -40,10 +41,18 @@ const VmOS = ({ os }) => (<div>{os.type}</div>);
 const VmStateless = ({ stateless }) => (<div>{rephraseUI('stateless', stateless)}</div>);
 const VmDescription = ({ descr }) => (<span>{descr}</span>); // cropping is not needed, the text wraps
 
-const VmCpu = ({ cpu }) => { // TODO: render CPU architecture and topology?
-    const vCpus = valueOrDefault(cpu.topology.sockets, 1) * valueOrDefault(cpu.topology.cores, 1) * valueOrDefault(cpu.topology.threads, 1);
-    const tooltip = `${_("sockets")}: ${cpu.topology.sockets}\n${_("cores")}: ${cpu.topology.cores}\n${_("threads")}: ${cpu.topology.threads}`;
-    return (<span title={tooltip} data-toggle='tooltip' data-placement='left'>{vCpus}</span>);
+const VmCpu = ({ vm, dispatch }) => {
+    const vCpus = valueOrDefault(vm.cpu.topology.sockets, 1) * valueOrDefault(vm.cpu.topology.cores, 1) * valueOrDefault(vm.cpu.topology.threads, 1);
+    const tooltip = `${_("sockets")}: ${vm.cpu.topology.sockets}\n${_("cores")}: ${vm.cpu.topology.cores}\n${_("threads")}: ${vm.cpu.topology.threads}`;
+
+    const handleOpenModal = function () {
+        VCPUModal({
+            vm,
+            dispatch
+        });
+    };
+
+    return (<a title={tooltip} id={`cluster-${vm.name}-cpus`} data-toggle='tooltip' data-placement='left' onClick={handleOpenModal}>{vCpus}</a>);
 };
 
 const VmHost = ({ id, hosts, dispatch }) => {
@@ -139,7 +148,7 @@ const Vm = ({ vm, hosts, templates, config, dispatch }) => {
             <VmDescription descr={vm.description} />,
             <VmTemplate id={vm.templateId} templates={templates} />,
             <VmMemory mem={vm.memory} />,
-            <VmCpu cpu={vm.cpu} />,
+            <VmCpu vm={vm} dispatch={dispatch} />,
             <VmOS os={vm.os} />,
             <VmHA highAvailability={vm.highAvailability} />,
             <VmStateless stateless={vm.stateless} />,

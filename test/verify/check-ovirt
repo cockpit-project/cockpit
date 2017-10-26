@@ -297,5 +297,54 @@ class TestOVirtMachines(MachineCase):
 
         # sit(self.machines)
 
+    def testVCPU(self):
+        b = self.browser
+
+        self.login_and_go("/machines#token={0}".format(self.access_token))
+        b.wait_present(".main-app-div")
+        b.wait_in_text("body", "Virtual Machines")
+
+        b.wait_present("tbody tr th")
+        b.wait_in_text("tbody tr th", "VM")
+        b.click("tbody tr th") # click on the row header
+
+        b.wait_present("#vm-VM-state")
+        b.wait_in_text("#vm-VM-state", "running")
+
+        b.click("#vm-VM-off-caret")
+        b.wait_visible("#vm-VM-forceOff")
+        b.click("#vm-VM-forceOff")
+        b.wait_present("thead tr td")
+        b.wait_in_text("thead tr td", "No VM is running")
+
+        # Go to Cluster tab
+        b.click("#ovirt-topnav-clustervms")
+        b.wait_in_text("body", "Virtual Machines of Default cluster")
+        b.wait_present("tr.listing-ct-item > th")
+        b.wait_in_text("tr.listing-ct-item > th", "VM") # name
+        with b.wait_timeout(180):
+            b.wait_in_text("tr.listing-ct-item > td:nth-child(12)", "shut off") # state
+
+        b.wait_in_text("#cluster-VM-cpus", "1")
+        b.click("#cluster-VM-cpus") # open VCPU modal detail window
+
+        b.wait_present(".vcpu-detail-modal-table")
+        b.is_present(".machines-vcpu-caution")
+
+        # Set new socket value
+        b.set_val("#socketsInput", "2")
+        b.set_val("#coresInput", "1")
+        b.set_val("#threadsInput", "2")
+
+        b.wait_val("#machines-vcpu-count-field", "4")
+
+        # Save
+        b.click(".apply")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        # Check changes
+        b.wait_visible("#cluster-VM-cpus")
+        b.wait_in_text("#cluster-VM-cpus", "4")
+
 if __name__ == '__main__':
     test_main()

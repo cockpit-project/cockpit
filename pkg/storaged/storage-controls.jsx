@@ -144,7 +144,7 @@ var StorageBlockNavLink = React.createClass({
         var block = self.props.block;
 
         if (!block)
-            return;
+            return null;
 
         // TODO - generalize this to arbitrary number of arguments (when needed)
         function fmt_to_array(fmt, arg) {

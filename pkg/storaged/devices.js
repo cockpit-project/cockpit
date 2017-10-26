@@ -55,6 +55,9 @@
             } else if (path.length == 2 && path[0] == 'mdraid') {
                 overview_page.hide();
                 details_page.show('mdraid', path[1]);
+            } else if (path.length == 2 && path[0] == 'vdo') {
+                overview_page.hide();
+                details_page.show('vdo', path[1]);
             } else if (path.length == 2 && path[0] == 'vg') {
                 overview_page.hide();
                 details_page.show('vgroup', path[1]);

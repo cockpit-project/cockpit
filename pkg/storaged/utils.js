@@ -227,11 +227,17 @@
             location = [ "vg", target ];
             link = cockpit.format(_("Volume Group $0"), target);
         } else {
-            location = [ utils.block_name(block).replace(/^\/dev\//, "") ];
-            if (client.drives[block.Drive])
-                link = utils.drive_name(client.drives[block.Drive]);
-            else
-                link = utils.block_name(block);
+            var vdo = client.vdo_overlay.find_by_block(block);
+            if (vdo) {
+                location = [ "vdo", vdo.name ];
+                link = cockpit.format(_("VDO Device $0"), vdo.name);
+            } else {
+                location = [ utils.block_name(block).replace(/^\/dev\//, "") ];
+                if (client.drives[block.Drive])
+                    link = utils.drive_name(client.drives[block.Drive]);
+                else
+                    link = utils.block_name(block);
+            }
         }
 
         // Partitions of logical volumes are shown as just logical volumes.
@@ -366,10 +372,15 @@
                 return false;
             }
 
+            function is_vdo_backing_dev() {
+                return !!client.vdo_overlay.find_by_backing_block(block);
+            }
+
             return (!block.HintIgnore &&
                     block.Size > 0 &&
                     !has_fs_label() &&
                     !is_mpath_member() &&
+                    !is_vdo_backing_dev() &&
                     !block_ptable &&
                     !(block_part && block_part.IsContainer));
         }
@@ -508,6 +519,7 @@
             var mdraid = block && client.mdraids[block.MDRaidMember];
             var pvol = client.blocks_pvol[path];
             var vgroup = pvol && client.vgroups[pvol.VolumeGroup];
+            var vdo = block && client.vdo_overlay.find_by_backing_block(block);
 
             var usage = utils.flatten(get_children(client, path).map(get_usage));
 
@@ -530,6 +542,12 @@
                              vgroup: vgroup
                            });
 
+            if (vdo)
+                usage.push({ usage: 'vdo-backing',
+                             block: block,
+                             vdo: vdo
+                           });
+
             return usage;
         }
 
@@ -547,7 +565,8 @@
             Blocking: {
                 Mounts: [ ],
                 MDRaidMembers: [ ],
-                PhysicalVolumes: [ ]
+                PhysicalVolumes: [ ],
+                VDOs: [ ]
             }
         };
 
@@ -581,6 +600,12 @@
                 } else {
                     res.Blocking.PhysicalVolumes.push(entry);
                 }
+            } else if (use.usage == 'vdo-backing') {
+                entry = {
+                    Name: utils.block_name(use.block),
+                    VDO: use.vdo.name
+                };
+                res.Blocking.VDOs.push(entry);
             }
         });
 
@@ -588,11 +613,16 @@
         res.Teardown.HasMDRaidMembers = res.Teardown.MDRaidMembers.length > 0;
         res.Teardown.HasPhysicalVolumes = res.Teardown.PhysicalVolumes.length > 0;
 
+        if (!res.Teardown.HasMounts && !res.Teardown.HasMDRaidMembers && !res.Teardown.HasPhysicalVolumes)
+            res.Teardown = null;
+
         res.Blocking.HasMounts = res.Blocking.Mounts.length > 0;
         res.Blocking.HasMDRaidMembers = res.Blocking.MDRaidMembers.length > 0;
         res.Blocking.HasPhysicalVolumes = res.Blocking.PhysicalVolumes.length > 0;
+        res.Blocking.HasVDOs = res.Blocking.VDOs.length > 0;
 
-        if (!res.Blocking.HasMounts && !res.Blocking.HasMDRaidMembers && !res.Blocking.HasPhysicalVolumes)
+        if (!res.Blocking.HasMounts && !res.Blocking.HasMDRaidMembers && !res.Blocking.HasPhysicalVolumes &&
+            !res.Blocking.HasVDOs)
             res.Blocking = null;
 
         return res;

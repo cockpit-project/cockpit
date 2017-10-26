@@ -28,6 +28,7 @@
     var python = require("python.jsx");
     var inotify_py = require("raw!inotify.py");
     var nfs_mounts_py = require("raw!./nfs-mounts.py");
+    var vdo_monitor_py = require("raw!./vdo-monitor.py");
 
     /* STORAGED CLIENT
      */
@@ -242,7 +243,7 @@
 
         client.slashdevs_block = { };
         function enter_slashdev(block, enc) {
-            client.slashdevs_block[utils.decode_filename(enc).replace(/^\/dev\//, "")] = block;
+            client.slashdevs_block[utils.decode_filename(enc)] = block;
         }
         for (path in client.blocks) {
             block = client.blocks[path];
@@ -372,6 +373,20 @@
         }
 
         function enable_features() {
+            return enable_udisks_features().then(function (features) {
+                return cockpit.spawn([ "which", "vdo" ], { err: "ignore" }).then(
+                    function () {
+                        features.vdo = true;
+                        client.vdo_overlay.start();
+                        return features;
+                    },
+                    function () {
+                        return features;
+                    });
+            });
+        }
+
+        function enable_udisks_features() {
             if (!client.manager.valid)
                 return cockpit.resolve(false);
             if (!client.manager.EnableModules)
@@ -524,6 +539,171 @@
     }
 
     client.nfs = nfs_mounts();
+
+    /* VDO */
+
+    function vdo_overlay() {
+        var self = {
+            start: start,
+
+            volumes: [ ],
+
+            by_name: { },
+            by_dev: { },
+            by_backing_dev: { },
+
+            find_by_block: find_by_block,
+            find_by_backing_block: find_by_backing_block,
+
+            create: create
+        };
+
+        function cmd(args) {
+            return cockpit.spawn([ "vdo" ].concat(args),
+                                 { superuser: true,
+                                   err: "message"
+                                 });
+        }
+
+        function update(data) {
+            self.by_name = { };
+            self.by_dev = { };
+            self.by_backing_dev = { };
+
+            self.volumes = data.map(function (vol, index) {
+                var name = vol.name;
+
+                function volcmd(args) {
+                    return cmd([ "--name", name ].concat(args));
+                }
+
+                var v = { name: name,
+                          broken: vol.broken,
+                          dev: "/dev/mapper/" + name,
+                          backing_dev: vol.device,
+                          logical_size: vol.logical_size,
+                          physical_size: vol.physical_size,
+                          index_mem: vol.index_mem,
+                          compression: vol.compression,
+                          deduplication: vol.deduplication,
+                          activated: vol.activated,
+
+                          set_compression: function(val) {
+                              return volcmd([ val? "enableCompression" : "disableCompression" ]);
+                          },
+
+                          set_deduplication: function(val) {
+                              return volcmd([ val? "enableDeduplication" : "disableDeduplication" ]);
+                          },
+
+                          set_activate: function(val) {
+                              return volcmd([ val? "activate" : "deactivate" ]);
+                          },
+
+                          start: function() {
+                              return volcmd([ "start" ]);
+                          },
+
+                          stop: function() {
+                              return volcmd([ "stop" ]);
+                          },
+
+                          remove: function() {
+                              return volcmd([ "remove" ]);
+                          },
+
+                          force_remove: function() {
+                              return volcmd([ "remove", "--force" ]);
+                          },
+
+                          grow_physical: function() {
+                              return volcmd([ "growPhysical" ]);
+                          },
+
+                          grow_logical: function(lsize) {
+                              return volcmd([ "growLogical", "--vdoLogicalSize", lsize + "B" ]);
+                          }
+                        };
+
+                self.by_name[v.name] = v;
+                self.by_dev[v.dev] = v;
+                self.by_backing_dev[v.backing_dev] = v;
+
+                return v;
+            });
+
+            // We trigger a change on the client right away and not
+            // just on the vdo_overlay since this data is used all
+            // over the place...
+
+            client.dispatchEvent("changed");
+        }
+
+        function start() {
+            var buf = "";
+            python.spawn([ inotify_py, vdo_monitor_py ], [ ], { superuser: "try", err: "message" })
+                .stream(function (output) {
+                    var lines;
+
+                    buf += output;
+                    lines = buf.split("\n");
+                    buf = lines[lines.length-1];
+                    if (lines.length >= 2) {
+                        self.entries = JSON.parse(lines[lines.length-2]);
+                        self.fsys_sizes = { };
+                        $(self).triggerHandler('changed');
+                        update(JSON.parse(lines[lines.length-2]));
+                    }
+                }).
+                fail(function (error) {
+                    if (error != "closed") {
+                        console.warn(error);
+                    }
+                });
+        }
+
+        function some(array, func) {
+            var i;
+            for (i = 0; i < array.length; i++) {
+                var val = func(array[i]);
+                if (val)
+                    return val;
+            }
+            return null;
+        }
+
+        function find_by_block(block) {
+            function check(encoded) { return self.by_dev[utils.decode_filename(encoded)]; }
+            return check(block.Device) || some(block.Symlinks, check);
+        }
+
+        function find_by_backing_block(block) {
+            function check(encoded) { return self.by_backing_dev[utils.decode_filename(encoded)]; }
+            return check(block.Device) || some(block.Symlinks, check);
+        }
+
+        function create(options) {
+            var args = [ "create", "--name", options.name,
+                         "--device", utils.decode_filename(options.block.PreferredDevice) ];
+            if (options.logical_size !== undefined)
+                args.push("--vdoLogicalSize", options.logical_size + "B");
+            if (options.index_mem !== undefined)
+                args.push("--indexMem", options.index_mem / (1024*1024*1024));
+            if (options.compression !== undefined)
+                args.push("--compression", options.compression? "enabled" : "disabled");
+            if (options.deduplication !== undefined)
+                args.push("--deduplication", options.deduplication? "enabled" : "disabled");
+            if (options.emulate_512 !== undefined)
+                args.push("--emulate512", options.emulate_512? "enabled" : "disabled");
+            if (options.asynchronous !== undefined)
+                args.push("--writePolicy", options.asynchronous? "async" : "sync");
+            return cmd(args);
+        }
+
+        return self;
+    }
+
+    client.vdo_overlay = vdo_overlay();
 
     function init_manager() {
         /* Storaged 2.6 and later uses the UDisks2 API names, but try the

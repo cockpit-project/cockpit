@@ -114,6 +114,14 @@
               {{/MDRaidMembers}}
             </table>
             {{/HasMDRaidMembers}}
+            {{#HasVDOs}}
+            <p translate>This device is currently used for VDO devices.</p>
+            <table class="table table-bordered">
+              {{#VDOs}}
+              <tr><td><span class="pull-right">{{Name}}</span>{{VDO}}</td></tr>
+              {{/VDOs}}
+            </table>
+            {{/HasVDOs}}
             {{/Blocking}}
             {{{Body}}}
             <table class="form-table-ct">

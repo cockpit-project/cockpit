@@ -226,10 +226,10 @@ class StorageCase(MachineCase):
                                              })""", self.dialog_field(field))
 
     def dialog_is_present(self, field, label):
-        return self.browser.is_present('%s .checkbox:contains("%s") input' % (self.dialog_field(field), label))
+        return self.browser.is_present('%s :contains("%s") input' % (self.dialog_field(field), label))
 
     def dialog_select(self, field, label, val):
-        self.browser.set_checked('%s .checkbox:contains("%s") input' % (self.dialog_field(field), label), val)
+        self.browser.set_checked('%s :contains("%s") input' % (self.dialog_field(field), label), val)
 
     def dialog_wait_val(self, field, val):
         if isinstance(val, int):

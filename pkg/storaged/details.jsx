@@ -25,6 +25,7 @@ import { BlockDetails } from "./block-details.jsx";
 import { DriveDetails } from "./drive-details.jsx";
 import { VGroupDetails } from "./vgroup-details.jsx";
 import { MDRaidDetails } from "./mdraid-details.jsx";
+import { VDODetails } from "./vdo-details.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
@@ -95,7 +96,7 @@ class Details extends React.Component {
         var body = null;
         var name = this.props.name;
         if (this.props.type == "block") {
-            var block = client.slashdevs_block[this.props.name];
+            var block = client.slashdevs_block["/dev/" + this.props.name];
             var drive = block && client.drives[block.Drive];
 
             if (drive) {
@@ -116,6 +117,12 @@ class Details extends React.Component {
             if (mdraid) {
                 name = utils.mdraid_name(mdraid);
                 body =  <MDRaidDetails client={client} mdraid={mdraid}/>;
+            }
+        } else if (this.props.type == "vdo") {
+            var vdo = client.vdo_overlay.by_name[this.props.name];
+            if (vdo) {
+                name = vdo.name;
+                body =  <VDODetails client={client} vdo={vdo}/>;
             }
         }
 

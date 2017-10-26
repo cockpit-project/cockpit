@@ -27,6 +27,7 @@ import { FilesystemsPanel } from "./fsys-panel.jsx";
 import { NFSPanel } from "./nfs-panel.jsx";
 import { MDRaidsPanel } from "./mdraids-panel.jsx";
 import { VGroupsPanel } from "./vgroups-panel.jsx";
+import { VDOsPanel } from "./vdos-panel.jsx";
 import { IscsiPanel } from "./iscsi-panel.jsx";
 import { DrivesPanel } from "./drives-panel.jsx";
 import { OthersPanel } from "./others-panel.jsx";
@@ -135,6 +136,7 @@ class Overview extends React.Component {
                 <div className="col-md-4 col-lg-3 storage-sidebar page-ct">
                     <MDRaidsPanel client={client}/>
                     { client.features.lvm2 ? <VGroupsPanel client={client}/> : null }
+                    { client.features.vdo ? <VDOsPanel client={client}/> : null }
                     { client.features.iscsi ? <IscsiPanel client={client}/> : null }
                     <DrivesPanel client={client} highlight={this.state.highlight}/>
                     <OthersPanel client={client}/>

@@ -330,6 +330,11 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                           if (vals.name)
                               options.label = { t: 's', v: vals.name };
 
+                          // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1516041
+                          if (client.vdo_overlay.find_by_block(block)) {
+                              options['no-discard'] = { t: 'b', v: true };
+                          }
+
                           var config_items = [ ];
                           var mount_options = mounting_dialog_options(vals);
                           if (vals.mounting == "custom")

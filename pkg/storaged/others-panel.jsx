@@ -40,7 +40,8 @@ export class OthersPanel extends React.Component {
                     block.MDRaid == "/" &&
                     (!block_lvm2 || block_lvm2.LogicalVolume == "/") &&
                     !block.HintIgnore &&
-                    block.Size > 0);
+                    block.Size > 0 &&
+                    !client.vdo_overlay.find_by_block(block));
         }
 
         function make_other(path) {

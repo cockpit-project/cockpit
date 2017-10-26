@@ -1,0 +1,266 @@
+#!/usr/bin/python2
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+
+from testlib import *
+from storagelib import *
+
+class TestStorage(StorageCase):
+    def testVdo(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        if m.execute("which vdo || true") == "":
+            b.wait_not_present("#vdos")
+            return
+
+        b.wait_visible("#vdos")
+
+        # XXX - the following assumes that Cockpit doesn't support
+        # LVM2.  Once it does, we need to adapt the test.
+
+        # Make a logical volume for use as the backing device.
+        m.add_disk("10G", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+        m.execute("vgcreate vgroup /dev/sda && lvcreate -n lvol -L 5G vgroup")
+        b.wait_in_text("#others", "/dev/vgroup/lvol")
+
+        # Create VDO
+
+        b.click("#create-vdo")
+        self.dialog_wait_open()
+        self.dialog_wait_val("name", "vdo0")
+        self.dialog_set_val("space", { "/dev/vgroup/lvol": True })
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_in_text("#vdos", "vdo0")
+        b.click("#vdos tr:contains(vdo0)")
+        b.wait_visible("#storage-detail")
+
+        def detail(index):
+            return '#detail-header tr:nth-child(%s) td:nth-child(2)' % index
+
+        b.wait_text(detail(1), "/dev/mapper/vdo0")
+        b.wait_text(detail(2), "/dev/vgroup/lvol")
+        b.wait_in_text(detail(3), "used of 5 GiB")
+        b.wait_in_text(detail(4), "used of 5 GiB")
+        b.wait_text(detail(5), "256 MiB")
+        b.wait_present(detail(6) + " .active:contains(On)")
+        b.wait_present(detail(7) + " .active:contains(On)")
+
+        # Make a filesystem on it
+
+        m.execute("mkfs.xfs -f -K /dev/mapper/vdo0")
+        m.execute("mkdir /run/data && mount /dev/mapper/vdo0 /run/data")
+        self.content_row_wait_in_col(1, 1, "xfs File System")
+        self.content_tab_wait_in_info(1, 1, "Mounted At", "/run/data")
+        self.content_tab_wait_in_info(1, 1, "Used", "of 5.0 GiB")
+
+        # Grow physical
+
+        m.execute("lvresize vgroup/lvol -L 9G")
+        b.wait_present(".alert:contains(VDO)")
+        b.wait_in_text(".alert:contains(VDO)", '5 GiB of 9 GiB')
+        b.click("button:contains('Grow to take all space')")
+        b.wait_not_present(".alert:contains(VDO)")
+        b.wait_in_text(detail(3), "used of 9 GiB")
+
+        # Grow logical
+
+        b.click(detail(4) + " button:contains(Grow)")
+        self.dialog({ "lsize": 10*1024 })
+        b.wait_in_text(detail(4), "used of 10 GiB")
+        self.content_tab_wait_in_info(1, 1, "Used", "of 10.0 GiB")
+
+        # Stop
+
+        b.wait_present('#detail-content table')
+        b.click_action_btn('.panel-heading:contains("VDO") .btn-group', "Stop")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_not_present('#detail-content table')
+
+        # Delete
+
+        b.click_action_btn('.panel-heading:contains("VDO") .btn-group', "Delete")
+        self.confirm()
+        b.wait_visible("#storage")
+        b.wait_not_in_text("#vdos", "vdo0")
+
+    def testBrokenVdo(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        if m.execute("which vdo || true") == "":
+            b.wait_not_present("#vdos")
+            return
+
+        b.wait_visible("#vdos")
+
+        m.add_disk("10G", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+
+        # Install a valid configuration file that describes a broken VDO
+        m.write("/etc/vdoconf.yml", """
+config: !Configuration
+  vdos:
+    vdo0: !VDOService
+      _operationState: beginCreate
+      ackThreads: 1
+      activated: enabled
+      bioRotationInterval: 64
+      bioThreads: 4
+      blockMapCacheSize: 128M
+      blockMapPeriod: 16380
+      compression: enabled
+      cpuThreads: 2
+      deduplication: enabled
+      device: /dev/sda
+      hashZoneThreads: 1
+      indexCfreq: 0
+      indexMemory: 0.25
+      indexSparse: disabled
+      indexThreads: 0
+      logicalBlockSize: 4096
+      logicalSize: 10G
+      logicalThreads: 1
+      name: vdo0
+      physicalSize: 10G
+      physicalThreads: 1
+      readCache: disabled
+      readCacheSize: 0M
+      slabSize: 2G
+      writePolicy: sync
+  version: 538380551
+""")
+
+        b.wait_in_text("#vdos", "vdo0")
+        b.click("#vdos tr:contains(vdo0)")
+        b.wait_visible("#storage-detail")
+
+        b.wait_present("#storage-detail .alert-danger")
+        b.click("#storage-detail .alert-danger button:contains('Remove device')")
+        b.wait_visible("#storage")
+        b.wait_not_in_text("#vdos", "vdo0")
+
+    def testBrokenVdoConfig(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        if m.execute("which vdo || true") == "":
+            b.wait_not_present("#vdos")
+            return
+
+        b.wait_visible("#vdos")
+
+        # Install a valid configuration file
+        m.write("/etc/vdoconf.yml", """
+config: !Configuration
+  vdos:
+    vdo0: !VDOService
+      _operationState: finished
+      ackThreads: 1
+      activated: enabled
+      bioRotationInterval: 64
+      bioThreads: 4
+      blockMapCacheSize: 128M
+      blockMapPeriod: 16380
+      compression: enabled
+      cpuThreads: 2
+      deduplication: enabled
+      device: /dev/sda
+      hashZoneThreads: 1
+      indexCfreq: 0
+      indexMemory: 0.25
+      indexSparse: disabled
+      indexThreads: 0
+      logicalBlockSize: 4096
+      logicalSize: 10G
+      logicalThreads: 1
+      name: vdo0
+      physicalSize: 10G
+      physicalThreads: 1
+      readCache: disabled
+      readCacheSize: 0M
+      slabSize: 2G
+      writePolicy: sync
+  version: 538380551
+""")
+
+        b.wait_in_text("#vdos", "vdo0")
+
+        # Install a broken configuration file
+        m.write("/etc/vdoconf.yml", """
+config: !Configuration
+  vdos:
+    vdo0: !VDOService
+      blah: 12
+""")
+
+        b.wait_not_in_text("#vdos", "vdo0")
+
+        # Install a valid configuration file again
+        m.write("/etc/vdoconf.yml", """
+config: !Configuration
+  vdos:
+    vdo1: !VDOService
+      _operationState: finished
+      ackThreads: 1
+      activated: enabled
+      bioRotationInterval: 64
+      bioThreads: 4
+      blockMapCacheSize: 128M
+      blockMapPeriod: 16380
+      compression: enabled
+      cpuThreads: 2
+      deduplication: enabled
+      device: /dev/sda
+      hashZoneThreads: 1
+      indexCfreq: 0
+      indexMemory: 0.25
+      indexSparse: disabled
+      indexThreads: 0
+      logicalBlockSize: 4096
+      logicalSize: 10G
+      logicalThreads: 1
+      name: vdo1
+      physicalSize: 10G
+      physicalThreads: 1
+      readCache: disabled
+      readCacheSize: 0M
+      slabSize: 2G
+      writePolicy: sync
+  version: 538380551
+""")
+
+        b.wait_in_text("#vdos", "vdo1")
+
+if __name__ == '__main__':
+    test_main()

@@ -86,7 +86,34 @@ var MDRaidMemberTab = React.createClass({
     },
 });
 
+var VDOBackingTab = React.createClass({
+    render: function () {
+        var vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
+
+        return (
+            <div>
+                <div className="tab-actions">
+                    <FormatButton client={this.props.client} block={this.props.block}/>
+                </div>
+                <table className="info-table-ct">
+                    <tr>
+                        <td>{_("VDO Device")}</td>
+                        <td>{vdo?
+                             <a onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>
+                                 {vdo.name}
+                             </a>
+                            : "-"
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        );
+    },
+});
+
 module.exports = {
     PVolTab:         PVolTab,
-    MDRaidMemberTab: MDRaidMemberTab
+    MDRaidMemberTab: MDRaidMemberTab,
+    VDOBackingTab:   VDOBackingTab
 };

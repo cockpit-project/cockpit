@@ -37,6 +37,7 @@ var BlockVolTab     = require("./lvol-tabs.jsx").BlockVolTab;
 var PoolVolTab      = require("./lvol-tabs.jsx").PoolVolTab;
 var PVolTab         = require("./pvol-tabs.jsx").PVolTab;
 var MDRaidMemberTab = require("./pvol-tabs.jsx").MDRaidMemberTab;
+var VDOBackingTab   = require("./pvol-tabs.jsx").VDOBackingTab;
 var PartitionTab    = require("./part-tab.jsx").PartitionTab;
 var SwapTab         = require("./swap-tab.jsx").SwapTab;
 var UnrecognizedTab = require("./unrecognized-tab.jsx").UnrecognizedTab;
@@ -147,6 +148,8 @@ function create_tabs(client, target, is_partition) {
     } else if ((block && block.IdUsage == "raid") ||
                (block && client.mdraids[block.MDRaidMember])) {
         add_tab(_("RAID Member"), MDRaidMemberTab);
+    } else if (block && client.vdo_overlay.find_by_backing_block(block)) {
+        add_tab(_("VDO Backing"), VDOBackingTab);
     } else if (block && block.IdUsage == "other" && block.IdType == "swap") {
         add_tab(_("Swap"), SwapTab);
     } else if (block) {
@@ -320,6 +323,8 @@ function block_description(client, block) {
         } else {
             usage = C_("storage-id-desc", "Other Data");
         }
+    } else if (client.vdo_overlay.find_by_backing_block(block)) {
+        usage = C_("storage-id-desc", "VDO Backing");
     } else {
         usage = C_("storage-id-desc", "Unrecognized Data");
     }
@@ -449,7 +454,7 @@ function block_rows(client, block) {
     return rows;
 }
 
-function block_content(client, block) {
+function block_content(client, block, allow_partitions) {
     if (!block)
         return null;
 
@@ -506,12 +511,14 @@ function block_content(client, block) {
         });
     }
 
-    var format_disk_btn = (
-        <div className="pull-right">
-            <StorageButton onClick={format_disk} excuse={block.ReadOnly? _("Device is read-only") : null}>
-                {_("Create partition table")}
-            </StorageButton>
-        </div>);
+    var format_disk_btn = null;
+    if (allow_partitions)
+        format_disk_btn = (
+            <div className="pull-right">
+                <StorageButton onClick={format_disk} excuse={block.ReadOnly? _("Device is read-only") : null}>
+                    {_("Create partition table")}
+                </StorageButton>
+            </div>);
 
     return (
         <CockpitListing.Listing title={_("Content")}
@@ -523,7 +530,7 @@ function block_content(client, block) {
 
 var Block = React.createClass({
     render: function () {
-        return block_content(this.props.client, this.props.block);
+        return block_content(this.props.client, this.props.block, this.props.allow_partitions !== false);
     }
 });
 

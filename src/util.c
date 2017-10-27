@@ -94,3 +94,17 @@ virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
 
     return virDomainLookupByUUIDString(connection, name);
 }
+
+void
+virtDBusUtilVirDomainListFreep(virDomainPtr **domainsp)
+{
+    virDomainPtr *domains = *domainsp;
+
+    if (!domains)
+        return;
+
+    for (int i = 0; domains[i] != NULL; i += 1)
+        virDomainFree(domains[i]);
+
+    free(domains);
+}

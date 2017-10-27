@@ -24,7 +24,9 @@ libvirt_dbus_CFLAGS = \
 
 libvirt_dbus_LDFLAGS = \
 	$(SYSTEMD_LDFLAGS) \
-	$(LIBVIRT_LDFLAGS)
+	$(LIBVIRT_LDFLAGS) \
+	$(RELRO_LDFLAGS) \
+	$(NULL)
 
 libvirt_dbus_LDADD = \
 	$(SYSTEMD_LIBS) \

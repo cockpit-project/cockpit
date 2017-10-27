@@ -7,8 +7,8 @@
 #include <stdlib.h>
 
 static int
-virtDBusManagerEnumarateDomains(sd_bus *bus,
-                                const char *path,
+virtDBusManagerEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
+                                const char *path VIR_ATTR_UNUSED,
                                 void *userdata,
                                 char ***nodes,
                                 sd_bus_error *error)

@@ -55,18 +55,18 @@ virtDBusVirEventRemoveHandlep(int *watchp)
 }
 
 static void
-virtDBusHandleSignal(int watch,
-                     int fd,
-                     int events,
-                     void *opaque)
+virtDBusHandleSignal(int watch VIR_ATTR_UNUSED,
+                     int fd VIR_ATTR_UNUSED,
+                     int events VIR_ATTR_UNUSED,
+                     void *opaque VIR_ATTR_UNUSED)
 {
     loop_status = -ECANCELED;
 }
 
 static void
 virtDBusHandleBusEvent(int watch,
-                       int fd,
-                       int events,
+                       int fd VIR_ATTR_UNUSED,
+                       int events VIR_ATTR_UNUSED,
                        void *opaque)
 {
     sd_bus *bus = opaque;

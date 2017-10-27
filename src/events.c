@@ -6,10 +6,10 @@
 #include <systemd/sd-bus.h>
 
 static int
-virtDBusEventsDomainLifecycle(virConnectPtr connection,
+virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
                               virDomainPtr domain,
                               int event,
-                              int detail,
+                              int detail VIR_ATTR_UNUSED,
                               void *opaque)
 {
     virtDBusManager *manager = opaque;
@@ -70,7 +70,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection,
 }
 
 static int
-virtDBusEventsDomainDeviceAdded(virConnectPtr connection,
+virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIR_ATTR_UNUSED,
                                 virDomainPtr domain,
                                 const char *device,
                                 void *opaque)
@@ -98,7 +98,7 @@ virtDBusEventsDomainDeviceAdded(virConnectPtr connection,
 }
 
 static int
-virtDBusEventsDomainDeviceRemoved(virConnectPtr connection,
+virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIR_ATTR_UNUSED,
                                   virDomainPtr domain,
                                   const char *device,
                                   void *opaque)
@@ -126,7 +126,7 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection,
 }
 
 static int
-virtDBusEventsDomainDiskChange(virConnectPtr connection,
+virtDBusEventsDomainDiskChange(virConnectPtr connection VIR_ATTR_UNUSED,
                                virDomainPtr domain,
                                const char *device,
                                int reason,
@@ -168,7 +168,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection,
 }
 
 static int
-virtDBusEventsDomainTrayChange(virConnectPtr connection,
+virtDBusEventsDomainTrayChange(virConnectPtr connection VIR_ATTR_UNUSED,
                                virDomainPtr domain,
                                const char *old_src_path,
                                const char *new_src_path,

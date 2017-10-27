@@ -220,9 +220,6 @@ class Browser:
                 return val
             self.wait_checkpoint()
 
-    def inject_js(self, code):
-        self.phantom.do(code);
-
     def wait_js_cond(self, cond):
         return self.phantom.wait(cond)
 

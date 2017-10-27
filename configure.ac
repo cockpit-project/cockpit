@@ -70,6 +70,11 @@ else
 fi
 AC_SUBST(DBUS_SYSTEM_POLICIES_DIR)
 
+LIBVIRT_ARG_WITH([SYSTEM_USER], [username to run system instance as],
+                 ['libvirtdbus'])
+SYSTEM_USER=$with_system_user
+AC_SUBST([SYSTEM_USER])
+
 AC_OUTPUT(Makefile
           data/Makefile
           src/Makefile

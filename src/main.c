@@ -143,6 +143,14 @@ main(int argc, char *argv[])
         }
     }
 
+    if (uri == NULL) {
+        if (system_bus) {
+            uri = "qemu:///system";
+        } else {
+            uri = "qemu:///session";
+        }
+    }
+
     sigemptyset(&mask);
     sigaddset(&mask, SIGTERM);
     sigaddset(&mask, SIGINT);

@@ -4,8 +4,11 @@
 
 <busconfig>
 
-  <policy user="root">
+  <policy user="@SYSTEM_USER@">
     <allow own="org.libvirt"/>
+  </policy>
+
+  <policy user="root">
     <allow send_destination="org.libvirt"/>
   </policy>
 

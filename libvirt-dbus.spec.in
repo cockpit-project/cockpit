@@ -19,6 +19,7 @@ BuildRequires: systemd-devel >= %{systemd_version}
 Requires: libvirt-libs >= %{libvirt_version}
 Requires: systemd-libs >= %{systemd_version}
 
+Requires(pre): shadow-utils
 
 %description
 This package provides integration between libvirt and the DBus
@@ -37,9 +38,17 @@ rm -rf $RPM_BUILD_ROOT
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%pre
+getent group libvirtdbus >/dev/null || groupadd -r libvirtdbus
+getent passwd libvirtdbus >/dev/null || \
+    useradd -r -g libvirtdbus -d / -s /sbin/nologin \
+    -c "Libvirt DBus bridge" libvirtdbus
+exit 0
+
 %files
 %defattr(-,root,root,-)
 %doc README COPYING AUTHORS NEWS
+%{_sysconfdir}/polkit-1/rules.d/libvirt-dbus.rules
 %{_bindir}/libvirt-dbus
 %{_datadir}/dbus-1/services/org.libvirt.service
 %{_datadir}/dbus-1/system-services/org.libvirt.service

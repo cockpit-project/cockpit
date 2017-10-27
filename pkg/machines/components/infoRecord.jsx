@@ -22,14 +22,14 @@ import React, { PropTypes } from "react";
 
 React;
 
-const InfoRecord = ({id, descr, value}) => {
+const InfoRecord = ({id, descr, value, descrClass, valueClass}) => {
     return (<tr>
-        <td className='top'>
+        <td className={descrClass ? descrClass : 'top'}>
             <label className='control-label'>
                 {descr}
             </label>
         </td>
-        <td id={id}>
+        <td id={id} className={valueClass}>
             {value}
         </td>
     </tr>);
@@ -38,6 +38,8 @@ const InfoRecord = ({id, descr, value}) => {
 InfoRecord.propTypes = {
     id: PropTypes.string,
     descr: PropTypes.string.isRequired,
+    descrClass: PropTypes.string,
+    valueClass: PropTypes.string,
     value: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.element

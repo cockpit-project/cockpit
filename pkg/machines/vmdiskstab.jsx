@@ -21,6 +21,7 @@ import React from 'react';
 import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { toGigaBytes } from './helpers.es6';
+import InfoRecord from './components/infoRecord.jsx';
 
 const _ = cockpit.gettext;
 
@@ -39,11 +40,7 @@ const DiskSource = ({ disk, vmId }) => {
     const src = disk.source;
     const addOptional = (chunks, value, descr) => {
         if (value) {
-            chunks.push(
-                <tr>
-                    <td className='machines-disks-source-descr'>{descr}: </td>
-                    <td className='machines-disks-source-value'>{value}</td>
-                </tr>);
+            chunks.push(<InfoRecord descrClass='machines-disks-source-descr' descr={descr} valueClass='machines-disks-source-value' value={value} />);
         }
     };
 

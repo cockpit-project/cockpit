@@ -25,7 +25,7 @@ import { vmId } from '../../machines/helpers.es6';
 import { migrateVm } from '../actions.es6';
 
 import ConfirmButtons from './ConfirmButtons.jsx';
-import { VmOverviewTabRecord as VmProperty } from '../../machines/hostvmslist.jsx';
+import VmProperty from '../../machines/components/infoRecord.jsx';
 import rephraseUI from '../rephraseUI.es6';
 
 React;

@@ -28,6 +28,7 @@ import VmDisksTab from './vmdiskstab.jsx';
 import VmNetworkTab from './vmnetworktab.jsx';
 import GraphicsConsole from './components/graphicsConsole.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
+import InfoRecord from './components/infoRecord.jsx';
 
 const _ = cockpit.gettext;
 
@@ -223,24 +224,6 @@ DropdownButtons.propTypes = {
     buttons: PropTypes.array.isRequired
 }
 
-export const VmOverviewTabRecord = ({ id, descr, value }) => {
-    return (<tr>
-        <td className='top'>
-            <label className='control-label'>
-                {descr}
-            </label>
-        </td>
-        <td id={id}>
-            {value}
-        </td>
-    </tr>);
-};
-VmOverviewTabRecord.propTypes = {
-    id: PropTypes.string,
-    descr: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired
-}
-
 const VmLastMessage = ({ vm }) => {
     if (!vm.lastMessage) {
         return (<tr />); // reserve space to keep rendered structure
@@ -269,7 +252,7 @@ const VmBootOrder = ({ vm }) => {
         bootOrder = vm.bootOrder.devices.map(bootDevice => bootDevice.type).join(); // Example: network,disk,disk
     }
 
-    return (<VmOverviewTabRecord id={`${vmId(vm.name)}-bootorder`} descr={_("Boot Order:")} value={bootOrder}/>);
+    return (<InfoRecord id={`${vmId(vm.name)}-bootorder`} descr={_("Boot Order:")} value={bootOrder}/>);
 };
 VmBootOrder.propTypes = {
     vm: PropTypes.object.isRequired
@@ -287,17 +270,17 @@ const VmOverviewTab = ({ vm, config }) => {
             <tr className='machines-listing-ct-body-detail'>
                 <td className='machines-listing-detail-top-column'>
                     <table className='form-table-ct'>
-                        <VmOverviewTabRecord descr={_("Memory:")}
+                        <InfoRecord descr={_("Memory:")}
                                              value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
+                        <InfoRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
                     </table>
                 </td>
 
                 <td className='machines-listing-detail-top-column'>
                     <table className='form-table-ct'>
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-emulatedmachine`}
+                        <InfoRecord id={`${vmId(vm.name)}-emulatedmachine`}
                                              descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-cputype`}
+                        <InfoRecord id={`${vmId(vm.name)}-cputype`}
                                              descr={_("CPU Type:")} value={vm.cpuModel}/>
                     </table>
                 </td>
@@ -305,7 +288,7 @@ const VmOverviewTab = ({ vm, config }) => {
                 <td className='machines-listing-detail-top-column'>
                     <table className='form-table-ct'>
                         <VmBootOrder vm={vm} />
-                        <VmOverviewTabRecord id={`${vmId(vm.name)}-autostart`}
+                        <InfoRecord id={`${vmId(vm.name)}-autostart`}
                                              descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
                     </table>
                 </td>

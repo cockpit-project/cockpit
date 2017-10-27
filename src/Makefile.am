@@ -20,12 +20,14 @@ libvirt_dbus_CFLAGS = \
 	$(SYSTEMD_CFLAGS) \
 	$(LIBVIRT_CFLAGS) \
 	$(WARN_CFLAGS) \
+	$(PIE_CFLAGS) \
 	$(NULL)
 
 libvirt_dbus_LDFLAGS = \
 	$(SYSTEMD_LDFLAGS) \
 	$(LIBVIRT_LDFLAGS) \
 	$(RELRO_LDFLAGS) \
+	$(PID_LDFLAGS) \
 	$(NULL)
 
 libvirt_dbus_LDADD = \

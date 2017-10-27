@@ -18,7 +18,9 @@ libvirt_dbus_SOURCES = $(DAEMON_SOURCES)
 
 libvirt_dbus_CFLAGS = \
 	$(SYSTEMD_CFLAGS) \
-	$(LIBVIRT_CFLAGS)
+	$(LIBVIRT_CFLAGS) \
+	$(WARN_CFLAGS) \
+	$(NULL)
 
 libvirt_dbus_LDFLAGS = \
 	$(SYSTEMD_LDFLAGS) \

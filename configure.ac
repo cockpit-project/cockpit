@@ -3,6 +3,7 @@ AC_INIT([libvirt-dbus], [0.0.1], [libvir-list@redhat.com], [], [http://libvirt.o
 AC_CONFIG_SRCDIR(src/main.c)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 dnl Make automake keep quiet about wildcards & other GNUmake-isms
 AM_INIT_AUTOMAKE([foreign -Wno-portability])
 AC_CANONICAL_HOST
@@ -34,6 +35,8 @@ AM_PROG_CC_C_O
 
 PKG_CHECK_MODULES(LIBVIRT, libvirt >= $LIBVIRT_REQUIRED)
 PKG_CHECK_MODULES(SYSTEMD, libsystemd >= $SYSTEMD_REQUIRED)
+
+LIBVIRT_COMPILE_WARNINGS
 
 AC_ARG_WITH(dbus-services,
 		  [AC_HELP_STRING([--with-dbus-services=<dir>],

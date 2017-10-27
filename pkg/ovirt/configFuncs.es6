@@ -79,7 +79,7 @@ function doReadConfiguration ({ dispatch }) {
 
 function storeSsoUri (location) {
     const accessTokenStart = location.href.lastIndexOf('access_token=');
-    if (accessTokenStart) { // valid only if ovirt-cockpit-sso is involved
+    if (accessTokenStart >= 0) { // valid only if ovirt-cockpit-sso is involved
         const ssoUri = location.href.substr(0, accessTokenStart + 'access_token='.length);
         logDebug('storeSsoUri(): ', ssoUri);
         window.sessionStorage.setItem('OVIRT_PROVIDER_SSO_URI', ssoUri);

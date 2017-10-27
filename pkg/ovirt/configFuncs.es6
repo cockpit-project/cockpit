@@ -25,12 +25,27 @@ import MACHINES_CONFIG from '../machines/config.es6';
 import { setOvirtApiCheckResult } from './provider.es6';
 import { ovirtApiGet } from './ovirtApiAccess.es6';
 import { startOvirtPolling } from './ovirt.es6';
-import { loginInProgress } from './actions.es6';
+import { loginInProgress, setHostname } from './actions.es6';
 import installationDialog from './components/InstallationDialog.jsx';
 
-import store from '../machines/store.es6';
+import store, { waitForReducerSubtreeInit } from './store.es6';
 
 export function readConfiguration ({ dispatch }) {
+    logDebug(`readConfiguration() called for configUrl='${OVIRT_CONF_FILE}'`);
+
+    const promises = [];
+    promises.push(doReadConfiguration({ dispatch }));
+    promises.push(doReadHostname({ dispatch }));
+
+    return cockpit.all(promises);
+}
+
+/**
+ * Configuration can be changed by admin after installation
+ * and is kept in separate file (out of manifest.json)
+ * @param dispatch
+ */
+function doReadConfiguration ({ dispatch }) {
     // Configuration can be changed by admin after installation
     // and so is kept in separate file (out of manifest.json)
     return cockpit.file(OVIRT_CONF_FILE).read()
@@ -38,7 +53,7 @@ export function readConfiguration ({ dispatch }) {
             if (!content) {
                 console.info('Configuration file empty, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
                 installationDialog();
-                return ;
+                return;
             }
 
             console.log(`Configuration file ${OVIRT_CONF_FILE} content is read ...`);
@@ -71,8 +86,22 @@ function storeSsoUri (location) {
     }
 }
 
+function doReadHostname ({ dispatch }) {
+    let hostname = '';
+    return cockpit.spawn(['hostname', '-f'], {'err': 'message'})
+        .stream(data => {
+            hostname += data;
+        }).done(() => {
+            hostname = hostname.trim();
+            logDebug('hostname read: ', hostname);
+            waitForReducerSubtreeInit(() => dispatch(setHostname(hostname)));
+        }).fail(ex => {
+            console.error("Getting 'hostname' failed:", ex);
+        });
+}
+
 function doLogin ({ dispatch }) {
-    logDebug('_login() called');
+    logDebug('doLogin() called');
 
     const location = window.top.location;
     const tokenStart = location.hash.indexOf('token=');
@@ -103,7 +132,7 @@ function onLoginSuccessful ({ dispatch , token }) {
 
     // Turn-off user notification about progress
     // Provider's reducer subtree must not be initialized at this point
-    window.setTimeout(() => dispatch(loginInProgress(false)), 3000);
+    waitForReducerSubtreeInit(() => dispatch(loginInProgress(false)));
 
     return checkApiVersion({ dispatch });
 }

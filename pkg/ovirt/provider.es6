@@ -348,6 +348,41 @@ OVIRT_PROVIDER.CONSOLE_VM = function (payload) { // download a .vv file generate
     };
 };
 
+OVIRT_PROVIDER.HOST_TO_MAINTENANCE = function ({ hostId }) {
+    logDebug(`HOST_TO_MAINTENANCE(hostId=${hostId})`);
+    if (!isOvirtApiCheckPassed()) {
+        logDebug('oVirt API version does not match but the HOST_TO_MAINTENANCE action is not supported by Libvirt provider, skipping' );
+        return () => {};
+    }
+
+    return (dispatch) => {
+        forceNextOvirtPoll();
+
+        const dfd = cockpit.defer();
+        dfd.notify(_("Switching host to maintenance mode in progress ..."));
+
+        ovirtApiPost(
+            `hosts/${hostId}/deactivate`,
+            '<action/>',
+            (error) => {
+                let detail;
+                try {
+                    const jsonResponse = JSON.parse(error);
+                    detail = jsonResponse && jsonResponse.fault && jsonResponse.fault.detail;
+                } catch (ex) {
+                    detail = error.responseText || error;
+                }
+                const errorMsg = detail || error.statusText || error || "";
+                dfd.reject(_("Switching host to maintenance mode failed. Received error: ") + errorMsg);
+            }
+        ).then(() => {
+            dfd.resolve();
+        });
+
+        return dfd.promise;
+    };
+};
+
 export function setOvirtApiCheckResult (passed) {
     OVIRT_PROVIDER.ovirtApiMetadata.passed = passed;
     if (!passed) {

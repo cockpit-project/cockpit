@@ -25,7 +25,7 @@ import CONFIG from '../config.es6';
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { StateIcon, DropdownButtons } from "../../machines/hostvmslist.jsx";
 
-import { toGigaBytes, valueOrDefault, isSameHostAddress, getHostAddress } from '../helpers.es6';
+import { toGigaBytes, valueOrDefault, isSameHostAddress, getHost } from '../helpers.es6';
 import { startVm, goToSubpage } from '../actions.es6';
 import rephraseUI from '../rephraseUI.es6';
 
@@ -135,10 +135,9 @@ const VmLastMessage = ({ vm }) => {
 
 const Vm = ({ vm, hosts, templates, clusters, config, dispatch }) => {
     const stateIcon = (<StateIcon state={vm.state} config={config}/>);
-
-    const hostAddress = getHostAddress();
-    const hostId = Object.getOwnPropertyNames(hosts).find(hostId => hosts[hostId].address === hostAddress);
-    const hostName = hostId && hosts[hostId] ? hosts[hostId].name : undefined;
+    const ovirtConfig = config.providerState && config.providerState.ovirtConfig;
+    const currentHost = getHost(hosts, ovirtConfig);
+    const hostName = currentHost && currentHost.name;
 
     return (<ListingRow // TODO: icons?
         columns={[

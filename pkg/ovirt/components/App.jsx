@@ -26,6 +26,9 @@ import ClusterTemplates from './ClusterTemplates.jsx';
 import VdsmView from './VdsmView.jsx';
 
 import { goToSubpage } from '../actions.es6';
+import hostToMaintenance from './HostToMaintenance.jsx';
+import HostStatus from './HostStatus.jsx';
+import { getHost } from "../selectors.es6";
 
 const _ = cockpit.gettext;
 
@@ -85,12 +88,15 @@ const TopMenu = ({ ovirtConfig, router, dispatch }) => {
     );
 };
 
-const HostVmsListDecorated = ({ vms, config, dispatch }) => {
+const HostVmsListDecorated = ({ vms, config, dispatch, host }) => {
+    const actions = host && [hostToMaintenance({ dispatch, host })];
     return (
         <div className='container-fluid'>
+            <HostStatus host={host}/>
             <HostVmsList vms={vms}
                          config={config}
-                         dispatch={dispatch} />
+                         dispatch={dispatch}
+                         actions={actions} />
         </div>
     );
 };
@@ -100,13 +106,16 @@ const App = ({ store }) => {
     const dispatch = store.dispatch;
     const { vms, config } = state;
 
-    let ovirtConfig, router;
+    let ovirtConfig, hosts, router;
     if (config.providerState) {
         ovirtConfig = config.providerState.ovirtConfig;
+        hosts = config.providerState.hosts;
         router = config.providerState.router;
     }
 
+    const host = getHost(hosts, ovirtConfig); // oVirt record for current host
     const route = router && router.route;
+
     let component = null;
     switch (route) {
         case 'clustervms':
@@ -120,7 +129,7 @@ const App = ({ store }) => {
             break;
         default:
             component = (
-                <HostVmsListDecorated vms={vms} config={config} dispatch={dispatch} />);
+                <HostVmsListDecorated vms={vms} config={config} dispatch={dispatch} host={host} />);
     }
 
     return (

@@ -36,6 +36,7 @@ import { logDebug, logError } from '../machines/helpers.es6';
 import { ovirtApiGet } from './ovirtApiAccess.es6';
 import CONFIG from './config.es6';
 import { isOvirtApiCheckPassed } from './provider.es6';
+import { waitForCurrentCluster } from './selectors.es6';
 
 let lastOvirtPoll = -1; // timestamp
 /**
@@ -68,7 +69,7 @@ function callOncePerTimeperiod({ call, delay, lastCall }) {
  * TODO: evaluate use of ovirt's AuditLog messages to track changes so deep polling will be not needed.
  */
 export function pollOvirt() {
-    return function (dispatch) {
+    return function (dispatch, getState) {
         callOncePerTimeperiod({
             lastCall: lastOvirtPoll,
             delay: CONFIG.ovirt_polling_interval, // do not poll more than once per this period
@@ -82,9 +83,10 @@ export function pollOvirt() {
                 lastOvirtPoll = Infinity; // avoid parallel execution
                 const promises = [];
                 promises.push(doRefreshHosts(dispatch));
-                promises.push(doRefreshVms(dispatch));
-                promises.push(doRefreshTemplates(dispatch));
                 promises.push(doRefreshClusters(dispatch));
+
+                promises.push(doRefreshVms(dispatch, getState));
+                promises.push(doRefreshTemplates(dispatch, getState));
 
                 return cockpit.all(promises).then(() => { // update the timestamp
                     logDebug('oVirt polling finished');
@@ -140,62 +142,79 @@ function doRefreshHosts(dispatch) {
     });
 }
 
-function doRefreshVms(dispatch) { // TODO: consider paging; there might be thousands of vms
+function parseVms(deferred, data, dispatch) {
+    const result = JSON.parse(data);
+
+    if (result && result.vm && (result.vm instanceof Array)) {
+        const allVmsIds = [];
+        const allIconIds = {}; // used as a set
+        result.vm.forEach( vm => {
+            allVmsIds.push(vm.id);
+
+            let largeIconId, smallIconId;
+            if (vm.large_icon) {
+                largeIconId = vm.large_icon.id;
+                allIconIds[largeIconId] = true;
+            }
+            if (vm.small_icon) {
+                smallIconId = vm.small_icon.id;
+                allIconIds[smallIconId] = true;
+            }
+
+            dispatch(updateVm({ // TODO: consider batching
+                id: vm.id,
+                name: vm.name,
+                state: mapOvirtStatusToLibvirtState(vm.status),
+                description: vm.description,
+                highAvailability: vm.high_availability,
+                icons: {
+                    largeId: largeIconId,
+                    smallId: smallIconId,
+                },
+                memory: vm.memory,
+                cpu: {
+                    architecture: vm.cpu.architecture,
+                    topology: {
+                        sockets: vm.cpu.topology.sockets,
+                        cores: vm.cpu.topology.cores,
+                        threads: vm.cpu.topology.threads
+                    }
+                },
+                origin: vm.origin,
+                os: {
+                    type: vm.os.type
+                },
+                type: vm.type, // server, desktop
+                stateless: vm.stateless,
+                clusterId: vm.cluster.id,
+                templateId: vm.template.id,
+                hostId: vm.host ? vm.host.id : undefined,
+            }));
+        });
+        dispatch(removeUnlistedVms({allVmsIds}));
+        dispatch(downloadIcons({ iconIds: allIconIds, forceReload: false }));
+
+        deferred.resolve();
+    } else {
+        logError(`doRefreshVms() failed, result: ${JSON.stringify(result)}`);
+        deferred.reject(result);
+    }
+}
+
+function doRefreshVms(dispatch, getState) { // TODO: consider paging; there might be thousands of vms
     logDebug(`doRefreshVms() called`);
-    return ovirtApiGet('vms').done(data => {
-        const result = JSON.parse(data);
-        if (result && result.vm && (result.vm instanceof Array)) {
-            const allVmsIds = [];
-            const allIconIds = {}; // used as a set
-            result.vm.forEach( vm => {
-                allVmsIds.push(vm.id);
 
-                let largeIconId, smallIconId;
-                if (vm.large_icon) {
-                    largeIconId = vm.large_icon.id;
-                    allIconIds[largeIconId] = true;
-                }
-                if (vm.small_icon) {
-                    smallIconId = vm.small_icon.id;
-                    allIconIds[smallIconId] = true;
-                }
+    const deferred = cockpit.defer();
 
-                dispatch(updateVm({ // TODO: consider batching
-                    id: vm.id,
-                    name: vm.name,
-                    state: mapOvirtStatusToLibvirtState(vm.status),
-                    description: vm.description,
-                    highAvailability: vm.high_availability,
-                    icons: {
-                        largeId: largeIconId,
-                        smallId: smallIconId,
-                    },
-                    memory: vm.memory,
-                    cpu: {
-                        architecture: vm.cpu.architecture,
-                        topology: {
-                            sockets: vm.cpu.topology.sockets,
-                            cores: vm.cpu.topology.cores,
-                            threads: vm.cpu.topology.threads
-                        }
-                    },
-                    origin: vm.origin,
-                    os: {
-                        type: vm.os.type
-                    },
-                    type: vm.type, // server, desktop
-                    stateless: vm.stateless,
-                    clusterId: vm.cluster.id,
-                    templateId: vm.template.id,
-                    hostId: vm.host ? vm.host.id : undefined,
-                }));
-            });
-            dispatch(removeUnlistedVms({allVmsIds}));
-            dispatch(downloadIcons({ iconIds: allIconIds, forceReload: false }));
-        } else {
-            logError(`doRefreshVms() failed, result: ${JSON.stringify(result)}`);
-        }
-    });
+    waitForCurrentCluster(getState).done(currentCluster => {
+        logDebug('Reading VMs for currentCluster = ', currentCluster);
+
+        ovirtApiGet(`vms?search=cluster%3D${currentCluster.name}`)
+            .done(data => parseVms(deferred, data, dispatch))
+            .fail((reason) => deferred.reject(reason));
+    }).fail((reason) => deferred.reject(reason));
+
+    return deferred.promise;
 }
 
 function mapOvirtStatusToLibvirtState(ovirtStatus) {
@@ -207,59 +226,80 @@ function mapOvirtStatusToLibvirtState(ovirtStatus) {
     }
 }
 
-function doRefreshTemplates(dispatch) { // TODO: consider paging; there might be thousands of templates
+function parseTemplates(deferred, data, dispatch, currentClusterId) {
+    const result = JSON.parse(data);
+    if (result && result.template && (result.template instanceof Array)) {
+        const allTemplateIds = [];
+        result.template.forEach( template => {
+            if (template.cluster && template.cluster.id !== currentClusterId) {
+                return ; // accept template if either cluster is not set or conforms the current one, skip otherwise
+            }
+
+            allTemplateIds.push(template.id);
+            dispatch(updateTemplate({ // TODO: consider batching
+                id: template.id,
+                name: template.name,
+                description: template.description,
+                cpu: {
+                    architecture: template.cpu.architecture,
+                    topology: {
+                        sockets: template.cpu.topology.sockets,
+                        cores: template.cpu.topology.cores,
+                        threads: template.cpu.topology.threads
+                    }
+                },
+                memory: template.memory,
+                creationTime: template.creation_time,
+
+                highAvailability: template.high_availability,
+                icons: {
+                    largeId: template.large_icon ? template.large_icon.id : undefined,
+                    smallId: template.small_icon ? template.small_icon.id : undefined,
+                },
+                os: {
+                    type: template.os.type
+                },
+                stateless: template.stateless,
+                type: template.type, // server, desktop
+                version: {
+                    name: template.version ? template.version.name : undefined,
+                    number: template.version ? template.version.number : undefined,
+                    baseTemplateId: template.version && template.version.base_template ? template.version.base_template.id : undefined,
+                },
+
+                // bios
+                // display
+                // migration
+                // memory_policy
+                // os.boot
+                // start_paused
+                // usb
+            }));
+        });
+        dispatch(removeUnlistedTemplates({allTemplateIds}));
+
+        deferred.resolve();
+    } else {
+        logError(`doRefreshTemplates() failed, result: ${JSON.stringify(result)}`);
+        deferred.reject(result);
+    }
+}
+
+function doRefreshTemplates(dispatch, getState) { // TODO: consider paging; there might be thousands of templates
     logDebug(`doRefreshTemplates() called`);
-    return ovirtApiGet('templates').done(data => {
-        const result = JSON.parse(data);
-        if (result && result.template && (result.template instanceof Array)) {
-            const allTemplateIds = [];
-            result.template.forEach( template => {
-                allTemplateIds.push(template.id);
-                dispatch(updateTemplate({ // TODO: consider batching
-                    id: template.id,
-                    name: template.name,
-                    description: template.description,
-                    cpu: {
-                        architecture: template.cpu.architecture,
-                        topology: {
-                            sockets: template.cpu.topology.sockets,
-                            cores: template.cpu.topology.cores,
-                            threads: template.cpu.topology.threads
-                        }
-                    },
-                    memory: template.memory,
-                    creationTime: template.creation_time,
 
-                    highAvailability: template.high_availability,
-                    icons: {
-                        largeId: template.large_icon ? template.large_icon.id : undefined,
-                        smallId: template.small_icon ? template.small_icon.id : undefined,
-                    },
-                    os: {
-                        type: template.os.type
-                    },
-                    stateless: template.stateless,
-                    type: template.type, // server, desktop
-                    version: {
-                        name: template.version ? template.version.name : undefined,
-                        number: template.version ? template.version.number : undefined,
-                        baseTemplateId: template.version && template.version.base_template ? template.version.base_template.id : undefined,
-                    },
+    const deferred = cockpit.defer();
 
-                    // bios
-                    // display
-                    // migration
-                    // memory_policy
-                    // os.boot
-                    // start_paused
-                    // usb
-                }));
-            });
-            dispatch(removeUnlistedTemplates({allTemplateIds}));
-        } else {
-            logError(`doRefreshTemplates() failed, result: ${JSON.stringify(result)}`);
-        }
-    });
+    waitForCurrentCluster(getState).done(currentCluster => {
+        console.log('Reading Templates for currentCluster = ', currentCluster);
+
+        // due to limitations of oVirt API we have to filter on templates on client side
+        ovirtApiGet(`templates`)
+            .done(data => parseTemplates(deferred, data, dispatch, currentCluster.id))
+            .fail(reason => deferred.reject(reason));
+    }).fail((reason) => deferred.reject(reason));
+
+    return deferred.promise;
 }
 
 function doRefreshClusters(dispatch) {

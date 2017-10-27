@@ -59,4 +59,3 @@ export function valueOrDefault(value, def) {
 export function isNumeric(value) {
     return /^\d+$/.test(value);
 }
-

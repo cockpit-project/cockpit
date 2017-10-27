@@ -372,7 +372,7 @@ class VmUsageTab extends React.Component {
         const chartSize = {
             width, // keep the .usage-donut-caption CSS in sync
             height
-        }
+        };
 
         return (<table>
                 <tr>
@@ -463,7 +463,7 @@ Vm.propTypes = {
 /**
  * List of all VMs defined on this host
  */
-const HostVmsList = ({ vms, config, dispatch }) => {
+const HostVmsList = ({ vms, config, dispatch, actions }) => {
     if (vms.length === 0) {
         return (<div className='container-fluid'>
             <NoVm />
@@ -472,8 +472,13 @@ const HostVmsList = ({ vms, config, dispatch }) => {
 
     const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
+    let allActions = []; // like createVmAction
+    if (actions) {
+        allActions = allActions.concat(actions);
+    }
+
     return (<div className='container-fluid'>
-        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]}>
+        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]} actions={allActions}>
             {vms
                 .sort(sortFunction)
                 .map(vm => {

@@ -24,7 +24,8 @@ import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
 import { VmLastMessage, VmDescription, VmMemory, VmCpu, VmOS, VmHA, VmStateless  } from './ClusterVms.jsx';
 import { createVmFromTemplate } from '../actions.es6';
-import { getCurrentHost } from '../selectors.es6';
+import { getCurrentCluster } from '../selectors.es6';
+import { logDebug } from '../../machines/helpers.es6';
 
 const NoTemplate = () => (<div>{_("No VM found in oVirt.")}</div>);
 const NoTemplateUnitialized = () => (<div>{_("Please wait till list of templates is loaded from the server.")}</div>);
@@ -84,11 +85,17 @@ class CreateVmFromTemplate extends React.Component {
 }
 
 const TemplateActions = ({ template, cluster, dispatch}) => {
+    if (!cluster) {
+        logDebug('TemplateActions: unknown cluster');
+        return null;
+    }
+
     return (
         <span>
-        <CreateVmFromTemplate template={template} cluster={cluster} dispatch={dispatch} />
-        <VmLastMessage vm={template} />
-      </span>);
+            <CreateVmFromTemplate template={template} cluster={cluster} dispatch={dispatch}/>
+            <VmLastMessage vm={template}/>
+        </span>
+    );
 };
 
 const Template = ({ template, templates, cluster, dispatch }) => {
@@ -109,7 +116,7 @@ const Template = ({ template, templates, cluster, dispatch }) => {
 };
 
 const ClusterTemplates = ({ config, dispatch }) => {
-    const { templates, hosts, clusters } = config.providerState;
+    const { templates, hosts, clusters, ovirtConfig } = config.providerState;
 
     if (!templates) { // before cluster templates are loaded ;
         return (<NoTemplateUnitialized />);
@@ -119,19 +126,21 @@ const ClusterTemplates = ({ config, dispatch }) => {
         return (<NoTemplate />);
     }
 
-    const myHost = getCurrentHost(hosts);
-    const hostCluster = myHost && myHost.clusterId && clusters[myHost.clusterId] ? clusters[myHost.clusterId] : undefined;
-    const cluster = { name: hostCluster ? hostCluster.name : 'Default' };
+    const currentCluster = getCurrentCluster(hosts, clusters, ovirtConfig);
+    let title = cockpit.format(_("Cluster Templates"));
+    if (currentCluster) {
+        title = cockpit.format(_("Templates of $0 cluster"), currentCluster.name);
+    }
 
     return (<div className='container-fluid'>
-        <Listing title={_("Cluster Templates")} columnTitles={[
+        <Listing title={title} columnTitles={[
         _("Name"), _("Version"), _("Base Template"), _("Description"), _("Memory"), _("vCPUs"), _("OS"),
         _("HA"), _("Stateless"), _("Action")]}>
             {Object.getOwnPropertyNames(templates).map(templateId => {
                 return (
                     <Template template={templates[templateId]}
                               templates={templates}
-                              cluster={cluster}
+                              cluster={currentCluster}
                               dispatch={dispatch}
                     />);
             })}

@@ -107,7 +107,11 @@
 
         render: function () {
             // ensure react never reuses this div by keying it with the terminal widget
-            return <div ref="terminal" className="console-ct" key={this.state.terminal} />;
+            return <div ref="terminal"
+                        key={this.state.terminal}
+                        className="console-ct"
+                        onFocusIn={this.onFocusIn}
+                        onFocusOut={this.onFocusOut} />;
         },
 
         componentWillUnmount: function () {
@@ -162,6 +166,24 @@
                 rows: Math.floor((node.parentElement.clientHeight - padding) / rect.height),
                 cols: Math.floor((node.parentElement.clientWidth - padding) / rect.width)
             });
+        },
+
+        onBeforeUnload: function (event) {
+            // Firefox requires this when the page is in an iframe
+            event.preventDefault();
+
+            // see "an almost cross-browser solution" at
+            // https://developer.mozilla.org/en-US/docs/Web/Events/beforeunload
+            event.returnValue = '';
+            return '';
+        },
+
+        onFocusIn: function () {
+            window.addEventListener('beforeunload', this.onBeforeUnload);
+        },
+
+        onFocusOut: function () {
+            window.removeEventListener('beforeunload', this.onBeforeUnload);
         }
     });
 

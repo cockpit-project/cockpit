@@ -50,8 +50,8 @@
 
         componentWillMount: function () {
             var term = new Term({
-                cols: this.state.cols || 80,
-                rows: this.state.rows || 25,
+                cols: this.props.cols || 80,
+                rows: this.props.rows || 25,
                 screenKeys: true
             });
 

@@ -66,7 +66,6 @@
             var terminal;
             if (this.state.channel)
                 terminal = (<componentsTerminal.Terminal ref="terminal"
-                                                         fullscreen="true"
                                                          channel={this.state.channel}
                                                          onTitleChanged={this.onTitleChanged} />);
             else

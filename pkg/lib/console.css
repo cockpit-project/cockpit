@@ -38,7 +38,22 @@
     padding: 10px;
 }
 
-.console-ct .terminal-cursor {
-    color: #000;
-    background: #f0f0f0;
+.terminal .terminal-cursor {
+    border: 1px solid #f0f0f0;
+}
+
+.terminal:focus .terminal-cursor {
+    border: none;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    from {
+        color: #000;
+        background: #f0f0f0;
+    }
+    50% {
+        color: #f0f0f0;
+        background: #000;
+    }
 }

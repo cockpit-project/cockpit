@@ -148,8 +148,6 @@
         /* Shows and hides the cursor */
         self.typeable = function typeable(yes) {
             term.cursorHidden = !yes;
-            if (yes)
-                term.showCursor();
             term.refresh(term.y, term.y);
             enable_input = yes;
         };

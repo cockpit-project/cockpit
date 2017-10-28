@@ -94,8 +94,15 @@
         },
 
         componentDidUpdate: function (prevProps) {
-            if (prevProps.channel !== this.props.channel)
+            if (prevProps.channel !== this.props.channel) {
                 this.connectChannel();
+                this.props.channel.control({
+                    window: {
+                        rows: this.state.rows,
+                        cols: this.state.cols
+                    }
+                });
+            }
         },
 
         render: function () {

@@ -654,7 +654,7 @@
             function connectUntil(ret, until) {
                 if (until) {
                     if (until.$on) {
-                        until.$on("destroy", function() {
+                        until.$on("$destroy", function() {
                             ret.cancel();
                         });
                     } else {

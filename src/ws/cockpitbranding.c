@@ -54,6 +54,7 @@ add_system_dirs (GPtrArray *dirs)
 gchar **
 cockpit_branding_calculate_static_roots (const gchar *os_id,
                                          const gchar *os_variant_id,
+                                         const gchar *os_id_like,
                                          gboolean is_local)
 {
   GPtrArray *dirs;
@@ -69,6 +70,17 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
       if (os_variant_id)
           g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s-%s", os_id, os_variant_id));
       g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", os_id));
+    }
+
+  if (os_id_like)
+    {
+      gchar **ids;
+
+      ids = g_strsplit_set (os_id_like, " ", -1);
+      for (gint i = 0; ids[i]; i += 1)
+        g_ptr_array_add (dirs, g_strdup_printf (DATADIR "/cockpit/branding/%s", ids[i]));
+
+      g_strfreev (ids);
     }
 
   if (!is_local)
@@ -134,13 +146,14 @@ on_init_ready (GObject *object,
         {
           roots = cockpit_branding_calculate_static_roots (g_hash_table_lookup (os_release, "ID"),
                                                            g_hash_table_lookup (os_release, "VARIANT_ID"),
+                                                           g_hash_table_lookup (os_release, "ID_LIKE"),
                                                            FALSE);
           g_object_set_data_full (G_OBJECT (transport), "os-release", os_release,
                                   (GDestroyNotify) g_hash_table_unref);
         }
       else
         {
-          roots = cockpit_branding_calculate_static_roots (NULL, NULL, FALSE);
+          roots = cockpit_branding_calculate_static_roots (NULL, NULL, NULL, FALSE);
         }
 
       g_object_set_data_full (G_OBJECT (transport), "static-roots", roots,

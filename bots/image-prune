@@ -125,13 +125,16 @@ def get_image_names(quiet=False, open_pull_requests=True, offline=False):
 
     return images
 
-def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=False):
+def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=False, checkout_only=False):
     """Prune images
     """
     now = time.time()
 
     # everything we want to keep
-    targets = get_image_names(quiet, open_pull_requests, offline)
+    if checkout_only:
+        targets = set()
+    else:
+        targets = get_image_names(quiet, open_pull_requests, offline)
 
     # what we have in the current checkout might already have been added by its branch, but check anyway
     for filename in os.listdir(IMAGES):
@@ -188,11 +191,12 @@ def main():
     parser.add_argument("--quiet", action="store_true", help="Make downloading quieter")
     parser.add_argument("-d", "--dry-run-prune", dest="dryrun", action="store_true", help="Don't actually delete images and links")
     parser.add_argument("-b", "--branches-only", dest="branches_only", action="store_true", help="Don't consider pull requests on GitHub, only look at branches")
+    parser.add_argument("-c", "--checkout-only", dest="checkout_only", action="store_true", help="Consider neither pull requests on GitHub nor branches, only look at the current checkout")
     parser.add_argument("-o", "--offline", dest="offline", action="store_true", help="Don't access external sources such as GitHub")
     args = parser.parse_args()
 
     try:
-        prune_images(args.force, args.dryrun, quiet=args.quiet, open_pull_requests=(not args.branches_only), offline=args.offline)
+        prune_images(args.force, args.dryrun, quiet=args.quiet, open_pull_requests=(not args.branches_only), offline=args.offline, checkout_only=args.checkout_only)
     except RuntimeError, ex:
         sys.stderr.write("image-prune: {0}\n".format(str(ex)))
         return 1

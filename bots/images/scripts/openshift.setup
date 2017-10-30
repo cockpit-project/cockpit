@@ -11,6 +11,8 @@ echo foobar | passwd --stdin root
 nmcli con add con-name "static-eth1" ifname eth1 type ethernet ip4 "10.111.112.101/20" gw4 10.111.112.1 ipv4.dns "10.111.112.1"
 nmcli con up "static-eth1"
 
+echo "10.111.112.101     f1.cockpit.lan" >> /etc/hosts
+
 printf "OPENSHIFT CONSOLE\n  https://10.111.112.101:8443\n  Login: scruffy  Password: scruffy\n\n" >> /etc/issue
 printf "OPENSHIFT LISTENING ON LOCALHOST\n  $ ssh -NL 8443:localhost:8443 root@10.111.112.101\n\n" >> /etc/issue
 

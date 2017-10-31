@@ -125,10 +125,11 @@ cryptsetup \
 qemu-kvm \
 "
 
-# RHEL 7.5 renamed/dropped some packages
+# RHEL 7.5 renamed/dropped/added some packages
 if [ "$IMAGE" = "rhel-7-5" ]; then
     UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
     TEST_PACKAGES="${TEST_PACKAGES/systemtap-runtime-virtguest /}"
+    COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
 else
     UDISKS="storaged storaged-lvm2 storaged-iscsi"
 fi

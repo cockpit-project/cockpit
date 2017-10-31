@@ -329,10 +329,13 @@
         client.path_jobs = { };
         function enter_job(job) {
             job.Objects.forEach(function (path) {
-                while (path) {
-                    client.path_jobs[path] = job;
-                    path = utils.get_parent(client, path);
+                client.path_jobs[path] = job;
+                var parent = utils.get_parent(client, path);
+                while (parent) {
+                    path = parent;
+                    parent = utils.get_parent(client, path);
                 }
+                client.path_jobs[path] = job;
             });
         }
         for (path in client.jobs) {

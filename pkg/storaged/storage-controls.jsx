@@ -145,13 +145,15 @@ var StorageBlockNavLink = React.createClass({
             if (client.blocks_part[path] && client.blocks_ptable[client.blocks_part[path].Table]) {
                 is_part = true;
                 path = client.blocks_part[path].Table;
-            } else if (client.blocks_crypto[path] && client.blocks[client.blocks_crypto[path].CryptoBackingDevice]) {
+            } else if (client.blocks[path] && client.blocks[client.blocks[path].CryptoBackingDevice]) {
                 is_crypt = true;
-                path = client.blocks_crypto[path].CryptoBackingDevice;
+                path = client.blocks[path].CryptoBackingDevice;
             } else {
                 break;
             }
         }
+
+        block = client.blocks[path];
 
         if (client.blocks_lvm2[path] && client.lvols[client.blocks_lvm2[path].LogicalVolume])
             is_lvol = true;

@@ -147,16 +147,7 @@
         client.blocks_crypto = proxies("Encrypted");
         client.blocks_swap = proxies("Swapspace");
         client.iscsi_sessions = proxies("ISCSI.Session");
-        client.storaged_jobs = proxies("Job");
-
-        if (STORAGED_SERVICE != "org.freedesktop.UDisks2") {
-            client.udisks_client = cockpit.dbus("org.freedesktop.UDisks2");
-            client.udisks_jobs = client.udisks_client.proxies("org.freedesktop.UDisks2.Job",
-                                                              "/org/freedesktop/UDisks2");
-        } else {
-            client.udisks_client = null;
-            client.udisks_jobs = { };
-        }
+        client.jobs = proxies("Job");
     }
 
     /* Monitors
@@ -392,9 +383,6 @@
 
                 $(client.storaged_client).on('notify', function () {
                     update_indices();
-                    client.dispatchEvent("changed");
-                });
-                $(client.udisks_jobs).on('added removed changed', function () {
                     client.dispatchEvent("changed");
                 });
                 update_indices();

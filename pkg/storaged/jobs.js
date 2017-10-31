@@ -37,20 +37,6 @@
         var jobs_tmpl = $("#jobs-tmpl").html();
         mustache.parse(jobs_tmpl);
 
-        /* As a special service, we try to also show UDisks2 jobs.
-         * (But only if storaged itself isn't behind
-         * org.freedesktop.UDisks2, of course.)  As a shortcut, we
-         * assume that we can blindly transform a UDisks2 object path
-         * into a Storaged object path for the same object.
-         */
-
-        function udisks_path_to_storaged_path(upath) {
-            if (client.udisks_client)
-                return upath.replace("/org/freedesktop/UDisks2/", "/org/storaged/Storaged/");
-            else
-                return upath;
-        }
-
         function update_job_spinners(parent) {
             var path;
 
@@ -89,19 +75,11 @@
                     show_spinners_for_object(paths[i]);
             }
 
-            for (path in client.storaged_jobs)
-                show_spinners_for_objects(client.storaged_jobs[path].Objects);
-
-            for (path in client.udisks_jobs) {
-                show_spinners_for_objects(client.udisks_jobs[path].Objects.map(udisks_path_to_storaged_path));
-            }
+            for (path in client.jobs)
+                show_spinners_for_objects(client.jobs[path].Objects);
         }
 
-        $(client.storaged_jobs).on('added removed changed', function () {
-            update_job_spinners('body');
-        });
-
-        $(client.udisks_jobs).on('added removed changed', function () {
+        $(client.jobs).on('added removed changed', function () {
             update_job_spinners('body');
         });
 
@@ -165,8 +143,7 @@
                     fmt = _("Operation '$operation' on $target");
 
                 var target =
-                    job.Objects.map(function (p) {
-                        var path = udisks_path_to_storaged_path(p);
+                    job.Objects.map(function (path) {
                         if (client.blocks[path])
                             return utils.block_name(client.blocks[path]);
                         else if (client.mdraids[path])
@@ -183,7 +160,7 @@
             }
 
             function job(path) {
-                return client.storaged_jobs[path] || client.udisks_jobs[path];
+                return client.jobs[path];
             }
 
             function cmp_job(a, b) {
@@ -223,7 +200,7 @@
                 };
             }
 
-            return (Object.keys(client.storaged_jobs).concat(Object.keys(client.udisks_jobs)).
+            return (Object.keys(client.jobs).
                     filter(job_is_stable).
                     sort(cmp_job).
                     map(make_job));

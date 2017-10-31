@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-20 11:25+0000\n"
+"POT-Creation-Date: 2017-10-31 08:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -113,7 +113,7 @@ msgstr ""
 
 #: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
 #: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
-#: pkg/storaged/format-dialog.jsx:117
+#: pkg/storaged/format-dialog.jsx:255
 msgid "$0 is in active use"
 msgstr ""
 
@@ -215,11 +215,11 @@ msgstr "'組織' を登録する必要があります。"
 msgid "'Organization' required when using activation keys."
 msgstr "アクティベーションキーを使用する場合は '組織' が必要です。"
 
-#: pkg/storaged/fsys-tab.jsx:185
+#: pkg/storaged/fsys-tab.jsx:164
 msgid "(default)"
 msgstr "(デフォルト)"
 
-#: pkg/storaged/crypto-tab.jsx:146
+#: pkg/storaged/crypto-tab.jsx:141
 msgid "(none)"
 msgstr "（なし）"
 
@@ -564,8 +564,8 @@ msgctxt "page-title"
 msgid "Accounts"
 msgstr "アカウント"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:129
-#: pkg/ovirt/components/ClusterVms.jsx:176
+#: pkg/ovirt/components/ClusterTemplates.jsx:138
+#: pkg/ovirt/components/ClusterVms.jsx:170
 msgid "Action"
 msgstr ""
 
@@ -840,6 +840,10 @@ msgstr "使用中のすべてのもの"
 msgid "All running"
 msgstr "実行中のすべてのもの"
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:39
+msgid "All running virtual machines will be turned off."
+msgstr ""
+
 #: pkg/docker/index.html:540 pkg/docker/util.js:106
 msgid "Always"
 msgstr "常時"
@@ -865,8 +869,8 @@ msgstr ""
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
 #: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
-#: pkg/storaged/crypto-tab.jsx:115 pkg/storaged/fsys-tab.jsx:76
-#: pkg/storaged/fsys-tab.jsx:145
+#: pkg/storaged/crypto-tab.jsx:110 pkg/storaged/fsys-tab.jsx:76
+#: pkg/storaged/fsys-tab.jsx:123
 msgid "Apply"
 msgstr "適用"
 
@@ -1045,11 +1049,11 @@ msgstr "passwd1 メカニズムに間違ったデータが渡されました"
 msgid "Balancer"
 msgstr "バランサー"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
 msgid "Base Template"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:74
+#: pkg/ovirt/components/ClusterVms.jsx:75
 msgid "Base template"
 msgstr ""
 
@@ -1161,7 +1165,7 @@ msgstr "CPU 優先度"
 msgid "CPU usage:"
 msgstr "CPU 使用率:"
 
-#: pkg/ovirt/provider.es6:202
+#: pkg/ovirt/provider.es6:210
 msgid "CREATE VM action failed"
 msgstr ""
 
@@ -1218,14 +1222,14 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
 #: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:853
+#: pkg/storaged/index.html:287 pkg/storaged/index.html:868
 #: pkg/systemd/index.html:341 pkg/systemd/index.html:428
 #: pkg/systemd/index.html:480 pkg/systemd/index.html:496
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
 #: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
-#: pkg/ovirt/components/ClusterTemplates.jsx:76
+#: pkg/ovirt/components/ClusterTemplates.jsx:77
 #: pkg/ovirt/components/OVirtTab.jsx:68 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:206
 #: pkg/sosreport/index.js:51
@@ -1410,7 +1414,7 @@ msgstr "クライアント証明書"
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:356 pkg/shell/simple.html:82
 #: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:641
-#: pkg/storaged/index.html:858 pkg/systemd/index.html:287
+#: pkg/storaged/index.html:873 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:109
@@ -1421,16 +1425,15 @@ msgstr "閉じる"
 msgid "Close Selected Pages"
 msgstr "選択されたページを閉じる"
 
-#: pkg/kubernetes/views/auth-form.html:5 pkg/ovirt/components/App.jsx:75
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/kubernetes/views/auth-form.html:5 pkg/ovirt/components/App.jsx:78
 msgid "Cluster"
 msgstr "クラスター"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:127
+#: pkg/ovirt/components/ClusterTemplates.jsx:130
 msgid "Cluster Templates"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:173
+#: pkg/ovirt/components/ClusterVms.jsx:161
 msgid "Cluster Virtual Machines"
 msgstr ""
 
@@ -1668,7 +1671,7 @@ msgstr "$0 の削除を確定してください"
 msgid "Confirm migration"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:165
+#: pkg/storaged/format-dialog.jsx:303
 msgid "Confirm passphrase"
 msgstr "パスフレーズの確認"
 
@@ -1735,7 +1738,7 @@ msgstr "マシンへの接続"
 msgid "Connecting..."
 msgstr "接続中..."
 
-#: pkg/machines/hostvmslist.jsx:476
+#: pkg/machines/hostvmslist.jsx:481
 msgid "Connection"
 msgstr "接続"
 
@@ -1916,7 +1919,7 @@ msgstr "クラッシュシステム"
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:222
-#: pkg/ovirt/components/ClusterTemplates.jsx:77
+#: pkg/ovirt/components/ClusterTemplates.jsx:78
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
 #: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
 #: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
@@ -1960,7 +1963,7 @@ msgstr "タイマーの作成"
 msgid "Create Timers"
 msgstr "タイマーの作成"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:82
+#: pkg/ovirt/components/ClusterTemplates.jsx:83
 msgid "Create VM"
 msgstr ""
 
@@ -1989,11 +1992,11 @@ msgstr "作成"
 msgid "Create new Logical Volume"
 msgstr "新規論理ボリュームの作成"
 
-#: pkg/storaged/format-dialog.jsx:202
+#: pkg/storaged/format-dialog.jsx:317
 msgid "Create partition"
 msgstr "パーティションの作成"
 
-#: pkg/storaged/format-dialog.jsx:39
+#: pkg/storaged/format-dialog.jsx:177
 msgid "Create partition on $0"
 msgstr "$0 上でのパーティションの作成"
 
@@ -2070,17 +2073,25 @@ msgstr "現在の起動"
 msgid "Currently using:"
 msgstr "現在使用中:"
 
-#: pkg/storaged/format-dialog.jsx:184 pkg/storaged/fsys-tab.jsx:126
+#: pkg/storaged/format-dialog.jsx:69
 msgid "Custom"
 msgstr "Custom"
 
-#: pkg/storaged/format-dialog.jsx:112
+#: pkg/storaged/format-dialog.jsx:250
 msgid "Custom (Enter filesystem type)"
 msgstr "カスタム (ファイルシステムタイプの入力)"
 
 #: pkg/subscriptions/subscriptions-register.jsx:102
 msgid "Custom URL"
 msgstr "カスタム URL"
+
+#: pkg/storaged/format-dialog.jsx:151
+msgid "Custom encryption options"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:112
+msgid "Custom mount options"
+msgstr ""
 
 #: pkg/storaged/index.html:452
 msgid "DISK IS FAILING"
@@ -2129,7 +2140,7 @@ msgstr "$target の非アクティブ化"
 #: pkg/docker/index.html:350 pkg/docker/index.html:354
 #: pkg/ostree/index.html:253
 #: node_modules/registry-image-widgets/views/image-config.html:10
-#: pkg/storaged/format-dialog.jsx:183 pkg/storaged/fsys-tab.jsx:125
+#: pkg/storaged/format-dialog.jsx:68
 #: pkg/subscriptions/subscriptions-register.jsx:101
 msgid "Default"
 msgstr "デフォルト"
@@ -2279,9 +2290,9 @@ msgstr "デプロイメント設定"
 #: pkg/kubernetes/views/project-listing.html:54
 #: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:372
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:74
-#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/systemd/init.js:270
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:75
+#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/systemd/init.js:270
 msgid "Description"
 msgstr "説明"
 
@@ -2312,7 +2323,7 @@ msgctxt "storage"
 msgid "Device File"
 msgstr "デバイスファイル"
 
-#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:279
+#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:396
 msgid "Device is read-only"
 msgstr "デバイスは読み取り専用です"
 
@@ -2461,7 +2472,7 @@ msgstr "ドメイン管理者パスワード"
 msgid "Don't Repeat"
 msgstr "繰り返さないでください"
 
-#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:138
+#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:276
 msgid "Don't overwrite existing data"
 msgstr "既存のデータを上書きしないでください"
 
@@ -2524,7 +2535,7 @@ msgstr "重複するエイリアス"
 msgid "Duplicate port"
 msgstr "重複するポート"
 
-#: pkg/storaged/crypto-tab.jsx:140
+#: pkg/storaged/crypto-tab.jsx:135
 msgid "Edit"
 msgstr "編集"
 
@@ -2585,7 +2596,7 @@ msgstr "有効"
 msgid "Encrypted $0"
 msgstr "暗号化されたデータ"
 
-#: pkg/storaged/format-dialog.jsx:106
+#: pkg/storaged/format-dialog.jsx:244
 msgid "Encrypted EXT4 (LUKS)"
 msgstr "暗号化された EXT4 (LUKS)"
 
@@ -2599,7 +2610,7 @@ msgstr "<span>暗号化された $0 の論理ボリューム</span>"
 msgid "Encrypted Partition of $0"
 msgstr "<span>暗号化された $0 のパーティション</span>†"
 
-#: pkg/storaged/format-dialog.jsx:105
+#: pkg/storaged/format-dialog.jsx:243
 msgid "Encrypted XFS (LUKS)"
 msgstr "暗号化された XFS (LUKS)"
 
@@ -2612,7 +2623,7 @@ msgstr "暗号化されたデータ"
 msgid "Encryption"
 msgstr "暗号化"
 
-#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:177
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:139
 msgid "Encryption Options"
 msgstr "暗号化オプション"
 
@@ -2641,7 +2652,7 @@ msgstr "ポリシーの適用:"
 msgid "Enter IP address or host name"
 msgstr "IP アドレスまたはホスト名の入力"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:75
+#: pkg/ovirt/components/ClusterTemplates.jsx:76
 msgid "Enter New VM name"
 msgstr ""
 
@@ -2664,7 +2675,7 @@ msgstr "Entrypoint"
 msgid "Environment"
 msgstr "環境"
 
-#: pkg/storaged/content-views.jsx:484 pkg/storaged/format-dialog.jsx:136
+#: pkg/storaged/content-views.jsx:484 pkg/storaged/format-dialog.jsx:274
 msgid "Erase"
 msgstr "削除"
 
@@ -2752,7 +2763,7 @@ msgstr "期限切れの署名"
 msgid "Expose container ports"
 msgstr "コンテナーポートの公開"
 
-#: pkg/storaged/content-views.jsx:418 pkg/storaged/format-dialog.jsx:109
+#: pkg/storaged/content-views.jsx:418 pkg/storaged/format-dialog.jsx:247
 msgid "Extended Partition"
 msgstr "拡張パーティション"
 
@@ -2843,7 +2854,7 @@ msgstr "ファイルシステム名"
 msgid "Filesystem Type"
 msgstr "ファイルシステムタイプ"
 
-#: pkg/storaged/format-dialog.jsx:151
+#: pkg/storaged/format-dialog.jsx:289
 msgid "Filesystem type"
 msgstr "ファイルシステムタイプ"
 
@@ -2896,12 +2907,12 @@ msgstr "シャットダウンの強制"
 msgid "Force password change"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:202
-#: pkg/storaged/format-dialog.jsx:280
+#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:317
+#: pkg/storaged/format-dialog.jsx:397
 msgid "Format"
 msgstr "フォーマット"
 
-#: pkg/storaged/format-dialog.jsx:41
+#: pkg/storaged/format-dialog.jsx:179
 msgid "Format $0"
 msgstr "$0 のフォーマット"
 
@@ -2913,7 +2924,7 @@ msgstr "ディスク $0 のフォーマット"
 msgid "Formatting a disk will erase all data on it."
 msgstr "ディスクをフォーマットすると、ディスク上のすべてのデータが削除されます。"
 
-#: pkg/storaged/format-dialog.jsx:204
+#: pkg/storaged/format-dialog.jsx:319
 msgid "Formatting a storage device will erase all data on it."
 msgstr "ストレージデバイスをフォーマットすると、そのデバイス上のすべてのデータが削除されます。"
 
@@ -3016,8 +3027,8 @@ msgstr "グループまたはプロジェクト"
 msgid "Groups"
 msgstr "グループ"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:129
-#: pkg/ovirt/components/ClusterVms.jsx:175
+#: pkg/ovirt/components/ClusterTemplates.jsx:138
+#: pkg/ovirt/components/ClusterVms.jsx:169
 msgid "HA"
 msgstr ""
 
@@ -3053,8 +3064,8 @@ msgstr "Hello タイム $hello_time"
 #: pkg/kubernetes/views/details-page.html:73
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
-#: pkg/ovirt/components/App.jsx:72 pkg/ovirt/components/ClusterVms.jsx:56
-#: pkg/ovirt/components/ClusterVms.jsx:175
+#: pkg/ovirt/components/App.jsx:75 pkg/ovirt/components/ClusterVms.jsx:57
+#: pkg/ovirt/components/ClusterVms.jsx:169
 msgid "Host"
 msgstr "ホスト"
 
@@ -3069,6 +3080,10 @@ msgstr "ホストパス"
 #: src/base1/cockpit.js:3948
 msgid "Host key is incorrect"
 msgstr "ホスト鍵が正しくありません"
+
+#: pkg/ovirt/components/HostToMaintenance.jsx:78
+msgid "Host to Maintenance"
+msgstr ""
 
 #: pkg/systemd/services.html:458
 msgid "Hour : Minute"
@@ -3769,7 +3784,7 @@ msgstr "MAC"
 msgid "MAC Address:"
 msgstr "MAC アドレス:"
 
-#: pkg/ovirt/provider.es6:228
+#: pkg/ovirt/provider.es6:237
 msgid "MIGRATE action failed"
 msgstr ""
 
@@ -3868,8 +3883,8 @@ msgstr "メンバーシップ"
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
 #: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "Memory"
 msgstr "メモリ"
 
@@ -3981,8 +3996,8 @@ msgstr "詳細"
 msgid "More information…"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:188
-#: pkg/storaged/fsys-tab.jsx:217
+#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:167
+#: pkg/storaged/fsys-tab.jsx:196
 msgid "Mount"
 msgstr "マウント"
 
@@ -3990,25 +4005,40 @@ msgstr "マウント"
 msgid "Mount Location"
 msgstr "マウント場所"
 
-#: pkg/storaged/format-dialog.jsx:195 pkg/storaged/fsys-tab.jsx:137
-#: pkg/storaged/fsys-tab.jsx:199
+#: pkg/storaged/fsys-tab.jsx:178
 msgid "Mount Options"
 msgstr "マウントオプション"
 
-#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:189
-#: pkg/storaged/fsys-tab.jsx:130 pkg/storaged/fsys-tab.jsx:182
+#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:74
+#: pkg/storaged/fsys-tab.jsx:161
 msgid "Mount Point"
 msgstr "マウントポイント"
+
+#: pkg/storaged/format-dialog.jsx:86
+msgid "Mount at boot"
+msgstr ""
 
 #: pkg/docker/index.html:511
 msgid "Mount container volumes"
 msgstr "マウントコンテナーボリューム"
 
-#: pkg/storaged/fsys-tab.jsx:212
+#: pkg/storaged/format-dialog.jsx:84
+msgid "Mount options"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:81
+msgid "Mount point can not be empty"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:99
+msgid "Mount read only"
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:191
 msgid "Mounted At"
 msgstr "マウント場所"
 
-#: pkg/storaged/format-dialog.jsx:181 pkg/storaged/fsys-tab.jsx:123
+#: pkg/storaged/format-dialog.jsx:66
 msgid "Mounting"
 msgstr "マウント"
 
@@ -4033,7 +4063,7 @@ msgstr "NFS マウント"
 msgid "NSNA Ping"
 msgstr "NSNA Ping"
 
-#: pkg/storaged/format-dialog.jsx:108
+#: pkg/storaged/format-dialog.jsx:246
 msgid "NTFS - Compatible with most systems"
 msgstr "NTFS - 最新システムとの互換性あり"
 
@@ -4071,12 +4101,12 @@ msgstr "NTP サーバー"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:476
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/packagekit/updates.jsx:329
+#: pkg/machines/hostvmslist.jsx:481
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
-#: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
-#: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
+#: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:285
+#: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:151
 #: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/lvol-tabs.jsx:118
 #: pkg/storaged/lvol-tabs.jsx:155 pkg/storaged/lvol-tabs.jsx:192
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
@@ -4212,7 +4242,7 @@ msgstr "遅延なし"
 msgid "No Deployments"
 msgstr "デプロイメントなし"
 
-#: pkg/storaged/format-dialog.jsx:111
+#: pkg/storaged/format-dialog.jsx:249
 msgid "No Filesystem"
 msgstr "ファイルシステムなし"
 
@@ -4240,8 +4270,8 @@ msgstr "このクレームを使用しているポッドがありません"
 msgid "No SELinux alerts."
 msgstr "SELinux アラートがありません。"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:29
-#: pkg/ovirt/components/ClusterVms.jsx:35
+#: pkg/ovirt/components/ClusterTemplates.jsx:30
+#: pkg/ovirt/components/ClusterVms.jsx:36
 msgid "No VM found in oVirt."
 msgstr ""
 
@@ -4554,13 +4584,14 @@ msgstr ""
 msgid "Note"
 msgstr "注記"
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:50
 #: pkg/ovirt/components/VdsmView.jsx:96 pkg/ovirt/components/VdsmView.jsx:109
 msgid "OK"
 msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:13
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "OS"
 msgstr "OS"
 
@@ -4669,8 +4700,7 @@ msgstr "光学ドライブ"
 msgid "Optimized for:"
 msgstr ""
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
-#: pkg/storaged/crypto-tab.jsx:145
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:140
 msgid "Options"
 msgstr "オプション"
 
@@ -4700,7 +4730,7 @@ msgstr "他のオプション"
 msgid "Overview"
 msgstr "概要"
 
-#: pkg/storaged/content-views.jsx:487 pkg/storaged/format-dialog.jsx:139
+#: pkg/storaged/content-views.jsx:487 pkg/storaged/format-dialog.jsx:277
 msgid "Overwrite existing data with zeros"
 msgstr "既存のデータをゼロで上書きする"
 
@@ -4761,15 +4791,15 @@ msgstr "パーティション構成"
 msgid "Passive"
 msgstr "パッシブ"
 
-#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:157
+#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:295
 msgid "Passphrase"
 msgstr "パスフレーズ"
 
-#: pkg/storaged/format-dialog.jsx:160
+#: pkg/storaged/format-dialog.jsx:298
 msgid "Passphrase cannot be empty"
 msgstr "パスフレーズは空にすることができません"
 
-#: pkg/storaged/format-dialog.jsx:168
+#: pkg/storaged/format-dialog.jsx:306
 msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
@@ -4889,6 +4919,10 @@ msgstr "$0 の削除を確定してください"
 msgid "Please confirm forced deletion of $0"
 msgstr "$0 の強制削除を確定してください"
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:37
+msgid "Please confirm, the host shall be switched to maintenance mode."
+msgstr ""
+
 #: pkg/kubernetes/scripts/dashboard.js:440
 msgid "Please create another namespace for $0 \"$1\""
 msgstr "$0 \"$1\" の別の名前空間を作成してください"
@@ -4993,11 +5027,11 @@ msgstr "別の用語を試してください"
 msgid "Please type an address"
 msgstr "アドレスを入力してください"
 
-#: pkg/ovirt/components/ClusterVms.jsx:36
+#: pkg/ovirt/components/ClusterVms.jsx:37
 msgid "Please wait till VMs list is loaded from the server."
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:30
+#: pkg/ovirt/components/ClusterTemplates.jsx:31
 msgid "Please wait till list of templates is loaded from the server."
 msgstr ""
 
@@ -5336,7 +5370,7 @@ msgstr "RAID レベル"
 msgid "RAID Member"
 msgstr "RAID メンバー"
 
-#: pkg/ovirt/provider.es6:137
+#: pkg/ovirt/provider.es6:143
 msgid "REBOOT action failed"
 msgstr ""
 
@@ -5718,7 +5752,7 @@ msgid "Reserved memory"
 msgstr "予約済みメモリー"
 
 #: pkg/docker/index.html:294 pkg/users/index.html:381
-#: pkg/systemd/terminal.jsx:81
+#: pkg/systemd/terminal.jsx:80
 msgid "Reset"
 msgstr "リセット"
 
@@ -5836,11 +5870,11 @@ msgstr "ルート"
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
 #: pkg/systemd/services.html:400 pkg/machines/hostvmslist.jsx:96
-#: pkg/ovirt/components/ClusterVms.jsx:83
+#: pkg/ovirt/components/ClusterVms.jsx:84
 msgid "Run"
 msgstr "実行"
 
-#: pkg/ovirt/components/ClusterVms.jsx:88
+#: pkg/ovirt/components/ClusterVms.jsx:89
 msgid "Run Here"
 msgstr ""
 
@@ -5884,7 +5918,7 @@ msgstr "SELinux はシステムで無効です"
 msgid "SELinux system status is unknown."
 msgstr "SELinux システムステータスが不明です。"
 
-#: pkg/ovirt/provider.es6:89 pkg/ovirt/provider.es6:113
+#: pkg/ovirt/provider.es6:95 pkg/ovirt/provider.es6:119
 msgid "SHUTDOWN action failed"
 msgstr ""
 
@@ -5909,7 +5943,7 @@ msgstr ""
 msgid "SPICE TLS Port:"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:173
+#: pkg/ovirt/provider.es6:179
 msgid "START action failed"
 msgstr ""
 
@@ -5929,7 +5963,7 @@ msgstr "STP メッセージ最大期間"
 msgid "STP Priority"
 msgstr "STP 優先度"
 
-#: pkg/ovirt/provider.es6:248
+#: pkg/ovirt/provider.es6:257
 msgid "SUSPEND action failed"
 msgstr ""
 
@@ -6255,26 +6289,26 @@ msgstr "$0 以降"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/storaged/index.html:230
 #: pkg/docker/containers-view.jsx:587 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:128
+#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:266
 #: pkg/storaged/lvol-tabs.jsx:70 pkg/storaged/lvol-tabs.jsx:122
 #: pkg/storaged/lvol-tabs.jsx:161 pkg/storaged/lvol-tabs.jsx:198
 #: pkg/storaged/part-tab.jsx:41
 msgid "Size"
 msgstr "Size"
 
-#: pkg/storaged/dialog.js:322
+#: pkg/storaged/dialog.js:340
 msgid "Size cannot be negative"
 msgstr "サイズはマイナスにすることができません"
 
-#: pkg/storaged/dialog.js:320
+#: pkg/storaged/dialog.js:338
 msgid "Size cannot be zero"
 msgstr "サイズはゼロにすることができません"
 
-#: pkg/storaged/dialog.js:324
+#: pkg/storaged/dialog.js:342
 msgid "Size is too large"
 msgstr "サイズが大きすぎます"
 
-#: pkg/storaged/dialog.js:318
+#: pkg/storaged/dialog.js:336
 msgid "Size must be a number"
 msgstr "サイズは数値である必要があります"
 
@@ -6383,7 +6417,7 @@ msgstr "開始"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:476 pkg/ovirt/components/ClusterVms.jsx:177
+#: pkg/machines/hostvmslist.jsx:481 pkg/ovirt/components/ClusterVms.jsx:171
 #: pkg/systemd/init.js:275
 msgid "State"
 msgstr "状態"
@@ -6397,8 +6431,8 @@ msgstr "状態"
 msgid "State:"
 msgstr "状態:"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:129
-#: pkg/ovirt/components/ClusterVms.jsx:175
+#: pkg/ovirt/components/ClusterTemplates.jsx:138
+#: pkg/ovirt/components/ClusterVms.jsx:169
 msgid "Stateless"
 msgstr ""
 
@@ -6479,7 +6513,7 @@ msgstr "ストレージプール"
 msgid "Store Performance Data"
 msgstr "パフォーマンスデータの保存"
 
-#: pkg/storaged/format-dialog.jsx:173
+#: pkg/storaged/format-dialog.jsx:311
 msgid "Store passphrase"
 msgstr "パスフレーズの保存"
 
@@ -6487,7 +6521,7 @@ msgstr "パスフレーズの保存"
 msgid "Stored Passphrase"
 msgstr "保存されたパスフレーズ"
 
-#: pkg/storaged/crypto-tab.jsx:139
+#: pkg/storaged/crypto-tab.jsx:134
 msgid "Stored passphrase"
 msgstr "保存されたパスフレーズ"
 
@@ -6524,6 +6558,10 @@ msgstr "スワップ領域"
 msgid "Swap Used"
 msgstr "使用済みスワップ"
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:43
+msgid "Switch Host to Maintenance"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:2380 pkg/networkmanager/interfaces.js:2922
 msgid "Switch off $0"
 msgstr "$0 をオフにする"
@@ -6538,6 +6576,14 @@ msgstr ""
 
 #: pkg/machines/components/graphicsConsole.jsx:70
 msgid "Switch to In-Browser Viewer"
+msgstr ""
+
+#: pkg/ovirt/provider.es6:376
+msgid "Switching host to maintenance mode failed. Received error: "
+msgstr ""
+
+#: pkg/ovirt/provider.es6:362
+msgid "Switching host to maintenance mode in progress ..."
 msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2379
@@ -6656,12 +6702,16 @@ msgstr "チーム設定"
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
 #: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "Template"
 msgstr "テンプレート"
 
-#: pkg/ovirt/components/App.jsx:78
+#: pkg/ovirt/components/App.jsx:81
 msgid "Templates"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:132
+msgid "Templates of $0 cluster"
 msgstr ""
 
 #: pkg/systemd/terminal.html:4
@@ -7005,7 +7055,7 @@ msgstr "このデプロイメントには、現在起動されているシステ
 msgid "This device cannot be managed here."
 msgstr "このデバイスはここで管理できません。"
 
-#: pkg/storaged/index.html:822
+#: pkg/storaged/index.html:837
 msgid ""
 "This device has filesystems that are currently in use.                "
 "Proceeding will unmount all filesystems on it."
@@ -7015,7 +7065,7 @@ msgstr ""
 msgid "This device is currently used for RAID devices."
 msgstr ""
 
-#: pkg/storaged/index.html:840
+#: pkg/storaged/index.html:855
 msgid ""
 "This device is currently used for RAID devices.                Proceeding "
 "will remove it from its RAID devices."
@@ -7025,7 +7075,7 @@ msgstr ""
 msgid "This device is currently used for volume groups."
 msgstr ""
 
-#: pkg/storaged/index.html:831
+#: pkg/storaged/index.html:846
 msgid ""
 "This device is currently used for volume groups.                Proceeding "
 "will remove it from its volume groups."
@@ -7255,7 +7305,7 @@ msgstr "Tuned がオフです"
 #: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
 #: pkg/kubernetes/views/service-body.html:11
 #: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:298
-#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/part-tab.jsx:49
+#: pkg/storaged/format-dialog.jsx:281 pkg/storaged/part-tab.jsx:49
 #: pkg/storaged/unrecognized-tab.jsx:44
 msgid "Type"
 msgstr "タイプ"
@@ -7413,6 +7463,14 @@ msgstr "ロック解除"
 msgid "Unlock Key"
 msgstr "ロック解除キー"
 
+#: pkg/storaged/format-dialog.jsx:141
+msgid "Unlock at boot"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:146
+msgid "Unlock read only"
+msgstr ""
+
 #: pkg/shell/index.html:36
 msgid "Unlocked"
 msgstr "ロック解除済み"
@@ -7429,7 +7487,7 @@ msgstr "未管理のインターフェース"
 msgid "Unmask"
 msgstr "マスク解除"
 
-#: pkg/storaged/fsys-tab.jsx:216
+#: pkg/storaged/fsys-tab.jsx:195
 msgid "Unmount"
 msgstr "アンマウント"
 
@@ -7554,7 +7612,7 @@ msgstr "信頼済み GPG 鍵の使用"
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:315
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/hostvmslist.jsx:352 pkg/machines/hostvmslist.jsx:363
-#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
+#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:204
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1468
 msgid "Used"
 msgstr "Used"
@@ -7612,7 +7670,7 @@ msgstr "ユーザー"
 msgid "Using available credentials"
 msgstr "利用可能な認証情報の使用"
 
-#: pkg/ovirt/components/App.jsx:81
+#: pkg/ovirt/components/App.jsx:84
 msgid "VDSM"
 msgstr ""
 
@@ -7620,7 +7678,7 @@ msgstr ""
 msgid "VDSM Service Management"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:107
+#: pkg/storaged/format-dialog.jsx:245
 msgid "VFAT - Compatible with all systems and devices"
 msgstr "VFAT - すべてのシステムおよびデバイスとの互換性あり"
 
@@ -7701,13 +7759,13 @@ msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:74 pkg/packagekit/updates.jsx:330
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:75 pkg/packagekit/updates.jsx:330
 #: pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "バージョン"
 
-#: pkg/ovirt/components/ClusterVms.jsx:74
+#: pkg/ovirt/components/ClusterVms.jsx:75
 msgid "Version num"
 msgstr ""
 
@@ -7719,9 +7777,13 @@ msgstr "$target を非常に安全に削除"
 msgid "View Registration Details"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:476
+#: pkg/machines/hostvmslist.jsx:481
 msgid "Virtual Machines"
 msgstr "仮想マシン"
+
+#: pkg/ovirt/components/ClusterVms.jsx:163
+msgid "Virtual Machines of $0 cluster"
+msgstr ""
 
 #: pkg/kubernetes/views/pv-page.html:13 pkg/kubernetes/views/pv-panel.html:10
 #: pkg/kubernetes/views/pvc-body.html:6 pkg/machines/vmdiskstab.jsx:55
@@ -7825,7 +7887,7 @@ msgstr "オブジェクトの書き込み"
 msgid "Wrong user name or password"
 msgstr "ユーザー名またはパスワードが間違っています"
 
-#: pkg/storaged/format-dialog.jsx:103
+#: pkg/storaged/format-dialog.jsx:241
 msgid "XFS - Red Hat Enterprise Linux 7 default"
 msgstr "XFS - Red Hat Enterprise Linux 7 のデフォルト値"
 
@@ -7944,7 +8006,7 @@ msgstr ""
 msgid "connecting"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:45
+#: pkg/ovirt/components/ClusterVms.jsx:46
 msgid "cores"
 msgstr ""
 
@@ -7997,7 +8059,7 @@ msgstr ""
 msgid "every day"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:104
+#: pkg/storaged/format-dialog.jsx:242
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
 msgstr "ext4 - Red Hat Enterprise Linux 6 のデフォルト値"
 
@@ -8059,7 +8121,7 @@ msgid "network"
 msgstr "ネットワーク"
 
 #: pkg/kubernetes/views/route-body.html:14 pkg/machines/vmdiskstab.jsx:174
-#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:44
+#: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.es6:44
 msgid "no"
 msgstr "いいえ"
 
@@ -8081,8 +8143,12 @@ msgstr ""
 msgid "none"
 msgstr "なし"
 
-#: pkg/ovirt/provider.es6:55
+#: pkg/ovirt/provider.es6:57
 msgid "oVirt"
+msgstr ""
+
+#: pkg/ovirt/components/HostStatus.jsx:39
+msgid "oVirt Host State:"
 msgstr ""
 
 #: pkg/ovirt/components/InstallationDialog.jsx:38
@@ -8099,7 +8165,7 @@ msgstr ""
 msgid "oVirt installation script failed with following output: "
 msgstr ""
 
-#: pkg/ovirt/components/App.jsx:36
+#: pkg/ovirt/components/App.jsx:39
 msgid "oVirt login in progress"
 msgstr ""
 
@@ -8179,7 +8245,7 @@ msgstr "シャットオフ"
 msgid "shutdown"
 msgstr "shutdown"
 
-#: pkg/ovirt/components/ClusterVms.jsx:45
+#: pkg/ovirt/components/ClusterVms.jsx:46
 msgid "sockets"
 msgstr ""
 
@@ -8195,7 +8261,7 @@ msgstr "ssh 鍵"
 msgid "suspended (PM)"
 msgstr "一時停止中 (PM)"
 
-#: pkg/ovirt/components/ClusterVms.jsx:45
+#: pkg/ovirt/components/ClusterVms.jsx:46
 msgid "threads"
 msgstr ""
 
@@ -8232,8 +8298,8 @@ msgstr "$0 の未パーティション領域"
 msgid "up"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "vCPUs"
 msgstr ""
 
@@ -8246,7 +8312,7 @@ msgid "value"
 msgstr "value"
 
 #: pkg/kubernetes/views/route-body.html:13 pkg/machines/vmdiskstab.jsx:174
-#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:43
+#: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.es6:43
 msgid "yes"
 msgstr "はい"
 

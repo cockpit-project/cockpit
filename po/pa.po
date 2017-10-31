@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-20 11:25+0000\n"
+"POT-Creation-Date: 2017-10-31 08:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -121,7 +121,7 @@ msgstr ""
 
 #: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
 #: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
-#: pkg/storaged/format-dialog.jsx:117
+#: pkg/storaged/format-dialog.jsx:255
 msgid "$0 is in active use"
 msgstr ""
 
@@ -230,11 +230,11 @@ msgstr ""
 msgid "'Organization' required when using activation keys."
 msgstr ""
 
-#: pkg/storaged/fsys-tab.jsx:185
+#: pkg/storaged/fsys-tab.jsx:164
 msgid "(default)"
 msgstr "(ਡਿਲਾਲਟ)"
 
-#: pkg/storaged/crypto-tab.jsx:146
+#: pkg/storaged/crypto-tab.jsx:141
 msgid "(none)"
 msgstr "(ਕੋਈ ਨਹੀਂ)"
 
@@ -580,8 +580,8 @@ msgctxt "page-title"
 msgid "Accounts"
 msgstr "ਖਾਤੇ"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:129
-#: pkg/ovirt/components/ClusterVms.jsx:176
+#: pkg/ovirt/components/ClusterTemplates.jsx:138
+#: pkg/ovirt/components/ClusterVms.jsx:170
 msgid "Action"
 msgstr ""
 
@@ -855,6 +855,10 @@ msgstr ""
 msgid "All running"
 msgstr ""
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:39
+msgid "All running virtual machines will be turned off."
+msgstr ""
+
 #: pkg/docker/index.html:540 pkg/docker/util.js:106
 msgid "Always"
 msgstr ""
@@ -880,8 +884,8 @@ msgstr ""
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
 #: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
-#: pkg/storaged/crypto-tab.jsx:115 pkg/storaged/fsys-tab.jsx:76
-#: pkg/storaged/fsys-tab.jsx:145
+#: pkg/storaged/crypto-tab.jsx:110 pkg/storaged/fsys-tab.jsx:76
+#: pkg/storaged/fsys-tab.jsx:123
 msgid "Apply"
 msgstr ""
 
@@ -1056,11 +1060,11 @@ msgstr ""
 msgid "Balancer"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
 msgid "Base Template"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:74
+#: pkg/ovirt/components/ClusterVms.jsx:75
 msgid "Base template"
 msgstr ""
 
@@ -1171,7 +1175,7 @@ msgstr ""
 msgid "CPU usage:"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:202
+#: pkg/ovirt/provider.es6:210
 msgid "CREATE VM action failed"
 msgstr ""
 
@@ -1228,14 +1232,14 @@ msgstr ""
 #: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
 #: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:853
+#: pkg/storaged/index.html:287 pkg/storaged/index.html:868
 #: pkg/systemd/index.html:341 pkg/systemd/index.html:428
 #: pkg/systemd/index.html:480 pkg/systemd/index.html:496
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
 #: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
 #: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
 #: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
-#: pkg/ovirt/components/ClusterTemplates.jsx:76
+#: pkg/ovirt/components/ClusterTemplates.jsx:77
 #: pkg/ovirt/components/OVirtTab.jsx:68 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:206
 #: pkg/sosreport/index.js:51
@@ -1420,7 +1424,7 @@ msgstr ""
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:356 pkg/shell/simple.html:82
 #: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:641
-#: pkg/storaged/index.html:858 pkg/systemd/index.html:287
+#: pkg/storaged/index.html:873 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:109
@@ -1431,16 +1435,15 @@ msgstr ""
 msgid "Close Selected Pages"
 msgstr ""
 
-#: pkg/kubernetes/views/auth-form.html:5 pkg/ovirt/components/App.jsx:75
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/kubernetes/views/auth-form.html:5 pkg/ovirt/components/App.jsx:78
 msgid "Cluster"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:127
+#: pkg/ovirt/components/ClusterTemplates.jsx:130
 msgid "Cluster Templates"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:173
+#: pkg/ovirt/components/ClusterVms.jsx:161
 msgid "Cluster Virtual Machines"
 msgstr ""
 
@@ -1658,7 +1661,7 @@ msgstr ""
 msgid "Confirm migration"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:165
+#: pkg/storaged/format-dialog.jsx:303
 msgid "Confirm passphrase"
 msgstr ""
 
@@ -1725,7 +1728,7 @@ msgstr ""
 msgid "Connecting..."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:476
+#: pkg/machines/hostvmslist.jsx:481
 msgid "Connection"
 msgstr ""
 
@@ -1905,7 +1908,7 @@ msgstr ""
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:222
-#: pkg/ovirt/components/ClusterTemplates.jsx:77
+#: pkg/ovirt/components/ClusterTemplates.jsx:78
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
 #: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
 #: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
@@ -1948,7 +1951,7 @@ msgstr ""
 msgid "Create Timers"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:82
+#: pkg/ovirt/components/ClusterTemplates.jsx:83
 msgid "Create VM"
 msgstr ""
 
@@ -1977,11 +1980,11 @@ msgstr ""
 msgid "Create new Logical Volume"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:202
+#: pkg/storaged/format-dialog.jsx:317
 msgid "Create partition"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:39
+#: pkg/storaged/format-dialog.jsx:177
 msgid "Create partition on $0"
 msgstr ""
 
@@ -2058,16 +2061,24 @@ msgstr ""
 msgid "Currently using:"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:184 pkg/storaged/fsys-tab.jsx:126
+#: pkg/storaged/format-dialog.jsx:69
 msgid "Custom"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:112
+#: pkg/storaged/format-dialog.jsx:250
 msgid "Custom (Enter filesystem type)"
 msgstr ""
 
 #: pkg/subscriptions/subscriptions-register.jsx:102
 msgid "Custom URL"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:151
+msgid "Custom encryption options"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:112
+msgid "Custom mount options"
 msgstr ""
 
 #: pkg/storaged/index.html:452
@@ -2117,7 +2128,7 @@ msgstr ""
 #: pkg/docker/index.html:350 pkg/docker/index.html:354
 #: pkg/ostree/index.html:253
 #: node_modules/registry-image-widgets/views/image-config.html:10
-#: pkg/storaged/format-dialog.jsx:183 pkg/storaged/fsys-tab.jsx:125
+#: pkg/storaged/format-dialog.jsx:68
 #: pkg/subscriptions/subscriptions-register.jsx:101
 msgid "Default"
 msgstr "ਡਿਫਾਲਟ"
@@ -2266,9 +2277,9 @@ msgstr ""
 #: pkg/kubernetes/views/project-listing.html:54
 #: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:372
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:74
-#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/systemd/init.js:270
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:75
+#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/systemd/init.js:270
 msgid "Description"
 msgstr ""
 
@@ -2299,7 +2310,7 @@ msgctxt "storage"
 msgid "Device File"
 msgstr "ਡਿਵਾਇਸ ਫਾਇਲ"
 
-#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:279
+#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:396
 msgid "Device is read-only"
 msgstr ""
 
@@ -2443,7 +2454,7 @@ msgstr ""
 msgid "Don't Repeat"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:138
+#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:276
 msgid "Don't overwrite existing data"
 msgstr ""
 
@@ -2504,7 +2515,7 @@ msgstr ""
 msgid "Duplicate port"
 msgstr ""
 
-#: pkg/storaged/crypto-tab.jsx:140
+#: pkg/storaged/crypto-tab.jsx:135
 msgid "Edit"
 msgstr ""
 
@@ -2563,7 +2574,7 @@ msgstr ""
 msgid "Encrypted $0"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:106
+#: pkg/storaged/format-dialog.jsx:244
 msgid "Encrypted EXT4 (LUKS)"
 msgstr ""
 
@@ -2575,7 +2586,7 @@ msgstr ""
 msgid "Encrypted Partition of $0"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:105
+#: pkg/storaged/format-dialog.jsx:243
 msgid "Encrypted XFS (LUKS)"
 msgstr ""
 
@@ -2588,7 +2599,7 @@ msgstr ""
 msgid "Encryption"
 msgstr ""
 
-#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:177
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/format-dialog.jsx:139
 msgid "Encryption Options"
 msgstr ""
 
@@ -2617,7 +2628,7 @@ msgstr ""
 msgid "Enter IP address or host name"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:75
+#: pkg/ovirt/components/ClusterTemplates.jsx:76
 msgid "Enter New VM name"
 msgstr ""
 
@@ -2640,7 +2651,7 @@ msgstr ""
 msgid "Environment"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:484 pkg/storaged/format-dialog.jsx:136
+#: pkg/storaged/content-views.jsx:484 pkg/storaged/format-dialog.jsx:274
 msgid "Erase"
 msgstr ""
 
@@ -2728,7 +2739,7 @@ msgstr ""
 msgid "Expose container ports"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:418 pkg/storaged/format-dialog.jsx:109
+#: pkg/storaged/content-views.jsx:418 pkg/storaged/format-dialog.jsx:247
 msgid "Extended Partition"
 msgstr ""
 
@@ -2819,7 +2830,7 @@ msgstr ""
 msgid "Filesystem Type"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:151
+#: pkg/storaged/format-dialog.jsx:289
 msgid "Filesystem type"
 msgstr ""
 
@@ -2872,12 +2883,12 @@ msgstr ""
 msgid "Force password change"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:202
-#: pkg/storaged/format-dialog.jsx:280
+#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:317
+#: pkg/storaged/format-dialog.jsx:397
 msgid "Format"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:41
+#: pkg/storaged/format-dialog.jsx:179
 msgid "Format $0"
 msgstr ""
 
@@ -2889,7 +2900,7 @@ msgstr ""
 msgid "Formatting a disk will erase all data on it."
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:204
+#: pkg/storaged/format-dialog.jsx:319
 msgid "Formatting a storage device will erase all data on it."
 msgstr ""
 
@@ -2992,8 +3003,8 @@ msgstr ""
 msgid "Groups"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:129
-#: pkg/ovirt/components/ClusterVms.jsx:175
+#: pkg/ovirt/components/ClusterTemplates.jsx:138
+#: pkg/ovirt/components/ClusterVms.jsx:169
 msgid "HA"
 msgstr ""
 
@@ -3029,8 +3040,8 @@ msgstr ""
 #: pkg/kubernetes/views/details-page.html:73
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
-#: pkg/ovirt/components/App.jsx:72 pkg/ovirt/components/ClusterVms.jsx:56
-#: pkg/ovirt/components/ClusterVms.jsx:175
+#: pkg/ovirt/components/App.jsx:75 pkg/ovirt/components/ClusterVms.jsx:57
+#: pkg/ovirt/components/ClusterVms.jsx:169
 msgid "Host"
 msgstr ""
 
@@ -3044,6 +3055,10 @@ msgstr ""
 
 #: src/base1/cockpit.js:3948
 msgid "Host key is incorrect"
+msgstr ""
+
+#: pkg/ovirt/components/HostToMaintenance.jsx:78
+msgid "Host to Maintenance"
 msgstr ""
 
 #: pkg/systemd/services.html:458
@@ -3739,7 +3754,7 @@ msgstr ""
 msgid "MAC Address:"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:228
+#: pkg/ovirt/provider.es6:237
 msgid "MIGRATE action failed"
 msgstr ""
 
@@ -3837,8 +3852,8 @@ msgstr ""
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
 #: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "Memory"
 msgstr ""
 
@@ -3949,8 +3964,8 @@ msgstr ""
 msgid "More information…"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:188
-#: pkg/storaged/fsys-tab.jsx:217
+#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:167
+#: pkg/storaged/fsys-tab.jsx:196
 msgid "Mount"
 msgstr ""
 
@@ -3958,25 +3973,40 @@ msgstr ""
 msgid "Mount Location"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:195 pkg/storaged/fsys-tab.jsx:137
-#: pkg/storaged/fsys-tab.jsx:199
+#: pkg/storaged/fsys-tab.jsx:178
 msgid "Mount Options"
 msgstr ""
 
-#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:189
-#: pkg/storaged/fsys-tab.jsx:130 pkg/storaged/fsys-tab.jsx:182
+#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:74
+#: pkg/storaged/fsys-tab.jsx:161
 msgid "Mount Point"
 msgstr "ਮਾਊਸ ਪੁਆਇੰਟ"
+
+#: pkg/storaged/format-dialog.jsx:86
+msgid "Mount at boot"
+msgstr ""
 
 #: pkg/docker/index.html:511
 msgid "Mount container volumes"
 msgstr ""
 
-#: pkg/storaged/fsys-tab.jsx:212
+#: pkg/storaged/format-dialog.jsx:84
+msgid "Mount options"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:81
+msgid "Mount point can not be empty"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:99
+msgid "Mount read only"
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:191
 msgid "Mounted At"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:181 pkg/storaged/fsys-tab.jsx:123
+#: pkg/storaged/format-dialog.jsx:66
 msgid "Mounting"
 msgstr ""
 
@@ -4001,7 +4031,7 @@ msgstr ""
 msgid "NSNA Ping"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:108
+#: pkg/storaged/format-dialog.jsx:246
 msgid "NTFS - Compatible with most systems"
 msgstr ""
 
@@ -4039,12 +4069,12 @@ msgstr ""
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:476
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174 pkg/packagekit/updates.jsx:329
+#: pkg/machines/hostvmslist.jsx:481
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/packagekit/updates.jsx:329
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
-#: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
-#: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
+#: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:285
+#: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:151
 #: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/lvol-tabs.jsx:118
 #: pkg/storaged/lvol-tabs.jsx:155 pkg/storaged/lvol-tabs.jsx:192
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
@@ -4180,7 +4210,7 @@ msgstr ""
 msgid "No Deployments"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:111
+#: pkg/storaged/format-dialog.jsx:249
 msgid "No Filesystem"
 msgstr ""
 
@@ -4208,8 +4238,8 @@ msgstr ""
 msgid "No SELinux alerts."
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:29
-#: pkg/ovirt/components/ClusterVms.jsx:35
+#: pkg/ovirt/components/ClusterTemplates.jsx:30
+#: pkg/ovirt/components/ClusterVms.jsx:36
 msgid "No VM found in oVirt."
 msgstr ""
 
@@ -4517,13 +4547,14 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:50
 #: pkg/ovirt/components/VdsmView.jsx:96 pkg/ovirt/components/VdsmView.jsx:109
 msgid "OK"
 msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:13
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "OS"
 msgstr ""
 
@@ -4633,8 +4664,7 @@ msgstr ""
 msgid "Optimized for:"
 msgstr ""
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
-#: pkg/storaged/crypto-tab.jsx:145
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:140
 msgid "Options"
 msgstr ""
 
@@ -4664,7 +4694,7 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:487 pkg/storaged/format-dialog.jsx:139
+#: pkg/storaged/content-views.jsx:487 pkg/storaged/format-dialog.jsx:277
 msgid "Overwrite existing data with zeros"
 msgstr ""
 
@@ -4722,15 +4752,15 @@ msgstr ""
 msgid "Passive"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:157
+#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:295
 msgid "Passphrase"
 msgstr "ਵਾਕ"
 
-#: pkg/storaged/format-dialog.jsx:160
+#: pkg/storaged/format-dialog.jsx:298
 msgid "Passphrase cannot be empty"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:168
+#: pkg/storaged/format-dialog.jsx:306
 msgid "Passphrases do not match"
 msgstr ""
 
@@ -4850,6 +4880,10 @@ msgstr ""
 msgid "Please confirm forced deletion of $0"
 msgstr ""
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:37
+msgid "Please confirm, the host shall be switched to maintenance mode."
+msgstr ""
+
 #: pkg/kubernetes/scripts/dashboard.js:440
 msgid "Please create another namespace for $0 \"$1\""
 msgstr ""
@@ -4954,11 +4988,11 @@ msgstr ""
 msgid "Please type an address"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:36
+#: pkg/ovirt/components/ClusterVms.jsx:37
 msgid "Please wait till VMs list is loaded from the server."
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:30
+#: pkg/ovirt/components/ClusterTemplates.jsx:31
 msgid "Please wait till list of templates is loaded from the server."
 msgstr ""
 
@@ -5297,7 +5331,7 @@ msgstr ""
 msgid "RAID Member"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:137
+#: pkg/ovirt/provider.es6:143
 msgid "REBOOT action failed"
 msgstr ""
 
@@ -5679,7 +5713,7 @@ msgid "Reserved memory"
 msgstr ""
 
 #: pkg/docker/index.html:294 pkg/users/index.html:381
-#: pkg/systemd/terminal.jsx:81
+#: pkg/systemd/terminal.jsx:80
 msgid "Reset"
 msgstr ""
 
@@ -5794,11 +5828,11 @@ msgstr ""
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
 #: pkg/systemd/services.html:400 pkg/machines/hostvmslist.jsx:96
-#: pkg/ovirt/components/ClusterVms.jsx:83
+#: pkg/ovirt/components/ClusterVms.jsx:84
 msgid "Run"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:88
+#: pkg/ovirt/components/ClusterVms.jsx:89
 msgid "Run Here"
 msgstr ""
 
@@ -5842,7 +5876,7 @@ msgstr ""
 msgid "SELinux system status is unknown."
 msgstr ""
 
-#: pkg/ovirt/provider.es6:89 pkg/ovirt/provider.es6:113
+#: pkg/ovirt/provider.es6:95 pkg/ovirt/provider.es6:119
 msgid "SHUTDOWN action failed"
 msgstr ""
 
@@ -5866,7 +5900,7 @@ msgstr ""
 msgid "SPICE TLS Port:"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:173
+#: pkg/ovirt/provider.es6:179
 msgid "START action failed"
 msgstr ""
 
@@ -5886,7 +5920,7 @@ msgstr ""
 msgid "STP Priority"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:248
+#: pkg/ovirt/provider.es6:257
 msgid "SUSPEND action failed"
 msgstr ""
 
@@ -6208,26 +6242,26 @@ msgstr "$0 ਤੋਂ"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/storaged/index.html:230
 #: pkg/docker/containers-view.jsx:587 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:128
+#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:266
 #: pkg/storaged/lvol-tabs.jsx:70 pkg/storaged/lvol-tabs.jsx:122
 #: pkg/storaged/lvol-tabs.jsx:161 pkg/storaged/lvol-tabs.jsx:198
 #: pkg/storaged/part-tab.jsx:41
 msgid "Size"
 msgstr "ਆਕਾਰ"
 
-#: pkg/storaged/dialog.js:322
+#: pkg/storaged/dialog.js:340
 msgid "Size cannot be negative"
 msgstr "ਆਕਾਰ ਸਿਫ਼ਰ ਤੋਂ ਘੱਟ ਨਹੀਂ ਹੋ ਸਕਦਾ"
 
-#: pkg/storaged/dialog.js:320
+#: pkg/storaged/dialog.js:338
 msgid "Size cannot be zero"
 msgstr "ਆਕਾਰ ਸਿਫ਼ਰ ਨਹੀਂ ਹੋ ਸਕਦਾ"
 
-#: pkg/storaged/dialog.js:324
+#: pkg/storaged/dialog.js:342
 msgid "Size is too large"
 msgstr "ਆਕਾਰ ਬਹੁਤ ਵੱਡਾ ਹੈ"
 
-#: pkg/storaged/dialog.js:318
+#: pkg/storaged/dialog.js:336
 msgid "Size must be a number"
 msgstr "ਆਕਾਰ ਨੰਬਰ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ"
 
@@ -6336,7 +6370,7 @@ msgstr ""
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:476 pkg/ovirt/components/ClusterVms.jsx:177
+#: pkg/machines/hostvmslist.jsx:481 pkg/ovirt/components/ClusterVms.jsx:171
 #: pkg/systemd/init.js:275
 msgid "State"
 msgstr "ਹਾਲਤ"
@@ -6350,8 +6384,8 @@ msgstr "ਹਾਲਤ"
 msgid "State:"
 msgstr "ਹਾਲਤ:"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:129
-#: pkg/ovirt/components/ClusterVms.jsx:175
+#: pkg/ovirt/components/ClusterTemplates.jsx:138
+#: pkg/ovirt/components/ClusterVms.jsx:169
 msgid "Stateless"
 msgstr ""
 
@@ -6432,7 +6466,7 @@ msgstr "ਸਟੋਰੇਜ਼ ਪੂਲ"
 msgid "Store Performance Data"
 msgstr "ਸਟੋਰੇਜ਼ ਕਾਰਗੁਜ਼ਾਰੀ ਡਾਟਾ"
 
-#: pkg/storaged/format-dialog.jsx:173
+#: pkg/storaged/format-dialog.jsx:311
 msgid "Store passphrase"
 msgstr "ਵਾਕ ਨੂੰ ਸੰਭਾਲੋ"
 
@@ -6440,7 +6474,7 @@ msgstr "ਵਾਕ ਨੂੰ ਸੰਭਾਲੋ"
 msgid "Stored Passphrase"
 msgstr "ਵਾਕ ਸੰਭਾਲਿਆ"
 
-#: pkg/storaged/crypto-tab.jsx:139
+#: pkg/storaged/crypto-tab.jsx:134
 msgid "Stored passphrase"
 msgstr "ਵਾਕ ਸੰਭਾਲਿਆ"
 
@@ -6477,6 +6511,10 @@ msgstr "ਸਵੈਪ ਥਾਂ"
 msgid "Swap Used"
 msgstr "ਵਰਤੀ ਗਈ ਸਵੈਪ"
 
+#: pkg/ovirt/components/HostToMaintenance.jsx:43
+msgid "Switch Host to Maintenance"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:2380 pkg/networkmanager/interfaces.js:2922
 msgid "Switch off $0"
 msgstr "$0 ਨੂੰ ਬੰਦ ਕਰੋ"
@@ -6491,6 +6529,14 @@ msgstr ""
 
 #: pkg/machines/components/graphicsConsole.jsx:70
 msgid "Switch to In-Browser Viewer"
+msgstr ""
+
+#: pkg/ovirt/provider.es6:376
+msgid "Switching host to maintenance mode failed. Received error: "
+msgstr ""
+
+#: pkg/ovirt/provider.es6:362
+msgid "Switching host to maintenance mode in progress ..."
 msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2379
@@ -6609,12 +6655,16 @@ msgstr ""
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
 #: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "Template"
 msgstr ""
 
-#: pkg/ovirt/components/App.jsx:78
+#: pkg/ovirt/components/App.jsx:81
 msgid "Templates"
+msgstr ""
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:132
+msgid "Templates of $0 cluster"
 msgstr ""
 
 #: pkg/systemd/terminal.html:4
@@ -6953,7 +7003,7 @@ msgstr ""
 msgid "This device cannot be managed here."
 msgstr ""
 
-#: pkg/storaged/index.html:822
+#: pkg/storaged/index.html:837
 msgid ""
 "This device has filesystems that are currently in use.                "
 "Proceeding will unmount all filesystems on it."
@@ -6963,7 +7013,7 @@ msgstr ""
 msgid "This device is currently used for RAID devices."
 msgstr ""
 
-#: pkg/storaged/index.html:840
+#: pkg/storaged/index.html:855
 msgid ""
 "This device is currently used for RAID devices.                Proceeding "
 "will remove it from its RAID devices."
@@ -6973,7 +7023,7 @@ msgstr ""
 msgid "This device is currently used for volume groups."
 msgstr ""
 
-#: pkg/storaged/index.html:831
+#: pkg/storaged/index.html:846
 msgid ""
 "This device is currently used for volume groups.                Proceeding "
 "will remove it from its volume groups."
@@ -7198,7 +7248,7 @@ msgstr ""
 #: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
 #: pkg/kubernetes/views/service-body.html:11
 #: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:298
-#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/part-tab.jsx:49
+#: pkg/storaged/format-dialog.jsx:281 pkg/storaged/part-tab.jsx:49
 #: pkg/storaged/unrecognized-tab.jsx:44
 msgid "Type"
 msgstr "ਕਿਸਮ"
@@ -7356,6 +7406,14 @@ msgstr ""
 msgid "Unlock Key"
 msgstr ""
 
+#: pkg/storaged/format-dialog.jsx:141
+msgid "Unlock at boot"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:146
+msgid "Unlock read only"
+msgstr ""
+
 #: pkg/shell/index.html:36
 msgid "Unlocked"
 msgstr ""
@@ -7372,7 +7430,7 @@ msgstr ""
 msgid "Unmask"
 msgstr ""
 
-#: pkg/storaged/fsys-tab.jsx:216
+#: pkg/storaged/fsys-tab.jsx:195
 msgid "Unmount"
 msgstr ""
 
@@ -7494,7 +7552,7 @@ msgstr ""
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:315
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/hostvmslist.jsx:352 pkg/machines/hostvmslist.jsx:363
-#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
+#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:204
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1468
 msgid "Used"
 msgstr ""
@@ -7552,7 +7610,7 @@ msgstr "ਵਰਤੋਂਕਾਰ"
 msgid "Using available credentials"
 msgstr ""
 
-#: pkg/ovirt/components/App.jsx:81
+#: pkg/ovirt/components/App.jsx:84
 msgid "VDSM"
 msgstr ""
 
@@ -7560,7 +7618,7 @@ msgstr ""
 msgid "VDSM Service Management"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:107
+#: pkg/storaged/format-dialog.jsx:245
 msgid "VFAT - Compatible with all systems and devices"
 msgstr ""
 
@@ -7639,13 +7697,13 @@ msgstr ""
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:74 pkg/packagekit/updates.jsx:330
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:75 pkg/packagekit/updates.jsx:330
 #: pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "ਵਰਜ਼ਨ"
 
-#: pkg/ovirt/components/ClusterVms.jsx:74
+#: pkg/ovirt/components/ClusterVms.jsx:75
 msgid "Version num"
 msgstr ""
 
@@ -7657,9 +7715,13 @@ msgstr ""
 msgid "View Registration Details"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:476
+#: pkg/machines/hostvmslist.jsx:481
 msgid "Virtual Machines"
 msgstr "ਵਰਚੁਅਲ ਮਸ਼ੀਨਾਂ"
+
+#: pkg/ovirt/components/ClusterVms.jsx:163
+msgid "Virtual Machines of $0 cluster"
+msgstr ""
 
 #: pkg/kubernetes/views/pv-page.html:13 pkg/kubernetes/views/pv-panel.html:10
 #: pkg/kubernetes/views/pvc-body.html:6 pkg/machines/vmdiskstab.jsx:55
@@ -7763,7 +7825,7 @@ msgstr ""
 msgid "Wrong user name or password"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:103
+#: pkg/storaged/format-dialog.jsx:241
 msgid "XFS - Red Hat Enterprise Linux 7 default"
 msgstr ""
 
@@ -7880,7 +7942,7 @@ msgstr ""
 msgid "connecting"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:45
+#: pkg/ovirt/components/ClusterVms.jsx:46
 msgid "cores"
 msgstr ""
 
@@ -7932,7 +7994,7 @@ msgstr ""
 msgid "every day"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:104
+#: pkg/storaged/format-dialog.jsx:242
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
 msgstr ""
 
@@ -7993,7 +8055,7 @@ msgid "network"
 msgstr ""
 
 #: pkg/kubernetes/views/route-body.html:14 pkg/machines/vmdiskstab.jsx:174
-#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:44
+#: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.es6:44
 msgid "no"
 msgstr ""
 
@@ -8015,8 +8077,12 @@ msgstr ""
 msgid "none"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:55
+#: pkg/ovirt/provider.es6:57
 msgid "oVirt"
+msgstr ""
+
+#: pkg/ovirt/components/HostStatus.jsx:39
+msgid "oVirt Host State:"
 msgstr ""
 
 #: pkg/ovirt/components/InstallationDialog.jsx:38
@@ -8033,7 +8099,7 @@ msgstr ""
 msgid "oVirt installation script failed with following output: "
 msgstr ""
 
-#: pkg/ovirt/components/App.jsx:36
+#: pkg/ovirt/components/App.jsx:39
 msgid "oVirt login in progress"
 msgstr ""
 
@@ -8113,7 +8179,7 @@ msgstr ""
 msgid "shutdown"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:45
+#: pkg/ovirt/components/ClusterVms.jsx:46
 msgid "sockets"
 msgstr ""
 
@@ -8129,7 +8195,7 @@ msgstr "ssh ਕੁੰਜੀ"
 msgid "suspended (PM)"
 msgstr "ਸਸਪੈਂਡ (PM)"
 
-#: pkg/ovirt/components/ClusterVms.jsx:45
+#: pkg/ovirt/components/ClusterVms.jsx:46
 msgid "threads"
 msgstr ""
 
@@ -8166,8 +8232,8 @@ msgstr ""
 msgid "up"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-#: pkg/ovirt/components/ClusterVms.jsx:174
+#: pkg/ovirt/components/ClusterTemplates.jsx:137
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "vCPUs"
 msgstr ""
 
@@ -8180,7 +8246,7 @@ msgid "value"
 msgstr "ਮੁੱਲ"
 
 #: pkg/kubernetes/views/route-body.html:13 pkg/machines/vmdiskstab.jsx:174
-#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:43
+#: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.es6:43
 msgid "yes"
 msgstr "ਹਾਂ"
 

@@ -469,6 +469,21 @@
     };
 
 
+    utils.get_parent = function(client, path) {
+        if (client.blocks_part[path] && client.blocks[client.blocks_part[path].Table])
+            return client.blocks_part[path].Table;
+        if (client.blocks_crypto[path] && client.blocks[client.blocks_crypto[path].CryptoBackingDevice])
+            return client.blocks_crypto[path].CryptoBackingDevice;
+        if (client.blocks[path] && client.drives[client.blocks[path].Drive])
+            return client.blocks[path].Drive;
+        if (client.blocks[path] && client.mdraids[client.blocks[path].MDRaid])
+            return client.blocks[path].MDRaid;
+        if (client.blocks_lvm2[path] && client.lvols[client.blocks_lvm2[path].LogicalVolume])
+            return client.blocks_lvm2[path].LogicalVolume;
+        if (client.lvols[path] && client.vgroups[client.lvols[path].VolumeGroup])
+            return client.lvols[path].VolumeGroup;
+    };
+
     function get_children(client, path) {
         var children = [ ];
 

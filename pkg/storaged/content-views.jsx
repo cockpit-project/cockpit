@@ -330,7 +330,7 @@ function block_description(client, block) {
     };
 }
 
-function append_row(rows, level, key, name, desc, tabs, job_object) {
+function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     // Except in a very few cases, we don't both have a button and
     // a spinner in the same row, so we put them in the same
     // place.
@@ -339,8 +339,7 @@ function append_row(rows, level, key, name, desc, tabs, job_object) {
     if (job_object)
         last_column = (
             <span className="spinner spinner-sm spinner-inline"
-                  style={{visibility: "hidden"}}
-                  data-job-object={job_object}>
+                  style={{visibility: client.path_jobs[job_object]? "visible" : "hidden"}}>
             </span>);
     if (tabs.row_action) {
         if (last_column) {
@@ -375,7 +374,7 @@ function append_non_partitioned_block(client, rows, level, block, is_partition) 
     tabs = create_tabs(client, block, is_partition);
     desc = block_description(client, block);
 
-    append_row(rows, level, block.path, utils.block_name(block), desc, tabs, block.path);
+    append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path);
 
     if (cleartext_block)
         append_device(client, rows, level+1, cleartext_block);
@@ -417,7 +416,7 @@ function append_partitions(client, rows, level, block) {
             text: _("Extended Partition")
         };
         var tabs = create_tabs(client, partition.block, true);
-        append_row(rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
+        append_row(client, rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
         process_partitions(level + 1, partition.partitions);
     }
 
@@ -536,7 +535,7 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
             text: lvol.Name
         };
         tabs = create_tabs(client, block, false);
-        append_row(rows, level, lvol.Name, utils.block_name(block), desc, tabs, block.path);
+        append_row(client, rows, level, lvol.Name, utils.block_name(block), desc, tabs, block.path);
         append_partitions(client, rows, level+1, block);
     } else {
         append_non_partitioned_block (client, rows, level, block, false);
@@ -552,7 +551,7 @@ function append_logical_volume(client, rows, level, lvol) {
             text: _("Pool for Thin Volumes")
         };
         tabs = create_tabs (client, lvol, false);
-        append_row(rows, level, lvol.Name, lvol.Name, desc, tabs, false);
+        append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
         client.lvols_pool_members[lvol.path].forEach(function (member_lvol) {
             append_logical_volume (client, rows, level+1, member_lvol);
         });
@@ -571,7 +570,7 @@ function append_logical_volume(client, rows, level, lvol) {
                 text: lvol.Active? _("Unsupported volume") : _("Inactive volume")
             }
             tabs = create_tabs (client, lvol, false);
-            append_row(rows, level, lvol.Name, lvol.Name, desc, tabs, false);
+            append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
         }
     }
 }

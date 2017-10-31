@@ -42,28 +42,13 @@
 
             $(parent).find('[data-job-object]').css('visibility', 'hidden');
 
-            function get_parent(path) {
-                if (client.blocks_part[path] && client.blocks[client.blocks_part[path].Table])
-                    return client.blocks_part[path].Table;
-                if (client.blocks_crypto[path] && client.blocks[client.blocks_crypto[path].CryptoBackingDevice])
-                    return client.blocks_crypto[path].CryptoBackingDevice;
-                if (client.blocks[path] && client.drives[client.blocks[path].Drive])
-                    return client.blocks[path].Drive;
-                if (client.blocks[path] && client.mdraids[client.blocks[path].MDRaid])
-                    return client.blocks[path].MDRaid;
-                if (client.blocks_lvm2[path] && client.lvols[client.blocks_lvm2[path].LogicalVolume])
-                    return client.blocks_lvm2[path].LogicalVolume;
-                if (client.lvols[path] && client.vgroups[client.lvols[path].VolumeGroup])
-                    return client.lvols[path].VolumeGroup;
-            }
-
             function show_spinners_for_path(path) {
                 $(parent).find('[data-job-object="' + path + '"]').css('visibility', 'visible');
             }
 
             function show_spinners_for_object(path) {
                 show_spinners_for_path(path);
-                var parent = get_parent(path);
+                var parent = utils.get_parent(client, path);
                 if (parent)
                     show_spinners_for_object(parent);
             }

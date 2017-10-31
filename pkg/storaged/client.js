@@ -325,6 +325,19 @@
         for (path in client.blocks_partitions) {
             client.blocks_partitions[path].sort(function (a, b) { return a.Offset - b.Offset; });
         }
+
+        client.path_jobs = { };
+        function enter_job(job) {
+            job.Objects.forEach(function (path) {
+                while (path) {
+                    client.path_jobs[path] = job;
+                    path = utils.get_parent(client, path);
+                }
+            });
+        }
+        for (path in client.jobs) {
+            enter_job(client.jobs[path]);
+        }
     }
 
     function init_model(callback) {

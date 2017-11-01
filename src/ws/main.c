@@ -72,19 +72,22 @@ setup_static_roots (GHashTable *os_release)
   gchar **roots;
   const gchar *os_variant_id;
   const gchar *os_id;
+  const gchar *os_id_like;
 
   if (os_release)
     {
       os_id = g_hash_table_lookup (os_release, "ID");
       os_variant_id = g_hash_table_lookup (os_release, "VARIANT_ID");
+      os_id_like = g_hash_table_lookup (os_release, "ID_LIKE");
     }
   else
     {
       os_id = NULL;
       os_variant_id = NULL;
+      os_id_like = NULL;
     }
 
-  roots = cockpit_branding_calculate_static_roots (os_id, os_variant_id, TRUE);
+  roots = cockpit_branding_calculate_static_roots (os_id, os_variant_id, os_id_like, TRUE);
 
   /* Load the fail template */
   g_resources_register (cockpitassets_get_resource ());

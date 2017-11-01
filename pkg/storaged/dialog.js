@@ -166,9 +166,12 @@
             var round = parent.data('round');
 
             value *= max;
-            if (round)
-                value = Math.round(value / round) * round;
-
+            if (round) {
+                if (typeof round == "function")
+                    value = round (value);
+                else
+                    value = Math.round(value / round) * round;
+            }
             if (value < 0)
                 value = 0;
             if (value > max)

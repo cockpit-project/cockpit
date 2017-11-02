@@ -22,7 +22,6 @@
 var cockpit = require("cockpit");
 var dialog = require("./dialog");
 var utils = require("./utils.js");
-var $ = require("jquery");
 
 var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
@@ -49,57 +48,150 @@ function lvol_rename(lvol) {
     });
 }
 
-function lvol_resize(client, lvol) {
+function lvol_and_fsys_resize(client, lvol, size, offline) {
+    var block, crypto, fsys;
+    var crypto_overhead;
+    var vdo;
+    var orig_size = lvol.Size;
+
+    block = client.lvols_block[lvol.path];
+    if (!block)
+        return lvol.Resize(size, { });
+
+    crypto = client.blocks_crypto[block.path];
+    if (crypto) {
+        var cleartext = client.blocks_cleartext[block.path];
+        if (!cleartext)
+            return;
+        fsys = client.blocks_fsys[cleartext.path];
+        vdo = client.vdo_overlay.find_by_backing_block(cleartext);
+        crypto_overhead = block.Size - cleartext.Size;
+    } else {
+        fsys = client.blocks_fsys[block.path];
+        vdo = client.vdo_overlay.find_by_backing_block(block);
+        crypto_overhead = 0;
+    }
+
+    function fsys_resize() {
+        if (fsys) {
+            // When doing an offline resize, we need to first repair the filesystem.
+            if (offline) {
+                return fsys.Repair({ }).then(function () { return fsys.Resize(size - crypto_overhead, { }); });
+            } else {
+                return fsys.Resize(size - crypto_overhead, { });
+            }
+        } else if (size < orig_size) {
+            // This shouldn't happen.  But if it does, continuing is harmful, so we throw an error.
+            console.warn("Trying to shrink unrecognized content.  Ignored.");
+            return cockpit.reject();
+        } else if (vdo) {
+            return vdo.grow_physical();
+        } else {
+            // Growing unrecognized content, nothing to do.
+            return cockpit.resolve();
+        }
+    }
+
+    function crypto_resize() {
+        if (crypto) {
+            return crypto.Resize(size - crypto_overhead, { });
+        } else {
+            return cockpit.resolve();
+        }
+    }
+
+    function lvm_resize() {
+        return lvol.Resize(size, { });
+    }
+
+    if (fsys && !fsys.Resize) {
+        // Fallback for old versions of UDisks.  This doesn't handle encrypted volumes.
+        if (size != orig_size) {
+            return lvol.Resize(size, { resize_fsys: { t: 'b', v: true } });
+        }
+    } else {
+        if (size < orig_size) {
+            return fsys_resize().then(crypto_resize).then(lvm_resize);
+        } else if (size > orig_size) {
+            return lvm_resize().then(crypto_resize).then(fsys_resize);
+        }
+    }
+}
+
+function lvol_grow(client, lvol, info) {
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
     var pool = client.lvols[lvol.ThinPool];
 
-    /* Resizing is only safe when lvol has a filesystem
-       and that filesystem is resized at the same time.
+    var usage = utils.get_active_usage(client, block && info.grow_needs_unmount? block.path : null);
 
-       So we always resize the filesystem for lvols that
-       have one, and refuse to shrink otherwise.
+    if (usage.Blocking) {
+        dialog.open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+                      Blocking: usage.Blocking,
+                      Fields: [ ]
+        });
+        return;
+    }
 
-       Note that shrinking a filesystem will not always
-       succeed, but it is never dangerous.
-     */
-
-    dialog.open({ Title: _("Resize Logical Volume"),
+    dialog.open({ Title: _("Grow Logical Volume"),
+                  Teardown: usage.Teardown,
                   Fields: [
                       { SizeSlider: "size",
                         Title: _("Size"),
                         Value: lvol.Size,
+                        Min: lvol.Size,
                         Max: (pool ?
                               pool.Size * 3 :
                               lvol.Size + vgroup.FreeSize),
                         AllowInfinite: !!pool,
                         Round: vgroup.ExtentSize
-                      },
-                      { CheckBox: "fsys",
-                        Title: _("Resize Filesystem"),
-                        Value: block && block.IdUsage == "filesystem",
-                        visible: function () {
-                            return lvol.Type == "block";
-                        }
                       }
                   ],
                   Action: {
-                      Title: _("Resize"),
+                      Title: _("Grow"),
                       action: function (vals) {
+                          return utils.teardown_active_usage(client, usage).
+                                       then(function () {
+                                           return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                       info.grow_needs_unmount);
+                                       });
+                      }
+                  }
+    });
+}
 
-                          function error(msg) {
-                              return $.Deferred().reject({ message: msg }).promise();
-                          }
+function lvol_shrink(client, lvol, info) {
+    var block = client.lvols_block[lvol.path];
+    var vgroup = client.vgroups[lvol.VolumeGroup];
 
-                          var fsys = (block && block.IdUsage == "filesystem");
-                          if (!fsys && vals.size < lvol.Size)
-                              return error(_("This logical volume cannot be made smaller."));
+    var usage = utils.get_active_usage(client, block && info.shrink_needs_unmount? block.path : null);
 
-                          var options = { };
-                          if (fsys)
-                              options.resize_fsys = { t: 'b', v: fsys };
+    if (usage.Blocking) {
+        dialog.open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+                      Blocking: usage.Blocking,
+                      Fields: [ ]
+        });
+        return;
+    }
 
-                          return lvol.Resize(vals.size, options);
+    dialog.open({ Title: _("Shrink Logical Volume"),
+                  Teardown: usage.Teardown,
+                  Fields: [
+                      { SizeSlider: "size",
+                        Title: _("Size"),
+                        Value: lvol.Size,
+                        Max: lvol.Size,
+                        Round: vgroup.ExtentSize
+                      }
+                  ],
+                  Action: {
+                      Title: _("Shrink"),
+                      action: function (vals) {
+                          return utils.teardown_active_usage(client, usage).
+                                       then(function () {
+                                           return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                       info.shrink_needs_unmount);
+                                       });
                       }
                   }
     });
@@ -108,8 +200,11 @@ function lvol_resize(client, lvol) {
 var BlockVolTab = React.createClass({
     render: function () {
         var self = this;
+        var client = self.props.client;
         var lvol = self.props.lvol;
-        var vgroup = self.props.client.vgroups[lvol.VolumeGroup];
+        var pool = client.lvols[lvol.ThinPool];
+        var block = client.lvols_block[lvol.path];
+        var vgroup = client.vgroups[lvol.VolumeGroup];
 
         function create_snapshot() {
             dialog.open({ Title: _("Create Snapshot"),
@@ -141,8 +236,67 @@ var BlockVolTab = React.createClass({
             lvol_rename(lvol);
         }
 
-        function resize() {
-            lvol_resize(self.props.client, lvol);
+        function get_info(block) {
+            if (block) {
+                if (block.IdUsage == 'crypto' && client.blocks_crypto[block.path]) {
+                    var encrypted = client.blocks_crypto[block.path];
+                    var cleartext = client.blocks_cleartext[block.path];
+
+                    if (!encrypted.Resize) {
+                        info = { };
+                        shrink_excuse = grow_excuse = _("Encrypted volumes can not be resized here.");
+                    } else if (!cleartext) {
+                        info = { };
+                        shrink_excuse = grow_excuse = _("Encrypted volumes need to be unlocked before they can be resized.");
+                    } else {
+                        return get_info(cleartext);
+                    }
+                } else if (block.IdUsage == 'filesystem' && client.fsys_info[block.IdType]) {
+                    info = client.fsys_info[block.IdType];
+                    if (!info.can_shrink)
+                        shrink_excuse = cockpit.format(_("$0 filesystems can not be made smaller."),
+                                                       block.IdType);
+                    if (!info.can_grow)
+                        grow_excuse = cockpit.format(_("$0 filesystems can not be made larger."),
+                                                     block.IdType);
+                } else if (block.IdUsage == 'raid') {
+                    info = { };
+                    shrink_excuse = grow_excuse = _("Physical volumes can not be resized here.");
+                } else if (client.vdo_overlay.find_by_backing_block (block)) {
+                    info = {
+                        can_shrink: false,
+                        can_grow: true,
+                        grow_needs_unmount: false
+                    };
+                    shrink_excuse = _("VDO backing devices can not be made smaller");
+                } else {
+                    info = {
+                        can_shrink: false,
+                        can_grow: true,
+                        grow_needs_unmount: true
+                    };
+                    shrink_excuse = _("Unrecognized data can not be made smaller here.");
+                }
+            } else {
+                info = { };
+                shrink_excuse = grow_excuse = _("This volume needs to be activated before it can be resized.");
+            }
+
+            return { info: info, shrink_excuse: shrink_excuse, grow_excuse: grow_excuse };
+        }
+
+        var { info, shrink_excuse, grow_excuse } = get_info(block);
+
+        if (!grow_excuse && !pool && vgroup.FreeSize == 0) {
+            grow_excuse = _("No free space");
+        }
+
+        function shrink() {
+            lvol_shrink(client, lvol, info);
+        }
+
+        function grow() {
+            lvol_grow(client, lvol, info);
         }
 
         return (
@@ -160,7 +314,11 @@ var BlockVolTab = React.createClass({
                     <tr>
                         <td>{_("Size")}</td>
                         <td>
-                            <StorageLink onClick={resize}>{utils.fmt_size(this.props.lvol.Size)}</StorageLink>
+                            {utils.fmt_size(this.props.lvol.Size)}
+                            <div className="tab-row-actions">
+                                <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
+                                <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -181,8 +339,8 @@ var PoolVolTab = React.createClass({
             lvol_rename(self.props.lvol);
         }
 
-        function resize() {
-            lvol_resize(self.props.client, self.props.lvol);
+        function grow() {
+            lvol_grow(self.props.client, self.props.lvol, { });
         }
 
         return (
@@ -197,7 +355,10 @@ var PoolVolTab = React.createClass({
                     <tr>
                         <td>{_("Size")}</td>
                         <td>
-                            <StorageLink onClick={resize}>{utils.fmt_size(this.props.lvol.Size)}</StorageLink>
+                            {utils.fmt_size(this.props.lvol.Size)}
+                            <div className="tab-row-actions">
+                                <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
+                            </div>
                         </td>
                     </tr>
                     <tr>

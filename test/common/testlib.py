@@ -202,7 +202,7 @@ class Browser:
             def __exit__(self, type, value, traceback):
                 browser.phantom.timeout = self.timeout
         r = WaitParamsRestorer(self.phantom.timeout)
-        self.phantom.timeout = max(timeout, self.phantom.timeout)
+        self.phantom.timeout = timeout
         return r
 
     def wait(self, predicate):

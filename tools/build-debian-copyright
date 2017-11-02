@@ -114,11 +114,13 @@ def module_copyright(moddir):
     except subprocess.CalledProcessError:
         pass
 
-    # missing copyrights
-    if mod == 'kubernetes-object-describer' or mod == 'object-describer':
-        # only committer is Jessica Forrester, working for Red Hat
-        # https://github.com/kubernetes-ui/object-describer/issues/35
-        copyrights.add(' (C) 2015-2017 Red Hat, Inc.')
+    if not copyrights:
+        # fall back to package.json's author
+        try:
+            with open(os.path.join(moddir, 'package.json')) as f:
+                copyrights.add(' ' + json.load(f)['author']['name'])
+        except (IOError, KeyError):
+            pass
 
     if not copyrights:
         raise SystemError('Did not find any copyrights in %s' % moddir)

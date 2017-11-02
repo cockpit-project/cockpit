@@ -25,9 +25,16 @@ from storagelib import *
 
 @skipImage("UDisks doesn't have support for LVM", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
 class TestStorage(StorageCase):
-    def testResize(self):
+    def checkResize(self, fsys, can_shrink, can_grow, shrink_needs_unmount = None, grow_needs_unmount = None):
         m = self.machine
         b = self.browser
+
+        if fsys.startswith("luks+"):
+            fsys_row = 2
+            fsys_tab = 1
+        else:
+            fsys_row = 1
+            fsys_tab = 2
 
         self.login_and_go("/storage")
         m.add_disk("500M", serial="DISK1")
@@ -35,33 +42,78 @@ class TestStorage(StorageCase):
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("lvcreate TEST -n vol -L 200m")
-        m.execute("mkfs.ext4 -q -L FSYS /dev/TEST/vol")
-
         b.wait_in_text("#vgroups", "TEST")
         b.click('#vgroups tr:contains("TEST")')
         b.wait_visible("#storage-detail")
-        self.content_tab_wait_in_info(1, 2, "Name", "FSYS")
+        self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
+
+        self.content_tab_action(1, 2, "Format")
+        self.dialog({ "name": "FSYS", "type": fsys,
+                      "passphrase": "vainu-reku-toma-rolle-kaja",
+                      "passphrase2": "vainu-reku-toma-rolle-kaja" })
+        self.content_tab_wait_in_info(fsys_row, fsys_tab, "Name", "FSYS")
 
         mountpoint = self.mount_root + "/admin/FSYS"
+        self.content_tab_action(fsys_row, fsys_tab, "Mount")
+        self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mounted At", mountpoint)
 
-        self.content_tab_action(1, 2, "Mount")
-        self.content_tab_wait_in_info(1, 2, "Mounted At", mountpoint)
+        if can_grow:
+            self.content_tab_action(1, 1, "Grow")
+            if grow_needs_unmount:
+                self.dialog_wait_open()
+                b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+                self.dialog_set_val("size", 400)
+                self.dialog_apply()
+                self.dialog_wait_close()
+                self.content_tab_action(fsys_row, fsys_tab, "Mount")
+                self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mounted At", mountpoint)
+            else:
+                self.dialog({ "size": 400 })
+            size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
+            assert (size > 300000)
+        else:
+            self.wait_content_tab_action_disabled(1, 1, "Grow")
 
-        self.content_tab_info_action(1, 1, "Size")
-        self.dialog({ "size": 400 })
+        if can_shrink:
+            self.content_tab_action(1, 1, "Shrink")
+            if shrink_needs_unmount:
+                self.dialog_wait_open()
+                b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+                self.dialog_set_val("size", 200)
+                self.dialog_apply()
+                self.dialog_wait_close()
+                self.content_tab_action(fsys_row, fsys_tab, "Mount")
+                self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mounted At", mountpoint)
+            else:
+                self.dialog({ "size": 200 })
+            size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
+            assert (size < 300000)
+        else:
+            self.wait_content_tab_action_disabled(1, 1, "Shrink")
 
-        size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
-        assert (size > 300000)
+    def testResizeExt4(self):
+        self.checkResize("ext4",
+                         can_shrink=True, shrink_needs_unmount=True,
+                         can_grow=True, grow_needs_unmount=False)
 
-        self.content_tab_info_action(1, 1, "Size")
-        self.dialog({ "size": 200 })
+    def testResizeXfs(self):
+        self.checkResize("xfs",
+                         can_shrink=False,
+                         can_grow=True, grow_needs_unmount=False)
 
-        # Shrinking a filesystem will unmount it
-        self.content_tab_action(1, 2, "Mount")
-        self.content_tab_wait_in_info(1, 2, "Mounted At", mountpoint)
+    @skipImage("No NTFS support installed", "centos-7", "rhel-7-5", "rhel-7-4", "rhel-7")
+    def testResizeNtfs(self):
+        self.checkResize("ntfs",
+                         can_shrink=True, shrink_needs_unmount=True,
+                         can_grow=True, grow_needs_unmount=True)
 
-        size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
-        assert (size < 300000)
+    def testResizeLuks(self):
+        # No version of UDisks supports resizing encrypted block
+        # devices yet.  Once we get such a version, the buttons will
+        # automatically be enabled and this test needs to be adapted.
+        self.checkResize("luks+ext4",
+                         can_shrink=False,
+                         can_grow=False)
 
 if __name__ == '__main__':
     test_main()

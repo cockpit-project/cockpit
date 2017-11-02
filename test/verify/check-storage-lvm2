@@ -141,17 +141,8 @@ class TestStorage(StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        # try to shrink it without a filesystem.
-        self.content_tab_info_action(1, 1, "Size")
-        self.dialog_wait_open()
-        self.dialog_wait_val("size", 20)
-        self.dialog_set_val("size", 10)
-        self.dialog_apply()
-        self.dialog_wait_error(None, "This logical volume cannot be made smaller.")
-        self.dialog_cancel()
-
         # grow it
-        self.content_tab_info_action(1, 1, "Size")
+        self.content_tab_action(1, 1, "Grow")
         self.dialog({ "size": 30 })
 
         # format and mount it
@@ -169,7 +160,7 @@ class TestStorage(StorageCase):
         b.wait_not_present(self.content_tab_info_row(1, 2, "Mounted At"))
 
         # shrink it, this time with a filesystem.
-        self.content_tab_info_action(1, 1, "Size")
+        self.content_tab_action(1, 1, "Shrink")
         self.dialog({ "size": 10 })
 
         # delete it
@@ -208,7 +199,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#detail-sidebar", "DISK2")
         b.wait_in_text("#detail-header .info-table-ct", "96 MiB")
 
-        self.content_tab_info_action(1, 1, "Size")
+        self.content_tab_action(1, 1, "Grow")
         self.dialog({ "size": 70 })
 
         # There is not enough free space to remove any of the disks.

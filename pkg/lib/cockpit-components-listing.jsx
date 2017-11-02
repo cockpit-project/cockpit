@@ -57,6 +57,7 @@ var ListingRow = React.createClass({
         selectChanged: React.PropTypes.func,
         selected: React.PropTypes.bool,
         initiallyExpanded: React.PropTypes.bool,
+        initiallyActiveTab: React.PropTypes.bool,
     },
     getDefaultProps: function () {
         return {
@@ -67,7 +68,7 @@ var ListingRow = React.createClass({
     getInitialState: function() {
         return {
             expanded: this.props.initiallyExpanded, // show expanded view if true, otherwise one line compact
-            activeTab: 0,    // currently active tab in expanded mode, defaults to first tab
+            activeTab: this.props.initiallyActiveTab ? this.props.initiallyActiveTab : 0,    // currently active tab in expanded mode, defaults to first tab
             loadedTabs: {},  // which tabs were already loaded - this is important for 'loadOnDemand' setting
                              // contains tab indices
             selected: this.props.selected, // whether the current row is selected

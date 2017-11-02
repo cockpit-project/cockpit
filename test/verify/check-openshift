@@ -595,6 +595,41 @@ class TestRegistry(MachineCase):
         b.wait_present("#content div.listing-ct-inline")
         b.wait_in_text(".content-filter h3", "marmalade/juggs")
 
+    def testImageNames(self):
+        b = self.browser
+
+        self.login_and_go("/kubernetes/registry")
+        b.wait_present(".dashboard-images")
+        b.click("#content a[href='#/images/marmalade']")
+        b.wait_present("a i.pficon-add-circle-o")
+
+        self.checkImageName(b, "__aaa__", False)
+        self.checkImageName(b, "_aaa", False)
+        self.checkImageName(b, "-aaa", False)
+        self.checkImageName(b, ".aaa", False)
+        self.checkImageName(b, "aaa_", False)
+        self.checkImageName(b, "aaa-", False)
+        self.checkImageName(b, "aaa.", False)
+        self.checkImageName(b, "Aa_Bb_Cc", False)
+        self.checkImageName(b, "aa_bb_cc", True)
+        self.checkImageName(b, "aa-bb_cc.dd", True)
+
+    def checkImageName(self, b, name, succeed):
+        b.click("a i.pficon-add-circle-o")
+        b.wait_present("modal-dialog")
+        b.wait_visible("#imagestream-modify-name")
+        b.set_val("#imagestream-modify-project-text", "default")
+
+        b.set_val("#imagestream-modify-name", name)
+        b.click("modal-dialog .btn-primary")
+
+        if succeed:
+            b.wait_not_present("modal-dialog")
+        else:
+            b.wait_visible(".dialog-error")
+            b.click(".btn-cancel")
+
+        b.wait_not_present("modal-dialog")
 
     def testProjectGroups(self):
         b = self.browser

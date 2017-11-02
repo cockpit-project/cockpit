@@ -57,17 +57,16 @@ class StorageCase(MachineCase):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
 
     def retry(self, setup, check, teardown):
-        b = self.browser
-        b.arm_timeout()
-        while True:
+        def step():
             if setup:
                 setup()
             if check():
-                break
+                return True
             if teardown:
                 teardown()
-            b.wait_checkpoint()
-        b.disarm_timeout()
+            return False
+
+        self.browser.wait(step)
 
     # Content
 

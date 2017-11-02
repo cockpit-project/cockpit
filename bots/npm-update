@@ -77,7 +77,7 @@ def run(package, verbose=False, **kwargs):
 
     # Add a tilde to all package.json dependencies
     before = data["dependencies"].copy()
-    data["dependencies"] = map_dict(before, lambda v: v[0].isalpha() and v or "~" + v)
+    data["dependencies"] = map_dict(before, lambda v: v[0].isalpha() and v or "^" + v)
     package_json(data)
 
     for package in packages:

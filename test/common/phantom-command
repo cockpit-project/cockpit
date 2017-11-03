@@ -1,4 +1,0 @@
-#!/bin/sh
-BASE=$(dirname $0)
-PATH="$BASE/../../node_modules/.bin:$PATH"
-exec phantomjs --ignore-ssl-errors=true --ssl-protocol=any $@

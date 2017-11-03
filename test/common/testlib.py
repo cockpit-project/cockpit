@@ -90,21 +90,18 @@ class Browser:
             self.port = port
         self.default_user = "admin"
         self.label = label
-        self.phantom = Phantom("en_US.utf8")
+        self.nightmare = Nightmare("en_US.utf8")
         self.password = "foobar"
 
     def title(self):
-        return self.phantom.eval('document.title')
+        return self.nightmare.eval('document.title')
 
     def open(self, href, cookie=None):
         """
         Load a page into the browser.
 
         Arguments:
-          page: The path of the Cockpit page to load, such as "/dashboard".
-          url: The full URL to load.
-
-        Either PAGE or URL needs to be given.
+          href: The path of the Cockpit page to load, such as "/dashboard".
 
         Raises:
           Error: When a timeout occurs waiting for the page to load.
@@ -112,12 +109,19 @@ class Browser:
         if href.startswith("/"):
             href = "http://%s:%s%s" % (self.address, self.port, href)
 
+        self.nightmare.kill()
+        # FIXME: set cookie
+        self.nightmare.goto(href)
+        return True
+
+        # FIXME: retry loop necessary?
+
         def tryopen(hard=False):
             try:
-                self.phantom.kill()
+                self.nightmare.kill()
                 if cookie is not None:
                     self.phantom.cookies(cookie)
-                self.phantom.open(href)
+                self.nightmare.goto(href)
                 return True
             except:
                 if hard:
@@ -133,25 +137,25 @@ class Browser:
     def reload(self):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.phantom.reload()
+        self.nightmare.refresh()
 
     def expect_load(self):
-        self.phantom.expect_load()
+        self.nightmare.expect_load()
 
     def switch_to_frame(self, name):
-        self.phantom.switch_frame(name)
+        self.call_js_func('ph_set_frame', name)
 
     def switch_to_top(self):
-        self.phantom.switch_top()
+        self.call_js_func('ph_set_frame', None)
 
     def upload_file(self, selector, file):
         self.phantom.upload_file(selector, file)
 
     def eval_js(self, code):
-        return self.phantom.eval(code)
+        return self.nightmare.evaluate("() => { " + code + "; }")
 
     def call_js_func(self, func, *args):
-        return self.phantom.eval("%s(%s)" % (func, ','.join(map(jsquote, args))))
+        return self.nightmare.evaluate("() => %s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def cookie(self, name):
         cookies = self.phantom.cookies()
@@ -200,9 +204,9 @@ class Browser:
             def __enter__(self):
                 pass
             def __exit__(self, type, value, traceback):
-                browser.phantom.timeout = self.timeout
-        r = WaitParamsRestorer(self.phantom.timeout)
-        self.phantom.timeout = max(timeout, self.phantom.timeout)
+                browser.nightmare.timeout = self.timeout
+        r = WaitParamsRestorer(self.nightmare.timeout)
+        self.nightmare.timeout = max(timeout, self.nightmare.timeout)
         return r
 
     def wait(self, predicate):
@@ -214,14 +218,11 @@ class Browser:
                 return val
             self.wait_checkpoint()
 
-    def inject_js(self, code):
-        self.phantom.do(code);
-
     def wait_js_cond(self, cond):
-        return self.phantom.wait(cond)
+        return self.nightmare.wait("() => " + cond)
 
     def wait_js_func(self, func, *args):
-        return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))))
+        return self.nightmare.wait("() => %s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def is_present(self, selector):
         return self.call_js_func('ph_is_present', selector)
@@ -282,13 +283,17 @@ class Browser:
         self.wait_not_visible('#' + id)
 
     def arm_timeout(self):
-        return self.phantom.arm_timeout(self.phantom.timeout * 1000)
+        #FIXME return self.phantom.arm_timeout(self.nightmare.timeout * 1000)
+        pass
 
     def disarm_timeout(self):
-        return self.phantom.disarm_timeout()
+        #FIXME return self.phantom.disarm_timeout()
+        pass
 
     def wait_checkpoint(self):
-        return self.phantom.wait_checkpoint()
+        # FIXME: checkpoint concept should not be necessary with electron
+        #return self.phantom.wait_checkpoint()
+        pass
 
     def dialog_complete(self, sel, button=".btn-primary", result="hide"):
         self.click(sel + " " + button)
@@ -416,23 +421,24 @@ class Browser:
         Arguments:
             title: Used for the filename.
         """
-        if self.phantom and self.phantom.valid:
+        if self.nightmare and self.nightmare.valid:
+            sys.stderr.write("Current URL: " + self.nightmare.url() + "\n")
             filename = "{0}-{1}.png".format(label or self.label, title)
-            self.phantom.show(filename)
+            self.nightmare.screenshot(filename)
             attach(filename)
             filename = "{0}-{1}.html".format(label or self.label, title)
-            self.phantom.dump(filename)
+            self.nightmare.html(filename, "HTMLOnly")
             attach(filename)
 
     def copy_js_log(self, title, label=None):
         """Copy the current javascript log"""
-        if self.phantom and self.phantom.valid:
+        if self.nightmare and self.nightmare.valid:
             filename = "{0}-{1}.js.log".format(label or self.label, title)
-            self.phantom.dump_log(filename)
+            self.nightmare.dump_log(filename)
             attach(filename)
 
     def kill(self):
-        self.phantom.kill()
+        self.nightmare.kill()
 
 
 class MachineCase(unittest.TestCase):
@@ -812,8 +818,7 @@ some_failed = False
 def jsquote(str):
     return json.dumps(str)
 
-# See phantom-driver for the methods that are defined
-class Phantom:
+class Nightmare:
     def __init__(self, lang=None):
         self.lang = lang
         self.timeout = 60
@@ -839,32 +844,32 @@ class Phantom:
         line = self._driver.stdout.readline()
         if not line:
             self.kill()
-            raise Error("PhantomJS or driver broken")
+            raise Error("Nightmare or driver broken")
+        if not line.startswith("success "):
+            if opts.trace:
+                print "<- raise", line
+            raise Error(line)
+
         try:
-            res = json.loads(line)
+            res = json.loads(line[8:])
         except:
             print line.strip()
             raise
-        if 'error' in res:
-            if opts.trace:
-                print "<- raise", res['error']
-            raise Error(res['error'])
-        if 'result' in res:
-            if opts.trace:
-                print "<-", repr(res['result'])
-            return res['result']
-        raise Error("unexpected: " + line.strip())
+        if opts.trace:
+            print "<-", repr(res)
+        return res
 
     def start(self):
+        if opts.trace:
+            print('-> starting nightmare driver')
         environ = os.environ.copy()
         if self.lang:
             environ["LC_ALL"] = self.lang
         path = os.path.dirname(__file__)
         command = [
-            "%s/phantom-command" % path,
-            "%s/phantom-driver.js" % path,
+            "%s/nightmare-command.js" % path,
             "%s/sizzle.js" % path,
-            "%s/phantom-lib.js" % path
+            "%s/test-functions.js" % path
         ]
         self.valid = True
         self._driver = subprocess.Popen(command, env=environ,
@@ -874,7 +879,12 @@ class Phantom:
     def kill(self):
         self.valid = False
         if self._driver:
+            if opts.trace:
+                print('-> killing nightmare driver')
             self._driver.terminate()
+            # FIXME: polling loop
+            sleep(0.5)
+            self._driver.kill()
             self._driver.wait()
             self._driver = None
 

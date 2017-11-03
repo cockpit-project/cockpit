@@ -97,9 +97,6 @@ dnf -y -q copr enable lmr/Autotest
 
 dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $AVOCADO_TEST_DEPS
 
-# integration tests need phantomjs to run locally
-npm -g install phantomjs-prebuilt
-
 # Prepare for building
 dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build
 useradd -c Builder -G mock builder

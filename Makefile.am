@@ -250,10 +250,12 @@ TEST_EXTENSIONS = .html .sh
 SH_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 HTML_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 HTML_TEST_SERVER = $(builddir)/test-server
-if WITH_PHANTOMJS
-HTML_LOG_COMPILER = $(PHANTOMJS) $(top_srcdir)/tools/tap-phantom --strip=$(top_srcdir)/ -- $(HTML_TEST_SERVER)
+if WITH_ELECTRON
+# FIXME: port tap-phantom
+#HTML_LOG_COMPILER = $(PHANTOMJS) $(top_srcdir)/tools/tap-phantom --strip=$(top_srcdir)/ -- $(HTML_TEST_SERVER)
+HTML_LOG_DRIVER_FLAGS = --missing=port-tap-phantom
 else
-HTML_LOG_DRIVER_FLAGS = --missing=phantomjs
+HTML_LOG_DRIVER_FLAGS = --missing=electron
 endif
 
 VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 \
@@ -359,7 +361,7 @@ dist-hook::
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"
-DIST_TAR_CACHE = tar --format=posix -cf - --exclude='phantomjs*' --transform="s/^/$(distdir)/" \
+DIST_TAR_CACHE = tar --format=posix -cf - --exclude='phantomjs*' --exclude='electron*' --exclude='nightmare*' --transform="s/^/$(distdir)/" \
 	"$(srcdir)/node_modules" "$(srcdir)/package.json"
 
 DIST_ARCHIVES = \

@@ -25,6 +25,10 @@
 
     var utils = require('./utils');
 
+    var python = require("python.jsx");
+    var inotify_py = require("raw!inotify.py");
+    var nfs_mounts_py = require("raw!./nfs-mounts.py");
+
     /* STORAGED CLIENT
      */
 
@@ -409,6 +413,113 @@
     client.older_than = function older_than(version) {
         return utils.compare_versions(this.manager.Version, version) < 0;
     };
+
+    /* NFS mounts
+     */
+
+    function nfs_mounts() {
+        var self = {
+            entries: [ ],
+            fsys_sizes: { },
+
+            get_fsys_size: get_fsys_size,
+            entry_users: entry_users,
+
+            update_entry: update_entry,
+            add_entry: add_entry,
+            remove_entry: remove_entry,
+
+            mount_entry: mount_entry,
+            unmount_entry: unmount_entry,
+            stop_and_unmount_entry: stop_and_unmount_entry,
+            stop_and_remove_entry: stop_and_remove_entry
+        };
+
+        function spawn_nfs_mounts(args) {
+            return python.spawn([ inotify_py, nfs_mounts_py ], args, { superuser: "try", err: "message" });
+        }
+
+        var buf = "";
+        spawn_nfs_mounts([ "monitor" ])
+            .stream(function (output) {
+                var lines;
+
+                buf += output;
+                lines = buf.split("\n");
+                buf = lines[lines.length-1];
+                if (lines.length >= 2) {
+                    self.entries = JSON.parse(lines[lines.length-2]);
+                    self.fsys_sizes = { };
+                    $(self).triggerHandler('changed');
+                }
+            }).
+            fail(function (error) {
+                if (error != "closed") {
+                    console.warn(error);
+                }
+            });
+
+        function get_fsys_size(entry) {
+            var path = entry.fields[1];
+            if (self.fsys_sizes[path])
+                return self.fsys_sizes[path];
+
+            if (self.fsys_sizes[path] === false)
+                return null;
+
+            self.fsys_sizes[path] = false;
+            cockpit.spawn([ "stat", "-f", "-c", "[ %S, %f, %b ]", path ], { err: "message" })
+                .done(function (output) {
+                    var data = JSON.parse(output);
+                    self.fsys_sizes[path] = [ data[1]*data[0], data[2]*data[0] ];
+                    $(self).triggerHandler('changed');
+                })
+                .fail(function () {
+                    self.fsys_sizes[path] = [ 0, 0 ];
+                    $(self).triggerHandler('changed');
+                });
+
+            return null;
+        }
+
+        function update_entry(entry, new_fields) {
+            return spawn_nfs_mounts([ "update", JSON.stringify(entry), JSON.stringify(new_fields) ]);
+        }
+
+        function add_entry(fields) {
+            return spawn_nfs_mounts([ "add", JSON.stringify(fields) ]);
+        }
+
+        function remove_entry(entry) {
+            return spawn_nfs_mounts([ "remove", JSON.stringify(entry) ]);
+        }
+
+        function mount_entry(entry) {
+            return spawn_nfs_mounts([ "mount", JSON.stringify(entry) ]);
+        }
+
+        function unmount_entry(entry) {
+            return spawn_nfs_mounts([ "unmount", JSON.stringify(entry) ]);
+        }
+
+        function stop_and_unmount_entry(users, entry) {
+            var units = users.map(function (u) { return u.unit; });
+            return spawn_nfs_mounts([ "stop-and-unmount", JSON.stringify(units), JSON.stringify(entry) ]);
+        }
+
+        function stop_and_remove_entry(users, entry) {
+            var units = users.map(function (u) { return u.unit; });
+            return spawn_nfs_mounts([ "stop-and-remove", JSON.stringify(units), JSON.stringify(entry) ]);
+        }
+
+        function entry_users(entry) {
+            return spawn_nfs_mounts([ "users", JSON.stringify(entry) ]).then(JSON.parse);
+        }
+
+        return self;
+    }
+
+    client.nfs = nfs_mounts();
 
     function init_manager() {
         /* Storaged 2.6 and later uses the UDisks2 API names, but try the

@@ -446,6 +446,13 @@ Recommends: device-mapper-multipath
 %endif
 %endif
 %endif
+%if 0%{?fedora}
+Requires: python3
+Requires: python3-dbus
+%else
+Requires: python
+Requires: python-dbus
+%endif
 BuildArch: noarch
 
 %description storaged

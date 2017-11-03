@@ -1,0 +1,169 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from storagelib import *
+
+@skipImage("NetworkManager and NFS don't work together", "ubuntu-1604")
+class TestStorage(StorageCase):
+    def testNfsClient(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        m.execute("mkdir /home/foo /home/bar")
+        m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")
+        m.execute("systemctl restart nfs-server")
+
+        # Nothing there in the beginnging
+        b.wait_visible("#nfs-mounts .empty-panel-text")
+
+        # Add /home/foo
+        b.click("#nfs-mounts button[data-action=mount-add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_set_combobox("remote", "/home/foo")
+        self.dialog_set_val("dir", "/mnt")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_present("#nfs-mounts td:contains(/home/foo)")
+        b.wait_present("#nfs-mounts td:contains(/mnt)")
+        b.wait_present("#nfs-mounts tr:contains(/mnt) .usage-text")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .usage-text", "")
+
+        # Add /home/bar
+        b.click("#nfs-mounts button[data-action=mount-add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_set_combobox("remote", "/home/bar")
+        self.dialog_set_val("dir", "/mounts/bar")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_present("#nfs-mounts td:contains(/home/bar)")
+        b.wait_present("#nfs-mounts td:contains(/mounts/bar)")
+        b.wait_present("#nfs-mounts tr:contains(/mounts/bar) .usage-text")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .usage-text", "")
+        m.execute("test -d /mounts/bar")
+
+        # Change mount point of /home/bar
+        b.click("#nfs-mounts .nfs-arm-button")
+        b.click("#nfs-mounts button[data-action=mount-edit][data-arg=1]")
+
+        self.dialog_wait_open()
+        self.dialog_set_val("dir", "/mounts/barbar")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_present("#nfs-mounts td:contains(/mounts/barbar)")
+        m.execute("! test -e /mounts/bar")
+        m.execute("test -d /mounts/barbar")
+
+        # Unmount and remount /home/foo
+        b.click("#nfs-mounts .nfs-arm-button")
+        b.click("#nfs-mounts button[data-action=mount-unmount][data-arg=0]")
+        b.wait_in_text("#nfs-mounts tr:contains(/home/foo)", "Not mounted")
+
+        b.click("#nfs-mounts .nfs-arm-button")
+        b.click("#nfs-mounts button[data-action=mount-mount][data-arg=0]")
+        b.wait_present("#nfs-mounts tr:contains(/mnt) .usage-text")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .usage-text", "")
+
+        # Remove /home/foo
+        b.click("#nfs-mounts .nfs-arm-button")
+        b.click("#nfs-mounts button[data-action=mount-remove][data-arg=0]")
+        b.wait_not_present("#nfs-mounts td:contains(/home/foo)")
+        m.execute("! test -e /mnt")
+
+    def testNfsListExports(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        m.execute("mkdir /home/foo /home/bar")
+        m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")
+        m.execute("systemctl restart nfs-server")
+
+        b.click("#nfs-mounts button[data-action=mount-add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+
+        def wait_for_exports():
+            def check():
+                choices = self.dialog_combobox_choices("remote")
+                return len(choices) == 2 and "/home/foo" in choices and "/home/bar" in choices
+            self.retry(None, check, None)
+
+        wait_for_exports()
+
+    def testNfsBusy(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        m.execute("mkdir /home/foo /home/bar")
+        m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")
+        m.execute("systemctl restart nfs-server")
+
+        # Nothing there in the beginnging
+        b.wait_visible("#nfs-mounts .empty-panel-text")
+
+        # Add /home/foo
+        b.click("#nfs-mounts button[data-action=mount-add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_set_combobox("remote", "/home/foo")
+        self.dialog_set_val("dir", "/mounts/foo")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_present("#nfs-mounts td:contains(/home/foo)")
+        b.wait_present("#nfs-mounts td:contains(/mounts/foo)")
+        b.wait_present("#nfs-mounts tr:contains(/mounts/foo) .usage-text")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .usage-text", "")
+
+        m.spawn("cd /mounts/foo; sleep infinity", "busy")
+        b.click("#nfs-mounts .nfs-arm-button")
+        b.click("#nfs-mounts button[data-action=mount-edit][data-arg=0]")
+
+        self.dialog_wait_open()
+        self.dialog_wait_alert("This NFS mount is in use")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click("#nfs-mounts .nfs-arm-button")
+        b.click("#nfs-mounts button[data-action=mount-unmount][data-arg=0]")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "The filesystem is in use")
+        b.wait_in_text("#dialog", "of user root")
+        self.dialog_apply()
+
+        b.wait_in_text("#nfs-mounts tr:contains(/home/foo)", "Not mounted")
+
+if __name__ == '__main__':
+    test_main()

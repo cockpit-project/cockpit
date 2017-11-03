@@ -19,6 +19,7 @@
 
 var cockpit = require("cockpit");
 var python = require("python.jsx");
+var inotify_py = require("raw!inotify.py");
 var watch_appstream_py = require("raw!./watch-appstream.py");
 
 var metainfo_db = null;
@@ -32,7 +33,7 @@ function get_metainfo_db() {
         });
 
         var buf = "";
-        python.spawn(watch_appstream_py, [ ],
+        python.spawn([ inotify_py, watch_appstream_py ], [ ],
                      { environ: [ "LANGUAGE=" + (cockpit.language || "en") ]
                      })
             .stream(function (data) {

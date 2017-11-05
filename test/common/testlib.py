@@ -37,6 +37,7 @@ import re
 import json
 import tempfile
 import time
+import signal
 import unittest
 
 import tap
@@ -202,15 +203,20 @@ class Browser:
             def __exit__(self, type, value, traceback):
                 browser.phantom.timeout = self.timeout
         r = WaitParamsRestorer(self.phantom.timeout)
-        self.phantom.timeout = max(timeout, self.phantom.timeout)
+        self.phantom.timeout = timeout
         return r
 
     def wait(self, predicate):
-        self.arm_timeout()
+        def alarm_handler(signum, frame):
+            raise Error('timed out waiting for predicate to become true')
+
+        signal.signal(signal.SIGALRM, alarm_handler)
+        orig_handler = signal.alarm(self.phantom.timeout)
         while True:
             val = predicate()
             if val:
-                self.disarm_timeout()
+                signal.alarm(0)
+                signal.signal(signal.SIGALRM, orig_handler)
                 return val
             self.wait_checkpoint()
 

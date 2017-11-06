@@ -126,6 +126,9 @@ def run(image, verbose=False, **kwargs):
     cmd = [ os.path.join(BOTS, "image-create"), "--verbose", "--upload" ]
     if store:
         cmd += [ "--store", store ]
+    else:
+        # HACK: use private store until public machines are back
+        cmd += [ "--store", REDHAT_STORE ]
     cmd += [ image ]
 
     os.environ['VIRT_BUILDER_NO_CACHE'] = "yes"

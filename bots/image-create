@@ -122,7 +122,7 @@ class MachineBuilder:
                 raise testvm.Failure("setup failed with code {0}\n".format(ex.returncode))
 
         finally:
-            self.machine.stop(timeout_sec=60)
+            self.machine.stop(timeout_sec=500)
 
     def boot_system(self):
         """Start the system to make sure it can boot, then shutdown cleanly

@@ -106,10 +106,11 @@
         'projectActions',
         'ListingState',
         'roleActions',
-        function($scope, $routeParams, $location, select, loader, projectData, projectAction, ListingState, roleAction) {
+        'projectPolicy',
+        function($scope, $routeParams, $location, select, loader, projectData, projectAction, ListingState, roleAction, projectPolicy) {
             loader.watch("users", $scope);
             loader.watch("groups", $scope);
-            loader.watch("policybindings", $scope);
+            projectPolicy.watch($scope);
             var namespace = $routeParams["namespace"] || "";
             $scope.projName = namespace;
             if (namespace) {
@@ -149,9 +150,11 @@
         'projectActions',
         'roleActions',
         'ListingState',
-        function($scope, $routeParams, $location, select, loader, projectData, projectAction, roleActions, ListingState) {
+        'projectPolicy',
+        function($scope, $routeParams, $location, select, loader, projectData, projectAction, roleActions, ListingState, projectPolicy) {
             loader.watch("users", $scope);
             loader.watch("groups", $scope);
+            projectPolicy.watch($scope);
             var user = $routeParams["user"] || "";
             $scope.userName = user;
             if (user) {
@@ -192,17 +195,14 @@
         'projectActions',
         'roleActions',
         'ListingState',
-        function($scope, $routeParams, $location, select, loader, projectData, projectAction, roleActions, ListingState) {
+        'projectPolicy',
+        function($scope, $routeParams, $location, select, loader, projectData, projectAction, roleActions, ListingState, projectPolicy) {
             loader.watch("users", $scope);
             loader.watch("groups", $scope);
+            projectPolicy.watch($scope);
             var group = $routeParams["group"] || "";
             $scope.groupName = group;
             if (group) {
-                var groupObj = select().kind("Group").name(group);
-                if (!groupObj || groupObj.length < 1) {
-                     $scope.group = null;
-                    return;
-                }
                 $scope.group = function() {
                     return select().kind("Group").name(group).one();
                 };
@@ -1154,9 +1154,6 @@
         'memberActions',
         "fields",
         function($q, $scope, kselect, loader, methods, projectData, projectPolicy, $location, memberActions, fields) {
-            function getPolicyBinding(namespace){
-                return kselect().kind("PolicyBinding").namespace(namespace).name(":default");
-            }
             function getMembers() {
                 var members = [];
                 var groups = getGroups();
@@ -1228,7 +1225,6 @@
             };
             function removeMemberFromParents(member) {
                 var chain = $q.when();
-                var policyBinding;
                 var groups = projectData.getGroupsWithMember(getGroups(), member.metadata.name);
                 angular.forEach(groups, function(g) {
                     chain = chain.then(function() {
@@ -1237,14 +1233,13 @@
                 });
                 var projects = projectData.getProjectsWithMember(getProjects(), member.metadata.name);
                 angular.forEach(projects, function(project) {
-                    policyBinding = getPolicyBinding(project.metadata.name);
                     var subjectRoleBindings = projectData.subjectRoleBindings(member.metadata.name, project.metadata.name);
                     var subject = {
                         kind: member.kind,
                         name: member.metadata.name,
                     };
                     chain = chain.then(function() {
-                        return projectPolicy.removeMemberFromPolicyBinding(policyBinding,
+                        return projectPolicy.removeMemberFromProject(
                             project.metadata.name, subjectRoleBindings, subject);
                     });
                 });
@@ -1277,13 +1272,12 @@
                     //Project
                     var member = $scope.fields.memberObj;
                     var project = $scope.fields.parentObj.metadata.name;
-                    var policyBinding = getPolicyBinding(project);
                     var subjectRoleBindings = projectData.subjectRoleBindings(member.metadata.name, project);
                     var subject = {
                         kind: member.kind,
                         name: member.metadata.name,
                     };
-                    return projectPolicy.removeMemberFromPolicyBinding(policyBinding, project, subjectRoleBindings, subject);
+                    return projectPolicy.removeMemberFromProject(project, subjectRoleBindings, subject);
                 }
             };
 
@@ -1307,9 +1301,6 @@
             function getProjects() {
                 return kselect().kind("Project");
             }
-            function getPolicyBinding(namespace){
-                return kselect().kind("PolicyBinding").namespace(namespace).name(":default");
-            }
             $scope.select = {
                 member: 'Select Member',
                 members: getUsers(),
@@ -1319,17 +1310,15 @@
             $scope.fields.grpProjects = projectData.getProjectsWithMember(getProjects(), fields.group.metadata.name);
             function removeMemberFromParents(member) {
                 var chain = $q.when();
-                var policyBinding;
                 var projects = projectData.getProjectsWithMember(getProjects(), member.metadata.name);
                 angular.forEach(projects, function(project) {
-                    policyBinding = getPolicyBinding(project.metadata.name);
                     var subjectRoleBindings = projectData.subjectRoleBindings(member.metadata.name, project.metadata.name);
                     var subject = {
                         kind: member.kind,
                         name: member.metadata.name,
                     };
                     chain = chain.then(function() {
-                        return projectPolicy.removeMemberFromPolicyBinding(policyBinding,
+                        return projectPolicy.removeMemberFromProject(
                             project.metadata.name, subjectRoleBindings, subject);
                     });
                 });

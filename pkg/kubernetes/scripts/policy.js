@@ -32,13 +32,51 @@
         '$rootScope',
         'kubeLoader',
         'kubeMethods',
-        function($q, $rootScope, loader, methods) {
+        'kubeSelect',
+        'KubeWatch',
+        'KubeRequest',
+        'KUBE_SCHEMA',
+        function($q, $rootScope, loader, methods, select, watch, KubeRequest, KUBE_SCHEMA) {
+
+            var apiGroup;
+            var RBAC_GROUP = "rbac.authorization.k8s.io";
+            var RBAC_API = "/apis/rbac.authorization.k8s.io/v1beta1";
+            var POLICY_BINDING_API = KUBE_SCHEMA["RoleBinding"]["api"];
+            var watchPromise;
+
+            function setupRoleBinding(group) {
+                KUBE_SCHEMA["RoleBinding"]["api"] = group ? RBAC_API : POLICY_BINDING_API;
+                KUBE_SCHEMA["rolebindings"]["api"] = group ? RBAC_API : POLICY_BINDING_API;
+                apiGroup = group;
+                expireSAR(null);
+                expireWhoCan(null);
+                return group ? "rolebindings" : "policybindings";
+            }
+
+            function ensureWatchType() {
+                if (!watchPromise) {
+                    watchPromise = new KubeRequest("GET", "/oapi/v1")
+                        .then(function(response) {
+                            var data = response.data || {};
+                            var i, l = data.resources || [];
+                            for(i = 0; i < l.length; i++ ) {
+                                if (l[i].kind == "PolicyBinding")
+                                    return setupRoleBinding();
+                            }
+                            return setupRoleBinding(RBAC_GROUP);
+                        }, function(err) {
+                            console.warn("Error getting API", err);
+                            return setupRoleBinding();
+                        });
+                }
+                return watchPromise;
+            }
 
             /*
              * Data loading hacks:
              *
-             * We would like to watch rolebindings, but sadly that's not supported
-             * by origin. So we have to watch policybindings and then infer the
+             * We would like to watch rolebindings, but not all versions support
+             * that. So we have to watch policybindings and then infer the
              * rolebindings from there.
              *
              * In addition we would like to be able to load User and Group objects,
@@ -47,6 +85,15 @@
              */
             loader.listen(function(present, removed) {
                 var link, expire = { };
+
+                /* If reseting clear status */
+                if (!present && !removed) {
+                    expireSAR(null);
+                    expireWhoCan(null);
+                    watchPromise = null;
+                    return;
+                }
+
                 for (link in removed) {
                     if (removed[link].kind == "PolicyBinding") {
                         update_rolebindings(removed[link].roleBindings, true);
@@ -80,6 +127,10 @@
                 angular.forEach(subjects, function(subject) {
                     var link = loader.resolve(subject.kind, subject.name, subject.namespace);
                     if (link in loader.objects)
+                        return;
+
+                    /* Don't show system groups */
+                    if (subject.kind == "Group" && subject.name.indexOf("system:") === 0)
                         return;
 
                     /* An interim object, until perhaps the real thing can be loaded */
@@ -236,7 +287,6 @@
                 var name = toName(role);
                 var binding = {
                     kind: "RoleBinding",
-                    apiVersion: "v1",
                     metadata: {
                         name: name,
                         namespace: namespace,
@@ -246,7 +296,8 @@
                     groupNames: [],
                     subjects: [],
                     roleRef: {
-                        name: role
+                        name: role,
+                        kind: "ClusterRole",
                     }
                 };
                 addToArray(roleArray(binding, "subjects"), subjects);
@@ -255,6 +306,7 @@
             }
 
             function removeFromRole(project, role, subject) {
+                subject.apiGroup = apiGroup;
                 var namespace = toName(project);
                 return modifyRole(namespace, role, function(data) {
                     removeFromArray(roleArray(data, "subjects"), subject);
@@ -268,26 +320,26 @@
                 });
             }
 
-            function removeMemberFromPolicyBinding(policyBinding, project, subjectRoleBindings, subject) {
+            function removeMemberFromProject(project, subjectRoleBindings, subject) {
                 var registryRoles = ["registry-admin", "registry-editor", "registry-viewer"];
                 var chain = $q.when();
-                var defaultPolicybinding;
                 var roleBindings = [];
+                var defaultPolicybinding = select().kind("PolicyBinding")
+                                            .namespace(project)
+                                            .name(":default").one();
+                subject.apiGroup = apiGroup;
 
-                if(policyBinding && policyBinding.one()){
-                    defaultPolicybinding = policyBinding.one();
+                if(defaultPolicybinding)
                     roleBindings = defaultPolicybinding.roleBindings;
-                }
-                angular.forEach(subjectRoleBindings, function(o) {
-                    angular.forEach(roleBindings, function(role) {
-                        //Since we only added registry roles
-                        //remove ONLY registry roles
-                        if (( indexOf(registryRoles, role.name) !== -1) && role.name === o.metadata.name) {
-                            chain = chain.then(function() {
-                                return removeFromRole(project, role.name, subject);
-                            });
-                        }
-                    });
+
+                angular.forEach(subjectRoleBindings, function(role) {
+                    //Since we only added registry roles
+                    //remove ONLY registry roles
+                    if (indexOf(registryRoles, role.roleRef.name) !== -1) {
+                        chain = chain.then(function() {
+                            return removeFromRole(project, role.roleRef.name, subject);
+                        });
+                    }
                 });
                 return chain;
             }
@@ -334,14 +386,18 @@
 
             return {
                 watch: function watch(until) {
-                    loader.watch("policybindings", until).then(function() {
-                        expireWhoCan(null);
+                    ensureWatchType().then(function (what) {
+                        loader.watch(what, until)
+                            .then(function() {
+                                expireWhoCan(null);
+                            });
                     });
                 },
                 whoCan: function whoCan(project, verb, resource) {
                     return lookupWhoCan(toName(project), verb, resource);
                 },
                 addToRole: function addToRole(project, role, subject) {
+                    subject.apiGroup = apiGroup;
                     var namespace = toName(project);
                     return modifyRole(namespace, role, function(data) {
                         addToArray(roleArray(data, "subjects"), subject);
@@ -356,8 +412,8 @@
                     });
                 },
                 removeFromRole: removeFromRole,
-                removeMemberFromPolicyBinding: removeMemberFromPolicyBinding,
-                subjectAccessReview: subjectAccessReview,
+                removeMemberFromProject: removeMemberFromProject,
+                subjectAccessReview: subjectAccessReview
             };
         }
     ]);

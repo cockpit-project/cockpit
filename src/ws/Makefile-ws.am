@@ -159,11 +159,26 @@ remotectl_LDADD = \
 	$(COCKPIT_LIBS) \
 	$(NULL)
 
-dist_systemdunit_DATA += src/ws/cockpit.socket
-nodist_systemdunit_DATA += src/ws/cockpit.service
+nodist_systemdunit_DATA += \
+	src/ws/cockpit.socket \
+	src/ws/cockpit.service \
+	$(NULL)
 
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml
+
+issuedir = $(datadir)/$(PACKAGE)/issue/
+issue_DATA = \
+	src/ws/inactive.issue \
+	src/ws/active.issue \
+	$(NULL)
+
+tempconfdir = $(prefix)/lib/tmpfiles.d
+nodist_tempconf_DATA = src/ws/cockpit-tempfiles.conf
+tempconf_in = src/ws/cockpit-tempfiles.conf.in
+
+$(nodist_tempconf_DATA): $(tempconf_in)
+	$(SUBST_RULE)
 
 # If running cockpit-ws as a non-standard user, we also set up
 # cockpit-session to be setuid root, but only runnable by cockpit-session
@@ -173,11 +188,16 @@ install-exec-hook::
 
 EXTRA_DIST += \
 	src/ws/cockpit.service.in \
+	src/ws/cockpit.socket.in \
 	$(firewall_DATA) \
+	$(issue_DATA) \
+	$(tempconf_in) \
 	$(NULL)
 
 CLEANFILES += \
+	src/ws/cockpit.socket \
 	src/ws/cockpit.service \
+	$(nodist_tempconf_DATA) \
 	$(NULL)
 
 appdatadir = $(datadir)/metainfo

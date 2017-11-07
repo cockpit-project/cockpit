@@ -1,0 +1,11 @@
+[Unit]
+Description=Cockpit Web Service Socket
+Documentation=man:cockpit-ws(8)
+
+[Socket]
+ListenStream=9090
+ExecStartPost=-/bin/ln -sf @datadir@/@PACKAGE@/issue/active.issue /run/cockpit/issue
+ExecStopPost=-/bin/ln -sf @datadir@/@PACKAGE@/issue/inactive.issue /run/cockpit/issue
+
+[Install]
+WantedBy=sockets.target

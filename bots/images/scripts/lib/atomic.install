@@ -52,7 +52,16 @@ class AtomicCockpitInstaller:
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose
         self.rpms = rpms
-        self.branch = json.load(open("/usr/share/rpm-ostree/treefile.json"))["ref"]
+        status = json.loads(subprocess.check_output(["rpm-ostree", "status", "--json"]))
+        origin = None
+        for deployment in status.get("deployments", []):
+            if deployment.get("booted"):
+                origin = deployment["origin"]
+
+        if not origin:
+            raise Exception("Couldn't find origin")
+
+        self.branch = origin.split(":", 1)[-1]
 
     def setup_dirs(self):
         if self.verbose:

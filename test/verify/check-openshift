@@ -600,6 +600,7 @@ class TestRegistry(MachineCase):
 
         self.login_and_go("/kubernetes/registry")
         b.wait_present(".dashboard-images")
+        b.wait_present("#content a[href='#/images/marmalade']")
         b.click("#content a[href='#/images/marmalade']")
         b.wait_present("a i.pficon-add-circle-o")
 

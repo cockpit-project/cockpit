@@ -38,7 +38,13 @@
         try {
             obj = JSON.parse(response.data);
         } catch(e) {
-            return;
+            // Some kubernetes versions message up json reponses
+            if (response.data && response.headers &&
+                response.headers["Content-Type"] === "text/plain") {
+                obj = { message: response.data };
+            } else {
+                return;
+            }
         }
 
         if (obj && obj.message)

@@ -194,10 +194,19 @@ def convert_launchables(xml):
 
     return ables
 
+def convert_urls(xml):
+    urls = [ ]
+
+    for url in xml.iter('url'):
+        urls.append({ 'type': url.attrib['type'], 'link': url.text })
+
+    return urls
+
 def convert_collection_component(dir, origin, xml):
     id = element_value(xml, 'id')
     pkgname = element_value(xml, 'pkgname')
     launchables = convert_launchables(xml)
+    urls = convert_urls(xml)
 
     if not id or not pkgname or len(launchables) == 0:
         return None
@@ -210,7 +219,8 @@ def convert_collection_component(dir, origin, xml):
         'description': convert_description(element(xml, 'description')),
         'icon': find_and_convert_icon(dir, origin, xml),
         'screenshots': convert_screenshots(element(xml, 'screenshots')),
-        'launchables': launchables
+        'launchables': launchables,
+        'urls': urls
     }
 
 def convert_upstream_component(file, xml):
@@ -221,6 +231,8 @@ def convert_upstream_component(file, xml):
     if len(launchables) ==  0:
         return None
 
+    urls = convert_urls(xml)
+
     return {
         'id': element_value(xml, 'id'),
         'name': element_value(xml, 'name'),
@@ -230,7 +242,8 @@ def convert_upstream_component(file, xml):
         'screenshots': convert_screenshots(element(xml, 'screenshots')),
         'launchables': launchables,
         'installed': True,
-        'file': file
+        'file': file,
+        'urls': urls
     }
 
 class MetainfoDB:

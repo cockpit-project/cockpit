@@ -278,6 +278,8 @@ test_authenticate (TestCase *test,
   GError *error = NULL;
 
   g_setenv ("COCKPIT_TEST_KEEP_PATH", "1", TRUE);
+  g_setenv ("COCKPIT_TEST_KEEP_KTAB", "1", TRUE);
+
   if (!mock_kdc_available)
     {
       cockpit_test_skip ("mock kdc not available to test against");

@@ -178,7 +178,6 @@ echo '%(password)s' | KRB5_TRACE=/dev/stderr kinit -f admin@COCKPIT.LAN
 
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
 curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
-ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
 
 # HACK: https://bugs.freedesktop.org/show_bug.cgi?id=98479
 if ! grep -q 'services.*nss' /etc/sssd/sssd.conf; then
@@ -259,6 +258,20 @@ class TestKerberos(MachineCase):
         self.configure_kerberos()
         self.machine.restart_cockpit()
 
+        self.machine.execute("mkdir -p /etc/cockpit")
+        keytab = "/etc/cockpit/krb5.keytab"
+        # These only support the default keytab location
+        if self.machine.image in ["rhel-7-4", "rhel-7-5"]:
+            keytab = "/etc/krb5.keytab"
+
+        # Pull keytab
+        self.machine.execute(["ipa-getkeytab","-q","-s","f0.cockpit.lan",
+                              "-p","HTTP/x0.cockpit.lan","-k",keytab])
+
+        if self.machine.image not in ["rhel-7-4", "rhel-7-5"]:
+            self.machine.execute("chmod 600 /etc/cockpit/krb5.keytab")
+
+
         output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
                                        '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
                                        'http://x0.cockpit.lan:9090/cockpit/login'])
@@ -331,6 +344,24 @@ class TestKerberos(MachineCase):
 
         # Make sure we connected via SSH
         self.assertIn("admin@cockpit.lan", self.machine.execute("ps -xa | grep sshd"))
+        b.kill()
+
+        if self.machine.image not in ["rhel-7-4", "rhel-7-5"]:
+            # Remove cockpit keytab
+            self.machine.execute("mv /etc/cockpit/krb5.keytab /etc/cockpit/bk.keytab")
+            output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
+                                           '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
+                                           'http://x0.cockpit.lan:9090/cockpit/login'])
+            self.assertIn("HTTP/1.1 401", output)
+
+            # Pull http into default keytab
+            self.machine.execute('printf "rkt /etc/cockpit/bk.keytab\nwkt /etc/krb5.keytab\nq" | ktutil')
+            output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
+                                           '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
+                                           'http://x0.cockpit.lan:9090/cockpit/login'])
+            self.assertIn("HTTP/1.1 200 OK", output)
+            self.assertIn('"csrf-token"', output)
+        self.allow_restart_journal_messages()
 
 if __name__ == '__main__':
     test_main()

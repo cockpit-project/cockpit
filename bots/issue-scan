@@ -45,9 +45,6 @@ WINDOWS_TASKS = [
     "windows"
 ]
 
-# Server to tell us if we can create Red Hat images
-REDHAT_PING = "http://file.rdu.redhat.com"
-
 # Credentials for working on above contexts
 REDHAT_CREDS = "~/.rhel/login"
 
@@ -59,7 +56,7 @@ import urllib
 
 sys.dont_write_bytecode = True
 
-from task import github
+from task import github, REDHAT_PING
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))

@@ -20,7 +20,8 @@
 
 # The default settings here should match one of the default
 # download stores. These are usually cockpit/images instances
-UPLOAD = "https://209.132.184.69:8493/"
+# verifymachine{4,5} are the only ones publically accessible
+DEFAULT_UPLOAD = ["https://209.132.184.41:8493/", "https://209.132.184.69:8493/"]
 TOKEN = "~/.config/github-token"
 
 import argparse
@@ -78,7 +79,7 @@ def upload(store, source):
 
 def main():
     parser = argparse.ArgumentParser(description='Upload bot state or images')
-    parser.add_argument("--store", default=UPLOAD, help="Where to send state or images")
+    parser.add_argument("--store", action="append", default=[], help="Where to send state or images")
     parser.add_argument("--state", action="store_true", help="Images or state not recorded in git")
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
@@ -97,8 +98,12 @@ def main():
         sources.append(source)
 
     for source in sources:
-        ret = upload(args.store, source)
-        if ret != 0:
+        for store in (args.store or DEFAULT_UPLOAD):
+            ret = upload(store, source)
+            if ret == 0:
+                return ret
+        else:
+            # all stores failed, so return last exit code
             return ret
 
 if __name__ == '__main__':

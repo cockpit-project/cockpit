@@ -180,3 +180,48 @@ function ph_focus(sel)
 {
     ph_find(sel).focus();
 }
+
+// Convert return value from a JS expression into a standard JS Promise, so
+// that it can be processed by CDP Runtime.evaluate() with awaitPromise=true.
+function ph_wrap_promise(value) {
+    // Standard promise
+    if (value instanceof Promise)
+        return value;
+
+    // Cockpit promise, wrap it in standard promise
+    if (typeof(value) === "function" && value.done)
+        return new Promise((resolve, reject) => {
+            value
+                .done(resolve)
+                .fail(reject);
+        });
+
+    // normal value, just wrap it in promise
+    return new Promise((resolve, reject) => resolve(value));
+}
+
+function ph_wait_cond(cond, timeout) {
+    return new Promise((resolve, reject) => {
+        // poll every 100 ms for now;  FIXME: poll less often and re-check on mutations using
+        // https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+        let stepTimer = null;
+        let tm = window.setTimeout( () => {
+                if (stepTimer)
+                    window.clearTimeout(stepTimer);
+                reject("condition did not become true");
+            }, timeout);
+        function step() {
+            try {
+                if (cond()) {
+                    window.clearTimeout(tm);
+                    resolve();
+                    return;
+                }
+            } catch (err) {
+                reject(err);
+            }
+            stepTimer = window.setTimeout(step, 100);
+        }
+        step();
+    });
+}

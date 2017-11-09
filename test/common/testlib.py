@@ -24,6 +24,7 @@ Tools for writing Cockpit test cases.
 from time import sleep
 
 import argparse
+import base64
 import errno
 import subprocess
 import os
@@ -39,6 +40,8 @@ import tempfile
 import time
 import signal
 import unittest
+import glob
+import fcntl
 
 import tap
 import testvm
@@ -91,19 +94,18 @@ class Browser:
             self.port = port
         self.default_user = "admin"
         self.label = label
-        self.phantom = Phantom("en_US.utf8")
+        self.cdp = CDP("C.utf8")
         self.password = "foobar"
 
     def title(self):
-        return self.phantom.eval('document.title')
+        return self.cdp.eval('document.title')
 
     def open(self, href, cookie=None):
         """
         Load a page into the browser.
 
         Arguments:
-          page: The path of the Cockpit page to load, such as "/dashboard".
-          url: The full URL to load.
+          href: The path of the Cockpit page to load, such as "/dashboard".
 
         Either PAGE or URL needs to be given.
 
@@ -113,52 +115,81 @@ class Browser:
         if href.startswith("/"):
             href = "http://%s:%s%s" % (self.address, self.port, href)
 
-        def tryopen(hard=False):
-            try:
-                self.phantom.kill()
-                if cookie is not None:
-                    self.phantom.cookies(cookie)
-                self.phantom.open(href)
-                return True
-            except:
-                if hard:
-                    raise
-                return False
-
-        tries = 0
-        while not tryopen(tries >= 20):
-            print("Restarting browser...")
-            sleep(0.1)
-            tries = tries + 1
+        if cookie:
+            self.cdp.invoke("Network.setCookie", **cookie)
+        self.switch_to_top()
+        self.cdp.invoke("Page.navigate", url=href)
+        self.expect_load()
 
     def reload(self):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.phantom.reload()
+        self.cdp.invoke("Page.reload")
+        self.expect_load()
 
     def expect_load(self):
-        self.phantom.expect_load()
+        if opts.trace:
+            print("-> expect_load")
+        self.cdp.command('new Promise((resolve, reject) => { \
+            let tm = setTimeout( () => reject("timed out waiting for page load"), %i ); \
+            client.Page.loadEventFired( () => { clearTimeout(tm); resolve() }); \
+        })' % (self.cdp.timeout * 1000))
+        if opts.trace:
+            print("<- expect_load done")
+
+    def expect_load_frame(self, name):
+        if opts.trace:
+            print("-> expect_load_frame " + name)
+        self.cdp.command('expectLoadFrame(%s, %i)' % (jsquote(name), self.cdp.timeout * 1000))
+        if opts.trace:
+            print("<- expect_load_frame %s done" % name)
 
     def switch_to_frame(self, name):
-        self.phantom.switch_frame(name)
+        self.cdp.set_frame(name)
 
     def switch_to_top(self):
-        self.phantom.switch_top()
+        self.cdp.set_frame(None)
 
     def upload_file(self, selector, file):
-        self.phantom.upload_file(selector, file)
+        r = self.cdp.invoke("Runtime.evaluate", expression='document.querySelector(%s)' % jsquote(selector))
+        objectId = r["result"]["objectId"]
+        self.cdp.invoke("DOM.setFileInputFiles", files=[file], objectId=objectId)
 
-    def eval_js(self, code):
-        return self.phantom.eval(code)
+    def raise_cdp_exception(self, func, arg, details, trailer=None):
+        # unwrap a typical error string
+        if details.get("exception", {}).get("type") == "string":
+            msg = details["exception"]["value"]
+        else:
+            msg = str(details)
+        if trailer:
+            msg += "\n" + trailer
+        raise Error("%s(%s): %s" % (func, arg, msg))
+
+    def eval_js(self, code, no_trace=False):
+        result = self.cdp.invoke("Runtime.evaluate", expression="ph_wrap_promise(%s)" % code, trace=code,
+                                 silent=False, awaitPromise=True, returnByValue=True, no_trace=no_trace)
+        if "exceptionDetails" in result:
+            self.raise_cdp_exception("eval_js", code, result["exceptionDetails"])
+        _type = result.get("result", {}).get("type")
+        if _type == 'object' and result["result"].get("subtype", "") == "error":
+            raise Error(result["result"]["description"])
+        if _type == "undefined":
+            return None
+        if _type and "value" in result["result"]:
+            return result["result"]["value"]
+
+        if opts.trace:
+            print("eval_js(%s): cannot interpret return value %s" % (code, result))
+        return None
 
     def call_js_func(self, func, *args):
-        return self.phantom.eval("%s(%s)" % (func, ','.join(map(jsquote, args))))
+        return self.eval_js("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def cookie(self, name):
-        cookies = self.phantom.cookies()
-        for c in cookies:
-            if c['name'] == name:
-                return c['value']
+        cookies = self.cdp.invoke("Network.getCookies")
+        for c in cookies["cookies"]:
+            if c["name"] == name:
+                return c["value"]
         return None
 
     def go(self, hash, host="localhost"):
@@ -191,7 +222,10 @@ class Browser:
         self.call_js_func('ph_focus', selector)
 
     def key_press(self, keys):
-        return self.phantom.keys('keypress', keys)
+        for k in keys:
+            if k == 'Return':
+                k = '\r'  # FIXME: PhantomJS backwards compat
+            self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k)
 
     def wait_timeout(self, timeout):
         browser = self
@@ -201,9 +235,9 @@ class Browser:
             def __enter__(self):
                 pass
             def __exit__(self, type, value, traceback):
-                browser.phantom.timeout = self.timeout
-        r = WaitParamsRestorer(self.phantom.timeout)
-        self.phantom.timeout = timeout
+                browser.cdp.timeout = self.timeout
+        r = WaitParamsRestorer(self.cdp.timeout)
+        self.cdp.timeout = timeout
         return r
 
     def wait(self, predicate):
@@ -211,20 +245,27 @@ class Browser:
             raise Error('timed out waiting for predicate to become true')
 
         signal.signal(signal.SIGALRM, alarm_handler)
-        orig_handler = signal.alarm(self.phantom.timeout)
+        orig_handler = signal.alarm(self.cdp.timeout)
         while True:
             val = predicate()
             if val:
                 signal.alarm(0)
                 signal.signal(signal.SIGALRM, orig_handler)
                 return val
-            self.wait_checkpoint()
 
     def wait_js_cond(self, cond):
-        return self.phantom.wait(cond)
+        result = self.cdp.invoke("Runtime.evaluate",
+                                 expression="ph_wait_cond(() => %s, %i)" % (cond, self.cdp.timeout * 1000),
+                                 silent=False, awaitPromise=True, trace="wait: " + cond)
+        if "exceptionDetails" in result:
+            logs = self.cdp.command("new Promise((resolve, reject) => resolve(messages))")
+            trailer = ""
+            if logs:
+                trailer = "\n".join(logs)
+            self.raise_cdp_exception("timeout\nwait_js_cond", cond, result["exceptionDetails"], trailer)
 
     def wait_js_func(self, func, *args):
-        return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))))
+        self.wait_js_cond("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def is_present(self, selector):
         return self.call_js_func('ph_is_present', selector)
@@ -283,15 +324,6 @@ class Browser:
             id: The 'id' attribute of the popup.
         """
         self.wait_not_visible('#' + id)
-
-    def arm_timeout(self):
-        return self.phantom.arm_timeout(self.phantom.timeout * 1000)
-
-    def disarm_timeout(self):
-        return self.phantom.disarm_timeout()
-
-    def wait_checkpoint(self):
-        return self.phantom.wait_checkpoint()
 
     def dialog_complete(self, sel, button=".btn-primary", result="hide"):
         self.click(sel + " " + button)
@@ -388,8 +420,13 @@ class Browser:
         self.switch_to_top()
         self.wait_present("#navbar-dropdown")
         self.wait_visible("#navbar-dropdown")
-        self.click("#navbar-dropdown")
-        self.click('#go-logout')
+        if self.is_visible("button#machine-reconnect"):
+            # happens when shutting down cockpit or rebooting machine
+            self.click("button#machine-reconnect")
+        else:
+            # happens when cockpit is still running
+            self.click("#navbar-dropdown")
+            self.click('#go-logout')
         self.expect_load()
 
     def relogin(self, path=None, user=None, authorized=None):
@@ -412,29 +449,47 @@ class Browser:
                 host = None
             self.enter_page(path.split("#")[0], host=host)
 
+    def ignore_ssl_certificate_errors(self, ignore):
+        action = ignore and "continue" or "cancel"
+        if opts.trace:
+            print("-> Setting SSL certificate error policy to %s" % action)
+        self.cdp.command("new Promise((resolve, _) => { ssl_bad_certificate_action = '%s'; resolve() })" % action)
+
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG and HTML.
 
         Arguments:
             title: Used for the filename.
         """
-        if self.phantom and self.phantom.valid:
+        if self.cdp and self.cdp.valid:
             filename = "{0}-{1}.png".format(label or self.label, title)
-            self.phantom.show(filename)
+            ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
+            with open(filename, 'wb') as f:
+                f.write(base64.standard_b64decode(ret["data"]))
             attach(filename)
+            print("Wrote screenshot to " + filename)
             filename = "{0}-{1}.html".format(label or self.label, title)
-            self.phantom.dump(filename)
+            html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
+                                   no_trace=True)["result"]["value"]
+            with open(filename, 'wb') as f:
+                f.write(html.encode('UTF-8'))
             attach(filename)
+            print("Wrote HTML dump to " + filename)
 
     def copy_js_log(self, title, label=None):
         """Copy the current javascript log"""
-        if self.phantom and self.phantom.valid:
+        if self.cdp and self.cdp.valid:
             filename = "{0}-{1}.js.log".format(label or self.label, title)
-            self.phantom.dump_log(filename)
-            attach(filename)
+            # needs to be wrapped in Promise
+            logs = self.cdp.command("new Promise((resolve, reject) => resolve(messages))")
+            if logs:
+                with open(filename, 'w') as f:
+                    f.write('\n'.join(logs).encode('UTF-8'))
+                attach(filename)
+                print("Wrote JS log to " + filename)
 
     def kill(self):
-        self.phantom.kill()
+        self.cdp.kill()
 
 
 class MachineCase(unittest.TestCase):
@@ -777,71 +832,180 @@ some_failed = False
 def jsquote(str):
     return json.dumps(str)
 
-# See phantom-driver for the methods that are defined
-class Phantom:
+class CDP:
     def __init__(self, lang=None):
         self.lang = lang
         self.timeout = 60
         self.valid = False
         self._driver = None
+        self._browser = None
+        self._browser_home = None
+        self._cdp_port_lockfile = None
 
-    def __getattr__(self, name):
-        if not name.startswith("_"):
-            return lambda *args: self._invoke(name, *args)
-        raise AttributeError
+    def invoke(self, fn, **kwargs):
+        """Call a particular CDP method such as Runtime.evaluate
 
-    def _invoke(self, name, *args):
+        Use command() for arbitrary JS code.
+        """
+        trace = opts.trace and not kwargs.get("no_trace", False)
+        try:
+            del kwargs["no_trace"]
+        except KeyError:
+            pass
+
+        cmd = fn + "(" + json.dumps(kwargs) + ")"
+
+        # frame support for Runtime.evaluate(): map frame name to
+        # executionContextId and insert into argument object; this must not be quoted
+        # see "Frame tracking" in cdp-driver.js for how this works
+        if fn == 'Runtime.evaluate' and self.cur_frame:
+            cmd = "%s, contextId: getFrameExecId(%s)%s" % (cmd[:-2], jsquote(self.cur_frame), cmd[-2:])
+
+        if trace:
+            print("-> " + kwargs.get('trace', cmd))
+
+        # avoid having to write the "client." prefix everywhere
+        cmd = "client." + cmd
+        res = self.command(cmd)
+        if trace:
+            if "result" in res:
+                print("<- " + repr(res["result"]))
+            else:
+                print("<- " + repr(res))
+        return res
+
+    def command(self, cmd):
         if not self._driver:
             self.start()
-        if opts.trace:
-            print("-> {0}({1})".format(name, repr(args)[1:-2]))
-        line = json.dumps({
-            "cmd": name,
-            "args": args,
-            "timeout": self.timeout * 1000
-        }).replace("\n", " ") + "\n"
-        self._driver.stdin.write(line)
+        self._driver.stdin.write(cmd + "\n")
         line = self._driver.stdout.readline()
         if not line:
             self.kill()
-            raise Error("PhantomJS or driver broken")
+            raise Error("CDP broken")
         try:
             res = json.loads(line)
-        except:
+        except ValueError:
             print(line.strip())
             raise
-        if 'error' in res:
+
+        if "error" in res:
             if opts.trace:
-                print("<- raise", res['error'])
-            raise Error(res['error'])
-        if 'result' in res:
-            if opts.trace:
-                print("<-", repr(res['result']))
-            return res['result']
-        raise Error("unexpected: " + line.strip())
+                print("<- raise " + res["error"])
+            raise Error(res["error"])
+        return res["result"]
+
+    def claim_port(self, port):
+        f = None
+        try:
+            f = open(os.path.join(tempfile.gettempdir(), ".cdp-%i.lock" % port), "w")
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self._cdp_port_lockfile = f
+            return True
+        except (IOError, OSError):
+            if f:
+                f.close()
+            return False
+
+    def find_cdp_port(self):
+        """Find an unused port and claim it through lock file"""
+
+        for retry in range(100):
+            # don't use the default CDP port 9222 to avoid interfering with running browsers
+            port = random.randint (9223, 10222)
+            if self.claim_port(port):
+                return port
+        else:
+            raise Error("unable to find free port")
 
     def start(self):
         environ = os.environ.copy()
         if self.lang:
             environ["LC_ALL"] = self.lang
         path = os.path.dirname(__file__)
-        command = [
-            "%s/phantom-command" % path,
-            "%s/phantom-driver.js" % path,
-            "%s/sizzle.js" % path,
-            "%s/test-functions.js" % path
-        ]
-        self.valid = True
-        self._driver = subprocess.Popen(command, env=environ,
+        self.cur_frame = None
+
+        # allow attaching to external browser
+        cdp_port = None
+        if "TEST_CDP_PORT" in os.environ:
+            p = int(os.environ["TEST_CDP_PORT"])
+            if self.claim_port(p):
+                # can fail when a test starts multiple browsers; only show the first one
+                cdp_port = p
+
+        if not cdp_port:
+            # start browser on a new port
+            cdp_port = self.find_cdp_port()
+            self._browser_home = tempfile.mkdtemp()
+            environ = os.environ.copy()
+            environ["HOME"] = self._browser_home
+            environ["LC_ALL"] = "C.utf8"
+            # this might be set for the tests themselves, but we must isolate caching between tests
+            try:
+                del environ["XDG_CACHE_HOME"]
+            except KeyError:
+                pass
+
+            exe = browser_path()
+            # sandboxing does not work in Docker container
+            self._browser = subprocess.Popen(
+                [exe, "--headless", "--disable-gpu", "--no-sandbox",
+                 "--remote-debugging-port=%i" % cdp_port, "about:blank"],
+                env=environ, close_fds=True)
+            sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))
+
+        # wait for CDP to be up
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        for retry in range(300):
+            try:
+                s.connect(('127.0.0.1', cdp_port))
+                break
+            except socket.error:
+                time.sleep(0.1)
+        else:
+            raise Error('timed out waiting for browser to start')
+
+        # now start the driver
+        if opts.trace:
+            # enable frame/execution context debugging if tracing is on
+            environ["TEST_CDP_DEBUG"] = "1"
+        self._driver = subprocess.Popen(["%s/cdp-driver.js" % path, str(cdp_port)],
+                                        env=environ,
                                         stdout=subprocess.PIPE,
-                                        stdin=subprocess.PIPE, close_fds=True)
+                                        stdin=subprocess.PIPE,
+                                        close_fds=True)
+        self.valid = True
+
+        for inject in [ "%s/test-functions.js" % path, "%s/sizzle.js" % path ]:
+            with open(inject) as f:
+                src = f.read()
+            # HACK: injecting sizzle fails on missing `document` in assert()
+            src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
+            self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
 
     def kill(self):
         self.valid = False
+        self.cur_frame = None
         if self._driver:
-            self._driver.terminate()
+            self._driver.stdin.close()
             self._driver.wait()
             self._driver = None
+
+        if self._browser:
+            sys.stderr.write("Killing browser (pid %i)\n" % self._browser.pid)
+            try:
+                self._browser.terminate()
+            except OSError:
+                pass  # ignore if it crashed for some reason
+            self._browser.wait()
+            self._browser = None
+            shutil.rmtree(self._browser_home, ignore_errors=True)
+            os.remove(self._cdp_port_lockfile.name)
+            self._cdp_port_lockfile.close()
+
+    def set_frame(self, frame):
+        self.cur_frame = frame
+        if opts.trace:
+            print("-> switch to frame %s" % frame)
 
 def skipImage(reason, *args):
     if testvm.DEFAULT_IMAGE in args:
@@ -1073,6 +1237,30 @@ def arg_parser():
 
     parser.set_defaults(verbosity=1, fetch=True)
     return parser
+
+def browser_path():
+    """Return path to CDP browser.
+
+    Support the following locations:
+     - "chromium-browser" in $PATH (distro package)
+     - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM)
+     - node_modules/chromium/lib/chromium/chrome-linux/chrome (npm install chromium)
+
+    Exit with an error if none is found.
+    """
+    try:
+        return subprocess.check_output(["which", "chromium-browser"]).strip()
+    except subprocess.CalledProcessError:
+        g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
+        if g:
+            return g[0]
+
+        p = os.path.join(os.path.dirname(TEST_DIR), "node_modules/chromium/lib/chromium/chrome-linux/chrome")
+        if os.access(p, os.X_OK):
+            return p
+
+        raise
+
 
 def test_main(options=None, suite=None, attachments=None, **kwargs):
     """

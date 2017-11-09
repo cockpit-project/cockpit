@@ -44,7 +44,11 @@ __all__ = (
     "issue",
     "verbose",
     "stale",
+    "REDHAT_PING",
 )
+
+# Server to tell us if we can handle Red Hat images
+REDHAT_PING = "http://cockpit-11.e2e.bos.redhat.com"
 
 api = github.GitHub()
 verbose = False

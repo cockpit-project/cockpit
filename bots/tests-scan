@@ -54,9 +54,6 @@ REDHAT_VERIFY = {
     'selenium/explorer': [ 'master' ],
 }
 
-# Server to tell us if we can test Red Hat images
-REDHAT_PING = "http://cockpit-11.e2e.bos.redhat.com"
-
 # Host interfaces that tell us we're not in a namespaced network
 HOST_INTERFACES = [ "cockpit1", "docker0", "virbr0" ]
 
@@ -77,7 +74,7 @@ import urllib
 
 sys.dont_write_bytecode = True
 
-from task import github
+from task import github, REDHAT_PING
 
 def main():
     parser = argparse.ArgumentParser(description='Bot: scan and update status of pull requests on GitHub')

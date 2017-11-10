@@ -589,15 +589,18 @@
 
         $(client).on('changed', render_jobs);
 
-        function make_plot_setup(unit) {
-            return function plot_setup(flot) {
-                var axes = flot.getAxes();
-                if (axes.yaxis.datamax < 100000)
-                    axes.yaxis.options.max = 100000;
-                else
-                    axes.yaxis.options.max = null;
-                axes.yaxis.options.min = 0;
+        function plot_setup(flot) {
+            var axes = flot.getAxes();
+            if (axes.yaxis.datamax < 100000)
+                axes.yaxis.options.max = 100000;
+            else
+                axes.yaxis.options.max = null;
+            axes.yaxis.options.min = 0;
+        }
 
+        function make_plot_post(unit) {
+            return function (flot) {
+                var axes = flot.getAxes();
                 $(unit).text(plot.bytes_per_sec_tick_unit(axes.yaxis));
             };
         }
@@ -622,7 +625,8 @@
         $.extend(read_plot_options.grid,  { hoverable: true,
                                             autoHighlight: false
                                           });
-        read_plot_options.setup_hook = make_plot_setup("#storage-reading-unit");
+        read_plot_options.setup_hook = plot_setup;
+        read_plot_options.post_hook = make_plot_post("#storage-reading-unit");
         var read_plot = plot.plot($("#storage-reading-graph"), 300);
         read_plot.set_options(read_plot_options);
         read_series = read_plot.add_metrics_stacked_instances_series(read_plot_data, { });
@@ -644,7 +648,8 @@
         $.extend(write_plot_options.grid,  { hoverable: true,
                                              autoHighlight: false
                                            });
-        write_plot_options.setup_hook = make_plot_setup("#storage-writing-unit");
+        write_plot_options.setup_hook = plot_setup;
+        write_plot_options.post_hook = make_plot_post("#storage-writing-unit");
         var write_plot = plot.plot($("#storage-writing-graph"), 300);
         write_plot.set_options(write_plot_options);
         write_series = write_plot.add_metrics_stacked_instances_series(write_plot_data, { });

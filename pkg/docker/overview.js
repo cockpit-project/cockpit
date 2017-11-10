@@ -126,7 +126,9 @@
             else
                 axes.yaxis.options.max = null;
             axes.yaxis.options.min = 0;
-
+        };
+        mem_options.post_hook = function (flot) {
+            var axes = flot.getAxes();
             $("#containers-mem-unit").text(plot.bytes_tick_unit(axes.yaxis));
         };
 

@@ -68,11 +68,15 @@ var C_ = cockpit.gettext;
  * Set the global flot options.  You need to refresh the plot
  * afterwards.
  *
- * In addition to the flot options, you can also set 'setup_hook'
+ * In addition to the flot options, you can also set the 'setup_hook'
  * field to a function.  This function will be called between
  * flot.setData() and flot.draw() and can be used to adjust the axes
  * limits, for example.  It is called with the flot object as its only
  * parameter.
+ *
+ * Setting the 'post_hook' to a function will call that function after
+ * each refresh of the plot.  This is used to decorate a plot with the
+ * unit strings, for example.
  *
  * - options = plot.get_options()
  *
@@ -169,6 +173,9 @@ plotter.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
         flot.setupGrid();
         flot.draw();
+
+        if (options.post_hook)
+            options.post_hook(flot);
     }
 
     var refresh_pending = false;
@@ -1071,6 +1078,8 @@ function setup_plot(graph_id, grid, data, user_options) {
                 user_options.setup_hook(plot);
             plot.setupGrid();
             plot.draw();
+            if (user_options.post_hook)
+                user_options.post_hook(plot);
         }
     }
 

@@ -52,6 +52,10 @@ class TestApps(PackageCase):
     <name>{0}</name>
     <summary>An application for testing</summary>
     <launchable type="cockpit-manifest">{0}</launchable>
+    <description>
+        <p>DESCRIPTION:none</p>
+    </description>
+    <url type="homepage">https://{0}.com</url>
     <pkgname>{0}</pkgname>
   </component>
 """.format(p)
@@ -82,6 +86,14 @@ class TestApps(PackageCase):
         self.createAppStreamPackage("app-1", "1.0", "1")
         self.enableAppStreamRepo()
 
+        b.wait_present(".app-list tr:contains('An application for testing')")
+        b.click(".app-list tr:contains('An application for testing')")
+        b.wait_present('.app-links a[href="https://app-1.com"]')
+        b.wait_present(".breadcrumb a:contains('Applications')")
+        b.click(".breadcrumb a:contains('Applications')")
+
+        b.wait_visible("#list-page")
+        b.wait_not_visible("#app-page")
         b.wait_present(".app-list tr:contains('app-1') button:contains('Install')")
 
         b.click(".app-list tr:contains('app-1') button:contains('Install')")

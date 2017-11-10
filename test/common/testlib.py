@@ -467,7 +467,7 @@ class MachineCase(unittest.TestCase):
         if opts.address:
             if machine_class or forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
-            machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace)
+            machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace, browser=opts.browser)
             self.addCleanup(lambda: machine.disconnect())
         else:
             if not machine_class:
@@ -1131,8 +1131,10 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
 
     standalone = options is None
     parser = arg_parser()
-    parser.add_argument('--machine', dest="address", action="store",
+    parser.add_argument('--machine', metavar="hostname[:port]", dest="address",
                         default=None, help="Run this test against an already running machine")
+    parser.add_argument('--browser', metavar="hostname[:port]", dest="browser",
+                        default=None, help="When using --machine, use this cockpit web address")
 
     if standalone:
         options = parser.parse_args()
@@ -1149,6 +1151,7 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
         parser.error("the -s or --sit argument not avalible with multiple jobs")
 
     opts.address = getattr(opts, "address", None)
+    opts.browser = getattr(opts, "browser", None)
     opts.attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
     if opts.attachments and not os.path.exists(opts.attachments):
         os.makedirs(opts.attachments)

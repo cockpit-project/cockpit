@@ -50,6 +50,7 @@ SUFFIXES = \
 	.map .map.gz \
 	.mo .po \
 	.service .service.in \
+	.socket .socket.in \
 	.svg .svg.gz \
 	.woff .woff.gz \
 	.1 .8 .5 \
@@ -103,6 +104,7 @@ SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \
 	-e 's,[@]datadir[@],$(datadir),g' \
 	-e 's,[@]libexecdir[@],$(libexecdir),g' \
+	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
 	-e 's,[@]libdir[@],$(libdir),g' \
 	-e 's,[@]includedir[@],$(includedir),g' \
 	-e 's,[@]bindir[@],$(bindir),g' \
@@ -133,6 +135,8 @@ SUBST_RULE = \
 .map.map.gz:
 	$(GZ_RULE)
 .service.in.service:
+	$(SUBST_RULE)
+.socket.in.socket:
 	$(SUBST_RULE)
 .svg.svg.gz:
 	$(GZ_RULE)

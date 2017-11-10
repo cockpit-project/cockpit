@@ -164,14 +164,38 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
-    @skipImage("Atomic changes ports differently", "fedora-atomic", "rhel-atomic", "continuous-atomic")
-    def testSocketPort(self):
+    @skipImage("Atomic doesn't use socket", "fedora-atomic", "rhel-atomic", "continuous-atomic")
+    def testSocket(self):
         m = self.machine
+
+        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+            self.assertIn("systemctl", m.execute("cat /run/cockpit/issue"))
+            self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
+        m.start_cockpit()
+
+        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+            self.assertNotIn("systemctl", m.execute("cat /run/cockpit/issue"))
+            self.assertIn("9090", m.execute("cat /run/cockpit/issue"))
+
+        m.execute("systemctl stop cockpit.socket")
 
         # Change port according to documentation: http://cockpit-project.org/guide/latest/listen.html
         m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
-        m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+        m.execute("echo 'custom activemessage' > /etc/cockpit/active.issue")
+        m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443\nExecStartPost=-/bin/ln -sf /etc/cockpit/active.issue /run/cockpit/issue" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+
+        # cockpit-ws from base package
+        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+            self.assertIn("systemctl", m.execute("cat /run/cockpit/issue"))
+            self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
+            self.assertNotIn("custom activemessage", m.execute("cat /run/cockpit/issue"))
         m.start_cockpit(tls=True)
+
+        # cockpit-ws from base package
+        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+            self.assertNotIn("systemctl", m.execute("cat /run/cockpit/issue"))
+            self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
+            self.assertIn("custom activemessage", m.execute("cat /run/cockpit/issue"))
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
         self.assertIn('Loading...', output)

@@ -471,7 +471,7 @@
             cockpit.spawn([ "stat", "-f", "-c", "[ %S, %f, %b ]", path ], { err: "message" })
                 .done(function (output) {
                     var data = JSON.parse(output);
-                    self.fsys_sizes[path] = [ data[1]*data[0], data[2]*data[0] ];
+                    self.fsys_sizes[path] = [ (data[2]-data[1])*data[0], data[2]*data[0] ];
                     $(self).triggerHandler('changed');
                 })
                 .fail(function () {

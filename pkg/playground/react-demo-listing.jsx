@@ -114,7 +114,10 @@
                  <cockpitListing.ListingRow
                      columns={ [ { name: "with button", 'header': true }, 'aoeuaoeu', '127.30.168.10', rowAction ] }
                      tabRenderers={tabRenderers}/>
-                 <cockpitListing.ListingRow
+                <cockpitListing.ListingRow
+                    columns={ [ { name: "initially expanded", 'header': true }, 'aoeuaoeu', '127.30.168.12', rowAction ] }
+                    tabRenderers={tabRenderers} initiallyExpanded/>
+                <cockpitListing.ListingRow
                      columns={ [ { name: 'nothing to expand', 'header': true }, 'some text', '127.30.168.11', 'some state' ] }/>
              </cockpitListing.Listing>
         );

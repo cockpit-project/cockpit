@@ -260,7 +260,7 @@ class TestOVirtMachines(MachineCase):
         b.click("button:contains('Save')")
         b.wait_present("button:contains('OK')")
         b.click("button:contains('OK')")  # Limitation of this test env: In fact self.machine is updated and not the VDSM, see hack_for_missing_vdsm().
-        b.wait(lambda: TEST_VDSM_CONF_CONTENT in self.machine.execute("cat {0}".format(VDSM_CONF_FILE)))
+        wait(lambda: TEST_VDSM_CONF_CONTENT in self.machine.execute("cat {0}".format(VDSM_CONF_FILE)))
 
         # sit(self.machines)
 

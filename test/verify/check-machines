@@ -265,7 +265,7 @@ class TestMachines(MachineCase):
         b.wait_not_visible("#vm-subVmTest1-sendNMI")
 
         if args["logfile"] is not None:
-            b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
+            wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")

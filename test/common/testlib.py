@@ -1137,6 +1137,10 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
     if standalone:
         options = parser.parse_args()
 
+    # Sit should always imply verbose
+    if options.sit:
+        options.verbosity = 2
+
     # Have to copy into opts due to python globals across modules
     for (key, value) in vars(options).items():
         setattr(opts, key, value);

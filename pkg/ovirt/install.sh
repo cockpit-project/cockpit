@@ -60,7 +60,7 @@ function generateProviderConfig() {
   # TODO: decrease polling interval if AuditLog-based updates proof to be working
   echo "{ \
       \"debug\": false, \
-      \"ovirt_polling_interval\": 60000, \
+      \"ovirt_polling_interval\": 5000, \
       \"cockpitPort\": 9090, \
       \"OVIRT_FQDN\": \"${ENGINE_FQDN}\", \
       \"OVIRT_PORT\": ${ENGINE_PORT}," \

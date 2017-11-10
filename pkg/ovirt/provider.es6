@@ -24,7 +24,8 @@ import { logDebug, logError, fileDownload } from '../machines/helpers.es6';
 import { readConfiguration } from './configFuncs.es6';
 import { CONSOLE_TYPE_ID_MAP } from './config.es6';
 import { ovirtApiGet, ovirtApiPost } from './ovirtApiAccess.es6';
-import { pollOvirt, forceNextOvirtPoll, oVirtIconToInternal } from './ovirt.es6';
+import { pollOvirt, forceNextOvirtPoll } from './ovirt.es6';
+import { oVirtIconToInternal } from './ovirtConverters.es6';
 
 import { updateIcon, downloadIcon, } from './actions.es6';
 import { getAllIcons, isVmManagedByOvirt } from './selectors.es6';

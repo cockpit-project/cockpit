@@ -58,10 +58,28 @@ export function updateHost(host) {
     };
 }
 
+export function removeHost(id) {
+    return {
+        type: 'OVIRT_REMOVE_HOST',
+        payload: {
+            id,
+        }
+    };
+}
+
 export function updateVm(vm) {
     return {
         type: 'OVIRT_UPDATE_VM',
         payload: vm
+    };
+}
+
+export function removeVm(id) {
+    return {
+        type: 'OVIRT_REMOVE_VM',
+        payload: {
+            id,
+        }
     };
 }
 
@@ -72,6 +90,15 @@ export function updateTemplate(template) {
     };
 }
 
+export function removeTemplate(id) {
+    return {
+        type: 'OVIRT_REMOVE_TEMPLATE',
+        payload: {
+            id,
+        }
+    };
+}
+
 export function updateCluster(cluster) {
     return {
         type: 'OVIRT_UPDATE_CLUSTER',
@@ -79,38 +106,11 @@ export function updateCluster(cluster) {
     };
 }
 
-export function removeUnlistedHosts({allHostIds}) {
+export function removeCluster(id) {
     return {
-        type: 'OVIRT_REMOVE_UNLISTED_HOSTS',
+        type: 'OVIRT_REMOVE_CLUSTER',
         payload: {
-            allHostIds
-        }
-    };
-}
-
-export function removeUnlistedVms({allVmsIds}) {
-    return {
-        type: 'OVIRT_REMOVE_UNLISTED_VMS',
-        payload: {
-            allVmsIds
-        }
-    };
-}
-
-export function removeUnlistedTemplates({allTemplateIds}) {
-    return {
-        type: 'OVIRT_REMOVE_UNLISTED_TEMPLATES',
-        payload: {
-            allTemplateIds
-        }
-    };
-}
-
-export function removeUnlistedClusters({allClusterIds}) {
-    return {
-        type: 'OVIRT_REMOVE_UNLISTED_CLUSTERS',
-        payload: {
-            allClusterIds
+            id,
         }
     };
 }

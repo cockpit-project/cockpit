@@ -22,15 +22,22 @@ import cockpit from 'cockpit';
 import {
     pollOvirtAction,
     updateHost,
-    removeUnlistedHosts,
+    removeHost,
     updateVm,
-    removeUnlistedVms,
+    removeVm,
     updateTemplate,
-    removeUnlistedTemplates,
+    removeTemplate,
     updateCluster,
-    removeUnlistedClusters,
+    removeCluster,
     downloadIcons,
 } from './actions.es6';
+
+import {
+    clusterConverter,
+    vmConverter,
+    templateConverter,
+    hostConverter,
+} from './ovirtConverters.es6';
 
 import { logDebug, logError } from '../machines/helpers.es6';
 import { ovirtApiGet } from './ovirtApiAccess.es6';
@@ -54,6 +61,15 @@ export function startOvirtPolling({ dispatch }) {
 }
 
 /**
+ * Shortens the period for next oVirt event polling, so it will be executed at next earliest opportunity.
+ *
+ * Useful to shorten reaction after user action.
+ */
+export function forceNextOvirtPoll() {
+    lastOvirtPoll = -1;
+}
+
+/**
  * Ensure, the function `call()` is not executed more than once per timeperiod.
  */
 function callOncePerTimeperiod({ call, delay, lastCall }) {
@@ -65,9 +81,7 @@ function callOncePerTimeperiod({ call, delay, lastCall }) {
 
     return null;
 }
-/**
- * TODO: evaluate use of ovirt's AuditLog messages to track changes so deep polling will be not needed.
- */
+
 export function pollOvirt() {
     return function (dispatch, getState) {
         callOncePerTimeperiod({
@@ -81,254 +95,246 @@ export function pollOvirt() {
 
                 logDebug('Executing oVirt polling');
                 lastOvirtPoll = Infinity; // avoid parallel execution
-                const promises = [];
-                promises.push(doRefreshHosts(dispatch));
-                promises.push(doRefreshClusters(dispatch));
-
-                promises.push(doRefreshVms(dispatch, getState));
-                promises.push(doRefreshTemplates(dispatch, getState));
-
-                return cockpit.all(promises).then(() => { // update the timestamp
-                    logDebug('oVirt polling finished');
-                    lastOvirtPoll = Date.now(); // single polling finished, re-enable it
-                });
+                return doRefreshEvents(dispatch, getState)
+                    .always(() => { // update the timestamp
+                        logDebug('oVirt polling finished');
+                        lastOvirtPoll = Date.now(); // single polling finished, re-enable it
+                    });
             }
         });
     };
+}
+
+let lastEventIndexReceived = -1; // oVirt strictly increases event indexes to allow incremental polling
+function doRefreshEvents(dispatch, getState) {
+    logDebug(`doRefreshEvents() called`);
+
+    let fullReload = false;
+    let params = `?from=${lastEventIndexReceived}`;
+    if (lastEventIndexReceived < 0) { // first run, take last event index and do full reload
+        params = '?max=1&search=sortby%20time%20desc'; // just the last one
+        fullReload = true;
+    }
+
+    const deferred = cockpit.defer();
+
+    ovirtApiGet(`events${params}`)
+        .done(data => {
+            const result = JSON.parse(data);
+            if (result && result.event && (result.event instanceof Array)) {
+                const vmsToRefresh = {};
+                const templatesToRefresh = {};
+                const hostsToRefresh = {};
+                const clustersToRefresh = {};
+
+                result.event.forEach(event => parseEvent(event, {
+                    vmsToRefresh,
+                    templatesToRefresh,
+                    hostsToRefresh,
+                    clustersToRefresh,
+                }));
+
+                const promises = [];
+
+                if (fullReload) { // first run
+                    promises.push(doRefreshClusters(dispatch));
+                    promises.push(doRefreshHosts(dispatch));
+
+                    promises.push(doRefreshVms(dispatch, getState));
+                    promises.push(doRefreshTemplates(dispatch, getState));
+                } else { // partial reload based on events only
+                    Object.getOwnPropertyNames(clustersToRefresh)
+                        .forEach(id => promises.push(doRefreshClusters(dispatch, id)));
+
+                    Object.getOwnPropertyNames(hostsToRefresh)
+                        .forEach(id => promises.push(doRefreshHosts(dispatch, id)));
+
+                    Object.getOwnPropertyNames(vmsToRefresh)
+                        .forEach(id => promises.push(doRefreshVms(dispatch, getState, id)));
+
+                    Object.getOwnPropertyNames(templatesToRefresh)
+                        .forEach(id => promises.push(doRefreshTemplates(dispatch, getState, id)));
+                }
+
+                cockpit.all(promises)
+                    .then(() => deferred.resolve())
+                    .fail((r) => deferred.reject(r));
+            } else {
+                if (result && Object.getOwnPropertyNames(result).length === 0) { // no new events
+                    logDebug('No new oVirt events received');
+                    deferred.resolve();
+                } else {
+                    logError('doRefreshEvents() failed, data: ', data, ', result: ', result);
+                    deferred.reject('Array of events expected');
+                }
+            }
+        }).fail(() => {
+            logError('Failed to retrieve oVirt events');
+            deferred.reject('Failed to retrieve oVirt events');
+        });
+
+    return deferred.promise;
+}
+
+function parseEvent(event, { vmsToRefresh, templatesToRefresh, hostsToRefresh, clustersToRefresh }) {
+    logDebug('parseEvent: ', event);
+    const eventIndex = parseInt(event.index);
+    lastEventIndexReceived = (lastEventIndexReceived < eventIndex) ? eventIndex : lastEventIndexReceived;
+
+    // TODO: improve refresh decision based on event type and not just on presence of related resource
+    if (event.host && event.host.id) {
+        hostsToRefresh[event.host.id] = true;
+    }
+
+    if (event.vm && event.vm.id) {
+        vmsToRefresh[event.vm.id] = true;
+    }
+
+    if (event.template && event.template.id) {
+        templatesToRefresh[event.template.id] = true;
+    }
+
+    if (event.cluster && event.cluster.id) {
+        clustersToRefresh[event.cluster.id] = true;
+    }
+}
+
+function doRefreshHosts(dispatch, hostId) {
+    return doRefreshResource(dispatch, 'hosts', hostId, parseHosts, removeHost);
+}
+
+function doRefreshClusters(dispatch, clusterId) {
+    return doRefreshResource(dispatch, 'clusters', clusterId, parseClusters, removeCluster);
+}
+
+function doRefreshVms(dispatch, getState, vmId) {
+    return doRefreshResourceWithCurrentCluster(dispatch, getState, 'vms', vmId, parseVms, removeVm, true);
+}
+
+function doRefreshTemplates(dispatch, getState, templateId) {
+    return doRefreshResourceWithCurrentCluster(dispatch, getState, 'templates', templateId, parseTemplates, removeTemplate, false);
+}
+
+function parseVms(deferred, data, dispatch, currentCluster) {
+    const filterPredicate = vm => vm.cluster && vm.cluster.id === currentCluster.id;
+
+    const allIconIds = {}; // used as a set
+    const collectIconIds = vm => {
+        if (vm.large_icon) {
+            allIconIds[vm.large_icon.id] = true;
+        }
+        if (vm.small_icon) {
+            allIconIds[vm.small_icon.id] = true;
+        }
+    };
+
+    parseResourceGeneric(data, dispatch, 'vm', vmConverter, updateVm, filterPredicate, deferred, collectIconIds);
+    dispatch(downloadIcons({ iconIds: allIconIds, forceReload: false }));
+}
+
+function parseTemplates(deferred, data, dispatch, currentCluster) {
+    const filterPredicate = (template) => !template.cluster || template.cluster.id === currentCluster.id;
+    parseResourceGeneric(data, dispatch, 'template', templateConverter, updateTemplate, filterPredicate, deferred);
+}
+
+function parseHosts(data, dispatch) {
+    parseResourceGeneric(data, dispatch, 'host', hostConverter, updateHost);
+}
+
+function parseClusters(data, dispatch) {
+    parseResourceGeneric(data, dispatch, 'cluster', clusterConverter, updateCluster);
 }
 
 /**
- * Shortens the period for next oVirt polling, so it will be executed at next earliest opportunity.
- *
- * Useful to shorten polling delay after user action.
+ * Generic function to parse received oVirt JSON resource string and update redux store.
  */
-export function forceNextOvirtPoll() {
-    lastOvirtPoll = -1;
-}
+function parseResourceGeneric(data, dispatch, name, converterFunction, updateAction, filterPredicate, deferred, resourceCallback) {
+    const alwaysTrue = () => true;
+    filterPredicate = filterPredicate || alwaysTrue;
 
-function doRefreshHosts(dispatch) {
-    logDebug(`doRefreshHosts() called`);
-    return ovirtApiGet('hosts').done(data => {
-        const result = JSON.parse(data);
-        if (result && result.host && (result.host instanceof Array)) {
-            const allHostIds = [];
-            result.host.forEach( host => {
-                allHostIds.push(host.id);
-                dispatch(updateHost({
-                    id: host.id,
-                    name: host.name,
-                    address: host.address,
-                    clusterId: host.cluster ? host.cluster.id : undefined,
-                    status: host.status,
-                    memory: host.memory,
-                    cpu: host.cpu ? {
-                        name: host.cpu.name,
-                        speed: host.cpu.speed,
-                        topology: host.cpu.topology ? {
-                            sockets: host.cpu.topology.sockets,
-                            cores: host.cpu.topology.cores,
-                            threads: host.cpu.topology.threads
-                        } : undefined
-                    } : undefined,
-                    // summary
-                    // vdsm version
-                    // libvirt_version
-                }));
-            });
-            dispatch(removeUnlistedHosts({allHostIds}));
-        } else {
-            logError(`doRefreshHosts() failed, data: ${data}`);
-        }
-    });
-}
-
-function parseVms(deferred, data, dispatch) {
     const result = JSON.parse(data);
+    if (result && result[name] && (result[name] instanceof Array)) {
+        result[name]
+            .filter(filterPredicate)
+            .forEach( resource => {
+                if (resourceCallback) {
+                    resourceCallback(resource);
+                }
+                dispatch(updateAction(converterFunction(resource)));
+            });
 
-    if (result && result.vm && (result.vm instanceof Array)) {
-        const allVmsIds = [];
-        const allIconIds = {}; // used as a set
-        result.vm.forEach( vm => {
-            allVmsIds.push(vm.id);
-
-            let largeIconId, smallIconId;
-            if (vm.large_icon) {
-                largeIconId = vm.large_icon.id;
-                allIconIds[largeIconId] = true;
-            }
-            if (vm.small_icon) {
-                smallIconId = vm.small_icon.id;
-                allIconIds[smallIconId] = true;
-            }
-
-            dispatch(updateVm({ // TODO: consider batching
-                id: vm.id,
-                name: vm.name,
-                state: mapOvirtStatusToLibvirtState(vm.status),
-                description: vm.description,
-                highAvailability: vm.high_availability,
-                icons: {
-                    largeId: largeIconId,
-                    smallId: smallIconId,
-                },
-                memory: vm.memory,
-                cpu: {
-                    architecture: vm.cpu.architecture,
-                    topology: {
-                        sockets: vm.cpu.topology.sockets,
-                        cores: vm.cpu.topology.cores,
-                        threads: vm.cpu.topology.threads
-                    }
-                },
-                origin: vm.origin,
-                os: {
-                    type: vm.os.type
-                },
-                type: vm.type, // server, desktop
-                stateless: vm.stateless,
-                clusterId: vm.cluster.id,
-                templateId: vm.template.id,
-                hostId: vm.host ? vm.host.id : undefined,
-                fqdn: vm.fqdn,
-                startTime: vm.start_time, // in milliseconds since 1970/01/01
-            }));
-        });
-        dispatch(removeUnlistedVms({allVmsIds}));
-        dispatch(downloadIcons({ iconIds: allIconIds, forceReload: false }));
-
-        deferred.resolve();
+        if (deferred) {
+            deferred.resolve();
+        }
+    } else if (result && result.id) { // single entry
+        if (resourceCallback) {
+            resourceCallback(result);
+        }
+        dispatch(updateAction(converterFunction(result)));
+        if (deferred) {
+            deferred.resolve();
+        }
     } else {
-        logError(`doRefreshVms() failed, result: ${JSON.stringify(result)}`);
-        deferred.reject(result);
+        if (result && Object.getOwnPropertyNames(result).length === 0) { // no resource received
+            logDebug(`No oVirt '${name}' received`);
+        } else {
+            logError('parseResourceGeneric() failed, name: ', name, ', data:\n', data, '\n, result:\n', result);
+        }
+
+        if (deferred) {
+            deferred.reject(result);
+        }
     }
 }
 
-function doRefreshVms(dispatch, getState) { // TODO: consider paging; there might be thousands of vms
-    logDebug(`doRefreshVms() called`);
+/**
+ * Generic function to refresh oVirt API resource
+ */
+function doRefreshResource(dispatch, name, resourceId, parserFunction, removeAction) {
+    const url = `${name}${resourceId ? `/${resourceId}` : ''}`;
+    logDebug(`doRefreshResource() called for ${url}`);
+
+    return ovirtApiGet(url)
+        .done(data => parserFunction(data, dispatch))
+        .fail(data => {
+            console.info(`Failed to get ${url}, `, data);
+            if (resourceId) {
+                console.info(`The ${name} ${resourceId} is about to be removed from the list.`);
+                dispatch(removeAction(resourceId));
+            }
+        });
+}
+
+/**
+ * Like doRefreshResource() but waits for 'cluster' to be loaded
+ */
+function doRefreshResourceWithCurrentCluster(dispatch, getState, name, resourceId, parserFunction, removeAction, isApiSearchOnCluster ) {
+    logDebug(`doRefreshResourceWithCurrentCluster() called, name=${name}, resourceId=${resourceId} `);
 
     const deferred = cockpit.defer();
 
-    waitForCurrentCluster(getState).done(currentCluster => {
-        logDebug('Reading VMs for currentCluster = ', currentCluster);
+    waitForCurrentCluster(getState)
+        .done(currentCluster => {
+            logDebug(`Reading ${name} for currentCluster: `, currentCluster);
 
-        ovirtApiGet(`vms?search=cluster%3D${currentCluster.name}`)
-            .done(data => parseVms(deferred, data, dispatch))
-            .fail((reason) => deferred.reject(reason));
-    }).fail((reason) => deferred.reject(reason));
-
-    return deferred.promise;
-}
-
-function mapOvirtStatusToLibvirtState(ovirtStatus) {
-    switch (ovirtStatus) {// TODO: finish - add additional states
-        case 'up': return 'running';
-        case 'down': return 'shut off';
-        default:
-            return ovirtStatus;
-    }
-}
-
-function parseTemplates(deferred, data, dispatch, currentClusterId) {
-    const result = JSON.parse(data);
-    if (result && result.template && (result.template instanceof Array)) {
-        const allTemplateIds = [];
-        result.template.forEach( template => {
-            if (template.cluster && template.cluster.id !== currentClusterId) {
-                return ; // accept template if either cluster is not set or conforms the current one, skip otherwise
+            let url = isApiSearchOnCluster ? `${name}?search=cluster%3D${currentCluster.name}` : `${name}`; // special case for templates - no way to get cluster templates + Blank from API
+            if (resourceId) {
+                url = `${name}/${resourceId}`; // currently no way to filter on cluster for single resource
             }
 
-            allTemplateIds.push(template.id);
-            dispatch(updateTemplate({ // TODO: consider batching
-                id: template.id,
-                name: template.name,
-                description: template.description,
-                cpu: {
-                    architecture: template.cpu.architecture,
-                    topology: {
-                        sockets: template.cpu.topology.sockets,
-                        cores: template.cpu.topology.cores,
-                        threads: template.cpu.topology.threads
+            logDebug('doRefreshResourceWithCurrentCluster(), url: ', url);
+            ovirtApiGet(url) // TODO: consider paging; there might be thousands of resources within initial load
+                .done(data => parserFunction(deferred, data, dispatch, currentCluster))
+                .fail(data => {
+                    console.info(`Failed to get ${url}, `, data);
+                    if (resourceId) {
+                        console.info(`The ${name} ${resourceId} is about to be removed from the list.`);
+                        dispatch(removeAction(resourceId));
                     }
-                },
-                memory: template.memory,
-                creationTime: template.creation_time,
-
-                highAvailability: template.high_availability,
-                icons: {
-                    largeId: template.large_icon ? template.large_icon.id : undefined,
-                    smallId: template.small_icon ? template.small_icon.id : undefined,
-                },
-                os: {
-                    type: template.os.type
-                },
-                stateless: template.stateless,
-                type: template.type, // server, desktop
-                version: {
-                    name: template.version ? template.version.name : undefined,
-                    number: template.version ? template.version.number : undefined,
-                    baseTemplateId: template.version && template.version.base_template ? template.version.base_template.id : undefined,
-                },
-
-                // bios
-                // display
-                // migration
-                // memory_policy
-                // os.boot
-                // start_paused
-                // usb
-            }));
-        });
-        dispatch(removeUnlistedTemplates({allTemplateIds}));
-
-        deferred.resolve();
-    } else {
-        logError(`doRefreshTemplates() failed, result: ${JSON.stringify(result)}`);
-        deferred.reject(result);
-    }
-}
-
-function doRefreshTemplates(dispatch, getState) { // TODO: consider paging; there might be thousands of templates
-    logDebug(`doRefreshTemplates() called`);
-
-    const deferred = cockpit.defer();
-
-    waitForCurrentCluster(getState).done(currentCluster => {
-        console.log('Reading Templates for currentCluster = ', currentCluster);
-
-        // due to limitations of oVirt API we have to filter on templates on client side
-        ovirtApiGet(`templates`)
-            .done(data => parseTemplates(deferred, data, dispatch, currentCluster.id))
-            .fail(reason => deferred.reject(reason));
-    }).fail((reason) => deferred.reject(reason));
+                    deferred.reject(data);
+                });
+        }).fail((reason) => deferred.reject(reason));
 
     return deferred.promise;
-}
 
-function doRefreshClusters(dispatch) {
-    logDebug(`doRefreshClusters() called`);
-    return ovirtApiGet('clusters').done(data => {
-        const result = JSON.parse(data);
-        if (result && result.cluster && (result.cluster instanceof Array)) {
-            const allClusterIds  = [];
-            result.cluster.forEach( cluster => {
-                allClusterIds.push(cluster.id);
-                dispatch(updateCluster({
-                    id: cluster.id,
-                    name: cluster.name,
-                    // TODO: add more, if needed
-                }));
-            });
-            dispatch(removeUnlistedClusters({allClusterIds}));
-        } else {
-            logError(`doRefreshClusters() failed, result: ${JSON.stringify(result)}`);
-        }
-    });
-}
-
-export function oVirtIconToInternal(ovirtIcon) {
-    return {
-        id: ovirtIcon.id,
-        type: ovirtIcon['media_type'],
-        data: ovirtIcon.data,
-    };
 }

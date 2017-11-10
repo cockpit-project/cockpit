@@ -22,6 +22,16 @@ import { logDebug } from '../machines/helpers.es6';
 // TODO: consider immutableJS
 // TODO: reducers share common code - generalize
 
+function removeResource(state, id) {
+    if (state[id]) {
+        const newState = Object.assign({}, state);
+        delete newState[id];
+        return newState;
+    }
+    return state;
+
+}
+
 function hostsReducer (state, action) {
     state = state || {}; // object of 'hostId: host'
 
@@ -33,13 +43,9 @@ function hostsReducer (state, action) {
             Object.assign(newState[action.payload.id], action.payload); // merge instead of replace, is it as expected?
             return newState;
         }
-        case 'OVIRT_REMOVE_UNLISTED_HOSTS':
+        case 'OVIRT_REMOVE_HOST':
         {
-            const newState = Object.assign({}, state);
-            const allHostIds = action.payload.allHostIds;
-            const toBeRemoved = Object.getOwnPropertyNames(newState).filter(hostId => (allHostIds.indexOf(hostId) < 0));
-            toBeRemoved.forEach(hostId => delete newState[hostId]);
-            return newState;
+            return removeResource(state, action.payload.id);
         }
         default:
             return state;
@@ -57,13 +63,9 @@ function clustersReducer (state, action) {
             Object.assign(newState[action.payload.id], action.payload); // merge instead of replace, is it as expected?
             return newState;
         }
-        case 'OVIRT_REMOVE_UNLISTED_CLUSTERS':
+        case 'OVIRT_REMOVE_CLUSTER':
         {
-            const newState = Object.assign({}, state);
-            const allIds = action.payload.allClusterIds;
-            const toBeRemoved = Object.getOwnPropertyNames(newState).filter(id => (allIds.indexOf(id) < 0));
-            toBeRemoved.forEach(id => delete newState[id]);
-            return newState;
+            return removeResource(state, action.payload.id);
         }
         default:
             return state;
@@ -116,13 +118,9 @@ function vmsReducer (state, action) {
             Object.assign(newState[action.payload.id], action.payload); // merge instead of replace, is it as expected?
             return newState;
         }
-        case 'OVIRT_REMOVE_UNLISTED_VMS':
+        case 'OVIRT_REMOVE_VM':
         {
-            const newState = Object.assign({}, state);
-            const allVmsIds = action.payload.allVmsIds;
-            const toBeRemoved = Object.getOwnPropertyNames(newState).filter(vmId => (allVmsIds.indexOf(vmId) < 0));
-            toBeRemoved.forEach(vmId => delete newState[vmId]);
-            return newState;
+            return removeResource(state, action.payload.id);
         }
         case 'VM_ACTION_FAILED': // this reducer seconds the implementation in cockpit:machines (see the 'vms' reducer there).
         { // If an action failed on a VM running on this host, the error will be recorded on two places - it's as expected.
@@ -157,13 +155,9 @@ function templatesReducer (state, action) {
             Object.assign(newState[action.payload.id], action.payload); // merge instead of replace, is it as expected?
             return newState;
         }
-        case 'OVIRT_REMOVE_UNLISTED_TEMPLATES':
+        case 'OVIRT_REMOVE_TEMPLATE':
         {
-            const newState = Object.assign({}, state);
-            const allTemplateIds = action.payload.allTemplateIds;
-            const toBeRemoved = Object.getOwnPropertyNames(newState).filter(id => (allTemplateIds.indexOf(id) < 0));
-            toBeRemoved.forEach(id => delete newState[id]);
-            return newState;
+            return removeResource(state, action.payload.id);
         }
         case 'VM_ACTION_FAILED': // this reducer seconds the implementation in cockpit:machines and the vmsReducer()
         {

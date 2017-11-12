@@ -21,12 +21,7 @@
 import argparse
 import json
 import os
-import shutil
 import sys
-import subprocess
-import glob
-import re
-import time
 
 # we use symlinked files
 # the directory structure breaks on the second run with .pyc files
@@ -35,7 +30,6 @@ sys.dont_write_bytecode = True
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
 
-from common import testlib
 from common import testvm
 
 machine_test_dir = "/tmp/avocado_tests"

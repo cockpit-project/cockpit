@@ -970,7 +970,7 @@ class VirtMachine(Machine):
 
         try:
             os.makedirs(self.run_dir, 0750)
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
 
@@ -1021,7 +1021,7 @@ class VirtMachine(Machine):
         try:
             # print >> sys.stderr, test_domain_desc
             self._domain = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
-        except libvirt.libvirtError, le:
+        except libvirt.libvirtError as le:
             if 'already exists with uuid' in le.message:
                 raise RepeatableFailure("libvirt domain already exists: " + le.message)
             else:
@@ -1058,11 +1058,11 @@ class VirtMachine(Machine):
                     self.shutdown()
                 else:
                     self.kill()
-            except libvirt.libvirtError, le:
+            except libvirt.libvirtError as le:
                 # the domain may have already been freed (shutdown) while the console was running
                 self.message("libvirt error during shutdown: %s" % (le.get_error_message()))
 
-        except OSError, ex:
+        except OSError as ex:
             raise Failure("Failed to launch virsh command: {0}".format(ex.strerror))
         finally:
             self._cleanup()
@@ -1082,7 +1082,7 @@ class VirtMachine(Machine):
             proc = subprocess.Popen(["virt-viewer", str(self._domain.ID())])
             sys.stderr.write(message)
             proc.wait()
-        except OSError, ex:
+        except OSError as ex:
             raise Failure("Failed to launch virt-viewer command: {0}".format(ex.strerror))
         finally:
             self._cleanup()
@@ -1095,7 +1095,7 @@ class VirtMachine(Machine):
         if not os.path.exists(image_file):
             try:
                 subprocess.check_call([ "image-download", image_file ])
-            except OSError, ex:
+            except OSError as ex:
                 if ex.errno != errno.ENOENT:
                     raise
         return image_file
@@ -1192,7 +1192,7 @@ class VirtMachine(Machine):
                     with stdchannel_redirected(sys.stderr, os.devnull):
                         if not self._domain.isActive():
                             break
-                except libvirt.libvirtError, le:
+                except libvirt.libvirtError as le:
                     if 'no domain' in le.message or 'not found' in le.message:
                         break
                     raise
@@ -1202,7 +1202,7 @@ class VirtMachine(Machine):
             try:
                 with stdchannel_redirected(sys.stderr, os.devnull):
                     self._domain.destroyFlags(libvirt.VIR_DOMAIN_DESTROY_DEFAULT)
-            except libvirt.libvirtError, le:
+            except libvirt.libvirtError as le:
                 if 'not found' not in str(le):
                     raise
         self._cleanup(quick=True)
@@ -1223,7 +1223,7 @@ class VirtMachine(Machine):
 
         try:
             os.makedirs(self.run_dir, 0750)
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
 

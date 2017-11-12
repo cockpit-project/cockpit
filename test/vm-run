@@ -102,7 +102,7 @@ try:
     if not os.path.exists(machine.image_file):
         try:
             ret = subprocess.call([ os.path.join(BOTS, "image-download"), args.image])
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno != errno.ENOENT:
                 raise
         else:
@@ -119,6 +119,6 @@ try:
     else:
         machine.qemu_console()
 
-except testvm.Failure, ex:
+except testvm.Failure as ex:
     print >> sys.stderr, "vm-run:", ex
     sys.exit(1)

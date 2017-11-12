@@ -96,7 +96,7 @@ def main():
         sys.stdout.write(output)
         return 0
 
-    except RuntimeError, ex:
+    except RuntimeError as ex:
         sys.stderr.write("{0}: {1}\n".format(script, ex))
         return 1
 

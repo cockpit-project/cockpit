@@ -339,7 +339,7 @@ class Browser:
                 self.wait_not_visible(".curtains-ct")
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
-            except Error, ex:
+            except Error as ex:
                 if reconnect and ex.msg.startswith('timeout'):
                     reconnect = False
                     if self.is_present("#machine-reconnect"):
@@ -530,7 +530,7 @@ class MachineCase(unittest.TestCase):
         for retry in range(0, max_retry_hard_limit):
             try:
                 super(MachineCase, self).run(result)
-            except RetryError, ex:
+            except RetryError as ex:
                 assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
                 sleep(retry * 10)
@@ -808,7 +808,7 @@ class MachineCase(unittest.TestCase):
                 m.download_dir("/var/lib/systemd/coredump", dest)
                 try:
                     os.rmdir(dest)
-                except OSError, ex:
+                except OSError as ex:
                     if ex.errno == errno.ENOTEMPTY:
                         print "Core dumps downloaded to %s" % (dest)
                         attach(dest)
@@ -1081,7 +1081,7 @@ class TapRunner(object):
         try:
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             (output, error) = proc.communicate(output)
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("Couldn't check known issue: {0}\n".format(str(ex)))
 

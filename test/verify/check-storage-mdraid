@@ -75,7 +75,7 @@ class TestStorage(StorageCase):
                 try:
                     self.browser.wait_in_text(info_field("State"), "Not running")
                     break
-                except Error, ex:
+                except Error as ex:
                     if not ex.msg.startswith('timeout'):
                         raise
                     self.browser.wait_present(".modal-dialog")

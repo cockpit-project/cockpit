@@ -320,7 +320,7 @@ class TestMachines(MachineCase):
         try:
             with b.wait_timeout(10):
                 b.wait_present("#vm-{0}-disks-{1}-used".format(name, target)) # wait for disk statistics to show up
-        except Error, ex:
+        except Error as ex:
             if not ex.msg.startswith('timeout'):
                 exc_info = sys.exc_info()
                 raise exc_info[0], exc_info[1], exc_info[2]

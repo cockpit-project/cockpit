@@ -64,7 +64,7 @@ def main():
 
     try:
         results = scan(api, opts.image, opts.verbose)
-    except RuntimeError, ex:
+    except RuntimeError as ex:
         sys.stderr.write("image-trigger: " + str(ex) + "\n")
         return 1
 

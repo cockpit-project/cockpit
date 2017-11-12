@@ -61,7 +61,7 @@ class MachineBuilder:
 
         try:
             os.makedirs(TEMP, 0750)
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
 
@@ -115,7 +115,7 @@ class MachineBuilder:
                     # update our local openshift kube config file to match the new image
                     self.machine.download("/root/.kube/config", "images/files/openshift.kubeconfig")
 
-            except subprocess.CalledProcessError, ex:
+            except subprocess.CalledProcessError as ex:
                 if args.sit:
                     sys.stderr.write(self.machine.diagnose())
                     raw_input ("Press RET to continue... ")
@@ -219,6 +219,6 @@ try:
             cmd += [ args.image ]
             subprocess.check_call(cmd)
 
-except testvm.Failure, ex:
+except testvm.Failure as ex:
     print >> sys.stderr, "image-create:", ex
     sys.exit(1)

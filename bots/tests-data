@@ -152,7 +152,7 @@ def links(url):
     parser = HrefParser(url, result)
     try:
         parser.feed(retrieve(url))
-    except urllib2.HTTPError, ex:
+    except urllib2.HTTPError as ex:
         if ex.code != 404:
             raise
     except urllib2.URLError as ex:
@@ -170,7 +170,7 @@ def seed(since, fp, output):
             break
         try:
             item = json.loads(line)
-        except ValueError, ex:
+        except ValueError as ex:
             sys.stderr.write("tests-data: {1}\n".format(str(ex)))
             continue
 
@@ -239,12 +239,12 @@ def revisions(pull):
             target = urlparse.urljoin(link, "status")
             try:
                 data = json.loads(retrieve(target))
-            except ValueError, ex:
+            except ValueError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
-            except urllib2.HTTPError, ex:
+            except urllib2.HTTPError as ex:
                 if ex.code != 404:
                     raise
-            except urllib2.URLError, ex:
+            except urllib2.URLError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
                 pass
             else:
@@ -272,7 +272,7 @@ def logs(revision):
                 target = target[:-5]
             try:
                 yield (status["context"], status["created_at"], target, retrieve(target))
-            except urllib2.HTTPError, ex:
+            except urllib2.HTTPError as ex:
                 if ex.code != 404:
                     raise
             except urllib2.URLError as ex:

@@ -268,7 +268,7 @@ def run(context, function, **kwargs):
             execute("git", "checkout", "--detach", pull['head']['sha'])
 
         ret = function(context, **kwargs)
-    except (RuntimeError, subprocess.CalledProcessError), ex:
+    except (RuntimeError, subprocess.CalledProcessError) as ex:
         ret = str(ex)
     except (AssertionError, KeyboardInterrupt):
         raise

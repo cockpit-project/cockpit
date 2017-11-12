@@ -87,7 +87,7 @@ def main():
 
     try:
         results = scan(api, not opts.dry, opts.human_readable)
-    except RuntimeError, ex:
+    except RuntimeError as ex:
         sys.stderr.write("tests-scan: " + str(ex) + "\n")
         return 1
 

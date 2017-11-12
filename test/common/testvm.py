@@ -586,7 +586,7 @@ class Machine:
 
     def _calc_identity(self):
         identity = os.path.join(LOCAL_DIR, "identity")
-        os.chmod(identity, 0600)
+        os.chmod(identity, 0o600)
         return identity
 
     def journal_messages(self, syslog_ids, log_level):
@@ -823,7 +823,7 @@ class VirtNetwork:
     def _lock(self, start, step=1, force=False):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
         if not os.path.exists(resources):
-            os.mkdir(resources, 0755)
+            os.mkdir(resources, 0o755)
         for port in range(start, start + (100 * step), step):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -969,7 +969,7 @@ class VirtMachine(Machine):
         self._cleanup()
 
         try:
-            os.makedirs(self.run_dir, 0750)
+            os.makedirs(self.run_dir, 0o750)
         except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
@@ -1222,7 +1222,7 @@ class VirtMachine(Machine):
         index = len(self._disks)
 
         try:
-            os.makedirs(self.run_dir, 0750)
+            os.makedirs(self.run_dir, 0o750)
         except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise

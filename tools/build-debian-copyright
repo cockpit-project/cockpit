@@ -151,6 +151,6 @@ License: %s''' % (module, '\n'.join(sorted(copyrights)), license))
 
 for l in template.splitlines():
     if '#NPM' in l:
-        print u'\n\n'.join(paragraphs).encode('UTF-8'),
+        print('\n\n'.join(paragraphs).encode('UTF-8'))
     else:
         print(l)

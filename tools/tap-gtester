@@ -86,22 +86,22 @@ class GTestCompiler(NullCompiler):
            elif cmd == "result":
                if self.test_name:
                    if data == "OK":
-                       print "ok %d %s" % (self.test_num, self.test_name)
+                       print("ok %d %s" % (self.test_num, self.test_name))
                    if data == "FAIL":
-                       print "not ok %d %s", (self.test_num, self.test_name)
+                       print("not ok %d %s", (self.test_num, self.test_name))
                self.test_name = None
            elif cmd == "skipping":
                if "/subprocess" not in data:
-                   print "ok %d # skip -- %s" % (self.test_num, data)
+                   print("ok %d # skip -- %s" % (self.test_num, data))
                self.test_name = None
            elif data:
-               print "# %s: %s" % (cmd, data)
+               print("# %s: %s" % (cmd, data))
            else:
-               print "# %s" % cmd
+               print("# %s" % cmd)
         elif line.startswith("(MSG: "):
-            print "# %s" % line[6:-1]
+            print("# %s" % line[6:-1])
         elif line:
-            print "# %s" % line
+            print("# %s" % line)
         sys.stdout.flush()
 
     def run(self, proc, output=""):
@@ -116,10 +116,10 @@ class GTestCompiler(NullCompiler):
             if line.startswith("/"):
                 self.test_remaining.append(line.strip())
         if not self.test_remaining:
-            print "Bail out! No tests found in GTest: %s" % self.command[0]
+            print("Bail out! No tests found in GTest: %s" % self.command[0])
             return 0
 
-        print "1..%d" % len(self.test_remaining)
+        print("1..%d" % len(self.test_remaining))
 
         # First try to run all the tests in a batch
         proc = subprocess.Popen(self.command + ["--verbose" ], close_fds=True, stdout=subprocess.PIPE)
@@ -128,13 +128,13 @@ class GTestCompiler(NullCompiler):
             return 0
 
         if result < 0:
-            print >> sys.stderr, "%s terminated with %s" % (self.command[0], strsignal(-result))
+            sys.stderr.write("%s terminated with %s\n" % (self.command[0], strsignal(-result)))
 
         # Now pick up any stragglers due to failures
         while True:
             # Assume that the last test failed
             if self.test_name:
-                print "not ok %d %s" % (self.test_num, self.test_name)
+                print("not ok %d %s" % (self.test_num, self.test_name))
                 self.test_name = None
 
             # Run any tests which didn't get run
@@ -165,7 +165,7 @@ def main(argv):
     format = args.format
     cmd = args.command
     if not cmd:
-        print >> sys.stderr, "tap-gtester: specify a command to run"
+        sys.stderr.write("tap-gtester: specify a command to run\n")
         return 2
     if cmd[0] == '--':
         cmd.pop(0)

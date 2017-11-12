@@ -68,7 +68,7 @@ class TestOVirtMachines(MachineCase):
         m.execute("hostname ovirt.cockpit.lan") # used as fallback when resolving based on browser's URL is not matching, see ovirt/helpers.es6:getHost()
 
         self.engine_url = "https://{0}/ovirt-engine/".format(self.ovirt.forward['443']) # from phantomJS
-        print("Engine URL: {0}".format(self.engine_url))
+        print(("Engine URL: {0}".format(self.engine_url)))
 
         # Wait for the web service to be accessible
         args = { "api": "curl -s -k -u admin@internal:engine -H Content-type:application/xml", "addr": OVIRT_ADDR }
@@ -93,7 +93,7 @@ class TestOVirtMachines(MachineCase):
         cmd = "{0} https://{1}/ovirt-engine/api/datacenters/{2} | xmllint --xpath \"string(/data_center/status)\" -".format(curl, OVIRT_ADDR, dc_id)
         status = m.execute(cmd)
         if status != "up":
-            print("Data Center status: {0}, waiting for automatic reactivation".format(status))
+            print(("Data Center status: {0}, waiting for automatic reactivation".format(status)))
             wait(lambda: "up" in m.execute(cmd), delay=10)
 
     def enforce_cockpit_ovirt(self):
@@ -116,10 +116,10 @@ class TestOVirtMachines(MachineCase):
     def get_ovirt_token(self):
         m = self.machine
         response = m.execute("curl --insecure -H 'Accept: application/json' --data 'grant_type=password&scope=ovirt-app-api&username={0}&password={1}' https://{2}:{3}/ovirt-engine/sso/oauth/token".format(OVIRT_USER, OVIRT_PWD, ENGINE_FQDN, ENGINE_PORT))
-        print response
+        print(response)
         data = json.loads(response)
         token = data['access_token']
-        print("oVirt token retrieved: {0}".format(token))
+        print(("oVirt token retrieved: {0}".format(token)))
         return token
 
     def hack_for_missing_vdsm(self):

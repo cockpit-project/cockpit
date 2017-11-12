@@ -213,13 +213,13 @@ class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
 
     def check_logs(self, b):
         if not self.supports_websocket:
-            print "No websocket support on kubernetes yet"
+            print("No websocket support on kubernetes yet")
         else:
             super(KubernetesCase, self).check_logs(b)
 
     def check_shell(self, b):
         if not self.supports_websocket:
-            print "No websocket support on kubernetes yet"
+            print("No websocket support on kubernetes yet")
         else:
             super(KubernetesCase, self).check_shell(b)
 

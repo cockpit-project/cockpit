@@ -169,7 +169,7 @@ class Machine:
         """Prints args if in verbose mode"""
         if not self.verbose:
             return
-        print " ".join(args)
+        print(" ".join(args))
 
     def start(self):
         """Overridden by machine classes to start the machine"""
@@ -1001,8 +1001,8 @@ class VirtMachine(Machine):
             keys["type"] = "kvm"
             keys["cpu"] = TEST_KVM_XML.format(**keys)
         else:
-            print >> sys.stderr, "WARNING: Starting virtual machine with emulation due to missing KVM"
-            print >> sys.stderr, "WARNING: Machine will run about 10-20 times slower"
+            sys.stderr.write("WARNING: Starting virtual machine with emulation due to missing KVM\n")
+            sys.stderr.write("WARNING: Machine will run about 10-20 times slower\n")
 
         keys.update(self.networking)
         keys["name"] = "{image}-{control}".format(**keys)
@@ -1165,7 +1165,7 @@ class VirtMachine(Machine):
                 os.unlink(self._transient_image)
         except:
             (type, value, traceback) = sys.exc_info()
-            print >> sys.stderr, "WARNING: Cleanup failed:", str(value)
+            sys.stderr.write("WARNING: Cleanup failed:%s\n" % value)
 
     def kill(self):
         # stop system immediately, with potential data loss

@@ -120,5 +120,5 @@ try:
         machine.qemu_console()
 
 except testvm.Failure as ex:
-    print >> sys.stderr, "vm-run:", ex
+    sys.stderr.write("vm-run: %s\n" % ex)
     sys.exit(1)

@@ -65,7 +65,7 @@ class AtomicCockpitInstaller:
 
     def setup_dirs(self):
         if self.verbose:
-            print "setting up new ostree repo"
+            print("setting up new ostree repo")
 
         try:
             shutil.rmtree(self.repo_location)
@@ -78,7 +78,7 @@ class AtomicCockpitInstaller:
 
         if not os.path.exists(self.checkout_location):
             if self.verbose:
-                print "cloning current branch"
+                print("cloning current branch")
 
             subprocess.check_call(["ostree", "checkout", self.branch,
                                    self.checkout_location])
@@ -89,7 +89,7 @@ class AtomicCockpitInstaller:
 
     def switch_to_local_tree(self):
         if self.verbose:
-            print "install new ostree commit"
+            print("install new ostree commit")
 
         # Not an error if this fails
         subprocess.call(["ostree", "remote", "delete", "local"])
@@ -119,7 +119,7 @@ class AtomicCockpitInstaller:
 
     def commit_to_repo(self):
         if self.verbose:
-            print "commit package changes to our repo"
+            print("commit package changes to our repo")
 
         # move etc back to /usr/etc
         subprocess.check_call(["mv", os.path.join(self.checkout_location, "etc"),
@@ -191,7 +191,7 @@ class AtomicCockpitInstaller:
                 rpm_args = ["docker", "exec", "build-cockpit",
                             "rpm", "-U", "--force"] + rpm_args
                 if self.verbose:
-                    print "updating cockpit-ws container"
+                    print("updating cockpit-ws container")
                 subprocess.check_call(rpm_args)
 
                 # if we update the RPMs, also update the scripts, to keep them in sync
@@ -212,14 +212,14 @@ class AtomicCockpitInstaller:
         packages = subprocess.check_output("rpm -qa | grep cockpit", shell=True)
 
         if self.verbose:
-            print "installed packages: {0}".format(packages)
+            print("installed packages: {0}".format(packages))
 
         installed_packages = packages.strip().split("\n")
         return installed_packages
 
     def clean_network(self):
         if self.verbose:
-            print "clean network configuration:"
+            print("clean network configuration:")
         subprocess.check_call(["rm", "-rf", "/var/lib/NetworkManager"])
         subprocess.check_call(["rm", "-rf", "/var/lib/dhcp"])
 
@@ -238,20 +238,20 @@ class AtomicCockpitInstaller:
         for p in self.packages_force_install:
             if not p in packages_to_install:
                 if self.verbose:
-                    print "adding package %s (forced)" % (p)
+                    print("adding package %s (forced)" % (p))
                 packages_to_install.append(p)
 
         packages_to_install = filter(lambda p: any(os.path.split(p)[1].startswith(base) for base in packages_to_install), self.rpms)
 
         if self.verbose:
-            print "packages to install:"
-            print packages_to_install
+            print("packages to install:")
+            print(packages_to_install)
 
         if self.external_packages:
             names = self.external_packages.keys()
             if self.verbose:
-                print "external packages to install:"
-                print names
+                print("external packages to install:")
+                print(names)
 
             downloader = urllib.URLopener()
             for name, url in self.external_packages.items():
@@ -282,7 +282,7 @@ parser.add_argument('--skip', action='append', default=[], help='Packes to skip 
 args = parser.parse_args()
 
 if args.build:
-    print >> sys.stderr, "Can't build on Atomic"
+    sys.stderr.write("Can't build on Atomic\n")
     sys.exit(1)
 
 if args.install:

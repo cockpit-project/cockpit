@@ -32,13 +32,13 @@ class Network():
         self.interfaces=[]
         process.run("modprobe veth", shell=True)
         if self.brname and self.checkifbridgeexist():
-            print "adding bridge " + self.brname
+            print("adding bridge " + self.brname)
             self.createbridge()
 
     def clear(self):
         self.deleteallinterfaces()
         if self.brname and not self.checkifbridgeexist():
-            print "deleting bridge " + self.brname
+            print("deleting bridge " + self.brname)
             self.delbridge()
 
     def checkifbridgeexist(self):

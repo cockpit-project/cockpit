@@ -52,7 +52,7 @@ args = parser.parse_args()
 if args.image in ["candlepin", "continuous-atomic", "fedora-atomic", "ipa", "rhel-atomic", "selenium", "openshift", "openshift-node", "ovirt"]:
     if not args.no_build:
         if args.verbose:
-            print "Creating machine without build capabilities based on the image type"
+            print("Creating machine without build capabilities based on the image type")
         args.no_build = True
 
 class MachineBuilder:
@@ -209,10 +209,10 @@ try:
     builder = MachineBuilder(machine)
     builder.build()
     if not args.no_save:
-        print "Saving..."
+        print("Saving...")
         builder.save()
         if args.upload:
-            print "Uploading..."
+            print("Uploading...")
             cmd = [ os.path.join(BOTS, "image-upload") ]
             if args.store:
                 cmd += [ "--store", args.store ]
@@ -220,5 +220,5 @@ try:
             subprocess.check_call(cmd)
 
 except testvm.Failure as ex:
-    print >> sys.stderr, "image-create:", ex
+    sys.stderr.write("image-create: %s\n" % ex)
     sys.exit(1)

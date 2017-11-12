@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
     except Exception as e:
         import sys, traceback
-        print >> sys.stderr, traceback.format_exc()
+        sys.stderr.write(traceback.format_exc())
         assert False, 'Unexpected exception raised: %s' % repr(e)
 
 
@@ -185,7 +185,7 @@ if __name__ == '__main__':
 
     except Exception as e:
         import sys, traceback
-        print >> sys.stderr, traceback.format_exc()
+        sys.stderr.write(traceback.format_exc())
         assert False, 'Unexpected exception raised: %s' % repr(e)
 
     # And react only to a set of exceptions
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 
     except Exception as e:
         import sys, traceback
-        print >> sys.stderr, traceback.format_exc()
+        sys.stderr.write(traceback.format_exc())
         assert False, 'Unexpected exception raised: %s' % repr(e)
 
     # Use inverted result of wrapped fn
@@ -242,5 +242,5 @@ if __name__ == '__main__':
 
     except Exception as e:
         import sys, traceback
-        print >> sys.stderr, traceback.format_exc()
+        sys.stderr.write(traceback.format_exc())
         assert False, 'Unexpected exception raised: %s' % repr(e)

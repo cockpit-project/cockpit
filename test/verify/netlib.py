@@ -35,7 +35,7 @@ class NetworkCase(MachineCase):
         failures_allowed = 3
         while True:
             try:
-                print m.execute("nmcli con show")
+                print(m.execute("nmcli con show"))
                 m.execute("""nmcli -f UUID,DEVICE connection show | awk '$2 == "--" { print $1 }' | xargs -r nmcli con del""")
                 break
             except subprocess.CalledProcessError:
@@ -58,7 +58,7 @@ class NetworkCase(MachineCase):
             path = m.execute("grep -li '%s' /sys/class/net/*/address" % mac)
             return path.split("/")[-2]
         iface = wait(getit).strip()
-        print "%s -> %s" % (mac, iface)
+        print("%s -> %s" % (mac, iface))
         return iface
 
     def add_iface(self, mac=None, vlan=0, activate=True):
@@ -90,9 +90,9 @@ class NetworkCase(MachineCase):
             self.browser.wait_visible(sel)
             self.browser.wait_in_text(sel, text)
         except:
-            print "Interface %s didn't show up." % iface
-            print self.browser.eval_js("$('#networking-interfaces').html()")
-            print self.machine.execute("grep . /sys/class/net/*/address")
+            print("Interface %s didn't show up." % iface)
+            print(self.browser.eval_js("$('#networking-interfaces').html()"))
+            print(self.machine.execute("grep . /sys/class/net/*/address"))
             raise
 
     def iface_con_id(self, iface):

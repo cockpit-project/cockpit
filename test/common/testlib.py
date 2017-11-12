@@ -127,7 +127,7 @@ class Browser:
 
         tries = 0
         while not tryopen(tries >= 20):
-            print "Restarting browser..."
+            print("Restarting browser...")
             sleep(0.1)
             tries = tries + 1
 
@@ -568,7 +568,7 @@ class MachineCase(unittest.TestCase):
             if not self.machine:
                 self.machine = machine
             if opts.trace:
-                print "Starting {0} {1}".format(key, machine.label)
+                print("Starting {0} {1}".format(key, machine.label))
             machine.start()
 
         def sitter():
@@ -768,7 +768,7 @@ class MachineCase(unittest.TestCase):
                     found = True
                     break
             if not found:
-                print "Unexpected journal message '%s'" % m
+                print("Unexpected journal message '%s'" % m)
                 all_found = False
                 if not first:
                     first = m
@@ -797,7 +797,7 @@ class MachineCase(unittest.TestCase):
                 log = "%s-%s-%s.log" % (label or self.label(), m.label, title)
                 with open(log, "w") as fp:
                     m.execute("journalctl", stdout=fp)
-                    print "Journal extracted to %s" % (log)
+                    print("Journal extracted to %s" % (log))
                     attach(log)
 
     def copy_cores(self, title, label=None):
@@ -810,7 +810,7 @@ class MachineCase(unittest.TestCase):
                     os.rmdir(dest)
                 except OSError as ex:
                     if ex.errno == errno.ENOTEMPTY:
-                        print "Core dumps downloaded to %s" % (dest)
+                        print("Core dumps downloaded to %s" % (dest))
                         attach(dest)
 
 some_failed = False
@@ -835,7 +835,7 @@ class Phantom:
         if not self._driver:
             self.start()
         if opts.trace:
-            print "-> {0}({1})".format(name, repr(args)[1:-2])
+            print("-> {0}({1})".format(name, repr(args)[1:-2]))
         line = json.dumps({
             "cmd": name,
             "args": args,
@@ -849,15 +849,15 @@ class Phantom:
         try:
             res = json.loads(line)
         except:
-            print line.strip()
+            print(line.strip())
             raise
         if 'error' in res:
             if opts.trace:
-                print "<- raise", res['error']
+                print("<- raise", res['error'])
             raise Error(res['error'])
         if 'result' in res:
             if opts.trace:
-                print "<-", repr(res['result'])
+                print("<-", repr(res['result']))
             return res['result']
         raise Error("unexpected: " + line.strip())
 
@@ -959,7 +959,7 @@ class TapRunner(object):
             return False
         except:
             sys.stderr.write("Unexpected exception while running {0}\n".format(test))
-            traceback.print_exc(file=sys.stderr)
+            sys.stderr.write(traceback.print_exc())
             return False
         else:
             result.printErrors()

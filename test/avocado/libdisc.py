@@ -52,7 +52,7 @@ class Disc():
         process.run("iscsiadm -m discovery -t sendtargets -p %s" % self.ip, shell = True)
         process.run("iscsiadm -m node --targetname=%s.%s:%s --login" % (self.prefix, self.domain, targetsuffix), shell = True)
         tmp = process.run("iscsiadm -m node" , shell = True)
-        print tmp.stdout
+        print(tmp.stdout)
         tmp = process.run("sleep 5; iscsiadm -m session -P 3 | tail -1" , shell = True)
         tmp1 = re.search('Attached scsi disk\s+([a-z]*)\s+', tmp.stdout)
         return "/dev/%s" % str(tmp1.group(1))

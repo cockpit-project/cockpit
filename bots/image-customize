@@ -82,7 +82,7 @@ def run_script(machine_instance, scriptlist):
             machine_instance.execute("chmod a+x %s" % uploadpath)
             machine_instance.execute(uploadpath)
         else:
-            print >> sys.stderr, "Bad path to script:", foo
+            sys.stderr.write("Bad path to script: %s\n" % foo)
 
 def upload_files(machine_instance, uploadfiles):
     """Upload files/directories inside image"""
@@ -104,7 +104,7 @@ def install_packages(machine_instance, packagelist, install_command):
         elif not re.search("/", foo):
             allpackages.append(foo)
         else:
-            print >> sys.stderr, "Bad package name or path:", foo
+            sys.stderr.write("Bad package name or path: %s\n" % foo)
     if allpackages:
         machine_instance.execute(install_command + " " + ' '.join(allpackages))
 

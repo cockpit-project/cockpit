@@ -189,7 +189,7 @@ class Cockpit():
                     found = True
                     break
             if not found:
-                print "Unexpected journal message '%s'" % m
+                print("Unexpected journal message '%s'" % m)
                 all_found = False
                 if not first:
                     first = m

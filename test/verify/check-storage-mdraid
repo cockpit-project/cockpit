@@ -30,8 +30,8 @@ def info_field(name):
 class TestStorage(StorageCase):
     def tearDown(self):
         # HACK - for debugging https://github.com/cockpit-project/cockpit/issues/2924
-        print self.machine.execute("parted -s /dev/md127 print || true")
-        print self.machine.execute("lsblk || true")
+        print(self.machine.execute("parted -s /dev/md127 print || true"))
+        print(self.machine.execute("lsblk || true"))
         MachineCase.tearDown(self)
 
     def wait_states(self, states):

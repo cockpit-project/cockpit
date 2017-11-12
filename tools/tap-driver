@@ -62,7 +62,7 @@ def terminal_width():
         return w
     except IOError, (errno, strerror):
         if errno != 25: # ENOTTY
-            print >> sys.stderr, errno, strerror, sys.exc_info()
+            sys.stderr.write("%i %s %s\n" % (errno, strerror, sys.exc_info()))
         return sys.maxint;
 
 class Driver:

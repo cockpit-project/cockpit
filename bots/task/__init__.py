@@ -273,7 +273,7 @@ def run(context, function, **kwargs):
     except (AssertionError, KeyboardInterrupt):
         raise
     except:
-        traceback.print_exc(file=sys.stderr)
+        sys.stderr.write(traceback.print_exc())
     finally:
         finish(publishing, ret, name, context, issue)
     return ret or 0

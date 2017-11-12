@@ -88,7 +88,7 @@ def get_image_links(ref, git_path):
 
     try:
         entries = subprocess.check_output(["git", "ls-tree",  "--name-only", ref, git_path]).splitlines()
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         if e.returncode == 128:
             sys.stderr.write("Skipping {0} due to tree error.\n".format(ref))
             return []
@@ -197,7 +197,7 @@ def main():
 
     try:
         prune_images(args.force, args.dryrun, quiet=args.quiet, open_pull_requests=(not args.branches_only), offline=args.offline, checkout_only=args.checkout_only)
-    except RuntimeError, ex:
+    except RuntimeError as ex:
         sys.stderr.write("image-prune: {0}\n".format(str(ex)))
         return 1
 

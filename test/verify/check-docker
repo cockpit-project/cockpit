@@ -358,7 +358,7 @@ CMD ["/bin/sh"]
         try:
             b.key_press( [ 'Return', 'Return', 'Return' ] )
             b.wait_in_text("#container-terminal", "#")
-        except Error, ex:
+        except Error as ex:
             if not ex.msg.startswith('timeout'):
                 raise
 

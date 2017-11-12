@@ -75,6 +75,9 @@ class Application extends React.Component {
         // parser, which is a list of paragraphs and lists.
 
         function render_description(description) {
+            if (!description)
+                return <p>{_("No description provided.")}</p>;
+
             return description.map(paragraph => {
                 if (paragraph.tag == 'ul') {
                     return <ul>{paragraph.items.map(item => <li>{item}</li>)}</ul>;

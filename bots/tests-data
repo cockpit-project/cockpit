@@ -155,7 +155,7 @@ def links(url):
     except urllib2.HTTPError, ex:
         if ex.code != 404:
             raise
-    except urllib2.URLError:
+    except urllib2.URLError as ex:
         sys.stderr.write("{0}: {1}\n".format(url, ex))
     return result
 
@@ -275,7 +275,7 @@ def logs(revision):
             except urllib2.HTTPError, ex:
                 if ex.code != 404:
                     raise
-            except urllib2.URLError:
+            except urllib2.URLError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
 
 # Generate (status, body) for each Test Anything Protocol test

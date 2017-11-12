@@ -59,7 +59,7 @@ class Network():
 
     def addiface(self, ifname, bridge=True):
         if ifname in self.interfaces:
-            raise("Unable to add network interface %s (already exit)" % ifname)
+            raise RuntimeError("Unable to add network interface %s (already exists)")
         process.run("ip link add name %sbr type veth peer name %s" % (ifname, ifname), shell=True)
         process.run("ip link set dev %sbr up" % ifname, shell=True)
         process.run("ip link set dev %s up" % ifname, shell=True)
@@ -83,7 +83,7 @@ class Network():
             process.run("ip link del dev %sbr type veth" % ifname, shell=True)
             self.interfaces.remove(ifname)
         else:
-            raise ("Unable to remove interface %s (does not exist)" % ifname)
+            raise RuntimeError("Unable to remove interface %s (does not exist)")
 
     def deleteallinterfaces(self):
         for interface in self.interfaces:

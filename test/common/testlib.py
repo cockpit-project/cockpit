@@ -346,8 +346,7 @@ class Browser:
                         self.click("#machine-reconnect", True)
                         self.wait_not_visible(".curtains-ct")
                         continue
-                exc_info = sys.exc_info()
-                raise exc_info[0], exc_info[1], exc_info[2]
+                raise
 
         self.switch_to_frame(frame)
         self.wait_present("body")

@@ -31,7 +31,7 @@ class TestTerminal(MachineCase):
 
         # Make sure we get what we expect
         m.write("/tmp/bashrc-extra", """
-PS1="\u@\h \W]\$ "
+PS1="\\u@\\h \\W]\$ "
 PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
 """)
         m.execute("cat /tmp/bashrc-extra >>/home/admin/.bashrc")

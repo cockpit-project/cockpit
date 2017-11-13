@@ -90,10 +90,10 @@ class TestAccounts(MachineCase):
         b.wait_present(admin_role_sel + ":not(:checked)")
         b.set_checked(admin_role_sel, True)
         b.wait_present(admin_role_sel + ":checked")
-        b.wait(lambda: "jussi" in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        wait(lambda: "jussi" in m.execute("grep %s /etc/group" % m.get_admin_group()))
         b.set_checked(admin_role_sel, False)
         b.wait_present(admin_role_sel + ":not(:checked)")
-        b.wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
         b.wait_present(admin_role_sel + ":checked")
 

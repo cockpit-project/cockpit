@@ -122,8 +122,6 @@ WantedBy=default.target
             else:
                 b.wait_not_present(".area-ct-body.single-nav")
             b.wait_present("#host-nav")
-        elif "fedora-atomic" in m.image:
-            b.wait_not_visible("#content-navbar")
 
         # Lets try changing the language
 

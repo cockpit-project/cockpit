@@ -20,7 +20,6 @@
 "use strict";
 
 var cockpit = require("cockpit");
-var permission = require("./permissions.js").permission;
 var utils = require("./utils.js");
 var $ = require("jquery");
 
@@ -43,6 +42,8 @@ var _ = cockpit.gettext;
  * - excuse:  If set, the button/link is disabled and will show the
  *            excuse in a tooltip.
  */
+
+var permission = cockpit.permission({ admin: true });
 
 var StorageControl = React.createClass({
     getInitialState: function () {

@@ -48,12 +48,16 @@ do
         else
             if [ "$INSTALLER" = "yum" ]; then
                 yum install yum-utils
-                yumdownloader --destdir=/container/rpms "$package"
+                yumdownloader --verbose --destdir=/container/rpms "$package"
             else
                 dnf install -y 'dnf-command(download)'
                 dnf download --destdir=/container/rpms "$package"
             fi
             rpm=$(ls /container/rpms/$package-*$OSVER.*$arch.rpm || true)
+            if [ -z "$rpm" ]; then
+                echo "Error finding the downloaded package in /container/rpms"
+                exit 1
+            fi
         fi
     fi
 

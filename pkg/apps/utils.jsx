@@ -43,14 +43,17 @@ export function icon_url(path_or_url) {
     if (path_or_url[0] != '/')
         return path_or_url;
 
-    var query = window.btoa(JSON.stringify({
+    var queryobj = {
         payload: "fsread1",
         binary: "raw",
         path: path_or_url,
-        external: {
-            "content-type": "image/png",
-        }
-    }));
+    }
+
+    if (path_or_url.endsWith(".svg")) {
+        queryobj.external = {"content-type": "image/svg+xml"}
+    }
+
+    var query = window.btoa(JSON.stringify(queryobj));
     return "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query;
 }
 

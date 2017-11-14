@@ -22,7 +22,6 @@ import parent
 from testlib import *
 
 import os
-import sys
 
 def readFile(name):
     content = ''
@@ -320,12 +319,11 @@ class TestMachines(MachineCase):
         try:
             with b.wait_timeout(10):
                 b.wait_present("#vm-{0}-disks-{1}-used".format(name, target)) # wait for disk statistics to show up
-        except Error, ex:
+        except Error as ex:
             if not ex.msg.startswith('timeout'):
-                exc_info = sys.exc_info()
-                raise exc_info[0], exc_info[1], exc_info[2]
+                raise
             # stats did not show up, check if user message showed up
-            print "Libvirt version does not support disk statistics"
+            print("Libvirt version does not support disk statistics")
             b.wait_present("#vm-{0}-disksstats-unsupported".format(name))
 
     def testDisks(self):
@@ -391,7 +389,7 @@ class TestMachines(MachineCase):
 
         # Test remove disk
         m.execute("virsh detach-disk subVmTest1 vdc")
-        print "Restarting vm-subVmTest1, might take a while"
+        print("Restarting vm-subVmTest1, might take a while")
         b.click("#vm-subVmTest1-reboot-caret")
         b.wait_visible("#vm-subVmTest1-forceReboot")
         b.click("#vm-subVmTest1-forceReboot")

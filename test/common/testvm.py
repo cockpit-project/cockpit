@@ -169,7 +169,7 @@ class Machine:
         """Prints args if in verbose mode"""
         if not self.verbose:
             return
-        print " ".join(args)
+        print(" ".join(args))
 
     def start(self):
         """Overridden by machine classes to start the machine"""
@@ -586,7 +586,7 @@ class Machine:
 
     def _calc_identity(self):
         identity = os.path.join(LOCAL_DIR, "identity")
-        os.chmod(identity, 0600)
+        os.chmod(identity, 0o600)
         return identity
 
     def journal_messages(self, syslog_ids, log_level):
@@ -823,7 +823,7 @@ class VirtNetwork:
     def _lock(self, start, step=1, force=False):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
         if not os.path.exists(resources):
-            os.mkdir(resources, 0755)
+            os.mkdir(resources, 0o755)
         for port in range(start, start + (100 * step), step):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -969,8 +969,8 @@ class VirtMachine(Machine):
         self._cleanup()
 
         try:
-            os.makedirs(self.run_dir, 0750)
-        except OSError, ex:
+            os.makedirs(self.run_dir, 0o750)
+        except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
 
@@ -1001,8 +1001,8 @@ class VirtMachine(Machine):
             keys["type"] = "kvm"
             keys["cpu"] = TEST_KVM_XML.format(**keys)
         else:
-            print >> sys.stderr, "WARNING: Starting virtual machine with emulation due to missing KVM"
-            print >> sys.stderr, "WARNING: Machine will run about 10-20 times slower"
+            sys.stderr.write("WARNING: Starting virtual machine with emulation due to missing KVM\n")
+            sys.stderr.write("WARNING: Machine will run about 10-20 times slower\n")
 
         keys.update(self.networking)
         keys["name"] = "{image}-{control}".format(**keys)
@@ -1021,7 +1021,7 @@ class VirtMachine(Machine):
         try:
             # print >> sys.stderr, test_domain_desc
             self._domain = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
-        except libvirt.libvirtError, le:
+        except libvirt.libvirtError as le:
             if 'already exists with uuid' in le.message:
                 raise RepeatableFailure("libvirt domain already exists: " + le.message)
             else:
@@ -1058,11 +1058,11 @@ class VirtMachine(Machine):
                     self.shutdown()
                 else:
                     self.kill()
-            except libvirt.libvirtError, le:
+            except libvirt.libvirtError as le:
                 # the domain may have already been freed (shutdown) while the console was running
                 self.message("libvirt error during shutdown: %s" % (le.get_error_message()))
 
-        except OSError, ex:
+        except OSError as ex:
             raise Failure("Failed to launch virsh command: {0}".format(ex.strerror))
         finally:
             self._cleanup()
@@ -1082,7 +1082,7 @@ class VirtMachine(Machine):
             proc = subprocess.Popen(["virt-viewer", str(self._domain.ID())])
             sys.stderr.write(message)
             proc.wait()
-        except OSError, ex:
+        except OSError as ex:
             raise Failure("Failed to launch virt-viewer command: {0}".format(ex.strerror))
         finally:
             self._cleanup()
@@ -1095,7 +1095,7 @@ class VirtMachine(Machine):
         if not os.path.exists(image_file):
             try:
                 subprocess.check_call([ "image-download", image_file ])
-            except OSError, ex:
+            except OSError as ex:
                 if ex.errno != errno.ENOENT:
                     raise
         return image_file
@@ -1165,7 +1165,7 @@ class VirtMachine(Machine):
                 os.unlink(self._transient_image)
         except:
             (type, value, traceback) = sys.exc_info()
-            print >> sys.stderr, "WARNING: Cleanup failed:", str(value)
+            sys.stderr.write("WARNING: Cleanup failed:%s\n" % value)
 
     def kill(self):
         # stop system immediately, with potential data loss
@@ -1192,7 +1192,7 @@ class VirtMachine(Machine):
                     with stdchannel_redirected(sys.stderr, os.devnull):
                         if not self._domain.isActive():
                             break
-                except libvirt.libvirtError, le:
+                except libvirt.libvirtError as le:
                     if 'no domain' in le.message or 'not found' in le.message:
                         break
                     raise
@@ -1202,7 +1202,7 @@ class VirtMachine(Machine):
             try:
                 with stdchannel_redirected(sys.stderr, os.devnull):
                     self._domain.destroyFlags(libvirt.VIR_DOMAIN_DESTROY_DEFAULT)
-            except libvirt.libvirtError, le:
+            except libvirt.libvirtError as le:
                 if 'not found' not in str(le):
                     raise
         self._cleanup(quick=True)
@@ -1222,8 +1222,8 @@ class VirtMachine(Machine):
         index = len(self._disks)
 
         try:
-            os.makedirs(self.run_dir, 0750)
-        except OSError, ex:
+            os.makedirs(self.run_dir, 0o750)
+        except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
 

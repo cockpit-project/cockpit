@@ -60,7 +60,7 @@ def main():
         task = PullTask(name, revision, opts.ref, opts.context, opts.rebase,
                         github_revision=github_revision)
         ret = task.run(opts)
-    except RuntimeError, ex:
+    except RuntimeError as ex:
         ret = str(ex)
 
     if ret:
@@ -242,7 +242,7 @@ class PullTask(object):
         # COMPAT: Create a legacy tmp/run directory to prevent races during testing
         try:
             os.makedirs(os.path.join(BASE, "test", "tmp", "run"))
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
 

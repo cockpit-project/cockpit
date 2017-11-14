@@ -32,13 +32,13 @@ class Network():
         self.interfaces=[]
         process.run("modprobe veth", shell=True)
         if self.brname and self.checkifbridgeexist():
-            print "adding bridge " + self.brname
+            print("adding bridge " + self.brname)
             self.createbridge()
 
     def clear(self):
         self.deleteallinterfaces()
         if self.brname and not self.checkifbridgeexist():
-            print "deleting bridge " + self.brname
+            print("deleting bridge " + self.brname)
             self.delbridge()
 
     def checkifbridgeexist(self):
@@ -59,7 +59,7 @@ class Network():
 
     def addiface(self, ifname, bridge=True):
         if ifname in self.interfaces:
-            raise("Unable to add network interface %s (already exit)" % ifname)
+            raise RuntimeError("Unable to add network interface %s (already exists)")
         process.run("ip link add name %sbr type veth peer name %s" % (ifname, ifname), shell=True)
         process.run("ip link set dev %sbr up" % ifname, shell=True)
         process.run("ip link set dev %s up" % ifname, shell=True)
@@ -83,7 +83,7 @@ class Network():
             process.run("ip link del dev %sbr type veth" % ifname, shell=True)
             self.interfaces.remove(ifname)
         else:
-            raise ("Unable to remove interface %s (does not exist)" % ifname)
+            raise RuntimeError("Unable to remove interface %s (does not exist)")
 
     def deleteallinterfaces(self):
         for interface in self.interfaces:

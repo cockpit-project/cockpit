@@ -268,12 +268,12 @@ def run(context, function, **kwargs):
             execute("git", "checkout", "--detach", pull['head']['sha'])
 
         ret = function(context, **kwargs)
-    except (RuntimeError, subprocess.CalledProcessError), ex:
+    except (RuntimeError, subprocess.CalledProcessError) as ex:
         ret = str(ex)
     except (AssertionError, KeyboardInterrupt):
         raise
     except:
-        traceback.print_exc(file=sys.stderr)
+        sys.stderr.write(traceback.print_exc())
     finally:
         finish(publishing, ret, name, context, issue)
     return ret or 0

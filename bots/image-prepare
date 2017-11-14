@@ -75,7 +75,7 @@ def main():
             subprocess.check_call([ "image-download", base_image])
         if build_image and not os.path.exists(build_image):
             subprocess.check_call([ "image-download", build_image])
-    except OSError, ex:
+    except OSError as ex:
         if ex.errno != errno.ENOENT:
             raise
         sys.stderr.write("image-prepare: missing tools to download images\n")

@@ -38,7 +38,7 @@ def ssh_reconnect(machine, timeout_sec=120):
         try:
             machine.execute("true", quiet=True)
             return
-        except Exception, e:
+        except Exception as e:
             error = e
         time.sleep(0.5)
 

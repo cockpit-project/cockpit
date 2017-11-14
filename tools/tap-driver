@@ -62,7 +62,7 @@ def terminal_width():
         return w
     except IOError, (errno, strerror):
         if errno != 25: # ENOTTY
-            print >> sys.stderr, errno, strerror, sys.exc_info()
+            sys.stderr.write("%i %s %s\n" % (errno, strerror, sys.exc_info()))
         return sys.maxint;
 
 class Driver:
@@ -135,7 +135,7 @@ class Driver:
             proc = subprocess.Popen(self.argv, close_fds=True,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
-        except OSError, ex:
+        except OSError as ex:
             self.report_error("Couldn't run %s: %s" % (self.argv[0], str(ex)))
             return
 

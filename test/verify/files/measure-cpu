@@ -29,8 +29,8 @@ def cpu_stat():
             return int(l.split()[1])
 
 if sys.argv[1] == "start":
-    print repr((monotonic_time(), cpu_stat()))
+    print(repr((monotonic_time(), cpu_stat())))
 elif sys.argv[1] == "stop":
     (start_time, start_stat) = eval(sys.argv[2])
     hz = os.sysconf('SC_CLK_TCK')
-    print (cpu_stat() - start_stat) / (monotonic_time() - start_time) / hz * 100
+    print((cpu_stat() - start_stat) / (monotonic_time() - start_time) / hz * 100)

@@ -38,9 +38,9 @@ class TestSimple(unittest.TestCase):
         for i in range(0, 10):
             time.sleep(0.100)
             if i % 2:
-                print >> sys.stderr, ">1", i
+                sys.stderr.write(">1%i\n" % i)
             else:
-                print ">2", i
+                print(">2", i)
         self.assertTrue(True)
 
     def testTwo(self):

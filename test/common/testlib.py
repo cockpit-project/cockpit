@@ -127,7 +127,7 @@ class Browser:
 
         tries = 0
         while not tryopen(tries >= 20):
-            print "Restarting browser..."
+            print("Restarting browser...")
             sleep(0.1)
             tries = tries + 1
 
@@ -339,15 +339,14 @@ class Browser:
                 self.wait_not_visible(".curtains-ct")
                 self.wait_visible("iframe.container-frame[name='%s']" % frame)
                 break
-            except Error, ex:
+            except Error as ex:
                 if reconnect and ex.msg.startswith('timeout'):
                     reconnect = False
                     if self.is_present("#machine-reconnect"):
                         self.click("#machine-reconnect", True)
                         self.wait_not_visible(".curtains-ct")
                         continue
-                exc_info = sys.exc_info()
-                raise exc_info[0], exc_info[1], exc_info[2]
+                raise
 
         self.switch_to_frame(frame)
         self.wait_present("body")
@@ -530,7 +529,7 @@ class MachineCase(unittest.TestCase):
         for retry in range(0, max_retry_hard_limit):
             try:
                 super(MachineCase, self).run(result)
-            except RetryError, ex:
+            except RetryError as ex:
                 assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
                 sleep(retry * 10)
@@ -568,7 +567,7 @@ class MachineCase(unittest.TestCase):
             if not self.machine:
                 self.machine = machine
             if opts.trace:
-                print "Starting {0} {1}".format(key, machine.label)
+                print("Starting {0} {1}".format(key, machine.label))
             machine.start()
 
         def sitter():
@@ -768,7 +767,7 @@ class MachineCase(unittest.TestCase):
                     found = True
                     break
             if not found:
-                print "Unexpected journal message '%s'" % m
+                print("Unexpected journal message '%s'" % m)
                 all_found = False
                 if not first:
                     first = m
@@ -797,7 +796,7 @@ class MachineCase(unittest.TestCase):
                 log = "%s-%s-%s.log" % (label or self.label(), m.label, title)
                 with open(log, "w") as fp:
                     m.execute("journalctl", stdout=fp)
-                    print "Journal extracted to %s" % (log)
+                    print("Journal extracted to %s" % (log))
                     attach(log)
 
     def copy_cores(self, title, label=None):
@@ -808,9 +807,9 @@ class MachineCase(unittest.TestCase):
                 m.download_dir("/var/lib/systemd/coredump", dest)
                 try:
                     os.rmdir(dest)
-                except OSError, ex:
+                except OSError as ex:
                     if ex.errno == errno.ENOTEMPTY:
-                        print "Core dumps downloaded to %s" % (dest)
+                        print("Core dumps downloaded to %s" % (dest))
                         attach(dest)
 
 some_failed = False
@@ -835,7 +834,7 @@ class Phantom:
         if not self._driver:
             self.start()
         if opts.trace:
-            print "-> {0}({1})".format(name, repr(args)[1:-2])
+            print("-> {0}({1})".format(name, repr(args)[1:-2]))
         line = json.dumps({
             "cmd": name,
             "args": args,
@@ -849,15 +848,15 @@ class Phantom:
         try:
             res = json.loads(line)
         except:
-            print line.strip()
+            print(line.strip())
             raise
         if 'error' in res:
             if opts.trace:
-                print "<- raise", res['error']
+                print("<- raise", res['error'])
             raise Error(res['error'])
         if 'result' in res:
             if opts.trace:
-                print "<-", repr(res['result'])
+                print("<-", repr(res['result']))
             return res['result']
         raise Error("unexpected: " + line.strip())
 
@@ -959,7 +958,7 @@ class TapRunner(object):
             return False
         except:
             sys.stderr.write("Unexpected exception while running {0}\n".format(test))
-            traceback.print_exc(file=sys.stderr)
+            sys.stderr.write(traceback.print_exc())
             return False
         else:
             result.printErrors()
@@ -1081,7 +1080,7 @@ class TapRunner(object):
         try:
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             (output, error) = proc.communicate(output)
-        except OSError, ex:
+        except OSError as ex:
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("Couldn't check known issue: {0}\n".format(str(ex)))
 

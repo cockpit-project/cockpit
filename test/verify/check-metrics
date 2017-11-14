@@ -105,7 +105,7 @@ class TestMetrics(MachineCase):
         m.execute("kill %d" % cpu_pid)
         cpu_percentage = float(m.execute("/var/lib/testvm/measure-cpu stop '%s'" % cpu_start))
 
-        print "Measured CPU", cpu_percentage
+        print("Measured CPU", cpu_percentage)
         self.assertTrue(b.call_js_func("ph_flot_data_plateau", "#server_cpu_graph",
                                        cpu_percentage*0.50, cpu_percentage*1.50, 15, "cpu"));
 
@@ -115,7 +115,7 @@ class TestMetrics(MachineCase):
         #
         meminfo = read_mem_info(m)
         mem_used = meminfo['MemTotal'] - meminfo['MemFree']
-        print "Measured Memory", mem_used
+        print("Measured Memory", mem_used)
         b.wait_js_func("ph_flot_data_plateau", "#server_memory_graph", mem_used*0.95, mem_used*1.05, 15, "mem");
 
         # Disk.  Anything above 100 kiB/s is good for now.
@@ -171,8 +171,8 @@ class TestMetrics(MachineCase):
             time_after = time.time()
             (eth_after, lo_after) = m.execute(r"grep -E '" + iface + r"' /proc/net/dev | awk '{print $2 + $10}'; "
                                               r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
-            print("Measured {0:.1f}s of network traffic; {3}: {1} bytes, lo: {2} bytes".format(
-                time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before), iface))
+            print(("Measured {0:.1f}s of network traffic; {3}: {1} bytes, lo: {2} bytes".format(
+                time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before), iface)))
 
             client.terminate()
             client.wait()

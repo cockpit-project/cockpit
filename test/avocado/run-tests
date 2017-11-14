@@ -21,12 +21,7 @@
 import argparse
 import json
 import os
-import shutil
 import sys
-import subprocess
-import glob
-import re
-import time
 
 # we use symlinked files
 # the directory structure breaks on the second run with .pyc files
@@ -35,7 +30,6 @@ sys.dont_write_bytecode = True
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
 
-from common import testlib
 from common import testvm
 
 machine_test_dir = "/tmp/avocado_tests"
@@ -61,35 +55,35 @@ def tap_output(machine):
     try:
         json_info = json.loads(machine.execute(command="cat " + os.path.join(avocado_results_dir, "latest/results.json"), quiet=True))
     except Exception as e:
-        print "ERROR: Unable to fetch JSON from remote machine:", os.path.join(avocado_results_dir, "latest/results.json")
-        print e
+        print("ERROR: Unable to fetch JSON from remote machine: " + os.path.join(avocado_results_dir, "latest/results.json"))
+        print(e)
         return None
-    print "\nTAP output -------------------------"
-    print "1..%s" % len(json_info['tests'])
+    print("\nTAP output -------------------------")
+    print("1..%s" % len(json_info['tests']))
     counter = 1
     for t in json_info['tests']:
         test_status = t['status']
         test_name = os.path.basename(t['test'])
         test_log = t['logfile']
         test_time_string = "duration: %ds" % t['time']
-        print "# ----------------------------------------------------------------------"
-        print "# %s %s" % (test_name, test_time_string)
-        print "#"
+        print("# ----------------------------------------------------------------------")
+        print("# %s %s" % (test_name, test_time_string))
+        print("#")
         try:
-            print machine.execute(command="cat " + test_log, quiet=True)
+            print(machine.execute(command="cat " + test_log, quiet=True))
         except Exception as e:
-            print "ERROR: Unable to fetch testlog from remote machine:", test_log
-            print e
-        print "# TEST LOG END -------"
+            print("ERROR: Unable to fetch testlog from remote machine: " + test_log)
+            print(e)
+        print("# TEST LOG END -------")
         if test_status == 'PASS':
-            print "ok %s %s %s" % (counter, test_name, test_time_string)
+            print("ok %s %s %s" % (counter, test_name, test_time_string))
         else:
-            print "not ok %s %s %s" % (counter, test_name, test_time_string)
+            print("not ok %s %s %s" % (counter, test_name, test_time_string))
         counter = counter + 1
     if len(json_info['tests']) != json_info['pass']:
-        print "# %d TESTS FAILED duration: %ds" % (len(json_info['tests']) - json_info['pass'], json_info['time'])
+        print("# %d TESTS FAILED duration: %ds" % (len(json_info['tests']) - json_info['pass'], json_info['time']))
     else:
-        print "# TESTS PASSED duration: %ds" %  json_info['time']
+        print("# TESTS PASSED duration: %ds" %  json_info['time'])
 
 def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
     """ Execute avocado on the machine with the passed environment variables and run
@@ -127,9 +121,9 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
                         if test_name.startswith(machine_test_dir + '/'):
                             test_name = test_name[(len(machine_test_dir) + 1):]
                         fail_reason = t['fail_reason']
-                        print "[" + test_status + "] " + test_name + " (" + fail_reason + ")"
+                        print("[" + test_status + "] " + test_name + " (" + fail_reason + ")")
             except:
-                print "Unable to show avocado test result summary"
+                print("Unable to show avocado test result summary")
         return_state = False
     tap_output(machine)
     return return_state
@@ -223,7 +217,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             copy_avocado_logs(machine, "PASSED")
 
         if not success and sit:
-            print >> sys.stderr, machine.diagnose()
+            sys.stderr.write(machine.diagnose() + "\n")
             raw_input ("Press RET to continue... ")
 
         return success

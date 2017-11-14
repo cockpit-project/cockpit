@@ -94,7 +94,6 @@ class TestKubernetesLogin(KubernetesContainerCase):
         self.browser.wait_visible('#login-button')
 
     def check_login(self, mode):
-        m = self.machine
         b = self.browser
 
         if self.get_bad_auth_code(port=6443) == "403":
@@ -120,7 +119,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         b.wait_visible('#login-button')
 
         self.login("admin", "fubar")
-        with b.wait_timeout(10) as r:
+        with b.wait_timeout(10):
             b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'admin')
@@ -214,13 +213,13 @@ class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
 
     def check_logs(self, b):
         if not self.supports_websocket:
-            print "No websocket support on kubernetes yet"
+            print("No websocket support on kubernetes yet")
         else:
             super(KubernetesCase, self).check_logs(b)
 
     def check_shell(self, b):
         if not self.supports_websocket:
-            print "No websocket support on kubernetes yet"
+            print("No websocket support on kubernetes yet")
         else:
             super(KubernetesCase, self).check_shell(b)
 

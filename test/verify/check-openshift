@@ -41,7 +41,7 @@ def wait_project(machine, project):
             output = machine.execute("oc get projects")
             if project not in output:
                 if not found:
-                    print >> sys.stderr, output
+                    sys.stderr.write(output)
                 found = True
                 raise Exception(output)
             break

@@ -195,7 +195,7 @@
         return name;
     };
 
-    utils.get_block_link_target = function get_block_link_target(client, path) {
+    utils.get_block_link_parts = function get_block_link_parts(client, path) {
         var is_part, is_crypt, is_lvol;
 
         while (true) {
@@ -212,52 +212,53 @@
         if (client.blocks_lvm2[path] && client.lvols[client.blocks_lvm2[path].LogicalVolume])
             is_lvol = true;
 
-        function fmt_part(link) {
-            // Partitions of logical volumes are shown as just logical volumes.
-            if (is_lvol && is_crypt)
-                return cockpit.format(_("<span>Encrypted Logical Volume of $0</span>"), link);
-            else if (is_part && is_crypt)
-                return cockpit.format(_("<span>Encrypted Partition of $0</span>"), link);
-            else if (is_lvol)
-                return cockpit.format(_("<span>Logical Volume of $0</span>"), link);
-            else if (is_part)
-                return cockpit.format(_("<span>Partition of $0</span>"), link);
-            else if (is_crypt)
-                return cockpit.format(_("<span>Encrypted $0</span>"), link);
-            else
-                return link;
-        }
-
         var block = client.blocks[path];
         if (!block)
             return;
 
-        var type, target, name;
+        var location, link;
         if (client.mdraids[block.MDRaid]) {
-            type = "mdraid";
-            target = client.mdraids[block.MDRaid].UUID;
-            name = cockpit.format(_("RAID Device $0"), utils.mdraid_name(client.mdraids[block.MDRaid]));
+            location = [ "mdraid", client.mdraids[block.MDRaid].UUID ];
+            link = cockpit.format(_("RAID Device $0"), utils.mdraid_name(client.mdraids[block.MDRaid]));
         } else if (client.blocks_lvm2[path] &&
                    client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                    client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
-            type = "vgroup";
-            target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
-            name = cockpit.format(_("Volume Group $0"), target);
+            var target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
+            location = [ "vg", target ];
+            link = cockpit.format(_("Volume Group $0"), target);
         } else {
-            type = "block";
-            target = utils.block_name(block).replace(/^\/dev\//, "");
+            location = [ utils.block_name(block).replace(/^\/dev\//, "") ];
             if (client.drives[block.Drive])
-                name = utils.drive_name(client.drives[block.Drive]);
+                link = utils.drive_name(client.drives[block.Drive]);
             else
-                name = utils.block_name(block);
+                link = utils.block_name(block);
         }
 
+        // Partitions of logical volumes are shown as just logical volumes.
+        var format;
+        if (is_lvol && is_crypt)
+            format = _("Encrypted Logical Volume of $0");
+        else if (is_part && is_crypt)
+            format = _("Encrypted Partition of $0");
+        else if (is_lvol)
+            format = _("Logical Volume of $0");
+        else if (is_part)
+            format = _("Partition of $0");
+        else if (is_crypt)
+            format = _("Encrypted $0");
+        else
+            format = "$0";
+
         return {
-            type: type,
-            target: target,
-            html: fmt_part(mustache.render('<a data-goto-{{type}}="{{target}}">{{name}}</a>',
-                                           { type: type, target: target, name: name }))
+            location: location,
+            format: format,
+            link: link
         };
+    };
+
+    utils.go_to_block = function (client, path) {
+        var parts = utils.get_block_link_parts(client, path);
+        cockpit.location.go(parts.location);
     };
 
     utils.get_partitions = function get_partitions(client, block) {
@@ -375,8 +376,8 @@
 
         function make(path) {
             var block = client.blocks[path];
-            var link = utils.get_block_link_target(client, path);
-            var text = $('<div>').html(link.html).text();
+            var parts = utils.get_block_link_parts(client, path);
+            var text = cockpit.format(parts.format, parts.link);
             return { type: 'block', block: block, size: block.Size, desc: text };
         }
 
@@ -384,12 +385,12 @@
 
         function add_free_spaces(block) {
             var parts = utils.get_partitions(client, block);
-            var i, p, link, text;
+            var i, p, link_parts, text;
             for (i in parts) {
                 p = parts[i];
                 if (p.type == 'free') {
-                    link = utils.get_block_link_target(client, block.path);
-                    text = $('<div>').html(link.html).text();
+                    link_parts = utils.get_block_link_parts(client, block.path);
+                    text = cockpit.format(link_parts.format, link_parts.link);
                     spaces.push({ type: 'free', block: block, start: p.start, size: p.size,
                                   desc: cockpit.format(_("unpartitioned space on $0"), text) });
                 }

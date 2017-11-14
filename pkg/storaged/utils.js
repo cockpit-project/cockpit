@@ -20,7 +20,6 @@
 (function() {
     "use strict";
 
-    var $ = require("jquery");
     var cockpit = require("cockpit");
 
     var mustache = require("mustache");
@@ -453,22 +452,6 @@
         return multipathd_service;
     };
 
-    utils.init_arming_zones = function init_arming_zones($top) {
-        $top.on('click', 'button.arm-button', function () {
-            var was_active = $(this).hasClass('active');
-            $(this).toggleClass('active', !was_active);
-            $(this).parents('.arming-zone').toggleClass('armed', !was_active);
-        });
-    };
-
-    utils.reset_arming_zone = function reset_arming_zone($btn) {
-        var $zone = $btn.parents('.arming-zone');
-        var $arm_btn = $zone.find('.arm-button');
-        $arm_btn.removeClass('active');
-        $zone.removeClass('armed');
-    };
-
-
     utils.get_parent = function(client, path) {
         if (client.blocks_part[path] && client.blocks[client.blocks_part[path].Table])
             return client.blocks_part[path].Table;
@@ -668,103 +651,6 @@
                              mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member"; })),
                              pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol"; }))
                            ]);
-    };
-
-    /* jQuery.amend function. This will be removed as we move towards React */
-
-    function sync(output, input, depth) {
-        var na, nb, a, b, i;
-        var attrs, attr, seen;
-
-        if (depth > 0) {
-            if (output.nodeType != input.nodeType ||
-                output.nodeName != input.nodeName ||
-                (output.nodeType != 1 && output.nodeType != 3)) {
-                output.parentNode.replaceChild(input.parentNode.removeChild(input), output);
-                return;
-
-            } else if (output.nodeType == 3) {
-                if (output.nodeValue != input.nodeValue)
-                    output.nodeValue = input.nodeValue;
-                return;
-            }
-        }
-
-        if (output.nodeType == 1) {
-
-            /* Sync attributes */
-            if (depth > 0) {
-                seen = { };
-                attrs = output.attributes;
-                for (i = attrs.length - 1; i >= 0; i--)
-                    seen[attrs[i].name] = attrs[i].value;
-                for (i = input.attributes.length - 1; i >= 0; i--) {
-                    attr = input.attributes[i];
-                    if (seen[attr.name] !== attr.value)
-                        output.setAttribute(attr.name, attr.value);
-                    delete seen[attr.name];
-                }
-                for (i in seen)
-                    output.removeAttribute(i);
-            }
-
-            /* Sync children */
-            na = output.firstChild;
-            nb = input.firstChild;
-            for(;;) {
-                a = na;
-                b = nb;
-                while (a && a.nodeType != 1 && a.nodeType != 3)
-                    a = a.nextSibling;
-                while (b && b.nodeType != 1 && b.nodeType != 3)
-                    b = b.nextSibling;
-                if (!a && !b) {
-                    break;
-                } else if (!a) {
-                    na = null;
-                    nb = b.nextSibling;
-                    output.appendChild(input.removeChild(b));
-                } else if (!b) {
-                    na = a.nextSibling;
-                    nb = null;
-                    output.removeChild(a);
-                } else {
-                    na = a.nextSibling;
-                    nb = b.nextSibling;
-                    sync(a, b, (depth || 0) + 1);
-                }
-            }
-        }
-    }
-
-    $.fn.amend = function amend(data, options) {
-        this.each(function() {
-            var el = $("<div>").html(data);
-            sync(this, el[0], 0);
-        });
-        return this;
-    };
-
-    /* Prevent flicker due to the marriage of jQuery and React here */
-    utils.hide = function hide(selector) {
-        var element = document.querySelector("#storage-detail");
-        element.setAttribute("hidden", "");
-    };
-
-    utils.show_soon = function show_soon(selector, ready) {
-        var element = document.querySelector(selector);
-        if (!element.hasAttribute("hidden"))
-            return;
-        var val = element.getAttribute("hidden");
-        if (ready) {
-            element.removeAttribute("hidden");
-            window.clearTimeout(parseInt(val, 10));
-        } else if (!val) {
-            val = window.setTimeout(function() {
-                show_soon(selector, true);
-            }, 2000);
-            element.setAttribute("hidden", String(val));
-        }
     };
 
     module.exports = utils;

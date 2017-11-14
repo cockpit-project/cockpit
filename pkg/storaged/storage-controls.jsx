@@ -94,11 +94,18 @@ function checked(callback) {
 
 var StorageButton = React.createClass({
     render: function () {
+        var classes = "btn";
+        if (this.props.kind)
+            classes += " btn-" + this.props.kind;
+        else
+            classes += " btn-default";
+
         return (
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
-                                    <button onClick={checked(this.props.onClick)}
-                                            className={"btn btn-default" + (excuse? " disabled" : "")}>
+                                    <button id={this.props.id}
+                                            onClick={checked(this.props.onClick)}
+                                            className={classes + (excuse? " disabled" : "")}>
                                                       {this.props.children}
                                     </button>
                                 )}/>
@@ -284,10 +291,34 @@ class StorageMultiAction extends React.Component {
     }
 }
 
+/* Render a usage bar showing props.stats[0] out of props.stats[1]
+ * bytes in use.  If the ratio is above props.critical, the bar will be
+ * in a dangerous color.
+ */
+
+class StorageUsageBar  extends React.Component {
+    render() {
+        var stats = this.props.stats;
+        var fraction = stats? stats[0] / stats[1] : null;
+
+        return (
+            <div className="progress">
+                { stats ?
+                <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
+                     style={{ width: fraction*100 + "%" }}>
+                </div>
+                  : null
+                }
+            </div>
+        );
+    }
+}
+
 module.exports = {
     StorageButton: StorageButton,
     StorageLink:   StorageLink,
     StorageBlockNavLink: StorageBlockNavLink,
     StorageOnOff: StorageOnOff,
-    StorageMultiAction: StorageMultiAction
+    StorageMultiAction: StorageMultiAction,
+    StorageUsageBar: StorageUsageBar
 };

@@ -40,9 +40,9 @@ class TestStorage(StorageCase):
         #
         # https://github.com/storaged-project/storaged/issues/97.
 
-        dev = m.execute("dd if=/dev/zero of=/disk1 bs=1M count=10 && losetup --show loop12 /disk1")
+        dev = m.execute("dd if=/dev/zero of=/disk1 bs=1M count=10 && losetup --show loop12 /disk1").strip()
 
-        b.wait_in_text("#others", dev)
+        b.wait(lambda: b.is_present("#others") and dev in b.text("#others"))
         b.click('tr:contains("%s")' % dev)
         b.wait_visible('#storage-detail')
 

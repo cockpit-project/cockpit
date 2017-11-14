@@ -31,7 +31,7 @@ import { IscsiPanel } from "./iscsi-panel.jsx";
 import { DrivesPanel } from "./drives-panel.jsx";
 import { OthersPanel } from "./others-panel.jsx";
 
-import { Jobs } from "./job-views.jsx";
+import { JobsPanel } from "./jobs-panel.jsx";
 import { StorageLogsPanel } from "./logs-panel.jsx";
 
 export class OverviewSidePanel extends React.Component {
@@ -121,22 +121,21 @@ class Overview extends React.Component {
 
     render() {
         var client = this.props.client;
-        var jobs = this.props.jobs;
 
         return (
             <div>
                 <div className="col-md-8 col-lg-9 page-ct">
                     <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })}/>
                     <br/>
-                    <FilesystemsPanel client={client} jobs={jobs}/>
-                    <NFSPanel client={client} jobs={jobs}/>
-                    <Jobs jobs={jobs}/>
+                    <FilesystemsPanel client={client}/>
+                    <NFSPanel client={client}/>
+                    <JobsPanel client={client}/>
                     <StorageLogsPanel/>
                 </div>
                 <div className="col-md-4 col-lg-3 storage-sidebar page-ct">
                     <MDRaidsPanel client={client}/>
-                    { client.features.lvm2 ? <VGroupsPanel client={client} jobs={jobs}/> : null }
-                    { client.features.iscsi ? <IscsiPanel client={client} jobs={jobs}/> : null }
+                    { client.features.lvm2 ? <VGroupsPanel client={client}/> : null }
+                    { client.features.iscsi ? <IscsiPanel client={client}/> : null }
                     <DrivesPanel client={client} highlight={this.state.highlight}/>
                     <OthersPanel client={client}/>
                 </div>

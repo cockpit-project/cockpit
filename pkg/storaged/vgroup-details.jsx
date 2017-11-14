@@ -260,7 +260,7 @@ export class VGroupDetails extends React.Component {
 
         var content = <Content.VGroup client={this.props.client} vgroup={vgroup}/>;
 
-        return <StdDetailsLayout jobs={this.props.jobs}
+        return <StdDetailsLayout client={this.props.client}
                                  header={ header }
                                  sidebar={ sidebar }
                                  content={ content }/>;

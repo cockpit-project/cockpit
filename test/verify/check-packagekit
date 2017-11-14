@@ -309,6 +309,28 @@ class TestUpdates(PackageCase):
         self.allow_restart_journal_messages()
 
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
+    def testSecurityOnly(self):
+        b = self.browser
+        m = self.machine
+
+        # security fix with proper CVE list and severity
+        self.createPackage("secdeclare", "3", "4.a1", install=True)
+        self.createPackage("secdeclare", "3", "4.b1", severity="security",
+                           changes="Will crash your data center", cves=['CVE-2014-123456'])
+
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+        b.wait_present("#available h2")
+        b.wait_in_text("#available h2", "Available Updates")
+        self.assertEqual(b.text("#state"), "1 security fix")
+
+        # should only have one button (only security updates)
+        self.assertEqual(b.text("#app .container-fluid button"), "Install Security Updates")
+
+    @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     def testInfoTruncation(self):
         b = self.browser
         m = self.machine

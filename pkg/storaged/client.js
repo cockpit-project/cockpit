@@ -51,6 +51,8 @@
             close: close
         };
 
+        cockpit.event_target(self);
+
         function handle_meta(msg) {
             self.data = { };
             instances = [ ];
@@ -76,7 +78,7 @@
                 }
             }
             if (changed)
-                $(self).triggerHandler('changed');
+                self.dispatchEvent('changed');
         }
 
         var channel = cockpit.channel({ payload: "metrics1",
@@ -450,7 +452,7 @@
                 if (lines.length >= 2) {
                     self.entries = JSON.parse(lines[lines.length-2]);
                     self.fsys_sizes = { };
-                    $(self).triggerHandler('changed');
+                    client.dispatchEvent('changed');
                 }
             }).
             fail(function (error) {
@@ -472,11 +474,11 @@
                 .done(function (output) {
                     var data = JSON.parse(output);
                     self.fsys_sizes[path] = [ (data[2]-data[1])*data[0], data[2]*data[0] ];
-                    $(self).triggerHandler('changed');
+                    client.dispatchEvent('changed');
                 })
                 .fail(function () {
                     self.fsys_sizes[path] = [ 0, 0 ];
-                    $(self).triggerHandler('changed');
+                    client.dispatchEvent('changed');
                 });
 
             return null;

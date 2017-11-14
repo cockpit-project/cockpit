@@ -1431,15 +1431,18 @@ function render_active_connection(dev, with_link, hide_link_local) {
     return $('<span>').text(parts.join(", "));
 }
 
-function make_network_plot_setup_hook(unit) {
+function network_plot_setup_hook(pl) {
+    var axes = pl.getAxes();
+    if (axes.yaxis.datamax < 100000)
+        axes.yaxis.options.max = 100000;
+    else
+        axes.yaxis.options.max = null;
+    axes.yaxis.options.min = 0;
+}
+
+function make_network_plot_post_hook(unit) {
     return function (pl) {
         var axes = pl.getAxes();
-        if (axes.yaxis.datamax < 100000)
-            axes.yaxis.options.max = 100000;
-        else
-            axes.yaxis.options.max = null;
-        axes.yaxis.options.min = 0;
-
         $(unit).text(plot.bits_per_sec_tick_unit(axes.yaxis));
     };
 }
@@ -1609,7 +1612,8 @@ PageNetworking.prototype = {
         $.extend(rx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        rx_plot_options.setup_hook = make_network_plot_setup_hook("#networking-rx-unit");
+        rx_plot_options.setup_hook = network_plot_setup_hook;
+        rx_plot_options.post_hook = make_network_plot_post_hook("#networking-rx-unit");
         this.rx_plot = plot.plot($("#networking-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
@@ -1630,7 +1634,8 @@ PageNetworking.prototype = {
         $.extend(tx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        tx_plot_options.setup_hook = make_network_plot_setup_hook("#networking-tx-unit");
+        tx_plot_options.setup_hook = network_plot_setup_hook;
+        tx_plot_options.post_hook = make_network_plot_post_hook("#networking-tx-unit");
         this.tx_plot = plot.plot($("#networking-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
@@ -2170,7 +2175,8 @@ PageNetworkInterface.prototype = {
         $.extend(rx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        rx_plot_options.setup_hook = make_network_plot_setup_hook("#network-interface-rx-unit");
+        rx_plot_options.setup_hook = network_plot_setup_hook;
+        rx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-rx-unit");
         this.rx_plot = plot.plot($("#network-interface-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
@@ -2190,7 +2196,8 @@ PageNetworkInterface.prototype = {
         $.extend(tx_plot_options.grid,  { hoverable: true,
                                           autoHighlight: false
                                         });
-        tx_plot_options.setup_hook = make_network_plot_setup_hook("#network-interface-tx-unit");
+        tx_plot_options.setup_hook = network_plot_setup_hook;
+        tx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-tx-unit");
         this.tx_plot = plot.plot($("#network-interface-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });

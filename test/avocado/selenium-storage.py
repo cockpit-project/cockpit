@@ -24,13 +24,13 @@ class StorageTestSuite(SeleniumTest):
         self.click(self.wait_link('Storage', cond=clickable))
         self.wait_frame("storage")
         self.wait_id("drives")
-        self.click(self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname, cond=clickable))
+        self.click(self.wait_xpath("//*[@data-testkey='%s']" % other_shortname, cond=clickable))
         self.wait_id('storage-detail')
         self.wait_text(other_discname, element="td")
         self.wait_text("Capacity", element="td")
         self.wait_text("1000 MiB", element="td")
         self.click(self.wait_link('Storage', cond=clickable))
-        self.wait_xpath("//*[@data-goto-block='%s']" % other_shortname)
+        self.wait_xpath("//*[@data-testkey='%s']" % other_shortname)
         self.mainframe()
         self.error=False
 

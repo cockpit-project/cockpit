@@ -42,7 +42,13 @@ var PVolTab = React.createClass({
                 <table className="info-table-ct">
                     <tr>
                         <td>{_("Volume Group")}</td>
-                        <td>{vgroup? <a data-goto-vgroup={vgroup.Name}>{vgroup.Name}</a> : "-"}</td>
+                        <td>{vgroup?
+                             <a onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
+                                 {vgroup.Name}
+                             </a>
+                            : "-"
+                            }
+                        </td>
                     </tr>
                     <tr>
                         <td>{_("Free")}</td>
@@ -66,7 +72,13 @@ var MDRaidMemberTab = React.createClass({
                 <table className="info-table-ct">
                     <tr>
                         <td>{_("RAID Device")}</td>
-                        <td>{mdraid? <a data-goto-mdraid={mdraid.UUID}>{utils.mdraid_name(mdraid)}</a> : "-"}</td>
+                        <td>{mdraid?
+                             <a onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
+                                 {utils.mdraid_name(mdraid)}
+                             </a>
+                            : "-"
+                            }
+                        </td>
                     </tr>
                 </table>
             </div>

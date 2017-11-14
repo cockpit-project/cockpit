@@ -178,10 +178,10 @@
 }
 
 @media (min-width: 768px) {
-    .storage-reading-graph-container {
+    .storage-graph-container:nth-child(1) {
         padding-right: 5px;
     }
-    .storage-writing-graph-container {
+    .storage-graph-container:nth-child(2) {
         padding-left: 5px;
     }
 }
@@ -340,7 +340,6 @@ td.storage-icon {
 }
 
 td.storage-icon .spinner {
-    visibility: hidden;
     margin-top: 5px;
 }
 
@@ -378,15 +377,15 @@ td.job-action {
     display: inline-block;
 }
 
-#storage-graph-toolbar button span {
+#storage-graph-toolbar .dropdown button span {
     width: 6em;
     text-align: left;
     padding-left: 5px;
     display: inline-block;
 }
 
-#storage-reading-graph,
-#storage-writing-graph {
+.storage-graph
+{
     height: 120px;
 }
 

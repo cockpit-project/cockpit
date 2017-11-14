@@ -24,7 +24,6 @@
     var cockpit = require("cockpit");
 
     var client = require("./client");
-    var jobs = require("./jobs");
     var overview = require("./overview.jsx");
     var details = require("./details.jsx");
     var utils = require("./utils");
@@ -41,7 +40,6 @@
      */
 
     function init() {
-        var jobs_manager;
         var overview_page;
         var details_page;
 
@@ -73,9 +71,8 @@
                 $('#unsupported').show();
                 $("body").show();
             } else {
-                jobs_manager = jobs.init(client);
-                overview_page = overview.init(client, jobs_manager);
-                details_page = details.init(client, jobs_manager);
+                overview_page = overview.init(client);
+                details_page = details.init(client);
                 $(cockpit).on("locationchanged", navigate);
                 navigate();
             }

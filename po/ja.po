@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-31 08:00+0000\n"
+"POT-Creation-Date: 2017-11-11 10:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,15 +26,15 @@ msgstr " 1\" 次のノードを削除しますか?"
 msgid "$0 Block Device"
 msgstr "$0 ブロックデバイス"
 
-#: pkg/storaged/details.jsx:290
+#: pkg/storaged/mdraid-details.jsx:192
 msgid "$0 Chunk Size"
 msgstr "$0 チャンクサイズ"
 
-#: pkg/storaged/details.jsx:288
+#: pkg/storaged/mdraid-details.jsx:190
 msgid "$0 Disks"
 msgstr "$0 ディスク"
 
-#: pkg/storaged/content-views.jsx:303
+#: pkg/storaged/content-views.jsx:302
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 ファイルシステム"
@@ -75,7 +75,7 @@ msgstr[0] "$0 日"
 
 #: src/base1/test-locale.js:64 src/base1/test-locale.js:65
 #: src/base1/test-locale.js:66 pkg/playground/translate.js:28
-#: pkg/playground/translate.js:31 pkg/storaged/details.jsx:301
+#: pkg/playground/translate.js:31 pkg/storaged/mdraid-details.jsx:212
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 ディスクがありません"
@@ -111,9 +111,9 @@ msgid ""
 "GNOME Software or run the following:"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
-#: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
-#: pkg/storaged/format-dialog.jsx:255
+#: pkg/storaged/content-views.jsx:253 pkg/storaged/content-views.jsx:463
+#: pkg/storaged/format-dialog.jsx:255 pkg/storaged/mdraid-details.jsx:270
+#: pkg/storaged/vgroup-details.jsx:202
 msgid "$0 is in active use"
 msgstr ""
 
@@ -187,7 +187,7 @@ msgid "$0% Used"
 msgid_plural "$0% Used"
 msgstr[0] "$0% 使用済み"
 
-#: pkg/storaged/sidebar-views.jsx:300
+#: pkg/storaged/vgroup-details.jsx:116
 msgid "$0, $1 free"
 msgstr "$0, $1 空き"
 
@@ -232,7 +232,7 @@ msgstr[0] ""
 msgid "- Add New Repository"
 msgstr "- 新規リポジトリーの追加"
 
-#: pkg/storaged/overview.js:441
+#: pkg/storaged/overview.js:707
 msgid "1 MiB"
 msgstr "1 MiB"
 
@@ -241,13 +241,13 @@ msgid "1 Minute"
 msgstr "1 分"
 
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:56
-#: pkg/networkmanager/index.html:543 pkg/storaged/index.html:310
+#: pkg/networkmanager/index.html:543 pkg/storaged/index.html:413
 #: pkg/systemd/index.html:191
 msgid "1 day"
 msgstr "1 日"
 
 #: pkg/dashboard/index.html:51 pkg/networkmanager/index.html:54
-#: pkg/networkmanager/index.html:541 pkg/storaged/index.html:308
+#: pkg/networkmanager/index.html:541 pkg/storaged/index.html:411
 #: pkg/systemd/index.html:187
 msgid "1 hour"
 msgstr "1 時間"
@@ -257,7 +257,7 @@ msgid "1 min"
 msgstr "1 分"
 
 #: pkg/dashboard/index.html:57 pkg/networkmanager/index.html:57
-#: pkg/networkmanager/index.html:544 pkg/storaged/index.html:311
+#: pkg/networkmanager/index.html:544 pkg/storaged/index.html:414
 #: pkg/systemd/index.html:193
 msgid "1 week"
 msgstr "1 週間"
@@ -270,7 +270,7 @@ msgstr "10 日"
 msgid "11th"
 msgstr "11 日"
 
-#: pkg/storaged/overview.js:439
+#: pkg/storaged/overview.js:705
 msgid "128 KiB"
 msgstr "128 KiB"
 
@@ -290,7 +290,7 @@ msgstr "14 日"
 msgid "15th"
 msgstr "15 日"
 
-#: pkg/storaged/overview.js:436
+#: pkg/storaged/overview.js:702
 msgid "16 KiB"
 msgstr "16 KiB"
 
@@ -314,7 +314,7 @@ msgstr "19 日"
 msgid "1st"
 msgstr "1 日"
 
-#: pkg/storaged/overview.js:442
+#: pkg/storaged/overview.js:708
 msgid "2 MiB"
 msgstr "2 MiB"
 
@@ -382,7 +382,7 @@ msgstr "30 日"
 msgid "31st"
 msgstr "31 日"
 
-#: pkg/storaged/overview.js:437
+#: pkg/storaged/overview.js:703
 msgid "32 KiB"
 msgstr "32 KiB"
 
@@ -390,7 +390,7 @@ msgstr "32 KiB"
 msgid "3rd"
 msgstr "3 日"
 
-#: pkg/storaged/overview.js:434
+#: pkg/storaged/overview.js:700
 msgid "4 KiB"
 msgstr "4 KiB"
 
@@ -415,12 +415,12 @@ msgid "5 min"
 msgstr "5 分"
 
 #: pkg/dashboard/index.html:49 pkg/networkmanager/index.html:53
-#: pkg/networkmanager/index.html:540 pkg/storaged/index.html:307
+#: pkg/networkmanager/index.html:540 pkg/storaged/index.html:410
 #: pkg/systemd/index.html:185
 msgid "5 minutes"
 msgstr "5 分"
 
-#: pkg/storaged/overview.js:440
+#: pkg/storaged/overview.js:706
 msgid "512 KiB"
 msgstr "512 KiB"
 
@@ -429,7 +429,7 @@ msgid "5th"
 msgstr "5 日"
 
 #: pkg/dashboard/index.html:53 pkg/networkmanager/index.html:55
-#: pkg/networkmanager/index.html:542 pkg/storaged/index.html:309
+#: pkg/networkmanager/index.html:542 pkg/storaged/index.html:412
 #: pkg/systemd/index.html:189
 msgid "6 hours"
 msgstr "6 時間"
@@ -438,7 +438,7 @@ msgstr "6 時間"
 msgid "60 Minutes"
 msgstr "60 分"
 
-#: pkg/storaged/overview.js:438
+#: pkg/storaged/overview.js:704
 msgid "64 KiB"
 msgstr "64 KiB"
 
@@ -450,7 +450,7 @@ msgstr "6 日"
 msgid "7th"
 msgstr "7 日"
 
-#: pkg/storaged/overview.js:435
+#: pkg/storaged/overview.js:701
 msgid "8 KiB"
 msgstr "8 KiB"
 
@@ -496,7 +496,7 @@ msgid ""
 "strong}}."
 msgstr "Cockpit の互換バージョンが {{#strong}}{{host}}{{/strong}} にインストールされていません。"
 
-#: pkg/storaged/sidebar-views.jsx:142
+#: pkg/storaged/mdraid-details.jsx:118
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "このディスクを削除する前に、スペアディスクを追加する必要があります。"
 
@@ -565,15 +565,15 @@ msgid "Accounts"
 msgstr "アカウント"
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:138
-#: pkg/ovirt/components/ClusterVms.jsx:170
+#: pkg/ovirt/components/ClusterVms.jsx:175
 msgid "Action"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:227
+#: pkg/storaged/content-views.jsx:226
 msgid "Activate"
 msgstr "有効化"
 
-#: pkg/storaged/jobs.js:147
+#: pkg/storaged/jobs.js:110
 msgid "Activating $target"
 msgstr "$target のアクティベート"
 
@@ -612,8 +612,9 @@ msgstr "適応送信のロードバランス"
 #: pkg/kubernetes/views/add-member-role-dialog.html:61
 #: pkg/kubernetes/views/add-role-dialog.html:8 pkg/lib/machine-add.html:43
 #: pkg/ostree/index.html:90 pkg/shell/index.html:194
-#: pkg/storaged/overview.js:634 pkg/storaged/overview.js:662
-#: pkg/storaged/sidebar-views.jsx:85 pkg/storaged/sidebar-views.jsx:249
+#: pkg/storaged/mdraid-details.jsx:61 pkg/storaged/overview.js:525
+#: pkg/storaged/overview.js:900 pkg/storaged/overview.js:928
+#: pkg/storaged/vgroup-details.jsx:65
 msgid "Add"
 msgstr "追加する"
 
@@ -641,7 +642,7 @@ msgstr "ブリッジの追加"
 msgid "Add Cluster Node"
 msgstr "クラスターノードの追加"
 
-#: pkg/storaged/sidebar-views.jsx:68 pkg/storaged/sidebar-views.jsx:232
+#: pkg/storaged/mdraid-details.jsx:44 pkg/storaged/vgroup-details.jsx:48
 msgid "Add Disks"
 msgstr "ディスクの追加"
 
@@ -701,7 +702,7 @@ msgstr "ユーザーの追加"
 msgid "Add VLAN"
 msgstr "VLAN の追加"
 
-#: pkg/storaged/overview.js:520
+#: pkg/storaged/overview.js:786
 msgid "Add iSCSI Portal"
 msgstr "iSCSI ポータルの追加"
 
@@ -727,7 +728,7 @@ msgstr "<b>$0</b> を追加すると、サーバーへの接続が切断され�
 msgid "Adding key"
 msgstr "鍵の追加"
 
-#: pkg/storaged/jobs.js:152
+#: pkg/storaged/jobs.js:115
 msgid "Adding physical volume to $target"
 msgstr "$target への物理ボリュームの追加"
 
@@ -756,7 +757,7 @@ msgstr "追加"
 #: pkg/kubernetes/views/details-page.html:174
 #: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
 #: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
-#: pkg/storaged/overview.js:629
+#: pkg/storaged/overview.js:895
 msgid "Address"
 msgstr "アドレス:"
 
@@ -765,6 +766,7 @@ msgid "Address $val"
 msgstr "アドレス $val"
 
 #: pkg/machines/components/desktopConsole.jsx:154
+#: pkg/ovirt/components/VmOverviewColumn.jsx:73
 #, fuzzy
 msgid "Address:"
 msgstr "アドレス:"
@@ -859,7 +861,7 @@ msgid "Anonymous: Allow all unauthenticated users to pull images"
 msgstr "匿名: 認証されていないすべてのユーザーがイメージをプルできます"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:148
-#: pkg/apps/application.jsx:127
+#: pkg/apps/application.jsx:140
 msgid "Applications"
 msgstr ""
 
@@ -870,7 +872,7 @@ msgstr ""
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
 #: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
 #: pkg/storaged/crypto-tab.jsx:110 pkg/storaged/fsys-tab.jsx:76
-#: pkg/storaged/fsys-tab.jsx:123
+#: pkg/storaged/fsys-tab.jsx:123 pkg/storaged/overview.js:525
 msgid "Apply"
 msgstr "適用"
 
@@ -918,21 +920,16 @@ msgstr "このイメージを削除してもよろしいですか?"
 msgid "Are you sure you want to leave this domain?"
 msgstr "このイメージを削除してもよろしいですか?"
 
-#: pkg/storaged/index.html:449
-msgctxt "storage"
-msgid "Assessment"
-msgstr "評価"
-
 #: pkg/systemd/index.html:91
 msgid "Asset Tag"
 msgstr "アセットタグ"
 
-#: pkg/storaged/overview.js:455
+#: pkg/storaged/overview.js:721
 msgid "At least $0 disks are needed."
 msgstr "少なくとも $0 ディスクが必要です。"
 
-#: pkg/storaged/overview.js:503 pkg/storaged/sidebar-views.jsx:80
-#: pkg/storaged/sidebar-views.jsx:244
+#: pkg/storaged/mdraid-details.jsx:56 pkg/storaged/overview.js:769
+#: pkg/storaged/vgroup-details.jsx:60
 msgid "At least one disk is needed."
 msgstr "少なくとも 1 つのディスクが必要です。"
 
@@ -966,7 +963,7 @@ msgstr "認証に失敗しました: サーバーの接続が切断されまし�
 msgid "Authentication failed"
 msgstr "認証に失敗しました"
 
-#: pkg/storaged/overview.js:650
+#: pkg/storaged/overview.js:916
 msgid "Authentication required"
 msgstr "認証が必要です"
 
@@ -1025,7 +1022,7 @@ msgstr "利用可能"
 msgid "Available Updates"
 msgstr "利用可能"
 
-#: pkg/storaged/overview.js:624
+#: pkg/storaged/overview.js:890
 msgid "Available targets on $0"
 msgstr "$0 で利用可能なターゲット"
 
@@ -1065,20 +1062,15 @@ msgstr ""
 msgid "Begins with '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
 msgstr "'-----BEGIN PGP PUBLIC KEY BLOCK-----' で始めます"
 
-#: pkg/storaged/index.html:559
-msgctxt "storage"
-msgid "Bitmap"
-msgstr "ビットマップ"
+#: pkg/storaged/block-details.jsx:34
+msgid "Block"
+msgstr ""
 
-#: pkg/storaged/index.html:412
-msgid "Block Device"
-msgstr "ブロックデバイス"
-
-#: pkg/storaged/content-views.jsx:668
+#: pkg/storaged/content-views.jsx:606
 msgid "Block device for filesystems"
 msgstr "ファイルシステム用ブロックデバイス"
 
-#: pkg/storaged/sidebar-views.jsx:126
+#: pkg/storaged/mdraid-details.jsx:102
 msgid "Blocked"
 msgstr "ブロック済み"
 
@@ -1165,7 +1157,7 @@ msgstr "CPU 優先度"
 msgid "CPU usage:"
 msgstr "CPU 使用率:"
 
-#: pkg/ovirt/provider.es6:210
+#: pkg/ovirt/provider.es6:211
 msgid "CREATE VM action failed"
 msgstr ""
 
@@ -1177,7 +1169,7 @@ msgstr "キャッシュ済み"
 msgid "Can&rsquo;t connect to Docker"
 msgstr "Docker に接続できません"
 
-#: pkg/storaged/content-views.jsx:287
+#: pkg/storaged/content-views.jsx:286
 msgid "Can't delete while unlocked"
 msgstr "ロック解除されている間は削除できません"
 
@@ -1222,7 +1214,7 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
 #: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:868
+#: pkg/storaged/index.html:390 pkg/storaged/index.html:728
 #: pkg/systemd/index.html:341 pkg/systemd/index.html:428
 #: pkg/systemd/index.html:480 pkg/systemd/index.html:496
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
@@ -1232,7 +1224,7 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/ovirt/components/ClusterTemplates.jsx:77
 #: pkg/ovirt/components/OVirtTab.jsx:68 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:206
-#: pkg/sosreport/index.js:51
+#: pkg/sosreport/index.js:51 pkg/storaged/job-views.jsx:43
 msgid "Cancel"
 msgstr "取り消し"
 
@@ -1262,12 +1254,6 @@ msgstr "過去のイベントはスケジュールできません"
 msgid "Capacity"
 msgstr "容量"
 
-#: pkg/storaged/index.html:441 pkg/storaged/index.html:517
-#: pkg/storaged/index.html:550 pkg/storaged/index.html:595
-msgctxt "storage"
-msgid "Capacity"
-msgstr "容量"
-
 #: pkg/networkmanager/interfaces.js:2473
 msgid "Carrier"
 msgstr "キャリア"
@@ -1285,7 +1271,7 @@ msgstr "Ceph モニター"
 #: pkg/kubernetes/views/replicationcontroller-modify.html:17
 #: pkg/kubernetes/views/route-modify.html:17 pkg/systemd/index.html:342
 #: pkg/systemd/index.html:429 pkg/users/index.html:325 pkg/users/index.html:364
-#: pkg/storaged/overview.js:712
+#: pkg/storaged/overview.js:978
 msgid "Change"
 msgstr "変更"
 
@@ -1317,7 +1303,7 @@ msgstr "システム時間の変更"
 msgid "Change User"
 msgstr "ユーザーの変更"
 
-#: pkg/storaged/overview.js:704
+#: pkg/storaged/overview.js:970
 msgid "Change iSCSI Initiator Name"
 msgstr "iSCSI イニシエーター名の変更"
 
@@ -1355,11 +1341,11 @@ msgstr "更新の確認"
 msgid "Checking IP"
 msgstr "IP の確認"
 
-#: pkg/storaged/jobs.js:142
+#: pkg/storaged/jobs.js:105
 msgid "Checking RAID Device $target"
 msgstr "RAID デバイス $target の確認"
 
-#: pkg/storaged/jobs.js:143
+#: pkg/storaged/jobs.js:106
 msgid "Checking and Repairing RAID Device $target"
 msgstr "RAID デバイス $target の確認および修復"
 
@@ -1379,7 +1365,7 @@ msgstr "更新の確認"
 msgid "Choose the language to be used in the application"
 msgstr "アプリケーションで使用する言語の選択"
 
-#: pkg/storaged/overview.js:432
+#: pkg/storaged/overview.js:698
 msgid "Chunk Size"
 msgstr "チャンクサイズ"
 
@@ -1395,7 +1381,7 @@ msgstr "クレーム"
 msgid "Claim Name"
 msgstr "クレーム名"
 
-#: pkg/storaged/jobs.js:134
+#: pkg/storaged/jobs.js:97
 msgid "Cleaning up for $target"
 msgstr "$target のクリーンアップ"
 
@@ -1413,8 +1399,8 @@ msgstr "クライアント証明書"
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/lib/machine-auth-failed.html:20
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:356 pkg/shell/simple.html:82
-#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:641
-#: pkg/storaged/index.html:873 pkg/systemd/index.html:287
+#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:478
+#: pkg/storaged/index.html:733 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:109
@@ -1433,7 +1419,7 @@ msgstr "クラスター"
 msgid "Cluster Templates"
 msgstr ""
 
-#: pkg/ovirt/components/ClusterVms.jsx:161
+#: pkg/ovirt/components/ClusterVms.jsx:166
 msgid "Cluster Virtual Machines"
 msgstr ""
 
@@ -1598,11 +1584,11 @@ msgstr "イメージのコミット"
 msgid "Communication with tuned has failed"
 msgstr "tuned との通信に失敗しました"
 
-#: pkg/storaged/content-views.jsx:493
+#: pkg/storaged/content-views.jsx:483
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "すべてのシステムおよびデバイスとの互換性あり (MBR)"
 
-#: pkg/storaged/content-views.jsx:494
+#: pkg/storaged/content-views.jsx:484
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "最新のシステムとの互換性があり、ハードディスクが 2TB よりも大きい (GPT)"
 
@@ -1818,7 +1804,7 @@ msgctxt "page-title"
 msgid "Containers"
 msgstr "コンテナー"
 
-#: pkg/storaged/content-views.jsx:527
+#: pkg/storaged/content-views.jsx:517
 msgid "Content"
 msgstr "コンテンツ"
 
@@ -1878,7 +1864,7 @@ msgid "Couldn't create new users"
 msgstr "新規ユーザーを作成できませんでした"
 
 #: pkg/kubernetes/scripts/connection.js:512
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:972
+#: pkg/kubernetes/scripts/kube-client-cockpit.js:978
 msgid "Couldn't find running API server"
 msgstr "実行中の API サーバーを見つけることができませんでした"
 
@@ -1920,13 +1906,13 @@ msgstr "クラッシュシステム"
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:222
 #: pkg/ovirt/components/ClusterTemplates.jsx:78
-#: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
-#: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
-#: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
+#: pkg/storaged/content-views.jsx:119 pkg/storaged/content-views.jsx:650
+#: pkg/storaged/lvol-tabs.jsx:132 pkg/storaged/overview.js:727
+#: pkg/storaged/overview.js:774
 msgid "Create"
 msgstr "作成"
 
-#: pkg/storaged/content-views.jsx:658
+#: pkg/storaged/content-views.jsx:596
 msgid "Create Logical Volume"
 msgstr "論理ボリュームの作成"
 
@@ -1934,11 +1920,11 @@ msgstr "論理ボリュームの作成"
 msgid "Create New Account"
 msgstr "新規アカウントの作成"
 
-#: pkg/storaged/content-views.jsx:398
+#: pkg/storaged/content-views.jsx:396
 msgid "Create Partition"
 msgstr "パーティションの作成"
 
-#: pkg/storaged/overview.js:415
+#: pkg/storaged/overview.js:681
 msgid "Create RAID Device"
 msgstr "RAID デバイスの作成"
 
@@ -1951,7 +1937,7 @@ msgstr "レポートの作成"
 msgid "Create Snapshot"
 msgstr "スナップショットの作成"
 
-#: pkg/storaged/content-views.jsx:104 pkg/storaged/content-views.jsx:131
+#: pkg/storaged/content-views.jsx:103 pkg/storaged/content-views.jsx:130
 msgid "Create Thin Volume"
 msgstr "シンボリュームの作成"
 
@@ -1967,7 +1953,7 @@ msgstr "タイマーの作成"
 msgid "Create VM"
 msgstr ""
 
-#: pkg/storaged/overview.js:490
+#: pkg/storaged/overview.js:756
 msgid "Create Volume Group"
 msgstr "ボリュームグループの作成"
 
@@ -1988,7 +1974,7 @@ msgstr "イメージストリームの作成"
 msgid "Create it"
 msgstr "作成"
 
-#: pkg/storaged/content-views.jsx:731
+#: pkg/storaged/content-views.jsx:669
 msgid "Create new Logical Volume"
 msgstr "新規論理ボリュームの作成"
 
@@ -2000,7 +1986,7 @@ msgstr "パーティションの作成"
 msgid "Create partition on $0"
 msgstr "$0 上でのパーティションの作成"
 
-#: pkg/storaged/index.html:379 pkg/storaged/content-views.jsx:522
+#: pkg/storaged/content-views.jsx:512
 msgid "Create partition table"
 msgstr "パーティションテーブルの作成"
 
@@ -2017,23 +2003,23 @@ msgstr "作成済み"
 msgid "Created:"
 msgstr "作成済み:"
 
-#: pkg/storaged/jobs.js:141
+#: pkg/storaged/jobs.js:104
 msgid "Creating RAID Device $target"
 msgstr "RAID デバイス $target の作成"
 
-#: pkg/storaged/jobs.js:129
+#: pkg/storaged/jobs.js:92
 msgid "Creating filesystem on $target"
 msgstr "$target 上でのファイルシステムの作成"
 
-#: pkg/storaged/jobs.js:155
+#: pkg/storaged/jobs.js:118
 msgid "Creating logical volume $target"
 msgstr "論理ボリューム $target の作成"
 
-#: pkg/storaged/jobs.js:133
+#: pkg/storaged/jobs.js:96
 msgid "Creating partition $target"
 msgstr "パーティション $target の作成"
 
-#: pkg/storaged/jobs.js:149
+#: pkg/storaged/jobs.js:112
 msgid "Creating snapshot of $target"
 msgstr "$target のスナップショットの作成"
 
@@ -2061,7 +2047,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "このチームを作成すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
 
-#: pkg/storaged/jobs.js:150
+#: pkg/storaged/jobs.js:113
 msgid "Creating volume group $target"
 msgstr "ボリュームグループ $target の作成"
 
@@ -2093,7 +2079,7 @@ msgstr ""
 msgid "Custom mount options"
 msgstr ""
 
-#: pkg/storaged/index.html:452
+#: pkg/storaged/drive-details.jsx:50
 msgid "DISK IS FAILING"
 msgstr "ディスクで障害が発生中"
 
@@ -2125,7 +2111,7 @@ msgstr "ダッシュボード"
 msgid "Data Used"
 msgstr "使用済みデータ"
 
-#: pkg/storaged/content-views.jsx:225
+#: pkg/storaged/content-views.jsx:224
 msgid "Deactivate"
 msgstr "解除"
 
@@ -2133,7 +2119,7 @@ msgstr "解除"
 msgid "Deactivating"
 msgstr "非アクティブ化"
 
-#: pkg/storaged/jobs.js:148
+#: pkg/storaged/jobs.js:111
 msgid "Deactivating $target"
 msgstr "$target の非アクティブ化"
 
@@ -2164,9 +2150,9 @@ msgstr "遅延"
 #: pkg/docker/details.js:276 pkg/docker/image.js:141
 #: pkg/kubernetes/scripts/volumes.js:218
 #: pkg/machines/components/deleteDialog.jsx:96 pkg/machines/hostvmslist.jsx:111
-#: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:288
-#: pkg/storaged/details.jsx:105 pkg/storaged/details.jsx:166
-#: pkg/storaged/details.jsx:334 pkg/storaged/details.jsx:383
+#: pkg/storaged/content-views.jsx:266 pkg/storaged/content-views.jsx:287
+#: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/mdraid-details.jsx:300
+#: pkg/storaged/vgroup-details.jsx:215 pkg/storaged/vgroup-details.jsx:233
 msgid "Delete"
 msgstr "削除"
 
@@ -2215,7 +2201,7 @@ msgstr "イメージストリームの削除"
 msgid "Delete {{ item.kind }}"
 msgstr "{{ item.kind }} の削除"
 
-#: pkg/storaged/jobs.js:132 pkg/storaged/jobs.js:146
+#: pkg/storaged/jobs.js:95 pkg/storaged/jobs.js:109
 msgid "Deleting $target"
 msgstr "$target の削除中"
 
@@ -2231,7 +2217,7 @@ msgid ""
 "automatically created again in some cases."
 msgstr "ポッドを削除すると、関連するすべてのコンテナーが終了します。ポッドは自動的に再び作成されることもあります。"
 
-#: pkg/storaged/details.jsx:106
+#: pkg/storaged/mdraid-details.jsx:283
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "RAID デバイスを削除すると、そのデバイス上のすべてのデータが削除されます。"
 
@@ -2239,15 +2225,15 @@ msgstr "RAID デバイスを削除すると、そのデバイス上のすべて�
 msgid "Deleting a container will erase all data in it."
 msgstr "コンテナーを削除すると、コンテナー内のすべてのデータが削除されます。"
 
-#: pkg/storaged/content-views.jsx:244
+#: pkg/storaged/content-views.jsx:243
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "論理ボリュームを削除すると、論理ボリューム内のすべてのデータが削除されます。"
 
-#: pkg/storaged/content-views.jsx:247
+#: pkg/storaged/content-views.jsx:246
 msgid "Deleting a partition will delete all data in it."
 msgstr "パーティションを削除すると、パーティション内のすべてのデータが削除されます。"
 
-#: pkg/storaged/details.jsx:165
+#: pkg/storaged/vgroup-details.jsx:214
 msgid "Deleting a volume group will erase all data on it."
 msgstr "ボリュームグループを削除すると、ボリュームグループ上のすべてのデータが削除されます。"
 
@@ -2259,7 +2245,7 @@ msgid ""
 msgstr ""
 "イメージは、削除しても、多くの場合、後で必要なときに再びダウンロードできます。このイメージがリポジトリーにプッシュされたことがない場合は、イメージを再びダウンロードできません。"
 
-#: pkg/storaged/jobs.js:151
+#: pkg/storaged/jobs.js:114
 msgid "Deleting volume group $target"
 msgstr "ボリュームグループ $target の削除"
 
@@ -2292,12 +2278,12 @@ msgstr "デプロイメント設定"
 #: node_modules/registry-image-widgets/views/image-body.html:6
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
 #: pkg/ovirt/components/ClusterVms.jsx:75
-#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/systemd/init.js:270
+#: pkg/ovirt/components/ClusterVms.jsx:173 pkg/systemd/init.js:270
 msgid "Description"
 msgstr "説明"
 
 #: pkg/ovirt/components/OVirtTab.jsx:143
-#: pkg/ovirt/components/VmOverviewColumn.jsx:71
+#: pkg/ovirt/components/VmOverviewColumn.jsx:72
 msgid "Description:"
 msgstr ""
 
@@ -2312,18 +2298,7 @@ msgstr "詳細"
 msgid "Device"
 msgstr "デバイス"
 
-#: pkg/storaged/index.html:542
-msgctxt "storage"
-msgid "Device"
-msgstr "デバイス"
-
-#: pkg/storaged/index.html:465 pkg/storaged/index.html:471
-#: pkg/storaged/index.html:513
-msgctxt "storage"
-msgid "Device File"
-msgstr "デバイスファイル"
-
-#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:396
+#: pkg/storaged/content-views.jsx:511 pkg/storaged/format-dialog.jsx:396
 msgid "Device is read-only"
 msgstr "デバイスは読み取り専用です"
 
@@ -2373,13 +2348,13 @@ msgstr "ディスク I/O"
 msgid "Disk Utilization: $0%"
 msgstr "ディスク使用率: $0%˙"
 
-#: pkg/storaged/index.html:455
+#: pkg/storaged/drive-details.jsx:51
 msgid "Disk is OK"
 msgstr "ディスクは OK です"
 
-#: pkg/machines/hostvmslist.jsx:409 pkg/storaged/overview.js:449
-#: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
-#: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
+#: pkg/machines/hostvmslist.jsx:409 pkg/storaged/mdraid-details.jsx:47
+#: pkg/storaged/mdraid-details.jsx:153 pkg/storaged/overview.js:715
+#: pkg/storaged/overview.js:764 pkg/storaged/vgroup-details.jsx:51
 msgid "Disks"
 msgstr "ディスク"
 
@@ -2472,7 +2447,7 @@ msgstr "ドメイン管理者パスワード"
 msgid "Don't Repeat"
 msgstr "繰り返さないでください"
 
-#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:276
+#: pkg/storaged/content-views.jsx:476 pkg/storaged/format-dialog.jsx:276
 msgid "Don't overwrite existing data"
 msgstr "既存のデータを上書きしないでください"
 
@@ -2510,7 +2485,7 @@ msgstr "ダウンロード"
 msgid "Downloading"
 msgstr "ダウンロード"
 
-#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:160
+#: pkg/docker/storage.jsx:160 pkg/storaged/drive-details.jsx:64
 msgid "Drive"
 msgstr "ドライブ"
 
@@ -2551,7 +2526,7 @@ msgstr "イメージストリームの編集"
 msgid "Edit the vdsm.conf"
 msgstr ""
 
-#: pkg/storaged/jobs.js:119
+#: pkg/storaged/jobs.js:82
 msgid "Ejecting $target"
 msgstr "$target の取り出し中"
 
@@ -2570,7 +2545,7 @@ msgstr "空"
 msgid "Empty Directory"
 msgstr "空のディレクトリー"
 
-#: pkg/storaged/jobs.js:154
+#: pkg/storaged/jobs.js:117
 msgid "Emptying $target"
 msgstr "$target を空にしています"
 
@@ -2591,7 +2566,7 @@ msgstr "強制的に有効にする"
 msgid "Enabled"
 msgstr "有効"
 
-#: pkg/storaged/storage-controls.jsx:214
+#: pkg/storaged/storage-controls.jsx:205
 #, fuzzy
 msgid "Encrypted $0"
 msgstr "暗号化されたデータ"
@@ -2600,12 +2575,12 @@ msgstr "暗号化されたデータ"
 msgid "Encrypted EXT4 (LUKS)"
 msgstr "暗号化された EXT4 (LUKS)"
 
-#: pkg/storaged/storage-controls.jsx:206
+#: pkg/storaged/storage-controls.jsx:197
 #, fuzzy
 msgid "Encrypted Logical Volume of $0"
 msgstr "<span>暗号化された $0 の論理ボリューム</span>"
 
-#: pkg/storaged/storage-controls.jsx:208
+#: pkg/storaged/storage-controls.jsx:199
 #, fuzzy
 msgid "Encrypted Partition of $0"
 msgstr "<span>暗号化された $0 のパーティション</span>†"
@@ -2614,12 +2589,12 @@ msgstr "<span>暗号化された $0 のパーティション</span>†"
 msgid "Encrypted XFS (LUKS)"
 msgstr "暗号化された XFS (LUKS)"
 
-#: pkg/storaged/content-views.jsx:317
+#: pkg/storaged/content-views.jsx:316
 msgctxt "storage-id-desc"
 msgid "Encrypted data"
 msgstr "暗号化されたデータ"
 
-#: pkg/storaged/content-views.jsx:144
+#: pkg/storaged/content-views.jsx:143
 msgid "Encryption"
 msgstr "暗号化"
 
@@ -2675,7 +2650,7 @@ msgstr "Entrypoint"
 msgid "Environment"
 msgstr "環境"
 
-#: pkg/storaged/content-views.jsx:484 pkg/storaged/format-dialog.jsx:274
+#: pkg/storaged/content-views.jsx:474 pkg/storaged/format-dialog.jsx:274
 msgid "Erase"
 msgstr "削除"
 
@@ -2687,14 +2662,14 @@ msgstr "コンテナーの削除とストレージプールのリセット"
 msgid "Erase containers, reformat disks, and add them"
 msgstr "コンテナーの削除、ディスクの再フォーマット、およびそれらの追加"
 
-#: pkg/storaged/jobs.js:128
+#: pkg/storaged/jobs.js:91
 msgid "Erasing $target"
 msgstr "$target の削除中"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/systemd/services.html:334 pkg/apps/utils.jsx:101
-#: pkg/storaged/details.jsx:199 pkg/storaged/devices.js:118
-#: pkg/storaged/overview.js:694 pkg/storaged/storage-controls.jsx:69
+#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:960
+#: pkg/storaged/storage-controls.jsx:87 pkg/storaged/storage-controls.jsx:230
 #: pkg/users/local.js:1381
 msgid "Error"
 msgstr "エラー"
@@ -2763,11 +2738,11 @@ msgstr "期限切れの署名"
 msgid "Expose container ports"
 msgstr "コンテナーポートの公開"
 
-#: pkg/storaged/content-views.jsx:418 pkg/storaged/format-dialog.jsx:247
+#: pkg/storaged/content-views.jsx:416 pkg/storaged/format-dialog.jsx:247
 msgid "Extended Partition"
 msgstr "拡張パーティション"
 
-#: pkg/storaged/sidebar-views.jsx:122
+#: pkg/storaged/mdraid-details.jsx:98
 msgid "FAILED"
 msgstr "失敗"
 
@@ -2831,7 +2806,7 @@ msgstr "ファイバーチャネル"
 msgid "File"
 msgstr "File"
 
-#: pkg/storaged/content-views.jsx:142
+#: pkg/storaged/content-views.jsx:141
 msgid "Filesystem"
 msgstr "ファイルシステム"
 
@@ -2865,11 +2840,6 @@ msgstr "ファイルシステム"
 #: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:302
 msgid "Fingerprint"
 msgstr "フィンガープリント"
-
-#: pkg/storaged/index.html:424
-msgctxt "storage"
-msgid "Firmware Version"
-msgstr "ファームウェアバージョン"
 
 #: pkg/kubernetes/scripts/volumes.js:206
 msgid "Flex"
@@ -2907,7 +2877,7 @@ msgstr "シャットダウンの強制"
 msgid "Force password change"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:317
+#: pkg/storaged/content-views.jsx:492 pkg/storaged/format-dialog.jsx:317
 #: pkg/storaged/format-dialog.jsx:397
 msgid "Format"
 msgstr "フォーマット"
@@ -2916,11 +2886,11 @@ msgstr "フォーマット"
 msgid "Format $0"
 msgstr "$0 のフォーマット"
 
-#: pkg/storaged/content-views.jsx:480
+#: pkg/storaged/content-views.jsx:470
 msgid "Format Disk $0"
 msgstr "ディスク $0 のフォーマット"
 
-#: pkg/storaged/content-views.jsx:503
+#: pkg/storaged/content-views.jsx:493
 msgid "Formatting a disk will erase all data on it."
 msgstr "ディスクをフォーマットすると、ディスク上のすべてのデータが削除されます。"
 
@@ -2938,7 +2908,7 @@ msgstr "フォワード遅延 $forward_delay"
 msgid "Free"
 msgstr "空き"
 
-#: pkg/storaged/content-views.jsx:404
+#: pkg/storaged/content-views.jsx:402
 msgid "Free Space"
 msgstr "空き領域"
 
@@ -2994,12 +2964,12 @@ msgstr "GlusterFS"
 msgid "Go to"
 msgstr "移動"
 
-#: pkg/apps/application.jsx:93
+#: pkg/apps/application.jsx:105
 msgid "Go to Application"
 msgstr ""
 
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
-#: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
+#: pkg/networkmanager/index.html:538 pkg/storaged/index.html:408
 #: pkg/systemd/index.html:182
 msgid "Go to now"
 msgstr "今すぐ移動"
@@ -3028,7 +2998,7 @@ msgid "Groups"
 msgstr "グループ"
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:138
-#: pkg/ovirt/components/ClusterVms.jsx:169
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "HA"
 msgstr ""
 
@@ -3065,7 +3035,7 @@ msgstr "Hello タイム $hello_time"
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
 #: pkg/ovirt/components/App.jsx:75 pkg/ovirt/components/ClusterVms.jsx:57
-#: pkg/ovirt/components/ClusterVms.jsx:169
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Host"
 msgstr "ホスト"
 
@@ -3263,7 +3233,7 @@ msgstr "イメージは特定のユーザーまたはグループのみがプル
 msgid "Images pushed recently"
 msgstr "最近プッシュされたイメージ"
 
-#: pkg/storaged/sidebar-views.jsx:123
+#: pkg/storaged/mdraid-details.jsx:99
 msgid "In Sync"
 msgstr "同期"
 
@@ -3289,7 +3259,7 @@ msgstr "ユーザーを同期するには、{{#strong}}{{host}}{{/strong}} に�
 msgid "Inactive"
 msgstr "停止"
 
-#: pkg/storaged/content-views.jsx:615
+#: pkg/storaged/content-views.jsx:570
 msgid "Inactive volume"
 msgstr "非アクティブなボリューム"
 
@@ -3305,7 +3275,7 @@ msgstr "Docker ストレージプールに関する情報は利用できませ�
 msgid "Initializing..."
 msgstr ""
 
-#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:97
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:109
 msgid "Install"
 msgstr ""
 
@@ -3424,7 +3394,7 @@ msgstr "無効な時間形式"
 msgid "Invalid time zone"
 msgstr "無効なタイムゾーン"
 
-#: pkg/storaged/overview.js:582 pkg/storaged/overview.js:673
+#: pkg/storaged/overview.js:848 pkg/storaged/overview.js:939
 #: pkg/subscriptions/subscriptions-client.js:194
 msgid "Invalid username or password"
 msgstr "無効なユーザー名またはパスワード"
@@ -3433,7 +3403,7 @@ msgstr "無効なユーザー名またはパスワード"
 msgid "Is sshd running on a different port?"
 msgstr "sshd が別のポートで実行されていますか?"
 
-#: pkg/storaged/index.html:278
+#: pkg/storaged/index.html:381 pkg/storaged/job-views.jsx:51
 msgid "Jobs"
 msgstr "ジョブ"
 
@@ -3659,11 +3629,15 @@ msgstr "ローカルディスク"
 msgid "Local Filesystem"
 msgstr "ローカルファイルシステム"
 
+#: pkg/storaged/overview.js:505
+msgid "Local Mount Point"
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:174
 msgid "Location"
 msgstr "場所"
 
-#: pkg/storaged/content-views.jsx:209
+#: pkg/storaged/content-views.jsx:208
 msgid "Lock"
 msgstr "ロック"
 
@@ -3683,7 +3657,7 @@ msgstr "特権タスクを防ぐためにロック"
 msgid "Locked"
 msgstr "ロック"
 
-#: pkg/storaged/jobs.js:121
+#: pkg/storaged/jobs.js:84
 msgid "Locking $target"
 msgstr "$target のロック中"
 
@@ -3734,7 +3708,7 @@ msgstr "論理ボリューム"
 msgid "Logical Volume (Snapshot)"
 msgstr "論理ボリューム (スナップショット)"
 
-#: pkg/storaged/storage-controls.jsx:210
+#: pkg/storaged/storage-controls.jsx:201
 #, fuzzy
 msgid "Logical Volume of $0"
 msgstr "論理ボリューム"
@@ -3784,7 +3758,7 @@ msgstr "MAC"
 msgid "MAC Address:"
 msgstr "MAC アドレス:"
 
-#: pkg/ovirt/provider.es6:237
+#: pkg/ovirt/provider.es6:238
 msgid "MIGRATE action failed"
 msgstr ""
 
@@ -3830,7 +3804,7 @@ msgstr "接続"
 msgid "Manually"
 msgstr "手動"
 
-#: pkg/storaged/jobs.js:139
+#: pkg/storaged/jobs.js:102
 msgid "Marking $target as faulty"
 msgstr "$target を問題があるものとしてマークする"
 
@@ -3858,11 +3832,11 @@ msgstr "普通"
 msgid "Member of"
 msgstr "メンバー"
 
-#: pkg/storaged/content-views.jsx:314
+#: pkg/storaged/content-views.jsx:313
 msgid "Member of RAID Device"
 msgstr "RAID デバイスのメンバー"
 
-#: pkg/storaged/content-views.jsx:310
+#: pkg/storaged/content-views.jsx:309
 msgid "Member of RAID Device $0"
 msgstr "RAID デバイス $0 のメンバー"
 
@@ -3884,7 +3858,7 @@ msgstr "メンバーシップ"
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
 #: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "Memory"
 msgstr "メモリ"
 
@@ -3949,16 +3923,11 @@ msgstr "分"
 msgid "Mode"
 msgstr "モード"
 
-#: pkg/storaged/index.html:419
-msgctxt "storage"
-msgid "Model"
-msgstr "モデル"
-
 #: pkg/kubernetes/views/user-modify.html:27
 msgid "Modify"
 msgstr "修正"
 
-#: pkg/storaged/jobs.js:122 pkg/storaged/jobs.js:127 pkg/storaged/jobs.js:131
+#: pkg/storaged/jobs.js:85 pkg/storaged/jobs.js:90 pkg/storaged/jobs.js:94
 msgid "Modifying $target"
 msgstr "$target の変更"
 
@@ -3996,8 +3965,8 @@ msgstr "詳細"
 msgid "More information…"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:167
-#: pkg/storaged/fsys-tab.jsx:196
+#: pkg/storaged/index.html:316 pkg/kdump/kdump-view.jsx:104
+#: pkg/storaged/fsys-tab.jsx:167 pkg/storaged/fsys-tab.jsx:196
 msgid "Mount"
 msgstr "マウント"
 
@@ -4005,12 +3974,12 @@ msgstr "マウント"
 msgid "Mount Location"
 msgstr "マウント場所"
 
-#: pkg/storaged/fsys-tab.jsx:178
+#: pkg/storaged/fsys-tab.jsx:178 pkg/storaged/overview.js:516
 msgid "Mount Options"
 msgstr "マウントオプション"
 
-#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:74
-#: pkg/storaged/fsys-tab.jsx:161
+#: pkg/storaged/index.html:229 pkg/storaged/index.html:290
+#: pkg/storaged/format-dialog.jsx:74 pkg/storaged/fsys-tab.jsx:161
 msgid "Mount Point"
 msgstr "マウントポイント"
 
@@ -4030,6 +3999,14 @@ msgstr ""
 msgid "Mount point can not be empty"
 msgstr ""
 
+#: pkg/storaged/overview.js:509
+msgid "Mount point cannot be empty."
+msgstr ""
+
+#: pkg/storaged/overview.js:511
+msgid "Mount point must start with \"/\"."
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:99
 msgid "Mount read only"
 msgstr ""
@@ -4042,22 +4019,21 @@ msgstr "マウント場所"
 msgid "Mounting"
 msgstr "マウント"
 
-#: pkg/storaged/jobs.js:125
+#: pkg/storaged/jobs.js:88
 msgid "Mounting $target"
 msgstr "$target のマウント"
-
-#: pkg/storaged/index.html:506
-msgctxt "storage"
-msgid "Multipathed Devices"
-msgstr "マルチパスデバイス"
 
 #: pkg/kubernetes/scripts/volumes.js:858
 msgid "NFS"
 msgstr "NFS"
 
-#: pkg/kubernetes/scripts/volumes.js:199
+#: pkg/kubernetes/scripts/volumes.js:199 pkg/storaged/overview.js:480
 msgid "NFS Mount"
 msgstr "NFS マウント"
+
+#: pkg/storaged/index.html:283
+msgid "NFS Mounts"
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:1938
 msgid "NSNA Ping"
@@ -4103,15 +4079,15 @@ msgstr "NTP サーバー"
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
 #: pkg/machines/hostvmslist.jsx:481
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/packagekit/updates.jsx:329
-#: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
-#: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:285
-#: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:151
-#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/lvol-tabs.jsx:118
-#: pkg/storaged/lvol-tabs.jsx:155 pkg/storaged/lvol-tabs.jsx:192
-#: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
-#: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/storaged/part-tab.jsx:37
+#: pkg/ovirt/components/ClusterVms.jsx:173 pkg/packagekit/updates.jsx:329
+#: pkg/storaged/content-views.jsx:106 pkg/storaged/content-views.jsx:599
+#: pkg/storaged/format-dialog.jsx:285 pkg/storaged/fsys-tab.jsx:71
+#: pkg/storaged/fsys-tab.jsx:151 pkg/storaged/lvol-tabs.jsx:39
+#: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
+#: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/overview.js:684
+#: pkg/storaged/overview.js:759 pkg/storaged/overview.js:895
+#: pkg/storaged/overview.js:973 pkg/storaged/part-tab.jsx:37
+#: pkg/storaged/vgroup-details.jsx:180
 msgid "Name"
 msgstr "名前"
 
@@ -4193,6 +4169,10 @@ msgstr ""
 msgid "New Group"
 msgstr "新規グループ"
 
+#: pkg/storaged/overview.js:480
+msgid "New NFS Mount"
+msgstr ""
+
 #: pkg/shell/index.html:322 pkg/users/index.html:249
 msgid "New Password"
 msgstr "新規パスワード"
@@ -4216,7 +4196,7 @@ msgstr "新規パスワードは受け入れられませんでした"
 msgid "New project"
 msgstr "新規プロジェクト"
 
-#: pkg/realmd/operation.html:93 pkg/storaged/overview.js:538
+#: pkg/realmd/operation.html:93 pkg/storaged/overview.js:804
 msgid "Next"
 msgstr "次へ"
 
@@ -4246,9 +4226,13 @@ msgstr "デプロイメントなし"
 msgid "No Filesystem"
 msgstr "ファイルシステムなし"
 
-#: pkg/storaged/content-views.jsx:738
+#: pkg/storaged/content-views.jsx:676
 msgid "No Logical Volumes"
 msgstr "論理ボリュームなし"
+
+#: pkg/storaged/index.html:354
+msgid "No NFS mounts set up"
+msgstr ""
 
 #: pkg/ostree/app.js:107
 msgid "No OSTree deployments found"
@@ -4328,8 +4312,8 @@ msgstr "コンテナーなし"
 msgid "No containers that match the current filter"
 msgstr "現在のフィルターに一致するコンテナーがありません"
 
-#: pkg/storaged/overview.js:451 pkg/storaged/overview.js:500
-#: pkg/storaged/sidebar-views.jsx:77 pkg/storaged/sidebar-views.jsx:241
+#: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/overview.js:717
+#: pkg/storaged/overview.js:766 pkg/storaged/vgroup-details.jsx:57
 msgid "No disks are available."
 msgstr "ディスクが利用できません。"
 
@@ -4341,7 +4325,7 @@ msgstr "この VM に対してディスクが定義されていません"
 msgid "No drives attached"
 msgstr "ドライブが割り当てられていません"
 
-#: pkg/storaged/content-views.jsx:723
+#: pkg/storaged/content-views.jsx:661
 msgid "No free space"
 msgstr "空き領域なし"
 
@@ -4385,12 +4369,12 @@ msgstr ""
 msgid "No installed products on the system."
 msgstr "システムにインストールされた製品がありません。"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:247
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:205
 #, fuzzy
 msgid "No matching files found"
 msgstr "ホストキーが見つかりません。"
 
-#: pkg/storaged/index.html:444
+#: pkg/storaged/drive-details.jsx:73
 msgid "No media inserted"
 msgstr "メディアが挿入されていません"
 
@@ -4412,7 +4396,7 @@ msgstr "メタデータファイルが選択されていません。Kubernetes �
 msgid "No nodes in cluster"
 msgstr "クラスター内にノードがありません"
 
-#: pkg/storaged/content-views.jsx:497
+#: pkg/storaged/content-views.jsx:487
 msgid "No partitioning"
 msgstr "パーティションなし"
 
@@ -4560,7 +4544,7 @@ msgstr "接続していません"
 msgid "Not deployed"
 msgstr "デプロイされていません"
 
-#: pkg/docker/details.js:176 pkg/storaged/details.jsx:414
+#: pkg/docker/details.js:176 pkg/storaged/details.jsx:124
 msgid "Not found"
 msgstr "見つかりません"
 
@@ -4568,7 +4552,7 @@ msgstr "見つかりません"
 msgid "Not permitted to perform this action."
 msgstr "このアクションを実行する権限がありません。"
 
-#: pkg/storaged/details.jsx:318
+#: pkg/storaged/mdraid-details.jsx:332
 msgid "Not running"
 msgstr "実行中ではありません"
 
@@ -4591,7 +4575,7 @@ msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:13
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "OS"
 msgstr "OS"
 
@@ -4621,8 +4605,8 @@ msgstr "$0〜$1 の発生件数"
 
 #: pkg/playground/jquery-patterns.html:95
 #: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:254
-#: pkg/storaged/index.html:564 pkg/systemd/index.html:167
-#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:38
+#: pkg/systemd/index.html:167 pkg/lib/patterns.js:244
+#: pkg/lib/cockpit-components-onoff.jsx:38
 msgid "Off"
 msgstr "オフ"
 
@@ -4640,8 +4624,8 @@ msgstr "古いパスワードは受け入れられません"
 
 #: pkg/playground/jquery-patterns.html:91
 #: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:250
-#: pkg/storaged/index.html:563 pkg/systemd/index.html:163
-#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:39
+#: pkg/systemd/index.html:163 pkg/lib/patterns.js:244
+#: pkg/lib/cockpit-components-onoff.jsx:39
 msgid "On"
 msgstr "オン"
 
@@ -4687,7 +4671,7 @@ msgstr "オペレーティングシステム"
 msgid "Operating System Updates"
 msgstr "オペレーティングシステムの更新"
 
-#: pkg/storaged/jobs.js:165
+#: pkg/storaged/jobs.js:128
 msgid "Operation '$operation' on $target"
 msgstr "$target 上の操作 '$operation'"
 
@@ -4704,6 +4688,10 @@ msgstr ""
 msgid "Options"
 msgstr "オプション"
 
+#: pkg/storaged/overview.js:520
+msgid "Options cannot be empty."
+msgstr ""
+
 #: pkg/subscriptions/subscriptions-register.jsx:176
 msgid "Organization"
 msgstr "部門"
@@ -4712,7 +4700,7 @@ msgstr "部門"
 msgid "Origin"
 msgstr "生成"
 
-#: pkg/storaged/content-views.jsx:322
+#: pkg/storaged/content-views.jsx:321
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "他のデータ"
@@ -4730,7 +4718,7 @@ msgstr "他のオプション"
 msgid "Overview"
 msgstr "概要"
 
-#: pkg/storaged/content-views.jsx:487 pkg/storaged/format-dialog.jsx:277
+#: pkg/storaged/content-views.jsx:477 pkg/storaged/format-dialog.jsx:277
 msgid "Overwrite existing data with zeros"
 msgstr "既存のデータをゼロで上書きする"
 
@@ -4774,16 +4762,16 @@ msgid "Part of "
 msgstr "一部"
 
 #: pkg/kubernetes/views/volume-body.html:8
-#: pkg/kubernetes/views/volume-body.html:18 pkg/storaged/content-views.jsx:138
+#: pkg/kubernetes/views/volume-body.html:18 pkg/storaged/content-views.jsx:137
 msgid "Partition"
 msgstr "パーティション"
 
-#: pkg/storaged/storage-controls.jsx:212
+#: pkg/storaged/storage-controls.jsx:203
 #, fuzzy
 msgid "Partition of $0"
 msgstr "パーティション"
 
-#: pkg/storaged/content-views.jsx:491
+#: pkg/storaged/content-views.jsx:481
 msgid "Partitioning"
 msgstr "パーティション構成"
 
@@ -4791,7 +4779,7 @@ msgstr "パーティション構成"
 msgid "Passive"
 msgstr "パッシブ"
 
-#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:295
+#: pkg/storaged/content-views.jsx:193 pkg/storaged/format-dialog.jsx:295
 msgid "Passphrase"
 msgstr "パスフレーズ"
 
@@ -4807,7 +4795,7 @@ msgstr "パスフレーズが一致しません"
 #: pkg/lib/machine-sync-users.html:61 pkg/lib/machine-auth-failed.html:8
 #: pkg/shell/index.html:225 pkg/shell/index.html:264 pkg/shell/index.html:277
 #: pkg/users/index.html:117 pkg/users/index.html:177 src/ws/login.html:50
-#: pkg/storaged/overview.js:534 pkg/storaged/overview.js:657
+#: pkg/storaged/overview.js:800 pkg/storaged/overview.js:923
 #: pkg/subscriptions/subscriptions-register.jsx:88
 #: pkg/subscriptions/subscriptions-register.jsx:152
 msgid "Password"
@@ -4857,7 +4845,19 @@ msgstr "パスコスト"
 msgid "Path cost $path_cost"
 msgstr "パスコスト $path_cost"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:232
+#: pkg/storaged/overview.js:493
+msgid "Path on Server"
+msgstr ""
+
+#: pkg/storaged/overview.js:498
+msgid "Path on server cannot be empty."
+msgstr ""
+
+#: pkg/storaged/overview.js:500
+msgid "Path on server must start with \"/\"."
+msgstr ""
+
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:265
 msgid "Path to file"
 msgstr ""
 
@@ -4889,15 +4889,15 @@ msgstr "永続ボリューム"
 msgid "Phase"
 msgstr "フェーズ"
 
-#: pkg/storaged/content-views.jsx:147 pkg/storaged/content-views.jsx:312
+#: pkg/storaged/content-views.jsx:146 pkg/storaged/content-views.jsx:311
 msgid "Physical Volume"
 msgstr "物理ボリューム"
 
-#: pkg/storaged/sidebar-views.jsx:316
+#: pkg/storaged/vgroup-details.jsx:132
 msgid "Physical Volumes"
 msgstr "物理ボリューム"
 
-#: pkg/storaged/content-views.jsx:307
+#: pkg/storaged/content-views.jsx:306
 msgid "Physical volume of $0"
 msgstr "$0 の物理ボリューム"
 
@@ -4910,8 +4910,8 @@ msgid "Ping Target"
 msgstr "Ping ターゲット"
 
 #: pkg/docker/containers-view.jsx:167 pkg/docker/details.js:274
-#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:261
-#: pkg/storaged/details.jsx:100 pkg/storaged/details.jsx:160
+#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:260
+#: pkg/storaged/mdraid-details.jsx:277 pkg/storaged/vgroup-details.jsx:209
 msgid "Please confirm deletion of $0"
 msgstr "$0 の削除を確定してください"
 
@@ -5074,7 +5074,7 @@ msgid ""
 "your application code."
 msgstr "ポッドには、ノードで一緒に実行される 1 つ以上のコンテナーが含まれます (アプリケーションコードを含む)"
 
-#: pkg/machines/vmdiskstab.jsx:54 pkg/storaged/content-views.jsx:130
+#: pkg/machines/vmdiskstab.jsx:54 pkg/storaged/content-views.jsx:129
 msgid "Pool"
 msgstr "プール"
 
@@ -5086,11 +5086,11 @@ msgstr "プール名"
 msgid "Pool for Thin Logical Volumes"
 msgstr "シン論理ボリューム用プール"
 
-#: pkg/storaged/content-views.jsx:596
+#: pkg/storaged/content-views.jsx:551
 msgid "Pool for Thin Volumes"
 msgstr "シンボリューム用プール"
 
-#: pkg/storaged/content-views.jsx:671
+#: pkg/storaged/content-views.jsx:609
 msgid "Pool for thinly provisioned volumes"
 msgstr "シンプロビジョニングされたボリューム用プール"
 
@@ -5099,7 +5099,7 @@ msgid "Populate"
 msgstr "入力"
 
 #: pkg/lib/machine-change-port.html:23 pkg/machines/vmdiskstab.jsx:57
-#: pkg/ovirt/components/InstallationDialog.jsx:67 pkg/storaged/overview.js:629
+#: pkg/ovirt/components/InstallationDialog.jsx:67 pkg/storaged/overview.js:895
 msgid "Port"
 msgstr "ポート"
 
@@ -5280,7 +5280,7 @@ msgstr "プル対象"
 msgid "Pull specific tags from another image repository"
 msgstr "別のイメージリポジトリーから特定のタグをプルします"
 
-#: pkg/storaged/content-views.jsx:666
+#: pkg/storaged/content-views.jsx:604
 msgid "Purpose"
 msgstr "目的"
 
@@ -5293,63 +5293,64 @@ msgstr "イメージのプッシュ:"
 msgid "Qualified Name"
 msgstr "修飾名"
 
-#: pkg/storaged/details.jsx:283
+#: pkg/storaged/mdraid-details.jsx:185
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/details.jsx:277
+#: pkg/storaged/mdraid-details.jsx:179
 msgid "RAID 0"
 msgstr "RAID 0"
 
-#: pkg/storaged/overview.js:423
+#: pkg/storaged/overview.js:689
 msgid "RAID 0 (Stripe)"
 msgstr "RAID 0 (ストライプ)"
 
-#: pkg/storaged/details.jsx:278
+#: pkg/storaged/mdraid-details.jsx:180
 msgid "RAID 1"
 msgstr "RAID 1"
 
-#: pkg/storaged/overview.js:424
+#: pkg/storaged/overview.js:690
 msgid "RAID 1 (Mirror)"
 msgstr "RAID 1 (ミラー)"
 
-#: pkg/storaged/details.jsx:282
+#: pkg/storaged/mdraid-details.jsx:184
 msgid "RAID 10"
 msgstr "RAID 10"
 
-#: pkg/storaged/overview.js:428
+#: pkg/storaged/overview.js:694
 msgid "RAID 10 (Stripe of Mirrors)"
 msgstr "RAID 10 (ミラーのストライプ)"
 
-#: pkg/storaged/details.jsx:279
+#: pkg/storaged/mdraid-details.jsx:181
 msgid "RAID 4"
 msgstr "RAID 4"
 
-#: pkg/storaged/overview.js:425
+#: pkg/storaged/overview.js:691
 msgid "RAID 4 (Dedicated Parity)"
 msgstr "RAID 4 (専用パリティー)"
 
-#: pkg/storaged/details.jsx:280
+#: pkg/storaged/mdraid-details.jsx:182
 msgid "RAID 5"
 msgstr "RAID 5"
 
-#: pkg/storaged/overview.js:426
+#: pkg/storaged/overview.js:692
 msgid "RAID 5 (Distributed Parity)"
 msgstr "RAID 5 (分散パリティー)"
 
-#: pkg/storaged/details.jsx:281
+#: pkg/storaged/mdraid-details.jsx:183
 msgid "RAID 6"
 msgstr "RAID 6"
 
-#: pkg/storaged/overview.js:427
+#: pkg/storaged/overview.js:693
 msgid "RAID 6 (Double Distributed Parity)"
 msgstr "RAID 6 (ダブル分散パリティー)"
 
-#: pkg/storaged/index.html:535 pkg/storaged/pvol-tabs.jsx:68
+#: pkg/storaged/pvol-tabs.jsx:68
 msgid "RAID Device"
 msgstr "RAID デバイス"
 
-#: pkg/storaged/storage-controls.jsx:172 pkg/storaged/utils.js:240
+#: pkg/storaged/mdraid-details.jsx:306 pkg/storaged/storage-controls.jsx:163
+#: pkg/storaged/utils.js:240
 msgid "RAID Device $0"
 msgstr "RAID デバイス $0"
 
@@ -5357,20 +5358,15 @@ msgstr "RAID デバイス $0"
 msgid "RAID Devices"
 msgstr "RAID デバイス"
 
-#: pkg/storaged/overview.js:421
+#: pkg/storaged/overview.js:687
 msgid "RAID Level"
 msgstr "RAID レベル"
 
-#: pkg/storaged/index.html:554
-msgctxt "storage"
-msgid "RAID Level"
-msgstr "RAID レベル"
-
-#: pkg/storaged/content-views.jsx:150
+#: pkg/storaged/content-views.jsx:149
 msgid "RAID Member"
 msgstr "RAID メンバー"
 
-#: pkg/ovirt/provider.es6:143
+#: pkg/ovirt/provider.es6:144
 msgid "REBOOT action failed"
 msgstr ""
 
@@ -5421,7 +5417,7 @@ msgstr "読み取り専用"
 msgid "ReadWrite"
 msgstr "読み書き"
 
-#: pkg/storaged/index.html:325
+#: pkg/storaged/index.html:428
 msgid "Reading"
 msgstr "読み取り中"
 
@@ -5502,11 +5498,11 @@ msgstr "リクレームポリシー"
 msgid "Reconnect"
 msgstr "再接続"
 
-#: pkg/storaged/sidebar-views.jsx:124
+#: pkg/storaged/mdraid-details.jsx:100
 msgid "Recovering"
 msgstr "復旧"
 
-#: pkg/storaged/jobs.js:144
+#: pkg/storaged/jobs.js:107
 msgid "Recovering RAID Device $target"
 msgstr "RAID デバイス $target の復旧"
 
@@ -5600,7 +5596,7 @@ msgstr "削除"
 #: pkg/kubernetes/views/remove-role-dialog.html:8
 #: pkg/kubernetes/views/user-delete.html:25
 #: pkg/kubernetes/views/user-group-remove.html:10
-#: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:94
+#: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:106
 msgid "Remove"
 msgstr "削除"
 
@@ -5636,7 +5632,7 @@ msgstr "メンバーシップの削除"
 msgid "Removing"
 msgstr ""
 
-#: pkg/storaged/jobs.js:140
+#: pkg/storaged/jobs.js:103
 msgid "Removing $target from RAID Device"
 msgstr "$target を RAID デバイスから削除"
 
@@ -5646,11 +5642,12 @@ msgid ""
 "the administration UI unavailable."
 msgstr "<b>$0</b> を削除すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
 
-#: pkg/storaged/jobs.js:153
+#: pkg/storaged/jobs.js:116
 msgid "Removing physical volume from $target"
 msgstr "$target  から物理ボリュームを削除"
 
-#: pkg/storaged/details.jsx:382 pkg/storaged/lvol-tabs.jsx:44
+#: pkg/storaged/lvol-tabs.jsx:44 pkg/storaged/vgroup-details.jsx:186
+#: pkg/storaged/vgroup-details.jsx:232
 msgid "Rename"
 msgstr "名前変更"
 
@@ -5658,11 +5655,11 @@ msgstr "名前変更"
 msgid "Rename Logical Volume"
 msgstr "論理ボリュームの名前変更"
 
-#: pkg/storaged/details.jsx:124
+#: pkg/storaged/vgroup-details.jsx:177
 msgid "Rename Volume Group"
 msgstr "ボリュームグループの名前変更"
 
-#: pkg/storaged/jobs.js:156
+#: pkg/storaged/jobs.js:119
 msgid "Renaming $target"
 msgstr "$target の名前変更"
 
@@ -5778,7 +5775,7 @@ msgstr "ファイルシステムのサイズ変更"
 msgid "Resize Logical Volume"
 msgstr "論理ボリュームのサイズ変更"
 
-#: pkg/storaged/jobs.js:157
+#: pkg/storaged/jobs.js:120
 msgid "Resizing $target"
 msgstr "$target のサイズ変更"
 
@@ -5890,9 +5887,13 @@ msgstr "次で実行"
 msgid "Runner"
 msgstr "ランナー"
 
-#: pkg/ostree/index.html:251 pkg/storaged/details.jsx:318
+#: pkg/ostree/index.html:251 pkg/storaged/mdraid-details.jsx:332
 msgid "Running"
 msgstr "実行中"
+
+#: pkg/ovirt/components/VmOverviewColumn.jsx:74
+msgid "Running Since:"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:345
 msgid "SELinux Access Control Errors"
@@ -5918,11 +5919,11 @@ msgstr "SELinux はシステムで無効です"
 msgid "SELinux system status is unknown."
 msgstr "SELinux システムステータスが不明です。"
 
-#: pkg/ovirt/provider.es6:95 pkg/ovirt/provider.es6:119
+#: pkg/ovirt/provider.es6:96 pkg/ovirt/provider.es6:120
 msgid "SHUTDOWN action failed"
 msgstr ""
 
-#: pkg/storaged/jobs.js:118
+#: pkg/storaged/jobs.js:81
 msgid "SMART self-test of $target"
 msgstr "$target の SMART 自己テスト"
 
@@ -5943,7 +5944,7 @@ msgstr ""
 msgid "SPICE TLS Port:"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:179
+#: pkg/ovirt/provider.es6:180
 msgid "START action failed"
 msgstr ""
 
@@ -5963,7 +5964,7 @@ msgstr "STP メッセージ最大期間"
 msgid "STP Priority"
 msgstr "STP 優先度"
 
-#: pkg/ovirt/provider.es6:257
+#: pkg/ovirt/provider.es6:258
 msgid "SUSPEND action failed"
 msgstr ""
 
@@ -6013,7 +6014,7 @@ msgstr "シークレットボリューム"
 msgid "Secure Shell Keys"
 msgstr "セキュアシェルキー"
 
-#: pkg/storaged/jobs.js:135
+#: pkg/storaged/jobs.js:98
 msgid "Securely erasing $target"
 msgstr "$target を安全に削除"
 
@@ -6054,18 +6055,14 @@ msgstr ""
 msgid "Sending"
 msgstr "送信:"
 
-#: pkg/storaged/index.html:430
-msgctxt "storage"
-msgid "Serial Number"
-msgstr "シリアルナンバー"
-
 #: pkg/kubernetes/views/pv-modify.html:82
-#: pkg/kubernetes/views/volume-body.html:47 src/ws/login.html:94
-#: pkg/kdump/kdump-view.jsx:127 pkg/subscriptions/subscriptions-register.jsx:64
+#: pkg/kubernetes/views/volume-body.html:47 pkg/storaged/index.html:289
+#: src/ws/login.html:94 pkg/kdump/kdump-view.jsx:127
+#: pkg/subscriptions/subscriptions-register.jsx:64
 msgid "Server"
 msgstr "サーバー"
 
-#: pkg/storaged/overview.js:523
+#: pkg/storaged/overview.js:484 pkg/storaged/overview.js:789
 msgid "Server Address"
 msgstr "サーバーアドレス"
 
@@ -6073,9 +6070,13 @@ msgstr "サーバーアドレス"
 msgid "Server Administrator"
 msgstr "サーバー管理者"
 
-#: pkg/storaged/overview.js:526
+#: pkg/storaged/overview.js:792
 msgid "Server address cannot be empty."
 msgstr "サーバーアドレスは空にできません。"
+
+#: pkg/storaged/overview.js:488
+msgid "Server cannot be empty."
+msgstr ""
 
 #: src/base1/cockpit.js:3958
 msgid "Server has closed the connection."
@@ -6182,7 +6183,7 @@ msgstr "設定が設定された状態と異なるため、次回起動時に元
 msgid "Setting up"
 msgstr "IP 設定"
 
-#: pkg/storaged/jobs.js:130
+#: pkg/storaged/jobs.js:93
 msgid "Setting up loop device $target"
 msgstr "ループデバイス $target の設定"
 
@@ -6288,27 +6289,27 @@ msgid "Since $0"
 msgstr "$0 以降"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/storaged/index.html:230
-#: pkg/docker/containers-view.jsx:587 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:266
-#: pkg/storaged/lvol-tabs.jsx:70 pkg/storaged/lvol-tabs.jsx:122
-#: pkg/storaged/lvol-tabs.jsx:161 pkg/storaged/lvol-tabs.jsx:198
-#: pkg/storaged/part-tab.jsx:41
+#: pkg/storaged/index.html:295 pkg/docker/containers-view.jsx:587
+#: pkg/storaged/content-views.jsx:111 pkg/storaged/content-views.jsx:644
+#: pkg/storaged/format-dialog.jsx:266 pkg/storaged/lvol-tabs.jsx:70
+#: pkg/storaged/lvol-tabs.jsx:122 pkg/storaged/lvol-tabs.jsx:161
+#: pkg/storaged/lvol-tabs.jsx:198 pkg/storaged/part-tab.jsx:41
 msgid "Size"
 msgstr "Size"
 
-#: pkg/storaged/dialog.js:340
+#: pkg/storaged/dialog.js:406
 msgid "Size cannot be negative"
 msgstr "サイズはマイナスにすることができません"
 
-#: pkg/storaged/dialog.js:338
+#: pkg/storaged/dialog.js:404
 msgid "Size cannot be zero"
 msgstr "サイズはゼロにすることができません"
 
-#: pkg/storaged/dialog.js:342
+#: pkg/storaged/dialog.js:408
 msgid "Size is too large"
 msgstr "サイズが大きすぎます"
 
-#: pkg/storaged/dialog.js:336
+#: pkg/storaged/dialog.js:402
 msgid "Size must be a number"
 msgstr "サイズは数値である必要があります"
 
@@ -6371,7 +6372,7 @@ msgstr "スパニング ツリープロトコル"
 msgid "Spanning Tree Protocol (STP)"
 msgstr "スパニング ツリープロトコル (STP)"
 
-#: pkg/storaged/sidebar-views.jsx:124
+#: pkg/storaged/mdraid-details.jsx:100
 msgid "Spare"
 msgstr "スペア"
 
@@ -6384,7 +6385,7 @@ msgid "Stable"
 msgstr "安定"
 
 #: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:236
-#: pkg/storaged/details.jsx:330 pkg/storaged/swap-tab.jsx:76
+#: pkg/storaged/mdraid-details.jsx:296 pkg/storaged/swap-tab.jsx:76
 #: pkg/systemd/init.js:513
 msgid "Start"
 msgstr "開始日"
@@ -6397,15 +6398,15 @@ msgstr "Docker の起動"
 msgid "Start Multipath"
 msgstr "マルチパスの開始"
 
-#: pkg/storaged/details.jsx:332
+#: pkg/storaged/mdraid-details.jsx:298
 msgid "Start Scrubbing"
 msgstr "Scrubbing の起動"
 
-#: pkg/storaged/jobs.js:138
+#: pkg/storaged/jobs.js:101
 msgid "Starting RAID Device $target"
 msgstr "RAID デバイス $target の起動"
 
-#: pkg/storaged/jobs.js:123
+#: pkg/storaged/jobs.js:86
 msgid "Starting swapspace $target"
 msgstr "スワップ領域 $target の起動"
 
@@ -6417,13 +6418,8 @@ msgstr "開始"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:481 pkg/ovirt/components/ClusterVms.jsx:171
+#: pkg/machines/hostvmslist.jsx:481 pkg/ovirt/components/ClusterVms.jsx:176
 #: pkg/systemd/init.js:275
-msgid "State"
-msgstr "状態"
-
-#: pkg/storaged/index.html:570
-msgctxt "storage"
 msgid "State"
 msgstr "状態"
 
@@ -6432,7 +6428,7 @@ msgid "State:"
 msgstr "状態:"
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:138
-#: pkg/ovirt/components/ClusterVms.jsx:169
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Stateless"
 msgstr ""
 
@@ -6467,14 +6463,22 @@ msgid "Sticky"
 msgstr "スティッキー"
 
 #: pkg/docker/index.html:133 pkg/docker/containers-view.jsx:234
-#: pkg/storaged/details.jsx:331 pkg/storaged/swap-tab.jsx:75
+#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/swap-tab.jsx:75
 #: pkg/systemd/init.js:514
 msgid "Stop"
 msgstr "停止"
 
-#: pkg/storaged/details.jsx:333
+#: pkg/storaged/mdraid-details.jsx:299
 msgid "Stop Scrubbing"
 msgstr "Scrubbing の停止"
+
+#: pkg/storaged/overview.js:574
+msgid "Stop and remove"
+msgstr ""
+
+#: pkg/storaged/overview.js:431
+msgid "Stop and unmount"
+msgstr ""
 
 #: node_modules/registry-image-widgets/views/image-config.html:14
 msgid "Stop with"
@@ -6484,24 +6488,20 @@ msgstr "停止"
 msgid "Stopped"
 msgstr "停止中"
 
-#: pkg/storaged/jobs.js:137
+#: pkg/storaged/jobs.js:100
 msgid "Stopping RAID Device $target"
 msgstr "RAID デバイス $target の停止"
 
-#: pkg/storaged/jobs.js:124
+#: pkg/storaged/jobs.js:87
 msgid "Stopping swapspace $target"
 msgstr "スワップ領域 $target の停止"
 
 #: pkg/docker/index.html:281 pkg/storaged/index.html:23
-#: pkg/storaged/index.html:607
+#: pkg/storaged/details.jsx:130
 msgid "Storage"
 msgstr "ストレージ"
 
-#: pkg/storaged/index.html:621
-msgid "Storage Log"
-msgstr "ストレージログ"
-
-#: pkg/storaged/index.html:340
+#: pkg/storaged/index.html:444
 msgid "Storage Logs"
 msgstr "ストレージログ"
 
@@ -6545,11 +6545,11 @@ msgstr "日曜日"
 msgid "Suspend"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:152
+#: pkg/storaged/content-views.jsx:151
 msgid "Swap"
 msgstr "スワップ"
 
-#: pkg/storaged/content-views.jsx:320
+#: pkg/storaged/content-views.jsx:319
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "スワップ領域"
@@ -6578,11 +6578,11 @@ msgstr ""
 msgid "Switch to In-Browser Viewer"
 msgstr ""
 
-#: pkg/ovirt/provider.es6:376
+#: pkg/ovirt/provider.es6:369
 msgid "Switching host to maintenance mode failed. Received error: "
 msgstr ""
 
-#: pkg/ovirt/provider.es6:362
+#: pkg/ovirt/provider.es6:363
 msgid "Switching host to maintenance mode in progress ..."
 msgstr ""
 
@@ -6624,7 +6624,7 @@ msgstr "同期済み"
 msgid "Synchronized with {{Server}}"
 msgstr "{{Server}} と同期済み"
 
-#: pkg/storaged/jobs.js:145
+#: pkg/storaged/jobs.js:108
 msgid "Synchronizing RAID Device $target"
 msgstr "RAID デバイス $target の同期"
 
@@ -6677,7 +6677,7 @@ msgstr "ターゲットポータル"
 msgid "Target World Wide Names"
 msgstr "ターゲットワールドワイド名"
 
-#: pkg/systemd/services.html:52 pkg/storaged/overview.js:628
+#: pkg/systemd/services.html:52 pkg/storaged/overview.js:894
 msgid "Targets"
 msgstr "ターゲット"
 
@@ -6702,7 +6702,7 @@ msgstr "チーム設定"
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
 #: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "Template"
 msgstr "テンプレート"
 
@@ -6750,16 +6750,16 @@ msgstr "Docker ストレージプールはこのシステムで管理できま�
 msgid "The IP address or host name cannot contain whitespace."
 msgstr "IP アドレスまたはホスト名にはスペースを含めることができません。"
 
-#: pkg/storaged/index.html:530
+#: pkg/storaged/mdraid-details.jsx:218
 msgid "The RAID Array is in a degraded state"
 msgstr "RAID アレイは劣化状態にあります"
 
-#: pkg/storaged/sidebar-views.jsx:172
+#: pkg/storaged/mdraid-details.jsx:148
 #, fuzzy
 msgid "The RAID device must be running in order to add spare disks."
 msgstr "スペアディスクを追加する場合は、MDRAID デバイスが実行中である必要があります。"
 
-#: pkg/storaged/sidebar-views.jsx:138
+#: pkg/storaged/mdraid-details.jsx:114
 msgid "The RAID device must be running in order to remove disks."
 msgstr "ディスクを取り外す場合は、RAID デバイスが実行中である必要があります。"
 
@@ -6833,6 +6833,12 @@ msgstr "現在のユーザーにはシステムサブスクリプションステ
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "デプロイメント設定 '{{ target }}' が存在しません。"
 
+#: pkg/storaged/index.html:715
+msgid ""
+"The filesystem is in use by system services or login sessions.               "
+" Proceeding will stop these services and sessions."
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:347
 msgid "The following packages were recently updated:"
 msgstr ""
@@ -6865,11 +6871,11 @@ msgstr ""
 msgid "The key you provided was not valid."
 msgstr "提供した鍵が有効ではありません。"
 
-#: pkg/storaged/sidebar-views.jsx:144
+#: pkg/storaged/mdraid-details.jsx:120
 msgid "The last disk of a RAID device cannot be removed."
 msgstr "RAID デバイスの最後のディスクは取り外すことができません。"
 
-#: pkg/storaged/sidebar-views.jsx:278
+#: pkg/storaged/vgroup-details.jsx:94
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "ボリュームグループの最後の物理ボリュームは削除できません。"
 
@@ -6973,7 +6979,7 @@ msgstr "ユーザー <b>$0</b> はタイマーを作成するパーミッショ�
 msgid "The user <b>$0</b> is not permitted to manage servers"
 msgstr "ユーザー <b>$0</b> はサーバーを管理することを許可されていません"
 
-#: pkg/storaged/permissions.js:60 pkg/storaged/storage-controls.jsx:79
+#: pkg/storaged/permissions.js:60 pkg/storaged/storage-controls.jsx:64
 msgid "The user <b>$0</b> is not permitted to manage storage"
 msgstr "ユーザー <b>$0</b> はストレージを管理することを許可されていません"
 
@@ -7024,7 +7030,7 @@ msgstr "システムに複数のパスを持つデバイスがありますが、
 msgid "There are no authorized public keys for this account."
 msgstr "このアカウントに承認された公開鍵がありません。"
 
-#: pkg/storaged/sidebar-views.jsx:284
+#: pkg/storaged/vgroup-details.jsx:100
 #, fuzzy
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
@@ -7034,6 +7040,10 @@ msgstr "この物理ボリュームを削除するのに十分な空き領域が
 #: pkg/storaged/utils.js:175
 msgid "Thin Logical Volume"
 msgstr "シン論理ボリューム"
+
+#: pkg/storaged/overview.js:481
+msgid "This NFS mount is in use and only its options can be changed."
+msgstr ""
 
 #: pkg/kubernetes/views/pvc-delete.html:8
 msgid ""
@@ -7055,33 +7065,33 @@ msgstr "このデプロイメントには、現在起動されているシステ
 msgid "This device cannot be managed here."
 msgstr "このデバイスはここで管理できません。"
 
-#: pkg/storaged/index.html:837
+#: pkg/storaged/index.html:688
 msgid ""
 "This device has filesystems that are currently in use.                "
 "Proceeding will unmount all filesystems on it."
 msgstr ""
 
-#: pkg/storaged/index.html:672
+#: pkg/storaged/index.html:509
 msgid "This device is currently used for RAID devices."
 msgstr ""
 
-#: pkg/storaged/index.html:855
+#: pkg/storaged/index.html:706
 msgid ""
 "This device is currently used for RAID devices.                Proceeding "
 "will remove it from its RAID devices."
 msgstr ""
 
-#: pkg/storaged/index.html:664
+#: pkg/storaged/index.html:501
 msgid "This device is currently used for volume groups."
 msgstr ""
 
-#: pkg/storaged/index.html:846
+#: pkg/storaged/index.html:697
 msgid ""
 "This device is currently used for volume groups.                Proceeding "
 "will remove it from its volume groups."
 msgstr ""
 
-#: pkg/storaged/sidebar-views.jsx:140
+#: pkg/storaged/mdraid-details.jsx:116
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "このディスクは、デバイスが復旧中に取り外すことができません。"
 
@@ -7233,7 +7243,7 @@ msgstr "別のポートを試すには、cockpit-ws を新しいバージョン�
 msgid "Token"
 msgstr "トークン"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:133
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:151
 msgid "Too many files found"
 msgstr ""
 
@@ -7335,11 +7345,6 @@ msgstr "URL"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/index.html:546 pkg/storaged/index.html:591
-msgctxt "storage"
-msgid "UUID"
-msgstr "UUID"
-
 #: pkg/kdump/kdump-view.jsx:288
 msgid "Unable to apply settings: $0"
 msgstr "設定を適用できません: $0"
@@ -7377,13 +7382,17 @@ msgstr "アラート詳細を取得できません"
 msgid "Unable to get alert: $0"
 msgstr "アラートを取得できません: $0"
 
-#: pkg/storaged/overview.js:591
+#: pkg/storaged/overview.js:857
 msgid "Unable to reach server"
 msgstr "サーバーに到達できません"
 
 #: pkg/kubernetes/scripts/dashboard.js:401
 msgid "Unable to read the Kubernetes application manifest. Code $0."
 msgstr "Kubernetes アプリケーションマニフェストを読み取ることができません。コード $0。"
+
+#: pkg/storaged/overview.js:572
+msgid "Unable to remove mount"
+msgstr ""
 
 #: pkg/users/local.js:59
 msgid "Unable to rename root account"
@@ -7400,6 +7409,10 @@ msgstr "修正を実行できません: %0"
 #: pkg/selinux/setroubleshoot-client.js:52
 msgid "Unable to start setroubleshootd"
 msgstr "setroubleshootd を起動できません"
+
+#: pkg/storaged/overview.js:429
+msgid "Unable to unmount filesystem"
+msgstr ""
 
 #: pkg/playground/translate.html:34 pkg/playground/translate.html:39
 #: pkg/kubernetes/scripts/charts.js:112
@@ -7430,11 +7443,11 @@ msgstr "不明"
 msgid "Unknown \"$0\""
 msgstr "不明な \"$0\""
 
-#: pkg/storaged/sidebar-views.jsx:127
+#: pkg/storaged/mdraid-details.jsx:103
 msgid "Unknown ($0)"
 msgstr "不明な ($0)"
 
-#: pkg/apps/application.jsx:83
+#: pkg/apps/application.jsx:95
 msgid "Unknown Application"
 msgstr ""
 
@@ -7446,7 +7459,7 @@ msgstr "不明なホストキー"
 msgid "Unknown configuration"
 msgstr "不明な設定"
 
-#: pkg/storaged/overview.js:587
+#: pkg/storaged/overview.js:853
 msgid "Unknown host name"
 msgstr "不明なホスト名"
 
@@ -7454,8 +7467,8 @@ msgstr "不明なホスト名"
 msgid "Unless Stopped"
 msgstr "停止されていない場合"
 
-#: pkg/storaged/content-views.jsx:191 pkg/storaged/content-views.jsx:198
-#: pkg/storaged/content-views.jsx:211
+#: pkg/storaged/content-views.jsx:190 pkg/storaged/content-views.jsx:197
+#: pkg/storaged/content-views.jsx:210
 msgid "Unlock"
 msgstr "ロック解除"
 
@@ -7475,7 +7488,7 @@ msgstr ""
 msgid "Unlocked"
 msgstr "ロック解除済み"
 
-#: pkg/storaged/jobs.js:120
+#: pkg/storaged/jobs.js:83
 msgid "Unlocking $target"
 msgstr "$target をロック解除中"
 
@@ -7487,11 +7500,11 @@ msgstr "未管理のインターフェース"
 msgid "Unmask"
 msgstr "マスク解除"
 
-#: pkg/storaged/fsys-tab.jsx:195
+#: pkg/storaged/index.html:312 pkg/storaged/fsys-tab.jsx:195
 msgid "Unmount"
 msgstr "アンマウント"
 
-#: pkg/storaged/jobs.js:126
+#: pkg/storaged/jobs.js:89
 msgid "Unmounting $target"
 msgstr "$target のアンマウント中"
 
@@ -7499,11 +7512,11 @@ msgstr "$target のアンマウント中"
 msgid "Unnamed"
 msgstr "名前なし"
 
-#: pkg/storaged/content-views.jsx:154
+#: pkg/storaged/content-views.jsx:153
 msgid "Unrecognized Data"
 msgstr "認識されないデータ"
 
-#: pkg/storaged/content-views.jsx:325
+#: pkg/storaged/content-views.jsx:324
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "認識されないデータ"
@@ -7529,7 +7542,7 @@ msgstr ""
 msgid "Unsupported setup mechanism"
 msgstr "サポートされないセットアップメカニズム"
 
-#: pkg/storaged/content-views.jsx:615
+#: pkg/storaged/content-views.jsx:570
 msgid "Unsupported volume"
 msgstr "サポートされないボリューム"
 
@@ -7657,8 +7670,8 @@ msgstr "ユーザー名は空にできません"
 msgid "User or Group"
 msgstr "ユーザーまたはグループ"
 
-#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/overview.js:530
-#: pkg/storaged/overview.js:653
+#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/overview.js:796
+#: pkg/storaged/overview.js:919
 msgid "Username"
 msgstr "ユーザー名"
 
@@ -7695,31 +7708,31 @@ msgstr "VLAN Id"
 msgid "VLAN Settings"
 msgstr "VLAN 設定"
 
-#: pkg/machines/libvirt.es6:177
+#: pkg/machines/libvirt.es6:186
 msgid "VM FORCE OFF action failed"
 msgstr "VM FORCE OFF アクションに失敗しました"
 
-#: pkg/machines/libvirt.es6:195
+#: pkg/machines/libvirt.es6:204
 msgid "VM FORCE REBOOT action failed"
 msgstr "VM FORCE REBOOT アクションに失敗しました"
 
-#: pkg/machines/libvirt.es6:186
+#: pkg/machines/libvirt.es6:195
 msgid "VM REBOOT action failed"
 msgstr "VM REBOOT アクションに失敗しました"
 
-#: pkg/machines/libvirt.es6:275
+#: pkg/machines/libvirt.es6:284
 msgid "VM SEND Non-Maskable Interrrupt action failed"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:168
+#: pkg/machines/libvirt.es6:177
 msgid "VM SHUT DOWN action failed"
 msgstr "VM SHUT DOWN アクションに失敗しました"
 
-#: pkg/machines/libvirt.es6:204
+#: pkg/machines/libvirt.es6:213
 msgid "VM START action failed"
 msgstr "VM START アクションに失敗しました"
 
-#: pkg/ovirt/components/VmOverviewColumn.jsx:54
+#: pkg/ovirt/components/VmOverviewColumn.jsx:55
 msgid "VM icon"
 msgstr ""
 
@@ -7769,7 +7782,7 @@ msgstr "バージョン"
 msgid "Version num"
 msgstr ""
 
-#: pkg/storaged/jobs.js:136
+#: pkg/storaged/jobs.js:99
 msgid "Very securely erasing $target"
 msgstr "$target を非常に安全に削除"
 
@@ -7781,21 +7794,22 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
-#: pkg/ovirt/components/ClusterVms.jsx:163
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "Virtual Machines of $0 cluster"
 msgstr ""
 
 #: pkg/kubernetes/views/pv-page.html:13 pkg/kubernetes/views/pv-panel.html:10
 #: pkg/kubernetes/views/pvc-body.html:6 pkg/machines/vmdiskstab.jsx:55
-#: pkg/storaged/content-views.jsx:133
+#: pkg/storaged/content-views.jsx:132
 msgid "Volume"
 msgstr "音量"
 
-#: pkg/storaged/index.html:584 pkg/storaged/pvol-tabs.jsx:44
+#: pkg/storaged/pvol-tabs.jsx:44
 msgid "Volume Group"
 msgstr "ボリュームグループ"
 
-#: pkg/storaged/storage-controls.jsx:180 pkg/storaged/utils.js:246
+#: pkg/storaged/storage-controls.jsx:171 pkg/storaged/utils.js:246
+#: pkg/storaged/vgroup-details.jsx:239
 msgid "Volume Group $0"
 msgstr "ボリュームグループ $0"
 
@@ -7866,16 +7880,11 @@ msgstr ""
 msgid "With terminal"
 msgstr "端末の使用"
 
-#: pkg/storaged/index.html:436
-msgctxt "storage"
-msgid "World Wide Name"
-msgstr "ワールドワイド名"
-
-#: pkg/storaged/sidebar-views.jsx:125
+#: pkg/storaged/mdraid-details.jsx:101
 msgid "Write-mostly"
 msgstr "Write-mostly"
 
-#: pkg/storaged/index.html:331
+#: pkg/storaged/index.html:434
 msgid "Writing"
 msgstr "書き込み"
 
@@ -8143,7 +8152,7 @@ msgstr ""
 msgid "none"
 msgstr "なし"
 
-#: pkg/ovirt/provider.es6:57
+#: pkg/ovirt/provider.es6:58
 msgid "oVirt"
 msgstr ""
 
@@ -8197,7 +8206,7 @@ msgstr ""
 msgid "on Wednesdays"
 msgstr ""
 
-#: pkg/machines/libvirt.es6:433
+#: pkg/machines/libvirt.es6:442
 msgid "other"
 msgstr ""
 
@@ -8286,7 +8295,7 @@ msgstr "未定義"
 msgid "unknown"
 msgstr "不明"
 
-#: pkg/storaged/jobs.js:179
+#: pkg/storaged/jobs.js:141
 msgid "unknown target"
 msgstr "不明なターゲット"
 
@@ -8299,7 +8308,7 @@ msgid "up"
 msgstr ""
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "vCPUs"
 msgstr ""
 

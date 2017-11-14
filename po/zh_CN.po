@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-31 08:00+0000\n"
+"POT-Creation-Date: 2017-11-11 10:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,15 +31,15 @@ msgstr " 1\"是否想要删除以下节点？"
 msgid "$0 Block Device"
 msgstr "$0 块设备"
 
-#: pkg/storaged/details.jsx:290
+#: pkg/storaged/mdraid-details.jsx:192
 msgid "$0 Chunk Size"
 msgstr "$0 区块大小"
 
-#: pkg/storaged/details.jsx:288
+#: pkg/storaged/mdraid-details.jsx:190
 msgid "$0 Disks"
 msgstr "$0 磁盘"
 
-#: pkg/storaged/content-views.jsx:303
+#: pkg/storaged/content-views.jsx:302
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 文件系统"
@@ -80,7 +80,7 @@ msgstr[0] "$0 天"
 
 #: src/base1/test-locale.js:64 src/base1/test-locale.js:65
 #: src/base1/test-locale.js:66 pkg/playground/translate.js:28
-#: pkg/playground/translate.js:31 pkg/storaged/details.jsx:301
+#: pkg/playground/translate.js:31 pkg/storaged/mdraid-details.jsx:212
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 磁盘缺失"
@@ -116,9 +116,9 @@ msgid ""
 "GNOME Software or run the following:"
 msgstr "$0 对大多数操作系统可用。为了安装它，在 GNOME 软件中心搜索它或运行以下命令： "
 
-#: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
-#: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
-#: pkg/storaged/format-dialog.jsx:255
+#: pkg/storaged/content-views.jsx:253 pkg/storaged/content-views.jsx:463
+#: pkg/storaged/format-dialog.jsx:255 pkg/storaged/mdraid-details.jsx:270
+#: pkg/storaged/vgroup-details.jsx:202
 msgid "$0 is in active use"
 msgstr "$0 正处于激活使用中"
 
@@ -191,7 +191,7 @@ msgid "$0% Used"
 msgid_plural "$0% Used"
 msgstr[0] "$0% 已使用的"
 
-#: pkg/storaged/sidebar-views.jsx:300
+#: pkg/storaged/vgroup-details.jsx:116
 msgid "$0, $1 free"
 msgstr "$0, $1 可用"
 
@@ -236,7 +236,7 @@ msgstr[0] "， 包括 $1 安全性修复"
 msgid "- Add New Repository"
 msgstr "添加新的源"
 
-#: pkg/storaged/overview.js:441
+#: pkg/storaged/overview.js:707
 msgid "1 MiB"
 msgstr "1 MiB"
 
@@ -245,13 +245,13 @@ msgid "1 Minute"
 msgstr "1 分钟"
 
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:56
-#: pkg/networkmanager/index.html:543 pkg/storaged/index.html:310
+#: pkg/networkmanager/index.html:543 pkg/storaged/index.html:413
 #: pkg/systemd/index.html:191
 msgid "1 day"
 msgstr "1 天"
 
 #: pkg/dashboard/index.html:51 pkg/networkmanager/index.html:54
-#: pkg/networkmanager/index.html:541 pkg/storaged/index.html:308
+#: pkg/networkmanager/index.html:541 pkg/storaged/index.html:411
 #: pkg/systemd/index.html:187
 msgid "1 hour"
 msgstr "1 小时"
@@ -261,7 +261,7 @@ msgid "1 min"
 msgstr "1 分钟"
 
 #: pkg/dashboard/index.html:57 pkg/networkmanager/index.html:57
-#: pkg/networkmanager/index.html:544 pkg/storaged/index.html:311
+#: pkg/networkmanager/index.html:544 pkg/storaged/index.html:414
 #: pkg/systemd/index.html:193
 msgid "1 week"
 msgstr "1 周"
@@ -274,7 +274,7 @@ msgstr "10号"
 msgid "11th"
 msgstr "11号"
 
-#: pkg/storaged/overview.js:439
+#: pkg/storaged/overview.js:705
 msgid "128 KiB"
 msgstr "128 KiB"
 
@@ -294,7 +294,7 @@ msgstr "14号"
 msgid "15th"
 msgstr "15号"
 
-#: pkg/storaged/overview.js:436
+#: pkg/storaged/overview.js:702
 msgid "16 KiB"
 msgstr "16 KiB"
 
@@ -318,7 +318,7 @@ msgstr "19号"
 msgid "1st"
 msgstr "1号"
 
-#: pkg/storaged/overview.js:442
+#: pkg/storaged/overview.js:708
 msgid "2 MiB"
 msgstr "2 MiB"
 
@@ -386,7 +386,7 @@ msgstr "30号"
 msgid "31st"
 msgstr "31号"
 
-#: pkg/storaged/overview.js:437
+#: pkg/storaged/overview.js:703
 msgid "32 KiB"
 msgstr "32 KiB"
 
@@ -394,7 +394,7 @@ msgstr "32 KiB"
 msgid "3rd"
 msgstr "3号"
 
-#: pkg/storaged/overview.js:434
+#: pkg/storaged/overview.js:700
 msgid "4 KiB"
 msgstr "4 KiB"
 
@@ -419,12 +419,12 @@ msgid "5 min"
 msgstr "5 分钟"
 
 #: pkg/dashboard/index.html:49 pkg/networkmanager/index.html:53
-#: pkg/networkmanager/index.html:540 pkg/storaged/index.html:307
+#: pkg/networkmanager/index.html:540 pkg/storaged/index.html:410
 #: pkg/systemd/index.html:185
 msgid "5 minutes"
 msgstr "5 分钟"
 
-#: pkg/storaged/overview.js:440
+#: pkg/storaged/overview.js:706
 msgid "512 KiB"
 msgstr "512 KiB"
 
@@ -433,7 +433,7 @@ msgid "5th"
 msgstr "5号"
 
 #: pkg/dashboard/index.html:53 pkg/networkmanager/index.html:55
-#: pkg/networkmanager/index.html:542 pkg/storaged/index.html:309
+#: pkg/networkmanager/index.html:542 pkg/storaged/index.html:412
 #: pkg/systemd/index.html:189
 msgid "6 hours"
 msgstr "6 小时"
@@ -442,7 +442,7 @@ msgstr "6 小时"
 msgid "60 Minutes"
 msgstr "60 分钟"
 
-#: pkg/storaged/overview.js:438
+#: pkg/storaged/overview.js:704
 msgid "64 KiB"
 msgstr "64 KiB"
 
@@ -454,7 +454,7 @@ msgstr "6号"
 msgid "7th"
 msgstr "7号"
 
-#: pkg/storaged/overview.js:435
+#: pkg/storaged/overview.js:701
 msgid "8 KiB"
 msgstr "8 KiB"
 
@@ -500,7 +500,7 @@ msgid ""
 "strong}}."
 msgstr "{{#strong}}{{host}}{{/strong}} 上未安装一个兼容版本的 Cockpit。"
 
-#: pkg/storaged/sidebar-views.jsx:142
+#: pkg/storaged/mdraid-details.jsx:118
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "该磁盘可以被移除前，需要添加一个备用的磁盘。"
 
@@ -569,15 +569,15 @@ msgid "Accounts"
 msgstr "账户"
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:138
-#: pkg/ovirt/components/ClusterVms.jsx:170
+#: pkg/ovirt/components/ClusterVms.jsx:175
 msgid "Action"
 msgstr "动作"
 
-#: pkg/storaged/content-views.jsx:227
+#: pkg/storaged/content-views.jsx:226
 msgid "Activate"
 msgstr "激活"
 
-#: pkg/storaged/jobs.js:147
+#: pkg/storaged/jobs.js:110
 msgid "Activating $target"
 msgstr "激活 $target"
 
@@ -616,8 +616,9 @@ msgstr "自适应传输负载均衡"
 #: pkg/kubernetes/views/add-member-role-dialog.html:61
 #: pkg/kubernetes/views/add-role-dialog.html:8 pkg/lib/machine-add.html:43
 #: pkg/ostree/index.html:90 pkg/shell/index.html:194
-#: pkg/storaged/overview.js:634 pkg/storaged/overview.js:662
-#: pkg/storaged/sidebar-views.jsx:85 pkg/storaged/sidebar-views.jsx:249
+#: pkg/storaged/mdraid-details.jsx:61 pkg/storaged/overview.js:525
+#: pkg/storaged/overview.js:900 pkg/storaged/overview.js:928
+#: pkg/storaged/vgroup-details.jsx:65
 msgid "Add"
 msgstr "添加"
 
@@ -645,7 +646,7 @@ msgstr "添加网桥"
 msgid "Add Cluster Node"
 msgstr "添加集群节点"
 
-#: pkg/storaged/sidebar-views.jsx:68 pkg/storaged/sidebar-views.jsx:232
+#: pkg/storaged/mdraid-details.jsx:44 pkg/storaged/vgroup-details.jsx:48
 msgid "Add Disks"
 msgstr "添加磁盘"
 
@@ -705,7 +706,7 @@ msgstr "添加用户"
 msgid "Add VLAN"
 msgstr "添加 VLAN"
 
-#: pkg/storaged/overview.js:520
+#: pkg/storaged/overview.js:786
 msgid "Add iSCSI Portal"
 msgstr "添加 iSCSI 门户"
 
@@ -731,7 +732,7 @@ msgstr "添加 <b>$0</b> 将会中断与服务器的连接，并且将导致管�
 msgid "Adding key"
 msgstr "添加 key"
 
-#: pkg/storaged/jobs.js:152
+#: pkg/storaged/jobs.js:115
 msgid "Adding physical volume to $target"
 msgstr "添加物理卷至 $target"
 
@@ -760,7 +761,7 @@ msgstr "添加"
 #: pkg/kubernetes/views/details-page.html:174
 #: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
 #: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
-#: pkg/storaged/overview.js:629
+#: pkg/storaged/overview.js:895
 msgid "Address"
 msgstr "地址"
 
@@ -769,6 +770,7 @@ msgid "Address $val"
 msgstr "地址 $val"
 
 #: pkg/machines/components/desktopConsole.jsx:154
+#: pkg/ovirt/components/VmOverviewColumn.jsx:73
 msgid "Address:"
 msgstr "地址："
 
@@ -863,7 +865,7 @@ msgid "Anonymous: Allow all unauthenticated users to pull images"
 msgstr "匿名的：允许所有未鉴定的用户拉取镜像"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:148
-#: pkg/apps/application.jsx:127
+#: pkg/apps/application.jsx:140
 msgid "Applications"
 msgstr "应用"
 
@@ -874,7 +876,7 @@ msgstr "应用"
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
 #: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
 #: pkg/storaged/crypto-tab.jsx:110 pkg/storaged/fsys-tab.jsx:76
-#: pkg/storaged/fsys-tab.jsx:123
+#: pkg/storaged/fsys-tab.jsx:123 pkg/storaged/overview.js:525
 msgid "Apply"
 msgstr "应用"
 
@@ -919,21 +921,16 @@ msgstr "请确认你是否想要离开域 '$0' ？"
 msgid "Are you sure you want to leave this domain?"
 msgstr "请确认你是否想要离开域？"
 
-#: pkg/storaged/index.html:449
-msgctxt "storage"
-msgid "Assessment"
-msgstr "评估"
-
 #: pkg/systemd/index.html:91
 msgid "Asset Tag"
 msgstr "资产标记"
 
-#: pkg/storaged/overview.js:455
+#: pkg/storaged/overview.js:721
 msgid "At least $0 disks are needed."
 msgstr "至少需要 $0 块磁盘。"
 
-#: pkg/storaged/overview.js:503 pkg/storaged/sidebar-views.jsx:80
-#: pkg/storaged/sidebar-views.jsx:244
+#: pkg/storaged/mdraid-details.jsx:56 pkg/storaged/overview.js:769
+#: pkg/storaged/vgroup-details.jsx:60
 msgid "At least one disk is needed."
 msgstr "至少需要 1 块磁盘。"
 
@@ -967,7 +964,7 @@ msgstr "认证失败： 服务关闭连接"
 msgid "Authentication failed"
 msgstr "认证失败"
 
-#: pkg/storaged/overview.js:650
+#: pkg/storaged/overview.js:916
 msgid "Authentication required"
 msgstr "需要认证"
 
@@ -1025,7 +1022,7 @@ msgstr "可用的"
 msgid "Available Updates"
 msgstr "可用的更新"
 
-#: pkg/storaged/overview.js:624
+#: pkg/storaged/overview.js:890
 msgid "Available targets on $0"
 msgstr "$0 上可用的目标"
 
@@ -1065,20 +1062,15 @@ msgstr "基础模板："
 msgid "Begins with '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
 msgstr "以 '-----BEGIN PGP PUBLIC KEY BLOCK-----' 开始"
 
-#: pkg/storaged/index.html:559
-msgctxt "storage"
-msgid "Bitmap"
-msgstr "位图"
+#: pkg/storaged/block-details.jsx:34
+msgid "Block"
+msgstr ""
 
-#: pkg/storaged/index.html:412
-msgid "Block Device"
-msgstr "块设备"
-
-#: pkg/storaged/content-views.jsx:668
+#: pkg/storaged/content-views.jsx:606
 msgid "Block device for filesystems"
 msgstr "块设备的文件系统"
 
-#: pkg/storaged/sidebar-views.jsx:126
+#: pkg/storaged/mdraid-details.jsx:102
 msgid "Blocked"
 msgstr "受阻"
 
@@ -1164,7 +1156,7 @@ msgstr "CPU 优先级"
 msgid "CPU usage:"
 msgstr "CPU 使用率："
 
-#: pkg/ovirt/provider.es6:210
+#: pkg/ovirt/provider.es6:211
 msgid "CREATE VM action failed"
 msgstr "创建虚拟机操作失败"
 
@@ -1176,7 +1168,7 @@ msgstr "已缓存"
 msgid "Can&rsquo;t connect to Docker"
 msgstr "无法连接到 Docker"
 
-#: pkg/storaged/content-views.jsx:287
+#: pkg/storaged/content-views.jsx:286
 msgid "Can't delete while unlocked"
 msgstr "解锁时无法删除"
 
@@ -1221,7 +1213,7 @@ msgstr "解锁时无法删除"
 #: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
 #: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:868
+#: pkg/storaged/index.html:390 pkg/storaged/index.html:728
 #: pkg/systemd/index.html:341 pkg/systemd/index.html:428
 #: pkg/systemd/index.html:480 pkg/systemd/index.html:496
 #: pkg/systemd/services.html:481 pkg/users/index.html:221
@@ -1231,7 +1223,7 @@ msgstr "解锁时无法删除"
 #: pkg/ovirt/components/ClusterTemplates.jsx:77
 #: pkg/ovirt/components/OVirtTab.jsx:68 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:206
-#: pkg/sosreport/index.js:51
+#: pkg/sosreport/index.js:51 pkg/storaged/job-views.jsx:43
 msgid "Cancel"
 msgstr "取消"
 
@@ -1261,12 +1253,6 @@ msgstr "无法调度以前的事件"
 msgid "Capacity"
 msgstr "容量"
 
-#: pkg/storaged/index.html:441 pkg/storaged/index.html:517
-#: pkg/storaged/index.html:550 pkg/storaged/index.html:595
-msgctxt "storage"
-msgid "Capacity"
-msgstr "容量"
-
 #: pkg/networkmanager/interfaces.js:2473
 msgid "Carrier"
 msgstr "载体"
@@ -1284,7 +1270,7 @@ msgstr "Ceph 监视器"
 #: pkg/kubernetes/views/replicationcontroller-modify.html:17
 #: pkg/kubernetes/views/route-modify.html:17 pkg/systemd/index.html:342
 #: pkg/systemd/index.html:429 pkg/users/index.html:325 pkg/users/index.html:364
-#: pkg/storaged/overview.js:712
+#: pkg/storaged/overview.js:978
 msgid "Change"
 msgstr "变更"
 
@@ -1316,7 +1302,7 @@ msgstr "修改系统时间"
 msgid "Change User"
 msgstr "变更用户"
 
-#: pkg/storaged/overview.js:704
+#: pkg/storaged/overview.js:970
 msgid "Change iSCSI Initiator Name"
 msgstr "变更 iSCSI Initiator 名称"
 
@@ -1354,11 +1340,11 @@ msgstr "检查更新"
 msgid "Checking IP"
 msgstr "正在检查 IP"
 
-#: pkg/storaged/jobs.js:142
+#: pkg/storaged/jobs.js:105
 msgid "Checking RAID Device $target"
 msgstr "检查 RAID 设备 $target"
 
-#: pkg/storaged/jobs.js:143
+#: pkg/storaged/jobs.js:106
 msgid "Checking and Repairing RAID Device $target"
 msgstr "检查并修复 RAID 设备 $target"
 
@@ -1378,7 +1364,7 @@ msgstr "检查升级"
 msgid "Choose the language to be used in the application"
 msgstr "选择用于应用程序的语言"
 
-#: pkg/storaged/overview.js:432
+#: pkg/storaged/overview.js:698
 msgid "Chunk Size"
 msgstr "区块大小"
 
@@ -1394,7 +1380,7 @@ msgstr "声明"
 msgid "Claim Name"
 msgstr "声明名称"
 
-#: pkg/storaged/jobs.js:134
+#: pkg/storaged/jobs.js:97
 msgid "Cleaning up for $target"
 msgstr "清除 $target"
 
@@ -1412,8 +1398,8 @@ msgstr "客户端证书"
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/lib/machine-auth-failed.html:20
 #: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
 #: pkg/shell/index.html:152 pkg/shell/index.html:356 pkg/shell/simple.html:82
-#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:641
-#: pkg/storaged/index.html:873 pkg/systemd/index.html:287
+#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:478
+#: pkg/storaged/index.html:733 pkg/systemd/index.html:287
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:109
@@ -1432,7 +1418,7 @@ msgstr "集群"
 msgid "Cluster Templates"
 msgstr "集群模板"
 
-#: pkg/ovirt/components/ClusterVms.jsx:161
+#: pkg/ovirt/components/ClusterVms.jsx:166
 msgid "Cluster Virtual Machines"
 msgstr "集群虚拟机"
 
@@ -1592,11 +1578,11 @@ msgstr "提交镜像"
 msgid "Communication with tuned has failed"
 msgstr "与 Tuned 通信失败"
 
-#: pkg/storaged/content-views.jsx:493
+#: pkg/storaged/content-views.jsx:483
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "兼容所有系统和设备 (MBR)"
 
-#: pkg/storaged/content-views.jsx:494
+#: pkg/storaged/content-views.jsx:484
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "兼容现代系统，且支持磁盘 > 2TB (GPT)"
 
@@ -1811,7 +1797,7 @@ msgctxt "page-title"
 msgid "Containers"
 msgstr "容器"
 
-#: pkg/storaged/content-views.jsx:527
+#: pkg/storaged/content-views.jsx:517
 msgid "Content"
 msgstr "内容"
 
@@ -1871,7 +1857,7 @@ msgid "Couldn't create new users"
 msgstr "不能创建新用户"
 
 #: pkg/kubernetes/scripts/connection.js:512
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:972
+#: pkg/kubernetes/scripts/kube-client-cockpit.js:978
 msgid "Couldn't find running API server"
 msgstr "无法找到运行的 API 服务器"
 
@@ -1912,13 +1898,13 @@ msgstr "故障系统"
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:222
 #: pkg/ovirt/components/ClusterTemplates.jsx:78
-#: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
-#: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
-#: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
+#: pkg/storaged/content-views.jsx:119 pkg/storaged/content-views.jsx:650
+#: pkg/storaged/lvol-tabs.jsx:132 pkg/storaged/overview.js:727
+#: pkg/storaged/overview.js:774
 msgid "Create"
 msgstr "创建"
 
-#: pkg/storaged/content-views.jsx:658
+#: pkg/storaged/content-views.jsx:596
 msgid "Create Logical Volume"
 msgstr "创建逻辑卷"
 
@@ -1926,11 +1912,11 @@ msgstr "创建逻辑卷"
 msgid "Create New Account"
 msgstr "创建新账户"
 
-#: pkg/storaged/content-views.jsx:398
+#: pkg/storaged/content-views.jsx:396
 msgid "Create Partition"
 msgstr "创建分区"
 
-#: pkg/storaged/overview.js:415
+#: pkg/storaged/overview.js:681
 msgid "Create RAID Device"
 msgstr "创建 RAID 设备"
 
@@ -1942,7 +1928,7 @@ msgstr "创建报表"
 msgid "Create Snapshot"
 msgstr "创建快照"
 
-#: pkg/storaged/content-views.jsx:104 pkg/storaged/content-views.jsx:131
+#: pkg/storaged/content-views.jsx:103 pkg/storaged/content-views.jsx:130
 msgid "Create Thin Volume"
 msgstr "创建稀疏卷"
 
@@ -1958,7 +1944,7 @@ msgstr "创建定时器"
 msgid "Create VM"
 msgstr "创建虚拟机"
 
-#: pkg/storaged/overview.js:490
+#: pkg/storaged/overview.js:756
 msgid "Create Volume Group"
 msgstr "创建卷组"
 
@@ -1979,7 +1965,7 @@ msgstr "创建镜像流"
 msgid "Create it"
 msgstr "创建"
 
-#: pkg/storaged/content-views.jsx:731
+#: pkg/storaged/content-views.jsx:669
 msgid "Create new Logical Volume"
 msgstr "创建新逻辑卷"
 
@@ -1991,7 +1977,7 @@ msgstr "创建分区"
 msgid "Create partition on $0"
 msgstr "为 $0 创建分区"
 
-#: pkg/storaged/index.html:379 pkg/storaged/content-views.jsx:522
+#: pkg/storaged/content-views.jsx:512
 msgid "Create partition table"
 msgstr "创建分区表"
 
@@ -2008,23 +1994,23 @@ msgstr "创建于"
 msgid "Created:"
 msgstr "创建时间："
 
-#: pkg/storaged/jobs.js:141
+#: pkg/storaged/jobs.js:104
 msgid "Creating RAID Device $target"
 msgstr "创建 RAID 设备 $target"
 
-#: pkg/storaged/jobs.js:129
+#: pkg/storaged/jobs.js:92
 msgid "Creating filesystem on $target"
 msgstr "为 $target 创建文件系统"
 
-#: pkg/storaged/jobs.js:155
+#: pkg/storaged/jobs.js:118
 msgid "Creating logical volume $target"
 msgstr "创建逻辑卷 $target"
 
-#: pkg/storaged/jobs.js:133
+#: pkg/storaged/jobs.js:96
 msgid "Creating partition $target"
 msgstr "创建分区 $target"
 
-#: pkg/storaged/jobs.js:149
+#: pkg/storaged/jobs.js:112
 msgid "Creating snapshot of $target"
 msgstr "创建快照 $target "
 
@@ -2052,7 +2038,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "创建该组将断开与服务器的连接，并将使用管理界面不可用。"
 
-#: pkg/storaged/jobs.js:150
+#: pkg/storaged/jobs.js:113
 msgid "Creating volume group $target"
 msgstr "创建卷组 $target"
 
@@ -2084,7 +2070,7 @@ msgstr ""
 msgid "Custom mount options"
 msgstr ""
 
-#: pkg/storaged/index.html:452
+#: pkg/storaged/drive-details.jsx:50
 msgid "DISK IS FAILING"
 msgstr "磁盘错误"
 
@@ -2116,7 +2102,7 @@ msgstr "仪表板"
 msgid "Data Used"
 msgstr "数据已使用空间"
 
-#: pkg/storaged/content-views.jsx:225
+#: pkg/storaged/content-views.jsx:224
 msgid "Deactivate"
 msgstr "未激活"
 
@@ -2124,7 +2110,7 @@ msgstr "未激活"
 msgid "Deactivating"
 msgstr "停用中"
 
-#: pkg/storaged/jobs.js:148
+#: pkg/storaged/jobs.js:111
 msgid "Deactivating $target"
 msgstr "停用 $target"
 
@@ -2155,9 +2141,9 @@ msgstr "延时"
 #: pkg/docker/details.js:276 pkg/docker/image.js:141
 #: pkg/kubernetes/scripts/volumes.js:218
 #: pkg/machines/components/deleteDialog.jsx:96 pkg/machines/hostvmslist.jsx:111
-#: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:288
-#: pkg/storaged/details.jsx:105 pkg/storaged/details.jsx:166
-#: pkg/storaged/details.jsx:334 pkg/storaged/details.jsx:383
+#: pkg/storaged/content-views.jsx:266 pkg/storaged/content-views.jsx:287
+#: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/mdraid-details.jsx:300
+#: pkg/storaged/vgroup-details.jsx:215 pkg/storaged/vgroup-details.jsx:233
 msgid "Delete"
 msgstr "删除"
 
@@ -2206,7 +2192,7 @@ msgstr "删除镜像流"
 msgid "Delete {{ item.kind }}"
 msgstr "删除 {{ item.kind }}"
 
-#: pkg/storaged/jobs.js:132 pkg/storaged/jobs.js:146
+#: pkg/storaged/jobs.js:95 pkg/storaged/jobs.js:109
 msgid "Deleting $target"
 msgstr "删除 $target"
 
@@ -2222,7 +2208,7 @@ msgid ""
 "automatically created again in some cases."
 msgstr "删除容器舱将会杀掉所有相关的容器。容器舱也许会在某些情况下被自动创建。"
 
-#: pkg/storaged/details.jsx:106
+#: pkg/storaged/mdraid-details.jsx:283
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "删除 RAID 设备将擦除其中的所有数据."
 
@@ -2230,15 +2216,15 @@ msgstr "删除 RAID 设备将擦除其中的所有数据."
 msgid "Deleting a container will erase all data in it."
 msgstr "删除容器将清除其中的所有数据。"
 
-#: pkg/storaged/content-views.jsx:244
+#: pkg/storaged/content-views.jsx:243
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "删除逻辑卷将擦除其中的所有数据。"
 
-#: pkg/storaged/content-views.jsx:247
+#: pkg/storaged/content-views.jsx:246
 msgid "Deleting a partition will delete all data in it."
 msgstr "删除分区将擦除其中的所有数据。"
 
-#: pkg/storaged/details.jsx:165
+#: pkg/storaged/vgroup-details.jsx:214
 msgid "Deleting a volume group will erase all data on it."
 msgstr "删除卷组将擦除其中的所有数据。"
 
@@ -2249,7 +2235,7 @@ msgid ""
 "that is, in which case you probably can't download it again."
 msgstr "这将删除镜像, 如果以后需要, 可以重新下载.除非该镜像未推送至镜像库, 镜像库未包含的镜像, 无法再次下载."
 
-#: pkg/storaged/jobs.js:151
+#: pkg/storaged/jobs.js:114
 msgid "Deleting volume group $target"
 msgstr "删除卷组 $target"
 
@@ -2282,12 +2268,12 @@ msgstr "部署配置"
 #: node_modules/registry-image-widgets/views/image-body.html:6
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
 #: pkg/ovirt/components/ClusterVms.jsx:75
-#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/systemd/init.js:270
+#: pkg/ovirt/components/ClusterVms.jsx:173 pkg/systemd/init.js:270
 msgid "Description"
 msgstr "描述"
 
 #: pkg/ovirt/components/OVirtTab.jsx:143
-#: pkg/ovirt/components/VmOverviewColumn.jsx:71
+#: pkg/ovirt/components/VmOverviewColumn.jsx:72
 msgid "Description:"
 msgstr "描述："
 
@@ -2302,18 +2288,7 @@ msgstr "详情"
 msgid "Device"
 msgstr "设备"
 
-#: pkg/storaged/index.html:542
-msgctxt "storage"
-msgid "Device"
-msgstr "设备"
-
-#: pkg/storaged/index.html:465 pkg/storaged/index.html:471
-#: pkg/storaged/index.html:513
-msgctxt "storage"
-msgid "Device File"
-msgstr "设备文件"
-
-#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:396
+#: pkg/storaged/content-views.jsx:511 pkg/storaged/format-dialog.jsx:396
 msgid "Device is read-only"
 msgstr "设备只读"
 
@@ -2363,13 +2338,13 @@ msgstr "磁盘 读/写"
 msgid "Disk Utilization: $0%"
 msgstr "磁盘使用率: $0%"
 
-#: pkg/storaged/index.html:455
+#: pkg/storaged/drive-details.jsx:51
 msgid "Disk is OK"
 msgstr "磁盘良好"
 
-#: pkg/machines/hostvmslist.jsx:409 pkg/storaged/overview.js:449
-#: pkg/storaged/overview.js:498 pkg/storaged/sidebar-views.jsx:71
-#: pkg/storaged/sidebar-views.jsx:177 pkg/storaged/sidebar-views.jsx:235
+#: pkg/machines/hostvmslist.jsx:409 pkg/storaged/mdraid-details.jsx:47
+#: pkg/storaged/mdraid-details.jsx:153 pkg/storaged/overview.js:715
+#: pkg/storaged/overview.js:764 pkg/storaged/vgroup-details.jsx:51
 msgid "Disks"
 msgstr "磁盘"
 
@@ -2460,7 +2435,7 @@ msgstr "域管理员密码"
 msgid "Don't Repeat"
 msgstr "不要重复"
 
-#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:276
+#: pkg/storaged/content-views.jsx:476 pkg/storaged/format-dialog.jsx:276
 msgid "Don't overwrite existing data"
 msgstr "不覆盖已存在数据"
 
@@ -2496,7 +2471,7 @@ msgstr "已下载"
 msgid "Downloading"
 msgstr "正在下载"
 
-#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:160
+#: pkg/docker/storage.jsx:160 pkg/storaged/drive-details.jsx:64
 msgid "Drive"
 msgstr "驱动器"
 
@@ -2537,7 +2512,7 @@ msgstr "编辑镜像流"
 msgid "Edit the vdsm.conf"
 msgstr "编辑 vdsm.conf"
 
-#: pkg/storaged/jobs.js:119
+#: pkg/storaged/jobs.js:82
 msgid "Ejecting $target"
 msgstr "弹出 $target"
 
@@ -2556,7 +2531,7 @@ msgstr "空"
 msgid "Empty Directory"
 msgstr "空目录"
 
-#: pkg/storaged/jobs.js:154
+#: pkg/storaged/jobs.js:117
 msgid "Emptying $target"
 msgstr "清空 $target"
 
@@ -2576,7 +2551,7 @@ msgstr "强制启用"
 msgid "Enabled"
 msgstr "启用"
 
-#: pkg/storaged/storage-controls.jsx:214
+#: pkg/storaged/storage-controls.jsx:205
 msgid "Encrypted $0"
 msgstr "已加密 $0"
 
@@ -2584,11 +2559,11 @@ msgstr "已加密 $0"
 msgid "Encrypted EXT4 (LUKS)"
 msgstr "加密 EXT4 (LUKS)"
 
-#: pkg/storaged/storage-controls.jsx:206
+#: pkg/storaged/storage-controls.jsx:197
 msgid "Encrypted Logical Volume of $0"
 msgstr "$0 的已加密逻辑卷"
 
-#: pkg/storaged/storage-controls.jsx:208
+#: pkg/storaged/storage-controls.jsx:199
 msgid "Encrypted Partition of $0"
 msgstr "$0 的已加密分区"
 
@@ -2596,12 +2571,12 @@ msgstr "$0 的已加密分区"
 msgid "Encrypted XFS (LUKS)"
 msgstr "加密 XFS (LUKS)"
 
-#: pkg/storaged/content-views.jsx:317
+#: pkg/storaged/content-views.jsx:316
 msgctxt "storage-id-desc"
 msgid "Encrypted data"
 msgstr "加密的数据"
 
-#: pkg/storaged/content-views.jsx:144
+#: pkg/storaged/content-views.jsx:143
 msgid "Encryption"
 msgstr "加密"
 
@@ -2657,7 +2632,7 @@ msgstr "入口点"
 msgid "Environment"
 msgstr "环境变量"
 
-#: pkg/storaged/content-views.jsx:484 pkg/storaged/format-dialog.jsx:274
+#: pkg/storaged/content-views.jsx:474 pkg/storaged/format-dialog.jsx:274
 msgid "Erase"
 msgstr "擦除"
 
@@ -2669,14 +2644,14 @@ msgstr "擦除容器并重置存储池"
 msgid "Erase containers, reformat disks, and add them"
 msgstr "擦除容器，格式化磁盘，并添加"
 
-#: pkg/storaged/jobs.js:128
+#: pkg/storaged/jobs.js:91
 msgid "Erasing $target"
 msgstr "擦除 $target"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/systemd/services.html:334 pkg/apps/utils.jsx:101
-#: pkg/storaged/details.jsx:199 pkg/storaged/devices.js:118
-#: pkg/storaged/overview.js:694 pkg/storaged/storage-controls.jsx:69
+#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:960
+#: pkg/storaged/storage-controls.jsx:87 pkg/storaged/storage-controls.jsx:230
 #: pkg/users/local.js:1381
 msgid "Error"
 msgstr "错误"
@@ -2745,11 +2720,11 @@ msgstr "过期的签名"
 msgid "Expose container ports"
 msgstr "暴露容器端口"
 
-#: pkg/storaged/content-views.jsx:418 pkg/storaged/format-dialog.jsx:247
+#: pkg/storaged/content-views.jsx:416 pkg/storaged/format-dialog.jsx:247
 msgid "Extended Partition"
 msgstr "扩展分区"
 
-#: pkg/storaged/sidebar-views.jsx:122
+#: pkg/storaged/mdraid-details.jsx:98
 msgid "FAILED"
 msgstr "失败"
 
@@ -2813,7 +2788,7 @@ msgstr "光纤通道"
 msgid "File"
 msgstr "文件"
 
-#: pkg/storaged/content-views.jsx:142
+#: pkg/storaged/content-views.jsx:141
 msgid "Filesystem"
 msgstr "文件系统"
 
@@ -2847,11 +2822,6 @@ msgstr "文件系统"
 #: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:302
 msgid "Fingerprint"
 msgstr "指印"
-
-#: pkg/storaged/index.html:424
-msgctxt "storage"
-msgid "Firmware Version"
-msgstr "固件版本"
 
 #: pkg/kubernetes/scripts/volumes.js:206
 msgid "Flex"
@@ -2889,7 +2859,7 @@ msgstr "强制关机"
 msgid "Force password change"
 msgstr "强制密码变更"
 
-#: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:317
+#: pkg/storaged/content-views.jsx:492 pkg/storaged/format-dialog.jsx:317
 #: pkg/storaged/format-dialog.jsx:397
 msgid "Format"
 msgstr "格式化"
@@ -2898,11 +2868,11 @@ msgstr "格式化"
 msgid "Format $0"
 msgstr "格式 $0"
 
-#: pkg/storaged/content-views.jsx:480
+#: pkg/storaged/content-views.jsx:470
 msgid "Format Disk $0"
 msgstr "格式化磁盘 $0"
 
-#: pkg/storaged/content-views.jsx:503
+#: pkg/storaged/content-views.jsx:493
 msgid "Formatting a disk will erase all data on it."
 msgstr "格式化磁盘将擦除其中的所有数据。"
 
@@ -2920,7 +2890,7 @@ msgstr "转发延迟 $forward_delay"
 msgid "Free"
 msgstr "可用"
 
-#: pkg/storaged/content-views.jsx:404
+#: pkg/storaged/content-views.jsx:402
 msgid "Free Space"
 msgstr "空闲空间"
 
@@ -2976,12 +2946,12 @@ msgstr "GlusterFS"
 msgid "Go to"
 msgstr "到"
 
-#: pkg/apps/application.jsx:93
+#: pkg/apps/application.jsx:105
 msgid "Go to Application"
 msgstr "导航到应用"
 
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
-#: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
+#: pkg/networkmanager/index.html:538 pkg/storaged/index.html:408
 #: pkg/systemd/index.html:182
 msgid "Go to now"
 msgstr "转到现在"
@@ -3010,7 +2980,7 @@ msgid "Groups"
 msgstr "组"
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:138
-#: pkg/ovirt/components/ClusterVms.jsx:169
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "HA"
 msgstr "高可用"
 
@@ -3047,7 +3017,7 @@ msgstr "Hello 时间 $hello_time"
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
 #: pkg/ovirt/components/App.jsx:75 pkg/ovirt/components/ClusterVms.jsx:57
-#: pkg/ovirt/components/ClusterVms.jsx:169
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Host"
 msgstr "主机"
 
@@ -3245,7 +3215,7 @@ msgstr "镜像仅可被指定用户或组拉取"
 msgid "Images pushed recently"
 msgstr "最近推送的镜像"
 
-#: pkg/storaged/sidebar-views.jsx:123
+#: pkg/storaged/mdraid-details.jsx:99
 msgid "In Sync"
 msgstr "同步中"
 
@@ -3271,7 +3241,7 @@ msgstr "为了同步用户，需要登录到 {{#strong}}{{host}}{{/strong}}。"
 msgid "Inactive"
 msgstr "未激活"
 
-#: pkg/storaged/content-views.jsx:615
+#: pkg/storaged/content-views.jsx:570
 msgid "Inactive volume"
 msgstr "暂停卷"
 
@@ -3287,7 +3257,7 @@ msgstr "关于容器存储池的信息不可用。"
 msgid "Initializing..."
 msgstr "正在初始化中..."
 
-#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:97
+#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:109
 msgid "Install"
 msgstr "安装"
 
@@ -3405,7 +3375,7 @@ msgstr "无效的时间格式"
 msgid "Invalid time zone"
 msgstr "无效的时区"
 
-#: pkg/storaged/overview.js:582 pkg/storaged/overview.js:673
+#: pkg/storaged/overview.js:848 pkg/storaged/overview.js:939
 #: pkg/subscriptions/subscriptions-client.js:194
 msgid "Invalid username or password"
 msgstr "无效的用户名或密码"
@@ -3414,7 +3384,7 @@ msgstr "无效的用户名或密码"
 msgid "Is sshd running on a different port?"
 msgstr "sshd 是否在一个不同的端口上运行？"
 
-#: pkg/storaged/index.html:278
+#: pkg/storaged/index.html:381 pkg/storaged/job-views.jsx:51
 msgid "Jobs"
 msgstr "任务"
 
@@ -3639,11 +3609,15 @@ msgstr "本地磁盘"
 msgid "Local Filesystem"
 msgstr "本地文件系统"
 
+#: pkg/storaged/overview.js:505
+msgid "Local Mount Point"
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:174
 msgid "Location"
 msgstr "位置"
 
-#: pkg/storaged/content-views.jsx:209
+#: pkg/storaged/content-views.jsx:208
 msgid "Lock"
 msgstr "锁定"
 
@@ -3663,7 +3637,7 @@ msgstr "锁定以阻止特权任务"
 msgid "Locked"
 msgstr "已锁定"
 
-#: pkg/storaged/jobs.js:121
+#: pkg/storaged/jobs.js:84
 msgid "Locking $target"
 msgstr "锁定 $target"
 
@@ -3713,7 +3687,7 @@ msgstr "逻辑卷"
 msgid "Logical Volume (Snapshot)"
 msgstr "逻辑卷 (快照)"
 
-#: pkg/storaged/storage-controls.jsx:210
+#: pkg/storaged/storage-controls.jsx:201
 msgid "Logical Volume of $0"
 msgstr "$0 的逻辑卷"
 
@@ -3762,7 +3736,7 @@ msgstr "MAC"
 msgid "MAC Address:"
 msgstr "MAC 地址:"
 
-#: pkg/ovirt/provider.es6:237
+#: pkg/ovirt/provider.es6:238
 msgid "MIGRATE action failed"
 msgstr "迁移操作失败"
 
@@ -3807,7 +3781,7 @@ msgstr "手动连接"
 msgid "Manually"
 msgstr "手动的"
 
-#: pkg/storaged/jobs.js:139
+#: pkg/storaged/jobs.js:102
 msgid "Marking $target as faulty"
 msgstr "标记 $target 出现故障"
 
@@ -3835,11 +3809,11 @@ msgstr "媒介"
 msgid "Member of"
 msgstr "属于"
 
-#: pkg/storaged/content-views.jsx:314
+#: pkg/storaged/content-views.jsx:313
 msgid "Member of RAID Device"
 msgstr "RAID 设备的成员"
 
-#: pkg/storaged/content-views.jsx:310
+#: pkg/storaged/content-views.jsx:309
 msgid "Member of RAID Device $0"
 msgstr "RAID 设备 $0 的成员"
 
@@ -3861,7 +3835,7 @@ msgstr "成员关系"
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
 #: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "Memory"
 msgstr "内存"
 
@@ -3926,16 +3900,11 @@ msgstr "分钟"
 msgid "Mode"
 msgstr "模式"
 
-#: pkg/storaged/index.html:419
-msgctxt "storage"
-msgid "Model"
-msgstr "模型"
-
 #: pkg/kubernetes/views/user-modify.html:27
 msgid "Modify"
 msgstr "修改"
 
-#: pkg/storaged/jobs.js:122 pkg/storaged/jobs.js:127 pkg/storaged/jobs.js:131
+#: pkg/storaged/jobs.js:85 pkg/storaged/jobs.js:90 pkg/storaged/jobs.js:94
 msgid "Modifying $target"
 msgstr "修改 $target"
 
@@ -3972,8 +3941,8 @@ msgstr "更多详情"
 msgid "More information…"
 msgstr "更多信息..."
 
-#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:167
-#: pkg/storaged/fsys-tab.jsx:196
+#: pkg/storaged/index.html:316 pkg/kdump/kdump-view.jsx:104
+#: pkg/storaged/fsys-tab.jsx:167 pkg/storaged/fsys-tab.jsx:196
 msgid "Mount"
 msgstr "挂载"
 
@@ -3981,12 +3950,12 @@ msgstr "挂载"
 msgid "Mount Location"
 msgstr "挂载位置"
 
-#: pkg/storaged/fsys-tab.jsx:178
+#: pkg/storaged/fsys-tab.jsx:178 pkg/storaged/overview.js:516
 msgid "Mount Options"
 msgstr "挂载选项"
 
-#: pkg/storaged/index.html:229 pkg/storaged/format-dialog.jsx:74
-#: pkg/storaged/fsys-tab.jsx:161
+#: pkg/storaged/index.html:229 pkg/storaged/index.html:290
+#: pkg/storaged/format-dialog.jsx:74 pkg/storaged/fsys-tab.jsx:161
 msgid "Mount Point"
 msgstr "挂载点"
 
@@ -4006,6 +3975,14 @@ msgstr ""
 msgid "Mount point can not be empty"
 msgstr ""
 
+#: pkg/storaged/overview.js:509
+msgid "Mount point cannot be empty."
+msgstr ""
+
+#: pkg/storaged/overview.js:511
+msgid "Mount point must start with \"/\"."
+msgstr ""
+
 #: pkg/storaged/format-dialog.jsx:99
 msgid "Mount read only"
 msgstr ""
@@ -4018,22 +3995,21 @@ msgstr "挂载于"
 msgid "Mounting"
 msgstr "挂载"
 
-#: pkg/storaged/jobs.js:125
+#: pkg/storaged/jobs.js:88
 msgid "Mounting $target"
 msgstr "挂载 $target"
-
-#: pkg/storaged/index.html:506
-msgctxt "storage"
-msgid "Multipathed Devices"
-msgstr "多路径设备"
 
 #: pkg/kubernetes/scripts/volumes.js:858
 msgid "NFS"
 msgstr "NFS"
 
-#: pkg/kubernetes/scripts/volumes.js:199
+#: pkg/kubernetes/scripts/volumes.js:199 pkg/storaged/overview.js:480
 msgid "NFS Mount"
 msgstr "NFS 挂载"
+
+#: pkg/storaged/index.html:283
+msgid "NFS Mounts"
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:1938
 msgid "NSNA Ping"
@@ -4079,15 +4055,15 @@ msgstr "NTP 服务器"
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
 #: pkg/machines/hostvmslist.jsx:481
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168 pkg/packagekit/updates.jsx:329
-#: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
-#: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:285
-#: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:151
-#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/lvol-tabs.jsx:118
-#: pkg/storaged/lvol-tabs.jsx:155 pkg/storaged/lvol-tabs.jsx:192
-#: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
-#: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/storaged/part-tab.jsx:37
+#: pkg/ovirt/components/ClusterVms.jsx:173 pkg/packagekit/updates.jsx:329
+#: pkg/storaged/content-views.jsx:106 pkg/storaged/content-views.jsx:599
+#: pkg/storaged/format-dialog.jsx:285 pkg/storaged/fsys-tab.jsx:71
+#: pkg/storaged/fsys-tab.jsx:151 pkg/storaged/lvol-tabs.jsx:39
+#: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
+#: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/overview.js:684
+#: pkg/storaged/overview.js:759 pkg/storaged/overview.js:895
+#: pkg/storaged/overview.js:973 pkg/storaged/part-tab.jsx:37
+#: pkg/storaged/vgroup-details.jsx:180
 msgid "Name"
 msgstr "名称"
 
@@ -4169,6 +4145,10 @@ msgstr "账号从不锁定"
 msgid "New Group"
 msgstr "新建组"
 
+#: pkg/storaged/overview.js:480
+msgid "New NFS Mount"
+msgstr ""
+
 #: pkg/shell/index.html:322 pkg/users/index.html:249
 msgid "New Password"
 msgstr "新密码"
@@ -4192,7 +4172,7 @@ msgstr "新密码不被接受"
 msgid "New project"
 msgstr "新建项目"
 
-#: pkg/realmd/operation.html:93 pkg/storaged/overview.js:538
+#: pkg/realmd/operation.html:93 pkg/storaged/overview.js:804
 msgid "Next"
 msgstr "下一步"
 
@@ -4222,9 +4202,13 @@ msgstr "没有部署"
 msgid "No Filesystem"
 msgstr "无文件系统"
 
-#: pkg/storaged/content-views.jsx:738
+#: pkg/storaged/content-views.jsx:676
 msgid "No Logical Volumes"
 msgstr "没有逻辑卷"
+
+#: pkg/storaged/index.html:354
+msgid "No NFS mounts set up"
+msgstr ""
 
 #: pkg/ostree/app.js:107
 msgid "No OSTree deployments found"
@@ -4303,8 +4287,8 @@ msgstr "没有容器"
 msgid "No containers that match the current filter"
 msgstr "没有容器匹配当前过滤器"
 
-#: pkg/storaged/overview.js:451 pkg/storaged/overview.js:500
-#: pkg/storaged/sidebar-views.jsx:77 pkg/storaged/sidebar-views.jsx:241
+#: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/overview.js:717
+#: pkg/storaged/overview.js:766 pkg/storaged/vgroup-details.jsx:57
 msgid "No disks are available."
 msgstr "没有可用的磁盘。"
 
@@ -4316,7 +4300,7 @@ msgstr "没有为该虚拟机定义磁盘"
 msgid "No drives attached"
 msgstr "没有附件的驱动器"
 
-#: pkg/storaged/content-views.jsx:723
+#: pkg/storaged/content-views.jsx:661
 msgid "No free space"
 msgstr "没有剩余空间"
 
@@ -4360,11 +4344,11 @@ msgstr "没有找到为该应用的安装包"
 msgid "No installed products on the system."
 msgstr "该系统上没有安装的产品。"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:247
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:205
 msgid "No matching files found"
 msgstr "没有找到匹配的文件"
 
-#: pkg/storaged/index.html:444
+#: pkg/storaged/drive-details.jsx:73
 msgid "No media inserted"
 msgstr "没有插入媒体"
 
@@ -4386,7 +4370,7 @@ msgstr "未选择元数据文件. 请选择一个 Kubernetes 元数据文件."
 msgid "No nodes in cluster"
 msgstr "集群中没有节点"
 
-#: pkg/storaged/content-views.jsx:497
+#: pkg/storaged/content-views.jsx:487
 msgid "No partitioning"
 msgstr "无分区"
 
@@ -4533,7 +4517,7 @@ msgstr "未连接"
 msgid "Not deployed"
 msgstr "未部署"
 
-#: pkg/docker/details.js:176 pkg/storaged/details.jsx:414
+#: pkg/docker/details.js:176 pkg/storaged/details.jsx:124
 msgid "Not found"
 msgstr "未找到"
 
@@ -4541,7 +4525,7 @@ msgstr "未找到"
 msgid "Not permitted to perform this action."
 msgstr "不允许执行该动作。"
 
-#: pkg/storaged/details.jsx:318
+#: pkg/storaged/mdraid-details.jsx:332
 msgid "Not running"
 msgstr "未运行"
 
@@ -4564,7 +4548,7 @@ msgstr "确认"
 
 #: pkg/kubernetes/views/node-body.html:13
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "OS"
 msgstr "操作系统"
 
@@ -4594,8 +4578,8 @@ msgstr "在 $0 和 $1 间发生"
 
 #: pkg/playground/jquery-patterns.html:95
 #: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:254
-#: pkg/storaged/index.html:564 pkg/systemd/index.html:167
-#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:38
+#: pkg/systemd/index.html:167 pkg/lib/patterns.js:244
+#: pkg/lib/cockpit-components-onoff.jsx:38
 msgid "Off"
 msgstr "关"
 
@@ -4613,8 +4597,8 @@ msgstr "旧密码不被接受"
 
 #: pkg/playground/jquery-patterns.html:91
 #: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:250
-#: pkg/storaged/index.html:563 pkg/systemd/index.html:163
-#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:39
+#: pkg/systemd/index.html:163 pkg/lib/patterns.js:244
+#: pkg/lib/cockpit-components-onoff.jsx:39
 msgid "On"
 msgstr "开"
 
@@ -4660,7 +4644,7 @@ msgstr "操作系统"
 msgid "Operating System Updates"
 msgstr "操作系统更新"
 
-#: pkg/storaged/jobs.js:165
+#: pkg/storaged/jobs.js:128
 msgid "Operation '$operation' on $target"
 msgstr "在 $target 操作 '$operation'"
 
@@ -4677,6 +4661,10 @@ msgstr "优化来："
 msgid "Options"
 msgstr "选项"
 
+#: pkg/storaged/overview.js:520
+msgid "Options cannot be empty."
+msgstr ""
+
 #: pkg/subscriptions/subscriptions-register.jsx:176
 msgid "Organization"
 msgstr "组织"
@@ -4685,7 +4673,7 @@ msgstr "组织"
 msgid "Origin"
 msgstr "Origin"
 
-#: pkg/storaged/content-views.jsx:322
+#: pkg/storaged/content-views.jsx:321
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "其他数据"
@@ -4703,7 +4691,7 @@ msgstr "其他选项"
 msgid "Overview"
 msgstr "概览"
 
-#: pkg/storaged/content-views.jsx:487 pkg/storaged/format-dialog.jsx:277
+#: pkg/storaged/content-views.jsx:477 pkg/storaged/format-dialog.jsx:277
 msgid "Overwrite existing data with zeros"
 msgstr "使用 0 覆盖已存在数据"
 
@@ -4745,15 +4733,15 @@ msgid "Part of "
 msgstr "部分"
 
 #: pkg/kubernetes/views/volume-body.html:8
-#: pkg/kubernetes/views/volume-body.html:18 pkg/storaged/content-views.jsx:138
+#: pkg/kubernetes/views/volume-body.html:18 pkg/storaged/content-views.jsx:137
 msgid "Partition"
 msgstr "分区"
 
-#: pkg/storaged/storage-controls.jsx:212
+#: pkg/storaged/storage-controls.jsx:203
 msgid "Partition of $0"
 msgstr "$0 的分区"
 
-#: pkg/storaged/content-views.jsx:491
+#: pkg/storaged/content-views.jsx:481
 msgid "Partitioning"
 msgstr "分区"
 
@@ -4761,7 +4749,7 @@ msgstr "分区"
 msgid "Passive"
 msgstr "无源"
 
-#: pkg/storaged/content-views.jsx:194 pkg/storaged/format-dialog.jsx:295
+#: pkg/storaged/content-views.jsx:193 pkg/storaged/format-dialog.jsx:295
 msgid "Passphrase"
 msgstr "口令"
 
@@ -4777,7 +4765,7 @@ msgstr "口令不匹配"
 #: pkg/lib/machine-sync-users.html:61 pkg/lib/machine-auth-failed.html:8
 #: pkg/shell/index.html:225 pkg/shell/index.html:264 pkg/shell/index.html:277
 #: pkg/users/index.html:117 pkg/users/index.html:177 src/ws/login.html:50
-#: pkg/storaged/overview.js:534 pkg/storaged/overview.js:657
+#: pkg/storaged/overview.js:800 pkg/storaged/overview.js:923
 #: pkg/subscriptions/subscriptions-register.jsx:88
 #: pkg/subscriptions/subscriptions-register.jsx:152
 msgid "Password"
@@ -4827,7 +4815,19 @@ msgstr "路径开销"
 msgid "Path cost $path_cost"
 msgstr "路径开销 $path_cost"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:232
+#: pkg/storaged/overview.js:493
+msgid "Path on Server"
+msgstr ""
+
+#: pkg/storaged/overview.js:498
+msgid "Path on server cannot be empty."
+msgstr ""
+
+#: pkg/storaged/overview.js:500
+msgid "Path on server must start with \"/\"."
+msgstr ""
+
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:265
 msgid "Path to file"
 msgstr "文件路径"
 
@@ -4859,15 +4859,15 @@ msgstr "持久卷"
 msgid "Phase"
 msgstr "阶段"
 
-#: pkg/storaged/content-views.jsx:147 pkg/storaged/content-views.jsx:312
+#: pkg/storaged/content-views.jsx:146 pkg/storaged/content-views.jsx:311
 msgid "Physical Volume"
 msgstr "物理卷"
 
-#: pkg/storaged/sidebar-views.jsx:316
+#: pkg/storaged/vgroup-details.jsx:132
 msgid "Physical Volumes"
 msgstr "物理卷"
 
-#: pkg/storaged/content-views.jsx:307
+#: pkg/storaged/content-views.jsx:306
 msgid "Physical volume of $0"
 msgstr "$0 的物理卷"
 
@@ -4880,8 +4880,8 @@ msgid "Ping Target"
 msgstr "Ping 目标"
 
 #: pkg/docker/containers-view.jsx:167 pkg/docker/details.js:274
-#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:261
-#: pkg/storaged/details.jsx:100 pkg/storaged/details.jsx:160
+#: pkg/docker/image.js:139 pkg/storaged/content-views.jsx:260
+#: pkg/storaged/mdraid-details.jsx:277 pkg/storaged/vgroup-details.jsx:209
 msgid "Please confirm deletion of $0"
 msgstr "请确认删除 $0"
 
@@ -5044,7 +5044,7 @@ msgid ""
 "your application code."
 msgstr "容器舱包含一个或多个运行在同一节点上包含应用代码的容器。"
 
-#: pkg/machines/vmdiskstab.jsx:54 pkg/storaged/content-views.jsx:130
+#: pkg/machines/vmdiskstab.jsx:54 pkg/storaged/content-views.jsx:129
 msgid "Pool"
 msgstr "池"
 
@@ -5056,11 +5056,11 @@ msgstr "池名称"
 msgid "Pool for Thin Logical Volumes"
 msgstr "稀疏逻辑卷池"
 
-#: pkg/storaged/content-views.jsx:596
+#: pkg/storaged/content-views.jsx:551
 msgid "Pool for Thin Volumes"
 msgstr "瘦分配卷的池"
 
-#: pkg/storaged/content-views.jsx:671
+#: pkg/storaged/content-views.jsx:609
 msgid "Pool for thinly provisioned volumes"
 msgstr "池的瘦分配配置卷"
 
@@ -5069,7 +5069,7 @@ msgid "Populate"
 msgstr "填入"
 
 #: pkg/lib/machine-change-port.html:23 pkg/machines/vmdiskstab.jsx:57
-#: pkg/ovirt/components/InstallationDialog.jsx:67 pkg/storaged/overview.js:629
+#: pkg/ovirt/components/InstallationDialog.jsx:67 pkg/storaged/overview.js:895
 msgid "Port"
 msgstr "端口"
 
@@ -5251,7 +5251,7 @@ msgstr "拉取自"
 msgid "Pull specific tags from another image repository"
 msgstr "从另一个镜像仓库拉取指定标记"
 
-#: pkg/storaged/content-views.jsx:666
+#: pkg/storaged/content-views.jsx:604
 msgid "Purpose"
 msgstr "目的"
 
@@ -5264,63 +5264,64 @@ msgstr "推送镜像:"
 msgid "Qualified Name"
 msgstr "限定名"
 
-#: pkg/storaged/details.jsx:283
+#: pkg/storaged/mdraid-details.jsx:185
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/details.jsx:277
+#: pkg/storaged/mdraid-details.jsx:179
 msgid "RAID 0"
 msgstr "RAID 0"
 
-#: pkg/storaged/overview.js:423
+#: pkg/storaged/overview.js:689
 msgid "RAID 0 (Stripe)"
 msgstr "RAID 0 (条带)"
 
-#: pkg/storaged/details.jsx:278
+#: pkg/storaged/mdraid-details.jsx:180
 msgid "RAID 1"
 msgstr "RAID 1"
 
-#: pkg/storaged/overview.js:424
+#: pkg/storaged/overview.js:690
 msgid "RAID 1 (Mirror)"
 msgstr "RAID 1 (镜像)"
 
-#: pkg/storaged/details.jsx:282
+#: pkg/storaged/mdraid-details.jsx:184
 msgid "RAID 10"
 msgstr "RAID 10"
 
-#: pkg/storaged/overview.js:428
+#: pkg/storaged/overview.js:694
 msgid "RAID 10 (Stripe of Mirrors)"
 msgstr "RAID 10 (条带镜像)"
 
-#: pkg/storaged/details.jsx:279
+#: pkg/storaged/mdraid-details.jsx:181
 msgid "RAID 4"
 msgstr "RAID 4"
 
-#: pkg/storaged/overview.js:425
+#: pkg/storaged/overview.js:691
 msgid "RAID 4 (Dedicated Parity)"
 msgstr "RAID 4 (奇偶校验)"
 
-#: pkg/storaged/details.jsx:280
+#: pkg/storaged/mdraid-details.jsx:182
 msgid "RAID 5"
 msgstr "RAID 5"
 
-#: pkg/storaged/overview.js:426
+#: pkg/storaged/overview.js:692
 msgid "RAID 5 (Distributed Parity)"
 msgstr "RAID 5 (奇偶校验)"
 
-#: pkg/storaged/details.jsx:281
+#: pkg/storaged/mdraid-details.jsx:183
 msgid "RAID 6"
 msgstr "RAID 6"
 
-#: pkg/storaged/overview.js:427
+#: pkg/storaged/overview.js:693
 msgid "RAID 6 (Double Distributed Parity)"
 msgstr "RAID 6 (双倍奇偶校验)"
 
-#: pkg/storaged/index.html:535 pkg/storaged/pvol-tabs.jsx:68
+#: pkg/storaged/pvol-tabs.jsx:68
 msgid "RAID Device"
 msgstr "RAID 设备"
 
-#: pkg/storaged/storage-controls.jsx:172 pkg/storaged/utils.js:240
+#: pkg/storaged/mdraid-details.jsx:306 pkg/storaged/storage-controls.jsx:163
+#: pkg/storaged/utils.js:240
 msgid "RAID Device $0"
 msgstr "RAID 设备 $0"
 
@@ -5328,20 +5329,15 @@ msgstr "RAID 设备 $0"
 msgid "RAID Devices"
 msgstr "RAID 设备"
 
-#: pkg/storaged/overview.js:421
+#: pkg/storaged/overview.js:687
 msgid "RAID Level"
 msgstr "RAID 级别"
 
-#: pkg/storaged/index.html:554
-msgctxt "storage"
-msgid "RAID Level"
-msgstr "RAID 级别"
-
-#: pkg/storaged/content-views.jsx:150
+#: pkg/storaged/content-views.jsx:149
 msgid "RAID Member"
 msgstr "RAID 成员"
 
-#: pkg/ovirt/provider.es6:143
+#: pkg/ovirt/provider.es6:144
 msgid "REBOOT action failed"
 msgstr "重启操作失败"
 
@@ -5392,7 +5388,7 @@ msgstr "只读"
 msgid "ReadWrite"
 msgstr "读写"
 
-#: pkg/storaged/index.html:325
+#: pkg/storaged/index.html:428
 msgid "Reading"
 msgstr "读取中"
 
@@ -5473,11 +5469,11 @@ msgstr "重新声明策略"
 msgid "Reconnect"
 msgstr "重新连接"
 
-#: pkg/storaged/sidebar-views.jsx:124
+#: pkg/storaged/mdraid-details.jsx:100
 msgid "Recovering"
 msgstr "恢复"
 
-#: pkg/storaged/jobs.js:144
+#: pkg/storaged/jobs.js:107
 msgid "Recovering RAID Device $target"
 msgstr "恢复 RAID 设备 $target"
 
@@ -5571,7 +5567,7 @@ msgstr "移除"
 #: pkg/kubernetes/views/remove-role-dialog.html:8
 #: pkg/kubernetes/views/user-delete.html:25
 #: pkg/kubernetes/views/user-group-remove.html:10
-#: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:94
+#: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:106
 msgid "Remove"
 msgstr "删除"
 
@@ -5607,7 +5603,7 @@ msgstr "移除成员关系"
 msgid "Removing"
 msgstr "正在移除"
 
-#: pkg/storaged/jobs.js:140
+#: pkg/storaged/jobs.js:103
 msgid "Removing $target from RAID Device"
 msgstr "从 RAID 设备中删除 $target"
 
@@ -5617,11 +5613,12 @@ msgid ""
 "the administration UI unavailable."
 msgstr "移除  <b>$0</b> 将中断与服务器的连接，并将导致管理界面不可用。"
 
-#: pkg/storaged/jobs.js:153
+#: pkg/storaged/jobs.js:116
 msgid "Removing physical volume from $target"
 msgstr "从 $target 删除物理卷"
 
-#: pkg/storaged/details.jsx:382 pkg/storaged/lvol-tabs.jsx:44
+#: pkg/storaged/lvol-tabs.jsx:44 pkg/storaged/vgroup-details.jsx:186
+#: pkg/storaged/vgroup-details.jsx:232
 msgid "Rename"
 msgstr "重命名"
 
@@ -5629,11 +5626,11 @@ msgstr "重命名"
 msgid "Rename Logical Volume"
 msgstr "重命名逻辑卷"
 
-#: pkg/storaged/details.jsx:124
+#: pkg/storaged/vgroup-details.jsx:177
 msgid "Rename Volume Group"
 msgstr "重命名卷组"
 
-#: pkg/storaged/jobs.js:156
+#: pkg/storaged/jobs.js:119
 msgid "Renaming $target"
 msgstr "重命名 $target"
 
@@ -5749,7 +5746,7 @@ msgstr "调整文件系统大小"
 msgid "Resize Logical Volume"
 msgstr "调整逻辑卷大小"
 
-#: pkg/storaged/jobs.js:157
+#: pkg/storaged/jobs.js:120
 msgid "Resizing $target"
 msgstr "调整大小 $target"
 
@@ -5859,9 +5856,13 @@ msgstr "运行为"
 msgid "Runner"
 msgstr "分流道"
 
-#: pkg/ostree/index.html:251 pkg/storaged/details.jsx:318
+#: pkg/ostree/index.html:251 pkg/storaged/mdraid-details.jsx:332
 msgid "Running"
 msgstr "运行中"
+
+#: pkg/ovirt/components/VmOverviewColumn.jsx:74
+msgid "Running Since:"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:345
 msgid "SELinux Access Control Errors"
@@ -5887,11 +5888,11 @@ msgstr "该系统上 SELinux 已禁用。"
 msgid "SELinux system status is unknown."
 msgstr "SELinux 系统状态未知。"
 
-#: pkg/ovirt/provider.es6:95 pkg/ovirt/provider.es6:119
+#: pkg/ovirt/provider.es6:96 pkg/ovirt/provider.es6:120
 msgid "SHUTDOWN action failed"
 msgstr "关机操作失败"
 
-#: pkg/storaged/jobs.js:118
+#: pkg/storaged/jobs.js:81
 msgid "SMART self-test of $target"
 msgstr "$target SMART 自检"
 
@@ -5911,7 +5912,7 @@ msgstr "SPICE 端口："
 msgid "SPICE TLS Port:"
 msgstr "SPICE TLS 端口："
 
-#: pkg/ovirt/provider.es6:179
+#: pkg/ovirt/provider.es6:180
 msgid "START action failed"
 msgstr "启动操作失败"
 
@@ -5931,7 +5932,7 @@ msgstr "STP 最大消息有效期"
 msgid "STP Priority"
 msgstr "STP 优先级"
 
-#: pkg/ovirt/provider.es6:257
+#: pkg/ovirt/provider.es6:258
 msgid "SUSPEND action failed"
 msgstr "挂起操作失败"
 
@@ -5981,7 +5982,7 @@ msgstr "口令卷"
 msgid "Secure Shell Keys"
 msgstr "安全 Shell  密钥"
 
-#: pkg/storaged/jobs.js:135
+#: pkg/storaged/jobs.js:98
 msgid "Securely erasing $target"
 msgstr "安全擦除 $target"
 
@@ -6021,18 +6022,14 @@ msgstr "发送非屏蔽中断"
 msgid "Sending"
 msgstr "发送中"
 
-#: pkg/storaged/index.html:430
-msgctxt "storage"
-msgid "Serial Number"
-msgstr "串口号"
-
 #: pkg/kubernetes/views/pv-modify.html:82
-#: pkg/kubernetes/views/volume-body.html:47 src/ws/login.html:94
-#: pkg/kdump/kdump-view.jsx:127 pkg/subscriptions/subscriptions-register.jsx:64
+#: pkg/kubernetes/views/volume-body.html:47 pkg/storaged/index.html:289
+#: src/ws/login.html:94 pkg/kdump/kdump-view.jsx:127
+#: pkg/subscriptions/subscriptions-register.jsx:64
 msgid "Server"
 msgstr "服务器"
 
-#: pkg/storaged/overview.js:523
+#: pkg/storaged/overview.js:484 pkg/storaged/overview.js:789
 msgid "Server Address"
 msgstr "服务器地址"
 
@@ -6040,9 +6037,13 @@ msgstr "服务器地址"
 msgid "Server Administrator"
 msgstr "服务器管理员"
 
-#: pkg/storaged/overview.js:526
+#: pkg/storaged/overview.js:792
 msgid "Server address cannot be empty."
 msgstr "服务器地址不能为空。"
+
+#: pkg/storaged/overview.js:488
+msgid "Server cannot be empty."
+msgstr ""
 
 #: src/base1/cockpit.js:3958
 msgid "Server has closed the connection."
@@ -6147,7 +6148,7 @@ msgstr "设置从配置的状态偏离并将在下一次重启恢复。"
 msgid "Setting up"
 msgstr "设置"
 
-#: pkg/storaged/jobs.js:130
+#: pkg/storaged/jobs.js:93
 msgid "Setting up loop device $target"
 msgstr "创建 loop 设备 $target"
 
@@ -6253,27 +6254,27 @@ msgid "Since $0"
 msgstr "由于 $0"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/storaged/index.html:230
-#: pkg/docker/containers-view.jsx:587 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:266
-#: pkg/storaged/lvol-tabs.jsx:70 pkg/storaged/lvol-tabs.jsx:122
-#: pkg/storaged/lvol-tabs.jsx:161 pkg/storaged/lvol-tabs.jsx:198
-#: pkg/storaged/part-tab.jsx:41
+#: pkg/storaged/index.html:295 pkg/docker/containers-view.jsx:587
+#: pkg/storaged/content-views.jsx:111 pkg/storaged/content-views.jsx:644
+#: pkg/storaged/format-dialog.jsx:266 pkg/storaged/lvol-tabs.jsx:70
+#: pkg/storaged/lvol-tabs.jsx:122 pkg/storaged/lvol-tabs.jsx:161
+#: pkg/storaged/lvol-tabs.jsx:198 pkg/storaged/part-tab.jsx:41
 msgid "Size"
 msgstr "大小"
 
-#: pkg/storaged/dialog.js:340
+#: pkg/storaged/dialog.js:406
 msgid "Size cannot be negative"
 msgstr "大小不能为负数"
 
-#: pkg/storaged/dialog.js:338
+#: pkg/storaged/dialog.js:404
 msgid "Size cannot be zero"
 msgstr "大小不能为零"
 
-#: pkg/storaged/dialog.js:342
+#: pkg/storaged/dialog.js:408
 msgid "Size is too large"
 msgstr "大小太大"
 
-#: pkg/storaged/dialog.js:336
+#: pkg/storaged/dialog.js:402
 msgid "Size must be a number"
 msgstr "大小必须是一个数字"
 
@@ -6336,7 +6337,7 @@ msgstr "生成树协议"
 msgid "Spanning Tree Protocol (STP)"
 msgstr "生成树协议 (STP)"
 
-#: pkg/storaged/sidebar-views.jsx:124
+#: pkg/storaged/mdraid-details.jsx:100
 msgid "Spare"
 msgstr "备用"
 
@@ -6349,7 +6350,7 @@ msgid "Stable"
 msgstr "稳定的"
 
 #: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:236
-#: pkg/storaged/details.jsx:330 pkg/storaged/swap-tab.jsx:76
+#: pkg/storaged/mdraid-details.jsx:296 pkg/storaged/swap-tab.jsx:76
 #: pkg/systemd/init.js:513
 msgid "Start"
 msgstr "启动"
@@ -6362,15 +6363,15 @@ msgstr "启动 Docker"
 msgid "Start Multipath"
 msgstr "启用多路径"
 
-#: pkg/storaged/details.jsx:332
+#: pkg/storaged/mdraid-details.jsx:298
 msgid "Start Scrubbing"
 msgstr "开始擦除"
 
-#: pkg/storaged/jobs.js:138
+#: pkg/storaged/jobs.js:101
 msgid "Starting RAID Device $target"
 msgstr "启动 RAID 设备 $target"
 
-#: pkg/storaged/jobs.js:123
+#: pkg/storaged/jobs.js:86
 msgid "Starting swapspace $target"
 msgstr "启动 swapspace $target"
 
@@ -6382,13 +6383,8 @@ msgstr "开头"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:481 pkg/ovirt/components/ClusterVms.jsx:171
+#: pkg/machines/hostvmslist.jsx:481 pkg/ovirt/components/ClusterVms.jsx:176
 #: pkg/systemd/init.js:275
-msgid "State"
-msgstr "状态"
-
-#: pkg/storaged/index.html:570
-msgctxt "storage"
 msgid "State"
 msgstr "状态"
 
@@ -6397,7 +6393,7 @@ msgid "State:"
 msgstr "阶段："
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:138
-#: pkg/ovirt/components/ClusterVms.jsx:169
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Stateless"
 msgstr "无状态"
 
@@ -6433,14 +6429,22 @@ msgid "Sticky"
 msgstr "粘性的"
 
 #: pkg/docker/index.html:133 pkg/docker/containers-view.jsx:234
-#: pkg/storaged/details.jsx:331 pkg/storaged/swap-tab.jsx:75
+#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/swap-tab.jsx:75
 #: pkg/systemd/init.js:514
 msgid "Stop"
 msgstr "停止"
 
-#: pkg/storaged/details.jsx:333
+#: pkg/storaged/mdraid-details.jsx:299
 msgid "Stop Scrubbing"
 msgstr "停止擦除"
+
+#: pkg/storaged/overview.js:574
+msgid "Stop and remove"
+msgstr ""
+
+#: pkg/storaged/overview.js:431
+msgid "Stop and unmount"
+msgstr ""
 
 #: node_modules/registry-image-widgets/views/image-config.html:14
 msgid "Stop with"
@@ -6450,24 +6454,20 @@ msgstr "停止为"
 msgid "Stopped"
 msgstr "已停止"
 
-#: pkg/storaged/jobs.js:137
+#: pkg/storaged/jobs.js:100
 msgid "Stopping RAID Device $target"
 msgstr "停止 RAID 设备 $target"
 
-#: pkg/storaged/jobs.js:124
+#: pkg/storaged/jobs.js:87
 msgid "Stopping swapspace $target"
 msgstr "停止 swapspace $target"
 
 #: pkg/docker/index.html:281 pkg/storaged/index.html:23
-#: pkg/storaged/index.html:607
+#: pkg/storaged/details.jsx:130
 msgid "Storage"
 msgstr "存储"
 
-#: pkg/storaged/index.html:621
-msgid "Storage Log"
-msgstr "存储日志"
-
-#: pkg/storaged/index.html:340
+#: pkg/storaged/index.html:444
 msgid "Storage Logs"
 msgstr "存储日志"
 
@@ -6511,11 +6511,11 @@ msgstr "星期日"
 msgid "Suspend"
 msgstr "挂起"
 
-#: pkg/storaged/content-views.jsx:152
+#: pkg/storaged/content-views.jsx:151
 msgid "Swap"
 msgstr "交换空间"
 
-#: pkg/storaged/content-views.jsx:320
+#: pkg/storaged/content-views.jsx:319
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Swap 空间"
@@ -6544,11 +6544,11 @@ msgstr "切换到桌面查看器"
 msgid "Switch to In-Browser Viewer"
 msgstr "切换到浏览器查看器"
 
-#: pkg/ovirt/provider.es6:376
+#: pkg/ovirt/provider.es6:369
 msgid "Switching host to maintenance mode failed. Received error: "
 msgstr ""
 
-#: pkg/ovirt/provider.es6:362
+#: pkg/ovirt/provider.es6:363
 msgid "Switching host to maintenance mode in progress ..."
 msgstr ""
 
@@ -6590,7 +6590,7 @@ msgstr "已同步"
 msgid "Synchronized with {{Server}}"
 msgstr "与 {{Server}} 同步"
 
-#: pkg/storaged/jobs.js:145
+#: pkg/storaged/jobs.js:108
 msgid "Synchronizing RAID Device $target"
 msgstr "同步 RAID 设备 $target"
 
@@ -6643,7 +6643,7 @@ msgstr "目标门户"
 msgid "Target World Wide Names"
 msgstr "目标全球通用名称"
 
-#: pkg/systemd/services.html:52 pkg/storaged/overview.js:628
+#: pkg/systemd/services.html:52 pkg/storaged/overview.js:894
 msgid "Targets"
 msgstr "目标"
 
@@ -6668,7 +6668,7 @@ msgstr "组设置"
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
 #: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "Template"
 msgstr "模板"
 
@@ -6716,15 +6716,15 @@ msgstr "该系统上容器存储池不能被管理。"
 msgid "The IP address or host name cannot contain whitespace."
 msgstr "IP 地址或主机名不能包含空格。"
 
-#: pkg/storaged/index.html:530
+#: pkg/storaged/mdraid-details.jsx:218
 msgid "The RAID Array is in a degraded state"
 msgstr "RAID 阵列处于降级状态"
 
-#: pkg/storaged/sidebar-views.jsx:172
+#: pkg/storaged/mdraid-details.jsx:148
 msgid "The RAID device must be running in order to add spare disks."
 msgstr "为了添加备用的磁盘，RAID 设备必须在运行状态。"
 
-#: pkg/storaged/sidebar-views.jsx:138
+#: pkg/storaged/mdraid-details.jsx:114
 msgid "The RAID device must be running in order to remove disks."
 msgstr "为了移除磁盘，RAID 设备必须在运行状态。"
 
@@ -6798,6 +6798,12 @@ msgstr "当前用户不允许访问系统订阅状态。"
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "部署配置 '{{ target }}' 不存在。"
 
+#: pkg/storaged/index.html:715
+msgid ""
+"The filesystem is in use by system services or login sessions.               "
+" Proceeding will stop these services and sessions."
+msgstr ""
+
 #: pkg/packagekit/updates.jsx:347
 msgid "The following packages were recently updated:"
 msgstr "最近更新的软件包如下："
@@ -6829,11 +6835,11 @@ msgstr ""
 msgid "The key you provided was not valid."
 msgstr "您提供的 key 是无效的."
 
-#: pkg/storaged/sidebar-views.jsx:144
+#: pkg/storaged/mdraid-details.jsx:120
 msgid "The last disk of a RAID device cannot be removed."
 msgstr " RAID 设备中的最后一个磁盘不能被移除。"
 
-#: pkg/storaged/sidebar-views.jsx:278
+#: pkg/storaged/vgroup-details.jsx:94
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "不能删除一个卷组的最后一个物理卷。"
 
@@ -6937,7 +6943,7 @@ msgstr "用户 <b>$0</b> 没有权限创建定时器"
 msgid "The user <b>$0</b> is not permitted to manage servers"
 msgstr "用户 <b>$0</b> 不允许管理服务器"
 
-#: pkg/storaged/permissions.js:60 pkg/storaged/storage-controls.jsx:79
+#: pkg/storaged/permissions.js:60 pkg/storaged/storage-controls.jsx:64
 msgid "The user <b>$0</b> is not permitted to manage storage"
 msgstr "用户 <b>$0</b> 不允许管理存储"
 
@@ -6987,7 +6993,7 @@ msgstr "该系统上有多路径设备，但是多路径服务未运行。"
 msgid "There are no authorized public keys for this account."
 msgstr "存在未被该帐户授权的公钥."
 
-#: pkg/storaged/sidebar-views.jsx:284
+#: pkg/storaged/vgroup-details.jsx:100
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
@@ -6996,6 +7002,10 @@ msgstr "没有其他足够的空闲空间来移除改物理卷。至少需要 $0
 #: pkg/storaged/utils.js:175
 msgid "Thin Logical Volume"
 msgstr "稀疏逻辑卷"
+
+#: pkg/storaged/overview.js:481
+msgid "This NFS mount is in use and only its options can be changed."
+msgstr ""
 
 #: pkg/kubernetes/views/pvc-delete.html:8
 msgid ""
@@ -7017,33 +7027,33 @@ msgstr "该部署与当前启动的系统包含相同的软件包"
 msgid "This device cannot be managed here."
 msgstr "该设备不能在这里被管理。"
 
-#: pkg/storaged/index.html:837
+#: pkg/storaged/index.html:688
 msgid ""
 "This device has filesystems that are currently in use.                "
 "Proceeding will unmount all filesystems on it."
 msgstr "该设备有正在使用的文件系统。               程序将卸载其上的所有文件系统。"
 
-#: pkg/storaged/index.html:672
+#: pkg/storaged/index.html:509
 msgid "This device is currently used for RAID devices."
 msgstr "该设备正在被 RAID 设备使用。"
 
-#: pkg/storaged/index.html:855
+#: pkg/storaged/index.html:706
 msgid ""
 "This device is currently used for RAID devices.                Proceeding "
 "will remove it from its RAID devices."
 msgstr "该设备正在被 RAID 设备使用。                程序将从其 RAID 设备中移除它。"
 
-#: pkg/storaged/index.html:664
+#: pkg/storaged/index.html:501
 msgid "This device is currently used for volume groups."
 msgstr "该设备正在被卷组使用。"
 
-#: pkg/storaged/index.html:846
+#: pkg/storaged/index.html:697
 msgid ""
 "This device is currently used for volume groups.                Proceeding "
 "will remove it from its volume groups."
 msgstr "该设备正在被卷组使用。                程序将从其卷组中移除它。"
 
-#: pkg/storaged/sidebar-views.jsx:140
+#: pkg/storaged/mdraid-details.jsx:116
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "当磁盘正在恢复时，该磁盘不能被移除。"
 
@@ -7192,7 +7202,7 @@ msgstr "需要更新 cockpit-ws 到一个新版本来尝试一个不同的端口
 msgid "Token"
 msgstr "令牌"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:133
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:151
 msgid "Too many files found"
 msgstr "太多文件未找到"
 
@@ -7294,11 +7304,6 @@ msgstr "网址"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/index.html:546 pkg/storaged/index.html:591
-msgctxt "storage"
-msgid "UUID"
-msgstr "UUID"
-
 #: pkg/kdump/kdump-view.jsx:288
 msgid "Unable to apply settings: $0"
 msgstr "无法应用设置： $0"
@@ -7336,13 +7341,17 @@ msgstr "无法获取警告详情。"
 msgid "Unable to get alert: $0"
 msgstr "无法获取警告： $0"
 
-#: pkg/storaged/overview.js:591
+#: pkg/storaged/overview.js:857
 msgid "Unable to reach server"
 msgstr "无法到达服务器"
 
 #: pkg/kubernetes/scripts/dashboard.js:401
 msgid "Unable to read the Kubernetes application manifest. Code $0."
 msgstr "无法读取 Kubernetes 应用程序清单. 代码 $0."
+
+#: pkg/storaged/overview.js:572
+msgid "Unable to remove mount"
+msgstr ""
 
 #: pkg/users/local.js:59
 msgid "Unable to rename root account"
@@ -7359,6 +7368,10 @@ msgstr "无法运行修复： %0"
 #: pkg/selinux/setroubleshoot-client.js:52
 msgid "Unable to start setroubleshootd"
 msgstr "无法启动 setroubleshootd"
+
+#: pkg/storaged/overview.js:429
+msgid "Unable to unmount filesystem"
+msgstr ""
 
 #: pkg/playground/translate.html:34 pkg/playground/translate.html:39
 #: pkg/kubernetes/scripts/charts.js:112
@@ -7389,11 +7402,11 @@ msgstr "未知"
 msgid "Unknown \"$0\""
 msgstr "未知的 \"$0\""
 
-#: pkg/storaged/sidebar-views.jsx:127
+#: pkg/storaged/mdraid-details.jsx:103
 msgid "Unknown ($0)"
 msgstr "未知 ($0)"
 
-#: pkg/apps/application.jsx:83
+#: pkg/apps/application.jsx:95
 msgid "Unknown Application"
 msgstr "未知应用"
 
@@ -7405,7 +7418,7 @@ msgstr "未知主机密钥"
 msgid "Unknown configuration"
 msgstr "未知配置"
 
-#: pkg/storaged/overview.js:587
+#: pkg/storaged/overview.js:853
 msgid "Unknown host name"
 msgstr "未知主机名"
 
@@ -7413,8 +7426,8 @@ msgstr "未知主机名"
 msgid "Unless Stopped"
 msgstr "直到被停止"
 
-#: pkg/storaged/content-views.jsx:191 pkg/storaged/content-views.jsx:198
-#: pkg/storaged/content-views.jsx:211
+#: pkg/storaged/content-views.jsx:190 pkg/storaged/content-views.jsx:197
+#: pkg/storaged/content-views.jsx:210
 msgid "Unlock"
 msgstr "未锁定"
 
@@ -7434,7 +7447,7 @@ msgstr ""
 msgid "Unlocked"
 msgstr "解锁"
 
-#: pkg/storaged/jobs.js:120
+#: pkg/storaged/jobs.js:83
 msgid "Unlocking $target"
 msgstr "解锁 $target"
 
@@ -7446,11 +7459,11 @@ msgstr "未管理的接口"
 msgid "Unmask"
 msgstr "Unmask"
 
-#: pkg/storaged/fsys-tab.jsx:195
+#: pkg/storaged/index.html:312 pkg/storaged/fsys-tab.jsx:195
 msgid "Unmount"
 msgstr "卸载"
 
-#: pkg/storaged/jobs.js:126
+#: pkg/storaged/jobs.js:89
 msgid "Unmounting $target"
 msgstr "卸载 $target"
 
@@ -7458,11 +7471,11 @@ msgstr "卸载 $target"
 msgid "Unnamed"
 msgstr "未命名"
 
-#: pkg/storaged/content-views.jsx:154
+#: pkg/storaged/content-views.jsx:153
 msgid "Unrecognized Data"
 msgstr "无法识别的数据"
 
-#: pkg/storaged/content-views.jsx:325
+#: pkg/storaged/content-views.jsx:324
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "无法识别的数据"
@@ -7488,7 +7501,7 @@ msgstr "未解决的"
 msgid "Unsupported setup mechanism"
 msgstr "不支持的设置机制"
 
-#: pkg/storaged/content-views.jsx:615
+#: pkg/storaged/content-views.jsx:570
 msgid "Unsupported volume"
 msgstr "不支持的卷"
 
@@ -7613,8 +7626,8 @@ msgstr "用户名不能为空"
 msgid "User or Group"
 msgstr "用户或组"
 
-#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/overview.js:530
-#: pkg/storaged/overview.js:653
+#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/overview.js:796
+#: pkg/storaged/overview.js:919
 msgid "Username"
 msgstr "用户名"
 
@@ -7651,31 +7664,31 @@ msgstr "VLAN Id"
 msgid "VLAN Settings"
 msgstr "VLAN 设置"
 
-#: pkg/machines/libvirt.es6:177
+#: pkg/machines/libvirt.es6:186
 msgid "VM FORCE OFF action failed"
 msgstr "虚拟机强制关闭操作失败"
 
-#: pkg/machines/libvirt.es6:195
+#: pkg/machines/libvirt.es6:204
 msgid "VM FORCE REBOOT action failed"
 msgstr "虚拟机强制重启操作失败"
 
-#: pkg/machines/libvirt.es6:186
+#: pkg/machines/libvirt.es6:195
 msgid "VM REBOOT action failed"
 msgstr "虚拟机重启操作失败"
 
-#: pkg/machines/libvirt.es6:275
+#: pkg/machines/libvirt.es6:284
 msgid "VM SEND Non-Maskable Interrrupt action failed"
 msgstr "虚拟机发送非屏蔽中断操作失败"
 
-#: pkg/machines/libvirt.es6:168
+#: pkg/machines/libvirt.es6:177
 msgid "VM SHUT DOWN action failed"
 msgstr "虚拟机关机操作失败"
 
-#: pkg/machines/libvirt.es6:204
+#: pkg/machines/libvirt.es6:213
 msgid "VM START action failed"
 msgstr "虚拟机启动操作失败"
 
-#: pkg/ovirt/components/VmOverviewColumn.jsx:54
+#: pkg/ovirt/components/VmOverviewColumn.jsx:55
 msgid "VM icon"
 msgstr "虚拟机图标"
 
@@ -7723,7 +7736,7 @@ msgstr "版本"
 msgid "Version num"
 msgstr "版本号"
 
-#: pkg/storaged/jobs.js:136
+#: pkg/storaged/jobs.js:99
 msgid "Very securely erasing $target"
 msgstr "多重安全擦除 $target"
 
@@ -7735,21 +7748,22 @@ msgstr "查看注册详情"
 msgid "Virtual Machines"
 msgstr "虚拟机"
 
-#: pkg/ovirt/components/ClusterVms.jsx:163
+#: pkg/ovirt/components/ClusterVms.jsx:168
 msgid "Virtual Machines of $0 cluster"
 msgstr ""
 
 #: pkg/kubernetes/views/pv-page.html:13 pkg/kubernetes/views/pv-panel.html:10
 #: pkg/kubernetes/views/pvc-body.html:6 pkg/machines/vmdiskstab.jsx:55
-#: pkg/storaged/content-views.jsx:133
+#: pkg/storaged/content-views.jsx:132
 msgid "Volume"
 msgstr "卷"
 
-#: pkg/storaged/index.html:584 pkg/storaged/pvol-tabs.jsx:44
+#: pkg/storaged/pvol-tabs.jsx:44
 msgid "Volume Group"
 msgstr "卷组"
 
-#: pkg/storaged/storage-controls.jsx:180 pkg/storaged/utils.js:246
+#: pkg/storaged/storage-controls.jsx:171 pkg/storaged/utils.js:246
+#: pkg/storaged/vgroup-details.jsx:239
 msgid "Volume Group $0"
 msgstr "卷组 $0"
 
@@ -7820,16 +7834,11 @@ msgstr "当你遇到连接断开，更新将在后台继续。你可以重新连
 msgid "With terminal"
 msgstr "跟随终端"
 
-#: pkg/storaged/index.html:436
-msgctxt "storage"
-msgid "World Wide Name"
-msgstr "全局名称"
-
-#: pkg/storaged/sidebar-views.jsx:125
+#: pkg/storaged/mdraid-details.jsx:101
 msgid "Write-mostly"
 msgstr "Write-mostly"
 
-#: pkg/storaged/index.html:331
+#: pkg/storaged/index.html:434
 msgid "Writing"
 msgstr "写入中"
 
@@ -8093,7 +8102,7 @@ msgstr "未响应"
 msgid "none"
 msgstr "空"
 
-#: pkg/ovirt/provider.es6:57
+#: pkg/ovirt/provider.es6:58
 msgid "oVirt"
 msgstr "oVirt"
 
@@ -8147,7 +8156,7 @@ msgstr "在每周二"
 msgid "on Wednesdays"
 msgstr "在每周三"
 
-#: pkg/machines/libvirt.es6:433
+#: pkg/machines/libvirt.es6:442
 msgid "other"
 msgstr "其他"
 
@@ -8236,7 +8245,7 @@ msgstr "未定义"
 msgid "unknown"
 msgstr "未知"
 
-#: pkg/storaged/jobs.js:179
+#: pkg/storaged/jobs.js:141
 msgid "unknown target"
 msgstr "未知目标"
 
@@ -8249,7 +8258,7 @@ msgid "up"
 msgstr "运行中"
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:168
+#: pkg/ovirt/components/ClusterVms.jsx:173
 msgid "vCPUs"
 msgstr "虚拟处理器"
 

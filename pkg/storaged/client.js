@@ -334,6 +334,8 @@
 
         client.path_jobs = { };
         function enter_job(job) {
+            if (!job.Objects || !job.Objects.length)
+                return;
             job.Objects.forEach(function (path) {
                 client.path_jobs[path] = job;
                 var parent = utils.get_parent(client, path);

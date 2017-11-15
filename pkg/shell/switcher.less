@@ -34,7 +34,14 @@
         padding: 0;
         background: inherit;
         border: none;
-        transition: all 150ms ease-out;
+
+        &, > a {
+            transition: all 300ms;
+        }
+
+        &:hover, &:hover > a {
+            transition: all 150ms; // Speed up animation on hover
+        }
 
         &:hover,
         &.active {
@@ -515,7 +522,6 @@
                 width: 100% !important;
                 height: @mobile-button-size !important;
                 margin-bottom: 12px; // Hack to hide the scrollbar
-                transition: all 300ms;
             }
 
             &.active {

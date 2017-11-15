@@ -32,7 +32,7 @@ import tempfile
 import sys
 import time
 
-DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-26")
+DEFAULT_IMAGE = os.environ.get("TEST_OS", "fedora-27")
 
 MEMORY_MB = 1024
 

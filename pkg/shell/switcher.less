@@ -40,6 +40,10 @@
         &.active {
             /* Move hover & selected above overflow fade */
             z-index: 2;
+
+            a {
+                color: #fff;
+            }
         }
 
         &:hover {
@@ -48,6 +52,10 @@
 
         &.active {
             background: #4d5258;
+
+            a {
+                font-weight: 600;
+            }
         }
 
         a {
@@ -55,6 +63,7 @@
             display: block;
             color: #d1d1d1;
             text-decoration: none;
+            transition: all 300ms
         }
     }
 

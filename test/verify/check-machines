@@ -227,7 +227,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-vcpus", "1")
 
         b.wait_in_text("#vm-subVmTest1-bootorder", "disk,network")
-        emulated_machine = b.eval_js("$('#vm-subVmTest1-emulatedmachine').text()")
+        emulated_machine = b.text("#vm-subVmTest1-emulatedmachine")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
         # switch to and check Usage

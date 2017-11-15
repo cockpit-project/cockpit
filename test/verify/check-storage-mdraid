@@ -37,12 +37,13 @@ class TestStorage(StorageCase):
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {
           var found = { };
-          $('#detail-sidebar tr').each(function (i, tr) {
-            var cell = $(tr).find('td:nth-child(2)');
-            var name = $(cell).find('a').text();
-            var state = $(cell).find('span.state').text();
+          var trs = ph_select('#detail-sidebar tr');
+          for (i = 0; i < trs.length; ++i) {
+            var cell = trs[i].querySelector('td:nth-child(2)');
+            var name = cell.querySelector('a').textContent;
+            var state = cell.querySelector('span.state').textContent;
             found[name] = state;
-          });
+          };
           for (s in states) {
             if (states[s] != found[s])
               return false;

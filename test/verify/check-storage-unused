@@ -54,7 +54,7 @@ mkpart logical ext2 24 48"""
 
         b.eval_js("""
           ph_texts = function (sel) {
-            return $(sel).map(function (i, e) { return $(e).text(); }).get();
+            return ph_select(sel).map(function(e) { return e.textContent });
           }""")
 
         # Keep opening the dialog until exactly /dev/sda6 and /dev/sdb

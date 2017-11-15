@@ -209,17 +209,21 @@ class StorageCase(MachineCase):
     def dialog_set_expander(self, field, val):
         self.browser.call_js_func(
             """(function (sel, val) {
-                 if ($(sel).hasClass('collapsed') == val) {
-                    $(sel).click();
-                 }
+                 if ((ph_find(sel).className.indexOf('collapsed') >= 0) == val)
+                    ph_click(sel);
             })""", self.dialog_field(field), val)
 
     def dialog_set_combobox(self, field, val):
         self.browser.set_val(self.dialog_field(field) + " input[type=text]", val)
 
     def dialog_combobox_choices(self, field):
-        return self.browser.call_js_func("(function (sel) { return $(sel).find('li').get().map(function (elt) { return $(elt).text(); }) })",
-                                         self.dialog_field(field))
+        return self.browser.call_js_func("""(function (sel) {
+                                               var lis = ph_find(sel).querySelectorAll('li');
+                                               var result = [];
+                                               for (i = 0; i < lis.length; ++i)
+                                                 result.push(lis[i].textContent);
+                                               return result;
+                                             })""", self.dialog_field(field))
 
     def dialog_is_present(self, field, label):
         return self.browser.is_present('%s .checkbox:contains("%s") input' % (self.dialog_field(field), label))

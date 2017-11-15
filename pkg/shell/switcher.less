@@ -113,12 +113,23 @@
 
 
 .machine-dropdown {
+    position: relative;
     -webkit-flex: none;
     flex: none;
-    border-bottom: 1px solid #4d5258;
 
     .dropdown-toggle span {
         font-size: 14px;
+    }
+
+    &:after {
+        content: "";
+        position: absolute;
+        margin: 0 10px; // Jut out 5 pixels (15 - 5) on the sides
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: #4d5258;
     }
 }
 

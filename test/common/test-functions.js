@@ -5,10 +5,14 @@
  * for routine operations.
  */
 
+function ph_document() {
+    return document;
+}
+
 function ph_select(sel) {
     if (!window.Sizzle)
         throw "Sizzle was not properly loaded"
-    return window.Sizzle(sel);
+    return window.Sizzle(sel, ph_document());
 }
 
 function ph_only(els, sel)
@@ -52,7 +56,7 @@ function ph_set_val (sel, val)
     if (el.value === undefined)
         throw sel + " does not have a value";
     el.value = val;
-    var ev = document.createEvent("Event");
+    var ev = ph_document().createEvent("Event");
     ev.initEvent("change", true, false);
     el.dispatchEvent(ev);
 }
@@ -83,7 +87,7 @@ function ph_set_attr (sel, attr, val)
     else
         el.setAttribute(attr, val);
 
-    var ev = document.createEvent("Event");
+    var ev = ph_document().createEvent("Event");
     ev.initEvent("change", true, false);
     el.dispatchEvent(ev);
 }
@@ -100,7 +104,7 @@ function ph_click(sel, force) {
     if (!force && (el.offsetWidth <= 0 || el.offsetHeight <= 0))
         throw sel + " is not visible";
 
-    var ev = document.createEvent("MouseEvent");
+    var ev = ph_document().createEvent("MouseEvent");
     ev.initMouseEvent(
         "click",
         true /* bubble */, true /* cancelable */,
@@ -134,7 +138,7 @@ function ph_set_checked (sel, val)
         throw sel + " is not checkable";
     el.checked = val;
 
-    var ev = document.createEvent("Event");
+    var ev = ph_document().createEvent("Event");
     ev.initEvent("change", true, false);
     el.dispatchEvent(ev);
 }

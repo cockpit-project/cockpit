@@ -1181,7 +1181,7 @@ class TestRegistry(MachineCase):
         b.click("a.pull-right")
         b.wait_present("modal-dialog")
         b.wait_val("#imagestream-modify-project-text", "marmalade")
-        b.wait_js_cond("document.activeElement == document.getElementById('imagestream-modify-name')")
+        b.wait_js_cond("ph_document().activeElement == ph_document().getElementById('imagestream-modify-name')")
         b.set_val("#imagestream-modify-name", "sometags")
         b.wait_present("#imagestream-modify-populate")
         b.click("#imagestream-modify-populate button")

@@ -482,8 +482,8 @@ class TestMachines(MachineCase):
         b.switch_to_frame("vm-subVmTest1-novnc-frame-container")
         # FIXME: the usual b.wait_present() does not  work here
         with b.wait_timeout(360):
-            b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('noVNC_status_normal') >= 0"))
-        b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('Connected (unencrypted) to: QEMU (subVmTest1)') >= 0"))
+            b.wait(lambda: b.eval_js("ph_document().documentElement.outerHTML.indexOf('noVNC_status_normal') >= 0"))
+        b.wait(lambda: b.eval_js("ph_document().documentElement.outerHTML.indexOf('Connected (unencrypted) to: QEMU (subVmTest1)') >= 0"))
 
     def testDelete(self):
         b = self.browser

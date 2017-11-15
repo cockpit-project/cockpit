@@ -45,9 +45,6 @@
 
         &:hover,
         &.active {
-            /* Move hover & selected above overflow fade */
-            z-index: 2;
-
             a {
                 color: #fff;
             }
@@ -59,6 +56,8 @@
 
         &.active {
             background: #4d5258;
+            /* Move selected above overflow fade */
+            z-index: 3;
 
             a {
                 font-weight: 600;
@@ -90,15 +89,15 @@
         right: 0;
         height: 2rem;
         pointer-events: none;
-        z-index: 1;
+        z-index: 2;
         /* Accomodate scrollbars with margin (IE11 needs 18px; rest are less) */
         margin-right: 18px;
     }
 
     .dropdown-toggle:after {
         background: linear-gradient(to bottom, #393f44, rgba(57, 63, 68, 0));
-        top: 100%;
         margin-top: 1px;
+        bottom: -2rem; // Move down by the same size as the height
     }
 
     &:after {

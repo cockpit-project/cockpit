@@ -34,26 +34,29 @@ class TestJournal(MachineCase):
         def inject_extras():
             b.eval_js("""
             ph_get_log_lines = function () {
-                var lines = [ ], i;
-                $('.cockpit-log-panel').children().each(function (i, e) {
-                    var $e = $(e);
-                    if ($e.is('.panel-heading')) {
-                        lines.push ($e.text());
+                var lines = [ ];
+                var panels = ph_find('.cockpit-log-panel').childNodes;
+                for (var i = 0; i < panels.length; ++i) {
+                    var e = panels[i];
+                    if (e.className === 'panel-heading') {
+                        lines.push (e.textContent);
                     } else {
-                        var msg = $e.find('.cockpit-log-message').text();
+                        var msg = e.querySelector('.cockpit-log-message');
+                        msg = msg ? msg.textContent : "";
                         var ident = '';
                         var count = '';
-                        if ($e.find('.cockpit-log-service-container').length > 0) {
-                            ident = $e.find('.cockpit-log-service-reduced').text();
+                        if (e.querySelectorAll('.cockpit-log-service-container').length > 0) {
+                            ident = e.querySelector('.cockpit-log-service-reduced').textContent;
                             // we need to slice the whitespace
-                            count = $e.find('.badge').text().slice(0, -1);
+                            count = e.querySelector('.badge').textContent.slice(0, -1);
                         } else {
-                            ident = $e.find('.cockpit-log-service').text();
+                            ident = e.querySelector('.cockpit-log-service');
+                            ident = ident ? ident.textContent : "";
                         }
                         lines.push ([ ident, msg, count ]);
                     }
-                });
-                var journal_start_text = $('.journal-start').text();
+                }
+                var journal_start_text = ph_find('.journal-start').textContent;
                 if (journal_start_text !== "")
                     lines.push(journal_start_text);
                 // console.log(JSON.stringify(lines));

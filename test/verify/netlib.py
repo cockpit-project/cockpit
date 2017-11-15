@@ -91,7 +91,7 @@ class NetworkCase(MachineCase):
             self.browser.wait_in_text(sel, text)
         except:
             print("Interface %s didn't show up." % iface)
-            print(self.browser.eval_js("$('#networking-interfaces').html()"))
+            print(self.browser.eval_js("ph_find('#networking-interfaces').outerHTML"))
             print(self.machine.execute("grep . /sys/class/net/*/address"))
             raise
 

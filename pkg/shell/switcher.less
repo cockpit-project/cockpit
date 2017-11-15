@@ -34,6 +34,7 @@
         padding: 0;
         background: inherit;
         border: none;
+        z-index: 1;
 
         &, > a {
             transition: all 300ms;
@@ -45,6 +46,9 @@
 
         &:hover,
         &.active {
+            /* Move hover & selected above overflow fade */
+            z-index: 3;
+
             a {
                 color: #fff;
             }
@@ -56,8 +60,6 @@
 
         &.active {
             background: #4d5258;
-            /* Move selected above overflow fade */
-            z-index: 3;
 
             a {
                 font-weight: 600;

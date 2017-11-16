@@ -183,6 +183,11 @@ class GitHub(object):
                 self.conn.request(method, self.qualify(resource), data, headers)
                 response = self.conn.getresponse()
                 break
+            # This happens when TLS is the source of a disconnection
+            except socket.error as ex:
+                if connected or ex.errno != errno.EPIPE:
+                    raise
+                self.conn = None
             # This happens when GitHub disconnects a keep-alive connection
             except httplib.BadStatusLine:
                 if connected:

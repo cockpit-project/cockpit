@@ -27,18 +27,31 @@
 
     .list-group {
         border: none;
+        margin: 10px 0;
     }
 
     .list-group-item {
         padding: 0;
         background: inherit;
         border: none;
-        transition: all 150ms ease-out;
+        z-index: 1;
+
+        &, > a {
+            transition: all 300ms;
+        }
+
+        &:hover, &:hover > a {
+            transition: all 150ms; // Speed up animation on hover
+        }
 
         &:hover,
         &.active {
             /* Move hover & selected above overflow fade */
-            z-index: 2;
+            z-index: 3;
+
+            a {
+                color: #fff;
+            }
         }
 
         &:hover {
@@ -47,6 +60,10 @@
 
         &.active {
             background: #4d5258;
+
+            a {
+                font-weight: 600;
+            }
         }
 
         a {
@@ -54,6 +71,7 @@
             display: block;
             color: #d1d1d1;
             text-decoration: none;
+            transition: all 300ms
         }
     }
 
@@ -62,7 +80,6 @@
     .dropdown-toggle {
         position: relative;
         overflow: visible !important;
-        margin: 0; // Override patternfly
     }
 
     .dropdown-toggle:after,
@@ -74,15 +91,15 @@
         right: 0;
         height: 2rem;
         pointer-events: none;
-        z-index: 1;
+        z-index: 2;
         /* Accomodate scrollbars with margin (IE11 needs 18px; rest are less) */
         margin-right: 18px;
     }
 
     .dropdown-toggle:after {
         background: linear-gradient(to bottom, #393f44, rgba(57, 63, 68, 0));
-        top: 100%;
         margin-top: 1px;
+        bottom: -2rem; // Move down by the same size as the height
     }
 
     &:after {
@@ -104,12 +121,23 @@
 
 
 .machine-dropdown {
+    position: relative;
     -webkit-flex: none;
     flex: none;
-    border-bottom: 1px solid #4d5258;
 
     .dropdown-toggle span {
         font-size: 14px;
+    }
+
+    &:after {
+        content: "";
+        position: absolute;
+        margin: 0 10px; // Jut out 5 pixels (15 - 5) on the sides
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: #4d5258;
     }
 }
 
@@ -461,6 +489,7 @@
         max-width: 100%;
         overflow: hidden;
         overflow-x: auto;
+        background: linear-gradient(to bottom, #030303, #292e34 1px);
 
         ul, li {
             padding: 0;
@@ -484,6 +513,7 @@
             margin: 0 !important;
             padding: 0 !important;
             position: static;
+            max-width: 33vw;
 
             a {
                 display: inline-block !important;
@@ -495,7 +525,6 @@
                 width: 100% !important;
                 height: @mobile-button-size !important;
                 margin-bottom: 12px; // Hack to hide the scrollbar
-                transition: all 300ms;
             }
 
             &.active {

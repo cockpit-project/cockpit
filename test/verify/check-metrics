@@ -129,12 +129,8 @@ class TestMetrics(MachineCase):
         if m.image not in ["rhel-7-4"]:
             m.spawn("ping -w 5 -f -c 10000000 -s 50000  127.0.0.1", "load-net-lo.log")
             try:
-                old_timeout = b.phantom.timeout
-                b.phantom.timeout = 10
-                try:
+                with b.wait_timeout(10):
                     b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
-                finally:
-                    b.phantom.timeout = old_timeout
                 self.fail("Unexpected traffic graph for localhost")
             except Error as ex:
                 if not ex.msg.startswith('timeout'):

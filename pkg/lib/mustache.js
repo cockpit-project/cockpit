@@ -40,9 +40,15 @@ function translate(template) {
 /* Just like the mustache object, except for translated */
 module.exports = cockpit.extend({ }, mustache, {
     render: function render(template, view, partials) {
+        if (!view)
+            view = {};
+
         return translate(mustache.render(template, view, partials));
     },
     to_html: function to_html(template, view, partials, send) {
+        if (!view)
+            view = {};
+
         return translate(mustache.to_html(template, view, partials, send));
     },
     clearCache: function clearCache() {

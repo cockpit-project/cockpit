@@ -166,6 +166,7 @@
       {{#HasDrives}}
       <table class="table table-hover">
         {{#Drives}}
+        {{#.}}
         <tr data-goto-block="{{dev}}" {{#Highlight}}class="highlight-ct"{{/Highlight}}>
           <td class="storage-icon">
             <div><img  src="images/storage-disk.png"></div>
@@ -184,6 +185,7 @@
             <div class="spinner spinner-sm" data-job-object="{{path}}"></div>
           </td>
         </tr>
+        {{/.}}
         {{/Drives}}
       </table>
       {{/HasDrives}}

@@ -391,25 +391,6 @@ bastion hosts, and a basic dashboard.
 %files dashboard -f dashboard.list
 %{_libexecdir}/cockpit-ssh
 
-%post dashboard
-# HACK: Until policy changes make it downstream
-echo "Applying workaround for broken SELinux policy: https://bugzilla.redhat.com/show_bug.cgi?id=1381331" >&2
-if type semanage >/dev/null 2>&1; then
-    semanage fcontext -a %{_libexecdir}/cockpit-ssh -t cockpit_ws_exec_t || true
-    restorecon %{_libexecdir}/cockpit-ssh || true
-else
-    chcon -t cockpit_ws_exec_t %{_libexecdir}/cockpit-ssh || true
-fi
-%if 0%{?fedora} > 0 && 0%{?fedora} >= 26
-if type semodule >/dev/null 2>&1; then
-    tmp=$(mktemp -d)
-    echo 'module local 1.0; require { type cockpit_ws_exec_t; type cockpit_ws_t; class file execute_no_trans; } allow cockpit_ws_t cockpit_ws_exec_t:file execute_no_trans;' > "$tmp/local.te"
-    checkmodule -M -m -o "$tmp/local.mod" "$tmp/local.te"
-    semodule_package -o "$tmp/local.pp" -m "$tmp/local.mod"
-    semodule -i "$tmp/local.pp"
-    rm -rf "$tmp"
-fi
-%endif
 %endif
 
 # storaged on RHEL 7.4 and Fedora < 27, udisks on newer ones

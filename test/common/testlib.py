@@ -640,38 +640,13 @@ class MachineCase(unittest.TestCase):
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",
-
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1298157
-        "(audit: )?type=1400 .*granted.*comm=\"tuned\".*",
-
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1298171
-        "(audit: )?type=1400 .*denied.*comm=\"iptables\".*name=\"xtables.lock\".*",
-
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1386624
-        ".*type=1400 .*denied  { name_bind } for.*dhclient.*",
-
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1419263
-        ".*type=1400 .*denied  { write } for.*firewalld.*__pycache__.*",
+        # happens on Atomic (https://bugzilla.redhat.com/show_bug.cgi?id=1298157)
+        "(audit: )?type=1400 audit.*: avc:  granted .*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ssh\".*name=\"unix\".*dev=\"proc\".*",
-
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1374820
-        "(audit: )?type=1400 .*denied.*comm=\"systemd\" path=\"/run/systemd/inaccessible/blk\".*",
-
-        # SELinux fighting with systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
-        "(audit: )?type=1400 audit.*systemd-journal.*path=2F6D656D66643A73642D73797374656D642D636F726564756D202864656C6574656429",
-
-        # SELinux and plymouth: https://bugzilla.redhat.com/show_bug.cgi?id=1427884
-        "(audit: )?type=1400 audit.*connectto.*plymouth.*unix_stream_socket.*",
-
-        # SELinux and nfs-utils fighting: https://bugzilla.redhat.com/show_bug.cgi?id=1447854
-        ".*type=1400 .*denied  { execute } for.*sm-notify.*init_t.*",
-
-        # SELinux prevents agetty from being executed by systemd: https://bugzilla.redhat.com/show_bug.cgi?id=1449569
-        ".*type=1400 .*denied  { execute } for.*agetty.*init_t.*",
 
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",
@@ -684,14 +659,6 @@ class MachineCase(unittest.TestCase):
         'calling: info',
         'Sent message type=method_call sender=.*',
         'Got message type=method_return sender=.*',
-
-        # HACK: https://github.com/systemd/systemd/pull/1758
-        'Error was encountered while opening journal files:.*',
-        'Failed to get data: Cannot assign requested address',
-
-        # HACK https://bugzilla.redhat.com/show_bug.cgi?id=1461893
-        # selinux errors while logging in via ssh
-        'type=1401 audit(.*): op=security_compute_av reason=bounds .* tclass=process perms=transition.*',
 
         # Various operating systems see this from time to time
         "Journal file.*truncated, ignoring file.",
@@ -713,15 +680,11 @@ class MachineCase(unittest.TestCase):
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
                                     "connection unexpectedly closed by peer",
                                     "peer did not close io when expected",
-                                    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1141137
-                                    "localhost: bridge program failed: Child process killed by signal 9",
                                     "request timed out, closing",
                                     "PolicyKit daemon disconnected from the bus.",
                                     ".*couldn't create polkit session subject: No session for pid.*",
                                     "We are no longer a registered authentication agent.",
                                     ".*: failed to retrieve resource: terminated",
-                                    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1253319
-                                    'audit:.*denied.*2F6D656D66643A73642D73797374656D642D636F726564756D202864656C.*',
                                     'audit:.*denied.*comm="systemd-user-se".*nologin.*',
 
                                     'localhost: dropping message while waiting for child to exit',

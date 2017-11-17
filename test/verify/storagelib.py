@@ -74,7 +74,7 @@ class StorageCase(MachineCase):
         b = self.browser
         tbody = "#detail-content tbody:nth-of-type(%d)" % index
         b.wait_present(tbody)
-        if not "open" in b.attr(tbody, "class"):
+        if not "open" in (b.attr(tbody, "class") or ""):
             b.click(tbody + " tr.listing-ct-item")
             b.wait_present(tbody + ".open")
 

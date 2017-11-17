@@ -35,8 +35,7 @@ from testlib import *
 # Returns whether Cockpit can add disks and reset the pool.
 #
 def can_manage(machine):
-    return machine.image in [ "fedora-25",
-                              "fedora-26",
+    return machine.image in [ "fedora-26",
                               "fedora-27",
                               "fedora-testing",
                               "rhel-7",

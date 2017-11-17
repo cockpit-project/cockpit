@@ -59,7 +59,6 @@ You can set these environment variables to configure the test suite:
                 "centos-7"
                 "debian-stable"
                 "debian-testing"
-                "fedora-25"
                 "fedora-26"
                 "fedora-27"
                 "fedora-atomic"
@@ -124,7 +123,7 @@ A test machine image created by image-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
 working copy of Cockpit like this:
 
-  $ bots/image-prepare fedora-25
+  $ bots/image-prepare
 
 This either needs a configured/built tree (build in mock or a development VM)
 or cockpit's build dependencies installed.

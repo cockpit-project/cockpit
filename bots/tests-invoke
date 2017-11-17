@@ -327,9 +327,7 @@ class PullTask(object):
         # Split a value like verify/fedora-atomic
         (prefix, unused, value) = self.context.partition("/")
 
-        if prefix in [ 'selenium', 'avocado' ]:
-            image = 'fedora-25'
-        elif prefix in [ 'container' ]:
+        if prefix in [ 'selenium', 'container', 'avocado' ]:
             image = 'fedora-26'
         else:
             image = value

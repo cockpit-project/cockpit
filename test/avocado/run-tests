@@ -161,7 +161,7 @@ done;
 
 def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
     use_selenium = (browser != 'none')
-    image = os.environ.get("TEST_OS", "fedora-25")
+    image = os.environ.get("TEST_OS", "fedora-26")
     network = testvm.VirtNetwork()
     machine = testvm.VirtMachine(verbose=verbose, networking=network.host(), image=image)
     selenium = windows = None

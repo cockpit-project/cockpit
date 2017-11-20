@@ -643,7 +643,7 @@ class TestUpdatesSubscriptions(PackageCase):
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("too old dnf-automatic", "fedora-25", "fedora-i386")
+@skipImage("too old dnf-automatic", "fedora-25")
 class TestAutoUpdates(PackageCase):
     def setUp(self):
         PackageCase.setUp(self)

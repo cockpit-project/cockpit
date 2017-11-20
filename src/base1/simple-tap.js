@@ -5,14 +5,14 @@ var test = { };
     var is_partial = false;
 
     window.onerror = function(error, file, line) {
-        console.log("phantom-tap-error");
+        console.log("cockpittest-tap-error");
         window.clearTimeout(timeout);
         return false;
     };
 
     timeout = window.setTimeout(function() {
         console.log("test timed out, failed");
-        console.log("phantom-tap-error");
+        console.log("cockpittest-tap-error");
     }, 60000);
 
     test.log = function log(message) {
@@ -44,7 +44,7 @@ var test = { };
                 expect = count;
 
             test.log("1.." + expect);
-            console.log("phantom-tap-done");
+            console.log("cockpittest-tap-done");
         }
 
         window.clearTimeout(timeout);

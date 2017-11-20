@@ -754,8 +754,43 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             });
         }
 
+        function css_content(elt) {
+            var styles, i;
+            var style, content;
+            var el_style, el_content;
+
+            if (elt)
+                style = window.getComputedStyle(elt, ":before");
+            if (!style)
+                return;
+
+            content = style.content;
+            // Old branding had style on the element itself
+            if (!content) {
+                el_style = window.getComputedStyle(elt);
+                if (el_style)
+                    el_content = el_style.content;
+            }
+
+            // getComputedStyle is broken for pseudo elements
+            // in Phantomjs and some old browsers
+            // those support the depricated getMatchedCSSRules
+            if (!content && style.length === 0 && window.getMatchedCSSRules) {
+                styles = window.getMatchedCSSRules(elt, ":before") || [];
+                for (i = 0; i < styles.length; i++) {
+                    if (styles[i].style.content) {
+                        content = styles[i].style.content;
+                        break;
+                    }
+                }
+            }
+
+            return content || el_content;
+        }
+
         /* Branding */
         function setup_brand(id, default_title) {
+            var elt = $(id)[0];
             var os_release = {};
             try {
                 os_release = JSON.parse(window.localStorage['os-release'] || "{}");
@@ -763,13 +798,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 console.warn("Couldn't parse os-release", ex);
             }
 
-            var style, elt = $(id)[0];
-            if (elt)
-                style = window.getComputedStyle(elt);
-            if (!style)
-                return;
-
-            var len, content = style.content;
+            var len, content = css_content(elt);
             if (content && content != "none" && content != "normal") {
                 len = content.length;
                 if ((content[0] === '"' || content[0] === '\'') &&
@@ -777,6 +806,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                     content = content.substr(1, len - 2);
                 elt.innerHTML = cockpit.format(content, os_release) || default_title;
                 return $(elt).text();
+            } else {
+                elt.removeAttribute("class");
             }
         }
 

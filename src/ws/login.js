@@ -101,7 +101,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
     function brand(_id, def) {
         var style, elt = id(_id);
         if (elt)
-            style = window.getComputedStyle(elt);
+            style = window.getComputedStyle(elt, ":before");
+
         if (!style)
             return;
 
@@ -112,6 +113,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 len > 2 && content[len - 1] === content[0])
                 content = content.substr(1, len - 2);
             elt.innerHTML = content || def;
+        } else {
+            elt.removeAttribute("class");
         }
     }
 

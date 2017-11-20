@@ -112,17 +112,17 @@ function run(url) {
 
     page.onConsoleMessage = function(msg, lineNum, sourceId) {
         /* All done with testing */
-        if (msg === "phantom-tap-done") {
+        if (msg === "cockpittest-tap-done") {
             if (proc) {
                 proc.kill("TERM");
             } else {
                 setTimeout(function() { phantom.exit(0); }, 0);
             }
 
-        } else if (msg == "phantom-tap-error")
+        } else if (msg == "cockpittest-tap-error")
             setTimeout(function() { phantom.exit(1); }, 0);
 
-	else if (msg == "phantom-tap-expect-resource-error")
+	else if (msg == "cockpittest-tap-expect-resource-error")
             page.onResourceError = null;
 
         /* TAP lines go to stdout */

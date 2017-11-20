@@ -121,7 +121,7 @@ QUnit.asyncTest("external websocket", function() {
 });
 
 cockpit.transport.wait(function() {
-    /* Tell tap-phantom not to worry about HTTP failures past this point */
-    console.log("phantom-tap-expect-resource-error");
+    /* Tell tap driver not to worry about HTTP failures past this point */
+    console.log("cockpittest-tap-expect-resource-error");
     QUnit.start();
 });

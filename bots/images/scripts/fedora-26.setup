@@ -84,6 +84,7 @@ python2-avocado-plugins-output-html \
 fontconfig \
 npm \
 python2-selenium \
+chromium-headless \
 "
 
 rm -rf /etc/sysconfig/iptables
@@ -103,6 +104,8 @@ dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $ABRT
 
 # for avocado/fedora integration test
 npm -g install phantomjs-prebuilt
+npm -g install chrome-remote-interface
+echo 'NODE_PATH=/usr/lib/node_modules' >> /etc/environment
 
 # Prepare for building
 dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build

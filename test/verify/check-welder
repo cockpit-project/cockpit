@@ -1,0 +1,104 @@
+#!/usr/bin/python2
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from packagelib import PackageCase
+
+class RecipesPage:
+    btnCreateRecipe = 'form.toolbar-pf-actions button[data-target="#cmpsr-modal-crt-recipe"]'
+    linkRecipeName = 'a[href="#/recipe/"]'
+    labelRecipeDescr = '.list-group-item-text'
+
+    #  static recipeNameSelector(name) {
+    #    return `a[href="#/recipe/${name}"]`;
+    #  }
+    #
+    #  // Create Composition button
+    #  static btnCreateCompos(name) {
+    #    return `a[href="#/edit/${name}"] + .btn-default`;
+    #  }
+    #
+    #  // More button
+    #  static btnMore(name) {
+    #    return `a[href="#/edit/${name}"] ~ div > button`;
+    #  }
+    #
+    #  // Export action in dropdown menu
+    #  static menuActionExport(name) {
+    #    return `a[href="#/edit/${name}"] ~ div ul > li:nth-child(1) > a`;
+    #  }
+
+class CreateRecipePage:
+    recipeName = 'automation'
+    recipeDescription = 'UI automation recipe'
+    dialogRoot = 'div[id="cmpsr-modal-crt-recipe"]'
+    labelCreateRecipe = dialogRoot + ' #myModalLabel'
+    inputName = dialogRoot + ' #textInput-modal-markup'
+    inputDescription = dialogRoot + ' #textInput2-modal-markup'
+    btnClose = dialogRoot + ' .modal-header .close'
+    btnSave = dialogRoot + ' .modal-footer .btn-primary'
+    btnCancel = dialogRoot + ' .modal-footer .btn-default'
+
+
+class EditRecipePage:
+    navBarRootElement = 'ol[class="breadcrumb"]'
+    editActionBarRootElement = 'div[class="cmpsr-header__actions"]'
+    titleBarRootElement = 'div[class="cmpsr-title"]'
+    recipeInputRootElement = '.cmpsr-panel__body--sidebar'
+    recipeListEditRootElement = '.cmpsr-panel__body--main'
+    componentListItemRootElement = recipeInputRootElement + ' .cmpsr-list-pf__compacted .list-pf-item'
+
+
+@skipImage("Not packaged for Debian/Ubuntu", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604")
+@skipImage("Not available on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No backend available", "fedora-26", "fedora-27", "fedora-i386", "fedora-testing")
+@skipImage("Backend missing on test images", "rhel-7-4", "rhel-7-5")
+class TestWelder(PackageCase):
+    def setUp(self):
+        super(TestWelder, self).setUp()
+
+        # create local package repository for the API
+        self.createPackage("bread", "1.0", "1")
+        self.createPackage("cheese", "2.0", "2", depends="bread")
+        self.enableRepo()
+
+        # start API and wait until it is up
+        self.machine.execute("systemctl start lorax-composer.service")
+        wait(lambda: self.machine.execute("curl --silent http://localhost:4000/api/v0/test") == "API v0 test")
+
+    def testCreateAndSwitchToEditPage(self):
+        b = self.browser
+
+        self.login_and_go("/welder")
+        b.wait_present(RecipesPage.btnCreateRecipe)
+        b.click(RecipesPage.btnCreateRecipe)
+        b.wait_js_cond("document.querySelector('%s').style.display === 'block'" % CreateRecipePage.dialogRoot)
+        # set_val doesn't work due to the input validation callbacks, so type in the name
+        b.focus(CreateRecipePage.inputName)
+        b.key_press(list(CreateRecipePage.recipeName))
+        b.set_val(CreateRecipePage.inputDescription, CreateRecipePage.recipeDescription)
+        b.click(CreateRecipePage.btnSave)
+
+        # should switch to Edit Recipe page
+        b.wait_present(EditRecipePage.componentListItemRootElement)
+
+if __name__ == '__main__':
+    test_main()

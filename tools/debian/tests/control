@@ -2,17 +2,3 @@ Tests: smoke
 Depends: cockpit,
          curl,
 Restrictions: isolation-container
-
-Tests: avocado
-Depends: cockpit,
-         python,
-         python-pip,
-         python-wheel,
-         python-setuptools,
-         python-libvirt,
-         npm,
-         libfontconfig1,
-         curl,
-         phantomjs,
-# test changes PAM configs and creates admin users
-Restrictions: needs-root, allow-stderr, isolation-machine, breaks-testbed

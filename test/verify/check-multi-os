@@ -239,7 +239,9 @@ class TestMultiOSDirect(MachineCase):
         b.switch_to_top()
 
         # Branding uses default because there is no os information
-        b.wait_in_text("#index-brand", "Cockpit")
+        b.wait_present("#index-brand")
+        b.wait_not_present("#index-brand.hide-before")
+
         b.wait_js_cond('window.location.pathname.indexOf("shell/index.html") > -1')
 
 if __name__ == '__main__':

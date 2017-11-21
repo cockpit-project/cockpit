@@ -25,6 +25,7 @@ import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId } from "./hel
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './vmdiskstab.jsx';
+import VmNetworkTab from './vmnetworktab.jsx';
 import GraphicsConsole from './components/graphicsConsole.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 
@@ -401,18 +402,20 @@ VmUsageTab.propTypes = {
 
 /** One VM in the list (a row)
  */
-const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceReboot,
+const Vm = ({ vm, config, hostDevices, onStart, onShutdown, onForceoff, onReboot, onForceReboot,
               onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch }) => {
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} />);
 
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
+    const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Networks")}</div>);
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Console")}</div>);
 
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm, config: config }},
         {name: usageTabName, renderer: VmUsageTab, data: {vm, onUsageStartPolling, onUsageStopPolling}, presence: 'onlyActive' },
         {name: disksTabName, renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' },
+        {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, hostDevices }},
         {name: consolesTabName, renderer: GraphicsConsole, data: { vm, config, dispatch }}
     ];
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
@@ -449,6 +452,7 @@ const Vm = ({ vm, config, onStart, onShutdown, onForceoff, onReboot, onForceRebo
 Vm.propTypes = {
     vm: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
+    hostDevices: PropTypes.object.isRequired,
     onStart: PropTypes.func.isRequired,
     onShutdown: PropTypes.func.isRequired,
     onForceoff: PropTypes.func.isRequired,
@@ -463,41 +467,63 @@ Vm.propTypes = {
 /**
  * List of all VMs defined on this host
  */
-const HostVmsList = ({ vms, config, dispatch, actions }) => {
-    if (vms.length === 0) {
+class HostVmsList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.deviceProxyHandler = this.deviceProxyHandler.bind(this);
+        this.client = cockpit.dbus("org.freedesktop.NetworkManager", {});
+        this.deviceProxies = this.client.proxies("org.freedesktop.NetworkManager.Device");
+        this.deviceProxies.addEventListener('changed', this.deviceProxyHandler);
+        this.deviceProxies.addEventListener('removed', this.deviceProxyHandler);
+    }
+
+    componentWillUnmount() {
+        this.client.close();
+    }
+
+    deviceProxyHandler() {
+        this.forceUpdate();
+    }
+
+    render() {
+        const { vms, config, dispatch, actions } = this.props;
+        if (vms.length === 0) {
+            return (<div className='container-fluid'>
+                <NoVm />
+            </div>);
+        }
+
+        const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
+
+        let allActions = []; // like createVmAction
+        if (actions) {
+            allActions = allActions.concat(actions);
+        }
+
         return (<div className='container-fluid'>
-            <NoVm />
+            <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]} actions={allActions}>
+                {vms
+                    .sort(sortFunction)
+                    .map(vm => {
+                    return (
+                        <Vm vm={vm} config={config}
+                            hostDevices={this.deviceProxies}
+                            onStart={() => dispatch(startVm(vm))}
+                            onReboot={() => dispatch(rebootVm(vm))}
+                            onForceReboot={() => dispatch(forceRebootVm(vm))}
+                            onShutdown={() => dispatch(shutdownVm(vm))}
+                            onForceoff={() => dispatch(forceVmOff(vm))}
+                            onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
+                            onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
+                            onSendNMI={() => dispatch(sendNMI(vm))}
+                            dispatch={dispatch}
+                        />);
+                })}
+            </Listing>
         </div>);
     }
+}
 
-    const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
-
-    let allActions = []; // like createVmAction
-    if (actions) {
-        allActions = allActions.concat(actions);
-    }
-
-    return (<div className='container-fluid'>
-        <Listing title={_("Virtual Machines")} columnTitles={[_("Name"), _("Connection"), _("State")]} actions={allActions}>
-            {vms
-                .sort(sortFunction)
-                .map(vm => {
-                return (
-                    <Vm vm={vm} config={config}
-                        onStart={() => dispatch(startVm(vm))}
-                        onReboot={() => dispatch(rebootVm(vm))}
-                        onForceReboot={() => dispatch(forceRebootVm(vm))}
-                        onShutdown={() => dispatch(shutdownVm(vm))}
-                        onForceoff={() => dispatch(forceVmOff(vm))}
-                        onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
-                        onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
-                        onSendNMI={() => dispatch(sendNMI(vm))}
-                        dispatch={dispatch}
-                    />);
-            })}
-        </Listing>
-    </div>);
-};
 HostVmsList.propTypes = {
     vms: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,

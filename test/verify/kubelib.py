@@ -645,7 +645,7 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present("svg g.Node")
         b.wait_js_func(
             """(function() {
-                var el = window.Sizzle("svg g.Node");
+                var el = ph_select("svg g.Node");
                 var i;
                 for (i = 0; i < el.length; i++) {
                     var x = el[i].getAttribute("cx");

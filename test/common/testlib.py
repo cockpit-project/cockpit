@@ -829,7 +829,7 @@ class Phantom:
             "%s/phantom-command" % path,
             "%s/phantom-driver.js" % path,
             "%s/sizzle.js" % path,
-            "%s/phantom-lib.js" % path
+            "%s/test-functions.js" % path
         ]
         self.valid = True
         self._driver = subprocess.Popen(command, env=environ,

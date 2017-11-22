@@ -967,8 +967,8 @@ $(function() {
         $("#description").val("");
         $("#servicename").val("");
         set_boot_or_calendar(1);
-        $("span", $("#boot-or-specific-time")).first().text("After system boot");
-        $("span", $("#drop-time")).first().text("Seconds");
+        $("span", $("#boot-or-specific-time")).first().text(_("After system boot"));
+        $("span", $("#drop-time")).first().text(_("Seconds"));
         $("span", $("#drop-time")).first().attr("value", "1");
         $(".form-control").removeClass("has-error");
         $(".has-error").hide();
@@ -1118,7 +1118,7 @@ $(function() {
             $("#specific-time-error-row").hide();
             $("#repeat-options").show();
             repeat_options(0);
-            $("span", $("#drop-repeat")).first().text("Don't Repeat");
+            $("span", $("#drop-repeat")).first().text(_("Don't Repeat"));
             timer_unit.Calendar_or_Boot = "Calendar";
         }
     }

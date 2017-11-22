@@ -408,9 +408,9 @@ $(function() {
 
         $('#journal-entry-message').text('');
 
-        var ge_t = $('<li class="active">').append($('<a>').append($('<span translatable="yes">').text('General')));
-        var pi_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text('Problem info')));
-        var pd_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text('Problem details')));
+        var ge_t = $('<li class="active">').append($('<a>').append($('<span translatable="yes">').text(_("General"))));
+        var pi_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text(_("Problem info"))));
+        var pd_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text(_("Problem details"))));
 
         var ge = $('<div>');
         var pi = $('<div>');
@@ -427,14 +427,14 @@ $(function() {
                     r_btn = $('<a class="problem-btn">')
                             .attr('href', url)
                             .attr("target", "_blank")
-                            .text('Reported');
+                            .text(_("Reported"));
                     break;
                 }
             }
         }
 
         else if (problem.CanBeReported){
-            r_btn = $('<button class="btn btn-primary problem-btn">').text('Report');
+            r_btn = $('<button class="btn btn-primary problem-btn">').text(_("Report"));
 
             r_btn.click(function() {
                 tab.children(':last-child').replaceWith($('<div class="spinner problem-btn">'));

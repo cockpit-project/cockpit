@@ -36,7 +36,7 @@ class DashBoardHelpers:
     def wait_discovered_addresses(self, b, expected):
         b.wait_js_func(
             """(function(expected) {
-                var nodes = document.querySelectorAll('#dashboard_setup_server_dialog datalist option');
+                var nodes = ph_document().querySelectorAll('#dashboard_setup_server_dialog datalist option');
                 var actual = Array.prototype.map.call(nodes, function(e) {
                     return e.getAttribute("value");
                 });
@@ -46,7 +46,7 @@ class DashBoardHelpers:
     def wait_dashboard_addresses(self, b, expected):
         b.wait_js_func(
             """(function(expected) {
-                var nodes = document.querySelectorAll('#dashboard-hosts .list-group-item');
+                var nodes = ph_document().querySelectorAll('#dashboard-hosts .list-group-item');
                 var addresses = Array.prototype.map.call(nodes, function(e) {
                     return e.getAttribute("data-address");
                 });

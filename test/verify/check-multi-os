@@ -25,7 +25,7 @@ from testlib import *
 def wait_dashboard_addresses(b, expected):
     b.wait_js_func(
         """(function(expected) {
-            var nodes = document.querySelectorAll('#dashboard-hosts .list-group-item');
+            var nodes = ph_document().querySelectorAll('#dashboard-hosts .list-group-item');
             var addresses = Array.prototype.map.call(nodes, function(e) {
                 return e.getAttribute("data-address");
             });

@@ -363,8 +363,9 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_present("#journal-entry-id")
         b.wait_in_text("#journal-entry-id", "python")
+        # details view should hide log view
         b.wait_present('.cockpit-log-panel')
-        b.wait_visible('.cockpit-log-panel')
+        b.wait_not_visible('.cockpit-log-panel')
         b.wait_present("#journal-entry-message:contains('crashed in posix_kill')")
         b.wait_not_present("#journal-entry-fields .nav")
 

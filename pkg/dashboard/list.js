@@ -196,7 +196,7 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
     avatar_editor.stop_cropping();
     avatar_editor.load_data(machine.avatar || "images/server-large.png").
         fail(function () {
-            $('#host-edit-fail').text("Can't load image").show();
+            $('#host-edit-fail').text(_("Can't load image")).show();
         });
 }
 

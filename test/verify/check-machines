@@ -478,7 +478,7 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest1-consoles") # open the "Console" subtab
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
-        b.wait_present("iframe.machines-console-frame-vnc")
+        b.expect_load_frame("vm-subVmTest1-novnc-frame-container")
         b.switch_to_frame("vm-subVmTest1-novnc-frame-container")
         # FIXME: the usual b.wait_present() does not  work here
         with b.wait_timeout(360):

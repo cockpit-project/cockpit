@@ -403,6 +403,8 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b.wait_visible(sel)
         b.click(sel)
 
+        # jQuery magic on this page updates the whole frame for changing to "Reported" state
+        b.expect_load_frame("cockpit1:localhost/system/logs")
         sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
         b.wait_present(sel)
         b.wait_visible(sel)
@@ -426,6 +428,8 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b.wait_visible(sel)
         b.click(sel)
 
+        # jQuery magic on this page updates the whole frame for changing to "Reported" state
+        b.expect_load_frame("cockpit1:localhost/system/logs")
         sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
         b.wait_present(sel)
         b.wait_visible(sel)

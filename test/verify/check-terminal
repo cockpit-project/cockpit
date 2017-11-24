@@ -53,9 +53,11 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         # clear any messages (for example, instructions about sudo) and wait for prompt
         b.key_press( [ 'c', 'l', 'e', 'a', 'r', 'Return' ] )
+        b.wait_js_func("(function (sel) { return ph_text(sel).indexOf('clear') < 0})", line_sel(n))
         wait_line(n, "$")
 
-        prompt = b.text(line_sel(n))
+        # cut trailing non-breaking spaces
+        prompt = b.text(line_sel(n)).rstrip(u'\xa0')
 
         # Make sure we are started in home directory
         # Account for non-standard prompting

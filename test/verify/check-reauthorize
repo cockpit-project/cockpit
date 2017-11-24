@@ -84,7 +84,7 @@ class TestReauthorize(MachineCase):
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
 
         # Now log in as root even without password caching
-        b.logout
+        b.logout()
         self.login_and_go("/playground/test", authorized=False, user="root")
         b.click(".super-channel .btn")
         b.wait_in_text(".super-channel span", 'result: ')

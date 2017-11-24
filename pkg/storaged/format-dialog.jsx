@@ -312,7 +312,18 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                         visible: is_encrypted_and_not_old_udisks2
                       }
                   ].concat(crypto_options_dialog_fields("", is_encrypted_and_not_old_udisks2))
-                   .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
+                   .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2))
+                   .concat([
+                       { Arrow: "advanced",
+                         Title: _("Advanced Options"),
+                         Value: false
+                       },
+                       { CheckBox: "discard",
+                         Title: _("Send \"discard\" requests during formatting."),
+                         Value: true,
+                         visible: function (vals) { return vals.advanced }
+                       }
+                   ]),
                   Action: {
                       Title: create_partition? _("Create partition") : _("Format"),
                       Danger: (create_partition?

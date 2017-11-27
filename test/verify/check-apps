@@ -148,6 +148,8 @@ class TestApps(PackageCase):
             b.set_val("#display-language select", lang)
             b.click("#display-language-select-button")
             b.expect_load()
+            # HACK: work around language switching in Chrome not working in current session (issue #8160)
+            b.reload(ignore_cache=True)
             b.wait_present("#content")
             b.enter_page("/apps")
 

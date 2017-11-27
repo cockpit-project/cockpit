@@ -1201,7 +1201,8 @@ class TestRegistry(MachineCase):
         b.wait_present('tbody[data-id="marmalade/sometags"]')
         b.wait_present("tr.imagestream-item th:contains('marmalade/sometags')")
         b.wait_in_text('tbody[data-id="marmalade/sometags"] tr', '2.11')
-        b.wait_not_in_text('tbody[data-id="marmalade/sometags"] tr', 'latest')
+        # EXFAIL: https://bugzilla.redhat.com/show_bug.cgi?id=1373332
+        # b.wait_not_in_text('tbody[data-id="marmalade/sometags"] tr', 'latest')
 
         # also check with CLI
         output = self.openshift.execute("oc get imagestream --namespace=marmalade sometags")

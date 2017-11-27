@@ -23,6 +23,19 @@
 #  * [ ] npm-update angular
 #
 
+# Dependencies that are either fragile (minor updates break)
+# or are part of our public Javascript API and need caution
+FRAGILE = [
+    "angular",
+    "angular-bootstrap-npm",
+    "angular-gettext",
+    "angular-route",
+    "jquery",
+    "patternfly",
+    "paternfly-bootstrap-combobox",
+    "requirejs",
+]
+
 import collections
 import json
 import os
@@ -50,7 +63,7 @@ def package_json(data=None):
 def map_dict(dependencies, function):
     items = [ ]
     for (name, value) in dependencies.items():
-        items.append((name, function(value)))
+        items.append((name, function(name, value)))
     return collections.OrderedDict(items)
 
 def execute(*args):
@@ -75,9 +88,16 @@ def run(package, verbose=False, **kwargs):
         packages = data["dependencies"].keys()
         random.shuffle(packages)
 
-    # Add a tilde to all package.json dependencies
+    def prefix(name, version):
+        if version[0].isalpha():
+            return version
+        if name == package or name not in FRAGILE:
+            return "^" + version
+        return "~" + version
+
+    # Add a char to all package.json dependencies
     before = data["dependencies"].copy()
-    data["dependencies"] = map_dict(before, lambda v: v[0].isalpha() and v or "~" + v)
+    data["dependencies"] = map_dict(before, prefix)
     package_json(data)
 
     for package in packages:
@@ -92,7 +112,7 @@ def run(package, verbose=False, **kwargs):
 
         # Check if that did an upgrade
         update = package_json()
-        after = map_dict(update["dependencies"], lambda v: v.strip(" ^~=<>"))
+        after = map_dict(update["dependencies"], lambda k, v: v.strip(" ^~=<>"))
         if after != before:
 
             # Write out the cleaned up dependency versions

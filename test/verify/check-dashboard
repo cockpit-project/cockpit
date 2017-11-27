@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import time
 
 import parent
 import atomiclib
@@ -158,6 +159,11 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
 
         # Test change user, not doing in edit to reuse machines
+        # HACK: This test triggers Chromium's window.history.pushState()
+        # throttling, so wait a bit to reset it
+        # Replace with --disable-pushstate-throttle once that exists
+        # https://bugs.chromium.org/p/chromium/issues/detail?id=769592
+        time.sleep(3)
 
         # Navigate to load iframe
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3']")

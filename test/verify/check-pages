@@ -131,6 +131,8 @@ WantedBy=default.target
         b.set_val("#display-language select", "de-de")
         b.click("#display-language-select-button")
         b.expect_load()
+        # HACK: work around language switching in Chrome not working in current session (issue #8160)
+        b.reload(ignore_cache=True)
         b.wait_present("#content")
 
         # Check that the system page is translated

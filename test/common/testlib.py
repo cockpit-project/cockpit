@@ -121,10 +121,10 @@ class Browser:
         self.cdp.invoke("Page.navigate", url=href)
         self.expect_load()
 
-    def reload(self):
+    def reload(self, ignore_cache=False):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.cdp.invoke("Page.reload")
+        self.cdp.invoke("Page.reload", ignoreCache=ignore_cache)
         self.expect_load()
 
     def expect_load(self):

@@ -54,9 +54,9 @@ class checklogin_basic(Test):
         deny_non_root("/etc/pam.d/sshd")
 
         b.open("/system")
-        b.wait_visible("#login")
 
         def login(user, password):
+            b.wait_visible("#login")
             b.wait_not_present("#login-button:disabled")
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)

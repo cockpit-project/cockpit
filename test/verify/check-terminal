@@ -52,8 +52,12 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ''})", line_sel(n))
 
         # clear any messages (for example, instructions about sudo) and wait for prompt
-        b.key_press( [ 'c', 'l', 'e', 'a', 'r', 'Return' ] )
-        b.wait_js_func("(function (sel) { return ph_text(sel).indexOf('clear') < 0})", line_sel(n))
+        b.key_press( [ 'c', 'l', 'e', 'a', 'r' ] )
+        b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
+        # now wait for clear to take effect
+        b.key_press( [ 'Return' ] )
+        b.wait_js_cond("ph_text('.terminal').indexOf('clear') < 0")
+        # now we should get a clean prompt
         wait_line(n, "$")
 
         # cut trailing non-breaking spaces

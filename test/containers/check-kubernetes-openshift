@@ -54,6 +54,7 @@ class OCBrowser(Browser):
         self.set_val("#inputPassword", "fubar")
         self.click('.btn-primary')
         self.expect_load()
+        self.expect_load_frame("cockpit1:localhost/" + ("Registry" in self.label and "registry" or "kubernetes"))
         self.wait_present('#content')
         self.wait_visible('#content')
         if path:
@@ -123,6 +124,8 @@ class OCCase(kubelib.KubernetesCase):
 
         self.browser = OCBrowser(self.machine.forward["30000"], self.label())
         self.addCleanup(lambda: self.browser.kill())
+        # our OAuth provider uses a self-signed SSL certificate
+        self.browser.ignore_ssl_certificate_errors(True)
 
         self.tmpdir = tempfile.mkdtemp()
         self.openshift = self.machine
@@ -156,6 +159,7 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/kubernetes")
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
         b.wait_in_text("title", "Openshift Cockpit")
@@ -178,6 +182,7 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/kubernetes")
         b.wait_present("#content")
 
 class TestRegistry(OCCase, kubelib.RegistryTests):
@@ -204,6 +209,7 @@ class TestRegistry(OCCase, kubelib.RegistryTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/registry")
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
         b.wait_in_text("title", "Image Registry")
@@ -230,6 +236,7 @@ class TestRegistry(OCCase, kubelib.RegistryTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/registry")
         b.wait_present("#content")
         b.enter_page("/registry")
         b.wait_present(".dashboard-commands")

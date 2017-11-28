@@ -102,6 +102,29 @@ generate_subject (void)
   return subject;
 }
 
+static gchar *
+create_temp_file (const gchar *directory,
+                  const gchar *templ,
+                  GError **error)
+{
+  gchar *path;
+  gint fd;
+
+  path = g_build_filename (directory, templ, NULL);
+  fd = g_mkstemp (path);
+  if (fd < 0)
+    {
+      g_set_error (error, G_FILE_ERROR,
+                   g_file_error_from_errno (errno),
+                   "Couldn't create temporary file: %s: %m", path);
+      g_free (path);
+      return NULL;
+    }
+
+  close (fd);
+  return path;
+}
+
 static gboolean
 openssl_make_dummy_cert (const gchar *key_file,
                          const gchar *out_file,
@@ -111,7 +134,23 @@ openssl_make_dummy_cert (const gchar *key_file,
   gint exit_status;
   gchar *stderr_str = NULL;
   gchar *command_line = NULL;
+  gchar *ssl_config = NULL;
   gchar *subject = generate_subject ();
+
+  /* make config file with subjectAltName for localhost and our tests */
+  ssl_config = create_temp_file (g_get_tmp_dir (), "ssl.conf.XXXXXX", error);
+  if (!ssl_config)
+      return FALSE;
+  if (!g_file_set_contents (ssl_config,
+              "[ req ]\n"
+              "req_extensions = v3_req\n"
+              "extensions = v3_req\n"
+              "distinguished_name = req_distinguished_name\n"
+              "[ req_distinguished_name ]\n"
+              "[ v3_req ]\n"
+              "subjectAltName=IP:127.0.0.1,DNS:localhost\n",
+              -1, error))
+      return FALSE;
 
   const gchar *argv[] = {
     "openssl",
@@ -124,6 +163,8 @@ openssl_make_dummy_cert (const gchar *key_file,
     "-out", out_file,
     "-outform", "PEM",
     "-subj", subject,
+    "-config", ssl_config,
+    "-extensions", "v3_req",
     NULL
   };
 
@@ -142,6 +183,9 @@ openssl_make_dummy_cert (const gchar *key_file,
   ret = TRUE;
 
 out:
+  if (ssl_config)
+    g_unlink (ssl_config);
+  g_free (ssl_config);
   g_free (stderr_str);
   g_free (command_line);
   g_free (subject);
@@ -201,29 +245,6 @@ out:
   g_free (machine_id);
   g_free (cn);
   return ret;
-}
-
-static gchar *
-create_temp_file (const gchar *directory,
-                  const gchar *templ,
-                  GError **error)
-{
-  gchar *path;
-  gint fd;
-
-  path = g_build_filename (directory, templ, NULL);
-  fd = g_mkstemp (path);
-  if (fd < 0)
-    {
-      g_set_error (error, G_FILE_ERROR,
-                   g_file_error_from_errno (errno),
-                   "Couldn't create temporary file: %s: %m", path);
-      g_free (path);
-      return NULL;
-    }
-
-  close (fd);
-  return path;
 }
 
 static gchar *

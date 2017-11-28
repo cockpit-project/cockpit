@@ -7,8 +7,6 @@
     <link rel="shortcut icon" href="../dist/img/favicon.ico">
     <link href="../../../dist/base1/patternfly.min.css" rel="stylesheet" media="screen, print">
     <link href="../../../dist/base1/patternfly-additions.css" rel="stylesheet" media="screen, print">
-    <script src="../../../dist/base1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <style>
         #embed-links .card-pf-body {
             opacity: 0.3;
@@ -146,34 +144,40 @@
     </div><!-- /container -->
     <script>
         var phantom_checkpoint = phantom_checkpoint || function () { };
-
         var frames = { };
-        $("#embed-links").on("click", "a[href]", function(ev) {
-            var href = $(this).attr("href");
+
+        function click(ev) {
+            var href = ev.target.getAttribute("href");
             ev.preventDefault();
 
-            var address = $("#embed-address").val();
+            var address = document.getElementById("embed-address").value;
             if (address.indexOf(":") === -1)
                 address += ":9090";
             var url = address + href;
 
             var frame = frames[url];
             if (!frame) {
-                frame = frames[url] = $("<iframe>")
-                    .attr("src", url)
-                    .attr("name", $(this).attr("id"));
-                $("#embed-here").append(frame);
-                frame[0].addEventListener("load", function() {
-                    $(this).attr("loaded", "1");
+                frame = frames[url] = document.createElement("iframe");
+                frame.setAttribute("src", url)
+                frame.setAttribute("name", ev.target.getAttribute("id"));
+                document.getElementById("embed-here").appendChild(frame);
+                frame.addEventListener("load", function(ev) {
+                    ev.target.setAttribute("loaded", "1");
                     phantom_checkpoint();
                 });
             }
 
-            $("iframe").hide();
-            frame.show();
-            $("#embed-title").text($(this).text());
+            var i, iframes = document.querySelectorAll("iframe");
+            for (i = 0; i < iframes.length; i++)
+                iframes[i].setAttribute("hidden", "hidden");
+            frame.removeAttribute("hidden");
+            document.getElementById("embed-title").innerText = ev.target.innerText;
             return false;
-        });
+        }
+
+        var x, links = document.querySelectorAll("#embed-links a[href]");
+        for (x = 0; x < links.length; x++)
+            links[x].addEventListener("click", click);
     </script>
     <div id="embed-loaded">
     </div>

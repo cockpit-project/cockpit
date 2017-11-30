@@ -20,90 +20,96 @@
 (function() {
     "use strict";
 
-    var cockpit = require("cockpit");
-    var React = require("react");
+    const cockpit = require("cockpit");
+    const React = require("react");
 
     require("page.css");
 
-    var _ = cockpit.gettext;
+    const _ = cockpit.gettext;
 
-    var textForUndefined = _("undefined");
+    const textForUndefined = _("undefined");
 
     /* React pattern component for a dropdown/select control
      * Entries should be child components of type SelectEntry (html <a>)
+     *
+     * User of this component should listen onChange and set selected prop of it
+     *
      * Expected properties:
-     *  - initial (optional) initial value to display, default: first entry
+     *  - selected (optional) explicit data to select, default: first entry
      *  - onChange (optional) callback (parameter data) when the selection has changed
      *  - id (optional) html id of the top level node
      *  - enabled (optional) whether the component is enabled or not; defaults to true
      */
-    var Select = React.createClass({
-        propTypes: {
-            initial: React.PropTypes.string,
-            onChange: React.PropTypes.func,
-            id: React.PropTypes.string,
-            enabled: React.PropTypes.bool,
-        },
-        handleDocumentClick: function(node, ev) {
+    class StatelessSelect extends React.Component {
+        constructor() {
+            super();
+            this.clickHandler = this.clickHandler.bind(this);
+
+            this.state = {
+                open: false,
+                documentClickHandler: undefined,
+            };
+        }
+
+        componentDidMount() {
+            const handler = this.handleDocumentClick.bind(this, React.findDOMNode(this));
+            this.setState({ documentClickHandler: handler });
+            document.addEventListener('click', handler, false);
+        }
+
+        componentWillUnmount() {
+            document.removeEventListener('click', this.state.documentClickHandler, false);
+        }
+
+        handleDocumentClick(node, ev) {
             // clicking outside the select control should ensure it's closed
             if (!node.contains(ev.target))
                 this.setState({ open: false });
-        },
-        componentDidMount: function() {
-            var handler = this.handleDocumentClick.bind(this, React.findDOMNode(this));
-            this.setState({ documentClickHandler: handler });
-            document.addEventListener('click', handler, false);
-        },
-        componentWillUnmount: function() {
-            document.removeEventListener('click', this.state.documentClickHandler, false);
-        },
-        getInitialState: function() {
-            return {
-                open: false,
-                currentData: this.props.initial,
-                documentClickHandler: undefined,
-            };
-        },
-        clickHandler: function(ev) {
+        }
+
+        clickHandler(ev) {
             // only consider clicks with the primary button
             if (ev && ev.button !== 0)
                 return;
-            if (ev.target.tagName == 'A') {
-                var liElement = ev.target.offsetParent;
-                var elementData;
+
+            if (ev.target.tagName === 'A') {
+                const liElement = ev.target.offsetParent;
+                let elementData;
                 if ('data-data' in liElement.attributes)
                     elementData = liElement.attributes['data-data'].value;
 
                 this.setState({ open: false });
                 // if the item didn't change, don't do anything
-                if (elementData === this.state.currentData)
+                if (elementData === this.props.selected)
                     return;
-                this.setState({ currentData: elementData });
                 if (this.props.onChange)
                     this.props.onChange(elementData);
             } else {
                 this.setState({ open: !this.state.open });
             }
-        },
-        render: function() {
-            var self = this;
-            var currentValue;
+        }
 
-            var listItems = React.Children.map(this.props.children, function(itm) {
-                var data = ('data' in itm.props) ? itm.props.data : undefined;
-                // we need to have some kind of value
-                var value = (itm.props.children !== undefined) ? itm.props.children : textForUndefined;
-                if (data === self.state.currentData)
-                    currentValue = value;
-                // if there's no initial value, use the first one
-                else if (!self.props.initial && currentValue === undefined)
-                    currentValue = value;
-                return <li data-value={value} data-data={data}>{itm}</li>;
-            });
-            var classes = "btn-group bootstrap-select dropdown";
+        render() {
+            const getItemData = (item) => (item && item.props && ('data' in item.props) ? item.props.data : undefined);
+            const getItemValue = (item) => (item && item.props && (item.props.children !== undefined) ? item.props.children : textForUndefined);
+
+            const entries = React.Children.toArray(this.props.children).filter(item => item && item.props && ('data' in item.props));
+
+            let selectedEntries = entries.filter(item => this.props.selected === getItemData(item));
+
+            let selectedEntry;
+            if (selectedEntries.length > 0)
+                selectedEntry = selectedEntries[0];
+            else if (entries.length > 0)
+                selectedEntry = entries[0];  // default to first item if selected item not found
+
+            const currentValue = getItemValue(selectedEntry);
+
+            let classes = "btn-group bootstrap-select dropdown";
             if (this.state.open)
                 classes += " open";
-            var buttonClasses = "btn btn-default dropdown-toggle";
+
+            let buttonClasses = "btn btn-default dropdown-toggle";
             if (this.props.enabled === false)
                 buttonClasses += " disabled";
 
@@ -114,31 +120,97 @@
                         <span className="caret"></span>
                     </button>
                     <ul className="dropdown-menu">
-                        { listItems }
+                        {this.props.children}
                     </ul>
                 </div>
             );
         }
-    });
+    }
+
+    StatelessSelect.propTypes = {
+        selected: React.PropTypes.string,
+        onChange: React.PropTypes.func,
+        id: React.PropTypes.string,
+        enabled: React.PropTypes.bool,
+    };
+
+    class Select extends React.Component {
+        constructor(props) {
+            super();
+            this.onChange = this.onChange.bind(this);
+
+            this.state = {
+                currentData: props.initial,
+            };
+        }
+
+        onChange(data) {
+            this.setState({ currentData: data });
+            if (typeof this.props.onChange === 'function')
+                this.props.onChange(data);
+        }
+
+        render() {
+            return (
+                <StatelessSelect onChange={this.onChange}
+                                 selected={this.state.currentData}
+                                 id={this.props.id}
+                                 enabled={this.props.enabled}>
+                    {this.props.children}
+                </StatelessSelect>
+            );
+        }
+    }
+
+    Select.propTypes = {
+        initial: React.PropTypes.string,
+        onChange: React.PropTypes.func,
+        id: React.PropTypes.string,
+        enabled: React.PropTypes.bool,
+    };
 
     /* Entry class for the select component
      * Dynamic lists should make sure to also provide 'key' props for react to use
      * Expected properties:
-     *  - data optional, will be passed to the select's onChange callback
+     *  - data (required), will be passed to the select's onChange callback
      * Example: <SelectEntry data="foo">Some entry</SelectEntry>
      */
-    var SelectEntry = React.createClass({
-        propTypes: {
-            data: React.PropTypes.string.isRequired,
-        },
-        render: function() {
-            var value = (this.props.children !== undefined) ? this.props.children : textForUndefined;
-            return <a>{value}</a>;
+    class SelectEntry extends React.Component {
+        render() {
+            const value = (this.props.children !== undefined) ? this.props.children : textForUndefined;
+            return (
+                <li data-value={value} data-data={this.props.data}>
+                    <a>{value}</a>
+                </li>
+            );
         }
-    });
+    }
+
+    /* Divider
+     * Example: <SelectDivider/>
+     */
+    const SelectDivider = () => <li role="separator" className="divider"/>;
+
+    /* Header
+     * Example: <SelectHeader>Some header</SelectHeader>
+     */
+    const SelectHeader = ({ children }) => {
+        const value = (children !== undefined) ? children : textForUndefined;
+        return (
+            <li className="dropdown-header">{value}</li>
+        );
+    };
+
+
+    SelectEntry.propTypes = {
+        data: React.PropTypes.string.isRequired,
+    };
 
     module.exports = {
-        Select: Select,
-        SelectEntry: SelectEntry,
+        Select,
+        StatelessSelect,
+        SelectEntry,
+        SelectDivider,
+        SelectHeader,
     };
 }());

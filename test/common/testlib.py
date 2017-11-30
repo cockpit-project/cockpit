@@ -429,6 +429,10 @@ class Browser:
             self.click('#go-logout')
         self.expect_load()
 
+        # HACK: this got fixed in 6c1f4ffcab24d, not in RHEL 7.4 base yet
+        if os.getenv("TEST_OS") == "rhel-7-4":
+            self.cdp.invoke("Network.clearBrowserCookies")
+
     def relogin(self, path=None, user=None, authorized=None):
         if user is None:
             user = self.default_user

@@ -86,7 +86,7 @@ class TestNetworking(NetworkCase):
 
         iface = self.add_iface()
         con_id = self.iface_con_id(iface)
-        m.execute("nmcli con mod '%s' ipv4.dhcp-hostname foo" % con_id)
+        m.execute("nmcli con mod '%s' connection.gateway-ping-timeout 12" % con_id)
 
         self.login_and_go("/network")
         self.wait_for_iface(iface)
@@ -103,8 +103,8 @@ class TestNetworking(NetworkCase):
 
         self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.method con show '%s'" % con_id).strip(),
                          "shared")
-        self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.dhcp-hostname con show '%s'" % con_id).strip(),
-                         "foo")
+        self.assertEqual(m.execute("nmcli -m tabular -t -f connection.gateway-ping-timeout con show '%s'" % con_id).strip(),
+                         "12")
 
 if __name__ == '__main__':
     test_main()

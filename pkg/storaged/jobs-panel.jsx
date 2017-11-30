@@ -145,10 +145,23 @@ export class JobsPanel extends React.Component {
             return false;
         }
 
-        var jobs = Object.keys(client.jobs).filter(job_is_stable).sort(cmp_job);
+        var jobs = [ ];
+        var have_reminder = false;
+        for (var p in client.jobs) {
+            if (job_is_stable(p)) {
+                jobs.push(p);
+            } else if (!have_reminder) {
+                // If there is a unstable job, we have to check again in a bit since being
+                // stable or not depends on the current time.
+                window.setTimeout(() => { this.setState({}) }, 1000);
+                have_reminder = true;
+            }
+        }
 
         if (jobs.length === 0)
             return null;
+
+        jobs = jobs.sort(cmp_job);
 
         return (
             <div className="detail-jobs panel panel-default">

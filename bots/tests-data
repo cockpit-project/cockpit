@@ -22,6 +22,7 @@ import argparse
 import gzip
 import json
 import os
+import re
 import sys
 import subprocess
 import time
@@ -42,7 +43,6 @@ SINKS = { }
 def main():
     parser = argparse.ArgumentParser(description="Pull out test data for pull requests")
     parser.add_argument("--seed", action="store", help="Seed with existing data and update")
-    parser.add_argument("--open", action="store_true", help="Pull data on open pull requests")
     parser.add_argument("--since", help="Since a given ISO-8601 date")
     parser.add_argument("-v", "--verbose", action="store_true", help="Show verbose progress")
     opts = parser.parse_args()
@@ -65,60 +65,49 @@ def main():
     else:
         output = None
 
-    # Now start the process
-    for pull in task.api.pulls(state=opts.open and "open" or "closed", since=since):
-        if pull["number"] in SEEDED:
-            continue
+    # Iterate through all revisions, pull requests on this branch
+    for (commit, merged, pull) in commits("master", since, opts.verbose):
+        logged = False
         if opts.verbose:
-            sys.stderr.write("pull-{0}\n".format(pull["number"]))
-        merged = included(pull)
-        for revision in revisions(pull):
-            logged = False
+            sys.stderr.write("- {0}\n".format(commit))
+        for (context, created, url, log) in logs(commit):
             if opts.verbose:
-                sys.stderr.write("- {0}\n".format(revision))
-            for (context, created, url, log) in logs(revision):
-                if opts.verbose:
-                    sys.stderr.write("  - {0} {1}\n".format(created, context))
-                for (status, name, body) in tap(log):
-                    line = json.dumps({
-                        "pull": pull["number"],
-                        "revision": revision,
-                        "status": status,
-                        "context": context,
-                        "date": created,
-                        "merged": merged,
-                        "test": name,
-                        "url": url,
-                        "log": body
-                    }) + "\n"
-                    sys.stdout.write(line)
-                    sys.stdout.flush()
-                    if output:
-                        output.write(line)
-                    logged = True
-
-            # The next revisions for the pull request are not the ones
-            # that got merged. Only the first one produced by revisions
-            if merged:
-                merged = False
-
-            # Nothing found for this revision
-            if not logged:
+                sys.stderr.write("  - {0} {1}\n".format(created, context))
+            for (status, name, body, tracker) in tap(log):
                 line = json.dumps({
-                    "pull": pull["number"],
-                    "revision": revision,
-                    "status": "unknown",
+                    "pull": pull,
+                    "revision": commit,
+                    "status": status,
                     "context": context,
-                    "date": None,
+                    "date": created,
                     "merged": merged,
-                    "test": None,
-                    "url": None,
-                    "log": None
-                }) + "\n"
-                sys.stdout.write(line)
-                sys.stdout.flush()
+                    "test": name,
+                    "url": url,
+                    "tracker": tracker,
+                    "log": body
+                }).encode('utf-8') + b"\n"
+                os.write(1, line)
                 if output:
                     output.write(line)
+                logged = True
+
+        # Nothing found for this revision
+        if not logged:
+            line = json.dumps({
+                "pull": pull,
+                "revision": commit,
+                "status": "unknown",
+                "context": context,
+                "date": None,
+                "merged": merged,
+                "test": None,
+                "url": None,
+                "log": None,
+                "tracker": None,
+            }).encode('utf-8') + b"\n"
+            os.write(1, line)
+            if output:
+                output.write(line)
 
     sys.stdout.flush()
     if output:
@@ -144,7 +133,7 @@ class HrefParser(html.parser.HTMLParser):
 
 # Retrieves the content of the given URL
 def retrieve(url):
-    return urllib.request.urlopen(url).read()
+    return urllib.request.urlopen(url).read().decode('utf-8', 'replace')
 
 # Returns a list of all results at the given URL
 def links(url):
@@ -164,35 +153,92 @@ def links(url):
 # already been seen
 def seed(since, fp, output):
     seeded = None
+    known = re.compile("# SKIP Known issue #([0-9]+)", re.IGNORECASE)
+
     while True:
         line = fp.readline()
         if not line:
             break
         try:
-            item = json.loads(line)
+            item = json.loads(line.decode('utf-8'))
         except ValueError as ex:
             sys.stderr.write("tests-data: {1}\n".format(str(ex)))
             continue
+
+        # COMPAT: Fix data that wasn't yet valid
+        pull = item.get("pull")
+        if isinstance(pull, int):
+            item["pull"] = qualify("pulls/{0}".format(pull))
+        pull = item.get("pull")
+        if pull and "pull" not in pull:
+            item["pull"] = None
 
         # Once we see a new pull treat the old one as complete and seeded
         # As a failsafe, just to make sure we didn't miss something
         # wo don't treat the last pull request as completely seeded
         pull = item.get("pull")
-        if pull != seeded:
-            SEEDED[pull] = True
+        if pull and pull != seeded:
+            SEEDED[seeded] = True
+            seeded = None
+
+        # If the pull request had a known merged value it can be seeded
+        # This forces us to retrieve data about open pull requests again
+        if item["merged"] in [ True, False ]:
             seeded = pull
+            SEEDED[item["revision"]] = True
 
         date = item.get("date")
-        if date and since < time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ")):
-            sys.stdout.write(line)
-            sys.stdout.flush()
-            output.write(line)
+        if not date or since > time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ")):
+            continue
 
-# Generates revisions for a given pull request. Each revision
-# is a simple string sha. The first one is the one that is at
-# the head of the pull request, and any other follow on revisions
-# are those which were previously tested (eg: force push, or with
-# later fixups).
+        # COMPAT: Fix data that wasn't yet valid
+        if item["status"] == "skip":
+            match = known.search(item["log"])
+            if match:
+                item["status"] = "failure"
+                item["tracker"] = qualify("issues/{0}".format(match.group(1)))
+
+        line = json.dumps(item).encode('utf-8') + b"\n"
+        os.write(1, line)
+        output.write(line)
+
+# Generate a list of (revision, merged, url) for the given branch
+# This includes pull requests targetting the branch in question
+#
+# revision: the SHA of a commit
+# merged: True/False/None whether merged or not
+# url: The URL for the pull request or None
+def commits(branch, since, verbose=False):
+    if verbose:
+        sys.stderr.write("{0}\n".format(branch))
+
+    # Iterate through commits on master
+    for commit in task.api.commits(branch, since=since):
+        revision = commit["sha"]
+        if revision not in SEEDED:
+            yield revision, True, None
+
+    # Iterate through pull requests
+    for pull in task.api.pulls(state="all", since=since):
+        if pull["number"] in SEEDED:
+            continue
+        if pull["base"]["ref"] != branch:
+            continue
+        if verbose:
+            sys.stderr.write("pull-{0}\n".format(pull["number"]))
+        merged = included(pull)
+
+        for revision in revisions(pull):
+            yield revision, merged, pull["url"]
+
+            # The next revisions for the pull request are not the ones
+            # that got merged. Only the first one produced by revisions
+            if merged:
+                merged = False
+
+
+# Get all the revisions in a pull request. GitHub doesn't help
+# us here so we have to use silly tricks
 def revisions(pull):
     head = pull.get("head", { }).get("sha")
     if not head:
@@ -278,19 +324,23 @@ def logs(revision):
             except urllib.error.URLError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
 
-# Generate (status, body) for each Test Anything Protocol test
-# in the content. The possible statuses are "success", "failure", "skip"
+# Generate (status, name, body, tracker) for each Test Anything Protocol test
+# in the content.
+#
+# status: possible values "success", "failure", "skip"
+# name: the name of the test
+# body: full log of the test
+# tracker: url tracking the failure, or None
 def tap(content):
     prefix = None
     body = [ ]
     blocks = False
-    status = None
     for line in content.split('\n'):
         # The test intro, everything before here is fluff
         if not prefix and line.startswith("1.."):
             prefix = line
             body = [ ]
-            name = None
+            name = status = tracker = None
 
         # A TAP test status line
         elif line.startswith("ok ") or line.startswith("not ok "):
@@ -301,6 +351,10 @@ def tap(content):
                 line = line[7:]
             else:
                 line = line[3:]
+                if "# SKIP KNOWN ISSUE" in line.upper():
+                    status = "failure"
+                    (unused, delim, issue) = line.partition("#")
+                    tracker = qualify("issues/{0}".format(issue))
                 if "# SKIP" in line.upper():
                     status = "skip"
                 else:
@@ -313,19 +367,17 @@ def tap(content):
             name = name.strip()
             # Old Cockpit tests had strange blocks
             if not blocks:
-                yield (status, name, "\n".join(body))
+                yield (status, name, "\n".join(body), tracker)
+                status = name = tracker = None
                 body = [ ]
-                status = None
-                name = None
         else:
             # Old Cockpit tests didn't separate bound their stuff properly
             if line.startswith("# --------------------"):
                 blocks = True
                 if status:
-                    yield (status, name, "\n".join(body))
-                status = None
+                    yield (status, name, "\n".join(body), tracker)
+                name = status = tracker = None
                 body = [ ]
-                name = None
             body.append(line)
 
 # Check if a given pull request was included in its base
@@ -361,6 +413,10 @@ def included(pull):
     ]
     output = subprocess.check_output(cmd, cwd=cwd)
     return output and True or False
+
+# Qualify a URL into the GitHub repository
+def qualify(path):
+    return "https://api.github.com" + task.api.qualify(path)
 
 if __name__ == '__main__':
     sys.exit(main())

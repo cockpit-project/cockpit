@@ -102,7 +102,7 @@ def loader(training_data, verbose, dry):
             if exists:
                 sys.stderr.write("Loading initial tests data\n")
             cmd.append("--verbose")
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
         inp = proc.stdout
 
     try:

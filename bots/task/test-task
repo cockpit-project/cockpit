@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -21,21 +21,15 @@
 ADDRESS = ("127.0.0.9", 9898)
 
 import ctypes
-import fnmatch
-import httplib
 import imp
 import json
 import os
 import signal
 import shutil
-import socket
-import sys
 import tempfile
-import time
 import unittest
 
 BASE = os.path.dirname(__file__)
-DEVNULL = open("/dev/null", "r+")
 os.environ["GITHUB_API"] = "http://127.0.0.9:9898"
 os.environ["GITHUB_BASE"] = "project/repo"
 
@@ -51,8 +45,8 @@ def mockServer():
     # Data used by below handler
     data = { }
 
-    import BaseHTTPServer
-    class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+    import http.server
+    class Handler(http.server.BaseHTTPRequestHandler):
 
         def replyData(self, value, headers={ }, status=200):
             self.send_response(status)
@@ -60,11 +54,11 @@ def mockServer():
                 self.send_header(name, content)
             self.end_headers()
             self.wfile.write(value)
-            self.wfile.close()
+            self.wfile.flush()
 
         def replyJson(self, value, headers={ }, status=200):
             headers["Content-type"] = "application/json"
-            self.replyData(json.dumps(value), headers=headers, status=status)
+            self.replyData(json.dumps(value).encode('utf-8'), headers=headers, status=status)
 
         def do_GET(self):
             if self.path in DATA:
@@ -74,22 +68,22 @@ def mockServer():
 
         def do_POST(self):
             if self.path == "/repos/project/repo/pulls":
-                content_len = int(self.headers.getheader('content-length'))
-                data = json.loads(self.rfile.read(content_len))
+                content_len = int(self.headers.get('content-length'))
+                data = json.loads(self.rfile.read(content_len).decode('utf-8'))
                 data["number"] = 1234
                 self.replyJson(data)
             elif self.path == "/repos/project/repo/issues/1234/comments":
-                content_len = int(self.headers.getheader('content-length'))
-                data = json.loads(self.rfile.read(content_len))
+                content_len = int(self.headers.get('content-length'))
+                data = json.loads(self.rfile.read(content_len).decode('utf-8'))
                 self.replyJson(data)
             elif self.path == "/repos/project/repo/issues/1234/labels":
-                content_len = int(self.headers.getheader('content-length'))
-                data = json.loads(self.rfile.read(content_len))
+                content_len = int(self.headers.get('content-length'))
+                data = json.loads(self.rfile.read(content_len).decode('utf-8'))
                 self.replyJson(data)
             else:
                 self.send_error(405, 'Method not allowed: ' + self.path)
 
-    httpd = BaseHTTPServer.HTTPServer(ADDRESS, Handler)
+    httpd = http.server.HTTPServer(ADDRESS, Handler)
     httpd.data = data
 
     child = os.fork()

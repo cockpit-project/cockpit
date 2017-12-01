@@ -1183,4 +1183,8 @@ def sit(machines={ }):
     """
     for (name, machine) in machines.items():
         sys.stderr.write(machine.diagnose())
-    raw_input ("Press RET to continue... ")
+    try:
+        input = raw_input
+    except NameError:
+        pass
+    input ("Press RET to continue... ")

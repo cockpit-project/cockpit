@@ -300,10 +300,10 @@ class Machine:
                 for fd in ret[0]:
                     if fd == stdout_fd:
                         data = os.read(fd, 1024)
-                        if data == "":
+                        if not data:
                             stdout_fd = -1
                             proc.stdout.close()
-                        output += data
+                        output += data.decode('utf-8', 'replace')
 
             if stdout_fd > -1:
                 break
@@ -404,7 +404,7 @@ class Machine:
 
         if command:
             assert not environment, "Not yet supported"
-            if isinstance(command, basestring):
+            if getattr(command, "strip", None): # Is this a string?
                 cmd += [command]
                 if not quiet:
                     self.message("+", command)
@@ -440,24 +440,25 @@ class Machine:
             for fd in ret[0]:
                 if fd == stdout_fd:
                     data = os.read(fd, 1024)
-                    if data == "":
+                    if not data:
                         rset.remove(stdout_fd)
                         proc.stdout.close()
                     else:
+                        data = data.decode('utf-8', 'replace')
                         if self.verbose:
                             sys.stdout.write(data)
                         output += data
                 elif fd == stderr_fd:
                     data = os.read(fd, 1024)
-                    if data == "":
+                    if not data:
                         rset.remove(stderr_fd)
                         proc.stderr.close()
                     elif not quiet or self.verbose:
-                        sys.stderr.write(data)
+                        sys.stderr.write(data.decode('utf-8', 'replace'))
             for fd in ret[1]:
                 if fd == stdin_fd:
                     if input:
-                        num = os.write(fd, input)
+                        num = os.write(fd, input.encode('utf-8'))
                         input = input[num:]
                     if not input:
                         wset.remove(stdin_fd)
@@ -1022,8 +1023,8 @@ class VirtMachine(Machine):
             # print >> sys.stderr, test_domain_desc
             self._domain = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
         except libvirt.libvirtError as le:
-            if 'already exists with uuid' in le.message:
-                raise RepeatableFailure("libvirt domain already exists: " + le.message)
+            if 'already exists with uuid' in str(le):
+                raise RepeatableFailure("libvirt domain already exists: " + str(le))
             else:
                 raise
 
@@ -1137,7 +1138,8 @@ class VirtMachine(Machine):
             expect " ~]# "
             exit 0
         """
-        expect = subprocess.Popen(["expect", "--", "-", str(self._domain.ID())], stdin=subprocess.PIPE)
+        expect = subprocess.Popen(["expect", "--", "-", str(self._domain.ID())], stdin=subprocess.PIPE,
+                                  universal_newlines=True)
         expect.communicate(SCRIPT)
 
     def wait_boot(self, timeout_sec=120):
@@ -1193,7 +1195,7 @@ class VirtMachine(Machine):
                         if not self._domain.isActive():
                             break
                 except libvirt.libvirtError as le:
-                    if 'no domain' in le.message or 'not found' in le.message:
+                    if 'no domain' in str(le) or 'not found' in str(le):
                         break
                     raise
                 time.sleep(1)

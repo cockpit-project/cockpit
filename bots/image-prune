@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -66,7 +66,7 @@ def get_refs(open_pull_requests=True, offline=False):
             refs["pull request #{} ({})".format(p["number"], p["title"])] = p["head"]["sha"]
 
     git_cmd = "show-ref" if offline else "ls-remote"
-    ref_output = subprocess.check_output(["git", git_cmd]).splitlines()
+    ref_output = subprocess.check_output(["git", git_cmd], universal_newlines=True).splitlines()
     # filter out the "refs/heads/" prefix and generate a dictionary
     prefix = "refs/heads"
     for ln in ref_output:
@@ -87,13 +87,13 @@ def get_image_links(ref, git_path):
         git_path = "{0}/".format(git_path)
 
     try:
-        entries = subprocess.check_output(["git", "ls-tree",  "--name-only", ref, git_path]).splitlines()
+        entries = subprocess.check_output(["git", "ls-tree",  "--name-only", ref, git_path], universal_newlines=True).splitlines()
     except subprocess.CalledProcessError as e:
         if e.returncode == 128:
             sys.stderr.write("Skipping {0} due to tree error.\n".format(ref))
             return []
         raise
-    links = map(lambda entry: subprocess.check_output(["git", "show", "{0}:{1}".format(ref, entry)]), entries)
+    links = [subprocess.check_output(["git", "show", "{0}:{1}".format(ref, entry)], universal_newlines=True) for entry in entries]
     return [link for link in links if link.endswith(".qcow2")]
 
 @contextmanager

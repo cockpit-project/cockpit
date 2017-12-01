@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -147,7 +147,7 @@ class PullTask(object):
 
         # Include information about which base we're testing against
         if self.base:
-            commit = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ]).strip()
+            commit = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ], universal_newlines=True).strip()
             status["base"] = commit
 
         (prefix, unused, image) = self.context.partition("/")
@@ -256,7 +256,7 @@ class PullTask(object):
         def mark_passed():
             if "github" in sink.status:
                 self.github_status_data["state"] = "success"
-        if isinstance(ret, basestring):
+        if isinstance(ret, str):
             message = ret
             mark_failed()
         elif ret == 0:
@@ -275,12 +275,16 @@ class PullTask(object):
         return ret
 
     def run(self, opts):
-        head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+        if opts.publish:
+            self.start_publishing(opts.publish)
+            os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
+
+        head = subprocess.check_output([ "git", "rev-parse", "HEAD" ], universal_newlines=True).strip()
         if self.ref:
             if not opts.offline:
                 subprocess.check_call([ "git", "fetch", "origin", self.ref ])
             if not self.revision:
-                self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
+                self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ], universal_newlines=True).strip()
             # Force a checkout of the ref if not already checked out
             if not head.lower().startswith(self.revision.lower()):
                 subprocess.check_call([ "git", "checkout", "-f", self.revision ])
@@ -306,10 +310,6 @@ class PullTask(object):
         else:
             image = value
         os.environ["TEST_OS"] = image
-
-        if opts.publish:
-            self.start_publishing(opts.publish)
-            os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
 
         msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.github_revision, self.name,
                                                                 self.context, HOSTNAME)

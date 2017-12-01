@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -74,7 +74,7 @@ def execute(*args):
 def output(*args):
     if task.verbose:
         sys.stderr.write("+ " + " ".join(args) + "\n")
-    return subprocess.check_output(args, cwd=BASE)
+    return subprocess.check_output(args, cwd=BASE, universal_newlines=True)
 
 def run(package, verbose=False, **kwargs):
     # Force all current dependencies in place
@@ -85,7 +85,7 @@ def run(package, verbose=False, **kwargs):
     if package:
         packages = [ package ]
     else:
-        packages = data["dependencies"].keys()
+        packages = list(data["dependencies"].keys())
         random.shuffle(packages)
 
     def prefix(name, version):

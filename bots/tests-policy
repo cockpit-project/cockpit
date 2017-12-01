@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -290,7 +290,7 @@ def update_known_issue(api, number, err, details, context, timestamp=None):
                                 header[header_idx] = " ".join(rec_entries)
                         latest[0] = "\n".join(header)
                         # list of recent occurrences
-                        occurrences = filter(None, latest[1].split("\n"))
+                        occurrences = [_f for _f in latest[1].split("\n") if _f]
                         occurrences.append("- {0}\n".format(link))
                         # only keep the last 10
                         if len(occurrences) > 10:

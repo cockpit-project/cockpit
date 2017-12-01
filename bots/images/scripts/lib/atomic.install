@@ -24,9 +24,7 @@ import sys
 import shutil
 import urllib
 import argparse
-import datetime
 import json
-import re
 
 BASEDIR = os.path.dirname(__file__)
 
@@ -52,7 +50,7 @@ class AtomicCockpitInstaller:
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose
         self.rpms = rpms
-        status = json.loads(subprocess.check_output(["rpm-ostree", "status", "--json"]))
+        status = json.loads(subprocess.check_output(["rpm-ostree", "status", "--json"], universal_newlines=True))
         origin = None
         for deployment in status.get("deployments", []):
             if deployment.get("booted"):
@@ -125,7 +123,6 @@ class AtomicCockpitInstaller:
         subprocess.check_call(["mv", os.path.join(self.checkout_location, "etc"),
                                os.path.join(self.checkout_location, "usr", "etc")])
 
-        now = datetime.datetime.utcnow()
         subprocess.check_call(["ostree", "commit", "-s", "cockpit-tree",
                                "--repo", self.repo_location,
                                "-b", self.branch,

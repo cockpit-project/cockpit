@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -32,8 +32,8 @@ import traceback
 
 sys.dont_write_bytecode = True
 
-import github
-import sink
+from . import github
+from . import sink
 
 __all__ = (
     "api",
@@ -194,7 +194,7 @@ def finish(publishing, ret, name, context, issue):
     if not ret:
         comment = None
         result = "Completed"
-    elif isinstance(ret, basestring):
+    elif isinstance(ret, str):
         comment = "{0}: :link".format(ret)
         result = ret
     else:
@@ -258,9 +258,8 @@ def run(context, function, **kwargs):
 
     ret = "Task threw an exception"
     try:
-        pull = None
         if issue and "pull_request" in issue:
-           kwargs["pull"] = pull = api.get(issue["pull_request"]["url"])
+           kwargs["pull"] = api.get(issue["pull_request"]["url"])
 
         ret = function(context, **kwargs)
     except (RuntimeError, subprocess.CalledProcessError) as ex:
@@ -268,7 +267,7 @@ def run(context, function, **kwargs):
     except (AssertionError, KeyboardInterrupt):
         raise
     except:
-        sys.stderr.write(traceback.print_exc())
+        traceback.print_exc()
     finally:
         finish(publishing, ret, name, context, issue)
     return ret or 0
@@ -281,7 +280,7 @@ def stale(days, pathspec, ref="HEAD"):
     def execute(*args):
         if verbose:
             sys.stderr.write("+ " + " ".join(args) + "\n")
-        output = subprocess.check_output(args, cwd=BASE)
+        output = subprocess.check_output(args, cwd=BASE, universal_newlines=True)
         if verbose:
             sys.stderr.write("> " + output + "\n")
         return output
@@ -328,7 +327,7 @@ def execute(*args):
     # No prompting for passwords
     if "GIT_ASKPASS" not in env:
         env["GIT_ASKPASS"] = "/bin/true"
-    output = subprocess.check_output(args, cwd=BASE, stderr=subprocess.STDOUT, env=env)
+    output = subprocess.check_output(args, cwd=BASE, stderr=subprocess.STDOUT, env=env, universal_newlines=True)
     sys.stderr.write(censored(output))
 
 def branch(context, message, pathspec=".", issue=None, **kwargs):
@@ -339,7 +338,7 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
 
     # Tell git about our github token as a user name
     try:
-        subprocess.check_output(["git", "config", "credential.https://github.com.username", api.token])
+        subprocess.check_call(["git", "config", "credential.https://github.com.username", api.token])
     except subprocess.CalledProcessError:
         raise RuntimeError("Couldn't configure git config with our API token")
 

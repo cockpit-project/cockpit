@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # This file is part of Cockpit.
 #
 # Copyright (C) 2017 Red Hat, Inc.
@@ -97,20 +97,20 @@ def start_publishing(host, name, revision, context):
 def install(repo, revision, ref, name):
     if ref:
         subprocess.check_call([ "git", "fetch", "origin", ref ])
-        subprocess.check_output([ "git", "checkout", "origin/" + ref])
+        subprocess.check_call([ "git", "checkout", "origin/" + ref])
 
-    subprocess.check_output([ "npm", "install", "--save", "git+https://github.com/{0}#{1}".format(repo, revision)])
+    subprocess.check_call([ "npm", "install", "--save", "git+https://github.com/{0}#{1}".format(repo, revision)])
 
-    subprocess.check_output([ "git", "add", os.path.join(BASE, "package.json")])
-    subprocess.check_output(["git", "checkout", "--detach"])
+    subprocess.check_call([ "git", "add", os.path.join(BASE, "package.json")])
+    subprocess.check_call(["git", "checkout", "--detach"])
 
     # Commit the changes, if nothing to commit then there is nothing to test
     try:
-        subprocess.check_output([ "git", "commit", "-m", "Testing {}".format(name)])
+        subprocess.check_call([ "git", "commit", "-m", "Testing {}".format(name)])
     except subprocess.CalledProcessError:
         return None
 
-    return subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+    return subprocess.check_output([ "git", "rev-parse", "HEAD" ], universal_newlines=True).strip()
 
 def main():
     parser = argparse.ArgumentParser(description='Run cockpit integration tests on a remote dependency')

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -35,7 +35,7 @@ def run(context, verbose=False, **kwargs):
     def output(*args):
         if verbose:
             sys.stderr.write("+ " + " ".join(args) + "\n")
-        return subprocess.check_output(args, cwd=cwd)
+        return subprocess.check_output(args, cwd=cwd, universal_newlines=True)
     def execute(*args):
         if verbose:
             sys.stderr.write("+ " + " ".join(args) + "\n")
@@ -45,7 +45,7 @@ def run(context, verbose=False, **kwargs):
     cmd = [ "bots/make-source", "po/cockpit.pot" ]
     if verbose:
         sys.stderr.write("+ " + " ".join(cmd) + "\n")
-    line = subprocess.check_output(cmd, cwd=BASE)
+    line = subprocess.check_output(cmd, cwd=BASE, universal_newlines=True)
     cwd = os.path.abspath(line.strip())
 
     # Do the various updates

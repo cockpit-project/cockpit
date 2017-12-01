@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 # This file is part of Cockpit.
 #
@@ -31,7 +31,7 @@ import os
 import socket
 import subprocess
 import sys
-import urlparse
+import urllib.parse
 
 BOTS = os.path.dirname(__file__)
 IMAGES = os.path.join(BOTS, "images")
@@ -39,7 +39,7 @@ DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 def upload(store, source):
     ca = os.path.join(BOTS, "images", "files", "ca.pem")
-    url = urlparse.urlparse(store)
+    url = urllib.parse.urlparse(store)
 
     # Parse out the user name if present
     user = url.username or getpass.getuser()

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -32,7 +32,7 @@ def run(context, verbose=False, **kwargs):
     system = context or "f26"
 
     make_srpm = os.path.join(BOTS, "..", "tools", "make-srpm")
-    srpm = subprocess.check_output([make_srpm], shell=True).strip()
+    srpm = subprocess.check_output([make_srpm], shell=True, universal_newlines=True).strip()
 
     # Do a build
     cmd = ["koji", "build", "--wait", "--scratch", system, srpm]

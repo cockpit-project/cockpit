@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -41,7 +41,8 @@ class Sink(object):
         self.ssh = subprocess.Popen([ "ssh", host, "--", "python", "sink", identifier ], stdin=subprocess.PIPE)
 
         # Send the status line
-        self.ssh.stdin.write(json.dumps(status) + "\n")
+        self.ssh.stdin.write(json.dumps(status).encode('utf-8') + b"\n")
+        self.ssh.stdin.flush()
 
         # Now dup our own output and errors into the pipeline
         sys.stdout.flush()
@@ -73,7 +74,7 @@ class Sink(object):
         if status is None:
             status = self.status
         if status is not None:
-            self.ssh.stdin.write("\n" + json.dumps(status))
+            self.ssh.stdin.write(b"\n" + json.dumps(status).encode('utf-8'))
 
         # Send a zero character and send the attachments
         files = os.listdir(self.attachments)

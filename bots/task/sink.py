@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -38,7 +38,7 @@ class Sink(object):
         self.status = status
 
         # Start a gzip and cat processes
-        self.ssh = subprocess.Popen([ "ssh", host, "--", "python", "sink", identifier ], stdin=subprocess.PIPE)
+        self.ssh = subprocess.Popen([ "ssh", host, "--", "python", "sink", identifier ], stdin=subprocess.PIPE, universal_newlines=True)
 
         # Send the status line
         self.ssh.stdin.write(json.dumps(status) + "\n")

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # This file is part of Cockpit.
 #
 # Copyright (C) 2015 Red Hat, Inc.
@@ -128,7 +128,7 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
     else:
         skips.append("cockpit-ostree")
 
-    skip_args = map(lambda skip: " --skip '%s'" % skip, skips)
+    skip_args = [" --skip '%s'" % skip for skip in skips]
     cmd = "cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
                                                          " --verbose" if args.verbose else "",
                                                          " --quick" if args.quick else "",
@@ -148,7 +148,7 @@ def build_and_install(build_image, build_results, skips, args):
     completed = False
 
     # While the machine is booting, make a tarball
-    source = subprocess.check_output([ os.path.join(BOTS, "make-source") ]).strip()
+    source = subprocess.check_output([ os.path.join(BOTS, "make-source") ], universal_newlines=True).strip()
     machine.start()
     completed = False
 
@@ -161,7 +161,7 @@ def build_and_install(build_image, build_results, skips, args):
     finally:
         if not completed and args.sit:
             sys.stderr.write(machine.diagnose())
-            raw_input("Press RET to continue... ")
+            input("Press RET to continue... ")
         try:
             if os.path.exists(build_results):
                 subprocess.check_call([ "rm", "-rf", build_results ])
@@ -192,7 +192,7 @@ def only_install(image, build_results, skips, args, address):
     finally:
         if not completed and args.sit:
             sys.stderr.write(machine.diagnose())
-            raw_input("Press RET to continue... ")
+            input("Press RET to continue... ")
         if started:
             machine.stop()
 

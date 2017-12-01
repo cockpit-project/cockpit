@@ -20,9 +20,12 @@
 
 import os
 import subprocess
+import sys
 import unittest
 
-BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+BASE = os.path.dirname(__file__)
+BOTS = os.path.normpath(os.path.join(BASE, ".."))
+sys.path.insert(1, BOTS)
 
 PCP_CRASH = """
 # ----------------------------------------------------------------------
@@ -98,28 +101,28 @@ class TestPolicy(unittest.TestCase):
     def testNaughtyNumber(self):
         script = os.path.join(BOTS, "image-naughty")
         cmd = [ script, "--offline", "verify/example" ]
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         (output, unused) = proc.communicate(PCP_CRASH)
         self.assertEqual(output, "9876\n")
 
     def testSimpleNumber(self):
         script = os.path.join(BOTS, "tests-policy")
         cmd = [ script, "--simple", "--offline", "verify/example" ]
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         (output, unused) = proc.communicate(PCP_CRASH)
         self.assertEqual(output, "9876\n")
 
     def testKnownIssue(self):
         script = os.path.join(BOTS, "tests-policy")
         cmd = [ script, "--offline", "verify/example" ]
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         (output, unused) = proc.communicate(PCP_CRASH)
         self.assertEqual(output, PCP_KNOWN)
 
     def testRetryIssue(self):
         script = os.path.join(BOTS, "tests-policy")
         cmd = [ script, "--offline", "verify/example" ]
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         (output, unused) = proc.communicate(PHANTOMJS_CRASH)
         self.assertEqual(output, PHANTOMJS_RETRY)
 

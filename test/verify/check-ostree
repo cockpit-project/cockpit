@@ -727,6 +727,7 @@ class OstreeCase(MachineCase):
         b.set_val("#login-user-input", "user")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
+        b.expect_load()
 
         b.enter_page("/updates")
 

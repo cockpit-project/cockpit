@@ -21,6 +21,7 @@ ln -sf ../selinux/config /etc/sysconfig/selinux
 printf 'SELINUX=permissive\nSELINUXTYPE=targeted\n' > /etc/selinux/config
 setenforce 0
 systemctl stop firewalld
+dnf mark install iptables
 dnf -y remove firewalld
 iptables -F
 
@@ -153,6 +154,7 @@ oc patch oauthclient/openshift-web-console -p '{"redirectURIs":["https://10.111.
 
 # Deploy the registry
 # --credentials deprecated
+rm -rf /usr/share/rhel/secrets
 oadm registry
 
 function endpoint_has_address() {
@@ -241,7 +243,8 @@ docker push registry:5000/pizzazz/monster
 oc config use-context default/10-111-112-101:8443/system:admin
 
 # Some roles for testing against
-oc patch --namespace=marmalade policybinding ':default' -p '{"roleBindings":[{"name":"admin","roleBinding":{"metadata":{"name":"admin","namespace":"marmalade"},"userNames":["scruffy"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"}],"roleRef":{"name":"admin"}}},{"name":"registry-editor","roleBinding":{"metadata":{"name":"registry-editor","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"registry-editor"}}},{"name":"registry-viewer","roleBinding":{"metadata":{"name":"registry-viewer","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"registry-viewer"}}}]}'
+printf '{"kind":"List","apiVersion":"v1","items":[{"kind":"RoleBinding","metadata":{"name":"registry-editor","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"registry-editor"}},{"kind":"RoleBinding","metadata":{"name":"registry-viewer","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"registry-viewer"}}]}' | oc create -f -
+oc patch rolebinding/admin --namespace=marmalade -p '{"kind": "RoleBinding", "metadata":{"name":"admin","namespace":"marmalade"},"userNames":["scruffy"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffys"}],"roleRef":{"name":"admin"}}'
 
 # For testing the Cockpit OAuth client
 printf '{"kind":"OAuthClient","apiVersion":"v1","metadata":{"name":"cockpit-oauth-devel"},"respondWithChallenges":false,"secret":"secret","allowAnyScope":true,"redirectURIs":["http://localhost:9001"] }' | oc create -f -

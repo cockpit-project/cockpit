@@ -71,8 +71,8 @@ class NetworkCase(MachineCase):
         iface = self.get_iface(m, mac)
         wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
         if activate:
-            m.execute("nmcli con add type ethernet ifname %s" % iface)
-            m.execute("nmcli dev con %s" % iface)
+            m.execute("nmcli con add type ethernet ifname %s con-name %s" % (iface, iface))
+            m.execute("nmcli con up %s ifname %s" % (iface, iface))
         return iface
 
     def wait_for_iface(self, iface, active=True, state=None, prefix="10.111."):

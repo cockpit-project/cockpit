@@ -62,8 +62,8 @@ class OCBrowser(Browser):
 
 class OCMachine(VirtMachine):
     run_registry = False
-
     def __init__(self, *args, **kwargs):
+        self.started = False
         VirtMachine.__init__(self, *args, **kwargs)
 
     def wait_oc(self):
@@ -79,6 +79,9 @@ class OCMachine(VirtMachine):
                 time.sleep(1)
 
     def start_cockpit(self, host=None):
+        if self.started:
+            return
+
         path = os.path.join(base_dir, "files", "cockpit-openshift-template.json")
         self.upload([path], "/tmp")
         self.wait_oc()
@@ -103,6 +106,7 @@ class OCMachine(VirtMachine):
         self.execute("oc process -f /tmp/cockpit-openshift-template.json {0} > out.json".format(' '.join(args)))
         self.execute("oc create -f out.json")
         self.wait_for_cockpit_running(seconds=180, address="10.111.112.101", port=30000)
+        self.started = True
 
 class RegistryMachine(OCMachine):
     run_registry = True
@@ -168,8 +172,13 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         b.expect_load()
         b.wait_present("#content")
 
-class TestRegistry(OCCase):
+class TestRegistry(OCCase, kubelib.RegistryTests):
     machine_class = RegistryMachine
+    registry_root = "/registry"
+
+    def setup_user(self, user, password):
+        self.browser.default_user = user
+        self.browser.password = password
 
     def testLogin(self):
         b = self.browser

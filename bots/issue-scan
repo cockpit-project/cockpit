@@ -119,6 +119,11 @@ def output_task(command, issue, verbose):
         return None
 
     context = context.strip()
+    checkout = "PRIORITY={priority:04d} "
+    cmd = "bots/{name} --issue='{issue}' {context}"
+
+    if "pull_request" in issue:
+        checkout += "bots/make-checkout --verbose pull/{issue}/head && "
 
     if verbose:
         return "issue-{issue} {name} {context}    {priority}".format(
@@ -130,11 +135,11 @@ def output_task(command, issue, verbose):
     else:
         if context:
             context = pipes.quote(context)
-        return "PRIORITY={priority:04d} bots/{name} --issue='{issue}' {context}".format(
+        return (checkout + cmd).format(
             issue=int(number),
             priority=PRIORITY,
             name=name,
-            context=context
+            context=context,
         )
 
 # Default scan behavior run for each task

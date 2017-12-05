@@ -1,0 +1,74 @@
+#!/usr/bin/python2
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import subprocess
+import sys
+
+sys.dont_write_bytecode = True
+
+# Check out the given ref and if necessary overlay the bots
+# directory on top of it as expected on non-master branches
+
+BOTS = os.path.dirname(__file__)
+BASE = os.path.normpath(os.path.join(BOTS, ".."))
+
+def main():
+    parser = argparse.ArgumentParser(description="Fetch and checkout specific revision")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("--base", nargs='?', help="Base branch that revision is for")
+    parser.add_argument("ref", help="The git ref to fetch")
+    parser.add_argument("revision", default="FETCH_HEAD", nargs='?',
+            help="Actual commit to check out, defaults to ref")
+
+    opts = parser.parse_args()
+
+    def execute(*args):
+        if opts.verbose:
+            sys.stderr.write("+ " + " ".join(args) + "\n")
+        try:
+            output = subprocess.check_output(args, cwd=BASE)
+        except subprocess.CalledProcessError as ex:
+            sys.exit(ex.returncode)
+        if opts.verbose and output:
+            sys.stderr.write("> " + output + "\n")
+        return output
+
+    execute("git", "fetch", "origin", opts.ref)
+    execute("git", "checkout", "--detach", opts.revision)
+
+    # COMPAT: If the bots directory doesn't exist in this branch, check it out from master
+    if opts.base and opts.base != "master":
+        sys.stderr.write("Checking out bots directory from master ...\n")
+        execute("git", "checkout", "--force", "origin/master", "--", "bots/")
+
+        # The machine code is special, copy it from master too
+        machine = os.path.join(BOTS, "machine")
+        for name in os.listdir(machine):
+            path = os.path.join(machine, name)
+            if os.path.islink(path):
+                os.unlink(path)
+                code = execute("git", "show", "origin/master:test/common/{0}".format(name))
+                with open(path, "w") as f:
+                    f.write(code)
+
+if __name__ == '__main__':
+    sys.exit(main())

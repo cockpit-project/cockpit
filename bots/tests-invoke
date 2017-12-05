@@ -29,7 +29,6 @@ import traceback
 
 sys.dont_write_bytecode = True
 
-import task
 from task import github
 from task import sink
 
@@ -172,22 +171,6 @@ class PullTask(object):
             traceback.print_exc()
             return "Rebase failed"
 
-        try:
-            task.checkout(base=self.base)
-        except subprocess.CalledProcessError:
-            traceback.print_exc()
-            return "Rebase checkout of bots failed"
-
-        # If the bots directory changed during all of this, then respawn
-        if subprocess.call(["git", "diff", "--quiet", "--exit-code", "--staged", origin_base, "--", "bots/"]) == 1:
-            assert "TEST_INVOKE_RESPAWN" not in os.environ
-            os.environ["TEST_INVOKE_RESPAWN"] = "1"
-            sys.stderr.write("Rebase complete ... respawning\n")
-            if self.sink:
-                self.stop_publishing(None)
-            os.execv(__file__, sys.argv)
-            assert False, "not reached"
-
         return None
 
     def prepare(self, prefix, value, image, verbose=False):
@@ -300,29 +283,28 @@ class PullTask(object):
         return ret
 
     def run(self, opts):
-        if "TEST_INVOKE_RESPAWN" not in os.environ:
-            head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
-            if self.ref:
-                if not opts.offline:
-                    subprocess.check_call([ "git", "fetch", "origin", self.ref ])
-                if not self.revision:
-                    self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
-                # Force a checkout of the ref if not already checked out
-                if not head.lower().startswith(self.revision.lower()):
-                    subprocess.check_call([ "git", "checkout", "-f", self.revision ])
-
+        head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+        if self.ref:
+            if not opts.offline:
+                subprocess.check_call([ "git", "fetch", "origin", self.ref ])
             if not self.revision:
-                self.revision = head
+                self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
+            # Force a checkout of the ref if not already checked out
+            if not head.lower().startswith(self.revision.lower()):
+                subprocess.check_call([ "git", "checkout", "-f", self.revision ])
 
-            # Retrieve information about our base branch and master (for bots/)
-            if self.base and not opts.offline:
-                subprocess.check_call([ "git", "fetch", "origin", self.base, "master" ])
+        if not self.revision:
+            self.revision = head
 
-            # Clean out the test directory
-            subprocess.check_call([ "git", "clean", "-d", "--force", "--quiet", "-x", "--", "test/" ])
+        # Retrieve information about our base branch and master (for bots/)
+        if self.base and not opts.offline:
+            subprocess.check_call([ "git", "fetch", "origin", self.base, "master" ])
 
-            os.environ["TEST_NAME"] = self.name
-            os.environ["TEST_REVISION"] = self.revision
+        # Clean out the test directory
+        subprocess.check_call([ "git", "clean", "-d", "--force", "--quiet", "-x", "--", "test/" ])
+
+        os.environ["TEST_NAME"] = self.name
+        os.environ["TEST_REVISION"] = self.revision
 
         # Split a value like verify/fedora-atomic
         (prefix, unused, value) = self.context.partition("/")
@@ -343,10 +325,8 @@ class PullTask(object):
 
         ret = None
 
-        # If a respawn then this is aleady done
-        if "TEST_INVOKE_RESPAWN" not in os.environ:
-            if self.base:
-                ret = self.rebase()
+        if self.base:
+            ret = self.rebase()
 
         test = os.path.join(BOTS, "..", "test")
 

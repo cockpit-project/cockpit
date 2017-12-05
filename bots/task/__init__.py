@@ -262,11 +262,6 @@ def run(context, function, **kwargs):
         if issue and "pull_request" in issue:
            kwargs["pull"] = pull = api.get(issue["pull_request"]["url"])
 
-        # If this is a pull request then check it out
-        if pull:
-            execute("git", "fetch", "origin", "pull/{0}/head".format(pull["number"]))
-            execute("git", "checkout", "--detach", pull['head']['sha'])
-
         ret = function(context, **kwargs)
     except (RuntimeError, subprocess.CalledProcessError) as ex:
         ret = str(ex)
@@ -277,27 +272,6 @@ def run(context, function, **kwargs):
     finally:
         finish(publishing, ret, name, context, issue)
     return ret or 0
-
-# Check out the given ref and if necessary overlay the bots
-# directory on top of it as expected on non-master branches
-def checkout(ref="HEAD", base=None):
-    if ref:
-        execute("git", "checkout", "--detach", ref)
-
-    # COMPAT: If the bots directory doesn't exist in this branch, check it out from master
-    if base and base != "master":
-        sys.stderr.write("Checking out bots directory from master ...\n")
-        subprocess.check_call([ "git", "checkout", "--force", "origin/master", "--", "bots/" ])
-
-        # The machine code is special, copy it from master too
-        machine = os.path.join(BOTS, "machine")
-        for name in os.listdir(machine):
-            path = os.path.join(machine, name)
-            if os.path.islink(path):
-                os.unlink(path)
-                code = subprocess.check_output([ "git", "show", "origin/master:test/common/{0}".format(name) ])
-                with open(path, "w") as f:
-                    f.write(code)
 
 # Check if the given files that match @pathspec are stale
 # and haven't been updated in @days.

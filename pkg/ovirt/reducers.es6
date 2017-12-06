@@ -128,7 +128,7 @@ function vmsReducer (state, action) {
             // So far, the VM is identified by "name" only
             // See the templatesReducer() as well.
             const vmId =  Object.getOwnPropertyNames(state).filter(vmId => state[vmId].name === action.payload.name);
-            if (!vmId) {
+            if (!vmId || vmId.length === 0) {
                 return state;
             }
 

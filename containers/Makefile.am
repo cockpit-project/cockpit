@@ -61,7 +61,7 @@ UNIT_TESTS_DIR = $(srcdir)/containers/unit-tests
 unit-tests-container:
 	sudo docker build -t cockpit/unit-tests $(UNIT_TESTS_DIR)
 	sudo docker tag  cockpit/unit-tests:latest docker.io/cockpit/unit-tests:latest
-	sudo docker build --build-arg arch=i386 -t cockpit/unit-tests:i386 containers/unit-tests/
+	sudo docker build --build-arg arch=i386 -t cockpit/unit-tests:i386 $(UNIT_TESTS_DIR)
 	sudo docker tag  cockpit/unit-tests:i386 docker.io/cockpit/unit-tests:i386
 
 unit-tests-container-run:

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -58,7 +58,7 @@ def main():
     response = api.request("GET", "git/refs/heads/master", "", headers)
     sys.stdout.write("Rate limits:\n")
     for entry in ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]:
-        entries = filter(lambda t: t[0].lower() == entry.lower(), response['headers'].items())
+        entries = [t for t in response['headers'].items() if t[0].lower() == entry.lower()]
         if entries:
             if entry == "X-RateLimit-Reset":
                 try:

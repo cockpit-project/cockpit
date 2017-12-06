@@ -52,7 +52,7 @@ class AtomicCockpitInstaller:
     def __init__(self, rpms=None, verbose=False):
         self.verbose = verbose
         self.rpms = rpms
-        status = json.loads(subprocess.check_output(["rpm-ostree", "status", "--json"]))
+        status = json.loads(subprocess.check_output(["rpm-ostree", "status", "--json"], universal_newlines=True))
         origin = None
         for deployment in status.get("deployments", []):
             if deployment.get("booted"):

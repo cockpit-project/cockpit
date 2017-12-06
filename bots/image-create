@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # This file is part of Cockpit.
 #
 # Copyright (C) 2015 Red Hat, Inc.
@@ -118,7 +118,7 @@ class MachineBuilder:
             except subprocess.CalledProcessError as ex:
                 if args.sit:
                     sys.stderr.write(self.machine.diagnose())
-                    raw_input ("Press RET to continue... ")
+                    input ("Press RET to continue... ")
                 raise testvm.Failure("setup failed with code {0}\n".format(ex.returncode))
 
         finally:
@@ -147,7 +147,7 @@ class MachineBuilder:
         if args.no_build:
             source = None
         else:
-            source = subprocess.check_output([ os.path.join(BOTS, "make-source") ]).strip()
+            source = subprocess.check_output([ os.path.join(BOTS, "make-source") ], universal_newlines=True).strip()
         self.run_setup_script(script, source)
 
         tries_left = 3
@@ -182,7 +182,7 @@ class MachineBuilder:
         subprocess.check_call([ "qemu-img", "convert", "-c", "-O", "qcow2", self.machine.image_file, partial ])
 
         # Hash the image here
-        (sha, x1, x2) = subprocess.check_output([ "sha256sum", partial ]).partition(" ")
+        (sha, x1, x2) = subprocess.check_output([ "sha256sum", partial ], universal_newlines=True).partition(" ")
         if not sha:
             raise testvm.Failure("sha256sum returned invalid output")
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -44,7 +44,7 @@ BASE = os.path.normpath(os.path.join(BOTS, ".."))
 def execute(*args):
     if task.verbose:
         sys.stderr.write("+ " + " ".join(args) + "\n")
-    return subprocess.check_output(args, cwd=BASE)
+    return subprocess.check_output(args, cwd=BASE, universal_newlines=True)
 
 def run(unused, verbose=False, **kwargs):
 

@@ -84,7 +84,7 @@ def attach(filename):
         shutil.move(filename, dest)
 
 class Browser:
-    def __init__(self, address, label, port=None):
+    def __init__(self, address, label, port=None, headless=True):
         if ":" in address:
             (self.address, unused, self.port) = address.rpartition(":")
         else:
@@ -94,7 +94,7 @@ class Browser:
             self.port = port
         self.default_user = "admin"
         self.label = label
-        self.cdp = CDP("C.utf8")
+        self.cdp = CDP("C.utf8", headless)
         self.password = "foobar"
 
     def title(self):
@@ -837,10 +837,11 @@ def jsquote(str):
     return json.dumps(str)
 
 class CDP:
-    def __init__(self, lang=None):
+    def __init__(self, lang=None, headless=True):
         self.lang = lang
         self.timeout = 60
         self.valid = False
+        self.headless = headless
         self._driver = None
         self._browser = None
         self._browser_home = None
@@ -949,11 +950,16 @@ class CDP:
             except KeyError:
                 pass
 
-            exe = browser_path()
+            exe = browser_path(self.headless)
+
+            if self.headless:
+                argv = [exe,  "--headless"]
+            else:
+                argv = [os.path.join(TEST_DIR, "common/xvfb-wrapper"), exe]
+
             # sandboxing does not work in Docker container
             self._browser = subprocess.Popen(
-                [exe, "--headless", "--disable-gpu", "--no-sandbox",
-                 "--remote-debugging-port=%i" % cdp_port, "about:blank"],
+                argv + ["--disable-gpu", "--no-sandbox", "--remote-debugging-port=%i" % cdp_port, "about:blank"],
                 env=environ, close_fds=True)
             sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))
 
@@ -1242,12 +1248,14 @@ def arg_parser():
     parser.set_defaults(verbosity=1, fetch=True)
     return parser
 
-def browser_path():
+
+def browser_path(headless=True):
     """Return path to CDP browser.
 
     Support the following locations:
      - "chromium-browser" in $PATH (distro package)
-     - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM)
+     - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM), if
+       headless is true
      - node_modules/chromium/lib/chromium/chrome-linux/chrome (npm install chromium)
 
     Exit with an error if none is found.
@@ -1255,9 +1263,10 @@ def browser_path():
     try:
         return subprocess.check_output(["which", "chromium-browser"]).strip()
     except subprocess.CalledProcessError:
-        g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
-        if g:
-            return g[0]
+        if headless:
+            g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
+            if g:
+                return g[0]
 
         p = os.path.join(os.path.dirname(TEST_DIR), "node_modules/chromium/lib/chromium/chrome-linux/chrome")
         if os.access(p, os.X_OK):

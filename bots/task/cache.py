@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -26,7 +26,7 @@ import os
 import stat
 import tempfile
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 __all__ = (
     'Cache',
@@ -65,7 +65,7 @@ class Cache(object):
 
     # Read a resource from the cache or return None
     def read(self, resource):
-        path = os.path.join(self.directory, urllib.quote(resource, safe=''))
+        path = os.path.join(self.directory, urllib.parse.quote(resource, safe=''))
         try:
             with open(path, 'r') as fp:
                 return json.load(fp)
@@ -74,7 +74,7 @@ class Cache(object):
 
     # Write a resource to the cache in an atomic way
     def write(self, resource, contents):
-        path = os.path.join(self.directory, urllib.quote(resource, safe=''))
+        path = os.path.join(self.directory, urllib.parse.quote(resource, safe=''))
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
         (fd, temp) = tempfile.mkstemp(dir=self.directory)
@@ -94,7 +94,7 @@ class Cache(object):
 
     # Check if a given resource in the cache is "current" or not
     def current(self, resource):
-        path = os.path.join(self.directory, urllib.quote(resource, safe=''))
+        path = os.path.join(self.directory, urllib.parse.quote(resource, safe=''))
         try:
             mtime = os.path.getmtime(path)
             return mtime > self.marked and mtime > (time.time() - self.lag)

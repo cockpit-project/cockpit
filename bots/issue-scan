@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -52,7 +52,9 @@ import argparse
 import pipes
 import os
 import sys
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 
 sys.dont_write_bytecode = True
 
@@ -72,7 +74,7 @@ def main():
         sys.stderr.write("tests-scan: No /dev/kvm access, not creating images here\n")
 
     try:
-        urllib.urlopen(REDHAT_PING).read()
+        urllib.request.urlopen(REDHAT_PING).read()
         redhat = os.path.exists(os.path.expanduser(REDHAT_CREDS))
     except IOError:
         redhat = False

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -148,7 +148,7 @@ class PullTask(object):
 
         # Include information about which base we're testing against
         if self.base:
-            commit = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ]).strip()
+            commit = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ], universal_newlines=True).strip()
             status["base"] = commit
 
         (prefix, unused, image) = self.context.partition("/")
@@ -277,7 +277,7 @@ class PullTask(object):
         def mark_respawn():
             if "github" in sink.status:
                 self.github_status_data["state"] = "pending"
-        if isinstance(ret, basestring):
+        if isinstance(ret, str):
             message = ret
             mark_failed()
         elif ret is None:
@@ -301,12 +301,12 @@ class PullTask(object):
 
     def run(self, opts):
         if "TEST_INVOKE_RESPAWN" not in os.environ:
-            head = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+            head = subprocess.check_output([ "git", "rev-parse", "HEAD" ], universal_newlines=True).strip()
             if self.ref:
                 if not opts.offline:
                     subprocess.check_call([ "git", "fetch", "origin", self.ref ])
                 if not self.revision:
-                    self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ]).strip()
+                    self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ], universal_newlines=True).strip()
                 # Force a checkout of the ref if not already checked out
                 if not head.lower().startswith(self.revision.lower()):
                     subprocess.check_call([ "git", "checkout", "-f", self.revision ])

@@ -32,7 +32,8 @@ from sklearn.preprocessing import StandardScaler
 PREDICT_THRESHHOLD = 0.70
 
 # The name and version of the learning data
-LEARN_DATA = "tests-learn-1.nn"
+# This changes every time something about this neural network changes
+LEARN_DATA = "tests-learn-2.nn"
 
 def load(path):
     with gzip.open(path, 'rb') as fp:

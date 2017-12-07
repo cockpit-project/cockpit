@@ -121,6 +121,8 @@ LIBVIRT_PROVIDER = {
     canConsole: (vmState) => vmState == 'running',
     canSendNMI: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
 
+    serialConsoleCommand: ({ vm }) => [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ],
+
     /**
      * Read VM properties of a single VM (virsh)
      *

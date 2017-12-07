@@ -257,16 +257,9 @@ class PullTask(object):
         def mark_passed():
             if "github" in sink.status:
                 self.github_status_data["state"] = "success"
-        def mark_respawn():
-            if "github" in sink.status:
-                self.github_status_data["state"] = "pending"
         if isinstance(ret, basestring):
             message = ret
             mark_failed()
-        elif ret is None:
-            message = "Rebased"
-            mark_respawn()
-            ret = 0 # A failure, but not for this script
         elif ret == 0:
             message = "Tests passed"
             mark_passed()

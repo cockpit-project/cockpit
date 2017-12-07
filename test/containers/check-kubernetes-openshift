@@ -131,6 +131,14 @@ class OCCase(kubelib.KubernetesCase):
         # Expect the default container user limitations during testing
         self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
 
+        def intercept():
+            if not self.checkSuccess():
+                self.snapshot("FAIL")
+                self.copy_js_log("FAIL")
+                self.copy_journal("FAIL")
+                self.copy_cores("FAIL")
+        self.addCleanup(intercept)
+
 class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
     def testLogin(self):
         b = self.browser

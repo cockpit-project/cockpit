@@ -789,6 +789,7 @@ class OpenshiftCommonTests(VolumeTests):
         b.reload()
         b.wait_visible("#machine-troubleshoot")
         b.wait_in_text(".curtains-ct", "Login failed")
+        b.wait_visible('#machine-troubleshoot')
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
         b.wait_in_text("#troubleshoot-dialog", 'Log in to')

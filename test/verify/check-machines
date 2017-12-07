@@ -58,6 +58,19 @@ CONSOLE_XML="""
     </console>
 """
 
+PTYCONSOLE_XML="""
+    <serial type='pty'>
+      <source path='/dev/pts/3'/>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+    <console type='pty' tty='/dev/pts/3'>
+      <source path='/dev/pts/3'/>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+"""
+
 DOMAIN_XML="""
 <domain type='qemu'>
   <name>{name}</name>
@@ -133,7 +146,7 @@ class TestMachines(MachineCase):
         m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
         m.execute("[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
 
-    def startVm(self, name, graphics='spice'):
+    def startVm(self, name, graphics='spice', ptyconsole=False):
         m = self.machine
 
         image_file = m.pull("cirros")
@@ -157,11 +170,14 @@ class TestMachines(MachineCase):
             "console": "",
         }
 
-        # These operating systems do not log from qemu properly
-        if m.image not in [ "centos-7", "rhel-7", "rhel-7-4" ]:
-            m.execute("chmod 777 /var/log/libvirt")
-            args["logfile"] = "/var/log/libvirt/console-{0}.log".format(name)
-            args["console"] = CONSOLE_XML.format(log=args["logfile"])
+        if ptyconsole:
+            args["console"] = PTYCONSOLE_XML
+        else:
+            # These operating systems do not log from qemu properly
+            if m.image not in [ "centos-7", "rhel-7", "rhel-7-4" ]:
+                m.execute("chmod 777 /var/log/libvirt")
+                args["logfile"] = "/var/log/libvirt/console-{0}.log".format(name)
+                args["console"] = CONSOLE_XML.format(log=args["logfile"])
 
         if graphics == 'spice':
             cxml = SPICE_XML
@@ -188,6 +204,7 @@ class TestMachines(MachineCase):
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
 
         self.allow_journal_messages('.*denied.*search.*"qemu-system-x86".*dev="proc".*')
+        self.allow_journal_messages('.*denied.*comm="pmsignal".*')
 
         return args
 
@@ -515,6 +532,48 @@ class TestMachines(MachineCase):
         m.execute("! test -f {0}".format(img2))
 
         self.assertNotIn(name, m.execute("virsh list --all"))
+
+    def testSerialConsole(self):
+        b = self.browser
+        name = "vmWithSerialConsole"
+
+        self.startVm(name, graphics='vnc', ptyconsole=True)
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr th", name)
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_present("#vm-{0}-state".format(name))
+        b.wait_in_text("#vm-{0}-state".format(name), "running") # running or paused
+
+        b.wait_present("#vm-{0}-serial".format(name)) # wait for the tab
+        b.click("#vm-{0}-serial".format(name)) # open the "Console" subtab
+
+        b.wait_present("div.terminal")
+        with b.wait_timeout(10):
+            b.wait_present("div.terminal > div:contains(Connected)")
+
+        b.wait_present("#{0}-serialconsole-reconnect".format(name))
+        b.click("#{0}-serialconsole-reconnect".format(name))
+
+        b.wait_present("div.terminal")
+        with b.wait_timeout(10):
+            b.wait_present("div.terminal > div:contains(Connected)")
+
+        b.wait_present("#{0}-serialconsole-disconnect".format(name))
+        b.click("#{0}-serialconsole-disconnect".format(name))
+
+        with b.wait_timeout(10):
+            b.wait_present("div.machines-terminal span:contains(Disconnected from serial console. Click the Reconnect button.)")
+
+        b.click("#{0}-serialconsole-reconnect".format(name))
+
+        b.wait_present("div.terminal")
+        with b.wait_timeout(10):
+            b.wait_present("div.terminal > div:contains(Connected)")
+
+        # sit(self.machines)
 
 if __name__ == '__main__':
     test_main()

@@ -834,7 +834,6 @@ on_transport_control (CockpitTransport *transport,
   else if (g_str_equal (command, "kill"))
     {
       process_kill (self, options);
-      return TRUE;
     }
   else if (g_str_equal (command, "close"))
     {

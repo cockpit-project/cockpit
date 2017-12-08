@@ -233,8 +233,7 @@ class PullTask(object):
         cmd = [ os.path.join(BOTS, "image-prepare") ]
         if prefix == "image" or prefix == "container":
             cmd += [ "--containers" ]
-        if verbose:
-            cmd += [ "--verbose" ]
+        cmd += [ "--verbose" ]
 
         try:
             # Do the basic prepare

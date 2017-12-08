@@ -69,7 +69,7 @@ __all__ = (
 # Command line options
 opts = argparse.Namespace()
 opts.sit = False
-opts.trace = False
+opts.trace = True
 opts.attachments = None
 opts.revision = None
 opts.address = None
@@ -1229,7 +1229,7 @@ def arg_parser():
                         default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
                         const=2, help='Verbose output')
-    parser.add_argument('-t', "--trace", dest='trace', action='store_true',
+    parser.add_argument('-t', "--trace", dest='trace', action='store_true', default=True,
                         help='Trace machine boot and commands')
     parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
                         const=0, help='Quiet output')

@@ -793,6 +793,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             var elt = $(id)[0];
             var os_release = {};
             try {
+                console.warn("XXXXXXX setup_brand(id: ", id, ", default_title:", default_title, ") windowStore: ", window.localStorage['os-release']);
                 os_release = JSON.parse(window.localStorage['os-release'] || "{}");
             } catch (ex) {
                 console.warn("Couldn't parse os-release", ex);

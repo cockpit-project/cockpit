@@ -165,7 +165,11 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
         b.wait_in_text("title", "Openshift Cockpit")
-        b.wait_in_text("#index-brand", "Openshift")
+        try:
+            b.wait_in_text("#index-brand", "Openshift")
+        except Error:
+            print(self.machine.execute("""C=`docker ps -qf 'name=cockpit_openshift'`; docker exec $C sh -c 'ls -l /container/os-release; echo "--- cockpit.conf ---"; cat /etc/cockpit/cockpit.conf; echo "--- env ---"; env'"""))
+            raise
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")
 

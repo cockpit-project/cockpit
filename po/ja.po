@@ -1,20 +1,21 @@
+# Ludek Janda <ljanda@redhat.com>, 2017. #zanata
 # cockpit <cockpituous@gmail.com>, 2017. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-09 20:45+0000\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-08-01 02:39-0400\n"
+"POT-Creation-Date: 2017-12-08 16:38+0100\n"
+"PO-Revision-Date: 2017-12-06 05:26-0500\n"
 "Last-Translator: Copied by Zanata <copied-by-zanata@zanata.org>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Zanata 3.9.6\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 
-#: pkg/docker/storage.jsx:245
+#: pkg/docker/storage.jsx:244
 msgid " (shared with the OS)"
 msgstr " (OS と共有)"
 
@@ -45,6 +46,9 @@ msgid ""
 "This may also effect other services as DNS resolution settings and the list "
 "of trusted CAs may change."
 msgstr ""
+"$0 ローカル認証情報を持つユーザーだけが、このマシンにログインできます。DNS 解"
+"決設定と、信頼される CA の一覧が変更する場合があるため、他のサービスにもこれ"
+"が当てはまることもあります。"
 
 #: pkg/systemd/init.js:376 pkg/systemd/init.js:664
 msgid "$0 Template"
@@ -110,12 +114,14 @@ msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
 msgstr ""
+"$0 は、多数のオペレーティングシステムで利用できます。インストールするには、"
+"GNOME ソフトウェアで検索するか、以下を実行します:"
 
 #: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:473
 #: pkg/storaged/details.jsx:93 pkg/storaged/details.jsx:153
 #: pkg/storaged/format-dialog.jsx:117
 msgid "$0 is in active use"
-msgstr ""
+msgstr "$0 は、アクティブに使用されています。"
 
 #: pkg/ostree/client.js:484
 msgid "$0 key ID"
@@ -137,7 +143,7 @@ msgstr[0] "$0 ヶ月"
 
 #: pkg/packagekit/updates.jsx:262
 msgid "$0 more…"
-msgstr ""
+msgstr "$0 を超えています…"
 
 #: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "$0 occurrence"
@@ -161,10 +167,9 @@ msgid "$0 shares"
 msgstr "$0 シェア"
 
 #: pkg/packagekit/updates.jsx:179
-#, fuzzy
 msgid "$0 update"
 msgid_plural "$0 updates"
-msgstr[0] "更新"
+msgstr[0] "$0 更新"
 
 #: pkg/lib/plot.js:887
 msgid "$0 week"
@@ -226,7 +231,7 @@ msgstr "（なし）"
 #: pkg/packagekit/updates.jsx:184
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
-msgstr[0] ""
+msgstr[0] "セキュリティー修正を $1 個含む"
 
 #: pkg/ostree/index.html:92
 msgid "- Add New Repository"
@@ -494,7 +499,9 @@ msgstr "<span>$0 のパーティション</span>"
 msgid ""
 "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
 "strong}}."
-msgstr "Cockpit の互換バージョンが {{#strong}}{{host}}{{/strong}} にインストールされていません。"
+msgstr ""
+"Cockpit の互換バージョンが {{#strong}}{{host}}{{/strong}} にインストールされ"
+"ていません。"
 
 #: pkg/storaged/sidebar-views.jsx:142
 msgid "A spare disk needs to be added first before this disk can be removed."
@@ -545,7 +552,7 @@ msgstr "アクセスは拒否されました"
 
 #: pkg/users/index.html:297
 msgid "Account Expiration"
-msgstr ""
+msgstr "アカウントの有効期限"
 
 #: pkg/shell/index.html:60
 msgid "Account Settings"
@@ -553,7 +560,7 @@ msgstr "アカウント設定"
 
 #: pkg/users/index.html:61
 msgid "Account not available or cannot be edited."
-msgstr "アカウントが利用可能でないか、アカウントを編集できません。"
+msgstr "アカウントが利用できないか、アカウントを編集できません。"
 
 #: pkg/users/index.html:69
 msgid "Accounts"
@@ -563,6 +570,11 @@ msgstr "アカウント"
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "アカウント"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:176
+msgid "Action"
+msgstr "アクション"
 
 #: pkg/storaged/content-views.jsx:227
 msgid "Activate"
@@ -600,13 +612,13 @@ msgstr "適応ロードバランス"
 msgid "Adaptive transmit load balancing"
 msgstr "適応送信のロードバランス"
 
+#: pkg/kubernetes/views/add-member-role-dialog.html:61
+#: pkg/kubernetes/views/add-role-dialog.html:8
 #: pkg/kubernetes/views/add-user-dialog.html:27
 #: pkg/kubernetes/views/node-add.html:50
 #: pkg/kubernetes/views/user-add-membership.html:49
-#: pkg/kubernetes/views/user-group-add.html:30
-#: pkg/kubernetes/views/add-member-role-dialog.html:61
-#: pkg/kubernetes/views/add-role-dialog.html:8 pkg/lib/machine-add.html:43
-#: pkg/ostree/index.html:90 pkg/shell/index.html:194
+#: pkg/kubernetes/views/user-group-add.html:30 pkg/ostree/index.html:90
+#: pkg/shell/index.html:194 pkg/lib/machine-add.html:43
 #: pkg/storaged/overview.js:634 pkg/storaged/overview.js:662
 #: pkg/storaged/sidebar-views.jsx:85 pkg/storaged/sidebar-views.jsx:249
 msgid "Add"
@@ -616,7 +628,7 @@ msgstr "追加する"
 msgid "Add $0"
 msgstr "$0 の追加"
 
-#: pkg/docker/storage.jsx:377
+#: pkg/docker/storage.jsx:376
 msgid "Add Additional Storage"
 msgstr "ストレージの追加"
 
@@ -652,11 +664,11 @@ msgstr "Kubernetes ノードの追加"
 msgid "Add Machine to Dashboard"
 msgstr "ダッシュボードへのマシンの追加"
 
+#: pkg/kubernetes/views/add-member-role-dialog.html:4
 #: pkg/kubernetes/views/group-page.html:38
 #: pkg/kubernetes/views/group-panel.html:29
 #: pkg/kubernetes/views/project-body.html:108
 #: pkg/kubernetes/views/user-group-add.html:3
-#: pkg/kubernetes/views/add-member-role-dialog.html:4
 msgid "Add Member"
 msgstr "メンバーの追加"
 
@@ -679,7 +691,7 @@ msgstr "新規ユーザーの追加"
 msgid "Add Role"
 msgstr "ロールの追加"
 
-#: pkg/docker/storage.jsx:208
+#: pkg/docker/storage.jsx:207
 msgid "Add Storage"
 msgstr "ストレージの追加"
 
@@ -716,7 +728,9 @@ msgstr "公開鍵の追加"
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
-msgstr "<b>$0</b> を追加すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"<b>$0</b> を追加すると、サーバーへの接続が切断され、管理 UI が利用できなくな"
+"ります。"
 
 #: pkg/users/authorized-keys.js:109
 msgid "Adding key"
@@ -749,8 +763,8 @@ msgstr "追加"
 #: pkg/kubernetes/views/auth-form.html:29
 #: pkg/kubernetes/views/dashboard-page.html:157
 #: pkg/kubernetes/views/details-page.html:174
-#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
-#: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
+#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/nodes-page.html:43
+#: pkg/kubernetes/views/node-body.html:5 pkg/lib/machine-add.html:11
 #: pkg/storaged/overview.js:629
 msgid "Address"
 msgstr "アドレス:"
@@ -759,8 +773,7 @@ msgstr "アドレス:"
 msgid "Address $val"
 msgstr "アドレス $val"
 
-#: pkg/machines/components/desktopConsole.jsx:156
-#, fuzzy
+#: pkg/machines/components/desktopConsole.jsx:154
 msgid "Address:"
 msgstr "アドレス:"
 
@@ -813,11 +826,13 @@ msgstr "すべてのプロジェクト"
 msgid "All Types"
 msgstr "すべてのタイプ"
 
-#: pkg/docker/storage.jsx:380
+#: pkg/docker/storage.jsx:379
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
-msgstr "選択されたディスク上のすべてのデータが削除され、ストレージプールにディスクが追加されます。"
+msgstr ""
+"選択されたディスク上のすべてのデータが削除され、ストレージプールにディスクが"
+"追加されます。"
 
 #: pkg/kubernetes/views/dashboard-page.html:112
 msgid "All healthy"
@@ -839,8 +854,8 @@ msgstr "実行中のすべてのもの"
 msgid "Always"
 msgstr "常時"
 
-#: pkg/kubernetes/views/node-body.html:57
 #: pkg/kubernetes/views/route-body.html:27
+#: pkg/kubernetes/views/node-body.html:57
 #: node_modules/registry-image-widgets/views/annotations.html:1
 msgid "Annotations"
 msgstr "アノテーション"
@@ -852,26 +867,26 @@ msgstr "匿名: 認証されていないすべてのユーザーがイメージ�
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:148
 #: pkg/apps/application.jsx:127
 msgid "Applications"
-msgstr ""
+msgstr "アプリケーション"
 
 #: pkg/networkmanager/index.html:620 pkg/networkmanager/index.html:644
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:692
 #: pkg/networkmanager/index.html:716 pkg/networkmanager/index.html:740
 #: pkg/networkmanager/index.html:764 pkg/networkmanager/index.html:788
 #: pkg/networkmanager/index.html:812 pkg/ostree/index.html:39
-#: pkg/kdump/kdump-view.jsx:356 pkg/storaged/crypto-tab.jsx:81
-#: pkg/storaged/crypto-tab.jsx:115 pkg/storaged/fsys-tab.jsx:76
-#: pkg/storaged/fsys-tab.jsx:145
+#: pkg/storaged/crypto-tab.jsx:81 pkg/storaged/crypto-tab.jsx:115
+#: pkg/storaged/fsys-tab.jsx:76 pkg/storaged/fsys-tab.jsx:145
+#: pkg/kdump/kdump-view.jsx:356
 msgid "Apply"
 msgstr "適用"
 
 #: pkg/packagekit/autoupdates.jsx:293
 msgid "Apply all updates"
-msgstr ""
+msgstr "すべてのアップデートを適用します"
 
 #: pkg/packagekit/autoupdates.jsx:294
 msgid "Apply security updates"
-msgstr ""
+msgstr "セキュリティーアップデートを適用します"
 
 #: pkg/selinux/setroubleshoot-view.jsx:107
 msgid "Apply this solution"
@@ -882,13 +897,12 @@ msgid "Applying solution..."
 msgstr "ソリューションの適用中 ..."
 
 #: pkg/packagekit/updates.jsx:36
-#, fuzzy
 msgid "Applying updates"
-msgstr "ソリューションの適用中 ..."
+msgstr "アップデートの適用中 ..."
 
 #: pkg/packagekit/updates.jsx:38
 msgid "Applying updates failed"
-msgstr ""
+msgstr "アップデートの適用に失敗しました"
 
 #: node_modules/registry-image-widgets/views/image-config.html:16
 #: pkg/subscriptions/subscriptions-view.jsx:35
@@ -900,14 +914,12 @@ msgid "Are you sure you want to delete this image?"
 msgstr "このイメージを削除してもよろしいですか?"
 
 #: pkg/realmd/operation.js:105
-#, fuzzy
 msgid "Are you sure you want to leave the '$0' domain?"
-msgstr "このイメージを削除してもよろしいですか?"
+msgstr "'$0' ドメインを解除してもよろしいですか?"
 
 #: pkg/realmd/operation.js:103
-#, fuzzy
 msgid "Are you sure you want to leave this domain?"
-msgstr "このイメージを削除してもよろしいですか?"
+msgstr "このドメインを解除してもよろしいですか?"
 
 #: pkg/storaged/index.html:449
 msgctxt "storage"
@@ -939,9 +951,9 @@ msgstr "監査ログ"
 msgid "Authenticating"
 msgstr "認証"
 
-#: pkg/kubernetes/views/auth-form.html:85 pkg/lib/machine-change-auth.html:32
-#: pkg/realmd/operation.html:35 pkg/shell/index.html:63
-#: pkg/shell/index.html:162
+#: pkg/kubernetes/views/auth-form.html:85 pkg/realmd/operation.html:35
+#: pkg/shell/index.html:63 pkg/shell/index.html:162
+#: pkg/lib/machine-change-auth.html:32
 msgid "Authentication"
 msgstr "認証"
 
@@ -988,7 +1000,11 @@ msgstr "自動 (DHCP)"
 
 #: pkg/packagekit/autoupdates.jsx:334
 msgid "Automatic Updates"
-msgstr ""
+msgstr "自動アップデート"
+
+#: pkg/ovirt/components/OVirtTab.jsx:79
+msgid "Automatically selected host"
+msgstr "自動的に選択されたホスト"
 
 #: pkg/systemd/index.html:398
 msgid "Automatically using NTP"
@@ -1002,15 +1018,14 @@ msgstr "特定の NTP サーバーを自動的に使用"
 msgid "Autostart:"
 msgstr "自動起動:"
 
-#: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
+#: pkg/ostree/index.html:255 pkg/lib/machine-change-auth.html:66
 #: pkg/machines/hostvmslist.jsx:353 pkg/machines/hostvmslist.jsx:364
 msgid "Available"
 msgstr "利用可能"
 
 #: pkg/packagekit/updates.jsx:822
-#, fuzzy
 msgid "Available Updates"
-msgstr "利用可能"
+msgstr "利用可能なアップデート"
 
 #: pkg/storaged/overview.js:624
 msgid "Available targets on $0"
@@ -1036,11 +1051,23 @@ msgstr "passwd1 メカニズムに間違ったデータが渡されました"
 msgid "Balancer"
 msgstr "バランサー"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+msgid "Base Template"
+msgstr "ベーステンプレート"
+
+#: pkg/ovirt/components/ClusterVms.jsx:74
+msgid "Base template"
+msgstr "ベーステンプレート"
+
+#: pkg/ovirt/components/OVirtTab.jsx:105 pkg/ovirt/components/OVirtTab.jsx:112
+msgid "Base template:"
+msgstr "ベーステンプレート:"
+
 #: pkg/ostree/index.html:68
 msgid "Begins with '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
 msgstr "'-----BEGIN PGP PUBLIC KEY BLOCK-----' で始めます"
 
-#: pkg/storaged/index.html:558
+#: pkg/storaged/index.html:559
 msgctxt "storage"
 msgid "Bitmap"
 msgstr "ビットマップ"
@@ -1072,7 +1099,7 @@ msgstr "ブート ID"
 
 #: pkg/machines/hostvmslist.jsx:271
 msgid "Boot Order:"
-msgstr ""
+msgstr "ブート順序:"
 
 #: pkg/networkmanager/interfaces.js:2404 pkg/networkmanager/interfaces.js:2416
 #: pkg/networkmanager/interfaces.js:2751
@@ -1101,7 +1128,7 @@ msgstr "破損した設定"
 
 #: pkg/packagekit/updates.jsx:331
 msgid "Bugs"
-msgstr ""
+msgstr "バグ"
 
 #: node_modules/registry-image-widgets/views/image-body.html:18
 msgid "Built"
@@ -1124,9 +1151,8 @@ msgid "CPU Status"
 msgstr "CPU ステータス"
 
 #: pkg/machines/hostvmslist.jsx:300
-#, fuzzy
 msgid "CPU Type:"
-msgstr "種類:"
+msgstr "CPU タイプ:"
 
 #: pkg/kubernetes/scripts/nodes.js:716
 msgid "CPU Utilization: $0%"
@@ -1139,6 +1165,10 @@ msgstr "CPU 優先度"
 #: pkg/docker/index.html:211
 msgid "CPU usage:"
 msgstr "CPU 使用率:"
+
+#: pkg/ovirt/provider.es6:202
+msgid "CREATE VM action failed"
+msgstr "CREATE VM アクションに失敗しました"
 
 #: pkg/systemd/index.html:257 pkg/systemd/host.js:1467
 msgid "Cached"
@@ -1155,6 +1185,9 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/dashboard/index.html:173 pkg/docker/index.html:555
 #: pkg/docker/index.html:589 pkg/docker/index.html:651
 #: pkg/docker/index.html:703 pkg/docker/index.html:743
+#: pkg/kubernetes/views/add-group-dialog.html:18
+#: pkg/kubernetes/views/add-member-role-dialog.html:60
+#: pkg/kubernetes/views/add-role-dialog.html:7
 #: pkg/kubernetes/views/add-user-dialog.html:26
 #: pkg/kubernetes/views/auth-form.html:128
 #: pkg/kubernetes/views/auth-rejected-cert.html:31
@@ -1181,11 +1214,6 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/kubernetes/views/user-group-remove.html:9
 #: pkg/kubernetes/views/user-modify.html:26
 #: pkg/kubernetes/views/user-remove-membership.html:9
-#: pkg/kubernetes/views/add-group-dialog.html:18
-#: pkg/kubernetes/views/add-member-role-dialog.html:60
-#: pkg/kubernetes/views/add-role-dialog.html:7
-#: pkg/lib/machine-change-auth.html:80 pkg/lib/machine-change-port.html:40
-#: pkg/lib/machine-sync-users.html:74 pkg/lib/machine-add.html:42
 #: pkg/networkmanager/index.html:619 pkg/networkmanager/index.html:643
 #: pkg/networkmanager/index.html:667 pkg/networkmanager/index.html:691
 #: pkg/networkmanager/index.html:715 pkg/networkmanager/index.html:739
@@ -1193,14 +1221,19 @@ msgstr "ロック解除されている間は削除できません"
 #: pkg/networkmanager/index.html:811 pkg/ostree/index.html:164
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
 #: pkg/shell/index.html:135 pkg/shell/simple.html:100 pkg/shell/stub.html:113
-#: pkg/storaged/index.html:287 pkg/storaged/index.html:847
-#: pkg/systemd/index.html:341 pkg/systemd/index.html:428
-#: pkg/systemd/index.html:480 pkg/systemd/index.html:496
-#: pkg/systemd/services.html:481 pkg/users/index.html:221
-#: pkg/users/index.html:285 pkg/users/index.html:324 pkg/users/index.html:363
-#: pkg/users/index.html:380 pkg/users/index.html:404 pkg/users/index.html:461
-#: pkg/apps/utils.jsx:87 pkg/lib/cockpit-components-dialog.jsx:138
-#: pkg/packagekit/updates.jsx:206 pkg/sosreport/index.js:51
+#: pkg/storaged/index.html:287 pkg/storaged/index.html:853
+#: pkg/systemd/services.html:481 pkg/systemd/index.html:341
+#: pkg/systemd/index.html:428 pkg/systemd/index.html:480
+#: pkg/systemd/index.html:496 pkg/users/index.html:221 pkg/users/index.html:285
+#: pkg/users/index.html:324 pkg/users/index.html:363 pkg/users/index.html:380
+#: pkg/users/index.html:404 pkg/users/index.html:461
+#: pkg/lib/machine-add.html:42 pkg/lib/machine-change-port.html:40
+#: pkg/lib/machine-sync-users.html:74 pkg/lib/machine-change-auth.html:80
+#: pkg/sosreport/index.js:51 pkg/lib/cockpit-components-dialog.jsx:138
+#: pkg/packagekit/updates.jsx:206 pkg/apps/utils.jsx:87
+#: pkg/ovirt/components/VdsmView.jsx:97 pkg/ovirt/components/VdsmView.jsx:111
+#: pkg/ovirt/components/ClusterTemplates.jsx:76
+#: pkg/ovirt/components/OVirtTab.jsx:68
 msgid "Cancel"
 msgstr "取り消し"
 
@@ -1231,7 +1264,7 @@ msgid "Capacity"
 msgstr "容量"
 
 #: pkg/storaged/index.html:441 pkg/storaged/index.html:517
-#: pkg/storaged/index.html:549 pkg/storaged/index.html:592
+#: pkg/storaged/index.html:550 pkg/storaged/index.html:595
 msgctxt "storage"
 msgid "Capacity"
 msgstr "容量"
@@ -1313,7 +1346,9 @@ msgstr "設定の変更"
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "設定を変更すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"設定を変更すると、サーバーへの接続が切断され、管理 UI が利用できなくなりま"
+"す。"
 
 #: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:197
 msgid "Check for Updates"
@@ -1333,7 +1368,7 @@ msgstr "RAID デバイス $target の確認および修復"
 
 #: pkg/apps/application-list.jsx:124
 msgid "Checking for new applications"
-msgstr ""
+msgstr "新しいアプリケーションを探す"
 
 #: pkg/lib/machine-change-auth.html:71
 msgid "Checking for public keys"
@@ -1371,21 +1406,23 @@ msgstr "$target のクリーンアップ"
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr ""
+"\"リモートビューアーの起動\" をクリックすると、.vv ファイルをダウンロード"
+"し、$0 を起動します。"
 
 #: pkg/kubernetes/views/auth-form.html:88
 msgid "Client Certificate"
 msgstr "クライアント証明書"
 
-#: pkg/docker/index.html:724 pkg/lib/machine-change-port.html:45
-#: pkg/lib/machine-invalid-hostkey.html:19 pkg/lib/machine-not-supported.html:8
-#: pkg/lib/machine-unknown-hostkey.html:19 pkg/lib/machine-auth-failed.html:20
-#: pkg/networkmanager/index.html:830 pkg/shell/index.html:109
-#: pkg/shell/index.html:152 pkg/shell/index.html:356 pkg/shell/simple.html:82
-#: pkg/shell/stub.html:87 pkg/shell/stub.html:130 pkg/storaged/index.html:637
-#: pkg/storaged/index.html:852 pkg/systemd/index.html:287
+#: pkg/docker/index.html:724 pkg/networkmanager/index.html:830
+#: pkg/shell/index.html:109 pkg/shell/index.html:152 pkg/shell/index.html:356
+#: pkg/shell/simple.html:82 pkg/shell/stub.html:87 pkg/shell/stub.html:130
+#: pkg/storaged/index.html:641 pkg/storaged/index.html:858
 #: pkg/systemd/services.html:322 pkg/systemd/services.html:340
-#: pkg/users/index.html:45 pkg/apps/utils.jsx:109 pkg/sosreport/index.js:45
-#: pkg/sosreport/index.js:109
+#: pkg/systemd/index.html:287 pkg/users/index.html:45
+#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:45
+#: pkg/lib/machine-invalid-hostkey.html:19 pkg/lib/machine-not-supported.html:8
+#: pkg/lib/machine-unknown-hostkey.html:19 pkg/sosreport/index.js:45
+#: pkg/sosreport/index.js:109 pkg/apps/utils.jsx:109
 msgid "Close"
 msgstr "閉じる"
 
@@ -1393,9 +1430,18 @@ msgstr "閉じる"
 msgid "Close Selected Pages"
 msgstr "選択されたページを閉じる"
 
-#: pkg/kubernetes/views/auth-form.html:5
+#: pkg/kubernetes/views/auth-form.html:5 pkg/ovirt/components/App.jsx:75
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Cluster"
 msgstr "クラスター"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:127
+msgid "Cluster Templates"
+msgstr "クラスターテンプレート"
+
+#: pkg/ovirt/components/ClusterVms.jsx:173
+msgid "Cluster Virtual Machines"
+msgstr "クラスター仮想マシン"
 
 #: cockpit.desktop.in.h:1
 msgid "Cockpit"
@@ -1410,8 +1456,8 @@ msgid ""
 "Cockpit could not contact the given host $0. Make sure it has ssh running on "
 "port $1, or specify another port in the address."
 msgstr ""
-"Cockpit は該当するホスト $0 に接続できませんでした。そのホストのポート $1 で ssh "
-"が実行されていることを確認するか、アドレスで別のポートを指定します。"
+"Cockpit は該当するホスト $0 に接続できませんでした。そのホストのポート $1 で "
+"ssh が実行されていることを確認するか、アドレスで別のポートを指定します。"
 
 #: src/base1/cockpit.js:3962
 msgid "Cockpit could not contact the given host."
@@ -1423,9 +1469,9 @@ msgid ""
 "Cockpit by pressing refresh in your browser. The javascript console contains "
 "details about this error (<b>Ctrl-Shift-J</b> in most browsers)."
 msgstr ""
-"Cockpit で予期しない内部エラーが発生しました。<br/><br/>ブラウザーで更新を押して Cockpit "
-"の再起動を試行できます。javascript コンソールにはこのエラーに関する詳細が含まれます (ほとんどのブラウザーでは <b>Ctrl-Shift-"
-"J</b>)。"
+"Cockpit で予期しない内部エラーが発生しました。<br/><br/>ブラウザーで更新を押"
+"して Cockpit の再起動を試行できます。javascript コンソールに、このエラーに関"
+"する詳細が含まれます (ほとんどのブラウザーでは <b>Ctrl-Shift-J</b>)。"
 
 #: cockpit.appdata.xml.in.h:2
 msgid ""
@@ -1435,21 +1481,22 @@ msgid ""
 "Likewise, if an error occurs in the terminal, it can be seen in the Cockpit "
 "journal interface."
 msgstr ""
-"Cockpit は、Web ブラウザーで Linux サーバーを簡単に管理できるサーバーマネージャーです。端末と Web "
-"ツールを区別せずに使用できます。Cockpit で起動されたサービスは端末で停止できます。同様に、端末でエラーが発生した場合は、そのエラーを "
-"Cockpit ジャーナルインターフェースで確認できます。"
+"Cockpit は、Web ブラウザーで Linux サーバーを簡単に管理できるサーバーマネー"
+"ジャーです。端末と Web ツールを区別せずに使用できます。Cockpit で起動された"
+"サービスは端末で停止できます。同様に、端末でエラーが発生した場合は、そのエ"
+"ラーを Cockpit ジャーナルインターフェースで確認できます。"
 
 #: pkg/shell/index.html:98 pkg/shell/stub.html:76
 msgid "Cockpit is an interactive Linux server admin interface."
-msgstr "Cockpit は対話型 Linux サーバー管理インターフェースです。"
+msgstr "Cockpit は、対話型 Linux サーバー管理インターフェースです。"
 
 #: pkg/shell/simple.html:71
 msgid "Cockpit is an interactive Linux server admin interface. "
-msgstr "Cockpit は対話型 Linux サーバー管理インターフェースです。"
+msgstr "Cockpit は、対話型 Linux サーバー管理インターフェースです。"
 
 #: src/base1/cockpit.js:3960
 msgid "Cockpit is not compatible with the software on the system."
-msgstr "Cockpit にはシステム上のそのソフトウェアとの互換性がありません。"
+msgstr "Cockpit には、そのシステムのソフトウェアとの互換性がありません。"
 
 #: pkg/lib/machine-not-supported.html:2
 msgid "Cockpit is not installed"
@@ -1467,12 +1514,15 @@ msgid ""
 "same time. Just add them with a single click and your machines will look "
 "after its buddies."
 msgstr ""
-"Cockpit "
-"は経験が少ないシステム管理者に最適です。これらのシステム管理者はストレージの管理、ジャーナルの検査、サービスの起動および停止などの単純なタスクを簡単に実行できるようになります。また、複数のサーバーを同時に監視および管理できます。これらのサーバーはクリックするだけで追加できます。追加後に、ご使用のマシンは他のマシンを管理するようになります。"
+"Cockpit は、経験が少ないシステム管理者に最適です。これを使えば、ストレージの"
+"管理、ジャーナルの検査、サービスの起動および停止などの単純なタスクを簡単に実"
+"行できるようになります。また、複数のサーバーを同時に監視および管理できます。"
+"これらのサーバーはクリックするだけで追加できます。追加後に、ご使用のマシンは"
+"他のマシンを管理するようになります。"
 
 #: pkg/packagekit/updates.jsx:834
 msgid "Cockpit itself will be updated."
-msgstr ""
+msgstr "Cockpit 自体がアップデートされます。"
 
 #: pkg/lib/machine-change-port.html:9
 msgid "Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}."
@@ -1480,19 +1530,20 @@ msgstr "Cockpit は {{#strong}}{{host}}{{/strong}} に接続できませんで�
 
 #: pkg/lib/machine-auth-failed.html:15
 msgid ""
-"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. "
-"{{#can_sync}}You may want to try to {{#sync_link}}synchronize users{{/"
-"sync_link}}.{{/can_sync}} For more authentication options and "
-"troubleshooting support please upgrade cockpit-ws to a newer version."
+"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. {{#can_sync}}"
+"You may want to try to {{#sync_link}}synchronize users{{/sync_link}}.{{/"
+"can_sync}} For more authentication options and troubleshooting support "
+"please upgrade cockpit-ws to a newer version."
 msgstr ""
-"Cockpit は {{#strong}}{{host}}{{/strong}} "
-"にログインできませんでした。{{#can_sync}}{{#sync_link}}ユーザーの同期{{/sync_link}}を行ってください。{{/"
-"can_sync}}他の認証オプションとトラブルシューティングのサポートが必要な場合は、cockpit-ws "
-"を新しいバージョンにアップグレードしてください。"
+"Cockpit は {{#strong}}{{host}}{{/strong}} にログインできませんでした。"
+"{{#can_sync}}{{#sync_link}}ユーザーの同期{{/sync_link}}を行ってください。{{/"
+"can_sync}}他の認証オプションとトラブルシューティングのサポートが必要な場合"
+"は、cockpit-ws を新しいバージョンにアップグレードしてください。"
 
 #: pkg/lib/machine-change-auth.html:9
 msgid "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}."
-msgstr "Cockpit は {{#strong}}{{host}}{{/strong}} にログインできませんでした。"
+msgstr ""
+"Cockpit は、{{#strong}}{{host}}{{/strong}} にログインできませんでした。"
 
 #: pkg/lib/machine-auth-failed.html:6
 msgid ""
@@ -1500,8 +1551,9 @@ msgid ""
 "machine with cockpit you will need to enable one of the following "
 "authentication methods in the sshd config on {{#strong}}{{host}}{{/strong}}:"
 msgstr ""
-"Cockpit は {{#strong}}{{host}}{{/strong}} にログインできませんでした。このマシンを Cockpit "
-"で使用するには、{{#strong}}{{host}}{{/strong}} 上の sshd 設定で次の認証方法のいずれかを有効にする必要があります。"
+"Cockpit は、{{#strong}}{{host}}{{/strong}} にログインできませんでした。このマ"
+"シンを Cockpit で使用するには、{{#strong}}{{host}}{{/strong}} 上の sshd 設定"
+"で、次のいずれかの認証方法を有効にする必要があります。"
 
 #: pkg/lib/machine-change-auth.html:13
 msgid ""
@@ -1509,9 +1561,9 @@ msgid ""
 "change your authentication credentials below. {{#can_sync}}You may prefer to "
 "{{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}"
 msgstr ""
-"Cockpit は {{#strong}}{{host}}{{/strong}} "
-"にログインできませんでした。認証情報は以下で変更できます。{{#can_sync}}{{#sync_link}}アカウントとパスワードの同期{{/"
-"sync_link}}を実行できます。{{/can_sync}}"
+"Cockpit は、{{#strong}}{{host}}{{/strong}} にログインできませんでした。認証情"
+"報は以下で変更できます。{{#can_sync}}{{#sync_link}} アカウントとパスワードの"
+"同期 {{/sync_link}} を実行できます。{{/can_sync}}"
 
 #: pkg/dashboard/index.html:155 pkg/lib/machine-add.html:27
 msgid "Color"
@@ -1564,7 +1616,8 @@ msgstr "すべてのシステムおよびデバイスとの互換性あり (MBR)
 
 #: pkg/storaged/content-views.jsx:494
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
-msgstr "最新のシステムとの互換性があり、ハードディスクが 2TB よりも大きい (GPT)"
+msgstr ""
+"最新のシステムとの互換性があり、ハードディスクが 2TB よりも大きい (GPT)"
 
 #: pkg/kdump/kdump-view.jsx:198
 msgid "Compress crash dumps to save space"
@@ -1580,11 +1633,11 @@ msgstr "コンピューター OU"
 
 #: pkg/systemd/init.js:640
 msgid "Condition $0=$1 was not met"
-msgstr ""
+msgstr "条件 $0=$1 を満たしていませんでした。"
 
 #: pkg/systemd/services.html:130
 msgid "Condition failed"
-msgstr ""
+msgstr "条件が満たされませんでした。"
 
 #: pkg/kubernetes/views/node-add.html:24
 msgid "Configuration"
@@ -1602,7 +1655,7 @@ msgstr "Flannel ネットワーキングの設定"
 msgid "Configure Kubelet and Proxy"
 msgstr "Kubelet およびプロキシーの設定"
 
-#: pkg/docker/storage.jsx:308
+#: pkg/docker/storage.jsx:307
 msgid "Configure storage..."
 msgstr "ストレージの設定 ..."
 
@@ -1623,13 +1676,24 @@ msgid "Confirm New Password"
 msgstr "新規パスワードの確認"
 
 #: pkg/machines/components/deleteDialog.jsx:92
-#, fuzzy
 msgid "Confirm deletion of $0"
-msgstr "$0 の削除を確定してください"
+msgstr "$0 の削除を確定"
+
+#: pkg/ovirt/components/OVirtTab.jsx:67
+msgid "Confirm migration"
+msgstr "移行の確定"
 
 #: pkg/storaged/format-dialog.jsx:165
 msgid "Confirm passphrase"
 msgstr "パスフレーズの確認"
+
+#: pkg/ovirt/components/VdsmView.jsx:95
+msgid "Confirm reload:"
+msgstr "リロードの確認:"
+
+#: pkg/ovirt/components/VdsmView.jsx:108
+msgid "Confirm save:"
+msgstr "保存の確認:"
 
 #: pkg/kubernetes/views/auth-form.html:130
 #: pkg/kubernetes/views/auth-rejected-cert.html:33
@@ -1645,17 +1709,21 @@ msgstr "自動的に接続"
 msgid "Connect to"
 msgstr "接続先"
 
-#: pkg/machines/components/desktopConsole.jsx:128
+#: pkg/ovirt/components/InstallationDialog.jsx:103
+msgid "Connect to oVirt Engine"
+msgstr "oVirt エンジンに接続"
+
+#: pkg/machines/components/desktopConsole.jsx:126
 msgid "Connect with Remote Viewer"
-msgstr ""
+msgstr "リモートビューアーに接続"
 
-#: pkg/machines/components/desktopConsole.jsx:191
+#: pkg/machines/components/desktopConsole.jsx:189
 msgid "Connect with any $0 viewer application."
-msgstr ""
+msgstr "$0 ビューアーアプリケーションに接続します。"
 
-#: pkg/machines/components/desktopConsole.jsx:188
+#: pkg/machines/components/desktopConsole.jsx:186
 msgid "Connect with any SPICE or VNC viewer application."
-msgstr ""
+msgstr "SPICE または VNC のビューアーアプリケーションに接続します。"
 
 #: pkg/lib/machine-add.html:39
 msgid ""
@@ -1678,11 +1746,11 @@ msgstr "SETroubleshoot デーモンへの接続中 ..."
 msgid "Connecting to the machine"
 msgstr "マシンへの接続"
 
-#: pkg/kubernetes/index.html:101 pkg/kubernetes/registry.html:71
+#: pkg/kubernetes/registry.html:71 pkg/kubernetes/index.html:101
 msgid "Connecting..."
 msgstr "接続中..."
 
-#: pkg/machines/hostvmslist.jsx:472
+#: pkg/machines/hostvmslist.jsx:476
 msgid "Connection"
 msgstr "接続"
 
@@ -1700,7 +1768,7 @@ msgstr "接続設定"
 
 #: src/base1/cockpit.js:3952
 msgid "Connection has timed out."
-msgstr "接続がタイムアウトしました。"
+msgstr "接続がタイムアウトになりました。"
 
 #: pkg/networkmanager/index.html:842
 msgid "Connection will be lost"
@@ -1708,7 +1776,7 @@ msgstr "接続が失われます"
 
 #: pkg/machines/hostvmslist.jsx:410
 msgid "Console"
-msgstr ""
+msgstr "コンソール"
 
 #: pkg/docker/console.html:4 pkg/kubernetes/views/container-body.html:4
 #: pkg/kubernetes/views/container-page-inline.html:2
@@ -1738,7 +1806,8 @@ msgstr "コンテナーランタイムバージョン"
 #: pkg/docker/util.js:493
 msgid ""
 "Container is currently marked as not running, but regular stopping failed."
-msgstr "コンテナーは現在実行中でないと示されていますが、正常な停止に失敗しました。"
+msgstr ""
+"コンテナーは現在実行中でないと示されていますが、正常な停止に失敗しました。"
 
 #: pkg/docker/util.js:491
 msgid "Container is currently running."
@@ -1777,7 +1846,7 @@ msgctxt "key"
 msgid "Control"
 msgstr "コントロール"
 
-#: pkg/docker/storage.jsx:419
+#: pkg/docker/storage.jsx:417
 msgid "Could not add all disks"
 msgstr "すべてのディスクを追加することはできませんでした"
 
@@ -1797,7 +1866,7 @@ msgstr "PEM でエンコードされた証明書を解析できませんでし�
 msgid "Could not parse PEM-encoded private key"
 msgstr "PEM で暗号化された秘密鍵を解析できませんでした"
 
-#: pkg/docker/storage.jsx:460
+#: pkg/docker/storage.jsx:457
 msgid "Could not reset the storage pool"
 msgstr "ストレージプールをリセットできませんでした"
 
@@ -1809,7 +1878,7 @@ msgstr "ユーザーグループを変更できませんでした"
 msgid "Couldn't change user password"
 msgstr "ユーザーパスワードを変更できませんでした"
 
-#: pkg/kubernetes/index.html:102 pkg/kubernetes/registry.html:72
+#: pkg/kubernetes/registry.html:72 pkg/kubernetes/index.html:102
 msgid "Couldn't connect to server"
 msgstr "サーバーに接続できませんでした"
 
@@ -1831,7 +1900,8 @@ msgid ""
 "Couldn't get system subscription status. Please ensure subscription-manager "
 "is installed."
 msgstr ""
-"システムサブスクリプションステータスを取得できませんでした。subscription-manager がインストールされていることを確認してください。"
+"システムサブスクリプションステータスを取得できませんでした。subscription-"
+"manager がインストールされていることを確認してください。"
 
 #: src/bridge/cockpitdbussetup.c:642
 msgid "Couldn't list local users"
@@ -1861,11 +1931,12 @@ msgstr "クラッシュダンプの場所"
 msgid "Crash system"
 msgstr "クラッシュシステム"
 
-#: pkg/kubernetes/views/project-modify.html:72
-#: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:222
-#: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:712
-#: pkg/storaged/details.jsx:133 pkg/storaged/lvol-tabs.jsx:132
+#: pkg/kubernetes/views/add-group-dialog.html:19
+#: pkg/kubernetes/views/project-modify.html:72 pkg/users/index.html:222
+#: pkg/storaged/lvol-tabs.jsx:132 pkg/storaged/content-views.jsx:120
+#: pkg/storaged/content-views.jsx:712 pkg/storaged/details.jsx:133
 #: pkg/storaged/overview.js:461 pkg/storaged/overview.js:508
+#: pkg/ovirt/components/ClusterTemplates.jsx:77
 msgid "Create"
 msgstr "作成"
 
@@ -1886,7 +1957,6 @@ msgid "Create RAID Device"
 msgstr "RAID デバイスの作成"
 
 #: pkg/sosreport/index.html:36
-#, fuzzy
 msgid "Create Report"
 msgstr "レポートの作成"
 
@@ -1905,6 +1975,10 @@ msgstr "タイマーの作成"
 #: pkg/systemd/services.html:352
 msgid "Create Timers"
 msgstr "タイマーの作成"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:82
+msgid "Create VM"
+msgstr "仮想マシンの作成"
 
 #: pkg/storaged/overview.js:490
 msgid "Create Volume Group"
@@ -1943,11 +2017,12 @@ msgstr "$0 上でのパーティションの作成"
 msgid "Create partition table"
 msgstr "パーティションテーブルの作成"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:7
-#: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
+#: pkg/kubernetes/views/pod-body.html:7
 #: pkg/kubernetes/views/replicationcontroller-body.html:7
 #: pkg/kubernetes/views/route-body.html:7
-#: pkg/kubernetes/views/service-body.html:7 pkg/docker/containers-view.jsx:122
+#: pkg/kubernetes/views/service-body.html:7
+#: pkg/kubernetes/views/deploymentconfig-body.html:7
+#: pkg/kubernetes/views/node-body.html:3 pkg/docker/containers-view.jsx:122
 #: pkg/docker/containers-view.jsx:315 pkg/docker/containers-view.jsx:587
 msgid "Created"
 msgstr "作成済み"
@@ -1980,25 +2055,33 @@ msgstr "$target のスナップショットの作成"
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "この VLAN を作成すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"この VLAN を作成すると、サーバーへの接続が切断され、管理 UI が利用できなくな"
+"ります。"
 
 #: pkg/networkmanager/interfaces.js:3687
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "このボンドを作成すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"このボンドを作成すると、サーバーへの接続が切断され、管理 UI が利用できなくな"
+"ります。"
 
 #: pkg/networkmanager/interfaces.js:4119
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "このブリッジを作成すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"このブリッジを作成すると、サーバーへの接続が切断され、管理 UI が利用できなく"
+"なります。"
 
 #: pkg/networkmanager/interfaces.js:3880
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "このチームを作成すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"このチームを作成すると、サーバーへの接続が切断され、管理 UI が利用できなくな"
+"ります。"
 
 #: pkg/storaged/jobs.js:150
 msgid "Creating volume group $target"
@@ -2136,7 +2219,7 @@ msgstr "選択項目の削除"
 
 #: pkg/machines/components/deleteDialog.jsx:59
 msgid "Delete associated storage files:"
-msgstr ""
+msgstr "関連するストレージファイルの削除:"
 
 #: pkg/kubernetes/views/imagestream-delete.html:3
 msgid "Delete image stream"
@@ -2154,17 +2237,22 @@ msgstr "$target の削除中"
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "<b>$0</b> を削除すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"<b>$0</b> を削除すると、サーバーへの接続が切断され、管理 UI が利用できなくな"
+"ります。"
 
 #: pkg/kubernetes/views/item-delete.html:7
 msgid ""
 "Deleting a Pod will kill all associated containers. Pods may be "
 "automatically created again in some cases."
-msgstr "ポッドを削除すると、関連するすべてのコンテナーが終了します。ポッドは自動的に再び作成されることもあります。"
+msgstr ""
+"ポッドを削除すると、関連するすべてのコンテナーが終了します。ポッドは自動的に"
+"再び作成されることもあります。"
 
 #: pkg/storaged/details.jsx:106
 msgid "Deleting a RAID device will erase all data on it."
-msgstr "RAID デバイスを削除すると、そのデバイス上のすべてのデータが削除されます。"
+msgstr ""
+"RAID デバイスを削除すると、そのデバイス上のすべてのデータが削除されます。"
 
 #: pkg/docker/containers-view.jsx:168 pkg/docker/details.js:275
 msgid "Deleting a container will erase all data in it."
@@ -2172,15 +2260,19 @@ msgstr "コンテナーを削除すると、コンテナー内のすべてのデ
 
 #: pkg/storaged/content-views.jsx:244
 msgid "Deleting a logical volume will delete all data in it."
-msgstr "論理ボリュームを削除すると、論理ボリューム内のすべてのデータが削除されます。"
+msgstr ""
+"論理ボリュームを削除すると、論理ボリューム内のすべてのデータが削除されます。"
 
 #: pkg/storaged/content-views.jsx:247
 msgid "Deleting a partition will delete all data in it."
-msgstr "パーティションを削除すると、パーティション内のすべてのデータが削除されます。"
+msgstr ""
+"パーティションを削除すると、パーティション内のすべてのデータが削除されます。"
 
 #: pkg/storaged/details.jsx:165
 msgid "Deleting a volume group will erase all data on it."
-msgstr "ボリュームグループを削除すると、ボリュームグループ上のすべてのデータが削除されます。"
+msgstr ""
+"ボリュームグループを削除すると、ボリュームグループ上のすべてのデータが削除さ"
+"れます。"
 
 #: pkg/docker/image.js:140
 msgid ""
@@ -2188,7 +2280,9 @@ msgid ""
 "you need it later.  Unless this image has never been pushed to a repository, "
 "that is, in which case you probably can't download it again."
 msgstr ""
-"イメージは、削除しても、多くの場合、後で必要なときに再びダウンロードできます。このイメージがリポジトリーにプッシュされたことがない場合は、イメージを再びダウンロードできません。"
+"イメージは、削除しても、多くの場合、後で必要なときに再びダウンロードできま"
+"す。このイメージがリポジトリーにプッシュされたことがない場合は、イメージを再"
+"びダウンロードできません。"
 
 #: pkg/storaged/jobs.js:151
 msgid "Deleting volume group $target"
@@ -2221,14 +2315,21 @@ msgstr "デプロイメント設定"
 #: pkg/kubernetes/views/project-listing.html:54
 #: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:372
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/systemd/init.js:270
+#: pkg/systemd/init.js:270 pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:74
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Description"
 msgstr "説明"
+
+#: pkg/ovirt/components/OVirtTab.jsx:143
+#: pkg/ovirt/components/VmOverviewColumn.jsx:71
+msgid "Description:"
+msgstr "詳細:"
 
 #: pkg/kubernetes/index.html:64 pkg/shell/index.html:262
 #: pkg/docker/containers-view.jsx:258 pkg/docker/containers-view.jsx:406
 #: pkg/docker/containers-view.jsx:416 pkg/docker/containers-view.jsx:546
-#: pkg/packagekit/updates.jsx:332 pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:332
 msgid "Details"
 msgstr "詳細"
 
@@ -2236,7 +2337,7 @@ msgstr "詳細"
 msgid "Device"
 msgstr "デバイス"
 
-#: pkg/storaged/index.html:541
+#: pkg/storaged/index.html:542
 msgctxt "storage"
 msgid "Device"
 msgstr "デバイス"
@@ -2325,7 +2426,8 @@ msgid ""
 "Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
 "name}}' image stream?"
 msgstr ""
-"'{{stream.metadata.namespace}}/{{stream.metadata.name}}' イメージストリームを削除しますか?"
+"'{{stream.metadata.namespace}}/{{stream.metadata.name}}' イメージストリームを"
+"削除しますか?"
 
 #: pkg/kubernetes/views/pv-delete.html:6
 msgid "Do you want to delete the Persistent Volume '{{item.metadata.name}}'?"
@@ -2349,16 +2451,16 @@ msgid ""
 "Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
 "{{stream.metadata.name}}:{{tag.tag}}'?"
 msgstr ""
-"'{{stream.metadata.namespace}}/{{stream.metadata.name}}:{{tag.tag}}' "
-"というタグが付けられたイメージを削除しますか?"
+"'{{stream.metadata.namespace}}/{{stream.metadata.name}}:{{tag.tag}}' というタ"
+"グが付けられたイメージを削除しますか?"
 
 #: pkg/kubernetes/views/remove-role-dialog.html:5
 msgid ""
-"Do you want to remove the role '{{ fields.displayRole }}' from member {{ "
-"fields.member.metadata.name }}?"
+"Do you want to remove the role '{{ fields.displayRole }}' from member "
+"{{ fields.member.metadata.name }}?"
 msgstr ""
-"ロール '{{ fields.displayRole }}' をメンバー {{ fields.member.metadata.name }} "
-"から削除しますか?"
+"ロール '{{ fields.displayRole }}' をメンバー {{ fields.member.metadata."
+"name }} から削除しますか?"
 
 #: node_modules/registry-image-widgets/views/image-meta.html:10
 msgid "Docker Version"
@@ -2366,7 +2468,8 @@ msgstr "Docker バージョン"
 
 #: pkg/docker/index.html:60
 msgid "Docker is not installed or activated on the system"
-msgstr "Docker はインストールされていないか、システムでアクティベートされていません"
+msgstr ""
+"Docker はインストールされていないか、システムでアクティベートされていません"
 
 #: pkg/systemd/index.html:117
 msgid "Domain"
@@ -2422,19 +2525,17 @@ msgstr "レポートのダウンロード"
 
 #: pkg/machines/components/desktopConsole.jsx:46
 msgid "Download the MSI from $0"
-msgstr ""
+msgstr "MSI を $0 からダウンロードします"
 
 #: pkg/packagekit/updates.jsx:62
-#, fuzzy
 msgid "Downloaded"
-msgstr "ダウンロード"
+msgstr "ダウンロードされました"
 
 #: pkg/packagekit/updates.jsx:54
-#, fuzzy
 msgid "Downloading"
-msgstr "ダウンロード"
+msgstr "ダウンロード中"
 
-#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:161
+#: pkg/storaged/index.html:409 pkg/docker/storage.jsx:160
 msgid "Drive"
 msgstr "ドライブ"
 
@@ -2471,6 +2572,10 @@ msgstr "サーバーの編集"
 msgid "Edit image stream"
 msgstr "イメージストリームの編集"
 
+#: pkg/ovirt/components/VdsmView.jsx:125
+msgid "Edit the vdsm.conf"
+msgstr "vdsm.conf を編集します"
+
 #: pkg/storaged/jobs.js:119
 msgid "Ejecting $target"
 msgstr "$target の取り出し中"
@@ -2495,9 +2600,8 @@ msgid "Emptying $target"
 msgstr "$target を空にしています"
 
 #: pkg/machines/hostvmslist.jsx:298
-#, fuzzy
 msgid "Emulated Machine:"
-msgstr "仮想マシン"
+msgstr "エミュレートされたマシン:"
 
 #: pkg/systemd/init.js:535
 msgid "Enable"
@@ -2512,23 +2616,20 @@ msgid "Enabled"
 msgstr "有効"
 
 #: pkg/storaged/storage-controls.jsx:214
-#, fuzzy
 msgid "Encrypted $0"
-msgstr "暗号化されたデータ"
+msgstr "暗号化された $0"
 
 #: pkg/storaged/format-dialog.jsx:106
 msgid "Encrypted EXT4 (LUKS)"
 msgstr "暗号化された EXT4 (LUKS)"
 
 #: pkg/storaged/storage-controls.jsx:206
-#, fuzzy
 msgid "Encrypted Logical Volume of $0"
-msgstr "<span>暗号化された $0 の論理ボリューム</span>"
+msgstr "暗号化された $0 の論理ボリューム"
 
 #: pkg/storaged/storage-controls.jsx:208
-#, fuzzy
 msgid "Encrypted Partition of $0"
-msgstr "<span>暗号化された $0 のパーティション</span>†"
+msgstr "暗号化された $0 のパーティション"
 
 #: pkg/storaged/format-dialog.jsx:105
 msgid "Encrypted XFS (LUKS)"
@@ -2572,11 +2673,17 @@ msgstr "ポリシーの適用:"
 msgid "Enter IP address or host name"
 msgstr "IP アドレスまたはホスト名の入力"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:75
+msgid "Enter New VM name"
+msgstr "新規仮想マシン名を入力します"
+
 #: pkg/lib/machine-change-auth.html:57
 msgid ""
 "Entering a different password here means you will need to retype it every "
 "time you reconnect to this machine"
-msgstr "ここで別のパスワードを入力すると、このマシンに接続するときに毎回そのパスワードを再入力する必要があります"
+msgstr ""
+"ここで別のパスワードを入力すると、このマシンに接続するときに毎回そのパスワー"
+"ドを再入力する必要があります"
 
 #: pkg/systemd/logs.html:69
 msgid "Entry"
@@ -2595,11 +2702,11 @@ msgstr "環境"
 msgid "Erase"
 msgstr "削除"
 
-#: pkg/docker/storage.jsx:438
+#: pkg/docker/storage.jsx:436
 msgid "Erase containers and reset storage pool"
 msgstr "コンテナーの削除とストレージプールのリセット"
 
-#: pkg/docker/storage.jsx:363 pkg/docker/storage.jsx:374
+#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
 msgid "Erase containers, reformat disks, and add them"
 msgstr "コンテナーの削除、ディスクの再フォーマット、およびそれらの追加"
 
@@ -2608,10 +2715,10 @@ msgid "Erasing $target"
 msgstr "$target の削除中"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services.html:334 pkg/apps/utils.jsx:101
-#: pkg/storaged/details.jsx:199 pkg/storaged/devices.js:118
-#: pkg/storaged/overview.js:694 pkg/storaged/storage-controls.jsx:69
-#: pkg/users/local.js:1381
+#: pkg/systemd/services.html:334 pkg/storaged/details.jsx:199
+#: pkg/storaged/devices.js:118 pkg/storaged/overview.js:694
+#: pkg/storaged/storage-controls.jsx:69 pkg/users/local.js:1381
+#: pkg/apps/utils.jsx:101
 msgid "Error"
 msgstr "エラー"
 
@@ -2687,6 +2794,10 @@ msgstr "拡張パーティション"
 msgid "FAILED"
 msgstr "失敗"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:49
+msgid "FQDN"
+msgstr "FQDN"
+
 #: pkg/ostree/index.html:258 pkg/networkmanager/interfaces.js:779
 msgid "Failed"
 msgstr "失敗"
@@ -2695,7 +2806,7 @@ msgstr "失敗"
 msgid "Failed to add machine: $0"
 msgstr "マシンの追加に失敗しました: $0"
 
-#: pkg/lib/credentials.js:230 pkg/users/local.js:113 pkg/users/local.js:144
+#: pkg/users/local.js:113 pkg/users/local.js:144 pkg/lib/credentials.js:230
 msgid "Failed to change password"
 msgstr "パスワードの変更に失敗しました"
 
@@ -2774,7 +2885,7 @@ msgstr "ファイルシステムタイプ"
 msgid "Filesystems"
 msgstr "ファイルシステム"
 
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:302
+#: pkg/shell/index.html:302 pkg/lib/machine-unknown-hostkey.html:10
 msgid "Fingerprint"
 msgstr "フィンガープリント"
 
@@ -2797,11 +2908,11 @@ msgstr "Flocker データセット名"
 
 #: node_modules/registry-image-widgets/views/imagestream-body.html:35
 msgid "Follows docker repo"
-msgstr ""
+msgstr "Docker リポジトリーに順守"
 
 #: pkg/users/index.html:121
 msgid "Force Change"
-msgstr ""
+msgstr "変更の強制"
 
 #: pkg/docker/util.js:506
 msgid "Force Delete"
@@ -2817,7 +2928,7 @@ msgstr "シャットダウンの強制"
 
 #: pkg/users/index.html:374
 msgid "Force password change"
-msgstr ""
+msgstr "パスワード変更の強制"
 
 #: pkg/storaged/content-views.jsx:502 pkg/storaged/format-dialog.jsx:202
 #: pkg/storaged/format-dialog.jsx:280
@@ -2834,18 +2945,21 @@ msgstr "ディスク $0 のフォーマット"
 
 #: pkg/storaged/content-views.jsx:503
 msgid "Formatting a disk will erase all data on it."
-msgstr "ディスクをフォーマットすると、ディスク上のすべてのデータが削除されます。"
+msgstr ""
+"ディスクをフォーマットすると、ディスク上のすべてのデータが削除されます。"
 
 #: pkg/storaged/format-dialog.jsx:204
 msgid "Formatting a storage device will erase all data on it."
-msgstr "ストレージデバイスをフォーマットすると、そのデバイス上のすべてのデータが削除されます。"
+msgstr ""
+"ストレージデバイスをフォーマットすると、そのデバイス上のすべてのデータが削除"
+"されます。"
 
 #: pkg/networkmanager/interfaces.js:2744
 msgid "Forward delay $forward_delay"
 msgstr "フォワード遅延 $forward_delay"
 
-#: pkg/systemd/index.html:265 pkg/docker/storage.jsx:301
-#: pkg/docker/storage.jsx:323 pkg/storaged/pvol-tabs.jsx:48
+#: pkg/systemd/index.html:265 pkg/docker/storage.jsx:300
+#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:48
 #: pkg/systemd/host.js:1469
 msgid "Free"
 msgstr "空き"
@@ -2860,7 +2974,7 @@ msgstr "金曜日"
 
 #: node_modules/registry-image-widgets/views/image-listing.html:6
 msgid "From"
-msgstr ""
+msgstr "から"
 
 #: pkg/users/index.html:84 pkg/users/index.html:165
 msgid "Full Name"
@@ -2908,7 +3022,7 @@ msgstr "移動"
 
 #: pkg/apps/application.jsx:93
 msgid "Go to Application"
-msgstr ""
+msgstr "アプリケーションへ移動"
 
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:51
 #: pkg/networkmanager/index.html:538 pkg/storaged/index.html:305
@@ -2923,7 +3037,7 @@ msgstr "優れた署名"
 #: pkg/kubernetes/views/project-body.html:3
 #: pkg/kubernetes/views/project-body.html:8
 msgid "Grant additional push or admin access to specific members below."
-msgstr "以下の特定のメンバーに追加のプッシュまたは管理アクセスを提供します。"
+msgstr "以下の特定のメンバーに、追加のプッシュまたは管理アクセスを提供します。"
 
 #: pkg/kubernetes/views/group-page.html:21
 #: pkg/kubernetes/views/group-panel.html:12
@@ -2939,6 +3053,15 @@ msgstr "グループまたはプロジェクト"
 msgid "Groups"
 msgstr "グループ"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:175
+msgid "HA"
+msgstr "HA"
+
+#: pkg/ovirt/components/OVirtTab.jsx:127
+msgid "HA:"
+msgstr "HA:"
+
 #: pkg/networkmanager/index.html:292
 msgid "Hair Pin mode"
 msgstr "ヘアピンモード"
@@ -2947,7 +3070,7 @@ msgstr "ヘアピンモード"
 msgid "Hairpin mode"
 msgstr "ヘアピンモード"
 
-#: pkg/docker/storage.jsx:160
+#: pkg/docker/storage.jsx:159
 msgid "Hard Disk"
 msgstr "ハードディスク"
 
@@ -2967,6 +3090,8 @@ msgstr "Hello タイム $hello_time"
 #: pkg/kubernetes/views/details-page.html:73
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8 pkg/machines/vmdiskstab.jsx:56
+#: pkg/ovirt/components/App.jsx:72 pkg/ovirt/components/ClusterVms.jsx:56
+#: pkg/ovirt/components/ClusterVms.jsx:175
 msgid "Host"
 msgstr "ホスト"
 
@@ -2988,7 +3113,7 @@ msgstr "時間: 分"
 
 #: pkg/systemd/init.js:1185 pkg/systemd/init.js:1214
 msgid "Hour needs to be a number between 0-23"
-msgstr "時間は 0〜23 の数字である必要があります"
+msgstr "時間は 0 - 23 の数字である必要があります"
 
 #: pkg/systemd/services.html:424
 msgid "Hours"
@@ -2998,8 +3123,8 @@ msgstr "時"
 msgid "I/O Wait"
 msgstr "I/O 待機"
 
-#: pkg/kubernetes/views/node-body.html:10
 #: pkg/kubernetes/views/service-body.html:9
+#: pkg/kubernetes/views/node-body.html:10
 msgid "IP"
 msgstr "IP"
 
@@ -3052,8 +3177,8 @@ msgstr "Id $id"
 msgid "Id:"
 msgstr "Id:"
 
-#: node_modules/registry-image-widgets/views/image-body.html:24
 #: node_modules/registry-image-widgets/views/image-listing.html:7
+#: node_modules/registry-image-widgets/views/image-body.html:24
 msgid "Identifier"
 msgstr "識別子"
 
@@ -3108,22 +3233,22 @@ msgstr "イメージストリーム"
 msgid "Image commands"
 msgstr "イメージコマンド"
 
-#: node_modules/registry-image-widgets/views/imagestream-body.html:39
+#: node_modules/registry-image-widgets/views/imagestream-body.html:41
 msgid "Image count"
 msgstr "イメージ数"
 
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:12
 msgid "Image stream"
-msgstr ""
+msgstr "イメージストリーム"
 
 #: pkg/docker/index.html:154
 msgid "Image:"
 msgstr "イメージ:"
 
+#: pkg/kubernetes/views/registry-dashboard-page.html:19
 #: pkg/kubernetes/views/images-page.html:13
 #: pkg/kubernetes/views/imagestream-page.html:24
-#: pkg/kubernetes/views/registry-dashboard-page.html:19
-#: pkg/kubernetes/index.html:78 pkg/kubernetes/registry.html:49
+#: pkg/kubernetes/registry.html:49 pkg/kubernetes/index.html:78
 #: pkg/docker/containers-view.jsx:615
 msgid "Images"
 msgstr "イメージ"
@@ -3144,17 +3269,17 @@ msgstr "プロジェクト別イメージ"
 #: node_modules/registry-image-widgets/views/imagestream-body.html:15
 #: node_modules/registry-image-widgets/views/imagestream-body.html:16
 msgid "Images may be pulled by anonymous users"
-msgstr "イメージは匿名ユーザーがプルできます"
+msgstr "イメージは、匿名ユーザーがプルできます"
 
 #: node_modules/registry-image-widgets/views/imagestream-body.html:20
 #: node_modules/registry-image-widgets/views/imagestream-body.html:21
 msgid "Images may be pulled by any authenticated user or group"
-msgstr "イメージは認証済みユーザーまたはグループがプルできます"
+msgstr "イメージは、認証済みユーザーまたはグループがプルできます"
 
 #: node_modules/registry-image-widgets/views/imagestream-body.html:25
 #: node_modules/registry-image-widgets/views/imagestream-body.html:26
 msgid "Images may only be pulled by specific users or groups"
-msgstr "イメージは特定のユーザーまたはグループのみがプルできます"
+msgstr "イメージは、特定のユーザーまたはグループのみがプルできます"
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:54
 msgid "Images pushed recently"
@@ -3167,19 +3292,24 @@ msgstr "同期"
 #: pkg/kubernetes/views/registry-dashboard-page.html:81
 msgid ""
 "In order to begin pushing images to the registry, use the commands below."
-msgstr "レジストリーへのイメージのプッシュを開始するには、次のコマンドを使用します。"
+msgstr ""
+"レジストリーへのイメージのプッシュを開始するには、次のコマンドを使用します。"
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:6
 msgid ""
 "In order to begin pushing images to the registry, you need to create a "
 "project."
-msgstr "レジストリーへのイメージのプッシュを開始するには、プロジェクトを作成する必要があります。"
+msgstr ""
+"レジストリーへのイメージのプッシュを開始するには、プロジェクトを作成する必要"
+"があります。"
 
 #: pkg/lib/machine-sync-users.html:50
 msgid ""
 "In order to synchronize users, you need to log in to {{#strong}}{{host}}{{/"
 "strong}}."
-msgstr "ユーザーを同期するには、{{#strong}}{{host}}{{/strong}} にログインする必要があります。"
+msgstr ""
+"ユーザーを同期するには、{{#strong}}{{host}}{{/strong}} にログインする必要があ"
+"ります。"
 
 #: pkg/networkmanager/interfaces.js:761 pkg/networkmanager/interfaces.js:1357
 #: pkg/networkmanager/interfaces.js:1364 pkg/networkmanager/interfaces.js:2489
@@ -3194,43 +3324,44 @@ msgstr "非アクティブなボリューム"
 msgid "Incorrect Host Key"
 msgstr "正しくないホストキー"
 
-#: pkg/docker/storage.jsx:285
+#: pkg/docker/storage.jsx:284
 msgid "Information about the Docker storage pool is not available."
 msgstr "Docker ストレージプールに関する情報は利用できません。"
 
 #: pkg/packagekit/updates.jsx:432
 msgid "Initializing..."
-msgstr ""
+msgstr "初期化中..."
 
 #: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:97
 msgid "Install"
-msgstr ""
+msgstr "インストール"
 
 #: pkg/packagekit/updates.jsx:805
 msgid "Install All Updates"
-msgstr ""
+msgstr "すべてのアップデートをインストール"
 
 #: pkg/packagekit/updates.jsx:811
 msgid "Install Security Updates"
-msgstr ""
+msgstr "セキュリティーアップデートのインストール"
 
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
-msgstr "setroubleshoot-server をインストールして SELinux イベントをトラブルシュートします。"
+msgstr ""
+"setroubleshoot-server をインストールして、SELinux イベントをトラブルシュート"
+"します。"
 
 #: pkg/packagekit/updates.jsx:63
-#, fuzzy
 msgid "Installed"
-msgstr "インストールされた製品"
+msgstr "インストール済み"
 
 #: pkg/subscriptions/subscriptions-view.jsx:222
 msgid "Installed products"
 msgstr "インストールされた製品"
 
-#: pkg/apps/application-list.jsx:47 pkg/apps/application.jsx:55
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:55 pkg/apps/application-list.jsx:47
+#: pkg/apps/application.jsx:55
 msgid "Installing"
-msgstr ""
+msgstr "インストール中"
 
 #: pkg/systemd/services.html:152
 msgid "Instantiate"
@@ -3265,11 +3396,11 @@ msgstr "無効なアドレス $0"
 msgid "Invalid credentials"
 msgstr "無効な資格情報"
 
-#: pkg/systemd/host.js:1258 pkg/systemd/shutdown.js:142
+#: pkg/systemd/shutdown.js:142 pkg/systemd/host.js:1258
 msgid "Invalid date format"
 msgstr "無効な日付形式"
 
-#: pkg/systemd/host.js:1254 pkg/systemd/shutdown.js:138
+#: pkg/systemd/shutdown.js:138 pkg/systemd/host.js:1254
 msgid "Invalid date format and invalid time format"
 msgstr "無効な日付形式と無効な時間形式"
 
@@ -3279,7 +3410,7 @@ msgstr "無効な日付形式。"
 
 #: pkg/users/local.js:1161
 msgid "Invalid expiration date"
-msgstr ""
+msgstr "無効な有効期限"
 
 #: pkg/lib/credentials.js:285
 msgid "Invalid file permissions"
@@ -3295,7 +3426,7 @@ msgstr "無効なメトリック $0"
 
 #: pkg/users/local.js:1234
 msgid "Invalid number of days"
-msgstr ""
+msgstr "無効な日数"
 
 #: pkg/systemd/init.js:1171
 msgid "Invalid number."
@@ -3313,7 +3444,7 @@ msgstr "無効なプレフィックス $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "無効なプレフィックスまたはネットマスク $0"
 
-#: pkg/systemd/host.js:1256 pkg/systemd/shutdown.js:140
+#: pkg/systemd/shutdown.js:140 pkg/systemd/host.js:1256
 msgid "Invalid time format"
 msgstr "無効な時間形式"
 
@@ -3365,7 +3496,9 @@ msgstr "ジャーナルエントリーが見つかりません"
 #: pkg/kdump/kdump-view.jsx:461
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
-msgstr "Kdump サービスがインストールされていません。パッケージ kexec-tools がインストールされていることを確認してください。"
+msgstr ""
+"Kdump サービスがインストールされていません。パッケージ kexec-tools がインス"
+"トールされていることを確認してください。"
 
 #: pkg/networkmanager/index.html:850
 msgid "Keep connection"
@@ -3384,9 +3517,8 @@ msgid "Kernel"
 msgstr "カーネル"
 
 #: pkg/kdump/index.html:23
-#, fuzzy
 msgid "Kernel Dump"
-msgstr "カーネル"
+msgstr "カーネルダンプ"
 
 #: pkg/kubernetes/views/node-body.html:19
 msgid "Kernel Version"
@@ -3408,11 +3540,12 @@ msgstr "Kubernetes クラスター"
 msgid "LACP Key"
 msgstr "LACP キー"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:41
-#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
+#: pkg/kubernetes/views/pod-body.html:26
 #: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/route-body.html:22
 #: pkg/kubernetes/views/service-body.html:26
+#: pkg/kubernetes/views/deploymentconfig-body.html:41
+#: pkg/kubernetes/views/node-body.html:31
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr "ラベル"
@@ -3447,16 +3580,16 @@ msgstr "最終更新日"
 
 #: pkg/packagekit/updates.jsx:201
 msgid "Last checked: $0 ago"
-msgstr ""
+msgstr "最終確認: $0 前"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:15
 #: pkg/kubernetes/views/details-page.html:107
+#: pkg/kubernetes/views/deploymentconfig-body.html:15
 msgid "Latest Version"
 msgstr "最新バージョン"
 
-#: pkg/machines/components/desktopConsole.jsx:131
+#: pkg/machines/components/desktopConsole.jsx:129
 msgid "Launch Remote Viewer"
-msgstr ""
+msgstr "リモートビューアーの起動"
 
 #: pkg/realmd/operation.js:102
 msgid "Leave"
@@ -3472,15 +3605,19 @@ msgid ""
 "you enter a different username, that user will always be used when "
 "connecting to this machine."
 msgstr ""
-"現在ログインしているユーザーとしてこのマシンに接続する場合は空白のままにします。異なるユーザー名を入力した場合は、このマシンへの接続時にそのユーザーが常に使用されます。"
+"現在ログインしているユーザーとしてこのマシンに接続する場合は空白のままにしま"
+"す。別のユーザー名を入力した場合は、このマシンへの接続時にそのユーザーが常に"
+"使用されます。"
 
 #: pkg/lib/machine-change-auth.html:23
 msgid ""
 "Leave blank to connect to this machine as the currently logged in "
 "user{{#default_user}} ({{default_user}}){{/default_user}}. If you enter a "
 "different username, that user will always be used connecting to this machine."
-""
 msgstr ""
+"現在ログインしているユーザー {{#default_user}} ({{default_user}}){{/"
+"default_user}} としてこのマシンに接続する場合は空白のままにします。別のユー"
+"ザー名を入力すると、このマシンへの接続時にそのユーザーが常に使用されます。"
 
 #: pkg/shell/index.html:103 pkg/shell/simple.html:76 pkg/shell/stub.html:81
 msgid "Licensed under:"
@@ -3527,16 +3664,19 @@ msgid "Load earlier entries"
 msgstr "以前のエントリーのロード"
 
 #: pkg/packagekit/updates.jsx:39
-#, fuzzy
 msgid "Loading available updates failed"
-msgstr "利用可能な認証情報の使用"
+msgstr "利用可能なアップデートのロードに失敗しました"
 
 #: pkg/packagekit/updates.jsx:32
 msgid "Loading available updates, please wait..."
-msgstr ""
+msgstr "利用可能なアップデートをロード中です。しばらくお待ちください..."
 
-#: pkg/kdump/kdump-view.jsx:370 pkg/systemd/logs.js:140 pkg/systemd/logs.js:155
-#: pkg/systemd/logs.js:199 pkg/systemd/logs.js:240
+#: pkg/ovirt/components/VdsmView.jsx:36
+msgid "Loading data ..."
+msgstr "データのロード中..."
+
+#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:155 pkg/systemd/logs.js:199
+#: pkg/systemd/logs.js:240 pkg/kdump/kdump-view.jsx:370
 msgid "Loading..."
 msgstr "読み込み中..."
 
@@ -3544,7 +3684,7 @@ msgstr "読み込み中..."
 msgid "Local Accounts"
 msgstr "ローカルアカウント"
 
-#: pkg/docker/storage.jsx:191
+#: pkg/docker/storage.jsx:190
 msgid "Local Disks"
 msgstr "ローカルディスク"
 
@@ -3566,7 +3706,7 @@ msgstr "アカウントのロック"
 
 #: pkg/users/local.js:843 pkg/users/local.js:1143
 msgid "Lock account on $0"
-msgstr ""
+msgstr "$0 のアカウントをロック"
 
 #: pkg/shell/index.html:33
 msgid "Lock to prevent privileged tasks"
@@ -3585,7 +3725,6 @@ msgid "Log In"
 msgstr "ログイン"
 
 #: pkg/shell/index.html:67 pkg/shell/simple.html:45 pkg/shell/stub.html:45
-#, fuzzy
 msgid "Log Out"
 msgstr "ログアウト"
 
@@ -3628,9 +3767,8 @@ msgid "Logical Volume (Snapshot)"
 msgstr "論理ボリューム (スナップショット)"
 
 #: pkg/storaged/storage-controls.jsx:210
-#, fuzzy
 msgid "Logical Volume of $0"
-msgstr "論理ボリューム"
+msgstr "$0 の論理ボリューム"
 
 #: pkg/subscriptions/subscriptions-register.jsx:140
 msgid "Login"
@@ -3654,7 +3792,8 @@ msgstr "ログインが失敗しました"
 
 #: pkg/subscriptions/subscriptions-client.js:200
 msgid "Login/password or activation key required to register."
-msgstr "ログイン/パスワードまたはアクティベーションキーを登録する必要があります。"
+msgstr ""
+"ログイン/パスワードまたはアクティベーションキーを登録する必要があります。"
 
 #: src/ws/login.js:255
 msgid "Logout Successful"
@@ -3676,6 +3815,10 @@ msgstr "MAC"
 #: pkg/docker/index.html:185
 msgid "MAC Address:"
 msgstr "MAC アドレス:"
+
+#: pkg/ovirt/provider.es6:228
+msgid "MIGRATE action failed"
+msgstr "MIGRATE アクションに失敗しました"
 
 #: pkg/networkmanager/interfaces.js:1915
 msgid "MII (Recommended)"
@@ -3710,10 +3853,9 @@ msgstr "マニフェスト"
 msgid "Manual"
 msgstr "手作業"
 
-#: pkg/machines/components/desktopConsole.jsx:196
-#, fuzzy
+#: pkg/machines/components/desktopConsole.jsx:194
 msgid "Manual Connection"
-msgstr "接続"
+msgstr "手動接続"
 
 #: pkg/systemd/index.html:393 pkg/systemd/index.html:397
 msgid "Manually"
@@ -3721,7 +3863,7 @@ msgstr "手動"
 
 #: pkg/storaged/jobs.js:139
 msgid "Marking $target as faulty"
-msgstr "$target を問題があるものとしてマークする"
+msgstr "$target を、問題があるものとしてマークする"
 
 #: pkg/systemd/init.js:540
 msgid "Mask"
@@ -3772,6 +3914,8 @@ msgstr "メンバーシップ"
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:211
 #: pkg/docker/containers-view.jsx:271 pkg/kubernetes/scripts/graphs.js:604
 #: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Memory"
 msgstr "メモリ"
 
@@ -3796,8 +3940,8 @@ msgstr "メモリー使用状況:"
 msgid "Memory:"
 msgstr "メモリー:"
 
-#: pkg/kubernetes/views/node-body.html:47 pkg/kubernetes/views/pv-body.html:27
-#: pkg/kubernetes/views/pv-claim.html:32 pkg/kubernetes/views/pvc-body.html:15
+#: pkg/kubernetes/views/pv-body.html:27 pkg/kubernetes/views/pv-claim.html:32
+#: pkg/kubernetes/views/pvc-body.html:15 pkg/kubernetes/views/node-body.html:47
 msgid "Message"
 msgstr "メッセージ"
 
@@ -3820,9 +3964,13 @@ msgstr "使用済みメタデータ"
 msgid "MiB"
 msgstr "MiB"
 
+#: pkg/ovirt/components/OVirtTab.jsx:72
+msgid "Migrate To:"
+msgstr "移行先:"
+
 #: pkg/systemd/init.js:1191 pkg/systemd/init.js:1200 pkg/systemd/init.js:1209
 msgid "Minute needs to be a number between 0-59"
-msgstr "分は 0〜59 の数字である必要があります"
+msgstr "分は 0 - 59 の数字である必要があります"
 
 #: pkg/systemd/services.html:423
 msgid "Minutes"
@@ -3865,11 +4013,10 @@ msgstr "監視"
 msgid "More"
 msgstr "詳細表示"
 
-#: pkg/machines/components/desktopConsole.jsx:104
-#: pkg/machines/components/desktopConsole.jsx:112
-#, fuzzy
+#: pkg/machines/components/desktopConsole.jsx:102
+#: pkg/machines/components/desktopConsole.jsx:110
 msgid "More Information"
-msgstr "設定"
+msgstr "詳細情報"
 
 #: pkg/kdump/kdump-view.jsx:447
 msgid "More details"
@@ -3877,10 +4024,10 @@ msgstr "詳細"
 
 #: pkg/packagekit/updates.jsx:275
 msgid "More information…"
-msgstr ""
+msgstr "詳細情報…"
 
-#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:188
-#: pkg/storaged/fsys-tab.jsx:217
+#: pkg/storaged/fsys-tab.jsx:188 pkg/storaged/fsys-tab.jsx:217
+#: pkg/kdump/kdump-view.jsx:104
 msgid "Mount"
 msgstr "マウント"
 
@@ -3939,7 +4086,8 @@ msgstr "NTFS - 最新システムとの互換性あり"
 msgid "NTP Server"
 msgstr "NTP サーバー"
 
-#: pkg/docker/index.html:260 pkg/kubernetes/views/add-user-dialog.html:9
+#: pkg/docker/index.html:260 pkg/kubernetes/views/add-group-dialog.html:9
+#: pkg/kubernetes/views/add-user-dialog.html:9
 #: pkg/kubernetes/views/containers-listing.html:11
 #: pkg/kubernetes/views/dashboard-page.html:156
 #: pkg/kubernetes/views/dashboard-page.html:198
@@ -3950,7 +4098,6 @@ msgstr "NTP サーバー"
 #: pkg/kubernetes/views/details-page.html:171
 #: pkg/kubernetes/views/imagestream-modify.html:10
 #: pkg/kubernetes/views/node-add.html:16
-#: pkg/kubernetes/views/nodes-page.html:41
 #: pkg/kubernetes/views/project-listing.html:14
 #: pkg/kubernetes/views/project-listing.html:53
 #: pkg/kubernetes/views/project-listing.html:90
@@ -3961,45 +4108,45 @@ msgstr "NTP サーバー"
 #: pkg/kubernetes/views/volume-body.html:31
 #: pkg/kubernetes/views/volumes-page.html:19
 #: pkg/kubernetes/views/volumes-page.html:57
-#: pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/networkmanager/index.html:96 pkg/networkmanager/index.html:114
-#: pkg/networkmanager/index.html:151 pkg/networkmanager/index.html:207
-#: pkg/networkmanager/index.html:306 pkg/networkmanager/index.html:406
-#: pkg/ostree/index.html:99 pkg/storaged/index.html:228
+#: pkg/kubernetes/views/nodes-page.html:41 pkg/networkmanager/index.html:96
+#: pkg/networkmanager/index.html:114 pkg/networkmanager/index.html:151
+#: pkg/networkmanager/index.html:207 pkg/networkmanager/index.html:306
+#: pkg/networkmanager/index.html:406 pkg/ostree/index.html:99
+#: pkg/storaged/index.html:228
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:271 pkg/docker/containers-view.jsx:587
-#: pkg/machines/hostvmslist.jsx:472 pkg/packagekit/updates.jsx:329
+#: pkg/machines/hostvmslist.jsx:476 pkg/storaged/lvol-tabs.jsx:39
+#: pkg/storaged/lvol-tabs.jsx:118 pkg/storaged/lvol-tabs.jsx:155
+#: pkg/storaged/lvol-tabs.jsx:192 pkg/storaged/part-tab.jsx:37
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:661
 #: pkg/storaged/details.jsx:127 pkg/storaged/format-dialog.jsx:147
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:172
-#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/lvol-tabs.jsx:118
-#: pkg/storaged/lvol-tabs.jsx:155 pkg/storaged/lvol-tabs.jsx:192
 #: pkg/storaged/overview.js:418 pkg/storaged/overview.js:493
 #: pkg/storaged/overview.js:629 pkg/storaged/overview.js:707
-#: pkg/storaged/part-tab.jsx:37
+#: pkg/packagekit/updates.jsx:329 pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Name"
 msgstr "名前"
 
 #: pkg/storaged/utils.js:133
 msgid "Name cannot be empty."
-msgstr "名前は空にすることができません。"
+msgstr "名前は、空にすることができません。"
 
 #: pkg/storaged/utils.js:135
 msgid "Name cannot be longer than 127 characters."
-msgstr "名前は 127 文字を超えることができません。"
+msgstr "名前は、127 文字を超えることができません。"
 
 #: pkg/storaged/utils.js:139
 msgid "Name cannot contain the character '$0'."
-msgstr "名前には文字 '$0' を含めることができません。"
+msgstr "名前には、文字 '$0' を使用することができません。"
 
 #: pkg/storaged/utils.js:141
 msgid "Name cannot contain whitespace."
-msgstr "名前にはスペースを含めることができません。"
+msgstr "名前には、スペースを使用することができません。"
 
 #: pkg/kubernetes/views/containers-listing.html:14
 #: pkg/kubernetes/views/dashboard-page.html:160
-#: pkg/kubernetes/views/deploymentconfig-body.html:5
 #: pkg/kubernetes/views/details-page.html:36
 #: pkg/kubernetes/views/details-page.html:72
 #: pkg/kubernetes/views/details-page.html:105
@@ -4010,6 +4157,7 @@ msgstr "名前にはスペースを含めることができません。"
 #: pkg/kubernetes/views/route-body.html:5
 #: pkg/kubernetes/views/service-body.html:5
 #: pkg/kubernetes/views/volumes-page.html:59
+#: pkg/kubernetes/views/deploymentconfig-body.html:5
 msgid "Namespace"
 msgstr "名前空間"
 
@@ -4047,13 +4195,13 @@ msgstr "ネットワークログ"
 msgid "Never"
 msgstr "しない"
 
-#: pkg/users/local.js:832
+#: pkg/users/index.html:345 pkg/users/local.js:832
 msgid "Never expire password"
-msgstr ""
+msgstr "パスワードは失効しない"
 
-#: pkg/users/index.html:306 pkg/users/index.html:345 pkg/users/local.js:840
+#: pkg/users/index.html:306 pkg/users/local.js:840
 msgid "Never lock account"
-msgstr ""
+msgstr "アカウントをロックしない"
 
 #: pkg/kubernetes/views/project-listing.html:46
 msgid "New Group"
@@ -4067,12 +4215,12 @@ msgstr "新規パスワード"
 msgid "New Project"
 msgstr "新規プロジェクト"
 
-#: pkg/kubernetes/views/images-page.html:11
 #: pkg/kubernetes/views/registry-dashboard-page.html:86
+#: pkg/kubernetes/views/images-page.html:11
 msgid "New image stream"
 msgstr "新規イメージストリーム"
 
-#: pkg/lib/credentials.js:238 pkg/users/local.js:121
+#: pkg/users/local.js:121 pkg/lib/credentials.js:238
 msgid "New password was not accepted"
 msgstr "新規パスワードは受け入れられませんでした"
 
@@ -4092,7 +4240,7 @@ msgstr "次回の実行日時"
 
 #: pkg/systemd/index.html:243 pkg/systemd/host.js:1383
 msgid "Nice"
-msgstr "Nice値"
+msgstr "Nice 値"
 
 #: pkg/docker/index.html:534 pkg/docker/index.html:538 pkg/docker/run.js:241
 #: pkg/docker/util.js:101 pkg/kubernetes/scripts/volumes.js:990
@@ -4126,7 +4274,7 @@ msgstr "PEM でエンコードされた証明書が見つかりません"
 
 #: src/ws/cockpitcertificate.c:465
 msgid "No PEM-encoded private key found"
-msgstr "PEM でエンコードされた秘密鍵が見つかりません"
+msgstr "PEM で暗号化された秘密鍵が見つかりません"
 
 #: pkg/kubernetes/views/pv-claim.html:39
 msgid "No Pods are using this claim"
@@ -4136,6 +4284,11 @@ msgstr "このクレームを使用しているポッドがありません"
 msgid "No SELinux alerts."
 msgstr "SELinux アラートがありません。"
 
+#: pkg/ovirt/components/ClusterTemplates.jsx:29
+#: pkg/ovirt/components/ClusterVms.jsx:35
+msgid "No VM found in oVirt."
+msgstr "oVirt で仮想マシンが見つかりませんでした。"
+
 #: pkg/machines/hostvmslist.jsx:47
 msgid "No VM is running or defined on this host"
 msgstr "VM がこのホストで実行されていないか、定義されていません。"
@@ -4144,7 +4297,7 @@ msgstr "VM がこのホストで実行されていないか、定義されてい
 msgid "No Volume Bound"
 msgstr "ボリュームがバインドされていません"
 
-#: pkg/docker/storage.jsx:197
+#: pkg/docker/storage.jsx:196
 msgid "No additional local storage found."
 msgstr "追加ローカルストレージがありません。"
 
@@ -4154,16 +4307,15 @@ msgstr "エイリアスが指定されていません"
 
 #: pkg/apps/application-list.jsx:134
 msgid "No applications installed or available"
-msgstr ""
+msgstr "アプリケーションがインストールされていないか、利用できません"
 
 #: pkg/sosreport/index.js:111
 msgid "No archive has been created."
 msgstr "アーカイブが作成されていません"
 
 #: pkg/machines/hostvmslist.jsx:265
-#, fuzzy
 msgid "No boot device found"
-msgstr "ホストキーが見つかりません。"
+msgstr "ブートデバイスが見つかりません"
 
 #: pkg/networkmanager/interfaces.js:1359
 msgid "No carrier"
@@ -4196,7 +4348,7 @@ msgstr "ディスクが利用できません。"
 
 #: pkg/machines/vmdiskstab.jsx:115
 msgid "No disks defined for this VM"
-msgstr "この VM に対してディスクが定義されていません"
+msgstr "この仮想マシンにはディスクが定義されていません"
 
 #: pkg/storaged/index.html:191
 msgid "No drives attached"
@@ -4208,7 +4360,7 @@ msgstr "空き領域なし"
 
 #: pkg/machines/components/graphicsConsole.jsx:32
 msgid "No graphics console is defined for this virtual machine."
-msgstr ""
+msgstr "この仮想マシンには、グラフィカルコンソールが定義されていません。"
 
 #: pkg/kubernetes/views/project-listing.html:74
 msgid "No groups are present."
@@ -4240,16 +4392,15 @@ msgstr "現在のフィルターに一致するイメージがありません"
 
 #: pkg/apps/utils.jsx:97
 msgid "No installation package found for this application."
-msgstr ""
+msgstr "このアプリケーションのインストールパッケージが見つかりませんでした。"
 
 #: pkg/subscriptions/subscriptions-view.jsx:223
 msgid "No installed products on the system."
 msgstr "システムにインストールされた製品がありません。"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:247
-#, fuzzy
 msgid "No matching files found"
-msgstr "ホストキーが見つかりません。"
+msgstr "一致するファイルが見つかりませんでした。"
 
 #: pkg/storaged/index.html:444
 msgid "No media inserted"
@@ -4261,13 +4412,16 @@ msgid ""
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
 "crashkernel=512M"
 msgstr ""
-"メモリーが予約されていません。crashkernel オプションをカーネルコマンドラインに追加して (例: /etc/default/"
-"grub)、起動時にメモリーを予約します。例: crashkernel=512M"
+"メモリーが予約されていません。crashkernel オプションをカーネルコマンドライン"
+"に追加して (例: /etc/default/grub)、起動時にメモリーを予約します。例: "
+"crashkernel=512M"
 
 #: pkg/kubernetes/scripts/dashboard.js:384
 msgid ""
 "No metadata file was selected. Please select a Kubernetes metadata file."
-msgstr "メタデータファイルが選択されていません。Kubernetes メタデータファイルを選択してください。"
+msgstr ""
+"メタデータファイルが選択されていません。Kubernetes メタデータファイルを選択し"
+"てください。"
 
 #: pkg/kubernetes/views/dashboard-page.html:117
 msgid "No nodes in cluster"
@@ -4327,11 +4481,11 @@ msgstr "このようなファイルまたはディレクトリーがありませ
 
 #: node_modules/registry-image-widgets/views/image-listing.html:73
 msgid "No tags are present."
-msgstr ""
+msgstr "タグが存在しません。"
 
 #: pkg/packagekit/updates.jsx:35
 msgid "No updates pending"
-msgstr ""
+msgstr "保留中の更新がありません"
 
 #: pkg/users/local.js:417
 msgid "No user name specified"
@@ -4368,12 +4522,12 @@ msgstr "ノード"
 
 #: pkg/kubernetes/views/topology-page.html:39
 msgid "Nodes are the machines that run your containers."
-msgstr "ノードはコンテナーを実行するマシンです。"
+msgstr "ノードは、コンテナーを実行するマシンです。"
 
 #: pkg/kubernetes/views/pod-page.html:27 pkg/kubernetes/views/pod-panel.html:53
 #: pkg/kubernetes/views/service-body.html:15
 #: node_modules/registry-image-widgets/views/image-config.html:29
-#: pkg/kdump/kdump-view.jsx:418 pkg/tuned/dialog.js:231
+#: pkg/tuned/dialog.js:231 pkg/kdump/kdump-view.jsx:418
 msgid "None"
 msgstr "なし"
 
@@ -4397,16 +4551,15 @@ msgstr "ホストの有効な値ではありません"
 
 #: pkg/docker/index.html:57
 msgid "Not authorized to access Docker on this system"
-msgstr "このシステム上の Docker にアクセスする権限がありません"
+msgstr "このシステムの Docker にアクセスする権限がありません"
 
 #: pkg/ostree/app.js:86
 msgid "Not authorized to update software on this system"
-msgstr "このシステム上のソフトウェアを更新する権限がありません"
+msgstr "このシステムのソフトウェアを更新する権限がありません"
 
 #: pkg/systemd/logs.js:452
-#, fuzzy
 msgid "Not authorized to upload-report"
-msgstr "このシステム上のソフトウェアを更新する権限がありません"
+msgstr "upload-report の権限がありません"
 
 #: pkg/networkmanager/interfaces.js:759
 msgid "Not available"
@@ -4416,8 +4569,8 @@ msgstr "利用できません"
 msgid "Not connected"
 msgstr "接続していません"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:17
 #: pkg/kubernetes/views/details-page.html:122
+#: pkg/kubernetes/views/deploymentconfig-body.html:17
 msgid "Not deployed"
 msgstr "デプロイされていません"
 
@@ -4439,19 +4592,29 @@ msgstr "同期されていません"
 
 #: node_modules/registry-image-widgets/views/image-listing.html:44
 msgid "Not yet synced"
-msgstr ""
+msgstr "同期されていません"
 
 #: pkg/systemd/services.html:316
 msgid "Note"
 msgstr "注記"
 
+#: pkg/ovirt/components/VdsmView.jsx:96 pkg/ovirt/components/VdsmView.jsx:109
+msgid "OK"
+msgstr "OK"
+
 #: pkg/kubernetes/views/node-body.html:13
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "OS"
 msgstr "OS"
 
 #: pkg/ostree/client.js:585 pkg/ostree/client.js:681
 msgid "OS $0 not found"
 msgstr "OS $0 が見つかりません"
+
+#: pkg/ovirt/components/OVirtTab.jsx:145
+msgid "OS Type:"
+msgstr "OS タイプ:"
 
 #: pkg/kubernetes/views/nodes-page.html:19
 msgid "OS Versions"
@@ -4467,12 +4630,12 @@ msgstr "発生件数 $0"
 
 #: pkg/selinux/setroubleshoot-view.jsx:370
 msgid "Occurred between $0 and $1"
-msgstr "$0〜$1 の発生件数"
+msgstr "$0 - $1 の発生件数"
 
 #: pkg/playground/jquery-patterns.html:95
 #: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:254
-#: pkg/storaged/index.html:563 pkg/systemd/index.html:167
-#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:38
+#: pkg/storaged/index.html:564 pkg/systemd/index.html:167
+#: pkg/lib/cockpit-components-onoff.jsx:38 pkg/lib/patterns.js:244
 msgid "Off"
 msgstr "オフ"
 
@@ -4484,14 +4647,14 @@ msgstr "OK"
 msgid "Old Password"
 msgstr "古いパスワード"
 
-#: pkg/lib/credentials.js:220 pkg/users/local.js:78
+#: pkg/users/local.js:78 pkg/lib/credentials.js:220
 msgid "Old password not accepted"
-msgstr "古いパスワードは受け入れられません"
+msgstr "古いパスワードは使用できません"
 
 #: pkg/playground/jquery-patterns.html:91
 #: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:250
-#: pkg/storaged/index.html:562 pkg/systemd/index.html:163
-#: pkg/lib/patterns.js:244 pkg/lib/cockpit-components-onoff.jsx:39
+#: pkg/storaged/index.html:563 pkg/systemd/index.html:163
+#: pkg/lib/cockpit-components-onoff.jsx:39 pkg/lib/patterns.js:244
 msgid "On"
 msgstr "オン"
 
@@ -4518,7 +4681,7 @@ msgstr "ワンタイムパスワード"
 
 #: pkg/systemd/logs.html:58
 msgid "Only Problems"
-msgstr ""
+msgstr "問題のみ"
 
 #: pkg/systemd/init.js:1149
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
@@ -4546,6 +4709,10 @@ msgctxt "storage"
 msgid "Optical Drive"
 msgstr "光学ドライブ"
 
+#: pkg/ovirt/components/OVirtTab.jsx:152
+msgid "Optimized for:"
+msgstr "次に対して最適化:"
+
 #: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:110
 #: pkg/storaged/crypto-tab.jsx:145
 msgid "Options"
@@ -4572,8 +4739,8 @@ msgstr "他のデバイス"
 msgid "Other Options"
 msgstr "他のオプション"
 
-#: pkg/docker/index.html:290 pkg/kubernetes/index.html:40
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:413
+#: pkg/docker/index.html:290 pkg/kubernetes/registry.html:43
+#: pkg/kubernetes/index.html:40 pkg/machines/hostvmslist.jsx:413
 msgid "Overview"
 msgstr "概要"
 
@@ -4587,22 +4754,20 @@ msgstr "PD 名"
 
 #: pkg/packagekit/updates.jsx:478
 msgid "Package information"
-msgstr ""
+msgstr "パッケージ情報"
 
 #: pkg/packagekit/updates.jsx:533
-#, fuzzy
 msgid "PackageKit crashed"
-msgstr "パッケージ"
+msgstr "PackageKit がクラッシュしました"
 
 #: pkg/packagekit/updates.jsx:531 pkg/packagekit/updates.jsx:637
 #: pkg/packagekit/updates.jsx:711
-#, fuzzy
 msgid "PackageKit is not installed"
-msgstr "Cockpit はインストールされていません"
+msgstr "PackageKit はインストールされていません"
 
 #: pkg/packagekit/updates.jsx:735
 msgid "PackageKit reported error code $0"
-msgstr ""
+msgstr "PackageKit が、エラーコード $0 を報告しました"
 
 #: pkg/ostree/index.html:266
 msgid "Packages"
@@ -4626,9 +4791,8 @@ msgid "Partition"
 msgstr "パーティション"
 
 #: pkg/storaged/storage-controls.jsx:212
-#, fuzzy
 msgid "Partition of $0"
-msgstr "パーティション"
+msgstr "$0 のパーティション"
 
 #: pkg/storaged/content-views.jsx:491
 msgid "Partitioning"
@@ -4650,19 +4814,19 @@ msgstr "パスフレーズは空にすることができません"
 msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
-#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-change-auth.html:52
-#: pkg/lib/machine-sync-users.html:61 pkg/lib/machine-auth-failed.html:8
-#: pkg/shell/index.html:225 pkg/shell/index.html:264 pkg/shell/index.html:277
-#: pkg/users/index.html:117 pkg/users/index.html:177 src/ws/login.html:50
-#: pkg/storaged/overview.js:534 pkg/storaged/overview.js:657
-#: pkg/subscriptions/subscriptions-register.jsx:88
+#: pkg/kubernetes/views/auth-form.html:105 pkg/shell/index.html:225
+#: pkg/shell/index.html:264 pkg/shell/index.html:277 pkg/users/index.html:117
+#: pkg/users/index.html:177 pkg/lib/machine-auth-failed.html:8
+#: pkg/lib/machine-sync-users.html:61 pkg/lib/machine-change-auth.html:52
+#: src/ws/login.html:50 pkg/storaged/overview.js:534
+#: pkg/storaged/overview.js:657 pkg/subscriptions/subscriptions-register.jsx:88
 #: pkg/subscriptions/subscriptions-register.jsx:152
 msgid "Password"
 msgstr "パスワード"
 
 #: pkg/users/index.html:336
 msgid "Password Expiration"
-msgstr ""
+msgstr "パスワードの有効期限"
 
 #: pkg/users/local.js:259
 msgid "Password is not acceptable"
@@ -4674,7 +4838,7 @@ msgstr "パスワードが弱すぎます"
 
 #: pkg/users/local.js:834
 msgid "Password must be changed"
-msgstr ""
+msgstr "パスワードを変更する必要があります"
 
 #: pkg/lib/credentials.js:289
 msgid "Password not accepted"
@@ -4683,7 +4847,7 @@ msgstr "パスワードは受け入れられません"
 #: pkg/shell/index.html:168
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
-msgstr "特権タスクの実行または他のマシンへの接続のためにパスワードを使用できません"
+msgstr "特権タスクの実行または他のマシンへの接続に、パスワードを使用できません"
 
 #: pkg/users/index.html:457
 msgid "Paste the contents of your public SSH key file here"
@@ -4706,7 +4870,7 @@ msgstr "パスコスト $path_cost"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:232
 msgid "Path to file"
-msgstr ""
+msgstr "ファイルのパス"
 
 #: pkg/systemd/services.html:56
 msgid "Paths"
@@ -4826,6 +4990,24 @@ msgstr "有効なストレージ容量を提供してください"
 msgid "Please provide a valid target"
 msgstr "有効なターゲットを提供してください"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:85
+msgid ""
+"Please provide fully qualified domain name and port of the oVirt engine."
+msgstr "完全修飾ドメイン名と、oVirt エンジンのポートを提供してください。"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:136
+msgid ""
+"Please provide valid oVirt engine fully qualified domain name (FQDN) and "
+"port (443 by default)"
+msgstr ""
+"有効な oVirt エンジンの完全修飾ドメイン名 (FQDN) と、ポート (デフォルトでは "
+"443) を提供してください"
+
+#: pkg/ovirt/components/ConsoleClientResources.jsx:34
+msgid ""
+"Please refer to oVirt's $0 for more information about Remote Viewer setup."
+msgstr "リモートビューアーの設定の詳細は、oVirt の $0 を参照してください。"
+
 #: pkg/kubernetes/scripts/volumes.js:469
 msgid "Please select a valid access mode"
 msgstr "有効なアクセスモードを選択してください"
@@ -4840,11 +5022,11 @@ msgstr "有効なポリシーオプションを選択してください"
 
 #: pkg/users/local.js:1156
 msgid "Please specify an expiration date"
-msgstr ""
+msgstr "有効期限を指定してください"
 
 #: pkg/machines/components/graphicsConsole.jsx:41
 msgid "Please start the virtual machine to access its graphics console."
-msgstr ""
+msgstr "仮想マシンを起動して、グラフィックコンソールにアクセスしてください。"
 
 #: pkg/docker/search.js:150
 msgid "Please try another term"
@@ -4853,6 +5035,14 @@ msgstr "別の用語を試してください"
 #: pkg/kubernetes/scripts/nodes.js:401
 msgid "Please type an address"
 msgstr "アドレスを入力してください"
+
+#: pkg/ovirt/components/ClusterVms.jsx:36
+msgid "Please wait till VMs list is loaded from the server."
+msgstr "サーバーから仮想マシンの一覧がロードされるまでお待ちください。"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:30
+msgid "Please wait till list of templates is loaded from the server."
+msgstr "テンプレートの一覧がサーバーからロードされるのをお待ちください。"
 
 #: pkg/kubernetes/views/containers-listing.html:12
 #: pkg/kubernetes/views/pod-page.html:12
@@ -4891,7 +5081,9 @@ msgstr "ポッド"
 msgid ""
 "Pods contain one or more containers that run together on a node, containing "
 "your application code."
-msgstr "ポッドには、ノードで一緒に実行される 1 つ以上のコンテナーが含まれます (アプリケーションコードを含む)"
+msgstr ""
+"ポッドには、ノードで一緒に実行される 1 つ以上のコンテナーが含まれます (アプリ"
+"ケーションコードを含む)"
 
 #: pkg/machines/vmdiskstab.jsx:54 pkg/storaged/content-views.jsx:130
 msgid "Pool"
@@ -4918,7 +5110,7 @@ msgid "Populate"
 msgstr "入力"
 
 #: pkg/lib/machine-change-port.html:23 pkg/machines/vmdiskstab.jsx:57
-#: pkg/storaged/overview.js:629
+#: pkg/storaged/overview.js:629 pkg/ovirt/components/InstallationDialog.jsx:67
 msgid "Port"
 msgstr "ポート"
 
@@ -4950,6 +5142,10 @@ msgstr "プレフィックス長またはネットマスク"
 msgid "Preparing"
 msgstr "準備中"
 
+#: pkg/ovirt/rephraseUI.es6:26
+msgid "Preparing for Maintenance"
+msgstr "メンテナンスの準備中"
+
 #: pkg/networkmanager/interfaces.js:3501
 msgid "Preserve"
 msgstr "保存"
@@ -4968,7 +5164,7 @@ msgstr "プリティホスト名"
 
 #: pkg/networkmanager/index.html:349
 msgid "Primary"
-msgstr "プライマリ"
+msgstr "プライマリー"
 
 #: pkg/networkmanager/index.html:274 pkg/networkmanager/index.html:488
 #: pkg/networkmanager/index.html:506
@@ -4981,7 +5177,9 @@ msgstr "優先度 $priority"
 
 #: pkg/kubernetes/scripts/projects.js:1021
 msgid "Private: Allow only specific users or groups to pull images"
-msgstr "プライベート: 特定のユーザーまたはグループのみがイメージをプルすることを許可する"
+msgstr ""
+"プライベート: 特定のユーザーまたはグループのみがイメージをプルすることを許可"
+"する"
 
 #: pkg/shell/index.html:28
 msgid "Privileged tasks not available"
@@ -4989,15 +5187,15 @@ msgstr "特権タスクが利用できません"
 
 #: pkg/systemd/logs.html:57
 msgid "Problems, Errors"
-msgstr ""
+msgstr "問題、エラー"
 
 #: pkg/systemd/logs.html:56
 msgid "Problems, Errors, Warnings"
-msgstr ""
+msgstr "問題、エラー、警告"
 
 #: pkg/systemd/logs.html:55
 msgid "Problems, Errors, Warnings, Notices"
-msgstr ""
+msgstr "問題、エラー、警告、注記"
 
 #: pkg/subscriptions/subscriptions-view.jsx:33
 msgid "Product ID"
@@ -5009,7 +5207,6 @@ msgstr "製品名"
 
 #: pkg/kubernetes/views/containers-listing.html:13
 #: pkg/kubernetes/views/dashboard-page.html:159
-#: pkg/kubernetes/views/deploymentconfig-body.html:4
 #: pkg/kubernetes/views/details-page.html:35
 #: pkg/kubernetes/views/details-page.html:71
 #: pkg/kubernetes/views/details-page.html:104
@@ -5021,6 +5218,7 @@ msgstr "製品名"
 #: pkg/kubernetes/views/route-body.html:4
 #: pkg/kubernetes/views/service-body.html:4
 #: pkg/kubernetes/views/volumes-page.html:58
+#: pkg/kubernetes/views/deploymentconfig-body.html:4
 msgid "Project"
 msgstr "プロジェクト"
 
@@ -5030,15 +5228,21 @@ msgstr "プロジェクトメンバー"
 
 #: pkg/kubernetes/views/project-body.html:3
 msgid "Project access policy allows anonymous users to pull images."
-msgstr "プロジェクトアクセスポリシーにより、匿名ユーザーはイメージをプルすることができます。"
+msgstr ""
+"プロジェクトアクセスポリシーにより、匿名ユーザーはイメージをプルすることがで"
+"きます。"
 
 #: pkg/kubernetes/views/project-body.html:8
 msgid "Project access policy allows any authenticated user to pull images."
-msgstr "プロジェクトアクセスポリシーにより、認証されたユーザーはイメージをプルすることができます。"
+msgstr ""
+"プロジェクトアクセスポリシーにより、認証されたユーザーはイメージをプルするこ"
+"とができます。"
 
 #: pkg/kubernetes/views/project-body.html:13
 msgid "Project access policy only allows specific members to access images."
-msgstr "プロジェクトアクセスポリシーにより、特定のメンバーのみがイメージにアクセスできます。"
+msgstr ""
+"プロジェクトアクセスポリシーにより、特定のメンバーのみがイメージにアクセスで"
+"きます。"
 
 #: pkg/shell/index.html:99 pkg/shell/simple.html:72 pkg/shell/stub.html:77
 msgid "Project website"
@@ -5050,8 +5254,8 @@ msgstr "プロジェクト:"
 
 #: pkg/kubernetes/views/group-delete.html:10
 #: pkg/kubernetes/views/project-listing.html:9
-#: pkg/kubernetes/views/user-delete.html:10 pkg/kubernetes/index.html:85
-#: pkg/kubernetes/registry.html:55
+#: pkg/kubernetes/views/user-delete.html:10 pkg/kubernetes/registry.html:55
+#: pkg/kubernetes/index.html:85
 msgid "Projects"
 msgstr "プロジェクト"
 
@@ -5073,15 +5277,19 @@ msgstr "プロトコル"
 
 #: pkg/subscriptions/subscriptions-register.jsx:125
 msgid "Proxy"
-msgstr "プロキシ"
+msgstr "プロキシー"
 
 #: pkg/kubernetes/views/node-body.html:25
 msgid "Proxy Version"
 msgstr "プロキシーバージョン"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:263
+#: pkg/shell/index.html:263 pkg/lib/machine-auth-failed.html:9
 msgid "Public Key"
 msgstr "公開鍵"
+
+#: node_modules/registry-image-widgets/views/imagestream-body.html:39
+msgid "Public pulling repo"
+msgstr ""
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:152
 msgid "Pull an image:"
@@ -5176,7 +5384,7 @@ msgstr "RAID デバイス"
 msgid "RAID Level"
 msgstr "RAID レベル"
 
-#: pkg/storaged/index.html:553
+#: pkg/storaged/index.html:554
 msgctxt "storage"
 msgid "RAID Level"
 msgstr "RAID レベル"
@@ -5184,6 +5392,10 @@ msgstr "RAID レベル"
 #: pkg/storaged/content-views.jsx:150
 msgid "RAID Member"
 msgstr "RAID メンバー"
+
+#: pkg/ovirt/provider.es6:137
+msgid "REBOOT action failed"
+msgstr "REBOOT アクションに失敗しました"
 
 #: pkg/kubernetes/scripts/volumes.js:200
 msgid "Rados Block Device"
@@ -5263,7 +5475,9 @@ msgstr "実際のホスト名"
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
-msgstr "実際のホスト名には小文字、数字、ダッシュ、およびピリオドのみを含めることができます (入力されたサブドメインを含む)。"
+msgstr ""
+"実際のホスト名には小文字、数字、ダッシュ、およびピリオドのみを含めることがで"
+"きます (入力されたサブドメインを含む)。"
 
 #: pkg/systemd/host.js:851
 msgid "Real host name must be 64 characters or less"
@@ -5307,7 +5521,7 @@ msgstr "最近開いたファイル"
 msgid "Reclaim Policy"
 msgstr "リクレームポリシー"
 
-#: pkg/kubernetes/index.html:105 pkg/kubernetes/registry.html:75
+#: pkg/kubernetes/registry.html:75 pkg/kubernetes/index.html:105
 #: pkg/ostree/index.html:423 pkg/shell/index.html:377 pkg/shell/simple.html:131
 #: pkg/shell/stub.html:151
 msgid "Reconnect"
@@ -5325,13 +5539,13 @@ msgstr "RAID デバイス $target の復旧"
 msgid "Recycle"
 msgstr "リサイクル"
 
-#: pkg/docker/storage.jsx:351
+#: pkg/docker/storage.jsx:350
 msgid "Reformat and add disks"
 msgstr "ディスクの再フォーマットおよび追加"
 
 #: pkg/packagekit/updates.jsx:34
 msgid "Refreshing package information"
-msgstr ""
+msgstr "パッケージ情報の更新中"
 
 #: src/ws/login.js:593
 msgid "Refusing to connect. Host is unknown"
@@ -5358,19 +5572,27 @@ msgstr "新規ボリュームの登録"
 msgid "Register Persistent Volume"
 msgstr "永続ボリュームの登録"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:107
+msgid "Register oVirt"
+msgstr "oVirt の登録"
+
 #: pkg/subscriptions/main.js:74
 msgid "Register system"
 msgstr "システムの登録"
 
+#: pkg/ovirt/components/InstallationDialog.jsx:127
+msgid "Registering oVirt to Cockpit"
+msgstr "oVirt を Cockpit に登録中"
+
 #: pkg/packagekit/updates.jsx:887
 msgid "Register…"
-msgstr ""
+msgstr "登録中…"
 
 #: pkg/ostree/index.html:305
 msgid "Released"
 msgstr "リリース済み"
 
-#: pkg/systemd/init.js:516
+#: pkg/systemd/init.js:516 pkg/ovirt/components/VdsmView.jsx:100
 msgid "Reload"
 msgstr "再読み込み"
 
@@ -5437,7 +5659,7 @@ msgstr "メンバーシップの削除"
 
 #: pkg/apps/application-list.jsx:51 pkg/apps/application.jsx:59
 msgid "Removing"
-msgstr ""
+msgstr "削除中"
 
 #: pkg/storaged/jobs.js:140
 msgid "Removing $target from RAID Device"
@@ -5447,13 +5669,15 @@ msgstr "$target を RAID デバイスから削除"
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "<b>$0</b> を削除すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"<b>$0</b> を削除すると、サーバーへの接続が切断され、管理 UI が利用できなくな"
+"ります。"
 
 #: pkg/storaged/jobs.js:153
 msgid "Removing physical volume from $target"
 msgstr "$target  から物理ボリュームを削除"
 
-#: pkg/storaged/details.jsx:382 pkg/storaged/lvol-tabs.jsx:44
+#: pkg/storaged/lvol-tabs.jsx:44 pkg/storaged/details.jsx:382
 msgid "Rename"
 msgstr "名前変更"
 
@@ -5489,10 +5713,10 @@ msgstr "毎週繰り返す"
 msgid "Repeat Yearly"
 msgstr "毎年繰り返す"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:9
 #: pkg/kubernetes/views/details-page.html:141
 #: pkg/kubernetes/views/replicationcontroller-body.html:9
 #: pkg/kubernetes/views/replicationcontroller-modify.html:8
+#: pkg/kubernetes/views/deploymentconfig-body.html:9
 msgid "Replicas"
 msgstr "レプリカ"
 
@@ -5511,15 +5735,17 @@ msgstr "レプリケーションコントローラー"
 msgid ""
 "Replication controllers dynamically create instances of pods from templates, "
 "and remove pods when necessary."
-msgstr "レプリケーションコントローラーにより、テンプレートからポッドのインスタンスが動的に作成され、必要に応じてポッドが削除されます。"
+msgstr ""
+"レプリケーションコントローラーにより、テンプレートからポッドのインスタンスが"
+"動的に作成され、必要に応じてポッドが削除されます。"
 
 #: pkg/systemd/logs.js:454
 msgid "Reporter 'reporter-ureport' not found."
-msgstr ""
+msgstr "レポーターの 'reporter-ureport' が見つかりませんでした。"
 
 #: pkg/systemd/logs.js:456
 msgid "Reporting was unsucessful. Try running `reporter-ureport -d "
-msgstr ""
+msgstr "レポートは成功しませんでした。次を試してください: `reporter-ureport -d"
 
 #: pkg/docker/index.html:677
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:7
@@ -5540,11 +5766,11 @@ msgstr "要求"
 
 #: pkg/users/local.js:1220
 msgid "Require password change every $0 days"
-msgstr ""
+msgstr "パスワードを $0 日ごとに変更する"
 
 #: pkg/users/local.js:836
 msgid "Require password change on $0"
-msgstr ""
+msgstr "$0 でパスワードを変更する"
 
 #: pkg/kubernetes/views/auth-form.html:54
 msgid "Requires Authentication"
@@ -5559,15 +5785,17 @@ msgstr "予約済みメモリー"
 msgid "Reset"
 msgstr "リセット"
 
-#: pkg/docker/storage.jsx:432
+#: pkg/docker/storage.jsx:430
 msgid "Reset Storage Pool"
 msgstr "ストレージプールのリセット"
 
-#: pkg/docker/storage.jsx:435
+#: pkg/docker/storage.jsx:433
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
-msgstr "ストレージプールをリセットすると、すべてのコンテナーが削除され、プール内のディスクが解放されます。"
+msgstr ""
+"ストレージプールをリセットすると、すべてのコンテナーが削除され、プール内の"
+"ディスクが解放されます。"
 
 #: pkg/storaged/lvol-tabs.jsx:87
 msgid "Resize"
@@ -5587,8 +5815,8 @@ msgstr "$target のサイズ変更"
 
 #: pkg/docker/index.html:134 pkg/systemd/index.html:136
 #: pkg/systemd/index.html:143 pkg/docker/containers-view.jsx:239
-#: pkg/machines/hostvmslist.jsx:61 pkg/systemd/init.js:515
-#: pkg/systemd/shutdown.js:96 pkg/systemd/shutdown.js:97
+#: pkg/machines/hostvmslist.jsx:61 pkg/systemd/shutdown.js:96
+#: pkg/systemd/shutdown.js:97 pkg/systemd/init.js:515
 msgid "Restart"
 msgstr "再起動"
 
@@ -5597,9 +5825,8 @@ msgid "Restart Count"
 msgstr "再起動回数"
 
 #: pkg/packagekit/updates.jsx:475
-#, fuzzy
 msgid "Restart Now"
-msgstr "再起動"
+msgstr "すぐに再起動"
 
 #: pkg/docker/index.html:529 pkg/kubernetes/views/pod-body.html:10
 msgid "Restart Policy"
@@ -5610,14 +5837,12 @@ msgid "Restart Policy:"
 msgstr "再起動ポリシー:"
 
 #: pkg/packagekit/updates.jsx:470
-#, fuzzy
 msgid "Restart Recommended"
-msgstr "推奨"
+msgstr "再起動が推奨されます"
 
 #: pkg/packagekit/updates.jsx:871
-#, fuzzy
 msgid "Restarting"
-msgstr "再起動"
+msgstr "再起動中"
 
 #: pkg/networkmanager/index.html:39
 msgid "Restoring connection"
@@ -5636,9 +5861,8 @@ msgid "Retrieving subscription status..."
 msgstr "サブスクリプションステータスを再取得中 ..."
 
 #: pkg/shell/index.html:172
-msgid ""
-"Reuse my password for privileged tasks and to connect to other machines"
-msgstr "特権タスクの実行または他のマシンへの接続のためにパスワードを再使用します"
+msgid "Reuse my password for privileged tasks and to connect to other machines"
+msgstr "特権タスクの実行または他のマシンへの接続に、パスワードを再使用します"
 
 #: pkg/kubernetes/views/volume-body.html:26
 msgid "Revision"
@@ -5648,8 +5872,8 @@ msgstr "リビジョン"
 msgid "Role"
 msgstr "役職"
 
-#: pkg/kubernetes/views/project-body.html:21
-#: pkg/kubernetes/views/add-member-role-dialog.html:39 pkg/users/index.html:92
+#: pkg/kubernetes/views/add-member-role-dialog.html:39
+#: pkg/kubernetes/views/project-body.html:21 pkg/users/index.html:92
 msgid "Roles"
 msgstr "ロール"
 
@@ -5673,8 +5897,13 @@ msgstr "ルート"
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
 #: pkg/systemd/services.html:400 pkg/machines/hostvmslist.jsx:96
+#: pkg/ovirt/components/ClusterVms.jsx:83
 msgid "Run"
 msgstr "実行"
+
+#: pkg/ovirt/components/ClusterVms.jsx:88
+msgid "Run Here"
+msgstr "ここから実行"
 
 #: pkg/docker/index.html:418
 msgid "Run Image"
@@ -5716,26 +5945,33 @@ msgstr "SELinux はシステムで無効です"
 msgid "SELinux system status is unknown."
 msgstr "SELinux システムステータスが不明です。"
 
+#: pkg/ovirt/provider.es6:89 pkg/ovirt/provider.es6:113
+msgid "SHUTDOWN action failed"
+msgstr "SHUTDOWN アクションに失敗しました"
+
 #: pkg/storaged/jobs.js:118
 msgid "SMART self-test of $target"
 msgstr "$target の SMART 自己テスト"
 
-#: pkg/machines/components/desktopConsole.jsx:190
+#: pkg/machines/components/desktopConsole.jsx:188
 msgid "SPICE"
-msgstr ""
+msgstr "SPICE"
 
-#: pkg/machines/components/desktopConsole.jsx:159
-#, fuzzy
+#: pkg/machines/components/desktopConsole.jsx:157
 msgid "SPICE Address:"
-msgstr "IP アドレス:"
+msgstr "SPICE アドレス:"
 
-#: pkg/machines/components/desktopConsole.jsx:165
+#: pkg/machines/components/desktopConsole.jsx:163
 msgid "SPICE Port:"
-msgstr ""
+msgstr "SPICE ポート:"
 
-#: pkg/machines/components/desktopConsole.jsx:168
+#: pkg/machines/components/desktopConsole.jsx:166
 msgid "SPICE TLS Port:"
-msgstr ""
+msgstr "SPICE TLS ポート:"
+
+#: pkg/ovirt/provider.es6:173
+msgid "START action failed"
+msgstr "START アクションに失敗しました"
 
 #: pkg/networkmanager/index.html:242
 msgid "STP Forward delay"
@@ -5753,11 +5989,15 @@ msgstr "STP メッセージ最大期間"
 msgid "STP Priority"
 msgstr "STP 優先度"
 
+#: pkg/ovirt/provider.es6:248
+msgid "SUSPEND action failed"
+msgstr "SUSPEND アクションに失敗しました"
+
 #: pkg/systemd/services.html:199
 msgid "Saturday"
 msgstr "土曜日"
 
-#: pkg/systemd/services.html:482
+#: pkg/systemd/services.html:482 pkg/ovirt/components/VdsmView.jsx:114
 msgid "Save"
 msgstr "保存"
 
@@ -5808,9 +6048,8 @@ msgid "Security"
 msgstr "Security"
 
 #: pkg/packagekit/updates.jsx:245
-#, fuzzy
 msgid "Security Update"
-msgstr "Security"
+msgstr "セキュリティー更新"
 
 #: pkg/shell/index.html:136 pkg/shell/simple.html:101 pkg/shell/stub.html:114
 msgid "Select"
@@ -5826,13 +6065,13 @@ msgstr "オブジェクトを選択して詳細を参照します。"
 
 #: pkg/lib/machine-sync-users.html:8
 msgid ""
-"Select the users that you would like to be synchronized with "
-"{{#strong}}{{host}}{{/strong}}"
+"Select the users that you would like to be synchronized with {{#strong}}"
+"{{host}}{{/strong}}"
 msgstr "{{#strong}}{{host}}{{/strong}} と同期するユーザーを選択します"
 
 #: pkg/machines/hostvmslist.jsx:85
 msgid "Send Non-Maskable Interrupt"
-msgstr ""
+msgstr "マスク不可割り込みを送信します"
 
 #: pkg/networkmanager/index.html:70 pkg/networkmanager/index.html:98
 #: pkg/networkmanager/index.html:116 pkg/networkmanager/index.html:557
@@ -5843,11 +6082,11 @@ msgstr "送信:"
 #: pkg/storaged/index.html:430
 msgctxt "storage"
 msgid "Serial Number"
-msgstr "シリアルナンバー"
+msgstr "シリアル番号"
 
 #: pkg/kubernetes/views/pv-modify.html:82
 #: pkg/kubernetes/views/volume-body.html:47 src/ws/login.html:94
-#: pkg/kdump/kdump-view.jsx:127 pkg/subscriptions/subscriptions-register.jsx:64
+#: pkg/subscriptions/subscriptions-register.jsx:64 pkg/kdump/kdump-view.jsx:127
 msgid "Server"
 msgstr "サーバー"
 
@@ -5919,9 +6158,11 @@ msgstr "サービス"
 msgid ""
 "Services group pods and provide a common DNS name and an optional, load-"
 "balanced IP address to access them."
-msgstr "サービスはポッドをグループ化し、ポッドにアクセスするために共通の DNS 名とオプションのロードバランス IP アドレスを提供します。"
+msgstr ""
+"サービスはポッドをグループ化し、ポッドにアクセスするための共通の DNS 名と、任"
+"意のロードバランス IP アドレスを提供します。"
 
-#: pkg/machines/helpers.es6:100
+#: pkg/machines/helpers.es6:104
 msgid "Session"
 msgstr "セッション"
 
@@ -5954,9 +6195,8 @@ msgid "Set to"
 msgstr "設定値"
 
 #: pkg/packagekit/updates.jsx:65
-#, fuzzy
 msgid "Set up"
-msgstr "設定値"
+msgstr "設定"
 
 #: pkg/selinux/setroubleshoot-view.jsx:282
 msgid ""
@@ -5964,18 +6204,16 @@ msgid ""
 msgstr "設定が設定された状態と異なるため、次回起動時に元の状態に戻ります。"
 
 #: pkg/packagekit/updates.jsx:57
-#, fuzzy
 msgid "Setting up"
-msgstr "IP 設定"
+msgstr "設定中"
 
 #: pkg/storaged/jobs.js:130
 msgid "Setting up loop device $target"
 msgstr "ループデバイス $target の設定"
 
 #: pkg/systemd/logs.html:47
-#, fuzzy
 msgid "Severity"
-msgstr "Security"
+msgstr "重大度"
 
 #: pkg/kubernetes/views/volume-body.html:139
 msgid "Share Name"
@@ -6074,27 +6312,27 @@ msgid "Since $0"
 msgstr "$0 以降"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/storaged/index.html:230
-#: pkg/docker/containers-view.jsx:587 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:706 pkg/storaged/format-dialog.jsx:128
-#: pkg/storaged/lvol-tabs.jsx:70 pkg/storaged/lvol-tabs.jsx:122
-#: pkg/storaged/lvol-tabs.jsx:161 pkg/storaged/lvol-tabs.jsx:198
-#: pkg/storaged/part-tab.jsx:41
+#: pkg/docker/containers-view.jsx:587 pkg/storaged/lvol-tabs.jsx:70
+#: pkg/storaged/lvol-tabs.jsx:122 pkg/storaged/lvol-tabs.jsx:161
+#: pkg/storaged/lvol-tabs.jsx:198 pkg/storaged/part-tab.jsx:41
+#: pkg/storaged/content-views.jsx:112 pkg/storaged/content-views.jsx:706
+#: pkg/storaged/format-dialog.jsx:128
 msgid "Size"
 msgstr "Size"
 
-#: pkg/storaged/dialog.js:274
+#: pkg/storaged/dialog.js:322
 msgid "Size cannot be negative"
 msgstr "サイズはマイナスにすることができません"
 
-#: pkg/storaged/dialog.js:272
+#: pkg/storaged/dialog.js:320
 msgid "Size cannot be zero"
 msgstr "サイズはゼロにすることができません"
 
-#: pkg/storaged/dialog.js:276
+#: pkg/storaged/dialog.js:324
 msgid "Size is too large"
 msgstr "サイズが大きすぎます"
 
-#: pkg/storaged/dialog.js:270
+#: pkg/storaged/dialog.js:318
 msgid "Size must be a number"
 msgstr "サイズは数値である必要があります"
 
@@ -6111,7 +6349,7 @@ msgstr "ソケット"
 msgid "Software Updates"
 msgstr "ソフトウェア更新"
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 msgid "Solid-State Disk"
 msgstr "ソリッドステートディスク"
 
@@ -6136,10 +6374,11 @@ msgstr "ソリューション"
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
+"別のプログラムがパッケージマネージャーを使用中です。しばらくお待ちください..."
 
 #: pkg/kubernetes/scripts/volumes.js:906
 msgid "Sorry, I don't know how to modify this volume"
-msgstr "申し訳ありませんが、このボリュームを変更する方法がわかりません"
+msgstr "このボリュームを変更する方法がわかりません"
 
 #: pkg/machines/vmdiskstab.jsx:141
 msgid "Source"
@@ -6170,7 +6409,7 @@ msgid "Stable"
 msgstr "安定"
 
 #: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:236
-#: pkg/storaged/details.jsx:330 pkg/storaged/swap-tab.jsx:76
+#: pkg/storaged/swap-tab.jsx:76 pkg/storaged/details.jsx:330
 #: pkg/systemd/init.js:513
 msgid "Start"
 msgstr "開始日"
@@ -6203,28 +6442,39 @@ msgstr "開始"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:271
-#: pkg/machines/hostvmslist.jsx:472 pkg/systemd/init.js:275
+#: pkg/machines/hostvmslist.jsx:476 pkg/systemd/init.js:275
+#: pkg/ovirt/components/ClusterVms.jsx:177
 msgid "State"
 msgstr "状態"
 
-#: pkg/storaged/index.html:569
+#: pkg/storaged/index.html:570
 msgctxt "storage"
 msgid "State"
-msgstr "状態"
+msgstr "ステート"
 
 #: pkg/docker/index.html:165
 msgid "State:"
 msgstr "状態:"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:129
+#: pkg/ovirt/components/ClusterVms.jsx:175
+msgid "Stateless"
+msgstr "ステートレス"
+
+#: pkg/ovirt/components/OVirtTab.jsx:151
+msgid "Stateless:"
+msgstr "ステートレス:"
 
 #: pkg/systemd/init.js:304
 msgid "Static"
 msgstr "静的"
 
 #: pkg/kubernetes/views/containers-listing.html:16
-#: pkg/kubernetes/views/node-body.html:39
-#: pkg/kubernetes/views/nodes-page.html:44 pkg/kubernetes/views/pv-body.html:24
-#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
+#: pkg/kubernetes/views/pv-body.html:24 pkg/kubernetes/views/pv-claim.html:29
+#: pkg/kubernetes/views/pvc-body.html:13
+#: pkg/kubernetes/views/volumes-page.html:21
+#: pkg/kubernetes/views/nodes-page.html:44
+#: pkg/kubernetes/views/node-body.html:39 pkg/ostree/index.html:288
 #: pkg/networkmanager/interfaces.js:2496
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
@@ -6243,7 +6493,7 @@ msgid "Sticky"
 msgstr "スティッキー"
 
 #: pkg/docker/index.html:133 pkg/docker/containers-view.jsx:234
-#: pkg/storaged/details.jsx:331 pkg/storaged/swap-tab.jsx:75
+#: pkg/storaged/swap-tab.jsx:75 pkg/storaged/details.jsx:331
 #: pkg/systemd/init.js:514
 msgid "Stop"
 msgstr "停止"
@@ -6269,11 +6519,11 @@ msgid "Stopping swapspace $target"
 msgstr "スワップ領域 $target の停止"
 
 #: pkg/docker/index.html:281 pkg/storaged/index.html:23
-#: pkg/storaged/index.html:603
+#: pkg/storaged/index.html:607
 msgid "Storage"
 msgstr "ストレージ"
 
-#: pkg/storaged/index.html:617
+#: pkg/storaged/index.html:621
 msgid "Storage Log"
 msgstr "ストレージログ"
 
@@ -6317,6 +6567,10 @@ msgstr "サマリー"
 msgid "Sunday"
 msgstr "日曜日"
 
+#: pkg/ovirt/components/VmActions.jsx:42
+msgid "Suspend"
+msgstr "一時停止"
+
 #: pkg/storaged/content-views.jsx:152
 msgid "Swap"
 msgstr "スワップ"
@@ -6340,29 +6594,35 @@ msgstr "$0 をオンにする"
 
 #: pkg/machines/components/graphicsConsole.jsx:60
 msgid "Switch to Desktop Viewer"
-msgstr ""
+msgstr "デスクトップビューアーに切り替える"
 
 #: pkg/machines/components/graphicsConsole.jsx:70
 msgid "Switch to In-Browser Viewer"
-msgstr ""
+msgstr "ブラウザー内ビューアーに切り替えます。"
 
 #: pkg/networkmanager/interfaces.js:2379
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
-msgstr "<b>$0</b> をオフにすると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"<b>$0</b> をオフにすると、サーバーへの接続が切断され、管理 UI が利用できなく"
+"なります。"
 
 #: pkg/networkmanager/interfaces.js:2921
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
-msgstr "<b>$0</b> をオフにすると、サーバーへの接続が切断され、管理 UI が利用できなくなります。1"
+msgstr ""
+"<b>$0</b> をオフにすると、サーバーへの接続が切断され、管理 UI が利用できなく"
+"なります。"
 
 #: pkg/networkmanager/interfaces.js:2354 pkg/networkmanager/interfaces.js:2909
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
-msgstr "<b>$0</b> をオンにすると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
+msgstr ""
+"<b>$0</b> をオンにすると、サーバーへの接続が切断され、管理 UI が利用できなく"
+"なります。"
 
 #: pkg/kubernetes/scripts/images.js:622
 msgid "Sync all tags from a remote image repository"
@@ -6388,7 +6648,7 @@ msgstr "{{Server}} と同期済み"
 msgid "Synchronizing RAID Device $target"
 msgstr "RAID デバイス $target の同期"
 
-#: pkg/systemd/index.html:4 pkg/machines/helpers.es6:99
+#: pkg/systemd/index.html:4 pkg/machines/helpers.es6:103
 msgid "System"
 msgstr "システム"
 
@@ -6402,7 +6662,7 @@ msgstr "システム時間"
 
 #: pkg/packagekit/updates.jsx:900
 msgid "System is up to date"
-msgstr ""
+msgstr "システムは最新の状態です"
 
 #: pkg/docker/index.html:320 pkg/docker/index.html:324
 msgid "TCP"
@@ -6448,7 +6708,7 @@ msgstr "チーム"
 
 #: pkg/networkmanager/interfaces.js:2725
 msgid "Team Port"
-msgstr "Team ポート"
+msgstr "チームポート"
 
 #: pkg/networkmanager/index.html:680
 msgid "Team Port Settings"
@@ -6462,7 +6722,12 @@ msgstr "チーム設定"
 #: pkg/kubernetes/views/deploymentconfig-panel.html:10
 #: pkg/kubernetes/views/replicationcontroller-page.html:20
 #: pkg/kubernetes/views/replicationcontroller-panel.html:14
+#: pkg/ovirt/components/ClusterVms.jsx:174
 msgid "Template"
+msgstr "テンプレート"
+
+#: pkg/ovirt/components/App.jsx:78
+msgid "Templates"
 msgstr "テンプレート"
 
 #: pkg/systemd/terminal.html:4
@@ -6479,7 +6744,7 @@ msgstr "設定のテスト"
 
 #: pkg/kdump/kdump-view.jsx:480
 msgid "Test is only available while the kdump service is running."
-msgstr "テストは kdump サービスが実行中の間だけ利用可能です。"
+msgstr "テストは、kdump サービスが実行中の間だけ利用できます。"
 
 #: pkg/kdump/kdump-view.jsx:300
 msgid "Test kdump settings"
@@ -6491,24 +6756,24 @@ msgstr "接続のテスト"
 
 #: pkg/storaged/index.html:40
 msgid "The \"storaged\" API is not available on this system."
-msgstr "\"storaged\" API はこのシステムでは利用できません。"
+msgstr "\"storaged\" API は、このシステムでは利用できません。"
 
-#: pkg/docker/storage.jsx:499
+#: pkg/docker/storage.jsx:496
 msgid "The Docker storage pool cannot be managed on this system."
-msgstr "Docker ストレージプールはこのシステムで管理できません。"
+msgstr "Docker ストレージプールは、このシステムで管理できません。"
 
 #: pkg/lib/machine-dialogs.js:385
 msgid "The IP address or host name cannot contain whitespace."
-msgstr "IP アドレスまたはホスト名にはスペースを含めることができません。"
+msgstr "IP アドレスまたはホスト名には、スペースを含めることができません。"
 
 #: pkg/storaged/index.html:530
 msgid "The RAID Array is in a degraded state"
 msgstr "RAID アレイは劣化状態にあります"
 
 #: pkg/storaged/sidebar-views.jsx:172
-#, fuzzy
 msgid "The RAID device must be running in order to add spare disks."
-msgstr "スペアディスクを追加する場合は、MDRAID デバイスが実行中である必要があります。"
+msgstr ""
+"スペアディスクを追加する場合は、RAID デバイスが実行中である必要があります。"
 
 #: pkg/storaged/sidebar-views.jsx:138
 msgid "The RAID device must be running in order to remove disks."
@@ -6532,7 +6797,8 @@ msgstr "VM がアイドル状態です。"
 
 #: pkg/machines/hostvmslist.jsx:161
 msgid "The VM is in process of dying (shut down or crash is not completed)."
-msgstr "VM が終了中の状態です (シャットダウンまたはクラッシュが完了していません)。"
+msgstr ""
+"VM が終了中の状態です (シャットダウンまたはクラッシュが完了していません)。"
 
 #: pkg/machines/hostvmslist.jsx:156
 msgid "The VM is paused."
@@ -6540,7 +6806,7 @@ msgstr "VM が一時停止しています。"
 
 #: pkg/machines/components/deleteDialog.jsx:53
 msgid "The VM is running and will be forced off before deletion."
-msgstr ""
+msgstr "仮想マシンが稼動しているため、削除前に強制的に電源がオフになります。"
 
 #: pkg/machines/hostvmslist.jsx:154
 msgid "The VM is running."
@@ -6552,7 +6818,7 @@ msgstr "VM はゲストの電源管理によって一時停止されています
 
 #: pkg/users/local.js:1259
 msgid "The account '$0' will be forced to change their password on next login"
-msgstr ""
+msgstr "アカウント '$0' が次回ログインする際に、パスワードの変更が求められます"
 
 #: pkg/kubernetes/scripts/nodes.js:403
 msgid "The address contains invalid characters"
@@ -6560,13 +6826,15 @@ msgstr "アドレスに無効な文字が含まれています。"
 
 #: pkg/lib/machine-unknown-hostkey.html:6
 msgid ""
-"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established."
-" Are you sure you want to continue connecting?"
-msgstr "ホスト {{#strong}}{{host}}{{/strong}} の認証を確立できません。本当に接続を維持しますか?"
+"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
+"established. Are you sure you want to continue connecting?"
+msgstr ""
+"ホスト {{#strong}}{{host}}{{/strong}} の認証を確立できません。本当に接続を維"
+"持しますか?"
 
 #: pkg/sosreport/index.html:35
 msgid "The collected information will be stored locally on the system."
-msgstr "収集された情報はシステムにローカルで保存されます。"
+msgstr "収集した情報は、システムのローカルに保存されます。"
 
 #: pkg/selinux/setroubleshoot-view.jsx:280
 msgid "The configured state is unknown, it might change on the next boot."
@@ -6578,7 +6846,9 @@ msgstr "コンテナー '{{ target }}' が存在しません。"
 
 #: pkg/subscriptions/subscriptions-view.jsx:192
 msgid "The current user isn't allowed to access system subscription status."
-msgstr "現在のユーザーにはシステムサブスクリプションステータスへのアクセスが許可されていません。"
+msgstr ""
+"現在のユーザーには、システムサブスクリプションステータスへのアクセスが許可さ"
+"れていません。"
 
 #: pkg/kubernetes/views/deploymentconfig-page.html:25
 msgid "The deployment config '{{ target }}' does not exist."
@@ -6586,18 +6856,20 @@ msgstr "デプロイメント設定 '{{ target }}' が存在しません。"
 
 #: pkg/packagekit/updates.jsx:347
 msgid "The following packages were recently updated:"
-msgstr ""
+msgstr "以下のパッケージは最近更新されました:"
 
 #: pkg/packagekit/updates.jsx:346
 msgid "The following packages were updated $0:"
-msgstr ""
+msgstr "以下のパッケージが更新されました $0:"
 
 #: pkg/sosreport/index.html:51
 msgid ""
 "The generated archive contains data considered sensitive and its content "
 "should be reviewed by the originating organization before being passed to "
 "any third party."
-msgstr "生成されたアーカイブには、機密データと見なされるデータが含まれます。その内容はサードパーティーに渡す前に元の組織が確認する必要があります。"
+msgstr ""
+"生成されたアーカイブには、機密データと見なされるデータが含まれます。サード"
+"パーティーに渡す前に、所属先の組織に確認してください。"
 
 #: pkg/kubernetes/views/group-page.html:47
 msgid "The group '{{ groupName }}' does not exist."
@@ -6609,8 +6881,9 @@ msgid ""
 "in use. Unless this machine was recently replaced, it is likely that someone "
 "is trying to attack your connection to this machine."
 msgstr ""
-"{{#strong}}{{host}}{{/strong}} "
-"の鍵が、以前に使用された鍵と一致しません。このマシンが最近置き換えられたものでない限り、誰かがこのマシンへの接続を攻撃しようとしている可能性があります。"
+"{{#strong}}{{host}}{{/strong}} の鍵が、以前に使用された鍵と一致しません。この"
+"マシンを最近取り換えた場合を除いて、誰かがこのマシンへの接続を攻撃しようとし"
+"ている可能性があります。"
 
 #: pkg/users/authorized-keys.js:119
 msgid "The key you provided was not valid."
@@ -6618,7 +6891,7 @@ msgstr "提供した鍵が有効ではありません。"
 
 #: pkg/storaged/sidebar-views.jsx:144
 msgid "The last disk of a RAID device cannot be removed."
-msgstr "RAID デバイスの最後のディスクは取り外すことができません。"
+msgstr "RAID デバイスの最後のディスクは、取り外すことができません。"
 
 #: pkg/storaged/sidebar-views.jsx:278
 msgid "The last physical volume of a volume group cannot be removed."
@@ -6678,39 +6951,45 @@ msgstr "ルート '{{ target }}' が存在しません。"
 
 #: pkg/docker/containers-view.jsx:338
 msgid "The scan from $time ($type) found no vulnerabilities."
-msgstr ""
+msgstr "$time ($type) のスキャンでは、脆弱性は見つかりませんでした。"
 
 #: pkg/docker/containers-view.jsx:335
 msgid "The scan from $time ($type) was not successful."
-msgstr ""
+msgstr "$time ($type) のスキャンは成功しませんでした。"
 
 #: pkg/kubernetes/scripts/dashboard.js:386
 msgid "The selected file is not a valid Kubernetes application manifest."
-msgstr "選択されたファイルは有効な Kubernetes アプリケーションマニフェストではありません。"
+msgstr ""
+"選択されたファイルは、有効な Kubernetes アプリケーションマニフェストではあり"
+"ません。"
 
 #: src/ws/login.js:585
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
-msgstr "サーバーはパスワード認証を使用した '$0' の認証を拒否しました。サポートされた他の認証方法は利用できません。"
+msgstr ""
+"サーバーは、パスワード認証を使用した '$0' の認証を拒否しました。その他に利用"
+"できる、サポートされている認証方法はありません。"
 
 #: src/base1/cockpit.js:3942
 msgid "The server refused to authenticate using any supported methods."
-msgstr "サーバーはサポートされた方法を使用した認証を拒否しました。"
+msgstr "サーバーは、サポートされた方法を使用した認証を拒否しました。"
 
 #: pkg/kubernetes/views/auth-rejected-cert.html:2
 msgid "The server uses a certificate signed by an unknown authority."
-msgstr "サーバーは不明な認証局によって署名された証明書を使用します。"
+msgstr "サーバーは、不明な認証局が署名した証明書を使用します。"
 
 #: pkg/kubernetes/views/service-page.html:19
 msgid "The service '{{ target }}' does not exist."
 msgstr "サービス '{{ target }}' は存在しません。"
 
-#: pkg/docker/storage.jsx:358 pkg/docker/storage.jsx:369
+#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
 msgid ""
 "The storage pool will be reset to optimize its layout.  All containers will "
 "be erased."
-msgstr "ストレージプールはそのレイアウトを最適化するためにリセットされます。すべてのコンテナーは削除されます。"
+msgstr ""
+"ストレージプールは、そのレイアウトを最適化するためにリセットされます。すべて"
+"のコンテナーは削除されます。"
 
 #: pkg/kubernetes/views/user-page.html:29
 msgid "The user '{{ userName }}' does not exist."
@@ -6718,48 +6997,53 @@ msgstr "ユーザー '{{ userName }}' は存在しません。"
 
 #: pkg/systemd/init.js:837
 msgid "The user <b>$0</b> does not have permissions for creating timers"
-msgstr "ユーザー <b>$0</b> はタイマーを作成するパーミッションを持っていません"
+msgstr ""
+"ユーザー <b>$0</b> は、タイマーを作成するパーミッションを持っていません"
 
 #: pkg/dashboard/list.js:209
 msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "ユーザー <b>$0</b> はサーバーを管理することを許可されていません"
+msgstr "ユーザー <b>$0</b> は、サーバーを管理することを許可されていません"
 
 #: pkg/storaged/permissions.js:60 pkg/storaged/storage-controls.jsx:79
 msgid "The user <b>$0</b> is not permitted to manage storage"
-msgstr "ユーザー <b>$0</b> はストレージを管理することを許可されていません"
+msgstr "ユーザー <b>$0</b> は、ストレージを管理することを許可されていません"
 
 #: pkg/users/local.js:41
 msgid "The user <b>$0</b> is not permitted to modify accounts"
-msgstr "ユーザー <b>$0</b> はアカウントを変更することを許可されていません"
+msgstr "ユーザー <b>$0</b> は、アカウントを変更することを許可されていません"
 
 #: pkg/systemd/host.js:46
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
-msgstr "ユーザー <b>$0</b> はホスト名を変更することを許可されていません"
+msgstr "ユーザー <b>$0</b> は、ホスト名を変更することを許可されていません"
 
 #: pkg/networkmanager/interfaces.js:1453
 msgid "The user <b>$0</b> is not permitted to modify network settings"
-msgstr "ユーザー <b>$0</b> はネットワーク設定を変更することを許可されていません"
+msgstr ""
+"ユーザー <b>$0</b> は、ネットワーク設定を変更することを許可されていません"
 
 #: pkg/realmd/operation.js:450
 msgid "The user <b>$0</b> is not permitted to modify realms"
-msgstr "ユーザー <b>$0</b> はレルムを変更することを許可されていません"
+msgstr "ユーザー <b>$0</b> は、レルムを変更することを許可されていません"
 
 #: pkg/systemd/host.js:54
-#, fuzzy
 msgid "The user <b>$0</b> is not permitted to shutdown or restart this server"
-msgstr "ユーザー <b>$0</b> はサーバーを管理することを許可されていません"
+msgstr ""
+"ユーザー <b>$0</b> は、このサーバーをシャットダウンまたは再起動することを許可"
+"されていません"
 
 #: pkg/users/local.js:518
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
-msgstr "ユーザー名は a〜z の文字、数字、ドット、ダッシュ、およびアンダースコアだけで構成されます。"
+msgstr ""
+"ユーザー名は a〜z の文字、数字、ドット、ダッシュ、およびアンダースコアだけで"
+"構成されます。"
 
 #: src/ws/login.js:124
 msgid ""
-"The web browser configuration prevents Cockpit from running (inaccessible "
-"$0)"
-msgstr "Web ブラウザーの設定により、Cockpit の実行は防がれます (アクセスできない $0)"
+"The web browser configuration prevents Cockpit from running (inaccessible $0)"
+msgstr ""
+"Web ブラウザーの設定により、Cockpit の実行は防がれます (アクセスできない $0)"
 
 #: pkg/shell/active-pages-dialog.jsx:59
 msgid "There are currently no active pages"
@@ -6769,18 +7053,21 @@ msgstr "現在アクティブなページはありません"
 msgid ""
 "There are devices with multiple paths on the system, but the multipath "
 "service is not running."
-msgstr "システムに複数のパスを持つデバイスがありますが、マルチパスサービスが実行されていません。"
+msgstr ""
+"システムに複数のパスを持つデバイスがありますが、マルチパスサービスが実行され"
+"ていません。"
 
 #: pkg/users/index.html:435
 msgid "There are no authorized public keys for this account."
 msgstr "このアカウントに承認された公開鍵がありません。"
 
 #: pkg/storaged/sidebar-views.jsx:284
-#, fuzzy
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
-msgstr "この物理ボリュームを削除するのに十分な空き領域がありません。少なくとも $0 の空き領域が必要です。"
+msgstr ""
+"この物理ボリュームを削除するのに十分な空き領域がありません。少なくとも $0 の"
+"空き領域が必要です。"
 
 #: pkg/storaged/utils.js:175
 msgid "Thin Logical Volume"
@@ -6789,52 +7076,64 @@ msgstr "シン論理ボリューム"
 #: pkg/kubernetes/views/pvc-delete.html:8
 msgid ""
 "This claim is in use. Deleting it may cause issues with the following pod:"
-msgstr "このクレームは使用中です。クレームを削除すると、次のポッドで問題が発生することがあります。"
+msgstr ""
+"このクレームは使用中です。クレームを削除すると、次のポッドで問題が発生するこ"
+"とがあります。"
 
 #: pkg/systemd/init.js:1224
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
 "months that have 31st."
-msgstr "この日はすべての月で存在しません。<br> タイマーは 31 日がある月でのみ実行されます。"
+msgstr ""
+"この日は、すべての月に存在するわけではありません。<br>この タイマーは、31 日"
+"がある月でのみ実行されます。"
 
 #: pkg/ostree/index.html:327
 msgid ""
 "This deployment contains the same packages as your currently booted system"
-msgstr "このデプロイメントには、現在起動されているシステムと同じパッケージが含まれています"
+msgstr ""
+"このデプロイメントには、現在起動されているシステムと同じパッケージが含まれて"
+"います"
 
 #: pkg/networkmanager/interfaces.js:2507
 msgid "This device cannot be managed here."
 msgstr "このデバイスはここで管理できません。"
 
-#: pkg/storaged/index.html:816
+#: pkg/storaged/index.html:822
 msgid ""
 "This device has filesystems that are currently in use.                "
 "Proceeding will unmount all filesystems on it."
 msgstr ""
+"このデバイスには、現在使用中のファイルシステムがあります。                続"
+"行すると、このデバイスのファイルシステムをすべてアンマウントします。"
 
-#: pkg/storaged/index.html:667
+#: pkg/storaged/index.html:672
 msgid "This device is currently used for RAID devices."
-msgstr ""
+msgstr "このデバイスは、現在 RAID デバイスに使用されています。"
 
-#: pkg/storaged/index.html:834
+#: pkg/storaged/index.html:840
 msgid ""
 "This device is currently used for RAID devices.                Proceeding "
 "will remove it from its RAID devices."
 msgstr ""
+"このデバイスは、現在 RAID デバイスに使用されています。                続行す"
+"ると、RAID デバイスからこのデバイスが削除されます。"
 
-#: pkg/storaged/index.html:659
+#: pkg/storaged/index.html:664
 msgid "This device is currently used for volume groups."
-msgstr ""
+msgstr "このデバイスは、現在ボリュームグループに使用されています。"
 
-#: pkg/storaged/index.html:825
+#: pkg/storaged/index.html:831
 msgid ""
 "This device is currently used for volume groups.                Proceeding "
 "will remove it from its volume groups."
 msgstr ""
+"このデバイスは現在ボリュームグループに使用されています。                続行"
+"すると、そのボリュームグループからこのデバイスが削除されます。"
 
 #: pkg/storaged/sidebar-views.jsx:140
 msgid "This disk cannot be removed while the device is recovering."
-msgstr "このディスクは、デバイスが復旧中に取り外すことができません。"
+msgstr "このディスクは、デバイスの復旧中に取り外すことができません。"
 
 #: pkg/systemd/init.js:1144 pkg/systemd/init.js:1156 pkg/systemd/init.js:1163
 msgid "This field cannot be empty."
@@ -6846,7 +7145,7 @@ msgstr "このイメージは存在しません。"
 
 #: pkg/storaged/lvol-tabs.jsx:96
 msgid "This logical volume cannot be made smaller."
-msgstr "この論理ボリュームは小さくすることができません。"
+msgstr "この論理ボリュームは、小さくすることができません。"
 
 #: pkg/lib/machine-dialogs.js:363
 msgid "This machine has already been added."
@@ -6860,20 +7159,22 @@ msgstr "これにはしばらく時間がかかることがあります"
 msgid ""
 "This option is for single node testing only – local storage will not work in "
 "a multi-node cluster"
-msgstr "このオプションは単一ノードのテストにのみ使用できます – ローカルストレージはマルチノードクラスターで動作しません"
+msgstr ""
+"このオプションは、単一ノードのテストにのみ使用できます。ローカルストレージ"
+"は、マルチノードクラスターで動作しません"
 
 #: src/bridge/cockpitpackages.c:506
 msgid "This package is not compatible with this version of Cockpit"
-msgstr "このパッケージには Cockpit のこのバージョンとの互換性がありません"
+msgstr "このパッケージには、Cockpit のこのバージョンとの互換性がありません"
 
 #: src/bridge/cockpitpackages.c:495
 #, c-format
 msgid "This package requires Cockpit version %s or later"
-msgstr "このパッケージには Cockpit バージョン %s 以降が必要です"
+msgstr "このパッケージには、Cockpit バージョン %s 以降が必要です"
 
 #: pkg/packagekit/updates.jsx:882
 msgid "This system is not registered"
-msgstr ""
+msgstr "このシステムは登録されていません"
 
 #: pkg/tuned/dialog.js:102
 msgid "This system is using a custom profile"
@@ -6887,7 +7188,9 @@ msgstr "このシステムは推奨プロファイルを使用しています"
 msgid ""
 "This tool will collect system configuration and diagnostic information from "
 "this system for use with diagnosing problems with the system."
-msgstr "このツールは、システムの問題の診断で使用するためにシステムからシステム設定と診断情報を収集します。"
+msgstr ""
+"このツールは、システムの問題を診断するのに使用する、システム設定と診断情報を"
+"システムから収集します。"
 
 #: pkg/systemd/init.js:633
 msgid "This unit is an instance of the $0 template."
@@ -6905,17 +7208,23 @@ msgstr "このユーザー名はすでに存在します"
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
-msgstr "cockpit-ws のこのバージョンでは、別のユーザーまたはポートによるホストへの接続がサポートされません"
+msgstr ""
+"cockpit-ws のこのバージョンでは、別のユーザーまたはポートによるホストへの接続"
+"がサポートされません"
+
+#: pkg/ovirt/components/OVirtTab.jsx:133
+msgid "This virtual machine is not managed by oVirt"
+msgstr "この仮想マシンは、oVirt で管理されていません"
 
 #: pkg/kubernetes/views/pv-delete.html:7
 msgid ""
-"This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / {{ "
-"item.item.spec.claimRef.name }}. Deleting it will break that claim and may "
-"cause issues with any pods depending on it."
+"This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / "
+"{{ item.item.spec.claimRef.name }}. Deleting it will break that claim and "
+"may cause issues with any pods depending on it."
 msgstr ""
 "このボリュームは {{ item.item.spec.claimRef.namespace }} / {{ item.item.spec."
-"claimRef.name }} "
-"によってクレームされました。このボリュームを削除すると、そのクレームが破損して、依存するすべてのポッドで問題が発生することがあります。"
+"claimRef.name }} によってクレームされました。このボリュームを削除するとそのク"
+"レームが破損し、依存するすべてのポッドで問題が発生することがあります。"
 
 #: pkg/kubernetes/views/pv-claim.html:23
 msgid "This volume has not been claimed"
@@ -6931,12 +7240,13 @@ msgid ""
 "Depending on the settings, the system may not automatically reboot and the "
 "process may take a while."
 msgstr ""
-"このため、kdump 設定は、カーネル (つまり、システム) "
-"をクラッシュすることによりテストされます。設定に応じて、再起動が自動的に行われず、処理にしばらく時間がかかることがあります。"
+"このため、kdump 設定は、カーネル (つまり、システム) をクラッシュしてテストし"
+"ます。設定に応じて、再起動が自動的に行われず、処理にしばらく時間がかかること"
+"があります。"
 
 #: pkg/kdump/kdump-view.jsx:516
 msgid "This will test the kdump configuration by crashing the kernel."
-msgstr "このため、kdump 設定はカーネルをクラッシュすることによりテストされます。"
+msgstr "このため、kdump 設定は、カーネルをクラッシュしてテストします。"
 
 #: pkg/systemd/services.html:197
 msgid "Thursday"
@@ -6954,13 +7264,18 @@ msgstr "タイマー"
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
-msgstr "ヒント: 他のシステムに対して自動的に認証する場合は、鍵のパスワードをログインパスワードに一致させます。"
+msgstr ""
+"ヒント: 他のシステムで自動的に認証されるようにするには、鍵のパスワードをログ"
+"インパスワードに一致させます。"
 
 #: pkg/packagekit/updates.jsx:883
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
 msgstr ""
+"ソフトウェアアップデートを取得するには、このシステムを Red Hat に登録する必要"
+"があります。登録には、Red Hat カスタマーポータルまたはローカルのサブスクリプ"
+"ションサーバーを使用します。"
 
 #: node_modules/registry-image-widgets/views/image-pull.html:4
 msgid "To pull this image:"
@@ -6968,13 +7283,15 @@ msgstr "このイメージをプルする:"
 
 #: node_modules/registry-image-widgets/views/imagestream-push.html:4
 msgid "To push an image to this image stream:"
-msgstr ""
+msgstr "このイメージストリームにイメージをプッシュするには:"
 
 #: pkg/lib/machine-change-port.html:11
 msgid ""
 "To try a different port you will need to upgrade cockpit-ws to a newer "
 "version."
-msgstr "別のポートを試すには、cockpit-ws を新しいバージョンにアップグレードする必要があります。"
+msgstr ""
+"別のポートを試すには、cockpit-ws を新しいバージョンにアップグレードする必要が"
+"あります。"
 
 #: pkg/kubernetes/views/auth-form.html:116
 msgid "Token"
@@ -6982,7 +7299,7 @@ msgstr "トークン"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:133
 msgid "Too many files found"
-msgstr ""
+msgstr "見つかったファイルが多すぎます"
 
 #: src/base1/cockpit.js:3964
 msgid "Too much data"
@@ -6992,7 +7309,7 @@ msgstr "データが多すぎます"
 msgid "Topology"
 msgstr "トポロジー"
 
-#: pkg/docker/storage.jsx:317
+#: pkg/docker/storage.jsx:316
 msgid "Total"
 msgstr "合計"
 
@@ -7011,7 +7328,7 @@ msgstr "トラブルシュート"
 
 #: pkg/kubernetes/views/auth-rejected-cert.html:21
 msgid "Trust this certificate for this connection"
-msgstr "この接続に対してこの証明書を信頼します"
+msgstr "この接続に対して、この証明書を信頼します"
 
 #: src/ws/login.html:111
 msgid "Try Again"
@@ -7052,8 +7369,8 @@ msgstr "Tuned がオフです"
 #: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
 #: pkg/kubernetes/views/service-body.html:11
 #: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:298
-#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/part-tab.jsx:49
-#: pkg/storaged/unrecognized-tab.jsx:44
+#: pkg/storaged/part-tab.jsx:49 pkg/storaged/unrecognized-tab.jsx:44
+#: pkg/storaged/format-dialog.jsx:143
 msgid "Type"
 msgstr "タイプ"
 
@@ -7082,7 +7399,7 @@ msgstr "URL"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/index.html:545 pkg/storaged/index.html:588
+#: pkg/storaged/index.html:546 pkg/storaged/index.html:591
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -7130,7 +7447,9 @@ msgstr "サーバーに到達できません"
 
 #: pkg/kubernetes/scripts/dashboard.js:401
 msgid "Unable to read the Kubernetes application manifest. Code $0."
-msgstr "Kubernetes アプリケーションマニフェストを読み取ることができません。コード $0。"
+msgstr ""
+"Kubernetes アプリケーションマニフェストを読み取ることができません。コード "
+"$0。"
 
 #: pkg/users/local.js:59
 msgid "Unable to rename root account"
@@ -7138,7 +7457,7 @@ msgstr "root アカウントの名前を変更できません"
 
 #: node_modules/registry-image-widgets/views/image-listing.html:41
 msgid "Unable to resolve"
-msgstr ""
+msgstr "解決できません"
 
 #: pkg/selinux/setroubleshoot-client.js:172
 msgid "Unable to run fix: %0"
@@ -7158,18 +7477,18 @@ msgstr "利用できません"
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
-#: pkg/kubernetes/views/node-body.html:12
-#: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
-#: pkg/kubernetes/views/pv-claim.html:31
+#: pkg/kubernetes/views/pv-body.html:26 pkg/kubernetes/views/pv-claim.html:31
 #: pkg/kubernetes/views/volumes-page.html:35
+#: pkg/kubernetes/views/node-body.html:12
+#: pkg/kubernetes/views/node-body.html:43
 #: node_modules/registry-image-widgets/views/image-body.html:16
 #: node_modules/registry-image-widgets/views/imagestream-body.html:30
 #: node_modules/registry-image-widgets/views/imagestream-body.html:31
-#: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:664
-#: pkg/kubernetes/scripts/nodes.js:757 pkg/kubernetes/scripts/volumes.js:266
+#: pkg/kubernetes/scripts/volumes.js:266 pkg/kubernetes/scripts/nodes.js:316
+#: pkg/kubernetes/scripts/nodes.js:664 pkg/kubernetes/scripts/nodes.js:757
 #: pkg/networkmanager/interfaces.js:531 pkg/networkmanager/interfaces.js:1005
 #: pkg/networkmanager/interfaces.js:2420 pkg/networkmanager/interfaces.js:2422
-#: pkg/storaged/fsys-tab.jsx:62 pkg/storaged/swap-tab.jsx:56
+#: pkg/storaged/swap-tab.jsx:56 pkg/storaged/fsys-tab.jsx:62
 msgid "Unknown"
 msgstr "不明"
 
@@ -7183,7 +7502,7 @@ msgstr "不明な ($0)"
 
 #: pkg/apps/application.jsx:83
 msgid "Unknown Application"
-msgstr ""
+msgstr "不明なアプリケーション"
 
 #: pkg/lib/machine-unknown-hostkey.html:2
 msgid "Unknown Host Key"
@@ -7253,7 +7572,7 @@ msgstr "登録解除"
 
 #: pkg/packagekit/updates.jsx:788
 msgid "Unregistered System"
-msgstr ""
+msgstr "未登録のシステム"
 
 #: pkg/subscriptions/subscriptions-view.jsx:154
 msgid "Unregistering system..."
@@ -7261,7 +7580,7 @@ msgstr "システムの登録解除中 ..."
 
 #: node_modules/registry-image-widgets/views/image-listing.html:46
 msgid "Unresolved"
-msgstr ""
+msgstr "解決されません"
 
 #: src/bridge/cockpitdbussetup.c:222 src/bridge/cockpitdbussetup.c:361
 #: src/bridge/cockpitdbussetup.c:625
@@ -7285,27 +7604,24 @@ msgid "Update"
 msgstr "更新"
 
 #: pkg/packagekit/updates.jsx:846
-#, fuzzy
 msgid "Update History"
-msgstr "更新"
+msgstr "履歴の更新"
 
 #: pkg/packagekit/updates.jsx:450
-#, fuzzy
 msgid "Update Log"
-msgstr "更新"
+msgstr "ログの更新"
 
 #: pkg/ostree/index.html:233
 msgid "Update and Reboot"
 msgstr "更新および再起動"
 
 #: pkg/packagekit/updates.jsx:64
-#, fuzzy
 msgid "Updated"
-msgstr "更新"
+msgstr "更新済み"
 
 #: pkg/packagekit/updates.jsx:471
 msgid "Updated packages may require a restart to take effect."
-msgstr ""
+msgstr "パッケージの更新を反映するには、再起動が必要になる場合があります。"
 
 #: pkg/ostree/index.html:317 pkg/ostree/index.html:343
 msgid "Updates"
@@ -7313,10 +7629,10 @@ msgstr "更新"
 
 #: pkg/packagekit/updates.jsx:792
 msgid "Updates are disabled."
-msgstr ""
+msgstr "更新が無効です。"
 
-#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:56
-#: pkg/subscriptions/subscriptions-view.jsx:187
+#: pkg/ostree/index.html:262 pkg/subscriptions/subscriptions-view.jsx:187
+#: pkg/packagekit/updates.jsx:56
 msgid "Updating"
 msgstr "更新中"
 
@@ -7326,7 +7642,9 @@ msgstr "$0 の更新中 ..."
 
 #: pkg/machines/vmdiskstab.jsx:107
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
-msgstr "ディスクの統計情報を表示するには libvirt の新しいバージョンにアップグレードしてください"
+msgstr ""
+"ディスクの統計情報を表示するには、libvirt を新しいバージョンにアップグレード"
+"してください"
 
 #: pkg/machines/hostvmslist.jsx:408 pkg/storaged/unrecognized-tab.jsx:40
 msgid "Usage"
@@ -7338,7 +7656,7 @@ msgstr "プロキシーサーバーの使用"
 
 #: pkg/shell/index.html:181
 msgid "Use the following keys to authenticate against other systems"
-msgstr "他のシステムに対して認証する場合は次の鍵を使用します"
+msgstr "他のシステムに対して認証する場合は、次の鍵を使用します"
 
 #: pkg/kdump/kdump-view.jsx:162
 msgid "Use the setting in /etc/kdump.conf"
@@ -7348,11 +7666,11 @@ msgstr "/etc/kdump.conf の設定を使用します"
 msgid "Use trusted GPG key"
 msgstr "信頼済み GPG 鍵の使用"
 
-#: pkg/systemd/index.html:261 pkg/docker/storage.jsx:316
+#: pkg/systemd/index.html:261 pkg/docker/storage.jsx:315
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/hostvmslist.jsx:352 pkg/machines/hostvmslist.jsx:363
-#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/fsys-tab.jsx:225
-#: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1468
+#: pkg/machines/vmdiskstab.jsx:136 pkg/storaged/swap-tab.jsx:82
+#: pkg/storaged/fsys-tab.jsx:225 pkg/systemd/host.js:1468
 msgid "Used"
 msgstr "Used"
 
@@ -7381,9 +7699,9 @@ msgstr "ユーザーパスワード"
 
 #: cockpit.appdata.xml.in.h:1
 msgid "User interface for Linux servers"
-msgstr ""
+msgstr "Linux サーバーのユーザーインターフェース"
 
-#: pkg/lib/machine-change-auth.html:18 pkg/lib/machine-sync-users.html:54
+#: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
 #: src/ws/login.html:43
 msgid "User name"
 msgstr "ユーザー名"
@@ -7408,6 +7726,14 @@ msgstr "ユーザー"
 #: pkg/lib/machine-change-auth.html:44
 msgid "Using available credentials"
 msgstr "利用可能な認証情報の使用"
+
+#: pkg/ovirt/components/App.jsx:81
+msgid "VDSM"
+msgstr "VDSM"
+
+#: pkg/ovirt/components/VdsmView.jsx:128
+msgid "VDSM Service Management"
+msgstr "VDSM サービス管理"
 
 #: pkg/storaged/format-dialog.jsx:107
 msgid "VFAT - Compatible with all systems and devices"
@@ -7440,7 +7766,7 @@ msgstr "VM REBOOT アクションに失敗しました"
 
 #: pkg/machines/libvirt.es6:275
 msgid "VM SEND Non-Maskable Interrrupt action failed"
-msgstr ""
+msgstr "VM SEND マスク不可な割り込みアクションに失敗しました"
 
 #: pkg/machines/libvirt.es6:168
 msgid "VM SHUT DOWN action failed"
@@ -7450,23 +7776,25 @@ msgstr "VM SHUT DOWN アクションに失敗しました"
 msgid "VM START action failed"
 msgstr "VM START アクションに失敗しました"
 
-#: pkg/machines/components/desktopConsole.jsx:190
+#: pkg/ovirt/components/VmOverviewColumn.jsx:54
+msgid "VM icon"
+msgstr "VM アイコン"
+
+#: pkg/machines/components/desktopConsole.jsx:188
 msgid "VNC"
-msgstr ""
+msgstr "VNC"
 
-#: pkg/machines/components/desktopConsole.jsx:162
-#, fuzzy
+#: pkg/machines/components/desktopConsole.jsx:160
 msgid "VNC Address:"
-msgstr "MAC アドレス:"
+msgstr "VNC アドレス:"
 
-#: pkg/machines/components/desktopConsole.jsx:171
-#, fuzzy
+#: pkg/machines/components/desktopConsole.jsx:169
 msgid "VNC Port:"
-msgstr "ポート:"
+msgstr "VNC ポート:"
 
-#: pkg/machines/components/desktopConsole.jsx:174
+#: pkg/machines/components/desktopConsole.jsx:172
 msgid "VNC TLS Port:"
-msgstr ""
+msgstr "VNC TLS ポート:"
 
 #: src/ws/login.html:101
 msgid "Validating authentication token"
@@ -7478,17 +7806,23 @@ msgstr "鍵の検証"
 
 #: pkg/packagekit/updates.jsx:66
 msgid "Verified"
-msgstr ""
+msgstr "検証済み"
 
 #: pkg/packagekit/updates.jsx:58
 msgid "Verifying"
-msgstr ""
+msgstr "検証中"
 
 #: pkg/ostree/index.html:303 pkg/shell/index.html:101 pkg/shell/simple.html:74
 #: pkg/shell/stub.html:79 pkg/systemd/index.html:108
-#: pkg/packagekit/updates.jsx:330 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/packagekit/updates.jsx:330
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:74
 msgid "Version"
 msgstr "バージョン"
+
+#: pkg/ovirt/components/ClusterVms.jsx:74
+msgid "Version num"
+msgstr "バージョン番号"
 
 #: pkg/storaged/jobs.js:136
 msgid "Very securely erasing $target"
@@ -7496,9 +7830,9 @@ msgstr "$target を非常に安全に削除"
 
 #: pkg/packagekit/updates.jsx:798
 msgid "View Registration Details"
-msgstr ""
+msgstr "登録の詳細を表示"
 
-#: pkg/machines/hostvmslist.jsx:472
+#: pkg/machines/hostvmslist.jsx:476
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
@@ -7508,7 +7842,7 @@ msgstr "仮想マシン"
 msgid "Volume"
 msgstr "音量"
 
-#: pkg/storaged/index.html:582 pkg/storaged/pvol-tabs.jsx:44
+#: pkg/storaged/index.html:584 pkg/storaged/pvol-tabs.jsx:44
 msgid "Volume Group"
 msgstr "ボリュームグループ"
 
@@ -7552,6 +7886,7 @@ msgstr "詳細を待機中 ..."
 #: pkg/apps/utils.jsx:63
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr ""
+"パッケージマネージャーを使用して、その他のプログラムを終了するのを待機中..."
 
 #: pkg/kubernetes/views/pv-modify.html:24
 msgid "Warning:"
@@ -7578,6 +7913,8 @@ msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
 msgstr ""
+"切断すると、更新は背景で継続します。再接続すると、更新の進捗確認を再開できま"
+"す。"
 
 #: pkg/docker/index.html:478
 msgid "With terminal"
@@ -7621,19 +7958,21 @@ msgid ""
 "You are connected to {{#strong}}{{host}}{{/strong}}, however in order to "
 "synchronize users, a user with superuser privileges is required."
 msgstr ""
-"{{#strong}}{{host}}{{/strong}} "
-"に接続されていますが、ユーザーを同期するには、スーパーユーザー権限を持つユーザーが必要です。"
+"{{#strong}}{{host}}{{/strong}} に接続されていますが、ユーザーを同期するには、"
+"スーパーユーザー権限を持つユーザーが必要です。"
 
 #: pkg/dashboard/list.js:395
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
-msgstr "現在このサーバーに直接接続されています。削除できません。"
+msgstr "現在、このサーバーに直接接続されています。削除できません。"
 
 #: pkg/kubernetes/views/auth-rejected-cert.html:3
 msgid ""
 "You can bypass the certificate check, but any data you send to the server "
 "could be intercepted by others."
-msgstr "証明書チェックを省略できますが、サーバーに送信したデータは他者によって取得されることがあります。"
+msgstr ""
+"証明書チェックを省略できますが、サーバーに送信したデータは他者によって取得さ"
+"れることがあります。"
 
 #: pkg/kubernetes/views/dashboard-page.html:150
 msgid "You can deploy an application to your cluster."
@@ -7650,29 +7989,31 @@ msgid ""
 "account."
 msgstr "このアカウントに承認された公開鍵を表示するパーミッションがありません"
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:493
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr "Docker ストレージプールを管理するパーミッションがありません。"
 
 #: pkg/packagekit/updates.jsx:794
 msgid "You need to re-subscribe this system."
-msgstr ""
+msgstr "再度、このシステムをサブスクライブする必要があります。"
 
 #: pkg/machines/components/vnc.jsx:30
 msgid "Your browser does not support iframes."
-msgstr ""
+msgstr "ブラウザーが、iframe をサポートしません。"
 
 #: pkg/kubernetes/views/registry-dashboard-page.html:112
 msgid ""
 "Your login credentials do not give you access to use the docker registry "
 "from the command line."
-msgstr "ログイン資格情報は、コマンドラインから docker レジストリーを使用するアクセスを提供しません。"
+msgstr ""
+"ログイン資格情報は、コマンドラインから docker レジストリーを使用するアクセス"
+"を提供しません。"
 
 #: pkg/packagekit/updates.jsx:872
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
-msgstr ""
+msgstr "サーバーがまもなく接続を閉じます。再起動したら再接続できます。"
 
 #: src/base1/cockpit.js:3934
 msgid "Your session has been terminated."
@@ -7704,7 +8045,7 @@ msgstr "alias"
 
 #: pkg/packagekit/autoupdates.jsx:321
 msgid "and restart the machine automatically."
-msgstr ""
+msgstr "自動的にマシンを再起動します。"
 
 #: pkg/ostree/index.html:186 pkg/packagekit/autoupdates.jsx:312
 msgid "at"
@@ -7715,32 +8056,43 @@ msgctxt "format-bytes"
 msgid "bytes"
 msgstr "バイト"
 
-#: pkg/machines/helpers.es6:114
+#: pkg/machines/helpers.es6:118
 msgid "cdrom"
-msgstr ""
+msgstr "cdrom"
 
-#: pkg/machines/helpers.es6:108
+#: pkg/ovirt/rephraseUI.es6:36
+msgid "connecting"
+msgstr "接続中"
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "cores"
+msgstr "コア"
+
+#: pkg/machines/helpers.es6:112
 msgid "crashed"
 msgstr "クラッシュ"
 
-#: pkg/machines/helpers.es6:119
-#, fuzzy
+#: pkg/machines/helpers.es6:123
 msgid "custom"
-msgstr "Custom"
+msgstr "カスタム"
 
 #: pkg/docker/util.js:122
 msgid "default"
 msgstr "default"
 
-#: pkg/machines/helpers.es6:95
+#: pkg/machines/helpers.es6:99 pkg/ovirt/components/OVirtTab.jsx:122
 msgid "disabled"
 msgstr "無効"
 
-#: pkg/machines/helpers.es6:113 pkg/machines/helpers.es6:116
+#: pkg/machines/helpers.es6:117 pkg/machines/helpers.es6:120
 msgid "disk"
-msgstr ""
+msgstr "ディスク"
 
-#: pkg/machines/helpers.es6:109
+#: pkg/ovirt/rephraseUI.es6:28
+msgid "down"
+msgstr "下へ"
+
+#: pkg/machines/helpers.es6:113
 msgid "dying"
 msgstr "終了中"
 
@@ -7752,13 +8104,17 @@ msgstr "例: \"$0\""
 msgid "eg: my-image-stream"
 msgstr "例: my-image-stream"
 
-#: pkg/machines/helpers.es6:96
+#: pkg/machines/helpers.es6:100 pkg/ovirt/components/OVirtTab.jsx:124
 msgid "enabled"
 msgstr "有効"
 
+#: pkg/ovirt/rephraseUI.es6:29
+msgid "error"
+msgstr "エラー"
+
 #: pkg/packagekit/autoupdates.jsx:301
 msgid "every day"
-msgstr ""
+msgstr "毎日"
 
 #: pkg/storaged/format-dialog.jsx:104
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
@@ -7768,17 +8124,29 @@ msgstr "ext4 - Red Hat Enterprise Linux 6 のデフォルト値"
 msgid "failed to list ssh host keys: $0"
 msgstr "ssh ホスト鍵の一覧表示に失敗しました: $0"
 
-#: pkg/machines/helpers.es6:120
+#: pkg/machines/helpers.es6:124
 msgid "host"
-msgstr ""
+msgstr "ホスト"
 
 #: pkg/storaged/index.html:133
 msgid "iSCSI Targets"
 msgstr "iSCSI ターゲット"
 
-#: pkg/machines/helpers.es6:104
+#: pkg/machines/helpers.es6:108
 msgid "idle"
 msgstr "アイドル"
+
+#: pkg/ovirt/rephraseUI.es6:30
+msgid "initializing"
+msgstr "初期化中"
+
+#: pkg/ovirt/rephraseUI.es6:31
+msgid "installation failed"
+msgstr "インストールに失敗しました"
+
+#: pkg/ovirt/rephraseUI.es6:39
+msgid "installing OS"
+msgstr "OS のインストール中"
 
 #: pkg/kdump/kdump-view.jsx:379
 msgid "invalid: multiple targets defined"
@@ -7788,6 +8156,10 @@ msgstr "無効: 複数のターゲットが定義されています"
 msgid "kdump status"
 msgstr "kdump ステータス"
 
+#: pkg/ovirt/rephraseUI.es6:40
+msgid "kdumping"
+msgstr "kdump 中"
+
 #: pkg/docker/run.js:526
 msgid "key"
 msgstr "鍵"
@@ -7796,70 +8168,115 @@ msgstr "鍵"
 msgid "locally in $0"
 msgstr "$0 (ローカル)"
 
-#: pkg/machines/helpers.es6:115
-#, fuzzy
+#: pkg/ovirt/rephraseUI.es6:32
+msgid "maintenance"
+msgstr "メンテナンス"
+
+#: pkg/machines/helpers.es6:119
 msgid "network"
 msgstr "ネットワーク"
 
 #: pkg/kubernetes/views/route-body.html:14 pkg/machines/vmdiskstab.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:44
 msgid "no"
 msgstr "いいえ"
 
-#: pkg/kubernetes/views/node-body.html:33
-#: pkg/kubernetes/views/node-body.html:59
+#: pkg/ovirt/rephraseUI.es6:33
+msgid "non operational"
+msgstr "稼動していません"
+
+#: pkg/ovirt/rephraseUI.es6:34
+msgid "non responsive"
+msgstr "応答しません"
+
 #: pkg/kubernetes/views/route-body.html:24
 #: pkg/kubernetes/views/route-body.html:29
+#: pkg/kubernetes/views/node-body.html:33
+#: pkg/kubernetes/views/node-body.html:59
 #: node_modules/registry-image-widgets/views/image-listing.html:53
 #: pkg/docker/run.js:418 pkg/docker/run.js:474 pkg/docker/run.js:528
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:104
 msgid "none"
 msgstr "なし"
 
+#: pkg/ovirt/provider.es6:55
+msgid "oVirt"
+msgstr "oVirt"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:38
+msgid "oVirt Provider installation script failed due to missing arguments."
+msgstr ""
+"引数がないため、oVirt プロバイダーのインストールスクリプトに失敗しました。"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:39
+msgid ""
+"oVirt Provider installation script failed: Can't write to /etc/cockpit/"
+"machines-ovirt.config, try as root."
+msgstr ""
+"oVirt プロバイダーのインストールスクリプトに失敗しました。/etc/cockpit/"
+"machines-ovirt.config に書き込めません。root で試行してください。"
+
+#: pkg/ovirt/components/InstallationDialog.jsx:161
+msgid "oVirt installation script failed with following output: "
+msgstr "oVirt インストールスクリプトが失敗し、次が出力されます: "
+
+#: pkg/ovirt/components/App.jsx:36
+msgid "oVirt login in progress"
+msgstr "oVirt ログインの処理中"
+
 #: pkg/packagekit/autoupdates.jsx:306
 msgid "on Fridays"
-msgstr ""
+msgstr "毎週金曜日"
 
 #: pkg/packagekit/autoupdates.jsx:302
 msgid "on Mondays"
-msgstr ""
+msgstr "毎週月曜日"
 
 #: pkg/packagekit/autoupdates.jsx:307
 msgid "on Saturdays"
-msgstr ""
+msgstr "毎週土曜日"
 
 #: pkg/packagekit/autoupdates.jsx:308
 msgid "on Sundays"
-msgstr ""
+msgstr "毎週日曜日"
 
 #: pkg/packagekit/autoupdates.jsx:305
 msgid "on Thursdays"
-msgstr ""
+msgstr "毎週木曜日"
 
 #: pkg/packagekit/autoupdates.jsx:303
 msgid "on Tuesdays"
-msgstr ""
+msgstr "毎週火曜日"
 
 #: pkg/packagekit/autoupdates.jsx:304
 msgid "on Wednesdays"
-msgstr ""
+msgstr "毎週水曜日"
 
 #: pkg/machines/libvirt.es6:433
 msgid "other"
-msgstr ""
+msgstr "その他"
 
-#: pkg/machines/helpers.es6:105
+#: pkg/machines/helpers.es6:109
 msgid "paused"
 msgstr "一時停止"
+
+#: pkg/ovirt/rephraseUI.es6:35
+msgid "pending approval"
+msgstr "保留中の承認"
 
 #: pkg/kubernetes/views/dashboard-page.html:83
 msgid "pending volume claims"
 msgstr "保留中のボリュームクレーム"
 
+#: pkg/ovirt/rephraseUI.es6:37
+msgid "reboot"
+msgstr "再起動"
+
 #: pkg/tuned/change-profile.jsx:52
 msgid "recommended"
 msgstr "推奨"
 
-#: pkg/machines/helpers.es6:103
+#: pkg/machines/helpers.es6:107
 msgid "running"
 msgstr "実行中"
 
@@ -7875,13 +8292,17 @@ msgstr "コンテナーの選択"
 msgid "shares"
 msgstr "共有"
 
-#: pkg/machines/helpers.es6:107
+#: pkg/machines/helpers.es6:111
 msgid "shut off"
 msgstr "シャットオフ"
 
-#: pkg/machines/helpers.es6:106
+#: pkg/machines/helpers.es6:110
 msgid "shutdown"
 msgstr "shutdown"
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "sockets"
+msgstr "ソケット"
 
 #: pkg/selinux/setroubleshoot-view.jsx:118
 msgid "solution details"
@@ -7891,9 +8312,13 @@ msgstr "ソリューションの詳細"
 msgid "ssh key"
 msgstr "ssh 鍵"
 
-#: pkg/machines/helpers.es6:110
+#: pkg/machines/helpers.es6:114
 msgid "suspended (PM)"
 msgstr "一時停止中 (PM)"
+
+#: pkg/ovirt/components/ClusterVms.jsx:45
+msgid "threads"
+msgstr "スレッド"
 
 #: pkg/docker/run.js:473
 msgid "to host path"
@@ -7902,6 +8327,10 @@ msgstr "ホストパスに対して"
 #: pkg/docker/run.js:417
 msgid "to host port"
 msgstr "ホストポートに対して"
+
+#: pkg/ovirt/rephraseUI.es6:38
+msgid "unassigned"
+msgstr "未割り当て"
 
 #: pkg/lib/cockpit-components-select.jsx:30
 msgid "undefined"
@@ -7920,6 +8349,15 @@ msgstr "不明なターゲット"
 msgid "unpartitioned space on $0"
 msgstr "$0 の未パーティション領域"
 
+#: pkg/ovirt/rephraseUI.es6:27
+msgid "up"
+msgstr "上へ"
+
+#: pkg/ovirt/components/ClusterTemplates.jsx:128
+#: pkg/ovirt/components/ClusterVms.jsx:174
+msgid "vCPUs"
+msgstr "vCPU"
+
 #: pkg/machines/hostvmslist.jsx:291
 msgid "vCPUs:"
 msgstr "vCPU:"
@@ -7929,6 +8367,7 @@ msgid "value"
 msgstr "value"
 
 #: pkg/kubernetes/views/route-body.html:13 pkg/machines/vmdiskstab.jsx:174
+#: pkg/ovirt/components/ClusterVms.jsx:37 pkg/ovirt/rephraseUI.es6:43
 msgid "yes"
 msgstr "はい"
 
@@ -7937,5 +8376,5 @@ msgid ""
 "{{ condition.message }}. Timestamp: {{ condition.lastTransitionTime }} Error "
 "count: {{ condition.generation }}"
 msgstr ""
-"{{ condition.message }}。タイムスタンプ: {{ condition.lastTransitionTime }} エラー数: {{ "
-"condition.generation }}"
+"{{ condition.message }}。タイムスタンプ: {{ condition.lastTransitionTime }} "
+"エラー数: {{ condition.generation }}"

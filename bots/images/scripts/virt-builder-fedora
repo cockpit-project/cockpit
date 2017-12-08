@@ -79,6 +79,7 @@ virt-builder "$os" \
              --upload $BASE/../../../test/common/host_key:/etc/ssh/ssh_host_rsa_key \
              --chmod 0600:/etc/ssh/ssh_host_rsa_key \
              --upload $BASE/../../../test/common/host_key.pub:/etc/ssh/ssh_host_rsa_key.pub \
+             --upload $BASE/../../../test/verify/nested-kvm:/root/nested-kvm \
              --upload $BASE/network-ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 \
              --upload $BASE/network-ifcfg-eth1:/etc/sysconfig/network-scripts/ifcfg-eth1 \
              --delete /etc/systemd/system/multi-user.target.wants/sshd.service \

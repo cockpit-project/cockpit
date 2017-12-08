@@ -1,0 +1,43 @@
+#!/bin/bash
+set -ex
+
+KUBEVIRT_DIR="/kubevirt"
+rm -rf ${KUBEVIRT_DIR}
+mkdir -p ${KUBEVIRT_DIR}
+cd ${KUBEVIRT_DIR}
+
+# download latest Kubevirt release
+curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/latest > kubevirt_latest.json
+KUBEVIRT_RELEASE_ID=`cat kubevirt_latest.json | grep -m 1 \"id\": | sed -e 's/^.*\"id\":\s*\(.*\),/\1/'`
+echo Latest Kubevirt release found: ${KUBEVIRT_RELEASE_ID}
+
+KUBEVIRT_VERSION=`cat kubevirt_latest.json | grep -m 1 \"name\": | sed -e 's/^.*\"name\":\s*\"\(.*\)\",/\1/'`
+echo Kubevirt version found: ${KUBEVIRT_VERSION}
+
+# Store kubevirt's manifests and binaries for later use within tests
+for ASSET in `curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/${KUBEVIRT_RELEASE_ID}/assets | grep \"browser_download_url\": | sed -e 's/^.*\"browser_download_url\":.*\"\(.*\)\".*$/\1/'` ; do
+    curl -sL -O ${ASSET}
+done
+
+# pre-pull related images (will be applied later)
+for IMAGE in `grep -h 'image:' *.yaml | sed -e 's/^.*image://g'` ; do
+    echo Pulling image for Kubevirt: ${IMAGE}
+    docker pull ${IMAGE}
+done
+
+docker pull kubevirt/iscsi-demo-target-tgtd:latest
+docker pull kubevirt/virt-launcher:${KUBEVIRT_VERSION}
+docker pull kubevirt/virt-migrator:${KUBEVIRT_VERSION}
+
+# Reuse test VM and its disk from kubevirt project since its being developed along the Kubevirt itself
+TARBALL=`cat kubevirt_latest.json | grep \"tarball_url\": | sed -e 's/^.*\"tarball_url\":\s*\"\(.*\)\",/\1/'`
+( mkdir kubevirt.src && cd kubevirt.src && curl -sL ${TARBALL} > kubevirt.tar.gz && tar -xzf kubevirt.tar.gz --strip=1 )
+cp kubevirt.src/cluster/vm.yaml ./
+
+cp kubevirt.src/manifests/testing/iscsi-demo-target.yaml.in ./iscsi-demo-target.yaml
+sed -i 's/{{ docker_prefix }}/kubevirt/g' iscsi-demo-target.yaml
+sed -i 's/{{ docker_tag }}/latest/g' iscsi-demo-target.yaml
+
+# clean up
+# rm -rf kubevirt.src # Let's keep it. Kubevirt is recently under heavy development and it's more handy to have it available for testing
+

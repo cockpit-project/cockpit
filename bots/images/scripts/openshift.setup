@@ -273,8 +273,13 @@ printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/
 # Pull down remaining images
 /var/lib/testvm/docker-images.setup
 
+# Prepare Kubevirt for later installation
+/var/lib/testvm/kubevirt.setup
+
 dnf install -y cockpit-system
 
 # reduce image size
 dnf clean all
 /var/lib/testvm/zero-disk.setup
+
+docker images

@@ -800,6 +800,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             }
 
             var len, content = css_content(elt);
+            console.warn("XXXX CSS SAYS", content);
             if (content && content != "none" && content != "normal") {
                 len = content.length;
                 if ((content[0] === '"' || content[0] === '\'') &&

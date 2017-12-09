@@ -168,7 +168,10 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         try:
             b.wait_in_text("#index-brand", "Openshift")
         except Error:
+            print b.text("#index-brand")
             print(self.machine.execute("""C=`docker ps -qf 'name=cockpit_openshift'`; docker exec $C sh -c 'ls -l /container/os-release; echo "--- cockpit.conf ---"; cat /etc/cockpit/cockpit.conf; echo "--- env ---"; env'"""))
+            print(self.machine.execute("curl http://10.111.112.101:30000/cockpit/static/branding.css"))
+            print(self.machine.execute(["curl", "--cookie", "cockpit={}".format(b.cookie("cockpit")), "http://10.111.112.101:30000/cockpit/static/branding.css"]))
             raise
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")

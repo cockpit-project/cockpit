@@ -945,6 +945,10 @@ class CDP:
             self._browser_home = tempfile.mkdtemp()
             environ = os.environ.copy()
             environ["HOME"] = self._browser_home
+            environ["XDG_CONFIG_HOME"] = os.path.join(self._browser_home, ".config")
+            environ["XDG_CACHE_HOME"] = os.path.join(self._browser_home, ".cache")
+            environ["XDG_DATA_HOME"] = os.path.join(self._browser_home, ".local", "share")
+            environ["XDG_RUNTIME_DIR"] = os.path.join(self._browser_home, "run")
             environ["LC_ALL"] = "C.utf8"
             exe = browser_path(self.headless)
 
@@ -954,8 +958,9 @@ class CDP:
                 argv = [os.path.join(TEST_DIR, "common/xvfb-wrapper"), exe]
 
             # sandboxing does not work in Docker container
+            cdir = os.path.join(self._browser_home, "chrome-config")
             self._browser = subprocess.Popen(
-                argv + ["--disable-gpu", "--no-sandbox", "--remote-debugging-port=%i" % cdp_port, "about:blank"],
+                argv + ["--disable-gpu", "--no-sandbox", "--user-data-dir={}".format(cdir), "--remote-debugging-port=%i" % cdp_port, "about:blank"],
                 env=environ, close_fds=True)
             sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))
 

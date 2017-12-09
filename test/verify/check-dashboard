@@ -158,6 +158,9 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img", 'src', '../shell/images/server-small.png')
 
         # Test change user, not doing in edit to reuse machines
+        # HACK:/FIXME: find out what to wait for here
+        import time
+        time.sleep(3)
 
         # Navigate to load iframe
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3']")

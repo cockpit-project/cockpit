@@ -793,12 +793,14 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             var elt = $(id)[0];
             var os_release = {};
             try {
+                console.warn("XXXXXXX setup_brand(id: ", id, ", default_title:", default_title, ") windowStore: ", window.localStorage['os-release']);
                 os_release = JSON.parse(window.localStorage['os-release'] || "{}");
             } catch (ex) {
                 console.warn("Couldn't parse os-release", ex);
             }
 
             var len, content = css_content(elt);
+            console.warn("XXXX CSS SAYS", content);
             if (content && content != "none" && content != "normal") {
                 len = content.length;
                 if ((content[0] === '"' || content[0] === '\'') &&

@@ -39,7 +39,8 @@ class TestEmbed(MachineCase):
         b.set_val('#login-password-input', "foobar")
         b.set_checked('#authorized-input', True)
         b.click('#login-button')
-        b.expect_load()
+        # don't use expect_load() here as the outside page doesn't reload, just the iframe
+        b.expect_load_frame("cockpit1:localhost/system")
 
         # Page should show automatically now that other frame logged in
         b.switch_to_top()

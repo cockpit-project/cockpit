@@ -44,6 +44,13 @@ will be printed of the test instance.
 
     $ ./test/verify/check-session --trace --sit
 
+Normally each test starts its own chromium headless browser process on a
+separate random port. To interactively follow what a test is doing, start the
+browser manually and tell the test which debug port it should attach to:
+
+    $ chromium-browser --remote-debugging-port=9222 about:blank
+    $ TEST_CDP_PORT=9222 ./test/verify/check-session --trace
+
 ## Details
 
 The verify test suite is the main test suite:
@@ -71,6 +78,10 @@ You can set these environment variables to configure the test suite:
              default is the same directory that this README file is in.
 
   TEST_JOBS  How many tests to run in parallel.  The default is 1.
+
+  TEST_CDP_PORT  Attach to an actually running browser that is compatible with
+                 the Chrome Debug Protocol, on the given port. Don't use this
+                 with parallel tests.
 
 ## Test machines and their images
 

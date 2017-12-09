@@ -2090,6 +2090,15 @@ function factory() {
             process(beg, items, mapping);
             stash(beg, items, mapping);
         };
+
+        self.close = function () {
+            var grid, id;
+            for (id in registered) {
+                grid = registered[id];
+                if (grid && grid.grid)
+                    grid.grid.remove_sink(self);
+            }
+        };
     }
 
     cockpit.series = function series(interval, cache, fetch) {
@@ -2204,6 +2213,17 @@ function factory() {
             for (i = 0; i < ilen; i++) {
                 if (rows[i] === row) {
                     rows.splice(i, 1);
+                    break;
+                }
+            }
+        };
+
+        self.remove_sink = function remove_sink(sink) {
+            var i, len = sinks.length;
+            for (i = 0; i < len; i++) {
+                if (sinks[i].sink === sink) {
+                    sinks[i].links.remove();
+                    sinks.splice(i, 1);
                     break;
                 }
             }
@@ -4482,6 +4502,9 @@ function factory() {
 
         self.close = function close(options) {
             var i, len = channels.length;
+            if (self.series)
+                self.series.close();
+
             for (i = 0; i < len; i++)
                 channels[i].close(options);
         };

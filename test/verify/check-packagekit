@@ -550,7 +550,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.candlepin.execute("systemctl start tomcat")
 
         # remove all existing products (RHEL server), as we can't control them
-        m.execute("rm /etc/pki/product-default/*.pem /etc/pki/product/*.pem")
+        m.execute("rm -f /etc/pki/product-default/*.pem /etc/pki/product/*.pem")
 
         # download product info from the candlepin machine and install it
         product_file = os.path.join(self.tmpdir, "88888.pem")
@@ -656,7 +656,7 @@ class TestAutoUpdates(PackageCase):
             self.backend = "apt"
         elif self.machine.image.startswith("fedora"):
             self.backend = "dnf"
-        elif self.machine.image in ["centos-7", "rhel-7", "rhel-7-4"]:
+        elif self.machine.image in ["centos-7", "rhel-7", "rhel-7-4", "rhel-7-5"]:
             self.backend = "yum"
         else:
             raise NotImplementedError("unknown image " + self.machine.image)

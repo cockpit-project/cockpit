@@ -24,6 +24,7 @@ import { gettext as _ } from 'cockpit'
 
 import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx'
 import type { Vm } from '../types.jsx'
+import { getPairs } from '../utils.jsx'
 
 const NODE_LABEL = 'kubevirt.io/nodeName'
 function getNodeName(vm: Vm) {
@@ -39,6 +40,15 @@ const GeneralTab = ({ vm }: { vm: Vm }) => {
                 <dl>
                     <dt>{_("Node")}</dt>
                     <dd className="vm-node">{nodeLink}</dd>
+                </dl>
+            </div>
+            <div className="col-xs-12 col-md-6">
+                <dl className="full-width">
+                    <dt>{_("Labels")}</dt>
+                    {vm.metadata.labels && getPairs(vm.metadata.labels).map(pair => {
+                        const printablePair = pair.key + '=' + pair.value
+                        return (<dd key={printablePair}>{printablePair}</dd>)
+                    })}
                 </dl>
             </div>
         </div>

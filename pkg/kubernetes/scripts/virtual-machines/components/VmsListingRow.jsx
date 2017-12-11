@@ -26,10 +26,34 @@ import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx'
 import type { Vm } from '../types.jsx'
 
 const NODE_LABEL = 'kubevirt.io/nodeName'
+function getNodeName(vm: Vm) {
+    return (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || null
+}
+
+const GeneralTab = ({ vm }: { vm: Vm }) => {
+    const nodeName = getNodeName(vm)
+    const nodeLink = nodeName ? (<a href={`#/nodes/${nodeName}`}>{nodeName}</a>) : '-'
+    return (
+        <div className="row">
+            <div className="col-xs-12 col-md-6">
+                <dl>
+                    <dt>{_("Node")}</dt>
+                    <dd className="vm-node">{nodeLink}</dd>
+                </dl>
+            </div>
+        </div>
+    )
+}
 
 const VmsListingRow = ({ vm }: { vm: Vm }) => {
     const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-'
     const phase = (vm.status && vm.status.phase) || _("n/a")
+    const generalTabRenderer = {
+        name: _("General"),
+        renderer: GeneralTab,
+        data: { vm },
+        presence: 'always',
+    }
     return (
         <ListingRow
             rowId={`vm-${vm.metadata.name}`}
@@ -38,7 +62,8 @@ const VmsListingRow = ({ vm }: { vm: Vm }) => {
                 vm.metadata.namespace,
                 node,
                 phase // phases description https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
-            ]} />
+            ]}
+            tabRenderers={[generalTabRenderer]}/>
     )
 }
 

@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @flow
+
 import React from 'react'
 import { connect } from 'react-redux'
 import { gettext as _ } from 'cockpit'

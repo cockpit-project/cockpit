@@ -363,7 +363,7 @@ dist-hook::
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"
-DIST_TAR_CACHE = tar --format=posix -cf - --exclude='phantomjs*' --transform="s/^/$(distdir)/" \
+DIST_TAR_CACHE = tar --format=posix -cf - --exclude='phantomjs*' --transform="flags=r;s|^\./||" --transform="flags=r;s|^|$(distdir)/|" \
 	"$(srcdir)/node_modules" "$(srcdir)/package.json"
 
 DIST_ARCHIVES = \

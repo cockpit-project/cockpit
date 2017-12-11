@@ -55,7 +55,7 @@ function findPCI(udevdb, info) {
 }
 
 export default function detect() {
-    let info = { system: {}, pci: [] };
+    let info = { system: {}, pci: [], memory: {} };
     var tasks = [];
 
     tasks.push(new Promise((resolve, reject) => {
@@ -85,6 +85,18 @@ export default function detect() {
                 })
                 .catch(error => {
                     console.warn("Failed to get udev information:", error.toString());
+                    resolve();
+                });
+    }));
+
+    tasks.push(new Promise((resolve, reject) => {
+        machine_info.memory_info()
+                .done(result => {
+                    info.memory = result;
+                    resolve();
+                })
+                .catch(error => {
+                    console.warn("Failed to get dmidecode information:", error.toString());
                     resolve();
                 });
     }));

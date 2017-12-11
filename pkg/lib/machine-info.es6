@@ -194,3 +194,70 @@ export function udev_info(address) {
     }
     return pr;
 }
+
+const memoryRE = /^([ \w]+): (.*)/;
+
+// Process the dmidecode text output and create a mapping of locator to dimm properties {"A1": {Array Handle: "0x1000"...,},...}
+function parseMemoryInfo(text) {
+    var info = {};
+    text.split("\n\n").map(paragraph => {
+        let locator = null;
+        let props = {};
+
+        paragraph = paragraph.trim();
+        if (!paragraph)
+            return;
+
+        paragraph.split("\n").map(line => {
+            line = line.trim();
+            let match = line.match(memoryRE);
+            if (match)
+                props[match[1]] = match[2];
+        });
+
+        locator = props["Locator"];
+        if (locator)
+            info[locator] = props;
+    });
+
+    return processMemory(info);
+}
+
+// Select the useful properties to display
+function processMemory(info) {
+    var memory_array = [];
+    var empty_slots = 0;
+
+    for (let dimm in info) {
+        let memory = info[dimm];
+        if (memory["Type Detail"] == "None") {
+            empty_slots += 1;
+        }
+        memory_array.push({ locator: memory["Locator"],
+                            manufacturer: memory["Manufacturer"],
+                            type_detail: memory["Type Detail"],
+                            size: memory["Size"],
+                            speed: memory["Speed"],
+                            part_number: memory["Part Number"],
+                            serial: memory["Serial Number"] });
+    }
+    return {"array": memory_array, "empty_slots": empty_slots};
+}
+
+var memory_info_promises = { };
+
+// Calls dmidecode to gather memory information. Returns array of properties mapping and number of empty slots for preprocessing.
+// Return {"array": memory, "empty_slots": #}
+export function memory_info(address) {
+    var pr = memory_info_promises[address];
+    var dfd;
+
+    if (!pr) {
+        dfd = cockpit.defer();
+        memory_info_promises[address] = pr = dfd.promise();
+        cockpit.spawn(["/usr/sbin/dmidecode", "-t", "memory"], { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
+                .done(output => dfd.resolve(parseMemoryInfo(output)))
+                .fail(exception => dfd.reject(exception.message));
+    }
+    return pr;
+}

@@ -374,20 +374,26 @@ class TestSystemInfo(MachineCase):
         # BIOS date; just ensure it's from this century
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
 
+        # Memory
+        b.wait_present('#hwinfo #memory_table .listing-ct caption')
+        b.wait_in_text('#hwinfo #memory_table .listing-ct caption', "Memory")
+        b.wait_in_text('#hwinfo #memory_table .listing-ct', "DIMM 0")
+        b.wait_in_text('#hwinfo #memory_table .listing-ct', "QEMU")
+
         # PCI
-        b.wait_present('#hwinfo .listing-ct caption')
-        b.wait_in_text('#hwinfo .listing-ct caption', "PCI")
-        b.wait_in_text('#hwinfo .listing-ct', "0000:00:00.0")
+        b.wait_present('#hwinfo #pci_table .listing-ct caption')
+        b.wait_in_text('#hwinfo #pci_table .listing-ct caption', "PCI")
+        b.wait_in_text('#hwinfo #pci_table .listing-ct', "0000:00:00.0")
 
         # sorted by device class by default; this makes some assumptions about QEMU devices
-        b.wait_in_text('#hwinfo .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
-        b.wait_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        b.wait_in_text('#hwinfo #pci_table .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
+        b.wait_in_text('#hwinfo #pci_table .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
 
         # sort by model
-        b.click('#hwinfo .listing-ct thead th:nth-of-type(3)')
-        b.wait_in_text('#hwinfo .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
-        b.wait_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
-        b.wait_not_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        b.click('#hwinfo #pci_table .listing-ct thead th:nth-of-type(3)')
+        b.wait_in_text('#hwinfo #pci_table .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
+        b.wait_in_text('#hwinfo #pci_table .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
+        b.wait_not_in_text('#hwinfo #pci_table .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
 
         # go back to system page
         b.click('.breadcrumb a')

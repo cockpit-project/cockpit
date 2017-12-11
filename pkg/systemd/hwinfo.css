@@ -19,3 +19,27 @@ table.listing-ct thead th:last-child {
 tr.listing-ct-item td:last-child {
     text-align: left;
 }
+
+.ct-empty-slot > td:not(:first-child) {
+  color: #999;
+  text-align: left;
+}
+
+ .ct-empty-slot {
+  display: none;
+}
+
+ .show-all-slots .ct-empty-slot {
+  display: table-row;
+}
+
+ .ct-hardware-memory-empty-count {
+  font-size: 17px;
+  margin-left: 2em;
+  vertical-align: baseline;
+}
+
+.ct-hardware-memory-empty-count > a {
+  font-size: inherit;
+  margin-left: 0.5em;
+}

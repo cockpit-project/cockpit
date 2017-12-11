@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -45,7 +45,7 @@ def main():
         if opts.verbose:
             sys.stderr.write("+ " + " ".join(args) + "\n")
         try:
-            output = subprocess.check_output(args, cwd=BASE)
+            output = subprocess.check_output(args, cwd=BASE, universal_newlines=True)
         except subprocess.CalledProcessError as ex:
             sys.exit(ex.returncode)
         if opts.verbose and output:

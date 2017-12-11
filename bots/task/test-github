@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -22,23 +22,21 @@ ADDRESS = ("127.0.0.8", 9898)
 
 import ctypes
 import fnmatch
-import httplib
 import json
 import os
 import signal
 import shutil
-import socket
 import sys
 import tempfile
 import time
 import unittest
-import urlparse
+import urllib.parse
 
 BASE = os.path.dirname(__file__)
-DEVNULL = open("/dev/null", "r+")
+sys.path.insert(1, os.path.join(BASE, ".."))
 
-import cache
-import github
+from task import cache
+from task import github
 
 def mockServer():
     # Data used by the above handler
@@ -46,16 +44,16 @@ def mockServer():
         "count": 0,
     }
 
-    import BaseHTTPServer
-    class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+    import http.server
+    class Handler(http.server.BaseHTTPRequestHandler):
 
         def replyData(self, value, headers={ }, status=200):
             self.send_response(status)
             for name, content in headers.items():
                 self.send_header(name, content)
             self.end_headers()
-            self.wfile.write(value)
-            self.wfile.close()
+            self.wfile.write(value.encode('utf-8'))
+            self.wfile.flush()
 
         def replyJson(self, value, headers={ }, status=200):
             headers["Content-type"] = "application/json"
@@ -63,7 +61,7 @@ def mockServer():
             self.replyData(json.dumps(value), headers=headers, status=status)
 
         def do_GET(self):
-            parsed = urlparse.urlparse(self.path)
+            parsed = urllib.parse.urlparse(self.path)
             if parsed.path == "/count":
                 self.replyJson(self.server.data["count"])
             elif parsed.path == "/issues":
@@ -73,19 +71,19 @@ def mockServer():
                     { "number": "7", "state": "open" }
                 ])
             elif parsed.path == "/test/user":
-                if self.headers.getheader("If-None-Match") == "blah":
+                if self.headers.get("If-None-Match") == "blah":
                     self.replyData("", status=304)
                 else:
                     self.replyJson({ "user": "blah" }, headers={ "ETag": "blah" })
             elif parsed.path == "/test/user/modified":
-                if self.headers.getheader("If-Modified-Since") == "Thu, 05 Jul 2012 15:31:30 GMT":
+                if self.headers.get("If-Modified-Since") == "Thu, 05 Jul 2012 15:31:30 GMT":
                     self.replyData("", status=304)
                 else:
                     self.replyJson({ "user": "blah" }, headers={ "Last-Modified": "Thu, 05 Jul 2012 15:31:30 GMT" })
             else:
                 self.send_error(404, 'Mock Not Found: ' + parsed.path)
 
-    httpd = BaseHTTPServer.HTTPServer(ADDRESS, Handler)
+    httpd = http.server.HTTPServer(ADDRESS, Handler)
     httpd.data = data
 
     child = os.fork()

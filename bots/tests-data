@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -25,10 +25,10 @@ import os
 import sys
 import subprocess
 import time
-import urlparse
-import urllib2
+import urllib.parse
+import urllib.request, urllib.error, urllib.parse
 
-import HTMLParser
+import html.parser
 
 sys.dont_write_bytecode = True
 
@@ -128,9 +128,9 @@ def main():
 # An HTML parser that just pulls out all the <a href="...">
 # link hrefs in a given page of content. We also qualify these
 # hrefs with a base url, in case they're relative
-class HrefParser(HTMLParser.HTMLParser):
+class HrefParser(html.parser.HTMLParser):
     def __init__(self, base, hrefs):
-        HTMLParser.HTMLParser.__init__(self)
+        html.parser.HTMLParser.__init__(self)
         self.hrefs = hrefs
         self.base = base
 
@@ -138,13 +138,13 @@ class HrefParser(HTMLParser.HTMLParser):
         if tag.lower() == "a":
             for (name, value) in attrs:
                 if name.lower() == "href":
-                    url = urlparse.urljoin(self.base, value)
+                    url = urllib.parse.urljoin(self.base, value)
                     # print 'HREF', url
                     self.hrefs.append(url)
 
 # Retrieves the content of the given URL
 def retrieve(url):
-    return urllib2.urlopen(url).read()
+    return urllib.request.urlopen(url).read()
 
 # Returns a list of all results at the given URL
 def links(url):
@@ -152,10 +152,10 @@ def links(url):
     parser = HrefParser(url, result)
     try:
         parser.feed(retrieve(url))
-    except urllib2.HTTPError as ex:
+    except urllib.error.HTTPError as ex:
         if ex.code != 404:
             raise
-    except urllib2.URLError as ex:
+    except urllib.error.URLError as ex:
         sys.stderr.write("{0}: {1}\n".format(url, ex))
     return result
 
@@ -216,8 +216,8 @@ def revisions(pull):
     for status in data.get("statuses", [ ]):
         url = status["target_url"]
         if url:
-            ignore.add(urlparse.urljoin(url, "./"))
-            sink = urlparse.urljoin(url, "../")
+            ignore.add(urllib.parse.urljoin(url, "./"))
+            sink = urllib.parse.urljoin(url, "../")
             if sink not in SINKS:
                 SINKS[sink] = links(sink)
 
@@ -236,15 +236,15 @@ def revisions(pull):
                 continue
 
             # Build a URL for the cockpituous sink /status file and read it
-            target = urlparse.urljoin(link, "status")
+            target = urllib.parse.urljoin(link, "status")
             try:
                 data = json.loads(retrieve(target))
             except ValueError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
-            except urllib2.HTTPError as ex:
+            except urllib.error.HTTPError as ex:
                 if ex.code != 404:
                     raise
-            except urllib2.URLError as ex:
+            except urllib.error.URLError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
                 pass
             else:
@@ -272,10 +272,10 @@ def logs(revision):
                 target = target[:-5]
             try:
                 yield (status["context"], status["created_at"], target, retrieve(target))
-            except urllib2.HTTPError as ex:
+            except urllib.error.HTTPError as ex:
                 if ex.code != 404:
                     raise
-            except urllib2.URLError as ex:
+            except urllib.error.URLError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
 
 # Generate (status, body) for each Test Anything Protocol test
@@ -360,7 +360,6 @@ def included(pull):
         "--since=" + since, "origin/" + base
     ]
     output = subprocess.check_output(cmd, cwd=cwd)
-
     return output and True or False
 
 if __name__ == '__main__':

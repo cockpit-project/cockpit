@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -69,7 +69,7 @@ import random
 import subprocess
 import sys
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 sys.dont_write_bytecode = True
 
@@ -153,7 +153,7 @@ def prioritize(status, title, labels, priority, context):
 
     # This commit definitively succeeded or failed
     if state in [ "success", "failure" ]:
-        priority = None
+        priority = 0
         update = None
 
     # This test errored, we try again but low priority
@@ -270,7 +270,7 @@ def cockpit_tasks (api, update, policy):
         if ref and not isinstance(ref, list):
             revision = ref["object"]["sha"]
             statuses = api.statuses(revision)
-            which = statuses.keys() or branch_contexts[branch]
+            which = list(statuses.keys()) or branch_contexts[branch]
             for context in which:
                 status = statuses.get(context, { })
                 (priority, changes) = prioritize(status, "", lambda: [], branch_priority, context)
@@ -330,10 +330,10 @@ def scan_for_pull_tasks(api, update, human, policy):
 
     if human:
         func = lambda x: tests_human(*x)
-        results.sort(reverse=True)
+        results.sort(reverse=True, key=lambda x: str(x))
     else:
         func = lambda x: tests_invoke(*x)
-    return map(func, results)
+    return list(map(func, results))
 
 def scan(api, update, human):
     kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
@@ -345,7 +345,7 @@ def scan(api, update, human):
 
     # Check if we have access to Red Hat network
     try:
-        urllib.urlopen(REDHAT_PING).read()
+        urllib.request.urlopen(REDHAT_PING).read()
         policy.update(REDHAT_VERIFY)
     except IOError:
         pass
@@ -359,7 +359,7 @@ def scan(api, update, human):
     # In a namespaced network, remove legacy branches
     else:
         for context, branches in policy.items():
-            policy[context] = filter(lambda branch: branch not in LEGACY_BRANCHES, branches)
+            policy[context] = [branch for branch in branches if branch not in LEGACY_BRANCHES]
 
     return scan_for_pull_tasks(api, update, human, policy)
 

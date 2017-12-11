@@ -117,6 +117,7 @@
         componentWillUnmount: function () {
             this.disconnectChannel();
             this.state.terminal.destroy();
+            window.removeEventListener('resize', this.onWindowResize);
         },
 
         onChannelMessage: function (event, data) {

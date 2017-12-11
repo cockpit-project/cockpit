@@ -165,6 +165,11 @@ set -x
 # For debugging udisks/storaged crashes
 debuginfo-install -y $UDISKS
 
+# Backend API for welder
+yum install -y epel-release
+curl https://copr.fedorainfracloud.org/coprs/g/weldr/lorax-composer/repo/epel-7/group_weldr-lorax-composer-epel-7.repo > /etc/yum.repos.d/lorax-composer.repo
+yum install -y lorax-composer
+
 # Prepare for building
 
 # only install mock and build if TEST_SOURCE is set

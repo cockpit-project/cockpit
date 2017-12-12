@@ -39,12 +39,31 @@
 
     .config([
         '$routeProvider',
-        function($routeProvider) {
+        '$locationProvider',
+        function($routeProvider, $locationProvider) {
             $routeProvider
                 .when('/vms', {
                     templateUrl: 'views/virtual-machines-page.html',
                     controller: 'VirtualMachinesCtrl'
                 });
+            /*
+            Links rewriting is enabled by default. It does two things:
+            * It changes links href in older browsers.
+            * It handles the navigation instead of the browser.
+
+            The link rewriting code runs in 'click' event handler registered
+            to the `document` element to bubbling phase. It calls `preventDefault()`
+            event method and instructs browser to go to the destination.
+
+            Such behavior breaks event handling in React since:
+            * React always gets event with flag `defaultPrevented` set.
+            * Navigation is performed no matter if `event.preventDefault()` is called
+              in React handler.
+
+            @see https://docs.angularjs.org/api/ng/provider/$locationProvider
+            @see https://docs.angularjs.org/guide/$location#html5-mode
+             */
+            $locationProvider.html5Mode({ rewriteLinks: false });
         }
     ])
 

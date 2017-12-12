@@ -431,7 +431,8 @@ PageServer.prototype = {
                                                 '/org/projectatomic/rpmostree1/Sysroot');
         $(self.sysroot).on("changed", $.proxy(this, "sysroot_changed"));
 
-        self.client = cockpit.dbus('org.freedesktop.hostname1');
+        self.client = cockpit.dbus('org.freedesktop.hostname1',
+                                   {"superuser" : "try"});
         self.hostname_proxy = self.client.proxy('org.freedesktop.hostname1',
                                      '/org/freedesktop/hostname1');
         self.kernel_hostname = null;

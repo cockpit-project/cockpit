@@ -98,7 +98,7 @@ def main():
 
 # Prepare a human readable output
 def tests_human(priority, name, revision, ref, context, base=None, repo=None, command=None):
-    if priority is None:
+    if not priority:
         return
     try:
         priority = int(priority)

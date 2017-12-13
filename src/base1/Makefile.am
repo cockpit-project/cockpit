@@ -6,8 +6,6 @@ nodist_base_DATA = \
 	dist/base1/patternfly.min.css.gz \
 	dist/base1/require.min.js.gz \
 	dist/base1/mustache.min.js.gz \
-	dist/base1/jquery.min.js.gz \
-	dist/base1/cockpit.min.js.gz \
 	$(NULL)
 base_DATA = \
 	dist/base1/manifest.json \
@@ -19,8 +17,6 @@ basedebug_DATA = \
 	dist/base1/patternfly.min.css.map \
 	dist/base1/mustache.min.js.map \
 	dist/base1/require.min.js.map \
-	dist/base1/jquery.min.js.map \
-	dist/base1/cockpit.min.js.map \
 	$(NULL)
 
 AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals,fatal-warnings ; export XDG_CACHE_HOME=$$(mktemp -d) ; export XDG_RUNTIME_DIR=$$XDG_CACHE_HOME ;
@@ -35,16 +31,6 @@ dist/base1/require.js: src/base1/deprecated.js src/base1/require-config.js src/b
 	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/src/base1/require-config.js $(srcdir)/node_modules/requirejs/require.js $(srcdir)/src/base1/require-loaders.js > $@.tmp && $(MV) $@.tmp $@
 dist/base1/require.min.js: dist/base1/require.js
 	$(MIN_JS_RULE)
-dist/base1/jquery.js:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/node_modules/jquery/dist/jquery.js $(srcdir)/node_modules/bootstrap/dist/js/bootstrap.js $(srcdir)/node_modules/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
-dist/base1/jquery.min.js: dist/base1/jquery.js
-	$(MIN_JS_RULE)
-dist/base1/cockpit.js: src/base1/cockpit.js
-	$(JSHINT_RULE)
-	$(COPY_RULE)
-dist/base1/cockpit.min.js: dist/base1/cockpit.js
-	$(MIN_JS_RULE)
 dist/base1/mustache.js: src/base1/deprecated.js
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/node_modules/mustache/mustache.js > $@.tmp && $(MV) $@.tmp $@
@@ -56,10 +42,6 @@ dist/base1/manifest.json: src/base1/manifest.json
 
 # All map files are built as side effects of minification
 dist/base1/require.min.js.map: dist/base1/require.min.js
-
-dist/base1/cockpit.min.js.map: dist/base1/cockpit.min.js
-
-dist/base1/jquery.min.js.map: dist/base1/jquery.min.js
 
 dist/base1/mustache.min.js.map: dist/base1/mustache.min.js
 
@@ -199,14 +181,8 @@ TESTS += $(base_TESTS)
 noinst_SCRIPTS += $(base_TESTS)
 
 EXTRA_DIST += \
-	dist/base1/cockpit.js \
 	dist/base1/cockpit.min.css \
 	dist/base1/cockpit.min.css.map \
-	dist/base1/cockpit.min.js \
-	dist/base1/cockpit.min.js.map \
-	dist/base1/jquery.js \
-	dist/base1/jquery.min.js \
-	dist/base1/jquery.min.js.map \
 	dist/base1/mustache.js \
 	dist/base1/mustache.min.js \
 	dist/base1/mustache.min.js.map \
@@ -237,20 +213,12 @@ EXTRA_DIST += \
 	$(NULL)
 
 CLEANFILES += \
-	dist/base1/cockpit.js \
 	dist/base1/cockpit.min.css \
 	dist/base1/cockpit.min.css.gz \
 	dist/base1/cockpit.min.css.map \
-	dist/base1/cockpit.min.js \
-	dist/base1/cockpit.min.js.gz \
-	dist/base1/cockpit.min.js.map \
 	dist/base1/fonts/fontawesome.woff \
 	dist/base1/fonts/glyphicons.woff \
 	dist/base1/fonts/patternfly.woff \
-	dist/base1/jquery.js \
-	dist/base1/jquery.min.js \
-	dist/base1/jquery.min.js.gz \
-	dist/base1/jquery.min.js.map \
 	dist/base1/manifest.json \
 	dist/base1/mustache.js \
 	dist/base1/mustache.min.js \

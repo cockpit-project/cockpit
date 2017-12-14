@@ -184,6 +184,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
             self.restart_api_server(port=6443, scheme='https')
 
         b.reload()
+        b.expect_load_frame("cockpit1:localhost/kubernetes")
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Unauthenticated')
         b.wait_in_text("title", "Kubernetes Cockpit")

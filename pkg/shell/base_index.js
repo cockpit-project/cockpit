@@ -686,7 +686,10 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
 
             if (frame_change || state.hash !== current.hash) {
-                history.pushState(state, "", target);
+                var curLength = history.length;
+                // HACK: This sometimes does not work immediately in Chromium, so retry until it succeeds
+                while (history.length === curLength)
+                    history.pushState(state, "", target);
                 self.navigate(state, true);
                 return true;
             }

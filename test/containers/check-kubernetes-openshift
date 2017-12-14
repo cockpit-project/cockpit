@@ -54,6 +54,7 @@ class OCBrowser(Browser):
         self.set_val("#inputPassword", "fubar")
         self.click('.btn-primary')
         self.expect_load()
+        self.expect_load_frame("cockpit1:localhost/" + ("Registry" in self.label and "registry" or "kubernetes"))
         self.wait_present('#content')
         self.wait_visible('#content')
         if path:
@@ -121,8 +122,12 @@ class OCCase(kubelib.KubernetesCase):
         path = os.path.join(test_dir, "verify", "files", "mock-app-openshift.json")
         self.machine.upload([path], "/tmp")
 
-        self.browser = OCBrowser(self.machine.forward["30000"], self.label())
+        # HACK: Headless Chromium breaks with client SSL cert requests from OAuth; work around by using "full" chrome
+        # with xvfb (https://bugs.chromium.org/p/chromium/issues/detail?id=757181)
+        self.browser = OCBrowser(self.machine.forward["30000"], self.label(), headless=False)
         self.addCleanup(lambda: self.browser.kill())
+        # our OAuth provider uses a self-signed SSL certificate
+        self.browser.ignore_ssl_certificate_errors(True)
 
         self.tmpdir = tempfile.mkdtemp()
         self.openshift = self.machine
@@ -156,6 +161,7 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/kubernetes")
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
         b.wait_in_text("title", "Openshift Cockpit")
@@ -178,6 +184,7 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/kubernetes")
         b.wait_present("#content")
 
 class TestRegistry(OCCase, kubelib.RegistryTests):
@@ -204,6 +211,7 @@ class TestRegistry(OCCase, kubelib.RegistryTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/registry")
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
         b.wait_in_text("title", "Image Registry")
@@ -230,6 +238,7 @@ class TestRegistry(OCCase, kubelib.RegistryTests):
         b.click('.btn-primary')
 
         b.expect_load()
+        b.expect_load_frame("cockpit1:localhost/registry")
         b.wait_present("#content")
         b.enter_page("/registry")
         b.wait_present(".dashboard-commands")

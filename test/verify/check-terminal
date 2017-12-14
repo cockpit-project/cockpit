@@ -75,8 +75,10 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         wait_line(n + 1, "admin")
 
         wait_line(n + 2, prompt)
-        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ä', 'ö', 'ü', 'Return' ])
-        wait_line(n + 3, u'äöü')
+
+        b.key_press([ 'e', 'c', 'h', 'o', ' ',  '-', 'e', ' ',
+                      '"', '1', '\\', 'u', '0', '0', '4', '1', '"', 'Return' ])
+        wait_line(n + 3, '1A')
 
         # The '@' sign is in the default prompt
         b.wait_in_text(".terminal-title", '@')

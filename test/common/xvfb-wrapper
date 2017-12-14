@@ -1,0 +1,7 @@
+#!/bin/sh
+# wrapper around xvfb-run which cleans up child processes on signals
+
+# we cannot run this in the foreground as that defers traps
+xvfb-run -a --server-args='-screen 0 1024x768x24' "$@" &
+trap "pkill -P $!; kill $!; exit 0" TERM INT QUIT HUP
+wait

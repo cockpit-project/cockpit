@@ -213,7 +213,7 @@ export function fileDownload ({ data, fileName = 'myFile.dat', mimeType = 'appli
         window.setTimeout(() => document.body.removeChild(f), 333);
     }
 
-    window.setTimeout(() => { // give phantomJS time ...
+    window.setTimeout(() => { // give test browser some time ...
         logDebug('removing temporary A.HREF for filedownload');
         document.body.removeChild(a);
     }, 5000);

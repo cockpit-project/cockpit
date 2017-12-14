@@ -509,15 +509,13 @@
             }
         });
 
-        if (window.navigator.userAgent.indexOf("PhantomJS") == -1) {
-            var old_onerror = window.onerror;
-            window.onerror = function cockpit_error_handler(msg, url, line) {
-                self.show_oops();
-                if (old_onerror)
-                    return old_onerror(msg, url, line);
-                return false;
-            };
-        }
+        var old_onerror = window.onerror;
+        window.onerror = function cockpit_error_handler(msg, url, line) {
+            self.show_oops();
+            if (old_onerror)
+                return old_onerror(msg, url, line);
+            return false;
+        };
 
         /*
          * Navigation is driven by state objects, which are used with pushState()

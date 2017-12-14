@@ -71,8 +71,7 @@ class TestActivePages(MachineCase):
         b.wait_text_not(line_sel(1), line_text(""))
 
         # run the sleep command
-        key_presses = list("sleep 999999") + [ "Return" ];
-        b.key_press( key_presses )
+        b.key_press("sleep 999999\r")
 
         # wait for it to be present in ps
         wait(lambda: m.execute("ps ax | grep 'sleep 99.*999'"))

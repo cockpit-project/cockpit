@@ -223,8 +223,6 @@ class Browser:
 
     def key_press(self, keys):
         for k in keys:
-            if k == 'Return':
-                k = '\r'  # FIXME: PhantomJS backwards compat
             self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k)
 
     def wait_timeout(self, timeout):

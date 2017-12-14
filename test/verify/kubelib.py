@@ -324,7 +324,7 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_visible("tbody.open .listing-ct-panel div.terminal")
         b.wait_in_text("tbody.open .listing-ct-panel div.terminal", "#")
         b.focus('tbody.open .listing-ct-panel .terminal')
-        b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
+        b.key_press("whoami\r")
         b.wait_in_text("tbody.open .listing-ct-panel div.terminal", "root")
 
     def testDelete(self):

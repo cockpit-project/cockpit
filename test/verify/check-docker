@@ -356,22 +356,22 @@ CMD ["/bin/sh"]
 
         # Wait for the container to wake up
         try:
-            b.key_press( [ 'Return', 'Return', 'Return' ] )
+            b.key_press("\r\r\r")
             b.wait_in_text("#container-terminal", "#")
         except Error as ex:
             if not ex.msg.startswith('timeout'):
                 raise
 
-        b.key_press( [ 'c', 'l', 'e', 'a', 'r', 'Return' ] )
+        b.key_press("clear\r")
         b.wait_in_text("#container-terminal", "#")
 
         b.focus('#container-terminal .console-ct .terminal')
-        b.key_press( [ 'e', 'n', 'v', 'Return' ] )
+        b.key_press("env\r")
         b.wait_in_text("#container-terminal", "zero=GGG")
         b.wait_in_text("#container-terminal", "SECOND=marmalade")
 
         b.focus('#container-terminal .console-ct .terminal')
-        b.key_press( [ 'l', 's', ' ', '/', 'b', 'l', 'a', 'h', '/', 'Return' ] )
+        b.key_press("ls /blah/\r")
         b.wait_in_text("#container-terminal", "dripping.txt")
 
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')

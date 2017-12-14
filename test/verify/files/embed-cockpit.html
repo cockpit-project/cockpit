@@ -143,7 +143,6 @@
         </div><!-- /row -->
     </div><!-- /container -->
     <script>
-        var phantom_checkpoint = phantom_checkpoint || function () { };
         var frames = { };
 
         function click(ev) {
@@ -163,7 +162,6 @@
                 document.getElementById("embed-here").appendChild(frame);
                 frame.addEventListener("load", function(ev) {
                     ev.target.setAttribute("loaded", "1");
-                    phantom_checkpoint();
                 });
             }
 

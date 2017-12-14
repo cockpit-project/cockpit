@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var phantom_checkpoint = phantom_checkpoint || function () { };
-
 (function() {
     "use strict";
 
@@ -155,7 +153,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             $(".curtains-ct p").text(cockpit.message(watchdog_problem));
             $(".curtains-ct").show();
             $("#navbar-dropdown").addClass("disabled");
-            phantom_checkpoint();
         }
 
         /* Handles navigation */
@@ -468,8 +465,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 label = item ? item.label : "";
                 update_title(label, machine);
             }
-
-            phantom_checkpoint();
         }
 
         function update_machines() {
@@ -594,7 +589,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             $(".curtains-ct p").text(cockpit.message(watchdog_problem));
             $(".curtains-ct").show();
             $("#navbar-dropdown").addClass("disabled");
-            phantom_checkpoint();
         }
 
         index.ready();
@@ -664,8 +658,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             item = compiled.items[state.component];
             label = item ? item.label : "";
             update_title(label);
-
-            phantom_checkpoint();
         }
 
         cockpit.transport.wait(function() {

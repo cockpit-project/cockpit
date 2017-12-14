@@ -701,8 +701,7 @@ class TestAutoUpdates(PackageCase):
             return
 
         def wait_pending():
-            # the controls get disabled while applying the config changes is in progress; wait for both transitions, to
-            # get Phantom checkpoints while the setConfig() promise is running
+            # the controls get disabled while applying the config changes is in progress; wait for both transitions
             b.wait_present("#automatic .disabled")
             b.wait_not_present("#automatic .disabled")
 

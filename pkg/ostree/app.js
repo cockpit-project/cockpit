@@ -16,8 +16,6 @@
     var _ = cockpit.gettext;
     cockpit.translate();
 
-    var phantom_checkpoint = phantom_checkpoint || function () { };
-
     function track_id(item) {
         if (!item)
             return;
@@ -75,7 +73,6 @@
                 function set_curtains(curtains) {
                     $scope.$applyAsync(function() {
                         $scope.curtains = curtains;
-                        phantom_checkpoint();
                     });
                 }
 
@@ -156,14 +153,6 @@
             function($scope) {
                 $scope.os = null;
                 $scope.track_id = track_id;
-
-                /*
-                 * phantom_checkpoint for tests
-                 * on digest
-                 */
-                $scope.$watch(function() {
-                    phantom_checkpoint();
-                });
 
                 $scope.displayOS = function(os) {
                     $scope.os = os;

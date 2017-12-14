@@ -1,7 +1,5 @@
 /* global XMLHttpRequest */
 
-var phantom_checkpoint = phantom_checkpoint || function () { };
-
 (function(console) {
     var url_root;
     window.localStorage.removeItem('url-root');
@@ -471,7 +469,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
         show_form();
         id("login-user-input").focus();
-        phantom_checkpoint();
     }
 
     function show_converse(prompt_data) {
@@ -513,7 +510,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         id("conversation-input").addEventListener("keydown", key_down);
         id("login-button").addEventListener("click", call_converse);
         show_form(true);
-        phantom_checkpoint();
     }
 
     function utf8(str) {
@@ -610,7 +606,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
                 fatal(format(_("$0 error"), xhr.status));
             }
             id("login-button").removeAttribute('disabled');
-            phantom_checkpoint();
         };
         xhr.send();
     }
@@ -662,7 +657,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             } else {
                 login_reload (embeded_url);
             }
-            phantom_checkpoint();
         };
         xhr.send();
     }

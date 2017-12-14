@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var phantom_checkpoint = phantom_checkpoint || function () { };
-
 (function() {
     "use strict";
 
@@ -339,7 +337,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             frame.setAttribute('data-loaded', '1');
 
             perform_track(child);
-            phantom_checkpoint();
 
             index.navigate();
             return source;
@@ -509,7 +506,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             if (!a.host || window.location.host === a.host) {
                 self.jump(a.getAttribute('href'));
                 ev.preventDefault();
-                phantom_checkpoint();
             }
         });
 
@@ -517,7 +513,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
             var old_onerror = window.onerror;
             window.onerror = function cockpit_error_handler(msg, url, line) {
                 self.show_oops();
-                phantom_checkpoint();
                 if (old_onerror)
                     return old_onerror(msg, url, line);
                 return false;
@@ -849,7 +844,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
             $(id).on("shown.bs.modal", function() {
                 $("display-language-list").focus();
-                phantom_checkpoint();
             });
         }
 
@@ -857,7 +851,6 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
         function setup_about(id) {
             $(cockpit.info).on("changed", function() {
                 $(id).text(cockpit.info.version);
-                phantom_checkpoint();
             });
         }
 

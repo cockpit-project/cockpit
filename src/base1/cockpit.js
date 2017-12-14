@@ -26,8 +26,6 @@ try {
 
 var mock = mock || { };
 
-var phantom_checkpoint = phantom_checkpoint || function () { };
-
 (function() {
 "use strict";
 
@@ -549,7 +547,6 @@ function Transport() {
         else
             process_message(channel, payload);
 
-        phantom_checkpoint();
         return true;
     };
 

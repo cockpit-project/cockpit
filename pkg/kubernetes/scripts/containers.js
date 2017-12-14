@@ -28,8 +28,6 @@
 
     require('kubernetes-container-terminal/dist/container-terminal.js');
 
-    var phantom_checkpoint = phantom_checkpoint || function () { };
-
     angular.module('kubernetes.containers', [
         'ngRoute',
         'ui.cockpit',
@@ -289,8 +287,6 @@
                             pre.append(span);
                             if (at_bottom)
                                 pre[0].scrollTop = pre[0].scrollHeight;
-
-                            phantom_checkpoint();
                         }
 
                         ws = socket(url);

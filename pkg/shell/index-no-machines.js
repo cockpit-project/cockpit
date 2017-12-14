@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var phantom_checkpoint = phantom_checkpoint || function () { };
-
 (function() {
     "use strict";
 

@@ -279,10 +279,7 @@ export default class AutoUpdates extends React.Component {
         var autoConfig;
 
         if (backend.enabled) {
-            // Array.from(Array(24).keys()) or [...Array(24).keys()] is not understood by PhantomJS
-            let hours = [];
-            for (let i = 0; i < 24; ++i)
-                hours.push(i);
+            let hours = Array.from(Array(24).keys());
 
             autoConfig = (
                 <table className="auto-conf">

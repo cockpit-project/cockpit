@@ -480,17 +480,24 @@ class Browser:
             attach(filename)
             print("Wrote HTML dump to " + filename)
 
+    def get_js_log(self):
+        """Return the current javascript log"""
+
+        if self.cdp and self.cdp.valid:
+            # needs to be wrapped in Promise
+            return self.cdp.command("new Promise((resolve, reject) => resolve(messages))")
+        return []
+
     def copy_js_log(self, title, label=None):
         """Copy the current javascript log"""
-        if self.cdp and self.cdp.valid:
+
+        logs = self.get_js_log()
+        if logs:
             filename = "{0}-{1}.js.log".format(label or self.label, title)
-            # needs to be wrapped in Promise
-            logs = self.cdp.command("new Promise((resolve, reject) => resolve(messages))")
-            if logs:
-                with open(filename, 'w') as f:
-                    f.write('\n'.join(logs).encode('UTF-8'))
-                attach(filename)
-                print("Wrote JS log to " + filename)
+            with open(filename, 'w') as f:
+                f.write('\n'.join(logs).encode('UTF-8'))
+            attach(filename)
+            print("Wrote JS log to " + filename)
 
     def kill(self):
         self.cdp.kill()
@@ -661,6 +668,7 @@ class MachineCase(unittest.TestCase):
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
+            self.check_browser_messages()
         shutil.rmtree(self.tmpdir)
 
     def login_and_go(self, path=None, user=None, host=None, authorized=True):
@@ -795,6 +803,13 @@ class MachineCase(unittest.TestCase):
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
             raise Error(first)
+
+    def check_browser_messages(self):
+        if not self.browser:
+            return
+        for log in self.browser.get_js_log():
+            if log.startswith("error: uncaught"):
+                raise Error(log)
 
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG.

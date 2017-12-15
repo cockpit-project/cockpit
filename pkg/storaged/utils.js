@@ -631,7 +631,10 @@
 
         function unmount(mounteds) {
             return cockpit.all(mounteds.map(function (m) {
-                return m.fsys.Unmount({});
+                if (m.fsys.MountPoints.length > 0)
+                    return m.fsys.Unmount({});
+                else
+                    return cockpit.resolve();
             }));
         }
 

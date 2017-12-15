@@ -641,7 +641,7 @@
 
         function start() {
             var buf = "";
-            python.spawn([ inotify_py, vdo_monitor_py ], [ ], { superuser: "try", err: "message" })
+            python.spawn2([ inotify_py, vdo_monitor_py ], [ ], { superuser: "try", err: "message" })
                 .stream(function (output) {
                     var lines;
 

@@ -1,4 +1,4 @@
 #! /bin/bash
 
 BASE=$(dirname $0)
-$BASE/virt-builder-fedora "$1" fedora-25 x86_64
+BOOTSTRAP_VOLUME_SIZE="15G" $BASE/virt-builder-fedora "$1" fedora-25 x86_64

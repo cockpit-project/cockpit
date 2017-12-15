@@ -22,12 +22,20 @@ import cockpit from "cockpit";
 // FIXME: eventually convert all images to python 3
 const pyinvoke = [ "sh", "-ec", "exec $(which python3 2>/dev/null || which python) $@", "--", "-" ];
 
-export function spawn (script_pieces, args, options) {
+function spawn_with_invoker (invoker, script_pieces, args, options) {
     var script;
     if (typeof script_pieces == "string")
         script = script_pieces;
     else
         script = script_pieces.join("\n");
 
-    return cockpit.spawn(pyinvoke.concat(args), options).input(script);
+    return cockpit.spawn(invoker.concat(args), options).input(script);
+}
+
+export function spawn (script_pieces, args, options) {
+    return spawn_with_invoker(pyinvoke, script_pieces, args, options);
+}
+
+export function spawn2 (script_pieces, args, options) {
+    return spawn_with_invoker([ "python2", "--", "-" ], script_pieces, args, options);
 }

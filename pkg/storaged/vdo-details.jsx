@@ -67,8 +67,8 @@ export class VDODetails extends React.Component {
         }
 
         if (path)
-            this.poll_process = python.spawn([ inotify_py, vdo_monitor_py ], [ path ],
-                                             { superuser: true })
+            this.poll_process = python.spawn2([ inotify_py, vdo_monitor_py ], [ path ],
+                                              { superuser: true })
                                       .stream((data) => {
                                           buf += data;
                                           var lines = buf.split("\n");

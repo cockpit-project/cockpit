@@ -1174,6 +1174,7 @@ class RegistryTests(object):
         b.wait_not_present("modal-dialog")
 
         #delete project member X
+        b.wait_present("tbody[data-id='testprojectuserproj'] tr td:last-child a i.pficon-close")
         b.click("tbody[data-id='testprojectuserproj'] tr td:last-child a i.pficon-close")
         b.wait_present("modal-dialog")
         b.wait_visible(".modal-body")

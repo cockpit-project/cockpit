@@ -165,29 +165,28 @@ set -x
 # For debugging udisks/storaged crashes
 debuginfo-install -y $UDISKS
 
-# Backend API for welder
-yum install -y epel-release
-curl https://copr.fedorainfracloud.org/coprs/g/weldr/lorax-composer/repo/epel-7/group_weldr-lorax-composer-epel-7.repo > /etc/yum.repos.d/lorax-composer.repo
-yum install -y lorax-composer
+# enable epel for lorax-composer and mock
+if [ ! -f "$SKIP_REPO_FLAG" ]; then
+    mkdir /tmp/dep
+    cd /tmp/dep
+    yum -y install wget
+    wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum -y remove wget
+    rpm -Uvh epel-release-*.rpm
+    cd
+    rm -rf /tmp/dep
+
+    # Backend API for welder
+    curl https://copr.fedorainfracloud.org/coprs/g/weldr/lorax-composer/repo/epel-7/group_weldr-lorax-composer-epel-7.repo > /etc/yum.repos.d/lorax-composer.repo
+    yum install -y lorax-composer
+fi
+
 
 # Prepare for building
 
 # only install mock and build if TEST_SOURCE is set
 if [ -n "$TEST_SOURCE" ]; then
-    yum -y install rpm-build
-
-    # enable epel for mock
-    if [ ! -f "$SKIP_REPO_FLAG" ]; then
-        mkdir /tmp/dep
-        cd /tmp/dep
-        yum -y install wget
-        wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-        yum -y remove wget
-        rpm -Uvh epel-release-*.rpm
-        cd
-        rm -rf /tmp/dep
-    fi
-    yum -y install mock
+    yum -y install rpm-build mock
 
     # disable epel again
     yum-config-manager --disable 'epel*'

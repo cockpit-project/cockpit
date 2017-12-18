@@ -39,6 +39,7 @@
      *  - onChange (optional) callback (parameter data) when the selection has changed
      *  - id (optional) html id of the top level node
      *  - enabled (optional) whether the component is enabled or not; defaults to true
+     *  - extraClass (optional) CSS class name(s) to be added to the main <div> of the component
      */
     class StatelessSelect extends React.Component {
         constructor() {
@@ -108,6 +109,9 @@
             let classes = "btn-group bootstrap-select dropdown";
             if (this.state.open)
                 classes += " open";
+            if (this.props.extraClass) {
+                classes += " " + this.props.extraClass;
+            }
 
             let buttonClasses = "btn btn-default dropdown-toggle";
             if (this.props.enabled === false)
@@ -132,6 +136,7 @@
         onChange: React.PropTypes.func,
         id: React.PropTypes.string,
         enabled: React.PropTypes.bool,
+        extraClass: React.PropTypes.string,
     };
 
     class Select extends React.Component {
@@ -155,7 +160,8 @@
                 <StatelessSelect onChange={this.onChange}
                                  selected={this.state.currentData}
                                  id={this.props.id}
-                                 enabled={this.props.enabled}>
+                                 enabled={this.props.enabled}
+                                 extraClass={this.props.extraClass}>
                     {this.props.children}
                 </StatelessSelect>
             );
@@ -167,6 +173,7 @@
         onChange: React.PropTypes.func,
         id: React.PropTypes.string,
         enabled: React.PropTypes.bool,
+        extraClass: React.PropTypes.string,
     };
 
     /* Entry class for the select component

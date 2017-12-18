@@ -26,8 +26,7 @@ import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './vmdiskstab.jsx';
 import VmNetworkTab from './vmnetworktab.jsx';
-import GraphicsConsole from './components/graphicsConsole.jsx';
-import SerialConsole from './components/serialConsole.jsx';
+import Consoles from './components/consoles.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 import InfoRecord from './components/infoRecord.jsx';
 
@@ -393,21 +392,15 @@ const Vm = ({ vm, config, hostDevices, onStart, onShutdown, onForceoff, onReboot
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
     const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Networks")}</div>);
-    const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Graphics Console")}</div>);
-    const serialTabName = (<div id={`${vmId(vm.name)}-serial`}>{_("Serial Console")}</div>);
+    const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm, config: config }},
         {name: usageTabName, renderer: VmUsageTab, data: {vm, onUsageStartPolling, onUsageStopPolling}, presence: 'onlyActive' },
         {name: disksTabName, renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' },
         {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, hostDevices }},
-        {name: consolesTabName, renderer: GraphicsConsole, data: { vm, config, dispatch }},
+        {name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch }},
     ];
-
-    const spawnSerialConsole = config.provider.serialConsoleCommand({ vm })
-    if (spawnSerialConsole) {
-        tabRenderers.push({ name: serialTabName, renderer: SerialConsole, data: { vmName: vm.name, spawnArgs: spawnSerialConsole } });
-    }
 
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
         tabRenderers = tabRenderers.concat(config.provider.vmTabRenderers.map(

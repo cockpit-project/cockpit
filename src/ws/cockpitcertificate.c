@@ -220,6 +220,8 @@ sscg_make_dummy_cert (const gchar *key_file,
     "--ca-file", ca_file,
     "--hostname", cn,
     "--organization", org,
+    "--subject-alt-name", "localhost",
+    "--subject-alt-name", "IP:127.0.0.1/255.255.255.255",
     NULL
   };
 

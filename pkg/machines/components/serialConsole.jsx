@@ -23,6 +23,7 @@ import {Terminal} from 'cockpit-components-terminal.jsx';
 
 const _ = cockpit.gettext;
 
+
 class SerialConsole extends React.Component {
     constructor (props) {
         super(props);
@@ -37,7 +38,7 @@ class SerialConsole extends React.Component {
     }
 
     createChannel () {
-        const {spawnArgs} = this.props;
+        const { spawnArgs } = this.props;
 
         return cockpit.channel({
             "payload": "stream",
@@ -88,7 +89,7 @@ class SerialConsole extends React.Component {
     }
 
     render () {
-        const {vmName} = this.props;
+        const { vmName } = this.props;
 
         let terminal;
         if (this.state.channel) {
@@ -103,15 +104,15 @@ class SerialConsole extends React.Component {
 
         return (
             <div className="console-ct-container">
-                <div className="panel-heading">
+                <div className="console-actions">
                     <button ref="disconnectButton" id={`${vmName}-serialconsole-disconnect`}
-                            className={`btn btn-default pull-right ${disconnectDisabled}`}
+                            className={`btn btn-default console-actions-buttons ${disconnectDisabled}`}
                             onClick={this.onDisconnectClick}>
                         {_("Disconnect")}
                     </button>
 
                     <button ref="resetButton" id={`${vmName}-serialconsole-reconnect`}
-                            className="btn btn-default pull-right" onClick={this.onResetClick}>
+                            className="btn btn-default console-actions-buttons" onClick={this.onResetClick}>
                         {_("Reconnect")}
                     </button>
                 </div>

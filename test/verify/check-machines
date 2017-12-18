@@ -547,8 +547,13 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-{0}-state".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "running") # running or paused
 
-        b.wait_present("#vm-{0}-serial".format(name)) # wait for the tab
-        b.click("#vm-{0}-serial".format(name)) # open the "Console" subtab
+        b.wait_present("#vm-{0}-consoles".format(name)) # wait for the tab
+        b.click("#vm-{0}-consoles".format(name)) # open the "Console" subtab
+
+        b.wait_present("#console-type-select > button > span.caret") # switch from noVnc to Serial Console
+        b.click("#console-type-select > button > span.caret")
+        b.wait_present("#console-type-select li > a:contains(Serial Console)")
+        b.click("#console-type-select li > a:contains(Serial Console)")
 
         b.wait_present("div.terminal")
         with b.wait_timeout(10):

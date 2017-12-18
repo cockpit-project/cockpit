@@ -122,6 +122,7 @@ function parseParams() {
 
         logging: WebUtil.getConfigVar('logging', 'warn'),
         title: WebUtil.getConfigVar('title', 'noVNC'),
+        containerId: decodeURIComponent(WebUtil.getConfigVar("containerId", "")),
     };
 
     if ((!params.host) || (!params.port)) {
@@ -184,4 +185,8 @@ window.onresize = function () {
     }, 500);
 };
 
-document.getElementById("vnc-ctrl-alt-del").addEventListener("click", sendCtrlAltDel);
+if (params && params.containerId) {
+    var elementId = params.containerId + "-vnc-ctrl-alt-del";
+    console.log('Registering ctrl-alt-del handler to: ', elementId);
+    window.parent.document.getElementById(elementId).addEventListener("click", sendCtrlAltDel);
+}

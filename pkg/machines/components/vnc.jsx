@@ -20,7 +20,7 @@
 import React from "react";
 import cockpit from 'cockpit';
 
-import { vmId } from '../helpers.es6';
+import { vmId, logDebug } from '../helpers.es6';
 
 const _ = cockpit.gettext;
 
@@ -36,10 +36,24 @@ Frame.propTypes = {
     novncContainerId: React.PropTypes.string.isRequired,
 };
 
+export const VncActions = ({ vm }) => {
+    const vmIdPrefix = vmId(vm.name);
+    return (
+        <span className='console-actions'>
+            {_("Send shortcut")}
+            <button className='btn btn-default console-actions-buttons' id={`${vmIdPrefix}-vnc-ctrl-alt-del`}>
+                Ctrl+Alt+Del
+            </button>
+        </span>
+    );
+};
+
 const Vnc = ({ vm, consoleDetail }) => {
     if (!consoleDetail) {
+        logDebug('Vnc component: console detail not yet provided');
         return null;
     }
+
     const vmIdPrefix = vmId(vm.name);
     const novncContainerId = `${vmIdPrefix}-novnc-frame-container`;
 

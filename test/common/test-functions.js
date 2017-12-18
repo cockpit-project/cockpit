@@ -202,26 +202,38 @@ function ph_wrap_promise(value) {
 
 function ph_wait_cond(cond, timeout) {
     return new Promise((resolve, reject) => {
-        // poll every 100 ms for now;  FIXME: poll less often and re-check on mutations using
-        // https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-        let stepTimer = null;
-        let tm = window.setTimeout( () => {
-                if (stepTimer)
-                    window.clearTimeout(stepTimer);
+        // check on DOM mutations and every 500 ms
+        let pollTimer = null;
+        let observer;
+        let timeoutTimer = window.setTimeout( () => {
+                if (pollTimer)
+                    window.clearTimeout(pollTimer);
                 reject("condition did not become true");
             }, timeout);
-        function step() {
+
+        function check() {
             try {
                 if (cond()) {
-                    window.clearTimeout(tm);
+                    window.clearTimeout(timeoutTimer);
+                    window.clearTimeout(pollTimer);
+                    observer.disconnect();
                     resolve();
-                    return;
+                    return true;
                 }
+                return false;
             } catch (err) {
                 reject(err);
+                return true;
             }
-            stepTimer = window.setTimeout(step, 100);
         }
-        step();
+
+        observer = new MutationObserver(check);
+        observer.observe(document, { childList: true, attributes: true, characterData: true, subtree: true });
+
+        function pollStep() {
+            if (!check())
+                pollTimer = window.setTimeout(pollStep, 500);
+        }
+        pollStep();
     });
 }

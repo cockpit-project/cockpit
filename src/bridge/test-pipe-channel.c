@@ -741,6 +741,44 @@ test_recv_invalid (TestCase *tc,
   g_bytes_unref (converted);
 }
 
+
+static gboolean
+add_remainder (gpointer user_data)
+{
+  GSocket *socket = user_data;
+  GError *error = NULL;
+  g_assert_cmpint (g_socket_send (socket, "\x94\x80", 2, NULL, &error), ==, 2);
+  g_assert_no_error (error);
+  return FALSE;
+}
+
+static void
+test_recv_valid_batched (TestCase *tc,
+                         gconstpointer unused)
+{
+  GError *error = NULL;
+  GBytes *converted;
+  GBytes *received;
+
+  /* Wait until the socket has opened */
+  while (tc->conn_sock == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (g_socket_send (tc->conn_sock, "Marmalaade!\xe2", 12, NULL, &error), ==, 12);
+  g_assert_no_error (error);
+
+  g_timeout_add (100, add_remainder, tc->conn_sock);
+
+  while (mock_transport_count_sent (tc->transport) < 2)
+    g_main_context_iteration (NULL, TRUE);
+
+  converted = g_bytes_new ("Marmalaade!\xe2\x94\x80", 14);
+  received = mock_transport_combine_output (tc->transport, "548", NULL);
+  g_assert (g_bytes_equal (converted, received));
+  g_bytes_unref (converted);
+  g_bytes_unref (received);
+}
+
 static void
 test_fail_not_found (void)
 {
@@ -830,6 +868,8 @@ main (int argc,
               setup_channel, test_send_invalid, teardown);
   g_test_add ("/pipe-channel/invalid-recv", TestCase, NULL,
               setup_channel, test_recv_invalid, teardown);
+  g_test_add ("/pipe-channel/valid-recv-batched", TestCase, NULL,
+              setup_channel, test_recv_valid_batched, teardown);
 
   g_test_add_func ("/pipe-channel/spawn/signal", test_spawn_signal);
   g_test_add_func ("/pipe-channel/spawn/simple", test_spawn_simple);

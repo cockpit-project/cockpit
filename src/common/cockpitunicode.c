@@ -21,6 +21,27 @@
 
 #include "cockpitunicode.h"
 
+gboolean
+cockpit_unicode_has_incomplete_ending (GBytes *input)
+{
+  const gchar *data;
+  const gchar *end;
+  gsize length;
+
+  data = g_bytes_get_data (input, &length);
+  if (g_utf8_validate (data, length, &end))
+    return FALSE;
+
+  do
+    {
+      length -= (end - data) + 1;
+      data = end + 1;
+    }
+  while (!g_utf8_validate (data, length, &end));
+
+  return length == 0;
+}
+
 GBytes *
 cockpit_unicode_force_utf8 (GBytes *input)
 {

@@ -88,6 +88,10 @@ struct _CockpitChannelPrivate {
 
     /* Other state */
     JsonObject *close_options;
+
+    /* Buffer for incomplete unicode bytes */
+    GBytes *out_buffer;
+    gint buffer_timeout;
 };
 
 enum {
@@ -211,6 +215,49 @@ on_transport_closed (CockpitTransport *transport,
     problem = "disconnected";
   if (!self->priv->emitted_close)
     cockpit_channel_close (self, problem);
+}
+
+
+static void
+cockpit_channel_actual_send (CockpitChannel *self,
+                             GBytes *payload,
+                             gboolean trust_is_utf8)
+{
+  GBytes *validated = NULL;
+
+  g_return_if_fail (self->priv->out_buffer == NULL);
+  g_return_if_fail (self->priv->buffer_timeout == 0);
+
+  if (!trust_is_utf8)
+    {
+      if (!self->priv->binary_ok)
+         payload = validated = cockpit_unicode_force_utf8 (payload);
+    }
+
+  cockpit_transport_send (self->priv->transport, self->priv->id, payload);
+
+  if (validated)
+    g_bytes_unref (validated);
+}
+
+static gboolean
+flush_buffer (gpointer user_data)
+{
+  CockpitChannel *self = user_data;
+  GBytes *payload;
+
+  if (self->priv->out_buffer)
+   {
+      payload = g_bytes_ref (self->priv->out_buffer);
+      g_bytes_unref (self->priv->out_buffer);
+      self->priv->out_buffer = NULL;
+      self->priv->buffer_timeout = 0;
+
+      cockpit_channel_actual_send (self, payload, FALSE);
+      g_bytes_unref (payload);
+    }
+
+  return FALSE;
 }
 
 static void
@@ -422,6 +469,14 @@ cockpit_channel_dispose (GObject *object)
   if (!self->priv->emitted_close)
     cockpit_channel_close (self, "terminated");
 
+  if (self->priv->buffer_timeout)
+    g_source_remove(self->priv->buffer_timeout);
+  self->priv->buffer_timeout = 0;
+
+  if (self->priv->out_buffer)
+    g_bytes_unref (self->priv->out_buffer);
+  self->priv->out_buffer = NULL;
+
   G_OBJECT_CLASS (cockpit_channel_parent_class)->dispose (object);
 }
 
@@ -456,6 +511,8 @@ cockpit_channel_real_close (CockpitChannel *self,
 
   if (!self->priv->transport_closed)
     {
+      flush_buffer (self);
+
       if (self->priv->close_options)
         {
           object = self->priv->close_options;
@@ -696,18 +753,41 @@ cockpit_channel_send (CockpitChannel *self,
                       GBytes *payload,
                       gboolean trust_is_utf8)
 {
-  GBytes *validated = NULL;
+  const guint8 *data;
+  gsize length;
+  GBytes *send_data = payload;
+  GByteArray *combined;
 
-  if (!trust_is_utf8)
+  if (self->priv->buffer_timeout)
+    g_source_remove(self->priv->buffer_timeout);
+  self->priv->buffer_timeout = 0;
+
+  if (self->priv->out_buffer)
     {
-      if (!self->priv->binary_ok)
-        payload = validated = cockpit_unicode_force_utf8 (payload);
+      combined = g_bytes_unref_to_array (self->priv->out_buffer);
+      self->priv->out_buffer = NULL;
+
+      data = g_bytes_get_data (payload, &length);
+      g_byte_array_append (combined, data, length);
+      send_data = g_byte_array_free_to_bytes (combined);
+
+      trust_is_utf8 = FALSE;
     }
 
-  cockpit_transport_send (self->priv->transport, self->priv->id, payload);
+  if (!trust_is_utf8 && !self->priv->binary_ok)
+    {
+      if (cockpit_unicode_has_incomplete_ending (send_data))
+        {
+          self->priv->out_buffer = g_bytes_ref (send_data);
+          self->priv->buffer_timeout = g_timeout_add (500, flush_buffer, self);
+        }
+    }
 
-  if (validated)
-    g_bytes_unref (validated);
+  if (!self->priv->buffer_timeout)
+    cockpit_channel_actual_send (self, send_data, trust_is_utf8);
+
+  if (send_data != payload)
+    g_bytes_unref (send_data);
 }
 
 /**

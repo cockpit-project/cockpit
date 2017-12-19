@@ -126,7 +126,7 @@ function parseParams() {
     };
 
     if ((!params.host) || (!params.port)) {
-        updateState(null, 'fatal', null, 'Must specify host and port in URL');
+        updateState(null, 'fatal', null, 'Must specify VNC host and port in URL');
         return;
     }
 
@@ -154,7 +154,10 @@ function connect(path, params) {
         return; // don't continue trying to connect
     }
 
-    rfb.connect(window.location.hostname, window.location.port, params.password, path);
+    var host = window.location.hostname;
+    var port = window.location.port || (params.encrypt ? '443' : '80');
+    console.log("Creating channel: ", host, port);
+    rfb.connect(host, port, params.password, path);
 }
 
 var params = parseParams();
@@ -163,13 +166,15 @@ WebUtil.init_logging(params.logging);
 document.title = window.unescape(params.title);
 
 // connect
-var query = window.btoa(JSON.stringify({
+var queryJson = JSON.stringify({
     payload: "stream",
     protocol: "binary",
     address: params.host,
     port: parseInt(params.port, 10),
     binary: "raw",
-}));
+});
+console.log("Query used for channel: ", queryJson);
+var query = window.btoa(queryJson);
 
 cockpit.transport.wait(function () {
     connect("cockpit/channel/" + cockpit.transport.csrf_token + "?" + query, params);

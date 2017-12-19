@@ -45,7 +45,8 @@ In addition, for testing, the following dependencies are required:
         libvirt libvirt-client libvirt-daemon libvirt-python \
         python python-libguestfs python-lxml libguestfs-xfs \
 	python3 libvirt-python3 \
-        libguestfs-tools qemu qemu-kvm rpm-build rsync xz
+        libguestfs-tools qemu qemu-kvm rpm-build rsync xz \
+        chromium-headless
 
 ## Running the integration test suite
 

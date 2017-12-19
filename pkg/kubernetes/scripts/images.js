@@ -631,7 +631,10 @@
                 $scope.labels.populate.none = _("Create empty image stream");
 
             function performModify() {
-                var data = { spec: { dockerImageRepository: null, tags: null } };
+                var data = {
+                    spec: { dockerImageRepository: null, tags: null },
+                    metadata: { annotations:  { "openshift.io/image.dockerRepositoryCheck" : null }}
+                };
 
                 if (fields.populate != "none")
                     data.spec.dockerImageRepository = fields.pull.trim();

@@ -333,6 +333,21 @@ class GitHub(object):
                 result.append(issue)
         return result
 
+    def commits(self, branch='master', since=None):
+        page = 1
+        count = 100
+        if since:
+            since = "&since={0}".format(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(since)))
+        else:
+            since = ""
+        while count == 100:
+            commits = self.get("commits?page={0}&per_page={1}&sha={2}{3}".format(page, count, branch, since))
+            count = 0
+            page += 1
+            for commit in commits or []:
+                yield commit
+                count += 1
+
 class Checklist(object):
     def __init__(self, body=None):
         self.process(body or "")

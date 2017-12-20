@@ -24,8 +24,6 @@ from storagelib import *
 
 @skipImage("UDisks doesn't have support for multipath", "debian-stable", "ubuntu-1604", "ubuntu-stable")
 @skipImage("No multipath on Debian", "debian-testing")
-# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1503100
-@skipImage("udisks2-lvm2 missing in RHEL 7.5", "rhel-7-5")
 class TestStorage(StorageCase):
     def testBasic(self):
         m = self.machine

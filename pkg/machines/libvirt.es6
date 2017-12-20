@@ -121,6 +121,8 @@ LIBVIRT_PROVIDER = {
     canConsole: (vmState) => vmState == 'running',
     canSendNMI: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
 
+    serialConsoleCommand: ({ vm }) => !!vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false,
+
     /**
      * Read VM properties of a single VM (virsh)
      *
@@ -602,6 +604,20 @@ function parseDumpxmlForConsoles(devicesElem) {
             } else {
                 console.warn(`parseDumpxmlForConsoles(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(display)}`);
             }
+        }
+    }
+
+    // console type='pty'
+    const consoleElems = devicesElem.getElementsByTagName("console");
+    if (consoleElems) {
+        for (let i = 0; i < consoleElems.length; i++) {
+            const consoleElem = consoleElems[i];
+            if (consoleElem.getAttribute('type') === 'pty') {
+                // Definition of serial console is detected.
+                // So far no additional details needs to be parsed since the console is accessed via 'virsh console'.
+                displays['pty'] = {};
+            }
+
         }
     }
 

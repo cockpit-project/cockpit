@@ -65,6 +65,13 @@ OVIRT_PROVIDER.vmTabRenderers = [
 OVIRT_PROVIDER.canDelete = (vmState, vmId, providerState) =>
     isVmManagedByOvirt(providerState, vmId) ? false : LIBVIRT_PROVIDER.canDelete(vmState, vmId);
 
+/* Use of serial Console is disabled.
+  TODO: use ssh to connect to serial console of oVirt-managed VM.
+  https://www.ovirt.org/develop/release-management/features/virt/serial-console/
+  https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.1/html/virtual_machine_management_guide/sect-starting_the_virtual_machine
+*/
+OVIRT_PROVIDER.serialConsoleCommand = ({ vm }) => false;
+
 // --- verbs
 OVIRT_PROVIDER.init = function ({ dispatch }) {
     logDebug(`Virtual Machines Provider used: ${this.name}`);

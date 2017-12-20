@@ -123,7 +123,6 @@ const ConnectWithRemoteViewer = ({ vm, config, onDesktopConsole }) => {
 
     return (
         <td className='machines-desktop-main-col'>
-            <h2>{_("Connect with Remote Viewer")}</h2>
             <p className='machines-desktop-viewer-block'>
                 <button onClick={onLaunch} id={`${vmId(vm.name)}-consoles-launch`}>
                     {_("Launch Remote Viewer")}
@@ -203,8 +202,6 @@ const ManualConnection = ({ displays, idPrefix }) => {
 const DesktopConsoleDownload = ({ vm, onDesktopConsole, config }) => {
     return (
         <div>
-            <br />
-            <hr className='machines-desktop-delimiter'/>
             <table className='machines-desktop-main'>
                 <tr>
                     <ConnectWithRemoteViewer config={config} vm={vm} onDesktopConsole={onDesktopConsole} />

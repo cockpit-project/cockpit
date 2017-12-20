@@ -574,7 +574,7 @@
                 var name = vol.name;
 
                 function volcmd(args) {
-                    return cmd([ "--name", name ].concat(args));
+                    return cmd(args.concat([ "--name", name ]));
                 }
 
                 var v = { name: name,

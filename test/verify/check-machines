@@ -158,6 +158,8 @@ class TestMachines(MachineCase):
         wait(lambda: m.execute("virsh list"))
         # Wait for the network 'default' to become active
         wait(lambda: m.execute(command="virsh net-info default | grep Active"))
+        # Wait for the disk to be added
+        wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_NESTED"))
 
         img = "/var/lib/libvirt/images/{0}-2.img".format(name)
         output = m.execute("readlink /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_NESTED").strip().split("\n")[-1]

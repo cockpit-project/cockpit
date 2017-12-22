@@ -46,12 +46,13 @@ def jsquote(str):
 
 
 class CDP:
-    def __init__(self, lang=None, headless=True, trace=False):
+    def __init__(self, lang=None, headless=True, trace=False, inject_helpers=True):
         self.lang = lang
         self.timeout = 60
         self.valid = False
         self.headless = headless
         self.trace = trace
+        self.inject_helpers = inject_helpers
         self._driver = None
         self._browser = None
         self._browser_home = None
@@ -195,12 +196,13 @@ class CDP:
                                         close_fds=True)
         self.valid = True
 
-        for inject in [ "%s/test-functions.js" % path, "%s/sizzle.js" % path ]:
-            with open(inject) as f:
-                src = f.read()
-            # HACK: injecting sizzle fails on missing `document` in assert()
-            src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
-            self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
+        if self.inject_helpers:
+            for inject in [ "%s/test-functions.js" % path, "%s/sizzle.js" % path ]:
+                with open(inject) as f:
+                    src = f.read()
+                # HACK: injecting sizzle fails on missing `document` in assert()
+                src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
+                self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
 
     def kill(self):
         self.valid = False
@@ -226,3 +228,26 @@ class CDP:
         self.cur_frame = frame
         if self.trace:
             print("-> switch to frame %s" % frame)
+
+    def get_js_log(self):
+        """Return the current javascript console log"""
+
+        if self.valid:
+            # needs to be wrapped in Promise
+            messages = self.command("new Promise((resolve, reject) => resolve(messages))")
+            return map(lambda m: "%s: %s" % tuple(m), messages)
+        return []
+
+    def read_log(self):
+        """Returns an iterator that produces log messages one by one.
+
+        Blocks if there are no new messages right now."""
+
+        if not self.valid:
+            yield []
+            return
+
+        while True:
+            messages = self.command("waitLog()")
+            for m in messages:
+                yield m

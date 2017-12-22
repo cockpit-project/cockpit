@@ -59,19 +59,57 @@ function success(result) {
  * stderr and dump them on test failure
  */
 var messages = [];
+var logPromiseResolver;
+var nReportedLogMessages = 0;
 
 function setupLogging(client) {
     client.Runtime.enable();
 
     client.Runtime.consoleAPICalled(info => {
-        let msg = info.type + ": " + info.args.map(v => (v.value || "").toString()).join(" ");
-        messages.push(msg);
-        process.stderr.write("> " + msg + "\n")
+        let msg = info.args.map(v => (v.value || "").toString()).join(" ");
+        messages.push([ info.type, msg ]);
+        process.stderr.write("> " + info.type + ": " + msg + "\n")
+        resolveLogPromise();
     });
 
     client.Log.enable();
-    client.Log.entryAdded(entry => process.stderr.write("CDP: " + JSON.stringify(entry["entry"]) + "\n"));
+    client.Log.entryAdded(entry => {
+        messages.push([ "cdp", entry["entry"] ]);
+        process.stderr.write("CDP: " + JSON.stringify(entry["entry"]) + "\n")
+        resolveLogPromise();
+    });
 }
+
+/**
+ * Resolve the log promise created with waitLog().
+ */
+function resolveLogPromise() {
+    if (logPromiseResolver) {
+        logPromiseResolver(messages.slice(nReportedLogMessages));
+        nReportedLogMessages = messages.length;
+        logPromiseResolver = undefined;
+    }
+}
+
+/**
+ * Returns a promise that resolves when log messages are available. If there
+ * are already some unreported ones in the global messages variable, resolves
+ * immediately.
+ *
+ * Only one such promise can be active at a given time. Once the promise is
+ * resolved, this function can be called again to wait for further messages.
+ */
+function waitLog() {
+    console.assert(logPromiseResolver === undefined);
+
+    return new Promise((resolve, reject) => {
+        logPromiseResolver = resolve;
+
+        if (nReportedLogMessages < messages.length)
+            resolveLogPromise();
+    });
+}
+
 
 /**
  * Frame tracking

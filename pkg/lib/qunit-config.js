@@ -38,15 +38,22 @@ QUnit.moduleStart(function() {
 });
 
 QUnit.done(function() {
-    console.log("cockpittest-tap-done");
+    /*
+     * QUnit-Tap writes the summary line right after this function returns.
+     * Delay printing the end marker until after that summary is out.
+     */
+    window.setTimeout(function () {
+        console.log("cockpittest-tap-done");
+    }, 0);
+
     window.onerror = null;
 });
 /*
  * Now initialize qunit-tap
  *
- * When not running under tap-phantom this stuff will just show up in
+ * When not running under a tap driver this stuff will just show up in
  * the console. We print out a special canary at the end of the tests
- * so that tap-phantom can know when the testing is done.
+ * so that the tap driver can know when the testing is done.
  *
  * In addition double check for a test file that doesn't properly call
  * QUnit.start() after its done setting up its tests.

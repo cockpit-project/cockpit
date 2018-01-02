@@ -1,8 +1,18 @@
 /* global XMLHttpRequest */
 
 (function(console) {
+    var localStorage;
+
+    /* Some browsers fail localStorage access due to corruption, preventing Cockpit login */
+    try {
+        localStorage = window.localStorage;
+        window.localStorage.removeItem('url-root');
+    } catch (ex) {
+        localStorage = window.sessionStorage;
+        console.warn(String(ex));
+    }
+
     var url_root;
-    window.localStorage.removeItem('url-root');
     var environment = window.environment || { };
     var oauth = environment.OAuth || null;
     if (oauth) {
@@ -134,7 +144,6 @@
         }
         return ("MozWebSocket" in window || req("WebSocket", window)) &&
                req("XMLHttpRequest", window) &&
-               req("localStorage", window) &&
                req("sessionStorage", window) &&
                req("JSON", window) &&
                req("defineProperty", Object) &&
@@ -165,7 +174,7 @@
         parser.href = base;
         if (parser.pathname != "/") {
             url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
-            window.localStorage.setItem('url-root', url_root);
+            localStorage.setItem('url-root', url_root);
             if (url_root && path.indexOf('/' + url_root) === 0)
                 path = path.replace('/' + url_root, '') || '/';
         }
@@ -234,13 +243,13 @@
             return;
 
         /* Setup the user's last choice about the authorized button */
-        var authorized = window.localStorage.getItem('authorized-default') || "";
+        var authorized = localStorage.getItem('authorized-default') || "";
         if (authorized.indexOf("password") !== -1)
             id("authorized-input").checked = true;
 
         var os_release = environment["os-release"];
         if (os_release)
-            window.localStorage.setItem('os-release', JSON.stringify(os_release));
+            localStorage.setItem('os-release', JSON.stringify(os_release));
 
         var logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
@@ -411,7 +420,7 @@
             /* When checked we tell the server to keep authentication */
             var authorized = id("authorized-input").checked ? "password" : "";
             var password = id("login-password-input").value;
-            window.localStorage.setItem('authorized-default', authorized);
+            localStorage.setItem('authorized-default', authorized);
 
             var headers = {
                 "Authorization": "Basic " + window.btoa(utf8(user + ":" + password)),
@@ -683,30 +692,26 @@
         /* Clear anything prefixed with our application
          * and login-data, but not other non-application values.
          */
-        window.localStorage.removeItem('login-data');
-        clear_storage (window.localStorage, application, false);
+        localStorage.removeItem('login-data');
+        clear_storage(localStorage, application, false);
 
         var str;
         if (response && response["login-data"]) {
             str = JSON.stringify(response["login-data"]);
-            try {
-                /* login-data is tied to the auth cookie, since
-                 * cookies are available after the page
-                 * session ends login-data should be too.
-                 */
-                window.localStorage.setItem(application + 'login-data', str);
-                /* Backwards compatbility for packages that aren't application prefixed */
-                window.localStorage.setItem('login-data', str);
-            } catch(ex) {
-                console.warn("Error storing login-data:", ex);
-            }
+            /* login-data is tied to the auth cookie, since
+             * cookies are available after the page
+             * session ends login-data should be too.
+             */
+            localStorage.setItem(application + 'login-data', str);
+            /* Backwards compatbility for packages that aren't application prefixed */
+            localStorage.setItem('login-data', str);
         }
 
         /* URL Root is set by cockpit ws and shouldn't be prefixed
          * by application
          */
         if (url_root)
-            window.localStorage.setItem('url-root', url_root);
+            localStorage.setItem('url-root', url_root);
     }
 
     function run(response) {

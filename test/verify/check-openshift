@@ -378,6 +378,34 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.click("#kubernetes-reconnect")
         b.wait_present("#service-list")
 
+    def bootstrapKubevirt(self):
+        o = self.openshift
+
+        o.execute("/root/nested-kvm") # not enabled by default
+        o.execute("(cat /sys/module/kvm_intel/parameters/nested || cat /sys/module/kvm_amd/parameters/nested) | grep -q Y")
+
+        o.execute("oc project kube-system")
+        o.execute("oc create serviceaccount -n kube-system kubevirt")
+        o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z kubevirt")
+        o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z kubevirt-admin")
+        o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z default")
+
+        o.execute("oc apply -f /kubevirt/kubevirt.yaml") # finalize installation of kubevirt
+
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-api"), delay=2) # is it deployed and up?
+        wait(lambda: "No resources found" in o.execute("oc get vm 2>&1"), delay=2) # No VM created yet
+
+    def testKubevirtEnvironment(self):
+        self.bootstrapKubevirt()
+
+        o = self.openshift
+
+        o.execute("oc create -f /kubevirt/iscsi-demo-target.yaml") # disk for test VM
+        o.execute("oc create -f /kubevirt/vm.yaml") # let's create a VM
+        wait(lambda: "testvm" in o.execute("oc get vm"), delay=1)
+        wait(lambda: "virt-launcher-testvm" in o.execute("oc get pods"))
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-testvm"))
+
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")

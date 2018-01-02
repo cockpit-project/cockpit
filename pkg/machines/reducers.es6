@@ -152,7 +152,8 @@ function vms(state, action) {
             }
             const updatedVm = Object.assign(indexedVm.vmCopy, {
                 lastMessage: action.payload.message,
-                lastMessageDetail: action.payload.detail});
+                lastMessageDetail: action.payload.detail,
+            });
 
             return replaceVm({ state, updatedVm, index: indexedVm.index });
         }

@@ -29,6 +29,7 @@ import VmNetworkTab from './vmnetworktab.jsx';
 import Consoles from './components/consoles.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 import InfoRecord from './components/infoRecord.jsx';
+import VmLastMessage from './components/vmLastMessage.jsx';
 
 const _ = cockpit.gettext;
 
@@ -147,7 +148,7 @@ IconElement.propTypes = {
     state: PropTypes.string.isRequired,
 }
 
-export const StateIcon = ({ state, config, valueId }) => {
+export const StateIcon = ({ state, config, valueId, extra }) => {
     if (state === undefined) {
         return (<div/>);
     }
@@ -170,15 +171,18 @@ export const StateIcon = ({ state, config, valueId }) => {
     if (stateMap[state]) {
         return (
             <span title={stateMap[state].title} data-toggle='tooltip' data-placement='left'>
+                {extra}
                 <span id={valueId}>{rephraseUI('vmStates', state)}</span>
             </span>);
     }
     return (<small>{state}</small>);
-}
+};
 StateIcon.propTypes = {
     state: PropTypes.string.isRequired,
-    config: PropTypes.string.isRequired
-}
+    config: PropTypes.string.isRequired,
+    valueId: PropTypes.string,
+    extra: PropTypes.any,
+};
 
 /**
  * Render group of buttons as a dropdown
@@ -224,27 +228,6 @@ DropdownButtons.propTypes = {
     buttons: PropTypes.array.isRequired
 }
 
-const VmLastMessage = ({ vm }) => {
-    if (!vm.lastMessage) {
-        return (<tr />); // reserve space to keep rendered structure
-    }
-
-    const msgId = `${vmId(vm.name)}-last-message`;
-    const detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception: vm.lastMessage;
-
-    return (
-        <div>
-            <span className='pficon-warning-triangle-o' />&nbsp;
-            <span title={detail} data-toggle='tooltip' id={msgId}>
-                {vm.lastMessage}
-            </span>
-        </div>
-    );
-};
-VmLastMessage.propTypes = {
-    vm: PropTypes.object.isRequired
-}
-
 const VmBootOrder = ({ vm }) => {
     let bootOrder = _("No boot device found");
 
@@ -258,7 +241,7 @@ VmBootOrder.propTypes = {
     vm: PropTypes.object.isRequired
 };
 
-const VmOverviewTab = ({ vm, config }) => {
+const VmOverviewTab = ({ vm, config, dispatch }) => {
     let providerContent = null;
     if (config.provider.VmOverviewColumn) {
         const ProviderContent = config.provider.VmOverviewColumn;
@@ -266,6 +249,7 @@ const VmOverviewTab = ({ vm, config }) => {
     }
 
     return (<div>
+        <VmLastMessage vm={vm} dispatch={dispatch} />
         <table className='machines-width-max'>
             <tr className='machines-listing-ct-body-detail'>
                 <td className='machines-listing-detail-top-column'>
@@ -296,7 +280,6 @@ const VmOverviewTab = ({ vm, config }) => {
                 {providerContent}
             </tr>
         </table>
-        <VmLastMessage vm={vm} />
     </div>);
 };
 VmOverviewTab.propTypes = {
@@ -387,7 +370,8 @@ VmUsageTab.propTypes = {
  */
 const Vm = ({ vm, config, hostDevices, onStart, onShutdown, onForceoff, onReboot, onForceReboot,
               onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch }) => {
-    const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} />);
+    const stateAlert = vm.lastMessage && (<span className='pficon-warning-triangle-o machines-status-alert' />);
+    const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
 
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
@@ -395,9 +379,9 @@ const Vm = ({ vm, config, hostDevices, onStart, onShutdown, onForceoff, onReboot
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
     let tabRenderers = [
-        {name: _("Overview"), renderer: VmOverviewTab, data: {vm: vm, config: config }},
+        {name: _("Overview"), renderer: VmOverviewTab, data: {vm, config, dispatch }},
         {name: usageTabName, renderer: VmUsageTab, data: {vm, onUsageStartPolling, onUsageStopPolling}, presence: 'onlyActive' },
-        {name: disksTabName, renderer: VmDisksTab, data: {vm: vm, provider: config.provider}, presence: 'onlyActive' },
+        {name: disksTabName, renderer: VmDisksTab, data: {vm, provider: config.provider}, presence: 'onlyActive' },
         {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, hostDevices }},
         {name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch }},
     ];
@@ -418,14 +402,11 @@ const Vm = ({ vm, config, hostDevices, onStart, onShutdown, onForceoff, onReboot
     }
 
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
-    const rowName = (vm.lastMessage) ?
-        (<div><span className='pficon-warning-triangle-o' />&nbsp;{name}</div>)
-        : name;
 
     return (<ListingRow
         rowId={`${vmId(vm.name)}`}
         columns={[
-            {name: rowName, 'header': true},
+            {name, 'header': true},
             rephraseUI('connections', vm.connectionName),
             stateIcon
             ]}

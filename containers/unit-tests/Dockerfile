@@ -12,7 +12,7 @@ ARG _crossdeps="libglib2.0-dev libgudev-1.0-dev libjson-glib-dev libkeyutils-dev
 RUN dpkg --add-architecture ${arch} && echo ${arch} > /arch && apt-get update && \
     apt-get install -y --no-install-recommends build-essential gcc-multilib clang python3 \
       autoconf automake gdb gtk-doc-tools intltool libjavascript-minifier-xs-perl libjson-perl valgrind \
-      xmlto xsltproc pyflakes npm nodejs-legacy git libfontconfig1 dbus ssh curl \
+      xmlto xsltproc pyflakes npm nodejs-legacy git libfontconfig1 dbus ssh curl chromium-browser \
       $(for p in ${_crossdeps}; do echo $p:${arch}; done) && \
     apt-get clean
 

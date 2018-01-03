@@ -330,6 +330,25 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest2-forceOff")
         b.wait_in_text("#vm-subVmTest2-state", "shut off")
 
+        # test VM error messages
+        b.wait_visible("#vm-subVmTest2-run")
+        b.click("#vm-subVmTest2-run")
+        b.click("#vm-subVmTest2-run") # make use of slow processing - the button is still present; will cause error
+        b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert") # triangle by status
+        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification with error
+        b.wait_in_text("#vm-subVmTest2-last-message", "VM START action failed")
+
+        b.wait_present("a.alert-link.machines-more-button") # more/less button
+        b.wait_in_text("a.alert-link.machines-more-button", "show more")
+        b.click("a.alert-link.machines-more-button")
+        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning > p")
+        b.wait_in_text("a.alert-link.machines-more-button", "show less")
+        b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning > p", "Domain is already active")
+
+        b.click("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning button") # close button
+        b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification is gone
+        b.wait_not_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert") # triangle by status is gone
+
         # HACK: restarting libvirtd causes this completely unrelated SELinux issue
         self.allow_journal_messages('.*denied.*search.*"systemd-machine".*dev="proc".*')
 

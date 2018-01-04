@@ -192,7 +192,6 @@ class CDP:
         self._driver = subprocess.Popen(["%s/cdp-driver.js" % path, str(cdp_port)],
                                         env=environ,
                                         stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
                                         stdin=subprocess.PIPE,
                                         close_fds=True)
         self.valid = True

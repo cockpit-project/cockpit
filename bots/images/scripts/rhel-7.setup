@@ -166,20 +166,18 @@ set -x
 debuginfo-install -y $UDISKS
 
 # enable epel for lorax-composer and mock
-if [ ! -f "$SKIP_REPO_FLAG" ]; then
-    mkdir /tmp/dep
-    cd /tmp/dep
-    yum -y install wget
-    wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    yum -y remove wget
-    rpm -Uvh epel-release-*.rpm
-    cd
-    rm -rf /tmp/dep
+mkdir /tmp/dep
+cd /tmp/dep
+yum -y install wget
+wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum -y remove wget
+rpm -Uvh epel-release-*.rpm
+cd
+rm -rf /tmp/dep
 
-    # Backend API for welder
-    curl https://copr.fedorainfracloud.org/coprs/g/weldr/lorax-composer/repo/epel-7/group_weldr-lorax-composer-epel-7.repo > /etc/yum.repos.d/lorax-composer.repo
-    yum install -y lorax-composer
-fi
+# Backend API for welder
+curl https://copr.fedorainfracloud.org/coprs/g/weldr/lorax-composer/repo/epel-7/group_weldr-lorax-composer-epel-7.repo > /etc/yum.repos.d/lorax-composer.repo
+yum install -y lorax-composer
 
 
 # Prepare for building

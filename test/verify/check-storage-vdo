@@ -36,21 +36,18 @@ class TestStorage(StorageCase):
 
         b.wait_visible("#vdos")
 
-        # XXX - the following assumes that Cockpit doesn't support
-        # LVM2.  Once it does, we need to adapt the test.
-
         # Make a logical volume for use as the backing device.
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
-        m.execute("vgcreate vgroup /dev/sda && lvcreate -n lvol -L 5G vgroup")
-        b.wait_in_text("#others", "/dev/vgroup/lvol")
+        m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
+        b.wait_in_text("#vgroups", "vdo_vgroup")
 
         # Create VDO
 
         b.click("#create-vdo")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vdo0")
-        self.dialog_set_val("space", { "/dev/vgroup/lvol": True })
+        self.dialog_set_val("space", { "/dev/vdo_vgroup/lvol": True })
         self.dialog_apply()
         self.dialog_wait_close()
 
@@ -62,7 +59,7 @@ class TestStorage(StorageCase):
             return '#detail-header tr:nth-child(%s) td:nth-child(2)' % index
 
         b.wait_text(detail(1), "/dev/mapper/vdo0")
-        b.wait_text(detail(2), "/dev/vgroup/lvol")
+        b.wait_in_text(detail(2), "vdo_vgroup")
         b.wait_in_text(detail(3), "used of 5 GiB")
         b.wait_in_text(detail(4), "used of 5 GiB")
         b.wait_text(detail(5), "256 MiB")
@@ -79,7 +76,7 @@ class TestStorage(StorageCase):
 
         # Grow physical
 
-        m.execute("lvresize vgroup/lvol -L 9G")
+        m.execute("lvresize vdo_vgroup/lvol -L 9G")
         b.wait_present(".alert:contains(VDO)")
         b.wait_in_text(".alert:contains(VDO)", '5 GiB of 9 GiB')
         b.click("button:contains('Grow to take all space')")

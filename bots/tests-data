@@ -411,6 +411,7 @@ def logs(revision):
 # body: full log of the test
 # tracker: url tracking the failure, or None
 def tap(content):
+    name = status = tracker = None
     prefix = None
     body = [ ]
     blocks = False

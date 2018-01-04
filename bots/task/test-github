@@ -88,6 +88,7 @@ def mockServer():
 
     child = os.fork()
     if child != 0:
+        httpd.server_close()
         return child
 
     # prctl(PR_SET_PDEATHSIG, SIGTERM)

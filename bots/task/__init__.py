@@ -55,7 +55,6 @@ verbose = False
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
-DEVNULL = open("/dev/null", "r+")
 
 #
 # The main function takes a list of tasks, each of wihch has the following

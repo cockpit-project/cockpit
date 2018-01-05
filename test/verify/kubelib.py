@@ -773,6 +773,8 @@ class OpenshiftCommonTests(VolumeTests):
         b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
 
         b.switch_to_top()
+        # the troubleshoot button by itself shows/hides multiple times, wait for "Connecting.." to disappear first
+        b.wait_not_visible(".curtains-ct .spinner")
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')

@@ -645,30 +645,20 @@ class TestMachines(MachineCase):
         b.wait_present("#console-type-select li > a:contains(Serial Console)")
         b.click("#console-type-select li > a:contains(Serial Console)")
 
-        b.wait_present("div.terminal")
-        with b.wait_timeout(10):
-            b.wait_present("div.terminal > div:contains(Connected)")
+        b.wait_present("div.terminal canvas.xterm-text-layer") # if connected the xterm canvas is rendered
 
         b.wait_present("#{0}-serialconsole-reconnect".format(name))
         b.click("#{0}-serialconsole-reconnect".format(name))
-
-        b.wait_present("div.terminal")
-        with b.wait_timeout(10):
-            b.wait_present("div.terminal > div:contains(Connected)")
+        b.wait_present("div.terminal canvas.xterm-text-layer")
 
         b.wait_present("#{0}-serialconsole-disconnect".format(name))
         b.click("#{0}-serialconsole-disconnect".format(name))
-
-        with b.wait_timeout(10):
-            b.wait_present("div.machines-terminal span:contains(Disconnected from serial console. Click the Reconnect button.)")
+        b.wait_not_present("div.terminal canvas.xterm-text-layer")
+        b.wait_present("div.blank-slate-pf")
+        b.wait_present("p.blank-slate-pf-info:contains(Disconnected from serial console. Click the Reconnect button.)")
 
         b.click("#{0}-serialconsole-reconnect".format(name))
-
-        b.wait_present("div.terminal")
-        with b.wait_timeout(10):
-            b.wait_present("div.terminal > div:contains(Connected)")
-
-        # sit(self.machines)
+        b.wait_present("div.terminal canvas.xterm-text-layer")
 
     def testCreate(self):
         """

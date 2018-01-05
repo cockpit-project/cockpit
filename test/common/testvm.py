@@ -68,9 +68,15 @@ class Timeout:
         Specify machine to ensure that a machine's ssh operations are canceled when the timer expires.
     """
     def __init__(self, seconds=1, error_message='Timeout', machine=None):
+        if signal.getsignal(signal.SIGALRM) != signal.SIG_DFL:
+            # there is already a different Timeout active
+            self.seconds = None
+            return
+
         self.seconds = seconds
         self.error_message = error_message
         self.machine = machine
+
     def handle_timeout(self, signum, frame):
         if self.machine:
             if self.machine.ssh_process:
@@ -78,11 +84,15 @@ class Timeout:
             self.machine.disconnect()
 
         raise RuntimeError(self.error_message)
+
     def __enter__(self):
-        signal.signal(signal.SIGALRM, self.handle_timeout)
-        signal.alarm(self.seconds)
+        if self.seconds:
+            signal.signal(signal.SIGALRM, self.handle_timeout)
+            signal.alarm(self.seconds)
+
     def __exit__(self, type, value, traceback):
-        signal.alarm(0)
+        if self.seconds:
+            signal.alarm(0)
 
 class Failure(Exception):
     def __init__(self, msg):
@@ -363,7 +373,8 @@ class Machine:
         if not self._check_ssh_master():
             self._start_ssh_master()
 
-    def execute(self, command=None, script=None, input=None, environment={}, stdout=None, quiet=False, direct=False):
+    def execute(self, command=None, script=None, input=None, environment={},
+                stdout=None, quiet=False, direct=False, timeout=120):
         """Execute a shell command in the test machine and return its output.
 
         Either specify @command or @script
@@ -372,7 +383,8 @@ class Machine:
             command: The string to execute by /bin/sh.
             script: A multi-line script to execute in /bin/sh
             input: Input to send to the command
-            environment: Additional environmetn variables
+            environment: Additional environment variables
+            timeout: Applies if not already wrapped in a #Timeout context
         Returns:
             The command/script output as a string.
         """
@@ -428,42 +440,43 @@ class Machine:
             subprocess.call(cmd, stdout=stdout)
             return
 
-        output = ""
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdin_fd = proc.stdin.fileno()
-        stdout_fd = proc.stdout.fileno()
-        stderr_fd = proc.stderr.fileno()
-        rset = [stdout_fd, stderr_fd]
-        wset = [stdin_fd]
-        while len(rset) > 0 or len(wset) > 0:
-            ret = select.select(rset, wset, [], 10)
-            for fd in ret[0]:
-                if fd == stdout_fd:
-                    data = os.read(fd, 1024)
-                    if not data:
-                        rset.remove(stdout_fd)
-                        proc.stdout.close()
-                    else:
-                        data = data.decode('utf-8', 'replace')
-                        if self.verbose:
-                            sys.stdout.write(data)
-                        output += data
-                elif fd == stderr_fd:
-                    data = os.read(fd, 1024)
-                    if not data:
-                        rset.remove(stderr_fd)
-                        proc.stderr.close()
-                    elif not quiet or self.verbose:
-                        sys.stderr.write(data.decode('utf-8', 'replace'))
-            for fd in ret[1]:
-                if fd == stdin_fd:
-                    if input:
-                        num = os.write(fd, input.encode('utf-8'))
-                        input = input[num:]
-                    if not input:
-                        wset.remove(stdin_fd)
-                        proc.stdin.close()
-        proc.wait()
+        with Timeout(seconds=timeout, error_message="Timed out on '%s'" % command, machine=self):
+            output = ""
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdin_fd = proc.stdin.fileno()
+            stdout_fd = proc.stdout.fileno()
+            stderr_fd = proc.stderr.fileno()
+            rset = [stdout_fd, stderr_fd]
+            wset = [stdin_fd]
+            while len(rset) > 0 or len(wset) > 0:
+                ret = select.select(rset, wset, [], 10)
+                for fd in ret[0]:
+                    if fd == stdout_fd:
+                        data = os.read(fd, 1024)
+                        if not data:
+                            rset.remove(stdout_fd)
+                            proc.stdout.close()
+                        else:
+                            data = data.decode('utf-8', 'replace')
+                            if self.verbose:
+                                sys.stdout.write(data)
+                            output += data
+                    elif fd == stderr_fd:
+                        data = os.read(fd, 1024)
+                        if not data:
+                            rset.remove(stderr_fd)
+                            proc.stderr.close()
+                        elif not quiet or self.verbose:
+                            sys.stderr.write(data.decode('utf-8', 'replace'))
+                for fd in ret[1]:
+                    if fd == stdin_fd:
+                        if input:
+                            num = os.write(fd, input.encode('utf-8'))
+                            input = input[num:]
+                        if not input:
+                            wset.remove(stdin_fd)
+                            proc.stdin.close()
+            proc.wait()
 
         if proc.returncode != 0:
             raise subprocess.CalledProcessError(proc.returncode, command, output=output)

@@ -136,9 +136,10 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
                                                          " --install" if do_install else "",
                                                          " ".join(skip_args),
                                                          " '%s'" % arg if arg else "")
-    machine.execute(cmd)
+    machine.execute(cmd, timeout=1800)
+
     if install and args.containers:
-        machine.execute("/var/lib/testvm/containers.install")
+        machine.execute("/var/lib/testvm/containers.install", timeout=900)
 
 def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""

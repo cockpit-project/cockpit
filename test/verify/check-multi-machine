@@ -868,6 +868,7 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.* couldn\'t connect: .*',
+                                    '.*: Connection reset by peer',
                                     '.* failed to retrieve resource: invalid-hostkey',
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',

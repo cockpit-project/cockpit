@@ -1189,9 +1189,18 @@
             if (cockpit && cockpit.sessionStorage && cockpit.localStorage)
                 base = cockpit;
 
+            /* Some browsers fail localStorage access due to corruption, preventing Cockpit login*/
+            var localStorage;
+            try {
+                localStorage = base.localStorage;
+            } catch(ex) {
+                localStorage = base.sessionStorage;
+                console.warn(String(ex));
+            }
+
             return {
                 sessionStorage: base.sessionStorage,
-                localStorage: base.localStorage
+                localStorage: localStorage
             };
         }
     ])

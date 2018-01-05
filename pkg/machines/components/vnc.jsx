@@ -21,6 +21,8 @@ import cockpit from 'cockpit';
 
 import { vmId, logDebug } from '../helpers.es6';
 
+import './consoles.css';
+
 const _ = cockpit.gettext;
 
 const Frame = ({ url, novncContainerId }) => {
@@ -38,9 +40,9 @@ Frame.propTypes = {
 export const VncActions = ({ vm }) => {
     const vmIdPrefix = vmId(vm.name);
     return (
-        <span className='console-actions'>
+        <span className='console-actions-pf'>
             {_("Send shortcut")}
-            <button className='btn btn-default console-actions-buttons' id={`${vmIdPrefix}-vnc-ctrl-alt-del`}>
+            <button className='btn btn-default console-actions-buttons-pf' id={`${vmIdPrefix}-vnc-ctrl-alt-del`}>
                 Ctrl+Alt+Del
             </button>
         </span>

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from "react";
+import React, { PropTypes } from "react";
 import cockpit from 'cockpit';
 import Select from "cockpit-components-select.jsx";
 
@@ -26,6 +26,8 @@ import DesktopConsole from './desktopConsole.jsx';
 
 import { logDebug } from '../helpers.es6';
 import { vmDesktopConsole } from '../actions.es6';
+
+import './consoles.css';
 
 const _ = cockpit.gettext;
 
@@ -223,5 +225,10 @@ class Consoles extends React.Component {
         );
     }
 }
+Consoles.propTypes = {
+    vm: PropTypes.object.isRequired,
+    config: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
+};
 
 export default Consoles;

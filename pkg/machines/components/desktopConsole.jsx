@@ -20,6 +20,8 @@ import React from "react";
 import cockpit from 'cockpit';
 import { vmId } from '../helpers.es6';
 
+import './consoles.css';
+
 const _ = cockpit.gettext;
 
 const MoreInformationInstallVariant = ({ os, command, innerHtml }) => {

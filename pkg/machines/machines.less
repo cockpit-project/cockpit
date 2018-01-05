@@ -4,6 +4,13 @@
 
 @import (less) "../../node_modules/c3/c3.css";
 
+// For patternfly-react and @patternfly/react-console
+@import "~xterm/dist/xterm.css";
+@import "~bootstrap/less/variables";
+@import "~patternfly/dist/less/variables";
+@import "~patternfly-react/dist/less/patternfly-react.less";
+@import "~@patternfly/react-console/dist/less/console.less";
+
 .icon-2x-vms {
     font-size: 2em;
 }
@@ -184,36 +191,7 @@
     padding-bottom: 15px;
 }
 
-.machines-terminal {
-    width: calc(100vw - 6em);
-    height: calc(40vh);
-
-    padding-right: 0px;
-    padding-left: 0px;
-}
-
 .panel-heading .btn {
     margin-left: 3px;
 }
 
-.console-menu {
-    padding-bottom: 1em;
-}
-
-.console-actions-buttons {
-    margin-left: 5px;
-}
-
-.console-actions {
-    float: right;
-    position: relative;
-    top: -2em;
-}
-
-.console-type-select {
-    width: 19em !important;
-}
-
-.machines-status-alert {
-    padding-right: 5px;
-}

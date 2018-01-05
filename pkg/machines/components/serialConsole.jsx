@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from "react";
+import React, { PropTypes } from "react";
 import cockpit from 'cockpit';
-import {Terminal} from 'cockpit-components-terminal.jsx';
+
+import { SerialConsole } from '@patternfly/react-console';
 
 const _ = cockpit.gettext;
 
-class SerialConsole extends React.Component {
+class SerialConsoleCockpit extends React.Component {
     constructor (props) {
         super(props);
 
@@ -30,97 +31,110 @@ class SerialConsole extends React.Component {
             channel: undefined,
         };
 
-        this.focusTerminal = this.focusTerminal.bind(this);
-        this.onResetClick = this.onResetClick.bind(this);
-        this.onDisconnectClick = this.onDisconnectClick.bind(this);
+        this.onConnect = this.onConnect.bind(this);
+        this.onDisconnect = this.onDisconnect.bind(this);
+        this.onResize = this.onResize.bind(this);
+
+        this.onData = this.onData.bind(this);
+        this.onChannelMessage = this.onChannelMessage.bind(this);
+        this.onChannelClose = this.onChannelClose.bind(this);
+
+        this.getStatus = this.getStatus.bind(this);
     }
 
-    createChannel () {
-        const { spawnArgs } = this.props;
-
-        return cockpit.channel({
+    /**
+     * Use Cockpit channel
+     */
+    onConnect () {
+        const channel = cockpit.channel({
             "payload": "stream",
-            "spawn": spawnArgs,
+            "spawn": this.props.spawnArgs,
             "pty": true,
         });
+
+        channel.addEventListener('message', this.onChannelMessage);
+        channel.addEventListener('close', this.onChannelClose);
+
+        this.setState({ channel });
     }
 
-    componentWillMount () {
-        this.setState({channel: this.createChannel()});
+    /**
+     * Terminal component emitted data, like user key press.
+     * Send them to the backend.
+     */
+    onData (data) {
+        const channel = this.state.channel;
+        if (channel && channel.valid) {
+            channel.send(data);
+        }
     }
 
-    componentWillUnmount () {
+    onDisconnect () {
+        const channel = this.state.channel;
+
+        if (channel) {
+            channel.close();
+            channel.removeEventListener('message', this.onChannelMessage);
+            channel.removeEventListener('close', this.onChannelClose);
+            this.setState({ channel: null });
+        }
+    }
+
+    onChannelMessage (event, data) {
+        if (this.refs.serialconsole) {
+            this.refs.serialconsole.onDataReceived(data);
+        }
+    }
+
+    onChannelClose (event, options) {
+        if (this.refs.serialconsole) {
+            this.refs.serialconsole.onConnectionClosed(options.problem);
+        }
+    }
+
+    onResize (rows, cols) {
+        if (this.state.channel) {
+            this.state.channel.control({
+                window: {
+                    rows,
+                    cols,
+                }
+            });
+        }
+    }
+
+    getStatus () {
         if (this.state.channel)
-            this.state.channel.close();
-    }
+            return 'connected';
 
-    onResetClick (event) {
-        if (event.button !== 0)
-            return;
+        if (this.state.channel === null)
+            return 'disconnected';
 
-        if (this.state.channel)
-            this.state.channel.close();
-
-        this.setState({channel: this.createChannel()});
-
-        this.focusTerminal();
-    }
-
-    onDisconnectClick (event) {
-        if (event.button !== 0)
-            return;
-
-        if (this.state.channel)
-            this.state.channel.close();
-
-        this.setState({channel: null});
-
-        this.focusTerminal();
-    }
-
-    focusTerminal () {
-        this.refs.resetButton.blur();
-        this.refs.disconnectButton.blur();
-
-        if (this.refs.terminal)
-            this.refs.terminal.focus();
+        return 'loading';
     }
 
     render () {
-        const { vmName } = this.props;
-
-        let terminal;
-        if (this.state.channel) {
-            terminal = (<Terminal ref="terminal" channel={this.state.channel} />);
-        } else if (this.state.channel === null) {
-            terminal = <span>{_("Disconnected from serial console. Click the Reconnect button.")}</span>
-        } else {
-            terminal = <span>{_("Loading ...")}</span>;
-        }
-
-        const disconnectDisabled = (!this.state.channel) ? 'disabled' : '';
-
         return (
-            <div className="console-ct-container">
-                <div className="console-actions">
-                    <button ref="disconnectButton" id={`${vmName}-serialconsole-disconnect`}
-                            className={`btn btn-default console-actions-buttons ${disconnectDisabled}`}
-                            onClick={this.onDisconnectClick}>
-                        {_("Disconnect")}
-                    </button>
-
-                    <button ref="resetButton" id={`${vmName}-serialconsole-reconnect`}
-                            className="btn btn-default console-actions-buttons" onClick={this.onResetClick}>
-                        {_("Reconnect")}
-                    </button>
-                </div>
-
-                <div className="panel-body machines-terminal">
-                    {terminal}
-                </div>
-            </div>
+            <SerialConsole id={this.props.vmName} ref='serialconsole'
+                rows={30}
+                cols={90}
+                status={this.getStatus()}
+                onConnect={this.onConnect}
+                onDisconnect={this.onDisconnect}
+                onResize={this.onResize}
+                onData={this.onData}
+                textDisconnect={_("Disconnect")}
+                textDisconnected={_("Disconnected from serial console. Click the Reconnect button.")}
+                textReconnect={_("Reconnect")}
+                textLoading={_("Loading ...")}
+                topClassName="" />
         );
     }
 }
 
-export default SerialConsole;
+SerialConsoleCockpit.propTypes = {
+    vmName: PropTypes.string.isRequired,
+    spawnArgs: PropTypes.array.isRequired,
+};
+
+export default SerialConsoleCockpit;

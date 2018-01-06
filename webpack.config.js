@@ -285,7 +285,6 @@ var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
 var html = require('html-webpack-plugin');
 var extract = require("extract-text-webpack-plugin");
-var FlowWebpackPlugin = require('flow-webpack-plugin')
 var extend = require("extend");
 var path = require("path");
 var fs = require("fs");
@@ -358,9 +357,6 @@ var plugins = [
     }),
     new copy(info.files),
     new extract("[name].css"),
-    new FlowWebpackPlugin({
-        flowArgs: ['check']
-    }),
 ];
 
 var output = {

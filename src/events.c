@@ -12,7 +12,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
                               int detail VIR_ATTR_UNUSED,
                               void *opaque)
 {
-    virtDBusManager *manager = opaque;
+    virtDBusConnect *connect = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     const char *signal = NULL;
     const char *name;
@@ -51,10 +51,10 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
         return 0;
     }
 
-    r = sd_bus_message_new_signal(manager->bus,
+    r = sd_bus_message_new_signal(connect->bus,
                                   &message,
-                                  "/org/libvirt/Manager",
-                                  "org.libvirt.Manager",
+                                  "/org/libvirt/Connect",
+                                  "org.libvirt.connect",
                                   signal);
     if (r < 0)
         return r;
@@ -66,7 +66,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
     if (r < 0)
         return r;
 
-    return sd_bus_send(manager->bus, message, NULL);
+    return sd_bus_send(connect->bus, message, NULL);
 }
 
 static int
@@ -75,14 +75,14 @@ virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIR_ATTR_UNUSED,
                                 const char *device,
                                 void *opaque)
 {
-    virtDBusManager *manager = opaque;
+    virtDBusConnect *connect = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
     path = virtDBusUtilBusPathForVirDomain(domain);
 
-    r = sd_bus_message_new_signal(manager->bus,
+    r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
                                   "org.libvirt.Domain",
@@ -94,7 +94,7 @@ virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIR_ATTR_UNUSED,
     if (r < 0)
         return r;
 
-    return sd_bus_send(manager->bus, message, NULL);
+    return sd_bus_send(connect->bus, message, NULL);
 }
 
 static int
@@ -103,14 +103,14 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIR_ATTR_UNUSED,
                                   const char *device,
                                   void *opaque)
 {
-    virtDBusManager *manager = opaque;
+    virtDBusConnect *connect = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
     path = virtDBusUtilBusPathForVirDomain(domain);
 
-    r = sd_bus_message_new_signal(manager->bus,
+    r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
                                   "org.libvirt.Domain",
@@ -122,7 +122,7 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIR_ATTR_UNUSED,
     if (r < 0)
         return r;
 
-    return sd_bus_send(manager->bus, message, NULL);
+    return sd_bus_send(connect->bus, message, NULL);
 }
 
 static int
@@ -132,7 +132,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIR_ATTR_UNUSED,
                                int reason,
                                void *opaque)
 {
-    virtDBusManager *manager = opaque;
+    virtDBusConnect *connect = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     const char *reasonstr;
@@ -140,7 +140,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIR_ATTR_UNUSED,
 
     path = virtDBusUtilBusPathForVirDomain(domain);
 
-    r = sd_bus_message_new_signal(manager->bus,
+    r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
                                   "org.libvirt.Domain",
@@ -164,7 +164,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIR_ATTR_UNUSED,
     if (r < 0)
         return r;
 
-    return sd_bus_send(manager->bus, message, NULL);
+    return sd_bus_send(connect->bus, message, NULL);
 }
 
 static int
@@ -176,7 +176,7 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection VIR_ATTR_UNUSED,
                                int reason,
                                void *opaque)
 {
-    virtDBusManager *manager = opaque;
+    virtDBusConnect *connect = opaque;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     const char *reasonstr;
@@ -184,7 +184,7 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection VIR_ATTR_UNUSED,
 
     path = virtDBusUtilBusPathForVirDomain(domain);
 
-    r = sd_bus_message_new_signal(manager->bus,
+    r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
                                   "org.libvirt.Domain",
@@ -208,44 +208,44 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection VIR_ATTR_UNUSED,
     if (r < 0)
         return r;
 
-    return sd_bus_send(manager->bus, message, NULL);
+    return sd_bus_send(connect->bus, message, NULL);
 }
 
 static void
-virtDBusEventsRegisterEvent(virtDBusManager *manager,
+virtDBusEventsRegisterEvent(virtDBusConnect *connect,
                             int id,
                             virConnectDomainEventGenericCallback callback)
 {
-    assert(manager->callback_ids[id] == -1);
+    assert(connect->callback_ids[id] == -1);
 
-    manager->callback_ids[id] = virConnectDomainEventRegisterAny(manager->connection,
+    connect->callback_ids[id] = virConnectDomainEventRegisterAny(connect->connection,
                                                                  NULL,
                                                                  id,
                                                                  VIR_DOMAIN_EVENT_CALLBACK(callback),
-                                                                 manager,
+                                                                 connect,
                                                                  NULL);
 }
 
 void
-virtDBusEventsRegister(virtDBusManager *manager)
+virtDBusEventsRegister(virtDBusConnect *connect)
 {
-    virtDBusEventsRegisterEvent(manager,
+    virtDBusEventsRegisterEvent(connect,
                                 VIR_DOMAIN_EVENT_ID_LIFECYCLE,
                                 VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainLifecycle));
 
-    virtDBusEventsRegisterEvent(manager,
+    virtDBusEventsRegisterEvent(connect,
                                 VIR_DOMAIN_EVENT_ID_DEVICE_ADDED,
                                 VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceAdded));
 
-    virtDBusEventsRegisterEvent(manager,
+    virtDBusEventsRegisterEvent(connect,
                                 VIR_DOMAIN_EVENT_ID_DEVICE_REMOVED,
                                 VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceRemoved));
 
-    virtDBusEventsRegisterEvent(manager,
+    virtDBusEventsRegisterEvent(connect,
                                 VIR_DOMAIN_EVENT_ID_DISK_CHANGE,
                                 VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
 
-    virtDBusEventsRegisterEvent(manager,
+    virtDBusEventsRegisterEvent(connect,
                                 VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
                                 VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDiskChange));
 

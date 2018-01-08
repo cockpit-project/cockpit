@@ -10,11 +10,11 @@ virtDBusDomainGetName(sd_bus *bus VIR_ATTR_UNUSED,
                       void *userdata,
                       sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     const char *name = "";
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -34,11 +34,11 @@ virtDBusDomainGetUUID(sd_bus *bus VIR_ATTR_UNUSED,
                       void *userdata,
                       sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     char uuid[VIR_UUID_STRING_BUFLEN] = "";
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -56,10 +56,10 @@ virtDBusDomainGetId(sd_bus *bus VIR_ATTR_UNUSED,
                     void *userdata,
                     sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "u", 0);
 
@@ -75,10 +75,10 @@ virtDBusDomainGetVcpus(sd_bus *bus VIR_ATTR_UNUSED,
                        void *userdata,
                        sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "u", 0);
 
@@ -94,11 +94,11 @@ virtDBusDomainGetOsType(sd_bus *bus VIR_ATTR_UNUSED,
                         void *userdata,
                         sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *os_type = NULL;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -118,11 +118,11 @@ virtDBusDomainGetActive(sd_bus *bus VIR_ATTR_UNUSED,
                         void *userdata,
                         sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int active;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "b", 0);
 
@@ -142,11 +142,11 @@ virtDBusDomainGetPersistent(sd_bus *bus VIR_ATTR_UNUSED,
                             void *userdata,
                             sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int persistent;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "b", 0);
 
@@ -166,12 +166,12 @@ virtDBusDomainGetState(sd_bus *bus VIR_ATTR_UNUSED,
                        void *userdata,
                        sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int state = 0;
     const char *string;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "s", "");
 
@@ -217,11 +217,11 @@ virtDBusDomainGetAutostart(sd_bus *bus VIR_ATTR_UNUSED,
                            void *userdata,
                            sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int autostart = 0;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection, path);
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path);
     if (domain == NULL)
         return sd_bus_message_append(reply, "b", 0);
 
@@ -235,13 +235,13 @@ virtDBusDomainGetXMLDesc(sd_bus_message *message,
                          void *userdata,
                          sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *description = NULL;
     uint32_t flags;
     int r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -273,7 +273,7 @@ virtDBusDomainGetStats(sd_bus_message *message,
                        void *userdata,
                        sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     virDomainPtr domains[2];
     _cleanup_(virtDBusDomainStatsRecordListFreep) virDomainStatsRecordPtr *records = NULL;
@@ -285,7 +285,7 @@ virtDBusDomainGetStats(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -316,11 +316,11 @@ virtDBusDomainShutdown(sd_bus_message *message,
                        void *userdata,
                        sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -341,11 +341,11 @@ virtDBusDomainDestroy(sd_bus_message *message,
                       void *userdata,
                       sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -366,7 +366,7 @@ virtDBusDomainReboot(sd_bus_message *message,
                      void *userdata,
                      sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     uint32_t flags;
     int r;
@@ -375,7 +375,7 @@ virtDBusDomainReboot(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -396,7 +396,7 @@ virtDBusDomainReset(sd_bus_message *message,
                     void *userdata,
                     sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     uint32_t flags;
     int r;
@@ -405,7 +405,7 @@ virtDBusDomainReset(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -426,11 +426,11 @@ virtDBusDomainCreate(sd_bus_message *message,
                      void *userdata,
                      sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -451,11 +451,11 @@ virtDBusDomainUndefine(sd_bus_message *message,
                        void *userdata,
                        sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    domain = virtDBusUtilVirDomainFromBusPath(manager->connection,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message));
     if (domain == NULL) {
         return sd_bus_reply_method_errorf(message,
@@ -509,7 +509,7 @@ virtDBusDomainLookup(sd_bus *bus VIR_ATTR_UNUSED,
                      void **found,
                      sd_bus_error *error VIR_ATTR_UNUSED)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilFreep) char *name = NULL;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
@@ -521,22 +521,22 @@ virtDBusDomainLookup(sd_bus *bus VIR_ATTR_UNUSED,
     if (*name == '\0')
         return 0;
 
-    domain = virDomainLookupByUUIDString(manager->connection, name);
+    domain = virDomainLookupByUUIDString(connect->connection, name);
     if (!domain)
         return 0;
 
     /*
      * There's no way to unref the pointer we're returning here. So,
-     * return the manager object and look up the domain again in the
+     * return the connect object and look up the domain again in the
      * domain_* callbacks.
      */
-    *found = manager;
+    *found = connect;
 
     return 1;
 }
 
 int
-virtDBusDomainRegister(virtDBusManager *manager,
+virtDBusDomainRegister(virtDBusConnect *connect,
                        sd_bus *bus)
 {
     return sd_bus_add_fallback_vtable(bus,
@@ -545,5 +545,5 @@ virtDBusDomainRegister(virtDBusManager *manager,
                                       "org.libvirt.Domain",
                                       virt_domain_vtable,
                                       virtDBusDomainLookup,
-                                      manager);
+                                      connect);
 }

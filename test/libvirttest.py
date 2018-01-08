@@ -38,8 +38,8 @@ class TestCase(unittest.TestCase):
         else:
             raise TimeoutError('error starting libvirt-dbus')
 
-        obj = self.bus.get_object('org.libvirt', '/org/libvirt/Manager')
-        self.manager = dbus.Interface(obj, 'org.libvirt.Manager')
+        obj = self.bus.get_object('org.libvirt', '/org/libvirt/Connect')
+        self.connect = dbus.Interface(obj, 'org.libvirt.Connect')
 
     def tearDown(self):
         self.daemon.terminate()

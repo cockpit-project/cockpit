@@ -1,9 +1,9 @@
 #pragma once
 
-#include "manager.h"
+#include "connect.h"
 
 #include <libvirt/libvirt.h>
 
 
 void
-virtDBusEventsRegister(virtDBusManager *manager);
+virtDBusEventsRegister(virtDBusConnect *connect);

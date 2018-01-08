@@ -1,24 +1,24 @@
 #include "domain.h"
 #include "events.h"
-#include "manager.h"
+#include "connect.h"
 #include "util.h"
 
 #include <errno.h>
 #include <stdlib.h>
 
 static int
-virtDBusManagerEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusConnectEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
                                 const char *path VIR_ATTR_UNUSED,
                                 void *userdata,
                                 char ***nodes,
                                 sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
     _cleanup_(virtDBusUtilStrvFreep) char **paths = NULL;
     int n_domains;
 
-    n_domains = virConnectListAllDomains(manager->connection, &domains, 0);
+    n_domains = virConnectListAllDomains(connect->connection, &domains, 0);
     if (n_domains < 0)
         return virtDBusUtilSetLastVirtError(error);
 
@@ -34,11 +34,11 @@ virtDBusManagerEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusManagerListDomains(sd_bus_message *message,
+virtDBusConnectListDomains(sd_bus_message *message,
                            void *userdata,
                            sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
     _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
     uint32_t flags;
@@ -48,7 +48,7 @@ virtDBusManagerListDomains(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    r = virConnectListAllDomains(manager->connection, &domains, flags);
+    r = virConnectListAllDomains(connect->connection, &domains, flags);
     if (r < 0)
         return virtDBusUtilSetLastVirtError(error);
 
@@ -78,11 +78,11 @@ virtDBusManagerListDomains(sd_bus_message *message,
 }
 
 static int
-virtDBusManagerCreateXML(sd_bus_message *message,
+virtDBusConnectCreateXML(sd_bus_message *message,
                          void *userdata,
                          sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     const char *xml;
     uint32_t flags;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -93,7 +93,7 @@ virtDBusManagerCreateXML(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = virDomainCreateXML(manager->connection, xml, flags);
+    domain = virDomainCreateXML(connect->connection, xml, flags);
     if (!domain)
         return virtDBusUtilSetLastVirtError(error);
 
@@ -103,11 +103,11 @@ virtDBusManagerCreateXML(sd_bus_message *message,
 }
 
 static int
-virtDBusManagerDefineXML(sd_bus_message *message,
+virtDBusConnectDefineXML(sd_bus_message *message,
                          void *userdata,
                          sd_bus_error *error)
 {
-    virtDBusManager *manager = userdata;
+    virtDBusConnect *connect = userdata;
     const char *xml;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
@@ -117,7 +117,7 @@ virtDBusManagerDefineXML(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    domain = virDomainDefineXML(manager->connection, xml);
+    domain = virDomainDefineXML(connect->connection, xml);
     if (!domain)
         return virtDBusUtilSetLastVirtError(error);
 
@@ -126,12 +126,12 @@ virtDBusManagerDefineXML(sd_bus_message *message,
     return sd_bus_reply_method_return(message, "o", path);
 }
 
-static const sd_bus_vtable virt_manager_vtable[] = {
+static const sd_bus_vtable virt_connect_vtable[] = {
     SD_BUS_VTABLE_START(0),
 
-    SD_BUS_METHOD("ListDomains", "u", "ao", virtDBusManagerListDomains, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("CreateXML", "su", "o", virtDBusManagerCreateXML, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("DefineXML", "s", "o", virtDBusManagerDefineXML, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("ListDomains", "u", "ao", virtDBusConnectListDomains, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("CreateXML", "su", "o", virtDBusConnectCreateXML, SD_BUS_VTABLE_UNPRIVILEGED),
+    SD_BUS_METHOD("DefineXML", "s", "o", virtDBusConnectDefineXML, SD_BUS_VTABLE_UNPRIVILEGED),
 
     SD_BUS_SIGNAL("DomainDefined", "so", 0),
     SD_BUS_SIGNAL("DomainUndefined", "so", 0),
@@ -147,70 +147,71 @@ static const sd_bus_vtable virt_manager_vtable[] = {
 };
 
 int
-virtDBusManagerNew(virtDBusManager **managerp,
+virtDBusConnectNew(virtDBusConnect **connectp,
                    sd_bus *bus,
                    const char *uri)
 {
-    _cleanup_(virtDBusManagerFreep) virtDBusManager *manager = NULL;
+    _cleanup_(virtDBusConnectFreep) virtDBusConnect *connect = NULL;
     int r;
 
-    manager = calloc(1, sizeof(virtDBusManager));
+    connect = calloc(1, sizeof(virtDBusConnect));
     for (int i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1)
-        manager->callback_ids[i] = -1;
+        connect->callback_ids[i] = -1;
 
-    manager->bus = sd_bus_ref(bus);
+    connect->bus = sd_bus_ref(bus);
 
-    manager->connection = virConnectOpenAuth(uri, virConnectAuthPtrDefault, 0);
-    if (!manager->connection)
+    connect->connection = virConnectOpenAuth(uri, virConnectAuthPtrDefault, 0);
+    if (!connect->connection)
         return -EINVAL;
 
-    virtDBusEventsRegister(manager);
+    virtDBusEventsRegister(connect);
 
-    r = sd_bus_add_object_vtable(manager->bus,
+    r = sd_bus_add_object_vtable(connect->bus,
                                  NULL,
-                                 "/org/libvirt/Manager",
-                                 "org.libvirt.Manager",
-                                 virt_manager_vtable,
-                                 manager);
+                                 "/org/libvirt/Connect",
+                                 "org.libvirt.Connect",
+                                 virt_connect_vtable,
+                                 connect);
     if (r < 0)
         return r;
 
-    r = sd_bus_add_node_enumerator(bus, NULL, "/org/libvirt/domain", virtDBusManagerEnumarateDomains, manager);
+    r = sd_bus_add_node_enumerator(bus, NULL, "/org/libvirt/domain",
+                                   virtDBusConnectEnumarateDomains, connect);
     if (r < 0)
         return r;
 
-    if ((r = virtDBusDomainRegister(manager, bus) < 0))
+    if ((r = virtDBusDomainRegister(connect, bus) < 0))
         return r;
 
-    *managerp = manager;
-    manager = NULL;
+    *connectp = connect;
+    connect = NULL;
 
     return 0;
 }
 
-virtDBusManager *
-virtDBusManagerFree(virtDBusManager *manager)
+virtDBusConnect *
+virtDBusConnectFree(virtDBusConnect *connect)
 {
-    if (manager->bus)
-        sd_bus_unref(manager->bus);
+    if (connect->bus)
+        sd_bus_unref(connect->bus);
 
-    if (manager->connection) {
+    if (connect->connection) {
         for (int i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1) {
-            if (manager->callback_ids[i] >= 0)
-                virConnectDomainEventDeregisterAny(manager->connection, manager->callback_ids[i]);
+            if (connect->callback_ids[i] >= 0)
+                virConnectDomainEventDeregisterAny(connect->connection, connect->callback_ids[i]);
         }
 
-        virConnectClose(manager->connection);
+        virConnectClose(connect->connection);
     }
 
-    free(manager);
+    free(connect);
 
     return NULL;
 }
 
 void
-virtDBusManagerFreep(virtDBusManager **managerp)
+virtDBusConnectFreep(virtDBusConnect **connectp)
 {
-    if (*managerp)
-        virtDBusManagerFree(*managerp);
+    if (*connectp)
+        virtDBusConnectFree(*connectp);
 }

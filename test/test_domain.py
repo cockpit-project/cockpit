@@ -6,7 +6,7 @@ import unittest
 
 class TestDomain(libvirttest.TestCase):
     def domain(self):
-        path = self.manager.ListDomains(0)[0]
+        path = self.connect.ListDomains(0)[0]
         obj = self.bus.get_object('org.libvirt', path)
         return obj, dbus.Interface(obj, 'org.libvirt.Domain')
 
@@ -42,7 +42,7 @@ class TestDomain(libvirttest.TestCase):
             self.assertEqual(type(path), dbus.ObjectPath)
             self.loop.quit()
 
-        self.manager.connect_to_signal('DomainStopped', domain_stopped)
+        self.connect.connect_to_signal('DomainStopped', domain_stopped)
 
         obj, domain = self.domain()
         domain.Shutdown()
@@ -58,7 +58,7 @@ class TestDomain(libvirttest.TestCase):
             self.assertEqual(type(path), dbus.ObjectPath)
             self.loop.quit()
 
-        self.manager.connect_to_signal('DomainUndefined', domain_undefined)
+        self.connect.connect_to_signal('DomainUndefined', domain_undefined)
 
         _, domain = self.domain()
         domain.Shutdown()

@@ -14,9 +14,9 @@ minimal_xml = '''
     </domain>
 '''
 
-class TestManager(libvirttest.TestCase):
+class TestConnect(libvirttest.TestCase):
     def test_list_domains(self):
-        domains = self.manager.ListDomains(0)
+        domains = self.connect.ListDomains(0)
         self.assertEqual(type(domains), dbus.Array)
         self.assertEqual(len(domains), 1)
 
@@ -33,9 +33,9 @@ class TestManager(libvirttest.TestCase):
             self.assertEqual(type(path), dbus.ObjectPath)
             self.loop.quit()
 
-        self.manager.connect_to_signal('DomainStarted', domain_started)
+        self.connect.connect_to_signal('DomainStarted', domain_started)
 
-        path = self.manager.CreateXML(minimal_xml, 0)
+        path = self.connect.CreateXML(minimal_xml, 0)
         self.assertEqual(type(path), dbus.ObjectPath)
 
         self.main_loop()
@@ -46,9 +46,9 @@ class TestManager(libvirttest.TestCase):
             self.assertEqual(type(path), dbus.ObjectPath)
             self.loop.quit()
 
-        self.manager.connect_to_signal('DomainDefined', domain_defined)
+        self.connect.connect_to_signal('DomainDefined', domain_defined)
 
-        path = self.manager.DefineXML(minimal_xml)
+        path = self.connect.DefineXML(minimal_xml)
         self.assertEqual(type(path), dbus.ObjectPath)
 
         self.main_loop()

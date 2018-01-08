@@ -2,7 +2,7 @@ test_helpers = \
 	libvirttest.py
 
 test_programs = \
-	test_manager.py \
+	test_connect.py \
 	test_domain.py
 
 TESTS = $(test_programs)

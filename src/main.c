@@ -1,6 +1,6 @@
 #include "config.h"
 
-#include "manager.h"
+#include "connect.h"
 #include "util.h"
 
 #include <errno.h>
@@ -98,7 +98,7 @@ main(int argc, char *argv[])
     bool system_bus;
     const char *uri = NULL;
 
-    _cleanup_(virtDBusManagerFreep) virtDBusManager *manager = NULL;
+    _cleanup_(virtDBusConnectFreep) virtDBusConnect *connect = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
     _cleanup_(virtDBusUtilClosep) int signal_fd = -1;
     _cleanup_(virtDBusVirEventRemoveHandlep) int bus_watch = -1;
@@ -170,9 +170,9 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    r = virtDBusManagerNew(&manager, bus, uri);
+    r = virtDBusConnectNew(&connect, bus, uri);
     if (r < 0) {
-        fprintf(stderr, "Failed to connect to libvirt");
+        fprintf(stderr, "Failed to connect to libvirt.");
         return EXIT_FAILURE;
     }
 

@@ -7,6 +7,7 @@
 
 struct virtDBusConnect {
     sd_bus *bus;
+    const char *uri;
     virConnectPtr connection;
 
     int callback_ids[VIR_DOMAIN_EVENT_ID_LAST];

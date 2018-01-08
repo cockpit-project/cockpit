@@ -7,6 +7,23 @@
 #include <stdlib.h>
 
 static int
+virtDBusConnectOpen(virtDBusConnect *connect,
+                    sd_bus_error *error)
+{
+    if (connect->connection)
+        return 0;
+
+    connect->connection = virConnectOpenAuth(connect->uri,
+                                             virConnectAuthPtrDefault, 0);
+    if (!connect->connection)
+        return virtDBusUtilSetLastVirtError(error);
+
+    virtDBusEventsRegister(connect);
+
+    return 0;
+}
+
+static int
 virtDBusConnectEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
                                 const char *path VIR_ATTR_UNUSED,
                                 void *userdata,
@@ -17,6 +34,11 @@ virtDBusConnectEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
     _cleanup_(virtDBusUtilStrvFreep) char **paths = NULL;
     int n_domains;
+    int r;
+
+    r = virtDBusConnectOpen(connect, error);
+    if (r < 0)
+        return r;
 
     n_domains = virConnectListAllDomains(connect->connection, &domains, 0);
     if (n_domains < 0)
@@ -43,6 +65,10 @@ virtDBusConnectListDomains(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainListFreep) virDomainPtr *domains = NULL;
     uint32_t flags;
     int r;
+
+    r = virtDBusConnectOpen(connect, error);
+    if (r < 0)
+        return r;
 
     r = sd_bus_message_read(message, "u", &flags);
     if (r < 0)
@@ -89,6 +115,10 @@ virtDBusConnectCreateXML(sd_bus_message *message,
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
+    r = virtDBusConnectOpen(connect, error);
+    if (r < 0)
+        return r;
+
     r = sd_bus_message_read(message, "su", &xml, &flags);
     if (r < 0)
         return r;
@@ -112,6 +142,10 @@ virtDBusConnectDefineXML(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
+
+    r = virtDBusConnectOpen(connect, error);
+    if (r < 0)
+        return r;
 
     r = sd_bus_message_read(message, "s", &xml);
     if (r < 0)
@@ -159,12 +193,7 @@ virtDBusConnectNew(virtDBusConnect **connectp,
         connect->callback_ids[i] = -1;
 
     connect->bus = sd_bus_ref(bus);
-
-    connect->connection = virConnectOpenAuth(uri, virConnectAuthPtrDefault, 0);
-    if (!connect->connection)
-        return -EINVAL;
-
-    virtDBusEventsRegister(connect);
+    connect->uri = uri;
 
     r = sd_bus_add_object_vtable(connect->bus,
                                  NULL,

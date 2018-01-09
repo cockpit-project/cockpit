@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import unittest
+
+BASE = os.path.dirname(__file__)
+sys.path.insert(1, os.path.join(BASE, ".."))
+
+from learn import cluster
+from learn import data
+
+# Used commands like this to generate the fixture data
+# zgrep -F ': "failure"' tests-train-1.jsonl.gz | head -n 200 | gzip > bots/task/test-learn2.jsonl.gz
+
+class TestCluster(unittest.TestCase):
+    def setUp(self):
+        filename = os.path.join(os.path.dirname(__file__), "test-learn2.jsonl.gz")
+        items = list(data.load(filename, verbose=False, limit=200))
+        self.items = items[::2]
+        self.predict = items[1::2]
+        self.predict[0]["log"] = "blah blah"
+        self.predict[1]["log"] = ""
+
+    def testModel(self):
+        model = cluster.Model()
+        items = list(self.items)
+        model.train(items)
+
+        self.assertEqual(len(model.clusters), 11)
+        result = model.predict(self.predict)
+
+        labels = list(map(lambda x: x[0], result))
+        self.assertEqual(labels, [7, None, None, None, None, None, None, None, 4, 0,
+            None, None, None, 4, 4, None, 4, 3, 3, None, None, None, 0, 4, 3, None,
+            None, None, 4, 3, 3, 3, 3, 3, 3, None, 0, 0, None, 4, None, None, None,
+            None, 4, None, None, 10, None, None, None, 0, None, None, None, None, None,
+            6, 7, None, 8, None, None, None, None, None, None, None, None, 8, 2, None,
+            None, 4, None, 4, 4, None, 7, None, 10, 7, None, None, None, 6, 7, None,
+            None, None, 3, 3, 3, 3, 3, None, 3, 3, 3, 3])
+
+    def testCluster(self):
+        clus = cluster.Cluster(0, list(range(0, len(self.items))), self.items)
+        analysis = clus.analyze()
+        self.assertEqual(analysis, {
+            'total': 100,
+            'trackers': [],
+            'merged': [(True, 0.8), (False, 0.2), (None, 0.0)]
+        })
+
+if __name__ == '__main__':
+    unittest.main()

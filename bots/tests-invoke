@@ -183,13 +183,18 @@ class PullTask(object):
                 "ipa", "openshift", "selenium"
             ])
 
+        except subprocess.CalledProcessError:
+            return "Downloading of additional images failed"
+
+        try:
             # Download some additional necessary state
             subprocess.check_call([ os.path.join(BOTS, "image-download"),
-                "--state", "tests-learn-1.nn"
+                "--state", "tests-learn-2.nn", "tests-learn-4-1.model"
             ])
 
         except subprocess.CalledProcessError:
-            return "Downloading of additional images failed"
+            sys.stderr.write("Downloading of additional state failed")
+
 
         # The images not yet prepared are symlinked from the bots/images
         # directory into the test/images directory. This allows for other branches to

@@ -1,0 +1,106 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import unittest
+
+BASE = os.path.dirname(__file__)
+sys.path.insert(1, os.path.join(BASE, ".."))
+
+from learn import data
+from learn import extractor
+
+# These are some examples of what we expect normalized output, with noise removed, to look like
+
+NETWORK_EXPECTED = """# testTeam (check_networking_team.TestNetworking)
+NAME         UUID                                  TYPE            DEVICE
+System eth000  000fb000bd000-000bb000-000ffb-000f000-d000edd000f000e000  000-000-ethernet  eth000
+virbr000       000faf-cb000b-000f000c-000eb000-000fc000a000ff000da  bridge          virbr000
+System eth000  000c000fad000-000ecb-000e000c-eb000d-000a000c000f000c000  000-000-ethernet  --
+000:000:000:000:000:000 -> eth000
+000:000:000:000:000:000 -> eth000
+000:000:000:000:000:000 -> eth000
+000:000:000:000:000:000 -> eth000
+File "check-networking-team", line 000, in testTeam
+b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface000)"""
+
+REALM_EXPECTED = """# testNegotiate (check_realms.TestKerberos)
+++ seq 000 000
++ for x in '$(seq 000 000)'
++ nslookup -type=SRV _ldap._tcp.cockpit.lan
++ break
++ realm join -U admin cockpit.lan
++ echo foobarfoo
+See: journalctl REALMD_OPERATION=r000.000
+realm: Couldn't join realm: Running ipa-client-install failed
++ journalctl -u realmd.service
++ exit 000
+File "check-realms", line 000, in testNegotiate
+self.configure_kerberos()
+File "check-realms", line 000, in configure_kerberos
+self.machine.execute(script=JOIN_SCRIPT % args)
+File "testvm.py", line 000, in execute
+raise subprocess.CalledProcessError(proc.returncode, command, output=output)
+CalledProcessError: Command '<script>' returned non-zero exit status 000"""
+
+EXPECTED_STOPS = set([
+    u'',
+    u'#',
+    u'Error: timeout',
+    'Journal extracted',
+    'Wrote file',
+    u'return lambda *args: self._invoke(name, *args)',
+    u"raise Error(res['error'])",
+    u'File "testlib.py", line 000, in wait_present',
+    u'return self.phantom.wait("%s(%s)" % (func, \',\'.join(map(jsquote, args))))',
+    'not ok',
+    u'File "testlib.py", line 000, in <lambda>',
+    u"return self.wait_js_func('ph_is_present', selector)",
+    u'File "testlib.py", line 000, in _invoke',
+    u'Traceback (most recent call last):',
+    u'File "testlib.py", line 000, in wait_js_func',
+    u'# ----------------------------------------------------------------------'
+])
+
+class TestExtractor(unittest.TestCase):
+    def setUp(self):
+        filename = os.path.join(os.path.dirname(__file__), "test-learn2.jsonl.gz")
+        self.items = list(data.load(filename, limit=20, verbose=True))
+
+    def testSteps(self):
+        noi = extractor.Extractor()
+        noi.fit(self.items)
+        result = list(noi.transform(self.items))
+        self.assertEqual("\n".join(result[1]), NETWORK_EXPECTED)
+        self.assertEqual("\n".join(result[2]), REALM_EXPECTED)
+
+    def testTogether(self):
+        result = list(extractor.Extractor().fit_transform(self.items))
+        self.assertEqual("\n".join(result[1]), NETWORK_EXPECTED)
+        self.assertEqual("\n".join(result[2]), REALM_EXPECTED)
+
+    def testStops(self):
+        noi = extractor.Extractor()
+        noi.fit(self.items)
+        self.assertEqual(noi.stop_tokens(), EXPECTED_STOPS)
+
+if __name__ == '__main__':
+    unittest.main()

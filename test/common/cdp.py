@@ -5,7 +5,6 @@ import glob
 import json
 import os
 import random
-import re
 import shutil
 import socket
 import subprocess

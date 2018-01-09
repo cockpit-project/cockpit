@@ -40,8 +40,6 @@ import tempfile
 import time
 import signal
 import unittest
-import glob
-import fcntl
 
 import tap
 import testvm

@@ -28,10 +28,18 @@ class PackageCase(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
 
-        self.isApt = "debian" in self.machine.image or "ubuntu" in self.machine.image
+        # expected backend; hardcode this on image names to check the auto-detection
+        if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
+            self.backend = "apt"
+        elif self.machine.image.startswith("fedora"):
+            self.backend = "dnf"
+        elif self.machine.image in ["centos-7", "rhel-7", "rhel-7-4", "rhel-7-5"]:
+            self.backend = "yum"
+        else:
+            raise NotImplementedError("unknown image " + self.machine.image)
 
         # disable all existing repositories to avoid hitting the network
-        if self.isApt:
+        if self.backend == "apt":
             self.machine.execute("rm -f /etc/apt/sources.list.d/*; echo > /etc/apt/sources.list; apt-get update")
         else:
             self.machine.execute("rm -f /etc/yum.repos.d/* /var/cache/yum/*")
@@ -56,7 +64,7 @@ class PackageCase(MachineCase):
         If install is True, install the package. Otherwise, update the package
         index in /tmp/repo.
         '''
-        if self.isApt:
+        if self.backend == "apt":
             self.createDeb(name, version + '-' + release, depends, postinst, install, content)
         else:
             self.createRpm(name, version, release, depends, postinst, install, content)
@@ -190,7 +198,7 @@ rm -rf ~/rpmbuild
         return xml
 
     def enableRepo(self):
-        if self.isApt:
+        if self.backend == "apt":
             self.createAptChangelogs()
             # HACK: on Debian jessie, apt has an error propagation bug that causes "Err file: Packages" for each absent
             # compression format with file:// sources, which breaks PackageKit; work around by providing all formats

@@ -135,6 +135,8 @@ function deduplicate(list) {
 // Insert comma strings in between elements of the list. Unlike list.join(",")
 // this does not stringify the elements, which we need to keep as JSX objects.
 function insertCommas(list) {
+    if (list.length <= 1)
+        return list;
     return list.reduce((prev, cur) => [prev, ", ", cur])
 }
 

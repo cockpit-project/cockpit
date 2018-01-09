@@ -18,10 +18,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+# WARNING: As you change this code increment this version number so
+# the machine learning model uses a new place to store the model
+FILENAME = "tests-learn-2.nn"
+
 import collections
 import gzip
 import pickle
 import operator
+import os
 import re
 
 from sklearn.neural_network import MLPClassifier
@@ -30,19 +35,20 @@ from sklearn.preprocessing import StandardScaler
 # The threshhold for predicting based on learned data
 PREDICT_THRESHHOLD = 0.70
 
-# The name and version of the learning data
-# This changes every time something about this neural network changes
-LEARN_DATA = "tests-learn-2.nn"
-
-def load(path):
+def load(directory):
+    path = os.path.join(directory, FILENAME)
+    if not os.path.exists(path):
+        return None
     with gzip.open(path, 'rb') as fp:
         network = pickle.load(fp)
     return network
 
-def save(path, network):
-    with gzip.open(path, 'wb') as fp:
-        pickle.dump(network, fp)
-
+def save(directory, model):
+    path = os.path.join(directory, FILENAME)
+    with gzip.open(path + ".tmp", 'wb') as fp:
+        pickle.dump(model, fp)
+    os.rename(path + ".tmp", path)
+    return path
 
 # -----------------------------------------------------------------------------
 # The Neural Network

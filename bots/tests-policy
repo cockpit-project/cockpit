@@ -27,13 +27,17 @@ import socket
 import sys
 import time
 import traceback
+import warnings
 
 sys.dont_write_bytecode = True
 
 from task import github
 
 try:
-    import task.learn1
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore",category=DeprecationWarning)
+        import learn.learn1
+        import learn.cluster
     WITH_LEARNING = True
 except ImportError:
     WITH_LEARNING = False
@@ -141,12 +145,9 @@ def guessFlake(output, context):
     if not WITH_LEARNING:
         return output
 
-    path = os.path.join(DATA, task.learn1.LEARN_DATA)
-    if not os.path.exists(path):
-        return output
-
-    # The pickled neural network
-    network = task.learn1.load(path)
+    # The two different models we're using
+    network = learn.learn1.load(DATA)
+    model = learn.cluster.load(DATA)
 
     # Build up an item just like in tests-data
     item = {
@@ -161,12 +162,30 @@ def guessFlake(output, context):
         "log": output
     }
 
-    pred_proba = network.predict_proba(item)
-    if max(pred_proba) >= 0.5:
-        if int(pred_proba[1] >= pred_proba[0]) == 1:
-            output += "\n# Flake probability: {0:.1f}%\n".format(pred_proba[1] * 100)
-    # TODO: Remove this line
-    output += "\n# Flake debug: " + repr(pred_proba)
+    # The old model
+    if network:
+        pred_proba = network.predict_proba(item)
+        if max(pred_proba) >= 0.5:
+            if int(pred_proba[1] >= pred_proba[0]) == 1:
+                output += "\n# Flake probability: {0:.1f}% (neural network)\n".format(pred_proba[1] * 100)
+
+    # The new model
+    if model:
+        result = model.predict([ item ])[0]
+        if result:
+            cluster = model.clusters[result[0]]
+            analysis = cluster.analyze()
+            merged = analysis["merged"][0]
+            print(repr(merged))
+            if merged[0] is None:
+                output += "\n# Flake unknown {0:.1f}% (clustering)\n".format(merged[1] * 100)
+            elif merged[0]:
+                output += "\n# Flake likely {0:.1f}% (clustering)\n".format(merged[1] * 100)
+            else:
+                output += "\n# Flake unlikely {0:.1f}% (clustering)\n".format(merged[1] * 100)
+            if analysis["trackers"]:
+                tracker = analysis["trackers"][0]
+                output += "\n# Flake tracked {0} likelyhood {1:.1f} (clustering)\n".format(tracker[0], tracker[1])
 
     return output
 

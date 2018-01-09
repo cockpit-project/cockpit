@@ -19,7 +19,7 @@
         window.addEventListener("message", function(event) {
             if (event.data == "child-done") {
                 child_done = true;
-                maybe_done();
+                window.setTimeout(maybe_done, 0);
             }
         });
 

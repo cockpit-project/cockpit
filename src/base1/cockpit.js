@@ -1446,21 +1446,24 @@ function factory() {
     };
 
     cockpit.format_number = function format_number(number) {
-        /* non-zero values should never appear zero */
-        if (number > 0 && number < 0.1)
-            number = 0.1;
-        else if (number < 0 && number > -0.1)
-            number = -0.1;
-
         /* TODO: Make the decimal separator translatable */
 
-        /* only show as integer if we have a natural number */
+        /* We show 3 digits of precison but avoid scientific notation.
+         * We also show integers without digits after the comma.
+         */
+
         if (!number && number !== 0)
             return "";
         else if (number % 1 === 0)
             return number.toString();
+        else if (number > 0 && number <= 0.001)
+            return "0.001";
+        else if (number < 0 && number >= -0.001)
+            return "-0.001";
+        else if (number > 999 || number < -999)
+            return number.toFixed(0);
         else
-            return number.toFixed(1);
+            return number.toPrecision(3);
     };
 
     function format_units(number, suffixes, factor, separate) {

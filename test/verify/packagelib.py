@@ -163,9 +163,9 @@ rm -rf ~/rpmbuild
         for ((pkg, ver, rel), info) in self.updateInfo.items():
             refs = ""
             for b in info.get("bugs", []):
-                refs += '      <reference href="https://bugs.example.com?bug={0}" id="{0}" type="bugzilla"/>\n'.format(b)
+                refs += '      <reference href="https://bugs.example.com?bug={0}" id="{0}" title="Bug#{0} Description" type="bugzilla"/>\n'.format(b)
             for c in info.get("cves", []):
-                refs += '      <reference href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={0}" id="{0}" type="cve"/>\n'.format(c)
+                refs += '      <reference href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={0}" id="{0}" title="{0}" type="cve"/>\n'.format(c)
 
             xml += '''  <update from="test@example.com" status="stable" type="{severity}" version="2.0">
     <id>UPDATE-{pkg}-{ver}-{rel}</id>

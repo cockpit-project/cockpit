@@ -35,6 +35,7 @@ BOTS = os.path.join(os.path.dirname(__file__), "..")
 class Sink(object):
     def __init__(self, host, identifier, status=None):
         self.attachments = tempfile.mkdtemp(prefix="attachments.", dir="/var/tmp")
+        os.environ["TEST_ATTACHMENTS"] = self.attachments
         self.status = status
 
         # Start a gzip and cat processes
@@ -53,7 +54,7 @@ class Sink(object):
         os.dup2(self.ssh.stdin.fileno(), 2)
 
     def attach(self, filename):
-        shutil.move(filename, self.attachments)
+        shutil.copy(filename, self.attachments)
 
     def flush(self, status=None):
         assert self.ssh is not None

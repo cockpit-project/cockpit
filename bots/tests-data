@@ -23,8 +23,9 @@ import gzip
 import json
 import os
 import re
-import sys
+import socket
 import subprocess
+import sys
 import time
 import urllib.parse
 import urllib.request, urllib.error, urllib.parse
@@ -36,7 +37,7 @@ sys.dont_write_bytecode = True
 import task
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
-SEEDED = { }
+SEEDED = set()
 SINKS = { }
 
 def main():
@@ -66,6 +67,12 @@ def main():
     else:
         output = None
 
+    def write(**kwargs):
+        line = json.dumps(kwargs).encode('utf-8') + b"\n"
+        os.write(1, line)
+        if output:
+            output.write(line)
+
     # Iterate through all revisions, pull requests on this branch
     for (commit, merged, created, pull) in commits("master", pulls, since, opts.verbose):
         logged = False
@@ -75,40 +82,21 @@ def main():
             if opts.verbose:
                 sys.stderr.write("  - {0} {1}\n".format(created, context))
             for (status, name, body, tracker) in tap(log):
-                line = json.dumps({
-                    "pull": pull,
-                    "revision": commit,
-                    "status": status,
-                    "context": context,
-                    "date": created,
-                    "merged": merged,
-                    "test": name,
-                    "url": url,
-                    "tracker": tracker,
-                    "log": body
-                }).encode('utf-8') + b"\n"
-                os.write(1, line)
-                if output:
-                    output.write(line)
+                write(pull=pull, revision=commit, status=status,
+                      context=context, date=created, merged=merged,
+                      test=name, url=url, tracker=tracker, log=body)
+                logged = True
+
+            # Nothing found for this log
+            if not logged:
+                write(pull=pull, revision=commit, status="unknown", date=created,
+                      merged=merged, url=url, log=log)
                 logged = True
 
         # Nothing found for this revision
         if not logged:
-            line = json.dumps({
-                "pull": pull,
-                "revision": commit,
-                "status": "unknown",
-                "context": context,
-                "date": created,
-                "merged": merged,
-                "test": None,
-                "url": None,
-                "log": None,
-                "tracker": None,
-            }).encode('utf-8') + b"\n"
-            os.write(1, line)
-            if output:
-                output.write(line)
+            write(pull=pull, revision=commit, status="unknown", date=created, merged=merged)
+            logged = True
 
     sys.stdout.flush()
     if output:
@@ -228,6 +216,8 @@ def links(url):
             raise
     except urllib.error.URLError as ex:
         sys.stderr.write("{0}: {1}\n".format(url, ex))
+    except socket.gaierror as ex:
+        sys.stderr.write("{0}: {1}\n".format(url, ex))
     return result
 
 # Parses seed input data and passes it through to output
@@ -252,17 +242,23 @@ def seed(since, fp, pulls, output):
         # wo don't treat the last pull request as completely seeded
         pull = item.get("pull")
         if pull and pull != seeded:
-            SEEDED[seeded] = True
+            SEEDED.add(seeded)
             seeded = None
 
         if pull and item["merged"] not in [ True, False ]:
             item["merged"] = pulls.merged(pull)
 
+        # Note that we've already retrieved this URL
+        url = item.get("url")
+        if url and item.get("log") is not None:
+            SEEDED.add(url)
+            SEEDED.add(urllib.parse.urljoin(url, "./"))
+
         # If the pull request had a known merged value it can be seeded
         # This forces us to retrieve data about open pull requests again
         if item["merged"] in [ True, False ]:
             seeded = pull
-            SEEDED[item["revision"]] = True
+            SEEDED.add(item["revision"])
 
         date = item.get("date")
         if not date or since > time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%SZ")):
@@ -328,10 +324,6 @@ def revisions(pull):
     # All the revisions we've seen
     seen = set([ head ])
 
-    # Ignore these sink urls. See below. This is an optimization.
-    # We don't need to retrieve the sink /status page for the head revision
-    ignore = set()
-
     # Seed the set of sinks. We use these sinks to figure out additional
     # revisions for the pull request. Unfortunately GitHub doesn't help us
     # with a list of revisions that this pull request used to reflect. So
@@ -340,7 +332,7 @@ def revisions(pull):
     for status in data.get("statuses", [ ]):
         url = status["target_url"]
         if url:
-            ignore.add(urllib.parse.urljoin(url, "./"))
+            SEEDED.add(urllib.parse.urljoin(url, "./"))
             sink = urllib.parse.urljoin(url, "../")
             if sink not in SINKS:
                 SINKS[sink] = links(sink)
@@ -350,13 +342,13 @@ def revisions(pull):
     for sink in SINKS:
         for link in SINKS[sink]:
 
-            # Ignore links back to an already parsed and seen sink output
-            if link in ignore:
-                continue
-
             # We only care about stuff at the sink where pull-XXXX is in
             # the URL. This is how we figure out whether things are related
             if name not in link:
+                continue
+
+            # Already retrieved this one
+            if link in SEEDED:
                 continue
 
             # Build a URL for the cockpituous sink /status file and read it
@@ -390,18 +382,27 @@ def logs(revision):
         count = 0
         for status in data.get("statuses", [ ]):
             count += 1
-            if status["state"] not in [ "success", "failure" ]:
+            if status["state"] in [ "pending" ]:
                 continue
             target = status["target_url"]
             if target.endswith(".html"):
                 target = target[:-5]
+            if target in SEEDED:
+                continue
+            log = None
             try:
-                yield (status["context"], status["created_at"], target, retrieve(target))
+                log = retrieve(target)
             except urllib.error.HTTPError as ex:
                 if ex.code != 404:
                     raise
+                log = ""
             except urllib.error.URLError as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
+            except socket.gaierror as ex:
+                sys.stderr.write("{0}: {1}\n".format(target, ex))
+            if log is not None:
+                yield (status["context"], status["created_at"], target, log)
+
 
 # Generate (status, name, body, tracker) for each Test Anything Protocol test
 # in the content.

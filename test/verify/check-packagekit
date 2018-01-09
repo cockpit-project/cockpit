@@ -330,6 +330,31 @@ class TestUpdates(PackageCase):
         # should only have one button (only security updates)
         self.assertEqual(b.text("#app .container-fluid button"), "Install Security Updates")
 
+        # security fix without CVE URLs
+        # PackageKit's dnf backend does not recognize this (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+        # and PackageKit's deb backend does not know about severity at all, so only test this on RPM
+        if self.backend == "yum":
+            self.createPackage("secnocve", "1", "1", install=True)
+            self.createPackage("secnocve", "1", "2", severity="security", changes="Fix leak")
+            self.enableRepo()
+            # check for updates
+            b.wait_in_text(".content-header-extra td button", "Check for Updates")
+            b.click(".content-header-extra td button")
+            b.wait_present("#available h2")
+            b.wait_in_text("#available h2", "Available Updates")
+            b.wait_in_text("#state", "2")
+
+            b.wait_present("table.listing-ct")
+            b.wait_in_text("table.listing-ct", "secnocve")
+
+            # secnocve should be displayed properly
+            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) th span"), "secnocve")
+            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(1)"), "1-2")
+            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(2)"), "")
+            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3) span.security-label-text"),
+                             "Security Update")
+            self.assertIn("Fix leak", b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3)"))
+
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     def testInfoTruncation(self):
         b = self.browser
@@ -671,16 +696,6 @@ class TestAutoUpdates(PackageCase):
 
         # Disable Subscription Manager for these tests; subscriptions are tested in a separate class
         self.machine.execute("[ ! -f /usr/libexec/rhsmd ] || mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
-
-        # expected backend; hardcode this on image names to check the auto-detection
-        if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
-            self.backend = "apt"
-        elif self.machine.image.startswith("fedora"):
-            self.backend = "dnf"
-        elif self.machine.image in ["centos-7", "rhel-7", "rhel-7-4", "rhel-7-5"]:
-            self.backend = "yum"
-        else:
-            raise NotImplementedError("unknown image " + self.machine.image)
 
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]

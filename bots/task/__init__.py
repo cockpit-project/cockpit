@@ -24,6 +24,7 @@
 import argparse
 import os
 import random
+import shutil
 import socket
 import subprocess
 import sys
@@ -420,3 +421,7 @@ def comment(issue, comment):
     except TypeError:
         number = issue
     return api.post("issues/{0}/comments".format(number), { "body": comment })
+
+def attach(filename):
+    if "TEST_ATTACHMENTS" in os.environ:
+        shutil.copy(filename, os.environ["TEST_ATTACHMENTS"])

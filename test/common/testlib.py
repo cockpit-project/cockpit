@@ -1048,10 +1048,12 @@ class TapRunner(object):
         cmd = [ "tests-policy", testvm.DEFAULT_IMAGE ]
         try:
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            (output, error) = proc.communicate(output)
+            (changed, unused) = proc.communicate(output)
+            if proc.returncode == 0:
+                output = changed
         except OSError as ex:
             if ex.errno != errno.ENOENT:
-                sys.stderr.write("Couldn't check known issue: {0}\n".format(str(ex)))
+                sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))
 
         # Write the output
         sys.stdout.write(output)

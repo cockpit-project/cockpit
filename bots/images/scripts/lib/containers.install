@@ -23,7 +23,7 @@ touch /etc/resolv.conf
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 
-for NAME in kubernetes
+for NAME in kubernetes bastion
 do
     mkdir -p "/var/tmp/containers/$NAME/rpms"
     cp -f /var/tmp/build-results/*.rpm "/var/tmp/containers/$NAME/rpms/"

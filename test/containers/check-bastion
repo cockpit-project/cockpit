@@ -1,0 +1,158 @@
+#!/usr/bin/python2
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+
+import os
+import sys
+
+base_dir = os.path.dirname(os.path.realpath(__file__))
+test_dir = os.path.abspath(os.path.join(base_dir, ".."))
+
+try:
+    import testlib
+except:
+    sys.path.append(test_dir)
+
+from common.testlib import *
+from common.testvm import VirtMachine
+
+AUTH_KEY = os.path.join(test_dir, "containers/files/enc_rsa")
+PUB_AUTH_KEY = "{}.pub".format(AUTH_KEY)
+
+class BastionContainerMachine(VirtMachine):
+
+    def start_cockpit(self, *args, **kwargs):
+        extra = ""
+        if kwargs.get("key_based"):
+            extra = " -e COCKPIT_SSH_KEY_PATH='/var/secret/enc_rsa' -v /tmp/enc_rsa:/var/secret/enc_rsa"
+            self.upload([AUTH_KEY], "/tmp")
+
+        self.execute("""#!/bin/sh
+            # HACK: docker fails to start a container without /etc/resolv.conf
+            test -f /etc/resolv.conf || touch /etc/resolv.conf
+            systemctl start docker
+            # HACK: Allow container to talk to the host
+            iptables -I INPUT 4 -i docker0 -j ACCEPT
+            /usr/bin/docker run -d -e G_MESSAGES_DEBUG=all -e COCKPIT_SSH_ALLOW_UNKNOWN=1{} -p 9090:9090 cockpit/bastion /usr/libexec/cockpit-ws --no-tls
+            """.format(extra))
+        self.wait_for_cockpit_running(seconds=180)
+
+class TestBastion(MachineCase):
+    machine_class = BastionContainerMachine
+
+    provision = {
+        "machine1": { "address": "10.111.113.1/20" },
+    }
+
+    def approve_key(self, b):
+        b.wait_visible("#conversation-input")
+        b.wait_visible("#conversation-message")
+        b.wait_in_text("#conversation-message", "authenticity of host")
+        b.wait_visible("#login-button")
+        b.click("#login-button")
+
+    def testKeyLogin(self):
+        m = self.machine
+        b = self.browser
+
+        m.start_cockpit(key_based=True)
+
+        b.open("/")
+        b.wait_visible("#login")
+        b.wait_not_visible("#option-group")
+        b.wait_visible("#server-field")
+        b.wait_text("#server-name", "Cockpit Bastion")
+
+        # Requires a host
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click("#login-button")
+
+        b.wait_in_text("#login-error-message", "host to connect")
+        b.wait_visible("#login-button")
+
+        # With a url, host is already there
+        b.open("/=10.111.113.1")
+        b.wait_visible("#login")
+        b.wait_visible("#option-group")
+        b.wait_not_visible("#server-field")
+        b.wait_text("#server-name", "10.111.113.1")
+
+        # The machine pw doesn't work
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click("#login-button")
+        b.wait_text_not("#login-error-message", "")
+        b.wait_visible("#login-button")
+
+        # The key is not authorized
+        b.set_val("#login-password-input", "fubar")
+        b.click("#login-button")
+        self.approve_key(b)
+        b.wait_text_not("#login-error-message", "")
+        b.wait_visible("#login-button")
+
+        m.execute("mkdir -p /home/admin/.ssh")
+        m.execute("chown admin /home/admin/.ssh")
+
+        m.upload([PUB_AUTH_KEY], "/home/admin/.ssh/authorized_keys")
+
+        # works with authorized key
+        b.set_val("#login-password-input", "fubar")
+        b.click("#login-button")
+        self.approve_key(b)
+
+        b.expect_load()
+        b.wait_present("#content")
+        b.wait_text("#content-user-name", "Administrator")
+        b.logout()
+
+    def testBasicLogin(self):
+        m = self.machine
+        b = self.browser
+
+        m.start_cockpit()
+        b.open("/")
+
+        b.open("/")
+        b.wait_visible("#login")
+        b.wait_not_visible("#option-group")
+        b.wait_visible("#server-field")
+        b.wait_text("#server-name", "Cockpit Bastion")
+
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "fubar")
+        b.set_val("#server-field", "10.111.113.1")
+        b.click("#login-button")
+        self.approve_key(b)
+        b.wait_text_not("#login-error-message", "")
+        b.wait_visible("#login-button")
+
+        b.set_val("#login-password-input", "foobar")
+        b.click("#login-button")
+        self.approve_key(b)
+
+        b.expect_load()
+        b.wait_present("#content")
+        b.wait_text("#content-user-name", "Administrator")
+        b.logout()
+
+if __name__ == '__main__':
+    test_main()

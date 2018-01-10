@@ -119,7 +119,7 @@ def prepare_install_image(base_image):
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):
     install = do_install
-    if args.containers:
+    if args.containers and not do_build:
         do_install = False
 
     skips = list(skips or [])

@@ -252,6 +252,7 @@ static void
 add_page_to_environment (JsonObject *object)
 {
   static gint page_login_to = -1;
+  gboolean require_host = FALSE;
   JsonObject *page;
   const gchar *value;
 
@@ -268,7 +269,10 @@ add_page_to_environment (JsonObject *object)
                                                       G_FILE_TEST_IS_EXECUTABLE));
     }
 
+  require_host = cockpit_conf_bool ("WebService", "RequireHost", FALSE);
+
   json_object_set_boolean_member (page, "connect", page_login_to);
+  json_object_set_boolean_member (page, "require_host", require_host);
   json_object_set_object_member (object, "page", page);
 }
 

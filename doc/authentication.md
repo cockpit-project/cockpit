@@ -25,47 +25,69 @@ The command is then responsible to:
 The default command is ```cockpit-session``` it is able to handle basic and gssapi
 authentication.
 
-The command will be called with a single argument which is the host that the user
-is connecting to.
+Authentication commands are called with a single argument which is the host that the user
+is connecting to. They communicate with their parent process using the cockpit protocal on
+stdin and stdout.
 
-cockpit-ws will then send contents of the Authorization http header, without the
-auth scheme, on a special authentication fd to the command. For ```basic```
-and ```negotiate``` auth schemes the data will be base64 decoded before sending. For
-any other auth schemes. The data will be untouched.
+Credentials can then be retrived by issuing a authorize command with a challenge. The challenge
+should correspond to the authorization type in header (ei: Basic or Bearer). For example:
 
-Once the command has processed the credentials it MUST write a JSON response to the
-same authentication fd. Cockpit opens this fd using SOCK_SEQPACKET so messages can be
-sent and received in one operation. Each message should be no more than 65536 bytes.
 
-By default the special authentication fd is fd #3. If your command needs to use a
-different FD for some reason you may add a ```authFD``` option to your auth schema
-configuration. The configured number must be greater than 2 and less than 1024.
+```
+{
+    "command": "authorize",
+    "cookie": "cookie",
+    "challenge": "*"
+}
+```
+
+The response will look something like this
+
+```
+{
+    "command": "authorize",
+    "cookie": "cookie",
+    "response": "Basic dXNlcjpwYXNzd29yZAo=",
+}
+```
+
+A ```*``` challenge requests whatever credentials the parent process has. Most auth commands will want to begin by issuing a ```*``` challenge. 
 
 By default cockpit-ws will wait a maximum of 30 seconds to receive this response.
 The number of seconds to wait can be adjusted by adding a timeout parameter along
 side the auth schema configuration in your config file. The given value should be
 a number between 1 and 900.
 
-If more information is needed the command should respond with a json object containing
-a ```prompt``` string. These message will be displayed to the user and the user will be
-prompted for a response. If the user does not respond within 60 seconds the command will be
-closed and the login aborted. The number of seconds to wait can be adjusted by adding a
-response-timeout parameter along side the auth schema configuration in your config file.
-The given value should be a number between 1 and 900.
+If more information is needed the command should respond with a ```X-Conversation``` challenge.
+This takes the following format.
 
-An error response should contain the following fields:
+```
+X-Conversation nonce base64(prompt message)
+```
 
- * problem: Values of ```authentication-failed```, ```authentication-unavailable``` or ```access-denied``` are translated to the appropriate cockpit error codes. Any other values are treated as generic errors
- * message: Optional text with more details about the error.
+The message will be displayed to the user and the user will be prompted for a response.
+If the user does not respond within 60 seconds the command will be closed and the login
+aborted. The number of seconds to wait can be adjusted by adding a response-timeout parameter
+along side the auth schema configuration in your config file. The given value should be a
+number between 1 and 900.
 
-A successful response must contain a ```user``` field with the user
-name of the user that was just logged in. Additional fields may be present.
+Once a result is known a "init" command should be sent. If the login was succussful you can usually
+just let the bridge do this.
 
-If a successful response contains a ```login-data``` field and that field contains a valid
-json object that object will be included in the HTTP response sent to client.
+If the login was not sucessful the JSON should include a problem field. Values of
+```authentication-failed```, ```authentication-unavailable``` or ```access-denied```
+are translated to the appropriate cockpit error codes. Any other values are treated
+as generic errors. Additionally a message field may be included as well.
 
-Once the response has been sent fd #3 should be closed and a bridge should be launched
-speaking the cockpit protocol on stdin and stdout.
+If an process exits without sending a init command, that will be treated as an internal error.
+
+If the authentication command has additional data that it would like to return with a successful response
+it can do so by sending a ```x-login-data``` challenge. The command should have an additional JSON field
+```login-data```. The string placed there will be returned by along with a successful json response.
+
+For a simple python example see:
+
+[https://github.com/cockpit-project/cockpit/blob/master/containers/bastion/cockpit-auth-ssh-key]
 
 # Remote machines
 
@@ -119,4 +141,3 @@ The following environment variables are used to set options for the ```cockpit-s
  * **COCKPIT_SSH_KNOWN_HOSTS_FILE** Path to knownhost files. Defaults to ```PACKAGE_SYSCONF_DIR/ssh/ssh_known_hosts```
  * **COCKPIT_SSH_KNOWN_HOSTS_DATA** Known host data to validate against or '*' to skip validation```
  * **COCKPIT_SSH_BRIDGE_COMMAND** Command to launch after a ssh connection is established. Defaults to ```cockpit-bridge``` if not provided.
- * **KRB5CCNAME** Kerberos credentials cache name. Not set when no active kerberos session is active.

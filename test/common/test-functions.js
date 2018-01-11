@@ -67,7 +67,9 @@ function ph_text (sel)
     var el = ph_find(sel);
     if (el.textContent === undefined)
         throw sel + " can not have text";
-    return el.textContent;
+    // 0xa0 is a non-breakable space, which is a rendering detail of Chromium
+    // and awkward to handle in tests; turn it into normal spaces
+    return el.textContent.replace(/\xa0/g, " ")
 }
 
 function ph_attr (sel, attr)

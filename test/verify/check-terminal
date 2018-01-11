@@ -61,7 +61,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         wait_line(n, "$")
 
         # cut trailing non-breaking spaces
-        prompt = b.text(line_sel(n)).rstrip(u'\xa0')
+        prompt = b.text(line_sel(n)).rstrip()
 
         # Make sure we are started in home directory
         # Account for non-standard prompting

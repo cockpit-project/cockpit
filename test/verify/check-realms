@@ -296,7 +296,7 @@ class TestKerberos(MachineCase):
         # run kinit and see if got forwarded the kerberos ticket into the session
         b.key_press("klist\r")
         wait_prompt(b, 2)
-        text = b.text(line_sel(2)).replace(u"\xa0", " ").strip()
+        text = b.text(line_sel(2)).strip()
         self.assertIn("Ticket cache", text)
 
         # Now connect to another machine

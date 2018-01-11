@@ -235,6 +235,10 @@ class PullTask(object):
             cmd += [ "--containers" ]
         cmd += [ "--verbose" ]
 
+        # Flush our own output before invoking the command
+        sys.stdout.flush()
+        sys.stderr.flush()
+
         try:
             # Do the basic prepare
             subprocess.check_call(cmd + [ image ])
@@ -357,6 +361,10 @@ class PullTask(object):
         # Prepare the image to run
         if not ret:
             ret = self.prepare(prefix, value, image, opts.verbose)
+
+        # Flush our own output before running command
+        sys.stdout.flush()
+        sys.stderr.flush()
 
         # Actually run the tests
         if not ret:

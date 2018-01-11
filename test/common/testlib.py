@@ -93,7 +93,7 @@ class Browser:
             self.port = port
         self.default_user = "admin"
         self.label = label
-        self.cdp = cdp.CDP("C.utf8", headless, trace=opts.trace)
+        self.cdp = cdp.CDP("C.utf8", headless, verbose=opts.trace, trace=opts.trace)
         self.password = "foobar"
 
     def title(self):

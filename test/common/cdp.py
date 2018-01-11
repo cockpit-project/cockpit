@@ -46,11 +46,12 @@ def jsquote(str):
 
 
 class CDP:
-    def __init__(self, lang=None, headless=True, trace=False, inject_helpers=True):
+    def __init__(self, lang=None, headless=True, verbose=False, trace=False, inject_helpers=True):
         self.lang = lang
         self.timeout = 60
         self.valid = False
         self.headless = headless
+        self.verbose = verbose
         self.trace = trace
         self.inject_helpers = inject_helpers
         self._driver = None
@@ -170,9 +171,13 @@ class CDP:
 
             # sandboxing does not work in Docker container
             self._browser = subprocess.Popen(
-                argv + ["--disable-gpu", "--no-sandbox", "--remote-debugging-port=%i" % cdp_port, "about:blank"],
+                argv + ["--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
+                    "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
+                    "--disable-sandbox-denial-logging",
+                    "--remote-debugging-port=%i" % cdp_port, "about:blank"],
                 env=environ, close_fds=True)
-            sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))
+            if self.verbose:
+                sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))
 
         # wait for CDP to be up
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -213,7 +218,8 @@ class CDP:
             self._driver = None
 
         if self._browser:
-            sys.stderr.write("Killing browser (pid %i)\n" % self._browser.pid)
+            if self.verbose:
+                sys.stderr.write("Killing browser (pid %i)\n" % self._browser.pid)
             try:
                 self._browser.terminate()
             except OSError:

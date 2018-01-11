@@ -400,8 +400,6 @@ PageServer.prototype = {
                                      '/org/freedesktop/hostname1');
         self.kernel_hostname = null;
 
-        var series;
-
         /* CPU graph */
 
         var cpu_data = {
@@ -418,7 +416,7 @@ PageServer.prototype = {
                                     });
         self.cpu_plot = plot.plot($("#server_cpu_graph"), 300);
         self.cpu_plot.set_options(cpu_options);
-        series = self.cpu_plot.add_metrics_sum_series(cpu_data, { });
+        // This is added to the plot once we have the machine info, see below.
 
         /* Memory graph */
 
@@ -439,7 +437,7 @@ PageServer.prototype = {
 
         self.memory_plot = plot.plot($("#server_memory_graph"), 300);
         self.memory_plot.set_options(memory_options);
-        series = self.memory_plot.add_metrics_sum_series(memory_data, { });
+        self.memory_plot.add_metrics_sum_series(memory_data, { });
 
         /* Network graph */
 
@@ -469,7 +467,7 @@ PageServer.prototype = {
 
         self.network_plot = plot.plot($("#server_network_traffic_graph"), 300);
         self.network_plot.set_options(network_options);
-        series = self.network_plot.add_metrics_sum_series(network_data, { });
+        self.network_plot.add_metrics_sum_series(network_data, { });
 
         /* Disk IO graph */
 
@@ -499,12 +497,15 @@ PageServer.prototype = {
 
         self.disk_plot = plot.plot($("#server_disk_io_graph"), 300);
         self.disk_plot.set_options(disk_options);
-        series = self.disk_plot.add_metrics_sum_series(disk_data, { });
+        self.disk_plot.add_metrics_sum_series(disk_data, { });
 
         machine_info().
             done(function (info) {
-                cpu_options.yaxis.max = info.cpus * 100;
-                self.cpu_plot.set_options(cpu_options);
+                $('#link-cpu').text(cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores",
+                                                                    info.cpus),
+                                                   info.cpus));
+                cpu_data.factor = 0.1 / info.cpus; // millisec / sec -> percent
+                self.cpu_plot.add_metrics_sum_series(cpu_data, { });
                 memory_options.yaxis.max = info.memory;
                 self.memory_plot.set_options(memory_options);
             });
@@ -1319,15 +1320,17 @@ PageCpuStatus.prototype = {
     enter: function() {
         var self = this;
 
+        var n_cpus = 1;
+
         var options = {
             series: {shadowSize: 0,
                      lines: {lineWidth: 0, fill: true}
                     },
             yaxis: {min: 0,
-                    max: 100,
+                    max: n_cpus * 1000,
                     show: true,
                     ticks: 5,
-                    tickFormatter: function(v) { return (v / 10) + "%"; }},
+                    tickFormatter: function(v) { return (v / 10 / n_cpus) + "%"; }},
             xaxis: {show: true,
                     ticks: [[0.0*60, "5 min"],
                             [1.0*60, "4 min"],
@@ -1373,7 +1376,13 @@ PageCpuStatus.prototype = {
 
         machine_info().
             done(function (info) {
-                self.plot.set_yaxis_max(info.cpus * 1000);
+                // Setting n_cpus changes the tick labels, see tickFormatter above.
+                n_cpus = info.cpus;
+                self.plot.set_yaxis_max(n_cpus * 1000);
+                $("#cpu_status_title").text(cockpit.format(cockpit.ngettext("Usage of $0 CPU core",
+                                                                            "Usage of $0 CPU cores",
+                                                                            n_cpus),
+                                                           n_cpus));
             });
     },
 

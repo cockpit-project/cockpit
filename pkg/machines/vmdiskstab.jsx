@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
+import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { toGigaBytes } from './helpers.es6';
@@ -107,86 +107,129 @@ const DiskStatsUnsupported = ({ vmId }) => {
     );
 };
 
-const VmDisksTab = ({ vm, provider }) => {
-    if (!vm.disks || Object.getOwnPropertyNames(vm.disks).length === 0) {
-        return (<div>{_("No disks defined for this VM")}</div>);
-    }
-
-    /* Possible states for disk stats:
-        available ~ already read
-        supported, but not available yet ~ will be read soon
-        unsupported ~ failed attempt to read (old libvirt)
-     */
-    let areDiskStatsSupported = false;
-    if (vm.disksStats) {
-        // stats are read/supported if there is a non-NaN stat value
-        areDiskStatsSupported = !!Object.getOwnPropertyNames(vm.disksStats).some(target => {
-            if (!vm.disksStats[target]) {
-                return false; // not yet retrieved, can't decide about disk stats support
-            }
-            return !isNaN(vm.disksStats[target].capacity) || !isNaN(vm.disksStats[target].allocation);
-        });
-    }
-
-    const columnTitles = [_("Device"), _("Target")];
-    if (areDiskStatsSupported) {
-        columnTitles.push(_("Used"));
-        columnTitles.push(_("Capacity"));
-    }
-    columnTitles.push(_("Bus"));
-    columnTitles.push(_("Readonly"));
-    columnTitles.push(_("Source"));
-
-    if (provider.vmDisksColumns) { // External Provider might extend the list of columns
-        // expected: an array of [{title, index, valueProvider: ({ vm, diskTarget }) => {return "String or React Component";}}, ...]
-        provider.vmDisksColumns.forEach(column => {
-            columnTitles.splice(column.index, 0, column.title);
-        });
-    }
-
-    const actions = (provider.vmDisksActionsFactory instanceof Function) ?
-        provider.vmDisksActionsFactory({vm}) : undefined; // listing-wide actions
-
-    const vmId=`vm-${vm.name}`;
-
-    return (
-        <div>
-            <DiskTotal disks={vm.disks} vmId={vmId} />
-            <Listing columnTitles={columnTitles} actions={actions}>
-                {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
-                    const disk = vm.disks[target];
-                    const disksStats = vm.disksStats ? vm.disksStats[target] : undefined;
-                    const used = disksStats ? disksStats.allocation : undefined;
-                    const capacity = disksStats ? disksStats.capacity : undefined;
-
-                    const columns = [
-                        {name: <DiskDevice disk={disk} vmId={vmId}/>, 'header': true},
-                        <DiskTarget disk={disk} vmId={vmId}/>
-                    ];
-                    if (areDiskStatsSupported) {
-                        columns.push(<StorageUnit value={used} id={`${vmId}-disks-${disk.target}-used`}/>);
-                        columns.push(<StorageUnit value={capacity} id={`${vmId}-disks-${disk.target}-capacity`}/>);
-                    }
-                    columns.push(<DiskBus disk={disk} vmId={vmId} />);
-                    columns.push(disk.readonly ? _("yes") : _("no"));
-                    columns.push(<DiskSource disk={disk} vmId={vmId} />);
-
-                    if (provider.vmDisksColumns) { // optional External Provider extension
-                        provider.vmDisksColumns.forEach(column => {
-                            columns.splice(column.index, 0, column.valueProvider({ vm, diskTarget: target}));
-                        });
-                    }
-
-                    return (<ListingRow columns={columns}/>);
-                })}
-            </Listing>
-
-            {areDiskStatsSupported || <DiskStatsUnsupported vmId={vmId} />}
-        </div>
+const DiskStatsUnavailable = ({ vmId }) => {
+    return ( // no particular need to use the Listing component, but shares look&feel across other parts of Cockpit
+        <Listing columnTitles={[]}
+                 emptyCaption={
+                     <div id={`${vmId}-disksstats-unavailable`}>
+                         {_("Start the VM to see disk statistics.")}
+                     </div>}
+        />
     );
 };
+
+class VmDisksTab extends React.Component {
+    componentWillMount () {
+        this.props.onUsageStartPolling();
+    }
+
+    componentWillUnmount () {
+        this.props.onUsageStopPolling();
+    }
+
+    /**
+     * Returns true, if disk statistics are retrieved.
+     */
+    getDiskStatsSupport (vm) {
+        /* Possible states for disk stats:
+            available ~ already read
+            supported, but not available yet ~ will be read soon
+            unsupported ~ failed attempt to read (old libvirt)
+         */
+        let areDiskStatsSupported = false;
+        if (vm.disksStats) {
+            // stats are read/supported if there is a non-NaN stat value
+            areDiskStatsSupported = !!Object.getOwnPropertyNames(vm.disksStats).some(target => {
+                if (!vm.disksStats[target]) {
+                    return false; // not yet retrieved, can't decide about disk stats support
+                }
+                return !isNaN(vm.disksStats[target].capacity) || !isNaN(vm.disksStats[target].allocation);
+            });
+        }
+
+        return areDiskStatsSupported;
+    }
+
+    render () {
+        const { vm, provider } = this.props;
+        const vmId = `vm-${vm.name}`;
+
+        if (!vm.disks || Object.getOwnPropertyNames(vm.disks).length === 0) {
+            return (<div>{_("No disks defined for this VM")}</div>);
+        }
+
+        const areDiskStatsSupported = this.getDiskStatsSupport(vm);
+
+        const columnTitles = [_("Device"), _("Target")];
+        if (areDiskStatsSupported) {
+            columnTitles.push(_("Used"));
+            columnTitles.push(_("Capacity"));
+        }
+        columnTitles.push(_("Bus"));
+        columnTitles.push(_("Readonly"));
+        columnTitles.push(_("Source"));
+
+        if (provider.vmDisksColumns) { // External Provider might extend the list of columns
+            // expected: an array of [{title, index, valueProvider: ({ vm, diskTarget }) => {return "String or React Component";}}, ...]
+            provider.vmDisksColumns.forEach(column => {
+                columnTitles.splice(column.index, 0, column.title);
+            });
+        }
+
+        const actions = (provider.vmDisksActionsFactory instanceof Function) ?
+            provider.vmDisksActionsFactory({vm}) : undefined; // listing-wide actions
+
+        let statsSupportComponent = null;
+        if (!areDiskStatsSupported) {
+            if (vm.status === 'running') {
+                statsSupportComponent = (<DiskStatsUnsupported vmId={vmId} />);
+            } else {
+                statsSupportComponent = (<DiskStatsUnavailable vmId={vmId} />);
+            }
+        }
+
+        return (
+            <div>
+                <DiskTotal disks={vm.disks} vmId={vmId}/>
+                <Listing columnTitles={columnTitles} actions={actions}>
+                    {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
+                        const disk = vm.disks[target];
+                        const disksStats = vm.disksStats ? vm.disksStats[target] : undefined;
+                        const used = disksStats ? disksStats.allocation : undefined;
+                        const capacity = disksStats ? disksStats.capacity : undefined;
+
+                        const columns = [
+                            {name: <DiskDevice disk={disk} vmId={vmId}/>, 'header': true},
+                            <DiskTarget disk={disk} vmId={vmId}/>
+                        ];
+                        if (areDiskStatsSupported) {
+                            columns.push(<StorageUnit value={used} id={`${vmId}-disks-${disk.target}-used`}/>);
+                            columns.push(<StorageUnit value={capacity} id={`${vmId}-disks-${disk.target}-capacity`}/>);
+                        }
+                        columns.push(<DiskBus disk={disk} vmId={vmId}/>);
+                        columns.push(disk.readonly ? _("yes") : _("no"));
+                        columns.push(<DiskSource disk={disk} vmId={vmId}/>);
+
+                        if (provider.vmDisksColumns) { // optional External Provider extension
+                            provider.vmDisksColumns.forEach(column => {
+                                columns.splice(column.index, 0, column.valueProvider({vm, diskTarget: target}));
+                            });
+                        }
+
+                        return (<ListingRow columns={columns}/>);
+                    })}
+                </Listing>
+
+                {statsSupportComponent}
+            </div>
+        );
+    }
+}
 VmDisksTab.propTypes = {
-    vm: React.PropTypes.object.isRequired,
+    vm: PropTypes.object.isRequired,
+    provider: PropTypes.object.isRequired,
+    onUsageStartPolling: PropTypes.func.isRequired,
+    onUsageStopPolling: PropTypes.func.isRequired,
 };
 
 export default VmDisksTab;

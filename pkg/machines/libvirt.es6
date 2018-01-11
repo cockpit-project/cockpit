@@ -264,7 +264,7 @@ LIBVIRT_PROVIDER = {
     USAGE_START_POLLING ({ name, connectionName }) {
         logDebug(`${this.name}.USAGE_START_POLLING(${name}):`);
         return (dispatch => {
-            dispatch(updateVm({ connectionName, name, usagePolling: true}));
+            dispatch(updateVm({ connectionName, name, usagePolling: true }));
             dispatch(doUsagePolling(name, connectionName));
         });
     },
@@ -704,7 +704,7 @@ function buildConsoleVVFile(consoleDetail) {
 function doUsagePolling (name, connectionName) {
     logDebug(`doUsagePolling(${name}, ${connectionName})`);
 
-    const canFailHandler = ({exception, data}) => {
+    const canFailHandler = ({ exception, data }) => {
         console.info(`The 'virsh' command failed, as expected: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
         return cockpit.resolve();
     };
@@ -715,16 +715,19 @@ function doUsagePolling (name, connectionName) {
             return;
         }
 
-        return spawnVirshReadOnly({connectionName, method: 'dommemstat', name, failHandler: canFailHandler})
+        // Do polling even if following virsh calls fails. Might fail i.e. if a VM is not (yet) started
+        dispatch(delayPolling(doUsagePolling(name, connectionName), null, name, connectionName));
+
+        return spawnVirshReadOnly({ connectionName, method: 'dommemstat', name, failHandler: canFailHandler })
             .then(dommemstat => {
                 if (dommemstat) { // is undefined if vm is not running
                     parseDommemstat(dispatch, connectionName, name, dommemstat);
-                    return spawnVirshReadOnly({connectionName, method: 'domstats', name, failHandler: canFailHandler});
+                    return spawnVirshReadOnly({ connectionName, method: 'domstats', name, failHandler: canFailHandler });
                 }
             }).then(domstats => {
                 if (domstats)
                     parseDomstats(dispatch, connectionName, name, domstats);
-            }).then(() => dispatch(delayPolling(doUsagePolling(name, connectionName), null, name, connectionName)));
+            });
     };
 }
 

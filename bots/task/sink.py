@@ -79,7 +79,7 @@ class Sink(object):
         # Send a zero character and send the attachments
         files = os.listdir(self.attachments)
         if len(files):
-            self.ssh.stdin.write('\x00')
+            self.ssh.stdin.write(b'\x00')
             self.ssh.stdin.flush()
             with tarfile.open(name="attachments.tgz", mode="w:gz", fileobj=self.ssh.stdin) as tar:
                 for filename in files:

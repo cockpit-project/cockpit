@@ -243,9 +243,8 @@ class UpdateItem extends React.Component {
 
     render() {
         const info = this.props.info;
-        var bugs = null;
-        var security_info = null;
 
+        var bugs = null;
         if (info.bug_urls && info.bug_urls.length) {
             // we assume a bug URL ends with a number; if not, show the complete URL
             bugs = insertCommas(info.bug_urls.map(url => (
@@ -255,54 +254,82 @@ class UpdateItem extends React.Component {
             ));
         }
 
+        var cves = null;
+        if (info.cve_urls && info.cve_urls.length) {
+            cves = insertCommas(info.cve_urls.map(url => (
+                <a href={url} rel="noopener" referrerpolicy="no-referrer" target="_blank">
+                    {url.match(/[^/=]+$/)}
+                </a>)
+            ));
+        }
+
+        var type;
         if (info.severity === PK_INFO_ENUM_SECURITY) {
-            security_info = (
-                <p>
-                    <span className="fa fa-shield security-label">&nbsp;</span>
-                    <span className="security-label-text">{ _("Security Update") + (info.cve_urls.length ? ": " : "") }</span>
-                    { insertCommas(info.cve_urls.map(url => (
-                        <a href={url} rel="noopener" referrerpolicy="no-referrer" target="_blank">
-                            {url.match(/[^/=]+$/)}
-                        </a>)
-                      )) }
-                </p>
+            type = (
+                <span>
+                    <span className="pficon pficon-security">&nbsp;</span>
+                    { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
+                </span>);
+        } else if (info.severity >= PK_INFO_ENUM_NORMAL) {
+            type = (
+                <span>
+                    <span className="fa fa-bug">&nbsp;</span>
+                    { bugs ? info.bug_urls.length : "" }
+                </span>);
+        } else {
+            type = (
+                <span>
+                    <span className="pficon pficon-enhancement">&nbsp;</span>
+                    { bugs ? info.bug_urls.length : "" }
+                </span>);
+        }
+
+        var pkgList = this.props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>));
+        var pkgs = insertCommas(pkgList);
+        var pkgsTruncated = pkgs;
+        if (pkgList.length > 4)
+            pkgsTruncated = insertCommas(pkgList.slice(0, 4).concat("…"));
+
+        var descriptionFirstLine = (info.description || "").trim();
+        if (descriptionFirstLine.indexOf("\n") >= 0)
+            descriptionFirstLine = descriptionFirstLine.slice(0, descriptionFirstLine.indexOf("\n"));
+
+        var details = null;
+        if (this.state.expanded) {
+            details = (
+                <tr className="listing-ct-panel">
+                    <td colSpan="5">
+                        <div className="listing-ct-body">
+                            <dl>
+                                <dt>Packages:</dt>
+                                <dd>{pkgs}</dd>
+                                { cves ? <dt>CVE:</dt> : null }
+                                { cves ? <dd>{cves}</dd> : null }
+                                { bugs ? <dt>{_("Bugs:")}</dt> : null }
+                                { bugs ? <dd>{bugs}</dd> : null }
+                            </dl>
+
+                            <p></p>
+                            <p className="changelog">{info.description}</p>
+                        </div>
+                    </td>
+                </tr>
             );
         }
 
-        /* truncate long package list by default */
-        var pkgList = this.props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>));
-        var pkgs;
-        if (!this.state.expanded && pkgList.length > 15) {
-            pkgs = (
-                <div onClick={ () => this.setState({expanded: true}) }>
-                    {insertCommas(pkgList.slice(0, 15))}
-                    <a className="info-expander">{ cockpit.format(_("$0 more…"), pkgList.length - 15) }</a>
-                </div>);
-        } else {
-            pkgs = insertCommas(pkgList);
-        }
-
-        /* truncate long description by default */
-        var descLines = (info.description || "").trim().split("\n");
-        var desc;
-        if (!this.state.expanded && descLines.length > 7) {
-            desc = (
-                <div onClick={ () => this.setState({expanded: true}) }>
-                    {descLines.slice(0, 6).join("\n") + "\n"}
-                    <a>{_("More information…")}</a>
-                </div>);
-        } else {
-            desc = info.description;
-        }
-
         return (
-            <tbody>
-                <tr className={ "listing-ct-item" + (info.severity === PK_INFO_ENUM_SECURITY ? " security" : "") }>
-                    <th>{pkgs}</th>
-                    <td className="narrow">{info.version}</td>
-                    <td className="narrow">{bugs}</td>
-                    <td className="changelog">{security_info}{desc}</td>
+            <tbody className={ this.state.expanded ? "open" : null } >
+                <tr className={ "listing-ct-item" + (info.severity === PK_INFO_ENUM_SECURITY ? " security" : "") }
+                    onClick={ () => this.setState({expanded: !this.state.expanded}) }>
+                    <td className="listing-ct-toggle">
+                        <i className="fa fa-fw"></i>
+                    </td>
+                    <th>{pkgsTruncated}</th>
+                    <td className="version">{info.version}</td>
+                    <td className="type">{type}</td>
+                    <td className="changelog">{descriptionFirstLine}</td>
                 </tr>
+                {details}
             </tbody>
         );
     }
@@ -343,9 +370,10 @@ function UpdatesList(props) {
         <table className="listing-ct">
             <thead>
                 <tr>
+                    <th></th>
                     <th>{_("Name")}</th>
                     <th>{_("Version")}</th>
-                    <th>{_("Bugs")}</th>
+                    <th>{_("Severity")}</th>
                     <th>{_("Details")}</th>
                 </tr>
             </thead>

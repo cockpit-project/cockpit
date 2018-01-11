@@ -43,13 +43,21 @@ class TestUpdates(PackageCase):
         # Disable Subscription Manager for these tests; subscriptions are tested in a separate class
         self.machine.execute("[ ! -f /usr/libexec/rhsmd ] || mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
 
-    def check_nth_update(self, index, pkgname, version, bugs=None, security=False, desc_matches=[], cves=[]):
+        # only the yum backend properly recognizes "enhancement" severity; apt
+        # does not have that metadata and PackageKit-dnf does not parse it
+        if self.backend == "yum":
+            self.enhancement_severity = "enhancement"
+        else:
+            self.enhancement_severity = "bug"
+
+    def check_nth_update(self, index, pkgname, version, severity="bug", num_issues=None, desc_matches=[], cves=[], bugs=[]):
         """Check the contents of the package update table row at index
 
         None properties will not be tested.
         """
         b = self.browser
         row = "#app .listing-ct tbody:nth-of-type(%i) " % index
+        severity_to_icon = { "bug": "fa-bug", "enhancement": "pficon-enhancement", "security": "pficon-security" }
 
         if isinstance(pkgname, list):
             for idx, pkg in enumerate(pkgname, 1):
@@ -57,19 +65,23 @@ class TestUpdates(PackageCase):
         else:
             self.assertEqual(b.text(row +"th span"), pkgname)
             self.assertEqual(b.text(row + "th .tooltip-inner"), "dummy " + pkgname)
-        self.assertEqual(b.text(row + "td:nth-of-type(1)"), version)
-        if bugs is not None:
-            self.assertEqual(b.text(row + "td:nth-of-type(2)"), bugs)
-        if security:
-            self.assertEqual(b.text(row + "td:nth-of-type(3) span.security-label-text"),
-                             cves and "Security Update: " or "Security Update")
-        else:
-            self.assertFalse(b.is_present(row + "td:nth-of-type(3) span.security-label-text"))
-        description = b.text(row + "td:nth-of-type(3)")
-        for m in desc_matches:
-            self.assertIn(m, description)
-        for c in cves:
-            self.assertIn(m, description)
+        self.assertEqual(b.text(row + "td:nth-of-type(2)"), version)
+        # verify type
+        self.assertTrue(b.is_present(row + "td:nth-of-type(3) span." + severity_to_icon[severity]))
+        self.assertEqual(b.text(row + "td:nth-of-type(3)").strip(),
+                         num_issues is not None and str(num_issues) or "")
+
+        # should not be expanded by default
+        self.assertFalse(b.is_present(row + ".listing-ct-body"))
+        # expand
+        b.click(row + "td.listing-ct-toggle")
+        b.wait_present(row + ".listing-ct-body")
+        b.wait_in_text(row + ".listing-ct-body", "Packages:")
+        desc = b.text(row + ".listing-ct-body")
+
+        # details should contain all description bits, CVEs and bug numbers
+        for m in desc_matches +  cves + bugs:
+            self.assertIn(m, desc)
 
     def testBasic(self):
         # no security updates, no changelogs
@@ -110,8 +122,8 @@ class TestUpdates(PackageCase):
 
         b.wait_present("table.listing-ct")
         b.wait_in_text("table.listing-ct", "vanilla")
-        self.check_nth_update(1, "chocolate", "2.0-2", bugs="")
-        self.check_nth_update(2, "vanilla", "1.0-2", bugs="")
+        self.check_nth_update(1, "chocolate", "2.0-2")
+        self.check_nth_update(2, "vanilla", "1.0-2")
 
         # old versions are still installed
         m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
@@ -203,16 +215,17 @@ class TestUpdates(PackageCase):
         b.wait_in_text("table.listing-ct", "secparse")
 
         # security updates should get sorted on top and then alphabetically, so start with "secdeclare"
-        self.check_nth_update(1, "secdeclare", "3-4.b1", bugs="", security=True,
+        self.check_nth_update(1, "secdeclare", "3-4.b1", "security", 1,
                               desc_matches=["Will crash your data center"], cves=["CVE-2014-123456"])
         # secparse should also be considered a security update as the changelog mentions CVEs
-        self.check_nth_update(2, "secparse", "4-2", bugs="", security=True,
-                              desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."], cves=["CVE-2014-123456"])
+        self.check_nth_update(2, "secparse", "4-2", "security", 2,
+                              desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."],
+                              cves=["CVE-2014-54321", "CVE-2017-9999"])
         # buggy: bug refs, no security
-        self.check_nth_update(3, "buggy", "2-2", bugs="123, 456", desc_matches=["Fixit"])
+        self.check_nth_update(3, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
         # norefs: just changelog, show both binary packages
-        self.check_nth_update(4, ["norefs-bin", "norefs-doc"], "2-1", bugs="", desc_matches=["Now 10% more unicorns"])
-
+        self.check_nth_update(4, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
+                              desc_matches=["Now 10% more unicorns"])
         # install only security updates
         self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
         b.click("#app .container-fluid button.btn-default")
@@ -345,7 +358,7 @@ class TestUpdates(PackageCase):
             b.wait_in_text("table.listing-ct", "secnocve")
 
             # secnocve should be displayed properly
-            self.check_nth_update(2, "secnocve", "1-2", bugs="", security=True, desc_matches=["Fix leak"])
+            self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
 
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     def testInfoTruncation(self):
@@ -353,12 +366,12 @@ class TestUpdates(PackageCase):
         m = self.machine
 
         # update with not too many binary packages
-        for i in range(8):
+        for i in range(4):
             self.createPackage("coarse{:02}".format(i), "1", "1", install=True)
             self.createPackage("coarse{:02}".format(i), "1", "2", changes="make it greener")
 
         # update with lots of binary packages
-        for i in range(25):
+        for i in range(10):
             self.createPackage("fine{:02}".format(i), "1", "1", install=True)
             self.createPackage("fine{:02}".format(i), "1", "2", changes="make it better")
 
@@ -369,66 +382,38 @@ class TestUpdates(PackageCase):
         self.createPackage("verbose", "1", "1", install=True)
         self.createPackage("verbose", "1", "2", changes=long_changelog)
 
-        # update with lots of packages and long changelog
-        for i in range(20):
-            self.createPackage("wide-n-tall{:02}".format(i), "3", "1", install=True)
-            self.createPackage("wide-n-tall{:02}".format(i), "3", "2", changes=long_changelog)
-
         self.enableRepo()
 
         m.start_cockpit()
         b.login_and_go("/updates")
 
         b.wait_present("table.listing-ct")
-        b.wait_in_text("table.listing-ct", "Things change #05")
+        b.wait_in_text("table.listing-ct", "Things change")
 
         # "coarse" package list should be complete
         t = b.text("#app .listing-ct tbody:nth-of-type(1) th")
         self.assertIn("coarse00", t)
-        self.assertIn("coarse07", t)
-        self.assertNotIn("more", t)
+        self.assertIn("coarse03", t)
+        self.assertNotIn(u"…", t)
 
         # "fine" package list should be truncated
         t = b.text("#app .listing-ct tbody:nth-of-type(2) th")
         self.assertIn("fine00", t)
-        self.assertIn("fine10", t)
-        self.assertNotIn("fine20", t)
-        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th a")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th a", "10 more")
+        self.assertIn("fine03", t)
+        self.assertNotIn("fine09", t)
+        self.assertIn(u"…", t)
+        # but complete in the details
+        self.check_nth_update(2, ["fine00", "fine01", "fine02", "fine03"], "1-2",
+                              desc_matches=["fine07", "fine09"])
 
         # verbose changelog should be truncated
-        t = b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3)")
-        self.assertIn("Things change #00", t)
-        self.assertIn("Things change #04", t)
-        self.assertNotIn("Things change #07", t)
-        self.assertNotIn("Things change #20", t)
-        b.wait_present("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) a")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) a", "More information")
-
-        # wide-n-tall package list and changelog should both be truncated
-        t = b.text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3)")
-        self.assertIn("Things change #04", t)
-        self.assertNotIn("Things change #07", t)
-        b.wait_present("#app .listing-ct tbody:nth-of-type(4) th a")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) th a", "5 more")
-        b.wait_present("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3) a")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3) a", "More information")
-
-        # expand fine package list by clicking on the "more" link
-        b.click("#app .listing-ct tbody:nth-of-type(2) th a")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "fine24")
-        b.wait_not_present("#app .listing-ct tbody:nth-of-type(2) th a")
-
-        # expand verbose changelog by clicking on he truncated text
-        b.click("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) div")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3)", "Things change #29")
-        b.wait_not_present("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3) a")
-
-        # clicking on package list should also expand changelog
-        b.click("#app .listing-ct tbody:nth-of-type(4) th a")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) th", "wide-n-tall19")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3)", "Things change #29")
-        b.wait_not_present("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3) a")
+        desc = b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(4)").strip()
+        desc = desc.lstrip("* ")  # strip off Debian "* " prefix
+        self.assertEqual(desc, u"- Things change #00")
+        # but complete in the details
+        self.check_nth_update(3, "verbose", "1-2",
+                              desc_matches=["Things change #00", "Things change #29"])
+        # seems we can't verify that the description has a scrollbar
 
     def testUpdateError(self):
         b = self.browser

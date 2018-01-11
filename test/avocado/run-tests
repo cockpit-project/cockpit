@@ -76,9 +76,9 @@ def tap_output(machine):
             print(e)
         print("# TEST LOG END -------")
         if test_status == 'PASS':
-            print("ok %s %s %s" % (counter, test_name, test_time_string))
+            print("ok %s %s # %s" % (counter, test_name, test_time_string))
         else:
-            print("not ok %s %s %s" % (counter, test_name, test_time_string))
+            print("not ok %s %s # %s" % (counter, test_name, test_time_string))
         counter = counter + 1
     if len(json_info['tests']) != json_info['pass']:
         print("# %d TESTS FAILED duration: %ds" % (len(json_info['tests']) - json_info['pass'], json_info['time']))

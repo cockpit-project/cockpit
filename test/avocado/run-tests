@@ -218,7 +218,11 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
 
         if not success and sit:
             sys.stderr.write(machine.diagnose() + "\n")
-            raw_input ("Press RET to continue... ")
+            try:
+                input = raw_input
+            except NameError:
+                pass
+            input ("Press RET to continue... ")
 
         return success
     finally:

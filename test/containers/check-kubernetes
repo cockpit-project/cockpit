@@ -23,11 +23,7 @@ import sys
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 test_dir = os.path.abspath(os.path.join(base_dir, ".."))
-
-try:
-    import testlib
-except:
-    sys.path.append(test_dir)
+sys.path.append(test_dir)
 
 from common.testlib import *
 from common.testvm import VirtMachine

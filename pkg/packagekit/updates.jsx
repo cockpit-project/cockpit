@@ -575,6 +575,10 @@ class OsUpdates extends React.Component {
                     u.vendor_urls = vendor_urls;
                     u.bug_urls = deduplicate(bug_urls);
                     u.description = this.formatDescription(update_text || changelog);
+                    // HACK: on yum, cve_urls also contains non-URLs; ignore them, only pick out
+                    // http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
+                    if (cve_urls)
+                        cve_urls = cve_urls.filter(url => url.match(/^https?:\/\//));
                     // many backends don"t support this; parse CVEs from description as a fallback
                     u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
                     if (u.cve_urls && u.cve_urls.length > 0)

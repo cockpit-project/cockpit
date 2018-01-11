@@ -43,6 +43,34 @@ class TestUpdates(PackageCase):
         # Disable Subscription Manager for these tests; subscriptions are tested in a separate class
         self.machine.execute("[ ! -f /usr/libexec/rhsmd ] || mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
 
+    def check_nth_update(self, index, pkgname, version, bugs=None, security=False, desc_matches=[], cves=[]):
+        """Check the contents of the package update table row at index
+
+        None properties will not be tested.
+        """
+        b = self.browser
+        row = "#app .listing-ct tbody:nth-of-type(%i) " % index
+
+        if isinstance(pkgname, list):
+            for idx, pkg in enumerate(pkgname, 1):
+                self.assertEqual(b.text(row + "th > div:nth-of-type(%i) span" % idx), pkg)
+        else:
+            self.assertEqual(b.text(row +"th span"), pkgname)
+            self.assertEqual(b.text(row + "th .tooltip-inner"), "dummy " + pkgname)
+        self.assertEqual(b.text(row + "td:nth-of-type(1)"), version)
+        if bugs is not None:
+            self.assertEqual(b.text(row + "td:nth-of-type(2)"), bugs)
+        if security:
+            self.assertEqual(b.text(row + "td:nth-of-type(3) span.security-label-text"),
+                             cves and "Security Update: " or "Security Update")
+        else:
+            self.assertFalse(b.is_present(row + "td:nth-of-type(3) span.security-label-text"))
+        description = b.text(row + "td:nth-of-type(3)")
+        for m in desc_matches:
+            self.assertIn(m, description)
+        for c in cves:
+            self.assertIn(m, description)
+
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
@@ -82,18 +110,8 @@ class TestUpdates(PackageCase):
 
         b.wait_present("table.listing-ct")
         b.wait_in_text("table.listing-ct", "vanilla")
-
-        # chocolate update to 2.0-2
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) th span"), "chocolate")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) th .tooltip-inner"), "dummy chocolate")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(1)"), "2.0-2")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(2)"), "")  # no bugs
-
-        # vanilla update to 1.0-2
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) th span"), "vanilla")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) th .tooltip-inner"), "dummy vanilla")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(1)"), "1.0-2")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(2)"), "")  # no bugs
+        self.check_nth_update(1, "chocolate", "2.0-2", bugs="")
+        self.check_nth_update(2, "vanilla", "1.0-2", bugs="")
 
         # old versions are still installed
         m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
@@ -185,36 +203,15 @@ class TestUpdates(PackageCase):
         b.wait_in_text("table.listing-ct", "secparse")
 
         # security updates should get sorted on top and then alphabetically, so start with "secdeclare"
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) th span"), "secdeclare")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(1)"), "3-4.b1")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(2)"), "")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(3) span.security-label-text"),
-                         "Security Update: ")
-        desc = b.text("#app .listing-ct tbody:nth-of-type(1) td:nth-of-type(3)")
-        self.assertIn("Will crash your data center", desc)
-        self.assertIn("CVE-2014-123456", desc)
-
+        self.check_nth_update(1, "secdeclare", "3-4.b1", bugs="", security=True,
+                              desc_matches=["Will crash your data center"], cves=["CVE-2014-123456"])
         # secparse should also be considered a security update as the changelog mentions CVEs
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) th span"), "secparse")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(1)"), "4-2")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(2)"), "")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3) span.security-label-text"),
-                         "Security Update: ")
-        desc = b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3)")
-        self.assertIn("Fix CVE-2014-54321 and CVE-2017-9999.", desc)
-
+        self.check_nth_update(2, "secparse", "4-2", bugs="", security=True,
+                              desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."], cves=["CVE-2014-123456"])
         # buggy: bug refs, no security
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(3) th span"), "buggy")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(1)"), "2-2")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(2)"), "123, 456")
-        self.assertIn("Fixit", b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(3)"))
-
+        self.check_nth_update(3, "buggy", "2-2", bugs="123, 456", desc_matches=["Fixit"])
         # norefs: just changelog, show both binary packages
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(4) th > div:nth-of-type(1) span"), "norefs-bin")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(4) th > div:nth-of-type(2) span"), "norefs-doc")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(1)"), "2-1")
-        self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(2)"), "")  # no bugs
-        self.assertIn("Now 10% more unicorns", b.text("#app .listing-ct tbody:nth-of-type(4) td:nth-of-type(3)"))
+        self.check_nth_update(4, ["norefs-bin", "norefs-doc"], "2-1", bugs="", desc_matches=["Now 10% more unicorns"])
 
         # install only security updates
         self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
@@ -348,12 +345,7 @@ class TestUpdates(PackageCase):
             b.wait_in_text("table.listing-ct", "secnocve")
 
             # secnocve should be displayed properly
-            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) th span"), "secnocve")
-            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(1)"), "1-2")
-            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(2)"), "")
-            self.assertEqual(b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3) span.security-label-text"),
-                             "Security Update")
-            self.assertIn("Fix leak", b.text("#app .listing-ct tbody:nth-of-type(2) td:nth-of-type(3)"))
+            self.check_nth_update(2, "secnocve", "1-2", bugs="", security=True, desc_matches=["Fix leak"])
 
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     def testInfoTruncation(self):

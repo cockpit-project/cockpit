@@ -1,0 +1,364 @@
+[data-toggle] {
+  cursor: pointer;
+}
+/* This is added for the export dialog so that the contents have higher contrast */
+textarea.form-control[readonly] {
+  background-color: inherit;
+  color: inherit;
+}
+/* Recipe Edit layout */
+.cmpsr-grid__wrapper {
+  display: grid;
+  display: -ms-grid;
+  grid-template-columns: 1fr 2fr;
+  -ms-grid-columns: 1fr 2fr;
+  grid-template-rows: auto auto 1fr;
+  -ms-grid-rows: auto auto 1fr;
+  grid-template-areas:
+    "header header"
+    "inputsTitle editTitle"
+    "inputs edit";
+  overflow: auto;
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+}
+/* Recipe Edit page header */
+.cmpsr-grid__wrapper .cmpsr-header {
+  grid-area: header;
+  -ms-grid-column: 1;
+  -ms-span-columns: 2;
+  -ms-grid-row: 1;
+  margin: 0 20px;
+}
+/* Recipe Edit panels */
+.cmpsr-panel__title {
+  border: 1px solid #d1d1d1;
+  background: #f2f2f2;
+  padding: 10px 20px;
+  font-size: 14px;
+  color: inherit;
+  font-weight: bold;
+  margin: 0;
+}
+.cmpsr-panel__title--sidebar {
+  grid-area: inputsTitle;
+  -ms-grid-column: 1;
+  -ms-grid-row: 2;
+  margin-right: -1px;
+}
+.cmpsr-panel__title--main {
+  grid-area: editTitle;
+  -ms-grid-column: 2;
+  -ms-grid-row: 2;
+}
+.cmpsr-panel__body {
+  border-width: 0 1px 1px;
+  border-style: solid;
+  border-color: #d1d1d1;
+}
+.cmpsr-panel__body--sidebar {
+  grid-area: inputs;
+  -ms-grid-column: 1;
+  -ms-grid-row: 3;
+  margin-right: -1px;
+}
+.cmpsr-panel__body--main {
+  grid-area: edit;
+  -ms-grid-column: 2;
+  -ms-grid-row: 3;
+}
+/* Recipe Edit panel contents */
+.cmpsr-grid__wrapper .cmpsr-panel__body {
+  overflow: auto;
+  min-height: -webkit-min-content;
+  min-height: -moz-min-content;
+  min-height: min-content;
+  position: relative;
+}
+.cmpsr-panel__body .toolbar-pf {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0;
+}
+.cmpsr-panel__body .toolbar-pf .btn-link {
+  border: none;
+}
+.cmpsr-panel__body > * {
+  margin: 0 20px;
+}
+.cmpsr-panel__body .toolbar-pf {
+  margin: 0;
+}
+.cmpsr-panel__body .toolbar-pf > * {
+  padding: 0 20px;
+}
+.cmpsr-panel__body  .toolbar-pf .toolbar-pf-actions {
+  padding: 10px 20px 0 20px;
+  margin: 0 0 10px 0;
+}
+.cmpsr-panel__body--view {
+  margin-left: -20px;
+  margin-right: -20px;
+}
+.cmpsr-panel__body .list-pf {
+  border-bottom: none;
+}
+ /* Recipe view */
+ .cmpsr-pg__recipe-view {
+   padding: 0 20px;
+ }
+
+ /* page header */
+.cmpsr-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: baseline;
+      -ms-flex-align: baseline;
+          align-items: baseline;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+.cmpsr-header > * {
+  margin: 8px 0 0 0;
+  padding: 0
+}
+.cmpsr-header__actions .list-inline {
+  margin: 0;
+}
+.cmpsr-header__actions .list-inline > li {
+  vertical-align: middle;
+}
+.cmpsr-header__actions .list-inline > li:last-child {
+  padding-right: 0;
+}
+.cmpsr-header__actions .list-inline > li:first-child {
+  padding-left: 0;
+}
+.cmpsr-title {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: baseline;
+      -ms-flex-align: baseline;
+          align-items: baseline;
+  -ms-flex-preferred-size: 100%;
+      flex-basis: 100%;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+.cmpsr-title__item {
+  margin: 0 10px 0 0;
+}
+
+/* List view */
+/*.cmpsr-list-pf*/
+.cmpsr-list-pf .list-pf-expansion .list-pf-container {
+  display: block;
+} /* TODO: remove and switch to flexbox for expanded contents */
+.cmpsr-list-pf .list-pf-main-content {
+  -ms-flex-preferred-size: 100%;
+      flex-basis: 100%;
+}
+.cmpsr-list-pf .list-pf-additional-content {
+  -ms-flex-preferred-size: 100%;
+      flex-basis: 100%;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+}
+.cmpsr-list-pf .list-view-pf-additional-info-item {
+  -ms-flex-preferred-size: 50%;
+      flex-basis: 50%;
+  -webkit-box-align: left;
+      -ms-flex-align: left;
+          align-items: left;
+}
+@media (min-width: 992px) {
+  .cmpsr-list-pf .list-pf-main-content {
+    -ms-flex-preferred-size: 50%;
+        flex-basis: 50%;
+  }
+  .cmpsr-list-pf .list-pf-additional-content {
+    -ms-flex-preferred-size: 50%;
+        flex-basis: 50%;
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
+  }
+  .cmpsr-list-pf .list-view-pf-additional-info-item {
+    -ms-flex-preferred-size: 50%;
+        flex-basis: 50%;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+  }
+}
+.list-pf-item:hover .cmpsr-list-item__text--muted,
+.list-pf-item.active .cmpsr-list-item__text--muted {
+  color: initial;
+}
+
+/* pagination */
+.toolbar-pf-results .content-view-pf-pagination {
+  margin-bottom: 5px;
+  margin-top: 5px;
+  background-color: transparent;
+  border: none;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  -webkit-box-align: baseline;
+      -ms-flex-align: baseline;
+          align-items: baseline;
+}
+.toolbar-pf-results .pagination {
+  -ms-flex-item-align: center;
+      align-self: center;
+}
+.toolbar-pf-results .pagination-pf-page,
+.toolbar-pf-results .pagination.pagination-pf-forward {
+  margin-left: 5px;
+}
+/* sidebar */
+.cmpsr-panel__body--sidebar .toolbar-pf-actions .toolbar-pf-filter {
+  width: auto;
+}
+.cmpsr-panel__body--sidebar {
+  background-color: #fafafa;
+}
+.cmpsr-panel__body--sidebar .list-pf {
+  margin-top: 20px;
+  background-color: #fff;
+}
+.cmpsr-panel__body--sidebar .alert {
+  position: relative;
+  top: 10px;
+  margin: 0 20px;
+}
+/* Expanded list item contents (i.e. component summary) */
+.list-pf-container .list-pf {
+  max-height: 300px;
+  overflow: auto;
+}
+.list-pf-container dd {
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+     text-overflow: ellipsis;
+}
+
+/*Component details*/
+.pf-icon-small {
+    font-size: 1.7rem;
+    height: 30px;
+    line-height: 30px;
+    width: 30px;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+}
+.cmpsr-component-details--view {
+  margin-top: 20px;
+}
+.cmpsr-component-details__form {
+  background-color: #ededed;
+  border: 1px solid #24a4e1;
+  border-radius: 1px;
+  margin-bottom: 20px;
+  padding: 5px 10px;
+}
+.cmpsr-component-details__form .form-horizontal {
+  margin: 15px 0;
+}
+
+/* Recipe details page */
+.list-pf .list-group-item__separator,
+.list-pf .list-group-item__separator:hover {
+  background-color: #f7f7f7;
+}
+.list-pf .list-group-item__separator .list-pf-container {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+/* compacted list view */
+/* used in sidebar and expanded list items */
+.cmpsr-list-pf__compacted {
+  margin-bottom: 20px;
+}
+.cmpsr-list-pf__compacted .list-pf-item:hover {
+  background: #f5f5f5;
+}
+.cmpsr-list-pf__compacted .list-pf-container {
+  padding: 5px 10px;
+}
+.list-pf-container .cmpsr-list-pf__compacted .list-pf-container {
+  border-top-width: 0;
+}
+.list-pf-icon-bordered-dotted {
+  border-style: dotted;
+}
+
+/* tab contents */
+.tab-container {
+    padding: 20px 0;
+}
+
+/* toolbar */
+.toolbar-pf-actions .toolbar-pf-filter.form-group {
+  padding-left: 20px;
+}
+.toolbar-pf-actions .form-group:first-child {
+  padding-left: 0;
+}
+
+/* ------------------------------- */
+/* modifications to patternfly css */
+
+/* masthead */
+/* without an icon in the masthead, the logo sits too high relative to other elements */
+.navbar-brand {
+  line-height: 35px;
+}
+
+/* empty state */
+.blank-slate-pf {
+  margin-top: 30px;
+}
+
+/* restrict text width and center */
+.blank-slate-pf dl {
+  max-width: 66rem;
+  margin: auto;
+}
+
+/* list-pf */
+/* current styles do not have a fixed width for the right/down arrows which
+   causes the contents to shift right a few pixels on expansion */
+
+.list-pf-chevron .fa {
+  width: 22px;
+  text-align: center;
+}
+.list-pf-title .text-muted {
+  font-weight: normal;
+}
+
+/* nav-tabs-pf */
+ .nav-tabs .badge {
+   display: inline;
+ }

@@ -122,6 +122,11 @@ def module_copyright(moddir):
         except (IOError, KeyError):
             pass
 
+    if mod == 'babel-polyfill':
+        # assumption from package.json's `author`
+        # https://github.com/babel/babel/issues/6728
+        copyrights.add(' (C) Sebastian McKenzie')
+
     if not copyrights:
         raise SystemError('Did not find any copyrights in %s' % moddir)
     return copyrights

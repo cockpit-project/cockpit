@@ -168,6 +168,7 @@ WEBPACK_PACKAGES = \
 	systemd \
 	tuned \
 	users \
+	welder \
 	$(NULL)
 
 V_WEBPACK = $(V_WEBPACK_$(V))

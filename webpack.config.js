@@ -150,6 +150,11 @@ var info = {
         "users/users": [
             "users/local.js",
             "users/users.css",
+        ],
+
+        "welder/welder": [
+            "welder/main.jsx",
+            "welder/custom.css",
         ]
     },
 
@@ -269,6 +274,9 @@ var info = {
 
         "users/index.html",
         "users/manifest.json",
+
+        "welder/index.html",
+        "welder/js/config.js",
     ]
 };
 
@@ -408,14 +416,27 @@ if (!section || section.indexOf("base1") === 0) {
     });
 }
 
+if (section == "welder/") {
+    files.push({
+        from: nodedir + path.sep + "@webcomponents/custom-elements/src/native-shim.js",
+        to: "welder/"
+    }, {
+        from: nodedir + path.sep + "@webcomponents/webcomponentsjs/webcomponents-lite.js",
+        to: "welder/"
+    });
+}
+
 var aliases = {
     "angular": "angular/angular.js",
     "angular-route": "angular-route/angular-route.js",
     "d3": "d3/d3.js",
     "moment": "moment/moment.js",
-    "react": "react-lite/dist/react-lite.js",
     "term": "term.js-cockpit/src/term.js",
 };
+
+/* HACK: welder currently doesn't work with react-lite */
+if (section !== "welder/")
+    aliases["react"] = "react-lite/dist/react-lite.js";
 
 /* HACK: To get around redux warning about reminimizing code */
 if (production)
@@ -424,6 +445,7 @@ if (production)
 module.exports = {
     resolve: {
         alias: aliases,
+        extensions: ["", ".js", ".jsx"],
         modulesDirectories: [ libdir, nodedir ]
     },
     resolveLoader: {
@@ -482,7 +504,11 @@ module.exports = {
             {
                 test: /[\/]angular\.js$/,
                 loader: "exports?angular"
-            }
+            },
+            {
+                test: /\/routes.json$/,
+                loaders: ["babel-loader", "./utils/routes-loader.jsx"],
+            },
         ],
 
         /* The stuff in noVNC are plain ol javascript */

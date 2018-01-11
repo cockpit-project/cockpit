@@ -1,0 +1,41 @@
+@import './variables.css';
+
+.add_layout {
+  height: 382px;
+  min-height: 382px;
+}
+
+.add_container {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add_button {
+  height: 200px;
+  width: 200px;
+  border: 2px solid var(--color-gray);
+  border-style: dashed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.add_button:hover,
+.add_button:focus {
+  border-color: var(--color-light-blue);
+  color: var(--color-light-blue);
+  cursor: pointer;
+}
+
+.add_button i {
+  color: var(--color-gray);
+}
+
+.add_button:hover i,
+.add_button:focus i {
+  color: var(--color-light-blue);
+}

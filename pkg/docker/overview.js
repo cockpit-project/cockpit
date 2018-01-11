@@ -25,6 +25,7 @@
 
     var React = require("react");
     var plot = require("plot");
+    var machine_info = require("machine-info.es6").machine_info;
 
     var util = require("./util");
     var storage = require("./storage.jsx");
@@ -68,44 +69,45 @@
         var cpu_series;
         var mem_series;
 
-        $(client).on('container.containers', function(event, id, container) {
-            if (container && container.CGroup) {
-                cpu_series.add_instance(container.CGroup);
-                mem_series.add_instance(container.CGroup);
-            }
-        });
-
-        var cpu_data = {
-            internal: "cgroup.cpu.usage",
-            units: "millisec",
-            derive: "rate",
-            factor: 0.1  // millisec / sec -> percent
-        };
-
         var cpu_options = plot.plot_simple_template();
-        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0); }
+        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0); },
+                                      max: 100
                                     });
         $.extend(cpu_options.grid,  { hoverable: true,
                                       autoHighlight: false
                                     });
-        cpu_options.setup_hook = function (flot) {
-            var axes = flot.getAxes();
-
-            if (axes.yaxis.datamax)
-                axes.yaxis.options.max = Math.ceil(axes.yaxis.datamax / 100) * 100;
-            else
-                axes.yaxis.options.max = 100;
-
-            axes.yaxis.options.min = 0;
-        };
 
         var cpu_plot = plot.plot($("#containers-cpu-graph"), 300);
         cpu_plot.set_options(cpu_options);
-        cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
-        $(cpu_series).on("value", function(ev, value) {
-            $('#containers-cpu-text').text(util.format_cpu_usage(value));
-        });
         cpu_plot.start_walking();
+
+        machine_info()
+            .done(function (info) {
+                $('#containers-cpu-graph-title').text(
+                    cockpit.format(cockpit.ngettext("Combined usage of $0 CPU core",
+                                                    "Combined usage of $0 CPU cores",
+                                                    info.cpus),
+                                   info.cpus));
+
+                var cpu_data = {
+                    internal: "cgroup.cpu.usage",
+                    units: "millisec",
+                    derive: "rate",
+                    factor: 0.1 / info.cpus // millisec / sec -> percent
+                };
+
+                cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
+                $(cpu_series).on("value", function(ev, value) {
+                    $('#containers-cpu-text').text(util.format_cpu_usage(value));
+                });
+
+                $(client).on('container.containers', function(event, id, container) {
+                    if (container && container.CGroup) {
+                        cpu_series.add_instance(container.CGroup);
+                        mem_series.add_instance(container.CGroup);
+                    }
+                });
+            });
 
         var mem_data = {
             internal: "cgroup.memory.usage",

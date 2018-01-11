@@ -19,8 +19,8 @@ export function injectMockUpdates(updates) {
         name: "security-one",
         version: "2.3-4",
         bug_urls: [],
-        cve_urls: ["https://cve.example.com?name=CVE-2014-123456"],
-        security: true,
+        cve_urls: ["https://cve.example.com?name=CVE-2014-123456", "https://cve.example.com?name=CVE-2017-9999"],
+        severity: 8,
         description: "This will wreck your data center!",
     };
     updates["security-two;1-2+sec1"] = {
@@ -28,7 +28,7 @@ export function injectMockUpdates(updates) {
         version: "1-2+sec1",
         bug_urls: [],
         cve_urls: ["https://cve.example.com?name=CVE-2014-54321"],
-        security: true,
+        severity: 8,
         description: "Mostly Harmless",
     };
 
@@ -40,7 +40,7 @@ export function injectMockUpdates(updates) {
             version: "1-1",
             bug_urls: [],
             cve_urls: [],
-            security: false,
+            severity: 4,
             description: "Make everything better",
         };
     }
@@ -51,7 +51,7 @@ export function injectMockUpdates(updates) {
         version: "1-1",
         bug_urls: [],
         cve_urls: [],
-        security: false,
+        severity: 6,
         description: ("Some longish explanation of some boring technical change. " +
             "This is total technobabble gibberish for layman users.\n\n").repeat(30)
     };
@@ -65,7 +65,7 @@ export function injectMockUpdates(updates) {
         version: "1-1",
         bug_urls: bugs,
         cve_urls: [],
-        security: false,
+        severity: 6,
         description: "This is FUBAR",
     };
 }

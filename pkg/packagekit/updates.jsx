@@ -45,6 +45,11 @@ const PK_EXIT_ENUM_FAILED = 2;
 const PK_EXIT_ENUM_CANCELLED = 3;
 const PK_ROLE_ENUM_REFRESH_CACHE = 13;
 const PK_ROLE_ENUM_UPDATE_PACKAGES = 22;
+const PK_INFO_ENUM_LOW = 3;
+//const PK_INFO_ENUM_ENHANCEMENT = 4;
+const PK_INFO_ENUM_NORMAL = 5;
+//const PK_INFO_ENUM_BUGFIX = 6;
+//const PK_INFO_ENUM_IMPORTANT = 7;
 const PK_INFO_ENUM_SECURITY = 8;
 const PK_STATUS_ENUM_WAIT = 1;
 const PK_STATUS_ENUM_UPDATE = 10;
@@ -171,7 +176,7 @@ class Expander extends React.Component {
 function count_security_updates(updates) {
     var num_security = 0;
     for (let u in updates)
-        if (updates[u].security)
+        if (updates[u].severity === PK_INFO_ENUM_SECURITY)
            ++num_security;
     return num_security;
 }
@@ -252,7 +257,7 @@ class UpdateItem extends React.Component {
             ));
         }
 
-        if (info.security) {
+        if (info.severity === PK_INFO_ENUM_SECURITY) {
             security_info = (
                 <p>
                     <span className="fa fa-shield security-label">&nbsp;</span>
@@ -294,7 +299,7 @@ class UpdateItem extends React.Component {
 
         return (
             <tbody>
-                <tr className={ "listing-ct-item" + (info.security ? " security" : "") }>
+                <tr className={ "listing-ct-item" + (info.severity === PK_INFO_ENUM_SECURITY ? " security" : "") }>
                     <th>{pkgs}</th>
                     <td className="narrow">{info.version}</td>
                     <td className="narrow">{bugs}</td>
@@ -329,9 +334,9 @@ function UpdatesList(props) {
 
     // sort security first
     updates.sort((a, b) => {
-        if (props.updates[a].security && !props.updates[b].security)
+        if (props.updates[a].severity === PK_INFO_ENUM_SECURITY && props.updates[b].severity !== PK_INFO_ENUM_SECURITY)
             return -1;
-        if (!props.updates[a].security && props.updates[b].security)
+        if (props.updates[a].severity !== PK_INFO_ENUM_SECURITY && props.updates[b].severity === PK_INFO_ENUM_SECURITY)
             return 1;
         return a.localeCompare(b);
     });
@@ -579,10 +584,10 @@ class OsUpdates extends React.Component {
                     // http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
                     if (cve_urls)
                         cve_urls = cve_urls.filter(url => url.match(/^https?:\/\//));
-                    // many backends don"t support this; parse CVEs from description as a fallback
+                    // many backends don't support proper severities; parse CVEs from description as a fallback
                     u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
                     if (u.cve_urls && u.cve_urls.length > 0)
-                        u.security = true;
+                        u.severity = PK_INFO_ENUM_SECURITY;
                     // u.restart = restart; // broken (always "1") at least in Fedora
 
                     this.setState({ updates: this.state.updates });
@@ -612,7 +617,10 @@ class OsUpdates extends React.Component {
                 Package: (info, packageId, _summary) => {
                     let id_fields = packageId.split(";");
                     packageSummaries[id_fields[0]] = _summary;
-                    updates[packageId] = { name: id_fields[0], version: id_fields[1], security: info === PK_INFO_ENUM_SECURITY };
+                    // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+                    if (info < PK_INFO_ENUM_LOW || info > PK_INFO_ENUM_SECURITY)
+                        info = PK_INFO_ENUM_NORMAL;
+                    updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info };
                     if (id_fields[0] == "cockpit-ws")
                         cockpitUpdate = true;
                 },
@@ -768,7 +776,7 @@ class OsUpdates extends React.Component {
     applyUpdates(securityOnly) {
         var ids = Object.keys(this.state.updates);
         if (securityOnly)
-            ids = ids.filter(id => this.state.updates[id].security);
+            ids = ids.filter(id => this.state.updates[id].severity === PK_INFO_ENUM_SECURITY);
 
         pkTransaction("UpdatePackages", [0, ids], {}, null, ex => {
                 // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only

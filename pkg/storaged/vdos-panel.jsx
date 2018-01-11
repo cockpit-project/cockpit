@@ -112,13 +112,7 @@ export class VDOsPanel extends React.Component {
                               action: function (vals) {
                                   return prepare_available_spaces(client, [ vals.space ]).then(function (path) {
                                       var block = client.blocks[path];
-                                      // HACK - wipefs is not enough
-                                      // https://bugzilla.redhat.com/show_bug.cgi?id=1513438
-                                      return cockpit.spawn([ "dd",
-                                                             "if=/dev/zero",
-                                                             "of=" + decode_filename(block.PreferredDevice),
-                                                             "bs=1M", "count=1",
-                                                             "status=none" ],
+                                      return cockpit.spawn([ "wipefs", "-a", decode_filename(block.PreferredDevice) ],
                                                            { superuser: true,
                                                              err: "message"
                                                            })

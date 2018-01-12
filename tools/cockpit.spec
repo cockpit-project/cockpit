@@ -691,6 +691,7 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 Summary: Cockpit user interface for packages
 Requires: %{name}-bridge >= %{required_base}
 Requires: PackageKit
+Requires: appstream-data
 
 %description packagekit
 The Cockpit components for installing OS updates and Cockpit add-ons,

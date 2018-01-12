@@ -247,10 +247,8 @@ class UpdateItem extends React.Component {
         var security_info = null;
 
         if (info.bug_urls && info.bug_urls.length) {
-            // HACK: bug_urls also contains titles, in a not-quite-predictable order; ignore them, only pick out
-            // http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
             // we assume a bug URL ends with a number; if not, show the complete URL
-            bugs = insertCommas(info.bug_urls.filter(url => url.match(/^https?:\/\//)).map(url => (
+            bugs = insertCommas(info.bug_urls.map(url => (
                 <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={url}>
                     {url.match(/[0-9]+$/) || url}
                 </a>)
@@ -578,12 +576,15 @@ class OsUpdates extends React.Component {
                                update_text, changelog /* state, issued, updated */) => {
                     let u = this.state.updates[packageId];
                     u.vendor_urls = vendor_urls;
-                    u.bug_urls = deduplicate(bug_urls);
-                    u.description = this.formatDescription(update_text || changelog);
-                    // HACK: on yum, cve_urls also contains non-URLs; ignore them, only pick out
-                    // http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
+                    // HACK: bug_urls and cve_urls also contain titles, in a not-quite-predictable order; ignore them,
+                    // only pick out http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
+                    if (bug_urls)
+                        bug_urls = bug_urls.filter(url => url.match(/^https?:\/\//));
                     if (cve_urls)
                         cve_urls = cve_urls.filter(url => url.match(/^https?:\/\//));
+
+                    u.description = this.formatDescription(update_text || changelog);
+                    u.bug_urls = deduplicate(bug_urls);
                     // many backends don't support proper severities; parse CVEs from description as a fallback
                     u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
                     if (u.cve_urls && u.cve_urls.length > 0)

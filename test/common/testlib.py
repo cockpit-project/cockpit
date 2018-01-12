@@ -93,7 +93,9 @@ class Browser:
             self.port = port
         self.default_user = "admin"
         self.label = label
-        self.cdp = cdp.CDP("C.utf8", headless, verbose=opts.trace, trace=opts.trace)
+        path = os.path.dirname(__file__)
+        self.cdp = cdp.CDP("C.utf8", headless, verbose=opts.trace, trace=opts.trace,
+                           inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
 
     def title(self):

@@ -62,7 +62,7 @@ server = subprocess.Popen(opts.server,
 
 address = server.stdout.readline()
 
-cdp = cdp.CDP("C.utf8", inject_helpers=False)
+cdp = cdp.CDP("C.utf8")
 cdp.invoke("Page.navigate", url=address + '/' + opts.test)
 
 success = True

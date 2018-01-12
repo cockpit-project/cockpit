@@ -33,6 +33,12 @@ dist/ovirt/install.sh: pkg/ovirt/install.sh
 dist/ovirt/base.css: node_modules/noVNC/include/base.css
 	$(COPY_RULE)
 
+metainfodir = ${datarootdir}/metainfo
+metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml
+
+pixmapsdir = ${datarootdir}/pixmaps
+pixmaps_DATA = pkg/sosreport/cockpit-sosreport.png
+
 EXTRA_DIST += \
 	dist/playground/extra.de.po \
 	pkg/playground/extra.de.po \
@@ -43,7 +49,10 @@ EXTRA_DIST += \
 	pkg/ovirt/install.sh \
 	$(playground_DATA) \
 	$(pkg_TESTS) \
-	$(ovirt_DATA)
+	$(ovirt_DATA) \
+	$(metainfo_DATA) \
+	$(pixmaps_DATA) \
+	$(NULL)
 
 if WITH_GOLANG
 

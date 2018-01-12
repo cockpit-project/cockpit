@@ -46,7 +46,7 @@ def jsquote(str):
 
 
 class CDP:
-    def __init__(self, lang=None, headless=True, verbose=False, trace=False, inject_helpers=True):
+    def __init__(self, lang=None, headless=True, verbose=False, trace=False, inject_helpers=[]):
         self.lang = lang
         self.timeout = 60
         self.valid = False
@@ -138,7 +138,6 @@ class CDP:
         environ = os.environ.copy()
         if self.lang:
             environ["LC_ALL"] = self.lang
-        path = os.path.dirname(__file__)
         self.cur_frame = None
 
         # allow attaching to external browser
@@ -194,20 +193,19 @@ class CDP:
         if self.trace:
             # enable frame/execution context debugging if tracing is on
             environ["TEST_CDP_DEBUG"] = "1"
-        self._driver = subprocess.Popen(["%s/cdp-driver.js" % path, str(cdp_port)],
+        self._driver = subprocess.Popen(["%s/cdp-driver.js" % os.path.dirname(__file__), str(cdp_port)],
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,
                                         close_fds=True)
         self.valid = True
 
-        if self.inject_helpers:
-            for inject in [ "%s/test-functions.js" % path, "%s/sizzle.js" % path ]:
-                with open(inject) as f:
-                    src = f.read()
-                # HACK: injecting sizzle fails on missing `document` in assert()
-                src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
-                self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
+        for inject in self.inject_helpers:
+            with open(inject) as f:
+                src = f.read()
+            # HACK: injecting sizzle fails on missing `document` in assert()
+            src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
+            self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
 
     def kill(self):
         self.valid = False

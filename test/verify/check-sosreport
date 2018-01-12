@@ -58,5 +58,18 @@ class TestSOS(MachineCase):
 
         self.allow_journal_messages('.*{ associate }.*comm="sosreport".*')
 
+    @skipImage("Not supported", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+    def testAppStream(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/apps")
+        b.wait_not_present(".app-list-empty .spinner")
+        if m.image in [ "fedora-27", "fedora-i386", "centos-7" ]:
+            b.wait_present(".app-list tr:contains('Diagnostic Reports')")
+            b.wait_present(".app-list tr:contains('Diagnostic Reports') button:contains('Remove')")
+        else:
+            b.wait_not_present(".app-list tr:contains('Diagnostic Reports')")
+
 if __name__ == '__main__':
     test_main()

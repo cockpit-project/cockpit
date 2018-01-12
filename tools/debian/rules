@@ -60,6 +60,8 @@ override_dh_install:
 
 	# unpackaged modules
 	for m in kdump kubernetes ostree selinux sosreport subscriptions ovirt; do rm -r debian/tmp/usr/share/cockpit/$$m; done
+	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
+	rm debian/tmp/usr/share/pixmaps/cockpit-sosreport.png
 	# part of kubernetes
 	rm -f debian/tmp/usr/lib/cockpit/cockpit-stub
 

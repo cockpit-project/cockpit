@@ -228,7 +228,12 @@ def checkRetry(trace):
 
 def normalize_traceback(trace):
     # All file paths converted to basename
-    return re.sub(r'File "[^"]*/([^/"]+)"', 'File "\\1"', trace.strip())
+    trace = re.sub(r'File "[^"]*/([^/"]+)"', 'File "\\1"', trace.strip())
+
+    # replace noise in SELinux violations
+    trace = re.sub('audit\([0-9.:]+\)', 'audit(0)', trace)
+    trace = re.sub(r'\b(pid|ino)=[0-9]+ ', r'\1=0 ', trace)
+    return trace
 
 def check_known_issue(api, trace, image):
     image_naughty = os.path.join(BOTS, "naughty", image)
@@ -250,7 +255,7 @@ def check_known_issue(api, trace, image):
 
 # Update a known issue thread on GitHub
 #
-# The idea is to combine repeated errors into fewer commits by
+# The idea is to combine repeated errors into fewer comments by
 # editing them and keeping all relevant information.
 #
 # For this we keep one comment per context (e.g. 'verify/fedora-atomic')
@@ -270,20 +275,24 @@ def update_known_issue(api, number, err, details, context, timestamp=None):
 
     comments = issue_comments(api, number)
 
-    # try to find an existing comment to update
+    # try to find an existing comment to update; extract the traceback from the
+    # whole output; also ensure to remove the "# duration: XXs" trailer
+    err_key = normalize_traceback(err).strip()
+    m = re.search("^(Traceback.*^not ok[^#\\n]*)", err_key, re.S | re.M)
+    if m:
+        err_key = m.group(1)
     comment_key = "{0}\n".format(context)
-    err_key = """
-```
-{0}
-```""".format(err.strip())
     latest_occurrences = "Latest occurrences:\n\n"
     for comment in reversed(comments):
         if 'body' in comment and comment['body'].startswith(comment_key):
+            if len(comment['body']) >= 65536:
+                # comment is too long already, use next one
+                continue
             parts = comment['body'].split("<hr>")
             updated = False
             for part_idx, part in enumerate(parts):
-                part = part.strip()
-                if part.startswith(err_key):
+                part = normalize_traceback(part).strip()
+                if err_key in part:
                     latest = part.split(latest_occurrences)
                     if len(latest) < 2:
                         sys.stderr.write("Error while parsing latest occurrences\n")
@@ -305,29 +314,32 @@ def update_known_issue(api, number, err, details, context, timestamp=None):
                         parts[part_idx] = "{0}{1}{2}".format(latest[0], latest_occurrences, "\n".join(occurrences))
                         updated = True
                     break
+
             if not updated:
-                parts.append("""{0}
+                parts.append("""
+```
+{0}
+```
 First occurrence: {1}
 Times recorded: 1
 {2}- {1}
-""".format(err_key, link, latest_occurrences))
+""".format(err.strip(), link, latest_occurrences))
                 updated = True
 
-            # This comment is already too long
-            body = "<hr>\n".join(parts)
-            if len(body) >= 65536:
-                break
-
             # update comment, no need to check others
+            body = "<hr>\n".join(parts)
             return api.patch("issues/comments/{0}".format(comment['id']), { "body": body })
 
     # create a new comment, since we didn't find one to update
 
-    data = { "body": """{0}\nOoops, it happened again<hr>{1}
+    data = { "body": """{0}\nOoops, it happened again<hr>
+```
+{1}
+```
 First occurrence: {2}
 Times recorded: 1
 {3}- {2}
-""".format(context, err_key, link, latest_occurrences) }
+""".format(context, err.strip(), link, latest_occurrences) }
     return api.post("issues/{0}/comments".format(number), data)
 
 def issue_comments(api, number):
@@ -344,7 +356,7 @@ def issue_comments(api, number):
     return result
 
 
-def post_github(api, number, trace, image):
+def post_github(api, number, output, image):
 
     # Ignore this if we were not given a token
     if not api or not api.available:
@@ -363,7 +375,7 @@ def post_github(api, number, trace, image):
                 if status["context"] == context:
                     link = "revision {0}, [logs]({1})".format(revision, status["target_url"])
                     break
-    update_known_issue(api, number, trace, link, context)
+    update_known_issue(api, number, output, link, context)
 
 if __name__ == '__main__':
     sys.exit(main())

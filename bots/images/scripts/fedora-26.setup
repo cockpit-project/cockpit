@@ -103,7 +103,6 @@ dnf $DNF_OPTS -y upgrade
 dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $ABRT_PACKAGES $AVOCADO_TEST_DEPS
 
 # for avocado/fedora integration test
-npm -g install phantomjs-prebuilt
 npm -g install chrome-remote-interface
 echo 'NODE_PATH=/usr/lib/node_modules' >> /etc/environment
 

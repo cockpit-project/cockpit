@@ -220,7 +220,7 @@
 
         // Setup title
         var title = environment.page.title;
-        if (!title)
+        if (!title || application.indexOf("cockpit+=") === 0)
             title = environment.hostname;
         document.title = title;
 
@@ -398,11 +398,18 @@
         }
     }
 
+    function need_host() {
+        return environment.page.require_host &&
+            org_application.indexOf("cockpit+=") === -1;
+    }
+
     function call_login() {
         login_failure(null);
         var machine, user = trim(id("login-user-input").value);
         if (user === "") {
             login_failure(_("User name cannot be empty"));
+        } else if (need_host() && id("server-field").value === "") {
+            login_failure(_("Please specify the host to connect to"));
         } else {
             machine = id("server-field").value;
             if (machine) {
@@ -434,15 +441,22 @@
     function show_form(in_conversation) {
         var connectable = environment.page.connect;
         var expanded = id("option-group").getAttribute("data-state");
+
         id("login-wait-validating").style.display = "none";
         id("login").style.visibility = 'visible';
         id("login").style.display = "block";
         id("user-group").style.display = in_conversation ? "none" : "block";
         id("password-group").style.display = in_conversation ? "none" : "block";
-        id("option-group").style.display = !connectable || in_conversation ? "none" : "block";
         id("conversation-group").style.display = in_conversation ? "block" : "none";
         id("login-button-text").textContent = "Log In";
         id("login-password-input").value = '';
+
+        if (need_host()) {
+            id("option-group").style.display = "none";
+            expanded = true;
+        } else {
+            id("option-group").style.display = !connectable || in_conversation ? "none" : "block";
+        }
 
         if (!connectable || in_conversation) {
             id("server-group").style.display = "none";

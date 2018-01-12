@@ -401,6 +401,7 @@ class Machine:
             "-p", str(self.ssh_port),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "LogLevel=ERROR",
             "-o", "BatchMode=yes"
         ]
 

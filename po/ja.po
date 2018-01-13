@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-02 09:25+0000\n"
+"POT-Creation-Date: 2018-01-13 05:27+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -92,7 +92,7 @@ msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 ディスクがありません"
 
-#: src/ws/login.js:282 src/ws/login.js:606
+#: src/ws/login.js:291 src/ws/login.js:629
 msgid "$0 error"
 msgstr "$0 エラー"
 
@@ -140,7 +140,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 ヶ月"
 
-#: pkg/packagekit/updates.jsx:272
+#: pkg/packagekit/updates.jsx:276
 msgid "$0 more…"
 msgstr ""
 
@@ -165,7 +165,7 @@ msgstr "$0 パッケージ"
 msgid "$0 shares"
 msgstr "$0 シェア"
 
-#: pkg/packagekit/updates.jsx:191
+#: pkg/packagekit/updates.jsx:193
 #, fuzzy
 msgid "$0 update"
 msgid_plural "$0 updates"
@@ -200,7 +200,7 @@ msgstr[0] "$0% 使用済み"
 msgid "$0, $1 free"
 msgstr "$0, $1 空き"
 
-#: pkg/packagekit/updates.jsx:189
+#: pkg/packagekit/updates.jsx:191
 msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] ""
@@ -237,7 +237,7 @@ msgstr "(デフォルト)"
 msgid "(none)"
 msgstr "（なし）"
 
-#: pkg/packagekit/updates.jsx:193
+#: pkg/packagekit/updates.jsx:195
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ""
@@ -958,11 +958,11 @@ msgstr "認証"
 msgid "Authentication Failed"
 msgstr "認証に失敗しました"
 
-#: src/ws/login.js:586
+#: src/ws/login.js:609
 msgid "Authentication Failed: Server closed connection"
 msgstr "認証に失敗しました: サーバーの接続が切断されました"
 
-#: src/ws/login.js:596
+#: src/ws/login.js:619
 msgid "Authentication failed"
 msgstr "認証に失敗しました"
 
@@ -1011,16 +1011,16 @@ msgstr "NTP を自動的に使用"
 msgid "Automatically using specific NTP servers"
 msgstr "特定の NTP サーバーを自動的に使用"
 
-#: pkg/machines/hostvmslist.jsx:292
+#: pkg/machines/hostvmslist.jsx:276
 msgid "Autostart:"
 msgstr "自動起動:"
 
 #: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
-#: pkg/machines/hostvmslist.jsx:337 pkg/machines/hostvmslist.jsx:348
+#: pkg/machines/hostvmslist.jsx:320 pkg/machines/hostvmslist.jsx:331
 msgid "Available"
 msgstr "利用可能"
 
-#: pkg/packagekit/updates.jsx:836
+#: pkg/packagekit/updates.jsx:844
 #, fuzzy
 msgid "Available Updates"
 msgstr "利用可能"
@@ -1094,7 +1094,7 @@ msgstr "ボンド設定"
 msgid "Boot ID"
 msgstr "ブート ID"
 
-#: pkg/machines/hostvmslist.jsx:255
+#: pkg/machines/hostvmslist.jsx:238
 msgid "Boot Order:"
 msgstr ""
 
@@ -1123,7 +1123,7 @@ msgstr "ブロードキャスト"
 msgid "Broken configuration"
 msgstr "破損した設定"
 
-#: pkg/packagekit/updates.jsx:341
+#: pkg/packagekit/updates.jsx:345
 msgid "Bugs"
 msgstr ""
 
@@ -1151,7 +1151,7 @@ msgctxt "page-title"
 msgid "CPU Status"
 msgstr "CPU ステータス"
 
-#: pkg/machines/hostvmslist.jsx:284
+#: pkg/machines/hostvmslist.jsx:268
 #, fuzzy
 msgid "CPU Type:"
 msgstr "種類:"
@@ -1237,7 +1237,7 @@ msgstr ""
 #: pkg/apps/utils.jsx:90 pkg/lib/cockpit-components-dialog.jsx:138
 #: pkg/ovirt/components/ClusterTemplates.jsx:77
 #: pkg/ovirt/components/OVirtTab.jsx:68 pkg/ovirt/components/VdsmView.jsx:97
-#: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:216
+#: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:218
 #: pkg/sosreport/index.js:51 pkg/storaged/job-views.jsx:43
 #: pkg/storaged/jobs-panel.jsx:119
 msgid "Cancel"
@@ -1348,7 +1348,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr "設定を変更すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
 
-#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:207
+#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:209
 msgid "Check for Updates"
 msgstr "更新の確認"
 
@@ -1443,7 +1443,7 @@ msgstr ""
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:301
+#: src/ws/login.js:310
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit の認証が間違って設定されています。"
 
@@ -1508,7 +1508,7 @@ msgstr ""
 "Cockpit "
 "は経験が少ないシステム管理者に最適です。これらのシステム管理者はストレージの管理、ジャーナルの検査、サービスの起動および停止などの単純なタスクを簡単に実行できるようになります。また、複数のサーバーを同時に監視および管理できます。これらのサーバーはクリックするだけで追加できます。追加後に、ご使用のマシンは他のマシンを管理するようになります。"
 
-#: pkg/packagekit/updates.jsx:848
+#: pkg/packagekit/updates.jsx:856
 msgid "Cockpit itself will be updated."
 msgstr ""
 
@@ -1733,7 +1733,7 @@ msgstr "マシンへの接続"
 msgid "Connecting..."
 msgstr "接続中..."
 
-#: pkg/machines/hostvmslist.jsx:488
+#: pkg/machines/hostvmslist.jsx:469
 msgid "Connection"
 msgstr "接続"
 
@@ -1761,7 +1761,7 @@ msgstr "接続が失われます"
 msgid "Console Type"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:395
+#: pkg/machines/hostvmslist.jsx:379
 msgid "Consoles"
 msgstr ""
 
@@ -2174,7 +2174,7 @@ msgstr "遅延"
 #: pkg/docker/containers-view.jsx:193 pkg/docker/containers-view.jsx:534
 #: pkg/docker/details.js:276 pkg/docker/image.js:141
 #: pkg/kubernetes/scripts/volumes.js:218
-#: pkg/machines/components/deleteDialog.jsx:96 pkg/machines/hostvmslist.jsx:113
+#: pkg/machines/components/deleteDialog.jsx:96 pkg/machines/hostvmslist.jsx:114
 #: pkg/storaged/content-views.jsx:269 pkg/storaged/content-views.jsx:290
 #: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/mdraid-details.jsx:300
 #: pkg/storaged/vdo-details.jsx:193 pkg/storaged/vdo-details.jsx:241
@@ -2320,7 +2320,7 @@ msgstr ""
 #: pkg/kubernetes/index.html:67 pkg/shell/index.html:251
 #: pkg/docker/containers-view.jsx:325 pkg/docker/containers-view.jsx:483
 #: pkg/docker/containers-view.jsx:493 pkg/docker/containers-view.jsx:623
-#: pkg/packagekit/updates.jsx:342 pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/packagekit/updates.jsx:346 pkg/subscriptions/subscriptions-view.jsx:209
 msgid "Details"
 msgstr "詳細"
 
@@ -2395,7 +2395,7 @@ msgstr "ディスク使用率: $0%˙"
 msgid "Disk is OK"
 msgstr "ディスクは OK です"
 
-#: pkg/machines/hostvmslist.jsx:393 pkg/storaged/mdraid-details.jsx:47
+#: pkg/machines/hostvmslist.jsx:377 pkg/storaged/mdraid-details.jsx:47
 #: pkg/storaged/mdraid-details.jsx:153 pkg/storaged/mdraids-panel.jsx:72
 #: pkg/storaged/vgroup-details.jsx:51 pkg/storaged/vgroups-panel.jsx:61
 msgid "Disks"
@@ -2593,7 +2593,7 @@ msgstr "空のディレクトリー"
 msgid "Emptying $target"
 msgstr "$target を空にしています"
 
-#: pkg/machines/hostvmslist.jsx:282
+#: pkg/machines/hostvmslist.jsx:266
 #, fuzzy
 msgid "Emulated Machine:"
 msgstr "仮想マシン"
@@ -2908,11 +2908,11 @@ msgstr ""
 msgid "Force Delete"
 msgstr "削除の強制"
 
-#: pkg/machines/hostvmslist.jsx:67
+#: pkg/machines/hostvmslist.jsx:68
 msgid "Force Restart"
 msgstr "再起動の強制"
 
-#: pkg/machines/hostvmslist.jsx:81
+#: pkg/machines/hostvmslist.jsx:82
 msgid "Force Shut Down"
 msgstr "シャットダウンの強制"
 
@@ -3204,7 +3204,7 @@ msgstr "ID"
 msgid "Identity"
 msgstr "ID"
 
-#: pkg/networkmanager/interfaces.js:1904 pkg/packagekit/updates.jsx:483
+#: pkg/networkmanager/interfaces.js:1904 pkg/packagekit/updates.jsx:487
 msgid "Ignore"
 msgstr "無視"
 
@@ -3338,7 +3338,7 @@ msgstr ""
 msgid "Information about the Docker storage pool is not available."
 msgstr "Docker ストレージプールに関する情報は利用できません。"
 
-#: pkg/packagekit/updates.jsx:442
+#: pkg/packagekit/updates.jsx:446
 msgid "Initializing..."
 msgstr ""
 
@@ -3346,11 +3346,11 @@ msgstr ""
 msgid "Install"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:819
+#: pkg/packagekit/updates.jsx:827
 msgid "Install All Updates"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:819 pkg/packagekit/updates.jsx:825
+#: pkg/packagekit/updates.jsx:827 pkg/packagekit/updates.jsx:833
 msgid "Install Security Updates"
 msgstr ""
 
@@ -3385,7 +3385,7 @@ msgstr "インターフェース"
 msgid "Interfaces"
 msgstr "インターフェース"
 
-#: src/ws/login.js:578
+#: src/ws/login.js:601
 msgid "Internal Error: Invalid challenge header"
 msgstr "内部エラー: 無効なチャレンジヘッダー"
 
@@ -3585,7 +3585,7 @@ msgstr "最後のトリガー"
 msgid "Last Updated"
 msgstr "最終更新日"
 
-#: pkg/packagekit/updates.jsx:211
+#: pkg/packagekit/updates.jsx:213
 msgid "Last checked: $0 ago"
 msgstr ""
 
@@ -3796,7 +3796,7 @@ msgstr "論理ボリューム"
 msgid "Login"
 msgstr "ログイン"
 
-#: src/ws/login.js:255
+#: src/ws/login.js:264
 msgid "Login Again"
 msgstr "再ログイン"
 
@@ -3816,7 +3816,7 @@ msgstr "ログインが失敗しました"
 msgid "Login/password or activation key required to register."
 msgstr "ログイン/パスワードまたはアクティベーションキーを登録する必要があります。"
 
-#: src/ws/login.js:256
+#: src/ws/login.js:265
 msgid "Logout Successful"
 msgstr "ログアウトが正常に行われました"
 
@@ -3965,7 +3965,7 @@ msgstr "メモリー制限"
 msgid "Memory usage:"
 msgstr "メモリー使用状況:"
 
-#: pkg/machines/hostvmslist.jsx:273
+#: pkg/machines/hostvmslist.jsx:257
 msgid "Memory:"
 msgstr "メモリー:"
 
@@ -4052,7 +4052,7 @@ msgstr "設定"
 msgid "More details"
 msgstr "詳細"
 
-#: pkg/packagekit/updates.jsx:285
+#: pkg/packagekit/updates.jsx:289
 msgid "More information…"
 msgstr ""
 
@@ -4168,9 +4168,9 @@ msgstr "NTP サーバー"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:348 pkg/docker/containers-view.jsx:664
-#: pkg/machines/hostvmslist.jsx:488
+#: pkg/machines/hostvmslist.jsx:469
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:173 pkg/packagekit/updates.jsx:339
+#: pkg/ovirt/components/ClusterVms.jsx:173 pkg/packagekit/updates.jsx:343
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:606
 #: pkg/storaged/format-dialog.jsx:285 pkg/storaged/fsys-panel.jsx:106
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:151
@@ -4249,7 +4249,7 @@ msgstr "ネットワーク"
 msgid "Networking Logs"
 msgstr "ネットワークログ"
 
-#: pkg/machines/hostvmslist.jsx:394
+#: pkg/machines/hostvmslist.jsx:378
 msgid "Networks"
 msgstr ""
 
@@ -4359,7 +4359,7 @@ msgstr "SELinux アラートがありません。"
 msgid "No VM found in oVirt."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:49
+#: pkg/machines/hostvmslist.jsx:50
 msgid "No VM is running or defined on this host"
 msgstr "VM がこのホストで実行されていないか、定義されていません。"
 
@@ -4383,7 +4383,7 @@ msgstr ""
 msgid "No archive has been created."
 msgstr "アーカイブが作成されていません"
 
-#: pkg/machines/hostvmslist.jsx:249
+#: pkg/machines/hostvmslist.jsx:232
 #, fuzzy
 msgid "No boot device found"
 msgstr "ホストキーが見つかりません。"
@@ -4553,7 +4553,7 @@ msgstr "署名が利用できません"
 msgid "No storage set up as RAID"
 msgstr "RAID として設定されたストレージがありません"
 
-#: pkg/storaged/vdos-panel.jsx:170
+#: pkg/storaged/vdos-panel.jsx:164
 msgid "No storage set up as VDO"
 msgstr ""
 
@@ -4832,7 +4832,7 @@ msgid "Other Options"
 msgstr "他のオプション"
 
 #: pkg/docker/index.html:290 pkg/kubernetes/index.html:43
-#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:398
+#: pkg/kubernetes/registry.html:43 pkg/machines/hostvmslist.jsx:382
 msgid "Overview"
 msgstr "概要"
 
@@ -4844,22 +4844,22 @@ msgstr "既存のデータをゼロで上書きする"
 msgid "PD Name"
 msgstr "PD 名"
 
-#: pkg/packagekit/updates.jsx:488
+#: pkg/packagekit/updates.jsx:492
 msgid "Package information"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:543
+#: pkg/packagekit/updates.jsx:547
 #, fuzzy
 msgid "PackageKit crashed"
 msgstr "パッケージ"
 
-#: pkg/packagekit/updates.jsx:541 pkg/packagekit/updates.jsx:647
-#: pkg/packagekit/updates.jsx:721
+#: pkg/packagekit/updates.jsx:545 pkg/packagekit/updates.jsx:655
+#: pkg/packagekit/updates.jsx:729
 #, fuzzy
 msgid "PackageKit is not installed"
 msgstr "Cockpit はインストールされていません"
 
-#: pkg/packagekit/updates.jsx:745
+#: pkg/packagekit/updates.jsx:753
 msgid "PackageKit reported error code $0"
 msgstr ""
 
@@ -4995,7 +4995,7 @@ msgstr "パフォーマンスプロファイル"
 msgid "Permanent"
 msgstr "永続"
 
-#: src/ws/login.js:602
+#: src/ws/login.js:625
 msgid "Permission denied"
 msgstr "パーミッションが拒否されました。"
 
@@ -5140,6 +5140,10 @@ msgstr "有効なポリシーオプションを選択してください"
 
 #: pkg/users/local.js:1156
 msgid "Please specify an expiration date"
+msgstr ""
+
+#: src/ws/login.js:412
+msgid "Please specify the host to connect to"
 msgstr ""
 
 #: pkg/machines/components/consoles.jsx:36
@@ -5670,15 +5674,15 @@ msgstr "ディスクの再フォーマットおよび追加"
 msgid "Refreshing package information"
 msgstr ""
 
-#: src/ws/login.js:592
+#: src/ws/login.js:615
 msgid "Refusing to connect. Host is unknown"
 msgstr "接続を拒否しています。ホストが不明です"
 
-#: src/ws/login.js:594
+#: src/ws/login.js:617
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "接続を拒否しています。ホストキーが一致しません"
 
-#: src/ws/login.js:590
+#: src/ws/login.js:613
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "接続を拒否しています。ホストキーが不明です"
 
@@ -5707,7 +5711,7 @@ msgstr "システムの登録"
 msgid "Registering oVirt to Cockpit"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:901
+#: pkg/packagekit/updates.jsx:909
 msgid "Register…"
 msgstr ""
 
@@ -5945,7 +5949,7 @@ msgstr "$target のサイズ変更"
 
 #: pkg/docker/index.html:134 pkg/systemd/index.html:136
 #: pkg/systemd/index.html:143 pkg/docker/containers-view.jsx:306
-#: pkg/machines/hostvmslist.jsx:63 pkg/systemd/init.js:515
+#: pkg/machines/hostvmslist.jsx:64 pkg/systemd/init.js:515
 #: pkg/systemd/shutdown.js:96 pkg/systemd/shutdown.js:97
 msgid "Restart"
 msgstr "再起動"
@@ -5954,7 +5958,7 @@ msgstr "再起動"
 msgid "Restart Count"
 msgstr "再起動回数"
 
-#: pkg/packagekit/updates.jsx:485
+#: pkg/packagekit/updates.jsx:489
 #, fuzzy
 msgid "Restart Now"
 msgstr "再起動"
@@ -5967,12 +5971,12 @@ msgstr "再起動ポリシー"
 msgid "Restart Policy:"
 msgstr "再起動ポリシー:"
 
-#: pkg/packagekit/updates.jsx:480
+#: pkg/packagekit/updates.jsx:484
 #, fuzzy
 msgid "Restart Recommended"
 msgstr "推奨"
 
-#: pkg/packagekit/updates.jsx:885
+#: pkg/packagekit/updates.jsx:893
 #, fuzzy
 msgid "Restarting"
 msgstr "再起動"
@@ -6030,7 +6034,7 @@ msgid "Routes"
 msgstr "ルート"
 
 #: pkg/docker/index.html:237 pkg/docker/index.html:556
-#: pkg/systemd/services.html:400 pkg/machines/hostvmslist.jsx:98
+#: pkg/systemd/services.html:400 pkg/machines/hostvmslist.jsx:99
 #: pkg/ovirt/components/ClusterVms.jsx:84
 msgid "Run"
 msgstr "実行"
@@ -6187,7 +6191,7 @@ msgstr "$target を安全に削除"
 msgid "Security"
 msgstr "Security"
 
-#: pkg/packagekit/updates.jsx:255
+#: pkg/packagekit/updates.jsx:259
 #, fuzzy
 msgid "Security Update"
 msgstr "Security"
@@ -6210,7 +6214,7 @@ msgid ""
 "{{#strong}}{{host}}{{/strong}}"
 msgstr "{{#strong}}{{host}}{{/strong}} と同期するユーザーを選択します"
 
-#: pkg/machines/hostvmslist.jsx:87
+#: pkg/machines/hostvmslist.jsx:88
 msgid "Send Non-Maskable Interrupt"
 msgstr ""
 
@@ -6440,7 +6444,7 @@ msgstr "すべてのイメージの表示"
 msgid "Show fingerprints"
 msgstr "フィンガープリントの表示"
 
-#: pkg/systemd/index.html:146 pkg/machines/hostvmslist.jsx:77
+#: pkg/systemd/index.html:146 pkg/machines/hostvmslist.jsx:78
 #: pkg/systemd/shutdown.js:93 pkg/systemd/shutdown.js:94
 msgid "Shut Down"
 msgstr "シャットダウン"
@@ -6595,7 +6599,7 @@ msgstr "開始"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:348
-#: pkg/machines/hostvmslist.jsx:488 pkg/machines/vmnetworktab.jsx:120
+#: pkg/machines/hostvmslist.jsx:469 pkg/machines/vmnetworktab.jsx:120
 #: pkg/ovirt/components/ClusterVms.jsx:176 pkg/systemd/init.js:275
 msgid "State"
 msgstr "状態"
@@ -6810,7 +6814,7 @@ msgstr "システムサービス"
 msgid "System Time"
 msgstr "システム時間"
 
-#: pkg/packagekit/updates.jsx:914
+#: pkg/packagekit/updates.jsx:922
 msgid "System is up to date"
 msgstr ""
 
@@ -6934,27 +6938,27 @@ msgstr "スペアディスクを追加する場合は、MDRAID デバイスが�
 msgid "The RAID device must be running in order to remove disks."
 msgstr "ディスクを取り外す場合は、RAID デバイスが実行中である必要があります。"
 
-#: pkg/machines/hostvmslist.jsx:161
+#: pkg/machines/hostvmslist.jsx:162
 msgid "The VM crashed."
 msgstr "VM がクラッシュしました。"
 
-#: pkg/machines/hostvmslist.jsx:160
+#: pkg/machines/hostvmslist.jsx:161
 msgid "The VM is down."
 msgstr "VM がダウンしています。"
 
-#: pkg/machines/hostvmslist.jsx:159
+#: pkg/machines/hostvmslist.jsx:160
 msgid "The VM is going down."
 msgstr "VM がダウンします。"
 
-#: pkg/machines/hostvmslist.jsx:157
+#: pkg/machines/hostvmslist.jsx:158
 msgid "The VM is idle."
 msgstr "VM がアイドル状態です。"
 
-#: pkg/machines/hostvmslist.jsx:163
+#: pkg/machines/hostvmslist.jsx:164
 msgid "The VM is in process of dying (shut down or crash is not completed)."
 msgstr "VM が終了中の状態です (シャットダウンまたはクラッシュが完了していません)。"
 
-#: pkg/machines/hostvmslist.jsx:158
+#: pkg/machines/hostvmslist.jsx:159
 msgid "The VM is paused."
 msgstr "VM が一時停止しています。"
 
@@ -6962,11 +6966,11 @@ msgstr "VM が一時停止しています。"
 msgid "The VM is running and will be forced off before deletion."
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:156
+#: pkg/machines/hostvmslist.jsx:157
 msgid "The VM is running."
 msgstr "VM が実行中です。"
 
-#: pkg/machines/hostvmslist.jsx:164
+#: pkg/machines/hostvmslist.jsx:165
 msgid "The VM is suspended by guest power management."
 msgstr "VM はゲストの電源管理によって一時停止されています。"
 
@@ -7015,11 +7019,11 @@ msgid ""
 " Proceeding will stop these services and sessions."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:357
+#: pkg/packagekit/updates.jsx:361
 msgid "The following packages were recently updated:"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:356
+#: pkg/packagekit/updates.jsx:360
 msgid "The following packages were updated $0:"
 msgstr ""
 
@@ -7119,7 +7123,7 @@ msgstr ""
 msgid "The selected file is not a valid Kubernetes application manifest."
 msgstr "選択されたファイルは有効な Kubernetes アプリケーションマニフェストではありません。"
 
-#: src/ws/login.js:584
+#: src/ws/login.js:607
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7186,7 +7190,7 @@ msgid ""
 "underscores."
 msgstr "ユーザー名は a〜z の文字、数字、ドット、ダッシュ、およびアンダースコアだけで構成されます。"
 
-#: src/ws/login.js:125
+#: src/ws/login.js:135
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible "
 "$0)"
@@ -7314,7 +7318,7 @@ msgstr "このパッケージには Cockpit のこのバージョンとの互換
 msgid "This package requires Cockpit version %s or later"
 msgstr "このパッケージには Cockpit バージョン %s 以降が必要です"
 
-#: pkg/packagekit/updates.jsx:896
+#: pkg/packagekit/updates.jsx:904
 msgid "This system is not registered"
 msgstr ""
 
@@ -7368,7 +7372,7 @@ msgstr ""
 msgid "This volume has not been claimed"
 msgstr "このボリュームはクレームされていません"
 
-#: src/ws/login.js:130
+#: src/ws/login.js:140
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "この Web ブラウザーは古いため Cockpit を実行できません ($0 が不明)"
 
@@ -7403,7 +7407,7 @@ msgid ""
 "authenticate against other systems."
 msgstr "ヒント: 他のシステムに対して自動的に認証する場合は、鍵のパスワードをログインパスワードに一致させます。"
 
-#: pkg/packagekit/updates.jsx:897
+#: pkg/packagekit/updates.jsx:905
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7549,7 +7553,7 @@ msgstr "OSTree と通信できません"
 msgid "Unable to connect"
 msgstr "接続できません"
 
-#: src/ws/login.js:588
+#: src/ws/login.js:611
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
@@ -7717,7 +7721,7 @@ msgstr "認識されないデータ"
 msgid "Unregister"
 msgstr "登録解除"
 
-#: pkg/packagekit/updates.jsx:798
+#: pkg/packagekit/updates.jsx:806
 msgid "Unregistered System"
 msgstr ""
 
@@ -7750,12 +7754,12 @@ msgstr "$StartedAt から稼働中"
 msgid "Update"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:860
+#: pkg/packagekit/updates.jsx:868
 #, fuzzy
 msgid "Update History"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:460
+#: pkg/packagekit/updates.jsx:464
 #, fuzzy
 msgid "Update Log"
 msgstr "更新"
@@ -7769,7 +7773,7 @@ msgstr "更新および再起動"
 msgid "Updated"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:481
+#: pkg/packagekit/updates.jsx:485
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 
@@ -7777,7 +7781,7 @@ msgstr ""
 msgid "Updates"
 msgstr "更新"
 
-#: pkg/packagekit/updates.jsx:802
+#: pkg/packagekit/updates.jsx:810
 msgid "Updates are disabled."
 msgstr ""
 
@@ -7794,7 +7798,7 @@ msgstr "$0 の更新中 ..."
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr "ディスクの統計情報を表示するには libvirt の新しいバージョンにアップグレードしてください"
 
-#: pkg/machines/hostvmslist.jsx:392 pkg/storaged/unrecognized-tab.jsx:40
+#: pkg/machines/hostvmslist.jsx:376 pkg/storaged/unrecognized-tab.jsx:40
 msgid "Usage"
 msgstr "使用法"
 
@@ -7820,7 +7824,7 @@ msgstr "信頼済み GPG 鍵の使用"
 
 #: pkg/systemd/index.html:261 pkg/docker/storage.jsx:315
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
-#: pkg/machines/hostvmslist.jsx:336 pkg/machines/hostvmslist.jsx:347
+#: pkg/machines/hostvmslist.jsx:319 pkg/machines/hostvmslist.jsx:330
 #: pkg/machines/vmdiskstab.jsx:133 pkg/storaged/fsys-tab.jsx:204
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1473
 msgid "Used"
@@ -7858,7 +7862,7 @@ msgstr ""
 msgid "User name"
 msgstr "ユーザー名"
 
-#: src/ws/login.js:396
+#: src/ws/login.js:410
 msgid "User name cannot be empty"
 msgstr "ユーザー名は空にできません"
 
@@ -7896,7 +7900,7 @@ msgstr ""
 msgid "VDO Device $0"
 msgstr ""
 
-#: pkg/storaged/vdos-panel.jsx:169
+#: pkg/storaged/vdos-panel.jsx:163
 msgid "VDO Devices"
 msgstr ""
 
@@ -7990,7 +7994,7 @@ msgstr ""
 #: pkg/ostree/index.html:303 pkg/shell/index.html:90 pkg/shell/simple.html:64
 #: pkg/shell/stub.html:71 pkg/systemd/index.html:108
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
-#: pkg/ovirt/components/ClusterVms.jsx:75 pkg/packagekit/updates.jsx:340
+#: pkg/ovirt/components/ClusterVms.jsx:75 pkg/packagekit/updates.jsx:344
 #: pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Version"
 msgstr "バージョン"
@@ -8003,11 +8007,11 @@ msgstr ""
 msgid "Very securely erasing $target"
 msgstr "$target を非常に安全に削除"
 
-#: pkg/packagekit/updates.jsx:808
+#: pkg/packagekit/updates.jsx:816
 msgid "View Registration Details"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:488
+#: pkg/machines/hostvmslist.jsx:469
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
@@ -8090,7 +8094,7 @@ msgstr "イメージレジストリーへようこそ"
 msgid "When"
 msgstr "日付"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid ""
 "When you get disconnected, the updates will continue in the background. You "
 "can reconnect and resume watching the update progress."
@@ -8112,7 +8116,7 @@ msgstr "書き込み"
 msgid "Writing objects"
 msgstr "オブジェクトの書き込み"
 
-#: src/ws/login.js:598
+#: src/ws/login.js:621
 msgid "Wrong user name or password"
 msgstr "ユーザー名またはパスワードが間違っています"
 
@@ -8166,7 +8170,7 @@ msgstr "このアカウントに承認された公開鍵を表示するパーミ
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr "Docker ストレージプールを管理するパーミッションがありません。"
 
-#: pkg/packagekit/updates.jsx:804
+#: pkg/packagekit/updates.jsx:812
 msgid "You need to re-subscribe this system."
 msgstr ""
 
@@ -8180,7 +8184,7 @@ msgid ""
 "from the command line."
 msgstr "ログイン資格情報は、コマンドラインから docker レジストリーを使用するアクセスを提供しません。"
 
-#: pkg/packagekit/updates.jsx:886
+#: pkg/packagekit/updates.jsx:894
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8491,6 +8495,14 @@ msgstr ""
 msgid "shares"
 msgstr "共有"
 
+#: pkg/machines/components/vmLastMessage.jsx:49
+msgid "show less"
+msgstr ""
+
+#: pkg/machines/components/vmLastMessage.jsx:47
+msgid "show more"
+msgstr ""
+
 #: pkg/machines/helpers.es6:111
 msgid "shut off"
 msgstr "シャットオフ"
@@ -8565,7 +8577,7 @@ msgstr ""
 msgid "vCPUs"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:275
+#: pkg/machines/hostvmslist.jsx:259
 msgid "vCPUs:"
 msgstr "vCPU:"
 

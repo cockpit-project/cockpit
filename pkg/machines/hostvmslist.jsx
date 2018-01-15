@@ -24,7 +24,7 @@ import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm,
 import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import VmDisksTab from './vmdiskstab.jsx';
+import VmDisksTab from './components/vmdiskstab.jsx';
 import VmNetworkTab from './vmnetworktab.jsx';
 import Consoles from './components/consoles.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";

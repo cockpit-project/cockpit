@@ -17,55 +17,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import cockpit from 'cockpit';
 import React from "react";
 import { vmId } from '../helpers.es6';
 import { deleteVmMessage } from '../actions.es6';
+import { Alert } from './inlineNotification.jsx';
+
 import './vmLastMessage.css';
 
-const _ = cockpit.gettext;
-
-class InlineNotification extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isDetail: false,
-        };
-
-        this.toggleDetail = this.toggleDetail.bind(this);
-    }
-
-    toggleDetail () {
-        this.setState({
-            isDetail: !this.state.isDetail,
-        });
-    }
-
-    render () {
-        const { text, detail, textId, onDismiss } = this.props;
-
-        let detailButtonText = _("show more");
-        if (this.state.isDetail) {
-            detailButtonText = _("show less");
-        }
-        const detailButton = (<a href='#' className='alert-link machines-more-button' onClick={this.toggleDetail}>{detailButtonText}</a>);
-
-        // do not use "data-dismiss='alert'" to close the notification
-        return (
-            <div className='alert alert-warning alert-dismissable'>
-                <button type='button' className='close' aria-hidden='true' onClick={onDismiss}>
-                    <span className='pficon pficon-close'/>
-                </button>
-                <span className='pficon pficon-warning-triangle-o'/>
-                <strong id={textId}>
-                    {text}
-                </strong>
-                {detailButton}
-                {this.state.isDetail && detail}
-            </div>
-        );
-    }
-}
+React;
 
 const VmLastMessage = ({ vm, dispatch }) => {
     if (!vm.lastMessage) {
@@ -80,7 +39,7 @@ const VmLastMessage = ({ vm, dispatch }) => {
         dispatch(deleteVmMessage({ name: vm.name, connectionName: vm.connectionName }));
     };
 
-    return (<InlineNotification text={vm.lastMessage} textId={textId} detail={detail} onDismiss={onDismiss} />);
+    return (<Alert text={vm.lastMessage} textId={textId} detail={detail} onDismiss={onDismiss} />);
 };
 
 export default VmLastMessage;

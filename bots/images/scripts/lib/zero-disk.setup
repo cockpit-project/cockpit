@@ -41,7 +41,6 @@ if [ -d "/var/cache" ]; then
 fi
 rm -rf /var/tmp/*
 rm -rf /var/log/journal/*
-
 dd if=/dev/zero of=/root/junk || true
 sync
 rm -f /root/junk

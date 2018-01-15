@@ -1,6 +1,11 @@
 #!/bin/bash
 set -ex
 
+function docker_pull {
+  docker pull $1
+  echo "$1" >> /tmp/pulledImages
+}
+
 KUBEVIRT_DIR="/kubevirt"
 rm -rf ${KUBEVIRT_DIR}
 mkdir -p ${KUBEVIRT_DIR}
@@ -22,12 +27,12 @@ done
 # pre-pull related images (will be applied later)
 for IMAGE in `grep -h 'image:' *.yaml | sed -e 's/^.*image://g'` ; do
     echo Pulling image for Kubevirt: ${IMAGE}
-    docker pull ${IMAGE}
+    docker_pull ${IMAGE}
 done
 
-docker pull kubevirt/iscsi-demo-target-tgtd:latest
-docker pull kubevirt/virt-launcher:${KUBEVIRT_VERSION}
-docker pull kubevirt/virt-migrator:${KUBEVIRT_VERSION}
+docker_pull kubevirt/iscsi-demo-target-tgtd:latest
+docker_pull kubevirt/virt-launcher:${KUBEVIRT_VERSION}
+docker_pull kubevirt/virt-migrator:${KUBEVIRT_VERSION}
 
 # Reuse test VM and its disk from kubevirt project since its being developed along the Kubevirt itself
 TARBALL=`cat kubevirt_latest.json | grep \"tarball_url\": | sed -e 's/^.*\"tarball_url\":\s*\"\(.*\)\",/\1/'`

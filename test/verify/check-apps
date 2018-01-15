@@ -112,6 +112,9 @@ class TestApps(PackageCase):
         self.allow_journal_messages("invalid or unusable locale.*",
                                     "Error receiving data: Connection reset by peer")
 
+        # Reset everything
+        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
+
         m.start_cockpit()
         b.login_and_go("/apps")
         b.wait_present(".app-list-empty")
@@ -164,6 +167,9 @@ class TestApps(PackageCase):
     def testBrokenXML(self):
         b = self.browser
         m = self.machine
+
+        # Reset everything
+        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
 
         m.start_cockpit()
         b.login_and_go("/apps")

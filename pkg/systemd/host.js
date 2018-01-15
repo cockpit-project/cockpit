@@ -19,6 +19,7 @@
 
 var $ = require("jquery");
 var cockpit = require("cockpit");
+var machine_info = require("machine-info.es6").machine_info;
 
 var Mustache = require("mustache");
 var plot = require("plot");
@@ -59,44 +60,6 @@ function update_shutdown_privileged() {
 function debug() {
     if (window.debugging == "all" || window.debugging == "system")
         console.debug.apply(console, arguments);
-}
-
-/* machine_info(address).done(function (info) { })
- *
- * Get information about the machine at ADDRESS.  The returned object
- * has these fields:
- *
- * memory  -  amount of physical memory
- */
-
-var machine_info_promises = { };
-
-function machine_info(address) {
-    var pr = machine_info_promises[address];
-    var dfd;
-    if (!pr) {
-        dfd = $.Deferred();
-        machine_info_promises[address] = pr = dfd.promise();
-
-        cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"]).
-            done(function(text) {
-                var info = { };
-                var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
-                var total_kb = match && parseInt(match[1], 10);
-                if (total_kb)
-                    info.memory = total_kb*1024;
-
-                info.cpus = 0;
-                var re = new RegExp("^processor", "gm");
-                while (re.test(text))
-                    info.cpus += 1;
-                dfd.resolve(info);
-            }).
-            fail(function() {
-                dfd.reject();
-            });
-    }
-    return pr;
 }
 
 function ServerTime() {

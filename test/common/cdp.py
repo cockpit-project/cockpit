@@ -19,25 +19,23 @@ def browser_path(headless=True):
     """Return path to CDP browser.
 
     Support the following locations:
-     - "chromium-browser" in $PATH (distro package)
      - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM), if
        headless is true
+     - "chromium-browser" in $PATH (distro package)
      - node_modules/chromium/lib/chromium/chrome-linux/chrome (npm install chromium)
 
     Exit with an error if none is found.
     """
+    if headless:
+        g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
+        if g:
+            return g[0]
     try:
         return subprocess.check_output(["which", "chromium-browser"]).strip()
     except subprocess.CalledProcessError:
-        if headless:
-            g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
-            if g:
-                return g[0]
-
         p = os.path.join(os.path.dirname(TEST_DIR), "node_modules/chromium/lib/chromium/chrome-linux/chrome")
         if os.access(p, os.X_OK):
             return p
-
         raise
 
 

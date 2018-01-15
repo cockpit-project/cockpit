@@ -381,7 +381,7 @@ const Vm = ({ vm, config, hostDevices, onStart, onShutdown, onForceoff, onReboot
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: {vm, config, dispatch }},
         {name: usageTabName, renderer: VmUsageTab, data: {vm, onUsageStartPolling, onUsageStopPolling}, presence: 'onlyActive' },
-        {name: disksTabName, renderer: VmDisksTab, data: {vm, provider: config.provider}, presence: 'onlyActive' },
+        {name: disksTabName, renderer: VmDisksTab, data: {vm, provider: config.provider, onUsageStartPolling, onUsageStopPolling}, presence: 'onlyActive' },
         {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, hostDevices }},
         {name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch }},
     ];

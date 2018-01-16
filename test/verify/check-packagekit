@@ -83,6 +83,8 @@ class TestUpdates(PackageCase):
         for m in desc_matches +  cves + bugs:
             self.assertIn(m, desc)
 
+        return row
+
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
@@ -197,10 +199,13 @@ class TestUpdates(PackageCase):
         # security fix with proper CVE list and severity
         self.createPackage("secdeclare", "3", "4.a1", install=True)
         self.createPackage("secdeclare", "3", "4.b1", severity="security",
-                           changes="Will crash your data center", cves=['CVE-2014-123456'])
+                           changes="Will crash your data center", cves=["CVE-2014-123456"])
         # security fix with parsing from changes
         self.createPackage("secparse", "4", "1", install=True)
         self.createPackage("secparse", "4", "2", changes="Fix CVE-2014-54321 and CVE-2017-9999.")
+        # security fix with RHEL severity
+        self.createPackage("sevcritical", "5", "1", install=True)
+        self.createPackage("sevcritical", "5", "2", cves=["CVE-2014-54321"], securitySeverity="critical", changes="More broken stuff")
 
         self.enableRepo()
         m.execute("pkcon refresh")
@@ -209,10 +214,10 @@ class TestUpdates(PackageCase):
         b.login_and_go("/updates")
         b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
-        self.assertEqual(b.text("#state"), "5 updates, including 2 security fixes")
+        self.assertEqual(b.text("#state"), "6 updates, including 3 security fixes")
 
         b.wait_present("table.listing-ct")
-        b.wait_in_text("table.listing-ct", "secparse")
+        b.wait_in_text("table.listing-ct", "sevcritical")
 
         # security updates should get sorted on top and then alphabetically, so start with "secdeclare"
         self.check_nth_update(1, "secdeclare", "3-4.b1", "security", 1,
@@ -221,10 +226,21 @@ class TestUpdates(PackageCase):
         self.check_nth_update(2, "secparse", "4-2", "security", 2,
                               desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."],
                               cves=["CVE-2014-54321", "CVE-2017-9999"])
+        sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1,
+                                    desc_matches=["More broken stuff"])
+        if self.backend == 'yum':
+            # sevcritical has a severity
+            self.assertIn("Severity:", b.text(sel + " .listing-ct-body"))
+            self.assertIn("critical", b.text(sel + " .listing-ct-body"))
+            # icon has critical class
+            self.assertIn("severity-critical", b.attr(sel + " td:nth-of-type(3) span.pficon", "class"))
+            # details has link to severity definition
+            self.assertIn("access.redhat.com", b.attr(sel + " .listing-ct-body dd.severity a:first-of-type", "href"))
+
         # buggy: bug refs, no security
-        self.check_nth_update(3, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
+        self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
         # norefs: just changelog, show both binary packages
-        self.check_nth_update(4, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
+        self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
                               desc_matches=["Now 10% more unicorns"])
         # install only security updates
         self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
@@ -246,10 +262,10 @@ class TestUpdates(PackageCase):
             # make sure we don't have any extra ones
             self.assertFalse(b.is_present(selector.format(len(updates) + 1)))
 
-        # history on restart page should show the two security updates
+        # history on restart page should show the three security updates
         b.wait_present(".expander-title span")
         b.click(".expander-title span")
-        assertHistory("ul", ["secdeclare", "secparse"])
+        assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
         b.wait_present("#app .container-fluid button.btn-default")
@@ -267,10 +283,10 @@ class TestUpdates(PackageCase):
 
         # history should show the security updates
         b.wait_present(".container-fluid #history h2")
-        assertHistory("#history ul", ["secdeclare", "secparse"])
+        assertHistory("#history ul", ["secdeclare", "secparse", "sevcritical"])
 
         # new security versions are now installed
-        m.execute("test -f /stamp-secdeclare-3-4.b1 && test -f /stamp-secparse-4-2")
+        m.execute("test -f /stamp-secdeclare-3-4.b1 && test -f /stamp-secparse-4-2 && test -f /stamp-sevcritical-5-2")
         # but the three others are untouched
         m.execute("test -f /stamp-buggy-2-1 && test -f /stamp-norefs-bin-1-1 && test -f /stamp-norefs-doc-1-1")
 

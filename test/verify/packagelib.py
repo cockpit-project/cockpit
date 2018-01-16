@@ -174,6 +174,8 @@ rm -rf ~/rpmbuild
                 refs += '      <reference href="https://bugs.example.com?bug={0}" id="{0}" title="Bug#{0} Description" type="bugzilla"/>\n'.format(b)
             for c in info.get("cves", []):
                 refs += '      <reference href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={0}" id="{0}" title="{0}" type="cve"/>\n'.format(c)
+            if info.get("securitySeverity"):
+                refs += '      <reference href="https://access.redhat.com/security/updates/classification/#{0}" id="" title="" type="other"/>\n'.format(info["securitySeverity"])
 
             xml += '''  <update from="test@example.com" status="stable" type="{severity}" version="2.0">
     <id>UPDATE-{pkg}-{ver}-{rel}</id>

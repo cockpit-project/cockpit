@@ -235,6 +235,25 @@ function HeaderBar(props) {
     );
 }
 
+function getSeverityURL(urls) {
+    // in ascending severity
+    const knownLevels = ["low", "moderate", "important", "critical"];
+    var highestIndex = -1;
+    var highestURL = null;
+
+    // search URLs for highest valid severity; by all means we expect an update to have at most one, but for paranoia..
+    urls.map(value => {
+        if (value.startsWith("https://access.redhat.com/security/updates/classification/#")) {
+            let i = knownLevels.indexOf(value.slice(value.indexOf("#") + 1));
+            if (i > highestIndex) {
+                highestIndex = i;
+                highestURL = value;
+            }
+        }
+    });
+    return highestURL;
+}
+
 class UpdateItem extends React.Component {
     constructor() {
         super();
@@ -264,10 +283,21 @@ class UpdateItem extends React.Component {
         }
 
         var type;
+        var secSeverity;
         if (info.severity === PK_INFO_ENUM_SECURITY) {
+            let classes = "pficon pficon-security";
+
+            // parse Red Hat security update classification from vendor_urls
+            secSeverity = getSeverityURL(info.vendor_urls);
+            if (secSeverity) {
+                let s = secSeverity.slice(secSeverity.indexOf("#") + 1);
+                classes += " severity-" + s;
+                secSeverity = <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={secSeverity}>{s}</a>;
+            }
+
             type = (
                 <span>
-                    <span className="pficon pficon-security">&nbsp;</span>
+                    <span className={classes}>&nbsp;</span>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </span>);
         } else if (info.severity >= PK_INFO_ENUM_NORMAL) {
@@ -305,6 +335,8 @@ class UpdateItem extends React.Component {
                                 <dd>{pkgs}</dd>
                                 { cves ? <dt>CVE:</dt> : null }
                                 { cves ? <dd>{cves}</dd> : null }
+                                { secSeverity ? <dt>{_("Severity:")}</dt> : null }
+                                { secSeverity ? <dd className="severity">{secSeverity}</dd> : null }
                                 { bugs ? <dt>{_("Bugs:")}</dt> : null }
                                 { bugs ? <dd>{bugs}</dd> : null }
                             </dl>
@@ -617,6 +649,7 @@ class OsUpdates extends React.Component {
                     u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
                     if (u.cve_urls && u.cve_urls.length > 0)
                         u.severity = PK_INFO_ENUM_SECURITY;
+                    u.vendor_urls = vendor_urls || [];
                     // u.restart = restart; // broken (always "1") at least in Fedora
 
                     this.setState({ updates: this.state.updates });

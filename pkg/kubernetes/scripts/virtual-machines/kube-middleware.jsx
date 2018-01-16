@@ -17,11 +17,30 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import { logDebug } from './utils.jsx';
+import cockpit from 'cockpit';
 
 let kubeMethods = null;
+let kubeLoader = null;
 
-export function initMiddleware(_kubeMethods) {
+export function initMiddleware(_kubeMethods, _kubeLoader) {
     kubeMethods = _kubeMethods;
+    kubeLoader = _kubeLoader;
+}
+
+function vmCreate(resource) {
+    const deferred = cockpit.defer();
+    const promise = kubeMethods.create(resource, kubeLoader.limits.namespace);
+
+    // wrap angular promise in cockpit promise because of incompatibility
+    promise.then(function(/* ... */) {
+        return deferred.resolve.apply(deferred, arguments);
+    });
+
+    promise.catch(function(result) {
+        deferred.reject(`${result.status}: ${result.message}`);
+    });
+
+    return deferred.promise;
 }
 
 async function vmDelete({ vm }) {
@@ -30,4 +49,4 @@ async function vmDelete({ vm }) {
     return await kubeMethods.delete(selfLink); // no value is returned (empty promise). An exception is thrown in case of failure
 }
 
-export { vmDelete };
+export { vmDelete, vmCreate };

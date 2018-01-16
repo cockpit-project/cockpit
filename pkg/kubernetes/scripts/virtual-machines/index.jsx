@@ -64,8 +64,8 @@ function addKubeLoaderListener ($scope, kubeLoader, kubeSelect) {
 }
 
 const VmsPlugin = () => (
-    <Provider store={reduxStore} >
-        <VmsListing />
+    <Provider store={reduxStore}>
+        <VmsListing/>
     </Provider>
 );
 
@@ -80,11 +80,12 @@ function addScopeVarsToStore ($scope) {
  * @param {$rootScope.Scope} $scope 'VirtualMachinesCtrl' controller scope
  * @param {kubeLoader} kubeLoader
  * @param {kubeSelect} kubeSelect
+ * @param {kubeMethods} kubeMethods
  */
 function init($scope, kubeLoader, kubeSelect, kubeMethods) {
     initReduxStore();
     addKubeLoaderListener($scope, kubeLoader, kubeSelect);
-    initMiddleware(kubeMethods);
+    initMiddleware(kubeMethods, kubeLoader);
     addScopeVarsToStore($scope);
 
     const rootElement = document.querySelector('#kubernetes-virtual-machines-root');

@@ -26,6 +26,7 @@ import { gettext as _ } from 'cockpit';
 import { Listing } from '../../../../lib/cockpit-components-listing.jsx';
 import VmsListingRow from './VmsListingRow.jsx';
 import { getPod } from '../selectors.jsx';
+import CreateVmButton from './createVmButton.jsx';
 
 React;
 
@@ -37,9 +38,14 @@ const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
                                                pod={getPod(vm, pods)}
                                                pvs={pvs}
                                                key={vm.metadata.uid} />));
+    let actions = [(
+        <CreateVmButton/>
+    )];
+
     return (
         <Listing title={_("Virtual Machines")}
                  emptyCaption={_("No virtual machines")}
+                 actions={actions}
                  columnTitles={[_("Name"), namespaceLabel, _("Node"), _("State")]}>
             {rows}
         </Listing>

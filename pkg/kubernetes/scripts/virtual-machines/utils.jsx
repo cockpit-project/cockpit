@@ -69,3 +69,9 @@ export function getValueOrDefault(accessor, defaultValue) {
     }
     return defaultValue;
 }
+
+export function preventDefault(e) {
+    e.preventDefault();
+    return false;
+}
+

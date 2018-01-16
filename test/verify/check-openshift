@@ -32,6 +32,9 @@ from kubelib import *
 # prevent them from being run concurrently.  Both use a 'openshift'
 # machine, and we can only run a single one of those at the same time.
 
+base_dir = os.path.dirname(os.path.realpath(__file__))
+
+
 def wait_project(machine, project):
     i = 0
     found = True
@@ -475,6 +478,263 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         pod_name = b.text("#vm-testvm-pod > a").strip()
         b.click("#vm-testvm-pod > a")
         b.wait_js_cond('window.location.hash === "#/l/pods/kube-system/%s"' % (pod_name))
+
+    def testKubevirtMachinesCreate(self):
+        class TestCreateConfig:
+            VM_CONFIG_FILE = os.path.join(base_dir, "files/mock-kube-vm.json")
+            VM_CONFIG_FILE_VM_NAME = "testvm"
+            INVALID_FILE = os.path.join(base_dir, "/tmp/invalid-file.json")
+
+        class CreateVmRunner:
+            def __init__(self, test_obj):
+                self.browser = test_obj.browser
+                self.openshift = test_obj.openshift
+                self.assertEqual = test_obj.assertEqual
+
+            def tryCreate(self, dialog):
+                b = self.browser
+                name = dialog.name
+
+                dialog.open() \
+                    .fill() \
+                    .create()
+                row_selector = "tr[data-row-id='vm-{0}']".format(name)
+
+                b.wait_present(row_selector)
+                self.assertEqual(b.text("{0} th".format(row_selector)), name)
+                self.assertEqual(b.text("{0} td:nth-of-type(2)".format(row_selector)), dialog.getNamespace())
+
+                # expand row
+                b.click(row_selector)
+                b.wait_present("{0} + tr.listing-ct-panel".format(row_selector))
+                b.wait_in_text("{0} + tr.listing-ct-panel".format(row_selector), "Node")
+
+                return self
+
+            def deleteVm(self, dialog):
+                b = self.browser
+                self.openshift.execute("oc delete vm {0} --namespace={1}".format(dialog.name, dialog.getNamespace()))
+                b.wait_not_present("tr[data-row-id='vm-{0}']".format(dialog.name))
+
+                return self
+
+            def checkEnvIsEmpty(self):
+                b = self.browser
+                b.wait_present("thead tr td")
+                b.wait_in_text("thead tr td", "No virtual machines")
+                b.wait(lambda: "No resources found." in self.openshift.execute("oc get vms --all-namespaces 2>&1"))
+
+                return self
+
+        class VmDialog:
+            def __init__(self, test_obj, name, resource=None, namespace="All Projects", opts=None):
+                self.browser = test_obj.browser
+                self.machine = test_obj.machine
+                self.snapshot = test_obj.snapshot
+
+                self.name = name
+                self.resource = resource
+                self.namespace = namespace
+                self.opts = opts if opts else {}
+
+            def getNamespace(self):
+                return 'default' if self.namespace == "All Projects" else self.namespace
+
+            def open(self, preselect_namespace=True):
+                b = self.browser
+
+                if preselect_namespace:
+                    self._selectFromNamespaceDropdown(self.namespace)
+
+                b.wait_present("#create-new-vm")
+                b.click("#create-new-vm")
+                b.wait_present("#cockpit_modal_dialog")
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Virtual Machine")
+
+                return self
+
+            def fill(self):
+                if self.opts and 'filename' in self.opts:
+                    filename = self.opts['filename']
+                    self._setFile("#file-input", filename)
+                else:
+                    self._setVal("#resource-text", self.resource)
+
+                return self
+
+            def cancel(self):
+                b = self.browser
+                if b.is_present("#cockpit_modal_dialog"):
+                    b.click(".modal-footer button:contains(Cancel)")
+                    b.wait_not_present("#cockpit_modal_dialog")
+
+                return self
+
+            def create(self):
+                b = self.browser
+                b.click(".modal-footer button:contains(Create)")
+                b.wait_not_present("#cockpit_modal_dialog")
+
+                return self
+
+            def createAndExpectUiError(self, error_dict):
+                b = self.browser
+                b.click(".modal-footer button:contains(Create)")
+                b.wait_present(".modal-footer div.alert")
+                b.wait_in_text(".modal-footer div.alert", "Resolve above errors to continue")
+                for key, error in error_dict.items():
+                    b.wait_present(key)
+                    b.wait_in_text(key, error)
+
+                return self
+
+            def createAndExpectBackendError(self, error):
+                b = self.browser
+                b.click(".modal-footer button:contains(Create)")
+                b.wait_present(".modal-footer .spinner")
+                b.wait_not_present(".modal-footer .spinner")
+                b.wait_present(".modal-footer div.alert")
+                b.wait_in_text(".modal-footer div.alert", error)
+
+                return self
+
+            def _selectFromNamespaceDropdown(self, value):
+                b = self.browser
+                dropdown_selector = "filter-project div"
+                dropdown_button = "{0} button".format(dropdown_selector)
+                item_selector = "{0} ul li a:contains({1})".format(dropdown_selector, value)
+
+                b.wait_visible(dropdown_button)
+                b.click(dropdown_button)
+
+                b.wait_visible(item_selector)
+                b.click(item_selector)
+                b.wait_not_visible(item_selector)
+
+            def _setFile(self, id, filename):
+                b = self.browser
+                b.wait_present(id)
+                b.upload_file(id, filename)
+
+            def _setVal(self, selector, value, by_key_press=False):
+                b = self.browser
+                value = str(value)
+
+                b.wait_present(selector)
+                b.wait_visible(selector)
+                b.click(selector)
+                b.focus(selector)
+                b.set_val(selector, '')  # clear value
+                if by_key_press:
+                    b.key_press(value)
+                else:
+                    b.set_val(selector, value)
+                b.wait_val(selector, value)
+
+        self.bootstrapKubevirt()
+        runner = CreateVmRunner(self)
+
+        def getResource(name):
+            with open(TestCreateConfig.VM_CONFIG_FILE, 'r') as f:
+                return f.read().replace(TestCreateConfig.VM_CONFIG_FILE_VM_NAME, name)
+
+        def checkDialogUiErrorTest(dialog, error_dict):
+            dialog.open() \
+                .fill() \
+                .createAndExpectUiError(error_dict) \
+                .cancel()
+            runner.checkEnvIsEmpty()
+
+        def checkDialogBackendErrorTest(dialog, error):
+            dialog.open() \
+                .fill() \
+                .createAndExpectBackendError(error) \
+                .cancel()
+            runner.checkEnvIsEmpty()
+
+        def createTest(dialog):
+            runner.tryCreate(dialog) \
+                .deleteVm(dialog) \
+                .checkEnvIsEmpty()
+
+        def createDuplicateTest(dialog):
+            runner.tryCreate(dialog)
+            dialog.open() \
+                .fill() \
+                .createAndExpectBackendError("already exists") \
+                .cancel()
+            runner.deleteVm(dialog) \
+                .checkEnvIsEmpty()
+
+        b = self.browser
+        self.login_and_go("/kubernetes")
+
+        # kubevirt is available, so link should be present
+        b.wait_present("#vms-menu-link")
+        b.click("#vms-menu-link")
+        runner.checkEnvIsEmpty()
+
+        checkDialogUiErrorTest(
+            VmDialog(self, 'testvm1', ''),
+            {'#resource-text-error': "VM definition is required"}
+        )
+
+        checkDialogUiErrorTest(
+            VmDialog(self, 'testvm2', namespace='default',
+                                   opts={
+                                       'filename': TestCreateConfig.INVALID_FILE,
+                                   }),
+            {'#resource-text-error': "VM definition is required"}
+        )
+
+        checkDialogUiErrorTest(
+            VmDialog(self, 'testvm3', '{a": "b"}'),
+            {'#resource-text-error': "VM definition is not a valid JSON"}
+        )
+
+        checkDialogUiErrorTest(
+            VmDialog(self, 'testvm4', 'abcd '),
+            {'#resource-text-error': "VM definition is not a valid JSON"}
+        )
+
+        checkDialogUiErrorTest(
+            VmDialog(self, 'testvm5', 4145175),
+            {'#resource-text-error': "VM definition is not a valid JSON"}
+        )
+
+        checkDialogUiErrorTest(
+            VmDialog(self, 'testvm6', '[{}]'),
+            {'#resource-text-error': "VM definition must be an object."}
+        )
+
+        checkDialogBackendErrorTest(
+            VmDialog(self, 'testvm7', '{}'),
+            "Failure"
+        )
+
+        vm_name = 'testvm8'
+        createTest(VmDialog(self, vm_name, getResource(vm_name)))
+
+        vm_name = 'testvm9'
+        createTest(VmDialog(self, vm_name, getResource(vm_name), namespace='default'))
+
+        vm_name = 'testvm10'
+        createTest(VmDialog(self, vm_name, getResource(vm_name), namespace='kube-public'))
+
+        vm_name = 'testvm11'
+        createTest(VmDialog(self, vm_name, getResource(vm_name), namespace='kube-system'))
+
+        vm_name = 'testvm12'
+        createDuplicateTest(VmDialog(self, vm_name, getResource(vm_name)))
+
+        # test file input
+        vm_name = TestCreateConfig.VM_CONFIG_FILE_VM_NAME
+        createTest(
+            VmDialog(self, vm_name, namespace='kube-public',
+                                   opts={
+                                       'filename': TestCreateConfig.VM_CONFIG_FILE,
+                                   })
+        )
 
 
 class TestOpenshiftPrerelease(TestOpenshift):

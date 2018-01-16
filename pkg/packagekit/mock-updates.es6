@@ -63,7 +63,8 @@ export function injectMockUpdates(updates) {
             bug_urls: [],
             cve_urls: [],
             severity: 4,
-            description: "Make everything better",
+            description: "Make [everything](http://everything.example.com) *better*\n\n * more packages\n * more `bugs`\n * more fun!",
+            markdown: true,
         };
     }
 

@@ -242,7 +242,7 @@ class TestUpdates(PackageCase):
             b.wait_present(path)
             b.wait_present(selector.format(len(updates)))
             for index, pkg in enumerate(updates, start=1):
-                self.assertEqual(b.text(selector.format(index)), pkg)
+                b.wait_in_text(selector.format(index), pkg)
             # make sure we don't have any extra ones
             self.assertFalse(b.is_present(selector.format(len(updates) + 1)))
 

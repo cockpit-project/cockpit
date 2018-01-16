@@ -189,10 +189,10 @@ class TestUpdates(PackageCase):
 
         # just changelog
         self.createPackage("norefs-bin", "1", "1", install=True)
-        self.createPackage("norefs-bin", "2", "1", severity="enhancement", changes="Now 10% more unicorns")
+        self.createPackage("norefs-bin", "2", "1", severity="enhancement", changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
         # binary from same source
         self.createPackage("norefs-doc", "1", "1", install=True)
-        self.createPackage("norefs-doc", "2", "1", severity="enhancement", changes="Now 10% more unicorns")
+        self.createPackage("norefs-doc", "2", "1", severity="enhancement", changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
         # bug fixes
         self.createPackage("buggy", "2", "1", install=True)
         self.createPackage("buggy", "2", "2", changes="Fixit", bugs=[123, 456])
@@ -249,8 +249,15 @@ class TestUpdates(PackageCase):
         # buggy: bug refs, no security
         self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
         # norefs: just changelog, show both binary packages
-        self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
-                              desc_matches=["Now 10% more unicorns"])
+        sel = self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
+                                    desc_matches=["Now 10% more unicorns"])
+        # verify Markdown formatting in table cell
+        self.assertEqual(b.text(sel + " td.changelog em"), "more")  # *more*
+        self.assertEqual(b.attr(sel + " td.changelog a", "href"), "http://unicorn.example.com")
+        # verify Markdown formatting in details
+        self.assertEqual(b.text(sel + " .listing-ct-body em"), "more")  # *more*
+        self.assertEqual(b.attr(sel + " .listing-ct-body a:first-of-type", "href"), "http://unicorn.example.com")
+
         # install only security updates
         self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
         b.click("#app .container-fluid button.btn-default")
@@ -432,9 +439,9 @@ class TestUpdates(PackageCase):
                               desc_matches=["fine07", "fine09"])
 
         # verbose changelog should be truncated
-        desc = b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(4)").strip()
-        desc = desc.lstrip("* ")  # strip off Debian "* " prefix
-        self.assertEqual(desc, u"- Things change #00")
+        desc = b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(4)")
+        self.assertIn("Things change #00", desc)
+        self.assertNotIn("#01", desc)
         # but complete in the details
         self.check_nth_update(3, "verbose", "1-2",
                               desc_matches=["Things change #00", "Things change #29"])

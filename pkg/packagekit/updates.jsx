@@ -21,6 +21,7 @@ var cockpit = require("cockpit");
 var React = require("react");
 var moment = require("moment");
 var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
+var Markdown = require("react-remarkable");
 require("listing.less");
 
 import AutoUpdates from "./autoupdates.jsx";
@@ -334,6 +335,13 @@ class UpdateItem extends React.Component {
         var descriptionFirstLine = (info.description || "").trim();
         if (descriptionFirstLine.indexOf("\n") >= 0)
             descriptionFirstLine = descriptionFirstLine.slice(0, descriptionFirstLine.indexOf("\n"));
+        var description;
+        if (info.markdown) {
+            descriptionFirstLine = <Markdown source={descriptionFirstLine} />;
+            description = <Markdown source={info.description} />;
+        } else {
+            description = <div className="changelog">{info.description}</div>;
+        }
 
         var details = null;
         if (this.state.expanded) {
@@ -355,7 +363,7 @@ class UpdateItem extends React.Component {
                             </dl>
 
                             <p></p>
-                            <p className="changelog">{info.description}</p>
+                            <p className="changelog">{description}</p>
                         </div>
                     </td>
                 </tr>
@@ -637,10 +645,12 @@ class OsUpdates extends React.Component {
         this.setState({state: "loadError"});
     }
 
-    formatDescription(text) {
-        // on Debian they start with "== version ==" which is redundant; we
-        // don"t want Markdown headings in the table
-        return text.trim().replace(/^== .* ==\n/, "").trim();
+    removeHeading(text) {
+        // on Debian the update_text starts with "== version ==" which is
+        // redundant; we don't want Markdown headings in the table
+        if (text)
+            return text.trim().replace(/^== .* ==\n/, "").trim();
+        return text;
     }
 
     loadUpdateDetails(pkg_ids) {
@@ -656,7 +666,9 @@ class OsUpdates extends React.Component {
                     if (cve_urls)
                         cve_urls = cve_urls.filter(url => url.match(/^https?:\/\//));
 
-                    u.description = this.formatDescription(update_text || changelog);
+                    u.description = this.removeHeading(update_text) || changelog;
+                    if (update_text)
+                        u.markdown = true;
                     u.bug_urls = deduplicate(bug_urls);
                     // many backends don't support proper severities; parse CVEs from description as a fallback
                     u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));

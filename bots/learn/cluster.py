@@ -82,50 +82,57 @@ def save(directory, model):
 # The items are not stored here, but their points in the
 # array are.
 class Cluster():
-    def __init__(self, label, points, items=None):
+    def __init__(self, label, points):
         self.label = label
         self.points = points
-
-        self.merged = 0
-        self.tracked = 0
-        self.trackers = { }
-
-        if not items:
-            return
-
-        for point in points:
-            item = items[point]
-            merged = item.get("merged")
-            if merged:
-                self.merged += 1
-            tracker = item.get("tracker")
-            if tracker is not None:
-                self.trackers[tracker] = self.trackers.get(tracker, 0) + 1
-                self.tracked += 1
 
     # Analyse the cluster, based on the points added in
     # the cluster. The points should be indexes into the
     # items array.
-    def analyze(self):
+    def analyze(self, features):
+        num_merged = 0
+
+        for point in self.points:
+            merged = features[point][extractor.FEATURE_MERGED]
+            if merged == 1:
+                num_merged += 1
+
         total = len(self.points)
 
         # Calculate the merged probabilities
         if total:
-            merged = (float(self.merged) / float(total))
+            merged = (float(num_merged) / float(total))
             if merged > 1:
                 merged = 1
 
-        # Probability that this cluster represents each tracked issue
-        trackers = [ ]
-        for tracker, count in self.trackers.items():
-            trackers.append((tracker, float(count) / float(self.tracked)))
-        trackers.sort(key=operator.itemgetter(1), reverse=True)
-
+        # Probability that this cluster represents the given name
         return {
             "total": total,
             "merged": merged,
-            "trackers": trackers
+            "trackers": self.group_by(features, extractor.FEATURE_TRACKER, factor=extractor.TRACKER_SPARSE),
+            "names": self.group_by(features, extractor.FEATURE_NAME),
+            "contexts": self.group_by(features, extractor.FEATURE_CONTEXT)
         }
+
+    # Figure out how often given values of a feature show up in a cluster
+    def group_by(self, features, feature, limit=5, factor=1):
+        values = { }
+        total = 0
+        for point in self.points:
+            value = features[point][feature]
+            if value:
+                # If we have a factor, some of the features may be sparse
+                # So account for the spareness in our probability estimates
+                values[value] = values.get(value, 0) + factor
+                total += factor
+            else:
+                total += 1
+        listing = [ ]
+        for value, count in values.items():
+            probability = float(count) / float(total or 1)
+            listing.append((value, min(probability, 1)))
+        listing.sort(key=operator.itemgetter(1), reverse=True)
+        return listing[0:limit]
 
     # Dump the selected cluster to disk. The features are the inputs
     # from the model that were used to build the cluster.
@@ -141,11 +148,14 @@ class Cluster():
 
         path = os.path.join(directory, "{0}-{1}.log".format(label, detail or len(self.points)))
         with open(path, "a") as fp:
-            for row in self.analyze().items():
+            for row in self.analyze(features).items():
                 fp.write("{0}: {1}\n".format(row[0], repr(row[1])))
-                fp.write("\n")
+            fp.write("\n\n")
             for point in self.points:
-                fp.write(features[point][0])
+                url = features[point][extractor.FEATURE_URL]
+                if url:
+                    fp.write("{0}\n".format(url))
+                fp.write(features[point][extractor.FEATURE_LOG])
                 fp.write("\n\n")
 
 # The clustering model. Uses unsupervised clustering to build clusters
@@ -183,7 +193,7 @@ class Model():
 
         # Initialize the NCD code with our log feature. Currently only
         # one feature is used: the normalized log
-        X = ncd.prepare(map(lambda features: features[0], self.features))
+        X = ncd.prepare(map(lambda features: features[extractor.FEATURE_LOG], self.features))
 
         # Calculate all the pairwise distances between the items in question
         # The scikit DBSCAN implementation does this anyway, poorly. So why not
@@ -202,7 +212,7 @@ class Model():
             ))
 
         # Actually perform the clustering. This is fast compared to above
-        min_samples = min(self.min_samples, len(items) / 10)
+        min_samples = min(self.min_samples, len(self.features) / 10)
         dbs = sklearn.cluster.DBSCAN(metric='precomputed', eps=self.eps, min_samples=min_samples)
         dbs.fit(matrix)
         labels = dbs.labels_
@@ -219,14 +229,14 @@ class Model():
                 clusters[label].append(i)
         self.clusters = { }
         for label, indexes in clusters.items():
-            self.clusters[label] = Cluster(label, indexes, items)
+            self.clusters[label] = Cluster(label, indexes)
         self.noise = Cluster(None, noise)
 
         # Print out a rough description of that
         if self.verbose:
             sys.stderr.write("{0}: Clusters ({1} items, {2} noise)\n".format(
                 len(self.clusters.keys()),
-                len(items) - len(noise),
+                len(self.features) - len(noise),
                 len(noise)
             ))
 

@@ -20,7 +20,7 @@
 
 # WARNING: As you change this code increment this version number so
 # the machine learning model uses a new place to store the model
-VERSION = 1
+VERSION = 3
 
 # This code extracts features from log items. In particular it normalizes
 # and exracts the log.
@@ -29,12 +29,14 @@ VERSION = 1
 # a distance function that could apply that weight between lines. The
 # NCD distance we use cannot do that.
 
+import calendar
 import re
+import time
 
 import sklearn.feature_extraction.text
 
 # Ignore lines that appear in at least this fraction of logs
-IGNORE_THRESHHOLD = 0.2
+IGNORE_THRESHHOLD = 0.07
 
 # Choose only one out of every N tracked items. These have
 # already been manually "clustered" elsewhere, and we only need
@@ -55,6 +57,16 @@ NOISE = {
 }
 
 DIGITS = re.compile('\d+')
+
+# Various features extracted
+FEATURE_LOG = 0                # string: The normalized and collapsed log extracted
+FEATURE_INDEX = 1              # number: Unique index of the item
+FEATURE_URL = 2                # string: The full URL to the test result
+FEATURE_NAME = 3               # string: The name of the test run
+FEATURE_CONTEXT = 4            # string: The context in which the test is run
+FEATURE_TRACKER = 5            # string: A tracker issue for this
+FEATURE_MERGED = 6             # number: 1 if merged, 0 if not, -1 if unknown
+FEATURE_TIMESTAMP = 7          # number: The time since epoch at which test was run
 
 # Return already tokenized data
 def noop(value):
@@ -90,7 +102,7 @@ class Extractor():
     @staticmethod
     def tokenize(item):
         result = [ ]
-        value = item["log"]
+        value = item["log"] or ""
         for line in value.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
             line = line.strip()
             for substitute, pattern in NOISE.items():
@@ -99,22 +111,43 @@ class Extractor():
                 result.append(DIGITS.sub('000', line))
         return result
 
-    def fit(self, items, tokenize=True):
-        tokenized = tokenize and map(Extractor.tokenize, items) or items
+    def fit(self, items, tokenized=None):
+        tokenized = tokenized or map(Extractor.tokenize, items)
         self.extract.fit(tokenized)
 
-    def transform(self, items, tokenize=True):
-        tokenized = tokenize and map(Extractor.tokenize, items) or items
+    def transform(self, items, tokenized=None):
+        tokenized = list(tokenized or map(Extractor.tokenize, items))
         results = [ ]
-        for lines in tokenized:
+        for index, item in enumerate(items):
+            if not select(item):
+                continue
+            lines = tokenized[index]
             filtered = filter(lambda line: line not in self.extract.stop_words_, lines)
-            results.append(("\n".join(filtered), ))
+            try:
+                timestamp = calendar.timegm(time.strptime(item.get("date", ""), "%Y-%m-%dT%H:%M:%SZ"))
+            except ValueError:
+                timestamp = -1
+            merged = item.get("merged")
+            if merged is None:
+                merged = -1
+            else:
+                merged = merged and 1 or 0
+            results.append((
+                "\n".join(filtered),      # FEATURE_LOG
+                index,                    # FEATURE_INDEX
+                item.get("url", ""),      # FEATURE_URL
+                item.get("test", ""),     # FEATURE_NAME
+                item.get("context", ""),  # FEATURE_CONTEXT
+                item.get("tracker", ""),  # FEATURE_TRACKER
+                merged,                   # FEATURE_MERGED
+                timestamp                 # FEATURE_TIMESTAMP
+            ))
         return results
 
     def fit_transform(self, items):
         tokenized = list(map(Extractor.tokenize, items))
-        self.fit(tokenized, tokenize=False)
-        return self.transform(tokenized, tokenize=False)
+        self.fit(items, tokenized)
+        return self.transform(items, tokenized)
 
     def stop_tokens(self):
         return self.extract.stop_words_

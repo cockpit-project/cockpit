@@ -35,7 +35,6 @@ sys.dont_write_bytecode = True
 
 import task
 import learn.data
-import learn.extractor
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
@@ -95,7 +94,7 @@ def loader(training_data, verbose, dry):
         inp = proc.stdout
 
     try:
-        items = list(learn.data.load(inp, only=learn.extractor.select, verbose=verbose))
+        items = list(learn.data.load(inp, only=learn.data.failures, verbose=verbose))
     finally:
         if proc:
             proc.wait()

@@ -20,8 +20,9 @@
 import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
-import { toGigaBytes } from './helpers.es6';
-import InfoRecord from './components/infoRecord.jsx';
+import { toGigaBytes } from '../helpers.es6';
+import InfoRecord from './infoRecord.jsx';
+import { Info } from './inlineNotification.jsx';
 
 const _ = cockpit.gettext;
 
@@ -96,28 +97,6 @@ const DiskBus = ({ disk, vmId }) => {
     );
 };
 
-const DiskStatsUnsupported = ({ vmId }) => {
-    return ( // no particular need to use the Listing component, but shares look&feel across other parts of Cockpit
-        <Listing columnTitles={[]}
-                 emptyCaption={
-                    <div id={`${vmId}-disksstats-unsupported`}>
-                        {_("Upgrade to a more recent version of libvirt to view disk statistics")}
-                    </div>}
-        />
-    );
-};
-
-const DiskStatsUnavailable = ({ vmId }) => {
-    return ( // no particular need to use the Listing component, but shares look&feel across other parts of Cockpit
-        <Listing columnTitles={[]}
-                 emptyCaption={
-                     <div id={`${vmId}-disksstats-unavailable`}>
-                         {_("Start the VM to see disk statistics.")}
-                     </div>}
-        />
-    );
-};
-
 class VmDisksTab extends React.Component {
     componentWillMount () {
         this.props.onUsageStartPolling();
@@ -179,17 +158,20 @@ class VmDisksTab extends React.Component {
         const actions = (provider.vmDisksActionsFactory instanceof Function) ?
             provider.vmDisksActionsFactory({vm}) : undefined; // listing-wide actions
 
-        let statsSupportComponent = null;
+        let notification = null;
         if (!areDiskStatsSupported) {
             if (vm.status === 'running') {
-                statsSupportComponent = (<DiskStatsUnsupported vmId={vmId} />);
+                notification = (<Info text={_("Upgrade to a more recent version of libvirt to view disk statistics")}
+                               textId={`${vmId}-disksstats-unsupported`} />);
             } else {
-                statsSupportComponent = (<DiskStatsUnavailable vmId={vmId} />);
+                notification = (<Info text={_("Start the VM to see disk statistics.")}
+                               textId={`${vmId}-disksstats-unavailable`} />);
             }
         }
 
         return (
             <div>
+                {notification}
                 <DiskTotal disks={vm.disks} vmId={vmId}/>
                 <Listing columnTitles={columnTitles} actions={actions}>
                     {Object.getOwnPropertyNames(vm.disks).sort().map(target => {
@@ -219,8 +201,6 @@ class VmDisksTab extends React.Component {
                         return (<ListingRow columns={columns}/>);
                     })}
                 </Listing>
-
-                {statsSupportComponent}
             </div>
         );
     }

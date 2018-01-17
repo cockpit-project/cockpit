@@ -27,6 +27,7 @@ sys.path.insert(1, os.path.join(BASE, ".."))
 
 from learn import cluster
 from learn import data
+from learn import extractor
 
 # Used commands like this to generate the fixture data
 # zgrep -F ': "failure"' tests-train-1.jsonl.gz | head -n 200 | gzip > bots/task/test-learn2.jsonl.gz
@@ -58,12 +59,27 @@ class TestCluster(unittest.TestCase):
             None, None, 3, 3, 3, 3, 3, None, 3, 3, 3, 3])
 
     def testCluster(self):
-        clus = cluster.Cluster(0, list(range(0, len(self.items))), self.items)
-        analysis = clus.analyze()
+        clus = cluster.Cluster(0, list(range(0, len(self.items))))
+        features = extractor.Extractor().fit_transform(self.items)
+        analysis = clus.analyze(features)
         self.assertEqual(analysis, {
             'total': 100,
+            'merged': 0.5,
             'trackers': [],
-            'merged': [(True, 0.8), (False, 0.2), (None, 0.0)]
+            'names': [
+                ('testInternal (check_metrics.TestMetrics)', 0.1),
+                ('testTeam (check_networking_team.TestNetworking)', 0.08),
+                ('testBondMac (check_networking_mac.TestNetworking)', 0.07),
+                ('testNoConnectionSettings (check_networking_settings.TestNetworking)', 0.06),
+                ('testNegotiate (check_realms.TestKerberos)', 0.04)
+            ],
+            'contexts': [
+                ('verify/rhel-atomic', 0.16),
+                ('verify/ubuntu-stable', 0.15),
+                ('verify/ubuntu-1604', 0.13),
+                ('verify/rhel-7-4', 0.11),
+                ('verify/debian-testing', 0.1),
+            ]
         })
 
 if __name__ == '__main__':

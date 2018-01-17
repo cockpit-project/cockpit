@@ -203,9 +203,10 @@ class TestUpdates(PackageCase):
         # security fix with parsing from changes
         self.createPackage("secparse", "4", "1", install=True)
         self.createPackage("secparse", "4", "2", changes="Fix CVE-2014-54321 and CVE-2017-9999.")
-        # security fix with RHEL severity
+        # security fix with RHEL severity and errata
         self.createPackage("sevcritical", "5", "1", install=True)
-        self.createPackage("sevcritical", "5", "2", cves=["CVE-2014-54321"], securitySeverity="critical", changes="More broken stuff")
+        self.createPackage("sevcritical", "5", "2", cves=["CVE-2014-54321"], securitySeverity="critical",
+                           errata=["RHSA-2000:0001", "RHSA-2000:0002"], changes="More broken stuff")
 
         self.enableRepo()
         m.execute("pkcon refresh")
@@ -220,18 +221,26 @@ class TestUpdates(PackageCase):
         b.wait_in_text("table.listing-ct", "sevcritical")
 
         # security updates should get sorted on top and then alphabetically, so start with "secdeclare"
-        self.check_nth_update(1, "secdeclare", "3-4.b1", "security", 1,
-                              desc_matches=["Will crash your data center"], cves=["CVE-2014-123456"])
+        sel = self.check_nth_update(1, "secdeclare", "3-4.b1", "security", 1,
+                                    desc_matches=["Will crash your data center"], cves=["CVE-2014-123456"])
+        # should not have erratum label in details
+        self.assertNotIn("Errat", b.text(sel))
+
         # secparse should also be considered a security update as the changelog mentions CVEs
         self.check_nth_update(2, "secparse", "4-2", "security", 2,
                               desc_matches=["Fix CVE-2014-54321 and CVE-2017-9999."],
                               cves=["CVE-2014-54321", "CVE-2017-9999"])
         sel = self.check_nth_update(3, "sevcritical", "5-2", "security", 1,
                                     desc_matches=["More broken stuff"])
+
         if self.backend == 'yum':
-            # sevcritical has a severity
-            self.assertIn("Severity:", b.text(sel + " .listing-ct-body"))
-            self.assertIn("critical", b.text(sel + " .listing-ct-body"))
+            # sevcritical has a severity and errata
+            details = b.text(sel + " .listing-ct-body")
+            self.assertIn("Severity:", details)
+            self.assertIn("critical", details)
+            self.assertIn("Errata:", details)
+            self.assertIn("RHSA-2000:0001", details)
+            self.assertIn("RHSA-2000:0002", details)
             # icon has critical class
             self.assertIn("severity-critical", b.attr(sel + " td:nth-of-type(3) span.pficon", "class"))
             # details has link to severity definition

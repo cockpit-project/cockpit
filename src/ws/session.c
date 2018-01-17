@@ -1104,6 +1104,8 @@ static const char *env_names[] = {
   "G_SLICE",
   "PATH",
   "COCKPIT_REMOTE_PEER",
+  "LANG",
+  "LC_MESSAGES",
   NULL
 };
 

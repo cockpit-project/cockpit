@@ -28,6 +28,8 @@ gchar *               cockpit_locale_from_language       (const gchar *language,
                                                           const gchar *encoding,
                                                           gchar **shorter);
 
+gchar *               cockpit_language_from_locale       (const gchar *value);
+
 void                  cockpit_locale_set_language        (const gchar *language);
 
 G_END_DECLS

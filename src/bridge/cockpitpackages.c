@@ -733,7 +733,9 @@ build_packages (CockpitPackages *packages)
   checksum = g_checksum_new (G_CHECKSUM_SHA1);
   if (build_package_listing (packages->listing, checksum, old_listing))
     {
-      packages->bundle_checksum = g_strdup (g_checksum_get_string (checksum));
+      packages->bundle_checksum = g_strdup_printf ("%s-%s",
+                                                   g_checksum_get_string (checksum),
+                                                   packages->locale);
       if (!packages->checksum)
         packages->checksum = g_strdup (packages->bundle_checksum);
     }
@@ -913,7 +915,6 @@ package_content (CockpitPackages *packages,
                  CockpitWebResponse *response,
                  const gchar *name,
                  const gchar *path,
-                 const gchar *language,
                  const gchar *self_origin,
                  GHashTable *headers)
 {
@@ -964,7 +965,8 @@ package_content (CockpitPackages *packages,
       g_free (chosen);
       chosen = NULL;
 
-      bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL, language, &chosen, &error);
+      bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL,
+                                                packages->locale, &chosen, &error);
 
       /* When globbing most errors result in a zero length block */
       if (globbing)
@@ -1074,7 +1076,6 @@ handle_packages (CockpitWebServer *server,
   gchar *name;
   const gchar *path;
   GHashTable *out_headers = NULL;
-  gchar **languages = NULL;
   gchar *origin = NULL;
   const gchar *protocol;
   const gchar *host;
@@ -1089,15 +1090,6 @@ handle_packages (CockpitWebServer *server,
     }
 
   out_headers = cockpit_web_server_new_table ();
-
-  languages = cockpit_web_server_parse_languages (headers, NULL);
-
-  /*
-   * This is how we find out about the frontends cockpitlang
-   * environment. We tell this process to update its locale
-   * if it has changed.
-   */
-  cockpit_locale_set_language (languages[0]);
 
   if (packages->checksum)
     {
@@ -1116,12 +1108,12 @@ handle_packages (CockpitWebServer *server,
   if (origin)
     g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), origin);
 
-  package_content (packages, response, name, path, languages[0], origin, out_headers);
+  package_content (packages, response, name, path, origin, out_headers);
 
 out:
   if (out_headers)
     g_hash_table_unref (out_headers);
-  g_strfreev (languages);
+
   g_free (name);
   return TRUE;
 }
@@ -1135,6 +1127,7 @@ cockpit_packages_new (void)
   GSocketAddress *address = NULL;
   GInetAddress *inet = NULL;
   GSocket *socket = NULL;
+  const gchar *env_lang = NULL;
 
   socket = g_socket_new (G_SOCKET_FAMILY_IPV4, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
   if (socket == NULL)
@@ -1165,6 +1158,14 @@ cockpit_packages_new (void)
     }
 
   packages = g_new0 (CockpitPackages, 1);
+
+  env_lang = g_getenv ("LC_MESSAGES");
+  if (!env_lang)
+    env_lang = g_getenv ("LANG");
+
+  packages->locale = cockpit_language_from_locale (env_lang);
+  if (!packages->locale)
+    packages->locale = g_strdup ("c");
 
   packages->web_server = cockpit_web_server_new (NULL, -1, NULL, NULL, &error);
   if (!packages->web_server)
@@ -1363,6 +1364,7 @@ cockpit_packages_free (CockpitPackages *packages)
   if (packages->listing)
     g_hash_table_unref (packages->listing);
   g_clear_object (&packages->web_server);
+  g_free (packages->locale);
   g_free (packages);
 }
 

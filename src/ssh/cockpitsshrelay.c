@@ -2083,6 +2083,10 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
                          gint outfd)
 {
   const gchar *problem;
+  const gchar *lang;
+  const gchar *lc_msg;
+  gchar *command = NULL;
+
   int rc;
 
   static struct ssh_channel_callbacks_struct channel_cbs = {
@@ -2093,6 +2097,13 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
     .channel_exit_signal_function = on_channel_exit_signal,
     .channel_exit_status_function = on_channel_exit_status,
   };
+
+  lang = g_getenv ("LANG") ? g_getenv ("LANG") : "C";
+  lc_msg = g_getenv ("LC_MESSAGES");
+  command = g_strdup_printf ("LANG=%s LC_MESSAGES=%s %s",
+                             lang,
+                             lc_msg ? lc_msg : lang,
+                             self->ssh_data->ssh_options->command);
 
   self->ssh_data->outfd = outfd;
   self->ssh_data->initial_auth_data = challenge_for_auth_data ("*", outfd,
@@ -2125,7 +2136,7 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
                                       self);
 
   for (rc = SSH_AGAIN; rc == SSH_AGAIN; )
-    rc = ssh_channel_request_exec (self->channel, self->ssh_data->ssh_options->command);
+    rc = ssh_channel_request_exec (self->channel, command);
 
   if (rc != SSH_OK)
     {
@@ -2139,6 +2150,7 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
   self->io = cockpit_ssh_relay_start_source (self);
 
 out:
+  g_free (command);
   if (problem)
     {
       self->exit_code = AUTHENTICATION_FAILED;

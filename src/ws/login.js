@@ -28,6 +28,21 @@
         return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
     }
 
+    function select_language() {
+        var val = id("language").value;
+        if (!val)
+            val = "en-us";
+
+        var cookie = "CockpitLang=" + encodeURIComponent(val) +
+                     "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
+        document.cookie = cookie;
+        window.localStorage.setItem("cockpit.lang", val);
+
+        if (!id("login-user-input").value)
+            window.location.reload(true);
+        return false;
+    }
+
     function gettext(key) {
         if (window.cockpit_po) {
             var translated = window.cockpit_po[key];
@@ -202,10 +217,12 @@
         id("option-group").setAttribute("data-state", show);
         if (show) {
             id("server-group").style.display = 'block';
+            id("language-group").style.display = 'block';
             id("option-caret").setAttribute("class", "caret caret-down");
             id("option-caret").setAttribute("className", "caret caret-down");
         } else {
             id("server-group").style.display = 'none';
+            id("language-group").style.display = 'none';
             id("option-caret").setAttribute("class", "caret caret-right");
             id("option-caret").setAttribute("className", "caret caret-right");
         }
@@ -217,6 +234,11 @@
         translate();
 
         setup_path_globals (window.location.pathname);
+
+        var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        if (language)
+            id("language").value = language;
+        id("language").addEventListener("change", select_language);
 
         // Setup title
         var title = environment.page.title;
@@ -460,8 +482,10 @@
 
         if (!connectable || in_conversation) {
             id("server-group").style.display = "none";
+            id("language-group").style.display = "none";
         } else {
             id("server-group").style.display = expanded ? "block" : "none";
+            id("language-group").style.display = expanded ? "block" : "none";
         }
 
 

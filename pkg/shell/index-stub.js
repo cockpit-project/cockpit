@@ -37,7 +37,6 @@
         brand_sel: "#index-brand",
         logout_sel: "#go-logout",
         oops_sel: "#navbar-oops",
-        language_sel: "#display-language",
         about_sel: "#about-version",
         default_title: default_title,
         skip_brand_title: true

@@ -472,12 +472,6 @@ cockpit_channel_response_create (CockpitWebService *service,
 }
 
 static gboolean
-is_resource_a_package_file (const gchar *path)
-{
-  return path && path[0] && strchr (path + 1, '/') != NULL;
-}
-
-static gboolean
 parse_host_and_etag (CockpitWebService *service,
                      GHashTable *headers,
                      const gchar *where,
@@ -485,15 +479,6 @@ parse_host_and_etag (CockpitWebService *service,
                      const gchar **host,
                      gchar **etag)
 {
-  gchar **languages = NULL;
-  gboolean translatable;
-  gchar *language;
-
-  /* Parse the language out of the CockpitLang cookie and set Accept-Language */
-  language = cockpit_web_server_parse_cookie (headers, "CockpitLang");
-  if (language)
-    g_hash_table_replace (headers, g_strdup ("Accept-Language"), language);
-
   if (!where)
     {
       *host = "localhost";
@@ -514,20 +499,7 @@ parse_host_and_etag (CockpitWebService *service,
   if (!*host)
     return FALSE;
 
-  /* Top level resources (like the /manifests) are not translatable */
-  translatable = is_resource_a_package_file (path);
-
-  /* The ETag contains the language setting */
-  if (translatable)
-    {
-      languages = cockpit_web_server_parse_languages (headers, "C");
-      *etag = g_strdup_printf ("\"%s-%s\"", where, languages[0]);
-      g_strfreev (languages);
-    }
-  else
-    {
-      *etag = g_strdup_printf ("\"%s\"", where);
-    }
+  *etag = g_strdup_printf ("\"%s\"", where);
 
   return TRUE;
 }

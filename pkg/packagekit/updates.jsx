@@ -282,6 +282,17 @@ class UpdateItem extends React.Component {
             ));
         }
 
+        var errata = null;
+        if (info.vendor_urls) {
+            errata = insertCommas(info.vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
+                <a href={url} rel="noopener" referrerpolicy="no-referrer" target="_blank">
+                    {url.match(/[^/=]+$/)}
+                </a>)
+            ));
+            if (!errata.length)
+                errata = null; // simpler testing below
+        }
+
         var type;
         var secSeverity;
         if (info.severity === PK_INFO_ENUM_SECURITY) {
@@ -337,6 +348,8 @@ class UpdateItem extends React.Component {
                                 { cves ? <dd>{cves}</dd> : null }
                                 { secSeverity ? <dt>{_("Severity:")}</dt> : null }
                                 { secSeverity ? <dd className="severity">{secSeverity}</dd> : null }
+                                { errata ? <dt>{_("Errata:")}</dt> : null }
+                                { errata ? <dd>{errata}</dd> : null }
                                 { bugs ? <dt>{_("Bugs:")}</dt> : null }
                                 { bugs ? <dd>{bugs}</dd> : null }
                             </dl>

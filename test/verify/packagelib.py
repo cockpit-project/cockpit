@@ -176,6 +176,8 @@ rm -rf ~/rpmbuild
                 refs += '      <reference href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={0}" id="{0}" title="{0}" type="cve"/>\n'.format(c)
             if info.get("securitySeverity"):
                 refs += '      <reference href="https://access.redhat.com/security/updates/classification/#{0}" id="" title="" type="other"/>\n'.format(info["securitySeverity"])
+            for e in info.get("errata", []):
+                refs += '      <reference href="https://access.redhat.com/errata/{0}" id="{0}" title="{0}" type="self"/>\n'.format(e)
 
             xml += '''  <update from="test@example.com" status="stable" type="{severity}" version="2.0">
     <id>UPDATE-{pkg}-{ver}-{rel}</id>

@@ -34,6 +34,7 @@ typedef struct {
 
 static FromFixture from_fixtures[] = {
   { "en", NULL, "en", "en" },
+  { "en", "UTF-8", "en.UTF-8", "en" },
   { "en-us", NULL, "en_US", "en" },
   { "en-us", "UTF-8", "en_US.UTF-8", "en" },
   { "zh-cn", NULL, "zh_CN", "zh" },
@@ -58,6 +59,18 @@ test_from_language (gconstpointer data)
   locale = cockpit_locale_from_language (fixture->language, fixture->encoding, NULL);
   g_assert_cmpstr (locale, ==, fixture->locale);
   g_free (locale);
+}
+
+static void
+test_to_language (gconstpointer data)
+{
+  const FromFixture *fixture = data;
+  gchar *lang;
+
+  lang = cockpit_language_from_locale (fixture->locale);
+  g_assert_cmpstr (lang, ==, fixture->language);
+
+  g_free (lang);
 }
 
 typedef struct {
@@ -170,6 +183,11 @@ main (int argc,
     {
       name = g_strdup_printf ("/locale/from-language/%s", from_fixtures[i].locale);
       g_test_add_data_func (name, from_fixtures + i, test_from_language);
+      g_free (name);
+      name = g_strdup_printf ("/locale/to-language/%s-%s",
+                              from_fixtures[i].locale,
+                              from_fixtures[i].language);
+      g_test_add_data_func (name, from_fixtures + i, test_to_language);
       g_free (name);
     }
 

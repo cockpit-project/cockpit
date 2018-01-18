@@ -241,92 +241,6 @@ test_resource_simple_host (TestResourceCase *tc,
 }
 
 static void
-test_resource_language (TestResourceCase *tc,
-                        gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GError *error = NULL;
-  GBytes *bytes;
-  gchar *url = "/@localhost/another/test.html";
-
-  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
-
-  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("pig, blah"));
-  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
-                           "60\r\n"
-                           "<html>\n"
-                           "<head>\n"
-                           "<title>Inlay omehay irday</title>\n"
-                           "</head>\n"
-                           "<body>Inlay omehay irday</body>\n"
-                           "</html>\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
-test_resource_cookie (TestResourceCase *tc,
-                      gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GError *error = NULL;
-  GBytes *bytes;
-  const gchar *url = "/@localhost/another/test.html";
-
-  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
-
-  g_hash_table_insert (tc->headers, g_strdup ("Cookie"), g_strdup ("CockpitLang=pig"));
-  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
-                           "60\r\n"
-                           "<html>\n"
-                           "<head>\n"
-                           "<title>Inlay omehay irday</title>\n"
-                           "</head>\n"
-                           "<body>Inlay omehay irday</body>\n"
-                           "</html>\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
 test_resource_not_found (TestResourceCase *tc,
                          gconstpointer data)
 {
@@ -492,7 +406,7 @@ test_resource_checksum (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
+                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -532,7 +446,7 @@ test_resource_not_modified (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
+                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c",
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -546,91 +460,6 @@ test_resource_not_modified (TestResourceCase *tc,
                            "HTTP/1.1 304 Not Modified\r\n"
                            "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\"\r\n"
                            "\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
-test_resource_not_modified_new_language (TestResourceCase *tc,
-                                         gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GError *error = NULL;
-  GBytes *bytes;
-
-  request_checksum (tc);
-
-  g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
-  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de"));
-
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
-  cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
-                                "/test/sub/file.ext");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-de\"\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Cache-Control: max-age=31556926, public\r\n"
-                           "\r\n"
-                           "32\r\n"
-                           "These are the contents of file.ext\nOh marmalaaade\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
-test_resource_not_modified_cookie_language (TestResourceCase *tc,
-                                            gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GError *error = NULL;
-  GBytes *bytes;
-  gchar *cookie;
-
-  request_checksum (tc);
-
-  g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
-
-  cookie = g_strdup_printf ("%s; CockpitLang=fr", (gchar *)g_hash_table_lookup (tc->headers, "Cookie"));
-  g_hash_table_insert (tc->headers, g_strdup ("Cookie"), cookie);
-
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
-  cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
-                                "/test/sub/file.ext");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-fr\"\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Cache-Control: max-age=31556926, public\r\n"
-                           "\r\n"
-                           "32\r\n"
-                           "These are the contents of file.ext\nOh marmalaaade\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -699,89 +528,6 @@ test_resource_bad_checksum (TestResourceCase *tc,
                            "</title></head><body>\r\n9\r\n"
                            "Not Found\r\nf\r\n"
                            "</body></html>\n\r\n0\r\n\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
-test_resource_language_suffix (TestResourceCase *tc,
-                               gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GError *error = NULL;
-  GBytes *bytes;
-
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
-
-  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.de.html");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
-                           "62\r\n"
-                           "<html>\n"
-                           "<head>\n"
-                           "<title>Im Home-Verzeichnis</title>\n"
-                           "</head>\n"
-                           "<body>Im Home-Verzeichnis</body>\n"
-                           "</html>\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
-test_resource_language_fallback (TestResourceCase *tc,
-                                 gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GError *error = NULL;
-  GBytes *bytes;
-
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
-
-  /* Language cookie overrides */
-  cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.fi.html");
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
-                           "52\r\n"
-                           "<html>\n"
-                           "<head>\n"
-                           "<title>In home dir</title>\n"
-                           "</head>\n"
-                           "<body>In home dir</body>\n"
-                           "</html>\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -889,10 +635,6 @@ main (int argc,
               setup_resource, test_resource_simple, teardown_resource);
   g_test_add ("/web-channel/resource/simple_host", TestResourceCase, NULL,
               setup_resource, test_resource_simple_host, teardown_resource);
-  g_test_add ("/web-channel/resource/language", TestResourceCase, NULL,
-              setup_resource, test_resource_language, teardown_resource);
-  g_test_add ("/web-channel/resource/cookie", TestResourceCase, NULL,
-              setup_resource, test_resource_cookie, teardown_resource);
   g_test_add ("/web-channel/resource/not-found", TestResourceCase, NULL,
               setup_resource, test_resource_not_found, teardown_resource);
   g_test_add ("/web-channel/resource/no-path", TestResourceCase, NULL,
@@ -903,18 +645,10 @@ main (int argc,
               setup_resource, test_resource_checksum, teardown_resource);
   g_test_add ("/web-channel/resource/not-modified", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_not_modified, teardown_resource);
-  g_test_add ("/web-channel/resource/not-modified-new-language", TestResourceCase, &checksum_fixture,
-              setup_resource, test_resource_not_modified_new_language, teardown_resource);
-  g_test_add ("/web-channel/resource/not-modified-cookie-language", TestResourceCase, &checksum_fixture,
-              setup_resource, test_resource_not_modified_cookie_language, teardown_resource);
   g_test_add ("/web-channel/resource/no-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_no_checksum, teardown_resource);
   g_test_add ("/web-channel/resource/bad-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_bad_checksum, teardown_resource);
-  g_test_add ("/web-channel/resource/language-suffix", TestResourceCase, NULL,
-              setup_resource, test_resource_language_suffix, teardown_resource);
-  g_test_add ("/web-channel/resource/language-fallback", TestResourceCase, NULL,
-              setup_resource, test_resource_language_fallback, teardown_resource);
 
   g_test_add ("/web-channel/resource/gzip-encoding", TestResourceCase, NULL,
               setup_resource, test_resource_gzip_encoding, teardown_resource);

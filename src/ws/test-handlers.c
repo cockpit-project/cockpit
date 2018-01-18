@@ -441,7 +441,7 @@ test_default (Test *test,
 }
 
 static const DefaultFixture fixture_resource_checksum = {
-  .path = "/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext",
+  .path = "/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c/test/sub/file.ext",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
     "These are the contents of file.ext*"
@@ -501,7 +501,7 @@ static const DefaultFixture fixture_shell_path_package = {
   .org_path = "/path/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/path/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/another/test.html\">*"
+      "<base href=\"/path/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 
@@ -541,7 +541,7 @@ static const DefaultFixture fixture_machine_shell_index = {
   .auth = "/cockpit+=machine",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/cockpit+=machine/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/second/test.html\">*"
+      "<base href=\"/cockpit+=machine/$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c/second/test.html\">*"
       "<title>In system dir</title>*"
 };
 
@@ -559,7 +559,7 @@ static const DefaultFixture fixture_shell_package = {
   .path = "/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/another/test.html\">*"
+      "<base href=\"/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 

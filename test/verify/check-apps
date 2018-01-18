@@ -143,8 +143,7 @@ class TestApps(PackageCase):
 
         b.wait_present(".app-description:contains('DESCRIPTION:none')")
 
-        def set_lang(lang):
-            b.switch_to_top()
+        def legacy_switch(lang):
             b.click("#content-user-name")
             b.click(".display-language-menu a")
             b.wait_popup('display-language')
@@ -155,6 +154,26 @@ class TestApps(PackageCase):
             b.reload(ignore_cache=True)
             b.wait_present("#content")
             b.enter_page("/apps")
+
+        def login_switch(lang):
+            b.logout()
+            b.wait_present("#login")
+            b.wait_visible("#option-group")
+            b.click("#option-group span")
+            b.wait_visible("#language")
+            b.set_val("#language", lang)
+            b.expect_load()
+            b.login_and_go("/apps")
+            b.wait_present(".app-list")
+            b.wait_present(".app-list tr:contains('SUMMARY')")
+            b.click(".app-list tr:contains('SUMMARY')")
+
+        def set_lang(lang):
+            b.switch_to_top()
+            if b.is_present(".display-language-menu"):
+                legacy_switch(lang)
+            else:
+                login_switch(lang)
 
         set_lang("de-de")
         b.wait_present(".app-description:contains('DESCRIPTION:de')")

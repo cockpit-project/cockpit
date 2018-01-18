@@ -101,7 +101,8 @@ virtDBusConnectEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
     paths = calloc(n_domains + 1, sizeof(char *));
 
     for (int i = 0; i < n_domains; i += 1)
-        paths[i] = virtDBusUtilBusPathForVirDomain(domains[i]);
+        paths[i] = virtDBusUtilBusPathForVirDomain(domains[i],
+                                                   connect->domainPath);
 
     *nodes = paths;
     paths = NULL;
@@ -143,7 +144,8 @@ virtDBusConnectListDomains(sd_bus_message *message,
     for (int i = 0; domains[i] != NULL; i += 1) {
         _cleanup_(virtDBusUtilFreep) char *path = NULL;
 
-        path = virtDBusUtilBusPathForVirDomain(domains[i]);
+        path = virtDBusUtilBusPathForVirDomain(domains[i],
+                                               connect->domainPath);
 
         r = sd_bus_message_append(reply, "o", path);
         if (r < 0)
@@ -181,7 +183,7 @@ virtDBusConnectCreateXML(sd_bus_message *message,
     if (!domain)
         return virtDBusUtilSetLastVirtError(error);
 
-    path = virtDBusUtilBusPathForVirDomain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     return sd_bus_reply_method_return(message, "o", path);
 }
@@ -209,7 +211,7 @@ virtDBusConnectDefineXML(sd_bus_message *message,
     if (!domain)
         return virtDBusUtilSetLastVirtError(error);
 
-    path = virtDBusUtilBusPathForVirDomain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     return sd_bus_reply_method_return(message, "o", path);
 }
@@ -278,6 +280,8 @@ virtDBusConnectFree(virtDBusConnect *connect)
 
     if (connect->connection)
         virtDBusConnectClose(connect, true);
+
+    free(connect->domainPath);
 
     free(connect);
 

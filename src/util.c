@@ -77,25 +77,27 @@ virtDBusUtilSetError(sd_bus_error *error,
 }
 
 char *
-virtDBusUtilBusPathForVirDomain(virDomainPtr domain)
+virtDBusUtilBusPathForVirDomain(virDomainPtr domain,
+                                const char *domainPath)
 {
     char *path = NULL;
     char uuid[VIR_UUID_STRING_BUFLEN] = "";
 
     virDomainGetUUIDString(domain, uuid);
-    sd_bus_path_encode("/org/libvirt/domain", uuid, &path);
+    sd_bus_path_encode(domainPath, uuid, &path);
 
     return path;
 }
 
 virDomainPtr
 virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
-                                 const char *path)
+                                 const char *path,
+                                 const char *domainPath)
 {
     _cleanup_(virtDBusUtilFreep) char *name = NULL;
     int r;
 
-    r = sd_bus_path_decode(path, "/org/libvirt/domain", &name);
+    r = sd_bus_path_decode(path, domainPath, &name);
     if (r < 0)
         return NULL;
 

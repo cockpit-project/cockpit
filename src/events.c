@@ -60,7 +60,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
         return r;
 
     name = virDomainGetName(domain);
-    path = virtDBusUtilBusPathForVirDomain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     r = sd_bus_message_append(message, "so", name ? : "", path);
     if (r < 0)
@@ -80,7 +80,7 @@ virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIR_ATTR_UNUSED,
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
-    path = virtDBusUtilBusPathForVirDomain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
@@ -108,7 +108,7 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIR_ATTR_UNUSED,
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
-    path = virtDBusUtilBusPathForVirDomain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
@@ -138,7 +138,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIR_ATTR_UNUSED,
     const char *reasonstr;
     int r;
 
-    path = virtDBusUtilBusPathForVirDomain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
@@ -182,7 +182,7 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection VIR_ATTR_UNUSED,
     const char *reasonstr;
     int r;
 
-    path = virtDBusUtilBusPathForVirDomain(domain);
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,

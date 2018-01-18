@@ -24,11 +24,13 @@ virtDBusUtilSetError(sd_bus_error *error,
                      const char *message);
 
 char *
-virtDBusUtilBusPathForVirDomain(virDomainPtr domain);
+virtDBusUtilBusPathForVirDomain(virDomainPtr domain,
+                                const char *domainPath);
 
 virDomainPtr
 virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
-                                 const char *path);
+                                 const char *path,
+                                 const char *domainPath);
 
 static inline void
 virtDBusUtilFreep(void *p)

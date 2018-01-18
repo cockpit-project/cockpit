@@ -53,7 +53,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
 
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
-                                  "/org/libvirt/Connect",
+                                  connect->connectPath,
                                   "org.libvirt.connect",
                                   signal);
     if (r < 0)

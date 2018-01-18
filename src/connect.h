@@ -8,6 +8,7 @@
 struct virtDBusConnect {
     sd_bus *bus;
     const char *uri;
+    const char *connectPath;
     virConnectPtr connection;
 
     sd_bus_node_enumerator_t enumerateDomains;

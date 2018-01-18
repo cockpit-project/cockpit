@@ -248,12 +248,13 @@ virtDBusConnectNew(virtDBusConnect **connectp,
 
     connect->bus = sd_bus_ref(bus);
     connect->uri = uri;
+    connect->connectPath = "/org/libvirt/Connect";
 
     connect->enumerateDomains = virtDBusConnectEnumarateDomains;
 
     r = sd_bus_add_object_vtable(connect->bus,
                                  NULL,
-                                 "/org/libvirt/Connect",
+                                 connect->connectPath,
                                  "org.libvirt.Connect",
                                  virt_connect_vtable,
                                  connect);

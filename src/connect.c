@@ -249,17 +249,14 @@ virtDBusConnectNew(virtDBusConnect **connectp,
     connect->bus = sd_bus_ref(bus);
     connect->uri = uri;
 
+    connect->enumerateDomains = virtDBusConnectEnumarateDomains;
+
     r = sd_bus_add_object_vtable(connect->bus,
                                  NULL,
                                  "/org/libvirt/Connect",
                                  "org.libvirt.Connect",
                                  virt_connect_vtable,
                                  connect);
-    if (r < 0)
-        return r;
-
-    r = sd_bus_add_node_enumerator(bus, NULL, "/org/libvirt/domain",
-                                   virtDBusConnectEnumarateDomains, connect);
     if (r < 0)
         return r;
 

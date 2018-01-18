@@ -539,6 +539,13 @@ int
 virtDBusDomainRegister(virtDBusConnect *connect,
                        sd_bus *bus)
 {
+    int r;
+
+    r = sd_bus_add_node_enumerator(bus, NULL, "/org/libvirt/domain",
+                                   connect->enumerateDomains, connect);
+    if (r < 0)
+        return r;
+
     return sd_bus_add_fallback_vtable(bus,
                                       NULL,
                                       "/org/libvirt/domain",

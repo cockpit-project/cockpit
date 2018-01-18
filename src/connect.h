@@ -10,6 +10,8 @@ struct virtDBusConnect {
     const char *uri;
     virConnectPtr connection;
 
+    sd_bus_node_enumerator_t enumerateDomains;
+
     int callback_ids[VIR_DOMAIN_EVENT_ID_LAST];
 };
 typedef struct virtDBusConnect virtDBusConnect;

@@ -44,6 +44,7 @@
         brand_sel: "#index-brand",
         logout_sel: "#go-logout",
         oops_sel: "#navbar-oops",
+        language_sel: "#display-language",
         about_sel: "#about-version",
         account_sel: "#go-account",
         user_sel: "#content-user-name",

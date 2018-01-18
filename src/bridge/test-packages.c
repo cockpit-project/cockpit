@@ -55,7 +55,7 @@ typedef struct {
 typedef struct {
   const gchar *datadirs[8];
   const gchar *path;
-  const gchar *lang;
+  const gchar *accept[8];
   const gchar *expect;
   const gchar *headers[8];
   gboolean cacheable;
@@ -89,6 +89,7 @@ setup (TestCase *tc,
   JsonObject *options;
   JsonObject *headers;
   const gchar *control;
+  gchar *accept;
   GBytes *bytes;
   guint i;
 
@@ -96,12 +97,6 @@ setup (TestCase *tc,
 
   if (fixture->expect)
     cockpit_expect_warning (fixture->expect);
-
-  if (fixture->lang)
-    {
-      g_setenv ("LANG", fixture->lang, TRUE);
-      g_setenv ("LC_MESSAGES", fixture->lang, TRUE);
-    }
 
   if (fixture->datadirs[0])
     {
@@ -125,6 +120,12 @@ setup (TestCase *tc,
   json_object_set_string_member (options, "path", fixture->path);
 
   headers = json_object_new ();
+  if (fixture->accept[0])
+    {
+      accept = g_strjoinv (", ", (gchar **)fixture->accept);
+      json_object_set_string_member (headers, "Accept-Language", accept);
+      g_free (accept);
+    }
   if (!fixture->cacheable)
     json_object_set_string_member (headers, "Pragma", "no-cache");
   for (i = 0; i < G_N_ELEMENTS (fixture->headers); i += 2)
@@ -168,8 +169,6 @@ teardown (TestCase *tc,
   cockpit_packages_free (tc->packages);
 
   cockpit_bridge_data_dirs = NULL;
-  g_setenv ("LANG", "C", TRUE);
-  g_setenv ("LC_MESSAGES", "C", TRUE);
 }
 
 static const Fixture fixture_simple = {
@@ -222,7 +221,7 @@ test_forwarded (TestCase *tc,
 
 static const Fixture fixture_pig = {
   .path = "/another/test.html",
-  .lang = "pig",
+  .accept = { "pig" },
 };
 
 static void
@@ -246,7 +245,7 @@ test_localized_translated (TestCase *tc,
 
 static const Fixture fixture_unknown = {
   .path = "/another/test.html",
-  .lang = "unknown",
+  .accept = { "unknown" },
 };
 
 static void
@@ -270,7 +269,7 @@ test_localized_unknown (TestCase *tc,
 
 static const Fixture fixture_prefer_region = {
   .path = "/another/test.html",
-  .lang = "pig_PEN",
+  .accept = { "pig-pen" },
 };
 
 static void
@@ -294,7 +293,7 @@ test_localized_prefer_region (TestCase *tc,
 
 static const Fixture fixture_fallback = {
   .path = "/another/test.html",
-  .lang = "pig_BARN",
+  .accept = { "pig-barn" },
 };
 
 static void
@@ -618,8 +617,8 @@ test_list_bad_name (TestCase *tc,
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":"
-                                     "{\"X-Cockpit-Pkg-Checksum\":\"524d07b284cda92c86a908c67014ee882a80193b-c\",\"Content-Type\":\"application/json\",\"ETag\":\"\\\"$524d07b284cda92c86a908c67014ee882a80193b-c\\\"\"}}"
-                                 "{\".checksum\":\"524d07b284cda92c86a908c67014ee882a80193b-c\",\"ok\":{\".checksum\":\"524d07b284cda92c86a908c67014ee882a80193b-c\"}}", -1);
+                                     "{\"X-Cockpit-Pkg-Checksum\":\"524d07b284cda92c86a908c67014ee882a80193b\",\"Content-Type\":\"application/json\",\"ETag\":\"\\\"$524d07b284cda92c86a908c67014ee882a80193b\\\"\"}}"
+                                 "{\".checksum\":\"524d07b284cda92c86a908c67014ee882a80193b\",\"ok\":{\".checksum\":\"524d07b284cda92c86a908c67014ee882a80193b\"}}", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }
@@ -644,7 +643,7 @@ test_glob (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-Cockpit-Pkg-Checksum\":\"4f2a5a7bb5bf355776e1fc83831b1d846914182e-c\",\"Content-Type\":\"text/plain\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-Cockpit-Pkg-Checksum\":\"4f2a5a7bb5bf355776e1fc83831b1d846914182e\",\"Content-Type\":\"text/plain\"}}");
   json_object_unref (object);
 
   message = mock_transport_pop_channel (tc->transport, "444");
@@ -910,15 +909,15 @@ test_reload_added (TestCase *tc,
   setup_reload_packages (datadir, "old");
   tc->packages = cockpit_packages_new ();
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf-c");
-  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf-c");
+  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
+  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf");
 
   setup_reload_packages (datadir, "new");
   cockpit_packages_reload (tc->packages);
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf-c");
-  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf-c");
-  assert_manifest_checksum (tc, "new", "516e9877b1255fa22f18c869e1715f39dd4b39ec-c");
+  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
+  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf");
+  assert_manifest_checksum (tc, "new", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
 
   teardown_reload_packages (datadir);
 }
@@ -936,15 +935,15 @@ test_reload_removed (TestCase *tc,
   setup_reload_packages (datadir, "new");
   tc->packages = cockpit_packages_new ();
 
-  assert_manifest_checksum (tc, NULL,  "516e9877b1255fa22f18c869e1715f39dd4b39ec-c");
-  assert_manifest_checksum (tc, "old", "516e9877b1255fa22f18c869e1715f39dd4b39ec-c");
-  assert_manifest_checksum (tc, "new", "516e9877b1255fa22f18c869e1715f39dd4b39ec-c");
+  assert_manifest_checksum (tc, NULL,  "516e9877b1255fa22f18c869e1715f39dd4b39ec");
+  assert_manifest_checksum (tc, "old", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
+  assert_manifest_checksum (tc, "new", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
 
   setup_reload_packages (datadir, "old");
   cockpit_packages_reload (tc->packages);
 
-  assert_manifest_checksum (tc, NULL,  "516e9877b1255fa22f18c869e1715f39dd4b39ec-c");
-  assert_manifest_checksum (tc, "old", "516e9877b1255fa22f18c869e1715f39dd4b39ec-c");
+  assert_manifest_checksum (tc, NULL,  "516e9877b1255fa22f18c869e1715f39dd4b39ec");
+  assert_manifest_checksum (tc, "old", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
   assert_manifest_checksum (tc, "new", NULL);
 
   teardown_reload_packages (datadir);
@@ -963,14 +962,14 @@ test_reload_updated (TestCase *tc,
   setup_reload_packages (datadir, "old");
   tc->packages = cockpit_packages_new ();
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf-c");
-  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf-c");
+  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
+  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf");
 
   setup_reload_packages (datadir, "updated");
   cockpit_packages_reload (tc->packages);
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf-c");
-  assert_manifest_checksum (tc, "old", "252178c3fba5843c8c3bb4ce7733b405741cedee-c");
+  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
+  assert_manifest_checksum (tc, "old", "252178c3fba5843c8c3bb4ce7733b405741cedee");
 
   teardown_reload_packages (datadir);
 }
@@ -994,7 +993,7 @@ test_csp_strip (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, NULL);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-Cockpit-Pkg-Checksum\":\"0c58347ff749c5918f7f311c109369c377dc2ba1-c\",\"Content-Type\":\"text/html\",\"Content-Security-Policy\":\"connect-src 'self' ws: wss:; img-src: 'self' data:; default-src 'self'\"}}<html>\x0A<head>\x0A<title>Test</title>\x0A</head>\x0A<body>Test</body>\x0A</html>\x0A", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-Cockpit-Pkg-Checksum\":\"0c58347ff749c5918f7f311c109369c377dc2ba1\",\"Content-Type\":\"text/html\",\"Content-Security-Policy\":\"connect-src 'self' ws: wss:; img-src: 'self' data:; default-src 'self'\"}}<html>\x0A<head>\x0A<title>Test</title>\x0A</head>\x0A<body>Test</body>\x0A</html>\x0A", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }

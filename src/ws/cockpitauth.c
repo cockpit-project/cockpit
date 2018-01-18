@@ -29,7 +29,6 @@
 #include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
 #include "common/cockpithex.h"
-#include "common/cockpitlocale.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
@@ -994,8 +993,7 @@ cockpit_session_create (CockpitAuth *self,
   const gchar *command;
   const gchar *section;
   const gchar *program_default;
-  gchar *lang = NULL;
-  gchar **languages = NULL;
+
   gchar **env = g_get_environ ();
 
   const gchar *argv[] = {
@@ -1047,19 +1045,6 @@ cockpit_session_create (CockpitAuth *self,
                               TRUE);
     }
 
-  lang = cockpit_web_server_parse_cookie (headers, "CockpitLang");
-  if (!lang)
-    {
-      languages = cockpit_web_server_parse_languages (headers, NULL);
-      lang = cockpit_locale_from_language (languages[0], "UTF-8", NULL);
-    }
-
-  if (lang)
-    {
-      env = g_environ_setenv (env, "LANG", lang, TRUE);
-      env = g_environ_setenv (env, "LC_MESSAGES", lang, TRUE);
-    }
-
   argv[0] = command;
   argv[1] = host ? host : "localhost";
 
@@ -1096,8 +1081,6 @@ cockpit_session_create (CockpitAuth *self,
   session->client_timeout = timeout_option ("response-timeout", section, cockpit_ws_auth_response_timeout);
 
 out:
-  g_free (lang);
-  g_strfreev (languages);
   g_strfreev (env);
   if (creds)
     cockpit_creds_unref (creds);

@@ -64,44 +64,6 @@ cockpit_locale_from_language (const gchar *value,
   return result;
 }
 
-gchar *
-cockpit_language_from_locale (const gchar *value)
-{
-  gint len = -1;
-  const gchar *underscore;
-  const gchar *dot;
-  gchar *country = NULL;
-  gchar *lang = NULL;
-  gchar *result = NULL;
-
-  if (value == NULL || g_strcmp0 (value, "C") == 0)
-    return NULL;
-
-  dot = strchr (value, '.');
-  underscore = strchr (value, '_');
-
-  if (underscore)
-    {
-      if (dot && dot > underscore)
-        len = (dot - underscore) - 1;
-
-      country = g_ascii_strdown (underscore + 1, len);
-      lang = g_ascii_strdown (value, underscore - value);
-      result = g_strconcat (lang, "-", country, NULL);
-    }
-  else
-    {
-      if (dot)
-        len = (dot - value);
-
-      result = g_ascii_strdown (value, len);
-    }
-
-  g_free (country);
-  g_free (lang);
-  return result;
-}
-
 /* The most recently set language */
 static gchar previous[32] = { '\0' };
 

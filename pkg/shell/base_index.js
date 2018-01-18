@@ -476,7 +476,7 @@
      * As a convenience, common menu items can be setup by adding the
      * selector to be used to hook them up. The accepted selectors
      * are.
-     * oops_sel, logout_sel, brand_sel, about_sel,
+     * oops_sel, logout_sel, language_sel, brand_sel, about_sel,
      * user_sel, account_sel
      *
      * Emits "disconnect" and "expect_restart" signals, that should be
@@ -811,6 +811,40 @@
             });
         }
 
+        /* Display language dialog */
+        function setup_language(id) {
+            /*
+             * Note that we don't go ahead and load all the po files in order
+             * to produce this list. Perhaps we would include it somewhere in a
+             * separate automatically generated file. Need to see.
+             */
+            var manifest = cockpit.manifests["shell"] || { };
+            $(".display-language-menu").toggle(!!manifest.locales);
+            var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            if (!language)
+                language = "en-us";
+            $.each(manifest.locales || { }, function(code, name) {
+                var el = $("<option>").text(name).val(code);
+                if (code == language)
+                    el.attr("selected", "true");
+                $("#display-language-list").append(el);
+            });
+
+            $("#display-language-select-button").on("click", function(event) {
+                var code_to_select = $("#display-language-list").val();
+                var cookie = "CockpitLang=" + encodeURIComponent(code_to_select) +
+                             "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
+                document.cookie = cookie;
+                window.localStorage.setItem("cockpit.lang", code_to_select);
+                window.location.reload(true);
+                return false;
+            });
+
+            $(id).on("shown.bs.modal", function() {
+                $("display-language-list").focus();
+            });
+        }
+
         /* About dialog */
         function setup_about(id) {
             $(cockpit.info).on("changed", function() {
@@ -842,6 +876,9 @@
 
         if (self.logout_sel)
             setup_logout(self.logout_sel);
+
+        if (self.language_sel)
+            setup_language(self.language_sel);
 
         var cal_title;
         if (self.brand_sel) {

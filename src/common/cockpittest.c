@@ -217,9 +217,6 @@ cockpit_test_init (int *argc,
   g_setenv ("GIO_USE_VFS", "local", TRUE);
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("LANG", "C", TRUE);
-  g_setenv ("LC_ALL", "C", TRUE);
-  g_setenv ("LC_MESSAGES", "C", TRUE);
 
   g_assert (g_snprintf (path, sizeof (path), "%s:%s", BUILDDIR, g_getenv ("PATH")) < sizeof (path));
   g_setenv ("PATH", path, TRUE);

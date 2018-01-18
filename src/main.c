@@ -79,6 +79,21 @@ virtDBusHandleBusEvent(int watch,
     virEventUpdateHandle(watch, virtDBusGetLibvirtEvents(bus));
 }
 
+struct virtDBusDriver {
+    const char *uri;
+    const char *object;
+};
+
+static const struct virtDBusDriver sessionDrivers[] = {
+    { "qemu:///session",    "/org/libvirt/qemu" },
+    { "test:///default",    "/org/libvirt/test" },
+};
+
+static const struct virtDBusDriver systemDrivers[] = {
+    { "qemu:///system",     "/org/libvirt/qemu" },
+    { "test:///default",    "/org/libvirt/test" },
+};
+
 int
 main(int argc, char *argv[])
 {
@@ -89,16 +104,16 @@ main(int argc, char *argv[])
 
     static const struct option options[] = {
         { "help",    no_argument,       NULL, 'h' },
-        { "connect", required_argument, NULL, 'c' },
         { "system",  no_argument,       NULL, ARG_SYSTEM },
         { "session", no_argument,       NULL, ARG_SESSION },
         {}
     };
 
     bool system_bus;
-    const char *uri = NULL;
+    const struct virtDBusDriver *drivers = NULL;
+    int ndrivers = 0;
 
-    _cleanup_(virtDBusConnectFreep) virtDBusConnect *connect = NULL;
+    _cleanup_(virtDBusConnectListFree) virtDBusConnect **connect = NULL;
     _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
     _cleanup_(virtDBusUtilClosep) int signal_fd = -1;
     _cleanup_(virtDBusVirEventRemoveHandlep) int bus_watch = -1;
@@ -121,14 +136,9 @@ main(int argc, char *argv[])
                 printf("Provide a D-Bus interface to a libvirtd.\n");
                 printf("\n");
                 printf("  -h, --help        Display this help text and exit\n");
-                printf("  -c, --connect URI Connect to the specified libvirt URI\n");
                 printf("  --session         Connect to the session bus\n");
                 printf("  --system          Connect to the system bus\n");
                 return 0;
-
-            case 'c':
-                uri = optarg;
-                break;
 
             case ARG_SYSTEM:
                 system_bus = true;
@@ -140,14 +150,6 @@ main(int argc, char *argv[])
 
             default:
                 return EXIT_FAILURE;
-        }
-    }
-
-    if (uri == NULL) {
-        if (system_bus) {
-            uri = "qemu:///system";
-        } else {
-            uri = "qemu:///session";
         }
     }
 
@@ -170,10 +172,23 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    r = virtDBusConnectNew(&connect, bus, uri);
-    if (r < 0) {
-        fprintf(stderr, "Failed to connect to libvirt.");
-        return EXIT_FAILURE;
+    if (system_bus) {
+        drivers = systemDrivers;
+        ndrivers = VIRT_N_ELEMENTS(systemDrivers);
+    } else {
+        drivers = sessionDrivers;
+        ndrivers = VIRT_N_ELEMENTS(sessionDrivers);
+    }
+
+    connect = calloc(ndrivers + 1, sizeof(virtDBusConnect *));
+
+    for (int i = 0; i < ndrivers; i += 1) {
+        r = virtDBusConnectNew(&connect[i], bus,
+                               drivers[i].uri, drivers[i].object);
+        if (r < 0) {
+            fprintf(stderr, "Failed to register libvirt connection.");
+            return EXIT_FAILURE;
+        }
     }
 
     r = virtDBusProcessEvents(bus);

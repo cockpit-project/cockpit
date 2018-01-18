@@ -20,6 +20,8 @@ typedef struct virtDBusConnect virtDBusConnect;
 
 int virtDBusConnectNew(virtDBusConnect **connectp,
                        sd_bus *bus,
-                       const char *uri);
+                       const char *uri,
+                       const char *connectPath);
 virtDBusConnect *virtDBusConnectFree(virtDBusConnect *connect);
 void virtDBusConnectFreep(virtDBusConnect **connectp);
+void virtDBusConnectListFree(virtDBusConnect ***connectList);

@@ -239,7 +239,8 @@ static const sd_bus_vtable virt_connect_vtable[] = {
 int
 virtDBusConnectNew(virtDBusConnect **connectp,
                    sd_bus *bus,
-                   const char *uri)
+                   const char *uri,
+                   const char *connectPath)
 {
     _cleanup_(virtDBusConnectFreep) virtDBusConnect *connect = NULL;
     int r;
@@ -250,7 +251,7 @@ virtDBusConnectNew(virtDBusConnect **connectp,
 
     connect->bus = sd_bus_ref(bus);
     connect->uri = uri;
-    connect->connectPath = "/org/libvirt/Connect";
+    connect->connectPath = connectPath;
 
     connect->enumerateDomains = virtDBusConnectEnumarateDomains;
 
@@ -293,4 +294,16 @@ virtDBusConnectFreep(virtDBusConnect **connectp)
 {
     if (*connectp)
         virtDBusConnectFree(*connectp);
+}
+
+void
+virtDBusConnectListFree(virtDBusConnect ***connectList)
+{
+    if (!*connectList)
+        return;
+
+    for (int i = 0; (*connectList)[i]; i += 1)
+        virtDBusConnectFree((*connectList)[i]);
+
+    free(*connectList);
 }

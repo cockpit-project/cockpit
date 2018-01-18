@@ -28,7 +28,7 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         os.environ['LIBVIRT_DEBUG'] = '3'
 
-        self.daemon = subprocess.Popen([exe, '--connect', 'test:///default'])
+        self.daemon = subprocess.Popen([exe])
         self.bus = dbus.SessionBus()
 
         for i in range(10):
@@ -38,7 +38,7 @@ class TestCase(unittest.TestCase):
         else:
             raise TimeoutError('error starting libvirt-dbus')
 
-        obj = self.bus.get_object('org.libvirt', '/org/libvirt/Connect')
+        obj = self.bus.get_object('org.libvirt', '/org/libvirt/test')
         self.connect = dbus.Interface(obj, 'org.libvirt.Connect')
 
     def tearDown(self):

@@ -160,7 +160,7 @@ function remove(name, progress_cb) {
         });
 }
 
-function refresh(origin_files, collection_packages, progress_cb) {
+function refresh(origin_files, config_packages, data_packages, progress_cb) {
     var origin_pkgs = { };
     var update_ids = [ ];
 
@@ -174,10 +174,11 @@ function refresh(origin_files, collection_packages, progress_cb) {
      * metadata is delivered in packages.  We find them and update
      * them explicitly.
      *
-     * Also, we have an explicit list of packages with collection
-     * metadata, and we make sure that they are installed.  This
-     * allows us to install them on demand when the user actually uses
-     * the Applications tool, and not always.
+     * Also, we have two explicit lists of packages, and we make sure
+     * that they are installed.  The first list contains packages that
+     * configure the system to retrieve AppStream data as part of
+     * repository metadata, and the second list contains packages that
+     * contain AppStream data themselves.
      */
 
     function gather_origin_cb(info, package_id) {
@@ -193,12 +194,12 @@ function refresh(origin_files, collection_packages, progress_cb) {
 
     function search_origin_file_packages() {
         return transaction("SearchFiles", [ PK_FILTER_INSTALLED, origin_files ],
-                           progress_reporter(0, 5, progress_cb), gather_origin_cb);
+                           progress_reporter(5, 1, progress_cb), gather_origin_cb);
     }
 
     function refresh_cache() {
         return transaction("RefreshCache", [ true ],
-                           progress_reporter(5, 70, progress_cb));
+                           progress_reporter(6, 69, progress_cb));
     }
 
     function maybe_update_origin_file_packages() {
@@ -211,27 +212,31 @@ function refresh(origin_files, collection_packages, progress_cb) {
             });
     }
 
-    function ensure_collection_packages() {
-        if (collection_packages.length > 0) {
+    function ensure_packages(pkgs, start_progress) {
+        if (pkgs.length > 0) {
             return resolve_many("Resolve",
                                 PK_FILTER_ARCH | PK_FILTER_NOT_SOURCE | PK_FILTER_NEWEST | PK_FILTER_NOT_INSTALLED,
-                                collection_packages, progress_reporter(95, 1, progress_cb)).
+                                pkgs, progress_reporter(start_progress, 1, progress_cb)).
                 then(function (ids) {
                     if (ids.length > 0) {
-                        return transaction("InstallPackages", [ 0, ids ], progress_reporter(96, 4, progress_cb)).
+                        return transaction("InstallPackages", [ 0, ids ],
+                                           progress_reporter(start_progress + 1, 4, progress_cb)).
                             catch(function (error, code) {
                                 if (code != PK_ERROR_ALREADY_INSTALLED)
                                     return cockpit.reject(error, code);
                             });
                     }
                 });
+        } else {
+            return cockpit.resolve();
         }
     }
 
-    return search_origin_file_packages().
+    return ensure_packages(config_packages, 0).
+        then(search_origin_file_packages).
         then(refresh_cache).
         then(maybe_update_origin_file_packages).
-        then(ensure_collection_packages);
+        then(function () { return ensure_packages(data_packages, 95); });
 }
 
 module.exports = {

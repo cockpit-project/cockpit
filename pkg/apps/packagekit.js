@@ -24,10 +24,13 @@ var client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try" });
 var PK_STATUS_ENUM_WAIT = 1;
 var PK_STATUS_ENUM_WAITING_FOR_LOCK = 30;
 
-var PK_FILTER_INSTALLED   = (1 << 2);
-var PK_FILTER_NEWEST      = (1 << 16);
-var PK_FILTER_ARCH        = (1 << 18);
-var PK_FILTER_NOT_SOURCE  = (1 << 21);
+var PK_FILTER_INSTALLED     = (1 << 2);
+var PK_FILTER_NOT_INSTALLED = (1 << 3);
+var PK_FILTER_NEWEST        = (1 << 16);
+var PK_FILTER_ARCH          = (1 << 18);
+var PK_FILTER_NOT_SOURCE    = (1 << 21);
+
+var PK_ERROR_ALREADY_INSTALLED = 9;
 
 function transaction(method, args, progress_cb, package_cb) {
     var defer = cockpit.defer();
@@ -107,7 +110,7 @@ function progress_reporter(base, range, callback) {
     }
 }
 
-function resolve(method, filter, name, progress_cb) {
+function resolve_many(method, filter, names, progress_cb) {
     var defer = cockpit.defer();
     var ids = [ ];
 
@@ -115,18 +118,25 @@ function resolve(method, filter, name, progress_cb) {
         ids.push(package_id);
     }
 
-    transaction(method, [ filter, [ name ] ], progress_cb, gather_package_cb).
+    transaction(method, [ filter, names ], progress_cb, gather_package_cb).
         done(function () {
-            if (ids.length === 0)
-                defer.reject("Can't resolve package", "not-found");
-            else
-                defer.resolve(ids[0]);
+            defer.resolve(ids);
         }).
         fail(function (error) {
             defer.reject(error, null);
         });
 
     return defer.promise();
+}
+
+function resolve(method, filter, name, progress_cb) {
+    return resolve_many(method, filter, [ name ], progress_cb).
+        then(function (ids) {
+            if (ids.length === 0)
+                return cockpit.reject("Can't resolve package", "not-found");
+            else
+                return ids[0];
+        });
 }
 
 function reload_bridge_packages() {
@@ -150,7 +160,7 @@ function remove(name, progress_cb) {
         });
 }
 
-function refresh(origin_files, progress_cb) {
+function refresh(origin_files, collection_packages, progress_cb) {
     var origin_pkgs = { };
     var update_ids = [ ];
 
@@ -163,6 +173,11 @@ function refresh(origin_files, progress_cb) {
      * what happens, but on others (such as Fedora), the collection
      * metadata is delivered in packages.  We find them and update
      * them explicitly.
+     *
+     * Also, we have an explicit list of packages with collection
+     * metadata, and we make sure that they are installed.  This
+     * allows us to install them on demand when the user actually uses
+     * the Applications tool, and not always.
      */
 
     function gather_origin_cb(info, package_id) {
@@ -176,21 +191,47 @@ function refresh(origin_files, progress_cb) {
             update_ids.push(package_id);
     }
 
-    return transaction("SearchFiles", [ PK_FILTER_INSTALLED, origin_files ],
-                       progress_reporter(0, 5, progress_cb), gather_origin_cb).
-        then(function () {
-            return transaction("RefreshCache", [ true ],
-                               progress_reporter(5, 70, progress_cb)).
-                then (function () {
-                    return transaction("GetUpdates", [ 0 ],
-                                       progress_reporter(75, 5, progress_cb), gather_update_cb).
-                        then(function () {
-                            if (update_ids.length > 0)
-                                return transaction("UpdatePackages", [ 0, update_ids ],
-                                                   progress_reporter(80, 20, progress_cb));
-                        });
+    function search_origin_file_packages() {
+        return transaction("SearchFiles", [ PK_FILTER_INSTALLED, origin_files ],
+                           progress_reporter(0, 5, progress_cb), gather_origin_cb);
+    }
+
+    function refresh_cache() {
+        return transaction("RefreshCache", [ true ],
+                           progress_reporter(5, 70, progress_cb));
+    }
+
+    function maybe_update_origin_file_packages() {
+        return transaction("GetUpdates", [ 0 ],
+                           progress_reporter(75, 5, progress_cb), gather_update_cb).
+            then(function () {
+                if (update_ids.length > 0)
+                    return transaction("UpdatePackages", [ 0, update_ids ],
+                                       progress_reporter(80, 15, progress_cb));
+            });
+    }
+
+    function ensure_collection_packages() {
+        if (collection_packages.length > 0) {
+            return resolve_many("Resolve",
+                                PK_FILTER_ARCH | PK_FILTER_NOT_SOURCE | PK_FILTER_NEWEST | PK_FILTER_NOT_INSTALLED,
+                                collection_packages, progress_reporter(95, 1, progress_cb)).
+                then(function (ids) {
+                    if (ids.length > 0) {
+                        return transaction("InstallPackages", [ 0, ids ], progress_reporter(96, 4, progress_cb)).
+                            catch(function (error, code) {
+                                if (code != PK_ERROR_ALREADY_INSTALLED)
+                                    return cockpit.reject(error, code);
+                            });
+                    }
                 });
-        });
+        }
+    }
+
+    return search_origin_file_packages().
+        then(refresh_cache).
+        then(maybe_update_origin_file_packages).
+        then(ensure_collection_packages);
 }
 
 module.exports = {

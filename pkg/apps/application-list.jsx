@@ -99,6 +99,10 @@ class ApplicationRow extends React.Component {
     }
 }
 
+// We try to install these packages, but only if they are available.
+//
+const appstream_collection_packages = [ "appstream-data" ];
+
 class ApplicationList extends React.Component {
     constructor() {
         super();
@@ -114,6 +118,7 @@ class ApplicationList extends React.Component {
 
         function refresh() {
             PackageKit.refresh(self.props.metainfo_db.origin_files,
+                               appstream_collection_packages,
                                data => self.setState({ progress: data })).
                 always(() => self.setState({ progress: false })).
                 fail(show_error);

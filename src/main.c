@@ -85,13 +85,25 @@ struct virtDBusDriver {
 };
 
 static const struct virtDBusDriver sessionDrivers[] = {
-    { "qemu:///session",    "/org/libvirt/qemu" },
-    { "test:///default",    "/org/libvirt/test" },
+    { "qemu:///session",            "/org/libvirt/QEMU" },
+    { "test:///default",            "/org/libvirt/Test" },
+    { "uml:///session",             "/org/libvirt/UML" },
+    { "vbox:///session",            "/org/libvirt/VBox" },
+    { "vmwarefusion:///session",    "/org/libvirt/VMwareFusion" },
+    { "vmwareplayer:///session",    "/org/libvirt/VMwarePlayer" },
+    { "vmwarews:///session",        "/org/libvirt/VMwareWS" },
 };
 
 static const struct virtDBusDriver systemDrivers[] = {
-    { "qemu:///system",     "/org/libvirt/qemu" },
-    { "test:///default",    "/org/libvirt/test" },
+    { "bhyve:///system",        "/org/libvirt/BHyve" },
+    { "lxc:///",                "/org/libvirt/LXC" },
+    { "openvz:///system",       "/org/libvirt/OpenVZ" },
+    { "qemu:///system",         "/org/libvirt/QEMU" },
+    { "test:///default",        "/org/libvirt/Test" },
+    { "uml:///system",          "/org/libvirt/UML" },
+    { "vbox:///system",         "/org/libvirt/VBox" },
+    { "vz:///system",           "/org/libvirt/VZ" },
+    { "xen:///",                "/org/libvirt/Xen" },
 };
 
 int

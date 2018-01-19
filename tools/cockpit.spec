@@ -141,6 +141,7 @@ exec 2>&1
     --with-cockpit-user=cockpit-ws \
     --with-selinux-config-type=etc_t \
     %{?rhel:--without-storaged-iscsi-sessions} \
+    --with-appstream-data-packages='[ "appstream-data" ]' \
     %{!?build_dashboard:--disable-ssh}
 make -j4 %{?extra_flags} all
 

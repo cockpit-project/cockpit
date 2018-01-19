@@ -478,6 +478,16 @@ test_fd_pipe_readable (gint fd,
 }
 
 static gboolean
+test_fd_deferred_close (gpointer user_data)
+{
+  gint fd = GPOINTER_TO_INT (user_data);
+
+  close (fd);
+
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
 on_make_test_fd (TestFrobber *frobber,
                  GDBusMethodInvocation *invocation,
                  const char *type,
@@ -503,7 +513,13 @@ on_make_test_fd (TestFrobber *frobber,
 
       n = write(fds[1], data, data_size);
       g_assert (n == data_size);
-      close (fds[1]);
+
+      /*
+       * Close this fd a bit later, because closing the writing side
+       * makes CockpitPipe close itself immediately, which breaks
+       * testing that writing into this read-only pipe fails.
+       */
+      g_timeout_add_seconds (5, test_fd_deferred_close, GINT_TO_POINTER (fds[1]));
     }
   else if (g_str_equal (type, "writable"))
     {

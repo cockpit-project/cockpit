@@ -2,6 +2,28 @@
 
 set -eux
 
+# Wait for x for many minutes
+function wait() {
+    for i in $(seq 1 100); do
+        if eval "$@"; then
+            return 0
+        fi
+        sleep 6
+    done
+    exit 6
+}
+
+function docker_images_has() {
+    docker images | tr -s ' ' | cut -d ' ' --output-delimiter=: -f1,2 | grep -q "$1"
+}
+
+function docker_pull() {
+    docker pull $1
+    echo "$1" >> /tmp/pulledImages
+    docker_images_has $1
+}
+rm -f /tmp/pulledImages # will be populated by pulled images names
+
 # Cleanup the file system a bit
 rm -rf /var/cache/dnf /var/cache/yum
 xfs_growfs /
@@ -24,17 +46,6 @@ systemctl stop firewalld
 dnf mark install iptables
 dnf -y remove firewalld
 iptables -F
-
-# Wait for x for many minutes
-function wait() {
-    for i in $(seq 1 100); do
-        if eval "$@"; then
-            return 0
-        fi
-        sleep 6
-    done
-    exit 6
-}
 
 wait dnf -y install docker python libselinux-python
 
@@ -69,7 +80,7 @@ VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; o
 
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages
-docker pull "openshift/origin:$VERSION"
+docker_pull "openshift/origin:$VERSION"
 container=$(docker create "openshift/origin:$VERSION")
 docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oadm bin/kubectl
 
@@ -112,12 +123,12 @@ systemctl enable openshift
 systemctl start openshift || journalctl -u openshift
 
 # Now pull all the images we're going to use with openshift
-docker pull "openshift/origin-deployer:$VERSION"
-docker pull "openshift/origin-docker-registry:$VERSION"
-docker pull "openshift/origin-pod:$VERSION"
+docker_pull "openshift/origin-deployer:$VERSION"
+docker_pull "openshift/origin-docker-registry:$VERSION"
+docker_pull "openshift/origin-pod:$VERSION"
 
 # Now pull images used for integration tests
-docker pull registry:2
+docker_pull registry:2
 
 # HACK: Make openshift registry recognize docker registrys with the OpenShift CA
 # (https://github.com/openshift/origin/issues/1753)
@@ -193,7 +204,7 @@ echo '{"apiVersion":"v1","kind":"ImageStream","metadata": {"name":"origin"}}' > 
 oc create -f /tmp/imagestream.json
 
 # Get ready to push busybox into place
-docker pull busybox
+docker_pull busybox
 docker tag busybox registry:5000/marmalade/busybee:latest
 docker tag busybox registry:5000/marmalade/busybee:0.x
 docker push registry:5000/marmalade/busybee
@@ -278,8 +289,39 @@ printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/
 
 dnf install -y cockpit-system
 
+docker info
+
 # reduce image size
 dnf clean all
-/var/lib/testvm/zero-disk.setup
 
+systemctl stop docker
+# write all changes before filling the disk
+sync
+/var/lib/testvm/zero-disk.setup
+systemctl start docker && sleep 10
+
+dnf install -y cockpit-system
+
+# Verify all pulled docker images are really present
+echo All present images:
 docker images
+echo "Total docker images:"
+docker images | wc
+
+docker images --format "{{.Repository}}:{{.Tag}}" > /tmp/presentImages
+
+echo
+echo All images actually pulled
+cat /tmp/presentImages
+echo
+
+echo
+echo All images expected to be pulled
+cat /tmp/pulledImages
+echo
+
+# Verify all expected are actually pulled
+while read img ; do
+  echo Verify "$img"
+  grep "$img" /tmp/presentImages || (echo "Error: Image $img is missing" && exit 10)
+done < /tmp/pulledImages

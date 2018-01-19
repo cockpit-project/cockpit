@@ -381,7 +381,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
     def bootstrapKubevirt(self):
         o = self.openshift
 
-        o.execute("/root/nested-kvm") # not enabled by default
+        o.execute("/root/nested-kvm") # not enabled by default; for troubleshooting use "virt-host-validate qemu"
         o.execute("(cat /sys/module/kvm_intel/parameters/nested || cat /sys/module/kvm_amd/parameters/nested) | grep -q Y")
 
         o.execute("oc project kube-system")
@@ -392,7 +392,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
         o.execute("oc apply -f /kubevirt/kubevirt.yaml") # finalize installation of kubevirt
 
-        wait(lambda: "Running" in o.execute("oc get pods | grep virt-api"), delay=2) # is it deployed and up?
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2) # is it deployed and up?
         wait(lambda: "No resources found" in o.execute("oc get vm 2>&1"), delay=2) # No VM created yet
 
     def testKubevirtEnvironment(self):

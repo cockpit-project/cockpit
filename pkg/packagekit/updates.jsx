@@ -17,14 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var React = require("react");
-var moment = require("moment");
-var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
-var Markdown = require("react-remarkable");
-require("listing.less");
-
+import cockpit from "cockpit";
+import React from "react";
+import moment from "moment";
+import { Tooltip } from "cockpit-components-tooltip.jsx";
+import Markdown from "react-remarkable";
 import AutoUpdates from "./autoupdates.jsx";
+
+require("listing.less");
 
 const _ = cockpit.gettext;
 
@@ -624,7 +624,7 @@ class OsUpdates extends React.Component {
 
         dbus_pk.addEventListener("close", (event, ex) => {
             console.log("close:", event, ex);
-            var err;
+            let err;
             if (ex.problem == "not-found")
                 err = _("PackageKit is not installed")
             else
@@ -913,8 +913,8 @@ class OsUpdates extends React.Component {
                             </div>
                         </div>);
                 } else {
-                    var num_updates = Object.keys(this.state.updates).length;
-                    var num_security_updates = count_security_updates(this.state.updates);
+                    let num_updates = Object.keys(this.state.updates).length;
+                    let num_security_updates = count_security_updates(this.state.updates);
 
                     applyAll = (
                         <button className="btn btn-primary" onClick={ () => this.applyUpdates(false) }>

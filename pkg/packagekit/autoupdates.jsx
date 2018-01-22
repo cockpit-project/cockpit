@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var React = require("react");
+import cockpit from "cockpit";
+import React from "react";
 
 import OnOffSwitch from "cockpit-components-onoff.jsx";
 import Select from "cockpit-components-select.jsx";

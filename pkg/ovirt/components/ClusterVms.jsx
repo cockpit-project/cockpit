@@ -23,7 +23,8 @@ import cockpit from 'cockpit';
 import CONFIG from '../config.es6';
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { StateIcon, DropdownButtons } from "../../machines/hostvmslist.jsx";
+import { StateIcon } from "../../machines/hostvmslist.jsx";
+import DropdownButtons from "../../machines/components/dropdownButtons.jsx";
 
 import { toGigaBytes, valueOrDefault, isSameHostAddress } from '../helpers.es6';
 import { startVm, goToSubpage } from '../actions.es6';

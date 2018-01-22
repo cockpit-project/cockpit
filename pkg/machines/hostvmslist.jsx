@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 import { shutdownVm, forceVmOff, forceRebootVm, rebootVm, startVm,
          usageStartPolling, usageStopPolling, sendNMI } from "./actions.es6";
-import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId } from "./helpers.es6";
+import { rephraseUI, logDebug, toGigaBytes, toFixedPrecision, vmId, mouseClick } from "./helpers.es6";
 import DonutChart from "./c3charts.jsx";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import VmDisksTab from './components/vmdiskstab.jsx';
@@ -30,17 +30,9 @@ import Consoles from './components/consoles.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 import InfoRecord from './components/infoRecord.jsx';
 import VmLastMessage from './components/vmLastMessage.jsx';
+import DropdownButtons from './components/dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
-
-function mouseClick(fun) {
-    return function (event) {
-        if (!event || event.button !== 0)
-            return;
-        event.stopPropagation();
-        return fun(event);
-    };
-}
 
 const NoVm = () => {
     return (<div className="cockpit-log-warning">
@@ -183,50 +175,6 @@ StateIcon.propTypes = {
     valueId: PropTypes.string,
     extra: PropTypes.any,
 };
-
-/**
- * Render group of buttons as a dropdown
- *
- * @param buttons array of objects [ {title, action, id}, ... ].
- *        At least one button is required. Button id is optional.
- * @returns {*}
- * @constructor
- */
-export const DropdownButtons = ({ buttons }) => {
-    if (buttons.length > 1) { // do not display caret for single option
-        const buttonsHtml = buttons
-            .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
-            .map(button => {
-                return (<li className='presentation'>
-                    <a role='menuitem' onClick={mouseClick(button.action)} id={button.id}>
-                        {button.title}
-                    </a>
-                </li>)
-            });
-
-        const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
-        return (<div className='btn-group dropdown-buttons-container'>
-            <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={mouseClick(buttons[0].action)}>
-                {buttons[0].title}
-            </button>
-            <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
-                <span className='caret' id={caretId}/>
-            </button>
-            <ul role='menu' className='dropdown-menu'>
-                {buttonsHtml}
-            </ul>
-        </div>);
-    }
-
-    return (<div className='btn-group'>
-        <button className='btn btn-default btn-danger' onClick={mouseClick(buttons[0].action)} id={buttons[0]['id']}>
-            {buttons[0].title}
-        </button>
-    </div>);
-}
-DropdownButtons.propTypes = {
-    buttons: PropTypes.array.isRequired
-}
 
 const VmBootOrder = ({ vm }) => {
     let bootOrder = _("No boot device found");

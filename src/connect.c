@@ -4,6 +4,7 @@
 #include "util.h"
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 static int virtDBusConnectCredType[] = {
@@ -34,12 +35,35 @@ static virConnectAuth virtDBusConnectAuth = {
     NULL,
 };
 
+static void
+virtDBusConnectClose(virtDBusConnect *connect,
+                     bool deregisterEvents)
+{
+
+    for (int i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1) {
+        if (connect->callback_ids[i] >= 0) {
+            if (deregisterEvents) {
+                virConnectDomainEventDeregisterAny(connect->connection,
+                                                   connect->callback_ids[i]);
+            }
+            connect->callback_ids[i] = -1;
+        }
+    }
+
+    virConnectClose(connect->connection);
+    connect->connection = NULL;
+}
+
 static int
 virtDBusConnectOpen(virtDBusConnect *connect,
                     sd_bus_error *error)
 {
-    if (connect->connection)
-        return 0;
+    if (connect->connection) {
+        if (virConnectIsAlive(connect->connection))
+            return 0;
+        else
+            virtDBusConnectClose(connect, false);
+    }
 
     virtDBusConnectAuth.cbdata = error;
 
@@ -254,14 +278,8 @@ virtDBusConnectFree(virtDBusConnect *connect)
     if (connect->bus)
         sd_bus_unref(connect->bus);
 
-    if (connect->connection) {
-        for (int i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1) {
-            if (connect->callback_ids[i] >= 0)
-                virConnectDomainEventDeregisterAny(connect->connection, connect->callback_ids[i]);
-        }
-
-        virConnectClose(connect->connection);
-    }
+    if (connect->connection)
+        virtDBusConnectClose(connect, true);
 
     free(connect);
 

@@ -36,7 +36,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <div class="nav-item-pf-header">
                 <span translate>Cluster</span>
             </div>
-            <ul class="list-group">
+                <ul class="list-group" id="kubernetes-navigation">
                 <li class="list-group-item" ng-class="{ active: viewActive(null)}">
                     <a ng-href="#{{ viewUrl(null) }}">
                         <i class="fa fa-dashboard fa-fw" title="Overview"></i>
@@ -53,6 +53,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                     <a ng-href="#{{ viewUrl('pods') }}">
                         <i class="fa fa-cubes fa-fw" title="Containers"></i>
                         <span class="list-group-item-value" translate>Containers</span>
+                    </a>
+                </li>
+                <li class="list-group-item" ng-class="{ active: viewActive('vms')}" ng-if="settings.kubevirtEnabled">
+                    <a ng-href="#{{ viewUrl('vms') }}" id="vms-menu-link">
+                        <i class="fa pficon-virtual-machine fa-fw" title="Virtual Machines"></i>
+                        <span class="list-group-item-value" translate>Virtual Machines</span>
                     </a>
                 </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('topology')}">

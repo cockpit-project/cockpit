@@ -61,6 +61,8 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
     def setUp(self):
         super(TestOpenshift, self).setUp()
 
+        print "======= done setUp"
+
         self.openshift = self.machines['openshift']
         self.openshift.upload(["verify/files/mock-app-openshift.json"], "/tmp")
         self.kubeconfig = os.path.join(self.tmpdir, "config")
@@ -405,6 +407,70 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         wait(lambda: "testvm" in o.execute("oc get vm"), delay=1)
         wait(lambda: "virt-launcher-testvm" in o.execute("oc get pods"))
         wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-testvm"))
+
+    def testVirtualMachinesTabPresent(self):
+        self.bootstrapKubevirt()
+
+        b = self.browser
+        self.login_and_go("/kubernetes")
+        b.wait_present("#kubernetes-navigation")
+        self.assertTrue(b.is_present("#vms-menu-link"))
+
+    def testVirtualMachinesListed(self):
+        self.bootstrapKubevirt()
+
+        o = self.openshift
+        # *.yaml files comes from kubevirt distribution, see tarball extraction in bots/images/script/lib/kubevirt.setup
+        o.execute("oc create -f /kubevirt/iscsi-demo-target.yaml")  # disk for test VM
+        o.execute("oc create -f /kubevirt/vm.yaml")  # let's create a VM
+        wait(lambda: "testvm" in o.execute("oc get vm"), msg='Deployment of virtual machine "testvm" failed.')
+
+        b = self.browser
+        self.login_and_go("/kubernetes")
+        b.wait_present("#vms-menu-link")
+        b.click("#vms-menu-link")
+        b.wait_present("tr[data-row-id='vm-testvm']")
+        self.assertTrue(b.text("tr[data-row-id='vm-testvm'] th") == 'testvm')
+
+    def testVirtualMachineRowExpansion(self):
+        self.bootstrapKubevirt()
+
+        o = self.openshift
+        o.execute("oc create -f /kubevirt/iscsi-demo-target.yaml")  # disk for test VM
+        o.execute("oc create -f /kubevirt/vm.yaml")  # let's create a VM
+        wait(lambda: "testvm" in o.execute("oc get vm"), msg='Deployment of virtual machine "testvm" failed.')
+
+        b = self.browser
+        self.login_and_go("/kubernetes")
+        b.wait_present("#vms-menu-link")
+        b.click("#vms-menu-link")
+        b.wait_present("tr[data-row-id='vm-testvm']")
+        b.click("tr[data-row-id='vm-testvm']")
+        b.wait_present("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel")
+        self.assertTrue('Node' in b.text("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel"))
+
+    def testVirtualMachineLinkToNode(self):
+        print 'start'
+        self.bootstrapKubevirt()
+        print 'kubevirt installed'
+
+        o = self.openshift
+        o.execute("oc create -f /kubevirt/iscsi-demo-target.yaml")  # disk for test VM
+        o.execute("oc create -f /kubevirt/vm.yaml")  # let's create a VM
+        wait(lambda: "testvm" in o.execute("oc get vm"), msg='Deployment of virtual machine "testvm" failed.')
+
+        b = self.browser
+        self.login_and_go("/kubernetes")
+        b.wait_present("#vms-menu-link")
+        b.click("#vms-menu-link")
+        b.wait_present("tr[data-row-id='vm-testvm']")
+        b.click("tr[data-row-id='vm-testvm']")
+        b.wait_present("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node")
+        node_not_assigned = '-'
+        node_name = b.text("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node").strip()
+        if node_name != node_not_assigned:
+            b.click("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node a")
+            b.wait_js_cond('window.location.hash === "#/nodes/%s"' % (node_name,))
 
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")

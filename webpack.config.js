@@ -356,7 +356,7 @@ var plugins = [
         }
     }),
     new copy(info.files),
-    new extract("[name].css")
+    new extract("[name].css"),
 ];
 
 var output = {

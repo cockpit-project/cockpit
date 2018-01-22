@@ -223,3 +223,12 @@ export function fileDownload ({ data, fileName = 'myFile.dat', mimeType = 'appli
 export function vmId(vmName) {
     return `vm-${vmName}`;
 }
+
+export function mouseClick(fun) {
+    return function (event) {
+        if (!event || event.button !== 0)
+            return;
+        event.stopPropagation();
+        return fun(event);
+    };
+}

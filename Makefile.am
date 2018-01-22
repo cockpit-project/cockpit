@@ -357,7 +357,7 @@ COMMITTED_DIST = \
 
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses
 # also automatically update minimum base dependency in RPM spec file
-dist-hook::
+dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
 		tar -C $(srcdir) -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball

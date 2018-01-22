@@ -184,45 +184,34 @@ var info = {
     files: [
         "apps/index.html",
         "apps/default.png",
-        "apps/manifest.json",
 
         "dashboard/index.html",
-        "dashboard/manifest.json",
 
         "docker/console.html",
-        "docker/manifest.json",
         "docker/index.html",
         "docker/images/drive-harddisk-symbolic.svg",
 
         "kdump/index.html",
-        "kdump/manifest.json",
 
-        "kubernetes/manifest.json",
         "kubernetes/override.json",
         "kubernetes/index.html",
         "kubernetes/registry.html",
 
         "machines/index.html",
-        "machines/manifest.json",
         "machines/vnc.html",
         "machines/vnc.css",
 
         "networkmanager/index.html",
-        "networkmanager/manifest.json",
 
-        "ostree/manifest.json",
         "ostree/index.html",
 
         "ovirt/index.html",
-        "ovirt/manifest.json",
         "ovirt/vnc.html",
         "ovirt/vnc.css",
 
         "packagekit/index.html",
-        "packagekit/manifest.json",
 
         "playground/hammer.gif",
-        "playground/manifest.json",
         "playground/jquery-patterns.html",
         "playground/metrics.html",
         "playground/pkgs.html",
@@ -234,9 +223,6 @@ var info = {
         "playground/test.html",
         "playground/translate.html",
 
-        "realmd/manifest.json",
-
-        "selinux/manifest.json",
         "selinux/setroubleshoot.html",
 
         "shell/images/server-error.png",
@@ -249,26 +235,19 @@ var info = {
 
         "sosreport/index.html",
         "sosreport/sosreport.png",
-        "sosreport/manifest.json",
 
         "storaged/index.html",
-        "storaged/manifest.json",
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
 
         "subscriptions/index.html",
-        "subscriptions/manifest.json",
 
         "systemd/index.html",
         "systemd/logs.html",
-        "systemd/manifest.json",
         "systemd/services.html",
         "systemd/terminal.html",
 
-        "tuned/manifest.json",
-
         "users/index.html",
-        "users/manifest.json",
     ]
 };
 

@@ -539,10 +539,6 @@ class TestMachines(MachineCase):
 
         b.wait_in_text("#vm-subVmTest1-network-2-state span", "up")
 
-<<<<<<< HEAD
-    # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
-    @unittest.skip("Broken with current chromium, see PR #9229")
-=======
     def testVCPU(self):
         b = self.browser
         m = self.machine
@@ -664,7 +660,8 @@ class TestMachines(MachineCase):
         # Check value of sockets, threads and cores from VM dumpxml
         m.execute("virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -")
 
->>>>>>> machines: Add vCPU detail modal window
+    # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
+    @unittest.skip("Broken with current chromium, see PR #9229")
     def testExternalConsole(self):
         b = self.browser
 

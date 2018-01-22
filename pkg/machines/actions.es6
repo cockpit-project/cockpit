@@ -114,18 +114,6 @@ export function startLibvirt(serviceName) {
 export function enableLibvirt(enable, serviceName) {
     return virt('ENABLE_LIBVIRT', { enable, serviceName });
 }
-export function setVCPUSettings(vm, max, count, sockets, threads, cores) {
-    return virt('SET_VCPU_SETTINGS', {
-        name: vm.name,
-        connectionName: vm.connectionName,
-        max,
-        count,
-        sockets,
-        threads,
-        cores,
-        isRunning: vm.state == 'running'
-    });
-}
 
 export function setVCPUSettings(vm, max, count, sockets, threads, cores) {
     return virt('SET_VCPU_SETTINGS', {

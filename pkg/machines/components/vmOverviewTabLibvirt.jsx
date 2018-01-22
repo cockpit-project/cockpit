@@ -20,7 +20,6 @@ import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 
 import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
-import VCPUModal from './vcpuModal.jsx';
 import VmLastMessage from './vmLastMessage.jsx';
 
 import { rephraseUI, vmId } from "../helpers.es6";

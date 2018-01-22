@@ -6,6 +6,34 @@
 #include <errno.h>
 #include <stdlib.h>
 
+static int virtDBusConnectCredType[] = {
+    VIR_CRED_AUTHNAME,
+    VIR_CRED_ECHOPROMPT,
+    VIR_CRED_REALM,
+    VIR_CRED_PASSPHRASE,
+    VIR_CRED_NOECHOPROMPT,
+    VIR_CRED_EXTERNAL,
+};
+
+static int
+virtDBusConnectAuthCallback(virConnectCredentialPtr cred VIR_ATTR_UNUSED,
+                            unsigned int ncred VIR_ATTR_UNUSED,
+                            void *cbdata)
+{
+    sd_bus_error *error = cbdata;
+
+    return virtDBusUtilSetError(error,
+                                "Interactive authentication is not supported. "
+                                "Use client configuration file for libvirt.");
+}
+
+static virConnectAuth virtDBusConnectAuth = {
+    virtDBusConnectCredType,
+    VIRT_N_ELEMENTS(virtDBusConnectCredType),
+    virtDBusConnectAuthCallback,
+    NULL,
+};
+
 static int
 virtDBusConnectOpen(virtDBusConnect *connect,
                     sd_bus_error *error)
@@ -13,8 +41,10 @@ virtDBusConnectOpen(virtDBusConnect *connect,
     if (connect->connection)
         return 0;
 
+    virtDBusConnectAuth.cbdata = error;
+
     connect->connection = virConnectOpenAuth(connect->uri,
-                                             virConnectAuthPtrDefault, 0);
+                                             &virtDBusConnectAuth, 0);
     if (!connect->connection)
         return virtDBusUtilSetLastVirtError(error);
 

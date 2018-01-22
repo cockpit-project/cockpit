@@ -19,6 +19,10 @@ virtDBusUtilMessageAppendTypedParameters(sd_bus_message *message,
 int
 virtDBusUtilSetLastVirtError(sd_bus_error *error);
 
+int
+virtDBusUtilSetError(sd_bus_error *error,
+                     const char *message);
+
 char *
 virtDBusUtilBusPathForVirDomain(virDomainPtr domain);
 

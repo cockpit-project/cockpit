@@ -69,6 +69,13 @@ virtDBusUtilSetLastVirtError(sd_bus_error *error)
     return sd_bus_error_set(error, "org.libvirt.Error", vir_error->message);
 }
 
+int
+virtDBusUtilSetError(sd_bus_error *error,
+                     const char *message)
+{
+    return sd_bus_error_set(error, "org.libvirt.Error", message);
+}
+
 char *
 virtDBusUtilBusPathForVirDomain(virDomainPtr domain)
 {

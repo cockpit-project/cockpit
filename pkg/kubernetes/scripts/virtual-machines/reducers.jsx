@@ -36,9 +36,31 @@ const settingsReducer = createReducer([], {
     [actionTypes.SET_SETTINGS]: (state = [], { payload }) => payload ? payload : {}
 })
 
+const vmsMessagesReducer = createReducer({}, {
+    [actionTypes.VM_ACTION_FAILED]: (state = {}, { payload: { vm, message, detail } }) => {
+      const newState = Object.assign({}, state);
+      newState[vm.metadata.uid] = { // So far the last message is kept only
+        message, // textual information
+        detail, // i.e. exception
+      };
+      return newState;
+    },
+
+    [actionTypes.REMOVE_VM_MESSAGE]: (state = {}, { payload: { vm } }) => {
+      if (!state[vm.metadata.uid]) {
+        return state;
+      }
+
+      const newState = Object.assign({}, state);
+      delete newState[vm.metadata.uid];
+      return newState;
+    },
+})
+
 const rootReducer = combineReducers({
     vms: vmsReducer,
-    settings: settingsReducer
+    settings: settingsReducer,
+    vmsMessages: vmsMessagesReducer,
 })
 
 export default rootReducer

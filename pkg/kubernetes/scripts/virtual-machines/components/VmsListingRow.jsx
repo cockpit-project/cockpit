@@ -23,57 +23,33 @@ import React from 'react'
 import { gettext as _ } from 'cockpit'
 
 import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx'
-import type { Vm } from '../types.jsx'
-import { getPairs } from '../utils.jsx'
+import GeneralTab from './GeneralTab.jsx'
+import VmActions from './VmActions.jsx'
 
-const NODE_LABEL = 'kubevirt.io/nodeName'
-function getNodeName(vm: Vm) {
-    return (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || null
-}
+import type { Vm, VmMessages } from '../types.jsx'
+import { NODE_LABEL, vmIdPrefx } from '../utils.jsx'
 
-const GeneralTab = ({ vm }: { vm: Vm }) => {
-    const nodeName = getNodeName(vm)
-    const nodeLink = nodeName ? (<a href={`#/nodes/${nodeName}`}>{nodeName}</a>) : '-'
-    return (
-        <div className="row">
-            <div className="col-xs-12 col-md-6">
-                <dl>
-                    <dt>{_("Node")}</dt>
-                    <dd className="vm-node">{nodeLink}</dd>
-                </dl>
-            </div>
-            <div className="col-xs-12 col-md-6">
-                <dl className="full-width">
-                    <dt>{_("Labels")}</dt>
-                    {vm.metadata.labels && getPairs(vm.metadata.labels).map(pair => {
-                        const printablePair = pair.key + '=' + pair.value
-                        return (<dd key={printablePair}>{printablePair}</dd>)
-                    })}
-                </dl>
-            </div>
-        </div>
-    )
-}
-
-const VmsListingRow = ({ vm }: { vm: Vm }) => {
+const VmsListingRow = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) => {
     const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-'
     const phase = (vm.status && vm.status.phase) || _("n/a")
     const generalTabRenderer = {
         name: _("General"),
         renderer: GeneralTab,
-        data: { vm },
+        data: { vm, vmMessages },
         presence: 'always',
     }
+
     return (
         <ListingRow
-            rowId={`vm-${vm.metadata.name}`}
+            rowId={vmIdPrefx(vm)}
             columns={[
                 {name: vm.metadata.name, 'header': true},
                 vm.metadata.namespace,
                 node,
                 phase // phases description https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
             ]}
-            tabRenderers={[generalTabRenderer]}/>
+            tabRenderers={[generalTabRenderer]}
+            listingActions={<VmActions vm={vm}/>}/>
     )
 }
 

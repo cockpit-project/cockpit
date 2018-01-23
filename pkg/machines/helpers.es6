@@ -228,7 +228,7 @@ export function mouseClick(fun) {
     return function (event) {
         if (!event || event.button !== 0)
             return;
-        event.stopPropagation();
+        event.preventDefault();
         return fun(event);
     };
 }

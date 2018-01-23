@@ -19,8 +19,11 @@
  */
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
+import { mouseClick } from '../helpers.es6';
 
 const _ = cockpit.gettext;
+
+import './inlineNotification.css';
 
 class InlineNotification extends React.Component {
     constructor(props) {
@@ -49,7 +52,7 @@ class InlineNotification extends React.Component {
             }
 
             detailButton = (<a href='#' className='alert-link machines-more-button'
-                                     onClick={this.toggleDetail}>{detailButtonText}</a>);
+                                     onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</a>);
         }
 
         const dismissableClass = this.props.onDismiss ? ' alert-dismissable' : '';

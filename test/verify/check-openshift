@@ -422,11 +422,25 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_present("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel")
         b.wait_in_text("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel", "Node")
 
+        # delete VM
+        b.wait_present("#vm-testvm-delete")
+        b.click("#vm-testvm-delete")
+        b.wait_present("#kubernetes-virtual-machines-root tr > td:contains(No virtual machines)")
+
+        # start the VM again - TODO: replace this step by OfflineVirtualMachines once implemented
+        o.execute("oc create -f /kubevirt/vm.yaml")  # let's create a VM
+        wait(lambda: "testvm" in o.execute("oc get vm"), msg='Deployment of virtual machine "testvm" failed.')
+        wait(lambda: "virt-launcher-testvm" in o.execute("oc get pods"))
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-testvm"))
+
         # link to node
+        b.wait_present("tr[data-row-id='vm-testvm']") # the just-started VM is listed
+        b.click("tr[data-row-id='vm-testvm']")  # expand row
+        b.wait_present("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel")
         b.wait_present("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node")
+        wait(lambda: b.text("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node").strip() != "-") # `-` ==  unassigned ; so wait for a change
         node_name = b.text("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node").strip()
-        self.assertNotEqual(node_name, "-")  # `-` ==  unassigned
-        b.click("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node a")
+        b.click("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel .vm-node a") # jump to "node" detail
         b.wait_js_cond('window.location.hash === "#/nodes/%s"' % (node_name,))
 
 

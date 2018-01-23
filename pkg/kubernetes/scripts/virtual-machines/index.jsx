@@ -19,25 +19,21 @@
 
 import 'regenerator-runtime/runtime' // required for library initialization
 import React from 'react'
-import { createStore, applyMiddleware, compose } from 'redux'
-import createSagaMiddleware from 'redux-saga'
+import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 
 import reducers from './reducers.jsx'
-import rootSaga from './sagas.jsx'
 import * as actionCreators from './action-creators.jsx'
 import VmsListing from './components/VmsListing.jsx'
 
-const sagaMiddleware = createSagaMiddleware()
 let reduxStore
 
 function initReduxStore() {
     const initialState = {
         vms: []
     }
-    const middleware = [ sagaMiddleware ]
-    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
-    const storeEnhancers = composeEnhancers(applyMiddleware(...middleware))
+
+    const storeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
     reduxStore = createStore(reducers, initialState, storeEnhancers)
 }
 
@@ -70,9 +66,8 @@ function addScopeVarsToStore ($scope) {
  * @param {kubeLoader} kubeLoader
  * @param {kubeSelect} kubeSelect
  */
-function init($scope, kubeLoader, kubeSelect) {
+function init($scope, kubeLoader, kubeSelect, kubeMethods) {
     initReduxStore()
-    sagaMiddleware.run(rootSaga)
     addKubeLoaderListener($scope, kubeLoader, kubeSelect)
     addScopeVarsToStore($scope)
     const rootElement = document.querySelector('#kubernetes-virtual-machines-root')

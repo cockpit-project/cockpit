@@ -22,6 +22,7 @@ import React from 'react'
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 
+import { initMiddleware } from './kube-middleware.jsx'
 import reducers from './reducers.jsx'
 import * as actionCreators from './action-creators.jsx'
 import VmsListing from './components/VmsListing.jsx'
@@ -68,6 +69,7 @@ function addScopeVarsToStore ($scope) {
  */
 function init($scope, kubeLoader, kubeSelect, kubeMethods) {
     initReduxStore()
+    initMiddleware(kubeMethods)
     addKubeLoaderListener($scope, kubeLoader, kubeSelect)
     addScopeVarsToStore($scope)
     const rootElement = document.querySelector('#kubernetes-virtual-machines-root')

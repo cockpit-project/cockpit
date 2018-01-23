@@ -60,3 +60,8 @@ export type Vm = {
         phase: ?string
     }
 }
+
+export type VmMessages = {
+  message: string,
+  detail: Object,
+}

@@ -250,5 +250,15 @@ class TestSubscriptions(MachineCase):
         # collapse again
         b.click(product_selector)
 
+        # now verify with an unprivileged user
+        if self.machine.image != "rhel-7-4":
+            b.logout()
+            self.machine.execute("useradd junior; echo junior:foobar | chpasswd")
+            self.login_and_go("/subscriptions", user="junior")
+            b.wait_present(".curtains-ct h1")
+            b.wait_in_text(".curtains-ct h1", "current user isn't allowed to access system subscription")
+            self.allow_authorize_journal_messages()
+
+
 if __name__ == '__main__':
     test_main()

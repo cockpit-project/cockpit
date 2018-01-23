@@ -105,7 +105,7 @@ function getSubscriptionDetails() {
     getDetailsRequested = false;
     gettingDetails = true;
     cockpit.spawn(['subscription-manager', 'list'],
-                  { directory: '/', superuser: "try", environ: ['LC_ALL=C'] })
+                  { directory: '/', superuser: "require", environ: ['LC_ALL=C'] })
         .done(function(output) {
             client.subscriptionStatus.products = parseMultipleSubscriptions(output);
         })
@@ -361,7 +361,7 @@ client.getSubscriptionStatus = function() {
      * 'subscription-manager status' will only return with exit code 0 if all is well (and subscriptions current)
      */
     cockpit.spawn(['subscription-manager', 'status'],
-                  { directory: '/', superuser: "try", environ: ['LC_ALL=C'], err: "out" })
+                  { directory: '/', superuser: "require", environ: ['LC_ALL=C'], err: "out" })
         .stream(function(text) {
             status_buffer += text;
         }).done(function(text) {

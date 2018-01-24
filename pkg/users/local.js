@@ -594,7 +594,7 @@ function PageAccountsCreate() {
 
 PageAccount.prototype = {
     _init: function(user) {
-        this.id = "account";
+        this.id = "account-page";
         this.section_id = "accounts";
         this.roles = [];
         this.role_template = $("#role-entry-tmpl").html();

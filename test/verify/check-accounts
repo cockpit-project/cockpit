@@ -53,6 +53,27 @@ class TestAccounts(MachineCase):
         b.wait_visible("#accounts")
         b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
 
+        # Check root user
+        b.go("#/root")
+        b.wait_present("#account")
+        b.wait_visible("#account")
+        b.wait_text("#account-user-name", "root")
+        # some operations are not allowed for root user
+        b.wait_present("#account-delete.disabled")
+        b.wait_present("#account-logout")
+        b.wait_attr("#account-logout", "disabled", "disabled")
+        b.wait_present("#account-real-name-wrapper.disabled")
+        b.wait_present("#account-locked:not(:checked)")
+        # root account should not be locked by default on our images
+        self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
+        # now lock account
+        b.set_checked("#account-locked", True)
+        b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
+
+        # go back to accounts overview, check breadcrumb
+        b.click("#account .breadcrumb a")
+        b.wait_present("#accounts-create")
+
         # Create a user from the UI
         b.click('#accounts-create')
         b.wait_popup('accounts-create-dialog')

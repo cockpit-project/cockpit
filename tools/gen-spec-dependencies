@@ -40,6 +40,8 @@ for line in fileinput.input(sys.argv[1], inplace=True):
         assert curpkg, "spec file uses %{required_base} outside of %package stanza"
         # lazily determine this -- some packages don't use %{required_base} and some multiple times
         if not pkg_base_dep:
+            if "machines-ovirt" == curpkg:
+                curpkg = "ovirt"
             pkg_base_dep = subprocess.check_output([min_base_version_path, curpkg], universal_newlines=True).strip()
             sys.stderr.write('base dependency of %s: %s\n' % (curpkg, pkg_base_dep))
         line = line.replace("%{required_base}", pkg_base_dep)

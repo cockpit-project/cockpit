@@ -157,7 +157,7 @@ class OstreeRestartCase(MachineCase):
         rhsmcertd_hack(m)
 
         cockpit_shell = m.execute("rpm -qa | grep cockpit-ostree").strip()
-        cockpit_machines = m.execute("rpm -qa | grep cockpit-machines").strip()
+        cockpit_machines = m.execute("rpm -qa | grep cockpit-machines | grep -v cockpit-machines-ovirt").strip()
 
         self.login_and_go("/updates")
         b.enter_page("/updates")

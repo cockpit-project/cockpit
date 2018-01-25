@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -18,6 +19,7 @@
  */
 
 import cockpit from "cockpit";
+const _ = cockpit.gettext;
 
 var cpu_ram_info_promises = { };
 
@@ -44,6 +46,86 @@ export function cpu_ram_info(address) {
             }).
             fail(function() {
                 dfd.reject();
+            });
+    }
+    return pr;
+}
+
+// https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_2.7.1.pdf
+const chassis_types = [
+    undefined,
+    _("Other"),
+    _("Unknown"),
+    _("Desktop"),
+    _("Low Profile Desktop"),
+    _("Pizza Box"),
+    _("Mini Tower"),
+    _("Tower"),
+    _("Portable"),
+    _("Laptop"),
+    _("Notebook"),
+    _("Hand Held"),
+    _("Docking Station"),
+    _("All In One"),
+    _("Sub Notebook"),
+    _("Space-saving Computer"),
+    _("Lunch Box"),  /* 0x10 */
+    _("Main Server Chassis"),
+    _("Expansion Chassis"),
+    _("Sub Chassis"),
+    _("Bus Expansion Chassis"),
+    _("Peripheral Chassis"),
+    _("RAID Chassis"),
+    _("Rack Mount Chassis"),
+    _("Sealed-case PC"),
+    _("Multi-system Chassis"),
+    _("Compact PCI"), /* 0x1A */
+    _("Advanced TCA"),
+    _("Blade"),
+    _("Blade enclosure"),
+    _("Tablet"),
+    _("Convertible"),
+    _("Detachable"), /* 0x20 */
+    _("IoT Gateway"),
+    _("Embedded PC"),
+    _("Mini PC"),
+    _("Stick PC"),
+];
+
+function parseDMIFields(text) {
+    var info = {};
+    text.split("\n").map(line => {
+        let sep = line.indexOf(':');
+        if (sep <= 0)
+            return;
+        let key = line.slice(0, sep);
+        let value = line.slice(sep + 1);
+        info[key] = value;
+
+        if (key === "chassis_type")
+            info[key + "_str"] = chassis_types[parseInt(value)] || chassis_types[2]; // fall back to "Unknown"
+    });
+    return info;
+}
+
+var dmi_info_promises = { };
+
+export function dmi_info(address) {
+    var pr = dmi_info_promises[address];
+    var dfd;
+    if (!pr) {
+        dfd = cockpit.defer();
+        dmi_info_promises[address] = pr = dfd.promise();
+
+        cockpit.spawn(["grep", "-r", "."],
+                      { directory: "/sys/class/dmi/id", err: "ignore", superuser: "try" })
+            .done(output => dfd.resolve(parseDMIFields(output)))
+            .fail((exception, output) => {
+                // the grep often/usually exits with 2, that's okay as long as we find *some* information
+                if (!exception.problem && output)
+                    dfd.resolve(parseDMIFields(output));
+                else
+                    dfd.reject(exception.message);
             });
     }
     return pr;

@@ -19,7 +19,7 @@
 
 var $ = require("jquery");
 var cockpit = require("cockpit");
-var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
+var machine_info = require("machine-info.es6");
 
 var Mustache = require("mustache");
 var plot = require("plot");
@@ -499,7 +499,7 @@ PageServer.prototype = {
         self.disk_plot.set_options(disk_options);
         self.disk_plot.add_metrics_sum_series(disk_data, { });
 
-        cpu_ram_info().
+        machine_info.cpu_ram_info().
             done(function (info) {
                 $('#link-cpu').text(cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores",
                                                                     info.cpus),
@@ -519,45 +519,17 @@ PageServer.prototype = {
             self.disk_plot.resize();
         });
 
-        /*
-         * Parses output like:
-         *
-         * bios_vendor:LENOVO
-         * bios_version:8CET46WW
-         */
-        function parse_lines(output) {
-            var ret = { };
-            $.each(output.split("\n"), function(i, line) {
-                var pos = line.indexOf(":");
-                if (pos !== -1)
-                    ret[line.substring(0, pos)] = line.substring(pos + 1);
-            });
-            return ret;
-        }
-
-        cockpit.spawn(["grep", "\\w", "sys_vendor", "product_name"],
-                      { directory: "/sys/devices/virtual/dmi/id", err: "ignore" })
-            .done(function(output) {
-                var fields = parse_lines(output);
+        machine_info.dmi_info()
+            .done(function(fields) {
                 $("#system_information_hardware_text").text(fields.sys_vendor + " " +
                                                             fields.product_name);
-            })
-            .fail(function(ex) {
-                debug("couldn't read dmi info: " + ex);
-            });
-
-        cockpit.spawn(["grep", "\\w", "product_serial", "chassis_serial"],
-                      { directory: "/sys/devices/virtual/dmi/id", superuser: "try", err: "ignore" })
-            .done(function(output) {
-                var fields = parse_lines(output);
                 var present = !!(fields.product_serial || fields.chassis_serial);
                 $("#system_information_asset_tag_text").text(fields.product_serial ||
                                                              fields.chassis_serial);
                 $("#system-info-asset-row").toggle(present);
             })
             .fail(function(ex) {
-                $("#system-info-asset-row").toggle(false);
-                debug("couldn't read serial dmi info: " + ex);
+                debug("couldn't read dmi info: " + ex);
             });
 
         function hostname_text() {
@@ -1374,7 +1346,7 @@ PageCpuStatus.prototype = {
 
         this.plot = plot.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
 
-        cpu_ram_info().
+        machine_info.cpu_ram_info().
             done(function (info) {
                 // Setting n_cpus changes the tick labels, see tickFormatter above.
                 n_cpus = info.cpus;

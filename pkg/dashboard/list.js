@@ -25,7 +25,7 @@ var plot = require("plot");
 
 var machines = require("machines");
 var mdialogs = require("machine-dialogs");
-var machine_info = require("machine-info.es6").machine_info;
+var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
 
 require("patterns");
 
@@ -320,7 +320,7 @@ PageDashboard.prototype = {
 
                 if (!info) {
                     self.infos[addr] = true;
-                    machine_info(machine.connection_string)
+                    cpu_ram_info(machine.connection_string)
                         .done(function (info) {
                             self.infos[addr] = info;
                             update_series();

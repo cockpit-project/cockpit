@@ -19,7 +19,7 @@
 
 var $ = require("jquery");
 var cockpit = require("cockpit");
-var machine_info = require("machine-info.es6").machine_info;
+var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
 
 var Mustache = require("mustache");
 var plot = require("plot");
@@ -499,7 +499,7 @@ PageServer.prototype = {
         self.disk_plot.set_options(disk_options);
         self.disk_plot.add_metrics_sum_series(disk_data, { });
 
-        machine_info().
+        cpu_ram_info().
             done(function (info) {
                 $('#link-cpu').text(cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores",
                                                                     info.cpus),
@@ -1374,7 +1374,7 @@ PageCpuStatus.prototype = {
 
         this.plot = plot.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
 
-        machine_info().
+        cpu_ram_info().
             done(function (info) {
                 // Setting n_cpus changes the tick labels, see tickFormatter above.
                 n_cpus = info.cpus;

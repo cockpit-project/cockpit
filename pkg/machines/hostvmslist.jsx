@@ -46,10 +46,9 @@ import VmDisksTab from './components/vmdiskstab.jsx';
 import VmNetworkTab from './vmnetworktab.jsx';
 import Consoles from './components/consoles.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
-import InfoRecord from './components/infoRecord.jsx';
-import VmLastMessage from './components/vmLastMessage.jsx';
 import DropdownButtons from './components/dropdownButtons.jsx';
 import { createVmDialog } from './components/createVmDialog.jsx';
+import VmOverviewTab from './components/vmOverviewTabLibvirt.jsx';
 
 const _ = cockpit.gettext;
 
@@ -196,65 +195,6 @@ StateIcon.propTypes = {
     config: PropTypes.string.isRequired,
     valueId: PropTypes.string,
     extra: PropTypes.any,
-};
-
-const VmBootOrder = ({ vm }) => {
-    let bootOrder = _("No boot device found");
-
-    if (vm.bootOrder && vm.bootOrder.devices && vm.bootOrder.devices.length > 0) {
-        bootOrder = vm.bootOrder.devices.map(bootDevice => bootDevice.type).join(); // Example: network,disk,disk
-    }
-
-    return (<InfoRecord id={`${vmId(vm.name)}-bootorder`} descr={_("Boot Order:")} value={bootOrder}/>);
-};
-VmBootOrder.propTypes = {
-    vm: PropTypes.object.isRequired,
-};
-
-const VmOverviewTab = ({ vm, config, dispatch }) => {
-    let providerContent = null;
-    if (config.provider.VmOverviewColumn) {
-        const ProviderContent = config.provider.VmOverviewColumn;
-        providerContent = (<ProviderContent vm={vm} providerState={config.providerState}/>);
-    }
-
-    return (<div>
-        <VmLastMessage vm={vm} dispatch={dispatch} />
-        <table className='machines-width-max'>
-            <tr className='machines-listing-ct-body-detail'>
-                <td className='machines-listing-detail-top-column'>
-                    <table className='form-table-ct'>
-                        <InfoRecord descr={_("Memory:")}
-                                             value={cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024)}/>
-                        <InfoRecord id={`${vmId(vm.name)}-vcpus`} descr={_("vCPUs:")} value={vm.vcpus}/>
-                    </table>
-                </td>
-
-                <td className='machines-listing-detail-top-column'>
-                    <table className='form-table-ct'>
-                        <InfoRecord id={`${vmId(vm.name)}-emulatedmachine`}
-                                             descr={_("Emulated Machine:")} value={vm.emulatedMachine}/>
-                        <InfoRecord id={`${vmId(vm.name)}-cputype`}
-                                             descr={_("CPU Type:")} value={vm.cpuModel}/>
-                    </table>
-                </td>
-
-                <td className='machines-listing-detail-top-column'>
-                    <table className='form-table-ct'>
-                        <VmBootOrder vm={vm} />
-                        <InfoRecord id={`${vmId(vm.name)}-autostart`}
-                                             descr={_("Autostart:")} value={rephraseUI('autostart', vm.autostart)}/>
-                    </table>
-                </td>
-
-                {providerContent}
-            </tr>
-        </table>
-    </div>);
-};
-VmOverviewTab.propTypes = {
-    vm: PropTypes.object.isRequired,
-    config: PropTypes.object.isRequired,
 };
 
 class VmUsageTab extends React.Component {

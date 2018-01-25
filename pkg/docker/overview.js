@@ -25,7 +25,7 @@
 
     var React = require("react");
     var plot = require("plot");
-    var machine_info = require("machine-info.es6").machine_info;
+    var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
 
     var util = require("./util");
     var storage = require("./storage.jsx");
@@ -81,7 +81,7 @@
         cpu_plot.set_options(cpu_options);
         cpu_plot.start_walking();
 
-        machine_info()
+        cpu_ram_info()
             .done(function (info) {
                 $('#containers-cpu-graph-title').text(
                     cockpit.format(cockpit.ngettext("Combined usage of $0 CPU core",

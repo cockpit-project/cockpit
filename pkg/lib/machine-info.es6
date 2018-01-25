@@ -19,14 +19,14 @@
 
 import cockpit from "cockpit";
 
-var machine_info_promises = { };
+var cpu_ram_info_promises = { };
 
-export function machine_info(address) {
-    var pr = machine_info_promises[address];
+export function cpu_ram_info(address) {
+    var pr = cpu_ram_info_promises[address];
     var dfd;
     if (!pr) {
         dfd = cockpit.defer();
-        machine_info_promises[address] = pr = dfd.promise();
+        cpu_ram_info_promises[address] = pr = dfd.promise();
 
         cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address }).
             done(function(text) {

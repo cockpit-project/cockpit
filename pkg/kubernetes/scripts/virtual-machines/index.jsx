@@ -27,6 +27,8 @@ import reducers from './reducers.jsx'
 import * as actionCreators from './action-creators.jsx'
 import VmsListing from './components/VmsListing.jsx'
 
+import '../../../machines/machines.less'; // once per component hierarchy
+
 let reduxStore
 
 function initReduxStore() {

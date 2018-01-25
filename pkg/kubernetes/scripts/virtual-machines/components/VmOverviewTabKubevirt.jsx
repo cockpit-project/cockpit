@@ -18,11 +18,14 @@
  */
 
 // @flow
-import React from 'react'
-import { gettext as _ } from 'cockpit'
+import React from 'react';
+import { gettext as _ } from 'cockpit';
 
-import type { Vm, VmMessages } from '../types.jsx'
-import { getPairs, NODE_LABEL } from '../utils.jsx'
+import VmOverviewTab, { commonTitles } from '../../../../machines/components/vmOverviewTab.jsx';
+
+import type { Vm, VmMessages } from '../types.jsx';
+import { getPairs, NODE_LABEL, vmIdPrefx, getValueOrDefault } from '../utils.jsx';
+
 import VmMessage from './VmMessage.jsx';
 
 React;
@@ -31,29 +34,52 @@ function getNodeName(vm: Vm) {
     return (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || null
 }
 
-const GeneralTab = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) => {
-    const nodeName = getNodeName(vm)
-    const nodeLink = nodeName ? (<a href={`#/nodes/${nodeName}`}>{nodeName}</a>) : '-'
-    return (
-        <div className="row">
-            <VmMessage vmMessages={vmMessages} vm={vm}/>
-            <div className="col-xs-12 col-md-6">
-                <dl>
-                    <dt>{_("Node")}</dt>
-                    <dd className="vm-node">{nodeLink}</dd>
-                </dl>
-            </div>
-            <div className="col-xs-12 col-md-6">
-                <dl className="full-width">
-                    <dt>{_("Labels")}</dt>
-                    {vm.metadata.labels && getPairs(vm.metadata.labels).map(pair => {
-                        const printablePair = pair.key + '=' + pair.value
-                        return (<dd key={printablePair}>{printablePair}</dd>)
-                    })}
-                </dl>
-            </div>
-        </div>
-    )
+const getLabels = (vm: Vm) => {
+    let labels = null;
+    if (vm.metadata.labels) {
+        labels = getPairs(vm.metadata.labels).map(pair => {
+            const printablePair = `${pair.key}=${pair.value}`;
+            return (<div key={printablePair}>{printablePair}</div>)
+        })
+    }
+    return labels;
+};
+
+function getMemory(vm: Vm) {
+    const memory = getValueOrDefault(() => vm.spec.domain.resources.requests.memory, null);
+
+    if (memory !== null) {
+        return memory
+    }
+
+    const memoryValue = getValueOrDefault(() => vm.spec.domain.memory.value, null);
+    if (memoryValue) {
+        const memoryUnit = getValueOrDefault(() => vm.spec.domain.memory.unit, null);
+        return `${memoryValue} ${memoryUnit}`;
+    }
+
+    return _("Not Available");
 }
 
-export default GeneralTab;
+const VmOverviewTabKubevirt = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) => {
+    const idPrefix = vmIdPrefx(vm);
+
+    const message = (<VmMessage vmMessages={vmMessages} vm={vm}/>);
+
+    const nodeName = getNodeName(vm);
+    const nodeLink = nodeName ? (<a href={`#/nodes/${nodeName}`}>{nodeName}</a>) : '-';
+
+    console.log('VmOverviewTabKubevirt: vm = ', vm);
+
+    const items = [
+        {title: commonTitles.MEMORY, value: getMemory(vm), idPostfix: 'memory'},
+        {title: _("Node:"), value: nodeLink, idPostfix: 'node'},
+        {title: commonTitles.CPUS, value: _(getValueOrDefault(() => vm.spec.domain.cpu.cores, 1)), idPostfix: 'vcpus'},
+        {title: _("Labels:"), value: getLabels(vm), idPostfix: 'labels'},
+    ];
+    return (<VmOverviewTab message={message}
+                           idPrefix={idPrefix}
+                           items={items} />);
+};
+
+export default VmOverviewTabKubevirt;

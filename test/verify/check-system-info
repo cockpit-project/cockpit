@@ -334,5 +334,32 @@ class TestSystemInfo(MachineCase):
         # because of the reload
         self.allow_restart_journal_messages()
 
+    @skipImage("Introduced in Cockpit 161", "rhel-7-4")
+    def testHardwareInfo(self):
+        b = self.browser
+
+        self.login_and_go("/system")
+        b.wait_present('#system_information_hardware_text')
+        b.wait_visible('#system_information_hardware_text')
+        b.wait_in_text('#system_information_hardware_text', "QEMU")
+        b.click('#system_information_hardware_text')
+        b.enter_page("/system/hwinfo")
+
+        b.wait_present('#hwinfo .info-table-ct')
+        b.wait_in_text('#hwinfo .info-table-ct', "CPU")
+        # QEMU VM type
+        b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(1) td', "Other")
+        # Name
+        b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(2) td', "Standard PC")
+        # BIOS
+        b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(1) td', "SeaBIOS")
+        # BIOS date; just ensure it's from this century
+        b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
+
+        # go back to system page
+        b.click('.breadcrumb a')
+        b.enter_page("/system")
+
+
 if __name__ == '__main__':
     test_main()

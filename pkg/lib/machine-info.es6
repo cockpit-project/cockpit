@@ -38,6 +38,10 @@ export function cpu_ram_info(address) {
                 if (total_kb)
                     info.memory = total_kb*1024;
 
+                match = text.match(new RegExp(/^model name\s*:\s*(.*)$/, "m"));
+                if (match)
+                    info.cpu_model = match[1];
+
                 info.cpus = 0;
                 var re = new RegExp("^processor", "gm");
                 while (re.test(text))

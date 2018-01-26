@@ -68,7 +68,9 @@ function passwd_self(old_pass, new_pass) {
     ];
     var new_exps = [
         /.*New password: $/,
-        /.*Retype new password: $/
+        /.*Retype new password: $/,
+        /.*Enter new \w*\s?password: $/,
+        /.*Retype new \w*\s?password: $/
     ];
     var bad_exps = [
         /.*BAD PASSWORD:.*/

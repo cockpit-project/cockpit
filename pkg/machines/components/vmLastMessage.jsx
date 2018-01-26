@@ -22,8 +22,6 @@ import { vmId } from '../helpers.es6';
 import { deleteVmMessage } from '../actions.es6';
 import { Alert } from './inlineNotification.jsx';
 
-import './vmLastMessage.css';
-
 React;
 
 const VmLastMessage = ({ vm, dispatch }) => {

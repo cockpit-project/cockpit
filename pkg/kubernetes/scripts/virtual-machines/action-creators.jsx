@@ -32,3 +32,23 @@ export function setSettings(settings) {
         payload: settings
     }
 }
+
+export function vmActionFailed({ vm, message, detail }) {
+    return {
+      type: actionConstants.VM_ACTION_FAILED,
+      payload: {
+        vm,
+        message,
+        detail,
+      }
+    };
+}
+
+export function removeVmMessage({ vm }) {
+    return {
+      type: actionConstants.REMOVE_VM_MESSAGE,
+      payload: {
+        vm,
+      }
+    };
+}

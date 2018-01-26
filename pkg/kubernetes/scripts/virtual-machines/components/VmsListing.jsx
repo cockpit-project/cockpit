@@ -26,10 +26,10 @@ import { gettext as _ } from 'cockpit'
 import { Listing } from '../../../../lib/cockpit-components-listing.jsx'
 import VmsListingRow from './VmsListingRow.jsx'
 
-const VmsListing = ({ vms, settings }) => {
+const VmsListing = ({ vms, settings, vmsMessages }) => {
     const isOpenshift = settings.flavor === 'openshift'
     const namespaceLabel = isOpenshift ? _("Project") : _("Namespace")
-    const rows = vms.map(vm => (<VmsListingRow vm={vm} key={vm.metadata.uid} />))
+    const rows = vms.map(vm => (<VmsListingRow vm={vm} vmMessages={vmsMessages[vm.metadata.uid]} key={vm.metadata.uid} />))
     return (
         <Listing title={_("Virtual Machines")}
                  emptyCaption={_("No virtual machines")}
@@ -44,7 +44,8 @@ VmsListing.propTypes = {
     setting: React.PropTypes.object.isRequired,
 }
 
-export default connect(({ vms, settings }) => ({
+export default connect(({ vms, settings, vmsMessages }) => ({
     vms,
-    settings
+    settings,
+    vmsMessages,
 }))(VmsListing)

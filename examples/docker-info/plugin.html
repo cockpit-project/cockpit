@@ -2,7 +2,6 @@
     <title>Docker Info</title>
     <meta charset="utf-8">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
@@ -28,11 +27,11 @@
 
         function process_info(data) {
             var resp = JSON.parse(data);
-            $("#docker-memory").text(resp.MemTotal);
-            $("#docker-routines").text(resp.NGoroutines);
-            $("#docker-files").text(resp.NFd);
-            $("#docker-containers").text(resp.Containers);
-            $("#docker-images").text(resp.Images);
+            document.getElementById("docker-memory").innerHTML = resp.MemTotal;
+            document.getElementById("docker-routines").innerHTML = resp.NGoroutines;
+            document.getElementById("docker-files").innerHTML = resp.NFd;
+            document.getElementById("docker-containers").innerHTML = resp.Containers;
+            document.getElementById("docker-images").innerHTML = resp.Images;
         }
 
         /* First time */

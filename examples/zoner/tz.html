@@ -2,7 +2,6 @@
     <title>Time Zone</title>
     <meta charset="utf-8">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
@@ -24,28 +23,28 @@
     </div>
 
     <script>
-        var input = $("#new");
-        var current = $("#current");
-        var failure = $("#failure");
+        var input = document.getElementById("new");
+        var current = document.getElementById("current");
+        var failure = document.getElementById("failure");
 
-        $("#change").on("click", change_zone);
+        document.getElementById("change").addEventListener("click", change_zone);
 
         var service = cockpit.dbus('org.freedesktop.timedate1');
         var timedate = service.proxy();
-        $(timedate).on("changed", display_zone);
+        timedate.addEventListener("changed", display_zone);
 
         function display_zone() {
-            current.text(timedate.Timezone);
+            current.innerHTML = timedate.Timezone;
         }
 
         function change_zone() {
-            var call = timedate.SetTimezone(input.val(), true);
+            var call = timedate.SetTimezone(input.value, true);
             call.fail(change_fail);
-            failure.empty();
+            failure.innerHTML = "";
         }
 
         function change_fail(err) {
-            failure.text(err.message);
+            failure.innerHTML = err.message;
         }
 
     </script>

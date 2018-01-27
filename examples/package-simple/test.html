@@ -3,7 +3,6 @@
     <title>Example: Simple Package</title>
     <meta charset="utf-8">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
@@ -42,37 +41,48 @@ $ sudo systemctl restart cockpit</pre>
             <pre id="output" style="display: none;">
             </pre>
         </p>
-        <p id="failure" class="warning" style="display: none"></p>
+        <p id="failure" class="warning"></p>
     </div>
 
     <script>
-        var proc = null;
-        $("#ping").on("click", function() {
-            var output = $("#output");
-            output.text("");
-            output.show();
+        var channel = null;
+        var stop = document.getElementById("stop");
+        var ping = document.getElementById("ping");
+        ping.onclick = function() {
+            var output = document.getElementById("output");
+            output.innerHTML = "";
+            output.setAttribute("style", "display: block;");
 
-            if (proc)
-                proc.close("terminated");
-            $("#failure").empty();
+            if (channel)
+                channel.close("terminated");
 
-            var cmd = [ "ping", $("#address").val() ];
-            proc = cockpit.spawn(cmd, { "err": "out" }).
-                stream(function(data) {
-                    output.append(document.createTextNode(data));
-                }).
-                fail(function(ex) {
-                    $("#failure").show().
-                        text(ex.toString());
-                });
-            $("#stop").prop("disabled", false);
-        });
-        $("#stop").on("click", function() {
-            $(this).prop("disabled", true);
-            if (proc)
-                proc.close("terminated");
-            proc = null;
-        });
+            var failure = document.getElementById("failure");
+            failure.innerHTML = "";
+
+            var address = document.getElementById("address");
+            var options = {
+                "payload": "stream",
+                "spawn": [ "ping", address.value ],
+                "err": "out",
+            };
+            channel = cockpit.channel(options);
+            channel.onmessage = function(ev, data) {
+                console.log("message", ev, data);
+                output.appendChild(document.createTextNode(data));
+            };
+            channel.onclose = function(ev, options) {
+                console.log("close", ev, options);
+                if (options.problem)
+                    failure.innerHTML = options.problem;
+            };
+            stop.removeAttribute("disabled");
+        };
+        stop.onclick = function() {
+            stop.setAttribute("disabled", "disabled");
+            if (channel)
+                channel.close("terminated");
+            channel = null;
+        };
     </script>
 </body>
 </html>

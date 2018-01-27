@@ -2,7 +2,6 @@
     <title>Pinger</title>
     <meta charset="utf-8">
     <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
@@ -23,30 +22,30 @@
     </div>
 
     <script>
-        var address = $("#address");
-        var output = $("#output");
-        var result = $("#result");
+        var address = document.getElementById("address");
+        var output = document.getElementById("output");
+        var result = document.getElementById("result");
 
-        $("#ping").on("click", ping_run);
+        document.getElementById("ping").addEventListener("click", ping_run);
 
         function ping_run() {
-            var proc = cockpit.spawn(["ping", "-c", "4", address.val()]);
+            var proc = cockpit.spawn(["ping", "-c", "4", address.value]);
             proc.done(ping_success);
             proc.stream(ping_output);
             proc.fail(ping_fail);
 
-            result.empty();
-            output.empty();
+            result.innerHTML = "";
+            output.innerHTML = "";
         }
 
         function ping_success() {
-            result.css("color", "green");
-            result.text("success");
+            result.style.color = "green";
+            result.innerHTML = "success";
         }
 
         function ping_fail() {
-            result.css("color", "red");
-            result.text("fail");
+            result.style.color = "red";
+            result.innerHTML = "fail";
         }
 
         function ping_output(data) {

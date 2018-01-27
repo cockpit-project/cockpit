@@ -271,7 +271,7 @@
                         if (!(id in rows)) {
                             row = rows[id] = body.clone();
                             row.attr("data-id", id)
-                                .show()
+                                .removeAttr("hidden")
                                 .onoff();
                             table.append(row);
                         }

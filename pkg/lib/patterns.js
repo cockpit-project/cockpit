@@ -230,7 +230,7 @@
         /* During testing, no Cockpit dependency */
         var _ = cockpit.gettext || function(x) { return x; };
 
-        sel = sel.find(".btn-onoff-ct").andSelf().filter(".btn-onoff-ct");
+        sel = sel.find(".btn-onoff-ct").addBack().filter(".btn-onoff-ct");
         sel.each(function(x, el) {
             var self = $(el)
                 .attr("data-toggle", "buttons")

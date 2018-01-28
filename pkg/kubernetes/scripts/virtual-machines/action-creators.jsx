@@ -26,6 +26,13 @@ export function setVms(vms) {
     }
 }
 
+export function setPVs(pvs) {
+    return {
+        type: actionConstants.SET_PVS,
+        payload: pvs
+    }
+}
+
 export function setSettings(settings) {
     return {
         type: actionConstants.SET_SETTINGS,

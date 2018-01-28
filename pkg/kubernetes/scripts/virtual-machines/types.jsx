@@ -65,3 +65,43 @@ export type VmMessages = {
   message: string,
   detail: Object,
 }
+
+export type PersistenVolume = {
+    "kind": "PersistentVolume",
+    "apiVersion": string,
+    "metadata": {
+        "name": string,
+        "selfLink": string,
+        "uid": string,
+        "resourceVersion": string,
+        "creationTimestamp": string,
+        "labels": {[string]: string},
+        "annotations": Object,
+    },
+    "spec": {
+        "capacity": {
+            "storage": string
+        },
+        "iscsi": {
+            "targetPortal": string,
+            "iqn": string,
+            "lun": number,
+            "iscsiInterface": string
+        },
+        "accessModes": Array<Object>,
+        "claimRef": {
+            "kind": "PersistentVolumeClaim",
+            "namespace": string,
+            "name": string,
+            "uid": string,
+            "apiVersion": string,
+            "resourceVersion": string
+        },
+        "persistentVolumeReclaimPolicy": string
+    },
+    "status": ?{
+        "phase": ?string
+    }
+}
+
+export type PersistenVolumes = Array<PersistenVolume>;

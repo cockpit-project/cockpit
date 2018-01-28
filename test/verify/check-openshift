@@ -425,6 +425,26 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_in_text("#vm-testvm-memory", "64M")
         b.wait_in_text("#vm-testvm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
 
+        # switch to the Disks subtab
+        b.wait_present("#vm-testvm-disks-tab")
+        b.click("#vm-testvm-disks-tab")
+        b.wait_present("#vm-testvm-disks-total-value") # wait for the "Count" value
+        b.wait_in_text("#vm-testvm-disks-total-value", "1")
+        b.wait_present("#vm-testvm-disks-vda-device") # check disk properties
+        b.wait_in_text("#vm-testvm-disks-vda-device", "mydisk")
+        b.wait_in_text("#vm-testvm-disks-vda-target", "vda")
+        b.wait_in_text("#vm-testvm-disks-vda-capacity", "1Gi")
+        b.wait_in_text("#vm-testvm-disks-vda-bus", "iSCSI")
+        b.wait_in_text("#vm-testvm-disks-volume", "iscsi-disk-alpine")
+        b.click("tr.listing-ct-item.listing-ct-noexpand") # test navigation to the "Volumes" page
+        b.wait_js_cond('window.location.hash === "#/volumes/iscsi-disk-alpine"')
+
+        # return back to the virtual-machines
+        b.wait_present("#vms-menu-link") # left-side menu
+        b.click("#vms-menu-link")
+        b.wait_present("tr[data-row-id='vm-testvm']")
+        b.click("tr[data-row-id='vm-testvm']") # expand
+
         # delete VM
         b.wait_present("#vm-testvm-delete")
         b.click("#vm-testvm-delete")

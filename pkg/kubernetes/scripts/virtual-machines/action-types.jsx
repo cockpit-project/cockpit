@@ -18,6 +18,7 @@
  */
 
 export const SET_VMS = 'SET_VMS'
+export const SET_PVS = 'SET_PVS'
 export const SET_SETTINGS = 'SET_SETTINGS'
 
 export const VM_ACTION_FAILED = 'VM_ACTION_FAILED'

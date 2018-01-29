@@ -232,9 +232,9 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
 
     function add_fsys(storaged_name, entry) {
         if (storaged_name === true ||
-            !client.manager.SupportedFilesystems ||
-            client.manager.SupportedFilesystems.indexOf(storaged_name) != -1)
-            filesystem_options.push(entry);
+            (client.fsys_info[storaged_name] && client.fsys_info[storaged_name].can_format)) {
+                filesystem_options.push(entry);
+        }
     }
 
     var filesystem_options = [ ];

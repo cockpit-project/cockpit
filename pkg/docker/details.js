@@ -57,6 +57,17 @@
             $('#container-details-stop').on('click', $.proxy(this, "stop_container"));
             $('#container-details-restart').on('click', $.proxy(this, "restart_container"));
             $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
+            $('#container-details-inspect-row').on('click', function() {
+                    $(this).toggleClass('active');
+                    var kiddo = $(this).find("i");
+                    if ($(this).hasClass('active')){
+                        kiddo.removeClass('fa-expand');
+                        kiddo.addClass('fa-compress');
+                    } else {
+                        kiddo.removeClass('fa-compress');
+                        kiddo.addClass('fa-expand');
+                    }
+            });
 
             self.memory_limit = new util.MemorySlider($("#container-resources-dialog .memory-slider"),
                                                       10*1024*1024, 2*1024*1024*1024);
@@ -168,6 +179,7 @@
             $('#container-details-ports-row').hide();
             $('#container-details-links-row').hide();
             $('#container-details-resource-row').hide();
+            $('#container-details-inspect').text("");
 
             var info = this.client.containers[this.container_id];
             util.docker_debug("container-details", this.container_id, info);
@@ -215,6 +227,8 @@
 
             $('#container-details-ports-row').toggle(port_bindings.length > 0);
             $('#container-details-ports').html(util.multi_line(port_bindings));
+
+            $('#container-details-inspect').text(JSON.stringify(info, null, 4));
 
             this.update_links(info);
 

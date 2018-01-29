@@ -628,3 +628,36 @@ table.drive-list td:nth-child(2) img {
     padding-left: 20px;
     padding-right: 20px;
 }
+
+pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+.docker-inspect {
+    height: 44px;
+    width: 15em;
+    position: relative;
+    transition: height 0.5s, width 0.5s;
+    -webkit-transition: height 0.5s, width 0.5s;
+    overflow: hidden;
+    top: 15px;
+}
+
+.docker-inspect:hover {
+    cursor: pointer;
+}
+
+.docker-inspect.active {
+    width: 100%;
+    height: 100%;
+}
+
+.placeholder {
+    width: 100%;
+    overflow: hidden;
+    visibility: hidden;
+}

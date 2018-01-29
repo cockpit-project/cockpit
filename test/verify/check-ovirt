@@ -97,7 +97,7 @@ class TestOVirtMachines(MachineCase):
             wait(lambda: "up" in m.execute(cmd), delay=10)
 
     def enforce_cockpit_ovirt(self):
-        # enforce use of cockpit-ovirt instead of cockpit-machines
+        # enforce use of cockpit-machines-ovirt instead of cockpit-machines
         m = self.machine
         m.execute("sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
         m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))

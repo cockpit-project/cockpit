@@ -337,17 +337,21 @@ The Cockpit components for managing virtual machines.
 
 %files machines -f machines.list
 
-%package ovirt
+%package machines-ovirt
 Summary: Cockpit user interface for oVirt virtual machines
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-system >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
+# package of old name "cockpit-ovirt" was shipped on fedora only
+%if 0%{?fedora} >= 25
+Obsoletes: %{name}-ovirt < 161
+%endif
 
-%description ovirt
+%description machines-ovirt
 The Cockpit components for managing oVirt virtual machines.
 
-%files ovirt -f ovirt.list
+%files machines-ovirt -f ovirt.list
 
 %package ostree
 Summary: Cockpit user interface for rpm-ostree

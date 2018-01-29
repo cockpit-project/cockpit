@@ -1,12 +1,12 @@
 #!/bin/bash
-# Installation script of the cockpit-machines-ovirt-provider.
-# Required to be called after RPM installation and before Cockpit Machines cockpit-machines-ovirt-provider is accessed.
+# Installation script of the cockpit-machines-ovirt.
+# Required to be called after RPM installation and before Cockpit Machines cockpit-machines-ovirt is accessed.
 #
 # Main task: update configuration files for Engine URL
 # Reason: Engine URL can't be determined from VDSM host automatically, so it must be provided by the user.
 #
 # What it does:
-#      update cockpit-ovirt runtime configuration (to assemble oVirt REST API URL)
+#      update cockpit-machines-ovirt runtime configuration (to assemble oVirt REST API URL)
 #
 # How to run:
 #      either manually after rpm installations as root:

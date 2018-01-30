@@ -66,8 +66,9 @@ def main():
             path = os.path.join(machine, name)
             if os.path.islink(path):
                 os.unlink(path)
-                code = execute("git", "show", "origin/master:test/common/{0}".format(name))
-                with open(path, "w") as f:
+                code = subprocess.check_output([ "git", "show", "cockpit/master:test/common/{0}".format(name) ],
+                                               cwd=BASE)
+                with open(path, "wb") as f:
                     f.write(code)
 
 if __name__ == '__main__':

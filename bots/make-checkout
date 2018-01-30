@@ -35,6 +35,7 @@ def main():
     parser = argparse.ArgumentParser(description="Fetch and checkout specific revision")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     parser.add_argument("--base", nargs='?', help="Base branch that revision is for")
+    parser.add_argument("--repo", nargs='?', help="Repository to check out")
     parser.add_argument("ref", help="The git ref to fetch")
     parser.add_argument("revision", default="FETCH_HEAD", nargs='?',
             help="Actual commit to check out, defaults to ref")
@@ -52,15 +53,21 @@ def main():
             sys.stderr.write("> " + output + "\n")
         return output
 
+    if opts.repo:
+        execute("git", "remote", "rename", "origin", "cockpit")
+        execute("git", "remote", "add", "origin", "git@github.com:" + opts.repo + ".git")
+    else:
+        execute("git", "remote", "add", "cockpit", "git@github.com:cockpit-project/cockpit.git")
+
     execute("git", "fetch", "origin", opts.ref)
     execute("git", "checkout", "--detach", opts.revision)
 
-    # COMPAT: If the bots directory doesn't exist in this branch, check it out from master
-    if opts.base and opts.base != "master":
-        sys.stderr.write("Checking out bots directory from master ...\n")
-        execute("git", "checkout", "--force", "origin/master", "--", "bots/")
+    # If the bots directory doesn't exist in this branch or repo, check it out from master
+    if opts.repo or (opts.base and opts.base != "master"):
+        sys.stderr.write("Checking out bots directory from Cockpit master ...\n")
+        execute("git", "checkout", "--force", "cockpit/master", "--", "bots/")
 
-        # The machine code is special, copy it from master too
+        # The machine code has symlinks, replace them with regular files
         machine = os.path.join(BOTS, "machine")
         for name in os.listdir(machine):
             path = os.path.join(machine, name)

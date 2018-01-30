@@ -64,9 +64,7 @@ class TestReauthorize(MachineCase):
         self.login_and_go("/playground/test")
 
         b.click(".super-channel .btn")
-        b.wait_in_text(".super-channel span", 'result: ')
-
-        self.assertIn('result: uid=0', b.text(".super-channel span"))
+        b.wait_in_text(".super-channel span", 'result: uid=0')
 
         # Deauthorize
         b.leave_page()
@@ -79,16 +77,13 @@ class TestReauthorize(MachineCase):
         b.enter_page("/playground/test")
 
         b.click(".super-channel .btn")
-        b.wait_in_text(".super-channel span", 'result:')
-
-        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
+        b.wait_in_text(".super-channel span", 'result: access-denied')
 
         # Now log in as root even without password caching
         b.logout()
         self.login_and_go("/playground/test", authorized=False, user="root")
         b.click(".super-channel .btn")
-        b.wait_in_text(".super-channel span", 'result: ')
-        self.assertIn('result: uid=0', b.text(".super-channel span"))
+        b.wait_in_text(".super-channel span", 'result: uid=0')
 
         # When root and not authorized, the 'Locked' or 'Unlocked' indicators should not be visible
         b.leave_page()

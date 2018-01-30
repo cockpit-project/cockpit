@@ -313,6 +313,7 @@ system on behalf of the web based user interface.
 
 %package doc
 Summary: Cockpit deployment and developer guide
+BuildArch: noarch
 
 %description doc
 The Cockpit Deployment and Developer Guide shows sysadmins how to
@@ -326,6 +327,7 @@ embed or extend Cockpit.
 %{_docdir}/%{name}
 
 %package machines
+BuildArch: noarch
 Summary: Cockpit user interface for virtual machines
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-system >= %{required_base}
@@ -338,6 +340,7 @@ The Cockpit components for managing virtual machines.
 %files machines -f machines.list
 
 %package machines-ovirt
+BuildArch: noarch
 Summary: Cockpit user interface for oVirt virtual machines
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-system >= %{required_base}
@@ -703,6 +706,7 @@ cluster. Installed on the Kubernetes master. This package is not yet complete.
 
 %package packagekit
 Summary: Cockpit user interface for packages
+BuildArch: noarch
 Requires: %{name}-bridge >= %{required_base}
 Requires: PackageKit
 

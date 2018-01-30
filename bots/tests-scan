@@ -41,10 +41,6 @@ DEFAULT_VERIFY = {
     'verify/ubuntu-stable': [ 'master' ],
 }
 
-NPM_REPOS = {
-    'cockpit-project/registry-image-widgets': ['container/kubernetes', 'verify/fedora-26']
-}
-
 # Non-public images used for testing
 REDHAT_VERIFY = {
     "verify/rhel-7": [ 'master' ],
@@ -98,7 +94,7 @@ def main():
     return 0
 
 # Prepare a human readable output
-def tests_human(priority, name, revision, ref, context, base=None, repo=None, command=None):
+def tests_human(priority, name, revision, ref, context, base=None, repo=None):
     if not priority:
         return
     try:
@@ -113,7 +109,7 @@ def tests_human(priority, name, revision, ref, context, base=None, repo=None, co
     )
 
 # Prepare an test invocation command
-def tests_invoke(priority, name, revision, ref, context, base=None, repo=None, command=None):
+def tests_invoke(priority, name, revision, ref, context, base=None, repo=None):
     try:
         priority = int(priority)
     except (ValueError, TypeError):
@@ -121,11 +117,9 @@ def tests_invoke(priority, name, revision, ref, context, base=None, repo=None, c
     if priority <= 0:
         return
     current = time.strftime('%Y%m%d-%H%M%M')
-    if not command:
-        command = "bots/tests-invoke"
 
     checkout = "PRIORITY={priority:04d} bots/make-checkout --verbose"
-    cmd = "TEST_NAME='{name}-{current}' TEST_REVISION='{revision}' {command}"
+    cmd = "TEST_NAME='{name}-{current}' TEST_REVISION='{revision}' bots/tests-invoke"
     if base:
         cmd += " --rebase='{base}'"
         checkout += " --base='{base}'"
@@ -145,7 +139,6 @@ def tests_invoke(priority, name, revision, ref, context, base=None, repo=None, c
         context=pipes.quote(context),
         current=current,
         repo=repo,
-        command=command,
     )
 
 def prioritize(status, title, labels, priority, context):
@@ -211,45 +204,6 @@ def update_status(api, revision, context, last, changes):
             sys.stderr.write(json.dumps(changes))
         return False
     return True
-
-def external_tasks (update, policy):
-    results = []
-    whitelist = github.whitelist()
-
-    for repo, contexts in NPM_REPOS.items():
-        api = github.GitHub(base="https://api.github.com/repos/{}/".format(repo))
-
-        for pull in api.pulls():
-            title = pull["title"]
-            number = pull["number"]
-            revision = pull["head"]["sha"]
-            statuses = api.statuses(revision)
-            login = pull["head"]["user"]["login"]
-
-            have = len(statuses.keys()) > 0
-            for context in contexts:
-                status = statuses.get(context, None)
-
-                if not context in policy or (have and not status):
-                    continue
-
-                if not status:
-                    status = { }
-
-                baseline = BASELINE_PRIORITY
-
-                # For unmarked and untested status, user must be in whitelist
-                # Not this only applies to this specific commit. A new status
-                # will apply if the user pushes a new commit.
-                if login not in whitelist and status.get("description", github.NO_TESTING) == github.NO_TESTING:
-                    priority = github.NO_TESTING
-                    changes = { "description": github.NO_TESTING, "context": context, "state": "pending" }
-                else:
-                    (priority, changes) = prioritize(status, title, lambda: [], baseline, context)
-                if not update or update_status(api, revision, context, status, changes):
-                    results.append((priority, "%s-pull-%d" % (repo, number), revision, "master", context, None, repo, "bots/npm-repo-test-invoke"))
-
-    return results
 
 def cockpit_tasks (api, update, policy):
     contexts = policy
@@ -327,7 +281,6 @@ def cockpit_tasks (api, update, policy):
 
 def scan_for_pull_tasks(api, update, human, policy):
     results = cockpit_tasks(api, update, policy)
-    results.extend(external_tasks(update, policy))
 
     if human:
         func = lambda x: tests_human(*x)

@@ -23,7 +23,7 @@ var assert = QUnit;
 
 QUnit.test("format_delay", function() {
     var checks = [
-        [ 15550000, "4 hours, 19 minutes, 10 seconds" ]
+        [ 15550000, "4 hours" ]
     ];
 
     assert.expect(checks.length);

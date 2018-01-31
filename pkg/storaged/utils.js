@@ -24,6 +24,7 @@
 
     var mustache = require("mustache");
     var service = require("service");
+    var moment = require("moment");
 
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;
@@ -109,18 +110,7 @@
     };
 
     utils.format_delay = function format_delay(d) {
-        var seconds = Math.round(d/1000);
-        var minutes = Math.floor(seconds / 60);
-        var hours = Math.floor(minutes / 60);
-        seconds = seconds - minutes*60;
-        minutes = minutes - hours*60;
-
-        var s = seconds + " seconds";
-        if (minutes > 0)
-            s = minutes + " minutes, " + s;
-        if (hours > 0)
-            s = hours + " hours, " + s;
-        return s;
+        return moment.duration(d).humanize();
     };
 
     utils.format_size_and_text = function format_size_and_text(size, text) {

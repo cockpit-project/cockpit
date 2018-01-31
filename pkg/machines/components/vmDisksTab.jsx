@@ -20,7 +20,7 @@
 import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
-import { Info } from './inlineNotification.jsx';
+import { Info } from './notification/inlineNotification.jsx';
 import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
 
 React;

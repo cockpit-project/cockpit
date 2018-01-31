@@ -347,9 +347,9 @@ class TestMachines(MachineCase):
         b.wait_present("a.alert-link.machines-more-button") # more/less button
         b.wait_in_text("a.alert-link.machines-more-button", "show more")
         b.click("a.alert-link.machines-more-button")
-        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning > p")
+        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p")
         b.wait_in_text("a.alert-link.machines-more-button", "show less")
-        b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning > p", "Domain is already active")
+        b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p", "Domain is already active")
 
         b.click("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning button") # close button
         b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification is gone

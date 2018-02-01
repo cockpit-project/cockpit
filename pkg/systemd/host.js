@@ -1474,6 +1474,11 @@ $("#link-disk").on("click", function() {
     return false;
 });
 
+$("#system_information_hardware_text").on("click", function() {
+    cockpit.jump("/system/hwinfo");
+    return false;
+});
+
 
 /*
  * INITIALIZATION AND NAVIGATION

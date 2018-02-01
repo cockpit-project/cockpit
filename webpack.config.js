@@ -137,6 +137,10 @@ var info = {
             "systemd/terminal.jsx",
             "systemd/terminal.css",
         ],
+        "systemd/hwinfo": [
+            "systemd/hwinfo.jsx",
+            "systemd/hwinfo.css",
+        ],
 
         "tuned/performance": [
             "tuned/dialog.js",
@@ -246,6 +250,7 @@ var info = {
         "systemd/logs.html",
         "systemd/services.html",
         "systemd/terminal.html",
+        "systemd/hwinfo.html",
 
         "users/index.html",
     ]

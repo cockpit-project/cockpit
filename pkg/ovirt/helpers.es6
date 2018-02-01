@@ -70,6 +70,10 @@ export function formatDateTime (milliseconds) {
     const date = new Date(milliseconds);
     const isYearDifferent = (now.getUTCFullYear() - date.getUTCFullYear()) !== 0;
 
+    if(isNaN(date.getTime())) {
+        return ''; // invalid date
+    }
+
     const options = {
         month: 'long',
         year: isYearDifferent ? 'numeric' : undefined,

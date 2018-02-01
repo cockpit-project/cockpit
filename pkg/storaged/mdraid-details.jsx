@@ -230,6 +230,34 @@ export class MDRaidDetails extends React.Component {
         }
 
         function stop() {
+            var usage = utils.get_active_usage(client, block? block.path : "");
+
+            if (usage.Blocking) {
+                dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
+                              Blocking: usage.Blocking,
+                              Fields: [ ]
+                });
+                return;
+            }
+
+            if (usage.Teardown) {
+                dialog.open({ Title: cockpit.format(_("Please confirm stopping of $0"),
+                                                    utils.mdraid_name(mdraid)),
+                              Teardown: usage.Teardown,
+                              Fields: [ ],
+                              Action: {
+                                  Title: _("Stop Device"),
+                                  action: function () {
+                                      return utils.teardown_active_usage(client, usage).
+                                                   then(function () {
+                                                       return mdraid.Stop({});
+                                                   });
+                                  }
+                              }
+                });
+                return;
+            }
+
             return mdraid.Stop({});
         }
 

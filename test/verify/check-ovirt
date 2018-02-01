@@ -72,7 +72,7 @@ class TestOVirtMachines(MachineCase):
 
         # Wait for the web service to be accessible
         args = { "api": "curl -s -k -u admin@internal:engine -H Content-type:application/xml", "addr": OVIRT_ADDR }
-        m.execute(script=WAIT_SCRIPT % args)
+        m.execute(script=WAIT_SCRIPT % args, timeout=1000)
 
         # Run the prepared VM
         vmid = m.execute("%(api)s https://%(addr)s/ovirt-engine/api/vms/ | xmllint --xpath \"string(/vms/vm[name=\'VM\']/@id)\" -" % args)

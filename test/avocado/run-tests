@@ -103,7 +103,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
                  ]
 
     try:
-        machine.execute(" ".join(cmd_parts))
+        machine.execute(" ".join(cmd_parts), timeout=3600)
     except:
         if print_failed:
             # try to get the list of failed tests

@@ -225,7 +225,7 @@ class TestKerberos(MachineCase):
         if "ubuntu" in self.machine.image:
             # no nss-myhostname there
             self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
-        self.machine.execute(script=JOIN_SCRIPT % args)
+        self.machine.execute(script=JOIN_SCRIPT % args, timeout=1800)
 
     def tearDown(self):
         if 'KRB5CCNAME' in os.environ:

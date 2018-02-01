@@ -105,7 +105,7 @@ def generate_new_commit(m, pkg_to_remove):
 
     commit_args = [REPO_LOCATION, branch.strip(), CHECKOUT_LOCATION, KEY_ID]
     command = "ostree commit -s cockpit-tree2 --repo {0} -b {1} --add-metadata-string version=cockpit-base.2 --tree=dir={2} --gpg-sign={3} --gpg-homedir=/root/"
-    m.execute(command.format(*commit_args))
+    m.execute(command.format(*commit_args), timeout=600)
     m.execute(["ostree", "summary", "--repo={}".format(REPO_LOCATION), "-u"])
 
 def rhsmcertd_hack(m):

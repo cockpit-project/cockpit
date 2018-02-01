@@ -147,7 +147,7 @@ class VolumeTests(object):
 
         b.wait_present(".pv-listing tbody[data-id='pv1']")
 
-        m.execute("kubectl delete namespace another")
+        m.execute("kubectl delete namespace another", timeout=600)
         b.wait_not_present(".pvc-listing")
 
     def testVolumes(self):

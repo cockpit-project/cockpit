@@ -93,6 +93,7 @@ class Timeout:
     def __exit__(self, type, value, traceback):
         if self.seconds:
             signal.alarm(0)
+            signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
 class Failure(Exception):
     def __init__(self, msg):

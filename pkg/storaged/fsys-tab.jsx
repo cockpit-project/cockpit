@@ -163,10 +163,12 @@ var FilesystemTab = React.createClass({
                                       <StorageLink onClick={mounting_dialog}>
                                           {old_dir || _("(default)")}
                                       </StorageLink>
-                                      { (!is_filesystem_mounted)
-                                            ? <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                                      <div className="tab-row-actions">
+                                          { (!is_filesystem_mounted)
+                                                ? <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
                                             : null
-                                      }
+                                          }
+                                      </div>
                                   </td>
                               </tr>
                           )
@@ -191,10 +193,12 @@ var FilesystemTab = React.createClass({
                                   <td>{_("Mounted At")}</td>
                                   <td>
                                       {mounted_at.join(", ")}
-                                      { (mounted_at.length > 0)
-                                            ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                                            : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                                      }
+                                      <div className="tab-row-actions">
+                                          { (mounted_at.length > 0)
+                                                ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
+                                                : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                                          }
+                                      </div>
                                   </td>
                               </tr>
                           )

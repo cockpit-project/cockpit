@@ -410,6 +410,51 @@
                 });
         }
 
+        function query_fsys_info() {
+            var info = {
+                xfs: {
+                    can_shrink: false,
+                    can_grow: true,
+                    grow_needs_unmount: false
+                },
+
+                ext4: {
+                    can_shrink: true,
+                    shrink_needs_unmount: true,
+                    can_grow: true,
+                    grow_needs_unmount: false
+                },
+            };
+
+            if (client.manager.SupportedFilesystems && client.manager.CanResize) {
+                return cockpit.all(client.manager.SupportedFilesystems.map(function (fs) {
+                    return client.manager.CanResize(fs).then(
+                        function (result) {
+                            // We assume that all filesystems support
+                            // offline shrinking/growing if they
+                            // support shrinking or growing at all.
+                            // The actual resizing utility will
+                            // temporarily mount the fs if necessary,
+                            if (result[0]) {
+                                info[fs] = {
+                                    can_shrink: !!(result[1] & 2),
+                                    shrink_needs_unmount: !(result[1] & 8),
+                                    can_grow: !!(result[1] & 4),
+                                    grow_needs_unmount: !(result[1] & 16)
+                                };
+                            }
+                        },
+                        function () {
+                            // ignore unsupported filesystems
+                        });
+                })).then(function () {
+                    return info;
+                });
+            } else {
+                return cockpit.resolve(info);
+            }
+        }
+
         wait_all([ client.manager,
                    client.mdraids, client.vgroups, client.drives,
                    client.blocks, client.blocks_ptable, client.blocks_lvm2, client.blocks_fsys
@@ -417,7 +462,10 @@
             pull_time().then(function() {
                 enable_features().then(function(features) {
                     client.features = features;
-                    callback();
+                    query_fsys_info().then(function(fsys_info) {
+                        client.fsys_info = fsys_info;
+                        callback();
+                    });
                 });
 
                 $(client.storaged_client).on('notify', function () {

@@ -43,8 +43,20 @@ function getDMI(info) {
     });
 }
 
+// Add info.pci [{slot, cls, vendor, model}] list
+function findPCI(udevdb, info) {
+    for (let syspath in udevdb) {
+        let props = udevdb[syspath];
+        if (props.SUBSYSTEM === "pci")
+            info.pci.push({ slot: props.PCI_SLOT_NAME || syspath.split("/").pop(),
+                            cls: props.ID_PCI_CLASS_FROM_DATABASE || props.PCI_CLASS.toString(),
+                            vendor: props.ID_VENDOR_FROM_DATABASE || "",
+                            model: props.ID_MODEL_FROM_DATABASE || props.PCI_ID || "" });
+    }
+}
+
 export default function detect() {
-    let info = { system: { } };
+    let info = { system: {}, pci: [] };
     var tasks = [];
 
     tasks.push(new Promise((resolve, reject) => {
@@ -62,6 +74,18 @@ export default function detect() {
             .catch(error => {
                 // DMI only works on x86 machines; check devicetree (or what lshw does) on other arches
                 console.warn("Failed to get DMI information:", error.toString());
+                resolve();
+            });
+    }));
+
+    tasks.push(new Promise((resolve, reject) => {
+        machine_info.udev_info()
+            .done(result => {
+                findPCI(result, info);
+                resolve();
+            })
+            .catch(error => {
+                console.warn("Failed to get udev information:", error.toString());
                 resolve();
             });
     }));

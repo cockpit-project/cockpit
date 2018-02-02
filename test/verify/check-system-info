@@ -345,6 +345,7 @@ class TestSystemInfo(MachineCase):
         b.click('#system_information_hardware_text')
         b.enter_page("/system/hwinfo")
 
+        # system info
         b.wait_present('#hwinfo .info-table-ct')
         b.wait_in_text('#hwinfo .info-table-ct', "CPU")
         # QEMU VM type
@@ -355,6 +356,21 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(1) td', "SeaBIOS")
         # BIOS date; just ensure it's from this century
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
+
+        # PCI
+        b.wait_present('#hwinfo .listing-ct caption')
+        b.wait_in_text('#hwinfo .listing-ct caption', "PCI")
+        b.wait_in_text('#hwinfo .listing-ct', "0000:00:00.0")
+
+        # sorted by device class by default; this makes some assumptions about QEMU devices
+        b.wait_in_text('#hwinfo .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
+        b.wait_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+
+        # sort by model
+        b.click('#hwinfo .listing-ct thead th:nth-of-type(3)')
+        b.wait_in_text('#hwinfo .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
+        b.wait_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
+        b.wait_not_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
 
         # go back to system page
         b.click('.breadcrumb a')

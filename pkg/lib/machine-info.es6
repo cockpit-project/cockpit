@@ -134,3 +134,60 @@ export function dmi_info(address) {
     }
     return pr;
 }
+
+/* we expect udev db paragraphs like this:
+ *
+   P: /devices/virtual/mem/null
+   N: null
+   E: DEVMODE=0666
+   E: DEVNAME=/dev/null
+   E: SUBSYSTEM=mem
+*/
+
+const udevPathRE = /^P: (.*)$/;
+const udevPropertyRE = /^E: (\w+)=(.*)$/;
+
+function parseUdevDB(text) {
+    var info = {};
+    text.split("\n\n").map(paragraph => {
+        let syspath = null;
+        let props = {};
+
+        paragraph = paragraph.trim();
+        if (!paragraph)
+            return;
+
+        paragraph.split("\n").map(line => {
+            let match = line.match(udevPathRE);
+            if (match) {
+                syspath = match[1];
+            } else {
+                match = line.match(udevPropertyRE);
+                if (match)
+                    props[match[1]] = match[2];
+            }
+        });
+
+        if (syspath)
+            info[syspath] = props;
+        else
+            console.log("udev database paragraph is missing P:", paragraph);
+    });
+    return info;
+}
+
+var udev_info_promises = { };
+
+export function udev_info(address) {
+    var pr = udev_info_promises[address];
+    var dfd;
+    if (!pr) {
+        dfd = cockpit.defer();
+        udev_info_promises[address] = pr = dfd.promise();
+
+        cockpit.spawn(["udevadm", "info", "--export-db"], { err: "message" })
+            .done(output => dfd.resolve(parseUdevDB(output)))
+            .fail(exception => dfd.reject(exception.message));
+    }
+    return pr;
+}

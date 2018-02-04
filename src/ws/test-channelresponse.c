@@ -177,7 +177,8 @@ test_resource_simple (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
                            "Content-Type: text/html\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -220,7 +221,8 @@ test_resource_simple_host (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://my.host; connect-src 'self' http://my.host ws: wss:\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+                           "Content-Security-Policy: default-src 'self' http://my.host; connect-src 'self' http://my.host ws://my.host; form-action 'self' http://my.host; base-uri 'self' http://my.host; object-src 'none'; block-all-mixed-content\r\n"
                            "Content-Type: text/html\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://my.host\r\n"
@@ -263,7 +265,8 @@ test_resource_language (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
                            "Content-Type: text/html\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -306,7 +309,8 @@ test_resource_cookie (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
                            "Content-Type: text/html\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -350,6 +354,7 @@ test_resource_not_found (TestResourceCase *tc,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Type: text/html; charset=utf8\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n13\r\n"
                            "<html><head><title>\r\n9\r\n"
                            "Not Found\r\n15\r\n"
@@ -385,6 +390,7 @@ test_resource_no_path (TestResourceCase *tc,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Type: text/html; charset=utf8\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n13\r\n"
                            "<html><head><title>\r\n9\r\n"
                            "Not Found\r\n15\r\n"
@@ -429,6 +435,7 @@ test_resource_failure (TestResourceCase *tc,
                            "HTTP/1.1 500 Internal Server Error\r\n"
                            "Content-Type: text/html; charset=utf8\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n13\r\n"
                            "<html><head><title>\r\n15\r\n"
                            "Internal Server Error\r\n15\r\n"
@@ -504,6 +511,7 @@ test_resource_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\"\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
                            "Transfer-Encoding: chunked\r\n"
@@ -545,6 +553,7 @@ test_resource_not_modified (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 304 Not Modified\r\n"
                            "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\"\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
@@ -578,6 +587,7 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-de\"\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
                            "Transfer-Encoding: chunked\r\n"
@@ -622,6 +632,7 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-fr\"\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
                            "Transfer-Encoding: chunked\r\n"
@@ -659,6 +670,7 @@ test_resource_no_checksum (TestResourceCase *tc,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Type: text/html; charset=utf8\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n13\r\n"
                            "<html><head><title>\r\n9\r\n"
                            "Not Found\r\n15\r\n"
@@ -693,6 +705,7 @@ test_resource_bad_checksum (TestResourceCase *tc,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Type: text/html; charset=utf8\r\n"
                            "Transfer-Encoding: chunked\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n13\r\n"
                            "<html><head><title>\r\n9\r\n"
                            "Not Found\r\n15\r\n"
@@ -724,7 +737,8 @@ test_resource_language_suffix (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
                            "Content-Type: text/html\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -766,7 +780,8 @@ test_resource_language_fallback (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
                            "Content-Type: text/html\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -807,6 +822,7 @@ test_resource_gzip_encoding (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "Content-Encoding: gzip\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -818,7 +834,7 @@ test_resource_gzip_encoding (TestResourceCase *tc,
                            "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00sT(\xCEM\xCC\xC9Q(I-"
                            ".QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00\x0D\x0A"
                            "0\x0D\x0A\x0D\x0A",
-                           256);
+                           315);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -846,7 +862,8 @@ test_resource_head (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws: wss:\r\n"
+                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
                            "Content-Type: text/html\r\n"
                            "Cache-Control: no-cache, no-store\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"

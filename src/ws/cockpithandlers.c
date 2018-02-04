@@ -351,6 +351,7 @@ send_login_html (CockpitWebResponse *response,
   GBytes *url_bytes = NULL;
   CockpitWebFilter *filter2 = NULL;
   const gchar *url_root = NULL;
+  gchar *content_security_policy = NULL;
   gchar *cookie_line = NULL;
   gchar *base;
 
@@ -418,13 +419,13 @@ send_login_html (CockpitWebResponse *response,
     {
       /* The login Content-Security-Policy allows the page to have inline <script> and <style> tags. */
       cookie_line = cockpit_auth_empty_cookie_value (path);
+      content_security_policy = cockpit_web_response_security_policy ("default-src 'self' 'unsafe-inline'",
+                                                                      cockpit_web_response_get_origin (response));
+
       cockpit_web_response_headers (response, 200, "OK", -1,
-                                    "Content-Type",
-                                    "text/html",
-                                    "Content-Security-Policy",
-                                    "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:",
-                                    "Set-Cookie",
-                                    cookie_line,
+                                    "Content-Type", "text/html",
+                                    "Content-Security-Policy", content_security_policy,
+                                    "Set-Cookie", cookie_line,
                                     NULL);
       if (cockpit_web_response_queue (response, bytes))
         cockpit_web_response_complete (response);
@@ -433,6 +434,7 @@ send_login_html (CockpitWebResponse *response,
     }
 
   g_free (cookie_line);
+  g_free (content_security_policy);
   g_strfreev (languages);
 }
 

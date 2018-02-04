@@ -930,6 +930,9 @@ package_content (CockpitPackages *packages,
   const gchar *type;
   gchar *policy;
 
+  if (!self_origin)
+    self_origin = cockpit_web_response_get_origin (response);
+
   globbing = g_str_equal (name, "*");
   if (globbing)
     names = g_hash_table_get_keys (packages->listing);

@@ -257,10 +257,7 @@ cockpit_web_response_new (GIOStream *io,
       host = g_hash_table_lookup (in_headers, "Host");
     }
 
-  if (G_IS_SOCKET_CONNECTION (io))
-    protocol = "http";
-  else
-    protocol = "https";
+  protocol = cockpit_web_response_get_protocol (io, in_headers);
   if (protocol && host)
     self->origin = g_strdup_printf ("%s://%s", protocol, host);
 
@@ -704,6 +701,8 @@ enum {
     HEADER_CONTENT_ENCODING = 1 << 1,
     HEADER_VARY = 1 << 2,
     HEADER_CACHE_CONTROL = 1 << 3,
+    HEADER_DNS_PREFETCH_CONTROL = 1 << 4,
+    HEADER_REFERRER_POLICY = 1 << 5,
 };
 
 static GString *
@@ -738,6 +737,10 @@ append_header (GString *string,
     return HEADER_VARY;
   if (g_ascii_strcasecmp ("Content-Encoding", name) == 0)
     return HEADER_CONTENT_ENCODING;
+  if (g_ascii_strcasecmp ("X-DNS-Prefetch-Control", name) == 0)
+    return HEADER_DNS_PREFETCH_CONTROL;
+  if (g_ascii_strcasecmp ("Referrer-Policy", name) == 0)
+    return HEADER_REFERRER_POLICY;
   else if (g_ascii_strcasecmp ("Content-Length", name) == 0)
     g_critical ("Don't set Content-Length manually. This is a programmer error.");
   else if (g_ascii_strcasecmp ("Connection", name) == 0)
@@ -836,8 +839,14 @@ finish_headers (CockpitWebResponse *self,
 
   if (!self->keep_alive)
     g_string_append (string, "Connection: close\r\n");
-  g_string_append (string, "\r\n");
 
+  /* Some blanket security headers */
+  if ((seen & HEADER_DNS_PREFETCH_CONTROL) == 0)
+    g_string_append (string, "X-DNS-Prefetch-Control: off\r\n");
+  if ((seen & HEADER_REFERRER_POLICY) == 0)
+    g_string_append (string, "Referrer-Policy: no-referrer\r\n");
+
+  g_string_append (string, "\r\n");
   return g_string_free_to_bytes (string);
 }
 
@@ -1237,7 +1246,7 @@ web_response_file (CockpitWebResponse *response,
                    CockpitTemplateFunc template_func,
                    gpointer user_data)
 {
-  const gchar *default_policy = "default-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:";
+  const gchar *default_policy = "default-src 'self' 'unsafe-inline';";
 
   const gchar *headers[5] = { NULL };
   GError *error = NULL;
@@ -1799,7 +1808,10 @@ cockpit_web_response_security_policy (const gchar *content_security_policy,
                                       const gchar *self_origin)
 {
   const gchar *default_src = "default-src 'self'";
-  const gchar *connect_src = "connect-src 'self' ws: wss:";
+  const gchar *form_action = "form-action 'self'";
+  const gchar *base_uri = "base-uri 'self'";
+  const gchar *object_src = "object-src 'none'";
+  const gchar *block_all_mixed_content = "block-all-mixed-content";
   gchar **parts = NULL;
   GString *result;
   gint i;
@@ -1824,7 +1836,20 @@ cockpit_web_response_security_policy (const gchar *content_security_policy,
   if (!strv_have_prefix (parts, "default-src "))
     g_string_append_printf (result, "%s; ", default_src);
   if (!strv_have_prefix (parts, "connect-src "))
-    g_string_append_printf (result, "%s; ", connect_src);
+    {
+      g_string_append (result, "connect-src 'self'");
+      if (self_origin && g_str_has_prefix (self_origin, "http"))
+        g_string_append_printf (result, " ws%s", self_origin + 4);
+      g_string_append (result, "; ");
+    }
+  if (!strv_have_prefix (parts, "form-action "))
+    g_string_append_printf (result, "%s; ", form_action);
+  if (!strv_have_prefix (parts, "base-uri "))
+    g_string_append_printf (result, "%s; ", base_uri);
+  if (!strv_have_prefix (parts, "object-src "))
+    g_string_append_printf (result, "%s; ", object_src);
+  if (!strv_have_prefix (parts, "block-all-mixed-content"))
+    g_string_append_printf (result, "%s; ", block_all_mixed_content);
 
   for (i = 0; parts && parts[i] != NULL; i++)
     g_string_append_printf (result, "%s; ", parts[i]);
@@ -1839,6 +1864,13 @@ cockpit_web_response_security_policy (const gchar *content_security_policy,
     string_inject_origin (result, self_origin);
 
   return g_string_free (result, FALSE);
+}
+
+const gchar *
+cockpit_web_response_get_origin (CockpitWebResponse *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
+  return self->origin;
 }
 
 const gchar *

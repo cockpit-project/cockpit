@@ -134,7 +134,8 @@ test_return_content (TestCase *tc,
   g_bytes_unref (content);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nthe content");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\nthe content");
 }
 
 static void
@@ -154,7 +155,7 @@ test_return_content_headers (TestCase *tc,
   g_hash_table_destroy (headers);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nMy-header: my-value\r\nContent-Length: 11\r\n\r\nthe content");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nMy-header: my-value\r\nContent-Length: 11\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\nthe content");
 }
 
 
@@ -173,6 +174,8 @@ test_return_error (TestCase *tc,
     "HTTP/1.1 500 Reason here: booyah\r\n"
     "Content-Type: text/html; charset=utf8\r\n"
     "Transfer-Encoding: chunked\r\n"
+    "X-DNS-Prefetch-Control: off\r\n"
+    "Referrer-Policy: no-referrer\r\n"
     "\r\n"
     "13\r\n<html><head><title>\r\n"
     "13\r\nReason here: booyah\r\n"
@@ -357,7 +360,7 @@ test_template (TestCase *tc,
   cockpit_web_response_template (tc->response, NULL, roots, data);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nTransfer-Encoding: chunked\r\n\r\n17\r\n#brand {\n    content: \"\r\n4\r\ntest\r\n4\r\n <b>\r\n5\r\nVALUE\r\n9\r\n</b>\";\n}\n\r\n0\r\n\r\n");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n17\r\n#brand {\n    content: \"\r\n4\r\ntest\r\n4\r\n <b>\r\n5\r\nVALUE\r\n9\r\n</b>\";\n}\n\r\n0\r\n\r\n");
   g_hash_table_unref (data);
 }
 
@@ -451,7 +454,8 @@ test_content_encoding (TestCase *tc,
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
   g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Encoding: blah\r\n"
-                   "Content-Length: 50\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "Content-Length: 50\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "26\r\nCockpit is perfect for new sysadmins, \r\n0\r\n\r\n");
 }
 
@@ -483,7 +487,8 @@ test_stream (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nthe content");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\nthe content");
 }
 
 static void
@@ -516,7 +521,8 @@ test_head (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 19\r\n\r\n");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 19\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n");
 }
 
 static void
@@ -555,7 +561,8 @@ test_chunked_transfer_encoding (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "26\r\nCockpit is perfect for new sysadmins, \r\n"
                    "4d\r\nallowing them to easily perform simple tasks such as storage administration, \r\n"
                    "37\r\ninspecting journals and starting and stopping services.\r\n0\r\n\r\n");
@@ -600,7 +607,8 @@ test_chunked_zero_length (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "26\r\nCockpit is perfect for new sysadmins, \r\n"
                    "37\r\ninspecting journals and starting and stopping services.\r\n0\r\n\r\n");
 }
@@ -636,7 +644,8 @@ test_web_filter_simple (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "c\r\n<html><head>\r\n"
                    "d\r\n<meta inject>\r\n"
                    "26\r\n<title>The Title</title></head></html>\r\n"
@@ -686,7 +695,8 @@ test_web_filter_multiple (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "6\r\n<html>\r\n"
                    "1\r\n \r\n"
                    "6\r\n<head>\r\n"
@@ -750,7 +760,8 @@ test_web_filter_split (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "1\r\n<\r\n"
                    "2\r\nht\r\n"
                    "4\r\nml><\r\n"
@@ -804,7 +815,8 @@ test_web_filter_shift (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "4\r\nfoof\r\n"
                    "4\r\noofn\r\n"
                    "8\r\ninjected\r\n"
@@ -849,7 +861,8 @@ test_web_filter_shift_three (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "4\r\nfoof\r\n"
                    "1\r\no\r\n"
                    "2\r\nof\r\n"
@@ -883,7 +896,8 @@ test_web_filter_passthrough (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "32\r\n<html><head><title>The Title</title></head></html>\r\n"
                    "0\r\n\r\n");
 }
@@ -917,7 +931,8 @@ test_abort (TestCase *tc,
 
   resp = output_as_string (tc);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\n");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n");
 }
 
 static const TestFixture fixture_connection_close = {
@@ -941,7 +956,8 @@ test_connection_close (TestCase *tc,
   g_bytes_unref (content);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n"
+                   "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\nthe content");
 }
 
 typedef struct {

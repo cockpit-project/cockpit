@@ -157,7 +157,7 @@ test_host_header (TestGeneral *tt,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_combine_output (tt->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}Da Da Da", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\"}}Da Da Da", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }
@@ -222,7 +222,7 @@ test_http_stream2 (TestGeneral *tt,
   object = mock_transport_pop_control (tt->transport);
   cockpit_assert_json_eq (object, "{\"command\":\"ready\",\"channel\":\"444\"}");
   object = mock_transport_pop_control (tt->transport);
-  cockpit_assert_json_eq (object, "{\"command\":\"response\",\"channel\":\"444\",\"status\":200,\"reason\":\"OK\",\"headers\":{}}");
+  cockpit_assert_json_eq (object, "{\"command\":\"response\",\"channel\":\"444\",\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\"}}");
 
   data = mock_transport_combine_output (tt->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "Da Da Da", -1);
@@ -344,7 +344,7 @@ test_http_chunked (void)
   GBytes *data = NULL;
 
   const gchar *control;
-  gchar *expected = g_strdup_printf ("{\"status\":200,\"reason\":\"OK\",\"headers\":{}}%0*d", MAGIC_NUMBER, 0);
+  gchar *expected = g_strdup_printf ("{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\"}}%0*d", MAGIC_NUMBER, 0);
   guint count;
   guint port;
 
@@ -539,7 +539,7 @@ test_tls_basic (TestTls *test,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_combine_output (test->transport, "444", NULL);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}Oh Marmalaade!", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\"}}Oh Marmalaade!", -1);
 
   g_bytes_unref (data);
 
@@ -701,7 +701,7 @@ test_tls_certificate (TestTls *test,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_combine_output (test->transport, "444", NULL);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}Oh Marmalaade!", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\"}}Oh Marmalaade!", -1);
 
   g_bytes_unref (data);
 
@@ -766,7 +766,7 @@ test_tls_authority_good (TestTls *test,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_combine_output (test->transport, "444", NULL);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}Oh Marmalaade!", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\"}}Oh Marmalaade!", -1);
 
   g_bytes_unref (data);
 

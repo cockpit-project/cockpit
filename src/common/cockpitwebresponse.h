@@ -143,6 +143,8 @@ void         cockpit_web_response_set_cache_type         (CockpitWebResponse *se
 
 const gchar *  cockpit_web_response_get_url_root         (CockpitWebResponse *response);
 
+const gchar *  cockpit_web_response_get_origin           (CockpitWebResponse *response);
+
 const gchar *  cockpit_web_response_get_protocol         (GIOStream *connection,
                                                           GHashTable *headers);
 

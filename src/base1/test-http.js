@@ -166,7 +166,9 @@ QUnit.asyncTest("headers", function() {
                     "Header1": "booo",
                     "Header2": "yay value",
                     "Header3": "three",
-                    "Header4": "marmalade"
+                    "Header4": "marmalade",
+                    "Referrer-Policy": "no-referrer",
+                    "X-DNS-Prefetch-Control": "off",
             }, "got back headers");
         })
         .always(function() {
@@ -202,7 +204,9 @@ QUnit.asyncTest("connection headers", function() {
                     "Header1": "booo",
                     "Header2": "yay value",
                     "Header3": "three",
-                    "Header4": "marmalade"
+                    "Header4": "marmalade",
+                    "Referrer-Policy": "no-referrer",
+                    "X-DNS-Prefetch-Control": "off",
             }, "got back combined headers");
         })
         .always(function() {

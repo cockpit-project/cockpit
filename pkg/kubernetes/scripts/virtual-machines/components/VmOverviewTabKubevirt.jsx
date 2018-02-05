@@ -23,7 +23,7 @@ import { gettext as _ } from 'cockpit';
 
 import VmOverviewTab, { commonTitles } from '../../../../machines/components/vmOverviewTab.jsx';
 
-import type { Vm, VmMessages } from '../types.jsx';
+import type { Vm, VmMessages, Pod } from '../types.jsx';
 import { getPairs, NODE_LABEL, vmIdPrefx, getValueOrDefault } from '../utils.jsx';
 
 import VmMessage from './VmMessage.jsx';
@@ -61,21 +61,29 @@ function getMemory(vm: Vm) {
     return _("Not Available");
 }
 
-const VmOverviewTabKubevirt = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) => {
+const PodLink = ({ pod }) => {
+    if (!pod || !pod.metadata.namespace || !pod.metadata.name) {
+        return null;
+    }
+
+    return (<a href={`#/l/pods/${pod.metadata.namespace}/${pod.metadata.name}`}>{pod.metadata.name}</a>);
+};
+
+const VmOverviewTabKubevirt = ({ vm, vmMessages, pod }: { vm: Vm, vmMessages: VmMessages, pod: Pod }) => {
     const idPrefix = vmIdPrefx(vm);
 
     const message = (<VmMessage vmMessages={vmMessages} vm={vm}/>);
 
     const nodeName = getNodeName(vm);
     const nodeLink = nodeName ? (<a href={`#/nodes/${nodeName}`}>{nodeName}</a>) : '-';
-
-    console.log('VmOverviewTabKubevirt: vm = ', vm);
+    const podLink = (<PodLink pod={pod}/>);
 
     const items = [
         {title: commonTitles.MEMORY, value: getMemory(vm), idPostfix: 'memory'},
         {title: _("Node:"), value: nodeLink, idPostfix: 'node'},
         {title: commonTitles.CPUS, value: _(getValueOrDefault(() => vm.spec.domain.cpu.cores, 1)), idPostfix: 'vcpus'},
         {title: _("Labels:"), value: getLabels(vm), idPostfix: 'labels'},
+        {title: _("Pod:"), value: podLink, idPostfix: 'pod'},
     ];
     return (<VmOverviewTab message={message}
                            idPrefix={idPrefix}

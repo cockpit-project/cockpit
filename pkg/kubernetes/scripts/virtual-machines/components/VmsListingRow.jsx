@@ -27,19 +27,21 @@ import VmOverviewTab from './VmOverviewTabKubevirt.jsx';
 import VmActions from './VmActions.jsx';
 import VmDisksTab from './VmDisksTabKubevirt.jsx';
 
-import type { Vm, VmMessages, PersistenVolumes } from '../types.jsx';
+import type { Vm, VmMessages, PersistenVolumes, Pod } from '../types.jsx';
 import { NODE_LABEL, vmIdPrefx } from '../utils.jsx';
 
 React;
 
-const VmsListingRow = ({ vm, vmMessages, pvs }: { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes }) => {
+const VmsListingRow = ({ vm, vmMessages, pvs, pod }:
+                           { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes, pod: Pod }) => {
     const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-';
     const phase = (vm.status && vm.status.phase) || _("n/a");
-    const idPrefix = vmIdPrefx(vm)
+    const idPrefix = vmIdPrefx(vm);
+
     const overviewTabRenderer = {
        name: _("Overview"),
         renderer: VmOverviewTab,
-        data: { vm, vmMessages },
+        data: { vm, vmMessages, pod },
         presence: 'always',
     };
 
@@ -48,7 +50,7 @@ const VmsListingRow = ({ vm, vmMessages, pvs }: { vm: Vm, vmMessages: VmMessages
         renderer: VmDisksTab,
         data: { vm, pvs },
         presence: 'onlyActive',
-    }
+    };
 
     return (
         <ListingRow
@@ -68,6 +70,7 @@ VmsListingRow.propTypes = {
     vm: PropTypes.object.isRequired,
     vmMessages: PropTypes.object.isRequired,
     pvs: PropTypes.array.isRequired,
+    pod: PropTypes.object.isRequired,
 };
 
 export default VmsListingRow;

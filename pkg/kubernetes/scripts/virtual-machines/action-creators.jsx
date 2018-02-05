@@ -59,3 +59,10 @@ export function removeVmMessage({ vm }) {
       }
     };
 }
+
+export function setPods(pods) {
+    return {
+        type: actionConstants.SET_PODS,
+        payload: pods
+    }
+}

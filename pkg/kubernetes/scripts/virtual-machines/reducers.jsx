@@ -36,6 +36,10 @@ const pvsReducer = createReducer([], {
     [actionTypes.SET_PVS]: (state = [], { payload }) => payload ? payload : []
 })
 
+const podsReducer = createReducer([], {
+    [actionTypes.SET_PODS]: (state = [], { payload }) => payload ? payload : []
+})
+
 const settingsReducer = createReducer([], {
     [actionTypes.SET_SETTINGS]: (state = [], { payload }) => payload ? payload : {}
 })
@@ -64,6 +68,7 @@ const vmsMessagesReducer = createReducer({}, {
 const rootReducer = combineReducers({
     vms: vmsReducer, // VirtualMachines from API
     pvs: pvsReducer, // PersistenVolumes from API
+    pods: podsReducer, // Pods from API
     settings: settingsReducer,
     vmsMessages: vmsMessagesReducer,
 })

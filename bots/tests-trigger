@@ -62,11 +62,12 @@ def main():
                         help='Force setting the status even if the program logic thinks it shouldn''t be done')
     parser.add_argument('-a', '--allow', action='store_true', dest='allow',
                         help="Allow triggering for users that aren't whitelisted")
+    parser.add_argument('--repo', help="The repository to trigger the robots in", default="cockpit-project/cockpit")
     parser.add_argument('pull', help='The pull request to trigger')
     parser.add_argument('context', nargs='?', help='The github task context to trigger')
     opts = parser.parse_args()
 
-    api = github.GitHub()
+    api = github.GitHub(repo=opts.repo)
     return trigger_pull(api, opts)
 
 if __name__ == '__main__':

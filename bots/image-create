@@ -108,7 +108,7 @@ class MachineBuilder:
 
             try:
                 self.machine.execute(script="/var/tmp/SETUP " + self.machine.image,
-                                     environment=env, quiet=not self.machine.verbose, timeout=120)
+                                     environment=env, quiet=not self.machine.verbose, timeout=7200)
                 self.machine.execute(command="rm -f /var/tmp/SETUP")
                 self.machine.execute(command="rm -rf /root/.rhel")
 

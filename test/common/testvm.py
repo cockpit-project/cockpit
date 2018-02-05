@@ -460,17 +460,16 @@ class Machine:
                             rset.remove(stdout_fd)
                             proc.stdout.close()
                         else:
-                            data = data.decode('utf-8', 'replace')
                             if self.verbose:
-                                sys.stdout.write(data)
-                            output += data
+                                sys.stdout.write(data.decode('utf-8', 'ignore'))
+                            output += data.decode('utf-8', 'replace')
                     elif fd == stderr_fd:
                         data = os.read(fd, 1024)
                         if not data:
                             rset.remove(stderr_fd)
                             proc.stderr.close()
                         elif not quiet or self.verbose:
-                            sys.stderr.write(data.decode('utf-8', 'replace'))
+                            sys.stderr.write(data.decode('utf-8', 'ignore'))
                 for fd in ret[1]:
                     if fd == stdin_fd:
                         if input:

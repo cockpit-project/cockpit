@@ -52,6 +52,9 @@ OUR_CONTEXTS = [
     "avocado/",
     "container/",
     "selenium/",
+
+    # generic prefix for external repos
+    "cockpit/",
 ]
 
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"

@@ -351,6 +351,8 @@ class PullTask(object):
         elif prefix == "image" or prefix == "container":
             cmd = [ "timeout", "90m", os.path.join(test, "containers", "run-tests"),
                     "--container", value]
+        elif prefix == "cockpit":
+            cmd = [ "timeout", "90m", os.path.join(test, "run") ]
         else:
             ret = "Unknown context"
 
@@ -369,7 +371,7 @@ class PullTask(object):
             subprocess.call(["sudo", "-n", prep ], env=env)
 
         # Prepare the image to run
-        if not ret:
+        if not ret and prefix != "cockpit":
             ret = self.prepare(prefix, value, image, opts.verbose)
 
         # Flush our own output before running command

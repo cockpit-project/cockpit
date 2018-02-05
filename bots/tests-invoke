@@ -42,6 +42,8 @@ def main():
     parser.add_argument('-j', '--jobs', dest="jobs", type=int,
             default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('--rebase', help="Rebase onto the specific branch before testing")
+    parser.add_argument('--remote', help="The Git remote to use (instead of 'origin')",
+                        default="origin")
     parser.add_argument('-o', "--offline", action='store_true',
             help="Work offline, don''t fetch new data from origin for rebase")
     parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
@@ -56,7 +58,7 @@ def main():
     github_revision = os.environ.get("GITHUB_REVISION")
 
     try:
-        task = PullTask(name, revision, opts.ref, opts.context, opts.rebase,
+        task = PullTask(name, revision, opts.ref, opts.context, opts.rebase, opts.remote,
                         github_revision=github_revision)
         ret = task.run(opts)
     except RuntimeError as ex:
@@ -68,12 +70,13 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, ref, context, base=None, github_revision=None):
+    def __init__(self, name, revision, ref, context, base, remote, github_revision):
         self.name = name
         self.revision = revision
         self.ref = ref
         self.context = context
         self.base = base
+        self.remote = remote
         self.github_revision = github_revision
 
         self.sink = None
@@ -147,7 +150,9 @@ class PullTask(object):
 
         # Include information about which base we're testing against
         if self.base:
-            commit = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ], universal_newlines=True).strip()
+            subprocess.check_call([ "git", "fetch", self.remote, self.base ])
+            commit = subprocess.check_output([ "git", "rev-parse", self.remote + "/" + self.base ],
+                                             universal_newlines=True).strip()
             status["base"] = commit
 
         (prefix, unused, image) = self.context.partition("/")
@@ -159,13 +164,13 @@ class PullTask(object):
         self.sink = sink.Sink(host, identifier, status)
 
     def rebase(self):
-        origin_base = "origin/" + self.base
+        remote_base = self.remote + "/" + self.base
 
         # Rebase this branch onto the base, but only if it's not already an ancestor
         try:
-            if subprocess.call([ "git", "merge-base", "--is-ancestor", origin_base, "HEAD" ]) != 0:
-                sys.stderr.write("Rebasing onto " + origin_base + " ...\n")
-                subprocess.check_call([ "git", "rebase", origin_base ])
+            if subprocess.call([ "git", "merge-base", "--is-ancestor", remote_base, "HEAD" ]) != 0:
+                sys.stderr.write("Rebasing onto " + remote_base + " ...\n")
+                subprocess.check_call([ "git", "rebase", remote_base ])
         except subprocess.CalledProcessError:
             subprocess.call([ "git", "rebase", "--abort" ])
             traceback.print_exc()
@@ -291,7 +296,7 @@ class PullTask(object):
         head = subprocess.check_output([ "git", "rev-parse", "HEAD" ], universal_newlines=True).strip()
         if self.ref:
             if not opts.offline:
-                subprocess.check_call([ "git", "fetch", "origin", self.ref ])
+                subprocess.check_call([ "git", "fetch", self.remote, self.ref ])
             if not self.revision:
                 self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ], universal_newlines=True).strip()
             # Force a checkout of the ref if not already checked out
@@ -303,7 +308,7 @@ class PullTask(object):
 
         # Retrieve information about our base branch and master (for bots/)
         if self.base and not opts.offline:
-            subprocess.check_call([ "git", "fetch", "origin", self.base, "master" ])
+            subprocess.check_call([ "git", "fetch", self.remote, self.base, "master" ])
 
         # Clean out the test directory
         subprocess.check_call([ "git", "clean", "-d", "--force", "--quiet", "-x", "--", "test/" ])

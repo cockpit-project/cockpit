@@ -126,8 +126,7 @@ def main():
     parser.add_argument('ref', nargs='?', help="The Git remote ref to pull")
     opts = parser.parse_args()
 
-    git_base = github.determine_github_base()
-    repo = os.environ.get("GITHUB_BASE", git_base)
+    repo = os.environ.get("GITHUB_BASE", "cockpit-project/cockpit")
     name = os.environ.get("TEST_NAME", "{0}-tests".format(repo))
     revision = os.environ.get("TEST_REVISION")
 
@@ -162,7 +161,7 @@ def main():
 
     os.environ["TEST_REVISION"] = head
     os.environ["GITHUB_REVISION"] = revision
-    os.environ["GITHUB_KNOWN_ISSUE_BASE"] = git_base
+    os.environ["GITHUB_KNOWN_ISSUE_BASE"] = "cockpit-project/cockpit"
     os.environ["TEST_NAME"] = name
 
     args = list(sys.argv)

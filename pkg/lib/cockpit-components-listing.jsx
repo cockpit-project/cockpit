@@ -273,6 +273,8 @@ var ListingRow = React.createClass({
  * - fullWidth optional: set width to 100% of parent, defaults to true
  * - emptyCaption header caption to show if list is empty, defaults to "No entries"
  * - columnTitles: array of column titles, as strings
+ * - columnTitleClick: optional callback for clicking on column title (for sorting)
+ *                     receives the column index as argument
  * - actions: additional listing-wide actions (displayed next to the list's title)
  */
 var Listing = React.createClass({
@@ -281,6 +283,7 @@ var Listing = React.createClass({
         fullWidth: React.PropTypes.bool,
         emptyCaption: React.PropTypes.string.isRequired,
         columnTitles: React.PropTypes.arrayOf(React.PropTypes.string),
+        columnTitleClick: React.PropTypes.func,
         actions: React.PropTypes.arrayOf(React.PropTypes.node)
     },
     getDefaultProps: function () {
@@ -291,6 +294,7 @@ var Listing = React.createClass({
         };
     },
     render: function() {
+        var self = this;
         var bodyClasses = ["listing", "listing-ct"];
         if (this.props.fullWidth)
             bodyClasses.push("listing-ct-wide");
@@ -319,7 +323,12 @@ var Listing = React.createClass({
             headerRow = (
                 <tr>
                     <th className="listing-ct-toggle"></th>
-                    { this.props.columnTitles.map(function (title) { return <th>{title}</th>; }) }
+                    { this.props.columnTitles.map(function (title, index) {
+                        var clickHandler = null;
+                        if (self.props.columnTitleClick)
+                            clickHandler = function() { self.props.columnTitleClick(index) };
+                        return <th onClick={clickHandler}>{title}</th>;
+                    }) }
                 </tr>
             );
         } else {

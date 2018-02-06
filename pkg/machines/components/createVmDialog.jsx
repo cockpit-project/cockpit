@@ -23,7 +23,7 @@ import React, { PropTypes } from "react";
 import DialogPattern from 'cockpit-components-dialog.jsx';
 import Select from "cockpit-components-select.jsx";
 import FileAutoComplete from "../../lib/cockpit-components-file-autocomplete.jsx";
-import { createVm } from '../actions.es6';
+import { createVm, addErrorNotification } from '../actions.es6';
 import {
     digitFilter,
     toFixedPrecision,
@@ -42,13 +42,13 @@ import {
 } from "./createVmDialogUtils.es6";
 
 import './createVmDialog.less';
+import VMS_CONFIG from '../config.es6';
 
 const _ = cockpit.gettext;
 
 const URL_SOURCE = 'url';
 const COCKPIT_FILESYSTEM_SOURCE = 'file';
 
-const WAIT_IF_SCRIPT_FAILS_WITH_ERROR = 3000; // 3s
 
 const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitChange }) => {
     return (
@@ -427,7 +427,19 @@ export const createVmDialog = (dispatch, osInfoList) => {
                     if (error) {
                         return cockpit.defer().reject(error).promise;
                     } else {
-                        return timeoutedPromise(dispatch(createVm(vmParams)), WAIT_IF_SCRIPT_FAILS_WITH_ERROR);
+                        // leave dialog open to show immediate errors from the backend
+                        // close the dialog after VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit
+                        // then show errors in the notification area
+                        return timeoutedPromise(
+                            dispatch(createVm(vmParams)),
+                            VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit,
+                            null,
+                            (exception) => {
+                                dispatch(addErrorNotification({
+                                    message: cockpit.format(_("Creation of vm $0 failed"), vmParams.vmName),
+                                    description: exception,
+                                }));
+                            });
                     }
                 },
                 'caption': _("Create"),

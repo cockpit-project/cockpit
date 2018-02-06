@@ -702,6 +702,8 @@ class MachineCase(unittest.TestCase):
         "(audit: )?type=1404 audit.*",
         # happens on Atomic (https://bugzilla.redhat.com/show_bug.cgi?id=1298157)
         "(audit: )?type=1400 audit.*: avc:  granted .*",
+        # HACK: affects *all* tests, impractical for a naughty (https://bugzilla.redhat.com/show_bug.cgi?id=1461893)
+        "type=1401 audit(.*): op=security_compute_av reason=bounds .* tclass=process.*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",

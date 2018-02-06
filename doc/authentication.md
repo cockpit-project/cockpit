@@ -19,14 +19,14 @@ timeout = 300
 The command is then responsible to:
 
  * verify the given credentials
- * setup an appropriate session and enviroment based on those credentials
+ * setup an appropriate session and environment based on those credentials
  * launch a bridge that speaks the cockpit protocol on stdin and stdout.
 
 The default command is ```cockpit-session``` it is able to handle basic and gssapi
 authentication.
 
 Authentication commands are called with a single argument which is the host that the user
-is connecting to. They communicate with their parent process using the cockpit protocal on
+is connecting to. They communicate with their parent process using the cockpit protocol on
 stdin and stdout.
 
 Credentials can then be retrived by issuing a authorize command with a challenge. The challenge
@@ -74,7 +74,7 @@ number between 1 and 900.
 Once a result is known a "init" command should be sent. If the login was succussful you can usually
 just let the bridge do this.
 
-If the login was not sucessful the JSON should include a problem field. Values of
+If the login was not successful the JSON should include a problem field. Values of
 ```authentication-failed```, ```authentication-unavailable``` or ```access-denied```
 are translated to the appropriate cockpit error codes. Any other values are treated
 as generic errors. Additionally a message field may be included as well.

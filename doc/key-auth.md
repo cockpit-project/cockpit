@@ -9,7 +9,7 @@ public key based authentication.
 
 Note that when a user is authenticated in this way the authentication happens
 without a password, as such the standard cockpit reauthorization mechanisms do
-not work. The user will only be able to obtain additional priviledges if they do not require a password.
+not work. The user will only be able to obtain additional privileges if they do not require a password.
 
 In order to support key based authentication cockpit adds pam_ssh_add.so
 to it's pam stack. Once a user is successfully logged in a new ssh-agent

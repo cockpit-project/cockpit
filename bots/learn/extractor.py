@@ -100,7 +100,7 @@ class Extractor():
         return self.extract.stop_words_
 
 # This is a helpful debugger to help diagnose data, and figure out if we're
-# getting the above threshhold and regular expressions right
+# getting the above threshold and regular expressions right
 if __name__ == '__main__':
     import data
     import argparse

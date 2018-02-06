@@ -38,7 +38,6 @@ import re
 import json
 import tempfile
 import time
-import signal
 import unittest
 
 import tap

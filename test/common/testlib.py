@@ -726,7 +726,7 @@ class MachineCase(unittest.TestCase):
     ]
 
     def allow_journal_messages(self, *patterns):
-        """Don't fail if the journal containes a entry matching the given regexp"""
+        """Don't fail if the journal contains a entry matching the given regexp"""
         for p in patterns:
             self.allowed_messages.append(p)
 

@@ -64,7 +64,7 @@ class TestJournal(MachineCase):
             }
             """)
 
-        # Certain versions of journald wont set _SYSTEMD_UNIT
+        # Certain versions of journald won't set _SYSTEMD_UNIT
         # correctly for entries that are processed after the
         # originating process has already exited.  So we keep the
         # process around for a bit longer after the last line has been

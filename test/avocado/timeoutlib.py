@@ -58,7 +58,7 @@ class Retry(object):
         Restart only when one of EXCEPTIONS is raised, all other exceptions will just bubble up.
         When the maximal number of attempts is reached, raise ERROR. Wait DELAY seconds between
         attempts.
-        When INVERSE is True, successfull return of wrapped code is considered as a failure.
+        When INVERSE is True, successful return of wrapped code is considered as a failure.
         """
 
         self.attempts = attempts
@@ -95,7 +95,7 @@ class Retry(object):
     def __call__(self, fn):
         def __wrap(*args, **kwargs):
             # This is not an endless loop. It will be broken by
-            # 1) first "successfull" return of fn() - taking self.inverse into account, of course - or
+            # 1) first "successful" return of fn() - taking self.inverse into account, of course - or
             # 2) by decrementing self.attempts to zero, or
             # 3) when unexpected exception is raised by fn().
 

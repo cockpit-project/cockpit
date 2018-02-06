@@ -1,7 +1,7 @@
 /*
  * These are routines used by our testing code.
  *
- * jQuery is not necesarily present. Don't rely on it
+ * jQuery is not necessarily present. Don't rely on it
  * for routine operations.
  */
 

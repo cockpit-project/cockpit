@@ -19,7 +19,7 @@
 
 # This library have to be run under root or other user who has rights
 # for modprobe, brctl, ip tools
-# !!!!!! at the end, please call "clear" function for destory created ifaces and bridge
+# !!!!!! at the end, please call "clear" function for destroy created ifaces and bridge
 # usecase:
 #  a=Network('brname'); a.addiface('x1'); DOWHATEWERYOUWANTWITHx1 ;a.clear()
 

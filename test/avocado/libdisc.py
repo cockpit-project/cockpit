@@ -20,7 +20,7 @@
 # This library have to be run under root or other user who has rights
 # for targetcli and iscsi commands
 # you have to install: yum -y install targetcli iscsi-initiator-utils
-# !!!!!! at the end, please call "clear" function for destory all created iSCSI targets
+# !!!!!! at the end, please call "clear" function for destroy all created iSCSI targets
 # usecase:
 # import libdisc; a=libdisc.Disc('cockpit'); print a.adddisc('disc1'); print a.adddisc('disc2'); a.deldisc('disc2'); a.clear();"
 

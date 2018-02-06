@@ -88,7 +88,7 @@ class TestStorage(StorageCase):
         self.dialog_set_val("password", "foobar")
         self.dialog_apply()
         # The dialog closes and a new dialog opens but we can't get
-        # inbetween that, so we just wait for the new fields to
+        # between that, so we just wait for the new fields to
         # appear.
         b.wait_present(self.dialog_field("target"))
         b.wait_in_text(self.dialog_field("target"), target_iqn)
@@ -124,7 +124,7 @@ class TestStorage(StorageCase):
         self.dialog_set_val("password", "foobar")
         self.dialog_apply()
         # The dialog closes and a new dialog opens but we can't get
-        # inbetween that, so we just wait for the new fields to
+        # between that, so we just wait for the new fields to
         # appear.
         b.wait_present(self.dialog_field("target"))
         b.wait_in_text(self.dialog_field("target"), target_iqn)

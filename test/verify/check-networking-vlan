@@ -47,7 +47,7 @@ class TestNetworking(NetworkCase):
         b.wait_popdown("network-vlan-settings-dialog")
         b.wait_present("#networking-interfaces tr[data-interface='tvlan']")
 
-        # It automatically activates.  It wont get an IP address, but that's okay.
+        # It automatically activates.  It won't get an IP address, but that's okay.
         self.wait_for_iface("tvlan", state="Configuring IP")
 
         # Check that the actual kernel device has the REORDER_HDR flag

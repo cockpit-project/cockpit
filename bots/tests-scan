@@ -78,17 +78,19 @@ def main():
                         help='Display human readable output rather than tasks')
     parser.add_argument('-d', '--dry', action="store_true", default=False,
                         help='Don''t actually change anything on GitHub')
+    parser.add_argument('--repo', default=None,
+                        help='Repository to scan and checkout.')
     parser.add_argument('-c', '--context', action="append", default=[ ],
                         help='Test contexts to use.')
     opts = parser.parse_args()
-    api = github.GitHub()
+    api = github.GitHub(repo=opts.repo)
 
     try:
         if opts.context:
             policy = { c: [ "master" ] for c in opts.context }
         else:
             policy = default_policy()
-        results = scan_for_pull_tasks(api, not opts.dry, opts.human_readable, policy)
+        results = scan_for_pull_tasks(api, not opts.dry, opts.human_readable, policy, opts)
     except RuntimeError as ex:
         sys.stderr.write("tests-scan: " + str(ex) + "\n")
         return 1
@@ -123,7 +125,7 @@ def default_policy():
     return policy
 
 # Prepare a human readable output
-def tests_human(priority, name, revision, ref, context, base=None, repo=None):
+def tests_human(priority, name, revision, ref, context, base):
     if not priority:
         return
     try:
@@ -138,7 +140,7 @@ def tests_human(priority, name, revision, ref, context, base=None, repo=None):
     )
 
 # Prepare an test invocation command
-def tests_invoke(priority, name, revision, ref, context, base=None, repo=None):
+def tests_invoke(priority, name, revision, ref, context, base, options):
     try:
         priority = int(priority)
     except (ValueError, TypeError):
@@ -153,8 +155,9 @@ def tests_invoke(priority, name, revision, ref, context, base=None, repo=None):
         cmd += " --rebase='{base}'"
         checkout += " --base='{base}'"
 
-    if repo:
-        cmd = "GITHUB_BASE='{repo}' " + cmd
+    if options.repo:
+        checkout += " --repo='{repo}'"
+        cmd = "GITHUB_BASE='{repo}' " + cmd + " --remote='test'"
 
     cmd += " '{context}' '{ref}'"
     checkout += " '{ref}' '{revision}' && "
@@ -167,7 +170,7 @@ def tests_invoke(priority, name, revision, ref, context, base=None, repo=None):
         ref=pipes.quote(ref),
         context=pipes.quote(context),
         current=current,
-        repo=repo,
+        repo=pipes.quote(options.repo),
     )
 
 def prioritize(status, title, labels, priority, context):
@@ -308,7 +311,7 @@ def cockpit_tasks (api, update, policy):
 
     return results
 
-def scan_for_pull_tasks(api, update, human, policy):
+def scan_for_pull_tasks(api, update, human, policy, opts):
     kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
     if not kvm:
         sys.stderr.write("tests-scan: No /dev/kvm access, not running tests here\n")
@@ -320,7 +323,7 @@ def scan_for_pull_tasks(api, update, human, policy):
         func = lambda x: tests_human(*x)
         results.sort(reverse=True, key=lambda x: str(x))
     else:
-        func = lambda x: tests_invoke(*x)
+        func = lambda x: tests_invoke(*x, options=opts)
     return list(map(func, results))
 
 if __name__ == '__main__':

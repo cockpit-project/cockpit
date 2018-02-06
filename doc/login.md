@@ -18,7 +18,7 @@ In most cases the error can detrived from the status text. Examples are
  ```authentication-failed```, ```authentication-unavailable``` or ```access-denied```
  In some cases additional error messages may be included.
 
-In some authentication setups addtional steps are required. When this happens cockpit will
+In some authentication setups additional steps are required. When this happens cockpit will
 return a 401 http status code. Along with a WWW-Authenticate challenge header that looks like
 this.
 

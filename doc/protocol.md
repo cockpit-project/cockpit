@@ -230,7 +230,7 @@ This possible "result" values are:
  * "succeeded": Authentication with this method was successful.
  * "denied": Authentication with this method was denied.
  * "partial": The server wants more authentication.
- * "error": Unexpected error occured when using this method.
+ * "error": Unexpected error occurred when using this method.
  * "not-tried": This methods was not tried, usually due to an earlier method succeeding.
 
 Other fields may be present in a close message.

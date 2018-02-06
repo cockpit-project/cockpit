@@ -36,7 +36,7 @@ purposes:
     favicon.ico
     branding.css
 
-In addition there are image files refered to by branding.css (see below).
+In addition there are image files referred to by branding.css (see below).
 Since Cockpit does not package trademarked logos, typically there will be
 symlinks from a branding directory to the relevant image files elsewhere
 on the system.

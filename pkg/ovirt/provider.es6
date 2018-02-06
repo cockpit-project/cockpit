@@ -32,7 +32,7 @@ import { getAllIcons, isVmManagedByOvirt } from './selectors.es6';
 import { ovirtReducer }  from './reducers.es6';
 
 import VmActions from './components/VmActions.jsx';
-import VmOverviewColumn from './components/VmOverviewColumn.jsx';
+import vmOverviewExtra from './components/VmOverviewColumn.jsx';
 import ConsoleClientResources from './components/ConsoleClientResources.jsx';
 import OVirtTab from './components/OVirtTab.jsx';
 
@@ -51,7 +51,7 @@ OVIRT_PROVIDER.reducer = ovirtReducer;
 
 // --- React extension
 OVIRT_PROVIDER.VmActions = VmActions;
-OVIRT_PROVIDER.VmOverviewColumn = VmOverviewColumn;
+OVIRT_PROVIDER.vmOverviewExtra = vmOverviewExtra;
 OVIRT_PROVIDER.ConsoleClientResources = ConsoleClientResources;
 OVIRT_PROVIDER.vmTabRenderers = [
     {

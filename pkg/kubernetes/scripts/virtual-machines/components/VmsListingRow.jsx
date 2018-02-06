@@ -19,25 +19,25 @@
 
 // @flow
 
-import React from 'react'
-import { gettext as _ } from 'cockpit'
+import React from 'react';
+import { gettext as _ } from 'cockpit';
 
-import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx'
-import GeneralTab from './GeneralTab.jsx'
-import VmActions from './VmActions.jsx'
+import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx';
+import VmOverviewTab from './VmOverviewTabKubevirt.jsx';
+import VmActions from './VmActions.jsx';
 
-import type { Vm, VmMessages } from '../types.jsx'
-import { NODE_LABEL, vmIdPrefx } from '../utils.jsx'
+import type { Vm, VmMessages } from '../types.jsx';
+import { NODE_LABEL, vmIdPrefx } from '../utils.jsx';
 
 const VmsListingRow = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) => {
     const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-'
     const phase = (vm.status && vm.status.phase) || _("n/a")
     const generalTabRenderer = {
-        name: _("General"),
-        renderer: GeneralTab,
+        name: _("Overview"),
+        renderer: VmOverviewTab,
         data: { vm, vmMessages },
         presence: 'always',
-    }
+    };
 
     return (
         <ListingRow
@@ -51,10 +51,10 @@ const VmsListingRow = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) =
             tabRenderers={[generalTabRenderer]}
             listingActions={<VmActions vm={vm}/>}/>
     )
-}
+};
 
 VmsListingRow.propTypes = {
     vm: React.PropTypes.object.isRequired
-}
+};
 
-export default VmsListingRow
+export default VmsListingRow;

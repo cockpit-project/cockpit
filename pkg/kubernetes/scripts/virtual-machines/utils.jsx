@@ -46,3 +46,25 @@ export function mouseClick(fun) {
         return fun(event);
     };
 }
+
+/**
+ * Used to get sub-property value.
+ *
+ * Example:
+ *   getValueOrDefault(() => myObj.foo.bar, defaultValue) returns value of myObj.foo.bar if path exists or default otherwise
+ *
+ */
+export function getValueOrDefault(accessor, defaultValue) {
+    try {
+        let result = accessor();
+        if (typeof result === 'undefined') {
+            result = defaultValue;
+        }
+        return result;
+    } catch (error) {
+        if (!(error instanceof TypeError)) {
+            throw error;
+        }
+    }
+    return defaultValue;
+}

@@ -185,7 +185,7 @@ def guessFlake(output, context):
                 output += "\n# Flake unlikely {0:.1f}% (clustering)\n".format(merged[1] * 100)
             if analysis["trackers"]:
                 tracker = analysis["trackers"][0]
-                output += "\n# Flake tracked {0} likelyhood {1:.1f} (clustering)\n".format(tracker[0], tracker[1])
+                output += "\n# Flake tracked {0} likelihood {1:.1f} (clustering)\n".format(tracker[0], tracker[1])
 
     return output
 

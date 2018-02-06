@@ -89,7 +89,7 @@ prepare()
 
     cd ..
 
-    trace "Commiting documentation for version $version"
+    trace "Committing documentation for version $version"
     mkdir -p repo/guide/
     rm -rf repo/guide/$version
     if [ ! -f extract/$subdir/$DIRECTORY/html/index.html ]; then

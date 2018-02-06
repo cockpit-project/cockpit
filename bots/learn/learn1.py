@@ -32,7 +32,7 @@ import re
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
-# The threshhold for predicting based on learned data
+# The threshold for predicting based on learned data
 PREDICT_THRESHHOLD = 0.70
 
 def load(directory):

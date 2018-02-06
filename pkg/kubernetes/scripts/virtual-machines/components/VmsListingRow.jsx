@@ -30,9 +30,9 @@ import type { Vm, VmMessages } from '../types.jsx';
 import { NODE_LABEL, vmIdPrefx } from '../utils.jsx';
 
 const VmsListingRow = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) => {
-    const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-'
-    const phase = (vm.status && vm.status.phase) || _("n/a")
-    const generalTabRenderer = {
+    const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-';
+    const phase = (vm.status && vm.status.phase) || _("n/a");
+    const overviewTabRenderer = {
         name: _("Overview"),
         renderer: VmOverviewTab,
         data: { vm, vmMessages },
@@ -48,9 +48,9 @@ const VmsListingRow = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) =
                 node,
                 phase // phases description https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
             ]}
-            tabRenderers={[generalTabRenderer]}
+            tabRenderers={[overviewTabRenderer]}
             listingActions={<VmActions vm={vm}/>}/>
-    )
+    );
 };
 
 VmsListingRow.propTypes = {

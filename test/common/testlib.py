@@ -651,6 +651,9 @@ class MachineCase(unittest.TestCase):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1419263
         ".*type=1400 .*denied  { write } for.*firewalld.*__pycache__.*",
 
+        # HACK: affects *all* tests, impractical for a naughty (https://bugzilla.redhat.com/show_bug.cgi?id=1461893)
+        "type=1401 audit(.*): op=security_compute_av reason=bounds .* tclass=process.*",
+
         # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",

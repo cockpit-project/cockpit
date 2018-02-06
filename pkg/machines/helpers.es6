@@ -313,9 +313,11 @@ export function mouseClick(fun) {
  *
  * @param promise
  * @param delay of timeout in ms
+ * @param afterTimeoutHandler called only if promise succeeded after timeout
+ * @param afterTimeoutFailHandler called only if promise failed after timeout
  * @returns new promise
  */
-export function timeoutedPromise(promise, delay) {
+export function timeoutedPromise(promise, delay, afterTimeoutHandler, afterTimeoutFailHandler) {
     const deferred = cockpit.defer();
     let done = false;
 
@@ -328,17 +330,21 @@ export function timeoutedPromise(promise, delay) {
 
     promise.then(function(/* ... */) {
         if (!done) {
-            deferred.resolve.apply(deferred, arguments);
             done = true;
             window.clearTimeout(timer);
+            deferred.resolve.apply(deferred, arguments);
+        } else if (typeof afterTimeoutHandler === 'function') {
+            afterTimeoutHandler.apply(afterTimeoutFailHandler, arguments);
         }
     });
 
     promise.catch(function(/* ... */) {
         if (!done) {
-            deferred.reject.apply(deferred, arguments);
             done = true;
             window.clearTimeout(timer);
+            deferred.reject.apply(deferred, arguments);
+        } else if (typeof afterTimeoutFailHandler === 'function') {
+            afterTimeoutFailHandler.apply(afterTimeoutFailHandler, arguments);
         }
     });
 

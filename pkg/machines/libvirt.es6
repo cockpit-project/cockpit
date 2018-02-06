@@ -293,10 +293,7 @@ LIBVIRT_PROVIDER = {
                 memorySize,
                 storageSize,
                 startVm,
-            ], { err: "message", environ: ['LC_ALL=C'] })
-                .fail((exception, data) => {
-                    console.info(`spawn 'vm creation' returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-                });
+            ], { err: "message", environ: ['LC_ALL=C'] });
         };
     },
 

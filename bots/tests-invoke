@@ -297,9 +297,8 @@ class PullTask(object):
             os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
 
         head = subprocess.check_output([ "git", "rev-parse", "HEAD" ], universal_newlines=True).strip()
-        if self.ref:
-            if not opts.offline:
-                subprocess.check_call([ "git", "fetch", self.remote, self.ref ])
+        if self.ref and not opts.offline:
+            subprocess.check_call([ "git", "fetch", self.remote, self.ref ])
             if not self.revision:
                 self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ], universal_newlines=True).strip()
             # Force a checkout of the ref if not already checked out

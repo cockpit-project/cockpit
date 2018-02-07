@@ -26,12 +26,17 @@ import { initMiddleware } from './kube-middleware.jsx';
 import reducers from './reducers.jsx';
 import * as actionCreators from './action-creators.jsx';
 import VmsListing from './components/VmsListing.jsx';
+import { logDebug } from './utils.jsx';
 
 import '../../../machines/machines.less'; // once per component hierarchy
 
 let reduxStore;
-
 function initReduxStore() {
+    if (reduxStore) {
+        logDebug('initReduxStore(): store already initialized, skipping. ', reduxStore);
+        return;
+    }
+    logDebug('initReduxStore(): initializing empty store');
     const initialState = {
         vms: []
     };
@@ -42,7 +47,7 @@ function initReduxStore() {
 
 function addKubeLoaderListener ($scope, kubeLoader, kubeSelect) {
     // register load callback( callback, until )
-    kubeLoader.listen(function() {
+    kubeLoader.listen(() => {
         const vms = kubeSelect().kind('VirtualMachine')
         const persistentVolumes = kubeSelect().kind('PersistentVolume')
         const pods = kubeSelect().kind('Pod');
@@ -78,9 +83,10 @@ function addScopeVarsToStore ($scope) {
  */
 function init($scope, kubeLoader, kubeSelect, kubeMethods) {
     initReduxStore();
-    initMiddleware(kubeMethods);
     addKubeLoaderListener($scope, kubeLoader, kubeSelect);
+    initMiddleware(kubeMethods);
     addScopeVarsToStore($scope);
+
     const rootElement = document.querySelector('#kubernetes-virtual-machines-root');
     React.render(<VmsPlugin />, rootElement);
 }

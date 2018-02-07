@@ -63,32 +63,6 @@ TOKEN = "~/.config/github-token"
 WHITELIST = os.path.join(BASE, "bots", "whitelist")
 WHITELIST_LOCAL = "~/.config/github-whitelist"
 
-def determine_github_base():
-    # pick a base
-    try:
-        # see where we get master from, e.g. origin
-        get_remote_command = ["git", "config", "--local", "--get", "branch.master.remote"]
-        remote = subprocess.Popen(get_remote_command, stdout=subprocess.PIPE, cwd=BASE, universal_newlines=True).communicate()[0].strip()
-        # see if we have a git checkout - it can be in https or ssh format
-        formats = [
-            re.compile("""https:\/\/github\.com\/(.*)\.git"""),
-            re.compile("""git@github.com:(.*)\.git""")
-            ]
-        remote_output = subprocess.Popen(
-                ["git", "ls-remote", "--get-url", remote],
-                stdout=subprocess.PIPE, cwd=BASE, universal_newlines=True
-            ).communicate()[0].strip()
-        for f in formats:
-            m = f.match(remote_output)
-            if m:
-                return list(m.groups())[0]
-    except subprocess.CalledProcessError:
-        sys.stderr.write("Unable to get git repo information, using defaults\n")
-
-    # if we still don't have something, default to cockpit-project/cockpit
-    return "cockpit-project/cockpit"
-
-
 def known_context(context):
     for prefix in OUR_CONTEXTS:
         if context.startswith(prefix):
@@ -135,7 +109,7 @@ class GitHub(object):
     def __init__(self, base=None, cacher=None):
         if base is None:
             netloc = os.environ.get("GITHUB_API", "https://api.github.com")
-            base = "{0}/repos/{1}/".format(netloc, os.environ.get("GITHUB_BASE", determine_github_base()))
+            base = "{0}/repos/{1}/".format(netloc, os.environ.get("GITHUB_BASE", "cockpit-project/cockpit"))
         self.url = urllib.parse.urlparse(base)
         self.conn = None
         self.token = None

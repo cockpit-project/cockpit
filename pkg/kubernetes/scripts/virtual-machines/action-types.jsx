@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-export const SET_VMS = 'SET_VMS'
-export const SET_PVS = 'SET_PVS'
-export const SET_SETTINGS = 'SET_SETTINGS'
-export const SET_PODS = 'SET_PODS'
+export const SET_VMS = 'SET_VMS';
+export const SET_PVS = 'SET_PVS';
+export const SET_SETTINGS = 'SET_SETTINGS';
+export const SET_PODS = 'SET_PODS';
 
-export const VM_ACTION_FAILED = 'VM_ACTION_FAILED'
-export const REMOVE_VM_MESSAGE = 'REMOVE_VM_MESSAGE'
+export const VM_ACTION_FAILED = 'VM_ACTION_FAILED';
+export const REMOVE_VM_MESSAGE = 'REMOVE_VM_MESSAGE';

@@ -19,32 +19,32 @@
 
 // @flow
 
-import React, { PropTypes } from 'react'
-import { connect } from 'react-redux'
-import { gettext as _ } from 'cockpit'
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { gettext as _ } from 'cockpit';
 
-import { Listing } from '../../../../lib/cockpit-components-listing.jsx'
-import VmsListingRow from './VmsListingRow.jsx'
+import { Listing } from '../../../../lib/cockpit-components-listing.jsx';
+import VmsListingRow from './VmsListingRow.jsx';
 import { getPod } from '../selectors.jsx';
 
 React;
 
 const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
-    const isOpenshift = settings.flavor === 'openshift'
-    const namespaceLabel = isOpenshift ? _("Project") : _("Namespace")
+    const isOpenshift = settings.flavor === 'openshift';
+    const namespaceLabel = isOpenshift ? _("Project") : _("Namespace");
     const rows = vms.map(vm => (<VmsListingRow vm={vm}
                                                vmMessages={vmsMessages[vm.metadata.uid]}
                                                pod={getPod(vm, pods)}
                                                pvs={pvs}
-                                               key={vm.metadata.uid} />))
+                                               key={vm.metadata.uid} />));
     return (
         <Listing title={_("Virtual Machines")}
                  emptyCaption={_("No virtual machines")}
                  columnTitles={[_("Name"), namespaceLabel, _("Node"), _("State")]}>
             {rows}
         </Listing>
-    )
-}
+    );
+};
 
 VmsListing.propTypes = {
     vms: PropTypes.object.isRequired,
@@ -52,7 +52,7 @@ VmsListing.propTypes = {
     pods: PropTypes.object.isRequired,
     setting: PropTypes.object.isRequired,
     vmsMessages: PropTypes.object.isRequired,
-}
+};
 
 export default connect(
     ({ vms, pods, pvs, settings, vmsMessages }) => ({
@@ -62,4 +62,4 @@ export default connect(
         settings,
         vmsMessages,
     })
-)(VmsListing)
+)(VmsListing);

@@ -170,6 +170,7 @@ class PullTask(object):
         try:
             if subprocess.call([ "git", "merge-base", "--is-ancestor", remote_base, "HEAD" ]) != 0:
                 sys.stderr.write("Rebasing onto " + remote_base + " ...\n")
+                subprocess.check_call([ "git", "reset", "HEAD" ])
                 subprocess.check_call([ "git", "rebase", remote_base ])
         except subprocess.CalledProcessError:
             subprocess.call([ "git", "rebase", "--abort" ])

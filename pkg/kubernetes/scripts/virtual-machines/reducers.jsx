@@ -23,14 +23,14 @@ import * as actionTypes from './action-types.jsx'
 
 const createReducer = (initialState, actionHandlerMap) => (state = initialState, action) => {
     if (actionHandlerMap[action.type]) {
-        return actionHandlerMap[action.type](state, action)
+        return actionHandlerMap[action.type](state, action);
     }
-    return state
-}
+    return state;
+};
 
 const vmsReducer = createReducer([], {
     [actionTypes.SET_VMS]: (state = [], { payload }) => payload ? payload : []
-})
+});
 
 const pvsReducer = createReducer([], {
     [actionTypes.SET_PVS]: (state = [], { payload }) => payload ? payload : []
@@ -42,7 +42,7 @@ const podsReducer = createReducer([], {
 
 const settingsReducer = createReducer([], {
     [actionTypes.SET_SETTINGS]: (state = [], { payload }) => payload ? payload : {}
-})
+});
 
 const vmsMessagesReducer = createReducer({}, {
     [actionTypes.VM_ACTION_FAILED]: (state = {}, { payload: { vm, message, detail } }) => {
@@ -63,7 +63,7 @@ const vmsMessagesReducer = createReducer({}, {
       delete newState[vm.metadata.uid];
       return newState;
     },
-})
+});
 
 const rootReducer = combineReducers({
     vms: vmsReducer, // VirtualMachines from API
@@ -71,6 +71,6 @@ const rootReducer = combineReducers({
     pods: podsReducer, // Pods from API
     settings: settingsReducer,
     vmsMessages: vmsMessagesReducer,
-})
+});
 
-export default rootReducer
+export default rootReducer;

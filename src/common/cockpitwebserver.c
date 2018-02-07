@@ -1008,14 +1008,39 @@ out:
   return again;
 }
 
+#if !GLIB_CHECK_VERSION(2,43,2)
+#define G_IO_ERROR_CONNECTION_CLOSED G_IO_ERROR_BROKEN_PIPE
+#endif
+
 static gboolean
-should_suppress_request_error (GError *error)
+should_suppress_request_error (GError *error,
+                               gsize received)
 {
   if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
     {
       g_debug ("request error: %s", error->message);
       return TRUE;
     }
+
+  /* If no bytes received, then don't worry about ECONNRESET and friends */
+  if (received > 0)
+    return FALSE;
+
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED) ||
+      g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
+    {
+      g_debug ("request error: %s", error->message);
+      return TRUE;
+    }
+
+#if !GLIB_CHECK_VERSION(2,43,2)
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_FAILED) &&
+      strstr (error->message, g_strerror (ECONNRESET)))
+    {
+      g_debug ("request error: %s", error->message);
+      return TRUE;
+    }
+#endif
 
   return FALSE;
 }
@@ -1046,7 +1071,7 @@ on_request_input (GObject *pollable_input,
           return TRUE;
         }
 
-      if (!should_suppress_request_error (error))
+      if (!should_suppress_request_error (error, length))
         g_message ("couldn't read from connection: %s", error->message);
 
       cockpit_request_finish (request);
@@ -1153,7 +1178,7 @@ on_socket_input (GSocket *socket,
           return TRUE;
         }
 
-      if (!should_suppress_request_error (error))
+      if (!should_suppress_request_error (error, 0))
         g_message ("couldn't read from socket: %s", error->message);
 
       cockpit_request_finish (request);

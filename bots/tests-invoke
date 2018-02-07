@@ -48,6 +48,7 @@ def main():
             help="Work offline, don''t fetch new data from origin for rebase")
     parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
             action='store', help='Publish results centrally to a sink')
+    parser.add_argument('--updater', help='Hook that runs before the tests')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('context', help="The context or type of integration tests to run")
     parser.add_argument('ref', nargs='?', help="The Git remote ref to pull")
@@ -59,7 +60,7 @@ def main():
 
     try:
         task = PullTask(name, revision, opts.ref, opts.context, opts.rebase, opts.remote,
-                        github_revision=github_revision)
+                        github_revision=github_revision, updater=opts.updater)
         ret = task.run(opts)
     except RuntimeError as ex:
         ret = str(ex)
@@ -70,7 +71,7 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, ref, context, base, remote, github_revision):
+    def __init__(self, name, revision, ref, context, base, remote, github_revision, updater):
         self.name = name
         self.revision = revision
         self.ref = ref
@@ -81,6 +82,7 @@ class PullTask(object):
 
         self.sink = None
         self.github_status_data = None
+        self.updater = updater
 
     def start_publishing(self, host):
         api = github.GitHub()
@@ -336,6 +338,9 @@ class PullTask(object):
             ret = self.rebase()
 
         test = os.path.join(BOTS, "..", "test")
+
+        if self.updater:
+            subprocess.check_call([ self.updater ])
 
         # Figure out what to do next
         if prefix == "verify":

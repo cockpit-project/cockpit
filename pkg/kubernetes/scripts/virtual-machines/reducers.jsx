@@ -28,22 +28,40 @@ const createReducer = (initialState, actionHandlerMap) => (state = initialState,
     return state;
 };
 
+/**
+ * state = [
+ *  { ... } : Vm
+ * ]
+ */
 const vmsReducer = createReducer([], {
     [actionTypes.SET_VMS]: (state = [], { payload }) => payload ? payload : []
 });
 
 const pvsReducer = createReducer([], {
     [actionTypes.SET_PVS]: (state = [], { payload }) => payload ? payload : []
-})
+});
 
 const podsReducer = createReducer([], {
     [actionTypes.SET_PODS]: (state = [], { payload }) => payload ? payload : []
 })
 
+/**
+ * state = [
+ *   {...}
+ * ]
+ */
 const settingsReducer = createReducer([], {
     [actionTypes.SET_SETTINGS]: (state = [], { payload }) => payload ? payload : {}
 });
 
+/**
+ * state = {
+ *  vmUID: {
+ *      message,
+ *      detail
+ *    }
+ * }
+ */
 const vmsMessagesReducer = createReducer({}, {
     [actionTypes.VM_ACTION_FAILED]: (state = {}, { payload: { vm, message, detail } }) => {
       const newState = Object.assign({}, state);
@@ -65,12 +83,26 @@ const vmsMessagesReducer = createReducer({}, {
     },
 });
 
+/**
+ * state = {
+ *  vmUID: {
+ *      isExpanded: boolean
+ *    }
+ * }
+ */
+const uiReducer = createReducer({}, {
+    [actionTypes.VM_EXPANDED]: (state = {}, { payload: { vm, isExpanded }}) => {
+        return Object.assign({}, state, { [vm.metadata.uid]: { isExpanded } });
+    }
+});
+
 const rootReducer = combineReducers({
     vms: vmsReducer, // VirtualMachines from API
     pvs: pvsReducer, // PersistenVolumes from API
     pods: podsReducer, // Pods from API
-    settings: settingsReducer,
-    vmsMessages: vmsMessagesReducer,
+    settings: settingsReducer, // settings gathered at run-time
+    vmsMessages: vmsMessagesReducer, // messages related to a VM
+    ui: uiReducer, // various UI-state descriptions (i.e. to restore UI after back-button)
 });
 
 export default rootReducer;

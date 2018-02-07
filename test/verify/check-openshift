@@ -443,8 +443,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         # return back to the virtual-machines
         b.wait_present("#vms-menu-link") # left-side menu
         b.click("#vms-menu-link")
-        b.wait_present("tr[data-row-id='vm-testvm']")
-        b.click("tr[data-row-id='vm-testvm']") # expand
+        b.wait_present("tr[data-row-id='vm-testvm']") # the row is already expanded if saving of UI state works
 
         # delete VM
         b.wait_present("#vm-testvm-delete")
@@ -469,8 +468,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
         # link to pod
         b.click("#vms-menu-link")
-        b.wait_present("tr[data-row-id='vm-testvm']")
-        b.click("tr[data-row-id='vm-testvm']")  # expand row
+        b.wait_present("tr[data-row-id='vm-testvm']") # the row is already expanded if saving of UI state works
         b.wait_present("#vm-testvm-pod")
         wait(lambda: b.text("#vm-testvm-pod > a").strip() != "")
         b.wait_in_text("#vm-testvm-pod", "virt-launcher-testvm---") # Example: virt-launcher-testvm-----rx59t

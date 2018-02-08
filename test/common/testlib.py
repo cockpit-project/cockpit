@@ -1052,7 +1052,7 @@ class TapRunner(object):
         # Write the output
         sys.stdout.write(output)
 
-        if "# SKIP " in output:
+        if "# SKIP " in output or "# RETRY" in output:
             failed = 0
 
         # Whether we should retry the test or not

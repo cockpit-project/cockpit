@@ -237,7 +237,7 @@ export class NFSPanel extends React.Component {
                         nfs_busy_dialog(client,
                                         _("Unable to unmount filesystem"),
                                         entry, error,
-                                        _("Stop and unmount"),
+                                        _("Stop and Unmount"),
                                         function (users) {
                                             return client.nfs.stop_and_unmount_entry(users, entry);
                                         });

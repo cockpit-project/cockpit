@@ -44,11 +44,15 @@ function addKubeLoaderListener ($scope, kubeLoader, kubeSelect) {
     // register load callback( callback, until )
     kubeLoader.listen(function() {
         const vms = kubeSelect().kind('VirtualMachine')
+        const persistentVolumes = kubeSelect().kind('PersistentVolume')
+
         reduxStore.dispatch(actionCreators.setVms(Object.values(vms)))
+        reduxStore.dispatch(actionCreators.setPVs(Object.values(persistentVolumes)))
     }, $scope);
 
     // enable watching( watched-entity-type, until )
     kubeLoader.watch('VirtualMachine', $scope);
+    kubeLoader.watch('PersistentVolume', $scope);
 }
 
 const VmsPlugin = () => (

@@ -19,42 +19,55 @@
 
 // @flow
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { gettext as _ } from 'cockpit';
 
 import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx';
 import VmOverviewTab from './VmOverviewTabKubevirt.jsx';
 import VmActions from './VmActions.jsx';
+import VmDisksTab from './VmDisksTabKubevirt.jsx';
 
-import type { Vm, VmMessages } from '../types.jsx';
+import type { Vm, VmMessages, PersistenVolumes } from '../types.jsx';
 import { NODE_LABEL, vmIdPrefx } from '../utils.jsx';
 
-const VmsListingRow = ({ vm, vmMessages }: { vm: Vm, vmMessages: VmMessages }) => {
+React;
+
+const VmsListingRow = ({ vm, vmMessages, pvs }: { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes }) => {
     const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-';
     const phase = (vm.status && vm.status.phase) || _("n/a");
+    const idPrefix = vmIdPrefx(vm)
     const overviewTabRenderer = {
-        name: _("Overview"),
+       name: _("Overview"),
         renderer: VmOverviewTab,
         data: { vm, vmMessages },
         presence: 'always',
     };
 
+    const disksTabRenderer = {
+        name: (<div id={`${idPrefix}-disks-tab`}>{_("Disks")}</div>),
+        renderer: VmDisksTab,
+        data: { vm, pvs },
+        presence: 'onlyActive',
+    }
+
     return (
         <ListingRow
-            rowId={vmIdPrefx(vm)}
+            rowId={idPrefix}
             columns={[
                 {name: vm.metadata.name, 'header': true},
                 vm.metadata.namespace,
                 node,
                 phase // phases description https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
             ]}
-            tabRenderers={[overviewTabRenderer]}
+            tabRenderers={[overviewTabRenderer, disksTabRenderer]}
             listingActions={<VmActions vm={vm}/>}/>
     );
 };
 
 VmsListingRow.propTypes = {
-    vm: React.PropTypes.object.isRequired
+    vm: PropTypes.object.isRequired,
+    vmMessages: PropTypes.object.isRequired,
+    pvs: PropTypes.array.isRequired,
 };
 
 export default VmsListingRow;

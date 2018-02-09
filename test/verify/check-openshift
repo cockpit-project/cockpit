@@ -424,6 +424,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_present("#vm-testvm-memory")
         b.wait_in_text("#vm-testvm-memory", "64M")
         b.wait_in_text("#vm-testvm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
+        b.wait_present("#vm-testvm-pod")
 
         # switch to the Disks subtab
         b.wait_present("#vm-testvm-disks-tab")
@@ -465,6 +466,17 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         node_name = b.text("#vm-testvm-node > a").strip()
         b.click("#vm-testvm-node > a") # jump to "node" detail
         b.wait_js_cond('window.location.hash === "#/nodes/%s"' % (node_name,))
+
+        # link to pod
+        b.click("#vms-menu-link")
+        b.wait_present("tr[data-row-id='vm-testvm']")
+        b.click("tr[data-row-id='vm-testvm']")  # expand row
+        b.wait_present("#vm-testvm-pod")
+        wait(lambda: b.text("#vm-testvm-pod > a").strip() != "")
+        b.wait_in_text("#vm-testvm-pod", "virt-launcher-testvm---") # Example: virt-launcher-testvm-----rx59t
+        pod_name = b.text("#vm-testvm-pod > a").strip()
+        b.click("#vm-testvm-pod > a")
+        b.wait_js_cond('window.location.hash === "#/l/pods/kube-system/%s"' % (pod_name))
 
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")

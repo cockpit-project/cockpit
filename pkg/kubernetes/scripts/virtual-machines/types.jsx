@@ -19,6 +19,9 @@
 
 // @flow
 
+export type Labels = {[string]: string};
+export type Annotations = Object;
+
 export type Vm = {
     apiVersion: string,
     kind: 'VirtualMachine',
@@ -26,7 +29,7 @@ export type Vm = {
         clusterName: string,
         creationTimestamp: string,
         generation: number,
-        labels: {[string]: string},
+        labels: Labels,
         name: string,
         namespace: string,
         resourceVersion: string,
@@ -75,8 +78,8 @@ export type PersistenVolume = {
         "uid": string,
         "resourceVersion": string,
         "creationTimestamp": string,
-        "labels": {[string]: string},
-        "annotations": Object,
+        "labels": Labels,
+        "annotations": Annotations,
     },
     "spec": {
         "capacity": {
@@ -105,3 +108,29 @@ export type PersistenVolume = {
 }
 
 export type PersistenVolumes = Array<PersistenVolume>;
+
+export type PodMetadata = {
+    "name": string,
+    "generateName": ?string,
+    "namespace": string,
+    "selfLink": string,
+    "uid": string,
+    "resourceVersion": string,
+    "creationTimestamp": string,
+    "labels": Labels,
+    "annotations": Annotations
+};
+
+export type PodSpec = Object; // TODO: define when needed
+
+export type Pod = {
+    "kind": "Pod",
+    "apiVersion": string,
+    "metadata": PodMetadata,
+    "spec": PodSpec,
+    "status": ?{
+        "phase": ?string
+    }
+};
+
+export type Pods = Array<Pod>;

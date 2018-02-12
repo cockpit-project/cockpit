@@ -359,11 +359,6 @@ class PullTask(object):
 
 
         env = os.environ.copy()
-        # COMPAT: we can only use the cache for new enough branches which have the test/bots split;
-        # don't destroy the old test/images symlink farm
-        if "TEST_DATA" in env and subprocess.call(['git', 'ls-tree', '-d', 'HEAD:bots/images'],
-                                                  stdout=DEVNULL, stderr=DEVNULL) != 0:
-            del env["TEST_DATA"]
         env["PATH"] = "{0}:{1}:{2}".format(env.get("PATH", "/bin:/sbin"), BOTS, test)
 
         # Setup network if necessary, any failures caught during testing

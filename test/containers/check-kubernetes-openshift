@@ -24,12 +24,12 @@ import tempfile
 import time
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
-test_dir = os.path.abspath(os.path.join(base_dir, ".."))
+test_dir = os.path.dirname(base_dir)
 sys.path.append(test_dir)
 
-from common.testlib import *
-from common.testvm import VirtMachine
-from verify import kubelib
+from verify import parent, kubelib
+from testlib import *
+from testvm import VirtMachine
 
 class OCBrowser(Browser):
     def login_and_go(self, path=None, user=None, host=None, authorized=None):

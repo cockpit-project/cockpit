@@ -1,1 +1,1 @@
-../common/testvm.py
+../../bots/machine/testvm.py

@@ -52,6 +52,9 @@ OUR_CONTEXTS = [
     "avocado/",
     "container/",
     "selenium/",
+
+    # generic prefix for external repos
+    "cockpit/",
 ]
 
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
@@ -106,10 +109,12 @@ class Logger(object):
             f.write(value)
 
 class GitHub(object):
-    def __init__(self, base=None, cacher=None):
+    def __init__(self, base=None, cacher=None, repo=None):
         if base is None:
+            if repo is None:
+                repo = os.environ.get("GITHUB_BASE", "cockpit-project/cockpit")
             netloc = os.environ.get("GITHUB_API", "https://api.github.com")
-            base = "{0}/repos/{1}/".format(netloc, os.environ.get("GITHUB_BASE", "cockpit-project/cockpit"))
+            base = "{0}/repos/{1}/".format(netloc, repo)
         self.url = urllib.parse.urlparse(base)
         self.conn = None
         self.token = None

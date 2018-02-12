@@ -15,6 +15,9 @@ set -ex
 
 # Scan for all tests
 bots/tests-scan
+bots/tests-scan --repo cockpit-project/cockpit-examples \
+                -c cockpit/centos-7 \
+                -c cockpit/fedora-27
 
 # When run automated, randomize to minimize stampeding herd
 if [ -t 0 ]; then

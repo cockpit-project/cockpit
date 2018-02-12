@@ -251,14 +251,21 @@ var BlockVolTab = React.createClass({
                     } else {
                         return get_info(cleartext);
                     }
-                } else if (block.IdUsage == 'filesystem' && client.fsys_info[block.IdType]) {
+                } else if (block.IdUsage == 'filesystem') {
                     info = client.fsys_info[block.IdType];
-                    if (!info.can_shrink)
-                        shrink_excuse = cockpit.format(_("$0 filesystems can not be made smaller."),
-                                                       block.IdType);
-                    if (!info.can_grow)
-                        grow_excuse = cockpit.format(_("$0 filesystems can not be made larger."),
-                                                     block.IdType);
+
+                    if (!info) {
+                        info = { };
+                        shrink_excuse = grow_excuse = cockpit.format(_("$0 filesystems can not be resized here."),
+                                                                     block.IdType);
+                    } else {
+                        if (!info.can_shrink)
+                            shrink_excuse = cockpit.format(_("$0 filesystems can not be made smaller."),
+                                                           block.IdType);
+                        if (!info.can_grow)
+                            grow_excuse = cockpit.format(_("$0 filesystems can not be made larger."),
+                                                         block.IdType);
+                    }
                 } else if (block.IdUsage == 'raid') {
                     info = { };
                     shrink_excuse = grow_excuse = _("Physical volumes can not be resized here.");

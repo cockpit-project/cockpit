@@ -823,6 +823,9 @@
             var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
             if (!language)
                 language = "en-us";
+
+            $('html').attr('lang', language);
+
             $.each(manifest.locales || { }, function(code, name) {
                 var el = $("<option>").text(name).val(code);
                 if (code == language)

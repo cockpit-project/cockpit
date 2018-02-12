@@ -601,7 +601,7 @@ class Machine:
         return int(self.execute("{ (%s) >/var/log/%s 2>&1 & }; echo $!" % (shell_cmd, log_id)))
 
     def _calc_identity(self):
-        identity = os.path.join(LOCAL_DIR, "identity")
+        identity = os.path.join(LOCAL_DIR, "../../bots/machine/identity")
         os.chmod(identity, 0o600)
         return identity
 
@@ -1010,7 +1010,7 @@ class VirtMachine(Machine):
             "cpus": self.cpus,
             "memory_in_mib": self.memory_mb,
             "drive": image_to_use,
-            "iso": os.path.join(LOCAL_DIR, "cloud-init.iso"),
+            "iso": os.path.join(LOCAL_DIR, "../../bots/machine/cloud-init.iso"),
         }
 
         if os.path.exists("/dev/kvm"):

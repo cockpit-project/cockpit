@@ -22,16 +22,12 @@
 import os
 import sys
 
-base_dir = os.path.dirname(os.path.realpath(__file__))
-test_dir = os.path.abspath(os.path.join(base_dir, ".."))
+test_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(test_dir)
 
-try:
-    from common.testlib import *
-except:
-    sys.path.append(test_dir)
-    from common.testlib import *
-
-from common.testvm import VirtMachine
+from verify import parent
+from testlib import *
+from testvm import VirtMachine
 
 AUTH_KEY = os.path.join(test_dir, "containers/files/enc_rsa")
 PUB_AUTH_KEY = "{}.pub".format(AUTH_KEY)

@@ -1,5 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__))))
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), "common"))
+TEST_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BOTS_DIR = os.path.join(os.path.dirname(TEST_DIR), "bots")
+sys.path.append(os.path.join(TEST_DIR, "common"))
+sys.path.append(os.path.join(BOTS_DIR, "machine"))

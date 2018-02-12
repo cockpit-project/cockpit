@@ -26,9 +26,9 @@ import unittest
 sys.dont_write_bytecode = True
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
-testdir = os.path.abspath(os.path.join(base_dir, ".."))
+testdir = os.path.dirname(base_dir)
 sys.path.append(testdir)
-
+from verify import parent
 from common import testlib
 
 def check_valid(filename):

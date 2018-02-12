@@ -70,7 +70,7 @@ def prepare_install_image(base_image):
 def run_command(machine_instance, commandlist):
     """Run command inside image"""
     for foo in commandlist:
-        machine_instance.execute(foo)
+        machine_instance.execute(foo, timeout=1800)
 
 def run_script(machine_instance, scriptlist):
     """Run script inside image"""
@@ -80,7 +80,7 @@ def run_script(machine_instance, scriptlist):
             uploadpath = "/var/tmp/" + pname
             machine_instance.upload([foo], uploadpath)
             machine_instance.execute("chmod a+x %s" % uploadpath)
-            machine_instance.execute(uploadpath)
+            machine_instance.execute(uploadpath, timeout=1800)
         else:
             sys.stderr.write("Bad path to script: %s\n" % foo)
 
@@ -106,7 +106,7 @@ def install_packages(machine_instance, packagelist, install_command):
         else:
             sys.stderr.write("Bad package name or path: %s\n" % foo)
     if allpackages:
-        machine_instance.execute(install_command + " " + ' '.join(allpackages))
+        machine_instance.execute(install_command + " " + ' '.join(allpackages), timeout=1800)
 
 if args.commandlist or args.packagelist or args.scriptlist or args.uploadlist:
     if '/' not in args.image:

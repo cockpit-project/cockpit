@@ -90,7 +90,7 @@ def main():
             policy = { c: [ "master" ] for c in opts.context }
         else:
             policy = default_policy()
-        results = scan_for_pull_tasks(api, not opts.dry, opts.human_readable, policy, opts)
+        results = scan_for_pull_tasks(api, policy, opts)
     except RuntimeError as ex:
         sys.stderr.write("tests-scan: " + str(ex) + "\n")
         return 1
@@ -311,15 +311,15 @@ def cockpit_tasks (api, update, policy):
 
     return results
 
-def scan_for_pull_tasks(api, update, human, policy, opts):
+def scan_for_pull_tasks(api, policy, opts):
     kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
     if not kvm:
         sys.stderr.write("tests-scan: No /dev/kvm access, not running tests here\n")
         return []
 
-    results = cockpit_tasks(api, update, policy)
+    results = cockpit_tasks(api, not opts.dry, policy)
 
-    if human:
+    if opts.human_readable:
         func = lambda x: tests_human(*x)
         results.sort(reverse=True, key=lambda x: str(x))
     else:

@@ -69,23 +69,23 @@ class ZoomControls extends React.Component {
                     </button>
                     <ul className="dropdown-menu" role="menu">
                         <li role="presentation">
-                            <a role="menuitem" tabindex="-1" data-action="goto-now">{_("Go to now")}</a>
+                            <a role="menuitem" data-action="goto-now">{_("Go to now")}</a>
                         </li>
                         <li role="presentation" className="divider"/>
                         <li role="presentation">
-                            <a role="menuitem" tabindex="-1" data-range="300">{_("5 minutes")}</a>
+                            <a role="menuitem" data-range="300">{_("5 minutes")}</a>
                         </li>
                         <li role="presentation">
-                            <a role="menuitem" tabindex="-1" data-range="3600">{_("1 hour")}</a>
+                            <a role="menuitem" data-range="3600">{_("1 hour")}</a>
                         </li>
                         <li role="presentation">
-                            <a role="menuitem" tabindex="-1" data-range="21600">{_("6 hours")}</a>
+                            <a role="menuitem" data-range="21600">{_("6 hours")}</a>
                         </li>
                         <li role="presentation">
-                            <a role="menuitem" tabindex="-1" data-range="86400">{_("1 day")}</a>
+                            <a role="menuitem" data-range="86400">{_("1 day")}</a>
                         </li>
                         <li role="presentation">
-                            <a role="menuitem" tabindex="-1" data-range="604800">{_("1 week")}</a>
+                            <a role="menuitem" data-range="604800">{_("1 week")}</a>
                         </li>
                     </ul>
                 </div>

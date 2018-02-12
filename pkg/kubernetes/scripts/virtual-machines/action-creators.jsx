@@ -64,5 +64,15 @@ export function setPods(pods) {
     return {
         type: actionConstants.SET_PODS,
         payload: pods
-    }
+    };
+}
+
+export function vmExpanded({ vm, isExpanded }) {
+    return {
+        type: actionConstants.VM_EXPANDED,
+        payload: {
+            vm,
+            isExpanded
+        }
+    };
 }

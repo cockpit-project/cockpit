@@ -66,16 +66,6 @@ def main():
         sys.stderr.write("Checking out bots directory from Cockpit master ...\n")
         execute("git", "checkout", "--force", "origin/master", "--", "bots/")
 
-        # The machine code has symlinks, replace them with regular files
-        machine = os.path.join(BOTS, "machine")
-        for name in os.listdir(machine):
-            path = os.path.join(machine, name)
-            if os.path.islink(path):
-                os.unlink(path)
-                code = subprocess.check_output([ "git", "show", "origin/master:test/common/{0}".format(name) ],
-                                               cwd=BASE)
-                with open(path, "wb") as f:
-                    f.write(code)
 
 if __name__ == '__main__':
     sys.exit(main())

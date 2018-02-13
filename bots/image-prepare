@@ -57,7 +57,7 @@ def main():
         build_image = get_build_image(args.build_image or base_image)
 
     # Depending on the operating system ignore some things
-    skips = [ "cockpit-integration-tests" ]
+    skips = []
     if args.address:
         skips.append("cockpit-tests")
         args.install_only = True

@@ -152,7 +152,6 @@ make -j4 check
 %install
 make install DESTDIR=%{buildroot}
 make install-tests DESTDIR=%{buildroot}
-make install-integration-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
@@ -505,34 +504,6 @@ These files are not required for running Cockpit.
 %config(noreplace) %{_sysconfdir}/cockpit/cockpit.conf
 %{_datadir}/%{name}/playground
 %{_prefix}/%{__lib}/cockpit-test-assets
-
-%package integration-tests
-Summary: Integration tests for Cockpit
-Requires: curl
-Requires: expect
-Requires: libvirt
-Requires: libvirt-client
-Requires: libvirt-daemon
-%if 0%{?rhel} >= 8 || 0%{?centos} >= 8 || 0%{?fedora} >= 27
-Requires: python2-libvirt
-%else
-Requires: libvirt-python
-%endif
-Requires: qemu-kvm
-Requires: npm
-Requires: python2
-Requires: rsync
-Requires: xz
-Requires: openssh-clients
-Requires: fontconfig
-
-%description integration-tests
-This package contains Cockpit's integration tests for running in VMs.
-These are not required for running Cockpit.
-
-%files integration-tests
-%{_datadir}/%{name}/test
-%{_datadir}/%{name}/containers
 
 %package ws
 Summary: Cockpit Web Service

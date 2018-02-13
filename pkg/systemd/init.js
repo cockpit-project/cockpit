@@ -471,8 +471,8 @@ $(function() {
         });
 
         $('#services-filter button').on('click', function () {
-            $('#services-filter button').removeClass('active');
-            $(this).addClass('active');
+            $('#services-filter button').removeClass('active').removeAttr('aria-current');
+            $(this).addClass('active').attr('aria-current', true);
             render();
         });
 

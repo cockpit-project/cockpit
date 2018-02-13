@@ -263,12 +263,20 @@
 
         function update_sidebar(machine, state, compiled) {
             function links(component) {
-                return $("<li class='list-group-item'>")
-                    .toggleClass("active", state.component === component.path)
+                var active = state.component === component.path;
+                var listItem;
+
+                listItem = $("<li class='list-group-item'>")
+                    .toggleClass("active", active)
                     .append($("<a>")
                         .attr("href", index.href({ host: machine.address, component: component.path }))
                         .attr("title", component.label)
                         .append($("<span>").text(component.label)));
+
+                if (active)
+                    listItem.find('a').attr("aria-current", "page");
+
+                return listItem;
             }
 
             var menu = compiled.ordered("menu").map(links);
@@ -294,10 +302,12 @@
 
         function update_active_machine (address) {
             var active_sel;
-            $("#machine-dropdown ul li").toggleClass("active", false);
+            $("#machine-dropdown ul li").toggleClass("active", false)
+                .find("a").removeAttr("aria-current");
             if (address) {
                 active_sel = "#machine-dropdown ul li[data-address='" + address + "']";
-                $(active_sel).toggleClass("active", true);
+                $(active_sel).toggleClass("active", true)
+                    .find("a").attr("aria-current", "page");
             }
         }
 
@@ -343,10 +353,12 @@
                 var data = el.attr("data-component");
                 // Mark active component and save our place
                 if (data && data === state.component) {
-                    el.attr("href", index.href(state));
-                    el.toggleClass("active", true);
+                    el.attr("href", index.href(state))
+                        .toggleClass("active", true)
+                        .find("a").attr("aria-current", "page");
                 } else {
-                    el.toggleClass("active", false);
+                    el.toggleClass("active", false)
+                        .find("a").removeAttr("aria-current");
                 }
             });
 

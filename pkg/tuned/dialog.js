@@ -80,6 +80,7 @@
             function set_status(text) {
                 if (text != popover.attr('data-content')) {
                     popover.attr('data-content', text);
+                    popover.attr('aria-label', text);
                     // Refresh the popover if it is open
                     if (popover.data('bs.popover').tip().hasClass('in'))
                         popover.popover('show');

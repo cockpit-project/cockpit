@@ -21,7 +21,8 @@ import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { Info } from './inlineNotification.jsx';
-import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
+import { toReadableNumber } from '../helpers.es6';
+import { units, convertToUnit } from '../../lib/units.es6';
 
 React;
 const _ = cockpit.gettext;

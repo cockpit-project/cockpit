@@ -90,7 +90,7 @@ class ApplicationRow extends React.Component {
 
         return (
             <tr onClick={left_click(() => cockpit.location.go(comp.id))}>
-                <td><img src={icon_url(comp.icon)}/></td>
+                <td><img src={icon_url(comp.icon)} role="presentation"/></td>
                 <td>{name}</td>
                 <td>{summary_or_progress}</td>
                 <td>{button}</td>

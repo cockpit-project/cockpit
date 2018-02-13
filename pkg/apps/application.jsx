@@ -117,7 +117,7 @@ class Application extends React.Component {
                     <table className="table app">
                         <tbody>
                             <tr>
-                                <td><img src={icon_url(comp.icon)}/></td>
+                                <td><img src={icon_url(comp.icon)} role="presentation"/></td>
                                 <td>{comp.summary}</td>
                                 <td>{progress_or_launch}</td>
                                 <td>{button}</td>
@@ -127,7 +127,7 @@ class Application extends React.Component {
                     {render_homepage_link(comp.urls)}
                     <div className="app-description">{render_description(comp.description)}</div>
                     <center>
-                        { comp.screenshots.map(s => <img className="app-screenshot" src={s.full}/>) }
+                        { comp.screenshots.map(s => <img className="app-screenshot" role="presentation" src={s.full}/>) }
                     </center>
                 </div>
             );

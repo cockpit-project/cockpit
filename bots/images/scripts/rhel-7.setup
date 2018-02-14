@@ -255,5 +255,9 @@ echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" 
 echo 'UseDNS no' >> /etc/ssh/sshd_config
 
 # Audit events to the journal
-rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
-rm -rf /var/log/audit/
+if [ ! -f /root/.keep-audit ]; then
+    rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
+    rm -rf /var/log/audit/
+else
+    echo "Keeping audit enabled as /root/.keep-audit exists"
+fi

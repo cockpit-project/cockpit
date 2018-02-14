@@ -166,7 +166,7 @@ class Browser:
         raise Error("%s(%s): %s" % (func, arg, msg))
 
     def eval_js(self, code, no_trace=False):
-        result = self.cdp.invoke("Runtime.evaluate", expression="ph_wrap_promise(%s)" % code, trace=code,
+        result = self.cdp.invoke("Runtime.evaluate", expression=code, trace=code,
                                  silent=False, awaitPromise=True, returnByValue=True, no_trace=no_trace)
         if "exceptionDetails" in result:
             self.raise_cdp_exception("eval_js", code, result["exceptionDetails"])

@@ -31,6 +31,13 @@
 # define to build the dashboard
 %define build_dashboard 1
 
+# on RHEL 7.x we build subscriptions; superseded in RHEL 8 (and Fedora) by
+# external subscription-manager-cockpit
+%if 0%{?rhel} >= 7 && 0%{?rhel} < 8
+%define build_subscriptions 1
+%endif
+
+
 %define libssh_version 0.7.1
 %if 0%{?fedora} > 0 && 0%{?fedora} < 22
 %define libssh_version 0.6.0
@@ -93,6 +100,9 @@ Recommends: %{name}-dashboard = %{version}-%{release}
 Recommends: %{name}-networkmanager = %{version}-%{release}
 Recommends: %{name}-storaged = %{version}-%{release}
 Recommends: sscg >= 2.3
+%if 0%{?rhel} >= 8
+Recommends: subscription-manager-cockpit
+%endif
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
 Recommends: %{name}-docker = %{version}-%{release}
 %endif
@@ -201,8 +211,12 @@ find %{buildroot}%{_datadir}/%{name}/kdump -type f >> kdump.list
 echo '%dir %{_datadir}/%{name}/sosreport' > sosreport.list
 find %{buildroot}%{_datadir}/%{name}/sosreport -type f >> sosreport.list
 
-echo '%dir %{_datadir}/%{name}/subscriptions' > subscriptions.list
-find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> subscriptions.list
+%if %{defined build_subscriptions}
+echo '%dir %{_datadir}/%{name}/subscriptions' >> system.list
+find %{buildroot}%{_datadir}/%{name}/subscriptions -type f >> system.list
+%else
+rm -rf %{buildroot}/%{_datadir}/%{name}/subscriptions
+%endif
 
 echo '%dir %{_datadir}/%{name}/storaged' > storaged.list
 find %{buildroot}%{_datadir}/%{name}/storaged -type f >> storaged.list
@@ -266,9 +280,9 @@ sed -i '/\.map\(\.gz\)\?$/d' *.list
 tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/usr/src/debug
 
-# On RHEL kdump, subscriptions, networkmanager, selinux, and sosreport are part of the system package
+# On RHEL kdump, networkmanager, selinux, and sosreport are part of the system package
 %if 0%{?rhel}
-cat kdump.list subscriptions.list sosreport.list networkmanager.list selinux.list >> system.list
+cat kdump.list sosreport.list networkmanager.list selinux.list >> system.list
 rm %{buildroot}/usr/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
 rm %{buildroot}/usr/share/pixmaps/cockpit-sosreport.png
 %endif
@@ -479,6 +493,8 @@ Recommends: setroubleshoot-server >= 3.3.3
 %endif
 Provides: %{name}-selinux = %{version}-%{release}
 Provides: %{name}-sosreport = %{version}-%{release}
+%endif
+%if %{defined build_subscriptions}
 Provides: %{name}-subscriptions = %{version}-%{release}
 Requires: subscription-manager >= 1.13
 %endif
@@ -585,19 +601,6 @@ sosreport tool.
 %files sosreport -f sosreport.list
 /usr/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
 /usr/share/pixmaps/cockpit-sosreport.png
-
-%package subscriptions
-Summary: Cockpit subscription user interface package
-Requires: %{name}-bridge >= %{required_base}
-Requires: %{name}-shell >= %{required_base}
-Requires: subscription-manager >= 1.13
-BuildArch: noarch
-
-%description subscriptions
-This package contains the Cockpit user interface integration with local
-subscription management.
-
-%files subscriptions -f subscriptions.list
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager

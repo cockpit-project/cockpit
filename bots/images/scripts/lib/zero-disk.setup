@@ -26,6 +26,11 @@
 # We also want to keep cracklib since otherwise password quality
 # checks break on Debian.
 
+if [ -f /root/.skip-zero-disk ]; then
+    echo "Skipping zero-disk.setup as /root/.skip-zero-disk exists"
+    exit 0
+fi
+
 keep="! -path /var/cache/pbuilder ! -path /var/cache/cracklib ! -path /var/cache/tomcat"
 while [ $# -gt 0 ]; do
     case $1 in

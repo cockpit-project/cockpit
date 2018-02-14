@@ -2,5 +2,9 @@
 
 set -ex
 
+if [ -z "$SUBSCRIPTION_PATH" ] && [ -e ~/.rhel/login ]; then
+    SUBSCRIPTION_PATH=~/.rhel
+fi
+
 BASE=$(dirname $0)
-$BASE/virt-builder-fedora "$1" rhel-7.4 x86_64 ${SUBSCRIPTION_PATH:-~/.rhel}
+$BASE/virt-builder-fedora "$1" rhel-7.4 x86_64 $SUBSCRIPTION_PATH

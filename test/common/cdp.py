@@ -236,7 +236,7 @@ class CDP:
 
         if self.valid:
             # needs to be wrapped in Promise
-            messages = self.command("new Promise((resolve, reject) => resolve(messages))")
+            messages = self.command("Promise.resolve(messages)")
             return map(lambda m: "%s: %s" % tuple(m), messages)
         return []
 

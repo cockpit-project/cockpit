@@ -97,6 +97,13 @@ def monitor_volume(dev):
                          'usedPercent', 'savingPercent'
     ]
 
+    # Older versions let us use a string directly, newer versions want
+    # it to be pre-processed.
+    try:
+        dev = Samples.samplingDevice(dev, dev)
+    except AttributeError:
+        pass
+
     def sample():
         try:
             stats = Samples.assay([ VDOStatistics() ], dev, False).samples[0].sample

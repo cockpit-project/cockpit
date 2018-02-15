@@ -97,7 +97,7 @@ class MoreInformation extends React.Component {
     render() {
         if (!this.state.expanded) {
             return (
-                <a href='#' onClick={this.onClick}>
+                <a href='#' tabIndex="0" onClick={this.onClick}>
                     <span className='fa fa-angle-right'/>&nbsp;
                     {_("More Information")}
                 </a>);
@@ -105,7 +105,7 @@ class MoreInformation extends React.Component {
 
         return (
             <div className='machines-desktop-more-info-container'>
-                <a href='#' onClick={this.onClick}>
+                <a href='#' tabIndex="0" onClick={this.onClick}>
                     <span className='fa fa-angle-down'/>&nbsp;
                     {_("More Information")}
                 </a>

@@ -62,7 +62,7 @@ var Dropdown = React.createClass({
                         this.props.actions.map(function (action, index) {
                             return (
                                 <li className={ action.disabled ? 'disabled' : '' }>
-                                    <a data-value={index} onClick={this.handleClick}>{action.label}</a>
+                                    <a data-value={index} role="link" tabIndex="0" onClick={this.handleClick}>{action.label}</a>
                                 </li>
                             );
                         }.bind(this))
@@ -138,7 +138,7 @@ var ContainerProblems = React.createClass({
         var problem = this.props.problem;
         var problem_cursors = [];
         for (var i = 0; i < problem.length; i++) {
-            problem_cursors.push(<a data-url={problem[i][0]} className='list-group-item' onClick={this.onItemClick}>
+            problem_cursors.push(<a data-url={problem[i][0]} className='list-group-item' role="link" tabIndex="0" onClick={this.onItemClick}>
                                    <span className="pficon pficon-warning-triangle-o fa-lg"></span>
                                    {problem[i][1]}
                                  </a>)
@@ -657,7 +657,7 @@ var ImageList = React.createClass({
 
         var imageRows = filtered.map(this.renderRow, this);
 
-        var getNewImageAction = <a onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
+        var getNewImageAction = <a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
                                     <span className="pficon pficon-add-circle-o"></span>{_("Get new image")}
                                 </a>;
 

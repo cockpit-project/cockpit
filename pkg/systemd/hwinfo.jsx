@@ -87,7 +87,7 @@ class HardwareInfo extends React.Component {
         return (
             <div className="page-ct container-fluid">
                 <ol className="breadcrumb">
-                    <li><a onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("System") }</a></li>
+                    <li><a role="link" tabIndex="0" onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("System") }</a></li>
                     <li className="active">{ _("Hardware Information") }</li>
                 </ol>
 

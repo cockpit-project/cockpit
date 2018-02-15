@@ -400,7 +400,7 @@ var KdumpPage = React.createClass({
         // this.storeLocation(this.props.kdumpStatus.config);
         var settingsLink;
         if (targetCanChange)
-            settingsLink = <a href="#" onClick={this.handleSettingsClick}>{ kdumpLocation }</a>;
+            settingsLink = <a href="#" tabIndex="0" onClick={this.handleSettingsClick}>{ kdumpLocation }</a>;
         else
             settingsLink = <span>{ kdumpLocation }</span>;
         var reservedMemory;
@@ -454,7 +454,7 @@ var KdumpPage = React.createClass({
                     </a>
                 );
             }
-            kdumpServiceDetails = <a href="#" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</a>;
+            kdumpServiceDetails = <a href="#" tabIndex="0" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</a>;
         } else if (this.props.kdumpStatus && !this.props.kdumpStatus.installed) {
             kdumpServiceDetails = (
                 <a className="popover-ct-kdump">

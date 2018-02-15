@@ -120,6 +120,8 @@ var StorageLink = React.createClass({
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
                                     <a onClick={checked(this.props.onClick)}
+                                       role="link"
+                                       tabIndex="0"
                                        className={excuse? " disabled" : ""}>
                                                  {this.props.children}
                                     </a>
@@ -158,7 +160,7 @@ var StorageBlockNavLink = React.createClass({
         var parts = utils.get_block_link_parts(client, block.path);
 
         var link = (
-            <a onClick={() => { cockpit.location.go(parts.location) }}>
+            <a role="link" tabIndex="0" onClick={() => { cockpit.location.go(parts.location) }}>
                 {parts.link}
             </a>
         );
@@ -230,7 +232,7 @@ class StorageMultiAction extends React.Component {
                                             <ul className="dropdown-menu action-dropdown-menu" role="menu">
                                                 { this.props.actions.map((act) => (
                                                       <li className="presentation">
-                                                          <a role="menuitem" onClick={checked(act.action)}>
+                                                          <a role="menuitem" tabIndex="0" onClick={checked(act.action)}>
                                                                                      {act.title}
                                                           </a>
                                                       </li>))

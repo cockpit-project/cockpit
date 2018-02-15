@@ -105,7 +105,7 @@ class Application extends React.Component {
                 progress_or_launch = <ProgressBar title={self.state.progress_title} data={self.state.progress}/>;
                 button = <CancelButton data={self.state.progress}/>;
             } else if (comp.installed) {
-                progress_or_launch = <a onClick={left_click(() => launch(comp))}>{_("Go to Application")}</a>;
+                progress_or_launch = <a role="link" tabIndex="0" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</a>;
                 button = <button className="btn btn-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
             } else {
                 progress_or_launch = null;
@@ -140,7 +140,7 @@ class Application extends React.Component {
         return (
             <div>
                 <ol className="breadcrumb">
-                    <li><a onClick={left_click(navigate_up)}>{_("Applications")}</a></li>
+                    <li><a role="link" tabIndex="0" onClick={left_click(navigate_up)}>{_("Applications")}</a></li>
                     <li className="active">{comp? comp.name : this.props.id}</li>
                 </ol>
                 {render_comp()}

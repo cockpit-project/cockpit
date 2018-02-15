@@ -86,7 +86,7 @@ try:
                                  networking=network.host(), memory_mb=memory, cpus=args.cpus)
 
     # Hack to make things easier for users who don't know about kubeconfig
-    if args.image == 'openshift':
+    if 'openshift' in args.image:
         kubeconfig = os.path.join(os.path.expanduser("~"), ".kube", "config")
         if not os.path.lexists(kubeconfig):
             d = os.path.dirname(kubeconfig)

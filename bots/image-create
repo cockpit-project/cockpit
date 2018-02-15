@@ -114,7 +114,7 @@ class MachineBuilder:
 
                 if self.machine.image == 'openshift':
                     # update our local openshift kube config file to match the new image
-                    self.machine.download("/root/.kube/config", "images/files/openshift.kubeconfig")
+                    self.machine.download("/root/.kube/config", os.path.join(BOTS, "images/files/openshift.kubeconfig"))
 
             except subprocess.CalledProcessError as ex:
                 if args.sit:

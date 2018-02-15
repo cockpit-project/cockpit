@@ -25,7 +25,6 @@ import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
 import { StorageButton, StorageOnOff, StorageMultiAction, StorageBlockNavLink } from "./storage-controls.jsx";
 
-import * as python from "python.jsx";
 import inotify_py from "raw!inotify.py";
 import vdo_monitor_py from "raw!./vdo-monitor.py";
 
@@ -67,16 +66,16 @@ export class VDODetails extends React.Component {
         }
 
         if (path)
-            this.poll_process = python.spawn([ inotify_py, vdo_monitor_py ], [ path ],
-                                             { superuser: true })
-                                      .stream((data) => {
-                                          buf += data;
-                                          var lines = buf.split("\n");
-                                          buf = lines[lines.length-1];
-                                          if (lines.length >= 2) {
-                                              this.setState({ stats: JSON.parse(lines[lines.length-2]) });
-                                          }
-                                      });
+            this.poll_process = cockpit.spawn([ "python", "--", "-", path ], { superuser: true })
+                                       .input(inotify_py + vdo_monitor_py)
+                                       .stream((data) => {
+                                           buf += data;
+                                           var lines = buf.split("\n");
+                                           buf = lines[lines.length-1];
+                                           if (lines.length >= 2) {
+                                               this.setState({ stats: JSON.parse(lines[lines.length-2]) });
+                                           }
+                                       });
         this.poll_path = path;
     }
 

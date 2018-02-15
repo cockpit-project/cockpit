@@ -689,7 +689,8 @@
 
         function start() {
             var buf = "";
-            python.spawn([ inotify_py, vdo_monitor_py ], [ ], { superuser: "try", err: "message" })
+            cockpit.spawn([ "python", "--", "-" ], { superuser: "try", err: "message" })
+                .input(inotify_py + vdo_monitor_py)
                 .stream(function (output) {
                     var lines;
 

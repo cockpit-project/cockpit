@@ -81,7 +81,7 @@ VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; o
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages
 docker_pull "openshift/origin:$VERSION"
-docker run --rm --entrypoint tar "openshift/origin:$VERSION" -C /usr/bin -c openshift oc oadm kubectl | tar -C /usr/bin -xv
+docker run --rm --entrypoint tar "openshift/origin:$VERSION" -C /usr/bin -c openshift oc kubectl | tar -C /usr/bin -xv
 
 # Runs a master if on the right address, otherwise runs a node
 cat > /openshift-prep <<EOF
@@ -165,7 +165,7 @@ oc patch oauthclient/openshift-web-console -p '{"redirectURIs":["https://10.111.
 # Deploy the registry
 # --credentials deprecated
 rm -rf /usr/share/rhel/secrets
-oadm registry
+oc adm registry
 
 function endpoint_has_address() {
     oc get endpoints $1 --template='{{.subsets}}' | grep -q addresses

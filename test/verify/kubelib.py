@@ -244,7 +244,7 @@ class VolumeTests(object):
         b.wait_not_present("modal-dialog input#modify-capacity")
         b.wait_in_text("modal-dialog span#modify-capacity", pv2_size)
 
-        if m.image == "openshift":
+        if "openshift" in m.image:
             b.set_val("modal-dialog #modify-path", "/not-tmp")
             b.click("modal-dialog .modal-footer button.btn-primary")
             b.wait_not_present("modal-dialog")

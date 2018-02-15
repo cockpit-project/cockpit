@@ -54,14 +54,14 @@ const VmHost = ({ id, hosts, dispatch }) => {
     }
     const host = hosts[id];
     if (isSameHostAddress(host.address)) {
-        return (<a href='#' onClick={() => dispatch(goToSubpage('hostvms'))}>
+        return (<a href='#' tabIndex="0" onClick={() => dispatch(goToSubpage('hostvms'))}>
             {_("Host")}
             </a>);
     }
 
     const cockpitUrl = `https://${host.address}:${CONFIG.cockpitPort}/machines`;
-    // just the <a href> without the onClick handler is not working
-    return (<a href={cockpitUrl} onClick={() => {window.top.location=cockpitUrl;}}>
+    // just the <a href> without the tabIndex="0" onClick handler is not working
+    return (<a href={cockpitUrl} tabIndex="0" onClick={() => {window.top.location=cockpitUrl;}}>
         {host.name}
     </a>);
 };

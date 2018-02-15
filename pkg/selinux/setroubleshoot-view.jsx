@@ -115,7 +115,7 @@ var SELinuxEventDetails = React.createClass({
                     </div>
                   );
             }
-            var detailsLink = <a href="#" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</a>;
+            var detailsLink = <a href="#" tabIndex="0" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</a>;
             var doState;
             var doElem;
             var caret;

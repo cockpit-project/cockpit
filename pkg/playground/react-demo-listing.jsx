@@ -92,7 +92,7 @@
             },
         ];
 
-        var addLink = <a className="pull-right" onClick={handleAddClick}>Add Row</a>;
+        var addLink = <a className="pull-right" role="link" tabIndex="0" onClick={handleAddClick}>Add Row</a>;
 
         var rowAction = {
             element: <button className="btn btn-default btn-control fa fa-play" onClick={handlePlayClick} />,

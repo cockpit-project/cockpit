@@ -37,7 +37,7 @@ const DropdownButtons = ({ buttons }) => {
             .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
             .map(button => {
                 return (<li className='presentation'>
-                    <a role='menuitem' onClick={mouseClick(button.action)} id={button.id}>
+                    <a role='menuitem' tabIndex="0" onClick={mouseClick(button.action)} id={button.id}>
                         {button.title}
                     </a>
                 </li>)

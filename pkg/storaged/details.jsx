@@ -133,7 +133,7 @@ class Details extends React.Component {
             <div>
                 <div className="col-md-12">
                     <ol className="breadcrumb">
-                        <li><a onClick={go_up}>{_("Storage")}</a></li>
+                        <li><a role="link" tabIndex="0" onClick={go_up}>{_("Storage")}</a></li>
                         <li className="active">{name}</li>
                     </ol>
                 </div>

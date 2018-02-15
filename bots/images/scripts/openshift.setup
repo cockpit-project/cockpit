@@ -81,8 +81,7 @@ VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; o
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages
 docker_pull "openshift/origin:$VERSION"
-container=$(docker create "openshift/origin:$VERSION")
-docker cp $container:/usr/bin - | tar -C /usr -xf - bin/openshift bin/oc bin/oadm bin/kubectl
+docker run --rm --entrypoint tar "openshift/origin:$VERSION" -C /usr/bin -c openshift oc oadm kubectl | tar -C /usr/bin -xv
 
 # Runs a master if on the right address, otherwise runs a node
 cat > /openshift-prep <<EOF

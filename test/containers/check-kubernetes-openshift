@@ -85,7 +85,7 @@ class OCMachine(VirtMachine):
 
         # TODO: For now we only support cluster admins
         # This sometimes fails if openshift is still modifying the clusterpolicybinding
-        cmd = "oadm policy add-cluster-role-to-user cluster-admin admin"
+        cmd = "oc adm policy add-cluster-role-to-user cluster-admin admin"
         try:
             self.execute(cmd)
         except:

@@ -331,6 +331,7 @@
 
             $("#host-nav-link span.list-group-item-value").text(machine ? machine.label : "");
             $("#host-nav-link")
+                .attr("aria-label", _("Host"))
                 .attr("data-machine", machine ? machine.address : "")
                 .attr("href", index.href({ host: machine ? machine.address : undefined }, true));
 

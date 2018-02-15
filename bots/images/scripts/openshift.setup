@@ -1,6 +1,10 @@
 #! /bin/bash
 
 set -eux
+PRERELEASE=
+if [ "${1%prerelease*}" != "$1" ]; then
+    PRERELEASE=1
+fi
 
 # Wait for x for many minutes
 function wait() {
@@ -71,7 +75,13 @@ systemctl start docker || journalctl -u docker
 
 # Can't use latest because release on older versions are done out of order
 RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases)
-VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
+if [ -n "$PRERELEASE" ]; then
+    comp=""
+else
+    comp="not"
+fi
+
+VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if $comp x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
     echo "Failed to parse latest release:" >&2
     echo "$RELEASES_JSON" >&2
     echo "------------------------------------" >&2
@@ -184,7 +194,7 @@ echo '{"apiVersion":"v1","kind":"ImageStream","metadata": {"name":"busybox"},"sp
 oc create -f /tmp/imagestream.json
 
 # Get registry address and configure docker for it
-address="$(oc get services docker-registry | tail -n1 | awk -v N=2 '{print $N}')"
+address="$(oc get services docker-registry | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}')"
 echo "$address     registry registry.cockpit.lan" >> /etc/hosts
 echo "INSECURE_REGISTRY='--insecure-registry registry:5000 --insecure-registry $address'" >> /etc/sysconfig/docker
 
@@ -253,8 +263,8 @@ docker push registry:5000/pizzazz/monster
 oc config use-context default/10-111-112-101:8443/system:admin
 
 # Some roles for testing against
-printf '{"kind":"List","apiVersion":"v1","items":[{"kind":"RoleBinding","metadata":{"name":"registry-editor","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"registry-editor"}},{"kind":"RoleBinding","metadata":{"name":"registry-viewer","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"registry-viewer"}}]}' | oc create -f -
-oc patch rolebinding/admin --namespace=marmalade -p '{"kind": "RoleBinding", "metadata":{"name":"admin","namespace":"marmalade"},"userNames":["scruffy"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffys"}],"roleRef":{"name":"admin"}}'
+printf '{"kind":"List","apiVersion":"v1","items":[{"kind":"RoleBinding","apiVersion":"v1","metadata":{"name":"registry-editor","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","amanda"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"amanda"}],"roleRef":{"name":"registry-editor"}},{"kind":"RoleBinding","apiVersion":"v1","metadata":{"name":"registry-viewer","namespace":"marmalade","resourceVersion":"1"},"userNames":["scruffy","tom","amanda"],"groupNames":["sports"],"subjects":[{"kind":"User","name":"scruffy"},{"kind":"User","name":"tom"},{"kind":"User","name":"amanda"},{"kind":"Group","name":"sports"}],"roleRef":{"name":"registry-viewer"}}]}' | oc create -f -
+oc patch rolebinding/admin --namespace=marmalade -p '{"kind": "RoleBinding", "metadata":{"name":"admin","namespace":"marmalade"},"userNames":["scruffy"],"groupNames":null,"subjects":[{"kind":"User","name":"scruffys"}],"roleRef":{"name":"admin"}}' || true
 
 # For testing the Cockpit OAuth client
 printf '{"kind":"OAuthClient","apiVersion":"v1","metadata":{"name":"cockpit-oauth-devel"},"respondWithChallenges":false,"secret":"secret","allowAnyScope":true,"redirectURIs":["http://localhost:9001"] }' | oc create -f -

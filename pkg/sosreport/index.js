@@ -98,6 +98,7 @@
                         binary: "raw",
                         path: archive,
                         superuser: true,
+                        max_read_size: 150 * 1024 * 1024,
                         external: {
                             "content-disposition": 'attachment; filename="' + basename + '"',
                             "content-type": "application/x-xz, application/octet-stream"

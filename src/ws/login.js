@@ -448,7 +448,7 @@
         id("user-group").style.display = in_conversation ? "none" : "block";
         id("password-group").style.display = in_conversation ? "none" : "block";
         id("conversation-group").style.display = in_conversation ? "block" : "none";
-        id("login-button-text").textContent = "Log In";
+        id("login-button-text").textContent = _("Log In");
         id("login-password-input").value = '';
 
         if (need_host()) {
@@ -474,7 +474,7 @@
     function show_login() {
         /* Show the login screen */
         id("server-name").textContent = document.title;
-        login_note("Log in with your server user account.");
+        login_note(_("Log in with your server user account."));
         id("login-user-input").addEventListener("keydown", function(e) {
             login_failure(null);
             if (e.which == 13)

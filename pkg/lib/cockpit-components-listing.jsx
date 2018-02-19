@@ -128,7 +128,7 @@ export class ListingRow extends React.Component {
         let loadedTabs = this.state.loadedTabs;
         if (prevTab !== tabIdx) {
             // see if we need to unload the previous tab
-            if ('presence' in this.props.tabRenderers[prevTab])
+            if (this.props.tabRenderers[prevTab] && 'presence' in this.props.tabRenderers[prevTab])
                 prevTabPresence = this.props.tabRenderers[prevTab].presence;
 
             if (prevTabPresence == 'onlyActive')
@@ -209,6 +209,10 @@ export class ListingRow extends React.Component {
             let Renderer;
             let rendererData;
             let row;
+
+            if (this.state.activeTab >= this.props.tabRenderers.length)
+                this.state.activeTab = this.props.tabRenderers.length - 1;
+
             for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
                 Renderer = this.props.tabRenderers[tabIdx].renderer;
                 rendererData = this.props.tabRenderers[tabIdx].data;

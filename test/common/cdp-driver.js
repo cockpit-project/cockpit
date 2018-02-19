@@ -131,6 +131,8 @@ var frameNameToFrameId = {};
 // set these to wait for a frame to be loaded
 var frameWaitName = null;
 var frameWaitPromiseResolve = null;
+// set this to wait for a page load
+var pageLoadResolve = null;
 
 function setupFrameTracking(client) {
     client.Page.enable();
@@ -145,6 +147,16 @@ function setupFrameTracking(client) {
         if (frameWaitPromiseResolve && frameWaitName === info.frame.name) {
             frameWaitPromiseResolve();
             frameWaitPromiseResolve = null;
+        }
+    });
+
+    client.Page.loadEventFired(() => {
+        if (pageLoadResolve) {
+            debug("loadEventFired (waited for)");
+            pageLoadResolve();
+            pageLoadResolve = null;
+        } else {
+            debug("loadEventFired (no listener)");
         }
     });
 
@@ -175,6 +187,13 @@ function getFrameExecId(frame) {
     if (!execId)
         throw Error(`Frame ${frame} (${frameId}) has no executionContextId`);
     return execId;
+}
+
+function expectLoad(timeout) {
+    return new Promise((resolve, reject) => {
+        setTimeout( () => reject("timed out waiting for page load"), timeout );
+        pageLoadResolve = resolve;
+    });
 }
 
 function expectLoadFrame(name, timeout) {

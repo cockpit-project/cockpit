@@ -130,10 +130,7 @@ class Browser:
     def expect_load(self):
         if opts.trace:
             print("-> expect_load")
-        self.cdp.command('new Promise((resolve, reject) => { \
-            let tm = setTimeout( () => reject("timed out waiting for page load"), %i ); \
-            client.Page.loadEventFired( () => { clearTimeout(tm); resolve() }); \
-        })' % (self.cdp.timeout * 1000))
+        self.cdp.command('expectLoad(%i)' % (self.cdp.timeout * 1000))
         if opts.trace:
             print("<- expect_load done")
 

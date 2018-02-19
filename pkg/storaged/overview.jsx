@@ -61,11 +61,21 @@ export class OverviewSidePanel extends React.Component {
 
 export class OverviewSidePanelRow extends React.Component {
     render() {
+        let { client, job_path } = this.props;
+
         const go = (event) => {
             if (!event || event.button !== 0)
                 return;
             return this.props.go();
         };
+
+        let job_spinner = (client.path_jobs[job_path]
+            ? <span className="spinner spinner-sm" />
+            : null);
+
+        let warning_triangle = (client.path_warnings[job_path]
+            ? <span className="pficon pficon-warning-triangle-o" />
+            : null);
 
         return (
             <tr data-testkey={this.props.testkey}
@@ -91,16 +101,9 @@ export class OverviewSidePanelRow extends React.Component {
                         : null
                     }
                 </td>
-                { this.props.actions ? (
-                    <td className="storage-icon">
-                        { this.props.actions }
-                    </td>
-                ) : this.props.client.path_jobs[this.props.job_path] ? (
-                    <td className="storage-icon">
-                        <div className="spinner spinner-sm" />
-                    </td>
-                ) : null
-                }
+                <td className="storage-icon">
+                    { this.props.actions || job_spinner || warning_triangle }
+                </td>
             </tr>
         );
     }

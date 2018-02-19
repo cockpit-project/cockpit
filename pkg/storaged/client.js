@@ -27,6 +27,8 @@ import inotify_py from "raw-loader!inotify.py";
 import nfs_mounts_py from "raw-loader!./nfs-mounts.py";
 import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
 
+import { find_warnings } from "./warning-tab.jsx";
+
 /* STORAGED CLIENT
  */
 
@@ -510,9 +512,11 @@ function init_model(callback) {
 
             client.storaged_client.addEventListener('notify', function () {
                 update_indices();
+                client.path_warnings = find_warnings(client);
                 client.dispatchEvent("changed");
             });
             update_indices();
+            client.path_warnings = find_warnings(client);
         });
     });
 }
@@ -737,6 +741,7 @@ function vdo_overlay() {
         // just on the vdo_overlay since this data is used all
         // over the place...
 
+        client.path_warnings = find_warnings(client);
         client.dispatchEvent("changed");
     }
 

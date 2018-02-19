@@ -59,7 +59,10 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
             return;
         fsys = client.blocks_fsys[cleartext.path];
         vdo = client.vdo_overlay.find_by_backing_block(cleartext);
-        crypto_overhead = block.Size - cleartext.Size;
+        if (crypto.MetadataSize !== undefined)
+            crypto_overhead = crypto.MetadataSize;
+        else
+            crypto_overhead = block.Size - cleartext.Size;
     } else {
         fsys = client.blocks_fsys[block.path];
         vdo = client.vdo_overlay.find_by_backing_block(block);
@@ -69,7 +72,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     function fsys_resize() {
         if (fsys) {
             // When doing an offline resize, we need to first repair the filesystem.
-            if (offline) {
+            if (offline || fsys.MountPoints.length === 0) {
                 return fsys.Repair({ }).then(function () { return fsys.Resize(size - crypto_overhead, { }) });
             } else {
                 return fsys.Resize(size - crypto_overhead, { });
@@ -102,7 +105,10 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     }
 
     function lvm_resize() {
-        return lvol.Resize(size, { });
+        if (size != lvol.Size)
+            return lvol.Resize(size, { });
+        else
+            return cockpit.resolve();
     }
 
     if (fsys && !fsys.Resize) {
@@ -114,7 +120,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
         if (size < orig_size) {
             return fsys_resize().then(crypto_resize)
                     .then(lvm_resize);
-        } else if (size > orig_size) {
+        } else if (size >= orig_size) {
             return lvm_resize().then(crypto_resize)
                     .then(fsys_resize);
         }
@@ -183,6 +189,7 @@ export function get_resize_info(client, block, to_fit) {
     return { info: info, shrink_excuse: shrink_excuse, grow_excuse: grow_excuse };
 }
 
+export function lvol_grow(client, lvol, info, to_fit) {
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
     var pool = client.lvols[lvol.ThinPool];
@@ -196,28 +203,41 @@ export function get_resize_info(client, block, to_fit) {
         return;
     }
 
+    let grow_size;
+    let size_fields = [ ];
+    if (!to_fit) {
+        size_fields = [
+            SizeSlider("size", _("Size"),
+                       { value: lvol.Size,
+                         min: lvol.Size,
+                         max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
+                         allow_infinite: !!pool,
+                         round: vgroup.ExtentSize
+                       })
+        ];
+    } else {
+        grow_size = block.Size;
+    }
+
     let recovered_passphrase;
     let passphrase_fields = [ ];
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 
+    if (!usage.Teardown && size_fields.length + passphrase_fields.length === 0) {
+        return lvol_and_fsys_resize(client, lvol, grow_size, info.grow_needs_unmount, null);
+    }
+
     let dlg = dialog_open({ Title: _("Grow Logical Volume"),
                             Footer: TeardownMessage(usage),
-                            Fields: [
-                                SizeSlider("size", _("Size"),
-                                           { value: lvol.Size,
-                                             min: lvol.Size,
-                                             max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
-                                             allow_infinite: !!pool,
-                                             round: vgroup.ExtentSize
-                                           })
-                            ].concat(passphrase_fields),
+                            Fields: size_fields.concat(passphrase_fields),
                             Action: {
                                 Title: _("Grow"),
                                 action: function (vals) {
                                     return utils.teardown_active_usage(client, usage)
                                             .then(function () {
-                                                return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                return lvol_and_fsys_resize(client, lvol,
+                                                                            to_fit ? grow_size : vals.size,
                                                                             info.grow_needs_unmount,
                                                                             vals.passphrase || recovered_passphrase);
                                             });
@@ -229,11 +249,11 @@ export function get_resize_info(client, block, to_fit) {
         get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
-function lvol_shrink(client, lvol, info) {
+export function lvol_shrink(client, lvol, info, to_fit) {
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
 
-    var usage = utils.get_active_usage(client, block && info.shrink_needs_unmount ? block.path : null);
+    var usage = utils.get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
         dialog_open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
@@ -242,27 +262,65 @@ function lvol_shrink(client, lvol, info) {
         return;
     }
 
+    let shrink_size;
+    let size_fields = [ ];
+    if (!to_fit) {
+        size_fields = [
+            SizeSlider("size", _("Size"),
+                       { value: lvol.Size,
+                         max: lvol.Size,
+                         round: vgroup.ExtentSize
+                       })
+        ];
+    } else {
+        let crypto = client.blocks_crypto[block.path];
+        let cleartext = client.blocks_cleartext[block.path];
+        let content_path = null;
+        let crypto_overhead = 0;
+
+        if (crypto) {
+            if (crypto.MetadataSize !== undefined && cleartext) {
+                content_path = cleartext.path;
+                crypto_overhead = crypto.MetadataSize;
+            }
+        } else {
+            content_path = block.path;
+        }
+
+        let fsys = client.blocks_fsys[content_path];
+        if (fsys)
+            shrink_size = fsys.Size + crypto_overhead;
+
+        let vdo = client.vdo_overlay.find_by_backing_block(client.blocks[content_path]);
+        if (vdo)
+            shrink_size = vdo.physical_size + crypto_overhead;
+
+        if (shrink_size === undefined) {
+            console.warn("Couldn't determine size to shrink to.");
+            return;
+        }
+    }
+
     let recovered_passphrase;
     let passphrase_fields = [ ];
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 
+    if (!usage.Teardown && size_fields.length + passphrase_fields.length === 0) {
+        return lvol_and_fsys_resize(client, lvol, shrink_size, false, null);
+    }
+
     let dlg = dialog_open({ Title: _("Shrink Logical Volume"),
                             Footer: TeardownMessage(usage),
-                            Fields: [
-                                SizeSlider("size", _("Size"),
-                                           { value: lvol.Size,
-                                             max: lvol.Size,
-                                             round: vgroup.ExtentSize
-                                           })
-                            ].concat(passphrase_fields),
+                            Fields: size_fields.concat(passphrase_fields),
                             Action: {
                                 Title: _("Shrink"),
                                 action: function (vals) {
                                     return utils.teardown_active_usage(client, usage)
                                             .then(function () {
-                                                return lvol_and_fsys_resize(client, lvol, vals.size,
-                                                                            info.shrink_needs_unmount,
+                                                return lvol_and_fsys_resize(client, lvol,
+                                                                            to_fit ? shrink_size : vals.size,
+                                                                            to_fit ? false : info.shrink_needs_unmount,
                                                                             vals.passphrase || recovered_passphrase);
                                             });
                                 }
@@ -322,11 +380,11 @@ export class BlockVolTab extends React.Component {
         }
 
         function shrink() {
-            lvol_shrink(client, lvol, info);
+            lvol_shrink(client, lvol, info, false);
         }
 
         function grow() {
-            lvol_grow(client, lvol, info);
+            lvol_grow(client, lvol, info, false);
         }
 
         return (

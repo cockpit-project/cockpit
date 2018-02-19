@@ -38,7 +38,10 @@ import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
 import { UnrecognizedTab } from "./unrecognized-tab.jsx";
 
+import { WarningTab } from "./warning-tab.jsx";
+
 const _ = cockpit.gettext;
+
 var C_ = cockpit.gettext;
 
 function next_default_logical_volume_name(client, vgroup) {
@@ -148,6 +151,20 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Swap"), SwapTab);
     } else if (block) {
         add_tab(_("Unrecognized Data"), UnrecognizedTab);
+    }
+
+    var warnings = client.path_warnings[target.path] || [ ];
+    if (warnings.length > 0) {
+        tabs.push(
+            { name: <span><span className="pficon pficon-warning-triangle-o" /> {_("Warning")}</span>,
+              renderer: WarningTab,
+              data: {
+                  client: client,
+                  block: block,
+                  lvol: lvol,
+                  warnings: warnings
+              }
+            });
     }
 
     var tab_actions = [ ];
@@ -309,6 +326,7 @@ function create_tabs(client, target, is_partition) {
         renderers: tabs,
         actions: <React.Fragment>{tab_actions}</React.Fragment>,
         row_action: row_action,
+        has_warnings: warnings.length > 0
     };
 }
 
@@ -366,6 +384,10 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
         } else {
             last_column = tabs.row_action;
         }
+    }
+
+    if (tabs.has_warnings) {
+        last_column = <span>{last_column}<span className="pficon pficon-warning-triangle-o" /></span>;
     }
 
     var cols = [

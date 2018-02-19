@@ -776,7 +776,8 @@ class MachineCase(unittest.TestCase):
         machine = machine or self.machine
         syslog_ids = [ "cockpit-ws", "cockpit-bridge" ]
         messages = machine.journal_messages(syslog_ids, 5)
-        messages += machine.audit_messages("14") # 14xx is selinux
+        if "TEST_AUDIT_NO_SELINUX" not in os.environ:
+            messages += machine.audit_messages("14") # 14xx is selinux
         all_found = True
         first = None
         for m in messages:

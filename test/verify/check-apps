@@ -110,7 +110,7 @@ class TestApps(PackageCase):
 
         # Switching to a language might produce these messages, which seem to be harmless.
         self.allow_journal_messages("invalid or unusable locale.*",
-                                    "Error receiving data: Connection reset by peer")
+                                    "Error .* data: Connection reset by peer")
 
         # Reset everything
         m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")

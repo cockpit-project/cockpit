@@ -135,6 +135,26 @@
         return utils.decode_filename(block.PreferredDevice);
     };
 
+    utils.stable_device_name = function stable_device_name(block) {
+        // We prefer a "by-id" symlink, since that is likely the "most
+        // stable" name.  Among the "by-id" symlinks, we prefer the
+        // one starting with "dm-uuid" if there is one, since it will
+        // protect us from LVM2 renames.
+
+        var by_id;
+        for (var i = 0; i < block.Symlinks.length; i++) {
+            var sym = utils.decode_filename(block.Symlinks[i]);
+            if (sym.indexOf("/dev/disk/by-id/") == 0) {
+                if (!by_id || sym.indexOf("/dev/disk/by-id/dm-uuid-") == 0)
+                    by_id = sym;
+            }
+        }
+        if (by_id)
+            return by_id;
+
+        return utils.decode_filename(block.PreferredDevice);
+    };
+
     utils.mdraid_name = function mdraid_name(mdraid) {
         if (!mdraid.Name)
             return "";
@@ -404,11 +424,11 @@
         return spaces;
     };
 
-    utils.available_space_to_option = function available_space_to_option(spc) {
+    utils.available_space_to_option = function available_space_to_option(spc, stable_names) {
         return {
             value: spc,
             Title: utils.format_size_and_text(spc.size, spc.desc),
-            Label: utils.block_name(spc.block)
+            Label: stable_names? utils.stable_device_name(spc.block) : utils.block_name(spc.block)
         };
     };
 

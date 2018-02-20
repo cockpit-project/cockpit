@@ -21,7 +21,7 @@ import '../lib/polyfills.js'; // once per application
 
 import React from 'react';
 import store from './store.es6';
-import { getAllVms } from '../machines/actions.es6';
+import { initDataRetrieval } from '../machines/actions.es6';
 import { logDebug } from '../machines/helpers.es6';
 
 import Provider from './provider.es6';
@@ -51,5 +51,5 @@ export function appMain() {
     render();
 
     // initiate data retrieval
-    store.dispatch(getAllVms());
+    store.dispatch(initDataRetrieval());
 }

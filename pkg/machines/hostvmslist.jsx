@@ -29,6 +29,7 @@ import {
     installVm,
     usageStartPolling,
     usageStopPolling,
+    clearNotification,
 } from "./actions.es6";
 import {
     rephraseUI,
@@ -49,6 +50,7 @@ import { deleteDialog } from "./components/deleteDialog.jsx";
 import DropdownButtons from './components/dropdownButtons.jsx';
 import { createVmDialog } from './components/createVmDialog.jsx';
 import VmOverviewTab from './components/vmOverviewTabLibvirt.jsx';
+import NotificationArea from './components/notification/notificationArea.jsx';
 
 const _ = cockpit.gettext;
 
@@ -394,6 +396,9 @@ class HostVmsList extends React.Component {
         }
 
         return (<div className='container-fluid'>
+            <NotificationArea id={"notification-area"}
+                              notifications={ui.notifications}
+                              onDismiss={(id) => dispatch(clearNotification(id))}/>
             <Listing title={_("Virtual Machines")}
                      columnTitles={[_("Name"), _("Connection"), _("State")]}
                      actions={allActions}

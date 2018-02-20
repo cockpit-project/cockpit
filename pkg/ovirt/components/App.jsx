@@ -97,14 +97,14 @@ const TopMenu = ({ ovirtConfig, router, dispatch }) => {
     );
 };
 
-const HostVmsListDecorated = ({ vms, config, osInfoList, ui, dispatch, host }) => {
+const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) => {
     const actions = host && [hostToMaintenance({ dispatch, host })];
     return (
         <div className='container-fluid'>
             <HostStatus host={host}/>
             <HostVmsList vms={vms}
                          config={config}
-                         osInfoList={osInfoList}
+                         systemInfo={systemInfo}
                          ui={ui}
                          dispatch={dispatch}
                          actions={actions}/>
@@ -115,7 +115,7 @@ const HostVmsListDecorated = ({ vms, config, osInfoList, ui, dispatch, host }) =
 const App = ({ store }) => {
     const state = store.getState();
     const dispatch = store.dispatch;
-    const { vms, config, osInfoList, ui }  = state;
+    const { vms, config, systemInfo, ui }  = state;
 
     let ovirtConfig, hosts, router;
     if (config.providerState) {
@@ -140,7 +140,7 @@ const App = ({ store }) => {
             break;
         default:
             component = (
-                <HostVmsListDecorated vms={vms} config={config} osInfoList={osInfoList} ui={ui} dispatch={dispatch} host={host} />);
+                <HostVmsListDecorated vms={vms} config={config} systemInfo={systemInfo} ui={ui} dispatch={dispatch} host={host} />);
     }
 
     return (

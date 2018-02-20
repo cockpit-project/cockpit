@@ -19,13 +19,18 @@
  */
 import React from "react";
 import HostVmsList from "./hostvmslist.jsx";
+import LibvirtSlate from "./components/libvirtSlate.jsx"
 
 const App = ({ store }) => {
-    const { vms, config, osInfoList, ui } = store.getState();
+    const { vms, config, systemInfo, ui } = store.getState();
     const dispatch = store.dispatch;
 
+    if (systemInfo.libvirtService.activeState !== 'running') {
+        return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch}/>)
+    }
+
     // pass ui object
-    return (<HostVmsList vms={vms} config={config} osInfoList={osInfoList} ui={ui} dispatch={dispatch}/>);
+    return (<HostVmsList vms={vms} config={config} systemInfo={systemInfo} ui={ui} dispatch={dispatch}/>);
 };
 App.propTypes = {
     store: React.PropTypes.object.isRequired,

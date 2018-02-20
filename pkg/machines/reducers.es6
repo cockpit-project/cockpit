@@ -147,12 +147,26 @@ function vms(state, action) {
     }
 }
 
-function osInfoList(state, action) {
-    state = state ? state : [];
+function systemInfo(state, action) {
+    state = state ? state : {
+        libvirtService: {
+            name: 'unknown',
+            activeState: 'unknown',
+            unitState: 'unknown',
+        },
+        osInfoList: [],
+    };
 
     switch (action.type) {
         case 'UPDATE_OS_INFO_LIST': {
-            return action.osInfoList instanceof Array ? [...action.osInfoList] : state;
+            if (action.osInfoList instanceof Array) {
+                state.osInfoList = [...action.osInfoList];
+            }
+            return state;
+        }
+        case 'UPDATE_LIBVIRT_STATE': {
+            state.libvirtService = Object.assign({}, state.libvirtService, action.state);
+            return state;
         }
         default: // by default all reducers should return initial state on unknown actions
             return state;
@@ -248,6 +262,6 @@ export default combineReducers({
         setSubstate: (state, subState) => Object.assign({}, state, { providerState: subState }),
     }),
     vms,
-    osInfoList,
+    systemInfo,
     ui,
 });

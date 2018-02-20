@@ -378,14 +378,14 @@ class HostVmsList extends React.Component {
     }
 
     render() {
-        const { vms, config, osInfoList, ui, dispatch, actions } = this.props;
+        const { vms, config, systemInfo, ui, dispatch, actions } = this.props;
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
         let allActions = [
             (
                 <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
-                   onClick={mouseClick(() => createVmDialog(dispatch, osInfoList))}>
+                   onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
                     <span className="pficon pficon-add-circle-o"/>{_("Create New VM")}
                 </a>
             )
@@ -434,7 +434,7 @@ class HostVmsList extends React.Component {
 HostVmsList.propTypes = {
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
-    osInfoList: PropTypes.array.isRequired,
+    systemInfo: PropTypes.object.isRequired,
     ui: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
 };

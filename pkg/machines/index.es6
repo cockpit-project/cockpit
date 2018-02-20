@@ -22,7 +22,7 @@ import '../lib/polyfills.js'; // once per application
 import React from 'react';
 import store from './store.es6';
 import App from './app.jsx';
-import { getAllVms } from './actions.es6';
+import { initDataRetrieval } from './actions.es6';
 import { logDebug } from './helpers.es6';
 
 import Libvirt from './libvirt.es6';
@@ -50,5 +50,5 @@ export function appMain() {
     render();
 
     // initiate data retrieval
-    store.dispatch(getAllVms());
+    store.dispatch(initDataRetrieval());
 }

@@ -160,9 +160,11 @@ function osInfoList(state, action) {
 }
 
 function ui(state, action) {
+    // transient properties
     state = state ? state : {
-        vmsCreated: {}, // transient property
-        vmsInstallInitiated: {}, // transient property
+        vmsCreated: {},
+        vmsInstallInitiated: {},
+        notifications: [],
     };
 
     switch (action.type) {
@@ -184,8 +186,27 @@ function ui(state, action) {
         case 'VM_INSTALL_COMPLETED':
             delete state.vmsInstallInitiated[action.vm.name];
             return state;
+        case 'ADD_NOTIFICATION': {
+            const notification = typeof action.notification === 'string' ? { message: action.notification } : action.notification;
+            const notifs = state.notifications;
+            notification.id = notifs.length > 0 ? notifs[notifs.length - 1].id + 1 : 1;
 
-        default: // by default all reducers should return initial state on unknown actions
+            if (!notification.type) {
+                notification.type = 'info';
+            }
+
+            state.notifications = [...notifs, notification];
+            return state;
+        }
+        case 'CLEAR_NOTIFICATION': {
+            state.notifications = state.notifications.filter(error => error.id !== action.id);
+            return state;
+        }
+        case 'CLEAR_NOTIFICATIONS': {
+            state.notifications = [];
+            return state;
+        }
+        default:
             return state;
     }
 }

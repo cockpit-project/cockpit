@@ -132,7 +132,9 @@ var frameNameToFrameId = {};
 var frameWaitName = null;
 var frameWaitPromiseResolve = null;
 // set this to wait for a page load
+var pageLoadPromise = null;
 var pageLoadResolve = null;
+var pageLoadReject = null;
 
 function setupFrameTracking(client) {
     client.Page.enable();
@@ -155,6 +157,7 @@ function setupFrameTracking(client) {
             debug("loadEventFired (waited for)");
             pageLoadResolve();
             pageLoadResolve = null;
+            pageLoadReject = null;
         } else {
             debug("loadEventFired (no listener)");
         }
@@ -190,10 +193,9 @@ function getFrameExecId(frame) {
 }
 
 function expectLoad(timeout) {
-    return new Promise((resolve, reject) => {
-        setTimeout( () => reject("timed out waiting for page load"), timeout );
-        pageLoadResolve = resolve;
-    });
+    var tm = setTimeout( () => pageLoadReject("timed out waiting for page load"), timeout);
+    pageLoadPromise.then( () => { clearTimeout(tm); pageLoadPromise = null; });
+    return pageLoadPromise;
 }
 
 function expectLoadFrame(name, timeout) {
@@ -277,11 +279,16 @@ CDP.New(options)
                             let i = input_buf.indexOf('\n');
                             if (i < 0)
                                 break;
+                            let command = input_buf.slice(0, i);
+
+                            // initialize loadEventFired promise for every command except expectLoad() itself (as that
+                            // waits for a load event from the *previous* command); but if the previous command already
+                            // was an expectLoad(), reinitialize also, as there are sometimes two consecutive expectLoad()s
+                            if (!pageLoadPromise || !command.startsWith("expectLoad("))
+                                pageLoadPromise = new Promise((resolve, reject) => { pageLoadResolve = resolve; pageLoadReject = reject; });
 
                             // run the command
-                            eval(input_buf.slice(0, i))
-                                .then(success)
-                                .catch(fail);
+                            eval(command).then(success, fail);
 
                             input_buf = input_buf.slice(i+1);
                         }

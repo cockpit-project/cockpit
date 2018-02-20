@@ -413,12 +413,14 @@
         function query_fsys_info() {
             var info = {
                 xfs: {
+                    can_format: true,
                     can_shrink: false,
                     can_grow: true,
                     grow_needs_unmount: false
                 },
 
                 ext4: {
+                    can_format: true,
                     can_shrink: true,
                     shrink_needs_unmount: true,
                     can_grow: true,
@@ -428,24 +430,30 @@
 
             if (client.manager.SupportedFilesystems && client.manager.CanResize) {
                 return cockpit.all(client.manager.SupportedFilesystems.map(function (fs) {
-                    return client.manager.CanResize(fs).then(
-                        function (result) {
-                            // We assume that all filesystems support
-                            // offline shrinking/growing if they
-                            // support shrinking or growing at all.
-                            // The actual resizing utility will
-                            // temporarily mount the fs if necessary,
-                            if (result[0]) {
-                                info[fs] = {
-                                    can_shrink: !!(result[1] & 2),
-                                    shrink_needs_unmount: !(result[1] & 8),
-                                    can_grow: !!(result[1] & 4),
-                                    grow_needs_unmount: !(result[1] & 16)
-                                };
-                            }
-                        },
-                        function () {
-                            // ignore unsupported filesystems
+                    return client.manager.CanFormat(fs).then(
+                        function (canformat_result) {
+                            info[fs] = {
+                                can_format: canformat_result[0],
+                                can_shrink: false,
+                                can_grow: false
+                            };
+                            return client.manager.CanResize(fs).then(
+                                function (canresize_result) {
+                                    // We assume that all filesystems support
+                                    // offline shrinking/growing if they
+                                    // support shrinking or growing at all.
+                                    // The actual resizing utility will
+                                    // temporarily mount the fs if necessary,
+                                    if (canresize_result[0]) {
+                                        info[fs].can_shrink = !!(canresize_result[1] & 2);
+                                        info[fs].shrink_needs_unmount = !(canresize_result[1] & 8);
+                                        info[fs].can_grow = !!(canresize_result[1] & 4);
+                                        info[fs].grow_needs_unmount = !(canresize_result[1] & 16);
+                                    }
+                                },
+                                function () {
+                                    // ignore unsupported filesystems
+                                });
                         });
                 })).then(function () {
                     return info;

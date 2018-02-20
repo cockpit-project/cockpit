@@ -70,10 +70,19 @@ class TestStorage(StorageCase):
             self.dialog({ "type": type })
             self.content_row_wait_in_col(1, 1, type + " File System")
 
+        def check_unsupported_type(type):
+            self.content_tab_action(1, 1, "Format")
+            self.dialog_wait_open()
+            b.wait_not_present('#dialog li[value=%s]' % type)
+            self.dialog_cancel()
+            self.dialog_wait_close()
+
         check_type("xfs")
         check_type("ext4")
         check_type("vfat")
-        if not m.image in [ "rhel-7", "rhel-7-4", "rhel-7-5", "centos-7" ]:
+        if m.image in [ "rhel-7", "rhel-7-4", "rhel-7-5", "centos-7" ]:
+            check_unsupported_type("ntfs")
+        else:
             check_type("ntfs")
 
 if __name__ == '__main__':

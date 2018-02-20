@@ -462,7 +462,7 @@ class Machine:
                             proc.stdout.close()
                         else:
                             if self.verbose:
-                                sys.stdout.write(data.decode('utf-8', 'ignore'))
+                                os.write(sys.stdout.fileno(), data)
                             output += data.decode('utf-8', 'replace')
                     elif fd == stderr_fd:
                         data = os.read(fd, 1024)
@@ -470,7 +470,7 @@ class Machine:
                             rset.remove(stderr_fd)
                             proc.stderr.close()
                         elif not quiet or self.verbose:
-                            sys.stderr.write(data.decode('utf-8', 'ignore'))
+                            os.write(sys.stderr.fileno(), data)
                 for fd in ret[1]:
                     if fd == stdin_fd:
                         if input:

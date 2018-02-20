@@ -119,13 +119,8 @@ class Browser:
         if cookie:
             self.cdp.invoke("Network.setCookie", **cookie)
         self.switch_to_top()
-        if opts.trace:
-            print("-> open " + href)
-        # Page.navigate() already waits for the page to load, but not for loadEventFired; set up waiting for that
-        # first to avoid a race: calling expect_load() after Page.navigate() might miss the event
-        self.cdp.command("pr = expectLoad(%i); client.Page.navigate({ url: '%s' }).then(() => pr)" % (self.cdp.timeout * 1000, href))
-        if opts.trace:
-            print("<- open " + href + " done")
+        self.cdp.invoke("Page.navigate", url=href)
+        self.expect_load()
 
     def reload(self, ignore_cache=False):
         self.switch_to_top()

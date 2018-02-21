@@ -46,8 +46,13 @@ init_mock_pmda (void)
       exit (0);
     }
 
+#if PM_VERSION_CURRENT >= PM_VERSION(4,0,0)
+  g_assert (pmSpecLocalPMDA ("clear") == NULL);
+  g_assert (pmSpecLocalPMDA ("add,333,./mock-pmda.so,mock_init") == NULL);
+#else
   g_assert (__pmLocalPMDA (PM_LOCAL_CLEAR, 0, NULL, NULL) >= 0);
   g_assert (__pmLocalPMDA (PM_LOCAL_ADD, 333, "./mock-pmda.so", "mock_init") >= 0);
+#endif
 
   void *handle = dlopen ("./mock-pmda.so", RTLD_NOW);
   g_assert (handle != NULL);

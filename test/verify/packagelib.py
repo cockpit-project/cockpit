@@ -42,7 +42,7 @@ class PackageCase(MachineCase):
         if self.backend == "apt":
             self.machine.execute("rm -f /etc/apt/sources.list.d/*; echo > /etc/apt/sources.list; apt-get update")
         else:
-            self.machine.execute("rm -f /etc/yum.repos.d/* /var/cache/yum/*")
+            self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/*")
 
         # have PackageKit start from a clean slate
         self.machine.execute("systemctl stop packagekit; rm -rf /var/cache/PackageKit")

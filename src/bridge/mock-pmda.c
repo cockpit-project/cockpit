@@ -74,12 +74,19 @@ static int64_t counter64 = INT64_MAX - 100;
 static int
 mock_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
+#if PM_VERSION_CURRENT >= PM_VERSION(4,0,0)
+  if (pmID_cluster(mdesc->m_desc.pmid) != 0)
+    return PM_ERR_PMID;
+
+  switch (pmID_item(mdesc->m_desc.pmid)) {
+#else
   __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
   if (idp->cluster != 0)
     return PM_ERR_PMID;
 
   switch (idp->item) {
+#endif
   case 0:
     if (inst != PM_IN_NULL)
       return PM_ERR_INST;

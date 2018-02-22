@@ -1475,7 +1475,7 @@ $("#link-disk").on("click", function() {
 });
 
 $("#system_information_hardware_text").on("click", function() {
-    cockpit.jump("/system/hwinfo");
+    cockpit.jump("/system/hwinfo", cockpit.transport.host);
     return false;
 });
 

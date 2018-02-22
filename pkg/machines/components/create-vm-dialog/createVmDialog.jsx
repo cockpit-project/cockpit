@@ -20,10 +20,10 @@
 
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
-import DialogPattern from 'cockpit-components-dialog.jsx';
-import Select from "cockpit-components-select.jsx";
-import FileAutoComplete from "../../lib/cockpit-components-file-autocomplete.jsx";
-import { createVm, addErrorNotification } from '../actions.es6';
+import DialogPattern from '../../../lib/cockpit-components-dialog.jsx';
+import Select from "../../../lib/cockpit-components-select.jsx";
+import FileAutoComplete from "../../../lib/cockpit-components-file-autocomplete.jsx";
+import { createVm, addErrorNotification } from '../../actions.es6';
 import {
     digitFilter,
     toFixedPrecision,
@@ -31,7 +31,7 @@ import {
     convertToUnit,
     timeoutedPromise,
     units,
-} from "../helpers.es6";
+} from "../../helpers.es6";
 
 import {
     NOT_SPECIFIED,
@@ -42,7 +42,7 @@ import {
 } from "./createVmDialogUtils.es6";
 
 import './createVmDialog.less';
-import VMS_CONFIG from '../config.es6';
+import VMS_CONFIG from '../../config.es6';
 
 const _ = cockpit.gettext;
 

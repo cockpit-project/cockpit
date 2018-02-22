@@ -48,7 +48,7 @@ import VmNetworkTab from './vmnetworktab.jsx';
 import Consoles from './components/consoles.jsx';
 import { deleteDialog } from "./components/deleteDialog.jsx";
 import DropdownButtons from './components/dropdownButtons.jsx';
-import { createVmDialog } from './components/createVmDialog.jsx';
+import { createVmDialog } from './components/create-vm-dialog/createVmDialog.jsx';
 import VmOverviewTab from './components/vmOverviewTabLibvirt.jsx';
 import NotificationArea from './components/notification/notificationArea.jsx';
 

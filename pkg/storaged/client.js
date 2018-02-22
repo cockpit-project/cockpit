@@ -752,8 +752,6 @@
                 args.push("--deduplication", options.deduplication? "enabled" : "disabled");
             if (options.emulate_512 !== undefined)
                 args.push("--emulate512", options.emulate_512? "enabled" : "disabled");
-            if (options.asynchronous !== undefined)
-                args.push("--writePolicy", options.asynchronous? "async" : "sync");
             return cmd(args);
         }
 

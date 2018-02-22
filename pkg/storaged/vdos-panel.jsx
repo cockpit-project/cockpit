@@ -98,10 +98,6 @@ export class VDOsPanel extends React.Component {
                                 Title: _("Deduplication"),
                                 Value: true
                               },
-                              { CheckBox: "asynchronous",
-                                Title: _("Transfer data asynchronously"),
-                                Value: false,
-                              },
                               { CheckBox: "emulate_512",
                                 Title: _("Use 512 Byte emulation"),
                                 Value: false
@@ -124,7 +120,6 @@ export class VDOsPanel extends React.Component {
                                                             index_mem: vals.index_mem,
                                                             compression: vals.compression,
                                                             deduplication: vals.deduplication,
-                                                            asynchronous: vals.asynchronous,
                                                             emulate_512: vals.emulate_512
                                                         });
                                                     });

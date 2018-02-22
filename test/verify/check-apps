@@ -23,6 +23,7 @@ from testlib import *
 from packagelib import *
 
 @skipImage("Not supported", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipPackage("cockpit-apps")
 class TestApps(PackageCase):
 
     def setUp(self):

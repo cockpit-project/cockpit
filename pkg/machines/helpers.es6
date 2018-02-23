@@ -151,13 +151,14 @@ export function logError(msg, ...params) {
 }
 
 export function digitFilter(event, allowDots = false) {
-    let doNotFilter = (allowDots && event.charCode === 46) || event.charCode >= 48 && event.charCode <= 57;
+    let accept = (allowDots && event.key === '.') || (event.key >= '0' && event.key <= '9') ||
+                 event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Tab' ||
+                 event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End';
 
-    if (!doNotFilter) {
+    if (!accept)
         event.preventDefault();
-    }
 
-    return doNotFilter;
+    return accept;
 }
 
 export function getTodayYearShifted(yearDifference) {

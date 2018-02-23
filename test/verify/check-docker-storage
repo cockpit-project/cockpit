@@ -78,7 +78,7 @@ def initially_without_vgroup(machine):
 def get_build_image(test_os):
     build_os = test_os
     if test_os == "fedora-atomic":
-        build_os = "fedora-26"
+        build_os = "fedora-27"
     elif test_os == "rhel-atomic":
         build_os = "rhel-7"
     elif test_os == "continuous-atomic":

@@ -32,10 +32,15 @@ cockpit_block_samples (CockpitSamples *samples)
   GError *error = NULL;
   gchar **lines = NULL;
   guint n;
+  static gboolean not_supported = FALSE;
+
+  if (not_supported)
+      goto out;
 
   if (!g_file_get_contents ("/proc/diskstats", &contents, &len, &error))
     {
       g_message ("error loading contents /proc/diskstats: %s", error->message);
+      not_supported = TRUE;
       goto out;
     }
 

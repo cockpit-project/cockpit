@@ -38,11 +38,16 @@ cockpit_disk_samples (CockpitSamples *samples)
   guint64 num_ops;
   gsize len;
   guint n;
+  static gboolean not_supported = FALSE;
+
+  if (not_supported)
+      goto out;
 
   if (!g_file_get_contents ("/proc/diskstats", &contents, &len, &error))
     {
-      g_message ("error loading contents /proc/vmstat: %s", error->message);
+      g_message ("error loading contents /proc/diskstats: %s", error->message);
       g_error_free (error);
+      not_supported = TRUE;
       goto out;
     }
 

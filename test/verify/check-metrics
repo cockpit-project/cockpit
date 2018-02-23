@@ -148,7 +148,7 @@ class TestMetrics(MachineCase):
         if not iface:
             raise Exception("Couldn't find interface to sample")
 
-        m.execute("if type firewall-cmd >/dev/null 2>&1; then firewall-cmd --permanent --zone=public --add-port=2000/tcp && firewall-cmd --reload; fi")
+        m.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --permanent --zone=public --add-port=2000/tcp && firewall-cmd --reload; fi")
 
         (eth_before, lo_before) = m.execute(r"grep -E '\b" + iface + r":' /proc/net/dev | awk '{print $2 + $10}'; "
                                             r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()

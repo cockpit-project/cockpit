@@ -28,12 +28,13 @@ systemctl daemon-reload
 
 # The docker pool should grow automatically as needed, but we grow it
 # explicitly here anyway.  This is hopefully more reliable.
+# Newer Fedora versions configure docker to use the root LV
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 lvresize atomicos/root        -l+60%FREE -r
 if lvs atomicos/docker-pool 2>/dev/null; then
     lvresize atomicos/docker-pool -l+100%FREE
-else
+elif lvs atomicos/docker-root-lv; then
     lvresize atomicos/docker-root-lv -l+100%FREE
 fi
 

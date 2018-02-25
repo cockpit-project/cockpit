@@ -27,7 +27,10 @@ base_dir = os.path.dirname(os.path.realpath(__file__))
 test_dir = os.path.dirname(base_dir)
 sys.path.append(test_dir)
 
-from verify import parent, kubelib
+from verify import parent
+parent # pyflakes
+
+from verify import kubelib
 from testlib import *
 from testvm import VirtMachine
 

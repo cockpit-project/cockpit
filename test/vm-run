@@ -27,9 +27,10 @@ import testvm
 
 NETWORK_SCRIPT="""
     set -ex
-	/bin/virsh net-destroy cockpit1 || true
-	/bin/virsh net-undefine cockpit1 || true
+    /bin/virsh net-destroy cockpit1 || true
+    /bin/virsh net-undefine cockpit1 || true
     /bin/virsh net-define /dev/stdin <<EOF
+
 <network ipv6='yes'>
   <name>cockpit1</name>
   <uuid>f3605fa4-0763-41ea-8143-49da3bf73263</uuid>
@@ -48,8 +49,19 @@ NETWORK_SCRIPT="""
   <ip family="ipv6" address="fd00:111:112::1" prefix="64"/>
 </network>
 EOF
-	/bin/virsh net-autostart cockpit1
-	/bin/virsh net-start cockpit1
+
+    if [ ! -u /usr/libexec/qemu-bridge-helper ]; then
+        chmod -v u+s /usr/libexec/qemu-bridge-helper
+    fi
+
+    for qemu_config in /etc/qemu-kvm/bridge.conf /etc/qemu/bridge.conf; do
+       if [ -e "$qemu_config" ] && ! grep -qF cockpit1 "$qemu_config"; then
+          echo "allow cockpit1" >> "$qemu_config"
+       fi
+    done
+
+    /bin/virsh net-autostart cockpit1
+    /bin/virsh net-start cockpit1
 """
 
 parser = argparse.ArgumentParser(description='Run a test machine')

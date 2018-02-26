@@ -196,6 +196,9 @@ class TestDockerStorageMapper(MachineCase):
             b.wait_visible("#storage-unsupported")
             return
 
+        # should have some images
+        self.assertNotEqual(m.execute("docker images -q"), "")
+
         # Add a disk
 
         m.add_disk("100M", serial="DISK1")
@@ -230,6 +233,10 @@ class TestDockerStorageMapper(MachineCase):
         b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_not_in_text("#storage-drives", "DISK2")
 
+        # adding disks should keep images, unless the above created the VG and thus reset the pool
+        if not (initially_loopbacked(m) or initially_without_vgroup(m)):
+            self.assertNotEqual(m.execute("docker images -q"), "")
+
         # Reset
 
         b.click("#storage-reset")
@@ -239,6 +246,15 @@ class TestDockerStorageMapper(MachineCase):
 
         check_loopback(initially_loopbacked(m))
         check_atomic_vgroup(False)
+
+        # resetting pool should wipe all images
+        self.assertEqual(m.execute("docker images -q"), "")
+
+        # recent Atomic images put docker storage into root LV and have ROOT_SIZE=+100%FREE
+        # in /etc/sysconfig/docker-storage-setup; thus this cannot completely free the added PVs
+        # as they are also being used for non-docker data; skip the remainder of the test there
+        if m.image in ["fedora-atomic"]:
+            return
 
         b.wait_in_text("#storage-drives", "DISK1")
         b.wait_in_text("#storage-drives", "DISK2")

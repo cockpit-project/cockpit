@@ -65,6 +65,9 @@ if [ -n "$do_build" ]; then
     echo "config_opts['rpmbuild_networking'] = True" >>/etc/mock/site-defaults.cfg
     # don't destroy the mock after building, we want to run rpmlint
     echo "config_opts['cleanup_on_success'] = False" >>/etc/mock/site-defaults.cfg
+    # HACK: don't fall over on unavailable repositories, as we are offline
+    # (https://bugzilla.redhat.com/show_bug.cgi?id=1549291)
+    sed --follow-symlinks -i '/skip_if_unavailable=False/d' /etc/mock/default.cfg
 
     rm -rf build-results
     srpm=$(/var/lib/testvm/make-srpm "$tar")

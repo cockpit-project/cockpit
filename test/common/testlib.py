@@ -226,7 +226,10 @@ class Browser:
 
     def key_press(self, keys):
         for k in keys:
-            self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k)
+            if k.isalnum():
+                self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k, key=k)
+            else:
+                self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k)
 
     def wait_timeout(self, timeout):
         browser = self

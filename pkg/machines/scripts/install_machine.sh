@@ -12,6 +12,10 @@ DISPLAYS="$7"
 
 # prepare virt-install parameters
 
+vmExists(){
+   virsh list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$1"
+}
+
 createOptions(){
     CREATE_OPTIONS_RESULT=""
 	while IFS= read -r PARAM
@@ -78,7 +82,7 @@ virt-install \
     $GRAPHICS_PARAM
 EXIT_STATUS=$?
 
-if [ "$EXIT_STATUS" -eq 0 ]; then
+if [ "$EXIT_STATUS" -eq 0 ] && vmExists "$VM_NAME"; then
     # set metadata
     virsh -q dumpxml "$VM_NAME" > "$DOMAIN_FILE"
     METADATA_LINE=`grep -n '</metadata>' "$DOMAIN_FILE" | sed 's/[^0-9]//g'`
@@ -100,7 +104,7 @@ if [ "$EXIT_STATUS" -eq 0 ]; then
     rm -f "$DOMAIN_FILE"
 else
     # return back if failed
-    if virsh list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$VM_NAME"; then
+    if vmExists "$VM_NAME"; then
         # undefine if the domain was created but still failed
         virsh -q undefine "$VM_NAME" --managed-save
     fi

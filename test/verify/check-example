@@ -25,6 +25,7 @@ import sys
 import time
 import unittest
 
+@skipPackage("example")
 class TestExample(MachineCase):
     def testFail(self):
         self.login_and_go("/system")
@@ -32,6 +33,7 @@ class TestExample(MachineCase):
 
     def testBasic(self):
         self.login_and_go("/system")
+
 
 class TestSimple(unittest.TestCase):
     def testOne(self):

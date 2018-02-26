@@ -23,6 +23,7 @@ from testlib import *
 import json
 import os
 
+@skipPackage("cockpit-docker")
 class TestDocker(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -579,6 +580,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#journal-entry-fields","abrtd.service")
 
 @skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "rhel-atomic", "fedora-atomic", "fedora-i386")
+@skipPackage("cockpit-docker")
 class TestAtomicScan(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)

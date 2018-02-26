@@ -56,6 +56,7 @@ __all__ = (
     'Browser',
     'MachineCase',
     'skipImage',
+    'skipPackage',
     'Error',
 
     'sit',
@@ -853,6 +854,14 @@ def skipImage(reason, *args):
     if testvm.DEFAULT_IMAGE in args:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda func: func
+
+def skipPackage(*args):
+    packages_env = os.environ.get("TEST_SKIP_PACKAGES","").split()
+    for package in args:
+        if package in packages_env:
+            return unittest.skip("{0} is excluded in $TEST_SKIP_PACKAGES".format(package))
+    return lambda func: func
+
 
 class TestResult(tap.TapResult):
     def __init__(self, stream, descriptions, verbosity):

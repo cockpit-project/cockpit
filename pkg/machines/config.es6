@@ -25,6 +25,8 @@
 const VMS_CONFIG = {
     DefaultRefreshInterval: 10000, // in ms
     LeaveCreateVmDialogVisibleAfterSubmit: 3000, // in ms; to wait for an error
+    DummyVmsWaitInterval: 10 * 60 * 1000, // show dummy vms for max 10 minutes; to let virt-install do work before getting vm from virsh
+    WaitForRetryInstallVm: 3 * 1000, // wait for vm to recover in the ui after failed install to show the error
     Virsh: {
         connections: {
             'system': {

@@ -54,7 +54,7 @@ import NotificationArea from './components/notification/notificationArea.jsx';
 
 const _ = cockpit.gettext;
 
-const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI, installInProgress }) => {
+const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI }) => {
     const id = vmId(vm.name);
     const state = vm.state;
     const hasInstallPhase = vm.metadata.hasInstallPhase;
@@ -103,7 +103,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
     }
 
     let install = null;
-    if (config.provider.canInstall(state, hasInstallPhase, installInProgress)) {
+    if (config.provider.canInstall(state, hasInstallPhase)) {
         install = (<button className="btn btn-default btn-danger" onClick={mouseClick(onInstall)} id={`${id}-install`}>
             {_("Install")}
         </button>);
@@ -178,8 +178,10 @@ export const StateIcon = ({ state, config, valueId, extra }) => {
             className: 'pficon pficon-ok icon-1x-vms',
             title: _("The VM is suspended by guest power management."),
         },
+        'creating VM': { className: 'pficon pficon-pending icon-1x-vms' },
+        'creating VM installation': { className: 'pficon pficon-pending icon-1x-vms' },
     };
-    if (config.provider.vmStateMap) { // merge default and provider's stateMap to allow both reuse and extension
+    if (config && config.provider && config.provider.vmStateMap) { // merge default and provider's stateMap to allow both reuse and extension
         stateMap = Object.assign(stateMap, config.provider.vmStateMap);
     }
 
@@ -194,7 +196,7 @@ export const StateIcon = ({ state, config, valueId, extra }) => {
 };
 StateIcon.propTypes = {
     state: PropTypes.string.isRequired,
-    config: PropTypes.string.isRequired,
+    config: PropTypes.object,
     valueId: PropTypes.string,
     extra: PropTypes.any,
 };
@@ -282,8 +284,42 @@ VmUsageTab.propTypes = {
 
 /** One VM in the list (a row)
  */
+const DummyVm = ({ vm }) => {
+    let state = null;
+
+    if (vm.installInProgress) {
+        state = 'creating VM installation';
+    } else if (vm.createInProgress) {
+        state = 'creating VM';
+    } else {
+        state = 'invalid';
+    }
+
+    const stateIcon = (<StateIcon state={state} valueId={`${vmId(vm.name)}-state`}/>);
+
+
+    const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
+
+    return (<ListingRow
+        columns={[
+            { name, 'header': true },
+            rephraseUI('connections', null),
+            stateIcon,
+        ]}
+        rowId={`${vmId(vm.name)}`}
+    />);
+};
+
+DummyVm.propTypes = {
+    vm: PropTypes.object.isRequired,
+    config: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
+};
+
+/** One VM in the list (a row)
+ */
 const Vm = ({ vm, config, hostDevices, onStart, onInstall, onShutdown, onForceoff, onReboot, onForceReboot,
-              onUsageStartPolling, onUsageStopPolling, onSendNMI, uiState, dispatch }) => {
+              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch }) => {
     const stateAlert = vm.lastMessage && (<span className='pficon-warning-triangle-o machines-status-alert' />);
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
 
@@ -316,9 +352,8 @@ const Vm = ({ vm, config, hostDevices, onStart, onInstall, onShutdown, onForceof
         ));
     }
 
-    const initiallyExpanded = uiState && uiState.createInProgress;
     let initiallyActiveTab = null;
-    if (uiState && uiState.createInProgress && uiState.createInProgress.openConsoleTab) {
+    if (vm.ui.initiallyOpenedConsoleTab) {
         initiallyActiveTab = tabRenderers.map((o) =>  o.name).indexOf(consolesTabName);
     }
 
@@ -331,13 +366,12 @@ const Vm = ({ vm, config, hostDevices, onStart, onInstall, onShutdown, onForceof
             rephraseUI('connections', vm.connectionName),
             stateIcon,
         ]}
-        initiallyExpanded={initiallyExpanded}
+        initiallyExpanded={vm.ui.initiallyExpanded}
         initiallyActiveTab={initiallyActiveTab}
         tabRenderers={tabRenderers}
         listingActions={VmActions({
             vm, config, dispatch,
             onStart, onInstall, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI,
-            installInProgress: !!uiState.installInProgress,
         })}/>);
 };
 Vm.propTypes = {
@@ -377,8 +411,18 @@ class HostVmsList extends React.Component {
         this.forceUpdate();
     }
 
+    asDummVms(vms, uiVms){
+        const result = Object.assign({}, uiVms);
+        vms.forEach(vm => {
+            delete result[vm.name];
+        });
+
+        return Object.keys(result).map((k) => result[k]);
+    }
+
     render() {
         const { vms, config, systemInfo, ui, dispatch, actions } = this.props;
+        const combinedVms = [...vms, ...this.asDummVms(vms, ui.vms)];
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
@@ -403,29 +447,30 @@ class HostVmsList extends React.Component {
                      columnTitles={[_("Name"), _("Connection"), _("State")]}
                      actions={allActions}
                      emptyCaption={_("No VM is running or defined on this host")}>
-                {vms
+                {combinedVms
                     .sort(sortFunction)
                     .map(vm => {
-                    return (
-                        <Vm vm={vm} config={config}
-                            hostDevices={this.deviceProxies}
-                            onStart={() => dispatch(startVm(vm))}
-                            onInstall={() => dispatch(installVm(vm))}
-                            onReboot={() => dispatch(rebootVm(vm))}
-                            onForceReboot={() => dispatch(forceRebootVm(vm))}
-                            onShutdown={() => dispatch(shutdownVm(vm))}
-                            onForceoff={() => dispatch(forceVmOff(vm))}
-                            onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
-                            onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
-                            onSendNMI={() => dispatch(sendNMI(vm))}
-                            dispatch={dispatch}
-                            uiState={{
-                                createInProgress: ui.vmsCreated[vm.name],
-                                installInProgress: ui.vmsInstallInitiated[vm.name],
-                            }}
-                            key={`${vmId(vm.name)}`}
-                        />);
-                })}
+                        if (vm.isUi) {
+                            return (
+                                <DummyVm vm={vm}/>
+                            );
+                        }
+                        return (
+                            <Vm vm={vm} config={config}
+                                hostDevices={this.deviceProxies}
+                                onStart={() => dispatch(startVm(vm))}
+                                onInstall={() => dispatch(installVm(vm))}
+                                onReboot={() => dispatch(rebootVm(vm))}
+                                onForceReboot={() => dispatch(forceRebootVm(vm))}
+                                onShutdown={() => dispatch(shutdownVm(vm))}
+                                onForceoff={() => dispatch(forceVmOff(vm))}
+                                onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
+                                onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
+                                onSendNMI={() => dispatch(sendNMI(vm))}
+                                dispatch={dispatch}
+                                key={`${vmId(vm.name)}`}
+                            />);
+                    })}
             </Listing>
         </div>);
     }

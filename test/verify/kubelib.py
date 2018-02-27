@@ -64,6 +64,10 @@ class KubernetesCase(testlib.MachineCase):
         if self.machine.image == "fedora-26":
             self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s/"$/ --cgroup-driver=systemd"/ }' /etc/kubernetes/kubelet""")
 
+        # disable swap, newer kubernetes versions don't like it:
+        # failed to run Kubelet: Running with swap on is not supported, please disable swap! or set --fail-swap-on flag to false
+        self.machine.execute("swapoff --all --verbose")
+
         self.machine.execute("echo 'KUBE_API_ADDRESS=\"$KUBE_API_ADDRESS --bind-address=10.111.113.1\"' >> /etc/kubernetes/apiserver")
         try:
             self.machine.execute('/etc/kubernetes/start-kubernetes')

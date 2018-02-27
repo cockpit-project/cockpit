@@ -82,6 +82,15 @@ Description=Test Timer
 [Timer]
 OnCalendar=*:1/2
 """)
+        m.write("/etc/systemd/system/test-onboot.timer",
+"""
+[Unit]
+Description=Test OnBoot Timer
+
+[Timer]
+OnBootSec=10min
+Unit=test.service
+""")
 
         # After writing files out tell systemd about them
         m.execute("systemctl daemon-reload")
@@ -108,16 +117,29 @@ OnCalendar=*:1/2
         wait_service_in_panel("test.service", "Disabled")
         m.execute("systemctl enable test.service")
         wait_service_state("test.service", "inactive")
+        wait_service_state("test.service", "inactive")
 
         unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group'
         file_action_btn = '#service-valid .list-group-item:nth-child(2) .btn-group'
+
         # Selects Timer tab
         b.click('#services-filter :nth-child(4)')
         b.wait_present(svc_sel('test.timer'))
+        b.wait_text(svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
+        b.wait_text(svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
         m.execute("systemctl start test.timer")
-        b.wait_in_text(svc_sel('test.timer'), "Today")
-        b.wait_in_text(svc_sel('test.timer'), "unknown")
+        b.wait_in_text(svc_sel('test.timer') + ' td:nth-child(3)', "Today")  # next run
+        b.wait_in_text(svc_sel('test.timer') + ' td:nth-child(4)', "unknown")  # last trigger
         m.execute("systemctl stop test.timer")
+
+        b.wait_present(svc_sel('test-onboot.timer'))
+        b.wait_text(svc_sel('test-onboot.timer') + ' td:nth-child(3)', '')  # next run
+        b.wait_text(svc_sel('test-onboot.timer') + ' td:nth-child(4)', '')  # last trigger
+        m.execute("systemctl start test-onboot.timer")
+        b.wait_in_text(svc_sel('test-onboot.timer') + ' td:nth-child(3)', "Today")  # next run
+        b.wait_in_text(svc_sel('test-onboot.timer') + ' td:nth-child(4)', "unknown")  # last trigger
+        m.execute("systemctl stop test-onboot.timer")
+
         # Selects Services tab
         b.click('#services-filter :nth-child(2)')
         b.wait_present(svc_sel('test.service'))

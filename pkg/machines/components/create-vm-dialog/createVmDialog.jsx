@@ -20,9 +20,9 @@
 
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
-import DialogPattern from '../../../lib/cockpit-components-dialog.jsx';
-import Select from "../../../lib/cockpit-components-select.jsx";
-import FileAutoComplete from "../../../lib/cockpit-components-file-autocomplete.jsx";
+import DialogPattern from 'cockpit-components-dialog.jsx';
+import Select from "cockpit-components-select.jsx";
+import FileAutoComplete from "cockpit-components-file-autocomplete.jsx";
 import { createVm, addErrorNotification } from '../../actions.es6';
 import {
     digitFilter,

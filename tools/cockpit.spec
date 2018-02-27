@@ -370,6 +370,7 @@ The Cockpit components for managing oVirt virtual machines.
 %files machines-ovirt -f ovirt.list
 
 %package ostree
+BuildArch: noarch
 Summary: Cockpit user interface for rpm-ostree
 # Requires: Uses new translations functionality
 Requires: %{name}-bridge >= %{required_base}

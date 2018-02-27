@@ -854,13 +854,14 @@ $(function() {
     });
 
     function update_time() {
-        cockpit.spawn(["grep", "\\w", "timer_list"],
-                      { directory: "/proc" }).
+        cockpit.spawn(["cat", "/proc/uptime"]).
             fail(function (err) {
                 console.log(err);
             }).
-            done(function (timer_list) {
-                clock_monotonic_now = parseInt(timer_list.match(/now at (\d+)/)[1]/1000, 10);
+            done(function (contents) {
+                // first number is time since boot in seconds with two fractional digits
+                var uptime = parseFloat(contents.split(' ')[0]);
+                clock_monotonic_now = parseInt(uptime * 1000000, 10);
             });
         cockpit.spawn(["date", "-R"]).
             fail(function (err) {

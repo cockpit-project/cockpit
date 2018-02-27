@@ -153,7 +153,9 @@ export function logError(msg, ...params) {
 export function digitFilter(event, allowDots = false) {
     let accept = (allowDots && event.key === '.') || (event.key >= '0' && event.key <= '9') ||
                  event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Tab' ||
-                 event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End';
+                 event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
+                 event.key === 'ArrowUp' || event.key === 'ArrowDown' ||
+                 event.key === 'Home' || event.key === 'End';
 
     if (!accept)
         event.preventDefault();

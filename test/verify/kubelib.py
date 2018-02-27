@@ -53,6 +53,10 @@ class KubernetesCase(testlib.MachineCase):
             self.machine.execute("systemctl stop kube-apiserver")
 
     def start_kubernetes(self):
+        # kubelet needs the config to register to the API server
+        self.machine.upload(["verify/files/mock-kube-config-basic.json"], "/etc/kubernetes/kubeconfig")
+        self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s%"$% --kubeconfig=/etc/kubernetes/kubeconfig"% }' /etc/kubernetes/kubelet""")
+
         # HACK: These are the default container secrets that which conflict
         # with kubernetes secrets and cause the pod to not start
         self.machine.execute("rm -rf /usr/share/rhel/secrets/* || true")

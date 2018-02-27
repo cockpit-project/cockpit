@@ -46,6 +46,16 @@ def can_manage(machine):
                               "fedora-atomic",
                               "continuous-atomic" ]
 
+# Returns whether Cockpit offers to reset the pool
+#
+def can_reset(machine):
+    # Adding a disk will grow the xfs root filesystem to cover it, and
+    # there is no way back.
+    if machine.image in [ "fedora-atomic", "rhel-7-5" ]:
+        return False
+
+    return True
+
 # Returns whether Docker uses devmapper with loopback by default.
 # Cockpit will force the user away from this.
 #
@@ -237,6 +247,9 @@ class TestDockerStorageMapper(MachineCase):
         if not (initially_loopbacked(m) or initially_without_vgroup(m)):
             self.assertNotEqual(m.execute("docker images -q"), "")
 
+        if not can_reset(m):
+            return
+
         # Reset
 
         b.click("#storage-reset")
@@ -249,12 +262,6 @@ class TestDockerStorageMapper(MachineCase):
 
         # resetting pool should wipe all images
         self.assertEqual(m.execute("docker images -q"), "")
-
-        # recent Atomic images put docker storage into root LV and have ROOT_SIZE=+100%FREE
-        # in /etc/sysconfig/docker-storage-setup; thus this cannot completely free the added PVs
-        # as they are also being used for non-docker data; skip the remainder of the test there
-        if m.image in ["fedora-atomic"]:
-            return
 
         b.wait_in_text("#storage-drives", "DISK1")
         b.wait_in_text("#storage-drives", "DISK2")

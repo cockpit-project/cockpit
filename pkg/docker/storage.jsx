@@ -36,7 +36,6 @@
 
         var self = {
             error: null,
-            driver: "",
             pool_devices: [ ],
             extra_devices: [ ],
             total: 0,
@@ -56,6 +55,7 @@
                                     // XXX - find the newlines here
                                     var info = JSON.parse(data);
                                     self.loopback = info.loopback;
+                                    self.can_reset = info.can_reset;
                                     self.vgroup = info.vgroup;
                                     self.pool_devices = info.pool_devices.sort(cmp_drive);
                                     self.extra_devices = info.extra_devices.sort(cmp_drive);
@@ -486,7 +486,8 @@
         React.render(<OverviewBox model={model}/>,
                      $("#storage-overview")[0]);
 
-        function update_curtain() {
+        function update() {
+            console.log(model);
             if (model.error) {
                 if (model.error == "access-denied")
                     $('#storage-unsupported-message').text(
@@ -499,11 +500,12 @@
             } else {
                 $("#storage-unsupported").hide();
                 $("#storage-details").show();
+                $("#storage-reset").toggle(model.can_reset === true);
             }
         }
 
-        $(model).on("changed", update_curtain);
-        update_curtain();
+        $(model).on("changed", update);
+        update();
 
         function hide() {
             $('#storage').hide();

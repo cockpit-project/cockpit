@@ -398,8 +398,18 @@ def get_info(got_uevent):
                 fs_total = fs_stat.f_blocks * fs_stat.f_frsize
             total =  fs_total - fs_used + used
 
-        return { "loopback": os.path.exists("/var/lib/docker/devicemapper/devicemapper/data"),
+        loopback = os.path.exists("/var/lib/docker/devicemapper/devicemapper/data")
+
+        # If the pool is in the rootfs, resetting it wont free any
+        # devices (since the rootfs has been grown to cover them).  An
+        # exception is when the pool uses loopback devices: Resetting
+        # it will change the whole setup to not use loopback anymore.
+        #
+        can_reset = (driver != "rootfs" or loopback)
+
+        return { "loopback": loopback,
                  "can_manage": can_manage,
+                 "can_reset": can_reset,
                  "vgroup": vgroup,
                  "total": total,
                  "used": used,

@@ -45,17 +45,6 @@ import DummyVm from './components/vm/dummyVm.jsx';
 
 const _ = cockpit.gettext;
 
-const IconElement = ({ onClick, className, title, state }) => {
-    return (<span title={title} data-toggle='tooltip' data-placement='left'>
-        {state}&nbsp;<i onClick={mouseClick(onClick)} className={className}/>
-    </span>);
-};
-IconElement.propTypes = {
-    onClick: PropTypes.func,
-    className: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    state: PropTypes.string.isRequired,
-};
 
 /**
  * List of all VMs defined on this host

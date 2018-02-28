@@ -67,7 +67,7 @@ struct signv {
   { "PIPE",     SIGPIPE },      /* 13 */
   { "ALRM",     SIGALRM },      /* 14 */
   { "TERM",     SIGTERM },      /* 15 */
-#ifndef _MIPS_ARCH
+#ifdef SIGSTKFLT
   { "STKFLT",   SIGSTKFLT },    /* 16 (arm,i386,m68k,ppc) */
 #endif
   { "CHLD",     SIGCHLD },      /* 17 (arm,i386,m68k,ppc), 20 (alpha,sparc*), 18 (mips) */

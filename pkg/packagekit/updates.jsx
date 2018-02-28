@@ -58,52 +58,12 @@ const PK_STATUS_LOG_STRINGS = {
     [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
 }
 
-const transactionInterface = "org.freedesktop.PackageKit.Transaction";
-
 // possible Red Hat subscription manager status values:
 // https://github.com/candlepin/subscription-manager/blob/30c3b52320c3e73ebd7435b4fc8b0b6319985d19/src/rhsm_icon/rhsm_icon.c#L98
 // we accept RHSM_VALID(0), RHN_CLASSIC(3), and RHSM_PARTIALLY_VALID(4)
 const validSubscriptionStates = [0, 3, 4];
 
-var dbus_pk = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
 var packageSummaries = {};
-
-function pkWatchTransaction(transactionPath, signalHandlers, notifyHandler) {
-    var subscriptions = [];
-
-    for (let handler in signalHandlers) {
-        subscriptions.push(dbus_pk.subscribe({ interface: transactionInterface, path: transactionPath, member: handler },
-                           (path, iface, signal, args) => signalHandlers[handler](...args)));
-    }
-
-    if (notifyHandler) {
-        subscriptions.push(dbus_pk.watch(transactionPath));
-        dbus_pk.addEventListener("notify", reply => {
-            if (transactionPath in reply.detail && transactionInterface in reply.detail[transactionPath])
-                notifyHandler(reply.detail[transactionPath][transactionInterface]);
-        });
-    }
-
-    // unsubscribe when transaction finished
-    subscriptions.push(dbus_pk.subscribe({ interface: transactionInterface, path: transactionPath, member: "Finished" },
-        () => subscriptions.map(s => s.remove())));
-}
-
-function pkTransaction(method, arglist, signalHandlers, notifyHandler, failHandler) {
-    var dfd = cockpit.defer();
-
-    dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [], {timeout: 5000})
-        .done(result => {
-            let transactionPath = result[0];
-            dfd.resolve(transactionPath);
-            pkWatchTransaction(transactionPath, signalHandlers, notifyHandler);
-            dbus_pk.call(transactionPath, transactionInterface, method, arglist)
-                .fail(ex => failHandler(ex));
-        })
-        .fail(ex => failHandler(ex));
-
-    return dfd.promise();
-}
 
 // parse CVEs from an arbitrary text (changelog) and return URL array
 function parseCVEs(text) {
@@ -478,12 +438,12 @@ class ApplyUpdates extends React.Component {
     componentDidMount() {
         var transactionPath = this.props.transaction;
 
-        pkWatchTransaction(transactionPath, {
+        PK.watchTransaction(transactionPath, {
             Package: (info, packageId) => {
                 let pfields = packageId.split(";");
 
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
-                dbus_pk.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [transactionInterface], {timeout: 500})
+                PK.dbus_client.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], {timeout: 500})
                     .done(reply => {
                         let percent = reply[0].Percentage.v;
                         let remain = -1;
@@ -597,11 +557,11 @@ class OsUpdates extends React.Component {
 
     componentDidMount() {
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
-        dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [], {timeout: 5000})
+        PK.dbus_client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [], {timeout: 5000})
             .done(result => {
                 let transactions = result[0];
-                let promises = transactions.map(transactionPath => dbus_pk.call(
-                    transactionPath, "org.freedesktop.DBus.Properties", "Get", [transactionInterface, "Role"], {timeout: 5000}));
+                let promises = transactions.map(transactionPath => PK.dbus_client.call(
+                    transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"], {timeout: 5000}));
 
                 cockpit.all(promises)
                     .done(roles => {
@@ -624,7 +584,7 @@ class OsUpdates extends React.Component {
 
             });
 
-        dbus_pk.addEventListener("close", (event, ex) => {
+        PK.dbus_client.addEventListener("close", (event, ex) => {
             console.log("close:", event, ex);
             let err;
             if (ex.problem == "not-found")
@@ -656,7 +616,7 @@ class OsUpdates extends React.Component {
     }
 
     loadUpdateDetails(pkg_ids) {
-        pkTransaction("GetUpdateDetail", [pkg_ids], {
+        PK.transaction("GetUpdateDetail", [pkg_ids], {
                 UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
                                update_text, changelog /* state, issued, updated */) => {
                     let u = this.state.updates[packageId];
@@ -689,10 +649,9 @@ class OsUpdates extends React.Component {
                     // still show available updates, with reduced detail
                     this.setState({state: "available"});
                 }
-            },
-            null,
-            ex => {
-                console.warn("GetUpdateDetail failed:", ex);
+            })
+            .catch(ex => {
+                console.warn("GetUpdateDetail failed:", JSON.stringify(ex));
                 // still show available updates, with reduced detail
                 this.setState({state: "available"});
             });
@@ -702,7 +661,7 @@ class OsUpdates extends React.Component {
         var updates = {};
         var cockpitUpdate = false;
 
-        pkTransaction("GetUpdates", [0], {
+        PK.transaction("GetUpdates", [0], {
                 Package: (info, packageId, _summary) => {
                     let id_fields = packageId.split(";");
                     packageSummaries[id_fields[0]] = _summary;
@@ -731,7 +690,7 @@ class OsUpdates extends React.Component {
                     this.loadHistory();
                 },
 
-            },  // end pkTransaction signalHandlers
+            },  // end PK.transaction signalHandlers
 
             notify => {
                 if ("Status" in notify) {
@@ -747,16 +706,15 @@ class OsUpdates extends React.Component {
                         }
                     }
                 }
-            },
-
-            ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
+            })
+            .catch(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
     }
 
     loadHistory() {
         let history = [];
 
         // would be nice to filter only for "update-packages" role, but can't here
-        pkTransaction("GetOldTransactions", [0], {
+        PK.transaction("GetOldTransactions", [0], {
                 Transaction: (objPath, timeSpec, succeeded, role, duration, data) => {
                     if (role !== PK.Enum.ROLE_UPDATE_PACKAGES)
                         return;
@@ -782,10 +740,8 @@ class OsUpdates extends React.Component {
                     if (history.length > 0)
                         this.setState({history: history})
                 }
-            },
-            null,
-            ex => console.warn("Failed to load old transactions:", ex)
-        );
+            })
+            .catch(ex => console.warn("Failed to load old transactions:", ex));
     }
 
     watchRedHatSubscription() {
@@ -811,7 +767,7 @@ class OsUpdates extends React.Component {
     initialLoadOrRefresh() {
         this.watchRedHatSubscription();
 
-        dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
+        PK.dbus_client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                      [PK.Enum.ROLE_REFRESH_CACHE], {timeout: 5000})
             .done(seconds => {
                 this.setState({timeSinceRefresh: seconds});
@@ -829,10 +785,10 @@ class OsUpdates extends React.Component {
     watchUpdates(transactionPath) {
         this.setState({ state: "applying", applyTransaction: transactionPath, allowCancel: false });
 
-        dbus_pk.call(transactionPath, "DBus.Properties", "Get", [transactionInterface, "AllowCancel"])
+        PK.dbus_client.call(transactionPath, "DBus.Properties", "Get", [PK.transactionInterface, "AllowCancel"])
             .done(reply => this.setState({ allowCancel: reply[0].v }));
 
-        pkWatchTransaction(transactionPath,
+        PK.watchTransaction(transactionPath,
             {
                 ErrorCode: (code, details) => this.state.errorMessages.push(details),
 
@@ -867,14 +823,15 @@ class OsUpdates extends React.Component {
         if (securityOnly)
             ids = ids.filter(id => this.state.updates[id].severity === PK.Enum.INFO_SECURITY);
 
-        pkTransaction("UpdatePackages", [0, ids], {}, null, ex => {
+        PK.transaction("UpdatePackages", [0, ids])
+            .then(transactionPath => this.watchUpdates(transactionPath))
+            .catch(ex => {
                 // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
                 // show this if we don't have anything else
                 if (this.state.errorMessages.length === 0)
                     this.state.errorMessages.push(ex.message);
                 this.setState({state: "updateError"});
-            })
-            .done(transactionPath => this.watchUpdates(transactionPath));
+            });
     }
 
     renderContent() {
@@ -1031,7 +988,7 @@ class OsUpdates extends React.Component {
 
     handleRefresh() {
         this.setState({ state: "refreshing", loadPercent: null });
-        pkTransaction("RefreshCache", [true], {
+        PK.transaction("RefreshCache", [true], {
                 ErrorCode: (code, details) => this.handleLoadError(details),
 
                 Finished: exit => {
@@ -1047,9 +1004,8 @@ class OsUpdates extends React.Component {
             notify => {
                 if ("Percentage" in notify && notify.Percentage <= 100)
                     this.setState({loadPercent: notify.Percentage});
-            },
-
-            this.handleLoadError);
+            })
+            .catch(this.handleLoadError);
     }
 
     handleRestart() {
@@ -1071,7 +1027,7 @@ class OsUpdates extends React.Component {
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
                            unregistered={this.state.unregistered}
                            allowCancel={this.state.allowCancel}
-                           onCancel={ () => dbus_pk.call(this.state.applyTransaction, transactionInterface, "Cancel", []) } />
+                           onCancel={ () => PK.dbus_client.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>

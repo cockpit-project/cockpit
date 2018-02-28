@@ -210,5 +210,19 @@ WantedBy=default.target
         b.wait_present('#file-content')
         b.wait_text('#file-content', "1")
 
+    @skipImage("Shell too old", "rhel-7-4")
+    def testShellReload(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go()
+
+        b.wait_in_text("#host-apps", "System")
+        m.execute("mkdir -p /home/admin/.local/share/cockpit/foo")
+        m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
+                '{ "menu": { "index": { "label": "FOO!" } } }')
+        b.reload()
+        b.wait_in_text("#host-apps", "FOO!")
+
 if __name__ == '__main__':
     test_main()

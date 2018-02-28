@@ -1046,13 +1046,13 @@ class VirtMachine(Machine):
                 raise
 
     # start virsh console
-    def qemu_console(self):
+    def qemu_console(self, extra_message=""):
         self.message("Started machine {0}".format(self.label))
         if self.maintain:
             message = "\nWARNING: Uncontrolled shutdown can lead to a corrupted image\n"
         else:
             message = "\nWARNING: All changes are discarded, the image file won't be changed\n"
-        message += self.diagnose() + "\nlogin: "
+        message += self.diagnose() + extra_message + "\nlogin: "
         message = message.replace("\n", "\r\n")
 
         try:

@@ -110,6 +110,7 @@ struct _CockpitPackages {
   gboolean dbus_inited;
   void (*on_change_callback) (gconstpointer data);
   gconstpointer on_change_callback_data;
+  gboolean reload_hint;
 };
 
 struct _CockpitPackage {
@@ -1465,6 +1466,13 @@ packages_method_call (GDBusConnection *connection,
       cockpit_packages_reload (packages);
       g_dbus_method_invocation_return_value (invocation, NULL);
     }
+  else if (g_str_equal (method_name, "ReloadHint"))
+    {
+      if (packages->reload_hint)
+        cockpit_packages_reload (packages);
+      packages->reload_hint = TRUE;
+      g_dbus_method_invocation_return_value (invocation, NULL);
+    }
   else
     g_return_if_reached ();
 }
@@ -1497,8 +1505,13 @@ static GDBusMethodInfo packages_reload_method = {
   -1, "Reload", NULL, NULL, NULL
 };
 
+static GDBusMethodInfo packages_reload_hint_method = {
+  -1, "ReloadHint", NULL, NULL, NULL
+};
+
 static GDBusMethodInfo *packages_methods[] = {
   &packages_reload_method,
+  &packages_reload_hint_method,
   NULL
 };
 

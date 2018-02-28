@@ -21,72 +21,61 @@ var cockpit = require("cockpit");
 
 var PK = require("packagekit.es6");
 
-var client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try" });
-
 function transaction(method, args, progress_cb, package_cb) {
     var defer = cockpit.defer();
+    var cancelled = false;
+    var status;
+    var allow_wait_status = false;
+    var progress_data = {
+        waiting: false,
+        percentage: 0,
+        cancel: null
+    };
 
-    client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [ ]).
-        done(function(path_result) {
-            var tr = client.proxy("org.freedesktop.PackageKit.Transaction", path_result[0]);
-            var cancelled = false;
-            var allow_wait_status = false;
+    function changed(props, transaction_path) { // notify handler
+        function cancel() {
+            PK.dbus_client.call(transaction_path, PK.transactionInterface, "Cancel", []);
+            cancelled = true;
+        }
 
-            function cancel() {
-                tr.Cancel();
-                cancelled = true;
-            }
+        if (progress_cb && defer.promise().state() == "pending") {
+            if ("Status" in props)
+                status = props.Status;
+            progress_data.waiting = allow_wait_status && (status === PK.Enum.STATUS_WAIT || status === PK.Enum.STATUS_WAITING_FOR_LOCK);
+            if ("Percentage" in props && props.Percentage <= 100)
+                progress_data.percentage = props.Percentage;
+            if ("AllowCancel" in props)
+                progress_data.cancel = props.AllowCancel ? cancel : null;
 
-            function changed() {
-                if (progress_cb && defer.promise().state() == "pending") {
-                    var data = {
-                        waiting: false,
-                        percentage: 0,
-                        cancel: null
-                    };
+            progress_cb(progress_data);
+        }
+    }
 
-                    if (allow_wait_status &&
-                        (tr.Status == PK.Enum.STATUS_WAIT || tr.Status == PK.Enum.STATUS_WAITING_FOR_LOCK))
-                        data.waiting = true;
-                    if (tr.Percentage !== undefined && tr.Percentage !== 101)
-                        data.percentage = tr.Percentage;
-                    if (tr.AllowCancel)
-                        data.cancel = cancel;
+    // We ignore PK.Enum.STATUS_WAIT and friends during
+    // the first second of a transaction.  They are always
+    // reported briefly even when a transaction doesn't
+    // really need to wait.
+    window.setTimeout(function () {
+        allow_wait_status = true;
+        changed({});
+    }, 1000);
 
-                    progress_cb(data);
-                }
-            }
-
-            changed();
-            tr.addEventListener("changed", changed);
-
-            // We ignore PK.Enum.STATUS_WAIT and friends during
-            // the first second of a transaction.  They are always
-            // reported briefly even when a transaction doesn't
-            // really need to wait.
-            window.setTimeout(function () {
-                allow_wait_status = true;
-                changed();
-            }, 1000);
-
-            tr.addEventListener("ErrorCode", function (event, code, details) {
+    PK.transaction(method, args,
+        {
+            ErrorCode: function (code, details) {
                 defer.reject(details, cancelled ? "cancelled" : code);
-            });
-            tr.addEventListener("Package", function (event, info, package_id, summary) {
+            },
+
+            Package: function (info, package_id, summary) {
                 if (package_cb && defer.promise().state() == "pending")
                     package_cb(info, package_id, summary);
-            });
-            tr.addEventListener("Finished", function (event, exit, runtime) {
+            },
+
+            Finished: function (exit, runtime) {
                 defer.resolve(exit);
-            });
-            tr.call(method, args).fail(function (error) {
-                console.log("Error", error);
-                defer.reject(error, null);
-            });
-        }).
-        fail(function (error) {
-            defer.reject(error, null);
-        });
+            }
+        }, changed).
+        catch(defer.reject);
 
     return defer.promise();
 }

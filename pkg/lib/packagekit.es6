@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 /*
  * This file is part of Cockpit.
  *
@@ -16,6 +18,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+
+import cockpit from "cockpit";
 
 // see https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
 export const Enum = {
@@ -44,3 +48,76 @@ export const Enum = {
     FILTER_NOT_SOURCE: (1 << 21),
     ERROR_ALREADY_INSTALLED: 9,
 };
+
+export const transactionInterface = "org.freedesktop.PackageKit.Transaction";
+
+export const dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
+
+/**
+ * Watch a running PackageKit transaction
+ *
+ * transactionPath (string): D-Bus object path of the PackageKit transaction
+ * signalHandlers, notifyHandler: As in method #transaction
+ */
+export function watchTransaction(transactionPath, signalHandlers, notifyHandler) {
+    var subscriptions = [];
+
+    if (signalHandlers) {
+        Object.keys(signalHandlers).forEach(handler => subscriptions.push(
+            dbus_client.subscribe({ interface: transactionInterface, path: transactionPath, member: handler },
+                                  (path, iface, signal, args) => signalHandlers[handler](...args)))
+        );
+    }
+
+    if (notifyHandler) {
+        subscriptions.push(dbus_client.watch(transactionPath));
+        dbus_client.addEventListener("notify", reply => {
+            if (transactionPath in reply.detail && transactionInterface in reply.detail[transactionPath])
+                notifyHandler(reply.detail[transactionPath][transactionInterface], transactionPath);
+        });
+    }
+
+    // unsubscribe when transaction finished
+    subscriptions.push(dbus_client.subscribe(
+        { interface: transactionInterface, path: transactionPath, member: "Finished" },
+        () => subscriptions.map(s => s.remove()))
+    );
+}
+
+/**
+ * Run a PackageKit transaction
+ *
+ * method (string): D-Bus method name on the https://www.freedesktop.org/software/PackageKit/gtk-doc/Transaction.html interface
+ * arglist (array): "in" arguments of @method
+ * signalHandlers (object): maps PackageKit.Transaction signal names to handlers
+ * notifyHandler (function): handler for http://cockpit-project.org/guide/latest/cockpit-dbus.html#cockpit-dbus-onnotify
+ *                           signals, called on property changes with (changed_properties, transaction_path)
+ * Returns: Promise that resolves with transaction path on success, or rejects on an error
+ *
+ * Note that most often you don't really need the transaction path, but want to
+ * listen to the "Finished" signal.
+ *
+ * Example:
+ *     transaction("GetUpdates", [0], {
+ *             Package: (info, packageId, _summary) => { ... },
+ *             ErrorCode: (code, details) => { ... },
+ *         },
+ *         changedProps => { ... }  // notify handler
+ *     )
+ *        .then(transactionPath => { ... })
+ *        .catch(ex => { handle exception });
+ */
+export function transaction(method, arglist, signalHandlers, notifyHandler) {
+    return new Promise((resolve, reject) => {
+        dbus_client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [], {timeout: 5000})
+            .done(result => {
+                let transactionPath = result[0];
+                if (signalHandlers || notifyHandler)
+                    watchTransaction(transactionPath, signalHandlers, notifyHandler);
+                dbus_client.call(transactionPath, transactionInterface, method, arglist)
+                    .done(() => resolve(transactionPath))
+                    .fail(reject);
+            })
+            .fail(reject);
+    });
+}

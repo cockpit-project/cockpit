@@ -586,6 +586,13 @@
                                        }
                                    }
                                });
+
+                /* Tell the bridge to reload the packages, but only if
+                   it hasn't just started.  Thus, nothing happens on
+                   the first login, but if you reload the shell, we
+                   will also reload the packages.
+                */
+                dbus.call("/packages", "cockpit.Packages", "ReloadHint", [ ]);
             }
 
             function request_hostname() {

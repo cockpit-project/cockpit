@@ -26,6 +26,8 @@ test_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(test_dir)
 
 from verify import parent
+parent # pyflakes
+
 from testlib import *
 from testvm import VirtMachine
 

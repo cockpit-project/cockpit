@@ -21,6 +21,7 @@ import errno
 import os
 import subprocess
 import sys
+import re
 
 from verify import parent
 import testvm
@@ -121,13 +122,21 @@ try:
 
     machine.start()
 
+    # for a bridged network, up its interface with DHCP and show it in the console message
+    message = ""
+    if args.network and bridge:
+        machine.execute("nmcli connection modify 'System eth1' ipv4.method auto && nmcli connection up 'System eth1'")
+        output = machine.execute("ip -4 a show dev eth1")
+        ip = re.search("inet ([^/]+)", output).group(1)
+        message = "\nBRIDGE IP FROM HOST\n  %s\n" % ip
+
     # Graphics console necessary
     if "windows" in args.image:
         machine.graphics_console()
 
     # No graphics console necessary
     else:
-        machine.qemu_console()
+        machine.qemu_console(message)
 
 except testvm.Failure as ex:
     sys.stderr.write("vm-run: %s\n" % ex)

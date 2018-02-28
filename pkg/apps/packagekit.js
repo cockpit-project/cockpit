@@ -19,18 +19,9 @@
 
 var cockpit = require("cockpit");
 
+var PK = require("packagekit.es6");
+
 var client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try" });
-
-var PK_STATUS_ENUM_WAIT = 1;
-var PK_STATUS_ENUM_WAITING_FOR_LOCK = 30;
-
-var PK_FILTER_INSTALLED     = (1 << 2);
-var PK_FILTER_NOT_INSTALLED = (1 << 3);
-var PK_FILTER_NEWEST        = (1 << 16);
-var PK_FILTER_ARCH          = (1 << 18);
-var PK_FILTER_NOT_SOURCE    = (1 << 21);
-
-var PK_ERROR_ALREADY_INSTALLED = 9;
 
 function transaction(method, args, progress_cb, package_cb) {
     var defer = cockpit.defer();
@@ -55,7 +46,7 @@ function transaction(method, args, progress_cb, package_cb) {
                     };
 
                     if (allow_wait_status &&
-                        (tr.Status == PK_STATUS_ENUM_WAIT || tr.Status == PK_STATUS_ENUM_WAITING_FOR_LOCK))
+                        (tr.Status == PK.Enum.STATUS_WAIT || tr.Status == PK.Enum.STATUS_WAITING_FOR_LOCK))
                         data.waiting = true;
                     if (tr.Percentage !== undefined && tr.Percentage !== 101)
                         data.percentage = tr.Percentage;
@@ -69,7 +60,7 @@ function transaction(method, args, progress_cb, package_cb) {
             changed();
             tr.addEventListener("changed", changed);
 
-            // We ignore PK_STATUS_ENUM_WAIT and friends during
+            // We ignore PK.Enum.STATUS_WAIT and friends during
             // the first second of a transaction.  They are always
             // reported briefly even when a transaction doesn't
             // really need to wait.
@@ -144,7 +135,7 @@ function reload_bridge_packages() {
 }
 
 function install(name, progress_cb) {
-    return resolve("Resolve", PK_FILTER_ARCH | PK_FILTER_NOT_SOURCE | PK_FILTER_NEWEST, name,
+    return resolve("Resolve", PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, name,
                    progress_reporter(0, 1, progress_cb)).
         then(function (pkgid) {
             return transaction("InstallPackages", [ 0, [ pkgid ] ], progress_reporter(1, 99, progress_cb)).
@@ -153,7 +144,7 @@ function install(name, progress_cb) {
 }
 
 function remove(name, progress_cb) {
-    return resolve("SearchFiles", PK_FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb)).
+    return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb)).
         then(function (pkgid) {
             return transaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb)).
                 then(reload_bridge_packages);
@@ -193,7 +184,7 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
     }
 
     function search_origin_file_packages() {
-        return transaction("SearchFiles", [ PK_FILTER_INSTALLED, origin_files ],
+        return transaction("SearchFiles", [ PK.Enum.FILTER_INSTALLED, origin_files ],
                            progress_reporter(5, 1, progress_cb), gather_origin_cb);
     }
 
@@ -215,14 +206,14 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
     function ensure_packages(pkgs, start_progress) {
         if (pkgs.length > 0) {
             return resolve_many("Resolve",
-                                PK_FILTER_ARCH | PK_FILTER_NOT_SOURCE | PK_FILTER_NEWEST | PK_FILTER_NOT_INSTALLED,
+                                PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED,
                                 pkgs, progress_reporter(start_progress, 1, progress_cb)).
                 then(function (ids) {
                     if (ids.length > 0) {
                         return transaction("InstallPackages", [ 0, ids ],
                                            progress_reporter(start_progress + 1, 4, progress_cb)).
                             catch(function (error, code) {
-                                if (code != PK_ERROR_ALREADY_INSTALLED)
+                                if (code != PK.Enum.ERROR_ALREADY_INSTALLED)
                                     return cockpit.reject(error, code);
                             });
                     }

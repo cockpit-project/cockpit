@@ -24,6 +24,8 @@ import { Tooltip } from "cockpit-components-tooltip.jsx";
 import Markdown from "react-remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 
+import * as PK from "packagekit.es6";
+
 require("listing.less");
 
 const _ = cockpit.gettext;
@@ -40,36 +42,20 @@ const STATE_HEADINGS = {
     "loadError": _("Loading available updates failed"),
 }
 
-// see https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
-const PK_EXIT_ENUM_SUCCESS = 1;
-const PK_EXIT_ENUM_FAILED = 2;
-const PK_EXIT_ENUM_CANCELLED = 3;
-const PK_ROLE_ENUM_REFRESH_CACHE = 13;
-const PK_ROLE_ENUM_UPDATE_PACKAGES = 22;
-const PK_INFO_ENUM_LOW = 3;
-//const PK_INFO_ENUM_ENHANCEMENT = 4;
-const PK_INFO_ENUM_NORMAL = 5;
-//const PK_INFO_ENUM_BUGFIX = 6;
-//const PK_INFO_ENUM_IMPORTANT = 7;
-const PK_INFO_ENUM_SECURITY = 8;
-const PK_STATUS_ENUM_WAIT = 1;
-const PK_STATUS_ENUM_UPDATE = 10;
-const PK_STATUS_ENUM_WAITING_FOR_LOCK = 30;
-
 const PK_STATUS_STRINGS = {
-    8: _("Downloading"),
-    9: _("Installing"),
-    10: _("Updating"),
-    11: _("Setting up"),
-    14: _("Verifying"),
+    [PK.Enum.STATUS_DOWNLOAD]: _("Downloading"),
+    [PK.Enum.STATUS_INSTALL]: _("Installing"),
+    [PK.Enum.STATUS_UPDATE]: _("Updating"),
+    [PK.Enum.STATUS_CLEANUP]: _("Setting up"),
+    [PK.Enum.STATUS_SIGCHECK]: _("Verifying"),
 }
 
 const PK_STATUS_LOG_STRINGS = {
-    8: _("Downloaded"),
-    9: _("Installed"),
-    10: _("Updated"),
-    11: _("Set up"),
-    14: _("Verified"),
+    [PK.Enum.STATUS_DOWNLOAD]: _("Downloaded"),
+    [PK.Enum.STATUS_INSTALL]: _("Installed"),
+    [PK.Enum.STATUS_UPDATE]: _("Updated"),
+    [PK.Enum.STATUS_CLEANUP]: _("Set up"),
+    [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
 }
 
 const transactionInterface = "org.freedesktop.PackageKit.Transaction";
@@ -192,7 +178,7 @@ class Expander extends React.Component {
 function count_security_updates(updates) {
     var num_security = 0;
     for (let u in updates)
-        if (updates[u].severity === PK_INFO_ENUM_SECURITY)
+        if (updates[u].severity === PK.Enum.INFO_SECURITY)
            ++num_security;
     return num_security;
 }
@@ -311,7 +297,7 @@ class UpdateItem extends React.Component {
 
         var type;
         var secSeverity;
-        if (info.severity === PK_INFO_ENUM_SECURITY) {
+        if (info.severity === PK.Enum.INFO_SECURITY) {
             let classes = "pficon pficon-security";
 
             // parse Red Hat security update classification from vendor_urls
@@ -327,7 +313,7 @@ class UpdateItem extends React.Component {
                     <span className={classes}>&nbsp;</span>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </span>);
-        } else if (info.severity >= PK_INFO_ENUM_NORMAL) {
+        } else if (info.severity >= PK.Enum.INFO_NORMAL) {
             type = (
                 <span>
                     <span className="fa fa-bug">&nbsp;</span>
@@ -388,7 +374,7 @@ class UpdateItem extends React.Component {
 
         return (
             <tbody className={ this.state.expanded ? "open" : null } >
-                <tr className={ "listing-ct-item" + (info.severity === PK_INFO_ENUM_SECURITY ? " security" : "") }
+                <tr className={ "listing-ct-item" + (info.severity === PK.Enum.INFO_SECURITY ? " security" : "") }
                     onClick={ () => this.setState({expanded: !this.state.expanded}) }>
                     <td className="listing-ct-toggle">
                         <i className="fa fa-fw"></i>
@@ -428,9 +414,9 @@ function UpdatesList(props) {
 
     // sort security first
     updates.sort((a, b) => {
-        if (props.updates[a].severity === PK_INFO_ENUM_SECURITY && props.updates[b].severity !== PK_INFO_ENUM_SECURITY)
+        if (props.updates[a].severity === PK.Enum.INFO_SECURITY && props.updates[b].severity !== PK.Enum.INFO_SECURITY)
             return -1;
-        if (props.updates[a].severity !== PK_INFO_ENUM_SECURITY && props.updates[b].severity === PK_INFO_ENUM_SECURITY)
+        if (props.updates[a].severity !== PK.Enum.INFO_SECURITY && props.updates[b].severity === PK.Enum.INFO_SECURITY)
             return 1;
         return a.localeCompare(b);
     });
@@ -534,12 +520,12 @@ class ApplyUpdates extends React.Component {
             let lastAction = this.state.actions[this.state.actions.length - 1];
             actionHTML = (
                 <span>
-                    <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK_STATUS_ENUM_UPDATE] }</strong>
+                    <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                     &nbsp;{lastAction.package}
                 </span>);
             logRows = this.state.actions.slice(0, -1).map(action => (
                 <tr>
-                    <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK_STATUS_ENUM_UPDATE]}</th>
+                    <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
                     <td>{action.package}</td>
                 </tr>));
         } else {
@@ -621,7 +607,7 @@ class OsUpdates extends React.Component {
                     .done(roles => {
                         // any transaction with UPDATE_PACKAGES role?
                         for (let idx = 0; idx < roles.length; ++idx) {
-                            if (roles[idx].v === PK_ROLE_ENUM_UPDATE_PACKAGES) {
+                            if (roles[idx].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
                                 this.watchUpdates(transactions[idx]);
                                 return;
                             }
@@ -689,7 +675,7 @@ class OsUpdates extends React.Component {
                     // many backends don't support proper severities; parse CVEs from description as a fallback
                     u.cve_urls = deduplicate(cve_urls && cve_urls.length > 0 ? cve_urls : parseCVEs(u.description));
                     if (u.cve_urls && u.cve_urls.length > 0)
-                        u.severity = PK_INFO_ENUM_SECURITY;
+                        u.severity = PK.Enum.INFO_SECURITY;
                     u.vendor_urls = vendor_urls || [];
                     // u.restart = restart; // broken (always "1") at least in Fedora
 
@@ -721,8 +707,8 @@ class OsUpdates extends React.Component {
                     let id_fields = packageId.split(";");
                     packageSummaries[id_fields[0]] = _summary;
                     // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-                    if (info < PK_INFO_ENUM_LOW || info > PK_INFO_ENUM_SECURITY)
-                        info = PK_INFO_ENUM_NORMAL;
+                    if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
+                        info = PK.Enum.INFO_NORMAL;
                     updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info };
                     if (id_fields[0] == "cockpit-ws")
                         cockpitUpdate = true;
@@ -749,7 +735,7 @@ class OsUpdates extends React.Component {
 
             notify => {
                 if ("Status" in notify) {
-                    let waiting = (notify.Status === PK_STATUS_ENUM_WAIT || notify.Status === PK_STATUS_ENUM_WAITING_FOR_LOCK);
+                    let waiting = (notify.Status === PK.Enum.STATUS_WAIT || notify.Status === PK.Enum.STATUS_WAITING_FOR_LOCK);
                     if (waiting != this.state.waiting) {
                         // to avoid flicker, we only switch to "locked" after 1s, as we will get a WAIT state
                         // even if the package db is unlocked
@@ -772,7 +758,7 @@ class OsUpdates extends React.Component {
         // would be nice to filter only for "update-packages" role, but can't here
         pkTransaction("GetOldTransactions", [0], {
                 Transaction: (objPath, timeSpec, succeeded, role, duration, data) => {
-                    if (role !== PK_ROLE_ENUM_UPDATE_PACKAGES)
+                    if (role !== PK.Enum.ROLE_UPDATE_PACKAGES)
                         return;
                     // data looks like:
                     // downloading	bash-completion;1:2.6-1.fc26;noarch;updates-testing
@@ -826,7 +812,7 @@ class OsUpdates extends React.Component {
         this.watchRedHatSubscription();
 
         dbus_pk.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
-                     [PK_ROLE_ENUM_REFRESH_CACHE], {timeout: 5000})
+                     [PK.Enum.ROLE_REFRESH_CACHE], {timeout: 5000})
             .done(seconds => {
                 this.setState({timeSinceRefresh: seconds});
 
@@ -853,14 +839,14 @@ class OsUpdates extends React.Component {
                 Finished: exit => {
                     this.setState({ applyTransaction: null, allowCancel: null });
 
-                    if (exit === PK_EXIT_ENUM_SUCCESS) {
+                    if (exit === PK.Enum.EXIT_SUCCESS) {
                         this.setState({ state: "updateSuccess", loadPercent: null });
-                    } else if (exit === PK_EXIT_ENUM_CANCELLED) {
+                    } else if (exit === PK.Enum.EXIT_CANCELLED) {
                         this.setState({ state: "loading", loadPercent: null });
                         this.loadUpdates();
                     } else {
                         // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
-                        if (exit !== PK_EXIT_ENUM_FAILED)
+                        if (exit !== PK.Enum.EXIT_FAILED)
                             this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
                         this.setState({state: "updateError"});
                     }
@@ -879,7 +865,7 @@ class OsUpdates extends React.Component {
     applyUpdates(securityOnly) {
         var ids = Object.keys(this.state.updates);
         if (securityOnly)
-            ids = ids.filter(id => this.state.updates[id].severity === PK_INFO_ENUM_SECURITY);
+            ids = ids.filter(id => this.state.updates[id].severity === PK.Enum.INFO_SECURITY);
 
         pkTransaction("UpdatePackages", [0, ids], {}, null, ex => {
                 // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
@@ -1049,7 +1035,7 @@ class OsUpdates extends React.Component {
                 ErrorCode: (code, details) => this.handleLoadError(details),
 
                 Finished: exit => {
-                    if (exit === PK_EXIT_ENUM_SUCCESS) {
+                    if (exit === PK.Enum.EXIT_SUCCESS) {
                         this.setState({timeSinceRefresh: 0});
                         this.loadUpdates();
                     } else {

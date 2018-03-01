@@ -1,0 +1,74 @@
+#!/usr/bin/python2
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import unittest
+import subprocess
+import os
+import shutil
+import tempfile
+from glob import glob
+
+import parent
+from testlib import *
+import testvm
+
+@unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
+class TestImageCustomize(unittest.TestCase):
+    def checkBoot(self, image):
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image to run"):
+            network = testvm.VirtNetwork(0)
+            machine = testvm.VirtMachine(image=image, networking=network.host(), memory_mb=512)
+            machine.start()
+            machine.wait_boot()
+            out = machine.execute('cat /var/custom-test')
+            machine.stop()
+        self.assertEqual(out, "hello\n")
+
+    def testCustomDir(self):
+        dest = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, dest)
+
+        img = os.path.join(dest, os.environ["TEST_OS"])
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--run-command",
+                                   "echo hello > /var/custom-test", img ])
+
+        self.assertTrue(os.path.exists(img))
+        self.checkBoot(img)
+
+    def testBaseImage(self):
+        img = "custom-" + os.environ["TEST_OS"]
+
+        def cleanup():
+            for f in glob("test/images/%s*" % img):
+                os.unlink(f)
+        self.addCleanup(cleanup)
+
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--run-command",
+                                   "echo hello > /var/custom-test", "--base-image", os.environ["TEST_OS"], img ])
+
+        self.assertTrue(os.path.exists(os.path.join("test/images", img)))
+        # notice, not giving directory here - test/images/ should be the default
+        self.checkBoot(img)
+
+
+if __name__ == '__main__':
+    test_main()

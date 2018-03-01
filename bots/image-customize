@@ -112,7 +112,7 @@ if args.commandlist or args.packagelist or args.scriptlist or args.uploadlist:
     if '/' not in args.image:
         subprocess.check_call(["image-download", args.image])
     machine = testvm.VirtMachine(maintain=True,
-        verbose=args.verbose, image=prepare_install_image(args.image), label="install")
+        verbose=args.verbose, image=prepare_install_image(args.image))
     machine.start()
     machine.wait_boot()
     try:

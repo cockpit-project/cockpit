@@ -83,7 +83,7 @@ def run_script(machine_instance, scriptlist):
         if os.path.isfile(foo):
             pname = os.path.basename(foo)
             uploadpath = "/var/tmp/" + pname
-            machine_instance.upload([foo], uploadpath)
+            machine_instance.upload([os.path.abspath(foo)], uploadpath)
             machine_instance.execute("chmod a+x %s" % uploadpath)
             machine_instance.execute(uploadpath, timeout=1800)
         else:

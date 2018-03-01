@@ -69,6 +69,22 @@ class TestImageCustomize(unittest.TestCase):
         # notice, not giving directory here - test/images/ should be the default
         self.checkBoot(img)
 
+    def testScriptRelativePath(self):
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+
+        script = os.path.join(dest, "setup.sh")
+        with open(script, "w") as f:
+            f.write("#!/bin/sh -eu\necho hello > /var/custom-test\n")
+
+        img = os.path.join(dest, os.environ["TEST_OS"])
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--script", script, img])
+
+        self.assertTrue(os.path.exists(img))
+        self.checkBoot(img)
+
+
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
 class TestBotsVM(unittest.TestCase):
     def testBasic(self):

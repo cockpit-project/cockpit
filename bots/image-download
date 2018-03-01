@@ -49,6 +49,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import fcntl
 import urllib.parse
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
@@ -206,6 +207,21 @@ def committed_target(image):
 
     return dest
 
+def wait_lock(target):
+    lockfile = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources", os.path.basename(target) + ".lock")
+    # we need to keep the lock fd open throughout the entire runtime, so remember it in a global-scoped variable
+    wait_lock.f = open(lockfile, "w")
+    for retry in range(360):
+        try:
+            fcntl.flock(wait_lock.f, fcntl.LOCK_NB | fcntl.LOCK_EX)
+            return
+        except BlockingIOError as e:
+            if retry == 0:
+                print("Waiting for concurrent image-download of %s..." % os.path.basename(target))
+            time.sleep(10)
+    else:
+        raise TimeoutError("timed out waiting for concurrent downloads of %s\n" % target)
+
 def download_images(image_list, force, quiet, state, store):
     if not os.path.exists(DATA):
         os.makedirs(DATA)
@@ -230,6 +246,10 @@ def download_images(image_list, force, quiet, state, store):
                 target = state_target(image)
             else:
                 target = committed_target(image)
+
+            # don't download the same thing multiple times in parallel
+            wait_lock(target)
+
             if force or state or not os.path.exists(target):
                 download(target, force, quiet, store)
         except Exception as ex:

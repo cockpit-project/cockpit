@@ -157,6 +157,24 @@ rm -r /tmp/registry
 cp /openshift.local.config/master/ca.crt /etc/pki/ca-trust/source/anchors/openshift-ca.crt
 update-ca-trust extract
 
+# HACK: Work around GnuTLS (client-side) or Go TLS (server-side) bug with
+# multiple O= RDNs; if it's in the "wrong" order, create a new admin
+# certificate that swaps it around
+# See https://github.com/openshift/origin/issues/18715
+if [ -n "$PRERELEASE" ] && openssl x509 -in /openshift.local.config/master/admin.crt -text | grep -q 'Subject:.*system:cluster-admins.*system:masters'; then
+    echo "Regenerating admin certificate to work around https://github.com/openshift/origin/issues/18715"
+    pushd /openshift.local.config/master/
+    mv admin.key admin.key.orig
+    mv admin.crt admin.crt.orig
+    mv admin.kubeconfig admin.kubeconfig.orig
+    openssl genrsa -out admin.key 2048
+    openssl req -new -nodes -key admin.key -out admin.csr -subj '/O=system:masters/O=system:cluster-admins/CN=system:admin'
+    openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 730 -out admin.crt
+    rm admin.csr
+    oc adm create-kubeconfig --certificate-authority=ca.crt --client-certificate=admin.crt --client-key=admin.key --master="https://10.111.112.101:8443" --kubeconfig=admin.kubeconfig
+    popd
+fi
+
 mkdir -p /root/.kube
 cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
 

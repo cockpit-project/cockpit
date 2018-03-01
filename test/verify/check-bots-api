@@ -69,6 +69,40 @@ class TestImageCustomize(unittest.TestCase):
         # notice, not giving directory here - test/images/ should be the default
         self.checkBoot(img)
 
+@unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
+class TestBotsVM(unittest.TestCase):
+    def testBasic(self):
+        dest = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--run-command",
+                                   "echo hello > /var/custom-test", img ])
+
+        # boot it and wait for RUNNING marker, parse out ssh and cockpit addresses
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for testvm.py to boot VM"):
+            vm = subprocess.Popen(["bots/machine/testvm.py", img],
+                                  stdout=subprocess.PIPE, universal_newlines=True)
+            # first line should be the SSH command
+            ssh_command = vm.stdout.readline().split()
+            # second line is the redirected cockpit address
+            cockpit_address = vm.stdout.readline()
+            # third should be the "I am ready" flag
+            running = vm.stdout.readline()
+
+        self.assertEqual(running, "RUNNING\n")
+        self.assertTrue(cockpit_address.startswith("http://127.0.0.2:9"), cockpit_address)
+        # test SSH command and that we have the expected flag file
+        self.assertEqual(ssh_command[0], "ssh")
+        with testvm.Timeout(seconds=30, error_message="Timed out waiting for ssh command"):
+            out = subprocess.check_output(ssh_command + ["cat", "/var/custom-test"])
+        self.assertEqual(out, "hello\n")
+
+        # should cleanly stop on SIGTERM
+        vm.terminate()
+        with testvm.Timeout(seconds=60, error_message="Timed out waiting for script to terminate"):
+            self.assertEqual(vm.wait(), 0)
+
 
 if __name__ == '__main__':
     test_main()

@@ -1,3 +1,4 @@
+#!/usr/bin/python3 -u
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -1332,3 +1333,39 @@ done;
 """ % (address, port)
         with Timeout(seconds=seconds, error_message="Timeout while waiting for cockpit to start"):
             self.execute(script=WAIT_COCKPIT_RUNNING)
+
+# This can be used as helper program for tests not written in Python: Run given
+# image name until SIGTERM or SIGINT; the image must exist in test/images/;
+# use image-prepare or image-customize to create that. For example:
+# $ bots/image-customize -v -i cockpit centos-7
+# $ bots/machine/testvm.py centos-7
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run a VM image until SIGTERM or SIGINT")
+    parser.add_argument("--memory", type=int, default=1024,
+                        help="Memory in MiB to allocate to the VM (default: %(default)s)")
+    parser.add_argument("image", help="Image name")
+    args = parser.parse_args()
+
+    network = VirtNetwork(0)
+    machine = VirtMachine(image=args.image, networking=network.host(), memory_mb=args.memory)
+    machine.start()
+    machine.wait_boot()
+
+    # run a command to force starting the SSH master
+    machine.execute('uptime')
+
+    # print ssh command
+    print("ssh -o ControlPath=%s -p %s %s@%s" %
+          (machine.ssh_master, machine.ssh_port, machine.ssh_user, machine.ssh_address))
+    # print Cockpit web address
+    print("http://%s:%s" % (machine.web_address, machine.web_port))
+    # print marker that the VM is ready; tests can poll for this to wait for the VM
+    print("RUNNING")
+
+    signal.signal(signal.SIGTERM, lambda sig, frame: machine.stop())
+    try:
+        signal.pause()
+    except KeyboardInterrupt:
+        machine.stop()

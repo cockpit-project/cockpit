@@ -195,15 +195,21 @@ def committed_target(image):
     dest = os.path.join(DATA, dest)
 
     # We have the file but there is not valid link
-    if os.path.exists(dest) and not os.path.exists(link):
-        os.symlink(dest, os.path.join(IMAGES, os.readlink(link)))
+    if os.path.exists(dest):
+        try:
+            os.symlink(dest, os.path.join(IMAGES, os.readlink(link)))
+        except FileExistsError:
+            pass
 
     # The image file in the images directory, may be same as dest
     image_file = os.path.join(IMAGES, os.readlink(link))
 
     # Double check that symlink in place but never make a cycle.
-    if not os.path.exists(image_file) and os.path.abspath(dest) != os.path.abspath(image_file):
-        os.symlink(os.path.abspath(dest), image_file)
+    if os.path.abspath(dest) != os.path.abspath(image_file):
+        try:
+            os.symlink(os.path.abspath(dest), image_file)
+        except FileExistsError:
+            pass
 
     return dest
 

@@ -83,8 +83,6 @@ class TestOVirtMachines(MachineCase):
         self.hack_for_missing_vdsm()
         self.pass_install_dialog()
 
-        self.allow_journal_messages('.*type=1400.*')
-
     def wait_for_dc(self):
         # wait for DC to get up
         m = self.machine

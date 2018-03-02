@@ -112,6 +112,10 @@ echo 'NETWORKING=yes' > /etc/sysconfig/network
 useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
 
+if [ "${IMAGE%-testing}" != "$IMAGE" ]; then
+    dnf config-manager --set-enabled updates-testing
+fi
+
 dnf $DNF_OPTS -y upgrade
 dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $ABRT_PACKAGES
 
@@ -131,6 +135,10 @@ fi
 dnf $DNF_OPTS -y install mock dnf-plugins-core rpm-build
 useradd -c Builder -G mock builder
 
+if [ "${IMAGE%-testing}" != "$IMAGE" ]; then
+    # Enable updates-testing in mock
+    echo "config_opts['yum.conf'] += '[updates-testing]\nenabled=1'" >>/etc/mock/default.cfg
+fi
 
 srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 

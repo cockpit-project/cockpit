@@ -3,6 +3,11 @@
 set -ex
 IMAGE="$1"
 
+# avoid failures when running image builds in a non-English locale (ssh transfers the host environment)
+unset LANGUAGE
+unset LANG
+export LC_ALL=C.utf8
+
 # keep this in sync with avocado/selenium image mapping in bots/tests-invoke
 if [ "$IMAGE" = fedora-26 ]; then
     AVOCADO=1

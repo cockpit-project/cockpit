@@ -142,7 +142,8 @@ def download(dest, force, quiet, stores):
 
     # Adjust the command above that worked to make it visible and download real stuff
     cmd.remove("--head")
-    if not quiet:
+    cmd.append("--show-error")
+    if not quiet and os.isatty(sys.stdout.fileno()):
         cmd.remove("--silent")
         cmd.insert(1, "--progress-bar")
     cmd.append("--remote-time")

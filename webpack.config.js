@@ -408,7 +408,8 @@ if (production)
 module.exports = {
     resolve: {
         alias: aliases,
-        modulesDirectories: [ libdir, nodedir ]
+        modulesDirectories: [ libdir, nodedir ],
+        extensions: ["", ".js", ".json", ".less"]
     },
     resolveLoader: {
         root: nodedir
@@ -457,7 +458,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                loader: extract.extract("css-loader?sourceMap&minimize=!less-loader?sourceMap&compress=false&root=" + libdir)
+                loader: extract.extract("css-loader?sourceMap&minimize=!less-loader?sourceMap&compress=false")
             },
             {
                 test: /views\/[^\/]+\.html$/,

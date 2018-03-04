@@ -1,21 +1,25 @@
-@import "/page.css";
-
 /* override default cockpit CSS, as this doesn't fit our table */
 table.listing-ct thead th:last-child {
     text-align: left;
 }
 
-tr.listing-ct-item td:last-child {
-    text-align: left;
-}
-
-tr.listing-ct-item td.version {
-    max-width: 18ex;
-    word-wrap: break-word;
-}
-
-tr.listing-ct-item td.type {
-    white-space: nowrap;
+tr.listing-ct-item {
+    td:last-child {
+        text-align: left;
+    }
+    td.version {
+        max-width: 18ex;
+        word-wrap: break-word;
+    }
+    td.type {
+        white-space: nowrap;
+    }
+    td.changelog {
+        max-width: 60vw;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .severity-critical {
@@ -30,20 +34,13 @@ tr.listing-ct-item td.type {
     color: #72767b;
 }
 
-tr.listing-ct-item td.changelog {
-    max-width: 60vw;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 p.changelog {
     max-height: 20em;
     overflow: auto;
-}
-
-p.changelog div.changelog {
-    white-space: pre-wrap;
+    div.changelog {
+        white-space: pre-wrap;
+    }
 }
 
 tr.security.listing-ct-item {
@@ -60,24 +57,22 @@ tr.security.listing-ct-item {
         margin: 0 0 0 -20px;
         width: 100vw;
         overflow: hidden;
-    }
-    .listing-ct thead {
-        display: none;
+        thead {
+            display: none;
+        }
     }
     .listing-ct-item {
         display: block;
         width: 100vw;
-    }
-    .listing-ct-item th,
-    .listing-ct-item td {
-        display: block;
-        width: 100%;
-        max-width: 100% !important;
-        padding: 10px 15px !important;
-    }
-    .listing-ct-item th + td,
-    .listing-ct-item td + td {
-        padding-top: 0 !important;
+        th, td {
+            display: block;
+            width: 100%;
+            max-width: 100% !important;
+            padding: 10px 15px !important;
+        }
+        th + td, td + td {
+            padding-top: 0 !important;
+        }
     }
 }
 
@@ -117,15 +112,13 @@ tr.security.listing-ct-item {
     margin-bottom: 2em;
     display: flex;
     align-items: center;
-}
-
-.expander-title hr {
-    flex: auto;
-}
-
-.expander-title span {
-    padding: 1ex;
-    flex: none;
+    hr {
+        flex: auto;
+    }
+    span {
+        padding: 1ex;
+        flex: none;
+    }
 }
 
 /* http://www.patternfly.org/pattern-library/communication/empty-state/ has a
@@ -134,14 +127,15 @@ tr.security.listing-ct-item {
 .blank-slate-pf {
     background: inherit;
     border: none;
+
+    /* standard blank-slate-pf does not limit width of paragraph, which looks ugly */
+    p {
+        max-width: 50rem;
+        margin: 0 auto;
+        text-align: center;
+    }
 }
 
-/* standard blank-slate-pf does not limit width of paragraph, which looks ugly */
-.blank-slate-pf p {
-    max-width: 50rem;
-    margin: 0 auto;
-    text-align: center;
-}
 
 .flow-list-blank-slate {
     padding-top: 8em;
@@ -156,18 +150,18 @@ tr.security.listing-ct-item {
     max-width: 110rem;
     text-align: left;
     box-sizing: border-box;
-}
 
-.flow-list li {
-    text-align: left;
-    box-sizing: border-box;
-    width: 22rem;
-    padding: 0 1ex;
-    display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-weight: 600;
+    li {
+        text-align: left;
+        box-sizing: border-box;
+        width: 22rem;
+        padding: 0 1ex;
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-weight: 600;
+    }
 }
 
 .update-log {
@@ -175,21 +169,19 @@ tr.security.listing-ct-item {
     margin: 0 auto;
     max-width: 69rem;
     text-align: center;
+    th {
+        text-align: left;
+        padding-right: 3ex;
+    }
+    td {
+        text-align: left;
+    }
 }
 
 .update-log-content {
     margin: 0 10ex;
     height: 13em;
     overflow-y: auto;
-}
-
-.update-log th {
-    text-align: left;
-    padding-right: 3ex;
-}
-
-.update-log td {
-    text-align: left;
 }
 
 /* Layout fix for tooltip arrows.
@@ -211,41 +203,38 @@ tr.security.listing-ct-item {
 }
 
 
-table.header-buttons td {
-    vertical-align: middle;
-}
-
-table.header-buttons h2 {
-    margin: 0 4rem 0 0; /* vertical default ones break vertical alignment */
-}
-
 table.header-buttons {
     margin-bottom: 20px; /* replacement for h2's margin-bottom */
+    td {
+        vertical-align: middle;
+    }
+    h2 {
+        margin: 0 4rem 0 0; /* vertical default ones break vertical alignment */
+    }
 }
 
 table.auto-conf {
     margin-bottom: 2em;
-}
-
-table.auto-conf td {
-    padding-right: 1ex !important;
-}
-
-/* bootstrap sets widths to 100%, way too wide for Select widgets */
-table.auto-conf .dropdown-toggle {
-    width: auto;
-}
-table.auto-conf .dropdown {
-    width: auto !important;
+    td {
+        padding-right: 1ex !important;
+    }
+    /* bootstrap sets widths to 100%, way too wide for Select widgets */
+    .dropdown-toggle {
+        width: auto;
+    }
+    .dropdown {
+        width: auto !important;
+    }
 }
 
 /* three columns for auto update hour picker */
-#auto-update-time ul {
-    width: 25ex;
-}
-
-#auto-update-time li {
-    width: 8ex;
-    display: inline-block;
-    text-align: right;
+#auto-update-time {
+    ul {
+        width: 25ex;
+    }
+    li {
+        width: 8ex;
+        display: inline-block;
+        text-align: right;
+    }
 }

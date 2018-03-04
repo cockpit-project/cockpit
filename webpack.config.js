@@ -148,7 +148,7 @@ var info = {
 
         "packagekit/updates": [
             "packagekit/updates.jsx",
-            "packagekit/updates.css",
+            "packagekit/updates.less",
         ],
 
         "users/users": [

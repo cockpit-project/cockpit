@@ -146,6 +146,21 @@ function insertCommas(list) {
     return list.reduce((prev, cur) => [prev, ", ", cur])
 }
 
+// Fedora changelogs are a wild mix of enumerations or not, headings, etc.
+// Remove that formatting to avoid an untidy updates overview list
+function cleanupChangelogLine(text) {
+    if (!text)
+        return text;
+
+    // enumerations
+    text = text.replace(/^[-* ]*/, "");
+
+    // headings
+    text = text.replace(/^=+\s+/, "").replace(/=+\s*$/, "");
+
+    return text.trim();
+}
+
 class Expander extends React.Component {
     constructor() {
         super();
@@ -335,6 +350,7 @@ class UpdateItem extends React.Component {
         var descriptionFirstLine = (info.description || "").trim();
         if (descriptionFirstLine.indexOf("\n") >= 0)
             descriptionFirstLine = descriptionFirstLine.slice(0, descriptionFirstLine.indexOf("\n"));
+        descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
         var description;
         if (info.markdown) {
             descriptionFirstLine = <Markdown source={descriptionFirstLine} />;

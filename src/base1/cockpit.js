@@ -2626,6 +2626,13 @@ function factory() {
             path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@").replace("%3D", "=").replace(/%2B/g, "+");
         else
             path = "" + path;
+
+        /* When host is not given (undefined), use current transport's host. If
+         * it is null, use localhost.
+         */
+        if (host === undefined)
+            host = cockpit.transport.host;
+
         var options = { command: "jump", location: path, host: host };
         cockpit.transport.inject("\n" + JSON.stringify(options));
     };

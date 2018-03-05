@@ -547,7 +547,7 @@ class OsUpdates extends React.Component {
     constructor() {
         super();
         this.state = { state: "loading", errorMessages: [], updates: {}, timeSinceRefresh: null,
-                       loadPercent: null, waiting: false, cockpitUpdate: false, allowCancel: null,
+                       loadPercent: null, cockpitUpdate: false, allowCancel: null,
                        history: null, unregistered: false, autoUpdatesEnabled: null };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
@@ -603,7 +603,8 @@ class OsUpdates extends React.Component {
     }
 
     handleLoadError(ex) {
-        this.state.errorMessages.push(ex.message || ex);
+        console.error("loading available updates failed:", JSON.stringify(ex));
+        this.state.errorMessages.push(ex.detail || ex.message || ex);
         this.setState({state: "loadError"});
     }
 
@@ -616,7 +617,7 @@ class OsUpdates extends React.Component {
     }
 
     loadUpdateDetails(pkg_ids) {
-        PK.transaction("GetUpdateDetail", [pkg_ids], {
+        PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], null, {
                 UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
                                update_text, changelog /* state, issued, updated */) => {
                     let u = this.state.updates[packageId];
@@ -641,15 +642,8 @@ class OsUpdates extends React.Component {
 
                     this.setState({ updates: this.state.updates });
                 },
-
-                Finished: () => this.setState({state: "available"}),
-
-                ErrorCode: (code, details) => {
-                    console.warn("UpdateDetail error:", code, details);
-                    // still show available updates, with reduced detail
-                    this.setState({state: "available"});
-                }
-            })
+        })
+            .then(() => this.setState({state: "available"}))
             .catch(ex => {
                 console.warn("GetUpdateDetail failed:", JSON.stringify(ex));
                 // still show available updates, with reduced detail
@@ -661,7 +655,9 @@ class OsUpdates extends React.Component {
         var updates = {};
         var cockpitUpdate = false;
 
-        PK.transaction("GetUpdates", [0], {
+        PK.cancellableTransaction("GetUpdates", [0],
+            data => this.setState({ state: data.waiting && "locked" || "loading" }),
+            {
                 Package: (info, packageId, _summary) => {
                     let id_fields = packageId.split(";");
                     packageSummaries[id_fields[0]] = _summary;
@@ -672,40 +668,17 @@ class OsUpdates extends React.Component {
                     if (id_fields[0] == "cockpit-ws")
                         cockpitUpdate = true;
                 },
-
-                ErrorCode: (code, details) => {
-                    this.state.errorMessages.push(details);
-                    this.setState({state: "loadError"});
-                },
-
-                // when GetUpdates() finished, get the details for all packages
-                Finished: () => {
-                    let pkg_ids = Object.keys(updates);
-                    if (pkg_ids.length) {
-                        this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });
-                        this.loadUpdateDetails(pkg_ids);
-                    } else {
-                        this.setState({state: "uptodate"});
-                    }
-                    this.loadHistory();
-                },
-
-            },  // end PK.transaction signalHandlers
-
-            notify => {
-                if ("Status" in notify) {
-                    let waiting = (notify.Status === PK.Enum.STATUS_WAIT || notify.Status === PK.Enum.STATUS_WAITING_FOR_LOCK);
-                    if (waiting != this.state.waiting) {
-                        // to avoid flicker, we only switch to "locked" after 1s, as we will get a WAIT state
-                        // even if the package db is unlocked
-                        if (waiting) {
-                            this.setState({waiting: true});
-                            window.setTimeout(() => { !this.state.waiting || this.setState({state: "locked"}) }, 1000);
-                        } else {
-                            this.setState({ state: "loading", waiting: false });
-                        }
-                    }
+            })
+            .then(() => {
+                // get the details for all packages
+                let pkg_ids = Object.keys(updates);
+                if (pkg_ids.length) {
+                    this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });
+                    this.loadUpdateDetails(pkg_ids);
+                } else {
+                    this.setState({state: "uptodate"});
                 }
+                this.loadHistory();
             })
             .catch(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
     }
@@ -998,22 +971,10 @@ class OsUpdates extends React.Component {
 
     handleRefresh() {
         this.setState({ state: "refreshing", loadPercent: null });
-        PK.transaction("RefreshCache", [true], {
-                ErrorCode: (code, details) => this.handleLoadError(details),
-
-                Finished: exit => {
-                    if (exit === PK.Enum.EXIT_SUCCESS) {
-                        this.setState({timeSinceRefresh: 0});
-                        this.loadUpdates();
-                    } else {
-                        this.setState({state: "loadError"});
-                    }
-                },
-            },
-
-            notify => {
-                if ("Percentage" in notify && notify.Percentage <= 100)
-                    this.setState({loadPercent: notify.Percentage});
+        PK.cancellableTransaction("RefreshCache", [true], data => this.setState({loadPercent: data.percentage}))
+            .then(() => {
+                this.setState({timeSinceRefresh: 0});
+                this.loadUpdates();
             })
             .catch(this.handleLoadError);
     }

@@ -21,69 +21,6 @@
 import cockpit from "cockpit";
 import * as PK from "packagekit.es6";
 
-function transaction(method, args, progress_cb, package_cb) {
-    return new Promise((resolve, reject) => {
-        let cancelled = false;
-        let status;
-        let allow_wait_status = false;
-        let progress_data = {
-            waiting: false,
-            percentage: 0,
-            cancel: null
-        };
-
-        function changed(props, transaction_path) { // notify handler
-            function cancel() {
-                PK.dbus_client.call(transaction_path, PK.transactionInterface, "Cancel", []);
-                cancelled = true;
-            }
-
-            if (progress_cb) {
-                if ("Status" in props)
-                    status = props.Status;
-                progress_data.waiting = allow_wait_status && (status === PK.Enum.STATUS_WAIT || status === PK.Enum.STATUS_WAITING_FOR_LOCK);
-                if ("Percentage" in props && props.Percentage <= 100)
-                    progress_data.percentage = props.Percentage;
-                if ("AllowCancel" in props)
-                    progress_data.cancel = props.AllowCancel ? cancel : null;
-
-                progress_cb(progress_data);
-            }
-        }
-
-        // We ignore PK.Enum.STATUS_WAIT and friends during
-        // the first second of a transaction.  They are always
-        // reported briefly even when a transaction doesn't
-        // really need to wait.
-        window.setTimeout(() => {
-            allow_wait_status = true;
-            changed({});
-        }, 1000);
-
-        PK.transaction(method, args,
-            {
-                // avoid calling progress_cb after ending the transaction, to avoid flickering cancel buttons
-                ErrorCode: (code, detail) => {
-                    progress_cb = null;
-                    reject({ detail, code: cancelled ? "cancelled" : code });
-                },
-
-                Finished: (exit, runtime) => {
-                    progress_cb = null;
-                    resolve(exit);
-                },
-
-                Package: (info, package_id, summary) => {
-                    if (package_cb)
-                        package_cb(info, package_id, summary);
-                },
-
-            },
-            changed).
-            catch(reject);
-    });
-}
-
 function progress_reporter(base, range, callback) {
     if (callback) {
         return function (data) {
@@ -97,8 +34,10 @@ function progress_reporter(base, range, callback) {
 function resolve_many(method, filter, names, progress_cb) {
     var ids = [ ];
 
-    return transaction(method, [ filter, names ], progress_cb,
-                       (info, package_id) => ids.push(package_id)).
+    return PK.cancellableTransaction(method, [ filter, names ], progress_cb,
+        {
+            Package: (info, package_id) => ids.push(package_id),
+        }).
         then(() => ids);
 }
 
@@ -122,7 +61,7 @@ function install(name, progress_cb) {
     return resolve("Resolve", PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, name,
                    progress_reporter(0, 1, progress_cb)).
         then(function (pkgid) {
-            return transaction("InstallPackages", [ 0, [ pkgid ] ], progress_reporter(1, 99, progress_cb)).
+            return PK.cancellableTransaction("InstallPackages", [ 0, [ pkgid ] ], progress_reporter(1, 99, progress_cb)).
                 then(reload_bridge_packages);
         });
 }
@@ -130,7 +69,7 @@ function install(name, progress_cb) {
 function remove(name, progress_cb) {
     return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb)).
         then(function (pkgid) {
-            return transaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb)).
+            return PK.cancellableTransaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb)).
                 then(reload_bridge_packages);
         });
 }
@@ -156,34 +95,34 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
      * contain AppStream data themselves.
      */
 
-    function gather_origin_cb(info, package_id) {
-        var pkg = package_id.split(";")[0];
-        origin_pkgs[pkg] = true;
-    }
-
-    function gather_update_cb(info, package_id) {
-        var pkg = package_id.split(";")[0];
-        if (pkg in origin_pkgs)
-            update_ids.push(package_id);
-    }
-
     function search_origin_file_packages() {
-        return transaction("SearchFiles", [ PK.Enum.FILTER_INSTALLED, origin_files ],
-                           progress_reporter(5, 1, progress_cb), gather_origin_cb);
+        return PK.cancellableTransaction("SearchFiles", [ PK.Enum.FILTER_INSTALLED, origin_files ],
+            progress_reporter(5, 1, progress_cb),
+            {
+                Package: (info, package_id) => {
+                    var pkg = package_id.split(";")[0];
+                    origin_pkgs[pkg] = true;
+                },
+            });
     }
 
     function refresh_cache() {
-        return transaction("RefreshCache", [ true ],
-                           progress_reporter(6, 69, progress_cb));
+        return PK.cancellableTransaction("RefreshCache", [ true ], progress_reporter(6, 69, progress_cb));
     }
 
     function maybe_update_origin_file_packages() {
-        return transaction("GetUpdates", [ 0 ],
-                           progress_reporter(75, 5, progress_cb), gather_update_cb).
+        return PK.cancellableTransaction("GetUpdates", [ 0 ], progress_reporter(75, 5, progress_cb),
+            {
+                Package: (info, package_id) => {
+                    let pkg = package_id.split(";")[0];
+                    if (pkg in origin_pkgs)
+                        update_ids.push(package_id);
+                },
+            }).
             then(function () {
                 if (update_ids.length > 0)
-                    return transaction("UpdatePackages", [ 0, update_ids ],
-                                       progress_reporter(80, 15, progress_cb));
+                    return PK.cancellableTransaction("UpdatePackages", [ 0, update_ids ],
+                                                     progress_reporter(80, 15, progress_cb));
             });
     }
 
@@ -194,8 +133,8 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
                                 pkgs, progress_reporter(start_progress, 1, progress_cb)).
                 then(function (ids) {
                     if (ids.length > 0) {
-                        return transaction("InstallPackages", [ 0, ids ],
-                                           progress_reporter(start_progress + 1, 4, progress_cb)).
+                        return PK.cancellableTransaction("InstallPackages", [ 0, ids ],
+                                                         progress_reporter(start_progress + 1, 4, progress_cb)).
                             catch(ex => {
                                 if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
                                     return Promise.reject(ex);

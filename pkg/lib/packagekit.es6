@@ -139,3 +139,72 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
             .fail(reject);
     });
 }
+
+/**
+ * Run a long cancellable PackageKit transaction
+ *
+ * method (string): D-Bus method name on the https://www.freedesktop.org/software/PackageKit/gtk-doc/Transaction.html interface
+ * arglist (array): "in" arguments of @method
+ * progress_cb: Callback that receives a {waiting, percentage, cancel} object regularly; if cancel is not null, it can
+ *              be called to cancel the current transaction. if wait is true, PackageKit is waiting for its lock (i. e.
+ *              on another package operation)
+ * signalHandlers, notifyHandler: As in method #transaction, but ErrorCode and Finished are handled internally
+ * Returns: Promise that resolves when the transaction finished successfully, or rejects with {detail, code}
+ *          on failure.
+ */
+export function cancellableTransaction(method, arglist, progress_cb, signalHandlers) {
+    if (signalHandlers && (signalHandlers.ErrorCode || signalHandlers.Finished))
+        throw "cancellableTransaction handles ErrorCode and Finished signals internally";
+
+    return new Promise((resolve, reject) => {
+        let cancelled = false;
+        let status;
+        let allow_wait_status = false;
+        let progress_data = {
+            waiting: false,
+            percentage: 0,
+            cancel: null
+        };
+
+        function changed(props, transaction_path) {
+            function cancel() {
+                dbus_client.call(transaction_path, transactionInterface, "Cancel", []);
+                cancelled = true;
+            }
+
+            if (progress_cb) {
+                if ("Status" in props)
+                    status = props.Status;
+                progress_data.waiting = allow_wait_status && (status === Enum.STATUS_WAIT || status === Enum.STATUS_WAITING_FOR_LOCK);
+                if ("Percentage" in props && props.Percentage <= 100)
+                    progress_data.percentage = props.Percentage;
+                if ("AllowCancel" in props)
+                    progress_data.cancel = props.AllowCancel ? cancel : null;
+
+                progress_cb(progress_data);
+            }
+        }
+
+        // We ignore STATUS_WAIT and friends during the first second of a transaction.  They
+        // are always reported briefly even when a transaction doesn't really need to wait.
+        window.setTimeout(() => {
+            allow_wait_status = true;
+            changed({});
+        }, 1000);
+
+        transaction(method, arglist,
+            Object.assign({
+                // avoid calling progress_cb after ending the transaction, to avoid flickering cancel buttons
+                ErrorCode: (code, detail) => {
+                    progress_cb = null;
+                    reject({ detail, code: cancelled ? "cancelled" : code });
+                },
+                Finished: (exit, runtime) => {
+                    progress_cb = null;
+                    resolve(exit);
+                },
+            }, signalHandlers || {}),
+            changed).
+            catch(reject);
+    });
+}

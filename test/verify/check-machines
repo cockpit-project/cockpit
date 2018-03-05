@@ -148,8 +148,6 @@ class TestMachines(MachineCase):
         m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
         m.execute("[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
 
-        self.allow_journal_messages('.*type=1400.*')
-
     def startLibvirt(self):
         m = self.machine
         # Ensure everything has started correctly

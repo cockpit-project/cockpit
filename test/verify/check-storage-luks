@@ -123,5 +123,138 @@ class TestStorage(StorageCase):
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
+    def testClevis(self):
+        m = self.machine
+        b = self.browser
+
+        if m.execute("which clevis || true") == "":
+            self.skipTest("No clevis/tang here")
+
+        # We generate the keys and cache explicitly before starting
+        # the socket.  This allows us to control their names, which
+        # helps later on.
+
+        # HACK - tangd-udpate.service can't create /var/cache/tang.
+        #
+        #        https://github.com/latchset/tang/issues/24
+
+        m.execute("mkdir /var/cache/tang; chown -R tang:tang /var/cache/tang")
+
+        m.execute("rm -rf /var/db/tang/*")
+        m.execute("jose jwk gen -i '{\"alg\":\"ES512\"}' >/var/db/tang/sig1.jwk")
+        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' -o /var/db/tang/enc1.jwk")
+
+        # HACK - /var/cache/tang is automatically updated whenever
+        #        /var/db/tang changes, but also asynchronously in the
+        #        background, and it's not reliable either.
+        #
+        #        https://github.com/latchset/tang/issues/23
+
+        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
+
+        m.execute("systemctl start tangd.socket")
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('tr:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_tab_action(1, 1, "Format")
+        self.dialog({ "type": "luks+ext4",
+                      "name": "ENCRYPTED",
+                      "passphrase": "vainu-reku-toma-rolle-kaja",
+                      "passphrase2": "vainu-reku-toma-rolle-kaja" })
+        self.content_row_wait_in_col(1, 1, "Encrypted data")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+
+        # Set the flag and reload the page to make the Clevis stuff appear
+        #
+        b.eval_js('window.localStorage["clevis-feature"] = "on"')
+        b.reload()
+        b.enter_page("/storage")
+
+        # Lock the disk
+        #
+        self.content_head_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
+
+        # Add a key
+        #
+        self.content_tab_wait_in_info(1, 1, "Network keys", "")
+        self.content_tab_action(1, 1, "Add")
+        self.dialog_wait_open()
+        self.dialog_set_val("url", "127.0.0.1")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "The output should match this text")
+        b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
+
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_tab_wait_in_info(1, 1, "Network keys", "127.0.0.1")
+
+        # Unlock it.  This should succeed without prompting.
+        #
+        self.content_head_action(1, "Unlock")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+
+        # Rotate the encryption key on the server, and rebind
+
+        m.execute("mv /var/db/tang/enc1.jwk /var/db/tang/.enc1.jwk")
+        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' >/var/db/tang/enc2.jwk")
+        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
+
+        self.content_tab_action(1, 1, "Check")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "This network key is obsolete.")
+        b.wait_in_text("#dialog", "A new key has been securely retrieved from the server.")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # Remove obsolete key, disk should still unlock
+
+        m.execute("rm /var/db/tang/.enc1.jwk")
+        m.execute("systemctl restart tangd-update")
+        self.content_head_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
+        self.content_head_action(1, "Unlock")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+
+        # Rotate both the encryption key and the signing key on the server, and rebind
+
+        m.execute("mv /var/db/tang/enc2.jwk /var/db/tang/.enc2.jwk")
+        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' >/var/db/tang/enc3.jwk")
+        m.execute("mv /var/db/tang/sig1.jwk /var/db/tang/.sig1.jwk")
+        m.execute("jose jwk gen -i '{\"alg\":\"ES512\"}' >/var/db/tang/sig2.jwk")
+        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
+
+        self.content_tab_action(1, 1, "Check")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "This network key is obsolete.")
+        b.wait_in_text("#dialog", "The output should match this text")
+        b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig2.jwk").strip())
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # Remove the key on the server
+
+        m.execute("rm /var/db/tang/enc3.jwk")
+        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
+        self.content_tab_action(1, 1, "Check")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "This network key is not recognized anymore by the server.")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Remove key on client
+
+        b.wait_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
+        self.content_tab_action(1, 1, "Remove")
+        self.confirm()
+        b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
+
 if __name__ == '__main__':
     test_main()

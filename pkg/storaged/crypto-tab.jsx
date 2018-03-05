@@ -32,11 +32,14 @@ var StorageButton = StorageControls.StorageButton;
 var StorageLink =   StorageControls.StorageLink;
 var FormatButton =  FormatDialog.FormatButton;
 
+var ClevisDialogs = require("./clevis-dialogs.jsx");
+
 var _ = cockpit.gettext;
 
 var CryptoTab = React.createClass({
     render: function () {
         var self = this;
+        var client = self.props.client;
         var block = self.props.block;
 
         function edit_config(modify) {
@@ -120,6 +123,33 @@ var CryptoTab = React.createClass({
             });
         }
 
+        function render_clevis_keys(keys) {
+            return (
+                <table className="network-keys-table">
+                    {
+                        keys.map(function (key) {
+                            return (
+                                <tr>
+                                    <td>{key.url}</td>
+                                    <td>
+                                        <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
+                                            Remove
+                                        </StorageButton>
+                                        <StorageButton onClick={() => ClevisDialogs.check(client, block, key)}>
+                                            Check
+                                        </StorageButton>
+                                    </td>
+                                </tr>
+                            );
+                        })
+                    }
+                    <tr>
+                        <td><StorageButton onClick={() => ClevisDialogs.add(client, block)}>Add</StorageButton></td>
+                    </tr>
+                </table>
+            );
+        }
+
         // See format-dialog.jsx above for why we don't offer editing
         // crypttab for the old UDisks2
 
@@ -139,7 +169,13 @@ var CryptoTab = React.createClass({
                       <tr>
                           <td>{_("Options")}</td>
                           <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
-                    </tr> : null
+                      </tr> : null
+                    }
+                    { self.props.client.features.clevis ?
+                      <tr>
+                        <td>{_("Network keys")}</td>
+                        <td>{ render_clevis_keys(client.clevis_overlay.find_by_block(block) || [ ]) }</td>
+                      </tr> : null
                     }
                 </table>
             </div>

@@ -1526,6 +1526,40 @@ function complete_settings(settings, device) {
     }
 }
 
+/* HACK - NM activates bridges, bond, and teams as soon as their
+ * connection is created.  However, some versions of NM don't fully
+ * activate them at that point.  We give it an extra kick by
+ * activating the new connection explicitly as well.  We retry the
+ * "activate" call until NM is ready to accept it or we give up.
+ *
+ * See https://bugzilla.redhat.com/show_bug.cgi?id=1548265
+ */
+
+function kick_if_necessary(settings, conobj) {
+    if ((settings.connection.type == "bond" ||
+         settings.connection.type == "bridge" ||
+         settings.connection.type == "team") &&
+        settings.connection.autoconnect)
+    {
+        var dfd = cockpit.defer();
+        var try_activate = function (tries) {
+            conobj.activate()
+                .fail(function (error) {
+                    if (error.name == "org.freedesktop.NetworkManager.UnknownConnection" && tries > 0)
+                        window.setTimeout(function () { try_activate(tries-1); }, 100);
+                    else
+                        dfd.reject(error);
+                }).
+                done(function () {
+                    dfd.resolve();
+                });
+        };
+        try_activate(20);
+        return dfd.promise();
+    } else
+        return cockpit.resolve();
+}
+
 function settings_applier(model, device, connection) {
     /* If we have a connection, we can just update it.
      * Otherwise if the settings has TYPE set, we can add
@@ -1545,7 +1579,9 @@ function settings_applier(model, device, connection) {
         if (connection) {
             return connection.apply_settings(settings);
         } else if (settings.connection.type) {
-            return model.get_settings().add_connection(settings);
+            return model.get_settings().add_connection(settings).then(function (conobj) {
+                return kick_if_necessary(settings, conobj);
+            });
         } else if (device) {
             return device.activate_with_settings(settings);
         } else {

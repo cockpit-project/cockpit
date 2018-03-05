@@ -209,6 +209,8 @@ def committed_target(image):
 
 def wait_lock(target):
     lockfile = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources", os.path.basename(target) + ".lock")
+    os.makedirs(os.path.dirname(lockfile), exist_ok=True)
+
     # we need to keep the lock fd open throughout the entire runtime, so remember it in a global-scoped variable
     wait_lock.f = open(lockfile, "w")
     for retry in range(360):

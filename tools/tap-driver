@@ -212,8 +212,11 @@ class TapDriver(Driver):
             return
         description = description.lstrip()
 
-        # Special case if description starts with this, then skip
-        if description.lower().startswith("# skip"):
+        # Parse out a directive from description, if any
+        (description, unused, directive) = description.partition("#")
+
+        # Special case if directive starts with this, then skip
+        if directive.lstrip().lower().startswith("skip"):
             self.result_skip(num, description)
         elif ok:
             self.result_pass(num, description)

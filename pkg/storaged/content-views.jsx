@@ -171,6 +171,18 @@ function create_tabs(client, target, is_partition) {
     }
 
     function unlock() {
+        if (!client.features.clevis)
+            return unlock_with_passphrase();
+        else {
+            return client.clevis_overlay.unlock(block)
+                         .then(null,
+                               function () {
+                                   return unlock_with_passphrase();
+                               });
+        }
+    }
+
+    function unlock_with_passphrase() {
         var crypto = client.blocks_crypto[block.path];
         if (!crypto)
             return;

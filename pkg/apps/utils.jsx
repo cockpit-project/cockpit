@@ -92,19 +92,19 @@ export const CancelButton = ({ data }) => {
     );
 }
 
-export const show_error = (detail, code) => {
-    if (code == "cancelled")
+export const show_error = ex => {
+    if (ex.code == "cancelled")
         return;
 
-    if (code == "not-found")
-        detail = _("No installation package found for this application.");
+    if (ex.code == "not-found")
+        ex.detail = _("No installation package found for this application.");
 
     show_modal_dialog(
         {
             title: _("Error"),
             body: (
                 <div className="modal-body">
-                    <p>{detail}</p>
+                    <p>{ex.detail || ex}</p>
                 </div>
             )
         },

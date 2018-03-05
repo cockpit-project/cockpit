@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -17,67 +18,70 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-
-var PK = require("packagekit.es6");
+import cockpit from "cockpit";
+import * as PK from "packagekit.es6";
 
 function transaction(method, args, progress_cb, package_cb) {
-    var defer = cockpit.defer();
-    var cancelled = false;
-    var status;
-    var allow_wait_status = false;
-    var progress_data = {
-        waiting: false,
-        percentage: 0,
-        cancel: null
-    };
+    return new Promise((resolve, reject) => {
+        let cancelled = false;
+        let status;
+        let allow_wait_status = false;
+        let progress_data = {
+            waiting: false,
+            percentage: 0,
+            cancel: null
+        };
 
-    function changed(props, transaction_path) { // notify handler
-        function cancel() {
-            PK.dbus_client.call(transaction_path, PK.transactionInterface, "Cancel", []);
-            cancelled = true;
-        }
-
-        if (progress_cb && defer.promise().state() == "pending") {
-            if ("Status" in props)
-                status = props.Status;
-            progress_data.waiting = allow_wait_status && (status === PK.Enum.STATUS_WAIT || status === PK.Enum.STATUS_WAITING_FOR_LOCK);
-            if ("Percentage" in props && props.Percentage <= 100)
-                progress_data.percentage = props.Percentage;
-            if ("AllowCancel" in props)
-                progress_data.cancel = props.AllowCancel ? cancel : null;
-
-            progress_cb(progress_data);
-        }
-    }
-
-    // We ignore PK.Enum.STATUS_WAIT and friends during
-    // the first second of a transaction.  They are always
-    // reported briefly even when a transaction doesn't
-    // really need to wait.
-    window.setTimeout(function () {
-        allow_wait_status = true;
-        changed({});
-    }, 1000);
-
-    PK.transaction(method, args,
-        {
-            ErrorCode: function (code, details) {
-                defer.reject(details, cancelled ? "cancelled" : code);
-            },
-
-            Package: function (info, package_id, summary) {
-                if (package_cb && defer.promise().state() == "pending")
-                    package_cb(info, package_id, summary);
-            },
-
-            Finished: function (exit, runtime) {
-                defer.resolve(exit);
+        function changed(props, transaction_path) { // notify handler
+            function cancel() {
+                PK.dbus_client.call(transaction_path, PK.transactionInterface, "Cancel", []);
+                cancelled = true;
             }
-        }, changed).
-        catch(defer.reject);
 
-    return defer.promise();
+            if (progress_cb) {
+                if ("Status" in props)
+                    status = props.Status;
+                progress_data.waiting = allow_wait_status && (status === PK.Enum.STATUS_WAIT || status === PK.Enum.STATUS_WAITING_FOR_LOCK);
+                if ("Percentage" in props && props.Percentage <= 100)
+                    progress_data.percentage = props.Percentage;
+                if ("AllowCancel" in props)
+                    progress_data.cancel = props.AllowCancel ? cancel : null;
+
+                progress_cb(progress_data);
+            }
+        }
+
+        // We ignore PK.Enum.STATUS_WAIT and friends during
+        // the first second of a transaction.  They are always
+        // reported briefly even when a transaction doesn't
+        // really need to wait.
+        window.setTimeout(() => {
+            allow_wait_status = true;
+            changed({});
+        }, 1000);
+
+        PK.transaction(method, args,
+            {
+                // avoid calling progress_cb after ending the transaction, to avoid flickering cancel buttons
+                ErrorCode: (code, detail) => {
+                    progress_cb = null;
+                    reject({ detail, code: cancelled ? "cancelled" : code });
+                },
+
+                Finished: (exit, runtime) => {
+                    progress_cb = null;
+                    resolve(exit);
+                },
+
+                Package: (info, package_id, summary) => {
+                    if (package_cb)
+                        package_cb(info, package_id, summary);
+                },
+
+            },
+            changed).
+            catch(reject);
+    });
 }
 
 function progress_reporter(base, range, callback) {
@@ -91,36 +95,27 @@ function progress_reporter(base, range, callback) {
 }
 
 function resolve_many(method, filter, names, progress_cb) {
-    var defer = cockpit.defer();
     var ids = [ ];
 
-    function gather_package_cb(info, package_id) {
-        ids.push(package_id);
-    }
-
-    transaction(method, [ filter, names ], progress_cb, gather_package_cb).
-        done(function () {
-            defer.resolve(ids);
-        }).
-        fail(function (error) {
-            defer.reject(error, null);
-        });
-
-    return defer.promise();
+    return transaction(method, [ filter, names ], progress_cb,
+                       (info, package_id) => ids.push(package_id)).
+        then(() => ids);
 }
 
 function resolve(method, filter, name, progress_cb) {
     return resolve_many(method, filter, [ name ], progress_cb).
         then(function (ids) {
             if (ids.length === 0)
-                return cockpit.reject("Can't resolve package", "not-found");
+                return Promise.reject({ detail: "Can't resolve package", code: "not-found" });
             else
                 return ids[0];
         });
 }
 
 function reload_bridge_packages() {
-    return cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", [ ]);
+    return new Promise((resolve, reject) =>
+        cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", [ ]).then(resolve, reject)
+    );
 }
 
 function install(name, progress_cb) {
@@ -201,14 +196,14 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
                     if (ids.length > 0) {
                         return transaction("InstallPackages", [ 0, ids ],
                                            progress_reporter(start_progress + 1, 4, progress_cb)).
-                            catch(function (error, code) {
-                                if (code != PK.Enum.ERROR_ALREADY_INSTALLED)
-                                    return cockpit.reject(error, code);
+                            catch(ex => {
+                                if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
+                                    return Promise.reject(ex);
                             });
                     }
                 });
         } else {
-            return cockpit.resolve();
+            return Promise.resolve();
         }
     }
 
@@ -216,7 +211,7 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
         then(search_origin_file_packages).
         then(refresh_cache).
         then(maybe_update_origin_file_packages).
-        then(function () { return ensure_packages(data_packages, 95); });
+        then(() => ensure_packages(data_packages, 95));
 }
 
 module.exports = {

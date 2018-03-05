@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import PackageKit from "./packagekit";
+import PackageKit from "./packagekit.es6";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from  "./utils.jsx";
 
 const _ = cockpit.gettext;
@@ -39,8 +39,8 @@ class ApplicationRow extends React.Component {
         function action(func, arg, progress_title) {
             self.setState({ progress_title: progress_title });
             func(arg, (data) => self.setState({ progress: data })).
-                always(() => self.setState({ progress: null })).
-                fail(show_error);
+                finally(() => self.setState({ progress: null })).
+                catch(show_error);
         }
 
         function install() {
@@ -118,8 +118,8 @@ class ApplicationList extends React.Component {
                                config.appstream_config_packages || [ ],
                                config.appstream_data_packages || [ ],
                                data => self.setState({ progress: data })).
-                always(() => self.setState({ progress: false })).
-                fail(show_error);
+                finally(() => self.setState({ progress: false })).
+                catch(show_error);
         }
 
         var refresh_progress, refresh_button, empty_caption, tbody, table_classes;

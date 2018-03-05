@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import PackageKit from "./packagekit.js";
+import PackageKit from "./packagekit.es6";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
 import "./application.css";
@@ -47,8 +47,8 @@ class Application extends React.Component {
         function action(func, arg, progress_title) {
             self.setState({ progress_title: progress_title });
             func(arg, data => self.setState({ progress: data })).
-                always(() => self.setState({ progress: null })).
-                fail(show_error);
+                finally(() => self.setState({ progress: null })).
+                catch(show_error);
         }
 
         function install() {

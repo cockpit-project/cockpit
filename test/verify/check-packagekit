@@ -463,7 +463,7 @@ class TestUpdates(PackageCase):
         m.execute("pkcon refresh")
 
         # break the upgrade by removing the generated packages from the repo
-        m.execute("rm -f /tmp/repo/vapor*.deb /tmp/repo/vapor*.rpm")
+        m.execute("rm -f {0}/vapor*.deb {0}/vapor*.rpm".format(self.repo_dir))
 
         m.start_cockpit()
         b.login_and_go("/updates")

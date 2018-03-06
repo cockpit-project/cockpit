@@ -28,6 +28,8 @@ class PackageCase(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
 
+        self.repo_dir = "/var/tmp/repo"
+
         # expected backend; hardcode this on image names to check the auto-detection
         if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
             self.backend = "apt"
@@ -59,10 +61,10 @@ class PackageCase(MachineCase):
     #
 
     def createPackage(self, name, version, release, install=False, postinst=None, depends="", content=None, **updateinfo):
-        '''Create a dummy package in /tmp/repo on self.machine
+        '''Create a dummy package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
-        index in /tmp/repo.
+        index in repo_dir.
         '''
         if self.backend == "apt":
             self.createDeb(name, version + '-' + release, depends, postinst, install, content)
@@ -72,12 +74,12 @@ class PackageCase(MachineCase):
             self.updateInfo[(name, version, release)] = updateinfo
 
     def createDeb(self, name, version, depends, postinst, install, content):
-        '''Create a dummy deb in /tmp/repo on self.machine
+        '''Create a dummy deb in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
-        index in /tmp/repo.
+        index in repo_dir.
         '''
-        deb = "/tmp/repo/{0}_{1}_all.deb".format(name, version)
+        deb = "{0}/{1}_{2}_all.deb".format(self.repo_dir, name, version)
         if postinst:
             postinstcode = "printf '#!/bin/sh\n{0}' > /tmp/b/DEBIAN/postinst; chmod 755 /tmp/b/DEBIAN/postinst".format(postinst)
         else:
@@ -87,22 +89,22 @@ class PackageCase(MachineCase):
                 dest = "/tmp/b/" + path
                 self.machine.execute("mkdir -p '{0}'".format(os.path.dirname(dest)))
                 self.machine.write(dest, data)
-        cmd = '''mkdir -p /tmp/b/DEBIAN /tmp/repo
-                 printf "Package: {0}\nVersion: {1}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {2}\nArchitecture: all\nDescription: dummy {0}\n" > /tmp/b/DEBIAN/control
-                 {4}
-                 touch /tmp/b/stamp-{0}-{1}
-                 dpkg -b /tmp/b {3}
+        cmd = '''mkdir -p /tmp/b/DEBIAN {repo}
+                 printf "Package: {name}\nVersion: {ver}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {deps}\nArchitecture: all\nDescription: dummy {name}\n" > /tmp/b/DEBIAN/control
+                 {post}
+                 touch /tmp/b/stamp-{name}-{ver}
+                 dpkg -b /tmp/b {deb}
                  rm -r /tmp/b
-                 '''.format(name, version, depends, deb, postinstcode)
+                 '''.format(name=name, ver=version, deps=depends, deb=deb, post=postinstcode, repo=self.repo_dir)
         if install:
             cmd += "dpkg -i " + deb
         self.machine.execute(cmd)
 
     def createRpm(self, name, version, release, requires, post, install, content):
-        '''Create a dummy rpm in /tmp/repo on self.machine
+        '''Create a dummy rpm in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
-        index in /tmp/repo.
+        index in repo_dir.
         '''
         if post:
             postcode = '\n%%post\n' + post
@@ -140,13 +142,13 @@ Test package.
         self.machine.write("/tmp/spec", spec)
         cmd = """
 rpmbuild --quiet -bb /tmp/spec
-mkdir -p /tmp/repo
-cp ~/rpmbuild/RPMS/noarch/*.rpm /tmp/repo
+mkdir -p {0}
+cp ~/rpmbuild/RPMS/noarch/*.rpm {0}
 rm -rf ~/rpmbuild
 """
         if install:
-            cmd += "rpm -i /tmp/repo/{0}-{1}-{2}.*.rpm".format(name, version, release)
-        self.machine.execute(cmd)
+            cmd += "rpm -i {0}/{1}-{2}-{3}.*.rpm"
+        self.machine.execute(cmd.format(self.repo_dir, name, version, release))
 
     def createAptChangelogs(self):
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog
@@ -157,7 +159,7 @@ rm -rf ~/rpmbuild
             if info.get("cves"):
                 changes += "\n  * " + ", ".join(info["cves"])
 
-            path = "/tmp/repo/changelogs/{0}/{1}/{1}_{2}-{3}".format(pkg[0], pkg, ver, rel)
+            path = "{0}/changelogs/{1}/{2}/{2}_{3}-{4}".format(self.repo_dir, pkg[0], pkg, ver, rel)
             contents = '''{0} ({1}-{2}) unstable; urgency=medium
 
   * {3}
@@ -206,17 +208,17 @@ rm -rf ~/rpmbuild
             self.createAptChangelogs()
             # HACK: on Debian jessie, apt has an error propagation bug that causes "Err file: Packages" for each absent
             # compression format with file:// sources, which breaks PackageKit; work around by providing all formats
-            self.machine.execute('''echo 'deb [trusted=yes] file:///tmp/repo /' > /etc/apt/sources.list.d/test.list
-                                    cd /tmp/repo; apt-ftparchive packages . > Packages
+            self.machine.execute('''set -e; echo 'deb [trusted=yes] file://{0} /' > /etc/apt/sources.list.d/test.list
+                                    cd {0}; apt-ftparchive packages . > Packages
                                     gzip -c Packages > Packages.gz; bzip2 -c Packages > Packages.bz2; xz -c Packages > Packages.xz
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
                                     setsid python -m SimpleHTTPServer 12345 >/dev/null 2>&1 < /dev/null &
-                                    ''')
+                                    '''.format(self.repo_dir))
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
         else:
-            self.machine.execute('''printf '[updates]\nname=cockpittest\nbaseurl=file:///tmp/repo\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
-                                    echo '{0}' > /tmp/updateinfo.xml
-                                    createrepo_c /tmp/repo
-                                    modifyrepo_c /tmp/updateinfo.xml /tmp/repo/repodata
-                                    $(which dnf 2>/dev/null|| which yum) clean all'''.format(self.createYumUpdateInfo()))
+            self.machine.execute('''set -e; printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
+                                    echo '{1}' > /tmp/updateinfo.xml
+                                    createrepo_c {0}
+                                    modifyrepo_c /tmp/updateinfo.xml {0}/repodata
+                                    $(which dnf 2>/dev/null|| which yum) clean all'''.format(self.repo_dir, self.createYumUpdateInfo()))

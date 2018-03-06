@@ -47,6 +47,7 @@ def ssh_reconnect(machine, timeout_sec=120):
 
 class TestSystemInfo(MachineCase):
 
+    @enableAxe
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -74,6 +75,8 @@ class TestSystemInfo(MachineCase):
         mid = m.execute("cat /etc/machine-id")
         b.wait_present('#system_machine_id')
         b.wait_text('#system_machine_id', mid)
+
+        self.check_axe()
 
         # Generate a new rsa key and change the config
         m.execute("ssh-keygen -f /etc/ssh/weirdname -t rsa -N ''")

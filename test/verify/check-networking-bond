@@ -253,5 +253,26 @@ class TestNetworking(NetworkCase):
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
 
+    def testReproducer(self):
+        m = self.machine
+
+        print(m.execute("rpmquery NetworkManager"))
+
+        iface1 = self.add_iface()
+        con1 = self.iface_con_id(iface1)
+        mac1 = m.execute("cat /sys/class/net/%s/address" % iface1).strip()
+
+        iface2 = self.add_iface()
+        con2 = self.iface_con_id(iface2)
+
+        m.execute("nmcli con up %s" % con1)
+        m.execute("nmcli con down %s" % con2)
+
+        m.execute("nmcli con mod '%s' slave-type bond master bond0 autoconnect yes" % con1)
+        m.execute("nmcli con mod '%s' slave-type bond master bond0 autoconnect yes" % con2)
+        m.execute("nmcli con add type bond ifname bond0 con-name bond0 mode active-backup autoconnect yes connection.autoconnect-slaves 1 ethernet.cloned-mac-address %s" % mac1)
+
+        print(m.execute("sleep 3; ip addr"))
+
 if __name__ == '__main__':
     test_main()

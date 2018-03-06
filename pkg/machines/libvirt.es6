@@ -41,6 +41,7 @@ import {
     vmActionFailed,
     getOsInfoList,
     updateOsInfoList,
+    checkLibvirtStatus,
     updateLibvirtState,
 } from './actions.es6';
 

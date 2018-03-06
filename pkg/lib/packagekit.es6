@@ -58,9 +58,11 @@ export const dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuse
  *
  * transactionPath (string): D-Bus object path of the PackageKit transaction
  * signalHandlers, notifyHandler: As in method #transaction
+ * Returns: If notifyHandler is set, Cockpit promise that resolves when the watch got set up
  */
 export function watchTransaction(transactionPath, signalHandlers, notifyHandler) {
     var subscriptions = [];
+    var notifyReturn;
 
     if (signalHandlers) {
         Object.keys(signalHandlers).forEach(handler => subscriptions.push(
@@ -70,7 +72,8 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
     }
 
     if (notifyHandler) {
-        subscriptions.push(dbus_client.watch(transactionPath));
+        notifyReturn = dbus_client.watch(transactionPath);
+        subscriptions.push(notifyReturn);
         dbus_client.addEventListener("notify", reply => {
             if (transactionPath in reply.detail && transactionInterface in reply.detail[transactionPath])
                 notifyHandler(reply.detail[transactionPath][transactionInterface], transactionPath);
@@ -82,12 +85,15 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
         { interface: transactionInterface, path: transactionPath, member: "Finished" },
         () => subscriptions.map(s => s.remove()))
     );
+
+    return notifyReturn;
 }
 
 /**
  * Run a PackageKit transaction
  *
  * method (string): D-Bus method name on the https://www.freedesktop.org/software/PackageKit/gtk-doc/Transaction.html interface
+ *                  If undefined, only a transaction will be created without calling a method on it
  * arglist (array): "in" arguments of @method
  * signalHandlers (object): maps PackageKit.Transaction signal names to handlers
  * notifyHandler (function): handler for http://cockpit-project.org/guide/latest/cockpit-dbus.html#cockpit-dbus-onnotify
@@ -112,11 +118,23 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
         dbus_client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [], {timeout: 5000})
             .done(result => {
                 let transactionPath = result[0];
+                let watchPromise;
                 if (signalHandlers || notifyHandler)
-                    watchTransaction(transactionPath, signalHandlers, notifyHandler);
-                dbus_client.call(transactionPath, transactionInterface, method, arglist)
-                    .done(() => resolve(transactionPath))
-                    .fail(reject);
+                    watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler);
+                if (!watchPromise)
+                    watchPromise = cockpit.resolve();
+
+                watchPromise
+                .done(() => {
+                    if (method) {
+                        dbus_client.call(transactionPath, transactionInterface, method, arglist)
+                            .done(() => resolve(transactionPath))
+                            .fail(reject);
+                    } else {
+                        resolve(transactionPath);
+                    }
+                })
+                .fail(reject);
             })
             .fail(reject);
     });

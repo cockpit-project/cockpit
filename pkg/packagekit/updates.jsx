@@ -788,7 +788,7 @@ class OsUpdates extends React.Component {
         PK.dbus_client.call(transactionPath, "DBus.Properties", "Get", [PK.transactionInterface, "AllowCancel"])
             .done(reply => this.setState({ allowCancel: reply[0].v }));
 
-        PK.watchTransaction(transactionPath,
+        return PK.watchTransaction(transactionPath,
             {
                 ErrorCode: (code, details) => this.state.errorMessages.push(details),
 
@@ -823,13 +823,23 @@ class OsUpdates extends React.Component {
         if (securityOnly)
             ids = ids.filter(id => this.state.updates[id].severity === PK.Enum.INFO_SECURITY);
 
-        PK.transaction("UpdatePackages", [0, ids])
-            .then(transactionPath => this.watchUpdates(transactionPath))
+        PK.transaction()
+            .then(transactionPath => {
+                this.watchUpdates(transactionPath)
+                .then(() => {
+                    PK.dbus_client.call(transactionPath, PK.transactionInterface, "UpdatePackages", [0, ids])
+                    .fail(ex => {
+                        // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
+                        // show this if we don't have anything else
+                        if (this.state.errorMessages.length === 0)
+                            this.state.errorMessages.push(ex.message);
+                        this.setState({state: "updateError"});
+                    });
+
+                });
+            })
             .catch(ex => {
-                // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
-                // show this if we don't have anything else
-                if (this.state.errorMessages.length === 0)
-                    this.state.errorMessages.push(ex.message);
+                this.state.errorMessages.push(ex.message);
                 this.setState({state: "updateError"});
             });
     }

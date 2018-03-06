@@ -22,6 +22,7 @@ import parent
 from testlib import *
 
 class TestMenu(MachineCase):
+    @enableAxe
     def testBasic(self):
         b = self.browser
 
@@ -34,6 +35,8 @@ class TestMenu(MachineCase):
         b.wait_popup('about')
         b.click('#about button[data-dismiss="modal"]')
         b.wait_popdown("about")
+
+        self.check_axe("Test-navigation")
 
 if __name__ == '__main__':
     test_main()

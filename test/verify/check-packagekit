@@ -537,7 +537,7 @@ class TestUpdates(PackageCase):
         b.wait_in_text("table.listing-ct", "cockpit-ws")
 
         b.wait_present("#app div.alert-warning")
-        b.wait_in_text("#app div.alert-warning", "Cockpit itself will be updated")
+        b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
 
     def testPackageKitCrash(self):
         b = self.browser

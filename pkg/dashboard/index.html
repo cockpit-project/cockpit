@@ -34,7 +34,7 @@
 <body hidden>
 
     <div id="dashboard" class="container-fluid page-ct">
-        <div class="row">
+        <div class="row" role="presentation">
             <div class="col-md-12">
                 <div id="dashboard-toolbar" class="pull-right zoom-controls">
                     <div class="dropdown">
@@ -43,18 +43,18 @@
                             <div class="caret"></div>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                            <li role="presentation"><a role="menuitem"
                                 data-action="goto-now" translate >Go to now</a></li>
                             <li role="presentation" class="divider"></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                            <li role="presentation"><a role="menuitem"
                                 data-range="300" translate >5 minutes</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                            <li role="presentation"><a role="menuitem"
                                 data-range="3600" translate>1 hour</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                            <li role="presentation"><a role="menuitem"
                                 data-range="21600" translate>6 hours</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                            <li role="presentation"><a role="menuitem"
                                 data-range="86400" translate>1 day</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1"
+                            <li role="presentation"><a role="menuitem"
                                 data-range="604800" translate>1 week</a></li>
                         </ul>
                     </div>
@@ -84,9 +84,9 @@
                 <div class="panel panel-default" id="dashboard-hosts">
                     <div class="panel-heading">
                         <button class="btn btn-primary servers-privileged fa fa-plus"
-                            id="dashboard-add" title="Add Server"></button>
+                            id="dashboard-add" aria-label="Add Server" title="Add Server"></button>
                         <button class="btn btn-default fa fa-check"
-                            id="dashboard-enable-edit" title="Edit Server"></button>
+                            id="dashboard-enable-edit" aria-label="Edit Server" title="Edit Server"></button>
                         <span translate>Servers</span>
                     </div>
                     <div class="list-group">
@@ -103,7 +103,7 @@
                 data-color="{{ color }}" target="_parent" href="/@{{address}}">
                 <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
                 <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
-                <img class="host-avatar {{avatar_display}}" src="{{render_avatar}}">
+                <img class="host-avatar {{avatar_display}}" role="{{aria_role}}" alt="{{alt_text}}" title="{{alt_text}}" src="{{render_avatar}}">
                 <div class="spinner {{connecting_display}}"></div>
                 <div class="os">{{os}}</div>
                 <span class="host-label">{{label}}

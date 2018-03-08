@@ -521,11 +521,12 @@ PageServer.prototype = {
 
         machine_info.dmi_info()
             .done(function(fields) {
-                $("#system_information_hardware_text").text(fields.sys_vendor + " " +
-                                                            fields.product_name);
+                $("#system_information_hardware_text")
+                    .attr("title", _("Click to see system hardware information"))
+                    .text(fields.sys_vendor + " " + fields.product_name);
                 var present = !!(fields.product_serial || fields.chassis_serial);
-                $("#system_information_asset_tag_text").text(fields.product_serial ||
-                                                             fields.chassis_serial);
+                $("#system_information_asset_tag_text")
+                    .text(fields.product_serial || fields.chassis_serial);
                 $("#system-info-asset-row").toggle(present);
             })
             .fail(function(ex) {

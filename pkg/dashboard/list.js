@@ -385,6 +385,20 @@ PageDashboard.prototype = {
                     return "../shell/images/server-small.png";
             }
 
+            function aria_role() {
+                if (this.state == "failed")
+                    return "alert";
+                else
+                    return "presentation";
+            }
+
+            function alt_text() {
+                if (this.state == "failed")
+                    return _("Connection Error");
+                else
+                    return "";
+            }
+
             function avatar_display() {
                 if (this.restarting)
                     return "hidden";
@@ -403,6 +417,8 @@ PageDashboard.prototype = {
                 var text = Mustache.render(template, {
                     machines: self.machines.list,
                     render_avatar: render_avatar,
+                    aria_role: aria_role,
+                    alt_text: alt_text,
                     avatar_display: avatar_display,
                     connecting_display: connecting_display
                 });

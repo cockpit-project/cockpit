@@ -350,7 +350,7 @@
 
         <div class="area-ct-body">
             <div class="nav-sidebar-wrap" id="multi-dashboard">
-                <div class="nav-sidebar nav-pf-vertical">
+                <nav class="nav-sidebar nav-pf-vertical">
                     <ul id="main-navbar" class="list-group">
                         <li id="host-nav-item" class="list-group-item dashboard-link has-menu">
                             <a id="host-nav-link">
@@ -359,14 +359,14 @@
                             </a>
                         </li>
                     </ul>
-                </div>
+                </nav>
             </div>
 
             <div id="host-nav" class="area-ct-subnav">
                 <div id="machine-dropdown" class="nav-item-pf-header machine-dropdown">
                     <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" role="button" aria-expanded="false">
-                      <img src="../shell/images/server-small.png" id="machine-avatar" class="machine-avatar single-dashboard">
+                      <img src="../shell/images/server-small.png" id="machine-avatar" role="presentation" class="machine-avatar single-dashboard">
                       <span></span>
                        <b class="caret"></b>
                     </a>
@@ -381,27 +381,29 @@
                     </div>
                 </div>
 
-                <div id="host-apps" class="host-apps">
+                <nav id="host-apps" class="host-apps">
                     <ul class="list-group" id="sidebar-menu">
                     </ul>
 
                     <ul class="list-group" id="sidebar-tools">
                     </ul>
-                </div>
+                </nav>
             </div>
 
-          <div id="content" class="area-ct-content">
+          <div id="content" role="main" class="area-ct-content">
             <!-- Initially populate these frames -->
             <iframe class="container-frame"
-                name="cockpit1:localhost/system" src="../system/index.html#/"></iframe>
+                name="cockpit1:localhost/system"
+                title="Main area"
+                src="../system/index.html#/" title="Content"></iframe>
 
-            <div class="curtains-ct blank-slate-pf" hidden>
+            <div class="curtains-ct blank-slate-pf" role="alertdialog" aria-labelledby="machine-error-heading" aria-describedby="machine-error-desc" hidden>
               <div class="blank-slate-pf-icon">
                 <div class="spinner spinner-lg" hidden></div>
                 <i class="fa fa-exclamation-circle"></i>
               </div>
-              <h1></h1>
-              <p></p>
+              <h1 id="machine-error-heading"></h1>
+              <p id="machine-error-desc"></p>
               <div class="blank-slate-pf-main-action">
                 <button id="machine-reconnect" class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>
                 <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translatable="yes">Troubleshoot</button>

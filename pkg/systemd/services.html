@@ -48,17 +48,17 @@
 
   <div id="services" hidden>
     <div class="content-header-extra">
-      <div class="btn-group" id="services-filter">
-        <button class="btn btn-default" data-pattern="\.target$" translatable="yes">Targets</button>
-        <button class="btn btn-default active" data-pattern="\.service$" translatable="yes">System Services</button>
-        <button class="btn btn-default" data-pattern="\.socket$" translatable="yes">Sockets</button>
-        <button class="btn btn-default" data-pattern="\.timer$" translatable="yes">Timers</button>
-        <button class="btn btn-default" data-pattern="\.path$" translatable="yes">Paths</button>
+      <div class="btn-group" id="services-filter" role="tablist">
+        <button class="btn btn-default" role="tab" data-pattern="\.target$" translatable="yes">Targets</button>
+        <button class="btn btn-default active" role="tab" aria-current=true data-pattern="\.service$" translatable="yes">System Services</button>
+        <button class="btn btn-default" role="tab" data-pattern="\.socket$" translatable="yes">Sockets</button>
+        <button class="btn btn-default" role="tab" data-pattern="\.timer$" translatable="yes">Timers</button>
+        <button class="btn btn-default" role="tab" data-pattern="\.path$" translatable="yes">Paths</button>
       </div>
       <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary pull-right" translate>Create Timer</button>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid" role="tabpanel">
       <div id="services-list-enabled"></div>
       <div id="services-list-disabled"></div>
       <div id="services-list-static"></div>

@@ -174,7 +174,7 @@
                         <td><input type="checkbox"
                                    checked={self.driveChecked(drive)}/>
                         </td>
-                        <td><img src="images/drive-harddisk-symbolic.svg"/></td>
+                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
                         <td>
                             <div>{drive.name}</div>
                             <div>{cockpit.format_bytes(drive.size)} {drive_class_desc(drive.class)}</div>
@@ -240,7 +240,7 @@
                     return (
                         <tr>
                             <td>{cockpit.format_bytes(drive.size)}</td>
-                            <td><img src="images/drive-harddisk-symbolic.svg"/></td>
+                            <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
                             <td>{drive.name}{drive.shared? _(" (shared with the OS)"):""}</td>
                         </tr>);
                 });
@@ -338,7 +338,7 @@
                 return (
                     <tr>
                         <td>{cockpit.format_bytes(drive.size)}</td>
-                        <td><img src="images/drive-harddisk-symbolic.svg"/></td>
+                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
                         <td>{drive.name}</td>
                     </tr>);
             });

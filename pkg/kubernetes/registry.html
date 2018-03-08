@@ -59,7 +59,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
 
-    <div id="content" ng-view ng-if="!curtains">
+    <div id="content" role="main" ng-view ng-if="!curtains">
     </div>
 
     <div class="curtains-ct blank-slate-pf" ng-if="curtains">
@@ -69,7 +69,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             <i class="fa fa-lock" ng-if="curtains.status == 403"></i>
         </div>
         <h1 ng-if="!curtains.status" translate>Connecting...</h1>
-        <h1 ng-if="curtains.status" translate>Couldn't connect to server</h1>
+        <h1 ng-if="curtains.status" role="alert" translate>Couldn't connect to server</h1>
         <p ng-if="curtains.message">{{curtains.message}}</p>
         <div class="blank-slate-pf-main-action" ng-if="curtains.status">
             <button class="btn btn-primary btn-lg" translate ng-click="reconnect()">Reconnect</button>

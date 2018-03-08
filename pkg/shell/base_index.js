@@ -589,6 +589,7 @@
             function links(component) {
                 var sm = $("<span class='fa'>")
                     .attr("data-toggle", "tooltip")
+                    .attr("role", "presentation")
                     .attr("title", "")
                     .attr("data-original-title", component.label);
 
@@ -602,7 +603,6 @@
 
                 var a = $("<a>")
                     .attr("href", self.href({ host: "localhost", component: component.path }))
-                    .attr("title", component.label)
                     .append(sm)
                     .append(value);
 
@@ -823,6 +823,9 @@
             var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
             if (!language)
                 language = "en-us";
+
+            $('html').attr('lang', language);
+
             $.each(manifest.locales || { }, function(code, name) {
                 var el = $("<option>").text(name).val(code);
                 if (code == language)

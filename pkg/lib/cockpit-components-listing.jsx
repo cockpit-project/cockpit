@@ -210,7 +210,7 @@ var ListingRow = React.createClass({
             var links = this.props.tabRenderers.map(function(itm, idx) {
                 return (
                     <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >
-                        <a href="#" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
+                        <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
                     </li>
                 );
             });

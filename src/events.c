@@ -160,7 +160,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
         break;
     }
 
-    r = sd_bus_message_append(message, "ssss", device, reasonstr);
+    r = sd_bus_message_append(message, "ss", device, reasonstr);
     if (r < 0)
         return r;
 

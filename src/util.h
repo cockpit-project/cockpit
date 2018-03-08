@@ -6,7 +6,8 @@
 #include <unistd.h>
 
 #define _cleanup_(_x) __attribute__((__cleanup__(_x)))
-#define VIR_ATTR_UNUSED __attribute__((__unused__))
+
+#define VIRT_ATTR_UNUSED __attribute__((__unused__))
 
 #define VIRT_N_ELEMENTS(array) (sizeof(array) / sizeof(*(array)))
 

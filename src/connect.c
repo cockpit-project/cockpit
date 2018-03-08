@@ -17,8 +17,8 @@ static int virtDBusConnectCredType[] = {
 };
 
 static int
-virtDBusConnectAuthCallback(virConnectCredentialPtr cred VIR_ATTR_UNUSED,
-                            unsigned int ncred VIR_ATTR_UNUSED,
+virtDBusConnectAuthCallback(virConnectCredentialPtr cred VIRT_ATTR_UNUSED,
+                            unsigned int ncred VIRT_ATTR_UNUSED,
                             void *cbdata)
 {
     sd_bus_error *error = cbdata;
@@ -78,8 +78,8 @@ virtDBusConnectOpen(virtDBusConnect *connect,
 }
 
 static int
-virtDBusConnectEnumarateDomains(sd_bus *bus VIR_ATTR_UNUSED,
-                                const char *path VIR_ATTR_UNUSED,
+virtDBusConnectEnumarateDomains(sd_bus *bus VIRT_ATTR_UNUSED,
+                                const char *path VIRT_ATTR_UNUSED,
                                 void *userdata,
                                 char ***nodes,
                                 sd_bus_error *error)

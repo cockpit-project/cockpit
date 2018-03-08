@@ -5,13 +5,13 @@
 #include <stdio.h>
 
 static int
-virtDBusDomainGetName(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetName(sd_bus *bus VIRT_ATTR_UNUSED,
                       const char *path,
-                      const char *interface VIR_ATTR_UNUSED,
-                      const char *property VIR_ATTR_UNUSED,
+                      const char *interface VIRT_ATTR_UNUSED,
+                      const char *property VIRT_ATTR_UNUSED,
                       sd_bus_message *reply,
                       void *userdata,
-                      sd_bus_error *error VIR_ATTR_UNUSED)
+                      sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -30,13 +30,13 @@ virtDBusDomainGetName(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetUUID(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetUUID(sd_bus *bus VIRT_ATTR_UNUSED,
                       const char *path,
-                      const char *interface VIR_ATTR_UNUSED,
-                      const char *property VIR_ATTR_UNUSED,
+                      const char *interface VIRT_ATTR_UNUSED,
+                      const char *property VIRT_ATTR_UNUSED,
                       sd_bus_message *reply,
                       void *userdata,
-                      sd_bus_error *error VIR_ATTR_UNUSED)
+                      sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -53,13 +53,13 @@ virtDBusDomainGetUUID(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetId(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetId(sd_bus *bus VIRT_ATTR_UNUSED,
                     const char *path,
-                    const char *interface VIR_ATTR_UNUSED,
-                    const char *property VIR_ATTR_UNUSED,
+                    const char *interface VIRT_ATTR_UNUSED,
+                    const char *property VIRT_ATTR_UNUSED,
                     sd_bus_message *reply,
                     void *userdata,
-                    sd_bus_error *error VIR_ATTR_UNUSED)
+                    sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -73,13 +73,13 @@ virtDBusDomainGetId(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetVcpus(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetVcpus(sd_bus *bus VIRT_ATTR_UNUSED,
                        const char *path,
-                       const char *interface VIR_ATTR_UNUSED,
-                       const char *property VIR_ATTR_UNUSED,
+                       const char *interface VIRT_ATTR_UNUSED,
+                       const char *property VIRT_ATTR_UNUSED,
                        sd_bus_message *reply,
                        void *userdata,
-                       sd_bus_error *error VIR_ATTR_UNUSED)
+                       sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -93,13 +93,13 @@ virtDBusDomainGetVcpus(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetOsType(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetOsType(sd_bus *bus VIRT_ATTR_UNUSED,
                         const char *path,
-                        const char *interface VIR_ATTR_UNUSED,
-                        const char *property VIR_ATTR_UNUSED,
+                        const char *interface VIRT_ATTR_UNUSED,
+                        const char *property VIRT_ATTR_UNUSED,
                         sd_bus_message *reply,
                         void *userdata,
-                        sd_bus_error *error VIR_ATTR_UNUSED)
+                        sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -118,13 +118,13 @@ virtDBusDomainGetOsType(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetActive(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetActive(sd_bus *bus VIRT_ATTR_UNUSED,
                         const char *path,
-                        const char *interface VIR_ATTR_UNUSED,
-                        const char *property VIR_ATTR_UNUSED,
+                        const char *interface VIRT_ATTR_UNUSED,
+                        const char *property VIRT_ATTR_UNUSED,
                         sd_bus_message *reply,
                         void *userdata,
-                        sd_bus_error *error VIR_ATTR_UNUSED)
+                        sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -143,13 +143,13 @@ virtDBusDomainGetActive(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetPersistent(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetPersistent(sd_bus *bus VIRT_ATTR_UNUSED,
                             const char *path,
-                            const char *interface VIR_ATTR_UNUSED,
-                            const char *property VIR_ATTR_UNUSED,
+                            const char *interface VIRT_ATTR_UNUSED,
+                            const char *property VIRT_ATTR_UNUSED,
                             sd_bus_message *reply,
                             void *userdata,
-                            sd_bus_error *error VIR_ATTR_UNUSED)
+                            sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -168,13 +168,13 @@ virtDBusDomainGetPersistent(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetState(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetState(sd_bus *bus VIRT_ATTR_UNUSED,
                        const char *path,
-                       const char *interface VIR_ATTR_UNUSED,
-                       const char *property VIR_ATTR_UNUSED,
+                       const char *interface VIRT_ATTR_UNUSED,
+                       const char *property VIRT_ATTR_UNUSED,
                        sd_bus_message *reply,
                        void *userdata,
-                       sd_bus_error *error VIR_ATTR_UNUSED)
+                       sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -220,13 +220,13 @@ virtDBusDomainGetState(sd_bus *bus VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusDomainGetAutostart(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainGetAutostart(sd_bus *bus VIRT_ATTR_UNUSED,
                            const char *path,
-                           const char *interface VIR_ATTR_UNUSED,
-                           const char *property VIR_ATTR_UNUSED,
+                           const char *interface VIRT_ATTR_UNUSED,
+                           const char *property VIRT_ATTR_UNUSED,
                            sd_bus_message *reply,
                            void *userdata,
-                           sd_bus_error *error VIR_ATTR_UNUSED)
+                           sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
@@ -522,12 +522,12 @@ static const sd_bus_vtable virt_domain_vtable[] = {
 };
 
 static int
-virtDBusDomainLookup(sd_bus *bus VIR_ATTR_UNUSED,
+virtDBusDomainLookup(sd_bus *bus VIRT_ATTR_UNUSED,
                      const char *path,
-                     const char *interface VIR_ATTR_UNUSED,
+                     const char *interface VIRT_ATTR_UNUSED,
                      void *userdata,
                      void **found,
-                     sd_bus_error *error VIR_ATTR_UNUSED)
+                     sd_bus_error *error VIRT_ATTR_UNUSED)
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilFreep) char *name = NULL;

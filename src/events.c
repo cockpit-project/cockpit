@@ -6,10 +6,10 @@
 #include <systemd/sd-bus.h>
 
 static int
-virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
+virtDBusEventsDomainLifecycle(virConnectPtr connection VIRT_ATTR_UNUSED,
                               virDomainPtr domain,
                               int event,
-                              int detail VIR_ATTR_UNUSED,
+                              int detail VIRT_ATTR_UNUSED,
                               void *opaque)
 {
     virtDBusConnect *connect = opaque;
@@ -70,7 +70,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIR_ATTR_UNUSED,
+virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIRT_ATTR_UNUSED,
                                 virDomainPtr domain,
                                 const char *device,
                                 void *opaque)
@@ -98,7 +98,7 @@ virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIR_ATTR_UNUSED,
+virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIRT_ATTR_UNUSED,
                                   virDomainPtr domain,
                                   const char *device,
                                   void *opaque)
@@ -126,7 +126,7 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusEventsDomainDiskChange(virConnectPtr connection VIR_ATTR_UNUSED,
+virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
                                virDomainPtr domain,
                                const char *device,
                                int reason,
@@ -168,7 +168,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIR_ATTR_UNUSED,
 }
 
 static int
-virtDBusEventsDomainTrayChange(virConnectPtr connection VIR_ATTR_UNUSED,
+virtDBusEventsDomainTrayChange(virConnectPtr connection VIRT_ATTR_UNUSED,
                                virDomainPtr domain,
                                const char *old_src_path,
                                const char *new_src_path,

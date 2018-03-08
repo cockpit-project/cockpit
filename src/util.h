@@ -33,39 +33,17 @@ virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
                                  const char *path,
                                  const char *domainPath);
 
-static inline void
-virtDBusUtilFreep(void *p)
-{
-        free(*(void **)p);
-}
+void
+virtDBusUtilFreep(void *p);
 
-static inline void
-virtDBusUtilClosep(int *fdp)
-{
-    if (*fdp >= 0)
-        close(*fdp);
-}
+void
+virtDBusUtilClosep(int *fdp);
 
-static inline void
-virtDBusUtilStrvFreep(void *p)
-{
-    char **strv = *(char ***)p;
+void
+virtDBusUtilStrvFreep(void *p);
 
-    if (strv == NULL)
-        return;
-
-    for (unsigned i = 0; strv[i] != NULL; i += 1)
-        free(strv[i]);
-
-    free(strv);
-}
-
-static inline void
-virtDBusUtilVirDomainFreep(virDomainPtr *domainp)
-{
-    if (*domainp)
-        virDomainFree(*domainp);
-}
+void
+virtDBusUtilVirDomainFreep(virDomainPtr *domainp);
 
 void
 virtDBusUtilVirDomainListFreep(virDomainPtr **domainsp);

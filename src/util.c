@@ -105,6 +105,40 @@ virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
 }
 
 void
+virtDBusUtilFreep(void *p)
+{
+    free(*(void **)p);
+}
+
+void
+virtDBusUtilClosep(int *fdp)
+{
+    if (*fdp >= 0)
+        close(*fdp);
+}
+
+void
+virtDBusUtilStrvFreep(void *p)
+{
+    char **strv = *(char ***)p;
+
+    if (strv == NULL)
+        return;
+
+    for (unsigned i = 0; strv[i] != NULL; i++)
+        free(strv[i]);
+
+    free(strv);
+}
+
+void
+virtDBusUtilVirDomainFreep(virDomainPtr *domainp)
+{
+    if (*domainp)
+        virDomainFree(*domainp);
+}
+
+void
 virtDBusUtilVirDomainListFreep(virDomainPtr **domainsp)
 {
     virDomainPtr *domains = *domainsp;

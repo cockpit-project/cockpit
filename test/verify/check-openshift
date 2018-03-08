@@ -526,11 +526,6 @@ class TestRegistryPrerelease(TestRegistry):
         "openshift": { "image": "openshift-prerelease", "forward": { 30000: 30000, 8443: 8443 } }
     }
 
-    # https://github.com/cockpit-project/cockpit/issues/8745
-    @unittest.expectedFailure
-    def testImages(self):
-        super(TestRegistryPrerelease, self).testImages()
-
 
 if __name__ == '__main__':
     test_main()

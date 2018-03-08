@@ -573,7 +573,7 @@ virtDBusDomainRegister(virtDBusConnect *connect,
     return sd_bus_add_fallback_vtable(bus,
                                       NULL,
                                       connect->domainPath,
-                                      "org.libvirt.Domain",
+                                      VIRT_DBUS_DOMAIN_INTERFACE,
                                       virt_domain_vtable,
                                       virtDBusDomainLookup,
                                       connect);

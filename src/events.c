@@ -85,7 +85,7 @@ virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIRT_ATTR_UNUSED,
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Domain",
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
                                   "DeviceAdded");
     if (r < 0)
         return r;
@@ -113,7 +113,7 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIRT_ATTR_UNUSED,
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Domain",
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
                                   "DeviceRemoved");
     if (r < 0)
         return r;
@@ -143,7 +143,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Domain",
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
                                   "TrayChange");
     if (r < 0)
         return r;
@@ -187,7 +187,7 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection VIRT_ATTR_UNUSED,
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   path,
-                                  "org.libvirt.Domain",
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
                                   "DiskChange");
     if (r < 0)
         return r;

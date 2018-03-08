@@ -2,7 +2,6 @@
 
 #include "connect.h"
 
-#include <libvirt/libvirt.h>
 #include <systemd/sd-bus.h>
 
 #define VIRT_DBUS_DOMAIN_INTERFACE "org.libvirt.Domain"

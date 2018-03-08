@@ -3,6 +3,7 @@
 #include "util.h"
 
 #include <assert.h>
+#include <libvirt/libvirt.h>
 #include <systemd/sd-bus.h>
 
 static int

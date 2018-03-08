@@ -3,7 +3,6 @@
 #include "connect.h"
 #include "util.h"
 
-#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 

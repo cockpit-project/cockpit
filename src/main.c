@@ -8,8 +8,10 @@
 #include <poll.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/signalfd.h>
 #include <systemd/sd-bus.h>
+#include <unistd.h>
 
 static int loop_status;
 

@@ -3,6 +3,7 @@
 #include "domain.h"
 #include "util.h"
 
+#include <libvirt/libvirt.h>
 #include <stdio.h>
 
 static int

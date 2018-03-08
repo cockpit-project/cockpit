@@ -1,9 +1,7 @@
 #pragma once
 
 #include <libvirt/libvirt.h>
-#include <stdlib.h>
 #include <systemd/sd-bus.h>
-#include <unistd.h>
 
 #define VIRT_DBUS_ERROR_INTERFACE "org.libvirt.Error"
 

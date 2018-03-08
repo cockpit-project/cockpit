@@ -1,6 +1,8 @@
 #include "util.h"
 
 #include <libvirt/virterror.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 int
 virtDBusUtilMessageAppendTypedParameters(sd_bus_message *message,

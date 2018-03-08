@@ -243,15 +243,11 @@ class VolumeTests(object):
         b.wait_in_text("modal-dialog span#modify-name", "pv2")
         b.wait_not_present("modal-dialog input#modify-capacity")
         b.wait_in_text("modal-dialog span#modify-capacity", pv2_size)
+        b.wait_not_present("modal-dialog input#modify-path")
+        b.wait_in_text("modal-dialog span#modify-path", "/tmp")
 
-        if "openshift" in m.image:
-            b.set_val("modal-dialog #modify-path", "/not-tmp")
-            b.click("modal-dialog .modal-footer button.btn-primary")
-            b.wait_not_present("modal-dialog")
-            b.wait_in_text(".listing-ct-inline", "/not-tmp")
-        else:
-            b.click("modal-dialog button.btn-default")
-            b.wait_not_present("modal-dialog")
+        b.click("modal-dialog button.btn-default")
+        b.wait_not_present("modal-dialog")
 
         b.click("a.hidden-xs")
         b.wait_present(".pv-listing tbody[data-id='fc-volume']")

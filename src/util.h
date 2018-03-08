@@ -5,6 +5,8 @@
 #include <systemd/sd-bus.h>
 #include <unistd.h>
 
+#define VIRT_DBUS_ERROR_INTERFACE "org.libvirt.Error"
+
 #define _cleanup_(_x) __attribute__((__cleanup__(_x)))
 
 #define VIRT_ATTR_UNUSED __attribute__((__unused__))

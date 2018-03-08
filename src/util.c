@@ -66,14 +66,14 @@ virtDBusUtilSetLastVirtError(sd_bus_error *error)
     if (!vir_error)
         return 0;
 
-    return sd_bus_error_set(error, "org.libvirt.Error", vir_error->message);
+    return sd_bus_error_set(error, VIRT_DBUS_ERROR_INTERFACE, vir_error->message);
 }
 
 int
 virtDBusUtilSetError(sd_bus_error *error,
                      const char *message)
 {
-    return sd_bus_error_set(error, "org.libvirt.Error", message);
+    return sd_bus_error_set(error, VIRT_DBUS_ERROR_INTERFACE, message);
 }
 
 char *

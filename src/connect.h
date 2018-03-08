@@ -5,6 +5,8 @@
 #include <libvirt/libvirt.h>
 #include <systemd/sd-bus.h>
 
+#define VIRT_DBUS_CONNECT_INTERFACE "org.libvirt.Connect"
+
 struct virtDBusConnect {
     sd_bus *bus;
     const char *uri;

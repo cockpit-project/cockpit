@@ -54,7 +54,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIRT_ATTR_UNUSED,
     r = sd_bus_message_new_signal(connect->bus,
                                   &message,
                                   connect->connectPath,
-                                  "org.libvirt.connect",
+                                  VIRT_DBUS_CONNECT_INTERFACE,
                                   signal);
     if (r < 0)
         return r;

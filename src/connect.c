@@ -258,7 +258,7 @@ virtDBusConnectNew(virtDBusConnect **connectp,
     r = sd_bus_add_object_vtable(connect->bus,
                                  NULL,
                                  connect->connectPath,
-                                 "org.libvirt.Connect",
+                                 VIRT_DBUS_CONNECT_INTERFACE,
                                  virt_connect_vtable,
                                  connect);
     if (r < 0)

@@ -126,7 +126,7 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIRT_ATTR_UNUSED,
 }
 
 static int
-virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
+virtDBusEventsDomainTrayChange(virConnectPtr connection VIRT_ATTR_UNUSED,
                                virDomainPtr domain,
                                const char *device,
                                int reason,
@@ -168,7 +168,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
 }
 
 static int
-virtDBusEventsDomainTrayChange(virConnectPtr connection VIRT_ATTR_UNUSED,
+virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
                                virDomainPtr domain,
                                const char *old_src_path,
                                const char *new_src_path,
@@ -243,10 +243,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
 
     virtDBusEventsRegisterEvent(connect,
                                 VIR_DOMAIN_EVENT_ID_DISK_CHANGE,
-                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
+                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDiskChange));
 
     virtDBusEventsRegisterEvent(connect,
                                 VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
-                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDiskChange));
+                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
 
 }

@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+
 #include "domain.h"
 #include "util.h"
 

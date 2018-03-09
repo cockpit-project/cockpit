@@ -219,6 +219,10 @@ main(int argc, char *argv[])
                                      virtDBusHandleSignal,
                                      NULL,
                                      NULL);
+    if (signal_watch < 0) {
+        fprintf(stderr, "Failed to register signal handler.\n");
+        return EXIT_FAILURE;
+    }
 
     while (loop_status >= 0)
         virEventRunDefaultImpl();

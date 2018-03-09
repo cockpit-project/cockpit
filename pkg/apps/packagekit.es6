@@ -52,9 +52,7 @@ function resolve(method, filter, name, progress_cb) {
 }
 
 function reload_bridge_packages() {
-    return new Promise((resolve, reject) =>
-        cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", [ ]).then(resolve, reject)
-    );
+    return cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", [ ]);
 }
 
 function install(name, progress_cb) {

@@ -89,12 +89,12 @@ var DialogFooter = React.createClass({
                           action_canceled: false,
                       });
         this.state.action_in_progress_promise = handler(this.update_progress.bind(this))
-            .done(function() {
+            .then(function() {
                 self.setState({ action_in_progress: false, error_message: null });
                 if (self.props.dialog_done)
                     self.props.dialog_done(true);
             })
-            .fail(function(error) {
+            .catch(function(error) {
                 if (self.state.action_canceled) {
                     if (self.props.dialog_done)
                         self.props.dialog_done(false);
@@ -105,7 +105,10 @@ var DialogFooter = React.createClass({
 
                 self.setState({ action_in_progress: false, error_message: error });
             })
-            .progress(this.update_progress.bind(this));
+
+        if (this.state.action_in_progress_promise.progress)
+            this.state.action_in_progress_promise.progress(this.update_progress.bind(this));
+
         if (e)
             e.stopPropagation();
     },

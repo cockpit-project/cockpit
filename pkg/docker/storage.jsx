@@ -389,7 +389,7 @@
                                       });
 
         function add_drives() {
-            var dfd = $.Deferred();
+            var dfd = cockpit.defer();
             var devs = drives.map(function (d) { return d.path; });
             if (docker_will_be_stopped)
                 client.close();
@@ -438,7 +438,7 @@
                                                        'style': "danger" } ]
                                       });
         function reset() {
-            var dfd = $.Deferred();
+            var dfd = cockpit.defer();
             client.close();
             var process = python.spawn(cockpit_atomic_storage, ["reset-and-reduce"],
                                        { 'err': 'out',

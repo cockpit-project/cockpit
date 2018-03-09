@@ -2,6 +2,7 @@
 
 %define libvirt_version @LIBVIRT_REQUIRED@
 %define systemd_version @SYSTEMD_REQUIRED@
+%define system_user @SYSTEM_USER@
 
 Name: @PACKAGE@
 Version: @VERSION@
@@ -39,10 +40,10 @@ rm -rf $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-getent group libvirtdbus >/dev/null || groupadd -r libvirtdbus
-getent passwd libvirtdbus >/dev/null || \
-    useradd -r -g libvirtdbus -d / -s /sbin/nologin \
-    -c "Libvirt DBus bridge" libvirtdbus
+getent group %{system_user} >/dev/null || groupadd -r %{system_user}
+getent passwd %{system_user} >/dev/null || \
+    useradd -r -g %{system_user} -d / -s /sbin/nologin \
+    -c "Libvirt DBus bridge" %{system_user}
 exit 0
 
 %files

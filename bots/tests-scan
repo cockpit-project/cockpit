@@ -249,22 +249,6 @@ def cockpit_tasks (api, update, policy):
                 branch_contexts[branch] = [ ]
             branch_contexts[branch].append(context)
 
-    branch_priority = BASELINE_PRIORITY - 3
-    for branch in branch_contexts:
-        ref = api.get("git/refs/heads/{0}".format(branch))
-        # if the branch doesn't exist but other branches begin with this name, GitHub returns a list
-        # we don't want to use such a list
-        # https://developer.github.com/v3/git/refs/
-        if ref and not isinstance(ref, list):
-            revision = ref["object"]["sha"]
-            statuses = api.statuses(revision)
-            which = list(statuses.keys()) or branch_contexts[branch]
-            for context in which:
-                status = statuses.get(context, { })
-                (priority, changes) = prioritize(status, "", lambda: [], branch_priority, context)
-                if not update or update_status(api, revision, context, status, changes):
-                    results.append((priority, branch, revision, branch, context, None))
-
     whitelist = github.whitelist()
     for pull in api.pulls():
         title = pull["title"]

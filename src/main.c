@@ -198,7 +198,7 @@ main(int argc, char *argv[])
         r = virtDBusConnectNew(&connect[i], bus,
                                drivers[i].uri, drivers[i].object);
         if (r < 0) {
-            fprintf(stderr, "Failed to register libvirt connection.");
+            fprintf(stderr, "Failed to register libvirt connection.\n");
             return EXIT_FAILURE;
         }
     }

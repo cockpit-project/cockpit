@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+import parent
+from testlib import *
+
+EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
+
+
+class TestPinger(MachineCase):
+    def setUp(self):
+        super(TestPinger, self).setUp()
+        self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
+        self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "~admin/.local/share/cockpit/")
+
+    def testBasic(self):
+        b = self.browser
+
+        self.login_and_go("/pinger/ping")
+        b.wait_present("#address")
+        b.set_val("#address", "127.0.0.1")
+        b.click("button#ping")
+        b.wait_in_text("#result", "success")
+        b.wait_in_text("#output", "--- 127.0.0.1 ping statistics")
+
+
+if __name__ == '__main__':
+    test_main()

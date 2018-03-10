@@ -5,7 +5,7 @@
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
-    <div class="container-fluid" style='max-width: 400px'>
+    <div class="container-fluid">
         <table class="form-table-ct">
             <tr>
                 <td><label class="control-label" for="address">Address</label></td>
@@ -13,45 +13,15 @@
             </tr>
             <tr>
                 <td><button class="btn btn-default btn-primary" id="ping">Ping</button></td>
-		<td><span id="result"></span></td>
+                <td><span id="result"></span></td>
             </tr>
         </table>
         <p>
-	    <pre id="output"></pre>
+            <pre id="output"></pre>
         </p>
     </div>
 
-    <script>
-        var address = document.getElementById("address");
-        var output = document.getElementById("output");
-        var result = document.getElementById("result");
-
-        document.getElementById("ping").addEventListener("click", ping_run);
-
-        function ping_run() {
-            var proc = cockpit.spawn(["ping", "-c", "4", address.value]);
-            proc.done(ping_success);
-            proc.stream(ping_output);
-            proc.fail(ping_fail);
-
-            result.innerHTML = "";
-            output.innerHTML = "";
-        }
-
-        function ping_success() {
-            result.style.color = "green";
-            result.innerHTML = "success";
-        }
-
-        function ping_fail() {
-            result.style.color = "red";
-            result.innerHTML = "fail";
-        }
-
-        function ping_output(data) {
-            output.append(document.createTextNode(data));
-        }
-    </script>
+    <script src="pinger.js"></script>
 </body>
 </html>
 

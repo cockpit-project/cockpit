@@ -26,6 +26,10 @@ virtDBusConnectNew(virtDBusConnect **connectp,
                    const char *uri,
                    const char *connectPath);
 
+int
+virtDBusConnectOpen(virtDBusConnect *connect,
+                    sd_bus_error *error);
+
 virtDBusConnect *
 virtDBusConnectFree(virtDBusConnect *connect);
 

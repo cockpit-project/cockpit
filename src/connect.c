@@ -53,7 +53,7 @@ virtDBusConnectClose(virtDBusConnect *connect,
     connect->connection = NULL;
 }
 
-static int
+int
 virtDBusConnectOpen(virtDBusConnect *connect,
                     sd_bus_error *error)
 {

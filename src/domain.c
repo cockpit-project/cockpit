@@ -19,6 +19,9 @@ virtDBusDomainGetName(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     const char *name = "";
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
     if (domain == NULL)
@@ -44,6 +47,9 @@ virtDBusDomainGetUUID(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     char uuid[VIR_UUID_STRING_BUFLEN] = "";
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
     if (domain == NULL)
@@ -66,6 +72,9 @@ virtDBusDomainGetId(sd_bus *bus VIRT_ATTR_UNUSED,
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
     if (domain == NULL)
@@ -85,6 +94,9 @@ virtDBusDomainGetVcpus(sd_bus *bus VIRT_ATTR_UNUSED,
 {
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
 
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
@@ -106,6 +118,9 @@ virtDBusDomainGetOsType(sd_bus *bus VIRT_ATTR_UNUSED,
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *os_type = NULL;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
 
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
@@ -132,6 +147,9 @@ virtDBusDomainGetActive(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int active;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
     if (domain == NULL)
@@ -156,6 +174,9 @@ virtDBusDomainGetPersistent(sd_bus *bus VIRT_ATTR_UNUSED,
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int persistent;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
 
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
@@ -182,6 +203,9 @@ virtDBusDomainGetState(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int state = 0;
     const char *string;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
 
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
@@ -234,6 +258,9 @@ virtDBusDomainGetAutostart(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int autostart = 0;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
                                               connect->domainPath);
     if (domain == NULL)
@@ -254,6 +281,9 @@ virtDBusDomainGetXMLDesc(sd_bus_message *message,
     _cleanup_(virtDBusUtilFreep) char *description = NULL;
     uint32_t flags;
     int r;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
 
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),
@@ -300,6 +330,9 @@ virtDBusDomainGetStats(sd_bus_message *message,
     if (r < 0)
         return r;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),
                                               connect->domainPath);
@@ -336,6 +369,9 @@ virtDBusDomainShutdown(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),
                                               connect->domainPath);
@@ -361,6 +397,9 @@ virtDBusDomainDestroy(sd_bus_message *message,
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
 
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),
@@ -393,6 +432,9 @@ virtDBusDomainReboot(sd_bus_message *message,
     if (r < 0)
         return r;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),
                                               connect->domainPath);
@@ -424,6 +466,9 @@ virtDBusDomainReset(sd_bus_message *message,
     if (r < 0)
         return r;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),
                                               connect->domainPath);
@@ -450,6 +495,9 @@ virtDBusDomainCreate(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
+
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),
                                               connect->domainPath);
@@ -475,6 +523,9 @@ virtDBusDomainUndefine(sd_bus_message *message,
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return -1;
 
     domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
                                               sd_bus_message_get_path(message),

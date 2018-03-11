@@ -6,6 +6,28 @@
 #include <libvirt/libvirt.h>
 #include <stdio.h>
 
+static virDomainPtr
+virtDBusDomainGetVirDomain(virtDBusConnect *connect,
+                           const char *path,
+                           sd_bus_error *error)
+{
+    virDomainPtr domain;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return NULL;
+
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
+                                              connect->domainPath);
+    if (domain == NULL) {
+        sd_bus_error_setf(error,
+                          SD_BUS_ERROR_UNKNOWN_OBJECT,
+                          "Unknown object '%s'.", path);
+        return NULL;
+    }
+
+    return domain;
+}
+
 static int
 virtDBusDomainGetName(sd_bus *bus VIRT_ATTR_UNUSED,
                       const char *path,
@@ -19,13 +41,9 @@ virtDBusDomainGetName(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     const char *name = "";
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "s", "");
+        return -1;
 
     name = virDomainGetName(domain);
     if (name == NULL)
@@ -47,13 +65,9 @@ virtDBusDomainGetUUID(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     char uuid[VIR_UUID_STRING_BUFLEN] = "";
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "s", "");
+        return -1;
 
     virDomainGetUUIDString(domain, uuid);
 
@@ -72,13 +86,9 @@ virtDBusDomainGetId(sd_bus *bus VIRT_ATTR_UNUSED,
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "u", 0);
+        return -1;
 
     return sd_bus_message_append(reply, "u", virDomainGetID(domain));
 }
@@ -95,13 +105,9 @@ virtDBusDomainGetVcpus(sd_bus *bus VIRT_ATTR_UNUSED,
     virtDBusConnect *connect = userdata;
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "u", 0);
+        return -1;
 
     return sd_bus_message_append(reply, "u", virDomainGetVcpusFlags(domain, VIR_DOMAIN_VCPU_CURRENT));
 }
@@ -119,13 +125,9 @@ virtDBusDomainGetOsType(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     _cleanup_(virtDBusUtilFreep) char *os_type = NULL;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "s", "");
+        return -1;
 
     os_type = virDomainGetOSType(domain);
     if (os_type == NULL)
@@ -147,13 +149,9 @@ virtDBusDomainGetActive(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int active;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "b", 0);
+        return -1;
 
     active = virDomainIsActive(domain);
     if (active < 0)
@@ -175,13 +173,9 @@ virtDBusDomainGetPersistent(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int persistent;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "b", 0);
+        return -1;
 
     persistent = virDomainIsPersistent(domain);
     if (persistent < 0)
@@ -204,13 +198,9 @@ virtDBusDomainGetState(sd_bus *bus VIRT_ATTR_UNUSED,
     int state = 0;
     const char *string;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "s", "");
+        return -1;
 
     virDomainGetState(domain, &state, NULL, 0);
 
@@ -258,13 +248,9 @@ virtDBusDomainGetAutostart(sd_bus *bus VIRT_ATTR_UNUSED,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int autostart = 0;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
-                                              connect->domainPath);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (domain == NULL)
-        return sd_bus_message_append(reply, "b", 0);
+        return -1;
 
     virDomainGetAutostart(domain, &autostart);
 
@@ -282,22 +268,15 @@ virtDBusDomainGetXMLDesc(sd_bus_message *message,
     uint32_t flags;
     int r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
-        return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
-
     r = sd_bus_message_read(message, "u", &flags);
     if (r < 0)
         return r;
+
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
+        return -1;
 
     description = virDomainGetXMLDesc(domain, flags);
     if (!description)
@@ -330,18 +309,11 @@ virtDBusDomainGetStats(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
         return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
 
     domains[0] = domain;
     domains[1] = NULL;
@@ -369,18 +341,11 @@ virtDBusDomainShutdown(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
         return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
 
     r = virDomainShutdown(domain);
     if (r < 0)
@@ -398,18 +363,11 @@ virtDBusDomainDestroy(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
         return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
 
     r = virDomainDestroy(domain);
     if (r < 0)
@@ -432,18 +390,11 @@ virtDBusDomainReboot(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
         return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
 
     r = virDomainReboot(domain, flags);
     if (r < 0)
@@ -466,18 +417,11 @@ virtDBusDomainReset(sd_bus_message *message,
     if (r < 0)
         return r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
         return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
 
     r = virDomainReset(domain, flags);
     if (r < 0)
@@ -495,18 +439,11 @@ virtDBusDomainCreate(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
         return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
 
     r = virDomainCreate(domain);
     if (r < 0)
@@ -524,18 +461,11 @@ virtDBusDomainUndefine(sd_bus_message *message,
     _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
     int r;
 
-    if (virtDBusConnectOpen(connect, error) < 0)
+    domain = virtDBusDomainGetVirDomain(connect,
+                                        sd_bus_message_get_path(message),
+                                        error);
+    if (domain == NULL)
         return -1;
-
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
-                                              sd_bus_message_get_path(message),
-                                              connect->domainPath);
-    if (domain == NULL) {
-        return sd_bus_reply_method_errorf(message,
-                                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                                          "Unknown object '%s'.",
-                                          sd_bus_message_get_path(message));
-    }
 
     r = virDomainUndefine(domain);
     if (r < 0)
@@ -594,7 +524,7 @@ virtDBusDomainLookup(sd_bus *bus VIRT_ATTR_UNUSED,
     if (*name == '\0')
         return 0;
 
-    domain = virDomainLookupByUUIDString(connect->connection, name);
+    domain = virtDBusDomainGetVirDomain(connect, path, error);
     if (!domain)
         return 0;
 

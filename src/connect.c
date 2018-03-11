@@ -120,11 +120,11 @@ virtDBusConnectListDomains(sd_bus_message *message,
     uint32_t flags;
     int r;
 
-    r = virtDBusConnectOpen(connect, error);
+    r = sd_bus_message_read(message, "u", &flags);
     if (r < 0)
         return r;
 
-    r = sd_bus_message_read(message, "u", &flags);
+    r = virtDBusConnectOpen(connect, error);
     if (r < 0)
         return r;
 
@@ -170,11 +170,11 @@ virtDBusConnectCreateXML(sd_bus_message *message,
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
-    r = virtDBusConnectOpen(connect, error);
+    r = sd_bus_message_read(message, "su", &xml, &flags);
     if (r < 0)
         return r;
 
-    r = sd_bus_message_read(message, "su", &xml, &flags);
+    r = virtDBusConnectOpen(connect, error);
     if (r < 0)
         return r;
 
@@ -198,11 +198,11 @@ virtDBusConnectDefineXML(sd_bus_message *message,
     _cleanup_(virtDBusUtilFreep) char *path = NULL;
     int r;
 
-    r = virtDBusConnectOpen(connect, error);
+    r = sd_bus_message_read(message, "s", &xml);
     if (r < 0)
         return r;
 
-    r = sd_bus_message_read(message, "s", &xml);
+    r = virtDBusConnectOpen(connect, error);
     if (r < 0)
         return r;
 

@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import time
 
 import parent
 from testlib import *
@@ -85,15 +86,39 @@ class TestUpdates(PackageCase):
 
         return row
 
+    def wait_checking_updates(self):
+        '''Wait until spinner is gone from #system_information_updates_icon for 3 s'''
+
+        self.browser.wait_present("#system_information_updates_icon")
+        good_count = 0
+        for retry in range(60):
+            classes = self.browser.attr("#system_information_updates_icon", "class")
+            if classes is None  or "spinner" in classes:
+                good_count = 0
+            else:
+                good_count += 1
+                if good_count >= 3:
+                    return
+            time.sleep(1)
+        else:
+            self.fail("Timed out waiting for updates spinner to go away")
+
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
         m = self.machine
 
         m.start_cockpit()
-        b.login_and_go("/updates")
+        b.login_and_go("/system")
+        if m.image != "rhel-7-4":
+            # status on /system front page: no repos at all, thus no updates
+            self.wait_checking_updates()
+            b.wait_text("#system_information_updates_text", "System Up To Date")
+            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
-        # no repositories at all, thus no updates
+        # no updates on the Software Updates page
+        b.go("/updates")
+        b.enter_page("/updates")
         b.wait_present(".content-header-extra td button")
         b.wait_in_text("#state", "No updates pending")
         b.wait_present(".content-header-extra td.text-right span")
@@ -126,6 +151,17 @@ class TestUpdates(PackageCase):
         b.wait_in_text("table.listing-ct", "vanilla")
         self.check_nth_update(1, "chocolate", "2.0-2")
         self.check_nth_update(2, "vanilla", "1.0-2")
+
+        if m.image != "rhel-7-4":
+            # updates are shown on system page
+            b.go("/system")
+            b.enter_page("/system")
+            self.wait_checking_updates()
+            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+            self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
+            # should be a link, click on it to go to /updates
+            b.click("#system_information_updates_text a")
+            b.enter_page("/updates")
 
         # old versions are still installed
         m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
@@ -181,6 +217,14 @@ class TestUpdates(PackageCase):
 
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
+
+        if m.image != "rhel-7-4":
+            # system page has current state as well
+            b.go("/system")
+            b.enter_page("/system")
+            self.wait_checking_updates()
+            b.wait_text("#system_information_updates_text", "System Up To Date")
+            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     def testInfoSecurity(self):
@@ -262,6 +306,20 @@ class TestUpdates(PackageCase):
         # verify Markdown formatting in details
         self.assertEqual(b.text(sel + " .listing-ct-body em"), "more")  # *more*
         self.assertEqual(b.attr(sel + " .listing-ct-body a:first-of-type", "href"), "http://unicorn.example.com")
+
+        if m.image != "rhel-7-4":
+            # updates are shown on system page
+            b.go("/system")
+            b.enter_page("/system")
+            self.wait_checking_updates()
+            # PackageKit's dnf backend mis-parses severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+            # and PackageKit's deb backend does not know about severity at all, so only test this on RPM
+            if self.backend == 'yum':
+                b.wait_text("#system_information_updates_text", "Security Updates Available")
+                self.assertIn("security", b.attr("#system_information_updates_icon", "class"))
+            # should be a link, click on it to go to back to /updates
+            b.click("#system_information_updates_text a")
+            b.enter_page("/updates")
 
         # install only security updates
         self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
@@ -588,6 +646,14 @@ class TestUpdates(PackageCase):
         b.wait_present("#app pre")
         b.wait_in_text("#app pre", "PackageKit is not installed")
 
+        if m.image != "rhel-7-4":
+            # update status on front page should be invisible
+            b.go("/system")
+            b.enter_page("/system")
+            b.wait_present("#system_information_updates_text")
+            b.wait_not_visible("#system_information_updates_text")
+            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 @skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-26", "fedora-27", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
@@ -632,7 +698,16 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # fresh machine, no updates available; by default our rhel-* images are not registered
         m.start_cockpit()
-        b.login_and_go("/updates")
+        b.login_and_go("/system")
+        if m.image != "rhel-7-4":
+            # show unregistered status on system front page
+            b.wait_present("#system_information_updates_text")
+            b.wait_in_text("#system_information_updates_text", "Not Registered")
+            self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+
+        # and also on software updates page
+        b.go("/updates")
+        b.enter_page("/updates")
 
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf button")
@@ -655,6 +730,14 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present(".container-fluid div.blank-slate-pf")
         b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
 
+        if m.image != "rhel-7-4":
+            # same on system page
+            b.go("/system")
+            b.enter_page("/system")
+            b.wait_present("#system_information_updates_text")
+            b.wait_text("#system_information_updates_text", "System Up To Date")
+            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+
     def testAvailableUpdates(self):
         m = self.machine
         b = self.browser
@@ -664,11 +747,21 @@ class TestUpdatesSubscriptions(PackageCase):
         self.createPackage("vanilla", "1.0", "2")
         self.enableRepo()
 
-        # by default our rhel-* images are not registered; should show available update and unregistered warning, but no
-        # other action buttons
         m.start_cockpit()
-        b.login_and_go("/updates")
 
+        b.login_and_go("/system")
+        if m.image != "rhel-7-4":
+            # by default our rhel-* images are not registered; show warning on system page
+            b.wait_present("#system_information_updates_text")
+            b.wait_in_text("#system_information_updates_text", "Not Registered")
+            self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+            # should be a link leading to subscriptions page
+            b.click("#system_information_updates_text a")
+            b.enter_page("/subscriptions")
+
+        # /updates should show available update and unregistered warning, but no other action buttons
+        b.go("/updates")
+        b.enter_page("/updates")
         b.wait_present(".alert-warning")
         b.wait_in_text(".alert-warning", "subscribe")
         b.wait_present("table.listing-ct")
@@ -701,6 +794,14 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present(".content-header-extra td button")
         b.wait_present("#app .container-fluid button")
         self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
+
+        if m.image != "rhel-7-4":
+            # show available updates on system page too
+            b.go("/system")
+            b.enter_page("/system")
+            b.wait_present("#system_information_updates_text")
+            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+            self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")

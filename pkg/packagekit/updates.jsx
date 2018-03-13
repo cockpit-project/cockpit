@@ -198,6 +198,9 @@ function HeaderBar(props) {
 }
 
 function getSeverityURL(urls) {
+    if (!urls)
+        return null;
+
     // in ascending severity
     const knownLevels = ["low", "moderate", "important", "critical"];
     var highestIndex = -1;
@@ -255,34 +258,22 @@ class UpdateItem extends React.Component {
                 errata = null; // simpler testing below
         }
 
+        var secSeverityURL = getSeverityURL(info.vendor_urls);
+        var secSeverity = secSeverityURL ? secSeverityURL.slice(secSeverityURL.indexOf("#") + 1) : null;
+        var iconClasses = PK.getSeverityIcon(info.severity, secSeverity);
         var type;
-        var secSeverity;
         if (info.severity === PK.Enum.INFO_SECURITY) {
-            let classes = "pficon pficon-security";
-
-            // parse Red Hat security update classification from vendor_urls
-            secSeverity = getSeverityURL(info.vendor_urls);
-            if (secSeverity) {
-                let s = secSeverity.slice(secSeverity.indexOf("#") + 1);
-                classes += " severity-" + s;
-                secSeverity = <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={secSeverity}>{s}</a>;
-            }
-
+            if (secSeverityURL)
+                secSeverityURL = <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
             type = (
                 <span>
-                    <span className={classes}>&nbsp;</span>
+                    <span className={iconClasses}>&nbsp;</span>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
-                </span>);
-        } else if (info.severity >= PK.Enum.INFO_NORMAL) {
-            type = (
-                <span>
-                    <span className="fa fa-bug">&nbsp;</span>
-                    { bugs ? info.bug_urls.length : "" }
                 </span>);
         } else {
             type = (
                 <span>
-                    <span className="pficon pficon-enhancement">&nbsp;</span>
+                    <span className={iconClasses}>&nbsp;</span>
                     { bugs ? info.bug_urls.length : "" }
                 </span>);
         }
@@ -316,8 +307,8 @@ class UpdateItem extends React.Component {
                                 <dd>{pkgs}</dd>
                                 { cves ? <dt>CVE:</dt> : null }
                                 { cves ? <dd>{cves}</dd> : null }
-                                { secSeverity ? <dt>{_("Severity:")}</dt> : null }
-                                { secSeverity ? <dd className="severity">{secSeverity}</dd> : null }
+                                { secSeverityURL ? <dt>{_("Severity:")}</dt> : null }
+                                { secSeverityURL ? <dd className="severity">{secSeverityURL}</dd> : null }
                                 { errata ? <dt>{_("Errata:")}</dt> : null }
                                 { errata ? <dd>{errata}</dd> : null }
                                 { bugs ? <dt>{_("Bugs:")}</dt> : null }

@@ -205,6 +205,9 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
                 },
             }, signalHandlers || {}),
             changed).
-            catch(reject);
+            catch(ex => {
+                progress_cb = null;
+                reject(ex);
+            });
     });
 }

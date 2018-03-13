@@ -6,9 +6,9 @@
  *
  *    import { injectMockUpdates } from "./mock-updates.es6";
  *
- * and call it in loadUpdates()'s Finished: Handler:
+ * and call it in loadUpdates()'s then Handler:
  *
- *      Finished: () => {
+ *      .then(() => {
  *          injectMockUpdates(updates);
  *          let pkg_ids = Object.keys(updates);
  */

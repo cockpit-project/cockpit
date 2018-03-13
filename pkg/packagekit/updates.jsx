@@ -58,11 +58,6 @@ const PK_STATUS_LOG_STRINGS = {
     [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
 }
 
-// possible Red Hat subscription manager status values:
-// https://github.com/candlepin/subscription-manager/blob/30c3b52320c3e73ebd7435b4fc8b0b6319985d19/src/rhsm_icon/rhsm_icon.c#L98
-// we accept RHSM_VALID(0), RHN_CLASSIC(3), and RHSM_PARTIALLY_VALID(4)
-const validSubscriptionStates = [0, 3, 4];
-
 var packageSummaries = {};
 
 // parse CVEs from an arbitrary text (changelog) and return URL array
@@ -708,28 +703,8 @@ class OsUpdates extends React.Component {
             .catch(ex => console.warn("Failed to load old transactions:", ex));
     }
 
-    watchRedHatSubscription() {
-        // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
-        var sm = cockpit.dbus("com.redhat.SubscriptionManager");
-        sm.subscribe(
-            { path: "/EntitlementStatus",
-              interface: "com.redhat.SubscriptionManager.EntitlementStatus",
-              member: "entitlement_status_changed"
-            },
-            (path, iface, signal, args) => this.setState({ unregistered: validSubscriptionStates.indexOf(args[0]) < 0 })
-        );
-        sm.call(
-            "/EntitlementStatus", "com.redhat.SubscriptionManager.EntitlementStatus", "check_status")
-            .done(result => this.setState({ unregistered: validSubscriptionStates.indexOf(result[0]) < 0 }) )
-            .fail(ex => {
-                if (ex.problem != "not-found")
-                    console.warn("Failed to query RHEL subscription status:", ex);
-            }
-        );
-    }
-
     initialLoadOrRefresh() {
-        this.watchRedHatSubscription();
+        PK.watchRedHatSubscription(registered => this.setState({ unregistered: !registered }));
 
         PK.dbus_client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                      [PK.Enum.ROLE_REFRESH_CACHE], {timeout: 5000})

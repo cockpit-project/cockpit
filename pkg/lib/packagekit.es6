@@ -229,3 +229,37 @@ export function getSeverityIcon(info, secSeverity) {
     else
         return "pficon pficon-enhancement";
 }
+
+
+// possible Red Hat subscription manager status values:
+// https://github.com/candlepin/subscription-manager/blob/30c3b52320c3e73ebd7435b4fc8b0b6319985d19/src/rhsm_icon/rhsm_icon.c#L98
+// we accept RHSM_VALID(0), RHN_CLASSIC(3), and RHSM_PARTIALLY_VALID(4)
+const validSubscriptionStates = [0, 3, 4];
+
+/**
+ * Check Red Hat subscription-manager if if this is an unregistered RHEL
+ * system. If subscription-manager is not installed, nothing happens.
+ *
+ * callback: Called with a boolean (true: registered, false: not registered)
+ *           after querying subscription-manager once, and whenever the value
+ *           changes.
+ */
+export function watchRedHatSubscription(callback) {
+        // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
+        var sm = cockpit.dbus("com.redhat.SubscriptionManager");
+        sm.subscribe(
+            { path: "/EntitlementStatus",
+              interface: "com.redhat.SubscriptionManager.EntitlementStatus",
+              member: "entitlement_status_changed"
+            },
+            (path, iface, signal, args) => callback(validSubscriptionStates.indexOf(args[0]) >= 0)
+        );
+        sm.call(
+            "/EntitlementStatus", "com.redhat.SubscriptionManager.EntitlementStatus", "check_status")
+            .done(result => callback(validSubscriptionStates.indexOf(result[0]) >= 0) )
+            .fail(ex => {
+                if (ex.problem != "not-found")
+                    console.warn("Failed to query RHEL subscription status:", ex);
+            }
+        );
+    }

@@ -211,3 +211,21 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
             });
     });
 }
+
+/**
+ * Get appropriate icon classes for an update severity
+ *
+ * info: An Enum.INFO_* level
+ * secSeverity: If given, further classification of the severity of Enum.INFO_SECURITY from the vendor_urls;
+ *              e. g. "critical", see https://access.redhat.com/security/updates/classification
+ * Returns: Icon classes; put them into <span class="returnvalue">&nbsp;</span>
+ *
+ */
+export function getSeverityIcon(info, secSeverity) {
+    if (info == Enum.INFO_SECURITY)
+        return "pficon pficon-security" + (secSeverity ? " severity-" + secSeverity : "");
+    else if (info >= Enum.INFO_NORMAL)
+        return "fa fa-bug";
+    else
+        return "pficon pficon-enhancement";
+}

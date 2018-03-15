@@ -40,19 +40,29 @@ class TestTuned(MachineCase):
 
         self.login_and_go("/system")
 
+        def check_status_tooltip(expected):
+            if m.image == 'rhel-7-4':
+                # on RHEL 7.4 this was still a popover on a separate (i) button
+                b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content', expected)
+                return
+
+            b.mouse("#system-info-performance .action-trigger", "mouseover")
+            b.wait_present("#system-info-performance .tooltip-inner")
+            b.wait_text("#system-info-performance .tooltip-inner", expected)
+            # move mouse away again, to let the tooltip disappear and update
+            b.mouse("#system-info-performance .action-trigger", "mouseout")
+            b.wait_not_present("#system-info-performance .tooltip-inner")
+
         b.wait_text('#system-info-performance a.action-trigger', "none")
-        b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
-                    "Tuned is not running")
+        check_status_tooltip("Tuned is not running")
 
-        # Start tuned manually and hit the info button to force an
-        # update.  The recommended profile will be activated
-        # automatically.
-
+        # Start tuned manually. The recommended profile will be activated automatically.
         m.execute("systemctl start tuned")
-        b.click('#system-info-performance [data-toggle="popover"]')
+        if m.image == 'rhel-7-4':
+            # versions < 164 required clicking the info button to update the status
+            b.click('#system-info-performance [data-toggle="popover"]')
         b.wait_text('#system-info-performance a.action-trigger', recommended_profile)
-        b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
-                    "This system is using the recommended profile")
+        check_status_tooltip("This system is using the recommended profile")
 
         # Switch the profile
 
@@ -73,8 +83,7 @@ class TestTuned(MachineCase):
         b.wait_not_present(title_selector)
 
         b.wait_text('#system-info-performance a.action-trigger', "balanced")
-        b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content',
-                    "This system is using a custom profile")
+        check_status_tooltip("This system is using a custom profile")
 
         # Check the status of tuned, it should show the profile
         output = m.execute("tuned-adm active 2>&1 || true")

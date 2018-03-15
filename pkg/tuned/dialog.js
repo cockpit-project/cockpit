@@ -38,7 +38,8 @@
         var element = $(require("raw!./link.html"));
 
         var button = element.find(".action-trigger");
-        var popover = element.find("[data-toggle=popover]");
+        var tooltip = element.find("#tuned-status-tooltip");
+        tooltip.tooltip({ placement: "top" });
 
         /* Tuned doesn't implement the DBus.Properties interface, so
          * we occasionally poll for what we need.
@@ -78,13 +79,7 @@
             var tuned = cockpit.dbus('com.redhat.tuned', { superuser: true });
 
             function set_status(text) {
-                if (text != popover.attr('data-content')) {
-                    popover.attr('data-content', text);
-                    popover.attr('aria-label', text);
-                    // Refresh the popover if it is open
-                    if (popover.data('bs.popover').tip().hasClass('in'))
-                        popover.popover('show');
-                }
+                tooltip.attr("data-original-title", text);
             }
 
             poll(tuned)
@@ -279,7 +274,7 @@
 
         button.on('click', open_dialog);
 
-        popover.popover().on('click', update_button);
+        tuned_service.addEventListener("changed", update_button);
         update_button();
 
         return element[0];

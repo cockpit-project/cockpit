@@ -4,6 +4,7 @@
 @import "/journal.css";
 @import "/plot.css";
 @import "/table.css";
+@import "/tooltip.css";
 
 @import "./timer.css";
 
@@ -210,6 +211,11 @@ a.disabled {
     overflow: visible;
     white-space: normal;
     word-wrap: break-word;
+}
+
+#system_information_machine_id_row .tooltip-inner {
+    font-family: monospace;
+    max-width: 35em;
 }
 
 @media (min-width: 500px) {

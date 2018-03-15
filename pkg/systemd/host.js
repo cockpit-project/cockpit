@@ -376,8 +376,9 @@ PageServer.prototype = {
 
         var machine_id = cockpit.file("/etc/machine-id");
         machine_id.read().done(function (content) {
-            $("#system_machine_id").text(content);
-            $("#system_machine_id").attr("title", content);
+            $("#system_machine_id")
+                .text(content)
+                .tooltip({ title: content, placement: "bottom" });
         }).fail(function (ex) {
             console.error("Error reading machine id", ex);
         }).always(function () {
@@ -522,7 +523,7 @@ PageServer.prototype = {
         machine_info.dmi_info()
             .done(function(fields) {
                 $("#system_information_hardware_text")
-                    .attr("title", _("Click to see system hardware information"))
+                    .tooltip({ title: _("Click to see system hardware information"), placement: "bottom" })
                     .text(fields.sys_vendor + " " + fields.product_name);
                 var present = !!(fields.product_serial || fields.chassis_serial);
                 $("#system_information_asset_tag_text")
@@ -1476,6 +1477,7 @@ $("#link-disk").on("click", function() {
 });
 
 $("#system_information_hardware_text").on("click", function() {
+    $("#system_information_hardware_text").tooltip("hide");
     cockpit.jump("/system/hwinfo", cockpit.transport.host);
     return false;
 });

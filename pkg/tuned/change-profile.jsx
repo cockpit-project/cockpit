@@ -130,15 +130,7 @@ var TunedLink = React.createClass({
             classes += " disabled";
         }
 
-        return (
-            <div>
-                <a className={ classes } {...opts}>{ text }</a>
-                <a tabindex="0" data-toggle="popover" data-trigger="focus"
-                    data-placement="top" data-html="true" data-content="">
-                    <span className="fa fa-lg fa-info-circle"></span>
-                </a>
-            </div>
-        );
+        return <a className={ classes } {...opts}>{ text }</a>;
     }
 });
 

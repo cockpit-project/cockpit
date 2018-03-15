@@ -263,16 +263,17 @@ PageServer.prototype = {
             self.host_keys_hide();
         });
 
+        var $ntp_status = $('#system_information_systime_ntp_status');
+
         function update_ntp_status() {
-            var $elt = $('#system_information_systime_ntp_status');
 
             if (!self.server_time.timedate.NTP) {
-                $elt.hide();
-                $elt.popover('hide');
+                $ntp_status.hide();
+                $ntp_status.attr("data-original-title", null);
                 return;
             }
 
-            $elt.show();
+            $ntp_status.show();
 
             var model = {
                 Synched: self.server_time.timedate.NTPSynchronized,
@@ -296,19 +297,15 @@ PageServer.prototype = {
                     model.SubStatus = timesyncd_status;
             }
 
-            var popover_html = Mustache.render(self.ntp_status_tmpl, model);
-            if (popover_html != $elt.attr('data-content')) {
-                $elt.attr("data-content", popover_html);
-                // Refresh the popover if it is open
-                if ($elt.data('bs.popover').tip().hasClass('in'))
-                    $elt.popover('show');
-            }
+            var tooltip_html = Mustache.render(self.ntp_status_tmpl, model);
+            if (tooltip_html != $ntp_status.attr("data-original-title"))
+                $ntp_status.attr("data-original-title", tooltip_html);
 
             var icon_html = Mustache.render(self.ntp_status_icon_tmpl, model);
-            $elt.html(icon_html);
+            $ntp_status.html(icon_html);
         }
 
-        $('#system_information_systime_ntp_status').popover();
+        $ntp_status.tooltip();
 
         $(self.server_time.timesyncd_service).on("changed", update_ntp_status);
         $(self.server_time.timedate).on("changed", update_ntp_status);

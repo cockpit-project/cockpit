@@ -267,12 +267,15 @@ class MetainfoDB:
             info = { }
             origin = xml_root.attrib['origin']
             for xml_comp in xml_root.iter('component'):
-                comp = convert_collection_component(os.path.dirname(file), origin, xml_comp)
-                if comp is not None:
-                    if comp['id'] in info:
-                        pass # warning: duplicate id
-                    else:
-                        info[comp['id']] = comp
+                try:
+                    comp = convert_collection_component(os.path.dirname(file), origin, xml_comp)
+                    if comp is not None:
+                        if comp['id'] in info:
+                            pass # warning: duplicate id
+                        else:
+                            info[comp['id']] = comp
+                except KeyError:
+                    pass
             self.available_by_file[file] = info
         elif file in self.available_by_file:
             del self.available_by_file[file]

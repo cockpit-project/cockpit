@@ -265,5 +265,34 @@ This <is <not XML.
         b.wait_present(".app-list-empty")
         reset()
 
+        # Error (launchable without type) in earlier entry, shouldn't affect the later entry
+        m.write("/usr/share/app-info/xmls/test.xml", """
+<components origin="test">
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <id>org.cockpit-project.test2</id>
+    <name>Name</name>
+    <summary>Summary</summary>
+    <description>
+        <p>Description 2</p>
+    </description>
+    <launchable>foo</launchable>
+    <pkgname>foo</pkgname>
+  </component>
+  <component type="addon">
+    <extends>cockpit.desktop</extends>
+    <id>org.cockpit-project.test</id>
+    <name>Name</name>
+    <summary>Summary 2</summary>
+    <description>
+        <p>Description</p>
+    </description>
+    <launchable type="cockpit-manifest">foo</launchable>
+    <pkgname>foo</pkgname>
+  </component>
+</components>""")
+        b.wait_not_present(".app-list-empty")
+        b.wait_present(".app-list tr:contains('Summary 2')")
+
 if __name__ == '__main__':
     test_main()

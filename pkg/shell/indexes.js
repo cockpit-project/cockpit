@@ -270,7 +270,6 @@
                     .toggleClass("active", active)
                     .append($("<a>")
                         .attr("href", index.href({ host: machine.address, component: component.path }))
-                        .attr("title", component.label)
                         .append($("<span>").text(component.label)));
 
                 if (active)

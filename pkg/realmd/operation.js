@@ -413,7 +413,9 @@
     function setup() {
         var $ = jQuery;
 
-        var element = $("<a>");
+        var element = $("<span>");
+        var link = $("<a>");
+        element.append(link);
 
         var realmd = cockpit.dbus("org.freedesktop.realmd");
         realmd.watch(MANAGER);
@@ -431,8 +433,8 @@
                 message = _("Cannot join a domain because realmd is not available on this system");
             else
                 message = cockpit.message(options);
+            link.addClass("disabled");
             element
-                .addClass("disabled")
                 .attr('title', message)
                 .tooltip({ container: 'body'})
                 .tooltip('fixTitle');
@@ -446,9 +448,9 @@
             permission = cockpit.permission({ admin: true });
 
             function update_realm_privileged() {
-                $(element).update_privileged(permission,
+                $(link).update_privileged(permission,
                         cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
-                            permission.user ? permission.user.name : ''));
+                            permission.user ? permission.user.name : ''), null, element);
             }
 
             $(permission).on("changed", update_realm_privileged);
@@ -467,21 +469,21 @@
                 text = _("Join Domain");
             else
                 text = joined.map(function(x) { return x.Name; }).join(", ");
-            element.text(text);
+            link.text(text);
         }
 
         $(realms).on("changed", update_realms);
         update_realms();
 
         var dialog = null;
-        element.on("click", function() {
+        link.on("click", function() {
             if (dialog)
                 $(dialog).remove();
 
             if (joined && joined.length)
-                dialog = instance(realmd, 'leave', joined[0], element);
+                dialog = instance(realmd, 'leave', joined[0], link);
             else
-                dialog = instance(realmd, 'join', null, element);
+                dialog = instance(realmd, 'join', null, link);
 
             $(dialog)
                 .attr("id", "realms-op")

@@ -436,9 +436,13 @@
      */
 
     // placement is optional, "top", "left", "bottom", "right"
-    $.fn.update_privileged = function update_privileged(perm, denied_message, placement) {
+    // by default, tooltip is attached to "this" element; can be attached to
+    // another one with setting "tooltip_element" (for <a> links)
+    $.fn.update_privileged = function update_privileged(perm, denied_message, placement, tooltip_element) {
         var allowed = (perm.allowed !== false);
         var selector = this;
+        if (!tooltip_element)
+            tooltip_element = $(this);
 
         selector.each(function() {
             // preserve old title first time to use when allowed
@@ -452,17 +456,17 @@
             if (placement)
                 options['placement'] = placement;
 
-            $(this).tooltip(options);
+            tooltip_element.tooltip(options);
 
             if ($(this).hasClass("disabled") === allowed) {
-              $(this).toggleClass("disabled", !allowed)
-                   .attr('data-original-title', null);
+              $(this).toggleClass("disabled", !allowed);
+              tooltip_element.attr('data-original-title', null);
 
               if (allowed)
-                  $(this).attr('title', $(this).data(allowed_key));
+                  tooltip_element.attr('title', $(this).data(allowed_key));
               else
-                  $(this).attr('title', denied_message);
-              $(this).tooltip('fixTitle');
+                  tooltip_element.attr('title', denied_message);
+              tooltip_element.tooltip('fixTitle');
             }
         });
 

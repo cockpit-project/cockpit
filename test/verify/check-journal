@@ -306,7 +306,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         self.login_and_go("/system/logs")
 
-        m.execute("setenforce 0; ulimit -c unlimited; python -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; python -c 'import os; os.kill(os.getpid(), 11)' || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in posix_kill')"
         b.wait_present(sel)
@@ -341,7 +341,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         self.login_and_go("/system/logs")
 
-        m.execute("setenforce 0; ulimit -c unlimited; python -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; python -c 'import os; os.kill(os.getpid(), 11)' || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in posix_kill')"
         b.wait_present(sel)
@@ -385,7 +385,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         self.login_and_go("/system/logs")
 
-        m.execute("setenforce 0; ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
+        m.execute("ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
         m.execute("./slp; pkill -x -SEGV sleep")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"

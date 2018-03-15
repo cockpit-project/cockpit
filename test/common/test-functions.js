@@ -95,21 +95,25 @@ function ph_has_attr (sel, attr, val)
     return ph_attr(sel, attr) == val;
 }
 
+function ph_mouse_event(element, type) {
+    var ev = document.createEvent("MouseEvent");
+    ev.initMouseEvent(
+        type,
+        true /* bubble */, true /* cancelable */,
+        window, null,
+        0, 0, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null);
+
+    element.dispatchEvent(ev);
+}
+
 function ph_click(sel, force) {
     var el = ph_find(sel);
 
     /* The element has to be visible, and not collapsed */
     if (!force && (el.offsetWidth <= 0 || el.offsetHeight <= 0))
         throw sel + " is not visible";
-
-    var ev = document.createEvent("MouseEvent");
-    ev.initMouseEvent(
-        "click",
-        true /* bubble */, true /* cancelable */,
-        window, null,
-        0, 0, 0, 0, /* coordinates */
-        false, false, false, false, /* modifier keys */
-        0 /*left*/, null);
 
     /* The click has to actually work */
     var clicked = false;
@@ -119,8 +123,7 @@ function ph_click(sel, force) {
 
     el.addEventListener("click", click, true);
 
-    /* Now dispatch the event */
-    el.dispatchEvent(ev);
+    ph_mouse_event(el, "click");
 
     el.removeEventListener("click", click, true);
 

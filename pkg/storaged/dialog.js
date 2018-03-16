@@ -287,12 +287,17 @@
             $(this).parents(".input-group").removeClass("open");
         });
 
+        var set_choices_counter = 0;
+
         function combobox_set_choices(name, choices) {
             if (typeof choices == 'function') {
-                $.when(choices(get_field_values())).then(function (result) {
-                    if (result !== false)
-                        combobox_set_choices(name, result);
-                });
+                set_choices_counter += 1;
+                var count = set_choices_counter;
+                choices(get_field_values(),
+                        function (ch) {
+                            if (count == set_choices_counter)
+                                combobox_set_choices(name, ch);
+                        });
                 return;
             }
 

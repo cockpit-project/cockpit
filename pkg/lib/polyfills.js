@@ -23,6 +23,9 @@
  */
 
 // for IE 11
+require('promise/polyfill.js');
+
+// for IE 11
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function (searchString, position) {
         position = position || 0;

@@ -647,6 +647,7 @@ Summary: Cockpit user interface for Docker containers
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
 Requires: /usr/bin/docker
+Requires: /usr/lib/systemd/system/docker.service
 Requires: python2
 
 %description docker

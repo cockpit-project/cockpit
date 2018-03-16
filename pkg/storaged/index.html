@@ -294,8 +294,11 @@
                 <td>
                   <div data-field="{{.}}" class="combobox-container">
                     <div class="input-group">
-                      <input autocomplete="false" class="combobox form-control" type="text" {{#disabled}}disabled{{/disabled}} value="{{Value}}" />
-                      <span class="form-control-feedback caret"></span>
+                      <input class="combobox form-control" type="text"
+                             {{#disabled}}disabled{{/disabled}} value="{{Value}}"/>
+                      <span class="input-group-addon">
+                        <span class="caret"></span>
+                      </span>
                       <ul class="typeahead typeahead-long dropdown-menu">
                       </ul>
                     </div>

@@ -278,7 +278,7 @@
         /* ComboBoxes
          */
 
-        $dialog.on("click", ".combobox-container .caret", function(ev) {
+        $dialog.on("click", ".combobox-container .input-group-addon", function(ev) {
             $(this).parents(".input-group").toggleClass("open");
         });
 
@@ -306,12 +306,12 @@
             $ul.empty().append(choices.map(function (c) {
                 return $('<li>').append($('<a>').text(c));
             }));
-            $f.find(".caret").toggle(choices.length > 0);
+            $f.find(".input-group-addon").toggle(choices.length > 0);
         }
 
         var combobox_some_dynamic = false;
 
-        $dialog.find(".combobox-container .caret").hide();
+        $dialog.find(".combobox-container .input-group-addon").hide();
         def.Fields.forEach(function (f) {
             if (f.ComboBox) {
                 if (typeof f.Choices == 'function')

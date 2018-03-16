@@ -41,34 +41,19 @@ LIBVIRT_COMPILE_WARNINGS
 LIBVIRT_LINKER_RELRO
 LIBVIRT_COMPILE_PIE
 
-AC_ARG_WITH(dbus-services,
-		  [AC_HELP_STRING([--with-dbus-services=<dir>],
-		  [where D-BUS session services directory is])])
-if ! test -z "$with_dbus_services" ; then
-	DBUS_SERVICES_DIR="$with_dbus_services"
-else
-	DBUS_SERVICES_DIR="$datadir/dbus-1/services"
-fi
+LIBVIRT_ARG_WITH([DBUS_SERVICES], [where D-Bus session services direcotry is],
+                 ['$(datadir)/dbus-1/services'])
+DBUS_SERVICES_DIR="$with_dbus_services"
 AC_SUBST(DBUS_SERVICES_DIR)
 
-AC_ARG_WITH(dbus-system-services,
-            [AC_HELP_STRING([--with-dbus-system-services=<dir>],
-                            [where D-BUS system services directory is])])
-if ! test -z "$with_dbus_system_services" ; then
-    DBUS_SYSTEM_SERVICES_DIR="$with_dbus_system_services"
-else
-    DBUS_SYSTEM_SERVICES_DIR="$datadir/dbus-1/system-services"
-fi
+LIBVIRT_ARG_WITH([DBUS_SYSTEM_SERVICES], [where D-Bus system services directory is],
+                 ['$(datadir)/dbus-1/system-services'])
+DBUS_SYSTEM_SERVICES_DIR="$with_dbus_system_services"
 AC_SUBST(DBUS_SYSTEM_SERVICES_DIR)
 
-AC_ARG_WITH(dbus-system-policies,
-            [AC_HELP_STRING([--with-dbus-system-policies=<dir>],
-                            [where D-BUS system policies directory is])])
-if ! test -z "$with_dbus_system_policies" ; then
-    DBUS_SYSTEM_POLICIES_DIR="$with_dbus_system_policies"
-else
-    DBUS_SYSTEM_POLICIES_DIR="$datadir/dbus-1/system.d"
-fi
+LIBVIRT_ARG_WITH([DBUS_SYSTEM_POLICIES], [where D-Bus system policies directory is],
+                 ['$(datadir)/dbus-1/system.d'])
+DBUS_SYSTEM_POLICIES_DIR="$with_dbus_system_policies"
 AC_SUBST(DBUS_SYSTEM_POLICIES_DIR)
 
 LIBVIRT_ARG_WITH([SYSTEM_USER], [username to run system instance as],

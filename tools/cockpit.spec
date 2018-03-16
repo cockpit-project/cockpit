@@ -488,6 +488,9 @@ Requires: NetworkManager
 Provides: %{name}-kdump = %{version}-%{release}
 Requires: kexec-tools
 # Optional components (only when soft deps are supported)
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: polkit
+%endif
 %if 0%{?rhel} >= 8
 Recommends: NetworkManager-team
 Recommends: setroubleshoot-server >= 3.3.3

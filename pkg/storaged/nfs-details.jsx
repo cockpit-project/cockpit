@@ -70,40 +70,26 @@ function nfs_busy_dialog(client,
 export function nfs_fstab_dialog(client, entry) {
 
     var server_to_check;
-    var server_check_deferred;
 
-    function remote_choices(vals) {
+    function remote_choices(vals, setter) {
         if (vals.server == server_to_check)
-            return false;
+            return;
 
         server_to_check = vals.server;
-        if (server_check_deferred)
-            server_check_deferred.resolve(false);
-
-        var this_deferred = cockpit.defer();
-        server_check_deferred = this_deferred;
-
+        setter([ ]);
         cockpit.spawn([ "showmount", "-e", "--no-headers", server_to_check ], { err: "message" })
                .done(function (output) {
-                   if (this_deferred == server_check_deferred) {
-                       var dirs = [ ];
-                       output.split("\n").forEach(function (line) {
-                           var d = line.split(" ")[0];
-                           if (d)
-                               dirs.push(d);
-                       });
-                       this_deferred.resolve(dirs);
-                       server_check_deferred = null;
-                   } else {
-                       this_deferred.resolve(false);
-                   }
+                   var dirs = [ ];
+                   output.split("\n").forEach(function (line) {
+                       var d = line.split(" ")[0];
+                       if (d)
+                           dirs.push(d);
+                   });
+                   setter(dirs);
                }).
                 fail(function (error) {
                     console.warn(error);
-                    this_deferred.resolve([ ]);
                 });
-
-        return this_deferred.promise();
     }
 
     var mount_options = entry? entry.fields[3] : "defaults";

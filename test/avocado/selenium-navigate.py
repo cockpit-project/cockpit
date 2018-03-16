@@ -24,6 +24,12 @@ class NavigateTestSuite(SeleniumTest):
         self.wait_frame("system")
         self.click(self.wait_id('system_information_systime_button', cond=clickable))
         self.wait_id('system_information_change_systime', cond=visible)
+
+        # Check hardware info page
+        self.click(self.wait_id('system_information_hardware_text', cond=clickable))
+        self.mainframe()
+        self.wait_frame("hwinfo")
+        self.wait_text('BIOS date')
         self.mainframe()
 
         # Now navigate to the logs

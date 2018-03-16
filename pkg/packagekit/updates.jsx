@@ -18,6 +18,7 @@
  */
 
 import cockpit from "cockpit";
+import '../lib/polyfills.js'; // once per application
 import React from "react";
 import moment from "moment";
 import { Tooltip } from "cockpit-components-tooltip.jsx";

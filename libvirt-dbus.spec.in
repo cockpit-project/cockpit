@@ -14,6 +14,7 @@ URL: http://libvirt.org/
 Source0: ftp://libvirt.org/libvirt/dbus/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+BuildRequires: gcc
 BuildRequires: libvirt-devel >= %{libvirt_version}
 BuildRequires: systemd-devel >= %{systemd_version}
 

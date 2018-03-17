@@ -21,17 +21,16 @@
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 import DialogPattern from 'cockpit-components-dialog.jsx';
-import Select from "cockpit-components-select.jsx";
-import FileAutoComplete from "../../lib/cockpit-components-file-autocomplete.jsx";
+import Select from 'cockpit-components-select.jsx';
+import FileAutoComplete from '../../lib/cockpit-components-file-autocomplete.jsx';
 import { createVm } from '../actions.es6';
 import {
     digitFilter,
     toFixedPrecision,
     isEmpty,
-    convertToUnit,
     timeoutedPromise,
-    units,
-} from "../helpers.es6";
+} from '../helpers.es6';
+import {units, convertToUnit} from '../../lib/units.es6';
 
 import {
     NOT_SPECIFIED,
@@ -39,7 +38,7 @@ import {
     DIVIDER_FAMILY,
     prepareVendors,
     getOSStringRepresentation,
-} from "./createVmDialogUtils.es6";
+} from './createVmDialogUtils.es6';
 
 import './createVmDialog.less';
 

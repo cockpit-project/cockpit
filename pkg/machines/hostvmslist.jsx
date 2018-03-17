@@ -29,19 +29,18 @@ import {
     installVm,
     usageStartPolling,
     usageStopPolling,
-} from "./actions.es6";
+} from './actions.es6';
 import {
     rephraseUI,
     logDebug,
-    convertToUnit,
     toReadableNumber,
-    units,
     toFixedPrecision,
     vmId,
     mouseClick,
-} from "./helpers.es6";
-import DonutChart from "./c3charts.jsx";
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
+} from './helpers.es6';
+import {units, convertToUnit} from '../lib/units.es6';
+import DonutChart from './c3charts.jsx';
+import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import VmDisksTab from './components/vmDisksTabLibvirt.jsx';
 import VmNetworkTab from './vmnetworktab.jsx';
 import Consoles from './components/consoles.jsx';

@@ -47,13 +47,12 @@ import {
 import { usagePollingEnabled } from './selectors.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import {
-    convertToUnit,
-    units,
     isEmpty,
     logDebug,
     rephraseUI,
     fileDownload,
 } from './helpers.es6';
+import {units, convertToUnit} from '../lib/units.es6';
 
 import {
     prepareDisksParam,

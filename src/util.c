@@ -20,6 +20,12 @@ virtDBusErrorQuark(void)
     return (GQuark) quarkVolatile;
 }
 
+void
+virtDBusUtilTypedParamsClear(virtDBusUtilTypedParams *params)
+{
+    virTypedParamsFree(params->params, params->nparams);
+}
+
 GVariant *
 virtDBusUtilTypedParamsToGVariant(virTypedParameterPtr params,
                                   gint nparams)

@@ -16,6 +16,17 @@ typedef enum {
 GQuark
 virtDBusErrorQuark(void);
 
+struct _virtDBusUtilTypedParams {
+    virTypedParameterPtr params;
+    gint nparams;
+};
+typedef struct _virtDBusUtilTypedParams virtDBusUtilTypedParams;
+
+void
+virtDBusUtilTypedParamsClear(virtDBusUtilTypedParams *params);
+
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(virtDBusUtilTypedParams, virtDBusUtilTypedParamsClear);
+
 GVariant *
 virtDBusUtilTypedParamsToGVariant(virTypedParameterPtr params,
                                   gint nparams);

@@ -2,23 +2,19 @@
 #include "events.h"
 #include "util.h"
 
-#include <assert.h>
 #include <libvirt/libvirt.h>
-#include <systemd/sd-bus.h>
 
-static int
-virtDBusEventsDomainLifecycle(virConnectPtr connection VIRT_ATTR_UNUSED,
+static gint
+virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               virDomainPtr domain,
-                              int event,
-                              int detail VIRT_ATTR_UNUSED,
-                              void *opaque)
+                              gint event,
+                              gint detail G_GNUC_UNUSED,
+                              gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
-    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    const char *signal = NULL;
-    const char *name;
-    _cleanup_(virtDBusUtilFreep) char *path = NULL;
-    int r;
+    const gchar *signal = NULL;
+    const gchar *name;
+    g_autofree gchar *path = NULL;
 
     switch (event) {
     case VIR_DOMAIN_EVENT_DEFINED:
@@ -52,102 +48,76 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection VIRT_ATTR_UNUSED,
         return 0;
     }
 
-    r = sd_bus_message_new_signal(connect->bus,
-                                  &message,
-                                  connect->connectPath,
-                                  VIRT_DBUS_CONNECT_INTERFACE,
-                                  signal);
-    if (r < 0)
-        return r;
-
     name = virDomainGetName(domain);
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
-    r = sd_bus_message_append(message, "so", name ? : "", path);
-    if (r < 0)
-        return r;
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  connect->connectPath,
+                                  VIRT_DBUS_CONNECT_INTERFACE,
+                                  signal,
+                                  g_variant_new("(so)", name, path),
+                                  NULL);
 
-    return sd_bus_send(connect->bus, message, NULL);
+    return 0;
 }
 
-static int
-virtDBusEventsDomainDeviceAdded(virConnectPtr connection VIRT_ATTR_UNUSED,
+static gint
+virtDBusEventsDomainDeviceAdded(virConnectPtr connection G_GNUC_UNUSED,
                                 virDomainPtr domain,
-                                const char *device,
-                                void *opaque)
+                                const gchar *device,
+                                gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
-    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(virtDBusUtilFreep) char *path = NULL;
-    int r;
+    g_autofree gchar *path = NULL;
 
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
-    r = sd_bus_message_new_signal(connect->bus,
-                                  &message,
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
-                                  "DeviceAdded");
-    if (r < 0)
-        return r;
+                                  "DeviceAdded",
+                                  g_variant_new("(s)", device),
+                                  NULL);
 
-    r = sd_bus_message_append(message, "s", device);
-    if (r < 0)
-        return r;
-
-    return sd_bus_send(connect->bus, message, NULL);
+    return 0;
 }
 
-static int
-virtDBusEventsDomainDeviceRemoved(virConnectPtr connection VIRT_ATTR_UNUSED,
+static gint
+virtDBusEventsDomainDeviceRemoved(virConnectPtr connection G_GNUC_UNUSED,
                                   virDomainPtr domain,
-                                  const char *device,
-                                  void *opaque)
+                                  const gchar *device,
+                                  gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
-    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(virtDBusUtilFreep) char *path = NULL;
-    int r;
+    g_autofree gchar *path = NULL;
 
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
-    r = sd_bus_message_new_signal(connect->bus,
-                                  &message,
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
-                                  "DeviceRemoved");
-    if (r < 0)
-        return r;
+                                  "DeviceRemoved",
+                                  g_variant_new("(s)", device),
+                                  NULL);
 
-    r = sd_bus_message_append(message, "s", device);
-    if (r < 0)
-        return r;
-
-    return sd_bus_send(connect->bus, message, NULL);
+    return 0;
 }
 
-static int
-virtDBusEventsDomainTrayChange(virConnectPtr connection VIRT_ATTR_UNUSED,
+static gint
+virtDBusEventsDomainTrayChange(virConnectPtr connection G_GNUC_UNUSED,
                                virDomainPtr domain,
-                               const char *device,
-                               int reason,
-                               void *opaque)
+                               const gchar *device,
+                               gint reason,
+                               gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
-    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(virtDBusUtilFreep) char *path = NULL;
-    const char *reasonstr;
-    int r;
+    g_autofree gchar *path = NULL;
+    const gchar *reasonstr;
 
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
-
-    r = sd_bus_message_new_signal(connect->bus,
-                                  &message,
-                                  path,
-                                  VIRT_DBUS_DOMAIN_INTERFACE,
-                                  "TrayChange");
-    if (r < 0)
-        return r;
 
     switch (reason) {
     case VIR_DOMAIN_EVENT_TRAY_CHANGE_OPEN:
@@ -161,37 +131,31 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection VIRT_ATTR_UNUSED,
         break;
     }
 
-    r = sd_bus_message_append(message, "ss", device, reasonstr);
-    if (r < 0)
-        return r;
-
-    return sd_bus_send(connect->bus, message, NULL);
-}
-
-static int
-virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
-                               virDomainPtr domain,
-                               const char *old_src_path,
-                               const char *new_src_path,
-                               const char *device,
-                               int reason,
-                               void *opaque)
-{
-    virtDBusConnect *connect = opaque;
-    _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
-    _cleanup_(virtDBusUtilFreep) char *path = NULL;
-    const char *reasonstr;
-    int r;
-
-    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
-
-    r = sd_bus_message_new_signal(connect->bus,
-                                  &message,
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
-                                  "DiskChange");
-    if (r < 0)
-        return r;
+                                  "TrayChange",
+                                  g_variant_new("(ss)", device, reasonstr),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
+virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
+                               virDomainPtr domain,
+                               const gchar *old_src_path,
+                               const gchar *new_src_path,
+                               const gchar *device,
+                               gint reason,
+                               gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+    const gchar *reasonstr;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     switch (reason) {
     case VIR_DOMAIN_EVENT_DISK_CHANGE_MISSING_ON_START:
@@ -205,19 +169,24 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection VIRT_ATTR_UNUSED,
         break;
     }
 
-    r = sd_bus_message_append(message, "ssss", old_src_path, new_src_path, device, reasonstr);
-    if (r < 0)
-        return r;
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "DiskChange",
+                                  g_variant_new("(ssss)", old_src_path,
+                                                new_src_path, device, reasonstr),
+                                  NULL);
 
-    return sd_bus_send(connect->bus, message, NULL);
+    return 0;
 }
 
 static void
 virtDBusEventsRegisterEvent(virtDBusConnect *connect,
-                            int id,
+                            gint id,
                             virConnectDomainEventGenericCallback callback)
 {
-    assert(connect->callback_ids[id] == -1);
+    g_assert(connect->callback_ids[id] == -1);
 
     connect->callback_ids[id] = virConnectDomainEventRegisterAny(connect->connection,
                                                                  NULL,

@@ -22,7 +22,7 @@ sudo chroot "$CHROOT" << EOF
 set -ex
 # install build deps
 apt-get update
-apt-get install -y dh-autoreconf pkg-config libvirt-dev libsystemd-dev libglib2.0-dev libtool python3-gi python3-dbus dbus
+apt-get install -y dh-autoreconf pkg-config libvirt-dev libglib2.0-dev libtool python3-gi python3-dbus dbus
 
 # run build and tests as user
 chown -R buildd:buildd /build

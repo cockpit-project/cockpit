@@ -1,155 +1,126 @@
 #include "util.h"
 
 #include <libvirt/virterror.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
 
-int
-virtDBusUtilMessageAppendTypedParameters(sd_bus_message *message,
-                                         virTypedParameterPtr parameters,
-                                         int n_parameters)
+static const GDBusErrorEntry virtDBusUtilErrorEntries[] = {
+    { VIRT_DBUS_ERROR_LIBVIRT, "org.libvirt.Error" },
+};
+
+G_STATIC_ASSERT(G_N_ELEMENTS(virtDBusUtilErrorEntries) == VIRT_DBUS_N_ERRORS);
+
+GQuark
+virtDBusErrorQuark(void)
 {
-    int r;
+    static volatile gsize quarkVolatile = 0;
+    g_dbus_error_register_error_domain("virt-dbus-error-quark",
+                                       &quarkVolatile,
+                                       virtDBusUtilErrorEntries,
+                                       G_N_ELEMENTS(virtDBusUtilErrorEntries));
+    return (GQuark) quarkVolatile;
+}
 
-    r = sd_bus_message_open_container(message, 'a', "{sv}");
-    if (r < 0)
-        return r;
+GVariant *
+virtDBusUtilTypedParamsToGVariant(virTypedParameterPtr params,
+                                  gint nparams)
+{
+    GVariantBuilder builder;
 
-    for (int i = 0; i < n_parameters; i += 1) {
-        r = sd_bus_message_open_container(message, SD_BUS_TYPE_DICT_ENTRY, "sv");
-        if (r < 0)
-            return r;
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{sv}"));
 
-        r = sd_bus_message_append(message, "s", parameters[i].field);
-        if (r < 0)
-            return r;
+    for (gint i = 0; i < nparams; i++) {
+        GVariant *value = NULL;
 
-        switch (parameters[i].type) {
+        switch (params[i].type) {
         case VIR_TYPED_PARAM_INT:
-            r = sd_bus_message_append(message, "v", "i", parameters[i].value.i);
+            value = g_variant_new("i", params[i].value.i);
             break;
         case VIR_TYPED_PARAM_UINT:
-            r = sd_bus_message_append(message, "v", "u", parameters[i].value.ui);
+            value = g_variant_new("u", params[i].value.ui);
             break;
         case VIR_TYPED_PARAM_LLONG:
-            r = sd_bus_message_append(message, "v", "x", parameters[i].value.l);
+            value = g_variant_new("x", params[i].value.l);
             break;
         case VIR_TYPED_PARAM_ULLONG:
-            r = sd_bus_message_append(message, "v", "t", parameters[i].value.ul);
+            value = g_variant_new("t", params[i].value.ul);
             break;
         case VIR_TYPED_PARAM_DOUBLE:
-            r = sd_bus_message_append(message, "v", "d", parameters[i].value.d);
+            value = g_variant_new("d", params[i].value.d);
             break;
         case VIR_TYPED_PARAM_BOOLEAN:
-            r = sd_bus_message_append(message, "v", "b", parameters[i].value.b);
+            value = g_variant_new("b", params[i].value.b);
             break;
         case VIR_TYPED_PARAM_STRING:
-            r = sd_bus_message_append(message, "v", "s", parameters[i].value.s);
+            value = g_variant_new("s", params[i].value.s);
             break;
         }
 
-        if (r < 0)
-            return r;
-
-        r = sd_bus_message_close_container(message);
-        if (r < 0)
-            return r;
+        g_variant_builder_add(&builder, "{sv}",
+                              params[i].field,
+                              g_variant_new_variant(value));
     }
 
-    return sd_bus_message_close_container(message);
+    return g_variant_builder_end(&builder);
 }
 
-int
-virtDBusUtilSetLastVirtError(sd_bus_error *error)
+void
+virtDBusUtilSetLastVirtError(GError **error)
 {
     virErrorPtr vir_error;
 
     vir_error = virGetLastError();
-    if (!vir_error)
-        return 0;
-
-    return sd_bus_error_set(error, VIRT_DBUS_ERROR_INTERFACE, vir_error->message);
+    if (!vir_error) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "unknown error");
+    } else {
+        g_set_error_literal(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                            vir_error->message);
+    }
 }
 
-int
-virtDBusUtilSetError(sd_bus_error *error,
-                     const char *message)
+static gchar *
+virtDBusUtilEncodeUUID(const gchar *uuid)
 {
-    return sd_bus_error_set(error, VIRT_DBUS_ERROR_INTERFACE, message);
+    gchar *ret = g_strdup_printf("_%s", uuid);
+    return g_strdelimit(ret, "-", '_');
 }
 
-char *
+static gchar *
+virtDBusUtilDecodeUUID(const gchar *uuid)
+{
+    gchar *ret = g_strdup(uuid+1);
+    return g_strdelimit(ret, "_", '-');
+}
+
+gchar *
 virtDBusUtilBusPathForVirDomain(virDomainPtr domain,
-                                const char *domainPath)
+                                const gchar *domainPath)
 {
-    char *path = NULL;
-    char uuid[VIR_UUID_STRING_BUFLEN] = "";
-
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+    g_autofree gchar *newUuid = NULL;
     virDomainGetUUIDString(domain, uuid);
-    sd_bus_path_encode(domainPath, uuid, &path);
-
-    return path;
+    newUuid = virtDBusUtilEncodeUUID(uuid);
+    return g_strdup_printf("%s/%s", domainPath, newUuid);
 }
 
 virDomainPtr
 virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
-                                 const char *path,
-                                 const char *domainPath)
+                                 const gchar *path,
+                                 const gchar *domainPath)
 {
-    _cleanup_(virtDBusUtilFreep) char *name = NULL;
-    int r;
+    g_autofree gchar *name = NULL;
+    gsize prefixLen = strlen(domainPath) + 1;
 
-    r = sd_bus_path_decode(path, domainPath, &name);
-    if (r < 0)
-        return NULL;
+    name = virtDBusUtilDecodeUUID(path+prefixLen);
 
     return virDomainLookupByUUIDString(connection, name);
 }
 
 void
-virtDBusUtilFreep(void *p)
+virtDBusUtilVirDomainListFree(virDomainPtr *domains)
 {
-    free(*(void **)p);
-}
-
-void
-virtDBusUtilClosep(int *fdp)
-{
-    if (*fdp >= 0)
-        close(*fdp);
-}
-
-void
-virtDBusUtilStrvFreep(void *p)
-{
-    char **strv = *(char ***)p;
-
-    if (strv == NULL)
-        return;
-
-    for (unsigned i = 0; strv[i] != NULL; i++)
-        free(strv[i]);
-
-    free(strv);
-}
-
-void
-virtDBusUtilVirDomainFreep(virDomainPtr *domainp)
-{
-    if (*domainp)
-        virDomainFree(*domainp);
-}
-
-void
-virtDBusUtilVirDomainListFreep(virDomainPtr **domainsp)
-{
-    virDomainPtr *domains = *domainsp;
-
-    if (!domains)
-        return;
-
-    for (int i = 0; domains[i] != NULL; i += 1)
+    for (gint i = 0; domains[i] != NULL; i += 1)
         virDomainFree(domains[i]);
 
-    free(domains);
+    g_free(domains);
 }

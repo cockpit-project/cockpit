@@ -19,7 +19,6 @@ bin_PROGRAMS = libvirt-dbus
 libvirt_dbus_SOURCES = $(DAEMON_SOURCES)
 
 libvirt_dbus_CFLAGS = \
-	$(SYSTEMD_CFLAGS) \
 	$(GIO2_CFLAGS) \
 	$(GLIB2_CFLAGS) \
 	$(LIBVIRT_CFLAGS) \
@@ -29,7 +28,6 @@ libvirt_dbus_CFLAGS = \
 	$(NULL)
 
 libvirt_dbus_LDFLAGS = \
-	$(SYSTEMD_LDFLAGS) \
 	$(GIO2_LDFLAGS) \
 	$(GLIB2_LDFLAGS) \
 	$(LIBVIRT_LDFLAGS) \
@@ -39,7 +37,6 @@ libvirt_dbus_LDFLAGS = \
 	$(NULL)
 
 libvirt_dbus_LDADD = \
-	$(SYSTEMD_LIBS) \
 	$(GIO2_LIBS) \
 	$(GLIB2_LIBS) \
 	$(LIBVIRT_LIBS) \

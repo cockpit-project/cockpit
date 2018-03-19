@@ -1,208 +1,192 @@
-#define _GNU_SOURCE
-
 #include "domain.h"
 #include "util.h"
 
 #include <libvirt/libvirt.h>
-#include <stdio.h>
 
 static virDomainPtr
 virtDBusDomainGetVirDomain(virtDBusConnect *connect,
-                           const char *path,
-                           sd_bus_error *error)
+                           const gchar *objectPath,
+                           GError **error)
 {
     virDomainPtr domain;
 
     if (virtDBusConnectOpen(connect, error) < 0)
         return NULL;
 
-    domain = virtDBusUtilVirDomainFromBusPath(connect->connection, path,
+    domain = virtDBusUtilVirDomainFromBusPath(connect->connection,
+                                              objectPath,
                                               connect->domainPath);
-    if (domain == NULL) {
-        sd_bus_error_setf(error,
-                          SD_BUS_ERROR_UNKNOWN_OBJECT,
-                          "Unknown object '%s'.", path);
+    if (!domain) {
+        virtDBusUtilSetLastVirtError(error);
         return NULL;
     }
 
     return domain;
 }
 
-static int
-virtDBusDomainGetName(sd_bus *bus VIRT_ATTR_UNUSED,
-                      const char *path,
-                      const char *interface VIRT_ATTR_UNUSED,
-                      const char *property VIRT_ATTR_UNUSED,
-                      sd_bus_message *reply,
-                      void *userdata,
-                      sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetName(const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **value,
+                      GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    const char *name = "";
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *name;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
     name = virDomainGetName(domain);
-    if (name == NULL)
-        return sd_bus_message_append(reply, "s", "");
+    if (!name)
+        return virtDBusUtilSetLastVirtError(error);
 
-    return sd_bus_message_append(reply, "s", name);
+    *value = g_variant_new("s", name);
 }
 
-static int
-virtDBusDomainGetUUID(sd_bus *bus VIRT_ATTR_UNUSED,
-                      const char *path,
-                      const char *interface VIRT_ATTR_UNUSED,
-                      const char *property VIRT_ATTR_UNUSED,
-                      sd_bus_message *reply,
-                      void *userdata,
-                      sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetUUID(const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **value,
+                      GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    char uuid[VIR_UUID_STRING_BUFLEN] = "";
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    virDomainGetUUIDString(domain, uuid);
+    if (virDomainGetUUIDString(domain, uuid) < 0)
+        return virtDBusUtilSetLastVirtError(error);
 
-    return sd_bus_message_append(reply, "s", uuid);
+    *value = g_variant_new("s", uuid);
 }
 
-static int
-virtDBusDomainGetId(sd_bus *bus VIRT_ATTR_UNUSED,
-                    const char *path,
-                    const char *interface VIRT_ATTR_UNUSED,
-                    const char *property VIRT_ATTR_UNUSED,
-                    sd_bus_message *reply,
-                    void *userdata,
-                    sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetId(const gchar *objectPath,
+                    gpointer userData,
+                    GVariant **value,
+                    GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint id;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    return sd_bus_message_append(reply, "u", virDomainGetID(domain));
+    id = virDomainGetID(domain);
+    if (id == (guint)-1)
+        id = 0;
+
+    *value = g_variant_new("u", id);
 }
 
-static int
-virtDBusDomainGetVcpus(sd_bus *bus VIRT_ATTR_UNUSED,
-                       const char *path,
-                       const char *interface VIRT_ATTR_UNUSED,
-                       const char *property VIRT_ATTR_UNUSED,
-                       sd_bus_message *reply,
-                       void *userdata,
-                       sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetVcpus(const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **value,
+                       GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint vcpus;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    return sd_bus_message_append(reply, "u", virDomainGetVcpusFlags(domain, VIR_DOMAIN_VCPU_CURRENT));
+    vcpus = virDomainGetVcpusFlags(domain, VIR_DOMAIN_VCPU_CURRENT);
+    if (vcpus < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("u", vcpus);
 }
 
-static int
-virtDBusDomainGetOsType(sd_bus *bus VIRT_ATTR_UNUSED,
-                        const char *path,
-                        const char *interface VIRT_ATTR_UNUSED,
-                        const char *property VIRT_ATTR_UNUSED,
-                        sd_bus_message *reply,
-                        void *userdata,
-                        sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetOsType(const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **value,
+                        GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    _cleanup_(virtDBusUtilFreep) char *os_type = NULL;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree gchar *osType = NULL;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    os_type = virDomainGetOSType(domain);
-    if (os_type == NULL)
-        return sd_bus_message_append(reply, "s", "");
+    osType = virDomainGetOSType(domain);
+    if (!osType)
+        return virtDBusUtilSetLastVirtError(error);
 
-    return sd_bus_message_append(reply, "s", os_type);
+    *value = g_variant_new("s", osType);
 }
 
-static int
-virtDBusDomainGetActive(sd_bus *bus VIRT_ATTR_UNUSED,
-                        const char *path,
-                        const char *interface VIRT_ATTR_UNUSED,
-                        const char *property VIRT_ATTR_UNUSED,
-                        sd_bus_message *reply,
-                        void *userdata,
-                        sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetActive(const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **value,
+                        GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int active;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint active;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
     active = virDomainIsActive(domain);
     if (active < 0)
-        return sd_bus_message_append(reply, "b", 0);
+        return virtDBusUtilSetLastVirtError(error);
 
-    return sd_bus_message_append(reply, "b", active);
+    *value = g_variant_new("b", !!active);
 }
 
-static int
-virtDBusDomainGetPersistent(sd_bus *bus VIRT_ATTR_UNUSED,
-                            const char *path,
-                            const char *interface VIRT_ATTR_UNUSED,
-                            const char *property VIRT_ATTR_UNUSED,
-                            sd_bus_message *reply,
-                            void *userdata,
-                            sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetPersistent(const gchar *objectPath,
+                            gpointer userData,
+                            GVariant **value,
+                            GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int persistent;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint persistent;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
     persistent = virDomainIsPersistent(domain);
     if (persistent < 0)
-        return sd_bus_message_append(reply, "b", 0);
+        return virtDBusUtilSetLastVirtError(error);
 
-    return sd_bus_message_append(reply, "b", persistent);
+    *value = g_variant_new("b", !!persistent);
 }
 
-static int
-virtDBusDomainGetState(sd_bus *bus VIRT_ATTR_UNUSED,
-                       const char *path,
-                       const char *interface VIRT_ATTR_UNUSED,
-                       const char *property VIRT_ATTR_UNUSED,
-                       sd_bus_message *reply,
-                       void *userdata,
-                       sd_bus_error *error VIRT_ATTR_UNUSED)
+static void
+virtDBusDomainGetState(const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **value,
+                       GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int state = 0;
-    const char *string;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint state = 0;
+    const gchar *string;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    virDomainGetState(domain, &state, NULL, 0);
+    if (virDomainGetState(domain, &state, NULL, 0) < 0)
+        return virtDBusUtilSetLastVirtError(error);
 
     switch (state) {
     case VIR_DOMAIN_NOSTATE:
@@ -232,88 +216,80 @@ virtDBusDomainGetState(sd_bus *bus VIRT_ATTR_UNUSED,
         break;
     }
 
-    return sd_bus_message_append(reply, "s", string);
-}
-
-static int
-virtDBusDomainGetAutostart(sd_bus *bus VIRT_ATTR_UNUSED,
-                           const char *path,
-                           const char *interface VIRT_ATTR_UNUSED,
-                           const char *property VIRT_ATTR_UNUSED,
-                           sd_bus_message *reply,
-                           void *userdata,
-                           sd_bus_error *error VIRT_ATTR_UNUSED)
-{
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int autostart = 0;
-
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (domain == NULL)
-        return -1;
-
-    virDomainGetAutostart(domain, &autostart);
-
-    return sd_bus_message_append(reply, "b", autostart);
-}
-
-static int
-virtDBusDomainGetXMLDesc(sd_bus_message *message,
-                         void *userdata,
-                         sd_bus_error *error)
-{
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    _cleanup_(virtDBusUtilFreep) char *description = NULL;
-    uint32_t flags;
-    int r;
-
-    r = sd_bus_message_read(message, "u", &flags);
-    if (r < 0)
-        return r;
-
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
-
-    description = virDomainGetXMLDesc(domain, flags);
-    if (!description)
-        return virtDBusUtilSetLastVirtError(error);
-
-    return sd_bus_reply_method_return(message, "s", description);
+    *value = g_variant_new("s", string);
 }
 
 static void
-virtDBusDomainStatsRecordListFreep(virDomainStatsRecordPtr **statsp)
+virtDBusDomainGetAutostart(const gchar *objectPath,
+                           gpointer userData,
+                           GVariant **value,
+                           GError **error)
 {
-    if (*statsp)
-        virDomainStatsRecordListFree(*statsp);
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint autostart = 0;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetAutostart(domain, &autostart) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!autostart);
 }
 
-static int
-virtDBusDomainGetStats(sd_bus_message *message,
-                       void *userdata,
-                       sd_bus_error *error)
+static void
+virtDBusDomainGetXMLDesc(GVariant *inArgs,
+                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                         const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **outArgs,
+                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                         GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree gchar *xml = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    xml = virDomainGetXMLDesc(domain, flags);
+    if (!xml)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", xml);
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
+
+static void
+virtDBusDomainGetStats(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath G_GNUC_UNUSED,
+                       gpointer userData,
+                       GVariant **outArgs,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
     virDomainPtr domains[2];
-    _cleanup_(virtDBusDomainStatsRecordListFreep) virDomainStatsRecordPtr *records = NULL;
-    _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
-    uint32_t flags, stats;
-    int r;
+    g_autoptr(virDomainStatsRecordPtr) records = NULL;
+    guint stats;
+    guint flags;
+    GVariant *grecords;
 
-    r = sd_bus_message_read(message, "uu", &stats, &flags);
-    if (r < 0)
-        return r;
+    g_variant_get(inArgs, "(uu)", &stats, &flags);
 
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
     domains[0] = domain;
     domains[1] = NULL;
@@ -321,243 +297,213 @@ virtDBusDomainGetStats(sd_bus_message *message,
     if (virDomainListGetStats(domains, stats, &records, flags) != 1)
         return virtDBusUtilSetLastVirtError(error);
 
-    r = sd_bus_message_new_method_return(message, &reply);
-    if (r < 0)
-        return r;
+    grecords = virtDBusUtilTypedParamsToGVariant(records[0]->params,
+                                                 records[0]->nparams);
 
-    r = virtDBusUtilMessageAppendTypedParameters(reply, records[0]->params, records[0]->nparams);
-    if (r < 0)
-        return r;
-
-    return sd_bus_send(NULL, reply, NULL);
+    *outArgs = g_variant_new_tuple(&grecords, 1);
 }
 
-static int
-virtDBusDomainShutdown(sd_bus_message *message,
-                       void *userdata,
-                       sd_bus_error *error)
+static void
+virtDBusDomainShutdown(GVariant *inArgs G_GNUC_UNUSED,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath G_GNUC_UNUSED,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int r;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
 
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    r = virDomainShutdown(domain);
-    if (r < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    return sd_bus_reply_method_return(message, "");
+    if (virDomainShutdown(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
 }
 
-static int
-virtDBusDomainDestroy(sd_bus_message *message,
-                      void *userdata,
-                      sd_bus_error *error)
+static void
+virtDBusDomainDestroy(GVariant *inArgs G_GNUC_UNUSED,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath G_GNUC_UNUSED,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int r;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
 
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    r = virDomainDestroy(domain);
-    if (r < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    return sd_bus_reply_method_return(message, "");
+    if (virDomainDestroy(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
 }
 
-static int
-virtDBusDomainReboot(sd_bus_message *message,
-                     void *userdata,
-                     sd_bus_error *error)
+static void
+virtDBusDomainReboot(GVariant *inArgs,
+                     GUnixFDList *inFDs G_GNUC_UNUSED,
+                     const gchar *objectPath G_GNUC_UNUSED,
+                     gpointer userData,
+                     GVariant **outArgs G_GNUC_UNUSED,
+                     GUnixFDList **outFDs G_GNUC_UNUSED,
+                     GError **error)
+
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    uint32_t flags;
-    int r;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
 
-    r = sd_bus_message_read(message, "u", &flags);
-    if (r < 0)
-        return r;
+    g_variant_get(inArgs, "(u)", &flags);
 
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    r = virDomainReboot(domain, flags);
-    if (r < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    return sd_bus_reply_method_return(message, "");
+    if (virDomainReboot(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
 }
 
-static int
-virtDBusDomainReset(sd_bus_message *message,
-                    void *userdata,
-                    sd_bus_error *error)
+static void
+virtDBusDomainReset(GVariant *inArgs,
+                    GUnixFDList *inFDs G_GNUC_UNUSED,
+                    const gchar *objectPath G_GNUC_UNUSED,
+                    gpointer userData,
+                    GVariant **outArgs G_GNUC_UNUSED,
+                    GUnixFDList **outFDs G_GNUC_UNUSED,
+                    GError **error)
+
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    uint32_t flags;
-    int r;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
 
-    r = sd_bus_message_read(message, "u", &flags);
-    if (r < 0)
-        return r;
+    g_variant_get(inArgs, "(u)", &flags);
 
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    r = virDomainReset(domain, flags);
-    if (r < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    return sd_bus_reply_method_return(message, "");
+    if (virDomainReset(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
 }
 
-static int
-virtDBusDomainCreate(sd_bus_message *message,
-                     void *userdata,
-                     sd_bus_error *error)
+static void
+virtDBusDomainCreate(GVariant *inArgs G_GNUC_UNUSED,
+                     GUnixFDList *inFDs G_GNUC_UNUSED,
+                     const gchar *objectPath G_GNUC_UNUSED,
+                     gpointer userData,
+                     GVariant **outArgs G_GNUC_UNUSED,
+                     GUnixFDList **outFDs G_GNUC_UNUSED,
+                     GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int r;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
 
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    r = virDomainCreate(domain);
-    if (r < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    return sd_bus_reply_method_return(message, "");
+    if (virDomainCreate(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
 }
 
-static int
-virtDBusDomainUndefine(sd_bus_message *message,
-                       void *userdata,
-                       sd_bus_error *error)
+static void
+virtDBusDomainUndefine(GVariant *inArgs G_GNUC_UNUSED,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath G_GNUC_UNUSED,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int r;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
 
-    domain = virtDBusDomainGetVirDomain(connect,
-                                        sd_bus_message_get_path(message),
-                                        error);
-    if (domain == NULL)
-        return -1;
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
-    r = virDomainUndefine(domain);
-    if (r < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    return sd_bus_reply_method_return(message, "");
+    if (virDomainUndefine(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
 }
 
-static const sd_bus_vtable virt_domain_vtable[] = {
-    SD_BUS_VTABLE_START(0),
-
-    SD_BUS_PROPERTY("Name", "s", virtDBusDomainGetName, 0, 0),
-    SD_BUS_PROPERTY("UUID", "s", virtDBusDomainGetUUID, 0, 0),
-    SD_BUS_PROPERTY("Id", "u", virtDBusDomainGetId, 0, 0),
-    SD_BUS_PROPERTY("Vcpus", "u", virtDBusDomainGetVcpus, 0, 0),
-    SD_BUS_PROPERTY("OSType", "s", virtDBusDomainGetOsType, 0, 0),
-    SD_BUS_PROPERTY("Active", "b", virtDBusDomainGetActive, 0, 0),
-    SD_BUS_PROPERTY("Persistent", "b", virtDBusDomainGetPersistent, 0, 0),
-    SD_BUS_PROPERTY("State", "s", virtDBusDomainGetState, 0, 0),
-    SD_BUS_PROPERTY("Autostart", "b", virtDBusDomainGetAutostart, 0, 0),
-
-    SD_BUS_METHOD("GetXMLDesc", "u", "s", virtDBusDomainGetXMLDesc, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("GetStats", "uu", "a{sv}", virtDBusDomainGetStats, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Shutdown", "", "", virtDBusDomainShutdown, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Destroy", "", "", virtDBusDomainDestroy, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Reboot", "u", "", virtDBusDomainReboot, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Reset", "u", "", virtDBusDomainReset, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Create", "", "", virtDBusDomainCreate, SD_BUS_VTABLE_UNPRIVILEGED),
-    SD_BUS_METHOD("Undefine", "", "", virtDBusDomainUndefine, SD_BUS_VTABLE_UNPRIVILEGED),
-
-    SD_BUS_SIGNAL("DeviceAdded", "s", 0),
-    SD_BUS_SIGNAL("DeviceRemoved", "s", 0),
-    SD_BUS_SIGNAL("DiskChange", "ssss", 0),
-    SD_BUS_SIGNAL("TrayChange", "ss", 0),
-
-    SD_BUS_VTABLE_END
+static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
+    { "Name", virtDBusDomainGetName, NULL },
+    { "UUID", virtDBusDomainGetUUID, NULL },
+    { "Id", virtDBusDomainGetId, NULL },
+    { "Vcpus", virtDBusDomainGetVcpus, NULL },
+    { "OSType", virtDBusDomainGetOsType, NULL },
+    { "Active", virtDBusDomainGetActive, NULL },
+    { "Persistent", virtDBusDomainGetPersistent, NULL },
+    { "State", virtDBusDomainGetState, NULL },
+    { "Autostart", virtDBusDomainGetAutostart, NULL },
+    { NULL, NULL, NULL }
 };
 
-static int
-virtDBusDomainLookup(sd_bus *bus VIRT_ATTR_UNUSED,
-                     const char *path,
-                     const char *interface VIRT_ATTR_UNUSED,
-                     void *userdata,
-                     void **found,
-                     sd_bus_error *error VIRT_ATTR_UNUSED)
+static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
+    { "GetXMLDesc", virtDBusDomainGetXMLDesc },
+    { "GetStats", virtDBusDomainGetStats },
+    { "Shutdown", virtDBusDomainShutdown },
+    { "Destroy", virtDBusDomainDestroy },
+    { "Reboot", virtDBusDomainReboot },
+    { "Reset", virtDBusDomainReset },
+    { "Create", virtDBusDomainCreate },
+    { "Undefine", virtDBusDomainUndefine },
+    { NULL, NULL }
+};
+
+static gchar **
+virtDBusDomainEnumerate(gpointer userData)
 {
-    virtDBusConnect *connect = userdata;
-    _cleanup_(virtDBusUtilFreep) char *name = NULL;
-    _cleanup_(virtDBusUtilVirDomainFreep) virDomainPtr domain = NULL;
-    int r;
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomainPtr) domains = NULL;
+    gint num = 0;
+    gchar **ret = NULL;
 
-    r = sd_bus_path_decode(path, connect->domainPath, &name);
-    if (r < 0)
-        return r;
+    if (!virtDBusConnectOpen(connect, NULL))
+        return NULL;
 
-    if (*name == '\0')
-        return 0;
+    num = virConnectListAllDomains(connect->connection, &domains, 0);
+    if (num < 0)
+        return NULL;
 
-    domain = virtDBusDomainGetVirDomain(connect, path, error);
-    if (!domain)
-        return 0;
+    if (num == 0)
+        return NULL;
 
-    /*
-     * There's no way to unref the pointer we're returning here. So,
-     * return the connect object and look up the domain again in the
-     * domain_* callbacks.
-     */
-    *found = connect;
+    ret = g_new0(gchar *, num + 1);
 
-    return 1;
+    for (gint i = 0; i < num; i++) {
+        ret[i] = virtDBusUtilBusPathForVirDomain(domains[i],
+                                                 connect->domainPath);
+    }
+
+    return ret;
 }
 
-int
+static GDBusInterfaceInfo *interfaceInfo = NULL;
+
+void
 virtDBusDomainRegister(virtDBusConnect *connect,
-                       sd_bus *bus)
+                       GError **error)
 {
-    int r;
+    connect->domainPath = g_strdup_printf("%s/domain", connect->connectPath);
 
-    r = asprintf(&connect->domainPath, "%s/domain", connect->connectPath);
-    if (r < 0)
-        return r;
+    if (!interfaceInfo) {
+        interfaceInfo = virtDBusGDBusLoadIntrospectData(VIRT_DBUS_DOMAIN_INTERFACE,
+                                                        error);
+        if (!interfaceInfo)
+            return;
+    }
 
-    r = sd_bus_add_node_enumerator(bus, NULL, connect->domainPath,
-                                   connect->enumerateDomains, connect);
-    if (r < 0)
-        return r;
-
-    return sd_bus_add_fallback_vtable(bus,
-                                      NULL,
-                                      connect->domainPath,
-                                      VIRT_DBUS_DOMAIN_INTERFACE,
-                                      virt_domain_vtable,
-                                      virtDBusDomainLookup,
-                                      connect);
+    virtDBusGDBusRegisterSubtree(connect->bus,
+                                 connect->domainPath,
+                                 interfaceInfo,
+                                 virtDBusDomainEnumerate,
+                                 virtDBusDomainMethodTable,
+                                 virtDBusDomainPropertyTable,
+                                 connect);
 }

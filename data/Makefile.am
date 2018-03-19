@@ -18,7 +18,9 @@ polkit_files = \
 polkitdir = $(sysconfdir)/polkit-1/rules.d
 polkit_DATA = $(polkit_files:.rules.in=.rules)
 
-interfaces_files =
+interfaces_files = \
+	org.libvirt.Connect.xml \
+	org.libvirt.Domain.xml
 interfacesdir = $(DBUS_INTERFACES_DIR)
 interfaces_DATA = $(interfaces_files)
 

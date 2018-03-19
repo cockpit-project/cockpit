@@ -1,49 +1,37 @@
 #pragma once
 
+#include "gdbus.h"
+
 #include <libvirt/libvirt.h>
-#include <systemd/sd-bus.h>
 
-#define VIRT_DBUS_ERROR_INTERFACE "org.libvirt.Error"
+#define VIRT_DBUS_ERROR virtDBusErrorQuark()
 
-#define _cleanup_(_x) __attribute__((__cleanup__(_x)))
+typedef enum {
+    VIRT_DBUS_ERROR_LIBVIRT,
+    VIRT_DBUS_N_ERRORS /*< skip >*/
+} VirtDBusError;
 
-#define VIRT_ATTR_UNUSED __attribute__((__unused__))
+GQuark
+virtDBusErrorQuark(void);
 
-#define VIRT_N_ELEMENTS(array) (sizeof(array) / sizeof(*(array)))
+GVariant *
+virtDBusUtilTypedParamsToGVariant(virTypedParameterPtr params,
+                                  gint nparams);
 
+void
+virtDBusUtilSetLastVirtError(GError **error);
 
-int
-virtDBusUtilMessageAppendTypedParameters(sd_bus_message *message,
-                                         virTypedParameterPtr parameters,
-                                         int n_parameters);
-
-int
-virtDBusUtilSetLastVirtError(sd_bus_error *error);
-
-int
-virtDBusUtilSetError(sd_bus_error *error,
-                     const char *message);
-
-char *
+gchar *
 virtDBusUtilBusPathForVirDomain(virDomainPtr domain,
-                                const char *domainPath);
+                                const gchar *domainPath);
 
 virDomainPtr
 virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
-                                 const char *path,
-                                 const char *domainPath);
+                                 const gchar *path,
+                                 const gchar *domainPath);
 
 void
-virtDBusUtilFreep(void *p);
+virtDBusUtilVirDomainListFree(virDomainPtr *domains);
 
-void
-virtDBusUtilClosep(int *fdp);
-
-void
-virtDBusUtilStrvFreep(void *p);
-
-void
-virtDBusUtilVirDomainFreep(virDomainPtr *domainp);
-
-void
-virtDBusUtilVirDomainListFreep(virDomainPtr **domainsp);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomain, virDomainFree);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainPtr, virtDBusUtilVirDomainListFree);

@@ -1,92 +1,23 @@
-#include "config.h"
-
 #include "connect.h"
 #include "util.h"
 
-#include <errno.h>
-#include <getopt.h>
-#include <poll.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/signalfd.h>
-#include <systemd/sd-bus.h>
-#include <unistd.h>
+#include <glib-unix.h>
+#include <libvirt-glib/libvirt-glib.h>
 
-static int loop_status;
-
-static int
-virtDBusGetLibvirtEvents(sd_bus *bus)
-{
-    int events;
-    int virt_events = 0;
-
-    events = sd_bus_get_events(bus);
-
-    if (events & POLLIN)
-        virt_events |= VIR_EVENT_HANDLE_READABLE;
-
-    if (events & POLLOUT)
-        virt_events |= VIR_EVENT_HANDLE_WRITABLE;
-
-    return virt_events;
-}
-
-static int
-virtDBusProcessEvents(sd_bus *bus)
-{
-    for (;;) {
-            int r;
-
-            r = sd_bus_process(bus, NULL);
-            if (r < 0)
-                    return r;
-
-            if (r == 0)
-                    break;
-    }
-
-    return 0;
-}
-
-static void
-virtDBusVirEventRemoveHandlep(int *watchp)
-{
-    if (*watchp >= 0)
-        virEventRemoveHandle(*watchp);
-}
-
-static void
-virtDBusHandleSignal(int watch VIRT_ATTR_UNUSED,
-                     int fd VIRT_ATTR_UNUSED,
-                     int events VIRT_ATTR_UNUSED,
-                     void *opaque VIRT_ATTR_UNUSED)
-{
-    loop_status = -ECANCELED;
-}
-
-static void
-virtDBusHandleBusEvent(int watch,
-                       int fd VIRT_ATTR_UNUSED,
-                       int events VIRT_ATTR_UNUSED,
-                       void *opaque)
-{
-    sd_bus *bus = opaque;
-
-    loop_status = virtDBusProcessEvents(bus);
-
-    if (loop_status < 0)
-        return;
-
-    virEventUpdateHandle(watch, virtDBusGetLibvirtEvents(bus));
-}
-
-struct virtDBusDriver {
-    const char *uri;
-    const char *object;
+struct _virtDBusDriver {
+    const gchar *uri;
+    const gchar *object;
 };
+typedef struct _virtDBusDriver virtDBusDriver;
 
-static const struct virtDBusDriver sessionDrivers[] = {
+struct _virtDBusRegisterData {
+    virtDBusConnect **connectList;
+    const virtDBusDriver *drivers;
+    gsize ndrivers;
+};
+typedef struct _virtDBusRegisterData virtDBusRegisterData;
+
+static const virtDBusDriver sessionDrivers[] = {
     { "qemu:///session",            "/org/libvirt/QEMU" },
     { "test:///default",            "/org/libvirt/Test" },
     { "uml:///session",             "/org/libvirt/UML" },
@@ -96,7 +27,7 @@ static const struct virtDBusDriver sessionDrivers[] = {
     { "vmwarews:///session",        "/org/libvirt/VMwareWS" },
 };
 
-static const struct virtDBusDriver systemDrivers[] = {
+static const virtDBusDriver systemDrivers[] = {
     { "bhyve:///system",        "/org/libvirt/BHyve" },
     { "lxc:///",                "/org/libvirt/LXC" },
     { "openvz:///system",       "/org/libvirt/OpenVZ" },
@@ -108,131 +39,133 @@ static const struct virtDBusDriver systemDrivers[] = {
     { "xen:///",                "/org/libvirt/Xen" },
 };
 
-int
-main(int argc, char *argv[])
+static gboolean
+virtDBusHandleSignal(gpointer data)
 {
-    enum {
-        ARG_SYSTEM = 255,
-        ARG_SESSION
-    };
+    g_main_loop_quit(data);
+    return TRUE;
+}
 
-    static const struct option options[] = {
-        { "help",    no_argument,       NULL, 'h' },
-        { "system",  no_argument,       NULL, ARG_SYSTEM },
-        { "session", no_argument,       NULL, ARG_SESSION },
-        {}
-    };
+static void
+virtDBusAcquired(GDBusConnection *connection,
+                 const gchar *name G_GNUC_UNUSED,
+                 gpointer opaque)
+{
+    virtDBusRegisterData *data = opaque;
+    GError *error = NULL;
 
-    bool system_bus;
-    const struct virtDBusDriver *drivers = NULL;
-    int ndrivers = 0;
-
-    _cleanup_(virtDBusConnectListFree) virtDBusConnect **connect = NULL;
-    _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;
-    _cleanup_(virtDBusUtilClosep) int signal_fd = -1;
-    _cleanup_(virtDBusVirEventRemoveHandlep) int bus_watch = -1;
-    _cleanup_(virtDBusVirEventRemoveHandlep) int signal_watch = -1;
-    sigset_t mask;
-    int c;
-    int r;
-
-    if (geteuid() == 0) {
-        system_bus = true;
-    } else {
-        system_bus = false;
-    }
-
-    while ((c = getopt_long(argc, argv, "hc:", options, NULL)) >= 0) {
-        switch (c) {
-            case 'h':
-                printf("Usage: %s [OPTIONS]\n", program_invocation_short_name);
-                printf("\n");
-                printf("Provide a D-Bus interface to a libvirtd.\n");
-                printf("\n");
-                printf("  -h, --help        Display this help text and exit\n");
-                printf("  --session         Connect to the session bus\n");
-                printf("  --system          Connect to the system bus\n");
-                return 0;
-
-            case ARG_SYSTEM:
-                system_bus = true;
-                break;
-
-            case ARG_SESSION:
-                system_bus = false;
-                break;
-
-            default:
-                return EXIT_FAILURE;
+    for (gsize i = 0; i < data->ndrivers; i += 1) {
+        virtDBusConnectNew(&data->connectList[i], connection,
+                           data->drivers[i].uri, data->drivers[i].object,
+                           &error);
+        if (error) {
+            g_printerr("%s\n", error->message);
+            exit(EXIT_FAILURE);
         }
     }
 
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGTERM);
-    sigaddset(&mask, SIGINT);
-    sigprocmask(SIG_BLOCK, &mask, NULL);
+}
 
-    virEventRegisterDefaultImpl();
+static void
+virtDBusNameAcquired(GDBusConnection *connection G_GNUC_UNUSED,
+                     const gchar *name G_GNUC_UNUSED,
+                     gpointer data G_GNUC_UNUSED)
+{
+}
 
-    r = system_bus ? sd_bus_open_system(&bus) : sd_bus_open_user(&bus);
-    if (r < 0) {
-        fprintf(stderr, "Failed to connect to session bus: %s\n", strerror(-r));
-        return EXIT_FAILURE;
+static void
+virtDBusNameLost(GDBusConnection *connection G_GNUC_UNUSED,
+                 const gchar *name G_GNUC_UNUSED,
+                 gpointer data G_GNUC_UNUSED)
+{
+    g_printerr("Disconnected from D-Bus.\n");
+    exit(EXIT_FAILURE);
+}
+
+static void
+virtDBusRegisterDataFree(virtDBusRegisterData *data)
+{
+    virtDBusConnectListFree(data->connectList);
+}
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(virtDBusRegisterData, virtDBusRegisterDataFree);
+
+int
+main(gint argc, gchar *argv[])
+{
+    static gboolean systemOpt = FALSE;
+    static gboolean sessionOpt = FALSE;
+    GBusType busType;
+    g_auto(virtDBusGDBusSource) sigintSource = 0;
+    g_auto(virtDBusGDBusSource) sigtermSource = 0;
+    g_auto(virtDBusGDBusOwner) busOwner = 0;
+    g_autoptr(GOptionContext) context = NULL;
+    g_autoptr(GError) error = NULL;
+    g_autoptr(GMainLoop) loop = NULL;
+    g_auto(virtDBusRegisterData) data = { 0 };
+
+    static GOptionEntry options[] = {
+        { "system", 0, 0, G_OPTION_ARG_NONE, &systemOpt,
+            "Connect to the system bus", NULL },
+        { "session", 0, 0, G_OPTION_ARG_NONE, &sessionOpt,
+            "Connect to the session bus", NULL },
+        { NULL }
+    };
+
+    context = g_option_context_new("Provide a D-Bus interface to a libvirtd.");
+    g_option_context_add_main_entries(context, options, NULL);
+
+    if (!g_option_context_parse(context, &argc, &argv, &error)) {
+        g_printerr("%s\n", error->message);
+        exit(EXIT_FAILURE);
     }
 
-    r = sd_bus_request_name(bus, "org.libvirt", 0);
-    if (r < 0) {
-        fprintf(stderr, "Failed to acquire service name: %s\n", strerror(-r));
-        return EXIT_FAILURE;
+    if (sessionOpt && systemOpt) {
+        g_printerr("Only one of --session or --system can be used.\n");
+        exit(EXIT_FAILURE);
     }
 
-    if (system_bus) {
-        drivers = systemDrivers;
-        ndrivers = VIRT_N_ELEMENTS(systemDrivers);
+    if (sessionOpt) {
+        busType = G_BUS_TYPE_SESSION;
+    } else if (systemOpt) {
+        busType = G_BUS_TYPE_SYSTEM;
     } else {
-        drivers = sessionDrivers;
-        ndrivers = VIRT_N_ELEMENTS(sessionDrivers);
-    }
-
-    connect = calloc(ndrivers + 1, sizeof(virtDBusConnect *));
-
-    for (int i = 0; i < ndrivers; i += 1) {
-        r = virtDBusConnectNew(&connect[i], bus,
-                               drivers[i].uri, drivers[i].object);
-        if (r < 0) {
-            fprintf(stderr, "Failed to register libvirt connection.\n");
-            return EXIT_FAILURE;
+        if (geteuid() == 0) {
+            busType = G_BUS_TYPE_SYSTEM;
+        } else {
+            busType = G_BUS_TYPE_SESSION;
         }
     }
 
-    r = virtDBusProcessEvents(bus);
-    if (r < 0)
-        return EXIT_FAILURE;
+    if (busType == G_BUS_TYPE_SYSTEM) {
+        data.drivers = systemDrivers;
+        data.ndrivers = G_N_ELEMENTS(systemDrivers);
+    } else {
+        data.drivers = sessionDrivers;
+        data.ndrivers = G_N_ELEMENTS(sessionDrivers);
+    }
+    data.connectList = g_new0(virtDBusConnect *, data.ndrivers + 1);
 
-    bus_watch = virEventAddHandle(sd_bus_get_fd(bus),
-                                  virtDBusGetLibvirtEvents(bus),
-                                  virtDBusHandleBusEvent,
-                                  bus,
-                                  NULL);
+    loop = g_main_loop_new(NULL, FALSE);
 
-    signal_fd = signalfd(-1, &mask, SFD_NONBLOCK | SFD_CLOEXEC);
-    signal_watch = virEventAddHandle(signal_fd,
-                                     VIR_EVENT_HANDLE_READABLE,
+    sigtermSource = g_unix_signal_add(SIGTERM,
+                                      virtDBusHandleSignal,
+                                      loop);
+
+    sigintSource = g_unix_signal_add(SIGINT,
                                      virtDBusHandleSignal,
-                                     NULL,
-                                     NULL);
-    if (signal_watch < 0) {
-        fprintf(stderr, "Failed to register signal handler.\n");
-        return EXIT_FAILURE;
-    }
+                                     loop);
 
-    while (loop_status >= 0)
-        virEventRunDefaultImpl();
+    gvir_init(0, NULL);
+    gvir_event_register();
 
-    if (loop_status < 0 && loop_status != -ECANCELED) {
-        fprintf(stderr, "Error: %s\n", strerror(-loop_status));
-        return EXIT_FAILURE;
-    }
+    busOwner = g_bus_own_name(busType, "org.libvirt",
+                              G_BUS_NAME_OWNER_FLAGS_NONE,
+                              virtDBusAcquired,
+                              virtDBusNameAcquired,
+                              virtDBusNameLost,
+                              &data, NULL);
+
+    g_main_loop_run(loop);
 
     return EXIT_SUCCESS;
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<node name="/org/libvirt/domain">
+  <interface name="org.libvirt.Domain">
+    <property name="Name" type="s" access="read"/>
+    <property name="UUID" type="s" access="read"/>
+    <property name="Id" type="u" access="read"/>
+    <property name="Vcpus" type="u" access="read"/>
+    <property name="OSType" type="s" access="read"/>
+    <property name="Active" type="b" access="read"/>
+    <property name="Persistent" type="b" access="read"/>
+    <property name="State" type="s" access="read"/>
+    <property name="Autostart" type="b" access="read"/>
+    <method name="GetXMLDesc">
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="xml" type="s" direction="out"/>
+    </method>
+    <method name="GetStats">
+      <arg name="stats" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="records" type="a{sv}" direction="out"/>
+    </method>
+    <method name="Shutdown"/>
+    <method name="Destroy"/>
+    <method name="Reboot">
+      <arg name="flags" type="u" direction="in"/>
+    </method>
+    <method name="Reset">
+      <arg name="flags" type="u" direction="in"/>
+    </method>
+    <method name="Create"/>
+    <method name="Undefine"/>
+    <signal name="DeviceAdded">
+      <arg name="device" type="s"/>
+    </signal>
+    <signal name="DeviceRemoved">
+      <arg name="device" type="s"/>
+    </signal>
+    <signal name="DiskChange">
+      <arg name="oldSrcPath" type="s"/>
+      <arg name="newSrcPath" type="s"/>
+      <arg name="device" type="s"/>
+      <arg name="reason" type="s"/>
+    </signal>
+    <signal name="TrayChange">
+      <arg name="device" type="s"/>
+      <arg name="reason" type="s"/>
+    </signal>
+  </interface>
+</node>

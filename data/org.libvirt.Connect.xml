@@ -1,0 +1,56 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<node name="/org/libvirt/connect">
+  <interface name="org.libvirt.Connect">
+    <method name="ListDomains">
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="domains" type="ao" direction="out"/>
+    </method>
+    <method name="CreateXML">
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="domain" type="o" direction="out"/>
+    </method>
+    <method name="DefineXML">
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="domain" type="o" direction="out"/>
+    </method>
+    <signal name="DomainCrashed">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainDefined">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainPMSuspended">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainResumed">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainShutdown">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainStarted">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainStopped">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainSuspended">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+    <signal name="DomainUndefined">
+      <arg name="reason" type="s"/>
+      <arg name="domain" type="o"/>
+    </signal>
+  </interface>
+</node>

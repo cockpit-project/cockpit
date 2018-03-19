@@ -197,6 +197,39 @@ export function vmInstallCompleted(vm) {
 }
 
 
+export function addErrorNotification(notification) {
+    if (typeof notification === 'string') {
+        notification = { message: notification };
+    }
+    notification.type = 'error';
+
+    return {
+        type: 'ADD_NOTIFICATION',
+        notification,
+    };
+}
+
+export function addNotification(notification) {
+    return {
+        type: 'ADD_NOTIFICATION',
+        notification,
+    };
+}
+
+export function clearNotification(id) {
+    return {
+        type: 'CLEAR_NOTIFICATION',
+        id,
+
+    };
+}
+
+export function clearNotifications() {
+    return {
+        type: 'CLEAR_NOTIFICATIONS',
+    };
+}
+
 
 export function vmActionFailed({ name, connectionName, message, detail, extraPayload }) {
     return {

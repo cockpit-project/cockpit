@@ -19,7 +19,9 @@
  */
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
-import { mouseClick } from '../helpers.es6';
+import { mouseClick } from '../../helpers.es6';
+import { Notification } from "./notification.jsx";
+
 
 const _ = cockpit.gettext;
 
@@ -42,7 +44,7 @@ class InlineNotification extends React.Component {
     }
 
     render () {
-        const { notificationClass, iconClass, text, detail, textId, onDismiss } = this.props;
+        const {text, detail, textId} = this.props;
 
         let detailButton = null;
         if (detail) {
@@ -55,21 +57,8 @@ class InlineNotification extends React.Component {
                                      onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</a>);
         }
 
-        const dismissableClass = this.props.onDismiss ? ' alert-dismissable' : '';
-        let closeButton = null;
-        if (this.props.onDismiss) {
-            // do not use "data-dismiss='alert'" to close the notification
-            closeButton = (
-                <button type='button' className='close' aria-hidden='true' onClick={onDismiss}>
-                    <span className='pficon pficon-close'/>
-                </button>
-            );
-        }
-
         return (
-            <div className={notificationClass + dismissableClass}>
-                {closeButton}
-                <span className={iconClass}/>
+            <div>
                 <strong id={textId}>
                     {text}
                 </strong>
@@ -81,32 +70,28 @@ class InlineNotification extends React.Component {
 }
 
 InlineNotification.propTypes = {
-    notificationClass: PropTypes.string, // classname for the notification type; see defaultProps
-    iconClass: PropTypes.string, // classname for the icon; see defaultProps
-    onDismiss: PropTypes.func, // callback to be called when 'close-button' is clicked. If undefined, then the buttun (means "cross") is not rendered.
-
     text: PropTypes.string.isRequired, // main information to render
     detail: PropTypes.string, // optional, more detailed information. If empty, the more/less button is not rendered.
     textId: PropTypes.string, // optional, element id for the text
 };
 
-InlineNotification.defaultProps = {
-    notificationClass: 'alert alert-warning',
-    iconClass: 'pficon pficon-warning-triangle-o',
-};
-
 export const Alert = ({ onDismiss, text, textId, detail }) => {
     return (
-        <InlineNotification onDismiss={onDismiss} text={text} textId={textId} detail={detail}
-                            notificationClass='alert alert-warning'
-                            iconClass='pficon pficon-warning-triangle-o' />
+        <Notification onDismiss={onDismiss}
+                      notificationClass='alert alert-warning'
+                      iconClass='pficon pficon-warning-triangle-o'>
+            <InlineNotification text={text} textId={textId} detail={detail} />
+        </Notification>
+
     );
 };
 
 export const Info = ({ onDismiss, text, textId, detail }) => {
     return (
-        <InlineNotification onDismiss={onDismiss} text={text} textId={textId} detail={detail}
-                            notificationClass='alert alert-info'
-                            iconClass='pficon pficon-info' />
+        <Notification onDismiss={onDismiss}
+                      notificationClass='alert alert-info'
+                      iconClass='pficon pficon-info'>
+            <InlineNotification text={text} textId={textId} detail={detail} />
+        </Notification>
     );
 };

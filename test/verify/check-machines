@@ -347,9 +347,9 @@ class TestMachines(MachineCase):
         b.wait_present("a.alert-link.machines-more-button") # more/less button
         b.wait_in_text("a.alert-link.machines-more-button", "show more")
         b.click("a.alert-link.machines-more-button")
-        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning > p")
+        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p")
         b.wait_in_text("a.alert-link.machines-more-button", "show less")
-        b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning > p", "Domain is already active")
+        b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p", "Domain is already active")
 
         b.click("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning button") # close button
         b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification is gone
@@ -783,7 +783,7 @@ class TestMachines(MachineCase):
 
     class TestCreateConfig:
         VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
-        NOVELL_MOCKUP_ISO_PATH = '/tmp/novell.iso'
+        NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'  # libvirt in ubuntu-1604 does not accept /tmp
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
 
         UNSPECIFIED_VENDOR = 'Unspecified'
@@ -963,27 +963,47 @@ class TestMachines(MachineCase):
 
         def createAndExpectError(self, error, ui_validation):
             b = self.browser
+
+            def allowBugErrors(location, original_exception):
+                # CPU must be supported to detect errors
+                # FIXME: "CPU is incompatible with host CPU" check should not be needed; happens only on fedora i386
+                # see https://github.com/cockpit-project/cockpit/issues/8385
+                error_message = b.text(location)
+
+                if "CPU is incompatible with host CPU" not in error_message and \
+                                "unsupported configuration: CPU mode" not in error_message:
+                    raise original_exception
+
             b.click(".modal-footer button:contains(Create)")
+
+            error_location = ".modal-footer div.alert"
+
             if ui_validation:
-                b.wait_present(".modal-footer div.alert")
-                b.wait_in_text(".modal-footer div.alert", error)
+                b.wait_present(error_location)
+                b.wait_in_text(error_location, error)
             else:
                 b.wait_present(".modal-footer .spinner")
                 b.wait_not_present(".modal-footer .spinner")
                 try:
-                    # dialog can complete within next 3 seconds if error not found
-                    with b.wait_timeout(5):
-                        b.wait_present(".modal-footer div.alert")
-                        b.wait_in_text(".modal-footer div.alert", error)
-                except Exception as x:
-                    # raise dialog did not complete and there was no error
-                    # also CPU must be supported to detect errors
-                    # FIXME: "CPU is incompatible with host CPU" check should not be needed; happens only on fedora i386
-                    # see https://github.com/cockpit-project/cockpit/issues/8385
-                    if b.is_present("#cockpit_modal_dialog") and \
-                                    "CPU is incompatible with host CPU" not in b.text(".modal-footer div.alert") and \
-                                    "unsupported configuration: CPU mode" not in b.text(".modal-footer div.alert"):
-                        raise x
+                    with b.wait_timeout(10):
+                        b.wait_present(error_location)
+                        b.wait_in_text(error_location, error)
+                    # dialog can complete if the error was not returned immediately
+                except Exception as x1:
+                    if b.is_present("#cockpit_modal_dialog"):
+                        # allow CPU errors in the dialog
+                        allowBugErrors(error_location, x1)
+                    else:
+                        # then error should be shown in the notification area
+                        error_location = "#notification-area-notification-1 div.notification-message"
+                        try:
+                            with b.wait_timeout(20):
+                                b.wait_present(error_location)
+                                b.wait_in_text(error_location, error)
+                        except Exception as x2:
+                            # allow CPU errors in the notification area
+                            allowBugErrors(error_location, x2)
+
             return self
 
         def _selectFromDropdown(self, selector, value):
@@ -1154,9 +1174,16 @@ class TestMachines(MachineCase):
             b.wait_in_text("thead tr td", "No VM is running")
             # wait for the vm and disks to be deleted
             b.wait(lambda: self.machine.execute("virsh list --all | wc -l") == '3\n')
-            b.wait(lambda: self.machine.execute("ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
+            b.wait(lambda: self.machine.execute(
+                "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
+
+            if b.is_present("#notification-area-notification-1-close"):
+                b.click("#notification-area-notification-1-close")
+
+            b.wait_not_present("#notification-area")
 
             return self
+
 
 if __name__ == '__main__':
     test_main()

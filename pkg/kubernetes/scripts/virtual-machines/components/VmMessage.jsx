@@ -23,7 +23,7 @@ import { connect } from 'react-redux'
 
 import type { Vm, VmMessages } from '../types.jsx'
 import { vmIdPrefx } from '../utils.jsx'
-import { Alert } from '../../../../machines/components/inlineNotification.jsx';
+import { Alert } from '../../../../machines/components/notification/inlineNotification.jsx';
 
 import { removeVmMessage } from '../action-creators.jsx';
 

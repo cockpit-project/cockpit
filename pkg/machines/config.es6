@@ -24,6 +24,7 @@
  */
 const VMS_CONFIG = {
     DefaultRefreshInterval: 10000, // in ms
+    LeaveCreateVmDialogVisibleAfterSubmit: 3000, // in ms; to wait for an error
     Virsh: {
         connections: {
             'system': {

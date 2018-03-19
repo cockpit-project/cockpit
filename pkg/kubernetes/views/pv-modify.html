@@ -128,7 +128,8 @@
                 </td>
                 <td>
                     <input id="modify-path" class="form-control" type="text"
-                        ng-model="fields.path">
+                        ng-if="!item" ng-model="fields.path">
+                    <span id="modify-path" ng-if="item">{{ fields.path }}</span>
                 </td>
             </tr>
             <tr ng-if="hasField('target')">

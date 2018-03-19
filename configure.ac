@@ -11,10 +11,14 @@ AC_USE_SYSTEM_EXTENSIONS
 
 AM_SILENT_RULES([yes])
 
+GLIB2_REQUIRED=2.44.0
 LIBVIRT_REQUIRED=1.2.8
 SYSTEMD_REQUIRED=211
+LIBVIRT_GLIB_REQUIRED=0.0.7
+AC_SUBST([GLIB2_REQUIRED]) dnl used in the .spec file
 AC_SUBST([LIBVIRT_REQUIRED]) dnl used in the .spec file
 AC_SUBST([SYSTEMD_REQUIRED]) dnl used in the .spec file
+AC_SUBST([LIBVIRT_GLIB_REQUIRED]) dnl used in the .spec file
 
 LIBVIRT_DBUS_MAJOR_VERSION=`echo $VERSION | awk -F. '{print $1}'`
 LIBVIRT_DBUS_MINOR_VERSION=`echo $VERSION | awk -F. '{print $2}'`
@@ -34,8 +38,11 @@ AC_PROG_MKDIR_P
 AM_PROG_CC_C_O
 AC_PROG_CC_STDC
 
+PKG_CHECK_MODULES(GIO2, gio-unix-2.0 >= GLIB2_REQUIRED)
+PKG_CHECK_MODULES(GLIB2, glib-2.0 >= GLIB2_REQUIRED)
 PKG_CHECK_MODULES(LIBVIRT, libvirt >= $LIBVIRT_REQUIRED)
 PKG_CHECK_MODULES(SYSTEMD, libsystemd >= $SYSTEMD_REQUIRED)
+PKG_CHECK_MODULES(LIBVIRT_GLIB, libvirt-glib-1.0 >= LIBVIRT_GLIB_REQUIRED)
 
 LIBVIRT_COMPILE_WARNINGS
 LIBVIRT_LINKER_RELRO
@@ -55,6 +62,11 @@ LIBVIRT_ARG_WITH([DBUS_SYSTEM_POLICIES], [where D-Bus system policies directory 
                  ['$(datadir)/dbus-1/system.d'])
 DBUS_SYSTEM_POLICIES_DIR="$with_dbus_system_policies"
 AC_SUBST(DBUS_SYSTEM_POLICIES_DIR)
+
+LIBVIRT_ARG_WITH([DBUS_INTERFACES], [where D-Bus interfaces directory is],
+                 ['$(datadir)/dbus-1/interfaces'])
+DBUS_INTERFACES_DIR="$with_dbus_interfaces"
+AC_SUBST([DBUS_INTERFACES_DIR])
 
 LIBVIRT_ARG_WITH([SYSTEM_USER], [username to run system instance as],
                  ['libvirtdbus'])

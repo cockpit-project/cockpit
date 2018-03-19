@@ -18,11 +18,16 @@ polkit_files = \
 polkitdir = $(sysconfdir)/polkit-1/rules.d
 polkit_DATA = $(polkit_files:.rules.in=.rules)
 
+interfaces_files =
+interfacesdir = $(DBUS_INTERFACES_DIR)
+interfaces_DATA = $(interfaces_files)
+
 EXTRA_DIST = \
 	$(service_in_files) \
 	$(system_service_in_files) \
 	$(system_policy_files) \
 	$(polkit_files) \
+	$(interfaces_files) \
 	$(NULL)
 
 CLEANFILES = \

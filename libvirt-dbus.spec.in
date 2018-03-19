@@ -1,7 +1,9 @@
 # -*- rpm-spec -*-
 
+%define glib2_version @GLIB2_REQUIRED@
 %define libvirt_version @LIBVIRT_REQUIRED@
 %define systemd_version @SYSTEMD_REQUIRED@
+%define libvirt_glib_version @LIBVIRT_GLIB_REQUIRED@
 %define system_user @SYSTEM_USER@
 
 Name: @PACKAGE@
@@ -15,11 +17,15 @@ Source0: ftp://libvirt.org/libvirt/dbus/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: gcc
+BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: libvirt-devel >= %{libvirt_version}
 BuildRequires: systemd-devel >= %{systemd_version}
+BuildRequires: libvirt-glib-devel >= %{libvirt_glib_version}
 
+Requires: glib2 >= %{glib2_version}
 Requires: libvirt-libs >= %{libvirt_version}
 Requires: systemd-libs >= %{systemd_version}
+Requires: libvirt-glib >= %{libvirt_glib_version}
 
 Requires(pre): shadow-utils
 

@@ -346,9 +346,15 @@ Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-system >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
+# Optional components (for f24 we use soft deps)
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: virt-install
+%endif
 
 %description machines
 The Cockpit components for managing virtual machines.
+
+If "virt-install" is installed, you can also create new virtual machines.
 
 %files machines -f machines.list
 

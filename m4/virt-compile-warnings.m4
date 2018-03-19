@@ -37,12 +37,6 @@ AC_DEFUN([LIBVIRT_COMPILE_WARNINGS],[
     dontwarn="$dontwarn -Wconversion"
     # Too many to deal with
     dontwarn="$dontwarn -Wsign-conversion"
-    # GNULIB gettext.h violates
-    dontwarn="$dontwarn -Wvla"
-    # Many GNULIB header violations
-    dontwarn="$dontwarn -Wundef"
-    # Need to allow bad cast for execve()
-    dontwarn="$dontwarn -Wcast-qual"
     # We need to use long long in many places
     dontwarn="$dontwarn -Wlong-long"
     # We allow manual list of all enum cases without default:
@@ -53,8 +47,6 @@ AC_DEFUN([LIBVIRT_COMPILE_WARNINGS],[
     dontwarn="$dontwarn -Wstrict-overflow"
     # Not a problem since we don't use -funsafe-loop-optimizations
     dontwarn="$dontwarn -Wunsafe-loop-optimizations"
-    # Gnulib's stat-time.h violates this
-    dontwarn="$dontwarn -Waggregate-return"
     # gcc 4.4.6 complains this is C++ only; gcc 4.7.0 implies this from -Wall
     dontwarn="$dontwarn -Wenum-compare"
     # gcc 5.1 -Wformat-signedness mishandles enums, not ready for prime time
@@ -123,25 +115,9 @@ AC_DEFUN([LIBVIRT_COMPILE_WARNINGS],[
     # Remove the ones we don't want, blacklisted earlier
     gl_MANYWARN_COMPLEMENT([wantwarn], [$maybewarn], [$dontwarn])
 
-    # GNULIB uses '-W' (aka -Wextra) which includes a bunch of stuff.
-    # Unfortunately, this means you can't simply use '-Wsign-compare'
-    # with gl_MANYWARN_COMPLEMENT
-    # So we have -W enabled, and then have to explicitly turn off...
-    wantwarn="$wantwarn -Wno-sign-compare"
-
     # GNULIB expects this to be part of -Wc++-compat, but we turn
     # that one off, so we need to manually enable this again
     wantwarn="$wantwarn -Wjump-misses-init"
-
-    # GNULIB turns on -Wformat=2 which implies -Wformat-nonliteral,
-    # so we need to manually re-exclude it.  Also, older gcc 4.2
-    # added an implied ATTRIBUTE_NONNULL on any parameter marked
-    # ATTRIBUTE_FMT_PRINT, which causes -Wformat failure on our
-    # intentional use of virReportError(code, NULL).
-    wantwarn="$wantwarn -Wno-format-nonliteral"
-    if test $lv_cv_gcc_wformat_null_works = no; then
-      wantwarn="$wantwarn -Wno-format"
-    fi
 
     # -Wformat enables this by default, and we should keep it,
     # but need to rewrite various areas of code first

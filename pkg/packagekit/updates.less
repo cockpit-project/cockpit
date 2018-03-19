@@ -184,25 +184,6 @@ tr.security.listing-ct-item {
     overflow-y: auto;
 }
 
-/* Layout fix for tooltip arrows.
- *
- * Sometimes when there are non-integer coordinates involved
- * somewhere, rounding seems to make it so that there is a visible one
- * pixel gap between tooltip-inner and tooltip-arrow.  We avoid that
- * gap by letting the arrow and inner parts overlap by one pixel.
- *
- * This happens within the caption of the content listing.
- */
-
-.tooltip.top .tooltip-arrow {
-    bottom: 1px;
-}
-
-.tooltip.bottom .tooltip-arrow {
-    top: 1px;
-}
-
-
 table.header-buttons {
     margin-bottom: 20px; /* replacement for h2's margin-bottom */
     td {

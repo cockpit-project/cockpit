@@ -784,6 +784,13 @@ class MachineCase(unittest.TestCase):
         messages = machine.journal_messages(syslog_ids, 5)
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14") # 14xx is selinux
+
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1557913
+        # this fails tons of tests due to the SELinux violations (so naughty override causes too much spamming)
+        if self.image == 'fedora-28':
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { dac_override }.*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { module_request }.*')
+
         all_found = True
         first = None
         for m in messages:

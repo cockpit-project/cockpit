@@ -37,6 +37,7 @@ from testlib import *
 def can_manage(machine):
     return machine.image in [ "fedora-26",
                               "fedora-27",
+                              "fedora-28",
                               "fedora-testing",
                               "rhel-7",
                               "rhel-7-4",
@@ -67,7 +68,7 @@ def initially_loopbacked(machine):
 
     # use the overlayfs or aufs driver by default on some distros
     if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable",
-                          "fedora-26", "fedora-testing", "fedora-27", "fedora-atomic",
+                          "fedora-26", "fedora-testing", "fedora-27", "fedora-28", "fedora-atomic",
                           "rhel-7", "rhel-7-4", "rhel-7-5" ]:
         return False
 

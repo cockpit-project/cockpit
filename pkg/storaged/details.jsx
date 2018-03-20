@@ -26,6 +26,7 @@ import { DriveDetails } from "./drive-details.jsx";
 import { VGroupDetails } from "./vgroup-details.jsx";
 import { MDRaidDetails } from "./mdraid-details.jsx";
 import { VDODetails } from "./vdo-details.jsx";
+import { NFSDetails } from "./nfs-details.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
@@ -124,6 +125,10 @@ class Details extends React.Component {
                 name = vdo.name;
                 body =  <VDODetails client={client} vdo={vdo}/>;
             }
+        } else if (this.props.type == "nfs") {
+            var entry = client.nfs.find_entry(name, this.props.name2);
+            if (entry)
+                body = <NFSDetails client={client} entry={entry}/>;
         }
 
         if (!body)
@@ -146,8 +151,8 @@ class Details extends React.Component {
 export function init(client) {
     var page = document.getElementById("storage-detail");
 
-    function show(type, name) {
-        React.render(<Details client={client} type={type} name={name}/>, page);
+    function show(type, name, name2) {
+        React.render(<Details client={client} type={type} name={name} name2={name2}/>, page);
         page.style.display = "block";
     }
 

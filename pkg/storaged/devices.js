@@ -61,8 +61,11 @@
             } else if (path.length == 2 && path[0] == 'vg') {
                 overview_page.hide();
                 details_page.show('vgroup', path[1]);
+            } else if (path.length == 3 && path[0] == 'nfs') {
+                overview_page.hide();
+                details_page.show('nfs', path[1], path[2]);
             } else { /* redirect */
-                console.warn("not a init location: " + path);
+                console.warn("not a storage location: " + path);
                 cockpit.location = '';
             }
             $("body").show();

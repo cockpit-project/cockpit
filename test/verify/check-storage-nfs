@@ -67,23 +67,26 @@ class TestStorage(StorageCase):
         b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .usage-text", "")
         m.execute("test -d /mounts/bar")
 
-        # Change mount point of /home/bar
-        b.click("#nfs-mounts .fa-check")
-        b.click("#nfs-mounts tr:contains(/home/bar) .pficon-edit")
+        # Go to details of /home/bar
+        b.click("#nfs-mounts tr:contains(/home/bar)")
+        b.wait_visible('#storage-detail')
+        b.wait_text('#detail-header tr:contains("Server") td:nth-child(2)', "127.0.0.1:/home/bar")
+        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mounts/bar")
 
+        # Change mount point of /home/bar
+        b.click('#detail-header button:contains("Edit")')
         self.dialog_wait_open()
         self.dialog_set_val("dir", "/mounts/barbar")
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_present("#nfs-mounts td:contains(/mounts/barbar)")
+        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mounts/barbar")
         m.execute("! test -e /mounts/bar")
         m.execute("test -d /mounts/barbar")
         self.assertEqual (m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "defaults")
 
         # Set options for /home/bar
-        b.click("#nfs-mounts .fa-check")
-        b.click("#nfs-mounts tr:contains(/home/bar) .pficon-edit")
+        b.click('#detail-header button:contains("Edit")')
 
         def wait_checked(field):
             b.wait_present(self.dialog_field(field) + ":checked")
@@ -102,19 +105,23 @@ class TestStorage(StorageCase):
 
         self.assertEqual (m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "noauto,ro,ac")
 
-        # Unmount and remount /home/foo
-        b.click("#nfs-mounts .fa-check")
-        b.click("#nfs-mounts tr:contains(/home/foo) button:contains(Unmount)")
-        b.wait_in_text("#nfs-mounts tr:contains(/home/foo)", "Not mounted")
+        # Go to details of /home/foo
+        b.go("#/")
+        b.wait_visible("#storage")
+        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.wait_visible('#storage-detail')
+        b.wait_text('#detail-header tr:contains("Server") td:nth-child(2)', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mnt")
 
-        b.click("#nfs-mounts .fa-check")
-        b.click("#nfs-mounts tr:contains(/mnt) button:contains(Mount)")
-        b.wait_present("#nfs-mounts tr:contains(/mnt) .usage-text")
-        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .usage-text", "")
+        # Unmount and remount /home/foo
+        b.click("#detail-header button:contains(Unmount)")
+        b.wait_present("#detail-header button:contains(Mount)")
+        b.click("#detail-header button:contains(Mount)")
+        b.wait_present("#detail-header button:contains(Unmount)")
 
         # Remove /home/foo
-        b.click("#nfs-mounts .fa-check")
-        b.click("#nfs-mounts tr:contains(/mnt) button .pficon-delete")
+        b.click("#detail-header button:contains(Remove)")
+        b.wait_visible("#storage")
         b.wait_not_present("#nfs-mounts td:contains(/home/foo)")
         m.execute("! test -e /mnt")
 
@@ -169,23 +176,29 @@ class TestStorage(StorageCase):
         b.wait_present("#nfs-mounts tr:contains(/mounts/foo) .usage-text")
         b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .usage-text", "")
 
+        # Go to details of /home/foo
+        b.go("#/")
+        b.wait_visible("#storage")
+        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.wait_visible('#storage-detail')
+        b.wait_text('#detail-header tr:contains("Server") td:nth-child(2)', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mounts/foo")
+
         m.spawn("cd /mounts/foo; sleep infinity", "busy")
-        b.click("#nfs-mounts .fa-check")
-        b.click("#nfs-mounts tr:contains(/home/foo) .pficon-edit")
+        b.click('#detail-header button:contains("Edit")')
 
         self.dialog_wait_open()
         self.dialog_wait_alert("This NFS mount is in use")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        b.click("#nfs-mounts .fa-check")
-        b.click("#nfs-mounts tr:contains(/home/foo) button:contains(Unmount)")
+        b.click("#detail-header button:contains(Unmount)")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "The filesystem is in use")
         b.wait_in_text("#dialog", "of user root")
         self.dialog_apply()
 
-        b.wait_in_text("#nfs-mounts tr:contains(/home/foo)", "Not mounted")
+        b.wait_present("#detail-header button:contains(Mount)")
 
 if __name__ == '__main__':
     test_main()

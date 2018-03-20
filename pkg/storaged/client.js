@@ -507,7 +507,9 @@
             mount_entry: mount_entry,
             unmount_entry: unmount_entry,
             stop_and_unmount_entry: stop_and_unmount_entry,
-            stop_and_remove_entry: stop_and_remove_entry
+            stop_and_remove_entry: stop_and_remove_entry,
+
+            find_entry: find_entry
         };
 
         function spawn_nfs_mounts(args) {
@@ -589,6 +591,13 @@
 
         function entry_users(entry) {
             return spawn_nfs_mounts([ "users", JSON.stringify(entry) ]).then(JSON.parse);
+        }
+
+        function find_entry(remote, local) {
+            for (var i = 0; i < self.entries.length; i++) {
+                if (self.entries[i].fields[0] == remote && self.entries[i].fields[1] == local)
+                    return self.entries[i];
+            }
         }
 
         return self;

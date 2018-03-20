@@ -60,12 +60,12 @@ class TestStorage(StorageCase):
         self.browser.click('#detail-sidebar tr:contains("%s") button' % name)
 
     def raid_action(self, action):
-        self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
+        self.browser.click('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
 
     def raid_default_action(self, action):
         def do_click():
-            self.browser.wait_action_btn ('.panel-heading:contains("RAID Device") .btn-group', action)
-            self.browser.click_action_btn ('.panel-heading:contains("RAID Device") .btn-group')
+            self.browser.wait_present('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
+            self.browser.click('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
 
         do_click()
 

@@ -21,7 +21,7 @@ addons:
     project:
       name: "cockpit-project/cockpit"
       description: "Build submitted via Travis CI"
-    notification_email: dperpeet@redhat.com
+    notification_email: mpitt@redhat.com
     build_command_prepend: "COV_BUILD_OPTIONS='--fs-capture-search pkg --fs-capture-search src --fs-capture-search test --fs-capture-search dist' && ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp"
     build_command: "make -j all"
     branch_pattern: master

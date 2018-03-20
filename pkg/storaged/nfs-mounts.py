@@ -14,6 +14,7 @@ import re
 import sys
 import json
 import errno
+import time
 
 class Watcher:
     def __init__(self, path):
@@ -214,6 +215,9 @@ def fuser(entry):
     mount_point = entry["fields"][1]
     results = { }
 
+    def get_cmdline(pid):
+        return " ".join(open("/proc/%s/cmdline" % pid).read().split("\0"))
+
     def check(path, pid):
         t = os.readlink(path)
         if t == mount_point or t.startswith(mount_point + "/"):
@@ -224,7 +228,10 @@ def fuser(entry):
                                     dbus_interface="org.freedesktop.DBus.Properties")
                 id = unit_obj.Get("org.freedesktop.systemd1.Unit", "Id",
                                   dbus_interface="org.freedesktop.DBus.Properties")
-                results[unit] = { "unit": id, "desc": desc }
+                timestamp = unit_obj.Get("org.freedesktop.systemd1.Unit", "ActiveEnterTimestamp",
+                                         dbus_interface="org.freedesktop.DBus.Properties")
+                results[unit] = { "unit": id, "desc": desc, "since": time.time() - timestamp / 1e6,
+                                  "cmd": get_cmdline(pid) }
             return True
         return False
 

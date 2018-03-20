@@ -585,18 +585,30 @@ td.storage-action {
     overflow: visible !important;
 }
 
-.nfs-users-table {
-    max-height: 200px;
-    overflow-y: auto;
+.units-table .cmd {
+    font-family: monospace;
 }
 
-.nfs-users-table table {
-    width: 100%;
+.units-table > tbody > tr > td:nth-child(1),
+.units-table > thead > tr > th:nth-child(1) {
+    border-right: none;
+    white-space: nowrap;
+    width: 1%;
 }
 
-.nfs-users-table td:nth-child(2) {
-    padding-left: 0.75em;
-    width: 80%;
+.units-table > tbody > tr > td:nth-child(2),
+.units-table > thead > tr > th:nth-child(2) {
+    border-left: none;
+    border-right: none;
+    word-break: break-all;
+}
+
+.units-table > tbody > tr > td:nth-child(3),
+.units-table > thead > tr > th:nth-child(3) {
+    text-align: right;
+    border-left: none;
+    white-space: nowrap;
+    width: 1%;
 }
 
 .form-table-ct .combobox-container .input-group {

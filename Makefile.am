@@ -7,6 +7,8 @@ EXTRA_DIST = \
 	$(PACKAGE).spec \
 	$(PACKAGE).spec.in \
 	AUTHORS.in \
+	HACKING.md \
+	README.md \
 	$(NULL)
 
 DISTCLEAN_FILES = $(PACKAGE).spec

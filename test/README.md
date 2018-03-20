@@ -176,7 +176,17 @@ The `test/containers/` tests use the same VMs as the above `test/verify/` ones.
 But they don't have a separate "prepare" step/script; instead, the first time
 you run `test/containers/run-tests` you need to use the `-i` option to
 build/install cockpit into the test VM. This needs to be done with a compatible
-`TEST_OS` (usually a recent "fedora-*").
+`TEST_OS` (usually a recent `fedora-*`).
+
+The third class of integration tests use avocado and selenium to cover
+different browsers:
+
+    $ bots/image-download selenium
+    $ bots/image-prepare fedora-28
+    $ TEST_OS=fedora-28 test/avocado/run-tests --selenium-tests --browser=firefox -v
+
+Currently, these tests run on Fedora 28. Other images don't have selenium and
+avocado installed.
 
 ## Debugging tests
 

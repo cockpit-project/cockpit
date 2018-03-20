@@ -93,7 +93,7 @@ class TestStorage(StorageCase):
         # Stop
 
         b.wait_present('#detail-content table')
-        b.click_action_btn('.panel-heading:contains("VDO") .btn-group', "Stop")
+        b.click('.panel-heading:contains("VDO") button:contains("Stop")')
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_apply()
@@ -102,7 +102,7 @@ class TestStorage(StorageCase):
 
         # Delete
 
-        b.click_action_btn('.panel-heading:contains("VDO") .btn-group', "Delete")
+        b.click('.panel-heading:contains("VDO") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         b.wait_not_in_text("#vdos", "vdo0")

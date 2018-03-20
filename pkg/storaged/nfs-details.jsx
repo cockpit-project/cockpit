@@ -17,9 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import "polyfills";
+
 import cockpit from "cockpit";
 import React from "react";
 import $ from "jquery";
+import moment from "moment";
 
 import dialog from "./dialog.js";
 import format from "./format-dialog.jsx";
@@ -41,10 +44,22 @@ function nfs_busy_dialog(client,
             $('#error-popup-message').text(error.toString());
             $('#error-popup').modal('show');
         } else {
+            let sessions = [ ], services = [ ];
+            users.forEach((u) => {
+                var since = moment.duration(-u.since*1000).humanize(true);
+                if (u.unit.endsWith(".scope")) {
+                    sessions.push({ Name: u.desc, Command: u.cmd.substr(0, 200), Since: since });
+                } else {
+                    services.push({ Name: u.desc, Unit: u.unit, Since: since });
+                }
+            });
+
             dialog.open({ Title: dialog_title,
                           Teardown: {
-                              HasUnits: true,
-                              Units: users.map(function (u) { return { Unit: u.unit, Name: u.desc }; })
+                              HasSessions: sessions.length > 0,
+                              Sessions: sessions,
+                              HasServices: services.length > 0,
+                              Services: services
                           },
                           Fields: [ ],
                           Action: users? {

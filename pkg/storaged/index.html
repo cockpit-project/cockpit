@@ -348,15 +348,62 @@
                 {{/MDRaidMembers}}
               </table>
               {{/HasMDRaidMembers}}
-              {{#HasUnits}}
-              <p translate>The filesystem is in use by system services or login sessions.<br>
-                Proceeding will stop these services and sessions.</p>
-              <table class="table table-bordered">
-                {{#Units}}
-                <tr><td><span class="pull-right">{{Name}}</span>{{Unit}}</td></tr>
-                {{/Units}}
+              {{#HasSessions}}
+              {{#HasServices}}
+              <p translate>The filesystem is in use by login sessions and system services.<br>
+                Proceeding will stop these.</p>
+              {{/HasServices}}
+              {{^HasServices}}
+              <p translate>The filesystem is in use by login sessions.<br>
+                Proceeding will stop these.</p>
+              {{/HasServices}}
+              {{/HasSessions}}
+              {{^HasSessions}}
+              {{#HasServices}}
+              <p translate>The filesystem is in use by system services.<br>
+                Proceeding will stop these.</p>
+              {{/HasServices}}
+              {{/HasSessions}}
+              {{#HasSessions}}
+              <table class="table table-bordered units-table">
+                <thead>
+                  <tr>
+                    <th translate>Session</th>
+                    <th translate>Process</th>
+                    <th translate>Active since</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#Sessions}}
+                  <tr>
+                    <td>{{Name}}</td>
+                    <td class="cmd">{{Command}}</td>
+                    <td>{{Since}}</td>
+                  </tr>
+                  {{/Sessions}}
+                </tbody>
               </table>
-              {{/HasUnits}}
+              {{/HasSessions}}
+              {{#HasServices}}
+              <table class="table table-bordered units-table">
+                <thead>
+                  <tr>
+                    <th translate>Service</th>
+                    <th translate>Unit</th>
+                    <th translate>Active since</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#Services}}
+                  <tr>
+                    <td>{{Name}}</td>
+                    <td>{{Unit}}</td>
+                    <td>{{Since}}</td>
+                  </tr>
+                  {{/Services}}
+                </tbody>
+              </table>
+              {{/HasServices}}
             </div>
             {{/Teardown}}
             {{#Action}}

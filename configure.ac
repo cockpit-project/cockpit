@@ -73,6 +73,8 @@ LIBVIRT_ARG_WITH([SYSTEM_USER], [username to run system instance as],
 SYSTEM_USER=$with_system_user
 AC_SUBST([SYSTEM_USER])
 
+AC_CONFIG_FILES([run],
+                [chmod +x,-w run])
 AC_OUTPUT(Makefile
           data/Makefile
           src/Makefile

@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# With this script you can run libvirt-dbus daemon without needing to
+# install it first.  You just have to do for example:
+#
+#   ./run ./src/libvirt-dbus [args ...]
+#
+# You can also run libvirt-dbus under valgrind like this:
+#
+#   ./run valgrind [valgrind args ...] ./src/libvirt-dbus [args ...]
+#
+# or under gdb:
+#
+#   ./run gdb --args ./src/libvirt-dbus [args ...]
+#
+
+# Find this script
+b=@abs_tob_builddir@
+
+export VIRT_DBUS_INTERFACES_DIR="$b/data"
+
+exec "$@"

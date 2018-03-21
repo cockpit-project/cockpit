@@ -157,7 +157,11 @@ class TestUpdates(PackageCase):
             b.go("/system")
             b.enter_page("/system")
             self.wait_checking_updates()
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+            # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+            if self.backend == "dnf":
+                b.wait_text("#system_information_updates_text", "Updates Available")
+            else:
+                b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
             self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
             # should be a link, click on it to go to /updates
             b.click("#system_information_updates_text a")
@@ -312,11 +316,18 @@ class TestUpdates(PackageCase):
             b.go("/system")
             b.enter_page("/system")
             self.wait_checking_updates()
-            # PackageKit's dnf backend mis-parses severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-            # and PackageKit's deb backend does not know about severity at all, so only test this on RPM
-            if self.backend == 'yum':
+            if self.backend == 'dnf':
+                # PackageKit's dnf backend mis-parses severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+                b.wait_text("#system_information_updates_text", "Updates Available")
+                self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
+            elif self.backend == 'apt':
+                # PackageKit's deb backend always reports "normal"
+                b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+                self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
+            else:
                 b.wait_text("#system_information_updates_text", "Security Updates Available")
                 self.assertIn("security", b.attr("#system_information_updates_icon", "class"))
+
             # should be a link, click on it to go to back to /updates
             b.click("#system_information_updates_text a")
             b.enter_page("/updates")

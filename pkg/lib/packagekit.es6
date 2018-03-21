@@ -28,6 +28,7 @@ export const Enum = {
     EXIT_CANCELLED: 3,
     ROLE_REFRESH_CACHE: 13,
     ROLE_UPDATE_PACKAGES: 22,
+    INFO_UNKNOWN: -1,
     INFO_LOW: 3,
     INFO_ENHANCEMENT: 4,
     INFO_NORMAL: 5,

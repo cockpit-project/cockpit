@@ -104,5 +104,9 @@ virtDBusGDBusRegisterSubtree(GDBusConnection *bus,
                              virtDBusGDBusPropertyTable *properties,
                              gpointer userData);
 
+gboolean
+virtDBusGDBusPrepareThreadPool(gint maxThreads,
+                               GError **error);
+
 G_DEFINE_AUTO_CLEANUP_FREE_FUNC(virtDBusGDBusSource, g_source_remove, 0);
 G_DEFINE_AUTO_CLEANUP_FREE_FUNC(virtDBusGDBusOwner, g_bus_unown_name, 0);

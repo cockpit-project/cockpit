@@ -14,6 +14,7 @@ struct virtDBusConnect {
     const gchar *connectPath;
     gchar *domainPath;
     virConnectPtr connection;
+    GMutex lock;
 
     gint callback_ids[VIR_DOMAIN_EVENT_ID_LAST];
 };

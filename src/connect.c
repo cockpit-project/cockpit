@@ -56,6 +56,8 @@ gboolean
 virtDBusConnectOpen(virtDBusConnect *connect,
                     GError **error)
 {
+    g_autoptr(GMutexLocker) lock = g_mutex_locker_new(&connect->lock);
+
     if (connect->connection) {
         if (virConnectIsAlive(connect->connection))
             return TRUE;
@@ -212,6 +214,8 @@ virtDBusConnectNew(virtDBusConnect **connectp,
     }
 
     connect = g_new0(virtDBusConnect, 1);
+
+    g_mutex_init(&connect->lock);
 
     for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1)
         connect->callback_ids[i] = -1;

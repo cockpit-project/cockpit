@@ -89,11 +89,14 @@ virtDBusRegisterDataFree(virtDBusRegisterData *data)
 }
 G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(virtDBusRegisterData, virtDBusRegisterDataFree);
 
+#define VIRT_DBUS_MAX_THREADS 4
+
 int
 main(gint argc, gchar *argv[])
 {
     static gboolean systemOpt = FALSE;
     static gboolean sessionOpt = FALSE;
+    static gint maxThreads = VIRT_DBUS_MAX_THREADS;
     GBusType busType;
     g_auto(virtDBusGDBusSource) sigintSource = 0;
     g_auto(virtDBusGDBusSource) sigtermSource = 0;
@@ -108,6 +111,8 @@ main(gint argc, gchar *argv[])
             "Connect to the system bus", NULL },
         { "session", 0, 0, G_OPTION_ARG_NONE, &sessionOpt,
             "Connect to the session bus", NULL },
+        { "threads", 't', 0, G_OPTION_ARG_INT, &maxThreads,
+            "Configure maximal number of worker threads", "N" },
         { NULL }
     };
 
@@ -144,6 +149,11 @@ main(gint argc, gchar *argv[])
         data.ndrivers = G_N_ELEMENTS(sessionDrivers);
     }
     data.connectList = g_new0(virtDBusConnect *, data.ndrivers + 1);
+
+    if (!virtDBusGDBusPrepareThreadPool(maxThreads, &error)) {
+        g_printerr("%s\n", error->message);
+        exit(EXIT_FAILURE);
+    }
 
     loop = g_main_loop_new(NULL, FALSE);
 

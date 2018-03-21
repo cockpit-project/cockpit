@@ -261,10 +261,6 @@ export class MDRaidDetails extends React.Component {
             return mdraid.Stop({});
         }
 
-        function start_scrub() {
-            return mdraid.RequestSyncAction("repair", {});
-        }
-
         function delete_dialog() {
             var location = cockpit.location;
 
@@ -325,8 +321,6 @@ export class MDRaidDetails extends React.Component {
                           ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
                           : <StorageButton onClick={start}>{_("Start")}</StorageButton>
                         }
-                        { "\n" }
-                        <StorageButton onClick={start_scrub}>{_("Scrub")}</StorageButton>
                         { "\n" }
                         <StorageButton kind="danger" onClick={delete_dialog}>{_("Delete")}</StorageButton>
                     </span>

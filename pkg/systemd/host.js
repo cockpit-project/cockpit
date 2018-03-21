@@ -403,13 +403,16 @@ PageServer.prototype = {
             // show highest severity level
             var severity = infos[infos.length - 1];
             var text;
-            self.os_updates_icon.className = packagekit.getSeverityIcon(severity);
+            self.os_updates_icon.className = packagekit.getSeverityIcon(
+                severity > packagekit.Enum.INFO_UNKNOWN ? severity : packagekit.Enum.INFO_NORMAL);
             if (severity == packagekit.Enum.INFO_SECURITY)
                 text = _("Security Updates Available");
             else if (severity >= packagekit.Enum.INFO_NORMAL)
                 text = _("Bug Fix Updates Available");
-            else
+            else if (severity >= packagekit.Enum.INFO_LOW)
                 text = _("Enhancement Updates Available");
+            else
+                text = _("Updates Available");
 
             set_page_link("#system_information_updates_text", "updates", text);
         }
@@ -428,9 +431,9 @@ PageServer.prototype = {
                 },
                 {
                     Package: function (info) {
-                        // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+                        // dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
                         if (info < packagekit.Enum.INFO_LOW || info > packagekit.Enum.INFO_SECURITY)
-                            info = packagekit.Enum.INFO_NORMAL;
+                            info = packagekit.Enum.INFO_UNKNOWN;
                         self.os_updates[info] = (self.os_updates[info] || 0) + 1;
                     }
                 })

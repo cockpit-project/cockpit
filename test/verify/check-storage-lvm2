@@ -216,7 +216,7 @@ class TestStorage(StorageCase):
         self.wait_in_storaged_configuration(mount_point_thin)
 
         # remove volume group
-        b.click_action_btn('.panel-heading:contains("Volume Group") .btn-group', "Delete")
+        b.click('.panel-heading:contains("Volume Group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")

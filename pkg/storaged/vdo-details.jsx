@@ -23,7 +23,7 @@ import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } fr
 import dialog from "./dialog.js";
 import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
-import { StorageButton, StorageOnOff, StorageMultiAction, StorageBlockNavLink } from "./storage-controls.jsx";
+import { StorageButton, StorageOnOff, StorageBlockNavLink } from "./storage-controls.jsx";
 
 import inotify_py from "raw!inotify.py";
 import vdo_monitor_py from "raw!./vdo-monitor.py";
@@ -234,12 +234,6 @@ export class VDODetails extends React.Component {
             });
         }
 
-        var actions = [
-            { title: _("Start"), action: vdo.start },
-            { title: _("Stop"), action: stop },
-            { title: _("Delete"), action: delete_ }
-        ];
-
         function fmt_perc(num) {
             if (num || num == 0)
                 return num + "%";
@@ -254,7 +248,12 @@ export class VDODetails extends React.Component {
                 <div className="panel-heading">
                     {cockpit.format(_("VDO Device $0"), vdo.name)}
                     <span className="pull-right">
-                        <StorageMultiAction actions={actions} default={block? 1 : 0}/>
+                        { block
+                          ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
+                          : <StorageButton onClick={vdo.start}>{_("Start")}</StorageButton>
+                        }
+                        { "\n" }
+                        <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
                     </span>
                 </div>
                 <div className="panel-body">

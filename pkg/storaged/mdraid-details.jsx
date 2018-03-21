@@ -22,7 +22,7 @@ import React from "react";
 import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
-import { StorageButton, StorageBlockNavLink, StorageMultiAction, StorageOnOff } from "./storage-controls.jsx";
+import { StorageButton, StorageBlockNavLink, StorageOnOff } from "./storage-controls.jsx";
 import dialog from "./dialog.js";
 
 const _ = cockpit.gettext;
@@ -261,14 +261,6 @@ export class MDRaidDetails extends React.Component {
             return mdraid.Stop({});
         }
 
-        function start_scrub() {
-            return mdraid.RequestSyncAction("repair", {});
-        }
-
-        function stop_scrub() {
-            return mdraid.RequestSyncAction("idle", {});
-        }
-
         function delete_dialog() {
             var location = cockpit.location;
 
@@ -320,20 +312,17 @@ export class MDRaidDetails extends React.Component {
             });
         }
 
-        var actions = [
-            { title: _("Start"),           action: start },
-            { title: _("Stop"),            action: stop },
-            { title: _("Start Scrubbing"), action: start_scrub },
-            { title: _("Stop Scrubbing"),  action: stop_scrub },
-            { title: _("Delete"),          action: delete_dialog }
-        ];
-
         var header = (
             <div className="panel panel-default">
                 <div className="panel-heading">
                     { cockpit.format(_("RAID Device $0"), utils.mdraid_name(mdraid)) }
                     <span className="pull-right">
-                        <StorageMultiAction actions={actions} default={running? 1 : 0}/>
+                        { running
+                          ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
+                          : <StorageButton onClick={start}>{_("Start")}</StorageButton>
+                        }
+                        { "\n" }
+                        <StorageButton kind="danger" onClick={delete_dialog}>{_("Delete")}</StorageButton>
                     </span>
                 </div>
                 <div className="panel-body">

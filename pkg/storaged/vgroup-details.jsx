@@ -22,7 +22,7 @@ import React from "react";
 import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
-import { StorageButton, StorageBlockNavLink, StorageMultiAction } from "./storage-controls.jsx";
+import { StorageButton, StorageBlockNavLink } from "./storage-controls.jsx";
 import dialog from "./dialog.js";
 
 const _ = cockpit.gettext;
@@ -228,17 +228,14 @@ export class VGroupDetails extends React.Component {
             });
         }
 
-        var actions = [
-            { title: _("Rename"), action: rename },
-            { title: _("Delete"), action: delete_ }
-        ];
-
         var header = (
             <div className="panel panel-default">
                 <div className="panel-heading">
                     {cockpit.format(_("Volume Group $0"), vgroup.Name)}
                     <span className="pull-right">
-                        <StorageMultiAction actions={actions} default={0}/>
+                        <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
+                        { "\n" }
+                        <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
                     </span>
                 </div>
                 <div className="panel-body">

@@ -278,7 +278,7 @@
         /* ComboBoxes
          */
 
-        $dialog.on("click", ".combobox-container .caret", function(ev) {
+        $dialog.on("click", ".combobox-container .input-group-addon", function(ev) {
             $(this).parents(".input-group").toggleClass("open");
         });
 
@@ -287,12 +287,17 @@
             $(this).parents(".input-group").removeClass("open");
         });
 
+        var set_choices_counter = 0;
+
         function combobox_set_choices(name, choices) {
             if (typeof choices == 'function') {
-                $.when(choices(get_field_values())).then(function (result) {
-                    if (result !== false)
-                        combobox_set_choices(name, result);
-                });
+                set_choices_counter += 1;
+                var count = set_choices_counter;
+                choices(get_field_values(),
+                        function (ch) {
+                            if (count == set_choices_counter)
+                                combobox_set_choices(name, ch);
+                        });
                 return;
             }
 
@@ -301,12 +306,12 @@
             $ul.empty().append(choices.map(function (c) {
                 return $('<li>').append($('<a>').text(c));
             }));
-            $f.find(".caret").toggle(choices.length > 0);
+            $f.find(".input-group-addon").toggle(choices.length > 0);
         }
 
         var combobox_some_dynamic = false;
 
-        $dialog.find(".combobox-container .caret").hide();
+        $dialog.find(".combobox-container .input-group-addon").hide();
         def.Fields.forEach(function (f) {
             if (f.ComboBox) {
                 if (typeof f.Choices == 'function')

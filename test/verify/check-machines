@@ -137,6 +137,7 @@ VOLUME_XML="""
 # rmmod kvm-intel && modprobe kvm-intel || true
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
+@skipImage("missing libvirt dependencies", "rhel-8")
 class TestMachines(MachineCase):
     created_pool = False
 

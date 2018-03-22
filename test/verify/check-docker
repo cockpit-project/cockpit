@@ -533,7 +533,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-25", "fedora-26", "fedora-i386", "rhel-7-4", "rhel-7-5")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8")
     def testContainerProblems(self):
         b = self.browser
         m = self.machine

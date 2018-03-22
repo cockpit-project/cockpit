@@ -80,7 +80,7 @@ class TestStorage(StorageCase):
         check_type("xfs")
         check_type("ext4")
         check_type("vfat")
-        if m.image in [ "rhel-7", "rhel-7-4", "rhel-7-5", "centos-7" ]:
+        if m.image in [ "rhel-7", "rhel-7-4", "rhel-7-5", "centos-7", "rhel-8" ]:
             check_unsupported_type("ntfs")
         else:
             check_type("ntfs")

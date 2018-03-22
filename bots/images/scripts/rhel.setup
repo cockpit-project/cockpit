@@ -25,7 +25,8 @@ df -Th /
 # subscriptions, adding repos, deleting existing entries
 SKIP_REPO_FLAG="/root/.skip_repos"
 
-if [ ! -f "$SKIP_REPO_FLAG" ]; then
+# on RHEL-8 nightlies, subscription-manager is not installed by default; we also don't need a subscription
+if [ "$IMAGE" != "rhel-8" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Remove any internal files
     rm -f /etc/yum.repos.d/download.devel.redhat.com.repo
 
@@ -61,6 +62,20 @@ EOF
         # disable all default repos as they don't exist yet
         sed -i 's/enabled = 1/enabled = 0/' /etc/yum.repos.d/redhat.repo
         yum -y install yum-utils
+    elif [ "$IMAGE" = "rhel-8" ]; then
+cat <<EOF > /etc/yum.repos.d/nightly.repo
+[RHEL-8-NIGHTLY-BaseOS]
+name=baseos
+baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-8/compose/BaseOS/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[RHEL-8-NIGHTLY-AppStream]
+name=appstream
+baseurl=http://download.eng.bos.redhat.com/nightly/latest-AppStream-8/compose/AppStream/x86_64/os/
+enabled=1
+gpgcheck=0
+EOF
     else
         # if disabling the repos doesn't work, do without
         yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
@@ -125,13 +140,28 @@ cryptsetup \
 qemu-kvm \
 "
 
-# RHEL 7.5 renamed/dropped/added some packages
-if [ "$IMAGE" = "rhel-7-5" ]; then
-    UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
-    TEST_PACKAGES="${TEST_PACKAGES/systemtap-runtime-virtguest /}"
-    COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
-else
+if [ "$IMAGE" = "rhel-7" ] || [ "$IMAGE" = "rhel-7-4" ]; then
     UDISKS="storaged storaged-lvm2 storaged-iscsi"
+    TEST_PACKAGES="$TEST_PACKAGES systemtap-runtime-virtguest"
+else
+    UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
+fi
+if [ "$IMAGE" = "rhel-7-5" ]; then
+    COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
+fi
+if [ "$IMAGE" = "rhel-8" ]; then
+    TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
+    # some packages are still missing from RHEL 8
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1559810
+    UDISKS="${UDISKS/udisks2-lvm2 /}"
+    UDISKS="${UDISKS/udisks2-iscsi/}"
+    COCKPIT_DEPS="${COCKPIT_DEPS/libvirt /}"
+    COCKPIT_DEPS="${COCKPIT_DEPS/libvirt-client /}"
+    COCKPIT_DEPS="${COCKPIT_DEPS/kubernetes /}"
+    TEST_PACKAGES="${TEST_PACKAGES/virt-install /}"
+    TEST_PACKAGES="${TEST_PACKAGES/qemu-kvm /}"
+    # HACK: recommends are missing in repodata (https://bugzilla.redhat.com/show_bug.cgi?id=1559839)
+    COCKPIT_DEPS="$COCKPIT_DEPS cracklib-dicts libsss_sudo nmap-ncat"
 fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS $UDISKS"
@@ -195,7 +225,7 @@ fi
 yum clean all || true
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
-    subscription-manager unregister
+    [ "$IMAGE" = "rhel-8" ] || subscription-manager unregister
 fi
 
 # For the D-Bus test server
@@ -215,7 +245,9 @@ echo foobar | passwd --stdin admin
 mkdir -p /var/log/journal
 
 # Configure kubernetes
-/var/lib/testvm/kubernetes.setup
+if [ -d /etc/kubernetes ]; then
+    /var/lib/testvm/kubernetes.setup
+fi
 
 if type "docker" >/dev/null 2>&1; then
     # HACK: docker fails without /etc/resolv.conf
